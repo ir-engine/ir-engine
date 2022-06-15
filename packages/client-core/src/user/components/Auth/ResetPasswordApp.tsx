@@ -18,8 +18,7 @@ interface Props {
   completeAction: () => void
 }
 
-export const ResetPassword = (props: Props): JSX.Element => {
-  const { token, completeAction } = props
+export const ResetPassword = ({ token, completeAction }: Props): JSX.Element => {
   const initialState = { password: '', isSubmitted: false }
   const [state, setState] = useState(initialState)
   const { t } = useTranslation()

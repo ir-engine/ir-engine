@@ -14,9 +14,8 @@ import UserSettings from './UserSettings'
 
 interface Props {
   open: boolean
-  handleClose: () => void
   avatarUrl?: string
-  //auth: any
+  handleClose: () => void
 }
 
 interface TabProps {
@@ -25,9 +24,11 @@ interface TabProps {
   children: JSX.Element
 }
 
-const TabPanel = (props: TabProps): JSX.Element => <Fragment>{props.value === props.index && props.children}</Fragment>
+const TabPanel = ({ value, index, children }: TabProps): JSX.Element => (
+  <Fragment>{value === index && children}</Fragment>
+)
 
-const ProfileModal = (props: Props): JSX.Element => {
+const ProfileModal = ({ open, avatarUrl, handleClose }: Props): JSX.Element => {
   const [tabIndex, setTabIndex] = useState(0)
   const { t } = useTranslation()
 
@@ -37,7 +38,7 @@ const ProfileModal = (props: Props): JSX.Element => {
   }
   const avatar = (
     <TabPanel value={tabIndex} index={0}>
-      <UserProfile avatarUrl={props.avatarUrl} />
+      <UserProfile avatarUrl={avatarUrl} />
     </TabPanel>
   )
   const settings = (
@@ -51,11 +52,11 @@ const ProfileModal = (props: Props): JSX.Element => {
         aria-labelledby="transition-modal-title"
         aria-describedby="transition-modal-description"
         className={styles.modal}
-        open={props.open}
-        onClose={props.handleClose}
+        open={open}
+        onClose={handleClose}
         closeAfterTransition
       >
-        <Fade in={props.open}>
+        <Fade in={open}>
           <div
             className={classNames({
               [styles.paper]: true,
@@ -75,7 +76,6 @@ const ProfileModal = (props: Props): JSX.Element => {
             </Tabs>
             {avatar}
             {settings}
-            {/* {account} */}
           </div>
         </Fade>
       </Modal>

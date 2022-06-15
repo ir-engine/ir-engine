@@ -11,8 +11,7 @@ import { AdminPartyService, PARTY_PAGE_LIMIT, usePartyState } from '../../servic
 import styles from '../../styles/admin.module.scss'
 import ViewParty from './ViewParty'
 
-const PartyTable = (props: PartyPropsTable) => {
-  const { search } = props
+const PartyTable = ({ search }: PartyPropsTable) => {
   const { t } = useTranslation()
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(PARTY_PAGE_LIMIT)

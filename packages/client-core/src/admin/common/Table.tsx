@@ -83,8 +83,7 @@ interface EnhancedTableProps {
   columns: HeadCell[]
 }
 
-const EnhancedTableHead = (props: EnhancedTableProps) => {
-  const { order, orderBy, onRequestSort, columns } = props
+const EnhancedTableHead = ({ order, orderBy, onRequestSort, columns }: EnhancedTableProps) => {
   const createSortHandler = (property: keyof Data) => (event: React.MouseEvent<unknown>) => {
     onRequestSort(event, property)
   }
@@ -125,20 +124,19 @@ const EnhancedTableHead = (props: EnhancedTableProps) => {
   )
 }
 
-const TableComponent = (props: Props) => {
-  const {
-    rows,
-    column,
-    page,
-    rowsPerPage,
-    count,
-    fieldOrder,
-    allowSort,
-    setSortField,
-    setFieldOrder,
-    handlePageChange,
-    handleRowsPerPageChange
-  } = props
+const TableComponent = ({
+  rows,
+  column,
+  page,
+  rowsPerPage,
+  count,
+  fieldOrder,
+  allowSort,
+  setSortField,
+  setFieldOrder,
+  handlePageChange,
+  handleRowsPerPageChange
+}: Props) => {
   const [order, setOrder] = React.useState<Order>(fieldOrder === 'desc' ? 'desc' : 'asc')
   const [orderBy, setOrderBy] = React.useState<keyof Data>(column[0].id)
   const handleRequestSort = (event: React.MouseEvent<unknown>, property: keyof Data) => {

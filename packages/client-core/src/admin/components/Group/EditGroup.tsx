@@ -26,8 +26,7 @@ interface ScopeData {
   type: string
 }
 
-const EditGroup = (props: Props) => {
-  const { groupAdmin, closeEditModal, closeViewModal } = props
+const EditGroup = ({ groupAdmin, closeEditModal, closeViewModal }: Props) => {
   const user = useAuthState().user
   const adminScopeTypeState = useScopeTypeState()
   const { t } = useTranslation()

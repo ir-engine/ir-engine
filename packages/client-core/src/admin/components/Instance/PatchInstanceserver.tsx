@@ -19,8 +19,7 @@ interface Props {
   closeViewModal?: any
 }
 
-const PatchInstanceserver = (props: Props) => {
-  const { open, handleClose, closeViewModal } = props
+const PatchInstanceserver = ({ open, handleClose, closeViewModal }: Props) => {
   const [state, setState] = React.useState({
     location: '',
     locationError: ''

@@ -21,9 +21,8 @@ interface Props {
   search: string
 }
 
-const AvatarTable = (props: Props) => {
+const AvatarTable = ({ search }: Props) => {
   const adminAvatarState = useAdminAvatarState()
-  const { search } = props
   const authState = useAuthState()
   const user = authState.user
   const adminAvatars = adminAvatarState.avatars

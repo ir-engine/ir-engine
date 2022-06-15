@@ -9,16 +9,15 @@ import Typography from '@mui/material/Typography'
 import styles from '../styles/admin.module.scss'
 
 interface Props {
-  handleClose: () => void
   open: boolean
   children: JSX.Element | JSX.Element[]
   text: string
   action: string
+  handleClose: () => void
   submit: () => void
 }
 
-const CreateModal = (props: Props) => {
-  const { open, handleClose, children, action, text, submit } = props
+const CreateModal = ({ open, children, action, text, handleClose, submit }: Props) => {
   const { t } = useTranslation()
 
   return (

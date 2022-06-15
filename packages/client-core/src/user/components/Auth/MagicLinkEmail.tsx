@@ -43,9 +43,7 @@ const defaultState = {
 
 const termsOfService = globalThis.process.env['VITE_TERMS_OF_SERVICE_ADDRESS'] ?? '/terms-of-service'
 
-const MagicLinkEmail = (props: Props): JSX.Element => {
-  const { type, isAddConnection } = props
-
+const MagicLinkEmail = ({ type, isAddConnection }: Props): JSX.Element => {
   const auth = useAuthState()
   const [state, setState] = useState(defaultState)
   const { t } = useTranslation()

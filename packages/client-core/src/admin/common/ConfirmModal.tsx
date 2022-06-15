@@ -19,9 +19,9 @@ interface Props {
   onSubmit: () => void
 }
 
-const ConfirmModal = (props: Props) => {
+const ConfirmModal = ({ open, description, processing, onClose, onSubmit }: Props) => {
   const { t } = useTranslation()
-  const { open, description, processing, onClose, onSubmit } = props
+
   return (
     <Modal open={open} onClose={onClose} className={styles.modal} closeAfterTransition>
       <Fade in={open}>

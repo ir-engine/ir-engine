@@ -127,7 +127,7 @@ const FlatSignIn = (props: Props) => {
     case 'reset-password':
       component = (
         <>
-          <ResetPassword resetPassword={handleResetPassword} token={''} />
+          <ResetPassword resetPassword={handleResetPassword} />
           <span className={styles.placeholder} />
         </>
       )

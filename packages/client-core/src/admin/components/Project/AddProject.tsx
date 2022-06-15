@@ -24,8 +24,7 @@ interface Props {
   onClose: () => void
 }
 
-const AddProject = (props: Props) => {
-  const { open, repos, onClose } = props
+const AddProject = ({ open, repos, onClose }: Props) => {
   const [processing, setProcessing] = useState(false)
   const [projectURL, setProjectURL] = useState('')
   const [isPublicUrl, setIsPublicUrl] = useState(false)

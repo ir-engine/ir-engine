@@ -12,11 +12,9 @@ import styles from './index.module.scss'
 
 interface Props {
   avatarUrl?: string
-  //auth: any
 }
 
-const UserProfile = (props: Props): JSX.Element => {
-  //const { auth } = props
+const UserProfile = ({ avatarUrl }: Props): JSX.Element => {
   const user = useAuthState().user
   const { t } = useTranslation()
   const [file, setFile] = useState({})
@@ -85,9 +83,9 @@ const UserProfile = (props: Props): JSX.Element => {
               [styles['max-size-200']]: true
             })}
           />
-        ) : props.avatarUrl ? (
+        ) : avatarUrl ? (
           <img
-            src={props.avatarUrl}
+            src={avatarUrl}
             className={classNames({
               [styles.rounded]: true,
               [styles['mx-auto']]: true,

@@ -6,9 +6,7 @@ interface DemoStyleProps {
   theme: ThemeOptions
 }
 
-const DemoStyle = (props: DemoStyleProps) => {
-  const theme = props.theme
-
+const DemoStyle = ({ theme }: DemoStyleProps) => {
   return (
     <style>
       {`

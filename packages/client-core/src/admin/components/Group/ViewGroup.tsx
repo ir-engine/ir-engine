@@ -26,8 +26,7 @@ interface Props {
   openView: boolean
 }
 
-const ViewGroup = (props: Props) => {
-  const { openView, groupAdmin, closeViewModal } = props
+const ViewGroup = ({ openView, groupAdmin, closeViewModal }: Props) => {
   const [editMode, setEditMode] = useState(false)
   const { t } = useTranslation()
 

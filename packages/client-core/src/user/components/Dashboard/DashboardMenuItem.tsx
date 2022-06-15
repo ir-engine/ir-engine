@@ -17,8 +17,7 @@ interface Props {
   location: any
 }
 
-const DashboardMenuItem = (props: Props) => {
-  const { location } = props
+const DashboardMenuItem = ({ location }: Props) => {
   const { pathname } = location
   const scopes = useAuthState().user?.scopes?.value || []
   const { t } = useTranslation()

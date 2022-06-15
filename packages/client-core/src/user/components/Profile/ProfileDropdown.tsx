@@ -21,9 +21,8 @@ interface Props {
   //auth: any
 }
 
-const MenuListComposition = (props: Props): JSX.Element => {
+const MenuListComposition = ({ avatarUrl, logoutUser }: Props): JSX.Element => {
   const history = useHistory()
-  const { avatarUrl, logoutUser } = props
   const [open, setOpen] = useState(false)
   const [modalOpen, setModalOpen] = useState(false)
   const anchorRef = useRef<HTMLButtonElement>(null)

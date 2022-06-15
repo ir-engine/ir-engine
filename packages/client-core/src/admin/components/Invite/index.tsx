@@ -22,16 +22,13 @@ interface TabPanelProps {
   value: number
 }
 
-const TabPanel = (props: TabPanelProps) => {
-  const { children, value, index, ...other } = props
-
+const TabPanel = ({ children, value, index }: TabPanelProps) => {
   return (
     <div
       role="tabpanel"
       hidden={value !== index}
       id={`simple-tabpanel-${index}`}
       aria-labelledby={`simple-tab-${index}`}
-      {...other}
     >
       {value === index && (
         <Box p={3} className={styles.tabpanelRoot}>

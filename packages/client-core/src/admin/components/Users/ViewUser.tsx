@@ -40,8 +40,7 @@ interface ScopeData {
   type: string
 }
 
-const ViewUser = (props: Props) => {
-  const { openView, closeViewModal, userAdmin } = props
+const ViewUser = ({ openView, closeViewModal, userAdmin }: Props) => {
   const [editMode, setEditMode] = useState(false)
   const [refetch, setRefetch] = useState(0)
   const { t } = useTranslation()

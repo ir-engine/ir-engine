@@ -10,11 +10,7 @@ import Typography from '@mui/material/Typography'
 import { AuthService } from '../../services/AuthService'
 import styles from './index.module.scss'
 
-interface Props {
-  //classes: any
-}
-
-const ForgotPasswordComponent = (props: Props): any => {
+const ForgotPassword = () => {
   const [state, setState] = useState({ email: '', isSubmitted: false })
   const { t } = useTranslation()
 
@@ -77,6 +73,4 @@ const ForgotPasswordComponent = (props: Props): any => {
   )
 }
 
-const ForgotPasswordWrapper = (props: Props): JSX.Element => <ForgotPasswordComponent {...props} />
-
-export default ForgotPasswordWrapper
+export default ForgotPassword

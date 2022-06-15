@@ -15,8 +15,7 @@ interface Props {
   token: string
 }
 
-export const VerifyEmail = (props: Props): JSX.Element => {
-  const { token } = props
+export const VerifyEmail = ({ token }: Props): JSX.Element => {
   const { t } = useTranslation()
 
   useEffect(() => {
