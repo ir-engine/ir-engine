@@ -10,6 +10,7 @@ import { Party } from '@xrengine/common/src/interfaces/Party'
 import { PartyUser } from '@xrengine/common/src/interfaces/PartyUser'
 import { User } from '@xrengine/common/src/interfaces/User'
 import multiLogger from '@xrengine/common/src/logger'
+import { dispatchAction } from '@xrengine/hyperflux'
 
 import { accessLocationInstanceConnectionState } from '../../common/services/LocationInstanceConnectionService'
 import { NotificationService } from '../../common/services/NotificationService'
@@ -241,16 +242,20 @@ if (globalThis.process.env['VITE_OFFLINE_MODE'] !== 'true') {
       updatedPartyUser.user.channelInstanceId != null &&
       updatedPartyUser.user.channelInstanceId === selfUser.channelInstanceId.value
     )
-      store.dispatch(UserAction.addedChannelLayerUser(updatedPartyUser.user))
+      dispatchAction(UserAction.addedChannelLayerUserAction({ user: updatedPartyUser.user }))
     if (updatedPartyUser.user.channelInstanceId !== selfUser.channelInstanceId.value)
-      store.dispatch(UserAction.removedChannelLayerUser(updatedPartyUser.user))
+      dispatchAction(
+        UserAction.removedChannelLayerUserAction({
+          user: updatedPartyUser.user
+        })
+      )
   })
 
   client.service('party-user').on('removed', (params) => {
     const deletedPartyUser = params.partyUser
     const selfUser = accessAuthState().user
     store.dispatch(PartyAction.removedPartyUser(deletedPartyUser))
-    store.dispatch(UserAction.removedChannelLayerUser(deletedPartyUser.user))
+    dispatchAction(UserAction.removedChannelLayerUserAction({ user: deletedPartyUser.user }))
     if (params.partyUser.userId === selfUser.id) {
       ChatService.clearChatTargetIfCurrent('party', { id: params.partyUser.partyId })
       // TODO: Reenable me!

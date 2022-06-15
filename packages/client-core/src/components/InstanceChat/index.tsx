@@ -135,7 +135,7 @@ const InstanceChat = ({
   }, [])
 
   useEffect(() => {
-    if (Engine.instance.currentWorld.worldNetwork?.hostId && currentInstanceConnection.connected.value) {
+    if (Engine.instance.currentWorld.worldNetwork?.hostId && currentInstanceConnection?.connected?.value) {
       ChatService.getInstanceChannel()
     }
   }, [currentInstanceConnection?.connected?.value])

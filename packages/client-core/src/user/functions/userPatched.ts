@@ -4,6 +4,7 @@ import { resolveUser } from '@xrengine/common/src/interfaces/User'
 import { addComponent, getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { getEid } from '@xrengine/engine/src/networking/utils/getUser'
 import { UserNameComponent } from '@xrengine/engine/src/scene/components/UserNameComponent'
+import { dispatchAction } from '@xrengine/hyperflux'
 
 import { NotificationService } from '../../common/services/NotificationService'
 import { _updateUsername } from '../../social/services/utils/chatSystem'
@@ -36,9 +37,9 @@ export const userPatched = (params) => {
   }
 
   if (selfUser.id.value === patchedUser.id) {
-    if (selfUser.instanceId.value !== patchedUser.instanceId) dispatch(UserAction.clearLayerUsers())
+    if (selfUser.instanceId.value !== patchedUser.instanceId) dispatchAction(UserAction.clearLayerUsersAction())
     if (selfUser.channelInstanceId.value !== patchedUser.channelInstanceId)
-      dispatch(UserAction.clearChannelLayerUsers())
+      dispatchAction(UserAction.clearChannelLayerUsersAction())
     dispatch(AuthAction.userUpdated(patchedUser))
     // if (user.partyId) {
     //   setRelationship('party', user.partyId);
@@ -57,16 +58,16 @@ export const userPatched = (params) => {
     const isLayerUser = userState.layerUsers.value.find((item) => item.id === patchedUser.id)
 
     if (patchedUser.channelInstanceId != null && patchedUser.channelInstanceId === selfUser.channelInstanceId.value)
-      dispatch(UserAction.addedChannelLayerUser(patchedUser))
+      dispatchAction(UserAction.addedChannelLayerUserAction({ user: patchedUser }))
     if (!isLayerUser && patchedUser.instanceId === selfUser.instanceId.value) {
-      dispatch(UserAction.addedLayerUser(patchedUser))
+      dispatchAction(UserAction.addedLayerUserAction({ user: patchedUser }))
       NotificationService.dispatchNotify(`${patchedUser.name} ${t('common:toast.joined')}`, { variant: 'default' })
     }
     if (isLayerUser && patchedUser.instanceId !== selfUser.instanceId.value) {
-      dispatch(UserAction.removedLayerUser(patchedUser))
+      dispatchAction(UserAction.removedLayerUserAction({ user: patchedUser }))
       NotificationService.dispatchNotify(`${patchedUser.name} ${t('common:toast.left')}`, { variant: 'default' })
     }
     if (patchedUser.channelInstanceId !== selfUser.channelInstanceId.value)
-      dispatch(UserAction.removedChannelLayerUser(patchedUser))
+      dispatchAction(UserAction.removedChannelLayerUserAction({ user: patchedUser }))
   }
 }
