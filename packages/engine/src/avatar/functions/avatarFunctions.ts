@@ -173,6 +173,7 @@ export const animateAvatarModel = (entity: Entity) => (model: Object3D) => {
 
   if (avatarAnimationComponent)
     avatarAnimationComponent.animationGraph = createAvatarAnimationGraph(
+      entity,
       animationComponent.mixer,
       velocityComponent.linear,
       controllerComponent ?? {}

@@ -1,6 +1,3 @@
-/**
- * @author Gleb Ordinsky <glebordinskijj@gmail.com>
- */
 import { createState, useState } from '@speigg/hookstate'
 
 import { NotificationService } from '../../common/services/NotificationService'

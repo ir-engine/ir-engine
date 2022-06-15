@@ -32,9 +32,11 @@ const startXRSession = async () => {
     EngineRenderer.instance.xrManager.setFoveation(1)
     dispatchAction(EngineActions.xrSession())
 
-    EngineRenderer.instance.xrManager.addEventListener('sessionend', async () => {
+    const onSessionEnd = () => {
+      EngineRenderer.instance.xrManager.removeEventListener('sessionend', onSessionEnd)
       dispatchAction(EngineActions.xrEnd())
-    })
+    }
+    EngineRenderer.instance.xrManager.addEventListener('sessionend', onSessionEnd)
 
     startWebXR()
   } catch (e) {
