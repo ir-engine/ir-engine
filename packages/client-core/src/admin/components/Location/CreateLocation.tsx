@@ -20,12 +20,10 @@ import styles from '../../styles/admin.module.scss'
 
 interface Props {
   open: boolean
-  handleClose: (open: boolean) => void
-  closeViewModal?: (open: boolean) => void
+  onClose: () => void
 }
 
-const CreateLocation = (props: Props) => {
-  const { open, closeViewModal } = props
+const CreateLocation = ({ open, onClose }: Props) => {
   const [openWarning, setOpenWarning] = React.useState(false)
   const [error, setError] = React.useState('')
   const [state, setState] = React.useState({
@@ -73,8 +71,8 @@ const CreateLocation = (props: Props) => {
 
   React.useEffect(() => {
     if (location.created.value) {
-      closeViewModal && closeViewModal(false)
       clearState()
+      onClose()
     }
   }, [location.created])
 
@@ -122,7 +120,7 @@ const CreateLocation = (props: Props) => {
     if (validateForm(state, state.formErrors)) {
       AdminLocationService.createLocation(data)
       clearState()
-      closeViewModal && closeViewModal(false)
+      onClose()
     } else {
       setError(t('admin:components.locationModal.fillRequiredFields'))
       setOpenWarning(true)
@@ -145,14 +143,7 @@ const CreateLocation = (props: Props) => {
 
   return (
     <React.Fragment>
-      <Drawer
-        anchor="right"
-        classes={{ paper: styles.paperDrawer }}
-        open={open}
-        onClose={() => {
-          closeViewModal && closeViewModal(false)
-        }}
-      >
+      <Drawer anchor="right" classes={{ paper: styles.paperDrawer }} open={open} onClose={onClose}>
         <Container maxWidth="sm" className={styles.mt20}>
           <DialogTitle id="form-dialog-title" className={styles.textAlign}>
             {t('admin:components.locationModal.createNewLocation')}
@@ -256,7 +247,7 @@ const CreateLocation = (props: Props) => {
             <Button
               onClick={() => {
                 clearState()
-                closeViewModal && closeViewModal(false)
+                onClose()
               }}
               className={styles.cancelButton}
             >

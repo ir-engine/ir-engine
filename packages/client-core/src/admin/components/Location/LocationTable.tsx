@@ -4,19 +4,23 @@ import { useTranslation } from 'react-i18next'
 import { Location } from '@xrengine/common/src/interfaces/Location'
 
 import Avatar from '@mui/material/Avatar'
+import Box from '@mui/material/Box'
 import Chip from '@mui/material/Chip'
 
 import { useAuthState } from '../../../user/services/AuthService'
 import ConfirmModal from '../../common/ConfirmModal'
 import TableComponent from '../../common/Table'
-import { locationColumns, LocationProps } from '../../common/variables/location'
+import { locationColumns } from '../../common/variables/location'
 import { AdminLocationService, LOCATION_PAGE_LIMIT, useAdminLocationState } from '../../services/LocationService'
 import styles from '../../styles/admin.module.scss'
 import ViewLocation from './ViewLocation'
 
-const LocationTable = (props: LocationProps) => {
-  const { search } = props
+interface Props {
+  className?: string
+  search: string
+}
 
+const LocationTable = ({ className, search }: Props) => {
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(LOCATION_PAGE_LIMIT)
   const [popConfirmOpen, setPopConfirmOpen] = useState(false)
@@ -166,7 +170,7 @@ const LocationTable = (props: LocationProps) => {
   })
 
   return (
-    <React.Fragment>
+    <Box className={className}>
       <TableComponent
         allowSort={false}
         fieldOrder={fieldOrder}
@@ -187,7 +191,7 @@ const LocationTable = (props: LocationProps) => {
         onSubmit={submitRemoveLocation}
       />
       <ViewLocation openView={viewModal} closeViewModal={closeViewModal} locationAdmin={locationAdmin} />
-    </React.Fragment>
+    </Box>
   )
 }
 

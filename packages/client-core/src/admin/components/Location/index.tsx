@@ -14,7 +14,7 @@ import CreateLocation from './CreateLocation'
 import LocationTable from './LocationTable'
 
 const Location = () => {
-  const [locationModalOpen, setLocationModalOpen] = React.useState(false)
+  const [openLocationModal, setOpenLocationModal] = React.useState(false)
   const [search, setSearch] = React.useState('')
   const { t } = useTranslation()
 
@@ -27,19 +27,6 @@ const Location = () => {
     }
   }, [])
 
-  const openModalCreate = (open: boolean) => (event: React.KeyboardEvent | React.MouseEvent) => {
-    if (
-      event.type === 'keydown' &&
-      ((event as React.KeyboardEvent).key === 'Tab' || (event as React.KeyboardEvent).key === 'Shift')
-    ) {
-      return
-    }
-    setLocationModalOpen(open)
-  }
-  const closeViewModal = (open: boolean) => {
-    setLocationModalOpen(open)
-  }
-
   const handleChange = (e: any) => {
     setSearch(e.target.value)
   }
@@ -51,15 +38,18 @@ const Location = () => {
           <Search text="location" handleChange={handleChange} />
         </Grid>
         <Grid item xs={12} sm={4}>
-          <Button className={styles.openModalBtn} type="submit" variant="contained" onClick={openModalCreate(true)}>
+          <Button
+            className={styles.openModalBtn}
+            type="submit"
+            variant="contained"
+            onClick={() => setOpenLocationModal(true)}
+          >
             {t('admin:components.locationModal.createNewLocation')}
           </Button>
         </Grid>
       </Grid>
-      <div className={styles.rootTableWithSearch}>
-        <LocationTable search={search} />
-      </div>
-      <CreateLocation open={locationModalOpen} handleClose={openModalCreate} closeViewModal={closeViewModal} />
+      <LocationTable className={styles.rootTableWithSearch} search={search} />
+      <CreateLocation open={openLocationModal} onClose={() => setOpenLocationModal(false)} />
     </div>
   )
 }
