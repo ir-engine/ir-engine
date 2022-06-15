@@ -6,7 +6,6 @@ import { HALF_PI } from '../../common/constants/MathConstants'
 import { Engine } from '../../ecs/classes/Engine'
 import { getEngineState } from '../../ecs/classes/EngineState'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
-import { accessEngineRendererState } from '../../renderer/EngineRendererState'
 
 export const ObjectFitFunctions = {
   computeContentFitScale: (
@@ -42,12 +41,18 @@ export const ObjectFitFunctions = {
     distance: number,
     contentWidth: number,
     contentHeight: number,
-    fit: 'cover' | 'contain' | 'vertical' | 'horizontal' = 'contain',
+    fit: 'cover' | 'contain' | 'vertical' | 'horizontal' | 'constant' = 'constant',
     camera = Engine.instance.currentWorld.camera as PerspectiveCamera
   ) => {
-    const vFOV = MathUtils.degToRad(camera.fov)
-    const targetHeight = Math.tan(vFOV / 2) * Math.abs(distance) * 2
+    const vFOV = camera.fov
+    const hFOV = Math.tan(vFOV / 2)
+    const targetHeight = hFOV * Math.abs(distance) * 2
     const targetWidth = targetHeight * camera.aspect
+
+    if (fit === 'constant') {
+      // TODO: figure this out - harder than it seems - constant size regardless of fov, window size & aspect ratio
+      return distance
+    }
 
     return ObjectFitFunctions.computeContentFitScale(contentWidth, contentHeight, targetWidth, targetHeight, fit)
   },
@@ -55,7 +60,7 @@ export const ObjectFitFunctions = {
   attachObjectInFrontOfCamera: (container: WebContainer3D, scale: number, distance: number) => {
     container.scale.x = container.scale.y = scale
     container.position.z = -distance
-    // container.parent = Engine.instance.currentWorld.camera
+    container.parent = Engine.instance.currentWorld.camera
   },
 
   attachObjectToHand: (container: WebContainer3D, scale: number) => {
@@ -73,16 +78,15 @@ export const ObjectFitFunctions = {
     }
   },
 
-  attachObjectToPreferredTransform: (container: WebContainer3D, distance = 0.1, scaleToView = 1) => {
-    const ppu = container.options.manager.pixelsPerMeter
-    const contentWidth = container.rootLayer.element.clientWidth / ppu
-    const contentHeight = container.rootLayer.element.clientHeight / ppu
-
-    const scale =
-      ObjectFitFunctions.computeContentFitScaleForCamera(distance, contentWidth, contentHeight, 'cover') * scaleToView
-
+  attachObjectToPreferredTransform: (container: WebContainer3D) => {
+    const distance = 0.1
+    const scale = ObjectFitFunctions.computeContentFitScaleForCamera(
+      distance,
+      container.rootLayer.element.clientWidth,
+      container.rootLayer.element.clientHeight
+    )
     if (getEngineState().xrSessionStarted.value) {
-      ObjectFitFunctions.attachObjectToHand(container, scaleToView)
+      ObjectFitFunctions.attachObjectToHand(container, 1)
     } else {
       ObjectFitFunctions.attachObjectInFrontOfCamera(container, scale, distance)
     }

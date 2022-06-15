@@ -32,7 +32,8 @@ export default async function MainMenuButtonsSystem(world: World) {
     const mainMenuButtonsXRUI = getComponent(ui.entity, XRUIComponent)
 
     if (mainMenuButtonsXRUI) {
-      MainMenuButtonState.showButtons.set(false)
+      MainMenuButtonState.showButtons.set(!MainMenuButtonState.showButtons.value)
+      // MainMenuButtonState.showButtons.set(false)
     }
   })
 
@@ -40,7 +41,6 @@ export default async function MainMenuButtonsSystem(world: World) {
     const xrui = getComponent(ui.entity, XRUIComponent)
 
     if (xrui) {
-      const rootLayerElement = xrui.container.rootLayer.element
       ObjectFitFunctions.attachObjectToPreferredTransform(xrui.container)
       ObjectFitFunctions.changeVisibilityOfRootLayer(xrui.container, MainMenuButtonState.showButtons.value)
     }
