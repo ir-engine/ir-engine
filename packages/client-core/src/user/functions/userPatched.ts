@@ -1,18 +1,13 @@
 import { t } from 'i18next'
 
 import { resolveUser } from '@xrengine/common/src/interfaces/User'
-import { addComponent, getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { getEid } from '@xrengine/engine/src/networking/utils/getUser'
-import { UserNameComponent } from '@xrengine/engine/src/scene/components/UserNameComponent'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { dispatchAction } from '@xrengine/hyperflux'
 
 import { NotificationService } from '../../common/services/NotificationService'
-import { _updateUsername } from '../../social/services/utils/chatSystem'
 import { useDispatch } from '../../store'
 import { accessAuthState, AuthAction } from '../services/AuthService'
 import { accessUserState, UserAction } from '../services/UserService'
-
-// import { loadAvatarForUpdatedUser } from './userAvatarFunctions'
 
 export const userPatched = (params) => {
   console.log('USER PATCHED', params)
@@ -23,17 +18,9 @@ export const userPatched = (params) => {
   const patchedUser = resolveUser(params.userRelationship)
 
   console.log('User patched', patchedUser)
-  // loadAvatarForUpdatedUser(user)
-  _updateUsername(patchedUser.id, patchedUser.name)
 
-  const eid = getEid(patchedUser.id)
-  console.log('adding username component to user: ' + patchedUser.name + ' eid: ' + eid)
-  if (eid !== undefined) {
-    if (!hasComponent(eid, UserNameComponent)) {
-      addComponent(eid, UserNameComponent, { username: patchedUser.name })
-    } else {
-      getComponent(eid, UserNameComponent).username = patchedUser.name
-    }
+  if (Engine.instance.currentWorld.clients.has(patchedUser.id)) {
+    Engine.instance.currentWorld.clients.get(patchedUser.id)!.name = patchedUser.name
   }
 
   if (selfUser.id.value === patchedUser.id) {
