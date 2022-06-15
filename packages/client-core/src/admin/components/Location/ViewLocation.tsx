@@ -208,7 +208,7 @@ const ViewLocation = ({ open, locationAdmin, onClose }: Props) => {
           <Container maxWidth="sm">
             <div className={styles.mt10}>
               <Typography variant="h4" component="h4" className={`${styles.mb10} ${styles.headingFont}`}>
-                {t('admin:components.locationModal.updateLocationInfo')}{' '}
+                {t('admin:components.locationModal.updateLocationInfo')}
               </Typography>
 
               <InputText

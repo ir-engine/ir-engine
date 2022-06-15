@@ -135,7 +135,6 @@ const LocationTable = ({ className, search }: Props) => {
       //@ts-ignore
       el.location_setting?.locationType,
       <div>
-        {' '}
         {el.isFeatured && (
           <Chip
             style={{ marginLeft: '5px' }}
@@ -150,13 +149,13 @@ const LocationTable = ({ className, search }: Props) => {
             label={t('admin:components.index.lobby')}
             // onClick={handleClick}
           />
-        )}{' '}
+        )}
       </div>,
       <div>
         {/**@ts-ignore*/}
         {el.location_setting?.instanceMediaChatEnabled
           ? t('admin:components.index.yes')
-          : t('admin:components.index.no')}{' '}
+          : t('admin:components.index.no')}
       </div>,
       <div>
         {/**@ts-ignore*/}
