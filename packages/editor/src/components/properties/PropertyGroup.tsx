@@ -38,9 +38,7 @@ const PropertyGroupContent = (styled as any).div`
 `
 
 // function to create property group view
-function PropertyGroup(props) {
-  const { name, description, children, ...rest } = props
-
+function PropertyGroup({ name, description, children, ...rest }) {
   return (
     <StyledPropertyGroup {...rest}>
       <PropertyGroupHeader>{name}</PropertyGroupHeader>

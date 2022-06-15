@@ -15,9 +15,8 @@ interface Props {
   createProject: (name: string) => Promise<void>
 }
 
-export const CreateProjectDialog = (props: Props): any => {
+export const CreateProjectDialog = ({ open, handleClose, createProject }: Props): any => {
   const { t } = useTranslation()
-  const { open, handleClose, createProject } = props
 
   const [processing, setProcessing] = useState(false)
   const [error, setError] = useState('')
@@ -55,7 +54,7 @@ export const CreateProjectDialog = (props: Props): any => {
       onClose={closeDialog}
       closeAfterTransition
       TransitionComponent={Fade}
-      TransitionProps={{ in: props.open }}
+      TransitionProps={{ in: open }}
     >
       <DialogTitle>{t('editor.projects.createProject')}</DialogTitle>
       <DialogContent>

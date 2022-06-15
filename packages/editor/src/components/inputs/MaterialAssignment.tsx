@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next'
 import styled from 'styled-components'
 import { Color, MathUtils, Texture } from 'three'
 
-import { string } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { removeComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { DefaultArguments, MaterialLibrary } from '@xrengine/engine/src/renderer/materials/MaterialLibrary'
 import { PatternTarget } from '@xrengine/engine/src/renderer/materials/MaterialParms'
@@ -11,16 +10,7 @@ import { MaterialOverrideComponent } from '@xrengine/engine/src/scene/components
 import { refreshMaterials } from '@xrengine/engine/src/scene/functions/loaders/MaterialOverrideFunctions'
 
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
-import {
-  Accordion,
-  AccordionDetails,
-  AccordionSummary,
-  Collapse,
-  IconButton,
-  IconButtonProps,
-  Stack,
-  Typography
-} from '@mui/material'
+import { Collapse, IconButton, IconButtonProps, Stack, Typography } from '@mui/material'
 import { Box } from '@mui/system'
 
 import { AssetLoader } from '../../../../engine/src/assets/classes/AssetLoader'
