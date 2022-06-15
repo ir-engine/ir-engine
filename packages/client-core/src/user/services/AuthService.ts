@@ -17,7 +17,7 @@ import { UserAvatar } from '@xrengine/common/src/interfaces/UserAvatar'
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { WorldNetworkAction } from '@xrengine/engine/src/networking/functions/WorldNetworkAction'
-import { addActionReceptor, defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
+import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
 import { NotificationService } from '../../common/services/NotificationService'
 import { client } from '../../feathers'
@@ -217,8 +217,10 @@ export const AuthService = {
           res = await (client as any).reAuthenticate()
         }
         const authUser = resolveAuthUser(res)
+
         // Should dispatch
         dispatchAction(AuthAction.loginUserSuccessAction({ authUser, message: '' }))
+
         await AuthService.loadUserData(authUser.identityProvider.userId)
       } else {
         console.log('****************')
@@ -345,6 +347,35 @@ export const AuthService = {
     window.location.href = `${serverHost}/oauth/${service}?feathers_token=${token}&redirect=${JSON.stringify(
       redirectObject
     )}`
+  },
+  removeUserOAuth: async (service: string) => {
+    const dispatch = useDispatch()
+    const ipResult = await (client as any).service('identity-provider').find()
+    const ipToRemove = ipResult.data.find((ip) => ip.type === service)
+    if (ipToRemove) {
+      if (ipResult.total === 1) {
+        console.log('show last warning modal')
+        await (client as any).service('user').remove(ipToRemove.userId)
+        await AuthService.logoutUser()
+      } else {
+        const otherIp = ipResult.data.find((ip) => ip.type !== service)
+        const newToken = await (client as any).service('generate-token').create({
+          type: otherIp.type,
+          token: otherIp.token
+        })
+
+        if (newToken) {
+          dispatch(AuthAction.actionProcessing({ processing: true }))
+          await (client as any).authentication.setAccessToken(newToken as string)
+          const res = await (client as any).reAuthenticate(true)
+          const authUser = resolveAuthUser(res)
+          await (client as any).service('identity-provider').remove(ipToRemove.id)
+          dispatch(AuthAction.loginUserSuccessAction({ authUser: authUser, message: '' }))
+          await AuthService.loadUserData(authUser.identityProvider.userId)
+          dispatch(AuthAction.actionProcessing({ processing: false }))
+        }
+      }
+    }
   },
   loginUserByJwt: async (accessToken: string, redirectSuccess: string, redirectError: string) => {
     try {
