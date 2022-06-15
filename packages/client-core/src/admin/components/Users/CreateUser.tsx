@@ -12,8 +12,8 @@ import DialogContentText from '@mui/material/DialogContentText'
 import DialogTitle from '@mui/material/DialogTitle'
 import Drawer from '@mui/material/Drawer'
 
+import { NotificationService } from '../../../common/services/NotificationService'
 import { useAuthState } from '../../../user/services/AuthService'
-import AlertMessage from '../../common/AlertMessage'
 import AutoComplete from '../../common/AutoComplete'
 import InputSelect, { InputMenuItem } from '../../common/InputSelect'
 import InputText from '../../common/InputText'
@@ -27,12 +27,10 @@ import CreateUserRole from './CreateUserRole'
 
 interface Props {
   open: boolean
-  handleClose: (open: boolean) => void
-  closeViewModal: (open: boolean) => void
+  onClose: () => void
 }
 
-const CreateUser = (props: Props) => {
-  const { open, closeViewModal } = props
+const CreateUser = ({ open, onClose }: Props) => {
   const { t } = useTranslation()
   const [openCreateUserRole, setOpenCreateUserRole] = useState(false)
   const [state, setState] = React.useState({
@@ -47,9 +45,6 @@ const CreateUser = (props: Props) => {
       scopes: ''
     }
   })
-
-  const [openWarning, setOpenWarning] = useState(false)
-  const [error, setError] = useState('')
 
   const user = useAuthState().user
   const userRole = useAdminUserRoleState()
@@ -97,12 +92,6 @@ const CreateUser = (props: Props) => {
     setOpenCreateUserRole(false)
   }
 
-  const handleCloseWarning = (event?: React.SyntheticEvent | Event, reason?: string) => {
-    if (reason === 'clickaway') {
-      return
-    }
-    setOpenWarning(false)
-  }
   const handleChangeScopeType = (scope) => {
     if (scope.length) setState({ ...state, scopes: scope, formErrors: { ...state.formErrors, scopes: '' } })
   }
@@ -129,17 +118,16 @@ const CreateUser = (props: Props) => {
     setState({ ...state, formErrors: temp })
     if (validateForm(state, state.formErrors)) {
       AdminUserService.createUser(data)
-      closeViewModal(false)
       clearState()
+      onClose()
     } else {
-      setError(t('admin:components.user.fillRequiredField'))
-      setOpenWarning(true)
+      NotificationService.dispatchNotify(t('admin:components.user.fillRequiredField'), { variant: 'error' })
     }
   }
 
   const handleCancel = () => {
     clearState()
-    closeViewModal(false)
+    onClose()
   }
 
   interface ScopeData {
@@ -218,7 +206,6 @@ const CreateUser = (props: Props) => {
         </Container>
       </Drawer>
       <CreateUserRole open={openCreateUserRole} handleClose={handleUserRoleClose} />
-      <AlertMessage open={openWarning} handleClose={handleCloseWarning} severity="warning" message={error} />
     </React.Fragment>
   )
 }

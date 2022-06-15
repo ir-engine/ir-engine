@@ -9,7 +9,7 @@ import DialogTitle from '@mui/material/DialogTitle'
 import Drawer from '@mui/material/Drawer'
 import Grid from '@mui/material/Grid'
 
-import AlertMessage from '../../common/AlertMessage'
+import { NotificationService } from '../../../common/services/NotificationService'
 import InputSelect, { InputMenuItem } from '../../common/InputSelect'
 import InputSwitch from '../../common/InputSwitch'
 import InputText from '../../common/InputText'
@@ -24,8 +24,6 @@ interface Props {
 }
 
 const CreateLocation = ({ open, onClose }: Props) => {
-  const [openWarning, setOpenWarning] = React.useState(false)
-  const [error, setError] = React.useState('')
   const [state, setState] = React.useState({
     name: '',
     maxUsers: 10,
@@ -76,13 +74,6 @@ const CreateLocation = ({ open, onClose }: Props) => {
     }
   }, [location.created])
 
-  const handleCloseWarning = (event?: React.SyntheticEvent | Event, reason?: string) => {
-    if (reason === 'clickaway') {
-      return
-    }
-    setOpenWarning(false)
-  }
-
   const handleChange = (e) => {
     const { name, value } = e.target
     let temp = state.formErrors
@@ -122,8 +113,7 @@ const CreateLocation = ({ open, onClose }: Props) => {
       clearState()
       onClose()
     } else {
-      setError(t('admin:components.locationModal.fillRequiredFields'))
-      setOpenWarning(true)
+      NotificationService.dispatchNotify(t('admin:components.locationModal.fillRequiredFields'), { variant: 'error' })
     }
   }
 
@@ -245,18 +235,17 @@ const CreateLocation = ({ open, onClose }: Props) => {
               {t('admin:components.locationModal.submit')}
             </Button>
             <Button
+              className={styles.cancelButton}
               onClick={() => {
                 clearState()
                 onClose()
               }}
-              className={styles.cancelButton}
             >
               {t('admin:components.locationModal.lbl-cancel')}
             </Button>
           </DialogActions>
         </Container>
       </Drawer>
-      <AlertMessage open={openWarning} handleClose={handleCloseWarning} severity="warning" message={error} />
     </React.Fragment>
   )
 }

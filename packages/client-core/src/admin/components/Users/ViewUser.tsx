@@ -18,8 +18,8 @@ import Paper from '@mui/material/Paper'
 import Skeleton from '@mui/material/Skeleton'
 import Typography from '@mui/material/Typography'
 
+import { NotificationService } from '../../../common/services/NotificationService'
 import { useAuthState } from '../../../user/services/AuthService'
-import AlertMessage from '../../common/AlertMessage'
 import AutoComplete from '../../common/AutoComplete'
 import InputSelect, { InputMenuItem } from '../../common/InputSelect'
 import InputText from '../../common/InputText'
@@ -57,8 +57,6 @@ const ViewUser = (props: Props) => {
       scopes: ''
     }
   })
-  const [error, setError] = useState('')
-  const [openWarning, setOpenWarning] = useState(false)
   const user = useAuthState().user
   const adminUserState = useUserState()
   const singleUserData = adminUserState.singleUser
@@ -144,21 +142,11 @@ const ViewUser = (props: Props) => {
       setEditMode(false)
       closeViewModal && closeViewModal(false)
     } else {
-      setError(t('admin:components.user.fillRequiredField'))
-      setOpenWarning(true)
+      NotificationService.dispatchNotify(t('admin:components.user.fillRequiredField'), { variant: 'error' })
     }
-  }
-
-  const handleCloseWarning = (event?: React.SyntheticEvent | Event, reason?: string) => {
-    if (reason === 'clickaway') {
-      return
-    }
-    setOpenWarning(false)
   }
 
   const handleCloseDrawer = () => {
-    setError('')
-    setOpenWarning(false)
     closeViewModal && closeViewModal(false)
     setState({
       ...state,
@@ -378,7 +366,6 @@ const ViewUser = (props: Props) => {
           </DialogActions>
         </Container>
       </Drawer>
-      <AlertMessage open={openWarning} handleClose={handleCloseWarning} severity="warning" message={error} />
     </React.Fragment>
   )
 }

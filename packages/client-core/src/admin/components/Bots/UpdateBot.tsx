@@ -13,8 +13,8 @@ import DialogContent from '@mui/material/DialogContent'
 import DialogTitle from '@mui/material/DialogTitle'
 import IconButton from '@mui/material/IconButton'
 
+import { NotificationService } from '../../../common/services/NotificationService'
 import { useAuthState } from '../../../user/services/AuthService'
-import AlertMessage from '../../common/AlertMessage'
 import InputSelect, { InputMenuItem } from '../../common/InputSelect'
 import InputText from '../../common/InputText'
 import { validateForm } from '../../common/validation/formValidation'
@@ -29,8 +29,7 @@ interface Props {
   bot?: AdminBot
 }
 
-const UpdateBot = (props: Props) => {
-  const { open, handleClose, bot } = props
+const UpdateBot = ({ open, handleClose, bot }: Props) => {
   const adminInstanceState = useAdminInstanceState()
   const [state, setState] = useState({
     name: '',
@@ -44,8 +43,6 @@ const UpdateBot = (props: Props) => {
     location: ''
   })
   const [currentInstance, setCurrentIntance] = useState<Instance[]>([])
-  const [openAlter, setOpenAlter] = useState(false)
-  const [error, setError] = useState('')
   const adminLocation = useAdminLocationState()
   const locationData = adminLocation.locations
   const adminInstances = adminInstanceState
@@ -139,20 +136,12 @@ const UpdateBot = (props: Props) => {
       setCurrentIntance([])
       handleClose()
     } else {
-      setError(t('admin:components.bot.fillRequiredField'))
-      setOpenAlter(true)
+      NotificationService.dispatchNotify(t('admin:components.bot.fillRequiredField'), { variant: 'error' })
     }
   }
 
   const fetchAdminInstances = () => {
     AdminInstanceService.fetchAdminInstances()
-  }
-
-  const handleCloseAlter = (event?: React.SyntheticEvent | Event, reason?: string) => {
-    if (reason === 'clickaway') {
-      return
-    }
-    setOpenAlter(false)
   }
 
   const fetchAdminLocations = () => {
@@ -237,8 +226,6 @@ const UpdateBot = (props: Props) => {
           </Button>
         </DialogActions>
       </Dialog>
-
-      <AlertMessage open={openAlter} handleClose={handleCloseAlter} severity="warning" message={error} />
     </div>
   )
 }

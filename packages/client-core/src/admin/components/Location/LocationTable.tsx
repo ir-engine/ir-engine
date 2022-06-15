@@ -80,10 +80,6 @@ const LocationTable = ({ className, search }: Props) => {
     setViewModal(open)
   }
 
-  const closeViewModal = (open) => {
-    setViewModal(open)
-  }
-
   const createData = (
     el: Location,
     id: string,
@@ -190,7 +186,7 @@ const LocationTable = ({ className, search }: Props) => {
         onClose={handleCloseModal}
         onSubmit={submitRemoveLocation}
       />
-      <ViewLocation openView={viewModal} closeViewModal={closeViewModal} locationAdmin={locationAdmin} />
+      <ViewLocation open={viewModal} locationAdmin={locationAdmin} onClose={() => setViewModal(false)} />
     </Box>
   )
 }
