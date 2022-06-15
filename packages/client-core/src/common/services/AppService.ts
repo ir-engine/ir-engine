@@ -32,10 +32,6 @@ store.receptors.push((action: AppActionType): void => {
         return s.merge({ loaded: action.loaded })
       case 'SET_APP_LOADING_PERCENT':
         return s.merge({ loadPercent: action.loadPercent })
-      case 'SET_VIEWPORT_SIZE':
-        return s.merge({ viewport: { width: action.width, height: action.height } })
-      case 'SET_IN_VR_MODE':
-        return s.merge({ inVrMode: action.inVrMode })
       case 'SET_APP_ONBOARDING_STEP':
         return action.onBoardingStep === GeneralStateList.ALL_DONE
           ? s.merge({
@@ -98,20 +94,6 @@ export const AppAction = {
       type: 'SET_APP_SPECIFIC_ONBOARDING_STEP' as const,
       onBoardingStep,
       isTutorial
-    }
-  },
-  // used for getting window.innerWidth and height.
-  setViewportSize: (width: number, height: number) => {
-    return {
-      type: 'SET_VIEWPORT_SIZE' as const,
-      width,
-      height
-    }
-  },
-  setAppInVrMode: (inVrMode: boolean) => {
-    return {
-      type: 'SET_IN_VR_MODE' as const,
-      inVrMode
     }
   }
 }
