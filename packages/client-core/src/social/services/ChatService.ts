@@ -8,18 +8,13 @@ import { Message } from '@xrengine/common/src/interfaces/Message'
 import { Party } from '@xrengine/common/src/interfaces/Party'
 import { User } from '@xrengine/common/src/interfaces/User'
 import multiLogger from '@xrengine/common/src/logger'
-import { handleCommand, isCommand } from '@xrengine/engine/src/common/functions/commandHandler'
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { isPlayerLocal } from '@xrengine/engine/src/networking/utils/isPlayerLocal'
 import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
-import { accessLocationInstanceConnectionState } from '../../common/services/LocationInstanceConnectionService'
 import { NotificationService } from '../../common/services/NotificationService'
 import { client } from '../../feathers'
-import { store } from '../../store'
 import { accessAuthState } from '../../user/services/AuthService'
-import { getChatMessageSystem, hasSubscribedToChatSystem, removeMessageSystem } from './utils/chatSystem'
 
 const logger = multiLogger.child({ component: 'client-core:social' })
 
@@ -367,25 +362,6 @@ export const ChatService = {
 if (globalThis.process.env['VITE_OFFLINE_MODE'] !== 'true') {
   client.service('message').on('created', (params) => {
     const selfUser = accessAuthState().user.value
-    const { message } = params
-    if (message != undefined && message.text != undefined) {
-      if (isPlayerLocal(message.senderId)) {
-        if (handleCommand(message.text, Engine.instance.currentWorld.localClientEntity, message.senderId)) return
-        else {
-          const system = getChatMessageSystem(message.text)
-          if (system !== 'none') {
-            message.text = removeMessageSystem(message.text)
-            if (!hasSubscribedToChatSystem(selfUser.id, system)) return
-          }
-        }
-      } else {
-        const system = getChatMessageSystem(message.text)
-        if (system !== 'none') {
-          message.text = removeMessageSystem(message.text)
-          if (!hasSubscribedToChatSystem(selfUser.id, system)) return
-        } else if (isCommand(message.text)) return
-      }
-    }
     dispatchAction(ChatAction.createdMessageAction({ message: params.message, selfUser: selfUser }))
   })
 

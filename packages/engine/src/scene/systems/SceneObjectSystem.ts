@@ -169,12 +169,12 @@ export default async function SceneObjectSystem(world: World) {
       if (object3DComponent.value === world.scene) {
         Engine.instance.simpleMaterials = false
       }
-      object3DComponent.value.traverse((obj: Object3DWithEntity) => {
-        const shouldUseSimpleMaterial =
-          (typeof obj.entity !== 'undefined' && !hasComponent(obj.entity, SimpleMaterialTagComponent)) ||
-          Engine.instance.simpleMaterials
-        shouldUseSimpleMaterial ? useSimpleMaterial(obj as any) : useStandardMaterial(obj as any)
-      })
+      if (!Engine.instance.simpleMaterials) {
+        object3DComponent.value.traverse((obj: Object3DWithEntity) => {
+          if (typeof obj.entity === 'number' && hasComponent(obj as any, SimpleMaterialTagComponent)) return
+          useStandardMaterial(obj as any)
+        })
+      }
     }
 
     /**
@@ -182,11 +182,9 @@ export default async function SceneObjectSystem(world: World) {
      */
     for (const entity of standardMaterialsQuery.enter()) {
       const object3DComponent = getComponent(entity, Object3DComponent)
+      if (object3DComponent.value === world.scene) continue
       object3DComponent.value.traverse((obj: Object3DWithEntity) => {
-        const shouldUseSimpleMaterial =
-          (typeof obj.entity !== 'undefined' && !hasComponent(obj.entity, SimpleMaterialTagComponent)) ||
-          Engine.instance.simpleMaterials
-        shouldUseSimpleMaterial ? useSimpleMaterial(obj as any) : useStandardMaterial(obj as any)
+        Engine.instance.simpleMaterials ? useSimpleMaterial(obj as any) : useStandardMaterial(obj as any)
       })
     }
   }
