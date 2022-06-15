@@ -336,6 +336,35 @@ export const AuthService = {
       redirectObject
     )}`
   },
+  removeUserOAuth: async (service: string) => {
+    const dispatch = useDispatch()
+    const ipResult = await (client as any).service('identity-provider').find()
+    const ipToRemove = ipResult.data.find((ip) => ip.type === service)
+    if (ipToRemove) {
+      if (ipResult.total === 1) {
+        console.log('show last warning modal')
+        await (client as any).service('user').remove(ipToRemove.userId)
+        await AuthService.logoutUser()
+      } else {
+        const otherIp = ipResult.data.find((ip) => ip.type !== service)
+        const newToken = await (client as any).service('generate-token').create({
+          type: otherIp.type,
+          token: otherIp.token
+        })
+
+        if (newToken) {
+          dispatch(AuthAction.actionProcessing(true))
+          await (client as any).authentication.setAccessToken(newToken as string)
+          const res = await (client as any).reAuthenticate(true)
+          const authUser = resolveAuthUser(res)
+          await (client as any).service('identity-provider').remove(ipToRemove.id)
+          dispatch(AuthAction.loginUserSuccess(authUser))
+          await AuthService.loadUserData(authUser.identityProvider.userId)
+          dispatch(AuthAction.actionProcessing(false))
+        }
+      }
+    }
+  },
   loginUserByJwt: async (accessToken: string, redirectSuccess: string, redirectError: string) => {
     const dispatch = useDispatch()
 

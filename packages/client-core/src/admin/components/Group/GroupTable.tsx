@@ -7,7 +7,7 @@ import { useAuthState } from '../../../user/services/AuthService'
 import ConfirmModal from '../../common/ConfirmModal'
 import TableComponent from '../../common/Table'
 import { columns, Data } from '../../common/variables/group'
-import { GROUP_PAGE_LIMIT, GroupService, useGroupState } from '../../services/GroupService'
+import { AdminGroupService, GROUP_PAGE_LIMIT, useAdminGroupState } from '../../services/GroupService'
 import styles from '../../styles/admin.module.scss'
 import ViewGroup from './ViewGroup'
 
@@ -27,20 +27,20 @@ const GroupTable = (props: Props) => {
   const [orderBy, setOrderBy] = useState('asc')
   const [sortField, setSortField] = useState('name')
   const [showWarning, setShowWarning] = useState(false)
-  const adminGroupState = useGroupState()
+  const adminGroupState = useAdminGroupState()
   const adminGroups = adminGroupState.group
   const adminGroupCount = adminGroupState.total.value
   const { t } = useTranslation()
 
   const handlePageChange = (event: unknown, newPage: number) => {
     // const incDec = page < newPage ? 'increment' : 'decrement'
-    GroupService.getGroupService(search, newPage, sortField, orderBy)
+    AdminGroupService.getGroupService(search, newPage, sortField, orderBy)
     setPage(newPage)
   }
 
   useEffect(() => {
     if (adminGroupState.fetched.value) {
-      GroupService.getGroupService(search, page, sortField, orderBy)
+      AdminGroupService.getGroupService(search, page, sortField, orderBy)
     }
   }, [orderBy])
 
@@ -68,7 +68,7 @@ const GroupTable = (props: Props) => {
 
   const deleteGroupHandler = () => {
     setShowWarning(false)
-    GroupService.deleteGroupByAdmin(groupId)
+    AdminGroupService.deleteGroupByAdmin(groupId)
   }
 
   const closeViewModal = (open) => {
@@ -79,7 +79,7 @@ const GroupTable = (props: Props) => {
     //if (adminGroupState.updateNeeded.value && user.id.value) {
     //  GroupService.getGroupService(null)
     // } else {
-    GroupService.getGroupService(search, 0, sortField, orderBy)
+    AdminGroupService.getGroupService(search, 0, sortField, orderBy)
     // }
   }, [adminGroupState.updateNeeded.value, user, search])
 
