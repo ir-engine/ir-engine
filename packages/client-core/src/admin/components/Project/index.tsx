@@ -1,12 +1,19 @@
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { addActionReceptor, removeActionReceptor } from '@xrengine/hyperflux'
+
 import Button from '@mui/material/Button'
 import Grid from '@mui/material/Grid'
 
 import { ProjectService, useProjectState } from '../../../common/services/ProjectService'
 import { useAuthState } from '../../../user/services/AuthService'
-import { GithubAppService, useGithubAppState } from '../../services/GithubAppService'
+import ConfirmModal from '../../common/ConfirmModal'
+import {
+  AdminGithubAppServiceReceptor,
+  GithubAppService,
+  useAdminGithubAppState
+} from '../../services/GithubAppService'
 import styles from '../../styles/admin.module.scss'
 import ProjectTable from './ProjectTable'
 import UploadProjectModal from './UploadProjectModal'
@@ -15,15 +22,28 @@ const Projects = () => {
   const authState = useAuthState()
   const user = authState.user
   const adminProjectState = useProjectState()
-  const githubAppState = useGithubAppState()
+  const githubAppState = useAdminGithubAppState()
   const githubAppRepos = githubAppState.repos.value
   const { t } = useTranslation()
   const [uploadProjectsModalOpen, setUploadProjectsModalOpen] = useState(false)
+  const [rebuildModalOpen, setRebuildModalOpen] = useState(false)
 
   const onOpenUploadModal = () => {
     GithubAppService.fetchGithubAppRepos()
     setUploadProjectsModalOpen(true)
   }
+
+  const onSubmitRebuild = () => {
+    setRebuildModalOpen(false)
+    ProjectService.triggerReload()
+  }
+
+  useEffect(() => {
+    addActionReceptor(AdminGithubAppServiceReceptor)
+    return () => {
+      removeActionReceptor(AdminGithubAppServiceReceptor)
+    }
+  }, [])
 
   useEffect(() => {
     if (user?.id.value != null && adminProjectState.updateNeeded.value === true) {
@@ -51,7 +71,7 @@ const Projects = () => {
             type="button"
             variant="contained"
             color="primary"
-            onClick={ProjectService.triggerReload}
+            onClick={() => setRebuildModalOpen(true)}
           >
             {t('admin:components.project.rebuild')}
           </Button>
@@ -60,6 +80,14 @@ const Projects = () => {
       <div className={styles.rootTable}>
         <ProjectTable />
       </div>
+
+      <ConfirmModal
+        open={rebuildModalOpen}
+        description={t('admin:components.project.confirmProjectsRebuild')}
+        onClose={() => setRebuildModalOpen(false)}
+        onSubmit={onSubmitRebuild}
+      />
+
       <UploadProjectModal
         repos={githubAppRepos}
         open={uploadProjectsModalOpen}

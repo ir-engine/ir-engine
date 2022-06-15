@@ -62,7 +62,7 @@ export const deserializeImage: ComponentDeserializeFunction = (
 
 export const updateImage: ComponentUpdateFunction = (entity: Entity, properties: ImageComponentType) => {
   if (!isClient) return
-  const obj3d = getComponent(entity, Object3DComponent).value as Mesh<any, MeshStandardMaterial>
+  const obj3d = getComponent(entity, Object3DComponent).value as Mesh<any, MeshBasicMaterial>
   const mesh = obj3d.userData.mesh
   const component = getComponent(entity, ImageComponent)
 

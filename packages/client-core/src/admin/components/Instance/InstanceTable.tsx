@@ -8,7 +8,7 @@ import { useAuthState } from '../../../user/services/AuthService'
 import ConfirmModal from '../../common/ConfirmModal'
 import TableComponent from '../../common/Table'
 import { instanceColumns, InstanceData } from '../../common/variables/instance'
-import { INSTANCE_PAGE_LIMIT, InstanceService, useInstanceState } from '../../services/InstanceService'
+import { AdminInstanceService, INSTANCE_PAGE_LIMIT, useAdminInstanceState } from '../../services/InstanceService'
 import styles from '../../styles/admin.module.scss'
 
 interface Props {
@@ -36,17 +36,17 @@ const InstanceTable = (props: Props) => {
   const { t } = useTranslation()
 
   const user = useAuthState().user
-  const adminInstanceState = useInstanceState()
+  const adminInstanceState = useAdminInstanceState()
   const adminInstances = adminInstanceState
 
   const handlePageChange = (event: unknown, newPage: number) => {
-    InstanceService.fetchAdminInstances(search, newPage, sortField, fieldOrder)
+    AdminInstanceService.fetchAdminInstances(search, newPage, sortField, fieldOrder)
     setPage(newPage)
   }
 
   useEffect(() => {
     if (adminInstanceState.fetched.value) {
-      InstanceService.fetchAdminInstances(search, page, sortField, fieldOrder)
+      AdminInstanceService.fetchAdminInstances(search, page, sortField, fieldOrder)
     }
   }, [fieldOrder])
 
@@ -55,7 +55,7 @@ const InstanceTable = (props: Props) => {
   }
 
   const submitRemoveInstance = async () => {
-    await InstanceService.removeInstance(instanceId)
+    await AdminInstanceService.removeInstance(instanceId)
     setPopConfirmOpen(false)
   }
 
@@ -84,7 +84,7 @@ const InstanceTable = (props: Props) => {
   React.useEffect(() => {
     if (!isMounted.current) return
     if ((user.id.value && adminInstances.updateNeeded.value) || refetch) {
-      InstanceService.fetchAdminInstances(search, page, sortField, fieldOrder)
+      AdminInstanceService.fetchAdminInstances(search, page, sortField, fieldOrder)
     }
     setRefetch(false)
   }, [user, adminInstanceState.updateNeeded.value, refetch])
@@ -140,11 +140,10 @@ const InstanceTable = (props: Props) => {
         handleRowsPerPageChange={handleRowsPerPageChange}
       />
       <ConfirmModal
-        popConfirmOpen={popConfirmOpen}
-        handleCloseModal={handleCloseModal}
-        submit={submitRemoveInstance}
-        name={instanceName}
-        label={'instance'}
+        open={popConfirmOpen}
+        description={`${t('admin:components.instance.confirmInstanceDelete')} '${instanceName}'?`}
+        onClose={handleCloseModal}
+        onSubmit={submitRemoveInstance}
       />
     </React.Fragment>
   )

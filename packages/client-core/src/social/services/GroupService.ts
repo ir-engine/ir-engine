@@ -4,6 +4,7 @@ import _ from 'lodash'
 import { CreateGroup, Group } from '@xrengine/common/src/interfaces/Group'
 import { GroupResult } from '@xrengine/common/src/interfaces/GroupResult'
 import { GroupUser } from '@xrengine/common/src/interfaces/GroupUser'
+import { dispatchAction } from '@xrengine/hyperflux'
 
 import { NotificationService } from '../../common/services/NotificationService'
 import { client } from '../../feathers'
@@ -285,9 +286,9 @@ if (globalThis.process.env['VITE_OFFLINE_MODE'] !== 'true') {
       newGroupUser.user.channelInstanceId != null &&
       newGroupUser.user.channelInstanceId === selfUser.channelInstanceId.value
     )
-      store.dispatch(UserAction.addedChannelLayerUser(newGroupUser.user))
+      dispatchAction(UserAction.addedChannelLayerUserAction({ user: newGroupUser.user }))
     if (newGroupUser.user.channelInstanceId !== selfUser.channelInstanceId.value)
-      store.dispatch(UserAction.removedChannelLayerUser(newGroupUser.user))
+      dispatchAction(UserAction.removedChannelLayerUserAction({ user: newGroupUser.user }))
   })
 
   client.service('group-user').on('patched', (params) => {
@@ -298,16 +299,20 @@ if (globalThis.process.env['VITE_OFFLINE_MODE'] !== 'true') {
       updatedGroupUser.user.channelInstanceId != null &&
       updatedGroupUser.user.channelInstanceId === selfUser.channelInstanceId.value
     )
-      store.dispatch(UserAction.addedChannelLayerUser(updatedGroupUser.user))
+      dispatchAction(UserAction.addedChannelLayerUserAction({ user: updatedGroupUser.user }))
     if (updatedGroupUser.user.channelInstanceId !== selfUser.channelInstanceId.value)
-      store.dispatch(UserAction.removedChannelLayerUser(updatedGroupUser.user))
+      dispatchAction(
+        UserAction.removedChannelLayerUserAction({
+          user: updatedGroupUser.user
+        })
+      )
   })
 
   client.service('group-user').on('removed', (params) => {
     const deletedGroupUser = params.groupUser
     const selfUser = accessAuthState().user
     store.dispatch(GroupAction.removedGroupUser(deletedGroupUser, params.self))
-    store.dispatch(UserAction.removedChannelLayerUser(deletedGroupUser.user))
+    dispatchAction(UserAction.removedChannelLayerUserAction({ user: deletedGroupUser.user }))
     if (deletedGroupUser.userId === selfUser.id.value)
       ChatService.clearChatTargetIfCurrent('group', { id: params.groupUser.groupId })
   })
