@@ -221,7 +221,6 @@ export async function handleConnectToWorld(
     media: {},
     consumerLayers: {},
     stats: {},
-    subscribedChatUpdates: [],
     dataConsumers: new Map<string, DataConsumer>(), // Key => id of data producer
     dataProducers: new Map<string, DataProducer>() // Key => label of data channel
   })
