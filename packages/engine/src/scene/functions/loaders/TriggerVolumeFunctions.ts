@@ -24,7 +24,7 @@ export const deserializeTriggerVolume: ComponentDeserializeFunction = (
   entity: Entity,
   json: ComponentJson<TriggerVolumeComponentType>
 ): void => {
-  const xform = getComponent(entity, TransformComponent)
+  const transform = getComponent(entity, TransformComponent)
 
   const boxMesh = new Mesh(new BoxBufferGeometry(), new MeshBasicMaterial())
   boxMesh.material.visible = false
@@ -35,7 +35,7 @@ export const deserializeTriggerVolume: ComponentDeserializeFunction = (
     collisionLayer: CollisionGroups.Trigger,
     collisionMask: CollisionGroups.Default
   }
-  boxMesh.scale.set(xform.scale.x, xform.scale.y, xform.scale.z)
+  boxMesh.scale.set(transform.scale.x, transform.scale.y, transform.scale.z)
   createCollider(entity, boxMesh)
 
   addComponent(entity, TriggerVolumeComponent, {
