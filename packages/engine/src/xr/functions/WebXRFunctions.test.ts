@@ -9,6 +9,8 @@ import { Engine } from '../../ecs/classes/Engine'
 import { addComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { createEngine } from '../../initializeEngine'
+import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
+import { XRHandsInputComponent } from '../components/XRHandsInputComponent'
 import { XRInputSourceComponent } from '../components/XRInputSourceComponent'
 import { setupXRCamera, setupXRInputSourceComponent } from './WebXRFunctions'
 
@@ -23,7 +25,6 @@ describe('WebXRFunctions Unit', async () => {
     addComponent(entity, FollowCameraComponent, FollowCameraDefaultValues)
     world.localClientEntity = entity
     Engine.instance.currentWorld.camera = new PerspectiveCamera()
-    assert(!Engine.instance.currentWorld.camera.parent)
 
     setupXRCamera(world)
 
@@ -57,5 +58,43 @@ describe('WebXRFunctions Unit', async () => {
     assert(callArg.avatarInputControllerType === 'test')
   })
 
-  it('check mapXRControllers', async () => {})
+  it('check endXR', async () => {
+    createMockNetwork()
+
+    const world = Engine.instance.currentWorld
+    const entity = createEntity(world)
+    world.localClientEntity = entity
+
+    const xrManagerMock = { setSession() {} } as any
+    EngineRenderer.instance.xrSession = true as any
+    EngineRenderer.instance.xrManager = xrManagerMock
+    Engine.instance.currentWorld.camera = new PerspectiveCamera()
+    sinon.spy(xrManagerMock, 'setSession')
+
+    setupXRInputSourceComponent(entity)
+    addComponent(entity, XRHandsInputComponent, { hands: [] })
+
+    const hyperfluxStub = {} as any
+    const { endXR } = proxyquire('./WebXRFunctions', {
+      '@xrengine/hyperflux': hyperfluxStub
+    })
+
+    sinon.spy(hyperfluxStub, 'dispatchAction')
+
+    endXR()
+
+    assert(xrManagerMock.setSession.calledOnce)
+    const setSessionCallArg = xrManagerMock.setSession.getCall(0).args[0]
+    assert(setSessionCallArg === null)
+    assert(Engine.instance.currentWorld.camera.parent === Engine.instance.currentWorld.scene)
+    assert(hasComponent(entity, FollowCameraComponent))
+    assert(!hasComponent(entity, XRInputSourceComponent))
+    assert(!hasComponent(entity, XRHandsInputComponent))
+
+    assert(hyperfluxStub.dispatchAction.calledOnce)
+    const dispatchActionCallArg = hyperfluxStub.dispatchAction.getCall(0).args[0]
+    assert(dispatchActionCallArg.type === 'network.SET_XR_MODE')
+    assert(dispatchActionCallArg.enabled === false)
+    assert(dispatchActionCallArg.avatarInputControllerType === '')
+  })
 })
