@@ -32,7 +32,6 @@ const PartyState = defineState({
 
 export const PartyServiceReceptor = (action) => {
   getState(PartyState).batch((s) => {
-    // let newValues, updateMap, partyUser, updateMapPartyUsers
     matches(action)
       .when(PartyAction.loadedPartyAction.matches, (action) => {
         return s.merge({ party: action.party, updateNeeded: false })
