@@ -1,13 +1,15 @@
 import { createState } from '@speigg/hookstate'
 import React, { useEffect, useState } from 'react'
 
+import { VrIcon } from '@xrengine/client-core/src/common/components/Icons/Vricon'
 import { Channel } from '@xrengine/common/src/interfaces/Channel'
+import { EngineActions, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
+import { dispatchAction } from '@xrengine/hyperflux'
 
-import { Close as CloseIcon, Message as MessageIcon } from '@mui/icons-material'
+import { Message as MessageIcon } from '@mui/icons-material'
 import LinkIcon from '@mui/icons-material/Link'
 import SettingsIcon from '@mui/icons-material/Settings'
-import { Badge } from '@mui/material'
 
 import { useChatState } from '../../social/services/ChatService'
 import { EmoteIcon } from '../../user/components/UserMenu'
@@ -17,7 +19,7 @@ const styles = {
   container: {
     display: 'grid',
     gridGap: '10px',
-    gridTemplateColumns: '1fr 1fr 1fr 1fr'
+    gridTemplateColumns: '1fr 1fr 1fr 1fr 1fr'
   },
   button: {
     margin: '5px 15px 10px 10px',
@@ -27,11 +29,10 @@ const styles = {
     width: '50px',
     height: '50px',
     fontSize: '20px',
+    display: 'flex',
+    justifyContent: 'center',
     backgroundColor: 'var(--iconButtonBackground)',
-    color: 'var(--iconButtonColor)',
-    svg: {
-      color: 'var(--iconButtonColor)'
-    }
+    color: 'var(--iconButtonColor)'
   }
 }
 
@@ -44,12 +45,11 @@ function createMainMenuButtonsState() {
 }
 
 const MainMenuButtons = () => {
-  const mainMenuState = useMainMenuButtonState()
-
   let activeChannel: Channel | null = null
   const chatState = useChatState()
+  const engineState = useEngineState()
   const channelState = chatState.channels
-  const channels = channelState.channels.value
+  const channels = channelState.channels.value as Channel[]
   const [unreadMessages, setUnreadMessages] = useState(false)
   const activeChannelMatch = Object.entries(channels).find(([key, channel]) => channel.channelType === 'instance')
   if (activeChannelMatch && activeChannelMatch.length > 0) {
@@ -101,26 +101,40 @@ const MainMenuButtons = () => {
     MainMenuButtonState.settingMenuOpen.set(!MainMenuButtonState.settingMenuOpen.value)
   }
 
+  const toogleVRSession = () => {
+    if (engineState.xrSessionStarted.value) {
+      dispatchAction(EngineActions.xrEnd())
+    } else {
+      dispatchAction(EngineActions.xrStart())
+    }
+  }
+
   return (
     <div style={styles.container as {}} xr-layer="true">
-      <div xr-layer="true" style={styles.button} onClick={toggleEmoteMenu}>
+      <style>{`
+        .svgIcon {
+          width: 1.5em;
+          height: 1.5em;
+        }
+
+        .svgIcon path {
+          fill: var(--iconButtonColor) !important;
+        }
+      `}</style>
+      <div style={styles.button} onClick={toggleEmoteMenu}>
         <EmoteIcon />
       </div>
-      <div xr-layer="true" style={styles.button} onClick={toggleShareMenu}>
-        <LinkIcon />
+      <div style={styles.button} onClick={toggleShareMenu}>
+        <LinkIcon className="svgIcon" />
       </div>
-      <div xr-layer="true" style={styles.button} onClick={toggleSettingMenu}>
-        <SettingsIcon />
+      <div style={styles.button} onClick={toggleSettingMenu}>
+        <SettingsIcon className="svgIcon" />
       </div>
-      <div xr-layer="true" style={styles.button} onClick={toggleChatWindow}>
-        <Badge
-          color="primary"
-          variant="dot"
-          invisible={!unreadMessages}
-          anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
-        >
-          {!mainMenuState.chatMenuOpen.value ? <MessageIcon /> : <CloseIcon />}
-        </Badge>
+      <div style={styles.button} onClick={toggleChatWindow}>
+        <MessageIcon className="svgIcon" />
+      </div>
+      <div style={styles.button} onClick={toogleVRSession}>
+        <VrIcon />
       </div>
     </div>
   )

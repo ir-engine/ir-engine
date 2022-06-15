@@ -98,7 +98,7 @@ const styles = {
     margin: '0px',
     padding: '0px'
   },
-  messageBoxContainer: { borderRadius: '40px', background: 'transparent', boxShadow: 'none', width: '500px' },
+  messageBoxContainer: { borderRadius: '40px', background: 'transparent', boxShadow: 'none', width: '100%' },
   messageInputBox: {
     font: 'inherit',
     letterSpacing: 'inherit',
@@ -133,16 +133,18 @@ function createChatDetailState() {
   return createState({})
 }
 
-type ChatDetailState = ReturnType<typeof createChatDetailState>
+interface ChatDetailState {
+  chatMenuOpen: boolean
+}
 
 const ChatDetailView = () => {
-  const detailState = useXRUIState() as ChatDetailState
+  const detailState = useXRUIState<ChatDetailState>()
 
   let activeChannel: Channel | null = null
   const user = useAuthState().user
   const chatState = useChatState()
   const channelState = chatState.channels
-  const channels = channelState.channels.value
+  const channels = channelState.channels.value as Channel[]
   const [composingMessage, setComposingMessage] = useState('')
   const [unreadMessages, setUnreadMessages] = useState(false)
   const activeChannelMatch = Object.entries(channels).find(([key, channel]) => channel.channelType === 'instance')

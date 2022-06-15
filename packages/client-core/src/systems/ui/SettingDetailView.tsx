@@ -5,7 +5,6 @@ import { useTranslation } from 'react-i18next'
 import { UserSetting } from '@xrengine/common/src/interfaces/User'
 import { EngineRendererAction, useEngineRendererState } from '@xrengine/engine/src/renderer/EngineRendererState'
 import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
-import { useXRUIState } from '@xrengine/engine/src/xrui/functions/useXRUIState'
 import { dispatchAction } from '@xrengine/hyperflux'
 
 import { AuthService, useAuthState } from '../../user/services/AuthService'

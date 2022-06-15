@@ -33,7 +33,6 @@ export default async function MainMenuButtonsSystem(world: World) {
 
     if (mainMenuButtonsXRUI) {
       MainMenuButtonState.showButtons.set(!MainMenuButtonState.showButtons.value)
-      // MainMenuButtonState.showButtons.set(false)
     }
   })
 
