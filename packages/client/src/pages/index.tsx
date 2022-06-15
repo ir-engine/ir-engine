@@ -8,8 +8,6 @@ import {
   useClientSettingState
 } from '@xrengine/client-core/src/admin/services/Setting/ClientSettingService'
 import ProfileMenu from '@xrengine/client-core/src/user/components/UserMenu/menus/ProfileMenu'
-import { AuthServiceReceptor } from '@xrengine/client-core/src/user/services/AuthService'
-import { addActionReceptor, removeActionReceptor } from '@xrengine/hyperflux'
 
 const ROOT_REDIRECT: any = globalThis.process.env['VITE_ROOT_REDIRECT']
 
@@ -20,12 +18,6 @@ export const HomePage = (): any => {
 
   useEffect(() => {
     !clientSetting && ClientSettingService.fetchClientSettings()
-
-    addActionReceptor(AuthServiceReceptor)
-
-    return () => {
-      removeActionReceptor(AuthServiceReceptor)
-    }
   }, [])
 
   if (ROOT_REDIRECT && ROOT_REDIRECT.length > 0 && ROOT_REDIRECT !== 'false') {

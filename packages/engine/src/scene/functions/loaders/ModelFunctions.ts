@@ -1,4 +1,4 @@
-import { Texture } from 'three'
+import { Mesh, Texture } from 'three'
 
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
@@ -16,6 +16,7 @@ import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { MaterialOverrideComponentType } from '../../components/MaterialOverrideComponent'
 import { ModelComponent, ModelComponentType } from '../../components/ModelComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
+import { SimpleMaterialTagComponent } from '../../components/SimpleMaterialTagComponent'
 import cloneObject3D from '../cloneObject3D'
 import { addError, removeError } from '../ErrorFunctions'
 import { overrideTexture, parseGLTFModel } from '../loadGLTFModel'
@@ -27,6 +28,7 @@ export const SCENE_COMPONENT_MODEL_DEFAULT_VALUE = {
   textureOverride: '',
   materialOverrides: [] as MaterialOverrideComponentType[],
   matrixAutoUpdate: true,
+  useBasicMaterial: false,
   isUsingGPUInstancing: false,
   isDynamicObject: false
 }
@@ -66,6 +68,10 @@ export const updateModel: ComponentUpdateFunction = (entity: Entity, properties:
   if (typeof properties.textureOverride !== 'undefined') {
     overrideTexture(entity)
   }
+
+  if (properties.useBasicMaterial !== undefined && properties.useBasicMaterial) {
+    addComponent(entity, SimpleMaterialTagComponent, true)
+  }
 }
 
 export const serializeModel: ComponentSerializeFunction = (entity) => {
@@ -92,6 +98,7 @@ export const serializeModel: ComponentSerializeFunction = (entity) => {
       textureOverride: component.textureOverride,
       materialOverrides: overrides,
       matrixAutoUpdate: component.matrixAutoUpdate,
+      useBasicMaterial: component.useBasicMaterial,
       isUsingGPUInstancing: component.isUsingGPUInstancing,
       isDynamicObject: component.isDynamicObject
     }
@@ -104,6 +111,7 @@ const parseModelProperties = (props): ModelComponentType => {
     textureOverride: props.textureOverride ?? SCENE_COMPONENT_MODEL_DEFAULT_VALUE.textureOverride,
     materialOverrides: props.materialOverrides ?? SCENE_COMPONENT_MODEL_DEFAULT_VALUE.materialOverrides,
     matrixAutoUpdate: props.matrixAutoUpdate ?? SCENE_COMPONENT_MODEL_DEFAULT_VALUE.matrixAutoUpdate,
+    useBasicMaterial: props.useBasicMaterial ?? SCENE_COMPONENT_MODEL_DEFAULT_VALUE.useBasicMaterial,
     isUsingGPUInstancing: props.isUsingGPUInstancing ?? SCENE_COMPONENT_MODEL_DEFAULT_VALUE.isUsingGPUInstancing,
     isDynamicObject: props.isDynamicObject ?? SCENE_COMPONENT_MODEL_DEFAULT_VALUE.isDynamicObject
   }

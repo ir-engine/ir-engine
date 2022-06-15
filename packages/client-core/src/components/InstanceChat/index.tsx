@@ -1,9 +1,7 @@
-import { useState } from '@speigg/hookstate'
 import React, { useEffect } from 'react'
 
 import { useLocationInstanceConnectionState } from '@xrengine/client-core/src/common/services/LocationInstanceConnectionService'
 import { ChatService, ChatServiceReceptor, useChatState } from '@xrengine/client-core/src/social/services/ChatService'
-import { getChatMessageSystem, removeMessageSystem } from '@xrengine/client-core/src/social/services/utils/chatSystem'
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import { notificationAlertURL } from '@xrengine/common/src/constants/URL'
 import { Channel } from '@xrengine/common/src/interfaces/Channel'
@@ -11,7 +9,6 @@ import multiLogger from '@xrengine/common/src/logger'
 import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
 import { useAudioState } from '@xrengine/engine/src/audio/AudioState'
 import { AudioComponent } from '@xrengine/engine/src/audio/components/AudioComponent'
-import { isCommand } from '@xrengine/engine/src/common/functions/commandHandler'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { EngineActions, getEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
@@ -142,7 +139,7 @@ const InstanceChat = (props: Props): any => {
   }, [])
 
   useEffect(() => {
-    if (Engine.instance.currentWorld.worldNetwork?.hostId && currentInstanceConnection.connected.value) {
+    if (Engine.instance.currentWorld.worldNetwork?.hostId && currentInstanceConnection?.connected?.value) {
       ChatService.getInstanceChannel()
     }
   }, [currentInstanceConnection?.connected?.value])
@@ -275,66 +272,54 @@ const InstanceChat = (props: Props): any => {
             <Card square={true} elevation={0} className={styles['message-wrapper']}>
               <CardContent className={styles['message-container']}>
                 {sortedMessages &&
-                  sortedMessages.map((message, index, messages) => {
-                    if (isCommand(message.text)) return undefined
-                    const system = getChatMessageSystem(message.text)
-                    let chatMessage = message.text
-                    if (system !== 'none') {
-                      if (system === 'jl_system') {
-                        chatMessage = removeMessageSystem(message.text)
-                      } else {
-                        return undefined
-                      }
-                    }
-                    return (
-                      <React.Fragment key={message.id}>
-                        {!isLeftOrJoinText(message.text) ? (
-                          <div key={message.id} className={`${styles.dFlex} ${styles.flexColumn} ${styles.mgSmall}`}>
-                            <div className={`${styles.selfEnd} ${styles.noMargin}`}>
-                              <div className={styles.dFlex}>
-                                <div className={styles.msgWrapper}>
-                                  {messages[index - 1] && isLeftOrJoinText(messages[index - 1].text) ? (
-                                    <h3 className={styles.sender}>{message.sender.name}</h3>
-                                  ) : (
-                                    messages[index - 1] &&
-                                    message.senderId !== messages[index - 1].senderId && (
-                                      <h3 className={styles.sender}>{message.sender.name}</h3>
-                                    )
-                                  )}
-                                  <div
-                                    className={`${
-                                      message.senderId !== user?.id.value ? styles.msgReplyContainer : styles.msgOwner
-                                    } ${styles.msgContainer} ${styles.mx2}`}
-                                  >
-                                    <p className={styles.text}>{message.text}</p>
-                                  </div>
-                                </div>
-                                {index !== 0 && messages[index - 1] && isLeftOrJoinText(messages[index - 1].text) ? (
-                                  <Avatar src={getAvatarURLForUser(message.senderId)} className={styles.avatar} />
+                  sortedMessages.map((message, index, messages) => (
+                    <React.Fragment key={message.id}>
+                      {!isLeftOrJoinText(message.text) ? (
+                        <div key={message.id} className={`${styles.dFlex} ${styles.flexColumn} ${styles.mgSmall}`}>
+                          <div className={`${styles.selfEnd} ${styles.noMargin}`}>
+                            <div className={styles.dFlex}>
+                              <div className={styles.msgWrapper}>
+                                {messages[index - 1] && isLeftOrJoinText(messages[index - 1].text) ? (
+                                  <h3 className={styles.sender}>{message.sender.name}</h3>
                                 ) : (
                                   messages[index - 1] &&
                                   message.senderId !== messages[index - 1].senderId && (
-                                    <Avatar src={getAvatarURLForUser(message.senderId)} className={styles.avatar} />
+                                    <h3 className={styles.sender}>{message.sender.name}</h3>
                                   )
                                 )}
-                                {index === 0 && (
+                                <div
+                                  className={`${
+                                    message.senderId !== user?.id.value ? styles.msgReplyContainer : styles.msgOwner
+                                  } ${styles.msgContainer} ${styles.mx2}`}
+                                >
+                                  <p className={styles.text}>{message.text}</p>
+                                </div>
+                              </div>
+                              {index !== 0 && messages[index - 1] && isLeftOrJoinText(messages[index - 1].text) ? (
+                                <Avatar src={getAvatarURLForUser(message.senderId)} className={styles.avatar} />
+                              ) : (
+                                messages[index - 1] &&
+                                message.senderId !== messages[index - 1].senderId && (
                                   <Avatar src={getAvatarURLForUser(message.senderId)} className={styles.avatar} />
-                                )}
-                              </div>
+                                )
+                              )}
+                              {index === 0 && (
+                                <Avatar src={getAvatarURLForUser(message.senderId)} className={styles.avatar} />
+                              )}
                             </div>
                           </div>
-                        ) : (
-                          <div key={message.id} className={`${styles.selfEnd} ${styles.noMargin}`}>
-                            <div className={styles.dFlex}>
-                              <div className={`${styles.msgNotification} ${styles.mx2}`}>
-                                <p className={styles.greyText}>{message.text}</p>
-                              </div>
+                        </div>
+                      ) : (
+                        <div key={message.id} className={`${styles.selfEnd} ${styles.noMargin}`}>
+                          <div className={styles.dFlex}>
+                            <div className={`${styles.msgNotification} ${styles.mx2}`}>
+                              <p className={styles.greyText}>{message.text}</p>
                             </div>
                           </div>
-                        )}
-                      </React.Fragment>
-                    )
-                  })}
+                        </div>
+                      )}
+                    </React.Fragment>
+                  ))}
               </CardContent>
             </Card>
           </div>
