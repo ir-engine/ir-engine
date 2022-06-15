@@ -35,10 +35,10 @@ const styles = {
     width: '40px',
     height: '70px',
     position: 'absolute',
-    left: '2px',
-    top: '191px',
+    left: '22px',
+    top: '312px',
     backgroundColor: 'rgb(51, 51, 110, 0.5)',
-    transform: 'rotate(-45deg)',
+    transform: 'rotate(45deg)',
     borderTopRightRadius: '50px',
     borderBottomRightRadius: '50px',
     opacity: '1'
@@ -50,7 +50,7 @@ const styles = {
     backgroundColor: 'transparent',
     top: '18px',
     right: '3px',
-    transform: 'rotate(50deg)'
+    transform: 'rotate(-50deg)'
   },
   arrowSvg: {
     position: 'relative',
@@ -68,10 +68,10 @@ const styles = {
     width: '40px',
     height: '70px',
     position: 'absolute',
-    right: '2px',
-    top: '191px',
+    right: '22px',
+    top: '312px',
     backgroundColor: 'rgb(51 51 110 / 50%)',
-    transform: 'rotate(225deg)',
+    transform: 'rotate(-225deg)',
     borderTopRightRadius: '50px',
     borderBottomRightRadius: '50px',
     opacity: '1'
@@ -83,7 +83,7 @@ const styles = {
     top: '18px',
     right: '3px',
     backgroundColor: 'transparent',
-    transform: 'rotate(130deg)'
+    transform: 'rotate(-130deg)'
   },
   menuItem: {
     borderRadius: '50%',
@@ -114,8 +114,7 @@ const EmoteDetailView = () => {
   const [page, setPage] = useState(0)
   const [imgPerPage, setImgPerPage] = useState(getEmotePerPage())
 
-  let [menuRadius, setMenuRadius] = useState(182)
-
+  let menuRadius = 250
   let menuPadding = 25
   let menuThickness = 70
   let menuItemWidth = menuThickness - menuPadding
@@ -193,7 +192,6 @@ const EmoteDetailView = () => {
 
   const calculateMenuRadius = () => {
     setImgPerPage(getEmotePerPage())
-    setMenuRadius(182)
     calculateOtherValues()
   }
 

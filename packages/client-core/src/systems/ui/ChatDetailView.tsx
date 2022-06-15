@@ -3,10 +3,10 @@ import React, { useEffect, useState } from 'react'
 
 import { useLocationInstanceConnectionState } from '@xrengine/client-core/src/common/services/LocationInstanceConnectionService'
 import { ChatService, useChatState } from '@xrengine/client-core/src/social/services/ChatService'
-import { getChatMessageSystem, removeMessageSystem } from '@xrengine/client-core/src/social/services/utils/chatSystem'
+// import { getChatMessageSystem, removeMessageSystem } from '@xrengine/client-core/src/social/services/utils/chatSystem'
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import { Channel } from '@xrengine/common/src/interfaces/Channel'
-import { isCommand } from '@xrengine/engine/src/common/functions/commandHandler'
+// import { isCommand } from '@xrengine/engine/src/common/functions/commandHandler'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
 import { useXRUIState } from '@xrengine/engine/src/xrui/functions/useXRUIState'
@@ -259,17 +259,17 @@ const ChatDetailView = () => {
               activeChannel.messages?.length
             )
             .map((message) => {
-              if (!Engine.instance.isBot && isCommand(message.text)) return undefined
-              const system = getChatMessageSystem(message.text)
+              // if (!Engine.instance.isBot && isCommand(message.text)) return undefined
+              // const system = getChatMessageSystem(message.text)
               let chatMessage = message.text
 
-              if (system !== 'none') {
-                if (Engine.instance.isBot || system === 'jl_system') {
-                  chatMessage = removeMessageSystem(message.text)
-                } else {
-                  return undefined
-                }
-              }
+              // if (system !== 'none') {
+              //   if (Engine.instance.isBot || system === 'jl_system') {
+              //     chatMessage = removeMessageSystem(message.text)
+              //   } else {
+              //     return undefined
+              //   }
+              // }
               return (
                 <li
                   key={message.id}
