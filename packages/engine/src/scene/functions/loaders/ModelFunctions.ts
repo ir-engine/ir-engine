@@ -69,8 +69,13 @@ export const updateModel: ComponentUpdateFunction = (entity: Entity, properties:
     overrideTexture(entity)
   }
 
-  if (properties.useBasicMaterial !== undefined && properties.useBasicMaterial) {
-    addComponent(entity, SimpleMaterialTagComponent, true)
+  if (typeof properties.useBasicMaterial === 'boolean') {
+    const hasTag = hasComponent(entity, SimpleMaterialTagComponent)
+    if (properties.useBasicMaterial) {
+      if (!hasTag) addComponent(entity, SimpleMaterialTagComponent, true)
+    } else {
+      if (hasTag) removeComponent(entity, SimpleMaterialTagComponent)
+    }
   }
 }
 
