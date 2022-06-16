@@ -9,7 +9,6 @@ export interface NetworkClient {
   userId: UserId
   index: number
   name: string
-  subscribedChatUpdates?: string[]
   // The following properties are only present on the server
   socket?: SocketIO.Socket
   socketId?: string
