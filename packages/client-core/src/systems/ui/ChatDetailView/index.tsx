@@ -15,117 +15,7 @@ import Avatar from '@mui/material/Avatar'
 import ListItemAvatar from '@mui/material/ListItemAvatar'
 
 import { useChatHooks } from '../../../components/InstanceChat'
-
-const styles = {
-  avatarItem: {
-    position: 'relative',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    flexShrink: '0',
-    width: '40px',
-    height: '40px',
-    fontFamily: 'Roboto, Helvetica, Arial, sans-serif',
-    fontSize: '1.25rem',
-    lineHeight: '1',
-    borderRadius: '50%',
-    overflow: 'hidden',
-    userSelect: 'none',
-    color: 'var(--textColor)',
-    backgroundColor: 'rgb(189, 189, 189)',
-    margin: '0 10px'
-  },
-  avatar: {
-    userSelect: 'none',
-    width: '1em',
-    height: '1em',
-    display: 'inline-block',
-    fill: 'currentcolor',
-    flexShrink: '0',
-    transition: 'fill 200ms cubic-bezier(0.4, 0, 0.2, 1) 0ms',
-    fontSize: '1.5rem'
-  },
-  chatContainer: {
-    display: 'flex',
-    flexDirection: 'column',
-    width: '500px',
-    minHeight: '208px',
-    margin: '5px 15px 20px 10px',
-    borderRadius: '5px',
-    backgroundColor: 'var(--popupBackground)'
-  },
-  hide: { width: '0', overflow: 'hidden' },
-  messageList: {
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'flex-end',
-    height: '100%',
-    padding: '0px 10px',
-    background: 'transparent'
-  },
-  messageItem: {
-    color: 'var(--textColor)',
-    display: 'flex',
-    alignItems: 'center',
-    position: 'relative',
-    textDecoration: 'none',
-    width: '100%',
-    boxSizing: 'border-box',
-    paddingTop: '8px',
-    paddingBottom: '8px'
-  },
-  messageEnd: { justifyContent: 'flex-end', textAlign: 'end' },
-  messageStart: { justifyContent: 'flex-start', textAlign: 'start' },
-  messageRow: { width: '100%', display: 'flex' },
-  messageContent: {
-    borderRadius: '10px 10px 0 0,flex: 1 1 auto',
-    minWidth: '0px',
-    marginTop: '4px',
-    marginBottom: '4px'
-  },
-  messageChild: {
-    margin: '0px',
-    fontFamily: 'Roboto, Helvetica, Arial, sans-serif',
-    fontWeight: '400',
-    fontSize: '1rem',
-    lineHeight: '1.5',
-    letterSpacing: '0.00938em',
-    display: 'block'
-  },
-  senderName: {
-    color: 'var(--textColor)',
-    fontWeight: '700'
-  },
-  senderMessage: {
-    margin: '0px',
-    padding: '0px'
-  },
-  messageBoxContainer: { borderRadius: '40px', background: 'transparent', boxShadow: 'none', width: '100%' },
-  messageInputBox: {
-    font: 'inherit',
-    letterSpacing: 'inherit',
-    padding: '4px 0px 5px',
-    border: '0px',
-    boxSizing: 'content-box',
-    background: 'none',
-    height: '1.4375em',
-    margin: '10px 10px 5px 10px',
-    display: 'block',
-    minWidth: '0px',
-    width: '100%',
-    color: 'white'
-  },
-  chatButton: {
-    margin: '5px 15px 10px 10px',
-    alignItems: 'center',
-    zIndex: '20',
-    borderRadius: '50%',
-    color: 'black',
-    width: '50px',
-    height: '50px',
-    fontSize: '20px'
-  }
-}
+import styleString from './index.scss'
 
 export function createChatDetailView() {
   return createXRUI(ChatDetailView, createChatDetailState())
@@ -168,60 +58,52 @@ const ChatDetailView = () => {
   const getAvatar = (message): any => {
     return (
       dimensions.width > 768 && (
-        <ListItemAvatar style={styles.avatarItem as {}}>
-          <Avatar src={message.sender?.avatarUrl} style={styles.avatar as {}} />
+        <ListItemAvatar className="avatarItem">
+          <Avatar src={message.sender?.avatarUrl} className="avatar" />
         </ListItemAvatar>
       )
     )
   }
 
   return (
-    <div style={styles.chatContainer as {}} xr-layer="true">
-      <div style={styles.messageList as {}}>
-        {sortedMessages.map((message) => {
-          let chatMessage = message.text
-          return (
-            <li
-              key={message.id}
-              style={{
-                ...(styles.messageItem as {}),
-                ...((isMessageSentBySelf(message) ? styles.messageEnd : styles.messageStart) as {})
-              }}
-            >
-              <div
-                style={{
-                  ...(styles.messageRow as {}),
-                  ...((isMessageSentBySelf(message) ? styles.messageEnd : styles.messageStart) as {})
-                }}
+    <>
+      <style>{styleString}</style>
+      <div className="chatContainer" xr-layer="true">
+        <div className="messageList">
+          {sortedMessages.map((message) => {
+            let chatMessage = message.text
+            return (
+              <li
+                key={message.id}
+                className={`messageItem ${isMessageSentBySelf(message) ? 'messageEnd' : 'messageStart'}`}
               >
-                {!isMessageSentBySelf(message) && getAvatar(message)}
-                <div style={styles.messageContent}>
-                  <span style={styles.messageChild}>
-                    <span>
-                      <span style={styles.senderName}>{getMessageUser(message)}</span>
-                      <p style={styles.senderMessage}>{chatMessage}</p>
+                <div className={`messageRow ${isMessageSentBySelf(message) ? 'messageEnd' : 'messageStart'}`}>
+                  {!isMessageSentBySelf(message) && getAvatar(message)}
+                  <div className="messageContent">
+                    <span className="messageChild">
+                      <span>
+                        <span className="senderName">{getMessageUser(message)}</span>
+                        <p className="senderMessag">{chatMessage}</p>
+                      </span>
                     </span>
-                  </span>
+                  </div>
+                  {isMessageSentBySelf(message) && getAvatar(message)}
                 </div>
-                {isMessageSentBySelf(message) && getAvatar(message)}
-              </div>
-            </li>
-          )
-        })}
+              </li>
+            )
+          })}
+        </div>
+        <div className="messageBoxContainer">
+          <input
+            type="text"
+            placeholder={'World Chat...'}
+            value={composingMessage}
+            onChange={(evt) => handleComposingMessageChange(evt)}
+            className={`messageInputBox ${detailState.chatMenuOpen.value ? '' : 'hide'}`}
+            onKeyDown={(evt) => handleComposingMessageChange(evt)}
+          />
+        </div>
       </div>
-      <div style={styles.messageBoxContainer}>
-        <input
-          type="text"
-          placeholder={'World Chat...'}
-          value={composingMessage}
-          onChange={(evt) => handleComposingMessageChange(evt)}
-          style={{
-            ...(styles.messageInputBox as {}),
-            ...((detailState.chatMenuOpen.value ? {} : styles.hide) as {})
-          }}
-          onKeyDown={(evt) => handleComposingMessageChange(evt)}
-        />
-      </div>
-    </div>
+    </>
   )
 }
