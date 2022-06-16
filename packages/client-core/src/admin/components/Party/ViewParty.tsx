@@ -31,8 +31,7 @@ interface Props {
   handleEditMode: (open: boolean) => void
 }
 
-export default function ViewParty(props: Props) {
-  const { openView, closeViewModal, partyAdmin, editMode, handleEditMode } = props
+export default function ViewParty({ openView, closeViewModal, partyAdmin, editMode, handleEditMode }: Props) {
   const [updateParty, setUpdateParty] = useState({
     location: '',
     instance: '',

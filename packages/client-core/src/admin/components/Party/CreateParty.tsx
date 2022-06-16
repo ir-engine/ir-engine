@@ -17,9 +17,8 @@ import { useAdminLocationState } from '../../services/LocationService'
 import { AdminPartyService } from '../../services/PartyService'
 import styles from '../../styles/admin.module.scss'
 
-const CreateParty = (props: PartyProps) => {
+const CreateParty = ({ open, handleClose }: PartyProps) => {
   CreateParty
-  const { open, handleClose } = props
   const { t } = useTranslation()
 
   const [newParty, setNewParty] = useState({

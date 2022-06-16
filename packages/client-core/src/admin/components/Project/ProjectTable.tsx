@@ -7,7 +7,8 @@ import Cached from '@mui/icons-material/Cached'
 import Cross from '@mui/icons-material/Cancel'
 import CleaningServicesIcon from '@mui/icons-material/CleaningServices'
 import VisibilityIcon from '@mui/icons-material/Visibility'
-import Button from '@mui/material/Button'
+import Box from '@mui/material/Box'
+import IconButton from '@mui/material/IconButton'
 
 import { PROJECT_PAGE_LIMIT, ProjectService, useProjectState } from '../../../common/services/ProjectService'
 import { useAuthState } from '../../../user/services/AuthService'
@@ -17,7 +18,11 @@ import { projectsColumns } from '../../common/variables/projects'
 import styles from '../../styles/admin.module.scss'
 import ViewProjectFiles from './ViewProjectFiles'
 
-export default function ProjectTable() {
+interface Props {
+  className?: string
+}
+
+const ProjectTable = ({ className }: Props) => {
   const { t } = useTranslation()
   const [processing, setProcessing] = useState(false)
   const [popupReuploadConfirmOpen, setPopupReuploadConfirmOpen] = useState(false)
@@ -139,57 +144,45 @@ export default function ProjectTable() {
       update: (
         <>
           {user.userRole.value === 'admin' && (
-            <Button
-              className={styles.checkboxButton}
+            <IconButton
+              className={styles.iconButton}
+              name="update"
               disabled={el.repositoryPath === null && name !== 'default-project'}
               onClick={() => handleOpenReuploadConfirmation(el)}
-              name="stereoscopic"
-              color="primary"
             >
               <Cached />
-            </Button>
+            </IconButton>
           )}
         </>
       ),
       invalidate: (
         <>
           {user.userRole.value === 'admin' && (
-            <Button
-              className={styles.checkboxButton}
+            <IconButton
+              className={styles.iconButton}
+              name="invalidate"
               onClick={() => handleOpenInvaliateConfirmation(el)}
-              name="stereoscopic"
-              color="primary"
             >
               <CleaningServicesIcon />
-            </Button>
+            </IconButton>
           )}
         </>
       ),
       view: (
         <>
           {user.userRole.value === 'admin' && (
-            <Button
-              className={styles.checkboxButton}
-              onClick={() => handleViewProject(name)}
-              name="stereoscopic"
-              color="primary"
-            >
+            <IconButton className={styles.iconButton} name="view" onClick={() => handleViewProject(name)}>
               <VisibilityIcon />
-            </Button>
+            </IconButton>
           )}
         </>
       ),
       action: (
         <>
           {user.userRole.value === 'admin' && (
-            <Button
-              className={styles.checkboxButton}
-              onClick={() => handleOpenRemoveConfirmation(el)}
-              name="stereoscopic"
-              color="primary"
-            >
+            <IconButton className={styles.iconButton} name="remove" onClick={() => handleOpenRemoveConfirmation(el)}>
               <Cross />
-            </Button>
+            </IconButton>
           )}
         </>
       )
@@ -201,7 +194,7 @@ export default function ProjectTable() {
   })
 
   return (
-    <div>
+    <Box className={className}>
       <TableComponent
         allowSort={true}
         rows={rows}
@@ -236,6 +229,8 @@ export default function ProjectTable() {
       {showProjectFiles && projectName && (
         <ViewProjectFiles name={projectName} open={showProjectFiles} setShowProjectFiles={setShowProjectFiles} />
       )}
-    </div>
+    </Box>
   )
 }
+
+export default ProjectTable

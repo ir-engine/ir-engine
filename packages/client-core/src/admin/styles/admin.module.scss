@@ -753,6 +753,11 @@
   color: var(--textColor) !important;
 }
 
+.spanWhite:hover,
+.spanDange:hover {
+  opacity: 0.8;
+}
+
 .actionStyle {
   text-decoration: none;
   color: #000;
@@ -1161,13 +1166,6 @@
   top: 0;
 }
 
-.checkboxButton {
-  margin: 0;
-  padding: 0;
-  width: 100%;
-  color: var(--textColor);
-}
-
 .accentText {
   color: var(--textColor);
 }
@@ -1266,4 +1264,8 @@
   :global(.MuiFormControlLabel-label.Mui-disabled) {
     color: var(--textColor);
   }
+}
+
+.iconButton {
+  color: var(--textColor);
 }

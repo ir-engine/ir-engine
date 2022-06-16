@@ -53,7 +53,7 @@ interface Props {
   peerId?: string | 'me_cam' | 'me_screen'
 }
 
-const PartyParticipantWindow = (props: Props): JSX.Element => {
+const PartyParticipantWindow = ({ peerId }: Props): JSX.Element => {
   const [isPiP, setPiP] = useState(false)
   const [videoStream, _setVideoStream] = useState<any>(null)
   const [audioStream, _setAudioStream] = useState<any>(null)
@@ -66,7 +66,6 @@ const PartyParticipantWindow = (props: Props): JSX.Element => {
   const [audioTrackClones, setAudioTrackClones] = useState<any[]>([])
   const [videoTrackClones, setVideoTrackClones] = useState<any[]>([])
   const [volume, setVolume] = useState(100)
-  const { peerId } = props
   const userState = useUserState()
   const videoRef = React.useRef<any>()
   const audioRef = React.useRef<any>()

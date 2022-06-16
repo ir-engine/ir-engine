@@ -209,7 +209,6 @@ interface InstanceChatProps {
   styles?: any
   MessageButton?: any
   CloseButton?: any
-  SendButton?: any
   newMessageLabel?: string
   setBottomDrawerOpen?: any
   animate?: any
@@ -217,17 +216,15 @@ interface InstanceChatProps {
   setShowTouchPad?: any
 }
 
-const InstanceChat = (props: InstanceChatProps): any => {
-  const {
-    styles = defaultStyles,
-    MessageButton = MessageIcon,
-    CloseButton = CancelIcon,
-    SendButton = Send,
-    hideOtherMenus,
-    setShowTouchPad,
-    newMessageLabel = 'World Chat...'
-  } = props
-
+const InstanceChat = ({
+  styles = defaultStyles,
+  MessageButton = MessageIcon,
+  CloseButton = CancelIcon,
+  newMessageLabel = 'World Chat...',
+  animate,
+  hideOtherMenus,
+  setShowTouchPad
+}: InstanceChatProps): any => {
   const [chatWindowOpen, setChatWindowOpen] = useState(false)
   const [unreadMessages, setUnreadMessages] = useState(false)
   const messageRefInput = useRef<HTMLInputElement>()
@@ -437,7 +434,7 @@ const InstanceChat = (props: InstanceChatProps): any => {
           </div>
           <div
             className={`${styles.iconCallChat} ${
-              isInitRender ? props.animate : !chatWindowOpen ? (isMobile ? styles.animateTop : styles.animateLeft) : ''
+              isInitRender ? animate : !chatWindowOpen ? (isMobile ? styles.animateTop : styles.animateLeft) : ''
             } ${!chatWindowOpen ? '' : styles.iconCallPos}`}
           >
             <Badge
