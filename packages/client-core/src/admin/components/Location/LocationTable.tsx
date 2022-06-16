@@ -23,7 +23,7 @@ interface Props {
 const LocationTable = ({ className, search }: Props) => {
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(LOCATION_PAGE_LIMIT)
-  const [popConfirmOpen, setPopConfirmOpen] = useState(false)
+  const [openConfirm, setOpenConfirm] = useState(false)
   const [locationId, setLocationId] = useState('')
   const [locationName, setLocationName] = useState('')
   const [fieldOrder, setFieldOrder] = useState('asc')
@@ -49,10 +49,6 @@ const LocationTable = ({ className, search }: Props) => {
     setPage(newPage)
   }
 
-  const handleCloseModal = () => {
-    setPopConfirmOpen(false)
-  }
-
   useEffect(() => {
     if (adminLocationState.fetched.value) {
       AdminLocationService.fetchAdminLocations(search, page, sortField, fieldOrder)
@@ -61,7 +57,7 @@ const LocationTable = ({ className, search }: Props) => {
 
   const submitRemoveLocation = async () => {
     await AdminLocationService.removeLocation(locationId)
-    setPopConfirmOpen(false)
+    setOpenConfirm(false)
   }
 
   const handleRowsPerPageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -113,9 +109,9 @@ const LocationTable = ({ className, search }: Props) => {
             href="#h"
             className={styles.actionStyle}
             onClick={() => {
-              setPopConfirmOpen(true)
               setLocationId(id)
               setLocationName(name)
+              setOpenConfirm(true)
             }}
           >
             <span className={styles.spanDange}>{t('admin:components.index.delete')}</span>
@@ -181,9 +177,9 @@ const LocationTable = ({ className, search }: Props) => {
         handleRowsPerPageChange={handleRowsPerPageChange}
       />
       <ConfirmModal
-        open={popConfirmOpen}
+        open={openConfirm}
         description={`${t('admin:components.location.confirmLocationDelete')} '${locationName}'?`}
-        onClose={handleCloseModal}
+        onClose={() => setOpenConfirm(false)}
         onSubmit={submitRemoveLocation}
       />
       <ViewLocation open={openViewLocation} locationAdmin={locationAdmin} onClose={() => setOpenViewLocation(false)} />

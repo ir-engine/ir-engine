@@ -14,7 +14,7 @@ import ViewUser from './ViewUser'
 const UserTable = ({ search }: UserProps) => {
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(USER_PAGE_LIMIT)
-  const [popConfirmOpen, setPopConfirmOpen] = useState(false)
+  const [openConfirm, setOpenConfirm] = useState(false)
   const [userId, setUserId] = useState('')
   const [userName, setUserName] = useState('')
   const [fieldOrder, setFieldOrder] = useState('asc')
@@ -48,13 +48,9 @@ const UserTable = ({ search }: UserProps) => {
     setPage(0)
   }
 
-  const handleCloseModal = () => {
-    setPopConfirmOpen(false)
-  }
-
   const submitDeleteUser = async () => {
     await AdminUserService.removeUserAdmin(userId)
-    setPopConfirmOpen(false)
+    setOpenConfirm(false)
   }
 
   const createData = (
@@ -95,7 +91,7 @@ const UserTable = ({ search }: UserProps) => {
               onClick={() => {
                 setUserId(id)
                 setUserName(name)
-                setPopConfirmOpen(true)
+                setOpenConfirm(true)
               }}
             >
               <span className={styles.spanDange}>{t('admin:components.index.delete')}</span>
@@ -148,9 +144,9 @@ const UserTable = ({ search }: UserProps) => {
         handleRowsPerPageChange={handleRowsPerPageChange}
       />
       <ConfirmModal
-        open={popConfirmOpen}
+        open={openConfirm}
         description={`${t('admin:components.user.confirmUserDelete')} '${userName}'?`}
-        onClose={handleCloseModal}
+        onClose={() => setOpenConfirm(false)}
         onSubmit={submitDeleteUser}
       />
       {userAdmin && openViewUser && <ViewUser open userAdmin={userAdmin} onClose={() => setOpenViewUser(false)} />}

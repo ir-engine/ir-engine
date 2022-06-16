@@ -15,7 +15,7 @@ const PartyTable = ({ search }: PartyPropsTable) => {
   const { t } = useTranslation()
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(PARTY_PAGE_LIMIT)
-  const [popConfirmOpen, setPopConfirmOpen] = useState(false)
+  const [openConfirm, setOpenConfirm] = useState(false)
   const [partyName, setPartyName] = useState('')
   const [partyId, setPartyId] = useState('')
   const [fieldOrder, setFieldOrder] = useState('asc')
@@ -45,13 +45,9 @@ const PartyTable = ({ search }: PartyPropsTable) => {
     }
   }, [fieldOrder])
 
-  const handleCloseModal = () => {
-    setPopConfirmOpen(false)
-  }
-
   const submitRemoveParty = async () => {
     await AdminPartyService.removeParty(partyId)
-    setPopConfirmOpen(false)
+    setOpenConfirm(false)
   }
 
   const handleOpenViewParty = (open: boolean, party: any) => {
@@ -79,9 +75,9 @@ const PartyTable = ({ search }: PartyPropsTable) => {
             href="#h"
             className={styles.actionStyle}
             onClick={() => {
-              setPopConfirmOpen(true)
               setPartyName(instance)
               setPartyId(id)
+              setOpenConfirm(true)
             }}
           >
             <span className={styles.spanDange}>{t('admin:components.index.delete')}</span>
@@ -121,9 +117,9 @@ const PartyTable = ({ search }: PartyPropsTable) => {
         handleRowsPerPageChange={handleRowsPerPageChange}
       />
       <ConfirmModal
-        open={popConfirmOpen}
+        open={openConfirm}
         description={`${t('admin:components.party.confirmPartyDelete')} '${partyName}'?`}
-        onClose={handleCloseModal}
+        onClose={() => setOpenConfirm(false)}
         onSubmit={submitRemoveParty}
       />
       <ViewParty open={openViewParty} partyAdmin={partyAdmin} onClose={handleCloseViewParty} />

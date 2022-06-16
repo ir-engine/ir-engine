@@ -30,7 +30,7 @@ const AvatarTable = ({ search }: Props) => {
 
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(AVATAR_PAGE_LIMIT)
-  const [popConfirmOpen, setPopConfirmOpen] = useState(false)
+  const [openConfirm, setOpenConfirm] = useState(false)
   const [avatarId, setAvatarId] = useState('')
   const [avatarName, setAvatarName] = useState('')
   const [fieldOrder, setFieldOrder] = useState('asc')
@@ -48,10 +48,6 @@ const AvatarTable = ({ search }: Props) => {
       AdminAvatarService.fetchAdminAvatars(page, search, sortField, fieldOrder)
     }
   }, [fieldOrder])
-
-  const handleCloseModal = () => {
-    setPopConfirmOpen(false)
-  }
 
   const handleRowsPerPageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setRowsPerPage(parseInt(event.target.value, 10))
@@ -89,9 +85,9 @@ const AvatarTable = ({ search }: Props) => {
             href="#h"
             className={styles.actionStyle}
             onClick={() => {
-              setPopConfirmOpen(true)
               setAvatarId(el.id)
               setAvatarName(name as any)
+              setOpenConfirm(true)
             }}
           >
             <span className={styles.spanDange}>{t('user:avatar.delete')}</span>
@@ -107,7 +103,7 @@ const AvatarTable = ({ search }: Props) => {
 
   const submitRemoveAvatar = async () => {
     await AdminAvatarService.removeAdminAvatar(avatarId, avatarName)
-    setPopConfirmOpen(false)
+    setOpenConfirm(false)
   }
 
   return (
@@ -126,9 +122,9 @@ const AvatarTable = ({ search }: Props) => {
         handleRowsPerPageChange={handleRowsPerPageChange}
       />
       <ConfirmModal
-        open={popConfirmOpen}
+        open={openConfirm}
         description={`${t('admin:components.avatar.confirmAvatarDelete')} '${avatarName}'?`}
-        onClose={handleCloseModal}
+        onClose={() => setOpenConfirm(false)}
         onSubmit={submitRemoveAvatar}
       />
       {avatarData && openDrawer && (
