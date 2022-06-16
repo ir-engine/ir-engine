@@ -1,0 +1,141 @@
+.avatarItem {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  font-family: Roboto, Helvetica, Arial, sans-serif;
+  font-size: 1.25rem;
+  line-height: 1;
+  border-radius: 50%;
+  overflow: hidden;
+  user-select: none;
+  color: var(--textColor);
+  background-color: rgb(189 189 189);
+  margin: 0 10px;
+}
+
+.avatar {
+  user-select: none;
+  width: 1em;
+  height: 1em;
+  display: inline-block;
+  fill: currentcolor;
+  flex-shrink: 0;
+  transition: fill 200ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
+  font-size: 1.5rem;
+}
+
+.chatContainer {
+  display: flex;
+  flex-direction: column;
+  width: 500px;
+  min-height: 208px;
+  margin: 5px 15px 20px 10px;
+  border-radius: 5px;
+  background-color: var(--popupBackground);
+}
+
+.hide {
+  width: 0;
+  overflow: hidden;
+}
+
+.messageList {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  height: 100%;
+  padding: 0 10px;
+  background: transparent;
+}
+
+.messageItem {
+  color: var(--textColor);
+  display: flex;
+  align-items: center;
+  position: relative;
+  text-decoration: none;
+  width: 100%;
+  box-sizing: border-box;
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+
+.messageEnd {
+  justify-content: flex-end;
+  text-align: end;
+}
+
+.messageStart {
+  justify-content: flex-start;
+  text-align: start;
+}
+
+.messageRow {
+  width: 100%;
+  display: flex;
+}
+
+.messageContent {
+  border-radius: 10px 10px 0 0;
+  flex: 1 1 auto;
+  min-width: 0;
+  margin-top: 4px;
+  margin-bottom: 4px;
+}
+
+.messageChild {
+  margin: 0;
+  font-family: Roboto, Helvetica, Arial, sans-serif;
+  font-weight: 400;
+  font-size: 1rem;
+  line-height: 1.5;
+  letter-spacing: 0.00938em;
+  display: block;
+}
+
+.senderName {
+  color: var(--textColor);
+  font-weight: 700;
+}
+
+.senderMessage {
+  margin: 0;
+  padding: 0;
+}
+
+.messageBoxContainer {
+  border-radius: 40px;
+  background: transparent;
+  box-shadow: none;
+  width: 100%;
+}
+
+.messageInputBox {
+  font: inherit;
+  letter-spacing: inherit;
+  padding: 4px 0 5px;
+  border: 0;
+  box-sizing: content-box;
+  background: none;
+  height: 1.4375em;
+  margin: 10px 10px 5px;
+  display: block;
+  min-width: 0;
+  width: 100%;
+  color: white;
+}
+
+.chatButton {
+  margin: 5px 15px 10px 10px;
+  align-items: center;
+  z-index: 20;
+  border-radius: 50%;
+  color: black;
+  width: 50px;
+  height: 50px;
+  font-size: 20px;
+}
