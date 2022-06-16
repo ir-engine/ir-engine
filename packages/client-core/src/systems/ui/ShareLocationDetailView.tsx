@@ -1,12 +1,11 @@
 import { createState } from '@speigg/hookstate'
-import React, { useRef, useState } from 'react'
+import React, { useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { NotificationService } from '@xrengine/client-core/src/common/services/NotificationService'
-import { InviteService, useInviteState } from '@xrengine/client-core/src/social/services/InviteService'
-import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import { isShareAvailable } from '@xrengine/engine/src/common/functions/DetectFeatures'
 import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
+
+import { useShareMenuHooks } from '../../user/components/UserMenu/menus/ShareMenu'
 
 const styles = {
   container: {
@@ -236,60 +235,11 @@ function createShareLocationDetailState() {
 
 const ShareLocationDetailView = () => {
   const { t } = useTranslation()
-  const [email, setEmail] = useState('')
   const refLink = useRef() as React.MutableRefObject<HTMLInputElement>
-  const postTitle = 'AR/VR world'
-  const siteTitle = 'XREngine'
-  const inviteState = useInviteState()
-  const copyLinkToClipboard = () => {
-    navigator.clipboard.writeText(refLink.current.value)
-    NotificationService.dispatchNotify(t('user:usermenu.share.linkCopied'), { variant: 'success' })
-  }
-  const selfUser = useAuthState().user
 
-  const shareOnApps = () => {
-    navigator
-      .share({
-        title: `${postTitle} | ${siteTitle}`,
-        text: `Check out ${postTitle} on ${siteTitle}`,
-        url: document.location.href
-      })
-      .then(() => {
-        console.log('Successfully shared')
-      })
-      .catch((error) => {
-        console.error('Something went wrong sharing the world', error)
-      })
-  }
-
-  const packageInvite = async (): Promise<void> => {
-    const sendData = {
-      type: 'friend',
-      token: email,
-      inviteCode: null,
-      identityProviderType: 'email',
-      targetObjectId: inviteState.targetObjectId.value,
-      invitee: null
-    }
-    InviteService.sendInvite(sendData)
-    setEmail('')
-  }
-
-  const handleChang = (e) => {
-    setEmail(e.target.value)
-  }
-
-  const getInviteLink = () => {
-    const location = new URL(window.location as any)
-    let params = new URLSearchParams(location.search)
-    if (selfUser?.inviteCode.value != null) {
-      params.append('inviteCode', selfUser.inviteCode.value)
-      location.search = params.toString()
-      return location.toString()
-    } else {
-      return location.toString()
-    }
-  }
+  const { copyLinkToClipboard, shareOnApps, packageInvite, handleChang, getInviteLink, email } = useShareMenuHooks({
+    refLink
+  })
 
   return (
     <div style={styles.container} xr-layer="true">
@@ -303,7 +253,7 @@ const ShareLocationDetailView = () => {
               disabled={true}
               type="text"
               style={styles.inviteLinkInput as {}}
-              value={getInviteLink()}
+              value={getInviteLink() as any}
             />
 
             <div style={styles.copyInviteContainer as {}} onClick={() => copyLinkToClipboard()}>
