@@ -485,8 +485,11 @@ export const setAvatarHeadOpacity = (entity: Entity, opacity: number): void => {
     })
   }
 
-  //TODO: set scale to hide head mesh
-  // (headBone as any).traverse(o => {
+  //TODO:
+  // We also have the solution to scale down the neck bone.
+  // In this case, we also need to handle the meshs to hide 'internal' polygons when opacity is below 1
+  // Check out the setupHeadDecap function
+  // (headBone.parent as any).traverse(o => {
   //   o.scale.set(opacity, opacity, opacity);
   // });
 }
