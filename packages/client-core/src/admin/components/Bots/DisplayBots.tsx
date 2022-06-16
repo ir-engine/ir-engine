@@ -13,9 +13,9 @@ import Grid from '@mui/material/Grid'
 import IconButton from '@mui/material/IconButton'
 import Typography from '@mui/material/Typography'
 
+import { NotificationService } from '../../../common/services/NotificationService'
 import { useAuthState } from '../../../user/services/AuthService'
 import AddCommand from '../../common/AddCommand'
-import AlertMessage from '../../common/AlertMessage'
 import ConfirmModal from '../../common/ConfirmModal'
 import { AdminBotCommandService, useAdminBotCommandState } from '../../services/BotsCommand'
 import { AdminBotService, useAdminBotState } from '../../services/BotsService'
@@ -28,7 +28,6 @@ const DisplayBots = () => {
     name: '',
     description: ''
   })
-  const [open, setOpen] = useState(false)
   const [openModal, setOpenModal] = useState(false)
   const [bot, setBot] = useState<AdminBot>()
   const [popConfirmOpen, setPopConfirmOpen] = useState(false)
@@ -68,14 +67,6 @@ const DisplayBots = () => {
     setPopConfirmOpen(false)
   }
 
-  const handleClose = (event?: React.SyntheticEvent | Event, reason?: string) => {
-    if (reason === 'clickaway') {
-      return
-    }
-
-    setOpen(false)
-  }
-
   const submitCommandBot = (id: string) => {
     const data: CreateBotCammand = {
       name: command.name,
@@ -108,7 +99,7 @@ const DisplayBots = () => {
       submitCommandBot(id)
       botRefresh()
     } else {
-      setOpen(true)
+      NotificationService.dispatchNotify(t('admin:components.bot.commandRequired'), { variant: 'error' })
     }
   }
 
@@ -188,13 +179,6 @@ const DisplayBots = () => {
           </Accordion>
         )
       })}
-
-      <AlertMessage
-        open={open}
-        handleClose={handleClose}
-        severity="warning"
-        message={t('admin:components.bot.commandRequired')}
-      />
 
       <UpdateBot open={openModal} handleClose={handleCloseModal} bot={bot} />
 

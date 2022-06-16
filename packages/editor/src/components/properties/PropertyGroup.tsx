@@ -37,10 +37,14 @@ const PropertyGroupContent = (styled as any).div`
   flex-direction: column;
 `
 
-// function to create property group view
-function PropertyGroup(props) {
-  const { name, description, children, ...rest } = props
+interface Props {
+  name?: string
+  description?: string
+  children?: React.ReactNode
+}
 
+// function to create property group view
+const PropertyGroup = ({ name, description, children, ...rest }: Props) => {
   return (
     <StyledPropertyGroup {...rest}>
       <PropertyGroupHeader>{name}</PropertyGroupHeader>

@@ -24,15 +24,14 @@ interface Props {
   enableDiscordSocial?: boolean
 }
 
-const SocialLogin = (props: Props): JSX.Element => {
-  const {
-    enableDiscordSocial,
-    enableFacebookSocial,
-    enableGithubSocial,
-    enableGoogleSocial,
-    enableLinkedInSocial,
-    enableTwitterSocial
-  } = props
+const SocialLogin = ({
+  enableDiscordSocial,
+  enableFacebookSocial,
+  enableGithubSocial,
+  enableGoogleSocial,
+  enableLinkedInSocial,
+  enableTwitterSocial
+}: Props): JSX.Element => {
   const { t } = useTranslation()
   const location = useLocation()
 

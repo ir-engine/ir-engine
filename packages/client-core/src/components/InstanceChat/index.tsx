@@ -36,31 +36,25 @@ import TextField from '@mui/material/TextField'
 import { getAvatarURLForUser } from '../../user/components/UserMenu/util'
 import defaultStyles from './index.module.scss'
 
-const logger = multiLogger.child({ component: 'client-core:chat' })
-
 interface Props {
   styles?: any
   MessageButton?: any
   CloseButton?: any
-  SendButton?: any
   newMessageLabel?: string
-  setBottomDrawerOpen?: any
   animate?: any
   hideOtherMenus?: any
   setShowTouchPad?: any
 }
 
-const InstanceChat = (props: Props): any => {
-  const {
-    styles = defaultStyles,
-    MessageButton = MessageIcon,
-    CloseButton = CancelIcon,
-    SendButton = Send,
-    hideOtherMenus,
-    setShowTouchPad,
-    newMessageLabel = 'World Chat...'
-  } = props
-
+const InstanceChat = ({
+  styles = defaultStyles,
+  MessageButton = MessageIcon,
+  CloseButton = CancelIcon,
+  newMessageLabel = 'World Chat...',
+  animate,
+  hideOtherMenus,
+  setShowTouchPad
+}: Props): any => {
   let activeChannel: Channel | null = null
   const messageRefInput = React.useRef<HTMLInputElement>()
   const user = useAuthState().user
@@ -69,7 +63,7 @@ const InstanceChat = (props: Props): any => {
   const channels = channelState.channels.value
   const [composingMessage, setComposingMessage] = React.useState('')
   const [unreadMessages, setUnreadMessages] = React.useState(false)
-  const activeChannelMatch = Object.entries(channels).find(([key, channel]) => channel.channelType === 'instance')
+  const activeChannelMatch = Object.entries(channels).find(([, channel]) => channel.channelType === 'instance')
   const locationInstanceConnectionState = useLocationInstanceConnectionState()
 
   const currentInstanceConnection =
@@ -373,7 +367,7 @@ const InstanceChat = (props: Props): any => {
           </div>
           <div
             className={`${styles.iconCallChat} ${
-              isInitRender ? props.animate : !chatWindowOpen ? (isMobile ? styles.animateTop : styles.animateLeft) : ''
+              isInitRender ? animate : !chatWindowOpen ? (isMobile ? styles.animateTop : styles.animateLeft) : ''
             } ${!chatWindowOpen ? '' : styles.iconCallPos}`}
           >
             <Badge
