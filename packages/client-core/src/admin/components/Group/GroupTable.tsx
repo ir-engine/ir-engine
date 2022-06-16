@@ -70,10 +70,6 @@ const GroupTable = ({ search }: Props) => {
     AdminGroupService.deleteGroupByAdmin(groupId)
   }
 
-  const closeViewModal = (open) => {
-    setViewModal(open)
-  }
-
   useEffect(() => {
     //if (adminGroupState.updateNeeded.value && user.id.value) {
     //  GroupService.getGroupService(null)
@@ -133,7 +129,7 @@ const GroupTable = ({ search }: Props) => {
         onSubmit={deleteGroupHandler}
       />
       {singleGroup && viewModal && (
-        <ViewGroup groupAdmin={singleGroup} openView={viewModal} closeViewModal={closeViewModal} />
+        <ViewGroup groupAdmin={singleGroup} open={viewModal} onClose={() => setViewModal(false)} />
       )}
     </React.Fragment>
   )

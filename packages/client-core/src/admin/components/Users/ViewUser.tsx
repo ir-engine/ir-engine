@@ -31,16 +31,16 @@ import { AdminUserService, useUserState } from '../../services/UserService'
 import styles from '../../styles/admin.module.scss'
 
 interface Props {
-  openView: boolean
   userAdmin: User
-  closeViewModal?: (open: boolean) => void
+  open: boolean
+  onClose: () => void
 }
 
 interface ScopeData {
   type: string
 }
 
-const ViewUser = ({ openView, closeViewModal, userAdmin }: Props) => {
+const ViewUser = ({ userAdmin, open, onClose }: Props) => {
   const [editMode, setEditMode] = useState(false)
   const [refetch, setRefetch] = useState(0)
   const { t } = useTranslation()
@@ -139,14 +139,13 @@ const ViewUser = ({ openView, closeViewModal, userAdmin }: Props) => {
       AdminUserService.patchUser(userAdmin.id, data)
       setState({ ...state, name: '', avatar: '', userRole: '', scopes: [] })
       setEditMode(false)
-      closeViewModal && closeViewModal(false)
+      onClose()
     } else {
       NotificationService.dispatchNotify(t('admin:components.user.fillRequiredField'), { variant: 'error' })
     }
   }
 
   const handleCloseDrawer = () => {
-    closeViewModal && closeViewModal(false)
     setState({
       ...state,
       formErrors: {
@@ -157,6 +156,7 @@ const ViewUser = ({ openView, closeViewModal, userAdmin }: Props) => {
         scopes: ''
       }
     })
+    onClose()
   }
 
   const handleChangeScopeType = (scope) => {
@@ -184,7 +184,7 @@ const ViewUser = ({ openView, closeViewModal, userAdmin }: Props) => {
   })
 
   return (
-    <DrawerView open={openView} onClose={handleCloseDrawer}>
+    <DrawerView open={open} onClose={handleCloseDrawer}>
       {userAdmin && (
         <Paper elevation={3} className={styles.rootPaper}>
           <Container maxWidth="sm" className={styles.pad}>

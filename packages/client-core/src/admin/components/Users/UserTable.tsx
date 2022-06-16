@@ -48,10 +48,6 @@ const UserTable = ({ search }: UserProps) => {
     setPage(0)
   }
 
-  const closeViewModal = (open) => {
-    setViewModal(open)
-  }
-
   const handleCloseModal = () => {
     setPopConfirmOpen(false)
   }
@@ -158,7 +154,7 @@ const UserTable = ({ search }: UserProps) => {
         onSubmit={submitDeleteUser}
       />
       {userAdmin && viewModal && (
-        <ViewUser openView={viewModal} userAdmin={userAdmin} closeViewModal={closeViewModal} />
+        <ViewUser open={viewModal} userAdmin={userAdmin} onClose={() => setViewModal(false)} />
       )}
     </React.Fragment>
   )

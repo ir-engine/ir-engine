@@ -22,7 +22,6 @@ const PartyTable = ({ search }: PartyPropsTable) => {
   const [sortField, setSortField] = useState('location')
   const [viewModal, setViewModal] = useState(false)
   const [partyAdmin, setPartyAdmin] = useState<Party>()
-  const [editMode, setEditMode] = useState(false)
 
   const authState = useAuthState()
   const user = authState.user
@@ -61,13 +60,8 @@ const PartyTable = ({ search }: PartyPropsTable) => {
   }
 
   const closeViewModal = () => {
-    setViewModal(false)
     setPartyAdmin(undefined)
-    setEditMode(false)
-  }
-
-  const handleEditMode = (open: boolean) => {
-    setEditMode(open)
+    setViewModal(false)
   }
 
   const createData = (el: Party, id: string, instance: any, location: any): PartyData => {
@@ -132,13 +126,7 @@ const PartyTable = ({ search }: PartyPropsTable) => {
         onClose={handleCloseModal}
         onSubmit={submitRemoveParty}
       />
-      <ViewParty
-        openView={viewModal}
-        closeViewModal={closeViewModal}
-        partyAdmin={partyAdmin}
-        editMode={editMode}
-        handleEditMode={handleEditMode}
-      />
+      <ViewParty open={viewModal} partyAdmin={partyAdmin} onClose={closeViewModal} />
     </React.Fragment>
   )
 }

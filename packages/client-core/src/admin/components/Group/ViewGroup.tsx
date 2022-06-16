@@ -22,18 +22,18 @@ import EditGroup from './EditGroup'
 
 interface Props {
   groupAdmin: Group
-  closeViewModal: (open: boolean) => void
-  openView: boolean
+  open: boolean
+  onClose: () => void
 }
 
-const ViewGroup = ({ openView, groupAdmin, closeViewModal }: Props) => {
+const ViewGroup = ({ groupAdmin, open, onClose }: Props) => {
   const [editMode, setEditMode] = useState(false)
   const { t } = useTranslation()
 
   return (
-    <DrawerView open={openView} onClose={() => closeViewModal(false)}>
+    <DrawerView open={open} onClose={onClose}>
       {editMode ? (
-        <EditGroup groupAdmin={groupAdmin} closeEditModal={setEditMode} closeViewModal={closeViewModal} />
+        <EditGroup groupAdmin={groupAdmin} closeEditModal={setEditMode} closeViewModal={onClose} />
       ) : (
         <React.Fragment>
           <Paper elevation={3} className={styles.rootPaper}>
@@ -123,7 +123,7 @@ const ViewGroup = ({ openView, groupAdmin, closeViewModal }: Props) => {
               >
                 {t('admin:components.group.edit')}
               </Button>
-              <Button onClick={() => closeViewModal(false)} className={styles.cancelButton}>
+              <Button onClick={onClose} className={styles.cancelButton}>
                 {t('admin:components.group.cancel')}
               </Button>
             </DialogActions>
