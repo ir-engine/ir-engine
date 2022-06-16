@@ -1,57 +1,49 @@
 import { Paginated } from '@feathersjs/feathers'
-import { createState, useState } from '@speigg/hookstate'
 
 import { AdminRedisSetting } from '@xrengine/common/src/interfaces/AdminRedisSetting'
+import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
+import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
-//Action
 import { NotificationService } from '../../../common/services/NotificationService'
 import { client } from '../../../feathers'
-import { store, useDispatch } from '../../../store'
 
-//State
-const state = createState({
-  redisSettings: [] as Array<AdminRedisSetting>,
-  skip: 0,
-  limit: 100,
-  total: 0,
-  updateNeeded: true
+const AdminRedisSettingsState = defineState({
+  name: 'AdminRedisSettingsState',
+  initial: () => ({
+    redisSettings: [] as Array<AdminRedisSetting>,
+    skip: 0,
+    limit: 100,
+    total: 0,
+    updateNeeded: true
+  })
 })
 
-store.receptors.push((action: AdminRedisSettingActionType): any => {
-  state.batch((s) => {
-    switch (action.type) {
-      case 'ADMIN_REDIS_SETTING_FETCHED':
-        return s.merge({ redisSettings: action.adminRedisSetting.data, updateNeeded: false })
-    }
-  }, action.type)
-})
+export const AdminRedisSettingsServiceReceptor = (action) => {
+  getState(AdminRedisSettingsState).batch((s) => {
+    matches(action).when(AdminRedisSettingActions.redisSettingRetrieved.matches, (action) => {
+      return s.merge({ redisSettings: action.adminRedisSetting.data, updateNeeded: false })
+    })
+  })
+}
 
-export const accessAdminRedisSettingState = () => state
+export const accessAdminRedisSettingState = () => getState(AdminRedisSettingsState)
 
-export const useAdminRedisSettingState = () => useState(state) as any as typeof state
+export const useAdminRedisSettingState = () => useState(accessAdminRedisSettingState())
 
-//Service
 export const AdminRedisSettingService = {
   fetchRedisSetting: async () => {
-    const dispatch = useDispatch()
     try {
       const redisSetting = (await client.service('redis-setting').find()) as Paginated<AdminRedisSetting>
-      dispatch(AdminRedisSettingAction.redisSettingRetrieved(redisSetting))
+      dispatchAction(AdminRedisSettingActions.redisSettingRetrieved({ adminRedisSetting: redisSetting }))
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   }
 }
 
-export const AdminRedisSettingAction = {
-  redisSettingRetrieved: (adminRedisSetting: Paginated<AdminRedisSetting>) => {
-    return {
-      type: 'ADMIN_REDIS_SETTING_FETCHED' as const,
-      adminRedisSetting: adminRedisSetting
-    }
-  }
+export class AdminRedisSettingActions {
+  static redisSettingRetrieved = defineAction({
+    type: 'ADMIN_REDIS_SETTING_FETCHED' as const,
+    adminRedisSetting: matches.object as Validator<unknown, Paginated<AdminRedisSetting>>
+  })
 }
-
-export type AdminRedisSettingActionType = ReturnType<
-  typeof AdminRedisSettingAction[keyof typeof AdminRedisSettingAction]
->

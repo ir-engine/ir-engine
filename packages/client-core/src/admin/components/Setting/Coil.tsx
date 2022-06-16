@@ -5,7 +5,7 @@ import { Typography } from '@mui/material'
 
 import { useAuthState } from '../../../user/services/AuthService'
 import InputText from '../../common/InputText'
-import { CoilSettingService, useCoilSettingState } from '../../services/Setting/CoilSettingService'
+import { AdminCoilSettingService, useCoilSettingState } from '../../services/Setting/CoilSettingService'
 import styles from '../../styles/settings.module.scss'
 
 interface Props {}
@@ -19,7 +19,7 @@ const Coil = (props: Props) => {
 
   useEffect(() => {
     if (user?.id?.value && coilSettingState?.updateNeeded?.value) {
-      CoilSettingService.fetchCoil()
+      AdminCoilSettingService.fetchCoil()
     }
   }, [authState?.user?.id?.value, coilSettingState?.updateNeeded?.value])
 
