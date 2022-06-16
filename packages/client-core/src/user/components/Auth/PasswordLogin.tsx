@@ -25,7 +25,7 @@ interface Props {
   isAddConnection?: boolean
 }
 
-export const PasswordLogin = ({ isAddConnection }: Props): JSX.Element => {
+const PasswordLogin = ({ isAddConnection }: Props): JSX.Element => {
   const auth = useAuthState()
   const [state, setState] = useState(initialState)
   const { t } = useTranslation()
@@ -148,6 +148,4 @@ export const PasswordLogin = ({ isAddConnection }: Props): JSX.Element => {
   )
 }
 
-const PasswordLoginWrapper = (props: Props): JSX.Element => <PasswordLogin {...props} />
-
-export default PasswordLoginWrapper
+export default PasswordLogin

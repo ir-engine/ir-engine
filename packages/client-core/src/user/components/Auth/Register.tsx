@@ -12,9 +12,7 @@ import Typography from '@mui/material/Typography'
 import { AuthService } from '../../services/AuthService'
 import styles from './index.module.scss'
 
-interface Props {}
-
-const SignUp = (props: Props): JSX.Element => {
+const SignUp = (): JSX.Element => {
   const initialState = {
     email: '',
     password: '',
@@ -99,6 +97,4 @@ const SignUp = (props: Props): JSX.Element => {
   )
 }
 
-const SignUpWrapper = (props: Props): JSX.Element => <SignUp {...props} />
-
-export default SignUpWrapper
+export default SignUp

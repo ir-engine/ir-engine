@@ -15,7 +15,6 @@ import { AuthService } from '../../services/AuthService'
 import styles from './index.module.scss'
 
 interface Props {
-  //auth?: any
   enableFacebookSocial?: boolean
   enableGithubSocial?: boolean
   enableGoogleSocial?: boolean
@@ -169,6 +168,4 @@ const SocialLogin = ({
   )
 }
 
-const SocialLoginWrapper = (props: Props): JSX.Element => <SocialLogin {...props} />
-
-export default SocialLoginWrapper
+export default SocialLogin
