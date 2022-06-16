@@ -4,6 +4,8 @@ import { useTranslation } from 'react-i18next'
 import { AvatarInterface } from '@xrengine/common/src/interfaces/AvatarInterface'
 import { dispatchAction } from '@xrengine/hyperflux'
 
+import Box from '@mui/material/Box'
+
 import AvatarSelectMenu from '../../../user/components/UserMenu/menus/AvatarSelectMenu'
 import { useAuthState } from '../../../user/services/AuthService'
 import ConfirmModal from '../../common/ConfirmModal'
@@ -16,11 +18,11 @@ import { AdminAvatarService } from '../../services/AvatarService'
 import styles from '../../styles/admin.module.scss'
 
 interface Props {
-  // locationState?: any
+  className?: string
   search: string
 }
 
-const AvatarTable = ({ search }: Props) => {
+const AvatarTable = ({ className, search }: Props) => {
   const adminAvatarState = useAdminAvatarState()
   const authState = useAuthState()
   const user = authState.user
@@ -107,7 +109,7 @@ const AvatarTable = ({ search }: Props) => {
   }
 
   return (
-    <React.Fragment>
+    <Box className={className}>
       <TableComponent
         allowSort={false}
         fieldOrder={fieldOrder}
@@ -137,7 +139,7 @@ const AvatarTable = ({ search }: Props) => {
           />
         </DrawerView>
       )}
-    </React.Fragment>
+    </Box>
   )
 }
 

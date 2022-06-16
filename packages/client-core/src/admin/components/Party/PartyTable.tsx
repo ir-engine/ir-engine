@@ -3,6 +3,8 @@ import { useTranslation } from 'react-i18next'
 
 import { Party } from '@xrengine/common/src/interfaces/Party'
 
+import Box from '@mui/material/Box'
+
 import { useAuthState } from '../../../user/services/AuthService'
 import ConfirmModal from '../../common/ConfirmModal'
 import TableComponent from '../../common/Table'
@@ -11,7 +13,7 @@ import { AdminPartyService, PARTY_PAGE_LIMIT, usePartyState } from '../../servic
 import styles from '../../styles/admin.module.scss'
 import ViewParty from './ViewParty'
 
-const PartyTable = ({ search }: PartyPropsTable) => {
+const PartyTable = ({ className, search }: PartyPropsTable) => {
   const { t } = useTranslation()
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(PARTY_PAGE_LIMIT)
@@ -102,7 +104,7 @@ const PartyTable = ({ search }: PartyPropsTable) => {
   })
 
   return (
-    <React.Fragment>
+    <Box className={className}>
       <TableComponent
         allowSort={false}
         fieldOrder={fieldOrder}
@@ -123,7 +125,7 @@ const PartyTable = ({ search }: PartyPropsTable) => {
         onSubmit={submitRemoveParty}
       />
       <ViewParty open={openViewParty} partyAdmin={partyAdmin} onClose={handleCloseViewParty} />
-    </React.Fragment>
+    </Box>
   )
 }
 

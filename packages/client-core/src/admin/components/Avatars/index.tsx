@@ -41,9 +41,9 @@ const Avatar = () => {
           </Button>
         </Grid>
       </Grid>
-      <div className={styles.rootTable}>
-        <AvatarTable search={search} />
-      </div>
+
+      <AvatarTable className={styles.rootTable} search={search} />
+
       {openDrawer && (
         <DrawerView open onClose={() => setOpenDrawer(false)}>
           <AvatarSelectMenu

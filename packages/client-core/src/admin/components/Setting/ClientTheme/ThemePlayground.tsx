@@ -147,7 +147,7 @@ const ThemePlayground = () => {
       <br />
       <Box className="themeDemoArea">
         <nav className="navbar">
-          <div className="logoSection">XR-Engine</div>
+          <div className="logoSection">XREngine</div>
         </nav>
         <div className="mainSection">
           <div className="sidebar">

@@ -3,6 +3,8 @@ import { useTranslation } from 'react-i18next'
 
 import { Group } from '@xrengine/common/src/interfaces/Group'
 
+import Box from '@mui/material/Box'
+
 import { useAuthState } from '../../../user/services/AuthService'
 import ConfirmModal from '../../common/ConfirmModal'
 import TableComponent from '../../common/Table'
@@ -12,10 +14,11 @@ import styles from '../../styles/admin.module.scss'
 import ViewGroup from './ViewGroup'
 
 interface Props {
+  className?: string
   search: string
 }
 
-const GroupTable = ({ search }: Props) => {
+const GroupTable = ({ className, search }: Props) => {
   const user = useAuthState().user
   const [openViewGroup, setOpenViewGroup] = useState(false)
   const [singleGroup, setSingleGroup] = useState<Group>(null!)
@@ -108,7 +111,7 @@ const GroupTable = ({ search }: Props) => {
   })
 
   return (
-    <React.Fragment>
+    <Box className={className}>
       <TableComponent
         allowSort={false}
         fieldOrder={orderBy}
@@ -131,7 +134,7 @@ const GroupTable = ({ search }: Props) => {
       {singleGroup && openViewGroup && (
         <ViewGroup groupAdmin={singleGroup} open onClose={() => setOpenViewGroup(false)} />
       )}
-    </React.Fragment>
+    </Box>
   )
 }
 

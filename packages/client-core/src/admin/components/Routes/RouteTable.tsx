@@ -1,6 +1,6 @@
 import React, { ChangeEvent, useEffect, useState } from 'react'
 
-import { Checkbox } from '@mui/material'
+import { Box, Checkbox } from '@mui/material'
 import CircularProgress from '@mui/material/CircularProgress'
 
 import { useAuthState } from '../../../user/services/AuthService'
@@ -15,13 +15,17 @@ import styles from '../../styles/admin.module.scss'
  */
 const ROUTE_PAGE_LIMIT = 1000
 
+interface Props {
+  className?: string
+}
+
 /**
  *
  * @param props
  * @returns
  */
 
-const RouteTable = () => {
+const RouteTable = ({ className }: Props) => {
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(ROUTE_PAGE_LIMIT)
 
@@ -98,7 +102,7 @@ const RouteTable = () => {
     .flat()
 
   return (
-    <React.Fragment>
+    <Box className={className}>
       <TableComponent
         allowSort={true}
         rows={installedRoutes}
@@ -114,7 +118,7 @@ const RouteTable = () => {
           <CircularProgress className={styles.progress} />
         </div>
       )}
-    </React.Fragment>
+    </Box>
   )
 }
 

@@ -46,9 +46,8 @@ const GroupConsole = () => {
             </Button>
           </Grid>
         </Grid>
-        <div className={styles.rootTableWithSearch}>
-          <GroupTable search={search} />
-        </div>
+
+        <GroupTable className={styles.rootTableWithSearch} search={search} />
       </div>
       <CreateGroup open={openGroupCreate} onClose={() => setOpenGroupCreate(false)} />
     </React.Fragment>

@@ -3,6 +3,8 @@ import { useTranslation } from 'react-i18next'
 
 import { User } from '@xrengine/common/src/interfaces/User'
 
+import Box from '@mui/material/Box'
+
 import { useAuthState } from '../../../user/services/AuthService'
 import ConfirmModal from '../../common/ConfirmModal'
 import TableComponent from '../../common/Table'
@@ -11,7 +13,7 @@ import { AdminUserService, USER_PAGE_LIMIT, useUserState } from '../../services/
 import styles from '../../styles/admin.module.scss'
 import ViewUser from './ViewUser'
 
-const UserTable = ({ search }: UserProps) => {
+const UserTable = ({ className, search }: UserProps) => {
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(USER_PAGE_LIMIT)
   const [openConfirm, setOpenConfirm] = useState(false)
@@ -129,7 +131,7 @@ const UserTable = ({ search }: UserProps) => {
   })
 
   return (
-    <React.Fragment>
+    <Box className={className}>
       <TableComponent
         allowSort={false}
         fieldOrder={fieldOrder}
@@ -150,7 +152,7 @@ const UserTable = ({ search }: UserProps) => {
         onSubmit={submitDeleteUser}
       />
       {userAdmin && openViewUser && <ViewUser open userAdmin={userAdmin} onClose={() => setOpenViewUser(false)} />}
-    </React.Fragment>
+    </Box>
   )
 }
 
