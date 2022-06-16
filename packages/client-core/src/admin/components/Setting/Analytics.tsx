@@ -5,7 +5,7 @@ import { Grid, Typography } from '@mui/material'
 
 import { useAuthState } from '../../../user/services/AuthService'
 import InputText from '../../common/InputText'
-import { AdminSettingAnalyticsService, useSettingAnalyticsState } from '../../services/Setting/SettingAnalyticsService'
+import { AdminSettingAnalyticsService, useSettingAnalyticsState } from '../../services/Setting/AnalyticsSettingsService'
 import styles from '../../styles/settings.module.scss'
 
 interface AnalyticsProps {}
