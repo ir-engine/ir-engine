@@ -15,30 +15,10 @@ import LinkIcon from '@mui/icons-material/Link'
 import RefreshIcon from '@mui/icons-material/Refresh'
 import SettingsIcon from '@mui/icons-material/Settings'
 
-import { useChatState } from '../../social/services/ChatService'
-import { EmoteIcon } from '../../user/components/UserMenu'
-import { MainMenuButtonState } from '../state/MainMenuButtonState'
-
-const styles = {
-  container: {
-    display: 'grid',
-    gridGap: '10px',
-    gridTemplateColumns: '1fr 1fr 1fr 1fr 1fr 1fr'
-  },
-  button: {
-    margin: '5px 15px 10px 10px',
-    alignItems: 'center',
-    zIndex: '20',
-    borderRadius: '50%',
-    width: '50px',
-    height: '50px',
-    fontSize: '20px',
-    display: 'flex',
-    justifyContent: 'center',
-    backgroundColor: 'var(--iconButtonBackground)',
-    color: 'var(--iconButtonColor)'
-  }
-}
+import { useChatState } from '../../../social/services/ChatService'
+import { EmoteIcon } from '../../../user/components/UserMenu'
+import { MainMenuButtonState } from '../../state/MainMenuButtonState'
+import styleString from './index.scss'
 
 export function createMainMenuButtonsView() {
   return createXRUI(MainMenuButtons, createMainMenuButtonsState())
@@ -124,33 +104,24 @@ const MainMenuButtons = () => {
   }
 
   return (
-    <div style={styles.container as {}} xr-layer="true">
-      <style>{`
-        .svgIcon {
-          width: 1.5em;
-          height: 1.5em;
-        }
-
-        .svgIcon path {
-          fill: var(--iconButtonColor) !important;
-        }
-      `}</style>
-      <div style={styles.button} onClick={handleRespawnAvatar}>
+    <div className="container" xr-layer="true">
+      <style>{styleString}</style>
+      <div className="button" onClick={handleRespawnAvatar}>
         <RefreshIcon className="svgIcon" />
       </div>
-      <div style={styles.button} onClick={toggleEmoteMenu}>
+      <div className="button" onClick={toggleEmoteMenu}>
         <EmoteIcon />
       </div>
-      <div style={styles.button} onClick={toggleShareMenu}>
+      <div className="button" onClick={toggleShareMenu}>
         <LinkIcon className="svgIcon" />
       </div>
-      <div style={styles.button} onClick={toggleSettingMenu}>
+      <div className="button" onClick={toggleSettingMenu}>
         <SettingsIcon className="svgIcon" />
       </div>
-      <div style={styles.button} onClick={toggleChatWindow}>
+      <div className="button" onClick={toggleChatWindow}>
         <MessageIcon className="svgIcon" />
       </div>
-      <div style={styles.button} onClick={toogleVRSession}>
+      <div className="button" onClick={toogleVRSession}>
         <VrIcon />
       </div>
     </div>
