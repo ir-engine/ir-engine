@@ -69,6 +69,7 @@ const MainMenuButtons = () => {
   }, [activeChannel?.messages])
 
   const toggleChatWindow = () => {
+    if (!MainMenuButtonState.showButtons.value) return
     if (!MainMenuButtonState.chatMenuOpen.value) {
       MainMenuButtonState.emoteMenuOpen.set(false)
       MainMenuButtonState.shareMenuOpen.set(false)
@@ -79,6 +80,7 @@ const MainMenuButtons = () => {
   }
 
   const toggleEmoteMenu = () => {
+    if (!MainMenuButtonState.showButtons.value) return
     if (!MainMenuButtonState.emoteMenuOpen.value) {
       MainMenuButtonState.chatMenuOpen.set(false)
       MainMenuButtonState.shareMenuOpen.set(false)
@@ -88,6 +90,7 @@ const MainMenuButtons = () => {
   }
 
   const toggleShareMenu = () => {
+    if (!MainMenuButtonState.showButtons.value) return
     if (!MainMenuButtonState.shareMenuOpen.value) {
       MainMenuButtonState.emoteMenuOpen.set(false)
       MainMenuButtonState.chatMenuOpen.set(false)
@@ -97,6 +100,7 @@ const MainMenuButtons = () => {
   }
 
   const toggleSettingMenu = () => {
+    if (!MainMenuButtonState.showButtons.value) return
     if (!MainMenuButtonState.settingMenuOpen.value) {
       MainMenuButtonState.emoteMenuOpen.set(false)
       MainMenuButtonState.shareMenuOpen.set(false)
@@ -106,6 +110,7 @@ const MainMenuButtons = () => {
   }
 
   const toogleVRSession = () => {
+    if (!MainMenuButtonState.showButtons.value) return
     if (engineState.xrSessionStarted.value) {
       dispatchAction(EngineActions.xrEnd())
     } else {
@@ -114,6 +119,7 @@ const MainMenuButtons = () => {
   }
 
   const handleRespawnAvatar = () => {
+    if (!MainMenuButtonState.showButtons.value) return
     respawnAvatar(useWorld().localClientEntity)
   }
 
