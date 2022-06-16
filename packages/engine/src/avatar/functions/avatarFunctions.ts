@@ -205,11 +205,13 @@ export const setupAvatarMaterials = (entity, root) => {
   setObjectLayers(root, ObjectLayers.Avatar)
   const headBone = findHeadBone(root)
 
-  // TODO: Hide the head part
-  //  headBone.traverse(o => {
-  //   o.position.set(NaN, NaN, NaN);
-  //   o.matrixWorld.set(NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN);
-  // });
+  // TODO: Save head transform
+  if (headBone) {
+    ;(headBone as any).traverse((o) => {
+      o.savedPosition = o.position.clone()
+      o.savedMatrixWorld = o.matrixWorld.clone()
+    })
+  }
 
   root.traverse((object) => {
     if (object.isBone) object.visible = false
@@ -352,7 +354,7 @@ function findHeadBone(root: Object3D) {
  */
 function setupHeadDecap(object: any, headBone: any | undefined, material: Material) {
   // Create a copy of the mesh to hide 'internal' polygons when opacity is below 1
-  if (material.opacity != 0) {
+  if (material.opacity == 1) {
     const mesh = object.getObjectByProperty('type', 'SkinnedMesh') as SkinnedMesh
     const skinnedMeshMask = SkeletonUtils.clone(object).getObjectByProperty('type', 'SkinnedMesh') as SkinnedMesh
     mesh.parent?.add(skinnedMeshMask)
@@ -458,15 +460,36 @@ export function addBoneOpacityParamsToMaterial(material, boneIndexes: Matrix4) {
 
 export const setAvatarHeadOpacity = (entity: Entity, opacity: number): void => {
   const object3DComponent = getComponent(entity, Object3DComponent)
+  let pastOpacity = 1
   object3DComponent?.value.traverse((obj) => {
     if (!(obj as SkinnedMesh).isSkinnedMesh) return
     const material = (obj as SkinnedMesh).material as Material
     if (!material.userData?.shader) return
     const shader = material.userData.shader
     if (shader?.uniforms) {
+      pastOpacity = shader.uniforms.boneOpacity.value
       shader.uniforms.boneOpacity.value = opacity
     }
   })
+
+  const headBone = findHeadBone(object3DComponent?.value)
+  if (!headBone || pastOpacity == opacity) return
+  if (opacity == 0) {
+    ;(headBone as any).traverse((o) => {
+      o.position.set(NaN, NaN, NaN)
+      o.matrixWorld.set(NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN)
+    })
+  } else {
+    ;(headBone as any).traverse((o) => {
+      o.position.copy(o.savedPosition)
+      o.matrixWorld.copy(o.savedMatrixWorld)
+    })
+  }
+
+  //TODO: set scale to hide head mesh
+  // (headBone as any).traverse(o => {
+  //   o.scale.set(opacity, opacity, opacity);
+  // });
 }
 
 export const getAvatarBoneWorldPosition = (entity: Entity, boneName: string, position: Vector3): boolean => {
