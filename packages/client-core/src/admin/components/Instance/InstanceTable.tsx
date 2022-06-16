@@ -4,16 +4,18 @@ import { useTranslation } from 'react-i18next'
 import { Instance } from '@xrengine/common/src/interfaces/Instance'
 import { Location } from '@xrengine/common/src/interfaces/Location'
 
+import Box from '@mui/material/Box'
+
 import { useAuthState } from '../../../user/services/AuthService'
 import ConfirmModal from '../../common/ConfirmModal'
 import TableComponent from '../../common/Table'
 import { instanceColumns, InstanceData } from '../../common/variables/instance'
-import { INSTANCE_PAGE_LIMIT, InstanceService, useInstanceState } from '../../services/InstanceService'
+import { AdminInstanceService, INSTANCE_PAGE_LIMIT, useAdminInstanceState } from '../../services/InstanceService'
 import styles from '../../styles/admin.module.scss'
 
 interface Props {
-  fetchAdminState?: any
-  search: any
+  className?: string
+  search: string
 }
 
 /**
@@ -23,8 +25,7 @@ interface Props {
  * @returns DOM Element
  * @author KIMENYI Kevin
  */
-const InstanceTable = (props: Props) => {
-  const { search } = props
+const InstanceTable = ({ className, search }: Props) => {
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(INSTANCE_PAGE_LIMIT)
   const [refetch, setRefetch] = useState(false)
@@ -36,17 +37,17 @@ const InstanceTable = (props: Props) => {
   const { t } = useTranslation()
 
   const user = useAuthState().user
-  const adminInstanceState = useInstanceState()
+  const adminInstanceState = useAdminInstanceState()
   const adminInstances = adminInstanceState
 
   const handlePageChange = (event: unknown, newPage: number) => {
-    InstanceService.fetchAdminInstances(search, newPage, sortField, fieldOrder)
+    AdminInstanceService.fetchAdminInstances(search, newPage, sortField, fieldOrder)
     setPage(newPage)
   }
 
   useEffect(() => {
     if (adminInstanceState.fetched.value) {
-      InstanceService.fetchAdminInstances(search, page, sortField, fieldOrder)
+      AdminInstanceService.fetchAdminInstances(search, page, sortField, fieldOrder)
     }
   }, [fieldOrder])
 
@@ -55,7 +56,7 @@ const InstanceTable = (props: Props) => {
   }
 
   const submitRemoveInstance = async () => {
-    await InstanceService.removeInstance(instanceId)
+    await AdminInstanceService.removeInstance(instanceId)
     setPopConfirmOpen(false)
   }
 
@@ -84,7 +85,7 @@ const InstanceTable = (props: Props) => {
   React.useEffect(() => {
     if (!isMounted.current) return
     if ((user.id.value && adminInstances.updateNeeded.value) || refetch) {
-      InstanceService.fetchAdminInstances(search, page, sortField, fieldOrder)
+      AdminInstanceService.fetchAdminInstances(search, page, sortField, fieldOrder)
     }
     setRefetch(false)
   }, [user, adminInstanceState.updateNeeded.value, refetch])
@@ -125,7 +126,7 @@ const InstanceTable = (props: Props) => {
   )
 
   return (
-    <React.Fragment>
+    <Box className={className}>
       <TableComponent
         allowSort={false}
         fieldOrder={fieldOrder}
@@ -140,13 +141,12 @@ const InstanceTable = (props: Props) => {
         handleRowsPerPageChange={handleRowsPerPageChange}
       />
       <ConfirmModal
-        popConfirmOpen={popConfirmOpen}
-        handleCloseModal={handleCloseModal}
-        submit={submitRemoveInstance}
-        name={instanceName}
-        label={'instance'}
+        open={popConfirmOpen}
+        description={`${t('admin:components.instance.confirmInstanceDelete')} '${instanceName}'?`}
+        onClose={handleCloseModal}
+        onSubmit={submitRemoveInstance}
       />
-    </React.Fragment>
+    </Box>
   )
 }
 

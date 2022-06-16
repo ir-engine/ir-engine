@@ -8,7 +8,7 @@ export interface AuthUser {
   identityProvider: IdentityProvider
 }
 
-export const AuthUserSeed = {
+export const AuthUserSeed: AuthUser = {
   accessToken: '',
   authentication: {
     strategy: ''

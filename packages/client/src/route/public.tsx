@@ -1,9 +1,11 @@
 import React, { Suspense, useEffect, useState } from 'react'
-import { Route, Switch } from 'react-router-dom'
+import { Route, Switch, useLocation } from 'react-router-dom'
 
 import ErrorBoundary from '@xrengine/client-core/src/common/components/ErrorBoundary'
 import { LoadingCircle } from '@xrengine/client-core/src/components/LoadingCircle'
 import { AuthService } from '@xrengine/client-core/src/user/services/AuthService'
+import { LocalStateServiceReceptor } from '@xrengine/client-core/src/util/StoredLocalState'
+import { addActionReceptor, removeActionReceptor } from '@xrengine/hyperflux'
 
 import { CustomRoute, getCustomRoutes } from './getCustomRoutes'
 
@@ -19,9 +21,20 @@ const $404 = React.lazy(() => import('../pages/404'))
 
 function RouterComp(props) {
   const [customRoutes, setCustomRoutes] = useState(null as any as CustomRoute[])
+  const location = useLocation()
 
   useEffect(() => {
-    AuthService.doLoginAuto()
+    addActionReceptor(LocalStateServiceReceptor)
+    return () => {
+      removeActionReceptor(LocalStateServiceReceptor)
+    }
+  }, [])
+
+  useEffect(() => {
+    //Oauth callbacks may be running when a guest identity-provider has been deleted.
+    //This would normally cause doLoginAuto to make a guest user, which we do not want.
+    //Instead, just skip it on oauth callbacks, and the callback handler will log them in.
+    if (!/auth\/oauth/.test(location.pathname)) AuthService.doLoginAuto()
     getCustomRoutes().then((routes) => {
       setCustomRoutes(routes)
     })

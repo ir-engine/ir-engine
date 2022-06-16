@@ -37,8 +37,7 @@ const receiveCreateClient = (
   world.clients.set(action.$from, {
     userId: action.$from,
     index: action.index,
-    name: action.name,
-    subscribedChatUpdates: []
+    name: action.name
   })
 }
 

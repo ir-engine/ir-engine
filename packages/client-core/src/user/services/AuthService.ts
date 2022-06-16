@@ -24,7 +24,7 @@ import { accessLocationState } from '../../social/services/LocationService'
 import { accessPartyState } from '../../social/services/PartyService'
 import { store, useDispatch } from '../../store'
 import { serverHost } from '../../util/config'
-import { accessStoredLocalState, StoredLocalAction, StoredLocalActionType } from '../../util/StoredLocalState'
+import { accessStoredLocalState, StoredLocalAction } from '../../util/StoredLocalState'
 import { uploadToFeathersService } from '../../util/upload'
 import { userPatched } from '../functions/userPatched'
 
@@ -69,7 +69,7 @@ export const avatarFetchedReceptor = (s: typeof state, action: ReturnType<typeof
   return s.avatarList.set(Object.keys(avatarData).map((key) => avatarData[key]))
 }
 
-store.receptors.push((action: AuthActionType | StoredLocalActionType): void => {
+store.receptors.push((action: AuthActionType): void => {
   state.batch((s: typeof state) => {
     switch (action.type) {
       case 'ACTION_PROCESSING':
@@ -96,11 +96,12 @@ store.receptors.push((action: AuthActionType | StoredLocalActionType): void => {
         return s.merge({ isLoggedIn: false, user: UserSeed, authUser: AuthUserSeed })
       case 'DID_VERIFY_EMAIL':
         return s.identityProvider.merge({ isVerified: action.result })
-      case 'RESTORE': {
-        const stored = accessStoredLocalState().attach(Downgraded).authData.value
+      case 'RESTORE' as any: {
+        // TODO: .when(StoredLocalAction.storedLocal.matches, (action) => {
+        const stored = accessStoredLocalState().attach(Downgraded).value
         return s.merge({
           authUser: stored.authUser,
-          identityProvider: stored.identityProvider
+          identityProvider: stored.authUser?.identityProvider
         })
       }
       case 'AVATAR_UPDATED': {
@@ -139,13 +140,11 @@ accessAuthState().attach(() => ({
   init: () => ({
     onSet(arg) {
       const state = accessAuthState().attach(Downgraded).value
-      const dispatch = useDispatch()
       if (state.isLoggedIn)
-        dispatch(
+        dispatchAction(
           StoredLocalAction.storedLocal({
-            authData: {
-              authUser: state.authUser,
-              identityProvider: state.identityProvider
+            newState: {
+              authUser: state.authUser
             }
           })
         )
@@ -159,7 +158,7 @@ export const AuthService = {
     const dispatch = useDispatch()
     try {
       console.log(accessStoredLocalState().attach(Downgraded))
-      const authData = accessStoredLocalState().attach(Downgraded).authData.value
+      const authData = accessStoredLocalState().attach(Downgraded).value
       let accessToken =
         forceClientAuthReset !== true && authData && authData.authUser ? authData.authUser.accessToken : undefined
 
@@ -335,6 +334,35 @@ export const AuthService = {
     window.location.href = `${serverHost}/oauth/${service}?feathers_token=${token}&redirect=${JSON.stringify(
       redirectObject
     )}`
+  },
+  removeUserOAuth: async (service: string) => {
+    const dispatch = useDispatch()
+    const ipResult = await (client as any).service('identity-provider').find()
+    const ipToRemove = ipResult.data.find((ip) => ip.type === service)
+    if (ipToRemove) {
+      if (ipResult.total === 1) {
+        console.log('show last warning modal')
+        await (client as any).service('user').remove(ipToRemove.userId)
+        await AuthService.logoutUser()
+      } else {
+        const otherIp = ipResult.data.find((ip) => ip.type !== service)
+        const newToken = await (client as any).service('generate-token').create({
+          type: otherIp.type,
+          token: otherIp.token
+        })
+
+        if (newToken) {
+          dispatch(AuthAction.actionProcessing(true))
+          await (client as any).authentication.setAccessToken(newToken as string)
+          const res = await (client as any).reAuthenticate(true)
+          const authUser = resolveAuthUser(res)
+          await (client as any).service('identity-provider').remove(ipToRemove.id)
+          dispatch(AuthAction.loginUserSuccess(authUser))
+          await AuthService.loadUserData(authUser.identityProvider.userId)
+          dispatch(AuthAction.actionProcessing(false))
+        }
+      }
+    }
   },
   loginUserByJwt: async (accessToken: string, redirectSuccess: string, redirectError: string) => {
     const dispatch = useDispatch()

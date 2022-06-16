@@ -13,25 +13,21 @@ import Chip from '@mui/material/Chip'
 import Container from '@mui/material/Container'
 import DialogActions from '@mui/material/DialogActions'
 import Drawer from '@mui/material/Drawer'
-import FormControl from '@mui/material/FormControl'
 import Grid from '@mui/material/Grid'
-import MenuItem from '@mui/material/MenuItem'
 import Paper from '@mui/material/Paper'
-import Select from '@mui/material/Select'
 import Skeleton from '@mui/material/Skeleton'
 import Typography from '@mui/material/Typography'
 
+import { NotificationService } from '../../../common/services/NotificationService'
 import { useAuthState } from '../../../user/services/AuthService'
-import AlertMessage from '../../common/AlertMessage'
 import AutoComplete from '../../common/AutoComplete'
 import InputSelect, { InputMenuItem } from '../../common/InputSelect'
 import InputText from '../../common/InputText'
 import { validateForm } from '../../common/validation/formValidation'
-import { ScopeTypeService, useScopeTypeState } from '../../services/ScopeTypeService'
-import { SingleUserService, useSingleUserState } from '../../services/SingleUserService'
-import { staticResourceService, useStaticResourceState } from '../../services/StaticResourceService'
-import { UserRoleService, useUserRoleState } from '../../services/UserRoleService'
-import { UserService, useUserState } from '../../services/UserService'
+import { AdminScopeTypeService, useScopeTypeState } from '../../services/ScopeTypeService'
+import { AdminStaticResourceService, useStaticResourceState } from '../../services/StaticResourceService'
+import { AdminUserRoleService, useAdminUserRoleState } from '../../services/UserRoleService'
+import { AdminUserService, useUserState } from '../../services/UserService'
 import styles from '../../styles/admin.module.scss'
 
 interface Props {
@@ -44,8 +40,7 @@ interface ScopeData {
   type: string
 }
 
-const ViewUser = (props: Props) => {
-  const { openView, closeViewModal, userAdmin } = props
+const ViewUser = ({ openView, closeViewModal, userAdmin }: Props) => {
   const [editMode, setEditMode] = useState(false)
   const [refetch, setRefetch] = useState(0)
   const { t } = useTranslation()
@@ -61,37 +56,33 @@ const ViewUser = (props: Props) => {
       scopes: ''
     }
   })
-  const [error, setError] = useState('')
-  const [openWarning, setOpenWarning] = useState(false)
   const user = useAuthState().user
   const adminUserState = useUserState()
-  const singleUser = useSingleUserState()
-  const singleUserData = singleUser.singleUser
+  const singleUserData = adminUserState.singleUser
   const staticResource = useStaticResourceState()
   const staticResourceData = staticResource.staticResource
   const adminScopeTypeState = useScopeTypeState()
-  const userRole = useUserRoleState()
+  const userRole = useAdminUserRoleState()
 
   useEffect(() => {
     const fetchData = async () => {
-      await UserRoleService.fetchUserRole()
+      await AdminUserRoleService.fetchUserRole()
     }
     if (userRole.updateNeeded.value === true && user.id.value) fetchData()
 
-    if ((user.id.value && singleUser.updateNeeded.value == true) || refetch) {
-      userAdmin.id && SingleUserService.fetchSingleUserAdmin(userAdmin.id)
+    if (user.id.value || refetch) {
+      userAdmin.id && AdminUserService.fetchSingleUserAdmin(userAdmin.id)
     }
     if (user.id.value && staticResource.updateNeeded.value) {
-      staticResourceService.fetchStaticResource()
+      AdminStaticResourceService.fetchStaticResource()
     }
     if (adminScopeTypeState.updateNeeded.value && user.id.value) {
-      ScopeTypeService.getScopeTypeService()
+      AdminScopeTypeService.getScopeTypeService()
     }
   }, [
     adminUserState.updateNeeded.value,
     user.id.value,
     refetch,
-    singleUser.updateNeeded.value,
     adminScopeTypeState.updateNeeded.value,
     userRole.updateNeeded.value
   ])
@@ -145,26 +136,16 @@ const ViewUser = (props: Props) => {
     temp.scopes = !state.scopes.length ? t('admin:components.user.scopeTypeCantEmpty') : ''
     setState({ ...state, formErrors: temp })
     if (validateForm(state, state.formErrors) && userAdmin.id) {
-      UserService.patchUser(userAdmin.id, data)
+      AdminUserService.patchUser(userAdmin.id, data)
       setState({ ...state, name: '', avatar: '', userRole: '', scopes: [] })
       setEditMode(false)
       closeViewModal && closeViewModal(false)
     } else {
-      setError(t('admin:components.user.fillRequiredField'))
-      setOpenWarning(true)
+      NotificationService.dispatchNotify(t('admin:components.user.fillRequiredField'), { variant: 'error' })
     }
-  }
-
-  const handleCloseWarning = (event?: React.SyntheticEvent | Event, reason?: string) => {
-    if (reason === 'clickaway') {
-      return
-    }
-    setOpenWarning(false)
   }
 
   const handleCloseDrawer = () => {
-    setError('')
-    setOpenWarning(false)
     closeViewModal && closeViewModal(false)
     setState({
       ...state,
@@ -192,6 +173,13 @@ const ViewUser = (props: Props) => {
     return {
       value: el.role,
       label: el.role
+    }
+  })
+
+  const avatarMenu: InputMenuItem[] = staticResourceData.value.map((el) => {
+    return {
+      value: el.name,
+      label: el.name
     }
   })
 
@@ -249,34 +237,15 @@ const ViewUser = (props: Props) => {
                 onChange={handleInputChange}
               />
 
-              <label>{t('admin:components.user.avatar')}</label>
-              <Paper
-                component="div"
-                className={state.formErrors.avatar.length > 0 ? styles.redBorder : styles.createInput}
-              >
-                <FormControl fullWidth>
-                  <Select
-                    labelId="demo-controlled-open-select-label"
-                    id="demo-controlled-open-select"
-                    value={state.avatar}
-                    fullWidth
-                    displayEmpty
-                    onChange={handleInputChange}
-                    className={styles.select}
-                    name="avatar"
-                    MenuProps={{ classes: { paper: styles.selectPaper } }}
-                  >
-                    <MenuItem value="" disabled>
-                      <em>{t('admin:components.user.selectAvatar')}</em>
-                    </MenuItem>
-                    {staticResourceData.value.map((el) => (
-                      <MenuItem value={el.name} key={el.id}>
-                        {el.name}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </Paper>
+              <InputSelect
+                name="avatar"
+                label={t('admin:components.user.avatar')}
+                value={state.avatar}
+                error={state.formErrors.avatar}
+                menu={avatarMenu}
+                onChange={handleInputChange}
+              />
+
               <label>{t('admin:components.user.userRole')}</label>
               {user.id.value !== userAdmin.id && (
                 <InputSelect
@@ -396,7 +365,6 @@ const ViewUser = (props: Props) => {
           </DialogActions>
         </Container>
       </Drawer>
-      <AlertMessage open={openWarning} handleClose={handleCloseWarning} severity="warning" message={error} />
     </React.Fragment>
   )
 }

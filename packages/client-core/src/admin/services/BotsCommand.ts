@@ -1,75 +1,69 @@
-import { createState, useState } from '@speigg/hookstate'
-
 import { BotCommands, CreateBotCammand } from '@xrengine/common/src/interfaces/AdminBot'
+import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
+import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
 import { client } from '../../feathers'
-import { useDispatch } from '../../store'
-import { store } from '../../store'
 
 //State
 export const BOTS_PAGE_LIMIT = 100
 
-const state = createState({
-  botCommand: [] as BotCommands[],
-  skip: 0,
-  limit: BOTS_PAGE_LIMIT,
-  total: 0,
-  retrieving: false,
-  fetched: false,
-  updateNeeded: true,
-  lastFetched: Date.now()
+const AdminBotsCommandState = defineState({
+  name: 'AdminBotsCommandState',
+  initial: () => ({
+    botCommand: [] as BotCommands[],
+    skip: 0,
+    limit: BOTS_PAGE_LIMIT,
+    total: 0,
+    retrieving: false,
+    fetched: false,
+    updateNeeded: true,
+    lastFetched: Date.now()
+  })
 })
 
-store.receptors.push((action: BotsActionType): void => {
-  state.batch((s) => {
-    switch (action.type) {
-      case 'BOT_COMMAND_ADMIN_CREATE':
+export const AdminBotsCommandServiceReceptor = (action) => {
+  getState(AdminBotsCommandState).batch((s) => {
+    matches(action)
+      .when(AdminBotCommandActions.botCammandCreated.matches, (action) => {
         return s.merge({ updateNeeded: true })
-      case 'BOT_COMMAND_ADMIN_REMOVE':
+      })
+      .when(AdminBotCommandActions.botCommandRemoved.matches, (action) => {
         return s.merge({ updateNeeded: true })
-    }
-  }, action.type)
-})
+      })
+  })
+}
 
-export const accessBotCommandState = () => state
+export const accessAdminBotCommandState = () => getState(AdminBotsCommandState)
 
-export const useBotCommandState = () => useState(state) as any as typeof state
+export const useAdminBotCommandState = () => useState(accessAdminBotCommandState())
 
 //Service
-export const BotCommandService = {
+export const AdminBotCommandService = {
   createBotCammand: async (data: CreateBotCammand) => {
-    const dispatch = useDispatch()
     try {
-      const botCammand = (await client.service('bot-command').create(data)) as BotCommands
-      dispatch(BotsCommandAction.botCammandCreated(botCammand))
+      const botCommand = (await client.service('bot-command').create(data)) as BotCommands
+      dispatchAction(AdminBotCommandActions.botCammandCreated({ botCommand }))
     } catch (error) {
       console.error(error)
     }
   },
   removeBotsCommand: async (id: string) => {
-    const dispatch = useDispatch()
     try {
       const result = (await client.service('bot-command').remove(id)) as BotCommands
-      dispatch(BotsCommandAction.botCommandRemoved(result))
+      dispatchAction(AdminBotCommandActions.botCommandRemoved({ botCommand: result }))
     } catch (error) {
       console.error(error)
     }
   }
 }
 //Action
-export const BotsCommandAction = {
-  botCammandCreated: (botCommand: BotCommands) => {
-    return {
-      type: 'BOT_COMMAND_ADMIN_CREATE' as const,
-      botCommand: botCommand
-    }
-  },
-  botCommandRemoved: (botCommand: BotCommands) => {
-    return {
-      type: 'BOT_COMMAND_ADMIN_REMOVE' as const,
-      botCommand: botCommand
-    }
-  }
+export class AdminBotCommandActions {
+  static botCammandCreated = defineAction({
+    type: 'BOT_COMMAND_ADMIN_CREATE' as const,
+    botCommand: matches.object as Validator<unknown, BotCommands>
+  })
+  static botCommandRemoved = defineAction({
+    type: 'BOT_COMMAND_ADMIN_REMOVE' as const,
+    botCommand: matches.object as Validator<unknown, BotCommands>
+  })
 }
-
-export type BotsActionType = ReturnType<typeof BotsCommandAction[keyof typeof BotsCommandAction]>

@@ -13,14 +13,14 @@ import DialogContent from '@mui/material/DialogContent'
 import DialogTitle from '@mui/material/DialogTitle'
 import IconButton from '@mui/material/IconButton'
 
+import { NotificationService } from '../../../common/services/NotificationService'
 import { useAuthState } from '../../../user/services/AuthService'
-import AlertMessage from '../../common/AlertMessage'
 import InputSelect, { InputMenuItem } from '../../common/InputSelect'
 import InputText from '../../common/InputText'
 import { validateForm } from '../../common/validation/formValidation'
-import { BotService } from '../../services/BotsService'
-import { InstanceService, useInstanceState } from '../../services/InstanceService'
-import { LocationService, useLocationState } from '../../services/LocationService'
+import { AdminBotService } from '../../services/BotsService'
+import { AdminInstanceService, useAdminInstanceState } from '../../services/InstanceService'
+import { AdminLocationService, useAdminLocationState } from '../../services/LocationService'
 import styles from '../../styles/admin.module.scss'
 
 interface Props {
@@ -29,9 +29,8 @@ interface Props {
   bot?: AdminBot
 }
 
-const UpdateBot = (props: Props) => {
-  const { open, handleClose, bot } = props
-  const adminInstanceState = useInstanceState()
+const UpdateBot = ({ open, handleClose, bot }: Props) => {
+  const adminInstanceState = useAdminInstanceState()
   const [state, setState] = useState({
     name: '',
     description: '',
@@ -44,9 +43,7 @@ const UpdateBot = (props: Props) => {
     location: ''
   })
   const [currentInstance, setCurrentIntance] = useState<Instance[]>([])
-  const [openAlter, setOpenAlter] = useState(false)
-  const [error, setError] = useState('')
-  const adminLocation = useLocationState()
+  const adminLocation = useAdminLocationState()
   const locationData = adminLocation.locations
   const adminInstances = adminInstanceState
   const instanceData = adminInstances.instances
@@ -134,29 +131,21 @@ const UpdateBot = (props: Props) => {
     }
     setFormErrors(temp)
     if (validateForm(state, formErrors) && bot) {
-      BotService.updateBotAsAdmin(bot.id, data)
+      AdminBotService.updateBotAsAdmin(bot.id, data)
       setState({ name: '', description: '', instance: '', location: '' })
       setCurrentIntance([])
       handleClose()
     } else {
-      setError(t('admin:components.bot.fillRequiredField'))
-      setOpenAlter(true)
+      NotificationService.dispatchNotify(t('admin:components.bot.fillRequiredField'), { variant: 'error' })
     }
   }
 
   const fetchAdminInstances = () => {
-    InstanceService.fetchAdminInstances()
-  }
-
-  const handleCloseAlter = (event?: React.SyntheticEvent | Event, reason?: string) => {
-    if (reason === 'clickaway') {
-      return
-    }
-    setOpenAlter(false)
+    AdminInstanceService.fetchAdminInstances()
   }
 
   const fetchAdminLocations = () => {
-    LocationService.fetchAdminLocations()
+    AdminLocationService.fetchAdminLocations()
   }
 
   return (
@@ -237,8 +226,6 @@ const UpdateBot = (props: Props) => {
           </Button>
         </DialogActions>
       </Dialog>
-
-      <AlertMessage open={openAlter} handleClose={handleCloseAlter} severity="warning" message={error} />
     </div>
   )
 }

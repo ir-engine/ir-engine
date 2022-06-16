@@ -359,11 +359,12 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
         </Dialog>
       )}
       <ConfirmModal
-        popConfirmOpen={openConfirmModal}
-        handleCloseModal={handleCloseModal}
-        submit={deleteContent}
-        name={''}
-        label={`this ${contentToDeleteType == 'folder' ? 'folder' : 'file'}`}
+        open={openConfirmModal}
+        description={`${t('editor:dialog.confirmContentDelete')} ${
+          contentToDeleteType == 'folder' ? t('editor:dialog.folder') : t('editor:dialog.file')
+        }?`}
+        onClose={handleCloseModal}
+        onSubmit={deleteContent}
       />
     </>
   )

@@ -10,32 +10,27 @@ import Chip from '@mui/material/Chip'
 import Container from '@mui/material/Container'
 import DialogActions from '@mui/material/DialogActions'
 import Drawer from '@mui/material/Drawer'
-import FormControl from '@mui/material/FormControl'
-import FormControlLabel from '@mui/material/FormControlLabel'
-import FormGroup from '@mui/material/FormGroup'
 import Grid from '@mui/material/Grid'
-import MenuItem from '@mui/material/MenuItem'
 import Paper from '@mui/material/Paper'
-import Select from '@mui/material/Select'
-import Switch from '@mui/material/Switch'
 import Typography from '@mui/material/Typography'
 
+import { NotificationService } from '../../../common/services/NotificationService'
 import { useAuthState } from '../../../user/services/AuthService'
-import AlertMessage from '../../common/AlertMessage'
+import InputSelect, { InputMenuItem } from '../../common/InputSelect'
+import InputSwitch from '../../common/InputSwitch'
 import InputText from '../../common/InputText'
 import { validateForm } from '../../common/validation/formValidation'
-import { LocationService, useLocationState } from '../../services/LocationService'
-import { useSceneState } from '../../services/SceneService'
+import { AdminLocationService, useAdminLocationState } from '../../services/LocationService'
+import { AdminSceneService, useAdminSceneState } from '../../services/SceneService'
 import styles from '../../styles/admin.module.scss'
 
 interface Props {
-  openView: boolean
-  closeViewModal: (open: boolean) => void
+  open: boolean
   locationAdmin?: LocationFetched
+  onClose: () => void
 }
 
-const ViewLocation = (props: Props) => {
-  const { openView, closeViewModal, locationAdmin } = props
+const ViewLocation = ({ open, locationAdmin, onClose }: Props) => {
   const [editMode, setEditMode] = useState(false)
   const [state, setState] = useState({
     name: '',
@@ -57,11 +52,9 @@ const ViewLocation = (props: Props) => {
     }
   })
   const [location, setLocation] = useState<any>('')
-  const [error, setError] = useState('')
-  const [openWarning, setOpenWarning] = useState(false)
   const { t } = useTranslation()
-  const adminScenes = useSceneState().scenes
-  const locationTypes = useLocationState().locationTypes
+  const adminScenes = useAdminSceneState().scenes
+  const locationTypes = useAdminLocationState().locationTypes
   const user = useAuthState().user // user initialized by getting value from authState object.
   const scopes = user?.scopes?.value || []
   let isLocationWrite = false
@@ -72,6 +65,11 @@ const ViewLocation = (props: Props) => {
       break
     }
   }
+
+  useEffect(() => {
+    AdminSceneService.fetchAdminScenes()
+    AdminLocationService.fetchLocationTypes()
+  }, [])
 
   useEffect(() => {
     if (locationAdmin) {
@@ -147,7 +145,7 @@ const ViewLocation = (props: Props) => {
     }
     setState({ ...state, formErrors: temp })
     if (validateForm(state, state.formErrors)) {
-      LocationService.patchLocation(location.id, locationData)
+      AdminLocationService.patchLocation(location.id, locationData)
       setState({
         ...state,
         name: '',
@@ -156,30 +154,34 @@ const ViewLocation = (props: Props) => {
         scene: ''
       })
       setEditMode(false)
-      closeViewModal(false)
+      onClose()
     } else {
-      setError(t('admin:components.locationModal.fillRequiredFields'))
-      setOpenWarning(true)
+      NotificationService.dispatchNotify(t('admin:components.locationModal.fillRequiredFields'), { variant: 'error' })
     }
   }
 
-  const handleCloseWarning = (event?: React.SyntheticEvent | Event, reason?: string) => {
-    if (reason === 'clickaway') {
-      return
-    }
-    setOpenWarning(false)
-  }
-
-  const handleCloseDrawe = () => {
-    setError('')
-    setOpenWarning(false)
-    closeViewModal(false)
+  const handleCloseDrawer = () => {
     setState({ ...state, formErrors: { ...state.formErrors, name: '', maxUsers: '', scene: '', type: '' } })
+    onClose()
   }
+
+  const sceneMenu: InputMenuItem[] = adminScenes.value.map((el) => {
+    return {
+      value: `${el.project}/${el.name}`,
+      label: `${el.name} (${el.project})`
+    }
+  })
+
+  const locationMenu: InputMenuItem[] = locationTypes.value.map((el) => {
+    return {
+      value: el.type,
+      label: el.type
+    }
+  })
 
   return (
     <React.Fragment>
-      <Drawer anchor="right" open={openView} onClose={() => handleCloseDrawe()} classes={{ paper: styles.paperDrawer }}>
+      <Drawer anchor="right" open={open} onClose={() => handleCloseDrawer()} classes={{ paper: styles.paperDrawer }}>
         <Paper elevation={0} className={styles.rootPaper}>
           {location && (
             <Container maxWidth="sm">
@@ -206,7 +208,7 @@ const ViewLocation = (props: Props) => {
           <Container maxWidth="sm">
             <div className={styles.mt10}>
               <Typography variant="h4" component="h4" className={`${styles.mb10} ${styles.headingFont}`}>
-                {t('admin:components.locationModal.updateLocationInfo')}{' '}
+                {t('admin:components.locationModal.updateLocationInfo')}
               </Typography>
 
               <InputText
@@ -228,170 +230,75 @@ const ViewLocation = (props: Props) => {
                 onChange={handleInputChange}
               />
 
-              <label>{t('admin:components.locationModal.lbl-scene')}</label>
-              <Paper
-                component="div"
-                className={state.formErrors.scene.length > 0 ? styles.redBorder : styles.createInput}
-              >
-                <FormControl fullWidth>
-                  <Select
-                    labelId="demo-controlled-open-select-label"
-                    id="demo-controlled-open-select"
-                    value={state.scene}
-                    fullWidth
-                    displayEmpty
-                    onChange={handleInputChange}
-                    className={styles.select}
-                    name="scene"
-                    MenuProps={{ classes: { paper: styles.selectPaper } }}
-                  >
-                    <MenuItem value="" disabled>
-                      <em>{t('admin:components.locationModal.selectScene')}</em>
-                    </MenuItem>
-                    {adminScenes.value.map((el, index) => (
-                      <MenuItem value={`${el.project}/${el.name}`} key={index}>{`${el.name} (${el.project})`}</MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </Paper>
-              <label>{t('admin:components.locationModal.type')}</label>
-              <Paper
-                component="div"
-                className={state.formErrors.type.length > 0 ? styles.redBorder : styles.createInput}
-              >
-                <FormControl fullWidth>
-                  <Select
-                    labelId="demo-controlled-open-select-label"
-                    id="demo-controlled-open-select"
-                    value={state.type}
-                    fullWidth
-                    displayEmpty
-                    onChange={handleInputChange}
-                    className={styles.select}
-                    name="type"
-                    MenuProps={{ classes: { paper: styles.selectPaper } }}
-                  >
-                    <MenuItem value="" disabled>
-                      <em>{t('admin:components.locationModal.selectType')}</em>
-                    </MenuItem>
-                    {locationTypes.value.map((el, index) => (
-                      <MenuItem value={el.type} key={index}>
-                        {el.type}
-                      </MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </Paper>
+              <InputSelect
+                name="scene"
+                label={t('admin:components.locationModal.lbl-scene')}
+                value={state.scene}
+                error={state.formErrors.scene}
+                menu={sceneMenu}
+                onChange={handleInputChange}
+              />
+
+              <InputSelect
+                name="type"
+                label={t('admin:components.locationModal.type')}
+                value={state.type}
+                menu={locationMenu}
+                onChange={handleInputChange}
+              />
+
               <Grid container spacing={5} className={styles.mb15}>
                 <Grid item xs={6}>
-                  <FormGroup>
-                    <FormControl>
-                      <FormControlLabel
-                        color="primary"
-                        control={
-                          <Switch
-                            checked={state.videoEnabled}
-                            onChange={(e) => setState({ ...state, videoEnabled: e.target.checked })}
-                            name="videoEnabled"
-                          />
-                        }
-                        label={t('admin:components.locationModal.lbl-ve') as string}
-                      />
-                    </FormControl>
-                  </FormGroup>
-                  <FormGroup>
-                    <FormControl>
-                      <FormControlLabel
-                        color="primary"
-                        control={
-                          <Switch
-                            checked={state.audioEnabled}
-                            onChange={(e) => setState({ ...state, audioEnabled: e.target.checked })}
-                            name="audioEnabled"
-                          />
-                        }
-                        label={t('admin:components.locationModal.lbl-ae') as string}
-                      />
-                    </FormControl>
-                  </FormGroup>
-                  <FormGroup>
-                    <FormControl>
-                      <FormControlLabel
-                        color="primary"
-                        control={
-                          <Switch
-                            checked={state.globalMediaEnabled}
-                            onChange={(e) => setState({ ...state, globalMediaEnabled: e.target.checked })}
-                            name="globalMediaEnabled"
-                          />
-                        }
-                        label={t('admin:components.locationModal.lbl-gme') as string}
-                      />
-                    </FormControl>
-                  </FormGroup>
-                  <FormGroup>
-                    <FormControl>
-                      <FormControlLabel
-                        color="primary"
-                        control={
-                          <Switch
-                            checked={state.screenSharingEnabled}
-                            onChange={(e) => setState({ ...state, screenSharingEnabled: e.target.checked })}
-                            name="screenSharingEnabled"
-                          />
-                        }
-                        label={t('admin:components.locationModal.lbl-se') as string}
-                      />
-                    </FormControl>
-                  </FormGroup>
+                  <InputSwitch
+                    name="videoEnabled"
+                    label={t('admin:components.locationModal.lbl-ve')}
+                    checked={state.videoEnabled}
+                    onChange={(e) => setState({ ...state, videoEnabled: e.target.checked })}
+                  />
+
+                  <InputSwitch
+                    name="audioEnabled"
+                    label={t('admin:components.locationModal.lbl-ae')}
+                    checked={state.audioEnabled}
+                    onChange={(e) => setState({ ...state, audioEnabled: e.target.checked })}
+                  />
+
+                  <InputSwitch
+                    name="globalMediaEnabled"
+                    label={t('admin:components.locationModal.lbl-gme')}
+                    checked={state.globalMediaEnabled}
+                    onChange={(e) => setState({ ...state, globalMediaEnabled: e.target.checked })}
+                  />
+
+                  <InputSwitch
+                    name="screenSharingEnabled"
+                    label={t('admin:components.locationModal.lbl-se')}
+                    checked={state.screenSharingEnabled}
+                    onChange={(e) => setState({ ...state, screenSharingEnabled: e.target.checked })}
+                  />
                 </Grid>
                 <Grid item xs={6}>
                   <div style={{ marginLeft: 'auto' }}>
-                    <FormGroup>
-                      <FormControl>
-                        <FormControlLabel
-                          color="primary"
-                          control={
-                            <Switch
-                              checked={state.faceStreamingEnabled}
-                              onChange={(e) => setState({ ...state, faceStreamingEnabled: e.target.checked })}
-                              name="faceStreamingEnabled"
-                            />
-                          }
-                          label={t('admin:components.locationModal.lbl-fe') as string}
-                        />
-                      </FormControl>
-                    </FormGroup>
-                    <FormGroup>
-                      <FormControl>
-                        <FormControlLabel
-                          color="primary"
-                          control={
-                            <Switch
-                              checked={state.isLobby}
-                              onChange={(e) => setState({ ...state, isLobby: e.target.checked })}
-                              name="isLobby"
-                            />
-                          }
-                          label={t('admin:components.locationModal.lbl-lobby') as string}
-                        />
-                      </FormControl>
-                    </FormGroup>
-                    <FormGroup>
-                      <FormControl>
-                        <FormControlLabel
-                          color="primary"
-                          control={
-                            <Switch
-                              checked={state.isFeatured}
-                              onChange={(e) => setState({ ...state, isFeatured: e.target.checked })}
-                              name="isFeatured"
-                            />
-                          }
-                          label={t('admin:components.locationModal.lbl-featured') as string}
-                        />
-                      </FormControl>
-                    </FormGroup>
+                    <InputSwitch
+                      name="faceStreamingEnabled"
+                      label={t('admin:components.locationModal.lbl-fe')}
+                      checked={state.faceStreamingEnabled}
+                      onChange={(e) => setState({ ...state, faceStreamingEnabled: e.target.checked })}
+                    />
+
+                    <InputSwitch
+                      name="isLobby"
+                      label={t('admin:components.locationModal.lbl-lobby')}
+                      checked={state.isLobby}
+                      onChange={(e) => setState({ ...state, isLobby: e.target.checked })}
+                    />
+
+                    <InputSwitch
+                      name="isFeatured"
+                      label={t('admin:components.locationModal.lbl-featured')}
+                      checked={state.isFeatured}
+                      onChange={(e) => setState({ ...state, isFeatured: e.target.checked })}
+                    />
                   </div>
                 </Grid>
               </Grid>
@@ -531,14 +438,13 @@ const ViewLocation = (props: Props) => {
               >
                 {t('admin:components.locationModal.lbl-edit')}
               </Button>
-              <Button onClick={() => handleCloseDrawe()} className={styles.cancelButton}>
+              <Button onClick={handleCloseDrawer} className={styles.cancelButton}>
                 {t('admin:components.locationModal.lbl-cancel')}
               </Button>
             </DialogActions>
           )}
         </DialogActions>
       </Drawer>
-      <AlertMessage open={openWarning} handleClose={handleCloseWarning} severity="warning" message={error} />
     </React.Fragment>
   )
 }

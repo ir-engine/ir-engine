@@ -13,8 +13,8 @@ import { useAuthState } from '../../../user/services/AuthService'
 import AutoComplete from '../../common/AutoComplete'
 import InputText from '../../common/InputText'
 import { validateForm } from '../../common/validation/formValidation'
-import { GroupService } from '../../services/GroupService'
-import { ScopeTypeService, useScopeTypeState } from '../../services/ScopeTypeService'
+import { AdminGroupService } from '../../services/GroupService'
+import { AdminScopeTypeService, useScopeTypeState } from '../../services/ScopeTypeService'
 import styles from '../../styles/admin.module.scss'
 
 interface Props {
@@ -26,8 +26,7 @@ interface ScopeData {
   type: string
 }
 
-const EditGroup = (props: Props) => {
-  const { groupAdmin, closeEditModal, closeViewModal } = props
+const EditGroup = ({ groupAdmin, closeEditModal, closeViewModal }: Props) => {
   const user = useAuthState().user
   const adminScopeTypeState = useScopeTypeState()
   const { t } = useTranslation()
@@ -45,7 +44,7 @@ const EditGroup = (props: Props) => {
 
   useEffect(() => {
     if (adminScopeTypeState.updateNeeded.value && user.id.value) {
-      ScopeTypeService.getScopeTypeService()
+      AdminScopeTypeService.getScopeTypeService()
     }
   }, [adminScopeTypeState.updateNeeded.value, user])
 
@@ -66,7 +65,7 @@ const EditGroup = (props: Props) => {
 
     setState({ ...state, formErrors: temp })
     if (validateForm(state, state.formErrors)) {
-      GroupService.patchGroupByAdmin(groupAdmin.id, { name, description, scopeTypes })
+      AdminGroupService.patchGroupByAdmin(groupAdmin.id, { name, description, scopeTypes })
       setState({
         ...state,
         name: '',

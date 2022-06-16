@@ -12,28 +12,19 @@ import Modal from '@mui/material/Modal'
 import styles from '../styles/admin.module.scss'
 
 interface Props {
-  popConfirmOpen: boolean
-  handleCloseModal: () => void
-  submit: () => void
-  name: string | JSX.Element
-  label: string
-  type?: string
+  open: boolean
+  description: string | JSX.Element
   processing?: boolean
+  onClose: () => void
+  onSubmit: () => void
 }
 
-const ConfirmModal = (props: Props) => {
+const ConfirmModal = ({ open, description, processing, onClose, onSubmit }: Props) => {
   const { t } = useTranslation()
-  const { popConfirmOpen, handleCloseModal, submit, name, label, type, processing } = props
+
   return (
-    <Modal
-      open={popConfirmOpen}
-      onClose={handleCloseModal}
-      aria-labelledby="alert-dialog-title"
-      aria-describedby="alert-dialog-description"
-      className={styles.modal}
-      closeAfterTransition
-    >
-      <Fade in={popConfirmOpen}>
+    <Modal open={open} onClose={onClose} className={styles.modal} closeAfterTransition>
+      <Fade in={open}>
         <div
           className={classNames({
             [styles.paper]: true,
@@ -43,13 +34,13 @@ const ConfirmModal = (props: Props) => {
           {!processing && (
             <div>
               <DialogTitle id="alert-dialog-title" style={{ color: 'gray' }}>
-                {t('admin:components.common.doYouWantTo')} {type || 'delete'} {label} <b>{name}</b> ?
+                {description}
               </DialogTitle>
               <DialogActions>
-                <Button onClick={handleCloseModal} className={styles.spanNone}>
+                <Button onClick={onClose} className={styles.spanNone}>
                   {t('admin:components.common.cancel')}
                 </Button>
-                <Button className={styles.spanDange} onClick={submit} autoFocus>
+                <Button className={styles.spanDange} onClick={onSubmit} autoFocus>
                   {t('admin:components.common.confirm')}
                 </Button>
               </DialogActions>

@@ -2,10 +2,10 @@ import { Icon } from '@iconify/react'
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { Button, Grid, Paper, Typography } from '@mui/material'
-import Switch from '@mui/material/Switch'
+import { Button, Grid, Typography } from '@mui/material'
 
 import { useAuthState } from '../../../user/services/AuthService'
+import InputSwitch from '../../common/InputSwitch'
 import InputText from '../../common/InputText'
 import { ServerSettingService, useServerSettingState } from '../../services/Setting/ServerSettingService'
 import styles from '../../styles/settings.module.scss'
@@ -126,17 +126,13 @@ const Server = (props: serverProps) => {
             disabled
           />
 
-          <label> {t('admin:components.setting.performDryRun')}</label>
-          <Paper component="div" className={styles.createInput}>
-            <Switch
-              disabled
-              checked={dryRun.checkedB}
-              onChange={handleDryRun}
-              color="primary"
-              name="checkedB"
-              inputProps={{ 'aria-label': 'primary checkbox' }}
-            />
-          </Paper>
+          <InputSwitch
+            name="performDryRun"
+            label={t('admin:components.setting.performDryRun')}
+            checked={dryRun.checkedB}
+            disabled
+            onChange={handleDryRun}
+          />
         </Grid>
         <Grid item xs={12} sm={6}>
           <InputText
@@ -152,13 +148,6 @@ const Server = (props: serverProps) => {
             value={gaTrackingId || ''}
             startAdornment={<Icon style={{ marginRight: 8 }} fontSize={18} icon="emojione:key" />}
             onChange={(e) => setGaTrackingId(e.target.value)}
-          />
-
-          <InputText
-            name="hub"
-            label={t('admin:components.setting.hub')}
-            value={serverSetting?.hub?.endpoint || ''}
-            disabled
           />
 
           <InputText
@@ -200,17 +189,14 @@ const Server = (props: serverProps) => {
             onChange={(e) => setGitPem(e.target.value)}
           />
 
-          <label> {t('admin:components.setting.local')} </label>
-          <Paper component="div" className={styles.createInput}>
-            <Switch
-              disabled
-              checked={local.checkedB}
-              onChange={handleLocal}
-              color="primary"
-              name="checkedB"
-              inputProps={{ 'aria-label': 'primary checkbox' }}
-            />
-          </Paper>
+          <InputSwitch
+            name="local"
+            sx={{ mb: 2 }}
+            label={t('admin:components.setting.local')}
+            checked={local.checkedB}
+            disabled
+            onChange={handleLocal}
+          />
 
           <InputText
             name="releaseName"

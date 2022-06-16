@@ -9,7 +9,6 @@ import { addActionReceptor, defineAction, defineState, dispatchAction, getState,
 
 import { NotificationService } from '../../common/services/NotificationService'
 import { client } from '../../feathers'
-import { store } from '../../store'
 import { accessAuthState } from '../../user/services/AuthService'
 import { UserAction } from '../../user/services/UserService'
 
@@ -212,9 +211,9 @@ if (globalThis.process.env['VITE_OFFLINE_MODE'] !== 'true') {
         patchedUserRelationship.user.channelInstanceId != null &&
         patchedUserRelationship.user.channelInstanceId === selfUser.channelInstanceId.value
       )
-        store.dispatch(UserAction.addedChannelLayerUser(patchedUserRelationship.user))
+        dispatchAction(UserAction.addedChannelLayerUserAction({ user: patchedUserRelationship.user }))
       if (patchedUserRelationship.user.channelInstanceId !== selfUser.channelInstanceId.value)
-        store.dispatch(UserAction.removedChannelLayerUser(patchedUserRelationship.user))
+        dispatchAction(UserAction.removedChannelLayerUserAction({ user: patchedUserRelationship.user }))
     }
   })
 
@@ -229,9 +228,9 @@ if (globalThis.process.env['VITE_OFFLINE_MODE'] !== 'true') {
         deletedUserRelationship.user.channelInstanceId != null &&
         deletedUserRelationship.user.channelInstanceId === selfUser.channelInstanceId.value
       )
-        store.dispatch(UserAction.addedChannelLayerUser(deletedUserRelationship.user))
+        dispatchAction(UserAction.addedChannelLayerUserAction({ user: deletedUserRelationship.user }))
       if (deletedUserRelationship.user.channelInstanceId !== selfUser.channelInstanceId.value)
-        store.dispatch(UserAction.removedChannelLayerUser(deletedUserRelationship.user))
+        dispatchAction(UserAction.removedChannelLayerUserAction({ user: deletedUserRelationship.user }))
     }
   })
 }

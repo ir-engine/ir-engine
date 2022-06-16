@@ -1,48 +1,49 @@
-import { createState, useState } from '@speigg/hookstate'
-
 import { InstanceServerPatch } from '@xrengine/common/src/interfaces/Instance'
+import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
+import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
 import { client } from '../../feathers'
-import { useDispatch } from '../../store'
-import { store } from '../../store'
 
 //State
-const state = createState({
-  patch: undefined as undefined | InstanceServerPatch,
-  fetched: false,
-  lastFetched: Date.now()
+const AdminInstanceServerState = defineState({
+  name: 'AdminInstanceServerState',
+  initial: () => ({
+    patch: undefined as undefined | InstanceServerPatch,
+    fetched: false,
+    lastFetched: Date.now()
+  })
 })
 
-store.receptors.push((action: InstanceserverActionType): void => {
-  state.batch((s) => {
-    switch (action.type) {
-      case 'INSTANCESERVER_PATCH':
+export const AdminInstanceServerServiceReceptor = (action) => {
+  getState(AdminInstanceServerState).batch((s) => {
+    matches(action)
+      .when(InstanceserverActions.patchInstanceserver.matches, (action) => {
         return s.merge({
           patch: undefined,
           fetched: false
         })
-      case 'INSTANCESERVER_PATCHED':
+      })
+      .when(InstanceserverActions.patchedInstanceserver.matches, (action) => {
         return s.merge({
           patch: action.patch,
           fetched: true,
           lastFetched: Date.now()
         })
-    }
-  }, action.type)
-})
+      })
+  })
+}
 
-export const accessInstanceserverState = () => state
+export const accessInstanceserverState = () => getState(AdminInstanceServerState)
 
-export const useInstanceserverState = () => useState(state) as any as typeof state
+export const useInstanceserverState = () => useState(accessInstanceserverState())
 
 //Service
 export const InstanceserverService = {
   patchInstanceserver: async (locationId) => {
-    const dispatch = useDispatch()
     try {
-      dispatch(InstanceserverAction.patchInstanceserver())
+      dispatchAction(InstanceserverActions.patchInstanceserver())
       const patch = await client.service('instanceserver-provision').patch({ locationId })
-      dispatch(InstanceserverAction.patchedInstanceserver(patch))
+      dispatchAction(InstanceserverActions.patchedInstanceserver({ patch }))
     } catch (error) {
       console.error(error)
     }
@@ -50,18 +51,12 @@ export const InstanceserverService = {
 }
 
 //Action
-export const InstanceserverAction = {
-  patchInstanceserver: () => {
-    return {
-      type: 'INSTANCESERVER_PATCH' as const
-    }
-  },
-  patchedInstanceserver: (patch: InstanceServerPatch) => {
-    return {
-      type: 'INSTANCESERVER_PATCHED' as const,
-      patch
-    }
-  }
+export class InstanceserverActions {
+  static patchInstanceserver = defineAction({
+    type: 'INSTANCESERVER_PATCH' as const
+  })
+  static patchedInstanceserver = defineAction({
+    type: 'INSTANCESERVER_PATCHED' as const,
+    patch: matches.object as Validator<unknown, InstanceServerPatch>
+  })
 }
-
-export type InstanceserverActionType = ReturnType<typeof InstanceserverAction[keyof typeof InstanceserverAction]>

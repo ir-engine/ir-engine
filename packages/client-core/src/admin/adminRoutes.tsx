@@ -2,11 +2,13 @@ import React, { Fragment, Suspense, useEffect } from 'react'
 import { Redirect, Switch } from 'react-router-dom'
 
 import { initializeCoreSystems, initializeSceneSystems } from '@xrengine/engine/src/initializeEngine'
+import { addActionReceptor, removeActionReceptor } from '@xrengine/hyperflux'
 
 import CircularProgress from '@mui/material/CircularProgress'
 
 import PrivateRoute from '../Private'
 import { useAuthState } from '../user/services/AuthService'
+import { AdminScopeTypeServiceReceptor } from './services/ScopeTypeService'
 
 const analytic = React.lazy(() => import('./components/Analytics'))
 const avatars = React.lazy(() => import('./components/Avatars'))
@@ -42,9 +44,13 @@ const ProtectedRoutes = (props: Props) => {
   const scopes = admin?.scopes?.value || []
 
   useEffect(() => {
+    addActionReceptor(AdminScopeTypeServiceReceptor)
     initializeCoreSystems().then(async () => {
       await initializeSceneSystems()
     })
+    return () => {
+      removeActionReceptor(AdminScopeTypeServiceReceptor)
+    }
   }, [])
 
   scopes.forEach((scope) => {
@@ -89,19 +95,9 @@ const ProtectedRoutes = (props: Props) => {
             <PrivateRoute exact path="/admin/invites" component={invites} />
             <PrivateRoute exact path="/admin/locations" component={locations} />
             <PrivateRoute exact path="/admin/routes" component={routes} />
-            {/* <PrivateRoute exact path="/admin/scenes" component={scenes} /> */}
             <PrivateRoute exact path="/admin/parties" component={party} />
             <PrivateRoute exact path="/admin/bots" component={botSetting} />
-            {/* <PrivateRoute exact path="/admin/armedia" component={arMedia} /> */}
-            {/* <PrivateRoute exact path="/admin/armedia" component={arMedia} />
-            <PrivateRoute exact path="/admin/feeds" component={feeds} />
-            <PrivateRoute exact path="/admin/creator" component={creator} /> */}
             <PrivateRoute exact path="/admin/projects" component={projects} />
-            <PrivateRoute exact path="/admin/settings" component={setting} />
-            {/* <PrivateRoute exact path="/admin/settings" component={setting} />
-            <PrivateRoute exact path="/admin/armedia" component={arMedia} />
-            <PrivateRoute exact path="/admin/feeds" component={feeds} />
-            <PrivateRoute exact path="/admin/creator" component={creator} /> */}
             <PrivateRoute exact path="/admin/settings" component={setting} />
             <PrivateRoute exact Path="/admin/users" component={users} />
           </Switch>
