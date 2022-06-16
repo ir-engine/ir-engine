@@ -15,8 +15,7 @@ interface Props {
   search: string
 }
 
-const GroupTable = (props: Props) => {
-  const { search } = props
+const GroupTable = ({ search }: Props) => {
   const user = useAuthState().user
   const [viewModal, setViewModal] = useState(false)
   const [singleGroup, setSingleGroup] = useState<Group>(null!)

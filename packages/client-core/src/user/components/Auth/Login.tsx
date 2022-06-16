@@ -32,9 +32,7 @@ interface Props {
   index: number
 }
 
-const TabPanel = (props: Props): JSX.Element => {
-  const { children, value, index } = props
-
+const TabPanel = ({ children, value, index }: Props): JSX.Element => {
   return <Fragment>{value === index && children}</Fragment>
 }
 

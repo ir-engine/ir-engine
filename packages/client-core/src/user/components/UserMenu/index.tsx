@@ -1,5 +1,7 @@
 import React, { useState } from 'react'
 
+import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
+
 import LinkIcon from '@mui/icons-material/Link'
 import PersonIcon from '@mui/icons-material/Person'
 import SettingsIcon from '@mui/icons-material/Settings'
@@ -24,7 +26,7 @@ type UserMenuPanelType = (...props: any & { setActiveMenu: (menu: string) => {} 
 // panels that can be open
 export const UserMenuPanels = new Map<string, UserMenuPanelType>()
 
-const EmoteIcon = () => (
+export const EmoteIcon = () => (
   <svg width="35px" height="35px" viewBox="0 0 184 184" version="1.1">
     <path
       fill="var(--iconButtonColor)"
@@ -61,6 +63,8 @@ const UserMenu = (props: Props): any => {
   const [currentActiveMenu, setCurrentActiveMenu] = useState<typeof Views[keyof typeof Views]>()
   const Panel = UserMenuPanels.get(currentActiveMenu!)!
 
+  const engineState = useEngineState()
+
   return (
     <>
       <ClickAwayListener onClickAway={() => setCurrentActiveMenu(null!)} mouseEvent="onMouseDown">
@@ -68,23 +72,25 @@ const UserMenu = (props: Props): any => {
           <section
             className={`${styles.settingContainer} ${props.animate} ${currentActiveMenu ? props.fadeOutBottom : ''}`}
           >
-            <div className={styles.iconContainer}>
-              {Array.from(HotbarMenu.keys()).map((id, index) => {
-                const IconNode = HotbarMenu.get(id)
-                return (
-                  <span
-                    key={index}
-                    id={id + '_' + index}
-                    onClick={() => setCurrentActiveMenu(id)}
-                    className={`${styles.materialIconBlock} ${
-                      currentActiveMenu && currentActiveMenu === id ? styles.activeMenu : null
-                    }`}
-                  >
-                    {typeof IconNode === 'string' ? <EmoteIcon /> : <IconNode className={styles.icon} />}
-                  </span>
-                )
-              })}
-            </div>
+            {!engineState.xrSessionStarted.value && (
+              <div className={styles.iconContainer}>
+                {Array.from(HotbarMenu.keys()).map((id, index) => {
+                  const IconNode = HotbarMenu.get(id)
+                  return (
+                    <span
+                      key={index}
+                      id={id + '_' + index}
+                      onClick={() => setCurrentActiveMenu(id)}
+                      className={`${styles.materialIconBlock} ${
+                        currentActiveMenu && currentActiveMenu === id ? styles.activeMenu : null
+                      }`}
+                    >
+                      {typeof IconNode === 'string' ? <EmoteIcon /> : <IconNode className={styles.icon} />}
+                    </span>
+                  )
+                })}
+              </div>
+            )}
           </section>
           {currentActiveMenu && <Panel changeActiveMenu={setCurrentActiveMenu} />}
         </div>

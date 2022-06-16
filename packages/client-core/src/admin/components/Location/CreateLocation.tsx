@@ -9,7 +9,7 @@ import DialogTitle from '@mui/material/DialogTitle'
 import Drawer from '@mui/material/Drawer'
 import Grid from '@mui/material/Grid'
 
-import AlertMessage from '../../common/AlertMessage'
+import { NotificationService } from '../../../common/services/NotificationService'
 import InputSelect, { InputMenuItem } from '../../common/InputSelect'
 import InputSwitch from '../../common/InputSwitch'
 import InputText from '../../common/InputText'
@@ -20,14 +20,10 @@ import styles from '../../styles/admin.module.scss'
 
 interface Props {
   open: boolean
-  handleClose: (open: boolean) => void
-  closeViewModal?: (open: boolean) => void
+  onClose: () => void
 }
 
-const CreateLocation = (props: Props) => {
-  const { open, closeViewModal } = props
-  const [openWarning, setOpenWarning] = React.useState(false)
-  const [error, setError] = React.useState('')
+const CreateLocation = ({ open, onClose }: Props) => {
   const [state, setState] = React.useState({
     name: '',
     maxUsers: 10,
@@ -73,17 +69,10 @@ const CreateLocation = (props: Props) => {
 
   React.useEffect(() => {
     if (location.created.value) {
-      closeViewModal && closeViewModal(false)
       clearState()
+      onClose()
     }
   }, [location.created])
-
-  const handleCloseWarning = (event?: React.SyntheticEvent | Event, reason?: string) => {
-    if (reason === 'clickaway') {
-      return
-    }
-    setOpenWarning(false)
-  }
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -122,10 +111,9 @@ const CreateLocation = (props: Props) => {
     if (validateForm(state, state.formErrors)) {
       AdminLocationService.createLocation(data)
       clearState()
-      closeViewModal && closeViewModal(false)
+      onClose()
     } else {
-      setError(t('admin:components.locationModal.fillRequiredFields'))
-      setOpenWarning(true)
+      NotificationService.dispatchNotify(t('admin:components.locationModal.fillRequiredFields'), { variant: 'error' })
     }
   }
 
@@ -145,14 +133,7 @@ const CreateLocation = (props: Props) => {
 
   return (
     <React.Fragment>
-      <Drawer
-        anchor="right"
-        classes={{ paper: styles.paperDrawer }}
-        open={open}
-        onClose={() => {
-          closeViewModal && closeViewModal(false)
-        }}
-      >
+      <Drawer anchor="right" classes={{ paper: styles.paperDrawer }} open={open} onClose={onClose}>
         <Container maxWidth="sm" className={styles.mt20}>
           <DialogTitle id="form-dialog-title" className={styles.textAlign}>
             {t('admin:components.locationModal.createNewLocation')}
@@ -254,18 +235,17 @@ const CreateLocation = (props: Props) => {
               {t('admin:components.locationModal.submit')}
             </Button>
             <Button
+              className={styles.cancelButton}
               onClick={() => {
                 clearState()
-                closeViewModal && closeViewModal(false)
+                onClose()
               }}
-              className={styles.cancelButton}
             >
               {t('admin:components.locationModal.lbl-cancel')}
             </Button>
           </DialogActions>
         </Container>
       </Drawer>
-      <AlertMessage open={openWarning} handleClose={handleCloseWarning} severity="warning" message={error} />
     </React.Fragment>
   )
 }

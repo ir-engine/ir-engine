@@ -6,9 +6,7 @@ interface DemoStyleProps {
   theme: ThemeOptions
 }
 
-const DemoStyle = (props: DemoStyleProps) => {
-  const theme = props.theme
-
+const DemoStyle = ({ theme }: DemoStyleProps) => {
   return (
     <style>
       {`
@@ -296,6 +294,10 @@ const DemoStyle = (props: DemoStyleProps) => {
 
       .spanDange {
         color: var(--orange) !important;
+      }
+
+      .spanWhite:hover, .spanDange:hover {
+        opacity: 0.7;
       }
 
       .popupMainBackground {
