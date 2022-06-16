@@ -3,7 +3,7 @@ import { SystemModuleType } from '@xrengine/engine/src/ecs/functions/SystemFunct
 export const DefaultLocationSystems: SystemModuleType<any>[] = [
   {
     type: 'PRE_RENDER',
-    systemModulePromise: import('./XRUILoadingSystem')
+    systemModulePromise: import('./LoadingUISystem')
   },
   {
     type: 'PRE_RENDER',

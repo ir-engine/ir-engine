@@ -16,9 +16,9 @@ import { ObjectFitFunctions } from '@xrengine/engine/src/xrui/functions/ObjectFi
 
 import { accessSceneState } from '../world/services/SceneService'
 import { LoadingSystemState } from './state/LoadingState'
-import { createLoaderDetailView } from './ui/XRUILoadingDetailView'
+import { createLoaderDetailView } from './ui/LoadingDetailView'
 
-export default async function XRUILoadingSystem(world: World) {
+export default async function LoadingUISystem(world: World) {
   const transitionPeriodSeconds = 1
   const transition = createTransitionState(transitionPeriodSeconds)
 
