@@ -4,6 +4,8 @@ import { useTranslation } from 'react-i18next'
 import { Instance } from '@xrengine/common/src/interfaces/Instance'
 import { Location } from '@xrengine/common/src/interfaces/Location'
 
+import Box from '@mui/material/Box'
+
 import { useAuthState } from '../../../user/services/AuthService'
 import ConfirmModal from '../../common/ConfirmModal'
 import TableComponent from '../../common/Table'
@@ -12,8 +14,8 @@ import { AdminInstanceService, INSTANCE_PAGE_LIMIT, useAdminInstanceState } from
 import styles from '../../styles/admin.module.scss'
 
 interface Props {
-  fetchAdminState?: any
-  search: any
+  className?: string
+  search: string
 }
 
 /**
@@ -23,8 +25,7 @@ interface Props {
  * @returns DOM Element
  * @author KIMENYI Kevin
  */
-const InstanceTable = (props: Props) => {
-  const { search } = props
+const InstanceTable = ({ className, search }: Props) => {
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(INSTANCE_PAGE_LIMIT)
   const [refetch, setRefetch] = useState(false)
@@ -125,7 +126,7 @@ const InstanceTable = (props: Props) => {
   )
 
   return (
-    <React.Fragment>
+    <Box className={className}>
       <TableComponent
         allowSort={false}
         fieldOrder={fieldOrder}
@@ -145,7 +146,7 @@ const InstanceTable = (props: Props) => {
         onClose={handleCloseModal}
         onSubmit={submitRemoveInstance}
       />
-    </React.Fragment>
+    </Box>
   )
 }
 

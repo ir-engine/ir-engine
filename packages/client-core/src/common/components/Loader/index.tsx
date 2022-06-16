@@ -7,12 +7,7 @@ import { GeneralStateList } from '../../services/AppService'
 import { useAppState } from '../../services/AppService'
 import styles from './loader.module.scss'
 
-interface Props {
-  //Loader?: any
-}
-
-const LoadingScreen = (props: Props) => {
-  //const { Loader } = props
+const LoadingScreen = () => {
   const onBoardingStep = useAppState().onBoardingStep
   const [showProgressBar, setShowProgressBar] = useState(true)
   const [loadingText, setLoadingText] = useState('')

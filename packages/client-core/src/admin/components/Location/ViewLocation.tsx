@@ -14,8 +14,8 @@ import Grid from '@mui/material/Grid'
 import Paper from '@mui/material/Paper'
 import Typography from '@mui/material/Typography'
 
+import { NotificationService } from '../../../common/services/NotificationService'
 import { useAuthState } from '../../../user/services/AuthService'
-import AlertMessage from '../../common/AlertMessage'
 import InputSelect, { InputMenuItem } from '../../common/InputSelect'
 import InputSwitch from '../../common/InputSwitch'
 import InputText from '../../common/InputText'
@@ -25,13 +25,12 @@ import { AdminSceneService, useAdminSceneState } from '../../services/SceneServi
 import styles from '../../styles/admin.module.scss'
 
 interface Props {
-  openView: boolean
+  open: boolean
   locationAdmin?: LocationFetched
-  closeViewModal: (open: boolean) => void
+  onClose: () => void
 }
 
-const ViewLocation = (props: Props) => {
-  const { openView, closeViewModal, locationAdmin } = props
+const ViewLocation = ({ open, locationAdmin, onClose }: Props) => {
   const [editMode, setEditMode] = useState(false)
   const [state, setState] = useState({
     name: '',
@@ -53,8 +52,6 @@ const ViewLocation = (props: Props) => {
     }
   })
   const [location, setLocation] = useState<any>('')
-  const [error, setError] = useState('')
-  const [openWarning, setOpenWarning] = useState(false)
   const { t } = useTranslation()
   const adminScenes = useAdminSceneState().scenes
   const locationTypes = useAdminLocationState().locationTypes
@@ -157,25 +154,15 @@ const ViewLocation = (props: Props) => {
         scene: ''
       })
       setEditMode(false)
-      closeViewModal(false)
+      onClose()
     } else {
-      setError(t('admin:components.locationModal.fillRequiredFields'))
-      setOpenWarning(true)
+      NotificationService.dispatchNotify(t('admin:components.locationModal.fillRequiredFields'), { variant: 'error' })
     }
   }
 
-  const handleCloseWarning = (event?: React.SyntheticEvent | Event, reason?: string) => {
-    if (reason === 'clickaway') {
-      return
-    }
-    setOpenWarning(false)
-  }
-
-  const handleCloseDrawe = () => {
-    setError('')
-    setOpenWarning(false)
-    closeViewModal(false)
+  const handleCloseDrawer = () => {
     setState({ ...state, formErrors: { ...state.formErrors, name: '', maxUsers: '', scene: '', type: '' } })
+    onClose()
   }
 
   const sceneMenu: InputMenuItem[] = adminScenes.value.map((el) => {
@@ -194,7 +181,7 @@ const ViewLocation = (props: Props) => {
 
   return (
     <React.Fragment>
-      <Drawer anchor="right" open={openView} onClose={() => handleCloseDrawe()} classes={{ paper: styles.paperDrawer }}>
+      <Drawer anchor="right" open={open} onClose={() => handleCloseDrawer()} classes={{ paper: styles.paperDrawer }}>
         <Paper elevation={0} className={styles.rootPaper}>
           {location && (
             <Container maxWidth="sm">
@@ -221,7 +208,7 @@ const ViewLocation = (props: Props) => {
           <Container maxWidth="sm">
             <div className={styles.mt10}>
               <Typography variant="h4" component="h4" className={`${styles.mb10} ${styles.headingFont}`}>
-                {t('admin:components.locationModal.updateLocationInfo')}{' '}
+                {t('admin:components.locationModal.updateLocationInfo')}
               </Typography>
 
               <InputText
@@ -451,14 +438,13 @@ const ViewLocation = (props: Props) => {
               >
                 {t('admin:components.locationModal.lbl-edit')}
               </Button>
-              <Button onClick={() => handleCloseDrawe()} className={styles.cancelButton}>
+              <Button onClick={handleCloseDrawer} className={styles.cancelButton}>
                 {t('admin:components.locationModal.lbl-cancel')}
               </Button>
             </DialogActions>
           )}
         </DialogActions>
       </Drawer>
-      <AlertMessage open={openWarning} handleClose={handleCloseWarning} severity="warning" message={error} />
     </React.Fragment>
   )
 }

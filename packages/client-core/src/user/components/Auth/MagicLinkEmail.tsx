@@ -10,7 +10,7 @@ import Grid from '@mui/material/Grid'
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
 
-import { AuthSettingService } from '../../../admin/services/Setting/AuthSettingService'
+import { AuthSettingsService } from '../../../admin/services/Setting/AuthSettingService'
 import { useAdminAuthSettingState } from '../../../admin/services/Setting/AuthSettingService'
 import { AuthService } from '../../services/AuthService'
 import { useAuthState } from '../../services/AuthService'
@@ -43,9 +43,7 @@ const defaultState = {
 
 const termsOfService = globalThis.process.env['VITE_TERMS_OF_SERVICE_ADDRESS'] ?? '/terms-of-service'
 
-const MagicLinkEmail = (props: Props): JSX.Element => {
-  const { type, isAddConnection } = props
-
+const MagicLinkEmail = ({ type, isAddConnection }: Props): JSX.Element => {
   const auth = useAuthState()
   const [state, setState] = useState(defaultState)
   const { t } = useTranslation()
@@ -54,7 +52,7 @@ const MagicLinkEmail = (props: Props): JSX.Element => {
   const [authState, setAuthState] = useState(initialState)
 
   useEffect(() => {
-    !authSetting && AuthSettingService.fetchAuthSetting()
+    !authSetting && AuthSettingsService.fetchAuthSetting()
   }, [])
 
   useEffect(() => {
