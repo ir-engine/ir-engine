@@ -25,11 +25,11 @@ import styles from '../../styles/admin.module.scss'
 
 interface Props {
   open: boolean
-  handleClose: () => void
   bot?: AdminBot
+  onClose: () => void
 }
 
-const UpdateBot = ({ open, handleClose, bot }: Props) => {
+const UpdateBot = ({ open, bot, onClose }: Props) => {
   const adminInstanceState = useAdminInstanceState()
   const [state, setState] = useState({
     name: '',
@@ -134,7 +134,7 @@ const UpdateBot = ({ open, handleClose, bot }: Props) => {
       AdminBotService.updateBotAsAdmin(bot.id, data)
       setState({ name: '', description: '', instance: '', location: '' })
       setCurrentIntance([])
-      handleClose()
+      onClose()
     } else {
       NotificationService.dispatchNotify(t('admin:components.bot.fillRequiredField'), { variant: 'error' })
     }
@@ -150,12 +150,7 @@ const UpdateBot = ({ open, handleClose, bot }: Props) => {
 
   return (
     <div>
-      <Dialog
-        open={open}
-        aria-labelledby="form-dialog-title"
-        classes={{ paper: styles.paperDialog }}
-        onClose={handleClose}
-      >
+      <Dialog open={open} aria-labelledby="form-dialog-title" classes={{ paper: styles.paperDialog }} onClose={onClose}>
         <DialogTitle id="form-dialog-title">{t('admin:components.bot.updateBot')}</DialogTitle>
         <DialogContent>
           <InputText
@@ -209,7 +204,7 @@ const UpdateBot = ({ open, handleClose, bot }: Props) => {
             onClick={() => {
               setState({ name: '', description: '', instance: '', location: '' })
               setFormErrors({ name: '', description: '', location: '' })
-              handleClose()
+              onClose()
             }}
             className={styles.submitButton}
           >
