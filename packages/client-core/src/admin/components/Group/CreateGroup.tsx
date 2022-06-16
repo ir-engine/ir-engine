@@ -8,10 +8,10 @@ import Button from '@mui/material/Button'
 import Container from '@mui/material/Container'
 import DialogActions from '@mui/material/DialogActions'
 import DialogTitle from '@mui/material/DialogTitle'
-import Drawer from '@mui/material/Drawer'
 
 import { useAuthState } from '../../../user/services/AuthService'
 import AutoComplete from '../../common/AutoComplete'
+import DrawerView from '../../common/DrawerView'
 import InputText from '../../common/InputText'
 import { validateForm } from '../../common/validation/formValidation'
 import { AdminGroupService } from '../../services/GroupService'
@@ -20,15 +20,14 @@ import styles from '../../styles/admin.module.scss'
 
 interface Props {
   open: boolean
-  handleClose: (open: boolean) => void
-  //adminGroupState?: any
+  onClose: () => void
 }
 
 interface ScopeData {
   type: string
 }
 
-const CreateGroup = ({ open, handleClose }: Props) => {
+const CreateGroup = ({ open, onClose }: Props) => {
   const user = useAuthState().user
   const adminScopeTypeState = useScopeTypeState()
   const { t } = useTranslation()
@@ -72,7 +71,7 @@ const CreateGroup = ({ open, handleClose }: Props) => {
         description: '',
         scopeTypes: []
       })
-      handleClose(false)
+      onClose()
     }
   }
 
@@ -88,7 +87,7 @@ const CreateGroup = ({ open, handleClose }: Props) => {
 
   return (
     <React.Fragment>
-      <Drawer classes={{ paper: styles.paperDrawer }} anchor="right" open={open} onClose={() => handleClose(false)}>
+      <DrawerView open={open} onClose={onClose}>
         <Container maxWidth="sm" className={styles.mt20}>
           <form onSubmit={(e) => onSubmitHandler(e)}>
             <DialogTitle id="form-dialog-title" className={styles.textAlign}>
@@ -131,7 +130,7 @@ const CreateGroup = ({ open, handleClose }: Props) => {
                     description: '',
                     formErrors: { ...state.formErrors, name: '', description: '' }
                   })
-                  handleClose(false)
+                  onClose()
                 }}
                 className={styles.cancelButton}
               >
@@ -140,7 +139,7 @@ const CreateGroup = ({ open, handleClose }: Props) => {
             </DialogActions>
           </form>
         </Container>
-      </Drawer>
+      </DrawerView>
     </React.Fragment>
   )
 }

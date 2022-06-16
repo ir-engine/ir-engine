@@ -9,10 +9,10 @@ import Button from '@mui/material/Button'
 import Container from '@mui/material/Container'
 import DialogActions from '@mui/material/DialogActions'
 import DialogTitle from '@mui/material/DialogTitle'
-import Drawer from '@mui/material/Drawer'
 
 import { NotificationService } from '../../../common/services/NotificationService'
 import { ProjectService } from '../../../common/services/ProjectService'
+import DrawerView from '../../common/DrawerView'
 import InputSelect, { InputMenuItem } from '../../common/InputSelect'
 import InputText from '../../common/InputText'
 import LoadingView from '../../common/LoadingView'
@@ -62,7 +62,7 @@ const AddProject = ({ open, repos, onClose }: Props) => {
 
   return (
     <React.Fragment>
-      <Drawer anchor="right" classes={{ paper: styles.paperDrawer }} open={open} onClose={onClose}>
+      <DrawerView open={open} onClose={onClose}>
         <Container maxWidth="sm" className={styles.mt20}>
           <DialogTitle className={styles.textAlign}>{t('admin:components.project.addProject')}</DialogTitle>
 
@@ -110,7 +110,7 @@ const AddProject = ({ open, repos, onClose }: Props) => {
             )}
           </DialogActions>
         </Container>
-      </Drawer>
+      </DrawerView>
     </React.Fragment>
   )
 }

@@ -53,7 +53,7 @@ const GroupConsole = () => {
           <GroupTable search={search} />
         </div>
       </div>
-      <CreateGroup open={groupOpen} handleClose={openModalCreate} />
+      <CreateGroup open={groupOpen} onClose={() => setGroupOpen(false)} />
     </React.Fragment>
   )
 }

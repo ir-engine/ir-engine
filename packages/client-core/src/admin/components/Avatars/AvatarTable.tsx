@@ -4,11 +4,10 @@ import { useTranslation } from 'react-i18next'
 import { AvatarInterface } from '@xrengine/common/src/interfaces/AvatarInterface'
 import { dispatchAction } from '@xrengine/hyperflux'
 
-import Drawer from '@mui/material/Drawer'
-
 import AvatarSelectMenu from '../../../user/components/UserMenu/menus/AvatarSelectMenu'
 import { useAuthState } from '../../../user/services/AuthService'
 import ConfirmModal from '../../common/ConfirmModal'
+import DrawerView from '../../common/DrawerView'
 import TableComponent from '../../common/Table'
 import { avatarColumns, AvatarData } from '../../common/variables/avatar'
 import { AdminAvatarActions, AVATAR_PAGE_LIMIT } from '../../services/AvatarService'
@@ -36,7 +35,7 @@ const AvatarTable = ({ search }: Props) => {
   const [avatarName, setAvatarName] = useState('')
   const [fieldOrder, setFieldOrder] = useState('asc')
   const [sortField, setSortField] = useState('name')
-  const [viewModal, setViewModal] = useState(false)
+  const [openDrawer, setOpenDrawer] = useState(false)
   const [avatarData, setViewAvatarData] = useState<AvatarInterface | null>(null)
 
   const handlePageChange = (event: unknown, newPage: number) => {
@@ -81,7 +80,7 @@ const AvatarTable = ({ search }: Props) => {
             className={styles.actionStyle}
             onClick={() => {
               setViewAvatarData(el)
-              setViewModal(true)
+              setOpenDrawer(true)
             }}
           >
             <span className={styles.spanWhite}>{t('user:avatar.view')}</span>
@@ -111,10 +110,6 @@ const AvatarTable = ({ search }: Props) => {
     setPopConfirmOpen(false)
   }
 
-  const closeViewModal = () => {
-    setViewModal(false)
-  }
-
   return (
     <React.Fragment>
       <TableComponent
@@ -136,15 +131,15 @@ const AvatarTable = ({ search }: Props) => {
         onClose={handleCloseModal}
         onSubmit={submitRemoveAvatar}
       />
-      {avatarData && viewModal && (
-        <Drawer anchor="right" open={viewModal} onClose={closeViewModal} classes={{ paper: styles.paperDrawer }}>
+      {avatarData && openDrawer && (
+        <DrawerView open onClose={() => setOpenDrawer(false)}>
           <AvatarSelectMenu
             adminStyles={styles}
             onAvatarUpload={() => dispatchAction(AdminAvatarActions.avatarUpdated())}
-            changeActiveMenu={closeViewModal}
+            changeActiveMenu={() => setOpenDrawer(false)}
             avatarData={avatarData}
           />
-        </Drawer>
+        </DrawerView>
       )}
     </React.Fragment>
   )

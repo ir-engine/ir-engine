@@ -8,7 +8,6 @@ import Button from '@mui/material/Button'
 import Chip from '@mui/material/Chip'
 import Container from '@mui/material/Container'
 import DialogActions from '@mui/material/DialogActions'
-import Drawer from '@mui/material/Drawer'
 import Grid from '@mui/material/Grid'
 import List from '@mui/material/List'
 import ListItem from '@mui/material/ListItem'
@@ -17,6 +16,7 @@ import ListItemText from '@mui/material/ListItemText'
 import Paper from '@mui/material/Paper'
 import Typography from '@mui/material/Typography'
 
+import DrawerView from '../../common/DrawerView'
 import styles from '../../styles/admin.module.scss'
 import EditGroup from './EditGroup'
 
@@ -31,12 +31,7 @@ const ViewGroup = ({ openView, groupAdmin, closeViewModal }: Props) => {
   const { t } = useTranslation()
 
   return (
-    <Drawer
-      anchor="right"
-      open={openView}
-      onClose={() => closeViewModal(false)}
-      classes={{ paper: styles.paperDrawer }}
-    >
+    <DrawerView open={openView} onClose={() => closeViewModal(false)}>
       {editMode ? (
         <EditGroup groupAdmin={groupAdmin} closeEditModal={setEditMode} closeViewModal={closeViewModal} />
       ) : (
@@ -135,7 +130,7 @@ const ViewGroup = ({ openView, groupAdmin, closeViewModal }: Props) => {
           </DialogActions>
         </React.Fragment>
       )}
-    </Drawer>
+    </DrawerView>
   )
 }
 

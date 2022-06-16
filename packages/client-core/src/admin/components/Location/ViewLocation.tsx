@@ -9,13 +9,13 @@ import Button from '@mui/material/Button'
 import Chip from '@mui/material/Chip'
 import Container from '@mui/material/Container'
 import DialogActions from '@mui/material/DialogActions'
-import Drawer from '@mui/material/Drawer'
 import Grid from '@mui/material/Grid'
 import Paper from '@mui/material/Paper'
 import Typography from '@mui/material/Typography'
 
 import { NotificationService } from '../../../common/services/NotificationService'
 import { useAuthState } from '../../../user/services/AuthService'
+import DrawerView from '../../common/DrawerView'
 import InputSelect, { InputMenuItem } from '../../common/InputSelect'
 import InputSwitch from '../../common/InputSwitch'
 import InputText from '../../common/InputText'
@@ -181,7 +181,7 @@ const ViewLocation = ({ open, locationAdmin, onClose }: Props) => {
 
   return (
     <React.Fragment>
-      <Drawer anchor="right" open={open} onClose={() => handleCloseDrawer()} classes={{ paper: styles.paperDrawer }}>
+      <DrawerView open={open} onClose={() => handleCloseDrawer()}>
         <Paper elevation={0} className={styles.rootPaper}>
           {location && (
             <Container maxWidth="sm">
@@ -444,7 +444,7 @@ const ViewLocation = ({ open, locationAdmin, onClose }: Props) => {
             </DialogActions>
           )}
         </DialogActions>
-      </Drawer>
+      </DrawerView>
     </React.Fragment>
   )
 }

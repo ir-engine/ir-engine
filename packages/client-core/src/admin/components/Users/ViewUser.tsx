@@ -12,7 +12,6 @@ import Button from '@mui/material/Button'
 import Chip from '@mui/material/Chip'
 import Container from '@mui/material/Container'
 import DialogActions from '@mui/material/DialogActions'
-import Drawer from '@mui/material/Drawer'
 import Grid from '@mui/material/Grid'
 import Paper from '@mui/material/Paper'
 import Skeleton from '@mui/material/Skeleton'
@@ -21,6 +20,7 @@ import Typography from '@mui/material/Typography'
 import { NotificationService } from '../../../common/services/NotificationService'
 import { useAuthState } from '../../../user/services/AuthService'
 import AutoComplete from '../../common/AutoComplete'
+import DrawerView from '../../common/DrawerView'
 import InputSelect, { InputMenuItem } from '../../common/InputSelect'
 import InputText from '../../common/InputText'
 import { validateForm } from '../../common/validation/formValidation'
@@ -185,12 +185,7 @@ const ViewUser = ({ openView, closeViewModal, userAdmin }: Props) => {
 
   return (
     <React.Fragment>
-      <Drawer
-        anchor="right"
-        open={openView}
-        onClose={() => handleCloseDrawer()}
-        classes={{ paper: styles.paperDrawer }}
-      >
+      <DrawerView open={openView} onClose={handleCloseDrawer}>
         {userAdmin && (
           <Paper elevation={3} className={styles.rootPaper}>
             <Container maxWidth="sm" className={styles.pad}>
@@ -364,7 +359,7 @@ const ViewUser = ({ openView, closeViewModal, userAdmin }: Props) => {
             )}
           </DialogActions>
         </Container>
-      </Drawer>
+      </DrawerView>
     </React.Fragment>
   )
 }

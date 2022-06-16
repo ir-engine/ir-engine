@@ -6,10 +6,10 @@ import Button from '@mui/material/Button'
 import Container from '@mui/material/Container'
 import DialogActions from '@mui/material/DialogActions'
 import DialogTitle from '@mui/material/DialogTitle'
-import Drawer from '@mui/material/Drawer'
 import Grid from '@mui/material/Grid'
 
 import { NotificationService } from '../../../common/services/NotificationService'
+import DrawerView from '../../common/DrawerView'
 import InputSelect, { InputMenuItem } from '../../common/InputSelect'
 import InputSwitch from '../../common/InputSwitch'
 import InputText from '../../common/InputText'
@@ -133,7 +133,7 @@ const CreateLocation = ({ open, onClose }: Props) => {
 
   return (
     <React.Fragment>
-      <Drawer anchor="right" classes={{ paper: styles.paperDrawer }} open={open} onClose={onClose}>
+      <DrawerView open={open} onClose={onClose}>
         <Container maxWidth="sm" className={styles.mt20}>
           <DialogTitle id="form-dialog-title" className={styles.textAlign}>
             {t('admin:components.locationModal.createNewLocation')}
@@ -245,7 +245,7 @@ const CreateLocation = ({ open, onClose }: Props) => {
             </Button>
           </DialogActions>
         </Container>
-      </Drawer>
+      </DrawerView>
     </React.Fragment>
   )
 }

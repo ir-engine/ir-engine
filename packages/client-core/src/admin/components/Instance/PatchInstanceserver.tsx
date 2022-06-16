@@ -5,9 +5,9 @@ import Button from '@mui/material/Button'
 import Container from '@mui/material/Container'
 import DialogActions from '@mui/material/DialogActions'
 import DialogTitle from '@mui/material/DialogTitle'
-import Drawer from '@mui/material/Drawer'
 
 import { useAuthState } from '../../../user/services/AuthService'
+import DrawerView from '../../common/DrawerView'
 import InputSelect, { InputMenuItem } from '../../common/InputSelect'
 import { InstanceserverService } from '../../services/InstanceserverService'
 import { AdminLocationService, useAdminLocationState } from '../../services/LocationService'
@@ -15,11 +15,10 @@ import styles from '../../styles/admin.module.scss'
 
 interface Props {
   open: boolean
-  handleClose: any
-  closeViewModal?: any
+  onClose: () => void
 }
 
-const PatchInstanceserver = ({ open, handleClose, closeViewModal }: Props) => {
+const PatchInstanceserver = ({ open, onClose }: Props) => {
   const [state, setState] = React.useState({
     location: '',
     locationError: ''
@@ -47,7 +46,7 @@ const PatchInstanceserver = ({ open, handleClose, closeViewModal }: Props) => {
 
   useEffect(() => {
     if (location.created.value) {
-      closeViewModal(false)
+      onClose()
       setState({
         ...state,
         location: ''
@@ -67,13 +66,13 @@ const PatchInstanceserver = ({ open, handleClose, closeViewModal }: Props) => {
       setState({ ...state, locationError })
     } else {
       InstanceserverService.patchInstanceserver(state.location)
-      closeViewModal(false)
+      onClose()
     }
   }
 
   return (
     <React.Fragment>
-      <Drawer anchor="right" classes={{ paper: styles.paperDrawer }} open={open} onClose={handleClose(false)}>
+      <DrawerView open={open} onClose={onClose}>
         <Container maxWidth="sm" className={styles.mt20}>
           <DialogTitle id="form-dialog-title" className={styles.textAlign}>
             {t('admin:components.setting.patchInstanceserver')}
@@ -92,12 +91,12 @@ const PatchInstanceserver = ({ open, handleClose, closeViewModal }: Props) => {
             <Button className={styles.submitButton} onClick={handleSubmit}>
               {t('admin:components.setting.save')}
             </Button>
-            <Button onClick={handleClose(false)} className={styles.cancelButton}>
+            <Button onClick={onClose} className={styles.cancelButton}>
               {t('admin:components.setting.cancel')}
             </Button>
           </DialogActions>
         </Container>
-      </Drawer>
+      </DrawerView>
     </React.Fragment>
   )
 }

@@ -13,9 +13,9 @@ import Paper from '@mui/material/Paper'
 import Typography from '@mui/material/Typography'
 
 import { useAuthState } from '../../../user/services/AuthService'
+import DrawerView from '../../common/DrawerView'
 import InputSelect, { InputMenuItem } from '../../common/InputSelect'
 import { validateForm } from '../../common/validation/formValidation'
-import ViewDrawer from '../../common/ViewDrawer'
 import { useAdminInstanceState } from '../../services/InstanceService'
 import { AdminInstanceService } from '../../services/InstanceService'
 import { useAdminLocationState } from '../../services/LocationService'
@@ -126,7 +126,7 @@ export default function ViewParty({ openView, closeViewModal, partyAdmin, editMo
   })
 
   return (
-    <ViewDrawer openView={openView} handleCloseDrawer={() => closeViewModal()}>
+    <DrawerView open={openView} onClose={closeViewModal}>
       <Paper elevation={0} className={styles.rootPaper}>
         {partyAdmin && (
           <Container maxWidth="sm">
@@ -267,6 +267,6 @@ export default function ViewParty({ openView, closeViewModal, partyAdmin, editMo
           </>
         )}
       </DialogActions>
-    </ViewDrawer>
+    </DrawerView>
   )
 }
