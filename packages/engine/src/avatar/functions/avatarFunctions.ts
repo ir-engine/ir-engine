@@ -353,7 +353,7 @@ function findHeadBone(root: Object3D) {
  */
 function setupHeadDecap(object: any, headBone: any | undefined, material: Material) {
   // Create a copy of the mesh to hide 'internal' polygons when opacity is below 1
-  if (material.opacity == 1) {
+  if (material.opacity > 0) {
     const mesh = object.getObjectByProperty('type', 'SkinnedMesh') as SkinnedMesh
     const skinnedMeshMask = SkeletonUtils.clone(object).getObjectByProperty('type', 'SkinnedMesh') as SkinnedMesh
     mesh.parent?.add(skinnedMeshMask)
@@ -480,6 +480,7 @@ export const setAvatarHeadOpacity = (entity: Entity, opacity: number): void => {
     })
   } else {
     ;(headBone as any).traverse((o) => {
+      if (!o.savedPosition) return
       o.position.copy(o.savedPosition)
       o.matrixWorld.copy(o.savedMatrixWorld)
     })
