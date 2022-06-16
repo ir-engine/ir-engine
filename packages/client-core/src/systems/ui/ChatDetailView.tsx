@@ -139,6 +139,7 @@ interface ChatDetailState {
   chatMenuOpen: boolean
 }
 
+// TODO: update this to newest chat implementation
 const ChatDetailView = () => {
   const detailState = useXRUIState<ChatDetailState>()
 

@@ -171,6 +171,7 @@ function createSettingDetailState() {
   })
 }
 
+// TODO: update this to newest settings implementation
 const SettingDetailView = () => {
   const { t } = useTranslation()
   const rendererState = useEngineRendererState()

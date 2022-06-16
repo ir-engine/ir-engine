@@ -109,9 +109,9 @@ const AvatarContextMenu = () => {
   const user = userState.layerUsers.find((user) => user.id.value === detailState.id.value)
   const { t } = useTranslation()
 
+  // TODO: move these to widget register
   useEffect(() => {
     addActionReceptor(PartyServiceReceptor)
-
     return () => {
       removeActionReceptor(PartyServiceReceptor)
     }
