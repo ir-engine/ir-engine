@@ -1,12 +1,9 @@
 import { createState } from '@speigg/hookstate'
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 
-import { changeAvatarAnimationState } from '@xrengine/engine/src/avatar/animation/AvatarAnimationGraph'
-import { AvatarStates } from '@xrengine/engine/src/avatar/animation/Util'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
 
-import Button from '@mui/material/Button'
+import { useEmoteMenuHooks } from '../../user/components/UserMenu/menus/EmoteMenu'
 
 const styles = {
   actionImg: { opacity: '0.8', display: 'block', width: '100%' },
@@ -106,159 +103,10 @@ function createEmoteDetailState() {
 }
 
 const EmoteDetailView = () => {
-  const MAX_EMOTE_PER_PAGE = 6
-  const MIN_EMOTE_PER_PAGE = 5
-
-  const getEmotePerPage = () => (window.innerWidth > 768 ? MAX_EMOTE_PER_PAGE : MIN_EMOTE_PER_PAGE)
-  const [page, setPage] = useState(0)
-  const [imgPerPage, setImgPerPage] = useState(getEmotePerPage())
-
-  let menuRadius = 250
-  let menuPadding = 25
-  let menuThickness = 70
-  let menuItemWidth = menuThickness - menuPadding
-  let menuItemRadius = menuItemWidth / 2
-  let effectiveRadius = menuRadius - menuItemRadius - menuPadding / 2
-
-  let [items, setItems] = useState([
-    {
-      body: <img src="/static/grinning.svg" style={styles.actionImg as {}} alt="Dance 4" key="Dance4" />,
-      containerProps: {
-        onClick: () => runAnimation(AvatarStates.DANCE4)
-      }
-    },
-    {
-      body: <img src="/static/sad.svg" style={styles.actionImg as {}} alt="sad" key="sad" />,
-      containerProps: {
-        onClick: () => runAnimation(AvatarStates.CLAP)
-      }
-    },
-    {
-      body: <img src="/static/Kiss.svg" style={styles.actionImg as {}} alt="Kiss" key="Kiss" />,
-      containerProps: {
-        onClick: () => runAnimation(AvatarStates.KISS)
-      }
-    },
-    {
-      body: <img src="/static/Cry.svg" style={styles.actionImg as {}} alt="Cry" key="Cry" />,
-      containerProps: {
-        onClick: () => runAnimation(AvatarStates.CRY)
-      }
-    },
-    {
-      body: <img src="/static/dance_new1.svg" style={styles.actionImg as {}} alt="Dance 1" key="Dance1" />,
-      containerProps: {
-        onClick: () => runAnimation(AvatarStates.DANCE1)
-      }
-    },
-    {
-      body: <img src="/static/clap1.svg" style={styles.actionImg as {}} alt="Dance 2" key="Dance2" />,
-      containerProps: {
-        onClick: () => runAnimation(AvatarStates.DANCE2)
-      }
-    },
-    {
-      body: <img src="/static/victory.svg" style={styles.actionImg as {}} alt="Dance 3" key="Dance3" />,
-      containerProps: {
-        onClick: () => runAnimation(AvatarStates.DANCE3)
-      }
-    },
-    {
-      body: <img src="/static/Laugh.svg" style={styles.actionImg as {}} alt="Laugh" key="Laugh" />,
-      containerProps: {
-        onClick: () => runAnimation(AvatarStates.LAUGH)
-      }
-    },
-    {
-      body: <img src="/static/Defeat.svg" style={styles.actionImg as {}} alt="Defeat" key="Defeat" />,
-      containerProps: {
-        onClick: () => runAnimation(AvatarStates.DEFEAT)
-      }
-    },
-    {
-      body: <img src="/static/Wave.svg" style={styles.actionImg as {}} alt="Wave" key="Wave" />,
-      containerProps: {
-        onClick: () => runAnimation(AvatarStates.WAVE)
-      }
-    },
-    {
-      body: <img src="/static/restart.svg" style={styles.actionImg as {}} key="restart" />,
-      containerProps: {
-        onClick: () => runAnimation(AvatarStates.LOCOMOTION)
-      }
-    }
-  ])
-
-  const calculateMenuRadius = () => {
-    setImgPerPage(getEmotePerPage())
-    calculateOtherValues()
-  }
-
-  useEffect(() => {
-    window.addEventListener('resize', calculateMenuRadius)
-    calculateOtherValues()
-  }, [])
-
-  const calculateOtherValues = (): void => {
-    menuThickness = 70
-    menuItemWidth = menuThickness - menuPadding
-    menuItemRadius = menuItemWidth / 2
-    effectiveRadius = menuRadius - menuItemRadius - menuPadding / 2
-  }
-
-  const runAnimation = (stateName: string) => {
-    const entity = Engine.instance.currentWorld.localClientEntity
-    changeAvatarAnimationState(entity, stateName)
-  }
-
-  const renderEmoteList = () => {
-    const itemList = [] as JSX.Element[]
-    const startIndex = page * imgPerPage
-    const endIndex = Math.min(startIndex + imgPerPage, items.length)
-    let angle = 360 / imgPerPage
-    let index = 0
-    let itemAngle = 0
-    let x = 0
-    let y = 0
-
-    for (let i = startIndex; i < endIndex; i++, index++) {
-      const emoticon = items[i]
-      itemAngle = angle * index + 270
-      x = effectiveRadius * Math.cos((itemAngle * Math.PI) / 280)
-      y = effectiveRadius * Math.sin((itemAngle * Math.PI) / 280)
-
-      itemList.push(
-        <div key={i}>
-          <Button
-            {...emoticon.containerProps}
-            style={
-              {
-                width: menuItemWidth,
-                height: menuItemWidth,
-                transform: `translate(${x}px , ${y}px)`,
-                ...styles.menuItem
-              } as {}
-            }
-          >
-            {emoticon.body}
-          </Button>
-        </div>
-      )
-    }
-
-    return itemList
-  }
-
-  const loadNextEmotes = (e) => {
-    e.preventDefault()
-    if ((page + 1) * imgPerPage >= items.length) return
-    setPage(page + 1)
-  }
-  const loadPreviousEmotes = (e) => {
-    e.preventDefault()
-    if (page === 0) return
-    setPage(page - 1)
-  }
+  const { loadPreviousEmotes, menuItemRadius, renderEmoteList, page, imgPerPage, items, loadNextEmotes } =
+    useEmoteMenuHooks({
+      changeActiveMenu: () => null!
+    })
 
   return (
     <section style={styles.container as {}} xr-layer="true">
