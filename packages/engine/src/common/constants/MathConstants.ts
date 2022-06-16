@@ -1,2 +1,3 @@
-export const PI = 3.14159265359
-export const TAU = 6.28318530718
+export const PI = Math.PI
+export const HALF_PI = PI / 2
+export const TAU = Math.PI * 2

@@ -11,8 +11,7 @@ import { AdminUserService, USER_PAGE_LIMIT, useUserState } from '../../services/
 import styles from '../../styles/admin.module.scss'
 import ViewUser from './ViewUser'
 
-const UserTable = (props: UserProps) => {
-  const { search } = props
+const UserTable = ({ search }: UserProps) => {
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(USER_PAGE_LIMIT)
   const [popConfirmOpen, setPopConfirmOpen] = useState(false)

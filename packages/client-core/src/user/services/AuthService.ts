@@ -153,13 +153,11 @@ accessAuthState().attach(() => ({
   init: () => ({
     onSet(arg) {
       const state = accessAuthState().attach(Downgraded).value
-      const dispatch = useDispatch()
       if (state.isLoggedIn)
-        dispatch(
+        dispatchAction(
           StoredLocalAction.storedLocal({
-            authData: {
-              authUser: state.authUser,
-              identityProvider: state.identityProvider
+            newState: {
+              authUser: state.authUser
             }
           })
         )
@@ -172,7 +170,7 @@ export const AuthService = {
   doLoginAuto: async (forceClientAuthReset?: boolean) => {
     try {
       console.log(accessStoredLocalState().attach(Downgraded))
-      const authData = accessStoredLocalState().attach(Downgraded).authData.value
+      const authData = accessStoredLocalState().attach(Downgraded).value
       let accessToken =
         forceClientAuthReset !== true && authData && authData.authUser ? authData.authUser.accessToken : undefined
 

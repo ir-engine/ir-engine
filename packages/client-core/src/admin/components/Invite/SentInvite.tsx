@@ -13,8 +13,7 @@ interface Props {
   search: string
 }
 
-const SentInvite = (props: Props) => {
-  const { search } = props
+const SentInvite = ({ search }: Props) => {
   const [page, setPage] = useState(0)
   const [popConfirmOpen, setPopConfirmOpen] = useState(false)
   const [inviteId, setInviteId] = useState('')

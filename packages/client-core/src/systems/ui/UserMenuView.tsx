@@ -87,15 +87,20 @@ const styles = {
 }
 
 export function createAvatarContextMenuView() {
-  return createXRUI(AvatarContextMenu, UserMenuState)
+  return createXRUI(
+    AvatarContextMenu,
+    createState({
+      id: '' as UserId
+    })
+  )
 }
 
-export const UserMenuState = createState({
-  id: '' as UserId
-})
+interface UserMenuState {
+  id: UserId
+}
 
 const AvatarContextMenu = () => {
-  const detailState = useXRUIState() as typeof UserMenuState
+  const detailState = useXRUIState<UserMenuState>()
 
   const engineState = useEngineState()
   const userState = useUserState()
@@ -104,9 +109,9 @@ const AvatarContextMenu = () => {
   const user = userState.layerUsers.find((user) => user.id.value === detailState.id.value)
   const { t } = useTranslation()
 
+  // TODO: move these to widget register
   useEffect(() => {
     addActionReceptor(PartyServiceReceptor)
-
     return () => {
       removeActionReceptor(PartyServiceReceptor)
     }

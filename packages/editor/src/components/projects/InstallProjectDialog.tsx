@@ -15,9 +15,8 @@ interface Props {
   installProject: (url: string) => Promise<void>
 }
 
-export const InstallProjectDialog = (props: Props): any => {
+export const InstallProjectDialog = ({ open, handleClose, installProject }: Props): any => {
   const { t } = useTranslation()
-  const { open, handleClose, installProject } = props
 
   const [processing, setProcessing] = useState(false)
   const [error, setError] = useState('')
@@ -55,7 +54,7 @@ export const InstallProjectDialog = (props: Props): any => {
       onClose={closeDialog}
       closeAfterTransition
       TransitionComponent={Fade}
-      TransitionProps={{ in: props.open }}
+      TransitionProps={{ in: open }}
     >
       <DialogTitle>{t('editor.projects.installProject')}</DialogTitle>
       <DialogContent>
