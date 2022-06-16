@@ -19,7 +19,7 @@ const UserTable = ({ search }: UserProps) => {
   const [userName, setUserName] = useState('')
   const [fieldOrder, setFieldOrder] = useState('asc')
   const [sortField, setSortField] = useState('name')
-  const [viewModal, setViewModal] = useState(false)
+  const [openViewUser, setOpenViewUser] = useState(false)
   const [userAdmin, setUserAdmin] = useState<User | null>(null)
   const authState = useAuthState()
   const user = authState.user
@@ -83,7 +83,7 @@ const UserTable = ({ search }: UserProps) => {
             className={styles.actionStyle}
             onClick={() => {
               setUserAdmin(el)
-              setViewModal(true)
+              setOpenViewUser(true)
             }}
           >
             <span className={styles.spanWhite}>{t('admin:components.index.view')}</span>
@@ -153,9 +153,7 @@ const UserTable = ({ search }: UserProps) => {
         onClose={handleCloseModal}
         onSubmit={submitDeleteUser}
       />
-      {userAdmin && viewModal && (
-        <ViewUser open={viewModal} userAdmin={userAdmin} onClose={() => setViewModal(false)} />
-      )}
+      {userAdmin && openViewUser && <ViewUser open userAdmin={userAdmin} onClose={() => setOpenViewUser(false)} />}
     </React.Fragment>
   )
 }

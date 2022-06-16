@@ -20,7 +20,7 @@ const PartyTable = ({ search }: PartyPropsTable) => {
   const [partyId, setPartyId] = useState('')
   const [fieldOrder, setFieldOrder] = useState('asc')
   const [sortField, setSortField] = useState('location')
-  const [viewModal, setViewModal] = useState(false)
+  const [openViewParty, setOpenViewParty] = useState(false)
   const [partyAdmin, setPartyAdmin] = useState<Party>()
 
   const authState = useAuthState()
@@ -54,14 +54,14 @@ const PartyTable = ({ search }: PartyPropsTable) => {
     setPopConfirmOpen(false)
   }
 
-  const openViewModal = (open: boolean, party: any) => {
+  const handleOpenViewParty = (open: boolean, party: any) => {
     setPartyAdmin(party)
-    setViewModal(open)
+    setOpenViewParty(open)
   }
 
-  const closeViewModal = () => {
+  const handleCloseViewParty = () => {
     setPartyAdmin(undefined)
-    setViewModal(false)
+    setOpenViewParty(false)
   }
 
   const createData = (el: Party, id: string, instance: any, location: any): PartyData => {
@@ -72,7 +72,7 @@ const PartyTable = ({ search }: PartyPropsTable) => {
       location,
       action: (
         <>
-          <a href="#h" className={styles.actionStyle} onClick={() => openViewModal(true, el)}>
+          <a href="#h" className={styles.actionStyle} onClick={() => handleOpenViewParty(true, el)}>
             <span className={styles.spanWhite}>{t('admin:components.index.view')}</span>
           </a>
           <a
@@ -126,7 +126,7 @@ const PartyTable = ({ search }: PartyPropsTable) => {
         onClose={handleCloseModal}
         onSubmit={submitRemoveParty}
       />
-      <ViewParty open={viewModal} partyAdmin={partyAdmin} onClose={closeViewModal} />
+      <ViewParty open={openViewParty} partyAdmin={partyAdmin} onClose={handleCloseViewParty} />
     </React.Fragment>
   )
 }

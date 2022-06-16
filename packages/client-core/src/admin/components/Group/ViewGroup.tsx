@@ -33,7 +33,7 @@ const ViewGroup = ({ groupAdmin, open, onClose }: Props) => {
   return (
     <DrawerView open={open} onClose={onClose}>
       {editMode ? (
-        <EditGroup groupAdmin={groupAdmin} closeEditModal={setEditMode} closeViewModal={onClose} />
+        <EditGroup groupAdmin={groupAdmin} onClose={() => setEditMode(false)} />
       ) : (
         <React.Fragment>
           <Paper elevation={3} className={styles.rootPaper}>

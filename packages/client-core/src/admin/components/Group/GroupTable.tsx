@@ -17,7 +17,7 @@ interface Props {
 
 const GroupTable = ({ search }: Props) => {
   const user = useAuthState().user
-  const [viewModal, setViewModal] = useState(false)
+  const [openViewGroup, setOpenViewGroup] = useState(false)
   const [singleGroup, setSingleGroup] = useState<Group>(null!)
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(GROUP_PAGE_LIMIT)
@@ -52,7 +52,7 @@ const GroupTable = ({ search }: Props) => {
     const group = adminGroups.value.find((group) => group.id === id)
     if (group !== null) {
       setSingleGroup(group!)
-      setViewModal(true)
+      setOpenViewGroup(true)
     }
   }
 
@@ -128,8 +128,8 @@ const GroupTable = ({ search }: Props) => {
         onClose={handleCloseWarning}
         onSubmit={deleteGroupHandler}
       />
-      {singleGroup && viewModal && (
-        <ViewGroup groupAdmin={singleGroup} open={viewModal} onClose={() => setViewModal(false)} />
+      {singleGroup && openViewGroup && (
+        <ViewGroup groupAdmin={singleGroup} open onClose={() => setOpenViewGroup(false)} />
       )}
     </React.Fragment>
   )

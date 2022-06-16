@@ -28,7 +28,7 @@ const LocationTable = ({ className, search }: Props) => {
   const [locationName, setLocationName] = useState('')
   const [fieldOrder, setFieldOrder] = useState('asc')
   const [sortField, setSortField] = useState('name')
-  const [viewModal, setViewModal] = useState(false)
+  const [openViewLocation, setOpenViewLocation] = useState(false)
   const [locationAdmin, setLocationAdmin] = useState<Location>()
   const authState = useAuthState()
   const user = authState.user
@@ -69,16 +69,17 @@ const LocationTable = ({ className, search }: Props) => {
     setPage(0)
   }
 
-  const openViewModal = (open: boolean, location: Location) => (event: React.KeyboardEvent | React.MouseEvent) => {
-    if (
-      event.type === 'keydown' &&
-      ((event as React.KeyboardEvent).key === 'Tab' || (event as React.KeyboardEvent).key === 'Shift')
-    ) {
-      return
+  const handleOpenViewLocation =
+    (open: boolean, location: Location) => (event: React.KeyboardEvent | React.MouseEvent) => {
+      if (
+        event.type === 'keydown' &&
+        ((event as React.KeyboardEvent).key === 'Tab' || (event as React.KeyboardEvent).key === 'Shift')
+      ) {
+        return
+      }
+      setLocationAdmin(location)
+      setOpenViewLocation(open)
     }
-    setLocationAdmin(location)
-    setViewModal(open)
-  }
 
   const createData = (
     el: Location,
@@ -105,7 +106,7 @@ const LocationTable = ({ className, search }: Props) => {
       videoEnabled,
       action: (
         <>
-          <a href="#h" className={styles.actionStyle} onClick={openViewModal(true, el)}>
+          <a href="#h" className={styles.actionStyle} onClick={handleOpenViewLocation(true, el)}>
             <span className={styles.spanWhite}>{t('admin:components.index.view')}</span>
           </a>
           <a
@@ -185,7 +186,7 @@ const LocationTable = ({ className, search }: Props) => {
         onClose={handleCloseModal}
         onSubmit={submitRemoveLocation}
       />
-      <ViewLocation open={viewModal} locationAdmin={locationAdmin} onClose={() => setViewModal(false)} />
+      <ViewLocation open={openViewLocation} locationAdmin={locationAdmin} onClose={() => setOpenViewLocation(false)} />
     </Box>
   )
 }
