@@ -71,33 +71,31 @@ const PatchInstanceserver = ({ open, onClose }: Props) => {
   }
 
   return (
-    <React.Fragment>
-      <DrawerView open={open} onClose={onClose}>
-        <Container maxWidth="sm" className={styles.mt20}>
-          <DialogTitle id="form-dialog-title" className={styles.textAlign}>
-            {t('admin:components.setting.patchInstanceserver')}
-          </DialogTitle>
+    <DrawerView open={open} onClose={onClose}>
+      <Container maxWidth="sm" className={styles.mt20}>
+        <DialogTitle id="form-dialog-title" className={styles.textAlign}>
+          {t('admin:components.setting.patchInstanceserver')}
+        </DialogTitle>
 
-          <InputSelect
-            name="location"
-            label={t('admin:components.bot.location')}
-            value={state.location}
-            error={state.locationError}
-            menu={locationsMenu}
-            onChange={handleChange}
-          />
+        <InputSelect
+          name="location"
+          label={t('admin:components.bot.location')}
+          value={state.location}
+          error={state.locationError}
+          menu={locationsMenu}
+          onChange={handleChange}
+        />
 
-          <DialogActions>
-            <Button className={styles.submitButton} onClick={handleSubmit}>
-              {t('admin:components.setting.save')}
-            </Button>
-            <Button onClick={onClose} className={styles.cancelButton}>
-              {t('admin:components.setting.cancel')}
-            </Button>
-          </DialogActions>
-        </Container>
-      </DrawerView>
-    </React.Fragment>
+        <DialogActions>
+          <Button className={styles.submitButton} onClick={handleSubmit}>
+            {t('admin:components.setting.save')}
+          </Button>
+          <Button onClick={onClose} className={styles.cancelButton}>
+            {t('admin:components.setting.cancel')}
+          </Button>
+        </DialogActions>
+      </Container>
+    </DrawerView>
   )
 }
 

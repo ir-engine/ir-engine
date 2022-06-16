@@ -12,11 +12,9 @@ interface Props {
 
 const ViewDrawer = ({ open, children, onClose }: Props) => {
   return (
-    <React.Fragment>
-      <Drawer anchor="right" open={open} onClose={onClose} classes={{ paper: styles.paperDrawer }}>
-        {children}
-      </Drawer>
-    </React.Fragment>
+    <Drawer anchor="right" open={open} onClose={onClose} classes={{ paper: styles.paperDrawer }}>
+      {children}
+    </Drawer>
   )
 }
 
