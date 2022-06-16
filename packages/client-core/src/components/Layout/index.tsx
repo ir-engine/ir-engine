@@ -6,7 +6,7 @@ import {
   useClientSettingState
 } from '@xrengine/client-core/src/admin/services/Setting/ClientSettingService'
 import {
-  CoilSettingService,
+  AdminCoilSettingService,
   useCoilSettingState
 } from '@xrengine/client-core/src/admin/services/Setting/CoilSettingService'
 import UIDialog from '@xrengine/client-core/src/common/components/Dialog'
@@ -58,7 +58,7 @@ const Layout = ({ useLoadingScreenOpacity, pageTitle, children, hideVideo, hideF
 
   useEffect(() => {
     !clientSetting && ClientSettingService.fetchClientSettings()
-    !coilSetting && CoilSettingService.fetchCoil()
+    !coilSetting && AdminCoilSettingService.fetchCoil()
     const topButtonsState = localStorage.getItem('isTopButtonsShown')
     const bottomButtonsState = localStorage.getItem('isBottomButtonsShown')
     if (!topButtonsState) {
