@@ -418,7 +418,7 @@ const ProfileMenu = ({ className, hideLogin, changeActiveMenu, setProfileMenuOpe
               <Grid item xs={userRole === 'guest' ? 6 : 4}>
                 <h2>
                   {userRole === 'admin' ? t('user:usermenu.profile.youAreAn') : t('user:usermenu.profile.youAreA')}
-                  <span id="user-role">{userRole}</span>.
+                  <span id="user-role">{` ${userRole}`}</span>.
                 </h2>
               </Grid>
               <Grid item container xs={userRole === 'guest' ? 6 : 4} alignItems="flex-start" direction="column">
