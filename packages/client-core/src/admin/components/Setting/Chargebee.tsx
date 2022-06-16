@@ -5,13 +5,13 @@ import { Typography } from '@mui/material'
 
 import { useAuthState } from '../../../user/services/AuthService'
 import InputText from '../../common/InputText'
-import { ChargebeeSettingService, useChargebeeSettingState } from '../../services/Setting/ChargebeeSettingService'
+import { ChargebeeSettingService, useAdminChargebeeSettingState } from '../../services/Setting/ChargebeeSettingService'
 import styles from '../../styles/settings.module.scss'
 
 interface Props {}
 
 const ChargeBee = (props: Props) => {
-  const chargeBeeSettingState = useChargebeeSettingState()
+  const chargeBeeSettingState = useAdminChargebeeSettingState()
   const [chargebee] = chargeBeeSettingState?.chargebee.value || []
   const authState = useAuthState()
   const user = authState.user

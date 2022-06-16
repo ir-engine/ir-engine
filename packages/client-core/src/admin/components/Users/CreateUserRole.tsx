@@ -11,8 +11,7 @@ interface Props {
   handleClose: () => void
 }
 
-const createUser = (props: Props) => {
-  const { open, handleClose } = props
+const createUser = ({ open, handleClose }: Props) => {
   const [role, setRole] = useState('')
   const { t } = useTranslation()
 

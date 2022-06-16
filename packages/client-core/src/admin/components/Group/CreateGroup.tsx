@@ -28,8 +28,7 @@ interface ScopeData {
   type: string
 }
 
-const CreateGroup = (props: Props) => {
-  const { open, handleClose } = props
+const CreateGroup = ({ open, handleClose }: Props) => {
   const user = useAuthState().user
   const adminScopeTypeState = useScopeTypeState()
   const { t } = useTranslation()

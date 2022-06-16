@@ -1,43 +1,34 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { PerspectiveCamera, Scene, Vector3, WebGLRenderer } from 'three'
+import { PerspectiveCamera, Scene, WebGLRenderer } from 'three'
 
-import {
-  MAX_ALLOWED_TRIANGLES,
-  THUMBNAIL_HEIGHT,
-  THUMBNAIL_WIDTH
-} from '@xrengine/common/src/constants/AvatarConstants'
+import { THUMBNAIL_HEIGHT, THUMBNAIL_WIDTH } from '@xrengine/common/src/constants/AvatarConstants'
 import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
 import { loadAvatarForPreview } from '@xrengine/engine/src/avatar/functions/avatarFunctions'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
-import { createEntity, removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
+import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { getOrbitControls } from '@xrengine/engine/src/input/functions/loadOrbitControl'
-import { OrbitControls } from '@xrengine/engine/src/input/functions/OrbitControls'
 
-import { ArrowBack, Check, Help } from '@mui/icons-material'
+import { ArrowBack, Check } from '@mui/icons-material'
 import CircularProgress from '@mui/material/CircularProgress'
 
-import IconLeftClick from '../../../../common/components/Icons/IconLeftClick'
 import { AuthService } from '../../../services/AuthService'
 import styles from '../index.module.scss'
 import { Views } from '../util'
 import { addAnimationLogic, initialize3D, onWindowResize, validate } from './helperFunctions'
 
 interface Props {
-  changeActiveMenu: Function
-  uploadAvatarModel?: Function
   isPublicAvatar?: boolean
+  changeActiveMenu: Function
 }
 
 let scene: Scene
 let camera: PerspectiveCamera
 let renderer: WebGLRenderer = null!
 
-export const ReadyPlayerMenu = (props: Props) => {
+const ReadyPlayerMenu = ({ isPublicAvatar, changeActiveMenu }: Props) => {
   const { t } = useTranslation()
-
-  const { isPublicAvatar, changeActiveMenu } = props
   const [selectedFile, setSelectedFile] = useState<Blob>()
   const [avatarName, setAvatarName] = useState('')
   const [avatarUrl, setAvatarUrl] = useState('')

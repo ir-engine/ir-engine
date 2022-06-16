@@ -15,8 +15,8 @@ import {
   useAdminGithubAppState
 } from '../../services/GithubAppService'
 import styles from '../../styles/admin.module.scss'
+import AddProject from './AddProject'
 import ProjectTable from './ProjectTable'
-import UploadProjectModal from './UploadProjectModal'
 
 const Projects = () => {
   const authState = useAuthState()
@@ -77,9 +77,8 @@ const Projects = () => {
           </Button>
         </Grid>
       </Grid>
-      <div className={styles.rootTable}>
-        <ProjectTable />
-      </div>
+
+      <ProjectTable className={styles.rootTable} />
 
       <ConfirmModal
         open={rebuildModalOpen}
@@ -88,10 +87,10 @@ const Projects = () => {
         onSubmit={onSubmitRebuild}
       />
 
-      <UploadProjectModal
-        repos={githubAppRepos}
+      <AddProject
         open={uploadProjectsModalOpen}
-        handleClose={() => setUploadProjectsModalOpen(false)}
+        repos={githubAppRepos}
+        onClose={() => setUploadProjectsModalOpen(false)}
       />
     </div>
   )
