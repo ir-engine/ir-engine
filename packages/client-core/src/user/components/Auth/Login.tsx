@@ -7,7 +7,7 @@ import SocialIcon from '@mui/icons-material/Public'
 import Tab from '@mui/material/Tab'
 import Tabs from '@mui/material/Tabs'
 
-import { AuthSettingService } from '../../../admin/services/Setting/AuthSettingService'
+import { AuthSettingsService } from '../../../admin/services/Setting/AuthSettingService'
 import { useAdminAuthSettingState } from '../../../admin/services/Setting/AuthSettingService'
 import MagicLinkEmail from './MagicLinkEmail'
 import PasswordLogin from './PasswordLogin'
@@ -42,7 +42,7 @@ const SignIn = (): JSX.Element => {
   const [state, setState] = useState(initialState)
 
   useEffect(() => {
-    !authSetting && AuthSettingService.fetchAuthSetting()
+    !authSetting && AuthSettingsService.fetchAuthSetting()
   }, [])
 
   useEffect(() => {
