@@ -64,7 +64,7 @@ const styles = {
   slider: {
     width: '100%',
     accentColor: 'var(--iconButtonSelectedBackground)',
-    'input[range]::webkit-slider-track': {
+    'input[range]::webkitSliderTrack': {
       backgroundColor: 'var(--iconButtonSelectedBackground)'
     }
   },

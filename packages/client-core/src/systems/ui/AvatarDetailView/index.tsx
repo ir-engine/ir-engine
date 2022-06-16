@@ -34,13 +34,11 @@ const AvatarDetailView = () => {
   return (
     <>
       <style>{styleString}</style>
-      {user ? (
+      {user && (
         <div className="avatarName">
           {user.name.value}
           {usersTyping && <h6 className="typingIndicator">{t('common:typing')}</h6>}
         </div>
-      ) : (
-        <div></div>
       )}
     </>
   )
