@@ -181,6 +181,8 @@ export default async function SceneObjectSystem(world: World) {
      * This is needed as the inverse case of the previous query to ensure objects that are created without a simple material still have the standard material logic applied
      */
     for (const entity of standardMaterialsQuery.enter()) {
+      //check for materials that have had simple material tag added this frame
+      if (hasComponent(entity, SimpleMaterialTagComponent)) continue
       const object3DComponent = getComponent(entity, Object3DComponent)
       if (object3DComponent.value === world.scene) continue
       object3DComponent.value.traverse((obj: Object3DWithEntity) => {
