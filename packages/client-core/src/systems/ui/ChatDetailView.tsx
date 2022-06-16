@@ -1,5 +1,5 @@
 import { createState } from '@speigg/hookstate'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 
 import { useLocationInstanceConnectionState } from '@xrengine/client-core/src/common/services/LocationInstanceConnectionService'
 import { ChatService, useChatState } from '@xrengine/client-core/src/social/services/ChatService'
@@ -13,6 +13,8 @@ import { useXRUIState } from '@xrengine/engine/src/xrui/functions/useXRUIState'
 
 import Avatar from '@mui/material/Avatar'
 import ListItemAvatar from '@mui/material/ListItemAvatar'
+
+import { useChatHooks } from '../../components/InstanceChat'
 
 const styles = {
   avatarItem: {
@@ -140,68 +142,16 @@ interface ChatDetailState {
 const ChatDetailView = () => {
   const detailState = useXRUIState<ChatDetailState>()
 
-  let activeChannel: Channel | null = null
-  const user = useAuthState().user
-  const chatState = useChatState()
-  const channelState = chatState.channels
-  const channels = channelState.channels.value as Channel[]
-  const [composingMessage, setComposingMessage] = useState('')
+  const [chatWindowOpen, setChatWindowOpen] = useState(false)
   const [unreadMessages, setUnreadMessages] = useState(false)
-  const activeChannelMatch = Object.entries(channels).find(([key, channel]) => channel.channelType === 'instance')
-  const instanceConnectionState = useLocationInstanceConnectionState()
-  if (activeChannelMatch && activeChannelMatch.length > 0) {
-    activeChannel = activeChannelMatch[1]
-  }
 
-  useEffect(() => {
-    if (
-      user?.instanceId?.value &&
-      Engine.instance.currentWorld.worldNetwork?.hostId &&
-      user?.instanceId?.value !== Engine.instance.currentWorld.worldNetwork?.hostId
-    ) {
-      console.warn(
-        '[WARNING]: somehow user.instanceId and instanceConnectionState.currentInstanceId, are different when they should be the same'
-      )
-      console.log(user?.instanceId?.value, Engine.instance.currentWorld.worldNetwork?.hostId)
-    }
-    if (
-      Engine.instance.currentWorld.worldNetwork?.hostId &&
-      instanceConnectionState.instances[Engine.instance.currentWorld.worldNetwork?.hostId].connected.value &&
-      !chatState.instanceChannelFetching.value
-    ) {
-      ChatService.getInstanceChannel()
-    }
-  }, [
-    Engine.instance.currentWorld.worldNetwork?.hostId,
-    Engine.instance.currentWorld.worldNetwork?.hostId &&
-      instanceConnectionState?.instances[Engine.instance.currentWorld.worldNetwork?.hostId]?.connected.value,
-    chatState.instanceChannelFetching.value
-  ])
-
-  const handleComposingMessageChange = (event: any): void => {
-    const message = event.target.value
-    setComposingMessage(message)
-  }
-
-  const packageMessage = (): void => {
-    if (composingMessage?.length && user.instanceId.value) {
-      ChatService.createMessage({
-        targetObjectId: user.instanceId.value,
-        targetObjectType: 'instance',
-        text: composingMessage
-      })
-      setComposingMessage('')
-    }
-  }
-
-  const toggleChatWindow = () => {
-    detailState.chatMenuOpen.set(!detailState.chatMenuOpen.value)
-    detailState.chatMenuOpen.value && setUnreadMessages(false)
-  }
-  const [dimensions, setDimensions] = useState({
-    height: window.innerHeight,
-    width: window.innerWidth
+  const { dimensions, sortedMessages, handleComposingMessageChange, packageMessage, composingMessage } = useChatHooks({
+    chatWindowOpen,
+    setUnreadMessages,
+    messageRefInput: null!
   })
+
+  const user = useAuthState().user
 
   const getMessageUser = (message): string => {
     let returned = message.sender?.name
@@ -212,29 +162,6 @@ const ChatDetailView = () => {
 
   const isMessageSentBySelf = (message): boolean => {
     return message.senderId === user.id.value
-  }
-
-  useEffect(() => {
-    activeChannel &&
-      activeChannel.messages &&
-      activeChannel.messages.length > 0 &&
-      !detailState.chatMenuOpen.value &&
-      setUnreadMessages(true)
-  }, [activeChannel?.messages])
-
-  useEffect(() => {
-    window.addEventListener('resize', handleWindowResize)
-
-    return () => {
-      window.removeEventListener('resize', handleWindowResize)
-    }
-  }, [])
-
-  const handleWindowResize = () => {
-    setDimensions({
-      height: window.innerHeight,
-      width: window.innerWidth
-    })
   }
 
   const getAvatar = (message): any => {
@@ -250,54 +177,36 @@ const ChatDetailView = () => {
   return (
     <div style={styles.chatContainer as {}} xr-layer="true">
       <div style={styles.messageList as {}}>
-        {activeChannel &&
-          activeChannel.messages &&
-          [...activeChannel.messages]
-            .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
-            .slice(
-              activeChannel.messages.length >= 3 ? activeChannel.messages?.length - 3 : 0,
-              activeChannel.messages?.length
-            )
-            .map((message) => {
-              // if (!Engine.instance.isBot && isCommand(message.text)) return undefined
-              // const system = getChatMessageSystem(message.text)
-              let chatMessage = message.text
-
-              // if (system !== 'none') {
-              //   if (Engine.instance.isBot || system === 'jl_system') {
-              //     chatMessage = removeMessageSystem(message.text)
-              //   } else {
-              //     return undefined
-              //   }
-              // }
-              return (
-                <li
-                  key={message.id}
-                  style={{
-                    ...(styles.messageItem as {}),
-                    ...((isMessageSentBySelf(message) ? styles.messageEnd : styles.messageStart) as {})
-                  }}
-                >
-                  <div
-                    style={{
-                      ...(styles.messageRow as {}),
-                      ...((isMessageSentBySelf(message) ? styles.messageEnd : styles.messageStart) as {})
-                    }}
-                  >
-                    {!isMessageSentBySelf(message) && getAvatar(message)}
-                    <div style={styles.messageContent}>
-                      <span style={styles.messageChild}>
-                        <span>
-                          <span style={styles.senderName}>{getMessageUser(message)}</span>
-                          <p style={styles.senderMessage}>{chatMessage}</p>
-                        </span>
-                      </span>
-                    </div>
-                    {isMessageSentBySelf(message) && getAvatar(message)}
-                  </div>
-                </li>
-              )
-            })}
+        {sortedMessages.map((message) => {
+          let chatMessage = message.text
+          return (
+            <li
+              key={message.id}
+              style={{
+                ...(styles.messageItem as {}),
+                ...((isMessageSentBySelf(message) ? styles.messageEnd : styles.messageStart) as {})
+              }}
+            >
+              <div
+                style={{
+                  ...(styles.messageRow as {}),
+                  ...((isMessageSentBySelf(message) ? styles.messageEnd : styles.messageStart) as {})
+                }}
+              >
+                {!isMessageSentBySelf(message) && getAvatar(message)}
+                <div style={styles.messageContent}>
+                  <span style={styles.messageChild}>
+                    <span>
+                      <span style={styles.senderName}>{getMessageUser(message)}</span>
+                      <p style={styles.senderMessage}>{chatMessage}</p>
+                    </span>
+                  </span>
+                </div>
+                {isMessageSentBySelf(message) && getAvatar(message)}
+              </div>
+            </li>
+          )
+        })}
       </div>
       <div style={styles.messageBoxContainer}>
         <input
@@ -309,21 +218,7 @@ const ChatDetailView = () => {
             ...(styles.messageInputBox as {}),
             ...((detailState.chatMenuOpen.value ? {} : styles.hide) as {})
           }}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter' && e.ctrlKey) {
-              e.preventDefault()
-              const selectionStart = (e.target as HTMLInputElement).selectionStart
-
-              setComposingMessage(
-                composingMessage.substring(0, selectionStart || 0) +
-                  '\n' +
-                  composingMessage.substring(selectionStart || 0)
-              )
-            } else if (e.key === 'Enter' && !e.ctrlKey) {
-              e.preventDefault()
-              packageMessage()
-            }
-          }}
+          onKeyDown={(evt) => handleComposingMessageChange(evt)}
         />
       </div>
     </div>

@@ -32,7 +32,7 @@ export default async function MainMenuButtonsSystem(world: World) {
     const mainMenuButtonsXRUI = getComponent(ui.entity, XRUIComponent)
 
     if (mainMenuButtonsXRUI) {
-      MainMenuButtonState.showButtons.set(!MainMenuButtonState.showButtons.value)
+      MainMenuButtonState.showButtons.set(false)
     }
   })
 
