@@ -1,4 +1,6 @@
-# Ethereal Engine _(XR Engine)_
+# Ethereal Engine _(XREngine)_
+
+![Ethereal Engine org black on white](https://user-images.githubusercontent.com/5104160/174094172-f7b6f90b-daad-4547-8c88-bb94372cffc1.png)
 
 >  Manifest your dreams on the open social special web.
 
