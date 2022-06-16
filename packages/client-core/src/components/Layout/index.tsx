@@ -13,6 +13,7 @@ import UIDialog from '@xrengine/client-core/src/common/components/Dialog'
 import UserMenu from '@xrengine/client-core/src/user/components/UserMenu'
 import { respawnAvatar } from '@xrengine/engine/src/avatar/functions/respawnAvatar'
 import { isTouchAvailable } from '@xrengine/engine/src/common/functions/DetectFeatures'
+import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 
 import { FullscreenExit, Refresh, ZoomOutMap } from '@mui/icons-material'
@@ -52,6 +53,9 @@ const Layout = ({ useLoadingScreenOpacity, pageTitle, children, hideVideo, hideF
   const [showBottomIcons, setShowBottomIcons] = useState(true)
   const loadingSystemState = useLoadingSystemState()
   const [showTouchPad, setShowTouchPad] = useState(true)
+
+  const engineState = useEngineState()
+
   useEffect(() => {
     !clientSetting && ClientSettingService.fetchClientSettings()
     !coilSetting && CoilSettingService.fetchCoil()
@@ -212,11 +216,13 @@ const Layout = ({ useLoadingScreenOpacity, pageTitle, children, hideVideo, hideF
           >
             <Refresh />
           </button>
-          <InstanceChat
-            animate={styles.animateBottom}
-            hideOtherMenus={hideOtherMenus}
-            setShowTouchPad={setShowTouchPad}
-          />
+          {!engineState.xrSessionStarted.value && (
+            <InstanceChat
+              animate={styles.animateBottom}
+              hideOtherMenus={hideOtherMenus}
+              setShowTouchPad={setShowTouchPad}
+            />
+          )}
         </div>
       </section>
     </div>
