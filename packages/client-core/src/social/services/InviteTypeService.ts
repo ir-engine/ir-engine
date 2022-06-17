@@ -6,7 +6,6 @@ import { addActionReceptor, defineAction, defineState, dispatchAction, getState,
 
 import { NotificationService } from '../../common/services/NotificationService'
 import { client } from '../../feathers'
-import { store, useDispatch } from '../../store'
 
 //State
 const InviteTypeState = defineState({
@@ -42,12 +41,10 @@ export const useInviteTypeState = () => useState(accessInviteTypeState())
 //Service
 export const InviteTypeService = {
   retrieveInvites: async () => {
-    const dispatch = useDispatch()
-
-    dispatch(InviteTypeAction.fetchingInvitesTypes())
+    dispatchAction(InviteTypeAction.fetchingInvitesTypes())
     try {
       const inviteTypeResult = (await client.service('invite-type').find()) as Paginated<InviteType>
-      dispatch(
+      dispatchAction(
         InviteTypeAction.retrievedInvitesTypes({
           invitesType: inviteTypeResult,
           total: inviteTypeResult.total,
