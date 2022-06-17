@@ -10,7 +10,7 @@ interface Props {
   onClose: () => void
 }
 
-const ViewDrawer = ({ open, children, onClose }: Props) => {
+const DrawerView = ({ open, children, onClose }: Props) => {
   return (
     <Drawer anchor="right" open={open} onClose={onClose} classes={{ paper: styles.paperDrawer }}>
       {children}
@@ -18,4 +18,4 @@ const ViewDrawer = ({ open, children, onClose }: Props) => {
   )
 }
 
-export default ViewDrawer
+export default DrawerView
