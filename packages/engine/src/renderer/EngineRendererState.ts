@@ -48,11 +48,9 @@ export async function restoreEngineRendererData(): Promise<void> {
     const promises = [
       ClientStorage.get(RenderSettingKeys.QUALITY_LEVEL).then((v) => {
         if (typeof v !== 'undefined') s.qualityLevel = v as number
-        ClientStorage.set(RenderSettingKeys.QUALITY_LEVEL, state.qualityLevel.value)
       }),
       ClientStorage.get(RenderSettingKeys.AUTOMATIC).then((v) => {
         if (typeof v !== 'undefined') s.automatic = v as boolean
-        ClientStorage.set(RenderSettingKeys.AUTOMATIC, state.automatic.value)
       })
     ]
 
@@ -60,38 +58,30 @@ export async function restoreEngineRendererData(): Promise<void> {
       promises.push(
         ClientStorage.get(RenderSettingKeys.PHYSICS_DEBUG_ENABLE).then((v) => {
           if (typeof v !== 'undefined') s.physicsDebugEnable = v as boolean
-          ClientStorage.set(RenderSettingKeys.PHYSICS_DEBUG_ENABLE, state.physicsDebugEnable.value)
         }),
         ClientStorage.get(RenderSettingKeys.AVATAR_DEBUG_ENABLE).then((v) => {
           if (typeof v !== 'undefined') s.avatarDebugEnable = v as boolean
-          ClientStorage.set(RenderSettingKeys.AVATAR_DEBUG_ENABLE, state.avatarDebugEnable.value)
         }),
         ClientStorage.get(RenderSettingKeys.RENDER_MODE).then((v) => {
           if (typeof v !== 'undefined') s.renderMode = v as RenderModesType
-          ClientStorage.set(RenderSettingKeys.RENDER_MODE, state.renderMode.value)
         }),
         ClientStorage.get(RenderSettingKeys.NODE_HELPER_ENABLE).then((v) => {
           if (typeof v !== 'undefined') s.nodeHelperVisibility = v as boolean
-          else ClientStorage.set(RenderSettingKeys.NODE_HELPER_ENABLE, state.nodeHelperVisibility.value)
         }),
         ClientStorage.get(RenderSettingKeys.GRID_VISIBLE).then((v) => {
           if (typeof v !== 'undefined') s.gridVisibility = v as boolean
-          else ClientStorage.set(RenderSettingKeys.GRID_VISIBLE, state.gridVisibility.value)
         }),
         ClientStorage.get(RenderSettingKeys.GRID_HEIGHT).then((v) => {
           if (typeof v !== 'undefined') s.gridHeight = v as number
-          else ClientStorage.set(RenderSettingKeys.GRID_HEIGHT, state.gridHeight.value)
         })
       )
     } else {
       promises.push(
         ClientStorage.get(RenderSettingKeys.POST_PROCESSING).then((v) => {
           if (typeof v !== 'undefined') s.usePostProcessing = v as boolean
-          ClientStorage.set(RenderSettingKeys.POST_PROCESSING, state.usePostProcessing.value)
         }),
         ClientStorage.get(RenderSettingKeys.USE_SHADOWS).then((v) => {
           if (typeof v !== 'undefined') s.useShadows = v as boolean
-          ClientStorage.set(RenderSettingKeys.USE_SHADOWS, state.useShadows.value)
         })
       )
     }

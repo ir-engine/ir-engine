@@ -180,8 +180,6 @@ export const loadSceneFromJSON = async (sceneData: SceneJson, sceneSystems: Syst
   addComponent(tree.rootNode.entity, SceneTagComponent, {})
   getComponent(tree.rootNode.entity, EntityNodeComponent).components.push(SCENE_COMPONENT_SCENE_TAG)
 
-  dispatchAction(EngineRendererAction.setPostProcessing(getComponentCountOfType(PostprocessingComponent) > 0))
-
   if (!getEngineState().isTeleporting.value) Engine.instance.currentWorld.camera?.layers.enable(ObjectLayers.Scene)
 
   dispatchAction(EngineActions.sceneLoaded()) //.delay(0.1)
