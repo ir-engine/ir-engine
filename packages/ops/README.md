@@ -15,12 +15,12 @@ helm install my-release xrengine/xrengine
 For more details about the XREngine chart
 
 - [XREngine helm chart](xrengine/)
-- [Building the xrengine helm chart](docs/release-helm-chart.md)
+- [Building the xrengine helm chart](https://github.com/XRFoundation/XREngine/blob/dev/docs/docs/2_devops_deployment/5_release_helm_chart.md)
 
 For deployment on different cloud providers:
 
-- [Deploying XREngine on AWS EKS](docs/deploy_on_eks.md)
-- [Managing Remote Kubernets Clusters - TBD](docs/managing_remote_kubernets.md)
+- [Deploying XREngine on AWS EKS](https://github.com/XRFoundation/XREngine/blob/dev/docs/docs/2_devops_deployment/2_AWS_setup.md)
+- [Managing Remote Kubernets Clusters - TBD](https://github.com/XRFoundation/XREngine/blob/dev/docs/docs/2_devops_deployment/4_managing_remote_kubernetes.md)
 
 Requires Helm and access to a Kubernetes cluster, if you are new to those, check the following instructions:
 

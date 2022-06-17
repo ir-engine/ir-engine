@@ -60,6 +60,13 @@ export interface StorageProviderInterface {
   getObject(key: string): Promise<StorageObjectInterface>
 
   /**
+   * Gets the object from edge cache, otherwise returns getObject
+   * @param key
+   * @returns {StorageObjectInterface}
+   */
+  getCachedObject(key: string): Promise<StorageObjectInterface>
+
+  /**
    * Gets the provider
    * @returns {StorageProviderInterface}
    */

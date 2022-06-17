@@ -175,8 +175,8 @@ export function EngineRendererReceptor(action: EngineRendererActionType) {
         ClientStorage.set(RenderSettingKeys.AVATAR_DEBUG_ENABLE, action.avatarDebugEnable)
         break
       case 'RENDER_MODE_CHANGED':
-        s.merge({ renderMode: action.renderMode })
         changeRenderMode(action.renderMode)
+        s.merge({ renderMode: action.renderMode })
         ClientStorage.set(RenderSettingKeys.RENDER_MODE, action.renderMode)
         break
       case 'NODE_HELPER_VISIBILITY_CHANGED':

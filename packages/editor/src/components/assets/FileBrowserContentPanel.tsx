@@ -275,7 +275,12 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
   return (
     <>
       <div style={headGrid}>
-        <ToolButton icon={ArrowBackIcon} onClick={onBackDirectory} id="backDir" />
+        <ToolButton
+          tooltip={t('editor:layout.filebrowser.back')}
+          icon={ArrowBackIcon}
+          onClick={onBackDirectory}
+          id="backDir"
+        />
         <Breadcrumbs
           maxItems={3}
           classes={{ separator: styles.separator, li: styles.breadcrumb }}
@@ -284,7 +289,12 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
         >
           {breadcrumbs}
         </Breadcrumbs>
-        <ToolButton icon={AutorenewIcon} onClick={onRefreshDirectory} id="refreshDir" />
+        <ToolButton
+          tooltip={t('editor:layout.filebrowser.refresh')}
+          icon={AutorenewIcon}
+          onClick={onRefreshDirectory}
+          id="refreshDir"
+        />
       </div>
 
       <ContextMenuTrigger id={'uniqueId_current'} holdToDisplay={-1}>
@@ -349,11 +359,12 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
         </Dialog>
       )}
       <ConfirmModal
-        popConfirmOpen={openConfirmModal}
-        handleCloseModal={handleCloseModal}
-        submit={deleteContent}
-        name={''}
-        label={`this ${contentToDeleteType == 'folder' ? 'folder' : 'file'}`}
+        open={openConfirmModal}
+        description={`${t('editor:dialog.confirmContentDelete')} ${
+          contentToDeleteType == 'folder' ? t('editor:dialog.folder') : t('editor:dialog.file')
+        }?`}
+        onClose={handleCloseModal}
+        onSubmit={deleteContent}
       />
     </>
   )

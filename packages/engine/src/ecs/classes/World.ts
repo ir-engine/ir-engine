@@ -1,5 +1,5 @@
 import * as bitecs from 'bitecs'
-import { AudioListener, Object3D, OrthographicCamera, PerspectiveCamera, Scene, XRFrame } from 'three'
+import { AudioListener, Object3D, OrthographicCamera, PerspectiveCamera, Scene } from 'three'
 
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
@@ -107,8 +107,6 @@ export class World {
    * The current fixed tick (fixedElapsedSeconds / fixedDeltaSeconds)
    */
   fixedTick = 0
-
-  _pipeline = [] as SystemModuleType<any>[]
 
   /**
    * Reference to the three.js scene object.

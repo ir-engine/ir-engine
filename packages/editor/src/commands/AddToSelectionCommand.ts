@@ -1,8 +1,8 @@
-import { store } from '@xrengine/client-core/src/store'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { addComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { getEntityNodeArrayFromEntities } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
 import { SelectTagComponent } from '@xrengine/engine/src/scene/components/SelectTagComponent'
+import { dispatchAction } from '@xrengine/hyperflux'
 
 import { executeCommand } from '../classes/History'
 import EditorCommands, { CommandFuncType, CommandParams, SelectionCommands } from '../constants/EditorCommands'
@@ -40,7 +40,7 @@ function execute(command: AddToSelectionCommandParams) {
     selectedEntities.push(object.entity)
   }
 
-  store.dispatch(SelectionAction.updateSelection(selectedEntities))
+  dispatchAction(SelectionAction.updateSelection({ selectedEntities }))
 
   emitEventAfter(command)
 }
@@ -58,7 +58,7 @@ function emitEventBefore(command: AddToSelectionCommandParams) {
   if (command.preventEvents) return
 
   cancelGrabOrPlacement()
-  store.dispatch(SelectionAction.changedBeforeSelection())
+  dispatchAction(SelectionAction.changedBeforeSelection())
 }
 
 function emitEventAfter(command: AddToSelectionCommandParams) {

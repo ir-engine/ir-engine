@@ -9,8 +9,8 @@ data:
 {{- if .Values.api.extraEnv }}
 {{ toYaml .Values.api.extraEnv | indent 2 }}
 {{- end }}
-{{- if .Values.gameserver.extraEnv }}
-{{ toYaml .Values.gameserver.extraEnv | indent 2 }}
+{{- if .Values.instanceserver.extraEnv }}
+{{ toYaml .Values.instanceserver.extraEnv | indent 2 }}
 {{- end }}
 {{- if .Values.client.extraEnv }}
 {{ toYaml .Values.client.extraEnv | indent 2 }}

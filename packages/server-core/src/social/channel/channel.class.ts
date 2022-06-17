@@ -134,9 +134,10 @@ export class Channel<T = ChannelDataType> extends Service<T> {
           limit: limit
         }
       } else {
-        return this.app
-          .service('channel')
-          .Model.findAll({ where: { channelType: query.channelType, instanceId: query.instanceId } })
+        return this.app.service('channel').Model.findAll({
+          include: params.sequelize.include,
+          where: { channelType: query.channelType, instanceId: query.instanceId }
+        })
       }
     } catch (err) {
       logger.error(err, `Channel find failed: ${err.message}`)

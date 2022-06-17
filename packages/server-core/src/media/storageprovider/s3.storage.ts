@@ -1,11 +1,13 @@
 import AWS from 'aws-sdk'
 import { ObjectIdentifierList, PresignedPost } from 'aws-sdk/clients/s3'
+import fetch from 'node-fetch'
 import path from 'path/posix'
 import S3BlobStore from 's3-blob-store'
 
 import { FileContentType } from '@xrengine/common/src/interfaces/FileContentType'
 
 import config from '../../appconfig'
+import { getCachedURL } from './getCachedURL'
 import {
   PutObjectParams,
   SignedURLResponse,
@@ -84,6 +86,11 @@ export class S3Provider implements StorageProviderInterface {
   getObject = async (key: string): Promise<StorageObjectInterface> => {
     const data = await this.provider.getObject({ Bucket: this.bucket, Key: key }).promise()
     return { Body: data.Body as Buffer, ContentType: data.ContentType! }
+  }
+
+  async getCachedObject(key: string): Promise<StorageObjectInterface> {
+    const data = await fetch(getCachedURL(key, this.cacheDomain))
+    return { Body: Buffer.from(await data.arrayBuffer()), ContentType: (await data.headers.get('content-type')) || '' }
   }
 
   getObjectContentType = async (key: string): Promise<any> => {

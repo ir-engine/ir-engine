@@ -5651,7 +5651,7 @@
           ]
         }
       },
-      "/gameserver-subdomain-provision": {
+      "/instanceserver-subdomain-provision": {
         "get": {
           "parameters": [
             {
@@ -5677,7 +5677,7 @@
             "200": {
               "description": "success",
               "schema": {
-                "$ref": "#/definitions/gameserver-subdomain-provision_list"
+                "$ref": "#/definitions/instanceserver-subdomain-provision_list"
               }
             },
             "401": {
@@ -5690,7 +5690,7 @@
           "description": "Retrieves a list of all resources from the service.",
           "summary": "",
           "tags": [
-            "gameserver-subdomain-provision"
+            "instanceserver-subdomain-provision"
           ],
           "consumes": [
             "application/json"
@@ -5709,7 +5709,7 @@
               "name": "body",
               "required": true,
               "schema": {
-                "$ref": "#/definitions/gameserver-subdomain-provision"
+                "$ref": "#/definitions/instanceserver-subdomain-provision"
               }
             }
           ],
@@ -5717,7 +5717,7 @@
             "201": {
               "description": "created",
               "schema": {
-                "$ref": "#/definitions/gameserver-subdomain-provision"
+                "$ref": "#/definitions/instanceserver-subdomain-provision"
               }
             },
             "401": {
@@ -5730,7 +5730,7 @@
           "description": "Creates a new resource with data.",
           "summary": "",
           "tags": [
-            "gameserver-subdomain-provision"
+            "instanceserver-subdomain-provision"
           ],
           "consumes": [
             "application/json"
@@ -5743,13 +5743,13 @@
           ]
         }
       },
-      "/gameserver-subdomain-provision/{id}": {
+      "/instanceserver-subdomain-provision/{id}": {
         "get": {
           "parameters": [
             {
               "in": "path",
               "name": "id",
-              "description": "ID of gameserver-subdomain-provision to return",
+              "description": "ID of instanceserver-subdomain-provision to return",
               "type": "integer",
               "required": true
             }
@@ -5758,7 +5758,7 @@
             "200": {
               "description": "success",
               "schema": {
-                "$ref": "#/definitions/gameserver-subdomain-provision"
+                "$ref": "#/definitions/instanceserver-subdomain-provision"
               }
             },
             "401": {
@@ -5774,7 +5774,7 @@
           "description": "Retrieves a single resource with the given id from the service.",
           "summary": "",
           "tags": [
-            "gameserver-subdomain-provision"
+            "instanceserver-subdomain-provision"
           ],
           "consumes": [
             "application/json"
@@ -5791,7 +5791,7 @@
             {
               "in": "path",
               "name": "id",
-              "description": "ID of gameserver-subdomain-provision to return",
+              "description": "ID of instanceserver-subdomain-provision to return",
               "type": "integer",
               "required": true
             },
@@ -5800,7 +5800,7 @@
               "name": "body",
               "required": true,
               "schema": {
-                "$ref": "#/definitions/gameserver-subdomain-provision"
+                "$ref": "#/definitions/instanceserver-subdomain-provision"
               }
             }
           ],
@@ -5808,7 +5808,7 @@
             "200": {
               "description": "success",
               "schema": {
-                "$ref": "#/definitions/gameserver-subdomain-provision"
+                "$ref": "#/definitions/instanceserver-subdomain-provision"
               }
             },
             "401": {
@@ -5824,7 +5824,7 @@
           "description": "Updates the resource identified by id using data.",
           "summary": "",
           "tags": [
-            "gameserver-subdomain-provision"
+            "instanceserver-subdomain-provision"
           ],
           "consumes": [
             "application/json"
@@ -5841,7 +5841,7 @@
             {
               "in": "path",
               "name": "id",
-              "description": "ID of gameserver-subdomain-provision to update",
+              "description": "ID of instanceserver-subdomain-provision to update",
               "type": "integer",
               "required": true
             },
@@ -5850,7 +5850,7 @@
               "name": "body",
               "required": true,
               "schema": {
-                "$ref": "#/definitions/gameserver-subdomain-provision"
+                "$ref": "#/definitions/instanceserver-subdomain-provision"
               }
             }
           ],
@@ -5858,7 +5858,7 @@
             "200": {
               "description": "success",
               "schema": {
-                "$ref": "#/definitions/gameserver-subdomain-provision"
+                "$ref": "#/definitions/instanceserver-subdomain-provision"
               }
             },
             "401": {
@@ -5874,7 +5874,7 @@
           "description": "Updates the resource identified by id using data.",
           "summary": "",
           "tags": [
-            "gameserver-subdomain-provision"
+            "instanceserver-subdomain-provision"
           ],
           "consumes": [
             "application/json"
@@ -5891,7 +5891,7 @@
             {
               "in": "path",
               "name": "id",
-              "description": "ID of gameserver-subdomain-provision to remove",
+              "description": "ID of instanceserver-subdomain-provision to remove",
               "type": "integer",
               "required": true
             }
@@ -5900,7 +5900,7 @@
             "200": {
               "description": "success",
               "schema": {
-                "$ref": "#/definitions/gameserver-subdomain-provision"
+                "$ref": "#/definitions/instanceserver-subdomain-provision"
               }
             },
             "401": {
@@ -5916,7 +5916,7 @@
           "description": "Removes the resource with id.",
           "summary": "",
           "tags": [
-            "gameserver-subdomain-provision"
+            "instanceserver-subdomain-provision"
           ],
           "consumes": [
             "application/json"
@@ -14981,8 +14981,8 @@
         "description": "A license service"
       },
       {
-        "name": "gameserver-subdomain-provision",
-        "description": "A gameserver-subdomain-provision service"
+        "name": "instanceserver-subdomain-provision",
+        "description": "A instanceserver-subdomain-provision service"
       },
       {
         "name": "location",

@@ -18,8 +18,10 @@ import { createEngine } from '@xrengine/engine/src/initializeEngine'
 import { EntityNodeComponent } from '@xrengine/engine/src/scene/components/EntityNodeComponent'
 import { RenderSettingComponent } from '@xrengine/engine/src/scene/components/RenderSettingComponent'
 import { registerPrefabs } from '@xrengine/engine/src/scene/functions/registerPrefabs'
+import { applyIncomingActions } from '@xrengine/hyperflux'
 
 import EditorCommands from '../constants/EditorCommands'
+import { deregisterEditorReceptors, registerEditorReceptors } from '../services/EditorServicesReceptor'
 import { accessSelectionState } from '../services/SelectionServices'
 import { getNestedObject, ModifyPropertyCommand, ModifyPropertyCommandParams } from './ModifyPropertyCommand'
 
@@ -56,6 +58,8 @@ describe('ModifyPropertyCommand', () => {
 
   beforeEach(() => {
     createEngine()
+    registerEditorReceptors()
+    Engine.instance.store.defaultDispatchDelay = 0
     registerPrefabs(Engine.instance.currentWorld)
 
     rootNode = createEntityNode(createEntity())
@@ -175,6 +179,7 @@ describe('ModifyPropertyCommand', () => {
       }
 
       ModifyPropertyCommand.update?.(command, newCommand)
+      applyIncomingActions()
       assert.deepEqual(command.properties, newCommand.properties)
     })
   })
@@ -190,6 +195,7 @@ describe('ModifyPropertyCommand', () => {
       } as any)
 
       ModifyPropertyCommand.execute?.(command)
+      applyIncomingActions()
 
       command.affectedNodes.forEach((node, i) => {
         const component = getComponent(node.entity, TestComponent)
@@ -204,8 +210,10 @@ describe('ModifyPropertyCommand', () => {
       command.keepHistory = false
       ModifyPropertyCommand.prepare(command)
       ModifyPropertyCommand.execute(command)
+      applyIncomingActions()
 
       ModifyPropertyCommand.undo(command)
+      applyIncomingActions()
 
       command.affectedNodes.forEach((node, i) => {
         const component = getComponent(node.entity, TestComponent)
@@ -217,8 +225,10 @@ describe('ModifyPropertyCommand', () => {
       command.keepHistory = true
       ModifyPropertyCommand.prepare(command)
       ModifyPropertyCommand.execute(command)
+      applyIncomingActions()
 
       ModifyPropertyCommand.undo(command)
+      applyIncomingActions()
 
       assert(command.undo)
       command.affectedNodes.forEach((node, i) => {
@@ -242,5 +252,6 @@ describe('ModifyPropertyCommand', () => {
   afterEach(() => {
     emptyEntityTree(Engine.instance.currentWorld.entityTree)
     accessSelectionState().merge({ selectedEntities: [] })
+    deregisterEditorReceptors()
   })
 })

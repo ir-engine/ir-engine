@@ -135,7 +135,7 @@ export const loadECSData = async (sceneData: SceneJson, assetRoot = undefined): 
  * @param sceneData
  */
 export const loadSceneFromJSON = async (sceneData: SceneJson, sceneSystems: SystemModuleType<any>[]) => {
-  unloadScene(Engine.instance.currentWorld)
+  if (getEngineState().sceneLoaded.value) unloadScene(Engine.instance.currentWorld)
 
   dispatchAction(EngineActions.sceneLoading())
 

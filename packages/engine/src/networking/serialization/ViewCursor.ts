@@ -81,6 +81,12 @@ export const writeUint32 = (v: ViewCursor, value: number) => {
   return v
 }
 
+export const writeInt16 = (v: ViewCursor, value: number) => {
+  v.setInt16(v.cursor, value)
+  v.cursor += Int16Array.BYTES_PER_ELEMENT
+  return v
+}
+
 export const writeUint16 = (v: ViewCursor, value: number) => {
   v.setUint16(v.cursor, value)
   v.cursor += Uint16Array.BYTES_PER_ELEMENT
@@ -159,6 +165,13 @@ export const readUint32 = (v: ViewCursor) => {
   v.cursor += Uint32Array.BYTES_PER_ELEMENT
   return val
 }
+
+export const readInt16 = (v: ViewCursor) => {
+  const val = v.getInt16(v.cursor)
+  v.cursor += Int16Array.BYTES_PER_ELEMENT
+  return val
+}
+
 export const readUint16 = (v: ViewCursor) => {
   const val = v.getUint16(v.cursor)
   v.cursor += Uint16Array.BYTES_PER_ELEMENT

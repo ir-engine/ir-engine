@@ -1,27 +1,38 @@
 import React, { useEffect } from 'react'
 
+import { addActionReceptor, removeActionReceptor } from '@xrengine/hyperflux'
+
 import Button from '@mui/material/Button'
 import Grid from '@mui/material/Grid'
 
-import AlertMessage from '../../common/AlertMessage'
+import { NotificationService } from '../../../common/services/NotificationService'
 import Search from '../../common/Search'
-import { useGameserverState } from '../../services/GameserverService'
+import { AdminInstanceServerServiceReceptor, useInstanceserverState } from '../../services/InstanceserverService'
+import { AdminInstanceServiceReceptor } from '../../services/InstanceService'
 import styles from '../../styles/admin.module.scss'
 import InstanceTable from './InstanceTable'
-import PatchGameserver from './PatchGameserver'
+import PatchInstanceserver from './PatchInstanceserver'
 
 const Instance = () => {
   const [search, setSearch] = React.useState('')
-  const [patchGameserverOpen, setPatchGameserverOpen] = React.useState(false)
-  const [openAlert, setOpenAlert] = React.useState(false)
-  const gameserverState = useGameserverState()
-  const { patch } = gameserverState.value
+  const [patchInstanceserverOpen, setPatchInstanceserverOpen] = React.useState(false)
+  const instanceserverState = useInstanceserverState()
+  const { patch } = instanceserverState.value
+
+  useEffect(() => {
+    addActionReceptor(AdminInstanceServerServiceReceptor)
+    addActionReceptor(AdminInstanceServiceReceptor)
+    return () => {
+      removeActionReceptor(AdminInstanceServerServiceReceptor)
+      removeActionReceptor(AdminInstanceServiceReceptor)
+    }
+  }, [])
 
   useEffect(() => {
     if (patch) {
-      setOpenAlert(true)
+      NotificationService.dispatchNotify(patch.message, { variant: patch.status === true ? 'success' : 'error' })
     }
-  }, [gameserverState.patch])
+  }, [instanceserverState.patch])
 
   const openPatchModal = (open: boolean) => (event: React.KeyboardEvent | React.MouseEvent) => {
     if (
@@ -30,18 +41,11 @@ const Instance = () => {
     ) {
       return
     }
-    setPatchGameserverOpen(open)
+    setPatchInstanceserverOpen(open)
   }
 
   const closePatchModal = (open: boolean) => {
-    setPatchGameserverOpen(open)
-  }
-
-  const handleCloseAlert = (event?: React.SyntheticEvent | Event, reason?: string) => {
-    if (reason === 'clickaway') {
-      return
-    }
-    setOpenAlert(false)
+    setPatchInstanceserverOpen(open)
   }
 
   const handleChange = (e: any) => {
@@ -56,21 +60,13 @@ const Instance = () => {
         </Grid>
         <Grid item xs={12} sm={4}>
           <Button className={styles.openModalBtn} type="submit" variant="contained" onClick={openPatchModal(true)}>
-            Patch Gameserver
+            Patch Instanceserver
           </Button>
         </Grid>
       </Grid>
-      <div className={styles.rootTableWithSearch}>
-        <InstanceTable search={search} />
-      </div>
-      {patchGameserverOpen && <PatchGameserver open handleClose={openPatchModal} closeViewModal={closePatchModal} />}
-      {patch && openAlert && (
-        <AlertMessage
-          open
-          handleClose={handleCloseAlert}
-          severity={patch.status === true ? 'success' : 'warning'}
-          message={patch.message}
-        />
+      <InstanceTable className={styles.rootTableWithSearch} search={search} />
+      {patchInstanceserverOpen && (
+        <PatchInstanceserver open handleClose={openPatchModal} closeViewModal={closePatchModal} />
       )}
     </React.Fragment>
   )

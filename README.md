@@ -1,8 +1,8 @@
-# XR Engine _(xrengine)_
+# Ethereal Engine _(XREngine)_
 
-![xrengine black](https://user-images.githubusercontent.com/5104160/142821267-7e131891-0caa-496b-9cda-a82dee8a04b6.png)
+![Ethereal Engine org black on white](https://user-images.githubusercontent.com/5104160/174094172-f7b6f90b-daad-4547-8c88-bb94372cffc1.png)
 
-> Your own sandbox in the Metaverse. Take what you need, or launch the full stack.
+>  Manifest your dreams on the open social special web.
 
 ## Table of Contents
 
@@ -23,7 +23,7 @@
 
 https://user-images.githubusercontent.com/507127/142818955-51d7757f-a432-45da-8f8f-56037358ad58.mp4
 
-We ([XR Foundation](https://github.com/xrfoundation)) believe that the Metaverse, 
+We ([Ethereal Engine](https://github.com/xrfoundation)) believe that the Metaverse, 
 Web AR, VR, and XR should be easy.
 
 We want a Star Trek future where participating in immersive communication 
@@ -63,7 +63,7 @@ Host Demos
 
 Create composable plug-ins for XREngine scenes with XRModule Projects
 
-### [Create XRModule Projects](https://github.com/XRFoundation/XREngine/blob/dev/docs/docs/2_projects_editor_scenes/01_projects-api.md)
+### [Create XRModule Projects](/docs/docs/3_concepts/1_projects_api.md)
 
 XRModules are folders that contain all your custom code, assets and scenes. They are version controlled using git & github, and can be installed to any deployment with a single click. (more on that in the next chapter)
 
@@ -81,7 +81,7 @@ Best for simple self hosting, advanced editor content creation, and XRE Pack Pro
 
 ### Pre-Requisites
 
-To install XREngine locally, the following pre-reqs are required.
+To install Ethereal Engine locally, the following pre-reqs are required.
 
 * Linux (many of us develop on Ubuntu), Mac OS X, or Windows (we recommend WSL2)
 * Node.js v16 or later (we recommend installing via [`nvm`](https://github.com/nvm-sh/nvm)
@@ -99,7 +99,7 @@ To install XREngine locally, the following pre-reqs are required.
 
 ### Getting Started
 
-See the [Installation instructions](/docs/docs/0_installation/readme.md)
+See the [Installation instructions](/docs/docs/1_installation/readme.md)
 for more details.
 
 ## Usage
@@ -109,7 +109,7 @@ for more details.
 * [General XREngine documentation](https://xrfoundation.github.io/xrengine-docs/docs)
 * [Auto-generated (tsdoc) API reference](https://xrfoundation.github.io/xrengine-docs/docs/generated/common/)
 * [Avatar, Scene & Asset Pipeline](https://github.com/XRFoundation/XREngine/wiki/Avatar,-Scene-&-Asset-Pipeline)
-* [Why are we building XREngine?](/docs/docs/0_start-here.md)
+* [Why are we building XREngine?](/docs/docs/0_start_here.md)
 
 ## Contributing
 
@@ -138,10 +138,10 @@ you find who you need to talk to.
 
 ### [Join our Discord](https://discord.gg/xrf)  [![Discord Chat](https://img.shields.io/discord/692672143053422678.svg)](https://discord.gg/xrf)
 
-### [Sponsorship](https://opencollective.com/xrfoundation) [![Open Collective](https://opencollective.com/xrfoundation/tiers/badge.svg)](https://opencollective.com/xrfoundation)
+### [Sponsorship](https://opencollective.com/etherealengine) [![Open Collective](https://opencollective.com/etherealengine/tiers/badge.svg)](https://opencollective.com/etherealengine)
 
 ## License
-[MIT](LICENSE) - Copyright (c) 2020-2022 XRFoundation
+[MIT](LICENSE) - Copyright (c) 2020-2022 HyperConstruct
 
 
 [Release History and Author Archive](/HISTORY.md)

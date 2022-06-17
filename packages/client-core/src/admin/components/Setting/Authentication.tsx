@@ -4,11 +4,11 @@ import { useTranslation } from 'react-i18next'
 
 import { Button, Grid, Paper, Typography } from '@mui/material'
 import IconButton from '@mui/material/IconButton'
-import InputBase from '@mui/material/InputBase'
-import Switch from '@mui/material/Switch'
 
 import { useAuthState } from '../../../user/services/AuthService'
-import { AuthSettingService, useAdminAuthSettingState } from '../../services/Setting/AuthSettingService'
+import InputSwitch from '../../common/InputSwitch'
+import InputText from '../../common/InputText'
+import { AuthSettingsService, useAuthSettingState } from '../../services/Setting/AuthSettingService'
 import styles from '../../styles/settings.module.scss'
 
 interface Props {}
@@ -36,7 +36,7 @@ const OAUTH_TYPES = {
 }
 
 const Account = (props: Props) => {
-  const authSettingState = useAdminAuthSettingState()
+  const authSettingState = useAuthSettingState()
   const [authSetting] = authSettingState?.authSettings?.value || []
   const id = authSetting?.id
   const { t } = useTranslation()
@@ -96,7 +96,7 @@ const Account = (props: Props) => {
 
   useEffect(() => {
     if (user?.id?.value != null && authSettingState?.updateNeeded?.value) {
-      AuthSettingService.fetchAuthSetting()
+      AuthSettingsService.fetchAuthSetting()
     }
   }, [authState?.user?.id?.value, authSettingState?.updateNeeded?.value])
 
@@ -137,7 +137,7 @@ const Account = (props: Props) => {
       oauth[key] = JSON.stringify(oauth[key])
     }
 
-    AuthSettingService.patchAuthSetting({ authStrategies: JSON.stringify(auth), oauth: JSON.stringify(oauth) }, id)
+    AuthSettingsService.patchAuthSetting({ authStrategies: JSON.stringify(auth), oauth: JSON.stringify(oauth) }, id)
   }
 
   const handleCancel = () => {
@@ -204,242 +204,232 @@ const Account = (props: Props) => {
       <form autoComplete="off" onSubmit={handleSubmit}>
         <Grid container spacing={3}>
           <Grid item xs={12} sm={6} md={4}>
-            <label> {t('admin:components.setting.service')}</label>
-            <Paper component="div" className={styles.createInput}>
-              <InputBase value={authSetting?.service || ''} name="service" disabled className={styles.input} />
-            </Paper>
-            <label>{t('admin:components.setting.secret')}</label>
-            <Paper component="div" className={styles.createInput}>
-              <InputBase value={authSetting?.secret || ''} name="secret" disabled className={styles.input} />
-            </Paper>
-            <label>{t('admin:components.setting.entity')}</label>
-            <Paper component="div" className={styles.createInput}>
-              <InputBase value={authSetting?.entity || ''} name="entity" disabled className={styles.input} />
-            </Paper>
+            <InputText
+              name="service"
+              label={t('admin:components.setting.service')}
+              value={authSetting?.service || ''}
+              disabled
+            />
+
+            <InputText
+              name="secret"
+              label={t('admin:components.setting.secret')}
+              value={authSetting?.secret || ''}
+              disabled
+            />
+
+            <InputText
+              name="entity"
+              label={t('admin:components.setting.entity')}
+              value={authSetting?.entity || ''}
+              disabled
+            />
+
             <Typography component="h1" className={styles.settingsHeading}>
               {t('admin:components.setting.authStrategies')}
             </Typography>
             {Object.keys(state).map((strategyName, i) => (
-              <React.Fragment key={i}>
-                <Paper component="div" className={styles.createInput} style={{ height: '2.5rem' }}>
-                  <Grid container direction="row" justifyContent="space-between" alignItems="stretch">
-                    <label>{strategyName}</label>
-                    <Switch
-                      checked={state[strategyName]}
-                      color="primary"
-                      name={strategyName}
-                      disabled={strategyName === 'jwt'}
-                      onChange={onSwitchHandle}
-                      inputProps={{ 'aria-label': 'primary checkbox' }}
-                    />
-                  </Grid>
-                </Paper>
-              </React.Fragment>
+              <InputSwitch
+                key={i}
+                name={strategyName}
+                label={strategyName}
+                checked={state[strategyName]}
+                disabled={strategyName === 'jwt'}
+                onChange={onSwitchHandle}
+              />
             ))}
           </Grid>
           <Grid item xs={12} sm={6} md={4}>
             <label>{t('admin:components.setting.local')}</label>
-            <Paper component="div" className={styles.createInput}>
-              <label>{t('admin:components.setting.userName')}:</label>
-              <InputBase
-                value={authSetting?.local.usernameField || ''}
-                name="username"
-                disabled
-                className={styles.input}
-              />
-            </Paper>
-            <Paper component="div" className={styles.createInput}>
-              <label>{t('admin:components.setting.password')}:</label>
-              <InputBase
-                value={authSetting?.local.passwordField || ''}
-                name="password"
-                disabled
-                className={styles.input}
-                type={showPassword.password.secret ? 'text' : 'password'}
-              />
-              <IconButton onClick={() => handleShowPassword('password-secret')} size="large">
-                <Icon
-                  icon={showPassword.password.secret ? 'ic:baseline-visibility' : 'ic:baseline-visibility-off'}
-                  color="orange"
-                />
-              </IconButton>
-            </Paper>
+
+            <InputText
+              name="username"
+              label={t('admin:components.setting.userName')}
+              value={authSetting?.local.usernameField || ''}
+              disabled
+            />
+
+            <InputText
+              name="password"
+              label={t('admin:components.setting.password')}
+              value={authSetting?.local.passwordField || ''}
+              type={showPassword.password.secret ? 'text' : 'password'}
+              disabled
+              endAdornment={
+                <IconButton onClick={() => handleShowPassword('password-secret')}>
+                  <Icon
+                    icon={showPassword.password.secret ? 'ic:baseline-visibility' : 'ic:baseline-visibility-off'}
+                    color="orange"
+                  />
+                </IconButton>
+              }
+            />
 
             <Typography component="h1" className={styles.settingsHeading}>
               {t('admin:components.setting.oauth')}
             </Typography>
             <label>{t('admin:components.setting.defaults')}</label>
-            <Paper component="div" className={styles.createInput}>
-              <label>{t('admin:components.setting.host')}:</label>
-              <InputBase
-                value={authSetting?.oauth?.defaults?.host || ''}
-                name="host"
-                disabled
-                className={styles.input}
-              />
-            </Paper>
-            <Paper component="div" className={styles.createInput}>
-              <label>{t('admin:components.setting.protocol')}:</label>
-              <InputBase
-                value={authSetting?.oauth?.defaults?.protocol || ''}
-                name="protocol"
-                disabled
-                className={styles.input}
-              />
-            </Paper>
+
+            <InputText
+              name="host"
+              label={t('admin:components.setting.host')}
+              value={authSetting?.oauth?.defaults?.host || ''}
+              disabled
+            />
+
+            <InputText
+              name="protocol"
+              label={t('admin:components.setting.protocol')}
+              value={authSetting?.oauth?.defaults?.protocol || ''}
+              disabled
+            />
+
             {holdAuth?.discord && (
               <Paper className={styles.Paper} elevation={0}>
                 <label>{t('admin:components.setting.discord')}</label>
-                <Paper component="div" className={styles.createInput}>
-                  <label>{t('admin:components.setting.key')}:</label>
-                  <InputBase
-                    value={keySecret?.discord?.key || ''}
-                    name="key"
-                    onChange={(e) => handleOnChangeKey(e, OAUTH_TYPES.DISCORD)}
-                    className={styles.input}
-                    type={showPassword.discord.key ? 'text' : 'password'}
-                  />
-                  <IconButton onClick={() => handleShowPassword('discord-key')} size="large">
-                    <Icon
-                      icon={showPassword.discord.key ? 'ic:baseline-visibility' : 'ic:baseline-visibility-off'}
-                      color="orange"
-                    />
-                  </IconButton>
-                </Paper>
-                <Paper component="div" className={styles.createInput}>
-                  <label>{t('admin:components.setting.secret')}:</label>
-                  <InputBase
-                    value={keySecret?.discord?.secret || ''}
-                    name="secret"
-                    onChange={(e) => handleOnChangeSecret(e, OAUTH_TYPES.DISCORD)}
-                    className={styles.input}
-                    type={showPassword.discord.secret ? 'text' : 'password'}
-                  />
-                  <IconButton onClick={() => handleShowPassword('discord-secret')} size="large">
-                    <Icon
-                      icon={showPassword.discord.secret ? 'ic:baseline-visibility' : 'ic:baseline-visibility-off'}
-                      color="orange"
-                    />
-                  </IconButton>
-                </Paper>
-                <Paper component="div" className={styles.createInput}>
-                  <label>{t('admin:components.setting.callback')}:</label>
-                  <InputBase
-                    value={authSetting?.callback?.discord || ''}
-                    name="callbackGithub"
-                    disabled
-                    className={styles.input}
-                  />
-                </Paper>
+
+                <InputText
+                  name="key"
+                  label={t('admin:components.setting.key')}
+                  value={keySecret?.discord?.key || ''}
+                  type={showPassword.discord.key ? 'text' : 'password'}
+                  endAdornment={
+                    <IconButton onClick={() => handleShowPassword('discord-key')}>
+                      <Icon
+                        icon={showPassword.discord.key ? 'ic:baseline-visibility' : 'ic:baseline-visibility-off'}
+                        color="orange"
+                      />
+                    </IconButton>
+                  }
+                  onChange={(e) => handleOnChangeKey(e, OAUTH_TYPES.DISCORD)}
+                />
+
+                <InputText
+                  name="secret"
+                  label={t('admin:components.setting.secret')}
+                  value={keySecret?.discord?.secret || ''}
+                  type={showPassword.discord.secret ? 'text' : 'password'}
+                  endAdornment={
+                    <IconButton onClick={() => handleShowPassword('discord-secret')}>
+                      <Icon
+                        icon={showPassword.discord.secret ? 'ic:baseline-visibility' : 'ic:baseline-visibility-off'}
+                        color="orange"
+                      />
+                    </IconButton>
+                  }
+                  onChange={(e) => handleOnChangeSecret(e, OAUTH_TYPES.DISCORD)}
+                />
+
+                <InputText
+                  name="callbackGithub"
+                  label={t('admin:components.setting.callback')}
+                  value={authSetting?.callback?.discord || ''}
+                  disabled
+                />
               </Paper>
             )}
             {holdAuth?.facebook && (
               <Paper className={styles.Paper} elevation={0}>
                 <label>{t('admin:components.setting.facebook')}</label>
-                <Paper component="div" className={styles.createInput}>
-                  <label>{t('admin:components.setting.key')}:</label>
-                  <InputBase
-                    value={keySecret?.facebook?.key || ''}
-                    name="key"
-                    onChange={(e) => handleOnChangeKey(e, OAUTH_TYPES.FACEBOOK)}
-                    className={styles.input}
-                    type={showPassword.facebook.key ? 'text' : 'password'}
-                  />
-                  <IconButton onClick={() => handleShowPassword('facebook-key')} size="large">
-                    <Icon
-                      icon={showPassword.facebook.key ? 'ic:baseline-visibility' : 'ic:baseline-visibility-off'}
-                      color="orange"
-                    />
-                  </IconButton>
-                </Paper>
-                <Paper component="div" className={styles.createInput}>
-                  <label>{t('admin:components.setting.secret')}</label>
-                  <InputBase
-                    value={keySecret?.facebook?.secret || ''}
-                    name="secret"
-                    onChange={(e) => handleOnChangeSecret(e, OAUTH_TYPES.FACEBOOK)}
-                    className={styles.input}
-                    type={showPassword.facebook.secret ? 'text' : 'password'}
-                  />
-                  <IconButton onClick={() => handleShowPassword('facebook-secret')} size="large">
-                    <Icon
-                      icon={showPassword.facebook.secret ? 'ic:baseline-visibility' : 'ic:baseline-visibility-off'}
-                      color="orange"
-                    />
-                  </IconButton>
-                </Paper>
-                <Paper component="div" className={styles.createInput}>
-                  <label>{t('admin:components.setting.callback')}:</label>
-                  <InputBase
-                    value={authSetting?.callback?.facebook || ''}
-                    name="callbackGithub"
-                    disabled
-                    className={styles.input}
-                  />
-                </Paper>
+
+                <InputText
+                  name="key"
+                  label={t('admin:components.setting.key')}
+                  value={keySecret?.facebook?.key || ''}
+                  type={showPassword.facebook.key ? 'text' : 'password'}
+                  endAdornment={
+                    <IconButton onClick={() => handleShowPassword('facebook-key')}>
+                      <Icon
+                        icon={showPassword.facebook.key ? 'ic:baseline-visibility' : 'ic:baseline-visibility-off'}
+                        color="orange"
+                      />
+                    </IconButton>
+                  }
+                  onChange={(e) => handleOnChangeKey(e, OAUTH_TYPES.FACEBOOK)}
+                />
+
+                <InputText
+                  name="key"
+                  label={t('admin:components.setting.secret')}
+                  value={keySecret?.facebook?.secret || ''}
+                  type={showPassword.facebook.secret ? 'text' : 'password'}
+                  endAdornment={
+                    <IconButton onClick={() => handleShowPassword('facebook-secret')}>
+                      <Icon
+                        icon={showPassword.facebook.secret ? 'ic:baseline-visibility' : 'ic:baseline-visibility-off'}
+                        color="orange"
+                      />
+                    </IconButton>
+                  }
+                  onChange={(e) => handleOnChangeSecret(e, OAUTH_TYPES.FACEBOOK)}
+                />
+
+                <InputText
+                  name="callbackFacebook"
+                  label={t('admin:components.setting.callback')}
+                  value={authSetting?.callback?.facebook || ''}
+                  disabled
+                />
               </Paper>
             )}
             {holdAuth?.github && (
               <Paper className={styles.Paper} style={{ marginTop: '10px' }} elevation={0}>
                 <label>{t('admin:components.setting.github')}</label>
-                <Paper component="div" className={styles.createInput}>
-                  <label>{t('admin:components.setting.appId')}:</label>
-                  <InputBase
-                    value={keySecret?.github?.appid || ''}
-                    name="key"
-                    onChange={(e) => handleOnChangeAppId(e, OAUTH_TYPES.GITHUB)}
-                    className={styles.input}
-                    type={showPassword.github.appid ? 'text' : 'password'}
-                  />
-                  <IconButton onClick={() => handleShowPassword('github-appid')} size="large">
-                    <Icon
-                      icon={showPassword.github.appid ? 'ic:baseline-visibility' : 'ic:baseline-visibility-off'}
-                      color="orange"
-                    />
-                  </IconButton>
-                </Paper>
-                <Paper component="div" className={styles.createInput}>
-                  <label>{t('admin:components.setting.key')}:</label>
-                  <InputBase
-                    value={keySecret?.github?.key || ''}
-                    name="key"
-                    onChange={(e) => handleOnChangeKey(e, OAUTH_TYPES.GITHUB)}
-                    className={styles.input}
-                    type={showPassword.github.key ? 'text' : 'password'}
-                  />
-                  <IconButton onClick={() => handleShowPassword('github-key')} size="large">
-                    <Icon
-                      icon={showPassword.github.key ? 'ic:baseline-visibility' : 'ic:baseline-visibility-off'}
-                      color="orange"
-                    />
-                  </IconButton>
-                </Paper>
-                <Paper component="div" className={styles.createInput}>
-                  <label>{t('admin:components.setting.secret')}:</label>
-                  <InputBase
-                    value={keySecret?.github?.secret || ''}
-                    name="secret"
-                    onChange={(e) => handleOnChangeSecret(e, OAUTH_TYPES.GITHUB)}
-                    className={styles.input}
-                    type={showPassword.github.secret ? 'text' : 'password'}
-                  />
-                  <IconButton onClick={() => handleShowPassword('github-secret')} size="large">
-                    <Icon
-                      icon={showPassword.github.secret ? 'ic:baseline-visibility' : 'ic:baseline-visibility-off'}
-                      color="orange"
-                    />
-                  </IconButton>
-                </Paper>
 
-                <Paper component="div" className={styles.createInput}>
-                  <label>{t('admin:components.setting.callback')}:</label>
-                  <InputBase
-                    value={authSetting?.callback?.github || ''}
-                    name="callbackGithub"
-                    disabled
-                    className={styles.input}
-                  />
-                </Paper>
+                <InputText
+                  name="appid"
+                  label={t('admin:components.setting.appId')}
+                  value={keySecret?.github?.appid || ''}
+                  type={showPassword.github.appid ? 'text' : 'password'}
+                  endAdornment={
+                    <IconButton onClick={() => handleShowPassword('github-appid')}>
+                      <Icon
+                        icon={showPassword.github.appid ? 'ic:baseline-visibility' : 'ic:baseline-visibility-off'}
+                        color="orange"
+                      />
+                    </IconButton>
+                  }
+                  onChange={(e) => handleOnChangeAppId(e, OAUTH_TYPES.GITHUB)}
+                />
+
+                <InputText
+                  name="key"
+                  label={t('admin:components.setting.key')}
+                  value={keySecret?.github?.key || ''}
+                  type={showPassword.github.key ? 'text' : 'password'}
+                  endAdornment={
+                    <IconButton onClick={() => handleShowPassword('github-key')}>
+                      <Icon
+                        icon={showPassword.github.key ? 'ic:baseline-visibility' : 'ic:baseline-visibility-off'}
+                        color="orange"
+                      />
+                    </IconButton>
+                  }
+                  onChange={(e) => handleOnChangeKey(e, OAUTH_TYPES.GITHUB)}
+                />
+
+                <InputText
+                  name="secret"
+                  label={t('admin:components.setting.secret')}
+                  value={keySecret?.github?.secret || ''}
+                  type={showPassword.github.secret ? 'text' : 'password'}
+                  endAdornment={
+                    <IconButton onClick={() => handleShowPassword('github-secret')}>
+                      <Icon
+                        icon={showPassword.github.secret ? 'ic:baseline-visibility' : 'ic:baseline-visibility-off'}
+                        color="orange"
+                      />
+                    </IconButton>
+                  }
+                  onChange={(e) => handleOnChangeSecret(e, OAUTH_TYPES.GITHUB)}
+                />
+
+                <InputText
+                  name="callbackGithub"
+                  label={t('admin:components.setting.callback')}
+                  value={authSetting?.callback?.github || ''}
+                  disabled
+                />
               </Paper>
             )}
           </Grid>
@@ -447,142 +437,133 @@ const Account = (props: Props) => {
             {holdAuth?.google && (
               <Paper className={styles.Paper} style={{ marginBottom: '10px' }} elevation={0}>
                 <label>{t('admin:components.setting.google')}</label>
-                <Paper component="div" className={styles.createInput}>
-                  <label>{t('admin:components.setting.key')}:</label>
-                  <InputBase
-                    type={showPassword.google.key ? 'text' : 'password'}
-                    value={keySecret?.google?.key || ''}
-                    name="key"
-                    onChange={(e) => handleOnChangeKey(e, OAUTH_TYPES.GOOGLE)}
-                    className={styles.input}
-                  />
 
-                  <IconButton onClick={() => handleShowPassword('google-key')} size="large">
-                    <Icon
-                      icon={showPassword.google.key ? 'ic:baseline-visibility' : 'ic:baseline-visibility-off'}
-                      color="orange"
-                    />
-                  </IconButton>
-                </Paper>
-                <Paper component="div" className={styles.createInput}>
-                  <label>{t('admin:components.setting.secret')}:</label>
-                  <InputBase
-                    value={keySecret?.google?.secret || ''}
-                    name="secret"
-                    onChange={(e) => handleOnChangeSecret(e, OAUTH_TYPES.GOOGLE)}
-                    className={styles.input}
-                    type={showPassword.google.secret ? 'text' : 'password'}
-                  />
-                  <IconButton onClick={() => handleShowPassword('google-secret')} size="large">
-                    <Icon
-                      icon={showPassword.google.secret ? 'ic:baseline-visibility' : 'ic:baseline-visibility-off'}
-                      color="orange"
-                    />
-                  </IconButton>
-                </Paper>
+                <InputText
+                  name="key"
+                  label={t('admin:components.setting.key')}
+                  value={keySecret?.google?.key || ''}
+                  type={showPassword.google.key ? 'text' : 'password'}
+                  endAdornment={
+                    <IconButton onClick={() => handleShowPassword('google-key')}>
+                      <Icon
+                        icon={showPassword.google.key ? 'ic:baseline-visibility' : 'ic:baseline-visibility-off'}
+                        color="orange"
+                      />
+                    </IconButton>
+                  }
+                  onChange={(e) => handleOnChangeKey(e, OAUTH_TYPES.GOOGLE)}
+                />
 
-                <Paper component="div" className={styles.createInput}>
-                  <label>{t('admin:components.setting.callback')}:</label>
-                  <InputBase
-                    value={authSetting?.callback?.google || ''}
-                    name="callbackGoogle"
-                    disabled
-                    className={styles.input}
-                  />
-                </Paper>
+                <InputText
+                  name="secret"
+                  label={t('admin:components.setting.secret')}
+                  value={keySecret?.google?.secret || ''}
+                  type={showPassword.google.secret ? 'text' : 'password'}
+                  endAdornment={
+                    <IconButton onClick={() => handleShowPassword('google-secret')}>
+                      <Icon
+                        icon={showPassword.google.secret ? 'ic:baseline-visibility' : 'ic:baseline-visibility-off'}
+                        color="orange"
+                      />
+                    </IconButton>
+                  }
+                  onChange={(e) => handleOnChangeSecret(e, OAUTH_TYPES.GOOGLE)}
+                />
+
+                <InputText
+                  name="callbackGoogle"
+                  label={t('admin:components.setting.callback')}
+                  value={authSetting?.callback?.google || ''}
+                  disabled
+                />
               </Paper>
             )}
             {holdAuth?.linkedin && (
               <Paper className={styles.Paper} style={{ marginBottom: '10px' }} elevation={0}>
                 <label>{t('admin:components.setting.linkedIn')}</label>
-                <Paper component="div" className={styles.createInput}>
-                  <label>{t('admin:components.setting.key')}:</label>
-                  <InputBase
-                    value={keySecret?.linkedin?.key || ''}
-                    name="key"
-                    onChange={(e) => handleOnChangeKey(e, OAUTH_TYPES.LINKEDIN)}
-                    className={styles.input}
-                    type={showPassword.linkedin.key ? 'text' : 'password'}
-                  />
-                  <IconButton onClick={() => handleShowPassword('linkedin-key')} size="large">
-                    <Icon
-                      icon={showPassword.linkedin.key ? 'ic:baseline-visibility' : 'ic:baseline-visibility-off'}
-                      color="orange"
-                    />
-                  </IconButton>
-                </Paper>
-                <Paper component="div" className={styles.createInput}>
-                  <label>{t('admin:components.setting.secret')}:</label>
-                  <InputBase
-                    value={keySecret?.linkedin?.secret || ''}
-                    name="secret"
-                    onChange={(e) => handleOnChangeSecret(e, OAUTH_TYPES.LINKEDIN)}
-                    className={styles.input}
-                    type={showPassword.linkedin.secret ? 'text' : 'password'}
-                  />
-                  <IconButton onClick={() => handleShowPassword('linkedin-secret')} size="large">
-                    <Icon
-                      icon={showPassword.linkedin.secret ? 'ic:baseline-visibility' : 'ic:baseline-visibility-off'}
-                      color="orange"
-                    />
-                  </IconButton>
-                </Paper>
-                <Paper component="div" className={styles.createInput}>
-                  <label>{t('admin:components.setting.callback')}:</label>
-                  <InputBase
-                    value={authSetting?.callback?.linkedin || ''}
-                    name="callbackLinkedin"
-                    disabled
-                    className={styles.input}
-                  />
-                </Paper>
+
+                <InputText
+                  name="key"
+                  label={t('admin:components.setting.key')}
+                  value={keySecret?.linkedin?.key || ''}
+                  type={showPassword.linkedin.key ? 'text' : 'password'}
+                  endAdornment={
+                    <IconButton onClick={() => handleShowPassword('linkedin-key')}>
+                      <Icon
+                        icon={showPassword.linkedin.key ? 'ic:baseline-visibility' : 'ic:baseline-visibility-off'}
+                        color="orange"
+                      />
+                    </IconButton>
+                  }
+                  onChange={() => handleShowPassword('linkedin-key')}
+                />
+
+                <InputText
+                  name="secret"
+                  label={t('admin:components.setting.secret')}
+                  value={keySecret?.linkedin?.secret || ''}
+                  type={showPassword.linkedin.secret ? 'text' : 'password'}
+                  endAdornment={
+                    <IconButton onClick={() => handleShowPassword('linkedin-secret')}>
+                      <Icon
+                        icon={showPassword.linkedin.secret ? 'ic:baseline-visibility' : 'ic:baseline-visibility-off'}
+                        color="orange"
+                      />
+                    </IconButton>
+                  }
+                  onChange={(e) => handleOnChangeSecret(e, OAUTH_TYPES.LINKEDIN)}
+                />
+
+                <InputText
+                  name="callbackLinkedin"
+                  label={t('admin:components.setting.callback')}
+                  value={authSetting?.callback?.linkedin || ''}
+                  disabled
+                />
               </Paper>
             )}
             {holdAuth?.twitter && (
               <Paper className={styles.Paper} elevation={0} style={{ marginBottom: '10px' }}>
                 <label style={{ color: '#ffff' }}>{t('admin:components.setting.twitter')}</label>
-                <Paper component="div" className={styles.createInput}>
-                  <label>{t('admin:components.setting.key')}:</label>
-                  <InputBase
-                    value={keySecret?.twitter?.key || ''}
-                    name="key"
-                    onChange={(e) => handleOnChangeKey(e, OAUTH_TYPES.TWITTER)}
-                    className={styles.input}
-                    type={showPassword.twitter.key ? 'text' : 'password'}
-                  />
-                  <IconButton onClick={() => handleShowPassword('twitter-key')} size="large">
-                    <Icon
-                      icon={showPassword.twitter.key ? 'ic:baseline-visibility' : 'ic:baseline-visibility-off'}
-                      color="orange"
-                    />
-                  </IconButton>
-                </Paper>
-                <Paper component="div" className={styles.createInput}>
-                  <label>{t('admin:components.setting.secret')}:</label>
-                  <InputBase
-                    value={keySecret?.twitter?.secret || ''}
-                    name="secret"
-                    onChange={(e) => handleOnChangeSecret(e, OAUTH_TYPES.TWITTER)}
-                    className={styles.input}
-                    type={showPassword.twitter.secret ? 'text' : 'password'}
-                  />
-                  <IconButton onClick={() => handleShowPassword('twitter-secret')} size="large">
-                    <Icon
-                      icon={showPassword.twitter.secret ? 'ic:baseline-visibility' : 'ic:baseline-visibility-off'}
-                      color="orange"
-                    />
-                  </IconButton>
-                </Paper>
 
-                <Paper component="div" className={styles.createInput}>
-                  <label>{t('admin:components.setting.callback')}:</label>
-                  <InputBase
-                    value={authSetting?.callback?.twitter || ''}
-                    name="callbackTwitter"
-                    disabled
-                    className={styles.input}
-                  />
-                </Paper>
+                <InputText
+                  name="key"
+                  label={t('admin:components.setting.key')}
+                  value={keySecret?.twitter?.key || ''}
+                  type={showPassword.twitter.key ? 'text' : 'password'}
+                  endAdornment={
+                    <IconButton onClick={() => handleShowPassword('twitter-key')}>
+                      <Icon
+                        icon={showPassword.twitter.key ? 'ic:baseline-visibility' : 'ic:baseline-visibility-off'}
+                        color="orange"
+                      />
+                    </IconButton>
+                  }
+                  onChange={(e) => handleOnChangeKey(e, OAUTH_TYPES.TWITTER)}
+                />
+
+                <InputText
+                  name="secret"
+                  label={t('admin:components.setting.secret')}
+                  value={keySecret?.twitter?.secret || ''}
+                  type={showPassword.twitter.secret ? 'text' : 'password'}
+                  endAdornment={
+                    <IconButton onClick={() => handleShowPassword('twitter-secret')}>
+                      <Icon
+                        icon={showPassword.twitter.secret ? 'ic:baseline-visibility' : 'ic:baseline-visibility-off'}
+                        color="orange"
+                      />
+                    </IconButton>
+                  }
+                  onChange={(e) => handleOnChangeSecret(e, OAUTH_TYPES.TWITTER)}
+                />
+
+                <InputText
+                  name="callbackTwitter"
+                  label={t('admin:components.setting.callback')}
+                  value={authSetting?.callback?.twitter || ''}
+                  disabled
+                />
               </Paper>
             )}
           </Grid>

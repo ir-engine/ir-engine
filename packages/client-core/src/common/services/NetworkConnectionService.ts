@@ -5,12 +5,12 @@ export class NetworkConnectionService {
   static actions = {
     noWorldServersAvailable: defineAction({
       store: 'ENGINE',
-      type: 'WEBRTC_PROVISION_INSTANCE_NO_GAMESERVERS_AVAILABLE' as const,
+      type: 'WEBRTC_PROVISION_INSTANCE_NO_INSTANCESERVERS_AVAILABLE' as const,
       instanceId: matches.string
     }),
     noMediaServersAvailable: defineAction({
       store: 'ENGINE',
-      type: 'WEBRTC_PROVISION_CHANNEL_NO_GAMESERVERS_AVAILABLE' as const
+      type: 'WEBRTC_PROVISION_CHANNEL_NO_INSTANCESERVERS_AVAILABLE' as const
     }),
     worldInstanceKicked: defineAction({
       store: 'ENGINE',

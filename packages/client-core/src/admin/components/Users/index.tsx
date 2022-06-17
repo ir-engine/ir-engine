@@ -1,5 +1,7 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+
+import { addActionReceptor, removeActionReceptor } from '@xrengine/hyperflux'
 
 import FilterListIcon from '@mui/icons-material/FilterList'
 import Button from '@mui/material/Button'
@@ -12,11 +14,15 @@ import Menu from '@mui/material/Menu'
 import MenuItem from '@mui/material/MenuItem'
 
 import { useAuthState } from '../../../user/services/AuthService'
-import { useFetchUserRole } from '../../common/hooks/User.hooks'
-import InputSelect, { InputSelectProps } from '../../common/InputSelect'
+import InputSelect, { InputMenuItem } from '../../common/InputSelect'
 import Search from '../../common/Search'
-import { UserRoleService, useUserRoleState } from '../../services/UserRoleService'
-import { UserService } from '../../services/UserService'
+import { AdminStaticResourceServiceReceptor } from '../../services/StaticResourceService'
+import {
+  AdminUserRoleService,
+  AdminUserRoleServiceReceptor,
+  useAdminUserRoleState
+} from '../../services/UserRoleService'
+import { AdminUserService, AdminUserServiceReceptor } from '../../services/UserService'
 import styles from '../../styles/admin.module.scss'
 import UserModal from './CreateUser'
 import UserTable from './UserTable'
@@ -30,10 +36,26 @@ const Users = () => {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
   const openMenu = Boolean(anchorEl)
   const user = useAuthState().user
-  const userRole = useUserRoleState()
+  const userRole = useAdminUserRoleState()
 
-  //Call custom hooks
-  useFetchUserRole(UserRoleService, userRole, user)
+  useEffect(() => {
+    addActionReceptor(AdminStaticResourceServiceReceptor)
+    addActionReceptor(AdminUserServiceReceptor)
+    addActionReceptor(AdminUserRoleServiceReceptor)
+    return () => {
+      removeActionReceptor(AdminStaticResourceServiceReceptor)
+      removeActionReceptor(AdminUserServiceReceptor)
+      removeActionReceptor(AdminUserRoleServiceReceptor)
+    }
+  }, [])
+
+  useEffect(() => {
+    const fetchData = async () => {
+      AdminUserRoleService.fetchUserRole()
+    }
+    const role = userRole ? userRole.updateNeeded.value : false
+    if (role && user.id.value) fetchData()
+  }, [userRole.updateNeeded.value, user.value])
 
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget)
@@ -42,38 +64,26 @@ const Users = () => {
     setAnchorEl(null)
   }
 
-  const openModalCreate = (open: boolean) => (event: React.KeyboardEvent | React.MouseEvent) => {
-    if (
-      event.type === 'keydown' &&
-      ((event as React.KeyboardEvent).key === 'Tab' || (event as React.KeyboardEvent).key === 'Shift')
-    ) {
-      return
-    }
-    setUserModalOpen(open)
-  }
-  const closeViewModal = (open: boolean) => {
-    setUserModalOpen(open)
-  }
   const handleSkipGuests = (e: any) => {
     setChecked(e.target.checked)
-    UserService.setSkipGuests(e.target.checked)
+    AdminUserService.setSkipGuests(e.target.checked)
   }
   const handleChange = (e: any) => {
     setSearch(e.target.value)
   }
 
   const handleChangeRole = (e) => {
-    UserService.setUserRole(e.target.value)
+    AdminUserService.setUserRole(e.target.value)
     setRole(e.target.value)
   }
 
   const resetFilter = () => {
     setChecked(false)
     setRole('')
-    UserService.resetFilter()
+    AdminUserService.resetFilter()
   }
 
-  const userRoleData: InputSelectProps[] = userRole.userRole.value.map((el) => {
+  const userRoleData: InputMenuItem[] = userRole.userRole.value.map((el) => {
     return {
       value: el.role,
       label: el.role
@@ -87,7 +97,12 @@ const Users = () => {
           <Search text="user" handleChange={handleChange} />
         </Grid>
         <Grid item sm={3} xs={8}>
-          <Button className={styles.openModalBtn} type="submit" variant="contained" onClick={openModalCreate(true)}>
+          <Button
+            className={styles.openModalBtn}
+            type="submit"
+            variant="contained"
+            onClick={() => setUserModalOpen(true)}
+          >
             {t('admin:components.user.createNewUser')}
           </Button>
         </Grid>
@@ -108,7 +123,7 @@ const Users = () => {
       <div className={styles.rootTable}>
         <UserTable search={search} />
       </div>
-      <UserModal open={userModalOpen} handleClose={openModalCreate} closeViewModal={closeViewModal} />
+      <UserModal open={userModalOpen} onClose={() => setUserModalOpen(false)} />
       <Menu
         anchorEl={anchorEl}
         id="account-menu"
@@ -144,7 +159,7 @@ const Users = () => {
             label={t('admin:components.user.userRole')}
             value={role}
             menu={userRoleData}
-            handleInputChange={handleChangeRole}
+            onChange={handleChangeRole}
           />
         </MenuItem>
         <MenuItem>

@@ -23,7 +23,7 @@ const settings = ({
   handleRedis,
   handleEmail,
   handleClient,
-  handleGameServer,
+  handleInstanceServer,
   handleServer,
   handleAnalytics,
   handleProject,
@@ -112,7 +112,7 @@ const settings = ({
         <Divider variant="inset" component="li" sx={{ marginLeft: '0px' }} />
         <ListItem
           button
-          onClick={handleGameServer}
+          onClick={handleInstanceServer}
           className={gameFocused ? `${styles.focused}` : `${styles.notFocused}`}
         >
           <ListItemAvatar>

@@ -7,14 +7,13 @@ import DeleteIcon from '@mui/icons-material/Delete'
 import Button from '@mui/material/Button'
 import Grid from '@mui/material/Grid'
 import IconButton from '@mui/material/IconButton'
-import InputBase from '@mui/material/InputBase'
 import List from '@mui/material/List'
 import ListItem from '@mui/material/ListItem'
 import ListItemSecondaryAction from '@mui/material/ListItemSecondaryAction'
 import ListItemText from '@mui/material/ListItemText'
-import Paper from '@mui/material/Paper'
 
 import styles from '../styles/admin.module.scss'
+import InputText from './InputText'
 
 interface Props {
   command: BotCommands
@@ -30,28 +29,22 @@ const AddCommand = ({ command, handleChangeCommand, addCommandData, commandData,
     <div>
       <Grid container spacing={2}>
         <Grid item xs={4}>
-          <label>{t('admin:components.bot:command')}</label>
-          <Paper component="div" className={styles.createInput}>
-            <InputBase
-              className={styles.input}
-              placeholder={t('admin:components.bot:enterCommand')}
-              value={command.name}
-              name="name"
-              onChange={handleChangeCommand}
-            />
-          </Paper>
+          <InputText
+            name="name"
+            label={t('admin:components.bot:command')}
+            placeholder={t('admin:components.bot:enterCommand')}
+            value={command.name}
+            onChange={handleChangeCommand}
+          />
         </Grid>
         <Grid item xs={8}>
-          <label>{t('admin:components.bot.description')}</label>
-          <Paper component="div" className={styles.createInput}>
-            <InputBase
-              className={styles.input}
-              placeholder={t('admin:components.bot.enterDescription')}
-              value={command.description}
-              name="description"
-              onChange={handleChangeCommand}
-            />
-          </Paper>
+          <InputText
+            name="description"
+            label={t('admin:components.bot:description')}
+            placeholder={t('admin:components.bot:enterDescription')}
+            value={command.description ?? ''}
+            onChange={handleChangeCommand}
+          />
         </Grid>
       </Grid>
 

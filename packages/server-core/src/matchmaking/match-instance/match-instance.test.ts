@@ -175,9 +175,9 @@ describe.skip('matchmaking match-instance service', () => {
     // test cleanup
     await app.service('match-instance').remove(matchInstance[0].id)
 
-    const gameServerInstance = await app.service('instance').get(matchInstance[0].gameserver!)
-    assert(gameServerInstance)
-    assert(!gameServerInstance.ended)
+    const instanceServerInstance = await app.service('instance').get(matchInstance[0].instanceserver!)
+    assert(instanceServerInstance)
+    assert(!instanceServerInstance.ended)
 
     // just in case, check that assignments have instance id and location name
     // it should be set in one of hooks
@@ -185,7 +185,7 @@ describe.skip('matchmaking match-instance service', () => {
     assert((assignments[0] as any).locationName)
 
     // cleanup created instance
-    await app.service('instance').remove(gameServerInstance.id)
+    await app.service('instance').remove(instanceServerInstance.id)
   })
 
   // it will create null:null instance server on localhost for second match
@@ -217,7 +217,7 @@ describe.skip('matchmaking match-instance service', () => {
 
     // test cleanup
     await Promise.all(matchInstance.map((mi) => app.service('match-instance').remove(mi.id)))
-    await Promise.all(matchInstance.map((mi) => app.service('instance').remove(mi.gameserver!)))
+    await Promise.all(matchInstance.map((mi) => app.service('instance').remove(mi.instanceserver!)))
   })
 
   it('does not assign players if match is not found', async () => {

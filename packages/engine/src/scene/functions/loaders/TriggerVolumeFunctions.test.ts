@@ -42,6 +42,11 @@ describe('TriggerVolumeFunctions', () => {
 
   describe('deserializeTriggerVolume()', () => {
     it('creates TriggerVolume Component with provided component data', () => {
+      addComponent(entity, TransformComponent, {
+        position: new Vector3(),
+        rotation: new Quaternion(),
+        scale: new Vector3(1.5, 2.5, 6)
+      })
       triggervolumeFunctions.deserializeTriggerVolume(entity, sceneComponent)
 
       const triggervolumeComponent = getComponent(entity, TriggerVolumeComponent)
@@ -55,6 +60,11 @@ describe('TriggerVolumeFunctions', () => {
     it('will include this component into EntityNodeComponent', () => {
       addComponent(entity, EntityNodeComponent, { components: [] })
 
+      addComponent(entity, TransformComponent, {
+        position: new Vector3(),
+        rotation: new Quaternion(),
+        scale: new Vector3(1.5, 2.5, 6)
+      })
       triggervolumeFunctions.deserializeTriggerVolume(entity, sceneComponent)
 
       const entityNodeComponent = getComponent(entity, EntityNodeComponent)
@@ -104,6 +114,11 @@ describe('TriggerVolumeFunctions', () => {
 
   describe('serializeTriggerVolume()', () => {
     it('should properly serialize triggervolume', () => {
+      addComponent(entity, TransformComponent, {
+        position: new Vector3(),
+        rotation: new Quaternion(),
+        scale: new Vector3(1.5, 2.5, 6)
+      })
       triggervolumeFunctions.deserializeTriggerVolume(entity, sceneComponent)
       assert.deepEqual(triggervolumeFunctions.serializeTriggerVolume(entity), sceneComponent)
     })

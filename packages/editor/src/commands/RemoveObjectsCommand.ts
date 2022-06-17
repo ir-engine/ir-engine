@@ -1,4 +1,3 @@
-import { store } from '@xrengine/client-core/src/store'
 import { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
@@ -9,6 +8,7 @@ import {
   traverseEntityNode
 } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
 import { serializeWorld } from '@xrengine/engine/src/scene/functions/serializeWorld'
+import { dispatchAction } from '@xrengine/hyperflux'
 
 import { executeCommand } from '../classes/History'
 import EditorCommands, { CommandFuncType, CommandParams, ObjectCommands } from '../constants/EditorCommands'
@@ -89,8 +89,8 @@ function undo(command: RemoveObjectCommandParams) {
 function emitEventAfter(command: RemoveObjectCommandParams) {
   if (command.preventEvents) return
 
-  store.dispatch(EditorAction.sceneModified(true))
-  store.dispatch(SelectionAction.changedSceneGraph())
+  dispatchAction(EditorAction.sceneModified({ modified: true }))
+  dispatchAction(SelectionAction.changedSceneGraph())
 }
 
 function removeObject(command: RemoveObjectCommandParams) {

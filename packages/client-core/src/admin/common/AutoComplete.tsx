@@ -12,8 +12,7 @@ interface TagProps extends ReturnType<AutocompleteGetTagProps> {
   className: any
 }
 
-function Tag(props: TagProps) {
-  const { label, onDelete, ...other } = props
+function Tag({ label, onDelete, ...other }: TagProps) {
   return (
     <div {...other}>
       <span>{label}</span>

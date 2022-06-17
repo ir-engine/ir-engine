@@ -11,8 +11,7 @@ interface Props {
   handleClose: () => void
 }
 
-const createUser = (props: Props) => {
-  const { open, handleClose } = props
+const createUser = ({ open, handleClose }: Props) => {
   const [role, setRole] = useState('')
   const { t } = useTranslation()
 
@@ -33,7 +32,7 @@ const createUser = (props: Props) => {
       submit={createUserRole}
     >
       <DialogContent>
-        <InputText name="role" label={t('admin:components.user.role')} value={role} handleInputChange={handleChange} />
+        <InputText name="role" label={t('admin:components.user.role')} value={role} onChange={handleChange} />
       </DialogContent>
     </CreateModal>
   )

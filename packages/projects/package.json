@@ -1,6 +1,6 @@
 {
   "name": "@xrengine/projects",
-  "version": "0.5.6",
+  "version": "0.5.7",
   "main": "index.ts",
   "description": "",
   "scripts": {
@@ -20,6 +20,6 @@
   },
   "homepage": "https://github.com/XRFoundation/XREngine#readme",
   "dependencies": {
-    "@xrengine/engine": "^0.5.6"
+    "@xrengine/engine": "^0.5.7"
   }
 }

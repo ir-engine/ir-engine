@@ -1,11 +1,21 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { addActionReceptor, removeActionReceptor } from '@xrengine/hyperflux'
+
 import CloseIcon from '@mui/icons-material/Close'
 import MenuIcon from '@mui/icons-material/Menu'
 import { Grid, IconButton, Typography } from '@mui/material'
 import Button from '@mui/material/Button'
 
+import { AdminRedisSettingsServiceReceptor } from '../../services/Setting/AdminRedisSettingService'
+import { AdminAnalyticsSettingsServiceReceptor } from '../../services/Setting/AnalyticsSettingsService'
+import { AdminAwsSettingsServiceReceptor } from '../../services/Setting/AwsSettingService'
+import { AdminCoilSettingsServiceReceptor } from '../../services/Setting/CoilSettingService'
+import { AdminEmailSettingsServiceReceptor } from '../../services/Setting/EmailSettingService'
+import { AdminInstanceServerServiceReceptor } from '../../services/Setting/InstanceServerSettingService'
+import { AdminProjectSettingsServiceReceptor } from '../../services/Setting/ProjectSettingService'
+import { AdminServerSettingsServiceReceptor } from '../../services/Setting/ServerSettingService'
 import styles from '../../styles/settings.module.scss'
 import Analytics from './Analytics'
 import Authentication from './Authentication'
@@ -15,7 +25,7 @@ import Client from './Client'
 import ClientTheme from './ClientTheme'
 import Coil from './Coil'
 import Email from './Email'
-import GameServer from './GameServer'
+import InstanceServer from './InstanceServer'
 import Project from './Project'
 import Redis from './Redis'
 import Server from './Server'
@@ -50,6 +60,27 @@ const Setting = () => {
   const [menuVisible, setMenuVisible] = useState(false)
   const [analyticsFocused, setAnalyticsFocused] = useState(true)
   const { t } = useTranslation()
+
+  useEffect(() => {
+    addActionReceptor(AdminAnalyticsSettingsServiceReceptor)
+    addActionReceptor(AdminRedisSettingsServiceReceptor)
+    addActionReceptor(AdminAwsSettingsServiceReceptor)
+    addActionReceptor(AdminCoilSettingsServiceReceptor)
+    addActionReceptor(AdminEmailSettingsServiceReceptor)
+    addActionReceptor(AdminInstanceServerServiceReceptor)
+    addActionReceptor(AdminProjectSettingsServiceReceptor)
+    addActionReceptor(AdminServerSettingsServiceReceptor)
+    return () => {
+      removeActionReceptor(AdminAnalyticsSettingsServiceReceptor)
+      removeActionReceptor(AdminRedisSettingsServiceReceptor)
+      removeActionReceptor(AdminAwsSettingsServiceReceptor)
+      removeActionReceptor(AdminCoilSettingsServiceReceptor)
+      removeActionReceptor(AdminEmailSettingsServiceReceptor)
+      removeActionReceptor(AdminInstanceServerServiceReceptor)
+      removeActionReceptor(AdminProjectSettingsServiceReceptor)
+      removeActionReceptor(AdminServerSettingsServiceReceptor)
+    }
+  }, [])
 
   const handleAuth = () => {
     setIsAuth(!isAuth)
@@ -244,7 +275,7 @@ const Setting = () => {
     setAnalyticsFocused(false)
   }
 
-  const handleGameServer = () => {
+  const handleInstanceServer = () => {
     setIsGame(!isGame)
     setGameFocused(!gameFocused)
     setIsProject(false)
@@ -395,7 +426,7 @@ const Setting = () => {
     if (isRedis) setContents(<Redis />)
     if (isServer) setContents(<Server />)
     if (isEmail) setContents(<Email />)
-    if (isGame) setContents(<GameServer />)
+    if (isGame) setContents(<InstanceServer />)
     if (isClient) setContents(<Client />)
     if (isAnalytics) setContents(<Analytics />)
     if (isProject) setContents(<Project />)
@@ -437,7 +468,7 @@ const Setting = () => {
               handleRedis={handleRedis}
               handleEmail={handleEmail}
               handleClient={handleClient}
-              handleGameServer={handleGameServer}
+              handleInstanceServer={handleInstanceServer}
               handleServer={handleServer}
               handleAnalytics={handleAnalytics}
               handleProject={handleProject}
@@ -471,7 +502,7 @@ const Setting = () => {
             handleRedis={handleRedis}
             handleEmail={handleEmail}
             handleClient={handleClient}
-            handleGameServer={handleGameServer}
+            handleInstanceServer={handleInstanceServer}
             handleServer={handleServer}
             handleAnalytics={handleAnalytics}
             handleProject={handleProject}

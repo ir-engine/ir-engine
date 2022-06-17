@@ -2,6 +2,7 @@ import { Bone, Euler, Vector3 } from 'three'
 
 import { createActionQueue } from '@xrengine/hyperflux'
 
+import { Axis } from '../common/constants/Axis3D'
 import { Engine } from '../ecs/classes/Engine'
 import { World } from '../ecs/classes/World'
 import { defineQuery, getComponent } from '../ecs/functions/ComponentFunctions'
@@ -128,9 +129,16 @@ export default async function AnimationSystem(world: World) {
 
     for (const entity of vrIKQuery()) {
       const ik = getComponent(entity, AvatarHandsIKComponent)
-      const rig = getComponent(entity, AvatarAnimationComponent).rig
+      const { rig } = getComponent(entity, AvatarAnimationComponent)
 
       if (!rig) return
+
+      // Arms should not be straight for the solver to work properly
+      // TODO: Make this configurable
+      rig.LeftForeArm.quaternion.setFromAxisAngle(Axis.X, Math.PI * -0.25)
+      rig.RightForeArm.quaternion.setFromAxisAngle(Axis.X, Math.PI * 0.25)
+      rig.LeftForeArm.updateWorldMatrix(false, true)
+      rig.RightForeArm.updateWorldMatrix(false, true)
 
       solveTwoBoneIK(
         rig.LeftArm,

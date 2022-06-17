@@ -1,4 +1,5 @@
-import { State } from '@speigg/hookstate'
+import { Downgraded, State } from '@speigg/hookstate'
+import { merge } from 'lodash'
 import { Validator } from 'ts-matches'
 
 import { addTopic } from '..'
@@ -88,7 +89,16 @@ function createHyperStore(options: {
       outgoing: {}
     },
     receptors: [],
-    reactors: new WeakMap()
+    reactors: new WeakMap(),
+    toJSON: () => {
+      const state = Object.entries(store.state).reduce((obj, [name, state]) => {
+        return merge(obj, { [name]: state.attach(Downgraded).value })
+      }, {})
+      return {
+        ...store,
+        state
+      }
+    }
   } as HyperStore
   addTopic(store.defaultTopic, store)
   HyperFlux.store = store

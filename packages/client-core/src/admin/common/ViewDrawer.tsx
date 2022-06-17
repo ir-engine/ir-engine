@@ -10,9 +10,7 @@ interface Props {
   children: JSX.Element | JSX.Element[]
 }
 
-export default function ViewDrawer(props: Props) {
-  const { openView, handleCloseDrawer, children } = props
-
+export default function ViewDrawer({ openView, handleCloseDrawer, children }: Props) {
   return (
     <React.Fragment>
       <Drawer

@@ -1,78 +1,92 @@
 import _ from 'lodash'
-import React, { ReactNode } from 'react'
+import React from 'react'
 import { useTranslation } from 'react-i18next'
 
 import Box from '@mui/material/Box'
 import FormControl from '@mui/material/FormControl'
+import InputLabel from '@mui/material/InputLabel'
 import MenuItem from '@mui/material/MenuItem'
-import Paper from '@mui/material/Paper'
 import Select from '@mui/material/Select'
+import { SxProps, Theme } from '@mui/material/styles'
 
 import styles from '../styles/admin.module.scss'
 
 interface Props {
-  value: string
-  handleInputChange: (e: any) => void
-  name: string
-  menu: InputSelectProps[]
-  error?: string
+  className?: string
+  name?: string
   label?: string
-  endControl?: ReactNode
+  value?: unknown
+  menu: InputMenuItem[]
+  error?: string
+  disabled?: boolean
+  endControl?: React.ReactNode
+  sx?: SxProps<Theme>
+  onChange?: (e: any) => void
 }
 
-export interface InputSelectProps {
+export interface InputMenuItem {
   value: string
   label: string
 }
 
-const InputSelect = ({ error, value, handleInputChange, name, menu, label, endControl }: Props) => {
+const InputSelect = ({ className, name, label, value, menu, error, disabled, endControl, sx, onChange }: Props) => {
   const { t } = useTranslation()
 
+  if (!disabled) {
+    disabled = menu.length > 0 ? false : true
+  }
+
   return (
-    <React.Fragment>
-      {label && <label>{_.upperFirst(label)}</label>}
-      <Box sx={{ display: 'flex' }}>
-        <Paper component="div" className={error ? styles.redBorder : styles.createInput} sx={{ flexGrow: 1 }}>
-          <FormControl fullWidth disabled={menu.length > 0 ? false : true}>
-            <Select
-              labelId="demo-controlled-open-select-label"
-              id="demo-controlled-open-select"
-              value={value}
-              fullWidth
-              onChange={handleInputChange}
-              name={name}
-              displayEmpty
-              className={styles.select}
-              MenuProps={{ classes: { paper: styles.selectPaper } }}
+    <Box sx={{ display: 'flex', mb: 2, ...sx }}>
+      <FormControl
+        variant="outlined"
+        className={className ?? styles.selectField}
+        error={error ? true : false}
+        disabled={disabled}
+        size="small"
+        sx={{ flexGrow: 1 }}
+      >
+        <InputLabel>{_.upperFirst(label)}</InputLabel>
+        <Box>
+          <Select
+            name={name}
+            value={value}
+            label={_.upperFirst(label)}
+            disabled={disabled}
+            fullWidth
+            displayEmpty
+            MenuProps={{ classes: { paper: styles.selectPaper } }}
+            size={'small'}
+            onChange={onChange}
+          >
+            <MenuItem
+              value=""
+              disabled
+              classes={{
+                root: styles.menuItem
+              }}
             >
+              <em>
+                {t('admin:components.common.select')} {label}
+              </em>
+            </MenuItem>
+            {menu.map((el, index) => (
               <MenuItem
-                value=""
-                disabled
+                value={el.value}
+                key={index}
                 classes={{
                   root: styles.menuItem
                 }}
               >
-                <em>
-                  {t('admin:components.common.select')} {label}
-                </em>
+                {el.label}
               </MenuItem>
-              {menu.map((el, index) => (
-                <MenuItem
-                  value={el.value}
-                  key={index}
-                  classes={{
-                    root: styles.menuItem
-                  }}
-                >
-                  {el.label}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-        </Paper>
-        {endControl}
-      </Box>
-    </React.Fragment>
+            ))}
+          </Select>
+        </Box>
+      </FormControl>
+
+      {endControl}
+    </Box>
   )
 }
 

@@ -39,16 +39,20 @@ const getDistanceAction = (animationName: string, mixer: AnimationMixer): Distan
 }
 
 export function createAvatarAnimationGraph(
+  entity: Entity,
   mixer: AnimationMixer,
   velocity: Vector3,
   jumpValue: {} | null
 ): AnimationGraph {
   if (!mixer) return null!
 
+  const isLocalEntity = isEntityLocalClient(entity)
+
   const graph: AnimationGraph = {
     states: {},
     transitionRules: {},
-    currentState: null!
+    currentState: null!,
+    stateChanged: isLocalEntity ? dispatchStateChange : null!
   }
 
   // Initialize all the states
@@ -244,42 +248,44 @@ export function createAvatarAnimationGraph(
 
   const movementTransitionRule = vectorLengthTransitionRule(velocity, 0.001)
 
-  graph.transitionRules[AvatarStates.LOCOMOTION] = [
-    // Jump
-    {
-      rule: booleanTransitionRule(jumpValue, 'isJumping'),
-      nextState: AvatarStates.JUMP_UP
-    },
-    // Fall - threshold rule is to prevent fall_idle when going down ramps or over gaps
-    {
-      rule: compositeTransitionRule(
-        [booleanTransitionRule(jumpValue, 'isInAir'), thresholdTransitionRule(velocity, 'y', -0.05, false)],
-        'and'
-      ),
-      nextState: AvatarStates.FALL_IDLE
-    }
-  ]
+  if (isLocalEntity) {
+    graph.transitionRules[AvatarStates.LOCOMOTION] = [
+      // Jump
+      {
+        rule: booleanTransitionRule(jumpValue, 'isJumping'),
+        nextState: AvatarStates.JUMP_UP
+      },
+      // Fall - threshold rule is to prevent fall_idle when going down ramps or over gaps
+      {
+        rule: compositeTransitionRule(
+          [booleanTransitionRule(jumpValue, 'isInAir'), thresholdTransitionRule(velocity, 'y', -0.05, false)],
+          'and'
+        ),
+        nextState: AvatarStates.FALL_IDLE
+      }
+    ]
 
-  graph.transitionRules[AvatarStates.JUMP_UP] = [
-    {
-      rule: animationTimeTransitionRule(jumpUpState.action, 0.9),
-      nextState: AvatarStates.FALL_IDLE
-    }
-  ]
+    graph.transitionRules[AvatarStates.JUMP_UP] = [
+      {
+        rule: animationTimeTransitionRule(jumpUpState.action, 0.9),
+        nextState: AvatarStates.FALL_IDLE
+      }
+    ]
 
-  graph.transitionRules[AvatarStates.FALL_IDLE] = [
-    {
-      rule: booleanTransitionRule(jumpValue, 'isInAir', true),
-      nextState: AvatarStates.JUMP_DOWN
-    }
-  ]
+    graph.transitionRules[AvatarStates.FALL_IDLE] = [
+      {
+        rule: booleanTransitionRule(jumpValue, 'isInAir', true),
+        nextState: AvatarStates.JUMP_DOWN
+      }
+    ]
 
-  graph.transitionRules[AvatarStates.JUMP_DOWN] = [
-    {
-      rule: animationTimeTransitionRule(jumpDownState.action, 0.65),
-      nextState: AvatarStates.LOCOMOTION
-    }
-  ]
+    graph.transitionRules[AvatarStates.JUMP_DOWN] = [
+      {
+        rule: animationTimeTransitionRule(jumpDownState.action, 0.65),
+        nextState: AvatarStates.LOCOMOTION
+      }
+    ]
+  }
 
   graph.transitionRules[AvatarStates.CLAP] = [
     {
@@ -340,13 +346,14 @@ export function createAvatarAnimationGraph(
   return graph
 }
 
+function dispatchStateChange(name: string, graph: AnimationGraph): void {
+  const params = {}
+  dispatchAction(WorldNetworkAction.avatarAnimation({ newStateName: name, params }), [
+    Engine.instance.currentWorld.worldNetwork.hostId
+  ])
+}
+
 export function changeAvatarAnimationState(entity: Entity, newStateName: string): void {
   const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
   changeState(avatarAnimationComponent.animationGraph, newStateName)
-  if (isEntityLocalClient(entity)) {
-    const params = {}
-    dispatchAction(WorldNetworkAction.avatarAnimation({ newStateName, params }), [
-      Engine.instance.currentWorld.worldNetwork.hostId
-    ])
-  }
 }

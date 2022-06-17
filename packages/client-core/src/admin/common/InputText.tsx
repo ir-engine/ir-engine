@@ -1,33 +1,63 @@
 import _ from 'lodash'
 import React from 'react'
 
-import InputBase from '@mui/material/InputBase'
-import Paper from '@mui/material/Paper'
+import Box from '@mui/material/Box'
+import { SxProps, Theme } from '@mui/material/styles'
+import TextField from '@mui/material/TextField'
 
 import styles from '../styles/admin.module.scss'
 
 interface Props {
-  value: string
-  handleInputChange: (e: any) => void
-  name: string
+  className?: string
+  name?: string
   label?: string
+  value?: unknown
+  placeholder?: string
   error?: string
+  type?: string
+  disabled?: boolean
+  startAdornment?: React.ReactNode
+  endAdornment?: React.ReactNode
+  sx?: SxProps<Theme>
+  onChange?: (e: any) => void
 }
 
-const InputText = ({ value, handleInputChange, name, label, error }: Props) => {
+const InputText = ({
+  className,
+  name,
+  label,
+  value,
+  placeholder,
+  error,
+  type,
+  disabled,
+  startAdornment,
+  endAdornment,
+  sx,
+  onChange
+}: Props) => {
   return (
-    <React.Fragment>
-      {label && <label>{_.upperFirst(label)}</label>}
-      <Paper component="div" className={error ? styles.redBorder : styles.createInput}>
-        <InputBase
-          name={name}
-          className={styles.input}
-          placeholder={`Enter ${label}`}
-          value={value}
-          onChange={handleInputChange}
-        />
-      </Paper>
-    </React.Fragment>
+    <Box sx={{ mb: 2, ...sx }}>
+      <TextField
+        className={className ?? styles.textField}
+        variant="outlined"
+        name={name}
+        type={type}
+        placeholder={placeholder ? placeholder : `Enter ${label}`}
+        label={_.upperFirst(label)}
+        value={value}
+        error={error ? true : false}
+        disabled={disabled}
+        size={'small'}
+        onChange={onChange}
+        InputProps={{
+          className: styles.input,
+          startAdornment: startAdornment,
+          endAdornment: endAdornment
+        }}
+        fullWidth
+      />
+    </Box>
   )
 }
 

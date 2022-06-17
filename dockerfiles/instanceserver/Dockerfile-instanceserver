@@ -1,0 +1,25 @@
+# syntax = docker/dockerfile:1.2
+# not slim because we need github depedencies
+FROM root-builder as builder
+
+# Create app directory
+WORKDIR /app
+
+# to make use of caching, copy only package files and install dependencies
+COPY packages/instanceserver/package.json ./packages/instanceserver/
+
+RUN npm install --production=false --loglevel notice --legacy-peer-deps
+
+COPY . .
+
+# copy then compile the code
+
+ENV APP_ENV=production
+
+FROM node:16-buster-slim as runner
+WORKDIR /app
+
+COPY --from=builder /app ./
+
+CMD ["scripts/start-server.sh"]
+

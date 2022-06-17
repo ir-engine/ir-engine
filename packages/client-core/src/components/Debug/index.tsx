@@ -3,6 +3,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import JSONTree from 'react-json-tree'
 
+import { mapToObject } from '@xrengine/common/src/utils/mapToObject'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import {
   addComponent,
@@ -39,7 +40,8 @@ export const Debug = () => {
   const showingStateRef = useRef(isShowing)
   const engineRendererState = useEngineRendererState()
   const { t } = useTranslation()
-  const network = Engine.instance.currentWorld.networks.get(Engine.instance.currentWorld.worldNetwork?.hostId)
+
+  const networks = mapToObject(Engine.instance.currentWorld.networks)
 
   function setupListener() {
     window.addEventListener('keydown', downHandler)
@@ -181,7 +183,7 @@ export const Debug = () => {
               </button>
             </div>
             <div className={styles.refreshBlock}>
-              {network != null && <Tick />}
+              <Tick />
               <button type="submit" title={t('common:debug.refresh')} onClick={refresh} className={styles.refreshBtn}>
                 <RefreshIcon fontSize="small" />
               </button>
@@ -189,26 +191,22 @@ export const Debug = () => {
           </div>
         </div>
         <StatsPanel show={showingStateRef.current} resetCounter={resetStats} />
-        {network !== null && (
-          <>
-            <div className={styles.jsonPanel}>
-              <h1>{t('common:debug.engineStore')}</h1>
-              <JSONTree data={Engine.instance.store} />
-            </div>
-            <div className={styles.jsonPanel}>
-              <h1>{t('common:debug.namedEntities')}</h1>
-              <JSONTree data={renderNamedEntities()} />
-            </div>
-            <div className={styles.jsonPanel}>
-              <h1>{t('common:debug.networkObject')}</h1>
-              <JSONTree data={{ ...network }} />
-            </div>
-            <div className={styles.jsonPanel}>
-              <h1>{t('common:debug.networkClients')}</h1>
-              <JSONTree data={Object.fromEntries(Engine.instance.currentWorld.clients.entries())} />
-            </div>
-          </>
-        )}
+        <div className={styles.jsonPanel}>
+          <h1>{t('common:debug.engineStore')}</h1>
+          <JSONTree data={Engine.instance.store} />
+        </div>
+        <div className={styles.jsonPanel}>
+          <h1>{t('common:debug.namedEntities')}</h1>
+          <JSONTree data={renderNamedEntities()} />
+        </div>
+        <div className={styles.jsonPanel}>
+          <h1>{t('common:debug.networks')}</h1>
+          <JSONTree data={{ ...networks }} />
+        </div>
+        <div className={styles.jsonPanel}>
+          <h1>{t('common:debug.networkClients')}</h1>
+          <JSONTree data={Object.fromEntries(Engine.instance.currentWorld.clients.entries())} />
+        </div>
       </div>
     )
   else return null

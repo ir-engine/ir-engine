@@ -1,0 +1,25 @@
+{{- if and (.Values.instanceserver).enabled (ne (((.Values.instanceserver).ingress).disabled | default "") "true") -}}
+{{- $fullName := include "xrengine.instanceserver.fullname" . -}}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ $fullName }}
+  labels:
+    {{- include "xrengine.instanceserver.labels" . | nindent 4 }}
+  {{- with ((.Values.instanceserver).ingress).annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  rules:
+    - host: {{ ((.Values.instanceserver).ingress).host }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ $fullName }}
+                port:
+                  number: 3031
+{{- end }}

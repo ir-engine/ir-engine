@@ -58,11 +58,11 @@ else
   VITE_MEDIATOR_SERVER=$VITE_MEDIATOR_SERVER
 fi
 
-if [ -z "$VITE_GAMESERVER_HOST" ]
+if [ -z "$VITE_INSTANCESERVER_HOST" ]
 then
-  VITE_GAMESERVER_HOST=gameserver-local.theoverlay.io
+  VITE_INSTANCESERVER_HOST=instanceserver-local.theoverlay.io
 else
-  VITE_GAMESERVER_HOST=$VITE_GAMESERVER_HOST
+  VITE_INSTANCESERVER_HOST=$VITE_INSTANCESERVER_HOST
 fi
 
 docker start xrengine_minikube_db
@@ -83,6 +83,6 @@ DOCKER_BUILDKIT=1 docker build -t xrengine \
   --build-arg VITE_CLIENT_HOST=$VITE_CLIENT_HOST \
   --build-arg VITE_SERVER_HOST=$VITE_SERVER_HOST \
   --build-arg VITE_MEDIATOR_SERVER=$VITE_MEDIATOR_SERVER \
-  --build-arg VITE_GAMESERVER_HOST=$VITE_GAMESERVER_HOST .
+  --build-arg VITE_INSTANCESERVER_HOST=$VITE_INSTANCESERVER_HOST .
 
 DOCKER_BUILDKIT=1 docker build -t xrengine-testbot -f ./dockerfiles/testbot/Dockerfile-testbot .

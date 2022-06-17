@@ -7,8 +7,9 @@ import {
   ComponentSerializeFunction,
   ComponentUpdateFunction
 } from '../../../common/constants/PrefabFunctionType'
+import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
-import { addComponent, getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
+import { addComponent, getComponent, hasComponent, removeComponent } from '../../../ecs/functions/ComponentFunctions'
 import { useWorld } from '../../../ecs/functions/SystemHooks'
 import { isTriggerShape, setTriggerShape } from '../../../physics/classes/Physics'
 import { ColliderComponent } from '../../../physics/components/ColliderComponent'
@@ -54,7 +55,25 @@ export const deserializeBoxCollider: ComponentDeserializeFunction = (
   obj3d.traverse((mesh: Mesh) => {
     if (typeof mesh.userData['type'] === 'string') meshObjs.push(mesh)
   })
+
   meshObjs.forEach((mesh) => mesh.removeFromParent())
+}
+
+export const updateScaleTransform = function (entity: Entity) {
+  //Todo: getting box collider props
+  const data = serializeBoxCollider(entity) as any
+  const boxColliderProps = parseBoxColliderProperties(data.props)
+
+  const component = getComponent(entity, ColliderComponent)
+  const transform = getComponent(entity, TransformComponent)
+  const shape = Engine.instance.currentWorld.physics.createShape(
+    new PhysX.PxBoxGeometry(Math.abs(transform.scale.x), Math.abs(transform.scale.y), Math.abs(transform.scale.z)),
+    undefined,
+    boxColliderProps as any
+  )
+
+  Engine.instance.currentWorld.physics.removeBody(component.body)
+  component.body = createBody(entity, { bodyType: 0 }, [shape])
 }
 
 export const updateBoxCollider: ComponentUpdateFunction = (entity: Entity, props: BoxColliderProps) => {

@@ -10,7 +10,7 @@ docker image prune -f
 ANALYTICS_IMAGE_ID="$(docker images $LABEL-analytics:latest --format {{.ID}})"
 API_IMAGE_ID="$(docker images $LABEL-api:latest --format {{.ID}})"
 CLIENT_IMAGE_ID="$(docker images $LABEL-client:latest --format {{.ID}})"
-GAMESERVER_IMAGE_ID="$(docker images $LABEL-gameserver:latest --format {{.ID}})"
+INSTANCESERVER_IMAGE_ID="$(docker images $LABEL-instanceserver:latest --format {{.ID}})"
 TESTBOT_IMAGE_ID="$(docker images $LABEL-testbot:latest --format {{.ID}})"
 
 if [ -n "$ANALYTICS_IMAGE_ID" ]
@@ -28,9 +28,9 @@ then
   docker image rm -f $CLIENT_IMAGE_ID
 fi
 
-if [ -n "$GAMESERVER_IMAGE_ID" ]
+if [ -n "$INSTANCESERVER_IMAGE_ID" ]
 then
-  docker image rm -f $GAMESERVER_IMAGE_ID
+  docker image rm -f $INSTANCESERVER_IMAGE_ID
 fi
 
 if [ -n "$TESTBOT_IMAGE_ID" ]

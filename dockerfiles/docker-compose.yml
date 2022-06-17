@@ -21,11 +21,11 @@ services:
         MYSQL_PASSWORD: $MYSQL_PASSWORD
         MYSQL_DATABASE: $MYSQL_DATABASE
         MYSQL_USER: $MYSQL_USER
-  gameserver:
-    image: ${LABEL}-gameserver
+  instanceserver:
+    image: ${LABEL}-instanceserver
     build:
       context: ..
-      dockerfile: ./dockerfiles/gameserver/Dockerfile-gameserver
+      dockerfile: ./dockerfiles/instanceserver/Dockerfile-instanceserver
   testbot:
     image: ${LABEL}-testbot
     build:

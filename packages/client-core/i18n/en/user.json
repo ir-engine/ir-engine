@@ -167,6 +167,8 @@
       "emailError": "Invalid email address",
       "loginWithReadyPlayerMe": "Login with Ready Player Me",
       "connectSocial": "Connect with social accounts",
+      "addSocial": "Add additional social accounts",
+      "removeSocial": "Remove social accounts",
       "createOne": "If you don't have an account, a new one will be created for you",
       "connections": {
         "title": "Connections",
@@ -227,7 +229,8 @@
   },
   "oauth": {
     "authenticating": "Authenticating...",
-    "authFailed": "{{service}} authentication failed."
+    "authFailed": "{{service}} authentication failed.",
+    "redirectToRoot": "Return to Home"
   },
   "magikLink": {
     "wait": "Please wait a moment while processing..."

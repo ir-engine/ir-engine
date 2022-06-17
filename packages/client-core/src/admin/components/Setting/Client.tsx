@@ -3,9 +3,9 @@ import { useTranslation } from 'react-i18next'
 
 import DeleteIcon from '@mui/icons-material/Delete'
 import { Button, Paper, Typography } from '@mui/material'
-import InputBase from '@mui/material/InputBase'
 
 import { useAuthState } from '../../../user/services/AuthService'
+import InputText from '../../common/InputText'
 import { ClientSettingService, useClientSettingState } from '../../services/Setting/ClientSettingService'
 import styles from '../../styles/settings.module.scss'
 
@@ -127,66 +127,50 @@ const Client = (props: clientProps) => {
         <Typography component="h1" className={styles.settingsHeading}>
           {t('admin:components.setting.client')}
         </Typography>
-        <label>{t('admin:components.setting.appTitle')}</label>
-        <Paper component="div" className={styles.createInput}>
-          <InputBase
-            name="appTitle"
-            className={styles.input}
-            value={appTitle || ''}
-            onChange={(e) => setAppTitle(e.target.value)}
-          />
-        </Paper>
-        <label>{t('admin:components.setting.appSubtitle')}</label>
-        <Paper component="div" className={styles.createInput}>
-          <InputBase
-            name="appSubtitle"
-            className={styles.input}
-            value={appSubtitle || ''}
-            onChange={(e) => setAppSubtitle(e.target.value)}
-          />
-        </Paper>
-        <label>{t('admin:components.setting.appDescription')}</label>
-        <Paper component="div" className={styles.createInput}>
-          <InputBase
-            name="appDescription"
-            className={styles.input}
-            value={appDescription || ''}
-            onChange={(e) => setAppDescription(e.target.value)}
-          />
-        </Paper>
-        <label>{t('admin:components.setting.appBackground')}</label>
-        <Paper component="div" className={styles.createInput}>
-          <InputBase
-            name="appBackground"
-            className={styles.input}
-            value={appBackground || ''}
-            onChange={(e) => setAppBackground(e.target.value)}
-          />
-        </Paper>
+        <InputText
+          name="appTitle"
+          label={t('admin:components.setting.appTitle')}
+          value={appTitle || ''}
+          onChange={(e) => setAppTitle(e.target.value)}
+        />
+        <InputText
+          name="appSubtitle"
+          label={t('admin:components.setting.appSubtitle')}
+          value={appSubtitle || ''}
+          onChange={(e) => setAppSubtitle(e.target.value)}
+        />
+        <InputText
+          name="appDescription"
+          label={t('admin:components.setting.appDescription')}
+          value={appDescription || ''}
+          onChange={(e) => setAppDescription(e.target.value)}
+        />
+        <InputText
+          name="appBackground"
+          label={t('admin:components.setting.appBackground')}
+          value={appBackground || ''}
+          onChange={(e) => setAppBackground(e.target.value)}
+        />
         <label>{t('admin:components.setting.appSocialLinks')}</label>
         {appSocialLinks?.length > 0 &&
           appSocialLinks?.map(
             (socialLink, index) =>
               socialLink && (
                 <Paper key={index} elevation={0} className={styles.Paper2}>
-                  <Paper component="div" className={styles.createInput}>
-                    <label>{t('admin:components.setting.icon')}</label>
-                    <InputBase
-                      name="appBackground"
-                      className={styles.input}
-                      value={socialLink.icon || ''}
-                      onChange={(e) => handleUpdateSocialLinks(index, e.target.value, 'icon')}
-                    />
-                  </Paper>
-                  <Paper component="div" className={styles.createInput}>
-                    <label>{t('admin:components.setting.link')}</label>
-                    <InputBase
-                      name="appBackground"
-                      className={styles.input}
-                      value={socialLink.link || ''}
-                      onChange={(e) => handleUpdateSocialLinks(index, e.target.value, 'link')}
-                    />
-                  </Paper>
+                  <InputText
+                    name="socialIcon"
+                    label={t('admin:components.setting.icon')}
+                    value={socialLink.icon || ''}
+                    onChange={(e) => handleUpdateSocialLinks(index, e.target.value, 'icon')}
+                  />
+
+                  <InputText
+                    name="socialLink"
+                    label={t('admin:components.setting.link')}
+                    value={socialLink.link || ''}
+                    onChange={(e) => handleUpdateSocialLinks(index, e.target.value, 'link')}
+                  />
+
                   <Button
                     variant="contained"
                     size="small"
@@ -203,77 +187,55 @@ const Client = (props: clientProps) => {
             Add New Social Link
           </Button>
         </Paper>
-        <label>{t('admin:components.setting.title')}</label>
-        <Paper component="div" className={styles.createInput}>
-          <InputBase
-            name="title"
-            className={styles.input}
-            value={title || ''}
-            onChange={(e) => setTitle(e.target.value)}
-          />
-        </Paper>
-        <label>{t('admin:components.setting.description')}</label>
-        <Paper component="div" className={styles.createInput}>
-          <InputBase
-            name="title"
-            className={styles.input}
-            value={siteDescription || ''}
-            onChange={(e) => setSiteDescription(e.target.value)}
-          />
-        </Paper>
-        <label>{t('admin:components.setting.logo')}</label>
-        <Paper component="div" className={styles.createInput}>
-          <InputBase
-            name="logo"
-            className={styles.input}
-            value={logo || ''}
-            onChange={(e) => setLogo(e.target.value)}
-          />
-        </Paper>
-        <label>{t('admin:components.setting.icon192px')}</label>
-        <Paper component="div" className={styles.createInput}>
-          <InputBase
-            name="logo"
-            className={styles.input}
-            value={icon192px || ''}
-            onChange={(e) => setIcon192px(e.target.value)}
-          />
-        </Paper>
-        <label>{t('admin:components.setting.icon512px')}</label>
-        <Paper component="div" className={styles.createInput}>
-          <InputBase
-            name="logo"
-            className={styles.input}
-            value={icon512px || ''}
-            onChange={(e) => setIcon512px(e.target.value)}
-          />
-        </Paper>
-        <label>{t('admin:components.setting.favIcon16px')}</label>
-        <Paper component="div" className={styles.createInput}>
-          <InputBase
-            name="logo"
-            className={styles.input}
-            value={favicon16px || ''}
-            onChange={(e) => setFavicon16px(e.target.value)}
-          />
-        </Paper>
-        <label>{t('admin:components.setting.favIcon32px')}</label>
-        <Paper component="div" className={styles.createInput}>
-          <InputBase
-            name="logo"
-            className={styles.input}
-            value={favicon32px || ''}
-            onChange={(e) => setFavicon32px(e.target.value)}
-          />
-        </Paper>
-        <label>{t('admin:components.setting.url')}</label>
-        <Paper component="div" className={styles.createInput}>
-          <InputBase name="url" className={styles.input} disabled value={clientSetting?.url || ''} />
-        </Paper>
-        <label>{t('admin:components.setting.releaseName')}</label>
-        <Paper component="div" className={styles.createInput}>
-          <InputBase name="releaseName" className={styles.input} disabled value={clientSetting?.releaseName || ''} />
-        </Paper>
+        <InputText
+          name="title"
+          label={t('admin:components.setting.title')}
+          value={title || ''}
+          onChange={(e) => setTitle(e.target.value)}
+        />
+        <InputText
+          name="description"
+          label={t('admin:components.setting.description')}
+          value={siteDescription || ''}
+          onChange={(e) => setSiteDescription(e.target.value)}
+        />
+        <InputText
+          name="logo"
+          label={t('admin:components.setting.logo')}
+          value={logo || ''}
+          onChange={(e) => setLogo(e.target.value)}
+        />
+        <InputText
+          name="icon192px"
+          label={t('admin:components.setting.icon192px')}
+          value={icon192px || ''}
+          onChange={(e) => setIcon192px(e.target.value)}
+        />
+        <InputText
+          name="icon512px"
+          label={t('admin:components.setting.icon512px')}
+          value={icon512px || ''}
+          onChange={(e) => setIcon512px(e.target.value)}
+        />
+        <InputText
+          name="favIcon16px"
+          label={t('admin:components.setting.favIcon16px')}
+          value={favicon16px || ''}
+          onChange={(e) => setFavicon16px(e.target.value)}
+        />
+        <InputText
+          name="favIcon32px"
+          label={t('admin:components.setting.favIcon32px')}
+          value={favicon32px || ''}
+          onChange={(e) => setFavicon32px(e.target.value)}
+        />
+        <InputText name="url" label={t('admin:components.setting.url')} value={clientSetting?.url || ''} disabled />
+        <InputText
+          name="releaseName"
+          label={t('admin:components.setting.releaseName')}
+          value={clientSetting?.releaseName || ''}
+          disabled
+        />
         <Button sx={{ maxWidth: '100%' }} variant="outlined" className={styles.cancelButton} onClick={handleCancel}>
           {t('admin:components.setting.cancel')}
         </Button>

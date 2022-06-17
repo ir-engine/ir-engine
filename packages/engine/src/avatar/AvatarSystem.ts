@@ -77,11 +77,6 @@ export function setXRModeReceptor(
       inputData.controllerGripRightParent.add(inputData.controllerGripRight)
 
       addComponent(entity, XRInputSourceComponent, inputData as any)
-
-      // This is required because using dispatchAction state will be updated in the next frame
-      // while xr hand initialization requires updated controller type which might run in the current frame.
-      const avatarInputState = accessAvatarInputSettingsState()
-      avatarInputState.merge({ controlType: action.avatarInputControllerType as AvatarControllerType })
     }
   } else if (hasComponent(entity, XRInputSourceComponent)) {
     removeComponent(entity, XRInputSourceComponent)
@@ -176,17 +171,20 @@ export default async function AvatarSystem(world: World) {
 
       const animation = getComponent(entity, AvatarAnimationComponent)
 
-      Object3DUtils.getWorldPosition(animation.rig.LeftShoulder, leftHint.position)
-      Object3DUtils.getWorldPosition(animation.rig.LeftArm, vec)
-      vec.subVectors(vec, leftHint.position).normalize()
-      leftHint.position.add(vec)
-      animation.rig.LeftShoulder.attach(leftHint)
+      // todo: load the avatar & rig on the server
+      if (isClient) {
+        Object3DUtils.getWorldPosition(animation.rig.LeftShoulder, leftHint.position)
+        Object3DUtils.getWorldPosition(animation.rig.LeftArm, vec)
+        vec.subVectors(vec, leftHint.position).normalize()
+        leftHint.position.add(vec)
+        animation.rig.LeftShoulder.attach(leftHint)
 
-      Object3DUtils.getWorldPosition(animation.rig.RightShoulder, rightHint.position)
-      Object3DUtils.getWorldPosition(animation.rig.RightArm, vec)
-      vec.subVectors(vec, rightHint.position).normalize()
-      rightHint.position.add(vec)
-      animation.rig.RightShoulder.attach(rightHint)
+        Object3DUtils.getWorldPosition(animation.rig.RightShoulder, rightHint.position)
+        Object3DUtils.getWorldPosition(animation.rig.RightArm, vec)
+        vec.subVectors(vec, rightHint.position).normalize()
+        rightHint.position.add(vec)
+        animation.rig.RightShoulder.attach(rightHint)
+      }
 
       addComponent(entity, AvatarHandsIKComponent, {
         leftTarget: xrInputSourceComponent.controllerGripLeftParent,

@@ -689,7 +689,6 @@
 }
 
 .input {
-  margin-left: 8px;
   flex: 1;
   color: var(--textColor);
 }
@@ -752,6 +751,11 @@
 
 .spanWhite {
   color: var(--textColor) !important;
+}
+
+.spanWhite:hover,
+.spanDange:hover {
+  opacity: 0.8;
 }
 
 .actionStyle {
@@ -1162,13 +1166,6 @@
   top: 0;
 }
 
-.checkboxButton {
-  margin: 0;
-  padding: 0;
-  width: 100%;
-  color: var(--textColor);
-}
-
 .accentText {
   color: var(--textColor);
 }
@@ -1192,4 +1189,83 @@
 
 .tabpanelRoot {
   background-color: var(--panelCards);
+}
+
+.textField {
+  background: var(--inputBackground);
+
+  :global(.MuiFormLabel-root) {
+    -webkit-text-fill-color: var(--textColor);
+    color: var(--textColor);
+  }
+
+  :global(.MuiInputBase-input) {
+    -webkit-text-fill-color: var(--textColor);
+    color: var(--textColor);
+  }
+
+  :global(.MuiInputBase-input.Mui-disabled) {
+    opacity: 0.5;
+  }
+
+  :global(.MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline) {
+    border-color: var(--inputOutline);
+  }
+}
+
+.selectField {
+  background: var(--inputBackground);
+
+  :global(.MuiInputLabel-formControl) {
+    -webkit-text-fill-color: var(--textColor);
+    color: var(--textColor);
+    transform-origin: top left;
+    -webkit-transform: translate(14px, -9px) scale(0.75);
+    -ms-transform: translate(14px, -9px) scale(0.75);
+    transform: translate(14px, -9px) scale(0.75);
+    position: absolute;
+    padding-left: 5px;
+    padding-right: 5px;
+    max-width: fit-content;
+    font-size: 16px;
+    margin-left: -5px;
+    margin-bottom: 7px;
+  }
+
+  :global(.MuiSvgIcon-root) {
+    -webkit-text-fill-color: var(--textColor);
+    color: var(--textColor);
+  }
+
+  :global(.MuiInputBase-input) {
+    -webkit-text-fill-color: var(--textColor);
+    color: var(--textColor);
+  }
+
+  :global(.MuiInputBase-input.Mui-disabled) {
+    opacity: 0.5;
+  }
+
+  :global(.MuiOutlinedInput-notchedOutline) {
+    border-color: var(--inputOutline) !important;
+
+    :global(legend) {
+      visibility: visible;
+      max-width: fit-content;
+    }
+  }
+}
+
+.switchField {
+  :global(.MuiFormControlLabel-label) {
+    color: var(--textColor);
+  }
+
+  :global(.MuiFormControlLabel-label.Mui-disabled) {
+    color: var(--textColor);
+  }
+}
+
+.iconButton {
+  color: var(--textColor);
 }

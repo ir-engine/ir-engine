@@ -17,7 +17,7 @@ package-lock.json
 packages/**/package-lock.json
 packages/analytics
 packages/bot
-packages/gameserver
+packages/instanceserver
 packages/ops
 packages/server
 packages/test

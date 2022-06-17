@@ -4,9 +4,9 @@ import { useTranslation } from 'react-i18next'
 import styled from 'styled-components'
 import { Vector2 } from 'three'
 
-import { store } from '@xrengine/client-core/src/store'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
+import { dispatchAction } from '@xrengine/hyperflux'
 
 import CloudUploadIcon from '@mui/icons-material/CloudUpload'
 
@@ -72,7 +72,7 @@ export function AssetDropZone() {
             const transformComponent = getComponent(node.entity, TransformComponent)
             if (transformComponent) {
               getCursorSpawnPosition(mousePos, transformComponent.position)
-              store.dispatch(SelectionAction.changedObject([node], 'position'))
+              dispatchAction(SelectionAction.changedObject({ objects: [node], propertyName: 'position' }))
             }
           })
         })
@@ -82,7 +82,7 @@ export function AssetDropZone() {
         const transformComponent = getComponent(node.entity, TransformComponent)
         if (transformComponent) {
           getCursorSpawnPosition(mousePos, transformComponent.position)
-          store.dispatch(SelectionAction.changedObject([node], 'position'))
+          dispatchAction(SelectionAction.changedObject({ objects: [node], propertyName: 'position' }))
         }
       }
     },

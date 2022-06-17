@@ -19,8 +19,6 @@ import {
   Vector3
 } from 'three'
 
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { AssetType } from '../../assets/enum/AssetType'
 import { AnimationManager } from '../../avatar/AnimationManager'
@@ -28,11 +26,11 @@ import { LoopAnimationComponent } from '../../avatar/components/LoopAnimationCom
 import { isClient } from '../../common/functions/isClient'
 import { BeforeCompilePluginType } from '../../common/functions/MaterialPlugin'
 import { insertAfterString, insertBeforeString } from '../../common/functions/string'
+import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
 import UpdateableObject3D from '../../scene/classes/UpdateableObject3D'
-import { NameComponent } from '../../scene/components/NameComponent'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { UpdatableComponent } from '../../scene/components/UpdatableComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
@@ -41,7 +39,7 @@ import { Updatable } from '../../scene/interfaces/Updatable'
 import { createAvatarAnimationGraph } from '../animation/AvatarAnimationGraph'
 import { applySkeletonPose, isSkeletonInTPose, makeTPose } from '../animation/avatarPose'
 import { retargetSkeleton, syncModelSkeletons } from '../animation/retargetSkeleton'
-import avatarBoneMatching, { BoneStructure, createSkeletonFromBone, findSkinnedMeshes } from '../AvatarBoneMatching'
+import avatarBoneMatching, { createSkeletonFromBone, findSkinnedMeshes } from '../AvatarBoneMatching'
 import { AnimationComponent } from '../components/AnimationComponent'
 import { AvatarAnimationComponent } from '../components/AvatarAnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
@@ -176,6 +174,7 @@ export const animateAvatarModel = (entity: Entity) => (model: Object3D) => {
 
   if (avatarAnimationComponent)
     avatarAnimationComponent.animationGraph = createAvatarAnimationGraph(
+      entity,
       animationComponent.mixer,
       velocityComponent.linear,
       controllerComponent ?? {}

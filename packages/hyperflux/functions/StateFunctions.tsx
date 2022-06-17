@@ -2,23 +2,22 @@ import { createState, SetInitialStateAction, State } from '@speigg/hookstate'
 import React from 'react'
 import Reconciler from 'react-reconciler'
 
-import { HyperFlux, HyperStore, StringLiteral } from './StoreFunctions'
+import { HyperFlux, HyperStore } from './StoreFunctions'
 
 export * from '@speigg/hookstate'
 
-type StateDefinition<StoreName extends string, S> = {
+type StateDefinition<S> = {
   name: string
   initial: SetInitialStateAction<S>
+  onCreate?: (store: HyperStore, state: State<S>) => void
 }
 
-function defineState<StoreName extends string, S>(definition: StateDefinition<StoreName, S>) {
+function defineState<S>(definition: StateDefinition<S>) {
   return definition
 }
 
-function registerState<StoreName extends string, S>(
-  StateDefinition: StateDefinition<StoreName, S>,
-  store = HyperFlux.store
-) {
+function registerState<S>(StateDefinition: StateDefinition<S>, store = HyperFlux.store) {
+  console.log('[HyperFlux]: registerState', StateDefinition.name)
   if (StateDefinition.name in store.state)
     throw new Error(`State ${StateDefinition.name} has already been registered in Store`)
   const initial =
@@ -26,12 +25,10 @@ function registerState<StoreName extends string, S>(
       ? (StateDefinition.initial as Function)()
       : JSON.parse(JSON.stringify(StateDefinition.initial))
   store.state[StateDefinition.name] = createState(initial)
+  if (StateDefinition.onCreate) StateDefinition.onCreate(store, getState(StateDefinition, store))
 }
 
-function getState<StoreName extends string, S>(
-  StateDefinition: StateDefinition<StoreName, S>,
-  store = HyperFlux.store
-) {
+function getState<S>(StateDefinition: StateDefinition<S>, store = HyperFlux.store) {
   if (!store.state[StateDefinition.name]) registerState(StateDefinition, store)
   return store.state[StateDefinition.name] as State<S>
 }

@@ -12,10 +12,10 @@ import { LocationAction, useLocationState } from '@xrengine/client-core/src/soci
 import { useDispatch } from '@xrengine/client-core/src/store'
 import { DefaultLocationSystems } from '@xrengine/client-core/src/systems/DefaultLocationSystems'
 import { AuthService } from '@xrengine/client-core/src/user/services/AuthService'
-import { SceneService } from '@xrengine/client-core/src/world/services/SceneService'
+import { SceneService, SceneServiceReceptor } from '@xrengine/client-core/src/world/services/SceneService'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
-import { useHookEffect } from '@xrengine/hyperflux'
+import { addActionReceptor, removeActionReceptor, useHookEffect } from '@xrengine/hyperflux'
 
 const LocationPage = () => {
   const { t } = useTranslation()

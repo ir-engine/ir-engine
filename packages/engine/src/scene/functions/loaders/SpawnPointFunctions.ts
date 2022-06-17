@@ -6,6 +6,7 @@ import {
   ComponentPrepareForGLTFExportFunction,
   ComponentSerializeFunction
 } from '../../../common/constants/PrefabFunctionType'
+import { isClient } from '../../../common/functions/isClient'
 import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
@@ -35,21 +36,23 @@ export const deserializeSpawnPoint: ComponentDeserializeFunction = async (entity
 
   getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_SPAWN_POINT)
 
-  if (!spawnPointHelperModel) {
-    const { scene } = await AssetLoader.loadAsync(GLTF_PATH)
-    spawnPointHelperModel = scene
-    spawnPointHelperModel.traverse((obj) => (obj.castShadow = true))
+  if (isClient) {
+    if (!spawnPointHelperModel) {
+      const { scene } = await AssetLoader.loadAsync(GLTF_PATH)
+      spawnPointHelperModel = scene
+      spawnPointHelperModel.traverse((obj) => (obj.castShadow = true))
+    }
+
+    obj3d.userData.helperModel = spawnPointHelperModel.clone()
+    obj3d.userData.helperModel.userData.isHelper = true
+    obj3d.add(obj3d.userData.helperModel)
+    obj3d.userData.helperBox = new BoxHelper(new Mesh(new BoxBufferGeometry(1, 0, 1).translate(0, 0, 0)), 0xffffff)
+    obj3d.userData.helperBox.userData.isHelper = true
+    obj3d.add(obj3d.userData.helperBox)
+
+    setObjectLayers(obj3d.userData.helperModel, ObjectLayers.NodeHelper)
+    setObjectLayers(obj3d.userData.helperBox, ObjectLayers.NodeHelper)
   }
-
-  obj3d.userData.helperModel = spawnPointHelperModel.clone()
-  obj3d.userData.helperModel.userData.isHelper = true
-  obj3d.add(obj3d.userData.helperModel)
-  obj3d.userData.helperBox = new BoxHelper(new Mesh(new BoxBufferGeometry(1, 0, 1).translate(0, 0, 0)), 0xffffff)
-  obj3d.userData.helperBox.userData.isHelper = true
-  obj3d.add(obj3d.userData.helperBox)
-
-  setObjectLayers(obj3d.userData.helperModel, ObjectLayers.NodeHelper)
-  setObjectLayers(obj3d.userData.helperBox, ObjectLayers.NodeHelper)
 }
 
 export const serializeSpawnPoint: ComponentSerializeFunction = (entity) => {

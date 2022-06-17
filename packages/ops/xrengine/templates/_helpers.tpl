@@ -22,8 +22,8 @@ Expand the name of the chart.
 {{- default .Chart.Name .Values.media.nameOverride | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
-{{- define "xrengine.gameserver.name" -}}
-{{- default .Chart.Name .Values.gameserver.nameOverride | trunc 63 | trimSuffix "-" -}}
+{{- define "xrengine.instanceserver.name" -}}
+{{- default .Chart.Name .Values.instanceserver.nameOverride | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
 {{- define "xrengine.editor.name" -}}
@@ -89,11 +89,11 @@ If release name contains chart name it will be used as a full name.
 {{- end -}}
 {{- end -}}
 
-{{- define "xrengine.gameserver.fullname" -}}
-{{- if .Values.gameserver.fullnameOverride -}}
-{{- .Values.gameserver.fullnameOverride | trunc 63 | trimSuffix "-" -}}
+{{- define "xrengine.instanceserver.fullname" -}}
+{{- if .Values.instanceserver.fullnameOverride -}}
+{{- .Values.instanceserver.fullnameOverride | trunc 63 | trimSuffix "-" -}}
 {{- else -}}
-{{- printf "%s-%s" .Release.Name .Values.gameserver.name | trunc 63 | trimSuffix "-" -}}
+{{- printf "%s-%s" .Release.Name .Values.instanceserver.name | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 {{- end -}}
 
@@ -213,9 +213,9 @@ app.kubernetes.io/component: media
 {{/*
 Common labels
 */}}
-{{- define "xrengine.gameserver.labels" -}}
+{{- define "xrengine.instanceserver.labels" -}}
 helm.sh/chart: {{ include "xrengine.chart" . }}
-{{ include "xrengine.gameserver.selectorLabels" . }}
+{{ include "xrengine.instanceserver.selectorLabels" . }}
 {{- if .Chart.AppVersion }}
 app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
 {{- end }}
@@ -225,10 +225,10 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{/*
 Selector labels
 */}}
-{{- define "xrengine.gameserver.selectorLabels" -}}
-app.kubernetes.io/name: {{ include "xrengine.gameserver.name" . }}
+{{- define "xrengine.instanceserver.selectorLabels" -}}
+app.kubernetes.io/name: {{ include "xrengine.instanceserver.name" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
-app.kubernetes.io/component: gameserver
+app.kubernetes.io/component: instanceserver
 {{- end -}}
 
 
@@ -303,11 +303,11 @@ Create the name of the service account to use
 {{/*
 Create the name of the service account to use
 */}}
-{{- define "xrengine.gameserver.serviceAccountName" -}}
-{{- if .Values.gameserver.serviceAccount.create -}}
-    {{ default (include "xrengine.gameserver.fullname" .) .Values.gameserver.serviceAccount.name }}
+{{- define "xrengine.instanceserver.serviceAccountName" -}}
+{{- if .Values.instanceserver.serviceAccount.create -}}
+    {{ default (include "xrengine.instanceserver.fullname" .) .Values.instanceserver.serviceAccount.name }}
 {{- else -}}
-    {{ default "default" .Values.gameserver.serviceAccount.name }}
+    {{ default "default" .Values.instanceserver.serviceAccount.name }}
 {{- end -}}
 {{- end -}}
 

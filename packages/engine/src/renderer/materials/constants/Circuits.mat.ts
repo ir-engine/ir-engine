@@ -1,6 +1,6 @@
 import { ImageLoader, ShaderMaterial, Texture, Vector2 } from 'three'
 
-import { MaterialParms } from '../MaterialParms'
+import { DudTexture, MaterialParms } from '../MaterialParms'
 
 export const fragmentShader = `
 #define width .005
@@ -76,6 +76,14 @@ export const vertexShader = `
     }
 `
 
+export const DefaultArgs = {
+  tiling: [1.0, 1.0],
+  iResolution: [window.innerWidth, window.innerHeight, 1],
+  iChannel0: new Texture(),
+  iChannel1: new Texture(),
+  iTime: 0.0
+}
+
 export default async function Circuits(args?: {
   tiling?: Vector2
   iResolution?: number[]
@@ -85,11 +93,11 @@ export default async function Circuits(args?: {
 }): Promise<MaterialParms> {
   const mat = new ShaderMaterial({
     uniforms: {
-      tiling: { value: args?.tiling ?? new Vector2(1, 1) },
-      iResolution: { value: args?.iResolution ?? [window.innerWidth, window.innerHeight, 1] },
-      iChannel0: { value: args?.iChannel0 ?? new Texture() },
-      iChannel1: { value: args?.iChannel1 ?? new Texture() },
-      iTime: { value: args?.iTime ?? 0.0 }
+      tiling: { value: args?.tiling ?? DefaultArgs.tiling },
+      iResolution: { value: args?.iResolution ?? DefaultArgs.iResolution },
+      iChannel0: { value: args?.iChannel0 ?? null },
+      iChannel1: { value: args?.iChannel1 ?? null },
+      iTime: { value: args?.iTime ?? DefaultArgs.iTime }
     },
     vertexShader: vertexShader,
     fragmentShader: fragmentShader

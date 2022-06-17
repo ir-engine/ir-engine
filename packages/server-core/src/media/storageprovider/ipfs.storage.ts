@@ -60,6 +60,9 @@ export class IPFSStorage implements StorageProviderInterface {
       ContentType: 'application/octet-stream'
     }
   }
+  async getCachedObject(key: string): Promise<StorageObjectInterface> {
+    return this.getObject(key)
+  }
   getProvider(): StorageProviderInterface {
     return this
   }

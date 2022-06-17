@@ -20,7 +20,7 @@ packages/bot
 packages/client
 packages/client-core
 packages/editor
-packages/gameserver
+packages/instanceserver
 packages/ops
 packages/test
 

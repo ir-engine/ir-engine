@@ -1,17 +1,15 @@
 import React from 'react'
 
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
-import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { SpawnPoints } from '@xrengine/engine/src/avatar/AvatarSpawnSystem'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { getEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
-import { Network, NetworkTypes } from '@xrengine/engine/src/networking/classes/Network'
+import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { receiveJoinWorld } from '@xrengine/engine/src/networking/functions/receiveJoinWorld'
 import { useHookEffect, useState } from '@xrengine/hyperflux'
 
 import { client } from '../../feathers'
-import { SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientNetwork'
-import GameServerWarnings from './GameServerWarnings'
+import InstanceServerWarnings from './InstanceServerWarnings'
 
 export const OfflineLocation = () => {
   const engineState = useState(getEngineState())
@@ -33,8 +31,7 @@ export const OfflineLocation = () => {
       world.clients.set(userId, {
         userId: userId,
         index: index,
-        name: authState.user.name.value,
-        subscribedChatUpdates: []
+        name: authState.user.name.value
       })
 
       const user = await client.service('user').get(Engine.instance.userId)
@@ -58,7 +55,7 @@ export const OfflineLocation = () => {
     }
   }, [engineState.connectedWorld, engineState.sceneLoaded])
 
-  return <GameServerWarnings />
+  return <InstanceServerWarnings />
 }
 
 export default OfflineLocation

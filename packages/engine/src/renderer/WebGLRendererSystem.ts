@@ -18,8 +18,7 @@ import {
   WebGL1Renderer,
   WebGLRenderer,
   WebGLRendererParameters,
-  WebXRManager,
-  XRSession
+  WebXRManager
 } from 'three'
 
 import { isDev } from '@xrengine/common/src/utils/isDev'

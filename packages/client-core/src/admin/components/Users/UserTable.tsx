@@ -5,15 +5,13 @@ import { User } from '@xrengine/common/src/interfaces/User'
 
 import { useAuthState } from '../../../user/services/AuthService'
 import ConfirmModal from '../../common/ConfirmModal'
-import { useFetchUsersAsAdmin } from '../../common/hooks/User.hooks'
 import TableComponent from '../../common/Table'
 import { userColumns, UserData, UserProps } from '../../common/variables/user'
-import { USER_PAGE_LIMIT, UserService, useUserState } from '../../services/UserService'
+import { AdminUserService, USER_PAGE_LIMIT, useUserState } from '../../services/UserService'
 import styles from '../../styles/admin.module.scss'
 import ViewUser from './ViewUser'
 
-const UserTable = (props: UserProps) => {
-  const { search } = props
+const UserTable = ({ search }: UserProps) => {
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(USER_PAGE_LIMIT)
   const [popConfirmOpen, setPopConfirmOpen] = useState(false)
@@ -29,16 +27,19 @@ const UserTable = (props: UserProps) => {
   const adminUsers = adminUserState.users.value
   const adminUserCount = adminUserState.total
   const { t } = useTranslation()
-  useFetchUsersAsAdmin(user, adminUserState, UserService, search, sortField, fieldOrder)
+
+  useEffect(() => {
+    AdminUserService.fetchUsersAsAdmin(search, 0, sortField, fieldOrder)
+  }, [search, user?.id?.value, adminUserState.updateNeeded.value])
 
   const handlePageChange = (event: unknown, newPage: number) => {
-    UserService.fetchUsersAsAdmin(search, newPage, sortField, fieldOrder)
+    AdminUserService.fetchUsersAsAdmin(search, newPage, sortField, fieldOrder)
     setPage(newPage)
   }
 
   useEffect(() => {
     if (adminUserState.fetched.value) {
-      UserService.fetchUsersAsAdmin(search, page, sortField, fieldOrder)
+      AdminUserService.fetchUsersAsAdmin(search, page, sortField, fieldOrder)
     }
   }, [fieldOrder])
 
@@ -56,7 +57,7 @@ const UserTable = (props: UserProps) => {
   }
 
   const submitDeleteUser = async () => {
-    await UserService.removeUserAdmin(userId)
+    await AdminUserService.removeUserAdmin(userId)
     setPopConfirmOpen(false)
   }
 
@@ -151,11 +152,10 @@ const UserTable = (props: UserProps) => {
         handleRowsPerPageChange={handleRowsPerPageChange}
       />
       <ConfirmModal
-        popConfirmOpen={popConfirmOpen}
-        handleCloseModal={handleCloseModal}
-        submit={submitDeleteUser}
-        name={userName}
-        label={'user'}
+        open={popConfirmOpen}
+        description={`${t('admin:components.user.confirmUserDelete')} '${userName}'?`}
+        onClose={handleCloseModal}
+        onSubmit={submitDeleteUser}
       />
       {userAdmin && viewModal && (
         <ViewUser openView={viewModal} userAdmin={userAdmin} closeViewModal={closeViewModal} />

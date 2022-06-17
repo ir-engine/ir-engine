@@ -456,7 +456,7 @@ export async function createTransport(network: SocketWebRTCClientNetwork, direct
       )
       console.error('Transport', transport, ' transitioned to state', state)
       console.error(
-        'If this occurred unexpectedly shortly after joining a world, check that the gameserver nodegroup has public IP addresses.'
+        'If this occurred unexpectedly shortly after joining a world, check that the instanceserver nodegroup has public IP addresses.'
       )
       console.log('Waiting 5 seconds to make a new transport')
       setTimeout(async () => {
@@ -871,7 +871,7 @@ export async function closeConsumer(transport: SocketWebRTCClientNetwork, consum
 
   const ms = MediaStreams.instance
   ms.consumers = ms.consumers.filter((c: any) => !(c.id === consumer.id)) as any[]
-  store.dispatch(MediaStreamAction.setConsumers(ms.consumers))
+  dispatchAction(MediaStreamAction.setConsumersAction({ consumers: ms.consumers }))
   await transport.request(MessageTypes.WebRTCCloseConsumer.toString(), {
     consumerId: consumer.id
   })

@@ -8,7 +8,7 @@ import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes
 import { Action } from '@xrengine/hyperflux/functions/ActionFunctions'
 
 import { accessAuthState } from '../user/services/AuthService'
-import { gameserverHost } from '../util/config'
+import { instanceserverHost } from '../util/config'
 import { onConnectToInstance } from './SocketWebRTCClientFunctions'
 
 // import { encode, decode } from 'msgpackr'
@@ -97,7 +97,7 @@ export class SocketWebRTCClientNetwork extends Network {
         query
       })
     } else {
-      this.socket = ioclient(gameserverHost, {
+      this.socket = ioclient(instanceserverHost, {
         path: `/socket.io/${ipAddress as string}/${port.toString()}`,
         query
       })

@@ -188,7 +188,7 @@ func assign(be pb.BackendServiceClient, p *pb.MatchProfile, matches []*pb.Match)
 			log.Printf("failed to marshal gamemode")
 		}
 
-		// TODO get gameserver ip or link
+		// TODO get instanceserver ip or link
 		conn := uuid.New().String()
 		// conn := fmt.Sprintf("%d.%d.%d.%d:2222", rand.Intn(256), rand.Intn(256), rand.Intn(256), rand.Intn(256))
 		req := &pb.AssignTicketsRequest{

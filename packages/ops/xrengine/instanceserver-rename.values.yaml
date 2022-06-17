@@ -1,0 +1,25 @@
+instanceserver:
+  enabled: true
+  name: instanceserver
+
+  replicaCount: 1
+
+  imagePullSecrets: []
+  nameOverride: ""
+  fullnameOverride: ""
+
+  resources: {}
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+  podSecurityContext: {}
+  securityContext: {}
+
+  service:
+    type: ClusterIP
+    port: 3031
+
+  serviceAccount:
+    create: true
+    annotations: {}
+    name:

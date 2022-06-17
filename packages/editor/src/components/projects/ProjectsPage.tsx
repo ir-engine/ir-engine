@@ -3,9 +3,9 @@ import { useTranslation } from 'react-i18next'
 import { useHistory } from 'react-router-dom'
 
 import { ProjectService } from '@xrengine/client-core/src/common/services/ProjectService'
-import { useDispatch } from '@xrengine/client-core/src/store'
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import { ProjectInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
+import { dispatchAction } from '@xrengine/hyperflux'
 
 import {
   ArrowRightRounded,
@@ -46,11 +46,18 @@ function sortAlphabetical(a, b) {
 
 const OfficialProjectData = [
   {
-    id: '1570ae01-889a-11ec-886e-b126f7590685',
+    id: '1570ae00-889a-11ec-886e-b126f7590685',
     name: 'Development Test Suite',
     repositoryPath: 'https://github.com/XRFoundation/XREngine-development-test-suite',
     thumbnail: '/static/xrengine_thumbnail.jpg',
     description: 'Assets and tests for xrengine core development'
+  },
+  {
+    id: '1570ae01-889a-11ec-886e-b126f7590685',
+    name: 'Translations',
+    repositoryPath: 'https://github.com/XRFoundation/XREngine-i18n',
+    thumbnail: '/static/xrengine_thumbnail.jpg',
+    description: 'Complete language translations in over 100 languages.'
   },
   {
     id: '1570ae02-889a-11ec-886e-b126f7590685',
@@ -135,7 +142,6 @@ const ProjectsPage = () => {
   const user = authState.user
 
   const { t } = useTranslation()
-  const dispatch = useDispatch()
   const history = useHistory()
 
   const fetchInstalledProjects = async () => {
@@ -198,8 +204,8 @@ const ProjectsPage = () => {
     event.preventDefault()
     if (!isInstalled(project)) return
 
-    dispatch(EditorAction.sceneChanged(null))
-    dispatch(EditorAction.projectChanged(project.name))
+    dispatchAction(EditorAction.sceneChanged({ sceneName: null }))
+    dispatchAction(EditorAction.projectChanged({ projectName: project.name }))
     history.push(`/editor/${project.name}`)
   }
 
@@ -295,29 +301,37 @@ const ProjectsPage = () => {
 
     return (
       <ul className={styles.listContainer}>
-        {projects.map((project, index) => (
+        {projects.map((project: ProjectInterface, index) => (
           <li className={styles.itemContainer} key={index}>
             <a
               onClick={(e) => {
-                areInstalledProjects && onClickExisting(e, project)
+                areInstalledProjects ? onClickExisting(e, project) : window.open(project.repositoryPath)
               }}
             >
-              <div className={styles.thumbnailContainer} style={{ backgroundImage: `url(${project.thumbnail})` }} />
-              <div className={styles.headerContainer}>
-                <h3 className={styles.header}>{project.name.replaceAll('-', ' ')}</h3>
-                {project.name !== 'default-project' && (
-                  <IconButton disableRipple onClick={(e: any) => openProjectContextMenu(e, project)}>
-                    <Settings />
-                  </IconButton>
-                )}
-              </div>
-              {!areInstalledProjects && isInstalled(project) && (
-                <span className={styles.installedIcon}>
-                  <DownloadDone />
-                </span>
-              )}
-              {project.description && <p className={styles.description}>{project.description}</p>}
+              <div
+                className={styles.thumbnailContainer}
+                style={{ backgroundImage: `url(${project.thumbnail})` }}
+                id={'open-' + project.name}
+              />
             </a>
+            <div className={styles.headerContainer} id={'headerContainer-' + project.name}>
+              <h3 className={styles.header}>{project.name.replaceAll('-', ' ')}</h3>
+              {project.name !== 'default-project' && (
+                <IconButton disableRipple onClick={(e: any) => openProjectContextMenu(e, project)}>
+                  <Settings />
+                </IconButton>
+              )}
+            </div>
+            {!areInstalledProjects && isInstalled(project) && (
+              <span className={styles.installedIcon}>
+                <DownloadDone />
+              </span>
+            )}
+            {project.description && (
+              <p className={styles.description} id={'description-' + project.name}>
+                {project.description}
+              </p>
+            )}
           </li>
         ))}
       </ul>

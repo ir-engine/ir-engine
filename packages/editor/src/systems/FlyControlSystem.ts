@@ -1,10 +1,10 @@
 import { Matrix3, Matrix4, Quaternion, Vector3 } from 'three'
 
-import { useDispatch } from '@xrengine/client-core/src/store'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
 import { defineQuery, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
+import { dispatchAction } from '@xrengine/hyperflux'
 
 import { EditorCameraComponent } from '../classes/EditorCameraComponent'
 import { FlyControlComponent } from '../classes/FlyControlComponent'
@@ -30,7 +30,6 @@ export default async function FlyControlSystem(world: World) {
   const worldScale = new Vector3()
   const candidateWorldQuat = new Quaternion()
   const normalMatrix = new Matrix3()
-  const dispatch = useDispatch()
   const editorHelperState = accessEditorHelperState()
 
   return () => {
@@ -48,12 +47,12 @@ export default async function FlyControlSystem(world: World) {
           tempVec3.set(0, 0, -distance).applyMatrix3(normalMatrix.getNormalMatrix(cameraObject.value.matrix))
         )
 
-        dispatch(EditorHelperAction.changedFlyMode(false))
+        dispatchAction(EditorHelperAction.changedFlyMode({ isFlyModeEnabled: false }))
       }
 
       if (getInput(EditorActionSet.flying)) {
         addInputActionMapping(ActionSets.FLY, FlyMapping)
-        dispatch(EditorHelperAction.changedFlyMode(true))
+        dispatchAction(EditorHelperAction.changedFlyMode({ isFlyModeEnabled: true }))
       }
 
       if (!editorHelperState.isFlyModeEnabled.value) return

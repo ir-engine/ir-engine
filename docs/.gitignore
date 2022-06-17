@@ -18,11 +18,3 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-
-docs-client/
-docs-client-core/
-docs-client-common/
-docs-client-engine/
-docs-client-gameserver/
-docs-client-server-core/
-sidebar/typedoc-*
