@@ -11,7 +11,7 @@ import DialogTitle from '@mui/material/DialogTitle'
 import Drawer from '@mui/material/Drawer'
 
 import { useAuthState } from '../../../user/services/AuthService'
-import AutoComplete from '../../common/AutoComplete'
+import AutoComplete, { AutoCompleteData } from '../../common/AutoComplete'
 import InputText from '../../common/InputText'
 import { validateForm } from '../../common/validation/formValidation'
 import { AdminGroupService } from '../../services/GroupService'
@@ -22,10 +22,6 @@ interface Props {
   open: boolean
   handleClose: (open: boolean) => void
   //adminGroupState?: any
-}
-
-interface ScopeData {
-  type: string
 }
 
 const CreateGroup = ({ open, handleClose }: Props) => {
@@ -82,7 +78,7 @@ const CreateGroup = ({ open, handleClose }: Props) => {
     }
   }
 
-  const scopeData: ScopeData[] = adminScopeTypeState.scopeTypes.value.map((el) => {
+  const scopeData: AutoCompleteData[] = adminScopeTypeState.scopeTypes.value.map((el) => {
     return {
       type: el.type
     }
@@ -122,7 +118,7 @@ const CreateGroup = ({ open, handleClose }: Props) => {
             <AutoComplete
               data={scopeData}
               label={t('admin:components.group.grantScope')}
-              handleChangeScopeType={handleChangeScopeType}
+              onChange={handleChangeScopeType}
             />
 
             <DialogActions className={styles.mt20}>

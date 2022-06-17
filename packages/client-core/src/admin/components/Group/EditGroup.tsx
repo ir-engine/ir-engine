@@ -10,7 +10,7 @@ import DialogActions from '@mui/material/DialogActions'
 import DialogTitle from '@mui/material/DialogTitle'
 
 import { useAuthState } from '../../../user/services/AuthService'
-import AutoComplete from '../../common/AutoComplete'
+import AutoComplete, { AutoCompleteData } from '../../common/AutoComplete'
 import InputText from '../../common/InputText'
 import { validateForm } from '../../common/validation/formValidation'
 import { AdminGroupService } from '../../services/GroupService'
@@ -21,9 +21,6 @@ interface Props {
   groupAdmin: Group
   closeEditModal: (open: boolean) => void
   closeViewModal?: (open: boolean) => void
-}
-interface ScopeData {
-  type: string
 }
 
 const EditGroup = ({ groupAdmin, closeEditModal, closeViewModal }: Props) => {
@@ -85,7 +82,7 @@ const EditGroup = ({ groupAdmin, closeEditModal, closeViewModal }: Props) => {
     setState({ ...state, scopeTypes: scope, formErrors: { ...state.formErrors, scopeTypes: '' } })
   }
 
-  const scopeData: ScopeData[] = adminScopeTypeState.scopeTypes.value.map((el) => {
+  const scopeData: AutoCompleteData[] = adminScopeTypeState.scopeTypes.value.map((el) => {
     return {
       type: el.type
     }
@@ -119,8 +116,8 @@ const EditGroup = ({ groupAdmin, closeEditModal, closeViewModal }: Props) => {
         <AutoComplete
           data={scopeData}
           label={t('admin:components.group.groupScope')}
-          handleChangeScopeType={handleChangeScopeType}
-          scopes={state.scopeTypes as any}
+          scopes={state.scopeTypes}
+          onChange={handleChangeScopeType}
         />
 
         <DialogActions className={styles.mt20}>

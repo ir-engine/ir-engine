@@ -12,7 +12,7 @@ interface TagProps extends ReturnType<AutocompleteGetTagProps> {
   className: any
 }
 
-function Tag({ label, onDelete, ...other }: TagProps) {
+const Tag = ({ label, onDelete, ...other }: TagProps) => {
   return (
     <div {...other}>
       <span>{label}</span>
@@ -21,7 +21,18 @@ function Tag({ label, onDelete, ...other }: TagProps) {
   )
 }
 
-export default function AutoComplete({ data, label, handleChangeScopeType, scopes = [] }) {
+export interface AutoCompleteData {
+  type: string
+}
+
+interface Props {
+  data: AutoCompleteData[]
+  label: string
+  scopes?: any
+  onChange: (value: any) => void
+}
+
+const AutoComplete = ({ data, label, onChange, scopes = [] }: Props) => {
   const {
     getRootProps,
     getInputProps,
@@ -40,7 +51,7 @@ export default function AutoComplete({ data, label, handleChangeScopeType, scope
     disableCloseOnSelect: true,
     getOptionLabel: (option) => option.type,
     onChange: (event: React.ChangeEvent<{}>, value: any) => {
-      handleChangeScopeType(value)
+      onChange(value)
     },
     getOptionDisabled: (option) => !!option.disabled,
     isOptionEqualToValue: (option, value) => option.type === value.type
@@ -51,7 +62,7 @@ export default function AutoComplete({ data, label, handleChangeScopeType, scope
       <div className={styles.root}>
         <div {...getRootProps()}>
           <div ref={setAnchorEl} className={`${styles.inputWrapper} ${focused ? 'focused' : ''}`}>
-            {value.map((option: DataType, index: number) => (
+            {value.map((option: AutoCompleteData, index: number) => (
               <Tag className={styles.tag} label={option.type} {...getTagProps({ index })} />
             ))}
             <input {...getInputProps()} />
@@ -72,6 +83,4 @@ export default function AutoComplete({ data, label, handleChangeScopeType, scope
   )
 }
 
-interface DataType {
-  type: string
-}
+export default AutoComplete

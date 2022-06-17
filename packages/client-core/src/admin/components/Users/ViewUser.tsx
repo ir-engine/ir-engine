@@ -20,7 +20,7 @@ import Typography from '@mui/material/Typography'
 
 import { NotificationService } from '../../../common/services/NotificationService'
 import { useAuthState } from '../../../user/services/AuthService'
-import AutoComplete from '../../common/AutoComplete'
+import AutoComplete, { AutoCompleteData } from '../../common/AutoComplete'
 import InputSelect, { InputMenuItem } from '../../common/InputSelect'
 import InputText from '../../common/InputText'
 import { validateForm } from '../../common/validation/formValidation'
@@ -34,10 +34,6 @@ interface Props {
   openView: boolean
   userAdmin: User
   closeViewModal?: (open: boolean) => void
-}
-
-interface ScopeData {
-  type: string
 }
 
 const ViewUser = ({ openView, closeViewModal, userAdmin }: Props) => {
@@ -94,12 +90,13 @@ const ViewUser = ({ openView, closeViewModal, userAdmin }: Props) => {
   }, [userAdmin.id, refetch])
 
   const initiateData = () => {
-    const temp: ScopeData[] =
+    const temp =
       userAdmin?.scopes?.map((el) => {
         return {
           type: el.type
         }
       }) || []
+
     setState({
       ...state,
       name: userAdmin.name || '',
@@ -169,7 +166,7 @@ const ViewUser = ({ openView, closeViewModal, userAdmin }: Props) => {
     setState({ ...state, scopes: scope, formErrors: { ...state.formErrors, scopes: '' } })
   }
 
-  const scopeData: ScopeData[] = adminScopeTypeState.scopeTypes.value.map((el) => {
+  const scopeData: AutoCompleteData[] = adminScopeTypeState.scopeTypes.value.map((el) => {
     return {
       type: el.type
     }
@@ -266,8 +263,8 @@ const ViewUser = ({ openView, closeViewModal, userAdmin }: Props) => {
               <AutoComplete
                 data={scopeData}
                 label={t('admin:components.user.grantScope')}
-                handleChangeScopeType={handleChangeScopeType}
-                scopes={state.scopes as any}
+                scopes={state.scopes}
+                onChange={handleChangeScopeType}
               />
             </div>
           ) : (
