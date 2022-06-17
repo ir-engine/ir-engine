@@ -3,10 +3,14 @@ import { useTranslation } from 'react-i18next'
 
 import { Instance } from '@xrengine/common/src/interfaces/Instance'
 
+import Button from '@mui/material/Button'
+import Container from '@mui/material/Container'
+import DialogActions from '@mui/material/DialogActions'
 import DialogContentText from '@mui/material/DialogContentText'
+import DialogTitle from '@mui/material/DialogTitle'
 
 import { useAuthState } from '../../../user/services/AuthService'
-import CreateModal from '../../common/CreateModal'
+import DrawerView from '../../common/DrawerView'
 import InputSelect, { InputMenuItem } from '../../common/InputSelect'
 import { validateForm } from '../../common/validation/formValidation'
 import { PartyProps } from '../../common/variables/party'
@@ -18,10 +22,9 @@ import { AdminPartyService } from '../../services/PartyService'
 import styles from '../../styles/admin.module.scss'
 
 const CreateParty = ({ open, handleClose }: PartyProps) => {
-  CreateParty
   const { t } = useTranslation()
 
-  const [newParty, setNewParty] = useState({
+  const [state, setState] = useState({
     location: '',
     instance: '',
     formErrors: {
@@ -51,7 +54,9 @@ const CreateParty = ({ open, handleClose }: PartyProps) => {
 
   const handleChange = (e) => {
     const { name, value } = e.target
-    let temp = newParty.formErrors
+
+    let temp = { ...state.formErrors }
+
     switch (name) {
       case 'location':
         temp.location = value.length < 2 ? t('admin:components.party.locationRequired') : ''
@@ -63,7 +68,7 @@ const CreateParty = ({ open, handleClose }: PartyProps) => {
       default:
         break
     }
-    setNewParty({ ...newParty, [name]: value, formErrors: temp })
+    setState({ ...state, [name]: value, formErrors: temp })
   }
 
   const data: Instance[] = []
@@ -71,23 +76,23 @@ const CreateParty = ({ open, handleClose }: PartyProps) => {
     data.push(element)
   })
 
-  const submitParty = async () => {
+  const handleSubmit = async () => {
     const data = {
-      locationId: newParty.location,
-      instanceId: newParty.instance
+      locationId: state.location,
+      instanceId: state.instance
     }
-    let temp = newParty.formErrors
-    if (!newParty.location) {
-      temp.location = t('admin:components.party.locationCantEmpty')
-    }
-    if (!newParty.instance) {
-      temp.instance = t('admin:components.party.instanceCantEmpty')
-    }
-    setNewParty({ ...newParty, formErrors: temp })
 
-    if (validateForm(newParty, newParty.formErrors)) {
+    let tempErrors = {
+      ...state.formErrors,
+      location: state.location ? '' : t('admin:components.party.locationCantEmpty'),
+      instance: state.instance ? '' : t('admin:components.party.instanceCantEmpty')
+    }
+
+    setState({ ...state, formErrors: tempErrors })
+
+    if (validateForm(state, tempErrors)) {
       await AdminPartyService.createAdminParty(data)
-      setNewParty({ ...newParty, location: '', instance: '' })
+      setState({ ...state, location: '', instance: '' })
       handleClose()
     }
   }
@@ -107,32 +112,45 @@ const CreateParty = ({ open, handleClose }: PartyProps) => {
   })
 
   return (
-    <CreateModal open={open} action="Create" text="party" handleClose={handleClose} submit={submitParty}>
-      <InputSelect
-        name="instance"
-        label={t('admin:components.party.instance')}
-        value={newParty.instance}
-        error={newParty.formErrors.instance}
-        menu={instanceMenu}
-        onChange={handleChange}
-      />
+    <DrawerView open={open} onClose={handleClose}>
+      <Container maxWidth="sm" className={styles.mt20}>
+        <DialogTitle className={styles.textAlign}>{t('admin:components.party.createNewParty')}</DialogTitle>
 
-      <InputSelect
-        name="location"
-        label={t('admin:components.party.location')}
-        value={newParty.location}
-        error={newParty.formErrors.location}
-        menu={locationMenu}
-        onChange={handleChange}
-      />
+        <InputSelect
+          name="instance"
+          label={t('admin:components.party.instance')}
+          value={state.instance}
+          error={state.formErrors.instance}
+          menu={instanceMenu}
+          onChange={handleChange}
+        />
 
-      <DialogContentText className={styles.mb15}>
-        <span className={styles.spanWhite}>{t('admin:components.party.dontSeeLocation')}</span>
-        <a href="/admin/locations" className={styles.textLink}>
-          {t('admin:components.party.createOne')}
-        </a>
-      </DialogContentText>
-    </CreateModal>
+        <InputSelect
+          name="location"
+          label={t('admin:components.party.location')}
+          value={state.location}
+          error={state.formErrors.location}
+          menu={locationMenu}
+          onChange={handleChange}
+        />
+
+        <DialogContentText className={styles.mb15}>
+          <span className={styles.spanWhite}>{t('admin:components.party.dontSeeLocation')}</span>
+          <a href="/admin/locations" className={styles.textLink}>
+            {t('admin:components.party.createOne')}
+          </a>
+        </DialogContentText>
+
+        <DialogActions>
+          <Button className={styles.submitButton} onClick={handleSubmit}>
+            {t('admin:components.locationModal.submit')}
+          </Button>
+          <Button className={styles.cancelButton} onClick={handleClose}>
+            {t('admin:components.setting.cancel')}
+          </Button>
+        </DialogActions>
+      </Container>
+    </DrawerView>
   )
 }
 
