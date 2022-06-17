@@ -155,13 +155,13 @@ export const DefaultArgs = {
   baseTexture: new Texture()
 }
 
-export default async function Fireball(args?: {
+export default function Fireball(args?: {
   iTime?: number
   iResolution?: number[]
   fireMagnitude?: number
   fireTexture?: Texture
   baseTexture?: Texture
-}): Promise<MaterialParms> {
+}): MaterialParms {
   const mat = new ShaderMaterial({
     uniforms: {
       iTime: { value: args?.iTime ?? DefaultArgs.iTime },
