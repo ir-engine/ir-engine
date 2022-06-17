@@ -11,7 +11,6 @@ import {
   Matrix4,
   Mesh,
   MeshBasicMaterial,
-  MeshToonMaterial,
   Object3D,
   PlaneGeometry,
   Skeleton,
@@ -201,13 +200,11 @@ export const animateModel = (entity: Entity) => {
 
 export const setupAvatarMaterials = (entity, root) => {
   const materialList: Array<MaterialMap> = []
-
   setObjectLayers(root, ObjectLayers.Avatar)
-  const animationComponent = getComponent(entity, AvatarAnimationComponent)
-  const headBone = animationComponent.rig.Head
-  // const headBone = findHeadBone(root)
 
   // TODO: Save head transform
+  const animationComponent = getComponent(entity, AvatarAnimationComponent)
+  const headBone = animationComponent.rig.Head
   if (headBone) {
     ;(headBone as any).traverse((o) => {
       o.savedPosition = o.position.clone()
