@@ -8,7 +8,7 @@ import IconButton from '@mui/material/IconButton'
 import { useAuthState } from '../../../user/services/AuthService'
 import InputSwitch from '../../common/InputSwitch'
 import InputText from '../../common/InputText'
-import { AuthSettingService, useAdminAuthSettingState } from '../../services/Setting/AuthSettingService'
+import { AuthSettingsService, useAuthSettingState } from '../../services/Setting/AuthSettingService'
 import styles from '../../styles/settings.module.scss'
 
 interface Props {}
@@ -36,7 +36,7 @@ const OAUTH_TYPES = {
 }
 
 const Account = (props: Props) => {
-  const authSettingState = useAdminAuthSettingState()
+  const authSettingState = useAuthSettingState()
   const [authSetting] = authSettingState?.authSettings?.value || []
   const id = authSetting?.id
   const { t } = useTranslation()
@@ -96,7 +96,7 @@ const Account = (props: Props) => {
 
   useEffect(() => {
     if (user?.id?.value != null && authSettingState?.updateNeeded?.value) {
-      AuthSettingService.fetchAuthSetting()
+      AuthSettingsService.fetchAuthSetting()
     }
   }, [authState?.user?.id?.value, authSettingState?.updateNeeded?.value])
 
@@ -137,7 +137,7 @@ const Account = (props: Props) => {
       oauth[key] = JSON.stringify(oauth[key])
     }
 
-    AuthSettingService.patchAuthSetting({ authStrategies: JSON.stringify(auth), oauth: JSON.stringify(oauth) }, id)
+    AuthSettingsService.patchAuthSetting({ authStrategies: JSON.stringify(auth), oauth: JSON.stringify(oauth) }, id)
   }
 
   const handleCancel = () => {

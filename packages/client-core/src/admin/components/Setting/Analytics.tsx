@@ -5,7 +5,7 @@ import { Grid, Typography } from '@mui/material'
 
 import { useAuthState } from '../../../user/services/AuthService'
 import InputText from '../../common/InputText'
-import { SettingAnalyticsService, useSettingAnalyticsState } from '../../services/Setting/SettingAnalyticsService'
+import { AdminSettingAnalyticsService, useSettingAnalyticsState } from '../../services/Setting/AnalyticsSettingsService'
 import styles from '../../styles/settings.module.scss'
 
 interface AnalyticsProps {}
@@ -28,7 +28,7 @@ const Analytics = (props: AnalyticsProps) => {
   useEffect(() => {
     if (!isMounted.current) return
     if (user?.id?.value != null && settingAnalyticsState?.updateNeeded?.value === true) {
-      SettingAnalyticsService.fetchSettingsAnalytics()
+      AdminSettingAnalyticsService.fetchSettingsAnalytics()
     }
   }, [authState?.user?.id?.value, settingAnalyticsState?.updateNeeded?.value])
 
