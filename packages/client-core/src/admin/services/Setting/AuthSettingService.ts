@@ -8,8 +8,8 @@ import { NotificationService } from '../../../common/services/NotificationServic
 import { client } from '../../../feathers'
 import waitForClientAuthenticated from '../../../util/wait-for-client-authenticated'
 
-const AdminAuthSettingsState = defineState({
-  name: 'AdminAuthSettingsState',
+const AuthSettingsState = defineState({
+  name: 'AuthSettingsState',
   initial: () => ({
     authSettings: [] as Array<AdminAuthSetting>,
     skip: 0,
@@ -21,10 +21,10 @@ const AdminAuthSettingsState = defineState({
   })
 })
 
-export const AdminAuthSettingsServiceReceptor = (action) => {
-  getState(AdminAuthSettingsState).batch((s) => {
+export const AuthSettingsServiceReceptor = (action) => {
+  getState(AuthSettingsState).batch((s) => {
     matches(action)
-      .when(AdminAuthSettingsActions.authSettingRetrieved.matches, (action) => {
+      .when(AuthSettingsActions.authSettingRetrieved.matches, (action) => {
         return s.merge({
           authSettings: action.authSetting.data,
           skip: action.authSetting.skip,
@@ -33,22 +33,22 @@ export const AdminAuthSettingsServiceReceptor = (action) => {
           updateNeeded: false
         })
       })
-      .when(AdminAuthSettingsActions.authSettingPatched.matches, (action) => {
+      .when(AuthSettingsActions.authSettingPatched.matches, (action) => {
         return s.updateNeeded.set(true)
       })
   })
 }
 
-export const accessAdminAuthSettingState = () => getState(AdminAuthSettingsState)
+export const accessAuthSettingState = () => getState(AuthSettingsState)
 
-export const useAdminAuthSettingState = () => useState(accessAdminAuthSettingState())
+export const useAuthSettingState = () => useState(accessAuthSettingState())
 
 export const AuthSettingsService = {
   fetchAuthSetting: async () => {
     try {
       await waitForClientAuthenticated()
       const authSetting = (await client.service('authentication-setting').find()) as Paginated<AdminAuthSetting>
-      dispatchAction(AdminAuthSettingsActions.authSettingRetrieved({ authSetting }))
+      dispatchAction(AuthSettingsActions.authSettingRetrieved({ authSetting }))
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
@@ -56,19 +56,19 @@ export const AuthSettingsService = {
   patchAuthSetting: async (data: PatchAuthSetting, id: string) => {
     try {
       await client.service('authentication-setting').patch(id, data)
-      dispatchAction(AdminAuthSettingsActions.authSettingPatched())
+      dispatchAction(AuthSettingsActions.authSettingPatched())
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   }
 }
 
-export class AdminAuthSettingsActions {
+export class AuthSettingsActions {
   static authSettingRetrieved = defineAction({
-    type: 'ADMIN_AUTH_SETTING_FETCHED' as const,
+    type: 'AUTH_SETTINGS_FETCHED' as const,
     authSetting: matches.object as Validator<unknown, Paginated<AdminAuthSetting>>
   })
   static authSettingPatched = defineAction({
-    type: 'ADMIN_AUTH_SETTING_PATCHED' as const
+    type: 'AUTH_SETTINGS_PATCHED' as const
   })
 }

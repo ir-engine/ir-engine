@@ -20,7 +20,7 @@ import {
   createEntityNode,
   removeEntityNodeFromParent
 } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
-import { createEngine, initializeCoreSystems } from '@xrengine/engine/src/initializeEngine'
+import { createEngine, initializeCoreSystems, setupEngineActionSystems } from '@xrengine/engine/src/initializeEngine'
 
 import '@xrengine/engine/src/patchEngineNode'
 
@@ -60,6 +60,7 @@ describe('AssetComponentFunctions', async () => {
   beforeEach(async () => {
     sandbox = Sinon.createSandbox()
     createEngine()
+    setupEngineActionSystems()
     initEntity()
     Engine.instance.engineTimer.start()
 

@@ -13,9 +13,7 @@ import { useDialogState } from '../../services/DialogService'
 import { DialogAction } from '../../services/DialogService'
 import styles from './index.module.scss'
 
-interface Props {}
-
-const DialogComponent = (props: Props): any => {
+const UIDialog = (): JSX.Element => {
   const dispatch = useDispatch()
   const dialog = useDialogState()
   const isOpened = dialog.isOpened
@@ -45,9 +43,5 @@ const DialogComponent = (props: Props): any => {
     </Dialog>
   )
 }
-
-const DialogWrapper = (props: Props): JSX.Element => <DialogComponent {...props} />
-
-const UIDialog = DialogWrapper
 
 export default UIDialog

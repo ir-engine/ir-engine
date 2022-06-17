@@ -34,20 +34,6 @@ const Instance = () => {
     }
   }, [instanceserverState.patch])
 
-  const openPatchModal = (open: boolean) => (event: React.KeyboardEvent | React.MouseEvent) => {
-    if (
-      event.type === 'keydown' &&
-      ((event as React.KeyboardEvent).key === 'Tab' || (event as React.KeyboardEvent).key === 'Shift')
-    ) {
-      return
-    }
-    setPatchInstanceserverOpen(open)
-  }
-
-  const closePatchModal = (open: boolean) => {
-    setPatchInstanceserverOpen(open)
-  }
-
   const handleChange = (e: any) => {
     setSearch(e.target.value)
   }
@@ -59,15 +45,18 @@ const Instance = () => {
           <Search text="instance" handleChange={handleChange} />
         </Grid>
         <Grid item xs={12} sm={4}>
-          <Button className={styles.openModalBtn} type="submit" variant="contained" onClick={openPatchModal(true)}>
+          <Button
+            className={styles.openModalBtn}
+            type="submit"
+            variant="contained"
+            onClick={() => setPatchInstanceserverOpen(true)}
+          >
             Patch Instanceserver
           </Button>
         </Grid>
       </Grid>
       <InstanceTable className={styles.rootTableWithSearch} search={search} />
-      {patchInstanceserverOpen && (
-        <PatchInstanceserver open handleClose={openPatchModal} closeViewModal={closePatchModal} />
-      )}
+      {patchInstanceserverOpen && <PatchInstanceserver open onClose={() => setPatchInstanceserverOpen(false)} />}
     </React.Fragment>
   )
 }
