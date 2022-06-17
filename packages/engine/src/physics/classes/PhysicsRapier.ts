@@ -1,5 +1,6 @@
 // This file will be renamed to Physics.ts when we are ready to take out physx completely.
 import RAPIER, {
+  Collider,
   ColliderDesc,
   EventQueue,
   Ray,
@@ -9,15 +10,19 @@ import RAPIER, {
   World
 } from '@dimforge/rapier3d-compat'
 
+import { dispatchAction } from '@xrengine/hyperflux'
+
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, ComponentType, getComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
+import { CollisionComponent } from '../components/CollisionComponent'
+import { RapierCollisionComponent } from '../components/RapierCollisionComponent'
 import { RaycastComponent } from '../components/RaycastComponent'
 import { RigidBodyComponent } from '../components/RigidBodyComponent'
 import { getTagComponentForRigidBody } from '../functions/getTagComponentForRigidBody'
-import { CollisionEvent } from '../types/PhysicsTypes'
+import { PhysicsAction } from '../functions/PhysicsActions'
+import { ColliderHitEvent, CollisionEvents } from '../types/PhysicsTypes'
 
 export type PhysicsWorld = World
-const collisionEvents = [] as CollisionEvent[]
 
 function load() {
   // eslint-disable-next-line import/no-named-as-default-member
@@ -42,6 +47,10 @@ function createRigidBody(entity: Entity, world: World, rigidBodyDesc: RigidBodyD
 
   const RigidBodyTypeTagComponent = getTagComponentForRigidBody(rigidBody)
   addComponent(entity, RigidBodyTypeTagComponent, true)
+
+  // set entity in userdata for fast look up when required.
+  const rigidBodyUserdata = { entity: entity }
+  rigidBody.userData = rigidBodyUserdata
 
   return rigidBody
 }
@@ -92,9 +101,91 @@ function castRay(world: World, raycastQuery: ComponentType<typeof RaycastCompone
   }
 }
 
-function drainCollisoinEventQueue(collisionEventQueue: EventQueue, collisionEventArrayToPopulate: CollisionEvent[]) {
+function drainCollisionEventQueue(world: World, collisionEventQueue: EventQueue) {
   collisionEventQueue.drainCollisionEvents(function (handle1: number, handle2: number, started: boolean) {
-    collisionEventArrayToPopulate.push({ handle1: handle1, handle2: handle2, started: started })
+    const isTriggerEvent = world.getCollider(handle1).isSensor() || world.getCollider(handle2).isSensor()
+    let collisionEventType: CollisionEvents
+    if (started) {
+      if (isTriggerEvent) {
+        collisionEventType = CollisionEvents.TRIGGER_START
+        dispatchAction(PhysicsAction.triggerStarted({ colliderAHandle: handle1, colliderBHandle: handle2 }))
+      } else {
+        collisionEventType = CollisionEvents.COLLISION_START
+        dispatchAction(PhysicsAction.collisionStarted({ colliderAHandle: handle1, colliderBHandle: handle2 }))
+      }
+    } else {
+      if (isTriggerEvent) {
+        collisionEventType = CollisionEvents.TRIGGER_END
+        dispatchAction(PhysicsAction.triggerEnded({ colliderAHandle: handle1, colliderBHandle: handle2 }))
+      } else {
+        collisionEventType = CollisionEvents.COLLISION_END
+        dispatchAction(PhysicsAction.collisionEnded({ colliderAHandle: handle1, colliderBHandle: handle2 }))
+      }
+    }
+
+    const collider1 = world.getCollider(handle1)
+    const collider2 = world.getCollider(handle2)
+    const rigidBody1 = collider1.parent()
+    const rigidBody2 = collider2.parent()
+    const entity1 = (rigidBody1?.userData as any)['entity']
+    const entity2 = (rigidBody2?.userData as any)['entity']
+
+    const collisionComponent1 = getComponent(entity1, RapierCollisionComponent)
+    const collisionComponent2 = getComponent(entity2, RapierCollisionComponent)
+
+    let collisionMap1: Map<Entity, ColliderHitEvent>
+    let collisionMap2: Map<Entity, ColliderHitEvent>
+    if (started) {
+      // If component already exists on entity, add the new collision event to it
+      if (collisionComponent1) {
+        collisionMap1 = collisionComponent1.collisions
+      }
+      // else add the component to entity & then add the new collision event to it
+      else {
+        collisionMap1 = new Map<Entity, ColliderHitEvent>()
+        addComponent(entity1, RapierCollisionComponent, { collisions: collisionMap1 })
+      }
+
+      collisionMap1.set(entity2, {
+        type: collisionEventType,
+        bodySelf: rigidBody1 as RigidBody,
+        bodyOther: rigidBody2 as RigidBody,
+        shapeSelf: collider1 as Collider,
+        shapeOther: collider2 as Collider,
+        contacts: undefined
+      })
+
+      // If component already exists on entity, add the new collision event to it
+      if (collisionComponent2) {
+        collisionMap2 = collisionComponent2.collisions
+      }
+      // else add the component to entity & then add the new collision event to it
+      else {
+        collisionMap2 = new Map<Entity, ColliderHitEvent>()
+        addComponent(entity2, RapierCollisionComponent, { collisions: collisionMap2 })
+      }
+
+      collisionMap2.set(entity1, {
+        type: collisionEventType,
+        bodySelf: rigidBody2 as RigidBody,
+        bodyOther: rigidBody1 as RigidBody,
+        shapeSelf: collider2 as Collider,
+        shapeOther: collider1 as Collider,
+        contacts: undefined
+      })
+    } else {
+      if (collisionComponent1) {
+        collisionMap1 = collisionComponent1.collisions
+        collisionMap1.delete(entity2)
+        if (collisionMap1.size === 0) removeComponent(entity1, RapierCollisionComponent)
+      }
+
+      if (collisionComponent2) {
+        collisionMap2 = collisionComponent2.collisions
+        collisionMap2.delete(entity1)
+        if (collisionMap2.size === 0) removeComponent(entity2, RapierCollisionComponent)
+      }
+    }
   })
 }
 
@@ -105,7 +196,6 @@ export const Physics = {
   removeRigidBody,
   changeRigidbodyType,
   castRay,
-  collisionEvents,
   createCollisionEventQueue,
-  drainCollisoinEventQueue
+  drainCollisionEventQueue
 }

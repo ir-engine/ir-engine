@@ -137,12 +137,6 @@ export interface RaycastHit {
   _bodyID?: number // TODO: Remove
 }
 
-export interface CollisionEvent {
-  handle1: ColliderHandle
-  handle2: ColliderHandle
-  started: boolean
-}
-
 export enum ControllerEvents {
   CONTROLLER_SHAPE_HIT = 'CONTROLLER_SHAPE_HIT',
   CONTROLLER_CONTROLLER_HIT = 'CONTROLLER_CONTROLLER_HIT',
@@ -182,10 +176,10 @@ type ContactData = {
 }
 
 export type ColliderHitEvent = {
-  type: CollisionEvents
-  bodySelf: PhysX.PxRigidActor
-  bodyOther: PhysX.PxRigidActor
-  shapeSelf: PhysX.PxShape
-  shapeOther: PhysX.PxShape
-  contacts: ContactData[]
+  type: CollisionEvents // TODO: Do we need this anymore if we the CollisionComponent is only going to be present during the lifespan of collision. Should only be used to differentiate between collsion & trigger. remove start,end states.
+  bodySelf: PhysX.PxRigidActor | RAPIER.RigidBody
+  bodyOther: PhysX.PxRigidActor | RAPIER.RigidBody
+  shapeSelf: PhysX.PxShape | RAPIER.Collider
+  shapeOther: PhysX.PxShape | RAPIER.Collider
+  contacts: ContactData[] | undefined // TODO: Figure out how to populate this using Rapier
 }
