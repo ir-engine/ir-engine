@@ -1,6 +1,7 @@
 import React, { Suspense, useEffect, useState } from 'react'
 import { Route, Switch, useLocation } from 'react-router-dom'
 
+import { ClientSettingsServiceReceptor } from '@xrengine/client-core/src/admin/services/Setting/ClientSettingService'
 import ErrorBoundary from '@xrengine/client-core/src/common/components/ErrorBoundary'
 import { LoadingCircle } from '@xrengine/client-core/src/components/LoadingCircle'
 import { AuthService } from '@xrengine/client-core/src/user/services/AuthService'
@@ -25,8 +26,10 @@ function RouterComp(props) {
 
   useEffect(() => {
     addActionReceptor(LocalStateServiceReceptor)
+    addActionReceptor(ClientSettingsServiceReceptor)
     return () => {
       removeActionReceptor(LocalStateServiceReceptor)
+      addActionReceptor(ClientSettingsServiceReceptor)
     }
   }, [])
 

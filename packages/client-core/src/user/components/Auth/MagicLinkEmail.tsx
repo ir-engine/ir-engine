@@ -10,7 +10,7 @@ import Grid from '@mui/material/Grid'
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
 
-import { AuthSettingService } from '../../../admin/services/Setting/AuthSettingService'
+import { AuthSettingsService } from '../../../admin/services/Setting/AuthSettingService'
 import { useAdminAuthSettingState } from '../../../admin/services/Setting/AuthSettingService'
 import { AuthService } from '../../services/AuthService'
 import { useAuthState } from '../../services/AuthService'
@@ -52,7 +52,7 @@ const MagicLinkEmail = ({ type, isAddConnection }: Props): JSX.Element => {
   const [authState, setAuthState] = useState(initialState)
 
   useEffect(() => {
-    !authSetting && AuthSettingService.fetchAuthSetting()
+    !authSetting && AuthSettingsService.fetchAuthSetting()
   }, [])
 
   useEffect(() => {

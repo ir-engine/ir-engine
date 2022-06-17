@@ -10,7 +10,7 @@ import CardMedia from '@mui/material/CardMedia'
 import Fab from '@mui/material/Fab'
 import Typography from '@mui/material/Typography'
 
-import { AuthSettingService, useAdminAuthSettingState } from '../../../admin/services/Setting/AuthSettingService'
+import { AuthSettingsService, useAdminAuthSettingState } from '../../../admin/services/Setting/AuthSettingService'
 import ForgotPassword from '../../../user/components/Auth/ForgotPassword'
 import PasswordLoginApp from '../../../user/components/Auth/PasswordLoginApp'
 import RegisterApp from '../../../user/components/Auth/RegisterApp'
@@ -59,7 +59,7 @@ const FlatSignIn = (props: Props) => {
   const userTabPanel = enableUserPassword && <PasswordLoginApp />
 
   useEffect(() => {
-    !authSetting && AuthSettingService.fetchAuthSetting()
+    !authSetting && AuthSettingsService.fetchAuthSetting()
   }, [])
 
   useEffect(() => {

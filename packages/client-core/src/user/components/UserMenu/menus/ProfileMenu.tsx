@@ -20,7 +20,7 @@ import TextField from '@mui/material/TextField'
 import Tooltip from '@mui/material/Tooltip'
 import Typography from '@mui/material/Typography'
 
-import { AuthSettingService, useAdminAuthSettingState } from '../../../../admin/services/Setting/AuthSettingService'
+import { AuthSettingsService, useAdminAuthSettingState } from '../../../../admin/services/Setting/AuthSettingService'
 import { DiscordIcon } from '../../../../common/components/Icons/DiscordIcon'
 import { FacebookIcon } from '../../../../common/components/Icons/FacebookIcon'
 import { GoogleIcon } from '../../../../common/components/Icons/GoogleIcon'
@@ -131,7 +131,7 @@ const ProfileMenu = ({ className, hideLogin, changeActiveMenu, setProfileMenuOpe
   const [oauthConnectedState, setOauthConnectedState] = useState(initialOAuthConnectedState)
 
   useEffect(() => {
-    !authSetting && AuthSettingService.fetchAuthSetting()
+    !authSetting && AuthSettingsService.fetchAuthSetting()
   }, [])
 
   useEffect(() => {
