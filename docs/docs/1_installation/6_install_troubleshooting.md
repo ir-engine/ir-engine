@@ -59,7 +59,7 @@ You can kill any running process with ```sudo kill <ID>```
 
 ### Error: listen EADDRINUSE :::3030
 
-check which process is using port 3030 and kill
+Check which process is using port 3030 and kill
 ```
 killall -9 node 
 ```
@@ -134,7 +134,7 @@ Try
 ```
 npm run dev-reinit
 ```
-or if on windows
+Or if on windows
 ```
 npm run dev-reinit-windows
 ```
