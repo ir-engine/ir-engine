@@ -1,5 +1,5 @@
 import { Paginated } from '@feathersjs/feathers'
-import { createState, none, useState } from '@speigg/hookstate'
+import { none } from '@speigg/hookstate'
 
 import { Channel } from '@xrengine/common/src/interfaces/Channel'
 import { Group } from '@xrengine/common/src/interfaces/Group'
@@ -8,16 +8,13 @@ import { Message } from '@xrengine/common/src/interfaces/Message'
 import { Party } from '@xrengine/common/src/interfaces/Party'
 import { User } from '@xrengine/common/src/interfaces/User'
 import multiLogger from '@xrengine/common/src/logger'
-import { handleCommand, isCommand } from '@xrengine/engine/src/common/functions/commandHandler'
+import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { isPlayerLocal } from '@xrengine/engine/src/networking/utils/isPlayerLocal'
+import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
-import { accessLocationInstanceConnectionState } from '../../common/services/LocationInstanceConnectionService'
 import { NotificationService } from '../../common/services/NotificationService'
 import { client } from '../../feathers'
-import { store, useDispatch } from '../../store'
 import { accessAuthState } from '../../user/services/AuthService'
-import { getChatMessageSystem, hasSubscribedToChatSystem, removeMessageSystem } from './utils/chatSystem'
 
 const logger = multiLogger.child({ component: 'client-core:social' })
 
@@ -30,37 +27,41 @@ interface ChatMessageProps {
 //State
 
 // TODO: find existing interfaces for these or move these to @xrengine/common/src/interfaces
-const state = createState({
-  channels: {
-    channels: [] as Channel[],
-    limit: 5,
-    skip: 0,
-    total: 0,
-    updateNeeded: true
-  },
-  targetObjectType: '',
-  targetObjectId: '',
-  targetObject: {} as User | Group | Party | Instance,
-  targetChannelId: '',
-  updateMessageScroll: false,
-  messageScrollInit: false,
-  instanceChannelFetching: false,
-  instanceChannelFetched: false,
-  messageCreated: false
+const ChatState = defineState({
+  name: 'ChatState',
+  initial: () => ({
+    channels: {
+      channels: [] as Channel[],
+      limit: 5,
+      skip: 0,
+      total: 0,
+      updateNeeded: true
+    },
+    targetObjectType: '',
+    targetObjectId: '',
+    targetObject: {} as User | Group | Party | Instance,
+    targetChannelId: '',
+    updateMessageScroll: false,
+    messageScrollInit: false,
+    instanceChannelFetching: false,
+    instanceChannelFetched: false,
+    messageCreated: false
+  })
 })
 
-store.receptors.push((action: ChatActionType) => {
-  state.batch((s) => {
-    switch (action.type) {
-      case 'LOADED_CHANNELS':
+export const ChatServiceReceptor = (action) => {
+  getState(ChatState).batch((s) => {
+    matches(action)
+      .when(ChatAction.loadedChannelsAction.matches, (action) => {
         return s.channels.merge({
-          limit: action.limit,
-          skip: action.skip,
-          total: action.total,
+          limit: action.channels.limit,
+          skip: action.channels.skip,
+          total: action.channels.total,
           updateNeeded: false,
-          channels: action.channels
+          channels: action.channels.data
         })
-      case 'LOADED_CHANNEL': {
+      })
+      .when(ChatAction.loadedChannelAction.matches, (action) => {
         let findIndex
         if (typeof action.channel.id === 'string')
           findIndex = s.channels.channels.findIndex((c) => c.id.value === action.channel.id)
@@ -78,9 +79,8 @@ store.receptors.push((action: ChatActionType) => {
         }
         s.merge({ messageCreated: true })
         return
-      }
-
-      case 'CREATED_MESSAGE': {
+      })
+      .when(ChatAction.createdMessageAction.matches, (action) => {
         const channelId = action.message.channelId
         const selfUser = action.selfUser
         const channel = s.channels.channels.find((c) => c.id.value === channelId)
@@ -114,9 +114,8 @@ store.receptors.push((action: ChatActionType) => {
           })
         }
         return
-      }
-
-      case 'LOADED_MESSAGES': {
+      })
+      .when(ChatAction.loadedMessagesAction.matches, (action) => {
         const channelId = action.channelId
         const channel = s.channels.channels.find((c) => c.id.value === channelId)
         if (channel) {
@@ -128,9 +127,8 @@ store.receptors.push((action: ChatActionType) => {
         }
 
         return
-      }
-
-      case 'REMOVED_MESSAGE': {
+      })
+      .when(ChatAction.removedMessageAction.matches, (action) => {
         const channelId = action.message.channelId
         const channel = s.channels.channels.find((c) => c.id.value === channelId)
         if (channel) {
@@ -141,9 +139,8 @@ store.receptors.push((action: ChatActionType) => {
         }
 
         return
-      }
-
-      case 'PATCHED_MESSAGE': {
+      })
+      .when(ChatAction.patchedMessageAction.matches, (action) => {
         const channelId = action.message.channelId
         const channel = s.channels.channels.find((c) => c.id.value === channelId)
         if (channel) {
@@ -154,9 +151,8 @@ store.receptors.push((action: ChatActionType) => {
         }
 
         return
-      }
-
-      case 'CREATED_CHANNEL': {
+      })
+      .when(ChatAction.createdChannelAction.matches, (action) => {
         const channelId = action.channel.id
         const channel = s.channels.channels.find((c) => c.id.value === channelId)
 
@@ -167,9 +163,8 @@ store.receptors.push((action: ChatActionType) => {
         }
 
         return
-      }
-
-      case 'PATCHED_CHANNEL': {
+      })
+      .when(ChatAction.patchedChannelAction.matches, (action) => {
         const channelId = action.channel.id
         const channel = s.channels.channels.find((c) => c.id.value === channelId)
 
@@ -180,18 +175,16 @@ store.receptors.push((action: ChatActionType) => {
         }
         s.merge({ messageCreated: false })
         return
-      }
-
-      case 'REMOVED_CHANNEL': {
+      })
+      .when(ChatAction.removedChannelAction.matches, (action) => {
         const channelId = action.channel.id
         const channelIdx = s.channels.channels.findIndex((c) => c.id.value === channelId)
         if (channelIdx > -1) {
           s.channels.channels[channelIdx].set(none)
         }
         return
-      }
-
-      case 'CHAT_TARGET_SET':
+      })
+      .when(ChatAction.setChatTargetAction.matches, (action) => {
         const { targetObjectType, targetObject, targetChannelId } = action
         return s.merge({
           targetObjectType: targetObjectType,
@@ -201,31 +194,29 @@ store.receptors.push((action: ChatActionType) => {
           updateMessageScroll: true,
           messageScrollInit: true
         })
-
-      case 'SET_MESSAGE_SCROLL_INIT':
+      })
+      .when(ChatAction.setMessageScrollInitAction.matches, (action) => {
         const { value } = action
         return s.merge({ messageScrollInit: value })
-
-      case 'FETCHING_INSTANCE_CHANNEL':
+      })
+      .when(ChatAction.fetchingInstanceChannelAction.matches, () => {
         return s.merge({ instanceChannelFetching: true })
-
-      case 'SET_UPDATE_MESSAGE_SCROLL': {
+      })
+      .when(ChatAction.setUpdateMessageScrollAction.matches, (action) => {
         return s.merge({ updateMessageScroll: action.value })
-      }
-    }
-  }, action.type)
-})
+      })
+  })
+}
 
-export const accessChatState = () => state
+export const accessChatState = () => getState(ChatState)
 
-export const useChatState = () => useState(state) as any as typeof state
+export const useChatState = () => useState(accessChatState())
 
-globalThis.chatState = state
+globalThis.chatState = ChatState
 
 //Service
 export const ChatService = {
   getChannels: async (skip?: number, limit?: number) => {
-    const dispatch = useDispatch()
     try {
       const chatState = accessChatState().value
 
@@ -235,13 +226,12 @@ export const ChatService = {
           $skip: skip != null ? skip : chatState.channels.skip
         }
       })) as Paginated<Channel>
-      dispatch(ChatAction.loadedChannels(channelResult))
+      dispatchAction(ChatAction.loadedChannelsAction({ channels: channelResult }))
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   },
   getInstanceChannel: async () => {
-    const dispatch = useDispatch()
     try {
       const channelResult = (await client.service('channel').find({
         query: {
@@ -250,8 +240,7 @@ export const ChatService = {
         }
       })) as Channel[]
       if (!channelResult.length) return setTimeout(() => ChatService.getInstanceChannel(), 2000)
-      if (channelResult[0].messages.length === 0) return setTimeout(() => ChatService.getInstanceChannel(), 500)
-      dispatch(ChatAction.loadedChannel(channelResult[0], 'instance'))
+      dispatchAction(ChatAction.loadedChannelAction({ channel: channelResult[0], channelType: 'instance' }))
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
@@ -295,7 +284,6 @@ export const ChatService = {
     }
   },
   getChannelMessages: async (channelId: string, skip?: number, limit?: number) => {
-    const dispatch = useDispatch()
     if (channelId && channelId.length > 0) {
       try {
         const chatState = accessChatState().value
@@ -309,7 +297,7 @@ export const ChatService = {
             $skip: skip != null ? skip : chatState.channels.channels[channelId].skip
           }
         })) as Paginated<Message>
-        dispatch(ChatAction.loadedMessages(channelId, messageResult))
+        dispatchAction(ChatAction.loadedMessagesAction({ channelId: channelId, messages: messageResult.data }))
       } catch (err) {
         NotificationService.dispatchNotify(err.message, { variant: 'error' })
       }
@@ -332,9 +320,10 @@ export const ChatService = {
     }
   },
   updateChatTarget: async (targetObjectType: string, targetObject: any) => {
-    const dispatch = useDispatch()
     if (!targetObject) {
-      dispatch(ChatAction.setChatTarget(targetObjectType, targetObject, ''))
+      dispatchAction(
+        ChatAction.setChatTargetAction({ targetObjectType: targetObjectType, targetObject, targetChannelId: '' })
+      )
     } else {
       const targetChannelResult = (await client.service('channel').find({
         query: {
@@ -343,17 +332,16 @@ export const ChatService = {
           targetObjectId: targetObject.id
         }
       })) as Paginated<Channel>
-      dispatch(
-        ChatAction.setChatTarget(
-          targetObjectType,
+      dispatchAction(
+        ChatAction.setChatTargetAction({
+          targetObjectType: targetObjectType,
           targetObject,
-          targetChannelResult.total > 0 ? targetChannelResult.data[0].id : ''
-        )
+          targetChannelId: targetChannelResult.total > 0 ? targetChannelResult.data[0].id : ''
+        })
       )
     }
   },
   clearChatTargetIfCurrent: async (targetObjectType: string, targetObject: any) => {
-    const dispatch = useDispatch()
     const chatState = accessChatState().value
     const chatStateTargetObjectType = chatState.targetObjectType
     const chatStateTargetObjectId = chatState.targetObjectId
@@ -363,154 +351,113 @@ export const ChatService = {
         targetObject.relatedUserId === chatStateTargetObjectId ||
         targetObject.userId === chatStateTargetObjectId)
     ) {
-      dispatch(ChatAction.setChatTarget('', {}, ''))
+      dispatchAction(ChatAction.setChatTargetAction({ targetObjectType: '', targetObject: {}, targetChannelId: '' }))
     }
   },
   updateMessageScrollInit: async (value: boolean) => {
-    const dispatch = useDispatch()
-    dispatch(ChatAction.setMessageScrollInit(value))
+    dispatchAction(ChatAction.setMessageScrollInitAction({ value }))
   }
 }
 
 if (globalThis.process.env['VITE_OFFLINE_MODE'] !== 'true') {
   client.service('message').on('created', (params) => {
     const selfUser = accessAuthState().user.value
-    const { message } = params
-    if (message != undefined && message.text != undefined) {
-      if (isPlayerLocal(message.senderId)) {
-        if (handleCommand(message.text, Engine.instance.currentWorld.localClientEntity, message.senderId)) return
-        else {
-          const system = getChatMessageSystem(message.text)
-          if (system !== 'none') {
-            message.text = removeMessageSystem(message.text)
-            if (!hasSubscribedToChatSystem(selfUser.id, system)) return
-          }
-        }
-      } else {
-        const system = getChatMessageSystem(message.text)
-        if (system !== 'none') {
-          message.text = removeMessageSystem(message.text)
-          if (!hasSubscribedToChatSystem(selfUser.id, system)) return
-        } else if (isCommand(message.text)) return
-      }
-    }
-
-    const msg = ChatAction.createdMessage(params.message, selfUser)
-    if (msg != undefined) store.dispatch(msg)
+    dispatchAction(ChatAction.createdMessageAction({ message: params.message, selfUser: selfUser }))
   })
 
   client.service('message').on('patched', (params) => {
-    store.dispatch(ChatAction.patchedMessage(params.message))
+    dispatchAction(ChatAction.patchedMessageAction({ message: params.message }))
   })
 
   client.service('message').on('removed', (params) => {
-    store.dispatch(ChatAction.removedMessage(params.message))
+    dispatchAction(ChatAction.removedMessageAction({ message: params.message }))
   })
 
   client.service('channel').on('created', (params) => {
-    store.dispatch(ChatAction.createdChannel(params.channel))
+    dispatchAction(ChatAction.createdChannelAction({ channel: params.channel }))
   })
 
   client.service('channel').on('patched', (params) => {
-    store.dispatch(ChatAction.patchedChannel(params.channel))
+    dispatchAction(ChatAction.patchedChannelAction({ channel: params.channel }))
   })
 
   client.service('channel').on('removed', (params) => {
-    store.dispatch(ChatAction.removedChannel(params.channel))
+    dispatchAction(ChatAction.removedChannelAction({ channel: params.channel }))
   })
 }
 
 //Action
 
-export const ChatAction = {
-  loadedChannel: (channelResult: Channel, channelFetchedType: string) => {
-    return {
-      type: 'LOADED_CHANNEL' as const,
-      channel: channelResult,
-      channelType: channelFetchedType
-    }
-  },
-  loadedChannels: (channelResult: Paginated<Channel>) => {
-    return {
-      type: 'LOADED_CHANNELS' as const,
-      channels: channelResult.data,
-      limit: channelResult.limit,
-      skip: channelResult.skip,
-      total: channelResult.total
-    }
-  },
-  createdMessage: (message: Message, selfUser: User) => {
-    return {
-      type: 'CREATED_MESSAGE' as const,
-      message: message,
-      selfUser: selfUser
-    }
-  },
-  patchedMessage: (message: Message) => {
-    return {
-      type: 'PATCHED_MESSAGE' as const,
-      message: message
-    }
-  },
-  removedMessage: (message: Message) => {
-    return {
-      type: 'REMOVED_MESSAGE' as const,
-      message: message
-    }
-  },
-  loadedMessages: (channelId: string, messageResult: Paginated<Message>) => {
-    return {
-      type: 'LOADED_MESSAGES' as const,
-      messages: messageResult.data,
-      limit: messageResult.limit,
-      skip: messageResult.skip,
-      total: messageResult.total,
-      channelId: channelId
-    }
-  },
-  setChatTarget: (targetObjectType: string, targetObject: any, targetChannelId: string) => {
-    return {
-      type: 'CHAT_TARGET_SET' as const,
-      targetObjectType: targetObjectType,
-      targetObject: targetObject,
-      targetChannelId: targetChannelId
-    }
-  },
-  setMessageScrollInit: (value: boolean) => {
-    return {
-      type: 'SET_MESSAGE_SCROLL_INIT' as const,
-      value: value
-    }
-  },
-  createdChannel: (channel: Channel) => {
-    return {
-      type: 'CREATED_CHANNEL' as const,
-      channel: channel
-    }
-  },
-  patchedChannel: (channel: Channel) => {
-    return {
-      type: 'PATCHED_CHANNEL' as const,
-      channel: channel
-    }
-  },
-  removedChannel: (channel: Channel) => {
-    return {
-      type: 'REMOVED_CHANNEL' as const,
-      channel: channel
-    }
-  },
-  fetchingInstanceChannel: () => {
-    return {
-      type: 'FETCHING_INSTANCE_CHANNEL' as const
-    }
-  },
-  setUpdateMessageScroll: (value: boolean) => {
-    return {
-      type: 'SET_UPDATE_MESSAGE_SCROLL' as const,
-      value: value
-    }
-  }
-}
+export class ChatAction {
+  static loadedChannelAction = defineAction({
+    type: 'LOADED_CHANNEL' as const,
+    channel: matches.object as Validator<unknown, Channel>,
+    channelType: matches.string
+  })
 
-export type ChatActionType = ReturnType<typeof ChatAction[keyof typeof ChatAction]>
+  static loadedChannelsAction = defineAction({
+    type: 'LOADED_CHANNELS' as const,
+    channels: matches.any as Validator<unknown, Paginated<Channel>>
+  })
+
+  static createdMessageAction = defineAction({
+    type: 'CREATED_MESSAGE' as const,
+    message: matches.object as Validator<unknown, Message>,
+    selfUser: matches.object as Validator<unknown, User>
+  })
+
+  static patchedMessageAction = defineAction({
+    type: 'PATCHED_MESSAGE' as const,
+    message: matches.object as Validator<unknown, Message>
+  })
+
+  static removedMessageAction = defineAction({
+    type: 'REMOVED_MESSAGE' as const,
+    message: matches.object as Validator<unknown, Message>
+  })
+
+  static loadedMessagesAction = defineAction({
+    type: 'LOADED_MESSAGES' as const,
+    messages: matches.array as Validator<unknown, Message[]>,
+    limit: matches.any,
+    skip: matches.any,
+    total: matches.any,
+    channelId: matches.any
+  })
+
+  static setChatTargetAction = defineAction({
+    type: 'CHAT_TARGET_SET' as const,
+    targetObjectType: matches.any,
+    targetObject: matches.any,
+    targetChannelId: matches.any
+  })
+
+  static setMessageScrollInitAction = defineAction({
+    type: 'SET_MESSAGE_SCROLL_INIT' as const,
+    value: matches.boolean
+  })
+
+  static createdChannelAction = defineAction({
+    type: 'CREATED_CHANNEL' as const,
+    channel: matches.object as Validator<unknown, Channel>
+  })
+
+  static patchedChannelAction = defineAction({
+    type: 'PATCHED_CHANNEL' as const,
+    channel: matches.object as Validator<unknown, Channel>
+  })
+
+  static removedChannelAction = defineAction({
+    type: 'REMOVED_CHANNEL' as const,
+    channel: matches.object as Validator<unknown, Channel>
+  })
+
+  static fetchingInstanceChannelAction = defineAction({
+    type: 'FETCHING_INSTANCE_CHANNEL' as const
+  })
+
+  static setUpdateMessageScrollAction = defineAction({
+    type: 'SET_UPDATE_MESSAGE_SCROLL' as const,
+    value: matches.boolean
+  })
+}

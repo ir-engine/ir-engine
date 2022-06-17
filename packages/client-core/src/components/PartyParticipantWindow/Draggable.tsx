@@ -4,7 +4,7 @@ type PropsType = {
   isPiP: boolean
   children: any
 }
-export const Draggable = (props: PropsType) => {
+export const Draggable = ({ isPiP, children }: PropsType) => {
   let prev = { x: 0, y: 0 }
   let MARGIN = 20
   let PIP_WIDTH = 250
@@ -72,7 +72,7 @@ export const Draggable = (props: PropsType) => {
     }
   }
 
-  const styles = props.isPiP
+  const styles = isPiP
     ? ({
         touchAction: 'none',
         left: window.innerWidth - MARGIN - PIP_WIDTH,
@@ -82,7 +82,7 @@ export const Draggable = (props: PropsType) => {
       } as any)
     : ({ position: 'initial' } as any)
 
-  const handles = props.isPiP
+  const handles = isPiP
     ? {
         onTouchStart: handleMouseDown,
         onTouchMove: handleMouseMove,
@@ -95,7 +95,7 @@ export const Draggable = (props: PropsType) => {
     : []
   return (
     <div {...handles} style={styles}>
-      {props.children}
+      {children}
     </div>
   )
 }

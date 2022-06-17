@@ -56,7 +56,6 @@ export interface UserProps {
   authState?: any
   adminUserState?: any
   fetchUsersAsAdmin?: any
-  refetchSingleUserAdmin?: any
   search: string
 }
 
