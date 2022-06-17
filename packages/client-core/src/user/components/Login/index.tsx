@@ -10,7 +10,7 @@ import CardMedia from '@mui/material/CardMedia'
 import Fab from '@mui/material/Fab'
 import Typography from '@mui/material/Typography'
 
-import { AuthSettingsService, useAdminAuthSettingState } from '../../../admin/services/Setting/AuthSettingService'
+import { AuthSettingsService, useAuthSettingState } from '../../../admin/services/Setting/AuthSettingService'
 import ForgotPassword from '../../../user/components/Auth/ForgotPassword'
 import PasswordLoginApp from '../../../user/components/Auth/PasswordLoginApp'
 import RegisterApp from '../../../user/components/Auth/RegisterApp'
@@ -44,7 +44,7 @@ const FlatSignIn = (props: Props) => {
   const { t } = useTranslation()
   const location = useLocation()
 
-  const authSettingState = useAdminAuthSettingState()
+  const authSettingState = useAuthSettingState()
   const [authSetting] = authSettingState?.authSettings?.value || []
   const [authState, setAuthState] = useState(initialState)
 
