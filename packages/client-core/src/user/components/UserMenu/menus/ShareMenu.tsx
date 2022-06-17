@@ -1,7 +1,8 @@
-import React, { useRef } from 'react'
+import React, { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { isShareAvailable } from '@xrengine/engine/src/common/functions/DetectFeatures'
+import { addActionReceptor, removeActionReceptor } from '@xrengine/hyperflux'
 
 import { FileCopy } from '@mui/icons-material'
 import Button from '@mui/material/Button'
@@ -10,7 +11,7 @@ import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
 
 import { NotificationService } from '../../../../common/services/NotificationService'
-import { InviteService } from '../../../../social/services/InviteService'
+import { InviteService, InviteServiceReceptor } from '../../../../social/services/InviteService'
 import { useInviteState } from '../../../../social/services/InviteService'
 import { useAuthState } from '../../../services/AuthService'
 import styles from '../index.module.scss'
@@ -90,6 +91,14 @@ const ShareMenu = (): JSX.Element => {
   const { copyLinkToClipboard, shareOnApps, packageInvite, handleChang, getInviteLink, email } = useShareMenuHooks({
     refLink
   })
+
+  useEffect(() => {
+    addActionReceptor(InviteServiceReceptor)
+
+    return () => {
+      removeActionReceptor(InviteServiceReceptor)
+    }
+  }, [])
 
   return (
     <div className={styles.menuPanel}>
