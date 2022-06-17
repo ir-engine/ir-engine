@@ -47,15 +47,17 @@ function RouterComp(props) {
     addActionReceptor(AuthSettingsServiceReceptor)
 
     dispatchAction(StoredLocalAction.restoreLocalData())
-
     StoredLocalStoreService.fetchLocalStoredState()
-    ClientSettingService.fetchClientSettings()
-    AuthSettingsService.fetchAuthSetting()
 
-    //Oauth callbacks may be running when a guest identity-provider has been deleted.
-    //This would normally cause doLoginAuto to make a guest user, which we do not want.
-    //Instead, just skip it on oauth callbacks, and the callback handler will log them in.
-    if (!/auth\/oauth/.test(location.pathname)) AuthService.doLoginAuto()
+    // Oauth callbacks may be running when a guest identity-provider has been deleted.
+    // This would normally cause doLoginAuto to make a guest user, which we do not want.
+    // Instead, just skip it on oauth callbacks, and the callback handler will log them in.
+    // The client and auth settigns will not be needed on these routes
+    if (!/auth\/oauth/.test(location.pathname)) {
+      AuthService.doLoginAuto()
+      ClientSettingService.fetchClientSettings()
+      AuthSettingsService.fetchAuthSetting()
+    }
     getCustomRoutes().then((routes) => {
       setCustomRoutes(routes)
     })
@@ -68,8 +70,10 @@ function RouterComp(props) {
   }, [])
 
   useEffect(() => {
+    // For the same reason as above, we will not need to load the client and auth settings for these routes
+    if (/auth\/oauth/.test(location.pathname) && customRoutes) return setRoutesReady(true)
     if (clientSettingsState.client.value.length && authSettingsState.authSettings.value.length && customRoutes)
-      setRoutesReady(true)
+      return setRoutesReady(true)
   }, [clientSettingsState.client.length, authSettingsState.authSettings.length, customRoutes])
 
   if (!routesReady) {
