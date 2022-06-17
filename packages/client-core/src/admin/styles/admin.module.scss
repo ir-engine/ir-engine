@@ -1023,16 +1023,6 @@
   }
 }
 
-.menuPaper {
-  min-height: 15vh;
-  background: var(--dropdownMenuBackground);
-  color: var(--textColor);
-
-  @media (max-width: 900px) {
-    height: 10vh;
-  }
-}
-
 .menuItem {
   &:hover {
     background: var(--dropdownMenuHoverBackground);
@@ -1267,5 +1257,12 @@
 }
 
 .iconButton {
+  color: var(--textColor);
+}
+
+.popover {
+  width: 300px;
+  padding: 20px;
+  background: var(--dropdownMenuBackground);
   color: var(--textColor);
 }
