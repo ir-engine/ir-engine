@@ -50,8 +50,6 @@ export const MediaServiceReceptor = (action) => {
   })
 }
 
-// addActionReceptor(MediaServiceReceptor)
-
 export const accessMediaStreamState = () => getState(MediaState)
 export const useMediaStreamState = () => useState(accessMediaStreamState())
 
