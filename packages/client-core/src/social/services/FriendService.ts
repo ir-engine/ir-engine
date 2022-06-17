@@ -84,8 +84,6 @@ export const FriendServiceReceptor = (action) => {
   })
 }
 
-addActionReceptor(FriendServiceReceptor)
-
 export const accessFriendState = () => getState(FriendState)
 
 export const useFriendState = () => useState(accessFriendState())
