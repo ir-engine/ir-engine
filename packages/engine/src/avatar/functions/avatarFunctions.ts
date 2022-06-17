@@ -11,6 +11,7 @@ import {
   Matrix4,
   Mesh,
   MeshBasicMaterial,
+  MeshToonMaterial,
   Object3D,
   PlaneGeometry,
   Skeleton,
@@ -202,7 +203,9 @@ export const setupAvatarMaterials = (entity, root) => {
   const materialList: Array<MaterialMap> = []
 
   setObjectLayers(root, ObjectLayers.Avatar)
-  const headBone = findHeadBone(root)
+  const animationComponent = getComponent(entity, AvatarAnimationComponent)
+  const headBone = animationComponent.rig.Head
+  // const headBone = findHeadBone(root)
 
   // TODO: Save head transform
   if (headBone) {
@@ -329,23 +332,6 @@ export function makeSkinnedMeshFromBoneData(bonesData): SkinnedMesh {
 }
 
 /**
- * Find the head bone
- * @param root
- */
-
-function findHeadBone(root: Object3D) {
-  let headBone = null
-  root.traverse((object) => {
-    if (!(object as any).isSkinnedMesh) return
-    const bones = (object as any).skeleton.bones
-    const sortedBone = bones.find((bone) => /head/i.test(bone.name))
-    if (!sortedBone) return
-    headBone = sortedBone
-  })
-  return headBone
-}
-
-/**
  * Adds required parameters to mesh's material
  * to enable avatar's head decapitation (opacity fade)
  * @param model
@@ -404,7 +390,6 @@ function getBoneChildrenIndexes(bones: Object3D[], startingBone: Object3D): numb
  */
 export function addBoneOpacityParamsToMaterial(material, boneIndexes: Matrix4) {
   material.transparent = true
-  material.needsUpdate = true
   material.onBeforeCompile = (shader, renderer) => {
     shader.uniforms.boneIndexToFade = { value: boneIndexes }
     shader.uniforms.boneOpacity = { value: 1.0 }
@@ -449,6 +434,9 @@ export function addBoneOpacityParamsToMaterial(material, boneIndexes: Matrix4) {
       'vec4 diffuseColor = vec4( diffuse, opacity );',
       `if(vSelectedBone > 0.0){
           diffuseColor.a = opacity * boneOpacity;
+          if (boneOpacity == 0.0) {
+            discard;
+          }
       }
       `
     )
@@ -459,33 +447,36 @@ export function addBoneOpacityParamsToMaterial(material, boneIndexes: Matrix4) {
 
 export const setAvatarHeadOpacity = (entity: Entity, opacity: number): void => {
   const object3DComponent = getComponent(entity, Object3DComponent)
-  let pastOpacity = 1
   object3DComponent?.value.traverse((obj) => {
     if (!(obj as SkinnedMesh).isSkinnedMesh) return
     const material = (obj as SkinnedMesh).material as Material
     if (!material.userData?.shader) return
     const shader = material.userData.shader
     if (shader?.uniforms) {
-      pastOpacity = shader.uniforms.boneOpacity.value
       shader.uniforms.boneOpacity.value = opacity
     }
+    material.transparent = opacity != 0
   })
 
-  const headBone = findHeadBone(object3DComponent?.value)
-  const neckBone = (headBone as any).parent
-  if (!headBone || pastOpacity == opacity) return
-  if (opacity == 0) {
-    ;(headBone as any).traverse((o) => {
-      o.position.copy(neckBone.position)
-      o.matrixWorld.copy(neckBone.matrixWorld)
-    })
-  } else {
-    ;(headBone as any).traverse((o) => {
-      if (!o.savedPosition) return
-      o.position.copy(o.savedPosition)
-      o.matrixWorld.copy(o.savedMatrixWorld)
-    })
-  }
+  //TODO: previous solution
+  // const animationComponent = getComponent(entity, AvatarAnimationComponent)
+  // const headBone = animationComponent.rig.Head
+  // if (!headBone) return
+
+  // if (!headBone || !neckBone || pastOpacity == opacity) return
+
+  // if (opacity == 0) {
+  //   ;(headBone as any).traverse((o) => {
+  //     // o.position.set(NaN, NaN, NaN)
+  //     // o.matrixWorld.set(NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN)
+  //   })
+  // } else {
+  //   ;(headBone as any).traverse((o) => {
+  //     if (!o.savedPosition) return
+  //     o.position.copy(o.savedPosition)
+  //     o.matrixWorld.copy(o.savedMatrixWorld)
+  //   })
+  // }
 
   //TODO:
   // We also have the solution to scale down the neck bone.
