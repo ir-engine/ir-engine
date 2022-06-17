@@ -4,6 +4,7 @@ export interface PartyProps {
 }
 
 export interface PartyPropsTable {
+  className?: string
   search: string
 }
 

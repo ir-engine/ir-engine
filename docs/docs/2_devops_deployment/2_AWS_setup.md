@@ -73,7 +73,7 @@ the workflow only selects private subnets by default). Hit Next, review everythi
 
 ### Create nodegroup for redis
 
-redis should get its own nodegroup to isolate it from any other changes that might be made to your cluster.
+Redis should get its own nodegroup to isolate it from any other changes that might be made to your cluster.
 As with the instanceserver nodegroup, it's not strictly necessary, but can prevent various other things from
 going down due to the redis servers getting interrupted.
 
@@ -326,7 +326,7 @@ If you didn't create a nodegroup just for redis, you must omit the ` -f packages
 as that config makes redis pods run on a specific nodegroup.
 
 #### Installing redis as part of XREngine chart (not recommended for production)
-redis can be installed as part of the XREngine chart so long as the config file for the XREngine installation has 'redis.enabled' set to true.
+Redis can be installed as part of the XREngine chart so long as the config file for the XREngine installation has 'redis.enabled' set to true.
 In that case, you should skip the above step of installing redis separately. This is not recommended for production
 environments, though, since upgrades to an XREngine installation will usually reboot the redis servers,
 leading all of the instanceservers to crash due to their redis connections being severed.
@@ -665,7 +665,7 @@ Use the helm install command and the values.yaml file to install the Elasticsear
 
 The -f option allows specifying the yaml file with the template. If you wish to install Elasticsearch in a specific namespace, add the -n option followed by the name of the namespace: `helm install elasticsearch elastic/elasticsearch -n [namespace] -f ./values.yaml`
 
-now check if the cluster members are up: `kubectl get pods --namespace=default -l app=elasticsearch-master -w`
+Now check if the cluster members are up: `kubectl get pods --namespace=default -l app=elasticsearch-master -w`
 
 The other option is to use the helm test command to examine the cluster’s health: `helm test elasticsearch`
 

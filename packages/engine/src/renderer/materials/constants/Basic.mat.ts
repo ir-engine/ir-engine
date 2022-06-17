@@ -20,7 +20,7 @@ export const DefaultArgs: MeshBasicMaterialParameters = {
   specularMap: new Texture()
 }
 
-export default async function Basic(args?: MeshBasicMaterialParameters): Promise<MaterialParms> {
+export default function Basic(args?: MeshBasicMaterialParameters): MaterialParms {
   const mat = new MeshBasicMaterial(args ? { ...format(DefaultArgs), ...args } : format(DefaultArgs))
   return {
     material: mat,

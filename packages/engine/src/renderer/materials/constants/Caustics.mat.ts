@@ -57,7 +57,7 @@ export const DefaultArgs = {
   offsetFrequency: 0.25
 }
 
-export default async function Caustics(args?): Promise<MaterialParms> {
+export default function Caustics(args?): MaterialParms {
   let uniforms = args ? { ...DefaultArgs, ...args } : DefaultArgs
 
   uniforms = Object.fromEntries(Object.entries(uniforms).map(([k, v]) => [k, { value: v }]))
