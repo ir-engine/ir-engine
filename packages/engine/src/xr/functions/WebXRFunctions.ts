@@ -57,7 +57,7 @@ export const mapXRControllers = (xrInput: XRInputSourceComponentType): void => {
   }
 }
 
-export const proxifyXRInputs = (entity: Entity, inputData: XRInputSourceComponentType) => {
+export const proxifyXRInputs = (entity: Entity) => {
   const {
     head,
     container,
@@ -65,7 +65,7 @@ export const proxifyXRInputs = (entity: Entity, inputData: XRInputSourceComponen
     controllerGripLeftParent,
     controllerRightParent,
     controllerGripRightParent
-  } = inputData
+  } = getComponent(entity, XRInputSourceComponent)
 
   proxifyVector3(XRInputSourceComponent.head.position, entity, head.position)
   proxifyQuaternion(XRInputSourceComponent.head.quaternion, entity, head.quaternion)
@@ -90,15 +90,9 @@ export const proxifyXRInputs = (entity: Entity, inputData: XRInputSourceComponen
   )
 }
 
-const container = new Group()
-const head = new Group()
-const controllerLeft = new Group()
-const controllerRight = new Group()
-const controllerGripLeft = new Group()
-const controllerGripRight = new Group()
-
-export function setupXRCamera(world: World) {
+export function setupXRCameraForLocalEntity(world: World) {
   removeComponent(world.localClientEntity, FollowCameraComponent)
+  const { container } = getComponent(world.localClientEntity, XRInputSourceComponent)
   container.add(Engine.instance.currentWorld.camera)
 }
 
@@ -109,10 +103,21 @@ export function setupXRCamera(world: World) {
  */
 
 export const setupXRInputSourceComponent = (entity: Entity): XRInputSourceComponentType => {
-  const controllerLeftParent = controllerLeft.parent as Group,
-    controllerGripLeftParent = controllerGripLeft.parent as Group,
-    controllerRightParent = controllerRight.parent as Group,
-    controllerGripRightParent = controllerGripRight.parent as Group
+  const container = new Group(),
+    head = new Group(),
+    controllerLeft = new Group(),
+    controllerRight = new Group(),
+    controllerGripLeft = new Group(),
+    controllerGripRight = new Group(),
+    controllerLeftParent = new Group(),
+    controllerGripLeftParent = new Group(),
+    controllerRightParent = new Group(),
+    controllerGripRightParent = new Group()
+
+  controllerLeftParent.add(controllerLeft)
+  controllerRightParent.add(controllerRight)
+  controllerGripLeftParent.add(controllerGripLeft)
+  controllerGripRightParent.add(controllerGripRight)
 
   const inputData = {
     head,
@@ -145,7 +150,7 @@ export const bindXRControllers = () => {
     // Map input sources
     mapXRControllers(xrInputSourceComponent)
     // Proxify only after input handedness is determined
-    proxifyXRInputs(world.localClientEntity, xrInputSourceComponent)
+    proxifyXRInputs(world.localClientEntity)
     EngineRenderer.instance.xrSession.removeEventListener('inputsourceschange', inputSourceChanged)
   }
 
@@ -197,8 +202,8 @@ export const bindXRHandEvents = () => {
 
 export const startWebXR = async (): Promise<void> => {
   const world = Engine.instance.currentWorld
-  setupXRCamera(world)
   setupXRInputSourceComponent(world.localClientEntity)
+  setupXRCameraForLocalEntity(world)
   dispatchXRMode(true, accessAvatarInputSettingsState().controlType.value)
   bindXRControllers()
   bindXRHandEvents()

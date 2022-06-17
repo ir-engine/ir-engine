@@ -12,7 +12,7 @@ import { createEngine } from '../../initializeEngine'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { XRHandsInputComponent } from '../components/XRHandsInputComponent'
 import { XRInputSourceComponent } from '../components/XRInputSourceComponent'
-import { setupXRCamera, setupXRInputSourceComponent } from './WebXRFunctions'
+import { setupXRCameraForLocalEntity, setupXRInputSourceComponent } from './WebXRFunctions'
 
 describe('WebXRFunctions Unit', async () => {
   beforeEach(async () => {
@@ -26,7 +26,7 @@ describe('WebXRFunctions Unit', async () => {
     world.localClientEntity = entity
     Engine.instance.currentWorld.camera = new PerspectiveCamera()
 
-    setupXRCamera(world)
+    setupXRCameraForLocalEntity(world)
 
     assert(!hasComponent(entity, FollowCameraComponent))
     assert(Engine.instance.currentWorld.camera.parent)
