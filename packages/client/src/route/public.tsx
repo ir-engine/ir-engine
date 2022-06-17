@@ -70,7 +70,7 @@ function RouterComp(props) {
   useEffect(() => {
     if (clientSettingsState.client.value.length && authSettingsState.authSettings.value.length && customRoutes)
       setRoutesReady(true)
-  }, [clientSettingsState.client, authSettingsState.authSettings, customRoutes])
+  }, [clientSettingsState.client.length, authSettingsState.authSettings.length, customRoutes])
 
   if (!routesReady) {
     return <LoadingCircle />
