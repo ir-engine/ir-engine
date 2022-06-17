@@ -14,9 +14,9 @@ import IconButton from '@mui/material/IconButton'
 import Paper from '@mui/material/Paper'
 import Typography from '@mui/material/Typography'
 
+import { NotificationService } from '../../../common/services/NotificationService'
 import { useAuthState } from '../../../user/services/AuthService'
 import AddCommand from '../../common/AddCommand'
-import AlertMessage from '../../common/AlertMessage'
 import InputSelect, { InputMenuItem } from '../../common/InputSelect'
 import InputText from '../../common/InputText'
 import { validateForm } from '../../common/validation/formValidation'
@@ -32,8 +32,6 @@ const CreateBot = () => {
     description: ''
   })
   const [commandData, setCommandData] = useState<BotCommands[]>([])
-  const [open, setOpen] = useState(false)
-  const [error, setError] = useState('')
 
   const [formErrors, setFormErrors] = useState({
     name: '',
@@ -78,23 +76,14 @@ const CreateBot = () => {
     if (command.name) {
       const found = commandData.find((el) => el.name === command.name)
       if (found) {
-        setError(t('admin:components.bot.uniqueCommand'))
-        setOpen(true)
+        NotificationService.dispatchNotify(t('admin:components.bot.uniqueCommand'), { variant: 'error' })
       } else {
         setCommandData([...commandData, command])
         setCommand({ id: '', name: '', description: '' })
       }
     } else {
-      setError(t('admin:components.bot.commandRequired'))
-      setOpen(true)
+      NotificationService.dispatchNotify(t('admin:components.bot.commandRequired'), { variant: 'error' })
     }
-  }
-
-  const handleClose = (event?: React.SyntheticEvent | Event, reason?: string) => {
-    if (reason === 'clickaway') {
-      return
-    }
-    setOpen(false)
   }
 
   const data: Instance[] = instanceData.value.map((element) => {
@@ -138,8 +127,7 @@ const CreateBot = () => {
       setCommandData([])
       setCurrentIntance([])
     } else {
-      setError(t('admin:components.bot.fillRequiredField'))
-      setOpen(true)
+      NotificationService.dispatchNotify(t('admin:components.bot.fillRequiredField'), { variant: 'error' })
     }
   }
 
@@ -249,7 +237,6 @@ const CreateBot = () => {
           />
         </form>
       </CardContent>
-      <AlertMessage open={open} handleClose={handleClose} severity="warning" message={error} />
     </Card>
   )
 }

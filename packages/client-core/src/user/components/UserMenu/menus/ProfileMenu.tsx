@@ -20,7 +20,7 @@ import TextField from '@mui/material/TextField'
 import Tooltip from '@mui/material/Tooltip'
 import Typography from '@mui/material/Typography'
 
-import { AuthSettingService, useAdminAuthSettingState } from '../../../../admin/services/Setting/AuthSettingService'
+import { AuthSettingsService, useAuthSettingState } from '../../../../admin/services/Setting/AuthSettingService'
 import { DiscordIcon } from '../../../../common/components/Icons/DiscordIcon'
 import { FacebookIcon } from '../../../../common/components/Icons/FacebookIcon'
 import { GoogleIcon } from '../../../../common/components/Icons/GoogleIcon'
@@ -32,10 +32,10 @@ import styles from '../index.module.scss'
 import { getAvatarURLForUser, Views } from '../util'
 
 interface Props {
-  changeActiveMenu?: (type: string | null) => void
-  setProfileMenuOpen?: (open: boolean) => void
   className?: string
   hideLogin?: boolean
+  changeActiveMenu?: (type: string | null) => void
+  setProfileMenuOpen?: (open: boolean) => void
 }
 
 const initialAuthState = {
@@ -108,8 +108,7 @@ export const MaterialUISwitch = styled(Switch)(({ theme }) => ({
   }
 }))
 
-const ProfileMenu = (props: Props): JSX.Element => {
-  const { changeActiveMenu, setProfileMenuOpen, hideLogin } = props
+const ProfileMenu = ({ className, hideLogin, changeActiveMenu, setProfileMenuOpen }: Props): JSX.Element => {
   const { t } = useTranslation()
   const location = useLocation()
 
@@ -121,7 +120,7 @@ const ProfileMenu = (props: Props): JSX.Element => {
   const [errorUsername, setErrorUsername] = useState(false)
   const [showUserId, setShowUserId] = useState(false)
   const [showApiKey, setShowApiKey] = useState(false)
-  const authSettingState = useAdminAuthSettingState()
+  const authSettingState = useAuthSettingState()
   const [authSetting] = authSettingState?.authSettings?.value || []
   const [authState, setAuthState] = useState(initialAuthState)
   const loading = useAuthState().isProcessing.value
@@ -130,10 +129,6 @@ const ProfileMenu = (props: Props): JSX.Element => {
   const apiKey = selfUser.apiKey?.token?.value
   const userRole = selfUser.userRole.value
   const [oauthConnectedState, setOauthConnectedState] = useState(initialOAuthConnectedState)
-
-  useEffect(() => {
-    !authSetting && AuthSettingService.fetchAuthSetting()
-  }, [])
 
   useEffect(() => {
     if (authSetting) {
@@ -370,7 +365,7 @@ const ProfileMenu = (props: Props): JSX.Element => {
   const enableConnect = authState?.emailMagicLink || authState?.smsMagicLink
 
   return (
-    <div className={styles.menuPanel + (props.className ? ' ' + props.className : '')}>
+    <div className={styles.menuPanel + (className ? ' ' + className : '')}>
       <section className={styles.profilePanel}>
         <section className={styles.profileBlock}>
           <div className={styles.avatarBlock}>
@@ -419,7 +414,7 @@ const ProfileMenu = (props: Props): JSX.Element => {
               <Grid item xs={userRole === 'guest' ? 6 : 4}>
                 <h2>
                   {userRole === 'admin' ? t('user:usermenu.profile.youAreAn') : t('user:usermenu.profile.youAreA')}
-                  <span id="user-role">{userRole}</span>.
+                  <span id="user-role">{` ${userRole}`}</span>.
                 </h2>
               </Grid>
               <Grid item container xs={userRole === 'guest' ? 6 : 4} alignItems="flex-start" direction="column">
