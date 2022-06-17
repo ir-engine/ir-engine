@@ -31,9 +31,6 @@ export const InviteTypeServiceReceptor = (action) => {
   })
 }
 
-// Temporary
-addActionReceptor(InviteTypeServiceReceptor)
-
 export const accessInviteTypeState = () => getState(InviteTypeState)
 
 export const useInviteTypeState = () => useState(accessInviteTypeState())
