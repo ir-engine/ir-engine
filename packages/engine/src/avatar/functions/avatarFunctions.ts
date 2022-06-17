@@ -205,12 +205,12 @@ export const setupAvatarMaterials = (entity, root) => {
   // TODO: Save head transform
   const animationComponent = getComponent(entity, AvatarAnimationComponent)
   const headBone = animationComponent.rig.Head
-  if (headBone) {
-    ;(headBone as any).traverse((o) => {
-      o.savedPosition = o.position.clone()
-      o.savedMatrixWorld = o.matrixWorld.clone()
-    })
-  }
+  // if (headBone) {
+  //   ;(headBone as any).traverse((o) => {
+  //     o.savedPosition = o.position.clone()
+  //     o.savedMatrixWorld = o.matrixWorld.clone()
+  //   })
+  // }
 
   root.traverse((object) => {
     if (object.isBone) object.visible = false
