@@ -17,7 +17,7 @@ export const DefaultArgs: MeshMatcapMaterialParameters = {
   opacity: 1.0
 }
 
-export default async function Matcap(args?: MeshMatcapMaterialParameters): Promise<MaterialParms> {
+export default function Matcap(args?: MeshMatcapMaterialParameters): MaterialParms {
   return {
     material: new MeshMatcapMaterial(args ? { ...format(DefaultArgs), ...args } : format(DefaultArgs)),
     update: (dt) => {}

@@ -84,13 +84,13 @@ export const DefaultArgs = {
   iTime: 0.0
 }
 
-export default async function Circuits(args?: {
+export default function Circuits(args?: {
   tiling?: Vector2
   iResolution?: number[]
   iChannel0?: Texture
   iChannel1?: Texture
   iTime?: number
-}): Promise<MaterialParms> {
+}): MaterialParms {
   const mat = new ShaderMaterial({
     uniforms: {
       tiling: { value: args?.tiling ?? DefaultArgs.tiling },

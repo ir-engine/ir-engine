@@ -19,7 +19,7 @@ export const DefaultArgs: MeshToonMaterialParameters = {
   opacity: 1.0
 }
 
-export default async function Toon(args?: MeshToonMaterialParameters): Promise<MaterialParms> {
+export default function Toon(args?: MeshToonMaterialParameters): MaterialParms {
   return {
     material: new MeshToonMaterial(args ? { ...format(DefaultArgs), ...args } : format(DefaultArgs)),
     update: (dt) => {}
