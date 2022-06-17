@@ -16,7 +16,8 @@ import {
   initializeMediaServerSystems,
   initializeNode,
   initializeRealtimeSystems,
-  initializeSceneSystems
+  initializeSceneSystems,
+  setupEngineActionSystems
 } from '@xrengine/engine/src/initializeEngine'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { matchActionOnce } from '@xrengine/engine/src/networking/functions/matchActionOnce'
@@ -691,6 +692,7 @@ export default (app: Application): void => {
   }
 
   createEngine()
+  setupEngineActionSystems()
   initializeNode()
 
   app.service('instanceserver-load').on('patched', async (params) => {
