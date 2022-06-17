@@ -1,7 +1,7 @@
 import assert from 'assert'
 
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
-import { matchesWithDefault } from '@xrengine/engine/src/common/functions/MatchesUtils'
+import { matches, matchesWithDefault } from '@xrengine/engine/src/common/functions/MatchesUtils'
 
 import {
   addActionReceptor,
@@ -13,7 +13,6 @@ import {
   defineState,
   dispatchAction,
   getState,
-  matches,
   registerState,
   removeActionReceptor
 } from '..'

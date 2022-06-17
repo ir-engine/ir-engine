@@ -2,8 +2,6 @@ import ActionFunctions from './functions/ActionFunctions'
 import StateFunctions from './functions/StateFunctions'
 import StoreFunctions, { HyperStore } from './functions/StoreFunctions'
 
-export * from 'ts-matches'
-
 export * from './utils/useHookEffect'
 export { useState } from '@speigg/hookstate'
 

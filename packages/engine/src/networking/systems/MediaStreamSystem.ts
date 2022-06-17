@@ -1,6 +1,7 @@
-import { defineAction, dispatchAction, matches } from '@xrengine/hyperflux'
+import { defineAction, dispatchAction } from '@xrengine/hyperflux'
 
 import { isClient } from '../../common/functions/isClient'
+import { matches } from '../../common/functions/MatchesUtils'
 import { Engine } from '../../ecs/classes/Engine'
 import { World } from '../../ecs/classes/World'
 import { localAudioConstraints, localVideoConstraints } from '../constants/VideoConstants'

@@ -1,8 +1,9 @@
 import { Audio as AudioObject } from 'three'
 
-import { addActionReceptor, matches } from '@xrengine/hyperflux'
+import { addActionReceptor } from '@xrengine/hyperflux'
 
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
+import { matches } from '../../common/functions/MatchesUtils'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions, EngineActionType } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'

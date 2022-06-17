@@ -1,7 +1,7 @@
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
-import { defineAction, defineState, getState, matches, useState, Validator } from '@xrengine/hyperflux'
+import { defineAction, defineState, getState, useState } from '@xrengine/hyperflux'
 
-import { matchesUserId } from '../../common/functions/MatchesUtils'
+import { matches, matchesUserId, Validator } from '../../common/functions/MatchesUtils'
 import { InteractableComponentType } from '../../interaction/components/InteractableComponent'
 import { Entity } from './Entity'
 

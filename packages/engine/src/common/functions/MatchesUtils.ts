@@ -6,6 +6,8 @@ import { UserId } from '@xrengine/common/src/interfaces/UserId'
 
 import { Engine } from '../../ecs/classes/Engine'
 
+export * from 'ts-matches'
+
 const matchesVec3Shape = matches.shape({
   x: matches.number,
   y: matches.number,

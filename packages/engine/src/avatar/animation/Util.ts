@@ -9,9 +9,7 @@ import {
   Vector3
 } from 'three'
 
-import { matches } from '@xrengine/hyperflux'
-
-import { matchesVector3 } from '../../common/functions/MatchesUtils'
+import { matches, matchesVector3 } from '../../common/functions/MatchesUtils'
 
 /** State of the avatar animation */
 
