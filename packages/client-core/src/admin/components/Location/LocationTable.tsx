@@ -23,12 +23,12 @@ interface Props {
 const LocationTable = ({ className, search }: Props) => {
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(LOCATION_PAGE_LIMIT)
-  const [popConfirmOpen, setPopConfirmOpen] = useState(false)
+  const [openConfirm, setOpenConfirm] = useState(false)
   const [locationId, setLocationId] = useState('')
   const [locationName, setLocationName] = useState('')
   const [fieldOrder, setFieldOrder] = useState('asc')
   const [sortField, setSortField] = useState('name')
-  const [viewModal, setViewModal] = useState(false)
+  const [openViewLocation, setOpenViewLocation] = useState(false)
   const [locationAdmin, setLocationAdmin] = useState<Location>()
   const authState = useAuthState()
   const user = authState.user
@@ -49,10 +49,6 @@ const LocationTable = ({ className, search }: Props) => {
     setPage(newPage)
   }
 
-  const handleCloseModal = () => {
-    setPopConfirmOpen(false)
-  }
-
   useEffect(() => {
     if (adminLocationState.fetched.value) {
       AdminLocationService.fetchAdminLocations(search, page, sortField, fieldOrder)
@@ -61,7 +57,7 @@ const LocationTable = ({ className, search }: Props) => {
 
   const submitRemoveLocation = async () => {
     await AdminLocationService.removeLocation(locationId)
-    setPopConfirmOpen(false)
+    setOpenConfirm(false)
   }
 
   const handleRowsPerPageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -69,16 +65,17 @@ const LocationTable = ({ className, search }: Props) => {
     setPage(0)
   }
 
-  const openViewModal = (open: boolean, location: Location) => (event: React.KeyboardEvent | React.MouseEvent) => {
-    if (
-      event.type === 'keydown' &&
-      ((event as React.KeyboardEvent).key === 'Tab' || (event as React.KeyboardEvent).key === 'Shift')
-    ) {
-      return
+  const handleOpenViewLocation =
+    (open: boolean, location: Location) => (event: React.KeyboardEvent | React.MouseEvent) => {
+      if (
+        event.type === 'keydown' &&
+        ((event as React.KeyboardEvent).key === 'Tab' || (event as React.KeyboardEvent).key === 'Shift')
+      ) {
+        return
+      }
+      setLocationAdmin(location)
+      setOpenViewLocation(open)
     }
-    setLocationAdmin(location)
-    setViewModal(open)
-  }
 
   const createData = (
     el: Location,
@@ -105,16 +102,16 @@ const LocationTable = ({ className, search }: Props) => {
       videoEnabled,
       action: (
         <>
-          <a href="#h" className={styles.actionStyle} onClick={openViewModal(true, el)}>
+          <a href="#h" className={styles.actionStyle} onClick={handleOpenViewLocation(true, el)}>
             <span className={styles.spanWhite}>{t('admin:components.index.view')}</span>
           </a>
           <a
             href="#h"
             className={styles.actionStyle}
             onClick={() => {
-              setPopConfirmOpen(true)
               setLocationId(id)
               setLocationName(name)
+              setOpenConfirm(true)
             }}
           >
             <span className={styles.spanDange}>{t('admin:components.index.delete')}</span>
@@ -180,12 +177,12 @@ const LocationTable = ({ className, search }: Props) => {
         handleRowsPerPageChange={handleRowsPerPageChange}
       />
       <ConfirmModal
-        open={popConfirmOpen}
+        open={openConfirm}
         description={`${t('admin:components.location.confirmLocationDelete')} '${locationName}'?`}
-        onClose={handleCloseModal}
+        onClose={() => setOpenConfirm(false)}
         onSubmit={submitRemoveLocation}
       />
-      <ViewLocation open={viewModal} locationAdmin={locationAdmin} onClose={() => setViewModal(false)} />
+      <ViewLocation open={openViewLocation} locationAdmin={locationAdmin} onClose={() => setOpenViewLocation(false)} />
     </Box>
   )
 }

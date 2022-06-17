@@ -8,7 +8,6 @@ import {
   Button,
   Dialog,
   Divider,
-  Drawer,
   IconButton,
   List,
   ListItem,
@@ -24,6 +23,7 @@ import {
   TableRow
 } from '@mui/material'
 
+import DrawerView from '../../../common/DrawerView'
 import InputSelect, { InputMenuItem } from '../../../common/InputSelect'
 import InputText from '../../../common/InputText'
 import styles from '../../../styles/settings.module.scss'
@@ -147,7 +147,7 @@ const ThemePlayground = () => {
       <br />
       <Box className="themeDemoArea">
         <nav className="navbar">
-          <div className="logoSection">XR-Engine</div>
+          <div className="logoSection">XREngine</div>
         </nav>
         <div className="mainSection">
           <div className="sidebar">
@@ -319,12 +319,7 @@ const ThemePlayground = () => {
               <Button variant="contained" className="filledButton" onClick={() => setDrawerValue(true)}>
                 Open Drawer
               </Button>
-              <Drawer
-                open={drawerValue}
-                anchor="right"
-                classes={{ paper: 'drawer' }}
-                onClose={() => setDrawerValue(false)}
-              ></Drawer>
+              <DrawerView open={drawerValue} onClose={() => setDrawerValue(false)}></DrawerView>
               <div className="textHeading">Popup</div>
               <Button variant="contained" className="filledButton" onClick={() => setDialog(true)}>
                 Open Popup
