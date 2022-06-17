@@ -20,7 +20,7 @@ export const DefaultArgs: MeshStandardMaterialParameters = {
   transparent: false
 }
 
-export default async function Standard(args?: MeshStandardMaterialParameters): Promise<MaterialParms> {
+export default function Standard(args?: MeshStandardMaterialParameters): MaterialParms {
   const mat = new MeshStandardMaterial(args ? { ...format(DefaultArgs), ...args } : format(DefaultArgs))
   return {
     material: mat,

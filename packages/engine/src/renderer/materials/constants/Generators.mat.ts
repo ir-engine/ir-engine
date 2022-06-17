@@ -302,7 +302,7 @@ export const DefaultArgs = {
   iResolution: [window.innerWidth * 2, window.innerHeight * 2, 1]
 }
 
-export default async function Generators(args?: { iTime?: number; iResolution?: number[] }): Promise<MaterialParms> {
+export default function Generators(args?: { iTime?: number; iResolution?: number[] }): MaterialParms {
   const mat = new ShaderMaterial({
     uniforms: {
       iTime: { value: args?.iTime ?? DefaultArgs.iTime },
