@@ -50,7 +50,8 @@ const EditGroup = ({ groupAdmin, closeEditModal, closeViewModal }: Props) => {
 
   const handleChange = (e) => {
     const { name, value } = e.target
-    let temp = state.formErrors
+
+    let temp = { ...state.formErrors }
     temp[name] = value.length < 2 ? `${_.upperFirst(name)} is required` : ''
     setState({ ...state, [name]: value, formErrors: temp })
   }
@@ -58,13 +59,17 @@ const EditGroup = ({ groupAdmin, closeEditModal, closeViewModal }: Props) => {
   const onSubmitHandler = (e) => {
     e.preventDefault()
     const { name, description, scopeTypes } = state
-    let temp = state.formErrors
-    temp.name = !state.name ? t('admin:components.group.nameCantEmpty') : ''
-    temp.description = !state.description ? t('admin:components.group.descriptionCantEmpty') : ''
-    temp.scopeTypes = !state.scopeTypes?.length ? t('admin:components.group.scopeCantEmpty') : ''
 
-    setState({ ...state, formErrors: temp })
-    if (validateForm(state, state.formErrors)) {
+    let tempErrors = {
+      ...state.formErrors,
+      name: state.name ? '' : t('admin:components.group.nameCantEmpty'),
+      description: state.description ? '' : t('admin:components.group.descriptionCantEmpty'),
+      scopeTypes: state.scopeTypes && state.scopeTypes.length > 0 ? '' : t('admin:components.group.scopeCantEmpty')
+    }
+
+    setState({ ...state, formErrors: tempErrors })
+
+    if (validateForm(state, tempErrors)) {
       AdminGroupService.patchGroupByAdmin(groupAdmin.id, { name, description, scopeTypes })
       setState({
         ...state,

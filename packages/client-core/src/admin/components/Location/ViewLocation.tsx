@@ -93,7 +93,9 @@ const ViewLocation = ({ open, locationAdmin, onClose }: Props) => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target
-    let temp = state.formErrors
+
+    let temp = { ...state.formErrors }
+
     switch (name) {
       case 'name':
         temp.name = value.length < 2 ? t('admin:components.locationModal.nameRequired') : ''
@@ -130,21 +132,17 @@ const ViewLocation = ({ open, locationAdmin, onClose }: Props) => {
       isFeatured: state.isFeatured
     }
 
-    let temp = state.formErrors
-    if (!state.name) {
-      temp.name = t('admin:components.locationModal.nameCantEmpty')
+    let tempErrors = {
+      ...state.formErrors,
+      name: state.name ? '' : t('admin:components.locationModal.nameCantEmpty'),
+      maxUsers: state.maxUsers ? '' : t('admin:components.locationModal.maxUserCantEmpty'),
+      scene: state.scene ? '' : t('admin:components.locationModal.sceneCantEmpty'),
+      type: state.type ? '' : t('admin:components.locationModal.typeCantEmpty')
     }
-    if (!state.maxUsers) {
-      temp.maxUsers = t('admin:components.locationModal.maxUserCantEmpty')
-    }
-    if (!state.scene) {
-      temp.scene = t('admin:components.locationModal.sceneCantEmpty')
-    }
-    if (!state.type) {
-      temp.type = t('admin:components.locationModal.typeCantEmpty')
-    }
-    setState({ ...state, formErrors: temp })
-    if (validateForm(state, state.formErrors)) {
+
+    setState({ ...state, formErrors: tempErrors })
+
+    if (validateForm(state, tempErrors)) {
       AdminLocationService.patchLocation(location.id, locationData)
       setState({
         ...state,

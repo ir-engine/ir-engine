@@ -201,6 +201,8 @@
       "project": "Project",
       "selectProject": "Select Project",
       "insertPublicUrl": "Please insert github public url",
+      "urlRequired": "URL is required",
+      "urlCantEmpty": "URL can't be empty",
       "uploadProject": "Upload Project",
       "customPublicUrl": "Custom Public Url",
       "selectFromList": "Select From List",

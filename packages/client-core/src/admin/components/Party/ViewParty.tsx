@@ -32,7 +32,7 @@ interface Props {
 }
 
 export default function ViewParty({ openView, closeViewModal, partyAdmin, editMode, handleEditMode }: Props) {
-  const [updateParty, setUpdateParty] = useState({
+  const [state, setState] = useState({
     location: '',
     instance: '',
     formErrors: {
@@ -62,8 +62,8 @@ export default function ViewParty({ openView, closeViewModal, partyAdmin, editMo
 
   useEffect(() => {
     if (partyAdmin?.instance?.id || partyAdmin?.location?.name) {
-      setUpdateParty({
-        ...updateParty,
+      setState({
+        ...state,
         instance: partyAdmin?.instance?.id ?? '',
         location: partyAdmin?.location?.id ?? ''
       })
@@ -72,7 +72,9 @@ export default function ViewParty({ openView, closeViewModal, partyAdmin, editMo
 
   const handleChange = (e) => {
     const { name, value } = e.target
-    let temp = updateParty.formErrors
+
+    let temp = { ...state.formErrors }
+
     switch (name) {
       case 'location':
         temp.location = value.length < 2 ? t('admin:components.party.locationRequired') : ''
@@ -83,7 +85,7 @@ export default function ViewParty({ openView, closeViewModal, partyAdmin, editMo
       default:
         break
     }
-    setUpdateParty({ ...updateParty, [name]: value, formErrors: temp })
+    setState({ ...state, [name]: value, formErrors: temp })
   }
 
   const data: Instance[] = instanceData.value.map((element) => {
@@ -92,21 +94,21 @@ export default function ViewParty({ openView, closeViewModal, partyAdmin, editMo
 
   const handleSubmit = async () => {
     const data: PatchParty = {
-      locationId: updateParty.location,
-      instanceId: updateParty.instance
+      locationId: state.location,
+      instanceId: state.instance
     }
-    let temp = updateParty.formErrors
-    if (!updateParty.location) {
-      temp.location = t('admin:components.party.locationCantEmpty')
-    }
-    if (!updateParty.instance) {
-      temp.instance = t('admin:components.party.instanceCantEmpty')
-    }
-    setUpdateParty({ ...updateParty, formErrors: temp })
 
-    if (validateForm(updateParty, updateParty.formErrors) && partyAdmin) {
+    let tempErrors = {
+      ...state.formErrors,
+      location: state.location ? '' : t('admin:components.party.locationCantEmpty'),
+      instance: state.instance ? '' : t('admin:components.party.instanceCantEmpty')
+    }
+
+    setState({ ...state, formErrors: tempErrors })
+
+    if (validateForm(state, tempErrors) && partyAdmin) {
       await AdminPartyService.patchParty(partyAdmin.id!, data)
-      setUpdateParty({ ...updateParty, location: '', instance: '' })
+      setState({ ...state, location: '', instance: '' })
       closeViewModal()
     }
   }
@@ -148,8 +150,8 @@ export default function ViewParty({ openView, closeViewModal, partyAdmin, editMo
             <InputSelect
               name="instance"
               label={t('admin:components.party.instance')}
-              value={updateParty.instance}
-              error={updateParty.formErrors.instance}
+              value={state.instance}
+              error={state.formErrors.instance}
               menu={instanceMenu}
               onChange={handleChange}
             />
@@ -157,8 +159,8 @@ export default function ViewParty({ openView, closeViewModal, partyAdmin, editMo
             <InputSelect
               name="location"
               label={t('admin:components.party.location')}
-              value={updateParty.location}
-              error={updateParty.formErrors.location}
+              value={state.location}
+              error={state.formErrors.location}
               menu={locationMenu}
               onChange={handleChange}
             />

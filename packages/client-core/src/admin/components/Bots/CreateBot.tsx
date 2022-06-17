@@ -109,19 +109,17 @@ const CreateBot = () => {
       description: state.description,
       locationId: state.location
     }
-    let temp = formErrors
-    if (!state.name) {
-      temp.name = t('admin:components.bot.nameCantEmpty')
-    }
-    if (!state.description) {
-      temp.description = t('admin:components.bot.descriptionCantEmpty')
-    }
-    if (!state.location) {
-      temp.location = t('admin:components.bot.locationCantEmpty')
+
+    let tempErrors = {
+      ...formErrors,
+      name: state.name ? '' : t('admin:components.bot.nameCantEmpty'),
+      description: state.description ? '' : t('admin:components.bot.descriptionCantEmpty'),
+      location: state.location ? '' : t('admin:components.bot.locationCantEmpty')
     }
 
-    setFormErrors(temp)
-    if (validateForm(state, formErrors)) {
+    setFormErrors(tempErrors)
+
+    if (validateForm(state, tempErrors)) {
       AdminBotService.createBotAsAdmin(data)
       setState({ name: '', description: '', instance: '', location: '' })
       setCommandData([])
@@ -145,12 +143,12 @@ const CreateBot = () => {
   }
 
   const handleInputChange = (e) => {
-    const names = e.target.name
-    const value = e.target.value
-    let temp = formErrors
-    temp[names] = value.length < 2 ? `${_.upperFirst(names)} is required` : ''
+    const { name, value } = e.target
+
+    let temp = { ...formErrors }
+    temp[name] = value.length < 2 ? `${_.upperFirst(name)} is required` : ''
     setFormErrors(temp)
-    setState({ ...state, [names]: value })
+    setState({ ...state, [name]: value })
   }
 
   const locationMenu: InputMenuItem[] = locationData.value.map((el) => {

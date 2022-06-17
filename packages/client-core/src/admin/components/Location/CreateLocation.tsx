@@ -76,7 +76,8 @@ const CreateLocation = ({ open, onClose }: Props) => {
 
   const handleChange = (e) => {
     const { name, value } = e.target
-    let temp = state.formErrors
+
+    let temp = { ...state.formErrors }
     temp[name] = value.length < 2 ? `${_.upperFirst(name)} ${t('admin:components.locationModal.isRequired')}` : ''
     setState({ ...state, [name]: value, formErrors: temp })
   }
@@ -97,18 +98,17 @@ const CreateLocation = ({ open, onClose }: Props) => {
       isLobby: state.isLobby,
       isFeatured: state.isFeatured
     }
-    const temp = state.formErrors
-    if (!state.name) {
-      temp.name = t('admin:components.locationModal.nameCantEmpty')
+
+    let tempErrors = {
+      ...state.formErrors,
+      name: state.name ? '' : t('admin:components.locationModal.nameCantEmpty'),
+      maxUsers: state.maxUsers ? '' : t('admin:components.locationModal.maxUserCantEmpty'),
+      scene: state.scene ? '' : t('admin:components.locationModal.sceneCantEmpty')
     }
-    if (!state.maxUsers) {
-      temp.maxUsers = t('admin:components.locationModal.maxUserCantEmpty')
-    }
-    if (!state.scene) {
-      temp.scene = t('admin:components.locationModal.sceneCantEmpty')
-    }
-    setState({ ...state, formErrors: temp })
-    if (validateForm(state, state.formErrors)) {
+
+    setState({ ...state, formErrors: tempErrors })
+
+    if (validateForm(state, tempErrors)) {
       AdminLocationService.createLocation(data)
       clearState()
       onClose()

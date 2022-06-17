@@ -52,7 +52,8 @@ const CreateGroup = ({ open, handleClose }: Props) => {
 
   const handleChange = (event) => {
     const { name, value } = event.target
-    let temp = state.formErrors
+
+    let temp = { ...state.formErrors }
     temp[name] = value.length < 2 ? `${_.upperFirst(name)} is required` : ''
     setState({ ...state, [name]: value, formErrors: temp })
   }
@@ -60,11 +61,16 @@ const CreateGroup = ({ open, handleClose }: Props) => {
   const onSubmitHandler = (event) => {
     event.preventDefault()
     const { name, description, scopeTypes } = state
-    let temp = state.formErrors
-    temp.name = !state.name ? t('admin:components.group.nameCantEmpty') : ''
-    temp.description = !state.description ? t('admin:components.group.descriptionCantEmpty') : ''
-    setState({ ...state, formErrors: temp })
-    if (validateForm(state, state.formErrors)) {
+
+    let tempErrors = {
+      ...state.formErrors,
+      name: state.name ? '' : t('admin:components.group.nameCantEmpty'),
+      description: state.description ? '' : t('admin:components.group.descriptionCantEmpty')
+    }
+
+    setState({ ...state, formErrors: tempErrors })
+
+    if (validateForm(state, tempErrors)) {
       AdminGroupService.createGroupByAdmin({ name, description, scopeTypes })
       setState({
         ...state,

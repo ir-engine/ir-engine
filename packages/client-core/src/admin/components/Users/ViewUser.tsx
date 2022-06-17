@@ -117,7 +117,8 @@ const ViewUser = ({ openView, closeViewModal, userAdmin }: Props) => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target
-    let temp = state.formErrors
+
+    let temp = { ...state.formErrors }
     temp[name] = value.length < 2 ? `${_.upperFirst(name)} ${t('admin:components.user.isRequired')}` : ''
     setState({ ...state, [name]: value, formErrors: temp })
   }
@@ -129,13 +130,18 @@ const ViewUser = ({ openView, closeViewModal, userAdmin }: Props) => {
       userRole: state.userRole,
       scopes: state.scopes
     }
-    let temp = state.formErrors
-    temp.name = !state.name ? t('admin:components.user.nameCantEmpty') : ''
-    temp.avatar = !state.avatar ? t('admin:components.user.avatarCantEmpty') : ''
-    temp.userRole = !state.userRole ? t('admin:components.user.userRoleCantEmpty') : ''
-    temp.scopes = !state.scopes.length ? t('admin:components.user.scopeTypeCantEmpty') : ''
-    setState({ ...state, formErrors: temp })
-    if (validateForm(state, state.formErrors) && userAdmin.id) {
+
+    let tempErrors = {
+      ...state.formErrors,
+      name: state.name ? '' : t('admin:components.user.nameCantEmpty'),
+      avatar: state.avatar ? '' : t('admin:components.user.avatarCantEmpty'),
+      userRole: state.userRole ? '' : t('admin:components.user.userRoleCantEmpty'),
+      scopes: state.scopes.length > 0 ? '' : t('admin:components.user.scopeTypeCantEmpty')
+    }
+
+    setState({ ...state, formErrors: tempErrors })
+
+    if (validateForm(state, tempErrors) && userAdmin.id) {
       AdminUserService.patchUser(userAdmin.id, data)
       setState({ ...state, name: '', avatar: '', userRole: '', scopes: [] })
       setEditMode(false)

@@ -50,7 +50,7 @@ const Party = () => {
       <div className={styles.rootTableWithSearch}>
         <PartyTable search={search} />
       </div>
-      <CreateParty open={partyModalOpen} handleClose={handleCreatePartyClose} />
+      {partyModalOpen && <CreateParty open handleClose={handleCreatePartyClose} />}
     </div>
   )
 }
