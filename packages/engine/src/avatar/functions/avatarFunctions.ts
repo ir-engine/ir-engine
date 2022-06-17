@@ -205,12 +205,6 @@ export const setupAvatarMaterials = (entity, root) => {
   // TODO: Save head transform
   const animationComponent = getComponent(entity, AvatarAnimationComponent)
   const headBone = animationComponent.rig.Head
-  // if (headBone) {
-  //   ;(headBone as any).traverse((o) => {
-  //     o.savedPosition = o.position.clone()
-  //     o.savedMatrixWorld = o.matrixWorld.clone()
-  //   })
-  // }
 
   root.traverse((object) => {
     if (object.isBone) object.visible = false
@@ -454,34 +448,6 @@ export const setAvatarHeadOpacity = (entity: Entity, opacity: number): void => {
     }
     material.transparent = opacity != 0
   })
-
-  //TODO: previous solution
-  // const animationComponent = getComponent(entity, AvatarAnimationComponent)
-  // const headBone = animationComponent.rig.Head
-  // if (!headBone) return
-
-  // if (!headBone || !neckBone || pastOpacity == opacity) return
-
-  // if (opacity == 0) {
-  //   ;(headBone as any).traverse((o) => {
-  //     // o.position.set(NaN, NaN, NaN)
-  //     // o.matrixWorld.set(NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN)
-  //   })
-  // } else {
-  //   ;(headBone as any).traverse((o) => {
-  //     if (!o.savedPosition) return
-  //     o.position.copy(o.savedPosition)
-  //     o.matrixWorld.copy(o.savedMatrixWorld)
-  //   })
-  // }
-
-  //TODO:
-  // We also have the solution to scale down the neck bone.
-  // In this case, we also need to handle the meshs to hide 'internal' polygons when opacity is below 1
-  // Check out the setupHeadDecap function
-  // (headBone.parent as any).traverse(o => {
-  //   o.scale.set(opacity, opacity, opacity);
-  // });
 }
 
 export const getAvatarBoneWorldPosition = (entity: Entity, boneName: string, position: Vector3): boolean => {
