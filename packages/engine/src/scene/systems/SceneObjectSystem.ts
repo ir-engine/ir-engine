@@ -1,3 +1,4 @@
+import { Not } from 'bitecs'
 import { Material, Mesh, Vector3 } from 'three'
 
 import { loadDRACODecoder } from '../../assets/loaders/gltf/NodeDracoLoader'
@@ -58,19 +59,14 @@ const processObject3d = (entity: Entity) => {
       obj.receiveShadow = shadowComponent.receiveShadow
       obj.castShadow = shadowComponent.castShadow
     }
-
-    if (Engine.instance.simpleMaterials || Engine.instance.isHMD) {
-      useSimpleMaterial(obj as any)
-    } else {
-      useStandardMaterial(obj)
-    }
   })
 }
 
 const sceneObjectQuery = defineQuery([Object3DComponent])
-const simpleMaterialsQuery = defineQuery([SimpleMaterialTagComponent])
+const simpleMaterialsQuery = defineQuery([Object3DComponent, SimpleMaterialTagComponent])
+const standardMaterialsQuery = defineQuery([Object3DComponent, Not(SimpleMaterialTagComponent)])
 const persistQuery = defineQuery([Object3DComponent, PersistTagComponent])
-const visibleQuery = defineQuery([Object3DComponent, VisibleComponent])
+const visibleQuery = defineQuery([VisibleComponent])
 const updatableQuery = defineQuery([Object3DComponent, UpdatableComponent])
 
 export default async function SceneObjectSystem(world: World) {
@@ -151,17 +147,46 @@ export default async function SceneObjectSystem(world: World) {
       obj?.update(world.fixedDeltaSeconds)
     }
 
-    for (const _ of simpleMaterialsQuery.enter()) {
-      Engine.instance.simpleMaterials = true
-      Engine.instance.currentWorld.scene.traverse((obj) => {
+    /**
+     * If a SimpleMaterialTagComponent is attached to the root node, this acts as a global to override all materials
+     * It can also be used to selectively convert individual objects to use simple materials
+     */
+    for (const entity of simpleMaterialsQuery.enter()) {
+      const object3DComponent = getComponent(entity, Object3DComponent)
+      if (object3DComponent.value === world.scene) {
+        Engine.instance.simpleMaterials = true
+      }
+      object3DComponent.value.traverse((obj) => {
         useSimpleMaterial(obj as any)
       })
     }
 
-    for (const _ of simpleMaterialsQuery.exit()) {
-      Engine.instance.simpleMaterials = false
-      Engine.instance.currentWorld.scene.traverse((obj) => {
-        useStandardMaterial(obj as Mesh<any, Material>)
+    /**
+     * As we iterative down the scene hierarchy, we don't want to override entities that have a SimpleMaterialTagComponent
+     */
+    for (const entity of simpleMaterialsQuery.exit()) {
+      const object3DComponent = getComponent(entity, Object3DComponent)
+      if (object3DComponent.value === world.scene) {
+        Engine.instance.simpleMaterials = false
+      }
+      if (!Engine.instance.simpleMaterials) {
+        object3DComponent.value.traverse((obj: Object3DWithEntity) => {
+          if (typeof obj.entity === 'number' && hasComponent(obj as any, SimpleMaterialTagComponent)) return
+          useStandardMaterial(obj as any)
+        })
+      }
+    }
+
+    /**
+     * This is needed as the inverse case of the previous query to ensure objects that are created without a simple material still have the standard material logic applied
+     */
+    for (const entity of standardMaterialsQuery.enter()) {
+      //check for materials that have had simple material tag added this frame
+      if (hasComponent(entity, SimpleMaterialTagComponent)) continue
+      const object3DComponent = getComponent(entity, Object3DComponent)
+      if (object3DComponent.value === world.scene) continue
+      object3DComponent.value.traverse((obj: Object3DWithEntity) => {
+        Engine.instance.simpleMaterials ? useSimpleMaterial(obj as any) : useStandardMaterial(obj as any)
       })
     }
   }

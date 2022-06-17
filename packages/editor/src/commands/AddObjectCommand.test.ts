@@ -12,9 +12,11 @@ import {
 import { createEngine } from '@xrengine/engine/src/initializeEngine'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
 import { registerPrefabs, ScenePrefabs } from '@xrengine/engine/src/scene/functions/registerPrefabs'
+import { applyIncomingActions } from '@xrengine/hyperflux'
 
 import EditorCommands from '../constants/EditorCommands'
 import { accessEditorState } from '../services/EditorServices'
+import { deregisterEditorReceptors, registerEditorReceptors } from '../services/EditorServicesReceptor'
 import { accessSelectionState, SelectionAction } from '../services/SelectionServices'
 import { AddObjectCommand, AddObjectCommandParams } from './AddObjectCommand'
 
@@ -27,6 +29,8 @@ describe('AddObjectCommand', () => {
 
   beforeEach(() => {
     createEngine()
+    registerEditorReceptors()
+    Engine.instance.store.defaultDispatchDelay = 0
     registerPrefabs(Engine.instance.currentWorld)
 
     rootNode = createEntityNode(createEntity())
@@ -40,7 +44,7 @@ describe('AddObjectCommand', () => {
     addEntityNodeInTree(beforeNodes[0], parentNodes[0])
     addEntityNodeInTree(beforeNodes[1], parentNodes[1])
 
-    SelectionAction.updateSelection([beforeNodes[0].entity])
+    SelectionAction.updateSelection({ selectedEntities: [beforeNodes[0].entity] })
 
     command = {
       type: EditorCommands.ADD_OBJECTS,
@@ -89,6 +93,7 @@ describe('AddObjectCommand', () => {
       const beforeSelectionChangeCounter = selectionState.beforeSelectionChangeCounter.value
 
       AddObjectCommand.emitEventBefore?.(command)
+      applyIncomingActions()
       assert.equal(beforeSelectionChangeCounter, selectionState.beforeSelectionChangeCounter.value)
     })
 
@@ -98,6 +103,7 @@ describe('AddObjectCommand', () => {
       const beforeSelectionChangeCounter = selectionState.beforeSelectionChangeCounter.value
 
       AddObjectCommand.emitEventBefore?.(command)
+      applyIncomingActions()
       assert.equal(beforeSelectionChangeCounter + 1, selectionState.beforeSelectionChangeCounter.value)
     })
   })
@@ -109,6 +115,7 @@ describe('AddObjectCommand', () => {
       const sceneGraphChangeCounter = selectionState.sceneGraphChangeCounter.value
 
       AddObjectCommand.emitEventAfter?.(command)
+      applyIncomingActions()
       assert.equal(sceneGraphChangeCounter, selectionState.sceneGraphChangeCounter.value)
     })
 
@@ -118,6 +125,7 @@ describe('AddObjectCommand', () => {
       const sceneGraphChangeCounter = selectionState.sceneGraphChangeCounter.value
 
       AddObjectCommand.emitEventAfter?.(command)
+      applyIncomingActions()
       assert.equal(sceneGraphChangeCounter + 1, selectionState.sceneGraphChangeCounter.value)
       assert.equal(accessEditorState().sceneModified.value, true)
     })
@@ -183,6 +191,7 @@ describe('AddObjectCommand', () => {
       command.updateSelection = true
 
       AddObjectCommand.execute(command)
+      applyIncomingActions()
 
       assert.notEqual(nodes.length, 0)
       assert.notEqual(parentNodes.length, 0)
@@ -253,5 +262,6 @@ describe('AddObjectCommand', () => {
   afterEach(() => {
     emptyEntityTree(Engine.instance.currentWorld.entityTree)
     accessSelectionState().merge({ selectedEntities: [] })
+    deregisterEditorReceptors()
   })
 })

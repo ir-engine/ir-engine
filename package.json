@@ -71,7 +71,7 @@
     "publish-github": "lerna publish from-package --yes --no-verify-access --ignore-scripts --registry https://npm.pkg.github.com",
     "start": "npm run dev",
     "test": "cross-env TEST=true lerna run test",
-    "test-e2e": "lerna run test-e2e",
+    "test-e2e": "ts-node scripts/run_e2e_tests.ts",
     "test:projects": "cross-env TEST=true lerna run test:projects",
     "test:ci": "cpy --no-overwrite --rename=.env.local '.env.local.default' . && cross-env CI=true npm run test",
     "update-name-gh-package": "lerna run update-name-gh-package",

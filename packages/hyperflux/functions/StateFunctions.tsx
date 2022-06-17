@@ -19,6 +19,7 @@ function registerState<StoreName extends string, S>(
   StateDefinition: StateDefinition<StoreName, S>,
   store = HyperFlux.store
 ) {
+  console.log('[HyperFlux]: registerState', StateDefinition.name)
   if (StateDefinition.name in store.state)
     throw new Error(`State ${StateDefinition.name} has already been registered in Store`)
   const initial =

@@ -13,7 +13,13 @@ export class DiscordStrategy extends CustomOAuthStrategy {
 
   async getEntityData(profile: any, entity: any, params: Params): Promise<any> {
     const baseData = await super.getEntityData(profile, null, {})
-    const userId = params?.query ? params.query.userId : undefined
+    const authResult = await (this.app.service('authentication') as any).strategies.jwt.authenticate(
+      { accessToken: params?.authentication?.accessToken },
+      {}
+    )
+    const identityProvider = authResult['identity-provider']
+    const userId = identityProvider ? identityProvider.userId : params?.query ? params.query.userId : undefined
+
     return {
       ...baseData,
       email: profile.email,
@@ -29,7 +35,7 @@ export class DiscordStrategy extends CustomOAuthStrategy {
     )
     const identityProvider = authResult['identity-provider']
     const user = await this.app.service('user').get(entity.userId)
-    const adminCount = await (this.app.service('user') as any).Model.count({
+    const adminCount = await this.app.service('user').Model.count({
       where: {
         userRole: 'admin'
       }
@@ -46,11 +52,21 @@ export class DiscordStrategy extends CustomOAuthStrategy {
       await this.app.service('user-api-key').create({
         userId: entity.userId
       })
-    if (entity.type !== 'guest') {
+    if (entity.type !== 'guest' && identityProvider.type === 'guest') {
       await this.app.service('identity-provider').remove(identityProvider.id)
       await this.app.service('user').remove(identityProvider.userId)
+      return super.updateEntity(entity, profile, params)
     }
-    return super.updateEntity(entity, profile, params)
+    const existingEntity = await super.findEntity(profile, params)
+    if (!existingEntity) {
+      profile.userId = user.id
+      const newIP = await super.createEntity(profile, params)
+      if (entity.type === 'guest') await this.app.service('identity-provider').remove(entity.id)
+      return newIP
+    } else if (existingEntity.userId === identityProvider.userId) return existingEntity
+    else {
+      throw new Error('Another user is linked to this account')
+    }
   }
 
   async getRedirect(data: any, params: Params): Promise<string> {
@@ -68,7 +84,6 @@ export class DiscordStrategy extends CustomOAuthStrategy {
       } catch (err) {
         parsedRedirect = {}
       }
-
       const path = parsedRedirect.path
       const instanceId = parsedRedirect.instanceId
       let returned = redirectHost + `?token=${token}&type=${type}`

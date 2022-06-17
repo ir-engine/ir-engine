@@ -6,7 +6,7 @@ export interface ProjectColumn {
 }
 
 export const projectsColumns: ProjectColumn[] = [
-  { id: 'name', label: 'name', minWidth: 65 },
+  { id: 'name', label: 'Name', minWidth: 65 },
   { id: 'update', label: 'Update', minWidth: 65, align: 'center' },
   { id: 'invalidate', label: 'Invalidate Cache', minWidth: 65, align: 'center' },
   { id: 'view', label: 'View Project Files', minWidth: 65, align: 'center' },

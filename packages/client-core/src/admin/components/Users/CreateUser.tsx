@@ -1,5 +1,5 @@
 import _ from 'lodash'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { AdminScopeType } from '@xrengine/common/src/interfaces/AdminScopeType'
@@ -12,28 +12,25 @@ import DialogContentText from '@mui/material/DialogContentText'
 import DialogTitle from '@mui/material/DialogTitle'
 import Drawer from '@mui/material/Drawer'
 
+import { NotificationService } from '../../../common/services/NotificationService'
 import { useAuthState } from '../../../user/services/AuthService'
-import AlertMessage from '../../common/AlertMessage'
 import AutoComplete from '../../common/AutoComplete'
-import { useFetchScopeType, useFetchStaticResource, useFetchUserRole } from '../../common/hooks/User.hooks'
 import InputSelect, { InputMenuItem } from '../../common/InputSelect'
 import InputText from '../../common/InputText'
 import { validateForm } from '../../common/validation/formValidation'
-import { ScopeTypeService, useScopeTypeState } from '../../services/ScopeTypeService'
-import { staticResourceService, useStaticResourceState } from '../../services/StaticResourceService'
-import { UserRoleService, useUserRoleState } from '../../services/UserRoleService'
-import { UserService } from '../../services/UserService'
+import { AdminScopeTypeService, useScopeTypeState } from '../../services/ScopeTypeService'
+import { AdminStaticResourceService, useStaticResourceState } from '../../services/StaticResourceService'
+import { AdminUserRoleService, useAdminUserRoleState } from '../../services/UserRoleService'
+import { AdminUserService } from '../../services/UserService'
 import styles from '../../styles/admin.module.scss'
 import CreateUserRole from './CreateUserRole'
 
 interface Props {
   open: boolean
-  handleClose: (open: boolean) => void
-  closeViewModal: (open: boolean) => void
+  onClose: () => void
 }
 
-const CreateUser = (props: Props) => {
-  const { open, closeViewModal } = props
+const CreateUser = ({ open, onClose }: Props) => {
   const { t } = useTranslation()
   const [openCreateUserRole, setOpenCreateUserRole] = useState(false)
   const [state, setState] = React.useState({
@@ -49,20 +46,32 @@ const CreateUser = (props: Props) => {
     }
   })
 
-  const [openWarning, setOpenWarning] = useState(false)
-  const [error, setError] = useState('')
-
   const user = useAuthState().user
-  const userRole = useUserRoleState()
+  const userRole = useAdminUserRoleState()
   const staticResource = useStaticResourceState()
   const staticResourceData = staticResource.staticResource
 
   const adminScopeTypeState = useScopeTypeState()
 
-  //Call custom hooks
-  useFetchUserRole(UserRoleService, userRole, user)
-  useFetchStaticResource(staticResourceService, staticResource, user)
-  useFetchScopeType(ScopeTypeService, adminScopeTypeState, user)
+  useEffect(() => {
+    const fetchData = async () => {
+      AdminUserRoleService.fetchUserRole()
+    }
+    const role = userRole ? userRole.updateNeeded.value : false
+    if (role && user.id.value) fetchData()
+  }, [userRole.updateNeeded.value, user.value])
+
+  useEffect(() => {
+    if (user.id.value && staticResource.updateNeeded.value) {
+      AdminStaticResourceService.fetchStaticResource()
+    }
+  }, [staticResource.updateNeeded.value, user.value])
+
+  useEffect(() => {
+    if (adminScopeTypeState.updateNeeded.value && user.id.value) {
+      AdminScopeTypeService.getScopeTypeService()
+    }
+  }, [adminScopeTypeState.updateNeeded.value, user.value])
 
   const clearState = () => {
     setState({
@@ -83,12 +92,6 @@ const CreateUser = (props: Props) => {
     setOpenCreateUserRole(false)
   }
 
-  const handleCloseWarning = (event?: React.SyntheticEvent | Event, reason?: string) => {
-    if (reason === 'clickaway') {
-      return
-    }
-    setOpenWarning(false)
-  }
   const handleChangeScopeType = (scope) => {
     if (scope.length) setState({ ...state, scopes: scope, formErrors: { ...state.formErrors, scopes: '' } })
   }
@@ -114,18 +117,17 @@ const CreateUser = (props: Props) => {
     temp.scopes = !state.scopes.length ? t('admin:components.user.scopeTypeCantEmpty') : ''
     setState({ ...state, formErrors: temp })
     if (validateForm(state, state.formErrors)) {
-      UserService.createUser(data)
-      closeViewModal(false)
+      AdminUserService.createUser(data)
       clearState()
+      onClose()
     } else {
-      setError(t('admin:components.user.fillRequiredField'))
-      setOpenWarning(true)
+      NotificationService.dispatchNotify(t('admin:components.user.fillRequiredField'), { variant: 'error' })
     }
   }
 
   const handleCancel = () => {
     clearState()
-    closeViewModal(false)
+    onClose()
   }
 
   interface ScopeData {
@@ -204,7 +206,6 @@ const CreateUser = (props: Props) => {
         </Container>
       </Drawer>
       <CreateUserRole open={openCreateUserRole} handleClose={handleUserRoleClose} />
-      <AlertMessage open={openWarning} handleClose={handleCloseWarning} severity="warning" message={error} />
     </React.Fragment>
   )
 }

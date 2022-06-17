@@ -1,7 +1,7 @@
-import { createState, useState } from '@speigg/hookstate'
+import { useState } from '@speigg/hookstate'
 
-import { store } from '@xrengine/client-core/src/store'
 import { ClientStorage } from '@xrengine/engine/src/common/classes/ClientStorage'
+import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import InfiniteGridHelper from '@xrengine/engine/src/scene/classes/InfiniteGridHelper'
 import {
   SnapMode,
@@ -12,6 +12,14 @@ import {
   TransformPivotType,
   TransformSpace
 } from '@xrengine/engine/src/scene/constants/transformConstants'
+import {
+  addActionReceptor,
+  defineAction,
+  defineState,
+  dispatchAction,
+  getState,
+  registerState
+} from '@xrengine/hyperflux'
 
 import { EditorHelperKeys } from '../constants/EditorHelperKeys'
 import { SceneState } from '../functions/sceneRenderFunctions'
@@ -29,22 +37,27 @@ type EditorHelperStateType = {
   scaleSnap: number
 }
 
-const state = createState<EditorHelperStateType>({
-  isPlayModeEnabled: false,
-  isFlyModeEnabled: false,
-  transformMode: TransformMode.Translate,
-  transformModeOnCancel: TransformMode.Translate,
-  transformSpace: TransformSpace.World,
-  transformPivot: TransformPivot.Selection,
-  snapMode: SnapMode.Grid,
-  translationSnap: 0.5,
-  rotationSnap: 10,
-  scaleSnap: 0.1
+const EditorHelperState = defineState({
+  name: 'EditorHelperState',
+  initial: () =>
+    ({
+      isPlayModeEnabled: false,
+      isFlyModeEnabled: false,
+      transformMode: TransformMode.Translate,
+      transformModeOnCancel: TransformMode.Translate,
+      transformSpace: TransformSpace.World,
+      transformPivot: TransformPivot.Selection,
+      snapMode: SnapMode.Grid,
+      translationSnap: 0.5,
+      rotationSnap: 10,
+      scaleSnap: 0.1
+    } as EditorHelperStateType)
 })
 
 export async function restoreEditorHelperData(): Promise<void> {
   if (typeof window !== 'undefined') {
     const s = {} as EditorHelperStateType
+    const state = getState(EditorHelperState)
 
     await Promise.all([
       ClientStorage.get(EditorHelperKeys.TRANSFORM_MODE).then((v) => {
@@ -77,136 +90,140 @@ export async function restoreEditorHelperData(): Promise<void> {
       })
     ])
 
-    store.dispatch(EditorHelperAction.restoreStorageData(s))
+    dispatchAction(EditorHelperAction.restoreStorageData({ state: s }))
   }
 }
 
 function updateHelpers(): void {
+  const state = getState(EditorHelperState)
   SceneState.transformGizmo.setTransformMode(state.transformMode.value)
   InfiniteGridHelper.instance.setSize(state.translationSnap.value)
 }
 
-store.receptors.push((action: EditorHelperActionType): any => {
-  state.batch((s) => {
-    switch (action.type) {
-      case 'PLAY_MODE_CHANGED':
-        s.merge({ isPlayModeEnabled: action.isPlayModeEnabled })
-        break
-      case 'FLY_MODE_CHANGED':
-        s.merge({ isFlyModeEnabled: action.isFlyModeEnabled })
-        break
-      case 'TRANSFORM_MODE_CHANGED':
+export const EditorHelperServiceReceptor = (action): any => {
+  getState(EditorHelperState).batch((s) => {
+    matches(action)
+      .when(EditorHelperAction.changedPlayMode.matches, (action) => {
+        return s.merge({ isPlayModeEnabled: action.isPlayModeEnabled })
+      })
+      .when(EditorHelperAction.changedFlyMode.matches, (action) => {
+        return s.merge({ isFlyModeEnabled: action.isFlyModeEnabled })
+      })
+      .when(EditorHelperAction.changedTransformMode.matches, (action) => {
         s.merge({ transformMode: action.mode })
         ClientStorage.set(EditorHelperKeys.TRANSFORM_MODE, action.mode)
-        break
-      case 'TRANSFORM_MODE_ON_CANCEL_CHANGED':
-        s.merge({ transformModeOnCancel: action.mode })
-        break
-      case 'TRANSFORM_SPACE_CHANGED':
+        return s
+      })
+      .when(EditorHelperAction.changeTransformModeOnCancel.matches, (action) => {
+        return s.merge({ transformModeOnCancel: action.mode })
+      })
+      .when(EditorHelperAction.changedTransformSpaceMode.matches, (action) => {
         s.merge({ transformSpace: action.transformSpace })
         ClientStorage.set(EditorHelperKeys.TRANSFORM_SPACE, action.transformSpace)
-        break
-      case 'TRANSFORM_PIVOT_CHANGED':
+        return s
+      })
+      .when(EditorHelperAction.changedTransformPivotMode.matches, (action) => {
         s.merge({ transformPivot: action.transformPivot })
         ClientStorage.set(EditorHelperKeys.TRANSFORM_PIVOT, action.transformPivot)
-        break
-      case 'SNAP_MODE_CHANGED':
+        return s
+      })
+      .when(EditorHelperAction.changedSnapMode.matches, (action) => {
         s.merge({ snapMode: action.snapMode })
         ClientStorage.set(EditorHelperKeys.SNAP_MODE, action.snapMode)
-        break
-      case 'TRANSLATION_SNAP_CHANGED':
+        return s
+      })
+      .when(EditorHelperAction.changeTranslationSnap.matches, (action) => {
         s.merge({ translationSnap: action.translationSnap })
         ClientStorage.set(EditorHelperKeys.TRANSLATION_SNAP, action.translationSnap)
-        break
-      case 'ROTATION_SNAP_CHANGED':
+        return s
+      })
+      .when(EditorHelperAction.changeRotationSnap.matches, (action) => {
         s.merge({ rotationSnap: action.rotationSnap })
         ClientStorage.set(EditorHelperKeys.ROTATION_SNAP, action.rotationSnap)
-        break
-      case 'SCALE_SNAP_CHANGED':
+        return s
+      })
+      .when(EditorHelperAction.changeScaleSnap.matches, (action) => {
         s.merge({ scaleSnap: action.scaleSnap })
         ClientStorage.set(EditorHelperKeys.SCALE_SNAP, action.scaleSnap)
-        break
-      case 'RESTORE_STORAGE_DATA':
+        return s
+      })
+      .when(EditorHelperAction.restoreStorageData.matches, (action) => {
         s.merge(action.state)
         updateHelpers()
-    }
-
-    return s
-  }, action.type)
-})
-
-export const accessEditorHelperState = () => state
-
-export const useEditorHelperState = () => useState(state) as any as typeof state
-
-//Action
-export const EditorHelperAction = {
-  restoreStorageData: (state: EditorHelperStateType) => {
-    return {
-      type: 'RESTORE_STORAGE_DATA' as const,
-      state
-    }
-  },
-  changedPlayMode: (isEnabled: boolean) => {
-    return {
-      type: 'PLAY_MODE_CHANGED' as const,
-      isPlayModeEnabled: isEnabled
-    }
-  },
-  changedFlyMode: (isEnabled: boolean) => {
-    return {
-      type: 'FLY_MODE_CHANGED' as const,
-      isFlyModeEnabled: isEnabled
-    }
-  },
-  changedTransformMode: (mode: TransformModeType) => {
-    return {
-      type: 'TRANSFORM_MODE_CHANGED' as const,
-      mode
-    }
-  },
-  changeTransformModeOnCancel: (mode: TransformModeType) => {
-    return {
-      type: 'TRANSFORM_MODE_ON_CANCEL_CHANGED' as const,
-      mode
-    }
-  },
-  changedTransformSpaceMode: (transformSpace: TransformSpace) => {
-    return {
-      type: 'TRANSFORM_SPACE_CHANGED' as const,
-      transformSpace
-    }
-  },
-  changedTransformPivotMode: (transformPivot: TransformPivotType) => {
-    return {
-      type: 'TRANSFORM_PIVOT_CHANGED' as const,
-      transformPivot
-    }
-  },
-  changedSnapMode: (snapMode: SnapModeType) => {
-    return {
-      type: 'SNAP_MODE_CHANGED' as const,
-      snapMode
-    }
-  },
-  changeTranslationSnap: (translationSnap: number) => {
-    return {
-      type: 'TRANSLATION_SNAP_CHANGED' as const,
-      translationSnap
-    }
-  },
-  changeRotationSnap: (rotationSnap: number) => {
-    return {
-      type: 'ROTATION_SNAP_CHANGED' as const,
-      rotationSnap
-    }
-  },
-  changeScaleSnap: (scaleSnap: number) => {
-    return {
-      type: 'SCALE_SNAP_CHANGED' as const,
-      scaleSnap
-    }
-  }
+        return s
+      })
+  })
 }
 
-export type EditorHelperActionType = ReturnType<typeof EditorHelperAction[keyof typeof EditorHelperAction]>
+export const accessEditorHelperState = () => getState(EditorHelperState)
+
+export const useEditorHelperState = () => useState(accessEditorHelperState())
+
+//Action
+export class EditorHelperAction {
+  static restoreStorageData = defineAction({
+    store: 'EDITOR' as const,
+    type: 'editorHelper.RESTORE_STORAGE_DATA' as const,
+    state: matches.any as Validator<unknown, EditorHelperStateType>
+  })
+
+  static changedPlayMode = defineAction({
+    store: 'EDITOR' as const,
+    type: 'editorHelper.PLAY_MODE_CHANGED' as const,
+    isPlayModeEnabled: matches.boolean
+  })
+
+  static changedFlyMode = defineAction({
+    store: 'EDITOR' as const,
+    type: 'editorHelper.FLY_MODE_CHANGED' as const,
+    isFlyModeEnabled: matches.boolean
+  })
+
+  static changedTransformMode = defineAction({
+    store: 'EDITOR' as const,
+    type: 'editorHelper.TRANSFORM_MODE_CHANGED' as const,
+    mode: matches.any as Validator<unknown, TransformModeType>
+  })
+
+  static changeTransformModeOnCancel = defineAction({
+    store: 'EDITOR' as const,
+    type: 'editorHelper.TRANSFORM_MODE_ON_CANCEL_CHANGED' as const,
+    mode: matches.any as Validator<unknown, TransformModeType>
+  })
+
+  static changedTransformSpaceMode = defineAction({
+    store: 'EDITOR' as const,
+    type: 'editorHelper.TRANSFORM_SPACE_CHANGED' as const,
+    transformSpace: matches.any as Validator<unknown, TransformSpace>
+  })
+
+  static changedTransformPivotMode = defineAction({
+    store: 'EDITOR' as const,
+    type: 'editorHelper.TRANSFORM_PIVOT_CHANGED' as const,
+    transformPivot: matches.any as Validator<unknown, TransformPivotType>
+  })
+
+  static changedSnapMode = defineAction({
+    store: 'EDITOR' as const,
+    type: 'editorHelper.SNAP_MODE_CHANGED' as const,
+    snapMode: matches.any as Validator<unknown, SnapModeType>
+  })
+
+  static changeTranslationSnap = defineAction({
+    store: 'EDITOR' as const,
+    type: 'editorHelper.TRANSLATION_SNAP_CHANGED' as const,
+    translationSnap: matches.number
+  })
+
+  static changeRotationSnap = defineAction({
+    store: 'EDITOR' as const,
+    type: 'editorHelper.ROTATION_SNAP_CHANGED' as const,
+    rotationSnap: matches.number
+  })
+
+  static changeScaleSnap = defineAction({
+    store: 'EDITOR' as const,
+    type: 'editorHelper.SCALE_SNAP_CHANGED' as const,
+    scaleSnap: matches.number
+  })
+}

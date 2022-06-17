@@ -16,13 +16,15 @@ import { useLocationState } from '@xrengine/client-core/src/social/services/Loca
 import { useDispatch } from '@xrengine/client-core/src/store'
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import { UserService, useUserState } from '@xrengine/client-core/src/user/services/UserService'
+import { matches } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
 import { receiveJoinWorld } from '@xrengine/engine/src/networking/functions/receiveJoinWorld'
 import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
-import { addActionReceptor, matches, useHookEffect } from '@xrengine/hyperflux'
+import { addActionReceptor, removeActionReceptor, useHookEffect } from '@xrengine/hyperflux'
 
+import { UserServiceReceptor } from '../../user/services/UserService'
 import { getSearchParamFromURL } from '../../util/getSearchParamFromURL'
 import InstanceServerWarnings from './InstanceServerWarnings'
 
@@ -52,6 +54,10 @@ export const NetworkInstanceProvisioning = () => {
         MediaStreamService.triggerUpdateConsumers
       )
     })
+    addActionReceptor(UserServiceReceptor)
+    return () => {
+      removeActionReceptor(UserServiceReceptor)
+    }
   }, [])
 
   /** if the instance that got provisioned is not the one that was entered into the URL, update the URL */

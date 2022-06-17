@@ -13,8 +13,7 @@ interface Props {
   search: string
 }
 
-const SentInvite = (props: Props) => {
-  const { search } = props
+const SentInvite = ({ search }: Props) => {
   const [page, setPage] = useState(0)
   const [popConfirmOpen, setPopConfirmOpen] = useState(false)
   const [inviteId, setInviteId] = useState('')
@@ -93,11 +92,10 @@ const SentInvite = (props: Props) => {
         handleRowsPerPageChange={handleRowsPerPageChange}
       />
       <ConfirmModal
-        popConfirmOpen={popConfirmOpen}
-        handleCloseModal={handleCloseModal}
-        submit={deleteInvite}
-        name={inviteName}
-        label={'invite'}
+        open={popConfirmOpen}
+        description={`${t('admin:components.invite.confirmInviteDelete')} '${inviteName}'?`}
+        onClose={handleCloseModal}
+        onSubmit={deleteInvite}
       />
     </React.Fragment>
   )

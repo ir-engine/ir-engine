@@ -1,6 +1,5 @@
 import { Group, Object3D, Scene, Vector3, WebGLInfo } from 'three'
 
-import { store } from '@xrengine/client-core/src/store'
 import { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
@@ -98,7 +97,7 @@ export async function initializeRenderer(): Promise<void> {
 
     addInputActionMapping(ActionSets.EDITOR, EditorMapping)
 
-    store.dispatch(EditorAction.rendererInitialized(true))
+    dispatchAction(EditorAction.rendererInitialized({ initialized: true }))
 
     accessEngineRendererState().automatic.set(false)
     await restoreEditorHelperData()

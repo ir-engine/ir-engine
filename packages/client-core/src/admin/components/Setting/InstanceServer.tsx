@@ -1,10 +1,10 @@
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { Grid, Paper, Typography } from '@mui/material'
-import Switch from '@mui/material/Switch'
+import { Grid, Typography } from '@mui/material'
 
 import { useAuthState } from '../../../user/services/AuthService'
+import InputSwitch from '../../common/InputSwitch'
 import InputText from '../../common/InputText'
 import { InstanceServerSettingService } from '../../services/Setting/InstanceServerSettingService'
 import { useInstanceServerSettingState } from '../../services/Setting/InstanceServerSettingService'
@@ -78,17 +78,13 @@ const InstanceServer = (props: instanceServerProps) => {
               </Grid>
 
               <Grid item xs={12} sm={6}>
-                <label> {t('admin:components.setting.local')} </label>
-                <Paper component="div" className={styles.createInput}>
-                  <Switch
-                    disabled
-                    checked={local.checkedB}
-                    onChange={handleLocal}
-                    color="primary"
-                    name="checkedB"
-                    inputProps={{ 'aria-label': 'primary checkbox' }}
-                  />
-                </Paper>
+                <InputSwitch
+                  name="local"
+                  label={t('admin:components.setting.local')}
+                  checked={local.checkedB}
+                  disabled
+                  onChange={handleLocal}
+                />
 
                 <InputText
                   name="domain"

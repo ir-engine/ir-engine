@@ -79,7 +79,8 @@ export const addAnimationLogic = (
     animationGraph: {
       states: {},
       transitionRules: {},
-      currentState: null!
+      currentState: null!,
+      stateChanged: null!
     },
     rig: {} as BoneStructure,
     rootYRatio: 1

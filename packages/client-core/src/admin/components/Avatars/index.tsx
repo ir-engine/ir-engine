@@ -1,12 +1,13 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+
+import { addActionReceptor, dispatchAction, removeActionReceptor } from '@xrengine/hyperflux'
 
 import Button from '@mui/material/Button'
 import Drawer from '@mui/material/Drawer'
 import Grid from '@mui/material/Grid'
 
-import { AvatarAction } from '../../../admin/services/AvatarService'
-import { useDispatch } from '../../../store'
+import { AdminAvatarActions, AdminAvatarServiceReceptor } from '../../../admin/services/AvatarService'
 import AvatarSelectMenu from '../../../user/components/UserMenu/menus/AvatarSelectMenu'
 import Search from '../../common/Search'
 import styles from '../../styles/admin.module.scss'
@@ -16,7 +17,13 @@ const Avatar = () => {
   const [search, setSearch] = useState('')
   const [open, setOpen] = useState(false)
   const { t } = useTranslation()
-  const dispatch = useDispatch()
+
+  useEffect(() => {
+    addActionReceptor(AdminAvatarServiceReceptor)
+    return () => {
+      removeActionReceptor(AdminAvatarServiceReceptor)
+    }
+  }, [])
 
   const handleClickOpen = () => {
     setOpen(true)
@@ -49,7 +56,7 @@ const Avatar = () => {
         <Drawer anchor="right" open={open} onClose={handleClose} classes={{ paper: styles.paperDrawer }}>
           <AvatarSelectMenu
             adminStyles={styles}
-            onAvatarUpload={() => dispatch(AvatarAction.avatarUpdated())}
+            onAvatarUpload={() => dispatchAction(AdminAvatarActions.avatarUpdated())}
             changeActiveMenu={handleClose}
           />
         </Drawer>

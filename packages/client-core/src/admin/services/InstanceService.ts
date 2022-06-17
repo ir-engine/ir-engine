@@ -1,16 +1,8 @@
 import { Paginated } from '@feathersjs/feathers'
 
 import { Instance } from '@xrengine/common/src/interfaces/Instance'
-import {
-  addActionReceptor,
-  defineAction,
-  defineState,
-  dispatchAction,
-  getState,
-  matches,
-  useState,
-  Validator
-} from '@xrengine/hyperflux'
+import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
+import { addActionReceptor, defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
 import { NotificationService } from '../../common/services/NotificationService'
 import { client } from '../../feathers'
@@ -35,7 +27,7 @@ export const AdminInstanceState = defineState({
 export const AdminInstanceServiceReceptor = (action) => {
   getState(AdminInstanceState).batch((s) => {
     matches(action)
-      .when(AdminInstanceAction.instancesRetrievedAction.matches, (action) => {
+      .when(AdminInstanceActions.instancesRetrievedAction.matches, (action) => {
         return s.merge({
           instances: action.instanceResult.data,
           skip: action.instanceResult.skip,
@@ -47,21 +39,18 @@ export const AdminInstanceServiceReceptor = (action) => {
           lastFetched: Date.now()
         })
       })
-      .when(AdminInstanceAction.instancesRetrievedAction.matches, () => {
+      .when(AdminInstanceActions.instancesRetrievedAction.matches, () => {
         return s.merge({ updateNeeded: true })
       })
   })
 }
 
-// temporary
-addActionReceptor(AdminInstanceServiceReceptor)
+export const accessAdminInstanceState = () => getState(AdminInstanceState)
 
-export const accessInstanceState = () => getState(AdminInstanceState)
-
-export const useInstanceState = () => useState(accessInstanceState())
+export const useAdminInstanceState = () => useState(accessAdminInstanceState())
 
 //Service
-export const InstanceService = {
+export const AdminInstanceService = {
   fetchAdminInstances: async (value: string | null = null, skip = 0, sortField = 'createdAt', orderBy = 'asc') => {
     const user = accessAuthState().user
     try {
@@ -81,7 +70,7 @@ export const InstanceService = {
             search: value
           }
         })) as Paginated<Instance>
-        dispatchAction(AdminInstanceAction.instancesRetrievedAction({ instanceResult: instances }))
+        dispatchAction(AdminInstanceActions.instancesRetrievedAction({ instanceResult: instances }))
       }
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
@@ -89,16 +78,16 @@ export const InstanceService = {
   },
   removeInstance: async (id: string) => {
     const result = (await client.service('instance').patch(id, { ended: true })) as Instance
-    dispatchAction(AdminInstanceAction.instanceRemovedAction({ instance: result }))
+    dispatchAction(AdminInstanceActions.instanceRemovedAction({ instance: result }))
   }
 }
 
 if (globalThis.process.env['VITE_OFFLINE_MODE'] !== 'true') {
   client.service('instance').on('removed', (params) => {
-    dispatchAction(AdminInstanceAction.instanceRemovedAction({ instance: params.instance }))
+    dispatchAction(AdminInstanceActions.instanceRemovedAction({ instance: params.instance }))
   })
 }
-export class AdminInstanceAction {
+export class AdminInstanceActions {
   static instancesRetrievedAction = defineAction({
     store: 'ENGINE',
     type: 'admin.INSTANCES_RETRIEVED',

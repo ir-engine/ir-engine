@@ -89,7 +89,7 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
     if (node.entity === entity) return
 
     textureOverrideEntities.push({
-      label: getComponent(node.entity, NameComponent).name,
+      label: hasComponent(node.entity, NameComponent) ? getComponent(node.entity, NameComponent).name : node.uuid,
       value: node.uuid
     })
   })
@@ -116,19 +116,23 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
           onChange={updateProperty(ModelComponent, 'textureOverride')}
         />
       </InputGroup>
-      <InputGroup name="Material Override" label={t('editor:properties.model.lbl-materialOverride')}>
-        <MaterialAssignment
-          entity={entity}
-          node={props.node}
-          modelComponent={modelComponent}
-          values={modelComponent.materialOverrides}
-          onChange={updateProperty(ModelComponent, 'materialOverrides')}
-        />
-      </InputGroup>
+      <MaterialAssignment
+        entity={entity}
+        node={props.node}
+        modelComponent={modelComponent}
+        values={modelComponent.materialOverrides}
+        onChange={updateProperty(ModelComponent, 'materialOverrides')}
+      />
       <InputGroup name="MatrixAutoUpdate" label={t('editor:properties.model.lbl-matrixAutoUpdate')}>
         <BooleanInput
           value={modelComponent.matrixAutoUpdate}
           onChange={updateProperty(ModelComponent, 'matrixAutoUpdate')}
+        />
+      </InputGroup>
+      <InputGroup name="Use Basic Materials" label={t('editor:properties.model.lbl-useBasicMaterials')}>
+        <BooleanInput
+          value={modelComponent.useBasicMaterial}
+          onChange={updateProperty(ModelComponent, 'useBasicMaterial')}
         />
       </InputGroup>
       <InputGroup name="Is Using GPU Instancing" label={t('editor:properties.model.lbl-isGPUInstancing')}>

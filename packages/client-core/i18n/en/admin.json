@@ -103,7 +103,9 @@
       "selectInstance": "Select instance",
       "cancel": "Cancel",
       "save": "Save",
-      "name": "Name"
+      "name": "Name",
+      "bot": "Bot",
+      "confirmBotDelete": "Do you want to delete bot"
     },
     "common": {
       "doYouWantTo": "Do you want to",
@@ -146,7 +148,8 @@
       "grantScope": "Grant Scope",
       "usersInformation": "Users Information",
       "groupScopes": "Group scopes",
-      "groupInformation": "Group Information"
+      "groupInformation": "Group Information",
+      "confirmGroupDelete": "Do you want to delete group"
     },
     "invite": {
       "sendInvite": "Send Invite",
@@ -162,7 +165,9 @@
       "name": "Name",
       "passcode": "Passcode",
       "type": "Type",
-      "action": "Action"
+      "action": "Action",
+      "invite": "Invite",
+      "confirmInviteDelete": "Do you want to delete invite"
     },
     "party": {
       "locationRequired": "Location is required",
@@ -176,14 +181,14 @@
       "createOne": "Create One",
       "dontSeeLocation": "Don't see Location?",
       "createNewParty": "Create New Party",
-      "partyWithInstanceOf": "party with instance of",
       "updateParty": "Update party",
       "ipAddress": "Ip Address",
       "user": "User",
       "active": "Active",
       "submit": "Submit",
       "cancel": "Cancel",
-      "edit": "Edit"
+      "edit": "Edit",
+      "confirmPartyDelete": "Do you want to delete party with instance of"
     },
     "project": {
       "name": "Name",
@@ -194,13 +199,17 @@
       "addProject": "Add Project",
       "rebuild": "Rebuild",
       "project": "Project",
-      "storageProvidersCacheOf": "storage provider's cache of",
       "selectProject": "Select Project",
       "insertPublicUrl": "Please insert github public url",
       "uploadProject": "Upload Project",
       "customPublicUrl": "Custom Public Url",
       "selectFromList": "Select From List",
-      "processing": "Processing"
+      "processing": "Processing",
+      "url": "URL",
+      "confirmProjectsRebuild": "Do you want to rebuild projects?",
+      "confirmProjectRebuild": "Do you want to rebuild project",
+      "confirmProjectInvalidate": "Do you want to invalidate storage provider's cache of",
+      "confirmProjectDelete": "Do you want to delete project"
     },
     "scene": {
       "sceneInfo": "Scene Information",
@@ -210,6 +219,12 @@
       "entities": "Entities",
       "version": "Version",
       "description": "Description"
+    },
+    "instance": {
+      "confirmInstanceDelete": "Do you want to delete instance"
+    },
+    "location": {
+      "confirmLocationDelete": "Do you want to delete location"
     },
     "setting": {
       "authentication": "AUTHENTICATION",
@@ -326,7 +341,8 @@
       "avatarUrlCantEmpty": "Avatar url can't be empty",
       "avatarCantEmpty": "Avatar can't be empty",
       "descriptionCantEmpty": "Description can't be empty",
-      "nameCantEmpty": "Name can't be empty"
+      "nameCantEmpty": "Name can't be empty",
+      "confirmAvatarDelete": "Do you want to delete avatar"
     },
     "dialog": {
       "notAccess": "No access",
@@ -360,7 +376,8 @@
       "inviteCode": "Invite Code",
       "instance": "Instance",
       "userScope": "User scope",
-      "enterName": "Enter name"
+      "enterName": "Enter name",
+      "confirmUserDelete": "Do you want to delete user"
     }
   }
 }

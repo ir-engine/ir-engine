@@ -1,9 +1,7 @@
-import { useState } from '@speigg/hookstate'
-import React, { useEffect } from 'react'
+import React, { Fragment, useEffect, useRef, useState } from 'react'
 
 import { useLocationInstanceConnectionState } from '@xrengine/client-core/src/common/services/LocationInstanceConnectionService'
-import { ChatService, useChatState } from '@xrengine/client-core/src/social/services/ChatService'
-import { getChatMessageSystem, removeMessageSystem } from '@xrengine/client-core/src/social/services/utils/chatSystem'
+import { ChatService, ChatServiceReceptor, useChatState } from '@xrengine/client-core/src/social/services/ChatService'
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import { notificationAlertURL } from '@xrengine/common/src/constants/URL'
 import { Channel } from '@xrengine/common/src/interfaces/Channel'
@@ -11,7 +9,6 @@ import multiLogger from '@xrengine/common/src/logger'
 import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
 import { useAudioState } from '@xrengine/engine/src/audio/AudioState'
 import { AudioComponent } from '@xrengine/engine/src/audio/components/AudioComponent'
-import { isCommand } from '@xrengine/engine/src/common/functions/commandHandler'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { EngineActions, getEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
@@ -25,7 +22,7 @@ import { toggleAudio } from '@xrengine/engine/src/scene/functions/loaders/AudioF
 import { updateAudio } from '@xrengine/engine/src/scene/functions/loaders/AudioFunctions'
 import { ScenePrefabs } from '@xrengine/engine/src/scene/functions/registerPrefabs'
 import { createNewEditorNode } from '@xrengine/engine/src/scene/functions/SceneLoading'
-import { dispatchAction, getState } from '@xrengine/hyperflux'
+import { addActionReceptor, dispatchAction, removeActionReceptor } from '@xrengine/hyperflux'
 
 import { Cancel as CancelIcon, Message as MessageIcon, Send } from '@mui/icons-material'
 import { IconButton, InputAdornment } from '@mui/material'
@@ -41,58 +38,65 @@ import defaultStyles from './index.module.scss'
 
 const logger = multiLogger.child({ component: 'client-core:chat' })
 
-interface Props {
-  styles?: any
-  MessageButton?: any
-  CloseButton?: any
-  SendButton?: any
-  newMessageLabel?: string
-  setBottomDrawerOpen?: any
-  animate?: any
-  hideOtherMenus?: any
-  setShowTouchPad?: any
+interface ChatHooksProps {
+  chatWindowOpen: boolean
+  setUnreadMessages: Function
+  messageRefInput: React.MutableRefObject<HTMLInputElement>
 }
 
-const InstanceChat = (props: Props): any => {
-  const {
-    styles = defaultStyles,
-    MessageButton = MessageIcon,
-    CloseButton = CancelIcon,
-    SendButton = Send,
-    hideOtherMenus,
-    setShowTouchPad,
-    newMessageLabel = 'World Chat...'
-  } = props
+export const useChatHooks = ({ chatWindowOpen, setUnreadMessages, messageRefInput }: ChatHooksProps) => {
+  /**
+   * Provisioning logic
+   */
 
-  let activeChannel: Channel | null = null
-  const messageRefInput = React.useRef<HTMLInputElement>()
-  const user = useAuthState().user
-  const chatState = useChatState()
-  const channelState = chatState.channels
-  const channels = channelState.channels.value
-  const [composingMessage, setComposingMessage] = React.useState('')
-  const [unreadMessages, setUnreadMessages] = React.useState(false)
-  const activeChannelMatch = Object.entries(channels).find(([key, channel]) => channel.channelType === 'instance')
   const locationInstanceConnectionState = useLocationInstanceConnectionState()
-
   const currentInstanceConnection =
     locationInstanceConnectionState.instances[Engine.instance.currentWorld.worldNetwork?.hostId]
 
-  const [isInitRender, setIsInitRender] = React.useState<Boolean>()
-  const [noUnReadMessage, setNoUnReadMessage] = React.useState<any>()
-  const audioState = useAudioState()
-  const [entity, setEntity] = React.useState<Entity>()
-  const usersTyping = useEngineState().usersTyping[user?.id.value].value
-  if (activeChannelMatch && activeChannelMatch.length > 0) {
-    activeChannel = activeChannelMatch[1]
-  }
-  const sortedMessages =
+  useEffect(() => {
+    if (Engine.instance.currentWorld.worldNetwork?.hostId && currentInstanceConnection?.connected?.value) {
+      ChatService.getInstanceChannel()
+    }
+  }, [currentInstanceConnection?.connected?.value])
+
+  /**
+   * Message display logic
+   */
+
+  const chatState = useChatState()
+  const channelState = chatState.channels
+  const channels = channelState.channels.value
+
+  const activeChannelMatch = Object.entries(channels).find(([key, channel]) => channel.channelType === 'instance')
+  const activeChannel = activeChannelMatch && activeChannelMatch[1]
+  const sortedMessages = activeChannel
+    ? [...activeChannel.messages].sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
+    : []
+
+  useEffect(() => {
     activeChannel &&
-    activeChannel.messages &&
-    [...activeChannel?.messages].sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
-  const messageRef = React.useRef<any>()
-  const messageEl = messageRef.current
-  const isMobile = /Mobi/i.test(window.navigator.userAgent)
+      activeChannel.messages &&
+      activeChannel.messages.length > 0 &&
+      !chatWindowOpen &&
+      setUnreadMessages(true)
+  }, [activeChannel?.messages])
+
+  /**
+   * Message composition logic
+   */
+
+  const [composingMessage, setComposingMessage] = useState('')
+  const [cursorPosition, setCursorPosition] = useState(0)
+  const user = useAuthState().user
+  const usersTyping = useEngineState().usersTyping[user?.id.value].value
+  const [isMultiline, setIsMultiline] = useState(false)
+
+  useEffect(() => {
+    if (isMultiline) {
+      ;(messageRefInput.current as HTMLInputElement).selectionStart = cursorPosition + 1
+    }
+  }, [isMultiline])
+
   useEffect(() => {
     if (!composingMessage || !usersTyping) return
     const delayDebounce = setTimeout(() => {
@@ -106,6 +110,152 @@ const InstanceChat = (props: Props): any => {
 
     return () => clearTimeout(delayDebounce)
   }, [composingMessage])
+
+  const handleComposingMessageChange = (event: any): void => {
+    if (event.key === 'Enter' && event.ctrlKey) {
+      event.preventDefault()
+      const selectionStart = (event.target as HTMLInputElement).selectionStart
+
+      setComposingMessage(
+        composingMessage.substring(0, selectionStart || 0) + '\n' + composingMessage.substring(selectionStart || 0)
+      )
+      return
+    } else if (event.key === 'Enter' && !event.ctrlKey) {
+      event.preventDefault()
+      packageMessage()
+      return
+    }
+
+    const message = event.target.value
+    if (message.length > composingMessage.length) {
+      if (!usersTyping) {
+        dispatchAction(
+          WorldNetworkAction.setUserTyping({
+            typing: true
+          }),
+          [Engine.instance.currentWorld.worldNetwork.hostId]
+        )
+      }
+    }
+    if (message.length == 0 || message.length < composingMessage.length) {
+      if (usersTyping) {
+        dispatchAction(
+          WorldNetworkAction.setUserTyping({
+            typing: false
+          }),
+          [Engine.instance.currentWorld.worldNetwork.hostId]
+        )
+      }
+    }
+
+    setComposingMessage(message)
+  }
+
+  const packageMessage = (): void => {
+    if (composingMessage?.length && user.instanceId.value) {
+      if (usersTyping) {
+        dispatchAction(
+          WorldNetworkAction.setUserTyping({
+            typing: false
+          }),
+          [Engine.instance.currentWorld.worldNetwork.hostId]
+        )
+      }
+
+      ChatService.createMessage({
+        targetObjectId: user.instanceId.value,
+        targetObjectType: 'instance',
+        text: composingMessage
+      })
+      setComposingMessage('')
+    }
+
+    setCursorPosition(0)
+  }
+
+  /**
+   * Chat panel dimensions
+   */
+
+  const [dimensions, setDimensions] = useState({
+    height: window.innerHeight,
+    width: window.innerWidth
+  })
+
+  useEffect(() => {
+    window.addEventListener('resize', handleWindowResize)
+    return () => {
+      window.removeEventListener('resize', handleWindowResize)
+    }
+  }, [])
+
+  const handleWindowResize = () => {
+    setDimensions({
+      height: window.innerHeight,
+      width: window.innerWidth
+    })
+  }
+
+  return {
+    dimensions,
+    sortedMessages,
+    handleComposingMessageChange,
+    packageMessage,
+    composingMessage
+  }
+}
+
+interface InstanceChatProps {
+  styles?: any
+  MessageButton?: any
+  CloseButton?: any
+  newMessageLabel?: string
+  setBottomDrawerOpen?: any
+  animate?: any
+  hideOtherMenus?: any
+  setShowTouchPad?: any
+}
+
+const InstanceChat = ({
+  styles = defaultStyles,
+  MessageButton = MessageIcon,
+  CloseButton = CancelIcon,
+  newMessageLabel = 'World Chat...',
+  animate,
+  hideOtherMenus,
+  setShowTouchPad
+}: InstanceChatProps): any => {
+  const [chatWindowOpen, setChatWindowOpen] = useState(false)
+  const [unreadMessages, setUnreadMessages] = useState(false)
+  const messageRefInput = useRef<HTMLInputElement>()
+
+  const { dimensions, sortedMessages, handleComposingMessageChange, packageMessage, composingMessage } = useChatHooks({
+    chatWindowOpen,
+    setUnreadMessages,
+    messageRefInput: messageRefInput as any
+  })
+
+  const user = useAuthState().user
+
+  const [isInitRender, setIsInitRender] = useState<Boolean>()
+
+  const isMobile = /Mobi/i.test(window.navigator.userAgent)
+  const chatState = useChatState()
+
+  // TODO: move to register event for chat widget
+  useEffect(() => {
+    addActionReceptor(ChatServiceReceptor)
+    return () => {
+      removeActionReceptor(ChatServiceReceptor)
+    }
+  }, [])
+
+  /**
+   * Audio effect
+   */
+
+  const audioState = useAudioState()
+  const [entity, setEntity] = useState<Entity>()
 
   useEffect(() => {
     if (entity) {
@@ -139,118 +289,32 @@ const InstanceChat = (props: Props): any => {
   }, [])
 
   useEffect(() => {
-    if (Engine.instance.currentWorld.worldNetwork?.hostId && currentInstanceConnection.connected.value) {
-      ChatService.getInstanceChannel()
-    }
-  }, [currentInstanceConnection?.connected?.value])
-
-  React.useEffect(() => {
-    if (messageEl) messageEl.scrollTop = messageEl?.scrollHeight
-  }, [chatState])
-
-  React.useEffect(() => {
     if (
       sortedMessages &&
       sortedMessages[sortedMessages.length - 1]?.senderId !== user?.id.value &&
       chatState.messageCreated.value
     ) {
-      setNoUnReadMessage(false)
+      setUnreadMessages(true)
       entity && toggleAudio(entity)
     }
   }, [chatState])
 
-  const handleComposingMessageChange = (event: any): void => {
-    const message = event.target.value
-    if (message.length > composingMessage.length) {
-      if (!usersTyping) {
-        dispatchAction(
-          WorldNetworkAction.setUserTyping({
-            typing: true
-          }),
-          [Engine.instance.currentWorld.worldNetwork.hostId]
-        )
-      }
-    }
-    if (message.length == 0 || message.length < composingMessage.length) {
-      if (usersTyping) {
-        dispatchAction(
-          WorldNetworkAction.setUserTyping({
-            typing: false
-          }),
-          [Engine.instance.currentWorld.worldNetwork.hostId]
-        )
-      }
-    }
+  /**
+   * Message scroll
+   */
 
-    setComposingMessage(message)
-  }
+  const messageRef = useRef<any>()
+  const messageEl = messageRef.current
 
-  const packageMessage = (e): void => {
-    e.preventDefault()
+  useEffect(() => {
+    if (messageEl) messageEl.scrollTop = messageEl?.scrollHeight
+  }, [chatState])
 
-    if (composingMessage?.length && user.instanceId.value) {
-      if (usersTyping) {
-        dispatchAction(
-          WorldNetworkAction.setUserTyping({
-            typing: false
-          }),
-          [Engine.instance.currentWorld.worldNetwork.hostId]
-        )
-      }
-
-      ChatService.createMessage({
-        targetObjectId: user.instanceId.value,
-        targetObjectType: 'instance',
-        text: composingMessage
-      })
-      setComposingMessage('')
-    }
-
-    setCursorPosition(0)
-  }
-
-  const [chatWindowOpen, setChatWindowOpen] = React.useState(false)
-  const [isMultiline, setIsMultiline] = React.useState(false)
-  const [cursorPosition, setCursorPosition] = React.useState(0)
   const toggleChatWindow = () => {
     if (!chatWindowOpen && isMobile) hideOtherMenus()
     setChatWindowOpen(!chatWindowOpen)
     chatWindowOpen && setUnreadMessages(false)
     setIsInitRender(false)
-    setNoUnReadMessage(true)
-  }
-  const [dimensions, setDimensions] = React.useState({
-    height: window.innerHeight,
-    width: window.innerWidth
-  })
-
-  useEffect(() => {
-    activeChannel &&
-      activeChannel.messages &&
-      activeChannel.messages.length > 0 &&
-      !chatWindowOpen &&
-      setUnreadMessages(true)
-  }, [activeChannel?.messages])
-
-  useEffect(() => {
-    if (isMultiline) {
-      ;(messageRefInput.current as HTMLInputElement).selectionStart = cursorPosition + 1
-    }
-  }, [isMultiline])
-
-  useEffect(() => {
-    window.addEventListener('resize', handleWindowResize)
-
-    return () => {
-      window.removeEventListener('resize', handleWindowResize)
-    }
-  }, [])
-
-  const handleWindowResize = () => {
-    setDimensions({
-      height: window.innerHeight,
-      width: window.innerWidth
-    })
   }
 
   const isLeftOrJoinText = (text: string) => {
@@ -262,84 +326,70 @@ const InstanceChat = (props: Props): any => {
       <div
         onClick={() => {
           setChatWindowOpen(false)
-          setNoUnReadMessage(true)
+          setUnreadMessages(false)
           if (isMobile) setShowTouchPad(true)
         }}
-        className={styles['backdrop'] + ' ' + (!chatWindowOpen && styles['hideBackDrop'])}
+        className={styles.backdrop + ' ' + (!chatWindowOpen ? styles.hideBackDrop : '')}
       ></div>
-      <div className={styles['instance-chat-container'] + ' ' + (!chatWindowOpen && styles['messageContainerClosed'])}>
+      <div className={styles['instance-chat-container'] + ' ' + (chatWindowOpen ? styles.open : '')}>
         <div ref={messageRef} className={styles['instance-chat-msg-container']}>
           <div className={styles['list-container']}>
             <Card square={true} elevation={0} className={styles['message-wrapper']}>
               <CardContent className={styles['message-container']}>
                 {sortedMessages &&
-                  sortedMessages.map((message, index, messages) => {
-                    if (isCommand(message.text)) return undefined
-                    const system = getChatMessageSystem(message.text)
-                    let chatMessage = message.text
-                    if (system !== 'none') {
-                      if (system === 'jl_system') {
-                        chatMessage = removeMessageSystem(message.text)
-                      } else {
-                        return undefined
-                      }
-                    }
-                    return (
-                      <React.Fragment key={message.id}>
-                        {!isLeftOrJoinText(message.text) ? (
-                          <div key={message.id} className={`${styles.dFlex} ${styles.flexColumn} ${styles.mgSmall}`}>
-                            <div className={`${styles.selfEnd} ${styles.noMargin}`}>
-                              <div className={styles.dFlex}>
-                                <div className={styles.msgWrapper}>
-                                  {isLeftOrJoinText(messages[index - 1].text) ? (
-                                    <h3 className={styles.sender}>{message.sender.name}</h3>
-                                  ) : (
-                                    message.senderId !== messages[index - 1].senderId && (
-                                      <h3 className={styles.sender}>{message.sender.name}</h3>
-                                    )
-                                  )}
-                                  <div
-                                    className={`${
-                                      message.senderId !== user?.id.value ? styles.msgReplyContainer : styles.msgOwner
-                                    } ${styles.msgContainer} ${styles.mx2}`}
-                                  >
-                                    <p className={styles.text}>{message.text}</p>
-                                  </div>
-                                </div>
-                                {index !== 0 && isLeftOrJoinText(messages[index - 1].text) ? (
-                                  <Avatar src={getAvatarURLForUser(message.senderId)} className={styles.avatar} />
+                  sortedMessages.map((message, index, messages) => (
+                    <Fragment key={message.id}>
+                      {!isLeftOrJoinText(message.text) ? (
+                        <div key={message.id} className={`${styles.dFlex} ${styles.flexColumn} ${styles.mgSmall}`}>
+                          <div className={`${styles.selfEnd} ${styles.noMargin}`}>
+                            <div className={styles.dFlex}>
+                              <div className={styles.msgWrapper}>
+                                {messages[index - 1] && isLeftOrJoinText(messages[index - 1].text) ? (
+                                  <h3 className={styles.sender}>{message.sender.name}</h3>
                                 ) : (
+                                  messages[index - 1] &&
                                   message.senderId !== messages[index - 1].senderId && (
-                                    <Avatar src={getAvatarURLForUser(message.senderId)} className={styles.avatar} />
+                                    <h3 className={styles.sender}>{message.sender.name}</h3>
                                   )
                                 )}
-                                {index === 0 && (
+                                <div
+                                  className={`${
+                                    message.senderId !== user?.id.value ? styles.msgReplyContainer : styles.msgOwner
+                                  } ${styles.msgContainer} ${styles.mx2}`}
+                                >
+                                  <p className={styles.text}>{message.text}</p>
+                                </div>
+                              </div>
+                              {index !== 0 && messages[index - 1] && isLeftOrJoinText(messages[index - 1].text) ? (
+                                <Avatar src={getAvatarURLForUser(message.senderId)} className={styles.avatar} />
+                              ) : (
+                                messages[index - 1] &&
+                                message.senderId !== messages[index - 1].senderId && (
                                   <Avatar src={getAvatarURLForUser(message.senderId)} className={styles.avatar} />
-                                )}
-                              </div>
+                                )
+                              )}
+                              {index === 0 && (
+                                <Avatar src={getAvatarURLForUser(message.senderId)} className={styles.avatar} />
+                              )}
                             </div>
                           </div>
-                        ) : (
-                          <div key={message.id} className={`${styles.selfEnd} ${styles.noMargin}`}>
-                            <div className={styles.dFlex}>
-                              <div className={`${styles.msgNotification} ${styles.mx2}`}>
-                                <p className={styles.greyText}>{message.text}</p>
-                              </div>
+                        </div>
+                      ) : (
+                        <div key={message.id} className={`${styles.selfEnd} ${styles.noMargin}`}>
+                          <div className={styles.dFlex}>
+                            <div className={`${styles.msgNotification} ${styles.mx2}`}>
+                              <p className={styles.greyText}>{message.text}</p>
                             </div>
                           </div>
-                        )}
-                      </React.Fragment>
-                    )
-                  })}
+                        </div>
+                      )}
+                    </Fragment>
+                  ))}
               </CardContent>
             </Card>
           </div>
         </div>
-        <div
-          className={`${styles['bottom-box']} ${!chatWindowOpen ? styles.bttm : ''} ${
-            !chatWindowOpen ? styles.fixedPos : ''
-          } ${chatWindowOpen ? styles.mgBtm : ''}`}
-        >
+        <div className={`${styles['bottom-box']}`}>
           <div className={`${styles['chat-input']} ${chatWindowOpen ? '' : styles.invisible} `}>
             <Card className={styles['chat-view']} style={{ boxShadow: 'none' }}>
               <CardContent className={styles['chat-box']} style={{ boxShadow: 'none' }}>
@@ -363,11 +413,7 @@ const InstanceChat = (props: Props): any => {
                   onChange={handleComposingMessageChange}
                   inputRef={messageRefInput}
                   onClick={() => (messageRefInput as any)?.current?.focus()}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' && e.ctrlKey) {
-                      packageMessage(e)
-                    }
-                  }}
+                  onKeyDown={(evt) => handleComposingMessageChange(evt)}
                   InputProps={{
                     endAdornment: (
                       <InputAdornment position="end">
@@ -388,13 +434,13 @@ const InstanceChat = (props: Props): any => {
           </div>
           <div
             className={`${styles.iconCallChat} ${
-              isInitRender ? props.animate : !chatWindowOpen ? (isMobile ? styles.animateTop : styles.animateLeft) : ''
+              isInitRender ? animate : !chatWindowOpen ? (isMobile ? styles.animateTop : styles.animateLeft) : ''
             } ${!chatWindowOpen ? '' : styles.iconCallPos}`}
           >
             <Badge
               color="primary"
               variant="dot"
-              invisible={noUnReadMessage}
+              invisible={!unreadMessages}
               anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
             >
               <Fab className={styles.chatBadge} color="primary" onClick={() => toggleChatWindow()}>

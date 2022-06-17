@@ -870,7 +870,7 @@ export async function closeConsumer(transport: SocketWebRTCClientNetwork, consum
 
   const ms = MediaStreams.instance
   ms.consumers = ms.consumers.filter((c: any) => !(c.id === consumer.id)) as any[]
-  store.dispatch(MediaStreamAction.setConsumers(ms.consumers))
+  dispatchAction(MediaStreamAction.setConsumersAction({ consumers: ms.consumers }))
   await transport.request(MessageTypes.WebRTCCloseConsumer.toString(), {
     consumerId: consumer.id
   })

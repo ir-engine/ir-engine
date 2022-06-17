@@ -8,7 +8,7 @@ import {
 import { LocationService } from '@xrengine/client-core/src/social/services/LocationService'
 import { useDispatch } from '@xrengine/client-core/src/store'
 import { leaveNetwork } from '@xrengine/client-core/src/transports/SocketWebRTCClientFunctions'
-import { SceneAction, useSceneState } from '@xrengine/client-core/src/world/services/SceneService'
+import { SceneActions, useSceneState } from '@xrengine/client-core/src/world/services/SceneService'
 import multiLogger from '@xrengine/common/src/logger'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineActions, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
@@ -82,7 +82,7 @@ export const LoadEngineWithScene = () => {
 
       const world = Engine.instance.currentWorld
 
-      dispatch(SceneAction.currentSceneChanged(null))
+      dispatchAction(SceneActions.currentSceneChanged({ sceneData: null }))
       history.push('/location/' + world.activePortal.location)
       LocationService.getLocationByName(world.activePortal.location)
 

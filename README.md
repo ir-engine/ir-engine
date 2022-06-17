@@ -1,4 +1,6 @@
-# Ethereal Engine _(XR Engine)_
+# Ethereal Engine _(XREngine)_
+
+![Ethereal Engine org black on white](https://user-images.githubusercontent.com/5104160/174094172-f7b6f90b-daad-4547-8c88-bb94372cffc1.png)
 
 >  Manifest your dreams on the open social special web.
 
@@ -136,7 +138,7 @@ you find who you need to talk to.
 
 ### [Join our Discord](https://discord.gg/xrf)  [![Discord Chat](https://img.shields.io/discord/692672143053422678.svg)](https://discord.gg/xrf)
 
-### [Sponsorship](https://opencollective.com/xrfoundation) [![Open Collective](https://opencollective.com/xrfoundation/tiers/badge.svg)](https://opencollective.com/xrfoundation)
+### [Sponsorship](https://opencollective.com/etherealengine) [![Open Collective](https://opencollective.com/etherealengine/tiers/badge.svg)](https://opencollective.com/etherealengine)
 
 ## License
 [MIT](LICENSE) - Copyright (c) 2020-2022 HyperConstruct

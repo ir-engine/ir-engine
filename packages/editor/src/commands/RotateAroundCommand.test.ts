@@ -14,8 +14,10 @@ import { createEngine } from '@xrengine/engine/src/initializeEngine'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 import { registerPrefabs } from '@xrengine/engine/src/scene/functions/registerPrefabs'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
+import { applyIncomingActions } from '@xrengine/hyperflux'
 
 import EditorCommands from '../constants/EditorCommands'
+import { deregisterEditorReceptors, registerEditorReceptors } from '../services/EditorServicesReceptor'
 import { accessSelectionState } from '../services/SelectionServices'
 import { getRandomTransform } from './ReparentCommand.test'
 import { RotateAroundCommand, RotateAroundCommandParams } from './RotateAroundCommand'
@@ -31,6 +33,8 @@ describe('RotateAroundCommand', () => {
 
   beforeEach(() => {
     createEngine()
+    registerEditorReceptors()
+    Engine.instance.store.defaultDispatchDelay = 0
     registerPrefabs(Engine.instance.currentWorld)
 
     rootNode = createEntityNode(createEntity())
@@ -86,12 +90,14 @@ describe('RotateAroundCommand', () => {
       const sceneGraphChangeCounter = selectionState.sceneGraphChangeCounter.value
 
       RotateAroundCommand.emitEventAfter?.(command)
+      applyIncomingActions()
       assert.equal(sceneGraphChangeCounter, selectionState.sceneGraphChangeCounter.value)
     })
 
     it('will emit event if "preventEvents" is false', () => {
       command.preventEvents = false
       RotateAroundCommand.emitEventAfter?.(command)
+      applyIncomingActions()
       assert(true)
     })
   })
@@ -158,6 +164,7 @@ describe('RotateAroundCommand', () => {
 
       const oldAngle = command.angle
       RotateAroundCommand.update?.(command, newCommand)
+      applyIncomingActions()
 
       assert.equal(command.angle, oldAngle + newCommand.angle)
     })
@@ -180,6 +187,7 @@ describe('RotateAroundCommand', () => {
       command.angle = 45
 
       RotateAroundCommand.execute(command)
+      applyIncomingActions()
 
       assert(Math.abs(transform.position.x - -1.12867654) < EPSILON)
       assert(Math.abs(transform.position.y - 0) < EPSILON)
@@ -212,7 +220,9 @@ describe('RotateAroundCommand', () => {
 
       RotateAroundCommand.prepare(command)
       RotateAroundCommand.execute(command)
+      applyIncomingActions()
       RotateAroundCommand.undo(command)
+      applyIncomingActions()
 
       assert(Math.abs(transform.position.x - -1.12867654) < EPSILON)
       assert(Math.abs(transform.position.y - 0) < EPSILON)
@@ -243,7 +253,9 @@ describe('RotateAroundCommand', () => {
 
       RotateAroundCommand.prepare(command)
       RotateAroundCommand.execute(command)
+      applyIncomingActions()
       RotateAroundCommand.undo(command)
+      applyIncomingActions()
 
       // TODO: This test is failing.
       assert(true)
@@ -267,5 +279,6 @@ describe('RotateAroundCommand', () => {
   afterEach(() => {
     emptyEntityTree(Engine.instance.currentWorld.entityTree)
     accessSelectionState().merge({ selectedEntities: [] })
+    deregisterEditorReceptors()
   })
 })

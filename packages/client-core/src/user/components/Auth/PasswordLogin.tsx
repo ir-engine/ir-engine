@@ -25,8 +25,7 @@ interface Props {
   isAddConnection?: boolean
 }
 
-export const PasswordLogin = (props: Props): JSX.Element => {
-  const { isAddConnection } = props
+export const PasswordLogin = ({ isAddConnection }: Props): JSX.Element => {
   const auth = useAuthState()
   const [state, setState] = useState(initialState)
   const { t } = useTranslation()

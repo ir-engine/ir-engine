@@ -4,9 +4,9 @@ import { useTranslation } from 'react-i18next'
 
 import { Button, Divider, Grid, Paper, Typography } from '@mui/material'
 import IconButton from '@mui/material/IconButton'
-import Switch from '@mui/material/Switch'
 
 import { useAuthState } from '../../../user/services/AuthService'
+import InputSwitch from '../../common/InputSwitch'
 import InputText from '../../common/InputText'
 import { EmailSettingService, useEmailSettingState } from '../../services/Setting/EmailSettingService'
 import styles from '../../styles/settings.module.scss'
@@ -119,16 +119,12 @@ const Email = (props: emailProps) => {
                 onChange={(e) => handleUpdateSmtp(e, 'port')}
               />
 
-              <Paper component="div" className={styles.createInput}>
-                <label>{t('admin:components.setting.secure')}</label>
-                <Switch
-                  checked={smtp?.secure || false}
-                  onChange={handleSmtpSecure}
-                  color="primary"
-                  name="checkedB"
-                  inputProps={{ 'aria-label': 'primary checkbox' }}
-                />
-              </Paper>
+              <InputSwitch
+                name="email"
+                label={t('admin:components.setting.secure')}
+                checked={smtp?.secure || false}
+                onChange={handleSmtpSecure}
+              />
             </Paper>
             <Divider />
             <Typography>{t('admin:components.setting.auth')}</Typography>
@@ -146,8 +142,11 @@ const Email = (props: emailProps) => {
                 value={auth?.pass || ''}
                 type={showPassword ? 'text' : 'password'}
                 endAdornment={
-                  <IconButton size="large" onClick={() => setShowPassword(!showPassword)}>
-                    <Icon color="orange" icon="ic:baseline-visibility-off" />
+                  <IconButton onClick={() => setShowPassword(!showPassword)}>
+                    <Icon
+                      icon={showPassword ? 'ic:baseline-visibility' : 'ic:baseline-visibility-off'}
+                      color="orange"
+                    />
                   </IconButton>
                 }
                 onChange={(e) => handleUpdateAuth(e, 'pass')}

@@ -1,13 +1,20 @@
 import { ShaderMaterial, Texture } from 'three'
 
-import { MaterialParms } from '../MaterialParms'
+import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
+
+import { DudTexture, MaterialParms } from '../MaterialParms'
 
 export const vertexShader = `
 varying vec2 vUv;
+varying vec3 vN;
+varying vec3 vPos;
+
 varying float startDist;
 
 void main() {
     vUv = uv;
+    vN = normal;
+    vPos = position;
     startDist = length((modelMatrix * vec4(position, 1)).xyz - cameraPosition);
     gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1);
 }
@@ -16,9 +23,14 @@ void main() {
 export const fragmentShader = `
 uniform vec3 iResolution;
 uniform float iTime;
-uniform sampler2D iChannel0;
+uniform float fireMagnitude;
+uniform sampler2D fireTexture;
+uniform sampler2D baseTexture;
 
 varying vec2 vUv;
+varying vec3 vN;
+varying vec3 vPos;
+
 varying float startDist;
 
 const int _VolumeSteps = 128;
@@ -37,8 +49,8 @@ float noise( in vec3 x )
     vec3 f = fract(x);
 	f = f*f*(3.0-2.0*f);
 	
-	vec2 uv = (p.xy+vec2(37.0,17.0)*p.z) + f.xy;
-	vec2 rg = texture( iChannel0, (uv+0.5)/256.0, -100.0 ).yx;
+	vec2 uv = (p.xy+vec2(37.0,17.0)*p.z) + f.xy + vUv;
+	vec2 rg = texture( fireTexture, (uv+0.5)/256.0, -100.0 ).yx;
 	return mix( rg.x, rg.y, f.z )*2.0-1.0;
 }
 
@@ -74,21 +86,21 @@ float distanceFunc(vec3 p)
 
 // shade a point based on distance
 vec4 shade(float d)
-{	
-    if (d >= 0.0 && d < 0.2) return (mix(vec4(3, 3, 3, 1), vec4(1, 1, 0, 1), d / 0.2));
-	if (d >= 0.2 && d < 0.4) return (mix(vec4(1, 1, 0, 1), vec4(1, 0, 0, 1), (d - 0.2) / 0.2));
-	if (d >= 0.4 && d < 0.6) return (mix(vec4(1, 0, 0, 1), vec4(0, 0, 0, 0), (d - 0.4) / 0.2));    
-    if (d >= 0.6 && d < 0.8) return (mix(vec4(0, 0, 0, 0), vec4(0, .5, 1, 0.2), (d - 0.6) / 0.2));
-    if (d >= 0.8 && d < 1.0) return (mix(vec4(0, .5, 1, .2), vec4(0, 0, 0, 0), (d - 0.8) / 0.2));            
-    return vec4(0.0, 0.0, 0.0, 0.0);
+{	if(d > 3. && d <= 5.)
+        return mix(vec4(1., 1., 0.7, 1.), texture(baseTexture, vUv), smoothstep(3.,5., d));    
+    if(d <= 2.)
+        return mix(vec4(0.3, 0.8, 0.05, 1.), vec4(1., .8, 0., 1.), smoothstep(2., 1., d));
+    if(d <= 3.) 
+        return mix(vec4(1., .8, 0., 1.), vec4(1., 1., 0.7, 1.), smoothstep(2., 3., d));
+    return texture(baseTexture, vUv + vec2(d, sin(d)));
 }
 
 // procedural volume
 // maps position to color
 vec4 volumeFunc(vec3 p)
 {
-    //p.xz = rotate(p.xz, p.y*2.0 + iTime);	// firestorm
-	float d = startDist / 100.0 + distanceFunc(p) / 10.0;
+    p.xz = rotate(p.xz, p.y*2.0 + iTime);	// firestorm
+	float d = startDist / 10.0 + distanceFunc(p) * fireMagnitude;
 	return shade(d);
 }
 
@@ -131,21 +143,31 @@ void main()
     // volume render
     vec3 hitPos;
     vec4 col = rayMarch(ro, rd*_StepSize, hitPos);
-
     gl_FragColor = col;
 }
 `
 
+export const DefaultArgs = {
+  iTime: 0.0,
+  iResolution: [window.innerWidth * 2, window.innerHeight * 2, 1],
+  fireMagnitude: 1.0,
+  fireTexture: new Texture(),
+  baseTexture: new Texture()
+}
+
 export default async function Fireball(args?: {
   iTime?: number
   iResolution?: number[]
-  iChannel0?: Texture
+  fireMagnitude?: number
+  fireTexture?: Texture
+  baseTexture?: Texture
 }): Promise<MaterialParms> {
   const mat = new ShaderMaterial({
     uniforms: {
-      iTime: { value: args?.iTime ?? 0.0 },
-      iResolution: { value: args?.iResolution ?? [window.innerWidth * 2, window.innerHeight * 2, 1] },
-      iChannel0: { value: args?.iChannel0 ?? new Texture() }
+      iTime: { value: args?.iTime ?? DefaultArgs.iTime },
+      iResolution: { value: args?.iResolution ?? DefaultArgs.iResolution },
+      fireTexture: { value: args?.fireTexture ?? new Texture() },
+      baseTexture: { value: args?.baseTexture ?? new Texture() }
     },
     vertexShader: vertexShader,
     fragmentShader: fragmentShader

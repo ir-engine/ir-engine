@@ -236,6 +236,7 @@
       "error-url": "Error Loading From URL",
       "lbl-loopAnimation": "Loop Animation",
       "lbl-isAvatar": "Is Avatar",
+      "lbl-useBasicMaterials": "Use Basic Materials",
       "lbl-isGPUInstancing": "Is Using GPU Instancing",
       "lbl-isDynamic": "Is Dynamic",
       "lbl-castShadow": "Cast Shadow",
@@ -571,7 +572,9 @@
       "copyAsset": "Copy",
       "pasteAsset": "Paste",
       "renameAsset": "Rename",
-      "viewAssetProperties": "View Properties"
+      "viewAssetProperties": "View Properties",
+      "refresh": "Refresh",
+      "back": "Back"
     }
   },
   "hierarchy": {
@@ -647,7 +650,10 @@
       "header": "Need to report a problem?",
       "msg": "You can file a <1>GitHub Issue</1> or e-mail us for support at <3>{{mail}}</3>",
       "discord": "You can also find us on <1>Discord</1>"
-    }
+    },
+    "confirmContentDelete": "Do you want to delete this",
+    "file": "file",
+    "folder": "folder"
   },
   "sources": {
     "bingImage": {

@@ -8,23 +8,19 @@ import { Save } from '@mui/icons-material'
 import Button from '@mui/material/Button'
 import Container from '@mui/material/Container'
 import DialogActions from '@mui/material/DialogActions'
-import FormControl from '@mui/material/FormControl'
 import Grid from '@mui/material/Grid'
-import MenuItem from '@mui/material/MenuItem'
 import Paper from '@mui/material/Paper'
-import Select from '@mui/material/Select'
 import Typography from '@mui/material/Typography'
 
 import { useAuthState } from '../../../user/services/AuthService'
-import { useFetchAdminInstance } from '../../common/hooks/Instance.hooks'
-import { useFetchAdminLocations } from '../../common/hooks/Location.hooks'
+import InputSelect, { InputMenuItem } from '../../common/InputSelect'
 import { validateForm } from '../../common/validation/formValidation'
 import ViewDrawer from '../../common/ViewDrawer'
-import { useInstanceState } from '../../services/InstanceService'
-import { InstanceService } from '../../services/InstanceService'
-import { useLocationState } from '../../services/LocationService'
-import { LocationService } from '../../services/LocationService'
-import { PartyService } from '../../services/PartyService'
+import { useAdminInstanceState } from '../../services/InstanceService'
+import { AdminInstanceService } from '../../services/InstanceService'
+import { useAdminLocationState } from '../../services/LocationService'
+import { AdminLocationService } from '../../services/LocationService'
+import { AdminPartyService } from '../../services/PartyService'
 import styles from '../../styles/admin.module.scss'
 
 interface Props {
@@ -35,8 +31,7 @@ interface Props {
   handleEditMode: (open: boolean) => void
 }
 
-export default function ViewParty(props: Props) {
-  const { openView, closeViewModal, partyAdmin, editMode, handleEditMode } = props
+export default function ViewParty({ openView, closeViewModal, partyAdmin, editMode, handleEditMode }: Props) {
   const [updateParty, setUpdateParty] = useState({
     location: '',
     instance: '',
@@ -47,15 +42,23 @@ export default function ViewParty(props: Props) {
   })
   const authState = useAuthState()
   const user = authState.user
-  const adminLocationState = useLocationState()
-  const adminInstanceState = useInstanceState()
+  const adminLocationState = useAdminLocationState()
+  const adminInstanceState = useAdminInstanceState()
   const instanceData = adminInstanceState.instances
   const locationData = adminLocationState.locations
   const { t } = useTranslation()
 
-  //Call custom hooks
-  useFetchAdminInstance(user, adminInstanceState, InstanceService)
-  useFetchAdminLocations(user, adminLocationState, LocationService)
+  useEffect(() => {
+    if (user?.id.value && adminInstanceState.updateNeeded.value) {
+      AdminInstanceService.fetchAdminInstances()
+    }
+  }, [user?.id?.value, adminInstanceState.updateNeeded.value])
+
+  useEffect(() => {
+    if (user?.id.value && adminLocationState.updateNeeded.value) {
+      AdminLocationService.fetchAdminLocations()
+    }
+  }, [user?.id?.value, adminLocationState.updateNeeded.value])
 
   useEffect(() => {
     if (partyAdmin?.instance?.id || partyAdmin?.location?.name) {
@@ -102,11 +105,25 @@ export default function ViewParty(props: Props) {
     setUpdateParty({ ...updateParty, formErrors: temp })
 
     if (validateForm(updateParty, updateParty.formErrors) && partyAdmin) {
-      await PartyService.patchParty(partyAdmin.id!, data)
+      await AdminPartyService.patchParty(partyAdmin.id!, data)
       setUpdateParty({ ...updateParty, location: '', instance: '' })
       closeViewModal()
     }
   }
+
+  const instanceMenu: InputMenuItem[] = data.map((el) => {
+    return {
+      value: el?.id,
+      label: el?.ipAddress
+    }
+  })
+
+  const locationMenu: InputMenuItem[] = locationData.value.map((el) => {
+    return {
+      value: el?.id,
+      label: el?.name
+    }
+  })
 
   return (
     <ViewDrawer openView={openView} handleCloseDrawer={() => closeViewModal()}>
@@ -128,63 +145,23 @@ export default function ViewParty(props: Props) {
               {t('admin:components.party.updateParty')}
             </Typography>
 
-            <label>{t('admin:components.party.instance')}</label>
-            <Paper
-              component="div"
-              className={updateParty.formErrors.instance.length > 0 ? styles.redBorder : styles.createInput}
-            >
-              <FormControl fullWidth>
-                <Select
-                  labelId="demo-controlled-open-select-label"
-                  id="demo-controlled-open-select"
-                  value={updateParty.instance}
-                  fullWidth
-                  displayEmpty
-                  onChange={handleChange}
-                  className={styles.select}
-                  name="instance"
-                  MenuProps={{ classes: { paper: styles.selectPaper } }}
-                >
-                  <MenuItem value="" disabled>
-                    <em>{t('admin:components.party.selectInstance')}</em>
-                  </MenuItem>
-                  {data.map((el) => (
-                    <MenuItem value={el?.id} key={el?.id}>
-                      {el?.ipAddress}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </Paper>
+            <InputSelect
+              name="instance"
+              label={t('admin:components.party.instance')}
+              value={updateParty.instance}
+              error={updateParty.formErrors.instance}
+              menu={instanceMenu}
+              onChange={handleChange}
+            />
 
-            <label>{t('admin:components.party.location')}</label>
-            <Paper
-              component="div"
-              className={updateParty.formErrors.location.length > 0 ? styles.redBorder : styles.createInput}
-            >
-              <FormControl fullWidth>
-                <Select
-                  labelId="demo-controlled-open-select-label"
-                  id="demo-controlled-open-select"
-                  value={updateParty.location}
-                  fullWidth
-                  displayEmpty
-                  onChange={handleChange}
-                  className={styles.select}
-                  name="location"
-                  MenuProps={{ classes: { paper: styles.selectPaper } }}
-                >
-                  <MenuItem value="" disabled>
-                    <em>{t('admin:components.party.selectLocation')}</em>
-                  </MenuItem>
-                  {locationData.value.map((el) => (
-                    <MenuItem value={el?.id} key={el?.id}>
-                      {el?.name}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </Paper>
+            <InputSelect
+              name="location"
+              label={t('admin:components.party.location')}
+              value={updateParty.location}
+              error={updateParty.formErrors.location}
+              menu={locationMenu}
+              onChange={handleChange}
+            />
           </div>
         </Container>
       ) : (

@@ -753,6 +753,11 @@
   color: var(--textColor) !important;
 }
 
+.spanWhite:hover,
+.spanDange:hover {
+  opacity: 0.8;
+}
+
 .actionStyle {
   text-decoration: none;
   color: #000;
@@ -1161,13 +1166,6 @@
   top: 0;
 }
 
-.checkboxButton {
-  margin: 0;
-  padding: 0;
-  width: 100%;
-  color: var(--textColor);
-}
-
 .accentText {
   color: var(--textColor);
 }
@@ -1225,8 +1223,7 @@
     -webkit-transform: translate(14px, -9px) scale(0.75);
     -ms-transform: translate(14px, -9px) scale(0.75);
     transform: translate(14px, -9px) scale(0.75);
-
-    // background-color: var(--panelBackground);
+    position: absolute;
     padding-left: 5px;
     padding-right: 5px;
     max-width: fit-content;
@@ -1257,4 +1254,18 @@
       max-width: fit-content;
     }
   }
+}
+
+.switchField {
+  :global(.MuiFormControlLabel-label) {
+    color: var(--textColor);
+  }
+
+  :global(.MuiFormControlLabel-label.Mui-disabled) {
+    color: var(--textColor);
+  }
+}
+
+.iconButton {
+  color: var(--textColor);
 }
