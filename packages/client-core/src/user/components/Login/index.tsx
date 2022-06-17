@@ -59,10 +59,6 @@ const FlatSignIn = (props: Props) => {
   const userTabPanel = enableUserPassword && <PasswordLoginApp />
 
   useEffect(() => {
-    !authSetting && AuthSettingsService.fetchAuthSetting()
-  }, [])
-
-  useEffect(() => {
     if (authSetting) {
       let temp = { ...initialState }
       authSetting?.authStrategies?.forEach((el) => {

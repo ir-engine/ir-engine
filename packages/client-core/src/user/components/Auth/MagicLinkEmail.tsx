@@ -52,10 +52,6 @@ const MagicLinkEmail = ({ type, isAddConnection }: Props): JSX.Element => {
   const [authState, setAuthState] = useState(initialState)
 
   useEffect(() => {
-    !authSetting && AuthSettingsService.fetchAuthSetting()
-  }, [])
-
-  useEffect(() => {
     if (authSetting) {
       let temp = { ...initialState }
       authSetting?.authStrategies?.forEach((el) => {

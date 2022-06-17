@@ -42,10 +42,6 @@ const SignIn = (): JSX.Element => {
   const [state, setState] = useState(initialState)
 
   useEffect(() => {
-    !authSetting && AuthSettingsService.fetchAuthSetting()
-  }, [])
-
-  useEffect(() => {
     if (authSetting) {
       let temp = { ...initialState }
       authSetting?.authStrategies?.forEach((el) => {

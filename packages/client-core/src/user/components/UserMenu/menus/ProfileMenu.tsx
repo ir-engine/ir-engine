@@ -131,10 +131,6 @@ const ProfileMenu = ({ className, hideLogin, changeActiveMenu, setProfileMenuOpe
   const [oauthConnectedState, setOauthConnectedState] = useState(initialOAuthConnectedState)
 
   useEffect(() => {
-    !authSetting && AuthSettingsService.fetchAuthSetting()
-  }, [])
-
-  useEffect(() => {
     if (authSetting) {
       let temp = { ...initialAuthState }
       authSetting?.authStrategies?.forEach((el) => {

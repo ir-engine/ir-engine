@@ -4,6 +4,7 @@ import { createState, Downgraded, useState } from '@speigg/hookstate'
 // import { endVideoChat, leave } from '@xrengine/engine/src/networking/functions/SocketWebRTCClientFunctions';
 import axios from 'axios'
 import i18n from 'i18next'
+import _ from 'lodash'
 import querystring from 'querystring'
 import { v1 } from 'uuid'
 
@@ -157,7 +158,6 @@ export const AuthService = {
   doLoginAuto: async (forceClientAuthReset?: boolean) => {
     const dispatch = useDispatch()
     try {
-      console.log(accessStoredLocalState().attach(Downgraded))
       const authData = accessStoredLocalState().attach(Downgraded).value
       let accessToken =
         forceClientAuthReset !== true && authData && authData.authUser ? authData.authUser.accessToken : undefined

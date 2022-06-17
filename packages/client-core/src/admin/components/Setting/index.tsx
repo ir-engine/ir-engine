@@ -10,7 +10,6 @@ import Button from '@mui/material/Button'
 
 import { AdminRedisSettingsServiceReceptor } from '../../services/Setting/AdminRedisSettingService'
 import { AdminAnalyticsSettingsServiceReceptor } from '../../services/Setting/AnalyticsSettingsService'
-import { AuthSettingsServiceReceptor } from '../../services/Setting/AuthSettingService'
 import { AdminAwsSettingsServiceReceptor } from '../../services/Setting/AwsSettingService'
 import { AdminCoilSettingsServiceReceptor } from '../../services/Setting/CoilSettingService'
 import { AdminEmailSettingsServiceReceptor } from '../../services/Setting/EmailSettingService'
