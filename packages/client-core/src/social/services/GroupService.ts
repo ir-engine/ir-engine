@@ -149,9 +149,6 @@ export const GroupServiceReceptor = (action) => {
   })
 }
 
-// Temporary
-addActionReceptor(GroupServiceReceptor)
-
 export const accessGroupState = () => getState(GroupState)
 
 export const useGroupState = () => useState(accessGroupState())
