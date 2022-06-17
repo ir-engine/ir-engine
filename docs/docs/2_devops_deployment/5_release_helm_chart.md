@@ -8,7 +8,7 @@ To create a new version from the chart you will need to install chartpress via:
 pip install chartpress
 ```
 
-then run following commands:
+Then run following commands:
 
 ``` bash
 git checkout master
@@ -17,6 +17,6 @@ chartpress --publish-chart
 git clean -xffd
 ```
 
-the branch can be any branch have the required chart features, the tag will be the chart tag you need.
+The branch can be any branch have the required chart features, the tag will be the chart tag you need.
 
 Also checkout the branch **gh-pages** for the jykell deployment
