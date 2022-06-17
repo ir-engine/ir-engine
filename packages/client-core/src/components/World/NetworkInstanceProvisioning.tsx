@@ -10,7 +10,7 @@ import {
   MediaInstanceConnectionService,
   useMediaInstanceConnectionState
 } from '@xrengine/client-core/src/common/services/MediaInstanceConnectionService'
-import { MediaStreamService } from '@xrengine/client-core/src/media/services/MediaStreamService'
+import { MediaServiceReceptor, MediaStreamService } from '@xrengine/client-core/src/media/services/MediaStreamService'
 import { useChatState } from '@xrengine/client-core/src/social/services/ChatService'
 import { useLocationState } from '@xrengine/client-core/src/social/services/LocationService'
 import { useDispatch } from '@xrengine/client-core/src/store'
@@ -48,6 +48,7 @@ export const NetworkInstanceProvisioning = () => {
   const currentChannelInstanceConnection = channelConnectionState.instances[mediaNetworkHostId].ornull
 
   useEffect(() => {
+    addActionReceptor(MediaServiceReceptor)
     addActionReceptor((action) => {
       matches(action).when(
         MediaStreams.actions.triggerUpdateConsumers.matches,
@@ -56,6 +57,7 @@ export const NetworkInstanceProvisioning = () => {
     })
     addActionReceptor(UserServiceReceptor)
     return () => {
+      removeActionReceptor(MediaServiceReceptor)
       removeActionReceptor(UserServiceReceptor)
     }
   }, [])

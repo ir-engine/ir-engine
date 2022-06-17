@@ -11,7 +11,7 @@ import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
 
 import { AuthSettingsService } from '../../../admin/services/Setting/AuthSettingService'
-import { useAdminAuthSettingState } from '../../../admin/services/Setting/AuthSettingService'
+import { useAuthSettingState } from '../../../admin/services/Setting/AuthSettingService'
 import { AuthService } from '../../services/AuthService'
 import { useAuthState } from '../../services/AuthService'
 import styles from './index.module.scss'
@@ -47,13 +47,9 @@ const MagicLinkEmail = ({ type, isAddConnection }: Props): JSX.Element => {
   const auth = useAuthState()
   const [state, setState] = useState(defaultState)
   const { t } = useTranslation()
-  const authSettingState = useAdminAuthSettingState()
+  const authSettingState = useAuthSettingState()
   const [authSetting] = authSettingState?.authSettings?.value || []
   const [authState, setAuthState] = useState(initialState)
-
-  useEffect(() => {
-    !authSetting && AuthSettingsService.fetchAuthSetting()
-  }, [])
 
   useEffect(() => {
     if (authSetting) {

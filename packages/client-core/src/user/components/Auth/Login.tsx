@@ -8,7 +8,7 @@ import Tab from '@mui/material/Tab'
 import Tabs from '@mui/material/Tabs'
 
 import { AuthSettingsService } from '../../../admin/services/Setting/AuthSettingService'
-import { useAdminAuthSettingState } from '../../../admin/services/Setting/AuthSettingService'
+import { useAuthSettingState } from '../../../admin/services/Setting/AuthSettingService'
 import MagicLinkEmail from './MagicLinkEmail'
 import PasswordLogin from './PasswordLogin'
 import SocialLogin from './SocialLogin'
@@ -37,13 +37,9 @@ const TabPanel = ({ children, value, index }: Props): JSX.Element => {
 }
 
 const SignIn = (): JSX.Element => {
-  const authSettingState = useAdminAuthSettingState()
+  const authSettingState = useAuthSettingState()
   const [authSetting] = authSettingState?.authSettings?.value || []
   const [state, setState] = useState(initialState)
-
-  useEffect(() => {
-    !authSetting && AuthSettingsService.fetchAuthSetting()
-  }, [])
 
   useEffect(() => {
     if (authSetting) {
