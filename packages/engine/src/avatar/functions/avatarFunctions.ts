@@ -472,11 +472,12 @@ export const setAvatarHeadOpacity = (entity: Entity, opacity: number): void => {
   })
 
   const headBone = findHeadBone(object3DComponent?.value)
+  const neckBone = (headBone as any).parent
   if (!headBone || pastOpacity == opacity) return
   if (opacity == 0) {
     ;(headBone as any).traverse((o) => {
-      o.position.set(NaN, NaN, NaN)
-      o.matrixWorld.set(NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN, NaN)
+      o.position.copy(neckBone.position)
+      o.matrixWorld.copy(neckBone.matrixWorld)
     })
   } else {
     ;(headBone as any).traverse((o) => {
