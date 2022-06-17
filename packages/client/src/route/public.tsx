@@ -13,7 +13,7 @@ import {
 } from '@xrengine/client-core/src/admin/services/Setting/ClientSettingService'
 import ErrorBoundary from '@xrengine/client-core/src/common/components/ErrorBoundary'
 import { LoadingCircle } from '@xrengine/client-core/src/components/LoadingCircle'
-import { AuthService } from '@xrengine/client-core/src/user/services/AuthService'
+import { AuthService, AuthServiceReceptor } from '@xrengine/client-core/src/user/services/AuthService'
 import {
   LocalStateServiceReceptor,
   StoredLocalAction,
@@ -45,6 +45,7 @@ function RouterComp(props) {
     addActionReceptor(LocalStateServiceReceptor)
     addActionReceptor(ClientSettingsServiceReceptor)
     addActionReceptor(AuthSettingsServiceReceptor)
+    addActionReceptor(AuthServiceReceptor)
 
     dispatchAction(StoredLocalAction.restoreLocalData())
     StoredLocalStoreService.fetchLocalStoredState()
@@ -66,6 +67,7 @@ function RouterComp(props) {
       removeActionReceptor(LocalStateServiceReceptor)
       removeActionReceptor(ClientSettingsServiceReceptor)
       removeActionReceptor(AuthSettingsServiceReceptor)
+      removeActionReceptor(AuthServiceReceptor)
     }
   }, [])
 

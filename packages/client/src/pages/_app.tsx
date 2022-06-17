@@ -12,10 +12,8 @@ import { defaultAction } from '@xrengine/client-core/src/common/components/Notif
 import { ProjectService, useProjectState } from '@xrengine/client-core/src/common/services/ProjectService'
 import { store } from '@xrengine/client-core/src/store'
 import { theme } from '@xrengine/client-core/src/theme'
-import { AuthServiceReceptor } from '@xrengine/client-core/src/user/services/AuthService'
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import GlobalStyle from '@xrengine/client-core/src/util/GlobalStyle'
-import { addActionReceptor, removeActionReceptor } from '@xrengine/hyperflux'
 import { loadWebappInjection } from '@xrengine/projects/loadWebappInjection'
 
 import { StyledEngineProvider, Theme, ThemeProvider } from '@mui/material/styles'
@@ -62,14 +60,6 @@ const App = (): any => {
     initGA()
 
     logPageView()
-  }, [])
-
-  useEffect(() => {
-    addActionReceptor(AuthServiceReceptor)
-
-    return () => {
-      removeActionReceptor(AuthServiceReceptor)
-    }
   }, [])
 
   useEffect(() => {

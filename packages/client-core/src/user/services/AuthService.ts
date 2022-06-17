@@ -24,7 +24,6 @@ import { NotificationService } from '../../common/services/NotificationService'
 import { client } from '../../feathers'
 import { accessLocationState } from '../../social/services/LocationService'
 import { accessPartyState } from '../../social/services/PartyService'
-import { useDispatch } from '../../store'
 import { serverHost } from '../../util/config'
 import { accessStoredLocalState, StoredLocalAction } from '../../util/StoredLocalState'
 import { uploadToFeathersService } from '../../util/upload'
@@ -111,13 +110,13 @@ export const AuthServiceReceptor = (action) => {
       .when(AuthAction.didVerifyEmailAction.matches, (action) => {
         return s.identityProvider.merge({ isVerified: action.result })
       })
-      // .when(StoredLocalAction.restoreLocalDataAction.matches, () => {
-      //   const stored = accessStoredLocalState().attach(Downgraded).authData.value
-      //   return s.merge({
-      //     authUser: stored.authUser,
-      //     identityProvider: stored.identityProvider
-      //   })
-      // })
+      .when(StoredLocalAction.restoreLocalData.matches, () => {
+        const stored = accessStoredLocalState().attach(Downgraded).value
+        return s.merge({
+          authUser: stored.authUser,
+          identityProvider: stored.authUser.identityProvider
+        })
+      })
       .when(AuthAction.avatarUpdatedAction.matches, (action) => {
         return s.user.merge({ avatarUrl: action.url })
       })
@@ -347,7 +346,6 @@ export const AuthService = {
     )}`
   },
   removeUserOAuth: async (service: string) => {
-    const dispatch = useDispatch()
     const ipResult = await (client as any).service('identity-provider').find()
     const ipToRemove = ipResult.data.find((ip) => ip.type === service)
     if (ipToRemove) {
@@ -363,14 +361,14 @@ export const AuthService = {
         })
 
         if (newToken) {
-          dispatch(AuthAction.actionProcessing({ processing: true }))
+          dispatchAction(AuthAction.actionProcessing({ processing: true }))
           await (client as any).authentication.setAccessToken(newToken as string)
           const res = await (client as any).reAuthenticate(true)
           const authUser = resolveAuthUser(res)
           await (client as any).service('identity-provider').remove(ipToRemove.id)
-          dispatch(AuthAction.loginUserSuccessAction({ authUser: authUser, message: '' }))
+          dispatchAction(AuthAction.loginUserSuccessAction({ authUser: authUser, message: '' }))
           await AuthService.loadUserData(authUser.identityProvider.userId)
-          dispatch(AuthAction.actionProcessing({ processing: false }))
+          dispatchAction(AuthAction.actionProcessing({ processing: false }))
         }
       }
     }
