@@ -202,7 +202,6 @@ export const setupAvatarMaterials = (entity, root) => {
   const materialList: Array<MaterialMap> = []
   setObjectLayers(root, ObjectLayers.Avatar)
 
-  // TODO: Save head transform
   const animationComponent = getComponent(entity, AvatarAnimationComponent)
   const headBone = animationComponent.rig.Head
 
