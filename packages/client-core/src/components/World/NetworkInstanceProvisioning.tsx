@@ -10,7 +10,7 @@ import {
   MediaInstanceConnectionService,
   useMediaInstanceConnectionState
 } from '@xrengine/client-core/src/common/services/MediaInstanceConnectionService'
-import { MediaStreamService } from '@xrengine/client-core/src/media/services/MediaStreamService'
+import { MediaServiceReceptor, MediaStreamService } from '@xrengine/client-core/src/media/services/MediaStreamService'
 import { useChatState } from '@xrengine/client-core/src/social/services/ChatService'
 import { useLocationState } from '@xrengine/client-core/src/social/services/LocationService'
 import { useDispatch } from '@xrengine/client-core/src/store'
@@ -22,8 +22,9 @@ import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
 import { receiveJoinWorld } from '@xrengine/engine/src/networking/functions/receiveJoinWorld'
 import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
-import { addActionReceptor, useHookEffect } from '@xrengine/hyperflux'
+import { addActionReceptor, removeActionReceptor, useHookEffect } from '@xrengine/hyperflux'
 
+import { UserServiceReceptor } from '../../user/services/UserService'
 import { getSearchParamFromURL } from '../../util/getSearchParamFromURL'
 import InstanceServerWarnings from './InstanceServerWarnings'
 
@@ -47,12 +48,18 @@ export const NetworkInstanceProvisioning = () => {
   const currentChannelInstanceConnection = channelConnectionState.instances[mediaNetworkHostId].ornull
 
   useEffect(() => {
+    addActionReceptor(MediaServiceReceptor)
     addActionReceptor((action) => {
       matches(action).when(
         MediaStreams.actions.triggerUpdateConsumers.matches,
         MediaStreamService.triggerUpdateConsumers
       )
     })
+    addActionReceptor(UserServiceReceptor)
+    return () => {
+      removeActionReceptor(MediaServiceReceptor)
+      removeActionReceptor(UserServiceReceptor)
+    }
   }, [])
 
   /** if the instance that got provisioned is not the one that was entered into the URL, update the URL */

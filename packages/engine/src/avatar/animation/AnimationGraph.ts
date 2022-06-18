@@ -6,6 +6,7 @@ export type AnimationGraph = {
   states: { [key: string]: AnimationState }
   transitionRules: { [key: string]: { rule: AnimationStateTransitionRule; nextState: string }[] }
   currentState: AnimationState
+  stateChanged: (name: string, graph: AnimationGraph) => void | null
 }
 
 export function updateAnimationGraph(graph: AnimationGraph, delta: number) {
@@ -30,4 +31,5 @@ export function changeState(graph: AnimationGraph, name: string): void {
   const prevState = graph.currentState
   graph.currentState = newState
   enterAnimationState(graph.currentState, prevState)
+  if (graph.stateChanged) graph.stateChanged(name, graph)
 }

@@ -8,7 +8,6 @@ import Button from '@mui/material/Button'
 import Chip from '@mui/material/Chip'
 import Container from '@mui/material/Container'
 import DialogActions from '@mui/material/DialogActions'
-import Drawer from '@mui/material/Drawer'
 import Grid from '@mui/material/Grid'
 import List from '@mui/material/List'
 import ListItem from '@mui/material/ListItem'
@@ -17,29 +16,24 @@ import ListItemText from '@mui/material/ListItemText'
 import Paper from '@mui/material/Paper'
 import Typography from '@mui/material/Typography'
 
+import DrawerView from '../../common/DrawerView'
 import styles from '../../styles/admin.module.scss'
 import EditGroup from './EditGroup'
 
 interface Props {
   groupAdmin: Group
-  closeViewModal: (open: boolean) => void
-  openView: boolean
+  open: boolean
+  onClose: () => void
 }
 
-const ViewGroup = (props: Props) => {
-  const { openView, groupAdmin, closeViewModal } = props
+const ViewGroup = ({ groupAdmin, open, onClose }: Props) => {
   const [editMode, setEditMode] = useState(false)
   const { t } = useTranslation()
 
   return (
-    <Drawer
-      anchor="right"
-      open={openView}
-      onClose={() => closeViewModal(false)}
-      classes={{ paper: styles.paperDrawer }}
-    >
+    <DrawerView open={open} onClose={onClose}>
       {editMode ? (
-        <EditGroup groupAdmin={groupAdmin} closeEditModal={setEditMode} closeViewModal={closeViewModal} />
+        <EditGroup groupAdmin={groupAdmin} onClose={() => setEditMode(false)} />
       ) : (
         <React.Fragment>
           <Paper elevation={3} className={styles.rootPaper}>
@@ -129,14 +123,14 @@ const ViewGroup = (props: Props) => {
               >
                 {t('admin:components.group.edit')}
               </Button>
-              <Button onClick={() => closeViewModal(false)} className={styles.cancelButton}>
+              <Button onClick={onClose} className={styles.cancelButton}>
                 {t('admin:components.group.cancel')}
               </Button>
             </DialogActions>
           </DialogActions>
         </React.Fragment>
       )}
-    </Drawer>
+    </DrawerView>
   )
 }
 

@@ -4,6 +4,8 @@ import { useTranslation } from 'react-i18next'
 import { Instance } from '@xrengine/common/src/interfaces/Instance'
 import { Location } from '@xrengine/common/src/interfaces/Location'
 
+import Box from '@mui/material/Box'
+
 import { useAuthState } from '../../../user/services/AuthService'
 import ConfirmModal from '../../common/ConfirmModal'
 import TableComponent from '../../common/Table'
@@ -12,8 +14,8 @@ import { AdminInstanceService, INSTANCE_PAGE_LIMIT, useAdminInstanceState } from
 import styles from '../../styles/admin.module.scss'
 
 interface Props {
-  fetchAdminState?: any
-  search: any
+  className?: string
+  search: string
 }
 
 /**
@@ -23,12 +25,11 @@ interface Props {
  * @returns DOM Element
  * @author KIMENYI Kevin
  */
-const InstanceTable = (props: Props) => {
-  const { search } = props
+const InstanceTable = ({ className, search }: Props) => {
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(INSTANCE_PAGE_LIMIT)
   const [refetch, setRefetch] = useState(false)
-  const [popConfirmOpen, setPopConfirmOpen] = useState(false)
+  const [openConfirm, setOpenConfirm] = useState(false)
   const [instanceId, setInstanceId] = useState('')
   const [instanceName, setInstanceName] = useState('')
   const [fieldOrder, setFieldOrder] = useState('asc')
@@ -50,13 +51,9 @@ const InstanceTable = (props: Props) => {
     }
   }, [fieldOrder])
 
-  const handleCloseModal = () => {
-    setPopConfirmOpen(false)
-  }
-
   const submitRemoveInstance = async () => {
     await AdminInstanceService.removeInstance(instanceId)
-    setPopConfirmOpen(false)
+    setOpenConfirm(false)
   }
 
   const handleRowsPerPageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -109,9 +106,9 @@ const InstanceTable = (props: Props) => {
           href="#h"
           className={styles.actionStyle}
           onClick={() => {
-            setPopConfirmOpen(true)
             setInstanceId(id)
             setInstanceName(ipAddress)
+            setOpenConfirm(true)
           }}
         >
           <span className={styles.spanDange}>{t('admin:components.locationModal.lbl-delete')}</span>
@@ -125,7 +122,7 @@ const InstanceTable = (props: Props) => {
   )
 
   return (
-    <React.Fragment>
+    <Box className={className}>
       <TableComponent
         allowSort={false}
         fieldOrder={fieldOrder}
@@ -140,12 +137,12 @@ const InstanceTable = (props: Props) => {
         handleRowsPerPageChange={handleRowsPerPageChange}
       />
       <ConfirmModal
-        open={popConfirmOpen}
+        open={openConfirm}
         description={`${t('admin:components.instance.confirmInstanceDelete')} '${instanceName}'?`}
-        onClose={handleCloseModal}
+        onClose={() => setOpenConfirm(false)}
         onSubmit={submitRemoveInstance}
       />
-    </React.Fragment>
+    </Box>
   )
 }
 

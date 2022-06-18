@@ -289,6 +289,7 @@ function removeTopic(topic: string, store = HyperFlux.store) {
  * @param receptor
  */
 function addActionReceptor(receptor: ActionReceptor, store = HyperFlux.store) {
+  console.log(`[HyperFlux]: Added Receptor`, receptor.name)
   ;(store.receptors as Array<ActionReceptor>).push(receptor)
 }
 
@@ -299,7 +300,10 @@ function addActionReceptor(receptor: ActionReceptor, store = HyperFlux.store) {
  */
 function removeActionReceptor(receptor: ActionReceptor, store = HyperFlux.store) {
   const idx = store.receptors.indexOf(receptor)
-  if (idx >= 0) (store.receptors as Array<ActionReceptor>).splice(idx, 1)
+  if (idx >= 0) {
+    console.log(`[HyperFlux]: Removed Receptor`, receptor.name)
+    ;(store.receptors as Array<ActionReceptor>).splice(idx, 1)
+  }
 }
 
 const _updateCachedActions = (incomingAction: Required<Action>, store = HyperFlux.store) => {

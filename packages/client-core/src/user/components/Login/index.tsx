@@ -10,7 +10,7 @@ import CardMedia from '@mui/material/CardMedia'
 import Fab from '@mui/material/Fab'
 import Typography from '@mui/material/Typography'
 
-import { AuthSettingService, useAdminAuthSettingState } from '../../../admin/services/Setting/AuthSettingService'
+import { AuthSettingsService, useAuthSettingState } from '../../../admin/services/Setting/AuthSettingService'
 import ForgotPassword from '../../../user/components/Auth/ForgotPassword'
 import PasswordLoginApp from '../../../user/components/Auth/PasswordLoginApp'
 import RegisterApp from '../../../user/components/Auth/RegisterApp'
@@ -44,7 +44,7 @@ const FlatSignIn = (props: Props) => {
   const { t } = useTranslation()
   const location = useLocation()
 
-  const authSettingState = useAdminAuthSettingState()
+  const authSettingState = useAuthSettingState()
   const [authSetting] = authSettingState?.authSettings?.value || []
   const [authState, setAuthState] = useState(initialState)
 
@@ -57,10 +57,6 @@ const FlatSignIn = (props: Props) => {
   const socialCount = socials.filter((v) => v).length
 
   const userTabPanel = enableUserPassword && <PasswordLoginApp />
-
-  useEffect(() => {
-    !authSetting && AuthSettingService.fetchAuthSetting()
-  }, [])
 
   useEffect(() => {
     if (authSetting) {
@@ -127,7 +123,7 @@ const FlatSignIn = (props: Props) => {
     case 'reset-password':
       component = (
         <>
-          <ResetPassword resetPassword={handleResetPassword} token={''} />
+          <ResetPassword resetPassword={handleResetPassword} />
           <span className={styles.placeholder} />
         </>
       )

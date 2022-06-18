@@ -13,9 +13,9 @@ import Paper from '@mui/material/Paper'
 import Typography from '@mui/material/Typography'
 
 import { useAuthState } from '../../../user/services/AuthService'
+import DrawerView from '../../common/DrawerView'
 import InputSelect, { InputMenuItem } from '../../common/InputSelect'
 import { validateForm } from '../../common/validation/formValidation'
-import ViewDrawer from '../../common/ViewDrawer'
 import { useAdminInstanceState } from '../../services/InstanceService'
 import { AdminInstanceService } from '../../services/InstanceService'
 import { useAdminLocationState } from '../../services/LocationService'
@@ -24,15 +24,12 @@ import { AdminPartyService } from '../../services/PartyService'
 import styles from '../../styles/admin.module.scss'
 
 interface Props {
-  openView: boolean
-  closeViewModal: () => void
   partyAdmin?: Party
-  editMode: boolean
-  handleEditMode: (open: boolean) => void
+  open: boolean
+  onClose: () => void
 }
 
-export default function ViewParty(props: Props) {
-  const { openView, closeViewModal, partyAdmin, editMode, handleEditMode } = props
+export default function ViewParty({ partyAdmin, open, onClose }: Props) {
   const [updateParty, setUpdateParty] = useState({
     location: '',
     instance: '',
@@ -41,6 +38,7 @@ export default function ViewParty(props: Props) {
       instance: ''
     }
   })
+  const [editMode, setEditMode] = useState(false)
   const authState = useAuthState()
   const user = authState.user
   const adminLocationState = useAdminLocationState()
@@ -108,7 +106,7 @@ export default function ViewParty(props: Props) {
     if (validateForm(updateParty, updateParty.formErrors) && partyAdmin) {
       await AdminPartyService.patchParty(partyAdmin.id!, data)
       setUpdateParty({ ...updateParty, location: '', instance: '' })
-      closeViewModal()
+      onClose()
     }
   }
 
@@ -127,7 +125,7 @@ export default function ViewParty(props: Props) {
   })
 
   return (
-    <ViewDrawer openView={openView} handleCloseDrawer={() => closeViewModal()}>
+    <DrawerView open={open} onClose={onClose}>
       <Paper elevation={0} className={styles.rootPaper}>
         {partyAdmin && (
           <Container maxWidth="sm">
@@ -253,21 +251,21 @@ export default function ViewParty(props: Props) {
               </span>{' '}
               {t('admin:components.party.submit')}
             </Button>
-            <Button className={styles.cancelButton} onClick={() => handleEditMode(false)}>
+            <Button className={styles.cancelButton} onClick={() => setEditMode(false)}>
               {t('admin:components.party.cancel')}
             </Button>
           </>
         ) : (
           <>
-            <Button className={styles.submitButton} onClick={() => handleEditMode(true)}>
+            <Button className={styles.submitButton} onClick={() => setEditMode(true)}>
               {t('admin:components.party.edit')}
             </Button>
-            <Button onClick={() => closeViewModal()} className={styles.cancelButton}>
+            <Button onClick={onClose} className={styles.cancelButton}>
               {t('admin:components.party.cancel')}
             </Button>
           </>
         )}
       </DialogActions>
-    </ViewDrawer>
+    </DrawerView>
   )
 }

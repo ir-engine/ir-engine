@@ -3,6 +3,8 @@ import { useTranslation } from 'react-i18next'
 
 import { User } from '@xrengine/common/src/interfaces/User'
 
+import Box from '@mui/material/Box'
+
 import { useAuthState } from '../../../user/services/AuthService'
 import ConfirmModal from '../../common/ConfirmModal'
 import TableComponent from '../../common/Table'
@@ -11,16 +13,15 @@ import { AdminUserService, USER_PAGE_LIMIT, useUserState } from '../../services/
 import styles from '../../styles/admin.module.scss'
 import ViewUser from './ViewUser'
 
-const UserTable = (props: UserProps) => {
-  const { search } = props
+const UserTable = ({ className, search }: UserProps) => {
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(USER_PAGE_LIMIT)
-  const [popConfirmOpen, setPopConfirmOpen] = useState(false)
+  const [openConfirm, setOpenConfirm] = useState(false)
   const [userId, setUserId] = useState('')
   const [userName, setUserName] = useState('')
   const [fieldOrder, setFieldOrder] = useState('asc')
   const [sortField, setSortField] = useState('name')
-  const [viewModal, setViewModal] = useState(false)
+  const [openViewUser, setOpenViewUser] = useState(false)
   const [userAdmin, setUserAdmin] = useState<User | null>(null)
   const authState = useAuthState()
   const user = authState.user
@@ -49,17 +50,9 @@ const UserTable = (props: UserProps) => {
     setPage(0)
   }
 
-  const closeViewModal = (open) => {
-    setViewModal(open)
-  }
-
-  const handleCloseModal = () => {
-    setPopConfirmOpen(false)
-  }
-
   const submitDeleteUser = async () => {
     await AdminUserService.removeUserAdmin(userId)
-    setPopConfirmOpen(false)
+    setOpenConfirm(false)
   }
 
   const createData = (
@@ -88,7 +81,7 @@ const UserTable = (props: UserProps) => {
             className={styles.actionStyle}
             onClick={() => {
               setUserAdmin(el)
-              setViewModal(true)
+              setOpenViewUser(true)
             }}
           >
             <span className={styles.spanWhite}>{t('admin:components.index.view')}</span>
@@ -100,7 +93,7 @@ const UserTable = (props: UserProps) => {
               onClick={() => {
                 setUserId(id)
                 setUserName(name)
-                setPopConfirmOpen(true)
+                setOpenConfirm(true)
               }}
             >
               <span className={styles.spanDange}>{t('admin:components.index.delete')}</span>
@@ -138,7 +131,7 @@ const UserTable = (props: UserProps) => {
   })
 
   return (
-    <React.Fragment>
+    <Box className={className}>
       <TableComponent
         allowSort={false}
         fieldOrder={fieldOrder}
@@ -153,15 +146,13 @@ const UserTable = (props: UserProps) => {
         handleRowsPerPageChange={handleRowsPerPageChange}
       />
       <ConfirmModal
-        open={popConfirmOpen}
+        open={openConfirm}
         description={`${t('admin:components.user.confirmUserDelete')} '${userName}'?`}
-        onClose={handleCloseModal}
+        onClose={() => setOpenConfirm(false)}
         onSubmit={submitDeleteUser}
       />
-      {userAdmin && viewModal && (
-        <ViewUser openView={viewModal} userAdmin={userAdmin} closeViewModal={closeViewModal} />
-      )}
-    </React.Fragment>
+      {userAdmin && openViewUser && <ViewUser open userAdmin={userAdmin} onClose={() => setOpenViewUser(false)} />}
+    </Box>
   )
 }
 

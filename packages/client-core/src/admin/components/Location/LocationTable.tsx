@@ -4,27 +4,31 @@ import { useTranslation } from 'react-i18next'
 import { Location } from '@xrengine/common/src/interfaces/Location'
 
 import Avatar from '@mui/material/Avatar'
+import Box from '@mui/material/Box'
 import Chip from '@mui/material/Chip'
 
 import { useAuthState } from '../../../user/services/AuthService'
 import ConfirmModal from '../../common/ConfirmModal'
 import TableComponent from '../../common/Table'
-import { locationColumns, LocationProps } from '../../common/variables/location'
+import { locationColumns } from '../../common/variables/location'
 import { AdminLocationService, LOCATION_PAGE_LIMIT, useAdminLocationState } from '../../services/LocationService'
 import styles from '../../styles/admin.module.scss'
 import ViewLocation from './ViewLocation'
 
-const LocationTable = (props: LocationProps) => {
-  const { search } = props
+interface Props {
+  className?: string
+  search: string
+}
 
+const LocationTable = ({ className, search }: Props) => {
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(LOCATION_PAGE_LIMIT)
-  const [popConfirmOpen, setPopConfirmOpen] = useState(false)
+  const [openConfirm, setOpenConfirm] = useState(false)
   const [locationId, setLocationId] = useState('')
   const [locationName, setLocationName] = useState('')
   const [fieldOrder, setFieldOrder] = useState('asc')
   const [sortField, setSortField] = useState('name')
-  const [viewModal, setViewModal] = useState(false)
+  const [openViewLocation, setOpenViewLocation] = useState(false)
   const [locationAdmin, setLocationAdmin] = useState<Location>()
   const authState = useAuthState()
   const user = authState.user
@@ -45,10 +49,6 @@ const LocationTable = (props: LocationProps) => {
     setPage(newPage)
   }
 
-  const handleCloseModal = () => {
-    setPopConfirmOpen(false)
-  }
-
   useEffect(() => {
     if (adminLocationState.fetched.value) {
       AdminLocationService.fetchAdminLocations(search, page, sortField, fieldOrder)
@@ -57,7 +57,7 @@ const LocationTable = (props: LocationProps) => {
 
   const submitRemoveLocation = async () => {
     await AdminLocationService.removeLocation(locationId)
-    setPopConfirmOpen(false)
+    setOpenConfirm(false)
   }
 
   const handleRowsPerPageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -65,20 +65,17 @@ const LocationTable = (props: LocationProps) => {
     setPage(0)
   }
 
-  const openViewModal = (open: boolean, location: Location) => (event: React.KeyboardEvent | React.MouseEvent) => {
-    if (
-      event.type === 'keydown' &&
-      ((event as React.KeyboardEvent).key === 'Tab' || (event as React.KeyboardEvent).key === 'Shift')
-    ) {
-      return
+  const handleOpenViewLocation =
+    (open: boolean, location: Location) => (event: React.KeyboardEvent | React.MouseEvent) => {
+      if (
+        event.type === 'keydown' &&
+        ((event as React.KeyboardEvent).key === 'Tab' || (event as React.KeyboardEvent).key === 'Shift')
+      ) {
+        return
+      }
+      setLocationAdmin(location)
+      setOpenViewLocation(open)
     }
-    setLocationAdmin(location)
-    setViewModal(open)
-  }
-
-  const closeViewModal = (open) => {
-    setViewModal(open)
-  }
 
   const createData = (
     el: Location,
@@ -105,16 +102,16 @@ const LocationTable = (props: LocationProps) => {
       videoEnabled,
       action: (
         <>
-          <a href="#h" className={styles.actionStyle} onClick={openViewModal(true, el)}>
+          <a href="#h" className={styles.actionStyle} onClick={handleOpenViewLocation(true, el)}>
             <span className={styles.spanWhite}>{t('admin:components.index.view')}</span>
           </a>
           <a
             href="#h"
             className={styles.actionStyle}
             onClick={() => {
-              setPopConfirmOpen(true)
               setLocationId(id)
               setLocationName(name)
+              setOpenConfirm(true)
             }}
           >
             <span className={styles.spanDange}>{t('admin:components.index.delete')}</span>
@@ -135,7 +132,6 @@ const LocationTable = (props: LocationProps) => {
       //@ts-ignore
       el.location_setting?.locationType,
       <div>
-        {' '}
         {el.isFeatured && (
           <Chip
             style={{ marginLeft: '5px' }}
@@ -150,13 +146,13 @@ const LocationTable = (props: LocationProps) => {
             label={t('admin:components.index.lobby')}
             // onClick={handleClick}
           />
-        )}{' '}
+        )}
       </div>,
       <div>
         {/**@ts-ignore*/}
         {el.location_setting?.instanceMediaChatEnabled
           ? t('admin:components.index.yes')
-          : t('admin:components.index.no')}{' '}
+          : t('admin:components.index.no')}
       </div>,
       <div>
         {/**@ts-ignore*/}
@@ -166,7 +162,7 @@ const LocationTable = (props: LocationProps) => {
   })
 
   return (
-    <React.Fragment>
+    <Box className={className}>
       <TableComponent
         allowSort={false}
         fieldOrder={fieldOrder}
@@ -181,13 +177,13 @@ const LocationTable = (props: LocationProps) => {
         handleRowsPerPageChange={handleRowsPerPageChange}
       />
       <ConfirmModal
-        open={popConfirmOpen}
+        open={openConfirm}
         description={`${t('admin:components.location.confirmLocationDelete')} '${locationName}'?`}
-        onClose={handleCloseModal}
+        onClose={() => setOpenConfirm(false)}
         onSubmit={submitRemoveLocation}
       />
-      <ViewLocation openView={viewModal} closeViewModal={closeViewModal} locationAdmin={locationAdmin} />
-    </React.Fragment>
+      <ViewLocation open={openViewLocation} locationAdmin={locationAdmin} onClose={() => setOpenViewLocation(false)} />
+    </Box>
   )
 }
 

@@ -12,12 +12,11 @@ interface Props {
   search: string
 }
 
-const ReceivedInvite = (props: Props) => {
-  const { search } = props
+const ReceivedInvite = ({ search }: Props) => {
   const [page, setPage] = useState(0)
   const [inviteId, setInviteId] = useState('')
   const [inviteName, setInviteName] = useState('')
-  const [popConfirmOpen, setPopConfirmOpen] = useState(false)
+  const [openConfirm, setOpenConfirm] = useState(false)
   const [rowsPerPage, setRowsPerPage] = useState(INVITE_PAGE_LIMIT)
   const inviteState = useInviteState()
   const [fieldOrder, setFieldOrder] = useState('asc')
@@ -42,13 +41,9 @@ const ReceivedInvite = (props: Props) => {
     setPage(0)
   }
 
-  const handleCloseModal = () => {
-    setPopConfirmOpen(false)
-  }
-
   const deleteInvite = () => {
     InviteService.removeInvite(inviteId)
-    handleCloseModal()
+    setOpenConfirm(false)
   }
 
   const createData = (id: string, name: string, passcode: string, type: string) => {
@@ -63,9 +58,9 @@ const ReceivedInvite = (props: Props) => {
             href="#h"
             className={styles.actionStyle}
             onClick={() => {
-              setPopConfirmOpen(true)
               setInviteId(id)
               setInviteName(name)
+              setOpenConfirm(true)
             }}
           >
             <span className={styles.spanDange}>{t('admin:components.index.delete')}</span>
@@ -93,9 +88,9 @@ const ReceivedInvite = (props: Props) => {
         handleRowsPerPageChange={handleRowsPerPageChange}
       />
       <ConfirmModal
-        open={popConfirmOpen}
+        open={openConfirm}
         description={`${t('admin:components.invite.confirmInviteDelete')} '${inviteName}'?`}
-        onClose={handleCloseModal}
+        onClose={() => setOpenConfirm(false)}
         onSubmit={deleteInvite}
       />
     </React.Fragment>
