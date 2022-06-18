@@ -19,11 +19,10 @@ import styles from '../../styles/admin.module.scss'
 
 interface Props {
   groupAdmin: Group
-  closeEditModal: (open: boolean) => void
-  closeViewModal?: (open: boolean) => void
+  onClose: () => void
 }
 
-const EditGroup = ({ groupAdmin, closeEditModal, closeViewModal }: Props) => {
+const EditGroup = ({ groupAdmin, onClose }: Props) => {
   const user = useAuthState().user
   const adminScopeTypeState = useScopeTypeState()
   const { t } = useTranslation()
@@ -74,8 +73,7 @@ const EditGroup = ({ groupAdmin, closeEditModal, closeViewModal }: Props) => {
         description: '',
         scopeTypes: []
       })
-      closeEditModal(false)
-      if (typeof closeViewModal === 'function') closeViewModal(false)
+      onClose()
     }
   }
   const handleChangeScopeType = (scope) => {
@@ -132,7 +130,7 @@ const EditGroup = ({ groupAdmin, closeEditModal, closeViewModal }: Props) => {
                 description: '',
                 formErrors: { ...state.formErrors, name: '', description: '' }
               })
-              closeEditModal(false)
+              onClose()
             }}
             className={styles.cancelButton}
           >

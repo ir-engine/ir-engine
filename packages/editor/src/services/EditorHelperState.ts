@@ -57,36 +57,28 @@ const EditorHelperState = defineState({
 export async function restoreEditorHelperData(): Promise<void> {
   if (typeof window !== 'undefined') {
     const s = {} as EditorHelperStateType
-    const state = getState(EditorHelperState)
 
     await Promise.all([
       ClientStorage.get(EditorHelperKeys.TRANSFORM_MODE).then((v) => {
         if (typeof v !== 'undefined') s.transformMode = v as TransformModeType
-        else ClientStorage.set(EditorHelperKeys.TRANSFORM_MODE, state.transformMode.value)
       }),
       ClientStorage.get(EditorHelperKeys.TRANSFORM_PIVOT).then((v) => {
         if (typeof v !== 'undefined') s.transformPivot = v as TransformPivotType
-        else ClientStorage.set(EditorHelperKeys.TRANSFORM_PIVOT, state.transformPivot.value)
       }),
       ClientStorage.get(EditorHelperKeys.TRANSFORM_SPACE).then((v) => {
         if (typeof v !== 'undefined') s.transformSpace = v as TransformSpace
-        else ClientStorage.set(EditorHelperKeys.TRANSFORM_SPACE, state.transformSpace.value)
       }),
       ClientStorage.get(EditorHelperKeys.SNAP_MODE).then((v) => {
         if (typeof v !== 'undefined') s.snapMode = v as SnapModeType
-        else ClientStorage.set(EditorHelperKeys.SNAP_MODE, state.snapMode.value)
       }),
       ClientStorage.get(EditorHelperKeys.TRANSLATION_SNAP).then((v) => {
         if (typeof v !== 'undefined') s.translationSnap = v as number
-        else ClientStorage.set(EditorHelperKeys.TRANSLATION_SNAP, state.translationSnap.value)
       }),
       ClientStorage.get(EditorHelperKeys.ROTATION_SNAP).then((v) => {
         if (typeof v !== 'undefined') s.rotationSnap = v as number
-        else ClientStorage.set(EditorHelperKeys.ROTATION_SNAP, state.rotationSnap.value)
       }),
       ClientStorage.get(EditorHelperKeys.SCALE_SNAP).then((v) => {
         if (typeof v !== 'undefined') s.scaleSnap = v as number
-        else ClientStorage.set(EditorHelperKeys.SCALE_SNAP, state.scaleSnap.value)
       })
     ])
 

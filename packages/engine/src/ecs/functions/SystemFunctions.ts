@@ -3,9 +3,16 @@ import { nowMilliseconds } from '../../common/functions/nowMilliseconds'
 import { World } from '../classes/World'
 import { SystemUpdateType } from '../functions/SystemUpdateType'
 
+export type CreateSystemSyncFunctionType<A extends any> = (world: World, props?: A) => () => void
 export type CreateSystemFunctionType<A extends any> = (world: World, props?: A) => Promise<() => void>
 export type SystemModule<A extends any> = { default: CreateSystemFunctionType<A> }
 export type SystemModulePromise<A extends any> = Promise<SystemModule<A>>
+
+export type SystemSyncFunctionType<A> = {
+  systemFunction: CreateSystemSyncFunctionType<A>
+  type: SystemUpdateType
+  args?: A
+}
 
 export type SystemModuleType<A> = {
   systemModulePromise: SystemModulePromise<A>
@@ -75,6 +82,32 @@ export const initSystems = async (world: World, systemModulesToLoad: SystemModul
       world.pipelines[s.type].push(s)
     }
   })
+}
+
+export const initSystemSync = (world: World, systemArgs: SystemSyncFunctionType<any>) => {
+  const name = systemArgs.systemFunction.name
+  console.log(`${name} initializing on ${systemArgs.type} pipeline`)
+  const system = systemArgs.systemFunction(world, systemArgs.args)
+  console.log(`${name} ready`)
+  const systemData = {
+    name,
+    type: systemArgs.type,
+    sceneSystem: false,
+    execute: () => {
+      const start = nowMilliseconds()
+      try {
+        system()
+      } catch (e) {
+        console.error(e)
+      }
+      const end = nowMilliseconds()
+      const duration = end - start
+      if (duration > 10) {
+        console.warn(`Long system execution detected. System: ${name} \n Duration: ${duration}`)
+      }
+    }
+  } as SystemInstanceType
+  world.pipelines[systemData.type].push(systemData)
 }
 
 export const unloadSystems = (world: World, sceneSystemsOnly = false) => {

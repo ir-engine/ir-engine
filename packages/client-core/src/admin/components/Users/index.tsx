@@ -120,9 +120,7 @@ const Users = () => {
           </Box>
         </Grid>
       </Grid>
-      <div className={styles.rootTable}>
-        <UserTable search={search} />
-      </div>
+      <UserTable className={styles.rootTable} search={search} />
       <UserModal open={userModalOpen} onClose={() => setUserModalOpen(false)} />
       <Popover
         classes={{ paper: styles.popover }}

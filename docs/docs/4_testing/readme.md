@@ -12,7 +12,7 @@ a project at a certain level of complexity, effectively preventing progress.
 
 https://mailtrap.io/inboxes
 
-add credentials in ```packages/server/.env```
+Add credentials in ```packages/server/.env```
 ```dotenv
 SMTP_HOST=smtp.mailtrap.io
 SMTP_PORT=2525

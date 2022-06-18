@@ -8,10 +8,10 @@ import Button from '@mui/material/Button'
 import Container from '@mui/material/Container'
 import DialogActions from '@mui/material/DialogActions'
 import DialogTitle from '@mui/material/DialogTitle'
-import Drawer from '@mui/material/Drawer'
 
 import { useAuthState } from '../../../user/services/AuthService'
 import AutoComplete, { AutoCompleteData } from '../../common/AutoComplete'
+import DrawerView from '../../common/DrawerView'
 import InputText from '../../common/InputText'
 import { validateForm } from '../../common/validation/formValidation'
 import { AdminGroupService } from '../../services/GroupService'
@@ -20,11 +20,10 @@ import styles from '../../styles/admin.module.scss'
 
 interface Props {
   open: boolean
-  handleClose: (open: boolean) => void
-  //adminGroupState?: any
+  onClose: () => void
 }
 
-const CreateGroup = ({ open, handleClose }: Props) => {
+const CreateGroup = ({ open, onClose }: Props) => {
   const user = useAuthState().user
   const adminScopeTypeState = useScopeTypeState()
   const { t } = useTranslation()
@@ -74,7 +73,7 @@ const CreateGroup = ({ open, handleClose }: Props) => {
         description: '',
         scopeTypes: []
       })
-      handleClose(false)
+      onClose()
     }
   }
 
@@ -89,61 +88,59 @@ const CreateGroup = ({ open, handleClose }: Props) => {
   }
 
   return (
-    <React.Fragment>
-      <Drawer classes={{ paper: styles.paperDrawer }} anchor="right" open={open} onClose={() => handleClose(false)}>
-        <Container maxWidth="sm" className={styles.mt20}>
-          <form onSubmit={(e) => onSubmitHandler(e)}>
-            <DialogTitle id="form-dialog-title" className={styles.textAlign}>
-              {t('admin:components.group.createNewGroup')}
-            </DialogTitle>
+    <DrawerView open={open} onClose={onClose}>
+      <Container maxWidth="sm" className={styles.mt20}>
+        <form onSubmit={(e) => onSubmitHandler(e)}>
+          <DialogTitle id="form-dialog-title" className={styles.textAlign}>
+            {t('admin:components.group.createNewGroup')}
+          </DialogTitle>
 
-            <InputText
-              name="name"
-              label={t('admin:components.group.name')}
-              placeholder={t('admin:components.group.enterGroupName')}
-              value={state.name}
-              error={state.formErrors.name}
-              onChange={handleChange}
-            />
+          <InputText
+            name="name"
+            label={t('admin:components.group.name')}
+            placeholder={t('admin:components.group.enterGroupName')}
+            value={state.name}
+            error={state.formErrors.name}
+            onChange={handleChange}
+          />
 
-            <InputText
-              name="description"
-              label={t('admin:components.group.description')}
-              placeholder={t('admin:components.group.enterGroupDescription')}
-              value={state.description}
-              error={state.formErrors.description}
-              onChange={handleChange}
-            />
+          <InputText
+            name="description"
+            label={t('admin:components.group.description')}
+            placeholder={t('admin:components.group.enterGroupDescription')}
+            value={state.description}
+            error={state.formErrors.description}
+            onChange={handleChange}
+          />
 
-            <AutoComplete
-              data={scopeData}
-              label={t('admin:components.group.grantScope')}
-              onChange={handleChangeScopeType}
-            />
+          <AutoComplete
+            data={scopeData}
+            label={t('admin:components.group.grantScope')}
+            onChange={handleChangeScopeType}
+          />
 
-            <DialogActions className={styles.mt20}>
-              <Button type="submit" className={styles.submitButton}>
-                {t('admin:components.group.submit')}
-              </Button>
-              <Button
-                onClick={() => {
-                  setState({
-                    ...state,
-                    name: '',
-                    description: '',
-                    formErrors: { ...state.formErrors, name: '', description: '' }
-                  })
-                  handleClose(false)
-                }}
-                className={styles.cancelButton}
-              >
-                {t('admin:components.group.cancel')}
-              </Button>
-            </DialogActions>
-          </form>
-        </Container>
-      </Drawer>
-    </React.Fragment>
+          <DialogActions className={styles.mt20}>
+            <Button type="submit" className={styles.submitButton}>
+              {t('admin:components.group.submit')}
+            </Button>
+            <Button
+              onClick={() => {
+                setState({
+                  ...state,
+                  name: '',
+                  description: '',
+                  formErrors: { ...state.formErrors, name: '', description: '' }
+                })
+                onClose()
+              }}
+              className={styles.cancelButton}
+            >
+              {t('admin:components.group.cancel')}
+            </Button>
+          </DialogActions>
+        </form>
+      </Container>
+    </DrawerView>
   )
 }
 

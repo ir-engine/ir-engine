@@ -12,6 +12,8 @@ const feathersClient = feathers() as FeathersApplication<ServiceTypes> & {
   authentication?: {
     authenticated: boolean
   }
+  logout: Function
+  authenticate: Function
 }
 
 const socket = io(serverHost, {

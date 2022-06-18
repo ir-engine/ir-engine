@@ -9,13 +9,13 @@ import Button from '@mui/material/Button'
 import Chip from '@mui/material/Chip'
 import Container from '@mui/material/Container'
 import DialogActions from '@mui/material/DialogActions'
-import Drawer from '@mui/material/Drawer'
 import Grid from '@mui/material/Grid'
 import Paper from '@mui/material/Paper'
 import Typography from '@mui/material/Typography'
 
 import { NotificationService } from '../../../common/services/NotificationService'
 import { useAuthState } from '../../../user/services/AuthService'
+import DrawerView from '../../common/DrawerView'
 import InputSelect, { InputMenuItem } from '../../common/InputSelect'
 import InputSwitch from '../../common/InputSwitch'
 import InputText from '../../common/InputText'
@@ -178,272 +178,270 @@ const ViewLocation = ({ open, locationAdmin, onClose }: Props) => {
   })
 
   return (
-    <React.Fragment>
-      <Drawer anchor="right" open={open} onClose={() => handleCloseDrawer()} classes={{ paper: styles.paperDrawer }}>
-        <Paper elevation={0} className={styles.rootPaper}>
-          {location && (
-            <Container maxWidth="sm">
-              <div className={styles.locationTitle}>
-                <Typography variant="h4" component="span">
-                  {location?.name}
-                </Typography>
-              </div>
-              <div className={styles.locationSubTitle}>
-                {location.isFeatured && (
-                  <Chip
-                    style={{ marginLeft: '5px' }}
-                    avatar={<Avatar>F</Avatar>}
-                    label={t('admin:components.index.featured')}
-                  />
-                )}
-                {location.isLobby && <Chip avatar={<Avatar>L</Avatar>} label={t('admin:components.index.lobby')} />}
-              </div>
-            </Container>
-          )}
-        </Paper>
-
-        {editMode ? (
+    <DrawerView open={open} onClose={() => handleCloseDrawer()}>
+      <Paper elevation={0} className={styles.rootPaper}>
+        {location && (
           <Container maxWidth="sm">
-            <div className={styles.mt10}>
-              <Typography variant="h4" component="h4" className={`${styles.mb10} ${styles.headingFont}`}>
-                {t('admin:components.locationModal.updateLocationInfo')}
+            <div className={styles.locationTitle}>
+              <Typography variant="h4" component="span">
+                {location?.name}
               </Typography>
-
-              <InputText
-                name="name"
-                label={t('admin:components.locationModal.lbl-name')}
-                placeholder={t('admin:components.locationModal.enterName')}
-                value={state.name}
-                error={state.formErrors.name}
-                onChange={handleInputChange}
-              />
-
-              <InputText
-                name="maxUsers"
-                label={t('admin:components.locationModal.lbl-maxuser')}
-                placeholder={t('admin:components.locationModal.enterMaxUsers')}
-                value={state.maxUsers}
-                error={state.formErrors.maxUsers}
-                type="number"
-                onChange={handleInputChange}
-              />
-
-              <InputSelect
-                name="scene"
-                label={t('admin:components.locationModal.lbl-scene')}
-                value={state.scene}
-                error={state.formErrors.scene}
-                menu={sceneMenu}
-                onChange={handleInputChange}
-              />
-
-              <InputSelect
-                name="type"
-                label={t('admin:components.locationModal.type')}
-                value={state.type}
-                menu={locationMenu}
-                onChange={handleInputChange}
-              />
-
-              <Grid container spacing={5} className={styles.mb15}>
-                <Grid item xs={6}>
-                  <InputSwitch
-                    name="videoEnabled"
-                    label={t('admin:components.locationModal.lbl-ve')}
-                    checked={state.videoEnabled}
-                    onChange={(e) => setState({ ...state, videoEnabled: e.target.checked })}
-                  />
-
-                  <InputSwitch
-                    name="audioEnabled"
-                    label={t('admin:components.locationModal.lbl-ae')}
-                    checked={state.audioEnabled}
-                    onChange={(e) => setState({ ...state, audioEnabled: e.target.checked })}
-                  />
-
-                  <InputSwitch
-                    name="globalMediaEnabled"
-                    label={t('admin:components.locationModal.lbl-gme')}
-                    checked={state.globalMediaEnabled}
-                    onChange={(e) => setState({ ...state, globalMediaEnabled: e.target.checked })}
-                  />
-
-                  <InputSwitch
-                    name="screenSharingEnabled"
-                    label={t('admin:components.locationModal.lbl-se')}
-                    checked={state.screenSharingEnabled}
-                    onChange={(e) => setState({ ...state, screenSharingEnabled: e.target.checked })}
-                  />
-                </Grid>
-                <Grid item xs={6}>
-                  <div style={{ marginLeft: 'auto' }}>
-                    <InputSwitch
-                      name="faceStreamingEnabled"
-                      label={t('admin:components.locationModal.lbl-fe')}
-                      checked={state.faceStreamingEnabled}
-                      onChange={(e) => setState({ ...state, faceStreamingEnabled: e.target.checked })}
-                    />
-
-                    <InputSwitch
-                      name="isLobby"
-                      label={t('admin:components.locationModal.lbl-lobby')}
-                      checked={state.isLobby}
-                      onChange={(e) => setState({ ...state, isLobby: e.target.checked })}
-                    />
-
-                    <InputSwitch
-                      name="isFeatured"
-                      label={t('admin:components.locationModal.lbl-featured')}
-                      checked={state.isFeatured}
-                      onChange={(e) => setState({ ...state, isFeatured: e.target.checked })}
-                    />
-                  </div>
-                </Grid>
-              </Grid>
+            </div>
+            <div className={styles.locationSubTitle}>
+              {location.isFeatured && (
+                <Chip
+                  style={{ marginLeft: '5px' }}
+                  avatar={<Avatar>F</Avatar>}
+                  label={t('admin:components.index.featured')}
+                />
+              )}
+              {location.isLobby && <Chip avatar={<Avatar>L</Avatar>} label={t('admin:components.index.lobby')} />}
             </div>
           </Container>
-        ) : (
-          <React.Fragment>
-            <Paper elevation={3} className={styles.middlePaper}>
-              <Grid container spacing={2} className={styles.pdl}>
-                <Grid item xs={5} className={styles.typo}>
-                  <Typography variant="h5" component="h5" className={`${styles.locationOtherInfo} ${styles.mb}`}>
-                    {t('admin:components.locationModal.lbl-maxuser')}
-                  </Typography>
-                  <Typography variant="h5" component="h5" className={`${styles.locationOtherInfo} ${styles.mb}`}>
-                    {t('admin:components.locationModal.lbl-sceneId')}
-                  </Typography>
-                  <Typography variant="h5" component="h5" className={styles.locationOtherInfo}>
-                    {t('admin:components.locationModal.slugyName')}
-                  </Typography>
-                </Grid>
-                <Grid item xs={7} className={styles.typo}>
-                  <Typography variant="h5" component="h5" className={`${styles.locationOtherInfo} ${styles.mb}`}>
-                    {(location as any)?.maxUsersPerInstance || (
-                      <span className={styles.spanNone}>{t('admin:components.locationModal.none')}</span>
-                    )}
-                  </Typography>
-                  <Typography variant="h5" component="h5" className={`${styles.locationOtherInfo} ${styles.mb}`}>
-                    {location?.sceneId || (
-                      <span className={styles.spanNone}>{t('admin:components.locationModal.none')}</span>
-                    )}
-                  </Typography>
-                  <Typography variant="h5" component="h5" className={`${styles.locationOtherInfo}`}>
-                    {location?.slugifiedName || (
-                      <span className={styles.spanNone}>{t('admin:components.locationModal.none')}</span>
-                    )}
-                  </Typography>
-                </Grid>
-              </Grid>
-            </Paper>
-            <Typography variant="h4" component="h4" className={`${styles.mb20px} ${styles.spacing} ${styles.typoFont}`}>
-              {t('admin:components.locationModal.locationSettings')}
+        )}
+      </Paper>
+
+      {editMode ? (
+        <Container maxWidth="sm">
+          <div className={styles.mt10}>
+            <Typography variant="h4" component="h4" className={`${styles.mb10} ${styles.headingFont}`}>
+              {t('admin:components.locationModal.updateLocationInfo')}
             </Typography>
-            <Grid container spacing={2} className={styles.pdlarge}>
+
+            <InputText
+              name="name"
+              label={t('admin:components.locationModal.lbl-name')}
+              placeholder={t('admin:components.locationModal.enterName')}
+              value={state.name}
+              error={state.formErrors.name}
+              onChange={handleInputChange}
+            />
+
+            <InputText
+              name="maxUsers"
+              label={t('admin:components.locationModal.lbl-maxuser')}
+              placeholder={t('admin:components.locationModal.enterMaxUsers')}
+              value={state.maxUsers}
+              error={state.formErrors.maxUsers}
+              type="number"
+              onChange={handleInputChange}
+            />
+
+            <InputSelect
+              name="scene"
+              label={t('admin:components.locationModal.lbl-scene')}
+              value={state.scene}
+              error={state.formErrors.scene}
+              menu={sceneMenu}
+              onChange={handleInputChange}
+            />
+
+            <InputSelect
+              name="type"
+              label={t('admin:components.locationModal.type')}
+              value={state.type}
+              menu={locationMenu}
+              onChange={handleInputChange}
+            />
+
+            <Grid container spacing={5} className={styles.mb15}>
               <Grid item xs={6}>
-                <Typography variant="h6" component="h6" className={styles.mb10}>
-                  {t('admin:components.locationModal.locationType')}:
-                </Typography>
-                {/* <Typography variant="h6" component="h6" className={styles.mb10}>Updated At:</Typography> */}
-                <Typography variant="h6" component="h6" className={styles.mb10}>
-                  {t('admin:components.locationModal.videoEnabled')}:
-                </Typography>
-                <Typography variant="h6" component="h6" className={styles.mb10}>
-                  {t('admin:components.locationModal.audioEnabled')}:
-                </Typography>
-                <Typography variant="h6" component="h6" className={styles.mb10}>
-                  {t('admin:components.locationModal.faceStreamingEnabled')}:
-                </Typography>
-                <Typography variant="h6" component="h6" className={styles.mb10}>
-                  {t('admin:components.locationModal.screenSharingEnabled')}:
-                </Typography>
-                <Typography variant="h6" component="h6" className={styles.mb10}>
-                  {t('admin:components.locationModal.mediaChatEnabled')}:
-                </Typography>
+                <InputSwitch
+                  name="videoEnabled"
+                  label={t('admin:components.locationModal.lbl-ve')}
+                  checked={state.videoEnabled}
+                  onChange={(e) => setState({ ...state, videoEnabled: e.target.checked })}
+                />
+
+                <InputSwitch
+                  name="audioEnabled"
+                  label={t('admin:components.locationModal.lbl-ae')}
+                  checked={state.audioEnabled}
+                  onChange={(e) => setState({ ...state, audioEnabled: e.target.checked })}
+                />
+
+                <InputSwitch
+                  name="globalMediaEnabled"
+                  label={t('admin:components.locationModal.lbl-gme')}
+                  checked={state.globalMediaEnabled}
+                  onChange={(e) => setState({ ...state, globalMediaEnabled: e.target.checked })}
+                />
+
+                <InputSwitch
+                  name="screenSharingEnabled"
+                  label={t('admin:components.locationModal.lbl-se')}
+                  checked={state.screenSharingEnabled}
+                  onChange={(e) => setState({ ...state, screenSharingEnabled: e.target.checked })}
+                />
               </Grid>
               <Grid item xs={6}>
-                <Typography variant="h6" component="h6" className={styles.mb10}>
-                  {location?.location_setting?.locationType || (
+                <div style={{ marginLeft: 'auto' }}>
+                  <InputSwitch
+                    name="faceStreamingEnabled"
+                    label={t('admin:components.locationModal.lbl-fe')}
+                    checked={state.faceStreamingEnabled}
+                    onChange={(e) => setState({ ...state, faceStreamingEnabled: e.target.checked })}
+                  />
+
+                  <InputSwitch
+                    name="isLobby"
+                    label={t('admin:components.locationModal.lbl-lobby')}
+                    checked={state.isLobby}
+                    onChange={(e) => setState({ ...state, isLobby: e.target.checked })}
+                  />
+
+                  <InputSwitch
+                    name="isFeatured"
+                    label={t('admin:components.locationModal.lbl-featured')}
+                    checked={state.isFeatured}
+                    onChange={(e) => setState({ ...state, isFeatured: e.target.checked })}
+                  />
+                </div>
+              </Grid>
+            </Grid>
+          </div>
+        </Container>
+      ) : (
+        <React.Fragment>
+          <Paper elevation={3} className={styles.middlePaper}>
+            <Grid container spacing={2} className={styles.pdl}>
+              <Grid item xs={5} className={styles.typo}>
+                <Typography variant="h5" component="h5" className={`${styles.locationOtherInfo} ${styles.mb}`}>
+                  {t('admin:components.locationModal.lbl-maxuser')}
+                </Typography>
+                <Typography variant="h5" component="h5" className={`${styles.locationOtherInfo} ${styles.mb}`}>
+                  {t('admin:components.locationModal.lbl-sceneId')}
+                </Typography>
+                <Typography variant="h5" component="h5" className={styles.locationOtherInfo}>
+                  {t('admin:components.locationModal.slugyName')}
+                </Typography>
+              </Grid>
+              <Grid item xs={7} className={styles.typo}>
+                <Typography variant="h5" component="h5" className={`${styles.locationOtherInfo} ${styles.mb}`}>
+                  {(location as any)?.maxUsersPerInstance || (
                     <span className={styles.spanNone}>{t('admin:components.locationModal.none')}</span>
                   )}
                 </Typography>
-                {/* <Typography variant="h6" component="h6" className={styles.mb10}>{location?.location_setting?.updatedAt.slice(0,10) || <span className={styles.spanNone}>None</span>}</Typography> */}
-                <Typography variant="h5" component="h5" className={styles.mb10}>
-                  <span className={styles.spanNone}>
-                    {location?.location_setting?.videoEnabled
-                      ? t('admin:components.index.yes')
-                      : t('admin:components.index.no')}
-                  </span>
+                <Typography variant="h5" component="h5" className={`${styles.locationOtherInfo} ${styles.mb}`}>
+                  {location?.sceneId || (
+                    <span className={styles.spanNone}>{t('admin:components.locationModal.none')}</span>
+                  )}
                 </Typography>
-                <Typography variant="h5" component="h5" className={styles.mb10}>
-                  <span className={styles.spanNone}>
-                    {location?.location_setting?.audioEnabled
-                      ? t('admin:components.index.yes')
-                      : t('admin:components.index.no')}
-                  </span>
-                </Typography>
-                <Typography variant="h5" component="h5" className={styles.mb10}>
-                  <span className={styles.spanNone}>
-                    {location?.location_setting?.faceStreamingEnabled
-                      ? t('admin:components.index.yes')
-                      : t('admin:components.index.no')}
-                  </span>
-                </Typography>
-                <Typography variant="h5" component="h5" className={styles.mb10}>
-                  <span className={styles.spanNone}>
-                    {location?.location_setting?.screenSharingEnabled
-                      ? t('admin:components.index.yes')
-                      : t('admin:components.index.no')}
-                  </span>
-                </Typography>
-                <Typography variant="h5" component="h5" className={styles.mb10}>
-                  <span className={styles.spanNone}>
-                    {location?.location_setting?.instanceMediaChatEnabled
-                      ? t('admin:components.index.yes')
-                      : t('admin:components.index.no')}
-                  </span>
+                <Typography variant="h5" component="h5" className={`${styles.locationOtherInfo}`}>
+                  {location?.slugifiedName || (
+                    <span className={styles.spanNone}>{t('admin:components.locationModal.none')}</span>
+                  )}
                 </Typography>
               </Grid>
             </Grid>
-          </React.Fragment>
+          </Paper>
+          <Typography variant="h4" component="h4" className={`${styles.mb20px} ${styles.spacing} ${styles.typoFont}`}>
+            {t('admin:components.locationModal.locationSettings')}
+          </Typography>
+          <Grid container spacing={2} className={styles.pdlarge}>
+            <Grid item xs={6}>
+              <Typography variant="h6" component="h6" className={styles.mb10}>
+                {t('admin:components.locationModal.locationType')}:
+              </Typography>
+              {/* <Typography variant="h6" component="h6" className={styles.mb10}>Updated At:</Typography> */}
+              <Typography variant="h6" component="h6" className={styles.mb10}>
+                {t('admin:components.locationModal.videoEnabled')}:
+              </Typography>
+              <Typography variant="h6" component="h6" className={styles.mb10}>
+                {t('admin:components.locationModal.audioEnabled')}:
+              </Typography>
+              <Typography variant="h6" component="h6" className={styles.mb10}>
+                {t('admin:components.locationModal.faceStreamingEnabled')}:
+              </Typography>
+              <Typography variant="h6" component="h6" className={styles.mb10}>
+                {t('admin:components.locationModal.screenSharingEnabled')}:
+              </Typography>
+              <Typography variant="h6" component="h6" className={styles.mb10}>
+                {t('admin:components.locationModal.mediaChatEnabled')}:
+              </Typography>
+            </Grid>
+            <Grid item xs={6}>
+              <Typography variant="h6" component="h6" className={styles.mb10}>
+                {location?.location_setting?.locationType || (
+                  <span className={styles.spanNone}>{t('admin:components.locationModal.none')}</span>
+                )}
+              </Typography>
+              {/* <Typography variant="h6" component="h6" className={styles.mb10}>{location?.location_setting?.updatedAt.slice(0,10) || <span className={styles.spanNone}>None</span>}</Typography> */}
+              <Typography variant="h5" component="h5" className={styles.mb10}>
+                <span className={styles.spanNone}>
+                  {location?.location_setting?.videoEnabled
+                    ? t('admin:components.index.yes')
+                    : t('admin:components.index.no')}
+                </span>
+              </Typography>
+              <Typography variant="h5" component="h5" className={styles.mb10}>
+                <span className={styles.spanNone}>
+                  {location?.location_setting?.audioEnabled
+                    ? t('admin:components.index.yes')
+                    : t('admin:components.index.no')}
+                </span>
+              </Typography>
+              <Typography variant="h5" component="h5" className={styles.mb10}>
+                <span className={styles.spanNone}>
+                  {location?.location_setting?.faceStreamingEnabled
+                    ? t('admin:components.index.yes')
+                    : t('admin:components.index.no')}
+                </span>
+              </Typography>
+              <Typography variant="h5" component="h5" className={styles.mb10}>
+                <span className={styles.spanNone}>
+                  {location?.location_setting?.screenSharingEnabled
+                    ? t('admin:components.index.yes')
+                    : t('admin:components.index.no')}
+                </span>
+              </Typography>
+              <Typography variant="h5" component="h5" className={styles.mb10}>
+                <span className={styles.spanNone}>
+                  {location?.location_setting?.instanceMediaChatEnabled
+                    ? t('admin:components.index.yes')
+                    : t('admin:components.index.no')}
+                </span>
+              </Typography>
+            </Grid>
+          </Grid>
+        </React.Fragment>
+      )}
+      <DialogActions className={styles.mb10}>
+        {editMode ? (
+          <DialogActions>
+            <Button onClick={handleSubmit} className={styles.submitButton}>
+              <span style={{ marginRight: '15px' }}>
+                <Save />
+              </span>{' '}
+              {t('admin:components.locationModal.submit')}
+            </Button>
+            <Button
+              className={styles.cancelButton}
+              onClick={() => {
+                setEditMode(false)
+              }}
+            >
+              {t('admin:components.locationModal.lbl-cancel')}
+            </Button>
+          </DialogActions>
+        ) : (
+          <DialogActions>
+            <Button
+              disabled={!isLocationWrite}
+              className={styles.submitButton}
+              onClick={() => {
+                setEditMode(true)
+              }}
+            >
+              {t('admin:components.locationModal.lbl-edit')}
+            </Button>
+            <Button onClick={handleCloseDrawer} className={styles.cancelButton}>
+              {t('admin:components.locationModal.lbl-cancel')}
+            </Button>
+          </DialogActions>
         )}
-        <DialogActions className={styles.mb10}>
-          {editMode ? (
-            <DialogActions>
-              <Button onClick={handleSubmit} className={styles.submitButton}>
-                <span style={{ marginRight: '15px' }}>
-                  <Save />
-                </span>{' '}
-                {t('admin:components.locationModal.submit')}
-              </Button>
-              <Button
-                className={styles.cancelButton}
-                onClick={() => {
-                  setEditMode(false)
-                }}
-              >
-                {t('admin:components.locationModal.lbl-cancel')}
-              </Button>
-            </DialogActions>
-          ) : (
-            <DialogActions>
-              <Button
-                disabled={!isLocationWrite}
-                className={styles.submitButton}
-                onClick={() => {
-                  setEditMode(true)
-                }}
-              >
-                {t('admin:components.locationModal.lbl-edit')}
-              </Button>
-              <Button onClick={handleCloseDrawer} className={styles.cancelButton}>
-                {t('admin:components.locationModal.lbl-cancel')}
-              </Button>
-            </DialogActions>
-          )}
-        </DialogActions>
-      </Drawer>
-    </React.Fragment>
+      </DialogActions>
+    </DrawerView>
   )
 }
 

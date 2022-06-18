@@ -174,7 +174,7 @@ export const DefaultArgs = {
   iResolution: [window.innerWidth / 4, window.innerHeight / 4, 1]
 }
 
-export default async function Noise_1(args?: { iTime?: number; iResolution?: number[] }): Promise<MaterialParms> {
+export default function Noise_1(args?: { iTime?: number; iResolution?: number[] }): MaterialParms {
   const mat = new ShaderMaterial({
     uniforms: {
       iTime: { value: args?.iTime ?? DefaultArgs.iTime },

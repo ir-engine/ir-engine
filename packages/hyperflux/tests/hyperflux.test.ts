@@ -440,6 +440,23 @@ describe('Hyperflux Unit Tests', () => {
     assert(store.state.hospitality)
   })
 
+  it('should be able to optionally have an onCreate callback', () => {
+    const HospitalityState = defineState({
+      name: 'hospitality',
+      initial: () => ({
+        create: false
+      }),
+      onCreate: (s, state) => {
+        assert.equal(s, store)
+        state.create.set(true)
+      }
+    })
+    const store = createHyperStore({ getDispatchId: () => 'id', getDispatchTime: () => Date.now() })
+    registerState(HospitalityState, store)
+    const hospitality = getState(HospitalityState, store).value
+    assert.equal(hospitality.create, true)
+  })
+
   it('should be able to get immutable registered state', () => {
     const HospitalityState = defineState({
       name: 'hospitality',

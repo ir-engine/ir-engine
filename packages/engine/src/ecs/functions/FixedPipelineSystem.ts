@@ -8,7 +8,7 @@ import { SystemUpdateType } from './SystemUpdateType'
  * @author Josh Field <github.com/hexafield>
  * @author Gheric Speiginer <github.com/speigg>
  */
-export default async function FixedPipelineSystem(world: World, args: { tickRate: number }) {
+export default function FixedPipelineSystem(world: World, args: { tickRate: number }) {
   const timestep = 1 / args.tickRate
   const limit = timestep * 2000
   const updatesLimit = args.tickRate

@@ -430,11 +430,11 @@ export const DefaultArgs = {
   iChannel0: new Texture()
 }
 
-export default async function AliasVortex(args?: {
+export default function AliasVortex(args?: {
   iTime?: number
   iResolution?: number[]
   iChannel0?: Texture
-}): Promise<MaterialParms> {
+}): MaterialParms {
   const mat = new ShaderMaterial({
     uniforms: {
       iChannel0: { value: args?.iChannel0 ?? null },

@@ -9,10 +9,10 @@ import Button from '@mui/material/Button'
 import Container from '@mui/material/Container'
 import DialogActions from '@mui/material/DialogActions'
 import DialogTitle from '@mui/material/DialogTitle'
-import Drawer from '@mui/material/Drawer'
 
 import { NotificationService } from '../../../common/services/NotificationService'
 import { ProjectService } from '../../../common/services/ProjectService'
+import DrawerView from '../../common/DrawerView'
 import InputSelect, { InputMenuItem } from '../../common/InputSelect'
 import InputText from '../../common/InputText'
 import LoadingView from '../../common/LoadingView'
@@ -71,59 +71,57 @@ const AddProject = ({ open, repos, onClose }: Props) => {
   })
 
   return (
-    <React.Fragment>
-      <Drawer anchor="right" classes={{ paper: styles.paperDrawer }} open={open} onClose={onClose}>
-        <Container maxWidth="sm" className={styles.mt20}>
-          <DialogTitle className={styles.textAlign}>{t('admin:components.project.addProject')}</DialogTitle>
+    <DrawerView open={open} onClose={onClose}>
+      <Container maxWidth="sm" className={styles.mt20}>
+        <DialogTitle className={styles.textAlign}>{t('admin:components.project.addProject')}</DialogTitle>
 
-          {!processing && (
-            <div className={styles.inputContainer}>
-              {!isPublicUrl && repos && repos.length != 0 ? (
-                <InputSelect
-                  name="projectURL"
-                  label={t('admin:components.project.project')}
-                  value={projectURL}
-                  menu={projectMenu}
-                  error={error}
-                  onChange={handleChange}
-                />
-              ) : (
-                <InputText
-                  name="urlSelect"
-                  label={t('admin:components.project.url')}
-                  placeholder={t('admin:components.project.insertPublicUrl')}
-                  value={projectURL}
-                  error={error}
-                  onChange={handleChange}
-                />
-              )}
-            </div>
-          )}
-
-          {processing && <LoadingView title={t('admin:components.project.processing')} variant="body1" />}
-
-          <DialogActions>
-            {!processing && (
-              <>
-                <Button className={styles.submitButton} startIcon={<GitHubIcon />} onClick={tryUploadProject}>
-                  {t('admin:components.project.uploadProject')}
-                </Button>
-                {repos && repos.length > 0 && (
-                  <Button className={styles.submitButton} startIcon={<GroupIcon />} onClick={trySelectPublicUrl}>
-                    {!isPublicUrl
-                      ? t('admin:components.project.customPublicUrl')
-                      : t('admin:components.project.selectFromList')}
-                  </Button>
-                )}
-                <Button className={styles.cancelButton} onClick={onClose}>
-                  {t('admin:components.setting.cancel')}
-                </Button>
-              </>
+        {!processing && (
+          <div className={styles.inputContainer}>
+            {!isPublicUrl && repos && repos.length != 0 ? (
+              <InputSelect
+                name="projectURL"
+                label={t('admin:components.project.project')}
+                value={projectURL}
+                menu={projectMenu}
+                error={error}
+                onChange={handleChange}
+              />
+            ) : (
+              <InputText
+                name="urlSelect"
+                label={t('admin:components.project.url')}
+                placeholder={t('admin:components.project.insertPublicUrl')}
+                value={projectURL}
+                error={error}
+                onChange={handleChange}
+              />
             )}
-          </DialogActions>
-        </Container>
-      </Drawer>
-    </React.Fragment>
+          </div>
+        )}
+
+        {processing && <LoadingView title={t('admin:components.project.processing')} variant="body1" />}
+
+        <DialogActions>
+          {!processing && (
+            <>
+              <Button className={styles.submitButton} startIcon={<GitHubIcon />} onClick={tryUploadProject}>
+                {t('admin:components.project.uploadProject')}
+              </Button>
+              {repos && repos.length > 0 && (
+                <Button className={styles.submitButton} startIcon={<GroupIcon />} onClick={trySelectPublicUrl}>
+                  {!isPublicUrl
+                    ? t('admin:components.project.customPublicUrl')
+                    : t('admin:components.project.selectFromList')}
+                </Button>
+              )}
+              <Button className={styles.cancelButton} onClick={onClose}>
+                {t('admin:components.setting.cancel')}
+              </Button>
+            </>
+          )}
+        </DialogActions>
+      </Container>
+    </DrawerView>
   )
 }
 
