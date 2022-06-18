@@ -22,11 +22,9 @@ export async function restoreAudioSettings(): Promise<void> {
     const promises = [
       ClientStorage.get(AudioSettingKeys.AUDIO).then((v) => {
         if (typeof v !== 'undefined') s.audio = v as number
-        ClientStorage.set(AudioSettingKeys.AUDIO, state.audio.value)
       }),
       ClientStorage.get(AudioSettingKeys.MICROPHONE).then((v) => {
         if (typeof v !== 'undefined') s.microphone = v as number
-        ClientStorage.set(AudioSettingKeys.MICROPHONE, state.microphone.value)
       })
     ]
     await Promise.all(promises)

@@ -19,11 +19,11 @@ address bar or into a text box, Chrome is just passively listening for those com
 For more detailed instructions check: https://github.com/FiloSottile/mkcert
 
 Short version (common for development process on Ubuntu):
-1. `sudo apt install libnss3-tools`
-2. `brew install mkcert` (if you don't have brew, check it's page: https://brew.sh/)
-3. `mkcert --install`
-4. navigate to `./certs` folder
-5. mkcert -key-file key.pem -cert-file cert.pem localhost 127.0.0.1 ::1
+1. Execute `sudo apt install libnss3-tools`
+2. Execute `brew install mkcert` (if you don't have brew, check it's page: https://brew.sh/)
+3. Execute `mkcert --install`
+4. Mavigate to `./certs` folder
+5. Execute `mkcert -key-file key.pem -cert-file cert.pem localhost 127.0.0.1 ::1`
 
 ### Allow local file http-server connection with invalid certificate
 
@@ -59,7 +59,7 @@ You can kill any running process with ```sudo kill <ID>```
 
 ### Error: listen EADDRINUSE :::3030
 
-check which process is using port 3030 and kill
+Check which process is using port 3030 and kill
 ```
 killall -9 node 
 ```
@@ -134,7 +134,7 @@ Try
 ```
 npm run dev-reinit
 ```
-or if on windows
+Or if on windows
 ```
 npm run dev-reinit-windows
 ```

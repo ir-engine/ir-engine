@@ -60,7 +60,7 @@ export const DefaultArgs = {
   iResolution: [window.innerWidth * 2, window.innerHeight * 2, 1]
 }
 
-export default async function Galaxy(args?: { iTime?: number; iResolution?: number[] }): Promise<MaterialParms> {
+export default function Galaxy(args?: { iTime?: number; iResolution?: number[] }): MaterialParms {
   const img = new Texture()
   const mat = new ShaderMaterial({
     uniforms: {

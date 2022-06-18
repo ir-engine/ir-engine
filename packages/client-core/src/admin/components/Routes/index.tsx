@@ -17,11 +17,7 @@ const Routes = () => {
     }
   }, [])
 
-  return (
-    <div className={styles.rootTable}>
-      <RouteTable />
-    </div>
-  )
+  return <RouteTable className={styles.rootTable} />
 }
 
 export default Routes

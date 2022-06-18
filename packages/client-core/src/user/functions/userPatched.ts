@@ -27,7 +27,7 @@ export const userPatched = (params) => {
     if (selfUser.instanceId.value !== patchedUser.instanceId) dispatchAction(UserAction.clearLayerUsersAction())
     if (selfUser.channelInstanceId.value !== patchedUser.channelInstanceId)
       dispatchAction(UserAction.clearChannelLayerUsersAction())
-    dispatch(AuthAction.userUpdated(patchedUser))
+    dispatchAction(AuthAction.userUpdatedAction({ user: patchedUser }))
     // if (user.partyId) {
     //   setRelationship('party', user.partyId);
     // }

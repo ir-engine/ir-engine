@@ -34,14 +34,14 @@ export default async function MaterialOverrideSystem(world: World) {
    * Attempts to apply a material override, then registers the default materials in the override table
    * @param override
    */
-  async function register(override: MaterialOverrideComponentType) {
+  function register(override: MaterialOverrideComponentType) {
     const target = override.targetEntity!
     if (!overrideTable.has(target)) overrideTable.set(target, new Map())
     const tableEntry = overrideTable.get(target)!
     if (tableEntry.has(override)) {
       remove(override)
     }
-    const [defaults, matParm] = await assignMaterial(override)
+    const [defaults, matParm] = assignMaterial(override)
     if (defaults.length > 0) {
       tableEntry.set(override, { matParm, defaults })
     }
@@ -60,30 +60,24 @@ export default async function MaterialOverrideSystem(world: World) {
     entEntry.delete(override)
   }
 
-  return async () => {
-    await Promise.all(
-      overrideQuery.enter().map(async (entity) => {
-        const override = getComponent(entity, MaterialOverrideComponent)
-        return register(override)
-      })
-    )
+  return () => {
+    for (const entity of overrideQuery.enter()) {
+      const override = getComponent(entity, MaterialOverrideComponent)
+      register(override)
+    }
 
-    await Promise.all(
-      overrideQuery.exit().map(async (entity) => {
-        const override = getComponent(entity, MaterialOverrideComponent, true)
-        return remove(override)
-      })
-    )
+    for (const entity of overrideQuery.exit()) {
+      const override = getComponent(entity, MaterialOverrideComponent, true)
+      remove(override)
+    }
 
     //Performs update functions for each override that is currently active in the scene
-    await Promise.all(
-      overrideQuery().map(async (entity) => {
-        const override = getComponent(entity, MaterialOverrideComponent)
-        const entityEntry = overrideTable.get(override.targetEntity!)!
-        for (const overrideEntry of entityEntry.values()) {
-          overrideEntry.matParm.update(world.fixedDeltaSeconds / 4)
-        }
-      })
-    )
+    for (const entity of overrideQuery()) {
+      const override = getComponent(entity, MaterialOverrideComponent)
+      const entityEntry = overrideTable.get(override.targetEntity!)!
+      for (const overrideEntry of entityEntry.values()) {
+        overrideEntry.matParm.update(world.fixedDeltaSeconds / 4)
+      }
+    }
   }
 }

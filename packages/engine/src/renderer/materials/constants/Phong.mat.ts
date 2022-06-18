@@ -24,7 +24,7 @@ export const DefaultArgs: MeshPhongMaterialParameters = {
   shininess: 0.2
 }
 
-export default async function Phong(args?: MeshPhongMaterialParameters): Promise<MaterialParms> {
+export default function Phong(args?: MeshPhongMaterialParameters): MaterialParms {
   const _args = args ? { ...format(DefaultArgs), ...args } : format(DefaultArgs)
   return {
     material: new MeshPhongMaterial(_args),
