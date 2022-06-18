@@ -17,22 +17,10 @@
   margin: 0 10px;
 }
 
-.avatar {
-  user-select: none;
-  width: 1em;
-  height: 1em;
-  display: inline-block;
-  fill: currentcolor;
-  flex-shrink: 0;
-  transition: fill 200ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
-  font-size: 1.5rem;
-}
-
 .chatContainer {
   display: flex;
   flex-direction: column;
   width: 500px;
-  min-height: 208px;
   margin: 5px 15px 20px 10px;
   border-radius: 5px;
   background-color: var(--popupBackground);
@@ -93,7 +81,7 @@
   font-weight: 400;
   font-size: 1rem;
   line-height: 1.5;
-  letter-spacing: 0.00938em;
+  letter-spacing: 0.0094em;
   display: block;
 }
 
@@ -112,6 +100,9 @@
   background: transparent;
   box-shadow: none;
   width: 100%;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
 }
 
 .messageInputBox {
@@ -122,7 +113,7 @@
   box-sizing: content-box;
   background: none;
   height: 1.4375em;
-  margin: 10px 10px 5px;
+  margin: 5px 10px;
   display: block;
   min-width: 0;
   width: 100%;
@@ -138,4 +129,113 @@
   width: 50px;
   height: 50px;
   font-size: 20px;
+}
+
+.dFlex {
+  display: flex;
+}
+
+.flexColumn {
+  flex-direction: column;
+}
+
+.mgSmall {
+  margin: 5px 0;
+}
+
+.noMargin {
+  margin: 0 !important;
+}
+
+.selfStart {
+  align-self: flex-start;
+  margin: 10px;
+}
+
+.msgContainer {
+  padding: 10px 12px;
+  border-radius: 15px;
+  max-width: 290px;
+  word-wrap: break-word;
+}
+
+.mx2 {
+  margin: 7px 0;
+}
+
+.selfEnd {
+  align-self: flex-end;
+  margin: 10px;
+}
+
+.msgReplyContainer {
+  background-color: var(--iconButtonHoverColor);
+}
+
+.msgOwner {
+  background-color: var(--mainBackground);
+}
+
+.msgNotification {
+  background-color: transparent;
+}
+
+.text {
+  color: var(--textColor);
+  font-size: 0.9rem;
+  line-height: 1.3;
+}
+
+.greyText {
+  color: #888686;
+  font-size: 0.7rem;
+}
+
+.animateTop {
+  animation: moveBottom 4s ease 4s;
+  animation-fill-mode: backwards;
+}
+
+.animateLeft {
+  animation: moveLeft 4s ease 4s;
+  animation-fill-mode: backwards;
+}
+
+.msgWrapper {
+  display: flex;
+  flex-direction: column;
+  margin-right: 5px;
+}
+
+.sender {
+  color: #fff;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.avatar {
+  height: 40px;
+  width: 40px;
+  background: #3a3a6a;
+}
+
+.sendButton {
+  color: var(--iconButtonColor);
+  background: transparent;
+  padding: 5px;
+  width: 25px;
+  height: 25px;
+  justify-content: center;
+  align-items: center;
+
+  svg {
+    path {
+      fill: var(--iconButtonColor);
+    }
+  }
+
+  &:hover,
+  &:focus-visible {
+    background: var(--iconButtonHoverColor);
+  }
 }

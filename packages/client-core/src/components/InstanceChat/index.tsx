@@ -5,7 +5,6 @@ import { useLocationInstanceConnectionState } from '@xrengine/client-core/src/co
 import { ChatService, ChatServiceReceptor, useChatState } from '@xrengine/client-core/src/social/services/ChatService'
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import { notificationAlertURL } from '@xrengine/common/src/constants/URL'
-import { Channel } from '@xrengine/common/src/interfaces/Channel'
 import multiLogger from '@xrengine/common/src/logger'
 import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
 import { useAudioState } from '@xrengine/engine/src/audio/AudioState'
