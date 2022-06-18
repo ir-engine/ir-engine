@@ -6,24 +6,21 @@ import { Channel } from '@xrengine/common/src/interfaces/Channel'
 import { respawnAvatar } from '@xrengine/engine/src/avatar/functions/respawnAvatar'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineActions, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
+import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
+import { useWidgetAppState, WidgetAppActions } from '@xrengine/engine/src/xrui/WidgetAppService'
 import { dispatchAction } from '@xrengine/hyperflux'
 
-import { Message as MessageIcon } from '@mui/icons-material'
-import LinkIcon from '@mui/icons-material/Link'
 import RefreshIcon from '@mui/icons-material/Refresh'
-import SettingsIcon from '@mui/icons-material/Settings'
 
 import { useChatState } from '../../social/services/ChatService'
-import { EmoteIcon } from '../../user/components/UserMenu'
 import { MainMenuButtonState } from '../state/MainMenuButtonState'
 
 const styles = {
   container: {
     display: 'grid',
-    gridGap: '10px',
-    gridTemplateColumns: '1fr 1fr 1fr 1fr 1fr 1fr'
+    gridGap: '10px'
   },
   button: {
     margin: '5px 15px 10px 10px',
@@ -48,6 +45,27 @@ function createMainMenuButtonsState() {
   return createState({})
 }
 
+type WidgetButtonProps = {
+  Icon: any
+  toggle: () => any
+  label: string
+}
+
+const WidgetButton = ({ Icon, toggle, label }: WidgetButtonProps) => {
+  const [mouseOver, setMouseOver] = useState(false)
+  return (
+    <div
+      style={styles.button}
+      onClick={toggle}
+      onMouseEnter={() => setMouseOver(true)}
+      onMouseLeave={() => setMouseOver(false)}
+    >
+      <Icon className="svgIcon" />
+      {mouseOver && <div>{label}</div>}
+    </div>
+  )
+}
+
 const MainMenuButtons = () => {
   let activeChannel: Channel | null = null
   const chatState = useChatState()
@@ -68,49 +86,7 @@ const MainMenuButtons = () => {
       setUnreadMessages(true)
   }, [activeChannel?.messages])
 
-  const toggleChatWindow = () => {
-    if (!MainMenuButtonState.showButtons.value) return
-    if (!MainMenuButtonState.chatMenuOpen.value) {
-      MainMenuButtonState.emoteMenuOpen.set(false)
-      MainMenuButtonState.shareMenuOpen.set(false)
-      MainMenuButtonState.settingMenuOpen.set(false)
-    }
-    MainMenuButtonState.chatMenuOpen.set(!MainMenuButtonState.chatMenuOpen.value)
-    MainMenuButtonState.chatMenuOpen.value && setUnreadMessages(false)
-  }
-
-  const toggleEmoteMenu = () => {
-    if (!MainMenuButtonState.showButtons.value) return
-    if (!MainMenuButtonState.emoteMenuOpen.value) {
-      MainMenuButtonState.chatMenuOpen.set(false)
-      MainMenuButtonState.shareMenuOpen.set(false)
-      MainMenuButtonState.settingMenuOpen.set(false)
-    }
-    MainMenuButtonState.emoteMenuOpen.set(!MainMenuButtonState.emoteMenuOpen.value)
-  }
-
-  const toggleShareMenu = () => {
-    if (!MainMenuButtonState.showButtons.value) return
-    if (!MainMenuButtonState.shareMenuOpen.value) {
-      MainMenuButtonState.emoteMenuOpen.set(false)
-      MainMenuButtonState.chatMenuOpen.set(false)
-      MainMenuButtonState.settingMenuOpen.set(false)
-    }
-    MainMenuButtonState.shareMenuOpen.set(!MainMenuButtonState.shareMenuOpen.value)
-  }
-
-  const toggleSettingMenu = () => {
-    if (!MainMenuButtonState.showButtons.value) return
-    if (!MainMenuButtonState.settingMenuOpen.value) {
-      MainMenuButtonState.emoteMenuOpen.set(false)
-      MainMenuButtonState.shareMenuOpen.set(false)
-      MainMenuButtonState.chatMenuOpen.set(false)
-    }
-    MainMenuButtonState.settingMenuOpen.set(!MainMenuButtonState.settingMenuOpen.value)
-  }
-
   const toogleVRSession = () => {
-    if (!MainMenuButtonState.showButtons.value) return
     if (engineState.xrSessionStarted.value) {
       dispatchAction(EngineActions.xrEnd())
     } else {
@@ -119,12 +95,31 @@ const MainMenuButtons = () => {
   }
 
   const handleRespawnAvatar = () => {
-    if (!MainMenuButtonState.showButtons.value) return
     respawnAvatar(useWorld().localClientEntity)
   }
 
+  const widgets = Object.entries(useWidgetAppState().value).map(([id, widgetState]) => ({
+    id,
+    ...widgetState,
+    ...Engine.instance.currentWorld.widgets.get(id)!
+  }))
+
+  console.log(widgets)
+
+  const toggleWidget = (widget) => () => {
+    dispatchAction(WidgetAppActions.showWidget({ id: widget.id, shown: !widget.visible }))
+  }
+
+  if (!MainMenuButtonState.showButtons.value) return null!
+
   return (
-    <div style={styles.container as {}} xr-layer="true">
+    <div
+      style={{
+        ...styles.container,
+        gridTemplateColumns: '1fr 1fr' + widgets.map(() => ' 1fr').flat()
+      }}
+      xr-layer="true"
+    >
       <style>{`
         .svgIcon {
           width: 1.5em;
@@ -138,21 +133,15 @@ const MainMenuButtons = () => {
       <div style={styles.button} onClick={handleRespawnAvatar}>
         <RefreshIcon className="svgIcon" />
       </div>
-      <div style={styles.button} onClick={toggleEmoteMenu}>
-        <EmoteIcon />
-      </div>
-      <div style={styles.button} onClick={toggleShareMenu}>
-        <LinkIcon className="svgIcon" />
-      </div>
-      <div style={styles.button} onClick={toggleSettingMenu}>
-        <SettingsIcon className="svgIcon" />
-      </div>
-      <div style={styles.button} onClick={toggleChatWindow}>
-        <MessageIcon className="svgIcon" />
-      </div>
       <div style={styles.button} onClick={toogleVRSession}>
         <VrIcon />
       </div>
+      {widgets.map(
+        (widget, i) =>
+          widget.enabled && (
+            <WidgetButton key={i} Icon={widget.icon} toggle={toggleWidget(widget)} label={widget.label} />
+          )
+      )}
     </div>
   )
 }

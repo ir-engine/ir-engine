@@ -3,14 +3,24 @@ import { addComponent, getComponent } from '@xrengine/engine/src/ecs/functions/C
 import { PersistTagComponent } from '@xrengine/engine/src/scene/components/PersistTagComponent'
 import { XRUIComponent } from '@xrengine/engine/src/xrui/components/XRUIComponent'
 import { ObjectFitFunctions } from '@xrengine/engine/src/xrui/functions/ObjectFitFunctions'
+import { Widgets } from '@xrengine/engine/src/xrui/Widgets'
 
+import { EmoteIcon } from '../user/components/UserMenu'
 import { MainMenuButtonState } from './state/MainMenuButtonState'
 import { createEmoteDetailView } from './ui/EmoteDetailView'
+
+const widgetName = 'Emote Widget'
 
 export default async function EmoteUISystem(world: World) {
   const ui = createEmoteDetailView()
 
   addComponent(ui.entity, PersistTagComponent, {})
+
+  Widgets.registerWidget(world, ui.entity, {
+    ui,
+    label: widgetName,
+    icon: EmoteIcon
+  })
 
   return () => {
     const xrui = getComponent(ui.entity, XRUIComponent)

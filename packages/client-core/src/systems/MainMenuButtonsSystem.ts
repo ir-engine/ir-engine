@@ -7,9 +7,13 @@ import { GamepadButtons } from '@xrengine/engine/src/input/enums/InputEnums'
 import { PersistTagComponent } from '@xrengine/engine/src/scene/components/PersistTagComponent'
 import { XRUIComponent } from '@xrengine/engine/src/xrui/components/XRUIComponent'
 import { ObjectFitFunctions } from '@xrengine/engine/src/xrui/functions/ObjectFitFunctions'
+import { WidgetAppServiceReceptor } from '@xrengine/engine/src/xrui/WidgetAppService'
+import { addActionReceptor } from '@xrengine/hyperflux'
 
 import { MainMenuButtonState } from './state/MainMenuButtonState'
 import { createMainMenuButtonsView } from './ui/MainMenuButtons'
+
+// TODO: rename this to WidgetMenuSystem #6364
 
 export default async function MainMenuButtonsSystem(world: World) {
   const ui = createMainMenuButtonsView()
@@ -27,12 +31,15 @@ export default async function MainMenuButtonsSystem(world: World) {
     }
   })
 
+  addActionReceptor(WidgetAppServiceReceptor)
+
   AvatarInputSchema.behaviorMap.set(BaseInput.HIDE_MENU_BUTTONS, (entity, inputKey, inputValue) => {
     if (inputValue.lifecycleState !== LifecycleValue.Started) return
     const mainMenuButtonsXRUI = getComponent(ui.entity, XRUIComponent)
 
     if (mainMenuButtonsXRUI) {
-      MainMenuButtonState.showButtons.set(false)
+      MainMenuButtonState.showButtons.set(!MainMenuButtonState.showButtons.value)
+      // MainMenuButtonState.showButtons.set(false)
     }
   })
 

@@ -1,7 +1,7 @@
 import { createState, useState } from '@speigg/hookstate'
 
 export const MainMenuButtonState = createState({
-  showButtons: false,
+  showButtons: true,
   chatMenuOpen: false,
   emoteMenuOpen: false,
   settingMenuOpen: false,
