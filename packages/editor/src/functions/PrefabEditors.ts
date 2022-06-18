@@ -21,6 +21,7 @@ import { SCENE_COMPONENT_PARTICLE_EMITTER } from '@xrengine/engine/src/scene/fun
 import { SCENE_COMPONENT_POINT_LIGHT } from '@xrengine/engine/src/scene/functions/loaders/PointLightFunctions'
 import { SCENE_COMPONENT_PORTAL } from '@xrengine/engine/src/scene/functions/loaders/PortalFunctions'
 import { SCENE_COMPONENT_POSTPROCESSING } from '@xrengine/engine/src/scene/functions/loaders/PostprocessingFunctions'
+import { SCENE_COMPONENT_SCATTER } from '@xrengine/engine/src/scene/functions/loaders/ScatterFunctions'
 import { SCENE_COMPONENT_SCENE_PREVIEW_CAMERA } from '@xrengine/engine/src/scene/functions/loaders/ScenePreviewCameraFunctions'
 import { SCENE_COMPONENT_SKYBOX } from '@xrengine/engine/src/scene/functions/loaders/SkyboxFunctions'
 import { SCENE_COMPONENT_SPAWN_POINT } from '@xrengine/engine/src/scene/functions/loaders/SpawnPointFunctions'
@@ -53,6 +54,7 @@ import ParticleEmitterNodeEditor from '../components/properties/ParticleEmitterN
 import PointLightNodeEditor from '../components/properties/PointLightNodeEditor'
 import PortalNodeEditor from '../components/properties/PortalNodeEditor'
 import PostProcessingNodeEditor from '../components/properties/PostProcessingNodeEditor'
+import { ScatterNodeEditor } from '../components/properties/ScatterNodeEditor'
 import SceneNodeEditor from '../components/properties/SceneNodeEditor'
 import ScenePreviewCameraNodeEditor from '../components/properties/ScenePreviewCameraNodeEditor'
 import SkyboxNodeEditor from '../components/properties/SkyboxNodeEditor'
@@ -109,7 +111,8 @@ export const EntityNodeEditor = {
   [SCENE_COMPONENT_INTERIOR]: InteriorNodeEditor,
   [SCENE_COMPONENT_SYSTEM]: SystemNodeEditor,
   [SCENE_COMPONENT_SPLINE]: SplineNodeEditor,
-  [SCENE_COMPONENT_CUBEMAP_BAKE]: CubemapBakeNodeEditor
+  [SCENE_COMPONENT_CUBEMAP_BAKE]: CubemapBakeNodeEditor,
+  [SCENE_COMPONENT_SCATTER]: ScatterNodeEditor
 }
 
 export const prefabIcons = {
@@ -142,5 +145,6 @@ export const prefabIcons = {
   [ScenePrefabs.interior]: InteriorNodeEditor.iconComponent,
   [ScenePrefabs.system]: SystemNodeEditor.iconComponent,
   [ScenePrefabs.spline]: SplineNodeEditor.iconComponent,
-  [ScenePrefabs.cubemapbake]: CubemapBakeNodeEditor.iconComponent
+  [ScenePrefabs.cubemapbake]: CubemapBakeNodeEditor.iconComponent,
+  [ScenePrefabs.scatter]: ParticleEmitterNodeEditor.iconComponent
 }

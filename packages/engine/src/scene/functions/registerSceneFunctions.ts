@@ -130,6 +130,7 @@ import {
   serializeRenderSettings,
   updateRenderSetting
 } from './loaders/RenderSettingsFunction'
+import { deserializeScatter, SCENE_COMPONENT_SCATTER, serializeScatter } from './loaders/ScatterFunctions'
 import {
   deserializeScenePreviewCamera,
   SCENE_COMPONENT_SCENE_PREVIEW_CAMERA,
@@ -464,5 +465,10 @@ export const registerDefaultSceneFunctions = (world: World) => {
     deserialize: deserializeCubemapBake,
     serialize: serializeCubemapBake,
     update: updateCubemapBake
+  })
+
+  world.sceneLoadingRegistry.set(SCENE_COMPONENT_SCATTER, {
+    deserialize: deserializeScatter,
+    serialize: serializeScatter
   })
 }

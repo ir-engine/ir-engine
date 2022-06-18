@@ -113,7 +113,7 @@ const serializeECS = (roots: Object3DWithEntity[], asset?: AssetComponentType, w
       const children = nodeMap.get(srcObj.entity)?.children
 
       if (children) {
-        haveChildren.push(nodeMap.get(srcObj.entity))
+        haveChildren.push(nodeBase)
         nodeBase['children'] = children
       }
       if (roots.includes(srcObj)) {
