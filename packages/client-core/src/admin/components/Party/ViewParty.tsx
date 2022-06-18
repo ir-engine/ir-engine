@@ -107,7 +107,7 @@ export default function ViewParty({ partyAdmin, open, onClose }: Props) {
 
     if (validateForm(state, tempErrors) && partyAdmin) {
       await AdminPartyService.patchParty(partyAdmin.id!, data)
-      setUpdateParty({ ...state, location: '', instance: '' })
+      setState({ ...state, location: '', instance: '' })
       onClose()
     }
   }
