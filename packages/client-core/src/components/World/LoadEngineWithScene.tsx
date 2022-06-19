@@ -8,19 +8,20 @@ import {
 import { LocationService } from '@xrengine/client-core/src/social/services/LocationService'
 import { useDispatch } from '@xrengine/client-core/src/store'
 import { leaveNetwork } from '@xrengine/client-core/src/transports/SocketWebRTCClientFunctions'
-import { SceneActions, useSceneState } from '@xrengine/client-core/src/world/services/SceneService'
+import {
+  SceneActions,
+  SceneServiceReceptor,
+  useSceneState
+} from '@xrengine/client-core/src/world/services/SceneService'
 import multiLogger from '@xrengine/common/src/logger'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineActions, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { WorldNetworkActionReceptor } from '@xrengine/engine/src/networking/functions/WorldNetworkActionReceptor'
 import { teleportToScene } from '@xrengine/engine/src/scene/functions/teleportToScene'
-import { dispatchAction, useHookEffect } from '@xrengine/hyperflux'
+import { addActionReceptor, dispatchAction, removeActionReceptor, useHookEffect } from '@xrengine/hyperflux'
 
 import { AppAction, GeneralStateList } from '../../common/services/AppService'
-import {
-  accessMediaInstanceConnectionState,
-  MediaInstanceConnectionAction
-} from '../../common/services/MediaInstanceConnectionService'
+import { accessMediaInstanceConnectionState } from '../../common/services/MediaInstanceConnectionService'
 import { SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientNetwork'
 import { initClient, loadScene } from './LocationLoadHelper'
 
@@ -32,7 +33,6 @@ export const LoadEngineWithScene = () => {
   const engineState = useEngineState()
   const sceneState = useSceneState()
   const [clientReady, setClientReady] = useState(false)
-  const instanceConnectionState = useLocationInstanceConnectionState()
 
   /**
    * initialise the client
@@ -41,6 +41,11 @@ export const LoadEngineWithScene = () => {
     initClient().then(() => {
       setClientReady(true)
     })
+
+    addActionReceptor(SceneServiceReceptor)
+    return () => {
+      removeActionReceptor(SceneServiceReceptor)
+    }
   }, [])
 
   /**

@@ -83,7 +83,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
   const [fileProperties, setFileProperties] = useState<any>(null)
   const [files, setFiles] = useState<FileDataType[]>([])
   const [openPropertiesConfirmModal, setOpenPropertiesModal] = useState(false)
-  const [openConfirmModal, setConfirmModal] = useState(false)
+  const [openConfirm, setOpenConfirm] = useState(false)
   const [contentToDeletePath, setContentToDeletePath] = useState('')
   const [contentToDeleteType, setContentToDeleteType] = useState('')
 
@@ -211,21 +211,21 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
   }
 
   const handleConfirmDelete = (contentPath: string, type: string) => {
-    setConfirmModal(true)
     setContentToDeletePath(contentPath)
     setContentToDeleteType(type)
+    setOpenConfirm(true)
   }
 
-  const handleCloseModal = () => {
-    setConfirmModal(false)
+  const handleConfirmClose = () => {
     setContentToDeletePath('')
     setContentToDeleteType('')
+    setOpenConfirm(false)
   }
 
   const deleteContent = async (): Promise<void> => {
     if (isLoading) return
     setLoading(true)
-    setConfirmModal(false)
+    setOpenConfirm(false)
     await FileBrowserService.deleteContent(contentToDeletePath, contentToDeleteType)
     props.onSelectionChanged({ resourceUrl: '', name: '', contentType: '' })
     await onRefreshDirectory()
@@ -359,11 +359,11 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
         </Dialog>
       )}
       <ConfirmModal
-        open={openConfirmModal}
+        open={openConfirm}
         description={`${t('editor:dialog.confirmContentDelete')} ${
           contentToDeleteType == 'folder' ? t('editor:dialog.folder') : t('editor:dialog.file')
         }?`}
-        onClose={handleCloseModal}
+        onClose={handleConfirmClose}
         onSubmit={deleteContent}
       />
     </>

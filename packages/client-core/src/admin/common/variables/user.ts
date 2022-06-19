@@ -52,6 +52,7 @@ export interface UserData {
   action: any
 }
 export interface UserProps {
+  className?: string
   removeUserAdmin?: any
   authState?: any
   adminUserState?: any

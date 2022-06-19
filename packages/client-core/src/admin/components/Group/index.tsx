@@ -13,13 +13,10 @@ import CreateGroup from './CreateGroup'
 import GroupTable from './GroupTable'
 
 const GroupConsole = () => {
-  const [groupOpen, setGroupOpen] = useState(false)
+  const [openGroupCreate, setOpenGroupCreate] = useState(false)
   const [search, setSearch] = React.useState('')
   const { t } = useTranslation()
 
-  const openModalCreate = (open: boolean) => {
-    setGroupOpen(open)
-  }
   const handleChange = (e: any) => {
     setSearch(e.target.value)
   }
@@ -43,17 +40,16 @@ const GroupConsole = () => {
               className={styles.openModalBtn}
               type="submit"
               variant="contained"
-              onClick={() => openModalCreate(true)}
+              onClick={() => setOpenGroupCreate(true)}
             >
               {t('admin:components.group.createGroup')}
             </Button>
           </Grid>
         </Grid>
-        <div className={styles.rootTableWithSearch}>
-          <GroupTable search={search} />
-        </div>
+
+        <GroupTable className={styles.rootTableWithSearch} search={search} />
       </div>
-      <CreateGroup open={groupOpen} handleClose={openModalCreate} />
+      <CreateGroup open={openGroupCreate} onClose={() => setOpenGroupCreate(false)} />
     </React.Fragment>
   )
 }

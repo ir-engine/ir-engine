@@ -8,16 +8,15 @@ import { NavigateBefore, NavigateNext } from '@mui/icons-material'
 import Button from '@mui/material/Button'
 import ClickAwayListener from '@mui/material/ClickAwayListener'
 
-// @ts-ignore
 import styles from '../index.module.scss'
 
-type Props = { changeActiveMenu: (menu: any) => {} }
+const MAX_EMOTE_PER_PAGE = 6
+const MIN_EMOTE_PER_PAGE = 5
+const getEmotePerPage = () => (window.innerWidth > 768 ? MAX_EMOTE_PER_PAGE : MIN_EMOTE_PER_PAGE)
 
-const EmoteMenu = (props: Props): JSX.Element => {
-  const MAX_EMOTE_PER_PAGE = 6
-  const MIN_EMOTE_PER_PAGE = 5
+type EmoteMenuHooksProps = { changeActiveMenu: (menu: any) => {} }
 
-  const getEmotePerPage = () => (window.innerWidth > 768 ? MAX_EMOTE_PER_PAGE : MIN_EMOTE_PER_PAGE)
+export const useEmoteMenuHooks = ({ changeActiveMenu }: EmoteMenuHooksProps) => {
   const [page, setPage] = useState(0)
   const [imgPerPage, setImgPerPage] = useState(getEmotePerPage())
 
@@ -111,7 +110,7 @@ const EmoteMenu = (props: Props): JSX.Element => {
 
   const closeMenu = (e) => {
     e.preventDefault()
-    props.changeActiveMenu(null)
+    changeActiveMenu(null)
   }
 
   const calculateOtherValues = (): void => {
@@ -125,7 +124,7 @@ const EmoteMenu = (props: Props): JSX.Element => {
     const entity = Engine.instance.currentWorld.localClientEntity
     changeAvatarAnimationState(entity, stateName)
     // close Menu after playing animation
-    props.changeActiveMenu(null)
+    changeActiveMenu(null)
   }
 
   const renderEmoteList = () => {
@@ -174,6 +173,37 @@ const EmoteMenu = (props: Props): JSX.Element => {
     if (page === 0) return
     setPage(page - 1)
   }
+
+  return {
+    closeMenu,
+    menuRadius,
+    menuThickness,
+    loadPreviousEmotes,
+    menuItemRadius,
+    renderEmoteList,
+    page,
+    imgPerPage,
+    items,
+    loadNextEmotes
+  }
+}
+type Props = { changeActiveMenu: (menu: any) => {} }
+
+const EmoteMenu = ({ changeActiveMenu }: Props): JSX.Element => {
+  const {
+    closeMenu,
+    menuRadius,
+    menuThickness,
+    loadPreviousEmotes,
+    menuItemRadius,
+    renderEmoteList,
+    page,
+    imgPerPage,
+    items,
+    loadNextEmotes
+  } = useEmoteMenuHooks({
+    changeActiveMenu
+  })
 
   return (
     <section className={styles.emoteMenu}>

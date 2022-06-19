@@ -13,7 +13,7 @@ export const DefaultArgs: MeshPhysicalMaterialParameters = {
   transmissionMap: new Texture()
 }
 
-export default async function Physical(args?: MeshPhysicalMaterialParameters): Promise<MaterialParms> {
+export default function Physical(args?: MeshPhysicalMaterialParameters): MaterialParms {
   const mergedArgs = args ? { ...format(DefaultArgs), ...args } : format(DefaultArgs)
   const material = new MeshPhysicalMaterial()
   for (const [k, v] of Object.entries(mergedArgs)) {

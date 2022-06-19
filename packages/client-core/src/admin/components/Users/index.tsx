@@ -64,18 +64,6 @@ const Users = () => {
     setAnchorEl(null)
   }
 
-  const openModalCreate = (open: boolean) => (event: React.KeyboardEvent | React.MouseEvent) => {
-    if (
-      event.type === 'keydown' &&
-      ((event as React.KeyboardEvent).key === 'Tab' || (event as React.KeyboardEvent).key === 'Shift')
-    ) {
-      return
-    }
-    setUserModalOpen(open)
-  }
-  const closeViewModal = (open: boolean) => {
-    setUserModalOpen(open)
-  }
   const handleSkipGuests = (e: any) => {
     setChecked(e.target.checked)
     AdminUserService.setSkipGuests(e.target.checked)
@@ -109,7 +97,12 @@ const Users = () => {
           <Search text="user" handleChange={handleChange} />
         </Grid>
         <Grid item sm={3} xs={8}>
-          <Button className={styles.openModalBtn} type="submit" variant="contained" onClick={openModalCreate(true)}>
+          <Button
+            className={styles.openModalBtn}
+            type="submit"
+            variant="contained"
+            onClick={() => setUserModalOpen(true)}
+          >
             {t('admin:components.user.createNewUser')}
           </Button>
         </Grid>
@@ -127,10 +120,8 @@ const Users = () => {
           </IconButton>
         </Grid>
       </Grid>
-      <div className={styles.rootTable}>
-        <UserTable search={search} />
-      </div>
-      <UserModal open={userModalOpen} handleClose={openModalCreate} closeViewModal={closeViewModal} />
+      <UserTable className={styles.rootTable} search={search} />
+      <UserModal open={userModalOpen} onClose={() => setUserModalOpen(false)} />
       <Menu
         anchorEl={anchorEl}
         id="account-menu"

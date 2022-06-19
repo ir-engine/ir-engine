@@ -16,7 +16,7 @@ export const DefaultArgs: MeshLambertMaterialParameters = {
   refractionRatio: 0.2
 }
 
-export default async function Lambert(args?: MeshLambertMaterialParameters): Promise<MaterialParms> {
+export default function Lambert(args?: MeshLambertMaterialParameters): MaterialParms {
   return {
     material: new MeshLambertMaterial(args ? { ...format(DefaultArgs), ...args } : format(DefaultArgs)),
     update: (dt) => {}

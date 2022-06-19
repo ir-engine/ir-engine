@@ -3,6 +3,8 @@ import { useTranslation } from 'react-i18next'
 
 import { Party } from '@xrengine/common/src/interfaces/Party'
 
+import Box from '@mui/material/Box'
+
 import { useAuthState } from '../../../user/services/AuthService'
 import ConfirmModal from '../../common/ConfirmModal'
 import TableComponent from '../../common/Table'
@@ -11,19 +13,17 @@ import { AdminPartyService, PARTY_PAGE_LIMIT, usePartyState } from '../../servic
 import styles from '../../styles/admin.module.scss'
 import ViewParty from './ViewParty'
 
-const PartyTable = (props: PartyPropsTable) => {
-  const { search } = props
+const PartyTable = ({ className, search }: PartyPropsTable) => {
   const { t } = useTranslation()
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(PARTY_PAGE_LIMIT)
-  const [popConfirmOpen, setPopConfirmOpen] = useState(false)
+  const [openConfirm, setOpenConfirm] = useState(false)
   const [partyName, setPartyName] = useState('')
   const [partyId, setPartyId] = useState('')
   const [fieldOrder, setFieldOrder] = useState('asc')
   const [sortField, setSortField] = useState('location')
-  const [viewModal, setViewModal] = useState(false)
+  const [openViewParty, setOpenViewParty] = useState(false)
   const [partyAdmin, setPartyAdmin] = useState<Party>()
-  const [editMode, setEditMode] = useState(false)
 
   const authState = useAuthState()
   const user = authState.user
@@ -47,28 +47,19 @@ const PartyTable = (props: PartyPropsTable) => {
     }
   }, [fieldOrder])
 
-  const handleCloseModal = () => {
-    setPopConfirmOpen(false)
-  }
-
   const submitRemoveParty = async () => {
     await AdminPartyService.removeParty(partyId)
-    setPopConfirmOpen(false)
+    setOpenConfirm(false)
   }
 
-  const openViewModal = (open: boolean, party: any) => {
+  const handleOpenViewParty = (open: boolean, party: any) => {
     setPartyAdmin(party)
-    setViewModal(open)
+    setOpenViewParty(open)
   }
 
-  const closeViewModal = () => {
-    setViewModal(false)
+  const handleCloseViewParty = () => {
     setPartyAdmin(undefined)
-    setEditMode(false)
-  }
-
-  const handleEditMode = (open: boolean) => {
-    setEditMode(open)
+    setOpenViewParty(false)
   }
 
   const createData = (el: Party, id: string, instance: any, location: any): PartyData => {
@@ -79,16 +70,16 @@ const PartyTable = (props: PartyPropsTable) => {
       location,
       action: (
         <>
-          <a href="#h" className={styles.actionStyle} onClick={() => openViewModal(true, el)}>
+          <a href="#h" className={styles.actionStyle} onClick={() => handleOpenViewParty(true, el)}>
             <span className={styles.spanWhite}>{t('admin:components.index.view')}</span>
           </a>
           <a
             href="#h"
             className={styles.actionStyle}
             onClick={() => {
-              setPopConfirmOpen(true)
               setPartyName(instance)
               setPartyId(id)
+              setOpenConfirm(true)
             }}
           >
             <span className={styles.spanDange}>{t('admin:components.index.delete')}</span>
@@ -113,7 +104,7 @@ const PartyTable = (props: PartyPropsTable) => {
   })
 
   return (
-    <React.Fragment>
+    <Box className={className}>
       <TableComponent
         allowSort={false}
         fieldOrder={fieldOrder}
@@ -128,19 +119,13 @@ const PartyTable = (props: PartyPropsTable) => {
         handleRowsPerPageChange={handleRowsPerPageChange}
       />
       <ConfirmModal
-        open={popConfirmOpen}
+        open={openConfirm}
         description={`${t('admin:components.party.confirmPartyDelete')} '${partyName}'?`}
-        onClose={handleCloseModal}
+        onClose={() => setOpenConfirm(false)}
         onSubmit={submitRemoveParty}
       />
-      <ViewParty
-        openView={viewModal}
-        closeViewModal={closeViewModal}
-        partyAdmin={partyAdmin}
-        editMode={editMode}
-        handleEditMode={handleEditMode}
-      />
-    </React.Fragment>
+      <ViewParty open={openViewParty} partyAdmin={partyAdmin} onClose={handleCloseViewParty} />
+    </Box>
   )
 }
 
