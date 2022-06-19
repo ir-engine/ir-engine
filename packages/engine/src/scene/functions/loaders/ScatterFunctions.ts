@@ -50,10 +50,6 @@ export const GRASS_PROPERTIES_DEFAULT_VALUES: GrassProperties = {
   joints: 4,
   grassTexture: new Texture(),
   alphaMap: new Texture(),
-  heightMap: new Texture(),
-  heightMapStrength: 0.05,
-  densityMap: new Texture(),
-  densityMapStrength: 0.5,
   ambientStrength: 0.5,
   diffuseStrength: 0,
   shininess: 0,
@@ -69,9 +65,12 @@ export const SCENE_COMPONENT_SCATTER = 'scatter'
 export const SCENE_COMPONENT_SCATTER_DEFAULT_VALUES = {
   count: 1000,
   surface: '',
-  densityMap: '',
   mode: ScatterMode.GRASS,
   state: ScatterState.UNSTAGED,
+  heightMap: new Texture(),
+  heightMapStrength: 0.05,
+  densityMap: new Texture(),
+  densityMapStrength: 0.5,
   properties: GRASS_PROPERTIES_DEFAULT_VALUES
 }
 
@@ -82,18 +81,25 @@ attribute vec3 normal;
 attribute vec3 offset;
 attribute vec2 uv;
 attribute vec4 orient;
-attribute vec3 scale;
+attribute vec2 scale;
+attribute vec2 surfaceUV;
 attribute float index;
+
 uniform float time;
 uniform float vHeight;
+uniform float densityMapStrength;
+uniform float heightMapStrength;
 uniform mat4 modelViewMatrix;
 uniform mat4 projectionMatrix;
+uniform sampler2D densityMap;
+uniform sampler2D heightMap;
 
 varying vec2 vUv;
 varying vec3 vNormal;
 varying vec3 vPosition;
 varying float frc;
 varying float idx;
+varying float doClip;
 
 const float PI = 3.1415;
 const float TWO_PI = 2.0 * PI;
@@ -103,29 +109,43 @@ vec3 rotateVectorByQuaternion(vec3 v, vec4 q){
 return 2.0 * cross(q.xyz, v * q.w + cross(q.xyz, v)) + v;
 }
 
+float rand(float x) {
+  return fract(sin(x * 10000.0) * 20000.0);
+}
+
 void main() {
-    //Scale vertices
-vec3 vPosition = position;
-    vPosition.x *= scale.x;
-    vPosition.y *= scale.y;
-    vPosition.z *= scale.z;
-    //Invert scaling for normals
-    vNormal = normal;
-    //vNormal.y /= scale.y;
-    frc = position.y / vHeight;
-    //Rotate blade around Y axis
-    vec4 direction = orient;
-    vPosition = rotateVectorByQuaternion(vPosition, direction);
-    vNormal = rotateVectorByQuaternion(vNormal, direction);
+  //Sample density map
+  float density = texture2D(densityMap, surfaceUV).r;
+  if (rand(index) > density) {
+    doClip = 1.0;
+  } else {
+    doClip = 0.0;
+  }
+  //Scale vertices
+  vec3 vPosition = position;
+
+  //Sample height map
+  float height = texture2D(heightMap, surfaceUV).r;
+  vPosition.x *= scale.x * height;
+  vPosition.y *= scale.y * height;
+  vPosition.z *= scale.x * height;
+  //Invert scaling for normals
+  vNormal = normal;
+  //vNormal.y /= scale.y;
+  frc = position.y / vHeight;
+  //Rotate blade around Y axis
+  vec4 direction = orient;
+  vPosition = rotateVectorByQuaternion(vPosition, direction);
+  vNormal = rotateVectorByQuaternion(vNormal, direction);
 
 //UV for texture
 vUv = uv;
 
 
 //Wind is sine waves in time. 
-float noise = 0.5 + 0.5 * sin(vPosition.x + time);
+float noise = 0.5 + 0.5 * sin(vPosition.x + offset.x + time);
 float halfAngle = -noise * 0.1;
-noise = 0.5 + 0.5 * cos(vPosition.y + time);
+noise = 0.5 + 0.5 * cos(vPosition.z + offset.z + time);
 halfAngle -= noise * 0.05;
 
     direction = normalize(vec4(sin(halfAngle), 0.0, -sin(halfAngle), cos(halfAngle)));
@@ -166,6 +186,8 @@ varying vec2 vUv;
 varying vec3 vNormal;
 varying vec3 vPosition;
 varying float frc;
+varying float doClip;
+
 vec3 ACESFilm(vec3 x){
     float a = 2.51;
     float b = 0.03;
@@ -176,7 +198,10 @@ vec3 ACESFilm(vec3 x){
 }
 
 void main() {
-
+//If clipped, don't draw
+if(doClip > 0.0) {
+  discard;
+}
 //If transparent, don't draw
 if(texture2D(alphaMap, vUv).r < 0.15){
     discard;
@@ -228,22 +253,28 @@ export const deserializeScatter: ComponentDeserializeFunction = (
 }
 
 function parseScatterProperties(props): ScatterComponentType {
-  const result: ScatterComponentType = {
+  let result: ScatterComponentType = {
     ...SCENE_COMPONENT_SCATTER_DEFAULT_VALUES,
     ...props
   }
-  switch (result.mode) {
-    case ScatterMode.GRASS:
-      const defaults = GRASS_PROPERTIES_DEFAULT_VALUES
-      result.properties = Object.fromEntries(
-        Object.entries(result.properties).map(([k, v]) => {
+  const processProps = (props, defaults) => {
+    return Object.fromEntries(
+      Object.entries(props)
+        .filter(([k, _]) => defaults[k] !== undefined)
+        .map(([k, v]) => {
           if ((defaults[k] as Color).isColor && !(v as Color).isColor) {
             return [k, new Color(v as ColorRepresentation)]
           } else {
             return [k, v]
           }
         })
-      ) as GrassProperties
+    )
+  }
+  result = processProps(result, SCENE_COMPONENT_SCATTER_DEFAULT_VALUES) as ScatterComponentType
+  switch (result.mode) {
+    case ScatterMode.GRASS:
+      const defaults = GRASS_PROPERTIES_DEFAULT_VALUES
+      result.properties = processProps(result.properties, defaults) as GrassProperties
       break
   }
   return result
@@ -253,23 +284,39 @@ export const serializeScatter: ComponentSerializeFunction = (entity) => {
   const comp = getComponent(entity, ScatterComponent) as ScatterComponentType
   if (!comp) return
   const toSave = { ...comp }
-  const scatterProps = comp.properties
-  const serializedProps: GrassProperties | MeshProperties | any = {}
-  if ((scatterProps as GrassProperties).isGrassProperties) {
-    for (const [k, v] of Object.entries(scatterProps)) {
+  const formatData = (props) => {
+    for (const [k, v] of Object.entries(props)) {
       if ((v as Texture)?.isTexture) {
-        serializedProps[k] = (v as Texture).source.data?.src ?? ''
+        props[k] = (v as Texture).source.data?.src ?? ''
       } else if ((v as Color)?.isColor) {
-        serializedProps[k] = (v as Color).getHex()
+        props[k] = (v as Color).getHex()
       } else {
-        serializedProps[k] = v
+        props[k] = v
       }
     }
+  }
+  const scatterProps = comp.properties
+  const serializedProps: GrassProperties | MeshProperties | any = { ...scatterProps }
+  formatData(toSave)
+  if ((scatterProps as GrassProperties).isGrassProperties) {
+    formatData(serializedProps)
   }
   toSave.properties = serializedProps
   return {
     name: SCENE_COMPONENT_SCATTER,
     props: toSave
+  }
+}
+
+async function loadScatterTextures(scatter: ScatterComponentType) {
+  const loadTex = async (prop) => {
+    scatter[prop] = await AssetLoader.loadAsync(scatter[prop])
+  }
+  if (typeof scatter.densityMap === 'string') {
+    await loadTex('densityMap')
+  }
+  if (typeof scatter.heightMap === 'string') {
+    await loadTex('heightMap')
   }
 }
 
@@ -408,6 +455,9 @@ export async function stageScatter(entity: Entity, world = Engine.instance.curre
   const offsets: number[] = []
   const scales: number[] = []
   const orients: number[] = []
+  const surfaceUVs: number[] = []
+
+  await loadScatterTextures(scatter)
 
   let props = scatter.properties
   if ((props as GrassProperties).isGrassProperties) {
@@ -487,14 +537,17 @@ export async function stageScatter(entity: Entity, world = Engine.instance.curre
     for (let i = 0; i < scatter.count; i += 1) {
       indices.push(i / scatter.count)
       let position: Vector3 | null, normal: Vector3 | null
+      let sample: Vector2
       do {
-        const sample = new Vector2(
+        sample = new Vector2(
           uvBounds.minU + (uvBounds.maxU - uvBounds.minU) * Math.random(),
           uvBounds.minV + (uvBounds.maxV - uvBounds.minV) * Math.random()
         )
         //sample positions from random uvs
         ;[position, normal] = positionAt(sample)
       } while (position === null)
+      surfaceUVs.push(sample.x, sample.y)
+
       offsets.push(position.x, position.y, position.z)
 
       let orient = new Quaternion()
@@ -509,11 +562,13 @@ export async function stageScatter(entity: Entity, world = Engine.instance.curre
     const scaleAttribute = new InstancedBufferAttribute(new Float32Array(scales), 2)
     const orientAttribute = new InstancedBufferAttribute(new Float32Array(orients), 4)
     const indexAttribute = new InstancedBufferAttribute(new Float32Array(indices), 1)
+    const surfaceUVAttribute = new InstancedBufferAttribute(new Float32Array(surfaceUVs), 2)
 
     instancedGeometry.setAttribute('offset', offsetAttribute)
     instancedGeometry.setAttribute('scale', scaleAttribute)
     instancedGeometry.setAttribute('orient', orientAttribute)
     instancedGeometry.setAttribute('index', indexAttribute)
+    instancedGeometry.setAttribute('surfaceUV', surfaceUVAttribute)
 
     const grassMaterial = new RawShaderMaterial({
       uniforms: {
@@ -522,6 +577,10 @@ export async function stageScatter(entity: Entity, world = Engine.instance.curre
         vHeight: { value: grassProps.bladeHeight.mu + grassProps.bladeHeight.sigma },
         alphaMap: { value: grassProps.alphaMap },
         sunDirection: { value: new Vector3(-0.35, 0, 0) },
+        densityMap: { value: scatter.densityMap },
+        densityMapStrength: { value: scatter.densityMapStrength },
+        heightMap: { value: scatter.heightMap },
+        heightMapStrength: { value: scatter.heightMapStrength },
         cameraPosition: { value: Engine.instance.currentWorld.camera.position },
         ambientStrength: { value: grassProps.ambientStrength },
         diffuseStrength: { value: grassProps.diffuseStrength },
@@ -554,6 +613,7 @@ export async function stageScatter(entity: Entity, world = Engine.instance.curre
       addComponent(entity, UpdatableComponent, {})
     }
     val.add(grass)
+  } else if ((props as MeshProperties).isMeshProperties) {
   }
   scatter.state = ScatterState.STAGED
 }

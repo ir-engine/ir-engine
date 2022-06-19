@@ -34,10 +34,6 @@ export type GrassProperties = {
   joints: number
   grassTexture: Texture | string
   alphaMap: Texture | string
-  heightMap: Texture | string
-  heightMapStrength: NormalizedProperty
-  densityMap: Texture | string
-  densityMapStrength: NormalizedProperty
   ////lighting properties
   ambientStrength: number
   diffuseStrength: number
@@ -53,9 +49,12 @@ export type MeshProperties = {
 export type ScatterComponentType = {
   count: number
   surface: any
-  densityMap: string
   mode: ScatterMode
   state: ScatterState
+  densityMap: Texture | string
+  densityMapStrength: NormalizedProperty
+  heightMap: Texture | string
+  heightMapStrength: NormalizedProperty
   properties: GrassProperties | MeshProperties
 }
 

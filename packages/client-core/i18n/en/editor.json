@@ -212,6 +212,21 @@
       "lbl-shadowRadius": "Shadow Radius",
       "lbl-showCameraHelper": "Show Camera Helper"
     },
+    "grass": {
+      "bladeHeight": "Blade Height",
+      "bladeWidth": "Blade Width",
+      "joints": "Blade Joint Count",
+      "alphaMap": "Alpha Map",
+      "texture": "Grass Texture",
+      "ambientStrength": "Ambient Strength",
+      "diffuseStrength": "Diffuse Strength",
+      "shininess": "Shininess",
+      "heightMap": "Height Map",
+      "heightMapStrength": "Height Map Strength",
+      "densityMap": "Density Map",
+      "densityMapStrength": "Density Map Strength",
+      "sunColor": "Sun Color"
+    },
     "groundPlane": {
       "name": "Ground Plane",
       "description": "A flat ground plane that extends into the distance.",
@@ -386,6 +401,19 @@
       "lbl-intensity": "Intensity",
       "lbl-range": "Range",
       "lbl-decay": "Decay"
+    },
+    "scatter": {
+      "name": "Scatter",
+      "description": "Generates instanced geometry according to input",
+      "lbl-count": "Instance Count",
+      "lbl-surface": "Target Surface",
+      "error-surface": "Error occurred finding target surface",
+      "placeholder-surface": "No Target Selected",
+      "lbl-mode": "Scatter Mode",
+      "lbl-load": "Stage",
+      "lbl-unload": "Unstage",
+      "lbl-reload": "Restage",
+      "lbl-grassProperties": "Grass Properties"
     },
     "scene": {
       "name": "Scene",

@@ -97,33 +97,22 @@ export default function ScatterGrassProperties({ value, onChange, ...rest }) {
           largeStep={5}
         />
         <ImagePreviewInputGroup
-          name="Grass Texture"
-          label={t('editor:properties.grass.texture')}
-          onChange={onChangeGrass}
-          value={grass}
-        />
-        <ImagePreviewInputGroup
           name="Alpha Map"
           label={t('editor:properties.grass.alphaMap')}
           onChange={onChangeAlpha}
           value={alpha}
+        />
+        <ImagePreviewInputGroup
+          name="Grass Texture"
+          label={t('editor:properties.grass.texture')}
+          onChange={onChangeGrass}
+          value={grass}
         />
         <NumericInputGroup
           name="ambientStrength"
           label={t('editor:properties.grass.ambientStrength')}
           onChange={onChangeProp('ambientStrength')}
           value={props.ambientStrength}
-          min={0}
-          max={1}
-          smallStep={0.01}
-          mediumStep={0.025}
-          largeStep={0.1}
-        />
-        <NumericInputGroup
-          name="translucencyStrength"
-          label={t('editor:properties.grass.translucencyStrength')}
-          onChange={onChangeProp('translucencyStrength')}
-          value={props.translucencyStrength}
           min={0}
           max={1}
           smallStep={0.01}

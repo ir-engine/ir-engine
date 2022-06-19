@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Mesh, Object3D } from 'three'
+import { Mesh, Object3D, Texture } from 'three'
 
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import {
@@ -29,6 +29,7 @@ import { dispatchAction } from '@xrengine/hyperflux'
 import { setPropertyOnSelectionEntities } from '../../classes/History'
 import { SelectionAction } from '../../services/SelectionServices'
 import { PropertiesPanelButton } from '../inputs/Button'
+import { ImagePreviewInputGroup } from '../inputs/ImagePreviewInput'
 import InputGroup from '../inputs/InputGroup'
 import NumericInput from '../inputs/NumericInput'
 import NumericInputGroup from '../inputs/NumericInputGroup'
@@ -44,6 +45,27 @@ export const ScatterNodeEditor: EditorComponentType = (props) => {
   const node = props.node
   const scatter = getComponent(entity, ScatterComponent)
   const [state, setState] = useState<ScatterState>(scatter.state)
+
+  const texPath = (tex) => {
+    if ((tex as Texture).isTexture) return tex.source.data?.src ?? ''
+    if (typeof tex === 'string') return tex
+    console.error('unknown texture type for', tex)
+  }
+
+  const [height, setHeight] = useState(texPath(scatter.heightMap))
+  const [density, setDensity] = useState(texPath(scatter.densityMap))
+
+  function onChangeDensity(val) {
+    setDensity(val)
+    scatter.densityMap = val
+    updateProperty(ScatterComponent, 'densityMap')(val)
+  }
+
+  function onChangeHeight(val) {
+    setHeight(val)
+    scatter.heightMap = val
+    updateProperty(ScatterComponent, 'heightMap')(val)
+  }
 
   const initialSurfaces = () => {
     const surfaces: any[] = []
@@ -153,6 +175,40 @@ export const ScatterNodeEditor: EditorComponentType = (props) => {
             ]}
           />
         </InputGroup>
+        <ImagePreviewInputGroup
+          name="Height Map"
+          label={t('editor:properties.grass.heightMap')}
+          onChange={onChangeHeight}
+          value={height}
+        />
+        <NumericInputGroup
+          name="Height Map Strength"
+          label={t('editor:properties.grass.heightMapStrength')}
+          onChange={updateProperty(ScatterComponent, 'heightMapStrength')}
+          value={scatter.heightMapStrength}
+          min={0}
+          max={1}
+          smallStep={0.01}
+          mediumStep={0.025}
+          largeStep={0.1}
+        />
+        <ImagePreviewInputGroup
+          name="Density Map"
+          label={t('editor:properties.grass.densityMap')}
+          onChange={onChangeDensity}
+          value={density}
+        />
+        <NumericInputGroup
+          name="Density Map Strength"
+          label={t('editor:properties.grass.densityMapStrength')}
+          onChange={updateProperty(ScatterComponent, 'densityMapStrength')}
+          value={scatter.densityMapStrength}
+          min={0}
+          max={1}
+          smallStep={0.01}
+          mediumStep={0.025}
+          largeStep={0.1}
+        />
         {scatter.mode === ScatterMode.GRASS && (
           <ScatterGrassProperties
             value={scatter.properties}
