@@ -58,10 +58,17 @@ const AutoComplete = ({ data, label, onChange, scopes = [] }: Props) => {
   })
   return (
     <React.Fragment>
-      <label>{_.upperFirst(label)}</label>
       <div className={styles.root}>
         <div {...getRootProps()}>
           <div ref={setAnchorEl} className={`${styles.inputWrapper} ${focused ? 'focused' : ''}`}>
+            <fieldset
+              aria-hidden="true"
+              className="MuiOutlinedInput-notchedOutline-SCvfC knJUav MuiOutlinedInput-notchedOutline"
+            >
+              <legend>
+                <span>{_.upperFirst(label)}</span>
+              </legend>
+            </fieldset>
             {value.map((option: AutoCompleteData, index: number) => (
               <Tag className={styles.tag} label={option.type} {...getTagProps({ index })} />
             ))}
