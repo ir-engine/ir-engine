@@ -189,6 +189,13 @@ const Server = (props: serverProps) => {
             onChange={(e) => setGitPem(e.target.value)}
           />
 
+          <InputText
+            name="releaseName"
+            label={t('admin:components.setting.releaseName')}
+            value={serverSetting?.releaseName || ''}
+            disabled
+          />
+
           <InputSwitch
             name="local"
             sx={{ mb: 2 }}
@@ -196,13 +203,6 @@ const Server = (props: serverProps) => {
             checked={local.checkedB}
             disabled
             onChange={handleLocal}
-          />
-
-          <InputText
-            name="releaseName"
-            label={t('admin:components.setting.releaseName')}
-            value={serverSetting?.releaseName || ''}
-            disabled
           />
         </Grid>
       </Grid>
