@@ -2,9 +2,9 @@ import { Icon } from '@iconify/react'
 import React from 'react'
 
 import CodeIcon from '@mui/icons-material/Code'
+import HubIcon from '@mui/icons-material/Hub'
 import LockIcon from '@mui/icons-material/Lock'
 import MailOutlineIcon from '@mui/icons-material/MailOutline'
-import SportsEsportsIcon from '@mui/icons-material/SportsEsports'
 import ViewCompactIcon from '@mui/icons-material/ViewCompact'
 import Avatar from '@mui/material/Avatar'
 import Divider from '@mui/material/Divider'
@@ -117,10 +117,10 @@ const settings = ({
         >
           <ListItemAvatar>
             <Avatar style={{ background: '#5e5a4d', color: 'orange' }}>
-              <SportsEsportsIcon />
+              <HubIcon />
             </Avatar>
           </ListItemAvatar>
-          <ListItemText primary="Game Server" />
+          <ListItemText primary="Instance Server" />
         </ListItem>
         <Divider variant="inset" component="li" sx={{ marginLeft: '0px' }} />
         <ListItem button onClick={handleEmail} className={emailFocused ? `${styles.focused}` : `${styles.notFocused}`}>
