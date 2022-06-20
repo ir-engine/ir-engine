@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { Grid, Typography } from '@mui/material'
+import { Box, Grid, Typography } from '@mui/material'
 
 import { useAuthState } from '../../../user/services/AuthService'
 import InputText from '../../common/InputText'
@@ -39,28 +39,26 @@ const Analytics = (props: AnalyticsProps) => {
   }
 
   return (
-    <div>
-      <form>
-        <Typography component="h1" className={styles.settingsHeading}>
-          {t('admin:components.analytics.analytics')}
-        </Typography>
-        <div className={styles.root}>
-          <Grid container spacing={3}>
-            <Grid item xs={6} sm={4}>
-              <InputText name="port" label={t('admin:components.analytics.port')} value={Data.port} disabled />
-            </Grid>
-            <Grid item xs={6} sm={4}>
-              <InputText
-                name="processinterval"
-                label={t('admin:components.analytics.processInterval')}
-                value={Data.processInterval}
-                disabled
-              />
-            </Grid>
+    <Box>
+      <Typography component="h1" className={styles.settingsHeading}>
+        {t('admin:components.analytics.analytics')}
+      </Typography>
+      <div className={styles.root}>
+        <Grid container spacing={3}>
+          <Grid item xs={6} sm={6}>
+            <InputText name="port" label={t('admin:components.analytics.port')} value={Data.port} disabled />
           </Grid>
-        </div>
-      </form>
-    </div>
+          <Grid item xs={6} sm={6}>
+            <InputText
+              name="processinterval"
+              label={t('admin:components.analytics.processInterval')}
+              value={Data.processInterval}
+              disabled
+            />
+          </Grid>
+        </Grid>
+      </div>
+    </Box>
   )
 }
 
