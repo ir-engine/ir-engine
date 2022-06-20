@@ -1,8 +1,18 @@
 import { createState } from '@speigg/hookstate'
-import React, { useState } from 'react'
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { UserSetting } from '@xrengine/common/src/interfaces/User'
+import { AvatarSettings, updateMap } from '@xrengine/engine/src/avatar/AvatarControllerSystem'
+import { AvatarComponent } from '@xrengine/engine/src/avatar/components/AvatarComponent'
+import {
+  AvatarInputSettingsAction,
+  useAvatarInputSettingsState
+} from '@xrengine/engine/src/avatar/state/AvatarInputSettingsState'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
+import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { AvatarControllerType, AvatarMovementScheme } from '@xrengine/engine/src/input/enums/InputEnums'
 import { EngineRendererAction, useEngineRendererState } from '@xrengine/engine/src/renderer/EngineRendererState'
 import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
 import { dispatchAction } from '@xrengine/hyperflux'
@@ -25,14 +35,66 @@ const SettingDetailView = () => {
   const { t } = useTranslation()
   const rendererState = useEngineRendererState()
 
+  const engineState = useEngineState()
+  const avatarInputState = useAvatarInputSettingsState()
+  const [controlTypeSelected, setControlType] = useState(avatarInputState.controlType.value)
+  const [controlSchemeSelected, setControlScheme] = useState(
+    AvatarMovementScheme[AvatarSettings.instance.movementScheme]
+  )
+  const invertRotationAndMoveSticks = avatarInputState.invertRotationAndMoveSticks.value
+  const showAvatar = avatarInputState.showAvatar.value
   const authState = useAuthState()
   const selfUser = authState.user
+  const firstRender = useRef(true)
   const [userSettings, setUserSetting] = useState<UserSetting>(selfUser?.user_setting.value!)
+
+  const controllerTypes = Object.values(AvatarControllerType).filter((value) => typeof value === 'string')
+  const controlSchemes = Object.values(AvatarMovementScheme).filter((value) => typeof value === 'string')
+
+  useEffect(() => {
+    const world = Engine.instance.currentWorld
+    const entity = world.localClientEntity
+    const avatar = getComponent(entity, AvatarComponent)
+    if (!avatar) return
+    if (showAvatar) {
+      if (avatar.modelContainer.visible) return
+      avatar.modelContainer.visible = showAvatar
+    } else {
+      if (!avatar.modelContainer.visible) return
+      avatar.modelContainer.visible = showAvatar
+    }
+  }, [showAvatar])
+
+  useLayoutEffect(() => {
+    if (firstRender.current) {
+      firstRender.current = false
+      return
+    }
+    updateMap()
+  }, [avatarInputState.invertRotationAndMoveSticks])
 
   const setUserSettings = (newSetting: any): void => {
     const setting = { ...userSettings, ...newSetting }
     setUserSetting(setting)
     AuthService.updateUserSettings(selfUser.user_setting.value?.id, setting)
+  }
+
+  const handleChangeInvertRotationAndMoveSticks = (event: React.ChangeEvent<HTMLInputElement>) => {
+    dispatchAction(AvatarInputSettingsAction.setInvertRotationAndMoveSticks(!invertRotationAndMoveSticks))
+  }
+
+  const handleChangeShowAvatar = (event: React.ChangeEvent<HTMLInputElement>) => {
+    dispatchAction(AvatarInputSettingsAction.setShowAvatar(!showAvatar))
+  }
+
+  const handleChangeControlType = (event) => {
+    setControlType(event.target.value as any)
+    dispatchAction(AvatarInputSettingsAction.setControlType(event.target.value as any))
+  }
+
+  const handleChangeControlScheme = (event) => {
+    setControlScheme(event.target.value)
+    AvatarSettings.instance.movementScheme = AvatarMovementScheme[event.target.value]
   }
 
   return (
@@ -198,6 +260,73 @@ const SettingDetailView = () => {
             </div>
           </section>
         </div>
+        <section className="sectionRow">
+          <span className="checkBoxLabel">{t('user:usermenu.setting.user-avatar')}</span>
+          <label className="switchSlider">
+            <input type="checkbox" checked={showAvatar} onChange={handleChangeShowAvatar} />
+            <span className="slider round"></span>
+          </label>
+        </section>
+        {engineState.xrSupported.value && (
+          <>
+            <section className="settingView">
+              <span className="checkBoxLabel">{t('user:usermenu.setting.xrusersetting')}</span>
+              <div className="sectionRow">
+                <label className="switchSlider">
+                  <input
+                    type="checkbox"
+                    checked={invertRotationAndMoveSticks}
+                    onChange={handleChangeInvertRotationAndMoveSticks}
+                  />
+                  <span className="slider round"></span>
+                </label>
+              </div>
+              <table>
+                <thead>
+                  <tr>
+                    <th>{t('user:usermenu.setting.rotation')}</th>
+                    <th>{t('user:usermenu.setting.rotation-angle')}</th>
+                    <th align="right">{t('user:usermenu.setting.rotation-smooth-speed')}</th>
+                    <th align="right">{t('user:usermenu.setting.moving')}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td align="center">{avatarInputState.rotation.value}</td>
+                    <td align="center">{avatarInputState.rotationAngle.value}</td>
+                    <td align="center">{avatarInputState.rotationSmoothSpeed.value}</td>
+                    <td align="center">{avatarInputState.moving.value}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </section>
+            <section className="sectionRow">
+              <div className="controlsContainer">
+                <span className="checkBoxLabel">{t('user:usermenu.setting.controls')}</span>
+                <div className="selectSize">
+                  <span className="checkBoxLabel">{t('user:usermenu.setting.lbl-control-scheme')}</span>
+                  <select value={controlSchemeSelected} onChange={handleChangeControlScheme}>
+                    {controlSchemes.map((el, index) => (
+                      <option value={el} key={index}>
+                        {el}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="selectSize">
+                  <span className="checkBoxLabel">{t('user:usermenu.setting.lbl-control-type')}</span>
+                  <select value={controlTypeSelected} onChange={handleChangeControlType}>
+                    {controllerTypes.map((el, index) => (
+                      <option value={el} key={el + index}>
+                        {el}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            </section>
+          </>
+        )}
       </div>
     </>
   )
