@@ -9,11 +9,11 @@ import { ChargebeeSettingService, useAdminChargebeeSettingState } from '../../se
 import styles from '../../styles/settings.module.scss'
 
 const ChargeBee = () => {
+  const { t } = useTranslation()
   const chargeBeeSettingState = useAdminChargebeeSettingState()
   const [chargebee] = chargeBeeSettingState?.chargebee.value || []
   const authState = useAuthState()
   const user = authState.user
-  const { t } = useTranslation()
 
   useEffect(() => {
     if (user?.id?.value != null && chargeBeeSettingState?.updateNeeded?.value) {

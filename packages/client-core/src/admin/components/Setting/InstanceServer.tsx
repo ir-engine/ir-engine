@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { Box, Grid, Typography } from '@mui/material'
@@ -11,18 +11,14 @@ import { useInstanceServerSettingState } from '../../services/Setting/InstanceSe
 import styles from '../../styles/settings.module.scss'
 
 const InstanceServer = () => {
+  const { t } = useTranslation()
   const instanceServerSettingState = useInstanceServerSettingState()
   const instanceServerSettings = instanceServerSettingState?.instanceserver?.value || []
   const authState = useAuthState()
   const user = authState.user
-  const [local, setLocal] = React.useState({
-    checkedA: true,
-    checkedB: true
-  })
-  const handleLocal = (event) => {
-    setLocal({ ...local, [event.target.name]: event.target.checked })
-  }
-  const { t } = useTranslation()
+
+  const [local, setLocal] = useState(true)
+
   useEffect(() => {
     if (user?.id?.value != null && instanceServerSettingState?.updateNeeded?.value === true) {
       InstanceServerSettingService.fetchedInstanceServerSettings()
@@ -97,9 +93,9 @@ const InstanceServer = () => {
             <InputSwitch
               name="local"
               label={t('admin:components.setting.local')}
-              checked={local.checkedB}
+              checked={local}
               disabled
-              onChange={handleLocal}
+              onChange={(event) => setLocal(event.target.checked)}
             />
           </Grid>
         </Grid>

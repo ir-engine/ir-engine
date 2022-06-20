@@ -9,11 +9,11 @@ import { AdminCoilSettingService, useCoilSettingState } from '../../services/Set
 import styles from '../../styles/settings.module.scss'
 
 const Coil = () => {
+  const { t } = useTranslation()
   const coilSettingState = useCoilSettingState()
   const [coil] = coilSettingState?.coil.value || []
   const authState = useAuthState()
   const user = authState.user
-  const { t } = useTranslation()
 
   useEffect(() => {
     if (user?.id?.value && coilSettingState?.updateNeeded?.value) {

@@ -34,10 +34,10 @@ const OAUTH_TYPES = {
 }
 
 const Account = () => {
+  const { t } = useTranslation()
   const authSettingState = useAuthSettingState()
   const [authSetting] = authSettingState?.authSettings?.value || []
   const id = authSetting?.id
-  const { t } = useTranslation()
   const [state, setState] = useState(initialState)
   const [holdAuth, setHoldAuth] = useState(initialState)
   const [keySecret, setKeySecret] = useState({

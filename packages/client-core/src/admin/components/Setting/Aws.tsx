@@ -17,12 +17,12 @@ const SMS_PROPERTIES = {
 }
 
 const Aws = () => {
+  const { t } = useTranslation()
   const awsSettingState = useAdminAwsSettingState()
   const [awsSetting] = awsSettingState?.awsSettings?.value
   const id = awsSetting?.id
   const authState = useAuthState()
   const user = authState.user
-  const { t } = useTranslation()
 
   const [sms, setSms] = useState(awsSetting?.sms)
 

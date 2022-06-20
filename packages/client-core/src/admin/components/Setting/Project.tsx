@@ -19,12 +19,11 @@ interface ProjectSetting {
 }
 
 const Project = () => {
+  const { t } = useTranslation()
   const authState = useAuthState()
   const user = authState.user
-  const { t } = useTranslation()
   const projectState = useProjectState()
   const projects = projectState.projects
-
   const projectSettingState = useProjectSettingState()
   const projectSetting = projectSettingState.projectSetting
 

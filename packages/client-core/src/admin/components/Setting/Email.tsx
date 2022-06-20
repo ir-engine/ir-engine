@@ -12,10 +12,11 @@ import { EmailSettingService, useEmailSettingState } from '../../services/Settin
 import styles from '../../styles/settings.module.scss'
 
 const Email = () => {
+  const { t } = useTranslation()
   const emailSettingState = useEmailSettingState()
   const [emailSetting] = emailSettingState?.email?.value || []
   const id = emailSetting?.id
-  const { t } = useTranslation()
+
   const [showPassword, setShowPassword] = useState(false)
   const [smtp, setSmtp] = useState(emailSetting?.smtp)
   const [auth, setAuth] = useState(emailSetting?.smtp?.auth)

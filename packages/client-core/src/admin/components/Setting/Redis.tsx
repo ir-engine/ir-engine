@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { Box, Grid, Typography } from '@mui/material'
@@ -11,25 +11,19 @@ import { AdminRedisSettingService } from '../../services/Setting/AdminRedisSetti
 import styles from '../../styles/settings.module.scss'
 
 const Redis = () => {
+  const { t } = useTranslation()
   const redisSettingState = useAdminRedisSettingState()
   const [redisSetting] = redisSettingState?.redisSettings?.value || []
-  const [enabled, setEnabled] = React.useState({
-    checkedA: true,
-    checkedB: true
-  })
   const authState = useAuthState()
   const user = authState.user
-  const { t } = useTranslation()
+
+  const [enabled, setEnabled] = useState(true)
 
   useEffect(() => {
     if (user?.id?.value != null && redisSettingState?.updateNeeded?.value) {
       AdminRedisSettingService.fetchRedisSetting()
     }
   }, [authState?.user?.id?.value, redisSettingState?.updateNeeded?.value])
-
-  const handleEnable = (event) => {
-    setEnabled({ ...enabled, [event.target.name]: event.target.checked })
-  }
 
   return (
     <Box>
@@ -40,9 +34,9 @@ const Redis = () => {
         name="enabled"
         sx={{ mb: 2 }}
         label={t('admin:components.setting.enabled')}
-        checked={enabled.checkedB}
+        checked={enabled}
         disabled
-        onChange={handleEnable}
+        onChange={(event) => setEnabled(event.target.checked)}
       />
       <Grid container spacing={3}>
         <Grid item xs={6} sm={6}>
