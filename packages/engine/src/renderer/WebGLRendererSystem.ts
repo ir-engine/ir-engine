@@ -39,6 +39,7 @@ import {
   EngineRendererReceptor,
   restoreEngineRendererData
 } from './EngineRendererState'
+import { configureEffectComposer } from './functions/configureEffectComposer'
 import WebGL from './THREE.WebGL'
 
 export interface EffectComposerWithSchema extends EffectComposer {
@@ -172,6 +173,8 @@ export class EngineRenderer {
     } else {
       console.log('Browser does not support `WEBGL_lose_context` extension')
     }
+
+    configureEffectComposer()
   }
 
   handleWebGLConextLost(e) {
