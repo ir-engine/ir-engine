@@ -2,7 +2,7 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 import styled from 'styled-components'
 
-import { RandomizedProperty } from '@xrengine/engine/src/scene/components/ScatterComponent'
+import { RandomizedProperty } from '@xrengine/engine/src/scene/components/InstancingComponent'
 
 import { Stack } from '@mui/material'
 
