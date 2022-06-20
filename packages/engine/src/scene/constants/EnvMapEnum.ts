@@ -1,11 +1,11 @@
 export const enum EnvMapSourceType {
-  'Default',
-  'Texture',
-  'Color',
-  'None'
+  Default = 'Default',
+  Texture = 'Texture',
+  Color = 'Color',
+  None = 'None'
 }
 
 export const enum EnvMapTextureType {
-  'Cubemap',
-  'Equirectangular'
+  Cubemap = 'Cubemap',
+  Equirectangular = 'Equirectangular'
 }
