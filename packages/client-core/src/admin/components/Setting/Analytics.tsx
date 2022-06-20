@@ -41,21 +41,19 @@ const Analytics = () => {
       <Typography component="h1" className={styles.settingsHeading}>
         {t('admin:components.analytics.analytics')}
       </Typography>
-      <div className={styles.root}>
-        <Grid container spacing={3}>
-          <Grid item xs={6} sm={6}>
-            <InputText name="port" label={t('admin:components.analytics.port')} value={Data.port} disabled />
-          </Grid>
-          <Grid item xs={6} sm={6}>
-            <InputText
-              name="processinterval"
-              label={t('admin:components.analytics.processInterval')}
-              value={Data.processInterval}
-              disabled
-            />
-          </Grid>
+      <Grid container spacing={3}>
+        <Grid item xs={6} sm={6}>
+          <InputText name="port" label={t('admin:components.analytics.port')} value={Data.port} disabled />
         </Grid>
-      </div>
+        <Grid item xs={6} sm={6}>
+          <InputText
+            name="processinterval"
+            label={t('admin:components.analytics.processInterval')}
+            value={Data.processInterval}
+            disabled
+          />
+        </Grid>
+      </Grid>
     </Box>
   )
 }
