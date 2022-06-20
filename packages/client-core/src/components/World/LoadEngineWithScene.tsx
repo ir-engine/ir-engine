@@ -42,6 +42,7 @@ export const LoadEngineWithScene = () => {
     addActionReceptor(SceneServiceReceptor)
     addActionReceptor(LocationInstanceConnectionServiceReceptor)
     return () => {
+      removeActionReceptor(SceneServiceReceptor)
       removeActionReceptor(LocationInstanceConnectionServiceReceptor)
     }
   }, [])
