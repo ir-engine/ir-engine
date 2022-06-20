@@ -212,9 +212,6 @@ export default async function PhysicsSystem(world: World) {
 
   await world.physics.createScene()
 
-  // await Physics.load()
-  // world.physics = Physics.createWorld()
-
   return () => {
     for (const action of teleportObjectQueue()) teleportObjectReceptor(action)
 

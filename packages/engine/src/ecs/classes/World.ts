@@ -115,8 +115,7 @@ export class World {
   scene = new Scene()
 
   physics = new Physics()
-
-  // physics: PhysicsWorld
+  physicsWorld: PhysicsWorld
 
   /**
    * Map of object lists by layer

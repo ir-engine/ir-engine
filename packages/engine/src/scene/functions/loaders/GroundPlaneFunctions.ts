@@ -1,3 +1,4 @@
+import { ActiveCollisionTypes, ActiveEvents, ColliderDesc, RigidBodyDesc } from '@dimforge/rapier3d-compat'
 import { CircleBufferGeometry, Color, Group, Mesh, MeshStandardMaterial, Object3D } from 'three'
 
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
@@ -19,8 +20,10 @@ import {
   removeComponent
 } from '../../../ecs/functions/ComponentFunctions'
 import { NavMeshComponent } from '../../../navigation/component/NavMeshComponent'
+import { Physics } from '../../../physics/classes/PhysicsRapier'
 import { CollisionGroups } from '../../../physics/enums/CollisionGroups'
 import { createCollider } from '../../../physics/functions/createCollider'
+import { getInteractionGroups } from '../../../physics/functions/getInteractionGroups'
 import { TransformComponent } from '../../../transform/components/TransformComponent'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { GroundPlaneComponent, GroundPlaneComponentType } from '../../components/GroundPlaneComponent'
@@ -57,6 +60,16 @@ export const deserializeGround: ComponentDeserializeFunction = async function (
   addComponent(entity, GroundPlaneComponent, props)
   getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_GROUND_PLANE)
 
+  const colliderDesc = ColliderDesc.cylinder(1, 32)
+    .setCollisionGroups(getInteractionGroups(CollisionGroups.Ground, CollisionGroups.Default))
+    .setActiveCollisionTypes(ActiveCollisionTypes.ALL)
+    .setActiveEvents(ActiveEvents.COLLISION_EVENTS)
+  const rigidBodyDesc = RigidBodyDesc.fixed()
+  const body = Physics.createRigidBody(entity, Engine.instance.currentWorld.physicsWorld, rigidBodyDesc, [colliderDesc])
+  body.setTranslation(mesh.position, true)
+  body.setRotation(mesh.quaternion, true)
+
+  // Until player avatar is switched to rapier, this is needed.
   // @TODO: make this isomorphic with editor
   if (!Engine.instance.isEditor) createCollider(entity, groundPlane.userData.mesh)
 

@@ -1,3 +1,4 @@
+import { ActiveCollisionTypes, ActiveEvents, ColliderDesc, RigidBodyDesc } from '@dimforge/rapier3d-compat'
 import { BoxGeometry, Mesh, MeshBasicMaterial, Object3D, SphereGeometry, Vector3 } from 'three'
 
 import { getColorForBodyType } from '@xrengine/engine/src/debug/systems/DebugRenderer'
@@ -21,7 +22,11 @@ import { createNewEditorNode } from '@xrengine/engine/src/scene/functions/SceneL
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 import { dispatchAction } from '@xrengine/hyperflux'
 
+import { createVector3Proxy } from '../../common/proxies/three'
 import { getEngineState } from '../../ecs/classes/EngineState'
+import { Physics } from '../classes/PhysicsRapier'
+import { VelocityComponent } from '../components/VelocityComponent'
+import { getInteractionGroups } from './getInteractionGroups'
 
 /**
  * Returns a random number between min (inclusive) and max (exclusive)
@@ -64,7 +69,7 @@ export const boxDynamicConfig = {
   type: 'box' as ColliderTypes,
   bodyType: BodyType.DYNAMIC,
   collisionLayer: CollisionGroups.Default,
-  collisionMask: CollisionGroups.Default | CollisionGroups.Avatars,
+  collisionMask: CollisionGroups.Default | CollisionGroups.Avatars | CollisionGroups.Ground,
   staticFriction: 1,
   dynamicFriction: 1,
   restitution: 0.1,
@@ -136,13 +141,13 @@ export const generatePhysicsObject = (
   const mesh = new Mesh(geometry, material)
   mesh.scale.set(2, 2, 2)
 
-  mesh.userData['xrengine.collider.type'] = config.type
-  mesh.userData['xrengine.collider.bodyType'] = config.bodyType
-  mesh.userData['xrengine.collider.collisionLayer'] = config.collisionLayer
-  mesh.userData['xrengine.collider.collisionMask'] = config.collisionMask
-  mesh.userData['xrengine.collider.staticFriction'] = config.staticFriction
-  mesh.userData['xrengine.collider.dynamicFriction'] = config.dynamicFriction
-  mesh.userData['xrengine.collider.restitution'] = config.restitution
+  // mesh.userData['xrengine.collider.type'] = config.type
+  // mesh.userData['xrengine.collider.bodyType'] = config.bodyType
+  // mesh.userData['xrengine.collider.collisionLayer'] = config.collisionLayer
+  // mesh.userData['xrengine.collider.collisionMask'] = config.collisionMask
+  // mesh.userData['xrengine.collider.staticFriction'] = config.staticFriction
+  // mesh.userData['xrengine.collider.dynamicFriction'] = config.dynamicFriction
+  // mesh.userData['xrengine.collider.restitution'] = config.restitution
 
   // Add empty model node
   const entity = createEntity()
@@ -156,6 +161,17 @@ export const generatePhysicsObject = (
   const obj3d = mesh
   obj3d.scale.copy(scale)
   addComponent(entity, Object3DComponent, { value: obj3d })
+
+  const colliderDesc = ColliderDesc.cuboid(0.5, 0.5, 0.5)
+    .setCollisionGroups(getInteractionGroups(config.collisionLayer as number, config.collisionMask as number))
+    .setActiveCollisionTypes(ActiveCollisionTypes.ALL)
+    .setActiveEvents(ActiveEvents.COLLISION_EVENTS)
+  const rigidBodyDesc = RigidBodyDesc.dynamic()
+  const body = Physics.createRigidBody(entity, Engine.instance.currentWorld.physicsWorld, rigidBodyDesc, [colliderDesc])
+  const linearVelocity = createVector3Proxy(VelocityComponent.linear, entity)
+  const angularVelocity = createVector3Proxy(VelocityComponent.angular, entity)
+  addComponent(entity, VelocityComponent, { linear: linearVelocity, angular: angularVelocity })
+
   parseGLTFModel(entity, getComponent(entity, ModelComponent), obj3d)
 
   const world = Engine.instance.currentWorld
@@ -163,12 +179,14 @@ export const generatePhysicsObject = (
 
   const transform = getComponent(entity, TransformComponent)
   transform.position.copy(spawnPosition)
-  const collider = getComponent(entity, ColliderComponent)
-  const body = collider.body as PhysX.PxRigidDynamic
-  teleportRigidbody(body, transform.position, transform.rotation)
+  // const collider = getComponent(entity, ColliderComponent)
+  // const body = collider.body as PhysX.PxRigidDynamic
+
+  body.setTranslation(transform.position, true)
+  // teleportRigidbody(body, transform.position, transform.rotation)
 
   if (isNetworkObject && world.worldNetwork.isHosting) {
-    body.addTorque(defaultTorqueForce)
+    // body.addTorque(defaultTorqueForce, true)
     console.info('spawning at:', transform.position.x, transform.position.y, transform.position.z)
 
     const node = world.entityTree.entityNodeMap.get(entity)
