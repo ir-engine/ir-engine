@@ -7,7 +7,6 @@ import { Widgets } from '@xrengine/engine/src/xrui/Widgets'
 
 import { Message as MessageIcon } from '@mui/icons-material'
 
-import { MainMenuButtonState } from './state/MainMenuButtonState'
 import { createChatDetailView } from './ui/ChatDetailView'
 
 const widgetName = 'Chat'
@@ -17,18 +16,15 @@ export default async function ChatUISystem(world: World) {
 
   addComponent(ui.entity, PersistTagComponent, {})
 
+  ui.container.then(() => {
+    const xrui = getComponent(ui.entity, XRUIComponent)
+    ObjectFitFunctions.changeVisibilityOfRootLayer(xrui.container, false)
+  })
+
   Widgets.registerWidget(world, ui.entity, {
     ui,
     label: widgetName,
-    icon: MessageIcon
+    icon: MessageIcon,
+    system: () => {}
   })
-
-  return () => {
-    const xrui = getComponent(ui.entity, XRUIComponent)
-
-    if (xrui) {
-      ObjectFitFunctions.attachObjectToPreferredTransform(xrui.container)
-      ObjectFitFunctions.changeVisibilityOfRootLayer(xrui.container, MainMenuButtonState.chatMenuOpen.value)
-    }
-  }
 }

@@ -9,6 +9,7 @@ export interface Widget {
   ui: ReturnType<typeof createXRUI>
   label: string
   icon: any
+  system: () => void
 }
 
 export const registerWidget = (world: World, xruiEntity: Entity, widget: Widget) => {

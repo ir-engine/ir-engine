@@ -6,7 +6,6 @@ import { ObjectFitFunctions } from '@xrengine/engine/src/xrui/functions/ObjectFi
 import { Widgets } from '@xrengine/engine/src/xrui/Widgets'
 
 import { EmoteIcon } from '../user/components/UserMenu'
-import { MainMenuButtonState } from './state/MainMenuButtonState'
 import { createEmoteDetailView } from './ui/EmoteDetailView'
 
 const widgetName = 'Emote Widget'
@@ -16,18 +15,15 @@ export default async function EmoteUISystem(world: World) {
 
   addComponent(ui.entity, PersistTagComponent, {})
 
+  ui.container.then(() => {
+    const xrui = getComponent(ui.entity, XRUIComponent)
+    ObjectFitFunctions.changeVisibilityOfRootLayer(xrui.container, false)
+  })
+
   Widgets.registerWidget(world, ui.entity, {
     ui,
     label: widgetName,
-    icon: EmoteIcon
+    icon: EmoteIcon,
+    system: () => {}
   })
-
-  return () => {
-    const xrui = getComponent(ui.entity, XRUIComponent)
-
-    if (xrui) {
-      ObjectFitFunctions.attachObjectToPreferredTransform(xrui.container)
-      ObjectFitFunctions.changeVisibilityOfRootLayer(xrui.container, MainMenuButtonState.emoteMenuOpen.value)
-    }
-  }
 }

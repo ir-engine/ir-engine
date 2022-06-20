@@ -7,7 +7,6 @@ import { Widgets } from '@xrengine/engine/src/xrui/Widgets'
 
 import LinkIcon from '@mui/icons-material/Link'
 
-import { MainMenuButtonState } from './state/MainMenuButtonState'
 import { createShareLocationDetailView } from './ui/ShareLocationDetailView'
 
 const widgetName = 'Share'
@@ -17,18 +16,15 @@ export default async function ShareLocationUISystem(world: World) {
 
   addComponent(ui.entity, PersistTagComponent, {})
 
+  ui.container.then(() => {
+    const xrui = getComponent(ui.entity, XRUIComponent)
+    ObjectFitFunctions.changeVisibilityOfRootLayer(xrui.container, false)
+  })
+
   Widgets.registerWidget(world, ui.entity, {
     ui,
     label: widgetName,
-    icon: LinkIcon
+    icon: LinkIcon,
+    system: () => {}
   })
-
-  return () => {
-    const xrui = getComponent(ui.entity, XRUIComponent)
-
-    if (xrui) {
-      ObjectFitFunctions.attachObjectToPreferredTransform(xrui.container)
-      ObjectFitFunctions.changeVisibilityOfRootLayer(xrui.container, MainMenuButtonState.shareMenuOpen.value)
-    }
-  }
 }

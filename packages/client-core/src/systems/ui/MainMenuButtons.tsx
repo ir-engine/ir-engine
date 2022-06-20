@@ -118,6 +118,7 @@ const MainMenuButtons = () => {
         ...styles.container,
         gridTemplateColumns: '1fr 1fr' + widgets.map(() => ' 1fr').flat()
       }}
+      xr-pixel-ratio="8"
       xr-layer="true"
     >
       <style>{`
@@ -130,12 +131,12 @@ const MainMenuButtons = () => {
           fill: var(--iconButtonColor) !important;
         }
       `}</style>
-      <div style={styles.button} onClick={handleRespawnAvatar}>
-        <RefreshIcon className="svgIcon" />
-      </div>
-      <div style={styles.button} onClick={toogleVRSession}>
-        <VrIcon />
-      </div>
+      <WidgetButton Icon={RefreshIcon} toggle={handleRespawnAvatar} label={'Respawn'} />
+      <WidgetButton
+        Icon={VrIcon}
+        toggle={toogleVRSession}
+        label={engineState.xrSessionStarted.value ? 'Exit VR' : 'Enter VR'}
+      />
       {widgets.map(
         (widget, i) =>
           widget.enabled && (

@@ -7,7 +7,6 @@ import { Widgets } from '@xrengine/engine/src/xrui/Widgets'
 
 import SettingsIcon from '@mui/icons-material/Settings'
 
-import { MainMenuButtonState } from './state/MainMenuButtonState'
 import { createSettingDetailView } from './ui/SettingDetailView'
 
 const widgetName = 'Settings'
@@ -17,18 +16,15 @@ export default async function SettingUISystem(world: World) {
 
   addComponent(ui.entity, PersistTagComponent, {})
 
+  ui.container.then(() => {
+    const xrui = getComponent(ui.entity, XRUIComponent)
+    ObjectFitFunctions.changeVisibilityOfRootLayer(xrui.container, false)
+  })
+
   Widgets.registerWidget(world, ui.entity, {
     ui,
     label: widgetName,
-    icon: SettingsIcon
+    icon: SettingsIcon,
+    system: () => {}
   })
-
-  return () => {
-    const xrui = getComponent(ui.entity, XRUIComponent)
-
-    if (xrui) {
-      ObjectFitFunctions.attachObjectToPreferredTransform(xrui.container)
-      ObjectFitFunctions.changeVisibilityOfRootLayer(xrui.container, MainMenuButtonState.settingMenuOpen.value)
-    }
-  }
 }
