@@ -594,8 +594,7 @@ const Account = () => {
       <Button sx={{ maxWidth: '100%' }} variant="outlined" className={styles.cancelButton} onClick={handleCancel}>
         {t('admin:components.setting.cancel')}
       </Button>
-      &nbsp; &nbsp;
-      <Button sx={{ maxWidth: '100%' }} variant="contained" className={styles.saveBtn} onClick={handleSubmit}>
+      <Button sx={{ maxWidth: '100%', ml: 1 }} variant="contained" className={styles.saveBtn} onClick={handleSubmit}>
         {t('admin:components.setting.save')}
       </Button>
     </Box>
