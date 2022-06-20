@@ -25,7 +25,7 @@
   margin: 0;
   font-family: Roboto, Helvetica, Arial, sans-serif;
   font-weight: 400;
-  font-size: 2.125rem;
+  font-size: 2rem;
   line-height: 1.235;
   letter-spacing: 0.0073em;
 }
@@ -33,6 +33,10 @@
 .sectionRow {
   display: flex;
   align-items: center;
+}
+
+.justifySpaceBetween {
+  justify-content: space-between;
 }
 
 .controlsContainer {
@@ -84,7 +88,6 @@
 label {
   margin-left: 10px;
   font-size: 14px;
-  width: 100px;
   display: inline-block;
   flex-shrink: 0;
   font-family: Roboto;
@@ -211,8 +214,8 @@ label {
 .switch {
   position: relative;
   display: inline-block;
-  width: 60px;
-  height: 34px;
+  width: 40px;
+  height: 22px;
 }
 
 .switch input {
@@ -228,20 +231,18 @@ label {
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: var(--grey);
-  -webkit-transition: .4s;
+  background-color: grey;
   transition: .4s;
 }
 
 .switchSlider::before {
   position: absolute;
   content: "";
-  height: 26px;
-  width: 26px;
-  left: 4px;
-  bottom: 4px;
+  height: 15px;
+  width: 15px;
+  left: 3px;
+  bottom: 3.5px;
   background-color: white;
-  -webkit-transition: .4s;
   transition: .4s;
 }
 
@@ -254,9 +255,7 @@ input:focus + .switchSlider {
 }
 
 input:checked + .switchSlider::before {
-  -webkit-transform: translateX(26px);
-  -ms-transform: translateX(26px);
-  transform: translateX(26px);
+  transform: translateX(18px);
 }
 
 /* Rounded switchSliders */
@@ -266,4 +265,23 @@ input:checked + .switchSlider::before {
 
 .switchSlider.round::before {
   border-radius: 50%;
+}
+
+.showHideButton {
+  font-size: 0.9rem;
+  font-weight: normal;
+  text-decoration: underline;
+  color: var(--textColor);
+}
+
+table {
+  width: 100%;
+}
+
+select {
+  background-color: var(--inputBackground);
+  border-color: var(--inputOutline);
+  width: 100%;
+  padding: 5px;
+  color: var(--textColor);
 }

@@ -1,5 +1,5 @@
 import { createState } from '@speigg/hookstate'
-import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import React, { ChangeEventHandler, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { UserSetting } from '@xrengine/common/src/interfaces/User'
@@ -46,6 +46,7 @@ const SettingDetailView = () => {
   const authState = useAuthState()
   const selfUser = authState.user
   const firstRender = useRef(true)
+  const [showDetails, setShowDetails] = useState(false)
   const [userSettings, setUserSetting] = useState<UserSetting>(selfUser?.user_setting.value!)
 
   const controllerTypes = Object.values(AvatarControllerType).filter((value) => typeof value === 'string')
@@ -87,14 +88,18 @@ const SettingDetailView = () => {
     dispatchAction(AvatarInputSettingsAction.setShowAvatar(!showAvatar))
   }
 
-  const handleChangeControlType = (event) => {
+  const handleChangeControlType = (event: React.ChangeEvent<HTMLSelectElement>) => {
     setControlType(event.target.value as any)
     dispatchAction(AvatarInputSettingsAction.setControlType(event.target.value as any))
   }
 
-  const handleChangeControlScheme = (event) => {
+  const handleChangeControlScheme = (event: React.ChangeEvent<HTMLSelectElement>) => {
     setControlScheme(event.target.value)
     AvatarSettings.instance.movementScheme = AvatarMovementScheme[event.target.value]
+  }
+
+  const toggleShowDetails = () => {
+    setShowDetails(!showDetails)
   }
 
   return (
@@ -260,49 +265,60 @@ const SettingDetailView = () => {
             </div>
           </section>
         </div>
-        <section className="sectionRow">
-          <span className="checkBoxLabel">{t('user:usermenu.setting.user-avatar')}</span>
-          <label className="switchSlider">
-            <input type="checkbox" checked={showAvatar} onChange={handleChangeShowAvatar} />
-            <span className="slider round"></span>
-          </label>
+        <section className="settingView">
+          <h4 className="title">{t('user:usermenu.setting.user-avatar')}</h4>
+          <div className="sectionRow">
+            <span className="label">{t('user:usermenu.setting.show-avatar')}</span>
+            <label className="switch">
+              <input type="checkbox" checked={showAvatar} onChange={handleChangeShowAvatar} />
+              <span className="switchSlider round"></span>
+            </label>
+          </div>
         </section>
         {engineState.xrSupported.value && (
           <>
             <section className="settingView">
-              <span className="checkBoxLabel">{t('user:usermenu.setting.xrusersetting')}</span>
-              <div className="sectionRow">
-                <label className="switchSlider">
-                  <input
-                    type="checkbox"
-                    checked={invertRotationAndMoveSticks}
-                    onChange={handleChangeInvertRotationAndMoveSticks}
-                  />
-                  <span className="slider round"></span>
-                </label>
+              <h4 className="title">{t('user:usermenu.setting.xrusersetting')}</h4>
+              <div className="sectionRow justifySpaceBetween">
+                <div className="sectionRow">
+                  <span className="label">{t('user:usermenu.setting.invert-rotation')}</span>
+                  <label className="switch">
+                    <input
+                      type="checkbox"
+                      checked={invertRotationAndMoveSticks}
+                      onChange={handleChangeInvertRotationAndMoveSticks}
+                    />
+                    <span className="switchSlider round"></span>
+                  </label>
+                </div>
+                <div className="showHideButton" onClick={toggleShowDetails}>
+                  {showDetails ? 'hide details' : 'show details'}
+                </div>
               </div>
-              <table>
-                <thead>
-                  <tr>
-                    <th>{t('user:usermenu.setting.rotation')}</th>
-                    <th>{t('user:usermenu.setting.rotation-angle')}</th>
-                    <th align="right">{t('user:usermenu.setting.rotation-smooth-speed')}</th>
-                    <th align="right">{t('user:usermenu.setting.moving')}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td align="center">{avatarInputState.rotation.value}</td>
-                    <td align="center">{avatarInputState.rotationAngle.value}</td>
-                    <td align="center">{avatarInputState.rotationSmoothSpeed.value}</td>
-                    <td align="center">{avatarInputState.moving.value}</td>
-                  </tr>
-                </tbody>
-              </table>
+              {showDetails && (
+                <table>
+                  <thead>
+                    <tr>
+                      <th>{t('user:usermenu.setting.rotation')}</th>
+                      <th>{t('user:usermenu.setting.rotation-angle')}</th>
+                      <th align="right">{t('user:usermenu.setting.rotation-smooth-speed')}</th>
+                      <th align="right">{t('user:usermenu.setting.moving')}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td align="center">{avatarInputState.rotation.value}</td>
+                      <td align="center">{avatarInputState.rotationAngle.value}</td>
+                      <td align="center">{avatarInputState.rotationSmoothSpeed.value}</td>
+                      <td align="center">{avatarInputState.moving.value}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              )}
             </section>
-            <section className="sectionRow">
+            <section className="settingView">
               <div className="controlsContainer">
-                <span className="checkBoxLabel">{t('user:usermenu.setting.controls')}</span>
+                <h4 className="title">{t('user:usermenu.setting.controls')}</h4>
                 <div className="selectSize">
                   <span className="checkBoxLabel">{t('user:usermenu.setting.lbl-control-scheme')}</span>
                   <select value={controlSchemeSelected} onChange={handleChangeControlScheme}>
