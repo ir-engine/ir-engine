@@ -96,9 +96,12 @@ export class EngineRenderer {
   isCSMEnabled = false
   directionalLightEntities: Entity[] = []
   activeCSMLightEntity: Entity | null = null
+  webGLLostContext: any = null
 
   initialize() {
     this.onResize = this.onResize.bind(this)
+    this.handleWebGLConextLost = this.handleWebGLConextLost.bind(this)
+    this.handleWebGLConextRestore = this.handleWebGLConextRestore.bind(this)
 
     this.supportWebGL2 = WebGL.isWebGL2Available()
 
@@ -154,6 +157,39 @@ export class EngineRenderer {
 
     this.renderer.autoClear = true
     this.effectComposer = new EffectComposer(this.renderer) as any
+
+    //Todo: WebGL restore context
+    this.webGLLostContext = context.getExtension('WEBGL_lose_context')
+
+    // TODO: for test purpose, need to remove when PR is merging
+    // webGLLostContext.loseContext() in inspect can simulate the conext lost
+    //@ts-ignore
+    window.webGLLostContext = this.webGLLostContext
+
+    if (this.webGLLostContext) {
+      canvas.addEventListener('webglcontextlost', this.handleWebGLConextLost)
+      canvas.addEventListener('webglcontextrestored', this.handleWebGLConextRestore)
+    } else {
+      console.log('Browser does not support `WEBGL_lose_context` extension')
+    }
+  }
+
+  handleWebGLConextLost(e) {
+    console.log('Browser lost the context.', e)
+    e.preventDefault()
+    this.needsResize = false
+    setTimeout(() => {
+      this.effectComposer.setSize(0, 0, true)
+      if (this.webGLLostContext) this.webGLLostContext.restoreContext()
+    }, 1000)
+  }
+
+  handleWebGLConextRestore(e) {
+    console.log("Browser's context is restored.", e)
+    this.canvas.removeEventListener('webglcontextlost', this.handleWebGLConextLost)
+    this.canvas.removeEventListener('webglcontextrestored', this.handleWebGLConextRestore)
+    this.initialize()
+    this.needsResize = true
   }
 
   resetScene() {
