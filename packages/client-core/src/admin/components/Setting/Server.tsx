@@ -11,12 +11,18 @@ import { ServerSettingService, useServerSettingState } from '../../services/Sett
 import styles from '../../styles/settings.module.scss'
 
 const Server = () => {
+  const { t } = useTranslation()
+
+  const authState = useAuthState()
+  const user = authState.user
   const serverSettingState = useServerSettingState()
   const [serverSetting] = serverSettingState?.server?.value || []
   const id = serverSetting?.id
+
   const [gaTrackingId, setGaTrackingId] = useState(serverSetting?.gaTrackingId)
   const [gitPem, setGitPem] = useState(serverSetting?.gitPem)
-  const { t } = useTranslation()
+  const [dryRun, setDryRun] = useState(true)
+  const [local, setLocal] = useState(true)
 
   useEffect(() => {
     if (serverSetting) {
@@ -24,26 +30,6 @@ const Server = () => {
       setGitPem(serverSetting?.gitPem)
     }
   }, [serverSettingState?.updateNeeded?.value])
-
-  const [dryRun, setDryRun] = useState({
-    checkedA: true,
-    checkedB: true
-  })
-  const [local, setLocal] = useState({
-    checkedA: true,
-    checkedB: true
-  })
-
-  const authState = useAuthState()
-  const user = authState.user
-
-  const handleDryRun = (event) => {
-    setDryRun({ ...dryRun, [event.target.name]: event.target.checked })
-  }
-
-  const handleLocal = (event) => {
-    setLocal({ ...local, [event.target.name]: event.target.checked })
-  }
 
   const handleSubmit = (event) => {
     ServerSettingService.patchServerSetting({ gaTrackingId: gaTrackingId, gitPem: gitPem }, id)
@@ -126,9 +112,9 @@ const Server = () => {
           <InputSwitch
             name="performDryRun"
             label={t('admin:components.setting.performDryRun')}
-            checked={dryRun.checkedB}
+            checked={dryRun}
             disabled
-            onChange={handleDryRun}
+            onChange={(event) => setDryRun(event.target.checked)}
           />
         </Grid>
         <Grid item xs={12} sm={6}>
@@ -195,11 +181,10 @@ const Server = () => {
 
           <InputSwitch
             name="local"
-            sx={{ mb: 2 }}
             label={t('admin:components.setting.local')}
-            checked={local.checkedB}
+            checked={local}
             disabled
-            onChange={handleLocal}
+            onChange={(event) => setLocal(event.target.checked)}
           />
         </Grid>
       </Grid>
