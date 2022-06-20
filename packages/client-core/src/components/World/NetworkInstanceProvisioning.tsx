@@ -22,7 +22,7 @@ import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
 import { receiveJoinWorld } from '@xrengine/engine/src/networking/functions/receiveJoinWorld'
 import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
-import { addActionReceptor, removeActionReceptor, useHookEffect } from '@xrengine/hyperflux'
+import { addActionReceptor, dispatchAction, removeActionReceptor, useHookEffect } from '@xrengine/hyperflux'
 
 import { UserServiceReceptor } from '../../user/services/UserService'
 import { getSearchParamFromURL } from '../../util/getSearchParamFromURL'
@@ -95,7 +95,9 @@ export const NetworkInstanceProvisioning = () => {
       }
     } else {
       if (!locationState.currentLocationUpdateNeeded.value && !locationState.fetchingCurrentLocation.value) {
-        dispatch(AppAction.setAppSpecificOnBoardingStep(GeneralStateList.FAILED, false))
+        dispatchAction(
+          AppAction.setAppSpecificOnBoardingStep({ onBoardingStep: GeneralStateList.FAILED, isTutorial: false })
+        )
       }
     }
   }, [locationState.currentLocation.location])

@@ -1,10 +1,6 @@
 import React, { useState } from 'react'
 import { useHistory } from 'react-router'
 
-import {
-  LocationInstanceConnectionAction,
-  useLocationInstanceConnectionState
-} from '@xrengine/client-core/src/common/services/LocationInstanceConnectionService'
 import { LocationService } from '@xrengine/client-core/src/social/services/LocationService'
 import { useDispatch } from '@xrengine/client-core/src/store'
 import { leaveNetwork } from '@xrengine/client-core/src/transports/SocketWebRTCClientFunctions'
@@ -64,8 +60,8 @@ export const LoadEngineWithScene = () => {
         // if we are coming from another scene, reset our teleporting status
         dispatchAction(EngineActions.setTeleporting({ isTeleporting: false }))
       } else {
-        dispatch(AppAction.setAppOnBoardingStep(GeneralStateList.SUCCESS))
-        dispatch(AppAction.setAppLoaded(true))
+        dispatchAction(AppAction.setAppOnBoardingStep({ onBoardingStep: GeneralStateList.SUCCESS }))
+        dispatchAction(AppAction.setAppLoaded({ loaded: true }))
       }
     }
   }, [engineState.joinedWorld])

@@ -12,6 +12,7 @@ import {
   useClientSettingState
 } from '@xrengine/client-core/src/admin/services/Setting/ClientSettingService'
 import ErrorBoundary from '@xrengine/client-core/src/common/components/ErrorBoundary'
+import { AppServiceReceptor } from '@xrengine/client-core/src/common/services/AppService'
 import { LoadingCircle } from '@xrengine/client-core/src/components/LoadingCircle'
 import { InviteServiceReceptor } from '@xrengine/client-core/src/social/services/InviteService'
 import { LocationServiceReceptor } from '@xrengine/client-core/src/social/services/LocationService'
@@ -19,8 +20,7 @@ import { AuthService, AuthServiceReceptor } from '@xrengine/client-core/src/user
 import {
   LocalStateServiceReceptor,
   StoredLocalAction,
-  StoredLocalStoreService,
-  useStoredLocalState
+  StoredLocalStoreService
 } from '@xrengine/client-core/src/util/StoredLocalState'
 import { addActionReceptor, dispatchAction, removeActionReceptor } from '@xrengine/hyperflux'
 
@@ -50,6 +50,7 @@ function RouterComp(props) {
     addActionReceptor(AuthServiceReceptor)
     addActionReceptor(InviteServiceReceptor)
     addActionReceptor(LocationServiceReceptor)
+    addActionReceptor(AppServiceReceptor)
 
     dispatchAction(StoredLocalAction.restoreLocalData())
     StoredLocalStoreService.fetchLocalStoredState()
@@ -74,6 +75,7 @@ function RouterComp(props) {
       removeActionReceptor(AuthServiceReceptor)
       removeActionReceptor(InviteServiceReceptor)
       removeActionReceptor(LocationServiceReceptor)
+      removeActionReceptor(AppServiceReceptor)
     }
   }, [])
 
