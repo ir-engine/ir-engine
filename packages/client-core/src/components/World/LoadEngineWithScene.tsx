@@ -1,10 +1,7 @@
 import React, { useState } from 'react'
 import { useHistory } from 'react-router'
 
-import {
-  LocationInstanceConnectionAction,
-  useLocationInstanceConnectionState
-} from '@xrengine/client-core/src/common/services/LocationInstanceConnectionService'
+import { LocationInstanceConnectionServiceReceptor } from '@xrengine/client-core/src/common/services/LocationInstanceConnectionService'
 import { LocationService } from '@xrengine/client-core/src/social/services/LocationService'
 import { useDispatch } from '@xrengine/client-core/src/store'
 import { leaveNetwork } from '@xrengine/client-core/src/transports/SocketWebRTCClientFunctions'
@@ -43,8 +40,9 @@ export const LoadEngineWithScene = () => {
     })
 
     addActionReceptor(SceneServiceReceptor)
+    addActionReceptor(LocationInstanceConnectionServiceReceptor)
     return () => {
-      removeActionReceptor(SceneServiceReceptor)
+      removeActionReceptor(LocationInstanceConnectionServiceReceptor)
     }
   }, [])
 

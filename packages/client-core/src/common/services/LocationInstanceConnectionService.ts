@@ -1,18 +1,15 @@
 import { Paginated } from '@feathersjs/feathers'
-import { createState, useState } from '@speigg/hookstate'
 
 import { Instance } from '@xrengine/common/src/interfaces/Instance'
-import { InstanceServerProvisionResult } from '@xrengine/common/src/interfaces/InstanceServerProvisionResult'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import logger from '@xrengine/common/src/logger'
+import { matches } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { NetworkTypes } from '@xrengine/engine/src/networking/classes/Network'
-import { dispatchAction } from '@xrengine/hyperflux'
+import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
 import { client } from '../../feathers'
 import { accessLocationState } from '../../social/services/LocationService'
-import { store, useDispatch } from '../../store'
 import { leaveNetwork } from '../../transports/SocketWebRTCClientFunctions'
 import { SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientNetwork'
 import { accessAuthState } from '../../user/services/AuthService'
@@ -30,14 +27,17 @@ type InstanceState = {
 }
 
 //State
-const state = createState({
-  instances: {} as { [id: string]: InstanceState }
+const LocationInstanceState = defineState({
+  name: 'LocationInstanceState',
+  initial: () => ({
+    instances: {} as { [id: string]: InstanceState }
+  })
 })
 
-store.receptors.push((action: LocationInstanceConnectionActionType): any => {
-  state.batch((s) => {
-    switch (action.type) {
-      case 'LOCATION_INSTANCE_SERVER_PROVISIONED':
+export const LocationInstanceConnectionServiceReceptor = (action) => {
+  getState(LocationInstanceState).batch((s) => {
+    matches(action)
+      .when(LocationInstanceConnectionAction.serverProvisioned.matches, (action) => {
         Engine.instance.currentWorld._worldHostId = action.instanceId as UserId
         Engine.instance.currentWorld.networks.set(
           action.instanceId,
@@ -53,29 +53,31 @@ store.receptors.push((action: LocationInstanceConnectionActionType): any => {
           connected: false,
           connecting: false
         })
-      case 'LOCATION_INSTANCE_SERVER_CONNECTING':
+      })
+      .when(LocationInstanceConnectionAction.connecting.matches, (action) => {
         return s.instances[action.instanceId].connecting.set(true)
-      case 'LOCATION_INSTANCE_SERVER_CONNECTED':
+      })
+      .when(LocationInstanceConnectionAction.instanceServerConnected.matches, (action) => {
         return s.instances[action.instanceId].merge({
           connected: true,
           connecting: false,
           readyToConnect: false
         })
-      case 'LOCATION_INSTANCE_SERVER_DISCONNECT':
+      })
+      .when(LocationInstanceConnectionAction.disconnect.matches, (action) => {
         return s.instances[action.instanceId].set(undefined!)
-    }
-  }, action.type)
-})
+      })
+  })
+}
 
-export const accessLocationInstanceConnectionState = () => state
+export const accessLocationInstanceConnectionState = () => getState(LocationInstanceState)
 
-export const useLocationInstanceConnectionState = () => useState(state) as any as typeof state
+export const useLocationInstanceConnectionState = () => useState(accessLocationInstanceConnectionState())
 
 //Service
 export const LocationInstanceConnectionService = {
   provisionServer: async (locationId?: string, instanceId?: string, sceneId?: string) => {
     logger.info({ locationId, instanceId, sceneId }, 'Provision World Server')
-    const dispatch = useDispatch()
     const token = accessAuthState().authUser.accessToken.value
     if (instanceId != null) {
       const instance = (await client.service('instance').find({
@@ -97,14 +99,21 @@ export const LocationInstanceConnectionService = {
       }
     })
     if (provisionResult.ipAddress && provisionResult.port) {
-      dispatch(LocationInstanceConnectionAction.serverProvisioned(provisionResult, locationId!, sceneId!))
+      dispatchAction(
+        LocationInstanceConnectionAction.serverProvisioned({
+          instanceId: provisionResult.id,
+          ipAddress: provisionResult.ipAddress,
+          port: provisionResult.port,
+          locationId: locationId!,
+          sceneId: sceneId!
+        })
+      )
     } else {
       dispatchAction(NetworkConnectionService.actions.noWorldServersAvailable({ instanceId: instanceId ?? '' }))
     }
   },
   connectToServer: async (instanceId: string) => {
-    const dispatch = useDispatch()
-    dispatch(LocationInstanceConnectionAction.connecting(instanceId))
+    dispatchAction(LocationInstanceConnectionAction.connecting({ instanceId }))
     const transport = Engine.instance.currentWorld.worldNetwork as SocketWebRTCClientNetwork
     logger.info({ socket: !!transport.socket, transport }, 'Connect To World Server')
     if (transport.socket) {
@@ -123,46 +132,41 @@ export const LocationInstanceConnectionService = {
 
 client.service('instance-provision').on('created', (params) => {
   if (params.locationId != null)
-    store.dispatch(LocationInstanceConnectionAction.serverProvisioned(params, params.locationId, params.sceneId))
+    dispatchAction(
+      LocationInstanceConnectionAction.serverProvisioned({
+        instanceId: params.instanceId,
+        ipAddress: params.ipAddress,
+        port: params.port,
+        locationId: params.locationId,
+        sceneId: params.sceneId
+      })
+    )
 })
 
 //Action
 
-export const LocationInstanceConnectionAction = {
-  serverProvisioned: (
-    provisionResult: InstanceServerProvisionResult,
-    locationId: string | null,
-    sceneId: string | null
-  ) => {
-    return {
-      type: 'LOCATION_INSTANCE_SERVER_PROVISIONED' as const,
-      instanceId: provisionResult.id,
-      ipAddress: provisionResult.ipAddress,
-      port: provisionResult.port,
-      locationId: locationId,
-      sceneId: sceneId
-    }
-  },
-  connecting: (instanceId: string) => {
-    return {
-      type: 'LOCATION_INSTANCE_SERVER_CONNECTING' as const,
-      instanceId
-    }
-  },
-  instanceServerConnected: (instanceId: string) => {
-    return {
-      type: 'LOCATION_INSTANCE_SERVER_CONNECTED' as const,
-      instanceId
-    }
-  },
-  disconnect: (instanceId: string) => {
-    return {
-      type: 'LOCATION_INSTANCE_SERVER_DISCONNECT' as const,
-      instanceId
-    }
-  }
-}
+export class LocationInstanceConnectionAction {
+  static serverProvisioned = defineAction({
+    type: 'LOCATION_INSTANCE_SERVER_PROVISIONED' as const,
+    instanceId: matches.string,
+    ipAddress: matches.string,
+    port: matches.string,
+    locationId: matches.string,
+    sceneId: matches.string
+  })
 
-export type LocationInstanceConnectionActionType = ReturnType<
-  typeof LocationInstanceConnectionAction[keyof typeof LocationInstanceConnectionAction]
->
+  static connecting = defineAction({
+    type: 'LOCATION_INSTANCE_SERVER_CONNECTING' as const,
+    instanceId: matches.string
+  })
+
+  static instanceServerConnected = defineAction({
+    type: 'LOCATION_INSTANCE_SERVER_CONNECTED' as const,
+    instanceId: matches.string
+  })
+
+  static disconnect = defineAction({
+    type: 'LOCATION_INSTANCE_SERVER_DISCONNECT' as const,
+    instanceId: matches.string
+  })
+}
