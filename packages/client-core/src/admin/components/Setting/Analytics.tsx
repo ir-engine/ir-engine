@@ -9,9 +9,9 @@ import { AdminSettingAnalyticsService, useSettingAnalyticsState } from '../../se
 import styles from '../../styles/settings.module.scss'
 
 const Analytics = () => {
+  const { t } = useTranslation()
   const settingAnalyticsState = useSettingAnalyticsState()
   const settingAnalytics = settingAnalyticsState.analytics
-  const { t } = useTranslation()
   const authState = useAuthState()
   const user = authState.user
   const isMounted = useRef(false)
@@ -30,12 +30,6 @@ const Analytics = () => {
     }
   }, [authState?.user?.id?.value, settingAnalyticsState?.updateNeeded?.value])
 
-  const Data = {
-    id: settingAnalytics.value.map((el) => el.id),
-    port: settingAnalytics.value.map((el) => el.port),
-    processInterval: settingAnalytics.value.map((el) => el.processInterval)
-  }
-
   return (
     <Box>
       <Typography component="h1" className={styles.settingsHeading}>
@@ -43,13 +37,18 @@ const Analytics = () => {
       </Typography>
       <Grid container spacing={3}>
         <Grid item xs={6} sm={6}>
-          <InputText name="port" label={t('admin:components.analytics.port')} value={Data.port} disabled />
+          <InputText
+            name="port"
+            label={t('admin:components.analytics.port')}
+            value={settingAnalytics.value.map((el) => el.port).join(', ')}
+            disabled
+          />
         </Grid>
         <Grid item xs={6} sm={6}>
           <InputText
             name="processinterval"
             label={t('admin:components.analytics.processInterval')}
-            value={Data.processInterval}
+            value={settingAnalytics.value.map((el) => el.processInterval).join(', ')}
             disabled
           />
         </Grid>
