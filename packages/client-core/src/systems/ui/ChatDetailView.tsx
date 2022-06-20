@@ -178,7 +178,7 @@ const ChatDetailView = () => {
   return (
     <div style={styles.chatContainer as {}} xr-layer="true">
       <div style={styles.messageList as {}}>
-        {sortedMessages.map((message) => {
+        {sortedMessages?.map((message) => {
           let chatMessage = message.text
           return (
             <li
