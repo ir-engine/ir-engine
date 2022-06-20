@@ -444,7 +444,7 @@ const Setting = () => {
         {menuVisible && (
           <div className={styles.hoverSettings}>
             <Grid display="flex" flexDirection="row" alignItems="center" marginBottom="10px">
-              <Typography variant="h6" className={styles.hoverSettingsHeading}>
+              <Typography variant="h6" className={styles.settingsHeading}>
                 {t('admin:components.setting.settings')}
               </Typography>
               <IconButton

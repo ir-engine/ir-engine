@@ -2,7 +2,7 @@ import { Icon } from '@iconify/react'
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { Button, Grid, Paper, Typography } from '@mui/material'
+import { Button, Grid, Typography } from '@mui/material'
 import IconButton from '@mui/material/IconButton'
 
 import { useAuthState } from '../../../user/services/AuthService'
@@ -10,8 +10,6 @@ import InputSwitch from '../../common/InputSwitch'
 import InputText from '../../common/InputText'
 import { AuthSettingsService, useAuthSettingState } from '../../services/Setting/AuthSettingService'
 import styles from '../../styles/settings.module.scss'
-
-interface Props {}
 
 const initialState = {
   jwt: true,
@@ -35,7 +33,7 @@ const OAUTH_TYPES = {
   TWITTER: 'twitter'
 }
 
-const Account = (props: Props) => {
+const Account = () => {
   const authSettingState = useAuthSettingState()
   const [authSetting] = authSettingState?.authSettings?.value || []
   const id = authSetting?.id
@@ -203,7 +201,7 @@ const Account = (props: Props) => {
       </Typography>
       <form autoComplete="off" onSubmit={handleSubmit}>
         <Grid container spacing={3}>
-          <Grid item xs={12} sm={6} md={4}>
+          <Grid item xs={12} sm={6} md={6}>
             <InputText
               name="service"
               label={t('admin:components.setting.service')}
@@ -224,51 +222,54 @@ const Account = (props: Props) => {
               value={authSetting?.entity || ''}
               disabled
             />
+          </Grid>
 
-            <Typography component="h1" className={styles.settingsHeading}>
+          <Grid item xs={12} sm={6} md={6}>
+            <Typography className={styles.settingsSubHeading}>
               {t('admin:components.setting.authStrategies')}
             </Typography>
-            {Object.keys(state).map((strategyName, i) => (
-              <InputSwitch
-                key={i}
-                name={strategyName}
-                label={strategyName}
-                checked={state[strategyName]}
-                disabled={strategyName === 'jwt'}
-                onChange={onSwitchHandle}
-              />
-            ))}
+
+            <Grid container>
+              <Grid item xs={12} sm={6} md={6}>
+                {Object.keys(state)
+                  .splice(0, Math.ceil(Object.keys(state).length / 2))
+                  .map((strategyName, i) => (
+                    <InputSwitch
+                      key={i}
+                      name={strategyName}
+                      label={strategyName}
+                      checked={state[strategyName]}
+                      disabled={strategyName === 'jwt'}
+                      onChange={onSwitchHandle}
+                    />
+                  ))}
+              </Grid>
+
+              <Grid item xs={12} sm={6} md={6}>
+                {Object.keys(state)
+                  .splice(-Math.ceil(Object.keys(state).length / 2))
+                  .map((strategyName, i) => (
+                    <InputSwitch
+                      key={i}
+                      name={strategyName}
+                      label={strategyName}
+                      checked={state[strategyName]}
+                      disabled={strategyName === 'jwt'}
+                      onChange={onSwitchHandle}
+                    />
+                  ))}
+              </Grid>
+            </Grid>
           </Grid>
-          <Grid item xs={12} sm={6} md={4}>
-            <label>{t('admin:components.setting.local')}</label>
 
-            <InputText
-              name="username"
-              label={t('admin:components.setting.userName')}
-              value={authSetting?.local.usernameField || ''}
-              disabled
-            />
-
-            <InputText
-              name="password"
-              label={t('admin:components.setting.password')}
-              value={authSetting?.local.passwordField || ''}
-              type={showPassword.password.secret ? 'text' : 'password'}
-              disabled
-              endAdornment={
-                <IconButton onClick={() => handleShowPassword('password-secret')}>
-                  <Icon
-                    icon={showPassword.password.secret ? 'ic:baseline-visibility' : 'ic:baseline-visibility-off'}
-                    color="orange"
-                  />
-                </IconButton>
-              }
-            />
-
+          <Grid item xs={12} sm={12} md={12}>
             <Typography component="h1" className={styles.settingsHeading}>
               {t('admin:components.setting.oauth')}
             </Typography>
-            <label>{t('admin:components.setting.defaults')}</label>
+          </Grid>
+
+          <Grid item xs={12} sm={6} md={6}>
+            <Typography className={styles.settingsSubHeading}>{t('admin:components.setting.defaults')}</Typography>
 
             <InputText
               name="host"
@@ -285,8 +286,8 @@ const Account = (props: Props) => {
             />
 
             {holdAuth?.discord && (
-              <Paper className={styles.Paper} elevation={0}>
-                <label>{t('admin:components.setting.discord')}</label>
+              <>
+                <Typography className={styles.settingsSubHeading}>{t('admin:components.setting.discord')}</Typography>
 
                 <InputText
                   name="key"
@@ -326,11 +327,11 @@ const Account = (props: Props) => {
                   value={authSetting?.callback?.discord || ''}
                   disabled
                 />
-              </Paper>
+              </>
             )}
             {holdAuth?.facebook && (
-              <Paper className={styles.Paper} elevation={0}>
-                <label>{t('admin:components.setting.facebook')}</label>
+              <>
+                <Typography className={styles.settingsSubHeading}>{t('admin:components.setting.facebook')}</Typography>
 
                 <InputText
                   name="key"
@@ -370,11 +371,11 @@ const Account = (props: Props) => {
                   value={authSetting?.callback?.facebook || ''}
                   disabled
                 />
-              </Paper>
+              </>
             )}
             {holdAuth?.github && (
-              <Paper className={styles.Paper} style={{ marginTop: '10px' }} elevation={0}>
-                <label>{t('admin:components.setting.github')}</label>
+              <>
+                <Typography className={styles.settingsSubHeading}>{t('admin:components.setting.github')}</Typography>
 
                 <InputText
                   name="appid"
@@ -430,13 +431,38 @@ const Account = (props: Props) => {
                   value={authSetting?.callback?.github || ''}
                   disabled
                 />
-              </Paper>
+              </>
             )}
           </Grid>
-          <Grid item xs={12} sm={6} md={4}>
+
+          <Grid item xs={12} sm={6} md={6}>
+            <Typography className={styles.settingsSubHeading}>{t('admin:components.setting.local')}</Typography>
+
+            <InputText
+              name="username"
+              label={t('admin:components.setting.userName')}
+              value={authSetting?.local.usernameField || ''}
+              disabled
+            />
+
+            <InputText
+              name="password"
+              label={t('admin:components.setting.password')}
+              value={authSetting?.local.passwordField || ''}
+              type={showPassword.password.secret ? 'text' : 'password'}
+              disabled
+              endAdornment={
+                <IconButton onClick={() => handleShowPassword('password-secret')}>
+                  <Icon
+                    icon={showPassword.password.secret ? 'ic:baseline-visibility' : 'ic:baseline-visibility-off'}
+                    color="orange"
+                  />
+                </IconButton>
+              }
+            />
             {holdAuth?.google && (
-              <Paper className={styles.Paper} style={{ marginBottom: '10px' }} elevation={0}>
-                <label>{t('admin:components.setting.google')}</label>
+              <>
+                <Typography className={styles.settingsSubHeading}>{t('admin:components.setting.google')}</Typography>
 
                 <InputText
                   name="key"
@@ -476,11 +502,11 @@ const Account = (props: Props) => {
                   value={authSetting?.callback?.google || ''}
                   disabled
                 />
-              </Paper>
+              </>
             )}
             {holdAuth?.linkedin && (
-              <Paper className={styles.Paper} style={{ marginBottom: '10px' }} elevation={0}>
-                <label>{t('admin:components.setting.linkedIn')}</label>
+              <>
+                <Typography className={styles.settingsSubHeading}>{t('admin:components.setting.linkedIn')}</Typography>
 
                 <InputText
                   name="key"
@@ -520,11 +546,11 @@ const Account = (props: Props) => {
                   value={authSetting?.callback?.linkedin || ''}
                   disabled
                 />
-              </Paper>
+              </>
             )}
             {holdAuth?.twitter && (
-              <Paper className={styles.Paper} elevation={0} style={{ marginBottom: '10px' }}>
-                <label style={{ color: '#ffff' }}>{t('admin:components.setting.twitter')}</label>
+              <>
+                <Typography className={styles.settingsSubHeading}>{t('admin:components.setting.twitter')}</Typography>
 
                 <InputText
                   name="key"
@@ -564,7 +590,7 @@ const Account = (props: Props) => {
                   value={authSetting?.callback?.twitter || ''}
                   disabled
                 />
-              </Paper>
+              </>
             )}
           </Grid>
         </Grid>
