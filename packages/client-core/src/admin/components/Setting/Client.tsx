@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 
 import AddIcon from '@mui/icons-material/Add'
 import DeleteIcon from '@mui/icons-material/Delete'
-import { Box, Button, Grid, IconButton, Paper, Typography } from '@mui/material'
+import { Box, Button, Grid, IconButton, Typography } from '@mui/material'
 
 import { useAuthState } from '../../../user/services/AuthService'
 import InputText from '../../common/InputText'
@@ -11,6 +11,11 @@ import { ClientSettingService, useClientSettingState } from '../../services/Sett
 import styles from '../../styles/settings.module.scss'
 
 const Client = () => {
+  const { t } = useTranslation()
+
+  const authState = useAuthState()
+  const user = authState.user
+
   const clientSettingState = useClientSettingState()
   const [clientSetting] = clientSettingState?.client?.value || []
   const id = clientSetting?.id
@@ -26,10 +31,6 @@ const Client = () => {
   const [favicon16px, setFavicon16px] = useState(clientSetting?.favicon16px)
   const [favicon32px, setFavicon32px] = useState(clientSetting?.favicon32px)
   const [siteDescription, setSiteDescription] = useState(clientSetting?.siteDescription)
-  const { t } = useTranslation()
-
-  const authState = useAuthState()
-  const user = authState.user
 
   useEffect(() => {
     if (user?.id?.value != null && clientSettingState?.updateNeeded?.value === true) {
