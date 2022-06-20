@@ -1,6 +1,8 @@
 import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { dispatchAction } from '@xrengine/hyperflux'
+
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined'
 import Avatar from '@mui/material/Avatar'
 import Button from '@mui/material/Button'
@@ -113,9 +115,9 @@ const PasswordLogin = ({ isAddConnection }: Props): JSX.Element => {
                   href="#"
                   // variant="body2"
                   onClick={() =>
-                    dispatch(
+                    dispatchAction(
                       DialogAction.dialogShow({
-                        children: <ForgotPassword />
+                        content: <ForgotPassword />
                       })
                     )
                   }
@@ -130,9 +132,9 @@ const PasswordLogin = ({ isAddConnection }: Props): JSX.Element => {
                   href="#"
                   // variant="body2"
                   onClick={() =>
-                    dispatch(
+                    dispatchAction(
                       DialogAction.dialogShow({
-                        children: <SignUp />
+                        content: <SignUp />
                       })
                     )
                   }
