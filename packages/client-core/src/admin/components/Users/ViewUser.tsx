@@ -243,7 +243,6 @@ const ViewUser = ({ userAdmin, open, onClose }: Props) => {
               onChange={handleInputChange}
             />
 
-            <label>{t('admin:components.user.userRole')}</label>
             {user.id.value !== userAdmin.id && (
               <InputSelect
                 name="userRole"
@@ -254,6 +253,7 @@ const ViewUser = ({ userAdmin, open, onClose }: Props) => {
                 onChange={handleInputChange}
               />
             )}
+
             <AutoComplete
               data={scopeData}
               label={t('admin:components.user.grantScope')}
