@@ -184,6 +184,4 @@ const MagicLinkEmail = ({ type, isAddConnection }: Props): JSX.Element => {
   )
 }
 
-const MagicLinkEmailWrapper = (props: Props): JSX.Element => <MagicLinkEmail {...props} />
-
-export default MagicLinkEmailWrapper
+export default MagicLinkEmail

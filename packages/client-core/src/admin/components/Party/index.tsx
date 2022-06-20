@@ -13,7 +13,7 @@ import CreateParty from './CreateParty'
 import PartyTable from './PartyTable'
 
 const Party = () => {
-  const [partyModalOpen, setPartyModalOpen] = React.useState(false)
+  const [openCreateParty, setOpenCreateParty] = React.useState(false)
   const [search, setSearch] = React.useState('')
   const { t } = useTranslation()
 
@@ -24,13 +24,6 @@ const Party = () => {
     }
   }, [])
 
-  const openModalCreate = () => {
-    setPartyModalOpen(true)
-  }
-
-  const handleCreatePartyClose = () => {
-    setPartyModalOpen(false)
-  }
   const handleChange = (e: any) => {
     setSearch(e.target.value)
   }
@@ -42,15 +35,20 @@ const Party = () => {
           <Search text="party" handleChange={handleChange} />
         </Grid>
         <Grid item xs={12} sm={4}>
-          <Button className={styles.openModalBtn} type="submit" variant="contained" onClick={() => openModalCreate()}>
+          <Button
+            className={styles.openModalBtn}
+            type="submit"
+            variant="contained"
+            onClick={() => setOpenCreateParty(true)}
+          >
             {t('admin:components.party.createNewParty')}
           </Button>
         </Grid>
       </Grid>
-      <div className={styles.rootTableWithSearch}>
-        <PartyTable search={search} />
-      </div>
-      <CreateParty open={partyModalOpen} handleClose={handleCreatePartyClose} />
+
+      <PartyTable className={styles.rootTableWithSearch} search={search} />
+
+      <CreateParty open={openCreateParty} handleClose={() => setOpenCreateParty(false)} />
     </div>
   )
 }

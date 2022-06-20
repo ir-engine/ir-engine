@@ -227,7 +227,7 @@ const ProjectTable = ({ className }: Props) => {
       />
 
       {showProjectFiles && projectName && (
-        <ViewProjectFiles name={projectName} open={showProjectFiles} setShowProjectFiles={setShowProjectFiles} />
+        <ViewProjectFiles name={projectName} open onClose={() => setShowProjectFiles(false)} />
       )}
     </Box>
   )

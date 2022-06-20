@@ -172,7 +172,7 @@ export const DefaultArgs = {
   iResolution: [1, 1, 1]
 }
 
-export default async function VoronoiClouds(args?: { iTime?: number; iResolution?: number[] }): Promise<MaterialParms> {
+export default function VoronoiClouds(args?: { iTime?: number; iResolution?: number[] }): MaterialParms {
   const mat = new ShaderMaterial({
     uniforms: {
       iTime: { value: args?.iTime ?? DefaultArgs.iTime },
