@@ -8,8 +8,6 @@ import {
 import assert from 'assert'
 import { Vector3 } from 'three'
 
-import ActionFunctions from '@xrengine/hyperflux/functions/ActionFunctions'
-
 import { Direction } from '../../common/constants/Axis3D'
 import { Engine } from '../../ecs/classes/Engine'
 import { getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
@@ -22,7 +20,6 @@ import { RigidBodyFixedTagComponent } from '../components/RigidBodyFixedTagCompo
 import { CollisionGroups, DefaultCollisionMask } from '../enums/CollisionGroups'
 import { getInteractionGroups } from '../functions/getInteractionGroups'
 import { getTagComponentForRigidBody } from '../functions/getTagComponentForRigidBody'
-import { PhysicsAction } from '../functions/PhysicsActions'
 import { CollisionEvents, RaycastHit, SceneQueryType } from '../types/PhysicsTypes'
 import { Physics } from './PhysicsRapier'
 
@@ -156,47 +153,9 @@ describe('Physics', () => {
     const rigidBody1 = Physics.createRigidBody(entity1, physicsWorld, rigidBodyDesc, [colliderDesc])
     const rigidBody2 = Physics.createRigidBody(entity2, physicsWorld, rigidBodyDesc, [colliderDesc])
 
-    let collisionStartEventsCount = 0
-    const collisionStartedEventReceptor = (action) => {
-      assert(PhysicsAction.collisionStarted.matches.test(action))
-      collisionStartEventsCount++
-    }
-    let collisionEndEventsCount = 0
-    const collisionEndedEventReceptor = (action) => {
-      assert(PhysicsAction.collisionEnded.matches.test(action))
-      collisionEndEventsCount++
-    }
-    let triggerStartEventsCount = 0
-    const triggerStartedEventReceptor = (action) => {
-      assert(PhysicsAction.triggerStarted.matches.test(action))
-      triggerStartEventsCount++
-    }
-    let triggerEndEventsCount = 0
-    const triggerEndedEventReceptor = (action) => {
-      assert(PhysicsAction.triggerEnded.matches.test(action))
-      triggerEndEventsCount++
-    }
-
-    const collisionStartedActionQueue = ActionFunctions.createActionQueue(PhysicsAction.collisionStarted.matches)
-    const collisionEndedActionQueue = ActionFunctions.createActionQueue(PhysicsAction.collisionEnded.matches)
-    const triggerStartedActionQueue = ActionFunctions.createActionQueue(PhysicsAction.triggerStarted.matches)
-    const triggerEndedActionQueue = ActionFunctions.createActionQueue(PhysicsAction.triggerEnded.matches)
-
     physicsWorld.step(collisionEventQueue)
     Physics.drainCollisionEventQueue(physicsWorld, collisionEventQueue)
 
-    // Hackish fix for now to handle weird race condition where action.$time ends up greater than now & action are not procssed in the next call
-    await new Promise((resolve) => setTimeout(resolve, 1000))
-    ActionFunctions.applyIncomingActions()
-    for (const action of collisionStartedActionQueue()) collisionStartedEventReceptor(action)
-    for (const action of collisionEndedActionQueue()) collisionEndedEventReceptor(action)
-    for (const action of triggerStartedActionQueue()) triggerStartedEventReceptor(action)
-    for (const action of triggerEndedActionQueue()) triggerEndedEventReceptor(action)
-
-    assert.equal(collisionStartEventsCount, 1)
-    assert.equal(collisionEndEventsCount, 0)
-    assert.equal(triggerStartEventsCount, 0)
-    assert.equal(triggerEndEventsCount, 0)
     assert.equal(hasComponent(entity1, RapierCollisionComponent), true)
     assert.equal(getComponent(entity1, RapierCollisionComponent).collisions.get(entity2)?.bodySelf, rigidBody1)
     assert.equal(getComponent(entity1, RapierCollisionComponent).collisions.get(entity2)?.bodyOther, rigidBody2)
@@ -218,18 +177,6 @@ describe('Physics', () => {
     physicsWorld.step(collisionEventQueue)
     Physics.drainCollisionEventQueue(physicsWorld, collisionEventQueue)
 
-    // Hackish fix for now to handle weird race condition where action.$time ends up greater than now & action are not procssed in the next call
-    await new Promise((resolve) => setTimeout(resolve, 1000))
-    ActionFunctions.applyIncomingActions()
-    for (const action of collisionStartedActionQueue()) collisionStartedEventReceptor(action)
-    for (const action of collisionEndedActionQueue()) collisionEndedEventReceptor(action)
-    for (const action of triggerStartedActionQueue()) triggerStartedEventReceptor(action)
-    for (const action of triggerEndedActionQueue()) triggerEndedEventReceptor(action)
-
-    assert.equal(collisionStartEventsCount, 1)
-    assert.equal(collisionEndEventsCount, 1)
-    assert.equal(triggerStartEventsCount, 0)
-    assert.equal(triggerEndEventsCount, 0)
     assert.equal(hasComponent(entity1, RapierCollisionComponent), false)
   })
 })

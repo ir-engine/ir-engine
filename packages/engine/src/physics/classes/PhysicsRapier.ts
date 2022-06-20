@@ -10,16 +10,12 @@ import RAPIER, {
   World
 } from '@dimforge/rapier3d-compat'
 
-import { dispatchAction } from '@xrengine/hyperflux'
-
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, ComponentType, getComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
-import { CollisionComponent } from '../components/CollisionComponent'
 import { RapierCollisionComponent } from '../components/RapierCollisionComponent'
 import { RaycastComponent } from '../components/RaycastComponent'
 import { RigidBodyComponent } from '../components/RigidBodyComponent'
 import { getTagComponentForRigidBody } from '../functions/getTagComponentForRigidBody'
-import { PhysicsAction } from '../functions/PhysicsActions'
 import { ColliderHitEvent, CollisionEvents } from '../types/PhysicsTypes'
 
 export type PhysicsWorld = World
@@ -106,21 +102,11 @@ function drainCollisionEventQueue(world: World, collisionEventQueue: EventQueue)
     const isTriggerEvent = world.getCollider(handle1).isSensor() || world.getCollider(handle2).isSensor()
     let collisionEventType: CollisionEvents
     if (started) {
-      if (isTriggerEvent) {
-        collisionEventType = CollisionEvents.TRIGGER_START
-        dispatchAction(PhysicsAction.triggerStarted({ colliderAHandle: handle1, colliderBHandle: handle2 }))
-      } else {
-        collisionEventType = CollisionEvents.COLLISION_START
-        dispatchAction(PhysicsAction.collisionStarted({ colliderAHandle: handle1, colliderBHandle: handle2 }))
-      }
+      if (isTriggerEvent) collisionEventType = CollisionEvents.TRIGGER_START
+      else collisionEventType = CollisionEvents.COLLISION_START
     } else {
-      if (isTriggerEvent) {
-        collisionEventType = CollisionEvents.TRIGGER_END
-        dispatchAction(PhysicsAction.triggerEnded({ colliderAHandle: handle1, colliderBHandle: handle2 }))
-      } else {
-        collisionEventType = CollisionEvents.COLLISION_END
-        dispatchAction(PhysicsAction.collisionEnded({ colliderAHandle: handle1, colliderBHandle: handle2 }))
-      }
+      if (isTriggerEvent) collisionEventType = CollisionEvents.TRIGGER_END
+      else collisionEventType = CollisionEvents.COLLISION_END
     }
 
     const collider1 = world.getCollider(handle1)
