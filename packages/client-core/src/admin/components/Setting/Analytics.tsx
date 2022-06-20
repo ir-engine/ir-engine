@@ -8,9 +8,7 @@ import InputText from '../../common/InputText'
 import { AdminSettingAnalyticsService, useSettingAnalyticsState } from '../../services/Setting/AnalyticsSettingsService'
 import styles from '../../styles/settings.module.scss'
 
-interface AnalyticsProps {}
-
-const Analytics = (props: AnalyticsProps) => {
+const Analytics = () => {
   const settingAnalyticsState = useSettingAnalyticsState()
   const settingAnalytics = settingAnalyticsState.analytics
   const { t } = useTranslation()

@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { useHookEffect } from '@xrengine/hyperflux'
 import { loadConfigForProject } from '@xrengine/projects/loadConfigForProject'
 
-import { Button, Grid, Typography } from '@mui/material'
+import { Box, Button, Grid, Typography } from '@mui/material'
 
 import { ProjectService, useProjectState } from '../../../common/services/ProjectService'
 import { useAuthState } from '../../../user/services/AuthService'
@@ -13,14 +13,12 @@ import InputText from '../../common/InputText'
 import { ProjectSettingService, useProjectSettingState } from '../../services/Setting/ProjectSettingService'
 import styles from '../../styles/settings.module.scss'
 
-interface Props {}
-
 interface ProjectSetting {
   key: string
   value: any
 }
 
-const Project = (props: Props) => {
+const Project = () => {
   const authState = useAuthState()
   const user = authState.user
   const { t } = useTranslation()
@@ -109,61 +107,59 @@ const Project = (props: Props) => {
   })
 
   return (
-    <div>
-      <form>
-        <Typography component="h1" className={styles.settingsHeading}>
-          {t('admin:components.setting.project')}
-        </Typography>
-        <div className={styles.root}>
-          <Grid container spacing={3}>
-            <Grid item xs={6} sm={4}>
-              <InputSelect
-                name="selectProject"
-                label={t('admin:components.setting.project')}
-                value={selectedProject}
-                menu={projectsMenu}
-                onChange={handleProjectChange}
-              />
-            </Grid>
-
-            <Grid item container xs={12}>
-              {settings?.length > 0 ? (
-                settings.map((setting, index) => (
-                  <Grid item container key={index} spacing={1} xs={12}>
-                    <Grid item xs={6}>
-                      <InputText name="key" label="Key Name" value={setting.key || ''} disabled />
-                    </Grid>
-                    <Grid item xs={6}>
-                      <InputText
-                        name="value"
-                        label="Value"
-                        value={setting.value || ''}
-                        onChange={(e) => handleValueChange(index, e)}
-                      />
-                    </Grid>
-                  </Grid>
-                ))
-              ) : (
-                <Grid item marginBottom="20px">
-                  <Typography>No schema available in xrengine.config.ts</Typography>
-                </Grid>
-              )}
-            </Grid>
+    <Box>
+      <Typography component="h1" className={styles.settingsHeading}>
+        {t('admin:components.setting.project')}
+      </Typography>
+      <div className={styles.root}>
+        <Grid container spacing={3}>
+          <Grid item xs={6} sm={6}>
+            <InputSelect
+              name="selectProject"
+              label={t('admin:components.setting.project')}
+              value={selectedProject}
+              menu={projectsMenu}
+              onChange={handleProjectChange}
+            />
           </Grid>
-          {settings?.length > 0 && (
-            <Grid item container xs={12}>
-              <Button sx={{ maxWidth: '100%' }} variant="outlined" onClick={handleCancel}>
-                {t('admin:components.setting.cancel')}
-              </Button>
-              &nbsp; &nbsp;
-              <Button sx={{ maxWidth: '100%' }} variant="contained" className={styles.saveBtn} onClick={handleSubmit}>
-                {t('admin:components.setting.save')}
-              </Button>
-            </Grid>
-          )}
-        </div>
-      </form>
-    </div>
+
+          <Grid item container xs={12}>
+            {settings?.length > 0 ? (
+              settings.map((setting, index) => (
+                <Grid item container key={index} spacing={1} xs={12}>
+                  <Grid item xs={6}>
+                    <InputText name="key" label="Key Name" value={setting.key || ''} disabled />
+                  </Grid>
+                  <Grid item xs={6}>
+                    <InputText
+                      name="value"
+                      label="Value"
+                      value={setting.value || ''}
+                      onChange={(e) => handleValueChange(index, e)}
+                    />
+                  </Grid>
+                </Grid>
+              ))
+            ) : (
+              <Grid item marginBottom="20px">
+                <Typography>No schema available in xrengine.config.ts</Typography>
+              </Grid>
+            )}
+          </Grid>
+        </Grid>
+        {settings?.length > 0 && (
+          <Grid item container xs={12}>
+            <Button sx={{ maxWidth: '100%' }} variant="outlined" onClick={handleCancel}>
+              {t('admin:components.setting.cancel')}
+            </Button>
+            &nbsp; &nbsp;
+            <Button sx={{ maxWidth: '100%' }} variant="contained" className={styles.saveBtn} onClick={handleSubmit}>
+              {t('admin:components.setting.save')}
+            </Button>
+          </Grid>
+        )}
+      </div>
+    </Box>
   )
 }
 
