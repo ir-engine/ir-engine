@@ -35,38 +35,37 @@ export type SystemInstanceType = {
   execute: () => void
 }
 
-export const loadSystemInjection = (world: World) => async (s: SystemFactoryType<any>) => {
-  const name = s.systemModule.default.name
-  try {
-    console.log(`${name} initializing on ${s.type} pipeline`)
-    const system = await s.systemModule.default(world, s.args)
-    console.log(`${name} ready`)
-    return {
-      name,
-      type: s.type,
-      sceneSystem: s.sceneSystem,
-      execute: () => {
-        const start = nowMilliseconds()
-        try {
-          system()
-        } catch (e) {
-          console.error(e)
-        }
-        const end = nowMilliseconds()
-        const duration = end - start
-        if (duration > 10) {
-          console.warn(`Long system execution detected. System: ${name} \n Duration: ${duration}`)
-        }
-      }
-    } as SystemInstanceType
-  } catch (e) {
-    console.error(`System ${name} failed to initialize! `)
-    console.error(e)
-    return null
-  }
-}
-
 export const initSystems = async (world: World, systemModulesToLoad: SystemModuleType<any>[]) => {
+  const loadSystemInjection = async (s: SystemFactoryType<any>) => {
+    const name = s.systemModule.default.name
+    try {
+      console.log(`${name} initializing on ${s.type} pipeline`)
+      const system = await s.systemModule.default(world, s.args)
+      console.log(`${name} ready`)
+      return {
+        name,
+        type: s.type,
+        sceneSystem: s.sceneSystem,
+        execute: () => {
+          const start = nowMilliseconds()
+          try {
+            system()
+          } catch (e) {
+            console.error(e)
+          }
+          const end = nowMilliseconds()
+          const duration = end - start
+          if (duration > 10) {
+            console.warn(`Long system execution detected. System: ${name} \n Duration: ${duration}`)
+          }
+        }
+      } as SystemInstanceType
+    } catch (e) {
+      console.error(`System ${name} failed to initialize! `)
+      console.error(e)
+      return null
+    }
+  }
   const systemModule = await Promise.all(
     systemModulesToLoad.map(async (s) => {
       return {
@@ -77,7 +76,7 @@ export const initSystems = async (world: World, systemModulesToLoad: SystemModul
       }
     })
   )
-  const systems = await Promise.all(systemModule.map(loadSystemInjection(world)))
+  const systems = await Promise.all(systemModule.map(loadSystemInjection))
   systems.forEach((s) => {
     if (s) {
       world.pipelines[s.type].push(s)
