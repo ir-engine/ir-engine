@@ -1,0 +1,23 @@
+import React from 'react'
+import styled from 'styled-components'
+
+import { IconButton, IconButtonProps } from '@mui/material'
+
+interface ExpandMoreProps extends IconButtonProps {
+  expand: boolean
+}
+
+const _expandMore = styled((props: ExpandMoreProps) => {
+  const { expand, ...other } = props
+  return <IconButton {...other} />
+})(({ theme, expand }) => ({
+  transform: !expand ? 'rotate(0deg)' : 'rotate(180deg)',
+  marginLeft: 'auto',
+  transition: theme.transitions.create('transform', {
+    duration: theme.transitions.duration.shortest
+  })
+}))
+
+export default function ExpandMore(props: ExpandMoreProps) {
+  return <_expandMore {...props} />
+}

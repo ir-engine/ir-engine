@@ -2,6 +2,12 @@ import { BufferGeometry, Color, Material, MathUtils, Mesh, Texture } from 'three
 
 import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
 
+export enum SampleMode {
+  SCATTER,
+  VERTICES,
+  NODES
+}
+
 export enum ScatterMode {
   GRASS,
   MESH
@@ -46,16 +52,40 @@ export type MeshProperties = {
   instancedMesh: any
 }
 
+type DensityMapped = {
+  densityMap: Texture | string
+  densityMapStrength: NormalizedProperty
+}
+
+type HeightMapped = {
+  heightMap: Texture | string
+  heightMapStrength: NormalizedProperty
+}
+
+export type ScatterProperties = {
+  isScatterProperties: true
+} & DensityMapped &
+  HeightMapped
+
+export type VertexProperties = {
+  isVertexProperties: true
+  vertexColors: boolean
+} & DensityMapped &
+  HeightMapped
+
+export type NodeProperties = {
+  isNodeProperties: true
+  root: any
+}
+
 export type ScatterComponentType = {
   count: number
   surface: any
+  sampling: SampleMode
   mode: ScatterMode
   state: ScatterState
-  densityMap: Texture | string
-  densityMapStrength: NormalizedProperty
-  heightMap: Texture | string
-  heightMapStrength: NormalizedProperty
-  properties: GrassProperties | MeshProperties
+  sampleProperties: ScatterProperties | VertexProperties | NodeProperties
+  sourceProperties: GrassProperties | MeshProperties
 }
 
 export const ScatterComponent = createMappedComponent<ScatterComponentType>('ScatterComponent')

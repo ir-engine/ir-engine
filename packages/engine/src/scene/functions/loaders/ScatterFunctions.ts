@@ -6,9 +6,11 @@ import {
   DoubleSide,
   InstancedBufferAttribute,
   InstancedBufferGeometry,
-  MathUtils,
+  InstancedMesh,
+  Material,
+  Matrix4,
   Mesh,
-  MeshNormalMaterial,
+  MeshStandardMaterial,
   Object3D,
   PlaneBufferGeometry,
   Quaternion,
@@ -22,26 +24,30 @@ import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
 import { AssetLoader } from '../../../assets/classes/AssetLoader'
 import { ComponentDeserializeFunction, ComponentSerializeFunction } from '../../../common/constants/PrefabFunctionType'
-import { randomQuat } from '../../../common/functions/MathRandomFunctions'
 import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent, removeComponent } from '../../../ecs/functions/ComponentFunctions'
-import { EngineRenderer } from '../../../renderer/WebGLRendererSystem'
+import { iterateEntityNode } from '../../../ecs/functions/EntityTreeFunctions'
 import UpdateableObject3D from '../../classes/UpdateableObject3D'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { Object3DComponent, Object3DWithEntity } from '../../components/Object3DComponent'
 import {
   GrassProperties,
   MeshProperties,
-  sample,
+  NodeProperties,
+  SampleMode,
   sampleVar,
   ScatterComponent,
   ScatterComponentType,
   ScatterMode,
+  ScatterProperties,
   ScatterStagingComponent,
-  ScatterState
+  ScatterState,
+  VertexProperties
 } from '../../components/ScatterComponent'
 import { UpdatableComponent } from '../../components/UpdatableComponent'
+import getFirstMesh from '../../util/getFirstMesh'
+import obj3dFromUuid from '../../util/obj3dFromUuid'
 
 export const GRASS_PROPERTIES_DEFAULT_VALUES: GrassProperties = {
   isGrassProperties: true,
@@ -61,17 +67,37 @@ export const MESH_PROPERTIES_DEFAULT_VALUES: MeshProperties = {
   instancedMesh: ''
 }
 
-export const SCENE_COMPONENT_SCATTER = 'scatter'
-export const SCENE_COMPONENT_SCATTER_DEFAULT_VALUES = {
-  count: 1000,
-  surface: '',
-  mode: ScatterMode.GRASS,
-  state: ScatterState.UNSTAGED,
-  heightMap: new Texture(),
-  heightMapStrength: 0.05,
+export const SCATTER_PROPERTIES_DEFAULT_VALUES: ScatterProperties = {
+  isScatterProperties: true,
   densityMap: new Texture(),
   densityMapStrength: 0.5,
-  properties: GRASS_PROPERTIES_DEFAULT_VALUES
+  heightMap: new Texture(),
+  heightMapStrength: 0.5
+}
+
+export const VERTEX_PROPERTIES_DEFAULT_VALUES: VertexProperties = {
+  isVertexProperties: true,
+  vertexColors: false,
+  densityMap: new Texture(),
+  densityMapStrength: 0.5,
+  heightMap: new Texture(),
+  heightMapStrength: 0.5
+}
+
+export const NODE_PROPERTIES_DEFAULT_VALUES: NodeProperties = {
+  isNodeProperties: true,
+  root: ''
+}
+
+export const SCENE_COMPONENT_SCATTER = 'scatter'
+export const SCENE_COMPONENT_SCATTER_DEFAULT_VALUES: ScatterComponentType = {
+  count: 1000,
+  surface: '',
+  sampling: SampleMode.SCATTER,
+  mode: ScatterMode.GRASS,
+  state: ScatterState.UNSTAGED,
+  sampleProperties: SCATTER_PROPERTIES_DEFAULT_VALUES,
+  sourceProperties: GRASS_PROPERTIES_DEFAULT_VALUES
 }
 
 const grassVertexSource = `
@@ -274,7 +300,7 @@ function parseScatterProperties(props): ScatterComponentType {
   switch (result.mode) {
     case ScatterMode.GRASS:
       const defaults = GRASS_PROPERTIES_DEFAULT_VALUES
-      result.properties = processProps(result.properties, defaults) as GrassProperties
+      result.sourceProperties = processProps(result.sourceProperties, defaults) as GrassProperties
       break
   }
   return result
@@ -295,27 +321,29 @@ export const serializeScatter: ComponentSerializeFunction = (entity) => {
       }
     }
   }
-  const scatterProps = comp.properties
-  const serializedProps: GrassProperties | MeshProperties | any = { ...scatterProps }
+  const srcProps = comp.sourceProperties
+  const _srcProps: GrassProperties | MeshProperties | any = { ...srcProps }
+  const sampleProps = comp.sampleProperties
+  const _sampleProps = { ...sampleProps }
   formatData(toSave)
-  if ((scatterProps as GrassProperties).isGrassProperties) {
-    formatData(serializedProps)
-  }
-  toSave.properties = serializedProps
+  formatData(_srcProps)
+  formatData(_sampleProps)
+  toSave.sourceProperties = _srcProps
+  toSave.sampleProperties = _sampleProps
   return {
     name: SCENE_COMPONENT_SCATTER,
     props: toSave
   }
 }
 
-async function loadScatterTextures(scatter: ScatterComponentType) {
-  const loadTex = async (prop) => {
-    scatter[prop] = await AssetLoader.loadAsync(scatter[prop])
+async function loadSampleTextures(props: ScatterProperties | VertexProperties) {
+  const loadTex = async (prop: keyof ScatterProperties & keyof VertexProperties) => {
+    props[prop] = await AssetLoader.loadAsync(props[prop] as string)
   }
-  if (typeof scatter.densityMap === 'string') {
+  if (typeof props.densityMap === 'string' && props.densityMap !== '') {
     await loadTex('densityMap')
   }
-  if (typeof scatter.heightMap === 'string') {
+  if (typeof props.heightMap === 'string' && props.heightMap !== '') {
     await loadTex('heightMap')
   }
 }
@@ -324,10 +352,10 @@ async function loadGrassTextures(props: GrassProperties) {
   const loadTex = async (prop) => {
     props[prop] = await AssetLoader.loadAsync(props[prop])
   }
-  if (typeof props.alphaMap === 'string') {
+  if (typeof props.alphaMap === 'string' && props.alphaMap !== '') {
     await loadTex('alphaMap')
   }
-  if (typeof props.grassTexture === 'string') {
+  if (typeof props.grassTexture === 'string' && props.grassTexture !== '') {
     await loadTex('grassTexture')
   }
 }
@@ -338,18 +366,7 @@ export async function stageScatter(entity: Entity, world = Engine.instance.curre
     console.error('scatter component is already staging')
   }
   scatter.state = ScatterState.STAGING
-  const target = world.entityTree.uuidNodeMap.get(scatter.surface)!.entity
-  const targetRoot = getComponent(target, Object3DComponent).value
-  const meshes: Mesh[] = []
-  targetRoot.traverse((child: Mesh) => {
-    child.isMesh && meshes.push(child)
-  })
-
-  if (meshes.length < 1) {
-    console.error('no target surface found in', targetRoot)
-    return
-  }
-  const targetGeo = meshes[0].geometry
+  const targetGeo = getFirstMesh(obj3dFromUuid(scatter.surface, world)).geometry
   const normals = targetGeo.getAttribute('normal')
   const positions = targetGeo.getAttribute('position')
   const uvs = targetGeo.getAttribute('uv')
@@ -455,21 +472,19 @@ export async function stageScatter(entity: Entity, world = Engine.instance.curre
   const offsets: number[] = []
   const scales: number[] = []
   const orients: number[] = []
+  const transforms: number[] = []
   const surfaceUVs: number[] = []
+  if ([SampleMode.SCATTER, SampleMode.VERTICES].includes(scatter.sampling)) {
+    await loadSampleTextures(scatter.sampleProperties as any)
+  }
 
-  await loadScatterTextures(scatter)
-
-  let props = scatter.properties
+  let props = scatter.sourceProperties
+  let grassGeometry: BufferGeometry
   if ((props as GrassProperties).isGrassProperties) {
     const grassProps = props as GrassProperties
     await loadGrassTextures(grassProps)
     //samplers
-    const grassGeometry = new PlaneBufferGeometry(
-      grassProps.bladeWidth.mu,
-      grassProps.bladeHeight.mu,
-      1,
-      grassProps.joints
-    )
+    grassGeometry = new PlaneBufferGeometry(grassProps.bladeWidth.mu, grassProps.bladeHeight.mu, 1, grassProps.joints)
 
     grassGeometry.translate(0, grassProps.bladeHeight.mu / 2, 0)
 
@@ -529,92 +544,240 @@ export async function stageScatter(entity: Entity, world = Engine.instance.curre
     }
 
     grassGeometry.computeVertexNormals()
+
     instancedGeometry.index = grassGeometry.index
     instancedGeometry.attributes.position = grassGeometry.attributes.position
     instancedGeometry.attributes.uv = grassGeometry.attributes.uv
     instancedGeometry.attributes.normal = grassGeometry.attributes.normal
+  } else if ((props as MeshProperties).isMeshProperties) {
+    const meshProps = props as MeshProperties
+    const iGeo = getFirstMesh(obj3dFromUuid(meshProps.instancedMesh)).geometry
+    instancedGeometry.index = iGeo.index
+    instancedGeometry.attributes.position = iGeo.attributes.position
+    instancedGeometry.attributes.uv = iGeo.attributes.uv
+    instancedGeometry.attributes.normal = iGeo.attributes.normal
+  }
 
-    for (let i = 0; i < scatter.count; i += 1) {
-      indices.push(i / scatter.count)
-      let position: Vector3 | null, normal: Vector3 | null
-      let sample: Vector2
-      do {
-        sample = new Vector2(
-          uvBounds.minU + (uvBounds.maxU - uvBounds.minU) * Math.random(),
-          uvBounds.minV + (uvBounds.maxV - uvBounds.minV) * Math.random()
-        )
-        //sample positions from random uvs
-        ;[position, normal] = positionAt(sample)
-      } while (position === null)
-      surfaceUVs.push(sample.x, sample.y)
+  function varyGrassScale(scale: Vector2) {
+    const grassProps = props as GrassProperties
+    scale.x += sampleVar(grassProps.bladeWidth)
+    scale.y += sampleVar(grassProps.bladeHeight)
+  }
 
-      offsets.push(position.x, position.y, position.z)
+  function stageGrassBuffers(position, orient, scale) {
+    offsets.push(position.x, position.y, position.z)
+    orients.push(orient.x, orient.y, orient.z, orient.w)
+    varyGrassScale(scale as any)
+    scales.push(scale.x, scale.y)
+  }
 
-      let orient = new Quaternion()
-      orient.setFromUnitVectors(new Vector3(0, 1, 0), normal!)
-      orients.push(orient.x, orient.y, orient.z, orient.w)
-
-      const scale = new Vector2(1 + sampleVar(grassProps.bladeWidth), 1 + sampleVar(grassProps.bladeHeight))
-      scales.push(scale.x, scale.y)
-    }
-
+  function stageGrassAttributes() {
     const offsetAttribute = new InstancedBufferAttribute(new Float32Array(offsets), 3)
     const scaleAttribute = new InstancedBufferAttribute(new Float32Array(scales), 2)
     const orientAttribute = new InstancedBufferAttribute(new Float32Array(orients), 4)
     const indexAttribute = new InstancedBufferAttribute(new Float32Array(indices), 1)
-    const surfaceUVAttribute = new InstancedBufferAttribute(new Float32Array(surfaceUVs), 2)
 
     instancedGeometry.setAttribute('offset', offsetAttribute)
     instancedGeometry.setAttribute('scale', scaleAttribute)
     instancedGeometry.setAttribute('orient', orientAttribute)
     instancedGeometry.setAttribute('index', indexAttribute)
-    instancedGeometry.setAttribute('surfaceUV', surfaceUVAttribute)
+  }
 
-    const grassMaterial = new RawShaderMaterial({
-      uniforms: {
-        time: { value: 0 },
-        map: { value: grassProps.grassTexture },
-        vHeight: { value: grassProps.bladeHeight.mu + grassProps.bladeHeight.sigma },
-        alphaMap: { value: grassProps.alphaMap },
-        sunDirection: { value: new Vector3(-0.35, 0, 0) },
-        densityMap: { value: scatter.densityMap },
-        densityMapStrength: { value: scatter.densityMapStrength },
-        heightMap: { value: scatter.heightMap },
-        heightMapStrength: { value: scatter.heightMapStrength },
-        cameraPosition: { value: Engine.instance.currentWorld.camera.position },
-        ambientStrength: { value: grassProps.ambientStrength },
-        diffuseStrength: { value: grassProps.diffuseStrength },
-        sunColour: { value: grassProps.sunColour }
-      },
-      vertexShader: grassVertexSource,
-      fragmentShader: grassFragmentSource,
-      side: DoubleSide
-    })
+  function stageMeshBuffers(position, orient, scale) {
+    const transform = new Matrix4()
+    transform.compose(position, orient, scale)
+    transforms.push(...transform.elements)
+  }
 
-    const grass = new Mesh(instancedGeometry, grassMaterial)
+  let numInstances = -1
 
-    grass.name = 'Grass'
+  switch (scatter.sampling) {
+    case SampleMode.SCATTER:
+      numInstances = scatter.count
+      for (let i = 0; i < numInstances; i += 1) {
+        indices.push(i / numInstances)
+        let position: Vector3 | null, normal: Vector3 | null
+        let sample: Vector2
+        do {
+          sample = new Vector2(
+            uvBounds.minU + (uvBounds.maxU - uvBounds.minU) * Math.random(),
+            uvBounds.minV + (uvBounds.maxV - uvBounds.minV) * Math.random()
+          )
+          //sample positions from random uvs
+          ;[position, normal] = positionAt(sample)
+        } while (position === null)
+        surfaceUVs.push(sample.x, sample.y)
+        let orient = new Quaternion()
+        orient.setFromUnitVectors(new Vector3(0, 1, 0), normal!)
+        const scale = new Vector3(1, 1, 1)
+        if ((props as GrassProperties).isGrassProperties) {
+          stageGrassBuffers(position, orient, scale)
+        } else if ((props as MeshProperties).isMeshProperties) {
+          stageMeshBuffers(position, orient, scale)
+        }
+      }
+      if ((props as GrassProperties).isGrassProperties) {
+        stageGrassAttributes()
+      }
+      break
+    case SampleMode.VERTICES:
+      numInstances = positions.count
+      for (let i = 0; i < numInstances; i += 1) {
+        const surfaceUV = getUV(i)
+        surfaceUVs.push(surfaceUV.x, surfaceUV.y)
 
-    let obj3d = getComponent(entity, Object3DComponent)
-    if (!obj3d) {
-      const val = new Object3D() as Object3DWithEntity
-      val.entity = entity
-      Engine.instance.currentWorld.scene.add(val)
-      obj3d = addComponent(entity, Object3DComponent, { value: val })
-    }
-    const val = obj3d.value as UpdateableObject3D
-    val.name = 'Grass Base'
-    function move(dT: number) {
-      grassMaterial.uniforms.time.value += dT
-    }
+        const position = getPosition(i)
 
-    val.update = move
+        const normal = getNormal(i)
+        const orient = new Quaternion()
+        orient.setFromUnitVectors(new Vector3(0, 1, 0), normal)
+
+        const scale = new Vector3(1, 1, 1)
+        if ((props as GrassProperties).isGrassProperties) {
+          stageGrassBuffers(position, orient, scale)
+        } else if ((props as MeshProperties).isMeshProperties) {
+          stageMeshBuffers(position, orient, scale)
+        }
+      }
+      if ((props as GrassProperties).isGrassProperties) {
+        stageGrassAttributes()
+      }
+      break
+    case SampleMode.NODES:
+      const root = world.entityTree.uuidNodeMap.get((scatter.sampleProperties as NodeProperties).root)
+      numInstances = 0
+      if (root === undefined) {
+        console.error('could not find root node with uuid', (scatter.sampleProperties as NodeProperties).root)
+      } else {
+        iterateEntityNode(
+          root,
+          (node) => {
+            numInstances += 1
+            const obj3d = obj3dFromUuid(node.uuid, world)
+            if ((props as GrassProperties).isGrassProperties) {
+              stageGrassBuffers(obj3d.position, obj3d.quaternion, obj3d.scale)
+            } else if ((props as MeshProperties).isMeshProperties) {
+              stageMeshBuffers(obj3d.position, obj3d.quaternion, obj3d.scale)
+            }
+          },
+          (node) => node !== root && hasComponent(node.entity, Object3DComponent),
+          world.entityTree
+        )
+        if ((props as GrassProperties).isGrassProperties) stageGrassAttributes()
+      }
+      break
+    default:
+      numInstances = 0
+      break
+  }
+
+  const surfaceUVAttribute = new InstancedBufferAttribute(new Float32Array(surfaceUVs), 2)
+
+  instancedGeometry.setAttribute('surfaceUV', surfaceUVAttribute)
+
+  let result: Mesh
+  let resultMat: Material
+  const sampleProps = scatter.sampleProperties as ScatterProperties & VertexProperties & NodeProperties
+  switch (scatter.mode) {
+    case ScatterMode.GRASS:
+      const grassProps = props as GrassProperties
+      resultMat = new RawShaderMaterial({
+        uniforms: {
+          time: { value: 0 },
+          map: { value: grassProps.grassTexture },
+          vHeight: { value: grassProps.bladeHeight.mu + grassProps.bladeHeight.sigma },
+          alphaMap: { value: grassProps.alphaMap },
+          sunDirection: { value: new Vector3(-0.35, 0, 0) },
+          densityMap: { value: sampleProps.densityMap },
+          densityMapStrength: { value: sampleProps.densityMapStrength },
+          heightMap: { value: sampleProps.heightMap },
+          heightMapStrength: { value: sampleProps.heightMapStrength },
+          cameraPosition: { value: Engine.instance.currentWorld.camera.position },
+          ambientStrength: { value: grassProps.ambientStrength },
+          diffuseStrength: { value: grassProps.diffuseStrength },
+          sunColour: { value: grassProps.sunColour }
+        },
+        vertexShader: grassVertexSource,
+        fragmentShader: grassFragmentSource,
+        side: DoubleSide
+      })
+      result = new Mesh(instancedGeometry, resultMat)
+      result.name = 'Grass'
+      break
+    case ScatterMode.MESH:
+      const meshProps = props as MeshProperties
+      const iMesh = getFirstMesh(obj3dFromUuid(meshProps.instancedMesh))
+      const iMat = iMesh.material as any
+      resultMat = new MeshStandardMaterial({
+        color: iMat.color,
+        map: iMat.map,
+        roughness: iMat.roughness,
+        roughnessMap: iMat.roughnessMap,
+        metalness: iMat.metalness,
+        metalnessMap: iMat.metalnessMap,
+        normalMap: iMat.normalMap,
+        emissiveIntensity: iMat.emissiveIntensity,
+        emissiveMap: iMat.emissiveMap
+      })
+      result = new InstancedMesh(instancedGeometry, resultMat, numInstances)
+      ;(result as InstancedMesh).instanceMatrix.set(transforms)
+      ;(result as InstancedMesh).instanceMatrix.needsUpdate = true
+      break
+    default:
+      resultMat = new Material()
+      result = new Mesh()
+      break
+  }
+
+  let obj3d = getComponent(entity, Object3DComponent)
+  if (!obj3d) {
+    const val = new Object3D() as Object3DWithEntity
+    val.entity = entity
+    world.scene.add(val)
+    obj3d = addComponent(entity, Object3DComponent, { value: val })
+  }
+  const val = obj3d.value as UpdateableObject3D
+  val.name = `${result.name} Base`
+  const updates: ((dt: number) => void)[] = []
+  switch (scatter.mode) {
+    case ScatterMode.GRASS:
+      function move(dT: number) {
+        ;(resultMat as RawShaderMaterial).uniforms.time.value += dT
+      }
+      updates.push(move)
+      break
+  }
+  switch (scatter.sampling) {
+    case SampleMode.NODES:
+      const rootNode = world.entityTree.uuidNodeMap.get(sampleProps.root)
+      function update(dt: number) {
+        if (rootNode === undefined) {
+          console.error('could not find root node with uuid', sampleProps.root)
+        } else {
+          let instanceIdx = 0
+          iterateEntityNode(
+            rootNode,
+            (node) => {
+              const obj3d = getComponent(node.entity, Object3DComponent).value
+              ;(result as InstancedMesh).setMatrixAt(instanceIdx, obj3d.matrix)
+              instanceIdx += 1
+            },
+            (node) => node !== rootNode && hasComponent(node.entity, Object3DComponent, world)
+          )
+          ;(result as InstancedMesh).instanceMatrix.needsUpdate = true
+        }
+      }
+      updates.push(update)
+      break
+  }
+  if (updates.length > 0) {
     if (!hasComponent(entity, UpdatableComponent)) {
       addComponent(entity, UpdatableComponent, {})
     }
-    val.add(grass)
-  } else if ((props as MeshProperties).isMeshProperties) {
+    val.update = (dt) => updates.forEach((update) => update(dt))
   }
+  val.add(result)
+
   scatter.state = ScatterState.STAGED
 }
 

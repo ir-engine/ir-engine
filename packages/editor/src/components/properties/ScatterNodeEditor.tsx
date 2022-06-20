@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { Fragment, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Mesh, Object3D, Texture } from 'three'
 
@@ -9,41 +9,49 @@ import {
   getOrAddComponent,
   hasComponent
 } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { addToEntityTreeMaps, iterateEntityNode } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
+import { iterateEntityNode } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 import {
+  NodeProperties,
+  SampleMode,
   ScatterComponent,
   ScatterMode,
+  ScatterProperties,
   ScatterStagingComponent,
   ScatterState,
-  ScatterUnstagingComponent
+  ScatterUnstagingComponent,
+  VertexProperties
 } from '@xrengine/engine/src/scene/components/ScatterComponent'
 import {
   GRASS_PROPERTIES_DEFAULT_VALUES,
-  MESH_PROPERTIES_DEFAULT_VALUES,
-  stageScatter
+  MESH_PROPERTIES_DEFAULT_VALUES
 } from '@xrengine/engine/src/scene/functions/loaders/ScatterFunctions'
-import { dispatchAction } from '@xrengine/hyperflux'
 
-import { setPropertyOnSelectionEntities } from '../../classes/History'
-import { SelectionAction } from '../../services/SelectionServices'
 import { PropertiesPanelButton } from '../inputs/Button'
 import { ImagePreviewInputGroup } from '../inputs/ImagePreviewInput'
 import InputGroup from '../inputs/InputGroup'
-import NumericInput from '../inputs/NumericInput'
 import NumericInputGroup from '../inputs/NumericInputGroup'
 import SelectInput from '../inputs/SelectInput'
-import StringInput from '../inputs/StringInput'
+import CollapsibleBlock from '../layout/CollapsibleBlock'
 import NodeEditor from './NodeEditor'
 import ScatterGrassProperties from './ScatterGrassProperties'
-import { EditorComponentType, updateProperty } from './Util'
+import ScatterMeshProperties from './ScatterMeshProperties'
+import { EditorComponentType, traverseScene, updateProperty } from './Util'
 
 export const ScatterNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
   const entity = props.node.entity
   const node = props.node
   const scatter = getComponent(entity, ScatterComponent)
+  const sampleProps = scatter.sampleProperties as ScatterProperties & VertexProperties & NodeProperties
+  function updateSampleProp(prop: keyof (ScatterProperties & VertexProperties & NodeProperties)) {
+    return (val) => {
+      sampleProps[prop as any] = val
+      updateProperty(ScatterComponent, 'sampleProperties')(sampleProps)
+    }
+  }
+
   const [state, setState] = useState<ScatterState>(scatter.state)
 
   const texPath = (tex) => {
@@ -52,20 +60,8 @@ export const ScatterNodeEditor: EditorComponentType = (props) => {
     console.error('unknown texture type for', tex)
   }
 
-  const [height, setHeight] = useState(texPath(scatter.heightMap))
-  const [density, setDensity] = useState(texPath(scatter.densityMap))
-
-  function onChangeDensity(val) {
-    setDensity(val)
-    scatter.densityMap = val
-    updateProperty(ScatterComponent, 'densityMap')(val)
-  }
-
-  function onChangeHeight(val) {
-    setHeight(val)
-    scatter.heightMap = val
-    updateProperty(ScatterComponent, 'heightMap')(val)
-  }
+  const height = texPath(sampleProps.heightMap)
+  const density = texPath(sampleProps.densityMap)
 
   const initialSurfaces = () => {
     const surfaces: any[] = []
@@ -88,7 +84,17 @@ export const ScatterNodeEditor: EditorComponentType = (props) => {
     return surfaces
   }
 
-  let [surfaces, setSurfaces] = useState<any[]>(initialSurfaces())
+  let surfaces = initialSurfaces()
+
+  const obj3ds = traverseScene(
+    (node) => {
+      return {
+        label: getComponent(node.entity, NameComponent)?.name,
+        value: node.uuid
+      }
+    },
+    (node) => hasComponent(node.entity, Object3DComponent)
+  )
 
   const onUnstage = async () => {
     if (!hasComponent(entity, ScatterUnstagingComponent)) {
@@ -119,21 +125,21 @@ export const ScatterNodeEditor: EditorComponentType = (props) => {
     if (scatter.mode === mode) return
     const obj3d = getOrAddComponent(entity, Object3DComponent, { value: new Object3D() })
     const uData = obj3d.value.userData
-    uData[scatter.mode] = scatter.properties
-    let properties
+    uData[scatter.mode] = scatter.sourceProperties
+    let srcProperties
     if (uData[mode] !== undefined) {
-      properties = uData[mode]
+      srcProperties = uData[mode]
     } else {
       switch (mode) {
         case ScatterMode.GRASS:
-          properties = GRASS_PROPERTIES_DEFAULT_VALUES
+          srcProperties = GRASS_PROPERTIES_DEFAULT_VALUES
           break
         case ScatterMode.MESH:
-          properties = MESH_PROPERTIES_DEFAULT_VALUES
+          srcProperties = MESH_PROPERTIES_DEFAULT_VALUES
           break
       }
     }
-    updateProperty(ScatterComponent, 'properties')(properties)
+    updateProperty(ScatterComponent, 'sourceProperties')(srcProperties)
     updateProperty(ScatterComponent, 'mode')(mode)
   }
 
@@ -175,44 +181,80 @@ export const ScatterNodeEditor: EditorComponentType = (props) => {
             ]}
           />
         </InputGroup>
-        <ImagePreviewInputGroup
-          name="Height Map"
-          label={t('editor:properties.grass.heightMap')}
-          onChange={onChangeHeight}
-          value={height}
-        />
-        <NumericInputGroup
-          name="Height Map Strength"
-          label={t('editor:properties.grass.heightMapStrength')}
-          onChange={updateProperty(ScatterComponent, 'heightMapStrength')}
-          value={scatter.heightMapStrength}
-          min={0}
-          max={1}
-          smallStep={0.01}
-          mediumStep={0.025}
-          largeStep={0.1}
-        />
-        <ImagePreviewInputGroup
-          name="Density Map"
-          label={t('editor:properties.grass.densityMap')}
-          onChange={onChangeDensity}
-          value={density}
-        />
-        <NumericInputGroup
-          name="Density Map Strength"
-          label={t('editor:properties.grass.densityMapStrength')}
-          onChange={updateProperty(ScatterComponent, 'densityMapStrength')}
-          value={scatter.densityMapStrength}
-          min={0}
-          max={1}
-          smallStep={0.01}
-          mediumStep={0.025}
-          largeStep={0.1}
-        />
+        <InputGroup name="Sampling Mode" label={t('editor:properties:scatter.samplingMode')}>
+          <SelectInput
+            value={scatter.sampling}
+            onChange={updateProperty(ScatterComponent, 'sampling')}
+            options={[
+              { label: 'Scatter', value: SampleMode.SCATTER },
+              { label: 'Vertices', value: SampleMode.VERTICES },
+              { label: 'Nodes', value: SampleMode.NODES }
+            ]}
+          />
+        </InputGroup>
+        <CollapsibleBlock label={t('editor:properties.scatter.lbl-sampleProperties')}>
+          {[SampleMode.SCATTER, SampleMode.VERTICES].includes(scatter.sampling) && (
+            <Fragment>
+              <ImagePreviewInputGroup
+                name="Height Map"
+                label={t('editor:properties.grass.heightMap')}
+                onChange={updateSampleProp('heightMap')}
+                value={height}
+              />
+              <NumericInputGroup
+                name="Height Map Strength"
+                label={t('editor:properties.grass.heightMapStrength')}
+                onChange={updateSampleProp('heightMapStrength')}
+                value={sampleProps.heightMapStrength}
+                min={0}
+                max={1}
+                smallStep={0.01}
+                mediumStep={0.025}
+                largeStep={0.1}
+              />
+              <ImagePreviewInputGroup
+                name="Density Map"
+                label={t('editor:properties.grass.densityMap')}
+                onChange={updateSampleProp('densityMap')}
+                value={density}
+              />
+              <NumericInputGroup
+                name="Density Map Strength"
+                label={t('editor:properties.grass.densityMapStrength')}
+                onChange={updateSampleProp('densityMapStrength')}
+                value={sampleProps.densityMapStrength}
+                min={0}
+                max={1}
+                smallStep={0.01}
+                mediumStep={0.025}
+                largeStep={0.1}
+              />
+            </Fragment>
+          )}
+          {scatter.sampling === SampleMode.NODES && (
+            <Fragment>
+              <InputGroup name="Root" label={t('editor:properties.instancing.nodeSampling.root')}>
+                <SelectInput
+                  value={sampleProps.root}
+                  onChange={updateSampleProp('root')}
+                  options={obj3ds}
+                  isSearchable={true}
+                  creatable={false}
+                />
+              </InputGroup>
+            </Fragment>
+          )}
+        </CollapsibleBlock>
         {scatter.mode === ScatterMode.GRASS && (
           <ScatterGrassProperties
-            value={scatter.properties}
-            onChange={updateProperty(ScatterComponent, 'properties')}
+            value={scatter.sourceProperties}
+            onChange={updateProperty(ScatterComponent, 'sourceProperties')}
+          />
+        )}
+        {scatter.mode === ScatterMode.MESH && (
+          <ScatterMeshProperties
+            value={scatter.sourceProperties}
+            onChange={updateProperty(ScatterComponent, 'sourceProperties')}
           />
         )}
       </span>
