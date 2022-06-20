@@ -152,6 +152,7 @@ const Client = () => {
           />
 
           <Typography className={styles.settingsSubHeading}>{t('admin:components.setting.appSocialLinks')}</Typography>
+
           {appSocialLinks?.length > 0 &&
             appSocialLinks?.map((socialLink, index) => (
               <Box key={index} sx={{ display: 'flex', flexDirection: 'row', alignItems: 'flex-start', gap: 1 }}>
