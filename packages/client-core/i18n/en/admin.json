@@ -336,7 +336,8 @@
       "paginateMax": "Paginate Max",
       "placeholderText": "This is the input placeholder",
       "delete" : "Delete",
-      "addSocialLink": "Add Social Link"
+      "addSocialLink": "Add Social Link",
+      "themePlayground": "Theme Playground"
     },
     "avatar": {
       "fillRequiredFields": "Please fill all required field",
