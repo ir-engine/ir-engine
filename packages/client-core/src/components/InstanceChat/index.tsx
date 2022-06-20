@@ -70,7 +70,7 @@ export const useChatHooks = ({ chatWindowOpen, setUnreadMessages, messageRefInpu
   const sortedMessages = activeChannel.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
 
   useEffect(() => {
-    if (activeChannel.length > 0 && !chatWindowOpen) setUnreadMessages(true)
+    if (activeChannel?.length > 0 && !chatWindowOpen) setUnreadMessages(true)
   }, [activeChannel])
 
   /**
