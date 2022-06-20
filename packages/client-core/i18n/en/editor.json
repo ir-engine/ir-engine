@@ -212,21 +212,6 @@
       "lbl-shadowRadius": "Shadow Radius",
       "lbl-showCameraHelper": "Show Camera Helper"
     },
-    "grass": {
-      "bladeHeight": "Blade Height",
-      "bladeWidth": "Blade Width",
-      "joints": "Blade Joint Count",
-      "alphaMap": "Alpha Map",
-      "texture": "Grass Texture",
-      "ambientStrength": "Ambient Strength",
-      "diffuseStrength": "Diffuse Strength",
-      "shininess": "Shininess",
-      "heightMap": "Height Map",
-      "heightMapStrength": "Height Map Strength",
-      "densityMap": "Density Map",
-      "densityMapStrength": "Density Map Strength",
-      "sunColor": "Sun Color"
-    },
     "groundPlane": {
       "name": "Ground Plane",
       "description": "A flat ground plane that extends into the distance.",
@@ -402,18 +387,45 @@
       "lbl-range": "Range",
       "lbl-decay": "Decay"
     },
-    "scatter": {
-      "name": "Scatter",
+    "instancing": {
+      "name": "Instancing",
       "description": "Generates instanced geometry according to input",
-      "lbl-count": "Instance Count",
+      "count": "Instance Count",
       "lbl-surface": "Target Surface",
       "error-surface": "Error occurred finding target surface",
       "placeholder-surface": "No Target Selected",
-      "lbl-mode": "Scatter Mode",
+      "lbl-mode": "Instancing Mode",
       "lbl-load": "Stage",
       "lbl-unload": "Unstage",
       "lbl-reload": "Restage",
-      "lbl-grassProperties": "Grass Properties"
+      "lbl-options": "Options",
+      "samplingMode": "Sampling Mode",
+      "sampling": { 
+        "properties": "Sampling Properties",
+        "heightMap": "Height Map",
+        "heightMapStrength": "Height Map Strength",
+        "densityMap": "Density Map",
+        "densityMapStrength": "Density Map Strength",
+        "root": "Root Node"
+      },
+      "grass": {
+        "properties": "Grass Properties",
+        "bladeHeight": "Blade Height",
+        "bladeWidth": "Blade Width",
+        "joints": "Blade Joint Count",
+        "alphaMap": "Alpha Map",
+        "texture": "Grass Texture",
+        "ambientStrength": "Ambient Strength",
+        "diffuseStrength": "Diffuse Strength",
+        "shininess": "Shininess",
+        "sunColor": "Sun Color"
+      },
+      "mesh": {
+        "properties": "Mesh Instancing Properties",
+        "instancedMesh": "Instanced Mesh",
+        "error-instancedMesh": "Error loading instanced mesh",
+        "placeholder-instancedMesh": "Select Mesh to Instance"
+      }
     },
     "scene": {
       "name": "Scene",

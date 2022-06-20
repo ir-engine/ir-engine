@@ -70,6 +70,7 @@ import {
   serializeImage,
   updateImage
 } from './loaders/ImageFunctions'
+import { deserializeInstancing, SCENE_COMPONENT_INSTANCING, serializeInstancing } from './loaders/InstancingFunctions'
 import {
   deserializeInteractable,
   SCENE_COMPONENT_INTERACTABLE,
@@ -130,7 +131,6 @@ import {
   serializeRenderSettings,
   updateRenderSetting
 } from './loaders/RenderSettingsFunction'
-import { deserializeScatter, SCENE_COMPONENT_SCATTER, serializeScatter } from './loaders/ScatterFunctions'
 import {
   deserializeScenePreviewCamera,
   SCENE_COMPONENT_SCENE_PREVIEW_CAMERA,
@@ -467,8 +467,8 @@ export const registerDefaultSceneFunctions = (world: World) => {
     update: updateCubemapBake
   })
 
-  world.sceneLoadingRegistry.set(SCENE_COMPONENT_SCATTER, {
-    deserialize: deserializeScatter,
-    serialize: serializeScatter
+  world.sceneLoadingRegistry.set(SCENE_COMPONENT_INSTANCING, {
+    deserialize: deserializeInstancing,
+    serialize: serializeInstancing
   })
 }

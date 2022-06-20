@@ -78,7 +78,7 @@ export type NodeProperties = {
   root: any
 }
 
-export type ScatterComponentType = {
+export type InstancingComponentType = {
   count: number
   surface: any
   sampling: SampleMode
@@ -88,8 +88,8 @@ export type ScatterComponentType = {
   sourceProperties: GrassProperties | MeshProperties
 }
 
-export const ScatterComponent = createMappedComponent<ScatterComponentType>('ScatterComponent')
+export const InstancingComponent = createMappedComponent<InstancingComponentType>('InstancingComponent')
 
-export const ScatterStagingComponent = createMappedComponent('ScatterStagingComponent')
+export const InstancingStagingComponent = createMappedComponent('InstancingStagingComponent')
 
-export const ScatterUnstagingComponent = createMappedComponent('ScatterUnstagingComponent')
+export const InstancingUnstagingComponent = createMappedComponent('InstancingUnstagingComponent')

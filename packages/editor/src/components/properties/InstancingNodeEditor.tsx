@@ -10,23 +10,23 @@ import {
   hasComponent
 } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { iterateEntityNode } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
+import {
+  InstancingComponent,
+  InstancingStagingComponent,
+  InstancingUnstagingComponent,
+  NodeProperties,
+  SampleMode,
+  ScatterMode,
+  ScatterProperties,
+  ScatterState,
+  VertexProperties
+} from '@xrengine/engine/src/scene/components/InstancingComponent'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 import {
-  NodeProperties,
-  SampleMode,
-  ScatterComponent,
-  ScatterMode,
-  ScatterProperties,
-  ScatterStagingComponent,
-  ScatterState,
-  ScatterUnstagingComponent,
-  VertexProperties
-} from '@xrengine/engine/src/scene/components/ScatterComponent'
-import {
   GRASS_PROPERTIES_DEFAULT_VALUES,
   MESH_PROPERTIES_DEFAULT_VALUES
-} from '@xrengine/engine/src/scene/functions/loaders/ScatterFunctions'
+} from '@xrengine/engine/src/scene/functions/loaders/InstancingFunctions'
 
 import { PropertiesPanelButton } from '../inputs/Button'
 import { ImagePreviewInputGroup } from '../inputs/ImagePreviewInput'
@@ -34,21 +34,21 @@ import InputGroup from '../inputs/InputGroup'
 import NumericInputGroup from '../inputs/NumericInputGroup'
 import SelectInput from '../inputs/SelectInput'
 import CollapsibleBlock from '../layout/CollapsibleBlock'
+import ScatterGrassProperties from './InstancingGrassProperties'
+import ScatterMeshProperties from './InstancingMeshProperties'
 import NodeEditor from './NodeEditor'
-import ScatterGrassProperties from './ScatterGrassProperties'
-import ScatterMeshProperties from './ScatterMeshProperties'
 import { EditorComponentType, traverseScene, updateProperty } from './Util'
 
-export const ScatterNodeEditor: EditorComponentType = (props) => {
+export const InstancingNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
   const entity = props.node.entity
   const node = props.node
-  const scatter = getComponent(entity, ScatterComponent)
+  const scatter = getComponent(entity, InstancingComponent)
   const sampleProps = scatter.sampleProperties as ScatterProperties & VertexProperties & NodeProperties
   function updateSampleProp(prop: keyof (ScatterProperties & VertexProperties & NodeProperties)) {
     return (val) => {
       sampleProps[prop as any] = val
-      updateProperty(ScatterComponent, 'sampleProperties')(sampleProps)
+      updateProperty(InstancingComponent, 'sampleProperties')(sampleProps)
     }
   }
 
@@ -97,8 +97,8 @@ export const ScatterNodeEditor: EditorComponentType = (props) => {
   )
 
   const onUnstage = async () => {
-    if (!hasComponent(entity, ScatterUnstagingComponent)) {
-      addComponent(entity, ScatterUnstagingComponent, {})
+    if (!hasComponent(entity, InstancingUnstagingComponent)) {
+      addComponent(entity, InstancingUnstagingComponent, {})
     }
     while (scatter.state !== ScatterState.UNSTAGED) {
       await new Promise((resolve) => setTimeout(resolve, Engine.instance.currentWorld.deltaSeconds * 1000))
@@ -107,8 +107,8 @@ export const ScatterNodeEditor: EditorComponentType = (props) => {
   }
 
   const onStage = async () => {
-    if (!hasComponent(entity, ScatterStagingComponent)) {
-      addComponent(entity, ScatterStagingComponent, {})
+    if (!hasComponent(entity, InstancingStagingComponent)) {
+      addComponent(entity, InstancingStagingComponent, {})
     }
     while (scatter.state !== ScatterState.STAGED) {
       await new Promise((resolve) => setTimeout(resolve, Engine.instance.currentWorld.deltaSeconds * 1000))
@@ -139,39 +139,39 @@ export const ScatterNodeEditor: EditorComponentType = (props) => {
           break
       }
     }
-    updateProperty(ScatterComponent, 'sourceProperties')(srcProperties)
-    updateProperty(ScatterComponent, 'mode')(mode)
+    updateProperty(InstancingComponent, 'sourceProperties')(srcProperties)
+    updateProperty(InstancingComponent, 'mode')(mode)
   }
 
   return (
     <NodeEditor
       {...props}
-      name={t('editor:properties:scatter.name')}
-      description={t('editor:properties:scatter.description')}
+      name={t('editor:properties:instancing.name')}
+      description={t('editor:properties:instancing.description')}
     >
       <span>
         <NumericInputGroup
           name="Instance Count"
-          label={t('editor:properties:scatter.lbl-count')}
+          label={t('editor:properties:instancing.count')}
           smallStep={1}
           mediumStep={10}
           largeStep={100}
           min={0}
           value={scatter.count}
-          onChange={updateProperty(ScatterComponent, 'count')}
+          onChange={updateProperty(InstancingComponent, 'count')}
         />
-        <InputGroup name="Target Surface" label={t('editor:properties:scatter.lbl-surface')}>
+        <InputGroup name="Target Surface" label={t('editor:properties:instancing.lbl-surface')}>
           <SelectInput
-            error={t('editor:properties.scatter.error-surface')}
-            placeholder={t('editor:properties.scatter.placeholder-surface')}
+            error={t('editor:properties.instancing.error-surface')}
+            placeholder={t('editor:properties.instancing.placeholder-surface')}
             value={scatter.surface}
-            onChange={updateProperty(ScatterComponent, 'surface')}
+            onChange={updateProperty(InstancingComponent, 'surface')}
             options={surfaces}
             creatable={false}
             isSearchable={true}
           />
         </InputGroup>
-        <InputGroup name="Scatter Mode" label={t('editor:properties:scatter.lbl-mode')}>
+        <InputGroup name="Instancing Mode" label={t('editor:properties:instancing.lbl-mode')}>
           <SelectInput
             value={scatter.mode}
             onChange={onChangeMode}
@@ -181,10 +181,10 @@ export const ScatterNodeEditor: EditorComponentType = (props) => {
             ]}
           />
         </InputGroup>
-        <InputGroup name="Sampling Mode" label={t('editor:properties:scatter.samplingMode')}>
+        <InputGroup name="Sampling Mode" label={t('editor:properties:instancing.samplingMode')}>
           <SelectInput
             value={scatter.sampling}
-            onChange={updateProperty(ScatterComponent, 'sampling')}
+            onChange={updateProperty(InstancingComponent, 'sampling')}
             options={[
               { label: 'Scatter', value: SampleMode.SCATTER },
               { label: 'Vertices', value: SampleMode.VERTICES },
@@ -192,18 +192,18 @@ export const ScatterNodeEditor: EditorComponentType = (props) => {
             ]}
           />
         </InputGroup>
-        <CollapsibleBlock label={t('editor:properties.scatter.lbl-sampleProperties')}>
+        <CollapsibleBlock label={t('editor:properties.instancing.sampling.properties')}>
           {[SampleMode.SCATTER, SampleMode.VERTICES].includes(scatter.sampling) && (
             <Fragment>
               <ImagePreviewInputGroup
                 name="Height Map"
-                label={t('editor:properties.grass.heightMap')}
+                label={t('editor:properties.instancing.sampling.heightMap')}
                 onChange={updateSampleProp('heightMap')}
                 value={height}
               />
               <NumericInputGroup
                 name="Height Map Strength"
-                label={t('editor:properties.grass.heightMapStrength')}
+                label={t('editor:properties.instancing.sampling.heightMapStrength')}
                 onChange={updateSampleProp('heightMapStrength')}
                 value={sampleProps.heightMapStrength}
                 min={0}
@@ -214,13 +214,13 @@ export const ScatterNodeEditor: EditorComponentType = (props) => {
               />
               <ImagePreviewInputGroup
                 name="Density Map"
-                label={t('editor:properties.grass.densityMap')}
+                label={t('editor:properties.instancing.sampling.densityMap')}
                 onChange={updateSampleProp('densityMap')}
                 value={density}
               />
               <NumericInputGroup
                 name="Density Map Strength"
-                label={t('editor:properties.grass.densityMapStrength')}
+                label={t('editor:properties.instancing.sampling.densityMapStrength')}
                 onChange={updateSampleProp('densityMapStrength')}
                 value={sampleProps.densityMapStrength}
                 min={0}
@@ -233,7 +233,7 @@ export const ScatterNodeEditor: EditorComponentType = (props) => {
           )}
           {scatter.sampling === SampleMode.NODES && (
             <Fragment>
-              <InputGroup name="Root" label={t('editor:properties.instancing.nodeSampling.root')}>
+              <InputGroup name="Root" label={t('editor:properties.instancing.sampling.root')}>
                 <SelectInput
                   value={sampleProps.root}
                   onChange={updateSampleProp('root')}
@@ -248,26 +248,32 @@ export const ScatterNodeEditor: EditorComponentType = (props) => {
         {scatter.mode === ScatterMode.GRASS && (
           <ScatterGrassProperties
             value={scatter.sourceProperties}
-            onChange={updateProperty(ScatterComponent, 'sourceProperties')}
+            onChange={updateProperty(InstancingComponent, 'sourceProperties')}
           />
         )}
         {scatter.mode === ScatterMode.MESH && (
           <ScatterMeshProperties
             value={scatter.sourceProperties}
-            onChange={updateProperty(ScatterComponent, 'sourceProperties')}
+            onChange={updateProperty(InstancingComponent, 'sourceProperties')}
           />
         )}
       </span>
       {state === ScatterState.UNSTAGED && (
-        <PropertiesPanelButton onClick={onStage}>{t('editor:properties:scatter.lbl-load')}</PropertiesPanelButton>
+        <PropertiesPanelButton onClick={onStage}>{t('editor:properties:instancing.lbl-load')}</PropertiesPanelButton>
       )}
       {state === ScatterState.STAGING && <p>{t('Loading...')}</p>}
       {state === ScatterState.STAGED && (
-        <InputGroup name={t('editor:properties:scatter.lbl-options')}>
-          <PropertiesPanelButton onClick={onUnstage}>{t('editor:properties:scatter.lbl-unload')}</PropertiesPanelButton>
-          <PropertiesPanelButton onClick={onReload}>{t('editor:properties:scatter.lbl-reload')}</PropertiesPanelButton>
+        <InputGroup name={t('editor:properties:instancing.lbl-options')}>
+          <PropertiesPanelButton onClick={onUnstage}>
+            {t('editor:properties:instancing.lbl-unload')}
+          </PropertiesPanelButton>
+          <PropertiesPanelButton onClick={onReload}>
+            {t('editor:properties:instancing.lbl-reload')}
+          </PropertiesPanelButton>
         </InputGroup>
       )}
     </NodeEditor>
   )
 }
+
+export default InstancingNodeEditor

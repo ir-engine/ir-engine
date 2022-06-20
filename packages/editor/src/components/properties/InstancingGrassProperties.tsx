@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import styled from 'styled-components'
 import { Texture } from 'three'
 
-import { GrassProperties } from '@xrengine/engine/src/scene/components/ScatterComponent'
+import { GrassProperties } from '@xrengine/engine/src/scene/components/InstancingComponent'
 
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
 import { Box, Collapse, IconButton, IconButtonProps } from '@mui/material'
@@ -51,22 +51,22 @@ export default function ScatterGrassProperties({ value, onChange, ...rest }) {
   }
 
   return (
-    <CollapsibleBlock label={t('editor:properties.scatter.lbl-grassProperties')}>
+    <CollapsibleBlock label={t('editor:properties.instancing.grass.properties')}>
       <RandomizedPropertyInputGroup
         name="Blade Height"
-        label={t('editor:properties.grass.bladeHeight')}
+        label={t('editor:properties.instancing.grass.bladeHeight')}
         onChange={onChangeProp('bladeHeight')}
         value={props.bladeHeight}
       />
       <RandomizedPropertyInputGroup
         name="Blade Width"
-        label={t('editor:properties.grass.bladeWidth')}
+        label={t('editor:properties.instancing.grass.bladeWidth')}
         onChange={onChangeProp('bladeWidth')}
         value={props.bladeWidth}
       />
       <NumericInputGroup
         name="Joints"
-        label={t('editor:properties.grass.joints')}
+        label={t('editor:properties.instancing.grass.joints')}
         onChange={onChangeProp('joints')}
         value={props.joints}
         min={2}
@@ -77,19 +77,19 @@ export default function ScatterGrassProperties({ value, onChange, ...rest }) {
       />
       <ImagePreviewInputGroup
         name="Alpha Map"
-        label={t('editor:properties.grass.alphaMap')}
+        label={t('editor:properties.instancing.grass.alphaMap')}
         onChange={onChangeAlpha}
         value={alpha}
       />
       <ImagePreviewInputGroup
         name="Grass Texture"
-        label={t('editor:properties.grass.texture')}
+        label={t('editor:properties.instancing.grass.texture')}
         onChange={onChangeGrass}
         value={grass}
       />
       <NumericInputGroup
         name="ambientStrength"
-        label={t('editor:properties.grass.ambientStrength')}
+        label={t('editor:properties.instancing.grass.ambientStrength')}
         onChange={onChangeProp('ambientStrength')}
         value={props.ambientStrength}
         min={0}
@@ -100,7 +100,7 @@ export default function ScatterGrassProperties({ value, onChange, ...rest }) {
       />
       <NumericInputGroup
         name="diffuseStrength"
-        label={t('editor:properties.grass.diffuseStrength')}
+        label={t('editor:properties.instancing.grass.diffuseStrength')}
         onChange={onChangeProp('diffuseStrength')}
         value={props.diffuseStrength}
         min={0}
@@ -111,7 +111,7 @@ export default function ScatterGrassProperties({ value, onChange, ...rest }) {
       />
       <NumericInputGroup
         name="Shininess"
-        label={t('editor:properties.grass.shininess')}
+        label={t('editor:properties.instancing.grass.shininess')}
         onChange={onChangeProp('shininess')}
         value={props.shininess}
         min={0}
@@ -120,7 +120,7 @@ export default function ScatterGrassProperties({ value, onChange, ...rest }) {
         mediumStep={1}
         largeStep={5}
       />
-      <InputGroup name="Sun Colour" label={t('editor:properties.grass.sunColor')}>
+      <InputGroup name="Sun Colour" label={t('editor:properties.instancing.grass.sunColor')}>
         <ColorInput value={props.sunColour} onChange={onChangeProp('sunColour')} />
       </InputGroup>
     </CollapsibleBlock>

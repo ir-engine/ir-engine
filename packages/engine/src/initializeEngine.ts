@@ -171,7 +171,7 @@ export const initializeCoreSystems = async () => {
       },
       {
         type: SystemUpdateType.FIXED_LATE,
-        systemModulePromise: import('./scene/systems/ScatterSystem')
+        systemModulePromise: import('./scene/systems/InstancingSystem')
       }
     )
   }

@@ -14,6 +14,7 @@ import { SCENE_COMPONENT_GROUND_PLANE } from '@xrengine/engine/src/scene/functio
 import { SCENE_COMPONENT_GROUP } from '@xrengine/engine/src/scene/functions/loaders/GroupFunctions'
 import { SCENE_COMPONENT_HEMISPHERE_LIGHT } from '@xrengine/engine/src/scene/functions/loaders/HemisphereLightFunctions'
 import { SCENE_COMPONENT_IMAGE } from '@xrengine/engine/src/scene/functions/loaders/ImageFunctions'
+import { SCENE_COMPONENT_INSTANCING } from '@xrengine/engine/src/scene/functions/loaders/InstancingFunctions'
 import { SCENE_COMPONENT_INTERIOR } from '@xrengine/engine/src/scene/functions/loaders/InteriorFunctions'
 import { SCENE_COMPONENT_MODEL } from '@xrengine/engine/src/scene/functions/loaders/ModelFunctions'
 import { SCENE_COMPONENT_OCEAN } from '@xrengine/engine/src/scene/functions/loaders/OceanFunctions'
@@ -21,7 +22,6 @@ import { SCENE_COMPONENT_PARTICLE_EMITTER } from '@xrengine/engine/src/scene/fun
 import { SCENE_COMPONENT_POINT_LIGHT } from '@xrengine/engine/src/scene/functions/loaders/PointLightFunctions'
 import { SCENE_COMPONENT_PORTAL } from '@xrengine/engine/src/scene/functions/loaders/PortalFunctions'
 import { SCENE_COMPONENT_POSTPROCESSING } from '@xrengine/engine/src/scene/functions/loaders/PostprocessingFunctions'
-import { SCENE_COMPONENT_SCATTER } from '@xrengine/engine/src/scene/functions/loaders/ScatterFunctions'
 import { SCENE_COMPONENT_SCENE_PREVIEW_CAMERA } from '@xrengine/engine/src/scene/functions/loaders/ScenePreviewCameraFunctions'
 import { SCENE_COMPONENT_SKYBOX } from '@xrengine/engine/src/scene/functions/loaders/SkyboxFunctions'
 import { SCENE_COMPONENT_SPAWN_POINT } from '@xrengine/engine/src/scene/functions/loaders/SpawnPointFunctions'
@@ -47,6 +47,7 @@ import GroundPlaneNodeEditor from '../components/properties/GroundPlaneNodeEdito
 import GroupNodeEditor from '../components/properties/GroupNodeEditor'
 import HemisphereLightNodeEditor from '../components/properties/HemisphereLightNodeEditor'
 import ImageNodeEditor from '../components/properties/ImageNodeEditor'
+import InstancingNodeEditor from '../components/properties/InstancingNodeEditor'
 import InteriorNodeEditor from '../components/properties/InteriorNodeEditor'
 import ModelNodeEditor from '../components/properties/ModelNodeEditor'
 import OceanNodeEditor from '../components/properties/OceanNodeEditor'
@@ -54,7 +55,6 @@ import ParticleEmitterNodeEditor from '../components/properties/ParticleEmitterN
 import PointLightNodeEditor from '../components/properties/PointLightNodeEditor'
 import PortalNodeEditor from '../components/properties/PortalNodeEditor'
 import PostProcessingNodeEditor from '../components/properties/PostProcessingNodeEditor'
-import { ScatterNodeEditor } from '../components/properties/ScatterNodeEditor'
 import SceneNodeEditor from '../components/properties/SceneNodeEditor'
 import ScenePreviewCameraNodeEditor from '../components/properties/ScenePreviewCameraNodeEditor'
 import SkyboxNodeEditor from '../components/properties/SkyboxNodeEditor'
@@ -112,7 +112,7 @@ export const EntityNodeEditor = {
   [SCENE_COMPONENT_SYSTEM]: SystemNodeEditor,
   [SCENE_COMPONENT_SPLINE]: SplineNodeEditor,
   [SCENE_COMPONENT_CUBEMAP_BAKE]: CubemapBakeNodeEditor,
-  [SCENE_COMPONENT_SCATTER]: ScatterNodeEditor
+  [SCENE_COMPONENT_INSTANCING]: InstancingNodeEditor
 }
 
 export const prefabIcons = {
@@ -146,5 +146,5 @@ export const prefabIcons = {
   [ScenePrefabs.system]: SystemNodeEditor.iconComponent,
   [ScenePrefabs.spline]: SplineNodeEditor.iconComponent,
   [ScenePrefabs.cubemapbake]: CubemapBakeNodeEditor.iconComponent,
-  [ScenePrefabs.scatter]: ParticleEmitterNodeEditor.iconComponent
+  [ScenePrefabs.instancing]: ParticleEmitterNodeEditor.iconComponent
 }

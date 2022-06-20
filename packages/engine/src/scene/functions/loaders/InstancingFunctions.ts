@@ -30,21 +30,21 @@ import { addComponent, getComponent, hasComponent, removeComponent } from '../..
 import { iterateEntityNode } from '../../../ecs/functions/EntityTreeFunctions'
 import UpdateableObject3D from '../../classes/UpdateableObject3D'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
-import { Object3DComponent, Object3DWithEntity } from '../../components/Object3DComponent'
 import {
   GrassProperties,
+  InstancingComponent,
+  InstancingComponentType,
+  InstancingStagingComponent,
   MeshProperties,
   NodeProperties,
   SampleMode,
   sampleVar,
-  ScatterComponent,
-  ScatterComponentType,
   ScatterMode,
   ScatterProperties,
-  ScatterStagingComponent,
   ScatterState,
   VertexProperties
-} from '../../components/ScatterComponent'
+} from '../../components/InstancingComponent'
+import { Object3DComponent, Object3DWithEntity } from '../../components/Object3DComponent'
 import { UpdatableComponent } from '../../components/UpdatableComponent'
 import getFirstMesh from '../../util/getFirstMesh'
 import obj3dFromUuid from '../../util/obj3dFromUuid'
@@ -89,8 +89,8 @@ export const NODE_PROPERTIES_DEFAULT_VALUES: NodeProperties = {
   root: ''
 }
 
-export const SCENE_COMPONENT_SCATTER = 'scatter'
-export const SCENE_COMPONENT_SCATTER_DEFAULT_VALUES: ScatterComponentType = {
+export const SCENE_COMPONENT_INSTANCING = 'instancing'
+export const SCENE_COMPONENT_INSTANCING_DEFAULT_VALUES: InstancingComponentType = {
   count: 1000,
   surface: '',
   sampling: SampleMode.SCATTER,
@@ -268,19 +268,19 @@ float sky = max(dot(normal, vec3(0, 1, 0)), 0.8);
     return;
 }`
 
-export const deserializeScatter: ComponentDeserializeFunction = (
+export const deserializeInstancing: ComponentDeserializeFunction = (
   entity: Entity,
-  json: ComponentJson<ScatterComponentType>
+  json: ComponentJson<InstancingComponentType>
 ) => {
-  const scatterProps = parseScatterProperties(json.props)
-  addComponent(entity, ScatterComponent, scatterProps)
-  if (scatterProps.state === ScatterState.STAGED) addComponent(entity, ScatterStagingComponent, {})
-  getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_SCATTER)
+  const scatterProps = parseInstancingProperties(json.props)
+  addComponent(entity, InstancingComponent, scatterProps)
+  if (scatterProps.state === ScatterState.STAGED) addComponent(entity, InstancingStagingComponent, {})
+  getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_INSTANCING)
 }
 
-function parseScatterProperties(props): ScatterComponentType {
-  let result: ScatterComponentType = {
-    ...SCENE_COMPONENT_SCATTER_DEFAULT_VALUES,
+function parseInstancingProperties(props): InstancingComponentType {
+  let result: InstancingComponentType = {
+    ...SCENE_COMPONENT_INSTANCING_DEFAULT_VALUES,
     ...props
   }
   const processProps = (props, defaults) => {
@@ -296,7 +296,7 @@ function parseScatterProperties(props): ScatterComponentType {
         })
     )
   }
-  result = processProps(result, SCENE_COMPONENT_SCATTER_DEFAULT_VALUES) as ScatterComponentType
+  result = processProps(result, SCENE_COMPONENT_INSTANCING_DEFAULT_VALUES) as InstancingComponentType
   switch (result.mode) {
     case ScatterMode.GRASS:
       const defaults = GRASS_PROPERTIES_DEFAULT_VALUES
@@ -306,8 +306,8 @@ function parseScatterProperties(props): ScatterComponentType {
   return result
 }
 
-export const serializeScatter: ComponentSerializeFunction = (entity) => {
-  const comp = getComponent(entity, ScatterComponent) as ScatterComponentType
+export const serializeInstancing: ComponentSerializeFunction = (entity) => {
+  const comp = getComponent(entity, InstancingComponent) as InstancingComponentType
   if (!comp) return
   const toSave = { ...comp }
   const formatData = (props) => {
@@ -331,7 +331,7 @@ export const serializeScatter: ComponentSerializeFunction = (entity) => {
   toSave.sourceProperties = _srcProps
   toSave.sampleProperties = _sampleProps
   return {
-    name: SCENE_COMPONENT_SCATTER,
+    name: SCENE_COMPONENT_INSTANCING,
     props: toSave
   }
 }
@@ -360,8 +360,8 @@ async function loadGrassTextures(props: GrassProperties) {
   }
 }
 
-export async function stageScatter(entity: Entity, world = Engine.instance.currentWorld) {
-  const scatter = getComponent(entity, ScatterComponent)
+export async function stageInstancing(entity: Entity, world = Engine.instance.currentWorld) {
+  const scatter = getComponent(entity, InstancingComponent)
   if (scatter.state === ScatterState.STAGING) {
     console.error('scatter component is already staging')
   }
@@ -781,8 +781,8 @@ export async function stageScatter(entity: Entity, world = Engine.instance.curre
   scatter.state = ScatterState.STAGED
 }
 
-export function unstageScatter(entity: Entity, world = Engine.instance.currentWorld) {
-  const comp = getComponent(entity, ScatterComponent) as ScatterComponentType
+export function unstageInstancing(entity: Entity, world = Engine.instance.currentWorld) {
+  const comp = getComponent(entity, InstancingComponent) as InstancingComponentType
   removeComponent(entity, Object3DComponent, world)
   comp.state = ScatterState.UNSTAGED
 }

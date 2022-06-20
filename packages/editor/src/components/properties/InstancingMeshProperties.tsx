@@ -5,9 +5,9 @@ import { Mesh, Object3D } from 'three'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { iterateEntityNode } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
+import { MeshProperties } from '@xrengine/engine/src/scene/components/InstancingComponent'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
-import { MeshProperties } from '@xrengine/engine/src/scene/components/ScatterComponent'
 import iterateObject3D from '@xrengine/engine/src/scene/util/iterateObject3D'
 
 import InputGroup from '../inputs/InputGroup'
@@ -45,11 +45,11 @@ export default function ScatterMeshProperties({ value, onChange, ...rest }) {
   }
 
   return (
-    <CollapsibleBlock label={t('editor:properties.scatterMesh.lbl-meshProperties')}>
-      <InputGroup name="Instanced Mesh" label={t('editor:properties.scatterMesh.instancedMesh')}>
+    <CollapsibleBlock label={t('editor:properties.instancing.mesh.properties')}>
+      <InputGroup name="Instanced Mesh" label={t('editor:properties.instancing.mesh.instancedMesh')}>
         <SelectInput
-          error={t('editor:properties.scatterMesh.error-instancedMesh')}
-          placeholder={t('editor:properties.scatterMesh.placeholder-instancedMesh')}
+          error={t('editor:properties.instancing.mesh.error-instancedMesh')}
+          placeholder={t('editor:properties.instancing.mesh.placeholder-instancedMesh')}
           value={props.instancedMesh}
           onChange={updateProp('instancedMesh')}
           options={initialMeshes}

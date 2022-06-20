@@ -36,6 +36,7 @@ import {
   SCENE_COMPONENT_HEMISPHEREL_LIGHT_DEFAULT_VALUES
 } from './loaders/HemisphereLightFunctions'
 import { SCENE_COMPONENT_IMAGE, SCENE_COMPONENT_IMAGE_DEFAULT_VALUES } from './loaders/ImageFunctions'
+import { SCENE_COMPONENT_INSTANCING, SCENE_COMPONENT_INSTANCING_DEFAULT_VALUES } from './loaders/InstancingFunctions'
 import { SCENE_COMPONENT_INTERIOR, SCENE_COMPONENT_INTERIOR_DEFAULT_VALUES } from './loaders/InteriorFunctions'
 import {
   SCENE_COMPONENT_LOOP_ANIMATION,
@@ -58,7 +59,6 @@ import {
   SCENE_COMPONENT_PREVENT_BAKE,
   SCENE_COMPONENT_PREVENT_BAKE_DEFAULT_VALUES
 } from './loaders/PreventBakeFunctions'
-import { SCENE_COMPONENT_SCATTER, SCENE_COMPONENT_SCATTER_DEFAULT_VALUES } from './loaders/ScatterFunctions'
 import {
   SCENE_COMPONENT_SCENE_PREVIEW_CAMERA,
   SCENE_COMPONENT_SCENE_PREVIEW_CAMERA_DEFAULT_VALUES
@@ -110,7 +110,7 @@ export const ScenePrefabs = {
   system: 'System' as const,
   spline: 'Spline' as const,
   cubemapbake: 'CubemapBake' as const,
-  scatter: 'Scatter' as const
+  instancing: 'Instancing' as const
 }
 
 export type ScenePrefabTypes = typeof ScenePrefabs[keyof typeof ScenePrefabs]
@@ -290,9 +290,9 @@ export const registerPrefabs = (world: World) => {
     { name: SCENE_COMPONENT_CUBEMAP_BAKE, props: SCENE_COMPONENT_CUBEMAP_BAKE_DEFAULT_VALUES }
   ])
 
-  world.scenePrefabRegistry.set(ScenePrefabs.scatter, [
+  world.scenePrefabRegistry.set(ScenePrefabs.instancing, [
     { name: SCENE_COMPONENT_TRANSFORM, props: SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES },
     { name: SCENE_COMPONENT_VISIBLE, props: SCENE_COMPONENT_VISIBLE_DEFAULT_VALUES },
-    { name: SCENE_COMPONENT_SCATTER, props: SCENE_COMPONENT_SCATTER_DEFAULT_VALUES }
+    { name: SCENE_COMPONENT_INSTANCING, props: SCENE_COMPONENT_INSTANCING_DEFAULT_VALUES }
   ])
 }
