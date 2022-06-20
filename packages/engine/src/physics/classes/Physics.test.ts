@@ -179,4 +179,49 @@ describe('Physics', () => {
 
     assert.equal(hasComponent(entity1, RapierCollisionComponent), false)
   })
+
+  it('should generate a trigger event', async () => {
+    const world = Engine.instance.currentWorld
+    const entity1 = createEntity(world)
+    const entity2 = createEntity(world)
+
+    const physicsWorld = Physics.createWorld()
+    const collisionEventQueue = Physics.createCollisionEventQueue()
+
+    const rigidBodyDesc = RigidBodyDesc.dynamic()
+    const colliderDesc = ColliderDesc.ball(1)
+      .setCollisionGroups(getInteractionGroups(CollisionGroups.Default, DefaultCollisionMask))
+      .setActiveCollisionTypes(ActiveCollisionTypes.ALL)
+      .setActiveEvents(ActiveEvents.COLLISION_EVENTS)
+      .setSensor(true)
+
+    const rigidBody1 = Physics.createRigidBody(entity1, physicsWorld, rigidBodyDesc, [colliderDesc])
+    const rigidBody2 = Physics.createRigidBody(entity2, physicsWorld, rigidBodyDesc, [colliderDesc])
+
+    physicsWorld.step(collisionEventQueue)
+    Physics.drainCollisionEventQueue(physicsWorld, collisionEventQueue)
+
+    assert.equal(hasComponent(entity1, RapierCollisionComponent), true)
+    assert.equal(getComponent(entity1, RapierCollisionComponent).collisions.get(entity2)?.bodySelf, rigidBody1)
+    assert.equal(getComponent(entity1, RapierCollisionComponent).collisions.get(entity2)?.bodyOther, rigidBody2)
+    assert.equal(
+      getComponent(entity1, RapierCollisionComponent).collisions.get(entity2)?.shapeSelf,
+      rigidBody1.collider(0)
+    )
+    assert.equal(
+      getComponent(entity1, RapierCollisionComponent).collisions.get(entity2)?.shapeOther,
+      rigidBody2.collider(0)
+    )
+    assert.equal(
+      getComponent(entity1, RapierCollisionComponent).collisions.get(entity2)?.type,
+      CollisionEvents.TRIGGER_START
+    )
+
+    rigidBody2.setTranslation({ x: 0, y: 0, z: 15 }, true)
+
+    physicsWorld.step(collisionEventQueue)
+    Physics.drainCollisionEventQueue(physicsWorld, collisionEventQueue)
+
+    assert.equal(hasComponent(entity1, RapierCollisionComponent), false)
+  })
 })
