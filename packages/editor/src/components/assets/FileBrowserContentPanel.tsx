@@ -4,8 +4,13 @@ import { useTranslation } from 'react-i18next'
 import InfiniteScroll from 'react-infinite-scroller'
 
 import ConfirmModal from '@xrengine/client-core/src/admin/common/ConfirmModal'
-import { FileBrowserService, useFileBrowserState } from '@xrengine/client-core/src/common/services/FileBrowserService'
+import {
+  FileBrowserService,
+  FileBrowserServiceReceptor,
+  useFileBrowserState
+} from '@xrengine/client-core/src/common/services/FileBrowserService'
 import { ScenePrefabs } from '@xrengine/engine/src/scene/functions/registerPrefabs'
+import { addActionReceptor, removeActionReceptor } from '@xrengine/hyperflux'
 
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import AutorenewIcon from '@mui/icons-material/Autorenew'
@@ -112,6 +117,13 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
         )
       }
     })
+
+  useEffect(() => {
+    addActionReceptor(FileBrowserServiceReceptor)
+    return () => {
+      removeActionReceptor(FileBrowserServiceReceptor)
+    }
+  }, [])
 
   const onSelect = (params: FileDataType) => {
     if (params.type !== 'folder') {
