@@ -10,9 +10,7 @@ import InputText from '../../common/InputText'
 import { ClientSettingService, useClientSettingState } from '../../services/Setting/ClientSettingService'
 import styles from '../../styles/settings.module.scss'
 
-interface clientProps {}
-
-const Client = (props: clientProps) => {
+const Client = () => {
   const clientSettingState = useClientSettingState()
   const [clientSetting] = clientSettingState?.client?.value || []
   const id = clientSetting?.id

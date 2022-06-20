@@ -10,9 +10,7 @@ import InputText from '../../common/InputText'
 import { ServerSettingService, useServerSettingState } from '../../services/Setting/ServerSettingService'
 import styles from '../../styles/settings.module.scss'
 
-interface serverProps {}
-
-const Server = (props: serverProps) => {
+const Server = () => {
   const serverSettingState = useServerSettingState()
   const [serverSetting] = serverSettingState?.server?.value || []
   const id = serverSetting?.id
