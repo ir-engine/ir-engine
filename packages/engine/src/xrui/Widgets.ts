@@ -5,7 +5,16 @@ import { Entity } from '../ecs/classes/Entity'
 import { createXRUI } from './functions/createXRUI'
 import { WidgetAppActions } from './WidgetAppService'
 
-export interface Widget {
+/**
+ * The widget interface.
+ *
+ * @param {XRUI} ui stores a reference to the XRUI container, entity and state
+ * @param {string} label is the display label of the widget
+ * @param {any} icon is the icon to display on the widget menu
+ * @param {Function} system is a system that will run while a widget is enabled and visible
+ */
+
+export type Widget = {
   ui: ReturnType<typeof createXRUI>
   label: string
   icon: any
