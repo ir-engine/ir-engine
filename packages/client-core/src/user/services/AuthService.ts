@@ -52,7 +52,27 @@ const AuthState = defineState({
     user: UserSeed,
     identityProvider: IdentityProviderSeed,
     avatarList: [] as Array<UserAvatar>
-  })
+  }),
+  onCreate: (store, s) => {
+    s.attach(() => ({
+      id: Symbol('AuthPersist'),
+      init: () => ({
+        onSet(arg) {
+          const state = s.attach(Downgraded).value
+          if (state.isLoggedIn)
+            dispatchAction(
+              StoredLocalAction.storedLocal({
+                newState: {
+                  authUser: state.authUser
+                }
+              }),
+              undefined,
+              store
+            )
+        }
+      })
+    }))
+  }
 })
 
 export const avatarFetchedReceptor = (s: any, action: any) => {
@@ -146,24 +166,6 @@ export const AuthServiceReceptor = (action) => {
 
 export const accessAuthState = () => getState(AuthState)
 export const useAuthState = () => useState(accessAuthState())
-
-// add a listener that will be invoked on any state change.
-accessAuthState().attach(() => ({
-  id: Symbol('AuthPersist'),
-  init: () => ({
-    onSet(arg) {
-      const state = accessAuthState().attach(Downgraded).value
-      if (state.isLoggedIn)
-        dispatchAction(
-          StoredLocalAction.storedLocal({
-            newState: {
-              authUser: state.authUser
-            }
-          })
-        )
-    }
-  })
-}))
 
 //Service
 export const AuthService = {
@@ -282,7 +284,7 @@ export const AuthService = {
     }
 
     dispatchAction(AuthAction.actionProcessing({ processing: true }))
-    ;(client as any)
+    client
       .authenticate({
         strategy: 'local',
         email: form.email,
@@ -292,7 +294,7 @@ export const AuthService = {
         const authUser = resolveAuthUser(res)
 
         if (!authUser.identityProvider.isVerified) {
-          ;(client as any).logout()
+          client.logout()
 
           dispatchAction(
             AuthAction.registerUserByEmailSuccessAction({ identityProvider: authUser.identityProvider, message: '' })
@@ -407,7 +409,7 @@ export const AuthService = {
   },
   logoutUser: async () => {
     dispatchAction(AuthAction.actionProcessing({ processing: true }))
-    ;(client as any)
+    client
       .logout()
       .then(() => dispatchAction(AuthAction.didLogoutAction()))
       .catch(() => dispatchAction(AuthAction.didLogoutAction()))

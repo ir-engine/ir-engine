@@ -3,6 +3,8 @@ import { useTranslation } from 'react-i18next'
 
 import { Group } from '@xrengine/common/src/interfaces/Group'
 
+import Box from '@mui/material/Box'
+
 import { useAuthState } from '../../../user/services/AuthService'
 import ConfirmModal from '../../common/ConfirmModal'
 import TableComponent from '../../common/Table'
@@ -12,12 +14,13 @@ import styles from '../../styles/admin.module.scss'
 import ViewGroup from './ViewGroup'
 
 interface Props {
+  className?: string
   search: string
 }
 
-const GroupTable = ({ search }: Props) => {
+const GroupTable = ({ className, search }: Props) => {
   const user = useAuthState().user
-  const [viewModal, setViewModal] = useState(false)
+  const [openViewGroup, setOpenViewGroup] = useState(false)
   const [singleGroup, setSingleGroup] = useState<Group>(null!)
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(GROUP_PAGE_LIMIT)
@@ -52,7 +55,7 @@ const GroupTable = ({ search }: Props) => {
     const group = adminGroups.value.find((group) => group.id === id)
     if (group !== null) {
       setSingleGroup(group!)
-      setViewModal(true)
+      setOpenViewGroup(true)
     }
   }
 
@@ -68,10 +71,6 @@ const GroupTable = ({ search }: Props) => {
   const deleteGroupHandler = () => {
     setShowWarning(false)
     AdminGroupService.deleteGroupByAdmin(groupId)
-  }
-
-  const closeViewModal = (open) => {
-    setViewModal(open)
   }
 
   useEffect(() => {
@@ -112,7 +111,7 @@ const GroupTable = ({ search }: Props) => {
   })
 
   return (
-    <React.Fragment>
+    <Box className={className}>
       <TableComponent
         allowSort={false}
         fieldOrder={orderBy}
@@ -132,10 +131,10 @@ const GroupTable = ({ search }: Props) => {
         onClose={handleCloseWarning}
         onSubmit={deleteGroupHandler}
       />
-      {singleGroup && viewModal && (
-        <ViewGroup groupAdmin={singleGroup} openView={viewModal} closeViewModal={closeViewModal} />
+      {singleGroup && openViewGroup && (
+        <ViewGroup groupAdmin={singleGroup} open onClose={() => setOpenViewGroup(false)} />
       )}
-    </React.Fragment>
+    </Box>
   )
 }
 

@@ -10,11 +10,11 @@ import Container from '@mui/material/Container'
 import DialogActions from '@mui/material/DialogActions'
 import DialogContentText from '@mui/material/DialogContentText'
 import DialogTitle from '@mui/material/DialogTitle'
-import Drawer from '@mui/material/Drawer'
 
 import { NotificationService } from '../../../common/services/NotificationService'
 import { useAuthState } from '../../../user/services/AuthService'
 import AutoComplete from '../../common/AutoComplete'
+import DrawerView from '../../common/DrawerView'
 import InputSelect, { InputMenuItem } from '../../common/InputSelect'
 import InputText from '../../common/InputText'
 import { validateForm } from '../../common/validation/formValidation'
@@ -156,7 +156,7 @@ const CreateUser = ({ open, onClose }: Props) => {
 
   return (
     <React.Fragment>
-      <Drawer classes={{ paper: styles.paperDrawer }} anchor="right" open={open} onClose={handleCancel}>
+      <DrawerView open={open} onClose={handleCancel}>
         <Container maxWidth="sm" className={styles.mt20}>
           <DialogTitle id="form-dialog-title" className={styles.textAlign}>
             {t('admin:components.user.createNewUser')}
@@ -204,7 +204,7 @@ const CreateUser = ({ open, onClose }: Props) => {
             </Button>
           </DialogActions>
         </Container>
-      </Drawer>
+      </DrawerView>
       <CreateUserRole open={openCreateUserRole} handleClose={handleUserRoleClose} />
     </React.Fragment>
   )

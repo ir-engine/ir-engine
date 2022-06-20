@@ -13,6 +13,8 @@ import {
 } from '@xrengine/client-core/src/admin/services/Setting/ClientSettingService'
 import ErrorBoundary from '@xrengine/client-core/src/common/components/ErrorBoundary'
 import { LoadingCircle } from '@xrengine/client-core/src/components/LoadingCircle'
+import { InviteServiceReceptor } from '@xrengine/client-core/src/social/services/InviteService'
+import { LocationServiceReceptor } from '@xrengine/client-core/src/social/services/LocationService'
 import { AuthService, AuthServiceReceptor } from '@xrengine/client-core/src/user/services/AuthService'
 import {
   LocalStateServiceReceptor,
@@ -46,6 +48,8 @@ function RouterComp(props) {
     addActionReceptor(ClientSettingsServiceReceptor)
     addActionReceptor(AuthSettingsServiceReceptor)
     addActionReceptor(AuthServiceReceptor)
+    addActionReceptor(InviteServiceReceptor)
+    addActionReceptor(LocationServiceReceptor)
 
     dispatchAction(StoredLocalAction.restoreLocalData())
     StoredLocalStoreService.fetchLocalStoredState()
@@ -68,6 +72,8 @@ function RouterComp(props) {
       removeActionReceptor(ClientSettingsServiceReceptor)
       removeActionReceptor(AuthSettingsServiceReceptor)
       removeActionReceptor(AuthServiceReceptor)
+      removeActionReceptor(InviteServiceReceptor)
+      removeActionReceptor(LocationServiceReceptor)
     }
   }, [])
 
@@ -84,22 +90,20 @@ function RouterComp(props) {
 
   return (
     <ErrorBoundary>
-      <React.Fragment>
-        <Suspense fallback={<LoadingCircle />}>
-          <Switch>
-            {customRoutes.map((route, i) => (
-              <Route key={`custom-route-${i}`} path={route.route} component={route.component} {...route.props} />
-            ))}
-            <Route key={'offline'} path={'/offline'} component={$offline} />
-            {/* default to allowing admin access regardless */}
-            <Route key={'default-admin'} path={'/admin'} component={$admin} />
-            <Route key={'default-auth'} path={'/auth'} component={$auth} />
-            {/* if no index page has been provided, indicate this as obviously as possible */}
-            <Route key={'/503'} path={'/'} component={$503} exact />
-            <Route key={'404'} path="*" component={$404} />
-          </Switch>
-        </Suspense>
-      </React.Fragment>
+      <Suspense fallback={<LoadingCircle />}>
+        <Switch>
+          {customRoutes.map((route, i) => (
+            <Route key={`custom-route-${i}`} path={route.route} component={route.component} {...route.props} />
+          ))}
+          <Route key={'offline'} path={'/offline'} component={$offline} />
+          {/* default to allowing admin access regardless */}
+          <Route key={'default-admin'} path={'/admin'} component={$admin} />
+          <Route key={'default-auth'} path={'/auth'} component={$auth} />
+          {/* if no index page has been provided, indicate this as obviously as possible */}
+          <Route key={'/503'} path={'/'} component={$503} exact />
+          <Route key={'404'} path="*" component={$404} />
+        </Switch>
+      </Suspense>
     </ErrorBoundary>
   )
 }

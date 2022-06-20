@@ -1,7 +1,4 @@
 {
-  "pageLoader": {
-    "loading": "Loading page..."
-  },
   "tooltip": {
     "pressKey": "Press {{tip}} to {{message}}"
   },

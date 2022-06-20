@@ -63,6 +63,4 @@ const ConfirmEmail = (props: Props): JSX.Element => {
   )
 }
 
-const ConfirmEmailWrapper = (props: Props): any => <ConfirmEmail {...props} />
-
-export default ConfirmEmailWrapper
+export default ConfirmEmail
