@@ -143,6 +143,25 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
   }, [filesValue])
 
   useEffect(() => {
+    setFiles(
+      fileState.files.value.map((file) => {
+        const prefabType = PrefabFileType[file.type]
+        const isFolder = file.type === 'folder'
+        const fullName = isFolder ? file.name : file.name + '.' + file.type
+
+        return {
+          ...file,
+          path: isFolder ? file.key.split(file.name)[0] : file.key.split(fullName)[0],
+          fullName,
+          isFolder,
+          prefabType,
+          Icon: prefabIcons[prefabType]
+        }
+      })
+    )
+  }, [fileState])
+
+  useEffect(() => {
     onRefreshDirectory()
   }, [selectedDirectory])
 
@@ -179,23 +198,6 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
 
   const onRefreshDirectory = async () => {
     await FileBrowserService.fetchFiles(selectedDirectory)
-
-    setFiles(
-      fileState.files.value.map((file) => {
-        const prefabType = PrefabFileType[file.type]
-        const isFolder = file.type === 'folder'
-        const fullName = isFolder ? file.name : file.name + '.' + file.type
-
-        return {
-          ...file,
-          path: isFolder ? file.key.split(file.name)[0] : file.key.split(fullName)[0],
-          fullName,
-          isFolder,
-          prefabType,
-          Icon: prefabIcons[prefabType]
-        }
-      })
-    )
   }
 
   const onBackDirectory = () => {
