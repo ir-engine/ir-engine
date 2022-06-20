@@ -14,6 +14,7 @@ import {
 import ErrorBoundary from '@xrengine/client-core/src/common/components/ErrorBoundary'
 import { LoadingCircle } from '@xrengine/client-core/src/components/LoadingCircle'
 import { InviteServiceReceptor } from '@xrengine/client-core/src/social/services/InviteService'
+import { LocationServiceReceptor } from '@xrengine/client-core/src/social/services/LocationService'
 import { AuthService, AuthServiceReceptor } from '@xrengine/client-core/src/user/services/AuthService'
 import {
   LocalStateServiceReceptor,
@@ -48,6 +49,7 @@ function RouterComp(props) {
     addActionReceptor(AuthSettingsServiceReceptor)
     addActionReceptor(AuthServiceReceptor)
     addActionReceptor(InviteServiceReceptor)
+    addActionReceptor(LocationServiceReceptor)
 
     dispatchAction(StoredLocalAction.restoreLocalData())
     StoredLocalStoreService.fetchLocalStoredState()
@@ -71,6 +73,7 @@ function RouterComp(props) {
       removeActionReceptor(AuthSettingsServiceReceptor)
       removeActionReceptor(AuthServiceReceptor)
       removeActionReceptor(InviteServiceReceptor)
+      removeActionReceptor(LocationServiceReceptor)
     }
   }, [])
 
