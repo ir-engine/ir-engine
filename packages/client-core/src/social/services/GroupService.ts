@@ -4,7 +4,7 @@ import _ from 'lodash'
 import { CreateGroup, Group } from '@xrengine/common/src/interfaces/Group'
 import { GroupUser } from '@xrengine/common/src/interfaces/GroupUser'
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { addActionReceptor, defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
+import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
 import { NotificationService } from '../../common/services/NotificationService'
 import { client } from '../../feathers'
