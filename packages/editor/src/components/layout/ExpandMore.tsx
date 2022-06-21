@@ -7,6 +7,9 @@ interface ExpandMoreProps extends IconButtonProps {
   expand: boolean
 }
 
+const ExpandMoreContainer = (styled as any).div`
+color: #fff`
+
 const _expandMore = styled((props: ExpandMoreProps) => {
   const { expand, ...other } = props
   return <IconButton {...other} />
@@ -19,5 +22,9 @@ const _expandMore = styled((props: ExpandMoreProps) => {
 }))
 
 export default function ExpandMore(props: ExpandMoreProps) {
-  return <_expandMore {...props} />
+  return (
+    <ExpandMoreContainer>
+      <_expandMore {...props} />
+    </ExpandMoreContainer>
+  )
 }
