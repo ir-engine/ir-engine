@@ -26,7 +26,7 @@ export const AdminInstanceState = defineState({
   })
 })
 
-const instancesRetrievedReceptor = (action: typeof AdminInstanceActions.instancesRetrievedAction.matches._TYPE) => {
+const instancesRetrievedReceptor = (action: typeof AdminInstanceActions.instancesRetrieved.matches._TYPE) => {
   const state = getState(AdminInstanceState)
   return state.merge({
     instances: action.instanceResult.data,
@@ -40,7 +40,7 @@ const instancesRetrievedReceptor = (action: typeof AdminInstanceActions.instance
   })
 }
 
-const instanceRemovedReceptor = (action: typeof AdminInstanceActions.instanceRemovedAction.matches._TYPE) => {
+const instanceRemovedReceptor = (action: typeof AdminInstanceActions.instanceRemoved.matches._TYPE) => {
   const state = getState(AdminInstanceState)
   return state.merge({ updateNeeded: true })
 }
@@ -75,7 +75,7 @@ export const AdminInstanceService = {
             search: value
           }
         })) as Paginated<Instance>
-        dispatchAction(AdminInstanceActions.instancesRetrievedAction({ instanceResult: instances }))
+        dispatchAction(AdminInstanceActions.instancesRetrieved({ instanceResult: instances }))
       }
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
@@ -83,12 +83,12 @@ export const AdminInstanceService = {
   },
   removeInstance: async (id: string) => {
     const result = (await API.instance.client.service('instance').patch(id, { ended: true })) as Instance
-    dispatchAction(AdminInstanceActions.instanceRemovedAction({ instance: result }))
+    dispatchAction(AdminInstanceActions.instanceRemoved({ instance: result }))
   },
   useAPIListeners: () => {
     useEffect(() => {
       const listener = (params) => {
-        dispatchAction(AdminInstanceActions.instanceRemovedAction({ instance: params.instance }))
+        dispatchAction(AdminInstanceActions.instanceRemoved({ instance: params.instance }))
       }
       API.instance.client.service('instance').on('removed', listener)
       return () => {
@@ -99,12 +99,12 @@ export const AdminInstanceService = {
 }
 
 export class AdminInstanceActions {
-  static instancesRetrievedAction = defineAction({
+  static instancesRetrieved = defineAction({
     store: 'ENGINE',
     type: 'admin.INSTANCES_RETRIEVED',
     instanceResult: matches.object as Validator<unknown, Paginated<Instance>>
   })
-  static instanceRemovedAction = defineAction({
+  static instanceRemoved = defineAction({
     store: 'ENGINE',
     type: 'admin.INSTANCE_REMOVED_ROW',
     instance: matches.object as Validator<unknown, Instance>
