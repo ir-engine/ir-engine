@@ -2,7 +2,7 @@ import { Icon } from '@iconify/react'
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { Button, Grid, Typography } from '@mui/material'
+import { Box, Button, Grid, Typography } from '@mui/material'
 
 import { useAuthState } from '../../../user/services/AuthService'
 import InputSwitch from '../../common/InputSwitch'
@@ -10,15 +10,19 @@ import InputText from '../../common/InputText'
 import { ServerSettingService, useServerSettingState } from '../../services/Setting/ServerSettingService'
 import styles from '../../styles/settings.module.scss'
 
-interface serverProps {}
+const Server = () => {
+  const { t } = useTranslation()
 
-const Server = (props: serverProps) => {
+  const authState = useAuthState()
+  const user = authState.user
   const serverSettingState = useServerSettingState()
   const [serverSetting] = serverSettingState?.server?.value || []
   const id = serverSetting?.id
+
   const [gaTrackingId, setGaTrackingId] = useState(serverSetting?.gaTrackingId)
   const [gitPem, setGitPem] = useState(serverSetting?.gitPem)
-  const { t } = useTranslation()
+  const [dryRun, setDryRun] = useState(true)
+  const [local, setLocal] = useState(true)
 
   useEffect(() => {
     if (serverSetting) {
@@ -27,28 +31,7 @@ const Server = (props: serverProps) => {
     }
   }, [serverSettingState?.updateNeeded?.value])
 
-  const [dryRun, setDryRun] = useState({
-    checkedA: true,
-    checkedB: true
-  })
-  const [local, setLocal] = useState({
-    checkedA: true,
-    checkedB: true
-  })
-
-  const authState = useAuthState()
-  const user = authState.user
-
-  const handleDryRun = (event) => {
-    setDryRun({ ...dryRun, [event.target.name]: event.target.checked })
-  }
-
-  const handleLocal = (event) => {
-    setLocal({ ...local, [event.target.name]: event.target.checked })
-  }
-
-  const handleSave = (event) => {
-    event.preventDefault()
+  const handleSubmit = (event) => {
     ServerSettingService.patchServerSetting({ gaTrackingId: gaTrackingId, gitPem: gitPem }, id)
   }
 
@@ -64,11 +47,11 @@ const Server = (props: serverProps) => {
   }, [authState?.user?.id?.value, serverSettingState?.updateNeeded?.value])
 
   return (
-    <form onSubmit={handleSave}>
+    <Box>
       <Typography component="h1" className={styles.settingsHeading}>
         {t('admin:components.setting.server')}
       </Typography>
-      <Grid container spacing={3} key={serverSetting?.id || ''}>
+      <Grid container spacing={3}>
         <Grid item xs={12} sm={6}>
           <InputText
             name="mode"
@@ -129,9 +112,9 @@ const Server = (props: serverProps) => {
           <InputSwitch
             name="performDryRun"
             label={t('admin:components.setting.performDryRun')}
-            checked={dryRun.checkedB}
+            checked={dryRun}
             disabled
-            onChange={handleDryRun}
+            onChange={(event) => setDryRun(event.target.checked)}
           />
         </Grid>
         <Grid item xs={12} sm={6}>
@@ -189,31 +172,35 @@ const Server = (props: serverProps) => {
             onChange={(e) => setGitPem(e.target.value)}
           />
 
-          <InputSwitch
-            name="local"
-            sx={{ mb: 2 }}
-            label={t('admin:components.setting.local')}
-            checked={local.checkedB}
-            disabled
-            onChange={handleLocal}
-          />
-
           <InputText
             name="releaseName"
             label={t('admin:components.setting.releaseName')}
             value={serverSetting?.releaseName || ''}
             disabled
           />
+
+          <InputSwitch
+            name="local"
+            label={t('admin:components.setting.local')}
+            checked={local}
+            disabled
+            onChange={(event) => setLocal(event.target.checked)}
+          />
         </Grid>
       </Grid>
       <Button sx={{ maxWidth: '100%' }} variant="outlined" className={styles.cancelButton} onClick={handleCancel}>
         {t('admin:components.setting.cancel')}
       </Button>
-      &nbsp; &nbsp;
-      <Button sx={{ maxWidth: '100%' }} variant="contained" className={styles.saveBtn} type="submit">
+      <Button
+        sx={{ maxWidth: '100%', ml: 1 }}
+        variant="contained"
+        className={styles.saveBtn}
+        type="submit"
+        onClick={handleSubmit}
+      >
         {t('admin:components.setting.save')}
       </Button>
-    </form>
+    </Box>
   )
 }
 
