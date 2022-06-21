@@ -17,7 +17,7 @@ import { cleanSceneDataCacheURLs, parseSceneDataCacheURLs } from './scene-parser
 
 const NEW_SCENE_NAME = 'New-Scene'
 
-const sceneAssetFiles = ['.scene.json', '.thumbnail.jpeg', '.cubemap.png']
+const sceneAssetFiles = ['.scene.json', '.thumbnail.jpeg', '.envmap.png']
 
 export const getSceneData = async (projectName, sceneName, metadataOnly, internal = false) => {
   const storageProvider = getStorageProvider()

@@ -12,22 +12,19 @@ import {
   useClientSettingState
 } from '@xrengine/client-core/src/admin/services/Setting/ClientSettingService'
 import ErrorBoundary from '@xrengine/client-core/src/common/components/ErrorBoundary'
+import { AppServiceReceptor } from '@xrengine/client-core/src/common/services/AppService'
 import { LoadingCircle } from '@xrengine/client-core/src/components/LoadingCircle'
-import { InviteServiceReceptor } from '@xrengine/client-core/src/social/services/InviteService'
+import { InviteService, InviteServiceReceptor } from '@xrengine/client-core/src/social/services/InviteService'
+import { LocationServiceReceptor } from '@xrengine/client-core/src/social/services/LocationService'
 import { AuthService, AuthServiceReceptor } from '@xrengine/client-core/src/user/services/AuthService'
 import {
   LocalStateServiceReceptor,
   StoredLocalAction,
-  StoredLocalStoreService,
-  useStoredLocalState
+  StoredLocalStoreService
 } from '@xrengine/client-core/src/util/StoredLocalState'
 import { addActionReceptor, dispatchAction, removeActionReceptor } from '@xrengine/hyperflux'
 
 import { CustomRoute, getCustomRoutes } from './getCustomRoutes'
-
-if (typeof globalThis.process === 'undefined') {
-  ;(globalThis as any).process = { env: {} }
-}
 
 const $admin = React.lazy(() => import('@xrengine/client-core/src/admin/adminRoutes'))
 const $auth = React.lazy(() => import('@xrengine/client/src/pages/auth/authRoutes'))
@@ -42,12 +39,16 @@ function RouterComp(props) {
   const location = useLocation()
   const [routesReady, setRoutesReady] = useState(false)
 
+  InviteService.useAPIListeners()
+
   useEffect(() => {
     addActionReceptor(LocalStateServiceReceptor)
     addActionReceptor(ClientSettingsServiceReceptor)
     addActionReceptor(AuthSettingsServiceReceptor)
     addActionReceptor(AuthServiceReceptor)
     addActionReceptor(InviteServiceReceptor)
+    addActionReceptor(LocationServiceReceptor)
+    addActionReceptor(AppServiceReceptor)
 
     dispatchAction(StoredLocalAction.restoreLocalData())
     StoredLocalStoreService.fetchLocalStoredState()
@@ -71,6 +72,8 @@ function RouterComp(props) {
       removeActionReceptor(AuthSettingsServiceReceptor)
       removeActionReceptor(AuthServiceReceptor)
       removeActionReceptor(InviteServiceReceptor)
+      removeActionReceptor(LocationServiceReceptor)
+      removeActionReceptor(AppServiceReceptor)
     }
   }, [])
 
