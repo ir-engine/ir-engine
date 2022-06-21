@@ -366,7 +366,7 @@ export async function stageInstancing(entity: Entity, world = Engine.instance.cu
     console.error('scatter component is already staging')
   }
   scatter.state = ScatterState.STAGING
-  const targetGeo = getFirstMesh(obj3dFromUuid(scatter.surface, world)).geometry
+  const targetGeo = getFirstMesh(obj3dFromUuid(scatter.surface, world))!.geometry
   const normals = targetGeo.getAttribute('normal')
   const positions = targetGeo.getAttribute('position')
   const uvs = targetGeo.getAttribute('uv')
@@ -551,7 +551,7 @@ export async function stageInstancing(entity: Entity, world = Engine.instance.cu
     instancedGeometry.attributes.normal = grassGeometry.attributes.normal
   } else if ((props as MeshProperties).isMeshProperties) {
     const meshProps = props as MeshProperties
-    const iGeo = getFirstMesh(obj3dFromUuid(meshProps.instancedMesh)).geometry
+    const iGeo = getFirstMesh(obj3dFromUuid(meshProps.instancedMesh))!.geometry
     instancedGeometry.index = iGeo.index
     instancedGeometry.attributes.position = iGeo.attributes.position
     instancedGeometry.attributes.uv = iGeo.attributes.uv
@@ -706,7 +706,7 @@ export async function stageInstancing(entity: Entity, world = Engine.instance.cu
       break
     case ScatterMode.MESH:
       const meshProps = props as MeshProperties
-      const iMesh = getFirstMesh(obj3dFromUuid(meshProps.instancedMesh))
+      const iMesh = getFirstMesh(obj3dFromUuid(meshProps.instancedMesh))!
       const iMat = iMesh.material as any
       resultMat = new MeshStandardMaterial({
         color: iMat.color,
