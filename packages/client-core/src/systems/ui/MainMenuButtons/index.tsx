@@ -7,38 +7,28 @@ import { respawnAvatar } from '@xrengine/engine/src/avatar/functions/respawnAvat
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineActions, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
+import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
 import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
 import { dispatchAction } from '@xrengine/hyperflux'
 
 import { Message as MessageIcon } from '@mui/icons-material'
-import LinkIcon from '@mui/icons-material/Link'
-import RefreshIcon from '@mui/icons-material/Refresh'
-import SettingsIcon from '@mui/icons-material/Settings'
+import { Link as LinkIcon, Mic, MicOff, Refresh as RefreshIcon, Settings as SettingsIcon } from '@mui/icons-material'
 
-import { useChatState } from '../../social/services/ChatService'
-import { EmoteIcon } from '../../user/components/UserMenu'
-import { MainMenuButtonState } from '../state/MainMenuButtonState'
-
-const styles = {
-  container: {
-    display: 'grid',
-    gridGap: '10px',
-    gridTemplateColumns: '1fr 1fr 1fr 1fr 1fr 1fr'
-  },
-  button: {
-    margin: '5px 15px 10px 10px',
-    alignItems: 'center',
-    zIndex: '20',
-    borderRadius: '50%',
-    width: '50px',
-    height: '50px',
-    fontSize: '20px',
-    display: 'flex',
-    justifyContent: 'center',
-    backgroundColor: 'var(--iconButtonBackground)',
-    color: 'var(--iconButtonColor)'
-  }
-}
+import { MediaInstanceConnectionService } from '../../../common/services/MediaInstanceConnectionService'
+import { MediaStreamService, useMediaStreamState } from '../../../media/services/MediaStreamService'
+import { useChatState } from '../../../social/services/ChatService'
+import {
+  configureMediaTransports,
+  createCamAudioProducer,
+  endVideoChat,
+  leaveNetwork,
+  pauseProducer,
+  resumeProducer
+} from '../../../transports/SocketWebRTCClientFunctions'
+import { SocketWebRTCClientNetwork } from '../../../transports/SocketWebRTCClientNetwork'
+import { EmoteIcon } from '../../../user/components/UserMenu'
+import { MainMenuButtonState } from '../../state/MainMenuButtonState'
+import styleString from './index.scss'
 
 export function createMainMenuButtonsView() {
   return createXRUI(MainMenuButtons, createMainMenuButtonsState())
@@ -59,6 +49,12 @@ const MainMenuButtons = () => {
   if (activeChannelMatch && activeChannelMatch.length > 0) {
     activeChannel = activeChannelMatch[1]
   }
+  const channelEntries = Object.values(channels).filter((channel) => !!channel) as any
+  const instanceChannel = channelEntries.find(
+    (entry) => entry.instanceId === Engine.instance.currentWorld.worldNetwork?.hostId
+  )
+  const mediastream = useMediaStreamState()
+  const isCamAudioEnabled = mediastream.isCamAudioEnabled
 
   useEffect(() => {
     activeChannel &&
@@ -123,34 +119,59 @@ const MainMenuButtons = () => {
     respawnAvatar(useWorld().localClientEntity)
   }
 
-  return (
-    <div style={styles.container as {}} xr-layer="true">
-      <style>{`
-        .svgIcon {
-          width: 1.5em;
-          height: 1.5em;
-        }
+  const checkEndVideoChat = async () => {
+    const mediaNetwork = Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork
+    if (
+      (MediaStreams.instance.audioPaused || MediaStreams.instance.camAudioProducer == null) &&
+      (MediaStreams.instance.videoPaused || MediaStreams.instance.camVideoProducer == null) &&
+      instanceChannel.channelType !== 'instance'
+    ) {
+      await endVideoChat(mediaNetwork, {})
+      if (mediaNetwork.socket?.connected === true) {
+        await leaveNetwork(mediaNetwork, false)
+        await MediaInstanceConnectionService.provisionServer(instanceChannel.id)
+      }
+    }
+  }
 
-        .svgIcon path {
-          fill: var(--iconButtonColor) !important;
-        }
-      `}</style>
-      <div style={styles.button} onClick={handleRespawnAvatar}>
+  const handleMicClick = async () => {
+    const mediaNetwork = Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork
+    if (await configureMediaTransports(mediaNetwork, ['audio'])) {
+      if (MediaStreams.instance.camAudioProducer == null) await createCamAudioProducer(mediaNetwork)
+      else {
+        const audioPaused = MediaStreams.instance.toggleAudioPaused()
+        if (audioPaused) await pauseProducer(mediaNetwork, MediaStreams.instance.camAudioProducer)
+        else await resumeProducer(mediaNetwork, MediaStreams.instance.camAudioProducer)
+        checkEndVideoChat()
+      }
+      MediaStreamService.updateCamAudioState()
+    }
+  }
+
+  const MicIcon = isCamAudioEnabled.value ? Mic : MicOff
+
+  return (
+    <div className="container" xr-layer="true">
+      <style>{styleString}</style>
+      <div className="button" onClick={handleRespawnAvatar}>
         <RefreshIcon className="svgIcon" />
       </div>
-      <div style={styles.button} onClick={toggleEmoteMenu}>
+      <div className="button" onClick={handleMicClick}>
+        <MicIcon className="svgIcon" />
+      </div>
+      <div className="button" onClick={toggleEmoteMenu}>
         <EmoteIcon />
       </div>
-      <div style={styles.button} onClick={toggleShareMenu}>
+      <div className="button" onClick={toggleShareMenu}>
         <LinkIcon className="svgIcon" />
       </div>
-      <div style={styles.button} onClick={toggleSettingMenu}>
+      <div className="button" onClick={toggleSettingMenu}>
         <SettingsIcon className="svgIcon" />
       </div>
-      <div style={styles.button} onClick={toggleChatWindow}>
+      <div className="button" onClick={toggleChatWindow}>
         <MessageIcon className="svgIcon" />
       </div>
-      <div style={styles.button} onClick={toogleVRSession}>
+      <div className="button" onClick={toogleVRSession}>
         <VrIcon />
       </div>
     </div>
