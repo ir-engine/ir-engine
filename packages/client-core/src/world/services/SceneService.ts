@@ -13,11 +13,17 @@ const SceneState = defineState({
 
 export const SceneServiceReceptor = (action) => {
   getState(SceneState).batch((s) => {
-    matches(action).when(SceneActions.currentSceneChanged.matches, (action) => {
-      return s.merge({
-        currentScene: action.sceneData
+    matches(action)
+      .when(SceneActions.currentSceneChanged.matches, (action) => {
+        return s.merge({
+          currentScene: action.sceneData
+        })
       })
-    })
+      .when(SceneActions.unloadCurrentScene.matches, (action) => {
+        return s.merge({
+          currentScene: null
+        })
+      })
   })
 }
 
@@ -36,5 +42,9 @@ export class SceneActions {
   static currentSceneChanged = defineAction({
     type: 'location.CURRENT_SCENE_CHANGED',
     sceneData: matches.object as Validator<unknown, SceneData | null>
+  })
+
+  static unloadCurrentScene = defineAction({
+    type: 'location.UNLOAD_CURRENT_SCENE'
   })
 }
