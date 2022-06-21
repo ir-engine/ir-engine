@@ -1,6 +1,7 @@
 import { Paginated } from '@feathersjs/feathers'
 import { none } from '@speigg/hookstate'
 import _ from 'lodash'
+import { useEffect } from 'react'
 
 import { User } from '@xrengine/common/src/interfaces/User'
 import { UserRelationship } from '@xrengine/common/src/interfaces/UserRelationship'
@@ -189,48 +190,60 @@ export const FriendService = {
 
   unfriend: (relatedUserId: string) => {
     return FriendService.removeFriend(relatedUserId)
+  },
+  useAPIListeners: () => {
+    useEffect(() => {
+      const userRelationshipCreatedListener = (params) => {
+        if (params.userRelationship.userRelationshipType === 'friend') {
+          dispatchAction(FriendAction.createdFriendAction({ userRelationship: params.userRelationship }))
+        }
+      }
+
+      const userRelationshipPatchedListener = (params) => {
+        const patchedUserRelationship = params.userRelationship
+        const selfUser = accessAuthState().user
+        if (patchedUserRelationship.userRelationshipType === 'friend') {
+          dispatchAction(
+            FriendAction.patchedFriendAction({ userRelationship: patchedUserRelationship, selfUser: selfUser.value })
+          )
+          if (
+            patchedUserRelationship.user.channelInstanceId != null &&
+            patchedUserRelationship.user.channelInstanceId === selfUser.channelInstanceId.value
+          )
+            dispatchAction(UserAction.addedChannelLayerUserAction({ user: patchedUserRelationship.user }))
+          if (patchedUserRelationship.user.channelInstanceId !== selfUser.channelInstanceId.value)
+            dispatchAction(UserAction.removedChannelLayerUserAction({ user: patchedUserRelationship.user }))
+        }
+      }
+
+      const userRelationshipRemovedListener = (params) => {
+        const deletedUserRelationship = params.userRelationship
+        const selfUser = accessAuthState().user
+        if (deletedUserRelationship.userRelationshipType === 'friend') {
+          dispatchAction(
+            FriendAction.removedFriendAction({ userRelationship: deletedUserRelationship, selfUser: selfUser.value })
+          )
+          if (
+            deletedUserRelationship.user.channelInstanceId != null &&
+            deletedUserRelationship.user.channelInstanceId === selfUser.channelInstanceId.value
+          )
+            dispatchAction(UserAction.addedChannelLayerUserAction({ user: deletedUserRelationship.user }))
+          if (deletedUserRelationship.user.channelInstanceId !== selfUser.channelInstanceId.value)
+            dispatchAction(UserAction.removedChannelLayerUserAction({ user: deletedUserRelationship.user }))
+        }
+      }
+
+      API.instance.client.service('user-relationship').on('created', userRelationshipCreatedListener)
+      API.instance.client.service('user-relationship').on('patched', userRelationshipPatchedListener)
+      API.instance.client.service('user-relationship').on('removed', userRelationshipRemovedListener)
+
+      return () => {
+        API.instance.client.service('user-relationship').off('created', userRelationshipCreatedListener)
+        API.instance.client.service('user-relationship').off('patched', userRelationshipPatchedListener)
+        API.instance.client.service('user-relationship').off('removed', userRelationshipRemovedListener)
+      }
+    }, [])
   }
-}
-if (globalThis.process.env['VITE_OFFLINE_MODE'] !== 'true') {
-  API.instance.client.service('user-relationship').on('created', (params) => {
-    if (params.userRelationship.userRelationshipType === 'friend') {
-      dispatchAction(FriendAction.createdFriendAction({ userRelationship: params.userRelationship }))
-    }
-  })
-
-  API.instance.client.service('user-relationship').on('patched', (params) => {
-    const patchedUserRelationship = params.userRelationship
-    const selfUser = accessAuthState().user
-    if (patchedUserRelationship.userRelationshipType === 'friend') {
-      dispatchAction(
-        FriendAction.patchedFriendAction({ userRelationship: patchedUserRelationship, selfUser: selfUser.value })
-      )
-      if (
-        patchedUserRelationship.user.channelInstanceId != null &&
-        patchedUserRelationship.user.channelInstanceId === selfUser.channelInstanceId.value
-      )
-        dispatchAction(UserAction.addedChannelLayerUserAction({ user: patchedUserRelationship.user }))
-      if (patchedUserRelationship.user.channelInstanceId !== selfUser.channelInstanceId.value)
-        dispatchAction(UserAction.removedChannelLayerUserAction({ user: patchedUserRelationship.user }))
-    }
-  })
-
-  API.instance.client.service('user-relationship').on('removed', (params) => {
-    const deletedUserRelationship = params.userRelationship
-    const selfUser = accessAuthState().user
-    if (deletedUserRelationship.userRelationshipType === 'friend') {
-      dispatchAction(
-        FriendAction.removedFriendAction({ userRelationship: deletedUserRelationship, selfUser: selfUser.value })
-      )
-      if (
-        deletedUserRelationship.user.channelInstanceId != null &&
-        deletedUserRelationship.user.channelInstanceId === selfUser.channelInstanceId.value
-      )
-        dispatchAction(UserAction.addedChannelLayerUserAction({ user: deletedUserRelationship.user }))
-      if (deletedUserRelationship.user.channelInstanceId !== selfUser.channelInstanceId.value)
-        dispatchAction(UserAction.removedChannelLayerUserAction({ user: deletedUserRelationship.user }))
-    }
-  })
 }
 
 //Action

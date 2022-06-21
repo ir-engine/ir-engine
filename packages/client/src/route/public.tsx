@@ -13,7 +13,7 @@ import {
 } from '@xrengine/client-core/src/admin/services/Setting/ClientSettingService'
 import ErrorBoundary from '@xrengine/client-core/src/common/components/ErrorBoundary'
 import { LoadingCircle } from '@xrengine/client-core/src/components/LoadingCircle'
-import { InviteServiceReceptor } from '@xrengine/client-core/src/social/services/InviteService'
+import { InviteService, InviteServiceReceptor } from '@xrengine/client-core/src/social/services/InviteService'
 import { LocationServiceReceptor } from '@xrengine/client-core/src/social/services/LocationService'
 import { AuthService, AuthServiceReceptor } from '@xrengine/client-core/src/user/services/AuthService'
 import {
@@ -38,6 +38,8 @@ function RouterComp(props) {
   const authSettingsState = useAuthSettingState()
   const location = useLocation()
   const [routesReady, setRoutesReady] = useState(false)
+
+  InviteService.useAPIListeners()
 
   useEffect(() => {
     addActionReceptor(LocalStateServiceReceptor)

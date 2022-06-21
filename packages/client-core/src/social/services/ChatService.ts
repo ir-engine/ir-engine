@@ -1,5 +1,6 @@
 import { Paginated } from '@feathersjs/feathers'
 import { none } from '@speigg/hookstate'
+import { useEffect } from 'react'
 
 import { Channel } from '@xrengine/common/src/interfaces/Channel'
 import { Group } from '@xrengine/common/src/interfaces/Group'
@@ -356,34 +357,51 @@ export const ChatService = {
   },
   updateMessageScrollInit: async (value: boolean) => {
     dispatchAction(ChatAction.setMessageScrollInitAction({ value }))
+  },
+  useAPIListeners: () => {
+    useEffect(() => {
+      const messageCreatedListener = (params) => {
+        const selfUser = accessAuthState().user.value
+        dispatchAction(ChatAction.createdMessageAction({ message: params.message, selfUser: selfUser }))
+      }
+
+      const messagePatchedListener = (params) => {
+        dispatchAction(ChatAction.patchedMessageAction({ message: params.message }))
+      }
+
+      const messageRemovedListener = (params) => {
+        dispatchAction(ChatAction.removedMessageAction({ message: params.message }))
+      }
+
+      const channelCreatedListener = (params) => {
+        dispatchAction(ChatAction.createdChannelAction({ channel: params.channel }))
+      }
+
+      const channelPatchedListener = (params) => {
+        dispatchAction(ChatAction.patchedChannelAction({ channel: params.channel }))
+      }
+
+      const channelRemovedListener = (params) => {
+        dispatchAction(ChatAction.removedChannelAction({ channel: params.channel }))
+      }
+
+      API.instance.client.service('message').on('created', messageCreatedListener)
+      API.instance.client.service('message').on('patched', messagePatchedListener)
+      API.instance.client.service('message').on('removed', messageRemovedListener)
+      API.instance.client.service('channel').on('created', channelCreatedListener)
+      API.instance.client.service('channel').on('patched', channelPatchedListener)
+      API.instance.client.service('channel').on('removed', channelRemovedListener)
+
+      return () => {
+        API.instance.client.service('message').off('created', messageCreatedListener)
+        API.instance.client.service('message').off('patched', messagePatchedListener)
+        API.instance.client.service('message').off('removed', messageRemovedListener)
+        API.instance.client.service('channel').off('created', channelCreatedListener)
+        API.instance.client.service('channel').off('patched', channelPatchedListener)
+        API.instance.client.service('channel').off('removed', channelRemovedListener)
+      }
+    }, [])
   }
-}
-
-if (globalThis.process.env['VITE_OFFLINE_MODE'] !== 'true') {
-  API.instance.client.service('message').on('created', (params) => {
-    const selfUser = accessAuthState().user.value
-    dispatchAction(ChatAction.createdMessageAction({ message: params.message, selfUser: selfUser }))
-  })
-
-  API.instance.client.service('message').on('patched', (params) => {
-    dispatchAction(ChatAction.patchedMessageAction({ message: params.message }))
-  })
-
-  API.instance.client.service('message').on('removed', (params) => {
-    dispatchAction(ChatAction.removedMessageAction({ message: params.message }))
-  })
-
-  API.instance.client.service('channel').on('created', (params) => {
-    dispatchAction(ChatAction.createdChannelAction({ channel: params.channel }))
-  })
-
-  API.instance.client.service('channel').on('patched', (params) => {
-    dispatchAction(ChatAction.patchedChannelAction({ channel: params.channel }))
-  })
-
-  API.instance.client.service('channel').on('removed', (params) => {
-    dispatchAction(ChatAction.removedChannelAction({ channel: params.channel }))
-  })
 }
 
 //Action

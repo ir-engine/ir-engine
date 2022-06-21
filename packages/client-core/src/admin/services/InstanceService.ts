@@ -1,5 +1,6 @@
 import { Paginated } from '@feathersjs/feathers'
 import { useState } from '@speigg/hookstate'
+import { useEffect } from 'react'
 
 import { Instance } from '@xrengine/common/src/interfaces/Instance'
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
@@ -87,14 +88,20 @@ export const AdminInstanceService = {
   removeInstance: async (id: string) => {
     const result = (await API.instance.client.service('instance').patch(id, { ended: true })) as Instance
     dispatchAction(AdminInstanceActions.instanceRemovedAction({ instance: result }))
+  },
+  useAPIListeners: () => {
+    useEffect(() => {
+      const listener = (params) => {
+        dispatchAction(AdminInstanceActions.instanceRemovedAction({ instance: params.instance }))
+      }
+      API.instance.client.service('instance').on('removed', listener)
+      return () => {
+        API.instance.client.service('instance').off('removed', listener)
+      }
+    }, [])
   }
 }
 
-if (globalThis.process.env['VITE_OFFLINE_MODE'] !== 'true') {
-  API.instance.client.service('instance').on('removed', (params) => {
-    dispatchAction(AdminInstanceActions.instanceRemovedAction({ instance: params.instance }))
-  })
-}
 export class AdminInstanceActions {
   static instancesRetrievedAction = defineAction({
     store: 'ENGINE',

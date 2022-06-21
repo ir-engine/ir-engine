@@ -1,4 +1,5 @@
 import { Paginated } from '@feathersjs/feathers'
+import { useEffect } from 'react'
 
 import { Invite, SendInvite } from '@xrengine/common/src/interfaces/Invite'
 import { User } from '@xrengine/common/src/interfaces/User'
@@ -299,29 +300,38 @@ export const InviteService = {
   },
   updateInviteTarget: async (targetObjectType: string, targetObjectId: string) => {
     dispatchAction(InviteAction.setInviteTarget({ targetObjectType, targetObjectId }))
+  },
+  useAPIListeners: () => {
+    useEffect(() => {
+      const inviteCreatedListener = (params) => {
+        const invite = params.invite
+        const selfUser = accessAuthState().user
+        if (invite.userId === selfUser.id.value) {
+          dispatchAction(InviteAction.createdSentInvite())
+        } else {
+          dispatchAction(InviteAction.createdReceivedInvite())
+        }
+      }
+
+      const inviteRemovedListener = (params) => {
+        const invite = params.invite
+        const selfUser = accessAuthState().user
+        if (invite.userId === selfUser.id.value) {
+          dispatchAction(InviteAction.removedSentInvite())
+        } else {
+          dispatchAction(InviteAction.removedReceivedInvite())
+        }
+      }
+
+      API.instance.client.service('invite').on('created', inviteCreatedListener)
+      API.instance.client.service('invite').on('removed', inviteRemovedListener)
+
+      return () => {
+        API.instance.client.service('invite').off('created', inviteCreatedListener)
+        API.instance.client.service('invite').off('removed', inviteRemovedListener)
+      }
+    }, [])
   }
-}
-
-if (globalThis.process.env['VITE_OFFLINE_MODE'] !== 'true') {
-  API.instance.client.service('invite').on('created', (params) => {
-    const invite = params.invite
-    const selfUser = accessAuthState().user
-    if (invite.userId === selfUser.id.value) {
-      dispatchAction(InviteAction.createdSentInvite())
-    } else {
-      dispatchAction(InviteAction.createdReceivedInvite())
-    }
-  })
-
-  API.instance.client.service('invite').on('removed', (params) => {
-    const invite = params.invite
-    const selfUser = accessAuthState().user
-    if (invite.userId === selfUser.id.value) {
-      dispatchAction(InviteAction.removedSentInvite())
-    } else {
-      dispatchAction(InviteAction.removedReceivedInvite())
-    }
-  })
 }
 
 //Action

@@ -1,5 +1,6 @@
 import { none } from '@speigg/hookstate'
 import _ from 'lodash'
+import { useEffect } from 'react'
 
 import { CreateGroup, Group } from '@xrengine/common/src/interfaces/Group'
 import { GroupUser } from '@xrengine/common/src/interfaces/GroupUser'
@@ -251,64 +252,84 @@ export const GroupService = {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
       dispatchAction(GroupAction.loadedInvitableGroups({ groups: [], limit: 0, skip: 0, total: 0 }))
     }
+  },
+  useAPIListeners: () => {
+    useEffect(() => {
+      const groupUserCreatedListener = (params) => {
+        const newGroupUser = params.groupUser
+        const selfUser = accessAuthState().user
+        dispatchAction(GroupAction.createdGroupUser({ groupUser: newGroupUser }))
+        if (
+          newGroupUser.user.channelInstanceId != null &&
+          newGroupUser.user.channelInstanceId === selfUser.channelInstanceId.value
+        )
+          dispatchAction(UserAction.addedChannelLayerUserAction({ user: newGroupUser.user }))
+        if (newGroupUser.user.channelInstanceId !== selfUser.channelInstanceId.value)
+          dispatchAction(UserAction.removedChannelLayerUserAction({ user: newGroupUser.user }))
+      }
+
+      const groupUserPatchedListener = (params) => {
+        const updatedGroupUser = params.groupUser
+        const selfUser = accessAuthState().user
+        dispatchAction(GroupAction.patchedGroupUser({ groupUser: updatedGroupUser }))
+        if (
+          updatedGroupUser.user.channelInstanceId != null &&
+          updatedGroupUser.user.channelInstanceId === selfUser.channelInstanceId.value
+        )
+          dispatchAction(UserAction.addedChannelLayerUserAction({ user: updatedGroupUser.user }))
+        if (updatedGroupUser.user.channelInstanceId !== selfUser.channelInstanceId.value)
+          dispatchAction(
+            UserAction.removedChannelLayerUserAction({
+              user: updatedGroupUser.user
+            })
+          )
+      }
+
+      const groupUserRemovedListener = (params) => {
+        const deletedGroupUser = params.groupUser
+        const selfUser = accessAuthState().user
+        dispatchAction(GroupAction.removedGroupUser({ groupUser: deletedGroupUser, self: params.self }))
+        dispatchAction(UserAction.removedChannelLayerUserAction({ user: deletedGroupUser.user }))
+        if (deletedGroupUser.userId === selfUser.id.value)
+          ChatService.clearChatTargetIfCurrent('group', { id: params.groupUser.groupId })
+      }
+
+      const groupCreatedListener = (params) => {
+        dispatchAction(GroupAction.createdGroup({ group: params.group }))
+      }
+
+      const groupPatchedListener = (params) => {
+        dispatchAction(GroupAction.patchedGroup({ group: params.group }))
+      }
+
+      const groupRemovedListener = (params) => {
+        dispatchAction(GroupAction.removedGroup({ group: params.group }))
+        ChatService.clearChatTargetIfCurrent('group', params.group)
+      }
+
+      const groupRefreshListener = (params) => {
+        dispatchAction(GroupAction.createdGroup({ group: params.group }))
+      }
+
+      API.instance.client.service('group-user').on('created', groupUserCreatedListener)
+      API.instance.client.service('group-user').on('patched', groupUserPatchedListener)
+      API.instance.client.service('group-user').on('removed', groupUserRemovedListener)
+      API.instance.client.service('group').on('created', groupCreatedListener)
+      API.instance.client.service('group').on('patched', groupPatchedListener)
+      API.instance.client.service('group').on('removed', groupRemovedListener)
+      API.instance.client.service('group').on('refresh', groupRefreshListener)
+
+      return () => {
+        API.instance.client.service('group-user').off('created', groupUserCreatedListener)
+        API.instance.client.service('group-user').off('patched', groupUserPatchedListener)
+        API.instance.client.service('group-user').off('removed', groupUserRemovedListener)
+        API.instance.client.service('group').off('created', groupCreatedListener)
+        API.instance.client.service('group').off('patched', groupPatchedListener)
+        API.instance.client.service('group').off('removed', groupRemovedListener)
+        API.instance.client.service('group').off('refresh', groupRefreshListener)
+      }
+    }, [])
   }
-}
-if (globalThis.process.env['VITE_OFFLINE_MODE'] !== 'true') {
-  API.instance.client.service('group-user').on('created', (params) => {
-    const newGroupUser = params.groupUser
-    const selfUser = accessAuthState().user
-    dispatchAction(GroupAction.createdGroupUser({ groupUser: newGroupUser }))
-    if (
-      newGroupUser.user.channelInstanceId != null &&
-      newGroupUser.user.channelInstanceId === selfUser.channelInstanceId.value
-    )
-      dispatchAction(UserAction.addedChannelLayerUserAction({ user: newGroupUser.user }))
-    if (newGroupUser.user.channelInstanceId !== selfUser.channelInstanceId.value)
-      dispatchAction(UserAction.removedChannelLayerUserAction({ user: newGroupUser.user }))
-  })
-
-  API.instance.client.service('group-user').on('patched', (params) => {
-    const updatedGroupUser = params.groupUser
-    const selfUser = accessAuthState().user
-    dispatchAction(GroupAction.patchedGroupUser({ groupUser: updatedGroupUser }))
-    if (
-      updatedGroupUser.user.channelInstanceId != null &&
-      updatedGroupUser.user.channelInstanceId === selfUser.channelInstanceId.value
-    )
-      dispatchAction(UserAction.addedChannelLayerUserAction({ user: updatedGroupUser.user }))
-    if (updatedGroupUser.user.channelInstanceId !== selfUser.channelInstanceId.value)
-      dispatchAction(
-        UserAction.removedChannelLayerUserAction({
-          user: updatedGroupUser.user
-        })
-      )
-  })
-
-  API.instance.client.service('group-user').on('removed', (params) => {
-    const deletedGroupUser = params.groupUser
-    const selfUser = accessAuthState().user
-    dispatchAction(GroupAction.removedGroupUser({ groupUser: deletedGroupUser, self: params.self }))
-    dispatchAction(UserAction.removedChannelLayerUserAction({ user: deletedGroupUser.user }))
-    if (deletedGroupUser.userId === selfUser.id.value)
-      ChatService.clearChatTargetIfCurrent('group', { id: params.groupUser.groupId })
-  })
-
-  API.instance.client.service('group').on('created', (params) => {
-    dispatchAction(GroupAction.createdGroup({ group: params.group }))
-  })
-
-  API.instance.client.service('group').on('patched', (params) => {
-    dispatchAction(GroupAction.patchedGroup({ group: params.group }))
-  })
-
-  API.instance.client.service('group').on('removed', (params) => {
-    dispatchAction(GroupAction.removedGroup({ group: params.group }))
-    ChatService.clearChatTargetIfCurrent('group', params.group)
-  })
-
-  API.instance.client.service('group').on('refresh', (params) => {
-    dispatchAction(GroupAction.createdGroup({ group: params.group }))
-  })
 }
 
 //Action

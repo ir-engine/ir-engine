@@ -47,6 +47,8 @@ export const NetworkInstanceProvisioning = () => {
   const channelConnectionState = useMediaInstanceConnectionState()
   const currentChannelInstanceConnection = channelConnectionState.instances[mediaNetworkHostId].ornull
 
+  MediaInstanceConnectionService.useAPIListeners()
+
   useEffect(() => {
     addActionReceptor(MediaServiceReceptor)
     addActionReceptor((action) => {

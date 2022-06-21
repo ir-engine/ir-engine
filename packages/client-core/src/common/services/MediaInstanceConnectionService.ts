@@ -1,4 +1,5 @@
 import { createState, useState } from '@speigg/hookstate'
+import { useEffect } from 'react'
 
 import { ChannelType } from '@xrengine/common/src/interfaces/Channel'
 import { InstanceServerProvisionResult } from '@xrengine/common/src/interfaces/InstanceServerProvisionResult'
@@ -137,16 +138,21 @@ export const MediaInstanceConnectionService = {
   resetServer: (instanceId: string) => {
     const dispatch = useDispatch()
     dispatch(MediaInstanceConnectionAction.disconnect(instanceId))
+  },
+  useAPIListeners: () => {
+    useEffect(() => {
+      const listener = (params) => {
+        if (params.channelId != null) {
+          const dispatch = useDispatch()
+          dispatch(MediaInstanceConnectionAction.serverProvisioned(params, params.channelId))
+        }
+      }
+      API.instance.client.service('instance-provision').on('created', listener)
+      return () => {
+        API.instance.client.service('instance-provision').off('created', listener)
+      }
+    }, [])
   }
-}
-
-if (globalThis.process.env['VITE_OFFLINE_MODE'] !== 'true') {
-  API.instance.client.service('instance-provision').on('created', (params) => {
-    if (params.channelId != null) {
-      const dispatch = useDispatch()
-      dispatch(MediaInstanceConnectionAction.serverProvisioned(params, params.channelId))
-    }
-  })
 }
 
 //Action
