@@ -47,7 +47,7 @@ export async function onConnectToInstance(network: SocketWebRTCClientNetwork) {
   console.log('[WebRTC]: connectting to instance type:', network.type, network.hostId)
 
   if (isWorldConnection) {
-    dispatch(LocationInstanceConnectionAction.instanceServerConnected(network.hostId))
+    dispatchAction(LocationInstanceConnectionAction.instanceServerConnected({ instanceId: network.hostId }))
     dispatchAction(NetworkConnectionService.actions.worldInstanceReconnected())
   } else {
     dispatch(MediaInstanceConnectionAction.serverConnected(network.hostId))
@@ -924,7 +924,9 @@ export async function leaveNetwork(network: SocketWebRTCClientNetwork, kicked?: 
     } else {
       Engine.instance.currentWorld.networks.delete(Engine.instance.currentWorld.worldNetwork.hostId)
       Engine.instance.currentWorld._worldHostId = null!
-      store.dispatch(LocationInstanceConnectionAction.disconnect(Engine.instance.currentWorld.worldNetwork.hostId))
+      dispatchAction(
+        LocationInstanceConnectionAction.disconnect({ instanceId: Engine.instance.currentWorld.worldNetwork.hostId })
+      )
       WorldNetworkActionReceptor.removeAllNetworkClients(false, Engine.instance.currentWorld)
     }
   } catch (err) {

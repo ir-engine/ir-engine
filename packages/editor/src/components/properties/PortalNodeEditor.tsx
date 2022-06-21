@@ -104,12 +104,12 @@ export const PortalNodeEditor: EditorComponentType = (props) => {
         <BooleanInput onChange={updateProperty(PortalComponent, 'redirect')} value={portalComponent.redirect} />
       </InputGroup>
       {/* TODO */}
-      {/* <InputGroup name="Cubemap Bake" label={t('editor:properties.portal.lbl-cubemapBake')}>
+      {/* <InputGroup name="EnvMap Bake" label={t('editor:properties.portal.lbl-envMapBake')}>
         <SelectInput
           key={props.node.entity}
           options={Engine.instance.currentWorld.scene.children
             .filter((obj: Object3D) => {
-              return (obj as any).nodeName === CubemapBakeportalComponent.nodeName
+              return (obj as any).nodeName === EnvMapBakeportalComponent.nodeName
             })
             .map((obj: Object3D) => {
               return {
@@ -117,8 +117,8 @@ export const PortalNodeEditor: EditorComponentType = (props) => {
                 value: obj.uuid
               }
             })}
-          value={portalComponent.cubemapBakeId}
-          onChange={updateProperty(PortalComponent, 'cubemapBakeId')}
+          value={portalComponent.envMapBakeId}
+          onChange={updateProperty(PortalComponent, 'envMapBakeId')}
         />
       </InputGroup> */}
       <InputGroup name="Spawn Position" label={t('editor:properties.portal.lbl-spawnPosition')}>
