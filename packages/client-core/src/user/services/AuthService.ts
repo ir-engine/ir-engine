@@ -20,8 +20,8 @@ import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { WorldNetworkAction } from '@xrengine/engine/src/networking/functions/WorldNetworkAction'
 import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
+import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
-import { client } from '../../feathers'
 import { accessLocationState } from '../../social/services/LocationService'
 import { accessPartyState } from '../../social/services/PartyService'
 import { serverHost } from '../../util/config'
@@ -175,30 +175,30 @@ export const AuthService = {
       let accessToken =
         forceClientAuthReset !== true && authData && authData.authUser ? authData.authUser.accessToken : undefined
 
-      if (forceClientAuthReset === true) await (client as any).authentication.reset()
+      if (forceClientAuthReset === true) await API.instance.client.authentication.reset()
       if (accessToken == null || accessToken.length === 0) {
-        const newProvider = await client.service('identity-provider').create({
+        const newProvider = await API.instance.client.service('identity-provider').create({
           type: 'guest',
           token: v1()
         })
         accessToken = newProvider.accessToken
       }
 
-      await (client as any).authentication.setAccessToken(accessToken as string)
+      await API.instance.client.authentication.setAccessToken(accessToken as string)
       let res
       try {
-        res = await (client as any).reAuthenticate()
+        res = await API.instance.client.reAuthenticate()
       } catch (err) {
         if (err.className === 'not-found' || (err.className === 'not-authenticated' && err.message === 'jwt expired')) {
           await dispatchAction(AuthAction.didLogoutAction())
-          await (client as any).authentication.reset()
-          const newProvider = await client.service('identity-provider').create({
+          await API.instance.client.authentication.reset()
+          const newProvider = await API.instance.client.service('identity-provider').create({
             type: 'guest',
             token: v1()
           })
           accessToken = newProvider.accessToken
-          await (client as any).authentication.setAccessToken(accessToken as string)
-          res = await (client as any).reAuthenticate()
+          await API.instance.client.authentication.setAccessToken(accessToken as string)
+          res = await API.instance.client.reAuthenticate()
         } else {
           throw err
         }
@@ -206,14 +206,14 @@ export const AuthService = {
       if (res) {
         if (res['identity-provider']?.id == null) {
           await dispatchAction(AuthAction.didLogoutAction())
-          await (client as any).authentication.reset()
-          const newProvider = await client.service('identity-provider').create({
+          await API.instance.client.authentication.reset()
+          const newProvider = await API.instance.client.service('identity-provider').create({
             type: 'guest',
             token: v1()
           })
           accessToken = newProvider.accessToken
-          await (client as any).authentication.setAccessToken(accessToken as string)
-          res = await (client as any).reAuthenticate()
+          await API.instance.client.authentication.setAccessToken(accessToken as string)
+          res = await API.instance.client.reAuthenticate()
         }
         const authUser = resolveAuthUser(res)
 
@@ -234,12 +234,12 @@ export const AuthService = {
     }
   },
   loadUserData: (userId: string): any => {
-    return client
+    return API.instance.client
       .service('user')
       .get(userId)
       .then((res: any) => {
         if (res.user_setting == null) {
-          return client
+          return API.instance.client
             .service('user-settings')
             .find({
               query: {
@@ -248,7 +248,7 @@ export const AuthService = {
             })
             .then((settingsRes: Paginated<UserSetting>) => {
               if (settingsRes.total === 0) {
-                return client
+                return API.instance.client
                   .service('user-settings')
                   .create({
                     userId: userId
@@ -284,7 +284,7 @@ export const AuthService = {
     }
 
     dispatchAction(AuthAction.actionProcessing({ processing: true }))
-    client
+    API.instance.client
       .authenticate({
         strategy: 'local',
         email: form.email,
@@ -294,7 +294,7 @@ export const AuthService = {
         const authUser = resolveAuthUser(res)
 
         if (!authUser.identityProvider.isVerified) {
-          client.logout()
+          API.instance.client.logout()
 
           dispatchAction(
             AuthAction.registerUserByEmailSuccessAction({ identityProvider: authUser.identityProvider, message: '' })
@@ -348,26 +348,26 @@ export const AuthService = {
     )}`
   },
   removeUserOAuth: async (service: string) => {
-    const ipResult = await (client as any).service('identity-provider').find()
+    const ipResult = (await API.instance.client.service('identity-provider').find()) as any
     const ipToRemove = ipResult.data.find((ip) => ip.type === service)
     if (ipToRemove) {
       if (ipResult.total === 1) {
         console.log('show last warning modal')
-        await (client as any).service('user').remove(ipToRemove.userId)
+        await API.instance.client.service('user').remove(ipToRemove.userId)
         await AuthService.logoutUser()
       } else {
         const otherIp = ipResult.data.find((ip) => ip.type !== service)
-        const newToken = await (client as any).service('generate-token').create({
+        const newToken = await API.instance.client.service('generate-token').create({
           type: otherIp.type,
           token: otherIp.token
         })
 
         if (newToken) {
           dispatchAction(AuthAction.actionProcessing({ processing: true }))
-          await (client as any).authentication.setAccessToken(newToken as string)
-          const res = await (client as any).reAuthenticate(true)
+          await API.instance.client.authentication.setAccessToken(newToken as string)
+          const res = await API.instance.client.reAuthenticate(true)
           const authUser = resolveAuthUser(res)
-          await (client as any).service('identity-provider').remove(ipToRemove.id)
+          await API.instance.client.service('identity-provider').remove(ipToRemove.id)
           dispatchAction(AuthAction.loginUserSuccessAction({ authUser: authUser, message: '' }))
           await AuthService.loadUserData(authUser.identityProvider.userId)
           dispatchAction(AuthAction.actionProcessing({ processing: false }))
@@ -378,8 +378,8 @@ export const AuthService = {
   loginUserByJwt: async (accessToken: string, redirectSuccess: string, redirectError: string) => {
     try {
       dispatchAction(AuthAction.actionProcessing({ processing: true }))
-      await (client as any).authentication.setAccessToken(accessToken as string)
-      const res = await (client as any).authenticate({
+      await API.instance.client.authentication.setAccessToken(accessToken as string)
+      const res = await API.instance.client.authenticate({
         strategy: 'jwt',
         accessToken
       })
@@ -399,7 +399,7 @@ export const AuthService = {
   },
   loginUserMagicLink: async (token, redirectSuccess, redirectError) => {
     try {
-      const res = await client.service('login').get(token)
+      const res = await API.instance.client.service('login').get(token)
       await AuthService.loginUserByJwt(res.token, '/', '/')
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
@@ -409,7 +409,7 @@ export const AuthService = {
   },
   logoutUser: async () => {
     dispatchAction(AuthAction.actionProcessing({ processing: true }))
-    client
+    API.instance.client
       .logout()
       .then(() => dispatchAction(AuthAction.didLogoutAction()))
       .catch(() => dispatchAction(AuthAction.didLogoutAction()))
@@ -420,7 +420,7 @@ export const AuthService = {
   },
   registerUserByEmail: (form: EmailRegistrationForm) => {
     dispatchAction(AuthAction.actionProcessing({ processing: true }))
-    client
+    API.instance.client
       .service('identity-provider')
       .create({
         token: form.email,
@@ -445,7 +445,7 @@ export const AuthService = {
   verifyEmail: async (token: string) => {
     dispatchAction(AuthAction.actionProcessing({ processing: true }))
 
-    client
+    API.instance.client
       .service('authManagement')
       .create({
         action: 'verifySignupLong',
@@ -464,7 +464,7 @@ export const AuthService = {
   resendVerificationEmail: async (email: string) => {
     dispatchAction(AuthAction.actionProcessing({ processing: true }))
 
-    client
+    API.instance.client
       .service('authManagement')
       .create({
         action: 'resendVerifySignup',
@@ -480,7 +480,7 @@ export const AuthService = {
   forgotPassword: async (email: string) => {
     dispatchAction(AuthAction.actionProcessing({ processing: true }))
     console.log('forgotPassword', email)
-    client
+    API.instance.client
       .service('authManagement')
       .create({
         action: 'sendResetPwd',
@@ -496,7 +496,7 @@ export const AuthService = {
   resetPassword: async (token: string, password: string) => {
     dispatchAction(AuthAction.actionProcessing({ processing: true }))
 
-    client
+    API.instance.client
       .service('authManagement')
       .create({
         action: 'resetPwdLong',
@@ -558,7 +558,7 @@ export const AuthService = {
       }
     }
 
-    client
+    API.instance.client
       .service('magic-link')
       .create({
         type,
@@ -578,7 +578,7 @@ export const AuthService = {
   addConnectionByPassword: async (form: EmailLoginForm, userId: string) => {
     dispatchAction(AuthAction.actionProcessing({ processing: true }))
 
-    client
+    API.instance.client
       .service('identity-provider')
       .create({
         token: form.email,
@@ -597,7 +597,7 @@ export const AuthService = {
   },
   addConnectionByEmail: async (email: string, userId: string) => {
     dispatchAction(AuthAction.actionProcessing({ processing: true }))
-    client
+    API.instance.client
       .service('magic-link')
       .create({
         email,
@@ -624,7 +624,7 @@ export const AuthService = {
       sendPhone = '1' + sendPhone
     }
 
-    client
+    API.instance.client
       .service('magic-link')
       .create({
         mobile: sendPhone,
@@ -652,7 +652,7 @@ export const AuthService = {
   removeConnection: async (identityProviderId: number, userId: string) => {
     dispatchAction(AuthAction.actionProcessing({ processing: true }))
 
-    client
+    API.instance.client
       .service('identity-provider')
       .remove(identityProviderId)
       .then(() => {
@@ -667,7 +667,7 @@ export const AuthService = {
     AuthService.loadUserData(userId)
   },
   updateUserSettings: async (id: any, data: any) => {
-    const res = (await client.service('user-settings').patch(id, data)) as UserSetting
+    const res = (await API.instance.client.service('user-settings').patch(id, data)) as UserSetting
     dispatchAction(AuthAction.updatedUserSettingsAction({ data: res }))
   },
   uploadAvatar: async (data: any) => {
@@ -680,7 +680,7 @@ export const AuthService = {
       }
     })
     const userId = selfUser.id.value ?? null
-    await client.service('user').patch(userId, {
+    await API.instance.client.service('user').patch(userId, {
       name: selfUser.name.value
     })
     const result = res.data
@@ -695,7 +695,7 @@ export const AuthService = {
         isPublicAvatar: !!isPublicAvatar
       }
     })
-    const avatarDetail = (await client.service('avatar').get(avatarName)) as AvatarProps
+    const avatarDetail = (await API.instance.client.service('avatar').get(avatarName)) as AvatarProps
     if (!isPublicAvatar) {
       const selfUser = accessAuthState().user
       const userId = selfUser.id.value!
@@ -703,7 +703,7 @@ export const AuthService = {
     }
   },
   removeAvatar: async (keys: string) => {
-    await client
+    await API.instance.client
       .service('avatar')
       .remove('', {
         query: { keys }
@@ -716,7 +716,7 @@ export const AuthService = {
   fetchAvatarList: async () => {
     const selfUser = accessAuthState().user
 
-    const result = await client.service('static-resource').find({
+    const result = await API.instance.client.service('static-resource').find({
       query: {
         $select: ['id', 'key', 'name', 'url', 'staticResourceType', 'userId'],
         staticResourceType: {
@@ -729,7 +729,7 @@ export const AuthService = {
     dispatchAction(AuthAction.updateAvatarListAction({ avatarList: result.data }))
   },
   updateUsername: async (userId: string, name: string) => {
-    client
+    API.instance.client
       .service('user')
       .patch(userId, {
         name: name
@@ -742,7 +742,7 @@ export const AuthService = {
   updateUserAvatarId: async (userId: string, avatarId: string, avatarURL: string, thumbnailURL: string) => {
     const world = Engine.instance.currentWorld
 
-    client
+    API.instance.client
       .service('user')
       .patch(userId, {
         avatarId: avatarId
@@ -762,8 +762,8 @@ export const AuthService = {
       })
   },
   removeUser: async (userId: string) => {
-    await client.service('user').remove(userId)
-    await client.service('identity-provider').remove(null, {
+    await API.instance.client.service('user').remove(userId)
+    await API.instance.client.service('identity-provider').remove(null, {
       query: {
         userId: userId
       }
@@ -772,12 +772,14 @@ export const AuthService = {
   },
 
   updateApiKey: async () => {
-    const apiKey = (await client.service('user-api-key').patch(null, {})) as UserApiKey
+    const apiKey = (await API.instance.client.service('user-api-key').patch(null, {})) as UserApiKey
     dispatchAction(AuthAction.apiKeyUpdatedAction({ apiKey }))
   },
   listenForUserPatch: () => {
-    client.service('user').on('patched', (params) => dispatchAction(AuthAction.userPatchedAction({ params })))
-    client.service('location-ban').on('created', async (params) => {
+    API.instance.client
+      .service('user')
+      .on('patched', (params) => dispatchAction(AuthAction.userPatchedAction({ params })))
+    API.instance.client.service('location-ban').on('created', async (params) => {
       const selfUser = accessAuthState().user
       const party = accessPartyState().party.value
       const selfPartyUser =
@@ -791,10 +793,10 @@ export const AuthService = {
         // endVideoChat({ leftParty: true });
         // leave(true);
         if (selfPartyUser != undefined && selfPartyUser?.id != null) {
-          await client.service('party-user').remove(selfPartyUser.id)
+          await API.instance.client.service('party-user').remove(selfPartyUser.id)
         }
         const userId = selfUser.id.value ?? ''
-        const user = resolveUser(await client.service('user').get(userId))
+        const user = resolveUser(await API.instance.client.service('user').get(userId))
         dispatchAction(AuthAction.userUpdatedAction({ user }))
       }
     })

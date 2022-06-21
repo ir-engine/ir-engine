@@ -1,4 +1,5 @@
 import { createState, useState } from '@speigg/hookstate'
+import { useEffect } from 'react'
 
 import { ChannelType } from '@xrengine/common/src/interfaces/Channel'
 import { InstanceServerProvisionResult } from '@xrengine/common/src/interfaces/InstanceServerProvisionResult'
@@ -8,7 +9,7 @@ import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { NetworkTypes } from '@xrengine/engine/src/networking/classes/Network'
 import { dispatchAction } from '@xrengine/hyperflux'
 
-import { client } from '../../feathers'
+import { API } from '../../API'
 import { accessLocationState } from '../../social/services/LocationService'
 import { store, useDispatch } from '../../store'
 import { endVideoChat, leaveNetwork } from '../../transports/SocketWebRTCClientFunctions'
@@ -83,7 +84,7 @@ export const MediaInstanceConnectionService = {
     logger.info(`Provision Media Server, channelId: "${channelId}".`)
     const dispatch = useDispatch()
     const token = accessAuthState().authUser.accessToken.value
-    const provisionResult = await client.service('instance-provision').find({
+    const provisionResult = await API.instance.client.service('instance-provision').find({
       query: {
         channelId: channelId,
         token: token
@@ -137,16 +138,21 @@ export const MediaInstanceConnectionService = {
   resetServer: (instanceId: string) => {
     const dispatch = useDispatch()
     dispatch(MediaInstanceConnectionAction.disconnect(instanceId))
+  },
+  useAPIListeners: () => {
+    useEffect(() => {
+      const listener = (params) => {
+        if (params.channelId != null) {
+          const dispatch = useDispatch()
+          dispatch(MediaInstanceConnectionAction.serverProvisioned(params, params.channelId))
+        }
+      }
+      API.instance.client.service('instance-provision').on('created', listener)
+      return () => {
+        API.instance.client.service('instance-provision').off('created', listener)
+      }
+    }, [])
   }
-}
-
-if (globalThis.process.env['VITE_OFFLINE_MODE'] !== 'true') {
-  client.service('instance-provision').on('created', (params) => {
-    if (params.channelId != null) {
-      const dispatch = useDispatch()
-      dispatch(MediaInstanceConnectionAction.serverProvisioned(params, params.channelId))
-    }
-  })
 }
 
 //Action

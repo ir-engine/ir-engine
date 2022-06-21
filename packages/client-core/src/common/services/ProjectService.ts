@@ -3,7 +3,7 @@ import { createState, useState } from '@speigg/hookstate'
 import { ProjectInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
 import multiLogger from '@xrengine/common/src/logger'
 
-import { client } from '../../feathers'
+import { API } from '../../API'
 import { store, useDispatch } from '../../store'
 
 const logger = multiLogger.child({ component: 'client-core:projects' })
@@ -35,14 +35,14 @@ export const useProjectState = () => useState(state) as any as typeof state
 //Service
 export const ProjectService = {
   fetchProjects: async () => {
-    const projects = await client.service('project').find({ paginate: false })
+    const projects = await API.instance.client.service('project').find({ paginate: false })
     store.dispatch(ProjectAction.projectsFetched(projects.data))
   },
 
   // restricted to admin scope
   createProject: async (name: string) => {
     const dispatch = useDispatch()
-    const result = await client.service('project').create({ name })
+    const result = await API.instance.client.service('project').create({ name })
     logger.info({ result }, 'Create project result')
     dispatch(ProjectAction.createdProject())
     ProjectService.fetchProjects()
@@ -51,7 +51,7 @@ export const ProjectService = {
   // restricted to admin scope
   uploadProject: async (url: string) => {
     const dispatch = useDispatch()
-    const result = await client.service('project').update({ url })
+    const result = await API.instance.client.service('project').update({ url })
     logger.info({ result }, 'Upload project result')
     dispatch(ProjectAction.postProject())
     ProjectService.fetchProjects()
@@ -59,21 +59,21 @@ export const ProjectService = {
 
   // restricted to admin scope
   removeProject: async (id: string) => {
-    const result = await client.service('project').remove(id)
+    const result = await API.instance.client.service('project').remove(id)
     logger.info({ result }, 'Remove project result')
     ProjectService.fetchProjects()
   },
 
   // restricted to admin scope
   triggerReload: async () => {
-    const result = await client.service('project-build').patch({ rebuild: true })
+    const result = await API.instance.client.service('project-build').patch({ rebuild: true })
     logger.info({ result }, 'Reload project result')
   },
 
   // restricted to admin scope
   invalidateProjectCache: async (projectName: string) => {
     try {
-      await client.service('project-invalidate').patch({ projectName })
+      await API.instance.client.service('project-invalidate').patch({ projectName })
       ProjectService.fetchProjects()
     } catch (err) {
       logger.error(err, 'Error invalidating project cache.')

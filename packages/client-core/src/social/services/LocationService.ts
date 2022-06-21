@@ -5,8 +5,8 @@ import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
+import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
-import { client } from '../../feathers'
 
 //State
 const LocationState = defineState({
@@ -96,7 +96,7 @@ export const LocationService = {
   getLocation: async (locationId: string) => {
     try {
       dispatchAction(LocationAction.fetchingCurrentSocialLocation())
-      const location = await client.service('location').get(locationId)
+      const location = await API.instance.client.service('location').get(locationId)
       dispatchAction(LocationAction.socialLocationRetrieved({ location }))
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
@@ -104,7 +104,7 @@ export const LocationService = {
   },
   getLocationByName: async (locationName: string) => {
     dispatchAction(LocationAction.fetchingCurrentSocialLocation())
-    const locationResult = (await client.service('location').find({
+    const locationResult = (await API.instance.client.service('location').find({
       query: {
         slugifiedName: locationName,
         joinableLocations: true
@@ -118,7 +118,7 @@ export const LocationService = {
     }
   },
   getLobby: async () => {
-    const lobbyResult = (await client.service('location').find({
+    const lobbyResult = (await API.instance.client.service('location').find({
       query: {
         isLobby: true,
         $limit: 1
@@ -133,7 +133,7 @@ export const LocationService = {
   },
   banUserFromLocation: async (userId: string, locationId: string) => {
     try {
-      await client.service('location-ban').create({
+      await API.instance.client.service('location-ban').create({
         userId: userId,
         locationId: locationId
       })

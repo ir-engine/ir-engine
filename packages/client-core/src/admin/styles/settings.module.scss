@@ -9,10 +9,6 @@
   width: 400;
 }
 
-.iconButton {
-  padding: 10;
-}
-
 .select {
   color: var(--textColor) !important;
 }
@@ -74,12 +70,12 @@
   font-size: 20px;
 }
 
-.hoverSettingsHeading {
+.settingsSubHeading {
   color: var(--textColor);
   text-align: center;
+  margin-bottom: 10px;
   font-weight: 300;
-  line-height: 1.7;
-  font-size: 20px;
+  font-size: 18px;
 }
 
 .settingContainer {
@@ -132,14 +128,6 @@
 
 .nested {
   padding-left: 32px;
-}
-
-.clientSettingsContainer {
-  padding: 50px;
-
-  @media (max-width: 1200px) {
-    padding: 5px;
-  }
 }
 
 .Paper {
@@ -236,4 +224,8 @@
   width: 100%;
   border-color: rgb(255 255 255 / 80%);
   margin: 10px 0;
+}
+
+.iconButton {
+  color: var(--textColor);
 }

@@ -7,7 +7,7 @@ import { User } from '@xrengine/common/src/interfaces/User'
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
-import { client } from '../../feathers'
+import { API } from '../../API'
 
 //State
 const UserState = defineState({
@@ -97,7 +97,7 @@ export const useUserState = () => useState(accessUserState())
 //Service
 export const UserService = {
   getUserRelationship: async (userId: string) => {
-    client
+    API.instance.client
       .service('user-relationship')
       .findAll({
         query: {
@@ -119,7 +119,7 @@ export const UserService = {
       const parsed = new URL(window.location.href).searchParams.get('instanceId')
       instanceId = parsed
     }
-    const layerUsers = (await client.service('user').find({
+    const layerUsers = (await API.instance.client.service('user').find({
       query: {
         $limit: 1000,
         action: instance ? 'layer-users' : 'channel-users',
@@ -155,7 +155,7 @@ export const UserService = {
 }
 
 function createRelation(userId: string, relatedUserId: string, type: 'friend' | 'blocking') {
-  client
+  API.instance.client
     .service('user-relationship')
     .create({
       relatedUserId,
@@ -170,7 +170,7 @@ function createRelation(userId: string, relatedUserId: string, type: 'friend' | 
 }
 
 function removeRelation(userId: string, relatedUserId: string) {
-  client
+  API.instance.client
     .service('user-relationship')
     .remove(relatedUserId)
     .then((res: any) => {
@@ -182,7 +182,7 @@ function removeRelation(userId: string, relatedUserId: string) {
 }
 
 function patchRelation(userId: string, relatedUserId: string, type: 'friend') {
-  client
+  API.instance.client
     .service('user-relationship')
     .patch(relatedUserId, {
       userRelationshipType: type

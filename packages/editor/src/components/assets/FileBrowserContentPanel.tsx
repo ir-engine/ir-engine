@@ -4,8 +4,13 @@ import { useTranslation } from 'react-i18next'
 import InfiniteScroll from 'react-infinite-scroller'
 
 import ConfirmModal from '@xrengine/client-core/src/admin/common/ConfirmModal'
-import { FileBrowserService, useFileBrowserState } from '@xrengine/client-core/src/common/services/FileBrowserService'
+import {
+  FileBrowserService,
+  FileBrowserServiceReceptor,
+  useFileBrowserState
+} from '@xrengine/client-core/src/common/services/FileBrowserService'
 import { ScenePrefabs } from '@xrengine/engine/src/scene/functions/registerPrefabs'
+import { addActionReceptor, removeActionReceptor } from '@xrengine/hyperflux'
 
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
 import AutorenewIcon from '@mui/icons-material/Autorenew'
@@ -113,6 +118,13 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
       }
     })
 
+  useEffect(() => {
+    addActionReceptor(FileBrowserServiceReceptor)
+    return () => {
+      removeActionReceptor(FileBrowserServiceReceptor)
+    }
+  }, [])
+
   const onSelect = (params: FileDataType) => {
     if (params.type !== 'folder') {
       props.onSelectionChanged({
@@ -129,6 +141,25 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
   useEffect(() => {
     setLoading(false)
   }, [filesValue])
+
+  useEffect(() => {
+    setFiles(
+      fileState.files.value.map((file) => {
+        const prefabType = PrefabFileType[file.type]
+        const isFolder = file.type === 'folder'
+        const fullName = isFolder ? file.name : file.name + '.' + file.type
+
+        return {
+          ...file,
+          path: isFolder ? file.key.split(file.name)[0] : file.key.split(fullName)[0],
+          fullName,
+          isFolder,
+          prefabType,
+          Icon: prefabIcons[prefabType]
+        }
+      })
+    )
+  }, [fileState])
 
   useEffect(() => {
     onRefreshDirectory()
@@ -167,23 +198,6 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
 
   const onRefreshDirectory = async () => {
     await FileBrowserService.fetchFiles(selectedDirectory)
-
-    setFiles(
-      fileState.files.value.map((file) => {
-        const prefabType = PrefabFileType[file.type]
-        const isFolder = file.type === 'folder'
-        const fullName = isFolder ? file.name : file.name + '.' + file.type
-
-        return {
-          ...file,
-          path: isFolder ? file.key.split(file.name)[0] : file.key.split(fullName)[0],
-          fullName,
-          isFolder,
-          prefabType,
-          Icon: prefabIcons[prefabType]
-        }
-      })
-    )
   }
 
   const onBackDirectory = () => {
