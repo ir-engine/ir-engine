@@ -34,8 +34,8 @@ import InputGroup from '../inputs/InputGroup'
 import NumericInputGroup from '../inputs/NumericInputGroup'
 import SelectInput from '../inputs/SelectInput'
 import CollapsibleBlock from '../layout/CollapsibleBlock'
-import ScatterGrassProperties from './InstancingGrassProperties'
-import ScatterMeshProperties from './InstancingMeshProperties'
+import InstancingGrassProperties from './InstancingGrassProperties'
+import InstancingMeshProperties from './InstancingMeshProperties'
 import NodeEditor from './NodeEditor'
 import { EditorComponentType, traverseScene, updateProperty } from './Util'
 
@@ -246,13 +246,13 @@ export const InstancingNodeEditor: EditorComponentType = (props) => {
           )}
         </CollapsibleBlock>
         {scatter.mode === ScatterMode.GRASS && (
-          <ScatterGrassProperties
+          <InstancingGrassProperties
             value={scatter.sourceProperties}
             onChange={updateProperty(InstancingComponent, 'sourceProperties')}
           />
         )}
         {scatter.mode === ScatterMode.MESH && (
-          <ScatterMeshProperties
+          <InstancingMeshProperties
             value={scatter.sourceProperties}
             onChange={updateProperty(InstancingComponent, 'sourceProperties')}
           />

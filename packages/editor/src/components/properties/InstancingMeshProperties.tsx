@@ -15,7 +15,7 @@ import SelectInput from '../inputs/SelectInput'
 import CollapsibleBlock from '../layout/CollapsibleBlock'
 import { traverseScene } from './Util'
 
-export default function ScatterMeshProperties({ value, onChange, ...rest }) {
+export default function InstancingMeshProperties({ value, onChange, ...rest }) {
   const props = value as MeshProperties
 
   const { t } = useTranslation()

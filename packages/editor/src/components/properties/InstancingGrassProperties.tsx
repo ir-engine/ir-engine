@@ -17,7 +17,7 @@ import RandomizedPropertyInputGroup from '../inputs/RandomizedPropertyInput'
 import CollapsibleBlock from '../layout/CollapsibleBlock'
 import ExpandMore from '../layout/ExpandMore'
 
-export default function ScatterGrassProperties({ value, onChange, ...rest }) {
+export default function InstancingGrassProperties({ value, onChange, ...rest }) {
   const props = value as GrassProperties
 
   const { t } = useTranslation()
