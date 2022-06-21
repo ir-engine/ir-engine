@@ -1,4 +1,5 @@
 import { Paginated } from '@feathersjs/feathers'
+import { useEffect } from 'react'
 
 import { Instance } from '@xrengine/common/src/interfaces/Instance'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
@@ -127,21 +128,30 @@ export const LocationInstanceConnectionService = {
 
     await transport.initialize({ sceneId, port, ipAddress, locationId: currentLocation.id.value })
     transport.left = false
+  },
+  useAPIListeners: () => {
+    useEffect(() => {
+      const instanceProvisionCreatedListener = (params) => {
+        if (params.locationId != null)
+          dispatchAction(
+            LocationInstanceConnectionAction.serverProvisioned({
+              instanceId: params.instanceId,
+              ipAddress: params.ipAddress,
+              port: params.port,
+              locationId: params.locationId,
+              sceneId: params.sceneId
+            })
+          )
+      }
+
+      API.instance.client.service('instance-provision').on('created', instanceProvisionCreatedListener)
+
+      return () => {
+        API.instance.client.service('instance-provision').off('created', instanceProvisionCreatedListener)
+      }
+    }, [])
   }
 }
-
-API.instance.client.service('instance-provision').on('created', (params) => {
-  if (params.locationId != null)
-    dispatchAction(
-      LocationInstanceConnectionAction.serverProvisioned({
-        instanceId: params.instanceId,
-        ipAddress: params.ipAddress,
-        port: params.port,
-        locationId: params.locationId,
-        sceneId: params.sceneId
-      })
-    )
-})
 
 //Action
 
