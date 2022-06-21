@@ -565,7 +565,7 @@
       "lbl-locationName": "Location",
       "lbl-modelUrl": "Model URL",
       "lbl-displayText": "Display Text",
-      "lbl-cubemapBake": "Cubemap bake",
+      "lbl-envMapBake": "EnvMap bake",
       "lbl-spawnPosition": "Spawn Position",
       "lbl-spawnRotation": "Spawn Rotation",
       "lbl-triggerPosition": "Trigger Position",

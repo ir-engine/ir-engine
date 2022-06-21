@@ -33,18 +33,18 @@ import {
 import { deserializeCloud, SCENE_COMPONENT_CLOUD, serializeCloud, updateCloud } from './loaders/CloudFunctions'
 import { deserializeCollider, SCENE_COMPONENT_COLLIDER, serializeCollider } from './loaders/ColliderFunctions'
 import {
-  deserializeCubemapBake,
-  SCENE_COMPONENT_CUBEMAP_BAKE,
-  serializeCubemapBake,
-  updateCubemapBake
-} from './loaders/CubemapBakeFunctions'
-import {
   deserializeDirectionalLight,
   prepareDirectionalLightForGLTFExport,
   SCENE_COMPONENT_DIRECTIONAL_LIGHT,
   serializeDirectionalLight,
   updateDirectionalLight
 } from './loaders/DirectionalLightFunctions'
+import {
+  deserializeEnvMapBake,
+  SCENE_COMPONENT_ENVMAP_BAKE,
+  serializeEnvMapBake,
+  updateEnvMapBake
+} from './loaders/EnvMapBakeFunctions'
 import { deserializeEnvMap, SCENE_COMPONENT_ENVMAP, serializeEnvMap, updateEnvMap } from './loaders/EnvMapFunctions'
 import { deserializeFog, SCENE_COMPONENT_FOG, serializeFog, updateFog } from './loaders/FogFunctions'
 import {
@@ -461,10 +461,10 @@ export const registerDefaultSceneFunctions = (world: World) => {
     update: updateSpline
   })
 
-  world.sceneLoadingRegistry.set(SCENE_COMPONENT_CUBEMAP_BAKE, {
-    deserialize: deserializeCubemapBake,
-    serialize: serializeCubemapBake,
-    update: updateCubemapBake
+  world.sceneLoadingRegistry.set(SCENE_COMPONENT_ENVMAP_BAKE, {
+    deserialize: deserializeEnvMapBake,
+    serialize: serializeEnvMapBake,
+    update: updateEnvMapBake
   })
 
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_INSTANCING, {
