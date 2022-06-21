@@ -8,7 +8,7 @@ import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { NetworkTypes } from '@xrengine/engine/src/networking/classes/Network'
 import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
-import { client } from '../../feathers'
+import { API } from '../../API'
 import { accessLocationState } from '../../social/services/LocationService'
 import { leaveNetwork } from '../../transports/SocketWebRTCClientFunctions'
 import { SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientNetwork'
@@ -80,7 +80,7 @@ export const LocationInstanceConnectionService = {
     logger.info({ locationId, instanceId, sceneId }, 'Provision World Server')
     const token = accessAuthState().authUser.accessToken.value
     if (instanceId != null) {
-      const instance = (await client.service('instance').find({
+      const instance = (await API.instance.client.service('instance').find({
         query: {
           id: instanceId,
           ended: false
@@ -90,7 +90,7 @@ export const LocationInstanceConnectionService = {
         instanceId = null!
       }
     }
-    const provisionResult = await client.service('instance-provision').find({
+    const provisionResult = await API.instance.client.service('instance-provision').find({
       query: {
         locationId: locationId,
         instanceId: instanceId,
@@ -130,7 +130,7 @@ export const LocationInstanceConnectionService = {
   }
 }
 
-client.service('instance-provision').on('created', (params) => {
+API.instance.client.service('instance-provision').on('created', (params) => {
   if (params.locationId != null)
     dispatchAction(
       LocationInstanceConnectionAction.serverProvisioned({

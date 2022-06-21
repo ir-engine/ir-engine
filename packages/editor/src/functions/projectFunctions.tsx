@@ -1,4 +1,4 @@
-import { client } from '@xrengine/client-core/src/feathers'
+import { API } from '@xrengine/client-core/src/API'
 import { MultiError } from '@xrengine/client-core/src/util/errors'
 import { ProjectInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
 import { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
@@ -24,7 +24,7 @@ import { disposeScene, initializeScene } from './sceneRenderFunctions'
  */
 export const getProjects = async (): Promise<ProjectInterface[]> => {
   try {
-    const { data } = await client.service('project').find()
+    const { data } = await API.instance.client.service('project').find()
     return data
   } catch (error) {
     throw new Error(error)

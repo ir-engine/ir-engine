@@ -26,10 +26,6 @@ import { addActionReceptor, dispatchAction, removeActionReceptor } from '@xrengi
 
 import { CustomRoute, getCustomRoutes } from './getCustomRoutes'
 
-if (typeof globalThis.process === 'undefined') {
-  ;(globalThis as any).process = { env: {} }
-}
-
 const $admin = React.lazy(() => import('@xrengine/client-core/src/admin/adminRoutes'))
 const $auth = React.lazy(() => import('@xrengine/client/src/pages/auth/authRoutes'))
 const $offline = React.lazy(() => import('@xrengine/client/src/pages/offline/offline'))

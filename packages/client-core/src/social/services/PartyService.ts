@@ -12,8 +12,8 @@ import multiLogger from '@xrengine/common/src/logger'
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
+import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
-import { client } from '../../feathers'
 import { store } from '../../store'
 import { accessAuthState } from '../../user/services/AuthService'
 import { UserAction } from '../../user/services/UserService'
@@ -98,7 +98,7 @@ export const PartyService = {
   getParty: async () => {
     try {
       // console.log('CALLING GETPARTY()');
-      const partyResult = (await client.service('party').get('')) as Party
+      const partyResult = (await API.instance.client.service('party').get('')) as Party
       dispatchAction(PartyAction.loadedPartyAction({ party: partyResult }))
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
@@ -107,47 +107,47 @@ export const PartyService = {
   // Temporary Method for arbitrary testing
   getParties: async (): Promise<void> => {
     let socketId: any
-    if (client.io && socketId === undefined) {
-      client.io.emit('request-user-id', ({ id }: { id: number }) => {
+    if (API.instance.client.io && socketId === undefined) {
+      API.instance.client.io.emit('request-user-id', ({ id }: { id: number }) => {
         socketId = id
       })
       ;(window as any).joinParty = (userId: number, partyId: number) => {
-        client.io.emit('join-party', {
+        API.instance.client.io.emit('join-party', {
           userId,
           partyId
         })
       }
       ;(window as any).messageParty = (userId: number, partyId: number, message: string) => {
-        client.io.emit('message-party-request', {
+        API.instance.client.io.emit('message-party-request', {
           userId,
           partyId,
           message
         })
       }
       ;(window as any).partyInit = (userId: number) => {
-        client.io.emit('party-init', { userId })
+        API.instance.client.io.emit('party-init', { userId })
       }
     }
   },
   createParty: async () => {
     try {
-      await client.service('party').create({})
+      await API.instance.client.service('party').create({})
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   },
   removeParty: async (partyId: string) => {
     try {
-      const channelResult = (await client.service('channel').find({
+      const channelResult = (await API.instance.client.service('channel').find({
         query: {
           channelType: 'party',
           partyId: partyId
         }
       })) as Paginated<Channel>
       if (channelResult.total > 0) {
-        await client.service('channel').remove(channelResult.data[0].id)
+        await API.instance.client.service('channel').remove(channelResult.data[0].id)
       }
-      const party = (await client.service('party').remove(partyId)) as Party
+      const party = (await API.instance.client.service('party').remove(partyId)) as Party
       dispatchAction(PartyAction.removedPartyAction({ party }))
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
@@ -155,7 +155,7 @@ export const PartyService = {
   },
   inviteToParty: async (partyId: string, userId: string) => {
     try {
-      const result = await client.service('party-user').create({
+      const result = await API.instance.client.service('party-user').create({
         partyId,
         userId
       })
@@ -168,14 +168,14 @@ export const PartyService = {
   },
   removePartyUser: async (partyUserId: string) => {
     try {
-      await client.service('party-user').remove(partyUserId)
+      await API.instance.client.service('party-user').remove(partyUserId)
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   },
   transferPartyOwner: async (partyUserId: string) => {
     try {
-      await client.service('party-user').patch(partyUserId, {
+      await API.instance.client.service('party-user').patch(partyUserId, {
         isOwner: true
       })
     } catch (err) {
@@ -185,16 +185,16 @@ export const PartyService = {
 }
 
 if (globalThis.process.env['VITE_OFFLINE_MODE'] !== 'true') {
-  client.service('party-user').on('created', async (params) => {
+  API.instance.client.service('party-user').on('created', async (params) => {
     const selfUser = accessAuthState().user
     if (accessPartyState().party == null) {
       dispatchAction(PartyAction.createdPartyAction({ party: params }))
     }
     dispatchAction(PartyAction.createdPartyUserAction({ partyUser: params.partyUser }))
     if (params.partyUser.userId === selfUser.id.value) {
-      const party = await client.service('party').get(params.partyUser.partyId)
+      const party = await API.instance.client.service('party').get(params.partyUser.partyId)
       const userId = selfUser.id.value ?? ''
-      const dbUser = (await client.service('user').get(userId)) as User
+      const dbUser = (await API.instance.client.service('user').get(userId)) as User
       if (party.instanceId != null && party.instanceId !== dbUser.instanceId) {
         const updateUser: PartyUser = {
           ...params.partyUser,
@@ -208,7 +208,7 @@ if (globalThis.process.env['VITE_OFFLINE_MODE'] !== 'true') {
     }
   })
 
-  client.service('party-user').on('patched', (params) => {
+  API.instance.client.service('party-user').on('patched', (params) => {
     const updatedPartyUser = params.partyUser
     const selfUser = accessAuthState().user
     dispatchAction(PartyAction.patchedPartyUserAction({ partyUser: updatedPartyUser }))
@@ -225,7 +225,7 @@ if (globalThis.process.env['VITE_OFFLINE_MODE'] !== 'true') {
       )
   })
 
-  client.service('party-user').on('removed', (params) => {
+  API.instance.client.service('party-user').on('removed', (params) => {
     const deletedPartyUser = params.partyUser
     const selfUser = accessAuthState().user
     dispatchAction(PartyAction.removedPartyUserAction({ partyUser: deletedPartyUser }))
@@ -239,16 +239,16 @@ if (globalThis.process.env['VITE_OFFLINE_MODE'] !== 'true') {
     }
   })
 
-  client.service('party').on('created', (params) => {
+  API.instance.client.service('party').on('created', (params) => {
     dispatchAction(PartyAction.createdPartyAction({ party: params.party }))
   })
 
-  client.service('party').on('patched', (params) => {
+  API.instance.client.service('party').on('patched', (params) => {
     dispatchAction(PartyAction.patchedPartyAction({ party: params.party }))
     ChatService.clearChatTargetIfCurrent('party', params.party)
   })
 
-  client.service('party').on('removed', (params) => {
+  API.instance.client.service('party').on('removed', (params) => {
     dispatchAction(PartyAction.removedPartyAction({ party: params.party }))
   })
 }

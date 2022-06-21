@@ -5,8 +5,8 @@ import { User } from '@xrengine/common/src/interfaces/User'
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
+import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
-import { client } from '../../feathers'
 import { accessAuthState } from '../../user/services/AuthService'
 
 const emailRegex =
@@ -131,7 +131,7 @@ export const InviteService = {
         return
       } else {
         try {
-          const userResult = (await client.service('user').find({
+          const userResult = (await API.instance.client.service('user').find({
             query: {
               action: 'invite-code-lookup',
               inviteCode: data.inviteCode
@@ -169,12 +169,12 @@ export const InviteService = {
         inviteeId: data.invitee
       }
 
-      const existingInviteResult = (await client.service('invite').find({
+      const existingInviteResult = (await API.instance.client.service('invite').find({
         query: params
       })) as Paginated<Invite>
 
       let inviteResult
-      if (existingInviteResult.total === 0) inviteResult = await client.service('invite').create(params)
+      if (existingInviteResult.total === 0) inviteResult = await API.instance.client.service('invite').create(params)
 
       NotificationService.dispatchNotify('Invite Sent', { variant: 'success' })
       dispatchAction(InviteAction.sentInvite({ id: inviteResult }))
@@ -205,7 +205,7 @@ export const InviteService = {
     }
 
     try {
-      const inviteResult = (await client.service('invite').find({
+      const inviteResult = (await API.instance.client.service('invite').find({
         query: {
           $sort: sortData,
           type: 'received',
@@ -248,7 +248,7 @@ export const InviteService = {
       }
     }
     try {
-      const inviteResult = (await client.service('invite').find({
+      const inviteResult = (await API.instance.client.service('invite').find({
         query: {
           $sort: sortData,
           type: 'sent',
@@ -271,7 +271,7 @@ export const InviteService = {
   },
   removeInvite: async (inviteId: string) => {
     try {
-      await client.service('invite').remove(inviteId)
+      await API.instance.client.service('invite').remove(inviteId)
       dispatchAction(InviteAction.removedSentInvite())
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
@@ -279,7 +279,7 @@ export const InviteService = {
   },
   acceptInvite: async (inviteId: string, passcode: string) => {
     try {
-      await client.service('a-i').get(inviteId, {
+      await API.instance.client.service('a-i').get(inviteId, {
         query: {
           passcode: passcode
         }
@@ -291,7 +291,7 @@ export const InviteService = {
   },
   declineInvite: async (invite: Invite) => {
     try {
-      await client.service('invite').remove(invite.id)
+      await API.instance.client.service('invite').remove(invite.id)
       dispatchAction(InviteAction.declinedInvite())
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
@@ -303,7 +303,7 @@ export const InviteService = {
 }
 
 if (globalThis.process.env['VITE_OFFLINE_MODE'] !== 'true') {
-  client.service('invite').on('created', (params) => {
+  API.instance.client.service('invite').on('created', (params) => {
     const invite = params.invite
     const selfUser = accessAuthState().user
     if (invite.userId === selfUser.id.value) {
@@ -313,7 +313,7 @@ if (globalThis.process.env['VITE_OFFLINE_MODE'] !== 'true') {
     }
   })
 
-  client.service('invite').on('removed', (params) => {
+  API.instance.client.service('invite').on('removed', (params) => {
     const invite = params.invite
     const selfUser = accessAuthState().user
     if (invite.userId === selfUser.id.value) {

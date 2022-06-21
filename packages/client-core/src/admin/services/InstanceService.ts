@@ -12,8 +12,8 @@ import {
   registerState
 } from '@xrengine/hyperflux'
 
+import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
-import { client } from '../../feathers'
 import { accessAuthState } from '../../user/services/AuthService'
 
 export const INSTANCE_PAGE_LIMIT = 100
@@ -67,7 +67,7 @@ export const AdminInstanceService = {
         if (sortField.length > 0) {
           sortData[sortField] = orderBy === 'desc' ? 0 : 1
         }
-        const instances = (await client.service('instance').find({
+        const instances = (await API.instance.client.service('instance').find({
           query: {
             $sort: {
               ...sortData
@@ -85,13 +85,13 @@ export const AdminInstanceService = {
     }
   },
   removeInstance: async (id: string) => {
-    const result = (await client.service('instance').patch(id, { ended: true })) as Instance
+    const result = (await API.instance.client.service('instance').patch(id, { ended: true })) as Instance
     dispatchAction(AdminInstanceActions.instanceRemovedAction({ instance: result }))
   }
 }
 
 if (globalThis.process.env['VITE_OFFLINE_MODE'] !== 'true') {
-  client.service('instance').on('removed', (params) => {
+  API.instance.client.service('instance').on('removed', (params) => {
     dispatchAction(AdminInstanceActions.instanceRemovedAction({ instance: params.instance }))
   })
 }

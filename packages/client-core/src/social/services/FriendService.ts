@@ -7,8 +7,8 @@ import { UserRelationship } from '@xrengine/common/src/interfaces/UserRelationsh
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { addActionReceptor, defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
+import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
-import { client } from '../../feathers'
 import { accessAuthState } from '../../user/services/AuthService'
 import { UserAction } from '../../user/services/UserService'
 
@@ -114,7 +114,7 @@ export const FriendService = {
     dispatchAction(FriendAction.fetchingFriendsAction())
     try {
       const friendState = accessFriendState()
-      const friendResult = (await client.service('user').find({
+      const friendResult = (await API.instance.client.service('user').find({
         query: {
           action: 'friends',
           $limit: limit != null ? limit : friendState.friends.limit.value,
@@ -146,7 +146,7 @@ export const FriendService = {
   //
   removeFriend: async (relatedUserId: string) => {
     try {
-      await client.service('user-relationship').remove(relatedUserId)
+      await API.instance.client.service('user-relationship').remove(relatedUserId)
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
@@ -192,13 +192,13 @@ export const FriendService = {
   }
 }
 if (globalThis.process.env['VITE_OFFLINE_MODE'] !== 'true') {
-  client.service('user-relationship').on('created', (params) => {
+  API.instance.client.service('user-relationship').on('created', (params) => {
     if (params.userRelationship.userRelationshipType === 'friend') {
       dispatchAction(FriendAction.createdFriendAction({ userRelationship: params.userRelationship }))
     }
   })
 
-  client.service('user-relationship').on('patched', (params) => {
+  API.instance.client.service('user-relationship').on('patched', (params) => {
     const patchedUserRelationship = params.userRelationship
     const selfUser = accessAuthState().user
     if (patchedUserRelationship.userRelationshipType === 'friend') {
@@ -215,7 +215,7 @@ if (globalThis.process.env['VITE_OFFLINE_MODE'] !== 'true') {
     }
   })
 
-  client.service('user-relationship').on('removed', (params) => {
+  API.instance.client.service('user-relationship').on('removed', (params) => {
     const deletedUserRelationship = params.userRelationship
     const selfUser = accessAuthState().user
     if (deletedUserRelationship.userRelationshipType === 'friend') {
