@@ -5,7 +5,7 @@ import { SceneData } from '@xrengine/common/src/interfaces/SceneInterface'
 import { Application } from '../../../declarations'
 import logger from '../../logger'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
-import { getAllPortals, getCubemapBake, getPortal } from './scene-helper'
+import { getAllPortals, getEnvMapBake, getPortal } from './scene-helper'
 import { getSceneData, Scene } from './scene.class'
 import projectDocs from './scene.docs'
 import hooks from './scene.hooks'
@@ -106,7 +106,7 @@ export default (app: Application) => {
     get: getPortal(app),
     find: getAllPortals(app)
   })
-  app.use('/cubemap/:entityId', getCubemapBake(app))
+  app.use('/cubemap/:entityId', getEnvMapBake(app))
 
   /**
    * Get our initialized service so that we can register hooks
