@@ -27,6 +27,7 @@ import {
   GRASS_PROPERTIES_DEFAULT_VALUES,
   MESH_PROPERTIES_DEFAULT_VALUES
 } from '@xrengine/engine/src/scene/functions/loaders/InstancingFunctions'
+import getFirstMesh from '@xrengine/engine/src/scene/util/getFirstMesh'
 
 import { PropertiesPanelButton } from '../inputs/Button'
 import { ImagePreviewInputGroup } from '../inputs/ImagePreviewInput'
@@ -64,23 +65,22 @@ export const InstancingNodeEditor: EditorComponentType = (props) => {
   const density = texPath(sampleProps.densityMap)
 
   const initialSurfaces = () => {
-    const surfaces: any[] = []
-    const eTree = Engine.instance.currentWorld.entityTree
-    iterateEntityNode(eTree.rootNode, (eNode) => {
-      if (eNode === eTree.rootNode) return
-      if (hasComponent(eNode.entity, Object3DComponent)) {
-        const obj3d = getComponent(eNode.entity, Object3DComponent).value
-        let hasMesh = false
-        obj3d.traverse((child: Mesh) => {
-          if (child.isMesh) {
-            hasMesh = true
-          }
-        })
-        if (hasMesh) {
-          surfaces.push({ label: getComponent(eNode.entity, NameComponent)?.name, value: eNode.uuid })
+    const surfaces: any[] = traverseScene(
+      (eNode) => {
+        return {
+          label: getComponent(eNode.entity, NameComponent)?.name ?? '',
+          value: eNode.uuid
         }
+      },
+      (eNode) => {
+        if (hasComponent(eNode.entity, Object3DComponent)) {
+          const obj3d = getComponent(eNode.entity, Object3DComponent).value
+          const mesh = getFirstMesh(obj3d)
+          return !!mesh && mesh.geometry.hasAttribute('uv') && mesh.geometry.hasAttribute('normal')
+        }
+        return false
       }
-    })
+    )
     return surfaces
   }
 
