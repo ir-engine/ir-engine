@@ -73,6 +73,8 @@ export const InstancingNodeEditor: EditorComponentType = (props) => {
         }
       },
       (eNode) => {
+        if (eNode === node) return false
+
         if (hasComponent(eNode.entity, Object3DComponent)) {
           const obj3d = getComponent(eNode.entity, Object3DComponent).value
           const mesh = getFirstMesh(obj3d)
