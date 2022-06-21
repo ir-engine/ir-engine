@@ -1,6 +1,4 @@
-import { useState } from '@speigg/hookstate'
-
-import { client } from '@xrengine/client-core/src/feathers'
+import { API } from '@xrengine/client-core/src/API'
 import { InstanceInterface } from '@xrengine/common/src/dbmodels/Instance'
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import {
@@ -9,7 +7,8 @@ import {
   defineState,
   dispatchAction,
   getState,
-  registerState
+  registerState,
+  useState
 } from '@xrengine/hyperflux'
 
 type ActiveInstance = {
@@ -40,7 +39,7 @@ export const useEditorActiveInstanceState = () => useState(accessEditorActiveIns
 //Service
 export const EditorActiveInstanceService = {
   getActiveInstances: async (sceneId: string) => {
-    const activeInstances = await client.service('instances-active').find({
+    const activeInstances = await API.instance.client.service('instances-active').find({
       query: { sceneId }
     })
     dispatchAction(EditorActiveInstanceAction.fetchedActiveInstances({ activeInstances }))
