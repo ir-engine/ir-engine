@@ -8,14 +8,15 @@ import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineActions, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
+import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
 import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
 import { useWidgetAppState, WidgetAppActions } from '@xrengine/engine/src/xrui/WidgetAppService'
 import { dispatchAction } from '@xrengine/hyperflux'
 
 import RefreshIcon from '@mui/icons-material/Refresh'
 
-import { useChatState } from '../../social/services/ChatService'
-import { MainMenuButtonState } from '../state/MainMenuButtonState'
+import { useMediaStreamState } from '../../../media/services/MediaStreamService'
+import { useChatState } from '../../../social/services/ChatService'
 
 const styles = {
   container: {
@@ -77,6 +78,12 @@ const MainMenuButtons = () => {
   if (activeChannelMatch && activeChannelMatch.length > 0) {
     activeChannel = activeChannelMatch[1]
   }
+  const channelEntries = Object.values(channels).filter((channel) => !!channel) as any
+  const instanceChannel = channelEntries.find(
+    (entry) => entry.instanceId === Engine.instance.currentWorld.worldNetwork?.hostId
+  )
+  const mediastream = useMediaStreamState()
+  const isCamAudioEnabled = mediastream.isCamAudioEnabled
 
   useEffect(() => {
     activeChannel &&

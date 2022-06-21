@@ -3,7 +3,7 @@ import { AvatarResult } from '@xrengine/common/src/interfaces/AvatarResult'
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
-import { client } from '../../feathers'
+import { API } from '../../API'
 
 //State
 export const AVATAR_PAGE_LIMIT = 100
@@ -62,7 +62,7 @@ export const AdminAvatarService = {
     }
     const adminAvatarState = accessAdminAvatarState()
     const limit = adminAvatarState.limit.value
-    const avatars = await client.service('static-resource').find({
+    const avatars = await API.instance.client.service('static-resource').find({
       query: {
         $sort: {
           ...sortData
@@ -80,8 +80,8 @@ export const AdminAvatarService = {
   },
   removeAdminAvatar: async (id: string, name: string) => {
     try {
-      await client.service('static-resource').remove(id)
-      const avatarThumbnail = await client.service('static-resource').find({
+      await API.instance.client.service('static-resource').remove(id)
+      const avatarThumbnail = await API.instance.client.service('static-resource').find({
         query: {
           name: name,
           staticResourceType: 'user-thumbnail',
@@ -89,7 +89,7 @@ export const AdminAvatarService = {
         }
       })
       avatarThumbnail?.data?.length > 0 &&
-        (await client.service('static-resource').remove(avatarThumbnail?.data[0]?.id))
+        (await API.instance.client.service('static-resource').remove(avatarThumbnail?.data[0]?.id))
       dispatchAction(AdminAvatarActions.avatarRemoved())
     } catch (err) {
       console.error(err)

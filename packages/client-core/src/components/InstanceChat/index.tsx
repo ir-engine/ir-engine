@@ -5,7 +5,6 @@ import { useLocationInstanceConnectionState } from '@xrengine/client-core/src/co
 import { ChatService, ChatServiceReceptor, useChatState } from '@xrengine/client-core/src/social/services/ChatService'
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import { notificationAlertURL } from '@xrengine/common/src/constants/URL'
-import { Channel } from '@xrengine/common/src/interfaces/Channel'
 import multiLogger from '@xrengine/common/src/logger'
 import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
 import { useAudioState } from '@xrengine/engine/src/audio/AudioState'
@@ -67,11 +66,11 @@ export const useChatHooks = ({ chatWindowOpen, setUnreadMessages, messageRefInpu
   const chatState = useChatState().attach(Downgraded).value
   const channels = chatState.channels.channels
   const activeChannelMatch = Object.values(channels).find((channel) => channel.channelType === 'instance')
-  const activeChannel = activeChannelMatch ? activeChannelMatch.messages : []
+  const activeChannel = activeChannelMatch?.messages ? activeChannelMatch.messages : []
   const sortedMessages = activeChannel.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
 
   useEffect(() => {
-    if (activeChannel.length > 0 && !chatWindowOpen) setUnreadMessages(true)
+    if (activeChannel?.length > 0 && !chatWindowOpen) setUnreadMessages(true)
   }, [activeChannel])
 
   /**
@@ -236,6 +235,7 @@ const InstanceChat = ({
   const chatState = useChatState()
 
   // TODO: move to register event for chat widget
+  ChatService.useAPIListeners()
   useEffect(() => {
     addActionReceptor(ChatServiceReceptor)
     return () => {

@@ -26,9 +26,9 @@ const logOutput = (child) => {
   })
 }
 
-const devStack = childProcess.spawn('npm', ['run', 'dev'])
+const devStack = childProcess.spawn('npm', ['run', 'dev'], { shell: process.platform === 'win32' })
 logOutput(devStack)
-const lernaE2E = childProcess.spawn('npx', ['lerna', 'run', 'test-e2e'])
+const lernaE2E = childProcess.spawn('npx', ['lerna', 'run', 'test-e2e'], { shell: process.platform === 'win32' })
 logOutput(lernaE2E)
 lernaE2E.on('exit', (exitCode) => {
   console.log(`'lerna run test-e2e' exited with exit code`, exitCode)
