@@ -8,7 +8,7 @@ import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { receiveJoinWorld } from '@xrengine/engine/src/networking/functions/receiveJoinWorld'
 import { useHookEffect, useState } from '@xrengine/hyperflux'
 
-import { client } from '../../feathers'
+import { API } from '../../API'
 import InstanceServerWarnings from './InstanceServerWarnings'
 
 export const OfflineLocation = () => {
@@ -34,8 +34,8 @@ export const OfflineLocation = () => {
         name: authState.user.name.value
       })
 
-      const user = await client.service('user').get(Engine.instance.userId)
-      const avatarDetails = await client.service('avatar').get(user.avatarId!)
+      const user = await API.instance.client.service('user').get(Engine.instance.userId)
+      const avatarDetails = await API.instance.client.service('avatar').get(user.avatarId!)
 
       const avatarSpawnPose = SpawnPoints.instance.getRandomSpawnPoint()
       receiveJoinWorld({

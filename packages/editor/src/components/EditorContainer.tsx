@@ -10,7 +10,6 @@ import styled from 'styled-components'
 import { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { getEngineState, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
-import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { gltfToSceneJson, sceneToGLTF } from '@xrengine/engine/src/scene/functions/GLTFConversion'
 import { dispatchAction, useHookEffect } from '@xrengine/hyperflux'
 
@@ -24,7 +23,7 @@ import { disposeProject, loadProjectScene, runPreprojectLoadTasks } from '../fun
 import { createNewScene, getScene, saveScene } from '../functions/sceneFunctions'
 import { initializeRenderer } from '../functions/sceneRenderFunctions'
 import { takeScreenshot } from '../functions/takeScreenshot'
-import { uploadBakeToServer } from '../functions/uploadCubemapBake'
+import { uploadBakeToServer } from '../functions/uploadEnvMapBake'
 import { cmdOrCtrlString } from '../functions/utils'
 import { useEditorErrorState } from '../services/EditorErrorServices'
 import { EditorAction, useEditorState } from '../services/EditorServices'
@@ -269,7 +268,7 @@ const EditorContainer = () => {
           )
         })) as any
         if (result && projectName.value) {
-          await uploadBakeToServer(useWorld().entityTree.rootNode.entity)
+          await uploadBakeToServer(Engine.instance.currentWorld.entityTree.rootNode.entity)
           await saveScene(projectName.value, result.name, blob, abortController.signal)
           dispatchAction(EditorAction.sceneModified({ modified: false }))
         }
@@ -390,7 +389,7 @@ const EditorContainer = () => {
 
     try {
       if (projectName.value) {
-        await uploadBakeToServer(useWorld().entityTree.rootNode.entity)
+        await uploadBakeToServer(Engine.instance.currentWorld.entityTree.rootNode.entity)
         await saveScene(projectName.value, sceneName.value, blob, abortController.signal)
       }
 

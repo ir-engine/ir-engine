@@ -31,18 +31,18 @@ import { Object3DComponent } from '../../components/Object3DComponent'
 import { EnvMapSourceType, EnvMapTextureType } from '../../constants/EnvMapEnum'
 import { getPmremGenerator, loadCubeMapTexture, textureLoader } from '../../constants/Util'
 import { SceneOptions } from '../../systems/SceneObjectSystem'
-import { CubemapBakeTypes } from '../../types/CubemapBakeTypes'
+import { EnvMapBakeTypes } from '../../types/EnvMapBakeTypes'
 import { addError, removeError } from '../ErrorFunctions'
-import { parseCubemapBakeProperties } from './CubemapBakeFunctions'
+import { parseEnvMapBakeProperties } from './EnvMapBakeFunctions'
 
 export const SCENE_COMPONENT_ENVMAP = 'envmap'
 export const SCENE_COMPONENT_ENVMAP_DEFAULT_VALUES = {
   type: EnvMapSourceType.None,
-  envMapTextureType: 0,
+  envMapTextureType: EnvMapTextureType.Cubemap,
   envMapSourceColor: 0x123456,
   envMapSourceURL: '/hdr/cubemap/skyboxsun25deg/',
   envMapIntensity: 1,
-  envMapCubemapBake: {},
+  envMapBake: {},
   forModel: true
 }
 
@@ -71,7 +71,7 @@ export const updateEnvMap: ComponentUpdateFunction = (entity: Entity, properties
     typeof properties.type !== 'undefined' ||
     typeof properties.envMapSourceColor !== 'undefined' ||
     typeof properties.envMapTextureType !== 'undefined' ||
-    typeof properties.envMapCubemapBake !== 'undefined' ||
+    typeof properties.envMapBake !== 'undefined' ||
     typeof properties.envMapSourceURL !== 'undefined'
   ) {
     switch (component.type) {
@@ -134,7 +134,7 @@ export const updateEnvMap: ComponentUpdateFunction = (entity: Entity, properties
         break
 
       case EnvMapSourceType.Default:
-        const options = component.envMapCubemapBake
+        const options = component.envMapBake
         if (!options) return
 
         if (!component.forModel) {
@@ -144,13 +144,13 @@ export const updateEnvMap: ComponentUpdateFunction = (entity: Entity, properties
 
         matchActionOnce(EngineActions.sceneLoaded.matches, () => {
           switch (options.bakeType) {
-            case CubemapBakeTypes.Baked:
+            case EnvMapBakeTypes.Baked:
               const texture = AssetLoader.Cache.get(options.envMapOrigin)
               texture.mapping = EquirectangularRefractionMapping
               applyEnvMap(obj3d, texture)
 
               break
-            case CubemapBakeTypes.Realtime:
+            case EnvMapBakeTypes.Realtime:
               // const map = new CubemapCapturer(EngineRenderer.instance.renderer, Engine.scene, options.resolution)
               // const EnvMap = (await map.update(options.bakePosition)).cubeRenderTarget.texture
               // applyEnvMap(obj3d, EnvMap)
@@ -202,7 +202,7 @@ export const serializeEnvMap: ComponentSerializeFunction = (entity) => {
       envMapSourceColor: component.envMapSourceColor.getHex(),
       envMapSourceURL: component.envMapSourceURL,
       envMapIntensity: component.envMapIntensity,
-      envMapCubemapBake: component.envMapCubemapBake,
+      envMapBake: component.envMapBake,
       forModel: component.forModel
     }
   }
@@ -215,8 +215,8 @@ const parseEnvMapProperties = (props): EnvmapComponentType => {
     envMapSourceColor: new Color(props.envMapSourceColor ?? SCENE_COMPONENT_ENVMAP_DEFAULT_VALUES.envMapSourceColor),
     envMapSourceURL: props.envMapSourceURL ?? SCENE_COMPONENT_ENVMAP_DEFAULT_VALUES.envMapSourceURL,
     envMapIntensity: props.envMapIntensity ?? SCENE_COMPONENT_ENVMAP_DEFAULT_VALUES.envMapIntensity,
-    envMapCubemapBake: parseCubemapBakeProperties({
-      options: props.envMapCubemapBake ?? SCENE_COMPONENT_ENVMAP_DEFAULT_VALUES.envMapCubemapBake
+    envMapBake: parseEnvMapBakeProperties({
+      options: props.envMapBake ?? SCENE_COMPONENT_ENVMAP_DEFAULT_VALUES.envMapBake
     }).options,
     forModel: Boolean(props.forModel)
   }

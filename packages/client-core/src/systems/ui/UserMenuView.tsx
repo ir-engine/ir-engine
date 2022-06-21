@@ -110,6 +110,7 @@ const AvatarContextMenu = () => {
   const { t } = useTranslation()
 
   // TODO: move these to widget register
+  PartyService.useAPIListeners()
   useEffect(() => {
     addActionReceptor(PartyServiceReceptor)
     return () => {

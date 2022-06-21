@@ -1,5 +1,6 @@
 import { Paginated } from '@feathersjs/feathers'
 import { none } from '@speigg/hookstate'
+import { useEffect } from 'react'
 
 import { Channel } from '@xrengine/common/src/interfaces/Channel'
 import { Group } from '@xrengine/common/src/interfaces/Group'
@@ -12,8 +13,8 @@ import { matches, Validator } from '@xrengine/engine/src/common/functions/Matche
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
+import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
-import { client } from '../../feathers'
 import { accessAuthState } from '../../user/services/AuthService'
 
 const logger = multiLogger.child({ component: 'client-core:social' })
@@ -220,7 +221,7 @@ export const ChatService = {
     try {
       const chatState = accessChatState().value
 
-      const channelResult = (await client.service('channel').find({
+      const channelResult = (await API.instance.client.service('channel').find({
         query: {
           $limit: limit != null ? limit : chatState.channels.limit,
           $skip: skip != null ? skip : chatState.channels.skip
@@ -233,7 +234,7 @@ export const ChatService = {
   },
   getInstanceChannel: async () => {
     try {
-      const channelResult = (await client.service('channel').find({
+      const channelResult = (await API.instance.client.service('channel').find({
         query: {
           channelType: 'instance',
           instanceId: Engine.instance.currentWorld.worldNetwork.hostId
@@ -257,14 +258,14 @@ export const ChatService = {
         logger.warn({ data }, 'Invalid data, something is null.')
         return
       }
-      await client.service('message').create(data)
+      await API.instance.client.service('message').create(data)
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   },
   sendChatMessage: (values: ChatMessageProps) => {
     try {
-      client.service('message').create({
+      API.instance.client.service('message').create({
         targetObjectId: values.targetObjectId,
         targetObjectType: values.targetObjectType,
         text: values.text
@@ -287,7 +288,7 @@ export const ChatService = {
     if (channelId && channelId.length > 0) {
       try {
         const chatState = accessChatState().value
-        const messageResult = (await client.service('message').find({
+        const messageResult = (await API.instance.client.service('message').find({
           query: {
             channelId: channelId,
             $sort: {
@@ -305,14 +306,14 @@ export const ChatService = {
   },
   removeMessage: async (messageId: string) => {
     try {
-      await client.service('message').remove(messageId)
+      await API.instance.client.service('message').remove(messageId)
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   },
   patchMessage: async (messageId: string, text: string) => {
     try {
-      await client.service('message').patch(messageId, {
+      await API.instance.client.service('message').patch(messageId, {
         text: text
       })
     } catch (err) {
@@ -325,7 +326,7 @@ export const ChatService = {
         ChatAction.setChatTargetAction({ targetObjectType: targetObjectType, targetObject, targetChannelId: '' })
       )
     } else {
-      const targetChannelResult = (await client.service('channel').find({
+      const targetChannelResult = (await API.instance.client.service('channel').find({
         query: {
           findTargetId: true,
           targetObjectType: targetObjectType,
@@ -356,34 +357,51 @@ export const ChatService = {
   },
   updateMessageScrollInit: async (value: boolean) => {
     dispatchAction(ChatAction.setMessageScrollInitAction({ value }))
+  },
+  useAPIListeners: () => {
+    useEffect(() => {
+      const messageCreatedListener = (params) => {
+        const selfUser = accessAuthState().user.value
+        dispatchAction(ChatAction.createdMessageAction({ message: params.message, selfUser: selfUser }))
+      }
+
+      const messagePatchedListener = (params) => {
+        dispatchAction(ChatAction.patchedMessageAction({ message: params.message }))
+      }
+
+      const messageRemovedListener = (params) => {
+        dispatchAction(ChatAction.removedMessageAction({ message: params.message }))
+      }
+
+      const channelCreatedListener = (params) => {
+        dispatchAction(ChatAction.createdChannelAction({ channel: params.channel }))
+      }
+
+      const channelPatchedListener = (params) => {
+        dispatchAction(ChatAction.patchedChannelAction({ channel: params.channel }))
+      }
+
+      const channelRemovedListener = (params) => {
+        dispatchAction(ChatAction.removedChannelAction({ channel: params.channel }))
+      }
+
+      API.instance.client.service('message').on('created', messageCreatedListener)
+      API.instance.client.service('message').on('patched', messagePatchedListener)
+      API.instance.client.service('message').on('removed', messageRemovedListener)
+      API.instance.client.service('channel').on('created', channelCreatedListener)
+      API.instance.client.service('channel').on('patched', channelPatchedListener)
+      API.instance.client.service('channel').on('removed', channelRemovedListener)
+
+      return () => {
+        API.instance.client.service('message').off('created', messageCreatedListener)
+        API.instance.client.service('message').off('patched', messagePatchedListener)
+        API.instance.client.service('message').off('removed', messageRemovedListener)
+        API.instance.client.service('channel').off('created', channelCreatedListener)
+        API.instance.client.service('channel').off('patched', channelPatchedListener)
+        API.instance.client.service('channel').off('removed', channelRemovedListener)
+      }
+    }, [])
   }
-}
-
-if (globalThis.process.env['VITE_OFFLINE_MODE'] !== 'true') {
-  client.service('message').on('created', (params) => {
-    const selfUser = accessAuthState().user.value
-    dispatchAction(ChatAction.createdMessageAction({ message: params.message, selfUser: selfUser }))
-  })
-
-  client.service('message').on('patched', (params) => {
-    dispatchAction(ChatAction.patchedMessageAction({ message: params.message }))
-  })
-
-  client.service('message').on('removed', (params) => {
-    dispatchAction(ChatAction.removedMessageAction({ message: params.message }))
-  })
-
-  client.service('channel').on('created', (params) => {
-    dispatchAction(ChatAction.createdChannelAction({ channel: params.channel }))
-  })
-
-  client.service('channel').on('patched', (params) => {
-    dispatchAction(ChatAction.patchedChannelAction({ channel: params.channel }))
-  })
-
-  client.service('channel').on('removed', (params) => {
-    dispatchAction(ChatAction.removedChannelAction({ channel: params.channel }))
-  })
 }
 
 //Action
