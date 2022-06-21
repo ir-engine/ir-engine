@@ -26,6 +26,7 @@ import {
   AdminChargebeeReceptors,
   AdminChargebeeSettingActions
 } from '../admin/services/Setting/ChargebeeSettingService'
+import { ClientSettingActions, ClientSettingReceptors } from '../admin/services/Setting/ClientSettingService'
 import { AdminCoilSettingActions, CoilSettingReceptors } from '../admin/services/Setting/CoilSettingService'
 import { EmailSettingActions, EmailSettingReceptors } from '../admin/services/Setting/EmailSettingService'
 import {
@@ -113,6 +114,8 @@ export default async function AdminSystem(world: World) {
   const chargebeeSettingRetrievedQueue = createActionQueue(
     AdminChargebeeSettingActions.chargebeeSettingRetrieved.matches
   )
+  const fetchedClientQueue = createActionQueue(ClientSettingActions.fetchedClient.matches)
+  const clientSettingPatchedQueue = createActionQueue(ClientSettingActions.clientSettingPatched.matches)
 
   return () => {
     for (const action of fetchedAnalyticsQueue()) {
@@ -327,6 +330,12 @@ export default async function AdminSystem(world: World) {
     }
     for (const action of chargebeeSettingRetrievedQueue()) {
       AdminChargebeeReceptors.chargebeeSettingRetrievedReceptor(action)
+    }
+    for (const action of fetchedClientQueue()) {
+      ClientSettingReceptors.fetchedClientReceptor(action)
+    }
+    for (const action of clientSettingPatchedQueue()) {
+      ClientSettingReceptors.clientSettingPatchedReceptor(action)
     }
   }
 }
