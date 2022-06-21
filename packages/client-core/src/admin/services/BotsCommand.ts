@@ -21,16 +21,18 @@ const AdminBotsCommandState = defineState({
   })
 })
 
-export const AdminBotsCommandServiceReceptor = (action) => {
-  getState(AdminBotsCommandState).batch((s) => {
-    matches(action)
-      .when(AdminBotCommandActions.botCammandCreated.matches, (action) => {
-        return s.merge({ updateNeeded: true })
-      })
-      .when(AdminBotCommandActions.botCommandRemoved.matches, (action) => {
-        return s.merge({ updateNeeded: true })
-      })
-  })
+const botCommandCreatedReceptor = (action: typeof AdminBotCommandActions.botCommandCreated.matches._TYPE) => {
+  const state = getState(AdminBotsCommandState)
+  return state.merge({ updateNeeded: true })
+}
+const botCommandRemovedReceptor = (action: typeof AdminBotCommandActions.botCommandRemoved.matches._TYPE) => {
+  const state = getState(AdminBotsCommandState)
+  return state.merge({ updateNeeded: true })
+}
+
+export const AdminBotsCommandReceptors = {
+  botCommandCreatedReceptor,
+  botCommandRemovedReceptor
 }
 
 export const accessAdminBotCommandState = () => getState(AdminBotsCommandState)
@@ -42,7 +44,7 @@ export const AdminBotCommandService = {
   createBotCammand: async (data: CreateBotCammand) => {
     try {
       const botCommand = (await client.service('bot-command').create(data)) as BotCommands
-      dispatchAction(AdminBotCommandActions.botCammandCreated({ botCommand }))
+      dispatchAction(AdminBotCommandActions.botCommandCreated({ botCommand }))
     } catch (error) {
       console.error(error)
     }
@@ -58,7 +60,7 @@ export const AdminBotCommandService = {
 }
 //Action
 export class AdminBotCommandActions {
-  static botCammandCreated = defineAction({
+  static botCommandCreated = defineAction({
     type: 'BOT_COMMAND_ADMIN_CREATE' as const,
     botCommand: matches.object as Validator<unknown, BotCommands>
   })

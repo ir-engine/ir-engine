@@ -25,21 +25,22 @@ const AdminScopeTypeState = defineState({
   })
 })
 
-export const AdminScopeTypeServiceReceptor = (action) => {
-  getState(AdminScopeTypeState).batch((s) => {
-    matches(action).when(AdminScopeTypeActions.getScopeTypes.matches, (action) => {
-      return s.merge({
-        scopeTypes: action.adminScopeTypeResult.data,
-        skip: action.adminScopeTypeResult.skip,
-        limit: action.adminScopeTypeResult.limit,
-        total: action.adminScopeTypeResult.total,
-        retrieving: false,
-        fetched: true,
-        updateNeeded: false,
-        lastFetched: Date.now()
-      })
-    })
+const getScopeTypesReceptor = (action: typeof AdminScopeTypeActions.getScopeTypes.matches._TYPE) => {
+  const state = getState(AdminScopeTypeState)
+  return state.merge({
+    scopeTypes: action.adminScopeTypeResult.data,
+    skip: action.adminScopeTypeResult.skip,
+    limit: action.adminScopeTypeResult.limit,
+    total: action.adminScopeTypeResult.total,
+    retrieving: false,
+    fetched: true,
+    updateNeeded: false,
+    lastFetched: Date.now()
   })
+}
+
+export const AdminScopeTypeReceptor = {
+  getScopeTypesReceptor
 }
 
 export const accessScopeTypeState = () => getState(AdminScopeTypeState)

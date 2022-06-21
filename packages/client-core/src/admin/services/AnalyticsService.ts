@@ -21,50 +21,71 @@ const AdminAnalyticsState = defineState({
   })
 })
 
-export const AdminAnalyticsServiceReceptor = (action) => {
-  getState(AdminAnalyticsState).batch((s) => {
-    matches(action)
-      .when(AdminAnalyticsActions.activeInstancesFetched.matches, (action) => {
-        return s.merge({
-          activeInstances: action.analytics.data.reverse()
-        })
-      })
-      .when(AdminAnalyticsActions.activePartiesFetched.matches, (action) => {
-        return s.merge({
-          activeParties: action.analytics.data.reverse()
-        })
-      })
-      .when(AdminAnalyticsActions.activeLocationsFetched.matches, (action) => {
-        return s.merge({
-          activeLocations: action.analytics.data.reverse()
-        })
-      })
-      .when(AdminAnalyticsActions.activeScenesFetched.matches, (action) => {
-        return s.merge({
-          activeScenes: action.analytics.data.reverse()
-        })
-      })
-      .when(AdminAnalyticsActions.channelUsersFetched.matches, (action) => {
-        return s.merge({
-          channelUsers: action.analytics.data.reverse()
-        })
-      })
-      .when(AdminAnalyticsActions.instanceUsersFetched.matches, (action) => {
-        return s.merge({
-          instanceUsers: action.analytics.data.reverse()
-        })
-      })
-      .when(AdminAnalyticsActions.dailyNewUsersFetched.matches, (action) => {
-        return s.merge({
-          dailyNewUsers: action.analytics.data.reverse()
-        })
-      })
-      .when(AdminAnalyticsActions.dailyUsersFetched.matches, (action) => {
-        return s.merge({
-          dailyUsers: action.analytics.data.reverse()
-        })
-      })
+const activeInstancesFetchedReceptor = (action: typeof AdminAnalyticsActions.activeInstancesFetched.matches._TYPE) => {
+  const state = getState(AdminAnalyticsState)
+  return state.merge({
+    activeInstances: action.analytics.data.reverse()
   })
+}
+
+const activePartiesFetchedReceptor = (action: typeof AdminAnalyticsActions.activePartiesFetched.matches._TYPE) => {
+  const state = getState(AdminAnalyticsState)
+  return state.merge({
+    activeParties: action.analytics.data.reverse()
+  })
+}
+
+const activeLocationsFetchedReceptor = (action: typeof AdminAnalyticsActions.activeLocationsFetched.matches._TYPE) => {
+  const state = getState(AdminAnalyticsState)
+  return state.merge({
+    activeLocations: action.analytics.data.reverse()
+  })
+}
+
+const activeScenesFetchedReceptor = (action: typeof AdminAnalyticsActions.activeScenesFetched.matches._TYPE) => {
+  const state = getState(AdminAnalyticsState)
+  return state.merge({
+    activeScenes: action.analytics.data.reverse()
+  })
+}
+
+const channelUsersFetchedReceptor = (action: typeof AdminAnalyticsActions.channelUsersFetched.matches._TYPE) => {
+  const state = getState(AdminAnalyticsState)
+  return state.merge({
+    channelUsers: action.analytics.data.reverse()
+  })
+}
+
+const instanceUsersFetchedReceptor = (action: typeof AdminAnalyticsActions.instanceUsersFetched.matches._TYPE) => {
+  const state = getState(AdminAnalyticsState)
+  return state.merge({
+    instanceUsers: action.analytics.data.reverse()
+  })
+}
+
+const dailyNewUsersFetchedReceptor = (action: typeof AdminAnalyticsActions.dailyNewUsersFetched.matches._TYPE) => {
+  const state = getState(AdminAnalyticsState)
+  return state.merge({
+    dailyNewUsers: action.analytics.data.reverse()
+  })
+}
+
+const dailyUsersFetchedReceptor = (action: typeof AdminAnalyticsActions.dailyUsersFetched.matches._TYPE) => {
+  const state = getState(AdminAnalyticsState)
+  return state.merge({
+    dailyUsers: action.analytics.data.reverse()
+  })
+}
+
+export const AdminAnalyticsReceptors = {
+  activeInstancesFetchedReceptor,
+  activePartiesFetchedReceptor,
+  activeLocationsFetchedReceptor,
+  activeScenesFetchedReceptor,
+  channelUsersFetchedReceptor,
+  instanceUsersFetchedReceptor,
+  dailyNewUsersFetchedReceptor,
+  dailyUsersFetchedReceptor
 }
 
 export const accessAdminAnalyticsState = () => getState(AdminAnalyticsState)

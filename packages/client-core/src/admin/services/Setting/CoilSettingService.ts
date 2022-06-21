@@ -7,7 +7,7 @@ import { defineAction, defineState, dispatchAction, getState, useState } from '@
 import { NotificationService } from '../../../common/services/NotificationService'
 import { client } from '../../../feathers'
 
-const AdmindCoilSettingsState = defineState({
+const AdminCoilSettingsState = defineState({
   name: 'AdmindCoilSettingsState',
   initial: () => ({
     coil: [] as Array<CoilSetting>,
@@ -15,15 +15,16 @@ const AdmindCoilSettingsState = defineState({
   })
 })
 
-export const AdminCoilSettingsServiceReceptor = (action) => {
-  getState(AdmindCoilSettingsState).batch((s) => {
-    matches(action).when(AdminCoilSettingActions.fetchedCoil.matches, (action) => {
-      return s.merge({ coil: action.coilSettings.data, updateNeeded: false })
-    })
-  })
+const fetchedCoilReceptor = (action: typeof AdminCoilSettingActions.fetchedCoil.matches._TYPE) => {
+  const state = getState(AdminCoilSettingsState)
+  return state.merge({ coil: action.coilSettings.data, updateNeeded: false })
 }
 
-export const accessCoilSettingState = () => getState(AdmindCoilSettingsState)
+export const CoilSettingReceptors = {
+  fetchedCoilReceptor
+}
+
+export const accessCoilSettingState = () => getState(AdminCoilSettingsState)
 
 export const useCoilSettingState = () => useState(accessCoilSettingState())
 

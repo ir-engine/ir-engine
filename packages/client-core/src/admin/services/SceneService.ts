@@ -21,18 +21,19 @@ const AdminSceneState = defineState({
   })
 })
 
-export const AdminSceneServiceReceptor = (action) => {
-  getState(AdminSceneState).batch((s) => {
-    matches(action).when(AdminSceneActions.scenesFetched.matches, (action) => {
-      return s.merge({
-        scenes: action.sceneData,
-        retrieving: false,
-        fetched: true,
-        updateNeeded: false,
-        lastFetched: Date.now()
-      })
-    })
+const scenesFetchedReceptor = (action: typeof AdminSceneActions.scenesFetched.matches._TYPE) => {
+  const state = getState(AdminSceneState)
+  return state.merge({
+    scenes: action.sceneData,
+    retrieving: false,
+    fetched: true,
+    updateNeeded: false,
+    lastFetched: Date.now()
   })
+}
+
+export const AdminSceneReceptors = {
+  scenesFetchedReceptor
 }
 
 export const accessAdminSceneState = () => getState(AdminSceneState)

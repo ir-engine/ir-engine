@@ -18,12 +18,13 @@ const AdminRedisSettingsState = defineState({
   })
 })
 
-export const AdminRedisSettingsServiceReceptor = (action) => {
-  getState(AdminRedisSettingsState).batch((s) => {
-    matches(action).when(AdminRedisSettingActions.redisSettingRetrieved.matches, (action) => {
-      return s.merge({ redisSettings: action.adminRedisSetting.data, updateNeeded: false })
-    })
-  })
+const redisSettingRetrievedReceptor = (action: typeof AdminRedisSettingActions.redisSettingRetrieved.matches._TYPE) => {
+  const state = getState(AdminRedisSettingsState)
+  return state.merge({ redisSettings: action.adminRedisSetting.data, updateNeeded: false })
+}
+
+export const RedisSettingReceptors = {
+  redisSettingRetrievedReceptor
 }
 
 export const accessAdminRedisSettingState = () => getState(AdminRedisSettingsState)

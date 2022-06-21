@@ -18,16 +18,19 @@ const AdminAwsSettingState = defineState({
   })
 })
 
-export const AdminAwsSettingsServiceReceptor = (action) => {
-  getState(AdminAwsSettingState).batch((s) => {
-    matches(action)
-      .when(AdminAwsSettingActions.awsSettingRetrieved.matches, (action) => {
-        return s.merge({ awsSettings: action.awsSettings.data, updateNeeded: false })
-      })
-      .when(AdminAwsSettingActions.awsSettingPatched.matches, (action) => {
-        return s.updateNeeded.set(true)
-      })
-  })
+const awsSettingRetrievedReceptor = (action: typeof AdminAwsSettingActions.awsSettingRetrieved.matches._TYPE) => {
+  const state = getState(AdminAwsSettingState)
+  return state.merge({ awsSettings: action.awsSettings.data, updateNeeded: false })
+}
+
+const awsSettingPatchedReceptor = (action: typeof AdminAwsSettingActions.awsSettingPatched.matches._TYPE) => {
+  const state = getState(AdminAwsSettingState)
+  return state.updateNeeded.set(true)
+}
+
+export const AwsSettingReceptors = {
+  awsSettingRetrievedReceptor,
+  awsSettingPatchedReceptor
 }
 
 export const accessAdminAwsSettingState = () => getState(AdminAwsSettingState)

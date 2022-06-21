@@ -15,16 +15,19 @@ const AdminServerSettingsState = defineState({
   })
 })
 
-export const AdminServerSettingsServiceReceptor = (action) => {
-  getState(AdminServerSettingsState).batch((s) => {
-    matches(action)
-      .when(AdminServerSettingActions.fetchedSeverInfo.matches, (action) => {
-        return s.merge({ server: action.serverSettings.data, updateNeeded: false })
-      })
-      .when(AdminServerSettingActions.serverSettingPatched.matches, (action) => {
-        return s.updateNeeded.set(true)
-      })
-  })
+const fetchedSeverInfoReceptor = (action: typeof AdminServerSettingActions.fetchedSeverInfo.matches._TYPE) => {
+  const state = getState(AdminServerSettingsState)
+  return state.merge({ server: action.serverSettings.data, updateNeeded: false })
+}
+
+const serverSettingPatchedReceptor = (action: typeof AdminServerSettingActions.serverSettingPatched.matches._TYPE) => {
+  const state = getState(AdminServerSettingsState)
+  return state.updateNeeded.set(true)
+}
+
+export const ServerSettingReceptors = {
+  fetchedSeverInfoReceptor,
+  serverSettingPatchedReceptor
 }
 
 export const accessServerSettingState = () => getState(AdminServerSettingsState)

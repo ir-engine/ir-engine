@@ -15,12 +15,13 @@ const AdminAnalyticsSettingsState = defineState({
   })
 })
 
-export const AdminAnalyticsSettingsServiceReceptor = (action) => {
-  getState(AdminAnalyticsSettingsState).batch((s) => {
-    matches(action).when(AdminAnalyticsSettingActions.fetchedAnalytics.matches, (action) => {
-      return s.merge({ analytics: action.analyticsSettings.data, updateNeeded: false })
-    })
-  })
+const fetchedAnalyticsReceptor = (action: typeof AdminAnalyticsSettingActions.fetchedAnalytics.matches._TYPE) => {
+  const state = getState(AdminAnalyticsSettingsState)
+  return state.merge({ analytics: action.analyticsSettings.data, updateNeeded: false })
+}
+
+export const AnalyticsSettingReceptors = {
+  fetchedAnalyticsReceptor
 }
 
 export const accessSettingAnalyticsState = () => getState(AdminAnalyticsSettingsState)

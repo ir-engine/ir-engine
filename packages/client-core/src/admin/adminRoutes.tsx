@@ -1,14 +1,13 @@
 import React, { Fragment, Suspense, useEffect } from 'react'
 import { Redirect, Switch } from 'react-router-dom'
 
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { initializeCoreSystems, initializeSceneSystems } from '@xrengine/engine/src/initializeEngine'
-import { addActionReceptor, removeActionReceptor } from '@xrengine/hyperflux'
 
 import CircularProgress from '@mui/material/CircularProgress'
 
 import PrivateRoute from '../Private'
 import { useAuthState } from '../user/services/AuthService'
-import { AdminScopeTypeServiceReceptor } from './services/ScopeTypeService'
 
 const analytic = React.lazy(() => import('./components/Analytics'))
 const avatars = React.lazy(() => import('./components/Avatars'))
@@ -24,9 +23,12 @@ const botSetting = React.lazy(() => import('./components/Bots'))
 const projects = React.lazy(() => import('./components/Project'))
 const setting = React.lazy(() => import('./components/Setting'))
 
-interface Props {}
+const AdminSystemInjection = {
+  type: 'PRE_RENDER',
+  systemModulePromise: import('../systems/AdminSystem')
+} as const
 
-const ProtectedRoutes = (props: Props) => {
+const ProtectedRoutes = () => {
   const admin = useAuthState().user
 
   let allowedRoutes = {
@@ -44,13 +46,10 @@ const ProtectedRoutes = (props: Props) => {
   const scopes = admin?.scopes?.value || []
 
   useEffect(() => {
-    addActionReceptor(AdminScopeTypeServiceReceptor)
+    Engine.instance.injectedSystems.push(AdminSystemInjection)
     initializeCoreSystems().then(async () => {
       await initializeSceneSystems()
     })
-    return () => {
-      removeActionReceptor(AdminScopeTypeServiceReceptor)
-    }
   }, [])
 
   scopes.forEach((scope) => {

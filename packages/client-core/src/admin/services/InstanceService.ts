@@ -3,14 +3,7 @@ import { useState } from '@speigg/hookstate'
 
 import { Instance } from '@xrengine/common/src/interfaces/Instance'
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import {
-  addActionReceptor,
-  defineAction,
-  defineState,
-  dispatchAction,
-  getState,
-  registerState
-} from '@xrengine/hyperflux'
+import { defineAction, defineState, dispatchAction, getState } from '@xrengine/hyperflux'
 
 import { NotificationService } from '../../common/services/NotificationService'
 import { client } from '../../feathers'
@@ -32,25 +25,28 @@ export const AdminInstanceState = defineState({
   })
 })
 
-export const AdminInstanceServiceReceptor = (action) => {
-  getState(AdminInstanceState).batch((s) => {
-    matches(action)
-      .when(AdminInstanceActions.instancesRetrievedAction.matches, (action) => {
-        return s.merge({
-          instances: action.instanceResult.data,
-          skip: action.instanceResult.skip,
-          limit: action.instanceResult.limit,
-          total: action.instanceResult.total,
-          retrieving: false,
-          fetched: true,
-          updateNeeded: false,
-          lastFetched: Date.now()
-        })
-      })
-      .when(AdminInstanceActions.instancesRetrievedAction.matches, () => {
-        return s.merge({ updateNeeded: true })
-      })
+const instancesRetrievedReceptor = (action: typeof AdminInstanceActions.instancesRetrievedAction.matches._TYPE) => {
+  const state = getState(AdminInstanceState)
+  return state.merge({
+    instances: action.instanceResult.data,
+    skip: action.instanceResult.skip,
+    limit: action.instanceResult.limit,
+    total: action.instanceResult.total,
+    retrieving: false,
+    fetched: true,
+    updateNeeded: false,
+    lastFetched: Date.now()
   })
+}
+
+const instanceRemovedReceptor = (action: typeof AdminInstanceActions.instanceRemovedAction.matches._TYPE) => {
+  const state = getState(AdminInstanceState)
+  return state.merge({ updateNeeded: true })
+}
+
+export const AdminInstanceReceptors = {
+  instancesRetrievedReceptor,
+  instanceRemovedReceptor
 }
 
 export const accessAdminInstanceState = () => getState(AdminInstanceState)

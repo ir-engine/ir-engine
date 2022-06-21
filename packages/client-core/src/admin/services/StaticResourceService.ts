@@ -22,17 +22,20 @@ const AdminStaticResourceState = defineState({
   })
 })
 
-export const AdminStaticResourceServiceReceptor = (action) => {
-  getState(AdminStaticResourceState).batch((s) => {
-    matches(action).when(AdminStaticResourceActions.fetchedStaticResource.matches, (action) => {
-      return s.merge({
-        staticResource: action.staticResource.data,
-        retrieving: false,
-        updateNeeded: false,
-        fetched: true
-      })
-    })
+const fetchedStaticResourceReceptor = (
+  action: typeof AdminStaticResourceActions.fetchedStaticResource.matches._TYPE
+) => {
+  const state = getState(AdminStaticResourceState)
+  return state.merge({
+    staticResource: action.staticResource.data,
+    retrieving: false,
+    updateNeeded: false,
+    fetched: true
   })
+}
+
+export const AdminStaticResourceReceptors = {
+  fetchedStaticResourceReceptor
 }
 
 export const accessStaticResourceState = () => getState(AdminStaticResourceState)

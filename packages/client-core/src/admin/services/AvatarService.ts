@@ -22,31 +22,40 @@ const AdminAvatarState = defineState({
   })
 })
 
-export const AdminAvatarServiceReceptor = (action) => {
-  getState(AdminAvatarState).batch((s) => {
-    matches(action)
-      .when(AdminAvatarActions.avatarsFetched.matches, (action) => {
-        return s.merge({
-          avatars: action.avatars.data,
-          skip: action.avatars.skip,
-          limit: action.avatars.limit,
-          total: action.avatars.total,
-          retrieving: false,
-          fetched: true,
-          updateNeeded: false,
-          lastFetched: Date.now()
-        })
-      })
-      .when(AdminAvatarActions.avatarCreated.matches, (action) => {
-        return s.merge({ updateNeeded: true })
-      })
-      .when(AdminAvatarActions.avatarRemoved.matches, (action) => {
-        return s.merge({ updateNeeded: true })
-      })
-      .when(AdminAvatarActions.avatarUpdated.matches, (action) => {
-        return s.merge({ updateNeeded: true })
-      })
+const avatarsFetchedReceptor = (action: typeof AdminAvatarActions.avatarsFetched.matches._TYPE) => {
+  const state = getState(AdminAvatarState)
+  return state.merge({
+    avatars: action.avatars.data,
+    skip: action.avatars.skip,
+    limit: action.avatars.limit,
+    total: action.avatars.total,
+    retrieving: false,
+    fetched: true,
+    updateNeeded: false,
+    lastFetched: Date.now()
   })
+}
+
+const avatarCreatedReceptor = (action: typeof AdminAvatarActions.avatarCreated.matches._TYPE) => {
+  const state = getState(AdminAvatarState)
+  return state.merge({ updateNeeded: true })
+}
+
+const avatarRemovedReceptor = (action: typeof AdminAvatarActions.avatarRemoved.matches._TYPE) => {
+  const state = getState(AdminAvatarState)
+  return state.merge({ updateNeeded: true })
+}
+
+const avatarUpdatedReceptor = (action: typeof AdminAvatarActions.avatarUpdated.matches._TYPE) => {
+  const state = getState(AdminAvatarState)
+  return state.merge({ updateNeeded: true })
+}
+
+export const AdminAvatarReceptors = {
+  avatarsFetchedReceptor,
+  avatarCreatedReceptor,
+  avatarRemovedReceptor,
+  avatarUpdatedReceptor
 }
 
 export const accessAdminAvatarState = () => getState(AdminAvatarState)
