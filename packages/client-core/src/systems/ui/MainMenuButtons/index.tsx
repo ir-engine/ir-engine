@@ -157,7 +157,7 @@ const MainMenuButtons = () => {
         <RefreshIcon className="svgIcon" />
       </div>
       <div className="button" onClick={handleMicClick}>
-        <MicIcon />
+        <MicIcon className="svgIcon" />
       </div>
       <div className="button" onClick={toggleEmoteMenu}>
         <EmoteIcon />
