@@ -40,6 +40,7 @@ const AvatarContextMenu = () => {
   const { t } = useTranslation()
 
   // TODO: move these to widget register
+  PartyService.useAPIListeners()
   useEffect(() => {
     addActionReceptor(PartyServiceReceptor)
     return () => {
@@ -70,6 +71,7 @@ const AvatarContextMenu = () => {
       PartyService.inviteToParty(partyId, userId)
     }
   }
+
   useEffect(() => {
     if (engineState.avatarTappedId.value !== authState.user.id.value)
       detailState.id.set(engineState.avatarTappedId.value)

@@ -2,7 +2,7 @@ import { GithubAppInterface } from '@xrengine/common/src/interfaces/GithubAppInt
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
-import { client } from '../../feathers'
+import { API } from '../../API'
 
 const AdminGithubAppState = defineState({
   name: 'AdminGithubAppState',
@@ -29,7 +29,7 @@ export const useAdminGithubAppState = () => useState(accessAdminGithubAppState()
 
 export const GithubAppService = {
   fetchGithubAppRepos: async () => {
-    const repos = await client.service('github-app').find()
+    const repos = await API.instance.client.service('github-app').find()
     dispatchAction(GithubAppActions.GithubAppFetched({ result: repos }))
   }
 }

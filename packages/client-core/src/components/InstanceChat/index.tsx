@@ -235,6 +235,7 @@ const InstanceChat = ({
   const chatState = useChatState()
 
   // TODO: move to register event for chat widget
+  ChatService.useAPIListeners()
   useEffect(() => {
     addActionReceptor(ChatServiceReceptor)
     return () => {

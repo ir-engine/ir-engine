@@ -144,18 +144,16 @@ const ClientTheme = () => {
       <Button sx={{ maxWidth: '100%' }} variant="outlined" className={styles.cancelButton} onClick={handleCancel}>
         {t('admin:components.setting.cancel')}
       </Button>
-      &nbsp; &nbsp;
       <Button
-        sx={{ maxWidth: '100%' }}
+        sx={{ maxWidth: '100%', ml: 1 }}
         variant="outlined"
         className={styles.cancelButton}
         onClick={resetThemeToDefault}
       >
         {t('admin:components.setting.resetTheme')}
       </Button>
-      &nbsp; &nbsp;
       <Button
-        sx={{ maxWidth: '100%' }}
+        sx={{ maxWidth: '100%', ml: 1 }}
         variant="contained"
         className={styles.saveBtn}
         type="submit"

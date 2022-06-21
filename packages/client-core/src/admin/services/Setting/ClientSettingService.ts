@@ -4,8 +4,8 @@ import { ClientSetting, PatchClientSetting } from '@xrengine/common/src/interfac
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
+import { API } from '../../../API'
 import { NotificationService } from '../../../common/services/NotificationService'
-import { client } from '../../../feathers'
 import waitForClientAuthenticated from '../../../util/wait-for-client-authenticated'
 
 const AdminClientSettingsState = defineState({
@@ -36,7 +36,7 @@ export const ClientSettingService = {
   fetchClientSettings: async (inDec?: 'increment' | 'decrement') => {
     try {
       await waitForClientAuthenticated()
-      const clientSettings = (await client.service('client-setting').find()) as Paginated<ClientSetting>
+      const clientSettings = (await API.instance.client.service('client-setting').find()) as Paginated<ClientSetting>
       dispatchAction(ClientSettingActions.fetchedClient({ clientSettings }))
     } catch (err) {
       console.log(err.message)
@@ -45,7 +45,7 @@ export const ClientSettingService = {
   },
   patchClientSetting: async (data: PatchClientSetting, id: string) => {
     try {
-      await client.service('client-setting').patch(id, data)
+      await API.instance.client.service('client-setting').patch(id, data)
       dispatchAction(ClientSettingActions.clientSettingPatched())
     } catch (err) {
       console.log(err)

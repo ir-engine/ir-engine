@@ -2,7 +2,7 @@ import { SpawnTestBot, TestBot } from '@xrengine/common/src/interfaces/TestBot'
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
-import { client } from '../../feathers'
+import { API } from '../../API'
 
 const AdminTestBotState = defineState({
   name: 'AdminTestBotState',
@@ -51,7 +51,7 @@ export const useTestBotState = () => useState(accessTestBotState())
 export const TestBotService = {
   fetchTestBot: async () => {
     try {
-      const bots = await client.service('testbot').get()
+      const bots = await API.instance.client.service('testbot').get()
       dispatchAction(AdminTestBotActions.fetchedBots({ bots }))
     } catch (error) {
       console.error(error)
@@ -60,7 +60,7 @@ export const TestBotService = {
   spawnTestBot: async () => {
     try {
       dispatchAction(AdminTestBotActions.spawnBots())
-      const spawn = await client.service('testbot').create()
+      const spawn = await API.instance.client.service('testbot').create()
       dispatchAction(AdminTestBotActions.spawnedBots({ spawn }))
     } catch (error) {
       console.error(error)

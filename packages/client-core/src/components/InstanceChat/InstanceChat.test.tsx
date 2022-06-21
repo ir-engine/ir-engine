@@ -8,6 +8,8 @@ import { createEngine } from '@xrengine/engine/src/initializeEngine'
 
 import InstanceChat from '.'
 import { createDOM } from '../../../tests/createDOM'
+import { createMockAPI } from '../../../tests/createMockAPI'
+import { API } from '../../API'
 import { accessChatState } from '../../social/services/ChatService'
 
 describe('Instance Chat Component', () => {
@@ -17,6 +19,7 @@ describe('Instance Chat Component', () => {
     createDOM()
     rootContainer = document.createElement('div')
     document.body.appendChild(rootContainer)
+    API.instance = createMockAPI()
     createEngine()
   })
 
