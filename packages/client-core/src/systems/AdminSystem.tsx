@@ -20,6 +20,7 @@ import {
   AdminAnalyticsSettingActions,
   AnalyticsSettingReceptors
 } from '../admin/services/Setting/AnalyticsSettingsService'
+import { AuthSettingsActions, AuthSettingsReceptors } from '../admin/services/Setting/AuthSettingService'
 import { AdminAwsSettingActions, AwsSettingReceptors } from '../admin/services/Setting/AwsSettingService'
 import { AdminCoilSettingActions, CoilSettingReceptors } from '../admin/services/Setting/CoilSettingService'
 import { EmailSettingActions, EmailSettingReceptors } from '../admin/services/Setting/EmailSettingService'
@@ -103,6 +104,8 @@ export default async function AdminSystem(world: World) {
   const userRoleCreatedQueue = createActionQueue(AdminUserRoleActions.userRoleCreated.matches)
   const userRoleUpdatedQueue = createActionQueue(AdminUserRoleActions.userRoleUpdated.matches)
   const fetchedInstanceServerQueue = createActionQueue(InstanceServerSettingActions.fetchedInstanceServer.matches)
+  const authSettingRetrievedQueue = createActionQueue(AuthSettingsActions.authSettingRetrieved.matches)
+  const authSettingPatchedQueue = createActionQueue(AuthSettingsActions.authSettingPatched.matches)
 
   return () => {
     for (const action of fetchedAnalyticsQueue()) {
@@ -308,6 +311,12 @@ export default async function AdminSystem(world: World) {
     }
     for (const action of fetchedInstanceServerQueue()) {
       AdminInstanceServerReceptors.fetchedInstanceServerReceptor(action)
+    }
+    for (const action of authSettingRetrievedQueue()) {
+      AuthSettingsReceptors.authSettingRetrievedReceptor(action)
+    }
+    for (const action of authSettingPatchedQueue()) {
+      AuthSettingsReceptors.authSettingPatchedReceptor(action)
     }
   }
 }

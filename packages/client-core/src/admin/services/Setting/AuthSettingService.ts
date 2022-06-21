@@ -21,22 +21,25 @@ const AuthSettingsState = defineState({
   })
 })
 
-export const AuthSettingsServiceReceptor = (action) => {
-  getState(AuthSettingsState).batch((s) => {
-    matches(action)
-      .when(AuthSettingsActions.authSettingRetrieved.matches, (action) => {
-        return s.merge({
-          authSettings: action.authSetting.data,
-          skip: action.authSetting.skip,
-          limit: action.authSetting.limit,
-          total: action.authSetting.total,
-          updateNeeded: false
-        })
-      })
-      .when(AuthSettingsActions.authSettingPatched.matches, (action) => {
-        return s.updateNeeded.set(true)
-      })
+const authSettingRetrievedReceptor = (action: typeof AuthSettingsActions.authSettingRetrieved.matches._TYPE) => {
+  const state = getState(AuthSettingsState)
+  return state.merge({
+    authSettings: action.authSetting.data,
+    skip: action.authSetting.skip,
+    limit: action.authSetting.limit,
+    total: action.authSetting.total,
+    updateNeeded: false
   })
+}
+
+const authSettingPatchedReceptor = (action: typeof AuthSettingsActions.authSettingPatched.matches._TYPE) => {
+  const state = getState(AuthSettingsState)
+  return state.updateNeeded.set(true)
+}
+
+export const AuthSettingsReceptors = {
+  authSettingRetrievedReceptor,
+  authSettingPatchedReceptor
 }
 
 export const accessAuthSettingState = () => getState(AuthSettingsState)
