@@ -1,12 +1,13 @@
 import { Paginated } from '@feathersjs/feathers'
 import { useState } from '@speigg/hookstate'
+import { useEffect } from 'react'
 
 import { Instance } from '@xrengine/common/src/interfaces/Instance'
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { defineAction, defineState, dispatchAction, getState } from '@xrengine/hyperflux'
 
+import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
-import { client } from '../../feathers'
 import { accessAuthState } from '../../user/services/AuthService'
 
 export const INSTANCE_PAGE_LIMIT = 100
@@ -63,7 +64,7 @@ export const AdminInstanceService = {
         if (sortField.length > 0) {
           sortData[sortField] = orderBy === 'desc' ? 0 : 1
         }
-        const instances = (await client.service('instance').find({
+        const instances = (await API.instance.client.service('instance').find({
           query: {
             $sort: {
               ...sortData
@@ -81,16 +82,22 @@ export const AdminInstanceService = {
     }
   },
   removeInstance: async (id: string) => {
-    const result = (await client.service('instance').patch(id, { ended: true })) as Instance
+    const result = (await API.instance.client.service('instance').patch(id, { ended: true })) as Instance
     dispatchAction(AdminInstanceActions.instanceRemovedAction({ instance: result }))
+  },
+  useAPIListeners: () => {
+    useEffect(() => {
+      const listener = (params) => {
+        dispatchAction(AdminInstanceActions.instanceRemovedAction({ instance: params.instance }))
+      }
+      API.instance.client.service('instance').on('removed', listener)
+      return () => {
+        API.instance.client.service('instance').off('removed', listener)
+      }
+    }, [])
   }
 }
 
-if (globalThis.process.env['VITE_OFFLINE_MODE'] !== 'true') {
-  client.service('instance').on('removed', (params) => {
-    dispatchAction(AdminInstanceActions.instanceRemovedAction({ instance: params.instance }))
-  })
-}
 export class AdminInstanceActions {
   static instancesRetrievedAction = defineAction({
     store: 'ENGINE',

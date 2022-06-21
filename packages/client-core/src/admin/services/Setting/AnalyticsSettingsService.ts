@@ -4,8 +4,8 @@ import { SettingAnalytics } from '@xrengine/common/src/interfaces/SettingAnalyti
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
+import { API } from '../../../API'
 import { NotificationService } from '../../../common/services/NotificationService'
-import { client } from '../../../feathers'
 
 const AdminAnalyticsSettingsState = defineState({
   name: 'AdminAnalyticsSettingsState',
@@ -30,7 +30,9 @@ export const useSettingAnalyticsState = () => useState(accessSettingAnalyticsSta
 export const AdminSettingAnalyticsService = {
   fetchSettingsAnalytics: async (inDec?: 'increment' | 'decrement') => {
     try {
-      const analyticsSettings = (await client.service('analytics-setting').find()) as Paginated<SettingAnalytics>
+      const analyticsSettings = (await API.instance.client
+        .service('analytics-setting')
+        .find()) as Paginated<SettingAnalytics>
       dispatchAction(AdminAnalyticsSettingActions.fetchedAnalytics({ analyticsSettings }))
     } catch (err) {
       console.log(err.message)

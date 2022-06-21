@@ -5,8 +5,8 @@ import { UserRole } from '@xrengine/common/src/interfaces/UserRole'
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
+import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
-import { client } from '../../feathers'
 
 //State
 export const USER_PAGE_LIMIT = 100
@@ -54,19 +54,19 @@ export const useAdminUserRoleState = () => useState(accessAdminUserRoleState())
 export const AdminUserRoleService = {
   fetchUserRole: async () => {
     try {
-      const userRole = (await client.service('user-role').find()) as Paginated<UserRole>
+      const userRole = (await API.instance.client.service('user-role').find()) as Paginated<UserRole>
       dispatchAction(AdminUserRoleActions.userRoleRetrieved({ types: userRole }))
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   },
   createUserRoleAction: async (data) => {
-    const result = (await client.service('user-role').create(data)) as UserRole
+    const result = (await API.instance.client.service('user-role').create(data)) as UserRole
     dispatchAction(AdminUserRoleActions.userRoleCreated({ types: result }))
   },
   updateUserRole: async (id: string, role: string) => {
     try {
-      const userRole = (await client.service('user').patch(id, { userRole: role })) as User
+      const userRole = (await API.instance.client.service('user').patch(id, { userRole: role })) as User
       dispatchAction(AdminUserRoleActions.userRoleUpdated({ data: userRole }))
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })

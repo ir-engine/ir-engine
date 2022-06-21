@@ -4,8 +4,8 @@ import { AdminAwsSetting, PatchAwsSetting } from '@xrengine/common/src/interface
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
+import { API } from '../../../API'
 import { NotificationService } from '../../../common/services/NotificationService'
-import { client } from '../../../feathers'
 
 const AdminAwsSettingState = defineState({
   name: 'AdminAwsSettingState',
@@ -40,7 +40,7 @@ export const useAdminAwsSettingState = () => useState(accessAdminAwsSettingState
 export const AwsSettingService = {
   fetchAwsSetting: async () => {
     try {
-      const awsSettings = (await client.service('aws-setting').find()) as Paginated<AdminAwsSetting>
+      const awsSettings = (await API.instance.client.service('aws-setting').find()) as Paginated<AdminAwsSetting>
       dispatchAction(AdminAwsSettingActions.awsSettingRetrieved({ awsSettings }))
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
@@ -48,7 +48,7 @@ export const AwsSettingService = {
   },
   patchAwsSetting: async (data: PatchAwsSetting, id: string) => {
     try {
-      await client.service('aws-setting').patch(id, data)
+      await API.instance.client.service('aws-setting').patch(id, data)
       dispatchAction(AdminAwsSettingActions.awsSettingPatched())
     } catch (err) {
       console.log(err)

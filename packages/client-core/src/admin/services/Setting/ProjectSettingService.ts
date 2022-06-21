@@ -1,7 +1,7 @@
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
-import { client } from '../../../feathers'
+import { API } from '../../../API'
 
 export const PROJECT_PAGE_LIMIT = 100
 
@@ -36,7 +36,7 @@ export const useProjectSettingState = () => useState(accessProjectSettingState()
 
 export const ProjectSettingService = {
   fetchProjectSetting: async (projectId: string) => {
-    const projectSettings = await client.service('project-setting').find({
+    const projectSettings = await API.instance.client.service('project-setting').find({
       query: {
         $limit: 1,
         id: projectId,
@@ -48,7 +48,7 @@ export const ProjectSettingService = {
 
   // restricted to admin scope
   updateProjectSetting: async (projectId: string, data: ProjectSettingValue[]) => {
-    await client.service('project-setting').patch(projectId, { settings: JSON.stringify(data) })
+    await API.instance.client.service('project-setting').patch(projectId, { settings: JSON.stringify(data) })
     ProjectSettingService.fetchProjectSetting(projectId)
   }
 }

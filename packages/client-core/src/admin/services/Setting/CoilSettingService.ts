@@ -4,8 +4,8 @@ import { CoilSetting } from '@xrengine/common/src/interfaces/CoilSetting'
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
+import { API } from '../../../API'
 import { NotificationService } from '../../../common/services/NotificationService'
-import { client } from '../../../feathers'
 
 const AdminCoilSettingsState = defineState({
   name: 'AdmindCoilSettingsState',
@@ -31,7 +31,7 @@ export const useCoilSettingState = () => useState(accessCoilSettingState())
 export const AdminCoilSettingService = {
   fetchCoil: async () => {
     try {
-      const coilSettings = (await client.service('coil-setting').find()) as Paginated<CoilSetting>
+      const coilSettings = (await API.instance.client.service('coil-setting').find()) as Paginated<CoilSetting>
       dispatchAction(AdminCoilSettingActions.fetchedCoil({ coilSettings }))
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })

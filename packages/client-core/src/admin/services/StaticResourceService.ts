@@ -3,7 +3,7 @@ import { StaticResourceResult } from '@xrengine/common/src/interfaces/StaticReso
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
-import { client } from '../../feathers'
+import { API } from '../../API'
 
 //State
 export const USER_PAGE_LIMIT = 100
@@ -46,7 +46,7 @@ export const useStaticResourceState = () => useState(accessStaticResourceState()
 export const AdminStaticResourceService = {
   fetchStaticResource: async () => {
     try {
-      const staticResource = await client.service('static-resource').find({
+      const staticResource = await API.instance.client.service('static-resource').find({
         query: {
           staticResourceType: 'avatar'
         }

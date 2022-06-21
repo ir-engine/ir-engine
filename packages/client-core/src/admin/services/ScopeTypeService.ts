@@ -4,8 +4,8 @@ import { AdminScopeType } from '@xrengine/common/src/interfaces/AdminScopeType'
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
+import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
-import { client } from '../../feathers'
 
 //State
 export const SCOPE_PAGE_LIMIT = 100
@@ -54,7 +54,7 @@ export const AdminScopeTypeService = {
     const skip = scopeState.skip.value
     const limit = scopeState.limit.value
     try {
-      const result = (await client.service('scope-type').find({
+      const result = (await API.instance.client.service('scope-type').find({
         query: {
           $skip: incDec === 'increment' ? skip + limit : incDec === 'decrement' ? skip - limit : skip,
           $limit: limit

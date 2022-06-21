@@ -2,7 +2,7 @@ import { BotCommands, CreateBotCammand } from '@xrengine/common/src/interfaces/A
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
-import { client } from '../../feathers'
+import { API } from '../../API'
 
 //State
 export const BOTS_PAGE_LIMIT = 100
@@ -43,7 +43,7 @@ export const useAdminBotCommandState = () => useState(accessAdminBotCommandState
 export const AdminBotCommandService = {
   createBotCammand: async (data: CreateBotCammand) => {
     try {
-      const botCommand = (await client.service('bot-command').create(data)) as BotCommands
+      const botCommand = (await API.instance.client.service('bot-command').create(data)) as BotCommands
       dispatchAction(AdminBotCommandActions.botCommandCreated({ botCommand }))
     } catch (error) {
       console.error(error)
@@ -51,7 +51,7 @@ export const AdminBotCommandService = {
   },
   removeBotsCommand: async (id: string) => {
     try {
-      const result = (await client.service('bot-command').remove(id)) as BotCommands
+      const result = (await API.instance.client.service('bot-command').remove(id)) as BotCommands
       dispatchAction(AdminBotCommandActions.botCommandRemoved({ botCommand: result }))
     } catch (error) {
       console.error(error)

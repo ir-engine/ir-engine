@@ -4,8 +4,8 @@ import { InstalledRoutesInterface } from '@xrengine/common/src/interfaces/Route'
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
+import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
-import { client } from '../../feathers'
 import { accessAuthState } from '../../user/services/AuthService'
 
 //State
@@ -44,7 +44,9 @@ export const RouteService = {
     const user = accessAuthState().user
     try {
       if (user.userRole.value === 'admin') {
-        const routes = (await client.service('routes-installed').find()) as Paginated<InstalledRoutesInterface>
+        const routes = (await API.instance.client
+          .service('routes-installed')
+          .find()) as Paginated<InstalledRoutesInterface>
         dispatchAction(AdminRouteActions.installedRoutesRetrieved({ data: routes.data }))
       }
     } catch (err) {

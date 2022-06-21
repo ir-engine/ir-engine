@@ -2,7 +2,7 @@ import { FileContentType } from '@xrengine/common/src/interfaces/FileContentType
 import { matches } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
-import { client } from '../../feathers'
+import { API } from '../../API'
 
 export const FileBrowserState = defineState({
   name: 'FileBrowserState',
@@ -42,20 +42,20 @@ let _lastDir = null! as string
 export const FileBrowserService = {
   fetchFiles: async (directory: string = _lastDir) => {
     _lastDir = directory
-    const files = await client.service('file-browser').get(directory)
+    const files = await API.instance.client.service('file-browser').get(directory)
     dispatchAction(FileBrowserAction.filesFetched({ files }))
   },
   putContent: async (fileName: string, path: string, body: Buffer, contentType: string) => {
-    return client.service('file-browser').patch(null, { fileName, path, body, contentType })
+    return API.instance.client.service('file-browser').patch(null, { fileName, path, body, contentType })
   },
   moveContent: async (oldName: string, newName: string, oldPath: string, newPath: string, isCopy = false) => {
-    return client.service('file-browser').update(null, { oldName, newName, oldPath, newPath, isCopy })
+    return API.instance.client.service('file-browser').update(null, { oldName, newName, oldPath, newPath, isCopy })
   },
   deleteContent: async (contentPath, type) => {
-    await client.service('file-browser').remove(contentPath, { query: { type } })
+    await API.instance.client.service('file-browser').remove(contentPath, { query: { type } })
     dispatchAction(FileBrowserAction.filesDeleted({ contentPath }))
   },
   addNewFolder: (folderName: string) => {
-    return client.service(`file-browser`).create(folderName)
+    return API.instance.client.service(`file-browser`).create(folderName)
   }
 }

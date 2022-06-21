@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Euler, Quaternion } from 'three'
 
-import { client } from '@xrengine/client-core/src/feathers'
+import { API } from '@xrengine/client-core/src/API'
 import { PortalDetail } from '@xrengine/common/src/interfaces/PortalInterface'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { PortalComponent } from '@xrengine/engine/src/scene/components/PortalComponent'
@@ -46,7 +46,7 @@ export const PortalNodeEditor: EditorComponentType = (props) => {
   const loadPortals = async () => {
     const portalsDetail: PortalDetail[] = []
     try {
-      portalsDetail.push(...(await client.service('portal').find()).data)
+      portalsDetail.push(...(await API.instance.client.service('portal').find()).data)
       console.log('portalsDetail', portalsDetail, props.node.uuid)
     } catch (error) {
       throw new Error(error)
