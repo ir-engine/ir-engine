@@ -125,8 +125,7 @@ export class World {
    * Reference to the three.js perspective camera object.
    */
   camera: PerspectiveCamera | OrthographicCamera = null!
-  activeCameraEntity: Entity = null!
-  activeCameraFollowTarget: Entity | null = null
+  cameraEntity: Entity = null!
 
   /**
    * Reference to the audioListener.

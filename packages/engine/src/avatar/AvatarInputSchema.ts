@@ -149,7 +149,7 @@ const drop = (entity: Entity, inputKey: InputAlias, inputValue: InputValue): voi
 }
 
 /**
- * Switch Camera mode from first person to third person and wise versa.
+ * Switch Camera mode from first person to third person and vice versa.
  * @param entity Entity holding {@link camera/components/FollowCameraComponent.FollowCameraComponent | Follow camera} component.
  */
 const cycleCameraMode = (entity: Entity, inputKey: InputAlias, inputValue: InputValue): void => {

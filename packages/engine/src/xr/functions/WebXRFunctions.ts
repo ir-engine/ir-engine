@@ -340,7 +340,7 @@ export const getHeadTransform = (entity: Entity): { position: Vector3; rotation:
       scale: uniformScale
     }
   }
-  const cameraTransform = getComponent(Engine.instance.currentWorld.activeCameraEntity, TransformComponent)
+  const cameraTransform = getComponent(Engine.instance.currentWorld.cameraEntity, TransformComponent)
   return {
     position: cameraTransform.position,
     rotation: cameraTransform.rotation,

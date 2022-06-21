@@ -37,8 +37,8 @@ export default async function FlyControlSystem(world: World) {
       const flyControlComponent = getComponent(entity, FlyControlComponent)
 
       if (getInput(EditorActionSet.disableFlyMode)) {
-        const cameraComponent = getComponent(Engine.instance.currentWorld.activeCameraEntity, EditorCameraComponent)
-        const cameraObject = getComponent(Engine.instance.currentWorld.activeCameraEntity, Object3DComponent)
+        const cameraComponent = getComponent(Engine.instance.currentWorld.cameraEntity, EditorCameraComponent)
+        const cameraObject = getComponent(Engine.instance.currentWorld.cameraEntity, Object3DComponent)
 
         removeInputActionMapping(ActionSets.FLY)
         const distance = cameraObject.value.position.distanceTo(cameraComponent.center)

@@ -38,7 +38,7 @@ import { Updatable } from '../../scene/interfaces/Updatable'
 import { createAvatarAnimationGraph } from '../animation/AvatarAnimationGraph'
 import { applySkeletonPose, isSkeletonInTPose, makeTPose } from '../animation/avatarPose'
 import { retargetSkeleton, syncModelSkeletons } from '../animation/retargetSkeleton'
-import avatarBoneMatching, { createSkeletonFromBone, findSkinnedMeshes } from '../AvatarBoneMatching'
+import avatarBoneMatching, { BoneNames, createSkeletonFromBone, findSkinnedMeshes } from '../AvatarBoneMatching'
 import { AnimationComponent } from '../components/AnimationComponent'
 import { AvatarAnimationComponent } from '../components/AvatarAnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
@@ -450,7 +450,7 @@ export const setAvatarHeadOpacity = (entity: Entity, opacity: number): void => {
   })
 }
 
-export const getAvatarBoneWorldPosition = (entity: Entity, boneName: string, position: Vector3): boolean => {
+export const getAvatarBoneWorldPosition = (entity: Entity, boneName: BoneNames, position: Vector3): boolean => {
   const animationComponent = getComponent(entity, AvatarAnimationComponent)
   if (!animationComponent) return false
   const bone = animationComponent.rig[boneName]
