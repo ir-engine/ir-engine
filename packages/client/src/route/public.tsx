@@ -14,7 +14,7 @@ import {
 import ErrorBoundary from '@xrengine/client-core/src/common/components/ErrorBoundary'
 import { AppServiceReceptor } from '@xrengine/client-core/src/common/services/AppService'
 import { LoadingCircle } from '@xrengine/client-core/src/components/LoadingCircle'
-import { InviteServiceReceptor } from '@xrengine/client-core/src/social/services/InviteService'
+import { InviteService, InviteServiceReceptor } from '@xrengine/client-core/src/social/services/InviteService'
 import { LocationServiceReceptor } from '@xrengine/client-core/src/social/services/LocationService'
 import { AuthService, AuthServiceReceptor } from '@xrengine/client-core/src/user/services/AuthService'
 import {
@@ -25,10 +25,6 @@ import {
 import { addActionReceptor, dispatchAction, removeActionReceptor } from '@xrengine/hyperflux'
 
 import { CustomRoute, getCustomRoutes } from './getCustomRoutes'
-
-if (typeof globalThis.process === 'undefined') {
-  ;(globalThis as any).process = { env: {} }
-}
 
 const $admin = React.lazy(() => import('@xrengine/client-core/src/admin/adminRoutes'))
 const $auth = React.lazy(() => import('@xrengine/client/src/pages/auth/authRoutes'))
@@ -42,6 +38,8 @@ function RouterComp(props) {
   const authSettingsState = useAuthSettingState()
   const location = useLocation()
   const [routesReady, setRoutesReady] = useState(false)
+
+  InviteService.useAPIListeners()
 
   useEffect(() => {
     addActionReceptor(LocalStateServiceReceptor)

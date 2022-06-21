@@ -4,8 +4,8 @@ import { AdminRedisSetting } from '@xrengine/common/src/interfaces/AdminRedisSet
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
+import { API } from '../../../API'
 import { NotificationService } from '../../../common/services/NotificationService'
-import { client } from '../../../feathers'
 
 const AdminRedisSettingsState = defineState({
   name: 'AdminRedisSettingsState',
@@ -33,7 +33,7 @@ export const useAdminRedisSettingState = () => useState(accessAdminRedisSettingS
 export const AdminRedisSettingService = {
   fetchRedisSetting: async () => {
     try {
-      const redisSetting = (await client.service('redis-setting').find()) as Paginated<AdminRedisSetting>
+      const redisSetting = (await API.instance.client.service('redis-setting').find()) as Paginated<AdminRedisSetting>
       dispatchAction(AdminRedisSettingActions.redisSettingRetrieved({ adminRedisSetting: redisSetting }))
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })

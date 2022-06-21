@@ -2,7 +2,7 @@ import { InstanceServerPatch } from '@xrengine/common/src/interfaces/Instance'
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
-import { client } from '../../feathers'
+import { API } from '../../API'
 
 //State
 const AdminInstanceServerState = defineState({
@@ -42,7 +42,7 @@ export const InstanceserverService = {
   patchInstanceserver: async (locationId) => {
     try {
       dispatchAction(InstanceserverActions.patchInstanceserver())
-      const patch = await client.service('instanceserver-provision').patch({ locationId })
+      const patch = await API.instance.client.service('instanceserver-provision').patch({ locationId })
       dispatchAction(InstanceserverActions.patchedInstanceserver({ patch }))
     } catch (error) {
       console.error(error)

@@ -1,13 +1,14 @@
 import { none } from '@speigg/hookstate'
 import _ from 'lodash'
+import { useEffect } from 'react'
 
 import { CreateGroup, Group } from '@xrengine/common/src/interfaces/Group'
 import { GroupUser } from '@xrengine/common/src/interfaces/GroupUser'
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
+import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
-import { client } from '../../feathers'
 import { accessAuthState } from '../../user/services/AuthService'
 import { UserAction } from '../../user/services/UserService'
 import { ChatService } from './ChatService'
@@ -159,7 +160,7 @@ export const GroupService = {
     dispatchAction(GroupAction.fetchingGroups())
     const groupActionState = accessGroupState().value
     try {
-      const groupResults = await client.service('group').find({
+      const groupResults = await API.instance.client.service('group').find({
         query: {
           $limit: limit != null ? limit : groupActionState.groups.limit,
           $skip: skip != null ? skip : groupActionState.groups.skip
@@ -179,7 +180,7 @@ export const GroupService = {
   },
   createGroup: async (values: CreateGroup) => {
     try {
-      const result = (await client.service('group').create({
+      const result = (await API.instance.client.service('group').create({
         name: values.name,
         description: values.description
       })) as Group
@@ -197,7 +198,7 @@ export const GroupService = {
       ;(patch as any).description = values.description
     }
     try {
-      const data = (await client.service('group').patch(values.id ?? '', patch)) as Group
+      const data = (await API.instance.client.service('group').patch(values.id ?? '', patch)) as Group
       // ;(patch as any).id = values.id
       dispatchAction(GroupAction.patchedGroup({ group: data }))
     } catch (err) {
@@ -206,23 +207,23 @@ export const GroupService = {
   },
   removeGroup: async (groupId: string) => {
     try {
-      const channelResult = (await client.service('channel').find({
+      const channelResult = (await API.instance.client.service('channel').find({
         query: {
           channelType: 'group',
           groupId: groupId
         }
       })) as any
       if (channelResult.total > 0) {
-        await client.service('channel').remove(channelResult.data[0].id)
+        await API.instance.client.service('channel').remove(channelResult.data[0].id)
       }
-      await client.service('group').remove(groupId)
+      await API.instance.client.service('group').remove(groupId)
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   },
   removeGroupUser: async (groupUserId: string) => {
     try {
-      await client.service('group-user').remove(groupUserId)
+      await API.instance.client.service('group-user').remove(groupUserId)
       dispatchAction(GroupAction.leftGroup())
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
@@ -232,7 +233,7 @@ export const GroupService = {
     dispatchAction(GroupAction.fetchingInvitableGroups())
     const groupActionState = accessGroupState().value
     try {
-      const groupResults = await client.service('group').find({
+      const groupResults = await API.instance.client.service('group').find({
         query: {
           invitable: true,
           $limit: limit != null ? limit : groupActionState.groups.limit,
@@ -251,64 +252,84 @@ export const GroupService = {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
       dispatchAction(GroupAction.loadedInvitableGroups({ groups: [], limit: 0, skip: 0, total: 0 }))
     }
+  },
+  useAPIListeners: () => {
+    useEffect(() => {
+      const groupUserCreatedListener = (params) => {
+        const newGroupUser = params.groupUser
+        const selfUser = accessAuthState().user
+        dispatchAction(GroupAction.createdGroupUser({ groupUser: newGroupUser }))
+        if (
+          newGroupUser.user.channelInstanceId != null &&
+          newGroupUser.user.channelInstanceId === selfUser.channelInstanceId.value
+        )
+          dispatchAction(UserAction.addedChannelLayerUserAction({ user: newGroupUser.user }))
+        if (newGroupUser.user.channelInstanceId !== selfUser.channelInstanceId.value)
+          dispatchAction(UserAction.removedChannelLayerUserAction({ user: newGroupUser.user }))
+      }
+
+      const groupUserPatchedListener = (params) => {
+        const updatedGroupUser = params.groupUser
+        const selfUser = accessAuthState().user
+        dispatchAction(GroupAction.patchedGroupUser({ groupUser: updatedGroupUser }))
+        if (
+          updatedGroupUser.user.channelInstanceId != null &&
+          updatedGroupUser.user.channelInstanceId === selfUser.channelInstanceId.value
+        )
+          dispatchAction(UserAction.addedChannelLayerUserAction({ user: updatedGroupUser.user }))
+        if (updatedGroupUser.user.channelInstanceId !== selfUser.channelInstanceId.value)
+          dispatchAction(
+            UserAction.removedChannelLayerUserAction({
+              user: updatedGroupUser.user
+            })
+          )
+      }
+
+      const groupUserRemovedListener = (params) => {
+        const deletedGroupUser = params.groupUser
+        const selfUser = accessAuthState().user
+        dispatchAction(GroupAction.removedGroupUser({ groupUser: deletedGroupUser, self: params.self }))
+        dispatchAction(UserAction.removedChannelLayerUserAction({ user: deletedGroupUser.user }))
+        if (deletedGroupUser.userId === selfUser.id.value)
+          ChatService.clearChatTargetIfCurrent('group', { id: params.groupUser.groupId })
+      }
+
+      const groupCreatedListener = (params) => {
+        dispatchAction(GroupAction.createdGroup({ group: params.group }))
+      }
+
+      const groupPatchedListener = (params) => {
+        dispatchAction(GroupAction.patchedGroup({ group: params.group }))
+      }
+
+      const groupRemovedListener = (params) => {
+        dispatchAction(GroupAction.removedGroup({ group: params.group }))
+        ChatService.clearChatTargetIfCurrent('group', params.group)
+      }
+
+      const groupRefreshListener = (params) => {
+        dispatchAction(GroupAction.createdGroup({ group: params.group }))
+      }
+
+      API.instance.client.service('group-user').on('created', groupUserCreatedListener)
+      API.instance.client.service('group-user').on('patched', groupUserPatchedListener)
+      API.instance.client.service('group-user').on('removed', groupUserRemovedListener)
+      API.instance.client.service('group').on('created', groupCreatedListener)
+      API.instance.client.service('group').on('patched', groupPatchedListener)
+      API.instance.client.service('group').on('removed', groupRemovedListener)
+      API.instance.client.service('group').on('refresh', groupRefreshListener)
+
+      return () => {
+        API.instance.client.service('group-user').off('created', groupUserCreatedListener)
+        API.instance.client.service('group-user').off('patched', groupUserPatchedListener)
+        API.instance.client.service('group-user').off('removed', groupUserRemovedListener)
+        API.instance.client.service('group').off('created', groupCreatedListener)
+        API.instance.client.service('group').off('patched', groupPatchedListener)
+        API.instance.client.service('group').off('removed', groupRemovedListener)
+        API.instance.client.service('group').off('refresh', groupRefreshListener)
+      }
+    }, [])
   }
-}
-if (globalThis.process.env['VITE_OFFLINE_MODE'] !== 'true') {
-  client.service('group-user').on('created', (params) => {
-    const newGroupUser = params.groupUser
-    const selfUser = accessAuthState().user
-    dispatchAction(GroupAction.createdGroupUser({ groupUser: newGroupUser }))
-    if (
-      newGroupUser.user.channelInstanceId != null &&
-      newGroupUser.user.channelInstanceId === selfUser.channelInstanceId.value
-    )
-      dispatchAction(UserAction.addedChannelLayerUserAction({ user: newGroupUser.user }))
-    if (newGroupUser.user.channelInstanceId !== selfUser.channelInstanceId.value)
-      dispatchAction(UserAction.removedChannelLayerUserAction({ user: newGroupUser.user }))
-  })
-
-  client.service('group-user').on('patched', (params) => {
-    const updatedGroupUser = params.groupUser
-    const selfUser = accessAuthState().user
-    dispatchAction(GroupAction.patchedGroupUser({ groupUser: updatedGroupUser }))
-    if (
-      updatedGroupUser.user.channelInstanceId != null &&
-      updatedGroupUser.user.channelInstanceId === selfUser.channelInstanceId.value
-    )
-      dispatchAction(UserAction.addedChannelLayerUserAction({ user: updatedGroupUser.user }))
-    if (updatedGroupUser.user.channelInstanceId !== selfUser.channelInstanceId.value)
-      dispatchAction(
-        UserAction.removedChannelLayerUserAction({
-          user: updatedGroupUser.user
-        })
-      )
-  })
-
-  client.service('group-user').on('removed', (params) => {
-    const deletedGroupUser = params.groupUser
-    const selfUser = accessAuthState().user
-    dispatchAction(GroupAction.removedGroupUser({ groupUser: deletedGroupUser, self: params.self }))
-    dispatchAction(UserAction.removedChannelLayerUserAction({ user: deletedGroupUser.user }))
-    if (deletedGroupUser.userId === selfUser.id.value)
-      ChatService.clearChatTargetIfCurrent('group', { id: params.groupUser.groupId })
-  })
-
-  client.service('group').on('created', (params) => {
-    dispatchAction(GroupAction.createdGroup({ group: params.group }))
-  })
-
-  client.service('group').on('patched', (params) => {
-    dispatchAction(GroupAction.patchedGroup({ group: params.group }))
-  })
-
-  client.service('group').on('removed', (params) => {
-    dispatchAction(GroupAction.removedGroup({ group: params.group }))
-    ChatService.clearChatTargetIfCurrent('group', params.group)
-  })
-
-  client.service('group').on('refresh', (params) => {
-    dispatchAction(GroupAction.createdGroup({ group: params.group }))
-  })
 }
 
 //Action

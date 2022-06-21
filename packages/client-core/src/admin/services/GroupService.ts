@@ -3,8 +3,8 @@ import { GroupResult } from '@xrengine/common/src/interfaces/GroupResult'
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
+import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
-import { client } from '../../feathers'
 
 //State
 export const GROUP_PAGE_LIMIT = 100
@@ -69,7 +69,7 @@ export const AdminGroupService = {
         sortData[sortField] = orderBy === 'desc' ? 0 : 1
       }
       dispatchAction(AdminGroupActions.fetchingGroup())
-      const list = await client.service('group').find({
+      const list = await API.instance.client.service('group').find({
         query: {
           $sort: {
             ...sortData
@@ -86,7 +86,7 @@ export const AdminGroupService = {
   },
   createGroupByAdmin: async (groupItem: CreateGroup) => {
     try {
-      const newGroup = (await client.service('group').create({ ...groupItem })) as Group
+      const newGroup = (await API.instance.client.service('group').create({ ...groupItem })) as Group
       dispatchAction(AdminGroupActions.addAdminGroup({ item: newGroup }))
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
@@ -94,7 +94,7 @@ export const AdminGroupService = {
   },
   patchGroupByAdmin: async (groupId, groupItem) => {
     try {
-      const group = (await client.service('group').patch(groupId, groupItem)) as Group
+      const group = (await API.instance.client.service('group').patch(groupId, groupItem)) as Group
       dispatchAction(AdminGroupActions.updateGroup({ item: group }))
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
@@ -102,7 +102,7 @@ export const AdminGroupService = {
   },
   deleteGroupByAdmin: async (groupId) => {
     try {
-      await client.service('group').remove(groupId)
+      await API.instance.client.service('group').remove(groupId)
       dispatchAction(AdminGroupActions.removeGroupAction({ item: groupId }))
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })

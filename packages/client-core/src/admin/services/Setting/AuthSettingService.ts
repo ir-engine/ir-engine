@@ -4,8 +4,8 @@ import { AdminAuthSetting, PatchAuthSetting } from '@xrengine/common/src/interfa
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
+import { API } from '../../../API'
 import { NotificationService } from '../../../common/services/NotificationService'
-import { client } from '../../../feathers'
 import waitForClientAuthenticated from '../../../util/wait-for-client-authenticated'
 
 const AuthSettingsState = defineState({
@@ -47,7 +47,9 @@ export const AuthSettingsService = {
   fetchAuthSetting: async () => {
     try {
       await waitForClientAuthenticated()
-      const authSetting = (await client.service('authentication-setting').find()) as Paginated<AdminAuthSetting>
+      const authSetting = (await API.instance.client
+        .service('authentication-setting')
+        .find()) as Paginated<AdminAuthSetting>
       dispatchAction(AuthSettingsActions.authSettingRetrieved({ authSetting }))
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
@@ -55,7 +57,7 @@ export const AuthSettingsService = {
   },
   patchAuthSetting: async (data: PatchAuthSetting, id: string) => {
     try {
-      await client.service('authentication-setting').patch(id, data)
+      await API.instance.client.service('authentication-setting').patch(id, data)
       dispatchAction(AuthSettingsActions.authSettingPatched())
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })

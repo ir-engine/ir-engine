@@ -2,7 +2,7 @@ import { SceneData } from '@xrengine/common/src/interfaces/SceneInterface'
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { addActionReceptor, defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
-import { client } from '../../feathers'
+import { API } from '../../API'
 
 const SceneState = defineState({
   name: 'SceneState',
@@ -27,7 +27,7 @@ export const useSceneState = () => useState(accessSceneState())
 
 export const SceneService = {
   fetchCurrentScene: async (projectName: string, sceneName: string) => {
-    const sceneData = await client.service('scene').get({ projectName, sceneName, metadataOnly: null }, {})
+    const sceneData = await API.instance.client.service('scene').get({ projectName, sceneName, metadataOnly: null }, {})
     dispatchAction(SceneActions.currentSceneChanged({ sceneData: sceneData.data }))
   }
 }

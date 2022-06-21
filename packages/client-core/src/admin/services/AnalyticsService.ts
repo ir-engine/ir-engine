@@ -2,7 +2,7 @@ import { AdminAnalytics, AdminAnalyticsResult } from '@xrengine/common/src/inter
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
-import { client } from '../../feathers'
+import { API } from '../../API'
 
 //State
 export const ANALYTICS_PAGE_LIMIT = 100
@@ -90,7 +90,7 @@ export const ADminAnalyticsService = {
         }
       }
 
-      const activeParties = await client.service('analytics').find({
+      const activeParties = await API.instance.client.service('analytics').find({
         query: query
       })
       dispatchAction(AdminAnalyticsActions.activePartiesFetched({ analytics: activeParties }))
@@ -115,7 +115,7 @@ export const ADminAnalyticsService = {
     }
 
     try {
-      const activeInstances = await client.service('analytics').find({
+      const activeInstances = await API.instance.client.service('analytics').find({
         query: query
       })
       dispatchAction(AdminAnalyticsActions.activeInstancesFetched({ analytics: activeInstances }))
@@ -140,7 +140,7 @@ export const ADminAnalyticsService = {
         }
       }
 
-      const activeLocations = await client.service('analytics').find({
+      const activeLocations = await API.instance.client.service('analytics').find({
         query: query
       })
       dispatchAction(AdminAnalyticsActions.activeLocationsFetched({ analytics: activeLocations }))
@@ -165,7 +165,7 @@ export const ADminAnalyticsService = {
         }
       }
 
-      const activeScenes = await client.service('analytics').find({
+      const activeScenes = await API.instance.client.service('analytics').find({
         query: query
       })
       dispatchAction(AdminAnalyticsActions.activeScenesFetched({ analytics: activeScenes }))
@@ -190,7 +190,7 @@ export const ADminAnalyticsService = {
         }
       }
 
-      const channelUsers = await client.service('analytics').find({
+      const channelUsers = await API.instance.client.service('analytics').find({
         query: query
       })
       dispatchAction(AdminAnalyticsActions.channelUsersFetched({ analytics: channelUsers }))
@@ -215,7 +215,7 @@ export const ADminAnalyticsService = {
         }
       }
 
-      const instanceUsers = await client.service('analytics').find({
+      const instanceUsers = await API.instance.client.service('analytics').find({
         query: query
       })
       dispatchAction(AdminAnalyticsActions.instanceUsersFetched({ analytics: instanceUsers }))
@@ -240,7 +240,7 @@ export const ADminAnalyticsService = {
         }
       }
 
-      const dailyUsers = await client.service('analytics').find({
+      const dailyUsers = await API.instance.client.service('analytics').find({
         query: query
       })
       dispatchAction(AdminAnalyticsActions.dailyUsersFetched({ analytics: dailyUsers }))
@@ -265,7 +265,7 @@ export const ADminAnalyticsService = {
         }
       }
 
-      const dailyNewUsers = await client.service('analytics').find({
+      const dailyNewUsers = await API.instance.client.service('analytics').find({
         query: query
       })
       dispatchAction(AdminAnalyticsActions.dailyNewUsersFetched({ analytics: dailyNewUsers }))
