@@ -20,7 +20,8 @@ import {
   TableContainer,
   TableHead,
   TablePagination,
-  TableRow
+  TableRow,
+  Typography
 } from '@mui/material'
 
 import DrawerView from '../../../common/DrawerView'
@@ -142,9 +143,9 @@ const ThemePlayground = () => {
 
   return (
     <>
-      <label>Theme Playground:</label>
-      <br />
-      <br />
+      <Typography component="h1" className={styles.settingsHeading}>
+        {t('admin:components.setting.themePlayground')}
+      </Typography>
       <Box className="themeDemoArea">
         <nav className="navbar">
           <div className="logoSection">XREngine</div>
