@@ -1,6 +1,8 @@
 import React, { useEffect } from 'react'
 import { useHistory } from 'react-router-dom'
 
+import { dispatchAction } from '@xrengine/hyperflux'
+
 import CloseIcon from '@mui/icons-material/Close'
 import Dialog from '@mui/material/Dialog'
 import DialogContent from '@mui/material/DialogContent'
@@ -22,13 +24,13 @@ const UIDialog = (): JSX.Element => {
 
   useEffect(() => {
     history.listen(() => {
-      dispatch(DialogAction.dialogClose())
+      dispatchAction(DialogAction.dialogClose())
     })
   }, [])
 
   const handleClose = (e: any): void => {
     e.preventDefault()
-    dispatch(DialogAction.dialogClose())
+    dispatchAction(DialogAction.dialogClose())
   }
 
   return (
