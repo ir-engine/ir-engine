@@ -79,6 +79,7 @@ export type NodeProperties = {
 }
 
 export type SampleProperties = ScatterProperties & VertexProperties & NodeProperties
+export type SourceProperties = GrassProperties & MeshProperties
 
 export type InstancingComponentType = {
   count: number

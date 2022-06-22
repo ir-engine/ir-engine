@@ -93,7 +93,7 @@ export const NODE_PROPERTIES_DEFAULT_VALUES: NodeProperties = {
 
 export const SCENE_COMPONENT_INSTANCING = 'instancing'
 export const SCENE_COMPONENT_INSTANCING_DEFAULT_VALUES: InstancingComponentType = {
-  count: 1000,
+  count: 5000,
   surface: '',
   sampling: SampleMode.SCATTER,
   mode: ScatterMode.GRASS,
@@ -805,7 +805,6 @@ export async function stageInstancing(entity: Entity, world = Engine.instance.cu
     val.update = (dt) => updates.forEach((update) => update(dt))
   }
   val.add(result)
-
   scatter.state = ScatterState.STAGED
 }
 
