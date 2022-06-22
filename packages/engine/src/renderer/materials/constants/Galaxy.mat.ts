@@ -57,7 +57,7 @@ void main()
 
 export const DefaultArgs = {
   iTime: 0.0,
-  iResolution: [window.innerWidth * 2, window.innerHeight * 2, 1]
+  iResolution: [1, 1, 1]
 }
 
 export default function Galaxy(args?: { iTime?: number; iResolution?: number[] }): MaterialParms {

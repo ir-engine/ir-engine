@@ -168,6 +168,10 @@ export const initializeCoreSystems = async () => {
       {
         type: SystemUpdateType.FIXED_LATE,
         systemModulePromise: import('./scene/systems/MaterialOverrideSystem')
+      },
+      {
+        type: SystemUpdateType.FIXED_LATE,
+        systemModulePromise: import('./scene/systems/InstancingSystem')
       }
     )
   }

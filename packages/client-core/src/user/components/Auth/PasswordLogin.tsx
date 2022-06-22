@@ -49,7 +49,7 @@ const PasswordLogin = ({ isAddConnection }: Props): JSX.Element => {
         },
         userId as string
       )
-      dispatch(DialogAction.dialogClose())
+      dispatchAction(DialogAction.dialogClose())
     } else {
       AuthService.loginUserByPassword({
         email: state.email,

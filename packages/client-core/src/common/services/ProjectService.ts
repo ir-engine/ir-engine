@@ -1,59 +1,58 @@
-import { createState, useState } from '@speigg/hookstate'
-
 import { ProjectInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
 import multiLogger from '@xrengine/common/src/logger'
+import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
+import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
 import { API } from '../../API'
-import { store, useDispatch } from '../../store'
 
 const logger = multiLogger.child({ component: 'client-core:projects' })
 
 //State
 export const PROJECT_PAGE_LIMIT = 100
 
-export const state = createState({
-  projects: [] as Array<ProjectInterface>,
-  updateNeeded: true
+export const ProjectState = defineState({
+  name: 'ProjectState',
+  initial: () => ({
+    projects: [] as Array<ProjectInterface>,
+    updateNeeded: true
+  })
 })
 
-store.receptors.push((action: ProjectActionType): any => {
-  state.batch((s) => {
-    switch (action.type) {
-      case 'PROJECTS_RETRIEVED':
-        return s.merge({
-          projects: action.projectResult,
-          updateNeeded: false
-        })
-    }
-  }, action.type)
-})
+export const ProjectServiceReceptor = (action) => {
+  getState(ProjectState).batch((s) => {
+    matches(action).when(ProjectAction.projectsFetched.matches, (action) => {
+      return s.merge({
+        projects: action.projectResult,
+        updateNeeded: false
+      })
+    })
+  })
+}
 
-export const accessProjectState = () => state
+export const accessProjectState = () => getState(ProjectState)
 
-export const useProjectState = () => useState(state) as any as typeof state
+export const useProjectState = () => useState(accessProjectState())
 
 //Service
 export const ProjectService = {
   fetchProjects: async () => {
     const projects = await API.instance.client.service('project').find({ paginate: false })
-    store.dispatch(ProjectAction.projectsFetched(projects.data))
+    dispatchAction(ProjectAction.projectsFetched({ projectResult: projects.data }))
   },
 
   // restricted to admin scope
   createProject: async (name: string) => {
-    const dispatch = useDispatch()
     const result = await API.instance.client.service('project').create({ name })
     logger.info({ result }, 'Create project result')
-    dispatch(ProjectAction.createdProject())
+    dispatchAction(ProjectAction.createdProject())
     ProjectService.fetchProjects()
   },
 
   // restricted to admin scope
   uploadProject: async (url: string) => {
-    const dispatch = useDispatch()
     const result = await API.instance.client.service('project').update({ url })
     logger.info({ result }, 'Upload project result')
-    dispatch(ProjectAction.postProject())
+    dispatchAction(ProjectAction.postProject())
     ProjectService.fetchProjects()
   },
 
@@ -86,23 +85,20 @@ export const ProjectService = {
 // })
 
 //Action
-export const ProjectAction = {
-  projectsFetched: (projectResult: ProjectInterface[]) => {
-    return {
-      type: 'PROJECTS_RETRIEVED' as const,
-      projectResult: projectResult
-    }
-  },
-  postProject: () => {
-    return {
-      type: 'PROJECT_POSTED' as const
-    }
-  },
-  createdProject: () => {
-    return {
-      type: 'PROJECT_CREATED' as const
-    }
-  }
+export class ProjectAction {
+  static projectsFetched = defineAction({
+    type: 'PROJECTS_RETRIEVED' as const,
+    projectResult: matches.array as Validator<unknown, ProjectInterface[]>
+  })
+
+  static postProject = defineAction({
+    type: 'PROJECT_POSTED' as const
+  })
+
+  static createdProject = defineAction({
+    type: 'PROJECT_CREATED' as const
+  })
+
   // TODO
   // buildProgress: (message: string) => {
   //   return {
@@ -111,5 +107,3 @@ export const ProjectAction = {
   //   }
   // }
 }
-
-export type ProjectActionType = ReturnType<typeof ProjectAction[keyof typeof ProjectAction]>

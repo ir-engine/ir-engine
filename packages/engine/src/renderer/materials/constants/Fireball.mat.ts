@@ -149,7 +149,7 @@ void main()
 
 export const DefaultArgs = {
   iTime: 0.0,
-  iResolution: [window.innerWidth * 2, window.innerHeight * 2, 1],
+  iResolution: [2, 2, 1],
   fireMagnitude: 1.0,
   fireTexture: new Texture(),
   baseTexture: new Texture()

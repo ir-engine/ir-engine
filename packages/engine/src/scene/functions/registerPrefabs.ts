@@ -33,6 +33,7 @@ import {
   SCENE_COMPONENT_HEMISPHEREL_LIGHT_DEFAULT_VALUES
 } from './loaders/HemisphereLightFunctions'
 import { SCENE_COMPONENT_IMAGE, SCENE_COMPONENT_IMAGE_DEFAULT_VALUES } from './loaders/ImageFunctions'
+import { SCENE_COMPONENT_INSTANCING, SCENE_COMPONENT_INSTANCING_DEFAULT_VALUES } from './loaders/InstancingFunctions'
 import { SCENE_COMPONENT_INTERIOR, SCENE_COMPONENT_INTERIOR_DEFAULT_VALUES } from './loaders/InteriorFunctions'
 import {
   SCENE_COMPONENT_LOOP_ANIMATION,
@@ -105,6 +106,7 @@ export const ScenePrefabs = {
   interior: 'Interior' as const,
   system: 'System' as const,
   spline: 'Spline' as const,
+  instancing: 'Instancing' as const,
   envMapbake: 'EnvMap Bake' as const
 }
 
@@ -283,5 +285,11 @@ export const registerPrefabs = (world: World) => {
     { name: SCENE_COMPONENT_TRANSFORM, props: SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES },
     { name: SCENE_COMPONENT_VISIBLE, props: SCENE_COMPONENT_VISIBLE_DEFAULT_VALUES },
     { name: SCENE_COMPONENT_ENVMAP_BAKE, props: SCENE_COMPONENT_ENVMAP_BAKE_DEFAULT_VALUES }
+  ])
+
+  world.scenePrefabRegistry.set(ScenePrefabs.instancing, [
+    { name: SCENE_COMPONENT_TRANSFORM, props: SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES },
+    { name: SCENE_COMPONENT_VISIBLE, props: SCENE_COMPONENT_VISIBLE_DEFAULT_VALUES },
+    { name: SCENE_COMPONENT_INSTANCING, props: SCENE_COMPONENT_INSTANCING_DEFAULT_VALUES }
   ])
 }
