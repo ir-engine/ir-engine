@@ -4,8 +4,8 @@ import { CreateEditUser, User, UserSeed } from '@xrengine/common/src/interfaces/
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
+import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
-import { client } from '../../feathers'
 import { accessAuthState } from '../../user/services/AuthService'
 
 //State
@@ -96,7 +96,7 @@ export const useUserState = () => useState(accessUserState())
 export const AdminUserService = {
   fetchSingleUserAdmin: async (id: string) => {
     try {
-      const result = await client.service('user').get(id)
+      const result = await API.instance.client.service('user').get(id)
       dispatchAction(AdminUserActions.fetchedSingleUser({ data: result }))
     } catch (err) {
       console.log(err)
@@ -137,7 +137,7 @@ export const AdminUserService = {
             $eq: userRole
           }
         }
-        const userResult = (await client.service('user').find(params)) as Paginated<User>
+        const userResult = (await API.instance.client.service('user').find(params)) as Paginated<User>
         dispatchAction(AdminUserActions.loadedUsers({ userResult }))
       }
     } catch (err) {
@@ -146,7 +146,7 @@ export const AdminUserService = {
   },
   createUser: async (user: CreateEditUser) => {
     try {
-      const result = (await client.service('user').create(user)) as User
+      const result = (await API.instance.client.service('user').create(user)) as User
       dispatchAction(AdminUserActions.userCreated({ user: result }))
     } catch (err) {
       console.log(err)
@@ -155,14 +155,14 @@ export const AdminUserService = {
   },
   patchUser: async (id: string, user: CreateEditUser) => {
     try {
-      const result = (await client.service('user').patch(id, user)) as User
+      const result = (await API.instance.client.service('user').patch(id, user)) as User
       dispatchAction(AdminUserActions.userPatched({ user: result }))
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   },
   removeUserAdmin: async (id: string) => {
-    const result = (await client.service('user').remove(id)) as User
+    const result = (await API.instance.client.service('user').remove(id)) as User
     dispatchAction(AdminUserActions.userAdminRemoved({ data: result }))
   },
   searchUserAction: async (data: any) => {
@@ -170,7 +170,7 @@ export const AdminUserService = {
       const userState = accessUserState()
       const skip = userState.skip.value
       const limit = userState.limit.value
-      const userResult = (await client.service('user').find({
+      const userResult = (await API.instance.client.service('user').find({
         query: {
           $sort: {
             name: 1

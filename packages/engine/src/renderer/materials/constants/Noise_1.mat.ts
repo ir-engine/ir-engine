@@ -171,7 +171,7 @@ float simplex(vec3 v)
 
 export const DefaultArgs = {
   iTime: 0.0,
-  iResolution: [window.innerWidth / 4, window.innerHeight / 4, 1]
+  iResolution: [0.25, 0.25, 1]
 }
 
 export default function Noise_1(args?: { iTime?: number; iResolution?: number[] }): MaterialParms {
