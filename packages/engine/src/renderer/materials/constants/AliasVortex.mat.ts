@@ -426,7 +426,7 @@ void main()
 
 export const DefaultArgs = {
   iTime: 0.0,
-  iResolution: [window.innerWidth, window.innerHeight, 1],
+  iResolution: [1, 1, 1],
   iChannel0: new Texture()
 }
 

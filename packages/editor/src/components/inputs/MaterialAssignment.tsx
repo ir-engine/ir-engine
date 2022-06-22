@@ -19,6 +19,7 @@ import { Button } from './Button'
 import ColorInput from './ColorInput'
 import CompoundNumericInput from './CompoundNumericInput'
 import { ImageInput } from './ImageInput'
+import ImagePreviewInput from './ImagePreviewInput'
 import InputGroup, { InputGroupContent, InputGroupVerticalContainerWide, InputGroupVerticalContent } from './InputGroup'
 import NumericInput from './NumericInput'
 import SelectInput from './SelectInput'
@@ -44,14 +45,14 @@ const ImageContainer = (styled as any).div`
   width: 100%;
   border-width: 2px;
   border: solid;
-  border-color: #FFFFFF;
+  border-color: var(--inputOutline);
   margin: 8px;
   padding: 4px;
 `
 
 const GroupContainer = (styled as any).label`
   background-color: transparent;
-  color: #9FA4B5;
+  color: var(--textColor);
   white-space: pre-wrap;
   padding: 0 8px 8px;
 `
@@ -69,17 +70,6 @@ const ArrayInputGroupContent = (styled as any)(InputGroupContent)`
   -ms-flex-direction: row;
   flex-direction: row;
 }`
-/*
-  & > label {
-    max-width: 33.33333% !important;
-  }
-  & > input {
-    max-width: 66.66666% !important;
-  }
-  & > div {
-    max-width: 66.66666% !important;
-  }
-`*/
 
 export default function MaterialAssignment({ entity, node, modelComponent, values, onChange }) {
   let [count, setCount] = useState(values.length)
@@ -300,24 +290,21 @@ export default function MaterialAssignment({ entity, node, modelComponent, value
                 }
                 if ((v as Texture).isTexture) {
                   const argKey = texKey(index, k)
-                  function onChangeTexturePath() {
-                    return (value) => {
-                      const nuPaths = new Map(texturePaths.entries())
-                      nuPaths.set(argKey, value)
-                      setTexturePaths(nuPaths)
-                      if (assignment.args === undefined) assignment.args = argStructure
-                      onChange(values)
-                    }
+                  function onChangeTexturePath(value) {
+                    const nuPaths = new Map(texturePaths.entries())
+                    nuPaths.set(argKey, value)
+                    setTexturePaths(nuPaths)
+                    if (assignment.args === undefined) assignment.args = argStructure
+                    onChange(values)
                   }
                   return (
-                    <InputGroup key={compKey} name={k} label={k}>
-                      <ImageContainer>
-                        <Stack>
-                          <ImageInput value={texturePaths.get(argKey)} onChange={onChangeTexturePath()} />
-                          <img src={texturePaths.get(argKey)} />
-                        </Stack>
-                      </ImageContainer>
-                    </InputGroup>
+                    <ImagePreviewInput
+                      key={compKey}
+                      name={k}
+                      label={k}
+                      value={texturePaths.get(argKey)}
+                      onChange={onChangeTexturePath}
+                    />
                   )
                 }
               })}
@@ -390,7 +377,7 @@ export default function MaterialAssignment({ entity, node, modelComponent, value
 
   return (
     <GroupContainer>
-      <div style={{ textAlign: 'center', color: '#fff', marginTop: '16px', marginBottom: '4px' }}>
+      <div style={{ textAlign: 'center', marginTop: '16px', marginBottom: '4px' }}>
         <Typography>Material Overrides</Typography>
       </div>
       <InputGroupVerticalContainerWide>

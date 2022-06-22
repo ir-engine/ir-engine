@@ -14,7 +14,7 @@ export default function ImagePreviewInput({ value, onChange, ...rest }) {
         width: 100%;
         border-width: 2px;
         border: solid;
-        border-color: #FFFFFF;
+        border-color: var(--inputOutline);
         margin: 8px;
         padding: 4px;
         `
