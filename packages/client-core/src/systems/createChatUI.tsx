@@ -3,21 +3,28 @@ import { addComponent, getComponent } from '@xrengine/engine/src/ecs/functions/C
 import { PersistTagComponent } from '@xrengine/engine/src/scene/components/PersistTagComponent'
 import { XRUIComponent } from '@xrengine/engine/src/xrui/components/XRUIComponent'
 import { ObjectFitFunctions } from '@xrengine/engine/src/xrui/functions/ObjectFitFunctions'
+import { Widgets } from '@xrengine/engine/src/xrui/Widgets'
 
-import { MainMenuButtonState } from './state/MainMenuButtonState'
+import { Message as MessageIcon } from '@mui/icons-material'
+
 import { createChatDetailView } from './ui/ChatDetailView'
 
-export default async function ChatUISystem(world: World) {
+const widgetName = 'Chat'
+
+export function createChatUI(world: World) {
   const ui = createChatDetailView()
 
   addComponent(ui.entity, PersistTagComponent, {})
 
-  return () => {
+  ui.container.then(() => {
     const xrui = getComponent(ui.entity, XRUIComponent)
+    ObjectFitFunctions.setUIVisible(xrui.container, false)
+  })
 
-    if (xrui) {
-      ObjectFitFunctions.attachObjectToPreferredTransform(xrui.container)
-      ObjectFitFunctions.changeVisibilityOfRootLayer(xrui.container, MainMenuButtonState.chatMenuOpen.value)
-    }
-  }
+  Widgets.registerWidget(world, ui.entity, {
+    ui,
+    label: widgetName,
+    icon: MessageIcon,
+    system: () => {}
+  })
 }

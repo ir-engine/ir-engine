@@ -2,7 +2,7 @@ import { SceneMetadata } from '@xrengine/common/src/interfaces/SceneInterface'
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
-import { client } from '../../feathers'
+import { API } from '../../API'
 
 //State
 export const SCENE_PAGE_LIMIT = 100
@@ -41,7 +41,7 @@ export const useAdminSceneState = () => useState(accessAdminSceneState())
 
 export const AdminSceneService = {
   fetchAdminScenes: async (incDec?: 'increment' | 'decrement' | 'all') => {
-    const scenes = await client.service('scene').find()
+    const scenes = await API.instance.client.service('scene').find()
     dispatchAction(AdminSceneActions.scenesFetched({ sceneData: scenes.data }))
   }
 }

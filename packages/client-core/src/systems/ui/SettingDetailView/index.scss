@@ -1,0 +1,287 @@
+.container {
+  width: 500px;
+  min-height: 208px;
+  bottom: 75px;
+  padding: 0 30px;
+  border-radius: 20px;
+  background-color: var(--popupBackground);
+  box-shadow: 16px 16px 32px #11111159;
+  color: var(--textColor);
+  max-height: calc(100vh - 100px);
+  overflow: auto;
+  touch-action: auto;
+}
+
+.settingView {
+  margin: 30px 0;
+}
+
+.audioSection {
+  color: var(--textColor);
+  position: relative;
+}
+
+.title {
+  margin: 0;
+  font-family: Roboto, Helvetica, Arial, sans-serif;
+  font-weight: 400;
+  font-size: 2rem;
+  line-height: 1.235;
+  letter-spacing: 0.0073em;
+}
+
+.sectionRow {
+  display: flex;
+  align-items: center;
+}
+
+.justifySpaceBetween {
+  justify-content: space-between;
+}
+
+.controlsContainer {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+}
+
+.selectSize {
+  width: 35%;
+
+  & > div > div {
+    padding: 3px;
+  }
+
+  & > div > label {
+    font-size: 0.9rem;
+    color: #fff;
+    margin-bottom: -10px;
+    margin-left: -5px;
+  }
+
+  & > div > div > svg {
+    color: var(--iconButtonColor);
+  }
+}
+
+.iconSpan {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  outline: none !important;
+}
+
+.iconSvg {
+  color: var(--buttonOutlined);
+  width: 100%;
+  height: 100%;
+  user-select: none;
+  display: inline-block;
+  fill: currentcolor;
+  flex-shrink: 0;
+  font-size: 1.5rem;
+}
+
+label {
+  margin-left: 10px;
+  font-size: 14px;
+  display: inline-block;
+  flex-shrink: 0;
+  font-family: Roboto;
+}
+
+.slider {
+  width: 100%;
+  accent-color: var(--iconButtonSelectedBackground);
+
+  input[range]::-webkit-slider-runnable-track {
+    background-color: var(--iconButtonSelectedBackground);
+  }
+}
+
+.graphicsSection {
+  margin-top: 25px;
+  color: var(--textColor);
+  position: relative;
+}
+
+.graphicsCheckBoxRow {
+  margin: 5px 20px 0 0;
+  display: flex;
+  align-items: center;
+}
+
+.checkBoxRow {
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+  vertical-align: middle;
+  margin: 4px 20px 0 0;
+}
+
+.checkBoxLabel {
+  font-family: Roboto, Helvetica, Arial, sans-serif;
+  font-weight: 400;
+  font-size: 1rem;
+  line-height: 1.5;
+  letter-spacing: 0.0093em;
+}
+
+.checkBoxSpan {
+  padding: 0;
+  color: var(--iconButtonSelectedBackground);
+  margin-right: 10px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  background-color: transparent;
+  outline: 0;
+  border: 0;
+  cursor: pointer;
+  user-select: none;
+  vertical-align: middle;
+  appearance: none;
+  text-decoration: none;
+}
+
+.checkBoxInput {
+  cursor: inherit;
+  position: absolute;
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  margin: 0;
+  padding: 0;
+  z-index: 1;
+}
+
+.checkBoxSvg {
+  font-size: 24px;
+  user-select: none;
+  width: 1em;
+  height: 1em;
+  display: inline-block;
+  fill: currentcolor;
+  flex-shrink: 0;
+}
+
+.automaticContainer {
+  margin-top: 5px;
+  position: absolute;
+  top: -8px;
+  right: 0;
+  display: flex;
+  align-items: center;
+}
+
+.automaticRow {
+  margin: 0 -2px 0 0;
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+  vertical-align: middle;
+  flex-direction: row-reverse;
+}
+
+.automaticCheckBoxSpan {
+  margin-left: 10px;
+  margin-right: 0;
+  padding: 0;
+  color: var(--iconButtonSelectedBackground);
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  box-sizing: border-box;
+  background-color: transparent;
+  outline: 0;
+  border: 0;
+  cursor: pointer;
+  user-select: none;
+  vertical-align: middle;
+  appearance: none;
+  text-decoration: none;
+}
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 40px;
+  height: 22px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.switchSlider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: grey;
+  transition: .4s;
+}
+
+.switchSlider::before {
+  position: absolute;
+  content: "";
+  height: 15px;
+  width: 15px;
+  left: 3px;
+  bottom: 3.5px;
+  background-color: white;
+  transition: .4s;
+}
+
+input:checked + .switchSlider {
+  background-color: var(--blue);
+}
+
+input:focus + .switchSlider {
+  box-shadow: 0 0 1px var(--blue);
+}
+
+input:checked + .switchSlider::before {
+  transform: translateX(18px);
+}
+
+/* Rounded switchSliders */
+.switchSlider.round {
+  border-radius: 34px;
+}
+
+.switchSlider.round::before {
+  border-radius: 50%;
+}
+
+.showHideButton {
+  font-size: 0.9rem;
+  font-weight: normal;
+  text-decoration: underline;
+  color: var(--textColor);
+}
+
+table {
+  width: 100%;
+}
+
+select {
+  background-color: var(--inputBackground);
+  border-color: var(--inputOutline);
+  width: 100%;
+  padding: 5px;
+  color: var(--textColor);
+}

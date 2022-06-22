@@ -5,8 +5,8 @@ import { LocationType } from '@xrengine/common/src/interfaces/LocationType'
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
+import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
-import { client } from '../../feathers'
 
 //State
 export const LOCATION_PAGE_LIMIT = 100
@@ -64,24 +64,24 @@ export const useAdminLocationState = () => useState(accessAdminLocationState())
 //Service
 export const AdminLocationService = {
   fetchLocationTypes: async () => {
-    const locationTypes = (await client.service('location-type').find()) as Paginated<LocationType>
+    const locationTypes = (await API.instance.client.service('location-type').find()) as Paginated<LocationType>
     dispatchAction(AdminLocationActions.locationTypesRetrieved({ locationTypes }))
   },
   patchLocation: async (id: string, location: any) => {
     try {
-      const result = await client.service('location').patch(id, location)
+      const result = await API.instance.client.service('location').patch(id, location)
       dispatchAction(AdminLocationActions.locationPatched({ location: result }))
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   },
   removeLocation: async (id: string) => {
-    const result = await client.service('location').remove(id)
+    const result = await API.instance.client.service('location').remove(id)
     dispatchAction(AdminLocationActions.locationRemoved({ location: result }))
   },
   createLocation: async (location: any) => {
     try {
-      const result = await client.service('location').create(location)
+      const result = await API.instance.client.service('location').create(location)
       dispatchAction(AdminLocationActions.locationCreated({ location: result }))
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
@@ -104,7 +104,7 @@ export const AdminLocationService = {
         }
       }
 
-      const locations = (await client.service('location').find({
+      const locations = (await API.instance.client.service('location').find({
         query: {
           $sort: {
             ...sortData
@@ -126,7 +126,7 @@ export const AdminLocationService = {
   },
   searchAdminLocations: async (value, orderBy = 'asc') => {
     try {
-      const locations = (await client.service('location').find({
+      const locations = (await API.instance.client.service('location').find({
         query: {
           search: value,
           $sort: {
