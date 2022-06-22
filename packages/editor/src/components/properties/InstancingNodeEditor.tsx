@@ -30,6 +30,8 @@ import {
 } from '@xrengine/engine/src/scene/functions/loaders/InstancingFunctions'
 import getFirstMesh from '@xrengine/engine/src/scene/util/getFirstMesh'
 
+import AcUnitIcon from '@mui/icons-material/AcUnit'
+
 import { PropertiesPanelButton } from '../inputs/Button'
 import { ImagePreviewInputGroup } from '../inputs/ImagePreviewInput'
 import InputGroup from '../inputs/InputGroup'
@@ -278,4 +280,5 @@ export const InstancingNodeEditor: EditorComponentType = (props) => {
   )
 }
 
+InstancingNodeEditor.iconComponent = AcUnitIcon
 export default InstancingNodeEditor
