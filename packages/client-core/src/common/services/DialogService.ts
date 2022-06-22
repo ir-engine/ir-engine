@@ -12,7 +12,7 @@ const DialogState = defineState({
 })
 
 export const DialogServiceReceptor = (action) => {
-  getState(action).batch((s) => {
+  getState(DialogState).batch((s) => {
     matches(action)
       .when(DialogAction.dialogShow.matches, (action) => {
         return s.merge({ isOpened: true, content: action.content })
