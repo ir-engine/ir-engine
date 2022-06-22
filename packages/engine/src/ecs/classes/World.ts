@@ -22,6 +22,7 @@ import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
 import { PortalComponent } from '../../scene/components/PortalComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
+import { Widget } from '../../xrui/Widgets'
 import {
   addComponent,
   defineQuery,
@@ -77,6 +78,8 @@ export class World {
 
   sceneMetadata = undefined as string | undefined
   worldMetadata = {} as { [key: string]: string }
+
+  widgets = new Map<string, Widget>()
 
   /**
    * The time origin for this world, relative to performance.timeOrigin

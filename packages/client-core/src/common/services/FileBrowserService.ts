@@ -1,42 +1,40 @@
-import { createState, useState } from '@speigg/hookstate'
-
 import { FileContentType } from '@xrengine/common/src/interfaces/FileContentType'
+import { matches } from '@xrengine/engine/src/common/functions/MatchesUtils'
+import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
-import { client } from '../../feathers'
-import { store, useDispatch } from '../../store'
+import { API } from '../../API'
 
-export const state = createState({
-  files: [] as Array<FileContentType>
+export const FileBrowserState = defineState({
+  name: 'FileBrowserState',
+  initial: () => ({
+    files: [] as Array<FileContentType>
+  })
 })
 
-store.receptors.push((action: FileBrowserActionType): any => {
-  state.batch((s) => {
-    switch (action.type) {
-      case 'FILES_FETCHED':
-        return s.merge({
-          files: action.files
-        })
-    }
-  }, action.type)
-})
+export const FileBrowserServiceReceptor = (action) => {
+  getState(FileBrowserState).batch((s) => {
+    matches(action).when(FileBrowserAction.filesFetched.matches, (action) => {
+      return s.merge({
+        files: action.files
+      })
+    })
+  })
+}
 
-export const accessFileBrowserState = () => state
+export const accessFileBrowserState = () => getState(FileBrowserState)
 
-export const useFileBrowserState = () => useState(state) as any as typeof state
+export const useFileBrowserState = () => useState(accessFileBrowserState())
 
-export const FileBrowserAction = {
-  filesFetched: (files) => {
-    return {
-      type: 'FILES_FETCHED' as const,
-      files
-    }
-  },
-  filesDeleted: (contentPath) => {
-    return {
-      type: 'FILES_DELETED' as const,
-      contentPath
-    }
-  }
+export class FileBrowserAction {
+  static filesFetched = defineAction({
+    type: 'FILES_FETCHED' as const,
+    files: matches.any
+  })
+
+  static filesDeleted = defineAction({
+    type: 'FILES_DELETED' as const,
+    contentPath: matches.any
+  })
 }
 
 let _lastDir = null! as string
@@ -44,22 +42,20 @@ let _lastDir = null! as string
 export const FileBrowserService = {
   fetchFiles: async (directory: string = _lastDir) => {
     _lastDir = directory
-    const files = await client.service('file-browser').get(directory)
-    useDispatch()(FileBrowserAction.filesFetched(files))
+    const files = await API.instance.client.service('file-browser').get(directory)
+    dispatchAction(FileBrowserAction.filesFetched({ files }))
   },
   putContent: async (fileName: string, path: string, body: Buffer, contentType: string) => {
-    return client.service('file-browser').patch(null, { fileName, path, body, contentType })
+    return API.instance.client.service('file-browser').patch(null, { fileName, path, body, contentType })
   },
   moveContent: async (oldName: string, newName: string, oldPath: string, newPath: string, isCopy = false) => {
-    return client.service('file-browser').update(null, { oldName, newName, oldPath, newPath, isCopy })
+    return API.instance.client.service('file-browser').update(null, { oldName, newName, oldPath, newPath, isCopy })
   },
   deleteContent: async (contentPath, type) => {
-    await client.service('file-browser').remove(contentPath, { query: { type } })
-    useDispatch()(FileBrowserAction.filesDeleted(contentPath))
+    await API.instance.client.service('file-browser').remove(contentPath, { query: { type } })
+    dispatchAction(FileBrowserAction.filesDeleted({ contentPath }))
   },
   addNewFolder: (folderName: string) => {
-    return client.service(`file-browser`).create(folderName)
+    return API.instance.client.service(`file-browser`).create(folderName)
   }
 }
-
-export type FileBrowserActionType = ReturnType<typeof FileBrowserAction[keyof typeof FileBrowserAction]>

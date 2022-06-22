@@ -17,7 +17,7 @@ import TableRow from '@mui/material/TableRow'
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
 
-import { client } from '../../../../feathers'
+import { API } from '../../../../API'
 import styles from '../index.module.scss'
 
 interface Props {
@@ -44,7 +44,7 @@ const LocationMenu = (props: Props) => {
   }, [])
 
   const fetchLocations = (page: number, rows: number, search?: string) => {
-    client
+    API.instance.client
       .service('location')
       .find({
         query: {

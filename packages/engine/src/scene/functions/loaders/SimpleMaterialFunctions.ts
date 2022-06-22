@@ -387,7 +387,8 @@ export const useStandardMaterial = (obj: Mesh<any, Material>): void => {
   const material = obj.userData.prevMaterial ?? obj.material
 
   if (typeof material === 'undefined') return
-
+  //avoid materials without shadow receiving capabilities
+  if (['MeshBasicMaterial', 'ShaderMaterial', 'RawShaderMaterial'].includes(material.type)) return
   // BPCEM
   if (SceneOptions.instance.boxProjection) {
     material.onBeforeCompile = beforeMaterialCompile(

@@ -1,7 +1,7 @@
 import i18n from 'i18next'
 import { lazy } from 'react'
 
-import { client } from '@xrengine/client-core/src/feathers'
+import { API } from '@xrengine/client-core/src/API'
 import { loadRoute } from '@xrengine/projects/loadRoute'
 
 export type CustomRoute = {
@@ -16,7 +16,7 @@ export type CustomRoute = {
  * @return {Promise}
  */
 export const getCustomRoutes = async (): Promise<CustomRoute[]> => {
-  const routes = await (client as any).service('route').find()
+  const routes = await API.instance.client.service('route').find()
 
   const components: CustomRoute[] = []
 
