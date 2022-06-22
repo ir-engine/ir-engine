@@ -11,25 +11,7 @@ import { dispatchAction } from '@xrengine/hyperflux'
 
 import RefreshIcon from '@mui/icons-material/Refresh'
 
-const styles = {
-  container: {
-    display: 'grid',
-    gridGap: '10px'
-  },
-  button: {
-    margin: '5px 15px 10px 10px',
-    alignItems: 'center',
-    zIndex: '20',
-    borderRadius: '50%',
-    width: '50px',
-    height: '50px',
-    fontSize: '20px',
-    display: 'flex',
-    justifyContent: 'center',
-    backgroundColor: 'var(--iconButtonBackground)',
-    color: 'var(--iconButtonColor)'
-  }
-}
+import styleString from './index.scss'
 
 export function createMainMenuButtonsView() {
   return createXRUI(MainMenuButtons, createMainMenuButtonsState())
@@ -49,7 +31,7 @@ const WidgetButton = ({ Icon, toggle, label }: WidgetButtonProps) => {
   const [mouseOver, setMouseOver] = useState(false)
   return (
     <div
-      style={styles.button}
+      className="button"
       onClick={toggle}
       onMouseEnter={() => setMouseOver(true)}
       onMouseLeave={() => setMouseOver(false)}
@@ -105,36 +87,29 @@ const MainMenuButtons = () => {
   }
 
   return (
-    <div
-      style={{
-        ...styles.container,
-        gridTemplateColumns: '1fr 1fr' + widgets.map(() => ' 1fr').flat()
-      }}
-      xr-pixel-ratio="8"
-      xr-layer="true"
-    >
-      <style>{`
-        .svgIcon {
-          width: 1.5em;
-          height: 1.5em;
-        }
-
-        .svgIcon path {
-          fill: var(--iconButtonColor) !important;
-        }
-      `}</style>
-      <WidgetButton Icon={RefreshIcon} toggle={handleRespawnAvatar} label={'Respawn'} />
-      <WidgetButton
-        Icon={VrIcon}
-        toggle={toogleVRSession}
-        label={engineState.xrSessionStarted.value ? 'Exit VR' : 'Enter VR'}
-      />
-      {widgets.map(
-        (widget, i) =>
-          widget.enabled && (
-            <WidgetButton key={i} Icon={widget.icon} toggle={toggleWidget(widget)} label={widget.label} />
-          )
-      )}
-    </div>
+    <>
+      <style>{styleString}</style>
+      <div
+        className="container"
+        style={{
+          gridTemplateColumns: '1fr 1fr' + widgets.map(() => ' 1fr').flat()
+        }}
+        xr-pixel-ratio="8"
+        xr-layer="true"
+      >
+        <WidgetButton Icon={RefreshIcon} toggle={handleRespawnAvatar} label={'Respawn'} />
+        <WidgetButton
+          Icon={VrIcon}
+          toggle={toogleVRSession}
+          label={engineState.xrSessionStarted.value ? 'Exit VR' : 'Enter VR'}
+        />
+        {widgets.map(
+          (widget, i) =>
+            widget.enabled && (
+              <WidgetButton key={i} Icon={widget.icon} toggle={toggleWidget(widget)} label={widget.label} />
+            )
+        )}
+      </div>
+    </>
   )
 }
