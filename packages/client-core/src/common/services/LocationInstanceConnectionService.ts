@@ -1,4 +1,5 @@
 import { Paginated } from '@feathersjs/feathers'
+import { Downgraded } from '@speigg/hookstate'
 import { useEffect } from 'react'
 
 import { Instance } from '@xrengine/common/src/interfaces/Instance'
@@ -44,15 +45,17 @@ export const LocationInstanceConnectionServiceReceptor = (action) => {
           action.instanceId,
           new SocketWebRTCClientNetwork(action.instanceId, NetworkTypes.world)
         )
-        return s.instances[action.instanceId].set({
-          ipAddress: action.ipAddress,
-          port: action.port,
-          locationId: action.locationId!,
-          sceneId: action.sceneId!,
-          provisioned: true,
-          readyToConnect: true,
-          connected: false,
-          connecting: false
+        return s.instances.merge({
+          [action.instanceId]: {
+            ipAddress: action.ipAddress,
+            port: action.port,
+            locationId: action.locationId!,
+            sceneId: action.sceneId!,
+            provisioned: true,
+            readyToConnect: true,
+            connected: false,
+            connecting: false
+          }
         })
       })
       .when(LocationInstanceConnectionAction.connecting.matches, (action) => {
@@ -66,7 +69,9 @@ export const LocationInstanceConnectionServiceReceptor = (action) => {
         })
       })
       .when(LocationInstanceConnectionAction.disconnect.matches, (action) => {
-        return s.instances[action.instanceId].set(undefined!)
+        const newState = s.instances.attach(Downgraded).value
+        delete newState[action.instanceId]
+        return s.instances.set(newState)
       })
   })
 }

@@ -13,7 +13,7 @@ import { receiveJoinWorld } from '@xrengine/engine/src/networking/functions/rece
 import { WorldNetworkActionReceptor } from '@xrengine/engine/src/networking/functions/WorldNetworkActionReceptor'
 import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
 import { updateNearbyAvatars } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
-import { addActionReceptor, dispatchAction, removeActionReceptor } from '@xrengine/hyperflux'
+import { addActionReceptor, dispatchAction, removeActionReceptor, removeTopic } from '@xrengine/hyperflux'
 import { Action } from '@xrengine/hyperflux/functions/ActionFunctions'
 
 import { LocationInstanceConnectionAction } from '../common/services/LocationInstanceConnectionService'
@@ -68,25 +68,21 @@ export async function onConnectToInstance(network: SocketWebRTCClientNetwork) {
 
   if (!success) return console.error('Unable to connect with credentials')
 
-  let ConnectToWorldResponse
-  try {
-    ConnectToWorldResponse = await Promise.race([
-      await network.request(MessageTypes.ConnectToWorld.toString()),
-      new Promise((resolve, reject) => {
-        setTimeout(() => !ConnectToWorldResponse && reject(new Error('Connect timed out')), 10000)
-      })
-    ])
-  } catch (err) {
-    console.log(err)
-    dispatchAction(EngineActions.connectToWorldTimeout({ instance: isWorldConnection }))
+  const connectToWorldResponse = await Promise.race([
+    await network.request(MessageTypes.ConnectToWorld.toString()),
+    new Promise((resolve, reject) => {
+      setTimeout(() => !connectToWorldResponse && reject(new Error('Connect timed out')), 10000)
+    })
+  ])
+
+  if (!connectToWorldResponse) {
+    dispatchAction(NetworkConnectionService.actions.worldInstanceReconnected())
+    network.reconnecting = false
+    onConnectToInstance(network)
     return
   }
 
-  if (!ConnectToWorldResponse) {
-    dispatchAction(EngineActions.connectToWorldTimeout({ instance: isWorldConnection }))
-    return
-  }
-  const { routerRtpCapabilities } = ConnectToWorldResponse as any
+  const { routerRtpCapabilities } = connectToWorldResponse
 
   if (network.mediasoupDevice.loaded !== true) await network.mediasoupDevice.load({ routerRtpCapabilities })
 
@@ -133,16 +129,13 @@ export async function onConnectToWorldInstance(network: SocketWebRTCClientNetwor
     dispatchAction(NetworkConnectionService.actions.worldInstanceReconnected())
     network.reconnecting = false
     await onConnectToInstance(network)
-    const transportRequestData = {
-      inviteCode: getSearchParamFromURL('inviteCode')!
-    }
-    await network.request(MessageTypes.JoinWorld.toString(), transportRequestData).then(receiveJoinWorld)
     network.socket.io.off('reconnect', reconnectHandler)
     network.socket.off('disconnect', disconnectHandler)
   }
 
   async function disconnectHandler() {
     dispatchAction(NetworkConnectionService.actions.worldInstanceDisconnected())
+    dispatchAction(EngineActions.connectToWorld({ connectedWorld: false }))
     network.reconnecting = true
     network.socket.off(MessageTypes.ActionData.toString(), actionDataHandler)
 
@@ -881,7 +874,7 @@ export async function leaveNetwork(network: SocketWebRTCClientNetwork, kicked?: 
   try {
     network.leaving = true
     const socket = network.socket
-    if (kicked !== true && socket.connected === true) {
+    if (!kicked && socket?.connected) {
       // close everything on the server-side (transports, producers, consumers)
       const result = await Promise.race([
         await network.request(MessageTypes.LeaveWorld.toString()),
@@ -918,17 +911,17 @@ export async function leaveNetwork(network: SocketWebRTCClientNetwork, kicked?: 
       MediaStreams.instance.audioStream = null!
       MediaStreams.instance.localScreen = null
       MediaStreams.instance.consumers = []
-      Engine.instance.currentWorld.networks.delete(Engine.instance.currentWorld.mediaNetwork.hostId)
+      Engine.instance.currentWorld.networks.delete(network.hostId)
       Engine.instance.currentWorld._mediaHostId = null!
-      store.dispatch(MediaInstanceConnectionAction.disconnect(Engine.instance.currentWorld.worldNetwork.hostId))
+      store.dispatch(MediaInstanceConnectionAction.disconnect(network.hostId))
     } else {
-      Engine.instance.currentWorld.networks.delete(Engine.instance.currentWorld.worldNetwork.hostId)
+      Engine.instance.currentWorld.networks.delete(network.hostId)
       Engine.instance.currentWorld._worldHostId = null!
-      dispatchAction(
-        LocationInstanceConnectionAction.disconnect({ instanceId: Engine.instance.currentWorld.worldNetwork.hostId })
-      )
+      dispatchAction(LocationInstanceConnectionAction.disconnect({ instanceId: network.hostId }))
+      dispatchAction(EngineActions.connectToWorld({ connectedWorld: false }))
       WorldNetworkActionReceptor.removeAllNetworkClients(false, Engine.instance.currentWorld)
     }
+    removeTopic(network.hostId)
   } catch (err) {
     console.log('Error with leave()')
     console.log(err)

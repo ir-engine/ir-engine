@@ -19,10 +19,6 @@ export type JoinWorldProps = {
 }
 
 export const receiveJoinWorld = (props: JoinWorldProps) => {
-  if (!props) {
-    dispatchAction(EngineActions.connectToWorldTimeout({ instance: true }))
-    return
-  }
   const { highResTimeOrigin, worldStartTime, client, cachedActions, avatarDetail, avatarSpawnPose } = props
   console.log(
     'RECEIVED JOIN WORLD RESPONSE',

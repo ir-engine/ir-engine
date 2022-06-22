@@ -253,6 +253,66 @@ function disconnectClientIfConnected(network: SocketWebRTCServerNetwork, socket:
   }
 }
 
+const getCachedActions = (network: SocketWebRTCServerNetwork, joinedUserId: UserId) => {
+  const world = Engine.instance.currentWorld
+
+  // send all cached and outgoing actions to joining user
+  const cachedActions = [] as Required<Action>[]
+  for (const action of Engine.instance.store.actions.cached[network.hostId] as Array<
+    ReturnType<typeof WorldNetworkAction.spawnAvatar>
+  >) {
+    // we may have a need to remove the check for the prefab type to enable this to work for networked objects too
+    if (action.type === 'network.SPAWN_OBJECT' && action.prefab === 'avatar') {
+      const ownerId = action.$from
+      if (ownerId) {
+        const entity = world.getNetworkObject(ownerId, action.networkId)
+        if (typeof entity !== 'undefined') {
+          const transform = getComponent(entity, TransformComponent)
+          action.parameters.position = transform.position
+          action.parameters.rotation = transform.rotation
+        }
+      }
+    }
+    if (action.$to === 'all' || action.$to === joinedUserId) cachedActions.push({ ...action, $stack: undefined! })
+  }
+
+  logger.info('Sending cached actions: %o', cachedActions)
+
+  return cachedActions
+}
+
+/**
+ * For a user viewing an instance from the editor, or a non-participant viewer
+ * @param network
+ * @param socket
+ * @param data
+ * @param callback
+ * @param joinedUserId
+ * @param user
+ */
+
+export const handleSpectateWorld = async (
+  network: SocketWebRTCServerNetwork,
+  socket: Socket,
+  data,
+  callback: Function,
+  joinedUserId: UserId,
+  user
+) => {
+  logger.info('Join World Request Received: %o', { joinedUserId, data, user })
+
+  const world = Engine.instance.currentWorld
+  const cachedActions = getCachedActions(network, joinedUserId)
+  const client = world.clients.get(joinedUserId)!
+
+  callback({
+    highResTimeOrigin: performance.timeOrigin,
+    worldStartTime: world.startTime,
+    client: { name: client.name, index: client.index },
+    cachedActions
+  })
+}
+
 export const handleJoinWorld = async (
   network: SocketWebRTCServerNetwork,
   socket: Socket,
@@ -310,33 +370,7 @@ export const handleJoinWorld = async (
   clearCachedActionsForDisconnectedUsers(network)
   clearCachedActionsForUser(network, joinedUserId)
 
-  // send all client info
-  // const clients = [] as Array<{ userId: UserId; name: string; index: number }>
-  // for (const [userId, client] of world.clients) {
-  //   clients.push({ userId, index: client.userIndex, name: client.name })
-  // }
-
-  // send all cached and outgoing actions to joining user
-  const cachedActions = [] as Required<Action>[]
-  for (const action of Engine.instance.store.actions.cached[network.hostId] as Array<
-    ReturnType<typeof WorldNetworkAction.spawnAvatar>
-  >) {
-    // we may have a need to remove the check for the prefab type to enable this to work for networked objects too
-    if (action.type === 'network.SPAWN_OBJECT' && action.prefab === 'avatar') {
-      const ownerId = action.$from
-      if (ownerId) {
-        const entity = world.getNetworkObject(ownerId, action.networkId)
-        if (typeof entity !== 'undefined') {
-          const transform = getComponent(entity, TransformComponent)
-          action.parameters.position = transform.position
-          action.parameters.rotation = transform.rotation
-        }
-      }
-    }
-    if (action.$to === 'all' || action.$to === joinedUserId) cachedActions.push({ ...action, $stack: undefined! })
-  }
-
-  logger.info('Sending cached actions: %o', cachedActions)
+  const cachedActions = getCachedActions(network, joinedUserId)
 
   callback({
     highResTimeOrigin: performance.timeOrigin,

@@ -11,7 +11,8 @@ import {
   handleHeartbeat,
   handleIncomingActions,
   handleJoinWorld,
-  handleLeaveWorld
+  handleLeaveWorld,
+  handleSpectateWorld
 } from './NetworkFunctions'
 import { SocketWebRTCServerNetwork } from './SocketWebRTCServerNetwork'
 import {
@@ -90,6 +91,10 @@ export const setupSocketFunctions = (network: SocketWebRTCServerNetwork, socket:
 
     socket.on(MessageTypes.JoinWorld.toString(), async (data, callback) =>
       handleJoinWorld(network, socket, data, callback, userId, user)
+    )
+
+    socket.on(MessageTypes.SpectateWorld.toString(), async (data, callback) =>
+      handleSpectateWorld(network, socket, data, callback, userId, user)
     )
 
     socket.on(MessageTypes.ActionData.toString(), (data) => handleIncomingActions(network, socket, data))

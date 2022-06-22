@@ -309,7 +309,7 @@ function removeActionReceptor(receptor: ActionReceptor, store = HyperFlux.store)
 const _updateCachedActions = (incomingAction: Required<Action>, store = HyperFlux.store) => {
   if (incomingAction.$cache) {
     for (const topic of incomingAction.$topic) {
-      if (!store.actions.cached[topic]) store.actions.cached[topic] = []
+      if (!store.actions.cached[topic]) continue
       const cachedActions = store.actions.cached[topic]
       // see if we must remove any previous actions
       if (typeof incomingAction.$cache === 'boolean') {
