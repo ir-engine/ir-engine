@@ -23,8 +23,7 @@ const receiveSpectateWorld = (props: SpectateWorldProps) => {
   console.log('RECEIVED SPECTATE WORLD RESPONSE', highResTimeOrigin, worldStartTime, client, cachedActions)
   const world = Engine.instance.currentWorld
 
-  for (const action of cachedActions)
-    Engine.instance.store.actions.incoming.push({ ...action, $fromCache: true, $uuid: MathUtils.generateUUID() })
+  for (const action of cachedActions) Engine.instance.store.actions.incoming.push({ ...action, $fromCache: true })
 
   dispatchAction(WorldNetworkAction.createClient(client), [world.worldNetwork.hostId])
 }

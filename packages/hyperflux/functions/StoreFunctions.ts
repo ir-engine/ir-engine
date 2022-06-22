@@ -41,7 +41,7 @@ export interface HyperStore {
     /** Incoming actions */
     incoming: Array<Required<Action>>
     /** All incoming actions that have been proccessed */
-    incomingHistory: Array<Required<Action>>
+    incomingHistory: Map<string, Required<Action>>
     /** All incoming action UUIDs that have been processed */
     incomingHistoryUUIDs: Set<string>
     /** Outgoing actions */
@@ -84,7 +84,7 @@ function createHyperStore(options: {
       queues: new Map(),
       cached: {},
       incoming: [],
-      incomingHistory: [],
+      incomingHistory: new Map(),
       incomingHistoryUUIDs: new Set(),
       outgoing: {}
     },
