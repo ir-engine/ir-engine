@@ -1,0 +1,73 @@
+.rootContainer {
+  width: 500px;
+  padding-top: 75px;
+  font-family: Roboto, sans-serif;
+}
+
+.ownerImage {
+  position: absolute;
+  width: 150px;
+  height: 150px;
+  top: 75px;
+  left: 0;
+  right: 0;
+  margin: auto;
+  border-radius: 75px;
+  filter: drop-shadow(0 4px 4px rgb(0 0 0 / 25%));
+  background: linear-gradient(180deg, rgb(137 137 242 / 90%) 0%, rgb(92 92 92 / 90%) 100%);
+  z-index: 1000;
+}
+
+.buttonContainer {
+  background: linear-gradient(180deg, rgb(137 137 242 / 50%) 0%, rgb(92 92 92 / 50%) 100%);
+  backdrop-filter: blur(41.8478px);
+  border-radius: 8.36957px;
+  box-shadow: 16px 16px 32px 0 #11111159;
+  color: black;
+  filter: drop-shadow(0 3.34783px 3.34783px rgb(0 0 0 / 25%));
+  padding: 26px 0 5px;
+  margin-top: 75px;
+}
+
+.buttonSection {
+  margin: 70px 40px 20px;
+  justify-content: space-between;
+}
+
+.button {
+  background: linear-gradient(180deg, rgb(137 137 242 / 50%) 0%, rgb(92 92 92 / 50%) 100%);
+  backdrop-filter: blur(50px);
+  border-radius: 8px;
+  width: 100%;
+  font-style: normal;
+  font-weight: 500;
+  font-size: 35px;
+  line-height: 14px;
+  display: flex;
+  align-items: center;
+  text-align: center;
+  color: white;
+  margin: auto auto 20px;
+  border-style: none;
+  padding: 30px 10px;
+  justify-content: center;
+}
+
+.buttonRed {
+  background: linear-gradient(180deg, rgb(137 137 242 / 50%) 0%, rgb(92 92 92 / 50%) 100%);
+  backdrop-filter: blur(50px);
+  border-radius: 8px;
+  width: 100%;
+  font-style: normal;
+  font-weight: 500;
+  font-size: 35px;
+  line-height: 14px;
+  display: flex;
+  align-items: center;
+  text-align: center;
+  color: #f00;
+  margin: auto auto 20px;
+  border-style: none;
+  padding: 30px 10px;
+  justify-content: center;
+}

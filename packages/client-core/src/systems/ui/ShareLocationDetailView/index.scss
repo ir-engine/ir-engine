@@ -1,0 +1,237 @@
+.container {
+  width: 500px;
+  min-height: 208px;
+  bottom: 75px;
+  padding: 0 30px;
+  border-radius: 20px;
+  background-color: var(--popupBackground);
+  color: var(--textColor);
+  max-height: calc(100vh - 100px);
+  overflow: auto;
+  touch-action: auto;
+}
+
+.header {
+  margin: 30px 0;
+}
+
+.headerTitle {
+  font-size: 18px;
+  color: var(--textColor);
+  font-weight: 700;
+  font-family: Roboto, Helvetica, Arial, sans-serif;
+  line-height: 1.167;
+  letter-spacing: -0.01562em;
+}
+
+.inviteBox {
+  margin-top: 10px;
+  width: 100%;
+  color: var(--textColor);
+  display: inline-flex;
+  flex-direction: column;
+  position: relative;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  vertical-align: top;
+}
+
+.inviteContainer {
+  border-radius: 4px;
+  padding-right: 14px;
+  font-family: Roboto, Helvetica, Arial, sans-serif;
+  font-weight: 400;
+  font-size: 1rem;
+  line-height: 1.4375em;
+  letter-spacing: 0.00938em;
+  color: var(--textColor);
+  box-sizing: border-box;
+  position: relative;
+  cursor: text;
+  display: inline-flex;
+  align-items: center;
+}
+
+.inviteLinkInput {
+  color: var(--textColor);
+  border-color: var(--inputOutline);
+  padding: 5px 0 10px 14px;
+  font: inherit;
+  letter-spacing: inherit;
+  border: 0;
+  box-sizing: content-box;
+  background: none;
+  height: 1.4375em;
+  margin: 0;
+  display: block;
+  min-width: 0;
+  width: 100%;
+}
+
+.copyInviteContainer {
+  color: var(--textColor);
+  cursor: pointer;
+  display: flex;
+  height: 0.01em;
+  max-height: 2em;
+  align-items: center;
+  white-space: nowrap;
+  margin-left: 8px;
+  margin-bottom: 5px;
+  z-index: 20;
+}
+
+.copyIcon {
+  width: 1em;
+  height: 1em;
+  display: inline-block;
+  flex-shrink: 0;
+  font-size: 1.5rem;
+  color: #fff;
+}
+
+.linkFieldset {
+  border-color: var(--inputOutline);
+  text-align: left;
+  position: absolute;
+  inset: -5px 0 0;
+  margin: 0;
+  padding: 0 8px;
+  pointer-events: none;
+  border-radius: 4px;
+  border-style: solid;
+  border-width: 1px;
+  overflow: hidden;
+  min-width: 0%;
+}
+
+.linkLegend {
+  margin: 0;
+  padding: 0;
+}
+
+.phoneEmailBox {
+  width: 100%;
+  margin-top: 30px;
+  touch-action: auto;
+  position: relative;
+  border-radius: 4px;
+  font-family: Roboto, Helvetica, Arial, sans-serif;
+  font-weight: 400;
+  font-size: 1rem;
+  line-height: 1.4375em;
+  letter-spacing: 0.00938em;
+  box-sizing: border-box;
+  cursor: text;
+  display: inline-flex;
+  align-items: center;
+}
+
+.phoneEmailFieldset {
+  border-color: var(--inputOutline);
+  text-align: left;
+  position: absolute;
+  inset: -5px 0 0;
+  margin: 0;
+  padding: 0 8px;
+  pointer-events: none;
+  border-radius: 4px;
+  border-style: solid;
+  border-width: 1px;
+  overflow: hidden;
+  min-width: 0%;
+}
+
+.phoneEmailLegend {
+  touch-action: auto;
+  float: unset;
+  overflow: hidden;
+  margin: 0;
+  padding: 0;
+  line-height: 11px;
+}
+
+.phoneEmailInput {
+  color: var(--textColor);
+  border-color: var(--inputOutline);
+  padding: 8.5px 14px;
+  font: inherit;
+  letter-spacing: inherit;
+  border: 0;
+  box-sizing: content-box;
+  background: none;
+  height: 1.4375em;
+  margin: 0;
+  display: block;
+  min-width: 0;
+  width: 100%;
+  outline: 0;
+  border-style: solid;
+  border-width: 1px;
+  border-radius: 4px;
+}
+
+.sendInvitationContainer {
+  text-align: center;
+  margin: 20px auto 10px;
+}
+
+.sendInvitationButton {
+  width: 125px;
+  height: 35px;
+  background: linear-gradient(92.22deg, var(--buttonGradientStart), var(--buttonGradientEnd));
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  outline: 0;
+  border: 0;
+  margin: 0;
+  border-radius: 4px;
+  padding: 0;
+  cursor: pointer;
+  user-select: none;
+  vertical-align: middle;
+  appearance: none;
+  text-decoration: none;
+  color: var(--textColor);
+  font-family: Roboto, Helvetica, Arial, sans-serif;
+  line-height: 1.75;
+  letter-spacing: 0.02857em;
+  text-transform: uppercase;
+  min-width: 64px;
+  font-size: 16px;
+}
+
+.shareAppContainer {
+  margin-top: 15px;
+  text-align: center;
+}
+
+.shareAppButton {
+  width: 125px;
+  height: 35px;
+  background: buttonfilled;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  outline: 0;
+  border: 0;
+  margin: 0;
+  border-radius: 4px;
+  padding: 0;
+  cursor: pointer;
+  user-select: none;
+  vertical-align: middle;
+  appearance: none;
+  text-decoration: none;
+  color: var(--textColor);
+  font-family: Roboto, Helvetica, Arial, sans-serif;
+  line-height: 1.75;
+  letter-spacing: 0.02857em;
+  text-transform: uppercase;
+  min-width: 64px;
+  font-size: 16px;
+}
