@@ -19,6 +19,7 @@ import { addActionReceptor, dispatchAction } from '@xrengine/hyperflux'
 
 import { createChatWidget } from './createChatWidget'
 import { createEmoteWidget } from './createEmoteWidget'
+import { createProfileWidget } from './createProfileWidget'
 import { createSettingsWidget } from './createSettingsWidget'
 import { createShareLocationWidget } from './createShareLocationWidget'
 import { createWidgetButtonsView } from './ui/WidgetMenuView'
@@ -59,8 +60,9 @@ export default async function WidgetSystem(world: World) {
   addActionReceptor(WidgetAppServiceReceptor)
   addActionReceptor(WidgetReceptor)
 
-  createChatWidget(world)
+  createProfileWidget(world)
   createEmoteWidget(world)
+  createChatWidget(world)
   createShareLocationWidget(world)
   createSettingsWidget(world)
 

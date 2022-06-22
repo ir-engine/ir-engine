@@ -3,12 +3,9 @@ import React, { Fragment, useRef, useState } from 'react'
 
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
-import { useXRUIState } from '@xrengine/engine/src/xrui/functions/useXRUIState'
 
 import { Send } from '@mui/icons-material'
-import { IconButton, InputAdornment, TextField } from '@mui/material'
 import Avatar from '@mui/material/Avatar'
-import ListItemAvatar from '@mui/material/ListItemAvatar'
 
 import { useChatHooks } from '../../../components/InstanceChat'
 import { getAvatarURLForUser } from '../../../user/components/UserMenu/util'
@@ -24,7 +21,6 @@ function createChatDetailState() {
 
 const ChatDetailView = () => {
   const [unreadMessages, setUnreadMessages] = useState(false)
-  const messageRefInput = useRef<HTMLInputElement>()
 
   const { dimensions, sortedMessages, handleComposingMessageChange, packageMessage, composingMessage } = useChatHooks({
     chatWindowOpen: true,

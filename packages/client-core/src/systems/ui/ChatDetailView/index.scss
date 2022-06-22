@@ -23,6 +23,7 @@
   width: 500px;
   margin: 5px 15px 20px 10px;
   border-radius: 5px;
+  max-height: calc(100vh - 100px);
   background-color: var(--popupBackground);
 }
 
