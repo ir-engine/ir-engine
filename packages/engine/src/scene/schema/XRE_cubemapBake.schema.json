@@ -1,9 +1,9 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema",
-  "title": "XRE_cubemapBake glTF extension",
-  "$id": "XRE_cubemapBake.schema.json",
+  "title": "XRE_envMapBake glTF extension",
+  "$id": "XRE_envMapBake.schema.json",
   "type": "object",
-  "description": "serialization extension for XREngine cubemap bake components",
+  "description": "serialization extension for XREngine envmap bake components",
   "allOf": [{ "$ref": "glTFProperty.schema.json" }],
   "properties": {
     "bakePosition": {

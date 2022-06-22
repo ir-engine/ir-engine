@@ -4,8 +4,8 @@ import { PatchServerSetting, ServerSetting } from '@xrengine/common/src/interfac
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
+import { API } from '../../../API'
 import { NotificationService } from '../../../common/services/NotificationService'
-import { client } from '../../../feathers'
 
 const AdminServerSettingsState = defineState({
   name: 'AdminServerSettingsState',
@@ -34,7 +34,7 @@ export const useServerSettingState = () => useState(accessServerSettingState())
 export const ServerSettingService = {
   fetchServerSettings: async (inDec?: 'increment' | 'decrement') => {
     try {
-      const serverSettings = (await client.service('server-setting').find()) as Paginated<ServerSetting>
+      const serverSettings = (await API.instance.client.service('server-setting').find()) as Paginated<ServerSetting>
       dispatchAction(AdminServerSettingActions.fetchedSeverInfo({ serverSettings }))
     } catch (err) {
       console.log(err)
@@ -43,7 +43,7 @@ export const ServerSettingService = {
   },
   patchServerSetting: async (data: PatchServerSetting, id: string) => {
     try {
-      await client.service('server-setting').patch(id, data)
+      await API.instance.client.service('server-setting').patch(id, data)
       dispatchAction(AdminServerSettingActions.serverSettingPatched())
     } catch (err) {
       console.log(err)

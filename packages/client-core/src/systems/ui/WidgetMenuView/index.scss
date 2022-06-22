@@ -1,0 +1,28 @@
+.container {
+  display: grid;
+  grid-gap: 10px;
+  grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
+}
+
+.button {
+  margin: 5px 15px 10px 10px;
+  align-items: center;
+  z-index: 20;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  font-size: 20px;
+  display: flex;
+  justify-content: center;
+  background-color: var(--iconButtonBackground);
+  color: var(--iconButtonColor);
+}
+
+.svgIcon {
+  width: 1.5em;
+  height: 1.5em;
+}
+
+.svgIcon path {
+  fill: var(--iconButtonColor) !important;
+}

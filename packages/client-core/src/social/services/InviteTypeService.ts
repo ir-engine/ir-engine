@@ -4,8 +4,8 @@ import { InviteType } from '@xrengine/common/src/interfaces/InviteType'
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { addActionReceptor, defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
+import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
-import { client } from '../../feathers'
 
 //State
 const InviteTypeState = defineState({
@@ -40,7 +40,7 @@ export const InviteTypeService = {
   retrieveInvites: async () => {
     dispatchAction(InviteTypeAction.fetchingInvitesTypes())
     try {
-      const inviteTypeResult = (await client.service('invite-type').find()) as Paginated<InviteType>
+      const inviteTypeResult = (await API.instance.client.service('invite-type').find()) as Paginated<InviteType>
       dispatchAction(
         InviteTypeAction.retrievedInvitesTypes({
           invitesType: inviteTypeResult,

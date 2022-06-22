@@ -4,8 +4,8 @@ import { ChargebeeSetting } from '@xrengine/common/src/interfaces/ChargebeeSetti
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
+import { API } from '../../../API'
 import { NotificationService } from '../../../common/services/NotificationService'
-import { client } from '../../../feathers'
 
 const AdminChargebeeSettingsState = defineState({
   name: 'AdminChargebeeSettingsState',
@@ -30,7 +30,7 @@ export const useAdminChargebeeSettingState = () => useState(accessAdminChargebee
 export const ChargebeeSettingService = {
   fetchChargeBee: async () => {
     try {
-      const chargeBee = (await client.service('chargebee-setting').find()) as Paginated<ChargebeeSetting>
+      const chargeBee = (await API.instance.client.service('chargebee-setting').find()) as Paginated<ChargebeeSetting>
       dispatchAction(AdminChargebeeSettingActions.chargebeeSettingRetrieved({ chargebeeSetting: chargeBee }))
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
