@@ -145,6 +145,6 @@ export const prefabIcons = {
   [ScenePrefabs.interior]: InteriorNodeEditor.iconComponent,
   [ScenePrefabs.system]: SystemNodeEditor.iconComponent,
   [ScenePrefabs.spline]: SplineNodeEditor.iconComponent,
-  [ScenePrefabs.instancing]: ParticleEmitterNodeEditor.iconComponent,
+  [ScenePrefabs.instancing]: InstancingNodeEditor.iconComponent,
   [ScenePrefabs.envMapbake]: EnvMapBakeNodeEditor.iconComponent
 }
