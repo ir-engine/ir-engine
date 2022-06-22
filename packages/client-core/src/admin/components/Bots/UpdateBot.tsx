@@ -177,7 +177,7 @@ const UpdateBot = ({ open, bot, onClose }: Props) => {
             menu={locationsMenu}
             onChange={handleInputChange}
             endControl={
-              <IconButton onClick={fetchAdminLocations} size="large">
+              <IconButton onClick={fetchAdminLocations}>
                 <Autorenew style={{ color: 'var(--iconButtonColor)' }} />
               </IconButton>
             }
@@ -190,7 +190,7 @@ const UpdateBot = ({ open, bot, onClose }: Props) => {
             menu={instancesMenu}
             onChange={handleInputChange}
             endControl={
-              <IconButton onClick={fetchAdminInstances} size="large">
+              <IconButton onClick={fetchAdminInstances}>
                 <Autorenew style={{ color: 'var(--iconButtonColor)' }} />
               </IconButton>
             }

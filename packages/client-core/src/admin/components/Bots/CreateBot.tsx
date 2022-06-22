@@ -181,7 +181,7 @@ const CreateBot = () => {
         <Typography className={styles.secondaryHeading} component="h1">
           {t('admin:components.bot.addMoreBots')}
         </Typography>
-        <form style={{ marginTop: '40px' }}>
+        <form style={{ marginTop: '20px' }}>
           <InputText
             name="name"
             label={t('admin:components.bot.name')}
@@ -206,7 +206,7 @@ const CreateBot = () => {
             menu={locationMenu}
             onChange={handleInputChange}
             endControl={
-              <IconButton onClick={fetchAdminLocations} size="large">
+              <IconButton onClick={fetchAdminLocations}>
                 <Autorenew style={{ color: 'var(--iconButtonColor)' }} />
               </IconButton>
             }
@@ -220,7 +220,7 @@ const CreateBot = () => {
             menu={instanceMenu}
             onChange={handleInputChange}
             endControl={
-              <IconButton onClick={fetchAdminInstances} size="large">
+              <IconButton onClick={fetchAdminInstances}>
                 <Autorenew style={{ color: 'var(--iconButtonColor)' }} />
               </IconButton>
             }
