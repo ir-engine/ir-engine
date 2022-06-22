@@ -1,8 +1,8 @@
 import { ShaderMaterial, Texture } from 'three'
 
-import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
-
-import { DudTexture, MaterialParms } from '../MaterialParms'
+import { MaterialParms } from '../MaterialParms'
+import { extractDefaults as format } from '../Utilities'
+import { NormalizedFloatArg, TextureArg, Vec3Arg } from './DefaultArgs'
 
 export const vertexShader = `
 varying vec2 vUv;
@@ -148,11 +148,11 @@ void main()
 `
 
 export const DefaultArgs = {
-  iTime: 0.0,
-  iResolution: [2, 2, 1],
-  fireMagnitude: 1.0,
-  fireTexture: new Texture(),
-  baseTexture: new Texture()
+  iTime: { hide: true, default: 0.0 },
+  iResolution: { ...Vec3Arg, default: [2, 2, 1] },
+  fireMagnitude: { ...NormalizedFloatArg, default: 1 },
+  fireTexture: TextureArg,
+  baseTexture: TextureArg
 }
 
 export default function Fireball(args?: {
@@ -162,12 +162,14 @@ export default function Fireball(args?: {
   fireTexture?: Texture
   baseTexture?: Texture
 }): MaterialParms {
+  const defaultArgs = format(DefaultArgs)
   const mat = new ShaderMaterial({
     uniforms: {
-      iTime: { value: args?.iTime ?? DefaultArgs.iTime },
-      iResolution: { value: args?.iResolution ?? DefaultArgs.iResolution },
-      fireTexture: { value: args?.fireTexture ?? new Texture() },
-      baseTexture: { value: args?.baseTexture ?? new Texture() }
+      iTime: { value: args?.iTime ?? defaultArgs.iTime },
+      iResolution: { value: args?.iResolution ?? defaultArgs.iResolution },
+      fireTexture: { value: args?.fireTexture ?? defaultArgs.fireTexture },
+      fireMagnitude: { value: args?.fireMagnitude ?? defaultArgs.fireMagnitude },
+      baseTexture: { value: args?.baseTexture ?? defaultArgs.baseTexture }
     },
     vertexShader: vertexShader,
     fragmentShader: fragmentShader

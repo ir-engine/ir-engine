@@ -6,6 +6,7 @@ import { Color, MathUtils, Texture } from 'three'
 import { removeComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { DefaultArguments, MaterialLibrary } from '@xrengine/engine/src/renderer/materials/MaterialLibrary'
 import { PatternTarget } from '@xrengine/engine/src/renderer/materials/MaterialParms'
+import { extractDefaults } from '@xrengine/engine/src/renderer/materials/Utilities'
 import { MaterialOverrideComponent } from '@xrengine/engine/src/scene/components/MaterialOverrideComponent'
 import { refreshMaterials } from '@xrengine/engine/src/scene/functions/loaders/MaterialOverrideFunctions'
 
@@ -169,13 +170,15 @@ export default function MaterialAssignment({ entity, node, modelComponent, value
     }
 
     function getArguments(materialID) {
-      const argStructure = assignment.args
-        ? { ...DefaultArguments[materialID], ...assignment.args }
-        : DefaultArguments[materialID]
+      const defaultArguments = DefaultArguments[materialID]
+      if (!defaultArguments) return
+      const defaultValues = extractDefaults(defaultArguments)
+      const argStructure = defaultArguments
+      const argValues = assignment.args ? { ...defaultValues, ...assignment.args } : defaultValues
 
       function setArgsProp(prop) {
         return (value) => {
-          if (!assignment.args) assignment.args = argStructure
+          if (!assignment.args) assignment.args = argValues
           assignment.args[prop] = value
           onChange(values)
         }
@@ -183,13 +186,13 @@ export default function MaterialAssignment({ entity, node, modelComponent, value
 
       function setArgArrayProp(prop, arrayIndex) {
         return (value) => {
-          if (!assignment.args) assignment.args = argStructure
+          if (!assignment.args) assignment.args = argValues
           assignment.args[prop][arrayIndex] = value
           onChange(values)
         }
       }
 
-      if (argStructure === undefined) {
+      if (argValues === undefined) {
         console.warn('no default arguments detected for material ' + materialID)
         return (
           <div>
@@ -202,67 +205,63 @@ export default function MaterialAssignment({ entity, node, modelComponent, value
         const id = `${entity}-${index}-args`
         return (
           <CollapsibleBlock key={id} name="Arguments" label="Arguments">
-            {Object.entries(args).map(([k, v]) => {
+            {Object.entries(args).map(([k, v]: [string, any]) => {
               let compKey = `${entity}-${index}-args-${k}`
-              //number
-              if (typeof v === 'number') {
-                return (
-                  <InputGroup key={compKey} name={k} label={k}>
-                    <CompoundNumericInput value={v} onChange={setArgsProp(k)} min={-1000} max={1000} step={0.1} />
-                  </InputGroup>
-                )
-              }
-              if ((v as Color).isColor) {
-                return (
-                  <InputGroup key={compKey} name={k} label={k}>
-                    <ColorInput value={v} onChange={setArgsProp(k)} />
-                  </InputGroup>
-                )
-              }
-              if (typeof v === 'object') {
-                if ((v as any[]).length !== undefined)
+              switch (v.type) {
+                case 'normalized-float':
+                case 'float':
                   return (
                     <InputGroup key={compKey} name={k} label={k}>
-                      {(v as number[]).map((arrayVal, idx) => {
+                      <CompoundNumericInput value={argValues[k]} onChange={setArgsProp(k)} min={v.min} max={v.max} />
+                    </InputGroup>
+                  )
+                case 'color':
+                  return (
+                    <InputGroup key={compKey} name={k} label={k}>
+                      <ColorInput value={argValues[k]} onChange={setArgsProp(k)} />
+                    </InputGroup>
+                  )
+                case 'vec2':
+                case 'vec3':
+                  return (
+                    <InputGroup key={compKey} name={k} label={k}>
+                      {(argValues[k] as number[]).map((arrayVal, idx) => {
                         return (
                           <NumericInput key={`${compKey}-${idx}`} value={arrayVal} onChange={setArgArrayProp(k, idx)} />
                         )
                       })}
                     </InputGroup>
                   )
-              }
-              if (typeof v === 'string') {
-                return (
-                  <InputGroup key={compKey} name={k} label={k}>
-                    <StringInput value={v} onChange={setArgsProp(k)} />
-                  </InputGroup>
-                )
-              }
-              if (typeof v === 'boolean') {
-                return (
-                  <InputGroup key={compKey} name={k} label={k}>
-                    <BooleanInput value={v} onChange={setArgsProp(k)} />
-                  </InputGroup>
-                )
-              }
-              if ((v as Texture).isTexture) {
-                const argKey = texKey(index, k)
-                function onChangeTexturePath(value) {
-                  const nuPaths = new Map(texturePaths.entries())
-                  nuPaths.set(argKey, value)
-                  setTexturePaths(nuPaths)
-                  if (assignment.args === undefined) assignment.args = argStructure
-                  onChange(values)
-                }
-                return (
-                  <ImagePreviewInputGroup
-                    key={compKey}
-                    name={k}
-                    label={k}
-                    value={texturePaths.get(argKey)}
-                    onChange={onChangeTexturePath}
-                  />
-                )
+                case 'string':
+                  return (
+                    <InputGroup key={compKey} name={k} label={k}>
+                      <StringInput value={argValues[k]} onChange={setArgsProp(k)} />
+                    </InputGroup>
+                  )
+                case 'boolean':
+                  return (
+                    <InputGroup key={compKey} name={k} label={k}>
+                      <BooleanInput value={argValues[k]} onChange={setArgsProp(k)} />
+                    </InputGroup>
+                  )
+                case 'texture':
+                  const argKey = texKey(index, k)
+                  function onChangeTexturePath(value) {
+                    const nuPaths = new Map(texturePaths.entries())
+                    nuPaths.set(argKey, value)
+                    setTexturePaths(nuPaths)
+                    if (assignment.args === undefined) assignment.args = argStructure
+                    onChange(values)
+                  }
+                  return (
+                    <ImagePreviewInputGroup
+                      key={compKey}
+                      name={k}
+                      label={k}
+                      value={texturePaths.get(argKey)}
+                      onChange={onChangeTexturePath}
+                    />
+                  )
               }
             })}
           </CollapsibleBlock>
