@@ -1,5 +1,7 @@
 // This file will be renamed to Physics.ts when we are ready to take out physx completely.
 import RAPIER, {
+  ActiveCollisionTypes,
+  ActiveEvents,
   Collider,
   ColliderDesc,
   EventQueue,
@@ -7,18 +9,26 @@ import RAPIER, {
   RigidBody,
   RigidBodyDesc,
   RigidBodyType,
+  ShapeType,
   World
 } from '@dimforge/rapier3d-compat'
+import { Mesh, Object3D, Quaternion, Shape, Vector3 } from 'three'
 
+import { mergeBufferGeometries } from '../../common/classes/BufferGeometryUtils'
+import { Axis } from '../../common/constants/Axis3D'
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, ComponentType, getComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { RapierCollisionComponent } from '../components/RapierCollisionComponent'
 import { RaycastComponent } from '../components/RaycastComponent'
 import { RigidBodyComponent } from '../components/RigidBodyComponent'
+import { CollisionGroups, DefaultCollisionMask } from '../enums/CollisionGroups'
+import { getInteractionGroups } from '../functions/getInteractionGroups'
 import { getTagComponentForRigidBody } from '../functions/getTagComponentForRigidBody'
-import { ColliderHitEvent, CollisionEvents } from '../types/PhysicsTypes'
+import { ColliderDescOptions, ColliderHitEvent, CollisionEvents } from '../types/PhysicsTypes'
 
 export type PhysicsWorld = World
+
+const tempQuat = new Quaternion()
 
 function load() {
   // eslint-disable-next-line import/no-named-as-default-member
@@ -49,6 +59,119 @@ function createRigidBody(entity: Entity, world: World, rigidBodyDesc: RigidBodyD
   rigidBody.userData = rigidBodyUserdata
 
   return rigidBody
+}
+
+function createRigidBodyForObject(entity: Entity, world: World, object: Object3D): RigidBody {
+  const userData = object.userData
+  if ('bodyType' in userData) {
+    const colliderDescs = [] as ColliderDesc[]
+    const rigidBodyType = object.userData['bodyType']
+
+    object.traverse((mesh: Mesh) => {
+      // type is required
+      const shapeOptions = mesh.userData as ColliderDescOptions
+      if (shapeOptions.type && typeof shapeOptions.type === 'number') {
+        let scale = new Vector3(1, 1, 1)
+        mesh.getWorldScale(scale) // TODO: is this needed?
+
+        // check for case mismatch
+        if (
+          typeof shapeOptions.collisionLayer === 'undefined' &&
+          typeof (shapeOptions as any).collisionlayer !== 'undefined'
+        )
+          shapeOptions.collisionLayer = (shapeOptions as any).collisionlayer
+        if (
+          typeof shapeOptions.collisionMask === 'undefined' &&
+          typeof (shapeOptions as any).collisionmask !== 'undefined'
+        )
+          shapeOptions.collisionMask = (shapeOptions as any).collisionmask
+
+        let colliderDesc: ColliderDesc
+        let geometry, vertices, indices
+        switch (shapeOptions.type as ShapeType) {
+          case ShapeType.Cuboid:
+            colliderDesc = ColliderDesc.cuboid(Math.abs(scale.x), Math.abs(scale.y), Math.abs(scale.z))
+            break
+
+          case ShapeType.Ball:
+            colliderDesc = ColliderDesc.ball(Math.abs(scale.x))
+            break
+
+          case ShapeType.Capsule:
+            colliderDesc = ColliderDesc.capsule(Math.abs(scale.x), Math.abs(scale.y))
+            break
+
+          case ShapeType.Cylinder:
+            colliderDesc = ColliderDesc.cylinder(Math.abs(scale.x), Math.abs(scale.y))
+            break
+
+          case ShapeType.ConvexPolyhedron:
+            geometry = mergeBufferGeometries([mesh.geometry]) // TODO: is this needed?
+            vertices = new Float32Array(geometry!.attributes.position.array)
+            indices = new Uint32Array(geometry!.index!.array)
+            colliderDesc = ColliderDesc.convexMesh(vertices, indices) as ColliderDesc
+            break
+
+          case ShapeType.TriMesh:
+            geometry = mergeBufferGeometries([mesh.geometry]) // TODO: is this needed?
+            vertices = new Float32Array(geometry!.attributes.position.array)
+            indices = new Uint32Array(geometry!.index!.array)
+            colliderDesc = ColliderDesc.trimesh(vertices, indices)
+            break
+
+          default:
+            console.error('unknown shape', shapeOptions)
+            return undefined!
+        }
+
+        shapeOptions.friction ? colliderDesc.setFriction(shapeOptions.friction) : 0
+        shapeOptions.restitution ? colliderDesc.setFriction(shapeOptions.restitution) : 0
+
+        const collisionLayer = shapeOptions.collisionLayer ? shapeOptions.collisionLayer : CollisionGroups.Default
+        const collisionMask = shapeOptions.collisionMask ? shapeOptions.collisionMask : DefaultCollisionMask
+        colliderDesc.setCollisionGroups(getInteractionGroups(collisionLayer, collisionMask))
+
+        colliderDesc.setTranslation(mesh.position.x, mesh.position.y, mesh.position.z)
+        colliderDesc.setRotation(mesh.quaternion)
+
+        shapeOptions.activeCollisionTypes
+          ? colliderDesc.setActiveCollisionTypes(shapeOptions.activeCollisionTypes)
+          : colliderDesc.setActiveCollisionTypes(ActiveCollisionTypes.ALL)
+        colliderDesc.setActiveEvents(ActiveEvents.COLLISION_EVENTS)
+
+        if (shapeOptions.type === ShapeType.Cylinder) {
+          const meshQuat = mesh.quaternion.clone()
+          tempQuat.setFromAxisAngle(Axis.X, Math.PI / 2)
+          meshQuat.multiply(tempQuat)
+          colliderDesc.setRotation(meshQuat)
+        }
+
+        colliderDescs.push(colliderDesc)
+      }
+    })
+
+    let rigidBodyDesc
+    switch (rigidBodyType) {
+      case RigidBodyType.Dynamic:
+        rigidBodyDesc = RigidBodyDesc.dynamic()
+        break
+
+      case RigidBodyType.Fixed:
+        rigidBodyDesc = RigidBodyDesc.fixed()
+        break
+
+      case RigidBodyType.KinematicPositionBased:
+        rigidBodyDesc = RigidBodyDesc.kinematicPositionBased()
+        break
+
+      case RigidBodyType.KinematicVelocityBased:
+        rigidBodyDesc = RigidBodyDesc.kinematicVelocityBased()
+        break
+    }
+    return createRigidBody(entity, world, rigidBodyDesc, colliderDescs)
+  } else {
+    return undefined!
+  }
 }
 
 // TODO: Do we need dedicated functions for creating these type of colliders?
@@ -179,6 +302,7 @@ export const Physics = {
   load,
   createWorld,
   createRigidBody,
+  createRigidBodyForObject,
   removeRigidBody,
   changeRigidbodyType,
   castRay,

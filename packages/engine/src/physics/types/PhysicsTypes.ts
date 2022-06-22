@@ -1,4 +1,4 @@
-import RAPIER, { ColliderHandle } from '@dimforge/rapier3d-compat'
+import RAPIER, { ActiveCollisionTypes, ColliderHandle, RigidBodyType, ShapeType } from '@dimforge/rapier3d-compat'
 
 export type ColliderTypes = 'box' | 'ground' | 'sphere' | 'capsule' | 'cylinder' | 'convex' | 'trimesh'
 
@@ -182,4 +182,15 @@ export type ColliderHitEvent = {
   shapeSelf: PhysX.PxShape | RAPIER.Collider
   shapeOther: PhysX.PxShape | RAPIER.Collider
   contacts: ContactData[] | undefined // TODO: Figure out how to populate this using Rapier
+}
+
+export type ColliderDescOptions = {
+  type: ShapeType
+  bodyType?: RigidBodyType // TODO: This is only required at the root node, should be removed from here?
+  isTrigger?: boolean
+  friction?: number
+  restitution?: number
+  collisionLayer?: number
+  collisionMask?: number
+  activeCollisionTypes?: ActiveCollisionTypes
 }

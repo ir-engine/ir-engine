@@ -1,4 +1,11 @@
-import { ActiveCollisionTypes, ActiveEvents, ColliderDesc, RigidBodyDesc } from '@dimforge/rapier3d-compat'
+import {
+  ActiveCollisionTypes,
+  ActiveEvents,
+  ColliderDesc,
+  RigidBodyDesc,
+  RigidBodyType,
+  ShapeType
+} from '@dimforge/rapier3d-compat'
 import { CircleBufferGeometry, Color, Group, Mesh, MeshStandardMaterial, Object3D } from 'three'
 
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
@@ -24,6 +31,7 @@ import { Physics } from '../../../physics/classes/PhysicsRapier'
 import { CollisionGroups } from '../../../physics/enums/CollisionGroups'
 import { createCollider } from '../../../physics/functions/createCollider'
 import { getInteractionGroups } from '../../../physics/functions/getInteractionGroups'
+import { ColliderDescOptions } from '../../../physics/types/PhysicsTypes'
 import { TransformComponent } from '../../../transform/components/TransformComponent'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { GroundPlaneComponent, GroundPlaneComponentType } from '../../components/GroundPlaneComponent'
@@ -44,11 +52,15 @@ export const deserializeGround: ComponentDeserializeFunction = async function (
   mesh.name = 'GroundPlaneMesh'
   mesh.position.y = -0.05
   mesh.rotation.x = -Math.PI / 2
-  mesh.userData = {
-    type: 'ground',
-    collisionLayer: CollisionGroups.Ground,
-    collisionMask: CollisionGroups.Default
-  }
+  // mesh.visible = false
+
+  const colliderDescOptions = {} as ColliderDescOptions
+  colliderDescOptions.bodyType = RigidBodyType.Fixed
+  colliderDescOptions.type = ShapeType.Cuboid
+  colliderDescOptions.collisionLayer = CollisionGroups.Ground
+  colliderDescOptions.collisionMask = CollisionGroups.Default
+
+  mesh.userData = colliderDescOptions
 
   const groundPlane = new Object3D()
   groundPlane.userData.mesh = mesh
@@ -60,17 +72,12 @@ export const deserializeGround: ComponentDeserializeFunction = async function (
   addComponent(entity, GroundPlaneComponent, props)
   getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_GROUND_PLANE)
 
-  const colliderDesc = ColliderDesc.cylinder(1, 32)
-    .setCollisionGroups(getInteractionGroups(CollisionGroups.Ground, CollisionGroups.Default))
-    .setActiveCollisionTypes(ActiveCollisionTypes.ALL)
-    .setActiveEvents(ActiveEvents.COLLISION_EVENTS)
-  const rigidBodyDesc = RigidBodyDesc.fixed()
-  const body = Physics.createRigidBody(entity, Engine.instance.currentWorld.physicsWorld, rigidBodyDesc, [colliderDesc])
-  body.setTranslation(mesh.position, true)
-  body.setRotation(mesh.quaternion, true)
-
+  // Pass custom scale in options
+  Physics.createRigidBodyForObject(entity, Engine.instance.currentWorld.physicsWorld, groundPlane.userData.mesh)
   // Until player avatar is switched to rapier, this is needed.
   // @TODO: make this isomorphic with editor
+  mesh.userData['bodyType'] = 0
+  mesh.userData['type'] = 'ground'
   if (!Engine.instance.isEditor) createCollider(entity, groundPlane.userData.mesh)
 
   updateGroundPlane(entity, props)
