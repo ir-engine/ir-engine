@@ -11,14 +11,20 @@ type WidgetState = {
 
 const WidgetAppState = defineState({
   name: 'WidgetAppState',
-  initial: () => ({} as WidgetState)
+  initial: () => ({
+    widgetsMenuOpen: false,
+    widgets: {} as WidgetState
+  })
 })
 
 export const WidgetAppServiceReceptor = (action) => {
   getState(WidgetAppState).batch((s) => {
     matches(action)
+      .when(WidgetAppActions.showWidgetMenu.matches, (action) => {
+        return s.widgetsMenuOpen.set(action.shown)
+      })
       .when(WidgetAppActions.registerWidget.matches, (action) => {
-        return s.merge({
+        return s.widgets.merge({
           [action.id]: {
             enabled: true,
             visible: false
@@ -26,15 +32,20 @@ export const WidgetAppServiceReceptor = (action) => {
         })
       })
       .when(WidgetAppActions.unregisterWidget.matches, (action) => {
-        return s[action.id].set(undefined!)
+        if (s.widgets[action.id].visible) {
+          s.widgetsMenuOpen.set(true)
+        }
+        return s.widgets[action.id].set(undefined!)
       })
       .when(WidgetAppActions.enableWidget.matches, (action) => {
-        return s[action.id].merge({
+        return s.widgets[action.id].merge({
           enabled: action.enabled
         })
       })
       .when(WidgetAppActions.showWidget.matches, (action) => {
-        return s[action.id].merge({
+        // if opening or closing a widget, close or open the main menu
+        s.widgetsMenuOpen.set(!action.shown)
+        return s.widgets[action.id].merge({
           visible: action.shown
         })
       })
@@ -47,6 +58,11 @@ export const useWidgetAppState = () => useState(accessWidgetAppState())
 export const WidgetAppService = {}
 
 export class WidgetAppActions {
+  static showWidgetMenu = defineAction({
+    type: 'WidgetAppActions.SHOW_WIDGET_MENU' as const,
+    shown: matches.boolean
+  })
+
   static registerWidget = defineAction({
     type: 'WidgetAppActions.REGISTER_WIDGET' as const,
     id: matches.string

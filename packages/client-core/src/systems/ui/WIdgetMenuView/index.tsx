@@ -1,22 +1,15 @@
 import { createState } from '@speigg/hookstate'
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 
 import { VrIcon } from '@xrengine/client-core/src/common/components/Icons/Vricon'
-import { Channel } from '@xrengine/common/src/interfaces/Channel'
 import { respawnAvatar } from '@xrengine/engine/src/avatar/functions/respawnAvatar'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineActions, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
-import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
-import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
-import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
 import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
-import { useWidgetAppState, WidgetAppActions } from '@xrengine/engine/src/xrui/WidgetAppService'
+import { accessWidgetAppState, useWidgetAppState, WidgetAppActions } from '@xrengine/engine/src/xrui/WidgetAppService'
 import { dispatchAction } from '@xrengine/hyperflux'
 
 import RefreshIcon from '@mui/icons-material/Refresh'
-
-import { useMediaStreamState } from '../../../media/services/MediaStreamService'
-import { useChatState } from '../../../social/services/ChatService'
 
 const styles = {
   container: {
@@ -60,6 +53,7 @@ const WidgetButton = ({ Icon, toggle, label }: WidgetButtonProps) => {
       onClick={toggle}
       onMouseEnter={() => setMouseOver(true)}
       onMouseLeave={() => setMouseOver(false)}
+      xr-layer="true"
     >
       <Icon className="svgIcon" />
       {mouseOver && <div>{label}</div>}
@@ -68,30 +62,17 @@ const WidgetButton = ({ Icon, toggle, label }: WidgetButtonProps) => {
 }
 
 const MainMenuButtons = () => {
-  let activeChannel: Channel | null = null
-  const chatState = useChatState()
   const engineState = useEngineState()
-  const channelState = chatState.channels
-  const channels = channelState.channels.value as Channel[]
-  const [unreadMessages, setUnreadMessages] = useState(false)
-  const activeChannelMatch = Object.entries(channels).find(([key, channel]) => channel.channelType === 'instance')
-  if (activeChannelMatch && activeChannelMatch.length > 0) {
-    activeChannel = activeChannelMatch[1]
-  }
-  const channelEntries = Object.values(channels).filter((channel) => !!channel) as any
-  const instanceChannel = channelEntries.find(
-    (entry) => entry.instanceId === Engine.instance.currentWorld.worldNetwork?.hostId
-  )
-  const mediastream = useMediaStreamState()
-  const isCamAudioEnabled = mediastream.isCamAudioEnabled
+  const widgetState = useWidgetAppState()
 
-  useEffect(() => {
-    activeChannel &&
-      activeChannel.messages &&
-      activeChannel.messages.length > 0 &&
-      !MainMenuButtonState.chatMenuOpen.value &&
-      setUnreadMessages(true)
-  }, [activeChannel?.messages])
+  // TODO: add a notification hint function to the widget wrapper and move unread messages there
+  // useEffect(() => {
+  //   activeChannel &&
+  //     activeChannel.messages &&
+  //     activeChannel.messages.length > 0 &&
+  //     !widgetState.chatMenuOpen.value &&
+  //     setUnreadMessages(true)
+  // }, [activeChannel?.messages])
 
   const toogleVRSession = () => {
     if (engineState.xrSessionStarted.value) {
@@ -102,22 +83,26 @@ const MainMenuButtons = () => {
   }
 
   const handleRespawnAvatar = () => {
-    respawnAvatar(useWorld().localClientEntity)
+    respawnAvatar(Engine.instance.currentWorld.localClientEntity)
   }
 
-  const widgets = Object.entries(useWidgetAppState().value).map(([id, widgetState]) => ({
+  const widgets = Object.entries(widgetState.widgets.value).map(([id, widgetState]) => ({
     id,
     ...widgetState,
     ...Engine.instance.currentWorld.widgets.get(id)!
   }))
 
-  console.log(widgets)
-
-  const toggleWidget = (widget) => () => {
-    dispatchAction(WidgetAppActions.showWidget({ id: widget.id, shown: !widget.visible }))
+  const toggleWidget = (toggledWidget) => () => {
+    const state = accessWidgetAppState().widgets.value
+    const visible = state[toggledWidget.id].visible
+    // close currently open widgets until we support multiple widgets being open at once
+    if (!visible) {
+      Object.entries(state).forEach(([id, widget]) => {
+        if (widget.visible && id !== toggledWidget.id) dispatchAction(WidgetAppActions.showWidget({ id, shown: false }))
+      })
+    }
+    dispatchAction(WidgetAppActions.showWidget({ id: toggledWidget.id, shown: !visible }))
   }
-
-  if (!MainMenuButtonState.showButtons.value) return null!
 
   return (
     <div

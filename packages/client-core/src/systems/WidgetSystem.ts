@@ -14,59 +14,57 @@ import {
   WidgetAppActions,
   WidgetAppServiceReceptor
 } from '@xrengine/engine/src/xrui/WidgetAppService'
-import { addActionReceptor } from '@xrengine/hyperflux'
+import { addActionReceptor, dispatchAction } from '@xrengine/hyperflux'
 
 import ChatUISystem from './ChatUISystem'
+import SettingUISystem from './createSettingsUI'
 import EmoteUISystem from './EmoteUISystem'
-import SettingUISystem from './SettingUISystem'
-import ShareLocationUISystem from './ShareLocationUISystem'
-import { MainMenuButtonState } from './state/MainMenuButtonState'
-import { createMainMenuButtonsView } from './ui/MainMenuButtons'
+import createShareLocationUI from './ShareLocationUISystem'
+import { createMainMenuButtonsView } from './ui/WIdgetMenuView'
 
-// TODO: rename this to WidgetMenuSystem #6364
-
-export default async function MainMenuButtonsSystem(world: World) {
+export default async function WidgetSystem(world: World) {
   const ui = createMainMenuButtonsView()
 
   addComponent(ui.entity, PersistTagComponent, {})
+
+  const toggleWidgetsMenu = () => {
+    const state = accessWidgetAppState().widgets.value
+    const openWidget = Object.entries(state).find(([id, widget]) => widget.visible)
+    if (openWidget) {
+      dispatchAction(WidgetAppActions.showWidget({ id: openWidget[0], shown: false }))
+      dispatchAction(WidgetAppActions.showWidgetMenu({ shown: true }))
+    } else {
+      dispatchAction(WidgetAppActions.showWidgetMenu({ shown: !accessWidgetAppState().widgetsMenuOpen.value }))
+    }
+  }
 
   AvatarInputSchema.inputMap.set(GamepadButtons.X, BaseInput.TOGGLE_MENU_BUTTONS)
   AvatarInputSchema.inputMap.set('Escape', BaseInput.HIDE_MENU_BUTTONS)
   AvatarInputSchema.behaviorMap.set(BaseInput.TOGGLE_MENU_BUTTONS, (entity, inputKey, inputValue) => {
     if (inputValue.lifecycleState !== LifecycleValue.Started) return
-    const mainMenuButtonsXRUI = getComponent(ui.entity, XRUIComponent)
-
-    if (mainMenuButtonsXRUI) {
-      MainMenuButtonState.showButtons.set(!MainMenuButtonState.showButtons.value)
-    }
+    toggleWidgetsMenu()
   })
 
-  addActionReceptor(WidgetAppServiceReceptor)
+  AvatarInputSchema.behaviorMap.set(BaseInput.HIDE_MENU_BUTTONS, (entity, inputKey, inputValue) => {
+    if (inputValue.lifecycleState !== LifecycleValue.Started) return
+    toggleWidgetsMenu()
+  })
 
   function WidgetReceptor(action) {
     matches(action).when(WidgetAppActions.showWidget.matches, (action) => {
       const widget = Engine.instance.currentWorld.widgets.get(action.id)!
       const xrui = getComponent(widget.ui.entity, XRUIComponent)
       if (xrui) {
-        ObjectFitFunctions.changeVisibilityOfRootLayer(xrui.container, action.shown)
+        ObjectFitFunctions.setUIVisible(xrui.container, action.shown)
       }
     })
   }
+  addActionReceptor(WidgetAppServiceReceptor)
   addActionReceptor(WidgetReceptor)
-
-  AvatarInputSchema.behaviorMap.set(BaseInput.HIDE_MENU_BUTTONS, (entity, inputKey, inputValue) => {
-    if (inputValue.lifecycleState !== LifecycleValue.Started) return
-    const mainMenuButtonsXRUI = getComponent(ui.entity, XRUIComponent)
-
-    if (mainMenuButtonsXRUI) {
-      MainMenuButtonState.showButtons.set(!MainMenuButtonState.showButtons.value)
-      // MainMenuButtonState.showButtons.set(false)
-    }
-  })
 
   // TODO: rename these modules that used to be systems to create<label>Widget
   ChatUISystem(world)
-  ShareLocationUISystem(world)
+  createShareLocationUI(world)
   SettingUISystem(world)
   EmoteUISystem(world)
 
@@ -75,13 +73,13 @@ export default async function MainMenuButtonsSystem(world: World) {
 
     if (xrui) {
       ObjectFitFunctions.attachObjectToPreferredTransform(xrui.container)
-      ObjectFitFunctions.changeVisibilityOfRootLayer(xrui.container, MainMenuButtonState.showButtons.value)
+      ObjectFitFunctions.setUIVisible(xrui.container, accessWidgetAppState().widgetsMenuOpen.value)
     }
 
     const widgetState = accessWidgetAppState()
 
     for (const [id, widget] of world.widgets) {
-      const widgetVisible = widgetState[id].ornull.visible.value
+      const widgetVisible = widgetState.widgets[id].ornull.visible.value
       if (widgetVisible) {
         const widgetUI = getComponent(widget.ui.entity, XRUIComponent)
         if (widgetUI) {

@@ -5,26 +5,26 @@ import { XRUIComponent } from '@xrengine/engine/src/xrui/components/XRUIComponen
 import { ObjectFitFunctions } from '@xrengine/engine/src/xrui/functions/ObjectFitFunctions'
 import { Widgets } from '@xrengine/engine/src/xrui/Widgets'
 
-import { Message as MessageIcon } from '@mui/icons-material'
+import LinkIcon from '@mui/icons-material/Link'
 
-import { createChatDetailView } from './ui/ChatDetailView'
+import { createShareLocationDetailView } from './ui/ShareLocationDetailView'
 
-const widgetName = 'Chat'
+const widgetName = 'Share'
 
-export default async function ChatUISystem(world: World) {
-  const ui = createChatDetailView()
+export function createShareLocationUI(world: World) {
+  const ui = createShareLocationDetailView()
 
   addComponent(ui.entity, PersistTagComponent, {})
 
   ui.container.then(() => {
     const xrui = getComponent(ui.entity, XRUIComponent)
-    ObjectFitFunctions.changeVisibilityOfRootLayer(xrui.container, false)
+    ObjectFitFunctions.setUIVisible(xrui.container, false)
   })
 
   Widgets.registerWidget(world, ui.entity, {
     ui,
     label: widgetName,
-    icon: MessageIcon,
+    icon: LinkIcon,
     system: () => {}
   })
 }

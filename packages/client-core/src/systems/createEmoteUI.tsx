@@ -5,26 +5,25 @@ import { XRUIComponent } from '@xrengine/engine/src/xrui/components/XRUIComponen
 import { ObjectFitFunctions } from '@xrengine/engine/src/xrui/functions/ObjectFitFunctions'
 import { Widgets } from '@xrengine/engine/src/xrui/Widgets'
 
-import SettingsIcon from '@mui/icons-material/Settings'
+import { EmoteIcon } from '../user/components/UserMenu'
+import { createEmoteDetailView } from './ui/EmoteDetailView'
 
-import { createSettingDetailView } from './ui/SettingDetailView'
+const widgetName = 'Emote Widget'
 
-const widgetName = 'Settings'
-
-export default async function SettingUISystem(world: World) {
-  const ui = createSettingDetailView()
+export function createEmoteUI(world: World) {
+  const ui = createEmoteDetailView()
 
   addComponent(ui.entity, PersistTagComponent, {})
 
   ui.container.then(() => {
     const xrui = getComponent(ui.entity, XRUIComponent)
-    ObjectFitFunctions.changeVisibilityOfRootLayer(xrui.container, false)
+    ObjectFitFunctions.setUIVisible(xrui.container, false)
   })
 
   Widgets.registerWidget(world, ui.entity, {
     ui,
     label: widgetName,
-    icon: SettingsIcon,
+    icon: EmoteIcon,
     system: () => {}
   })
 }
