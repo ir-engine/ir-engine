@@ -21,7 +21,7 @@ import { createChatUI } from './createChatUI'
 import { createEmoteUI } from './createEmoteUI'
 import { createSettingsUI } from './createSettingsUI'
 import { createShareLocationUI } from './createShareLocationUI'
-import { createMainMenuButtonsView } from './ui/WIdgetMenuView'
+import { createMainMenuButtonsView } from './ui/WidgetMenuView'
 
 export default async function WidgetSystem(world: World) {
   const ui = createMainMenuButtonsView()
