@@ -44,7 +44,7 @@ export type GrassProperties = {
   ambientStrength: number
   diffuseStrength: number
   shininess: number
-  sunColour: Color
+  sunColor: Color
 }
 
 export type MeshProperties = {
@@ -77,6 +77,8 @@ export type NodeProperties = {
   isNodeProperties: true
   root: any
 }
+
+export type SampleProperties = ScatterProperties & VertexProperties & NodeProperties
 
 export type InstancingComponentType = {
   count: number

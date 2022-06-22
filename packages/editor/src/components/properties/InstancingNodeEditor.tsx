@@ -21,6 +21,7 @@ import {
   ScatterState,
   VertexProperties
 } from '@xrengine/engine/src/scene/components/InstancingComponent'
+import { ModelComponent } from '@xrengine/engine/src/scene/components/ModelComponent'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 import {
@@ -74,8 +75,7 @@ export const InstancingNodeEditor: EditorComponentType = (props) => {
       },
       (eNode) => {
         if (eNode === node) return false
-
-        if (hasComponent(eNode.entity, Object3DComponent)) {
+        if (hasComponent(eNode.entity, ModelComponent) && hasComponent(eNode.entity, Object3DComponent)) {
           const obj3d = getComponent(eNode.entity, Object3DComponent).value
           const mesh = getFirstMesh(obj3d)
           return !!mesh && mesh.geometry.hasAttribute('uv') && mesh.geometry.hasAttribute('normal')

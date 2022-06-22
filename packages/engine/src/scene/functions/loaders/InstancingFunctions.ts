@@ -28,6 +28,7 @@ import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent, removeComponent } from '../../../ecs/functions/ComponentFunctions'
 import { iterateEntityNode } from '../../../ecs/functions/EntityTreeFunctions'
+import { formatMaterialArgs } from '../../../renderer/materials/Utilities'
 import UpdateableObject3D from '../../classes/UpdateableObject3D'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import {
@@ -38,6 +39,7 @@ import {
   MeshProperties,
   NodeProperties,
   SampleMode,
+  SampleProperties,
   sampleVar,
   ScatterMode,
   ScatterProperties,
@@ -51,15 +53,15 @@ import obj3dFromUuid from '../../util/obj3dFromUuid'
 
 export const GRASS_PROPERTIES_DEFAULT_VALUES: GrassProperties = {
   isGrassProperties: true,
-  bladeHeight: { mu: 0.1, sigma: 0.05 },
+  bladeHeight: { mu: 0.3, sigma: 0.05 },
   bladeWidth: { mu: 0.03, sigma: 0.01 },
   joints: 4,
-  grassTexture: new Texture(),
-  alphaMap: new Texture(),
+  grassTexture: 'https://resources-dev.theoverlay.io/assets/grass/blade_diffuse.jpg',
+  alphaMap: 'https://resources-dev.theoverlay.io/assets/grass/blade_alpha.jpg',
   ambientStrength: 0.5,
-  diffuseStrength: 0,
-  shininess: 0,
-  sunColour: new Color(0.7, 0.65, 0.4)
+  diffuseStrength: 1,
+  shininess: 128,
+  sunColor: new Color(0.9, 0.95, 0.4)
 }
 
 export const MESH_PROPERTIES_DEFAULT_VALUES: MeshProperties = {
@@ -69,18 +71,18 @@ export const MESH_PROPERTIES_DEFAULT_VALUES: MeshProperties = {
 
 export const SCATTER_PROPERTIES_DEFAULT_VALUES: ScatterProperties = {
   isScatterProperties: true,
-  densityMap: new Texture(),
+  densityMap: 'https://resources-dev.theoverlay.io/assets/grass/perlinFbm.jpg',
   densityMapStrength: 0.5,
-  heightMap: new Texture(),
+  heightMap: 'https://resources-dev.theoverlay.io/assets/grass/perlinFbm.jpg',
   heightMapStrength: 0.5
 }
 
 export const VERTEX_PROPERTIES_DEFAULT_VALUES: VertexProperties = {
   isVertexProperties: true,
   vertexColors: false,
-  densityMap: new Texture(),
+  densityMap: 'https://resources-dev.theoverlay.io/assets/grass/perlinFbm.jpg',
   densityMapStrength: 0.5,
-  heightMap: new Texture(),
+  heightMap: 'https://resources-dev.theoverlay.io/assets/grass/perlinFbm.jpg',
   heightMapStrength: 0.5
 }
 
@@ -113,19 +115,24 @@ attribute float index;
 
 uniform float time;
 uniform float vHeight;
-uniform float densityMapStrength;
-uniform float heightMapStrength;
+#ifdef DENSITY_MAPPED
+  uniform float densityMapStrength;
+  uniform sampler2D densityMap;
+
+  varying float doClip;
+#endif
+#ifdef HEIGHT_MAPPED
+  uniform float heightMapStrength;
+  uniform sampler2D heightMap;
+#endif
 uniform mat4 modelViewMatrix;
 uniform mat4 projectionMatrix;
-uniform sampler2D densityMap;
-uniform sampler2D heightMap;
 
 varying vec2 vUv;
 varying vec3 vNormal;
 varying vec3 vPosition;
 varying float frc;
 varying float idx;
-varying float doClip;
 
 const float PI = 3.1415;
 const float TWO_PI = 2.0 * PI;
@@ -140,6 +147,7 @@ float rand(float x) {
 }
 
 void main() {
+#ifdef DENSITY_MAPPED
   //Sample density map
   float density = texture2D(densityMap, surfaceUV).r;
   if (rand(index) > density) {
@@ -147,26 +155,28 @@ void main() {
   } else {
     doClip = 0.0;
   }
-  //Scale vertices
-  vec3 vPosition = position;
+#endif
+//Scale vertices
+vec3 vPosition = position;
 
-  //Sample height map
-  float height = texture2D(heightMap, surfaceUV).r;
-  vPosition.x *= scale.x * height;
-  vPosition.y *= scale.y * height;
-  vPosition.z *= scale.x * height;
-  //Invert scaling for normals
-  vNormal = normal;
-  //vNormal.y /= scale.y;
-  frc = position.y / vHeight;
-  //Rotate blade around Y axis
-  vec4 direction = orient;
-  vPosition = rotateVectorByQuaternion(vPosition, direction);
-  vNormal = rotateVectorByQuaternion(vNormal, direction);
-
+//Sample height map
+float height = 1.0;
+#ifdef HEIGHT_MAPPED
+  height = texture2D(heightMap, surfaceUV).r;
+#endif
+vPosition.x *= scale.x * height;
+vPosition.y *= scale.y * height;
+vPosition.z *= scale.x * height;
+//Invert scaling for normals
+vNormal = normal;
+//vNormal.y /= scale.y;
+frc = position.y / vHeight;
+//Rotate blade around Y axis
+vec4 direction = orient;
+vPosition = rotateVectorByQuaternion(vPosition, direction);
+vNormal = rotateVectorByQuaternion(vNormal, direction);
 //UV for texture
 vUv = uv;
-
 
 //Wind is sine waves in time. 
 float noise = 0.5 + 0.5 * sin(vPosition.x + offset.x + time);
@@ -174,18 +184,16 @@ float halfAngle = -noise * 0.1;
 noise = 0.5 + 0.5 * cos(vPosition.z + offset.z + time);
 halfAngle -= noise * 0.05;
 
-    direction = normalize(vec4(sin(halfAngle), 0.0, -sin(halfAngle), cos(halfAngle)));
+direction = normalize(vec4(sin(halfAngle), 0.0, -sin(halfAngle), cos(halfAngle)));
 
-    //Rotate blade and normals according to the wind
-    vPosition = rotateVectorByQuaternion(vPosition, direction);
-    vNormal = rotateVectorByQuaternion(vNormal, direction);
+//Rotate blade and normals according to the wind
+vPosition = rotateVectorByQuaternion(vPosition, direction);
+vNormal = rotateVectorByQuaternion(vNormal, direction);
 
-
-    //Index of instance for varying colour in fragment shader
-    idx = index;
+//Index of instance for varying color in fragment shader
+idx = index;
 
 gl_Position = projectionMatrix * modelViewMatrix * vec4(vPosition + offset, 1.0);
-
 }`
 
 const grassFragmentSource = `
@@ -198,21 +206,23 @@ uniform float ambientStrength;
 uniform float diffuseStrength;
 uniform float specularStrength;
 uniform float shininess;
-uniform vec3 sunColour;
+uniform vec3 sunColor;
 uniform vec3 sunDirection;
-
 
 //Surface uniforms
 uniform sampler2D map;
 uniform sampler2D alphaMap;
-uniform vec3 specularColour;
+uniform vec3 specularColor;
 
 varying float idx;
 varying vec2 vUv;
 varying vec3 vNormal;
 varying vec3 vPosition;
 varying float frc;
-varying float doClip;
+
+#ifdef DENSITY_MAPPED
+  varying float doClip;
+#endif
 
 vec3 ACESFilm(vec3 x){
     float a = 2.51;
@@ -225,9 +235,11 @@ vec3 ACESFilm(vec3 x){
 
 void main() {
 //If clipped, don't draw
-if(doClip > 0.0) {
-  discard;
-}
+#ifdef DENSITY_MAPPED
+  if(doClip > 0.0) {
+    discard;
+  }
+#endif
 //If transparent, don't draw
 if(texture2D(alphaMap, vUv).r < 0.15){
     discard;
@@ -242,15 +254,15 @@ if(texture2D(alphaMap, vUv).r < 0.15){
     //    normal = normalize(-vNormal);
     //}
 
-//Get colour data from texture
-    vec3 textureColour = pow(texture2D(map, vUv).rgb, vec3(2.2));
+//Get color data from texture
+    vec3 textureColor = pow(texture2D(map, vUv).rgb, vec3(2.2));
 
 //Add different green tones towards root
-    vec3 mixColour = idx > 0.75 ? vec3(0.2, 0.8, 0.06) : vec3(0.5, 0.8, 0.08);
-textureColour = mix(0.1 * mixColour, textureColour, 0.75);
+    vec3 mixColor = idx > 0.75 ? vec3(0.2, 0.8, 0.06) : vec3(0.5, 0.8, 0.08);
+textureColor = mix(0.1 * mixColor, textureColor, 0.75);
 
-    vec3 lightTimesTexture = sunColour * textureColour;
-vec3 ambient = textureColour;
+    vec3 lightTimesTexture = sunColor * textureColor;
+vec3 ambient = textureColor;
     
     vec3 lightDir = normalize(sunDirection);
 
@@ -258,12 +270,12 @@ vec3 ambient = textureColour;
     float dotNormalLight = dot(normal, lightDir);
 float diff = max(dotNormalLight, frc);
 
-//Colour when lit by light
+//Color when lit by light
 vec3 diffuse = diff * lightTimesTexture;
 
 float sky = max(dot(normal, vec3(0, 1, 0)), 0.8);
     vec3 skyLight = sky * vec3(0.12, 0.29, 0.55);
-    vec3 col = 0.3 * skyLight * textureColour + diffuse * diffuseStrength + ambient * ambientStrength;
+    vec3 col = 0.3 * skyLight * textureColor + diffuse * diffuseStrength + ambient * ambientStrength;
     gl_FragColor = vec4(col, 1.0);
     return;
 }`
@@ -336,27 +348,29 @@ export const serializeInstancing: ComponentSerializeFunction = (entity) => {
   }
 }
 
-async function loadSampleTextures(props: ScatterProperties | VertexProperties) {
-  const loadTex = async (prop: keyof ScatterProperties & keyof VertexProperties) => {
-    props[prop] = await AssetLoader.loadAsync(props[prop] as string)
+const loadTex = async <T>(props: T, prop: keyof T) => {
+  let path = props[prop] as any
+  if (typeof path !== 'string') {
+    console.error('invalid texture path', path)
   }
+  props[prop] = await AssetLoader.loadAsync(path)
+}
+
+async function loadSampleTextures(props: ScatterProperties & VertexProperties) {
   if (typeof props.densityMap === 'string' && props.densityMap !== '') {
-    await loadTex('densityMap')
+    await loadTex(props, 'densityMap')
   }
   if (typeof props.heightMap === 'string' && props.heightMap !== '') {
-    await loadTex('heightMap')
+    await loadTex(props, 'heightMap')
   }
 }
 
 async function loadGrassTextures(props: GrassProperties) {
-  const loadTex = async (prop) => {
-    props[prop] = await AssetLoader.loadAsync(props[prop])
-  }
   if (typeof props.alphaMap === 'string' && props.alphaMap !== '') {
-    await loadTex('alphaMap')
+    await loadTex(props, 'alphaMap')
   }
   if (typeof props.grassTexture === 'string' && props.grassTexture !== '') {
-    await loadTex('grassTexture')
+    await loadTex(props, 'grassTexture')
   }
 }
 
@@ -481,6 +495,7 @@ export async function stageInstancing(entity: Entity, world = Engine.instance.cu
   let props = scatter.sourceProperties
   let grassGeometry: BufferGeometry
   if ((props as GrassProperties).isGrassProperties) {
+    props = formatMaterialArgs(props)
     const grassProps = props as GrassProperties
     await loadGrassTextures(grassProps)
     //samplers
@@ -677,7 +692,7 @@ export async function stageInstancing(entity: Entity, world = Engine.instance.cu
 
   let result: Mesh
   let resultMat: Material
-  const sampleProps = scatter.sampleProperties as ScatterProperties & VertexProperties & NodeProperties
+  const sampleProps = formatMaterialArgs(scatter.sampleProperties) as SampleProperties
   switch (scatter.mode) {
     case ScatterMode.GRASS:
       const grassProps = props as GrassProperties
@@ -688,19 +703,32 @@ export async function stageInstancing(entity: Entity, world = Engine.instance.cu
           vHeight: { value: grassProps.bladeHeight.mu + grassProps.bladeHeight.sigma },
           alphaMap: { value: grassProps.alphaMap },
           sunDirection: { value: new Vector3(-0.35, 0, 0) },
-          densityMap: { value: sampleProps.densityMap },
-          densityMapStrength: { value: sampleProps.densityMapStrength },
-          heightMap: { value: sampleProps.heightMap },
-          heightMapStrength: { value: sampleProps.heightMapStrength },
           cameraPosition: { value: Engine.instance.currentWorld.camera.position },
           ambientStrength: { value: grassProps.ambientStrength },
           diffuseStrength: { value: grassProps.diffuseStrength },
-          sunColour: { value: grassProps.sunColour }
+          sunColor: { value: grassProps.sunColor }
         },
         vertexShader: grassVertexSource,
         fragmentShader: grassFragmentSource,
         side: DoubleSide
       })
+      const shaderMat = resultMat as RawShaderMaterial
+      if (sampleProps.densityMap) {
+        shaderMat.defines.DENSITY_MAPPED = ''
+        shaderMat.uniforms = {
+          ...shaderMat.uniforms,
+          heightMap: { value: sampleProps.heightMap },
+          heightMapStrength: { value: sampleProps.heightMapStrength }
+        }
+      }
+      if (sampleProps.heightMap) {
+        shaderMat.defines.HEIGHT_MAPPED = ''
+        shaderMat.uniforms = {
+          ...shaderMat.uniforms,
+          densityMap: { value: sampleProps.densityMap },
+          densityMapStrength: { value: sampleProps.densityMapStrength }
+        }
+      }
       result = new Mesh(instancedGeometry, resultMat)
       result.name = 'Grass'
       break

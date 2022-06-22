@@ -120,8 +120,8 @@ export default function InstancingGrassProperties({ value, onChange, ...rest }) 
         mediumStep={1}
         largeStep={5}
       />
-      <InputGroup name="Sun Colour" label={t('editor:properties.instancing.grass.sunColor')}>
-        <ColorInput value={props.sunColour} onChange={onChangeProp('sunColour')} />
+      <InputGroup name="Sun Color" label={t('editor:properties.instancing.grass.sunColor')}>
+        <ColorInput value={props.sunColor} onChange={onChangeProp('sunColor')} />
       </InputGroup>
     </CollapsibleBlock>
   )
