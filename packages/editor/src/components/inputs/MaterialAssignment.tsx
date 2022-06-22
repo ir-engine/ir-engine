@@ -9,46 +9,20 @@ import { PatternTarget } from '@xrengine/engine/src/renderer/materials/MaterialP
 import { MaterialOverrideComponent } from '@xrengine/engine/src/scene/components/MaterialOverrideComponent'
 import { refreshMaterials } from '@xrengine/engine/src/scene/functions/loaders/MaterialOverrideFunctions'
 
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
-import { Collapse, IconButton, IconButtonProps, Stack, Typography } from '@mui/material'
+import { Typography } from '@mui/material'
 import { Box } from '@mui/system'
 
 import { AssetLoader } from '../../../../engine/src/assets/classes/AssetLoader'
+import CollapsibleBlock from '../layout/CollapsibleBlock'
 import BooleanInput from './BooleanInput'
 import { Button } from './Button'
 import ColorInput from './ColorInput'
 import CompoundNumericInput from './CompoundNumericInput'
-import { ImageInput } from './ImageInput'
-import ImagePreviewInput from './ImagePreviewInput'
+import { ImagePreviewInputGroup } from './ImagePreviewInput'
 import InputGroup, { InputGroupContent, InputGroupVerticalContainerWide, InputGroupVerticalContent } from './InputGroup'
 import NumericInput from './NumericInput'
 import SelectInput from './SelectInput'
 import StringInput, { ControlledStringInput } from './StringInput'
-
-const ExpandMore = styled((props: ExpandMoreProps) => {
-  const { expand, ...other } = props
-  return <IconButton {...other} />
-})(({ theme, expand }) => ({
-  transform: !expand ? 'rotate(0deg)' : 'rotate(180deg)',
-  marginLeft: 'auto',
-  transition: theme.transitions.create('transform', {
-    duration: theme.transitions.duration.shortest
-  })
-}))
-
-interface ExpandMoreProps extends IconButtonProps {
-  expand: boolean
-}
-
-const ImageContainer = (styled as any).div`
-  display: flex;
-  width: 100%;
-  border-width: 2px;
-  border: solid;
-  border-color: var(--inputOutline);
-  margin: 8px;
-  padding: 4px;
-`
 
 const GroupContainer = (styled as any).label`
   background-color: transparent;
@@ -226,90 +200,72 @@ export default function MaterialAssignment({ entity, node, modelComponent, value
 
       function traverseArgs(args) {
         const id = `${entity}-${index}-args`
-        const _expanded = expanded.get(texKey(index, 'expanded'))!
         return (
-          <Fragment key={id}>
-            <Box sx={{ color: '#fff', marginTop: '4px', marginBottom: '4px' }}>
-              <ExpandMore
-                expand={_expanded}
-                onClick={handleExpandClick(index)}
-                aria-expanded={_expanded}
-                aria-label="show more"
-              >
-                <ExpandMoreIcon />
-              </ExpandMore>
-              <label>Arguments</label>
-            </Box>
-            <Collapse in={_expanded} timeout="auto" unmountOnExit>
-              {Object.entries(args).map(([k, v]) => {
-                let compKey = `${entity}-${index}-args-${k}`
-                //number
-                if (typeof v === 'number') {
+          <CollapsibleBlock key={id} name="Arguments" label="Arguments">
+            {Object.entries(args).map(([k, v]) => {
+              let compKey = `${entity}-${index}-args-${k}`
+              //number
+              if (typeof v === 'number') {
+                return (
+                  <InputGroup key={compKey} name={k} label={k}>
+                    <CompoundNumericInput value={v} onChange={setArgsProp(k)} min={-1000} max={1000} step={0.1} />
+                  </InputGroup>
+                )
+              }
+              if ((v as Color).isColor) {
+                return (
+                  <InputGroup key={compKey} name={k} label={k}>
+                    <ColorInput value={v} onChange={setArgsProp(k)} />
+                  </InputGroup>
+                )
+              }
+              if (typeof v === 'object') {
+                if ((v as any[]).length !== undefined)
                   return (
                     <InputGroup key={compKey} name={k} label={k}>
-                      <CompoundNumericInput value={v} onChange={setArgsProp(k)} min={-1000} max={1000} step={0.1} />
+                      {(v as number[]).map((arrayVal, idx) => {
+                        return (
+                          <NumericInput key={`${compKey}-${idx}`} value={arrayVal} onChange={setArgArrayProp(k, idx)} />
+                        )
+                      })}
                     </InputGroup>
                   )
+              }
+              if (typeof v === 'string') {
+                return (
+                  <InputGroup key={compKey} name={k} label={k}>
+                    <StringInput value={v} onChange={setArgsProp(k)} />
+                  </InputGroup>
+                )
+              }
+              if (typeof v === 'boolean') {
+                return (
+                  <InputGroup key={compKey} name={k} label={k}>
+                    <BooleanInput value={v} onChange={setArgsProp(k)} />
+                  </InputGroup>
+                )
+              }
+              if ((v as Texture).isTexture) {
+                const argKey = texKey(index, k)
+                function onChangeTexturePath(value) {
+                  const nuPaths = new Map(texturePaths.entries())
+                  nuPaths.set(argKey, value)
+                  setTexturePaths(nuPaths)
+                  if (assignment.args === undefined) assignment.args = argStructure
+                  onChange(values)
                 }
-                if ((v as Color).isColor) {
-                  return (
-                    <InputGroup key={compKey} name={k} label={k}>
-                      <ColorInput value={v} onChange={setArgsProp(k)} />
-                    </InputGroup>
-                  )
-                }
-                if (typeof v === 'object') {
-                  if ((v as any[]).length !== undefined)
-                    return (
-                      <InputGroup key={compKey} name={k} label={k}>
-                        {(v as number[]).map((arrayVal, idx) => {
-                          return (
-                            <NumericInput
-                              key={`${compKey}-${idx}`}
-                              value={arrayVal}
-                              onChange={setArgArrayProp(k, idx)}
-                            />
-                          )
-                        })}
-                      </InputGroup>
-                    )
-                }
-                if (typeof v === 'string') {
-                  return (
-                    <InputGroup key={compKey} name={k} label={k}>
-                      <StringInput value={v} onChange={setArgsProp(k)} />
-                    </InputGroup>
-                  )
-                }
-                if (typeof v === 'boolean') {
-                  return (
-                    <InputGroup key={compKey} name={k} label={k}>
-                      <BooleanInput value={v} onChange={setArgsProp(k)} />
-                    </InputGroup>
-                  )
-                }
-                if ((v as Texture).isTexture) {
-                  const argKey = texKey(index, k)
-                  function onChangeTexturePath(value) {
-                    const nuPaths = new Map(texturePaths.entries())
-                    nuPaths.set(argKey, value)
-                    setTexturePaths(nuPaths)
-                    if (assignment.args === undefined) assignment.args = argStructure
-                    onChange(values)
-                  }
-                  return (
-                    <ImagePreviewInput
-                      key={compKey}
-                      name={k}
-                      label={k}
-                      value={texturePaths.get(argKey)}
-                      onChange={onChangeTexturePath}
-                    />
-                  )
-                }
-              })}
-            </Collapse>
-          </Fragment>
+                return (
+                  <ImagePreviewInputGroup
+                    key={compKey}
+                    name={k}
+                    label={k}
+                    value={texturePaths.get(argKey)}
+                    onChange={onChangeTexturePath}
+                  />
+                )
+              }
+            })}
+          </CollapsibleBlock>
         )
       }
       return traverseArgs(argStructure)

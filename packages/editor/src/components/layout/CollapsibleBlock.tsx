@@ -1,8 +1,8 @@
-import React, { Fragment, useState } from 'react'
+import React, { useState } from 'react'
 import styled from 'styled-components'
 
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
-import { Box, Collapse, Stack, ThemeProvider } from '@mui/material'
+import { Box, Collapse, Stack } from '@mui/material'
 
 import ExpandMore from './ExpandMore'
 
@@ -20,7 +20,7 @@ export default function CollapsibleBlock({ label, children, ...rest }) {
   return (
     <CollapsibleContainer {...rest}>
       <Box sx={{ marginTop: '4px', marginBottom: '4px' }}>
-        <Stack direction="row">
+        <Stack direction="row" alignItems="center" spacing={1.5}>
           <ExpandMore expand={expand} onClick={toggleExpand} aria-expanded={expand} aria-label={label}>
             <ExpandMoreIcon />
           </ExpandMore>

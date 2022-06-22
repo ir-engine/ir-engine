@@ -1,7 +1,5 @@
-import { useEffect, useState } from 'react'
 import React from 'react'
 import styled from 'styled-components'
-import { Texture } from 'three'
 
 import { Stack } from '@mui/material'
 
@@ -12,7 +10,7 @@ export default function ImagePreviewInput({ value, onChange, ...rest }) {
   const ImageContainer = (styled as any).div`
         display: flex;
         width: 100%;
-        border-width: 2px;
+        border-radius: 4px;
         border: solid;
         border-color: var(--inputOutline);
         margin: 8px;
