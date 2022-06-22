@@ -1,3 +1,4 @@
+import { Downgraded } from '@speigg/hookstate'
 import { useEffect } from 'react'
 
 import { ChannelType } from '@xrengine/common/src/interfaces/Channel'
@@ -74,7 +75,9 @@ export const MediaInstanceConnectionServiceReceptor = (action) => {
         })
       })
       .when(MediaInstanceConnectionAction.disconnect.matches, (action) => {
-        return s.instances[action.instanceId].set(undefined!)
+        const newState = s.instances.attach(Downgraded).value
+        delete newState[action.instanceId]
+        return s.instances.set(newState)
       })
   })
 }
@@ -123,7 +126,6 @@ export const MediaInstanceConnectionService = {
 
     const locationState = accessLocationState()
     const currentLocation = locationState.currentLocation.location
-    const sceneId = currentLocation?.sceneId?.value
 
     dispatchAction(
       MediaInstanceConnectionAction.enableVideo({
@@ -138,7 +140,7 @@ export const MediaInstanceConnectionService = {
       })
     )
 
-    await network.initialize({ sceneId, port, ipAddress, channelId })
+    await network.initialize({ port, ipAddress, channelId })
     network.left = false
   },
   resetServer: (instanceId: string) => {

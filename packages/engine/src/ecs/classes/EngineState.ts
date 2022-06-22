@@ -19,7 +19,6 @@ export const EngineState = defineState({
     isTeleporting: false,
     leaveWorld: false,
     socketInstance: false,
-    connectionTimeoutInstance: false,
     avatarTappedId: '' as UserId,
     userHasInteracted: false,
     interactionData: null! as InteractableComponentType,
@@ -62,9 +61,6 @@ export function EngineEventReceptor(a: EngineActionType) {
     .when(EngineActions.sceneLoadingProgress.matches, (action) => s.merge({ loadingProgress: action.progress }))
     .when(EngineActions.leaveWorld.matches, (action) => s.merge({ joinedWorld: false }))
     .when(EngineActions.connectToWorld.matches, (action) => s.merge({ connectedWorld: action.connectedWorld }))
-    .when(EngineActions.connectToWorldTimeout.matches, (action) =>
-      s.merge({ connectionTimeoutInstance: action.instance })
-    )
     .when(EngineActions.objectActivation.matches, (action) => s.merge({ interactionData: action.interactionData }))
     .when(EngineActions.setTeleporting.matches, (action) => {
       if (action.isTeleporting) {
@@ -122,12 +118,6 @@ export const EngineActions = {
     store: 'ENGINE',
     type: 'CORE_CONNECT_TO_WORLD' as const,
     connectedWorld: matches.boolean
-  }),
-
-  connectToWorldTimeout: defineAction({
-    store: 'ENGINE',
-    type: 'CORE_CONNECT_TO_WORLD_TIMEOUT' as const,
-    instance: matches.boolean
   }),
 
   joinedWorld: defineAction({
