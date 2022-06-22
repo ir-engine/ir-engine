@@ -247,11 +247,11 @@ label {
 }
 
 input:checked + .switchSlider {
-  background-color: var(--blue);
+  background-color: var(--iconButtonSelectedBackground);
 }
 
 input:focus + .switchSlider {
-  box-shadow: 0 0 1px var(--blue);
+  box-shadow: 0 0 1px var(--iconButtonSelectedBackground);
 }
 
 input:checked + .switchSlider::before {
