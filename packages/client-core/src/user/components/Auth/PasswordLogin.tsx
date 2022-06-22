@@ -14,7 +14,6 @@ import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
 
 import { DialogAction } from '../../../common/services/DialogService'
-import { useDispatch } from '../../../store'
 import { useAuthState } from '../../services/AuthService'
 import { AuthService } from '../../services/AuthService'
 import ForgotPassword from './ForgotPassword'
@@ -31,7 +30,6 @@ const PasswordLogin = ({ isAddConnection }: Props): JSX.Element => {
   const auth = useAuthState()
   const [state, setState] = useState(initialState)
   const { t } = useTranslation()
-  const dispatch = useDispatch()
 
   const handleInput = (e: any): void => setState({ ...state, [e.target.name]: e.target.value })
 
