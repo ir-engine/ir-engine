@@ -23,7 +23,6 @@ import {
 } from '../common/services/MediaInstanceConnectionService'
 import { NetworkConnectionService } from '../common/services/NetworkConnectionService'
 import { MediaStreamAction, MediaStreamService } from '../media/services/MediaStreamService'
-import { store, useDispatch } from '../store'
 import { accessAuthState } from '../user/services/AuthService'
 import { UserService } from '../user/services/UserService'
 import { getSearchParamFromURL } from '../util/getSearchParamFromURL'
@@ -41,8 +40,6 @@ export const getChannelTypeIdFromTransport = (network: SocketWebRTCClientNetwork
 }
 
 export async function onConnectToInstance(network: SocketWebRTCClientNetwork) {
-  const dispatch = useDispatch()
-
   const isWorldConnection = network.type === NetworkTypes.world
   console.log('[WebRTC]: connectting to instance type:', network.type, network.hostId)
 
@@ -50,7 +47,7 @@ export async function onConnectToInstance(network: SocketWebRTCClientNetwork) {
     dispatchAction(LocationInstanceConnectionAction.instanceServerConnected({ instanceId: network.hostId }))
     dispatchAction(NetworkConnectionService.actions.worldInstanceReconnected())
   } else {
-    dispatch(MediaInstanceConnectionAction.serverConnected(network.hostId))
+    dispatchAction(MediaInstanceConnectionAction.serverConnected({ instanceId: network.hostId }))
     dispatchAction(NetworkConnectionService.actions.mediaInstanceReconnected())
   }
 
@@ -920,7 +917,9 @@ export async function leaveNetwork(network: SocketWebRTCClientNetwork, kicked?: 
       MediaStreams.instance.consumers = []
       Engine.instance.currentWorld.networks.delete(Engine.instance.currentWorld.mediaNetwork.hostId)
       Engine.instance.currentWorld._mediaHostId = null!
-      store.dispatch(MediaInstanceConnectionAction.disconnect(Engine.instance.currentWorld.worldNetwork.hostId))
+      dispatchAction(
+        MediaInstanceConnectionAction.disconnect({ instanceId: Engine.instance.currentWorld.worldNetwork.hostId })
+      )
     } else {
       Engine.instance.currentWorld.networks.delete(Engine.instance.currentWorld.worldNetwork.hostId)
       Engine.instance.currentWorld._worldHostId = null!
