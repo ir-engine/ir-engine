@@ -120,7 +120,6 @@ export const MediaInstanceConnectionService = {
 
     const locationState = accessLocationState()
     const currentLocation = locationState.currentLocation.location
-    const sceneId = currentLocation?.sceneId?.value
 
     dispatch(
       MediaInstanceConnectionAction.enableVideo(
@@ -134,7 +133,7 @@ export const MediaInstanceConnectionService = {
       )
     )
 
-    await network.initialize({ sceneId, port, ipAddress, channelId })
+    await network.initialize({ port, ipAddress, channelId })
     network.left = false
   },
   resetServer: (instanceId: string) => {

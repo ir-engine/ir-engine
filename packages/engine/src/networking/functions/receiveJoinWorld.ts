@@ -9,6 +9,23 @@ import { EngineActions, getEngineState } from '../../ecs/classes/EngineState'
 import { AvatarProps } from '../interfaces/WorldState'
 import { WorldNetworkAction } from './WorldNetworkAction'
 
+export type SpectateWorldProps = {
+  highResTimeOrigin: number
+  worldStartTime: number
+  client: { name: string; index: number }
+  cachedActions: Required<Action>[]
+}
+
+export const receiveSpectateWorld = (props: SpectateWorldProps) => {
+  const { highResTimeOrigin, worldStartTime, client, cachedActions } = props
+  console.log('RECEIVED SPECTATE WORLD RESPONSE', highResTimeOrigin, worldStartTime, client, cachedActions)
+  const world = Engine.instance.currentWorld
+
+  for (const action of cachedActions) Engine.instance.store.actions.incoming.push({ ...action, $fromCache: true })
+
+  dispatchAction(WorldNetworkAction.createClient(client), [world.worldNetwork.hostId])
+}
+
 export type JoinWorldProps = {
   highResTimeOrigin: number
   worldStartTime: number

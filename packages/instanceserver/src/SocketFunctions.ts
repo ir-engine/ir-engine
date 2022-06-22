@@ -6,6 +6,7 @@ import multiLogger from '@xrengine/server-core/src/logger'
 import { WebRtcTransportParams } from '@xrengine/server-core/src/types/WebRtcTransportParams'
 
 import {
+  authorizeUserToJoinServer,
   handleConnectToWorld,
   handleDisconnect,
   handleHeartbeat,
@@ -75,6 +76,10 @@ export const setupSocketFunctions = (network: SocketWebRTCServerNetwork, socket:
       callback({ success: false, message: 'user not found' })
       return
     }
+
+    // Check that this use is allowed on this instance
+    const instance = await network.app.service('instance').get(network.app.instance.id)
+    if (!(await authorizeUserToJoinServer(network.app, instance, userId))) return
 
     /**
      * @todo Check that they are supposed to be in this instance

@@ -5,28 +5,10 @@ import {
   useLocationInstanceConnectionState
 } from '@xrengine/client-core/src/common/services/LocationInstanceConnectionService'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { EngineActions, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
+import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
-import { WorldNetworkAction } from '@xrengine/engine/src/networking/functions/WorldNetworkAction'
-import { dispatchAction, useHookEffect } from '@xrengine/hyperflux'
-import { Action } from '@xrengine/hyperflux/functions/ActionFunctions'
-
-export type SpectateWorldProps = {
-  highResTimeOrigin: number
-  worldStartTime: number
-  client: { name: string; index: number }
-  cachedActions: Required<Action>[]
-}
-
-const receiveSpectateWorld = (props: SpectateWorldProps) => {
-  const { highResTimeOrigin, worldStartTime, client, cachedActions } = props
-  console.log('RECEIVED SPECTATE WORLD RESPONSE', highResTimeOrigin, worldStartTime, client, cachedActions)
-  const world = Engine.instance.currentWorld
-
-  for (const action of cachedActions) Engine.instance.store.actions.incoming.push({ ...action, $fromCache: true })
-
-  dispatchAction(WorldNetworkAction.createClient(client), [world.worldNetwork.hostId])
-}
+import { receiveSpectateWorld } from '@xrengine/engine/src/networking/functions/receiveJoinWorld'
+import { useHookEffect } from '@xrengine/hyperflux'
 
 export const useEditorNetworkInstanceProvisioning = () => {
   const engineState = useEngineState()

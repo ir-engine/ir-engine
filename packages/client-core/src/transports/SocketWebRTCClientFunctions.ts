@@ -991,7 +991,7 @@ export const stopScreenshare = async (network: SocketWebRTCClientNetwork) => {
     const { error: screenAudioProducerError } = await network.request(MessageTypes.WebRTCCloseProducer.toString(), {
       producerId: MediaStreams.instance.screenAudioProducer.id
     })
-    if (error) logger.error(error)
+    if (screenAudioProducerError) logger.error(screenAudioProducerError)
 
     await MediaStreams.instance.screenAudioProducer.close()
     MediaStreams.instance.screenAudioProducer = null

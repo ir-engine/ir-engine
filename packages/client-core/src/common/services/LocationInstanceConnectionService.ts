@@ -125,13 +125,8 @@ export const LocationInstanceConnectionService = {
     if (transport.socket) {
       await leaveNetwork(transport, false)
     }
-    const locationState = accessLocationState()
-    const currentLocation = locationState.currentLocation.location
-    const sceneId = currentLocation?.sceneId?.value
-
-    const { ipAddress, port } = accessLocationInstanceConnectionState().instances.value[instanceId]
-
-    await transport.initialize({ sceneId, port, ipAddress, locationId: currentLocation.id.value })
+    const { ipAddress, port, locationId } = accessLocationInstanceConnectionState().instances.value[instanceId]
+    await transport.initialize({ port, ipAddress, locationId })
     transport.left = false
   },
   useAPIListeners: () => {

@@ -3,6 +3,7 @@ import { DataConsumer, DataProducer } from 'mediasoup/node/lib/types'
 import { Socket } from 'socket.io'
 
 import { UserInterface } from '@xrengine/common/src/dbmodels/UserInterface'
+import { Instance } from '@xrengine/common/src/interfaces/Instance'
 import { User } from '@xrengine/common/src/interfaces/User'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { SpawnPoints } from '@xrengine/engine/src/avatar/AvatarSpawnSystem'
@@ -17,6 +18,7 @@ import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 import { dispatchAction } from '@xrengine/hyperflux'
 import { Action } from '@xrengine/hyperflux/functions/ActionFunctions'
+import { Application } from '@xrengine/server-core/declarations'
 import config from '@xrengine/server-core/src/appconfig'
 import { localConfig } from '@xrengine/server-core/src/config'
 import multiLogger from '@xrengine/server-core/src/logger'
@@ -186,6 +188,35 @@ export async function cleanupOldInstanceservers(network: SocketWebRTCServerNetwo
   return
 }
 
+/**
+ * Returns true if a user has permission to access a specific instance
+ * @param app
+ * @param instance
+ * @param userId
+ * @returns
+ */
+export const authorizeUserToJoinServer = async (app: Application, instance: Instance, userId: UserId) => {
+  const authorizedUsers = (await app.service('instance-authorized-user').find({
+    query: {
+      instanceId: instance.id,
+      $limit: 0
+    }
+  })) as any
+  if (authorizedUsers.total > 0) {
+    const thisUserAuthorized = (await app.service('instance-authorized-user').find({
+      query: {
+        instanceId: instance.id,
+        userId,
+        $limit: 0
+      }
+    })) as any
+    if (thisUserAuthorized.total === 0) {
+      logger.info(`User "${userId}" not authorized to be on this server.`)
+      return false
+    }
+  }
+  return true
+}
 export function getUserIdFromSocketId(socketId: string) {
   const client = Array.from(Engine.instance.currentWorld.clients.values()).find((c) => c.socketId === socketId)
   return client?.userId
@@ -299,11 +330,12 @@ export const handleSpectateWorld = async (
   joinedUserId: UserId,
   user
 ) => {
-  logger.info('Join World Request Received: %o', { joinedUserId, data, user })
+  logger.info('Spectate World Request Received: %o', { joinedUserId, data, user })
 
   const world = Engine.instance.currentWorld
   const cachedActions = getCachedActions(network, joinedUserId)
   const client = world.clients.get(joinedUserId)!
+  client.spectating = true
 
   callback({
     highResTimeOrigin: performance.timeOrigin,
