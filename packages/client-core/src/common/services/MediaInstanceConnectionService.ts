@@ -85,7 +85,7 @@ export const useMediaInstanceConnectionState = () => useState(accessMediaInstanc
 
 //Service
 export const MediaInstanceConnectionService = {
-  provisionServer: async (channelId: string, isWorldConnection = false) => {
+  provisionServer: async (channelId?: string, isWorldConnection = false) => {
     logger.info(`Provision Media Server, channelId: "${channelId}".`)
     const token = accessAuthState().authUser.accessToken.value
     const provisionResult = await API.instance.client.service('instance-provision').find({
@@ -100,7 +100,7 @@ export const MediaInstanceConnectionService = {
           instanceId: provisionResult.id,
           ipAddress: provisionResult.ipAddress,
           port: provisionResult.port,
-          channelId,
+          channelId: channelId ? channelId : '',
           channelType: isWorldConnection ? 'instance' : 'channel'
         })
       )
