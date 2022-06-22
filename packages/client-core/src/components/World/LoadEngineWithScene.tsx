@@ -3,7 +3,6 @@ import { useHistory } from 'react-router'
 
 import { LocationInstanceConnectionServiceReceptor } from '@xrengine/client-core/src/common/services/LocationInstanceConnectionService'
 import { LocationService } from '@xrengine/client-core/src/social/services/LocationService'
-import { useDispatch } from '@xrengine/client-core/src/store'
 import { leaveNetwork } from '@xrengine/client-core/src/transports/SocketWebRTCClientFunctions'
 import {
   SceneActions,
@@ -26,7 +25,6 @@ const logger = multiLogger.child({ component: 'client-core:world' })
 
 export const LoadEngineWithScene = () => {
   const history = useHistory()
-  const dispatch = useDispatch()
   const engineState = useEngineState()
   const sceneState = useSceneState()
   const [clientReady, setClientReady] = useState(false)

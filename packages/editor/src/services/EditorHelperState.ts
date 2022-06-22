@@ -154,67 +154,56 @@ export const useEditorHelperState = () => useState(accessEditorHelperState())
 //Action
 export class EditorHelperAction {
   static restoreStorageData = defineAction({
-    store: 'EDITOR' as const,
     type: 'editorHelper.RESTORE_STORAGE_DATA' as const,
     state: matches.any as Validator<unknown, EditorHelperStateType>
   })
 
   static changedPlayMode = defineAction({
-    store: 'EDITOR' as const,
     type: 'editorHelper.PLAY_MODE_CHANGED' as const,
     isPlayModeEnabled: matches.boolean
   })
 
   static changedFlyMode = defineAction({
-    store: 'EDITOR' as const,
     type: 'editorHelper.FLY_MODE_CHANGED' as const,
     isFlyModeEnabled: matches.boolean
   })
 
   static changedTransformMode = defineAction({
-    store: 'EDITOR' as const,
     type: 'editorHelper.TRANSFORM_MODE_CHANGED' as const,
     mode: matches.any as Validator<unknown, TransformModeType>
   })
 
   static changeTransformModeOnCancel = defineAction({
-    store: 'EDITOR' as const,
     type: 'editorHelper.TRANSFORM_MODE_ON_CANCEL_CHANGED' as const,
     mode: matches.any as Validator<unknown, TransformModeType>
   })
 
   static changedTransformSpaceMode = defineAction({
-    store: 'EDITOR' as const,
     type: 'editorHelper.TRANSFORM_SPACE_CHANGED' as const,
     transformSpace: matches.any as Validator<unknown, TransformSpace>
   })
 
   static changedTransformPivotMode = defineAction({
-    store: 'EDITOR' as const,
     type: 'editorHelper.TRANSFORM_PIVOT_CHANGED' as const,
     transformPivot: matches.any as Validator<unknown, TransformPivotType>
   })
 
   static changedSnapMode = defineAction({
-    store: 'EDITOR' as const,
     type: 'editorHelper.SNAP_MODE_CHANGED' as const,
     snapMode: matches.any as Validator<unknown, SnapModeType>
   })
 
   static changeTranslationSnap = defineAction({
-    store: 'EDITOR' as const,
     type: 'editorHelper.TRANSLATION_SNAP_CHANGED' as const,
     translationSnap: matches.number
   })
 
   static changeRotationSnap = defineAction({
-    store: 'EDITOR' as const,
     type: 'editorHelper.ROTATION_SNAP_CHANGED' as const,
     rotationSnap: matches.number
   })
 
   static changeScaleSnap = defineAction({
-    store: 'EDITOR' as const,
     type: 'editorHelper.SCALE_SNAP_CHANGED' as const,
     scaleSnap: matches.number
   })
