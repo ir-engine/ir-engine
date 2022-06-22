@@ -5,14 +5,13 @@ import { XRUIComponent } from '@xrengine/engine/src/xrui/components/XRUIComponen
 import { ObjectFitFunctions } from '@xrengine/engine/src/xrui/functions/ObjectFitFunctions'
 import { Widgets } from '@xrengine/engine/src/xrui/Widgets'
 
-import LinkIcon from '@mui/icons-material/Link'
+import { EmoteIcon } from '../user/components/UserMenu'
+import { createEmoteDetailView } from './ui/EmoteDetailView'
 
-import { createShareLocationDetailView } from './ui/ShareLocationDetailView'
+const widgetName = 'Emote Widget'
 
-const widgetName = 'Share'
-
-export function createShareLocationUI(world: World) {
-  const ui = createShareLocationDetailView()
+export function createEmoteWidget(world: World) {
+  const ui = createEmoteDetailView()
 
   addComponent(ui.entity, PersistTagComponent, {})
 
@@ -24,7 +23,7 @@ export function createShareLocationUI(world: World) {
   Widgets.registerWidget(world, ui.entity, {
     ui,
     label: widgetName,
-    icon: LinkIcon,
+    icon: EmoteIcon,
     system: () => {}
   })
 }

@@ -17,14 +17,14 @@ import {
 } from '@xrengine/engine/src/xrui/WidgetAppService'
 import { addActionReceptor, dispatchAction } from '@xrengine/hyperflux'
 
-import { createChatUI } from './createChatUI'
-import { createEmoteUI } from './createEmoteUI'
-import { createSettingsUI } from './createSettingsUI'
-import { createShareLocationUI } from './createShareLocationUI'
-import { createMainMenuButtonsView } from './ui/WidgetMenuView'
+import { createChatWidget } from './createChatWidget'
+import { createEmoteWidget } from './createEmoteWidget'
+import { createSettingsWidget } from './createSettingsWidget'
+import { createShareLocationWidget } from './createShareLocationWidget'
+import { createWidgetButtonsView } from './ui/WidgetMenuView'
 
 export default async function WidgetSystem(world: World) {
-  const ui = createMainMenuButtonsView()
+  const ui = createWidgetButtonsView()
 
   addComponent(ui.entity, PersistTagComponent, {})
 
@@ -59,11 +59,10 @@ export default async function WidgetSystem(world: World) {
   addActionReceptor(WidgetAppServiceReceptor)
   addActionReceptor(WidgetReceptor)
 
-  // TODO: rename these modules that used to be systems to create<label>Widget
-  createChatUI(world)
-  createEmoteUI(world)
-  createShareLocationUI(world)
-  createSettingsUI(world)
+  createChatWidget(world)
+  createEmoteWidget(world)
+  createShareLocationWidget(world)
+  createSettingsWidget(world)
 
   return () => {
     const xrui = getComponent(ui.entity, XRUIComponent)

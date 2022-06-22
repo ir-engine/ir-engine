@@ -13,11 +13,11 @@ import RefreshIcon from '@mui/icons-material/Refresh'
 
 import styleString from './index.scss'
 
-export function createMainMenuButtonsView() {
-  return createXRUI(MainMenuButtons, createMainMenuButtonsState())
+export function createWidgetButtonsView() {
+  return createXRUI(WidgetButtons, createWidgetButtonsState())
 }
 
-function createMainMenuButtonsState() {
+function createWidgetButtonsState() {
   return createState({})
 }
 
@@ -43,7 +43,7 @@ const WidgetButton = ({ Icon, toggle, label }: WidgetButtonProps) => {
   )
 }
 
-const MainMenuButtons = () => {
+const WidgetButtons = () => {
   const engineState = useEngineState()
   const widgetState = useWidgetAppState()
 
