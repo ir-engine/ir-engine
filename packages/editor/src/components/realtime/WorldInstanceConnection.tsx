@@ -57,11 +57,7 @@ export const WorldInstanceConnection = () => {
   useEditorNetworkInstanceProvisioning()
 
   const onSelectInstance = (selectedInstance: string) => {
-    if (
-      selectedInstance === 'None' ||
-      (Engine.instance.currentWorld.worldNetwork?.hostId &&
-        selectedInstance !== Engine.instance.currentWorld.worldNetwork?.hostId)
-    ) {
+    if (selectedInstance === 'None' || (worldNetworkHostId && selectedInstance !== worldNetworkHostId)) {
       if (worldNetworkHostId) {
         leaveNetwork(Engine.instance.currentWorld.worldNetwork as SocketWebRTCClientNetwork)
       }
