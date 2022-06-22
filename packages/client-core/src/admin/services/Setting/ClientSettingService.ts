@@ -16,20 +16,32 @@ const AdminClientSettingsState = defineState({
   })
 })
 
-const fetchedClientReceptor = (action: typeof ClientSettingActions.fetchedClient.matches._TYPE) => {
-  const state = getState(AdminClientSettingsState)
-  return state.merge({ client: action.clientSettings.data, updateNeeded: false })
+export const ClientSettingsServiceReceptor = (action) => {
+  getState(AdminClientSettingsState).batch((s) => {
+    matches(action)
+      .when(ClientSettingActions.fetchedClient.matches, (action) => {
+        return s.merge({ client: action.clientSettings.data, updateNeeded: false })
+      })
+      .when(ClientSettingActions.clientSettingPatched.matches, (action) => {
+        return s.updateNeeded.set(true)
+      })
+  })
 }
 
-const clientSettingPatchedReceptor = (action: typeof ClientSettingActions.clientSettingPatched.matches._TYPE) => {
-  const state = getState(AdminClientSettingsState)
-  return state.updateNeeded.set(true)
-}
+// const fetchedClientReceptor = (action: typeof ClientSettingActions.fetchedClient.matches._TYPE) => {
+//   const state = getState(AdminClientSettingsState)
+//   return state.merge({ client: action.clientSettings.data, updateNeeded: false })
+// }
 
-export const ClientSettingReceptors = {
-  fetchedClientReceptor,
-  clientSettingPatchedReceptor
-}
+// const clientSettingPatchedReceptor = (action: typeof ClientSettingActions.clientSettingPatched.matches._TYPE) => {
+//   const state = getState(AdminClientSettingsState)
+//   return state.updateNeeded.set(true)
+// }
+
+// export const ClientSettingReceptors = {
+//   fetchedClientReceptor,
+//   clientSettingPatchedReceptor
+// }
 
 export const accessClientSettingState = () => getState(AdminClientSettingsState)
 
