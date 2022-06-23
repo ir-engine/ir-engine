@@ -152,11 +152,7 @@ export const moveAvatar = (world: World, entity: Entity, camera: PerspectiveCame
   if (Math.abs(newVelocity.y) < 0.001) newVelocity.y = 0
   if (Math.abs(newVelocity.z) < 0.001) newVelocity.z = 0
 
-  const displacement = {
-    x: newVelocity.x,
-    y: velocity.linear.y,
-    z: newVelocity.z
-  }
+  const displacement = new Vector3(newVelocity.x, velocity.linear.y, newVelocity.z)
 
   moveAvatarController(world, entity, displacement)
 
@@ -196,15 +192,7 @@ export const rotateXRAvatar = (world: World, entity: Entity, camera: Perspective
   tempVec1.subVectors(avatarTransform.position, camera.position).applyQuaternion(quat).add(camera.position)
   tempVec2.subVectors(tempVec1, avatarTransform.position).setY(0)
 
-  const displacement = {
-    x: tempVec2.x,
-    y: 0,
-    z: tempVec2.z
-  }
-
-  const velocity = getComponent(entity, VelocityComponent)
-  velocity.linear.setX(displacement.x)
-  velocity.linear.setZ(displacement.z)
+  const displacement = new Vector3(tempVec2.x, 0, tempVec2.z)
 
   // Rotate around camera
   moveAvatarController(world, entity, displacement)
@@ -256,7 +244,7 @@ export const alignXRCameraRotationWithAvatar = (entity: Entity, camera: Perspect
   camParentRot.setFromUnitVectors(tempVec2.set(0, 0, 1), tempVec1).multiply(quat)
 }
 
-const moveAvatarController = (world: World, entity: Entity, displacement: any) => {
+const moveAvatarController = (world: World, entity: Entity, displacement: Vector3) => {
   const {
     fixedDeltaSeconds: fixedDelta,
     physics: { timeScale }
@@ -265,6 +253,8 @@ const moveAvatarController = (world: World, entity: Entity, displacement: any) =
   const timeStep = timeScale * fixedDelta
   const controller = getComponent(entity, AvatarControllerComponent)
   const filters = new PhysX.PxControllerFilters(controller.filterData, world.physics.defaultCCTQueryCallback, null!)
+
+  const positionBefore = controller.controller.getPosition()
 
   const collisionFlags = controller.controller.move(
     displacement,
@@ -279,6 +269,13 @@ const moveAvatarController = (world: World, entity: Entity, displacement: any) =
     collisionFlags.isSet(PhysX.PxControllerCollisionFlag.eCOLLISION_SIDES),
     collisionFlags.isSet(PhysX.PxControllerCollisionFlag.eCOLLISION_UP)
   ]
+
+  const positionAfter = controller.controller.getPosition()
+  displacement.copy(positionAfter as Vector3).sub(positionBefore as Vector3)
+
+  const velocity = getComponent(entity, VelocityComponent)
+  velocity.linear.setX(displacement.x)
+  velocity.linear.setZ(displacement.z)
 }
 
 /**
@@ -316,15 +313,7 @@ export const moveXRAvatar = (
   avatarPosition.subVectors(cameraPosition, lastCameraPos)
   lastCameraPos.copy(cameraPosition)
 
-  const displacement = {
-    x: avatarPosition.x,
-    y: 0,
-    z: avatarPosition.z
-  }
-
-  const velocity = getComponent(entity, VelocityComponent)
-  velocity.linear.setX(displacement.x)
-  velocity.linear.setZ(displacement.z)
+  const displacement = new Vector3(avatarPosition.x, 0, avatarPosition.z)
 
   moveAvatarController(world, entity, displacement)
 }
