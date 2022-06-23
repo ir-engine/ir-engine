@@ -86,7 +86,9 @@ export const ObjectFitFunctions = {
     }
   },
 
-  changeVisibilityOfRootLayer: (container: WebContainer3D, visibility: boolean) => {
-    container.rootLayer.visible = visibility
+  setUIVisible: (container: WebContainer3D, visibility: boolean) => {
+    container.rootLayer.traverse((obj) => {
+      obj.visible = visibility
+    })
   }
 }

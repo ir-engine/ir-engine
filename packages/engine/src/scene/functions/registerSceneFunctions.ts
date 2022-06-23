@@ -70,6 +70,7 @@ import {
   serializeImage,
   updateImage
 } from './loaders/ImageFunctions'
+import { deserializeInstancing, SCENE_COMPONENT_INSTANCING, serializeInstancing } from './loaders/InstancingFunctions'
 import {
   deserializeInteractable,
   SCENE_COMPONENT_INTERACTABLE,
@@ -464,5 +465,10 @@ export const registerDefaultSceneFunctions = (world: World) => {
     deserialize: deserializeEnvMapBake,
     serialize: serializeEnvMapBake,
     update: updateEnvMapBake
+  })
+
+  world.sceneLoadingRegistry.set(SCENE_COMPONENT_INSTANCING, {
+    deserialize: deserializeInstancing,
+    serialize: serializeInstancing
   })
 }
