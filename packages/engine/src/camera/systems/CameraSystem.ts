@@ -98,6 +98,8 @@ export const updateCameraTargetRotation = (cameraEntity: Entity) => {
   if (!cameraEntity) return
   const followCamera = getComponent(cameraEntity, FollowCameraComponent)
   const target = getComponent(followCamera.targetEntity, TargetCameraRotationComponent)
+  if (!target) return
+
   const epsilon = 0.001
 
   target.phi = Math.min(followCamera.maxPhi, Math.max(followCamera.minPhi, target.phi))
@@ -246,16 +248,8 @@ export const updateFollowCamera = (cameraEntity: Entity) => {
   mx.lookAt(direction, empty, upVector)
   cameraTransform.rotation.setFromRotationMatrix(mx)
 
-  const avatarTransform = getComponent(cameraEntity, TransformComponent)
-
-  // TODO: Can move avatar update code outside this function
-  if (followCamera.locked) {
-    const newTheta = MathUtils.degToRad(theta + 180) % (Math.PI * 2)
-    // avatarTransform.rotation.setFromAxisAngle(upVector, newTheta)
-    // avatarTransform.rotation.slerp(quaternion.setFromAxisAngle(upVector, newTheta), delta * 4)
-  }
-
   updateCameraTargetOpacity(cameraEntity)
+  updateCameraTargetRotation(cameraEntity)
 }
 
 export const initializeCameraComponent = (world: World) => {
@@ -281,11 +275,6 @@ export const initializeCameraComponent = (world: World) => {
 
 export default async function CameraSystem(world: World) {
   const followCameraQuery = defineQuery([TransformComponent, FollowCameraComponent])
-  const targetCameraRotationQuery = defineQuery([
-    TransformComponent,
-    FollowCameraComponent,
-    TargetCameraRotationComponent
-  ])
 
   if (!Engine.instance.isEditor) initializeCameraComponent(world)
 
@@ -309,8 +298,6 @@ export default async function CameraSystem(world: World) {
     }
 
     for (const cameraEntity of followCameraQuery()) updateFollowCamera(cameraEntity)
-
-    for (const cameraEntity of targetCameraRotationQuery()) updateCameraTargetRotation(cameraEntity)
 
     if (EngineRenderer.instance.xrManager?.isPresenting) {
       EngineRenderer.instance.xrManager.updateCamera(Engine.instance.currentWorld.camera as THREE.PerspectiveCamera)
