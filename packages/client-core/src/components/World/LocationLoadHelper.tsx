@@ -58,11 +58,8 @@ export const initClient = async () => {
   })
 }
 
-export const loadScene = (sceneData: SceneData) => {
-  dispatchAction(AppAction.setAppOnBoardingStep({ onBoardingStep: GeneralStateList.SCENE_LOADING }))
+export const loadScene = async (sceneData: SceneData) => {
   const sceneSystems = getSystemsFromSceneData(sceneData.project, sceneData.scene, true)
-  loadSceneFromJSON(sceneData.scene, sceneSystems).then(() => {
-    getPortalDetails()
-    dispatchAction(AppAction.setAppOnBoardingStep({ onBoardingStep: GeneralStateList.SCENE_LOADED }))
-  })
+  await loadSceneFromJSON(sceneData.scene, sceneSystems)
+  getPortalDetails()
 }

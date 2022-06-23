@@ -13,7 +13,7 @@ import { Socket } from 'socket.io'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineActions, getEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { matchActionOnce } from '@xrengine/engine/src/networking/functions/matchActionOnce'
-import { Application } from '@xrengine/server-core/declarations'
+import { Application, ServerMode } from '@xrengine/server-core/declarations'
 import config from '@xrengine/server-core/src/appconfig'
 import {
   configureK8s,
@@ -59,7 +59,7 @@ export const instanceServerPipe = pipe(
 ) as (app: Application) => Application
 
 export const start = async (): Promise<Application> => {
-  const app = createFeathersExpressApp(instanceServerPipe)
+  const app = createFeathersExpressApp(ServerMode.Instance, instanceServerPipe)
 
   const agonesSDK = new AgonesSDK()
 

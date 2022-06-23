@@ -29,7 +29,8 @@ type ActiveInstance = {
 // TODO: paginate this
 
 export const getActiveInstancesForScene =
-  (app: Application) => async (params: Params & { query: { sceneId: string } }) => {
+  (app: Application) =>
+  async (params: Params & { query: { sceneId: string } }): Promise<ActiveInstance[]> => {
     const sceneId = params.query!.sceneId
     if (!sceneId) return []
 

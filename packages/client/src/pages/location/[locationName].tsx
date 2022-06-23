@@ -28,9 +28,11 @@ const LocationPage = () => {
   const params = match.params as any
   const locationName = params.locationName ?? `${params.projectName}/${params.sceneName}`
 
+  AuthService.useAPIListeners()
+  SceneService.useAPIListeners()
+
   useEffect(() => {
     dispatchAction(LocationAction.setLocationName({ locationName }))
-    AuthService.listenForUserPatch()
     Engine.instance.injectedSystems.push(...DefaultLocationSystems)
   }, [])
 

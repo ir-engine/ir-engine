@@ -1,8 +1,11 @@
+import { useEffect } from 'react'
+
 import { SceneData } from '@xrengine/common/src/interfaces/SceneInterface'
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { addActionReceptor, defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
 import { API } from '../../API'
+import { accessLocationState } from '../../social/services/LocationService'
 
 const SceneState = defineState({
   name: 'SceneState',
@@ -35,6 +38,22 @@ export const SceneService = {
   fetchCurrentScene: async (projectName: string, sceneName: string) => {
     const sceneData = await API.instance.client.service('scene').get({ projectName, sceneName, metadataOnly: null }, {})
     dispatchAction(SceneActions.currentSceneChanged({ sceneData: sceneData.data }))
+  },
+
+  useAPIListeners: () => {
+    useEffect(() => {
+      const sceneUpdatedListener = () => {
+        const locationState = accessLocationState()
+        const [project, scene] = locationState.currentLocation.location.sceneId.value.split('/')
+        SceneService.fetchCurrentScene(project, scene)
+      }
+
+      API.instance.client.service('scene').on('updated', sceneUpdatedListener)
+
+      return () => {
+        API.instance.client.service('scene').off('updated', sceneUpdatedListener)
+      }
+    }, [])
   }
 }
 
