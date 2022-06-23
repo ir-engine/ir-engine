@@ -352,7 +352,6 @@ const ProfileDetailView = () => {
                 <div className="inviteContainer">
                   <input
                     aria-invalid="false"
-                    disabled={true}
                     type="text"
                     className="inviteLinkInput"
                     value={username || ''}
@@ -372,66 +371,21 @@ const ProfileDetailView = () => {
                 </div>
               </div>
 
-              <Grid container justifyContent="right" className="justify">
-                <Grid item xs={userRole === 'guest' ? 6 : 4}>
-                  <h2>
-                    {userRole === 'admin' ? t('user:usermenu.profile.youAreAn') : t('user:usermenu.profile.youAreA')}
-                    <span id="user-role">{` ${userRole}`}</span>.
-                  </h2>
-                </Grid>
-                <Grid item container xs={userRole === 'guest' ? 6 : 4} alignItems="flex-start" direction="column">
-                  <Tooltip
-                    title={showUserId ? t('user:usermenu.profile.hideUserId') : t('user:usermenu.profile.showUserId')}
-                    placement="right"
-                  >
-                    <h2 className="showUserId" id="show-user-id" onClick={() => setShowUserId(!showUserId)}>
-                      {showUserId ? t('user:usermenu.profile.hideUserId') : t('user:usermenu.profile.showUserId')}
-                    </h2>
-                  </Tooltip>
-                </Grid>
+              <div className="detailsContainer">
+                <h2>
+                  {userRole === 'admin' ? t('user:usermenu.profile.youAreAn') : t('user:usermenu.profile.youAreA')}
+                  <span id="user-role">{` ${userRole}`}</span>.
+                </h2>
+                <h2 className="showUserId" id="show-user-id" onClick={() => setShowUserId(!showUserId)}>
+                  {showUserId ? t('user:usermenu.profile.hideUserId') : t('user:usermenu.profile.showUserId')}
+                </h2>
                 {selfUser?.apiKey?.id && (
-                  <Grid item container xs={4} alignItems="flex-start" direction="column">
-                    <Tooltip
-                      title={showApiKey ? t('user:usermenu.profile.hideApiKey') : t('user:usermenu.profile.showApiKey')}
-                      placement="right"
-                    >
-                      <h2 className="showUserId" onClick={() => setShowApiKey(!showApiKey)}>
-                        {showApiKey ? t('user:usermenu.profile.hideApiKey') : t('user:usermenu.profile.showApiKey')}
-                      </h2>
-                    </Tooltip>
-                  </Grid>
+                  <h2 className="showUserId" onClick={() => setShowApiKey(!showApiKey)}>
+                    {showApiKey ? t('user:usermenu.profile.hideApiKey') : t('user:usermenu.profile.showApiKey')}
+                  </h2>
                 )}
-              </Grid>
-              {userRole !== 'guest' && (
-                <Grid
-                  display="grid"
-                  gridTemplateColumns="1fr 1.5fr"
-                  sx={{
-                    display: 'grid',
-                    gridTemplateColumns: '1fr 1.5fr',
+              </div>
 
-                    '@media(max-width: 600px)': {
-                      gridTemplateColumns: '1fr'
-                    },
-
-                    button: {
-                      margin: '0px',
-                      width: '100%',
-                      height: '100%',
-                      color: 'white',
-                      display: 'grid',
-                      fontSize: '14px',
-                      textAlign: 'left',
-                      justifyContent: 'flex-start',
-                      gridTemplateColumns: 'max-content auto',
-
-                      svg: {
-                        marginRight: '10px'
-                      }
-                    }
-                  }}
-                />
-              )}
               {selfUser && (
                 <div className="themeSettingContainer">
                   <FormControlLabel
@@ -460,74 +414,57 @@ const ProfileDetailView = () => {
           {showUserId && (
             <section className="emailPhoneSection">
               <h1 className="panelHeader">{t('user:usermenu.profile.userIcon.userId')}</h1>
+              <div className="inviteBox">
+                <div className="inviteContainer">
+                  <input aria-invalid="false" disabled={true} type="text" className="inviteLinkInput" value={userId} />
 
-              <form>
-                <TextField
-                  id="user-id"
-                  className="emailField"
-                  size="small"
-                  placeholder={'user id'}
-                  variant="outlined"
-                  value={userId}
-                  InputProps={{
-                    endAdornment: (
-                      <InputAdornment position="end">
-                        <CopyToClipboard
-                          text={userId}
-                          onCopy={() => {
-                            NotificationService.dispatchNotify('User ID copied', {
-                              variant: 'success'
-                            })
-                          }}
-                        >
-                          <a href="#" className="materialIconBlock">
-                            <ContentCopyIcon className="primaryForeground" />
-                          </a>
-                        </CopyToClipboard>
-                      </InputAdornment>
-                    )
-                  }}
-                />
-              </form>
+                  <div
+                    className="copyInviteContainer"
+                    onClick={() => {
+                      navigator.clipboard.writeText(userId)
+                      NotificationService.dispatchNotify('User ID copied', {
+                        variant: 'success'
+                      })
+                    }}
+                  >
+                    <ContentCopyIcon className="primaryForeground" />
+                  </div>
+
+                  <fieldset aria-hidden="true" className="linkFieldset">
+                    <legend className="linkLegend" />
+                  </fieldset>
+                </div>
+              </div>
             </section>
           )}
 
           {showApiKey && (
             <section className="emailPhoneSection">
               <h1 className="panelHeader">{t('user:usermenu.profile.apiKey')}</h1>
+              <div className="inviteBox">
+                <div className="inviteContainer">
+                  <div className="refreshApiContainer" onClick={refreshApiKey}>
+                    <RefreshIcon className="primaryForeground" />
+                  </div>
+                  <input aria-invalid="false" disabled={true} type="text" className="inviteLinkInput" value={apiKey} />
 
-              <form>
-                <TextField
-                  className="emailField"
-                  size="small"
-                  placeholder={'API key'}
-                  variant="outlined"
-                  value={apiKey}
-                  InputProps={{
-                    startAdornment: (
-                      <InputAdornment position="start">
-                        <RefreshIcon className="apiRefresh" onClick={refreshApiKey} />
-                      </InputAdornment>
-                    ),
-                    endAdornment: (
-                      <InputAdornment position="end">
-                        <CopyToClipboard
-                          text={apiKey}
-                          onCopy={() => {
-                            NotificationService.dispatchNotify('API Key copied', {
-                              variant: 'success'
-                            })
-                          }}
-                        >
-                          <a href="#" className="materialIconBlock">
-                            <ContentCopyIcon className="primaryForeground" />
-                          </a>
-                        </CopyToClipboard>
-                      </InputAdornment>
-                    )
-                  }}
-                />
-              </form>
+                  <div
+                    className="copyInviteContainer"
+                    onClick={() => {
+                      navigator.clipboard.writeText(apiKey)
+                      NotificationService.dispatchNotify('API Key copied', {
+                        variant: 'success'
+                      })
+                    }}
+                  >
+                    <ContentCopyIcon className="primaryForeground" />
+                  </div>
+
+                  <fieldset aria-hidden="true" className="linkFieldset">
+                    <legend className="linkLegend" />
+                  </fieldset>
+                </div>
+              </div>
             </section>
           )}
 

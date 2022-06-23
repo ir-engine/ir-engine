@@ -71,6 +71,32 @@
     width: 100%;
   }
 
+  .refreshApiContainer {
+    color: var(--textColor);
+    cursor: pointer;
+    display: flex;
+    height: 0.01em;
+    max-height: 2em;
+    align-items: center;
+    white-space: nowrap;
+    margin-left: 8px;
+    margin-bottom: 5px;
+    z-index: 20;
+
+    svg {
+      width: 1em;
+      height: 1em;
+      display: inline-block;
+      flex-shrink: 0;
+      font-size: 1.5rem;
+      color: #fff;
+
+      path {
+        fill: var(--iconButtonColor);
+      }
+    }
+  }
+
   .copyInviteContainer {
     color: var(--textColor);
     cursor: pointer;
@@ -115,6 +141,16 @@
   .linkLegend {
     margin: 0;
     padding: 0;
+  }
+
+  .detailsContainer {
+    display: flex;
+    align-items: center;
+    justify-content: right;
+
+    h2 {
+      margin: auto;
+    }
   }
 
   .profilePanel {
@@ -211,7 +247,6 @@
           text-align: left;
           opacity: 0.8;
           color: var(--textColor);
-          margin: 5px 0 !important;
 
           span {
             text-transform: capitalize;
