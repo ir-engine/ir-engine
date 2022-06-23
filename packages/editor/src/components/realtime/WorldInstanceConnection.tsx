@@ -1,9 +1,18 @@
 import React, { useEffect } from 'react'
 
+import {
+  LocationInstanceConnectionAction,
+  LocationInstanceConnectionServiceReceptor,
+  useLocationInstanceConnectionState
+} from '@xrengine/client-core/src/common/services/LocationInstanceConnectionService'
 import { LoadingCircle } from '@xrengine/client-core/src/components/LoadingCircle'
-import { addActionReceptor, removeActionReceptor } from '@xrengine/hyperflux'
+import { leaveNetwork } from '@xrengine/client-core/src/transports/SocketWebRTCClientFunctions'
+import { SocketWebRTCClientNetwork } from '@xrengine/client-core/src/transports/SocketWebRTCClientNetwork'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { addActionReceptor, dispatchAction, removeActionReceptor } from '@xrengine/hyperflux'
 
 import DirectionsRun from '@mui/icons-material/DirectionsRun'
+import DoneIcon from '@mui/icons-material/Done'
 
 import { useEditorState } from '../../services/EditorServices'
 import SelectInput from '../inputs/SelectInput'
@@ -14,8 +23,9 @@ import {
   EditorActiveInstanceServiceReceptor,
   useEditorActiveInstanceState
 } from './EditorActiveInstanceService'
+import { useEditorNetworkInstanceProvisioning } from './useEditorNetworkInstanceProvisioning'
 
-const TransformSpaceTool = () => {
+export const WorldInstanceConnection = () => {
   const activeInstanceState = useEditorActiveInstanceState()
   const activeInstances = [
     {
@@ -37,36 +47,54 @@ const TransformSpaceTool = () => {
   useEffect(() => {
     EditorActiveInstanceService.getActiveInstances(sceneId)
     addActionReceptor(EditorActiveInstanceServiceReceptor)
+    addActionReceptor(LocationInstanceConnectionServiceReceptor)
     return () => {
       removeActionReceptor(EditorActiveInstanceServiceReceptor)
+      removeActionReceptor(LocationInstanceConnectionServiceReceptor)
     }
   }, [])
 
-  const onSelectInstance = () => {}
+  useEditorNetworkInstanceProvisioning()
+
+  const onSelectInstance = (selectedInstance: string) => {
+    if (selectedInstance === 'None' || (worldNetworkHostId && selectedInstance !== worldNetworkHostId)) {
+      if (worldNetworkHostId) {
+        leaveNetwork(Engine.instance.currentWorld.worldNetwork as SocketWebRTCClientNetwork)
+      }
+      return
+    }
+    const instance = activeInstanceState.activeInstances.value.find(({ id }) => id === selectedInstance)
+    if (!instance) return
+    EditorActiveInstanceService.provisionServer(instance.location, instance.id, sceneId)
+  }
   // const decrementPage = () => { }
   // const incrementPage = () => { }
 
+  const worldNetworkHostId = Engine.instance.currentWorld.worldNetwork?.hostId
+  const instanceConnectionState = useLocationInstanceConnectionState()
+  const currentLocationInstanceConnection = instanceConnectionState.instances[worldNetworkHostId!].ornull
+
+  const getIcon = () => {
+    if (currentLocationInstanceConnection?.value) {
+      if (currentLocationInstanceConnection.connected) return <DoneIcon fontSize="small" />
+      if (currentLocationInstanceConnection.connecting) return <LoadingCircle />
+    }
+    return <DirectionsRun fontSize="small" />
+  }
+
   return (
     <div className={styles.toolbarInputGroup} id="transform-space">
-      <InfoTooltip title="Active Instances">
-        <DirectionsRun fontSize="small" />
-      </InfoTooltip>
-      {activeInstanceState.fetching.value ? (
-        <LoadingCircle />
-      ) : (
-        <SelectInput
-          className={styles.selectInput}
-          onChange={onSelectInstance}
-          options={activeInstances}
-          value={'None'}
-          creatable={false}
-          isSearchable={false}
-        />
-      )}
+      <InfoTooltip title="Active Instances">{getIcon()}</InfoTooltip>
+      <SelectInput
+        className={styles.selectInput}
+        onChange={onSelectInstance}
+        options={activeInstances}
+        value={'None'}
+        creatable={false}
+        isSearchable={false}
+      />
       {/* <button onClick={decrementPage} className={styles.toolButton} >Previous Page</button>
       <button onClick={incrementPage} className={styles.toolButton} >Next Page</button> */}
     </div>
   )
 }
-
-export default TransformSpaceTool

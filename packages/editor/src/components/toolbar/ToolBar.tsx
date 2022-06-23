@@ -1,7 +1,7 @@
 import React from 'react'
 
 import MainMenu from '../mainMenu'
-import WorldInstanceConnection from '../realtime/WorldInstanceConnection'
+import { WorldInstanceConnection } from '../realtime/WorldInstanceConnection'
 import * as styles from './styles.module.scss'
 import GridTool from './tools/GridTool'
 import HelperToggleTool from './tools/HelperToggleTool'

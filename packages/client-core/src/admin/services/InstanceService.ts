@@ -100,12 +100,11 @@ export const AdminInstanceService = {
 
 export class AdminInstanceActions {
   static instancesRetrieved = defineAction({
-    store: 'ENGINE',
     type: 'admin.INSTANCES_RETRIEVED',
     instanceResult: matches.object as Validator<unknown, Paginated<Instance>>
   })
+
   static instanceRemoved = defineAction({
-    store: 'ENGINE',
     type: 'admin.INSTANCE_REMOVED_ROW',
     instance: matches.object as Validator<unknown, Instance>
   })

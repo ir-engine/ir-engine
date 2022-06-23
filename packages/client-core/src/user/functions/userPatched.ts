@@ -5,13 +5,11 @@ import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { dispatchAction } from '@xrengine/hyperflux'
 
 import { NotificationService } from '../../common/services/NotificationService'
-import { useDispatch } from '../../store'
 import { accessAuthState, AuthAction } from '../services/AuthService'
 import { accessUserState, UserAction } from '../services/UserService'
 
 export const userPatched = (params) => {
   console.log('USER PATCHED', params)
-  const dispatch = useDispatch()
 
   const selfUser = accessAuthState().user
   const userState = accessUserState()
