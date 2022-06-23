@@ -21,6 +21,11 @@ declare module '@xrengine/common/declarations' {
   }
 }
 
+type ActiveInstance = {
+  id: string
+  location: string
+}
+
 // TODO: paginate this
 
 export const getActiveInstancesForScene =
@@ -57,7 +62,7 @@ export const getActiveInstancesForScene =
     ).flat()
 
     // return all active instances for each location
-    const instancesData = instances
+    const instancesData: ActiveInstance[] = instances
       .map((instance) => {
         return {
           id: instance.id,
