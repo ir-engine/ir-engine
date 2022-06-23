@@ -471,41 +471,40 @@ const ProfileDetailView = () => {
           {userRole === 'guest' && enableConnect && (
             <section className="emailPhoneSection">
               <h1 className="panelHeader">{getConnectText()}</h1>
+              <div className="inviteBox">
+                <div className="inviteContainer">
+                  <input
+                    aria-invalid="false"
+                    type="text"
+                    className="inviteLinkInput"
+                    value={apiKey}
+                    placeholder={getConnectPlaceholder()}
+                    onChange={handleInputChange}
+                    onBlur={validate}
+                  />
 
-              <form onSubmit={handleGuestSubmit}>
-                <TextField
-                  className="emailField"
-                  size="small"
-                  placeholder={getConnectPlaceholder()}
-                  variant="outlined"
-                  onChange={handleInputChange}
-                  onBlur={validate}
-                  error={error}
-                  helperText={error ? getErrorText() : null}
-                  InputProps={{
-                    endAdornment: (
-                      <InputAdornment position="end" onClick={handleGuestSubmit}>
-                        <a href="#" className="materialIconBlock">
-                          <Send className="primaryForeground" />
-                        </a>
-                      </InputAdornment>
-                    )
-                  }}
-                />
-                {loading && (
-                  <div className="container">
-                    <CircularProgress size={30} />
+                  <div className="copyInviteContainer" onClick={handleGuestSubmit}>
+                    <ContentCopyIcon className="primaryForeground" />
                   </div>
-                )}
-              </form>
+
+                  <fieldset aria-hidden="true" className="linkFieldset">
+                    <legend className="linkLegend" />
+                  </fieldset>
+                </div>
+              </div>
+              {loading && (
+                <div className="container">
+                  <CircularProgress size={30} />
+                </div>
+              )}
             </section>
           )}
           {userRole === 'guest' && (
             <section className="walletSection">
               <h3 className="textBlock">{t('user:usermenu.profile.or')}</h3>
-              <Button onClick={handleOpenReadyPlayerWidget} className="walletBtn">
+              <button onClick={handleOpenReadyPlayerWidget} className="walletBtn">
                 {t('user:usermenu.profile.loginWithReadyPlayerMe')}
-              </Button>
+              </button>
             </section>
           )}
 
