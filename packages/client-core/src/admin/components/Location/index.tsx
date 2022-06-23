@@ -10,11 +10,11 @@ import Search from '../../common/Search'
 import { AdminLocationServiceReceptor } from '../../services/LocationService'
 import { AdminSceneServiceReceptor } from '../../services/SceneService'
 import styles from '../../styles/admin.module.scss'
-import CreateLocation from './CreateLocation'
+import LocationDrawer, { LocationDrawerMode } from './LocationDrawer'
 import LocationTable from './LocationTable'
 
 const Location = () => {
-  const [openLocationModal, setOpenLocationModal] = React.useState(false)
+  const [openLocationDrawer, setOpenLocationDrawer] = React.useState(false)
   const [search, setSearch] = React.useState('')
   const { t } = useTranslation()
 
@@ -42,14 +42,18 @@ const Location = () => {
             className={styles.openModalBtn}
             type="submit"
             variant="contained"
-            onClick={() => setOpenLocationModal(true)}
+            onClick={() => setOpenLocationDrawer(true)}
           >
-            {t('admin:components.locationModal.createNewLocation')}
+            {t('admin:components.locationModal.createLocation')}
           </Button>
         </Grid>
       </Grid>
       <LocationTable className={styles.rootTableWithSearch} search={search} />
-      <CreateLocation open={openLocationModal} onClose={() => setOpenLocationModal(false)} />
+      <LocationDrawer
+        open={openLocationDrawer}
+        mode={LocationDrawerMode.Create}
+        onClose={() => setOpenLocationDrawer(false)}
+      />
     </div>
   )
 }

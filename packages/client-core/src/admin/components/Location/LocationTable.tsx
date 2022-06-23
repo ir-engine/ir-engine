@@ -13,7 +13,7 @@ import TableComponent from '../../common/Table'
 import { locationColumns } from '../../common/variables/location'
 import { AdminLocationService, LOCATION_PAGE_LIMIT, useAdminLocationState } from '../../services/LocationService'
 import styles from '../../styles/admin.module.scss'
-import ViewLocation from './ViewLocation'
+import LocationDrawer, { LocationDrawerMode } from './LocationDrawer'
 
 interface Props {
   className?: string
@@ -28,7 +28,7 @@ const LocationTable = ({ className, search }: Props) => {
   const [locationName, setLocationName] = useState('')
   const [fieldOrder, setFieldOrder] = useState('asc')
   const [sortField, setSortField] = useState('name')
-  const [openViewLocation, setOpenViewLocation] = useState(false)
+  const [openLocationDrawer, setOpenLocationDrawer] = useState(false)
   const [locationAdmin, setLocationAdmin] = useState<Location>()
   const authState = useAuthState()
   const user = authState.user
@@ -65,7 +65,7 @@ const LocationTable = ({ className, search }: Props) => {
     setPage(0)
   }
 
-  const handleOpenViewLocation =
+  const handleOpenLocationDrawer =
     (open: boolean, location: Location) => (event: React.KeyboardEvent | React.MouseEvent) => {
       if (
         event.type === 'keydown' &&
@@ -74,7 +74,7 @@ const LocationTable = ({ className, search }: Props) => {
         return
       }
       setLocationAdmin(location)
-      setOpenViewLocation(open)
+      setOpenLocationDrawer(open)
     }
 
   const createData = (
@@ -102,7 +102,7 @@ const LocationTable = ({ className, search }: Props) => {
       videoEnabled,
       action: (
         <>
-          <a href="#h" className={styles.actionStyle} onClick={handleOpenViewLocation(true, el)}>
+          <a href="#h" className={styles.actionStyle} onClick={handleOpenLocationDrawer(true, el)}>
             <span className={styles.spanWhite}>{t('admin:components.index.view')}</span>
           </a>
           <a
@@ -182,7 +182,12 @@ const LocationTable = ({ className, search }: Props) => {
         onClose={() => setOpenConfirm(false)}
         onSubmit={submitRemoveLocation}
       />
-      <ViewLocation open={openViewLocation} locationAdmin={locationAdmin} onClose={() => setOpenViewLocation(false)} />
+      <LocationDrawer
+        open={openLocationDrawer}
+        mode={LocationDrawerMode.ViewEdit}
+        location={locationAdmin}
+        onClose={() => setOpenLocationDrawer(false)}
+      />
     </Box>
   )
 }
