@@ -83,10 +83,10 @@ export const EditorActiveInstanceService = {
     dispatchAction(EditorActiveInstanceAction.fetchedActiveInstances({ activeInstances }))
   },
   useAPIListeners: () => {
-    const editorState = accessEditorState()
-    const sceneId = `${editorState.projectName.value}/${editorState.sceneName.value}`
-    EditorActiveInstanceService.getActiveInstances(sceneId)
     useEffect(() => {
+      const editorState = accessEditorState()
+      const sceneId = `${editorState.projectName.value}/${editorState.sceneName.value}`
+      EditorActiveInstanceService.getActiveInstances(sceneId)
       const timer = setInterval(() => {
         const editorState = accessEditorState()
         const sceneId = `${editorState.projectName.value}/${editorState.sceneName.value}`
