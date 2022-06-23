@@ -48,7 +48,7 @@ const Party = () => {
 
       <PartyTable className={styles.rootTableWithSearch} search={search} />
 
-      <CreateParty open={openCreateParty} handleClose={() => setOpenCreateParty(false)} />
+      <CreateParty open={openCreateParty} onClose={() => setOpenCreateParty(false)} />
     </div>
   )
 }

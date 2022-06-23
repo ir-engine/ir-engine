@@ -21,7 +21,7 @@ import { useAdminLocationState } from '../../services/LocationService'
 import { AdminPartyService } from '../../services/PartyService'
 import styles from '../../styles/admin.module.scss'
 
-const CreateParty = ({ open, handleClose }: PartyProps) => {
+const CreateParty = ({ open, onClose }: PartyProps) => {
   const { t } = useTranslation()
 
   const [state, setState] = useState({
@@ -93,7 +93,7 @@ const CreateParty = ({ open, handleClose }: PartyProps) => {
     if (validateForm(state, tempErrors)) {
       await AdminPartyService.createAdminParty(data)
       setState({ ...state, location: '', instance: '' })
-      handleClose()
+      onClose()
     }
   }
 
@@ -112,7 +112,7 @@ const CreateParty = ({ open, handleClose }: PartyProps) => {
   })
 
   return (
-    <DrawerView open={open} onClose={handleClose}>
+    <DrawerView open={open} onClose={onClose}>
       <Container maxWidth="sm" className={styles.mt20}>
         <DialogTitle className={styles.textAlign}>{t('admin:components.party.createNewParty')}</DialogTitle>
 
@@ -145,7 +145,7 @@ const CreateParty = ({ open, handleClose }: PartyProps) => {
           <Button className={styles.submitButton} onClick={handleSubmit}>
             {t('admin:components.locationModal.submit')}
           </Button>
-          <Button className={styles.cancelButton} onClick={handleClose}>
+          <Button className={styles.cancelButton} onClick={onClose}>
             {t('admin:components.setting.cancel')}
           </Button>
         </DialogActions>

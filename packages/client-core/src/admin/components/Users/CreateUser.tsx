@@ -207,7 +207,7 @@ const CreateUser = ({ open, onClose }: Props) => {
           </DialogActions>
         </Container>
       </DrawerView>
-      <CreateUserRole open={openCreateUserRole} handleClose={handleUserRoleClose} />
+      <CreateUserRole open={openCreateUserRole} onClose={handleUserRoleClose} />
     </React.Fragment>
   )
 }

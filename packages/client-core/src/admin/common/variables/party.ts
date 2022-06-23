@@ -1,6 +1,6 @@
 export interface PartyProps {
   open: boolean
-  handleClose: () => void
+  onClose: () => void
 }
 
 export interface PartyPropsTable {
