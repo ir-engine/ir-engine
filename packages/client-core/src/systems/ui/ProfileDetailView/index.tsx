@@ -3,7 +3,6 @@ import * as polyfill from 'credential-handler-polyfill'
 import React, { useEffect, useState } from 'react'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
 import { useTranslation } from 'react-i18next'
-import { useLocation } from 'react-router-dom'
 
 import { validateEmail, validatePhoneNumber } from '@xrengine/common/src/config'
 import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
@@ -28,7 +27,7 @@ import { GoogleIcon } from '../../../common/components/Icons/GoogleIcon'
 import { LinkedInIcon } from '../../../common/components/Icons/LinkedInIcon'
 import { TwitterIcon } from '../../../common/components/Icons/TwitterIcon'
 import { NotificationService } from '../../../common/services/NotificationService'
-import { getAvatarURLForUser, Views } from '../../../user/components/UserMenu/util'
+import { getAvatarURLForUser } from '../../../user/components/UserMenu/util'
 import { AuthService, useAuthState } from '../../../user/services/AuthService'
 import styleString from './index.scss'
 
@@ -349,30 +348,29 @@ const ProfileDetailView = () => {
             </div>
             <div className="headerBlock">
               <h1 className="panelHeader">{t('user:usermenu.profile.lbl-username')}</h1>
-              <span className="inputBlock">
-                <TextField
-                  margin="none"
-                  size="small"
-                  name="username"
-                  variant="outlined"
-                  value={username || ''}
-                  onChange={handleUsernameChange}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter') updateUserName(e)
-                  }}
-                  className="usernameInput"
-                  error={errorUsername}
-                  InputProps={{
-                    endAdornment: (
-                      <InputAdornment position="end">
-                        <a href="#" className="materialIconBlock" onClick={updateUserName}>
-                          <Check className="primaryForeground" />
-                        </a>
-                      </InputAdornment>
-                    )
-                  }}
-                />
-              </span>
+              <div className="inviteBox">
+                <div className="inviteContainer">
+                  <input
+                    aria-invalid="false"
+                    disabled={true}
+                    type="text"
+                    className="inviteLinkInput"
+                    value={username || ''}
+                    onChange={handleUsernameChange}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') updateUserName(e)
+                    }}
+                  />
+
+                  <div className="copyInviteContainer" onClick={updateUserName}>
+                    <Check className="primaryForeground" />
+                  </div>
+
+                  <fieldset aria-hidden="true" className="linkFieldset">
+                    <legend className="linkLegend" />
+                  </fieldset>
+                </div>
+              </div>
 
               <Grid container justifyContent="right" className="justify">
                 <Grid item xs={userRole === 'guest' ? 6 : 4}>
