@@ -135,8 +135,6 @@ export const loadECSData = async (sceneData: SceneJson, assetRoot = undefined): 
  * @param sceneData
  */
 export const loadSceneFromJSON = async (sceneData: SceneJson, sceneSystems: SystemModuleType<any>[]) => {
-  if (getEngineState().sceneLoaded.value) unloadScene(Engine.instance.currentWorld)
-
   dispatchAction(EngineActions.sceneLoading())
 
   let promisesCompleted = 0
@@ -154,11 +152,13 @@ export const loadSceneFromJSON = async (sceneData: SceneJson, sceneSystems: Syst
   }
   const promises = preCacheAssets(sceneData, onProgress)
 
-  // todo: move these layer enable & disable to loading screen thing or something so they work with portals properly
-  if (!getEngineState().isTeleporting.value) Engine.instance.currentWorld.camera?.layers.disable(ObjectLayers.Scene)
-
   promises.forEach((promise) => promise.then(onComplete))
   await Promise.all(promises)
+
+  if (getEngineState().sceneLoaded.value) unloadScene(Engine.instance.currentWorld)
+
+  // todo: move these layer enable & disable to loading screen thing or something so they work with portals properly
+  if (!getEngineState().isTeleporting.value) Engine.instance.currentWorld.camera?.layers.disable(ObjectLayers.Scene)
 
   initSystems(Engine.instance.currentWorld, sceneSystems)
 
