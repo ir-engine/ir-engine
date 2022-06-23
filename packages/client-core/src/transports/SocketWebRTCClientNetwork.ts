@@ -64,7 +64,6 @@ export class SocketWebRTCClientNetwork extends Network {
   }
 
   public async initialize(args: {
-    sceneId: string
     ipAddress: string
     port: string
     locationId?: string
@@ -73,13 +72,12 @@ export class SocketWebRTCClientNetwork extends Network {
     this.reconnecting = false
     if (this.socket) return console.error('[SocketWebRTCClientNetwork]: already initialized')
     console.log('[SocketWebRTCClientNetwork]: Initialising transport with args', args)
-    const { sceneId, ipAddress, port, locationId, channelId } = args
+    const { ipAddress, port, locationId, channelId } = args
 
     const authState = accessAuthState()
     const token = authState.authUser.accessToken.value
 
     const query = {
-      sceneId,
       locationId,
       channelId,
       token
@@ -114,7 +112,7 @@ export class SocketWebRTCClientNetwork extends Network {
       if ((this.socket as any)._connected) return
       ;(this.socket as any)._connected = true
 
-      console.log('CONNECT to port', port, sceneId, locationId)
+      console.log('CONNECT to port', port, locationId)
       onConnectToInstance(this)
 
       // Send heartbeat every second

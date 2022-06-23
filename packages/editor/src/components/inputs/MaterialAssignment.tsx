@@ -6,52 +6,28 @@ import { Color, MathUtils, Texture } from 'three'
 import { removeComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { DefaultArguments, MaterialLibrary } from '@xrengine/engine/src/renderer/materials/MaterialLibrary'
 import { PatternTarget } from '@xrengine/engine/src/renderer/materials/MaterialParms'
+import { extractDefaults } from '@xrengine/engine/src/renderer/materials/Utilities'
 import { MaterialOverrideComponent } from '@xrengine/engine/src/scene/components/MaterialOverrideComponent'
 import { refreshMaterials } from '@xrengine/engine/src/scene/functions/loaders/MaterialOverrideFunctions'
 
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore'
-import { Collapse, IconButton, IconButtonProps, Stack, Typography } from '@mui/material'
+import { Typography } from '@mui/material'
 import { Box } from '@mui/system'
 
 import { AssetLoader } from '../../../../engine/src/assets/classes/AssetLoader'
+import CollapsibleBlock from '../layout/CollapsibleBlock'
 import BooleanInput from './BooleanInput'
 import { Button } from './Button'
 import ColorInput from './ColorInput'
 import CompoundNumericInput from './CompoundNumericInput'
-import { ImageInput } from './ImageInput'
+import { ImagePreviewInputGroup } from './ImagePreviewInput'
 import InputGroup, { InputGroupContent, InputGroupVerticalContainerWide, InputGroupVerticalContent } from './InputGroup'
 import NumericInput from './NumericInput'
 import SelectInput from './SelectInput'
 import StringInput, { ControlledStringInput } from './StringInput'
 
-const ExpandMore = styled((props: ExpandMoreProps) => {
-  const { expand, ...other } = props
-  return <IconButton {...other} />
-})(({ theme, expand }) => ({
-  transform: !expand ? 'rotate(0deg)' : 'rotate(180deg)',
-  marginLeft: 'auto',
-  transition: theme.transitions.create('transform', {
-    duration: theme.transitions.duration.shortest
-  })
-}))
-
-interface ExpandMoreProps extends IconButtonProps {
-  expand: boolean
-}
-
-const ImageContainer = (styled as any).div`
-  display: flex;
-  width: 100%;
-  border-width: 2px;
-  border: solid;
-  border-color: #FFFFFF;
-  margin: 8px;
-  padding: 4px;
-`
-
 const GroupContainer = (styled as any).label`
   background-color: transparent;
-  color: #9FA4B5;
+  color: var(--textColor);
   white-space: pre-wrap;
   padding: 0 8px 8px;
 `
@@ -69,17 +45,6 @@ const ArrayInputGroupContent = (styled as any)(InputGroupContent)`
   -ms-flex-direction: row;
   flex-direction: row;
 }`
-/*
-  & > label {
-    max-width: 33.33333% !important;
-  }
-  & > input {
-    max-width: 66.66666% !important;
-  }
-  & > div {
-    max-width: 66.66666% !important;
-  }
-`*/
 
 export default function MaterialAssignment({ entity, node, modelComponent, values, onChange }) {
   let [count, setCount] = useState(values.length)
@@ -205,13 +170,15 @@ export default function MaterialAssignment({ entity, node, modelComponent, value
     }
 
     function getArguments(materialID) {
-      const argStructure = assignment.args
-        ? { ...DefaultArguments[materialID], ...assignment.args }
-        : DefaultArguments[materialID]
+      const defaultArguments = DefaultArguments[materialID]
+      if (!defaultArguments) return
+      const defaultValues = extractDefaults(defaultArguments)
+      const argStructure = defaultArguments
+      const argValues = assignment.args ? { ...defaultValues, ...assignment.args } : defaultValues
 
       function setArgsProp(prop) {
         return (value) => {
-          if (!assignment.args) assignment.args = argStructure
+          if (!assignment.args) assignment.args = argValues
           assignment.args[prop] = value
           onChange(values)
         }
@@ -219,13 +186,13 @@ export default function MaterialAssignment({ entity, node, modelComponent, value
 
       function setArgArrayProp(prop, arrayIndex) {
         return (value) => {
-          if (!assignment.args) assignment.args = argStructure
+          if (!assignment.args) assignment.args = argValues
           assignment.args[prop][arrayIndex] = value
           onChange(values)
         }
       }
 
-      if (argStructure === undefined) {
+      if (argValues === undefined) {
         console.warn('no default arguments detected for material ' + materialID)
         return (
           <div>
@@ -236,93 +203,68 @@ export default function MaterialAssignment({ entity, node, modelComponent, value
 
       function traverseArgs(args) {
         const id = `${entity}-${index}-args`
-        const _expanded = expanded.get(texKey(index, 'expanded'))!
         return (
-          <Fragment key={id}>
-            <Box sx={{ color: '#fff', marginTop: '4px', marginBottom: '4px' }}>
-              <ExpandMore
-                expand={_expanded}
-                onClick={handleExpandClick(index)}
-                aria-expanded={_expanded}
-                aria-label="show more"
-              >
-                <ExpandMoreIcon />
-              </ExpandMore>
-              <label>Arguments</label>
-            </Box>
-            <Collapse in={_expanded} timeout="auto" unmountOnExit>
-              {Object.entries(args).map(([k, v]) => {
-                let compKey = `${entity}-${index}-args-${k}`
-                //number
-                if (typeof v === 'number') {
+          <CollapsibleBlock key={id} name="Arguments" label="Arguments">
+            {Object.entries(args).map(([k, v]: [string, any]) => {
+              let compKey = `${entity}-${index}-args-${k}`
+              switch (v.type) {
+                case 'normalized-float':
+                case 'float':
                   return (
                     <InputGroup key={compKey} name={k} label={k}>
-                      <CompoundNumericInput value={v} onChange={setArgsProp(k)} min={-1000} max={1000} step={0.1} />
+                      <CompoundNumericInput value={argValues[k]} onChange={setArgsProp(k)} min={v.min} max={v.max} />
                     </InputGroup>
                   )
-                }
-                if ((v as Color).isColor) {
+                case 'color':
                   return (
                     <InputGroup key={compKey} name={k} label={k}>
-                      <ColorInput value={v} onChange={setArgsProp(k)} />
+                      <ColorInput value={argValues[k]} onChange={setArgsProp(k)} />
                     </InputGroup>
                   )
-                }
-                if (typeof v === 'object') {
-                  if ((v as any[]).length !== undefined)
-                    return (
-                      <InputGroup key={compKey} name={k} label={k}>
-                        {(v as number[]).map((arrayVal, idx) => {
-                          return (
-                            <NumericInput
-                              key={`${compKey}-${idx}`}
-                              value={arrayVal}
-                              onChange={setArgArrayProp(k, idx)}
-                            />
-                          )
-                        })}
-                      </InputGroup>
-                    )
-                }
-                if (typeof v === 'string') {
+                case 'vec2':
+                case 'vec3':
                   return (
                     <InputGroup key={compKey} name={k} label={k}>
-                      <StringInput value={v} onChange={setArgsProp(k)} />
+                      {(argValues[k] as number[]).map((arrayVal, idx) => {
+                        return (
+                          <NumericInput key={`${compKey}-${idx}`} value={arrayVal} onChange={setArgArrayProp(k, idx)} />
+                        )
+                      })}
                     </InputGroup>
                   )
-                }
-                if (typeof v === 'boolean') {
+                case 'string':
                   return (
                     <InputGroup key={compKey} name={k} label={k}>
-                      <BooleanInput value={v} onChange={setArgsProp(k)} />
+                      <StringInput value={argValues[k]} onChange={setArgsProp(k)} />
                     </InputGroup>
                   )
-                }
-                if ((v as Texture).isTexture) {
+                case 'boolean':
+                  return (
+                    <InputGroup key={compKey} name={k} label={k}>
+                      <BooleanInput value={argValues[k]} onChange={setArgsProp(k)} />
+                    </InputGroup>
+                  )
+                case 'texture':
                   const argKey = texKey(index, k)
-                  function onChangeTexturePath() {
-                    return (value) => {
-                      const nuPaths = new Map(texturePaths.entries())
-                      nuPaths.set(argKey, value)
-                      setTexturePaths(nuPaths)
-                      if (assignment.args === undefined) assignment.args = argStructure
-                      onChange(values)
-                    }
+                  function onChangeTexturePath(value) {
+                    const nuPaths = new Map(texturePaths.entries())
+                    nuPaths.set(argKey, value)
+                    setTexturePaths(nuPaths)
+                    if (assignment.args === undefined) assignment.args = argValues
+                    onChange(values)
                   }
                   return (
-                    <InputGroup key={compKey} name={k} label={k}>
-                      <ImageContainer>
-                        <Stack>
-                          <ImageInput value={texturePaths.get(argKey)} onChange={onChangeTexturePath()} />
-                          <img src={texturePaths.get(argKey)} />
-                        </Stack>
-                      </ImageContainer>
-                    </InputGroup>
+                    <ImagePreviewInputGroup
+                      key={compKey}
+                      name={k}
+                      label={k}
+                      value={texturePaths.get(argKey)}
+                      onChange={onChangeTexturePath}
+                    />
                   )
-                }
-              })}
-            </Collapse>
-          </Fragment>
+              }
+            })}
+          </CollapsibleBlock>
         )
       }
       return traverseArgs(argStructure)
@@ -390,7 +332,7 @@ export default function MaterialAssignment({ entity, node, modelComponent, value
 
   return (
     <GroupContainer>
-      <div style={{ textAlign: 'center', color: '#fff', marginTop: '16px', marginBottom: '4px' }}>
+      <div style={{ textAlign: 'center', marginTop: '16px', marginBottom: '4px' }}>
         <Typography>Material Overrides</Typography>
       </div>
       <InputGroupVerticalContainerWide>

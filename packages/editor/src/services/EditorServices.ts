@@ -65,37 +65,31 @@ export const EditorService = {}
 //Action
 export class EditorAction {
   static projectChanged = defineAction({
-    store: 'EDITOR' as const,
     type: 'editor.EDITOR_PROJECT_CHANGED' as const,
     projectName: matches.any as Validator<unknown, string | null>
   })
 
   static sceneChanged = defineAction({
-    store: 'EDITOR' as const,
     type: 'editor.EDITOR_SCENE_CHANGED' as const,
     sceneName: matches.any as Validator<unknown, string | null>
   })
 
   static sceneModified = defineAction({
-    store: 'EDITOR' as const,
     type: 'editor.EDITOR_SCENE_MODIFIED' as const,
     modified: matches.boolean
   })
 
   static projectLoaded = defineAction({
-    store: 'EDITOR' as const,
     type: 'editor.EDITOR_PROJECT_LOADED' as const,
     loaded: matches.boolean
   })
 
   static rendererInitialized = defineAction({
-    store: 'EDITOR' as const,
     type: 'editor.EDITOR_RENDERER_INITIALIZED' as const,
     initialized: matches.boolean
   })
 
   static updatePreprojectLoadTask = defineAction({
-    store: 'EDITOR' as const,
     type: 'editor.UPDATE_PREPROJECT_TASK_STATUS' as const,
     taskStatus: matches.any as Validator<unknown, TaskStatus>
   })

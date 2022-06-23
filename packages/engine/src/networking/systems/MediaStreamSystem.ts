@@ -11,15 +11,12 @@ import { getNearbyUsers, NearbyUser } from '../functions/getNearbyUsers'
 export class MediaStreams {
   static actions = {
     triggerRequestCurrentProducers: defineAction({
-      store: 'ENGINE',
       type: 'NETWORK_TRANSPORT_EVENT_REQUEST_CURRENT_PRODUCERS' as const
     }),
     triggerUpdateConsumers: defineAction({
-      store: 'ENGINE',
       type: 'NETWORK_TRANSPORT_EVENT_UPDATE_CONSUMERS' as const
     }),
     closeConsumer: defineAction({
-      store: 'ENGINE',
       type: 'NETWORK_TRANSPORT_EVENT_CLOSE_CONSUMER' as const,
       consumer: matches.any
     })
