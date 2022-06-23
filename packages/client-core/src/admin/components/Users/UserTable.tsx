@@ -77,7 +77,7 @@ const UserTable = ({ className, search }: UserProps) => {
       action: (
         <>
           <a
-            href="#h"
+            href=""
             className={styles.actionStyle}
             onClick={() => {
               setUserAdmin(el)
@@ -88,7 +88,7 @@ const UserTable = ({ className, search }: UserProps) => {
           </a>
           {user.id.value !== id && (
             <a
-              href="#h"
+              href="#"
               className={styles.actionStyle}
               onClick={() => {
                 setUserId(id)

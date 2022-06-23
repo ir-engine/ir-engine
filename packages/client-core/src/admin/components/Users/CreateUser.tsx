@@ -188,7 +188,7 @@ const CreateUser = ({ open, onClose }: Props) => {
           />
           <DialogContentText className={styles.mb15}>
             <span className={styles.select}>{t('admin:components.user.dontSeeUserRole')}</span>{' '}
-            <a href="#h" className={styles.textLink} onClick={createUserRole}>
+            <a href="#" className={styles.textLink} onClick={createUserRole}>
               {t('admin:components.user.createOne')}
             </a>
           </DialogContentText>

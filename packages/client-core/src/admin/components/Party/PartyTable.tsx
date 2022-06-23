@@ -70,11 +70,11 @@ const PartyTable = ({ className, search }: PartyPropsTable) => {
       location,
       action: (
         <>
-          <a href="#h" className={styles.actionStyle} onClick={() => handleOpenViewParty(true, el)}>
+          <a href="#" className={styles.actionStyle} onClick={() => handleOpenViewParty(true, el)}>
             <span className={styles.spanWhite}>{t('admin:components.index.view')}</span>
           </a>
           <a
-            href="#h"
+            href="#"
             className={styles.actionStyle}
             onClick={() => {
               setPartyName(instance)

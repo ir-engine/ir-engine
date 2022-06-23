@@ -102,11 +102,11 @@ const LocationTable = ({ className, search }: Props) => {
       videoEnabled,
       action: (
         <>
-          <a href="#h" className={styles.actionStyle} onClick={handleOpenLocationDrawer(true, el)}>
+          <a href="#" className={styles.actionStyle} onClick={handleOpenLocationDrawer(true, el)}>
             <span className={styles.spanWhite}>{t('admin:components.index.view')}</span>
           </a>
           <a
-            href="#h"
+            href="#"
             className={styles.actionStyle}
             onClick={() => {
               setLocationId(id)

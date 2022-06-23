@@ -88,11 +88,11 @@ const GroupTable = ({ className, search }: Props) => {
       description,
       action: (
         <>
-          <a href="#h" className={styles.actionStyle} onClick={() => handleViewGroup(id)}>
+          <a href="#" className={styles.actionStyle} onClick={() => handleViewGroup(id)}>
             <span className={styles.spanWhite}>{t('admin:components.group.view')}</span>
           </a>
           <a
-            href="#h"
+            href="#"
             className={styles.actionStyle}
             onClick={() => {
               handleShowWarning(id)
