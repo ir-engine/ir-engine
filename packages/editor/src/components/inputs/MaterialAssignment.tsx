@@ -250,7 +250,7 @@ export default function MaterialAssignment({ entity, node, modelComponent, value
                     const nuPaths = new Map(texturePaths.entries())
                     nuPaths.set(argKey, value)
                     setTexturePaths(nuPaths)
-                    if (assignment.args === undefined) assignment.args = argStructure
+                    if (assignment.args === undefined) assignment.args = argValues
                     onChange(values)
                   }
                   return (
