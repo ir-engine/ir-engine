@@ -102,7 +102,7 @@ export async function initializeRenderer(): Promise<void> {
     accessEngineRendererState().automatic.set(false)
     await restoreEditorHelperData()
     await restoreEngineRendererData()
-    dispatchAction(EngineRendererAction.setQualityLevel(EngineRenderer.instance.maxQualityLevel))
+    dispatchAction(EngineRendererAction.setQualityLevel({ qualityLevel: EngineRenderer.instance.maxQualityLevel }))
   } catch (error) {
     console.error(error)
   }
