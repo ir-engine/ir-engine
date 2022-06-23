@@ -4,7 +4,6 @@ import { matches, Validator } from '@xrengine/engine/src/common/functions/Matche
 import { addActionReceptor, defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
 import { NotificationService } from '../../common/services/NotificationService'
-import { useDispatch } from '../../store'
 
 //State
 const WebxrState = defineState({

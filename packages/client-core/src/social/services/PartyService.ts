@@ -15,7 +15,6 @@ import { defineAction, defineState, dispatchAction, getState, useState } from '@
 
 import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
-import { store } from '../../store'
 import { accessAuthState } from '../../user/services/AuthService'
 import { UserAction } from '../../user/services/UserService'
 import { ChatService } from './ChatService'
