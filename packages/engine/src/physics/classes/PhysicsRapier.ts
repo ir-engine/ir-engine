@@ -29,6 +29,7 @@ import { ColliderDescOptions, ColliderHitEvent, CollisionEvents } from '../types
 export type PhysicsWorld = World
 
 const tempQuat = new Quaternion()
+const tempVector3 = new Vector3()
 
 function load() {
   // eslint-disable-next-line import/no-named-as-default-member
@@ -68,13 +69,14 @@ function createRigidBodyForObject(entity: Entity, world: World, object: Object3D
     const rigidBodyType = object.userData['bodyType']
 
     object.traverse((mesh: Mesh) => {
-      // type is required
+      // Type is required
       const shapeOptions = mesh.userData as ColliderDescOptions
       if (shapeOptions.type && typeof shapeOptions.type === 'number') {
-        let scale = new Vector3(1, 1, 1)
-        mesh.getWorldScale(scale) // TODO: is this needed?
+        const meshScale = mesh.getWorldScale(tempVector3)
+        // If custom size has been provided use that else use mesh world scale.
+        const colliderSize = shapeOptions.size ? shapeOptions.size : meshScale
 
-        // check for case mismatch
+        // Check for case mismatch
         if (
           typeof shapeOptions.collisionLayer === 'undefined' &&
           typeof (shapeOptions as any).collisionlayer !== 'undefined'
@@ -90,19 +92,23 @@ function createRigidBodyForObject(entity: Entity, world: World, object: Object3D
         let geometry, vertices, indices
         switch (shapeOptions.type as ShapeType) {
           case ShapeType.Cuboid:
-            colliderDesc = ColliderDesc.cuboid(Math.abs(scale.x), Math.abs(scale.y), Math.abs(scale.z))
+            colliderDesc = ColliderDesc.cuboid(
+              Math.abs(colliderSize.x),
+              Math.abs(colliderSize.y),
+              Math.abs(colliderSize.z)
+            )
             break
 
           case ShapeType.Ball:
-            colliderDesc = ColliderDesc.ball(Math.abs(scale.x))
+            colliderDesc = ColliderDesc.ball(Math.abs(colliderSize.x))
             break
 
           case ShapeType.Capsule:
-            colliderDesc = ColliderDesc.capsule(Math.abs(scale.x), Math.abs(scale.y))
+            colliderDesc = ColliderDesc.capsule(Math.abs(colliderSize.y), Math.abs(colliderSize.x))
             break
 
           case ShapeType.Cylinder:
-            colliderDesc = ColliderDesc.cylinder(Math.abs(scale.x), Math.abs(scale.y))
+            colliderDesc = ColliderDesc.cylinder(Math.abs(colliderSize.y), Math.abs(colliderSize.x))
             break
 
           case ShapeType.ConvexPolyhedron:
@@ -138,13 +144,6 @@ function createRigidBodyForObject(entity: Entity, world: World, object: Object3D
           ? colliderDesc.setActiveCollisionTypes(shapeOptions.activeCollisionTypes)
           : colliderDesc.setActiveCollisionTypes(ActiveCollisionTypes.ALL)
         colliderDesc.setActiveEvents(ActiveEvents.COLLISION_EVENTS)
-
-        if (shapeOptions.type === ShapeType.Cylinder) {
-          const meshQuat = mesh.quaternion.clone()
-          tempQuat.setFromAxisAngle(Axis.X, Math.PI / 2)
-          meshQuat.multiply(tempQuat)
-          colliderDesc.setRotation(meshQuat)
-        }
 
         colliderDescs.push(colliderDesc)
       }
