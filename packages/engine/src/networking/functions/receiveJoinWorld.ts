@@ -1,6 +1,7 @@
 // spawnPose is temporary - just so portals work for now - will be removed in favor of instanceserver-instanceserver communication
 import { Quaternion, Vector3 } from 'three'
 
+import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { dispatchAction } from '@xrengine/hyperflux'
 import { Action } from '@xrengine/hyperflux/functions/ActionFunctions'
 
@@ -14,16 +15,22 @@ export type SpectateWorldProps = {
   worldStartTime: number
   client: { name: string; index: number }
   cachedActions: Required<Action>[]
+  spectateUser: UserId
 }
 
 export const receiveSpectateWorld = (props: SpectateWorldProps) => {
-  const { highResTimeOrigin, worldStartTime, client, cachedActions } = props
+  const { highResTimeOrigin, worldStartTime, client, cachedActions, spectateUser } = props
   console.log('RECEIVED SPECTATE WORLD RESPONSE', highResTimeOrigin, worldStartTime, client, cachedActions)
   const world = Engine.instance.currentWorld
 
   for (const action of cachedActions) Engine.instance.store.actions.incoming.push({ ...action, $fromCache: true })
 
   dispatchAction(WorldNetworkAction.createClient(client), [world.worldNetwork.hostId])
+
+  if (spectateUser) {
+    dispatchAction(EngineActions.joinedWorld())
+    dispatchAction(EngineActions.spectateUser(spectateUser as any))
+  }
 }
 
 export type JoinWorldProps = {

@@ -19,7 +19,7 @@ import { matches } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
-import { receiveJoinWorld } from '@xrengine/engine/src/networking/functions/receiveJoinWorld'
+import { receiveJoinWorld, receiveSpectateWorld } from '@xrengine/engine/src/networking/functions/receiveJoinWorld'
 import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
 import { addActionReceptor, dispatchAction, removeActionReceptor, useHookEffect } from '@xrengine/hyperflux'
 
@@ -120,10 +120,18 @@ export const NetworkInstanceProvisioning = () => {
   ])
 
   useHookEffect(() => {
-    const transportRequestData = {
-      inviteCode: getSearchParamFromURL('inviteCode')!
-    }
-    if (engineState.connectedWorld.value && engineState.sceneLoaded.value) {
+    if (!engineState.connectedWorld.value || !engineState.sceneLoaded.value) return
+
+    const spectate = getSearchParamFromURL('spectate')
+    if (spectate) {
+      const transportRequestData = { spectateUser: spectate }
+      Engine.instance.currentWorld.worldNetwork
+        .request(MessageTypes.SpectateWorld.toString(), transportRequestData)
+        .then(receiveSpectateWorld)
+    } else {
+      const transportRequestData = {
+        inviteCode: getSearchParamFromURL('inviteCode')!
+      }
       Engine.instance.currentWorld.worldNetwork
         .request(MessageTypes.JoinWorld.toString(), transportRequestData)
         .then(receiveJoinWorld)

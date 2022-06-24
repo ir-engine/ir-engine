@@ -200,4 +200,9 @@ export class EngineActions {
     type: 'CORE_SETUP_ANIMATION' as const,
     entity: matches.number
   })
+
+  static spectateUser = defineAction({
+    type: 'CORE_SPECTATE_USER' as const,
+    user: matches.string
+  })
 }
