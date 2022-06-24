@@ -1,15 +1,19 @@
 import { ArrowHelper, Clock, Material, MathUtils, Matrix4, Quaternion, SkinnedMesh, Vector3 } from 'three'
 import { clamp } from 'three/src/math/MathUtils'
 
+import { UserId } from '@xrengine/common/src/interfaces/UserId'
+import { addActionReceptor } from '@xrengine/hyperflux'
+
 import { BoneNames } from '../../avatar/AvatarBoneMatching'
 import { AvatarAnimationComponent } from '../../avatar/components/AvatarAnimationComponent'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { XRCameraUpdatePendingTagComponent } from '../../avatar/components/XRCameraUpdatePendingTagComponent'
 import { setAvatarHeadOpacity } from '../../avatar/functions/avatarFunctions'
+import { matches } from '../../common/functions/MatchesUtils'
 import { smoothDamp } from '../../common/functions/MathLerpFunctions'
 import { createConeOfVectors } from '../../common/functions/vectorHelpers'
 import { Engine } from '../../ecs/classes/Engine'
-import { getEngineState } from '../../ecs/classes/EngineState'
+import { EngineActions, getEngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
 import {
@@ -28,7 +32,7 @@ import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { RAYCAST_PROPERTIES_DEFAULT_VALUES } from '../../scene/functions/loaders/CameraPropertiesFunctions'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { FollowCameraComponent } from '../components/FollowCameraComponent'
+import { FollowCameraComponent, FollowCameraDefaultValues } from '../components/FollowCameraComponent'
 import { TargetCameraRotationComponent } from '../components/TargetCameraRotationComponent'
 
 const direction = new Vector3()
@@ -232,10 +236,9 @@ export const updateFollowCamera = (entity: Entity, delta: number) => {
   mx.lookAt(direction, empty, upVector)
   cameraTransform.rotation.setFromRotationMatrix(mx)
 
-  const avatarTransform = getComponent(entity, TransformComponent)
-
   // TODO: Can move avatar update code outside this function
   if (followCamera.locked) {
+    const avatarTransform = getComponent(entity, TransformComponent)
     const newTheta = MathUtils.degToRad(theta + 180) % (Math.PI * 2)
     // avatarTransform.rotation.setFromAxisAngle(upVector, newTheta)
     avatarTransform.rotation.slerp(quaternion.setFromAxisAngle(upVector, newTheta), delta * 4)
@@ -259,37 +262,62 @@ export const initializeCameraComponent = (world: World) => {
   return cameraEntity
 }
 
+function handleSpectateMode() {
+  addActionReceptor((a) => {
+    matches(a).when(EngineActions.spectateUser.matches, (action) => {
+      const inviterUserAvatarEntity = Engine.instance.currentWorld.getUserAvatarEntity(action.user as UserId)
+
+      if (!inviterUserAvatarEntity) {
+        console.warn('The target entity to spectate does not exist')
+        return
+      }
+
+      const followCamValues = Object.assign({}, FollowCameraDefaultValues)
+      followCamValues.locked = false
+      followCamValues.zoomLevel = 0
+      addComponent(inviterUserAvatarEntity, FollowCameraComponent, followCamValues)
+    })
+  })
+}
+
+function enterFollowCameraQuery(entity: Entity) {
+  const cameraFollow = getComponent(entity, FollowCameraComponent)
+  cameraFollow.raycaster.layers.set(ObjectLayers.Scene) // Ignore avatars
+  ;(cameraFollow.raycaster as any).firstHitOnly = true // three-mesh-bvh setting
+  cameraFollow.raycaster.far = cameraFollow.maxDistance
+  Engine.instance.currentWorld.activeCameraFollowTarget = entity
+  //check for initialized raycast properties
+  if (!cameraFollow.raycastProps) {
+    cameraFollow.raycastProps = RAYCAST_PROPERTIES_DEFAULT_VALUES
+  }
+  for (let i = 0; i < cameraFollow.raycastProps.rayCount; i++) {
+    cameraRays.push(new Vector3())
+
+    if (debugRays) {
+      const arrow = new ArrowHelper()
+      coneDebugHelpers.push(arrow)
+      setObjectLayers(arrow, ObjectLayers.Gizmos)
+      Engine.instance.currentWorld.scene.add(arrow)
+    }
+  }
+}
+
 export default async function CameraSystem(world: World) {
   const followCameraQuery = defineQuery([FollowCameraComponent, TransformComponent, AvatarComponent])
   const targetCameraRotationQuery = defineQuery([FollowCameraComponent, TargetCameraRotationComponent])
   let cameraInitialized = Engine.instance.isEditor
+  handleSpectateMode()
+
   return () => {
     const { deltaSeconds: delta } = world
     if (getEngineState().sceneLoaded.value && !cameraInitialized) {
       initializeCameraComponent(world)
       cameraInitialized = true
     }
+
     if (cameraInitialized) {
       for (const entity of followCameraQuery.enter()) {
-        const cameraFollow = getComponent(entity, FollowCameraComponent)
-        cameraFollow.raycaster.layers.set(ObjectLayers.Scene) // Ignore avatars
-        ;(cameraFollow.raycaster as any).firstHitOnly = true // three-mesh-bvh setting
-        cameraFollow.raycaster.far = cameraFollow.maxDistance
-        Engine.instance.currentWorld.activeCameraFollowTarget = entity
-        //check for initialized raycast properties
-        if (!cameraFollow.raycastProps) {
-          cameraFollow.raycastProps = RAYCAST_PROPERTIES_DEFAULT_VALUES
-        }
-        for (let i = 0; i < cameraFollow.raycastProps.rayCount; i++) {
-          cameraRays.push(new Vector3())
-
-          if (debugRays) {
-            const arrow = new ArrowHelper()
-            coneDebugHelpers.push(arrow)
-            setObjectLayers(arrow, ObjectLayers.Gizmos)
-            Engine.instance.currentWorld.scene.add(arrow)
-          }
-        }
+        enterFollowCameraQuery(entity)
       }
     }
 

@@ -15,12 +15,19 @@ export type SpectateWorldProps = {
   worldStartTime: number
   client: { name: string; index: number }
   cachedActions: Required<Action>[]
-  spectateUser: UserId
+  spectateUser: string
 }
 
 export const receiveSpectateWorld = (props: SpectateWorldProps) => {
   const { highResTimeOrigin, worldStartTime, client, cachedActions, spectateUser } = props
-  console.log('RECEIVED SPECTATE WORLD RESPONSE', highResTimeOrigin, worldStartTime, client, cachedActions)
+  console.log(
+    'RECEIVED SPECTATE WORLD RESPONSE',
+    highResTimeOrigin,
+    worldStartTime,
+    client,
+    cachedActions,
+    spectateUser
+  )
   const world = Engine.instance.currentWorld
 
   for (const action of cachedActions) Engine.instance.store.actions.incoming.push({ ...action, $fromCache: true })
@@ -29,7 +36,7 @@ export const receiveSpectateWorld = (props: SpectateWorldProps) => {
 
   if (spectateUser) {
     dispatchAction(EngineActions.joinedWorld())
-    dispatchAction(EngineActions.spectateUser(spectateUser as any))
+    dispatchAction(EngineActions.spectateUser({ user: spectateUser }))
   }
 }
 
