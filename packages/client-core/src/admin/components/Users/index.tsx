@@ -23,12 +23,12 @@ import {
 } from '../../services/UserRoleService'
 import { AdminUserService, AdminUserServiceReceptor } from '../../services/UserService'
 import styles from '../../styles/admin.module.scss'
-import UserModal from './CreateUser'
+import UserDrawer, { UserDrawerMode } from './UserDrawer'
 import UserTable from './UserTable'
 
 const Users = () => {
   const [search, setSearch] = useState('')
-  const [userModalOpen, setUserModalOpen] = useState(false)
+  const [openUserDrawer, setOpenUserDrawer] = useState(false)
   const [role, setRole] = useState('')
   const { t } = useTranslation()
   const [checked, setChecked] = useState(false)
@@ -102,9 +102,9 @@ const Users = () => {
               className={styles.openModalBtn}
               type="submit"
               variant="contained"
-              onClick={() => setUserModalOpen(true)}
+              onClick={() => setOpenUserDrawer(true)}
             >
-              {t('admin:components.user.createNewUser')}
+              {t('admin:components.user.createUser')}
             </Button>
             <IconButton
               onClick={handleClick}
@@ -121,7 +121,7 @@ const Users = () => {
         </Grid>
       </Grid>
       <UserTable className={styles.rootTable} search={search} />
-      <UserModal open={userModalOpen} onClose={() => setUserModalOpen(false)} />
+      <UserDrawer open={openUserDrawer} mode={UserDrawerMode.Create} onClose={() => setOpenUserDrawer(false)} />
       <Popover
         classes={{ paper: styles.popover }}
         open={openMenu}

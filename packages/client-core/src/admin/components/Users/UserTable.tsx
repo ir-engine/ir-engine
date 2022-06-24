@@ -11,7 +11,7 @@ import TableComponent from '../../common/Table'
 import { userColumns, UserData, UserProps } from '../../common/variables/user'
 import { AdminUserService, USER_PAGE_LIMIT, useUserState } from '../../services/UserService'
 import styles from '../../styles/admin.module.scss'
-import ViewUser from './ViewUser'
+import UserDrawer, { UserDrawerMode } from './UserDrawer'
 
 const UserTable = ({ className, search }: UserProps) => {
   const [page, setPage] = useState(0)
@@ -21,7 +21,7 @@ const UserTable = ({ className, search }: UserProps) => {
   const [userName, setUserName] = useState('')
   const [fieldOrder, setFieldOrder] = useState('asc')
   const [sortField, setSortField] = useState('name')
-  const [openViewUser, setOpenViewUser] = useState(false)
+  const [openUserDrawer, setOpenUserDrawer] = useState(false)
   const [userAdmin, setUserAdmin] = useState<User | null>(null)
   const authState = useAuthState()
   const user = authState.user
@@ -77,11 +77,11 @@ const UserTable = ({ className, search }: UserProps) => {
       action: (
         <>
           <a
-            href=""
+            href="#"
             className={styles.actionStyle}
             onClick={() => {
               setUserAdmin(el)
-              setOpenViewUser(true)
+              setOpenUserDrawer(true)
             }}
           >
             <span className={styles.spanWhite}>{t('admin:components.index.view')}</span>
@@ -151,7 +151,14 @@ const UserTable = ({ className, search }: UserProps) => {
         onClose={() => setOpenConfirm(false)}
         onSubmit={submitDeleteUser}
       />
-      {userAdmin && openViewUser && <ViewUser open userAdmin={userAdmin} onClose={() => setOpenViewUser(false)} />}
+      {userAdmin && openUserDrawer && (
+        <UserDrawer
+          open
+          mode={UserDrawerMode.ViewEdit}
+          selectedUser={userAdmin}
+          onClose={() => setOpenUserDrawer(false)}
+        />
+      )}
     </Box>
   )
 }

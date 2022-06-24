@@ -29,7 +29,7 @@ export enum PartyDrawerMode {
 interface Props {
   open: boolean
   mode: PartyDrawerMode
-  party?: Party
+  selectedParty?: Party
   onClose: () => void
 }
 
@@ -42,48 +42,46 @@ const defaultState = {
   }
 }
 
-const PartyDrawer = ({ open, mode, party, onClose }: Props) => {
+const PartyDrawer = ({ open, mode, selectedParty, onClose }: Props) => {
   const { t } = useTranslation()
   const [editMode, setEditMode] = useState(false)
   const [state, setState] = useState({ ...defaultState })
 
   const { user } = useAuthState().value
-  const adminLocationState = useAdminLocationState().value
-  const locationData = adminLocationState.locations
-  const adminInstanceState = useAdminInstanceState().value
-  const instanceData = adminInstanceState.instances
+  const { locations } = useAdminLocationState().value
+  const { instances } = useAdminInstanceState().value
 
-  const hasWriteAccess = user?.scopes && user?.scopes.find((item) => item.type === 'party:write')
+  const hasWriteAccess = user.scopes && user.scopes.find((item) => item.type === 'party:write')
   const viewMode = mode === PartyDrawerMode.ViewEdit && editMode === false
 
-  const instanceMenu: InputMenuItem[] = instanceData.map((el) => {
+  const instanceMenu: InputMenuItem[] = instances.map((el) => {
     return {
       value: el?.id,
       label: el?.ipAddress
     }
   })
 
-  const locationMenu: InputMenuItem[] = locationData.map((el) => {
+  const locationMenu: InputMenuItem[] = locations.map((el) => {
     return {
       value: el?.id,
       label: el?.name
     }
   })
 
-  if (party) {
-    const instanceExists = instanceMenu.find((item) => item.value === party?.instance?.id)
+  if (selectedParty) {
+    const instanceExists = instanceMenu.find((item) => item.value === selectedParty.instance?.id)
     if (!instanceExists) {
       instanceMenu.push({
-        value: party?.instance?.id!,
-        label: party?.instance?.ipAddress!
+        value: selectedParty.instance?.id!,
+        label: selectedParty.instance?.ipAddress!
       })
     }
 
-    const locationExists = locationMenu.find((item) => item.value === party?.location?.id)
+    const locationExists = locationMenu.find((item) => item.value === selectedParty.location?.id)
     if (!locationExists) {
       locationMenu.push({
-        value: party?.location?.id!,
-        label: party?.location?.name!
+        value: selectedParty.location?.id!,
+        label: selectedParty.location?.name!
       })
     }
   }
@@ -95,16 +93,23 @@ const PartyDrawer = ({ open, mode, party, onClose }: Props) => {
 
   useEffect(() => {
     loadParty()
-  }, [party])
+  }, [selectedParty])
 
   const loadParty = () => {
-    if (party) {
+    if (selectedParty) {
       setState({
         ...defaultState,
-        instance: party?.instance?.id ?? '',
-        location: party?.location?.id ?? ''
+        instance: selectedParty.instance?.id ?? '',
+        location: selectedParty.location?.id ?? ''
       })
     }
+  }
+
+  const handleCancel = () => {
+    if (editMode) {
+      loadParty()
+      setEditMode(false)
+    } else handleClose()
   }
 
   const handleClose = () => {
@@ -115,19 +120,20 @@ const PartyDrawer = ({ open, mode, party, onClose }: Props) => {
   const handleChange = (e) => {
     const { name, value } = e.target
 
-    let temp = { ...state.formErrors }
+    let tempErrors = { ...state.formErrors }
 
     switch (name) {
       case 'location':
-        temp.location = value.length < 2 ? t('admin:components.party.locationRequired') : ''
+        tempErrors.location = value.length < 2 ? t('admin:components.party.locationRequired') : ''
         break
       case 'instance':
-        temp.instance = value.length < 2 ? t('admin:components.party.instanceRequired') : ''
+        tempErrors.instance = value.length < 2 ? t('admin:components.party.instanceRequired') : ''
         break
       default:
         break
     }
-    setState({ ...state, [name]: value, formErrors: temp })
+
+    setState({ ...state, [name]: value, formErrors: tempErrors })
   }
 
   const handleSubmit = async () => {
@@ -147,14 +153,14 @@ const PartyDrawer = ({ open, mode, party, onClose }: Props) => {
     if (validateForm(state, tempErrors)) {
       if (mode === PartyDrawerMode.Create) {
         await AdminPartyService.createAdminParty(data)
-      } else if (party) {
-        await AdminPartyService.patchParty(party.id!, data)
+      } else if (selectedParty) {
+        await AdminPartyService.patchParty(selectedParty.id!, data)
         setEditMode(false)
       }
 
       handleClose()
     } else {
-      NotificationService.dispatchNotify(t('admin:components.locationModal.fillRequiredFields'), { variant: 'error' })
+      NotificationService.dispatchNotify(t('admin:components.common.fillRequiredFields'), { variant: 'error' })
     }
   }
 
@@ -162,11 +168,15 @@ const PartyDrawer = ({ open, mode, party, onClose }: Props) => {
     <DrawerView open={open} onClose={onClose}>
       <Container maxWidth="sm" className={styles.mt20}>
         <DialogTitle className={styles.textAlign}>
-          {mode === PartyDrawerMode.Create && t('admin:components.locationModal.createParty')}
+          {mode === PartyDrawerMode.Create && t('admin:components.party.createParty')}
           {mode === PartyDrawerMode.ViewEdit &&
             editMode &&
-            `${t('admin:components.locationModal.update')} ${party?.location?.name}/${party?.instance?.ipAddress}`}
-          {mode === PartyDrawerMode.ViewEdit && !editMode && `${party?.location?.name}/${party?.instance?.ipAddress}`}
+            `${t('admin:components.common.update')} ${selectedParty?.location?.name}/${
+              selectedParty?.instance?.ipAddress
+            }`}
+          {mode === PartyDrawerMode.ViewEdit &&
+            !editMode &&
+            `${selectedParty?.location?.name}/${selectedParty?.instance?.ipAddress}`}
         </DialogTitle>
 
         <InputSelect
@@ -213,15 +223,7 @@ const PartyDrawer = ({ open, mode, party, onClose }: Props) => {
               {t('admin:components.common.edit')}
             </Button>
           )}
-          <Button
-            className={styles.cancelButton}
-            onClick={() => {
-              if (editMode) {
-                loadParty()
-                setEditMode(false)
-              } else handleClose()
-            }}
-          >
+          <Button className={styles.cancelButton} onClick={handleCancel}>
             {t('admin:components.common.cancel')}
           </Button>
         </DialogActions>

@@ -257,7 +257,7 @@ const ViewUser = ({ userAdmin, open, onClose }: Props) => {
             <AutoComplete
               data={scopeData}
               label={t('admin:components.user.grantScope')}
-              scopes={state.scopes}
+              defaultValue={state.scopes}
               onChange={handleChangeScopeType}
             />
           </div>

@@ -29,7 +29,7 @@ export enum LocationDrawerMode {
 interface Props {
   open: boolean
   mode: LocationDrawerMode
-  location?: LocationFetched
+  selectedLocation?: LocationFetched
   onClose: () => void
 }
 
@@ -53,7 +53,7 @@ const defaultState = {
   }
 }
 
-const LocationDrawer = ({ open, mode, location, onClose }: Props) => {
+const LocationDrawer = ({ open, mode, selectedLocation, onClose }: Props) => {
   const { t } = useTranslation()
   const [editMode, setEditMode] = useState(false)
   const [state, setState] = useState({ ...defaultState })
@@ -62,7 +62,7 @@ const LocationDrawer = ({ open, mode, location, onClose }: Props) => {
   const { locationTypes } = useAdminLocationState().value
   const { user } = useAuthState().value // user initialized by getting value from authState object.
 
-  const hasWriteAccess = user?.scopes && user?.scopes.find((item) => item.type === 'location:write')
+  const hasWriteAccess = user.scopes && user.scopes.find((item) => item.type === 'location:write')
   const viewMode = mode === LocationDrawerMode.ViewEdit && editMode === false
 
   const sceneMenu: InputMenuItem[] = scenes.map((el) => {
@@ -79,20 +79,20 @@ const LocationDrawer = ({ open, mode, location, onClose }: Props) => {
     }
   })
 
-  if (location) {
-    const sceneExists = sceneMenu.find((item) => item.value === location.location_setting?.locationType)
+  if (selectedLocation) {
+    const sceneExists = sceneMenu.find((item) => item.value === selectedLocation.location_setting?.locationType)
     if (!sceneExists) {
       locationMenu.push({
-        value: location.location_setting?.locationType,
-        label: location.location_setting?.locationType
+        value: selectedLocation.location_setting?.locationType,
+        label: selectedLocation.location_setting?.locationType
       })
     }
 
-    const locationExists = locationMenu.find((item) => item.value === location.sceneId)
+    const locationExists = locationMenu.find((item) => item.value === selectedLocation.sceneId)
     if (!locationExists) {
-      const sceneSplit = location.sceneId.split('/')
+      const sceneSplit = selectedLocation.sceneId.split('/')
       locationMenu.push({
-        value: location.sceneId,
+        value: selectedLocation.sceneId,
         label: `${sceneSplit[1]} (${sceneSplit[0]})`
       })
     }
@@ -105,25 +105,32 @@ const LocationDrawer = ({ open, mode, location, onClose }: Props) => {
 
   useEffect(() => {
     loadLocation()
-  }, [location])
+  }, [selectedLocation])
 
   const loadLocation = () => {
-    if (location) {
+    if (selectedLocation) {
       setState({
         ...defaultState,
-        name: location.name,
-        maxUsers: location.maxUsersPerInstance,
-        scene: location.sceneId,
-        type: location.location_setting?.locationType,
-        videoEnabled: location.location_setting?.videoEnabled,
-        audioEnabled: location.location_setting?.audioEnabled,
-        screenSharingEnabled: location.location_setting?.screenSharingEnabled,
-        faceStreamingEnabled: location.location_setting?.faceStreamingEnabled,
-        globalMediaEnabled: location.location_setting?.instanceMediaChatEnabled,
-        isLobby: location.isLobby,
-        isFeatured: location.isFeatured
+        name: selectedLocation.name,
+        maxUsers: selectedLocation.maxUsersPerInstance,
+        scene: selectedLocation.sceneId,
+        type: selectedLocation.location_setting?.locationType,
+        videoEnabled: selectedLocation.location_setting?.videoEnabled,
+        audioEnabled: selectedLocation.location_setting?.audioEnabled,
+        screenSharingEnabled: selectedLocation.location_setting?.screenSharingEnabled,
+        faceStreamingEnabled: selectedLocation.location_setting?.faceStreamingEnabled,
+        globalMediaEnabled: selectedLocation.location_setting?.instanceMediaChatEnabled,
+        isLobby: selectedLocation.isLobby,
+        isFeatured: selectedLocation.isFeatured
       })
     }
+  }
+
+  const handleCancel = () => {
+    if (editMode) {
+      loadLocation()
+      setEditMode(false)
+    } else handleClose()
   }
 
   const handleClose = () => {
@@ -134,25 +141,26 @@ const LocationDrawer = ({ open, mode, location, onClose }: Props) => {
   const handleChange = (e) => {
     const { name, value } = e.target
 
-    let temp = { ...state.formErrors }
+    let tempErrors = { ...state.formErrors }
 
     switch (name) {
       case 'name':
-        temp.name = value.length < 2 ? t('admin:components.locationModal.nameRequired') : ''
+        tempErrors.name = value.length < 2 ? t('admin:components.locationModal.nameRequired') : ''
         break
       case 'maxUsers':
-        temp.maxUsers = value.length < 1 ? t('admin:components.locationModal.maxUsersRequired') : ''
+        tempErrors.maxUsers = value.length < 1 ? t('admin:components.locationModal.maxUsersRequired') : ''
         break
       case 'scene':
-        temp.scene = value.length < 2 ? t('admin:components.locationModal.sceneRequired') : ''
+        tempErrors.scene = value.length < 2 ? t('admin:components.locationModal.sceneRequired') : ''
         break
       case 'type':
-        temp.type = value.length < 2 ? t('admin:components.locationModal.privateRoleRequired') : ''
+        tempErrors.type = value.length < 2 ? t('admin:components.locationModal.typeRequired') : ''
         break
       default:
         break
     }
-    setState({ ...state, [name]: value, formErrors: temp })
+
+    setState({ ...state, [name]: value, formErrors: tempErrors })
   }
 
   const handleSubmit = () => {
@@ -185,14 +193,14 @@ const LocationDrawer = ({ open, mode, location, onClose }: Props) => {
     if (validateForm(state, tempErrors)) {
       if (mode === LocationDrawerMode.Create) {
         AdminLocationService.createLocation(data)
-      } else if (location) {
-        AdminLocationService.patchLocation(location.id, data)
+      } else if (selectedLocation) {
+        AdminLocationService.patchLocation(selectedLocation.id, data)
         setEditMode(false)
       }
 
       handleClose()
     } else {
-      NotificationService.dispatchNotify(t('admin:components.locationModal.fillRequiredFields'), { variant: 'error' })
+      NotificationService.dispatchNotify(t('admin:components.common.fillRequiredFields'), { variant: 'error' })
     }
   }
 
@@ -203,8 +211,8 @@ const LocationDrawer = ({ open, mode, location, onClose }: Props) => {
           {mode === LocationDrawerMode.Create && t('admin:components.locationModal.createLocation')}
           {mode === LocationDrawerMode.ViewEdit &&
             editMode &&
-            `${t('admin:components.locationModal.update')} ${location?.name}`}
-          {mode === LocationDrawerMode.ViewEdit && !editMode && location?.name}
+            `${t('admin:components.common.update')} ${selectedLocation?.name}`}
+          {mode === LocationDrawerMode.ViewEdit && !editMode && selectedLocation?.name}
         </DialogTitle>
 
         <InputText
@@ -324,15 +332,7 @@ const LocationDrawer = ({ open, mode, location, onClose }: Props) => {
               {t('admin:components.common.edit')}
             </Button>
           )}
-          <Button
-            className={styles.cancelButton}
-            onClick={() => {
-              if (editMode) {
-                loadLocation()
-                setEditMode(false)
-              } else handleClose()
-            }}
-          >
+          <Button className={styles.cancelButton} onClick={handleCancel}>
             {t('admin:components.common.cancel')}
           </Button>
         </DialogActions>

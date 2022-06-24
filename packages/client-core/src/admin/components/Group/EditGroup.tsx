@@ -114,7 +114,7 @@ const EditGroup = ({ groupAdmin, onClose }: Props) => {
         <AutoComplete
           data={scopeData}
           label={t('admin:components.group.groupScope')}
-          scopes={state.scopeTypes}
+          defaultValue={state.scopeTypes}
           onChange={handleChangeScopeType}
         />
 
