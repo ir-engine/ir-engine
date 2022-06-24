@@ -10,10 +10,10 @@ import {
 import { initGA, logPageView } from '@xrengine/client-core/src/common/components/analytics'
 import { defaultAction } from '@xrengine/client-core/src/common/components/NotificationActions'
 import { ProjectService, useProjectState } from '@xrengine/client-core/src/common/services/ProjectService'
-import { store } from '@xrengine/client-core/src/store'
 import { theme } from '@xrengine/client-core/src/theme'
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import GlobalStyle from '@xrengine/client-core/src/util/GlobalStyle'
+import { matches } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { loadWebappInjection } from '@xrengine/projects/loadWebappInjection'
 
 import { StyledEngineProvider, Theme, ThemeProvider } from '@mui/material/styles'
@@ -22,10 +22,8 @@ import RouterComp from '../route/public'
 
 import './styles.scss'
 
-import {
-  NotificationActions,
-  NotificationActionType
-} from '@xrengine/client-core/src/common/services/NotificationService'
+import { NotificationAction, NotificationActions } from '@xrengine/client-core/src/common/services/NotificationService'
+import { addActionReceptor, removeActionReceptor } from '@xrengine/hyperflux'
 
 declare module '@mui/styles/defaultTheme' {
   // eslint-disable-next-line @typescript-eslint/no-empty-interface
@@ -63,25 +61,18 @@ const App = (): any => {
   }, [])
 
   useEffect(() => {
-    const receptor = (action: NotificationActionType): any => {
-      switch (action.type) {
-        case 'ENQUEUE_NOTIFICATION': {
-          notistackRef.current?.enqueueSnackbar(action.message, {
-            variant: action.options.variant,
-            action: NotificationActions[action.options.actionType ?? 'default']
-          })
-        }
-        default:
-          break
-      }
+    const receptor = (action): any => {
+      matches(action).when(NotificationAction.notify.matches, (action) => {
+        notistackRef.current?.enqueueSnackbar(action.message, {
+          variant: action.options.variant,
+          action: NotificationActions[action.options.actionType ?? 'default']
+        })
+      })
     }
-    store.receptors.push(receptor)
+    addActionReceptor(receptor)
 
     return () => {
-      const index = store.receptors.indexOf(receptor)
-      if (index >= 0) {
-        store.receptors.splice(index, 1)
-      }
+      removeActionReceptor(receptor)
     }
   }, [notistackRef])
 

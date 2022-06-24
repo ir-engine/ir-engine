@@ -74,24 +74,20 @@ export const SelectionService = {}
 //Action
 export class SelectionAction {
   static changedBeforeSelection = defineAction({
-    store: 'EDITOR',
     type: 'editorSelection.BEFORE_SELECTION_CHANGED'
   })
 
   static changedObject = defineAction({
-    store: 'EDITOR',
     type: 'editorSelection.OBJECT_CHANGED',
     objects: matches.array as Validator<unknown, EntityTreeNode[]>,
     propertyName: matches.string
   })
 
   static changedSceneGraph = defineAction({
-    store: 'EDITOR',
     type: 'editorSelection.SCENE_GRAPH_CHANGED'
   })
 
   static updateSelection = defineAction({
-    store: 'EDITOR',
     type: 'editorSelection.SELECTION_CHANGED',
     selectedEntities: matches.array as Validator<unknown, Entity[]>
   })

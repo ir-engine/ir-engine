@@ -4,8 +4,8 @@ import { EmailSetting, PatchEmailSetting } from '@xrengine/common/src/interfaces
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
+import { API } from '../../../API'
 import { NotificationService } from '../../../common/services/NotificationService'
-import { client } from '../../../feathers'
 
 const AdminEmailSettingsState = defineState({
   name: 'AdminEmailSettingsState',
@@ -34,7 +34,7 @@ export const useEmailSettingState = () => useState(accessEmailSettingState())
 export const EmailSettingService = {
   fetchedEmailSettings: async (inDec?: 'increment' | 'dcrement') => {
     try {
-      const emailSettings = (await client.service('email-setting').find()) as Paginated<EmailSetting>
+      const emailSettings = (await API.instance.client.service('email-setting').find()) as Paginated<EmailSetting>
       dispatchAction(EmailSettingActions.fetchedEmail({ emailSettings }))
     } catch (err) {
       console.log(err.message)
@@ -43,7 +43,7 @@ export const EmailSettingService = {
   },
   patchEmailSetting: async (data: PatchEmailSetting, id: string) => {
     try {
-      await client.service('email-setting').patch(id, data)
+      await API.instance.client.service('email-setting').patch(id, data)
       dispatchAction(EmailSettingActions.emailSettingPatched())
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })

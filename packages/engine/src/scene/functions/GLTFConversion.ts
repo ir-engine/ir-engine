@@ -90,7 +90,7 @@ const serializeECS = (roots: Object3DWithEntity[], asset?: AssetComponentType, w
   const frontier: Object3DWithEntity[] = []
   const haveChildren = new Array()
   const result = {
-    asset: { version: '2.0', generator: 'XREngine glTF Scene Conversion' },
+    asset: { version: '2.0', generator: 'Ethereal Engine glTF Scene Conversion' },
     scenes: [{ nodes: new Array() }],
     scene: 0,
     nodes: new Array(),
@@ -113,7 +113,7 @@ const serializeECS = (roots: Object3DWithEntity[], asset?: AssetComponentType, w
       const children = nodeMap.get(srcObj.entity)?.children
 
       if (children) {
-        haveChildren.push(nodeMap.get(srcObj.entity))
+        haveChildren.push(nodeBase)
         nodeBase['children'] = children
       }
       if (roots.includes(srcObj)) {

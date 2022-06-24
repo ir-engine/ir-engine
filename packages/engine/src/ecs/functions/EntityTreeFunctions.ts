@@ -232,7 +232,8 @@ export function iterateEntityNode(
   node: EntityTreeNode,
   cb: (node: EntityTreeNode, index: number) => void,
   pred: (node: EntityTreeNode) => boolean = (x) => true,
-  tree = Engine.instance.currentWorld.entityTree
+  tree = Engine.instance.currentWorld.entityTree,
+  snubChildren: boolean = false
 ): void {
   const frontier = [[node]]
   while (frontier.length > 0) {
@@ -243,10 +244,15 @@ export function iterateEntityNode(
       if (pred(item)) {
         cb(item, idx)
         idx += 1
-        const children = item.children
-        if (children && children.length > 0) {
-          frontier.push(children.filter((x) => tree.entityNodeMap.has(x)).map((x) => tree.entityNodeMap.get(x)!))
-        }
+        if (snubChildren)
+          frontier.push(
+            item.children?.filter((x) => tree.entityNodeMap.has(x)).map((x) => tree.entityNodeMap.get(x)!) ?? []
+          )
+      }
+      if (!snubChildren) {
+        frontier.push(
+          item.children?.filter((x) => tree.entityNodeMap.has(x)).map((x) => tree.entityNodeMap.get(x)!) ?? []
+        )
       }
     }
   }

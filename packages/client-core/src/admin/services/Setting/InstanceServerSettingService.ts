@@ -4,8 +4,8 @@ import { InstanceServerSetting } from '@xrengine/common/src/interfaces/InstanceS
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
+import { API } from '../../../API'
 import { NotificationService } from '../../../common/services/NotificationService'
-import { client } from '../../../feathers'
 
 const AdminInstanceServerSettingsState = defineState({
   name: 'AdminInstanceServerSettingsState',
@@ -30,7 +30,7 @@ export const useInstanceServerSettingState = () => useState(accessInstanceServer
 export const InstanceServerSettingService = {
   fetchedInstanceServerSettings: async (inDec?: 'increment' | 'decrement') => {
     try {
-      const instanceServerSettings = (await client
+      const instanceServerSettings = (await API.instance.client
         .service('instance-server-setting')
         .find()) as Paginated<InstanceServerSetting>
       dispatchAction(InstanceServerSettingActions.fetchedInstanceServer({ instanceServerSettings }))

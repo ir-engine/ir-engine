@@ -57,21 +57,18 @@ export function AudioSettingReceptor(action: AudioActionType) {
 export const AudioSettingAction = {
   setAudio: (audio: number) => {
     return {
-      store: 'ENGINE' as const,
       type: 'AUDIO_VOLUME' as const,
       audio
     }
   },
   setMicrophone: (microphone: number) => {
     return {
-      store: 'ENGINE' as const,
       type: 'MICROPHONE_VOLUME' as const,
       microphone
     }
   },
   restoreStorageData: (state: AudioStateType) => {
     return {
-      store: 'ENGINE' as const,
       type: 'RESTORE_AUDIO_STORAGE_DATA' as const,
       state
     }

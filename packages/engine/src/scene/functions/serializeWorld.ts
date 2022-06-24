@@ -51,7 +51,9 @@ export const serializeWorld = (entityTreeNode?: EntityTreeNode, generateNewUUID 
         }
       }
     },
-    (node) => !loadedAssets.has(node)
+    (node) => !loadedAssets.has(node),
+    world.entityTree,
+    true
   )
 
   Object.keys(sceneJson.entities).forEach((key) => {

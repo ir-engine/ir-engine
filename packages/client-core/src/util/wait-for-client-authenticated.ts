@@ -1,8 +1,8 @@
-import { client } from '../feathers'
+import { API } from '../API'
 
 async function waitForClientAuthenticated(): Promise<void> {
   //console.log('Client authenticated?', client.authentication?.authenticated)
-  if (client.authentication?.authenticated === true) return Promise.resolve()
+  if (API.instance.client.authentication?.authenticated === true) return Promise.resolve()
   else
     return await new Promise((resolve) =>
       setTimeout(async () => {
