@@ -276,7 +276,7 @@ const loadEngine = async (app: Application, sceneId: string) => {
     await loadEngineInjection(world, projects)
 
     const sceneUpdatedListener = async () => {
-      const sceneData = (await sceneResultPromise).data.scene as any // SceneData
+      const sceneData = (await sceneResultPromise).data.scene
       const sceneSystems = getSystemsFromSceneData(projectName, sceneData, false)
       await loadSceneFromJSON(sceneData, sceneSystems)
     }
