@@ -30,7 +30,7 @@ const SelectAvatarMenu = () => {
   const avatarId = authState.user?.avatarId?.value
   const avatarList = authState.avatarList.value
 
-  const userSettings = authState.user_setting.value
+  const userSettings = authState.user.user_setting.value
   const [page, setPage] = useState(0)
   const [imgPerPage, setImgPerPage] = useState(getAvatarPerPage())
   const [selectedAvatar, setSelectedAvatar] = useState<any>('')
