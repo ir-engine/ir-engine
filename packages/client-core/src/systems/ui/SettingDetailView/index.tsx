@@ -81,16 +81,20 @@ const SettingDetailView = () => {
   }
 
   const handleChangeInvertRotationAndMoveSticks = (event: React.ChangeEvent<HTMLInputElement>) => {
-    dispatchAction(AvatarInputSettingsAction.setInvertRotationAndMoveSticks(!invertRotationAndMoveSticks))
+    dispatchAction(
+      AvatarInputSettingsAction.setInvertRotationAndMoveSticks({
+        invertRotationAndMoveSticks: !invertRotationAndMoveSticks
+      })
+    )
   }
 
   const handleChangeShowAvatar = (event: React.ChangeEvent<HTMLInputElement>) => {
-    dispatchAction(AvatarInputSettingsAction.setShowAvatar(!showAvatar))
+    dispatchAction(AvatarInputSettingsAction.setShowAvatar({ showAvatar: !showAvatar }))
   }
 
   const handleChangeControlType = (event: React.ChangeEvent<HTMLSelectElement>) => {
     setControlType(event.target.value as any)
-    dispatchAction(AvatarInputSettingsAction.setControlType(event.target.value as any))
+    dispatchAction(AvatarInputSettingsAction.setControlType({ controlType: event.target.value as any }))
   }
 
   const handleChangeControlScheme = (event: React.ChangeEvent<HTMLSelectElement>) => {
