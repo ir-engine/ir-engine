@@ -45,7 +45,6 @@ export const deserializeGround: ComponentDeserializeFunction = async function (
 
   mesh.name = 'GroundPlaneMesh'
   mesh.position.y = -0.05
-  // mesh.visible = false
 
   const colliderDescOptions = {} as ColliderDescOptions
   colliderDescOptions.bodyType = RigidBodyType.Fixed
@@ -53,8 +52,6 @@ export const deserializeGround: ComponentDeserializeFunction = async function (
   colliderDescOptions.size = planeSize
   colliderDescOptions.collisionLayer = CollisionGroups.Ground
   colliderDescOptions.collisionMask = CollisionGroups.Default
-
-  mesh.userData = colliderDescOptions
 
   const groundPlane = new Object3D()
   groundPlane.userData.mesh = mesh
@@ -66,9 +63,15 @@ export const deserializeGround: ComponentDeserializeFunction = async function (
   addComponent(entity, GroundPlaneComponent, props)
   getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_GROUND_PLANE)
 
-  Physics.createRigidBodyForObject(entity, Engine.instance.currentWorld.physicsWorld, groundPlane.userData.mesh)
+  Physics.createRigidBodyForObject(
+    entity,
+    Engine.instance.currentWorld.physicsWorld,
+    groundPlane.userData.mesh,
+    colliderDescOptions
+  )
   // Until player avatar is switched to rapier, this is needed.
   // @TODO: make this isomorphic with editor
+  mesh.userData = colliderDescOptions
   mesh.userData['bodyType'] = 0
   mesh.userData['type'] = 'ground'
   mesh.rotation.x = -Math.PI / 2

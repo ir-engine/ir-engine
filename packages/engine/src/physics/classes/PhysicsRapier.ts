@@ -16,11 +16,13 @@ import { Mesh, Object3D, Quaternion, Shape, Vector3 } from 'three'
 
 import { mergeBufferGeometries } from '../../common/classes/BufferGeometryUtils'
 import { Axis } from '../../common/constants/Axis3D'
+import { createVector3Proxy } from '../../common/proxies/three'
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, ComponentType, getComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { RapierCollisionComponent } from '../components/RapierCollisionComponent'
 import { RaycastComponent } from '../components/RaycastComponent'
 import { RigidBodyComponent } from '../components/RigidBodyComponent'
+import { VelocityComponent } from '../components/VelocityComponent'
 import { CollisionGroups, DefaultCollisionMask } from '../enums/CollisionGroups'
 import { getInteractionGroups } from '../functions/getInteractionGroups'
 import { getTagComponentForRigidBody } from '../functions/getTagComponentForRigidBody'
@@ -59,94 +61,108 @@ function createRigidBody(entity: Entity, world: World, rigidBodyDesc: RigidBodyD
   const rigidBodyUserdata = { entity: entity }
   rigidBody.userData = rigidBodyUserdata
 
+  const linearVelocity = createVector3Proxy(VelocityComponent.linear, entity)
+  const angularVelocity = createVector3Proxy(VelocityComponent.angular, entity)
+  addComponent(entity, VelocityComponent, { linear: linearVelocity, angular: angularVelocity })
+
   return rigidBody
 }
 
-function createRigidBodyForObject(entity: Entity, world: World, object: Object3D): RigidBody {
-  const userData = object.userData
-  if ('bodyType' in userData) {
-    const colliderDescs = [] as ColliderDesc[]
-    const rigidBodyType = object.userData['bodyType']
+function createColliderDesc(mesh: Mesh, colliderDescOptions: ColliderDescOptions): ColliderDesc {
+  // Type is required
+  const shapeOptions = colliderDescOptions
+  if (shapeOptions.type && typeof shapeOptions.type === 'number') {
+    const meshScale = mesh.getWorldScale(tempVector3)
+    // If custom size has been provided use that else use mesh world scale.
+    const colliderSize = shapeOptions.size ? shapeOptions.size : meshScale
+
+    // Check for case mismatch
+    if (
+      typeof shapeOptions.collisionLayer === 'undefined' &&
+      typeof (shapeOptions as any).collisionlayer !== 'undefined'
+    )
+      shapeOptions.collisionLayer = (shapeOptions as any).collisionlayer
+    if (typeof shapeOptions.collisionMask === 'undefined' && typeof (shapeOptions as any).collisionmask !== 'undefined')
+      shapeOptions.collisionMask = (shapeOptions as any).collisionmask
+
+    let colliderDesc: ColliderDesc
+    let geometry, vertices, indices
+    switch (shapeOptions.type as ShapeType) {
+      case ShapeType.Cuboid:
+        colliderDesc = ColliderDesc.cuboid(Math.abs(colliderSize.x), Math.abs(colliderSize.y), Math.abs(colliderSize.z))
+        break
+
+      case ShapeType.Ball:
+        colliderDesc = ColliderDesc.ball(Math.abs(colliderSize.x))
+        break
+
+      case ShapeType.Capsule:
+        colliderDesc = ColliderDesc.capsule(Math.abs(colliderSize.y), Math.abs(colliderSize.x))
+        break
+
+      case ShapeType.Cylinder:
+        colliderDesc = ColliderDesc.cylinder(Math.abs(colliderSize.y), Math.abs(colliderSize.x))
+        break
+
+      case ShapeType.ConvexPolyhedron:
+        geometry = mergeBufferGeometries([mesh.geometry]) // TODO: is this needed?
+        vertices = new Float32Array(geometry!.attributes.position.array)
+        indices = new Uint32Array(geometry!.index!.array)
+        colliderDesc = ColliderDesc.convexMesh(vertices, indices) as ColliderDesc
+        break
+
+      case ShapeType.TriMesh:
+        geometry = mergeBufferGeometries([mesh.geometry]) // TODO: is this needed?
+        vertices = new Float32Array(geometry!.attributes.position.array)
+        indices = new Uint32Array(geometry!.index!.array)
+        colliderDesc = ColliderDesc.trimesh(vertices, indices)
+        break
+
+      default:
+        console.error('unknown shape', shapeOptions)
+        return undefined!
+    }
+    shapeOptions.friction ? colliderDesc.setFriction(shapeOptions.friction) : 0
+    shapeOptions.restitution ? colliderDesc.setFriction(shapeOptions.restitution) : 0
+
+    const collisionLayer = shapeOptions.collisionLayer ? shapeOptions.collisionLayer : CollisionGroups.Default
+    const collisionMask = shapeOptions.collisionMask ? shapeOptions.collisionMask : DefaultCollisionMask
+    colliderDesc.setCollisionGroups(getInteractionGroups(collisionLayer, collisionMask))
+
+    colliderDesc.setTranslation(mesh.position.x, mesh.position.y, mesh.position.z)
+    colliderDesc.setRotation(mesh.quaternion)
+
+    shapeOptions.activeCollisionTypes
+      ? colliderDesc.setActiveCollisionTypes(shapeOptions.activeCollisionTypes)
+      : colliderDesc.setActiveCollisionTypes(ActiveCollisionTypes.ALL)
+    colliderDesc.setActiveEvents(ActiveEvents.COLLISION_EVENTS)
+
+    return colliderDesc
+  }
+
+  return undefined!
+}
+
+function createRigidBodyForObject(
+  entity: Entity,
+  world: World,
+  object: Object3D,
+  colliderDescOptionsForRoot: ColliderDescOptions
+): RigidBody {
+  if (!object) return undefined!
+
+  const colliderDescs = [] as ColliderDesc[]
+  if ((object as Mesh).isMesh) {
+    const colliderDescForRoot = createColliderDesc(object as Mesh, colliderDescOptionsForRoot)
+    if (colliderDescForRoot) colliderDescs.push(colliderDescForRoot)
+  }
+
+  if ('bodyType' in colliderDescOptionsForRoot) {
+    const rigidBodyType = colliderDescOptionsForRoot['bodyType']
 
     object.traverse((mesh: Mesh) => {
-      // Type is required
-      const shapeOptions = mesh.userData as ColliderDescOptions
-      if (shapeOptions.type && typeof shapeOptions.type === 'number') {
-        const meshScale = mesh.getWorldScale(tempVector3)
-        // If custom size has been provided use that else use mesh world scale.
-        const colliderSize = shapeOptions.size ? shapeOptions.size : meshScale
-
-        // Check for case mismatch
-        if (
-          typeof shapeOptions.collisionLayer === 'undefined' &&
-          typeof (shapeOptions as any).collisionlayer !== 'undefined'
-        )
-          shapeOptions.collisionLayer = (shapeOptions as any).collisionlayer
-        if (
-          typeof shapeOptions.collisionMask === 'undefined' &&
-          typeof (shapeOptions as any).collisionmask !== 'undefined'
-        )
-          shapeOptions.collisionMask = (shapeOptions as any).collisionmask
-
-        let colliderDesc: ColliderDesc
-        let geometry, vertices, indices
-        switch (shapeOptions.type as ShapeType) {
-          case ShapeType.Cuboid:
-            colliderDesc = ColliderDesc.cuboid(
-              Math.abs(colliderSize.x),
-              Math.abs(colliderSize.y),
-              Math.abs(colliderSize.z)
-            )
-            break
-
-          case ShapeType.Ball:
-            colliderDesc = ColliderDesc.ball(Math.abs(colliderSize.x))
-            break
-
-          case ShapeType.Capsule:
-            colliderDesc = ColliderDesc.capsule(Math.abs(colliderSize.y), Math.abs(colliderSize.x))
-            break
-
-          case ShapeType.Cylinder:
-            colliderDesc = ColliderDesc.cylinder(Math.abs(colliderSize.y), Math.abs(colliderSize.x))
-            break
-
-          case ShapeType.ConvexPolyhedron:
-            geometry = mergeBufferGeometries([mesh.geometry]) // TODO: is this needed?
-            vertices = new Float32Array(geometry!.attributes.position.array)
-            indices = new Uint32Array(geometry!.index!.array)
-            colliderDesc = ColliderDesc.convexMesh(vertices, indices) as ColliderDesc
-            break
-
-          case ShapeType.TriMesh:
-            geometry = mergeBufferGeometries([mesh.geometry]) // TODO: is this needed?
-            vertices = new Float32Array(geometry!.attributes.position.array)
-            indices = new Uint32Array(geometry!.index!.array)
-            colliderDesc = ColliderDesc.trimesh(vertices, indices)
-            break
-
-          default:
-            console.error('unknown shape', shapeOptions)
-            return undefined!
-        }
-
-        shapeOptions.friction ? colliderDesc.setFriction(shapeOptions.friction) : 0
-        shapeOptions.restitution ? colliderDesc.setFriction(shapeOptions.restitution) : 0
-
-        const collisionLayer = shapeOptions.collisionLayer ? shapeOptions.collisionLayer : CollisionGroups.Default
-        const collisionMask = shapeOptions.collisionMask ? shapeOptions.collisionMask : DefaultCollisionMask
-        colliderDesc.setCollisionGroups(getInteractionGroups(collisionLayer, collisionMask))
-
-        colliderDesc.setTranslation(mesh.position.x, mesh.position.y, mesh.position.z)
-        colliderDesc.setRotation(mesh.quaternion)
-
-        shapeOptions.activeCollisionTypes
-          ? colliderDesc.setActiveCollisionTypes(shapeOptions.activeCollisionTypes)
-          : colliderDesc.setActiveCollisionTypes(ActiveCollisionTypes.ALL)
-        colliderDesc.setActiveEvents(ActiveEvents.COLLISION_EVENTS)
-
-        colliderDescs.push(colliderDesc)
-      }
+      const colliderDesc = createColliderDesc(mesh, mesh.userData as ColliderDescOptions)
+      if (colliderDesc) colliderDescs.push(colliderDesc)
     })
 
     let rigidBodyDesc
@@ -167,15 +183,12 @@ function createRigidBodyForObject(entity: Entity, world: World, object: Object3D
         rigidBodyDesc = RigidBodyDesc.kinematicVelocityBased()
         break
     }
+
     return createRigidBody(entity, world, rigidBodyDesc, colliderDescs)
   } else {
     return undefined!
   }
 }
-
-// TODO: Do we need dedicated functions for creating these type of colliders?
-// function createTrimesh() {}
-// function convexMesh() {}
 
 function removeRigidBody(entity: Entity, world: World) {
   const rigidBody = getComponent(entity, RigidBodyComponent)
