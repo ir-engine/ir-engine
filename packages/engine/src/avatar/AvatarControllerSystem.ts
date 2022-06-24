@@ -95,30 +95,13 @@ export default async function AvatarControllerSystem(world: World) {
     for (const entity of controllerQuery(world)) {
       const transform = getComponent(entity, TransformComponent)
 
-      const followCamera = getComponent(Engine.instance.currentWorld.cameraEntity, FollowCameraComponent)
-
-      // // TODO: Can move avatar update code outside this function
-      // if (followCamera.locked) {
-      //   const newTheta = MathUtils.degToRad(theta + 180) % (Math.PI * 2)
-      //   // avatarTransform.rotation.setFromAxisAngle(upVector, newTheta)
-      //   // avatarTransform.rotation.slerp(quaternion.setFromAxisAngle(upVector, newTheta), delta * 4)
-      // }
-
       displacementXZ.set(displacement.x, 0, displacement.z)
       displacementXZ.applyQuaternion(invOrientation.copy(transform.rotation).invert())
       if (displacementXZ.lengthSq() > 0.001) {
         rotMatrix.lookAt(displacementXZ, V_000, V_010)
         targetOrientation.setFromRotationMatrix(rotMatrix)
-        // transform.rotation.setFromRotationMatrix(rotMatrix)
-        // const theta =  MathUtils.degToRad(followCamera.theta + 180) % (Math.PI * 2)
-        // transform.rotation.setFromAxisAngle(V_010, theta)
-        // targetOrientation.setFromAxisAngle(V_010, theta)
-        transform.rotation.slerp(targetOrientation, Math.max(world.deltaSeconds * 4, 3 / 60))
+        transform.rotation.slerp(targetOrientation, Math.max(world.deltaSeconds * 2, 3 / 60))
       }
-
-      // const theta =  MathUtils.degToRad(followCamera.theta + 180) % (Math.PI * 2)
-      // targetOrientation.setFromAxisAngle(V_010, theta)
-      // transform.rotation.slerp(targetOrientation, Math.max(world.deltaSeconds  * 4, 3/60))
 
       const displace = moveAvatar(world, entity, Engine.instance.currentWorld.camera)
       displacement.set(displace.x, displace.y, displace.z)
