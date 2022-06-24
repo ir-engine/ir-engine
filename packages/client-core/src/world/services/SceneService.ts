@@ -41,7 +41,7 @@ export const SceneService = {
 export class SceneActions {
   static currentSceneChanged = defineAction({
     type: 'location.CURRENT_SCENE_CHANGED',
-    sceneData: (matches.object as Validator<unknown, SceneData>).optional()
+    sceneData: matches.object as Validator<unknown, SceneData | null>
   })
 
   static unloadCurrentScene = defineAction({
