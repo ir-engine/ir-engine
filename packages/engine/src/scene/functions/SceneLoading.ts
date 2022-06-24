@@ -135,9 +135,9 @@ export const loadECSData = async (sceneData: SceneJson, assetRoot = undefined): 
  * @param sceneData
  */
 export const loadSceneFromJSON = async (sceneData: SceneJson, sceneSystems: SystemModuleType<any>[]) => {
-  if (getEngineState().sceneLoaded.value) unloadScene(Engine.instance.currentWorld)
+  const world = Engine.instance.currentWorld
 
-  dispatchAction(EngineActions.sceneLoading())
+  EngineActions.sceneLoadingProgress({ progress: 0 })
 
   let promisesCompleted = 0
   const onProgress = () => {
@@ -154,13 +154,16 @@ export const loadSceneFromJSON = async (sceneData: SceneJson, sceneSystems: Syst
   }
   const promises = preCacheAssets(sceneData, onProgress)
 
-  // todo: move these layer enable & disable to loading screen thing or something so they work with portals properly
-  if (!getEngineState().isTeleporting.value) Engine.instance.currentWorld.camera?.layers.disable(ObjectLayers.Scene)
-
   promises.forEach((promise) => promise.then(onComplete))
   await Promise.all(promises)
 
-  initSystems(Engine.instance.currentWorld, sceneSystems)
+  // todo: move these layer enable & disable to loading screen thing or something so they work with portals properly
+  if (!getEngineState().isTeleporting.value) world.camera?.layers.disable(ObjectLayers.Scene)
+
+  // this needs to occur after the asset promises
+  await unloadScene(world)
+
+  initSystems(world, sceneSystems)
 
   const entityMap = {} as { [key: string]: EntityTreeNode }
 
@@ -175,8 +178,8 @@ export const loadSceneFromJSON = async (sceneData: SceneJson, sceneSystems: Syst
     loadSceneEntity(entityMap[key], sceneData.entities[key])
   })
 
-  const tree = Engine.instance.currentWorld.entityTree
-  addComponent(tree.rootNode.entity, Object3DComponent, { value: Engine.instance.currentWorld.scene })
+  const tree = world.entityTree
+  addComponent(tree.rootNode.entity, Object3DComponent, { value: world.scene })
   addComponent(tree.rootNode.entity, SceneTagComponent, {})
   getComponent(tree.rootNode.entity, EntityNodeComponent).components.push(SCENE_COMPONENT_SCENE_TAG)
 

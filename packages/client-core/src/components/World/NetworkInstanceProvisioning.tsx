@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react'
 import { useHistory } from 'react-router'
 
-import { AppAction, GeneralStateList } from '@xrengine/client-core/src/common/services/AppService'
+import { AppAction, GeneralStateList, useAppState } from '@xrengine/client-core/src/common/services/AppService'
 import {
   LocationInstanceConnectionService,
   useLocationInstanceConnectionState
@@ -13,7 +13,6 @@ import {
 import { MediaServiceReceptor, MediaStreamService } from '@xrengine/client-core/src/media/services/MediaStreamService'
 import { useChatState } from '@xrengine/client-core/src/social/services/ChatService'
 import { useLocationState } from '@xrengine/client-core/src/social/services/LocationService'
-import { useDispatch } from '@xrengine/client-core/src/store'
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import { UserService, useUserState } from '@xrengine/client-core/src/user/services/UserService'
 import { matches } from '@xrengine/engine/src/common/functions/MatchesUtils'
@@ -32,12 +31,12 @@ export const NetworkInstanceProvisioning = () => {
   const authState = useAuthState()
   const selfUser = authState.user
   const userState = useUserState()
-  const dispatch = useDispatch()
   const chatState = useChatState()
   const locationState = useLocationState()
   const isUserBanned = locationState.currentLocation.selfUserBanned.value
   const engineState = useEngineState()
   const history = useHistory()
+  const appState = useAppState()
 
   const worldNetworkHostId = Engine.instance.currentWorld.worldNetwork?.hostId
   const instanceConnectionState = useLocationInstanceConnectionState()
@@ -130,7 +129,7 @@ export const NetworkInstanceProvisioning = () => {
         .request(MessageTypes.JoinWorld.toString(), transportRequestData)
         .then(receiveJoinWorld)
     }
-  }, [engineState.connectedWorld, engineState.sceneLoaded])
+  }, [engineState.connectedWorld, appState.onBoardingStep])
 
   // media server provisioning
   useHookEffect(() => {

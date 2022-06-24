@@ -13,6 +13,9 @@ import {
 } from '@xrengine/client-core/src/admin/services/Setting/ClientSettingService'
 import ErrorBoundary from '@xrengine/client-core/src/common/components/ErrorBoundary'
 import { AppServiceReceptor } from '@xrengine/client-core/src/common/services/AppService'
+import { DialogServiceReceptor } from '@xrengine/client-core/src/common/services/DialogService'
+import { MediaInstanceConnectionServiceReceptor } from '@xrengine/client-core/src/common/services/MediaInstanceConnectionService'
+import { ProjectServiceReceptor } from '@xrengine/client-core/src/common/services/ProjectService'
 import { LoadingCircle } from '@xrengine/client-core/src/components/LoadingCircle'
 import { InviteService, InviteServiceReceptor } from '@xrengine/client-core/src/social/services/InviteService'
 import { LocationServiceReceptor } from '@xrengine/client-core/src/social/services/LocationService'
@@ -48,7 +51,10 @@ function RouterComp(props) {
     addActionReceptor(AuthServiceReceptor)
     addActionReceptor(InviteServiceReceptor)
     addActionReceptor(LocationServiceReceptor)
+    addActionReceptor(DialogServiceReceptor)
     addActionReceptor(AppServiceReceptor)
+    addActionReceptor(ProjectServiceReceptor)
+    addActionReceptor(MediaInstanceConnectionServiceReceptor)
 
     dispatchAction(StoredLocalAction.restoreLocalData())
     StoredLocalStoreService.fetchLocalStoredState()
@@ -73,7 +79,10 @@ function RouterComp(props) {
       removeActionReceptor(AuthServiceReceptor)
       removeActionReceptor(InviteServiceReceptor)
       removeActionReceptor(LocationServiceReceptor)
+      removeActionReceptor(DialogServiceReceptor)
       removeActionReceptor(AppServiceReceptor)
+      removeActionReceptor(ProjectServiceReceptor)
+      removeActionReceptor(MediaInstanceConnectionServiceReceptor)
     }
   }, [])
 

@@ -33,7 +33,6 @@ export const EditorErrorService = {}
 //Action
 export class EditorErrorAction {
   static throwError = defineAction({
-    store: 'EDITOR' as const,
     type: 'editorError.ERROR_THROWN' as const,
     error: matches.object as Validator<unknown, Error>
   })

@@ -1,6 +1,8 @@
 import { ShaderMaterial } from 'three'
 
 import { MaterialParms } from '../MaterialParms'
+import { extractDefaults as format } from '../Utilities'
+import { Vec3Arg } from './DefaultArgs'
 
 export const vertexShader = `
     varying vec2 vUv;
@@ -170,15 +172,16 @@ float simplex(vec3 v)
 }`
 
 export const DefaultArgs = {
-  iTime: 0.0,
-  iResolution: [window.innerWidth / 4, window.innerHeight / 4, 1]
+  iTime: { hide: true, default: 0.0 },
+  iResolution: { ...Vec3Arg, default: [0.25, 0.25, 1] }
 }
 
 export default function Noise_1(args?: { iTime?: number; iResolution?: number[] }): MaterialParms {
+  const defaultArgs = format(DefaultArgs)
   const mat = new ShaderMaterial({
     uniforms: {
-      iTime: { value: args?.iTime ?? DefaultArgs.iTime },
-      iResolution: { value: args?.iResolution ?? DefaultArgs.iResolution }
+      iTime: { value: args?.iTime ?? defaultArgs.iTime },
+      iResolution: { value: args?.iResolution ?? defaultArgs.iResolution }
     },
     vertexShader: vertexShader,
     fragmentShader: fragmentShader

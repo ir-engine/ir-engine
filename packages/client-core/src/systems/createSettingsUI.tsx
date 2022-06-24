@@ -3,21 +3,28 @@ import { addComponent, getComponent } from '@xrengine/engine/src/ecs/functions/C
 import { PersistTagComponent } from '@xrengine/engine/src/scene/components/PersistTagComponent'
 import { XRUIComponent } from '@xrengine/engine/src/xrui/components/XRUIComponent'
 import { ObjectFitFunctions } from '@xrengine/engine/src/xrui/functions/ObjectFitFunctions'
+import { Widgets } from '@xrengine/engine/src/xrui/Widgets'
 
-import { MainMenuButtonState } from './state/MainMenuButtonState'
+import SettingsIcon from '@mui/icons-material/Settings'
+
 import { createSettingDetailView } from './ui/SettingDetailView'
 
-export default async function SettingUISystem(world: World) {
+const widgetName = 'Settings'
+
+export function createSettingsUI(world: World) {
   const ui = createSettingDetailView()
 
   addComponent(ui.entity, PersistTagComponent, {})
 
-  return () => {
+  ui.container.then(() => {
     const xrui = getComponent(ui.entity, XRUIComponent)
+    ObjectFitFunctions.setUIVisible(xrui.container, false)
+  })
 
-    if (xrui) {
-      ObjectFitFunctions.attachObjectToPreferredTransform(xrui.container)
-      ObjectFitFunctions.changeVisibilityOfRootLayer(xrui.container, MainMenuButtonState.settingMenuOpen.value)
-    }
-  }
+  Widgets.registerWidget(world, ui.entity, {
+    ui,
+    label: widgetName,
+    icon: SettingsIcon,
+    system: () => {}
+  })
 }

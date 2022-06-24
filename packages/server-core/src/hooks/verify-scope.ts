@@ -2,7 +2,7 @@ import { HookContext } from '@feathersjs/feathers'
 
 import { UserDataType } from '../user/user/user.class'
 import { NotFoundException, UnauthenticatedException, UnauthorizedException } from '../util/exceptions/exception'
-import { Application } from './../../declarations.d'
+import { Application } from './../../declarations'
 
 export default (currentType: string, scopeToVerify: string) => {
   return async (context: HookContext<Application>) => {

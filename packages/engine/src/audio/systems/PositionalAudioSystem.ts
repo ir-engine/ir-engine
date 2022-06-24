@@ -5,7 +5,7 @@ import { addActionReceptor } from '@xrengine/hyperflux'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { matches } from '../../common/functions/MatchesUtils'
 import { Engine } from '../../ecs/classes/Engine'
-import { EngineActions, EngineActionType } from '../../ecs/classes/EngineState'
+import { EngineActions } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
 import { addComponent, defineQuery, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
@@ -47,7 +47,7 @@ export default async function PositionalAudioSystem(world: World) {
 
   const avatarAudioStream: Map<Entity, any> = new Map()
 
-  function audioReceptors(action: EngineActionType) {
+  function audioReceptors(action) {
     matches(action)
       .when(EngineActions.startSuspendedContexts.matches, () => {
         console.log('starting suspended audio nodes')

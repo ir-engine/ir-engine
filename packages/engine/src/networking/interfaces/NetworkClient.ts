@@ -9,6 +9,7 @@ export interface NetworkClient {
   userId: UserId
   index: number
   name: string
+  spectating?: boolean
   // The following properties are only present on the server
   socket?: SocketIO.Socket
   socketId?: string

@@ -3,7 +3,6 @@ import Basic, { DefaultArgs as BasicDefaultArgs } from './constants/Basic.mat'
 import Caustics, { DefaultArgs as CausticsDefaultArgs } from './constants/Caustics.mat'
 import Circuits, { DefaultArgs as CircuitsDefaultArgs } from './constants/Circuits.mat'
 import Cubes, { DefaultArgs as CubesDefaultArgs } from './constants/Cubes.mat'
-import Fireball, { DefaultArgs as FireballDefaultArgs } from './constants/Fireball.mat'
 import Galaxy, { DefaultArgs as GalaxyDefaultArgs } from './constants/Galaxy.mat'
 import Generators, { DefaultArgs as GeneratorsDefaultArgs } from './constants/Generators.mat'
 import Lambert, { DefaultArgs as LambertDefaultArgs } from './constants/Lambert.mat'
@@ -21,7 +20,6 @@ export const MaterialLibrary = {
   Caustics: Caustics,
   Circuits: Circuits,
   Cubes: Cubes,
-  Fireball: Fireball,
   Galaxy: Galaxy,
   Generators: Generators,
   Lambert: Lambert,
@@ -40,7 +38,6 @@ export const DefaultArguments = {
   Caustics: CausticsDefaultArgs,
   Circuits: CircuitsDefaultArgs,
   Cubes: CubesDefaultArgs,
-  Fireball: FireballDefaultArgs,
   Galaxy: GalaxyDefaultArgs,
   Generators: GeneratorsDefaultArgs,
   Lambert: LambertDefaultArgs,

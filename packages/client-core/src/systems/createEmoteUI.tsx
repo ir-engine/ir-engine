@@ -3,21 +3,27 @@ import { addComponent, getComponent } from '@xrengine/engine/src/ecs/functions/C
 import { PersistTagComponent } from '@xrengine/engine/src/scene/components/PersistTagComponent'
 import { XRUIComponent } from '@xrengine/engine/src/xrui/components/XRUIComponent'
 import { ObjectFitFunctions } from '@xrengine/engine/src/xrui/functions/ObjectFitFunctions'
+import { Widgets } from '@xrengine/engine/src/xrui/Widgets'
 
-import { MainMenuButtonState } from './state/MainMenuButtonState'
-import { createShareLocationDetailView } from './ui/ShareLocationDetailView'
+import { EmoteIcon } from '../user/components/UserMenu'
+import { createEmoteDetailView } from './ui/EmoteDetailView'
 
-export default async function ShareLocationUISystem(world: World) {
-  const ui = createShareLocationDetailView()
+const widgetName = 'Emote Widget'
+
+export function createEmoteUI(world: World) {
+  const ui = createEmoteDetailView()
 
   addComponent(ui.entity, PersistTagComponent, {})
 
-  return () => {
+  ui.container.then(() => {
     const xrui = getComponent(ui.entity, XRUIComponent)
+    ObjectFitFunctions.setUIVisible(xrui.container, false)
+  })
 
-    if (xrui) {
-      ObjectFitFunctions.attachObjectToPreferredTransform(xrui.container)
-      ObjectFitFunctions.changeVisibilityOfRootLayer(xrui.container, MainMenuButtonState.shareMenuOpen.value)
-    }
-  }
+  Widgets.registerWidget(world, ui.entity, {
+    ui,
+    label: widgetName,
+    icon: EmoteIcon,
+    system: () => {}
+  })
 }

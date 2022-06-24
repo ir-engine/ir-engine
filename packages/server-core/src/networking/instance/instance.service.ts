@@ -1,4 +1,11 @@
+import { Params } from '@feathersjs/feathers/lib'
+
+import { LocationInterface } from '@xrengine/common/src/dbmodels/Location'
+import { Instance as InstanceInterface } from '@xrengine/common/src/interfaces/Instance'
+
 import { Application } from '../../../declarations'
+import authenticate from '../../hooks/authenticate'
+import verifyScope from '../../hooks/verify-scope'
 import logger from '../../logger'
 import { Instance } from './instance.class'
 import instanceDocs from './instance.docs'
@@ -8,8 +15,65 @@ import createModel from './instance.model'
 declare module '@xrengine/common/declarations' {
   interface ServiceTypes {
     instance: Instance
+    'instances-active': {
+      find: ReturnType<typeof getActiveInstancesForScene>
+    }
   }
 }
+
+type ActiveInstance = {
+  id: string
+  location: string
+}
+
+// TODO: paginate this
+
+export const getActiveInstancesForScene =
+  (app: Application) =>
+  async (params: Params & { query: { sceneId: string } }): Promise<ActiveInstance[]> => {
+    const sceneId = params.query!.sceneId
+    if (!sceneId) return []
+
+    // get all locationIds for sceneId
+    const locations = (await app.service('location').Model.findAll({
+      where: {
+        sceneId
+      }
+    })) as LocationInterface[]
+
+    if (!locations) return []
+
+    const instances = (
+      (await Promise.all(
+        locations.map((location) => {
+          return app.service('instance').Model.findAll({
+            where: {
+              ended: false,
+              locationId: location.id
+            },
+            include: [
+              {
+                model: app.service('location').Model,
+                where: {}
+              }
+            ]
+          })
+        })
+      )) as InstanceInterface[]
+    ).flat()
+
+    // return all active instances for each location
+    const instancesData: ActiveInstance[] = instances
+      .map((instance) => {
+        return {
+          id: instance.id,
+          location: instance.location!.id
+        }
+      })
+      .filter((a) => !!a)
+
+    return instancesData
+  }
 
 export default (app: Application) => {
   const options = {
@@ -57,6 +121,16 @@ export default (app: Application) => {
     } catch (err) {
       logger.error(err)
       throw err
+    }
+  })
+
+  app.use('instances-active', {
+    find: getActiveInstancesForScene(app)
+  })
+
+  app.service('instances-active').hooks({
+    before: {
+      find: [authenticate(), verifyScope('editor', 'write')]
     }
   })
 }
