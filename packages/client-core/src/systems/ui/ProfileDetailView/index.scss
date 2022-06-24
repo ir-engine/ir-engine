@@ -1300,9 +1300,9 @@
 .avatarSelectContainer {
   display: flex;
   flex-direction: column;
-  width: 500px;
   margin: 5px 15px 20px 10px;
   border-radius: 20px;
+  padding: 15px;
   max-height: calc(100vh - 100px);
   background-color: var(--popupBackground);
 
@@ -1311,6 +1311,12 @@
     margin-bottom: 20px;
     overflow-y: auto;
     overflow-x: hidden;
+  }
+
+  .gridContainer {
+    display: grid;
+    grid-gap: 10px;
+    grid-template-columns: 1fr 1fr 1fr;
   }
 
   .menuContainer {
@@ -1341,16 +1347,12 @@
     align-items: center;
     transition: all 0.2s;
     cursor: pointer;
-  }
 
-  .btnBack {
-    border: none;
-    border-radius: 50%;
-    height: 30px;
-    width: 30px;
-    display: flex;
-    align-items: center;
-    cursor: pointer;
+    svg {
+      path {
+        fill: var(--iconButtonColor);
+      }
+    }
   }
 
   .btnPerson {
@@ -1373,17 +1375,17 @@
   }
 
   .btnArrow {
-    background-color: #6e6ef7;
+    background-color: var(--iconButtonBackground);
     color: #fff;
     transition: all 0.2s;
 
     &:hover {
-      background-color: #5f5ff8;
+      opacity: 0.8;
     }
   }
 
   .btnCancel {
-    color: #fff;
+    color: var(--iconButtonColor);
     background-color: #fca7a8;
 
     &:hover {
@@ -1392,12 +1394,8 @@
   }
 
   .avatar {
-    height: 80%;
-    width: 80%;
-    position: absolute;
-    left: 50%;
-    top: 26px;
-    transform: translateX(-50%);
+    height: 100%;
+    width: 100%;
     cursor: pointer;
   }
 
@@ -1415,7 +1413,7 @@
   }
 
   .disabled {
-    background-color: #a8a8fe !important;
+    opacity: 0.8;
     cursor: not-allowed;
   }
 

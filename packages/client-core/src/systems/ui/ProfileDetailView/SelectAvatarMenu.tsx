@@ -30,6 +30,7 @@ const SelectAvatarMenu = () => {
   const avatarId = authState.user?.avatarId?.value
   const avatarList = authState.avatarList.value
 
+  const userSettings = authState.user_setting.value
   const [page, setPage] = useState(0)
   const [imgPerPage, setImgPerPage] = useState(getAvatarPerPage())
   const [selectedAvatar, setSelectedAvatar] = useState<any>('')
@@ -94,22 +95,21 @@ const SelectAvatarMenu = () => {
       const avatar = characterAvatar.avatar!
 
       avatarElementList.push(
-        <Grid key={avatar.id} item>
-          <Paper
-            onClick={() => selectAvatar(characterAvatar)}
-            style={{ pointerEvents: avatar.name == avatarId ? 'none' : 'auto' }}
-            className={`paperAvatar ${avatar.name == selectedAvatar?.avatar?.name ? 'selectedAvatar' : ''}
+        <div
+          key={avatar.id}
+          onClick={() => selectAvatar(characterAvatar)}
+          className={`paperAvatar ${avatar.name == selectedAvatar?.avatar?.name ? 'selectedAvatar' : ''}
               ${avatar.name == avatarId ? 'activeAvatar' : ''}`}
-            sx={{
-              height: 140,
-              width: 170,
-              boxShadow: 'none',
-              backgroundColor: (theme) => (theme.palette.mode === 'dark' ? '#1A2027' : '#f1f1f1')
-            }}
-          >
-            <img className="avatar" src={characterAvatar['user-thumbnail']?.url || ''} alt={avatar.name} />
-          </Paper>
-        </Grid>
+          style={{
+            pointerEvents: avatar.name == avatarId ? 'none' : 'auto',
+            height: '140px',
+            width: '170px',
+            boxShadow: 'none',
+            backgroundColor: userSettings?.themeMode === 'dark' ? '#1A2027' : '#f1f1f1'
+          }}
+        >
+          <img className="avatar" src={characterAvatar['user-thumbnail']?.url || ''} alt={avatar.name} />
+        </div>
       )
     }
 
@@ -121,12 +121,12 @@ const SelectAvatarMenu = () => {
       <style>{styleString}</style>
       <div className="avatarSelectContainer">
         <div className="avatarContainer">
-          <Grid container spacing={1} style={{ margin: 0 }}>
+          <div className="gridContainer" style={{ margin: 0 }}>
             {renderAvatarList()}
-          </Grid>
+          </div>
         </div>
         <div className="menuContainer">
-          <button type="button" className={`btnBack btnArrow ${page === 0 ? 'disabled' : ''}`}>
+          <button type="button" className={`btn btnArrow ${page === 0 ? 'disabled' : ''}`}>
             <ArrowBackIos className="size" onClick={loadPreviousAvatars} />
           </button>
           <div className="innerMenuContainer">
