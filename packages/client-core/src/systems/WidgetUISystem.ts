@@ -20,6 +20,7 @@ import { addActionReceptor, dispatchAction } from '@xrengine/hyperflux'
 import { createChatWidget } from './createChatWidget'
 import { createEmoteWidget } from './createEmoteWidget'
 import { createProfileWidget } from './createProfileWidget'
+import { createSelectAvatarWidget } from './createSelectAvatarWidget'
 import { createSettingsWidget } from './createSettingsWidget'
 import { createShareLocationWidget } from './createShareLocationWidget'
 import { createWidgetButtonsView } from './ui/WidgetMenuView'
@@ -65,6 +66,7 @@ export default async function WidgetSystem(world: World) {
   createChatWidget(world)
   createShareLocationWidget(world)
   createSettingsWidget(world)
+  createSelectAvatarWidget(world)
 
   return () => {
     const xrui = getComponent(ui.entity, XRUIComponent)

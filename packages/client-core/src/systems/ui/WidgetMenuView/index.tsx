@@ -170,7 +170,8 @@ const WidgetButtons = () => {
         />
         {widgets.map(
           (widget, i) =>
-            widget.enabled && (
+            widget.enabled &&
+            widget.icon && (
               <WidgetButton key={i} Icon={widget.icon} toggle={toggleWidget(widget)} label={widget.label} />
             )
         )}

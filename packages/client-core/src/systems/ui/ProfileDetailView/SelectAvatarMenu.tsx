@@ -1,22 +1,28 @@
+import { createState } from '@speigg/hookstate'
 import React, { useEffect, useState } from 'react'
 
 import { UserAvatar } from '@xrengine/common/src/interfaces/UserAvatar'
 import { AvatarEffectComponent } from '@xrengine/engine/src/avatar/components/AvatarEffectComponent'
 import { hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
+import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
 
 import { ArrowBackIos, ArrowForwardIos, Check, PersonAdd } from '@mui/icons-material'
 import Grid from '@mui/material/Grid'
 import Paper from '@mui/material/Paper'
 
 import { AuthService, useAuthState } from '../../../user/services/AuthService'
-import styleString from '../index.scss'
+import styleString from './index.scss'
 
-interface Props {
-  changeActiveMenu: Function
+export function createSelectAvatarMenu() {
+  return createXRUI(SelectAvatarMenu, createSelectAvatarMenuState())
 }
 
-const SelectAvatarMenu = (props: Props) => {
+function createSelectAvatarMenuState() {
+  return createState({})
+}
+
+const SelectAvatarMenu = () => {
   const MAX_AVATARS_PER_PAGE = window.innerWidth >= 1024 ? 9 : 12
   const MIN_AVATARS_PER_PAGE = 6
   const getAvatarPerPage = () => (window.innerWidth > 768 ? MAX_AVATARS_PER_PAGE : MIN_AVATARS_PER_PAGE)
@@ -64,7 +70,7 @@ const SelectAvatarMenu = (props: Props) => {
         selectedAvatar?.avatar?.url || '',
         selectedAvatar['user-thumbnail']?.url || ''
       )
-      props.changeActiveMenu(null)
+      // TODO close all widget menus
     }
     setSelectedAvatar('')
   }

@@ -20,7 +20,7 @@ import {
   validate
 } from '../../../user/components/UserMenu/menus/helperFunctions'
 import { AuthService } from '../../../user/services/AuthService'
-import styleString from '../index.scss'
+import styleString from './index.scss'
 
 interface Props {
   isPublicAvatar?: boolean
