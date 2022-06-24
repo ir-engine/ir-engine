@@ -26,8 +26,8 @@ import { addActionReceptor, dispatchAction } from '@xrengine/hyperflux'
 
 import { CSM } from '../assets/csm/CSM'
 import { ExponentialMovingAverage } from '../common/classes/ExponentialAverageCurve'
-import { MaterialCallback } from '../common/functions/MaterialPlugin'
 import { nowMilliseconds } from '../common/functions/nowMilliseconds'
+import { overrideOnBeforeCompile } from '../common/functions/OnBeforeCompilePlugin'
 import { Engine } from '../ecs/classes/Engine'
 import { EngineActions, getEngineState } from '../ecs/classes/EngineState'
 import { Entity } from '../ecs/classes/Entity'
@@ -101,7 +101,7 @@ export class EngineRenderer {
   webGLLostContext: any = null
 
   initialize() {
-    MaterialCallback.use()
+    overrideOnBeforeCompile()
     this.onResize = this.onResize.bind(this)
     this.handleWebGLConextLost = this.handleWebGLConextLost.bind(this)
     this.handleWebGLConextRestore = this.handleWebGLConextRestore.bind(this)
@@ -242,7 +242,6 @@ export class EngineRenderer {
         }
 
         state.qualityLevel.value > 0 && this.csm?.update()
-        MaterialCallback.frame()
         if (state.usePostProcessing.value) {
           this.effectComposer.render(delta)
         } else {

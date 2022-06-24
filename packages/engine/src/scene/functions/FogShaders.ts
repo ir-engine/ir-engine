@@ -107,7 +107,7 @@ const FogShaders = {
         float fogDepth = distance(vWorldPosition, fogOrigin);
         // f(p) = fbm( p + fbm( p ) )
         vec3 noiseSampleCoord = vWorldPosition * 0.00025 + vec3(
-            0.0, 0.0, fogTime * 0.025);
+            0.0, 0.0, fogTime * fogTimeScale * 0.025);
         float noiseSample = FBM(noiseSampleCoord + FBM(noiseSampleCoord)) * 0.5 + 0.5;
         fogDepth *= mix(noiseSample, 1.0, saturate((fogDepth - 5000.0) / 5000.0));
         fogDepth *= fogDepth;
@@ -116,7 +116,17 @@ const FogShaders = {
         fogFactor = saturate(fogFactor);
         gl_FragColor.rgb = mix( gl_FragColor.rgb, fogColor, fogFactor );
       #endif`,
-    heightFog: ``
+    heightFog: `
+      #ifdef USE_FOG
+        vec3 fogOrigin = cameraPosition;
+        vec3 fogDirection = normalize(vWorldPosition - fogOrigin);
+        float fogDepth = distance(vWorldPosition, fogOrigin);
+
+        float fogFactor = heightFactor * exp(-fogOrigin.y * fogDensity) * (
+            1.0 - exp(-fogDepth * fogDirection.y * fogDensity)) / fogDirection.y;
+        fogFactor = saturate(fogFactor);
+        gl_FragColor.rgb = mix( gl_FragColor.rgb, fogColor, fogFactor );
+      #endif`
   },
   fog_pars_fragment: {
     default: ShaderChunk.fog_pars_fragment,
@@ -125,6 +135,7 @@ const FogShaders = {
       `
       #ifdef USE_FOG
         uniform float fogTime;
+        uniform float fogTimeScale;
         uniform vec3 fogColor;
         varying vec3 vWorldPosition;
         #ifdef FOG_EXP2
@@ -135,15 +146,29 @@ const FogShaders = {
           uniform float fogFar;
         #endif
       #endif`,
-    heightFog: ``
+    heightFog: `
+      #ifdef USE_FOG
+        uniform vec3 fogColor;
+        varying vec3 vWorldPosition;
+        #ifdef FOG_EXP2
+          uniform float fogDensity;
+          uniform float heightFactor;
+        #else
+          uniform float fogNear;
+          uniform float fogFar;
+        #endif
+      #endif`
   },
   fog_vertex: {
-    default: ShaderChunk.begin_vertex + ShaderChunk.worldpos_vertex + ShaderChunk.fog_vertex,
+    default: ShaderChunk.fog_vertex,
     brownianMotionFog: `
       #ifdef USE_FOG
         vWorldPosition = worldPosition.xyz;
       #endif`,
-    heightFog: ``
+    heightFog: `
+      #ifdef USE_FOG
+        vWorldPosition = worldPosition.xyz;
+      #endif`
   },
   fog_pars_vertex: {
     default: ShaderChunk.fog_pars_vertex,
@@ -151,7 +176,10 @@ const FogShaders = {
       #ifdef USE_FOG
         varying vec3 vWorldPosition;
       #endif`,
-    heightFog: ``
+    heightFog: `
+      #ifdef USE_FOG
+        varying vec3 vWorldPosition;
+      #endif`
   }
 }
 

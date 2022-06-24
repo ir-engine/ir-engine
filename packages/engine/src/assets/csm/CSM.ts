@@ -13,7 +13,8 @@ import {
   Vector3
 } from 'three'
 
-import { BeforeCompilePluginType } from '../../common/functions/MaterialPlugin'
+import { OBCType } from '../../common/constants/OBCTypes'
+import { addOBCPlugin, removeOBCPlugin } from '../../common/functions/OnBeforeCompilePlugin'
 import Frustum from './Frustum'
 import Shader from './Shader'
 
@@ -69,7 +70,6 @@ export class CSM {
   lights: DirectionalLight[][]
   lightSourcesCount: number
   shaders: Map<Material, ShaderType> = new Map()
-  materials: Map<Mesh, Material> = new Map()
 
   constructor(data: CSMParams) {
     this.camera = data.camera
@@ -312,31 +312,22 @@ export class CSM {
   }
 
   setupMaterial(mesh: Mesh): void {
-    mesh.userData._CSM_OLD_MATERIAL = mesh.material
-    const material = (mesh.material as Material).clone()
-    mesh.material = material
+    const material = mesh.material as Material
     material.defines = material.defines || {}
     material.defines.USE_CSM = 1
     material.defines.CSM_CASCADES = this.cascades
 
-    if (this.fade) {
-      material.defines.CSM_FADE = ''
-    }
+    if (this.fade) material.defines.CSM_FADE = ''
 
     const breaksVec2 = []
     const shaders = this.shaders
 
-    const originalOnBeforeCompile = material.onBeforeCompile
     const self = this
 
-    const CSMPlugin: BeforeCompilePluginType = {
-      frame: function () {},
-      render: function () {},
-      compile: function (shader: ShaderType, renderer) {
-        if (!self.camera) {
-          if (originalOnBeforeCompile) originalOnBeforeCompile(shader, renderer)
-          return
-        }
+    material.userData.CSMPlugin = {
+      id: OBCType.CSM,
+      compile: function (shader: ShaderType) {
+        if (!self.camera) return
         const far = Math.min(self.camera.far, self.maxFar)
         self.getExtendedBreaks(breaksVec2)
 
@@ -348,17 +339,14 @@ export class CSM {
       }
     }
 
-    material.onBeforeCompile = CSMPlugin
+    addOBCPlugin(material, material.userData.CSMPlugin)
 
     shaders.set(material, null!)
-    this.materials.set(mesh, material)
   }
 
   updateUniforms(): void {
     const far = Math.min(this.camera.far, this.maxFar)
-    const shaders = this.shaders
-
-    shaders.forEach(function (shader: ShaderType, material: Material) {
+    this.shaders.forEach(function (shader: ShaderType, material: Material) {
       if (shader !== null) {
         const uniforms = shader.uniforms
         this.getExtendedBreaks(uniforms.CSM_cascades.value)
@@ -410,9 +398,8 @@ export class CSM {
   }
 
   dispose(): void {
-    const shaders = this.shaders
-    shaders.forEach(function (shader: ShaderType, material: Material) {
-      material.onBeforeCompile = () => {}
+    this.shaders.forEach(function (shader: ShaderType, material: Material) {
+      removeOBCPlugin(material, material.userData.CSMPlugin)
       delete material.defines!.USE_CSM
       delete material.defines!.CSM_CASCADES
       delete material.defines!.CSM_FADE
@@ -425,12 +412,6 @@ export class CSM {
 
       material.needsUpdate = true
     })
-    shaders.clear()
-    this.materials.forEach(function (material: Material, mesh: Mesh) {
-      const originalMaterial = mesh.userData._CSM_OLD_MATERIAL
-      mesh.material = originalMaterial
-      material.dispose()
-    })
-    this.materials.clear()
+    this.shaders.clear()
   }
 }

@@ -10,6 +10,7 @@ export type FogComponentType = {
   near: number
   far: number
   height: number
+  timeScale: number
   shaders?: Shader[]
 }
 

@@ -1,4 +1,5 @@
-import { BeforeCompilePluginType } from '../../common/functions/MaterialPlugin'
+import { OBCType } from '../../common/constants/OBCTypes'
+import { PluginType } from '../../common/functions/OnBeforeCompilePlugin'
 
 // shader injection for box projected cube environment mapping
 export const worldposReplace = /* glsl */ `
@@ -111,10 +112,10 @@ ${cubemapInsertion}
 #endif
 `
 
-export const beforeMaterialCompile = (bakeScale, bakePositionOffset): BeforeCompilePluginType => {
+export const beforeMaterialCompile = (bakeScale, bakePositionOffset): PluginType => {
   return {
-    frame: function () {},
-    render: function () {},
+    id: OBCType.BPCEM,
+    priority: 1,
     compile: function BPCEMonBeforeCompile(shader) {
       shader.uniforms.cubeMapSize = { value: bakeScale }
       shader.uniforms.cubeMapPos = { value: bakePositionOffset }

@@ -182,7 +182,10 @@ export const loadSceneFromJSON = async (sceneData: SceneJson, sceneSystems: Syst
 
   if (!getEngineState().isTeleporting.value) Engine.instance.currentWorld.camera?.layers.enable(ObjectLayers.Scene)
 
-  dispatchAction(EngineActions.sceneLoaded()) //.delay(0.1)
+  // TODO: Have to wait because scene is not being fully loaded at this moment
+  setTimeout(() => {
+    dispatchAction(EngineActions.sceneLoaded())
+  }, 100)
 }
 
 /**

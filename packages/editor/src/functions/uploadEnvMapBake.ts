@@ -1,5 +1,6 @@
 import { Mesh, MeshBasicMaterial, Vector3 } from 'three'
 
+import { addOBCPlugin, removeOBCPlugin } from '@xrengine/engine/src/common/functions/OnBeforeCompilePlugin'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
@@ -75,11 +76,11 @@ export const uploadBakeToServer = async (entity: Entity) => {
   // inject bpcem logic into material
   Engine.instance.currentWorld.scene.traverse((child: Mesh<any, MeshBasicMaterial>) => {
     if (!child.material) return
-    child.material.onBeforeCompile = beforeMaterialCompile(
+    child.material.userData.BPCEMPlugin = beforeMaterialCompile(
       bakeComponent.options.bakeScale,
       bakeComponent.options.bakePositionOffset
     )
-    child.material.userData.BPCEMPlugin = child.material.onBeforeCompile
+    addOBCPlugin(child.material, child.material.userData.BPCEMPlugin)
   })
 
   const cubemapCapturer = new CubemapCapturer(
@@ -91,9 +92,8 @@ export const uploadBakeToServer = async (entity: Entity) => {
 
   // remove injected bpcem logic from material
   Engine.instance.currentWorld.scene.traverse((child: Mesh<any, MeshBasicMaterial>) => {
-    if (!child.material) return
-    if (typeof child.material.userData.previousOnBeforeCompile === 'function') {
-      child.material.removePlugin(child.material.userData.BPCEMPlugin)
+    if (child.material && typeof child.material.userData.BPCEMPlugin === 'function') {
+      removeOBCPlugin(child.material, child.material.userData.BPCEMPlugin)
       delete child.material.userData.BPCEMPlugin
     }
   })

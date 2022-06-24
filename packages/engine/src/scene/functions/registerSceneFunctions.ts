@@ -46,7 +46,13 @@ import {
   updateEnvMapBake
 } from './loaders/EnvMapBakeFunctions'
 import { deserializeEnvMap, SCENE_COMPONENT_ENVMAP, serializeEnvMap, updateEnvMap } from './loaders/EnvMapFunctions'
-import { deserializeFog, SCENE_COMPONENT_FOG, serializeFog, updateFog } from './loaders/FogFunctions'
+import {
+  deserializeFog,
+  SCENE_COMPONENT_FOG,
+  serializeFog,
+  shouldDeserializeFog,
+  updateFog
+} from './loaders/FogFunctions'
 import {
   deserializeGround,
   prepareGroundPlaneForGLTFExport,
@@ -236,7 +242,8 @@ export const registerDefaultSceneFunctions = (world: World) => {
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_FOG, {
     deserialize: deserializeFog,
     serialize: serializeFog,
-    update: updateFog
+    update: updateFog,
+    shouldDeserialize: shouldDeserializeFog
   })
 
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_RENDERER_SETTINGS, {

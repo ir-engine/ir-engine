@@ -15,6 +15,7 @@ import { SelectTagComponent } from '../components/SelectTagComponent'
 import { SkyboxComponent } from '../components/SkyboxComponent'
 import { VideoComponent } from '../components/VideoComponent'
 import { VolumetricComponent } from '../components/VolumetricComponent'
+import { FogType } from '../constants/FogType'
 import { SCENE_PREVIEW_CAMERA_HELPER } from '../functions/loaders/ScenePreviewCameraFunctions'
 
 /**
@@ -110,6 +111,15 @@ export default async function EntityNodeEventSystem(_: World) {
       if (lightComponent.useInCSM && EngineRenderer.instance.csm) {
         const obj3d = getComponent(entity, Object3DComponent).value
         if (obj3d) obj3d.getWorldDirection(EngineRenderer.instance.csm.lightDirection)
+      }
+    }
+
+    for (const entity of fogQuery()) {
+      const fog = getComponent(entity, FogComponent)
+      if (fog.type === FogType.Brownian) {
+        fog.shaders?.forEach(
+          (shader) => (shader.uniforms.fogTime.value = Engine.instance.currentWorld.fixedElapsedSeconds)
+        )
       }
     }
   }

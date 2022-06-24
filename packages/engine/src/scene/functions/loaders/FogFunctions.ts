@@ -2,13 +2,14 @@ import { Color, Fog, FogExp2, Mesh, MeshStandardMaterial } from 'three'
 
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
+import { OBCType } from '../../../common/constants/OBCTypes'
 import {
   ComponentDeserializeFunction,
   ComponentSerializeFunction,
   ComponentShouldDeserializeFunction,
   ComponentUpdateFunction
 } from '../../../common/constants/PrefabFunctionType'
-import { BeforeCompilePluginType, PluginType } from '../../../common/functions/MaterialPlugin'
+import { addOBCPlugin, PluginType, removeOBCPlugin } from '../../../common/functions/OnBeforeCompilePlugin'
 import { Engine } from '../../../ecs/classes/Engine'
 import { EngineActions, getEngineState } from '../../../ecs/classes/EngineState'
 import { Entity } from '../../../ecs/classes/Entity'
@@ -17,15 +18,16 @@ import { matchActionOnce } from '../../../networking/functions/matchActionOnce'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { FogComponent, FogComponentType } from '../../components/FogComponent'
 import { FogType } from '../../constants/FogType'
-import { initBrownianMotionFogShader, removeFogShader } from '../FogShaders'
+import { initBrownianMotionFogShader, initHeightFogShader, removeFogShader } from '../FogShaders'
 
 export const SCENE_COMPONENT_FOG = 'fog'
 export const SCENE_COMPONENT_FOG_DEFAULT_VALUES = {
   type: FogType.Linear,
   color: '#FFFFFF',
-  density: 0.000025,
+  density: 0.005,
   near: 1,
   far: 1000,
+  timeScale: 1,
   height: 0.05
 }
 
@@ -46,25 +48,35 @@ export const updateFog: ComponentUpdateFunction = (entity: Entity, properties: F
     switch (component.type) {
       case FogType.Linear:
         scene.fog = new Fog(component.color, component.near, component.far)
+        removeFogShader()
+        restoreMaterialForFog(entity)
         break
 
       case FogType.Exponential:
+        scene.fog = new FogExp2(component.color.getHex(), component.density)
+        removeFogShader()
+        restoreMaterialForFog(entity)
+        break
+
       case FogType.Brownian:
-        scene.fog = new FogExp2(component.color.getHexString(), component.density)
+        scene.fog = new FogExp2(component.color.getHex(), component.density)
+        initBrownianMotionFogShader()
+        if (getEngineState().sceneLoaded.value) setupMaterialForFog(entity)
+        else matchActionOnce(EngineActions.sceneLoaded.matches, () => setupMaterialForFog(entity))
+        break
+
+      case FogType.Height:
+        scene.fog = new FogExp2(component.color.getHex(), component.density)
+        initHeightFogShader()
+        if (getEngineState().sceneLoaded.value) setupMaterialForFog(entity)
+        else matchActionOnce(EngineActions.sceneLoaded.matches, () => setupMaterialForFog(entity))
         break
 
       default:
         scene.fog = null
+        removeFogShader()
+        restoreMaterialForFog(entity)
         break
-    }
-
-    if (component.type === FogType.Brownian) {
-      initBrownianMotionFogShader()
-      if (getEngineState().sceneLoaded.value) setupMaterialForFog(entity)
-      else matchActionOnce(EngineActions.sceneLoaded.matches, () => setupMaterialForFog(entity))
-    } else {
-      removeFogShader()
-      restoreMaterialForFog(entity)
     }
   }
 
@@ -75,18 +87,19 @@ export const updateFog: ComponentUpdateFunction = (entity: Entity, properties: F
       if (typeof properties.near !== 'undefined') (scene.fog as Fog).near = component.near
       if (typeof properties.far !== 'undefined') (scene.fog as Fog).far = component.far
     } else {
+      // For Exponential, Brownian and Hieght fog
       if (typeof properties.density !== 'undefined') (scene.fog as FogExp2).density = component.density
 
       if (component.type !== FogType.Exponential) {
+        // For Brownian and Hieght fog
         if (typeof properties.height !== 'undefined') {
-          // component.shaders?.forEach(s => {
-          //   s.uniforms.heightFactor.value = component.height
-          // })
+          component.shaders?.forEach((s) => (s.uniforms.heightFactor.value = component.height))
         }
       }
-      // if (component.type === FogType.Brownian) {
 
-      // }
+      if (component.type === FogType.Brownian) {
+        component.shaders?.forEach((s) => (s.uniforms.fogTimeScale.value = component.timeScale))
+      }
     }
   }
 }
@@ -103,7 +116,8 @@ export const serializeFog: ComponentSerializeFunction = (entity) => {
       near: component.near,
       far: component.far,
       density: component.density,
-      height: component.height
+      height: component.height,
+      timeScale: component.timeScale
     }
   }
 }
@@ -115,7 +129,8 @@ const parseFogProperties = (props): FogComponentType => {
     density: props.density ?? SCENE_COMPONENT_FOG_DEFAULT_VALUES.density,
     near: props.near ?? SCENE_COMPONENT_FOG_DEFAULT_VALUES.near,
     far: props.far ?? SCENE_COMPONENT_FOG_DEFAULT_VALUES.far,
-    height: props.height ?? SCENE_COMPONENT_FOG_DEFAULT_VALUES.height
+    height: props.height ?? SCENE_COMPONENT_FOG_DEFAULT_VALUES.height,
+    timeScale: props.timeScale ?? SCENE_COMPONENT_FOG_DEFAULT_VALUES.timeScale
   }
 }
 
@@ -124,39 +139,43 @@ export const shouldDeserializeFog: ComponentShouldDeserializeFunction = () => {
 }
 
 const setupMaterialForFog = (entity: Entity) => {
-  const component = getComponent(entity, FogComponent)
-  component.shaders = []
-
   Engine.instance.currentWorld.scene.traverse((obj: Mesh<any, MeshStandardMaterial>) => {
-    if (typeof obj.material == 'undefined') return
-    obj.material.userData.fogPlugin = getFogPlugin(component)
-    console.debug('Hey', obj.material.userData.fogPlugin)
-    obj.material.onBeforeCompile = obj.material.userData.fogPlugin
+    if (typeof obj.material === 'undefined' || !obj.material.fog) return
+    obj.material.userData.fogPlugin = getFogPlugin(entity)
+    addOBCPlugin(obj.material, obj.material.userData.fogPlugin)
+    obj.material.needsUpdate = true
   })
 }
 
 const restoreMaterialForFog = (entity: Entity) => {
+  Engine.instance.currentWorld.scene.traverse((obj: Mesh<any, MeshStandardMaterial>) => {
+    if (typeof obj.material === 'undefined') return
+    if (obj.material.userData.fogPlugin) {
+      removeOBCPlugin(obj.material, obj.material.userData.fogPlugin)
+      delete obj.material.userData.fogPlugin
+    }
+
+    // material.needsUpdate is not working. Therefore have to invalidate the cache manually
+    const key = Math.random()
+    obj.material.customProgramCacheKey = () => key.toString()
+  })
+
   const component = getComponent(entity, FogComponent)
   component.shaders = []
-
-  Engine.instance.currentWorld.scene.traverse((obj: Mesh<any, MeshStandardMaterial>) => {
-    if (typeof obj.material == 'undefined' || !obj.material.userData.fogPlugin) return
-    obj.material.removePlugin(obj.material.userData.fogPlugin)
-  })
 }
 
-const getFogPlugin = (component: FogComponentType): BeforeCompilePluginType => {
+const getFogPlugin = (entity: Entity): PluginType => {
   return {
-    frame: function () {},
-    render: (_obj, shader) => {
-      // console.debug('rendering.....', shader)
-      shader.uniforms.fogTime = { value: Engine.instance.currentWorld.fixedElapsedSeconds }
+    id: OBCType.FOG,
+    priority: 0,
+    compile: (shader) => {
+      const component = getComponent(entity, FogComponent)
+      if (!component.shaders) component.shaders = []
+      component.shaders.push(shader)
+
+      shader.uniforms.fogTime = { value: 0.0 }
+      shader.uniforms.fogTimeScale = { value: 1 }
       shader.uniforms.heightFactor = { value: component.height }
-    },
-    compile: (s, r) => {
-      // console.debug('compiling.')
-      // s.uniforms.fogTime = { value: 0.0 }
-      // s.uniforms.heightFactor = { value: component.height }
     }
   }
 }

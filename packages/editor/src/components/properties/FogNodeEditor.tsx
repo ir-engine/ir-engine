@@ -58,7 +58,7 @@ export const FogNodeEditor: EditorComponentType = (props) => {
 
   return (
     <NodeEditor {...props} name={t('editor:properties.fog.name')} description={t('editor:properties.fog.description')}>
-      <InputGroup name="Fog Type" label={t('editor:properties.scene.lbl-fogType')}>
+      <InputGroup name="Fog Type" label={t('editor:properties.fog.lbl-fogType')}>
         <SelectInput
           key={props.node.entity}
           options={FogTypeOptions}
@@ -68,14 +68,14 @@ export const FogNodeEditor: EditorComponentType = (props) => {
       </InputGroup>
       {fogComponent.type !== FogType.Disabled && (
         <>
-          <InputGroup name="Fog Color" label={t('editor:properties.scene.lbl-fogColor')}>
+          <InputGroup name="Fog Color" label={t('editor:properties.fog.lbl-fogColor')}>
             <ColorInput value={fogComponent.color} onChange={updateProperty(FogComponent, 'color')} />
           </InputGroup>
           {fogComponent.type === FogType.Linear ? (
             <>
               <NumericInputGroup
                 name="Fog Near Distance"
-                label={t('editor:properties.scene.lbl-forNearDistance')}
+                label={t('editor:properties.fog.lbl-forNearDistance')}
                 smallStep={0.1}
                 mediumStep={1}
                 largeStep={10}
@@ -85,7 +85,7 @@ export const FogNodeEditor: EditorComponentType = (props) => {
               />
               <NumericInputGroup
                 name="Fog Far Distance"
-                label={t('editor:properties.scene.lbl-fogFarDistance')}
+                label={t('editor:properties.fog.lbl-fogFarDistance')}
                 smallStep={1}
                 mediumStep={100}
                 largeStep={1000}
@@ -98,7 +98,7 @@ export const FogNodeEditor: EditorComponentType = (props) => {
             <>
               <NumericInputGroup
                 name="Fog Density"
-                label={t('editor:properties.scene.lbl-fogDensity')}
+                label={t('editor:properties.fog.lbl-fogDensity')}
                 smallStep={0.01}
                 mediumStep={0.1}
                 largeStep={0.25}
@@ -109,13 +109,25 @@ export const FogNodeEditor: EditorComponentType = (props) => {
               {fogComponent.type !== FogType.Exponential && (
                 <NumericInputGroup
                   name="Fog Height"
-                  label={t('editor:properties.scene.lbl-fogHeight')}
+                  label={t('editor:properties.fog.lbl-fogHeight')}
                   smallStep={0.01}
                   mediumStep={0.1}
                   largeStep={0.25}
                   min={0}
                   value={fogComponent.height}
                   onChange={updateProperty(FogComponent, 'height')}
+                />
+              )}
+              {fogComponent.type === FogType.Brownian && (
+                <NumericInputGroup
+                  name="Fog Time Scale"
+                  label={t('editor:properties.fog.lbl-fogTimeScale')}
+                  smallStep={0.01}
+                  mediumStep={0.1}
+                  largeStep={0.25}
+                  min={0.001}
+                  value={fogComponent.timeScale}
+                  onChange={updateProperty(FogComponent, 'timeScale')}
                 />
               )}
             </>

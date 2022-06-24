@@ -23,8 +23,9 @@ import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { AssetType } from '../../assets/enum/AssetType'
 import { AnimationManager } from '../../avatar/AnimationManager'
 import { LoopAnimationComponent } from '../../avatar/components/LoopAnimationComponent'
+import { OBCType } from '../../common/constants/OBCTypes'
 import { isClient } from '../../common/functions/isClient'
-import { BeforeCompilePluginType } from '../../common/functions/MaterialPlugin'
+import { addOBCPlugin } from '../../common/functions/OnBeforeCompilePlugin'
 import { insertAfterString, insertBeforeString } from '../../common/functions/string'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
@@ -386,10 +387,9 @@ function getBoneChildrenIndexes(bones: Object3D[], startingBone: Object3D): numb
 export function addBoneOpacityParamsToMaterial(material, boneIndexes: Matrix4) {
   material.transparent = true
   material.needsUpdate = true
-  material.onBeforeCompile = {
-    frame: function () {},
-    render: function () {},
-    compile: (shader, renderer) => {
+  addOBCPlugin(material, {
+    id: OBCType.AVATAR,
+    compile: (shader) => {
       shader.uniforms.boneIndexToFade = { value: boneIndexes }
       shader.uniforms.boneOpacity = { value: 1.0 }
 
@@ -439,7 +439,7 @@ export function addBoneOpacityParamsToMaterial(material, boneIndexes: Matrix4) {
 
       material.userData.shader = shader
     }
-  } as BeforeCompilePluginType
+  })
 }
 
 export const setAvatarHeadOpacity = (entity: Entity, opacity: number): void => {

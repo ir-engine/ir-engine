@@ -23,7 +23,8 @@ import {
 } from 'three'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
-import { BeforeCompilePluginType } from '../../common/functions/MaterialPlugin'
+import { OBCType } from '../../common/constants/OBCTypes'
+import { addOBCPlugin } from '../../common/functions/OnBeforeCompilePlugin'
 import { insertAfterString, insertBeforeString } from '../../common/functions/string'
 import { Entity } from '../../ecs/classes/Entity'
 import { Object3DWithEntity } from '../components/Object3DComponent'
@@ -190,9 +191,8 @@ export class Ocean extends Mesh<PlaneBufferGeometry, MeshPhongMaterial> {
     material.combine = AddOperation
     material.needsUpdate = true
 
-    material.onBeforeCompile = {
-      frame: function () {},
-      render: function () {},
+    addOBCPlugin(material, {
+      id: OBCType.OCEAN,
       compile: (shader) => {
         const viewportSize = new Vector2(window.innerWidth, window.innerHeight)
 
@@ -267,7 +267,7 @@ export class Ocean extends Mesh<PlaneBufferGeometry, MeshPhongMaterial> {
         shader.fragmentShader = shader.fragmentShader.replace('#include <normal_fragment_maps>', normal_fragment_maps)
         this.material.userData.shader = shader
       }
-    } as BeforeCompilePluginType
+    })
   }
 
   setupRenderTarget() {

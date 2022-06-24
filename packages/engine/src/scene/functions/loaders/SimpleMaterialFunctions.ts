@@ -15,6 +15,7 @@ import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { XRUIComponent } from '@xrengine/engine/src/xrui/components/XRUIComponent'
 
 import { ComponentDeserializeFunction, ComponentSerializeFunction } from '../../../common/constants/PrefabFunctionType'
+import { addOBCPlugin } from '../../../common/functions/OnBeforeCompilePlugin'
 import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
@@ -391,9 +392,12 @@ export const useStandardMaterial = (obj: Mesh<any, Material>): void => {
   if (['MeshBasicMaterial', 'ShaderMaterial', 'RawShaderMaterial'].includes(material.type)) return
   // BPCEM
   if (SceneOptions.instance.boxProjection) {
-    material.onBeforeCompile = beforeMaterialCompile(
-      SceneOptions.instance.bpcemOptions.bakeScale,
-      SceneOptions.instance.bpcemOptions.bakePositionOffset
+    addOBCPlugin(
+      material,
+      beforeMaterialCompile(
+        SceneOptions.instance.bpcemOptions.bakeScale,
+        SceneOptions.instance.bpcemOptions.bakePositionOffset
+      )
     )
   }
 
