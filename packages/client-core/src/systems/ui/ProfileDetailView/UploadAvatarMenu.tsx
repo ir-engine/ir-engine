@@ -1,3 +1,4 @@
+import { createState } from '@speigg/hookstate'
 import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { PerspectiveCamera, Scene, WebGLRenderer } from 'three'
@@ -17,6 +18,7 @@ import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { createEntity, removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { getOrbitControls } from '@xrengine/engine/src/input/functions/loadOrbitControl'
+import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
 
 import { AccountCircle, ArrowBack, CloudUpload, Help, SystemUpdateAlt } from '@mui/icons-material'
 import Button from '@mui/material/Button'
@@ -35,6 +37,14 @@ import {
 } from '../../../user/components/UserMenu/menus/helperFunctions'
 import { AuthService } from '../../../user/services/AuthService'
 import styleString from './index.scss'
+
+export function createUploadAvatarMenu() {
+  return createXRUI(UploadAvatarMenu, createUploadAvatarMenuState())
+}
+
+function createUploadAvatarMenuState() {
+  return createState({})
+}
 
 let camera: PerspectiveCamera
 let scene: Scene

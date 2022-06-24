@@ -1,3 +1,4 @@
+import { createState } from '@speigg/hookstate'
 import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { PerspectiveCamera, Scene, WebGLRenderer } from 'three'
@@ -9,6 +10,7 @@ import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { getOrbitControls } from '@xrengine/engine/src/input/functions/loadOrbitControl'
+import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
 
 import { ArrowBack, Check } from '@mui/icons-material'
 import CircularProgress from '@mui/material/CircularProgress'
@@ -22,16 +24,19 @@ import {
 import { AuthService } from '../../../user/services/AuthService'
 import styleString from './index.scss'
 
-interface Props {
-  isPublicAvatar?: boolean
-  changeActiveMenu: Function
+export function createReadyPlayerMenu() {
+  return createXRUI(ReadyPlayerMenu, createReadyPlayerMenuState())
+}
+
+function createReadyPlayerMenuState() {
+  return createState({})
 }
 
 let scene: Scene
 let camera: PerspectiveCamera
 let renderer: WebGLRenderer = null!
 
-const ReadyPlayerMenu = ({ isPublicAvatar, changeActiveMenu }: Props) => {
+const ReadyPlayerMenu = () => {
   const { t } = useTranslation()
   const [selectedFile, setSelectedFile] = useState<Blob>()
   const [avatarName, setAvatarName] = useState('')
@@ -106,7 +111,7 @@ const ReadyPlayerMenu = ({ isPublicAvatar, changeActiveMenu }: Props) => {
 
   const closeMenu = (e) => {
     e.preventDefault()
-    changeActiveMenu(null)
+    // TODO close all menu widgets here
     uploadAvatar()
   }
 
@@ -124,7 +129,7 @@ const ReadyPlayerMenu = ({ isPublicAvatar, changeActiveMenu }: Props) => {
     var thumbnailName = avatarUrl.substring(0, avatarUrl.lastIndexOf('.')) + '.png'
 
     canvas.toBlob(async (blob) => {
-      await AuthService.uploadAvatarModel(selectedFile, new File([blob!], thumbnailName), avatarName, isPublicAvatar)
+      await AuthService.uploadAvatarModel(selectedFile, new File([blob!], thumbnailName), avatarName, undefined)
       // TODO open profile menu widget here
     })
   }
