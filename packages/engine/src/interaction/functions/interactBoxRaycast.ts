@@ -77,7 +77,8 @@ export const interactBoxRaycast = (entity: Entity, raycastList: Entity[]) => {
 
   let resultIsCloseEnough = false
   if (focussed) {
-    const interactable = getComponent(focussed, InteractableComponent).value
+    const interactable = getComponent(focussed, InteractableComponent)?.value
+    if (!interactable) return
     const interactDistance = interactable?.interactionDistance ?? interactiveReachDistance
     const boundingBox = getComponent(focussed, BoundingBoxComponent)
     const distance = boundingBox.box.distanceToPoint(transform.position)

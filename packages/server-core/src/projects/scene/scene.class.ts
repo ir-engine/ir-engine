@@ -236,6 +236,9 @@ export class Scene implements ServiceMethods<any> {
         fs.writeFileSync(path.resolve(sceneThumbnailPath), thumbnailBuffer as Buffer)
       }
     }
+
+    // return scene id for update hooks
+    return { sceneId: `${projectName}/${sceneName}` }
   }
 
   // async patch(sceneId: NullableId, data: PatchData, params: Params): Promise<SceneDetailInterface> {}

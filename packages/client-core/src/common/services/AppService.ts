@@ -1,6 +1,12 @@
 import { matches } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { defineAction, defineState, getState, useState } from '@xrengine/hyperflux'
 
+/**
+ * @todo
+ *
+ * Rename this service to 'LocationLoadService'
+ */
+
 export enum GeneralStateList {
   START_STATE,
   AWAITING_INPUT,

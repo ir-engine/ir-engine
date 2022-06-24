@@ -24,28 +24,37 @@ const AdminBotState = defineState({
   })
 })
 
-export const AdminBotServiceReceptor = (action) => {
-  getState(AdminBotState).batch((s) => {
-    matches(action)
-      .when(AdminBotsActions.fetchedBot.matches, (action) => {
-        return s.merge({
-          bots: action.bots.data,
-          retrieving: false,
-          fetched: true,
-          updateNeeded: false,
-          lastFetched: Date.now()
-        })
-      })
-      .when(AdminBotsActions.botCreated.matches, (action) => {
-        return s.merge({ updateNeeded: true })
-      })
-      .when(AdminBotsActions.botPatched.matches, (action) => {
-        return s.merge({ updateNeeded: true })
-      })
-      .when(AdminBotsActions.botRemoved.matches, (action) => {
-        return s.merge({ updateNeeded: true })
-      })
+const fetchedBotReceptor = (action: typeof AdminBotsActions.fetchedBot.matches._TYPE) => {
+  const state = getState(AdminBotState)
+  return state.merge({
+    bots: action.bots.data,
+    retrieving: false,
+    fetched: true,
+    updateNeeded: false,
+    lastFetched: Date.now()
   })
+}
+
+const botCreatedReceptor = (action: typeof AdminBotsActions.botCreated.matches._TYPE) => {
+  const state = getState(AdminBotState)
+  return state.merge({ updateNeeded: true })
+}
+
+const botPatchedReceptor = (action: typeof AdminBotsActions.botPatched.matches._TYPE) => {
+  const state = getState(AdminBotState)
+  return state.merge({ updateNeeded: true })
+}
+
+const botRemovedReceptor = (action: typeof AdminBotsActions.botRemoved.matches._TYPE) => {
+  const state = getState(AdminBotState)
+  return state.merge({ updateNeeded: true })
+}
+
+export const AdminBotServiceReceptors = {
+  fetchedBotReceptor,
+  botCreatedReceptor,
+  botPatchedReceptor,
+  botRemovedReceptor
 }
 
 export const accessAdminBotState = () => getState(AdminBotState)

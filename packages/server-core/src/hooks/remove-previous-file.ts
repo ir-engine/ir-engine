@@ -3,7 +3,7 @@ import { HookContext } from '@feathersjs/feathers'
 import config from '../appconfig'
 import logger from '../logger'
 import { getStorageProvider } from '../media/storageprovider/storageprovider'
-import { Application } from './../../declarations.d'
+import { Application } from './../../declarations'
 
 export default () => {
   return async (context: HookContext<Application>): Promise<HookContext> => {

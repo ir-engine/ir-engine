@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react'
 import { useHistory } from 'react-router'
 
-import { AppAction, GeneralStateList } from '@xrengine/client-core/src/common/services/AppService'
+import { AppAction, GeneralStateList, useAppState } from '@xrengine/client-core/src/common/services/AppService'
 import {
   LocationInstanceConnectionService,
   useLocationInstanceConnectionState
@@ -36,6 +36,7 @@ export const NetworkInstanceProvisioning = () => {
   const isUserBanned = locationState.currentLocation.selfUserBanned.value
   const engineState = useEngineState()
   const history = useHistory()
+  const appState = useAppState()
 
   const worldNetworkHostId = Engine.instance.currentWorld.worldNetwork?.hostId
   const instanceConnectionState = useLocationInstanceConnectionState()
@@ -128,7 +129,7 @@ export const NetworkInstanceProvisioning = () => {
         .request(MessageTypes.JoinWorld.toString(), transportRequestData)
         .then(receiveJoinWorld)
     }
-  }, [engineState.connectedWorld, engineState.sceneLoaded])
+  }, [engineState.connectedWorld, appState.onBoardingStep])
 
   // media server provisioning
   useHookEffect(() => {

@@ -25,30 +25,39 @@ const AdminPartyState = defineState({
   })
 })
 
-export const AdminPartyServiceReceptor = (action) => {
-  getState(AdminPartyState).batch((s) => {
-    matches(action)
-      .when(AdminPartyActions.partyRetrieved.matches, (action) => {
-        return s.merge({
-          parties: action.party.data,
-          updateNeeded: false,
-          skip: action.party.skip,
-          limit: action.party.limit,
-          total: action.party.total,
-          fetched: true,
-          lastFetched: Date.now()
-        })
-      })
-      .when(AdminPartyActions.partyAdminCreated.matches, (action) => {
-        return s.merge({ updateNeeded: true })
-      })
-      .when(AdminPartyActions.partyRemoved.matches, (action) => {
-        return s.merge({ updateNeeded: true })
-      })
-      .when(AdminPartyActions.partyPatched.matches, (action) => {
-        return s.merge({ updateNeeded: true })
-      })
+const partyRetrievedReceptor = (action: typeof AdminPartyActions.partyRetrieved.matches._TYPE) => {
+  const state = getState(AdminPartyState)
+  return state.merge({
+    parties: action.party.data,
+    updateNeeded: false,
+    skip: action.party.skip,
+    limit: action.party.limit,
+    total: action.party.total,
+    fetched: true,
+    lastFetched: Date.now()
   })
+}
+
+const partyAdminCreatedReceptor = (action: typeof AdminPartyActions.partyAdminCreated.matches._TYPE) => {
+  const state = getState(AdminPartyState)
+  return state.merge({ updateNeeded: true })
+}
+
+const partyRemovedReceptor = (action: typeof AdminPartyActions.partyRemoved.matches._TYPE) => {
+  const state = getState(AdminPartyState)
+  return state.merge({ updateNeeded: true })
+}
+
+const partyPatchedReceptor = (action: typeof AdminPartyActions.partyPatched.matches._TYPE) => {
+  const state = getState(AdminPartyState)
+  return state.merge({ updateNeeded: true })
+}
+
+export const AdminPartyReceptors = {
+  partyRetrievedReceptor,
+  partyAdminCreatedReceptor,
+  partyRemovedReceptor,
+  partyPatchedReceptor
 }
 
 export const accessPartyState = () => getState(AdminPartyState)
