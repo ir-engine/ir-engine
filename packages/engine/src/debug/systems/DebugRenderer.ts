@@ -87,6 +87,10 @@ export const DebugRenderer = () => {
       _meshes.clear()
       _raycasts.clear()
       _obstacles.clear()
+
+      _lineSegments.visible = false
+    } else {
+      _lineSegments.visible = true
     }
   }
 
