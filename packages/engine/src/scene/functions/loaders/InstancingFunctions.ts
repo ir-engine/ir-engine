@@ -311,8 +311,30 @@ function parseInstancingProperties(props): InstancingComponentType {
   result = processProps(result, SCENE_COMPONENT_INSTANCING_DEFAULT_VALUES) as InstancingComponentType
   switch (result.mode) {
     case ScatterMode.GRASS:
-      const defaults = GRASS_PROPERTIES_DEFAULT_VALUES
-      result.sourceProperties = processProps(result.sourceProperties, defaults) as GrassProperties
+      result.sourceProperties = processProps(
+        result.sourceProperties,
+        GRASS_PROPERTIES_DEFAULT_VALUES
+      ) as GrassProperties
+      break
+    case ScatterMode.MESH:
+      result.sourceProperties = processProps(result.sourceProperties, MESH_PROPERTIES_DEFAULT_VALUES) as MeshProperties
+      break
+  }
+  switch (result.sampling) {
+    case SampleMode.SCATTER:
+      result.sampleProperties = processProps(
+        result.sampleProperties,
+        SCATTER_PROPERTIES_DEFAULT_VALUES
+      ) as ScatterProperties
+      break
+    case SampleMode.VERTICES:
+      result.sampleProperties = processProps(
+        result.sampleProperties,
+        VERTEX_PROPERTIES_DEFAULT_VALUES
+      ) as VertexProperties
+      break
+    case SampleMode.NODES:
+      result.sampleProperties = processProps(result.sampleProperties, NODE_PROPERTIES_DEFAULT_VALUES) as NodeProperties
       break
   }
   return result
