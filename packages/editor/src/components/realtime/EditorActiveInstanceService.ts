@@ -18,6 +18,8 @@ import {
   useState
 } from '@xrengine/hyperflux'
 
+import { accessEditorState } from '../../services/EditorServices'
+
 export type ActiveInstance = {
   id: string
   location: string
@@ -79,19 +81,22 @@ export const EditorActiveInstanceService = {
       query: { sceneId }
     })
     dispatchAction(EditorActiveInstanceAction.fetchedActiveInstances({ activeInstances }))
+  },
+  useAPIListeners: () => {
+    useEffect(() => {
+      const editorState = accessEditorState()
+      const sceneId = `${editorState.projectName.value}/${editorState.sceneName.value}`
+      EditorActiveInstanceService.getActiveInstances(sceneId)
+      const timer = setInterval(() => {
+        const editorState = accessEditorState()
+        const sceneId = `${editorState.projectName.value}/${editorState.sceneName.value}`
+        EditorActiveInstanceService.getActiveInstances(sceneId)
+      }, 5000)
+      return () => {
+        clearTimeout(timer)
+      }
+    }, [])
   }
-  /** @todo figure out how to subscribe to this service with scoped permissions */
-  // useAPIListeners: () => {
-  //   useEffect(() => {
-  //     const listener = (params) => {
-  //       dispatchAction(EditorActiveInstanceAction.fetchedActiveInstances({ activeInstances: params.instances }))
-  //     }
-  //     API.instance.client.service('instances-active').on('created', listener)
-  //     return () => {
-  //       API.instance.client.service('instances-active').off('created', listener)
-  //     }
-  //   }, [])
-  // }
 }
 
 //Action
