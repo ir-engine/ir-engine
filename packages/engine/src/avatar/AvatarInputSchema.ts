@@ -199,7 +199,7 @@ export const switchShoulderSide: InputBehaviorType = (
 ): void => {
   const cameraEntity = Engine.instance.currentWorld.cameraEntity
   if (inputValue.lifecycleState !== LifecycleValue.Started) return
-  const cameraFollow = getComponent(cameraEntity, FollowCameraComponent)
+  const cameraFollow = getComponent(Engine.instance.currentWorld.cameraEntity, FollowCameraComponent)
   if (cameraFollow) {
     cameraFollow.shoulderSide = !cameraFollow.shoulderSide
   }
