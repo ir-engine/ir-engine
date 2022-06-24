@@ -239,6 +239,7 @@ const loadEngine = async (app: Application, sceneId: string) => {
 
   world.networks.set(hostId, app.transport)
 
+  logger.info('Creating host client: ' + hostId)
   dispatchAction(
     WorldNetworkAction.createClient({
       name: 'server-' + hostId,

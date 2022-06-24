@@ -1,4 +1,4 @@
-import { Matrix4, OrthographicCamera, PerspectiveCamera, Quaternion, Vector3 } from 'three'
+import { MathUtils, Matrix4, OrthographicCamera, PerspectiveCamera, Quaternion, Vector3 } from 'three'
 
 import checkPositionIsValid from '../../common/functions/checkPositionIsValid'
 import { smoothDamp } from '../../common/functions/MathLerpFunctions'
@@ -64,11 +64,12 @@ export const moveAvatar = (world: World, entity: Entity, camera: PerspectiveCame
   newVelocity.copy(controller.velocitySimulator.position).multiplyScalar(controller.currentSpeed)
 
   // avatar velocity = newVelocity (horizontal plane)
-  velocity.linear.setX(newVelocity.x)
-  velocity.linear.setZ(newVelocity.z)
+  // velocity.linear.setX(newVelocity.x)
+  // velocity.linear.setZ(newVelocity.z)
 
   // apply gravity to avatar velocity
-  velocity.linear.y -= 0.15 * timeStep
+  // velocity.linear.y -= 0.15 * timeStep
+  velocity.linear.y = newVelocity.y = velocity.linear.y - 0.15 * timeStep
 
   // threejs camera is weird, when in VR we must use the head diretion
   if (hasComponent(entity, XRInputSourceComponent))
@@ -88,7 +89,7 @@ export const moveAvatar = (world: World, entity: Entity, camera: PerspectiveCame
 
   if (onGround) {
     // if we are falling
-    if (velocity.linear.y < 0) {
+    if (newVelocity.y < 0) {
       // look for something to fall onto
       const raycast = getComponent(entity, RaycastComponent)
       const closestHit = raycast.hits[0]
@@ -104,7 +105,7 @@ export const moveAvatar = (world: World, entity: Entity, camera: PerspectiveCame
         quat.setFromUnitVectors(upVector, tempVec1)
         mat4.makeRotationFromQuaternion(quat)
         onGroundVelocity.applyMatrix4(mat4)
-        velocity.linear.y = onGroundVelocity.y
+        newVelocity.y = onGroundVelocity.y
       }
     }
 
@@ -112,12 +113,12 @@ export const moveAvatar = (world: World, entity: Entity, camera: PerspectiveCame
       // if controller jump input pressed
       controller.localMovementDirection.y > 0 &&
       // and we are on the ground
-      velocity.linear.y <= onGroundVelocity.y &&
+      newVelocity.y <= onGroundVelocity.y &&
       // and we are not already jumping
       !controller.isJumping
     ) {
       // jump
-      velocity.linear.y = AvatarSettings.instance.jumpHeight / 60
+      velocity.linear.y = newVelocity.y = AvatarSettings.instance.jumpHeight / 60
       controller.isJumping = true
     } else if (controller.isJumping) {
       // reset isJumping the following frame
@@ -152,7 +153,7 @@ export const moveAvatar = (world: World, entity: Entity, camera: PerspectiveCame
   if (Math.abs(newVelocity.y) < 0.001) newVelocity.y = 0
   if (Math.abs(newVelocity.z) < 0.001) newVelocity.z = 0
 
-  const displacement = new Vector3(newVelocity.x, velocity.linear.y, newVelocity.z)
+  const displacement = new Vector3(newVelocity.x, newVelocity.y, newVelocity.z)
 
   moveAvatarController(world, entity, displacement)
 
@@ -272,10 +273,16 @@ const moveAvatarController = (world: World, entity: Entity, displacement: Vector
 
   const positionAfter = controller.controller.getPosition()
   displacement.copy(positionAfter as Vector3).sub(positionBefore as Vector3)
+  const transform = getComponent(entity, TransformComponent)
+  displacement.applyQuaternion(transform.rotation)
 
   const velocity = getComponent(entity, VelocityComponent)
-  velocity.linear.setX(displacement.x)
-  velocity.linear.setZ(displacement.z)
+  // velocity.linear.lerp(displacement, world.deltaSeconds * 10)
+  // velocity.linear.setX(displacement.x)
+  // velocity.linear.setZ(displacement.z)
+  // velocity.linear.y = displacement.y
+  velocity.linear.x = 0 //MathUtils.lerp(velocity.linear.x, displacement.x, world.deltaSeconds * 10)
+  velocity.linear.z = displacement.length() //MathUtils.lerp(velocity.linear.z, velocity.linear.z, world.deltaSeconds * 10) // MathUtils.lerp(velocity.linear.z, displacement.z, world.deltaSeconds * 10)
 }
 
 /**
