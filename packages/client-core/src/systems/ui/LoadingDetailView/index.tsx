@@ -100,15 +100,13 @@ const LoadingDetailView = (props: {
     })
   }, [colors, sceneState])
 
-  const sceneLoading = engineState.sceneLoading.value
   const sceneLoaded = engineState.sceneLoaded.value
   const joinedWorld = engineState.joinedWorld.value
-  const loadingDetails =
-    sceneLoading || !sceneLoaded
-      ? t('common:loader.loadingObjects')
-      : !joinedWorld
-      ? t('common:loader.joiningWorld')
-      : t('common:loader.loadingComplete')
+  const loadingDetails = !sceneLoaded
+    ? t('common:loader.loadingObjects')
+    : !joinedWorld
+    ? t('common:loader.joiningWorld')
+    : t('common:loader.loadingComplete')
 
   return (
     <>
