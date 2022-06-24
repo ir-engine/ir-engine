@@ -276,9 +276,13 @@ const loadEngine = async (app: Application, sceneId: string) => {
     const projects = (await projectsPromise).data.map((project) => project.name)
     await loadEngineInjection(world, projects)
 
-    const sceneData = (await sceneResultPromise).data.scene as any // SceneData
-    const sceneSystems = getSystemsFromSceneData(projectName, sceneData, false)
-    await loadSceneFromJSON(sceneData, sceneSystems)
+    const sceneUpdatedListener = async () => {
+      const sceneData = (await sceneResultPromise).data.scene
+      const sceneSystems = getSystemsFromSceneData(projectName, sceneData, false)
+      await loadSceneFromJSON(sceneData, sceneSystems)
+    }
+    app.service('scene').on('updated', sceneUpdatedListener)
+    await sceneUpdatedListener()
 
     logger.info('Scene loaded!')
 

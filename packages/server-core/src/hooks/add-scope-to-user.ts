@@ -2,7 +2,7 @@ import { HookContext } from '@feathersjs/feathers'
 
 import config from '../appconfig'
 import { scopeTypeSeed } from '../scope/scope-type/scope-type.seed'
-import { Application } from './../../declarations.d'
+import { Application } from './../../declarations'
 
 export default () => {
   return async (context: HookContext<Application>): Promise<HookContext> => {

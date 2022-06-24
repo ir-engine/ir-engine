@@ -21,10 +21,16 @@ declare module '@xrengine/common/declarations' {
   }
 }
 
+type ActiveInstance = {
+  id: string
+  location: string
+}
+
 // TODO: paginate this
 
 export const getActiveInstancesForScene =
-  (app: Application) => async (params: Params & { query: { sceneId: string } }) => {
+  (app: Application) =>
+  async (params: Params & { query: { sceneId: string } }): Promise<ActiveInstance[]> => {
     const sceneId = params.query!.sceneId
     if (!sceneId) return []
 
@@ -57,7 +63,7 @@ export const getActiveInstancesForScene =
     ).flat()
 
     // return all active instances for each location
-    const instancesData = instances
+    const instancesData: ActiveInstance[] = instances
       .map((instance) => {
         return {
           id: instance.id,
