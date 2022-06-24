@@ -1,13 +1,10 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-
-import { addActionReceptor, removeActionReceptor } from '@xrengine/hyperflux'
 
 import Button from '@mui/material/Button'
 import Grid from '@mui/material/Grid'
 
 import Search from '../../common/Search'
-import { AdminGroupServiceReceptor } from '../../services/GroupService'
 import styles from '../../styles/admin.module.scss'
 import CreateGroup from './CreateGroup'
 import GroupTable from './GroupTable'
@@ -20,13 +17,6 @@ const GroupConsole = () => {
   const handleChange = (e: any) => {
     setSearch(e.target.value)
   }
-
-  useEffect(() => {
-    addActionReceptor(AdminGroupServiceReceptor)
-    return () => {
-      removeActionReceptor(AdminGroupServiceReceptor)
-    }
-  }, [])
 
   return (
     <React.Fragment>

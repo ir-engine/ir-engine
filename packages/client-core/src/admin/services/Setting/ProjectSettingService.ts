@@ -17,14 +17,17 @@ const AdminProjectSettingsState = defineState({
   })
 })
 
-export const AdminProjectSettingsServiceReceptor = (action) => {
-  getState(AdminProjectSettingsState).batch((s) => {
-    matches(action).when(AdminProjectSettingsActions.projectSettingFetched.matches, (action) => {
-      return s.merge({
-        projectSetting: action.projectSettings
-      })
-    })
+const projectSettingFetchedReceptor = (
+  action: typeof AdminProjectSettingsActions.projectSettingFetched.matches._TYPE
+) => {
+  const state = getState(AdminProjectSettingsState)
+  return state.merge({
+    projectSetting: action.projectSettings
   })
+}
+
+export const ProjectSettingReceptors = {
+  projectSettingFetchedReceptor
 }
 
 export const accessProjectSettingState = () => getState(AdminProjectSettingsState)

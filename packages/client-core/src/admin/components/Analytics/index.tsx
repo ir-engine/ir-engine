@@ -9,7 +9,7 @@ import MobileDateTimePicker from '@mui/lab/MobileDateTimePicker'
 import { Box, TextField, ToggleButton, ToggleButtonGroup } from '@mui/material'
 
 import { useAuthState } from '../../../user/services/AuthService'
-import { AdminAnalyticsServiceReceptor, useAdminAnalyticsState } from '../../services/AnalyticsService'
+import { useAdminAnalyticsState } from '../../services/AnalyticsService'
 import { ADminAnalyticsService } from '../../services/AnalyticsService'
 import styles from '../../styles/admin.module.scss'
 import ActivityGraph from './ActivityGraph'
@@ -17,12 +17,7 @@ import Card from './CardNumber'
 
 import './index.scss'
 
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { addActionReceptor, removeActionReceptor } from '@xrengine/hyperflux'
-
 import UserGraph from './UserGraph'
-
-interface Props {}
 
 /**
  * Function for analytics on admin dashboard
@@ -31,7 +26,7 @@ interface Props {}
  * @author Kevin KIMENYI <kimenyikevin@gmail.com>
  */
 
-const Analytics = (props: Props) => {
+const Analytics = () => {
   const [refetch, setRefetch] = useState(false)
   const { t } = useTranslation()
   const [graphSelector, setGraphSelector] = useState('activity')
@@ -39,13 +34,6 @@ const Analytics = (props: Props) => {
 
   const [endDate, setEndDate] = useState(moment())
   const [startDate, setStartDate] = useState(moment().subtract(30, 'days'))
-
-  useEffect(() => {
-    addActionReceptor(AdminAnalyticsServiceReceptor)
-    return () => {
-      removeActionReceptor(AdminAnalyticsServiceReceptor)
-    }
-  }, [])
 
   const activeLocations = analyticsState.activeLocations.value.map((item) => {
     return [new Date(item.createdAt).getTime(), item.count]

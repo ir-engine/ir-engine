@@ -24,34 +24,46 @@ const AdminGroupState = defineState({
   })
 })
 
-export const AdminGroupServiceReceptor = (action) => {
-  getState(AdminGroupState).batch((s) => {
-    matches(action)
-      .when(AdminGroupActions.fetchingGroup.matches, (action) => {
-        return s.merge({ fetching: true })
-      })
-      .when(AdminGroupActions.setAdminGroup.matches, (action) => {
-        return s.merge({
-          group: action.list.data,
-          skip: action.list.skip,
-          limit: action.list.limit,
-          total: action.list.total,
-          retrieving: false,
-          fetched: true,
-          updateNeeded: false,
-          lastFetched: Date.now()
-        })
-      })
-      .when(AdminGroupActions.updateGroup.matches, (action) => {
-        return s.merge({ updateNeeded: true })
-      })
-      .when(AdminGroupActions.removeGroupAction.matches, (action) => {
-        return s.merge({ updateNeeded: true })
-      })
-      .when(AdminGroupActions.addAdminGroup.matches, (action) => {
-        return s.merge({ updateNeeded: true })
-      })
+const fetchingGroupReceptor = (action: typeof AdminGroupActions.fetchingGroup.matches._TYPE) => {
+  const state = getState(AdminGroupState)
+  return state.merge({ fetching: true })
+}
+
+const setAdminGroupReceptor = (action: typeof AdminGroupActions.setAdminGroup.matches._TYPE) => {
+  const state = getState(AdminGroupState)
+  return state.merge({
+    group: action.list.data,
+    skip: action.list.skip,
+    limit: action.list.limit,
+    total: action.list.total,
+    retrieving: false,
+    fetched: true,
+    updateNeeded: false,
+    lastFetched: Date.now()
   })
+}
+
+const updateGroupReceptor = (action: typeof AdminGroupActions.updateGroup.matches._TYPE) => {
+  const state = getState(AdminGroupState)
+  return state.merge({ updateNeeded: true })
+}
+
+const removeGroupActionReceptor = (action: typeof AdminGroupActions.removeGroupAction.matches._TYPE) => {
+  const state = getState(AdminGroupState)
+  return state.merge({ updateNeeded: true })
+}
+
+const addAdminGroupReceptor = (action: typeof AdminGroupActions.addAdminGroup.matches._TYPE) => {
+  const state = getState(AdminGroupState)
+  return state.merge({ updateNeeded: true })
+}
+
+export const AdminGroupServiceReceptors = {
+  fetchingGroupReceptor,
+  setAdminGroupReceptor,
+  updateGroupReceptor,
+  removeGroupActionReceptor,
+  addAdminGroupReceptor
 }
 
 export const accessAdminGroupState = () => getState(AdminGroupState)
