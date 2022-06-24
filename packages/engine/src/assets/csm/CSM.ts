@@ -311,7 +311,12 @@ export class CSM {
   }
 
   setupMaterial(mesh: Mesh): void {
-    mesh.userData._CSM_OLD_MATERIAL = mesh.material
+    const oldMaterial = mesh.material as Material
+    if (oldMaterial.userData['IGNORE_CSM']) {
+      return
+    }
+    mesh.userData._CSM_OLD_MATERIAL = oldMaterial
+
     const material = (mesh.material as Material).clone()
     mesh.material = material
     material.defines = material.defines || {}
