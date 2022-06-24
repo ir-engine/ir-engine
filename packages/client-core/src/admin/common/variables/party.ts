@@ -1,8 +1,3 @@
-export interface PartyProps {
-  open: boolean
-  onClose: () => void
-}
-
 export interface PartyPropsTable {
   className?: string
   search: string

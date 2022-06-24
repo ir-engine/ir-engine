@@ -62,7 +62,7 @@ const LocationDrawer = ({ open, mode, location, onClose }: Props) => {
   const { locationTypes } = useAdminLocationState().value
   const { user } = useAuthState().value // user initialized by getting value from authState object.
 
-  const haslocationWriteAccess = user?.scopes && user?.scopes.find((item) => item.type === 'location:write')
+  const hasWriteAccess = user?.scopes && user?.scopes.find((item) => item.type === 'location:write')
   const viewMode = mode === LocationDrawerMode.ViewEdit && editMode === false
 
   const sceneMenu: InputMenuItem[] = scenes.map((el) => {
@@ -108,8 +108,8 @@ const LocationDrawer = ({ open, mode, location, onClose }: Props) => {
   }
 
   const handleClose = () => {
-    setState({ ...defaultState })
     onClose()
+    setState({ ...defaultState })
   }
 
   const handleChange = (e) => {
@@ -137,7 +137,7 @@ const LocationDrawer = ({ open, mode, location, onClose }: Props) => {
   }
 
   const handleSubmit = () => {
-    const locationData = {
+    const data = {
       name: state.name,
       sceneId: state.scene,
       maxUsersPerInstance: state.maxUsers,
@@ -165,9 +165,9 @@ const LocationDrawer = ({ open, mode, location, onClose }: Props) => {
 
     if (validateForm(state, tempErrors)) {
       if (mode === LocationDrawerMode.Create) {
-        AdminLocationService.createLocation(locationData)
+        AdminLocationService.createLocation(data)
       } else if (location) {
-        AdminLocationService.patchLocation(location.id, locationData)
+        AdminLocationService.patchLocation(location.id, data)
         setEditMode(false)
       }
 
@@ -293,16 +293,16 @@ const LocationDrawer = ({ open, mode, location, onClose }: Props) => {
         <DialogActions>
           {(mode === LocationDrawerMode.Create || editMode) && (
             <Button className={styles.submitButton} onClick={handleSubmit}>
-              {t('admin:components.locationModal.submit')}
+              {t('admin:components.common.submit')}
             </Button>
           )}
           {mode === LocationDrawerMode.ViewEdit && editMode === false && (
             <Button
               className={styles.submitButton}
-              disabled={haslocationWriteAccess ? false : true}
+              disabled={hasWriteAccess ? false : true}
               onClick={() => setEditMode(true)}
             >
-              {t('admin:components.locationModal.lbl-edit')}
+              {t('admin:components.common.edit')}
             </Button>
           )}
           <Button
@@ -314,7 +314,7 @@ const LocationDrawer = ({ open, mode, location, onClose }: Props) => {
               } else handleClose()
             }}
           >
-            {t('admin:components.locationModal.lbl-cancel')}
+            {t('admin:components.common.cancel')}
           </Button>
         </DialogActions>
       </Container>

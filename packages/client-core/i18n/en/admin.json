@@ -110,6 +110,8 @@
     "common": {
       "doYouWantTo": "Do you want to",
       "cancel": "Cancel",
+      "edit": "Edit",
+      "submit": "Submit",
       "confirm": "Confirm",
       "new": "new",
       "select": "Select"
@@ -180,8 +182,7 @@
       "selectLocation": "Select location",
       "createOne": "Create One",
       "dontSeeLocation": "Don't see Location?",
-      "createNewParty": "Create New Party",
-      "updateParty": "Update party",
+      "createParty": "Create Party",
       "ipAddress": "Ip Address",
       "user": "User",
       "active": "Active",

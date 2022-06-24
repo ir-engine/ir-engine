@@ -11,7 +11,7 @@ import TableComponent from '../../common/Table'
 import { partyColumns, PartyData, PartyPropsTable } from '../../common/variables/party'
 import { AdminPartyService, PARTY_PAGE_LIMIT, usePartyState } from '../../services/PartyService'
 import styles from '../../styles/admin.module.scss'
-import ViewParty from './ViewParty'
+import PartyDrawer, { PartyDrawerMode } from './PartyDrawer'
 
 const PartyTable = ({ className, search }: PartyPropsTable) => {
   const { t } = useTranslation()
@@ -22,7 +22,7 @@ const PartyTable = ({ className, search }: PartyPropsTable) => {
   const [partyId, setPartyId] = useState('')
   const [fieldOrder, setFieldOrder] = useState('asc')
   const [sortField, setSortField] = useState('location')
-  const [openViewParty, setOpenViewParty] = useState(false)
+  const [openPartyDrawer, setOpenPartyDrawer] = useState(false)
   const [partyAdmin, setPartyAdmin] = useState<Party>()
 
   const authState = useAuthState()
@@ -52,14 +52,14 @@ const PartyTable = ({ className, search }: PartyPropsTable) => {
     setOpenConfirm(false)
   }
 
-  const handleOpenViewParty = (open: boolean, party: any) => {
+  const handleOpenPartyDrawer = (open: boolean, party: any) => {
     setPartyAdmin(party)
-    setOpenViewParty(open)
+    setOpenPartyDrawer(open)
   }
 
-  const handleCloseViewParty = () => {
+  const handleClosePartyDrawer = () => {
     setPartyAdmin(undefined)
-    setOpenViewParty(false)
+    setOpenPartyDrawer(false)
   }
 
   const createData = (el: Party, id: string, instance: any, location: any): PartyData => {
@@ -70,7 +70,7 @@ const PartyTable = ({ className, search }: PartyPropsTable) => {
       location,
       action: (
         <>
-          <a href="#" className={styles.actionStyle} onClick={() => handleOpenViewParty(true, el)}>
+          <a href="#" className={styles.actionStyle} onClick={() => handleOpenPartyDrawer(true, el)}>
             <span className={styles.spanWhite}>{t('admin:components.index.view')}</span>
           </a>
           <a
@@ -124,7 +124,12 @@ const PartyTable = ({ className, search }: PartyPropsTable) => {
         onClose={() => setOpenConfirm(false)}
         onSubmit={submitRemoveParty}
       />
-      <ViewParty open={openViewParty} partyAdmin={partyAdmin} onClose={handleCloseViewParty} />
+      <PartyDrawer
+        open={openPartyDrawer}
+        mode={PartyDrawerMode.ViewEdit}
+        party={partyAdmin}
+        onClose={handleClosePartyDrawer}
+      />
     </Box>
   )
 }

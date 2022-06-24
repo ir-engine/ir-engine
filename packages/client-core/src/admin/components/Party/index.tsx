@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { addActionReceptor, removeActionReceptor } from '@xrengine/hyperflux'
@@ -9,12 +9,12 @@ import Grid from '@mui/material/Grid'
 import Search from '../../common/Search'
 import { AdminPartyServiceReceptor } from '../../services/PartyService'
 import styles from '../../styles/admin.module.scss'
-import CreateParty from './CreateParty'
+import PartyDrawer, { PartyDrawerMode } from './PartyDrawer'
 import PartyTable from './PartyTable'
 
 const Party = () => {
-  const [openCreateParty, setOpenCreateParty] = React.useState(false)
-  const [search, setSearch] = React.useState('')
+  const [openPartyDrawer, setOpenPartyDrawer] = useState(false)
+  const [search, setSearch] = useState('')
   const { t } = useTranslation()
 
   useEffect(() => {
@@ -39,16 +39,16 @@ const Party = () => {
             className={styles.openModalBtn}
             type="submit"
             variant="contained"
-            onClick={() => setOpenCreateParty(true)}
+            onClick={() => setOpenPartyDrawer(true)}
           >
-            {t('admin:components.party.createNewParty')}
+            {t('admin:components.party.createParty')}
           </Button>
         </Grid>
       </Grid>
 
       <PartyTable className={styles.rootTableWithSearch} search={search} />
 
-      <CreateParty open={openCreateParty} onClose={() => setOpenCreateParty(false)} />
+      <PartyDrawer open={openPartyDrawer} mode={PartyDrawerMode.Create} onClose={() => setOpenPartyDrawer(false)} />
     </div>
   )
 }
