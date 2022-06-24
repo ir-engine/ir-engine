@@ -44,8 +44,9 @@ export const WorldInstanceConnection = () => {
   const editorState = useEditorState()
   const sceneId = `${editorState.projectName.value}/${editorState.sceneName.value}`
 
+  EditorActiveInstanceService.useAPIListeners()
+
   useEffect(() => {
-    EditorActiveInstanceService.getActiveInstances(sceneId)
     addActionReceptor(EditorActiveInstanceServiceReceptor)
     addActionReceptor(LocationInstanceConnectionServiceReceptor)
     return () => {
