@@ -70,6 +70,24 @@ const PartyDrawer = ({ open, mode, party, onClose }: Props) => {
     }
   })
 
+  if (party) {
+    const instanceExists = instanceMenu.find((item) => item.value === party?.instance?.id)
+    if (!instanceExists) {
+      instanceMenu.push({
+        value: party?.instance?.id!,
+        label: party?.instance?.ipAddress!
+      })
+    }
+
+    const locationExists = locationMenu.find((item) => item.value === party?.location?.id)
+    if (!locationExists) {
+      locationMenu.push({
+        value: party?.location?.id!,
+        label: party?.location?.name!
+      })
+    }
+  }
+
   useEffect(() => {
     AdminLocationService.fetchAdminLocations()
     AdminInstanceService.fetchAdminInstances()

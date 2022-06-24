@@ -79,6 +79,25 @@ const LocationDrawer = ({ open, mode, location, onClose }: Props) => {
     }
   })
 
+  if (location) {
+    const sceneExists = sceneMenu.find((item) => item.value === location.location_setting?.locationType)
+    if (!sceneExists) {
+      locationMenu.push({
+        value: location.location_setting?.locationType,
+        label: location.location_setting?.locationType
+      })
+    }
+
+    const locationExists = locationMenu.find((item) => item.value === location.sceneId)
+    if (!locationExists) {
+      const sceneSplit = location.sceneId.split('/')
+      locationMenu.push({
+        value: location.sceneId,
+        label: `${sceneSplit[1]} (${sceneSplit[0]})`
+      })
+    }
+  }
+
   useEffect(() => {
     AdminSceneService.fetchAdminScenes()
     AdminLocationService.fetchLocationTypes()
