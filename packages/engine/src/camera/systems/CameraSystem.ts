@@ -33,6 +33,7 @@ import { RAYCAST_PROPERTIES_DEFAULT_VALUES } from '../../scene/functions/loaders
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { FollowCameraComponent, FollowCameraDefaultValues } from '../components/FollowCameraComponent'
+import { SpectateAvatarComponent } from '../components/SpectateAvatarComponent'
 import { TargetCameraRotationComponent } from '../components/TargetCameraRotationComponent'
 
 const direction = new Vector3()
@@ -272,12 +273,22 @@ function handleSpectateMode() {
         return
       }
 
-      const followCamValues = Object.assign({}, FollowCameraDefaultValues)
-      followCamValues.locked = false
-      followCamValues.zoomLevel = 0
-      addComponent(inviterUserAvatarEntity, FollowCameraComponent, followCamValues)
+      addComponent(inviterUserAvatarEntity, SpectateAvatarComponent, {})
     })
   })
+}
+
+function updateSpectateCamera(entity: Entity) {
+  const avatar = getComponent(entity, AvatarComponent)
+  const avatarTransform = getComponent(entity, TransformComponent)
+
+  const { camera } = Engine.instance.currentWorld
+  camera.position
+    .set(0, avatar.avatarHeight, 0.2)
+    .applyQuaternion(avatarTransform.rotation)
+    .add(avatarTransform.position)
+  tempVec.set(0, 0, -1).applyQuaternion(avatarTransform.rotation)
+  camera.quaternion.setFromUnitVectors(tempVec1.set(0, 0, 1), tempVec)
 }
 
 function enterFollowCameraQuery(entity: Entity) {
@@ -304,6 +315,7 @@ function enterFollowCameraQuery(entity: Entity) {
 
 export default async function CameraSystem(world: World) {
   const followCameraQuery = defineQuery([FollowCameraComponent, TransformComponent, AvatarComponent])
+  const spectateCameraQuery = defineQuery([SpectateAvatarComponent, TransformComponent, AvatarComponent])
   const targetCameraRotationQuery = defineQuery([FollowCameraComponent, TargetCameraRotationComponent])
   let cameraInitialized = Engine.instance.isEditor
   handleSpectateMode()
@@ -324,6 +336,10 @@ export default async function CameraSystem(world: World) {
     for (const entity of followCameraQuery.exit()) {
       Engine.instance.currentWorld.activeCameraFollowTarget = null
       camRayCastCache.maxDistance = -1
+    }
+
+    for (const entity of spectateCameraQuery(world)) {
+      updateSpectateCamera(entity)
     }
 
     if (getEngineState().sceneLoaded.value) {
