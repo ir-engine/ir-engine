@@ -153,7 +153,7 @@ export const createFeathersExpressApp = (
     cors({
       origin: true,
       credentials: true
-    })
+    }) as any
   )
   app.use(compress())
   app.use(json())

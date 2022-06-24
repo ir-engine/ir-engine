@@ -15,7 +15,7 @@ export const ServerMode = {
   Analytics: 'Analytics' as const
 }
 
-type ServerTypeMode = typeof ServerMode[keyof typeof ServerMode]
+export type ServerTypeMode = typeof ServerMode[keyof typeof ServerMode]
 
 export type Application = ExpressFeathers<ServiceTypes> & {
   // Common
