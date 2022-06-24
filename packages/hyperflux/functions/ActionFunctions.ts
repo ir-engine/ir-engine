@@ -279,6 +279,12 @@ function addTopic(topic: string, store = HyperFlux.store) {
 
 function removeTopic(topic: string, store = HyperFlux.store) {
   console.log(`[HyperFlux]: Removed topic ${topic}`)
+  for (const [uuid, action] of store.actions.incomingHistory) {
+    if (action.$topic.includes(topic)) {
+      store.actions.incomingHistory.delete(uuid)
+      store.actions.incomingHistoryUUIDs.delete(action.$uuid)
+    }
+  }
   delete store.actions.outgoing[topic]
   delete store.actions.cached[topic]
 }
@@ -309,7 +315,10 @@ function removeActionReceptor(receptor: ActionReceptor, store = HyperFlux.store)
 const _updateCachedActions = (incomingAction: Required<Action>, store = HyperFlux.store) => {
   if (incomingAction.$cache) {
     for (const topic of incomingAction.$topic) {
-      if (!store.actions.cached[topic]) store.actions.cached[topic] = []
+      if (!store.actions.cached[topic]) {
+        console.warn(`[HyperFlux]: got action from topic not subscribed to: '${topic}'`)
+        continue
+      }
       const cachedActions = store.actions.cached[topic]
       // see if we must remove any previous actions
       if (typeof incomingAction.$cache === 'boolean') {
@@ -359,6 +368,7 @@ const applyIncomingActionsToAllQueues = (action: Action, store = HyperFlux.store
 const _applyIncomingAction = (action: Required<Action>, store = HyperFlux.store) => {
   // ensure actions are idempotent
   if (store.actions.incomingHistoryUUIDs.has(action.$uuid)) {
+    console.log('got repeat action', action)
     const idx = store.actions.incoming.indexOf(action)
     store.actions.incoming.splice(idx, 1)
     return
@@ -371,7 +381,7 @@ const _applyIncomingAction = (action: Required<Action>, store = HyperFlux.store)
   try {
     console.log(`[Action]: ${action.type}`, action)
     for (const receptor of [...store.receptors]) receptor(action)
-    store.actions.incomingHistory.push(action)
+    store.actions.incomingHistory.set(action.$uuid, action)
     for (const topic of action.$topic) {
       if (store.getDispatchMode(topic) === 'host') {
         store.actions.outgoing[topic].queue.push(action)
@@ -381,7 +391,7 @@ const _applyIncomingAction = (action: Required<Action>, store = HyperFlux.store)
     const message = (e as Error).message
     const stack = (e as Error).stack!.split('\n')
     stack.shift()
-    store.actions.incomingHistory.push({
+    store.actions.incomingHistory.set(action.$uuid, {
       // @ts-ignore
       $ERROR: { message, stack },
       ...action

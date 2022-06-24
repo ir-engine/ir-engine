@@ -10,13 +10,11 @@ import DialogTitle from '@mui/material/DialogTitle'
 import IconButton from '@mui/material/IconButton'
 import Typography from '@mui/material/Typography'
 
-import { useDispatch } from '../../../store'
 import { useDialogState } from '../../services/DialogService'
 import { DialogAction } from '../../services/DialogService'
 import styles from './index.module.scss'
 
 const UIDialog = (): JSX.Element => {
-  const dispatch = useDispatch()
   const dialog = useDialogState()
   const isOpened = dialog.isOpened
   const content = dialog.content

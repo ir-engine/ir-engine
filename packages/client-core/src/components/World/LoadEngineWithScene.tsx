@@ -2,11 +2,11 @@ import React, { useState } from 'react'
 import { useHistory } from 'react-router'
 
 import { LocationInstanceConnectionServiceReceptor } from '@xrengine/client-core/src/common/services/LocationInstanceConnectionService'
-import { LocationService } from '@xrengine/client-core/src/social/services/LocationService'
-import { useDispatch } from '@xrengine/client-core/src/store'
+import { accessLocationState, LocationService } from '@xrengine/client-core/src/social/services/LocationService'
 import { leaveNetwork } from '@xrengine/client-core/src/transports/SocketWebRTCClientFunctions'
 import {
   SceneActions,
+  SceneService,
   SceneServiceReceptor,
   useSceneState
 } from '@xrengine/client-core/src/world/services/SceneService'
@@ -26,7 +26,6 @@ const logger = multiLogger.child({ component: 'client-core:world' })
 
 export const LoadEngineWithScene = () => {
   const history = useHistory()
-  const dispatch = useDispatch()
   const engineState = useEngineState()
   const sceneState = useSceneState()
   const [clientReady, setClientReady] = useState(false)
@@ -41,6 +40,7 @@ export const LoadEngineWithScene = () => {
 
     addActionReceptor(SceneServiceReceptor)
     addActionReceptor(LocationInstanceConnectionServiceReceptor)
+
     return () => {
       removeActionReceptor(SceneServiceReceptor)
       removeActionReceptor(LocationInstanceConnectionServiceReceptor)
@@ -53,7 +53,10 @@ export const LoadEngineWithScene = () => {
   useHookEffect(() => {
     const sceneData = sceneState.currentScene.value
     if (clientReady && sceneData) {
-      loadScene(sceneData)
+      dispatchAction(AppAction.setAppOnBoardingStep({ onBoardingStep: GeneralStateList.SCENE_LOADING }))
+      loadScene(sceneData).then(() => {
+        dispatchAction(AppAction.setAppOnBoardingStep({ onBoardingStep: GeneralStateList.SCENE_LOADED }))
+      })
     }
   }, [clientReady, sceneState.currentScene])
 

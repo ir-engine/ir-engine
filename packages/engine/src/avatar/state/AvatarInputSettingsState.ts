@@ -47,21 +47,18 @@ export const accessAvatarInputSettingsState = () => state
 export const AvatarInputSettingsAction = {
   setControlType: (controlType: AvatarInputSettingsStateType['controlType']) => {
     return {
-      store: 'ENGINE' as const,
       type: 'AVATAR_SET_CONTROL_MODEL' as const,
       controlType
     }
   },
   setInvertRotationAndMoveSticks: (invertRotationAndMoveSticks: boolean) => {
     return {
-      store: 'ENGINE' as const,
       type: 'SET_INVERT_ROTATION_AND_MOVE_STICKS' as const,
       invertRotationAndMoveSticks
     }
   },
   setShowAvatar: (showAvatar: boolean) => {
     return {
-      store: 'ENGINE' as const,
       type: 'SET_SHOW_AVATAR' as const,
       showAvatar
     }

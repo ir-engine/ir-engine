@@ -1,4 +1,5 @@
 import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
+import { Downgraded } from '@xrengine/hyperflux/functions/StateFunctions'
 
 import { matches, Validator } from '../common/functions/MatchesUtils'
 
@@ -35,7 +36,9 @@ export const WidgetAppServiceReceptor = (action) => {
         if (s.widgets[action.id].visible) {
           s.widgetsMenuOpen.set(true)
         }
-        return s.widgets[action.id].set(undefined!)
+        const newState = s.widgets.attach(Downgraded).value
+        delete newState[action.id]
+        return s.widgets.set(newState)
       })
       .when(WidgetAppActions.enableWidget.matches, (action) => {
         return s.widgets[action.id].merge({

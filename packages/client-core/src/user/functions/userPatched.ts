@@ -5,13 +5,11 @@ import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { dispatchAction } from '@xrengine/hyperflux'
 
 import { NotificationService } from '../../common/services/NotificationService'
-import { useDispatch } from '../../store'
 import { accessAuthState, AuthAction } from '../services/AuthService'
 import { accessUserState, UserAction } from '../services/UserService'
 
 export const userPatched = (params) => {
   console.log('USER PATCHED', params)
-  const dispatch = useDispatch()
 
   const selfUser = accessAuthState().user
   const userState = accessUserState()
@@ -48,11 +46,13 @@ export const userPatched = (params) => {
       dispatchAction(UserAction.addedChannelLayerUserAction({ user: patchedUser }))
     if (!isLayerUser && patchedUser.instanceId === selfUser.instanceId.value) {
       dispatchAction(UserAction.addedLayerUserAction({ user: patchedUser }))
-      NotificationService.dispatchNotify(`${patchedUser.name} ${t('common:toast.joined')}`, { variant: 'default' })
+      !Engine.instance.isEditor &&
+        NotificationService.dispatchNotify(`${patchedUser.name} ${t('common:toast.joined')}`, { variant: 'default' })
     }
     if (isLayerUser && patchedUser.instanceId !== selfUser.instanceId.value) {
       dispatchAction(UserAction.removedLayerUserAction({ user: patchedUser }))
-      NotificationService.dispatchNotify(`${patchedUser.name} ${t('common:toast.left')}`, { variant: 'default' })
+      !Engine.instance.isEditor &&
+        NotificationService.dispatchNotify(`${patchedUser.name} ${t('common:toast.left')}`, { variant: 'default' })
     }
     if (patchedUser.channelInstanceId !== selfUser.channelInstanceId.value)
       dispatchAction(UserAction.removedChannelLayerUserAction({ user: patchedUser }))
