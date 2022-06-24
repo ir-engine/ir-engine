@@ -1,6 +1,7 @@
 import { ShaderMaterial } from 'three'
 
 import { MaterialParms } from '../MaterialParms'
+import { FloatArg, Vec3Arg } from './DefaultArgs'
 
 export const vertexShader = `
 varying vec2 vUv;
@@ -51,10 +52,10 @@ gl_FragColor = vec4(color, 1.0);
 }`
 
 export const DefaultArgs = {
-  iTime: 0.0,
-  iResolution: [1, 1, 1],
-  offsetScale: 0.5,
-  offsetFrequency: 0.25
+  iTime: { hide: true, default: 0.0 },
+  iResolution: Vec3Arg,
+  offsetScale: { ...FloatArg, default: 0.5 },
+  offsetFrequency: { ...FloatArg, default: 0.25 }
 }
 
 export default function Caustics(args?): MaterialParms {
