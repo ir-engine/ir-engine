@@ -127,7 +127,7 @@ const PartyTable = ({ className, search }: PartyPropsTable) => {
       <PartyDrawer
         open={openPartyDrawer}
         mode={PartyDrawerMode.ViewEdit}
-        party={partyAdmin}
+        selectedParty={partyAdmin}
         onClose={handleClosePartyDrawer}
       />
     </Box>

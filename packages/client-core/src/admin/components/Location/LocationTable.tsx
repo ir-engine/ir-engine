@@ -185,7 +185,7 @@ const LocationTable = ({ className, search }: Props) => {
       <LocationDrawer
         open={openLocationDrawer}
         mode={LocationDrawerMode.ViewEdit}
-        location={locationAdmin}
+        selectedLocation={locationAdmin}
         onClose={() => setOpenLocationDrawer(false)}
       />
     </Box>
