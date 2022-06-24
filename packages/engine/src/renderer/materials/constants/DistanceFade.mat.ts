@@ -3,14 +3,15 @@ import { ShaderChunk } from 'three'
 
 import { matchActionOnce } from '../../../networking/functions/matchActionOnce'
 import { EngineRenderer } from '../../WebGLRendererSystem'
-import { MaterialAction } from '../MaterialActions'
 import { MaterialParms } from '../MaterialParms'
 import { extractDefaults as format } from '../Utilities'
 import { FloatArg, TextureArg, Vec2Arg } from './DefaultArgs'
 import { MatcapArgs } from './Matcap.mat'
+import { DefaultArgs as StandardArgs } from './Standard.mat'
 
 export const DefaultArgs = {
-  ...MatcapArgs,
+  //...MatcapArgs,
+  ...StandardArgs,
   map2: TextureArg,
   uvTiling: { ...Vec2Arg, min: 0, max: 100 },
   uvTiling2: { ...Vec2Arg, min: 0, max: 100 },
