@@ -6,6 +6,7 @@ import axios from 'axios'
 import i18n from 'i18next'
 import _ from 'lodash'
 import querystring from 'querystring'
+import { useEffect } from 'react'
 import { v1 } from 'uuid'
 
 import { validateEmail, validatePhoneNumber } from '@xrengine/common/src/config'
@@ -775,31 +776,39 @@ export const AuthService = {
     const apiKey = (await API.instance.client.service('user-api-key').patch(null, {})) as UserApiKey
     dispatchAction(AuthAction.apiKeyUpdatedAction({ apiKey }))
   },
-  listenForUserPatch: () => {
-    API.instance.client
-      .service('user')
-      .on('patched', (params) => dispatchAction(AuthAction.userPatchedAction({ params })))
-    API.instance.client.service('location-ban').on('created', async (params) => {
-      const selfUser = accessAuthState().user
-      const party = accessPartyState().party.value
-      const selfPartyUser =
-        party && party.partyUsers
-          ? party.partyUsers.find((partyUser) => partyUser.id === selfUser.id.value)
-          : ({} as any)
-      const currentLocation = accessLocationState().currentLocation.location
-      const locationBan = params.locationBan
-      if (selfUser.id.value === locationBan.userId && currentLocation.id.value === locationBan.locationId) {
-        // TODO: Decouple and reenable me!
-        // endVideoChat({ leftParty: true });
-        // leave(true);
-        if (selfPartyUser != undefined && selfPartyUser?.id != null) {
-          await API.instance.client.service('party-user').remove(selfPartyUser.id)
+  useAPIListeners: () => {
+    useEffect(() => {
+      const userPatchedListener = (params) => dispatchAction(AuthAction.userPatchedAction({ params }))
+      const locationBanCreatedListener = async (params) => {
+        const selfUser = accessAuthState().user
+        const party = accessPartyState().party.value
+        const selfPartyUser =
+          party && party.partyUsers
+            ? party.partyUsers.find((partyUser) => partyUser.id === selfUser.id.value)
+            : ({} as any)
+        const currentLocation = accessLocationState().currentLocation.location
+        const locationBan = params.locationBan
+        if (selfUser.id.value === locationBan.userId && currentLocation.id.value === locationBan.locationId) {
+          // TODO: Decouple and reenable me!
+          // endVideoChat({ leftParty: true });
+          // leave(true);
+          if (selfPartyUser != undefined && selfPartyUser?.id != null) {
+            await API.instance.client.service('party-user').remove(selfPartyUser.id)
+          }
+          const userId = selfUser.id.value ?? ''
+          const user = resolveUser(await API.instance.client.service('user').get(userId))
+          dispatchAction(AuthAction.userUpdatedAction({ user }))
         }
-        const userId = selfUser.id.value ?? ''
-        const user = resolveUser(await API.instance.client.service('user').get(userId))
-        dispatchAction(AuthAction.userUpdatedAction({ user }))
       }
-    })
+
+      API.instance.client.service('user').on('patched', userPatchedListener)
+      API.instance.client.service('location-ban').on('created', locationBanCreatedListener)
+
+      return () => {
+        API.instance.client.service('user').off('patched', userPatchedListener)
+        API.instance.client.service('location-ban').off('created', locationBanCreatedListener)
+      }
+    }, [])
   }
 }
 

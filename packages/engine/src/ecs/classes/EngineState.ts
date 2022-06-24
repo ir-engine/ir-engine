@@ -11,7 +11,6 @@ export const EngineState = defineState({
   initial: {
     fixedTick: 0,
     isEngineInitialized: false,
-    sceneLoading: false,
     sceneLoaded: false,
     joinedWorld: false,
     loadingProgress: 0,
@@ -45,18 +44,10 @@ export function EngineEventReceptor(a) {
         })
       )
       .when(EngineActions.initializeEngine.matches, (action) => s.merge({ isEngineInitialized: action.initialised }))
-      .when(EngineActions.sceneUnloaded.matches, (action) => s.merge({ sceneLoaded: false, sceneLoading: false }))
-      .when(EngineActions.sceneLoading.matches, (action) =>
-        s.merge({ sceneLoaded: false, sceneLoading: true, loadingProgress: 0 })
-      )
-      .when(EngineActions.sceneLoaded.matches, (action) =>
-        s.merge({ sceneLoaded: true, sceneLoading: false, loadingProgress: 100 })
-      )
+      .when(EngineActions.sceneUnloaded.matches, (action) => s.merge({ sceneLoaded: false }))
+      .when(EngineActions.sceneLoaded.matches, (action) => s.merge({ sceneLoaded: true, loadingProgress: 100 }))
       .when(EngineActions.joinedWorld.matches, (action) => {
         s.merge({ joinedWorld: true })
-        // if (s.sceneLoaded.value) {
-        //   s.merge({ loadingProgress: 100 })
-        // }
       })
       .when(EngineActions.sceneLoadingProgress.matches, (action) => s.merge({ loadingProgress: action.progress }))
       .when(EngineActions.leaveWorld.matches, (action) => s.merge({ joinedWorld: false }))
@@ -122,10 +113,6 @@ export class EngineActions {
 
   static leaveWorld = defineAction({
     type: 'CORE_LEAVE_WORLD' as const
-  })
-
-  static sceneLoading = defineAction({
-    type: 'CORE_SCENE_LOADING' as const
   })
 
   static sceneLoaded = defineAction({
