@@ -72,7 +72,7 @@ export async function onConnectToInstance(network: SocketWebRTCClientNetwork) {
     })
   ])
 
-  if (!connectToWorldResponse) {
+  if (!connectToWorldResponse || !connectToWorldResponse.routerRtpCapabilities) {
     dispatchAction(NetworkConnectionService.actions.worldInstanceReconnected())
     network.reconnecting = false
     onConnectToInstance(network)

@@ -1,5 +1,5 @@
 import type { WebLayer3D } from '@etherealjs/web-layer/three'
-import { DoubleSide, Mesh, MeshBasicMaterial, SphereGeometry } from 'three'
+import { DoubleSide, Mesh, MeshBasicMaterial, SphereGeometry, Texture } from 'three'
 
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineState'
@@ -31,18 +31,20 @@ export default async function LoadingUISystem(world: World) {
   })
 
   const sceneState = accessSceneState()
-  const thumbnailUrl = sceneState.currentScene.ornull?.thumbnailUrl.value.replace('thumbnail.jpeg', 'envmap.png')
+  const thumbnailUrl = sceneState.currentScene.ornull?.thumbnailUrl.value.replace('thumbnail.jpeg', 'envmap.png')!
+
   const [ui, texture] = await Promise.all([
     createLoaderDetailView(),
-    thumbnailUrl ? textureLoader.loadAsync(thumbnailUrl) : undefined
+    new Promise<Texture | null>((resolve) => textureLoader.load(thumbnailUrl, resolve, null!, () => resolve(null)))
   ])
 
   addComponent(ui.entity, PersistTagComponent, {})
 
   const mesh = new Mesh(
     new SphereGeometry(10),
-    new MeshBasicMaterial({ side: DoubleSide, map: texture, transparent: true, depthWrite: true, depthTest: false })
+    new MeshBasicMaterial({ side: DoubleSide, transparent: true, depthWrite: true, depthTest: false })
   )
+  if (texture) mesh.material.map = texture!
   // flip inside out
   mesh.scale.set(-1, 1, 1)
   mesh.renderOrder = 1
@@ -75,7 +77,7 @@ export default async function LoadingUISystem(world: World) {
       ObjectFitFunctions.attachObjectInFrontOfCamera(xrui.container, scale, distance)
 
       transition.update(world, (opacity) => {
-        if (opacity !== LoadingSystemState.opacity.value) LoadingSystemState.opacity.set(opacity)
+        if (opacity !== 1 - LoadingSystemState.opacity.value) LoadingSystemState.opacity.set(1 - opacity)
         mesh.material.opacity = opacity
         mesh.visible = opacity > 0
         xrui.container.rootLayer.traverseLayersPreOrder((layer: WebLayer3D) => {
