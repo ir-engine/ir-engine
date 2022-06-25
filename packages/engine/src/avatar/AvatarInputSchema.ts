@@ -527,7 +527,6 @@ export const handlePhysicsDebugEvent = (entity: Entity, inputKey: InputAlias, in
 
 export const createAvatarInput = () => {
   const map: Map<InputAlias | Array<InputAlias>, InputAlias> = new Map()
-  const avatarInputState = accessAvatarInputSettingsState()
   map.set(MouseInput.LeftButton, BaseInput.PRIMARY)
   map.set(MouseInput.RightButton, BaseInput.SECONDARY)
   map.set(MouseInput.MiddleButton, BaseInput.INTERACT)

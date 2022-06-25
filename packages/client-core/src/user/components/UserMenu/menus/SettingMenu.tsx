@@ -59,11 +59,15 @@ const SettingMenu = (): JSX.Element => {
   const [open, setOpen] = useState(false)
 
   const handleChangeInvertRotationAndMoveSticks = (event: React.ChangeEvent<HTMLInputElement>) => {
-    dispatchAction(AvatarInputSettingsAction.setInvertRotationAndMoveSticks(!invertRotationAndMoveSticks))
+    dispatchAction(
+      AvatarInputSettingsAction.setInvertRotationAndMoveSticks({
+        invertRotationAndMoveSticks: !invertRotationAndMoveSticks
+      })
+    )
   }
 
   const handleChangeShowAvatar = (event: React.ChangeEvent<HTMLInputElement>) => {
-    dispatchAction(AvatarInputSettingsAction.setShowAvatar(!showAvatar))
+    dispatchAction(AvatarInputSettingsAction.setShowAvatar({ showAvatar: !showAvatar }))
   }
 
   useEffect(() => {
@@ -90,7 +94,7 @@ const SettingMenu = (): JSX.Element => {
 
   const handleChangeControlType = (event: SelectChangeEvent) => {
     setControlType(event.target.value as any)
-    dispatchAction(AvatarInputSettingsAction.setControlType(event.target.value as any))
+    dispatchAction(AvatarInputSettingsAction.setControlType({ controlType: event.target.value as any }))
   }
 
   const handleChangeControlScheme = (event: SelectChangeEvent) => {
