@@ -35,7 +35,8 @@ export function createObjectPool<T>(objectFactory: () => T) {
     use,
     recycle,
     grow,
-    size
+    size,
+    objPool
   }
 
   // ******************************
