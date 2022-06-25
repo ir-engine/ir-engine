@@ -12,7 +12,8 @@ import {
   Vector3
 } from 'three'
 
-import { addActionReceptor } from '@xrengine/hyperflux'
+import { matches } from '@xrengine/engine/src/common/functions/MatchesUtils'
+import { addActionReceptor, removeActionReceptor } from '@xrengine/hyperflux'
 
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { Engine } from '../../ecs/classes/Engine'
@@ -27,7 +28,7 @@ import { isStaticBody } from '../../physics/classes/Physics'
 import { ColliderComponent } from '../../physics/components/ColliderComponent'
 import { ObstaclesComponent } from '../../physics/components/ObstaclesComponent'
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
-import { accessEngineRendererState, EngineRendererActionType } from '../../renderer/EngineRendererState'
+import { accessEngineRendererState, EngineRendererAction } from '../../renderer/EngineRendererState'
 import InfiniteGridHelper from '../../scene/classes/InfiniteGridHelper'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { XRInputSourceComponent } from '../../xr/components/XRInputSourceComponent'
@@ -92,19 +93,20 @@ export default async function DebugHelpersSystem(world: World) {
     }
   }
 
-  const receptor = (action: EngineRendererActionType) => {
-    switch (action.type) {
-      case 'PHYSICS_DEBUG_CHANGED':
+  const receptor = (action) => {
+    matches(action)
+      .when(EngineRendererAction.setPhysicsDebug.matches, (action) => {
         physicsDebugUpdate(action.physicsDebugEnable)
-        break
-      case 'AVATAR_DEBUG_CHANGED':
+      })
+      .when(EngineRendererAction.setAvatarDebug.matches, (action) => {
         avatarDebugUpdate(action.avatarDebugEnable)
-        break
-    }
+      })
   }
   addActionReceptor(receptor)
 
   return () => {
+    // Remove Receptor
+    removeActionReceptor(receptor)
     // ===== AVATAR ===== //
 
     for (const entity of avatarDebugQuery.enter()) {

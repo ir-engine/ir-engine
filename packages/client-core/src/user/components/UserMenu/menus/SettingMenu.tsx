@@ -156,8 +156,8 @@ const SettingMenu = (): JSX.Element => {
             <Slider
               value={rendererState.qualityLevel.value}
               onChange={(_, value: number) => {
-                dispatchAction(EngineRendererAction.setQualityLevel(value))
-                dispatchAction(EngineRendererAction.setAutomatic(false))
+                dispatchAction(EngineRendererAction.setQualityLevel({ qualityLevel: value }))
+                dispatchAction(EngineRendererAction.setAutomatic({ automatic: false }))
               }}
               className={styles.slider}
               min={1}
@@ -171,8 +171,8 @@ const SettingMenu = (): JSX.Element => {
               control={<Checkbox checked={rendererState.usePostProcessing.value} size="small" />}
               label={t('user:usermenu.setting.lbl-pp') as string}
               onChange={(_, value) => {
-                dispatchAction(EngineRendererAction.setPostProcessing(value))
-                dispatchAction(EngineRendererAction.setAutomatic(false))
+                dispatchAction(EngineRendererAction.setPostProcessing({ usePostProcessing: value }))
+                dispatchAction(EngineRendererAction.setAutomatic({ automatic: false }))
               }}
             />
             {/* <FormControlLabel
@@ -190,8 +190,8 @@ const SettingMenu = (): JSX.Element => {
               control={<Checkbox checked={rendererState.useShadows.value} size="small" />}
               label={t('user:usermenu.setting.lbl-shadow') as string}
               onChange={(_, value) => {
-                dispatchAction(EngineRendererAction.setShadows(value))
-                dispatchAction(EngineRendererAction.setAutomatic(false))
+                dispatchAction(EngineRendererAction.setShadows({ useShadows: value }))
+                dispatchAction(EngineRendererAction.setAutomatic({ automatic: false }))
               }}
             />
           </div>
@@ -202,7 +202,7 @@ const SettingMenu = (): JSX.Element => {
               label={t('user:usermenu.setting.lbl-automatic') as string}
               labelPlacement="start"
               onChange={(_, value) => {
-                dispatchAction(EngineRendererAction.setAutomatic(value))
+                dispatchAction(EngineRendererAction.setAutomatic({ automatic: value }))
               }}
             />
           </div>
