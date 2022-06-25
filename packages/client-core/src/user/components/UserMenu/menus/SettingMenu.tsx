@@ -117,7 +117,7 @@ const SettingMenu = (): JSX.Element => {
             <Slider
               value={audioState.audio.value == null ? 100 : audioState.audio.value}
               onChange={(_, value: number) => {
-                dispatchAction(AudioSettingAction.setAudio(value))
+                dispatchAction(AudioSettingAction.setAudio({ audio: value }))
                 const mediaElements = document.querySelectorAll<HTMLMediaElement>('video, audio')
                 for (let i = 0; i < mediaElements.length; i++) {
                   mediaElements[i].volume = (value as number) / 100
@@ -136,7 +136,7 @@ const SettingMenu = (): JSX.Element => {
             <Slider
               value={audioState.microphone.value == null ? 100 : audioState.microphone.value}
               onChange={(_, value: number) => {
-                dispatchAction(AudioSettingAction.setMicrophone(value))
+                dispatchAction(AudioSettingAction.setMicrophone({ microphone: value }))
               }}
               className={styles.slider}
               max={100}
