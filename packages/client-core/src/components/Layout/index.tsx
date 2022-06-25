@@ -116,7 +116,7 @@ const Layout = ({ useLoadingScreenOpacity, pageTitle, children, hideVideo, hideF
   }
 
   const useOpacity = typeof useLoadingScreenOpacity !== 'undefined' && useLoadingScreenOpacity === true
-  const layoutOpacity = useOpacity ? 1 - loadingSystemState.opacity.value : 1
+  const layoutOpacity = useOpacity ? loadingSystemState.opacity.value : 1
   const MediaIconHider = showMediaIcons ? KeyboardDoubleArrowUpIcon : KeyboardDoubleArrowDownIcon
   const BottomIconHider = showBottomIcons ? KeyboardDoubleArrowDownIcon : KeyboardDoubleArrowUpIcon
   // info about current mode to conditional render menus
