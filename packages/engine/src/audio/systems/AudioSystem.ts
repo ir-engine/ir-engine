@@ -1,4 +1,4 @@
-import { addActionReceptor, dispatchAction, removeActionReceptor } from '@xrengine/hyperflux'
+import { addActionReceptor, dispatchAction } from '@xrengine/hyperflux'
 
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions } from '../../ecs/classes/EngineState'
@@ -121,6 +121,5 @@ export default async function AudioSystem(world: World) {
     for (const entity of playQuery.enter(world)) {
       whenReady(() => playSoundEffect(entity))
     }
-    removeActionReceptor(AudioSettingReceptor)
   }
 }
