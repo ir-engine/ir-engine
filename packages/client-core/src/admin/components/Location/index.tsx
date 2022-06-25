@@ -1,14 +1,10 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 import { useTranslation } from 'react-i18next'
-
-import { addActionReceptor, removeActionReceptor } from '@xrengine/hyperflux'
 
 import Button from '@mui/material/Button'
 import Grid from '@mui/material/Grid'
 
 import Search from '../../common/Search'
-import { AdminLocationServiceReceptor } from '../../services/LocationService'
-import { AdminSceneServiceReceptor } from '../../services/SceneService'
 import styles from '../../styles/admin.module.scss'
 import LocationDrawer, { LocationDrawerMode } from './LocationDrawer'
 import LocationTable from './LocationTable'
@@ -17,15 +13,6 @@ const Location = () => {
   const [openLocationDrawer, setOpenLocationDrawer] = React.useState(false)
   const [search, setSearch] = React.useState('')
   const { t } = useTranslation()
-
-  useEffect(() => {
-    addActionReceptor(AdminSceneServiceReceptor)
-    addActionReceptor(AdminLocationServiceReceptor)
-    return () => {
-      removeActionReceptor(AdminSceneServiceReceptor)
-      removeActionReceptor(AdminLocationServiceReceptor)
-    }
-  }, [])
 
   const handleChange = (e: any) => {
     setSearch(e.target.value)

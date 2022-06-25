@@ -3,6 +3,7 @@ import {
   DataTexture,
   EquirectangularRefractionMapping,
   Mesh,
+  MeshMatcapMaterial,
   MeshStandardMaterial,
   Object3D,
   RGBAFormat,
@@ -229,10 +230,12 @@ function applyEnvMap(obj3d: Object3D, envmap) {
     obj3d.environment = envmap
   } else {
     obj3d.traverse((child: Mesh<any, MeshStandardMaterial>) => {
+      if (child.material instanceof MeshMatcapMaterial) return
       if (child.material) child.material.envMap = envmap
     })
 
     if ((obj3d as Mesh<any, MeshStandardMaterial>).material) {
+      if ((obj3d as Mesh).material instanceof MeshMatcapMaterial) return
       ;(obj3d as Mesh<any, MeshStandardMaterial>).material.envMap = envmap
     }
   }

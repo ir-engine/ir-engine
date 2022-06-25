@@ -1,13 +1,10 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-
-import { addActionReceptor, removeActionReceptor } from '@xrengine/hyperflux'
 
 import Button from '@mui/material/Button'
 import Grid from '@mui/material/Grid'
 
 import Search from '../../common/Search'
-import { AdminPartyServiceReceptor } from '../../services/PartyService'
 import styles from '../../styles/admin.module.scss'
 import PartyDrawer, { PartyDrawerMode } from './PartyDrawer'
 import PartyTable from './PartyTable'
@@ -16,13 +13,6 @@ const Party = () => {
   const [openPartyDrawer, setOpenPartyDrawer] = useState(false)
   const [search, setSearch] = useState('')
   const { t } = useTranslation()
-
-  useEffect(() => {
-    addActionReceptor(AdminPartyServiceReceptor)
-    return () => {
-      removeActionReceptor(AdminPartyServiceReceptor)
-    }
-  }, [])
 
   const handleChange = (e: any) => {
     setSearch(e.target.value)

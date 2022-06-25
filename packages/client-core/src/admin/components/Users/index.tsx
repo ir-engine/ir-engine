@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { addActionReceptor, removeActionReceptor } from '@xrengine/hyperflux'
-
 import FilterListIcon from '@mui/icons-material/FilterList'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
@@ -15,13 +13,8 @@ import Popover from '@mui/material/Popover'
 import { useAuthState } from '../../../user/services/AuthService'
 import InputSelect, { InputMenuItem } from '../../common/InputSelect'
 import Search from '../../common/Search'
-import { AdminStaticResourceServiceReceptor } from '../../services/StaticResourceService'
-import {
-  AdminUserRoleService,
-  AdminUserRoleServiceReceptor,
-  useAdminUserRoleState
-} from '../../services/UserRoleService'
-import { AdminUserService, AdminUserServiceReceptor } from '../../services/UserService'
+import { AdminUserRoleService, useAdminUserRoleState } from '../../services/UserRoleService'
+import { AdminUserService } from '../../services/UserService'
 import styles from '../../styles/admin.module.scss'
 import UserDrawer, { UserDrawerMode } from './UserDrawer'
 import UserTable from './UserTable'
@@ -36,17 +29,6 @@ const Users = () => {
   const openMenu = Boolean(anchorEl)
   const user = useAuthState().user
   const userRole = useAdminUserRoleState()
-
-  useEffect(() => {
-    addActionReceptor(AdminStaticResourceServiceReceptor)
-    addActionReceptor(AdminUserServiceReceptor)
-    addActionReceptor(AdminUserRoleServiceReceptor)
-    return () => {
-      removeActionReceptor(AdminStaticResourceServiceReceptor)
-      removeActionReceptor(AdminUserServiceReceptor)
-      removeActionReceptor(AdminUserRoleServiceReceptor)
-    }
-  }, [])
 
   useEffect(() => {
     const fetchData = async () => {

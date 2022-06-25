@@ -1,14 +1,15 @@
-import React, { Fragment, Suspense, useEffect } from 'react'
+import React, { Suspense, useEffect } from 'react'
 import { Redirect, Switch } from 'react-router-dom'
 
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { initializeCoreSystems, initializeSceneSystems } from '@xrengine/engine/src/initializeEngine'
-import { addActionReceptor, removeActionReceptor } from '@xrengine/hyperflux'
 
 import CircularProgress from '@mui/material/CircularProgress'
 
 import PrivateRoute from '../Private'
 import { useAuthState } from '../user/services/AuthService'
-import { AdminScopeTypeServiceReceptor } from './services/ScopeTypeService'
+import LoadingView from './common/LoadingView'
 
 const analytic = React.lazy(() => import('./components/Analytics'))
 const avatars = React.lazy(() => import('./components/Avatars'))
@@ -24,10 +25,14 @@ const botSetting = React.lazy(() => import('./components/Bots'))
 const projects = React.lazy(() => import('./components/Project'))
 const setting = React.lazy(() => import('./components/Setting'))
 
-interface Props {}
+const AdminSystemInjection = {
+  type: 'PRE_RENDER',
+  systemModulePromise: import('../systems/AdminSystem')
+} as const
 
-const ProtectedRoutes = (props: Props) => {
+const ProtectedRoutes = () => {
   const admin = useAuthState().user
+  const { isEngineInitialized } = useEngineState().value
 
   let allowedRoutes = {
     location: false,
@@ -44,13 +49,10 @@ const ProtectedRoutes = (props: Props) => {
   const scopes = admin?.scopes?.value || []
 
   useEffect(() => {
-    addActionReceptor(AdminScopeTypeServiceReceptor)
+    Engine.instance.injectedSystems.push(AdminSystemInjection)
     initializeCoreSystems().then(async () => {
       await initializeSceneSystems()
     })
-    return () => {
-      removeActionReceptor(AdminScopeTypeServiceReceptor)
-    }
   }, [])
 
   scopes.forEach((scope) => {
@@ -70,22 +72,23 @@ const ProtectedRoutes = (props: Props) => {
 
   return (
     <div style={{ pointerEvents: 'auto' }}>
-      <Fragment>
-        <Suspense
-          fallback={
-            <div
-              style={{
-                height: '100vh',
-                width: '100%',
-                textAlign: 'center',
-                pointerEvents: 'auto',
-                paddingTop: 'calc(50vh - 7px)'
-              }}
-            >
-              <CircularProgress />
-            </div>
-          }
-        >
+      <Suspense
+        fallback={
+          <div
+            style={{
+              height: '100vh',
+              width: '100%',
+              textAlign: 'center',
+              pointerEvents: 'auto',
+              paddingTop: 'calc(50vh - 7px)'
+            }}
+          >
+            <CircularProgress />
+          </div>
+        }
+      >
+        {!isEngineInitialized && <LoadingView sx={{ height: '100vh' }} />}
+        {isEngineInitialized && (
           <Switch>
             <PrivateRoute exact path="/admin" component={analytic} />
             <PrivateRoute exact path="/admin/avatars" component={avatars} />
@@ -101,8 +104,8 @@ const ProtectedRoutes = (props: Props) => {
             <PrivateRoute exact path="/admin/settings" component={setting} />
             <PrivateRoute exact Path="/admin/users" component={users} />
           </Switch>
-        </Suspense>
-      </Fragment>
+        )}
+      </Suspense>
     </div>
   )
 }

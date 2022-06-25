@@ -11,6 +11,7 @@ import checkPositionIsValid from '@xrengine/engine/src/common/functions/checkPos
 import { performance } from '@xrengine/engine/src/common/functions/performance'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
 import { JoinWorldProps } from '@xrengine/engine/src/networking/functions/receiveJoinWorld'
 import { WorldNetworkAction } from '@xrengine/engine/src/networking/functions/WorldNetworkAction'
 import { AvatarProps } from '@xrengine/engine/src/networking/interfaces/WorldState'
@@ -232,7 +233,7 @@ export async function handleConnectToWorld(
 ) {
   logger.info('Connect to world from ' + userId)
 
-  if (disconnectClientIfConnected(network, socket, userId)) return callback(null! as any)
+  if (disconnectClientIfConnected(network, socket, userId)) return callback()
 
   const avatarDetail = (await network.app.service('avatar').get(user.avatarId)) as AvatarProps
 
@@ -268,18 +269,20 @@ export async function handleConnectToWorld(
 function disconnectClientIfConnected(network: SocketWebRTCServerNetwork, socket: Socket, userId: UserId) {
   // If we are already logged in, kick the other socket
   const world = Engine.instance.currentWorld
-  if (world.clients.has(userId) && world.clients.get(userId)!.socketId !== socket.id) {
-    // const client = world.clients.get(userId)!
-    logger.info('Client already logged in, disallowing new connection')
+  const client = world.clients.get(userId)
+  if (client) {
+    if (client.socketId === socket.id) {
+      logger.info('Client already logged in, disallowing new connection')
+      return true
+    }
 
-    // todo: kick old client instead of new one
-    // logger.info('Client already exists, kicking the old client and disconnecting')
-    // client.socket?.emit(MessageTypes.Kick.toString(), 'You joined this world on another device')
-    // client.socket?.disconnect()
-    // for (const eid of world.getOwnedNetworkObjects(userId)) {
-    //   const { networkId } = getComponent(eid, NetworkObjectComponent)
-    //   dispatchFrom(network.hostId, () => WorldNetworkAction.destroyObject({ $from: userId, networkId }))
-    // }
+    // kick old client instead of new one
+    logger.info('Client already exists, kicking the old client and disconnecting')
+    client.socket?.emit(MessageTypes.Kick.toString(), 'You joined this world on another device')
+    client.socket?.disconnect()
+    handleDisconnect(network, client.socket!)
+
+    // return true anyway, new client will send another connect to world request which will pass
     return true
   }
 }
@@ -354,7 +357,10 @@ export const handleJoinWorld = async (
   user
 ) => {
   logger.info('Join World Request Received: %o', { joinedUserId, data, user })
-  if (disconnectClientIfConnected(network, socket, joinedUserId)) return callback(null! as any)
+
+  // disallow join world request if already spawned
+  const world = Engine.instance.currentWorld
+  if (world.getUserAvatarEntity(joinedUserId) !== undefined) return callback(null!)
 
   let spawnPose = SpawnPoints.instance.getRandomSpawnPoint()
   const inviteCode = data['inviteCode']
@@ -394,7 +400,6 @@ export const handleJoinWorld = async (
   }
 
   logger.info('User successfully joined world: %o', { joinedUserId, data, spawnPose })
-  const world = Engine.instance.currentWorld
   const client = world.clients.get(joinedUserId)!
 
   if (!client) return callback(null! as any)
