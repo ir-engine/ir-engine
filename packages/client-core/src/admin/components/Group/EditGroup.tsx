@@ -89,9 +89,7 @@ const EditGroup = ({ groupAdmin, onClose }: Props) => {
   return (
     <Container maxWidth="sm" className={styles.mt20}>
       <form onSubmit={(e) => onSubmitHandler(e)}>
-        <DialogTitle id="form-dialog-title" className={styles.textAlign}>
-          {t('admin:components.group.editGroup')}
-        </DialogTitle>
+        <DialogTitle className={styles.textAlign}>{t('admin:components.group.editGroup')}</DialogTitle>
 
         <InputText
           name="name"

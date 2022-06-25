@@ -207,7 +207,7 @@ const LocationDrawer = ({ open, mode, selectedLocation, onClose }: Props) => {
   return (
     <DrawerView open={open} onClose={onClose}>
       <Container maxWidth="sm" className={styles.mt20}>
-        <DialogTitle id="form-dialog-title" className={styles.textAlign}>
+        <DialogTitle className={styles.textAlign}>
           {mode === LocationDrawerMode.Create && t('admin:components.locationModal.createLocation')}
           {mode === LocationDrawerMode.ViewEdit &&
             editMode &&

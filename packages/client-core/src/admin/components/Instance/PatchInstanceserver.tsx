@@ -73,9 +73,7 @@ const PatchInstanceserver = ({ open, onClose }: Props) => {
   return (
     <DrawerView open={open} onClose={onClose}>
       <Container maxWidth="sm" className={styles.mt20}>
-        <DialogTitle id="form-dialog-title" className={styles.textAlign}>
-          {t('admin:components.setting.patchInstanceserver')}
-        </DialogTitle>
+        <DialogTitle className={styles.textAlign}>{t('admin:components.setting.patchInstanceserver')}</DialogTitle>
 
         <InputSelect
           name="location"

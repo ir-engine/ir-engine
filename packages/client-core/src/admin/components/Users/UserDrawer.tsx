@@ -212,7 +212,7 @@ const UserDrawer = ({ open, mode, selectedUser, onClose }: Props) => {
     <React.Fragment>
       <DrawerView open={open} onClose={handleCancel}>
         <Container maxWidth="sm" className={styles.mt20}>
-          <DialogTitle id="form-dialog-title" className={styles.textAlign}>
+          <DialogTitle className={styles.textAlign}>
             {mode === UserDrawerMode.Create && t('admin:components.user.createUser')}
             {mode === UserDrawerMode.ViewEdit &&
               editMode &&
