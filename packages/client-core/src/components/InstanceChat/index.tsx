@@ -438,7 +438,12 @@ const InstanceChat = ({
               invisible={!unreadMessages}
               anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
             >
-              <Fab className={styles.chatBadge} color="primary" onClick={() => toggleChatWindow()}>
+              <Fab
+                id="openMessagesButton"
+                className={styles.chatBadge}
+                color="primary"
+                onClick={() => toggleChatWindow()}
+              >
                 {!chatWindowOpen ? (
                   <MessageButton />
                 ) : (
