@@ -148,7 +148,7 @@ const UserDrawer = ({ open, mode, selectedUser, onClose }: Props) => {
   const handleChangeScopeType = (scope) => {
     let tempErrors = {
       ...state.formErrors,
-      scopes: scope.length < 1 ? t('admin:components.party.scopeTypeRequired') : ''
+      scopes: scope.length < 1 ? t('admin:components.user.scopeTypeRequired') : ''
     }
 
     setState({ ...state, scopes: scope, formErrors: tempErrors })
@@ -161,13 +161,13 @@ const UserDrawer = ({ open, mode, selectedUser, onClose }: Props) => {
 
     switch (name) {
       case 'name':
-        tempErrors.name = value.length < 2 ? t('admin:components.party.nameRequired') : ''
+        tempErrors.name = value.length < 2 ? t('admin:components.user.nameRequired') : ''
         break
       case 'avatar':
-        tempErrors.avatar = value.length < 2 ? t('admin:components.party.avatarRequired') : ''
+        tempErrors.avatar = value.length < 2 ? t('admin:components.user.avatarRequired') : ''
         break
       case 'userRole':
-        tempErrors.userRole = value.length < 2 ? t('admin:components.party.scopeTypeRequired') : ''
+        tempErrors.userRole = value.length < 2 ? t('admin:components.user.scopeTypeRequired') : ''
         break
       default:
         break
