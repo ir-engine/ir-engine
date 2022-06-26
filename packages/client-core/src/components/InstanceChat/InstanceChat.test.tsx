@@ -28,7 +28,7 @@ describe('Instance Chat Component', () => {
     rootContainer = null!
   })
 
-  it('displays chat message', () => {
+  it('displays chat message', async () => {
     accessChatState().channels.channels.set([
       {
         id: 'id',
@@ -46,6 +46,12 @@ describe('Instance Chat Component', () => {
     act(() => {
       ReactDOM.render(<InstanceChat />, rootContainer)
     })
+    const openButton = document.getElementById('openMessagesButton')!
+    openButton.addEventListener('click', (e) => console.log(e))
+    act(() => {
+      openButton.dispatchEvent(new window.CustomEvent('click', { bubbles: true, cancelable: false }))
+    })
+    await new Promise((resolve) => setTimeout(resolve, 1000))
     const message = rootContainer.querySelector('p')!
     // const message = document.getElementById('message-message id')!
     assert.equal(message.textContent, 'message text')

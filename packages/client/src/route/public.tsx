@@ -35,7 +35,7 @@ const $offline = React.lazy(() => import('@xrengine/client/src/pages/offline/off
 const $503 = React.lazy(() => import('../pages/503'))
 const $404 = React.lazy(() => import('../pages/404'))
 
-function RouterComp(props) {
+function RouterComp() {
   const [customRoutes, setCustomRoutes] = useState(null as any as CustomRoute[])
   const clientSettingsState = useClientSettingState()
   const authSettingsState = useAuthSettingState()
