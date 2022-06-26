@@ -157,7 +157,7 @@ export const loadSceneFromJSON = async (sceneData: SceneJson, sceneSystems: Syst
   // this needs to occur after the asset promises
   await unloadScene(world)
 
-  initSystems(world, sceneSystems)
+  await initSystems(world, sceneSystems)
 
   const entityMap = {} as { [key: string]: EntityTreeNode }
 
