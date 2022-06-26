@@ -114,7 +114,7 @@ export const updateEnvMap: ComponentUpdateFunction = (entity: Entity, properties
             break
 
           case EnvMapTextureType.Equirectangular:
-            textureLoader.load(
+            AssetLoader.load(
               component.envMapSourceURL,
               (texture) => {
                 const EnvMap = getPmremGenerator().fromEquirectangular(texture).texture

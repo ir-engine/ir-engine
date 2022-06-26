@@ -15,6 +15,7 @@ import FolderInput from '../inputs/FolderInput'
 import ImageInput from '../inputs/ImageInput'
 import InputGroup from '../inputs/InputGroup'
 import SelectInput from '../inputs/SelectInput'
+import TexturePreviewInput from '../inputs/TexturePreviewInput'
 import NodeEditor from './NodeEditor'
 import { EditorComponentType, updateProperty } from './Util'
 
@@ -124,7 +125,7 @@ export const EnvMapEditor: EditorComponentType = (props) => {
               <FolderInput value={envmapComponent.envMapSourceURL} onChange={onChangeCubemapURLSource} />
             )}
             {envmapComponent.envMapTextureType === EnvMapTextureType.Equirectangular && (
-              <ImageInput
+              <TexturePreviewInput
                 value={envmapComponent.envMapSourceURL}
                 onChange={updateProperty(EnvmapComponent, 'envMapSourceURL')}
               />
