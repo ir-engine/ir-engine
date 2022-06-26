@@ -27,7 +27,7 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 const EMPTY_SLOT = Object.freeze(Object.create(null))
 
-export function createObjectPool<T>(objectFactory: () => T) {
+export function createObjectPool<T>(objectFactory: () => T, autoGrow = false) {
   const objPool = [] as T[]
   let nextFreeSlot = null! as number // pool location to look for a free object to use
 
@@ -43,11 +43,11 @@ export function createObjectPool<T>(objectFactory: () => T) {
 
   function use() {
     if (nextFreeSlot == null || nextFreeSlot == objPool.length) {
-      grow(objPool.length || 5)
+      if (autoGrow) grow(objPool.length || 5)
     }
 
     let objToUse = objPool[nextFreeSlot]
-    objPool[nextFreeSlot++] = EMPTY_SLOT
+    if (objToUse) objPool[nextFreeSlot++] = EMPTY_SLOT
     return objToUse
   }
 

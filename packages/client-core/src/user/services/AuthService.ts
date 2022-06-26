@@ -30,6 +30,8 @@ import { accessStoredLocalState, StoredLocalAction } from '../../util/StoredLoca
 import { uploadToFeathersService } from '../../util/upload'
 import { userPatched } from '../functions/userPatched'
 
+const TIMEOUT_INTERVAL = 50 //ms per interval of waiting for authToken to be updated
+
 type AuthStrategies = {
   jwt: Boolean
   local: Boolean
@@ -390,7 +392,22 @@ export const AuthService = {
       dispatchAction(AuthAction.loginUserSuccessAction({ authUser: authUser, message: '' }))
       await AuthService.loadUserData(authUser.identityProvider.userId)
       dispatchAction(AuthAction.actionProcessing({ processing: false }))
-      window.location.href = redirectSuccess
+      let timeoutTimer = 0
+      // The new JWT does not always get stored in localStorage successfully by this point, and if the user is
+      // redirected to redirectSuccess now, they will still have an old JWT, which can cause them to not be logged
+      // in properly. This interval waits to make sure the token has been updated before redirecting
+      const waitForTokenStored = setInterval(() => {
+        timeoutTimer += TIMEOUT_INTERVAL
+        const authData = accessStoredLocalState().attach(Downgraded).value
+        let storedToken = authData && authData.authUser ? authData.authUser.accessToken : undefined
+        if (storedToken === accessToken) {
+          clearInterval(waitForTokenStored)
+          window.location.href = redirectSuccess
+        }
+        // After 3 seconds without the token getting updated, send the user back anyway - something seems to have
+        // gone wrong, and we don't want them stuck on the page they were on indefinitely.
+        if (timeoutTimer > 3000) window.location.href = redirectSuccess
+      }, TIMEOUT_INTERVAL)
     } catch (err) {
       dispatchAction(AuthAction.loginUserErrorAction({ message: i18n.t('common:error.login-error') }))
       NotificationService.dispatchNotify(err.message, { variant: 'error' })

@@ -521,7 +521,11 @@ export const handlePhysicsDebugEvent = (entity: Entity, inputKey: InputAlias, in
       [Engine.instance.currentWorld.worldNetwork.hostId]
     )
   } else if (inputKey === PhysicsDebugInput.TOGGLE_PHYSICS_DEBUG) {
-    dispatchAction(EngineRendererAction.setPhysicsDebug(!accessEngineRendererState().physicsDebugEnable.value))
+    dispatchAction(
+      EngineRendererAction.setPhysicsDebug({
+        physicsDebugEnable: !accessEngineRendererState().physicsDebugEnable.value
+      })
+    )
   }
 }
 

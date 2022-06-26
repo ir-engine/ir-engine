@@ -73,11 +73,15 @@ export const Debug = () => {
   }
 
   const togglePhysicsDebug = () => {
-    dispatchAction(EngineRendererAction.setPhysicsDebug(!engineRendererState.physicsDebugEnable.value))
+    dispatchAction(
+      EngineRendererAction.setPhysicsDebug({ physicsDebugEnable: !engineRendererState.physicsDebugEnable.value })
+    )
   }
 
   const toggleAvatarDebug = () => {
-    dispatchAction(EngineRendererAction.setAvatarDebug(!engineRendererState.avatarDebugEnable.value))
+    dispatchAction(
+      EngineRendererAction.setAvatarDebug({ avatarDebugEnable: !engineRendererState.avatarDebugEnable.value })
+    )
   }
 
   const renderNamedEntities = () => {
@@ -113,20 +117,26 @@ export const Debug = () => {
   const toggleNodeHelpers = () => {
     Engine.instance.currentWorld.camera.layers.toggle(ObjectLayers.NodeHelper)
     dispatchAction(
-      EngineRendererAction.changeNodeHelperVisibility(!accessEngineRendererState().nodeHelperVisibility.value)
+      EngineRendererAction.changeNodeHelperVisibility({
+        visibility: !accessEngineRendererState().nodeHelperVisibility.value
+      })
     )
   }
 
   const toggleGridHelper = () => {
     Engine.instance.currentWorld.camera.layers.toggle(ObjectLayers.Gizmos)
-    dispatchAction(EngineRendererAction.changeGridToolVisibility(!accessEngineRendererState().gridVisibility.value))
+    dispatchAction(
+      EngineRendererAction.changeGridToolVisibility({ visibility: !accessEngineRendererState().gridVisibility.value })
+    )
   }
 
   const simpleMaterials = () => {
     if (hasComponent(Engine.instance.currentWorld.worldEntity, SimpleMaterialTagComponent))
       removeComponent(Engine.instance.currentWorld.worldEntity, SimpleMaterialTagComponent)
     else addComponent(Engine.instance.currentWorld.worldEntity, SimpleMaterialTagComponent, {})
-    dispatchAction(EngineRendererAction.changeGridToolVisibility(!accessEngineRendererState().gridVisibility.value))
+    dispatchAction(
+      EngineRendererAction.changeGridToolVisibility({ visibility: !accessEngineRendererState().gridVisibility.value })
+    )
   }
 
   if (isShowing)
