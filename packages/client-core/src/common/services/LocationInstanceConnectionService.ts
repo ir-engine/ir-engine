@@ -1,5 +1,5 @@
 import { Paginated } from '@feathersjs/feathers'
-import { Downgraded } from '@speigg/hookstate'
+import { Downgraded, none } from '@speigg/hookstate'
 import { useEffect } from 'react'
 
 import { Instance } from '@xrengine/common/src/interfaces/Instance'
@@ -69,9 +69,7 @@ export const LocationInstanceConnectionServiceReceptor = (action) => {
         })
       })
       .when(LocationInstanceConnectionAction.disconnect.matches, (action) => {
-        const newState = s.instances.attach(Downgraded).value
-        delete newState[action.instanceId]
-        return s.instances.set(newState)
+        return s.instances[action.instanceId].set(none)
       })
   })
 }
