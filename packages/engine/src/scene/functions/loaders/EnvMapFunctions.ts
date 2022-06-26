@@ -9,7 +9,8 @@ import {
   RGBAFormat,
   Scene,
   sRGBEncoding,
-  Vector3
+  Vector3,
+  VideoTexture
 } from 'three'
 
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
