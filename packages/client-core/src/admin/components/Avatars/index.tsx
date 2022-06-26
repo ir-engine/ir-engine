@@ -1,12 +1,12 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { addActionReceptor, dispatchAction, removeActionReceptor } from '@xrengine/hyperflux'
+import { dispatchAction } from '@xrengine/hyperflux'
 
 import Button from '@mui/material/Button'
 import Grid from '@mui/material/Grid'
 
-import { AdminAvatarActions, AdminAvatarServiceReceptor } from '../../../admin/services/AvatarService'
+import { AdminAvatarActions } from '../../../admin/services/AvatarService'
 import AvatarSelectMenu from '../../../user/components/UserMenu/menus/AvatarSelectMenu'
 import DrawerView from '../../common/DrawerView'
 import Search from '../../common/Search'
@@ -17,13 +17,6 @@ const Avatar = () => {
   const [search, setSearch] = useState('')
   const [openDrawer, setOpenDrawer] = useState(false)
   const { t } = useTranslation()
-
-  useEffect(() => {
-    addActionReceptor(AdminAvatarServiceReceptor)
-    return () => {
-      removeActionReceptor(AdminAvatarServiceReceptor)
-    }
-  }, [])
 
   const handleChange = (e: any) => {
     setSearch(e.target.value)

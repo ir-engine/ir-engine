@@ -27,65 +27,89 @@ const AdminUserState = defineState({
   })
 })
 
-export const AdminUserServiceReceptor = (action) => {
-  getState(AdminUserState).batch((s) => {
-    matches(action)
-      .when(AdminUserActions.fetchedSingleUser.matches, (action) => {
-        return s.merge({ singleUser: action.data, updateNeeded: false })
-      })
-      .when(AdminUserActions.loadedUsers.matches, (action) => {
-        return s.merge({
-          users: action.userResult.data,
-          skip: action.userResult.skip,
-          limit: action.userResult.limit,
-          total: action.userResult.total,
-          retrieving: false,
-          fetched: true,
-          updateNeeded: false,
-          lastFetched: Date.now()
-        })
-      })
-      .when(AdminUserActions.userAdminRemoved.matches, (action) => {
-        return s.merge({ updateNeeded: true })
-      })
-      .when(AdminUserActions.userCreated.matches, (action) => {
-        return s.merge({ updateNeeded: true })
-      })
-      .when(AdminUserActions.userPatched.matches, (action) => {
-        return s.merge({ updateNeeded: true })
-      })
-      .when(AdminUserActions.searchedUser.matches, (action) => {
-        return s.merge({
-          users: action.userResult.data,
-          skip: action.userResult.skip,
-          limit: action.userResult.limit,
-          total: action.userResult.total,
-          retrieving: false,
-          fetched: true,
-          updateNeeded: false,
-          lastFetched: Date.now()
-        })
-      })
-      .when(AdminUserActions.setSkipGuests.matches, (action) => {
-        return s.merge({
-          skipGuests: action.skipGuests,
-          updateNeeded: true
-        })
-      })
-      .when(AdminUserActions.setUserRole.matches, (action) => {
-        return s.merge({
-          userRole: action.userRole,
-          updateNeeded: true
-        })
-      })
-      .when(AdminUserActions.resetFilter.matches, (action) => {
-        return s.merge({
-          userRole: null!,
-          skipGuests: false,
-          updateNeeded: true
-        })
-      })
+const fetchedSingleUserReceptor = (action: typeof AdminUserActions.fetchedSingleUser.matches._TYPE) => {
+  const state = getState(AdminUserState)
+  return state.merge({ singleUser: action.data, updateNeeded: false })
+}
+
+const loadedUsersReceptor = (action: typeof AdminUserActions.loadedUsers.matches._TYPE) => {
+  const state = getState(AdminUserState)
+  return state.merge({
+    users: action.userResult.data,
+    skip: action.userResult.skip,
+    limit: action.userResult.limit,
+    total: action.userResult.total,
+    retrieving: false,
+    fetched: true,
+    updateNeeded: false,
+    lastFetched: Date.now()
   })
+}
+
+const userAdminRemovedReceptor = (action: typeof AdminUserActions.userAdminRemoved.matches._TYPE) => {
+  const state = getState(AdminUserState)
+  return state.merge({ updateNeeded: true })
+}
+
+const userCreatedReceptor = (action: typeof AdminUserActions.userCreated.matches._TYPE) => {
+  const state = getState(AdminUserState)
+  return state.merge({ updateNeeded: true })
+}
+
+const userPatchedReceptor = (action: typeof AdminUserActions.userPatched.matches._TYPE) => {
+  const state = getState(AdminUserState)
+  return state.merge({ updateNeeded: true })
+}
+
+const searchedUserReceptor = (action: typeof AdminUserActions.searchedUser.matches._TYPE) => {
+  const state = getState(AdminUserState)
+  return state.merge({
+    users: action.userResult.data,
+    skip: action.userResult.skip,
+    limit: action.userResult.limit,
+    total: action.userResult.total,
+    retrieving: false,
+    fetched: true,
+    updateNeeded: false,
+    lastFetched: Date.now()
+  })
+}
+
+const setSkipGuestsReceptor = (action: typeof AdminUserActions.setSkipGuests.matches._TYPE) => {
+  const state = getState(AdminUserState)
+  return state.merge({
+    skipGuests: action.skipGuests,
+    updateNeeded: true
+  })
+}
+
+const setUserRoleReceptor = (action: typeof AdminUserActions.setUserRole.matches._TYPE) => {
+  const state = getState(AdminUserState)
+  return state.merge({
+    userRole: action.userRole,
+    updateNeeded: true
+  })
+}
+
+const resetFilterReceptor = (action: typeof AdminUserActions.resetFilter.matches._TYPE) => {
+  const state = getState(AdminUserState)
+  return state.merge({
+    userRole: null!,
+    skipGuests: false,
+    updateNeeded: true
+  })
+}
+
+export const AdminUserReceptors = {
+  fetchedSingleUserReceptor,
+  loadedUsersReceptor,
+  userAdminRemovedReceptor,
+  userCreatedReceptor,
+  userPatchedReceptor,
+  searchedUserReceptor,
+  setSkipGuestsReceptor,
+  setUserRoleReceptor,
+  resetFilterReceptor
 }
 
 export const accessUserState = () => getState(AdminUserState)

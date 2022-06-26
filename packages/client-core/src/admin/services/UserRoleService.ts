@@ -25,19 +25,25 @@ const AdminUserRoleState = defineState({
   })
 })
 
-export const AdminUserRoleServiceReceptor = (action) => {
-  getState(AdminUserRoleState).batch((s) => {
-    matches(action)
-      .when(AdminUserRoleActions.userRoleRetrieved.matches, (action) => {
-        return s.merge({ userRole: action.types.data, updateNeeded: false })
-      })
-      .when(AdminUserRoleActions.userRoleCreated.matches, (action) => {
-        return s.merge({ updateNeeded: true })
-      })
-      .when(AdminUserRoleActions.userRoleUpdated.matches, (action) => {
-        return s.merge({ updateNeeded: true })
-      })
-  })
+const userRoleRetrievedReceptor = (action: typeof AdminUserRoleActions.userRoleRetrieved.matches._TYPE) => {
+  const state = getState(AdminUserRoleState)
+  return state.merge({ userRole: action.types.data, updateNeeded: false })
+}
+
+const userRoleCreatedReceptor = (action: typeof AdminUserRoleActions.userRoleCreated.matches._TYPE) => {
+  const state = getState(AdminUserRoleState)
+  return state.merge({ updateNeeded: true })
+}
+
+const userRoleUpdatedReceptor = (action: typeof AdminUserRoleActions.userRoleUpdated.matches._TYPE) => {
+  const state = getState(AdminUserRoleState)
+  return state.merge({ updateNeeded: true })
+}
+
+export const AdminUserRoleReceptors = {
+  userRoleRetrievedReceptor,
+  userRoleCreatedReceptor,
+  userRoleUpdatedReceptor
 }
 
 export const accessAdminUserRoleState = () => getState(AdminUserRoleState)

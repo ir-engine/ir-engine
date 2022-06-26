@@ -273,7 +273,7 @@ export class EngineRenderer {
     }
 
     if (qualityLevel !== state.qualityLevel.value) {
-      dispatchAction(EngineRendererAction.setQualityLevel(qualityLevel))
+      dispatchAction(EngineRendererAction.setQualityLevel({ qualityLevel }))
     }
   }
 }

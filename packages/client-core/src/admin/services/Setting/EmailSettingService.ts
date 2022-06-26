@@ -15,16 +15,19 @@ const AdminEmailSettingsState = defineState({
   })
 })
 
-export const AdminEmailSettingsServiceReceptor = (action) => {
-  getState(AdminEmailSettingsState).batch((s) => {
-    matches(action)
-      .when(EmailSettingActions.fetchedEmail.matches, (action) => {
-        return s.merge({ email: action.emailSettings.data, updateNeeded: false })
-      })
-      .when(EmailSettingActions.emailSettingPatched.matches, (action) => {
-        return s.updateNeeded.set(true)
-      })
-  })
+const fetchedEmailReceptor = (action: typeof EmailSettingActions.fetchedEmail.matches._TYPE) => {
+  const state = getState(AdminEmailSettingsState)
+  return state.merge({ email: action.emailSettings.data, updateNeeded: false })
+}
+
+const emailSettingPatchedReceptor = (action: typeof EmailSettingActions.emailSettingPatched.matches._TYPE) => {
+  const state = getState(AdminEmailSettingsState)
+  return state.updateNeeded.set(true)
+}
+
+export const EmailSettingReceptors = {
+  fetchedEmailReceptor,
+  emailSettingPatchedReceptor
 }
 
 export const accessEmailSettingState = () => getState(AdminEmailSettingsState)

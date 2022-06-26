@@ -15,12 +15,15 @@ const AdminChargebeeSettingsState = defineState({
   })
 })
 
-export const AdminRouteServiceReceptor = (action) => {
-  getState(AdminChargebeeSettingsState).batch((s) => {
-    matches(action).when(AdminChargebeeSettingActions.chargebeeSettingRetrieved.matches, (action) => {
-      return s.merge({ chargebee: action.chargebeeSetting.data, updateNeeded: false })
-    })
-  })
+const chargebeeSettingRetrievedReceptor = (
+  action: typeof AdminChargebeeSettingActions.chargebeeSettingRetrieved.matches._TYPE
+) => {
+  const state = getState(AdminChargebeeSettingsState)
+  return state.merge({ chargebee: action.chargebeeSetting.data, updateNeeded: false })
+}
+
+export const AdminChargebeeReceptors = {
+  chargebeeSettingRetrievedReceptor
 }
 
 export const accessAdminChargebeeSettingState = () => getState(AdminChargebeeSettingsState)

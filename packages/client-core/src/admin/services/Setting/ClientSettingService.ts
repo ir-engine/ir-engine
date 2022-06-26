@@ -28,6 +28,21 @@ export const ClientSettingsServiceReceptor = (action) => {
   })
 }
 
+// const fetchedClientReceptor = (action: typeof ClientSettingActions.fetchedClient.matches._TYPE) => {
+//   const state = getState(AdminClientSettingsState)
+//   return state.merge({ client: action.clientSettings.data, updateNeeded: false })
+// }
+
+// const clientSettingPatchedReceptor = (action: typeof ClientSettingActions.clientSettingPatched.matches._TYPE) => {
+//   const state = getState(AdminClientSettingsState)
+//   return state.updateNeeded.set(true)
+// }
+
+// export const ClientSettingReceptors = {
+//   fetchedClientReceptor,
+//   clientSettingPatchedReceptor
+// }
+
 export const accessClientSettingState = () => getState(AdminClientSettingsState)
 
 export const useClientSettingState = () => useState(accessClientSettingState())
