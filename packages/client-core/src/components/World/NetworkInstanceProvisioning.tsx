@@ -123,9 +123,9 @@ export const NetworkInstanceProvisioning = () => {
   useHookEffect(() => {
     if (!engineState.connectedWorld.value || !engineState.sceneLoaded.value) return
 
-    const spectate = getSearchParamFromURL('spectate')
-    if (spectate) {
-      const transportRequestData = { spectateUser: spectate }
+    const spectateUser = getSearchParamFromURL('spectate')
+    if (spectateUser) {
+      const transportRequestData = { spectateUser }
       Engine.instance.currentWorld.worldNetwork
         .request(MessageTypes.SpectateWorld.toString(), transportRequestData)
         .then(receiveSpectateWorld)

@@ -62,6 +62,12 @@ export class WorldNetworkAction {
     $cache: true
   })
 
+  static spawnCamera = defineAction({
+    ...WorldNetworkAction.spawnObject.actionShape,
+    prefab: 'camera',
+    $cache: true
+  })
+
   static destroyObject = defineAction({
     type: 'network.DESTROY_OBJECT',
     networkId: matchesNetworkId

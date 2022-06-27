@@ -28,7 +28,8 @@ import {
   defineQuery,
   EntityRemovedComponent,
   getComponent,
-  hasComponent
+  hasComponent,
+  MappedComponent
 } from '../functions/ComponentFunctions'
 import { createEntity } from '../functions/EntityFunctions'
 import { initializeEntityTree } from '../functions/EntityTreeFunctions'
@@ -248,8 +249,18 @@ export class World {
    * @returns
    */
   getUserAvatarEntity(userId: UserId) {
+    return this.getUserEntityWithComponent(userId, AvatarComponent)
+  }
+
+  /**
+   * Get the user entity that has a specific component
+   * @param userId
+   * @param component
+   * @returns
+   */
+  getUserEntityWithComponent<T, S extends bitecs.ISchema>(userId: UserId, component: MappedComponent<T, S>) {
     return this.getOwnedNetworkObjects(userId).find((eid) => {
-      return hasComponent(eid, AvatarComponent, this)
+      return hasComponent(eid, component, this)
     })!
   }
 
