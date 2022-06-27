@@ -530,13 +530,16 @@ export const handlePhysicsDebugEvent = (entity: Entity, inputKey: InputAlias, in
       [Engine.instance.currentWorld.worldNetwork.hostId]
     )
   } else if (inputKey === PhysicsDebugInput.TOGGLE_PHYSICS_DEBUG) {
-    dispatchAction(EngineRendererAction.setPhysicsDebug(!accessEngineRendererState().physicsDebugEnable.value))
+    dispatchAction(
+      EngineRendererAction.setPhysicsDebug({
+        physicsDebugEnable: !accessEngineRendererState().physicsDebugEnable.value
+      })
+    )
   }
 }
 
 export const createAvatarInput = () => {
   const map: Map<InputAlias | Array<InputAlias>, InputAlias> = new Map()
-  const avatarInputState = accessAvatarInputSettingsState()
   map.set(MouseInput.LeftButton, BaseInput.PRIMARY)
   map.set(MouseInput.RightButton, BaseInput.SECONDARY)
   map.set(MouseInput.MiddleButton, BaseInput.INTERACT)

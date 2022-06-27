@@ -15,32 +15,36 @@ const AdminTestBotState = defineState({
   })
 })
 
-export const AdminTestBotServiceReceptor = (action) => {
-  getState(AdminTestBotState).batch((s) => {
-    matches(action)
-      .when(AdminTestBotActions.fetchedBots.matches, (action) => {
-        const oldSpawn = s.spawn.value
-        return s.merge({
-          bots: action.bots,
-          fetched: true,
-          lastFetched: Date.now(),
-          spawn: oldSpawn && oldSpawn.status === false ? { ...oldSpawn } : undefined
-        })
-      })
-      .when(AdminTestBotActions.spawnBots.matches, (action) => {
-        return s.merge({
-          bots: [],
-          spawn: undefined,
-          spawning: true
-        })
-      })
-      .when(AdminTestBotActions.spawnedBots.matches, (action) => {
-        return s.merge({
-          spawn: action.spawn,
-          spawning: false
-        })
-      })
+const fetchedBotsReceptor = (action: typeof AdminTestBotActions.fetchedBots.matches._TYPE) => {
+  const state = getState(AdminTestBotState)
+  const oldSpawn = state.spawn.value
+  return state.merge({
+    bots: action.bots,
+    fetched: true,
+    lastFetched: Date.now(),
+    spawn: oldSpawn && oldSpawn.status === false ? { ...oldSpawn } : undefined
   })
+}
+const spawnBotsReceptor = (action: typeof AdminTestBotActions.spawnBots.matches._TYPE) => {
+  const state = getState(AdminTestBotState)
+  return state.merge({
+    bots: [],
+    spawn: undefined,
+    spawning: true
+  })
+}
+const spawnedBotsReceptor = (action: typeof AdminTestBotActions.spawnedBots.matches._TYPE) => {
+  const state = getState(AdminTestBotState)
+  return state.merge({
+    spawn: action.spawn,
+    spawning: false
+  })
+}
+
+export const AdminTestBotReceptors = {
+  fetchedBotsReceptor,
+  spawnBotsReceptor,
+  spawnedBotsReceptor
 }
 
 export const accessTestBotState = () => getState(AdminTestBotState)
