@@ -266,18 +266,23 @@ const ProfileDetailView = () => {
   }
 
   const handleOpenSelectAvatarWidget = () => {
+    // TODO open select avatar xrui widget menu
     setWidgetVisibility('SelectAvatar', true)
   }
 
-  const handleOpenReadyPlayerWidget = () => {}
+  const handleOpenReadyPlayerWidget = () => {
+    // TODO open ready player xrui widget menu
+    setWidgetVisibility('ReadyPlayer', true)
+  }
 
   const setWidgetVisibility = (widgetName, visibility) => () => {
     const state = accessWidgetAppState().widgets.value
-    let widgetID = ''
+    let widgetID = 'xrui-' + widgetName
+
     // close currently open widgets until we support multiple widgets being open at once
     Object.entries(state).forEach(([id, widget]) => {
       if (widget.visible && !id.includes(widgetName)) dispatchAction(WidgetAppActions.showWidget({ id, shown: false }))
-      if (id.includes(widgetName)) widgetID = id
+      // if (id.includes(widgetName)) widgetID = id
     })
 
     dispatchAction(WidgetAppActions.showWidget({ id: widgetID, shown: visibility }))
