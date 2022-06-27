@@ -1,5 +1,14 @@
 import { Consumer, Transport as MediaSoupTransport, Producer } from 'mediasoup-client/lib/types'
-import { LinearFilter, Mesh, MeshBasicMaterial, MeshLambertMaterial, sRGBEncoding, VideoTexture } from 'three'
+import {
+  BufferGeometry,
+  LinearFilter,
+  Mesh,
+  MeshBasicMaterial,
+  MeshLambertMaterial,
+  PlaneGeometry,
+  sRGBEncoding,
+  VideoTexture
+} from 'three'
 
 import { ChannelType } from '@xrengine/common/src/interfaces/Channel'
 import { MediaTagType } from '@xrengine/common/src/interfaces/MediaStreamConstants'
@@ -18,6 +27,7 @@ import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStrea
 import { updateNearbyAvatars } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 import { ScreenshareTargetComponent } from '@xrengine/engine/src/scene/components/ScreenshareTargetComponent'
+import { fitTexture } from '@xrengine/engine/src/scene/functions/fitTexture'
 import { addActionReceptor, dispatchAction, removeActionReceptor, removeTopic } from '@xrengine/hyperflux'
 import { Action } from '@xrengine/hyperflux/functions/ActionFunctions'
 
@@ -1007,15 +1017,23 @@ export const stopScreenshare = async (network: SocketWebRTCClientNetwork) => {
 const screenshareTargetQuery = defineQuery([ScreenshareTargetComponent])
 
 export const applyScreenshareToTexture = (video: HTMLVideoElement) => {
-  const videoTexture = new VideoTexture(video)
-  videoTexture.encoding = sRGBEncoding
-
-  const material = new MeshLambertMaterial({ color: 0xffffff, map: videoTexture })
-
-  for (const entity of screenshareTargetQuery(Engine.instance.currentWorld)) {
-    const obj3d = getComponent(entity, Object3DComponent)?.value
-    obj3d?.traverse((obj: Mesh<any, MeshBasicMaterial>) => {
-      if (obj.material) obj.material = material
-    })
+  video.onplay = () => {
+    for (const entity of screenshareTargetQuery(Engine.instance.currentWorld)) {
+      const obj3d = getComponent(entity, Object3DComponent)?.value
+      obj3d?.traverse((obj: Mesh<any, MeshBasicMaterial>) => {
+        if (obj.material) {
+          const videoTexture = new VideoTexture(video)
+          videoTexture.encoding = sRGBEncoding
+          const material = new MeshBasicMaterial({ color: 0xffffff, map: videoTexture })
+          obj.material = material
+          let screenAspect = 1
+          if (obj.geometry instanceof PlaneGeometry) {
+            screenAspect = obj.geometry.parameters.height / obj.geometry.parameters.width
+          }
+          const imageAspect = video.videoWidth / video.videoHeight
+          fitTexture(videoTexture, imageAspect, screenAspect, 'fit')
+        }
+      })
+    }
   }
 }
