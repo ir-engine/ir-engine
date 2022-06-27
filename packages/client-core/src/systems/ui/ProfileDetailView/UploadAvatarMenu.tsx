@@ -116,10 +116,6 @@ export const UploadAvatarMenu = () => {
     }
   }
 
-  const handleChangeSourceType = (event: React.SyntheticEvent, newValue: number) => {
-    setActiveSourceType(newValue)
-  }
-
   const handleThumbnailUrlChange = (event) => {
     event.preventDefault()
     setThumbnailUrl(event.target.value)
@@ -155,27 +151,29 @@ export const UploadAvatarMenu = () => {
   const { t } = useTranslation()
 
   useEffect(() => {
-    const world = useWorld()
-    entity = createEntity()
-    addAnimationLogic(entity, world, panelRef)
-    const init = initialize3D()
-    scene = init.scene
-    camera = init.camera
-    renderer = init.renderer
-    const controls = getOrbitControls(camera, renderer.domElement)
+    if (document.getElementById('stage')) {
+      const world = useWorld()
+      entity = createEntity()
+      addAnimationLogic(entity, world, panelRef)
+      const init = initialize3D()
+      scene = init.scene
+      camera = init.camera
+      renderer = init.renderer
+      const controls = getOrbitControls(camera, renderer.domElement)
 
-    controls.minDistance = 0.1
-    controls.maxDistance = 10
-    controls.target.set(0, 1.5, 0)
-    controls.update()
-    window.addEventListener('resize', () => onWindowResize({ scene, camera, renderer }))
+      controls.minDistance = 0.1
+      controls.maxDistance = 10
+      controls.target.set(0, 1.5, 0)
+      controls.update()
+      window.addEventListener('resize', () => onWindowResize({ scene, camera, renderer }))
 
-    return () => {
-      removeEntity(entity)
-      entity = null!
-      window.removeEventListener('resize', () => onWindowResize({ scene, camera, renderer }))
+      return () => {
+        removeEntity(entity)
+        entity = null!
+        window.removeEventListener('resize', () => onWindowResize({ scene, camera, renderer }))
+      }
     }
-  }, [])
+  }, [document.getElementById('stage')])
 
   const handleAvatarChange = (e) => {
     if (e.target.files[0].size < MIN_AVATAR_FILE_SIZE || e.target.files[0].size > MAX_AVATAR_FILE_SIZE) {
@@ -306,61 +304,74 @@ export const UploadAvatarMenu = () => {
             <img src={thumbnailUrl} alt="Avatar" className="thumbnailPreview" />
           </div>
         )}
-        <Paper className="paper2">
-          <InputBase
-            sx={{ ml: 1, flex: 1, color: '#fff', fontWeight: '700', fontSize: '16px' }}
-            inputProps={{ 'aria-label': 'avatar url' }}
-            className="input"
-            value={avatarName}
-            id="avatarName"
-            size="small"
-            name="avatarname"
-            onChange={handleAvatarNameChange}
-            placeholder="Avatar Name"
-          />
-        </Paper>
-        <div>
-          <Tabs
-            value={activeSourceType}
-            onChange={handleChangeSourceType}
-            aria-label="basic tabs example"
-            className="tabRoot selected"
-          >
-            <Tab
-              className={activeSourceType == 0 ? 'selectedTab' : 'unselectedTab'}
-              label="Use URL"
-              {...a11yProps(0)}
-            />
-            <Tab
-              className={activeSourceType == 1 ? 'selectedTab' : 'unselectedTab'}
-              label="Upload Files"
-              {...a11yProps(1)}
-            />
-          </Tabs>
+        <div className="paper2">
+          <div className="inviteBox">
+            <div className="inviteContainer">
+              <input
+                aria-invalid="false"
+                id="avatarName"
+                name="avatarname"
+                type="text"
+                className="inviteLinkInput"
+                value={avatarName}
+                onChange={handleAvatarNameChange}
+                placeholder="Avatar Name"
+              />
+              <fieldset aria-hidden="true" className="linkFieldset">
+                <legend className="linkLegend" />
+              </fieldset>
+            </div>
+          </div>
         </div>
-        <TabPanel value={activeSourceType} index={0}>
+        <div>
+          <div className="tabRoot selected">
+            <div
+              onClick={() => {
+                setActiveSourceType(0)
+              }}
+              className={activeSourceType == 0 ? 'selectedTab' : 'unselectedTab'}
+            >
+              Use URL
+            </div>
+            <div
+              onClick={() => {
+                setActiveSourceType(1)
+              }}
+              className={activeSourceType == 1 ? 'selectedTab' : 'unselectedTab'}
+            >
+              Upload Files
+            </div>
+          </div>
+        </div>
+        {activeSourceType === 0 ? (
           <div className="controlContainer">
             <div className="selectBtns" style={{ margin: '14px 0' }}>
-              <Paper className="paper" style={{ marginRight: '8px', padding: '4px 0' }}>
-                <InputBase
-                  sx={{ ml: 1, flex: 1, fontWeight: '700', fontSize: '16px' }}
-                  placeholder="Paste Avatar Url..."
-                  inputProps={{ 'aria-label': 'avatar url' }}
-                  className="input"
-                  value={avatarUrl}
-                  onChange={handleAvatarUrlChange}
-                />
-              </Paper>
-              <Paper className="paper" style={{ padding: '4px 0' }}>
-                <InputBase
-                  sx={{ ml: 1, flex: 1, fontWeight: '700', fontSize: '16px' }}
-                  placeholder="Paste Thumbnail Url..."
-                  inputProps={{ 'aria-label': 'thumbnail url' }}
-                  className="input"
-                  value={thumbnailUrl}
-                  onChange={handleThumbnailUrlChange}
-                />
-              </Paper>
+              <div className="inviteBox">
+                <div className="inviteContainer">
+                  <input
+                    placeholder="Paste Avatar Url..."
+                    className="inviteLinkInput"
+                    value={avatarUrl}
+                    onChange={handleAvatarUrlChange}
+                  />
+                  <fieldset aria-hidden="true" className="linkFieldset">
+                    <legend className="linkLegend" />
+                  </fieldset>
+                </div>
+              </div>
+              <div className="inviteBox">
+                <div className="inviteContainer">
+                  <input
+                    className="inviteLinkInput"
+                    value={thumbnailUrl}
+                    onChange={handleThumbnailUrlChange}
+                    placeholder="Paste Thumbnail Url..."
+                  />
+                  <fieldset aria-hidden="true" className="linkFieldset">
+                    <legend className="linkLegend" />
+                  </fieldset>
+                </div>
+              </div>
             </div>
             <button
               type="button"
@@ -373,50 +384,51 @@ export const UploadAvatarMenu = () => {
               <CloudUpload />
             </button>
           </div>
-        </TabPanel>
-        <TabPanel value={activeSourceType} index={1}>
-          {error.length > 0 && (
-            <div className="selectLabelContainer">
-              <div className="avatarSelectError">{error}</div>
+        ) : (
+          <>
+            {error.length > 0 && (
+              <div className="selectLabelContainer">
+                <div className="avatarSelectError">{error}</div>
+              </div>
+            )}
+            <div className="controlContainer">
+              <div className="selectBtns">
+                <label htmlFor="contained-button-file" style={{ marginRight: '8px' }}>
+                  <Input
+                    accept={AVATAR_FILE_ALLOWED_EXTENSIONS}
+                    id="contained-button-file"
+                    type="file"
+                    onChange={handleAvatarChange}
+                  />
+                  <Button variant="contained" component="span" className="rootBtn" endIcon={<SystemUpdateAlt />}>
+                    {t('user:avatar.avatar')}
+                  </Button>
+                </label>
+                <label htmlFor="contained-button-file-t">
+                  <Input
+                    accept={THUMBNAIL_FILE_ALLOWED_EXTENSIONS}
+                    id="contained-button-file-t"
+                    type="file"
+                    onChange={handleThumbnailChange}
+                  />
+                  <Button variant="contained" component="span" className="rootBtn" endIcon={<AccountCircle />}>
+                    {t('user:avatar.lbl-thumbnail')}
+                  </Button>
+                </label>
+              </div>
+              <button
+                type="button"
+                className="uploadBtn"
+                onClick={uploadAvatar}
+                style={{ cursor: uploadButtonEnabled ? 'pointer' : 'not-allowed' }}
+                disabled={!uploadButtonEnabled}
+              >
+                {t('user:avatar.lbl-upload')}
+                <CloudUpload />
+              </button>
             </div>
-          )}
-          <div className="controlContainer">
-            <div className="selectBtns">
-              <label htmlFor="contained-button-file" style={{ marginRight: '8px' }}>
-                <Input
-                  accept={AVATAR_FILE_ALLOWED_EXTENSIONS}
-                  id="contained-button-file"
-                  type="file"
-                  onChange={handleAvatarChange}
-                />
-                <Button variant="contained" component="span" className="rootBtn" endIcon={<SystemUpdateAlt />}>
-                  {t('user:avatar.avatar')}
-                </Button>
-              </label>
-              <label htmlFor="contained-button-file-t">
-                <Input
-                  accept={THUMBNAIL_FILE_ALLOWED_EXTENSIONS}
-                  id="contained-button-file-t"
-                  type="file"
-                  onChange={handleThumbnailChange}
-                />
-                <Button variant="contained" component="span" className="rootBtn" endIcon={<AccountCircle />}>
-                  {t('user:avatar.lbl-thumbnail')}
-                </Button>
-              </label>
-            </div>
-            <button
-              type="button"
-              className="uploadBtn"
-              onClick={uploadAvatar}
-              style={{ cursor: uploadButtonEnabled ? 'pointer' : 'not-allowed' }}
-              disabled={!uploadButtonEnabled}
-            >
-              {t('user:avatar.lbl-upload')}
-              <CloudUpload />
-            </button>
-          </div>
-        </TabPanel>
+          </>
+        )}
       </div>
     </>
   )

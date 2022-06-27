@@ -49,26 +49,28 @@ const ReadyPlayerMenu = () => {
   const panelRef = useRef() as React.MutableRefObject<HTMLDivElement>
 
   useEffect(() => {
-    const world = useWorld()
-    const entity = createEntity()
-    setEntity(entity)
-    addAnimationLogic(entity, world, panelRef)
-    const init = initialize3D()
-    scene = init.scene
-    camera = init.camera
-    renderer = init.renderer
-    const controls = getOrbitControls(camera, renderer.domElement)
-    controls.minDistance = 0.1
-    controls.maxDistance = 10
-    controls.target.set(0, 1.25, 0)
-    controls.update()
+    if (document.getElementById('stage')) {
+      const world = useWorld()
+      const entity = createEntity()
+      setEntity(entity)
+      addAnimationLogic(entity, world, panelRef)
+      const init = initialize3D()
+      scene = init.scene
+      camera = init.camera
+      renderer = init.renderer
+      const controls = getOrbitControls(camera, renderer.domElement)
+      controls.minDistance = 0.1
+      controls.maxDistance = 10
+      controls.target.set(0, 1.25, 0)
+      controls.update()
 
-    window.addEventListener('resize', () => onWindowResize({ scene, camera, renderer }))
-    window.addEventListener('message', (event) => handleMessageEvent(event, entity))
+      window.addEventListener('resize', () => onWindowResize({ scene, camera, renderer }))
+      window.addEventListener('message', (event) => handleMessageEvent(event, entity))
 
-    return () => {
-      window.removeEventListener('resize', () => onWindowResize({ camera, renderer, scene }))
-      window.removeEventListener('message', (event) => handleMessageEvent(event, entity))
+      return () => {
+        window.removeEventListener('resize', () => onWindowResize({ camera, renderer, scene }))
+        window.removeEventListener('message', (event) => handleMessageEvent(event, entity))
+      }
     }
   }, [avatarUrl])
 
