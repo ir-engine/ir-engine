@@ -1,8 +1,8 @@
-import { MathUtils, Matrix4, Quaternion, Vector3 } from 'three'
+import { Matrix4, Quaternion, Vector3 } from 'three'
 
 import { addActionReceptor } from '@xrengine/hyperflux'
 
-import { FollowCameraComponent } from '../camera/components/FollowCameraComponent'
+import { Direction } from '../common/constants/Axis3D'
 import { V_000, V_010 } from '../common/constants/MathConstants'
 import { Engine } from '../ecs/classes/Engine'
 import { World } from '../ecs/classes/World'
@@ -44,7 +44,6 @@ export default async function AvatarControllerSystem(world: World) {
     displacement = new Vector3(),
     displacementXZ = new Vector3(),
     camRotation = new Quaternion(),
-    up = new Vector3(0, 1, 0),
     rotMatrix = new Matrix4(),
     targetOrientation = new Quaternion(),
     invOrientation = new Quaternion()
@@ -84,7 +83,7 @@ export default async function AvatarControllerSystem(world: World) {
       const cam = Engine.instance.currentWorld.camera
       const camParent = cam.parent!
 
-      camRotation.setFromAxisAngle(up, rotation.angle)
+      camRotation.setFromAxisAngle(Direction.Up, rotation.angle)
       avatarTransform.rotation.premultiply(camRotation)
       camParent.quaternion.premultiply(camRotation)
       camParent.position.copy(cam.position).multiplyScalar(-1)
