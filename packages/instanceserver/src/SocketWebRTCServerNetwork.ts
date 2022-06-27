@@ -1,6 +1,6 @@
-import * as https from 'https'
 import { DataProducer, Router, Transport, WebRtcTransport, Worker } from 'mediasoup/node/lib/types'
 
+import { MediaStreamAppData } from '@xrengine/common/src/interfaces/MediaStreamConstants'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
@@ -14,6 +14,8 @@ import { startWebRTC } from './WebRTCFunctions'
 
 const logger = multiLogger.child({ component: 'instanceserver:webrtc:network' })
 
+export type WebRTCTransportExtension = Omit<WebRtcTransport, 'appData'> & { appData: MediaStreamAppData }
+
 export class SocketWebRTCServerNetwork extends Network {
   workers: Worker[] = []
   routers: Record<string, Router[]>
@@ -24,7 +26,7 @@ export class SocketWebRTCServerNetwork extends Network {
   outgoingDataProducer: DataProducer
   request = () => null!
 
-  mediasoupTransports: WebRtcTransport[] = []
+  mediasoupTransports: WebRTCTransportExtension[] = []
   transportsConnectPending: Promise<void>[] = []
 
   constructor(hostId: string, app: Application) {
