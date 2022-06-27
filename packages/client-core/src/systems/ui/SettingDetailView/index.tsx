@@ -81,11 +81,15 @@ const SettingDetailView = () => {
   }
 
   const handleChangeInvertRotationAndMoveSticks = (event: React.ChangeEvent<HTMLInputElement>) => {
-    dispatchAction(AvatarInputSettingsAction.setInvertRotationAndMoveSticks(!invertRotationAndMoveSticks))
+    dispatchAction(
+      AvatarInputSettingsAction.setInvertRotationAndMoveSticks({
+        invertRotationAndMoveSticks: !invertRotationAndMoveSticks
+      })
+    )
   }
 
   const handleChangeShowAvatar = (event: React.ChangeEvent<HTMLInputElement>) => {
-    dispatchAction(AvatarInputSettingsAction.setShowAvatar(!showAvatar))
+    dispatchAction(AvatarInputSettingsAction.setShowAvatar({ showAvatar: !showAvatar }))
   }
 
   const handleChangeControlType = (event: React.ChangeEvent<HTMLSelectElement>) => {
@@ -176,8 +180,8 @@ const SettingDetailView = () => {
                 step="1"
                 value={rendererState.qualityLevel.value}
                 onChange={(event: any) => {
-                  dispatchAction(EngineRendererAction.setQualityLevel(parseInt(event.target.value)))
-                  dispatchAction(EngineRendererAction.setAutomatic(false))
+                  dispatchAction(EngineRendererAction.setQualityLevel({ qualityLevel: parseInt(event.target.value) }))
+                  dispatchAction(EngineRendererAction.setAutomatic({ automatic: false }))
                 }}
               ></input>
             </div>
@@ -187,8 +191,12 @@ const SettingDetailView = () => {
                 <span
                   className="checkBoxSpan"
                   onClick={() => {
-                    dispatchAction(EngineRendererAction.setPostProcessing(!rendererState.usePostProcessing.value))
-                    dispatchAction(EngineRendererAction.setAutomatic(false))
+                    dispatchAction(
+                      EngineRendererAction.setPostProcessing({
+                        usePostProcessing: !rendererState.usePostProcessing.value
+                      })
+                    )
+                    dispatchAction(EngineRendererAction.setAutomatic({ automatic: false }))
                   }}
                 >
                   <input
@@ -197,8 +205,10 @@ const SettingDetailView = () => {
                     type="checkbox"
                     data-indeterminate="false"
                     onChange={(value: any) => {
-                      dispatchAction(EngineRendererAction.setPostProcessing(value.target.checked))
-                      dispatchAction(EngineRendererAction.setAutomatic(false))
+                      dispatchAction(
+                        EngineRendererAction.setPostProcessing({ usePostProcessing: value.target.checked })
+                      )
+                      dispatchAction(EngineRendererAction.setAutomatic({ automatic: false }))
                     }}
                   />
                   <svg className="checkBoxSvg" focusable="false" aria-hidden="true" viewBox="0 0 24 24">
@@ -215,8 +225,8 @@ const SettingDetailView = () => {
                 <span
                   className="checkBoxSpan"
                   onClick={() => {
-                    dispatchAction(EngineRendererAction.setShadows(!rendererState.useShadows.value))
-                    dispatchAction(EngineRendererAction.setAutomatic(false))
+                    dispatchAction(EngineRendererAction.setShadows({ useShadows: !rendererState.useShadows.value }))
+                    dispatchAction(EngineRendererAction.setAutomatic({ automatic: false }))
                   }}
                 >
                   <input
@@ -225,8 +235,8 @@ const SettingDetailView = () => {
                     data-indeterminate="false"
                     checked={rendererState.useShadows.value}
                     onChange={(value: any) => {
-                      dispatchAction(EngineRendererAction.setShadows(value.target.checked))
-                      dispatchAction(EngineRendererAction.setAutomatic(false))
+                      dispatchAction(EngineRendererAction.setShadows({ useShadows: value.target.checked }))
+                      dispatchAction(EngineRendererAction.setAutomatic({ automatic: false }))
                     }}
                   />
                   <svg className="checkBoxSvg" focusable="false" aria-hidden="true" viewBox="0 0 24 24">
@@ -249,7 +259,7 @@ const SettingDetailView = () => {
                     data-indeterminate="false"
                     checked={rendererState.automatic.value}
                     onChange={(value: React.ChangeEvent<HTMLInputElement>) => {
-                      dispatchAction(EngineRendererAction.setAutomatic(value.target.checked))
+                      dispatchAction(EngineRendererAction.setAutomatic({ automatic: value.target.checked }))
                     }}
                   />
                   <svg className="checkBoxSvg" focusable="false" aria-hidden="true" viewBox="0 0 24 24">
