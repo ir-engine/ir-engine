@@ -2,8 +2,6 @@ import { Icon } from '@iconify/react'
 import React, { Fragment, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { addActionReceptor, removeActionReceptor } from '@xrengine/hyperflux'
-
 import CloseIcon from '@mui/icons-material/Close'
 import CodeIcon from '@mui/icons-material/Code'
 import FormatColorFillIcon from '@mui/icons-material/FormatColorFill'
@@ -21,14 +19,6 @@ import ListItem from '@mui/material/ListItem'
 import ListItemAvatar from '@mui/material/ListItemAvatar'
 import ListItemText from '@mui/material/ListItemText'
 
-import { AdminRedisSettingsServiceReceptor } from '../../services/Setting/AdminRedisSettingService'
-import { AdminAnalyticsSettingsServiceReceptor } from '../../services/Setting/AnalyticsSettingsService'
-import { AdminAwsSettingsServiceReceptor } from '../../services/Setting/AwsSettingService'
-import { AdminCoilSettingsServiceReceptor } from '../../services/Setting/CoilSettingService'
-import { AdminEmailSettingsServiceReceptor } from '../../services/Setting/EmailSettingService'
-import { AdminInstanceServerServiceReceptor } from '../../services/Setting/InstanceServerSettingService'
-import { AdminProjectSettingsServiceReceptor } from '../../services/Setting/ProjectSettingService'
-import { AdminServerSettingsServiceReceptor } from '../../services/Setting/ServerSettingService'
 import styles from '../../styles/settings.module.scss'
 import Analytics from './Analytics'
 import Authentication from './Authentication'
@@ -152,27 +142,6 @@ const Setting = () => {
   const { t } = useTranslation()
 
   const settingItem = settingItems.find((item) => item.name === selectedItem)
-
-  useEffect(() => {
-    addActionReceptor(AdminAnalyticsSettingsServiceReceptor)
-    addActionReceptor(AdminRedisSettingsServiceReceptor)
-    addActionReceptor(AdminAwsSettingsServiceReceptor)
-    addActionReceptor(AdminCoilSettingsServiceReceptor)
-    addActionReceptor(AdminEmailSettingsServiceReceptor)
-    addActionReceptor(AdminInstanceServerServiceReceptor)
-    addActionReceptor(AdminProjectSettingsServiceReceptor)
-    addActionReceptor(AdminServerSettingsServiceReceptor)
-    return () => {
-      removeActionReceptor(AdminAnalyticsSettingsServiceReceptor)
-      removeActionReceptor(AdminRedisSettingsServiceReceptor)
-      removeActionReceptor(AdminAwsSettingsServiceReceptor)
-      removeActionReceptor(AdminCoilSettingsServiceReceptor)
-      removeActionReceptor(AdminEmailSettingsServiceReceptor)
-      removeActionReceptor(AdminInstanceServerServiceReceptor)
-      removeActionReceptor(AdminProjectSettingsServiceReceptor)
-      removeActionReceptor(AdminServerSettingsServiceReceptor)
-    }
-  }, [])
 
   useEffect(() => {
     rootRef?.current?.scrollIntoView()

@@ -19,6 +19,7 @@ export type SpectateWorldProps = {
 }
 
 export const receiveSpectateWorld = (props: SpectateWorldProps) => {
+  if (!props) return
   const { highResTimeOrigin, worldStartTime, client, cachedActions, spectateUser } = props
   console.log(
     'RECEIVED SPECTATE WORLD RESPONSE',
@@ -50,6 +51,7 @@ export type JoinWorldProps = {
 }
 
 export const receiveJoinWorld = (props: JoinWorldProps) => {
+  if (!props) return
   const { highResTimeOrigin, worldStartTime, client, cachedActions, avatarDetail, avatarSpawnPose } = props
   console.log(
     'RECEIVED JOIN WORLD RESPONSE',
