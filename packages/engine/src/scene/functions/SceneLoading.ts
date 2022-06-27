@@ -10,17 +10,11 @@ import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions, getEngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { EntityTreeNode } from '../../ecs/classes/EntityTree'
-import {
-  addComponent,
-  getComponent,
-  getComponentCountOfType,
-  hasComponent
-} from '../../ecs/functions/ComponentFunctions'
+import { addComponent, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { unloadScene } from '../../ecs/functions/EngineFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { addEntityNodeInTree, createEntityNode } from '../../ecs/functions/EntityTreeFunctions'
 import { initSystems, SystemModuleType } from '../../ecs/functions/SystemFunctions'
-import { EngineRendererAction } from '../../renderer/EngineRendererState'
 import { DisableTransformTagComponent } from '../../transform/components/DisableTransformTagComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { EntityNodeComponent } from '../components/EntityNodeComponent'
@@ -163,7 +157,7 @@ export const loadSceneFromJSON = async (sceneData: SceneJson, sceneSystems: Syst
   // this needs to occur after the asset promises
   await unloadScene(world)
 
-  initSystems(world, sceneSystems)
+  await initSystems(world, sceneSystems)
 
   const entityMap = {} as { [key: string]: EntityTreeNode }
 

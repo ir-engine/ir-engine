@@ -1,4 +1,4 @@
-import { Downgraded } from '@speigg/hookstate'
+import { Downgraded, none } from '@speigg/hookstate'
 import { useEffect } from 'react'
 
 import { ChannelType } from '@xrengine/common/src/interfaces/Channel'
@@ -75,9 +75,7 @@ export const MediaInstanceConnectionServiceReceptor = (action) => {
         })
       })
       .when(MediaInstanceConnectionAction.disconnect.matches, (action) => {
-        const newState = s.instances.attach(Downgraded).value
-        delete newState[action.instanceId]
-        return s.instances.set(newState)
+        return s.instances[action.instanceId].set(none)
       })
   })
 }

@@ -1,5 +1,5 @@
 export interface AdminScopeType {
-  createdAt: string
+  createdAt?: string
   type: string
-  updatedAt: string
+  updatedAt?: string
 }
