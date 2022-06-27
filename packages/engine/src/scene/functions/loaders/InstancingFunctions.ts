@@ -401,6 +401,7 @@ export async function stageInstancing(entity: Entity, world = Engine.instance.cu
   const scatter = getComponent(entity, InstancingComponent)
   if (scatter.state === ScatterState.STAGING) {
     console.error('scatter component is already staging')
+    return
   }
   scatter.state = ScatterState.STAGING
   const targetGeo = getFirstMesh(obj3dFromUuid(scatter.surface, world))!.geometry
