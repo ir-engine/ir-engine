@@ -20,15 +20,8 @@ import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { getOrbitControls } from '@xrengine/engine/src/input/functions/loadOrbitControl'
 import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
 
-import { AccountCircle, ArrowBack, CloudUpload, Help, SystemUpdateAlt } from '@mui/icons-material'
-import Button from '@mui/material/Button'
-import InputBase from '@mui/material/InputBase'
-import Paper from '@mui/material/Paper'
-import { styled } from '@mui/material/styles'
-import Tab from '@mui/material/Tab'
-import Tabs from '@mui/material/Tabs'
+import { AccountCircle, ArrowBack, CloudUpload, SystemUpdateAlt } from '@mui/icons-material'
 
-import IconLeftClick from '../../../common/components/Icons/IconLeftClick'
 import {
   addAnimationLogic,
   initialize3D,
@@ -50,36 +43,6 @@ let camera: PerspectiveCamera
 let scene: Scene
 let renderer: WebGLRenderer = null!
 let entity: Entity = null!
-
-const Input = styled('input')({
-  display: 'none'
-})
-
-function a11yProps(index: number) {
-  return {
-    id: `simple-tab-${index}`,
-    'aria-controls': `simple-tabpanel-${index}`
-  }
-}
-
-interface TabPanelProps {
-  children?: React.ReactNode
-  index: number
-  value: number
-}
-
-function TabPanel({ children, value, index }: TabPanelProps) {
-  return (
-    <div
-      role="tabpanel"
-      hidden={value !== index}
-      id={`simple-tabpanel-${index}`}
-      aria-labelledby={`simple-tab-${index}`}
-    >
-      {value === index && children}
-    </div>
-  )
-}
 
 export const UploadAvatarMenu = () => {
   const [selectedFile, setSelectedFile] = useState<any>(null)
@@ -275,20 +238,12 @@ export const UploadAvatarMenu = () => {
           </button>
           <h2>{t('user:avatar.title')}</h2>
         </div>
-        <div id="stage" className="stage" style={{ width: THUMBNAIL_WIDTH + 'px', height: THUMBNAIL_HEIGHT + 'px' }}>
-          <div className="legendContainer">
-            <Help />
-            <div className="legend">
-              <div>
-                <IconLeftClick />
-                <br />- <span>{t('user:avatar.rotate')}</span>
-              </div>
-              <div>
-                <span className="shiftKey">Shift</span> + <IconLeftClick />
-                <br />- <span>{t('user:avatar.pan')}</span>
-              </div>
-            </div>
-          </div>
+        <div className="stageContainer">
+          <div
+            id="stage"
+            className="stage"
+            style={{ width: THUMBNAIL_WIDTH + 'px', height: THUMBNAIL_HEIGHT + 'px' }}
+          ></div>
         </div>
         {selectedThumbnail != null && (
           <div className="thumbnailContainer">
@@ -323,24 +278,22 @@ export const UploadAvatarMenu = () => {
             </div>
           </div>
         </div>
-        <div>
-          <div className="tabRoot selected">
-            <div
-              onClick={() => {
-                setActiveSourceType(0)
-              }}
-              className={activeSourceType == 0 ? 'selectedTab' : 'unselectedTab'}
-            >
-              Use URL
-            </div>
-            <div
-              onClick={() => {
-                setActiveSourceType(1)
-              }}
-              className={activeSourceType == 1 ? 'selectedTab' : 'unselectedTab'}
-            >
-              Upload Files
-            </div>
+        <div className="tabRoot">
+          <div
+            onClick={() => {
+              setActiveSourceType(0)
+            }}
+            className={`tab ${activeSourceType == 0 ? 'selectedTab' : ''}`}
+          >
+            Use URL
+          </div>
+          <div
+            onClick={() => {
+              setActiveSourceType(1)
+            }}
+            className={`tab ${activeSourceType == 1 ? 'selectedTab' : ''}`}
+          >
+            Upload Files
           </div>
         </div>
         {activeSourceType === 0 ? (
@@ -393,27 +346,30 @@ export const UploadAvatarMenu = () => {
             )}
             <div className="controlContainer">
               <div className="selectBtns">
-                <label htmlFor="contained-button-file" style={{ marginRight: '8px' }}>
-                  <Input
+                <label htmlFor="contained-button-file">
+                  <input
                     accept={AVATAR_FILE_ALLOWED_EXTENSIONS}
                     id="contained-button-file"
                     type="file"
+                    className="uploadInput"
                     onChange={handleAvatarChange}
                   />
-                  <Button variant="contained" component="span" className="rootBtn" endIcon={<SystemUpdateAlt />}>
-                    {t('user:avatar.avatar')}
-                  </Button>
+                  <button className="rootBtn">
+                    {t('user:avatar.avatar')} <SystemUpdateAlt />
+                  </button>
                 </label>
                 <label htmlFor="contained-button-file-t">
-                  <Input
+                  <input
                     accept={THUMBNAIL_FILE_ALLOWED_EXTENSIONS}
                     id="contained-button-file-t"
+                    className="uploadInput"
                     type="file"
                     onChange={handleThumbnailChange}
                   />
-                  <Button variant="contained" component="span" className="rootBtn" endIcon={<AccountCircle />}>
+                  <button className="rootBtn">
                     {t('user:avatar.lbl-thumbnail')}
-                  </Button>
+                    <AccountCircle />
+                  </button>
                 </label>
               </div>
               <button
