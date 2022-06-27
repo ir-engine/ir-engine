@@ -55,7 +55,7 @@ const ReceivedInvite = ({ search }: Props) => {
       action: (
         <>
           <a
-            href="#h"
+            href="#"
             className={styles.actionStyle}
             onClick={() => {
               setInviteId(id)

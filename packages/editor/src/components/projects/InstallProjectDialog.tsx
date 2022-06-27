@@ -11,11 +11,11 @@ import styles from './styles.module.scss'
 
 interface Props {
   open: boolean
-  handleClose: any
-  installProject: (url: string) => Promise<void>
+  onSuccess: (url: string) => Promise<void>
+  onClose: () => void
 }
 
-export const InstallProjectDialog = ({ open, handleClose, installProject }: Props): any => {
+export const InstallProjectDialog = ({ open, onSuccess, onClose }: Props): any => {
   const { t } = useTranslation()
 
   const [processing, setProcessing] = useState(false)
@@ -27,7 +27,7 @@ export const InstallProjectDialog = ({ open, handleClose, installProject }: Prop
 
     setProcessing(true)
     try {
-      await installProject(projectUrl)
+      await onSuccess(projectUrl)
       closeDialog()
     } catch (err) {
       setError(err.message)
@@ -44,7 +44,7 @@ export const InstallProjectDialog = ({ open, handleClose, installProject }: Prop
 
   const closeDialog = () => {
     setProjectUrl('')
-    handleClose()
+    onClose()
   }
 
   return (
