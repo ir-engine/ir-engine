@@ -74,7 +74,7 @@ const AvatarTable = ({ className, search }: Props) => {
       action: (
         <>
           <a
-            href="#h"
+            href="#"
             className={styles.actionStyle}
             onClick={() => {
               setViewAvatarData(el)
@@ -84,7 +84,7 @@ const AvatarTable = ({ className, search }: Props) => {
             <span className={styles.spanWhite}>{t('user:avatar.view')}</span>
           </a>
           <a
-            href="#h"
+            href="#"
             className={styles.actionStyle}
             onClick={() => {
               setAvatarId(el.id)

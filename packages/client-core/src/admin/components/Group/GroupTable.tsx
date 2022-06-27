@@ -11,7 +11,7 @@ import TableComponent from '../../common/Table'
 import { columns, Data } from '../../common/variables/group'
 import { AdminGroupService, GROUP_PAGE_LIMIT, useAdminGroupState } from '../../services/GroupService'
 import styles from '../../styles/admin.module.scss'
-import ViewGroup from './ViewGroup'
+import GroupDrawer, { GroupDrawerMode } from './GroupDrawer'
 
 interface Props {
   className?: string
@@ -20,7 +20,7 @@ interface Props {
 
 const GroupTable = ({ className, search }: Props) => {
   const user = useAuthState().user
-  const [openViewGroup, setOpenViewGroup] = useState(false)
+  const [openGroupDrawer, setOpenGroupDrawer] = useState(false)
   const [singleGroup, setSingleGroup] = useState<Group>(null!)
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(GROUP_PAGE_LIMIT)
@@ -51,11 +51,11 @@ const GroupTable = ({ className, search }: Props) => {
     setPage(0)
   }
 
-  const handleViewGroup = (id: string) => {
+  const handleGroupDrawer = (id: string) => {
     const group = adminGroups.value.find((group) => group.id === id)
     if (group !== null) {
       setSingleGroup(group!)
-      setOpenViewGroup(true)
+      setOpenGroupDrawer(true)
     }
   }
 
@@ -88,11 +88,11 @@ const GroupTable = ({ className, search }: Props) => {
       description,
       action: (
         <>
-          <a href="#h" className={styles.actionStyle} onClick={() => handleViewGroup(id)}>
+          <a href="#" className={styles.actionStyle} onClick={() => handleGroupDrawer(id)}>
             <span className={styles.spanWhite}>{t('admin:components.group.view')}</span>
           </a>
           <a
-            href="#h"
+            href="#"
             className={styles.actionStyle}
             onClick={() => {
               handleShowWarning(id)
@@ -131,8 +131,13 @@ const GroupTable = ({ className, search }: Props) => {
         onClose={handleCloseWarning}
         onSubmit={deleteGroupHandler}
       />
-      {singleGroup && openViewGroup && (
-        <ViewGroup groupAdmin={singleGroup} open onClose={() => setOpenViewGroup(false)} />
+      {singleGroup && openGroupDrawer && (
+        <GroupDrawer
+          open
+          selectedGroup={singleGroup}
+          mode={GroupDrawerMode.ViewEdit}
+          onClose={() => setOpenGroupDrawer(false)}
+        />
       )}
     </Box>
   )

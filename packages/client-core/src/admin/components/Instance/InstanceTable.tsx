@@ -103,7 +103,7 @@ const InstanceTable = ({ className, search }: Props) => {
       podName,
       action: (
         <a
-          href="#h"
+          href="#"
           className={styles.actionStyle}
           onClick={() => {
             setInstanceId(id)
