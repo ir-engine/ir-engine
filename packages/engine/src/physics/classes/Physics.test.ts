@@ -6,7 +6,7 @@ import {
   RigidBodyType
 } from '@dimforge/rapier3d-compat'
 import assert from 'assert'
-import { Vector3 } from 'three'
+import { BoxGeometry, Mesh, MeshBasicMaterial, Vector3 } from 'three'
 
 import { Direction } from '../../common/constants/Axis3D'
 import { Engine } from '../../ecs/classes/Engine'
@@ -20,6 +20,7 @@ import { RigidBodyFixedTagComponent } from '../components/RigidBodyFixedTagCompo
 import { CollisionGroups, DefaultCollisionMask } from '../enums/CollisionGroups'
 import { getInteractionGroups } from '../functions/getInteractionGroups'
 import { getTagComponentForRigidBody } from '../functions/getTagComponentForRigidBody'
+import { boxDynamicConfig } from '../functions/physicsObjectDebugFunctions'
 import { CollisionEvents, RaycastHit, SceneQueryType } from '../types/PhysicsTypes'
 import { Physics } from './PhysicsRapier'
 
@@ -73,6 +74,43 @@ describe('Physics', () => {
     const rigidBodyComponent = getTagComponentForRigidBody(rigidBody)
 
     assert.deepEqual(rigidBodyComponent, RigidBodyFixedTagComponent)
+  })
+
+  it('should create collider desc from input config data', async () => {
+    const world = Engine.instance.currentWorld
+    const entity = createEntity(world)
+
+    const physicsWorld = Physics.createWorld()
+
+    const geometry = new BoxGeometry(1, 1, 1)
+    const material = new MeshBasicMaterial()
+    const mesh = new Mesh(geometry, material)
+    mesh.translateX(10)
+    mesh.rotateX(3.1415918)
+
+    const collisionGroup = 0x0001
+    const collisionMask = 0x0003
+    boxDynamicConfig.collisionLayer = collisionGroup
+    boxDynamicConfig.collisionMask = collisionMask
+    boxDynamicConfig.isTrigger = true
+
+    const boxColliderDesc = Physics.createColliderDesc(mesh, boxDynamicConfig)
+    const interactionGroups = getInteractionGroups(collisionGroup, collisionMask)
+
+    assert.deepEqual(boxColliderDesc.shape.type, boxDynamicConfig.type)
+    assert.deepEqual(boxColliderDesc.collisionGroups, interactionGroups)
+    assert.deepEqual(boxColliderDesc.isSensor, boxDynamicConfig.isTrigger)
+    assert.deepEqual(boxColliderDesc.friction, boxDynamicConfig.friction)
+    assert.deepEqual(boxColliderDesc.restitution, boxDynamicConfig.restitution)
+    assert.deepEqual(boxColliderDesc.activeEvents, ActiveEvents.COLLISION_EVENTS)
+    assert.deepEqual(boxColliderDesc.activeCollisionTypes, ActiveCollisionTypes.ALL)
+    assert.deepEqual(boxColliderDesc.translation.x, mesh.position.x)
+    assert.deepEqual(boxColliderDesc.translation.y, mesh.position.y)
+    assert.deepEqual(boxColliderDesc.translation.z, mesh.position.z)
+    assert.deepEqual(boxColliderDesc.rotation.x, mesh.quaternion.x)
+    assert.deepEqual(boxColliderDesc.rotation.y, mesh.quaternion.y)
+    assert.deepEqual(boxColliderDesc.rotation.z, mesh.quaternion.z)
+    assert.deepEqual(boxColliderDesc.rotation.w, mesh.quaternion.w)
   })
 
   it('should change rigidBody type', async () => {

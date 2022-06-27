@@ -80,9 +80,10 @@ export const boxDynamicConfig = {
   collisionMask: CollisionGroups.Default | CollisionGroups.Avatars | CollisionGroups.Ground,
   friction: 1,
   restitution: 0.1,
+  isTrigger: false,
   spawnPosition: new Vector3(0, 15, 5),
   spawnScale: new Vector3(0.5, 0.5, 0.5)
-}
+} as ColliderDescOptions
 
 export const generateSimulationData = (numOfObjectsToGenerate) => {
   // Auto generate objects

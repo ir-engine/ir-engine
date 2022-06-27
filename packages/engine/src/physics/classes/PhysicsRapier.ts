@@ -12,10 +12,9 @@ import RAPIER, {
   ShapeType,
   World
 } from '@dimforge/rapier3d-compat'
-import { Mesh, Object3D, Quaternion, Shape, Vector3 } from 'three'
+import { Mesh, Object3D, Quaternion, Vector3 } from 'three'
 
 import { mergeBufferGeometries } from '../../common/classes/BufferGeometryUtils'
-import { Axis } from '../../common/constants/Axis3D'
 import { createVector3Proxy } from '../../common/proxies/three'
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, ComponentType, getComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
@@ -123,7 +122,7 @@ function createColliderDesc(mesh: Mesh, colliderDescOptions: ColliderDescOptions
         return undefined!
     }
     shapeOptions.friction ? colliderDesc.setFriction(shapeOptions.friction) : 0
-    shapeOptions.restitution ? colliderDesc.setFriction(shapeOptions.restitution) : 0
+    shapeOptions.restitution ? colliderDesc.setRestitution(shapeOptions.restitution) : 0
 
     const collisionLayer = shapeOptions.collisionLayer ? shapeOptions.collisionLayer : CollisionGroups.Default
     const collisionMask = shapeOptions.collisionMask ? shapeOptions.collisionMask : DefaultCollisionMask
@@ -132,6 +131,7 @@ function createColliderDesc(mesh: Mesh, colliderDescOptions: ColliderDescOptions
     colliderDesc.setTranslation(mesh.position.x, mesh.position.y, mesh.position.z)
     colliderDesc.setRotation(mesh.quaternion)
 
+    shapeOptions.isTrigger ? colliderDesc.setSensor(shapeOptions.isTrigger) : 0
     shapeOptions.activeCollisionTypes
       ? colliderDesc.setActiveCollisionTypes(shapeOptions.activeCollisionTypes)
       : colliderDesc.setActiveCollisionTypes(ActiveCollisionTypes.ALL)
@@ -314,6 +314,7 @@ export const Physics = {
   load,
   createWorld,
   createRigidBody,
+  createColliderDesc,
   createRigidBodyForObject,
   removeRigidBody,
   changeRigidbodyType,
