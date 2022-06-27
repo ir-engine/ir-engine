@@ -113,6 +113,39 @@ describe('Physics', () => {
     assert.deepEqual(boxColliderDesc.rotation.w, mesh.quaternion.w)
   })
 
+  it('should create rigid body from input mesh & config data', async () => {
+    const world = Engine.instance.currentWorld
+    const entity = createEntity(world)
+
+    const physicsWorld = Physics.createWorld()
+
+    const geometry = new BoxGeometry(1, 1, 1)
+    const material = new MeshBasicMaterial()
+    const mesh = new Mesh(geometry, material)
+    mesh.translateX(10)
+    mesh.rotateX(3.1415918)
+
+    const collisionGroup = 0x0001
+    const collisionMask = 0x0003
+    boxDynamicConfig.collisionLayer = collisionGroup
+    boxDynamicConfig.collisionMask = collisionMask
+
+    const rigidBody = Physics.createRigidBodyForObject(entity, physicsWorld, mesh, boxDynamicConfig)
+    const interactionGroups = getInteractionGroups(collisionGroup, collisionMask)
+
+    const collider = rigidBody.collider(0)
+    assert.deepEqual(hasComponent(entity, RigidBodyComponent), true)
+    assert.deepEqual(getComponent(entity, RigidBodyComponent), rigidBody)
+    assert.deepEqual(hasComponent(entity, RigidBodyDynamicTagComponent), true)
+    assert.deepEqual(rigidBody.bodyType(), boxDynamicConfig.bodyType)
+    assert.deepEqual(collider.shape.type, boxDynamicConfig.type)
+    assert.deepEqual(collider.collisionGroups(), interactionGroups)
+    assert.deepEqual(collider.isSensor(), boxDynamicConfig.isTrigger)
+    assert.deepEqual(collider.friction(), boxDynamicConfig.friction)
+    assert.deepEqual(collider.activeEvents(), ActiveEvents.COLLISION_EVENTS)
+    assert.deepEqual(collider.activeCollisionTypes(), ActiveCollisionTypes.ALL)
+  })
+
   it('should change rigidBody type', async () => {
     const world = Engine.instance.currentWorld
     const entity = createEntity(world)
