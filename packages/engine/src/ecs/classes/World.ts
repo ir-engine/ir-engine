@@ -53,9 +53,11 @@ export class World {
     this.cameraEntity = createEntity(this)
 
     addComponent(this.worldEntity, PersistTagComponent, {}, this)
+    addComponent(this.worldEntity, NameComponent, { name: 'world' }, this)
     if (this.localClientEntity) addComponent(this.localClientEntity, PersistTagComponent, {}, this)
 
     this.scene.add(this.camera)
+    addComponent(this.cameraEntity, NameComponent, { name: 'camera_local' }, this)
     addComponent(this.cameraEntity, PersistTagComponent, {}, this)
     addComponent(this.cameraEntity, Object3DComponent, { value: this.camera }, this)
     addComponent(

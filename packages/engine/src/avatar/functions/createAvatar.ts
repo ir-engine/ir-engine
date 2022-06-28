@@ -77,7 +77,7 @@ export const createAvatar = (spawnAction: typeof WorldNetworkAction.spawnAvatar.
   })
 
   addComponent(entity, NameComponent, {
-    name: userId as string
+    name: userId === Engine.instance.userId ? 'avatar_local' : (('avatar_' + userId) as string)
   })
 
   addComponent(entity, VisibleComponent, {})

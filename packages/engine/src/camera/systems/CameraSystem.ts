@@ -26,6 +26,7 @@ import {
 } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
+import { NetworkObjectAuthorityTag } from '../../networking/components/NetworkObjectAuthorityTag'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
@@ -36,7 +37,7 @@ import { RAYCAST_PROPERTIES_DEFAULT_VALUES } from '../../scene/functions/loaders
 import { setCameraProperties } from '../../scene/functions/setCameraProperties'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { CameraTagComponent } from '../components/CameraTagComponent'
+import { CameraTagComponent as NetworkCameraComponent } from '../components/CameraTagComponent'
 import { FollowCameraComponent, FollowCameraDefaultValues } from '../components/FollowCameraComponent'
 import { SpectateComponent } from '../components/SpectateComponent'
 import { TargetCameraRotationComponent } from '../components/TargetCameraRotationComponent'
@@ -294,24 +295,18 @@ export function cameraSpawnReceptor(
 
   console.log('Camera Spawn Receptor Call', entity)
 
-  addComponent(entity, PersistTagComponent, {})
-  addComponent(entity, CameraTagComponent, {})
+  addComponent(entity, NetworkCameraComponent, {})
 
   const position = createVector3Proxy(TransformComponent.position, entity)
   const rotation = createQuaternionProxy(TransformComponent.rotation, entity)
   const scale = createVector3Proxy(TransformComponent.scale, entity).setScalar(1)
   addComponent(entity, TransformComponent, { position, rotation, scale })
-
-  if (spawnAction.$from === Engine.instance.userId) {
-    const camObj = Engine.instance.currentWorld.camera
-    addComponent(entity, Object3DComponent, { value: camObj })
-    Engine.instance.currentWorld.cameraEntity = entity
-  }
 }
 
 export default async function CameraSystem(world: World) {
-  const followCameraQuery = defineQuery([FollowCameraComponent, TransformComponent, AvatarComponent])
-  const spectateQuery = defineQuery([CameraTagComponent, SpectateComponent])
+  const followCameraQuery = defineQuery([FollowCameraComponent, TransformComponent])
+  const ownedNetworkCamera = defineQuery([NetworkCameraComponent, NetworkObjectAuthorityTag])
+  const spectateQuery = defineQuery([NetworkCameraComponent, SpectateComponent])
   const localAvatarQuery = defineQuery([AvatarComponent, LocalInputTagComponent])
 
   const cameraSpawnActions = createActionQueue(WorldNetworkAction.spawnCamera.matches)
@@ -330,7 +325,7 @@ export default async function CameraSystem(world: World) {
     for (const action of spectateUserActions()) {
       const targetUserCamEntity = Engine.instance.currentWorld.getUserEntityWithComponent(
         action.user as UserId,
-        CameraTagComponent
+        NetworkCameraComponent
       )
       if (targetUserCamEntity) addComponent(targetUserCamEntity, SpectateComponent, {})
       console.log('Spectate component added', action.user)
@@ -349,6 +344,18 @@ export default async function CameraSystem(world: World) {
     if (EngineRenderer.instance.xrManager?.isPresenting) {
       EngineRenderer.instance.xrManager.updateCamera(Engine.instance.currentWorld.camera as THREE.PerspectiveCamera)
       removeComponent(Engine.instance.currentWorld.localClientEntity, XRCameraUpdatePendingTagComponent)
+    }
+
+    for (const entity of ownedNetworkCamera()) {
+      const cameraEntity = Engine.instance.currentWorld.cameraEntity
+      const transform = getComponent(cameraEntity, TransformComponent)
+      TransformComponent.position.x[entity] = transform.position.x
+      TransformComponent.position.y[entity] = transform.position.y
+      TransformComponent.position.z[entity] = transform.position.z
+      TransformComponent.rotation.x[entity] = transform.rotation.x
+      TransformComponent.rotation.y[entity] = transform.rotation.y
+      TransformComponent.rotation.z[entity] = transform.rotation.z
+      TransformComponent.rotation.w[entity] = transform.rotation.w
     }
   }
 }

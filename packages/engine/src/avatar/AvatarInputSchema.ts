@@ -206,7 +206,6 @@ export const switchShoulderSide: InputBehaviorType = (
 }
 
 export const setTargetCameraRotation = (entity: Entity, phi: number, theta: number, time = 0.3) => {
-  // const cameraEntity = Engine.instance.currentWorld.cameraEntity
   const cameraRotationTransition = getComponent(entity, TargetCameraRotationComponent)
   if (!cameraRotationTransition) {
     addComponent(entity, TargetCameraRotationComponent, {
