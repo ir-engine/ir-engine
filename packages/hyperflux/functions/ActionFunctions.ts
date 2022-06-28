@@ -243,7 +243,6 @@ const dispatchAction = <A extends Action>(
   topics: string | string[] = HyperFlux.store.defaultTopic,
   store = HyperFlux.store
 ) => {
-  console.log(action, topics)
   const storeId = store.getDispatchId()
   const topic = Array.isArray(topics) ? topics[0] : topics
 
