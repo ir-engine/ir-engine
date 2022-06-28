@@ -234,7 +234,6 @@ export async function onConnectToMediaInstance(network: SocketWebRTCClientNetwor
         UserService.getLayerUsers(true)
         const channelConnectionState = accessMediaInstanceConnectionState()
         const currentChannelInstanceConnection = channelConnectionState.instances[network.hostId]?.ornull
-        console.log({ currentChannelInstanceConnection })
         if (!currentChannelInstanceConnection?.value) return
         await network.request(MessageTypes.WebRTCRequestCurrentProducers.toString(), {
           userIds: MediaStreams.instance.nearbyLayerUsers || [],
