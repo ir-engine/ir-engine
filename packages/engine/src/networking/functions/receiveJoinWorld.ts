@@ -33,12 +33,12 @@ export const receiveSpectateWorld = (props: SpectateWorldProps) => {
 
   for (const action of cachedActions) Engine.instance.store.actions.incoming.push({ ...action, $fromCache: true })
 
-  dispatchAction(WorldNetworkAction.createClient(client), [world.worldNetwork.hostId])
-
   if (spectateUser) {
     dispatchAction(EngineActions.joinedWorld())
     dispatchAction(EngineActions.spectateUser({ user: spectateUser }))
   }
+
+  dispatchAction(WorldNetworkAction.createPeer(client), world.worldNetwork.hostId)
 }
 
 export type JoinWorldProps = {
@@ -76,7 +76,7 @@ export const receiveJoinWorld = (props: JoinWorldProps) => {
 
   for (const action of cachedActions) Engine.instance.store.actions.incoming.push({ ...action, $fromCache: true })
 
-  dispatchAction(WorldNetworkAction.createClient(client), [world.worldNetwork.hostId])
-  dispatchAction(WorldNetworkAction.spawnAvatar({ parameters: spawnPose }), [world.worldNetwork.hostId])
-  dispatchAction(WorldNetworkAction.avatarDetails({ avatarDetail }), [world.worldNetwork.hostId])
+  dispatchAction(WorldNetworkAction.createPeer(client), world.worldNetwork.hostId)
+  dispatchAction(WorldNetworkAction.spawnAvatar({ parameters: spawnPose }), world.worldNetwork.hostId)
+  dispatchAction(WorldNetworkAction.avatarDetails({ avatarDetail }), world.worldNetwork.hostId)
 }

@@ -218,8 +218,9 @@ export const authorizeUserToJoinServer = async (app: Application, instance: Inst
   }
   return true
 }
-export function getUserIdFromSocketId(socketId: string) {
-  const client = Array.from(Engine.instance.currentWorld.clients.values()).find((c) => c.socketId === socketId)
+
+export function getUserIdFromSocketId(network: SocketWebRTCServerNetwork, socketId: string) {
+  const client = Array.from(network.peers.values()).find((c) => c.socketId === socketId)
   return client?.userId
 }
 
@@ -239,13 +240,10 @@ export async function handleConnectToWorld(
 
   // Create a new client object
   // and add to the dictionary
-  const world = Engine.instance.currentWorld
-  const userIndex = world.userIndexCount++
-  world.clients.set(userId, {
-    userId: userId,
+  const userIndex = network.userIndexCount++
+  network.peers.set(userId, {
+    userId,
     index: userIndex,
-    name: user.name,
-    avatarDetail,
     socket: socket,
     socketId: socket.id,
     lastSeenTs: Date.now(),
@@ -257,8 +255,15 @@ export async function handleConnectToWorld(
     dataProducers: new Map<string, DataProducer>() // Key => label of data channel
   })
 
-  world.userIdToUserIndex.set(userId, userIndex)
-  world.userIndexToUserId.set(userIndex, userId)
+  const world = Engine.instance.currentWorld
+  world.users.set(userId, {
+    userId,
+    name: user.name,
+    avatarDetail
+  })
+
+  network.userIdToUserIndex.set(userId, userIndex)
+  network.userIndexToUserId.set(userIndex, userId)
 
   // Return initial world state to client to set things up
   callback({
@@ -268,8 +273,7 @@ export async function handleConnectToWorld(
 
 function disconnectClientIfConnected(network: SocketWebRTCServerNetwork, socket: Socket, userId: UserId) {
   // If we are already logged in, kick the other socket
-  const world = Engine.instance.currentWorld
-  const client = world.clients.get(userId)
+  const client = network.peers.get(userId)
   if (client) {
     if (client.socketId === socket.id) {
       logger.info('Client already logged in, disallowing new connection')
@@ -331,13 +335,13 @@ export const handleSpectateWorld = async (
   data,
   callback: Function,
   joinedUserId: UserId,
-  user
+  user: User
 ) => {
   logger.info('Spectate World Request Received: %o', { joinedUserId, data, user })
 
   const world = Engine.instance.currentWorld
   const cachedActions = getCachedActions(network, joinedUserId)
-  const client = world.clients.get(joinedUserId)!
+  const client = network.peers.get(joinedUserId)!
   client.spectating = true
   let spectateUser = data['spectateUser']
 
@@ -368,7 +372,7 @@ export const handleSpectateWorld = async (
   callback({
     highResTimeOrigin: performance.timeOrigin,
     worldStartTime: world.startTime,
-    client: { name: client.name, index: client.index },
+    client: { name: user.name, index: client.index },
     cachedActions,
     spectateUser
   })
@@ -380,7 +384,7 @@ export const handleJoinWorld = async (
   data,
   callback: (args: JoinWorldProps) => void,
   joinedUserId: UserId,
-  user
+  user: User
 ) => {
   logger.info('Join World Request Received: %o', { joinedUserId, data, user })
 
@@ -404,7 +408,7 @@ export const handleJoinWorld = async (
       const inviterUser = users[0]
       if (inviterUser.instanceId === user.instanceId) {
         const inviterUserId = inviterUser.id
-        const inviterUserAvatarEntity = Engine.instance.currentWorld.getUserAvatarEntity(inviterUserId as UserId)
+        const inviterUserAvatarEntity = world.getUserAvatarEntity(inviterUserId as UserId)
         const inviterUserTransform = getComponent(inviterUserAvatarEntity, TransformComponent)
 
         // Translate infront of the inviter
@@ -426,7 +430,7 @@ export const handleJoinWorld = async (
   }
 
   logger.info('User successfully joined world: %o', { joinedUserId, data, spawnPose })
-  const client = world.clients.get(joinedUserId)!
+  const client = network.peers.get(joinedUserId)!
 
   if (!client) return callback(null! as any)
 
@@ -438,9 +442,9 @@ export const handleJoinWorld = async (
   callback({
     highResTimeOrigin: performance.timeOrigin,
     worldStartTime: world.startTime,
-    client: { name: client.name, index: client.index },
+    client: { name: user.name, index: client.index },
     cachedActions,
-    avatarDetail: client.avatarDetail!,
+    avatarDetail: world.users.get(joinedUserId)!.avatarDetail!,
     avatarSpawnPose: spawnPose
   })
 }
@@ -448,9 +452,8 @@ export const handleJoinWorld = async (
 export function handleIncomingActions(network: SocketWebRTCServerNetwork, socket: Socket, message) {
   if (!message) return
 
-  const world = Engine.instance.currentWorld
   const userIdMap = {} as { [socketId: string]: UserId }
-  for (const [id, client] of world.clients) userIdMap[client.socketId!] = id
+  for (const [id, client] of network.peers) userIdMap[client.socketId!] = id
 
   const actions = /*decode(new Uint8Array(*/ message /*))*/ as Required<Action>[]
   for (const a of actions) {
@@ -461,17 +464,15 @@ export function handleIncomingActions(network: SocketWebRTCServerNetwork, socket
   // logger.info('SERVER INCOMING ACTIONS: %s', JSON.stringify(actions))
 }
 
-export async function handleHeartbeat(socket: Socket): Promise<any> {
-  const userId = getUserIdFromSocketId(socket.id)!
+export async function handleHeartbeat(network: SocketWebRTCServerNetwork, socket: Socket): Promise<any> {
+  const userId = getUserIdFromSocketId(network, socket.id)!
   // logger.info('Got heartbeat from user ' + userId + ' at ' + Date.now())
-  if (Engine.instance.currentWorld.clients.has(userId))
-    Engine.instance.currentWorld.clients.get(userId)!.lastSeenTs = Date.now()
+  if (network.peers.has(userId)) network.peers.get(userId)!.lastSeenTs = Date.now()
 }
 
 export async function handleDisconnect(network: SocketWebRTCServerNetwork, socket: Socket): Promise<any> {
-  const world = Engine.instance.currentWorld
-  const userId = getUserIdFromSocketId(socket.id) as UserId
-  const disconnectedClient = world?.clients.get(userId)
+  const userId = getUserIdFromSocketId(network, socket.id) as UserId
+  const disconnectedClient = network.peers.get(userId)
   if (!disconnectedClient)
     return logger.warn(
       'Disconnecting client ' + userId + ' was undefined, probably already handled from JoinWorld handshake.'
@@ -480,7 +481,7 @@ export async function handleDisconnect(network: SocketWebRTCServerNetwork, socke
   // The new connection will overwrite the socketID for the user's client.
   // This will only clear transports if the client's socketId matches the socket that's disconnecting.
   if (socket.id === disconnectedClient?.socketId) {
-    dispatchAction(WorldNetworkAction.destroyClient({ $from: userId }), [network.hostId])
+    dispatchAction(WorldNetworkAction.destroyPeer({ $from: userId }), [network.hostId])
     logger.info('Disconnecting clients for user ' + userId)
     if (disconnectedClient?.instanceRecvTransport) disconnectedClient.instanceRecvTransport.close()
     if (disconnectedClient?.instanceSendTransport) disconnectedClient.instanceSendTransport.close()
@@ -497,12 +498,11 @@ export async function handleLeaveWorld(
   data,
   callback
 ): Promise<any> {
-  const world = Engine.instance.currentWorld
-  const userId = getUserIdFromSocketId(socket.id)!
+  const userId = getUserIdFromSocketId(network, socket.id)!
   for (const [, transport] of Object.entries(network.mediasoupTransports))
     if ((transport as any).appData.peerId === userId) closeTransport(network, transport)
-  if (world.clients.has(userId)) {
-    dispatchAction(WorldNetworkAction.destroyClient({ $from: userId }))
+  if (network.peers.has(userId)) {
+    dispatchAction(WorldNetworkAction.destroyPeer({ $from: userId }))
   }
   if (callback !== undefined) callback({})
 }
@@ -510,7 +510,7 @@ export async function handleLeaveWorld(
 export function clearCachedActionsForDisconnectedUsers(network: SocketWebRTCServerNetwork) {
   const cached = Engine.instance.store.actions.cached[network.hostId]
   for (const action of [...cached]) {
-    if (!Engine.instance.currentWorld.clients.has(action.$from)) {
+    if (!network.peers.has(action.$from)) {
       const idx = cached.indexOf(action)
       cached.splice(idx, 1)
     }

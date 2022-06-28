@@ -2,6 +2,8 @@ import _ from 'lodash'
 import React from 'react'
 
 import Box from '@mui/material/Box'
+import FormControl from '@mui/material/FormControl'
+import FormHelperText from '@mui/material/FormHelperText'
 import { SxProps, Theme } from '@mui/material/styles'
 import TextField from '@mui/material/TextField'
 
@@ -37,7 +39,7 @@ const InputText = ({
   onChange
 }: Props) => {
   return (
-    <Box sx={{ mb: 2, ...sx }}>
+    <Box sx={{ display: 'flex', flexDirection: 'column', mb: 2, ...sx }}>
       <TextField
         className={className ?? styles.textField}
         variant="outlined"
@@ -57,6 +59,12 @@ const InputText = ({
         }}
         fullWidth
       />
+
+      {error && (
+        <FormControl error>
+          <FormHelperText>{error}</FormHelperText>
+        </FormControl>
+      )}
     </Box>
   )
 }

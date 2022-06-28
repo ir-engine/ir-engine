@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 
 import Box from '@mui/material/Box'
 import FormControl from '@mui/material/FormControl'
+import FormHelperText from '@mui/material/FormHelperText'
 import InputLabel from '@mui/material/InputLabel'
 import MenuItem from '@mui/material/MenuItem'
 import Select from '@mui/material/Select'
@@ -37,17 +38,17 @@ const InputSelect = ({ className, name, label, value, menu, error, disabled, end
   }
 
   return (
-    <Box sx={{ display: 'flex', mb: 2, ...sx }}>
-      <FormControl
-        variant="outlined"
-        className={className ?? styles.selectField}
-        error={error ? true : false}
-        disabled={disabled}
-        size="small"
-        sx={{ flexGrow: 1 }}
-      >
-        <InputLabel>{_.upperFirst(label)}</InputLabel>
-        <Box>
+    <Box sx={{ display: 'flex', flexDirection: 'column', mb: 2, ...sx }}>
+      <Box sx={{ display: 'flex' }}>
+        <FormControl
+          variant="outlined"
+          className={className ?? styles.selectField}
+          error={error ? true : false}
+          disabled={disabled}
+          size="small"
+          sx={{ flexGrow: 1 }}
+        >
+          <InputLabel>{_.upperFirst(label)}</InputLabel>
           <Select
             name={name}
             value={value}
@@ -82,10 +83,16 @@ const InputSelect = ({ className, name, label, value, menu, error, disabled, end
               </MenuItem>
             ))}
           </Select>
-        </Box>
-      </FormControl>
+        </FormControl>
 
-      {endControl}
+        {endControl}
+      </Box>
+
+      {error && (
+        <FormControl error>
+          <FormHelperText>{error}</FormHelperText>
+        </FormControl>
+      )}
     </Box>
   )
 }

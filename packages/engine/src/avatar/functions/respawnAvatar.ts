@@ -18,6 +18,6 @@ export const respawnAvatar = (entity: Entity) => {
       },
       pose: [position.x, position.y, position.z, rotation.x, rotation.y, rotation.z, rotation.w]
     }),
-    [Engine.instance.currentWorld.worldNetwork.hostId]
+    Engine.instance.currentWorld.worldNetwork.hostId
   )
 }

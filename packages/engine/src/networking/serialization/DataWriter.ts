@@ -12,6 +12,7 @@ import { TransformComponent } from '../../transform/components/TransformComponen
 import { XRHandsInputComponent } from '../../xr/components/XRHandsInputComponent'
 import { XRInputSourceComponent } from '../../xr/components/XRInputSourceComponent'
 import { XRHandBones } from '../../xr/types/XRHandBones'
+import { Network } from '../classes/Network'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
 import { compress, QUAT_MAX_RANGE, QUAT_PRECISION_MULT, VEC3_MAX_RANGE, VEC3_PRECISION_MULT } from './Utils'
 import { flatten, getVector4IndexBasedComponentValue, Vector3SoA, Vector4SoA } from './Utils'
@@ -393,16 +394,16 @@ export const writeEntities = (v: ViewCursor, entities: Entity[]) => {
   else v.cursor = 0 // nothing written
 }
 
-export const writeMetadata = (v: ViewCursor, world: World) => {
-  writeUint32(v, world.userIdToUserIndex.get(Engine.instance.userId)!)
+export const writeMetadata = (v: ViewCursor, network: Network, world: World) => {
+  writeUint32(v, network.userIdToUserIndex.get(Engine.instance.userId)!)
   writeUint32(v, world.fixedTick)
 }
 
 export const createDataWriter = (size: number = 100000) => {
   const view = createViewCursor(new ArrayBuffer(size))
 
-  return (world: World, entities: Entity[]) => {
-    writeMetadata(view, world)
+  return (world: World, network: Network, entities: Entity[]) => {
+    writeMetadata(view, network, world)
     writeEntities(view, entities)
     return sliceViewCursor(view)
   }

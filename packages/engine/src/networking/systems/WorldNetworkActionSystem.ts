@@ -8,8 +8,8 @@ import { WorldNetworkActionReceptor } from '../functions/WorldNetworkActionRecep
  * @author Josh Field <github.com/HexaField>
  */
 export default async function WorldNetworkActionSystem() {
-  const createClientQueue = createActionQueue(WorldNetworkAction.createClient.matches)
-  const destroyClientQueue = createActionQueue(WorldNetworkAction.destroyClient.matches)
+  const createPeerQueue = createActionQueue(WorldNetworkAction.createPeer.matches)
+  const destroyPeerQueue = createActionQueue(WorldNetworkAction.destroyPeer.matches)
   const spawnObjectQueue = createActionQueue(WorldNetworkAction.spawnObject.matches)
   const spawnDebugPhysicsObjectQueue = createActionQueue(WorldNetworkAction.spawnDebugPhysicsObject.matches)
   const destroyObjectQueue = createActionQueue(WorldNetworkAction.destroyObject.matches)
@@ -19,8 +19,8 @@ export default async function WorldNetworkActionSystem() {
   const setUserTypingQueue = createActionQueue(WorldNetworkAction.setUserTyping.matches)
 
   return () => {
-    for (const action of createClientQueue()) WorldNetworkActionReceptor.receiveCreateClient(action)
-    for (const action of destroyClientQueue()) WorldNetworkActionReceptor.receiveDestroyClient(action)
+    for (const action of createPeerQueue()) WorldNetworkActionReceptor.receiveCreatePeers(action)
+    for (const action of destroyPeerQueue()) WorldNetworkActionReceptor.receiveDestroyPeers(action)
     for (const action of spawnDebugPhysicsObjectQueue())
       WorldNetworkActionReceptor.receiveSpawnDebugPhysicsObject(action)
     for (const action of spawnObjectQueue()) WorldNetworkActionReceptor.receiveSpawnObject(action)

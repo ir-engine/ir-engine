@@ -10,7 +10,7 @@ export const userColumns: UserColumn[] = [
   { id: 'avatarId', label: 'Avatar', minWidth: 65 },
   {
     id: 'userRole',
-    label: 'Status',
+    label: 'Role',
     minWidth: 65,
     align: 'right'
   },
