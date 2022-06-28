@@ -59,17 +59,22 @@ const SettingMenu = (): JSX.Element => {
   const [open, setOpen] = useState(false)
 
   const handleChangeInvertRotationAndMoveSticks = (event: React.ChangeEvent<HTMLInputElement>) => {
-    dispatchAction(AvatarInputSettingsAction.setInvertRotationAndMoveSticks(!invertRotationAndMoveSticks))
+    dispatchAction(
+      AvatarInputSettingsAction.setInvertRotationAndMoveSticks({
+        invertRotationAndMoveSticks: !invertRotationAndMoveSticks
+      })
+    )
   }
 
   const handleChangeShowAvatar = (event: React.ChangeEvent<HTMLInputElement>) => {
-    dispatchAction(AvatarInputSettingsAction.setShowAvatar(!showAvatar))
+    dispatchAction(AvatarInputSettingsAction.setShowAvatar({ showAvatar: !showAvatar }))
   }
 
   useEffect(() => {
     const world = Engine.instance.currentWorld
-    const entity = world.getUserAvatarEntity(user.id.value)
+    const entity = world.localClientEntity
     const avatar = getComponent(entity, AvatarComponent)
+    if (!avatar) return
     if (showAvatar) {
       if (avatar.modelContainer.visible) return
       avatar.modelContainer.visible = showAvatar
@@ -89,7 +94,7 @@ const SettingMenu = (): JSX.Element => {
 
   const handleChangeControlType = (event: SelectChangeEvent) => {
     setControlType(event.target.value as any)
-    dispatchAction(AvatarInputSettingsAction.setControlType(event.target.value as any))
+    dispatchAction(AvatarInputSettingsAction.setControlType({ controlType: event.target.value as any }))
   }
 
   const handleChangeControlScheme = (event: SelectChangeEvent) => {
@@ -112,7 +117,7 @@ const SettingMenu = (): JSX.Element => {
             <Slider
               value={audioState.audio.value == null ? 100 : audioState.audio.value}
               onChange={(_, value: number) => {
-                dispatchAction(AudioSettingAction.setAudio(value))
+                dispatchAction(AudioSettingAction.setAudio({ audio: value }))
                 const mediaElements = document.querySelectorAll<HTMLMediaElement>('video, audio')
                 for (let i = 0; i < mediaElements.length; i++) {
                   mediaElements[i].volume = (value as number) / 100
@@ -131,7 +136,7 @@ const SettingMenu = (): JSX.Element => {
             <Slider
               value={audioState.microphone.value == null ? 100 : audioState.microphone.value}
               onChange={(_, value: number) => {
-                dispatchAction(AudioSettingAction.setMicrophone(value))
+                dispatchAction(AudioSettingAction.setMicrophone({ microphone: value }))
               }}
               className={styles.slider}
               max={100}
@@ -151,8 +156,8 @@ const SettingMenu = (): JSX.Element => {
             <Slider
               value={rendererState.qualityLevel.value}
               onChange={(_, value: number) => {
-                dispatchAction(EngineRendererAction.setQualityLevel(value))
-                dispatchAction(EngineRendererAction.setAutomatic(false))
+                dispatchAction(EngineRendererAction.setQualityLevel({ qualityLevel: value }))
+                dispatchAction(EngineRendererAction.setAutomatic({ automatic: false }))
               }}
               className={styles.slider}
               min={1}
@@ -166,8 +171,8 @@ const SettingMenu = (): JSX.Element => {
               control={<Checkbox checked={rendererState.usePostProcessing.value} size="small" />}
               label={t('user:usermenu.setting.lbl-pp') as string}
               onChange={(_, value) => {
-                dispatchAction(EngineRendererAction.setPostProcessing(value))
-                dispatchAction(EngineRendererAction.setAutomatic(false))
+                dispatchAction(EngineRendererAction.setPostProcessing({ usePostProcessing: value }))
+                dispatchAction(EngineRendererAction.setAutomatic({ automatic: false }))
               }}
             />
             {/* <FormControlLabel
@@ -185,8 +190,8 @@ const SettingMenu = (): JSX.Element => {
               control={<Checkbox checked={rendererState.useShadows.value} size="small" />}
               label={t('user:usermenu.setting.lbl-shadow') as string}
               onChange={(_, value) => {
-                dispatchAction(EngineRendererAction.setShadows(value))
-                dispatchAction(EngineRendererAction.setAutomatic(false))
+                dispatchAction(EngineRendererAction.setShadows({ useShadows: value }))
+                dispatchAction(EngineRendererAction.setAutomatic({ automatic: false }))
               }}
             />
           </div>
@@ -197,7 +202,7 @@ const SettingMenu = (): JSX.Element => {
               label={t('user:usermenu.setting.lbl-automatic') as string}
               labelPlacement="start"
               onChange={(_, value) => {
-                dispatchAction(EngineRendererAction.setAutomatic(value))
+                dispatchAction(EngineRendererAction.setAutomatic({ automatic: value }))
               }}
             />
           </div>

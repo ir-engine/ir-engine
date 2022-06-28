@@ -7,7 +7,7 @@ import { BinaryValue } from '../../common/enums/BinaryValue'
 import { LifecycleValue } from '../../common/enums/LifecycleValue'
 import { matches } from '../../common/functions/MatchesUtils'
 import { Engine } from '../../ecs/classes/Engine'
-import { EngineActions, EngineActionType, getEngineState } from '../../ecs/classes/EngineState'
+import { EngineActions, getEngineState } from '../../ecs/classes/EngineState'
 import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { InputComponent } from '../../input/components/InputComponent'
@@ -32,9 +32,11 @@ const startXRSession = async () => {
     EngineRenderer.instance.xrManager.setFoveation(1)
     dispatchAction(EngineActions.xrSession())
 
-    EngineRenderer.instance.xrManager.addEventListener('sessionend', async () => {
+    const onSessionEnd = () => {
+      EngineRenderer.instance.xrManager.removeEventListener('sessionend', onSessionEnd)
       dispatchAction(EngineActions.xrEnd())
-    })
+    }
+    EngineRenderer.instance.xrManager.addEventListener('sessionend', onSessionEnd)
 
     startWebXR()
   } catch (e) {
@@ -77,7 +79,7 @@ export default async function XRSystem(world: World) {
     AssetLoader.loadAsync('/default_assets/controllers/hands/right_controller.glb')
   ])
 
-  addActionReceptor((a: EngineActionType) => {
+  addActionReceptor((a) => {
     matches(a)
       .when(EngineActions.xrStart.matches, (action) => {
         if (getEngineState().joinedWorld.value && !EngineRenderer.instance.xrSession) startXRSession()

@@ -1,6 +1,8 @@
 import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { dispatchAction } from '@xrengine/hyperflux'
+
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined'
 import Avatar from '@mui/material/Avatar'
 import Button from '@mui/material/Button'
@@ -12,7 +14,6 @@ import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
 
 import { DialogAction } from '../../../common/services/DialogService'
-import { useDispatch } from '../../../store'
 import { useAuthState } from '../../services/AuthService'
 import { AuthService } from '../../services/AuthService'
 import ForgotPassword from './ForgotPassword'
@@ -25,12 +26,10 @@ interface Props {
   isAddConnection?: boolean
 }
 
-export const PasswordLogin = (props: Props): JSX.Element => {
-  const { isAddConnection } = props
+const PasswordLogin = ({ isAddConnection }: Props): JSX.Element => {
   const auth = useAuthState()
   const [state, setState] = useState(initialState)
   const { t } = useTranslation()
-  const dispatch = useDispatch()
 
   const handleInput = (e: any): void => setState({ ...state, [e.target.name]: e.target.value })
 
@@ -48,7 +47,7 @@ export const PasswordLogin = (props: Props): JSX.Element => {
         },
         userId as string
       )
-      dispatch(DialogAction.dialogClose())
+      dispatchAction(DialogAction.dialogClose())
     } else {
       AuthService.loginUserByPassword({
         email: state.email,
@@ -114,9 +113,9 @@ export const PasswordLogin = (props: Props): JSX.Element => {
                   href="#"
                   // variant="body2"
                   onClick={() =>
-                    dispatch(
+                    dispatchAction(
                       DialogAction.dialogShow({
-                        children: <ForgotPassword />
+                        content: <ForgotPassword />
                       })
                     )
                   }
@@ -131,9 +130,9 @@ export const PasswordLogin = (props: Props): JSX.Element => {
                   href="#"
                   // variant="body2"
                   onClick={() =>
-                    dispatch(
+                    dispatchAction(
                       DialogAction.dialogShow({
-                        children: <SignUp />
+                        content: <SignUp />
                       })
                     )
                   }
@@ -149,6 +148,4 @@ export const PasswordLogin = (props: Props): JSX.Element => {
   )
 }
 
-const PasswordLoginWrapper = (props: Props): JSX.Element => <PasswordLogin {...props} />
-
-export default PasswordLoginWrapper
+export default PasswordLogin

@@ -37,7 +37,7 @@ export function avatarDetailsReceptor(
   action: ReturnType<typeof WorldNetworkAction.avatarDetails>,
   world = Engine.instance.currentWorld
 ) {
-  const client = world.clients.get(action.$from)
+  const client = world.users.get(action.$from)
   if (!client) throw Error(`Avatar details action received for a client that does not exist: ${action.$from}`)
   if (client.avatarDetail?.avatarURL === action.avatarDetail.avatarURL)
     return console.log('[AvatarSystem]: ignoring same avatar url')
@@ -77,11 +77,6 @@ export function setXRModeReceptor(
       inputData.controllerGripRightParent.add(inputData.controllerGripRight)
 
       addComponent(entity, XRInputSourceComponent, inputData as any)
-
-      // This is required because using dispatchAction state will be updated in the next frame
-      // while xr hand initialization requires updated controller type which might run in the current frame.
-      const avatarInputState = accessAvatarInputSettingsState()
-      avatarInputState.merge({ controlType: action.avatarInputControllerType as AvatarControllerType })
     }
   } else if (hasComponent(entity, XRInputSourceComponent)) {
     removeComponent(entity, XRInputSourceComponent)

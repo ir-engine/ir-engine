@@ -1,40 +1,42 @@
 import { Paginated } from '@feathersjs/feathers'
-import { createState, useState } from '@speigg/hookstate'
 
 import { InstanceServerSetting } from '@xrengine/common/src/interfaces/InstanceServerSetting'
+import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
+import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
+import { API } from '../../../API'
 import { NotificationService } from '../../../common/services/NotificationService'
-import { client } from '../../../feathers'
-import { store, useDispatch } from '../../../store'
 
-//State
-const state = createState({
-  instanceserver: [] as Array<InstanceServerSetting>,
-  updateNeeded: true
+const AdminInstanceServerSettingsState = defineState({
+  name: 'AdminInstanceServerSettingsState',
+  initial: () => ({
+    instanceserver: [] as Array<InstanceServerSetting>,
+    updateNeeded: true
+  })
 })
 
-store.receptors.push((action: InstanceServerSettingActionType): any => {
-  state.batch((s) => {
-    switch (action.type) {
-      case 'INSTANCE_SERVER_SETTING_DISPLAY':
-        return s.merge({ instanceserver: action.instanceServerSettingResult.data, updateNeeded: false })
-    }
-  }, action.type)
-})
+const fetchedInstanceServerReceptor = (
+  action: typeof InstanceServerSettingActions.fetchedInstanceServer.matches._TYPE
+) => {
+  const state = getState(AdminInstanceServerSettingsState)
+  return state.merge({ instanceserver: action.instanceServerSettings.data, updateNeeded: false })
+}
 
-export const accessInstanceServerSettingState = () => state
+export const AdminInstanceServerReceptors = {
+  fetchedInstanceServerReceptor
+}
 
-export const useInstanceServerSettingState = () => useState(state) as any as typeof state
+export const accessInstanceServerSettingState = () => getState(AdminInstanceServerSettingsState)
 
-//Service
+export const useInstanceServerSettingState = () => useState(accessInstanceServerSettingState())
+
 export const InstanceServerSettingService = {
   fetchedInstanceServerSettings: async (inDec?: 'increment' | 'decrement') => {
-    const dispatch = useDispatch()
     try {
-      const instanceServer = (await client
+      const instanceServerSettings = (await API.instance.client
         .service('instance-server-setting')
         .find()) as Paginated<InstanceServerSetting>
-      dispatch(InstanceServerSettingAction.fetchedInstanceServer(instanceServer))
+      dispatchAction(InstanceServerSettingActions.fetchedInstanceServer({ instanceServerSettings }))
     } catch (err) {
       console.log(err.message)
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
@@ -42,15 +44,9 @@ export const InstanceServerSettingService = {
   }
 }
 
-//Action
-export const InstanceServerSettingAction = {
-  fetchedInstanceServer: (instanceServerSettingResult: Paginated<InstanceServerSetting>) => {
-    return {
-      type: 'INSTANCE_SERVER_SETTING_DISPLAY',
-      instanceServerSettingResult: instanceServerSettingResult
-    }
-  }
+export class InstanceServerSettingActions {
+  static fetchedInstanceServer = defineAction({
+    type: 'INSTANCE_SERVER_SETTING_DISPLAY',
+    instanceServerSettings: matches.object as Validator<unknown, Paginated<InstanceServerSetting>>
+  })
 }
-export type InstanceServerSettingActionType = ReturnType<
-  typeof InstanceServerSettingAction[keyof typeof InstanceServerSettingAction]
->

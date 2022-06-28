@@ -8,6 +8,7 @@ import {
 import { MediaStreamService, useMediaStreamState } from '@xrengine/client-core/src/media/services/MediaStreamService'
 import { useChatState } from '@xrengine/client-core/src/social/services/ChatService'
 import { useLocationState } from '@xrengine/client-core/src/social/services/LocationService'
+import { MediaStreams } from '@xrengine/client-core/src/transports/MediaStreams'
 import {
   configureMediaTransports,
   createCamAudioProducer,
@@ -23,19 +24,18 @@ import { useAuthState } from '@xrengine/client-core/src/user/services/AuthServic
 import logger from '@xrengine/common/src/logger'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineActions, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
-import {
-  startFaceTracking,
-  startLipsyncTracking,
-  stopFaceTracking,
-  stopLipsyncTracking
-} from '@xrengine/engine/src/input/functions/WebcamInput'
-import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
 import { dispatchAction } from '@xrengine/hyperflux'
 
 import { Mic, MicOff, Videocam, VideocamOff } from '@mui/icons-material'
 import FaceIcon from '@mui/icons-material/Face'
 import ScreenShareIcon from '@mui/icons-material/ScreenShare'
 
+import {
+  startFaceTracking,
+  startLipsyncTracking,
+  stopFaceTracking,
+  stopLipsyncTracking
+} from '../../media/webcam/WebcamInput'
 import { SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientNetwork'
 import styles from './index.module.scss'
 
@@ -206,11 +206,11 @@ const MediaIconsBox = (props: Props) => {
           </button>
         </>
       ) : null}
-      {engineState.xrSupported.value ? (
+      {engineState.xrSupported.value && (
         <button type="button" id="UserXR" className={styles.iconContainer} onClick={handleVRClick}>
           <VrIcon />
         </button>
-      ) : null}
+      )}
     </section>
   )
 }

@@ -11,24 +11,23 @@ import styles from './styles.module.scss'
 
 interface Props {
   open: boolean
-  handleClose: any
-  createProject: (name: string) => Promise<void>
+  onSuccess: (name: string) => Promise<void>
+  onClose: () => void
 }
 
-export const CreateProjectDialog = (props: Props): any => {
+export const CreateProjectDialog = ({ open, onSuccess, onClose }: Props): any => {
   const { t } = useTranslation()
-  const { open, handleClose, createProject } = props
 
   const [processing, setProcessing] = useState(false)
   const [error, setError] = useState('')
   const [projectName, setProjectName] = useState('')
 
-  const onCreateProject = async () => {
+  const handleCreateProject = async () => {
     if (!projectName) return
 
     setProcessing(true)
     try {
-      await createProject(projectName)
+      await onSuccess(projectName)
       closeDialog()
     } catch (err) {
       setError(err.message)
@@ -39,13 +38,13 @@ export const CreateProjectDialog = (props: Props): any => {
 
   const handleSubmitOnEnter = (event) => {
     if (event.key === 'Enter') {
-      onCreateProject()
+      handleCreateProject()
     }
   }
 
   const closeDialog = () => {
     setProjectName('')
-    handleClose()
+    onClose()
   }
 
   return (
@@ -55,7 +54,7 @@ export const CreateProjectDialog = (props: Props): any => {
       onClose={closeDialog}
       closeAfterTransition
       TransitionComponent={Fade}
-      TransitionProps={{ in: props.open }}
+      TransitionProps={{ in: open }}
     >
       <DialogTitle>{t('editor.projects.createProject')}</DialogTitle>
       <DialogContent>
@@ -83,7 +82,7 @@ export const CreateProjectDialog = (props: Props): any => {
               onKeyDown={handleSubmitOnEnter}
             />
             {error && error.length > 0 && <h2 className={styles.errorMessage}>{error}</h2>}
-            <Button onClick={onCreateProject} className={styles.btn} disabled={!projectName}>
+            <Button onClick={handleCreateProject} className={styles.btn} disabled={!projectName}>
               {t('editor.projects.lbl-createProject')}
             </Button>
           </FormControl>

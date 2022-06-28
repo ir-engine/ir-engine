@@ -236,6 +236,7 @@
       "error-url": "Error Loading From URL",
       "lbl-loopAnimation": "Loop Animation",
       "lbl-isAvatar": "Is Avatar",
+      "lbl-useBasicMaterials": "Use Basic Materials",
       "lbl-isGPUInstancing": "Is Using GPU Instancing",
       "lbl-isDynamic": "Is Dynamic",
       "lbl-castShadow": "Cast Shadow",
@@ -296,6 +297,10 @@
       "info-mask": "'mask' = Use a specified cutoff value for on/off transparency (more performant)",
       "info-alphaCutoff": "Pixels with alpha values lower than this will be transparent",
       "error-url": "Invalid URL"
+    },
+    "screenshare": {
+      "name": "Screenshare Target",
+      "description": "Allows this object to be a target for screeshare projection."
     },
     "name": {
       "lbl-name": "Name"
@@ -385,6 +390,46 @@
       "lbl-intensity": "Intensity",
       "lbl-range": "Range",
       "lbl-decay": "Decay"
+    },
+    "instancing": {
+      "name": "Instancing",
+      "description": "Generates instanced geometry according to input",
+      "count": "Instance Count",
+      "lbl-surface": "Target Surface",
+      "error-surface": "Error occurred finding target surface",
+      "placeholder-surface": "No Target Selected",
+      "lbl-mode": "Instancing Mode",
+      "lbl-load": "Stage",
+      "lbl-unload": "Unstage",
+      "lbl-reload": "Restage",
+      "lbl-options": "Options",
+      "samplingMode": "Sampling Mode",
+      "sampling": { 
+        "properties": "Sampling Properties",
+        "heightMap": "Height Map",
+        "heightMapStrength": "Height Map Strength",
+        "densityMap": "Density Map",
+        "densityMapStrength": "Density Map Strength",
+        "root": "Root Node"
+      },
+      "grass": {
+        "properties": "Grass Properties",
+        "bladeHeight": "Blade Height",
+        "bladeWidth": "Blade Width",
+        "joints": "Blade Joint Count",
+        "alphaMap": "Alpha Map",
+        "texture": "Grass Texture",
+        "ambientStrength": "Ambient Strength",
+        "diffuseStrength": "Diffuse Strength",
+        "shininess": "Shininess",
+        "sunColor": "Sun Color"
+      },
+      "mesh": {
+        "properties": "Mesh Instancing Properties",
+        "instancedMesh": "Instanced Mesh",
+        "error-instancedMesh": "Error loading instanced mesh",
+        "placeholder-instancedMesh": "Select Mesh to Instance"
+      }
     },
     "scene": {
       "name": "Scene",
@@ -524,7 +569,7 @@
       "lbl-locationName": "Location",
       "lbl-modelUrl": "Model URL",
       "lbl-displayText": "Display Text",
-      "lbl-cubemapBake": "Cubemap bake",
+      "lbl-envMapBake": "EnvMap bake",
       "lbl-spawnPosition": "Spawn Position",
       "lbl-spawnRotation": "Spawn Rotation",
       "lbl-triggerPosition": "Trigger Position",
@@ -649,7 +694,10 @@
       "header": "Need to report a problem?",
       "msg": "You can file a <1>GitHub Issue</1> or e-mail us for support at <3>{{mail}}</3>",
       "discord": "You can also find us on <1>Discord</1>"
-    }
+    },
+    "confirmContentDelete": "Do you want to delete this",
+    "file": "file",
+    "folder": "folder"
   },
   "sources": {
     "bingImage": {

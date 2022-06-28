@@ -1,49 +1,45 @@
-/**
- * @author Gleb Ordinsky <glebordinskijj@gmail.com>
- */
-import { createState, useState } from '@speigg/hookstate'
+import { createState } from '@speigg/hookstate'
+
+import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
+import { addActionReceptor, defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
 import { NotificationService } from '../../common/services/NotificationService'
-import { useDispatch } from '../../store'
-import { store } from '../../store'
 
 //State
-const state = createState({
-  webxrnative: false
+const WebxrState = defineState({
+  name: 'WebxrState',
+  initial: () => ({
+    webxrnative: false
+  })
 })
 
-store.receptors.push((action: WebxrNativeActionType): any => {
-  state.batch((s) => {
-    switch (action.type) {
-      case 'SET_WEBXRNATIVE':
+export const WebxrNativeServiceReceptor = (action) => {
+  getState(WebxrState).batch((s) => {
+    matches(action)
+      .when(WebxrNativeAction.setWebXrNative.matches, () => {
         return s.webxrnative.set(false)
-      case 'TOGGLE_WEBXRNATIVE':
+      })
+      .when(WebxrNativeAction.toggleWebXrNative.matches, () => {
         return s.webxrnative.set(!s.webxrnative.value)
-    }
-  }, action.type)
-})
+      })
+  })
+}
 
-export const accessWebxrNativeState = () => state
-export const useWebxrNativeState = () => useState(state)
+export const accessWebxrNativeState = () => getState(WebxrState)
+export const useWebxrNativeState = () => useState(accessWebxrNativeState())
 
 //Service
 export const WebxrNativeService = {
   getWebXrNative: () => {
-    console.log('getWebXrNative Service')
-    const dispatch = useDispatch()
-
     try {
-      dispatch(WebxrNativeAction.setWebXrNative())
+      dispatchAction(WebxrNativeAction.setWebXrNative())
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   },
   changeWebXrNative: () => {
-    console.log('changeWebXrNative Service')
-    const dispatch = useDispatch()
-
     try {
-      dispatch(WebxrNativeAction.tougleWebXrNative())
+      dispatchAction(WebxrNativeAction.toggleWebXrNative())
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
@@ -51,17 +47,11 @@ export const WebxrNativeService = {
 }
 //Action
 
-export const WebxrNativeAction = {
-  setWebXrNative: () => {
-    return {
-      type: 'SET_WEBXRNATIVE' as const
-    }
-  },
-  tougleWebXrNative: () => {
-    return {
-      type: 'TOGGLE_WEBXRNATIVE' as const
-    }
-  }
+export class WebxrNativeAction {
+  static setWebXrNative = defineAction({
+    type: 'SET_WEBXRNATIVE' as const
+  })
+  static toggleWebXrNative = defineAction({
+    type: 'TOGGLE_WEBXRNATIVE' as const
+  })
 }
-
-export type WebxrNativeActionType = ReturnType<typeof WebxrNativeAction[keyof typeof WebxrNativeAction]>

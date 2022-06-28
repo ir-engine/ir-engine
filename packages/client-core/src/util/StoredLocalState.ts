@@ -1,53 +1,55 @@
-import { createState, Downgraded, useState } from '@speigg/hookstate'
+import { Downgraded } from '@speigg/hookstate'
 
-import { store } from '../store'
+import { AuthUser } from '@xrengine/common/src/interfaces/AuthUser'
+import { matches } from '@xrengine/engine/src/common/functions/MatchesUtils'
+import { addActionReceptor, defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
-const state = createState({
-  authData: {} as any
-})
-
-type StateTypes = Partial<typeof state.value>
-
-export const accessStoredLocalState = () => state
-export const useStoredLocalState = () => useState(state) as any as typeof state
-
-if (typeof window !== 'undefined') {
-  const rawState = localStorage.getItem(
-    globalThis.process.env['VITE_LOCAL_STORAGE_KEY'] || 'xrengine-client-store-key-v1'
-  )
-  if (rawState) {
-    const newState = JSON.parse(rawState)
-    //console.log(newState)
-    state.merge(newState)
-  }
-}
-
-store.receptors.push((action: StoredLocalActionType): void => {
-  state.batch((s) => {
-    switch (action.type) {
-      case 'STORE_LOCAL':
-        s.merge(action.newState)
-        localStorage.setItem(
-          globalThis.process.env['VITE_LOCAL_STORAGE_KEY'] || 'xrengine-client-store-key-v1',
-          JSON.stringify(s.attach(Downgraded).value)
-        )
-        return
-    }
+const LocalState = defineState({
+  name: 'LocalState',
+  initial: () => ({
+    authUser: null! as AuthUser
   })
 })
 
-export const StoredLocalAction = {
-  storedLocal: (newState: StateTypes) => {
-    return {
-      type: 'STORE_LOCAL' as const,
-      newState
-    }
-  },
-  restoreLocalData: () => {
-    return {
-      type: 'RESTORE' as const
+export const LocalStateServiceReceptor = (action) => {
+  getState(LocalState).batch((s) => {
+    matches(action).when(StoredLocalAction.storedLocal.matches, (action) => {
+      s.merge(action.newState)
+      const newState = s.attach(Downgraded).value
+      localStorage.setItem(
+        globalThis.process.env['VITE_LOCAL_STORAGE_KEY'] || 'xrengine-client-store-key-v1',
+        JSON.stringify(newState)
+      )
+    })
+  })
+}
+
+export const accessStoredLocalState = () => getState(LocalState)
+export const useStoredLocalState = () => useState(accessStoredLocalState())
+
+export const StoredLocalStoreService = {
+  fetchLocalStoredState: () => {
+    console.log('fetchLocalStoredState')
+    if (typeof window !== 'undefined') {
+      const rawState = localStorage.getItem(
+        globalThis.process.env['VITE_LOCAL_STORAGE_KEY'] || 'xrengine-client-store-key-v1'
+      )
+      if (rawState) {
+        const newState = JSON.parse(rawState)
+        // Don't use dispatch method here, must be synchronous
+        getState(LocalState).merge(newState)
+      }
     }
   }
 }
 
-export type StoredLocalActionType = ReturnType<typeof StoredLocalAction[keyof typeof StoredLocalAction]>
+export class StoredLocalAction {
+  static storedLocal = defineAction({
+    type: 'STORE_LOCAL' as const,
+    newState: matches.object
+  })
+
+  static restoreLocalData = defineAction({
+    type: 'RESTORE' as const
+  })
+}

@@ -1,0 +1,241 @@
+.avatarItem {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  font-family: Roboto, Helvetica, Arial, sans-serif;
+  font-size: 1.25rem;
+  line-height: 1;
+  border-radius: 50%;
+  overflow: hidden;
+  user-select: none;
+  color: var(--textColor);
+  background-color: rgb(189 189 189);
+  margin: 0 10px;
+}
+
+.chatContainer {
+  display: flex;
+  flex-direction: column;
+  width: 500px;
+  margin: 5px 15px 20px 10px;
+  border-radius: 5px;
+  background-color: var(--popupBackground);
+}
+
+.hide {
+  width: 0;
+  overflow: hidden;
+}
+
+.messageList {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  height: 100%;
+  padding: 0 10px;
+  background: transparent;
+}
+
+.messageItem {
+  color: var(--textColor);
+  display: flex;
+  align-items: center;
+  position: relative;
+  text-decoration: none;
+  width: 100%;
+  box-sizing: border-box;
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+
+.messageEnd {
+  justify-content: flex-end;
+  text-align: end;
+}
+
+.messageStart {
+  justify-content: flex-start;
+  text-align: start;
+}
+
+.messageRow {
+  width: 100%;
+  display: flex;
+}
+
+.messageContent {
+  border-radius: 10px 10px 0 0;
+  flex: 1 1 auto;
+  min-width: 0;
+  margin-top: 4px;
+  margin-bottom: 4px;
+}
+
+.messageChild {
+  margin: 0;
+  font-family: Roboto, Helvetica, Arial, sans-serif;
+  font-weight: 400;
+  font-size: 1rem;
+  line-height: 1.5;
+  letter-spacing: 0.0094em;
+  display: block;
+}
+
+.senderName {
+  color: var(--textColor);
+  font-weight: 700;
+}
+
+.senderMessage {
+  margin: 0;
+  padding: 0;
+}
+
+.messageBoxContainer {
+  border-radius: 40px;
+  background: transparent;
+  box-shadow: none;
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.messageInputBox {
+  font: inherit;
+  letter-spacing: inherit;
+  padding: 4px 0 5px;
+  border: 0;
+  box-sizing: content-box;
+  background: none;
+  height: 1.4375em;
+  margin: 5px 10px;
+  display: block;
+  min-width: 0;
+  width: 100%;
+  color: white;
+}
+
+.chatButton {
+  margin: 5px 15px 10px 10px;
+  align-items: center;
+  z-index: 20;
+  border-radius: 50%;
+  color: black;
+  width: 50px;
+  height: 50px;
+  font-size: 20px;
+}
+
+.dFlex {
+  display: flex;
+}
+
+.flexColumn {
+  flex-direction: column;
+}
+
+.mgSmall {
+  margin: 5px 0;
+}
+
+.noMargin {
+  margin: 0 !important;
+}
+
+.selfStart {
+  align-self: flex-start;
+  margin: 10px;
+}
+
+.msgContainer {
+  padding: 10px 12px;
+  border-radius: 15px;
+  max-width: 290px;
+  word-wrap: break-word;
+}
+
+.mx2 {
+  margin: 7px 0;
+}
+
+.selfEnd {
+  align-self: flex-end;
+  margin: 10px;
+}
+
+.msgReplyContainer {
+  background-color: var(--iconButtonHoverColor);
+}
+
+.msgOwner {
+  background-color: var(--mainBackground);
+}
+
+.msgNotification {
+  background-color: transparent;
+}
+
+.text {
+  color: var(--textColor);
+  font-size: 0.9rem;
+  line-height: 1.3;
+}
+
+.greyText {
+  color: #888686;
+  font-size: 0.7rem;
+}
+
+.animateTop {
+  animation: moveBottom 4s ease 4s;
+  animation-fill-mode: backwards;
+}
+
+.animateLeft {
+  animation: moveLeft 4s ease 4s;
+  animation-fill-mode: backwards;
+}
+
+.msgWrapper {
+  display: flex;
+  flex-direction: column;
+  margin-right: 5px;
+}
+
+.sender {
+  color: #fff;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.avatar {
+  height: 40px;
+  width: 40px;
+  background: #3a3a6a;
+}
+
+.sendButton {
+  color: var(--iconButtonColor);
+  background: transparent;
+  padding: 5px;
+  width: 25px;
+  height: 25px;
+  justify-content: center;
+  align-items: center;
+
+  svg {
+    path {
+      fill: var(--iconButtonColor);
+    }
+  }
+
+  &:hover,
+  &:focus-visible {
+    background: var(--iconButtonHoverColor);
+  }
+}

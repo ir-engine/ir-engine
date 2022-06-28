@@ -1,6 +1,8 @@
 import React, { useEffect } from 'react'
 import { useHistory } from 'react-router-dom'
 
+import { dispatchAction } from '@xrengine/hyperflux'
+
 import CloseIcon from '@mui/icons-material/Close'
 import Dialog from '@mui/material/Dialog'
 import DialogContent from '@mui/material/DialogContent'
@@ -8,15 +10,11 @@ import DialogTitle from '@mui/material/DialogTitle'
 import IconButton from '@mui/material/IconButton'
 import Typography from '@mui/material/Typography'
 
-import { useDispatch } from '../../../store'
 import { useDialogState } from '../../services/DialogService'
 import { DialogAction } from '../../services/DialogService'
 import styles from './index.module.scss'
 
-interface Props {}
-
-const DialogComponent = (props: Props): any => {
-  const dispatch = useDispatch()
+const UIDialog = (): JSX.Element => {
   const dialog = useDialogState()
   const isOpened = dialog.isOpened
   const content = dialog.content
@@ -24,13 +22,13 @@ const DialogComponent = (props: Props): any => {
 
   useEffect(() => {
     history.listen(() => {
-      dispatch(DialogAction.dialogClose())
+      dispatchAction(DialogAction.dialogClose())
     })
   }, [])
 
   const handleClose = (e: any): void => {
     e.preventDefault()
-    dispatch(DialogAction.dialogClose())
+    dispatchAction(DialogAction.dialogClose())
   }
 
   return (
@@ -45,9 +43,5 @@ const DialogComponent = (props: Props): any => {
     </Dialog>
   )
 }
-
-const DialogWrapper = (props: Props): JSX.Element => <DialogComponent {...props} />
-
-const UIDialog = DialogWrapper
 
 export default UIDialog

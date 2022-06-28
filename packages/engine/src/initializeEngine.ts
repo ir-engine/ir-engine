@@ -12,9 +12,12 @@ import { Timer } from './common/functions/Timer'
 import { Engine } from './ecs/classes/Engine'
 import { EngineActions, EngineEventReceptor, EngineState } from './ecs/classes/EngineState'
 import { createWorld, destroyWorld } from './ecs/classes/World'
-import { initSystems, SystemModuleType } from './ecs/functions/SystemFunctions'
+import FixedPipelineSystem from './ecs/functions/FixedPipelineSystem'
+import { initSystems, initSystemSync, SystemModuleType } from './ecs/functions/SystemFunctions'
 import { SystemUpdateType } from './ecs/functions/SystemUpdateType'
 import { matchActionOnce } from './networking/functions/matchActionOnce'
+import IncomingActionSystem from './networking/systems/IncomingActionSystem'
+import OutgoingActionSystem from './networking/systems/OutgoingActionSystem'
 import { EngineRenderer } from './renderer/WebGLRendererSystem'
 import { ObjectLayers } from './scene/constants/ObjectLayers'
 import { FontManager } from './xrui/classes/FontManager'
@@ -24,7 +27,7 @@ import { FontManager } from './xrui/classes/FontManager'
  * adds action receptors and creates a new world.
  * @returns {Engine}
  */
-export const createEngine = () => {
+export const createEngine = async () => {
   if (Engine.instance?.currentWorld) {
     destroyWorld(Engine.instance.currentWorld)
   }
@@ -34,6 +37,23 @@ export const createEngine = () => {
   registerState(EngineState)
   addActionReceptor(EngineEventReceptor)
   Engine.instance.engineTimer = Timer(executeWorlds, Engine.instance.tickRate)
+}
+
+export const setupEngineActionSystems = () => {
+  const world = Engine.instance.currentWorld
+  initSystemSync(world, {
+    type: SystemUpdateType.UPDATE,
+    systemFunction: FixedPipelineSystem,
+    args: { tickRate: 60 }
+  })
+  initSystemSync(world, {
+    type: SystemUpdateType.FIXED_EARLY,
+    systemFunction: IncomingActionSystem
+  })
+  initSystemSync(world, {
+    type: SystemUpdateType.FIXED_LATE,
+    systemFunction: OutgoingActionSystem
+  })
 }
 
 /**
@@ -47,6 +67,7 @@ export const initializeBrowser = () => {
   world.audioListener = new AudioListener()
   world.audioListener.context.resume()
   world.camera = new PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 10000)
+  world.scene.add(world.camera)
   world.camera.add(world.audioListener)
   world.camera.layers.disableAll()
   world.camera.layers.enable(ObjectLayers.Scene)
@@ -75,7 +96,6 @@ export const initializeBrowser = () => {
   matchActionOnce(EngineActions.connect.matches, (action: any) => {
     Engine.instance.userId = action.id
   })
-
   EngineRenderer.instance.initialize()
   Engine.instance.engineTimer.start()
 }
@@ -107,27 +127,6 @@ const executeWorlds = (elapsedTime) => {
 }
 
 export const initializeMediaServerSystems = async () => {
-  const coreSystems: SystemModuleType<any>[] = []
-  coreSystems.push(
-    {
-      type: SystemUpdateType.UPDATE,
-      systemModulePromise: import('./ecs/functions/FixedPipelineSystem'),
-      args: { tickRate: 60 }
-    },
-    {
-      type: SystemUpdateType.FIXED_EARLY,
-      systemModulePromise: import('./networking/systems/IncomingActionSystem')
-    },
-    {
-      type: SystemUpdateType.FIXED_LATE,
-      systemModulePromise: import('./networking/systems/OutgoingActionSystem')
-    }
-  )
-
-  const world = Engine.instance.currentWorld
-
-  await initSystems(world, coreSystems)
-
   dispatchAction(EngineActions.initializeEngine({ initialised: true }))
 }
 
@@ -135,19 +134,9 @@ export const initializeCoreSystems = async () => {
   const systemsToLoad: SystemModuleType<any>[] = []
   systemsToLoad.push(
     {
-      type: SystemUpdateType.UPDATE,
-      systemModulePromise: import('./ecs/functions/FixedPipelineSystem'),
-      args: { tickRate: 60 }
-    },
-    {
-      type: SystemUpdateType.FIXED_EARLY,
-      systemModulePromise: import('./networking/systems/IncomingActionSystem')
-    },
-    {
       type: SystemUpdateType.FIXED_LATE,
       systemModulePromise: import('./transform/systems/TransformSystem')
     },
-
     {
       type: SystemUpdateType.FIXED_LATE,
       systemModulePromise: import('./scene/systems/SceneObjectSystem')
@@ -155,10 +144,6 @@ export const initializeCoreSystems = async () => {
     {
       type: SystemUpdateType.FIXED_LATE,
       systemModulePromise: import('./scene/systems/AssetSystem')
-    },
-    {
-      type: SystemUpdateType.FIXED_LATE,
-      systemModulePromise: import('./networking/systems/OutgoingActionSystem')
     }
   )
 
@@ -183,6 +168,10 @@ export const initializeCoreSystems = async () => {
       {
         type: SystemUpdateType.FIXED_LATE,
         systemModulePromise: import('./scene/systems/MaterialOverrideSystem')
+      },
+      {
+        type: SystemUpdateType.FIXED_LATE,
+        systemModulePromise: import('./scene/systems/InstancingSystem')
       }
     )
   }

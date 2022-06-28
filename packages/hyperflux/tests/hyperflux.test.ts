@@ -113,7 +113,7 @@ describe('Hyperflux Unit Tests', () => {
     assert(store.actions.incoming[0].$time <= Date.now())
     assert(store.actions.incoming[0].$cache === false)
     applyIncomingActions(store)
-    assert.equal(store.actions.incomingHistory.length, 1)
+    assert.equal(store.actions.incomingHistory.size, 1)
     assert.equal(store.actions.incoming.length, 0)
     assert.equal(store.actions.outgoing[store.defaultTopic].queue.length, 0)
     clearOutgoingActions(store)
@@ -140,12 +140,12 @@ describe('Hyperflux Unit Tests', () => {
     assert(store.actions.outgoing[store.defaultTopic].queue[0].$time <= Date.now())
     assert(store.actions.outgoing[store.defaultTopic].queue[0].$cache === false)
     applyIncomingActions(store)
-    assert.equal(store.actions.incomingHistory.length, 0)
+    assert.equal(store.actions.incomingHistory.size, 0)
     assert.equal(store.actions.incoming.length, 0)
     assert.equal(store.actions.outgoing[store.defaultTopic].queue.length, 1)
     assert.equal(store.actions.outgoing[store.defaultTopic].history.length, 0)
     clearOutgoingActions(store)
-    assert.equal(store.actions.incomingHistory.length, 0)
+    assert.equal(store.actions.incomingHistory.size, 0)
     assert.equal(store.actions.incoming.length, 0)
     assert.equal(store.actions.outgoing[store.defaultTopic].queue.length, 0)
     assert.equal(store.actions.outgoing[store.defaultTopic].history.length, 1)
@@ -265,21 +265,19 @@ describe('Hyperflux Unit Tests', () => {
     dispatchAction(greet({ $cache: true }), [store.defaultTopic], store)
     dispatchAction(greet({ $cache: true }), [store.defaultTopic], store)
     dispatchAction(greet({ $cache: true }), [store.defaultTopic], store)
-    dispatchAction(greet({ greeting: 'welcome', $cache: true }), [store.defaultTopic], store)
+    let greetAction = greet({ greeting: 'welcome', $cache: true })
+    dispatchAction(greetAction, [store.defaultTopic], store)
     applyIncomingActions(store)
     assert.equal(receivedCount, 10)
     assert.equal(store.actions.cached[store.defaultTopic].length, 5)
-    assert.equal(store.actions.incomingHistory.at(-1)!['greeting'], 'welcome')
+    assert.equal(store.actions.incomingHistory.get(greetAction.$uuid)!['greeting'], 'welcome')
 
-    dispatchAction(
-      greet({ greeting: 'welcome', $cache: { removePrevious: ['greeting'], disable: true } }),
-      [store.defaultTopic],
-      store
-    )
+    greetAction = greet({ greeting: 'welcome', $cache: { removePrevious: ['greeting'], disable: true } })
+    dispatchAction(greetAction, [store.defaultTopic], store)
     applyIncomingActions(store)
     assert.equal(receivedCount, 11)
     assert.equal(store.actions.cached[store.defaultTopic].length, 4)
-    assert.equal(store.actions.incomingHistory.at(-1)!['greeting'], 'welcome')
+    assert.equal(store.actions.incomingHistory.get(greetAction.$uuid)!['greeting'], 'welcome')
 
     dispatchAction(
       greet({ $from: 'differentUser' as UserId, $cache: { removePrevious: true } }),
@@ -360,12 +358,12 @@ describe('Hyperflux Unit Tests', () => {
     assert.equal(store.actions.incoming.length, 4)
     applyIncomingActions(store)
     assert.equal(receivedCount, 4)
-    assert.equal(store.actions.incomingHistory.length, 4)
+    assert.equal(store.actions.incomingHistory.size, 4)
     assert.equal(store.actions.incomingHistoryUUIDs.size, 4)
     store.actions.incoming.push(...store.actions.outgoing[store.defaultTopic].history)
     applyIncomingActions(store)
     assert.equal(receivedCount, 4)
-    assert.equal(store.actions.incomingHistory.length, 4)
+    assert.equal(store.actions.incomingHistory.size, 4)
     assert.equal(store.actions.incomingHistoryUUIDs.size, 4)
   })
 
@@ -397,31 +395,32 @@ describe('Hyperflux Unit Tests', () => {
     assert.equal(store.actions.outgoing[store.defaultTopic].queue.length, 0)
     assert.equal(store.actions.outgoing[store.defaultTopic].history.length, 0)
     assert.equal(store.actions.incoming.length, 4)
-    assert.equal(store.actions.incomingHistory.length, 0)
+    assert.equal(store.actions.incomingHistory.size, 0)
     applyIncomingActions(store)
     assert.equal(receivedCount, 4)
-    assert.equal(store.actions.incomingHistory.length, 4)
+    assert.equal(store.actions.incomingHistory.size, 4)
     assert.equal(store.actions.incomingHistoryUUIDs.size, 4)
     assert.equal(store.actions.outgoing[store.defaultTopic].queue.length, 4)
     assert.equal(store.actions.outgoing[store.defaultTopic].history.length, 0)
     clearOutgoingActions(store)
     assert.equal(store.actions.incoming.length, 0)
     assert.equal(store.actions.outgoing[store.defaultTopic].queue.length, 0)
-    assert.equal(store.actions.incomingHistory.length, 4)
+    assert.equal(store.actions.incomingHistory.size, 4)
     assert.equal(store.actions.incomingHistoryUUIDs.size, 4)
     assert.equal(store.actions.outgoing[store.defaultTopic].history.length, 4)
     assert.equal(store.actions.outgoing[store.defaultTopic].historyUUIDs.size, 4)
-    assert.equal(store.actions.incomingHistory[1], store.actions.outgoing[store.defaultTopic].history[1])
-    assert.equal(store.actions.incomingHistory[2], store.actions.outgoing[store.defaultTopic].history[2])
-    assert.equal(store.actions.incomingHistory[3], store.actions.outgoing[store.defaultTopic].history[3])
-    assert.equal(store.actions.incomingHistory[4], store.actions.outgoing[store.defaultTopic].history[4])
+    const incomingHistory = Array.from(store.actions.incomingHistory.values())
+    assert.equal(incomingHistory[1], store.actions.outgoing[store.defaultTopic].history[1])
+    assert.equal(incomingHistory[2], store.actions.outgoing[store.defaultTopic].history[2])
+    assert.equal(incomingHistory[3], store.actions.outgoing[store.defaultTopic].history[3])
+    assert.equal(incomingHistory[4], store.actions.outgoing[store.defaultTopic].history[4])
     assert.equal(receivedCount, 4)
     store.actions.incoming.push(...store.actions.outgoing[store.defaultTopic].history)
     applyIncomingActions(store)
     assert.equal(receivedCount, 4)
     assert.equal(store.actions.incoming.length, 0)
     assert.equal(store.actions.outgoing[store.defaultTopic].queue.length, 0)
-    assert.equal(store.actions.incomingHistory.length, 4)
+    assert.equal(store.actions.incomingHistory.size, 4)
     assert.equal(store.actions.incomingHistoryUUIDs.size, 4)
     assert.equal(store.actions.outgoing[store.defaultTopic].history.length, 4)
     assert.equal(store.actions.outgoing[store.defaultTopic].historyUUIDs.size, 4)
@@ -438,6 +437,23 @@ describe('Hyperflux Unit Tests', () => {
     const store = createHyperStore({ getDispatchId: () => 'id', getDispatchTime: () => Date.now() })
     registerState(HospitalityState, store)
     assert(store.state.hospitality)
+  })
+
+  it('should be able to optionally have an onCreate callback', () => {
+    const HospitalityState = defineState({
+      name: 'hospitality',
+      initial: () => ({
+        create: false
+      }),
+      onCreate: (s, state) => {
+        assert.equal(s, store)
+        state.create.set(true)
+      }
+    })
+    const store = createHyperStore({ getDispatchId: () => 'id', getDispatchTime: () => Date.now() })
+    registerState(HospitalityState, store)
+    const hospitality = getState(HospitalityState, store).value
+    assert.equal(hospitality.create, true)
   })
 
   it('should be able to get immutable registered state', () => {

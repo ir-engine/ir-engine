@@ -1,49 +1,53 @@
 import { Paginated } from '@feathersjs/feathers'
-import { createState, useState } from '@speigg/hookstate'
 
 import { InstalledRoutesInterface } from '@xrengine/common/src/interfaces/Route'
+import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
+import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
+import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
-import { client } from '../../feathers'
-import { store, useDispatch } from '../../store'
 import { accessAuthState } from '../../user/services/AuthService'
 
 //State
 export const ROUTE_PAGE_LIMIT = 10000
 
-const state = createState({
-  routes: [] as Array<InstalledRoutesInterface>,
-  skip: 0,
-  limit: ROUTE_PAGE_LIMIT,
-  total: 0,
-  retrieving: false,
-  fetched: false,
-  updateNeeded: true,
-  lastFetched: Date.now()
+const AdminRouteState = defineState({
+  name: 'AdminRouteState',
+  initial: () => ({
+    routes: [] as Array<InstalledRoutesInterface>,
+    skip: 0,
+    limit: ROUTE_PAGE_LIMIT,
+    total: 0,
+    retrieving: false,
+    fetched: false,
+    updateNeeded: true,
+    lastFetched: Date.now()
+  })
 })
 
-store.receptors.push((action: RouteActionType): any => {
-  state.batch((s) => {
-    switch (action.type) {
-      case 'ADMIN_ROUTE_INSTALLED_RECEIVED':
-        return s.merge({ routes: action.data, updateNeeded: false })
-    }
-  }, action.type)
-})
+const installedRoutesRetrievedReceptor = (action: typeof AdminRouteActions.installedRoutesRetrieved.matches._TYPE) => {
+  const state = getState(AdminRouteState)
+  return state.merge({ routes: action.data, updateNeeded: false })
+}
 
-export const accessRouteState = () => state
+export const AdminRouteReceptors = {
+  installedRoutesRetrievedReceptor
+}
 
-export const useRouteState = () => useState(state) as any as typeof state
+export const accessRouteState = () => getState(AdminRouteState)
+
+export const useRouteState = () => useState(accessRouteState())
 
 //Service
 export const RouteService = {
   fetchInstalledRoutes: async (incDec?: 'increment' | 'decrement') => {
-    const dispatch = useDispatch()
     const user = accessAuthState().user
     try {
       if (user.userRole.value === 'admin') {
-        const routes = (await client.service('routes-installed').find()) as Paginated<InstalledRoutesInterface>
-        dispatch(RouteActions.installedRoutesRetrievedAction(routes.data))
+        const routes = (await API.instance.client
+          .service('routes-installed')
+          .find()) as Paginated<InstalledRoutesInterface>
+        dispatchAction(AdminRouteActions.installedRoutesRetrieved({ data: routes.data }))
       }
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
@@ -52,13 +56,9 @@ export const RouteService = {
 }
 
 //Action
-export const RouteActions = {
-  installedRoutesRetrievedAction: (data: Array<InstalledRoutesInterface>) => {
-    return {
-      type: 'ADMIN_ROUTE_INSTALLED_RECEIVED' as const,
-      data: data
-    }
-  }
+export class AdminRouteActions {
+  static installedRoutesRetrieved = defineAction({
+    type: 'ADMIN_ROUTE_INSTALLED_RECEIVED' as const,
+    data: matches.array as Validator<unknown, InstalledRoutesInterface[]>
+  })
 }
-
-export type RouteActionType = ReturnType<typeof RouteActions[keyof typeof RouteActions]>

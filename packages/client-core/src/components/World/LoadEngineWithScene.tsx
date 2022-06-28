@@ -1,26 +1,24 @@
 import React, { useState } from 'react'
 import { useHistory } from 'react-router'
 
-import {
-  LocationInstanceConnectionAction,
-  useLocationInstanceConnectionState
-} from '@xrengine/client-core/src/common/services/LocationInstanceConnectionService'
-import { LocationService } from '@xrengine/client-core/src/social/services/LocationService'
-import { useDispatch } from '@xrengine/client-core/src/store'
+import { LocationInstanceConnectionServiceReceptor } from '@xrengine/client-core/src/common/services/LocationInstanceConnectionService'
+import { accessLocationState, LocationService } from '@xrengine/client-core/src/social/services/LocationService'
 import { leaveNetwork } from '@xrengine/client-core/src/transports/SocketWebRTCClientFunctions'
-import { SceneAction, useSceneState } from '@xrengine/client-core/src/world/services/SceneService'
+import {
+  SceneActions,
+  SceneService,
+  SceneServiceReceptor,
+  useSceneState
+} from '@xrengine/client-core/src/world/services/SceneService'
 import multiLogger from '@xrengine/common/src/logger'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineActions, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { WorldNetworkActionReceptor } from '@xrengine/engine/src/networking/functions/WorldNetworkActionReceptor'
 import { teleportToScene } from '@xrengine/engine/src/scene/functions/teleportToScene'
-import { dispatchAction, useHookEffect } from '@xrengine/hyperflux'
+import { addActionReceptor, dispatchAction, removeActionReceptor, useHookEffect } from '@xrengine/hyperflux'
 
 import { AppAction, GeneralStateList } from '../../common/services/AppService'
-import {
-  accessMediaInstanceConnectionState,
-  MediaInstanceConnectionAction
-} from '../../common/services/MediaInstanceConnectionService'
+import { accessMediaInstanceConnectionState } from '../../common/services/MediaInstanceConnectionService'
 import { SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientNetwork'
 import { initClient, loadScene } from './LocationLoadHelper'
 
@@ -28,11 +26,9 @@ const logger = multiLogger.child({ component: 'client-core:world' })
 
 export const LoadEngineWithScene = () => {
   const history = useHistory()
-  const dispatch = useDispatch()
   const engineState = useEngineState()
   const sceneState = useSceneState()
   const [clientReady, setClientReady] = useState(false)
-  const instanceConnectionState = useLocationInstanceConnectionState()
 
   /**
    * initialise the client
@@ -41,6 +37,14 @@ export const LoadEngineWithScene = () => {
     initClient().then(() => {
       setClientReady(true)
     })
+
+    addActionReceptor(SceneServiceReceptor)
+    addActionReceptor(LocationInstanceConnectionServiceReceptor)
+
+    return () => {
+      removeActionReceptor(SceneServiceReceptor)
+      removeActionReceptor(LocationInstanceConnectionServiceReceptor)
+    }
   }, [])
 
   /**
@@ -49,7 +53,10 @@ export const LoadEngineWithScene = () => {
   useHookEffect(() => {
     const sceneData = sceneState.currentScene.value
     if (clientReady && sceneData) {
-      loadScene(sceneData)
+      dispatchAction(AppAction.setAppOnBoardingStep({ onBoardingStep: GeneralStateList.SCENE_LOADING }))
+      loadScene(sceneData).then(() => {
+        dispatchAction(AppAction.setAppOnBoardingStep({ onBoardingStep: GeneralStateList.SCENE_LOADED }))
+      })
     }
   }, [clientReady, sceneState.currentScene])
 
@@ -59,8 +66,8 @@ export const LoadEngineWithScene = () => {
         // if we are coming from another scene, reset our teleporting status
         dispatchAction(EngineActions.setTeleporting({ isTeleporting: false }))
       } else {
-        dispatch(AppAction.setAppOnBoardingStep(GeneralStateList.SUCCESS))
-        dispatch(AppAction.setAppLoaded(true))
+        dispatchAction(AppAction.setAppOnBoardingStep({ onBoardingStep: GeneralStateList.SUCCESS }))
+        dispatchAction(AppAction.setAppLoaded({ loaded: true }))
       }
     }
   }, [engineState.joinedWorld])
@@ -82,7 +89,7 @@ export const LoadEngineWithScene = () => {
 
       const world = Engine.instance.currentWorld
 
-      dispatch(SceneAction.currentSceneChanged(null))
+      dispatchAction(SceneActions.unloadCurrentScene())
       history.push('/location/' + world.activePortal.location)
       LocationService.getLocationByName(world.activePortal.location)
 
@@ -98,7 +105,7 @@ export const LoadEngineWithScene = () => {
       }
 
       // remove all network clients but own (will be updated when new connection is established)
-      WorldNetworkActionReceptor.removeAllNetworkClients(false, world)
+      WorldNetworkActionReceptor.removeAllNetworkPeers(false, world, world.worldNetwork)
 
       teleportToScene()
     }

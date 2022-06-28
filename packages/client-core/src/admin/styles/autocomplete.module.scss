@@ -6,11 +6,12 @@
 }
 
 .inputWrapper {
+  position: relative;
   width: 100%;
   border: 1px solid var(--inputBackground);
   background-color: var(--inputBackground);
   border-radius: 4px;
-  padding: 1px;
+  padding: 5px;
   display: flex;
   flex-wrap: wrap;
 
@@ -26,6 +27,29 @@
     border: 0;
     margin: 0;
     outline: 0;
+    z-index: 1;
+  }
+
+  :global(.MuiOutlinedInput-notchedOutline) {
+    position: absolute;
+    border-color: var(--inputOutline) !important;
+    border-radius: 4px;
+    border-style: solid;
+    border-width: 1px;
+    width: 100%;
+    top: -10px;
+    right: 0;
+    left: 0;
+    bottom: 0;
+    z-index: 0;
+
+    :global(legend) {
+      visibility: visible;
+      font-size: 12px;
+      margin-left: 8px;
+      padding: 0 5px;
+      max-width: fit-content;
+    }
   }
 }
 
@@ -90,6 +114,7 @@
   outline: 0;
   overflow: hidden;
   color: var(--textColor);
+  z-index: 1;
 
   span {
     overflow: hidden;

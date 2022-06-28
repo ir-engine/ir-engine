@@ -1,23 +1,54 @@
-import AliasVortex from './constants/AliasVortex.mat'
-import Caustics from './constants/Caustics.mat'
-import Circuits from './constants/Circuits.mat'
-import Cubes from './constants/Cubes.mat'
-import Fireball from './constants/Fireball.mat'
-import Galaxy from './constants/Galaxy.mat'
-import Generators from './constants/Generators.mat'
-import Noise_1 from './constants/Noise_1.mat'
-import ProteanClouds from './constants/ProteanClouds.mat'
-import VoronoiClouds from './constants/VoronoiClouds.mat'
+import AliasVortex, { DefaultArgs as AliasVortexDefaultArgs } from './constants/AliasVortex.mat'
+import Basic, { DefaultArgs as BasicDefaultArgs } from './constants/Basic.mat'
+import Caustics, { DefaultArgs as CausticsDefaultArgs } from './constants/Caustics.mat'
+import Circuits, { DefaultArgs as CircuitsDefaultArgs } from './constants/Circuits.mat'
+import Cubes, { DefaultArgs as CubesDefaultArgs } from './constants/Cubes.mat'
+import DistanceFade, { DefaultArgs as DistanceFadeDefaultArgs } from './constants/DistanceFade.mat'
+import Galaxy, { DefaultArgs as GalaxyDefaultArgs } from './constants/Galaxy.mat'
+import Generators, { DefaultArgs as GeneratorsDefaultArgs } from './constants/Generators.mat'
+import Lambert, { DefaultArgs as LambertDefaultArgs } from './constants/Lambert.mat'
+import Matcap, { MatcapArgs as MatcapDefaultArgs } from './constants/Matcap.mat'
+import Noise_1, { DefaultArgs as Noise_1DefaultArgs } from './constants/Noise_1.mat'
+import Phong, { DefaultArgs as PhongDefaultArgs } from './constants/Phong.mat'
+import Physical, { DefaultArgs as PhysicalDefaultArgs } from './constants/Physical.mat'
+import Standard, { DefaultArgs as StandardDefaultArgs } from './constants/Standard.mat'
+import Toon, { DefaultArgs as ToonDefaultArgs } from './constants/Toon.mat'
+import VoronoiClouds, { DefaultArgs as VoronoiCloudsDefaultArgs } from './constants/VoronoiClouds.mat'
 
 export const MaterialLibrary = {
   AliasVortex: AliasVortex,
+  Basic: Basic,
   Caustics: Caustics,
   Circuits: Circuits,
   Cubes: Cubes,
-  Fireball: Fireball,
+  DistanceFade: DistanceFade,
   Galaxy: Galaxy,
   Generators: Generators,
+  Lambert: Lambert,
+  Matcap: Matcap,
   Noise_1: Noise_1,
-  ProteanClouds: ProteanClouds,
+  Phong: Phong,
+  Physical: Physical,
+  Standard: Standard,
+  Toon: Toon,
   VoronoiClouds: VoronoiClouds
+}
+
+export const DefaultArguments = {
+  AliasVortex: AliasVortexDefaultArgs,
+  Basic: BasicDefaultArgs,
+  Caustics: CausticsDefaultArgs,
+  Circuits: CircuitsDefaultArgs,
+  Cubes: CubesDefaultArgs,
+  DistanceFade: DistanceFadeDefaultArgs,
+  Galaxy: GalaxyDefaultArgs,
+  Generators: GeneratorsDefaultArgs,
+  Lambert: LambertDefaultArgs,
+  Matcap: MatcapDefaultArgs,
+  Noise_1: Noise_1DefaultArgs,
+  Phong: PhongDefaultArgs,
+  Physical: PhysicalDefaultArgs,
+  Standard: StandardDefaultArgs,
+  Toon: ToonDefaultArgs,
+  VoronoiClouds: VoronoiCloudsDefaultArgs
 }

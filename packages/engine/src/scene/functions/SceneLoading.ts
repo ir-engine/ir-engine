@@ -10,17 +10,11 @@ import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions, getEngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { EntityTreeNode } from '../../ecs/classes/EntityTree'
-import {
-  addComponent,
-  getComponent,
-  getComponentCountOfType,
-  hasComponent
-} from '../../ecs/functions/ComponentFunctions'
+import { addComponent, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { unloadScene } from '../../ecs/functions/EngineFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { addEntityNodeInTree, createEntityNode } from '../../ecs/functions/EntityTreeFunctions'
 import { initSystems, SystemModuleType } from '../../ecs/functions/SystemFunctions'
-import { EngineRendererAction } from '../../renderer/EngineRendererState'
 import { DisableTransformTagComponent } from '../../transform/components/DisableTransformTagComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { EntityNodeComponent } from '../components/EntityNodeComponent'
@@ -135,9 +129,9 @@ export const loadECSData = async (sceneData: SceneJson, assetRoot = undefined): 
  * @param sceneData
  */
 export const loadSceneFromJSON = async (sceneData: SceneJson, sceneSystems: SystemModuleType<any>[]) => {
-  if (getEngineState().sceneLoaded.value) unloadScene(Engine.instance.currentWorld)
+  const world = Engine.instance.currentWorld
 
-  dispatchAction(EngineActions.sceneLoading())
+  EngineActions.sceneLoadingProgress({ progress: 0 })
 
   let promisesCompleted = 0
   const onProgress = () => {
@@ -154,13 +148,16 @@ export const loadSceneFromJSON = async (sceneData: SceneJson, sceneSystems: Syst
   }
   const promises = preCacheAssets(sceneData, onProgress)
 
-  // todo: move these layer enable & disable to loading screen thing or something so they work with portals properly
-  if (!getEngineState().isTeleporting.value) Engine.instance.currentWorld.camera?.layers.disable(ObjectLayers.Scene)
-
   promises.forEach((promise) => promise.then(onComplete))
   await Promise.all(promises)
 
-  initSystems(Engine.instance.currentWorld, sceneSystems)
+  // todo: move these layer enable & disable to loading screen thing or something so they work with portals properly
+  if (!getEngineState().isTeleporting.value) world.camera?.layers.disable(ObjectLayers.Scene)
+
+  // this needs to occur after the asset promises
+  await unloadScene(world)
+
+  await initSystems(world, sceneSystems)
 
   const entityMap = {} as { [key: string]: EntityTreeNode }
 
@@ -175,12 +172,10 @@ export const loadSceneFromJSON = async (sceneData: SceneJson, sceneSystems: Syst
     loadSceneEntity(entityMap[key], sceneData.entities[key])
   })
 
-  const tree = Engine.instance.currentWorld.entityTree
-  addComponent(tree.rootNode.entity, Object3DComponent, { value: Engine.instance.currentWorld.scene })
+  const tree = world.entityTree
+  addComponent(tree.rootNode.entity, Object3DComponent, { value: world.scene })
   addComponent(tree.rootNode.entity, SceneTagComponent, {})
   getComponent(tree.rootNode.entity, EntityNodeComponent).components.push(SCENE_COMPONENT_SCENE_TAG)
-
-  dispatchAction(EngineRendererAction.setPostProcessing(getComponentCountOfType(PostprocessingComponent) > 0))
 
   if (!getEngineState().isTeleporting.value) Engine.instance.currentWorld.camera?.layers.enable(ObjectLayers.Scene)
 

@@ -13,10 +13,9 @@ interface Props {
   search: string
 }
 
-const SentInvite = (props: Props) => {
-  const { search } = props
+const SentInvite = ({ search }: Props) => {
   const [page, setPage] = useState(0)
-  const [popConfirmOpen, setPopConfirmOpen] = useState(false)
+  const [openConfirm, setOpenConfirm] = useState(false)
   const [inviteId, setInviteId] = useState('')
   const [inviteName, setInviteName] = useState('')
   const [rowsPerPage, setRowsPerPage] = useState(INVITE_PAGE_LIMIT)
@@ -29,7 +28,7 @@ const SentInvite = (props: Props) => {
 
   const deleteInvite = () => {
     InviteService.removeInvite(inviteId)
-    handleCloseModal()
+    setOpenConfirm(false)
   }
 
   const handlePageChange = (event: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => {
@@ -47,10 +46,6 @@ const SentInvite = (props: Props) => {
     setPage(0)
   }
 
-  const handleCloseModal = () => {
-    setPopConfirmOpen(false)
-  }
-
   const createData = (id: string, name: string, passcode: string, type: string) => {
     return {
       id,
@@ -60,12 +55,12 @@ const SentInvite = (props: Props) => {
       action: (
         <>
           <a
-            href="#h"
+            href="#"
             className={styles.actionStyle}
             onClick={() => {
-              setPopConfirmOpen(true)
               setInviteId(id)
               setInviteName(name)
+              setOpenConfirm(true)
             }}
           >
             <span className={styles.spanDange}>{t('admin:components.index.delete')}</span>
@@ -93,11 +88,10 @@ const SentInvite = (props: Props) => {
         handleRowsPerPageChange={handleRowsPerPageChange}
       />
       <ConfirmModal
-        popConfirmOpen={popConfirmOpen}
-        handleCloseModal={handleCloseModal}
-        submit={deleteInvite}
-        name={inviteName}
-        label={'invite'}
+        open={openConfirm}
+        description={`${t('admin:components.invite.confirmInviteDelete')} '${inviteName}'?`}
+        onClose={() => setOpenConfirm(false)}
+        onSubmit={deleteInvite}
       />
     </React.Fragment>
   )

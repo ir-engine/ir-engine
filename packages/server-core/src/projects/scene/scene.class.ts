@@ -17,7 +17,7 @@ import { cleanSceneDataCacheURLs, parseSceneDataCacheURLs } from './scene-parser
 
 const NEW_SCENE_NAME = 'New-Scene'
 
-const sceneAssetFiles = ['.scene.json', '.thumbnail.jpeg', '.cubemap.png']
+const sceneAssetFiles = ['.scene.json', '.thumbnail.jpeg', '.envmap.png']
 
 export const getSceneData = async (projectName, sceneName, metadataOnly, internal = false) => {
   const storageProvider = getStorageProvider()
@@ -236,6 +236,9 @@ export class Scene implements ServiceMethods<any> {
         fs.writeFileSync(path.resolve(sceneThumbnailPath), thumbnailBuffer as Buffer)
       }
     }
+
+    // return scene id for update hooks
+    return { sceneId: `${projectName}/${sceneName}` }
   }
 
   // async patch(sceneId: NullableId, data: PatchData, params: Params): Promise<SceneDetailInterface> {}

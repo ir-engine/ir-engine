@@ -13,25 +13,24 @@ import DialogContent from '@mui/material/DialogContent'
 import DialogTitle from '@mui/material/DialogTitle'
 import IconButton from '@mui/material/IconButton'
 
+import { NotificationService } from '../../../common/services/NotificationService'
 import { useAuthState } from '../../../user/services/AuthService'
-import AlertMessage from '../../common/AlertMessage'
 import InputSelect, { InputMenuItem } from '../../common/InputSelect'
 import InputText from '../../common/InputText'
 import { validateForm } from '../../common/validation/formValidation'
-import { BotService } from '../../services/BotsService'
-import { InstanceService, useInstanceState } from '../../services/InstanceService'
-import { LocationService, useLocationState } from '../../services/LocationService'
+import { AdminBotService } from '../../services/BotsService'
+import { AdminInstanceService, useAdminInstanceState } from '../../services/InstanceService'
+import { AdminLocationService, useAdminLocationState } from '../../services/LocationService'
 import styles from '../../styles/admin.module.scss'
 
 interface Props {
   open: boolean
-  handleClose: () => void
   bot?: AdminBot
+  onClose: () => void
 }
 
-const UpdateBot = (props: Props) => {
-  const { open, handleClose, bot } = props
-  const adminInstanceState = useInstanceState()
+const UpdateBot = ({ open, bot, onClose }: Props) => {
+  const adminInstanceState = useAdminInstanceState()
   const [state, setState] = useState({
     name: '',
     description: '',
@@ -44,9 +43,7 @@ const UpdateBot = (props: Props) => {
     location: ''
   })
   const [currentInstance, setCurrentIntance] = useState<Instance[]>([])
-  const [openAlter, setOpenAlter] = useState(false)
-  const [error, setError] = useState('')
-  const adminLocation = useLocationState()
+  const adminLocation = useAdminLocationState()
   const locationData = adminLocation.locations
   const adminInstances = adminInstanceState
   const instanceData = adminInstances.instances
@@ -79,10 +76,11 @@ const UpdateBot = (props: Props) => {
   })
 
   const handleInputChange = (e) => {
-    const names = e.target.name
-    const value = e.target.value
-    let temp = formErrors
-    switch (names) {
+    const { name, value } = e.target
+
+    let temp = { ...formErrors }
+
+    switch (name) {
       case 'name':
         temp.name = value.length < 2 ? t('admin:components.bot.nameCantEmpty') : ''
         break
@@ -96,7 +94,7 @@ const UpdateBot = (props: Props) => {
         break
     }
     setFormErrors(temp)
-    setState({ ...state, [names]: value })
+    setState({ ...state, [name]: value })
   }
 
   const data: Instance[] = instanceData.value.map((element) => {
@@ -122,51 +120,37 @@ const UpdateBot = (props: Props) => {
       description: state.description,
       locationId: state.location
     }
-    let temp = formErrors
-    if (!state.name) {
-      temp.name = t('admin:components.bot.nameCantEmpty')
+
+    let tempErrors = {
+      ...formErrors,
+      name: state.name ? '' : t('admin:components.bot.nameCantEmpty'),
+      description: state.description ? '' : t('admin:components.bot.descriptionCantEmpty'),
+      location: state.location ? '' : t('admin:components.bot.locationCantEmpty')
     }
-    if (!state.description) {
-      temp.description = t('admin:components.bot.descriptionCantEmpty')
-    }
-    if (!state.location) {
-      temp.location = t('admin:components.bot.locationCantEmpty')
-    }
-    setFormErrors(temp)
-    if (validateForm(state, formErrors) && bot) {
-      BotService.updateBotAsAdmin(bot.id, data)
+
+    setFormErrors(tempErrors)
+
+    if (validateForm(state, tempErrors) && bot) {
+      AdminBotService.updateBotAsAdmin(bot.id, data)
       setState({ name: '', description: '', instance: '', location: '' })
       setCurrentIntance([])
-      handleClose()
+      onClose()
     } else {
-      setError(t('admin:components.bot.fillRequiredField'))
-      setOpenAlter(true)
+      NotificationService.dispatchNotify(t('admin:components.bot.fillRequiredField'), { variant: 'error' })
     }
   }
 
   const fetchAdminInstances = () => {
-    InstanceService.fetchAdminInstances()
-  }
-
-  const handleCloseAlter = (event?: React.SyntheticEvent | Event, reason?: string) => {
-    if (reason === 'clickaway') {
-      return
-    }
-    setOpenAlter(false)
+    AdminInstanceService.fetchAdminInstances()
   }
 
   const fetchAdminLocations = () => {
-    LocationService.fetchAdminLocations()
+    AdminLocationService.fetchAdminLocations()
   }
 
   return (
     <div>
-      <Dialog
-        open={open}
-        aria-labelledby="form-dialog-title"
-        classes={{ paper: styles.paperDialog }}
-        onClose={handleClose}
-      >
+      <Dialog open={open} aria-labelledby="form-dialog-title" classes={{ paper: styles.paperDialog }} onClose={onClose}>
         <DialogTitle id="form-dialog-title">{t('admin:components.bot.updateBot')}</DialogTitle>
         <DialogContent>
           <InputText
@@ -193,7 +177,7 @@ const UpdateBot = (props: Props) => {
             menu={locationsMenu}
             onChange={handleInputChange}
             endControl={
-              <IconButton onClick={fetchAdminLocations} size="large">
+              <IconButton onClick={fetchAdminLocations}>
                 <Autorenew style={{ color: 'var(--iconButtonColor)' }} />
               </IconButton>
             }
@@ -206,7 +190,7 @@ const UpdateBot = (props: Props) => {
             menu={instancesMenu}
             onChange={handleInputChange}
             endControl={
-              <IconButton onClick={fetchAdminInstances} size="large">
+              <IconButton onClick={fetchAdminInstances}>
                 <Autorenew style={{ color: 'var(--iconButtonColor)' }} />
               </IconButton>
             }
@@ -220,7 +204,7 @@ const UpdateBot = (props: Props) => {
             onClick={() => {
               setState({ name: '', description: '', instance: '', location: '' })
               setFormErrors({ name: '', description: '', location: '' })
-              handleClose()
+              onClose()
             }}
             className={styles.submitButton}
           >
@@ -237,8 +221,6 @@ const UpdateBot = (props: Props) => {
           </Button>
         </DialogActions>
       </Dialog>
-
-      <AlertMessage open={openAlter} handleClose={handleCloseAlter} severity="warning" message={error} />
     </div>
   )
 }

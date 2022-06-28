@@ -1,42 +1,78 @@
-import { createState, useState } from '@speigg/hookstate'
+import { useEffect } from 'react'
 
 import { SceneData } from '@xrengine/common/src/interfaces/SceneInterface'
+import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
+import { getEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
+import { addActionReceptor, defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
-import { client } from '../../feathers'
-import { store, useDispatch } from '../../store'
+import { API } from '../../API'
+import { loadScene } from '../../components/World/LocationLoadHelper'
+import { accessLocationState } from '../../social/services/LocationService'
 
-const state = createState({
-  currentScene: null as SceneData | null
+const SceneState = defineState({
+  name: 'SceneState',
+  initial: () => ({
+    currentScene: null as SceneData | null
+  })
 })
 
-store.receptors.push((action: SceneActionType): any => {
-  state.batch((s) => {
-    switch (action.type) {
-      case 'SCENE_CHANGED':
-        return s.merge({ currentScene: action.sceneData })
-    }
-  }, action.type)
-})
+export const SceneServiceReceptor = (action) => {
+  getState(SceneState).batch((s) => {
+    matches(action)
+      .when(SceneActions.currentSceneChanged.matches, (action) => {
+        return s.merge({
+          currentScene: action.sceneData
+        })
+      })
+      .when(SceneActions.unloadCurrentScene.matches, (action) => {
+        return s.merge({
+          currentScene: null
+        })
+      })
+  })
+}
 
-export const accessSceneState = () => state
+export const accessSceneState = () => getState(SceneState)
 
-export const useSceneState = () => useState(state) as any as typeof state
+export const useSceneState = () => useState(accessSceneState())
 
 export const SceneService = {
   fetchCurrentScene: async (projectName: string, sceneName: string) => {
-    const sceneData = await client.service('scene').get({ projectName, sceneName, metadataOnly: null }, {})
-    const dispatch = useDispatch()
-    dispatch(SceneAction.currentSceneChanged(sceneData.data))
+    const sceneData = await API.instance.client.service('scene').get({ projectName, sceneName, metadataOnly: null }, {})
+    dispatchAction(SceneActions.currentSceneChanged({ sceneData: sceneData.data }))
+  },
+
+  useAPIListeners: () => {
+    useEffect(() => {
+      const sceneUpdatedListener = async () => {
+        const locationState = accessLocationState()
+        const [projectName, sceneName] = locationState.currentLocation.location.sceneId.value.split('/')
+        const sceneData = await API.instance.client
+          .service('scene')
+          .get({ projectName, sceneName, metadataOnly: null }, {})
+        loadScene(sceneData.data)
+      }
+      // for testing
+      // window.addEventListener('keydown', (ev) => {
+      //   if(ev.code === 'KeyN') sceneUpdatedListener()
+      // })
+
+      API.instance.client.service('scene').on('updated', sceneUpdatedListener)
+
+      return () => {
+        API.instance.client.service('scene').off('updated', sceneUpdatedListener)
+      }
+    }, [])
   }
 }
 
-export const SceneAction = {
-  currentSceneChanged: (sceneData: SceneData | null) => {
-    return {
-      type: 'SCENE_CHANGED' as const,
-      sceneData
-    }
-  }
-}
+export class SceneActions {
+  static currentSceneChanged = defineAction({
+    type: 'location.CURRENT_SCENE_CHANGED',
+    sceneData: matches.object as Validator<unknown, SceneData | null>
+  })
 
-export type SceneActionType = ReturnType<typeof SceneAction[keyof typeof SceneAction]>
+  static unloadCurrentScene = defineAction({
+    type: 'location.UNLOAD_CURRENT_SCENE'
+  })
+}

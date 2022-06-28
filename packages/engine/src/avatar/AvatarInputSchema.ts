@@ -518,16 +518,19 @@ export const handlePhysicsDebugEvent = (entity: Entity, inputKey: InputAlias, in
       WorldNetworkAction.spawnDebugPhysicsObject({
         config: boxDynamicConfig // Any custom config can be provided here
       }),
-      [Engine.instance.currentWorld.worldNetwork.hostId]
+      Engine.instance.currentWorld.worldNetwork.hostId
     )
   } else if (inputKey === PhysicsDebugInput.TOGGLE_PHYSICS_DEBUG) {
-    dispatchAction(EngineRendererAction.setPhysicsDebug(!accessEngineRendererState().physicsDebugEnable.value))
+    dispatchAction(
+      EngineRendererAction.setPhysicsDebug({
+        physicsDebugEnable: !accessEngineRendererState().physicsDebugEnable.value
+      })
+    )
   }
 }
 
 export const createAvatarInput = () => {
   const map: Map<InputAlias | Array<InputAlias>, InputAlias> = new Map()
-  const avatarInputState = accessAvatarInputSettingsState()
   map.set(MouseInput.LeftButton, BaseInput.PRIMARY)
   map.set(MouseInput.RightButton, BaseInput.SECONDARY)
   map.set(MouseInput.MiddleButton, BaseInput.INTERACT)
@@ -547,7 +550,8 @@ export const createAvatarInput = () => {
 
   map.set(GamepadButtons.A, BaseInput.INTERACT)
   map.set(GamepadButtons.B, BaseInput.JUMP)
-  // map.set(GamepadButtons.X, BaseInput.JUMP)
+  map.set(GamepadButtons.X, BaseInput.TOGGLE_MENU_BUTTONS)
+  map.set('Escape', BaseInput.HIDE_MENU_BUTTONS)
   // map.set(GamepadButtons.Y, BaseInput.INTERACT)
   map.set(GamepadButtons.LTrigger, BaseInput.GRAB_LEFT)
   map.set(GamepadButtons.RTrigger, BaseInput.GRAB_RIGHT)

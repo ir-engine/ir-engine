@@ -1,7 +1,7 @@
 import { createState, useState } from '@speigg/hookstate'
 
 export const LoadingSystemState = createState({
-  opacity: 1
+  opacity: 0
 })
 export const accessLoadingSystemState = () => LoadingSystemState
 export const useLoadingSystemState = () =>

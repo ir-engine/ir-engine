@@ -1,39 +1,42 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import FilterListIcon from '@mui/icons-material/FilterList'
+import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Checkbox from '@mui/material/Checkbox'
-import Divider from '@mui/material/Divider'
 import FormControlLabel from '@mui/material/FormControlLabel'
 import Grid from '@mui/material/Grid'
 import IconButton from '@mui/material/IconButton'
-import Menu from '@mui/material/Menu'
-import MenuItem from '@mui/material/MenuItem'
+import Popover from '@mui/material/Popover'
 
 import { useAuthState } from '../../../user/services/AuthService'
-import { useFetchUserRole } from '../../common/hooks/User.hooks'
 import InputSelect, { InputMenuItem } from '../../common/InputSelect'
 import Search from '../../common/Search'
-import { UserRoleService, useUserRoleState } from '../../services/UserRoleService'
-import { UserService } from '../../services/UserService'
+import { AdminUserRoleService, useAdminUserRoleState } from '../../services/UserRoleService'
+import { AdminUserService } from '../../services/UserService'
 import styles from '../../styles/admin.module.scss'
-import UserModal from './CreateUser'
+import UserDrawer, { UserDrawerMode } from './UserDrawer'
 import UserTable from './UserTable'
 
 const Users = () => {
   const [search, setSearch] = useState('')
-  const [userModalOpen, setUserModalOpen] = useState(false)
+  const [openUserDrawer, setOpenUserDrawer] = useState(false)
   const [role, setRole] = useState('')
   const { t } = useTranslation()
   const [checked, setChecked] = useState(false)
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null)
   const openMenu = Boolean(anchorEl)
   const user = useAuthState().user
-  const userRole = useUserRoleState()
+  const userRole = useAdminUserRoleState()
 
-  //Call custom hooks
-  useFetchUserRole(UserRoleService, userRole, user)
+  useEffect(() => {
+    const fetchData = async () => {
+      AdminUserRoleService.fetchUserRole()
+    }
+    const role = userRole ? userRole.updateNeeded.value : false
+    if (role && user.id.value) fetchData()
+  }, [userRole.updateNeeded.value, user.value])
 
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget)
@@ -42,35 +45,23 @@ const Users = () => {
     setAnchorEl(null)
   }
 
-  const openModalCreate = (open: boolean) => (event: React.KeyboardEvent | React.MouseEvent) => {
-    if (
-      event.type === 'keydown' &&
-      ((event as React.KeyboardEvent).key === 'Tab' || (event as React.KeyboardEvent).key === 'Shift')
-    ) {
-      return
-    }
-    setUserModalOpen(open)
-  }
-  const closeViewModal = (open: boolean) => {
-    setUserModalOpen(open)
-  }
   const handleSkipGuests = (e: any) => {
     setChecked(e.target.checked)
-    UserService.setSkipGuests(e.target.checked)
+    AdminUserService.setSkipGuests(e.target.checked)
   }
   const handleChange = (e: any) => {
     setSearch(e.target.value)
   }
 
   const handleChangeRole = (e) => {
-    UserService.setUserRole(e.target.value)
+    AdminUserService.setUserRole(e.target.value)
     setRole(e.target.value)
   }
 
   const resetFilter = () => {
     setChecked(false)
     setRole('')
-    UserService.resetFilter()
+    AdminUserService.resetFilter()
   }
 
   const userRoleData: InputMenuItem[] = userRole.userRole.value.map((el) => {
@@ -86,73 +77,71 @@ const Users = () => {
         <Grid item sm={8} xs={12}>
           <Search text="user" handleChange={handleChange} />
         </Grid>
-        <Grid item sm={3} xs={8}>
-          <Button className={styles.openModalBtn} type="submit" variant="contained" onClick={openModalCreate(true)}>
-            {t('admin:components.user.createNewUser')}
-          </Button>
-        </Grid>
-        <Grid item sm={1} xs={4} style={{ display: 'flex', justifyContent: 'center' }}>
-          <IconButton
-            onClick={handleClick}
-            size="small"
-            sx={{ ml: 2 }}
-            className={styles.filterButton}
-            aria-controls={openMenu ? 'account-menu' : undefined}
-            aria-haspopup="true"
-            aria-expanded={openMenu ? 'true' : undefined}
-          >
-            <FilterListIcon color="info" fontSize="large" />
-          </IconButton>
+        <Grid item sm={4} xs={8}>
+          <Box sx={{ display: 'flex' }}>
+            <Button
+              sx={{ flexGrow: 1 }}
+              className={styles.openModalBtn}
+              type="submit"
+              variant="contained"
+              onClick={() => setOpenUserDrawer(true)}
+            >
+              {t('admin:components.user.createUser')}
+            </Button>
+            <IconButton
+              onClick={handleClick}
+              size="small"
+              sx={{ ml: 1 }}
+              className={styles.filterButton}
+              aria-controls={openMenu ? 'account-menu' : undefined}
+              aria-haspopup="true"
+              aria-expanded={openMenu ? 'true' : undefined}
+            >
+              <FilterListIcon color="info" fontSize="large" />
+            </IconButton>
+          </Box>
         </Grid>
       </Grid>
-      <div className={styles.rootTable}>
-        <UserTable search={search} />
-      </div>
-      <UserModal open={userModalOpen} handleClose={openModalCreate} closeViewModal={closeViewModal} />
-      <Menu
-        anchorEl={anchorEl}
-        id="account-menu"
+      <UserTable className={styles.rootTable} search={search} />
+      <UserDrawer open={openUserDrawer} mode={UserDrawerMode.Create} onClose={() => setOpenUserDrawer(false)} />
+      <Popover
+        classes={{ paper: styles.popover }}
         open={openMenu}
+        anchorEl={anchorEl}
         onClose={handleClose}
-        classes={{ paper: styles.menuPaper }}
+        anchorOrigin={{
+          vertical: 'bottom',
+          horizontal: 'right'
+        }}
         transformOrigin={{ horizontal: 'right', vertical: 'top' }}
-        anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
       >
-        <MenuItem>
-          <FormControlLabel
-            className={styles.checkbox}
-            control={
-              <Checkbox
-                onChange={(e) => handleSkipGuests(e)}
-                name="stereoscopic"
-                className={styles.checkbox}
-                classes={{ checked: styles.checkedCheckbox }}
-                color="primary"
-                checked={checked}
-              />
-            }
-            label={t('admin:components.user.hideGuests') as string}
-          />
-        </MenuItem>
-        <Divider />
-        <label className={styles.spanWhite} style={{ marginLeft: '1rem' }}>
-          Based on user role
-        </label>
-        <MenuItem>
-          <InputSelect
-            name="userRole"
-            label={t('admin:components.user.userRole')}
-            value={role}
-            menu={userRoleData}
-            onChange={handleChangeRole}
-          />
-        </MenuItem>
-        <MenuItem>
-          <Button className={styles.gradientButton} onClick={() => resetFilter()}>
-            <span className={styles.spanWhite}>Reset</span>
-          </Button>
-        </MenuItem>
-      </Menu>
+        <InputSelect
+          name="userRole"
+          sx={{ mb: 1 }}
+          label={t('admin:components.user.userRole')}
+          value={role}
+          menu={userRoleData}
+          onChange={handleChangeRole}
+        />
+        <FormControlLabel
+          className={styles.checkbox}
+          sx={{ mb: 1 }}
+          control={
+            <Checkbox
+              onChange={(e) => handleSkipGuests(e)}
+              name="stereoscopic"
+              className={styles.checkbox}
+              classes={{ checked: styles.checkedCheckbox }}
+              color="primary"
+              checked={checked}
+            />
+          }
+          label={t('admin:components.user.hideGuests') as string}
+        />
+        <Button className={styles.gradientButton} onClick={() => resetFilter()}>
+          Reset
+        </Button>
+      </Popover>
     </div>
   )
 }

@@ -4,9 +4,11 @@ import { useTranslation } from 'react-i18next'
 
 import Box from '@mui/material/Box'
 import FormControl from '@mui/material/FormControl'
+import FormHelperText from '@mui/material/FormHelperText'
 import InputLabel from '@mui/material/InputLabel'
 import MenuItem from '@mui/material/MenuItem'
 import Select from '@mui/material/Select'
+import { SxProps, Theme } from '@mui/material/styles'
 
 import styles from '../styles/admin.module.scss'
 
@@ -18,9 +20,8 @@ interface Props {
   menu: InputMenuItem[]
   error?: string
   disabled?: boolean
-  startAdornment?: React.ReactNode
-  endAdornment?: React.ReactNode
   endControl?: React.ReactNode
+  sx?: SxProps<Theme>
   onChange?: (e: any) => void
 }
 
@@ -29,19 +30,7 @@ export interface InputMenuItem {
   label: string
 }
 
-const InputSelect = ({
-  className,
-  name,
-  label,
-  value,
-  menu,
-  error,
-  disabled,
-  startAdornment,
-  endAdornment,
-  endControl,
-  onChange
-}: Props) => {
+const InputSelect = ({ className, name, label, value, menu, error, disabled, endControl, sx, onChange }: Props) => {
   const { t } = useTranslation()
 
   if (!disabled) {
@@ -49,56 +38,61 @@ const InputSelect = ({
   }
 
   return (
-    <Box sx={{ display: 'flex' }}>
-      <FormControl
-        variant="outlined"
-        className={className ?? styles.selectField}
-        error={error ? true : false}
-        disabled={disabled}
-        size="small"
-        sx={{ flexGrow: 1 }}
-      >
-        <InputLabel>{_.upperFirst(label)}</InputLabel>
-        <Select
-          name={name}
-          value={value}
-          label={_.upperFirst(label)}
+    <Box sx={{ display: 'flex', flexDirection: 'column', mb: 2, ...sx }}>
+      <Box sx={{ display: 'flex' }}>
+        <FormControl
+          variant="outlined"
+          className={className ?? styles.selectField}
+          error={error ? true : false}
           disabled={disabled}
-          fullWidth
-          MenuProps={{ classes: { paper: styles.selectPaper } }}
-          inputProps={{
-            startAdornment: startAdornment,
-            endAdornment: endAdornment
-          }}
-          size={'small'}
-          onChange={onChange}
+          size="small"
+          sx={{ flexGrow: 1 }}
         >
-          <MenuItem
-            value=""
-            disabled
-            classes={{
-              root: styles.menuItem
-            }}
+          <InputLabel>{_.upperFirst(label)}</InputLabel>
+          <Select
+            name={name}
+            value={value}
+            label={_.upperFirst(label)}
+            disabled={disabled}
+            fullWidth
+            displayEmpty
+            MenuProps={{ classes: { paper: styles.selectPaper } }}
+            size={'small'}
+            onChange={onChange}
           >
-            <em>
-              {t('admin:components.common.select')} {label}
-            </em>
-          </MenuItem>
-          {menu.map((el, index) => (
             <MenuItem
-              value={el.value}
-              key={index}
+              value=""
+              disabled
               classes={{
                 root: styles.menuItem
               }}
             >
-              {el.label}
+              <em>
+                {t('admin:components.common.select')} {label}
+              </em>
             </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
+            {menu.map((el, index) => (
+              <MenuItem
+                value={el.value}
+                key={index}
+                classes={{
+                  root: styles.menuItem
+                }}
+              >
+                {el.label}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
 
-      {endControl}
+        {endControl}
+      </Box>
+
+      {error && (
+        <FormControl error>
+          <FormHelperText>{error}</FormHelperText>
+        </FormControl>
+      )}
     </Box>
   )
 }

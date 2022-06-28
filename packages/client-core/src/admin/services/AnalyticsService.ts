@@ -1,72 +1,100 @@
-import { createState, useState } from '@speigg/hookstate'
-
 import { AdminAnalytics, AdminAnalyticsResult } from '@xrengine/common/src/interfaces/AdminAnalyticsData'
+import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
+import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
-import { client } from '../../feathers'
-import { store, useDispatch } from '../../store'
+import { API } from '../../API'
 
 //State
 export const ANALYTICS_PAGE_LIMIT = 100
 
-const state = createState({
-  activeInstances: [] as Array<AdminAnalytics>,
-  activeParties: [] as Array<AdminAnalytics>,
-  instanceUsers: [] as Array<AdminAnalytics>,
-  channelUsers: [] as Array<AdminAnalytics>,
-  activeLocations: [] as Array<AdminAnalytics>,
-  activeScenes: [] as Array<AdminAnalytics>,
-  dailyUsers: [] as Array<AdminAnalytics>,
-  dailyNewUsers: [] as Array<AdminAnalytics>
+const AdminAnalyticsState = defineState({
+  name: 'AdminAnalyticsState',
+  initial: () => ({
+    activeInstances: [] as Array<AdminAnalytics>,
+    activeParties: [] as Array<AdminAnalytics>,
+    instanceUsers: [] as Array<AdminAnalytics>,
+    channelUsers: [] as Array<AdminAnalytics>,
+    activeLocations: [] as Array<AdminAnalytics>,
+    activeScenes: [] as Array<AdminAnalytics>,
+    dailyUsers: [] as Array<AdminAnalytics>,
+    dailyNewUsers: [] as Array<AdminAnalytics>
+  })
 })
 
-store.receptors.push((action: AnalyticsActionType): any => {
-  state.batch((s) => {
-    switch (action.type) {
-      case 'ACTIVE_INSTANCES_FETCHED':
-        return s.merge({
-          activeInstances: action.analytics.data.reverse()
-        })
-      case 'ACTIVE_PARTIES_FETCHED':
-        return s.merge({
-          activeParties: action.analytics.data.reverse()
-        })
-      case 'ACTIVE_LOCATIONS_FETCHED':
-        return s.merge({
-          activeLocations: action.analytics.data.reverse()
-        })
-      case 'ACTIVE_SCENES_FETCHED':
-        return s.merge({
-          activeScenes: action.analytics.data.reverse()
-        })
-      case 'CHANNEL_USERS_FETCHED':
-        return s.merge({
-          channelUsers: action.analytics.data.reverse()
-        })
-      case 'INSTANCE_USERS_FETCHED':
-        return s.merge({
-          instanceUsers: action.analytics.data.reverse()
-        })
-      case 'DAILY_NEW_USERS_FETCHED':
-        return s.merge({
-          dailyNewUsers: action.analytics.data.reverse()
-        })
-      case 'DAILY_USERS_FETCHED':
-        return s.merge({
-          dailyUsers: action.analytics.data.reverse()
-        })
-    }
-  }, action.type)
-})
+const activeInstancesFetchedReceptor = (action: typeof AdminAnalyticsActions.activeInstancesFetched.matches._TYPE) => {
+  const state = getState(AdminAnalyticsState)
+  return state.merge({
+    activeInstances: action.analytics.data.reverse()
+  })
+}
 
-export const accessAnalyticsState = () => state
+const activePartiesFetchedReceptor = (action: typeof AdminAnalyticsActions.activePartiesFetched.matches._TYPE) => {
+  const state = getState(AdminAnalyticsState)
+  return state.merge({
+    activeParties: action.analytics.data.reverse()
+  })
+}
 
-export const useAnalyticsState = () => useState(state) as any as typeof state
+const activeLocationsFetchedReceptor = (action: typeof AdminAnalyticsActions.activeLocationsFetched.matches._TYPE) => {
+  const state = getState(AdminAnalyticsState)
+  return state.merge({
+    activeLocations: action.analytics.data.reverse()
+  })
+}
+
+const activeScenesFetchedReceptor = (action: typeof AdminAnalyticsActions.activeScenesFetched.matches._TYPE) => {
+  const state = getState(AdminAnalyticsState)
+  return state.merge({
+    activeScenes: action.analytics.data.reverse()
+  })
+}
+
+const channelUsersFetchedReceptor = (action: typeof AdminAnalyticsActions.channelUsersFetched.matches._TYPE) => {
+  const state = getState(AdminAnalyticsState)
+  return state.merge({
+    channelUsers: action.analytics.data.reverse()
+  })
+}
+
+const instanceUsersFetchedReceptor = (action: typeof AdminAnalyticsActions.instanceUsersFetched.matches._TYPE) => {
+  const state = getState(AdminAnalyticsState)
+  return state.merge({
+    instanceUsers: action.analytics.data.reverse()
+  })
+}
+
+const dailyNewUsersFetchedReceptor = (action: typeof AdminAnalyticsActions.dailyNewUsersFetched.matches._TYPE) => {
+  const state = getState(AdminAnalyticsState)
+  return state.merge({
+    dailyNewUsers: action.analytics.data.reverse()
+  })
+}
+
+const dailyUsersFetchedReceptor = (action: typeof AdminAnalyticsActions.dailyUsersFetched.matches._TYPE) => {
+  const state = getState(AdminAnalyticsState)
+  return state.merge({
+    dailyUsers: action.analytics.data.reverse()
+  })
+}
+
+export const AdminAnalyticsReceptors = {
+  activeInstancesFetchedReceptor,
+  activePartiesFetchedReceptor,
+  activeLocationsFetchedReceptor,
+  activeScenesFetchedReceptor,
+  channelUsersFetchedReceptor,
+  instanceUsersFetchedReceptor,
+  dailyNewUsersFetchedReceptor,
+  dailyUsersFetchedReceptor
+}
+
+export const accessAdminAnalyticsState = () => getState(AdminAnalyticsState)
+
+export const useAdminAnalyticsState = () => useState(accessAdminAnalyticsState())
 
 //Service
-export const AnalyticsService = {
+export const ADminAnalyticsService = {
   fetchActiveParties: async (startDate?: Date, endDate?: Date) => {
-    const dispatch = useDispatch()
-
     try {
       const query = {
         type: 'activeParties',
@@ -83,17 +111,15 @@ export const AnalyticsService = {
         }
       }
 
-      const activeParties = await client.service('analytics').find({
+      const activeParties = await API.instance.client.service('analytics').find({
         query: query
       })
-      dispatch(AnalyticsAction.activePartiesFetched(activeParties))
+      dispatchAction(AdminAnalyticsActions.activePartiesFetched({ analytics: activeParties }))
     } catch (err) {
       console.log(err)
     }
   },
   fetchActiveInstances: async (startDate?: Date, endDate?: Date) => {
-    const dispatch = useDispatch()
-
     const query = {
       type: 'activeInstances',
       createdAt: undefined as any,
@@ -110,17 +136,15 @@ export const AnalyticsService = {
     }
 
     try {
-      const activeInstances = await client.service('analytics').find({
+      const activeInstances = await API.instance.client.service('analytics').find({
         query: query
       })
-      dispatch(AnalyticsAction.activeInstancesFetched(activeInstances))
+      dispatchAction(AdminAnalyticsActions.activeInstancesFetched({ analytics: activeInstances }))
     } catch (err) {
       console.log(err)
     }
   },
   fetchActiveLocations: async (startDate?: Date, endDate?: Date) => {
-    const dispatch = useDispatch()
-
     try {
       const query = {
         type: 'activeLocations',
@@ -137,17 +161,15 @@ export const AnalyticsService = {
         }
       }
 
-      const activeLocations = await client.service('analytics').find({
+      const activeLocations = await API.instance.client.service('analytics').find({
         query: query
       })
-      dispatch(AnalyticsAction.activeLocationsFetched(activeLocations))
+      dispatchAction(AdminAnalyticsActions.activeLocationsFetched({ analytics: activeLocations }))
     } catch (err) {
       console.log(err)
     }
   },
   fetchActiveScenes: async (startDate?: Date, endDate?: Date) => {
-    const dispatch = useDispatch()
-
     try {
       const query = {
         type: 'activeScenes',
@@ -164,17 +186,15 @@ export const AnalyticsService = {
         }
       }
 
-      const activeScenes = await client.service('analytics').find({
+      const activeScenes = await API.instance.client.service('analytics').find({
         query: query
       })
-      dispatch(AnalyticsAction.activeScenesFetched(activeScenes))
+      dispatchAction(AdminAnalyticsActions.activeScenesFetched({ analytics: activeScenes }))
     } catch (err) {
       console.log(err)
     }
   },
   fetchChannelUsers: async (startDate?: Date, endDate?: Date) => {
-    const dispatch = useDispatch()
-
     try {
       const query = {
         type: 'channelUsers',
@@ -191,17 +211,15 @@ export const AnalyticsService = {
         }
       }
 
-      const channelUsers = await client.service('analytics').find({
+      const channelUsers = await API.instance.client.service('analytics').find({
         query: query
       })
-      dispatch(AnalyticsAction.channelUsersFetched(channelUsers))
+      dispatchAction(AdminAnalyticsActions.channelUsersFetched({ analytics: channelUsers }))
     } catch (err) {
       console.log(err)
     }
   },
   fetchInstanceUsers: async (startDate?: Date, endDate?: Date) => {
-    const dispatch = useDispatch()
-
     try {
       const query = {
         type: 'instanceUsers',
@@ -218,17 +236,15 @@ export const AnalyticsService = {
         }
       }
 
-      const instanceUsers = await client.service('analytics').find({
+      const instanceUsers = await API.instance.client.service('analytics').find({
         query: query
       })
-      dispatch(AnalyticsAction.instanceUsersFetched(instanceUsers))
+      dispatchAction(AdminAnalyticsActions.instanceUsersFetched({ analytics: instanceUsers }))
     } catch (err) {
       console.log(err)
     }
   },
   fetchDailyUsers: async (startDate?: Date, endDate?: Date) => {
-    const dispatch = useDispatch()
-
     try {
       const query = {
         action: 'dailyUsers',
@@ -245,17 +261,15 @@ export const AnalyticsService = {
         }
       }
 
-      const dailyUsers = await client.service('analytics').find({
+      const dailyUsers = await API.instance.client.service('analytics').find({
         query: query
       })
-      dispatch(AnalyticsAction.dailyUsersFetched(dailyUsers))
+      dispatchAction(AdminAnalyticsActions.dailyUsersFetched({ analytics: dailyUsers }))
     } catch (error) {
       console.log(error)
     }
   },
   fetchDailyNewUsers: async (startDate?: Date, endDate?: Date) => {
-    const dispatch = useDispatch()
-
     try {
       const query = {
         action: 'dailyNewUsers',
@@ -272,10 +286,10 @@ export const AnalyticsService = {
         }
       }
 
-      const dailyNewUsers = await client.service('analytics').find({
+      const dailyNewUsers = await API.instance.client.service('analytics').find({
         query: query
       })
-      dispatch(AnalyticsAction.dailyNewUsersFetched(dailyNewUsers))
+      dispatchAction(AdminAnalyticsActions.dailyNewUsersFetched({ analytics: dailyNewUsers }))
     } catch (err) {
       console.log(err)
     }
@@ -283,54 +297,37 @@ export const AnalyticsService = {
 }
 
 //Action
-export const AnalyticsAction = {
-  activePartiesFetched: (analytics: AdminAnalyticsResult) => {
-    return {
-      type: 'ACTIVE_PARTIES_FETCHED' as const,
-      analytics: analytics
-    }
-  },
-  activeInstancesFetched: (analytics: AdminAnalyticsResult) => {
-    return {
-      type: 'ACTIVE_INSTANCES_FETCHED' as const,
-      analytics: analytics
-    }
-  },
-  channelUsersFetched: (analytics: AdminAnalyticsResult) => {
-    return {
-      type: 'CHANNEL_USERS_FETCHED' as const,
-      analytics: analytics
-    }
-  },
-  instanceUsersFetched: (analytics: AdminAnalyticsResult) => {
-    return {
-      type: 'INSTANCE_USERS_FETCHED' as const,
-      analytics: analytics
-    }
-  },
-  activeLocationsFetched: (analytics: AdminAnalyticsResult) => {
-    return {
-      type: 'ACTIVE_LOCATIONS_FETCHED' as const,
-      analytics: analytics
-    }
-  },
-  activeScenesFetched: (analytics: AdminAnalyticsResult) => {
-    return {
-      type: 'ACTIVE_SCENES_FETCHED' as const,
-      analytics: analytics
-    }
-  },
-  dailyUsersFetched: (analytics: AdminAnalyticsResult) => {
-    return {
-      type: 'DAILY_USERS_FETCHED' as const,
-      analytics: analytics
-    }
-  },
-  dailyNewUsersFetched: (analytics: AdminAnalyticsResult) => {
-    return {
-      type: 'DAILY_NEW_USERS_FETCHED' as const,
-      analytics: analytics
-    }
-  }
+export class AdminAnalyticsActions {
+  static activePartiesFetched = defineAction({
+    type: 'ACTIVE_PARTIES_FETCHED' as const,
+    analytics: matches.object as Validator<unknown, AdminAnalyticsResult>
+  })
+  static activeInstancesFetched = defineAction({
+    type: 'ACTIVE_INSTANCES_FETCHED' as const,
+    analytics: matches.object as Validator<unknown, AdminAnalyticsResult>
+  })
+  static channelUsersFetched = defineAction({
+    type: 'CHANNEL_USERS_FETCHED' as const,
+    analytics: matches.object as Validator<unknown, AdminAnalyticsResult>
+  })
+  static instanceUsersFetched = defineAction({
+    type: 'INSTANCE_USERS_FETCHED' as const,
+    analytics: matches.object as Validator<unknown, AdminAnalyticsResult>
+  })
+  static activeLocationsFetched = defineAction({
+    type: 'ACTIVE_LOCATIONS_FETCHED' as const,
+    analytics: matches.object as Validator<unknown, AdminAnalyticsResult>
+  })
+  static activeScenesFetched = defineAction({
+    type: 'ACTIVE_SCENES_FETCHED' as const,
+    analytics: matches.object as Validator<unknown, AdminAnalyticsResult>
+  })
+  static dailyUsersFetched = defineAction({
+    type: 'DAILY_USERS_FETCHED' as const,
+    analytics: matches.object as Validator<unknown, AdminAnalyticsResult>
+  })
+  static dailyNewUsersFetched = defineAction({
+    type: 'DAILY_NEW_USERS_FETCHED' as const,
+    analytics: matches.object as Validator<unknown, AdminAnalyticsResult>
+  })
 }
-export type AnalyticsActionType = ReturnType<typeof AnalyticsAction[keyof typeof AnalyticsAction]>

@@ -13,6 +13,7 @@ import {
   ComponentUpdateFunction
 } from '../../../common/constants/PrefabFunctionType'
 import { isClient } from '../../../common/functions/isClient'
+import { getEngineState } from '../../../ecs/classes/EngineState'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent, removeComponent } from '../../../ecs/functions/ComponentFunctions'
 import { EngineRenderer } from '../../../renderer/WebGLRendererSystem'
@@ -71,6 +72,10 @@ export const deserializeVolumetric: ComponentDeserializeFunction = (
   updateVolumetric(entity, props)
 }
 
+function checkUserInput() {
+  return getEngineState().userHasInteracted.value
+}
+
 export const updateVolumetric: ComponentUpdateFunction = (entity: Entity, properties: VolumetricVideoComponentType) => {
   const obj3d = getComponent(entity, Object3DComponent).value as VolumetricObject3D
   const component = getComponent(entity, VolumetricComponent)
@@ -94,7 +99,7 @@ export const updateVolumetric: ComponentUpdateFunction = (entity: Entity, proper
         playMode: component.playMode as any,
         onMeshBuffering: (_progress) => {},
         onHandleEvent: (type, data) => {
-          if (type == 'videostatus' && data.status == 'initplay') {
+          if (checkUserInput() && type == 'videostatus' && data.status == 'initplay') {
             height = calculateHeight(obj3d)
             height = height * obj3d.scale.y + 1
             step = height / 150
@@ -108,6 +113,7 @@ export const updateVolumetric: ComponentUpdateFunction = (entity: Entity, proper
       removeError(entity, 'error')
 
       obj3d.update = () => {
+        if (!checkUserInput()) return
         if (obj3d.userData.player.hasPlayed) {
           obj3d.userData.player?.handleRender(() => {})
         }
@@ -131,15 +137,15 @@ export const updateVolumetric: ComponentUpdateFunction = (entity: Entity, proper
 
       //setup callbacks
       obj3d.play = () => {
-        obj3d.userData.player.play()
+        if (checkUserInput()) obj3d.userData.player.play()
       }
 
       obj3d.pause = () => {
-        obj3d.userData.player.pause()
+        if (checkUserInput()) obj3d.userData.player.pause()
       }
 
       obj3d.seek = () => {
-        obj3d.userData.player.playOneFrame()
+        if (checkUserInput()) obj3d.userData.player.playOneFrame()
       }
 
       obj3d.callbacks = () => {
@@ -179,6 +185,7 @@ export const prepareVolumetricForGLTFExport: ComponentPrepareForGLTFExportFuncti
 }
 
 export const toggleVolumetric = (entity: Entity): boolean => {
+  if (!checkUserInput()) return false
   const obj3d = getComponent(entity, Object3DComponent)?.value as VolumetricObject3D
   if (!obj3d) return false
 

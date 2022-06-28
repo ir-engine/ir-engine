@@ -13,12 +13,12 @@ import Grid from '@mui/material/Grid'
 import IconButton from '@mui/material/IconButton'
 import Typography from '@mui/material/Typography'
 
+import { NotificationService } from '../../../common/services/NotificationService'
 import { useAuthState } from '../../../user/services/AuthService'
 import AddCommand from '../../common/AddCommand'
-import AlertMessage from '../../common/AlertMessage'
 import ConfirmModal from '../../common/ConfirmModal'
-import { BotCommandService, useBotCommandState } from '../../services/BotsCommand'
-import { BotService, useBotState } from '../../services/BotsService'
+import { AdminBotCommandService, useAdminBotCommandState } from '../../services/BotsCommand'
+import { AdminBotService, useAdminBotState } from '../../services/BotsService'
 import styles from '../../styles/admin.module.scss'
 import UpdateBot from './UpdateBot'
 
@@ -28,10 +28,9 @@ const DisplayBots = () => {
     name: '',
     description: ''
   })
-  const [open, setOpen] = useState(false)
-  const [openModal, setOpenModal] = useState(false)
+  const [openUpdateBot, setOpenUpdateBot] = useState(false)
+  const [openConfirm, setOpenConfirm] = useState(false)
   const [bot, setBot] = useState<AdminBot>()
-  const [popConfirmOpen, setPopConfirmOpen] = useState(false)
   const [botName, setBotName] = useState('')
   const [botId, setBotId] = useState('')
 
@@ -43,37 +42,21 @@ const DisplayBots = () => {
   const handleChange = (panel: string) => (event: React.ChangeEvent<{}>, isExpanded: boolean) => {
     setExpanded(isExpanded ? panel : false)
   }
-  const botAdmin = useBotState()
-  const botCommand = useBotCommandState()
+  const botAdmin = useAdminBotState()
+  const botCommand = useAdminBotCommandState()
   const user = useAuthState().user
   const botAdminData = botAdmin.bots
   const { t } = useTranslation()
 
   useEffect(() => {
     if (user.id.value && botAdmin.updateNeeded.value) {
-      BotService.fetchBotAsAdmin()
+      AdminBotService.fetchBotAsAdmin()
     }
   }, [botAdmin.updateNeeded.value, user?.id?.value])
 
-  const handleOpenModal = (bot) => {
+  const handleOpenUpdateBot = (bot) => {
     setBot(bot)
-    setOpenModal(true)
-  }
-
-  const handleCloseModal = () => {
-    setOpenModal(false)
-  }
-
-  const handleCloseConfirmModal = () => {
-    setPopConfirmOpen(false)
-  }
-
-  const handleClose = (event?: React.SyntheticEvent | Event, reason?: string) => {
-    if (reason === 'clickaway') {
-      return
-    }
-
-    setOpen(false)
+    setOpenUpdateBot(true)
   }
 
   const submitCommandBot = (id: string) => {
@@ -82,7 +65,7 @@ const DisplayBots = () => {
       description: command.description,
       botId: id
     }
-    BotCommandService.createBotCammand(data)
+    AdminBotCommandService.createBotCammand(data)
     setCommand({
       name: '',
       description: ''
@@ -90,16 +73,16 @@ const DisplayBots = () => {
   }
 
   const submitRemoveBot = async () => {
-    await BotService.removeBots(botId)
-    setPopConfirmOpen(false)
+    await AdminBotService.removeBots(botId)
+    setOpenConfirm(false)
   }
 
   const botRefresh = async () => {
-    if (botCommand.updateNeeded.value) await BotService.fetchBotAsAdmin()
+    if (botCommand.updateNeeded.value) await AdminBotService.fetchBotAsAdmin()
   }
 
   const removeCommand = async (id) => {
-    await BotCommandService.removeBotsCommand(id)
+    await AdminBotCommandService.removeBotsCommand(id)
     botRefresh()
   }
 
@@ -108,7 +91,7 @@ const DisplayBots = () => {
       submitCommandBot(id)
       botRefresh()
     } else {
-      setOpen(true)
+      NotificationService.dispatchNotify(t('admin:components.bot.commandRequired'), { variant: 'error' })
     }
   }
 
@@ -151,14 +134,14 @@ const DisplayBots = () => {
                   </Grid>
                   <Grid item xs={4} style={{ display: 'flex' }}>
                     <div style={{ marginLeft: 'auto' }}>
-                      <IconButton onClick={() => handleOpenModal(bot)} size="large">
+                      <IconButton onClick={() => handleOpenUpdateBot(bot)} size="large">
                         <Edit style={{ color: 'var(--iconButtonColor)' }} />
                       </IconButton>
                       <IconButton
                         onClick={() => {
-                          setPopConfirmOpen(true)
                           setBotId(bot.id)
                           setBotName(bot.name)
+                          setOpenConfirm(true)
                         }}
                         size="large"
                       >
@@ -189,21 +172,13 @@ const DisplayBots = () => {
         )
       })}
 
-      <AlertMessage
-        open={open}
-        handleClose={handleClose}
-        severity="warning"
-        message={t('admin:components.bot.commandRequired')}
-      />
-
-      <UpdateBot open={openModal} handleClose={handleCloseModal} bot={bot} />
+      <UpdateBot open={openUpdateBot} onClose={() => setOpenUpdateBot(false)} bot={bot} />
 
       <ConfirmModal
-        popConfirmOpen={popConfirmOpen}
-        handleCloseModal={handleCloseConfirmModal}
-        submit={submitRemoveBot}
-        name={botName}
-        label={'bot'}
+        open={openConfirm}
+        description={`${t('admin:components.bot.confirmBotDelete')} '${botName}'?`}
+        onClose={() => setOpenConfirm(false)}
+        onSubmit={submitRemoveBot}
       />
     </div>
   )

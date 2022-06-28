@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Euler, Quaternion } from 'three'
 
-import { client } from '@xrengine/client-core/src/feathers'
+import { API } from '@xrengine/client-core/src/API'
 import { PortalDetail } from '@xrengine/common/src/interfaces/PortalInterface'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { PortalComponent } from '@xrengine/engine/src/scene/components/PortalComponent'
@@ -46,7 +46,7 @@ export const PortalNodeEditor: EditorComponentType = (props) => {
   const loadPortals = async () => {
     const portalsDetail: PortalDetail[] = []
     try {
-      portalsDetail.push(...(await client.service('portal').find()).data)
+      portalsDetail.push(...(await API.instance.client.service('portal').find()).data)
       console.log('portalsDetail', portalsDetail, props.node.uuid)
     } catch (error) {
       throw new Error(error)
@@ -104,12 +104,12 @@ export const PortalNodeEditor: EditorComponentType = (props) => {
         <BooleanInput onChange={updateProperty(PortalComponent, 'redirect')} value={portalComponent.redirect} />
       </InputGroup>
       {/* TODO */}
-      {/* <InputGroup name="Cubemap Bake" label={t('editor:properties.portal.lbl-cubemapBake')}>
+      {/* <InputGroup name="EnvMap Bake" label={t('editor:properties.portal.lbl-envMapBake')}>
         <SelectInput
           key={props.node.entity}
           options={Engine.instance.currentWorld.scene.children
             .filter((obj: Object3D) => {
-              return (obj as any).nodeName === CubemapBakeportalComponent.nodeName
+              return (obj as any).nodeName === EnvMapBakeportalComponent.nodeName
             })
             .map((obj: Object3D) => {
               return {
@@ -117,8 +117,8 @@ export const PortalNodeEditor: EditorComponentType = (props) => {
                 value: obj.uuid
               }
             })}
-          value={portalComponent.cubemapBakeId}
-          onChange={updateProperty(PortalComponent, 'cubemapBakeId')}
+          value={portalComponent.envMapBakeId}
+          onChange={updateProperty(PortalComponent, 'envMapBakeId')}
         />
       </InputGroup> */}
       <InputGroup name="Spawn Position" label={t('editor:properties.portal.lbl-spawnPosition')}>

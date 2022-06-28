@@ -1,70 +1,67 @@
-import { createState, useState } from '@speigg/hookstate'
-
 import { StaticResource } from '@xrengine/common/src/interfaces/StaticResource'
 import { StaticResourceResult } from '@xrengine/common/src/interfaces/StaticResourceResult'
+import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
+import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
-import { client } from '../../feathers'
-import { store, useDispatch } from '../../store'
+import { API } from '../../API'
 
 //State
 export const USER_PAGE_LIMIT = 100
 
-const state = createState({
-  skip: 0,
-  limit: USER_PAGE_LIMIT,
-  total: 0,
-  retrieving: false,
-  fetched: false,
-  updateNeeded: true,
-  lastFetched: Date.now(),
-  staticResource: [] as Array<StaticResource>
+const AdminStaticResourceState = defineState({
+  name: 'AdminStaticResourceState',
+  initial: () => ({
+    skip: 0,
+    limit: USER_PAGE_LIMIT,
+    total: 0,
+    retrieving: false,
+    fetched: false,
+    updateNeeded: true,
+    lastFetched: Date.now(),
+    staticResource: [] as Array<StaticResource>
+  })
 })
 
-store.receptors.push((action: UserActionType): any => {
-  state.batch((s) => {
-    switch (action.type) {
-      case 'STATIC_RESOURCE_RETRIEVED':
-        return s.merge({
-          staticResource: action.staticResource.data,
-          retrieving: false,
-          updateNeeded: false,
-          fetched: true
-        })
-    }
-  }, action.type)
-})
+const fetchedStaticResourceReceptor = (
+  action: typeof AdminStaticResourceActions.fetchedStaticResource.matches._TYPE
+) => {
+  const state = getState(AdminStaticResourceState)
+  return state.merge({
+    staticResource: action.staticResource.data,
+    retrieving: false,
+    updateNeeded: false,
+    fetched: true
+  })
+}
 
-export const accessStaticResourceState = () => state
+export const AdminStaticResourceReceptors = {
+  fetchedStaticResourceReceptor
+}
 
-export const useStaticResourceState = () => useState(state) as any as typeof state
+export const accessStaticResourceState = () => getState(AdminStaticResourceState)
+
+export const useStaticResourceState = () => useState(accessStaticResourceState())
 
 //Service
-export const staticResourceService = {
+export const AdminStaticResourceService = {
   fetchStaticResource: async () => {
-    const dispatch = useDispatch()
-
     try {
-      const result = await client.service('static-resource').find({
+      const staticResource = await API.instance.client.service('static-resource').find({
         query: {
           staticResourceType: 'avatar'
         }
       })
-      dispatch(StaticResourceAction.fetchedStaticResource(result))
+      dispatchAction(AdminStaticResourceActions.fetchedStaticResource({ staticResource }))
     } catch (error) {
       console.error(error)
-    }
-  },
-  refetchSingleUserAdmin: async () => {}
-}
-
-//Action
-export const StaticResourceAction = {
-  fetchedStaticResource: (data: StaticResourceResult) => {
-    return {
-      type: 'STATIC_RESOURCE_RETRIEVED' as const,
-      staticResource: data
     }
   }
 }
 
-export type UserActionType = ReturnType<typeof StaticResourceAction[keyof typeof StaticResourceAction]>
+//Action
+export class AdminStaticResourceActions {
+  static fetchedStaticResource = defineAction({
+    type: 'STATIC_RESOURCE_RETRIEVED' as const,
+    staticResource: matches.object as Validator<unknown, StaticResourceResult>
+  })
+}

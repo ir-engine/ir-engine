@@ -9,6 +9,24 @@ import { EngineActions, getEngineState } from '../../ecs/classes/EngineState'
 import { AvatarProps } from '../interfaces/WorldState'
 import { WorldNetworkAction } from './WorldNetworkAction'
 
+export type SpectateWorldProps = {
+  highResTimeOrigin: number
+  worldStartTime: number
+  client: { name: string; index: number }
+  cachedActions: Required<Action>[]
+}
+
+export const receiveSpectateWorld = (props: SpectateWorldProps) => {
+  if (!props) return
+  const { highResTimeOrigin, worldStartTime, client, cachedActions } = props
+  console.log('RECEIVED SPECTATE WORLD RESPONSE', highResTimeOrigin, worldStartTime, client, cachedActions)
+  const world = Engine.instance.currentWorld
+
+  for (const action of cachedActions) Engine.instance.store.actions.incoming.push({ ...action, $fromCache: true })
+
+  dispatchAction(WorldNetworkAction.createPeer(client), world.worldNetwork.hostId)
+}
+
 export type JoinWorldProps = {
   highResTimeOrigin: number
   worldStartTime: number
@@ -19,10 +37,7 @@ export type JoinWorldProps = {
 }
 
 export const receiveJoinWorld = (props: JoinWorldProps) => {
-  if (!props) {
-    dispatchAction(EngineActions.connectToWorldTimeout({ instance: true }))
-    return
-  }
+  if (!props) return
   const { highResTimeOrigin, worldStartTime, client, cachedActions, avatarDetail, avatarSpawnPose } = props
   console.log(
     'RECEIVED JOIN WORLD RESPONSE',
@@ -47,7 +62,7 @@ export const receiveJoinWorld = (props: JoinWorldProps) => {
 
   for (const action of cachedActions) Engine.instance.store.actions.incoming.push({ ...action, $fromCache: true })
 
-  dispatchAction(WorldNetworkAction.createClient(client), [world.worldNetwork.hostId])
-  dispatchAction(WorldNetworkAction.spawnAvatar({ parameters: spawnPose }), [world.worldNetwork.hostId])
-  dispatchAction(WorldNetworkAction.avatarDetails({ avatarDetail }), [world.worldNetwork.hostId])
+  dispatchAction(WorldNetworkAction.createPeer(client), world.worldNetwork.hostId)
+  dispatchAction(WorldNetworkAction.spawnAvatar({ parameters: spawnPose }), world.worldNetwork.hostId)
+  dispatchAction(WorldNetworkAction.avatarDetails({ avatarDetail }), world.worldNetwork.hostId)
 }

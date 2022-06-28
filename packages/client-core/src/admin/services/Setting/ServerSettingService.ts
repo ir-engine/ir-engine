@@ -1,51 +1,53 @@
 import { Paginated } from '@feathersjs/feathers'
-import { createState, useState } from '@speigg/hookstate'
 
 import { PatchServerSetting, ServerSetting } from '@xrengine/common/src/interfaces/ServerSetting'
+import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
+import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
+import { API } from '../../../API'
 import { NotificationService } from '../../../common/services/NotificationService'
-import { client } from '../../../feathers'
-import { store, useDispatch } from '../../../store'
 
-//State
-const state = createState({
-  server: [] as Array<ServerSetting>,
-  updateNeeded: true
+const AdminServerSettingsState = defineState({
+  name: 'AdminServerSettingsState',
+  initial: () => ({
+    server: [] as Array<ServerSetting>,
+    updateNeeded: true
+  })
 })
 
-store.receptors.push((action: ServerSettingActionType): any => {
-  state.batch((s) => {
-    switch (action.type) {
-      case 'SETTING_SERVER_DISPLAY':
-        return s.merge({ server: action.serverSettingResult.data, updateNeeded: false })
-      case 'SERVER_SETTING_PATCHED':
-        return s.updateNeeded.set(true)
-    }
-  }, action.type)
-})
+const fetchedSeverInfoReceptor = (action: typeof AdminServerSettingActions.fetchedSeverInfo.matches._TYPE) => {
+  const state = getState(AdminServerSettingsState)
+  return state.merge({ server: action.serverSettings.data, updateNeeded: false })
+}
 
-export const accessServerSettingState = () => state
+const serverSettingPatchedReceptor = (action: typeof AdminServerSettingActions.serverSettingPatched.matches._TYPE) => {
+  const state = getState(AdminServerSettingsState)
+  return state.updateNeeded.set(true)
+}
 
-export const useServerSettingState = () => useState(state) as any as typeof state
+export const ServerSettingReceptors = {
+  fetchedSeverInfoReceptor,
+  serverSettingPatchedReceptor
+}
 
-//Service
+export const accessServerSettingState = () => getState(AdminServerSettingsState)
+
+export const useServerSettingState = () => useState(accessServerSettingState())
+
 export const ServerSettingService = {
   fetchServerSettings: async (inDec?: 'increment' | 'decrement') => {
-    const dispatch = useDispatch()
     try {
-      const server = (await client.service('server-setting').find()) as Paginated<ServerSetting>
-      dispatch(ServerSettingAction.fetchedSeverInfo(server))
+      const serverSettings = (await API.instance.client.service('server-setting').find()) as Paginated<ServerSetting>
+      dispatchAction(AdminServerSettingActions.fetchedSeverInfo({ serverSettings }))
     } catch (err) {
       console.log(err)
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   },
   patchServerSetting: async (data: PatchServerSetting, id: string) => {
-    const dispatch = useDispatch()
-
     try {
-      await client.service('server-setting').patch(id, data)
-      dispatch(ServerSettingAction.serverSettingPatched())
+      await API.instance.client.service('server-setting').patch(id, data)
+      dispatchAction(AdminServerSettingActions.serverSettingPatched())
     } catch (err) {
       console.log(err)
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
@@ -53,18 +55,12 @@ export const ServerSettingService = {
   }
 }
 
-//Action
-export const ServerSettingAction = {
-  fetchedSeverInfo: (serverSettingResult: Paginated<ServerSetting>) => {
-    return {
-      type: 'SETTING_SERVER_DISPLAY' as const,
-      serverSettingResult: serverSettingResult
-    }
-  },
-  serverSettingPatched: () => {
-    return {
-      type: 'SERVER_SETTING_PATCHED' as const
-    }
-  }
+export class AdminServerSettingActions {
+  static fetchedSeverInfo = defineAction({
+    type: 'SETTING_SERVER_DISPLAY' as const,
+    serverSettings: matches.object as Validator<unknown, Paginated<ServerSetting>>
+  })
+  static serverSettingPatched = defineAction({
+    type: 'SERVER_SETTING_PATCHED' as const
+  })
 }
-export type ServerSettingActionType = ReturnType<typeof ServerSettingAction[keyof typeof ServerSettingAction]>

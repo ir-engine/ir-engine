@@ -7,23 +7,22 @@ import { LoadingCircle } from '@xrengine/client-core/src/components/LoadingCircl
 import { LoadEngineWithScene } from '@xrengine/client-core/src/components/World/LoadEngineWithScene'
 import OfflineLocation from '@xrengine/client-core/src/components/World/OfflineLocation'
 import { LocationAction } from '@xrengine/client-core/src/social/services/LocationService'
-import { useDispatch } from '@xrengine/client-core/src/store'
-import { DefaultLocationSystems } from '@xrengine/client-core/src/systems/DefaultLocationSystems'
+import { DefaultLocationSystems } from '@xrengine/client-core/src/world/DefaultLocationSystems'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
+import { dispatchAction } from '@xrengine/hyperflux'
 
 import { loadSceneJsonOffline } from './utils'
 
 const LocationPage = () => {
   const { t } = useTranslation()
   const match = useRouteMatch()
-  const dispatch = useDispatch()
   const engineState = useEngineState()
 
   const params = match.params as any
 
   useEffect(() => {
-    dispatch(LocationAction.setLocationName(`${params.projectName}/${params.sceneName}`))
+    dispatchAction(LocationAction.setLocationName({ locationName: `${params.projectName}/${params.sceneName}` }))
     loadSceneJsonOffline(params.projectName, params.sceneName)
     Engine.instance.injectedSystems.push(...DefaultLocationSystems)
   }, [])

@@ -1,6 +1,11 @@
-import { createState, useState } from '@speigg/hookstate'
+import { matches } from '@xrengine/engine/src/common/functions/MatchesUtils'
+import { defineAction, defineState, getState, useState } from '@xrengine/hyperflux'
 
-import { store } from '../../store'
+/**
+ * @todo
+ *
+ * Rename this service to 'LocationLoadService'
+ */
 
 export enum GeneralStateList {
   START_STATE,
@@ -13,107 +18,82 @@ export enum GeneralStateList {
 }
 
 //State
-const state = createState({
-  loaded: false,
-  inVrMode: false,
-  viewport: {
-    width: 1400,
-    height: 900
-  },
-  onBoardingStep: GeneralStateList.START_STATE,
-  isTutorial: false,
-  loadPercent: 0
+const AppState = defineState({
+  name: 'AppState',
+  initial: () => ({
+    loaded: false,
+    inVrMode: false,
+    viewport: {
+      width: 1400,
+      height: 900
+    },
+    onBoardingStep: GeneralStateList.START_STATE,
+    isTutorial: false,
+    loadPercent: 0
+  })
 })
 
-store.receptors.push((action: AppActionType): void => {
-  state.batch((s) => {
-    switch (action.type) {
-      case 'SET_APP_LOADED':
+export const AppServiceReceptor = (action) => {
+  getState(AppState).batch((s) => {
+    matches(action)
+      .when(AppAction.setAppLoaded.matches, (action) => {
         return s.merge({ loaded: action.loaded })
-      case 'SET_APP_LOADING_PERCENT':
+      })
+      .when(AppAction.setAppLoadPercent.matches, (action) => {
         return s.merge({ loadPercent: action.loadPercent })
-      case 'SET_VIEWPORT_SIZE':
-        return s.merge({ viewport: { width: action.width, height: action.height } })
-      case 'SET_IN_VR_MODE':
-        return s.merge({ inVrMode: action.inVrMode })
-      case 'SET_APP_ONBOARDING_STEP':
+      })
+      .when(AppAction.setAppOnBoardingStep.matches, (action) => {
         return action.onBoardingStep === GeneralStateList.ALL_DONE
           ? s.merge({
               onBoardingStep:
-                action.onBoardingStep >= state.onBoardingStep.value ? action.onBoardingStep : state.onBoardingStep.value
+                action.onBoardingStep >= s.onBoardingStep.value ? action.onBoardingStep : s.onBoardingStep.value
             })
           : action.onBoardingStep === GeneralStateList.SCENE_LOADED
           ? s.merge({
               onBoardingStep:
-                action.onBoardingStep >= state.onBoardingStep.value
-                  ? action.onBoardingStep
-                  : state.onBoardingStep.value,
+                action.onBoardingStep >= s.onBoardingStep.value ? action.onBoardingStep : s.onBoardingStep.value,
               isTutorial: true
             })
           : s.merge({
               onBoardingStep:
-                action.onBoardingStep >= state.onBoardingStep.value
-                  ? action.onBoardingStep
-                  : state.onBoardingStep.value,
+                action.onBoardingStep >= s.onBoardingStep.value ? action.onBoardingStep : s.onBoardingStep.value,
               isTutorial: false
             })
-      case 'SET_APP_SPECIFIC_ONBOARDING_STEP':
+      })
+      .when(AppAction.setAppSpecificOnBoardingStep.matches, (action) => {
         return s.merge({ onBoardingStep: action.onBoardingStep, isTutorial: action.isTutorial })
-      default:
-        break
-    }
-  }, action.type)
-})
+      })
+  })
+}
 
-export const appState = () => state
+export const accessAppState = () => getState(AppState)
 
-export const useAppState = () => useState(state) as any as typeof state as any
+export const useAppState = () => useState(accessAppState())
 
 //Action
 
-export const AppAction = {
+export class AppAction {
   // used for displaying loading screen
-  setAppLoaded: (loaded: boolean) => {
-    return {
-      type: 'SET_APP_LOADED' as const,
-      loaded
-    }
-  },
-  setAppLoadPercent: (loadPercent: number) => {
-    return {
-      type: 'SET_APP_LOADING_PERCENT' as const,
-      loadPercent
-    }
-  },
-  //onboarding progress
-  setAppOnBoardingStep: (onBoardingStep: number) => {
-    return {
-      type: 'SET_APP_ONBOARDING_STEP' as const,
-      onBoardingStep
-    }
-  },
-  //restart tutorial walkthrought
-  setAppSpecificOnBoardingStep: (onBoardingStep: number, isTutorial: boolean) => {
-    return {
-      type: 'SET_APP_SPECIFIC_ONBOARDING_STEP' as const,
-      onBoardingStep,
-      isTutorial
-    }
-  },
-  // used for getting window.innerWidth and height.
-  setViewportSize: (width: number, height: number) => {
-    return {
-      type: 'SET_VIEWPORT_SIZE' as const,
-      width,
-      height
-    }
-  },
-  setAppInVrMode: (inVrMode: boolean) => {
-    return {
-      type: 'SET_IN_VR_MODE' as const,
-      inVrMode
-    }
-  }
-}
+  static setAppLoaded = defineAction({
+    type: 'SET_APP_LOADED' as const,
+    loaded: matches.boolean
+  })
 
-export type AppActionType = ReturnType<typeof AppAction[keyof typeof AppAction]>
+  static setAppLoadPercent = defineAction({
+    type: 'SET_APP_LOADING_PERCENT' as const,
+    loadPercent: matches.number
+  })
+
+  //onboarding progress
+  static setAppOnBoardingStep = defineAction({
+    type: 'SET_APP_ONBOARDING_STEP' as const,
+    onBoardingStep: matches.number
+  })
+
+  //restart tutorial walkthrought
+  static setAppSpecificOnBoardingStep = defineAction({
+    type: 'SET_APP_SPECIFIC_ONBOARDING_STEP' as const,
+    onBoardingStep: matches.number,
+    isTutorial: matches.boolean
+  })
+}

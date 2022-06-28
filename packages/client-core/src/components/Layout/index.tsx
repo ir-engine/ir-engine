@@ -6,14 +6,14 @@ import {
   useClientSettingState
 } from '@xrengine/client-core/src/admin/services/Setting/ClientSettingService'
 import {
-  CoilSettingService,
+  AdminCoilSettingService,
   useCoilSettingState
 } from '@xrengine/client-core/src/admin/services/Setting/CoilSettingService'
 import UIDialog from '@xrengine/client-core/src/common/components/Dialog'
 import UserMenu from '@xrengine/client-core/src/user/components/UserMenu'
-import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import { respawnAvatar } from '@xrengine/engine/src/avatar/functions/respawnAvatar'
 import { isTouchAvailable } from '@xrengine/engine/src/common/functions/DetectFeatures'
+import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 
 import { FullscreenExit, Refresh, ZoomOutMap } from '@mui/icons-material'
@@ -32,16 +32,13 @@ const TouchGamepad = React.lazy(() => import('@xrengine/client-core/src/common/c
 
 interface Props {
   useLoadingScreenOpacity?: boolean
-  login?: boolean
   pageTitle: string
   children?: JSX.Element | JSX.Element[]
   hideVideo?: boolean
   hideFullscreen?: boolean
 }
 
-const Layout = (props: Props): any => {
-  const { pageTitle, children } = props
-  const authUser = useAuthState().authUser
+const Layout = ({ useLoadingScreenOpacity, pageTitle, children, hideVideo, hideFullscreen }: Props): any => {
   const clientSettingState = useClientSettingState()
   const coilSettingState = useCoilSettingState()
   const [clientSetting] = clientSettingState?.client?.value || []
@@ -56,9 +53,12 @@ const Layout = (props: Props): any => {
   const [showBottomIcons, setShowBottomIcons] = useState(true)
   const loadingSystemState = useLoadingSystemState()
   const [showTouchPad, setShowTouchPad] = useState(true)
+
+  const engineState = useEngineState()
+
   useEffect(() => {
     !clientSetting && ClientSettingService.fetchClientSettings()
-    !coilSetting && CoilSettingService.fetchCoil()
+    !coilSetting && AdminCoilSettingService.fetchCoil()
     const topButtonsState = localStorage.getItem('isTopButtonsShown')
     const bottomButtonsState = localStorage.getItem('isBottomButtonsShown')
     if (!topButtonsState) {
@@ -115,8 +115,8 @@ const Layout = (props: Props): any => {
     localStorage.setItem('isBottomButtonsShown', JSON.stringify(!JSON.parse(bottomButtonsState)))
   }
 
-  const useOpacity = typeof props.useLoadingScreenOpacity !== 'undefined' && props.useLoadingScreenOpacity === true
-  const layoutOpacity = useOpacity ? 1 - loadingSystemState.opacity.value : 1
+  const useOpacity = typeof useLoadingScreenOpacity !== 'undefined' && useLoadingScreenOpacity === true
+  const layoutOpacity = useOpacity ? loadingSystemState.opacity.value : 1
   const MediaIconHider = showMediaIcons ? KeyboardDoubleArrowUpIcon : KeyboardDoubleArrowDownIcon
   const BottomIconHider = showBottomIcons ? KeyboardDoubleArrowDownIcon : KeyboardDoubleArrowUpIcon
   // info about current mode to conditional render menus
@@ -156,7 +156,7 @@ const Layout = (props: Props): any => {
           </button>
           <MediaIconsBox animate={showMediaIcons ? styles.animateTop : styles.fadeOutTop} />
           <header className={showMediaIcons ? styles.animateTop : styles.fadeOutTop}>
-            {!props.hideVideo && (
+            {!hideVideo && (
               <>
                 <section className={styles.locationUserMenu}>
                   <PartyVideoWindows />
@@ -183,7 +183,7 @@ const Layout = (props: Props): any => {
 
           {!iOS() && (
             <>
-              {props.hideFullscreen ? null : fullScreenActive ? (
+              {hideFullscreen ? null : fullScreenActive ? (
                 <button
                   type="button"
                   className={`${styles.btn} ${styles.fullScreen} ${
@@ -216,11 +216,13 @@ const Layout = (props: Props): any => {
           >
             <Refresh />
           </button>
-          <InstanceChat
-            animate={styles.animateBottom}
-            hideOtherMenus={hideOtherMenus}
-            setShowTouchPad={setShowTouchPad}
-          />
+          {!engineState.xrSessionStarted.value && (
+            <InstanceChat
+              animate={styles.animateBottom}
+              hideOtherMenus={hideOtherMenus}
+              setShowTouchPad={setShowTouchPad}
+            />
+          )}
         </div>
       </section>
     </div>

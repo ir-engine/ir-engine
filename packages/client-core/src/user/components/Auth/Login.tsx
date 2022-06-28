@@ -7,8 +7,8 @@ import SocialIcon from '@mui/icons-material/Public'
 import Tab from '@mui/material/Tab'
 import Tabs from '@mui/material/Tabs'
 
-import { AuthSettingService } from '../../../admin/services/Setting/AuthSettingService'
-import { useAdminAuthSettingState } from '../../../admin/services/Setting/AuthSettingService'
+import { AuthSettingsService } from '../../../admin/services/Setting/AuthSettingService'
+import { useAuthSettingState } from '../../../admin/services/Setting/AuthSettingService'
 import MagicLinkEmail from './MagicLinkEmail'
 import PasswordLogin from './PasswordLogin'
 import SocialLogin from './SocialLogin'
@@ -32,20 +32,14 @@ interface Props {
   index: number
 }
 
-const TabPanel = (props: Props): JSX.Element => {
-  const { children, value, index } = props
-
+const TabPanel = ({ children, value, index }: Props): JSX.Element => {
   return <Fragment>{value === index && children}</Fragment>
 }
 
 const SignIn = (): JSX.Element => {
-  const authSettingState = useAdminAuthSettingState()
+  const authSettingState = useAuthSettingState()
   const [authSetting] = authSettingState?.authSettings?.value || []
   const [state, setState] = useState(initialState)
-
-  useEffect(() => {
-    !authSetting && AuthSettingService.fetchAuthSetting()
-  }, [])
 
   useEffect(() => {
     if (authSetting) {

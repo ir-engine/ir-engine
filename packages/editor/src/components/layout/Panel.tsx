@@ -84,9 +84,7 @@ export const PanelContent = (styled as any).div`
  *
  *  @author Robert Long
  */
-export const Panel = (props) => {
-  const { icon, title, children, toolbarContent, ...rest } = props
-
+export const Panel = ({ icon, title, children, toolbarContent, ...rest }) => {
   return (
     <PanelContainer {...rest}>
       <PanelToolbar className="toolbar">

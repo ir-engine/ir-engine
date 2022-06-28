@@ -56,6 +56,7 @@ export const useSimpleMaterial = (obj: Object3DWithEntity & Mesh<any, any>): voi
 
   if (!obj.material || !obj.material.color || isBasicMaterial) return
   if (obj.entity && hasComponent(obj.entity, XRUIComponent)) return
+  if (obj.userData.prevMaterial) return
 
   try {
     obj.userData.prevMaterial = obj.material
@@ -386,7 +387,8 @@ export const useStandardMaterial = (obj: Mesh<any, Material>): void => {
   const material = obj.userData.prevMaterial ?? obj.material
 
   if (typeof material === 'undefined') return
-
+  //avoid materials without shadow receiving capabilities
+  if (['MeshBasicMaterial', 'ShaderMaterial', 'RawShaderMaterial'].includes(material.type)) return
   // BPCEM
   if (SceneOptions.instance.boxProjection) {
     material.onBeforeCompile = beforeMaterialCompile(

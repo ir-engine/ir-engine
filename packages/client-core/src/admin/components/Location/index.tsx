@@ -6,26 +6,13 @@ import Grid from '@mui/material/Grid'
 
 import Search from '../../common/Search'
 import styles from '../../styles/admin.module.scss'
-import CreateLocation from './CreateLocation'
+import LocationDrawer, { LocationDrawerMode } from './LocationDrawer'
 import LocationTable from './LocationTable'
 
 const Location = () => {
-  const [locationModalOpen, setLocationModalOpen] = React.useState(false)
+  const [openLocationDrawer, setOpenLocationDrawer] = React.useState(false)
   const [search, setSearch] = React.useState('')
   const { t } = useTranslation()
-
-  const openModalCreate = (open: boolean) => (event: React.KeyboardEvent | React.MouseEvent) => {
-    if (
-      event.type === 'keydown' &&
-      ((event as React.KeyboardEvent).key === 'Tab' || (event as React.KeyboardEvent).key === 'Shift')
-    ) {
-      return
-    }
-    setLocationModalOpen(open)
-  }
-  const closeViewModal = (open: boolean) => {
-    setLocationModalOpen(open)
-  }
 
   const handleChange = (e: any) => {
     setSearch(e.target.value)
@@ -38,15 +25,22 @@ const Location = () => {
           <Search text="location" handleChange={handleChange} />
         </Grid>
         <Grid item xs={12} sm={4}>
-          <Button className={styles.openModalBtn} type="submit" variant="contained" onClick={openModalCreate(true)}>
-            {t('admin:components.locationModal.createNewLocation')}
+          <Button
+            className={styles.openModalBtn}
+            type="submit"
+            variant="contained"
+            onClick={() => setOpenLocationDrawer(true)}
+          >
+            {t('admin:components.locationModal.createLocation')}
           </Button>
         </Grid>
       </Grid>
-      <div className={styles.rootTableWithSearch}>
-        <LocationTable search={search} />
-      </div>
-      <CreateLocation open={locationModalOpen} handleClose={openModalCreate} closeViewModal={closeViewModal} />
+      <LocationTable className={styles.rootTableWithSearch} search={search} />
+      <LocationDrawer
+        open={openLocationDrawer}
+        mode={LocationDrawerMode.Create}
+        onClose={() => setOpenLocationDrawer(false)}
+      />
     </div>
   )
 }
