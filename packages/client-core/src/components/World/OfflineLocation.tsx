@@ -6,6 +6,8 @@ import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { getEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { receiveJoinWorld } from '@xrengine/engine/src/networking/functions/receiveJoinWorld'
+import { WorldNetworkAction } from '@xrengine/engine/src/networking/functions/WorldNetworkAction'
+import { WorldNetworkActionReceptor } from '@xrengine/engine/src/networking/functions/WorldNetworkActionReceptor'
 import { useHookEffect, useState } from '@xrengine/hyperflux'
 
 import { API } from '../../API'
@@ -22,17 +24,16 @@ export const OfflineLocation = () => {
       const userId = authState.authUser.identityProvider.userId.value
       Engine.instance.userId = userId
 
-      Engine.instance.currentWorld._worldHostId = userId
-      Engine.instance.currentWorld.networks.set(userId, new Network(userId))
+      world._worldHostId = userId
+      world.networks.set(userId, new Network(userId))
 
       const index = 1
-      world.userIdToUserIndex.set(userId, index)
-      world.userIndexToUserId.set(index, userId)
-      world.clients.set(userId, {
-        userId: userId,
-        index: index,
-        name: authState.user.name.value
-      })
+      WorldNetworkActionReceptor.receiveCreatePeers(
+        WorldNetworkAction.createPeer({
+          index: index,
+          name: authState.user.name.value
+        })
+      )
 
       const user = await API.instance.client.service('user').get(Engine.instance.userId)
       const avatarDetails = await API.instance.client.service('avatar').get(user.avatarId!)

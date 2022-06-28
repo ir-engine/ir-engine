@@ -298,6 +298,10 @@
       "info-alphaCutoff": "Pixels with alpha values lower than this will be transparent",
       "error-url": "Invalid URL"
     },
+    "screenshare": {
+      "name": "Screenshare Target",
+      "description": "Allows this object to be a target for screeshare projection."
+    },
     "name": {
       "lbl-name": "Name"
     },

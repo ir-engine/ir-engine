@@ -178,7 +178,7 @@ export const generatePhysicsObject = (
           prefab: '',
           parameters: { sceneEntityId: node.uuid, position: transform.position }
         }),
-        [Engine.instance.currentWorld.worldNetwork.hostId]
+        Engine.instance.currentWorld.worldNetwork.hostId
       )
     }
   }

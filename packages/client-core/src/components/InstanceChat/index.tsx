@@ -96,7 +96,7 @@ export const useChatHooks = ({ chatWindowOpen, setUnreadMessages, messageRefInpu
         WorldNetworkAction.setUserTyping({
           typing: false
         }),
-        [Engine.instance.currentWorld.worldNetwork.hostId]
+        Engine.instance.currentWorld.worldNetwork.hostId
       )
     }, 3000)
 
@@ -125,7 +125,7 @@ export const useChatHooks = ({ chatWindowOpen, setUnreadMessages, messageRefInpu
           WorldNetworkAction.setUserTyping({
             typing: true
           }),
-          [Engine.instance.currentWorld.worldNetwork.hostId]
+          Engine.instance.currentWorld.worldNetwork.hostId
         )
       }
     }
@@ -135,7 +135,7 @@ export const useChatHooks = ({ chatWindowOpen, setUnreadMessages, messageRefInpu
           WorldNetworkAction.setUserTyping({
             typing: false
           }),
-          [Engine.instance.currentWorld.worldNetwork.hostId]
+          Engine.instance.currentWorld.worldNetwork.hostId
         )
       }
     }
@@ -150,7 +150,7 @@ export const useChatHooks = ({ chatWindowOpen, setUnreadMessages, messageRefInpu
           WorldNetworkAction.setUserTyping({
             typing: false
           }),
-          [Engine.instance.currentWorld.worldNetwork.hostId]
+          Engine.instance.currentWorld.worldNetwork.hostId
         )
       }
 
@@ -325,63 +325,65 @@ const InstanceChat = ({
         className={styles.backdrop + ' ' + (!chatWindowOpen ? styles.hideBackDrop : '')}
       ></div>
       <div className={styles['instance-chat-container'] + ' ' + (chatWindowOpen ? styles.open : '')}>
-        <div ref={messageRef} className={styles['instance-chat-msg-container']}>
-          <div className={styles['list-container']}>
-            <Card square={true} elevation={0} className={styles['message-wrapper']}>
-              <CardContent className={styles['message-container']}>
-                {sortedMessages &&
-                  sortedMessages.map((message, index, messages) => (
-                    <Fragment key={message.id}>
-                      {!isLeftOrJoinText(message.text) ? (
-                        <div key={message.id} className={`${styles.dFlex} ${styles.flexColumn} ${styles.mgSmall}`}>
-                          <div className={`${styles.selfEnd} ${styles.noMargin}`}>
-                            <div className={styles.dFlex}>
-                              <div className={styles.msgWrapper}>
-                                {messages[index - 1] && isLeftOrJoinText(messages[index - 1].text) ? (
-                                  <h3 className={styles.sender}>{message.sender.name}</h3>
+        {chatWindowOpen && (
+          <div ref={messageRef} className={styles['instance-chat-msg-container']}>
+            <div className={styles['list-container']}>
+              <Card square={true} elevation={0} className={styles['message-wrapper']}>
+                <CardContent className={styles['message-container']}>
+                  {sortedMessages &&
+                    sortedMessages.map((message, index, messages) => (
+                      <Fragment key={message.id}>
+                        {!isLeftOrJoinText(message.text) ? (
+                          <div key={message.id} className={`${styles.dFlex} ${styles.flexColumn} ${styles.mgSmall}`}>
+                            <div className={`${styles.selfEnd} ${styles.noMargin}`}>
+                              <div className={styles.dFlex}>
+                                <div className={styles.msgWrapper}>
+                                  {messages[index - 1] && isLeftOrJoinText(messages[index - 1].text) ? (
+                                    <h3 className={styles.sender}>{message.sender.name}</h3>
+                                  ) : (
+                                    messages[index - 1] &&
+                                    message.senderId !== messages[index - 1].senderId && (
+                                      <h3 className={styles.sender}>{message.sender.name}</h3>
+                                    )
+                                  )}
+                                  <div
+                                    className={`${
+                                      message.senderId !== user?.id.value ? styles.msgReplyContainer : styles.msgOwner
+                                    } ${styles.msgContainer} ${styles.mx2}`}
+                                  >
+                                    <p className={styles.text}>{message.text}</p>
+                                  </div>
+                                </div>
+                                {index !== 0 && messages[index - 1] && isLeftOrJoinText(messages[index - 1].text) ? (
+                                  <Avatar src={getAvatarURLForUser(message.senderId)} className={styles.avatar} />
                                 ) : (
                                   messages[index - 1] &&
                                   message.senderId !== messages[index - 1].senderId && (
-                                    <h3 className={styles.sender}>{message.sender.name}</h3>
+                                    <Avatar src={getAvatarURLForUser(message.senderId)} className={styles.avatar} />
                                   )
                                 )}
-                                <div
-                                  className={`${
-                                    message.senderId !== user?.id.value ? styles.msgReplyContainer : styles.msgOwner
-                                  } ${styles.msgContainer} ${styles.mx2}`}
-                                >
-                                  <p className={styles.text}>{message.text}</p>
-                                </div>
-                              </div>
-                              {index !== 0 && messages[index - 1] && isLeftOrJoinText(messages[index - 1].text) ? (
-                                <Avatar src={getAvatarURLForUser(message.senderId)} className={styles.avatar} />
-                              ) : (
-                                messages[index - 1] &&
-                                message.senderId !== messages[index - 1].senderId && (
+                                {index === 0 && (
                                   <Avatar src={getAvatarURLForUser(message.senderId)} className={styles.avatar} />
-                                )
-                              )}
-                              {index === 0 && (
-                                <Avatar src={getAvatarURLForUser(message.senderId)} className={styles.avatar} />
-                              )}
+                                )}
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      ) : (
-                        <div key={message.id} className={`${styles.selfEnd} ${styles.noMargin}`}>
-                          <div className={styles.dFlex}>
-                            <div className={`${styles.msgNotification} ${styles.mx2}`}>
-                              <p className={styles.greyText}>{message.text}</p>
+                        ) : (
+                          <div key={message.id} className={`${styles.selfEnd} ${styles.noMargin}`}>
+                            <div className={styles.dFlex}>
+                              <div className={`${styles.msgNotification} ${styles.mx2}`}>
+                                <p className={styles.greyText}>{message.text}</p>
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      )}
-                    </Fragment>
-                  ))}
-              </CardContent>
-            </Card>
+                        )}
+                      </Fragment>
+                    ))}
+                </CardContent>
+              </Card>
+            </div>
           </div>
-        </div>
+        )}
         <div className={`${styles['bottom-box']}`}>
           <div className={`${styles['chat-input']} ${chatWindowOpen ? '' : styles.invisible} `}>
             <Card className={styles['chat-view']} style={{ boxShadow: 'none' }}>
@@ -436,7 +438,12 @@ const InstanceChat = ({
               invisible={!unreadMessages}
               anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
             >
-              <Fab className={styles.chatBadge} color="primary" onClick={() => toggleChatWindow()}>
+              <Fab
+                id="openMessagesButton"
+                className={styles.chatBadge}
+                color="primary"
+                onClick={() => toggleChatWindow()}
+              >
                 {!chatWindowOpen ? (
                   <MessageButton />
                 ) : (

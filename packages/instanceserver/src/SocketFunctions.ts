@@ -104,7 +104,7 @@ export const setupSocketFunctions = (network: SocketWebRTCServerNetwork, socket:
 
     socket.on(MessageTypes.ActionData.toString(), (data) => handleIncomingActions(network, socket, data))
 
-    socket.on(MessageTypes.Heartbeat.toString(), () => handleHeartbeat(socket))
+    socket.on(MessageTypes.Heartbeat.toString(), () => handleHeartbeat(network, socket))
 
     socket.on('disconnect', () => handleDisconnect(network, socket))
 

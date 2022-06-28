@@ -144,6 +144,11 @@ import {
   shouldDeserializeScenePreviewCamera,
   updateScenePreviewCamera
 } from './loaders/ScenePreviewCameraFunctions'
+import {
+  deserializeScreenshareTarget,
+  SCENE_COMPONENT_SCREENSHARETARGET,
+  serializeScreenshareTarget
+} from './loaders/ScreenshareTargetFunctions'
 import { deserializeShadow, SCENE_COMPONENT_SHADOW, serializeShadow, updateShadow } from './loaders/ShadowFunctions'
 import {
   deserializeSimpleMaterial,
@@ -477,5 +482,10 @@ export const registerDefaultSceneFunctions = (world: World) => {
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_INSTANCING, {
     deserialize: deserializeInstancing,
     serialize: serializeInstancing
+  })
+
+  world.sceneLoadingRegistry.set(SCENE_COMPONENT_SCREENSHARETARGET, {
+    deserialize: deserializeScreenshareTarget,
+    serialize: serializeScreenshareTarget
   })
 }

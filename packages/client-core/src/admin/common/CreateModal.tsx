@@ -13,17 +13,17 @@ interface Props {
   children: JSX.Element | JSX.Element[]
   text: string
   action: string
-  handleClose: () => void
-  submit: () => void
+  onSubmit: () => void
+  onClose: () => void
 }
 
-const CreateModal = ({ open, children, action, text, handleClose, submit }: Props) => {
+const CreateModal = ({ open, children, action, text, onSubmit, onClose }: Props) => {
   const { t } = useTranslation()
 
   return (
     <Dialog
       open={open}
-      onClose={handleClose}
+      onClose={onClose}
       aria-labelledby="alert-dialog-title"
       aria-describedby="alert-dialog-description"
       classes={{ paper: styles.paperDialog }}
@@ -35,10 +35,10 @@ const CreateModal = ({ open, children, action, text, handleClose, submit }: Prop
       </Typography>
       {children}
       <DialogActions>
-        <Button onClick={handleClose} className={styles.cancelButton}>
+        <Button onClick={onClose} className={styles.cancelButton}>
           {t('admin:components.common.cancel')}
         </Button>
-        <Button className={styles.submitButton} autoFocus onClick={submit}>
+        <Button className={styles.submitButton} autoFocus onClick={onSubmit}>
           {action}
         </Button>
       </DialogActions>

@@ -1,32 +1,22 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-
-import { addActionReceptor, removeActionReceptor } from '@xrengine/hyperflux'
 
 import Button from '@mui/material/Button'
 import Grid from '@mui/material/Grid'
 
 import Search from '../../common/Search'
-import { AdminGroupServiceReceptor } from '../../services/GroupService'
 import styles from '../../styles/admin.module.scss'
-import CreateGroup from './CreateGroup'
+import GroupDrawer, { GroupDrawerMode } from './GroupDrawer'
 import GroupTable from './GroupTable'
 
 const GroupConsole = () => {
-  const [openGroupCreate, setOpenGroupCreate] = useState(false)
+  const [openGroupDrawer, setOpenGroupDrawer] = useState(false)
   const [search, setSearch] = React.useState('')
   const { t } = useTranslation()
 
   const handleChange = (e: any) => {
     setSearch(e.target.value)
   }
-
-  useEffect(() => {
-    addActionReceptor(AdminGroupServiceReceptor)
-    return () => {
-      removeActionReceptor(AdminGroupServiceReceptor)
-    }
-  }, [])
 
   return (
     <React.Fragment>
@@ -40,7 +30,7 @@ const GroupConsole = () => {
               className={styles.openModalBtn}
               type="submit"
               variant="contained"
-              onClick={() => setOpenGroupCreate(true)}
+              onClick={() => setOpenGroupDrawer(true)}
             >
               {t('admin:components.group.createGroup')}
             </Button>
@@ -49,7 +39,7 @@ const GroupConsole = () => {
 
         <GroupTable className={styles.rootTableWithSearch} search={search} />
       </div>
-      <CreateGroup open={openGroupCreate} onClose={() => setOpenGroupCreate(false)} />
+      <GroupDrawer open={openGroupDrawer} mode={GroupDrawerMode.Create} onClose={() => setOpenGroupDrawer(false)} />
     </React.Fragment>
   )
 }

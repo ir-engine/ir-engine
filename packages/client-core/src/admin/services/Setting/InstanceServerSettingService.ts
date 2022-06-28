@@ -15,12 +15,15 @@ const AdminInstanceServerSettingsState = defineState({
   })
 })
 
-export const AdminInstanceServerServiceReceptor = (action) => {
-  getState(AdminInstanceServerSettingsState).batch((s) => {
-    matches(action).when(InstanceServerSettingActions.fetchedInstanceServer.matches, (action) => {
-      return s.merge({ instanceserver: action.instanceServerSettings.data, updateNeeded: false })
-    })
-  })
+const fetchedInstanceServerReceptor = (
+  action: typeof InstanceServerSettingActions.fetchedInstanceServer.matches._TYPE
+) => {
+  const state = getState(AdminInstanceServerSettingsState)
+  return state.merge({ instanceserver: action.instanceServerSettings.data, updateNeeded: false })
+}
+
+export const AdminInstanceServerReceptors = {
+  fetchedInstanceServerReceptor
 }
 
 export const accessInstanceServerSettingState = () => getState(AdminInstanceServerSettingsState)

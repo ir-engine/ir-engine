@@ -76,10 +76,11 @@ const UpdateBot = ({ open, bot, onClose }: Props) => {
   })
 
   const handleInputChange = (e) => {
-    const names = e.target.name
-    const value = e.target.value
-    let temp = formErrors
-    switch (names) {
+    const { name, value } = e.target
+
+    let temp = { ...formErrors }
+
+    switch (name) {
       case 'name':
         temp.name = value.length < 2 ? t('admin:components.bot.nameCantEmpty') : ''
         break
@@ -93,7 +94,7 @@ const UpdateBot = ({ open, bot, onClose }: Props) => {
         break
     }
     setFormErrors(temp)
-    setState({ ...state, [names]: value })
+    setState({ ...state, [name]: value })
   }
 
   const data: Instance[] = instanceData.value.map((element) => {
@@ -119,18 +120,17 @@ const UpdateBot = ({ open, bot, onClose }: Props) => {
       description: state.description,
       locationId: state.location
     }
-    let temp = formErrors
-    if (!state.name) {
-      temp.name = t('admin:components.bot.nameCantEmpty')
+
+    let tempErrors = {
+      ...formErrors,
+      name: state.name ? '' : t('admin:components.bot.nameCantEmpty'),
+      description: state.description ? '' : t('admin:components.bot.descriptionCantEmpty'),
+      location: state.location ? '' : t('admin:components.bot.locationCantEmpty')
     }
-    if (!state.description) {
-      temp.description = t('admin:components.bot.descriptionCantEmpty')
-    }
-    if (!state.location) {
-      temp.location = t('admin:components.bot.locationCantEmpty')
-    }
-    setFormErrors(temp)
-    if (validateForm(state, formErrors) && bot) {
+
+    setFormErrors(tempErrors)
+
+    if (validateForm(state, tempErrors) && bot) {
       AdminBotService.updateBotAsAdmin(bot.id, data)
       setState({ name: '', description: '', instance: '', location: '' })
       setCurrentIntance([])
@@ -177,7 +177,7 @@ const UpdateBot = ({ open, bot, onClose }: Props) => {
             menu={locationsMenu}
             onChange={handleInputChange}
             endControl={
-              <IconButton onClick={fetchAdminLocations} size="large">
+              <IconButton onClick={fetchAdminLocations}>
                 <Autorenew style={{ color: 'var(--iconButtonColor)' }} />
               </IconButton>
             }
@@ -190,7 +190,7 @@ const UpdateBot = ({ open, bot, onClose }: Props) => {
             menu={instancesMenu}
             onChange={handleInputChange}
             endControl={
-              <IconButton onClick={fetchAdminInstances} size="large">
+              <IconButton onClick={fetchAdminInstances}>
                 <Autorenew style={{ color: 'var(--iconButtonColor)' }} />
               </IconButton>
             }

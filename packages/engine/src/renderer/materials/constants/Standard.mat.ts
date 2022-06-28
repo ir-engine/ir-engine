@@ -8,7 +8,7 @@ import { ColorArg, FloatArg, NormalizedFloatArg, TextureArg } from './DefaultArg
 export const DefaultArgs = {
   ...BasicArgs,
   emissive: ColorArg,
-  emissiveIntensity: { ...FloatArg, default: 1 },
+  emissiveIntensity: { ...FloatArg, default: 0 },
   emissiveMap: TextureArg,
   envMapIntensity: { ...NormalizedFloatArg, default: 0.1 },
   normalMap: TextureArg,
