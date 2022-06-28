@@ -122,7 +122,7 @@ export class Party<T = PartyDataType> extends Service<T> {
 
       const party: any = await super.get(partyId)
 
-      const partyUsers = await (this.app.service('party-user') as any).Model.findAll({
+      party.partyUsers = await (this.app.service('party-user') as any).Model.findAll({
         where: {
           partyId: party.id
         },
@@ -132,22 +132,6 @@ export class Party<T = PartyDataType> extends Service<T> {
           }
         ]
       })
-      // await Promise.all(partyUsers.map(async (partyUser) => {
-      //   const avatarResult = await this.app.service('static-resource').find({
-      //     query: {
-      //       staticResourceType: 'user-thumbnail',
-      //       userId: partyUser.userId
-      //     }
-      //   }) as any;
-      //
-      //   if (avatarResult.total > 0) {
-      //     partyUser.dataValues.user.dataValues.avatarUrl = avatarResult.data[0].url;
-      //   }
-      //
-      //   return await Promise.resolve();
-      // }));
-
-      party.partyUsers = partyUsers
 
       return party
     } else {

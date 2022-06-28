@@ -33,6 +33,7 @@ export default {
     ],
     create: [],
     update: [
+      messagePermissionAuthenticate(),
       addAssociations({
         models: [
           {

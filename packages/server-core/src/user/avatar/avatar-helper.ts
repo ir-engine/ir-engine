@@ -7,7 +7,7 @@ import { CommonKnownContentTypes } from '@xrengine/common/src/utils/CommonKnownC
 
 import { Application } from '../../../declarations'
 import logger from '../../logger'
-import { addGenericAssetToS3AndStaticResources } from '../../media/upload-media/upload-asset.service'
+import { addGenericAssetToS3AndStaticResources } from '../../media/upload-asset/upload-asset.service'
 
 export type AvatarUploadArguments = {
   avatar: Buffer
