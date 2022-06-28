@@ -233,7 +233,9 @@ export async function onConnectToMediaInstance(network: SocketWebRTCClientNetwor
         MediaStreamService.triggerUpdateNearbyLayerUsers()
         UserService.getLayerUsers(true)
         const channelConnectionState = accessMediaInstanceConnectionState()
-        const currentChannelInstanceConnection = channelConnectionState.instances[network.hostId]
+        const currentChannelInstanceConnection = channelConnectionState.instances[network.hostId]?.ornull
+        console.log({ currentChannelInstanceConnection })
+        if (!currentChannelInstanceConnection?.value) return
         await network.request(MessageTypes.WebRTCRequestCurrentProducers.toString(), {
           userIds: MediaStreams.instance.nearbyLayerUsers || [],
           channelType: currentChannelInstanceConnection.channelType.value,
@@ -924,11 +926,11 @@ export async function leaveNetwork(network: SocketWebRTCClientNetwork, kicked?: 
       Engine.instance.currentWorld._mediaHostId = null!
       dispatchAction(MediaInstanceConnectionAction.disconnect({ instanceId: network.hostId }))
     } else {
+      WorldNetworkActionReceptor.removeAllNetworkPeers(false, Engine.instance.currentWorld, network)
       Engine.instance.currentWorld.networks.delete(network.hostId)
       Engine.instance.currentWorld._worldHostId = null!
       dispatchAction(LocationInstanceConnectionAction.disconnect({ instanceId: network.hostId }))
       dispatchAction(EngineActions.connectToWorld({ connectedWorld: false }))
-      WorldNetworkActionReceptor.removeAllNetworkPeers(false, Engine.instance.currentWorld, network)
     }
     removeTopic(network.hostId)
   } catch (err) {

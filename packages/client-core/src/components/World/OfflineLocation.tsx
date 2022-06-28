@@ -31,7 +31,8 @@ export const OfflineLocation = () => {
       WorldNetworkActionReceptor.receiveCreatePeers(
         WorldNetworkAction.createPeer({
           index: index,
-          name: authState.user.name.value
+          name: authState.user.name.value,
+          $topic: userId
         })
       )
 
