@@ -99,7 +99,7 @@ export const UserService = {
   getUserRelationship: async (userId: string) => {
     API.instance.client
       .service('user-relationship')
-      .findAll({
+      .find({
         query: {
           userId
         }
@@ -116,8 +116,7 @@ export const UserService = {
     const search = window.location.search
     let instanceId
     if (search != null) {
-      const parsed = new URL(window.location.href).searchParams.get('instanceId')
-      instanceId = parsed
+      instanceId = new URL(window.location.href).searchParams.get('instanceId')
     }
     const layerUsers = (await API.instance.client.service('user').find({
       query: {

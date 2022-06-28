@@ -213,10 +213,6 @@ export const Debug = () => {
           <h1>{t('common:debug.networks')}</h1>
           <JSONTree data={{ ...networks }} />
         </div>
-        <div className={styles.jsonPanel}>
-          <h1>{t('common:debug.networkClients')}</h1>
-          <JSONTree data={Object.fromEntries(Engine.instance.currentWorld.clients.entries())} />
-        </div>
       </div>
     )
   else return null

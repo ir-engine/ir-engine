@@ -4,6 +4,7 @@ import { Group, Quaternion, Vector3 } from 'three'
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 
+import { createMockNetwork } from '../../../tests/util/createMockNetwork'
 import { roundNumberToPlaces } from '../../common/functions/roundVector'
 import { createQuaternionProxy, createVector3Proxy } from '../../common/proxies/three'
 import { Engine } from '../../ecs/classes/Engine'
@@ -34,6 +35,7 @@ import { createViewCursor, readFloat32, readUint8, readUint16, readUint32, slice
 describe('DataWriter', () => {
   before(() => {
     createEngine()
+    createMockNetwork()
   })
 
   it('should writeComponent', () => {
@@ -497,7 +499,8 @@ describe('DataWriter', () => {
       })
     })
 
-    const packet = write(world, entities)
+    const network = Engine.instance.currentWorld.worldNetwork
+    const packet = write(world, network, entities)
 
     const expectedBytes =
       3 * Uint32Array.BYTES_PER_ELEMENT +

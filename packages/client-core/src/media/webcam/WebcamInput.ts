@@ -1,13 +1,13 @@
 import * as Comlink from 'comlink'
 
-import { LifecycleValue } from '../../common/enums/LifecycleValue'
-import { Engine } from '../../ecs/classes/Engine'
-import { getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
-import { useWorld } from '../../ecs/functions/SystemHooks'
-import { MediaStreams } from '../../networking/systems/MediaStreamSystem'
-import { WebCamInputComponent } from '../components/WebCamInputComponent'
-import { CameraInput } from '../enums/InputEnums'
-import { InputType } from '../enums/InputType'
+import { LifecycleValue } from '@xrengine/engine/src/common/enums/LifecycleValue'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { WebCamInputComponent } from '@xrengine/engine/src/input/components/WebCamInputComponent'
+import { CameraInput } from '@xrengine/engine/src/input/enums/InputEnums'
+import { InputType } from '@xrengine/engine/src/input/enums/InputType'
+
+import { MediaStreams } from '../../transports/MediaStreams'
 
 const EXPRESSION_THRESHOLD = 0.1
 
@@ -90,10 +90,10 @@ export async function faceToInput(detection) {
           targetObjectType: 'instance',
           text: '[emotions]' + prevExp
         })*/
-        if (hasComponent(useWorld().localClientEntity, WebCamInputComponent)) {
-          getComponent(useWorld().localClientEntity, WebCamInputComponent).emotions.push(prevExp)
+        if (hasComponent(Engine.instance.currentWorld.localClientEntity, WebCamInputComponent)) {
+          getComponent(Engine.instance.currentWorld.localClientEntity, WebCamInputComponent).emotions.push(prevExp)
         }
-        console.log('emotions|' + useWorld().localClientEntity + '|' + prevExp)
+        console.log('emotions|' + Engine.instance.currentWorld.localClientEntity + '|' + prevExp)
       }
       // If the detected value of the expression is more than 1/3rd-ish of total, record it
       // This should allow up to 3 expressions but usually 1-2

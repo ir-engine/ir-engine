@@ -15,15 +15,15 @@ import { matchPose } from '../../transform/TransformInterfaces'
 import { matchesAvatarProps } from '../interfaces/WorldState'
 
 export class WorldNetworkAction {
-  static createClient = defineAction({
-    type: 'network.CREATE_CLIENT',
+  static createPeer = defineAction({
+    type: 'network.CREATE_PEER',
     name: matches.string,
     index: matches.number,
     $cache: true
   })
 
-  static destroyClient = defineAction({
-    type: 'network.DESTROY_CLIENT',
+  static destroyPeer = defineAction({
+    type: 'network.DESTROY_PEER',
     $to: 'others'
   })
 
@@ -59,6 +59,12 @@ export class WorldNetworkAction {
       position: matchesVector3,
       rotation: matchesQuaternion
     }),
+    $cache: true
+  })
+
+  static spawnCamera = defineAction({
+    ...WorldNetworkAction.spawnObject.actionShape,
+    prefab: 'camera',
     $cache: true
   })
 

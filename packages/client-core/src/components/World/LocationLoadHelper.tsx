@@ -14,10 +14,7 @@ import {
   initializeRealtimeSystems,
   initializeSceneSystems
 } from '@xrengine/engine/src/initializeEngine'
-import { WorldNetworkAction } from '@xrengine/engine/src/networking/functions/WorldNetworkAction'
-import { updateNearbyAvatars } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
 import { loadSceneFromJSON } from '@xrengine/engine/src/scene/functions/SceneLoading'
-import { addActionReceptor, dispatchAction } from '@xrengine/hyperflux'
 import { loadEngineInjection } from '@xrengine/projects/loadEngineInjection'
 import { getSystemsFromSceneData } from '@xrengine/projects/loadSystemInjection'
 
@@ -44,18 +41,6 @@ export const initClient = async () => {
   await initializeRealtimeSystems()
   await initializeSceneSystems()
   await loadEngineInjection(world, projects)
-
-  addActionReceptor((action) => {
-    matches(action)
-      .when(WorldNetworkAction.createClient.matches, () => {
-        updateNearbyAvatars()
-        MediaStreamService.triggerUpdateNearbyLayerUsers()
-      })
-      .when(WorldNetworkAction.destroyClient.matches, () => {
-        updateNearbyAvatars()
-        MediaStreamService.triggerUpdateNearbyLayerUsers()
-      })
-  })
 }
 
 export const loadScene = async (sceneData: SceneData) => {
