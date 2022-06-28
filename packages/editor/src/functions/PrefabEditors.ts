@@ -10,6 +10,7 @@ import { SCENE_COMPONENT_CAMERA_PROPERTIES } from '@xrengine/engine/src/scene/fu
 import { SCENE_COMPONENT_CLOUD } from '@xrengine/engine/src/scene/functions/loaders/CloudFunctions'
 import { SCENE_COMPONENT_DIRECTIONAL_LIGHT } from '@xrengine/engine/src/scene/functions/loaders/DirectionalLightFunctions'
 import { SCENE_COMPONENT_ENVMAP_BAKE } from '@xrengine/engine/src/scene/functions/loaders/EnvMapBakeFunctions'
+import { SCENE_COMPONENT_FOG } from '@xrengine/engine/src/scene/functions/loaders/FogFunctions'
 import { SCENE_COMPONENT_GROUND_PLANE } from '@xrengine/engine/src/scene/functions/loaders/GroundPlaneFunctions'
 import { SCENE_COMPONENT_GROUP } from '@xrengine/engine/src/scene/functions/loaders/GroupFunctions'
 import { SCENE_COMPONENT_HEMISPHERE_LIGHT } from '@xrengine/engine/src/scene/functions/loaders/HemisphereLightFunctions'
@@ -43,6 +44,7 @@ import CloudsNodeEditor from '../components/properties/CloudsNodeEditor'
 import { DefaultNodeEditor } from '../components/properties/DefaultNodeEditor'
 import DirectionalLightNodeEditor from '../components/properties/DirectionalLightNodeEditor'
 import EnvMapBakeNodeEditor from '../components/properties/EnvMapBakeNodeEditor'
+import FogNodeEditor from '../components/properties/FogNodeEditor'
 import GroundPlaneNodeEditor from '../components/properties/GroundPlaneNodeEditor'
 import GroupNodeEditor from '../components/properties/GroupNodeEditor'
 import HemisphereLightNodeEditor from '../components/properties/HemisphereLightNodeEditor'
@@ -111,8 +113,9 @@ export const EntityNodeEditor = {
   [SCENE_COMPONENT_INTERIOR]: InteriorNodeEditor,
   [SCENE_COMPONENT_SYSTEM]: SystemNodeEditor,
   [SCENE_COMPONENT_SPLINE]: SplineNodeEditor,
+  [SCENE_COMPONENT_ENVMAP_BAKE]: EnvMapBakeNodeEditor,
   [SCENE_COMPONENT_INSTANCING]: InstancingNodeEditor,
-  [SCENE_COMPONENT_ENVMAP_BAKE]: EnvMapBakeNodeEditor
+  [SCENE_COMPONENT_FOG]: FogNodeEditor
 }
 
 export const prefabIcons = {
@@ -145,6 +148,7 @@ export const prefabIcons = {
   [ScenePrefabs.interior]: InteriorNodeEditor.iconComponent,
   [ScenePrefabs.system]: SystemNodeEditor.iconComponent,
   [ScenePrefabs.spline]: SplineNodeEditor.iconComponent,
+  [ScenePrefabs.fog]: FogNodeEditor.iconComponent,
   [ScenePrefabs.instancing]: InstancingNodeEditor.iconComponent,
   [ScenePrefabs.envMapbake]: EnvMapBakeNodeEditor.iconComponent
 }
