@@ -45,6 +45,10 @@ export class Network {
    */
   close(instance?: boolean, channel?: boolean) {}
 
+  /** Consumers and producers have separate types on client and server */
+  producers = [] as any[]
+  consumers = [] as any[]
+
   /** List of data producer nodes. */
   dataProducers = new Map<string, any>()
 

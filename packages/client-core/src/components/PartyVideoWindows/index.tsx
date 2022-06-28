@@ -31,9 +31,9 @@ const PartyVideoWindows = (): JSX.Element => {
 
   return (
     <>
-      <PartyParticipantWindow peerId={'cam_me'} />
+      <PartyParticipantWindow peerId={'cam_me'} key={'cam_me'} />
       {(mediaState.isScreenAudioEnabled.value || mediaState.isScreenVideoEnabled.value) && (
-        <PartyParticipantWindow peerId={'screen_me'} />
+        <PartyParticipantWindow peerId={'screen_me'} key={'screen_me'} />
       )}
       {displayedUsers.map((user) => (
         <>

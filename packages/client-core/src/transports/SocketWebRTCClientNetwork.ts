@@ -1,5 +1,5 @@
 import * as mediasoupClient from 'mediasoup-client'
-import { DataProducer, Transport as MediaSoupTransport } from 'mediasoup-client/lib/types'
+import { Consumer, DataProducer, Transport as MediaSoupTransport, Producer } from 'mediasoup-client/lib/types'
 import { io as ioclient, Socket } from 'socket.io-client'
 
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
@@ -38,6 +38,9 @@ export class SocketWebRTCClientNetwork extends Network {
 
   dataProducer: DataProducer
   heartbeat: NodeJS.Timer // is there an equivalent browser type for this?
+
+  producers = [] as Producer[]
+  consumers = [] as Consumer[]
 
   sendActions(actions: Action[]) {
     if (!actions.length) return
