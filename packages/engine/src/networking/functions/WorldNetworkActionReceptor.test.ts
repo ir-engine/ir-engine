@@ -28,8 +28,8 @@ describe('WorldNetworkActionReceptors', () => {
       const userId = 'user id' as UserId
       const userName = 'user name'
       const userIndex = 1
-      WorldNetworkActionReceptor.receiveCreateClient(
-        WorldNetworkAction.createClient({ $from: userId, name: userName, index: userIndex }),
+      WorldNetworkActionReceptor.receiveCreatePeers(
+        WorldNetworkAction.createPeer({ $from: userId, name: userName, index: userIndex }),
         world
       )
 
@@ -48,12 +48,12 @@ describe('WorldNetworkActionReceptors', () => {
       const userName2 = 'user name 2'
       const userIndex = 1
 
-      WorldNetworkActionReceptor.receiveCreateClient(
-        WorldNetworkAction.createClient({ $from: userId, name: userName, index: userIndex }),
+      WorldNetworkActionReceptor.receiveCreatePeers(
+        WorldNetworkAction.createPeer({ $from: userId, name: userName, index: userIndex }),
         world
       )
-      WorldNetworkActionReceptor.receiveCreateClient(
-        WorldNetworkAction.createClient({ $from: userId, name: userName2, index: userIndex }),
+      WorldNetworkActionReceptor.receiveCreatePeers(
+        WorldNetworkAction.createPeer({ $from: userId, name: userName2, index: userIndex }),
         world
       )
 
@@ -67,12 +67,12 @@ describe('WorldNetworkActionReceptors', () => {
       const userId = 'user id' as UserId
       const userName = 'user name'
       const userIndex = 1
-      WorldNetworkActionReceptor.receiveCreateClient(
-        WorldNetworkAction.createClient({ $from: userId, name: userName, index: userIndex }),
+      WorldNetworkActionReceptor.receiveCreatePeers(
+        WorldNetworkAction.createPeer({ $from: userId, name: userName, index: userIndex }),
         world
       )
 
-      WorldNetworkActionReceptor.receiveDestroyClient(WorldNetworkAction.destroyClient({ $from: userId }), false, world)
+      WorldNetworkActionReceptor.receiveDestroyPeers(WorldNetworkAction.destroyPeer({ $from: userId }), false, world)
 
       assert(!world.clients.get(userId))
       assert(!world.userIndexToUserId.get(userIndex))
@@ -84,8 +84,8 @@ describe('WorldNetworkActionReceptors', () => {
       const userId = 'user id' as UserId
       const userName = 'user name'
       const userIndex = 1
-      WorldNetworkActionReceptor.receiveCreateClient(
-        WorldNetworkAction.createClient({ $from: userId, name: userName, index: userIndex }),
+      WorldNetworkActionReceptor.receiveCreatePeers(
+        WorldNetworkAction.createPeer({ $from: userId, name: userName, index: userIndex }),
         world
       )
 
@@ -103,7 +103,7 @@ describe('WorldNetworkActionReceptors', () => {
 
       // process remove actions and execute entity removal
       Engine.instance.store.defaultDispatchDelay = 0
-      WorldNetworkActionReceptor.receiveDestroyClient(WorldNetworkAction.destroyClient({ $from: userId }), true, world)
+      WorldNetworkActionReceptor.receiveDestroyPeers(WorldNetworkAction.destroyPeer({ $from: userId }), true, world)
 
       ActionFunctions.clearOutgoingActions()
       ActionFunctions.applyIncomingActions()
@@ -125,12 +125,12 @@ describe('WorldNetworkActionReceptors', () => {
       Engine.instance.userId = userId
       const world = Engine.instance.currentWorld
 
-      WorldNetworkActionReceptor.receiveCreateClient(
-        WorldNetworkAction.createClient({ $from: hostUserId, name: 'host', index: 0 }),
+      WorldNetworkActionReceptor.receiveCreatePeers(
+        WorldNetworkAction.createPeer({ $from: hostUserId, name: 'host', index: 0 }),
         world
       )
-      WorldNetworkActionReceptor.receiveCreateClient(
-        WorldNetworkAction.createClient({ $from: userId, name: 'user name', index: 1 }),
+      WorldNetworkActionReceptor.receiveCreatePeers(
+        WorldNetworkAction.createPeer({ $from: userId, name: 'user name', index: 1 }),
         world
       )
 
@@ -172,12 +172,12 @@ describe('WorldNetworkActionReceptors', () => {
 
       const world = Engine.instance.currentWorld
 
-      WorldNetworkActionReceptor.receiveCreateClient(
-        WorldNetworkAction.createClient({ $from: hostId, name: 'world', index: 0 }),
+      WorldNetworkActionReceptor.receiveCreatePeers(
+        WorldNetworkAction.createPeer({ $from: hostId, name: 'world', index: 0 }),
         world
       )
-      WorldNetworkActionReceptor.receiveCreateClient(
-        WorldNetworkAction.createClient({ $from: userId, name: 'user name', index: 1 }),
+      WorldNetworkActionReceptor.receiveCreatePeers(
+        WorldNetworkAction.createPeer({ $from: userId, name: 'user name', index: 1 }),
         world
       )
 
@@ -219,16 +219,16 @@ describe('WorldNetworkActionReceptors', () => {
       Engine.instance.userId = userId
       const world = Engine.instance.currentWorld
 
-      WorldNetworkActionReceptor.receiveCreateClient(
-        WorldNetworkAction.createClient({ $from: hostUserId, name: 'world', index: 0 }),
+      WorldNetworkActionReceptor.receiveCreatePeers(
+        WorldNetworkAction.createPeer({ $from: hostUserId, name: 'world', index: 0 }),
         world
       )
-      WorldNetworkActionReceptor.receiveCreateClient(
-        WorldNetworkAction.createClient({ $from: userId, name: 'user name', index: 1 }),
+      WorldNetworkActionReceptor.receiveCreatePeers(
+        WorldNetworkAction.createPeer({ $from: userId, name: 'user name', index: 1 }),
         world
       )
-      WorldNetworkActionReceptor.receiveCreateClient(
-        WorldNetworkAction.createClient({ $from: userId2, name: 'second user name', index: 2 }),
+      WorldNetworkActionReceptor.receiveCreatePeers(
+        WorldNetworkAction.createPeer({ $from: userId2, name: 'second user name', index: 2 }),
         world
       )
 
@@ -272,8 +272,8 @@ describe('WorldNetworkActionReceptors', () => {
       const world = Engine.instance.currentWorld
       world.localClientEntity = createEntity(world)
 
-      WorldNetworkActionReceptor.receiveCreateClient(
-        WorldNetworkAction.createClient({ $from: userId, name: 'user name', index: 1 }),
+      WorldNetworkActionReceptor.receiveCreatePeers(
+        WorldNetworkAction.createPeer({ $from: userId, name: 'user name', index: 1 }),
         world
       )
 
@@ -315,12 +315,12 @@ describe('WorldNetworkActionReceptors', () => {
 
       Engine.instance.store.defaultDispatchDelay = 0
 
-      WorldNetworkActionReceptor.receiveCreateClient(
-        WorldNetworkAction.createClient({ $from: hostUserId, name: 'world', index: 0 }),
+      WorldNetworkActionReceptor.receiveCreatePeers(
+        WorldNetworkAction.createPeer({ $from: hostUserId, name: 'world', index: 0 }),
         world
       )
-      WorldNetworkActionReceptor.receiveCreateClient(
-        WorldNetworkAction.createClient({ $from: userId, name: 'user name', index: 1 }),
+      WorldNetworkActionReceptor.receiveCreatePeers(
+        WorldNetworkAction.createPeer({ $from: userId, name: 'user name', index: 1 }),
         world
       )
 
@@ -384,8 +384,8 @@ describe('WorldNetworkActionReceptors', () => {
       Engine.instance.userId = userId
 
       const world = Engine.instance.currentWorld
-      WorldNetworkActionReceptor.receiveCreateClient(
-        WorldNetworkAction.createClient({ $from: userId, name: userName, index: userIndex }),
+      WorldNetworkActionReceptor.receiveCreatePeers(
+        WorldNetworkAction.createPeer({ $from: userId, name: userName, index: userIndex }),
         world
       )
 

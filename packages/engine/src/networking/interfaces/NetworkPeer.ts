@@ -5,7 +5,7 @@ import { UserId } from '@xrengine/common/src/interfaces/UserId'
 
 import type { AvatarProps } from './WorldState'
 
-export interface NetworkClient {
+export interface NetworkPeer {
   userId: UserId
   index: number
   spectating?: boolean

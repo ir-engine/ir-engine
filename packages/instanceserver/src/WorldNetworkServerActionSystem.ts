@@ -12,7 +12,7 @@ const receiveSpawnObject = (
 ) => {
   const user = world.users.get(action.$from)!
   if (!user) return
-  if (network.clients.get(action.$from)!.spectating) return
+  if (network.peers.get(action.$from)!.spectating) return
 
   const app = (world.worldNetwork as SocketWebRTCServerNetwork).app
   app.service('message').create(
@@ -37,7 +37,7 @@ const receiveDestroyObject = (
 ) => {
   const user = world.users.get(action.$from)!
   if (!user) return
-  if (network.clients.get(action.$from)!.spectating) return
+  if (network.peers.get(action.$from)!.spectating) return
 
   const app = (world.worldNetwork as SocketWebRTCServerNetwork).app
   app.service('message').create(

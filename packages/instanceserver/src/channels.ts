@@ -241,7 +241,7 @@ const loadEngine = async (app: Application, sceneId: string) => {
   world.networks.set(hostId, network)
 
   dispatchAction(
-    WorldNetworkAction.createClient({
+    WorldNetworkAction.createPeer({
       name: 'server-' + hostId,
       index: network.userIndexCount++
     }),
@@ -481,7 +481,7 @@ const shutdownServer = async (app: Application, instanceId: string) => {
 
 // todo: this could be more elegant
 const getActiveUsersCount = (app: Application, userToIgnore) => {
-  const activeClients = app.transport.clients
+  const activeClients = app.transport.peers
   const activeUsers = [...activeClients].filter(
     ([, v]) => v.userId !== Engine.instance.userId && v.userId !== userToIgnore.id
   )

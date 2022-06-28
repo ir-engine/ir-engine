@@ -26,11 +26,11 @@ export const updateNearbyAvatars = () => {
 export default async function UpdateNearbyUsersSystem(world: World) {
   addActionReceptor((action) => {
     matches(action)
-      .when(WorldNetworkAction.createClient.matches, () => {
+      .when(WorldNetworkAction.createPeer.matches, () => {
         updateNearbyAvatars()
         MediaStreamService.triggerUpdateNearbyLayerUsers()
       })
-      .when(WorldNetworkAction.destroyClient.matches, () => {
+      .when(WorldNetworkAction.destroyPeer.matches, () => {
         updateNearbyAvatars()
         MediaStreamService.triggerUpdateNearbyLayerUsers()
       })

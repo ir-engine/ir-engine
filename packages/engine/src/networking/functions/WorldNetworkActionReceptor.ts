@@ -12,22 +12,22 @@ import { NetworkObjectAuthorityTag } from '../components/NetworkObjectAuthorityT
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
 import { WorldNetworkAction } from './WorldNetworkAction'
 
-const removeAllNetworkClients = (
+const removeAllNetworkPeers = (
   removeSelf = false,
   world = Engine.instance.currentWorld,
   network = Engine.instance.currentWorld.worldNetwork
 ) => {
-  for (const [userId] of network.clients) {
-    WorldNetworkActionReceptor.receiveDestroyClient(
-      WorldNetworkAction.destroyClient({ $from: userId, $topic: network.hostId }),
+  for (const [userId] of network.peers) {
+    WorldNetworkActionReceptor.receiveDestroyPeers(
+      WorldNetworkAction.destroyPeer({ $from: userId, $topic: network.hostId }),
       removeSelf,
       world
     )
   }
 }
 
-const receiveCreateClient = (
-  action: typeof WorldNetworkAction.createClient.matches._TYPE,
+const receiveCreatePeers = (
+  action: typeof WorldNetworkAction.createPeer.matches._TYPE,
   world = Engine.instance.currentWorld
 ) => {
   const network = world.networks.get(action.$topic)!
@@ -35,12 +35,12 @@ const receiveCreateClient = (
   network.userIdToUserIndex.set(action.$from, action.index)
   network.userIndexToUserId.set(action.index, action.$from)
 
-  if (network.clients.has(action.$from))
+  if (network.peers.has(action.$from))
     return console.log(
-      `[WorldNetworkActionReceptors]: client with id ${action.$from} and name ${action.name} already exists. ignoring.`
+      `[WorldNetworkActionReceptors]: peer with id ${action.$from} and name ${action.name} already exists. ignoring.`
     )
 
-  network.clients.set(action.$from, {
+  network.peers.set(action.$from, {
     userId: action.$from,
     index: action.index
   })
@@ -52,13 +52,13 @@ const receiveCreateClient = (
     })
 }
 
-const receiveDestroyClient = (
-  action: typeof WorldNetworkAction.destroyClient.matches._TYPE,
+const receiveDestroyPeers = (
+  action: typeof WorldNetworkAction.destroyPeer.matches._TYPE,
   allowRemoveSelf = false,
   world = Engine.instance.currentWorld
 ) => {
   const network = world.networks.get(action.$topic)!
-  if (!network.clients.has(action.$from))
+  if (!network.peers.has(action.$from))
     return console.warn(
       `[WorldNetworkActionReceptors]: tried to remove client with userId ${action.$from} that doesn't exit`
     )
@@ -71,10 +71,10 @@ const receiveDestroyClient = (
     receiveDestroyObject(destroyObjectAction, world)
   }
 
-  const { index: userIndex } = network.clients.get(action.$from)!
+  const { index: userIndex } = network.peers.get(action.$from)!
   network.userIdToUserIndex.delete(action.$from)
   network.userIndexToUserId.delete(userIndex)
-  network.clients.delete(action.$from)
+  network.peers.delete(action.$from)
 
   Engine.instance.store.actions.cached[action.$topic] = Engine.instance.store.actions.cached[action.$topic].filter(
     (a) => a.$from !== action.$from
@@ -83,13 +83,13 @@ const receiveDestroyClient = (
   /**
    * if no other connections exist for this user exist, we want to remove them from world.users
    */
-  const remainingClientsForDisconnectingUser = Object.entries(world.networks.entries())
+  const remainingPeersForDisconnectingUser = Object.entries(world.networks.entries())
     .map(([id, network]: [string, Network]) => {
-      return network.clients.has(action.$from)
+      return network.peers.has(action.$from)
     })
-    .filter((client) => !!client)
+    .filter((peer) => !!peer)
 
-  if (!remainingClientsForDisconnectingUser.length) {
+  if (!remainingPeersForDisconnectingUser.length) {
     world.users.delete(action.$from)
   }
 }
@@ -184,7 +184,7 @@ const receiveRequestAuthorityOverObject = (
       object: action.object,
       newAuthor: action.requester
     }),
-    [Engine.instance.currentWorld.worldNetwork.hostId]
+    Engine.instance.currentWorld.worldNetwork.hostId
   )
 }
 
@@ -225,7 +225,7 @@ const receiveSetEquippedObject = (
         object: action.object,
         requester: action.$from
       }),
-      [Engine.instance.currentWorld.worldNetwork.hostId]
+      Engine.instance.currentWorld.worldNetwork.hostId
     )
   } else {
     dispatchAction(
@@ -233,7 +233,7 @@ const receiveSetEquippedObject = (
         object: action.object,
         requester: Engine.instance.currentWorld.worldNetwork.hostId
       }),
-      [Engine.instance.currentWorld.worldNetwork.hostId]
+      Engine.instance.currentWorld.worldNetwork.hostId
     )
   }
 }
@@ -246,9 +246,9 @@ const receiveSetUserTyping = (
 }
 
 export const WorldNetworkActionReceptor = {
-  removeAllNetworkClients,
-  receiveCreateClient,
-  receiveDestroyClient,
+  removeAllNetworkPeers,
+  receiveCreatePeers,
+  receiveDestroyPeers,
   receiveSpawnObject,
   receiveSpawnDebugPhysicsObject,
   receiveDestroyObject,

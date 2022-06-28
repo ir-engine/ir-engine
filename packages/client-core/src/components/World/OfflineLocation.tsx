@@ -28,8 +28,8 @@ export const OfflineLocation = () => {
       world.networks.set(userId, new Network(userId))
 
       const index = 1
-      WorldNetworkActionReceptor.receiveCreateClient(
-        WorldNetworkAction.createClient({
+      WorldNetworkActionReceptor.receiveCreatePeers(
+        WorldNetworkAction.createPeer({
           index: index,
           name: authState.user.name.value
         })

@@ -928,7 +928,7 @@ export async function leaveNetwork(network: SocketWebRTCClientNetwork, kicked?: 
       Engine.instance.currentWorld._worldHostId = null!
       dispatchAction(LocationInstanceConnectionAction.disconnect({ instanceId: network.hostId }))
       dispatchAction(EngineActions.connectToWorld({ connectedWorld: false }))
-      WorldNetworkActionReceptor.removeAllNetworkClients(false, Engine.instance.currentWorld, network)
+      WorldNetworkActionReceptor.removeAllNetworkPeers(false, Engine.instance.currentWorld, network)
     }
     removeTopic(network.hostId)
   } catch (err) {

@@ -5,7 +5,7 @@ import { Action } from '@xrengine/hyperflux/functions/ActionFunctions'
 
 import { RingBuffer } from '../../common/classes/RingBuffer'
 import { Engine } from '../../ecs/classes/Engine'
-import { NetworkClient } from '../interfaces/NetworkClient'
+import { NetworkPeer } from '../interfaces/NetworkPeer'
 
 export const NetworkTypes = {
   world: 'world' as const,
@@ -67,7 +67,7 @@ export class Network {
   mediasoupOperationQueue: RingBuffer<any> = new RingBuffer<any>(1000)
 
   /** Connected clients */
-  clients = new Map() as Map<UserId, NetworkClient>
+  peers = new Map() as Map<UserId, NetworkPeer>
 
   /** Map of numerical user index to user client IDs */
   userIndexToUserId = new Map<number, UserId>()

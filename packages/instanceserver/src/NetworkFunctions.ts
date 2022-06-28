@@ -220,7 +220,7 @@ export const authorizeUserToJoinServer = async (app: Application, instance: Inst
 }
 
 export function getUserIdFromSocketId(network: SocketWebRTCServerNetwork, socketId: string) {
-  const client = Array.from(network.clients.values()).find((c) => c.socketId === socketId)
+  const client = Array.from(network.peers.values()).find((c) => c.socketId === socketId)
   return client?.userId
 }
 
@@ -241,7 +241,7 @@ export async function handleConnectToWorld(
   // Create a new client object
   // and add to the dictionary
   const userIndex = network.userIndexCount++
-  network.clients.set(userId, {
+  network.peers.set(userId, {
     userId,
     index: userIndex,
     socket: socket,
@@ -273,7 +273,7 @@ export async function handleConnectToWorld(
 
 function disconnectClientIfConnected(network: SocketWebRTCServerNetwork, socket: Socket, userId: UserId) {
   // If we are already logged in, kick the other socket
-  const client = network.clients.get(userId)
+  const client = network.peers.get(userId)
   if (client) {
     if (client.socketId === socket.id) {
       logger.info('Client already logged in, disallowing new connection')
@@ -341,7 +341,7 @@ export const handleSpectateWorld = async (
 
   const world = Engine.instance.currentWorld
   const cachedActions = getCachedActions(network, joinedUserId)
-  const client = network.clients.get(joinedUserId)!
+  const client = network.peers.get(joinedUserId)!
   client.spectating = true
 
   callback({
@@ -404,7 +404,7 @@ export const handleJoinWorld = async (
   }
 
   logger.info('User successfully joined world: %o', { joinedUserId, data, spawnPose })
-  const client = network.clients.get(joinedUserId)!
+  const client = network.peers.get(joinedUserId)!
 
   if (!client) return callback(null! as any)
 
@@ -427,7 +427,7 @@ export function handleIncomingActions(network: SocketWebRTCServerNetwork, socket
   if (!message) return
 
   const userIdMap = {} as { [socketId: string]: UserId }
-  for (const [id, client] of network.clients) userIdMap[client.socketId!] = id
+  for (const [id, client] of network.peers) userIdMap[client.socketId!] = id
 
   const actions = /*decode(new Uint8Array(*/ message /*))*/ as Required<Action>[]
   for (const a of actions) {
@@ -441,12 +441,12 @@ export function handleIncomingActions(network: SocketWebRTCServerNetwork, socket
 export async function handleHeartbeat(network: SocketWebRTCServerNetwork, socket: Socket): Promise<any> {
   const userId = getUserIdFromSocketId(network, socket.id)!
   // logger.info('Got heartbeat from user ' + userId + ' at ' + Date.now())
-  if (network.clients.has(userId)) network.clients.get(userId)!.lastSeenTs = Date.now()
+  if (network.peers.has(userId)) network.peers.get(userId)!.lastSeenTs = Date.now()
 }
 
 export async function handleDisconnect(network: SocketWebRTCServerNetwork, socket: Socket): Promise<any> {
   const userId = getUserIdFromSocketId(network, socket.id) as UserId
-  const disconnectedClient = network.clients.get(userId)
+  const disconnectedClient = network.peers.get(userId)
   if (!disconnectedClient)
     return logger.warn(
       'Disconnecting client ' + userId + ' was undefined, probably already handled from JoinWorld handshake.'
@@ -455,7 +455,7 @@ export async function handleDisconnect(network: SocketWebRTCServerNetwork, socke
   // The new connection will overwrite the socketID for the user's client.
   // This will only clear transports if the client's socketId matches the socket that's disconnecting.
   if (socket.id === disconnectedClient?.socketId) {
-    dispatchAction(WorldNetworkAction.destroyClient({ $from: userId }), [network.hostId])
+    dispatchAction(WorldNetworkAction.destroyPeer({ $from: userId }), [network.hostId])
     logger.info('Disconnecting clients for user ' + userId)
     if (disconnectedClient?.instanceRecvTransport) disconnectedClient.instanceRecvTransport.close()
     if (disconnectedClient?.instanceSendTransport) disconnectedClient.instanceSendTransport.close()
@@ -475,8 +475,8 @@ export async function handleLeaveWorld(
   const userId = getUserIdFromSocketId(network, socket.id)!
   for (const [, transport] of Object.entries(network.mediasoupTransports))
     if ((transport as any).appData.peerId === userId) closeTransport(network, transport)
-  if (network.clients.has(userId)) {
-    dispatchAction(WorldNetworkAction.destroyClient({ $from: userId }))
+  if (network.peers.has(userId)) {
+    dispatchAction(WorldNetworkAction.destroyPeer({ $from: userId }))
   }
   if (callback !== undefined) callback({})
 }
@@ -484,7 +484,7 @@ export async function handleLeaveWorld(
 export function clearCachedActionsForDisconnectedUsers(network: SocketWebRTCServerNetwork) {
   const cached = Engine.instance.store.actions.cached[network.hostId]
   for (const action of [...cached]) {
-    if (!network.clients.has(action.$from)) {
+    if (!network.peers.has(action.$from)) {
       const idx = cached.indexOf(action)
       cached.splice(idx, 1)
     }
