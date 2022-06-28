@@ -96,7 +96,7 @@ export const useChatHooks = ({ chatWindowOpen, setUnreadMessages, messageRefInpu
         WorldNetworkAction.setUserTyping({
           typing: false
         }),
-        [Engine.instance.currentWorld.worldNetwork.hostId]
+        Engine.instance.currentWorld.worldNetwork.hostId
       )
     }, 3000)
 
@@ -125,7 +125,7 @@ export const useChatHooks = ({ chatWindowOpen, setUnreadMessages, messageRefInpu
           WorldNetworkAction.setUserTyping({
             typing: true
           }),
-          [Engine.instance.currentWorld.worldNetwork.hostId]
+          Engine.instance.currentWorld.worldNetwork.hostId
         )
       }
     }
@@ -135,7 +135,7 @@ export const useChatHooks = ({ chatWindowOpen, setUnreadMessages, messageRefInpu
           WorldNetworkAction.setUserTyping({
             typing: false
           }),
-          [Engine.instance.currentWorld.worldNetwork.hostId]
+          Engine.instance.currentWorld.worldNetwork.hostId
         )
       }
     }
@@ -150,7 +150,7 @@ export const useChatHooks = ({ chatWindowOpen, setUnreadMessages, messageRefInpu
           WorldNetworkAction.setUserTyping({
             typing: false
           }),
-          [Engine.instance.currentWorld.worldNetwork.hostId]
+          Engine.instance.currentWorld.worldNetwork.hostId
         )
       }
 

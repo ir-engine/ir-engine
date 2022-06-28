@@ -110,7 +110,7 @@ export async function onConnectToWorldInstance(network: SocketWebRTCClientNetwor
     const actions = message as any as Required<Action>[]
     // const actions = decode(new Uint8Array(message)) as IncomingActionType[]
     for (const a of actions) {
-      a.$topic = [network.hostId]
+      a.$topic = network.hostId
       Engine.instance.store.actions.incoming.push(a)
     }
   }
@@ -928,7 +928,7 @@ export async function leaveNetwork(network: SocketWebRTCClientNetwork, kicked?: 
       Engine.instance.currentWorld._worldHostId = null!
       dispatchAction(LocationInstanceConnectionAction.disconnect({ instanceId: network.hostId }))
       dispatchAction(EngineActions.connectToWorld({ connectedWorld: false }))
-      WorldNetworkActionReceptor.removeAllNetworkClients(false, Engine.instance.currentWorld)
+      WorldNetworkActionReceptor.removeAllNetworkPeers(false, Engine.instance.currentWorld, network)
     }
     removeTopic(network.hostId)
   } catch (err) {

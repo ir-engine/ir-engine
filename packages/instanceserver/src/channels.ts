@@ -234,15 +234,16 @@ const loadEngine = async (app: Application, sceneId: string) => {
   Engine.instance.userId = hostId
   const world = Engine.instance.currentWorld
 
-  app.transport = new SocketWebRTCServerNetwork(hostId, app)
-  const initPromise = app.transport.initialize()
+  const network = new SocketWebRTCServerNetwork(hostId, app)
+  app.transport = network
+  const initPromise = network.initialize()
 
-  world.networks.set(hostId, app.transport)
+  world.networks.set(hostId, network)
 
   dispatchAction(
-    WorldNetworkAction.createClient({
+    WorldNetworkAction.createPeer({
       name: 'server-' + hostId,
-      index: world.userIndexCount++
+      index: network.userIndexCount++
     }),
     [hostId]
   )
@@ -268,7 +269,8 @@ const loadEngine = async (app: Application, sceneId: string) => {
     await initSystems(world, [
       {
         type: SystemUpdateType.FIXED_LATE,
-        systemModulePromise: import('./WorldNetworkServerActionSystem')
+        systemModulePromise: import('./WorldNetworkServerActionSystem'),
+        args: { network }
       }
     ])
 
@@ -478,8 +480,8 @@ const shutdownServer = async (app: Application, instanceId: string) => {
 }
 
 // todo: this could be more elegant
-const getActiveUsersCount = (userToIgnore) => {
-  const activeClients = Engine.instance.currentWorld.clients
+const getActiveUsersCount = (app: Application, userToIgnore) => {
+  const activeClients = app.transport.peers
   const activeUsers = [...activeClients].filter(
     ([, v]) => v.userId !== Engine.instance.userId && v.userId !== userToIgnore.id
   )
@@ -488,7 +490,7 @@ const getActiveUsersCount = (userToIgnore) => {
 
 const handleUserDisconnect = async (app: Application, connection, user, instanceId) => {
   try {
-    const activeUsersCount = getActiveUsersCount(user)
+    const activeUsersCount = getActiveUsersCount(app, user)
     await app.service('instance').patch(instanceId, {
       currentUsers: activeUsersCount
     })
@@ -535,7 +537,7 @@ const handleUserDisconnect = async (app: Application, connection, user, instance
   await new Promise((resolve) => setTimeout(resolve, config.instanceserver.shutdownDelayMs))
 
   // count again here, as it may have changed
-  const activeUsersCount = getActiveUsersCount(user)
+  const activeUsersCount = getActiveUsersCount(app, user)
   if (activeUsersCount < 1) await shutdownServer(app, instanceId)
 }
 

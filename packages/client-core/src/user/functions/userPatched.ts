@@ -17,8 +17,8 @@ export const userPatched = (params) => {
 
   console.log('User patched', patchedUser)
 
-  if (Engine.instance.currentWorld.clients.has(patchedUser.id)) {
-    Engine.instance.currentWorld.clients.get(patchedUser.id)!.name = patchedUser.name
+  if (Engine.instance.currentWorld.users.has(patchedUser.id)) {
+    Engine.instance.currentWorld.users.get(patchedUser.id)!.name = patchedUser.name
   }
 
   if (selfUser.id.value === patchedUser.id) {

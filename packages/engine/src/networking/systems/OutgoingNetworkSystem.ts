@@ -19,7 +19,7 @@ const authoritativeNetworkTransformsQuery = defineQuery([
 const serializeAndSend = (world: World, serialize: Function) => {
   const ents = authoritativeNetworkTransformsQuery(world)
   if (ents.length > 0) {
-    const data = serialize(world, ents)
+    const data = serialize(world, world.worldNetwork, ents)
 
     // todo: insert historian logic here
 
