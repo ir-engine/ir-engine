@@ -287,15 +287,10 @@
           color: var(--textColor);
           border: none;
           background-color: var(--iconButtonBackground);
-          box-shadow: 2px 2px 10px gray;
           transition: all 0.15s cubic-bezier(0.18, 0.89, 0.32, 1.28);
 
           &:hover,
           &:focus {
-            width: 40px;
-            height: 40px;
-            bottom: -15px;
-            right: -15px;
             background-color: var(--iconButtonSelectedBackground);
           }
 
@@ -1540,6 +1535,8 @@
     cursor: pointer;
 
     svg {
+      color: var(--iconButtonColor);
+
       path {
         fill: var(--iconButtonColor);
       }
@@ -1548,7 +1545,6 @@
 
   .btnPerson {
     background-color: rgb(255 255 255 / 70%);
-    color: #808080;
 
     &:hover {
       background: rgb(255 255 255 / 100%);
@@ -1557,7 +1553,6 @@
 
   .btnCheck {
     background-color: #a5f2b2;
-    color: #fff;
     margin: 0 10px;
 
     &:hover {
@@ -1567,7 +1562,6 @@
 
   .btnArrow {
     background-color: var(--iconButtonBackground);
-    color: #fff;
     transition: all 0.2s;
 
     &:hover {

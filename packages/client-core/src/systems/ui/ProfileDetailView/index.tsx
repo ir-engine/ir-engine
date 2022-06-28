@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { validateEmail, validatePhoneNumber } from '@xrengine/common/src/config'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
 import { accessWidgetAppState, WidgetAppActions } from '@xrengine/engine/src/xrui/WidgetAppService'
 import { dispatchAction } from '@xrengine/hyperflux'
@@ -241,18 +242,6 @@ const ProfileDetailView = () => {
     }
   }
 
-  const getErrorText = () => {
-    if (authState?.emailMagicLink && authState?.smsMagicLink) {
-      return t('user:usermenu.profile.phoneEmailError')
-    } else if (authState?.emailMagicLink && !authState?.smsMagicLink) {
-      return t('user:usermenu.profile.emailError')
-    } else if (!authState?.emailMagicLink && authState?.smsMagicLink) {
-      return t('user:usermenu.profile.phoneError')
-    } else {
-      return ''
-    }
-  }
-
   const getConnectPlaceholder = () => {
     if (authState?.emailMagicLink && authState?.smsMagicLink) {
       return t('user:usermenu.profile.ph-phoneEmail')
@@ -265,6 +254,26 @@ const ProfileDetailView = () => {
     }
   }
 
+  const setWidgetVisibility = (widgetName: string, visibility: boolean) => {
+    const widgetState = accessWidgetAppState()
+    const widgets = Object.entries(widgetState.widgets.value).map(([id, widgetState]) => ({
+      id,
+      ...widgetState,
+      ...Engine.instance.currentWorld.widgets.get(id)!
+    }))
+
+    const currentWidget = widgets.find((w) => w.label === widgetName)
+
+    // close currently open widgets until we support multiple widgets being open at once
+    for (let widget of widgets) {
+      if (currentWidget && widget.id !== currentWidget.id) {
+        dispatchAction(WidgetAppActions.showWidget({ id: widget.id, shown: false }))
+      }
+    }
+
+    currentWidget && dispatchAction(WidgetAppActions.showWidget({ id: currentWidget.id, shown: visibility }))
+  }
+
   const handleOpenSelectAvatarWidget = () => {
     // TODO open select avatar xrui widget menu
     setWidgetVisibility('SelectAvatar', true)
@@ -273,19 +282,6 @@ const ProfileDetailView = () => {
   const handleOpenReadyPlayerWidget = () => {
     // TODO open ready player xrui widget menu
     setWidgetVisibility('ReadyPlayer', true)
-  }
-
-  const setWidgetVisibility = (widgetName, visibility) => () => {
-    const state = accessWidgetAppState().widgets.value
-    let widgetID = 'xrui-' + widgetName
-
-    // close currently open widgets until we support multiple widgets being open at once
-    Object.entries(state).forEach(([id, widget]) => {
-      if (widget.visible && !id.includes(widgetName)) dispatchAction(WidgetAppActions.showWidget({ id, shown: false }))
-      // if (id.includes(widgetName)) widgetID = id
-    })
-
-    dispatchAction(WidgetAppActions.showWidget({ id: widgetID, shown: visibility }))
   }
 
   const enableSocial =
@@ -306,7 +302,7 @@ const ProfileDetailView = () => {
           <section className="profileBlock">
             <div className="avatarBlock">
               <img src={getAvatarURLForUser(userId)} />
-              <button className="avatarBtn" id="select-avatar" onClick={handleOpenSelectAvatarWidget}>
+              <button xr-layer="true" className="avatarBtn" id="select-avatar" onClick={handleOpenSelectAvatarWidget}>
                 <Create />
               </button>
             </div>
@@ -487,7 +483,7 @@ const ProfileDetailView = () => {
           {userRole === 'guest' && (
             <section className="walletSection">
               <h3 className="textBlock">{t('user:usermenu.profile.or')}</h3>
-              <button onClick={handleOpenReadyPlayerWidget} className="walletBtn">
+              <button xr-layer="true" onClick={handleOpenReadyPlayerWidget} className="walletBtn">
                 {t('user:usermenu.profile.loginWithReadyPlayerMe')}
               </button>
             </section>

@@ -3,13 +3,14 @@ import React, { useEffect, useState } from 'react'
 
 import { UserAvatar } from '@xrengine/common/src/interfaces/UserAvatar'
 import { AvatarEffectComponent } from '@xrengine/engine/src/avatar/components/AvatarEffectComponent'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
+import { accessWidgetAppState, WidgetAppActions } from '@xrengine/engine/src/xrui/WidgetAppService'
+import { dispatchAction } from '@xrengine/hyperflux'
 
 import { ArrowBackIos, ArrowForwardIos, Check, PersonAdd } from '@mui/icons-material'
-import Grid from '@mui/material/Grid'
-import Paper from '@mui/material/Paper'
 
 import { AuthService, useAuthState } from '../../../user/services/AuthService'
 import styleString from './index.scss'
@@ -53,13 +54,12 @@ const SelectAvatarMenu = () => {
     }
   }
 
-  const loadNextAvatars = (e) => {
-    e.preventDefault()
+  const loadNextAvatars = () => {
     if ((page + 1) * imgPerPage >= avatarList.length) return
     setPage(page + 1)
   }
-  const loadPreviousAvatars = (e) => {
-    e.preventDefault()
+
+  const loadPreviousAvatars = () => {
     if (page === 0) return
     setPage(page - 1)
   }
@@ -71,7 +71,7 @@ const SelectAvatarMenu = () => {
         selectedAvatar?.avatar?.url || '',
         selectedAvatar['user-thumbnail']?.url || ''
       )
-      // TODO close all widget menus
+      setWidgetVisibility('Profile', false)
     }
     setSelectedAvatar('')
   }
@@ -81,8 +81,27 @@ const SelectAvatarMenu = () => {
   }
 
   const openAvatarSelectMenu = (e) => {
-    e.preventDefault()
-    // TODO open avatar upload menu
+    setWidgetVisibility('UploadAvatar', true)
+  }
+
+  const setWidgetVisibility = (widgetName: string, visibility: boolean) => {
+    const widgetState = accessWidgetAppState()
+    const widgets = Object.entries(widgetState.widgets.value).map(([id, widgetState]) => ({
+      id,
+      ...widgetState,
+      ...Engine.instance.currentWorld.widgets.get(id)!
+    }))
+
+    const currentWidget = widgets.find((w) => w.label === widgetName)
+
+    // close currently open widgets until we support multiple widgets being open at once
+    for (let widget of widgets) {
+      if (currentWidget && widget.id !== currentWidget.id) {
+        dispatchAction(WidgetAppActions.showWidget({ id: widget.id, shown: false }))
+      }
+    }
+
+    currentWidget && dispatchAction(WidgetAppActions.showWidget({ id: currentWidget.id, shown: visibility }))
   }
 
   const renderAvatarList = () => {
@@ -97,6 +116,7 @@ const SelectAvatarMenu = () => {
       avatarElementList.push(
         <div
           key={avatar.id}
+          xr-layer="true"
           onClick={() => selectAvatar(characterAvatar)}
           className={`paperAvatar ${avatar.name == selectedAvatar?.avatar?.name ? 'selectedAvatar' : ''}
               ${avatar.name == avatarId ? 'activeAvatar' : ''}`}
@@ -126,8 +146,13 @@ const SelectAvatarMenu = () => {
           </div>
         </div>
         <div className="menuContainer">
-          <button type="button" className={`btn btnArrow ${page === 0 ? 'disabled' : ''}`}>
-            <ArrowBackIos className="size" onClick={loadPreviousAvatars} />
+          <button
+            type="button"
+            className={`btn btnArrow ${page === 0 ? 'disabled' : ''}`}
+            xr-layer="true"
+            onClick={loadPreviousAvatars}
+          >
+            <ArrowBackIos className="size" />
           </button>
           <div className="innerMenuContainer">
             <button
@@ -136,6 +161,7 @@ const SelectAvatarMenu = () => {
               className={`btn btnCancel ${
                 selectedAvatar ? (selectedAvatar?.avatar?.name != avatarId ? 'btnDeepColorCancel' : '') : 'disabledBtn'
               }`}
+              xr-layer="true"
               onClick={() => {
                 setSelectedAvatar('')
               }}
@@ -149,16 +175,18 @@ const SelectAvatarMenu = () => {
               }`}
               disabled={selectedAvatar?.avatar?.name == avatarId}
               onClick={confirmAvatar}
+              xr-layer="true"
             >
               <Check />
             </button>
-            <button type="button" className={`btn btnPerson`} onClick={openAvatarSelectMenu}>
+            <button type="button" className={`btn btnPerson`} onClick={openAvatarSelectMenu} xr-layer="true">
               <PersonAdd className="size" />
             </button>
           </div>
           <button
             type="button"
             className={`btn btnArrow ${(page + 1) * imgPerPage >= avatarList.length ? 'disabled' : ''}`}
+            xr-layer="true"
             onClick={loadNextAvatars}
           >
             <ArrowForwardIos className="size" />

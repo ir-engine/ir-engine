@@ -14,11 +14,14 @@ import {
 } from '@xrengine/common/src/constants/AvatarConstants'
 import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
 import { loadAvatarForPreview } from '@xrengine/engine/src/avatar/functions/avatarFunctions'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { createEntity, removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { getOrbitControls } from '@xrengine/engine/src/input/functions/loadOrbitControl'
 import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
+import { accessWidgetAppState, WidgetAppActions } from '@xrengine/engine/src/xrui/WidgetAppService'
+import { dispatchAction } from '@xrengine/hyperflux'
 
 import { AccountCircle, ArrowBack, CloudUpload, SystemUpdateAlt } from '@mui/icons-material'
 
@@ -199,7 +202,7 @@ export const UploadAvatarMenu = () => {
       await AuthService.uploadAvatarModel(avatarBlob, thumbnailBlob, avatarName, false)
     }
 
-    // TODO open profile widget menu here
+    setWidgetVisibility('Profile', true)
   }
 
   const handleThumbnailChange = (e) => {
@@ -223,7 +226,27 @@ export const UploadAvatarMenu = () => {
 
   const openAvatarMenu = (e) => {
     e.preventDefault()
-    // TODO open avatar select menu here
+    setWidgetVisibility('SelectAvatar', true)
+  }
+
+  const setWidgetVisibility = (widgetName: string, visibility: boolean) => {
+    const widgetState = accessWidgetAppState()
+    const widgets = Object.entries(widgetState.widgets.value).map(([id, widgetState]) => ({
+      id,
+      ...widgetState,
+      ...Engine.instance.currentWorld.widgets.get(id)!
+    }))
+
+    const currentWidget = widgets.find((w) => w.label === widgetName)
+
+    // close currently open widgets until we support multiple widgets being open at once
+    for (let widget of widgets) {
+      if (currentWidget && widget.id !== currentWidget.id) {
+        dispatchAction(WidgetAppActions.showWidget({ id: widget.id, shown: false }))
+      }
+    }
+
+    currentWidget && dispatchAction(WidgetAppActions.showWidget({ id: currentWidget.id, shown: visibility }))
   }
 
   const uploadButtonEnabled = !!fileSelected && !error && avatarName.length > 3
@@ -233,7 +256,7 @@ export const UploadAvatarMenu = () => {
       <style>{styleString}</style>
       <div ref={panelRef} className="avatarUploadPanel">
         <div className="avatarHeaderBlock">
-          <button type="button" className="iconBlock" onClick={openAvatarMenu}>
+          <button type="button" xr-layer="true" className="iconBlock" onClick={openAvatarMenu}>
             <ArrowBack />
           </button>
           <h2>{t('user:avatar.title')}</h2>
@@ -330,6 +353,7 @@ export const UploadAvatarMenu = () => {
               type="button"
               className="uploadBtn"
               onClick={uploadAvatar}
+              xr-layer="true"
               disabled={!validAvatarUrl}
               style={{ cursor: !validAvatarUrl ? 'not-allowed' : 'pointer' }}
             >
@@ -375,6 +399,7 @@ export const UploadAvatarMenu = () => {
               <button
                 type="button"
                 className="uploadBtn"
+                xr-layer="true"
                 onClick={uploadAvatar}
                 style={{ cursor: uploadButtonEnabled ? 'pointer' : 'not-allowed' }}
                 disabled={!uploadButtonEnabled}
