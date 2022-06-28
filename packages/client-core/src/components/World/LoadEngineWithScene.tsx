@@ -104,9 +104,6 @@ export const LoadEngineWithScene = () => {
         }
       }
 
-      // remove all network clients but own (will be updated when new connection is established)
-      WorldNetworkActionReceptor.removeAllNetworkPeers(false, world, world.worldNetwork)
-
       teleportToScene()
     }
   }, [engineState.isTeleporting])

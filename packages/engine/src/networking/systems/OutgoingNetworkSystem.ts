@@ -25,7 +25,7 @@ const serializeAndSend = (world: World, serialize: Function) => {
 
     if (data.byteLength > 0) {
       // side effect - network IO
-      world.worldNetwork?.sendData(data)
+      world.worldNetwork.sendData(data)
     }
   }
 }
@@ -34,6 +34,6 @@ export default async function OutgoingNetworkSystem(world: World) {
   const serialize = createDataWriter()
 
   return () => {
-    serializeAndSend(world, serialize)
+    world.worldNetwork && serializeAndSend(world, serialize)
   }
 }

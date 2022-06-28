@@ -240,14 +240,6 @@ const loadEngine = async (app: Application, sceneId: string) => {
 
   world.networks.set(hostId, network)
 
-  dispatchAction(
-    WorldNetworkAction.createPeer({
-      name: 'server-' + hostId,
-      index: network.userIndexCount++
-    }),
-    [hostId]
-  )
-
   if (app.isChannelInstance) {
     world._mediaHostId = hostId as UserId
     await initializeMediaServerSystems()
@@ -297,6 +289,15 @@ const loadEngine = async (app: Application, sceneId: string) => {
     // )
   }
   await initPromise
+
+  dispatchAction(
+    WorldNetworkAction.createPeer({
+      name: 'server-' + hostId,
+      index: network.userIndexCount++
+    }),
+    hostId
+  )
+
   dispatchAction(EngineActions.joinedWorld())
 }
 
