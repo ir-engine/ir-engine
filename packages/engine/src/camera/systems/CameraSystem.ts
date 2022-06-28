@@ -185,7 +185,7 @@ export const calculateCameraTarget = (entity: Entity, target: Vector3) => {
 }
 
 export const updateFollowCamera = (entity: Entity, delta: number) => {
-  if (!entity) return
+  if (!entity || !Engine.instance.currentWorld.activeCameraEntity) return
   const followCamera = getComponent(entity, FollowCameraComponent)
   const object3DComponent = getComponent(entity, Object3DComponent)
   object3DComponent?.value.updateWorldMatrix(false, true)
@@ -265,7 +265,7 @@ export const initializeCameraComponent = (world: World) => {
   return cameraEntity
 }
 
-function handleSpectateMode() {
+function registerSpectateMode() {
   addActionReceptor((a) => {
     matches(a).when(EngineActions.spectateUser.matches, (action) => {
       const targetUserCamEntity = Engine.instance.currentWorld.getUserEntityWithComponent(
@@ -275,7 +275,7 @@ function handleSpectateMode() {
 
       if (!targetUserCamEntity) return
 
-      console.log('Spectate component added')
+      console.log('Spectate component added', action.user)
       addComponent(targetUserCamEntity, SpectateComponent, {})
     })
   })
@@ -341,8 +341,7 @@ export default async function CameraSystem(world: World) {
   const cameraSpawnQueue = createActionQueue(WorldNetworkAction.spawnCamera.matches)
   const localAvatarQuery = defineQuery([AvatarComponent, LocalInputTagComponent])
 
-  let cameraInitialized = Engine.instance.isEditor
-  handleSpectateMode()
+  registerSpectateMode()
 
   return () => {
     for (const action of cameraSpawnQueue()) cameraSpawnReceptor(action, world)
@@ -350,13 +349,10 @@ export default async function CameraSystem(world: World) {
     const { deltaSeconds: delta } = world
     for (const entity of localAvatarQuery.enter()) {
       dispatchAction(WorldNetworkAction.spawnCamera(), [world.worldNetwork.hostId])
-      cameraInitialized = true
     }
 
-    if (cameraInitialized) {
-      for (const entity of followCameraQuery.enter()) {
-        enterFollowCameraQuery(entity)
-      }
+    for (const entity of followCameraQuery.enter()) {
+      enterFollowCameraQuery(entity)
     }
 
     for (const entity of followCameraQuery.exit()) {
@@ -391,7 +387,7 @@ export default async function CameraSystem(world: World) {
         ;(EngineRenderer.instance.xrManager as any).updateCamera(Engine.instance.currentWorld.camera)
 
         removeComponent(Engine.instance.currentWorld.localClientEntity, XRCameraUpdatePendingTagComponent)
-      } else if (followCameraEntity !== undefined) {
+      } else if (followCameraEntity !== undefined && Engine.instance.currentWorld.activeCameraEntity) {
         const transform = getComponent(Engine.instance.currentWorld.activeCameraEntity, TransformComponent)
         Engine.instance.currentWorld.camera.position.copy(transform.position)
         Engine.instance.currentWorld.camera.quaternion.copy(transform.rotation)
