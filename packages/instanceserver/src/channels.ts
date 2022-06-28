@@ -481,7 +481,7 @@ const shutdownServer = async (app: Application, instanceId: string) => {
 const getActiveUsersCount = (userToIgnore) => {
   const activeClients = Engine.instance.currentWorld.clients
   const activeUsers = [...activeClients].filter(
-    ([, v]) => v.userId !== Engine.instance.userId && v.userId !== userToIgnore.id && !v.spectating
+    ([, v]) => v.userId !== Engine.instance.userId && v.userId !== userToIgnore.id
   )
   return activeUsers.length
 }

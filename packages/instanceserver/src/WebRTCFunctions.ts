@@ -22,7 +22,7 @@ import multiLogger from '@xrengine/server-core/src/logger'
 import { WebRtcTransportParams } from '@xrengine/server-core/src/types/WebRtcTransportParams'
 
 import { getUserIdFromSocketId } from './NetworkFunctions'
-import { SocketWebRTCServerNetwork } from './SocketWebRTCServerNetwork'
+import { SocketWebRTCServerNetwork, WebRTCTransportExtension } from './SocketWebRTCServerNetwork'
 
 const logger = multiLogger.child({ component: 'instanceserver:webrtc' })
 
@@ -185,7 +185,10 @@ export const handleConsumeDataEvent =
     }
   }
 
-export async function closeTransport(network: SocketWebRTCServerNetwork, transport: WebRtcTransport): Promise<void> {
+export async function closeTransport(
+  network: SocketWebRTCServerNetwork,
+  transport: WebRTCTransportExtension
+): Promise<void> {
   logger.info(`Closing transport id "${transport.id}", appData: %o`, transport.appData)
   // our producer and consumer event handlers will take care of
   // calling closeProducer() and closeConsumer() on all the producers

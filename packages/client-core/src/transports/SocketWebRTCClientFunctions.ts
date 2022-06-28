@@ -1,10 +1,22 @@
-import { Transport as MediaSoupTransport } from 'mediasoup-client/lib/types'
+import { Consumer, Transport as MediaSoupTransport, Producer } from 'mediasoup-client/lib/types'
+import {
+  BufferGeometry,
+  LinearFilter,
+  Mesh,
+  MeshBasicMaterial,
+  MeshLambertMaterial,
+  PlaneGeometry,
+  sRGBEncoding,
+  VideoTexture
+} from 'three'
 
 import { ChannelType } from '@xrengine/common/src/interfaces/Channel'
+import { MediaTagType } from '@xrengine/common/src/interfaces/MediaStreamConstants'
 import logger from '@xrengine/common/src/logger'
 import { matches } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineState'
+import { defineQuery, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { NetworkTypes } from '@xrengine/engine/src/networking/classes/Network'
 import { PUBLIC_STUN_SERVERS } from '@xrengine/engine/src/networking/constants/STUNServers'
 import { CAM_VIDEO_SIMULCAST_ENCODINGS } from '@xrengine/engine/src/networking/constants/VideoConstants'
@@ -13,6 +25,9 @@ import { receiveJoinWorld } from '@xrengine/engine/src/networking/functions/rece
 import { WorldNetworkActionReceptor } from '@xrengine/engine/src/networking/functions/WorldNetworkActionReceptor'
 import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
 import { updateNearbyAvatars } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
+import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
+import { ScreenshareTargetComponent } from '@xrengine/engine/src/scene/components/ScreenshareTargetComponent'
+import { fitTexture } from '@xrengine/engine/src/scene/functions/fitTexture'
 import { addActionReceptor, dispatchAction, removeActionReceptor, removeTopic } from '@xrengine/hyperflux'
 import { Action } from '@xrengine/hyperflux/functions/ActionFunctions'
 
@@ -785,7 +800,7 @@ export async function unsubscribeFromTrack(transport: SocketWebRTCClientNetwork,
 
 export async function pauseConsumer(
   network: SocketWebRTCClientNetwork,
-  consumer: { appData: { peerId: any; mediaTag: any }; id: any; pause: () => any }
+  consumer: { appData: MediaTagType; id: any; pause: () => any }
 ) {
   await network.request(MessageTypes.WebRTCPauseConsumer.toString(), {
     consumerId: consumer.id
@@ -800,7 +815,7 @@ export async function pauseConsumer(
 export async function resumeConsumer(
   network: SocketWebRTCClientNetwork,
   consumer: {
-    appData: { peerId: any; mediaTag: any }
+    appData: MediaTagType
     id: any
     resume: () => any
   }
@@ -817,7 +832,7 @@ export async function resumeConsumer(
 
 export async function pauseProducer(
   network: SocketWebRTCClientNetwork,
-  producer: { appData: { mediaTag: any }; id: any; pause: () => any }
+  producer: { appData: MediaTagType; id: any; pause: () => any }
 ) {
   await network.request(MessageTypes.WebRTCPauseProducer.toString(), {
     producerId: producer.id
@@ -831,7 +846,7 @@ export async function pauseProducer(
 
 export async function resumeProducer(
   network: SocketWebRTCClientNetwork,
-  producer: { appData: { mediaTag: any }; id: any; resume: () => any }
+  producer: { appData: MediaTagType; id: any; resume: () => any }
 ) {
   await network.request(MessageTypes.WebRTCResumeProducer.toString(), {
     producerId: producer.id
@@ -997,4 +1012,28 @@ export const stopScreenshare = async (network: SocketWebRTCClientNetwork) => {
 
   MediaStreamService.updateScreenAudioState()
   MediaStreamService.updateScreenVideoState()
+}
+
+const screenshareTargetQuery = defineQuery([ScreenshareTargetComponent])
+
+export const applyScreenshareToTexture = (video: HTMLVideoElement) => {
+  video.onplay = () => {
+    for (const entity of screenshareTargetQuery(Engine.instance.currentWorld)) {
+      const obj3d = getComponent(entity, Object3DComponent)?.value
+      obj3d?.traverse((obj: Mesh<any, MeshBasicMaterial>) => {
+        if (obj.material) {
+          const videoTexture = new VideoTexture(video)
+          videoTexture.encoding = sRGBEncoding
+          const material = new MeshBasicMaterial({ color: 0xffffff, map: videoTexture })
+          obj.material = material
+          let screenAspect = 1
+          if (obj.geometry instanceof PlaneGeometry) {
+            screenAspect = obj.geometry.parameters.height / obj.geometry.parameters.width
+          }
+          const imageAspect = video.videoWidth / video.videoHeight
+          fitTexture(videoTexture, imageAspect, screenAspect, 'fit')
+        }
+      })
+    }
+  }
 }
