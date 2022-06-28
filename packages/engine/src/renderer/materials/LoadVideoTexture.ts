@@ -4,6 +4,7 @@ import { isClient } from '../../common/functions/isClient'
 import { EngineActions, getEngineState } from '../../ecs/classes/EngineState'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { matchActionOnce } from '../../networking/functions/matchActionOnce'
+import { EngineRenderer } from '../WebGLRendererSystem'
 
 export default function loadVideoTexture(src, onLoad = (result) => {}) {
   if (!isClient) return
@@ -34,19 +35,19 @@ export default function loadVideoTexture(src, onLoad = (result) => {}) {
   const texture = new VideoTexture(el)
   el.currentTime = 1
   if (!texture) console.error('texture is missing')
+
   el.addEventListener(
     'loadeddata',
     () => {
-      if (getEngineState().userHasInteracted.value) {
+      const canvas = EngineRenderer.instance.canvas
+      function handleInput() {
+        canvas.removeEventListener('keypress', this)
+        canvas.removeEventListener('click', this)
         el.play()
         onLoad(texture)
-      } else {
-        matchActionOnce(EngineActions.setUserHasInteracted.matches, () => {
-          el.play()
-          onLoad(texture)
-          return true
-        })
       }
+      canvas.addEventListener('keypress', handleInput)
+      canvas.addEventListener('click', handleInput)
     },
     { once: true }
   )
