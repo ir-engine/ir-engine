@@ -7,7 +7,7 @@ import { LoadingCircle } from '@xrengine/client-core/src/components/LoadingCircl
 import { LoadEngineWithScene } from '@xrengine/client-core/src/components/World/LoadEngineWithScene'
 import OfflineLocation from '@xrengine/client-core/src/components/World/OfflineLocation'
 import { LocationAction } from '@xrengine/client-core/src/social/services/LocationService'
-import { DefaultLocationSystems } from '@xrengine/client-core/src/systems/DefaultLocationSystems'
+import { DefaultLocationSystems } from '@xrengine/client-core/src/world/DefaultLocationSystems'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { dispatchAction } from '@xrengine/hyperflux'

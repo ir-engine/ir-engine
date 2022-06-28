@@ -23,7 +23,9 @@ import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { AssetType } from '../../assets/enum/AssetType'
 import { AnimationManager } from '../../avatar/AnimationManager'
 import { LoopAnimationComponent } from '../../avatar/components/LoopAnimationComponent'
+import { OBCType } from '../../common/constants/OBCTypes'
 import { isClient } from '../../common/functions/isClient'
+import { addOBCPlugin } from '../../common/functions/OnBeforeCompilePlugin'
 import { insertAfterString, insertBeforeString } from '../../common/functions/string'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
@@ -380,59 +382,62 @@ function getBoneChildrenIndexes(bones: Object3D[], startingBone: Object3D): numb
  */
 export function addBoneOpacityParamsToMaterial(material, boneIndexes: Matrix4) {
   material.transparent = true
-  material.onBeforeCompile = (shader, renderer) => {
-    shader.uniforms.boneIndexToFade = { value: boneIndexes }
-    shader.uniforms.boneOpacity = { value: 1.0 }
+  addOBCPlugin(material, {
+    id: OBCType.AVATAR,
+    compile: (shader) => {
+      shader.uniforms.boneIndexToFade = { value: boneIndexes }
+      shader.uniforms.boneOpacity = { value: 1.0 }
 
-    // Vertex Uniforms
-    const vertexUniforms = `uniform mat4 boneIndexToFade;
-      varying float vSelectedBone;`
+      // Vertex Uniforms
+      const vertexUniforms = `uniform mat4 boneIndexToFade;
+        varying float vSelectedBone;`
 
-    shader.vertexShader = insertBeforeString(shader.vertexShader, 'varying vec3 vViewPosition;', vertexUniforms)
+      shader.vertexShader = insertBeforeString(shader.vertexShader, 'varying vec3 vViewPosition;', vertexUniforms)
 
-    shader.vertexShader = insertAfterString(
-      shader.vertexShader,
-      '#include <skinning_vertex>',
-      `
-      vSelectedBone = 0.0;
+      shader.vertexShader = insertAfterString(
+        shader.vertexShader,
+        '#include <skinning_vertex>',
+        `
+        vSelectedBone = 0.0;
 
-      for(float i=0.0; i<16.0 && vSelectedBone == 0.0; i++){
-          int x = int(i/4.0);
-          int y = int(mod(i,4.0));
-          float boneIndex = boneIndexToFade[x][y];
-          if(boneIndex < 0.0) continue;
+        for(float i=0.0; i<16.0 && vSelectedBone == 0.0; i++){
+            int x = int(i/4.0);
+            int y = int(mod(i,4.0));
+            float boneIndex = boneIndexToFade[x][y];
+            if(boneIndex < 0.0) continue;
 
-          for(int j=0; j<4; j++){
-              if(skinIndex[j] == boneIndex){
-                  vSelectedBone = 1.0;
-                  break;
-              }
-          }
-      }
-      `
-    )
+            for(int j=0; j<4; j++){
+                if(skinIndex[j] == boneIndex){
+                    vSelectedBone = 1.0;
+                    break;
+                }
+            }
+        }
+        `
+      )
 
-    // Fragment Uniforms
-    const fragUniforms = `varying float vSelectedBone;
-      uniform float boneOpacity;
-      `
+      // Fragment Uniforms
+      const fragUniforms = `varying float vSelectedBone;
+        uniform float boneOpacity;
+        `
 
-    shader.fragmentShader = insertBeforeString(shader.fragmentShader, 'uniform vec3 diffuse;', fragUniforms)
+      shader.fragmentShader = insertBeforeString(shader.fragmentShader, 'uniform vec3 diffuse;', fragUniforms)
 
-    shader.fragmentShader = insertAfterString(
-      shader.fragmentShader,
-      'vec4 diffuseColor = vec4( diffuse, opacity );',
-      `if(vSelectedBone > 0.0){
-          diffuseColor.a = opacity * boneOpacity;
-          if (boneOpacity == 0.0) {
-            discard;
-          }
-      }
-      `
-    )
+      shader.fragmentShader = insertAfterString(
+        shader.fragmentShader,
+        'vec4 diffuseColor = vec4( diffuse, opacity );',
+        `if(vSelectedBone > 0.0){
+            diffuseColor.a = opacity * boneOpacity;
+            if (boneOpacity == 0.0) {
+              discard;
+            }
+        }
+        `
+      )
 
-    material.userData.shader = shader
-  }
+      material.userData.shader = shader
+    }
+  })
 }
 
 export const setAvatarHeadOpacity = (entity: Entity, opacity: number): void => {

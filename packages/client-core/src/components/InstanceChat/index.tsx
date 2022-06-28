@@ -96,7 +96,7 @@ export const useChatHooks = ({ chatWindowOpen, setUnreadMessages, messageRefInpu
         WorldNetworkAction.setUserTyping({
           typing: false
         }),
-        [Engine.instance.currentWorld.worldNetwork.hostId]
+        Engine.instance.currentWorld.worldNetwork.hostId
       )
     }, 3000)
 
@@ -125,7 +125,7 @@ export const useChatHooks = ({ chatWindowOpen, setUnreadMessages, messageRefInpu
           WorldNetworkAction.setUserTyping({
             typing: true
           }),
-          [Engine.instance.currentWorld.worldNetwork.hostId]
+          Engine.instance.currentWorld.worldNetwork.hostId
         )
       }
     }
@@ -135,7 +135,7 @@ export const useChatHooks = ({ chatWindowOpen, setUnreadMessages, messageRefInpu
           WorldNetworkAction.setUserTyping({
             typing: false
           }),
-          [Engine.instance.currentWorld.worldNetwork.hostId]
+          Engine.instance.currentWorld.worldNetwork.hostId
         )
       }
     }
@@ -150,7 +150,7 @@ export const useChatHooks = ({ chatWindowOpen, setUnreadMessages, messageRefInpu
           WorldNetworkAction.setUserTyping({
             typing: false
           }),
-          [Engine.instance.currentWorld.worldNetwork.hostId]
+          Engine.instance.currentWorld.worldNetwork.hostId
         )
       }
 
@@ -264,7 +264,7 @@ const InstanceChat = ({
     const loadPromise = AssetLoader.loadAsync(notificationAlertURL)
     const node = createEntityNode(createEntity(Engine.instance.currentWorld))
     setEntity(node.entity)
-    createNewEditorNode(node.entity, ScenePrefabs.audio)
+    createNewEditorNode(node, ScenePrefabs.audio)
     addEntityNodeInTree(node, Engine.instance.currentWorld.entityTree.rootNode)
     const audioComponent = getComponent(node.entity, AudioComponent)
     audioComponent.volume = audioState.audio.value / 100

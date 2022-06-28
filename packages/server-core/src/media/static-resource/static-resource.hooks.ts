@@ -1,6 +1,6 @@
 import { HookContext } from '@feathersjs/feathers'
 import dauria from 'dauria'
-import { iff, isProvider } from 'feathers-hooks-common'
+import { disallow, iff, isProvider } from 'feathers-hooks-common'
 
 import collectAnalytics from '@xrengine/server-core/src/hooks/collect-analytics'
 import replaceThumbnailLink from '@xrengine/server-core/src/hooks/replace-thumbnail-link'
@@ -16,7 +16,7 @@ export default {
   before: {
     all: [],
     find: [collectAnalytics()],
-    get: [],
+    get: [disallow('external')],
     create: [
       authenticate(),
       restrictUserRole('admin'),

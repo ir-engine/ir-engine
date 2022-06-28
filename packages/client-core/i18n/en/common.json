@@ -36,8 +36,7 @@
     "worldStore": "World Store",
     "engineStore": "Engine Store",
     "namedEntities": "Named Entities",
-    "networks": "Networks",
-    "networkClients": "Network Clients"
+    "networks": "Networks"
   },
   "recording": {
     "videoRecorder": "Video recorder",

@@ -16,14 +16,11 @@ export class ProjectSetting implements ServiceMethods<Data> {
 
   async find(params?: Params): Promise<[{ key: string; value: string }]> {
     const result = await this.app.service('project').find(params)
-    const settingsValue = result?.data[0]?.settings ? JSON.parse(result.data[0].settings) : []
-    return settingsValue
+    return result?.data[0]?.settings ? JSON.parse(result.data[0].settings) : []
   }
 
   async patch(id: Id, params?: Params): Promise<any> {
-    const result = await this.app.service('project').updateSettings(id, params as any)
-
-    return result
+    return this.app.service('project').updateSettings(id, params as any)
   }
 
   async setup(): Promise<any> {}
