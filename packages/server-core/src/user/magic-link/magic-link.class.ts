@@ -93,7 +93,8 @@ export class Magiclink implements ServiceMethods<Data> {
    * @param toEmail email of reciever
    * @param token generated token
    * @param type of login
-   * @param name of user
+   * @param identityProvider of user
+   * @param subscriptionId optional subscription ID
    * @returns {@function} sent email
    * @author Vyacheslav Solovjov
    */
