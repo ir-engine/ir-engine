@@ -1,15 +1,20 @@
 import { ArrowHelper, Clock, Material, MathUtils, Matrix4, Quaternion, SkinnedMesh, Vector3 } from 'three'
 import { clamp } from 'three/src/math/MathUtils'
 
+import { UserId } from '@xrengine/common/src/interfaces/UserId'
+import { addActionReceptor, createActionQueue, dispatchAction } from '@xrengine/hyperflux'
+
 import { BoneNames } from '../../avatar/AvatarBoneMatching'
 import { AvatarAnimationComponent } from '../../avatar/components/AvatarAnimationComponent'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { XRCameraUpdatePendingTagComponent } from '../../avatar/components/XRCameraUpdatePendingTagComponent'
 import { setAvatarHeadOpacity } from '../../avatar/functions/avatarFunctions'
+import { matches } from '../../common/functions/MatchesUtils'
 import { smoothDamp } from '../../common/functions/MathLerpFunctions'
 import { createConeOfVectors } from '../../common/functions/vectorHelpers'
+import { createQuaternionProxy, createVector3Proxy } from '../../common/proxies/three'
 import { Engine } from '../../ecs/classes/Engine'
-import { getEngineState } from '../../ecs/classes/EngineState'
+import { EngineActions, getEngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
 import {
@@ -20,15 +25,19 @@ import {
   removeComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
+import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
+import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
+import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
-import { CameraPropertiesComponent } from '../../scene/components/CameraPropertiesComponent'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { RAYCAST_PROPERTIES_DEFAULT_VALUES } from '../../scene/functions/loaders/CameraPropertiesFunctions'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 import { TransformComponent } from '../../transform/components/TransformComponent'
+import { CameraTagComponent } from '../components/CameraTagComponent'
 import { FollowCameraComponent } from '../components/FollowCameraComponent'
+import { SpectateComponent } from '../components/SpectateComponent'
 import { TargetCameraRotationComponent } from '../components/TargetCameraRotationComponent'
 
 const direction = new Vector3()
@@ -176,7 +185,7 @@ export const calculateCameraTarget = (entity: Entity, target: Vector3) => {
 }
 
 export const updateFollowCamera = (entity: Entity, delta: number) => {
-  if (!entity) return
+  if (!entity || !Engine.instance.currentWorld.activeCameraEntity) return
   const followCamera = getComponent(entity, FollowCameraComponent)
   const object3DComponent = getComponent(entity, Object3DComponent)
   object3DComponent?.value.updateWorldMatrix(false, true)
@@ -232,10 +241,9 @@ export const updateFollowCamera = (entity: Entity, delta: number) => {
   mx.lookAt(direction, empty, upVector)
   cameraTransform.rotation.setFromRotationMatrix(mx)
 
-  const avatarTransform = getComponent(entity, TransformComponent)
-
   // TODO: Can move avatar update code outside this function
   if (followCamera.locked) {
+    const avatarTransform = getComponent(entity, TransformComponent)
     const newTheta = MathUtils.degToRad(theta + 180) % (Math.PI * 2)
     // avatarTransform.rotation.setFromAxisAngle(upVector, newTheta)
     avatarTransform.rotation.slerp(quaternion.setFromAxisAngle(upVector, newTheta), delta * 4)
@@ -247,55 +255,120 @@ export const initializeCameraComponent = (world: World) => {
   const camObj = Engine.instance.currentWorld.camera
   addComponent(cameraEntity, Object3DComponent, { value: camObj })
   addComponent(cameraEntity, PersistTagComponent, {})
-
+  addComponent(cameraEntity, CameraTagComponent, {})
   addComponent(cameraEntity, TransformComponent, {
     position: camObj.position,
     rotation: camObj.quaternion,
     scale: camObj.scale
   })
-
   Engine.instance.currentWorld.activeCameraEntity = cameraEntity
-
   return cameraEntity
 }
 
-export default async function CameraSystem(world: World) {
-  const followCameraQuery = defineQuery([FollowCameraComponent, TransformComponent, AvatarComponent])
-  const targetCameraRotationQuery = defineQuery([FollowCameraComponent, TargetCameraRotationComponent])
-  let cameraInitialized = Engine.instance.isEditor
-  return () => {
-    const { deltaSeconds: delta } = world
-    if (getEngineState().sceneLoaded.value && !cameraInitialized) {
-      initializeCameraComponent(world)
-      cameraInitialized = true
-    }
-    if (cameraInitialized) {
-      for (const entity of followCameraQuery.enter()) {
-        const cameraFollow = getComponent(entity, FollowCameraComponent)
-        cameraFollow.raycaster.layers.set(ObjectLayers.Scene) // Ignore avatars
-        ;(cameraFollow.raycaster as any).firstHitOnly = true // three-mesh-bvh setting
-        cameraFollow.raycaster.far = cameraFollow.maxDistance
-        Engine.instance.currentWorld.activeCameraFollowTarget = entity
-        //check for initialized raycast properties
-        if (!cameraFollow.raycastProps) {
-          cameraFollow.raycastProps = RAYCAST_PROPERTIES_DEFAULT_VALUES
-        }
-        for (let i = 0; i < cameraFollow.raycastProps.rayCount; i++) {
-          cameraRays.push(new Vector3())
+function registerSpectateMode() {
+  addActionReceptor((a) => {
+    matches(a).when(EngineActions.spectateUser.matches, (action) => {
+      const targetUserCamEntity = Engine.instance.currentWorld.getUserEntityWithComponent(
+        action.user as UserId,
+        CameraTagComponent
+      )
 
-          if (debugRays) {
-            const arrow = new ArrowHelper()
-            coneDebugHelpers.push(arrow)
-            setObjectLayers(arrow, ObjectLayers.Gizmos)
-            Engine.instance.currentWorld.scene.add(arrow)
-          }
-        }
-      }
+      if (!targetUserCamEntity) return
+
+      console.log('Spectate component added', action.user)
+      addComponent(targetUserCamEntity, SpectateComponent, {})
+    })
+  })
+}
+
+function updateSpectator(entity: Entity) {
+  const transform = getComponent(entity, TransformComponent)
+  const { camera } = Engine.instance.currentWorld
+  camera.position.copy(transform.position)
+  camera.quaternion.copy(transform.rotation)
+}
+
+function enterFollowCameraQuery(entity: Entity) {
+  const cameraFollow = getComponent(entity, FollowCameraComponent)
+  cameraFollow.raycaster.layers.set(ObjectLayers.Scene) // Ignore avatars
+  ;(cameraFollow.raycaster as any).firstHitOnly = true // three-mesh-bvh setting
+  cameraFollow.raycaster.far = cameraFollow.maxDistance
+  Engine.instance.currentWorld.activeCameraFollowTarget = entity
+  //check for initialized raycast properties
+  if (!cameraFollow.raycastProps) {
+    cameraFollow.raycastProps = RAYCAST_PROPERTIES_DEFAULT_VALUES
+  }
+  for (let i = 0; i < cameraFollow.raycastProps.rayCount; i++) {
+    cameraRays.push(new Vector3())
+
+    if (debugRays) {
+      const arrow = new ArrowHelper()
+      coneDebugHelpers.push(arrow)
+      setObjectLayers(arrow, ObjectLayers.Gizmos)
+      Engine.instance.currentWorld.scene.add(arrow)
+    }
+  }
+}
+
+export function cameraSpawnReceptor(
+  spawnAction: ReturnType<typeof WorldNetworkAction.spawnCamera>,
+  world = Engine.instance.currentWorld
+) {
+  const entity = world.getNetworkObject(spawnAction.$from, spawnAction.networkId)!
+
+  console.log('Camera Spawn Receptor Call', entity)
+
+  addComponent(entity, PersistTagComponent, {})
+  addComponent(entity, CameraTagComponent, {})
+
+  const position = createVector3Proxy(TransformComponent.position, entity)
+  const rotation = createQuaternionProxy(TransformComponent.rotation, entity)
+  const scale = createVector3Proxy(TransformComponent.scale, entity).setScalar(1)
+  addComponent(entity, TransformComponent, { position, rotation, scale })
+
+  if (spawnAction.$from === Engine.instance.userId) {
+    const camObj = Engine.instance.currentWorld.camera
+    addComponent(entity, Object3DComponent, { value: camObj })
+    Engine.instance.currentWorld.activeCameraEntity = entity
+  }
+}
+
+export default async function CameraSystem(world: World) {
+  const cameraTransformUpdateQuery = defineQuery([CameraTagComponent, Object3DComponent, TransformComponent])
+  const followCameraQuery = defineQuery([FollowCameraComponent, TransformComponent, AvatarComponent])
+  const spectateQuery = defineQuery([CameraTagComponent, SpectateComponent])
+  const targetCameraRotationQuery = defineQuery([FollowCameraComponent, TargetCameraRotationComponent])
+  const cameraSpawnQueue = createActionQueue(WorldNetworkAction.spawnCamera.matches)
+  const localAvatarQuery = defineQuery([AvatarComponent, LocalInputTagComponent])
+
+  registerSpectateMode()
+
+  return () => {
+    for (const action of cameraSpawnQueue()) cameraSpawnReceptor(action, world)
+
+    const { deltaSeconds: delta } = world
+    for (const entity of localAvatarQuery.enter()) {
+      dispatchAction(WorldNetworkAction.spawnCamera(), [world.worldNetwork.hostId])
+    }
+
+    for (const entity of followCameraQuery.enter()) {
+      enterFollowCameraQuery(entity)
     }
 
     for (const entity of followCameraQuery.exit()) {
       Engine.instance.currentWorld.activeCameraFollowTarget = null
       camRayCastCache.maxDistance = -1
+    }
+
+    for (const entity of cameraTransformUpdateQuery(world)) {
+      const transform = getComponent(entity, TransformComponent)
+      const cam = getComponent(entity, Object3DComponent).value
+      transform.position.copy(cam.position)
+      transform.rotation.copy(cam.quaternion)
+    }
+
+    for (const entity of spectateQuery(world)) {
+      updateSpectator(entity)
     }
 
     if (getEngineState().sceneLoaded.value) {
@@ -314,7 +387,7 @@ export default async function CameraSystem(world: World) {
         ;(EngineRenderer.instance.xrManager as any).updateCamera(Engine.instance.currentWorld.camera)
 
         removeComponent(Engine.instance.currentWorld.localClientEntity, XRCameraUpdatePendingTagComponent)
-      } else if (followCameraEntity !== undefined) {
+      } else if (followCameraEntity !== undefined && Engine.instance.currentWorld.activeCameraEntity) {
         const transform = getComponent(Engine.instance.currentWorld.activeCameraEntity, TransformComponent)
         Engine.instance.currentWorld.camera.position.copy(transform.position)
         Engine.instance.currentWorld.camera.quaternion.copy(transform.rotation)
