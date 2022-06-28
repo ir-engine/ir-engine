@@ -7,11 +7,12 @@ import { SocketWebRTCServerNetwork } from './SocketWebRTCServerNetwork'
 
 const receiveSpawnObject = (
   action: typeof WorldNetworkAction.spawnObject.matches._TYPE,
-  world = Engine.instance.currentWorld
+  world = Engine.instance.currentWorld,
+  network: SocketWebRTCServerNetwork
 ) => {
-  const user = world.clients.get(action.$from)!
+  const user = world.users.get(action.$from)!
   if (!user) return
-  if (world.clients.get(action.$from)!.spectating) return
+  if (network.clients.get(action.$from)!.spectating) return
 
   const app = (world.worldNetwork as SocketWebRTCServerNetwork).app
   app.service('message').create(
@@ -31,11 +32,12 @@ const receiveSpawnObject = (
 
 const receiveDestroyObject = (
   action: ReturnType<typeof WorldNetworkAction.destroyObject>,
-  world = Engine.instance.currentWorld
+  world = Engine.instance.currentWorld,
+  network: SocketWebRTCServerNetwork
 ) => {
-  const user = world.clients.get(action.$from)!
+  const user = world.users.get(action.$from)!
   if (!user) return
-  if (world.clients.get(action.$from)!.spectating) return
+  if (network.clients.get(action.$from)!.spectating) return
 
   const app = (world.worldNetwork as SocketWebRTCServerNetwork).app
   app.service('message').create(
@@ -53,12 +55,17 @@ const receiveDestroyObject = (
   )
 }
 
-export default async function WorldNetworkServerActionSystem(world: World) {
+export default async function WorldNetworkServerActionSystem(
+  world: World,
+  args: { network: SocketWebRTCServerNetwork }
+) {
   const spawnObjectQueue = createActionQueue(WorldNetworkAction.spawnObject.matches)
   const destroyObjectQueue = createActionQueue(WorldNetworkAction.destroyObject.matches)
 
+  const network = args.network
+
   return () => {
-    for (const action of spawnObjectQueue()) receiveSpawnObject(action)
-    for (const action of destroyObjectQueue()) receiveDestroyObject(action)
+    for (const action of spawnObjectQueue()) receiveSpawnObject(action, world, network)
+    for (const action of destroyObjectQueue()) receiveDestroyObject(action, world, network)
   }
 }

@@ -23,12 +23,7 @@ export const updateNearbyAvatars = () => {
   })
 }
 
-// every 5 seconds
-const NEARBY_AVATAR_UPDATE_PERIOD = 5
-
 export default async function UpdateNearbyUsersSystem(world: World) {
-  let nearbyAvatarTick = 0
-
   addActionReceptor((action) => {
     matches(action)
       .when(WorldNetworkAction.createClient.matches, () => {
@@ -41,10 +36,11 @@ export default async function UpdateNearbyUsersSystem(world: World) {
       })
   })
 
+  // every 5 seconds
+  const NEARBY_AVATAR_UPDATE_PERIOD = Engine.instance.tickRate * 5
+
   return () => {
-    nearbyAvatarTick += world.deltaSeconds
-    if (nearbyAvatarTick > NEARBY_AVATAR_UPDATE_PERIOD) {
-      nearbyAvatarTick = 0
+    if (world.fixedTick % NEARBY_AVATAR_UPDATE_PERIOD === 0) {
       updateNearbyAvatars()
     }
   }

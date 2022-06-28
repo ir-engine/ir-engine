@@ -758,8 +758,6 @@ export const AuthService = {
       })
   },
   updateUserAvatarId: async (userId: string, avatarId: string, avatarURL: string, thumbnailURL: string) => {
-    const world = Engine.instance.currentWorld
-
     API.instance.client
       .service('user')
       .patch(userId, {
@@ -775,7 +773,7 @@ export const AuthService = {
               thumbnailURL
             }
           }),
-          [Engine.instance.currentWorld.worldNetwork.hostId]
+          Engine.instance.currentWorld.worldNetwork.hostId
         )
       })
   },

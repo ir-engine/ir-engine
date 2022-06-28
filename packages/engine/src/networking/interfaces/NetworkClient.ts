@@ -8,8 +8,8 @@ import type { AvatarProps } from './WorldState'
 export interface NetworkClient {
   userId: UserId
   index: number
-  name: string
   spectating?: boolean
+  networkId?: NetworkId // to easily retrieve the network object correspending to this client
   // The following properties are only present on the server
   socket?: SocketIO.Socket
   socketId?: string
@@ -24,6 +24,10 @@ export interface NetworkClient {
   channelRecvTransport?: any
   dataConsumers?: Map<string, any> // Key => id of data producer
   dataProducers?: Map<string, any> // Key => label of data channel}
+}
+
+export interface UserClient {
+  userId: UserId
+  name: string
   avatarDetail?: AvatarProps
-  networkId?: NetworkId // to easily retrieve the network object correspending to this client
 }

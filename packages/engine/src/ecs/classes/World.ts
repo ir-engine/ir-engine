@@ -13,7 +13,7 @@ import { nowMilliseconds } from '../../common/functions/nowMilliseconds'
 import { InputValue } from '../../input/interfaces/InputValue'
 import { Network } from '../../networking/classes/Network'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
-import { NetworkClient } from '../../networking/interfaces/NetworkClient'
+import { UserClient } from '../../networking/interfaces/NetworkClient'
 import { Physics } from '../../physics/classes/Physics'
 import { NameComponent } from '../../scene/components/NameComponent'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
@@ -148,20 +148,8 @@ export class World {
 
   activePortal = null! as ReturnType<typeof PortalComponent.get>
 
-  /** Connected clients */
-  clients = new Map() as Map<UserId, NetworkClient>
-
-  /** Map of numerical user index to user client IDs */
-  userIndexToUserId = new Map<number, UserId>()
-
-  /** Map of user client IDs to numerical user index */
-  userIdToUserIndex = new Map<UserId, number>()
-
-  /**
-   * The index to increment when a new user joins
-   * NOTE: Must only be updated by the host
-   */
-  userIndexCount = 0
+  /** Users spawned in the world */
+  users = new Map() as Map<UserId, UserClient>
 
   /**
    * The world entity
