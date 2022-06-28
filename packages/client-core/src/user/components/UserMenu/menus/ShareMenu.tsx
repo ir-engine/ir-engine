@@ -1,10 +1,13 @@
-import React, { useEffect, useRef } from 'react'
+import { QRCodeSVG } from 'qrcode.react'
+import React, { useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { isShareAvailable } from '@xrengine/engine/src/common/functions/DetectFeatures'
+import { isMobile } from '@xrengine/engine/src/common/functions/isMobile'
 
-import { FileCopy } from '@mui/icons-material'
+import { CheckBox, CheckBoxOutlineBlank, FileCopy, IosShare, Send } from '@mui/icons-material'
 import Button from '@mui/material/Button'
+import Checkbox from '@mui/material/Checkbox'
+import FormControlLabel from '@mui/material/FormControlLabel'
 import InputAdornment from '@mui/material/InputAdornment'
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
@@ -94,9 +97,36 @@ const ShareMenu = (): JSX.Element => {
   return (
     <div className={styles.menuPanel}>
       <div className={styles.sharePanel}>
-        <Typography variant="h1" className={styles.panelHeader}>
-          {t('user:usermenu.share.title')}
-        </Typography>
+        {!isMobile ? (
+          <>
+            <Typography variant="h1" className={styles.panelHeader}>
+              {t('user:usermenu.share.title')}
+            </Typography>
+            <FormControlLabel
+              classes={{
+                label: styles.label,
+                root: styles.formRoot
+              }}
+              control={
+                <Checkbox
+                  className={styles.checkboxMode}
+                  icon={<CheckBoxOutlineBlank fontSize="small" />}
+                  checkedIcon={<CheckBox fontSize="small" />}
+                  name="checked"
+                  color="primary"
+                />
+              }
+              label={t('user:usermenu.share.lbl-spectator-mode')}
+            />
+          </>
+        ) : (
+          <Typography variant="h2" className={styles.title}>
+            {t('user:usermenu.share.mobileTitle')}
+          </Typography>
+        )}
+        <div className={styles.QRContainer}>
+          <QRCodeSVG height={176} width={200} value="" />
+        </div>
         <TextField
           className={styles.copyField}
           size="small"
@@ -119,19 +149,19 @@ const ShareMenu = (): JSX.Element => {
           variant="outlined"
           value={email}
           onChange={(e) => handleChang(e)}
+          InputProps={{
+            endAdornment: (
+              <InputAdornment position="end" onClick={packageInvite}>
+                <Send />
+              </InputAdornment>
+            )
+          }}
         />
-        <div className={styles.sendInviteContainer}>
-          <Button className={styles.sendInvite} onClick={packageInvite}>
-            {t('user:usermenu.share.lbl-send-invite')}
+        <div className={styles.shareBtnContainer}>
+          <Button className={styles.shareBtn} onClick={shareOnApps} endIcon={<IosShare />}>
+            {t('user:usermenu.share.lbl-share')}
           </Button>
         </div>
-        {isShareAvailable ? (
-          <div className={styles.shareBtnContainer}>
-            <Button className={styles.shareBtn} onClick={shareOnApps}>
-              {t('user:usermenu.share.lbl-share')}
-            </Button>
-          </div>
-        ) : null}
       </div>
     </div>
   )
