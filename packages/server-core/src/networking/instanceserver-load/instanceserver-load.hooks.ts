@@ -1,4 +1,4 @@
-import { iff, isProvider } from 'feathers-hooks-common'
+import { disallow, iff, isProvider } from 'feathers-hooks-common'
 
 import authenticate from '../../hooks/authenticate'
 import restrictUserRole from '../../hooks/restrict-user-role'
@@ -6,12 +6,12 @@ import restrictUserRole from '../../hooks/restrict-user-role'
 export default {
   before: {
     all: [authenticate(), iff(isProvider('external'), restrictUserRole('admin') as any)],
-    find: [],
-    get: [],
-    create: [],
-    update: [],
+    find: [disallow()],
+    get: [disallow()],
+    create: [disallow()],
+    update: [disallow()],
     patch: [],
-    remove: []
+    remove: [disallow()]
   },
 
   after: {

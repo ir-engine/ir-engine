@@ -1,4 +1,5 @@
 import { HookContext } from '@feathersjs/feathers'
+import { disallow } from 'feathers-hooks-common'
 
 import createGroupOwner from '@xrengine/server-core/src/hooks/create-group-owner'
 import groupPermissionAuthenticate from '@xrengine/server-core/src/hooks/group-permission-authenticate'
@@ -11,7 +12,7 @@ export default {
   before: {
     all: [authenticate()],
     find: [],
-    get: [],
+    get: [disallow('external')],
     create: [],
     update: [groupPermissionAuthenticate()],
     patch: [
