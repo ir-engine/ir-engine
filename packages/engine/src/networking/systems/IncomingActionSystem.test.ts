@@ -35,7 +35,7 @@ describe('IncomingActionSystem Unit Tests', async () => {
         $time: 2,
         $to: '0' as ActionRecipients
       })
-      action.$topic = [world.worldNetwork.hostId]
+      action.$topic = world.worldNetwork.hostId
 
       Engine.instance.store.actions.incoming.push(action)
 
@@ -70,7 +70,7 @@ describe('IncomingActionSystem Unit Tests', async () => {
         $time: -1,
         $to: '0' as ActionRecipients
       })
-      action.$topic = [world.worldNetwork.hostId]
+      action.$topic = world.worldNetwork.hostId
 
       Engine.instance.store.actions.incoming.push(action)
 
@@ -102,7 +102,7 @@ describe('IncomingActionSystem Unit Tests', async () => {
         $to: '0' as ActionRecipients,
         $cache: true
       })
-      action.$topic = [world.worldNetwork.hostId]
+      action.$topic = world.worldNetwork.hostId
 
       Engine.instance.store.actions.incoming.push(action)
 

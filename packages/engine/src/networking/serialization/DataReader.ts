@@ -13,6 +13,7 @@ import { TransformComponent } from '../../transform/components/TransformComponen
 import { XRHandsInputComponent } from '../../xr/components/XRHandsInputComponent'
 import { XRInputSourceComponent } from '../../xr/components/XRInputSourceComponent'
 import { XRHandBones } from '../../xr/types/XRHandBones'
+import { Network } from '../classes/Network'
 import { NetworkObjectAuthorityTag } from '../components/NetworkObjectAuthorityTag'
 import { NetworkObjectDirtyTag } from '../components/NetworkObjectDirtyTag'
 import { expand, QUAT_MAX_RANGE, QUAT_PRECISION_MULT, VEC3_MAX_RANGE, VEC3_PRECISION_MULT } from './Utils'
@@ -311,10 +312,10 @@ export const readMetadata = (v: ViewCursor, world: World) => {
 }
 
 export const createDataReader = () => {
-  return (world: World, packet: ArrayBuffer) => {
+  return (world: World, network: Network, packet: ArrayBuffer) => {
     const view = createViewCursor(packet)
     const userIndex = readMetadata(view, world)
-    const fromUserId = world.userIndexToUserId.get(userIndex)
+    const fromUserId = network.userIndexToUserId.get(userIndex)
     if (fromUserId) readEntities(view, world, packet.byteLength, fromUserId)
   }
 }

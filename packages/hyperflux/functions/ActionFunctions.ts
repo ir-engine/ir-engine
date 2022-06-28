@@ -54,7 +54,7 @@ export type ActionOptions = {
    */
   $time?: number | undefined
 
-  $topic?: string[]
+  $topic?: string
 
   /**
    * Specifies how this action should be cached for newly joining clients.
@@ -234,22 +234,24 @@ function defineAction<Shape extends ActionShape<Action>>(actionShape: Shape) {
 
 /**
  * Dispatch actions to the store.
- * @param store
  * @param action
+ * @param topics @todo potentially in the future, support dispatching to multiple topics
+ * @param store
  */
 const dispatchAction = <A extends Action>(
   action: A,
-  topics: string[] = [HyperFlux.store.defaultTopic],
+  topics: string | string[] = HyperFlux.store.defaultTopic,
   store = HyperFlux.store
 ) => {
   const storeId = store.getDispatchId()
+  const topic = Array.isArray(topics) ? topics[0] : topics
 
   action.$from = action.$from ?? (storeId as UserId)
   action.$to = action.$to ?? 'all'
   action.$time = action.$time ?? store.getDispatchTime() + store.defaultDispatchDelay
   action.$cache = action.$cache ?? false
   action.$uuid = action.$uuid ?? MathUtils.generateUUID()
-  action.$topic = topics
+  action.$topic = topic
 
   if (process.env.APP_ENV === 'development' && !action.$stack) {
     const trace = { stack: '' }
@@ -259,11 +261,9 @@ const dispatchAction = <A extends Action>(
     action.$stack = stack
   }
 
-  for (const topic of topics) {
-    const mode = store.getDispatchMode(topic)
-    if (mode === 'local' || mode === 'host') store.actions.incoming.push(action as Required<Action>)
-    else store.actions.outgoing[topic].queue.push(action as Required<Action>)
-  }
+  const mode = store.getDispatchMode(topic)
+  if (mode === 'local' || mode === 'host') store.actions.incoming.push(action as Required<Action>)
+  else store.actions.outgoing[topic].queue.push(action as Required<Action>)
 }
 
 function addTopic(topic: string, store = HyperFlux.store) {
@@ -314,43 +314,42 @@ function removeActionReceptor(receptor: ActionReceptor, store = HyperFlux.store)
 
 const _updateCachedActions = (incomingAction: Required<Action>, store = HyperFlux.store) => {
   if (incomingAction.$cache) {
-    for (const topic of incomingAction.$topic) {
-      if (!store.actions.cached[topic]) {
-        console.warn(`[HyperFlux]: got action from topic not subscribed to: '${topic}'`)
-        continue
-      }
-      const cachedActions = store.actions.cached[topic]
-      // see if we must remove any previous actions
-      if (typeof incomingAction.$cache === 'boolean') {
-        if (incomingAction.$cache) cachedActions.push(incomingAction)
-      } else {
-        const remove = incomingAction.$cache.removePrevious
+    const topic = incomingAction.$topic
+    if (!store.actions.cached[topic]) {
+      console.warn(`[HyperFlux]: got action from topic not subscribed to: '${topic}'`)
+      return
+    }
+    const cachedActions = store.actions.cached[topic]
+    // see if we must remove any previous actions
+    if (typeof incomingAction.$cache === 'boolean') {
+      if (incomingAction.$cache) cachedActions.push(incomingAction)
+    } else {
+      const remove = incomingAction.$cache.removePrevious
 
-        if (remove) {
-          for (const a of [...cachedActions]) {
-            if (a.$from === incomingAction.$from && a.type === incomingAction.type) {
-              if (remove === true) {
+      if (remove) {
+        for (const a of [...cachedActions]) {
+          if (a.$from === incomingAction.$from && a.type === incomingAction.type) {
+            if (remove === true) {
+              const idx = cachedActions.indexOf(a)
+              cachedActions.splice(idx, 1)
+            } else {
+              let matches = true
+              for (const key of remove) {
+                if (!deepEqual(a[key], incomingAction[key])) {
+                  matches = false
+                  break
+                }
+              }
+              if (matches) {
                 const idx = cachedActions.indexOf(a)
                 cachedActions.splice(idx, 1)
-              } else {
-                let matches = true
-                for (const key of remove) {
-                  if (!deepEqual(a[key], incomingAction[key])) {
-                    matches = false
-                    break
-                  }
-                }
-                if (matches) {
-                  const idx = cachedActions.indexOf(a)
-                  cachedActions.splice(idx, 1)
-                }
               }
             }
           }
         }
-
-        if (!incomingAction.$cache.disable) cachedActions.push(incomingAction)
       }
+
+      if (!incomingAction.$cache.disable) cachedActions.push(incomingAction)
     }
   }
 }
@@ -382,10 +381,8 @@ const _applyIncomingAction = (action: Required<Action>, store = HyperFlux.store)
     console.log(`[Action]: ${action.type}`, action)
     for (const receptor of [...store.receptors]) receptor(action)
     store.actions.incomingHistory.set(action.$uuid, action)
-    for (const topic of action.$topic) {
-      if (store.getDispatchMode(topic) === 'host') {
-        store.actions.outgoing[topic].queue.push(action)
-      }
+    if (store.getDispatchMode(action.$topic) === 'host') {
+      store.actions.outgoing[action.$topic].queue.push(action)
     }
   } catch (e) {
     const message = (e as Error).message

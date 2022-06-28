@@ -4,7 +4,6 @@ import { AudioListener, Object3D, OrthographicCamera, PerspectiveCamera, Scene }
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
-import { createHyperStore, registerState } from '@xrengine/hyperflux'
 
 import { DEFAULT_LOD_DISTANCES } from '../../assets/constants/LoaderConstants'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
@@ -14,8 +13,7 @@ import { nowMilliseconds } from '../../common/functions/nowMilliseconds'
 import { InputValue } from '../../input/interfaces/InputValue'
 import { Network } from '../../networking/classes/Network'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
-import { NetworkClient } from '../../networking/interfaces/NetworkClient'
-import { WorldState } from '../../networking/interfaces/WorldState'
+import { UserClient } from '../../networking/interfaces/NetworkPeer'
 import { Physics } from '../../physics/classes/Physics'
 import { NameComponent } from '../../scene/components/NameComponent'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
@@ -32,7 +30,7 @@ import {
 } from '../functions/ComponentFunctions'
 import { createEntity } from '../functions/EntityFunctions'
 import { initializeEntityTree } from '../functions/EntityTreeFunctions'
-import { SystemInstanceType, SystemModuleType } from '../functions/SystemFunctions'
+import { SystemInstanceType } from '../functions/SystemFunctions'
 import { SystemUpdateType } from '../functions/SystemUpdateType'
 import { Engine } from './Engine'
 import { Entity } from './Entity'
@@ -150,20 +148,8 @@ export class World {
 
   activePortal = null! as ReturnType<typeof PortalComponent.get>
 
-  /** Connected clients */
-  clients = new Map() as Map<UserId, NetworkClient>
-
-  /** Map of numerical user index to user client IDs */
-  userIndexToUserId = new Map<number, UserId>()
-
-  /** Map of user client IDs to numerical user index */
-  userIdToUserIndex = new Map<UserId, number>()
-
-  /**
-   * The index to increment when a new user joins
-   * NOTE: Must only be updated by the host
-   */
-  userIndexCount = 0
+  /** Users spawned in the world */
+  users = new Map() as Map<UserId, UserClient>
 
   /**
    * The world entity

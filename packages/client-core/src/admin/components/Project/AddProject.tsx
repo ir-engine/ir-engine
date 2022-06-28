@@ -25,8 +25,9 @@ interface Props {
 }
 
 const AddProject = ({ open, repos, onClose }: Props) => {
-  const [processing, setProcessing] = useState(false)
   const [projectURL, setProjectURL] = useState('')
+  const [processing, setProcessing] = useState(false)
+  const [error, setError] = useState('')
   const [isPublicUrl, setIsPublicUrl] = useState(false)
   const { t } = useTranslation()
 
@@ -36,11 +37,13 @@ const AddProject = ({ open, repos, onClose }: Props) => {
 
   const tryUploadProject = async () => {
     try {
-      if (projectURL !== '') {
+      if (projectURL) {
         setProcessing(true)
         await ProjectService.uploadProject(projectURL)
         setProcessing(false)
-        closeModal()
+        handleClose()
+      } else {
+        setError(t('admin:components.project.urlCantEmpty'))
       }
     } catch (err) {
       setProcessing(false)
@@ -48,8 +51,15 @@ const AddProject = ({ open, repos, onClose }: Props) => {
     }
   }
 
-  const closeModal = () => {
+  const handleChange = (e) => {
+    const { value } = e.target
+    setError(value ? '' : t('admin:components.project.urlRequired'))
+    setProjectURL(value)
+  }
+
+  const handleClose = () => {
     setProjectURL('')
+    setError('')
     onClose()
   }
 
@@ -73,7 +83,8 @@ const AddProject = ({ open, repos, onClose }: Props) => {
                 label={t('admin:components.project.project')}
                 value={projectURL}
                 menu={projectMenu}
-                onChange={(e) => setProjectURL(e.target.value)}
+                error={error}
+                onChange={handleChange}
               />
             ) : (
               <InputText
@@ -81,7 +92,8 @@ const AddProject = ({ open, repos, onClose }: Props) => {
                 label={t('admin:components.project.url')}
                 placeholder={t('admin:components.project.insertPublicUrl')}
                 value={projectURL}
-                onChange={(e) => setProjectURL(e.target.value)}
+                error={error}
+                onChange={handleChange}
               />
             )}
           </div>
