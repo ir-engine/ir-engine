@@ -11,13 +11,13 @@ import styles from './styles.module.scss'
 
 interface Props {
   open: boolean
-  handleClose: any
-  linkRepo: (url: string) => Promise<void>
+  onClose: any
+  onSuccess: (url: string) => Promise<void>
 }
 
 export const LinkGithubRepoDialog = (props: Props): any => {
   const { t } = useTranslation()
-  const { open, handleClose, linkRepo } = props
+  const { open, onClose, onSuccess } = props
 
   const [processing, setProcessing] = useState(false)
   const [error, setError] = useState('')
@@ -28,7 +28,7 @@ export const LinkGithubRepoDialog = (props: Props): any => {
 
     setProcessing(true)
     try {
-      await linkRepo(projectUrl)
+      await onSuccess(projectUrl)
       closeDialog()
     } catch (err) {
       setError(err.message)
@@ -45,7 +45,7 @@ export const LinkGithubRepoDialog = (props: Props): any => {
 
   const closeDialog = () => {
     setProjectUrl('')
-    handleClose()
+    onClose()
   }
 
   return (
@@ -57,7 +57,7 @@ export const LinkGithubRepoDialog = (props: Props): any => {
       TransitionComponent={Fade}
       TransitionProps={{ in: props.open }}
     >
-      <DialogTitle>{t('editor.projects.linkRepo')}</DialogTitle>
+      <DialogTitle>{t('editor.projects.onSuccess')}</DialogTitle>
       <DialogContent>
         <FormControl>
           <TextField

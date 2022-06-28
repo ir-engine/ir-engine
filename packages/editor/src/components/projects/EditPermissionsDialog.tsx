@@ -20,7 +20,7 @@ import styles from './styles.module.scss'
 
 interface Props {
   open: boolean
-  handleClose: any
+  onClose: any
   projectPermissions: ProjectPermissionInterface[]
   project: ProjectInterface
   removePermission: (id: string) => Promise<void>
@@ -30,7 +30,7 @@ interface Props {
 
 export const EditPermissionsDialog = ({
   open,
-  handleClose,
+  onClose,
   project,
   addPermission,
   patchPermission,
@@ -75,7 +75,7 @@ export const EditPermissionsDialog = ({
 
   const closeDialog = () => {
     setUserInviteCode('')
-    handleClose()
+    onClose()
   }
 
   const selfUser = useAuthState().user

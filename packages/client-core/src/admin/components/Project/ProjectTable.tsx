@@ -48,6 +48,8 @@ const ProjectTable = ({ className }: Props) => {
   const [updateLinkGithubRepoModalOpen, setUpdateLinkGithubRepoModalOpen] = useState(false)
   const [editProjectPermissionsModalOpen, setEditProjectPermissionsModelOpen] = useState(false)
 
+  ProjectService.useAPIListeners()
+
   const onRemoveProject = async () => {
     try {
       if (project) {

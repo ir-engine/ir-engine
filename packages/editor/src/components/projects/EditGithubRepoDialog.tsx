@@ -12,13 +12,13 @@ import styles from './styles.module.scss'
 interface Props {
   open: boolean
   url: string
-  handleClose: any
-  linkRepo: (url: string) => Promise<void>
+  onClose: any
+  onSuccess: (url: string) => Promise<void>
 }
 
 export const EditGithubRepoDialog = (props: Props): any => {
   const { t } = useTranslation()
-  const { open, handleClose, linkRepo, url } = props
+  const { open, onClose, onSuccess, url } = props
 
   const [processing, setProcessing] = useState(false)
   const [error, setError] = useState('')
@@ -35,7 +35,7 @@ export const EditGithubRepoDialog = (props: Props): any => {
 
     setProcessing(true)
     try {
-      await linkRepo(projectUrl)
+      await onSuccess(projectUrl)
       closeDialog()
     } catch (err) {
       setError(err.message)
@@ -47,7 +47,7 @@ export const EditGithubRepoDialog = (props: Props): any => {
   const onUnlinkProject = async () => {
     setProcessing(true)
     try {
-      await linkRepo('')
+      await onSuccess('')
       closeDialog()
     } catch (err) {
       setError(err.message)
@@ -64,7 +64,7 @@ export const EditGithubRepoDialog = (props: Props): any => {
 
   const closeDialog = () => {
     setProjectUrl('')
-    handleClose()
+    onClose()
   }
 
   return (
@@ -76,7 +76,7 @@ export const EditGithubRepoDialog = (props: Props): any => {
       TransitionComponent={Fade}
       TransitionProps={{ in: props.open }}
     >
-      <DialogTitle>{t('editor.projects.linkRepo')}</DialogTitle>
+      <DialogTitle>{t('editor.projects.onSuccess')}</DialogTitle>
       <DialogContent>
         <FormControl>
           <TextField

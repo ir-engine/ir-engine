@@ -564,29 +564,25 @@ const ProjectsPage = () => {
       )}
       <CreateProjectDialog open={isCreateDialogOpen} onSuccess={onCreateProject} onClose={closeCreateDialog} />
       <InstallProjectDialog open={isInstallDialogOpen} onSuccess={installProjectFromURL} onClose={closeInstallDialog} />
-      <LinkGithubRepoDialog
-          open={repoLinkDialogOpen}
-          handleClose={closeRepoLinkDialog}
-          linkRepo={setProjectRemoteURL}
-      />
+      <LinkGithubRepoDialog open={repoLinkDialogOpen} onClose={closeRepoLinkDialog} onSuccess={setProjectRemoteURL} />
       {activeProject && (
-          <EditGithubRepoDialog
-              open={repoUnlinkDialogOpen}
-              handleClose={closeRepoUnlinkDialog}
-              linkRepo={setProjectRemoteURL}
-              url={activeProject.repositoryPath}
-          />
+        <EditGithubRepoDialog
+          open={repoUnlinkDialogOpen}
+          onClose={closeRepoUnlinkDialog}
+          onSuccess={setProjectRemoteURL}
+          url={activeProject.repositoryPath}
+        />
       )}
       {activeProject && activeProject.project_permissions && (
-          <EditPermissionsDialog
-              open={editPermissionsDialogOpen}
-              handleClose={closeEditPermissionsDialog}
-              project={activeProject}
-              projectPermissions={activeProject.project_permissions}
-              addPermission={onCreatePermission}
-              patchPermission={onPatchPermission}
-              removePermission={onRemovePermission}
-          />
+        <EditPermissionsDialog
+          open={editPermissionsDialogOpen}
+          onClose={closeEditPermissionsDialog}
+          project={activeProject}
+          projectPermissions={activeProject.project_permissions}
+          addPermission={onCreatePermission}
+          patchPermission={onPatchPermission}
+          removePermission={onRemovePermission}
+        />
       )}
       <DeleteDialog
         open={isDeleteDialogOpen}

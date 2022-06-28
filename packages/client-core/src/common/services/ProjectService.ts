@@ -1,3 +1,5 @@
+import { useEffect } from 'react'
+
 import { ProjectInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
 import multiLogger from '@xrengine/common/src/logger'
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
@@ -133,16 +135,26 @@ export const ProjectService = {
       logger.error('Error with removing project-permission', err)
       throw err
     }
+  },
+  useAPIListeners: () => {
+    useEffect(() => {
+      // TODO
+      // API.instance.client.service('project-build').on('patched', (params) => {
+      //   store.dispatch(ProjectAction.buildProgress(params.message))
+      // })
+
+      const projectPatchedListener = (params) => {
+        dispatchAction(ProjectAction.patchedProject({ project: params.project }))
+      }
+
+      API.instance.client.service('project').on('patched', projectPatchedListener)
+
+      return () => {
+        API.instance.client.service('project').off('patched', projectPatchedListener)
+      }
+    }, [])
   }
 }
-// TODO
-// client.service('project-build').on('patched', (params) => {
-//   store.dispatch(ProjectAction.buildProgress(params.message))
-// })
-
-API.instance.client.service('project').on('patched', (params) => {
-  dispatchAction(ProjectAction.patchedProject({ project: params.project }))
-})
 
 //Action
 export class ProjectAction {
