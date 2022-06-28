@@ -1,18 +1,16 @@
 import { Id, Params, ServiceMethods } from '@feathersjs/feathers'
 import appRootPath from 'app-root-path'
-import extract from 'extract-zip'
-import fs from 'fs'
 import path from 'path'
 
 import { Application } from '@xrengine/server-core/declarations'
 
-import config from '../../appconfig'
+import { transformModel } from './model-transform.helpers'
 
 interface CreateParams {
   path: string
 }
 
-export class AssetLibrary implements ServiceMethods<any> {
+export class ModelTransform implements ServiceMethods<any> {
   app: Application
   docs: any
   rootPath: string
@@ -46,20 +44,16 @@ export class AssetLibrary implements ServiceMethods<any> {
 
   async create(createParams: CreateParams, params?: Params): Promise<any> {
     try {
-      const pathData = /.*projects\/([\w\d\s]+)\/assets\/([\w\d\s]+).zip$/.exec(createParams.path)
+      const pathData = /.*projects\/([\w\d\s\-_]+)\/assets\/([\w\d\s\-_]+).glb$/.exec(createParams.path)
       if (!pathData) throw Error('could not extract path data')
       const [_, projectName, fileName] = pathData
-      const assetRoot = `${projectName}/assets/${fileName}`
-      const fullPath = path.join(this.rootPath, assetRoot)
-      await new Promise<void>((resolve) => {
-        fs.mkdir(fullPath, () => {
-          resolve()
-        })
-      })
-      await extract(`${fullPath}.zip`, { dir: fullPath })
-      return { assetRoot: assetRoot }
+      const commonPath = path.join(this.rootPath, `${projectName}/assets/${fileName}`)
+      const inPath = `${commonPath}.glb`
+      const outPath = `${commonPath}-transformed.glb`
+      return await transformModel(this.app, { src: inPath, dst: outPath })
     } catch (e) {
-      throw Error('error unzipping archive:', e)
+      console.error('error transforming model')
+      console.error(e)
     }
   }
 }
