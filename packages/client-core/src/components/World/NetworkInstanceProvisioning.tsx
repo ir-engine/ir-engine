@@ -20,6 +20,7 @@ import { matches } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
+import { joinCurrentWorld, spectateCurrentWorld } from '@xrengine/engine/src/networking/functions/joinWorld'
 import { receiveJoinWorld, receiveSpectateWorld } from '@xrengine/engine/src/networking/functions/receiveJoinWorld'
 import { addActionReceptor, dispatchAction, removeActionReceptor, useHookEffect } from '@xrengine/hyperflux'
 
@@ -125,17 +126,11 @@ export const NetworkInstanceProvisioning = () => {
 
     const spectateUser = getSearchParamFromURL('spectate')
     if (spectateUser) {
-      const transportRequestData = { spectateUser }
-      Engine.instance.currentWorld.worldNetwork
-        .request(MessageTypes.SpectateWorld.toString(), transportRequestData)
-        .then(receiveSpectateWorld)
+      spectateCurrentWorld({ spectateUser })
     } else {
-      const transportRequestData = {
+      joinCurrentWorld({
         inviteCode: getSearchParamFromURL('inviteCode')!
-      }
-      Engine.instance.currentWorld.worldNetwork
-        .request(MessageTypes.JoinWorld.toString(), transportRequestData)
-        .then(receiveJoinWorld)
+      })
     }
   }, [engineState.connectedWorld, appState.onBoardingStep])
 

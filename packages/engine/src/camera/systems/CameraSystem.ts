@@ -9,6 +9,7 @@ import { AvatarAnimationComponent } from '../../avatar/components/AvatarAnimatio
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { XRCameraUpdatePendingTagComponent } from '../../avatar/components/XRCameraUpdatePendingTagComponent'
 import { setAvatarHeadOpacity } from '../../avatar/functions/avatarFunctions'
+import { isClient } from '../../common/functions/isClient'
 import { matches } from '../../common/functions/MatchesUtils'
 import { smoothDamp } from '../../common/functions/MathLerpFunctions'
 import { createConeOfVectors } from '../../common/functions/vectorHelpers'
@@ -27,6 +28,9 @@ import {
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
+import { MessageTypes } from '../../networking/enums/MessageTypes'
+import { joinCurrentWorld } from '../../networking/functions/joinWorld'
+import { receiveJoinWorld } from '../../networking/functions/receiveJoinWorld'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
@@ -369,6 +373,13 @@ export default async function CameraSystem(world: World) {
 
     for (const entity of spectateQuery(world)) {
       updateSpectator(entity)
+    }
+
+    for (const entity of spectateQuery.exit(world)) {
+      if (isClient) {
+        // Join with an avatar
+        joinCurrentWorld()
+      }
     }
 
     if (getEngineState().sceneLoaded.value) {
