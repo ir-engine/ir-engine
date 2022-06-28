@@ -11,7 +11,6 @@ import { World } from '../../ecs/classes/World'
 import { addComponent, defineQuery, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
-import { MediaStreams } from '../../networking/systems/MediaStreamSystem'
 import {
   PositionalAudioSettingsComponent,
   PositionalAudioSettingsComponentType
@@ -88,6 +87,8 @@ export default async function PositionalAudioSystem(world: World) {
   }
 
   return () => {
+    const network = Engine.instance.currentWorld.mediaNetwork
+
     for (const entity of settingsQuery.enter()) {
       positionalAudioSettings = getComponent(entity, PositionalAudioSettingsComponent)
     }
@@ -101,7 +102,8 @@ export default async function PositionalAudioSystem(world: World) {
       const entityNetworkObject = getComponent(entity, NetworkObjectComponent)
       if (entityNetworkObject) {
         const peerId = entityNetworkObject.ownerId
-        const consumer = MediaStreams.instance.consumers.find(
+
+        const consumer = network?.consumers.find(
           (c: any) => c.appData.peerId === peerId && c.appData.mediaTag === 'cam-audio'
         )
         if (consumer == null && avatarAudioStream.get(entity) != null) {
@@ -125,7 +127,7 @@ export default async function PositionalAudioSystem(world: World) {
       let consumer
       if (entityNetworkObject != null) {
         const peerId = entityNetworkObject.ownerId
-        consumer = MediaStreams.instance.consumers.find(
+        consumer = network?.consumers.find(
           (c: any) => c.appData.peerId === peerId && c.appData.mediaTag === 'cam-audio'
         )
       }

@@ -11,7 +11,7 @@ const compareDistance = (a: NearbyUser, b: NearbyUser) => a.distance - b.distanc
 export function getNearbyUsers(userId: UserId): Array<NearbyUser> {
   const userAvatar = Engine.instance.currentWorld.getUserAvatarEntity(userId)
   const otherUsers = [] as UserId[]
-  for (const [otherUserId] of Engine.instance.currentWorld.clients) {
+  for (const [otherUserId] of Engine.instance.currentWorld.users) {
     if (userId === otherUserId) continue
     otherUsers.push(otherUserId)
   }

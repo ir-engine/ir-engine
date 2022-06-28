@@ -1,6 +1,7 @@
 // spawnPose is temporary - just so portals work for now - will be removed in favor of instanceserver-instanceserver communication
 import { Quaternion, Vector3 } from 'three'
 
+import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { dispatchAction } from '@xrengine/hyperflux'
 import { Action } from '@xrengine/hyperflux/functions/ActionFunctions'
 
@@ -14,17 +15,30 @@ export type SpectateWorldProps = {
   worldStartTime: number
   client: { name: string; index: number }
   cachedActions: Required<Action>[]
+  spectateUser: string
 }
 
 export const receiveSpectateWorld = (props: SpectateWorldProps) => {
   if (!props) return
-  const { highResTimeOrigin, worldStartTime, client, cachedActions } = props
-  console.log('RECEIVED SPECTATE WORLD RESPONSE', highResTimeOrigin, worldStartTime, client, cachedActions)
+  const { highResTimeOrigin, worldStartTime, client, cachedActions, spectateUser } = props
+  console.log(
+    'RECEIVED SPECTATE WORLD RESPONSE',
+    highResTimeOrigin,
+    worldStartTime,
+    client,
+    cachedActions,
+    spectateUser
+  )
   const world = Engine.instance.currentWorld
 
   for (const action of cachedActions) Engine.instance.store.actions.incoming.push({ ...action, $fromCache: true })
 
-  dispatchAction(WorldNetworkAction.createClient(client), [world.worldNetwork.hostId])
+  if (spectateUser) {
+    dispatchAction(EngineActions.joinedWorld())
+    dispatchAction(EngineActions.spectateUser({ user: spectateUser }))
+  }
+
+  dispatchAction(WorldNetworkAction.createPeer(client), world.worldNetwork.hostId)
 }
 
 export type JoinWorldProps = {
@@ -62,7 +76,7 @@ export const receiveJoinWorld = (props: JoinWorldProps) => {
 
   for (const action of cachedActions) Engine.instance.store.actions.incoming.push({ ...action, $fromCache: true })
 
-  dispatchAction(WorldNetworkAction.createClient(client), [world.worldNetwork.hostId])
-  dispatchAction(WorldNetworkAction.spawnAvatar({ parameters: spawnPose }), [world.worldNetwork.hostId])
-  dispatchAction(WorldNetworkAction.avatarDetails({ avatarDetail }), [world.worldNetwork.hostId])
+  dispatchAction(WorldNetworkAction.createPeer(client), world.worldNetwork.hostId)
+  dispatchAction(WorldNetworkAction.spawnAvatar({ parameters: spawnPose }), world.worldNetwork.hostId)
+  dispatchAction(WorldNetworkAction.avatarDetails({ avatarDetail }), world.worldNetwork.hostId)
 }
