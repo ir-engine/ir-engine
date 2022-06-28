@@ -1,6 +1,6 @@
 import { BadRequest, NotFound } from '@feathersjs/errors'
 import { HookContext } from '@feathersjs/feathers'
-import { iff, isProvider } from 'feathers-hooks-common'
+import { disallow, iff, isProvider } from 'feathers-hooks-common'
 
 import authenticate from '../../hooks/authenticate'
 
@@ -27,7 +27,7 @@ export default {
     ],
     get: [],
     create: [],
-    update: [],
+    update: [disallow()],
     patch: [],
     remove: [
       async (context: HookContext): Promise<HookContext> => {

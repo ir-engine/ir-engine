@@ -1,15 +1,20 @@
 import { ArrowHelper, Clock, Material, MathUtils, Matrix4, Quaternion, Raycaster, SkinnedMesh, Vector3 } from 'three'
 import { clamp } from 'three/src/math/MathUtils'
 
+import { UserId } from '@xrengine/common/src/interfaces/UserId'
+import { addActionReceptor, createActionQueue, dispatchAction } from '@xrengine/hyperflux'
+
 import { BoneNames } from '../../avatar/AvatarBoneMatching'
 import { AvatarAnimationComponent } from '../../avatar/components/AvatarAnimationComponent'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { XRCameraUpdatePendingTagComponent } from '../../avatar/components/XRCameraUpdatePendingTagComponent'
 import { setAvatarHeadOpacity } from '../../avatar/functions/avatarFunctions'
+import { matches } from '../../common/functions/MatchesUtils'
 import { smoothDamp } from '../../common/functions/MathLerpFunctions'
 import { createConeOfVectors } from '../../common/functions/vectorHelpers'
+import { createQuaternionProxy, createVector3Proxy } from '../../common/proxies/three'
 import { Engine } from '../../ecs/classes/Engine'
-import { getEngineState } from '../../ecs/classes/EngineState'
+import { EngineActions, getEngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
 import {
@@ -20,8 +25,10 @@ import {
   removeComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
+import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
+import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
+import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
-import { CameraPropertiesComponent } from '../../scene/components/CameraPropertiesComponent'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
@@ -29,7 +36,9 @@ import { RAYCAST_PROPERTIES_DEFAULT_VALUES } from '../../scene/functions/loaders
 import { setCameraProperties } from '../../scene/functions/setCameraProperties'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 import { TransformComponent } from '../../transform/components/TransformComponent'
+import { CameraTagComponent } from '../components/CameraTagComponent'
 import { FollowCameraComponent, FollowCameraDefaultValues } from '../components/FollowCameraComponent'
+import { SpectateComponent } from '../components/SpectateComponent'
 import { TargetCameraRotationComponent } from '../components/TargetCameraRotationComponent'
 
 const direction = new Vector3()
@@ -252,8 +261,61 @@ export const updateFollowCamera = (cameraEntity: Entity) => {
   updateCameraTargetRotation(cameraEntity)
 }
 
+function updateSpectator(entity: Entity) {
+  const transform = getComponent(entity, TransformComponent)
+  const { camera } = Engine.instance.currentWorld
+  camera.position.copy(transform.position)
+  camera.quaternion.copy(transform.rotation)
+}
+
+function enterFollowCameraQuery(entity: Entity) {
+  const cameraFollow = getComponent(entity, FollowCameraComponent)
+  //check for initialized raycast properties
+  if (!cameraFollow.raycastProps) {
+    cameraFollow.raycastProps = RAYCAST_PROPERTIES_DEFAULT_VALUES
+  }
+  for (let i = 0; i < cameraFollow.raycastProps.rayCount; i++) {
+    cameraRays.push(new Vector3())
+
+    if (debugRays) {
+      const arrow = new ArrowHelper()
+      coneDebugHelpers.push(arrow)
+      setObjectLayers(arrow, ObjectLayers.Gizmos)
+      Engine.instance.currentWorld.scene.add(arrow)
+    }
+  }
+}
+
+export function cameraSpawnReceptor(
+  spawnAction: ReturnType<typeof WorldNetworkAction.spawnCamera>,
+  world = Engine.instance.currentWorld
+) {
+  const entity = world.getNetworkObject(spawnAction.$from, spawnAction.networkId)!
+
+  console.log('Camera Spawn Receptor Call', entity)
+
+  addComponent(entity, PersistTagComponent, {})
+  addComponent(entity, CameraTagComponent, {})
+
+  const position = createVector3Proxy(TransformComponent.position, entity)
+  const rotation = createQuaternionProxy(TransformComponent.rotation, entity)
+  const scale = createVector3Proxy(TransformComponent.scale, entity).setScalar(1)
+  addComponent(entity, TransformComponent, { position, rotation, scale })
+
+  if (spawnAction.$from === Engine.instance.userId) {
+    const camObj = Engine.instance.currentWorld.camera
+    addComponent(entity, Object3DComponent, { value: camObj })
+    Engine.instance.currentWorld.cameraEntity = entity
+  }
+}
+
 export default async function CameraSystem(world: World) {
-  const followCameraQuery = defineQuery([TransformComponent, FollowCameraComponent])
+  const followCameraQuery = defineQuery([FollowCameraComponent, TransformComponent, AvatarComponent])
+  const spectateQuery = defineQuery([CameraTagComponent, SpectateComponent])
+  const localAvatarQuery = defineQuery([AvatarComponent, LocalInputTagComponent])
+
+  const cameraSpawnActions = createActionQueue(WorldNetworkAction.spawnCamera.matches)
+  const spectateUserActions = createActionQueue(EngineActions.spectateUser.matches)
 
   if (!Engine.instance.isEditor) {
     addComponent(world.cameraEntity, FollowCameraComponent, {
@@ -263,25 +325,26 @@ export default async function CameraSystem(world: World) {
   }
 
   return () => {
-    for (const entity of followCameraQuery.enter()) {
-      const cameraFollow = getComponent(entity, FollowCameraComponent)
-      //check for initialized raycast properties
-      if (!cameraFollow.raycastProps) {
-        cameraFollow.raycastProps = RAYCAST_PROPERTIES_DEFAULT_VALUES
-      }
-      for (let i = 0; i < cameraFollow.raycastProps.rayCount; i++) {
-        cameraRays.push(new Vector3())
+    for (const action of cameraSpawnActions()) cameraSpawnReceptor(action, world)
 
-        if (debugRays) {
-          const arrow = new ArrowHelper()
-          coneDebugHelpers.push(arrow)
-          setObjectLayers(arrow, ObjectLayers.Gizmos)
-          Engine.instance.currentWorld.scene.add(arrow)
-        }
-      }
+    for (const action of spectateUserActions()) {
+      const targetUserCamEntity = Engine.instance.currentWorld.getUserEntityWithComponent(
+        action.user as UserId,
+        CameraTagComponent
+      )
+      if (targetUserCamEntity) addComponent(targetUserCamEntity, SpectateComponent, {})
+      console.log('Spectate component added', action.user)
     }
 
+    for (const entity of localAvatarQuery.enter()) {
+      dispatchAction(WorldNetworkAction.spawnCamera(), [world.worldNetwork.hostId])
+    }
+
+    for (const entity of followCameraQuery.enter()) enterFollowCameraQuery(entity)
+
     for (const cameraEntity of followCameraQuery()) updateFollowCamera(cameraEntity)
+
+    for (const entity of spectateQuery(world)) updateSpectator(entity)
 
     if (EngineRenderer.instance.xrManager?.isPresenting) {
       EngineRenderer.instance.xrManager.updateCamera(Engine.instance.currentWorld.camera as THREE.PerspectiveCamera)

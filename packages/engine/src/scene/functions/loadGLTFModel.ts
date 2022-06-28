@@ -219,7 +219,7 @@ export const parseGLTFModel = (entity: Entity, props: ModelComponentType, obj3d:
           prefab: '',
           parameters: { sceneEntityId: node.uuid }
         }),
-        [Engine.instance.currentWorld.worldNetwork.hostId]
+        Engine.instance.currentWorld.worldNetwork.hostId
       )
     }
   }

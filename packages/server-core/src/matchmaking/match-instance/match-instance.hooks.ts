@@ -1,8 +1,5 @@
 import { disallow, iff, isProvider } from 'feathers-hooks-common'
 
-import matchmakingRemoveTicket from '@xrengine/server-core/src/hooks/matchmaking-remove-ticket'
-import matchmakingRestrictMultipleQueueing from '@xrengine/server-core/src/hooks/matchmaking-restrict-multiple-queueing'
-import matchmakingSaveTicket from '@xrengine/server-core/src/hooks/matchmaking-save-ticket'
 import setLoggedInUser from '@xrengine/server-core/src/hooks/set-loggedin-user-in-body'
 
 import authenticate from '../../hooks/authenticate'
