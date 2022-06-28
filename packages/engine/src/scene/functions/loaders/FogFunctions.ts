@@ -13,12 +13,22 @@ import { addOBCPlugin, PluginType, removeOBCPlugin } from '../../../common/funct
 import { Engine } from '../../../ecs/classes/Engine'
 import { EngineActions, getEngineState } from '../../../ecs/classes/EngineState'
 import { Entity } from '../../../ecs/classes/Entity'
-import { addComponent, getComponent, getComponentCountOfType } from '../../../ecs/functions/ComponentFunctions'
+import {
+  addComponent,
+  defineQuery,
+  getComponent,
+  getComponentCountOfType,
+  removeComponent
+} from '../../../ecs/functions/ComponentFunctions'
+import { createEntity } from '../../../ecs/functions/EntityFunctions'
+import { addEntityNodeInTree, createEntityNode } from '../../../ecs/functions/EntityTreeFunctions'
 import { matchActionOnce } from '../../../networking/functions/matchActionOnce'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { FogComponent, FogComponentType } from '../../components/FogComponent'
 import { FogType } from '../../constants/FogType'
 import { initBrownianMotionFogShader, initHeightFogShader, removeFogShader } from '../FogShaders'
+import { ScenePrefabs } from '../registerPrefabs'
+import { createNewEditorNode } from '../SceneLoading'
 
 export const SCENE_COMPONENT_FOG = 'fog'
 export const SCENE_COMPONENT_FOG_DEFAULT_VALUES = {
@@ -178,4 +188,29 @@ const getFogPlugin = (entity: Entity): PluginType => {
       shader.uniforms.heightFactor = { value: component.height }
     }
   }
+}
+
+export const createFogFromSceneNode = (sceneEntity: Entity) => {
+  const fogComponent = getComponent(sceneEntity, FogComponent)
+  removeComponent(sceneEntity, FogComponent)
+
+  const entityNode = getComponent(sceneEntity, EntityNodeComponent)
+  const index = entityNode.components.indexOf(SCENE_COMPONENT_FOG)
+  if (index > -1) entityNode.components.splice(index, 1)
+
+  const fogNode = createEntityNode(createEntity())
+  createNewEditorNode(fogNode, ScenePrefabs.fog)
+
+  const newFogComponent = getComponent(fogNode.entity, FogComponent)
+  newFogComponent.type = fogComponent.type
+  newFogComponent.color = fogComponent.color
+  newFogComponent.density = fogComponent.density
+  newFogComponent.near = fogComponent.near
+  newFogComponent.far = fogComponent.far
+  newFogComponent.height = fogComponent.height
+  newFogComponent.shaders = fogComponent.shaders
+  newFogComponent.timeScale = fogComponent.timeScale
+
+  addEntityNodeInTree(fogNode, Engine.instance.currentWorld.entityTree.rootNode)
+  updateFog(fogNode.entity, newFogComponent)
 }

@@ -8,7 +8,7 @@ export const mapToObject = <K extends string | number, V>(map: Map<K, V>): Recor
 export const iterativeMapToObject = (root: Record<any, any>) => {
   const seen = new Set()
   const iterate = (obj) => {
-    if (typeof obj !== 'object') return obj
+    if (typeof obj !== 'object' || obj === null) return obj
     const output = {}
     for (const [key, value] of Object.entries(obj)) {
       if (seen.has(value)) continue

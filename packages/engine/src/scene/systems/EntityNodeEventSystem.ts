@@ -16,6 +16,7 @@ import { SkyboxComponent } from '../components/SkyboxComponent'
 import { VideoComponent } from '../components/VideoComponent'
 import { VolumetricComponent } from '../components/VolumetricComponent'
 import { FogType } from '../constants/FogType'
+import { createFogFromSceneNode } from '../functions/loaders/FogFunctions'
 import { SCENE_PREVIEW_CAMERA_HELPER } from '../functions/loaders/ScenePreviewCameraFunctions'
 
 /**
@@ -70,8 +71,16 @@ export default async function EntityNodeEventSystem(_: World) {
       Engine.instance.currentWorld.scene.background = new Color('black')
     }
 
-    for (const _ of fogQuery.exit()) {
-      Engine.instance.currentWorld.scene.fog = null
+    for (const entity of fogQuery.enter()) {
+      if (entity === Engine.instance.currentWorld.entityTree.rootNode.entity) {
+        createFogFromSceneNode(entity)
+      }
+    }
+
+    for (const entity of fogQuery.exit()) {
+      if (entity !== Engine.instance.currentWorld.entityTree.rootNode.entity) {
+        Engine.instance.currentWorld.scene.fog = null
+      }
     }
 
     if (Engine.instance.isEditor) {
