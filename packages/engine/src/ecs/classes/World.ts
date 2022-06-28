@@ -22,6 +22,7 @@ import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
 import { PortalComponent } from '../../scene/components/PortalComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 import { Widget } from '../../xrui/Widgets'
 import {
   addComponent,
@@ -50,9 +51,24 @@ export class World {
 
     this.worldEntity = createEntity(this)
     this.localClientEntity = isClient ? (createEntity(this) as Entity) : (NaN as Entity)
+    this.cameraEntity = createEntity(this)
 
     addComponent(this.worldEntity, PersistTagComponent, {}, this)
     if (this.localClientEntity) addComponent(this.localClientEntity, PersistTagComponent, {}, this)
+
+    this.scene.add(this.camera)
+    addComponent(this.cameraEntity, PersistTagComponent, {}, this)
+    addComponent(this.cameraEntity, Object3DComponent, { value: this.camera }, this)
+    addComponent(
+      this.cameraEntity,
+      TransformComponent,
+      {
+        position: this.camera.position,
+        rotation: this.camera.quaternion,
+        scale: this.camera.scale
+      },
+      this
+    )
 
     initializeEntityTree(this)
     this.scene.layers.set(ObjectLayers.Scene)
@@ -127,7 +143,7 @@ export class World {
   /**
    * Reference to the three.js perspective camera object.
    */
-  camera: PerspectiveCamera | OrthographicCamera = null!
+  camera: PerspectiveCamera | OrthographicCamera = new PerspectiveCamera(60, 1, 0.1, 10000)
   cameraEntity: Entity = null!
 
   /**

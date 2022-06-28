@@ -252,31 +252,15 @@ export const updateFollowCamera = (cameraEntity: Entity) => {
   updateCameraTargetRotation(cameraEntity)
 }
 
-export const initializeCameraComponent = (world: World) => {
-  const cameraEntity = (Engine.instance.currentWorld.cameraEntity = createEntity())
-  const camObj = Engine.instance.currentWorld.camera
-
-  addComponent(cameraEntity, Object3DComponent, { value: camObj })
-  addComponent(cameraEntity, PersistTagComponent, {})
-
-  addComponent(cameraEntity, TransformComponent, {
-    position: camObj.position,
-    rotation: camObj.quaternion,
-    scale: camObj.scale
-  })
-
-  addComponent(cameraEntity, FollowCameraComponent, {
-    ...FollowCameraDefaultValues,
-    targetEntity: world.localClientEntity
-  })
-
-  return cameraEntity
-}
-
 export default async function CameraSystem(world: World) {
   const followCameraQuery = defineQuery([TransformComponent, FollowCameraComponent])
 
-  if (!Engine.instance.isEditor) initializeCameraComponent(world)
+  if (!Engine.instance.isEditor) {
+    addComponent(world.cameraEntity, FollowCameraComponent, {
+      ...FollowCameraDefaultValues,
+      targetEntity: world.localClientEntity
+    })
+  }
 
   return () => {
     for (const entity of followCameraQuery.enter()) {

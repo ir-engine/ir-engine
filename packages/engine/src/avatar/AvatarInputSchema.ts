@@ -186,7 +186,7 @@ export const fixedCameraBehindAvatar: InputBehaviorType = (
   inputValue: InputValue
 ): void => {
   if (inputValue.lifecycleState !== LifecycleValue.Started) return
-  const follower = getComponent(entity, FollowCameraComponent)
+  const follower = getComponent(Engine.instance.currentWorld.cameraEntity, FollowCameraComponent)
   if (follower && follower.mode !== CameraMode.FirstPerson) {
     follower.locked = !follower.locked
   }
