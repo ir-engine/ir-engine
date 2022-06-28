@@ -34,7 +34,8 @@ describe('Equippables Integration Tests', () => {
     const hostUserId = 'world' as UserId
     world.worldNetwork.hostId = hostUserId
     const hostIndex = 0
-    world.clients.set(hostUserId, { userId: hostUserId, name: 'world', index: hostIndex })
+    world.users.set(hostUserId, { userId: hostUserId, name: 'world' })
+    world.worldNetwork.peers.set(hostUserId, { userId: hostUserId, index: hostIndex })
 
     await Engine.instance.currentWorld.physics.createScene({ verbose: true })
 
