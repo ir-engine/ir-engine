@@ -1,4 +1,4 @@
-import { DataProducer, Router, Transport, WebRtcTransport, Worker } from 'mediasoup/node/lib/types'
+import { Consumer, DataProducer, Producer, Router, Transport, WebRtcTransport, Worker } from 'mediasoup/node/lib/types'
 
 import { MediaStreamAppData } from '@xrengine/common/src/interfaces/MediaStreamConstants'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
@@ -28,6 +28,9 @@ export class SocketWebRTCServerNetwork extends Network {
 
   mediasoupTransports: WebRTCTransportExtension[] = []
   transportsConnectPending: Promise<void>[] = []
+
+  producers = [] as Producer[]
+  consumers = [] as Consumer[]
 
   constructor(hostId: string, app: Application) {
     super(hostId)

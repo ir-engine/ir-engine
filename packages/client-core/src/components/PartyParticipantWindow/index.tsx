@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next'
 
 import { MediaStreamService, useMediaStreamState } from '@xrengine/client-core/src/media/services/MediaStreamService'
 import { useLocationState } from '@xrengine/client-core/src/social/services/LocationService'
+import { MediaStreams } from '@xrengine/client-core/src/transports/MediaStreams'
 import {
   applyScreenshareToTexture,
   globalMuteProducer,
@@ -20,7 +21,6 @@ import { useUserState } from '@xrengine/client-core/src/user/services/UserServic
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
-import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
 import { SCENE_COMPONENT_AUDIO_SETTINGS_DEFAULT_VALUES } from '@xrengine/engine/src/scene/functions/loaders/AudioSettingFunctions'
 
 import {
@@ -155,13 +155,14 @@ const PartyParticipantWindow = ({ peerId }: Props): JSX.Element => {
 
   useEffect(() => {
     if (peerId !== 'cam_me' && peerId !== 'screen_me') {
+      const network = Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork
       setVideoStream(
-        MediaStreams.instance.consumers?.find(
+        network.consumers?.find(
           (c) => c.appData.peerId === userId && c.appData.mediaTag === (isScreen ? 'screen-video' : 'cam-video')
         )
       )
       setAudioStream(
-        MediaStreams.instance.consumers?.find(
+        network.consumers?.find(
           (c) => c.appData.peerId === userId && c.appData.mediaTag === (isScreen ? 'screen-audio' : 'cam-audio')
         )
       )
