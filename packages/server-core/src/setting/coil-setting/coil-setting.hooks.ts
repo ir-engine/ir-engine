@@ -6,13 +6,13 @@ import authenticate from '../../hooks/authenticate'
 
 export default {
   before: {
-    all: [authenticate(), iff(isProvider('external'), restrictUserRole('admin') as any)],
+    all: [authenticate()],
     find: [],
     get: [],
-    create: [],
-    update: [],
-    patch: [],
-    remove: []
+    create: [iff(isProvider('external'), restrictUserRole('admin') as any)],
+    update: [iff(isProvider('external'), restrictUserRole('admin') as any)],
+    patch: [iff(isProvider('external'), restrictUserRole('admin') as any)],
+    remove: [iff(isProvider('external'), restrictUserRole('admin') as any)]
   },
 
   after: {
