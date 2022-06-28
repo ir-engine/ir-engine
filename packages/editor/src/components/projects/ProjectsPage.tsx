@@ -392,7 +392,7 @@ const ProjectsPage = () => {
               />
             </a>
             <div className={styles.headerContainer} id={'headerContainer-' + project.name}>
-              <h3 className={styles.header}>{project.name.replaceAll('-', ' ')}</h3>
+              <h3 className={styles.header}>{project.name.replace(/-/g, ' ')}</h3>
               {project.name !== 'default-project' && (
                 <IconButton disableRipple onClick={(e: any) => openProjectContextMenu(e, project)}>
                   <Settings />
