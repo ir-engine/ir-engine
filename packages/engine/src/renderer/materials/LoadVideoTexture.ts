@@ -43,9 +43,11 @@ export default function loadVideoTexture(src, onLoad = (result) => {}) {
       function handleInput() {
         canvas.removeEventListener('keypress', this)
         canvas.removeEventListener('click', this)
+        canvas.removeEventListener('touchstart', this)
         el.play()
         onLoad(texture)
       }
+      canvas.addEventListener('touchstart', handleInput)
       canvas.addEventListener('keypress', handleInput)
       canvas.addEventListener('click', handleInput)
     },
