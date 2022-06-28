@@ -245,7 +245,6 @@ const PartyParticipantWindow = ({ peerId }: Props): JSX.Element => {
       videoRef.current.muted = true
       videoRef.current.setAttribute('playsinline', 'true')
       if (videoStream != null) {
-        console.log(peerId, isScreen)
         setVideoProducerPaused(videoStream.paused)
         const originalTrackEnabledInterval = setInterval(() => {
           if (videoStream.track.enabled) {
