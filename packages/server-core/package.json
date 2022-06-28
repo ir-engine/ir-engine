@@ -89,7 +89,7 @@
     "pug": "^3.0.0",
     "request": "2.88.2",
     "s3-blob-store": "^4.1.1",
-    "sequelize": "6.15.1",
+    "sequelize": "6.21.2",
     "simple-git": "3.6.0",
     "slugify": "^1.4.5",
     "socket.io": "4.5.1",
