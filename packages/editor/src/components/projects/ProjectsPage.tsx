@@ -458,12 +458,8 @@ const ProjectsPage = () => {
           )}
         </Menu>
       )}
-      <CreateProjectDialog createProject={onCreateProject} open={isCreateDialogOpen} handleClose={closeCreateDialog} />
-      <InstallProjectDialog
-        installProject={installProjectFromURL}
-        open={isInstallDialogOpen}
-        handleClose={closeInstallDialog}
-      />
+      <CreateProjectDialog open={isCreateDialogOpen} onSuccess={onCreateProject} onClose={closeCreateDialog} />
+      <InstallProjectDialog open={isInstallDialogOpen} onSuccess={installProjectFromURL} onClose={closeInstallDialog} />
       <DeleteDialog
         open={isDeleteDialogOpen}
         isProjectMenu

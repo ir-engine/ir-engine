@@ -89,10 +89,10 @@ const ThemePlayground = () => {
       instanceId: 'koqwndpkqwndpkqwndpqkwndm',
       action: (
         <>
-          <a href="#h" className="actionStyle" onClick={() => {}}>
+          <a href="#" className="actionStyle" onClick={() => {}}>
             <span className="spanWhite">View</span>
           </a>
-          <a href="#h" className="actionStyle" onClick={() => {}}>
+          <a href="#" className="actionStyle" onClick={() => {}}>
             <span className="spanDange">Delete</span>
           </a>
         </>
@@ -106,10 +106,10 @@ const ThemePlayground = () => {
       instanceId: 'alksdnvoakewndawepdnpqwdew',
       action: (
         <>
-          <a href="#h" className="actionStyle" onClick={() => {}}>
+          <a href="#" className="actionStyle" onClick={() => {}}>
             <span className="spanWhite">View</span>
           </a>
-          <a href="#h" className="actionStyle" onClick={() => {}}>
+          <a href="#" className="actionStyle" onClick={() => {}}>
             <span className="spanDange">Delete</span>
           </a>
         </>
@@ -123,10 +123,10 @@ const ThemePlayground = () => {
       instanceId: 'qkpwejdpqwdmpqlcmnpqwmndqow',
       action: (
         <>
-          <a href="#h" className="actionStyle" onClick={() => {}}>
+          <a href="#" className="actionStyle" onClick={() => {}}>
             <span className="spanWhite">View</span>
           </a>
-          <a href="#h" className="actionStyle" onClick={() => {}}>
+          <a href="#" className="actionStyle" onClick={() => {}}>
             <span className="spanDange">Delete</span>
           </a>
         </>
