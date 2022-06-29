@@ -52,8 +52,8 @@ export class World {
     addComponent(this.worldEntity, PersistTagComponent, {}, this)
     addComponent(this.worldEntity, NameComponent, { name: 'world' }, this)
 
-    if (this.localClientEntity) {
-      this.localClientEntity = isClient ? (createEntity(this) as Entity) : (NaN as Entity)
+    if (isClient) {
+      this.localClientEntity = createEntity(this)
       addComponent(this.localClientEntity, PersistTagComponent, {}, this)
       addComponent(this.localClientEntity, NameComponent, { name: 'local' }, this)
     }
@@ -148,7 +148,7 @@ export class World {
    * Reference to the three.js perspective camera object.
    */
   camera: PerspectiveCamera | OrthographicCamera = new PerspectiveCamera(60, 1, 0.1, 10000)
-  cameraEntity: Entity = null!
+  cameraEntity: Entity = NaN as Entity
 
   /**
    * Reference to the audioListener.
@@ -175,12 +175,12 @@ export class World {
   /**
    * The world entity
    */
-  worldEntity: Entity
+  worldEntity: Entity = NaN as Entity
 
   /**
    * The local client entity
    */
-  localClientEntity: Entity
+  localClientEntity: Entity = NaN as Entity
 
   /**
    * Custom systems injected into this world
