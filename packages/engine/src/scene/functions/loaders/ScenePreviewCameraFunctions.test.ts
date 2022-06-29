@@ -72,7 +72,7 @@ describe('ScenePreviewCameraFunctions', () => {
 
     describe('Editor vs Location', () => {
       it('creates ScenePreviewCamera in Location', () => {
-        Engine.instance.currentWorld.activeCameraEntity = createEntity()
+        Engine.instance.currentWorld.cameraEntity = createEntity()
         Engine.instance.currentWorld.camera = new PerspectiveCamera()
 
         scenePreviewCameraFunctions.deserializeScenePreviewCamera(entity, sceneComponent)

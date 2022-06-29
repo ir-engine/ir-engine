@@ -32,7 +32,7 @@ describe('EngineFunctions', () => {
       for (const entity of objectEntities)
         Engine.instance.currentWorld.scene.add(getComponent(entity, Object3DComponent).value)
 
-      assert.equal(objectEntities.length, 5)
+      assert.equal(objectEntities.length, 6)
 
       unloadAllEntities(world, true)
 
@@ -65,19 +65,19 @@ describe('EngineFunctions', () => {
       for (const entity of objectEntities)
         Engine.instance.currentWorld.scene.add(getComponent(entity, Object3DComponent).value)
 
-      assert.equal(objectEntities.length, 5)
+      assert.equal(objectEntities.length, 6)
 
       unloadAllEntities(world, false)
 
       const persistedObjectEntites = getEntities(world)
       // should keep persisted entity
-      assert.equal(persistedObjectEntites.length, 1)
+      assert.equal(persistedObjectEntites.length, 2)
       assert(hasComponent(persistedObjectEntites[0], Object3DComponent))
       assert(hasComponent(persistedObjectEntites[0], PersistTagComponent))
       assert(hasComponent(world.worldEntity, PersistTagComponent))
 
       const persistedEntites = persistQuery(world)
-      assert.equal(persistedEntites.length, 2)
+      assert.equal(persistedEntites.length, 3)
     })
   })
 

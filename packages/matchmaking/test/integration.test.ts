@@ -68,7 +68,7 @@ describe.skip('open-match frontend service', () => {
     const assignmentsPromises = tickets.map((ticket) => {
       assert(ticket.id)
 
-      return waitForTicketAssignment(ticket.id!, abortController.signal, 100).then((a) => {
+      return waitForTicketAssignment(ticket.id!, abortController.signal as any, 100).then((a) => {
         console.log('assignment for ', ticket.id, a?.connection)
         return a
       })
