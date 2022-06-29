@@ -1,6 +1,6 @@
 import { Application } from '@feathersjs/express/lib'
 import { NodeIO, Texture } from '@gltf-transform/core'
-import { MeshoptCompression, TextureBasisu } from '@gltf-transform/extensions'
+import { MeshoptCompression, MeshQuantization, TextureBasisu } from '@gltf-transform/extensions'
 import { dedup, prune, quantize, reorder } from '@gltf-transform/functions'
 import appRootPath from 'app-root-path'
 import { exec } from 'child_process'
@@ -53,7 +53,7 @@ export async function transformModel(app: Application, args: ModelTransformArgum
   }
 
   const io = new NodeIO()
-  io.registerExtensions([MeshoptCompression, TextureBasisu])
+  io.registerExtensions([MeshoptCompression, MeshQuantization, TextureBasisu])
   io.registerDependencies({
     'meshopt.decoder': MeshoptDecoder,
     'meshopt.encoder': MeshoptEncoder
@@ -74,7 +74,7 @@ export async function transformModel(app: Application, args: ModelTransformArgum
 
   /* PROCESS TEXTURES */
   document.createExtension(TextureBasisu).setRequired(true)
-  const textures = root.listTextures()
+  const textures = root.listTextures().filter((texture) => mimeToFileType(texture.getMimeType()) !== 'ktx2')
 
   for (const texture of textures) {
     const oldImg = texture.getImage()
