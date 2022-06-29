@@ -1290,6 +1290,16 @@
   color: var(--textColor);
 }
 
+.radioField {
+  :global(.MuiFormLabel-root) {
+    color: var(--textColor);
+  }
+
+  :global(.MuiSvgIcon-root) {
+    color: var(--textColor);
+  }
+}
+
 .popover {
   width: 300px;
   padding: 20px;

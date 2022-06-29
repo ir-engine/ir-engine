@@ -27,11 +27,17 @@ interface Props {
   onClose: () => void
 }
 
-const EditProjectPermissionsModal = ({ open, project, onClose }: Props) => {
-  const [userInviteCode, setUserInviteCode] = useState('')
+const UserPermissionDrawer = ({ open, project, onClose }: Props) => {
   const { t } = useTranslation()
+  const [userInviteCode, setUserInviteCode] = useState('')
 
-  const onCreatePermission = async () => {
+  const selfUser = useAuthState().user
+  const selfUserPermission =
+    project?.project_permissions?.find((permission) => permission.userId === selfUser.id.value)?.type === 'owner'
+      ? 'owner'
+      : 'user'
+
+  const handleCreatePermission = async () => {
     if (!userInviteCode) return
 
     try {
@@ -43,7 +49,7 @@ const EditProjectPermissionsModal = ({ open, project, onClose }: Props) => {
     setUserInviteCode('')
   }
 
-  const onRemovePermission = async (id: string) => {
+  const handleRemovePermission = async (id: string) => {
     try {
       await ProjectService.removePermission(id)
       await ProjectService.fetchProjects()
@@ -52,7 +58,7 @@ const EditProjectPermissionsModal = ({ open, project, onClose }: Props) => {
     }
   }
 
-  const onPatchPermission = async (permission: ProjectPermissionInterface) => {
+  const handlePatchPermission = async (permission: ProjectPermissionInterface) => {
     try {
       await ProjectService.patchPermission(permission.id, permission.type === 'owner' ? 'user' : 'owner')
       await ProjectService.fetchProjects()
@@ -62,36 +68,29 @@ const EditProjectPermissionsModal = ({ open, project, onClose }: Props) => {
   }
 
   const handleSubmitOnEnter = async (event) => {
-    if (event.key === 'Enter') await onCreatePermission()
+    if (event.key === 'Enter') await handleCreatePermission()
   }
-
-  const selfUser = useAuthState().user
-  const selfUserPermission =
-    project?.project_permissions?.find((permission) => permission.userId === selfUser.id.value)?.type === 'owner'
-      ? 'owner'
-      : 'user'
 
   return (
     <DrawerView open={open} onClose={onClose}>
       <Container maxWidth="sm" className={styles.mt20}>
-        <DialogTitle className={styles.textAlign}>{`${t('admin:components.project.editProjectPermissions')} ${
-          project.name
-        }`}</DialogTitle>
+        <DialogTitle className={styles.textAlign}>{`${project.name} ${t(
+          'admin:components.project.userAccess'
+        )}`}</DialogTitle>
 
         {selfUserPermission === 'owner' && (
-          <div className={styles.inputContainer}>
+          <>
             <InputText
               name="userInviteCode"
               label={t('admin:components.project.inviteCode')}
-              placeholder={t('admin:components.project.Enter user invite code')}
               value={userInviteCode}
               onChange={(e) => setUserInviteCode(e.target.value)}
               onKeyDown={handleSubmitOnEnter}
             />
-            <Button onClick={onCreatePermission} className={styles['btn-submit']} disabled={!userInviteCode}>
+            <Button onClick={handleCreatePermission} className={styles['btn-submit']} disabled={!userInviteCode}>
               {t('editor.projects.createProjectPermission')}
             </Button>
-          </div>
+          </>
         )}
 
         {project && project.project_permissions && (
@@ -108,7 +107,7 @@ const EditProjectPermissionsModal = ({ open, project, onClose }: Props) => {
                 />
                 <Switch
                   edge="end"
-                  onChange={() => onPatchPermission(permission)}
+                  onChange={() => handlePatchPermission(permission)}
                   checked={permission.type === 'owner'}
                   inputProps={{
                     'aria-labelledby': permission.id
@@ -116,7 +115,7 @@ const EditProjectPermissionsModal = ({ open, project, onClose }: Props) => {
                   disabled={selfUserPermission !== 'owner' || selfUser.id.value === permission.userId}
                 />
                 {selfUserPermission === 'owner' && selfUser.id.value !== permission.userId && (
-                  <IconButton aria-label="Remove Access" onClick={() => onRemovePermission(permission.id)}>
+                  <IconButton aria-label="Remove Access" onClick={() => handleRemovePermission(permission.id)}>
                     <HighlightOffIcon />
                   </IconButton>
                 )}
@@ -129,4 +128,4 @@ const EditProjectPermissionsModal = ({ open, project, onClose }: Props) => {
   )
 }
 
-export default EditProjectPermissionsModal
+export default UserPermissionDrawer

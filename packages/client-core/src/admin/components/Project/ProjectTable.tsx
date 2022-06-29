@@ -20,9 +20,8 @@ import ConfirmModal from '../../common/ConfirmModal'
 import TableComponent from '../../common/Table'
 import { projectsColumns } from '../../common/variables/projects'
 import styles from '../../styles/admin.module.scss'
-import EditProjectPermissionsModal from './EditProjectPermissionsModal'
-import LinkGithubRepoModal from './LinkGithubRepoModal'
-import UpdateLinkGithubRepoModal from './UpdateLinkGithubRepoModal'
+import GithubRepoDrawer from './GithubRepoDrawer'
+import UserPermissionDrawer from './UserPermissionDrawer'
 import ViewProjectFiles from './ViewProjectFiles'
 
 interface Props {
@@ -37,20 +36,28 @@ const ProjectTable = ({ className }: Props) => {
   const [popupRemoveConfirmOpen, setPopupRemoveConfirmOpen] = useState(false)
   const [popupPushToGithubOpen, setPopupPushToGithubOpen] = useState(false)
   const [project, setProject] = useState<ProjectInterface>(null!)
+  const [projectName, setProjectName] = useState('')
+  const [showProjectFiles, setShowProjectFiles] = useState(false)
+  const [openGithubRepoDrawer, setOpenGithubRepoDrawer] = useState(false)
+  const [openUserPermissionDrawer, setOpenUserPermissionDrawer] = useState(false)
+  const [page, setPage] = useState(0)
+  const [rowsPerPage, setRowsPerPage] = useState(PROJECT_PAGE_LIMIT)
+
   const adminProjectState = useProjectState()
   const adminProjects = adminProjectState.projects
   const adminProjectCount = adminProjects.value.length
   const authState = useAuthState()
   const user = authState.user
-  const [projectName, setProjectName] = useState('')
-  const [showProjectFiles, setShowProjectFiles] = useState(false)
-  const [linkGithubRepoModalOpen, setLinkGithubRepoModalOpen] = useState(false)
-  const [updateLinkGithubRepoModalOpen, setUpdateLinkGithubRepoModalOpen] = useState(false)
-  const [editProjectPermissionsModalOpen, setEditProjectPermissionsModelOpen] = useState(false)
 
   ProjectService.useAPIListeners()
 
-  const onRemoveProject = async () => {
+  useEffect(() => {
+    if (user?.id.value != null && adminProjectState.updateNeeded.value === true) {
+      ProjectService.fetchProjects()
+    }
+  }, [user?.id.value, adminProjectState.updateNeeded.value])
+
+  const handleRemoveProject = async () => {
     try {
       if (project) {
         const projectToRemove = adminProjects.value.find((p) => p.name === project?.name)!
@@ -66,7 +73,7 @@ const ProjectTable = ({ className }: Props) => {
     }
   }
 
-  const tryReuploadProjects = async () => {
+  const handleReuploadProjects = async () => {
     try {
       if (project) {
         if (!project.repositoryPath && project.name !== 'default-project') return
@@ -86,7 +93,7 @@ const ProjectTable = ({ className }: Props) => {
     }
   }
 
-  const tryPushProjectToGithub = async () => {
+  const handlePushProjectToGithub = async () => {
     try {
       if (project) {
         if (!project.repositoryPath && project.name !== 'default-project') return
@@ -117,12 +124,6 @@ const ProjectTable = ({ className }: Props) => {
     }
   }
 
-  useEffect(() => {
-    if (user?.id.value != null && adminProjectState.updateNeeded.value === true) {
-      ProjectService.fetchProjects()
-    }
-  }, [user?.id.value, adminProjectState.updateNeeded.value])
-
   const handleOpenReuploadConfirmation = (row) => {
     setProject(row)
     setPopupReuploadConfirmOpen(true)
@@ -142,9 +143,6 @@ const ProjectTable = ({ className }: Props) => {
     setProject(row)
     setPopupRemoveConfirmOpen(true)
   }
-
-  const [page, setPage] = useState(0)
-  const [rowsPerPage, setRowsPerPage] = useState(PROJECT_PAGE_LIMIT)
 
   const handleCloseReuploadModal = () => {
     setProject(null!)
@@ -171,34 +169,24 @@ const ProjectTable = ({ className }: Props) => {
     setShowProjectFiles(true)
   }
 
-  const handleLinkGithubModal = (row) => {
+  const handleOpenGithubRepoDrawer = (row) => {
     setProject(row)
-    setLinkGithubRepoModalOpen(true)
+    setOpenGithubRepoDrawer(true)
   }
 
-  const handleCloseLinkGithubModal = () => {
+  const handleCloseGithubRepoDrawer = () => {
     setProject(null!)
-    setLinkGithubRepoModalOpen(false)
+    setOpenGithubRepoDrawer(false)
   }
 
-  const handleUpdateLinkGithubModal = (row) => {
+  const handleOpenUserPermissionDrawer = (row) => {
     setProject(row)
-    setUpdateLinkGithubRepoModalOpen(true)
+    setOpenUserPermissionDrawer(true)
   }
 
-  const handleCloseUpdateLinkGithubModal = () => {
+  const handleCloseUserPermissionDrawer = () => {
     setProject(null!)
-    setUpdateLinkGithubRepoModalOpen(false)
-  }
-
-  const handleOpenEditProjectPermissionsModal = (row) => {
-    setProject(row)
-    setEditProjectPermissionsModelOpen(true)
-  }
-
-  const handleCloseEditProjectPermissionsModal = () => {
-    setProject(null!)
-    setEditProjectPermissionsModelOpen(false)
+    setOpenUserPermissionDrawer(false)
   }
 
   const handlePageChange = (event: unknown, newPage: number) => {
@@ -245,16 +233,10 @@ const ProjectTable = ({ className }: Props) => {
       ),
       link: (
         <>
-          {el.repositoryPath && el.repositoryPath !== '' && (
-            <IconButton className={styles.iconButton} name="update" onClick={() => handleUpdateLinkGithubModal(el)}>
-              <LinkOffIcon />
-            </IconButton>
-          )}
-          {(!el.repositoryPath || el.repositoryPath === '') && (
-            <IconButton className={styles.iconButton} name="update" onClick={() => handleLinkGithubModal(el)}>
-              <LinkIcon />
-            </IconButton>
-          )}
+          <IconButton className={styles.iconButton} name="update" onClick={() => handleOpenGithubRepoDrawer(el)}>
+            {el.repositoryPath && <LinkOffIcon />}
+            {!el.repositoryPath && <LinkIcon />}
+          </IconButton>
         </>
       ),
       projectPermissions: (
@@ -263,7 +245,7 @@ const ProjectTable = ({ className }: Props) => {
             <IconButton
               className={styles.iconButton}
               name="editProjectPermissions"
-              onClick={() => handleOpenEditProjectPermissionsModal(el)}
+              onClick={() => handleOpenUserPermissionDrawer(el)}
             >
               <Group />
             </IconButton>
@@ -320,13 +302,15 @@ const ProjectTable = ({ className }: Props) => {
         handlePageChange={handlePageChange}
         handleRowsPerPageChange={handleRowsPerPageChange}
       />
+
       <ConfirmModal
         open={popupReuploadConfirmOpen}
         description={`${t('admin:components.project.confirmProjectRebuild')} '${project?.name}'?`}
         processing={processing}
         onClose={handleCloseReuploadModal}
-        onSubmit={tryReuploadProjects}
+        onSubmit={handleReuploadProjects}
       />
+
       <ConfirmModal
         open={popupPushToGithubOpen}
         description={`${t('admin:components.project.confirmPushProjectToGithub')}? ${project?.name} - ${
@@ -334,21 +318,19 @@ const ProjectTable = ({ className }: Props) => {
         }`}
         processing={processing}
         onClose={handleClosePushModal}
-        onSubmit={tryPushProjectToGithub}
+        onSubmit={handlePushProjectToGithub}
       />
-      <LinkGithubRepoModal open={linkGithubRepoModalOpen} project={project} onClose={handleCloseLinkGithubModal} />
-      <UpdateLinkGithubRepoModal
-        open={updateLinkGithubRepoModalOpen}
-        project={project}
-        onClose={handleCloseUpdateLinkGithubModal}
-      />
+
+      {openGithubRepoDrawer && <GithubRepoDrawer open project={project} onClose={handleCloseGithubRepoDrawer} />}
+
       {project && (
-        <EditProjectPermissionsModal
-          open={editProjectPermissionsModalOpen}
+        <UserPermissionDrawer
+          open={openUserPermissionDrawer}
           project={project}
-          onClose={handleCloseEditProjectPermissionsModal}
+          onClose={handleCloseUserPermissionDrawer}
         />
       )}
+
       <ConfirmModal
         open={popupInvalidateConfirmOpen}
         description={`${t('admin:components.project.confirmProjectInvalidate')} '${project?.name}'?`}
@@ -356,11 +338,12 @@ const ProjectTable = ({ className }: Props) => {
         onClose={handleCloseInvalidateModal}
         onSubmit={handleInvalidateCache}
       />
+
       <ConfirmModal
         open={popupRemoveConfirmOpen}
         description={`${t('admin:components.project.confirmProjectDelete')} '${project?.name}'?`}
         onClose={handleCloseRemoveModal}
-        onSubmit={onRemoveProject}
+        onSubmit={handleRemoveProject}
       />
 
       {showProjectFiles && projectName && (
