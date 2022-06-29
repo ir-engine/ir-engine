@@ -96,7 +96,7 @@ const AvatarDrawerContent = ({ open, mode, selectedAvatar, onClose }: Props) => 
   const { user } = useAuthState().value
   const { thumbnail } = useAdminAvatarState().value
 
-  const hasWriteAccess = user.scopes && user.scopes.find((item) => item.type === 'user:write')
+  const hasWriteAccess = user.scopes && user.scopes.find((item) => item.type === 'static_resource:write')
   const viewMode = mode === AvatarDrawerMode.ViewEdit && editMode === false
 
   let thumbnailSrc = ''
