@@ -27,15 +27,7 @@ export interface NumericInputGroupProp {
   default?: any
 }
 
-/**
- *
- * @author Robert Long
- * @param {any} name
- * @param {any} className
- * @param {any} rest
- * @returns
- */
-export function NumericInputGroup({ name, className, info, label, ...rest }: NumericInputGroupProp) {
+function BaseNumericInputGroup({ name, className, label, ...rest }: NumericInputGroupProp) {
   const { displayPrecision, ...scrubberProps } = rest
   return (
     <InputGroupContainer>
@@ -54,12 +46,32 @@ export function NumericInputGroup({ name, className, info, label, ...rest }: Num
         <Grid item xs={9}>
           <InputGroupContent>
             <NumericInput {...rest} />
-            {info && <InputGroupInfo info={info} />}
           </InputGroupContent>
         </Grid>
       </Grid>
     </InputGroupContainer>
   )
+}
+
+/**
+ *
+ * @author Robert Long
+ * @author David Gordon
+ * @param {any} name
+ * @param {any} className
+ * @param {any} rest
+ * @returns
+ */
+export function NumericInputGroup({ name, className, info, label, ...rest }: NumericInputGroupProp) {
+  if (!info) {
+    return <BaseNumericInputGroup name={name} className={className} label={label} {...rest} />
+  } else {
+    return (
+      <InfoTooltip title={info}>
+        <BaseNumericInputGroup name={name} className={className} label={label} {...rest} />
+      </InfoTooltip>
+    )
+  }
 }
 
 export default NumericInputGroup
