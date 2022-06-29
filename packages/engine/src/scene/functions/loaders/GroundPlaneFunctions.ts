@@ -51,7 +51,7 @@ export const deserializeGround: ComponentDeserializeFunction = async function (
   colliderDescOptions.type = ShapeType.Cuboid
   colliderDescOptions.size = planeSize
   colliderDescOptions.collisionLayer = CollisionGroups.Ground
-  colliderDescOptions.collisionMask = CollisionGroups.Default
+  colliderDescOptions.collisionMask = CollisionGroups.Default | CollisionGroups.Avatars
 
   const groundPlane = new Object3D()
   groundPlane.userData.mesh = mesh

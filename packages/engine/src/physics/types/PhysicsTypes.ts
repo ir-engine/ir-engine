@@ -138,6 +138,7 @@ export interface RaycastHit {
   _bodyID?: number // TODO: Remove
 }
 
+// TODO: Remove this
 export enum ControllerEvents {
   CONTROLLER_SHAPE_HIT = 'CONTROLLER_SHAPE_HIT',
   CONTROLLER_CONTROLLER_HIT = 'CONTROLLER_CONTROLLER_HIT',
@@ -153,6 +154,7 @@ export enum CollisionEvents {
   TRIGGER_END = 'TRIGGER_END'
 }
 
+// TODO: Remove this
 export type ControllerHitEvent = {
   type: ControllerEvents
   shape: PhysX.PxShape

@@ -70,7 +70,7 @@ const processBoundingBox = (entity: Entity, force = false) => {
 
 const processRaycasts = (world: World) => {
   for (const entity of raycastQuery()) {
-    world.physics.doRaycast(getComponent(entity, RaycastComponent))
+    // world.physics.doRaycast(getComponent(entity, RaycastComponent))
   }
   return world
 }

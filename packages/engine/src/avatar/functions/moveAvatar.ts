@@ -49,6 +49,8 @@ export const moveAvatar = (world: World, entity: Entity, camera: PerspectiveCame
   const onGround = controller.collisions[0] || avatar.isGrounded
   controller.isInAir = !onGround
 
+  console.log('on ground', onGround)
+
   // move vec3 to controller input direction
   tempVec1.copy(controller.localMovementDirection).multiplyScalar(timeStep)
 
@@ -256,6 +258,7 @@ export const alignXRCameraRotationWithAvatar = (entity: Entity, camera: Perspect
   camParentRot.setFromUnitVectors(tempVec2.set(0, 0, 1), tempVec1).multiply(quat)
 }
 
+const tempVector = new Vector3()
 const moveAvatarController = (world: World, entity: Entity, displacement: any) => {
   const {
     fixedDeltaSeconds: fixedDelta,
@@ -263,22 +266,25 @@ const moveAvatarController = (world: World, entity: Entity, displacement: any) =
   } = world
 
   const timeStep = timeScale * fixedDelta
-  const controller = getComponent(entity, AvatarControllerComponent)
-  const filters = new PhysX.PxControllerFilters(controller.filterData, world.physics.defaultCCTQueryCallback, null!)
+  const controller = getComponent(entity, AvatarControllerComponent).controller
+  // const filters = new PhysX.PxControllerFilters(controller.filterData, world.physics.defaultCCTQueryCallback, null!)
 
-  const collisionFlags = controller.controller.move(
-    displacement,
-    0.001,
-    timeStep,
-    filters,
-    world.physics.obstacleContext
-  )
+  const newPosition = tempVector.set(controller.translation().x, controller.translation().y, controller.translation().z)
+  controller.setNextKinematicTranslation(newPosition.add(displacement))
 
-  controller.collisions = [
-    collisionFlags.isSet(PhysX.PxControllerCollisionFlag.eCOLLISION_DOWN),
-    collisionFlags.isSet(PhysX.PxControllerCollisionFlag.eCOLLISION_SIDES),
-    collisionFlags.isSet(PhysX.PxControllerCollisionFlag.eCOLLISION_UP)
-  ]
+  // const collisionFlags = controller.controller.move(
+  //   displacement,
+  //   0.001,
+  //   timeStep,
+  //   filters,
+  //   world.physics.obstacleContext
+  // )
+
+  // controller.collisions = [
+  //   collisionFlags.isSet(PhysX.PxControllerCollisionFlag.eCOLLISION_DOWN),
+  //   collisionFlags.isSet(PhysX.PxControllerCollisionFlag.eCOLLISION_SIDES),
+  //   collisionFlags.isSet(PhysX.PxControllerCollisionFlag.eCOLLISION_UP)
+  // ]
 }
 
 /**
@@ -344,7 +350,7 @@ export const teleportAvatar = (entity: Entity, newPosition: Vector3): void => {
     const avatar = getComponent(entity, AvatarComponent)
     const controllerComponent = getComponent(entity, AvatarControllerComponent)
     newPosition.y = newPosition.y + avatar.avatarHalfHeight
-    controllerComponent.controller.setPosition(newPosition)
+    controllerComponent.controller.setTranslation(newPosition, true)
   } else {
     console.log('invalid position', newPosition)
   }

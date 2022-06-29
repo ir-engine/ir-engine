@@ -108,13 +108,14 @@ export function teleportObjectReceptor(
   action: ReturnType<typeof WorldNetworkAction.teleportObject>,
   world = Engine.instance.currentWorld
 ) {
+  debugger
   const [x, y, z, qX, qY, qZ, qW] = action.pose
   const entity = world.getNetworkObject(action.object.ownerId, action.object.networkId)!
   const controllerComponent = getComponent(entity, AvatarControllerComponent)
   if (controllerComponent) {
     const velocity = getComponent(entity, VelocityComponent)
     const avatar = getComponent(entity, AvatarComponent)
-    controllerComponent.controller.setPosition({ x, y: y + avatar.avatarHalfHeight, z })
+    controllerComponent.controller.setTranslation({ x, y: y + avatar.avatarHalfHeight, z }, true)
     velocity.linear.setScalar(0)
     velocity.angular.setScalar(0)
   }

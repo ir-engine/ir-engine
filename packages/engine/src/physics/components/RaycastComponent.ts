@@ -4,7 +4,6 @@ import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
 import { RaycastHit, SceneQueryType } from '../types/PhysicsTypes'
 
 export type RaycastComponentType = {
-  filterData: PhysX.PxQueryFilterData | null // TODO: Remove
   type: SceneQueryType
   hits: RaycastHit[]
   origin: Vector3

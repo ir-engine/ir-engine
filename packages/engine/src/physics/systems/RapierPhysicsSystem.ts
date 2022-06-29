@@ -69,9 +69,9 @@ const rigidBodyQuery = defineQuery([RigidBodyComponent])
 // }
 
 const processRaycasts = (world: World) => {
-  // for (const entity of raycastQuery()) {
-  //   world.physics.doRaycast(getComponent(entity, RaycastComponent))
-  // }
+  for (const entity of raycastQuery()) {
+    Physics.castRay(world.physicsWorld, getComponent(entity, RaycastComponent))
+  }
   return world
 }
 

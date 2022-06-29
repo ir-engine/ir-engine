@@ -48,7 +48,7 @@ export default async function AvatarControllerSystem(world: World) {
       const controller = getComponent(entity, AvatarControllerComponent, true)
 
       if (controller?.controller) {
-        world.physics.removeController(controller.controller)
+        world.physicsWorld.removeRigidBody(controller.controller)
       }
 
       const avatar = getComponent(entity, AvatarComponent)
@@ -91,23 +91,13 @@ export default async function AvatarControllerSystem(world: World) {
       displacement.set(displace.x, displace.y, displace.z)
 
       const controller = getComponent(entity, AvatarControllerComponent)
-      const collider = getComponent(entity, ColliderComponent)
-
       const avatar = getComponent(entity, AvatarComponent)
       const transform = getComponent(entity, TransformComponent)
 
-      const pose = controller.controller.getPosition()
-      transform.position.set(pose.x, pose.y - avatar.avatarHalfHeight, pose.z)
+      const pose = controller.controller.translation()
+      transform.position.set(pose.x, pose.y, pose.z)
 
       detectUserInCollisions(entity)
-
-      collider.body.setGlobalPose(
-        {
-          translation: pose,
-          rotation: transform.rotation
-        },
-        true
-      )
 
       // TODO: implement scene lower bounds parameter
       if (transform.position.y < -10) {

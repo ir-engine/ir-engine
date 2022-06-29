@@ -1,3 +1,4 @@
+import { ColliderDesc, RigidBodyDesc } from '@dimforge/rapier3d-compat'
 import { AnimationClip, AnimationMixer, Group, PerspectiveCamera, Quaternion, Vector3 } from 'three'
 
 import { createQuaternionProxy, createVector3Proxy } from '../../common/proxies/three'
@@ -7,12 +8,14 @@ import { addComponent, getComponent, hasComponent } from '../../ecs/functions/Co
 import { InputComponent } from '../../input/components/InputComponent'
 import { InteractorComponent } from '../../interaction/components/InteractorComponent'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
+import { Physics } from '../../physics/classes/PhysicsRapier'
 import { VectorSpringSimulator } from '../../physics/classes/springs/VectorSpringSimulator'
 import { ColliderComponent } from '../../physics/components/ColliderComponent'
 import { CollisionComponent } from '../../physics/components/CollisionComponent'
 import { RaycastComponent } from '../../physics/components/RaycastComponent'
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
 import { AvatarCollisionMask, CollisionGroups } from '../../physics/enums/CollisionGroups'
+import { getInteractionGroups } from '../../physics/functions/getInteractionGroups'
 import { BodyType, SceneQueryType } from '../../physics/types/PhysicsTypes'
 import { NameComponent } from '../../scene/components/NameComponent'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
@@ -50,14 +53,6 @@ export const createAvatar = (spawnAction: typeof WorldNetworkAction.spawnAvatar.
   // set cached action refs to the new components so they stay up to date with future movements
   spawnAction.parameters.position = position
   spawnAction.parameters.rotation = rotation
-
-  const linearVelocity = createVector3Proxy(VelocityComponent.linear, entity)
-  const angularVelocity = createVector3Proxy(VelocityComponent.angular, entity)
-
-  addComponent(entity, VelocityComponent, {
-    linear: linearVelocity,
-    angular: angularVelocity
-  })
 
   // The visuals group is centered for easy actor tilting
   const tiltContainer = new Group()
@@ -102,19 +97,13 @@ export const createAvatar = (spawnAction: typeof WorldNetworkAction.spawnAvatar.
   addComponent(entity, Object3DComponent, { value: tiltContainer })
   setObjectLayers(tiltContainer, ObjectLayers.Avatar)
 
-  const filterData = new PhysX.PxQueryFilterData()
-  filterData.setWords(AvatarCollisionMask, 0)
-  const flags = PhysX.PxQueryFlag.eSTATIC.value | PhysX.PxQueryFlag.eDYNAMIC.value | PhysX.PxQueryFlag.eANY_HIT.value
-  filterData.setFlags(flags)
-
   addComponent(entity, RaycastComponent, {
-    filterData,
     type: SceneQueryType.Closest,
     hits: [],
     origin: new Vector3(0, defaultAvatarHalfHeight, 0),
     direction: new Vector3(0, -1, 0),
     maxDistance: defaultAvatarHalfHeight + 0.05,
-    flags
+    flags: getInteractionGroups(CollisionGroups.Avatars, AvatarCollisionMask)
   })
 
   addComponent(entity, CollisionComponent, { collisions: [] })
@@ -127,31 +116,6 @@ export const createAvatar = (spawnAction: typeof WorldNetworkAction.spawnAvatar.
     })
     createAvatarController(entity)
   }
-  const shape = world.physics.createShape(
-    new PhysX.PxCapsuleGeometry(avatarRadius, capsuleHeight / 2),
-    world.physics.physics.createMaterial(0, 0, 0),
-    {
-      collisionLayer: CollisionGroups.Avatars,
-      collisionMask: CollisionGroups.Default | CollisionGroups.Ground | CollisionGroups.Trigger
-    }
-  )
-  const body = world.physics.addBody({
-    shapes: [shape],
-    type: BodyType.DYNAMIC,
-    transform: {
-      translation: {
-        x: transform.position.x,
-        y: transform.position.y + defaultAvatarHalfHeight,
-        z: transform.position.z
-      },
-      rotation: new Quaternion()
-    },
-    userData: {
-      entity
-    }
-  })
-  body.setActorFlag(PhysX.PxActorFlag.eDISABLE_GRAVITY, true)
-  addComponent(entity, ColliderComponent, { body })
 
   return entity
 }
@@ -166,24 +130,16 @@ export const createAvatarController = (entity: Entity) => {
       data: new Map()
     })
   }
-  const world = Engine.instance.currentWorld
-  const controller = world.physics.createController({
-    isCapsule: true,
-    material: world.physics.createMaterial(),
-    position: {
-      x: position.x,
-      y: position.y + defaultAvatarHalfHeight,
-      z: position.z
-    },
-    contactOffset: 0.01,
-    stepOffset: 0.25,
-    slopeLimit: 0,
-    height: capsuleHeight,
-    radius: avatarRadius,
-    userData: {
-      entity
-    }
-  }) as PhysX.PxCapsuleController
+
+  const interactionGroups = getInteractionGroups(CollisionGroups.Avatars, AvatarCollisionMask)
+  const colliderDesc = ColliderDesc.capsule(capsuleHeight / 2, avatarRadius)
+    .setTranslation(position.x, position.y + defaultAvatarHalfHeight, position.z)
+    .setCollisionGroups(interactionGroups)
+  const rigidBodyDesc = RigidBodyDesc.kinematicPositionBased()
+  const controller = Physics.createRigidBody(entity, Engine.instance.currentWorld.physicsWorld, rigidBodyDesc, [
+    colliderDesc
+  ])
+  // body.setActorFlag(PhysX.PxActorFlag.eDISABLE_GRAVITY, true) // TODO
 
   const frustumCamera = new PerspectiveCamera(60, 4, 0.1, 3)
   frustumCamera.position.setY(defaultAvatarHalfHeight)
@@ -202,12 +158,6 @@ export const createAvatarController = (entity: Entity) => {
   if (!hasComponent(entity, AvatarControllerComponent)) {
     addComponent(entity, AvatarControllerComponent, {
       controller,
-      filterData: new PhysX.PxFilterData(
-        CollisionGroups.Avatars,
-        CollisionGroups.Default | CollisionGroups.Ground | CollisionGroups.Trigger,
-        0,
-        0
-      ),
       collisions: [false, false, false],
       movementEnabled: true,
       isJumping: false,
