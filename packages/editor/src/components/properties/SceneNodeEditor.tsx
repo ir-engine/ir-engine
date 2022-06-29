@@ -15,11 +15,9 @@ import {
 import { DistanceModel, DistanceModelOptions } from '@xrengine/engine/src/audio/constants/AudioConstants'
 import { getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { PositionalAudioSettingsComponent } from '@xrengine/engine/src/scene/components/AudioSettingsComponent'
-import { FogComponent } from '@xrengine/engine/src/scene/components/FogComponent'
 import { MetaDataComponent } from '@xrengine/engine/src/scene/components/MetaDataComponent'
 import { RenderSettingComponent } from '@xrengine/engine/src/scene/components/RenderSettingComponent'
 import { SimpleMaterialTagComponent } from '@xrengine/engine/src/scene/components/SimpleMaterialTagComponent'
-import { FogType } from '@xrengine/engine/src/scene/constants/FogType'
 import { SCENE_COMPONENT_SIMPLE_MATERIALS } from '@xrengine/engine/src/scene/functions/loaders/SimpleMaterialFunctions'
 
 import LanguageIcon from '@mui/icons-material/Language'
@@ -28,7 +26,6 @@ import { executeCommandWithHistoryOnSelection } from '../../classes/History'
 import { TagComponentOperation } from '../../commands/TagComponentCommand'
 import EditorCommands from '../../constants/EditorCommands'
 import BooleanInput from '../inputs/BooleanInput'
-import ColorInput from '../inputs/ColorInput'
 import CompoundNumericInput from '../inputs/CompoundNumericInput'
 import InputGroup from '../inputs/InputGroup'
 import NumericInputGroup from '../inputs/NumericInputGroup'
@@ -38,27 +35,6 @@ import Vector3Input from '../inputs/Vector3Input'
 import EnvMapEditor from './EnvMapEditor'
 import NodeEditor from './NodeEditor'
 import { EditorComponentType, updateProperty } from './Util'
-
-/**
- * FogTypeOptions array containing fogType options.
- *
- * @author Robert Long
- * @type {Array}
- */
-const FogTypeOptions = [
-  {
-    label: 'Disabled',
-    value: FogType.Disabled
-  },
-  {
-    label: 'Linear',
-    value: FogType.Linear
-  },
-  {
-    label: 'Exponential',
-    value: FogType.Exponential
-  }
-]
 
 /**
  * ToneMappingOptions array containing tone mapping type options.
@@ -143,7 +119,6 @@ export const SceneNodeEditor: EditorComponentType = (props) => {
   }, [])
 
   const metadata = getComponent(entity, MetaDataComponent)
-  const fogComponent = getComponent(entity, FogComponent)
   const audioComponent = getComponent(entity, PositionalAudioSettingsComponent)
   const renderSettingComponent = getComponent(entity, RenderSettingComponent)
 
@@ -157,55 +132,6 @@ export const SceneNodeEditor: EditorComponentType = (props) => {
         <StringInput value={metadata.meta_data} onChange={updateProperty(MetaDataComponent, 'meta_data')} />
       </InputGroup>
       <EnvMapEditor node={props.node} />
-      <InputGroup name="Fog Type" label={t('editor:properties.scene.lbl-fogType')}>
-        <SelectInput
-          key={props.node.entity}
-          options={FogTypeOptions}
-          value={fogComponent.type}
-          onChange={updateProperty(FogComponent, 'type')}
-        />
-      </InputGroup>
-      {fogComponent.type !== FogType.Disabled && (
-        <InputGroup name="Fog Color" label={t('editor:properties.scene.lbl-fogColor')}>
-          <ColorInput value={fogComponent.color} onChange={updateProperty(FogComponent, 'color')} />
-        </InputGroup>
-      )}
-      {fogComponent.type === FogType.Linear && (
-        <>
-          <NumericInputGroup
-            name="Fog Near Distance"
-            label={t('editor:properties.scene.lbl-forNearDistance')}
-            smallStep={0.1}
-            mediumStep={1}
-            largeStep={10}
-            min={0}
-            value={fogComponent.near}
-            onChange={updateProperty(FogComponent, 'near')}
-          />
-          <NumericInputGroup
-            name="Fog Far Distance"
-            label={t('editor:properties.scene.lbl-fogFarDistance')}
-            smallStep={1}
-            mediumStep={100}
-            largeStep={1000}
-            min={0}
-            value={fogComponent.far}
-            onChange={updateProperty(FogComponent, 'far')}
-          />
-        </>
-      )}
-      {fogComponent.type === FogType.Exponential && (
-        <NumericInputGroup
-          name="Fog Density"
-          label={t('editor:properties.scene.lbl-fogDensity')}
-          smallStep={0.01}
-          mediumStep={0.1}
-          largeStep={0.25}
-          min={0}
-          value={fogComponent.density}
-          onChange={updateProperty(FogComponent, 'density')}
-        />
-      )}
       <InputGroup name="Override Audio Settings" label={t('editor:properties.scene.lbl-audioSettings')}>
         <BooleanInput
           value={audioComponent.usePositionalAudio}

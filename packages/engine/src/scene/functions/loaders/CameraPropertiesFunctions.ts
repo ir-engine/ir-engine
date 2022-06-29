@@ -7,7 +7,6 @@ import { isClient } from '../../../common/functions/isClient'
 import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
-import { useWorld } from '../../../ecs/functions/SystemHooks'
 import { matchActionOnce } from '../../../networking/functions/matchActionOnce'
 import { WorldNetworkAction } from '../../../networking/functions/WorldNetworkAction'
 import { CameraPropertiesComponent, CameraPropertiesComponentType } from '../../components/CameraPropertiesComponent'
@@ -55,13 +54,7 @@ export const deserializeCameraProperties: ComponentDeserializeFunction = (
   getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_CAMERA_PROPERTIES)
 
   if (isClient) {
-    matchActionOnce(WorldNetworkAction.spawnAvatar.matches, (spawnAction) => {
-      if (spawnAction.$from === Engine.instance.userId) {
-        setCameraProperties(useWorld().localClientEntity, json.props)
-        return true
-      }
-      return false
-    })
+    setCameraProperties(Engine.instance.currentWorld.cameraEntity, json.props)
   }
 }
 

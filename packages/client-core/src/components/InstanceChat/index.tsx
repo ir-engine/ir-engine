@@ -264,7 +264,7 @@ const InstanceChat = ({
     const loadPromise = AssetLoader.loadAsync(notificationAlertURL)
     const node = createEntityNode(createEntity(Engine.instance.currentWorld))
     setEntity(node.entity)
-    createNewEditorNode(node.entity, ScenePrefabs.audio)
+    createNewEditorNode(node, ScenePrefabs.audio)
     addEntityNodeInTree(node, Engine.instance.currentWorld.entityTree.rootNode)
     const audioComponent = getComponent(node.entity, AudioComponent)
     audioComponent.volume = audioState.audio.value / 100

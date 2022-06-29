@@ -68,7 +68,7 @@ export async function initializeScene(projectFile: SceneJson): Promise<Error[] |
   SceneState.transformGizmo = new TransformGizmo()
 
   SceneState.gizmoEntity = createGizmoEntity(SceneState.transformGizmo)
-  Engine.instance.currentWorld.activeCameraEntity = createCameraEntity()
+  Engine.instance.currentWorld.cameraEntity = createCameraEntity()
   SceneState.editorEntity = createEditorEntity()
 
   Engine.instance.currentWorld.scene.add(Engine.instance.currentWorld.camera)
@@ -217,8 +217,7 @@ export async function exportScene(options = {} as DefaultExportOptionsType) {
 export function disposeScene() {
   EngineRenderer.instance.activeCSMLightEntity = null
   EngineRenderer.instance.directionalLightEntities = []
-  if (Engine.instance.currentWorld.activeCameraEntity)
-    removeEntity(Engine.instance.currentWorld.activeCameraEntity, true)
+  if (Engine.instance.currentWorld.cameraEntity) removeEntity(Engine.instance.currentWorld.cameraEntity, true)
   if (SceneState.gizmoEntity) removeEntity(SceneState.gizmoEntity, true)
   if (SceneState.editorEntity) removeEntity(SceneState.editorEntity, true)
 
