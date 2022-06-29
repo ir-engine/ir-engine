@@ -16,7 +16,7 @@ import { AvatarControllerType, AvatarMovementScheme } from '@xrengine/engine/src
 import { EngineRendererAction, useEngineRendererState } from '@xrengine/engine/src/renderer/EngineRendererState'
 import { dispatchAction } from '@xrengine/hyperflux'
 
-import { BlurLinear, Mic, VolumeUp } from '@mui/icons-material'
+import { BlurLinear, Mic, MicOff, VolumeOff, VolumeUp } from '@mui/icons-material'
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp'
 import Box from '@mui/material/Box'
@@ -57,6 +57,7 @@ const SettingMenu = (): JSX.Element => {
   const controllerTypes = Object.values(AvatarControllerType).filter((value) => typeof value === 'string')
   const controlSchemes = Object.values(AvatarMovementScheme).filter((value) => typeof value === 'string')
   const [open, setOpen] = useState(false)
+  const [openOtherAudioSettings, setOpenOtherAudioSettings] = useState(false)
 
   const handleChangeInvertRotationAndMoveSticks = (event: React.ChangeEvent<HTMLInputElement>) => {
     dispatchAction(
@@ -111,7 +112,7 @@ const SettingMenu = (): JSX.Element => {
           </Typography>
           <div className={styles.row}>
             <span className={styles.materialIconBlock}>
-              <VolumeUp color="primary" />
+              {audioState.audio.value == 0 ? <VolumeOff color="primary" /> : <VolumeUp color="primary" />}
             </span>
             <span className={styles.settingLabel}>{t('user:usermenu.setting.lbl-volume')}</span>
             <Slider
@@ -130,7 +131,7 @@ const SettingMenu = (): JSX.Element => {
           </div>
           <div className={styles.row}>
             <span className={styles.materialIconBlock}>
-              <Mic color="primary" />
+              {audioState.microphone.value == 0 ? <MicOff color="primary" /> : <Mic color="primary" />}
             </span>
             <span className={styles.settingLabel}>{t('user:usermenu.setting.lbl-microphone')}</span>
             <Slider
@@ -216,6 +217,101 @@ const SettingMenu = (): JSX.Element => {
             labelPlacement="start"
             control={<Switch checked={showAvatar} onChange={handleChangeShowAvatar} color="primary" />}
           />
+        </section>
+        <section className={styles.settingSection}>
+          <div className={styles.row}>
+            <Typography variant="h6" className={styles.settingHeader}>
+              {t('user:usermenu.setting.other-audio-setting')}
+            </Typography>
+            <IconButton
+              className={styles.collapseBtn}
+              aria-label="expand"
+              size="small"
+              onClick={() => setOpenOtherAudioSettings(!openOtherAudioSettings)}
+            >
+              {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+            </IconButton>
+          </div>
+          <Collapse in={openOtherAudioSettings} timeout="auto" unmountOnExit>
+            <Box margin={1}>
+              <div className={styles.row}>
+                <span className={styles.materialIconBlock}>
+                  {audioState.mediaStreamVolume.value == 0 ? (
+                    <VolumeOff color="primary" />
+                  ) : (
+                    <VolumeUp color="primary" />
+                  )}
+                </span>
+                <span className={styles.settingLabel}>{t('user:usermenu.setting.lbl-media-instance')}</span>
+                <Slider
+                  value={audioState.mediaStreamVolume.value == null ? 100 : audioState.mediaStreamVolume.value}
+                  onChange={(_, value: number) => {
+                    dispatchAction(AudioSettingAction.setMediaStreamVolume({ mediastreamVolume: value }))
+                  }}
+                  className={styles.slider}
+                  max={100}
+                  min={0}
+                />
+              </div>
+              <div className={styles.row}>
+                <span className={styles.materialIconBlock}>
+                  {audioState.notificationVolume.value == 0 ? (
+                    <VolumeOff color="primary" />
+                  ) : (
+                    <VolumeUp color="primary" />
+                  )}
+                </span>
+                <span className={styles.settingLabel}>{t('user:usermenu.setting.lbl-notification')}</span>
+                <Slider
+                  value={audioState.notificationVolume.value == null ? 100 : audioState.notificationVolume.value}
+                  onChange={(_, value: number) => {
+                    dispatchAction(AudioSettingAction.setNotification({ notificationVolume: value }))
+                  }}
+                  className={styles.slider}
+                  max={100}
+                  min={0}
+                />
+              </div>
+              <div className={styles.row}>
+                <span className={styles.materialIconBlock}>
+                  {audioState.soundEffectsVolume.value == 0 ? (
+                    <VolumeOff color="primary" />
+                  ) : (
+                    <VolumeUp color="primary" />
+                  )}
+                </span>
+                <span className={styles.settingLabel}>{t('user:usermenu.setting.lbl-sound-effect')}</span>
+                <Slider
+                  value={audioState.soundEffectsVolume.value == null ? 100 : audioState.soundEffectsVolume.value}
+                  onChange={(_, value: number) => {
+                    dispatchAction(AudioSettingAction.setSoundEffectsVolume({ soundEffectsVolume: value }))
+                  }}
+                  className={styles.slider}
+                  max={100}
+                  min={0}
+                />
+              </div>
+              <div className={styles.row}>
+                <span className={styles.materialIconBlock}>
+                  {audioState.backgroundMusicVolume.value == 0 ? (
+                    <VolumeOff color="primary" />
+                  ) : (
+                    <VolumeUp color="primary" />
+                  )}
+                </span>
+                <span className={styles.settingLabel}>{t('user:usermenu.setting.lbl-background-music-volume')}</span>
+                <Slider
+                  value={audioState.backgroundMusicVolume.value == null ? 100 : audioState.backgroundMusicVolume.value}
+                  onChange={(_, value: number) => {
+                    dispatchAction(AudioSettingAction.setBackgroundMusicVolume({ backgroundMusicVolume: value }))
+                  }}
+                  className={styles.slider}
+                  max={100}
+                  min={0}
+                />
+              </div>
+            </Box>
+          </Collapse>
         </section>
         {engineState.xrSupported.value && (
           <>

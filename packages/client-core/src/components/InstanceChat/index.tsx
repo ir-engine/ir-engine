@@ -253,10 +253,10 @@ const InstanceChat = ({
   useEffect(() => {
     if (entity) {
       const audioComponent = getComponent(entity, AudioComponent)
-      audioComponent.volume = audioState.audio.value / 100
-      updateAudio(entity, { volume: audioState.audio.value / 100 })
+      audioComponent.volume = audioState.notificationVolume.value / 100
+      updateAudio(entity, { volume: audioState.notificationVolume.value / 100 })
     }
-  }, [audioState.audio.value])
+  }, [audioState.notificationVolume.value])
 
   const fetchAudioAlert = async () => {
     setIsInitRender(true)
@@ -267,11 +267,11 @@ const InstanceChat = ({
     createNewEditorNode(node, ScenePrefabs.audio)
     addEntityNodeInTree(node, Engine.instance.currentWorld.entityTree.rootNode)
     const audioComponent = getComponent(node.entity, AudioComponent)
-    audioComponent.volume = audioState.audio.value / 100
+    audioComponent.volume = audioState.notificationVolume.value / 100
     audioComponent.audioSource = notificationAlertURL
 
     await loadPromise
-    updateAudio(node.entity, { volume: audioState.audio.value / 100, audioSource: notificationAlertURL })
+    updateAudio(node.entity, { volume: audioState.notificationVolume.value / 100, audioSource: notificationAlertURL })
   }
 
   useEffect(() => {
@@ -290,7 +290,7 @@ const InstanceChat = ({
       setUnreadMessages(true)
       entity && toggleAudio(entity)
     }
-  }, [chatState])
+  }, [chatState.messageCreated.value])
 
   /**
    * Message scroll
