@@ -415,7 +415,11 @@ export class Project extends Service {
     }
 
     let data: ProjectInterface[] = ((await super.find(params)) as any).data
-    data.forEach((item) => (item.hasWriteAccess = projectPushIds.indexOf(item.id) > -1))
+    data.forEach((item) =>
+      (item as any).dataValues
+        ? ((item as any).dataValues.hasWriteAccess = projectPushIds.indexOf(item.id) > -1)
+        : (item.hasWriteAccess = projectPushIds.indexOf(item.id) > -1)
+    )
     return {
       data
     }

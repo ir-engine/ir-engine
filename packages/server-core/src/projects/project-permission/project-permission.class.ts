@@ -93,10 +93,15 @@ export class ProjectPermission<T = ProjectPermissionsDataType> extends Service {
       })
       if (!project) throw new BadRequest('Invalid project ID')
       if (!user) throw new BadRequest('Invalid user ID')
+      const existingPermissionsCount = await super.Model.count({
+        where: {
+          projectId: data.projectId
+        }
+      })
       return super.create({
         projectId: data.projectId,
         userId: user.id,
-        type: data.type === 'owner' ? 'owner' : 'user'
+        type: data.type === 'owner' || existingPermissionsCount === 0 ? 'owner' : 'user'
       })
     } catch (err) {
       logger.error(err)

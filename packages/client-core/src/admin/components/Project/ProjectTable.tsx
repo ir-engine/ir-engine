@@ -223,7 +223,7 @@ const ProjectTable = ({ className }: Props) => {
             <IconButton
               className={styles.iconButton}
               name="update"
-              disabled={!el.hasWriteAccess}
+              disabled={!el.hasWriteAccess || !el.repositoryPath}
               onClick={() => handleOpenPushConfirmation(el)}
             >
               <Upload />

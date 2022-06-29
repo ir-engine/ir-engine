@@ -3,4 +3,5 @@ export interface ProjectPermissionInterface {
   projectId?: string
   userId?: string
   type?: string
+  hasWriteAccess?: boolean
 }
