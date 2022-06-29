@@ -49,15 +49,17 @@ export class World {
     Engine.instance.worlds.push(this)
 
     this.worldEntity = createEntity(this)
-    this.localClientEntity = isClient ? (createEntity(this) as Entity) : (NaN as Entity)
-    this.cameraEntity = createEntity(this)
-
     addComponent(this.worldEntity, PersistTagComponent, {}, this)
     addComponent(this.worldEntity, NameComponent, { name: 'world' }, this)
-    if (this.localClientEntity) addComponent(this.localClientEntity, PersistTagComponent, {}, this)
 
-    this.scene.add(this.camera)
-    addComponent(this.cameraEntity, NameComponent, { name: 'camera_local' }, this)
+    if (this.localClientEntity) {
+      this.localClientEntity = isClient ? (createEntity(this) as Entity) : (NaN as Entity)
+      addComponent(this.localClientEntity, PersistTagComponent, {}, this)
+      addComponent(this.localClientEntity, NameComponent, { name: 'local' }, this)
+    }
+
+    this.cameraEntity = createEntity(this)
+    addComponent(this.cameraEntity, NameComponent, { name: 'camera' }, this)
     addComponent(this.cameraEntity, PersistTagComponent, {}, this)
     addComponent(this.cameraEntity, Object3DComponent, { value: this.camera }, this)
     addComponent(
@@ -70,6 +72,7 @@ export class World {
       },
       this
     )
+    this.scene.add(this.camera)
 
     initializeEntityTree(this)
     this.scene.layers.set(ObjectLayers.Scene)
