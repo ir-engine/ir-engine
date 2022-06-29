@@ -48,7 +48,7 @@ export const deserializeGround: ComponentDeserializeFunction = async function (
 
   const colliderDescOptions = {} as ColliderDescOptions
   colliderDescOptions.bodyType = RigidBodyType.Fixed
-  colliderDescOptions.type = ShapeType.Cylinder
+  colliderDescOptions.type = ShapeType.Cuboid
   colliderDescOptions.size = planeSize
   colliderDescOptions.collisionLayer = CollisionGroups.Ground
   colliderDescOptions.collisionMask = CollisionGroups.Default
@@ -63,19 +63,16 @@ export const deserializeGround: ComponentDeserializeFunction = async function (
   addComponent(entity, GroundPlaneComponent, props)
   getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_GROUND_PLANE)
 
-  Physics.createRigidBodyForObject(
-    entity,
-    Engine.instance.currentWorld.physicsWorld,
-    groundPlane.userData.mesh,
-    colliderDescOptions
-  )
-  // Until player avatar is switched to rapier, this is needed.
   // @TODO: make this isomorphic with editor
-  mesh.userData = colliderDescOptions
-  mesh.userData['bodyType'] = 0
-  mesh.userData['type'] = 'ground'
+  if (!Engine.instance.isEditor)
+    Physics.createRigidBodyForObject(
+      entity,
+      Engine.instance.currentWorld.physicsWorld,
+      groundPlane.userData.mesh,
+      colliderDescOptions
+    )
+
   mesh.rotation.x = -Math.PI / 2
-  if (!Engine.instance.isEditor) createCollider(entity, groundPlane.userData.mesh)
 
   updateGroundPlane(entity, props)
 }
