@@ -1,5 +1,7 @@
 export enum FogType {
   Disabled = 'disabled',
   Linear = 'linear',
-  Exponential = 'exponential'
+  Exponential = 'exponential',
+  Brownian = 'brownian',
+  Height = 'height'
 }
