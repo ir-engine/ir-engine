@@ -96,7 +96,7 @@ export default async function AvatarControllerSystem(world: World) {
 
       displacementXZ.set(displacement.x, 0, displacement.z)
       displacementXZ.applyQuaternion(invOrientation.copy(transform.rotation).invert())
-      if (displacementXZ.lengthSq() > 0.001) {
+      if (displacementXZ.lengthSq() > 0) {
         rotMatrix.lookAt(displacementXZ, V_000, V_010)
         targetOrientation.setFromRotationMatrix(rotMatrix)
         transform.rotation.slerp(targetOrientation, Math.max(world.deltaSeconds * 2, 3 / 60))
