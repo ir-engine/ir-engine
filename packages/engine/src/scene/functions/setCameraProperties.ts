@@ -9,11 +9,9 @@ import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { useWorld } from '../../ecs/functions/SystemHooks'
 import { CameraPropertiesComponentType } from '../components/CameraPropertiesComponent'
 
-export const setCameraProperties = (entity: Entity, data: CameraPropertiesComponentType): void => {
-  const cameraFollow = getComponent(entity, FollowCameraComponent)
-  console.log('data')
+export const setCameraProperties = (cameraEntity: Entity, data: CameraPropertiesComponentType): void => {
+  const cameraFollow = getComponent(cameraEntity, FollowCameraComponent)
 
-  console.log(data)
   if (data.projectionType === ProjectionType.Orthographic) {
     Engine.instance.currentWorld.camera = new OrthographicCamera(
       data.fov / -2,
@@ -37,7 +35,7 @@ export const setCameraProperties = (entity: Entity, data: CameraPropertiesCompon
   cameraFollow.maxPhi = data.maxPhi
   cameraFollow.locked = !data.startInFreeLook
   Engine.instance.currentWorld.camera.updateProjectionMatrix()
-  switchCameraMode(useWorld().localClientEntity, data, true)
+  switchCameraMode(cameraEntity, data, true)
 
   cameraFollow.raycastProps = data.raycastProps
 }

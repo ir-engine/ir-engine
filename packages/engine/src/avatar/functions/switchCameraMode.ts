@@ -30,7 +30,7 @@ type SwitchCameraModeProps = {
 
 let changeTimeout: any = undefined
 export const switchCameraMode = (
-  entity: Entity,
+  cameraEntity: Entity,
   args: SwitchCameraModeProps = { pointerLock: false, cameraMode: CameraMode.ThirdPerson },
   force = false
 ): void => {
@@ -42,7 +42,7 @@ export const switchCameraMode = (
     }, 250)
   }
 
-  const cameraFollow = getComponent(entity, FollowCameraComponent)
+  const cameraFollow = getComponent(cameraEntity, FollowCameraComponent)
   cameraFollow.mode = args.cameraMode
 
   switch (args.cameraMode) {
@@ -50,30 +50,30 @@ export const switchCameraMode = (
       {
         cameraFollow.phi = 0
         cameraFollow.locked = true
-        setVisible(entity, false)
+        setVisible(cameraEntity, false)
       }
       break
 
     case CameraMode.ShoulderCam:
       {
-        setVisible(entity, true)
+        setVisible(cameraEntity, true)
       }
       break
     default:
     case CameraMode.ThirdPerson:
       {
-        setVisible(entity, true)
+        setVisible(cameraEntity, true)
       }
       break
 
     case CameraMode.TopDown:
       {
-        setVisible(entity, true)
+        setVisible(cameraEntity, true)
       }
       break
     case CameraMode.Strategic:
       {
-        setVisible(entity, true)
+        setVisible(cameraEntity, true)
       }
       break
   }

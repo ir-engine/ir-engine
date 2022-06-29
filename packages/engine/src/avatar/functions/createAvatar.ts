@@ -76,9 +76,11 @@ export const createAvatar = (spawnAction: typeof WorldNetworkAction.spawnAvatar.
     isGrounded: false
   })
 
-  addComponent(entity, NameComponent, {
-    name: userId as string
-  })
+  if (world.localClientEntity !== entity) {
+    addComponent(entity, NameComponent, {
+      name: ('avatar_' + userId) as string
+    })
+  }
 
   addComponent(entity, VisibleComponent, {})
 
