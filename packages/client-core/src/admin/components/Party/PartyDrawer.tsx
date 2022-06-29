@@ -200,7 +200,7 @@ const PartyDrawer = ({ open, mode, selectedParty, onClose }: Props) => {
         />
 
         {viewMode === false && (
-          <DialogContentText className={styles.mb15}>
+          <DialogContentText className={styles.mb15px}>
             <span className={styles.spanWhite}>{t('admin:components.party.dontSeeLocation')}</span>
             <a href="/admin/locations" className={styles.textLink}>
               {t('admin:components.party.createOne')}

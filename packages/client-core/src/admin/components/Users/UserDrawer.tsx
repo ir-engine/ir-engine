@@ -272,7 +272,7 @@ const UserDrawer = ({ open, mode, selectedUser, onClose }: Props) => {
           )}
 
           {viewMode === false && (
-            <DialogContentText className={styles.mb15}>
+            <DialogContentText className={styles.mb15px}>
               <span className={styles.select}>{t('admin:components.user.dontSeeUserRole')}</span>{' '}
               <a href="#" className={styles.textLink} onClick={() => setOpenCreateUserRole(true)}>
                 {t('admin:components.user.createOne')}
