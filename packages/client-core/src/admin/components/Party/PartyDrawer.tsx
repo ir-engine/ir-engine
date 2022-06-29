@@ -92,10 +92,10 @@ const PartyDrawer = ({ open, mode, selectedParty, onClose }: Props) => {
   }, [])
 
   useEffect(() => {
-    loadParty()
+    loadSelectedParty()
   }, [selectedParty])
 
-  const loadParty = () => {
+  const loadSelectedParty = () => {
     if (selectedParty) {
       setState({
         ...defaultState,
@@ -107,7 +107,7 @@ const PartyDrawer = ({ open, mode, selectedParty, onClose }: Props) => {
 
   const handleCancel = () => {
     if (editMode) {
-      loadParty()
+      loadSelectedParty()
       setEditMode(false)
     } else handleClose()
   }

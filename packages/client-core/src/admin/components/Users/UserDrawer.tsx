@@ -118,10 +118,10 @@ const UserDrawer = ({ open, mode, selectedUser, onClose }: Props) => {
   }, [])
 
   useEffect(() => {
-    loadUser()
+    loadSelectedUser()
   }, [selectedUser])
 
-  const loadUser = () => {
+  const loadSelectedUser = () => {
     if (selectedUser) {
       setState({
         ...defaultState,
@@ -135,7 +135,7 @@ const UserDrawer = ({ open, mode, selectedUser, onClose }: Props) => {
 
   const handleCancel = () => {
     if (editMode) {
-      loadUser()
+      loadSelectedUser()
       setEditMode(false)
     } else handleClose()
   }

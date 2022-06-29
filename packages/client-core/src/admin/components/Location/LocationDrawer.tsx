@@ -104,10 +104,10 @@ const LocationDrawer = ({ open, mode, selectedLocation, onClose }: Props) => {
   }, [])
 
   useEffect(() => {
-    loadLocation()
+    loadSelectedLocation()
   }, [selectedLocation])
 
-  const loadLocation = () => {
+  const loadSelectedLocation = () => {
     if (selectedLocation) {
       setState({
         ...defaultState,
@@ -128,7 +128,7 @@ const LocationDrawer = ({ open, mode, selectedLocation, onClose }: Props) => {
 
   const handleCancel = () => {
     if (editMode) {
-      loadLocation()
+      loadSelectedLocation()
       setEditMode(false)
     } else handleClose()
   }
