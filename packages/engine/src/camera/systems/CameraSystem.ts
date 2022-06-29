@@ -39,7 +39,7 @@ import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { CameraTagComponent as NetworkCameraComponent } from '../components/CameraTagComponent'
 import { FollowCameraComponent, FollowCameraDefaultValues } from '../components/FollowCameraComponent'
-import { SpectateComponent } from '../components/SpectateComponent'
+import { SpectatorComponent } from '../components/SpectatorComponent'
 import { TargetCameraRotationComponent } from '../components/TargetCameraRotationComponent'
 
 const direction = new Vector3()
@@ -262,11 +262,18 @@ export const updateFollowCamera = (cameraEntity: Entity) => {
   updateCameraTargetRotation(cameraEntity)
 }
 
-function updateSpectator(entity: Entity) {
-  const transform = getComponent(entity, TransformComponent)
-  const { camera } = Engine.instance.currentWorld
-  camera.position.copy(transform.position)
-  camera.quaternion.copy(transform.rotation)
+function updateSpectator(cameraEntity: Entity) {
+  const world = Engine.instance.currentWorld
+  const spectator = getComponent(cameraEntity, SpectatorComponent)
+
+  const networkCameraEntity = world.getOwnedNetworkObjectWithComponent(spectator.userId, NetworkCameraComponent)
+  const networkTransform = getComponent(networkCameraEntity, TransformComponent)
+
+  if (networkTransform) {
+    const cameraTransform = getComponent(cameraEntity, TransformComponent)
+    cameraTransform.position.copy(networkTransform.position)
+    cameraTransform.rotation.copy(networkTransform.rotation)
+  }
 }
 
 function enterFollowCameraQuery(entity: Entity) {
@@ -306,7 +313,7 @@ export function cameraSpawnReceptor(
 export default async function CameraSystem(world: World) {
   const followCameraQuery = defineQuery([FollowCameraComponent, TransformComponent])
   const ownedNetworkCamera = defineQuery([NetworkCameraComponent, NetworkObjectAuthorityTag])
-  const spectateQuery = defineQuery([NetworkCameraComponent, SpectateComponent])
+  const spectatorQuery = defineQuery([SpectatorComponent])
   const localAvatarQuery = defineQuery([AvatarComponent, LocalInputTagComponent])
 
   const cameraSpawnActions = createActionQueue(WorldNetworkAction.spawnCamera.matches)
@@ -323,39 +330,32 @@ export default async function CameraSystem(world: World) {
     for (const action of cameraSpawnActions()) cameraSpawnReceptor(action, world)
 
     for (const action of spectateUserActions()) {
-      const targetUserCamEntity = Engine.instance.currentWorld.getUserEntityWithComponent(
-        action.user as UserId,
-        NetworkCameraComponent
-      )
-      if (targetUserCamEntity) addComponent(targetUserCamEntity, SpectateComponent, {})
-      console.log('Spectate component added', action.user)
+      const cameraEntity = Engine.instance.currentWorld.cameraEntity
+      addComponent(cameraEntity, SpectatorComponent, { userId: action.user })
+      console.log('Spectator component added', action.user)
     }
 
     for (const entity of localAvatarQuery.enter()) {
       dispatchAction(WorldNetworkAction.spawnCamera(), [world.worldNetwork.hostId])
     }
 
-    for (const entity of followCameraQuery.enter()) enterFollowCameraQuery(entity)
+    for (const cameraEntity of followCameraQuery.enter()) enterFollowCameraQuery(cameraEntity)
 
     for (const cameraEntity of followCameraQuery()) updateFollowCamera(cameraEntity)
 
-    for (const entity of spectateQuery(world)) updateSpectator(entity)
+    for (const cameraEntity of spectatorQuery(world)) updateSpectator(cameraEntity)
 
     if (EngineRenderer.instance.xrManager?.isPresenting) {
       EngineRenderer.instance.xrManager.updateCamera(Engine.instance.currentWorld.camera as THREE.PerspectiveCamera)
       removeComponent(Engine.instance.currentWorld.localClientEntity, XRCameraUpdatePendingTagComponent)
     }
 
-    for (const entity of ownedNetworkCamera()) {
+    for (const networkCameraEntity of ownedNetworkCamera()) {
       const cameraEntity = Engine.instance.currentWorld.cameraEntity
+      const networkTransform = getComponent(networkCameraEntity, TransformComponent)
       const transform = getComponent(cameraEntity, TransformComponent)
-      TransformComponent.position.x[entity] = transform.position.x
-      TransformComponent.position.y[entity] = transform.position.y
-      TransformComponent.position.z[entity] = transform.position.z
-      TransformComponent.rotation.x[entity] = transform.rotation.x
-      TransformComponent.rotation.y[entity] = transform.rotation.y
-      TransformComponent.rotation.z[entity] = transform.rotation.z
-      TransformComponent.rotation.w[entity] = transform.rotation.w
+      networkTransform.position.copy(transform.position)
+      networkTransform.rotation.copy(transform.rotation)
     }
   }
 }

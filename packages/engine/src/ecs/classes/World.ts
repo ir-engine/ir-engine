@@ -255,7 +255,7 @@ export class World {
    * @returns
    */
   getUserAvatarEntity(userId: UserId) {
-    return this.getUserEntityWithComponent(userId, AvatarComponent)
+    return this.getOwnedNetworkObjectWithComponent(userId, AvatarComponent)
   }
 
   /**
@@ -264,7 +264,7 @@ export class World {
    * @param component
    * @returns
    */
-  getUserEntityWithComponent<T, S extends bitecs.ISchema>(userId: UserId, component: MappedComponent<T, S>) {
+  getOwnedNetworkObjectWithComponent<T, S extends bitecs.ISchema>(userId: UserId, component: MappedComponent<T, S>) {
     return this.getOwnedNetworkObjects(userId).find((eid) => {
       return hasComponent(eid, component, this)
     })!
