@@ -13,9 +13,7 @@ import { InteractableComponent, InteractableComponentType } from '../../../inter
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 
 export const SCENE_COMPONENT_INTERACTABLE = 'interactable'
-export const SCENE_COMPONENT_INTERACTABLE_DEFAULT_VALUES = {
-  interactable: false
-}
+export const SCENE_COMPONENT_INTERACTABLE_DEFAULT_VALUES = {}
 
 export const deserializeInteractable: ComponentDeserializeFunction = (
   entity: Entity,
@@ -56,7 +54,6 @@ export const serializeInteractable: ComponentSerializeFunction = (entity) => {
 
 const parseInteractableProperties = (props): InteractableComponentType => {
   return {
-    ...props,
-    interactable: props.interactable ?? SCENE_COMPONENT_INTERACTABLE_DEFAULT_VALUES.interactable
+    ...props
   }
 }

@@ -435,11 +435,6 @@
       "name": "Scene",
       "description": "The root object of the scene.",
       "lbl-bgcolor": "Background Color",
-      "lbl-fogType": "Fog Type",
-      "lbl-fogColor": "Fog Color",
-      "lbl-forNearDistance": "Fog Near Distance",
-      "lbl-fogFarDistance": "Fog Far Distance",
-      "lbl-fogDensity": "Fog Density",
       "lbl-audioSettings": "Use Positional Audio",
       "lbl-avatarDistanceModel": "Avatar Distance Model",
       "lbl-avatarRolloffFactor": "Avatar Rolloff Factor",
@@ -579,6 +574,17 @@
     "postprocessing": {
       "name": "Post Processing",
       "description": "For applying Post Processing effects to you scene."
+    },
+    "fog": {
+      "name": "Fog",
+      "description": "A universal fog",
+      "lbl-fogType": "Fog Type",
+      "lbl-fogColor": "Fog Color",
+      "lbl-fogHeight": "Fog Height",
+      "lbl-fogTimeScale": "Fog Time Scale",
+      "lbl-forNearDistance": "Fog Near Distance",
+      "lbl-fogFarDistance": "Fog Far Distance",
+      "lbl-fogDensity": "Fog Density"
     }
   },
   "projects": {

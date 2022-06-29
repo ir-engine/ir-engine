@@ -340,6 +340,10 @@ export const handleSpectateWorld = async (
   logger.info('Spectate World Request Received: %o', { joinedUserId, data, user })
 
   const world = Engine.instance.currentWorld
+
+  // disallow join world request if already spawned
+  if (world.getUserAvatarEntity(joinedUserId) !== undefined) return callback(null!)
+
   const cachedActions = getCachedActions(network, joinedUserId)
   const client = network.peers.get(joinedUserId)!
   client.spectating = true
@@ -388,8 +392,9 @@ export const handleJoinWorld = async (
 ) => {
   logger.info('Join World Request Received: %o', { joinedUserId, data, user })
 
-  // disallow join world request if already spawned
   const world = Engine.instance.currentWorld
+
+  // disallow join world request if already spawned
   if (world.getUserAvatarEntity(joinedUserId) !== undefined) return callback(null!)
 
   let spawnPose = SpawnPoints.instance.getRandomSpawnPoint()

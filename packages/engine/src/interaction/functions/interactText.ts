@@ -52,15 +52,10 @@ export const createInteractText = (displayText: string | undefined) => {
       const interactTextObject = getComponent(interactTextEntity, Object3DComponent).value
       if (!interactTextObject.visible) return
       interactTextObject.children[0].position.y = Math.sin(elapsedTime * 1.8) * 0.05
-      if (
-        Engine.instance.currentWorld.activeCameraFollowTarget &&
-        hasComponent(Engine.instance.currentWorld.activeCameraFollowTarget, FollowCameraComponent)
-      ) {
+      if (hasComponent(Engine.instance.currentWorld.cameraEntity, FollowCameraComponent)) {
         interactTextObject.children[0].setRotationFromAxisAngle(
           upVec,
-          MathUtils.degToRad(
-            getComponent(Engine.instance.currentWorld.activeCameraFollowTarget, FollowCameraComponent).theta
-          )
+          MathUtils.degToRad(getComponent(Engine.instance.currentWorld.cameraEntity, FollowCameraComponent).theta)
         )
       } else {
         const { x, z } = getComponent(entity, TransformComponent).position
