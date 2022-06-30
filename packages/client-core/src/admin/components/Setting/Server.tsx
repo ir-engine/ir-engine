@@ -188,16 +188,10 @@ const Server = () => {
           />
         </Grid>
       </Grid>
-      <Button sx={{ maxWidth: '100%' }} variant="outlined" className={styles.cancelButton} onClick={handleCancel}>
+      <Button sx={{ maxWidth: '100%' }} className={styles.cancelButton} onClick={handleCancel}>
         {t('admin:components.setting.cancel')}
       </Button>
-      <Button
-        sx={{ maxWidth: '100%', ml: 1 }}
-        variant="contained"
-        className={styles.saveBtn}
-        type="submit"
-        onClick={handleSubmit}
-      >
+      <Button sx={{ maxWidth: '100%', ml: 1 }} className={styles.submitButton} onClick={handleSubmit}>
         {t('admin:components.setting.save')}
       </Button>
     </Box>

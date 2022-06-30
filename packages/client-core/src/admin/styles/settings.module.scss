@@ -34,13 +34,31 @@
   position: fixed;
 }
 
-.saveBtn {
-  color: var(--textColor);
+.submitButton {
   background: linear-gradient(90deg, var(--buttonGradientStart), var(--buttonGradientEnd));
+  color: var(--textColor) !important;
+
+  &:hover {
+    opacity: 0.8;
+  }
+
+  &:disabled {
+    background: var(--disabled);
+  }
 }
 
 .cancelButton {
+  background: transparent;
+  border: solid 1px var(--buttonOutlined);
   color: var(--textColor);
+
+  &:hover {
+    opacity: 0.7;
+  }
+
+  &:disabled {
+    background: var(--disabled);
+  }
 }
 
 .filledButton {

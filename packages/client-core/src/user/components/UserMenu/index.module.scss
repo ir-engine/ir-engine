@@ -933,18 +933,6 @@
       }
     }
 
-    .savebtn {
-      color: var(--textColor);
-      background: var(--purpleButtonColor);
-      height: 35px;
-      width: 150px;
-      margin-top: 25px;
-
-      &:hover {
-        opacity: 0.8;
-      }
-    }
-
     .deleteDialogContainer {
       position: absolute;
       width: 100%;
