@@ -116,10 +116,10 @@ const AddProject = ({ open, repos, onClose }: Props) => {
         <DialogActions>
           {!processing && (
             <>
-              <Button className={styles.cancelButton} onClick={onClose}>
-                {t('admin:components.setting.cancel')}
+              <Button className={styles.outlinedButton} onClick={onClose}>
+                {t('admin:components.common.cancel')}
               </Button>
-              <Button className={styles.submitButton} onClick={handleSubmit}>
+              <Button className={styles.gradientButton} onClick={handleSubmit}>
                 {t('admin:components.common.submit')}
               </Button>
             </>

@@ -91,17 +91,17 @@ const GithubRepoDrawer = ({ open, project, onClose }: Props) => {
         <DialogActions>
           {!processing && (
             <>
-              <Button className={styles.cancelButton} onClick={onClose}>
-                {t('admin:components.setting.cancel')}
+              <Button className={styles.outlinedButton} onClick={onClose}>
+                {t('admin:components.common.cancel')}
               </Button>
 
               {isCreateMode === false && (
-                <Button className={styles.submitButton} startIcon={<LinkOffIcon />} onClick={handleRemove}>
+                <Button className={styles.gradientButton} startIcon={<LinkOffIcon />} onClick={handleRemove}>
                   {t('admin:components.project.remove')}
                 </Button>
               )}
               <Button
-                className={styles.submitButton}
+                className={styles.gradientButton}
                 startIcon={isCreateMode ? undefined : <LinkIcon />}
                 onClick={handleSubmit}
               >
