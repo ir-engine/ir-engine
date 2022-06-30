@@ -217,7 +217,9 @@
       "confirmProjectDelete": "Do you want to delete project",
       "confirmPushProjectToGithub": "Do you want to push this project to its associated GitHub repository",
       "userAccess": "User Access",
-      "inviteCode": "User invite code",
+      "userInviteCode": "User Invite Code",
+      "inviteCodeCantEmpty": "Invite code can't be empty",
+      "inviteCodeRequired":  "Invite code is required",
       "source": "Source"
     },
     "scene": {

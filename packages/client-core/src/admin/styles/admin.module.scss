@@ -625,20 +625,6 @@
   }
 }
 
-.btn-submit {
-  margin-top: 10px;
-  height: 35px;
-  width: 100px;
-  font-size: 15px;
-  background: linear-gradient(90deg, var(--buttonGradientStart), var(--buttonGradientEnd));
-
-  &:disabled {
-    color: gray;
-    cursor: not-allowed;
-    background: var(--disabled);
-  }
-}
-
 .secondaryText {
   color: #808080;
 }
@@ -844,16 +830,6 @@
   }
 }
 
-.radioField {
-  :global(.MuiFormLabel-root) {
-    color: var(--textColor);
-  }
-
-  :global(.MuiSvgIcon-root) {
-    color: var(--textColor);
-  }
-}
-
 .popover {
   width: 300px;
   padding: 20px;
@@ -862,5 +838,9 @@
 }
 
 .dialogContentText {
+  color: var(--textColor);
+}
+
+.iconButton {
   color: var(--textColor);
 }

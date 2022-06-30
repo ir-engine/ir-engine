@@ -115,7 +115,7 @@ export const EditPermissionsDialog = ({
             />
             {error && error.length > 0 && <h2 className={styles.errorMessage}>{error}</h2>}
             <Button onClick={onCreatePermission} className={styles.btn} disabled={!userInviteCode}>
-              {t('editor.projects.createProjectPermission')}
+              {t('editor.projects.addUser')}
             </Button>
           </FormControl>
         )}

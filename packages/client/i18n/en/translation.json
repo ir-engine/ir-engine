@@ -41,10 +41,9 @@
       "linkButton": "Link",
       "changeLinkButton": "Change Link",
       "unLinkButton": "Unlink",
-      "createUserPermission": "Add User",
       "userInviteCode": "User's Invite Code",
       "editProjectPermissions": "Manage User Permissions on Project",
-      "createProjectPermission": "Add user ",
+      "addUser": "Add User",
       "permissions": "Project Permissions"
     }
   },

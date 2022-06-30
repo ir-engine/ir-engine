@@ -7,6 +7,7 @@ import { ProjectPermissionInterface } from '@xrengine/common/src/interfaces/Proj
 import HighlightOffIcon from '@mui/icons-material/HighlightOff'
 import Button from '@mui/material/Button'
 import Container from '@mui/material/Container'
+import DialogActions from '@mui/material/DialogActions'
 import DialogTitle from '@mui/material/DialogTitle'
 import IconButton from '@mui/material/IconButton'
 import List from '@mui/material/List'
@@ -30,6 +31,7 @@ interface Props {
 const UserPermissionDrawer = ({ open, project, onClose }: Props) => {
   const { t } = useTranslation()
   const [userInviteCode, setUserInviteCode] = useState('')
+  const [error, setError] = useState('')
 
   const selfUser = useAuthState().user
   const selfUserPermission =
@@ -38,8 +40,17 @@ const UserPermissionDrawer = ({ open, project, onClose }: Props) => {
       ? 'owner'
       : 'user'
 
+  const handleChange = (e) => {
+    const { value } = e.target
+    setError(value ? '' : t('admin:components.project.inviteCodeRequired'))
+    setUserInviteCode(value)
+  }
+
   const handleCreatePermission = async () => {
-    if (!userInviteCode) return
+    if (!userInviteCode) {
+      setError(t('admin:components.project.inviteCodeCantEmpty'))
+      return
+    }
 
     try {
       await ProjectService.createPermission(userInviteCode, project.id)
@@ -48,6 +59,7 @@ const UserPermissionDrawer = ({ open, project, onClose }: Props) => {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
     setUserInviteCode('')
+    setError('')
   }
 
   const handleRemovePermission = async (id: string) => {
@@ -83,14 +95,21 @@ const UserPermissionDrawer = ({ open, project, onClose }: Props) => {
           <>
             <InputText
               name="userInviteCode"
-              label={t('admin:components.project.inviteCode')}
+              label={t('admin:components.project.userInviteCode')}
               value={userInviteCode}
-              onChange={(e) => setUserInviteCode(e.target.value)}
+              error={error}
+              onChange={handleChange}
               onKeyDown={handleSubmitOnEnter}
             />
-            <Button onClick={handleCreatePermission} className={styles['btn-submit']} disabled={!userInviteCode}>
-              {t('editor.projects.createProjectPermission')}
-            </Button>
+
+            <DialogActions>
+              <Button className={styles.submitButton} onClick={handleCreatePermission}>
+                {t('editor.projects.addUser')}
+              </Button>
+              <Button className={styles.cancelButton} onClick={onClose}>
+                {t('admin:components.setting.cancel')}
+              </Button>
+            </DialogActions>
           </>
         )}
 

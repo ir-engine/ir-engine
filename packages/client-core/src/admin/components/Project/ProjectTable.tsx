@@ -97,7 +97,6 @@ const ProjectTable = ({ className }: Props) => {
     try {
       if (project) {
         if (!project.repositoryPath && project.name !== 'default-project') return
-        const existingProjects = adminProjects.value.find((p) => p.name === project.name)!
         setProcessing(true)
         await ProjectService.pushProject(project.id)
         setProcessing(false)
@@ -190,7 +189,6 @@ const ProjectTable = ({ className }: Props) => {
   }
 
   const handlePageChange = (event: unknown, newPage: number) => {
-    const incDec = page < newPage ? 'increment' : 'decrement'
     setPage(newPage)
   }
 
@@ -223,7 +221,7 @@ const ProjectTable = ({ className }: Props) => {
             <IconButton
               className={styles.iconButton}
               name="update"
-              disabled={!el.hasWriteAccess || !el.repositoryPath}
+              disabled={!el.hasWriteAccess && !el.repositoryPath}
               onClick={() => handleOpenPushConfirmation(el)}
             >
               <Upload />

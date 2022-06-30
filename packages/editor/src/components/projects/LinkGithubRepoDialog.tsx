@@ -2,7 +2,6 @@ import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { Dialog, DialogContent, DialogTitle, TextField } from '@mui/material'
-import CircularProgress from '@mui/material/CircularProgress'
 import Fade from '@mui/material/Fade'
 import FormControl from '@mui/material/FormControl'
 
@@ -19,22 +18,18 @@ export const LinkGithubRepoDialog = (props: Props): any => {
   const { t } = useTranslation()
   const { open, onClose, onSuccess } = props
 
-  const [processing, setProcessing] = useState(false)
   const [error, setError] = useState('')
   const [projectUrl, setProjectUrl] = useState('')
 
   const onLinkProject = async () => {
     if (!projectUrl) return
 
-    setProcessing(true)
     try {
       await onSuccess(projectUrl)
       closeDialog()
     } catch (err) {
       setError(err.message)
     }
-
-    setProcessing(false)
   }
 
   const handleSubmitOnEnter = (event) => {
