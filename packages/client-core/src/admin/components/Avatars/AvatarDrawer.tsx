@@ -361,7 +361,7 @@ const AvatarDrawerContent = ({ open, mode, selectedAvatar, onClose }: Props) => 
               type="file"
               onChange={handleChangeFile}
             />
-            <Button variant="outlined" component="span" startIcon={<FaceIcon />}>
+            <Button className={styles.submitButton} component="span" startIcon={<FaceIcon />}>
               {t('admin:components.avatar.selectAvatar')}
             </Button>
           </label>
@@ -465,7 +465,7 @@ const AvatarDrawerContent = ({ open, mode, selectedAvatar, onClose }: Props) => 
               type="file"
               onChange={handleChangeFile}
             />
-            <Button variant="outlined" component="span" startIcon={<AccountCircleIcon />}>
+            <Button className={styles.submitButton} component="span" startIcon={<AccountCircleIcon />}>
               {t('admin:components.avatar.selectThumbnail')}
             </Button>
           </label>
