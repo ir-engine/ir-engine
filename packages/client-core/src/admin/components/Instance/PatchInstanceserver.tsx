@@ -85,7 +85,7 @@ const PatchInstanceserver = ({ open, onClose }: Props) => {
         />
 
         <DialogActions>
-          <Button onClick={onClose} className={styles.cancelButton}>
+          <Button onClick={onClose} className={styles.outlinedButton}>
             {t('admin:components.common.cancel')}
           </Button>
           <Button className={styles.gradientButton} onClick={handleSubmit}>

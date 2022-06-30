@@ -299,7 +299,7 @@ const UserDrawer = ({ open, mode, selectedUser, onClose }: Props) => {
           )}
 
           <DialogActions>
-            <Button className={styles.cancelButton} onClick={handleCancel}>
+            <Button className={styles.outlinedButton} onClick={handleCancel}>
               {t('admin:components.common.cancel')}
             </Button>
             {(mode === UserDrawerMode.Create || editMode) && (

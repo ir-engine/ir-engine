@@ -35,7 +35,7 @@ const FormDialog = () => {
           <TextField autoFocus id="name" label="Username" type="text" fullWidth />
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose} className={styles.cancelButton}>
+          <Button onClick={handleClose} className={styles.outlinedButton}>
             {t('admin:components.dialog.login')}
           </Button>
           <Button onClick={handleClose} className={styles.gradientButton}>

@@ -104,7 +104,7 @@ const AddProject = ({ open, repos, onClose }: Props) => {
         <DialogActions>
           {!processing && (
             <>
-              <Button className={styles.cancelButton} onClick={onClose}>
+              <Button className={styles.outlinedButton} onClick={onClose}>
                 {t('admin:components.common.cancel')}
               </Button>
               <Button className={styles.gradientButton} startIcon={<GitHubIcon />} onClick={tryUploadProject}>

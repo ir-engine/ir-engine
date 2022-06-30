@@ -209,7 +209,7 @@ const PartyDrawer = ({ open, mode, selectedParty, onClose }: Props) => {
         )}
 
         <DialogActions>
-          <Button className={styles.cancelButton} onClick={handleCancel}>
+          <Button className={styles.outlinedButton} onClick={handleCancel}>
             {t('admin:components.common.cancel')}
           </Button>
           {(mode === PartyDrawerMode.Create || editMode) && (

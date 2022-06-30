@@ -179,14 +179,13 @@ const DemoStyle = ({ theme }: DemoStyleProps) => {
       }
 
       .outlinedButton {
-        margin: 0px;
         color: ${theme.buttonOutlined};
         background: transparent;
         border: solid 1px ${theme.buttonOutlined};
       }
 
       .outlinedButton:hover {
-        opacity: 0.8;
+        opacity: 0.7;
       }
 
       .filledButton {

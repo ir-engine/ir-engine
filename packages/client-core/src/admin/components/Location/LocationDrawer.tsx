@@ -318,7 +318,7 @@ const LocationDrawer = ({ open, mode, selectedLocation, onClose }: Props) => {
           </Grid>
         </Grid>
         <DialogActions>
-          <Button className={styles.cancelButton} onClick={handleCancel}>
+          <Button className={styles.outlinedButton} onClick={handleCancel}>
             {t('admin:components.common.cancel')}
           </Button>
           {(mode === LocationDrawerMode.Create || editMode) && (

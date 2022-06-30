@@ -516,7 +516,7 @@ const AvatarDrawerContent = ({ open, mode, selectedAvatar, onClose }: Props) => 
       </Box>
 
       <DialogActions>
-        <Button className={styles.cancelButton} onClick={handleCancel}>
+        <Button className={styles.outlinedButton} onClick={handleCancel}>
           {t('admin:components.common.cancel')}
         </Button>
         {(mode === AvatarDrawerMode.Create || editMode) && (

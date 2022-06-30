@@ -244,7 +244,7 @@ const GroupDrawer = ({ open, mode, selectedGroup, onClose }: Props) => {
         </Grid>
 
         <DialogActions>
-          <Button className={styles.cancelButton} onClick={handleCancel}>
+          <Button className={styles.outlinedButton} onClick={handleCancel}>
             {t('admin:components.common.cancel')}
           </Button>
           {(mode === GroupDrawerMode.Create || editMode) && (
