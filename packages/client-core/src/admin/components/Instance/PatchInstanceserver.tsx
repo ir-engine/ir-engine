@@ -86,10 +86,10 @@ const PatchInstanceserver = ({ open, onClose }: Props) => {
 
         <DialogActions>
           <Button onClick={onClose} className={styles.cancelButton}>
-            {t('admin:components.setting.cancel')}
+            {t('admin:components.common.cancel')}
           </Button>
           <Button className={styles.submitButton} onClick={handleSubmit}>
-            {t('admin:components.setting.save')}
+            {t('admin:components.common.submit')}
           </Button>
         </DialogActions>
       </Container>
