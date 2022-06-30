@@ -104,6 +104,9 @@ const AddProject = ({ open, repos, onClose }: Props) => {
         <DialogActions>
           {!processing && (
             <>
+              <Button className={styles.cancelButton} onClick={onClose}>
+                {t('admin:components.setting.cancel')}
+              </Button>
               <Button className={styles.submitButton} startIcon={<GitHubIcon />} onClick={tryUploadProject}>
                 {t('admin:components.project.uploadProject')}
               </Button>
@@ -114,9 +117,6 @@ const AddProject = ({ open, repos, onClose }: Props) => {
                     : t('admin:components.project.selectFromList')}
                 </Button>
               )}
-              <Button className={styles.cancelButton} onClick={onClose}>
-                {t('admin:components.setting.cancel')}
-              </Button>
             </>
           )}
         </DialogActions>

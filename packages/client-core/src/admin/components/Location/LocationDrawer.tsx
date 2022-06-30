@@ -318,6 +318,9 @@ const LocationDrawer = ({ open, mode, selectedLocation, onClose }: Props) => {
           </Grid>
         </Grid>
         <DialogActions>
+          <Button className={styles.cancelButton} onClick={handleCancel}>
+            {t('admin:components.common.cancel')}
+          </Button>
           {(mode === LocationDrawerMode.Create || editMode) && (
             <Button className={styles.submitButton} onClick={handleSubmit}>
               {t('admin:components.common.submit')}
@@ -332,9 +335,6 @@ const LocationDrawer = ({ open, mode, selectedLocation, onClose }: Props) => {
               {t('admin:components.common.edit')}
             </Button>
           )}
-          <Button className={styles.cancelButton} onClick={handleCancel}>
-            {t('admin:components.common.cancel')}
-          </Button>
         </DialogActions>
       </Container>
     </DrawerView>

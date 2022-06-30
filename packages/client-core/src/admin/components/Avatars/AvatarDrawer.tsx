@@ -516,6 +516,9 @@ const AvatarDrawerContent = ({ open, mode, selectedAvatar, onClose }: Props) => 
       </Box>
 
       <DialogActions>
+        <Button className={styles.cancelButton} onClick={handleCancel}>
+          {t('admin:components.common.cancel')}
+        </Button>
         {(mode === AvatarDrawerMode.Create || editMode) && (
           <Button className={styles.submitButton} onClick={handleSubmit}>
             {t('admin:components.common.submit')}
@@ -530,9 +533,6 @@ const AvatarDrawerContent = ({ open, mode, selectedAvatar, onClose }: Props) => 
             {t('admin:components.common.edit')}
           </Button>
         )}
-        <Button className={styles.cancelButton} onClick={handleCancel}>
-          {t('admin:components.common.cancel')}
-        </Button>
       </DialogActions>
     </Container>
   )

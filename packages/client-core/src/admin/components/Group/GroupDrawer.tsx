@@ -244,6 +244,9 @@ const GroupDrawer = ({ open, mode, selectedGroup, onClose }: Props) => {
         </Grid>
 
         <DialogActions>
+          <Button className={styles.cancelButton} onClick={handleCancel}>
+            {t('admin:components.common.cancel')}
+          </Button>
           {(mode === GroupDrawerMode.Create || editMode) && (
             <Button className={styles.submitButton} onClick={handleSubmit}>
               {t('admin:components.common.submit')}
@@ -258,9 +261,6 @@ const GroupDrawer = ({ open, mode, selectedGroup, onClose }: Props) => {
               {t('admin:components.common.edit')}
             </Button>
           )}
-          <Button className={styles.cancelButton} onClick={handleCancel}>
-            {t('admin:components.common.cancel')}
-          </Button>
         </DialogActions>
       </Container>
     </DrawerView>

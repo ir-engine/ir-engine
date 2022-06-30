@@ -209,6 +209,9 @@ const PartyDrawer = ({ open, mode, selectedParty, onClose }: Props) => {
         )}
 
         <DialogActions>
+          <Button className={styles.cancelButton} onClick={handleCancel}>
+            {t('admin:components.common.cancel')}
+          </Button>
           {(mode === PartyDrawerMode.Create || editMode) && (
             <Button className={styles.submitButton} onClick={handleSubmit}>
               {t('admin:components.common.submit')}
@@ -223,9 +226,6 @@ const PartyDrawer = ({ open, mode, selectedParty, onClose }: Props) => {
               {t('admin:components.common.edit')}
             </Button>
           )}
-          <Button className={styles.cancelButton} onClick={handleCancel}>
-            {t('admin:components.common.cancel')}
-          </Button>
         </DialogActions>
       </Container>
     </DrawerView>

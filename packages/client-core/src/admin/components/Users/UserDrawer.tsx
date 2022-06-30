@@ -299,6 +299,9 @@ const UserDrawer = ({ open, mode, selectedUser, onClose }: Props) => {
           )}
 
           <DialogActions>
+            <Button className={styles.cancelButton} onClick={handleCancel}>
+              {t('admin:components.common.cancel')}
+            </Button>
             {(mode === UserDrawerMode.Create || editMode) && (
               <Button className={styles.submitButton} onClick={handleSubmit}>
                 {t('admin:components.common.submit')}
@@ -313,9 +316,6 @@ const UserDrawer = ({ open, mode, selectedUser, onClose }: Props) => {
                 {t('admin:components.common.edit')}
               </Button>
             )}
-            <Button className={styles.cancelButton} onClick={handleCancel}>
-              {t('admin:components.common.cancel')}
-            </Button>
           </DialogActions>
         </Container>
       </DrawerView>
