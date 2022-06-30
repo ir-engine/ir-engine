@@ -419,7 +419,7 @@ export default async function EditorControlSystem(_: World) {
       }
 
       selectionCounter = selectionState.selectionCounter.value
-      cameraComponent = getComponent(Engine.instance.currentWorld.activeCameraEntity, EditorCameraComponent)
+      cameraComponent = getComponent(Engine.instance.currentWorld.cameraEntity, EditorCameraComponent)
       const shift = getInput(EditorActionSet.shift)
 
       if (selectEnd) {

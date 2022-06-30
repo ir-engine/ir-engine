@@ -72,7 +72,6 @@ export function avatarSpawnReceptor(
 
     if (spawnAction.$from === Engine.instance.userId) {
       addComponent(entity, LocalInputTagComponent, {})
-      addComponent(entity, FollowCameraComponent, FollowCameraDefaultValues)
     }
     /*
     dispatchAction(

@@ -32,7 +32,7 @@ describe('avatarInputSchema', () => {
     const world = Engine.instance.currentWorld
     const entity = createEntity(world)
 
-    const follower = addComponent(entity, FollowCameraComponent, FollowCameraDefaultValues)
+    const follower = addComponent(world.cameraEntity, FollowCameraComponent, FollowCameraDefaultValues)
     const firstValue = follower.locked
     fixedCameraBehindAvatar(entity, 'Test', {
       type: InputType.ONEDIM,
@@ -47,7 +47,11 @@ describe('avatarInputSchema', () => {
     const world = Engine.instance.currentWorld
     const entity = createEntity(world)
 
-    const follower = addComponent(entity, FollowCameraComponent, FollowCameraDefaultValues)
+    const follower = addComponent(
+      Engine.instance.currentWorld.cameraEntity,
+      FollowCameraComponent,
+      FollowCameraDefaultValues
+    )
     const firstValue = follower.shoulderSide
     switchShoulderSide(entity, 'Test', {
       type: InputType.ONEDIM,
