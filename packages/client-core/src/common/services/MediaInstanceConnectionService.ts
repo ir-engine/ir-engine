@@ -119,7 +119,7 @@ export const MediaInstanceConnectionService = {
     logger.info({ socket: !!network.socket, network }, 'Connect To Media Server.')
     if (network.socket) {
       await endVideoChat(network, { endConsumers: true })
-      await leaveNetwork(network, false)
+      leaveNetwork(network, false)
     }
 
     const locationState = accessLocationState()
@@ -139,7 +139,6 @@ export const MediaInstanceConnectionService = {
     )
 
     await network.initialize({ port, ipAddress, channelId })
-    network.left = false
   },
   resetServer: (instanceId: string) => {
     dispatchAction(MediaInstanceConnectionAction.disconnect({ instanceId }))

@@ -115,7 +115,7 @@ const MediaIconsBox = (props: Props) => {
     ) {
       await endVideoChat(mediaNetwork, {})
       if (mediaNetwork.socket?.connected === true) {
-        await leaveNetwork(mediaNetwork, false)
+        leaveNetwork(mediaNetwork, false)
         await MediaInstanceConnectionService.provisionServer(instanceChannel.id)
       }
     }
