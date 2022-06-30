@@ -44,6 +44,7 @@ body {
   overflow-y: auto;
   min-width: 90px;
   scrollbar-width: none;
+  align-items: flex-end;
 
   /* IE */
   -ms-overflow-style: none;

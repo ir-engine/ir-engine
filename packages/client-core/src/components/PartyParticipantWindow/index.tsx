@@ -450,10 +450,16 @@ const PartyParticipantWindow = ({ peerId }: Props): JSX.Element => {
           [styles['self-user']]: peerId === 'cam_me',
           [styles['no-video']]: videoStream == null,
           [styles['video-paused']]: videoStream && (videoProducerPaused || videoStreamPaused),
-          [styles.pip]: isPiP
+          [styles.pip]: isPiP && peerId === 'cam_me',
+          [styles.screenpip]: isPiP && peerId === 'screen_me'
         })}
       >
-        <div className={styles['video-wrapper']}>
+        <div
+          className={classNames({
+            [styles['video-wrapper']]: peerId === 'cam_me',
+            [styles['screen-video-wrapper']]: peerId === 'screen_me'
+          })}
+        >
           {(videoStream == null || videoStreamPaused || videoProducerPaused || videoProducerGlobalMute) && (
             <img src={getAvatarURLForUser(isSelfUser ? selfUser?.id : user?.id)} draggable={false} />
           )}
