@@ -1,21 +1,17 @@
 import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { dispatchAction } from '@xrengine/hyperflux'
-
 import Button from '@mui/material/Button'
 import Grid from '@mui/material/Grid'
 
-import { AdminAvatarActions } from '../../../admin/services/AvatarService'
-import AvatarSelectMenu from '../../../user/components/UserMenu/menus/AvatarSelectMenu'
-import DrawerView from '../../common/DrawerView'
 import Search from '../../common/Search'
 import styles from '../../styles/admin.module.scss'
+import AvatarDrawer, { AvatarDrawerMode } from './AvatarDrawer'
 import AvatarTable from './AvatarTable'
 
 const Avatar = () => {
   const [search, setSearch] = useState('')
-  const [openDrawer, setOpenDrawer] = useState(false)
+  const [openAvatarDrawer, setOpenAvatarDrawer] = useState(false)
   const { t } = useTranslation()
 
   const handleChange = (e: any) => {
@@ -29,7 +25,12 @@ const Avatar = () => {
           <Search text="avatar" handleChange={handleChange} />
         </Grid>
         <Grid item xs={12} sm={4}>
-          <Button className={styles.openModalBtn} type="submit" variant="contained" onClick={() => setOpenDrawer(true)}>
+          <Button
+            className={styles.openModalBtn}
+            type="submit"
+            variant="contained"
+            onClick={() => setOpenAvatarDrawer(true)}
+          >
             {t('user:avatar.createAvatar')}
           </Button>
         </Grid>
@@ -37,14 +38,8 @@ const Avatar = () => {
 
       <AvatarTable className={styles.rootTable} search={search} />
 
-      {openDrawer && (
-        <DrawerView open onClose={() => setOpenDrawer(false)}>
-          <AvatarSelectMenu
-            adminStyles={styles}
-            onAvatarUpload={() => dispatchAction(AdminAvatarActions.avatarUpdated())}
-            changeActiveMenu={() => setOpenDrawer(false)}
-          />
-        </DrawerView>
+      {openAvatarDrawer && (
+        <AvatarDrawer open mode={AvatarDrawerMode.Create} onClose={() => setOpenAvatarDrawer(false)} />
       )}
     </React.Fragment>
   )
