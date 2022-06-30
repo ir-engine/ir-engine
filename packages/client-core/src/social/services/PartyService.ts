@@ -13,6 +13,7 @@ import { matches, Validator } from '@xrengine/engine/src/common/functions/Matche
 import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
 import { API } from '../../API'
+import { MediaInstanceConnectionService } from '../../common/services/MediaInstanceConnectionService'
 import { NotificationService } from '../../common/services/NotificationService'
 import { accessAuthState } from '../../user/services/AuthService'
 import { UserAction } from '../../user/services/UserService'
@@ -24,7 +25,7 @@ const logger = multiLogger.child({ component: 'client-core:social' })
 const PartyState = defineState({
   name: 'PartyState',
   initial: () => ({
-    party: {} as Party,
+    party: null! as Party,
     updateNeeded: true
   })
 })
@@ -33,45 +34,54 @@ export const PartyServiceReceptor = (action) => {
   getState(PartyState).batch((s) => {
     matches(action)
       .when(PartyAction.loadedPartyAction.matches, (action) => {
-        return s.merge({ party: action.party, updateNeeded: false })
+        s.merge({ party: action.party, updateNeeded: false })
       })
-      .when(PartyAction.createdPartyAction.matches, () => {
-        return s.updateNeeded.set(true)
+      .when(PartyAction.createdPartyAction.matches, (action) => {
+        s.merge({ party: action.party, updateNeeded: true })
       })
       .when(PartyAction.removedPartyAction.matches, () => {
-        return s.merge({ party: {}, updateNeeded: true })
+        s.merge({ party: null!, updateNeeded: true })
       })
       .when(PartyAction.invitedPartyUserAction.matches, () => {
-        return s.updateNeeded.set(true)
+        s.updateNeeded.set(true)
       })
       .when(PartyAction.createdPartyUserAction.matches, (action) => {
-        if (s.party && s.party.partyUsers && s.party.partyUsers.value) {
-          const matchingPartyUserIndex = s.party.partyUsers.value.findIndex(
-            (partyUser) => partyUser?.id === action.partyUser.id
-          )
-          if (matchingPartyUserIndex > -1) return s.party.partyUsers[matchingPartyUserIndex].set(action.partyUser)
-          else return s.party.partyUsers.set(s.party.partyUsers.value.concat(action.partyUser))
+        const index = s.party?.partyUsers?.value
+          ? s.party.partyUsers.findIndex((layerUser) => {
+              return layerUser != null && layerUser.id.value === action.partyUser.id
+            })
+          : -1
+        if (index === -1) {
+          s.party.partyUsers.merge([action.partyUser])
+        } else {
+          s.party.partyUsers[index].set(action.partyUser)
         }
-        return s
+        s.updateNeeded.set(true)
       })
       .when(PartyAction.patchedPartyUserAction.matches, (action) => {
-        if (s.party && s.party.partyUsers && s.party.partyUsers.value) {
-          const matchingPartyUserIndex = s.party.partyUsers.value.findIndex(
-            (partyUser) => partyUser?.id === action.partyUser.id
-          )
-          if (matchingPartyUserIndex > -1) return s.party.partyUsers[matchingPartyUserIndex].set(action.partyUser)
+        const index = s.party?.partyUsers?.value
+          ? s.party.partyUsers.findIndex((layerUser) => {
+              return layerUser != null && layerUser.id.value === action.partyUser.id
+            })
+          : -1
+        if (index === -1) {
+          s.party.partyUsers.merge([action.partyUser])
+        } else {
+          s.party.partyUsers[index].set(action.partyUser)
         }
-        return s
+        s.updateNeeded.set(true)
       })
       .when(PartyAction.removedPartyUserAction.matches, (action) => {
-        if (s.party && s.party.partyUsers && s.party.partyUsers.value) {
-          const matchingPartyUserIndex = s.party.partyUsers.value.findIndex(
-            (partyUser) => partyUser?.id === action.partyUser.id
-          )
-          if (matchingPartyUserIndex > -1)
-            return s.party.partyUsers.set(s.party.partyUsers.value.splice(matchingPartyUserIndex))
+        const index = s.party?.partyUsers?.value
+          ? s.party.partyUsers.findIndex((layerUser) => {
+              return layerUser != null && layerUser.id.value === action.partyUser.id
+            })
+          : -1
+        if (index > -1) {
+          s.party.partyUsers.merge([action.partyUser])
+          s.party.partyUsers[index].set(action.partyUser)
+          s.updateNeeded.set(true)
         }
-        return s
       })
   })
 }
@@ -172,13 +182,15 @@ export const PartyService = {
   useAPIListeners: () => {
     useEffect(() => {
       const partyUserCreatedListener = async (params) => {
+        console.log('partyUserCreatedListener', params)
         const selfUser = accessAuthState().user
-        if (accessPartyState().party == null) {
+        if (accessPartyState().party.value == null) {
           dispatchAction(PartyAction.createdPartyAction({ party: params }))
         }
         dispatchAction(PartyAction.createdPartyUserAction({ partyUser: params.partyUser }))
         if (params.partyUser.userId === selfUser.id.value) {
           const party = await API.instance.client.service('party').get(params.partyUser.partyId)
+          console.log('party', party)
           const userId = selfUser.id.value ?? ''
           const dbUser = (await API.instance.client.service('user').get(userId)) as UserInterface
           if (party.instanceId != null && party.instanceId !== dbUser.instanceId) {
@@ -188,13 +200,13 @@ export const PartyService = {
             }
             updateUser.partyId = party.id
             dispatchAction(PartyAction.patchedPartyUserAction({ partyUser: updateUser }))
-            // TODO: Reenable me!
-            // await provisionServer(instance.locationId, instance.id)(store.dispatch, store.getState);
+            await MediaInstanceConnectionService.provisionServer(party.instanceId, false)
           }
         }
       }
 
       const partyUserPatchedListener = (params) => {
+        console.log('partyUserPatchedListener', params)
         const updatedPartyUser = params.partyUser
         const selfUser = accessAuthState().user
         dispatchAction(PartyAction.patchedPartyUserAction({ partyUser: updatedPartyUser }))

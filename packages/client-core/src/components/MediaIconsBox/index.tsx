@@ -128,7 +128,6 @@ const MediaIconsBox = (props: Props) => {
         const audioPaused = MediaStreams.instance.toggleAudioPaused()
         if (audioPaused) await pauseProducer(mediaNetwork, MediaStreams.instance.camAudioProducer)
         else await resumeProducer(mediaNetwork, MediaStreams.instance.camAudioProducer)
-        checkEndVideoChat()
       }
       MediaStreamService.updateCamAudioState()
     }
@@ -142,7 +141,6 @@ const MediaIconsBox = (props: Props) => {
         const videoPaused = MediaStreams.instance.toggleVideoPaused()
         if (videoPaused) await pauseProducer(mediaNetwork, MediaStreams.instance.camVideoProducer)
         else await resumeProducer(mediaNetwork, MediaStreams.instance.camVideoProducer)
-        checkEndVideoChat()
       }
 
       MediaStreamService.updateCamVideoState()

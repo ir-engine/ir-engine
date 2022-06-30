@@ -4,6 +4,7 @@ import { matches } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { EngineActions, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { addActionReceptor, removeActionReceptor } from '@xrengine/hyperflux'
 
+import PartyIcon from '@mui/icons-material/CalendarViewDay'
 import LinkIcon from '@mui/icons-material/Link'
 import PersonIcon from '@mui/icons-material/Person'
 import SettingsIcon from '@mui/icons-material/Settings'
@@ -12,6 +13,7 @@ import ClickAwayListener from '@mui/material/ClickAwayListener'
 import styles from './index.module.scss'
 import AvatarUploadModal from './menus/AvatarSelectMenu'
 import EmoteMenu from './menus/EmoteMenu'
+import PartyMenu from './menus/PartyMenu'
 import ProfileMenu from './menus/ProfileMenu'
 import ReadyPlayerMenu from './menus/ReadyPlayerMenu'
 import SelectAvatarMenu from './menus/SelectAvatar'
@@ -45,6 +47,7 @@ export const EmoteIcon = () => (
 UserMenuPanels.set(Views.Profile, ProfileMenu)
 UserMenuPanels.set(Views.Settings, SettingMenu)
 UserMenuPanels.set(Views.Share, ShareMenu)
+UserMenuPanels.set(Views.Party, PartyMenu)
 UserMenuPanels.set(Views.AvatarSelect, SelectAvatarMenu)
 UserMenuPanels.set(Views.AvatarUpload, AvatarUploadModal)
 UserMenuPanels.set(Views.ReadyPlayer, ReadyPlayerMenu)
@@ -55,6 +58,7 @@ export const HotbarMenu = new Map<string, any>()
 HotbarMenu.set(Views.Profile, PersonIcon)
 HotbarMenu.set(Views.Settings, SettingsIcon)
 HotbarMenu.set(Views.Share, LinkIcon)
+HotbarMenu.set(Views.Party, PartyIcon)
 HotbarMenu.set(Views.Emote, 'EmoteIcon')
 
 interface Props {

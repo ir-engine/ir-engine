@@ -152,6 +152,12 @@
       "mobileTitle": "View this Item in AR on your Mobile Device",
       "linkCopied": "Link copied to clipboard."
     },
+    "party": {
+      "title": "Party",
+      "join": "Join",
+      "Invite": "Invite",
+      "leave": "Leave"
+    },
     "setting": {
       "audio": "Audio",
       "lbl-volume": "Volume",
