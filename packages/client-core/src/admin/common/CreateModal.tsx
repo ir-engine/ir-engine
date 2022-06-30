@@ -38,7 +38,7 @@ const CreateModal = ({ open, children, action, text, onSubmit, onClose }: Props)
         <Button onClick={onClose} className={styles.cancelButton}>
           {t('admin:components.common.cancel')}
         </Button>
-        <Button className={styles.submitButton} autoFocus onClick={onSubmit}>
+        <Button className={styles.gradientButton} autoFocus onClick={onSubmit}>
           {action}
         </Button>
       </DialogActions>

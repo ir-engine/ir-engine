@@ -249,7 +249,7 @@ const Client = () => {
       <Button sx={{ maxWidth: '100%' }} className={styles.cancelButton} onClick={handleCancel}>
         {t('admin:components.setting.cancel')}
       </Button>
-      <Button sx={{ maxWidth: '100%', ml: 1 }} className={styles.submitButton} onClick={handleSubmit}>
+      <Button sx={{ maxWidth: '100%', ml: 1 }} className={styles.gradientButton} onClick={handleSubmit}>
         {t('admin:components.setting.save')}
       </Button>
     </Box>

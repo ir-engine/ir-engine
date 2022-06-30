@@ -107,11 +107,11 @@ const AddProject = ({ open, repos, onClose }: Props) => {
               <Button className={styles.cancelButton} onClick={onClose}>
                 {t('admin:components.common.cancel')}
               </Button>
-              <Button className={styles.submitButton} startIcon={<GitHubIcon />} onClick={tryUploadProject}>
+              <Button className={styles.gradientButton} startIcon={<GitHubIcon />} onClick={tryUploadProject}>
                 {t('admin:components.project.uploadProject')}
               </Button>
               {repos && repos.length > 0 && (
-                <Button className={styles.submitButton} startIcon={<GroupIcon />} onClick={trySelectPublicUrl}>
+                <Button className={styles.gradientButton} startIcon={<GroupIcon />} onClick={trySelectPublicUrl}>
                   {!isPublicUrl
                     ? t('admin:components.project.customPublicUrl')
                     : t('admin:components.project.selectFromList')}

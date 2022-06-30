@@ -206,7 +206,7 @@ const UpdateBot = ({ open, bot, onClose }: Props) => {
               setFormErrors({ name: '', description: '', location: '' })
               onClose()
             }}
-            className={styles.submitButton}
+            className={styles.gradientButton}
           >
             {t('admin:components.bot.cancel')}
           </Button>

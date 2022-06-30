@@ -147,7 +147,7 @@ const ClientTheme = () => {
       <Button sx={{ maxWidth: '100%', ml: 1 }} className={styles.cancelButton} onClick={resetThemeToDefault}>
         {t('admin:components.setting.resetTheme')}
       </Button>
-      <Button sx={{ maxWidth: '100%', ml: 1 }} className={styles.submitButton} onClick={handleSubmit}>
+      <Button sx={{ maxWidth: '100%', ml: 1 }} className={styles.gradientButton} onClick={handleSubmit}>
         {t('admin:components.setting.save')}
       </Button>
     </div>

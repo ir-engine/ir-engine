@@ -38,7 +38,7 @@ const FormDialog = () => {
           <Button onClick={handleClose} className={styles.cancelButton}>
             {t('admin:components.dialog.login')}
           </Button>
-          <Button onClick={handleClose} className={styles.submitButton}>
+          <Button onClick={handleClose} className={styles.gradientButton}>
             {t('admin:components.dialog.submit')}
           </Button>
         </DialogActions>

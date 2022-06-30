@@ -34,9 +34,9 @@
   position: fixed;
 }
 
-.submitButton {
+.gradientButton {
   background: linear-gradient(90deg, var(--buttonGradientStart), var(--buttonGradientEnd));
-  color: var(--textColor) !important;
+  color: var(--buttonTextColor) !important;
 
   &:hover {
     opacity: 0.8;

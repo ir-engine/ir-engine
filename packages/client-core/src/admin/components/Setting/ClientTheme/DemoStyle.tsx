@@ -200,9 +200,8 @@ const DemoStyle = ({ theme }: DemoStyleProps) => {
       }
 
       .gradientButton {
-        margin: 0px;
         color: ${theme.buttonTextColor};
-        background: linear-gradient(92.22deg, ${theme.buttonGradientStart}, ${theme.buttonGradientEnd});
+        background: linear-gradient(90deg, ${theme.buttonGradientStart}, ${theme.buttonGradientEnd});
       }
 
       .gradientButton:hover {

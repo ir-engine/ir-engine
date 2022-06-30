@@ -361,7 +361,7 @@ const AvatarDrawerContent = ({ open, mode, selectedAvatar, onClose }: Props) => 
               type="file"
               onChange={handleChangeFile}
             />
-            <Button className={styles.submitButton} component="span" startIcon={<FaceIcon />}>
+            <Button className={styles.gradientButton} component="span" startIcon={<FaceIcon />}>
               {t('admin:components.avatar.selectAvatar')}
             </Button>
           </label>
@@ -465,7 +465,7 @@ const AvatarDrawerContent = ({ open, mode, selectedAvatar, onClose }: Props) => 
               type="file"
               onChange={handleChangeFile}
             />
-            <Button className={styles.submitButton} component="span" startIcon={<AccountCircleIcon />}>
+            <Button className={styles.gradientButton} component="span" startIcon={<AccountCircleIcon />}>
               {t('admin:components.avatar.selectThumbnail')}
             </Button>
           </label>
@@ -520,13 +520,13 @@ const AvatarDrawerContent = ({ open, mode, selectedAvatar, onClose }: Props) => 
           {t('admin:components.common.cancel')}
         </Button>
         {(mode === AvatarDrawerMode.Create || editMode) && (
-          <Button className={styles.submitButton} onClick={handleSubmit}>
+          <Button className={styles.gradientButton} onClick={handleSubmit}>
             {t('admin:components.common.submit')}
           </Button>
         )}
         {mode === AvatarDrawerMode.ViewEdit && editMode === false && (
           <Button
-            className={styles.submitButton}
+            className={styles.gradientButton}
             disabled={hasWriteAccess ? false : true}
             onClick={() => setEditMode(true)}
           >

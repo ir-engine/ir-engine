@@ -213,13 +213,13 @@ const PartyDrawer = ({ open, mode, selectedParty, onClose }: Props) => {
             {t('admin:components.common.cancel')}
           </Button>
           {(mode === PartyDrawerMode.Create || editMode) && (
-            <Button className={styles.submitButton} onClick={handleSubmit}>
+            <Button className={styles.gradientButton} onClick={handleSubmit}>
               {t('admin:components.common.submit')}
             </Button>
           )}
           {mode === PartyDrawerMode.ViewEdit && editMode === false && (
             <Button
-              className={styles.submitButton}
+              className={styles.gradientButton}
               disabled={hasWriteAccess ? false : true}
               onClick={() => setEditMode(true)}
             >

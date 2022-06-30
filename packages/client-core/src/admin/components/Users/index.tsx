@@ -138,7 +138,7 @@ const Users = () => {
           }
           label={t('admin:components.user.hideGuests') as string}
         />
-        <Button className={styles.gradientButton} onClick={() => resetFilter()}>
+        <Button className={styles.gradientButton} sx={{ width: '100%' }} onClick={resetFilter}>
           Reset
         </Button>
       </Popover>

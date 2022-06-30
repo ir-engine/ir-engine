@@ -248,13 +248,13 @@ const GroupDrawer = ({ open, mode, selectedGroup, onClose }: Props) => {
             {t('admin:components.common.cancel')}
           </Button>
           {(mode === GroupDrawerMode.Create || editMode) && (
-            <Button className={styles.submitButton} onClick={handleSubmit}>
+            <Button className={styles.gradientButton} onClick={handleSubmit}>
               {t('admin:components.common.submit')}
             </Button>
           )}
           {mode === GroupDrawerMode.ViewEdit && editMode === false && (
             <Button
-              className={styles.submitButton}
+              className={styles.gradientButton}
               disabled={hasWriteAccess ? false : true}
               onClick={() => setEditMode(true)}
             >
