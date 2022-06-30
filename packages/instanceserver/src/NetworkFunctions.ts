@@ -340,15 +340,45 @@ export const handleSpectateWorld = async (
   logger.info('Spectate World Request Received: %o', { joinedUserId, data, user })
 
   const world = Engine.instance.currentWorld
+
+  // disallow join world request if already spawned
+  if (world.getUserAvatarEntity(joinedUserId) !== undefined) return callback(null!)
+
   const cachedActions = getCachedActions(network, joinedUserId)
   const client = network.peers.get(joinedUserId)!
   client.spectating = true
+  let spectateUser = data['spectateUser']
+
+  if (spectateUser) {
+    const handleInvalidUser = () => {
+      spectateUser = ''
+      logger.warn('The user to spectate in no longer on this instance.')
+    }
+
+    const result = (await network.app.service('user').find({
+      query: {
+        id: spectateUser
+      },
+      isInternal: true
+    })) as any
+
+    let users = result.data as User[]
+    if (users.length > 0) {
+      const inviterUser = users[0]
+      if (inviterUser.instanceId !== user.instanceId) {
+        handleInvalidUser()
+      }
+    } else {
+      handleInvalidUser()
+    }
+  }
 
   callback({
     highResTimeOrigin: performance.timeOrigin,
     worldStartTime: world.startTime,
     client: { name: user.name, index: client.index },
-    cachedActions
+    cachedActions,
+    spectateUser
   })
 }
 
@@ -362,8 +392,9 @@ export const handleJoinWorld = async (
 ) => {
   logger.info('Join World Request Received: %o', { joinedUserId, data, user })
 
-  // disallow join world request if already spawned
   const world = Engine.instance.currentWorld
+
+  // disallow join world request if already spawned
   if (world.getUserAvatarEntity(joinedUserId) !== undefined) return callback(null!)
 
   let spawnPose = SpawnPoints.instance.getRandomSpawnPoint()

@@ -1,10 +1,10 @@
-import { Raycaster } from 'three'
-
+import { Entity } from '../../ecs/classes/Entity'
 import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
 import { RaycastPropsType } from '../../scene/components/CameraPropertiesComponent'
 import { CameraMode } from '../types/CameraMode'
 
 export type FollowCameraComponentType = {
+  targetEntity: Entity
   /** * **Default** value is ```'thirdPerson'```. */
   mode: CameraMode
   /** Distance to the target  */
@@ -29,13 +29,12 @@ export type FollowCameraComponentType = {
   shoulderSide: boolean
   /** Whether the camera auto-rotates toward the target **Default** value is true. */
   locked: boolean
-  /** Camera raycaster */
-  raycaster: Raycaster
   /** Raycast properties */
   raycastProps: RaycastPropsType
 }
 
 export const FollowCameraDefaultValues: FollowCameraComponentType = {
+  targetEntity: 0 as Entity,
   mode: CameraMode.ThirdPerson,
   distance: 5,
   zoomLevel: 5,
@@ -48,7 +47,6 @@ export const FollowCameraDefaultValues: FollowCameraComponentType = {
   maxPhi: 85,
   shoulderSide: true,
   locked: true,
-  raycaster: new Raycaster(),
   raycastProps: {
     enabled: true,
     rayCount: 3,

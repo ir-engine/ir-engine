@@ -20,13 +20,15 @@ import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
 import { PortalComponent } from '../../scene/components/PortalComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 import { Widget } from '../../xrui/Widgets'
 import {
   addComponent,
   defineQuery,
   EntityRemovedComponent,
   getComponent,
-  hasComponent
+  hasComponent,
+  MappedComponent
 } from '../functions/ComponentFunctions'
 import { createEntity } from '../functions/EntityFunctions'
 import { initializeEntityTree } from '../functions/EntityTreeFunctions'
@@ -47,10 +49,30 @@ export class World {
     Engine.instance.worlds.push(this)
 
     this.worldEntity = createEntity(this)
-    this.localClientEntity = isClient ? (createEntity(this) as Entity) : (NaN as Entity)
-
     addComponent(this.worldEntity, PersistTagComponent, {}, this)
-    if (this.localClientEntity) addComponent(this.localClientEntity, PersistTagComponent, {}, this)
+    addComponent(this.worldEntity, NameComponent, { name: 'world' }, this)
+
+    if (isClient) {
+      this.localClientEntity = createEntity(this)
+      addComponent(this.localClientEntity, PersistTagComponent, {}, this)
+      addComponent(this.localClientEntity, NameComponent, { name: 'local' }, this)
+    }
+
+    this.cameraEntity = createEntity(this)
+    addComponent(this.cameraEntity, NameComponent, { name: 'camera' }, this)
+    addComponent(this.cameraEntity, PersistTagComponent, {}, this)
+    addComponent(this.cameraEntity, Object3DComponent, { value: this.camera }, this)
+    addComponent(
+      this.cameraEntity,
+      TransformComponent,
+      {
+        position: this.camera.position,
+        rotation: this.camera.quaternion,
+        scale: this.camera.scale
+      },
+      this
+    )
+    this.scene.add(this.camera)
 
     initializeEntityTree(this)
     this.scene.layers.set(ObjectLayers.Scene)
@@ -125,9 +147,8 @@ export class World {
   /**
    * Reference to the three.js perspective camera object.
    */
-  camera: PerspectiveCamera | OrthographicCamera = null!
-  activeCameraEntity: Entity = null!
-  activeCameraFollowTarget: Entity | null = null
+  camera: PerspectiveCamera | OrthographicCamera = new PerspectiveCamera(60, 1, 0.1, 10000)
+  cameraEntity: Entity = NaN as Entity
 
   /**
    * Reference to the audioListener.
@@ -154,12 +175,12 @@ export class World {
   /**
    * The world entity
    */
-  worldEntity: Entity
+  worldEntity: Entity = NaN as Entity
 
   /**
    * The local client entity
    */
-  localClientEntity: Entity
+  localClientEntity: Entity = NaN as Entity
 
   /**
    * Custom systems injected into this world
@@ -234,8 +255,18 @@ export class World {
    * @returns
    */
   getUserAvatarEntity(userId: UserId) {
+    return this.getOwnedNetworkObjectWithComponent(userId, AvatarComponent)
+  }
+
+  /**
+   * Get the user entity that has a specific component
+   * @param userId
+   * @param component
+   * @returns
+   */
+  getOwnedNetworkObjectWithComponent<T, S extends bitecs.ISchema>(userId: UserId, component: MappedComponent<T, S>) {
     return this.getOwnedNetworkObjects(userId).find((eid) => {
-      return hasComponent(eid, AvatarComponent, this)
+      return hasComponent(eid, component, this)
     })!
   }
 

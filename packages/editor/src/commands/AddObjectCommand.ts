@@ -100,7 +100,7 @@ function addObject(command: AddObjectCommandParams) {
     const object = rootObjects[i]
 
     if (command.prefabTypes) {
-      createNewEditorNode(object.entity, command.prefabTypes[i] ?? command.prefabTypes[0])
+      createNewEditorNode(object, command.prefabTypes[i] ?? command.prefabTypes[0])
     } else if (command.sceneData) {
       const data = command.sceneData[i] ?? command.sceneData[0]
 

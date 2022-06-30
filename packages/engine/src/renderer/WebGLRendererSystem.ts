@@ -27,6 +27,7 @@ import { addActionReceptor, dispatchAction } from '@xrengine/hyperflux'
 import { CSM } from '../assets/csm/CSM'
 import { ExponentialMovingAverage } from '../common/classes/ExponentialAverageCurve'
 import { nowMilliseconds } from '../common/functions/nowMilliseconds'
+import { overrideOnBeforeCompile } from '../common/functions/OnBeforeCompilePlugin'
 import { Engine } from '../ecs/classes/Engine'
 import { EngineActions, getEngineState } from '../ecs/classes/EngineState'
 import { Entity } from '../ecs/classes/Entity'
@@ -100,6 +101,7 @@ export class EngineRenderer {
   webGLLostContext: any = null
 
   initialize() {
+    overrideOnBeforeCompile()
     this.onResize = this.onResize.bind(this)
     this.handleWebGLConextLost = this.handleWebGLConextLost.bind(this)
     this.handleWebGLConextRestore = this.handleWebGLConextRestore.bind(this)

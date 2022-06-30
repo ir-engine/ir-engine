@@ -1,4 +1,14 @@
-import { Color, Intersection, Mesh, MeshStandardMaterial, Object3D, Raycaster, Vector2, Vector3 } from 'three'
+import {
+  Color,
+  Intersection,
+  Mesh,
+  MeshBasicMaterial,
+  MeshStandardMaterial,
+  Object3D,
+  Raycaster,
+  Vector2,
+  Vector3
+} from 'three'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { GLTF } from '../../assets/loaders/gltf/GLTFLoader'
@@ -240,16 +250,18 @@ export default class TransformGizmo extends Object3D {
 
     this.transformMode = TransformMode.Disabled
 
-    this.model.traverse((obj: Mesh) => {
+    this.model.traverse((obj: Mesh<any, MeshBasicMaterial>) => {
       if (obj.isMesh) {
         if (Array.isArray(obj.material)) {
           obj.material.forEach((m) => {
             m.depthTest = false
             m.depthWrite = false
+            m.fog = false
           })
         } else {
           obj.material.depthTest = false
           obj.material.depthWrite = false
+          obj.material.fog = false
         }
 
         obj.renderOrder = 100

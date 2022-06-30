@@ -41,7 +41,7 @@ export const deserializeScenePreviewCamera: ComponentDeserializeFunction = (enti
     setObjectLayers(camera.userData.helper, ObjectLayers.NodeHelper)
 
     addComponent(entity, Object3DComponent, { value: camera })
-  } else if (Engine.instance.currentWorld.activeCameraEntity) {
+  } else if (Engine.instance.currentWorld.cameraEntity) {
     const transformComponent = getComponent(entity, TransformComponent)
     Engine.instance.currentWorld.camera.position.copy(transformComponent.position)
   }
