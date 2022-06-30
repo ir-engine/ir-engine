@@ -1,13 +1,12 @@
 import assert from 'assert'
-import { addComponent } from 'bitecs'
-import proxyquire from 'proxyquire'
-import sinon from 'sinon'
 
-import { isClient } from '../common/functions/isClient'
+import { UserId } from '@xrengine/common/src/interfaces/UserId'
+
 import { Engine } from '../ecs/classes/Engine'
 import { getComponent, hasComponent } from '../ecs/functions/ComponentFunctions'
 import { createEntity } from '../ecs/functions/EntityFunctions'
 import { createEngine } from '../initializeEngine'
+import { XRHandsInputComponent } from '../xr/components/XRHandsInputComponent'
 import { XRInputSourceComponent } from '../xr/components/XRInputSourceComponent'
 import { setupXRInputSourceComponent } from '../xr/functions/WebXRFunctions'
 import {
@@ -15,6 +14,7 @@ import {
   setupHeadIK,
   setupXRInputSourceContainer,
   setXRModeReceptor,
+  xrHandsConnectedReceptor,
   xrInputQueryExit
 } from './AvatarSystem'
 import { AvatarHandsIKComponent } from './components/AvatarHandsIKComponent'
@@ -102,5 +102,24 @@ describe('AvatarSystem', async () => {
     actionStub.enabled = false
     setXRModeReceptor(actionStub, worldStub)
     assert(!hasComponent(entity, XRInputSourceComponent))
+  })
+
+  it('check xrHandsConnectedReceptor', async () => {
+    const world = Engine.instance.currentWorld
+    Engine.instance.userId = 'user' as UserId
+    let entity = 0 as any
+    const actionStub = { $from: Engine.instance.userId } as any
+    const worldStub = {
+      getUserAvatarEntity() {
+        return entity
+      }
+    } as any
+
+    assert(xrHandsConnectedReceptor(actionStub, worldStub) === false)
+    actionStub.$from = 'other'
+    assert(xrHandsConnectedReceptor(actionStub, worldStub) === false)
+    entity = createEntity(world)
+    assert(xrHandsConnectedReceptor(actionStub, worldStub))
+    assert(hasComponent(entity, XRHandsInputComponent))
   })
 })

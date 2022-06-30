@@ -66,10 +66,10 @@ export function setXRModeReceptor(
 export function xrHandsConnectedReceptor(
   action: ReturnType<typeof WorldNetworkAction.xrHandsConnected>,
   world = Engine.instance.currentWorld
-) {
-  if (action.$from === Engine.instance.userId) return
+): boolean {
+  if (action.$from === Engine.instance.userId) return false
   const entity = world.getUserAvatarEntity(action.$from)
-  if (!entity) return
+  if (!entity) return false
 
   if (!hasComponent(entity, XRHandsInputComponent)) {
     addComponent(entity, XRHandsInputComponent, {
@@ -82,6 +82,8 @@ export function xrHandsConnectedReceptor(
   xrInputSource.hands.forEach((controller: any, i: number) => {
     initializeHandModel(entity, controller, i === 0 ? 'left' : 'right')
   })
+
+  return true
 }
 
 export function teleportObjectReceptor(

@@ -5,6 +5,7 @@ import { addActionReceptor } from '@xrengine/hyperflux'
 import { Direction } from '../common/constants/Axis3D'
 import { V_000, V_010 } from '../common/constants/MathConstants'
 import { Engine } from '../ecs/classes/Engine'
+import { Entity } from '../ecs/classes/Entity'
 import { World } from '../ecs/classes/World'
 import { defineQuery, getComponent, hasComponent, removeComponent } from '../ecs/functions/ComponentFunctions'
 import { LocalInputTagComponent } from '../input/components/LocalInputTagComponent'
@@ -33,6 +34,11 @@ export class AvatarSettings {
   movementScheme = AvatarMovementScheme.Linear
 }
 
+const displacementXZ = new Vector3(),
+  invOrientation = new Quaternion(),
+  rotMatrix = new Matrix4(),
+  targetOrientation = new Quaternion()
+
 export default async function AvatarControllerSystem(world: World) {
   const controllerQuery = defineQuery([AvatarControllerComponent])
   const localXRInputQuery = defineQuery([LocalInputTagComponent, XRInputSourceComponent, AvatarControllerComponent])
@@ -42,24 +48,11 @@ export default async function AvatarControllerSystem(world: World) {
 
   const lastCamPos = new Vector3(),
     displacement = new Vector3(),
-    displacementXZ = new Vector3(),
-    camRotation = new Quaternion(),
-    rotMatrix = new Matrix4(),
-    targetOrientation = new Quaternion(),
-    invOrientation = new Quaternion()
+    camRotation = new Quaternion()
 
   return () => {
     for (const entity of controllerQuery.exit(world)) {
-      const controller = getComponent(entity, AvatarControllerComponent, true)
-
-      if (controller?.controller) {
-        world.physics.removeController(controller.controller)
-      }
-
-      const avatar = getComponent(entity, AvatarComponent)
-      if (avatar) {
-        avatar.isGrounded = false
-      }
+      avatarControllerExit(entity, world)
     }
 
     for (const entity of localXRInputQuery(world)) {
@@ -92,46 +85,58 @@ export default async function AvatarControllerSystem(world: World) {
     }
 
     for (const entity of controllerQuery(world)) {
-      const transform = getComponent(entity, TransformComponent)
-
-      displacementXZ.set(displacement.x, 0, displacement.z)
-      displacementXZ.applyQuaternion(invOrientation.copy(transform.rotation).invert())
-      if (displacementXZ.lengthSq() > 0) {
-        rotMatrix.lookAt(displacementXZ, V_000, V_010)
-        targetOrientation.setFromRotationMatrix(rotMatrix)
-        transform.rotation.slerp(targetOrientation, Math.max(world.deltaSeconds * 2, 3 / 60))
-      }
-
-      const displace = moveAvatar(world, entity, Engine.instance.currentWorld.camera)
-      displacement.set(displace.x, displace.y, displace.z)
-
-      const controller = getComponent(entity, AvatarControllerComponent)
-      const collider = getComponent(entity, ColliderComponent)
-
-      const avatar = getComponent(entity, AvatarComponent)
-
-      const pose = controller.controller.getPosition()
-      transform.position.set(pose.x, pose.y - avatar.avatarHalfHeight, pose.z)
-
-      detectUserInCollisions(entity)
-
-      collider.body.setGlobalPose(
-        {
-          translation: pose,
-          rotation: transform.rotation
-        },
-        true
-      )
-
-      // TODO: implement scene lower bounds parameter
-      if (transform.position.y < -10) {
-        respawnAvatar(entity)
-        continue
-      }
+      controllerQueryUpdate(entity, displacement, world)
     }
 
     return world
   }
+}
+
+export const controllerQueryUpdate = (
+  entity: Entity,
+  displacement: Vector3,
+  world: World = Engine.instance.currentWorld
+) => {
+  const transform = getComponent(entity, TransformComponent)
+
+  displacementXZ.set(displacement.x, 0, displacement.z)
+  displacementXZ.applyQuaternion(invOrientation.copy(transform.rotation).invert())
+
+  if (displacementXZ.lengthSq() > 0) {
+    rotMatrix.lookAt(displacementXZ, V_000, V_010)
+    targetOrientation.setFromRotationMatrix(rotMatrix)
+    transform.rotation.slerp(targetOrientation, Math.max(world.deltaSeconds * 2, 3 / 60))
+  }
+
+  const displace = moveAvatar(world, entity, Engine.instance.currentWorld.camera)
+  displacement.set(displace.x, displace.y, displace.z)
+
+  const controller = getComponent(entity, AvatarControllerComponent)
+  const collider = getComponent(entity, ColliderComponent)
+  const avatar = getComponent(entity, AvatarComponent)
+
+  const pose = controller.controller.getPosition()
+  transform.position.set(pose.x, pose.y - avatar.avatarHalfHeight, pose.z)
+
+  detectUserInCollisions(entity)
+
+  collider.body.setGlobalPose(
+    {
+      translation: pose,
+      rotation: transform.rotation
+    },
+    true
+  )
+
+  // TODO: implement scene lower bounds parameter
+  if (transform.position.y < -10) respawnAvatar(entity)
+}
+
+export const avatarControllerExit = (entity: Entity, world: World = Engine.instance.currentWorld) => {
+  const controller = getComponent(entity, AvatarControllerComponent, true)
+  if (controller?.controller) world.physics.removeController(controller.controller)
+  const avatar = getComponent(entity, AvatarComponent)
+  if (avatar) avatar.isGrounded = false
 }
 
 export const updateMap = () => {
