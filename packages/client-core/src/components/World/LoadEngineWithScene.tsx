@@ -72,7 +72,10 @@ export const LoadEngineWithScene = () => {
       return
     const user = authState.user.value
     const avatarDetails = authState.avatarList.value.find((avatar) => avatar.avatar?.name === user.avatarId)!
-    const avatarSpawnPose = SpawnPoints.instance.getRandomSpawnPoint()
+    const spawnPoint = getSearchParamFromURL('spawnPoint')
+    let avatarSpawnPose
+    if (spawnPoint) avatarSpawnPose = SpawnPoints.instance.getSpawnPoint(spawnPoint)
+    else avatarSpawnPose = SpawnPoints.instance.getRandomSpawnPoint()
     spawnLocalAvatarInWorld({
       avatarSpawnPose,
       avatarDetail: {
@@ -114,7 +117,7 @@ export const LoadEngineWithScene = () => {
 
       dispatchAction(SceneActions.unloadCurrentScene())
       history.push('/location/' + world.activePortal.location)
-      LocationService.getLocationByName(world.activePortal.location)
+      LocationService.getLocationByName(world.activePortal.location, authState.user.id.value)
 
       // shut down connection with existing world instance server
       // leaving a world instance server will check if we are in a location media instance and shut that down too

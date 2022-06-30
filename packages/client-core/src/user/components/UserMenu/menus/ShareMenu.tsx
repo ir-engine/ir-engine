@@ -53,12 +53,12 @@ export const useShareMenuHooks = ({ refLink }) => {
 
   const packageInvite = async (): Promise<void> => {
     const sendData = {
-      type: 'friend',
+      inviteType: 'friend',
       token: email,
       inviteCode: null,
       identityProviderType: 'email',
       targetObjectId: inviteState.targetObjectId.value,
-      invitee: null
+      inviteeId: null
     }
     InviteService.sendInvite(sendData)
     setEmail('')

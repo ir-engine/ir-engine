@@ -47,6 +47,7 @@ export class AcceptInvite implements ServiceMethods<Data> {
    */
 
   async get(id: Id, params?: Params): Promise<Data> {
+    let inviteeIdentityProvider, invitee
     if (!params) params = {}
     if (params.query?.t) {
       params.query.passcode = params.query.t
@@ -74,7 +75,6 @@ export class AcceptInvite implements ServiceMethods<Data> {
       }
 
       if (invite.identityProviderType != null) {
-        let inviteeIdentityProvider
         const inviteeIdentityProviderResult = await this.app.service('identity-provider').find({
           query: {
             type: invite.identityProviderType,
@@ -94,6 +94,11 @@ export class AcceptInvite implements ServiceMethods<Data> {
           inviteeIdentityProvider = (inviteeIdentityProviderResult as any).data[0]
         }
         if (params['identity-provider'] == null) params['identity-provider'] = inviteeIdentityProvider
+
+        if (invite.makeAdmin)
+          await this.app.service('user').patch(inviteeIdentityProvider.userId, {
+            userRole: 'admin'
+          })
 
         if (invite.inviteType === 'friend') {
           const existingRelationshipResult = (await this.app.service('user-relationship').find({
@@ -215,13 +220,18 @@ export class AcceptInvite implements ServiceMethods<Data> {
           }
         }
       } else if (invite.inviteeId != null) {
-        const invitee = await this.app.service('user').get(invite.inviteeId)
+        invitee = await this.app.service('user').get(invite.inviteeId)
 
         if (invitee == null) {
           return new BadRequest('Invalid invitee ID')
         }
 
-        if (params['identity-provider'] == null) params['identity-provider'] = invitee.identityProviders
+        if (params['identity-provider'] == null) params['identity-provider'] = invitee.identity_providers[0]
+
+        if (invite.makeAdmin)
+          await this.app.service('user').Model.patch(invite.inviteeId, {
+            userRole: 'admin'
+          })
 
         if (invite.inviteType === 'friend') {
           const existingRelationshipResult = (await this.app.service('user-relationship').find({
@@ -343,14 +353,54 @@ export class AcceptInvite implements ServiceMethods<Data> {
       }
 
       params.preventUserRelationshipRemoval = true
-      await this.app.service('invite').remove(invite.id, params)
-      const token = await (this.app.service('authentication') as any).createAccessToken(
-        {},
-        { subject: params['identity-provider'].id.toString() }
-      )
-      return {
-        token: token
+      if (invite.deleteOnUse) await this.app.service('invite').remove(invite.id, params)
+      const token = await this.app
+        .service('authentication')
+        .createAccessToken({}, { subject: params['identity-provider'].id.toString() })
+      let returned = {
+        token
+      } as any
+
+      if (invite.inviteType === 'location') {
+        const location = await this.app.service('location').get(invite.targetObjectId)
+        returned.locationName = location.slugifiedName
+
+        if (location.location_setting?.locationType === 'private') {
+          const userId = inviteeIdentityProvider?.userId || invitee?.id
+          if (!location.location_authorized_users?.find((authUser) => authUser.userId === userId))
+            await this.app.service('location-authorized-user').create({
+              locationId: location.id,
+              userId: userId
+            })
+        }
+        if (invite.spawnDetails) {
+          const spawnDetails = JSON.parse(invite.spawnDetails)
+          if (invite.spawnType === 'inviteCode') returned.inviteCode = spawnDetails.inviteCode
+          if (invite.spawnType === 'spawnPoint') returned.spawnPoint = spawnDetails.spawnPoint
+        }
       }
+
+      if (invite.inviteType === 'instance') {
+        const instance = await this.app.service('instance').get(invite.targetObjectId)
+        const location = await this.app.service('location').get(instance.locationId)
+        returned.locationName = location.slugifiedName
+        returned.instanceId = instance.id
+
+        if (location.location_setting?.locationType === 'private') {
+          const userId = inviteeIdentityProvider?.userId || invitee?.id
+          if (!location.location_authorized_users?.find((authUser) => authUser.userId === userId))
+            await this.app.service('location-authorized-user').create({
+              locationId: location.id,
+              userId: userId
+            })
+        }
+        if (invite.spawnDetails) {
+          const spawnDetails = JSON.parse(invite.spawnDetails)
+          if (invite.spawnType === 'inviteCode') returned.inviteCode = spawnDetails.inviteCode
+          if (invite.spawnType === 'spawnPoint') returned.spawnPoint = spawnDetails.spawnPoint
+        }
+      }
+      return returned
     } catch (err) {
       logger.error(err)
       return null!

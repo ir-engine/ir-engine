@@ -29,6 +29,20 @@ export default (app: Application) => {
       },
       targetObjectId: {
         type: DataTypes.STRING
+      },
+      deleteOnUse: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: true
+      },
+      makeAdmin: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false
+      },
+      spawnType: {
+        type: DataTypes.STRING
+      },
+      spawnDetails: {
+        type: DataTypes.JSON
       }
     },
     {

@@ -4,15 +4,20 @@ export type Invite = {
   id: string
   inviteType: string
   groupName?: string
-  invitee: UserInterface
-  inviteeId: string
-  token: string
-  user: UserInterface
+  invitee?: UserInterface
+  inviteeId?: string
+  token?: string
+  targetObjectId?: string
+  user?: UserInterface
   userId: string
   passcode: string
-  identityProviderType: string
+  identityProviderType?: string
   createdAt: string
   updatedAt: string
+  makeAdmin: boolean
+  deleteOnUse: boolean
+  spawnType?: string
+  spawnDetails?: { inviteCode?: string; spawnPoint?: string } | string | null
 }
 
 export const InviteSeed = {
@@ -20,10 +25,32 @@ export const InviteSeed = {
 }
 
 export interface SendInvite {
-  type: string
-  token: string
+  inviteType: string
+  token: string | null
   inviteCode?: string | null
-  invitee: string | null
-  identityProviderType: string
-  targetObjectId: string
+  inviteeId?: string | null
+  identityProviderType?: string | null
+  targetObjectId?: string | null
+  makeAdmin?: boolean | null
+  deleteOnUse?: boolean | null
+  spawnType?: string | null
+  spawnDetails?: { inviteCode?: string; spawnPoint?: string } | string | null
+}
+
+export interface InviteInterface {
+  id: string
+  inviteType: string
+  token?: string
+  passcode: string
+  inviteeId?: string
+  invitee?: UserInterface
+  identityProviderType?: string
+  targetObjectId?: string
+  makeAdmin: boolean
+  deleteOnUse: boolean
+  spawnType?: string
+  spawnDetails?: { inviteCode?: string; spawnPoint?: string } | string | null
+  createdAt: string
+  updatedAt: string
+  userId: string
 }
