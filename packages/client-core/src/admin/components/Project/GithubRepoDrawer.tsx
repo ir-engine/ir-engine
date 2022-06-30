@@ -91,12 +91,8 @@ const GithubRepoDrawer = ({ open, project, onClose }: Props) => {
         <DialogActions>
           {!processing && (
             <>
-              <Button
-                className={styles.submitButton}
-                startIcon={isCreateMode ? undefined : <LinkIcon />}
-                onClick={handleSubmit}
-              >
-                {t('admin:components.common.submit')}
+              <Button className={styles.cancelButton} onClick={onClose}>
+                {t('admin:components.setting.cancel')}
               </Button>
 
               {isCreateMode === false && (
@@ -104,9 +100,12 @@ const GithubRepoDrawer = ({ open, project, onClose }: Props) => {
                   {t('admin:components.project.remove')}
                 </Button>
               )}
-
-              <Button className={styles.cancelButton} onClick={onClose}>
-                {t('admin:components.setting.cancel')}
+              <Button
+                className={styles.submitButton}
+                startIcon={isCreateMode ? undefined : <LinkIcon />}
+                onClick={handleSubmit}
+              >
+                {t('admin:components.common.submit')}
               </Button>
             </>
           )}

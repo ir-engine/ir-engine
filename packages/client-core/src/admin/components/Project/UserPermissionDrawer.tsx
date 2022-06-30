@@ -103,11 +103,11 @@ const UserPermissionDrawer = ({ open, project, onClose }: Props) => {
             />
 
             <DialogActions>
-              <Button className={styles.submitButton} onClick={handleCreatePermission}>
-                {t('editor.projects.addUser')}
-              </Button>
               <Button className={styles.cancelButton} onClick={onClose}>
                 {t('admin:components.setting.cancel')}
+              </Button>
+              <Button className={styles.submitButton} onClick={handleCreatePermission}>
+                {t('editor.projects.addUser')}
               </Button>
             </DialogActions>
           </>
