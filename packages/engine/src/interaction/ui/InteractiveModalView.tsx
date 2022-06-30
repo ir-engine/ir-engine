@@ -130,7 +130,7 @@ export const InteractiveModalView = () => {
         xr-layer="true"
         xr-pixel-ratio="1.5"
         onClick={() => {
-          window.open(url.value, '_blank')!.focus()
+          // window.open(url.value, '_blank')!.focus()
         }}
       >
         View in AR
