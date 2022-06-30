@@ -72,21 +72,21 @@
   }
 
   &:disabled {
-    background: var(--disabled);
+    opacity: 0.5;
   }
 }
 
 .cancelButton {
   background: transparent;
   border: solid 1px var(--buttonOutlined);
-  color: var(--textColor);
+  color: var(--textColor) !important;
 
   &:hover {
     opacity: 0.7;
   }
 
   &:disabled {
-    background: var(--disabled);
+    opacity: 0.5;
   }
 }
 
