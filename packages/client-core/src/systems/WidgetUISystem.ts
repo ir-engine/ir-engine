@@ -7,6 +7,7 @@ import { World } from '@xrengine/engine/src/ecs/classes/World'
 import { addComponent, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { BaseInput } from '@xrengine/engine/src/input/enums/BaseInput'
 import { GamepadButtons } from '@xrengine/engine/src/input/enums/InputEnums'
+import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
 import { PersistTagComponent } from '@xrengine/engine/src/scene/components/PersistTagComponent'
 import { XRUIComponent } from '@xrengine/engine/src/xrui/components/XRUIComponent'
 import { ObjectFitFunctions } from '@xrengine/engine/src/xrui/functions/ObjectFitFunctions'
@@ -31,6 +32,7 @@ export default async function WidgetSystem(world: World) {
   const ui = createWidgetButtonsView()
 
   addComponent(ui.entity, PersistTagComponent, {})
+  addComponent(ui.entity, NameComponent, { name: 'widget_menu' })
 
   const toggleWidgetsMenu = () => {
     const state = accessWidgetAppState().widgets.value
