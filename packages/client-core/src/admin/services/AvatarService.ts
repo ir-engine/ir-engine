@@ -12,6 +12,7 @@ const AdminAvatarState = defineState({
   name: 'AdminAvatarState',
   initial: () => ({
     avatars: [] as Array<AvatarInterface>,
+    thumbnail: undefined as AvatarInterface | undefined,
     skip: 0,
     limit: AVATAR_PAGE_LIMIT,
     total: 0,
@@ -51,11 +52,17 @@ const avatarUpdatedReceptor = (action: typeof AdminAvatarActions.avatarUpdated.m
   return state.merge({ updateNeeded: true })
 }
 
+const thumbnailFetchedReceptor = (action: typeof AdminAvatarActions.thumbnailFetched.matches._TYPE) => {
+  const state = getState(AdminAvatarState)
+  return state.merge({ thumbnail: action.thumbnail.data.length > 0 ? action.thumbnail.data[0] : undefined })
+}
+
 export const AdminAvatarReceptors = {
   avatarsFetchedReceptor,
   avatarCreatedReceptor,
   avatarRemovedReceptor,
-  avatarUpdatedReceptor
+  avatarUpdatedReceptor,
+  thumbnailFetchedReceptor
 }
 
 export const accessAdminAvatarState = () => getState(AdminAvatarState)
@@ -86,6 +93,16 @@ export const AdminAvatarService = {
       }
     })
     dispatchAction(AdminAvatarActions.avatarsFetched({ avatars }))
+  },
+  fetchAdminThumbnail: async (name: string) => {
+    const thumbnail = await API.instance.client.service('static-resource').find({
+      query: {
+        name: name,
+        staticResourceType: 'user-thumbnail',
+        $limit: 1
+      }
+    })
+    dispatchAction(AdminAvatarActions.thumbnailFetched({ thumbnail }))
   },
   removeAdminAvatar: async (id: string, name: string) => {
     try {
@@ -123,5 +140,10 @@ export class AdminAvatarActions {
 
   static avatarUpdated = defineAction({
     type: 'AVATAR_UPDATED' as const
+  })
+
+  static thumbnailFetched = defineAction({
+    type: 'THUMBNAIL_RETRIEVED' as const,
+    thumbnail: matches.object as Validator<unknown, AvatarResult>
   })
 }

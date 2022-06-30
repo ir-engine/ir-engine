@@ -36,7 +36,6 @@ import { addAnimationLogic, initialize3D, onWindowResize, validate } from './hel
 interface Props {
   avatarData?: AvatarInterface
   isPublicAvatar?: boolean
-  adminStyles?: any
   changeActiveMenu: Function
   onAvatarUpload?: () => void
 }
@@ -76,13 +75,7 @@ function TabPanel({ children, value, index }: TabPanelProps) {
   )
 }
 
-export const AvatarUploadModal = ({
-  avatarData,
-  isPublicAvatar,
-  adminStyles,
-  changeActiveMenu,
-  onAvatarUpload
-}: Props) => {
+export const AvatarUploadModal = ({ avatarData, isPublicAvatar, changeActiveMenu, onAvatarUpload }: Props) => {
   const [selectedFile, setSelectedFile] = useState<any>(null)
   const [selectedThumbnail, setSelectedThumbnail] = useState<any>(null)
   const [avatarName, setAvatarName] = useState('')
@@ -273,54 +266,52 @@ export const AvatarUploadModal = ({
 
   const uploadButtonEnabled = !!fileSelected && !error && avatarName.length > 3
 
-  const styling = adminStyles || styles
-
   return (
-    <div ref={panelRef} className={styling.avatarUploadPanel}>
-      <div className={styling.avatarHeaderBlock}>
-        <button type="button" className={styling.iconBlock} onClick={openAvatarMenu}>
+    <div ref={panelRef} className={styles.avatarUploadPanel}>
+      <div className={styles.avatarHeaderBlock}>
+        <button type="button" className={styles.iconBlock} onClick={openAvatarMenu}>
           <ArrowBack />
         </button>
         <h2>{t('user:avatar.title')}</h2>
       </div>
       <div
         id="stage"
-        className={styling.stage}
+        className={styles.stage}
         style={{ width: THUMBNAIL_WIDTH + 'px', height: THUMBNAIL_HEIGHT + 'px' }}
       >
-        <div className={styling.legendContainer}>
+        <div className={styles.legendContainer}>
           <Help />
-          <div className={styling.legend}>
+          <div className={styles.legend}>
             <div>
               <IconLeftClick />
               <br />- <span>{t('user:avatar.rotate')}</span>
             </div>
             <div>
-              <span className={styling.shiftKey}>Shift</span> + <IconLeftClick />
+              <span className={styles.shiftKey}>Shift</span> + <IconLeftClick />
               <br />- <span>{t('user:avatar.pan')}</span>
             </div>
           </div>
         </div>
       </div>
       {selectedThumbnail != null && (
-        <div className={styling.thumbnailContainer}>
+        <div className={styles.thumbnailContainer}>
           <img
             src={URL.createObjectURL(selectedThumbnail)}
             alt={selectedThumbnail?.name}
-            className={styling.thumbnailPreview}
+            className={styles.thumbnailPreview}
           />
         </div>
       )}
       {thumbnailUrl.length > 0 && (
-        <div className={styling.thumbnailContainer}>
-          <img src={thumbnailUrl} alt="Avatar" className={styling.thumbnailPreview} />
+        <div className={styles.thumbnailContainer}>
+          <img src={thumbnailUrl} alt="Avatar" className={styles.thumbnailPreview} />
         </div>
       )}
-      <Paper className={styling.paper2}>
+      <Paper className={styles.paper2}>
         <InputBase
           sx={{ ml: 1, flex: 1, color: '#fff', fontWeight: '700', fontSize: '16px' }}
           inputProps={{ 'aria-label': 'avatar url' }}
-          classes={{ input: styling.input }}
+          classes={{ input: styles.input }}
           value={avatarData?.name ?? avatarName}
           disabled={!!avatarData?.name}
           id="avatarName"
@@ -337,40 +328,40 @@ export const AvatarUploadModal = ({
               value={activeSourceType}
               onChange={handleChangeSourceType}
               aria-label="basic tabs example"
-              classes={{ root: styling.tabRoot, indicator: styling.selected }}
+              classes={{ root: styles.tabRoot, indicator: styles.selected }}
             >
               <Tab
-                className={activeSourceType == 0 ? styling.selectedTab : styling.unselectedTab}
+                className={activeSourceType == 0 ? styles.selectedTab : styles.unselectedTab}
                 label="Use URL"
                 {...a11yProps(0)}
-                classes={{ root: styling.tabRoot }}
+                classes={{ root: styles.tabRoot }}
               />
               <Tab
-                className={activeSourceType == 1 ? styling.selectedTab : styling.unselectedTab}
+                className={activeSourceType == 1 ? styles.selectedTab : styles.unselectedTab}
                 label="Upload Files"
                 {...a11yProps(1)}
               />
             </Tabs>
           </div>
           <TabPanel value={activeSourceType} index={0}>
-            <div className={styling.controlContainer}>
-              <div className={styling.selectBtns} style={{ margin: '14px 0' }}>
-                <Paper className={styling.paper} style={{ marginRight: '8px', padding: '4px 0' }}>
+            <div className={styles.controlContainer}>
+              <div className={styles.selectBtns} style={{ margin: '14px 0' }}>
+                <Paper className={styles.paper} style={{ marginRight: '8px', padding: '4px 0' }}>
                   <InputBase
                     sx={{ ml: 1, flex: 1, fontWeight: '700', fontSize: '16px' }}
                     placeholder="Paste Avatar Url..."
                     inputProps={{ 'aria-label': 'avatar url' }}
-                    classes={{ input: styling.input }}
+                    classes={{ input: styles.input }}
                     value={avatarUrl}
                     onChange={handleAvatarUrlChange}
                   />
                 </Paper>
-                <Paper className={styling.paper} style={{ padding: '4px 0' }}>
+                <Paper className={styles.paper} style={{ padding: '4px 0' }}>
                   <InputBase
                     sx={{ ml: 1, flex: 1, fontWeight: '700', fontSize: '16px' }}
                     placeholder="Paste Thumbnail Url..."
                     inputProps={{ 'aria-label': 'thumbnail url' }}
-                    classes={{ input: styling.input }}
+                    classes={{ input: styles.input }}
                     value={thumbnailUrl}
                     onChange={handleThumbnailUrlChange}
                   />
@@ -378,7 +369,7 @@ export const AvatarUploadModal = ({
               </div>
               <button
                 type="button"
-                className={styling.uploadBtn}
+                className={styles.uploadBtn}
                 onClick={uploadAvatar}
                 disabled={!validAvatarUrl}
                 style={{ cursor: !validAvatarUrl ? 'not-allowed' : 'pointer' }}
@@ -390,12 +381,12 @@ export const AvatarUploadModal = ({
           </TabPanel>
           <TabPanel value={activeSourceType} index={1}>
             {error.length > 0 && (
-              <div className={styling.selectLabelContainer}>
-                <div className={styling.avatarSelectError}>{error}</div>
+              <div className={styles.selectLabelContainer}>
+                <div className={styles.avatarSelectError}>{error}</div>
               </div>
             )}
-            <div className={styling.controlContainer}>
-              <div className={styling.selectBtns}>
+            <div className={styles.controlContainer}>
+              <div className={styles.selectBtns}>
                 <label htmlFor="contained-button-file" style={{ marginRight: '8px' }}>
                   <Input
                     accept={AVATAR_FILE_ALLOWED_EXTENSIONS}
@@ -406,7 +397,7 @@ export const AvatarUploadModal = ({
                   <Button
                     variant="contained"
                     component="span"
-                    classes={{ root: styling.rootBtn }}
+                    classes={{ root: styles.rootBtn }}
                     endIcon={<SystemUpdateAlt />}
                   >
                     {t('user:avatar.avatar')}
@@ -422,7 +413,7 @@ export const AvatarUploadModal = ({
                   <Button
                     variant="contained"
                     component="span"
-                    classes={{ root: styling.rootBtn }}
+                    classes={{ root: styles.rootBtn }}
                     endIcon={<AccountCircle />}
                   >
                     {t('user:avatar.lbl-thumbnail')}
@@ -431,7 +422,7 @@ export const AvatarUploadModal = ({
               </div>
               <button
                 type="button"
-                className={styling.uploadBtn}
+                className={styles.uploadBtn}
                 onClick={uploadAvatar}
                 style={{ cursor: uploadButtonEnabled ? 'pointer' : 'not-allowed' }}
                 disabled={!uploadButtonEnabled}

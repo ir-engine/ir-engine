@@ -1,5 +1,5 @@
 import type { WebContainer3D } from '@etherealjs/web-layer/three'
-import { MathUtils, PerspectiveCamera } from 'three'
+import { MathUtils, Object3D, PerspectiveCamera } from 'three'
 
 import { AvatarAnimationComponent } from '../../avatar/components/AvatarAnimationComponent'
 import { HALF_PI } from '../../common/constants/MathConstants'
@@ -41,26 +41,19 @@ export const ObjectFitFunctions = {
     distance: number,
     contentWidth: number,
     contentHeight: number,
-    fit: 'cover' | 'contain' | 'vertical' | 'horizontal' | 'constant' = 'constant',
+    fit: 'cover' | 'contain' | 'vertical' | 'horizontal' = 'contain',
     camera = Engine.instance.currentWorld.camera as PerspectiveCamera
   ) => {
-    const vFOV = camera.fov
-    const hFOV = Math.tan(vFOV / 2)
-    const targetHeight = hFOV * Math.abs(distance) * 2
+    const vFOV = camera.fov * MathUtils.DEG2RAD
+    const targetHeight = Math.tan(vFOV / 2) * Math.abs(distance) * 2
     const targetWidth = targetHeight * camera.aspect
-
-    if (fit === 'constant') {
-      // TODO: figure this out - harder than it seems - constant size regardless of fov, window size & aspect ratio
-      return distance
-    }
-
     return ObjectFitFunctions.computeContentFitScale(contentWidth, contentHeight, targetWidth, targetHeight, fit)
   },
 
-  attachObjectInFrontOfCamera: (container: WebContainer3D, scale: number, distance: number) => {
-    container.scale.x = container.scale.y = scale
-    container.position.z = -distance
-    container.parent = Engine.instance.currentWorld.camera
+  attachObjectInFrontOfCamera: (obj: Object3D, scale: number, distance: number) => {
+    obj.scale.x = obj.scale.y = scale
+    obj.position.z = -distance
+    if (obj.parent !== Engine.instance.currentWorld.camera) Engine.instance.currentWorld.camera.add(obj)
   },
 
   attachObjectToHand: (container: WebContainer3D, scale: number) => {
@@ -70,7 +63,8 @@ export const ObjectFitFunctions = {
       // todo: figure out how to scale this properly
       container.scale.x = container.scale.y = 0.5 * scale
       // todo: use handedness option to settings
-      container.parent = avatarAnimationComponent.rig.LeftHand
+      if (container.parent !== avatarAnimationComponent.rig.LeftHand)
+        avatarAnimationComponent.rig.LeftHand.add(container)
       // container.position.z = 0.1
       container.updateMatrixWorld(true)
       container.rotation.z = HALF_PI

@@ -1,5 +1,5 @@
 import assert, { strictEqual } from 'assert'
-import { Group, PerspectiveCamera, Vector3 } from 'three'
+import { Group, PerspectiveCamera, Quaternion, Vector3 } from 'three'
 
 import { Engine } from '../../ecs/classes/Engine'
 import { addComponent, getComponent } from '../../ecs/functions/ComponentFunctions'
@@ -9,6 +9,7 @@ import { VectorSpringSimulator } from '../../physics/classes/springs/VectorSprin
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
 import { CollisionGroups } from '../../physics/enums/CollisionGroups'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
 import { moveAvatar } from './moveAvatar'
@@ -16,6 +17,12 @@ import { moveAvatar } from './moveAvatar'
 // all components depended on by the moveAvatar function
 const createMovingAvatar = (world) => {
   const entity = createEntity(world)
+
+  addComponent(entity, TransformComponent, {
+    position: new Vector3(),
+    rotation: new Quaternion(),
+    scale: new Vector3().setScalar(1)
+  })
 
   addComponent(entity, VelocityComponent, {
     linear: new Vector3(),
@@ -124,8 +131,8 @@ describe('moveAvatar function tests', () => {
 
     /* assert */
 
-    // velocity should increase on horizontal plane
-    strictEqual(velocity.linear.x, 1)
+    // velocity should only increase in forward direction (until we have proper 2D animation blending)
+    strictEqual(velocity.linear.x, 0)
     strictEqual(velocity.linear.z, 1)
   })
 
@@ -150,8 +157,8 @@ describe('moveAvatar function tests', () => {
 
     /* assert */
 
-    // velocity should increase on horizontal plane
-    strictEqual(velocity.linear.x, 1)
+    // velocity should only increase in forward direction (until we have proper 2D animation blending)
+    strictEqual(velocity.linear.x, 0)
     strictEqual(velocity.linear.z, 1)
   })
 
@@ -176,8 +183,8 @@ describe('moveAvatar function tests', () => {
 
     /* assert */
 
-    // velocity should increase on horizontal plane
-    strictEqual(velocity.linear.x, 1)
+    // velocity should only increase in forward direction (until we have proper 2D animation blending)
+    strictEqual(velocity.linear.x, 0)
     strictEqual(velocity.linear.z, 1)
   })
 
@@ -207,7 +214,7 @@ describe('moveAvatar function tests', () => {
 
     /* assert */
 
-    // velocity should increase on horizontal plane
+    // velocity should only increase in forward direction (until we have proper 2D animation blending)
     assert(velocity.linear.x <= 1)
     assert(velocity.linear.z <= 1)
   })
