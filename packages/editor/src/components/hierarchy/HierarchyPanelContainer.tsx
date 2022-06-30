@@ -161,7 +161,7 @@ export default function HierarchyPanel() {
 
   const onClick = useCallback((e: MouseEvent, node: HeirarchyTreeNodeType) => {
     if (e.detail === 2) {
-      const cameraComponent = getComponent(Engine.instance.currentWorld.activeCameraEntity, EditorCameraComponent)
+      const cameraComponent = getComponent(Engine.instance.currentWorld.cameraEntity, EditorCameraComponent)
       cameraComponent.focusedObjects = [node.entityNode]
       cameraComponent.refocus = true
     }

@@ -118,10 +118,10 @@ const UserDrawer = ({ open, mode, selectedUser, onClose }: Props) => {
   }, [])
 
   useEffect(() => {
-    loadUser()
+    loadSelectedUser()
   }, [selectedUser])
 
-  const loadUser = () => {
+  const loadSelectedUser = () => {
     if (selectedUser) {
       setState({
         ...defaultState,
@@ -135,7 +135,7 @@ const UserDrawer = ({ open, mode, selectedUser, onClose }: Props) => {
 
   const handleCancel = () => {
     if (editMode) {
-      loadUser()
+      loadSelectedUser()
       setEditMode(false)
     } else handleClose()
   }
@@ -272,7 +272,7 @@ const UserDrawer = ({ open, mode, selectedUser, onClose }: Props) => {
           )}
 
           {viewMode === false && (
-            <DialogContentText className={styles.mb15}>
+            <DialogContentText className={styles.mb15px}>
               <span className={styles.select}>{t('admin:components.user.dontSeeUserRole')}</span>{' '}
               <a href="#" className={styles.textLink} onClick={() => setOpenCreateUserRole(true)}>
                 {t('admin:components.user.createOne')}

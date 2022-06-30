@@ -60,6 +60,7 @@ export default async function AdminSystem(world: World) {
   const avatarCreatedQueue = createActionQueue(AdminAvatarActions.avatarCreated.matches)
   const avatarRemovedQueue = createActionQueue(AdminAvatarActions.avatarRemoved.matches)
   const avatarUpdatedQueue = createActionQueue(AdminAvatarActions.avatarUpdated.matches)
+  const thumbnailFetchedQueue = createActionQueue(AdminAvatarActions.thumbnailFetched.matches)
   const scenesFetchedQueue = createActionQueue(AdminSceneActions.scenesFetched.matches)
   const locationsRetrievedQueue = createActionQueue(AdminLocationActions.locationsRetrieved.matches)
   const locationCreatedQueue = createActionQueue(AdminLocationActions.locationCreated.matches)
@@ -174,6 +175,9 @@ export default async function AdminSystem(world: World) {
     }
     for (const action of avatarUpdatedQueue()) {
       AdminAvatarReceptors.avatarUpdatedReceptor(action)
+    }
+    for (const action of thumbnailFetchedQueue()) {
+      AdminAvatarReceptors.thumbnailFetchedReceptor(action)
     }
     for (const action of scenesFetchedQueue()) {
       AdminSceneReceptors.scenesFetchedReceptor(action)

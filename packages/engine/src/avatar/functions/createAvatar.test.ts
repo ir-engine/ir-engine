@@ -72,6 +72,5 @@ describe('createAvatar', () => {
     assert(hasComponent(entity, InteractorComponent))
     strictEqual(Engine.instance.currentWorld.physics.bodies.size, prevPhysicsBodies + 2)
     strictEqual(Engine.instance.currentWorld.physics.controllers.size, prevPhysicsColliders + 1)
-    strictEqual(getComponent(entity, NameComponent).name, Engine.instance.userId)
   })
 })
