@@ -118,6 +118,12 @@
       "title": "Share your Location URL with your team",
       "linkCopied": "Link copied to clipboard."
     },
+    "party": {
+      "title": "Party",
+      "join": "Join",
+      "Invite": "Invite",
+      "leave": "Leave"
+    },
     "setting": {
       "audio": "Audio",
       "lbl-volume": "Volume",

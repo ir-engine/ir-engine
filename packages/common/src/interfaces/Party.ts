@@ -3,8 +3,8 @@ import { Location } from './Location'
 import { PartyUser } from './PartyUser'
 
 export type Party = {
-  id?: string
-  partyUsers?: PartyUser[]
+  id: string
+  partyUsers: PartyUser[]
   instance?: Instance
   instanceId?: string
   location?: Location

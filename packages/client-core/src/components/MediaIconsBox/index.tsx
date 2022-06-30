@@ -106,20 +106,6 @@ const MediaIconsBox = (props: Props) => {
     }
   }
 
-  const checkEndVideoChat = async () => {
-    const mediaNetwork = Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork
-    if (
-      (MediaStreams.instance.audioPaused || MediaStreams.instance.camAudioProducer == null) &&
-      (MediaStreams.instance.videoPaused || MediaStreams.instance.camVideoProducer == null) &&
-      instanceChannel.channelType !== 'instance'
-    ) {
-      await endVideoChat(mediaNetwork, {})
-      if (mediaNetwork.socket?.connected === true) {
-        await leaveNetwork(mediaNetwork, false)
-        await MediaInstanceConnectionService.provisionServer(instanceChannel.id)
-      }
-    }
-  }
   const handleMicClick = async () => {
     const mediaNetwork = Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork
     if (await configureMediaTransports(mediaNetwork, ['audio'])) {
@@ -128,7 +114,6 @@ const MediaIconsBox = (props: Props) => {
         const audioPaused = MediaStreams.instance.toggleAudioPaused()
         if (audioPaused) await pauseProducer(mediaNetwork, MediaStreams.instance.camAudioProducer)
         else await resumeProducer(mediaNetwork, MediaStreams.instance.camAudioProducer)
-        checkEndVideoChat()
       }
       MediaStreamService.updateCamAudioState()
     }
@@ -142,7 +127,6 @@ const MediaIconsBox = (props: Props) => {
         const videoPaused = MediaStreams.instance.toggleVideoPaused()
         if (videoPaused) await pauseProducer(mediaNetwork, MediaStreams.instance.camVideoProducer)
         else await resumeProducer(mediaNetwork, MediaStreams.instance.camVideoProducer)
-        checkEndVideoChat()
       }
 
       MediaStreamService.updateCamVideoState()
