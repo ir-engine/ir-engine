@@ -107,17 +107,6 @@ export const InteractiveModalView = () => {
         <div className="model" xr-layer="true"></div>
       </div>
 
-      <button
-        className="link"
-        xr-layer="true"
-        xr-pixel-ratio="1.5"
-        onClick={() => {
-          window.open(url.value, '_blank')!.focus()
-        }}
-      >
-        Buy Now
-      </button>
-
       <div className="rating">
         <span xr-layer="true" className="star-1">
           ★
@@ -135,6 +124,21 @@ export const InteractiveModalView = () => {
           ☆
         </span>
       </div>
+
+      <button
+        className="link"
+        xr-layer="true"
+        xr-pixel-ratio="1.5"
+        onClick={() => {
+          window.open(url.value, '_blank')!.focus()
+        }}
+      >
+        View in AR
+      </button>
+
+      <button className="link-cart" xr-layer="true" xr-pixel-ratio="1.5">
+        Add to Cart
+      </button>
 
       {/* <div className="content"></div> */}
 
@@ -164,22 +168,32 @@ export const InteractiveModalView = () => {
         }
 
         .link {
-          display: ${url ? 'auto' : 'none'};
           position: absolute;
           top: 30px;
-          left: 30px;
-          width: 140px;
-          height: 40px;
-          border-radius: 20px;
-          background-color: white;
+          right: 50px;
+          border-radius: 12px;
           border: none;
-          color: rgb(20,20,50,0,1);
-          fontSize: 20px;
+          background:#0171C9;
+          color: #fff;
+          font-size: 15px;
+          width: 130px;
+          height: 40px
+        }
+        .link-cart {
+          position: absolute;
+          right: 50px;
+          bottom: 30px;
+          border-radius: 12px;
+          border: none;
+          background:#4E178B;
+          color: #fff;
+          font-size: 15px;
+          width: 130px;
+          height: 40px
         }
 
         .flex {
           display: flex;
-          align-items: flex-start;
           flex-direction: row;
           align-items: stretch;
           height: 300px;
@@ -219,7 +233,11 @@ export const InteractiveModalView = () => {
           box-shadow: #fff2 0 0 20px;
           margin: 20px auto;
         }
-
+        span[class^="star-"]{
+          background-image: linear-gradient(to bottom, #FFFFEB 0%, #FFF9B0 45%, #E49E15 75%);
+          -webkit-background-clip: text;
+          color:transparent;
+        }
         .hint {
           position: absolute;
           overflow: hidden; // contain margin
@@ -248,8 +266,8 @@ export const InteractiveModalView = () => {
         .rating {
           position: absolute;
           top: 30px;
-          right: 30px;
-          font-size: 28px;
+          left: 30px;
+          font-size: 20px;
         }
 
       `}

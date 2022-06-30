@@ -2,7 +2,7 @@ import { QRCodeSVG } from 'qrcode.react'
 import React, { useRef } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { isMobile } from '@xrengine/engine/src/common/functions/isMobile'
+import { isShareAvailable } from '@xrengine/engine/src/common/functions/DetectFeatures'
 
 import { CheckBox, CheckBoxOutlineBlank, FileCopy, IosShare, Send } from '@mui/icons-material'
 import Button from '@mui/material/Button'
@@ -84,8 +84,10 @@ export const useShareMenuHooks = ({ refLink }) => {
     email
   }
 }
-
-const ShareMenu = (): JSX.Element => {
+interface Props {
+  isMobileView?: boolean
+}
+const ShareMenu = (props: Props): JSX.Element => {
   const { t } = useTranslation()
 
   const refLink = useRef() as React.MutableRefObject<HTMLInputElement>
@@ -97,7 +99,7 @@ const ShareMenu = (): JSX.Element => {
   return (
     <div className={styles.menuPanel}>
       <div className={styles.sharePanel}>
-        {!isMobile ? (
+        {!props.isMobileView ? (
           <>
             <Typography variant="h1" className={styles.panelHeader}>
               {t('user:usermenu.share.title')}
@@ -157,11 +159,13 @@ const ShareMenu = (): JSX.Element => {
             )
           }}
         />
-        <div className={styles.shareBtnContainer}>
-          <Button className={styles.shareBtn} onClick={shareOnApps} endIcon={<IosShare />}>
-            {t('user:usermenu.share.lbl-share')}
-          </Button>
-        </div>
+        {isShareAvailable && (
+          <div className={styles.shareBtnContainer}>
+            <Button className={styles.shareBtn} onClick={shareOnApps} endIcon={<IosShare />}>
+              {t('user:usermenu.share.lbl-share')}
+            </Button>
+          </div>
+        )}
       </div>
     </div>
   )

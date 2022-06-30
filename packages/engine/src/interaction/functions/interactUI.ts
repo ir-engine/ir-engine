@@ -267,7 +267,9 @@ export const updateInteractUI = (modelEntity: Entity, xrui: ReturnType<typeof cr
   modelContainer.scale.lerp(modelContainer.domLayout.scale, alpha)
 
   const link = uiContainer.rootLayer.querySelector('.link')!
+  const linkCart = uiContainer.rootLayer.querySelector('.link-cart')!
   const linkMat = link.contentMesh.material as MeshBasicMaterial
+  const linkCartMat = linkCart.contentMesh.material as MeshBasicMaterial
 
   if (nextMode === 'inactive') {
     const uiContainerScale =
@@ -294,7 +296,9 @@ export const updateInteractUI = (modelEntity: Entity, xrui: ReturnType<typeof cr
     descriptionMat.opacity = MathUtils.lerp(descriptionMat.opacity, 0, alpha)
 
     link.position.lerp(link.domLayout.position, alpha)
+    linkCart.position.lerp(linkCart.domLayout.position, alpha)
     linkMat.opacity = MathUtils.lerp(linkMat.opacity, 0, alpha)
+    linkCartMat.opacity = MathUtils.lerp(linkCartMat.opacity, 0, alpha)
 
     eKey.position.copy(title.position)
     eKey.position.y -= 0.1
@@ -333,7 +337,9 @@ export const updateInteractUI = (modelEntity: Entity, xrui: ReturnType<typeof cr
     descriptionMat.opacity = MathUtils.lerp(descriptionMat.opacity, 0, alpha)
 
     link.position.lerp(link.domLayout.position, alpha)
+    linkCart.position.lerp(linkCart.domLayout.position, alpha)
     linkMat.opacity = MathUtils.lerp(linkMat.opacity, 0, alpha)
+    linkCartMat.opacity = MathUtils.lerp(linkCartMat.opacity, 0, alpha)
 
     eKey.position.copy(title.position)
     eKey.position.y -= 0.1
@@ -385,7 +391,9 @@ export const updateInteractUI = (modelEntity: Entity, xrui: ReturnType<typeof cr
     descriptionMat.opacity = MathUtils.lerp(descriptionMat.opacity, 1, alpha)
 
     link.position.lerp(link.domLayout.position, alpha)
+    linkCart.position.lerp(linkCart.domLayout.position, alpha)
     linkMat.opacity = MathUtils.lerp(linkMat.opacity, 1, alpha)
+    linkCartMat.opacity = MathUtils.lerp(linkCartMat.opacity, 1, alpha)
 
     for (const [i, s] of stars.entries()) {
       const alpha = Math.min((transitionElapsed - i * 0.1) / (TRANSITION_DURATION * 3), 1)
