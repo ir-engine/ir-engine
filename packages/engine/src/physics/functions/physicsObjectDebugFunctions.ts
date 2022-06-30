@@ -148,7 +148,7 @@ export const generatePhysicsObject = (
   const entity = createEntity()
   const uuid = getUUID()
   let entityTreeNode = createEntityNode(entity, uuid)
-  createNewEditorNode(entityTreeNode.entity, ScenePrefabs.model)
+  createNewEditorNode(entityTreeNode, ScenePrefabs.model)
 
   const nameComponent = getComponent(entity, NameComponent)
   nameComponent.name = uuid
@@ -178,7 +178,7 @@ export const generatePhysicsObject = (
           prefab: '',
           parameters: { sceneEntityId: node.uuid, position: transform.position }
         }),
-        [Engine.instance.currentWorld.worldNetwork.hostId]
+        Engine.instance.currentWorld.worldNetwork.hostId
       )
     }
   }

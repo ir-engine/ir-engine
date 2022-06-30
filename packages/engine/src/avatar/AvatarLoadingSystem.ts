@@ -4,7 +4,6 @@ import { Box3, Object3D } from 'three'
 import { AssetLoader } from '../assets/classes/AssetLoader'
 import { World } from '../ecs/classes/World'
 import { addComponent, defineQuery, getComponent, removeComponent } from '../ecs/functions/ComponentFunctions'
-import { updateNearbyAvatars } from '../networking/systems/MediaStreamSystem'
 import { Object3DComponent } from '../scene/components/Object3DComponent'
 import { TweenComponent } from '../transform/components/TweenComponent'
 import { AvatarComponent } from './components/AvatarComponent'
@@ -160,9 +159,6 @@ export default async function AvatarLoadingSystem(world: World) {
             }
           })
         })
-
-        // TODO refacotr this
-        updateNearbyAvatars()
 
         addComponent(entity, TweenComponent, {
           tween: new Tween<any>(plateComponent)

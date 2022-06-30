@@ -4,7 +4,7 @@ import { AdminBot, CreateBotAsAdmin } from '@xrengine/common/src/interfaces/Admi
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
-import { client } from '../../feathers'
+import { API } from '../../API'
 import { accessAuthState } from '../../user/services/AuthService'
 
 //State
@@ -24,28 +24,37 @@ const AdminBotState = defineState({
   })
 })
 
-export const AdminBotServiceReceptor = (action) => {
-  getState(AdminBotState).batch((s) => {
-    matches(action)
-      .when(AdminBotsActions.fetchedBot.matches, (action) => {
-        return s.merge({
-          bots: action.bots.data,
-          retrieving: false,
-          fetched: true,
-          updateNeeded: false,
-          lastFetched: Date.now()
-        })
-      })
-      .when(AdminBotsActions.botCreated.matches, (action) => {
-        return s.merge({ updateNeeded: true })
-      })
-      .when(AdminBotsActions.botPatched.matches, (action) => {
-        return s.merge({ updateNeeded: true })
-      })
-      .when(AdminBotsActions.botRemoved.matches, (action) => {
-        return s.merge({ updateNeeded: true })
-      })
+const fetchedBotReceptor = (action: typeof AdminBotsActions.fetchedBot.matches._TYPE) => {
+  const state = getState(AdminBotState)
+  return state.merge({
+    bots: action.bots.data,
+    retrieving: false,
+    fetched: true,
+    updateNeeded: false,
+    lastFetched: Date.now()
   })
+}
+
+const botCreatedReceptor = (action: typeof AdminBotsActions.botCreated.matches._TYPE) => {
+  const state = getState(AdminBotState)
+  return state.merge({ updateNeeded: true })
+}
+
+const botPatchedReceptor = (action: typeof AdminBotsActions.botPatched.matches._TYPE) => {
+  const state = getState(AdminBotState)
+  return state.merge({ updateNeeded: true })
+}
+
+const botRemovedReceptor = (action: typeof AdminBotsActions.botRemoved.matches._TYPE) => {
+  const state = getState(AdminBotState)
+  return state.merge({ updateNeeded: true })
+}
+
+export const AdminBotServiceReceptors = {
+  fetchedBotReceptor,
+  botCreatedReceptor,
+  botPatchedReceptor,
+  botRemovedReceptor
 }
 
 export const accessAdminBotState = () => getState(AdminBotState)
@@ -56,7 +65,7 @@ export const useAdminBotState = () => useState(accessAdminBotState())
 export const AdminBotService = {
   createBotAsAdmin: async (data: CreateBotAsAdmin) => {
     try {
-      const bot = await client.service('bot').create(data)
+      const bot = await API.instance.client.service('bot').create(data)
       dispatchAction(AdminBotsActions.botCreated({ bot }))
     } catch (error) {
       console.error(error)
@@ -68,7 +77,7 @@ export const AdminBotService = {
       const skip = accessAdminBotState().skip.value
       const limit = accessAdminBotState().limit.value
       if (user.userRole.value === 'admin') {
-        const bots = (await client.service('bot').find({
+        const bots = (await API.instance.client.service('bot').find({
           query: {
             $sort: {
               name: 1
@@ -86,7 +95,7 @@ export const AdminBotService = {
   },
   removeBots: async (id: string) => {
     try {
-      const bot = (await client.service('bot').remove(id)) as AdminBot
+      const bot = (await API.instance.client.service('bot').remove(id)) as AdminBot
       dispatchAction(AdminBotsActions.botRemoved({ bot }))
     } catch (error) {
       console.error(error)
@@ -94,7 +103,7 @@ export const AdminBotService = {
   },
   updateBotAsAdmin: async (id: string, bot: CreateBotAsAdmin) => {
     try {
-      const result = (await client.service('bot').patch(id, bot)) as AdminBot
+      const result = (await API.instance.client.service('bot').patch(id, bot)) as AdminBot
       dispatchAction(AdminBotsActions.botPatched({ bot: result }))
     } catch (error) {
       console.error(error)

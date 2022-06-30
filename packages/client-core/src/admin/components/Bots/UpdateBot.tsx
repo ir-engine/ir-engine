@@ -25,11 +25,11 @@ import styles from '../../styles/admin.module.scss'
 
 interface Props {
   open: boolean
-  handleClose: () => void
   bot?: AdminBot
+  onClose: () => void
 }
 
-const UpdateBot = ({ open, handleClose, bot }: Props) => {
+const UpdateBot = ({ open, bot, onClose }: Props) => {
   const adminInstanceState = useAdminInstanceState()
   const [state, setState] = useState({
     name: '',
@@ -76,10 +76,11 @@ const UpdateBot = ({ open, handleClose, bot }: Props) => {
   })
 
   const handleInputChange = (e) => {
-    const names = e.target.name
-    const value = e.target.value
-    let temp = formErrors
-    switch (names) {
+    const { name, value } = e.target
+
+    let temp = { ...formErrors }
+
+    switch (name) {
       case 'name':
         temp.name = value.length < 2 ? t('admin:components.bot.nameCantEmpty') : ''
         break
@@ -93,7 +94,7 @@ const UpdateBot = ({ open, handleClose, bot }: Props) => {
         break
     }
     setFormErrors(temp)
-    setState({ ...state, [names]: value })
+    setState({ ...state, [name]: value })
   }
 
   const data: Instance[] = instanceData.value.map((element) => {
@@ -119,22 +120,21 @@ const UpdateBot = ({ open, handleClose, bot }: Props) => {
       description: state.description,
       locationId: state.location
     }
-    let temp = formErrors
-    if (!state.name) {
-      temp.name = t('admin:components.bot.nameCantEmpty')
+
+    let tempErrors = {
+      ...formErrors,
+      name: state.name ? '' : t('admin:components.bot.nameCantEmpty'),
+      description: state.description ? '' : t('admin:components.bot.descriptionCantEmpty'),
+      location: state.location ? '' : t('admin:components.bot.locationCantEmpty')
     }
-    if (!state.description) {
-      temp.description = t('admin:components.bot.descriptionCantEmpty')
-    }
-    if (!state.location) {
-      temp.location = t('admin:components.bot.locationCantEmpty')
-    }
-    setFormErrors(temp)
-    if (validateForm(state, formErrors) && bot) {
+
+    setFormErrors(tempErrors)
+
+    if (validateForm(state, tempErrors) && bot) {
       AdminBotService.updateBotAsAdmin(bot.id, data)
       setState({ name: '', description: '', instance: '', location: '' })
       setCurrentIntance([])
-      handleClose()
+      onClose()
     } else {
       NotificationService.dispatchNotify(t('admin:components.bot.fillRequiredField'), { variant: 'error' })
     }
@@ -150,12 +150,7 @@ const UpdateBot = ({ open, handleClose, bot }: Props) => {
 
   return (
     <div>
-      <Dialog
-        open={open}
-        aria-labelledby="form-dialog-title"
-        classes={{ paper: styles.paperDialog }}
-        onClose={handleClose}
-      >
+      <Dialog open={open} aria-labelledby="form-dialog-title" classes={{ paper: styles.paperDialog }} onClose={onClose}>
         <DialogTitle id="form-dialog-title">{t('admin:components.bot.updateBot')}</DialogTitle>
         <DialogContent>
           <InputText
@@ -182,7 +177,7 @@ const UpdateBot = ({ open, handleClose, bot }: Props) => {
             menu={locationsMenu}
             onChange={handleInputChange}
             endControl={
-              <IconButton onClick={fetchAdminLocations} size="large">
+              <IconButton onClick={fetchAdminLocations}>
                 <Autorenew style={{ color: 'var(--iconButtonColor)' }} />
               </IconButton>
             }
@@ -195,7 +190,7 @@ const UpdateBot = ({ open, handleClose, bot }: Props) => {
             menu={instancesMenu}
             onChange={handleInputChange}
             endControl={
-              <IconButton onClick={fetchAdminInstances} size="large">
+              <IconButton onClick={fetchAdminInstances}>
                 <Autorenew style={{ color: 'var(--iconButtonColor)' }} />
               </IconButton>
             }
@@ -209,7 +204,7 @@ const UpdateBot = ({ open, handleClose, bot }: Props) => {
             onClick={() => {
               setState({ name: '', description: '', instance: '', location: '' })
               setFormErrors({ name: '', description: '', location: '' })
-              handleClose()
+              onClose()
             }}
             className={styles.submitButton}
           >

@@ -2,8 +2,8 @@ import { ActiveRoutesInterface } from '@xrengine/common/src/interfaces/Route'
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
+import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
-import { client } from '../../feathers'
 import { accessAuthState } from '../../user/services/AuthService'
 
 //State
@@ -23,12 +23,13 @@ const AdminActiveRouteState = defineState({
   })
 })
 
-export const AdminActiveRouteServiceReceptor = (action) => {
-  getState(AdminActiveRouteState).batch((s) => {
-    matches(action).when(AdminActiveRouteActions.activeRoutesRetrievedAction.matches, (action) => {
-      return s.merge({ activeRoutes: action.data, total: action.data.length, updateNeeded: false })
-    })
-  })
+const activeRoutesRetrievedReceptor = (action: typeof AdminActiveRouteActions.activeRoutesRetrieved.matches._TYPE) => {
+  const state = getState(AdminActiveRouteState)
+  return state.merge({ activeRoutes: action.data, total: action.data.length, updateNeeded: false })
+}
+
+export const AdminActiveRouteReceptors = {
+  activeRoutesRetrievedReceptor
 }
 
 export const accessAdminActiveRouteState = () => getState(AdminActiveRouteState)
@@ -41,7 +42,7 @@ export const AdminActiveRouteService = {
     const user = accessAuthState().user
     try {
       if (user.userRole.value === 'admin') {
-        await client.service('route-activate').create({ project, route, activate })
+        await API.instance.client.service('route-activate').create({ project, route, activate })
         AdminActiveRouteService.fetchActiveRoutes()
       }
     } catch (err) {
@@ -52,9 +53,9 @@ export const AdminActiveRouteService = {
     const user = accessAuthState().user
     try {
       if (user.userRole.value === 'admin') {
-        const routes = await client.service('route').find({ paginate: false })
+        const routes = await API.instance.client.service('route').find({ paginate: false })
         dispatchAction(
-          AdminActiveRouteActions.activeRoutesRetrievedAction({ data: routes.data as Array<ActiveRoutesInterface> })
+          AdminActiveRouteActions.activeRoutesRetrieved({ data: routes.data as Array<ActiveRoutesInterface> })
         )
       }
     } catch (err) {
@@ -65,7 +66,7 @@ export const AdminActiveRouteService = {
 
 //Action
 export class AdminActiveRouteActions {
-  static activeRoutesRetrievedAction = defineAction({
+  static activeRoutesRetrieved = defineAction({
     type: 'ADMIN_ROUTE_ACTIVE_RECEIVED' as const,
     data: matches.array as Validator<unknown, ActiveRoutesInterface[]>
   })

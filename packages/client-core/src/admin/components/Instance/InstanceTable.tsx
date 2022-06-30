@@ -29,7 +29,7 @@ const InstanceTable = ({ className, search }: Props) => {
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(INSTANCE_PAGE_LIMIT)
   const [refetch, setRefetch] = useState(false)
-  const [popConfirmOpen, setPopConfirmOpen] = useState(false)
+  const [openConfirm, setOpenConfirm] = useState(false)
   const [instanceId, setInstanceId] = useState('')
   const [instanceName, setInstanceName] = useState('')
   const [fieldOrder, setFieldOrder] = useState('asc')
@@ -51,13 +51,9 @@ const InstanceTable = ({ className, search }: Props) => {
     }
   }, [fieldOrder])
 
-  const handleCloseModal = () => {
-    setPopConfirmOpen(false)
-  }
-
   const submitRemoveInstance = async () => {
     await AdminInstanceService.removeInstance(instanceId)
-    setPopConfirmOpen(false)
+    setOpenConfirm(false)
   }
 
   const handleRowsPerPageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -107,12 +103,12 @@ const InstanceTable = ({ className, search }: Props) => {
       podName,
       action: (
         <a
-          href="#h"
+          href="#"
           className={styles.actionStyle}
           onClick={() => {
-            setPopConfirmOpen(true)
             setInstanceId(id)
             setInstanceName(ipAddress)
+            setOpenConfirm(true)
           }}
         >
           <span className={styles.spanDange}>{t('admin:components.locationModal.lbl-delete')}</span>
@@ -141,9 +137,9 @@ const InstanceTable = ({ className, search }: Props) => {
         handleRowsPerPageChange={handleRowsPerPageChange}
       />
       <ConfirmModal
-        open={popConfirmOpen}
+        open={openConfirm}
         description={`${t('admin:components.instance.confirmInstanceDelete')} '${instanceName}'?`}
-        onClose={handleCloseModal}
+        onClose={() => setOpenConfirm(false)}
         onSubmit={submitRemoveInstance}
       />
     </Box>

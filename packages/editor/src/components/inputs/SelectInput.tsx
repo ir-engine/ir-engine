@@ -103,31 +103,29 @@ export function SelectInput({
       )}
     />
   ) : (
-    <React.Fragment>
-      <FormControl fullWidth>
-        <Select
-          labelId="select-label"
-          id="select"
-          value={valueSelected}
-          onChange={handleChange}
-          placeholder={placeholder}
-          size="small"
-          classes={{
-            select: styles.select,
-            icon: styles.icon
-          }}
-          disabled={disabled}
-          MenuProps={{ classes: { paper: styles.paper } }}
-          IconComponent={ExpandMoreIcon}
-        >
-          {options.map((el, index) => (
-            <MenuItem value={el.value} key={el.value + index} classes={{ root: styles.menuItem }}>
-              {el.label}
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
-    </React.Fragment>
+    <FormControl fullWidth>
+      <Select
+        labelId="select-label"
+        id="select"
+        value={valueSelected}
+        onChange={handleChange}
+        placeholder={placeholder}
+        size="small"
+        classes={{
+          select: styles.select,
+          icon: styles.icon
+        }}
+        disabled={disabled}
+        MenuProps={{ classes: { paper: styles.paper } }}
+        IconComponent={ExpandMoreIcon}
+      >
+        {options.map((el, index) => (
+          <MenuItem value={el.value} key={el.value + index} classes={{ root: styles.menuItem }}>
+            {el.label}
+          </MenuItem>
+        ))}
+      </Select>
+    </FormControl>
   )
 
   return <>{Component}</>

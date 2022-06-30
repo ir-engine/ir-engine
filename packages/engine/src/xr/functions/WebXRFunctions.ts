@@ -188,7 +188,7 @@ export const bindXRHandEvents = () => {
       initializeHandModel(world.localClientEntity, controller, xrInputSource.handedness)
 
       if (!eventSent) {
-        dispatchAction(WorldNetworkAction.xrHandsConnected({}), [Engine.instance.currentWorld.worldNetwork.hostId])
+        dispatchAction(WorldNetworkAction.xrHandsConnected({}), Engine.instance.currentWorld.worldNetwork.hostId)
         eventSent = true
       }
     })
@@ -221,7 +221,10 @@ export const endXR = (): void => {
   Engine.instance.currentWorld.scene.add(Engine.instance.currentWorld.camera)
 
   const world = Engine.instance.currentWorld
-  addComponent(world.localClientEntity, FollowCameraComponent, FollowCameraDefaultValues)
+  addComponent(Engine.instance.currentWorld.cameraEntity, FollowCameraComponent, {
+    ...FollowCameraDefaultValues,
+    targetEntity: Engine.instance.currentWorld.localClientEntity
+  })
   removeComponent(world.localClientEntity, XRInputSourceComponent)
   removeComponent(world.localClientEntity, XRHandsInputComponent)
 
@@ -340,7 +343,7 @@ export const getHeadTransform = (entity: Entity): { position: Vector3; rotation:
       scale: uniformScale
     }
   }
-  const cameraTransform = getComponent(Engine.instance.currentWorld.activeCameraEntity, TransformComponent)
+  const cameraTransform = getComponent(Engine.instance.currentWorld.cameraEntity, TransformComponent)
   return {
     position: cameraTransform.position,
     rotation: cameraTransform.rotation,

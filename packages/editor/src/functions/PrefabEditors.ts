@@ -8,12 +8,14 @@ import { SCENE_COMPONENT_AUDIO } from '@xrengine/engine/src/scene/functions/load
 import { SCENE_COMPONENT_BOX_COLLIDER } from '@xrengine/engine/src/scene/functions/loaders/BoxColliderFunctions'
 import { SCENE_COMPONENT_CAMERA_PROPERTIES } from '@xrengine/engine/src/scene/functions/loaders/CameraPropertiesFunctions'
 import { SCENE_COMPONENT_CLOUD } from '@xrengine/engine/src/scene/functions/loaders/CloudFunctions'
-import { SCENE_COMPONENT_CUBEMAP_BAKE } from '@xrengine/engine/src/scene/functions/loaders/CubemapBakeFunctions'
 import { SCENE_COMPONENT_DIRECTIONAL_LIGHT } from '@xrengine/engine/src/scene/functions/loaders/DirectionalLightFunctions'
+import { SCENE_COMPONENT_ENVMAP_BAKE } from '@xrengine/engine/src/scene/functions/loaders/EnvMapBakeFunctions'
+import { SCENE_COMPONENT_FOG } from '@xrengine/engine/src/scene/functions/loaders/FogFunctions'
 import { SCENE_COMPONENT_GROUND_PLANE } from '@xrengine/engine/src/scene/functions/loaders/GroundPlaneFunctions'
 import { SCENE_COMPONENT_GROUP } from '@xrengine/engine/src/scene/functions/loaders/GroupFunctions'
 import { SCENE_COMPONENT_HEMISPHERE_LIGHT } from '@xrengine/engine/src/scene/functions/loaders/HemisphereLightFunctions'
 import { SCENE_COMPONENT_IMAGE } from '@xrengine/engine/src/scene/functions/loaders/ImageFunctions'
+import { SCENE_COMPONENT_INSTANCING } from '@xrengine/engine/src/scene/functions/loaders/InstancingFunctions'
 import { SCENE_COMPONENT_INTERIOR } from '@xrengine/engine/src/scene/functions/loaders/InteriorFunctions'
 import { SCENE_COMPONENT_MODEL } from '@xrengine/engine/src/scene/functions/loaders/ModelFunctions'
 import { SCENE_COMPONENT_OCEAN } from '@xrengine/engine/src/scene/functions/loaders/OceanFunctions'
@@ -39,13 +41,15 @@ import AudioNodeEditor from '../components/properties/AudioNodeEditor'
 import BoxColliderNodeEditor from '../components/properties/BoxColliderNodeEditor'
 import CameraPropertiesNodeEditor from '../components/properties/CameraPropertiesNodeEditor'
 import CloudsNodeEditor from '../components/properties/CloudsNodeEditor'
-import CubemapBakeNodeEditor from '../components/properties/CubemapBakeNodeEditor'
 import { DefaultNodeEditor } from '../components/properties/DefaultNodeEditor'
 import DirectionalLightNodeEditor from '../components/properties/DirectionalLightNodeEditor'
+import EnvMapBakeNodeEditor from '../components/properties/EnvMapBakeNodeEditor'
+import FogNodeEditor from '../components/properties/FogNodeEditor'
 import GroundPlaneNodeEditor from '../components/properties/GroundPlaneNodeEditor'
 import GroupNodeEditor from '../components/properties/GroupNodeEditor'
 import HemisphereLightNodeEditor from '../components/properties/HemisphereLightNodeEditor'
 import ImageNodeEditor from '../components/properties/ImageNodeEditor'
+import InstancingNodeEditor from '../components/properties/InstancingNodeEditor'
 import InteriorNodeEditor from '../components/properties/InteriorNodeEditor'
 import ModelNodeEditor from '../components/properties/ModelNodeEditor'
 import OceanNodeEditor from '../components/properties/OceanNodeEditor'
@@ -109,7 +113,9 @@ export const EntityNodeEditor = {
   [SCENE_COMPONENT_INTERIOR]: InteriorNodeEditor,
   [SCENE_COMPONENT_SYSTEM]: SystemNodeEditor,
   [SCENE_COMPONENT_SPLINE]: SplineNodeEditor,
-  [SCENE_COMPONENT_CUBEMAP_BAKE]: CubemapBakeNodeEditor
+  [SCENE_COMPONENT_ENVMAP_BAKE]: EnvMapBakeNodeEditor,
+  [SCENE_COMPONENT_INSTANCING]: InstancingNodeEditor,
+  [SCENE_COMPONENT_FOG]: FogNodeEditor
 }
 
 export const prefabIcons = {
@@ -142,5 +148,7 @@ export const prefabIcons = {
   [ScenePrefabs.interior]: InteriorNodeEditor.iconComponent,
   [ScenePrefabs.system]: SystemNodeEditor.iconComponent,
   [ScenePrefabs.spline]: SplineNodeEditor.iconComponent,
-  [ScenePrefabs.cubemapbake]: CubemapBakeNodeEditor.iconComponent
+  [ScenePrefabs.fog]: FogNodeEditor.iconComponent,
+  [ScenePrefabs.instancing]: InstancingNodeEditor.iconComponent,
+  [ScenePrefabs.envMapbake]: EnvMapBakeNodeEditor.iconComponent
 }

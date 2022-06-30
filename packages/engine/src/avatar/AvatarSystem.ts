@@ -36,7 +36,7 @@ export function avatarDetailsReceptor(
   action: ReturnType<typeof WorldNetworkAction.avatarDetails>,
   world = Engine.instance.currentWorld
 ) {
-  const client = world.clients.get(action.$from)
+  const client = world.users.get(action.$from)
   if (!client) throw Error(`Avatar details action received for a client that does not exist: ${action.$from}`)
   if (client.avatarDetail?.avatarURL === action.avatarDetail.avatarURL)
     return console.log('[AvatarSystem]: ignoring same avatar url')

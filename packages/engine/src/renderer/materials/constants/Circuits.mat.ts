@@ -1,6 +1,8 @@
-import { ImageLoader, ShaderMaterial, Texture, Vector2 } from 'three'
+import { ShaderMaterial, Texture, Vector2 } from 'three'
 
-import { DudTexture, MaterialParms } from '../MaterialParms'
+import { MaterialParms } from '../MaterialParms'
+import { extractDefaults as format } from '../Utilities'
+import { TextureArg } from './DefaultArgs'
 
 export const fragmentShader = `
 #define width .005
@@ -77,27 +79,28 @@ export const vertexShader = `
 `
 
 export const DefaultArgs = {
-  tiling: [1.0, 1.0],
-  iResolution: [window.innerWidth, window.innerHeight, 1],
-  iChannel0: new Texture(),
-  iChannel1: new Texture(),
-  iTime: 0.0
+  tiling: { default: [1, 1], type: 'vec2' },
+  iResolution: { hide: true, default: [1, 1, 1] },
+  iChannel0: TextureArg,
+  iChannel1: TextureArg,
+  iTime: { hide: true, default: 0 }
 }
 
-export default async function Circuits(args?: {
+export default function Circuits(args?: {
   tiling?: Vector2
   iResolution?: number[]
   iChannel0?: Texture
   iChannel1?: Texture
   iTime?: number
-}): Promise<MaterialParms> {
+}): MaterialParms {
+  const defaultArgs = format(DefaultArgs)
   const mat = new ShaderMaterial({
     uniforms: {
-      tiling: { value: args?.tiling ?? DefaultArgs.tiling },
-      iResolution: { value: args?.iResolution ?? DefaultArgs.iResolution },
-      iChannel0: { value: args?.iChannel0 ?? null },
-      iChannel1: { value: args?.iChannel1 ?? null },
-      iTime: { value: args?.iTime ?? DefaultArgs.iTime }
+      tiling: { value: args?.tiling ?? defaultArgs.tiling },
+      iResolution: { value: args?.iResolution ?? defaultArgs.iResolution },
+      iChannel0: { value: args?.iChannel0 ?? defaultArgs.iChannel0 },
+      iChannel1: { value: args?.iChannel1 ?? defaultArgs.iChannel1 },
+      iTime: { value: args?.iTime ?? defaultArgs.iTime }
     },
     vertexShader: vertexShader,
     fragmentShader: fragmentShader

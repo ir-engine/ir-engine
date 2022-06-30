@@ -23,12 +23,16 @@ export const HelperToggleTool = () => {
 
   const togglePhysicsDebug = () => {
     forceUpdate()
-    dispatchAction(EngineRendererAction.setPhysicsDebug(!engineRenderState.physicsDebugEnable.value))
+    dispatchAction(
+      EngineRendererAction.setPhysicsDebug({ physicsDebugEnable: !engineRenderState.physicsDebugEnable.value })
+    )
   }
 
   const toggleNodeHelpers = () => {
     Engine.instance.currentWorld.camera.layers.toggle(ObjectLayers.NodeHelper)
-    dispatchAction(EngineRendererAction.changeNodeHelperVisibility(!engineRenderState.nodeHelperVisibility.value))
+    dispatchAction(
+      EngineRendererAction.changeNodeHelperVisibility({ visibility: !engineRenderState.nodeHelperVisibility.value })
+    )
   }
 
   return (

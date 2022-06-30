@@ -49,7 +49,7 @@ const dispatchEquipEntity = (equippedEntity: Entity, equip: boolean): void => {
       attachmentPoint: attachmentPoint,
       equip: equip
     }),
-    [Engine.instance.currentWorld.worldNetwork.hostId]
+    Engine.instance.currentWorld.worldNetwork.hostId
   )
 }
 

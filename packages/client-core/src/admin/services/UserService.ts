@@ -4,8 +4,8 @@ import { CreateEditUser, User, UserSeed } from '@xrengine/common/src/interfaces/
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
+import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
-import { client } from '../../feathers'
 import { accessAuthState } from '../../user/services/AuthService'
 
 //State
@@ -27,65 +27,89 @@ const AdminUserState = defineState({
   })
 })
 
-export const AdminUserServiceReceptor = (action) => {
-  getState(AdminUserState).batch((s) => {
-    matches(action)
-      .when(AdminUserActions.fetchedSingleUser.matches, (action) => {
-        return s.merge({ singleUser: action.data, updateNeeded: false })
-      })
-      .when(AdminUserActions.loadedUsers.matches, (action) => {
-        return s.merge({
-          users: action.userResult.data,
-          skip: action.userResult.skip,
-          limit: action.userResult.limit,
-          total: action.userResult.total,
-          retrieving: false,
-          fetched: true,
-          updateNeeded: false,
-          lastFetched: Date.now()
-        })
-      })
-      .when(AdminUserActions.userAdminRemoved.matches, (action) => {
-        return s.merge({ updateNeeded: true })
-      })
-      .when(AdminUserActions.userCreated.matches, (action) => {
-        return s.merge({ updateNeeded: true })
-      })
-      .when(AdminUserActions.userPatched.matches, (action) => {
-        return s.merge({ updateNeeded: true })
-      })
-      .when(AdminUserActions.searchedUser.matches, (action) => {
-        return s.merge({
-          users: action.userResult.data,
-          skip: action.userResult.skip,
-          limit: action.userResult.limit,
-          total: action.userResult.total,
-          retrieving: false,
-          fetched: true,
-          updateNeeded: false,
-          lastFetched: Date.now()
-        })
-      })
-      .when(AdminUserActions.setSkipGuests.matches, (action) => {
-        return s.merge({
-          skipGuests: action.skipGuests,
-          updateNeeded: true
-        })
-      })
-      .when(AdminUserActions.setUserRole.matches, (action) => {
-        return s.merge({
-          userRole: action.userRole,
-          updateNeeded: true
-        })
-      })
-      .when(AdminUserActions.resetFilter.matches, (action) => {
-        return s.merge({
-          userRole: null!,
-          skipGuests: false,
-          updateNeeded: true
-        })
-      })
+const fetchedSingleUserReceptor = (action: typeof AdminUserActions.fetchedSingleUser.matches._TYPE) => {
+  const state = getState(AdminUserState)
+  return state.merge({ singleUser: action.data, updateNeeded: false })
+}
+
+const loadedUsersReceptor = (action: typeof AdminUserActions.loadedUsers.matches._TYPE) => {
+  const state = getState(AdminUserState)
+  return state.merge({
+    users: action.userResult.data,
+    skip: action.userResult.skip,
+    limit: action.userResult.limit,
+    total: action.userResult.total,
+    retrieving: false,
+    fetched: true,
+    updateNeeded: false,
+    lastFetched: Date.now()
   })
+}
+
+const userAdminRemovedReceptor = (action: typeof AdminUserActions.userAdminRemoved.matches._TYPE) => {
+  const state = getState(AdminUserState)
+  return state.merge({ updateNeeded: true })
+}
+
+const userCreatedReceptor = (action: typeof AdminUserActions.userCreated.matches._TYPE) => {
+  const state = getState(AdminUserState)
+  return state.merge({ updateNeeded: true })
+}
+
+const userPatchedReceptor = (action: typeof AdminUserActions.userPatched.matches._TYPE) => {
+  const state = getState(AdminUserState)
+  return state.merge({ updateNeeded: true })
+}
+
+const searchedUserReceptor = (action: typeof AdminUserActions.searchedUser.matches._TYPE) => {
+  const state = getState(AdminUserState)
+  return state.merge({
+    users: action.userResult.data,
+    skip: action.userResult.skip,
+    limit: action.userResult.limit,
+    total: action.userResult.total,
+    retrieving: false,
+    fetched: true,
+    updateNeeded: false,
+    lastFetched: Date.now()
+  })
+}
+
+const setSkipGuestsReceptor = (action: typeof AdminUserActions.setSkipGuests.matches._TYPE) => {
+  const state = getState(AdminUserState)
+  return state.merge({
+    skipGuests: action.skipGuests,
+    updateNeeded: true
+  })
+}
+
+const setUserRoleReceptor = (action: typeof AdminUserActions.setUserRole.matches._TYPE) => {
+  const state = getState(AdminUserState)
+  return state.merge({
+    userRole: action.userRole,
+    updateNeeded: true
+  })
+}
+
+const resetFilterReceptor = (action: typeof AdminUserActions.resetFilter.matches._TYPE) => {
+  const state = getState(AdminUserState)
+  return state.merge({
+    userRole: null!,
+    skipGuests: false,
+    updateNeeded: true
+  })
+}
+
+export const AdminUserReceptors = {
+  fetchedSingleUserReceptor,
+  loadedUsersReceptor,
+  userAdminRemovedReceptor,
+  userCreatedReceptor,
+  userPatchedReceptor,
+  searchedUserReceptor,
+  setSkipGuestsReceptor,
+  setUserRoleReceptor,
+  resetFilterReceptor
 }
 
 export const accessUserState = () => getState(AdminUserState)
@@ -96,7 +120,7 @@ export const useUserState = () => useState(accessUserState())
 export const AdminUserService = {
   fetchSingleUserAdmin: async (id: string) => {
     try {
-      const result = await client.service('user').get(id)
+      const result = await API.instance.client.service('user').get(id)
       dispatchAction(AdminUserActions.fetchedSingleUser({ data: result }))
     } catch (err) {
       console.log(err)
@@ -137,7 +161,7 @@ export const AdminUserService = {
             $eq: userRole
           }
         }
-        const userResult = (await client.service('user').find(params)) as Paginated<User>
+        const userResult = (await API.instance.client.service('user').find(params)) as Paginated<User>
         dispatchAction(AdminUserActions.loadedUsers({ userResult }))
       }
     } catch (err) {
@@ -146,7 +170,7 @@ export const AdminUserService = {
   },
   createUser: async (user: CreateEditUser) => {
     try {
-      const result = (await client.service('user').create(user)) as User
+      const result = (await API.instance.client.service('user').create(user)) as User
       dispatchAction(AdminUserActions.userCreated({ user: result }))
     } catch (err) {
       console.log(err)
@@ -155,14 +179,14 @@ export const AdminUserService = {
   },
   patchUser: async (id: string, user: CreateEditUser) => {
     try {
-      const result = (await client.service('user').patch(id, user)) as User
+      const result = (await API.instance.client.service('user').patch(id, user)) as User
       dispatchAction(AdminUserActions.userPatched({ user: result }))
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   },
   removeUserAdmin: async (id: string) => {
-    const result = (await client.service('user').remove(id)) as User
+    const result = (await API.instance.client.service('user').remove(id)) as User
     dispatchAction(AdminUserActions.userAdminRemoved({ data: result }))
   },
   searchUserAction: async (data: any) => {
@@ -170,7 +194,7 @@ export const AdminUserService = {
       const userState = accessUserState()
       const skip = userState.skip.value
       const limit = userState.limit.value
-      const userResult = (await client.service('user').find({
+      const userResult = (await API.instance.client.service('user').find({
         query: {
           $sort: {
             name: 1

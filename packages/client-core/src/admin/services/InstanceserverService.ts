@@ -2,7 +2,7 @@ import { InstanceServerPatch } from '@xrengine/common/src/interfaces/Instance'
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
-import { client } from '../../feathers'
+import { API } from '../../API'
 
 //State
 const AdminInstanceServerState = defineState({
@@ -14,23 +14,26 @@ const AdminInstanceServerState = defineState({
   })
 })
 
-export const AdminInstanceServerServiceReceptor = (action) => {
-  getState(AdminInstanceServerState).batch((s) => {
-    matches(action)
-      .when(InstanceserverActions.patchInstanceserver.matches, (action) => {
-        return s.merge({
-          patch: undefined,
-          fetched: false
-        })
-      })
-      .when(InstanceserverActions.patchedInstanceserver.matches, (action) => {
-        return s.merge({
-          patch: action.patch,
-          fetched: true,
-          lastFetched: Date.now()
-        })
-      })
+const patchInstanceserverReceptor = (action: typeof InstanceserverActions.patchInstanceserver.matches._TYPE) => {
+  const state = getState(AdminInstanceServerState)
+  return state.merge({
+    patch: undefined,
+    fetched: false
   })
+}
+
+const patchedInstanceserverReceptor = (action: typeof InstanceserverActions.patchedInstanceserver.matches._TYPE) => {
+  const state = getState(AdminInstanceServerState)
+  return state.merge({
+    patch: action.patch,
+    fetched: true,
+    lastFetched: Date.now()
+  })
+}
+
+export const InstanceServerSettingReceptors = {
+  patchInstanceserverReceptor,
+  patchedInstanceserverReceptor
 }
 
 export const accessInstanceserverState = () => getState(AdminInstanceServerState)
@@ -42,7 +45,7 @@ export const InstanceserverService = {
   patchInstanceserver: async (locationId) => {
     try {
       dispatchAction(InstanceserverActions.patchInstanceserver())
-      const patch = await client.service('instanceserver-provision').patch({ locationId })
+      const patch = await API.instance.client.service('instanceserver-provision').patch({ locationId })
       dispatchAction(InstanceserverActions.patchedInstanceserver({ patch }))
     } catch (error) {
       console.error(error)

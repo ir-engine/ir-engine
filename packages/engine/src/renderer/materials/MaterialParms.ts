@@ -6,7 +6,7 @@ import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3
 
 import { MaterialOverrideComponentType } from '../../scene/components/MaterialOverrideComponent'
 import { MatRend } from '../../scene/systems/MaterialOverrideSystem'
-import { MaterialLibrary } from './MaterialLibrary'
+import { DefaultArguments, MaterialLibrary } from './MaterialLibrary'
 import { formatMaterialArgs } from './Utilities'
 
 export type MaterialParms = {
@@ -36,16 +36,18 @@ function checkMatch(toCheck: string, assignment: MaterialOverrideComponentType):
   }
 }
 
-export async function assignMaterial(override: MaterialOverrideComponentType): Promise<[MatRend[], MaterialParms]> {
+export function assignMaterial(override: MaterialOverrideComponentType): [MatRend[], MaterialParms] {
   const result: MatRend[] = []
   //first retrieve material to build assignment
   const factory = MaterialLibrary[override.materialID]
+
   if (!factory) {
     console.warn('Could not find factory function for material' + override.materialID)
     return [result, { material: new Material(), update: () => {} }]
   }
-  const formattedArgs = formatMaterialArgs(override.args)
-  const matParm: MaterialParms = await factory(formattedArgs)
+  const defaultArgs = DefaultArguments[override.materialID]
+  const formattedArgs = formatMaterialArgs(override.args, defaultArgs)
+  const matParm: MaterialParms = factory(formattedArgs)
   const target = getComponent(override.targetEntity!, Object3DComponent)?.value
   if (!target) {
     console.error('Failed material override for override', override, ': target Object3D does not exist')

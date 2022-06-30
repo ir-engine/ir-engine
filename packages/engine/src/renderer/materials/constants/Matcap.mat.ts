@@ -1,25 +1,32 @@
 import { Color, MeshMatcapMaterial, MeshMatcapMaterialParameters, Texture } from 'three'
 
 import { MaterialParms } from '../MaterialParms'
-import { formatMaterialArgs as format } from '../Utilities'
+import { extractDefaults as format } from '../Utilities'
+import { BoolArg, ColorArg, NormalizedFloatArg, TextureArg } from './DefaultArgs'
 
-export const DefaultArgs: MeshMatcapMaterialParameters = {
-  alphaMap: new Texture(),
-  alphaTest: 0.0,
-  bumpMap: new Texture(),
-  bumpScale: 0.025,
-  color: new Color(1, 1, 1),
-  fog: false,
-  map: new Texture(),
-  matcap: new Texture(),
-  normalMap: new Texture(),
-  transparent: false,
-  opacity: 1.0
+export const MatcapArgs = {
+  alphaMap: TextureArg,
+  alphaTest: NormalizedFloatArg,
+  bumpMap: TextureArg,
+  bumpScale: { ...NormalizedFloatArg, default: 0.025 },
+  color: { ...ColorArg, default: new Color(1, 1, 1) },
+  fog: BoolArg,
+  map: TextureArg,
+  matcap: TextureArg,
+  normalMap: TextureArg,
+  transparent: BoolArg,
+  opacity: { ...NormalizedFloatArg, default: 1 }
 }
 
-export default async function Matcap(args?: MeshMatcapMaterialParameters): Promise<MaterialParms> {
+export default function Matcap(args?: MeshMatcapMaterialParameters): MaterialParms {
+  const material = new MeshMatcapMaterial(args ? { ...format(MatcapArgs), ...args } : format(MatcapArgs))
+  material.onBeforeCompile = (shader, renderer) => {
+    ;['envMap', 'flipEnvMap', 'reflectivity', 'ior', 'refractionRatio'].map(
+      (arg) => (shader.uniforms[arg] = { value: null })
+    )
+  }
   return {
-    material: new MeshMatcapMaterial(args ? { ...format(DefaultArgs), ...args } : format(DefaultArgs)),
+    material,
     update: (dt) => {}
   }
 }

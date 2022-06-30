@@ -3,21 +3,24 @@ import { useTranslation } from 'react-i18next'
 
 import { Group } from '@xrengine/common/src/interfaces/Group'
 
+import Box from '@mui/material/Box'
+
 import { useAuthState } from '../../../user/services/AuthService'
 import ConfirmModal from '../../common/ConfirmModal'
 import TableComponent from '../../common/Table'
 import { columns, Data } from '../../common/variables/group'
 import { AdminGroupService, GROUP_PAGE_LIMIT, useAdminGroupState } from '../../services/GroupService'
 import styles from '../../styles/admin.module.scss'
-import ViewGroup from './ViewGroup'
+import GroupDrawer, { GroupDrawerMode } from './GroupDrawer'
 
 interface Props {
+  className?: string
   search: string
 }
 
-const GroupTable = ({ search }: Props) => {
+const GroupTable = ({ className, search }: Props) => {
   const user = useAuthState().user
-  const [viewModal, setViewModal] = useState(false)
+  const [openGroupDrawer, setOpenGroupDrawer] = useState(false)
   const [singleGroup, setSingleGroup] = useState<Group>(null!)
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(GROUP_PAGE_LIMIT)
@@ -48,11 +51,11 @@ const GroupTable = ({ search }: Props) => {
     setPage(0)
   }
 
-  const handleViewGroup = (id: string) => {
+  const handleGroupDrawer = (id: string) => {
     const group = adminGroups.value.find((group) => group.id === id)
     if (group !== null) {
       setSingleGroup(group!)
-      setViewModal(true)
+      setOpenGroupDrawer(true)
     }
   }
 
@@ -70,10 +73,6 @@ const GroupTable = ({ search }: Props) => {
     AdminGroupService.deleteGroupByAdmin(groupId)
   }
 
-  const closeViewModal = (open) => {
-    setViewModal(open)
-  }
-
   useEffect(() => {
     //if (adminGroupState.updateNeeded.value && user.id.value) {
     //  GroupService.getGroupService(null)
@@ -89,11 +88,11 @@ const GroupTable = ({ search }: Props) => {
       description,
       action: (
         <>
-          <a href="#h" className={styles.actionStyle} onClick={() => handleViewGroup(id)}>
+          <a href="#" className={styles.actionStyle} onClick={() => handleGroupDrawer(id)}>
             <span className={styles.spanWhite}>{t('admin:components.group.view')}</span>
           </a>
           <a
-            href="#h"
+            href="#"
             className={styles.actionStyle}
             onClick={() => {
               handleShowWarning(id)
@@ -112,7 +111,7 @@ const GroupTable = ({ search }: Props) => {
   })
 
   return (
-    <React.Fragment>
+    <Box className={className}>
       <TableComponent
         allowSort={false}
         fieldOrder={orderBy}
@@ -132,10 +131,15 @@ const GroupTable = ({ search }: Props) => {
         onClose={handleCloseWarning}
         onSubmit={deleteGroupHandler}
       />
-      {singleGroup && viewModal && (
-        <ViewGroup groupAdmin={singleGroup} openView={viewModal} closeViewModal={closeViewModal} />
+      {singleGroup && openGroupDrawer && (
+        <GroupDrawer
+          open
+          selectedGroup={singleGroup}
+          mode={GroupDrawerMode.ViewEdit}
+          onClose={() => setOpenGroupDrawer(false)}
+        />
       )}
-    </React.Fragment>
+    </Box>
   )
 }
 

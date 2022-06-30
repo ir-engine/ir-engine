@@ -1,6 +1,8 @@
 import { ShaderMaterial, Texture } from 'three'
 
 import { DudTexture, MaterialParms } from '../MaterialParms'
+import { extractDefaults } from '../Utilities'
+import { TextureArg, Vec3Arg } from './DefaultArgs'
 
 export const vertexShader = `
 varying vec2 vUv;
@@ -425,21 +427,22 @@ void main()
 `
 
 export const DefaultArgs = {
-  iTime: 0.0,
-  iResolution: [window.innerWidth, window.innerHeight, 1],
-  iChannel0: new Texture()
+  iTime: { hide: true, default: 0 },
+  iResolution: Vec3Arg,
+  iChannel0: TextureArg
 }
 
-export default async function AliasVortex(args?: {
+export default function AliasVortex(args?: {
   iTime?: number
   iResolution?: number[]
   iChannel0?: Texture
-}): Promise<MaterialParms> {
+}): MaterialParms {
+  const defaultArgs = extractDefaults(DefaultArgs)
   const mat = new ShaderMaterial({
     uniforms: {
       iChannel0: { value: args?.iChannel0 ?? null },
-      iTime: { value: args?.iTime ?? DefaultArgs.iTime },
-      iResolution: { value: args?.iResolution ?? DefaultArgs.iResolution }
+      iTime: { value: args?.iTime ?? defaultArgs.iTime },
+      iResolution: { value: args?.iResolution ?? defaultArgs.iResolution }
     },
     vertexShader: vertexShader,
     fragmentShader: fragmentShader

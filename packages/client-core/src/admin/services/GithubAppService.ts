@@ -2,7 +2,7 @@ import { GithubAppInterface } from '@xrengine/common/src/interfaces/GithubAppInt
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
-import { client } from '../../feathers'
+import { API } from '../../API'
 
 const AdminGithubAppState = defineState({
   name: 'AdminGithubAppState',
@@ -12,15 +12,16 @@ const AdminGithubAppState = defineState({
   })
 })
 
-export const AdminGithubAppServiceReceptor = (action) => {
-  getState(AdminGithubAppState).batch((s) => {
-    matches(action).when(GithubAppActions.GithubAppFetched.matches, (action) => {
-      return s.merge({
-        repos: action.result,
-        updateNeeded: false
-      })
-    })
+const githubAppFetchedReceptor = (action: typeof GithubAppActions.githubAppFetched.matches._TYPE) => {
+  const state = getState(AdminGithubAppState)
+  return state.merge({
+    repos: action.result,
+    updateNeeded: false
   })
+}
+
+export const AdminGithubAppReceptors = {
+  githubAppFetchedReceptor
 }
 
 export const accessAdminGithubAppState = () => getState(AdminGithubAppState)
@@ -29,13 +30,13 @@ export const useAdminGithubAppState = () => useState(accessAdminGithubAppState()
 
 export const GithubAppService = {
   fetchGithubAppRepos: async () => {
-    const repos = await client.service('github-app').find()
-    dispatchAction(GithubAppActions.GithubAppFetched({ result: repos }))
+    const repos = await API.instance.client.service('github-app').find()
+    dispatchAction(GithubAppActions.githubAppFetched({ result: repos }))
   }
 }
 
 export class GithubAppActions {
-  static GithubAppFetched = defineAction({
+  static githubAppFetched = defineAction({
     type: 'GITHUBAPP_RETRIEVED' as const,
     result: matches.array as Validator<unknown, GithubAppInterface[]>
   })

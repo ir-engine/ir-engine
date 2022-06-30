@@ -10,13 +10,16 @@ import { Instance } from '@xrengine/common/src/interfaces/Instance'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineActions, getEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
+import { initSystems } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
+import { SystemUpdateType } from '@xrengine/engine/src/ecs/functions/SystemUpdateType'
 import {
   createEngine,
   initializeCoreSystems,
   initializeMediaServerSystems,
   initializeNode,
   initializeRealtimeSystems,
-  initializeSceneSystems
+  initializeSceneSystems,
+  setupEngineActionSystems
 } from '@xrengine/engine/src/initializeEngine'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { matchActionOnce } from '@xrengine/engine/src/networking/functions/matchActionOnce'
@@ -32,6 +35,7 @@ import config from '@xrengine/server-core/src/appconfig'
 import multiLogger from '@xrengine/server-core/src/logger'
 import getLocalServerIp from '@xrengine/server-core/src/util/get-local-server-ip'
 
+import { authorizeUserToJoinServer } from './NetworkFunctions'
 import { SocketWebRTCServerNetwork } from './SocketWebRTCServerNetwork'
 
 const logger = multiLogger.child({ component: 'instanceserver:channels' })
@@ -111,7 +115,12 @@ const createNewInstance = async (app: Application, newInstance: InstanceMetadata
  * @param locationId
  */
 
-const assignExistingInstance = async (app: Application, existingInstance, channelId: string, locationId: string) => {
+const assignExistingInstance = async (
+  app: Application,
+  existingInstance: Instance,
+  channelId: string,
+  locationId: string
+) => {
   await app.agonesSDK.allocate()
   app.instance = existingInstance
   await app.service('instance').patch(existingInstance.id, {
@@ -209,7 +218,7 @@ const initializeInstance = async (
       }
     }
     if (!authorizeUserToJoinServer(app, instance, userId)) return
-    await assignExistingInstance(app, existingInstanceResult.data[0], channelId, locationId)
+    await assignExistingInstance(app, instance, channelId, locationId)
   }
 }
 
@@ -225,18 +234,11 @@ const loadEngine = async (app: Application, sceneId: string) => {
   Engine.instance.userId = hostId
   const world = Engine.instance.currentWorld
 
-  app.transport = new SocketWebRTCServerNetwork(hostId, app)
-  const initPromise = app.transport.initialize()
+  const network = new SocketWebRTCServerNetwork(hostId, app)
+  app.transport = network
+  const initPromise = network.initialize()
 
-  world.networks.set(hostId, app.transport)
-
-  dispatchAction(
-    WorldNetworkAction.createClient({
-      name: 'server-' + hostId,
-      index: world.userIndexCount++
-    }),
-    [hostId]
-  )
+  world.networks.set(hostId, network)
 
   if (app.isChannelInstance) {
     world._mediaHostId = hostId as UserId
@@ -256,13 +258,24 @@ const loadEngine = async (app: Application, sceneId: string) => {
     await initializeCoreSystems()
     await initializeRealtimeSystems(false, true)
     await initializeSceneSystems()
+    await initSystems(world, [
+      {
+        type: SystemUpdateType.FIXED_LATE,
+        systemModulePromise: import('./WorldNetworkServerActionSystem'),
+        args: { network }
+      }
+    ])
 
     const projects = (await projectsPromise).data.map((project) => project.name)
     await loadEngineInjection(world, projects)
 
-    const sceneData = (await sceneResultPromise).data.scene as any // SceneData
-    const sceneSystems = getSystemsFromSceneData(projectName, sceneData, false)
-    await loadSceneFromJSON(sceneData, sceneSystems)
+    const sceneUpdatedListener = async () => {
+      const sceneData = (await sceneResultPromise).data.scene
+      const sceneSystems = getSystemsFromSceneData(projectName, sceneData, false)
+      await loadSceneFromJSON(sceneData, sceneSystems)
+    }
+    app.service('scene').on('updated', sceneUpdatedListener)
+    await sceneUpdatedListener()
 
     logger.info('Scene loaded!')
 
@@ -276,37 +289,16 @@ const loadEngine = async (app: Application, sceneId: string) => {
     // )
   }
   await initPromise
-  dispatchAction(EngineActions.joinedWorld())
-}
 
-/**
- * Returns true if a user has permission to access a specific instance
- * @param app
- * @param instance
- * @param userId
- * @returns
- */
-const authorizeUserToJoinServer = async (app: Application, instance: Instance, userId: UserId) => {
-  const authorizedUsers = (await app.service('instance-authorized-user').find({
-    query: {
-      instanceId: instance.id,
-      $limit: 0
-    }
-  })) as any
-  if (authorizedUsers.total > 0) {
-    const thisUserAuthorized = (await app.service('instance-authorized-user').find({
-      query: {
-        instanceId: instance.id,
-        userId,
-        $limit: 0
-      }
-    })) as any
-    if (thisUserAuthorized.total === 0) {
-      logger.info(`User "${userId}" not authorized to be on this server.`)
-      return false
-    }
-  }
-  return true
+  dispatchAction(
+    WorldNetworkAction.createPeer({
+      name: 'server-' + hostId,
+      index: network.userIndexCount++
+    }),
+    hostId
+  )
+
+  dispatchAction(EngineActions.joinedWorld())
 }
 
 /**
@@ -322,26 +314,13 @@ const authorizeUserToJoinServer = async (app: Application, instance: Instance, u
 
 const notifyWorldAndPartiesUserHasJoined = async (
   app: Application,
-  userId: string,
+  userId: UserId,
   status: InstanceserverStatus,
   locationId: string,
   channelId: string,
   sceneId: string
 ) => {
   const user = await app.service('user').get(userId)
-  await app.service('message').create(
-    {
-      targetObjectId: app.instance.id,
-      targetObjectType: 'instance',
-      text: `${user.name} joined the layer`,
-      isNotification: true
-    },
-    {
-      'identity-provider': {
-        userId: userId
-      }
-    }
-  )
   if (user.partyId != null) {
     const partyUserResult = await app.service('party-user').find({
       query: {
@@ -502,8 +481,8 @@ const shutdownServer = async (app: Application, instanceId: string) => {
 }
 
 // todo: this could be more elegant
-const getActiveUsersCount = (userToIgnore) => {
-  const activeClients = Engine.instance.currentWorld.clients
+const getActiveUsersCount = (app: Application, userToIgnore) => {
+  const activeClients = app.transport.peers
   const activeUsers = [...activeClients].filter(
     ([, v]) => v.userId !== Engine.instance.userId && v.userId !== userToIgnore.id
   )
@@ -512,7 +491,7 @@ const getActiveUsersCount = (userToIgnore) => {
 
 const handleUserDisconnect = async (app: Application, connection, user, instanceId) => {
   try {
-    const activeUsersCount = getActiveUsersCount(user)
+    const activeUsersCount = getActiveUsersCount(app, user)
     await app.service('instance').patch(instanceId, {
       currentUsers: activeUsersCount
     })
@@ -559,7 +538,7 @@ const handleUserDisconnect = async (app: Application, connection, user, instance
   await new Promise((resolve) => setTimeout(resolve, config.instanceserver.shutdownDelayMs))
 
   // count again here, as it may have changed
-  const activeUsersCount = getActiveUsersCount(user)
+  const activeUsersCount = getActiveUsersCount(app, user)
   if (activeUsersCount < 1) await shutdownServer(app, instanceId)
 }
 
@@ -578,11 +557,6 @@ const onConnection = (app: Application) => async (connection: SocketIOConnection
   const userId = identityProvider.userId
   let locationId = connection.socketQuery.locationId!
   let channelId = connection.socketQuery.channelId!
-  const sceneId: string = connection.socketQuery.sceneId
-
-  if (!sceneId) {
-    return logger.warn("Scene ID is empty, can't init.")
-  }
 
   if (locationId === '') {
     locationId = undefined!
@@ -620,6 +594,8 @@ const onConnection = (app: Application) => async (connection: SocketIOConnection
       return logger.warn('got a connection to the wrong channel id', app.instance.channelId, channelId)
   }
 
+  const sceneId = locationId ? (await app.service('location').get(locationId)).sceneId : ''
+
   /**
    * Now that we have verified the connecting user and that they are connecting to the correct instance, load the instance
    */
@@ -654,20 +630,6 @@ const onDisconnection = (app: Application) => async (connection: SocketIOConnect
   if (identityProvider != null && identityProvider.id != null) {
     const userId = identityProvider.userId
     const user = await app.service('user').get(userId)
-    if (!app.isChannelInstance)
-      await app.service('message').create(
-        {
-          targetObjectId: app.instance.id,
-          targetObjectType: 'instance',
-          text: `${user.name} left the layer`,
-          isNotification: true
-        },
-        {
-          'identity-provider': {
-            userId: userId
-          }
-        }
-      )
     const instanceId = !config.kubernetes.enabled ? connection.instanceId : app.instance?.id
     let instance
     try {
@@ -691,6 +653,7 @@ export default (app: Application): void => {
   }
 
   createEngine()
+  setupEngineActionSystems()
   initializeNode()
 
   app.service('instanceserver-load').on('patched', async (params) => {

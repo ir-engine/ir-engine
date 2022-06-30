@@ -225,6 +225,9 @@ export const getComponent = <T, S extends bitECS.ISchema>(
   if (typeof entity === 'undefined' || entity === null) {
     throw new Error('[getComponent]: entity is undefined')
   }
+  if (typeof world === 'undefined' || world === null) {
+    throw new Error('[getComponent]: world is undefined')
+  }
   if (getRemoved) return (component as any)._getPrevious(entity)
   if (bitECS.hasComponent(world, component, entity)) return component.get(entity)
   return null!
@@ -239,7 +242,10 @@ export const addComponent = <T, S extends bitECS.ISchema>(
   if (typeof entity === 'undefined' || entity === null) {
     throw new Error('[addComponent]: entity is undefined')
   }
-  if (hasComponent(entity, component, world)) throw new Error('component already exists' + entity + component._name)
+  if (typeof world === 'undefined' || world === null) {
+    throw new Error('[addComponent]: world is undefined')
+  }
+  if (hasComponent(entity, component, world)) throw new Error(`${component._name} already exists on entity ${entity}`)
   bitECS.addComponent(world, component, entity, false) // don't clear data on-add
   if ((component as any)._schema) {
     for (const [key] of Object.entries((component as any)._schema as any)) {
@@ -261,6 +267,18 @@ export const hasComponent = <T, S extends bitECS.ISchema>(
   return bitECS.hasComponent(world, component, entity)
 }
 
+export const getOrAddComponent = <T, S extends bitECS.ISchema>(
+  entity: Entity,
+  component: MappedComponent<T, S>,
+  args: T,
+  getRemoved = false,
+  world = Engine.instance.currentWorld
+) => {
+  return hasComponent(entity, component, world)
+    ? getComponent(entity, component, getRemoved, world)
+    : addComponent(entity, component, args, world)
+}
+
 export const removeComponent = <T, S extends bitECS.ISchema>(
   entity: Entity,
   component: MappedComponent<T, S>,
@@ -268,6 +286,9 @@ export const removeComponent = <T, S extends bitECS.ISchema>(
 ) => {
   if (typeof entity === 'undefined' || entity === null) {
     throw new Error('[removeComponent]: entity is undefined')
+  }
+  if (typeof world === 'undefined' || world === null) {
+    throw new Error('[removeComponent]: world is undefined')
   }
   ;(component as any)._setPrevious(entity, getComponent(entity, component, false, world))
   bitECS.removeComponent(world, component, entity, true) // clear data on-remove

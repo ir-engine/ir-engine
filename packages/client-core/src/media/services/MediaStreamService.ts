@@ -1,9 +1,12 @@
 import mediasoup from 'mediasoup-client'
 
+import { MediaStreams } from '@xrengine/client-core/src/transports/MediaStreams'
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { NearbyUser } from '@xrengine/engine/src/networking/functions/getNearbyUsers'
-import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
 import { addActionReceptor, defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
+
+import { SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientNetwork'
 
 //State
 const MediaState = defineState({
@@ -50,8 +53,6 @@ export const MediaServiceReceptor = (action) => {
   })
 }
 
-addActionReceptor(MediaServiceReceptor)
-
 export const accessMediaStreamState = () => getState(MediaState)
 export const useMediaStreamState = () => useState(accessMediaStreamState())
 
@@ -90,7 +91,8 @@ export const MediaStreamService = {
   triggerUpdateConsumers: () => {
     if (!updateConsumerTimeout) {
       updateConsumerTimeout = setTimeout(() => {
-        dispatchAction(MediaStreamAction.setConsumersAction({ consumers: MediaStreams.instance.consumers }))
+        const mediaNetwork = Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork
+        dispatchAction(MediaStreamAction.setConsumersAction({ consumers: mediaNetwork.consumers }))
         updateConsumerTimeout = null
       }, 1000)
     }

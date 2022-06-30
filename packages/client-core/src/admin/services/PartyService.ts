@@ -4,8 +4,8 @@ import { Party, PatchParty } from '@xrengine/common/src/interfaces/Party'
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
+import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
-import { client } from '../../feathers'
 import { accessAuthState } from '../../user/services/AuthService'
 
 //State
@@ -25,30 +25,39 @@ const AdminPartyState = defineState({
   })
 })
 
-export const AdminPartyServiceReceptor = (action) => {
-  getState(AdminPartyState).batch((s) => {
-    matches(action)
-      .when(AdminPartyActions.partyRetrieved.matches, (action) => {
-        return s.merge({
-          parties: action.party.data,
-          updateNeeded: false,
-          skip: action.party.skip,
-          limit: action.party.limit,
-          total: action.party.total,
-          fetched: true,
-          lastFetched: Date.now()
-        })
-      })
-      .when(AdminPartyActions.partyAdminCreated.matches, (action) => {
-        return s.merge({ updateNeeded: true })
-      })
-      .when(AdminPartyActions.partyRemoved.matches, (action) => {
-        return s.merge({ updateNeeded: true })
-      })
-      .when(AdminPartyActions.partyPatched.matches, (action) => {
-        return s.merge({ updateNeeded: true })
-      })
+const partyRetrievedReceptor = (action: typeof AdminPartyActions.partyRetrieved.matches._TYPE) => {
+  const state = getState(AdminPartyState)
+  return state.merge({
+    parties: action.party.data,
+    updateNeeded: false,
+    skip: action.party.skip,
+    limit: action.party.limit,
+    total: action.party.total,
+    fetched: true,
+    lastFetched: Date.now()
   })
+}
+
+const partyAdminCreatedReceptor = (action: typeof AdminPartyActions.partyAdminCreated.matches._TYPE) => {
+  const state = getState(AdminPartyState)
+  return state.merge({ updateNeeded: true })
+}
+
+const partyRemovedReceptor = (action: typeof AdminPartyActions.partyRemoved.matches._TYPE) => {
+  const state = getState(AdminPartyState)
+  return state.merge({ updateNeeded: true })
+}
+
+const partyPatchedReceptor = (action: typeof AdminPartyActions.partyPatched.matches._TYPE) => {
+  const state = getState(AdminPartyState)
+  return state.merge({ updateNeeded: true })
+}
+
+export const AdminPartyReceptors = {
+  partyRetrievedReceptor,
+  partyAdminCreatedReceptor,
+  partyRemovedReceptor,
+  partyPatchedReceptor
 }
 
 export const accessPartyState = () => getState(AdminPartyState)
@@ -59,7 +68,7 @@ export const usePartyState = () => useState(accessPartyState())
 export const AdminPartyService = {
   createAdminParty: async (data) => {
     try {
-      const party = (await client.service('party').create(data)) as Party
+      const party = (await API.instance.client.service('party').create(data)) as Party
       dispatchAction(AdminPartyActions.partyAdminCreated({ party }))
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
@@ -74,7 +83,7 @@ export const AdminPartyService = {
         if (sortField.length > 0) {
           sortData[sortField] = orderBy === 'desc' ? 0 : 1
         }
-        const party = (await client.service('party').find({
+        const party = (await API.instance.client.service('party').find({
           query: {
             $sort: {
               ...sortData
@@ -93,12 +102,12 @@ export const AdminPartyService = {
     }
   },
   removeParty: async (id: string) => {
-    const party = (await client.service('party').remove(id)) as Party
+    const party = (await API.instance.client.service('party').remove(id)) as Party
     dispatchAction(AdminPartyActions.partyRemoved({ party }))
   },
   patchParty: async (id: string, party: PatchParty) => {
     try {
-      const result = (await client.service('party').patch(id, party)) as Party
+      const result = (await API.instance.client.service('party').patch(id, party)) as Party
       dispatchAction(AdminPartyActions.partyPatched({ party: result }))
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })

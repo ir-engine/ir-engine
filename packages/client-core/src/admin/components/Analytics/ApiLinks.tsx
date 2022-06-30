@@ -340,7 +340,7 @@ export default function ApiLinks() {
                       <TableCell align="right">{row.description}</TableCell>
                       <TableCell align="right">{row.links}</TableCell>
                       <TableCell align="right">
-                        <a href="#h" className="text-dark">
+                        <a href="#" className="text-dark">
                           {row.action}
                         </a>
                       </TableCell>

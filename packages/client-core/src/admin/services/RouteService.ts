@@ -4,8 +4,8 @@ import { InstalledRoutesInterface } from '@xrengine/common/src/interfaces/Route'
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
+import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
-import { client } from '../../feathers'
 import { accessAuthState } from '../../user/services/AuthService'
 
 //State
@@ -25,12 +25,13 @@ const AdminRouteState = defineState({
   })
 })
 
-export const AdminRouteServiceReceptor = (action) => {
-  getState(AdminRouteState).batch((s) => {
-    matches(action).when(AdminRouteActions.installedRoutesRetrievedAction.matches, (action) => {
-      return s.merge({ routes: action.data, updateNeeded: false })
-    })
-  })
+const installedRoutesRetrievedReceptor = (action: typeof AdminRouteActions.installedRoutesRetrieved.matches._TYPE) => {
+  const state = getState(AdminRouteState)
+  return state.merge({ routes: action.data, updateNeeded: false })
+}
+
+export const AdminRouteReceptors = {
+  installedRoutesRetrievedReceptor
 }
 
 export const accessRouteState = () => getState(AdminRouteState)
@@ -43,8 +44,10 @@ export const RouteService = {
     const user = accessAuthState().user
     try {
       if (user.userRole.value === 'admin') {
-        const routes = (await client.service('routes-installed').find()) as Paginated<InstalledRoutesInterface>
-        dispatchAction(AdminRouteActions.installedRoutesRetrievedAction({ data: routes.data }))
+        const routes = (await API.instance.client
+          .service('routes-installed')
+          .find()) as Paginated<InstalledRoutesInterface>
+        dispatchAction(AdminRouteActions.installedRoutesRetrieved({ data: routes.data }))
       }
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
@@ -54,7 +57,7 @@ export const RouteService = {
 
 //Action
 export class AdminRouteActions {
-  static installedRoutesRetrievedAction = defineAction({
+  static installedRoutesRetrieved = defineAction({
     type: 'ADMIN_ROUTE_INSTALLED_RECEIVED' as const,
     data: matches.array as Validator<unknown, InstalledRoutesInterface[]>
   })

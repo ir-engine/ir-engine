@@ -1,6 +1,7 @@
 import { ShaderMaterial } from 'three'
 
 import { MaterialParms } from '../MaterialParms'
+import { FloatArg, Vec3Arg } from './DefaultArgs'
 
 export const vertexShader = `
 varying vec2 vUv;
@@ -44,20 +45,20 @@ for (int n = 0; n < MAX_ITER; n++)
 }
 c /= float(MAX_ITER);
 c = 1.17-pow(c, 1.4);
-vec3 colour = vec3(pow(abs(c), 8.0));
-colour = clamp(colour + vec3(0.0, 0.35, 0.5), 0.0, 1.0);
+vec3 color = vec3(pow(abs(c), 8.0));
+color = clamp(color + vec3(0.0, 0.35, 0.5), 0.0, 1.0);
 
-gl_FragColor = vec4(colour, 1.0);
+gl_FragColor = vec4(color, 1.0);
 }`
 
 export const DefaultArgs = {
-  iTime: 0.0,
-  iResolution: [1, 1, 1],
-  offsetScale: 0.5,
-  offsetFrequency: 0.25
+  iTime: { hide: true, default: 0.0 },
+  iResolution: Vec3Arg,
+  offsetScale: { ...FloatArg, default: 0.5 },
+  offsetFrequency: { ...FloatArg, default: 0.25 }
 }
 
-export default async function Caustics(args?): Promise<MaterialParms> {
+export default function Caustics(args?): MaterialParms {
   let uniforms = args ? { ...DefaultArgs, ...args } : DefaultArgs
 
   uniforms = Object.fromEntries(Object.entries(uniforms).map(([k, v]) => [k, { value: v }]))

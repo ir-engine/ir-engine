@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react'
 import { useHistory } from 'react-router'
 
-import { AppAction, GeneralStateList } from '@xrengine/client-core/src/common/services/AppService'
+import { AppAction, GeneralStateList, useAppState } from '@xrengine/client-core/src/common/services/AppService'
 import {
   LocationInstanceConnectionService,
   useLocationInstanceConnectionState
@@ -10,19 +10,18 @@ import {
   MediaInstanceConnectionService,
   useMediaInstanceConnectionState
 } from '@xrengine/client-core/src/common/services/MediaInstanceConnectionService'
-import { MediaStreamService } from '@xrengine/client-core/src/media/services/MediaStreamService'
+import { MediaServiceReceptor, MediaStreamService } from '@xrengine/client-core/src/media/services/MediaStreamService'
 import { useChatState } from '@xrengine/client-core/src/social/services/ChatService'
 import { useLocationState } from '@xrengine/client-core/src/social/services/LocationService'
-import { useDispatch } from '@xrengine/client-core/src/store'
+import { MediaStreams } from '@xrengine/client-core/src/transports/MediaStreams'
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import { UserService, useUserState } from '@xrengine/client-core/src/user/services/UserService'
 import { matches } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
-import { receiveJoinWorld } from '@xrengine/engine/src/networking/functions/receiveJoinWorld'
-import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
-import { addActionReceptor, removeActionReceptor, useHookEffect } from '@xrengine/hyperflux'
+import { receiveJoinWorld, receiveSpectateWorld } from '@xrengine/engine/src/networking/functions/receiveJoinWorld'
+import { addActionReceptor, dispatchAction, removeActionReceptor, useHookEffect } from '@xrengine/hyperflux'
 
 import { UserServiceReceptor } from '../../user/services/UserService'
 import { getSearchParamFromURL } from '../../util/getSearchParamFromURL'
@@ -32,12 +31,12 @@ export const NetworkInstanceProvisioning = () => {
   const authState = useAuthState()
   const selfUser = authState.user
   const userState = useUserState()
-  const dispatch = useDispatch()
   const chatState = useChatState()
   const locationState = useLocationState()
   const isUserBanned = locationState.currentLocation.selfUserBanned.value
   const engineState = useEngineState()
   const history = useHistory()
+  const appState = useAppState()
 
   const worldNetworkHostId = Engine.instance.currentWorld.worldNetwork?.hostId
   const instanceConnectionState = useLocationInstanceConnectionState()
@@ -47,7 +46,10 @@ export const NetworkInstanceProvisioning = () => {
   const channelConnectionState = useMediaInstanceConnectionState()
   const currentChannelInstanceConnection = channelConnectionState.instances[mediaNetworkHostId].ornull
 
+  MediaInstanceConnectionService.useAPIListeners()
+
   useEffect(() => {
+    addActionReceptor(MediaServiceReceptor)
     addActionReceptor((action) => {
       matches(action).when(
         MediaStreams.actions.triggerUpdateConsumers.matches,
@@ -56,6 +58,7 @@ export const NetworkInstanceProvisioning = () => {
     })
     addActionReceptor(UserServiceReceptor)
     return () => {
+      removeActionReceptor(MediaServiceReceptor)
       removeActionReceptor(UserServiceReceptor)
     }
   }, [])
@@ -93,7 +96,9 @@ export const NetworkInstanceProvisioning = () => {
       }
     } else {
       if (!locationState.currentLocationUpdateNeeded.value && !locationState.fetchingCurrentLocation.value) {
-        dispatch(AppAction.setAppSpecificOnBoardingStep(GeneralStateList.FAILED, false))
+        dispatchAction(
+          AppAction.setAppSpecificOnBoardingStep({ onBoardingStep: GeneralStateList.FAILED, isTutorial: false })
+        )
       }
     }
   }, [locationState.currentLocation.location])
@@ -116,15 +121,23 @@ export const NetworkInstanceProvisioning = () => {
   ])
 
   useHookEffect(() => {
-    const transportRequestData = {
-      inviteCode: getSearchParamFromURL('inviteCode')!
-    }
-    if (engineState.connectedWorld.value && engineState.sceneLoaded.value) {
+    if (!engineState.connectedWorld.value || !engineState.sceneLoaded.value) return
+
+    const spectateUser = getSearchParamFromURL('spectate')
+    if (spectateUser) {
+      const transportRequestData = { spectateUser }
+      Engine.instance.currentWorld.worldNetwork
+        .request(MessageTypes.SpectateWorld.toString(), transportRequestData)
+        .then(receiveSpectateWorld)
+    } else {
+      const transportRequestData = {
+        inviteCode: getSearchParamFromURL('inviteCode')!
+      }
       Engine.instance.currentWorld.worldNetwork
         .request(MessageTypes.JoinWorld.toString(), transportRequestData)
         .then(receiveJoinWorld)
     }
-  }, [engineState.connectedWorld, engineState.sceneLoaded])
+  }, [engineState.connectedWorld, appState.onBoardingStep])
 
   // media server provisioning
   useHookEffect(() => {

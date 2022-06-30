@@ -1,30 +1,31 @@
 import { Color, MeshPhongMaterial, MeshPhongMaterialParameters, Texture } from 'three'
 
 import { MaterialParms } from '../MaterialParms'
-import { formatMaterialArgs as format } from '../Utilities'
+import { extractDefaults as format } from '../Utilities'
 import { BasicArgs } from './Basic.mat'
+import { BoolArg, ColorArg, FloatArg, NormalizedFloatArg, TextureArg } from './DefaultArgs'
 
-export const DefaultArgs: MeshPhongMaterialParameters = {
+export const DefaultArgs = {
   ...BasicArgs,
-  bumpMap: new Texture(),
-  bumpScale: 0.025,
-  displacementBias: 0.0,
-  displacementMap: new Texture(),
-  displacementScale: 0.025,
-  dithering: true,
-  emissive: new Color(0, 0, 0),
-  emissiveIntensity: 1.0,
-  emissiveMap: new Texture(),
-  normalMap: new Texture(),
-  fog: false,
-  opacity: 1.0,
-  transparent: false,
-  reflectivity: 0,
-  refractionRatio: 0.2,
-  shininess: 0.2
+  bumpMap: TextureArg,
+  bumpScale: { ...NormalizedFloatArg, default: 0.025 },
+  displacementBias: NormalizedFloatArg,
+  displacementMap: TextureArg,
+  displacementScale: { ...FloatArg, default: 0.025 },
+  dithering: { ...BoolArg, default: true },
+  emissive: ColorArg,
+  emissiveIntensity: { ...FloatArg, default: 1 },
+  emissiveMap: TextureArg,
+  normalMap: TextureArg,
+  fog: BoolArg,
+  opacity: { ...NormalizedFloatArg, default: 1 },
+  transparent: BoolArg,
+  reflectivity: NormalizedFloatArg,
+  refractionRatio: { ...NormalizedFloatArg, default: 0.2 },
+  shininess: { ...NormalizedFloatArg, default: 0.2 }
 }
 
-export default async function Phong(args?: MeshPhongMaterialParameters): Promise<MaterialParms> {
+export default function Phong(args?: MeshPhongMaterialParameters): MaterialParms {
   const _args = args ? { ...format(DefaultArgs), ...args } : format(DefaultArgs)
   return {
     material: new MeshPhongMaterial(_args),

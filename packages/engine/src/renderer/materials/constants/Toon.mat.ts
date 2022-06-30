@@ -1,25 +1,26 @@
 import { Color, MeshToonMaterial, MeshToonMaterialParameters, Texture } from 'three'
 
 import { MaterialParms } from '../MaterialParms'
-import { formatMaterialArgs as format } from '../Utilities'
+import { extractDefaults as format } from '../Utilities'
 import { BasicArgs } from './Basic.mat'
+import { BoolArg, ColorArg, FloatArg, NormalizedFloatArg, TextureArg } from './DefaultArgs'
 
-export const DefaultArgs: MeshToonMaterialParameters = {
+export const DefaultArgs = {
   ...BasicArgs,
-  displacementBias: 0,
-  displacementMap: new Texture(),
-  displacementScale: 0.025,
-  emissive: new Color(0, 0, 0),
-  emissiveIntensity: 1.0,
-  emissiveMap: new Texture(),
-  fog: false,
-  gradientMap: new Texture(),
-  normalMap: new Texture(),
-  transparent: false,
-  opacity: 1.0
+  displacementBias: FloatArg,
+  displacementMap: TextureArg,
+  displacementScale: { ...NormalizedFloatArg, default: 0.025 },
+  emissive: ColorArg,
+  emissiveIntensity: { ...FloatArg, default: 1 },
+  emissiveMap: TextureArg,
+  fog: BoolArg,
+  gradientMap: TextureArg,
+  normalMap: TextureArg,
+  transparent: BoolArg,
+  opacity: { ...NormalizedFloatArg, default: 1 }
 }
 
-export default async function Toon(args?: MeshToonMaterialParameters): Promise<MaterialParms> {
+export default function Toon(args?: MeshToonMaterialParameters): MaterialParms {
   return {
     material: new MeshToonMaterial(args ? { ...format(DefaultArgs), ...args } : format(DefaultArgs)),
     update: (dt) => {}

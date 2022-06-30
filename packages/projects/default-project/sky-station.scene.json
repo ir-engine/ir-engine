@@ -10,16 +10,6 @@
           }
         },
         {
-          "name": "fog",
-          "props": {
-            "type": "disabled",
-            "color": 16777215,
-            "near": 0.0025,
-            "far": 1000,
-            "density": 0.0025
-          }
-        },
-        {
           "name": "audio-settings",
           "props": {
             "usePositionalAudio": true,
@@ -55,15 +45,15 @@
         {
           "name": "envmap",
           "props": {
-            "type": 1,
-            "envMapTextureType": 0,
+            "type": "Texture",
+            "envMapTextureType": "Cubemap",
             "envMapSourceColor": 16777215,
             "envMapSourceURL": "/hdr/cubemap/MilkyWay/",
             "envMapIntensity": 3.5,
-            "envMapCubemapBake": {
-              "bakeType": 1,
+            "envMapBake": {
+              "bakeType": "Baked",
               "resolution": 2048,
-              "refreshMode": 0,
+              "refreshMode": "OnAwake",
               "envMapOrigin": "",
               "boxProjection": true,
               "bakePosition": {
@@ -86,13 +76,13 @@
           }
         },
         {
-          "name": "cubemapbake",
+          "name": "envmapbake",
           "props": {
             "options": {
-              "bakeType": 1,
+              "bakeType": "Baked",
               "resolution": 2048,
-              "refreshMode": 0,
-              "envMapOrigin": "__$project$__/default-project/sky-station.cubemap.png",
+              "refreshMode": "OnAwake",
+              "envMapOrigin": "__$project$__/default-project/sky-station.envmap.png",
               "boxProjection": true,
               "bakePosition": {
                 "x": 0,
@@ -397,15 +387,15 @@
         {
           "name": "envmap",
           "props": {
-            "type": 3,
-            "envMapTextureType": 0,
+            "type": "None",
+            "envMapTextureType": "Cubemap",
             "envMapSourceColor": 1193046,
             "envMapSourceURL": "/hdr/cubemap/skyboxsun25deg/",
             "envMapIntensity": 1,
-            "envMapCubemapBake": {
-              "bakeType": 1,
+            "envMapBake": {
+              "bakeType": "Baked",
               "resolution": 2048,
-              "refreshMode": 0,
+              "refreshMode": "OnAwake",
               "envMapOrigin": "",
               "boxProjection": true,
               "bakePosition": {
@@ -734,15 +724,15 @@
         {
           "name": "envmap",
           "props": {
-            "type": 3,
-            "envMapTextureType": 0,
+            "type": "None",
+            "envMapTextureType": "Cubemap",
             "envMapSourceColor": 1193046,
             "envMapSourceURL": "/hdr/cubemap/skyboxsun25deg/",
             "envMapIntensity": 1,
-            "envMapCubemapBake": {
-              "bakeType": 1,
+            "envMapBake": {
+              "bakeType": "Baked",
               "resolution": 2048,
-              "refreshMode": 0,
+              "refreshMode": "OnAwake",
               "envMapOrigin": "",
               "boxProjection": true,
               "bakePosition": {
@@ -881,15 +871,15 @@
         {
           "name": "envmap",
           "props": {
-            "type": 3,
-            "envMapTextureType": 0,
+            "type": "None",
+            "envMapTextureType": "Cubemap",
             "envMapSourceColor": 1193046,
             "envMapSourceURL": "/hdr/cubemap/skyboxsun25deg/",
             "envMapIntensity": 1,
-            "envMapCubemapBake": {
-              "bakeType": 1,
+            "envMapBake": {
+              "bakeType": "Baked",
               "resolution": 2048,
-              "refreshMode": 0,
+              "refreshMode": "OnAwake",
               "envMapOrigin": "",
               "boxProjection": true,
               "bakePosition": {

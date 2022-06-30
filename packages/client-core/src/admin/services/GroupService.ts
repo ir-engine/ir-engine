@@ -3,8 +3,8 @@ import { GroupResult } from '@xrengine/common/src/interfaces/GroupResult'
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
+import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
-import { client } from '../../feathers'
 
 //State
 export const GROUP_PAGE_LIMIT = 100
@@ -24,34 +24,46 @@ const AdminGroupState = defineState({
   })
 })
 
-export const AdminGroupServiceReceptor = (action) => {
-  getState(AdminGroupState).batch((s) => {
-    matches(action)
-      .when(AdminGroupActions.fetchingGroup.matches, (action) => {
-        return s.merge({ fetching: true })
-      })
-      .when(AdminGroupActions.setAdminGroup.matches, (action) => {
-        return s.merge({
-          group: action.list.data,
-          skip: action.list.skip,
-          limit: action.list.limit,
-          total: action.list.total,
-          retrieving: false,
-          fetched: true,
-          updateNeeded: false,
-          lastFetched: Date.now()
-        })
-      })
-      .when(AdminGroupActions.updateGroup.matches, (action) => {
-        return s.merge({ updateNeeded: true })
-      })
-      .when(AdminGroupActions.removeGroupAction.matches, (action) => {
-        return s.merge({ updateNeeded: true })
-      })
-      .when(AdminGroupActions.addAdminGroup.matches, (action) => {
-        return s.merge({ updateNeeded: true })
-      })
+const fetchingGroupReceptor = (action: typeof AdminGroupActions.fetchingGroup.matches._TYPE) => {
+  const state = getState(AdminGroupState)
+  return state.merge({ fetching: true })
+}
+
+const setAdminGroupReceptor = (action: typeof AdminGroupActions.setAdminGroup.matches._TYPE) => {
+  const state = getState(AdminGroupState)
+  return state.merge({
+    group: action.list.data,
+    skip: action.list.skip,
+    limit: action.list.limit,
+    total: action.list.total,
+    retrieving: false,
+    fetched: true,
+    updateNeeded: false,
+    lastFetched: Date.now()
   })
+}
+
+const updateGroupReceptor = (action: typeof AdminGroupActions.updateGroup.matches._TYPE) => {
+  const state = getState(AdminGroupState)
+  return state.merge({ updateNeeded: true })
+}
+
+const removeGroupActionReceptor = (action: typeof AdminGroupActions.removeGroupAction.matches._TYPE) => {
+  const state = getState(AdminGroupState)
+  return state.merge({ updateNeeded: true })
+}
+
+const addAdminGroupReceptor = (action: typeof AdminGroupActions.addAdminGroup.matches._TYPE) => {
+  const state = getState(AdminGroupState)
+  return state.merge({ updateNeeded: true })
+}
+
+export const AdminGroupServiceReceptors = {
+  fetchingGroupReceptor,
+  setAdminGroupReceptor,
+  updateGroupReceptor,
+  removeGroupActionReceptor,
+  addAdminGroupReceptor
 }
 
 export const accessAdminGroupState = () => getState(AdminGroupState)
@@ -69,7 +81,7 @@ export const AdminGroupService = {
         sortData[sortField] = orderBy === 'desc' ? 0 : 1
       }
       dispatchAction(AdminGroupActions.fetchingGroup())
-      const list = await client.service('group').find({
+      const list = await API.instance.client.service('group').find({
         query: {
           $sort: {
             ...sortData
@@ -86,7 +98,7 @@ export const AdminGroupService = {
   },
   createGroupByAdmin: async (groupItem: CreateGroup) => {
     try {
-      const newGroup = (await client.service('group').create({ ...groupItem })) as Group
+      const newGroup = (await API.instance.client.service('group').create({ ...groupItem })) as Group
       dispatchAction(AdminGroupActions.addAdminGroup({ item: newGroup }))
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
@@ -94,7 +106,7 @@ export const AdminGroupService = {
   },
   patchGroupByAdmin: async (groupId, groupItem) => {
     try {
-      const group = (await client.service('group').patch(groupId, groupItem)) as Group
+      const group = (await API.instance.client.service('group').patch(groupId, groupItem)) as Group
       dispatchAction(AdminGroupActions.updateGroup({ item: group }))
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
@@ -102,7 +114,7 @@ export const AdminGroupService = {
   },
   deleteGroupByAdmin: async (groupId) => {
     try {
-      await client.service('group').remove(groupId)
+      await API.instance.client.service('group').remove(groupId)
       dispatchAction(AdminGroupActions.removeGroupAction({ item: groupId }))
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })

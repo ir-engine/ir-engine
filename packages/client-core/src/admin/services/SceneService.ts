@@ -2,7 +2,7 @@ import { SceneMetadata } from '@xrengine/common/src/interfaces/SceneInterface'
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
-import { client } from '../../feathers'
+import { API } from '../../API'
 
 //State
 export const SCENE_PAGE_LIMIT = 100
@@ -21,18 +21,19 @@ const AdminSceneState = defineState({
   })
 })
 
-export const AdminSceneServiceReceptor = (action) => {
-  getState(AdminSceneState).batch((s) => {
-    matches(action).when(AdminSceneActions.scenesFetched.matches, (action) => {
-      return s.merge({
-        scenes: action.sceneData,
-        retrieving: false,
-        fetched: true,
-        updateNeeded: false,
-        lastFetched: Date.now()
-      })
-    })
+const scenesFetchedReceptor = (action: typeof AdminSceneActions.scenesFetched.matches._TYPE) => {
+  const state = getState(AdminSceneState)
+  return state.merge({
+    scenes: action.sceneData,
+    retrieving: false,
+    fetched: true,
+    updateNeeded: false,
+    lastFetched: Date.now()
   })
+}
+
+export const AdminSceneReceptors = {
+  scenesFetchedReceptor
 }
 
 export const accessAdminSceneState = () => getState(AdminSceneState)
@@ -41,7 +42,7 @@ export const useAdminSceneState = () => useState(accessAdminSceneState())
 
 export const AdminSceneService = {
   fetchAdminScenes: async (incDec?: 'increment' | 'decrement' | 'all') => {
-    const scenes = await client.service('scene').find()
+    const scenes = await API.instance.client.service('scene').find()
     dispatchAction(AdminSceneActions.scenesFetched({ sceneData: scenes.data }))
   }
 }

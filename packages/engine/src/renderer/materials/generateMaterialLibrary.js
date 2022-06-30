@@ -2,7 +2,7 @@ const fs = require("fs")
 
 let result = ""
 
-const constMaterials = fs.readdirSync("./constants").map((matFile) => {
+const constMaterials = fs.readdirSync("./constants").filter((matFile) => !/DefaultArgs/.test(matFile)).map((matFile) => {
     const matID = matFile.split('.')[0]
     result += `import ${matID}, { DefaultArgs as ${matID}DefaultArgs } from './constants/${matFile.replace(/\.ts$/, '')}'\n`
     return matID

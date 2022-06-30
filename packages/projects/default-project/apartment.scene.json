@@ -10,16 +10,6 @@
           }
         },
         {
-          "name": "fog",
-          "props": {
-            "type": "linear",
-            "color": 16777215,
-            "near": 1,
-            "far": 200,
-            "density": 0.040000000000000036
-          }
-        },
-        {
           "name": "audio-settings",
           "props": {
             "usePositionalAudio": true,
@@ -55,15 +45,15 @@
         {
           "name": "envmap",
           "props": {
-            "type": 1,
-            "envMapTextureType": 1,
+            "type": "Texture",
+            "envMapTextureType": "Equirectangular",
             "envMapSourceColor": 16777215,
             "envMapSourceURL": "/hdr/city.jpg",
             "envMapIntensity": 1,
-            "envMapCubemapBake": {
-              "bakeType": 1,
+            "envMapBake": {
+              "bakeType": "Baked",
               "resolution": 2048,
-              "refreshMode": 0,
+              "refreshMode": "OnAwake",
               "envMapOrigin": "",
               "boxProjection": true,
               "bakePosition": {
@@ -86,13 +76,13 @@
           }
         },
         {
-          "name": "cubemapbake",
+          "name": "envmapbake",
           "props": {
             "options": {
-              "bakeType": 1,
+              "bakeType": "Baked",
               "resolution": 2048,
-              "refreshMode": 0,
-              "envMapOrigin": "__$project$__/default-project/apartment.cubemap.png",
+              "refreshMode": "OnAwake",
+              "envMapOrigin": "__$project$__/default-project/apartment.envmap.png",
               "boxProjection": true,
               "bakePosition": {
                 "x": 0,
@@ -529,15 +519,15 @@
         {
           "name": "envmap",
           "props": {
-            "type": 3,
-            "envMapTextureType": 0,
+            "type": "None",
+            "envMapTextureType": "Cubemap",
             "envMapSourceColor": 1193046,
             "envMapSourceURL": "/hdr/cubemap/skyboxsun25deg/",
             "envMapIntensity": 1,
-            "envMapCubemapBake": {
-              "bakeType": 1,
+            "envMapBake": {
+              "bakeType": "Baked",
               "resolution": 2048,
-              "refreshMode": 0,
+              "refreshMode": "OnAwake",
               "envMapOrigin": "",
               "boxProjection": true,
               "bakePosition": {
@@ -887,12 +877,12 @@
           "props": {}
         },
         {
-          "name": "cubemapbake",
+          "name": "envmapbake",
           "props": {
             "options": {
-              "bakeType": 1,
+              "bakeType": "Baked",
               "resolution": 512,
-              "refreshMode": 0,
+              "refreshMode": "OnAwake",
               "envMapOrigin": "__$project$__/default-project/assets/apartment-CubemapBake.png",
               "boxProjection": true,
               "bakePosition": {
@@ -916,7 +906,7 @@
       ],
       "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
       "index": 16,
-      "name": "CubemapBake"
+      "name": "EnvMapBake"
     },
     "5BF21A35-BECE-4C15-A261-DAF1BA2FEB39": {
       "components": [
@@ -1031,15 +1021,15 @@
         {
           "name": "envmap",
           "props": {
-            "type": 3,
-            "envMapTextureType": 0,
+            "type": "None",
+            "envMapTextureType": "Cubemap",
             "envMapSourceColor": 1193046,
             "envMapSourceURL": "/hdr/cubemap/skyboxsun25deg/",
             "envMapIntensity": 1,
-            "envMapCubemapBake": {
-              "bakeType": 1,
+            "envMapBake": {
+              "bakeType": "Baked",
               "resolution": 2048,
-              "refreshMode": 0,
+              "refreshMode": "OnAwake",
               "envMapOrigin": "",
               "boxProjection": true,
               "bakePosition": {
@@ -1065,6 +1055,49 @@
       "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
       "index": 18,
       "name": "Model"
+    },
+    "93ab7fe5-1433-4adf-8366-a3ed50b61224": {
+      "components": [
+        {
+          "name": "transform",
+          "props": {
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "rotation": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "scale": {
+              "x": 1,
+              "y": 1,
+              "z": 1
+            }
+          }
+        },
+        {
+          "name": "visible",
+          "props": {}
+        },
+        {
+          "name": "fog",
+          "props": {
+            "type": "linear",
+            "color": 16777215,
+            "near": 1,
+            "far": 200,
+            "density": 0.005,
+            "height": 0.05,
+            "timeScale": 1
+          }
+        }
+      ],
+      "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
+      "index": 7,
+      "name": "Fog"
     }
   },
   "root": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC"

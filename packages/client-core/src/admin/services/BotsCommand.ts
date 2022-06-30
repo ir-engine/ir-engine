@@ -2,7 +2,7 @@ import { BotCommands, CreateBotCammand } from '@xrengine/common/src/interfaces/A
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
-import { client } from '../../feathers'
+import { API } from '../../API'
 
 //State
 export const BOTS_PAGE_LIMIT = 100
@@ -21,16 +21,18 @@ const AdminBotsCommandState = defineState({
   })
 })
 
-export const AdminBotsCommandServiceReceptor = (action) => {
-  getState(AdminBotsCommandState).batch((s) => {
-    matches(action)
-      .when(AdminBotCommandActions.botCammandCreated.matches, (action) => {
-        return s.merge({ updateNeeded: true })
-      })
-      .when(AdminBotCommandActions.botCommandRemoved.matches, (action) => {
-        return s.merge({ updateNeeded: true })
-      })
-  })
+const botCommandCreatedReceptor = (action: typeof AdminBotCommandActions.botCommandCreated.matches._TYPE) => {
+  const state = getState(AdminBotsCommandState)
+  return state.merge({ updateNeeded: true })
+}
+const botCommandRemovedReceptor = (action: typeof AdminBotCommandActions.botCommandRemoved.matches._TYPE) => {
+  const state = getState(AdminBotsCommandState)
+  return state.merge({ updateNeeded: true })
+}
+
+export const AdminBotsCommandReceptors = {
+  botCommandCreatedReceptor,
+  botCommandRemovedReceptor
 }
 
 export const accessAdminBotCommandState = () => getState(AdminBotsCommandState)
@@ -41,15 +43,15 @@ export const useAdminBotCommandState = () => useState(accessAdminBotCommandState
 export const AdminBotCommandService = {
   createBotCammand: async (data: CreateBotCammand) => {
     try {
-      const botCommand = (await client.service('bot-command').create(data)) as BotCommands
-      dispatchAction(AdminBotCommandActions.botCammandCreated({ botCommand }))
+      const botCommand = (await API.instance.client.service('bot-command').create(data)) as BotCommands
+      dispatchAction(AdminBotCommandActions.botCommandCreated({ botCommand }))
     } catch (error) {
       console.error(error)
     }
   },
   removeBotsCommand: async (id: string) => {
     try {
-      const result = (await client.service('bot-command').remove(id)) as BotCommands
+      const result = (await API.instance.client.service('bot-command').remove(id)) as BotCommands
       dispatchAction(AdminBotCommandActions.botCommandRemoved({ botCommand: result }))
     } catch (error) {
       console.error(error)
@@ -58,7 +60,7 @@ export const AdminBotCommandService = {
 }
 //Action
 export class AdminBotCommandActions {
-  static botCammandCreated = defineAction({
+  static botCommandCreated = defineAction({
     type: 'BOT_COMMAND_ADMIN_CREATE' as const,
     botCommand: matches.object as Validator<unknown, BotCommands>
   })

@@ -1,5 +1,5 @@
 import { HookContext } from '@feathersjs/feathers'
-import { iff, isProvider } from 'feathers-hooks-common'
+import { disallow, iff, isProvider } from 'feathers-hooks-common'
 
 import authenticate from '../../hooks/authenticate'
 
@@ -7,7 +7,7 @@ export default {
   before: {
     all: [iff(isProvider('external'), authenticate() as any)],
     find: [],
-    get: [],
+    get: [disallow()],
     create: [],
     update: [],
     patch: [],
@@ -21,7 +21,6 @@ export default {
     create: [
       async (context: HookContext): Promise<HookContext> => {
         const { app, result } = context
-        const user = await app.service('user').get(result.userId)
         await app.service('message').create(
           {
             targetObjectId: result.relatedUserId,

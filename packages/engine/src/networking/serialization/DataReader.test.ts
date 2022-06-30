@@ -5,6 +5,7 @@ import { Group, Quaternion, Vector3 } from 'three'
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 
+import { createMockNetwork } from '../../../tests/util/createMockNetwork'
 import { roundNumberToPlaces } from '../../common/functions/roundVector'
 import { createQuaternionProxy, createVector3Proxy } from '../../common/proxies/three'
 import { Engine } from '../../ecs/classes/Engine'
@@ -51,6 +52,7 @@ import { createViewCursor, readFloat32, readUint8, readUint32, sliceViewCursor, 
 describe('DataReader', () => {
   beforeEach(() => {
     createEngine()
+    createMockNetwork()
   })
 
   it('should checkBitflag', () => {
@@ -442,8 +444,9 @@ describe('DataReader', () => {
 
     NetworkObjectComponent.networkId[entity] = networkId
 
-    Engine.instance.currentWorld.userIndexToUserId = new Map([[userIndex, userId]])
-    Engine.instance.currentWorld.userIdToUserIndex = new Map([[userId, userIndex]])
+    const network = Engine.instance.currentWorld.worldNetwork
+    network.userIndexToUserId = new Map([[userIndex, userId]])
+    network.userIdToUserIndex = new Map([[userId, userIndex]])
 
     // construct values for a valid quaternion
     const [a, b, c] = [0.167, 0.167, 0.167]
@@ -515,8 +518,9 @@ describe('DataReader', () => {
 
     NetworkObjectComponent.networkId[entity] = networkId
 
-    Engine.instance.currentWorld.userIndexToUserId = new Map([[userIndex, userId]])
-    Engine.instance.currentWorld.userIdToUserIndex = new Map([[userId, userIndex]])
+    const network = Engine.instance.currentWorld.worldNetwork
+    network.userIndexToUserId = new Map([[userIndex, userId]])
+    network.userIdToUserIndex = new Map([[userId, userIndex]])
 
     const [x, y, z, w] = [1.5, 2.5, 3.5, 4.5]
 
@@ -570,8 +574,9 @@ describe('DataReader', () => {
     Engine.instance.userId = userId
     const userIndex = 0
 
-    Engine.instance.currentWorld.userIndexToUserId = new Map([[userIndex, userId]])
-    Engine.instance.currentWorld.userIdToUserIndex = new Map([[userId, userIndex]])
+    const network = Engine.instance.currentWorld.worldNetwork
+    network.userIndexToUserId = new Map([[userIndex, userId]])
+    network.userIdToUserIndex = new Map([[userId, userIndex]])
 
     const [x, y, z, w] = [1.5, 2.5, 3.5, 4.5]
 
@@ -608,8 +613,9 @@ describe('DataReader', () => {
   it('should readEntities', () => {
     const writeView = createViewCursor()
 
-    Engine.instance.currentWorld.userIndexToUserId = new Map()
-    Engine.instance.currentWorld.userIdToUserIndex = new Map()
+    const network = Engine.instance.currentWorld.worldNetwork
+    network.userIndexToUserId = new Map()
+    network.userIdToUserIndex = new Map()
 
     const userId = 'userId' as UserId
     const n = 50
@@ -638,8 +644,8 @@ describe('DataReader', () => {
         prefab: '',
         parameters: {}
       })
-      Engine.instance.currentWorld.userIndexToUserId.set(userIndex, userId)
-      Engine.instance.currentWorld.userIdToUserIndex.set(userId, userIndex)
+      network.userIndexToUserId.set(userIndex, userId)
+      network.userIdToUserIndex.set(userId, userIndex)
     })
 
     writeEntities(writeView, entities)
@@ -677,15 +683,16 @@ describe('DataReader', () => {
 
   it('should createDataReader', () => {
     const write = createDataWriter()
+    const network = Engine.instance.currentWorld.worldNetwork
 
-    Engine.instance.currentWorld.userIndexToUserId = new Map()
-    Engine.instance.currentWorld.userIdToUserIndex = new Map()
+    network.userIndexToUserId = new Map()
+    network.userIdToUserIndex = new Map()
 
     Engine.instance.userId = 'userId' as UserId
     const userId = Engine.instance.userId
     const userIndex = 0
-    Engine.instance.currentWorld.userIndexToUserId.set(userIndex, userId)
-    Engine.instance.currentWorld.userIdToUserIndex.set(userId, userIndex)
+    network.userIndexToUserId.set(userIndex, userId)
+    network.userIdToUserIndex.set(userId, userIndex)
 
     const n = 10
     const entities: Entity[] = Array(n)
@@ -714,7 +721,7 @@ describe('DataReader', () => {
       })
     })
 
-    const packet = write(Engine.instance.currentWorld, entities)
+    const packet = write(Engine.instance.currentWorld, network, entities)
 
     const readView = createViewCursor(packet)
 
@@ -763,7 +770,7 @@ describe('DataReader', () => {
 
     const read = createDataReader()
 
-    read(Engine.instance.currentWorld, packet)
+    read(Engine.instance.currentWorld, network, packet)
 
     for (let i = 0; i < entities.length; i++) {
       const entity = entities[i]
@@ -782,8 +789,9 @@ describe('DataReader', () => {
   it('should createDataReader and return empty packet if no changes were made on a fixedTick not divisible by 60', () => {
     const write = createDataWriter()
 
-    Engine.instance.currentWorld.userIndexToUserId = new Map()
-    Engine.instance.currentWorld.userIdToUserIndex = new Map()
+    const network = Engine.instance.currentWorld.worldNetwork
+    network.userIndexToUserId = new Map()
+    network.userIdToUserIndex = new Map()
     Engine.instance.currentWorld.fixedTick = 1
 
     const n = 10
@@ -808,11 +816,11 @@ describe('DataReader', () => {
         prefab: '',
         parameters: {}
       })
-      Engine.instance.currentWorld.userIndexToUserId.set(userIndex, userId)
-      Engine.instance.currentWorld.userIdToUserIndex.set(userId, userIndex)
+      network.userIndexToUserId.set(userIndex, userId)
+      network.userIdToUserIndex.set(userId, userIndex)
     })
 
-    const packet = write(Engine.instance.currentWorld, entities)
+    const packet = write(Engine.instance.currentWorld, network, entities)
 
     strictEqual(packet.byteLength, 0)
 
@@ -825,9 +833,10 @@ describe('DataReader', () => {
 
   it('should createDataReader and return populated packet if no changes were made but on a fixedTick divisible by 60', () => {
     const write = createDataWriter()
+    const network = Engine.instance.currentWorld.worldNetwork
 
-    Engine.instance.currentWorld.userIndexToUserId = new Map()
-    Engine.instance.currentWorld.userIdToUserIndex = new Map()
+    network.userIndexToUserId = new Map()
+    network.userIdToUserIndex = new Map()
     Engine.instance.currentWorld.fixedTick = 60
 
     const n = 10
@@ -852,11 +861,11 @@ describe('DataReader', () => {
         prefab: '',
         parameters: {}
       })
-      Engine.instance.currentWorld.userIndexToUserId.set(userIndex, userId)
-      Engine.instance.currentWorld.userIdToUserIndex.set(userId, userIndex)
+      network.userIndexToUserId.set(userIndex, userId)
+      network.userIdToUserIndex.set(userId, userIndex)
     })
 
-    const packet = write(Engine.instance.currentWorld, entities)
+    const packet = write(Engine.instance.currentWorld, network, entities)
 
     strictEqual(packet.byteLength, 252)
   })
@@ -864,8 +873,9 @@ describe('DataReader', () => {
   it('should createDataReader and detect changes', () => {
     const write = createDataWriter()
 
-    Engine.instance.currentWorld.userIndexToUserId = new Map()
-    Engine.instance.currentWorld.userIdToUserIndex = new Map()
+    const network = Engine.instance.currentWorld.worldNetwork
+    network.userIndexToUserId = new Map()
+    network.userIdToUserIndex = new Map()
     Engine.instance.currentWorld.fixedTick = 1
 
     const n = 10
@@ -890,11 +900,11 @@ describe('DataReader', () => {
         prefab: '',
         parameters: {}
       })
-      Engine.instance.currentWorld.userIndexToUserId.set(userIndex, userId)
-      Engine.instance.currentWorld.userIdToUserIndex.set(userId, userIndex)
+      network.userIndexToUserId.set(userIndex, userId)
+      network.userIdToUserIndex.set(userId, userIndex)
     })
 
-    let packet = write(Engine.instance.currentWorld, entities)
+    let packet = write(Engine.instance.currentWorld, network, entities)
 
     strictEqual(packet.byteLength, 0)
 
@@ -910,7 +920,7 @@ describe('DataReader', () => {
     TransformComponent.position.y[entity] = 1
     TransformComponent.position.z[entity] = 1
 
-    packet = write(Engine.instance.currentWorld, entities)
+    packet = write(Engine.instance.currentWorld, network, entities)
 
     strictEqual(packet.byteLength, 31)
 

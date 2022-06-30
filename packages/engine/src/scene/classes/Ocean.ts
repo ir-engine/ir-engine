@@ -23,6 +23,8 @@ import {
 } from 'three'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
+import { OBCType } from '../../common/constants/OBCTypes'
+import { addOBCPlugin } from '../../common/functions/OnBeforeCompilePlugin'
 import { insertAfterString, insertBeforeString } from '../../common/functions/string'
 import { Entity } from '../../ecs/classes/Entity'
 import { Object3DWithEntity } from '../components/Object3DComponent'
@@ -189,80 +191,83 @@ export class Ocean extends Mesh<PlaneBufferGeometry, MeshPhongMaterial> {
     material.combine = AddOperation
     material.needsUpdate = true
 
-    material.onBeforeCompile = (shader) => {
-      const viewportSize = new Vector2(window.innerWidth, window.innerHeight)
+    addOBCPlugin(material, {
+      id: OBCType.OCEAN,
+      compile: (shader) => {
+        const viewportSize = new Vector2(window.innerWidth, window.innerHeight)
 
-      shader.uniforms.time = { value: 0 }
-      shader.uniforms.distortionMap = { value: null }
-      shader.uniforms.depthMap = { value: null }
-      shader.uniforms.viewportSize = { value: viewportSize }
-      shader.uniforms.cameraNearFar = { value: new Vector2(0.1, 100) }
-      shader.uniforms.shallowWaterColor = { value: this._shallowWaterColor }
-      shader.uniforms.opacityRange = { value: this._opacityRange }
-      shader.uniforms.bigWaveUVScale = { value: this._bigWaveTiling }
-      shader.uniforms.bigWaveSpeed = { value: this._bigWaveSpeed }
-      shader.uniforms.bigWaveScale = { value: 0.7 }
-      shader.uniforms.shallowToDeepDistance = { value: 0.1 }
-      shader.uniforms.opacityFadeDistance = { value: 0.1 }
-      shader.uniforms.waveDistortionFactor = { value: 7.0 }
-      shader.uniforms.waveUVFactor = { value: 12.0 }
-      shader.uniforms.waveDistortionSpeed = { value: this._waveDistortionSpeed }
-      shader.uniforms.waveSpeed = { value: this._waveSpeed }
-      shader.uniforms.foamColor = { value: this._foamColor }
-      shader.uniforms.foamSpeed = { value: this._foamSpeed }
-      shader.uniforms.foamScale = { value: 2.0 }
+        shader.uniforms.time = { value: 0 }
+        shader.uniforms.distortionMap = { value: null }
+        shader.uniforms.depthMap = { value: null }
+        shader.uniforms.viewportSize = { value: viewportSize }
+        shader.uniforms.cameraNearFar = { value: new Vector2(0.1, 100) }
+        shader.uniforms.shallowWaterColor = { value: this._shallowWaterColor }
+        shader.uniforms.opacityRange = { value: this._opacityRange }
+        shader.uniforms.bigWaveUVScale = { value: this._bigWaveTiling }
+        shader.uniforms.bigWaveSpeed = { value: this._bigWaveSpeed }
+        shader.uniforms.bigWaveScale = { value: 0.7 }
+        shader.uniforms.shallowToDeepDistance = { value: 0.1 }
+        shader.uniforms.opacityFadeDistance = { value: 0.1 }
+        shader.uniforms.waveDistortionFactor = { value: 7.0 }
+        shader.uniforms.waveUVFactor = { value: 12.0 }
+        shader.uniforms.waveDistortionSpeed = { value: this._waveDistortionSpeed }
+        shader.uniforms.waveSpeed = { value: this._waveSpeed }
+        shader.uniforms.foamColor = { value: this._foamColor }
+        shader.uniforms.foamSpeed = { value: this._foamSpeed }
+        shader.uniforms.foamScale = { value: 2.0 }
 
-      shader.vertexShader = insertBeforeString(shader.vertexShader, 'varying vec3 vViewPosition;', vertexUniforms)
-      shader.vertexShader = insertBeforeString(shader.vertexShader, 'void main()', vertexFunctions)
+        shader.vertexShader = insertBeforeString(shader.vertexShader, 'varying vec3 vViewPosition;', vertexUniforms)
+        shader.vertexShader = insertBeforeString(shader.vertexShader, 'void main()', vertexFunctions)
 
-      shader.vertexShader = insertBeforeString(
-        shader.vertexShader,
-        '#include <defaultnormal_vertex>',
+        shader.vertexShader = insertBeforeString(
+          shader.vertexShader,
+          '#include <defaultnormal_vertex>',
+          `
+        vec2 waveUv = panner( bigWaveUVScale * uv, time, bigWaveSpeed );
+        float waveHeight = getWaveHeight( waveUv );
+        objectNormal = calculateNormal(waveUv);
         `
-      vec2 waveUv = panner( bigWaveUVScale * uv, time, bigWaveSpeed );
-      float waveHeight = getWaveHeight( waveUv );
-      objectNormal = calculateNormal(waveUv);
-      `
-      )
+        )
 
-      // Transform vertex
-      shader.vertexShader = shader.vertexShader.replace(
-        '#include <project_vertex>',
+        // Transform vertex
+        shader.vertexShader = shader.vertexShader.replace(
+          '#include <project_vertex>',
+          `
+        vec4 mvPosition = vec4( transformed, 1.0 );
+        mvPosition = modelMatrix * mvPosition;
+        mvPosition.y += waveHeight;
+        mvPosition = viewMatrix * mvPosition;
+        gl_Position = projectionMatrix * mvPosition;
         `
-      vec4 mvPosition = vec4( transformed, 1.0 );
-      mvPosition = modelMatrix * mvPosition;
-      mvPosition.y += waveHeight;
-      mvPosition = viewMatrix * mvPosition;
-      gl_Position = projectionMatrix * mvPosition;
-      `
-      )
+        )
 
-      shader.fragmentShader = insertBeforeString(shader.fragmentShader, 'uniform vec3 diffuse;', fragUniforms)
-      shader.fragmentShader = insertBeforeString(shader.fragmentShader, 'void main()', fragmentFunctions)
+        shader.fragmentShader = insertBeforeString(shader.fragmentShader, 'uniform vec3 diffuse;', fragUniforms)
+        shader.fragmentShader = insertBeforeString(shader.fragmentShader, 'void main()', fragmentFunctions)
 
-      shader.fragmentShader = insertAfterString(
-        shader.fragmentShader,
-        'vec4 diffuseColor = vec4( diffuse, opacity );',
-        `float colorFade = depthFade(shallowToDeepDistance);
-      diffuseColor.rgb = mix(shallowWaterColor, diffuse, colorFade);
-      diffuseColor.rgb = foam(diffuseColor.rgb);
-      float opacityFade = depthFade(opacityFadeDistance);
-      diffuseColor.a = clamp(opacityFade, opacityRange.x, opacityRange.y);
-      `
-      )
+        shader.fragmentShader = insertAfterString(
+          shader.fragmentShader,
+          'vec4 diffuseColor = vec4( diffuse, opacity );',
+          `float colorFade = depthFade(shallowToDeepDistance);
+        diffuseColor.rgb = mix(shallowWaterColor, diffuse, colorFade);
+        diffuseColor.rgb = foam(diffuseColor.rgb);
+        float opacityFade = depthFade(opacityFadeDistance);
+        diffuseColor.a = clamp(opacityFade, opacityRange.x, opacityRange.y);
+        `
+        )
 
-      // Small wave normal map
-      let normal_fragment_maps = ShaderChunk.normal_fragment_maps
-      normal_fragment_maps = normal_fragment_maps.replace(
-        'vec3 mapN = texture2D( normalMap, vUv ).xyz * 2.0 - 1.0;',
-        `float waveDist = texture( distortionMap, panner( waveDistortionFactor * vUv, time, waveDistortionSpeed ) ).y * 0.05;
-      vec3 mapN = texture( normalMap, panner( waveUVFactor * vUv, time, waveSpeed ) + waveDist ).xyz * 2.0 - 1.0;
-      `
-      )
+        // Small wave normal map
+        let normal_fragment_maps = ShaderChunk.normal_fragment_maps
+        normal_fragment_maps = normal_fragment_maps.replace(
+          'vec3 mapN = texture2D( normalMap, vUv ).xyz * 2.0 - 1.0;',
+          `float waveDist = texture( distortionMap, panner( waveDistortionFactor * vUv, time, waveDistortionSpeed ) ).y * 0.05;
+        vec3 mapN = texture( normalMap, panner( waveUVFactor * vUv, time, waveSpeed ) + waveDist ).xyz * 2.0 - 1.0;
+        `
+        )
 
-      shader.fragmentShader = shader.fragmentShader.replace('#include <normal_fragment_maps>', normal_fragment_maps)
-      this.material.userData.shader = shader
-    }
+        shader.fragmentShader = shader.fragmentShader.replace('#include <normal_fragment_maps>', normal_fragment_maps)
+        this.material.userData.shader = shader
+      }
+    })
   }
 
   setupRenderTarget() {

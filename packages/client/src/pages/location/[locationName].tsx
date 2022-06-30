@@ -9,19 +9,18 @@ import LoadLocationScene from '@xrengine/client-core/src/components/World/LoadLo
 import NetworkInstanceProvisioning from '@xrengine/client-core/src/components/World/NetworkInstanceProvisioning'
 import OfflineLocation from '@xrengine/client-core/src/components/World/OfflineLocation'
 import { LocationAction, useLocationState } from '@xrengine/client-core/src/social/services/LocationService'
-import { useDispatch } from '@xrengine/client-core/src/store'
-import { DefaultLocationSystems } from '@xrengine/client-core/src/systems/DefaultLocationSystems'
 import { AuthService } from '@xrengine/client-core/src/user/services/AuthService'
+import { DefaultLocationSystems } from '@xrengine/client-core/src/world/DefaultLocationSystems'
 import { SceneService } from '@xrengine/client-core/src/world/services/SceneService'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { useHookEffect } from '@xrengine/hyperflux'
+import { dispatchAction } from '@xrengine/hyperflux'
 
 const LocationPage = () => {
   const { t } = useTranslation()
   const match = useRouteMatch()
   const { search } = useLocation()
-  const dispatch = useDispatch()
   const engineState = useEngineState()
   const locationState = useLocationState()
   const offline = new URLSearchParams(search).get('offline') === 'true'
@@ -29,9 +28,11 @@ const LocationPage = () => {
   const params = match.params as any
   const locationName = params.locationName ?? `${params.projectName}/${params.sceneName}`
 
+  AuthService.useAPIListeners()
+  SceneService.useAPIListeners()
+
   useEffect(() => {
-    dispatch(LocationAction.setLocationName(locationName))
-    AuthService.listenForUserPatch()
+    dispatchAction(LocationAction.setLocationName({ locationName }))
     Engine.instance.injectedSystems.push(...DefaultLocationSystems)
   }, [])
 

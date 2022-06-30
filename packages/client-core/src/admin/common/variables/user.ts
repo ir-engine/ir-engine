@@ -10,7 +10,7 @@ export const userColumns: UserColumn[] = [
   { id: 'avatarId', label: 'Avatar', minWidth: 65 },
   {
     id: 'userRole',
-    label: 'Status',
+    label: 'Role',
     minWidth: 65,
     align: 'right'
   },
@@ -52,6 +52,7 @@ export interface UserData {
   action: any
 }
 export interface UserProps {
+  className?: string
   removeUserAdmin?: any
   authState?: any
   adminUserState?: any

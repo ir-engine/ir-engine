@@ -2,7 +2,7 @@ import { AdminAnalytics, AdminAnalyticsResult } from '@xrengine/common/src/inter
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
-import { client } from '../../feathers'
+import { API } from '../../API'
 
 //State
 export const ANALYTICS_PAGE_LIMIT = 100
@@ -21,50 +21,71 @@ const AdminAnalyticsState = defineState({
   })
 })
 
-export const AdminAnalyticsServiceReceptor = (action) => {
-  getState(AdminAnalyticsState).batch((s) => {
-    matches(action)
-      .when(AdminAnalyticsActions.activeInstancesFetched.matches, (action) => {
-        return s.merge({
-          activeInstances: action.analytics.data.reverse()
-        })
-      })
-      .when(AdminAnalyticsActions.activePartiesFetched.matches, (action) => {
-        return s.merge({
-          activeParties: action.analytics.data.reverse()
-        })
-      })
-      .when(AdminAnalyticsActions.activeLocationsFetched.matches, (action) => {
-        return s.merge({
-          activeLocations: action.analytics.data.reverse()
-        })
-      })
-      .when(AdminAnalyticsActions.activeScenesFetched.matches, (action) => {
-        return s.merge({
-          activeScenes: action.analytics.data.reverse()
-        })
-      })
-      .when(AdminAnalyticsActions.channelUsersFetched.matches, (action) => {
-        return s.merge({
-          channelUsers: action.analytics.data.reverse()
-        })
-      })
-      .when(AdminAnalyticsActions.instanceUsersFetched.matches, (action) => {
-        return s.merge({
-          instanceUsers: action.analytics.data.reverse()
-        })
-      })
-      .when(AdminAnalyticsActions.dailyNewUsersFetched.matches, (action) => {
-        return s.merge({
-          dailyNewUsers: action.analytics.data.reverse()
-        })
-      })
-      .when(AdminAnalyticsActions.dailyUsersFetched.matches, (action) => {
-        return s.merge({
-          dailyUsers: action.analytics.data.reverse()
-        })
-      })
+const activeInstancesFetchedReceptor = (action: typeof AdminAnalyticsActions.activeInstancesFetched.matches._TYPE) => {
+  const state = getState(AdminAnalyticsState)
+  return state.merge({
+    activeInstances: action.analytics.data.reverse()
   })
+}
+
+const activePartiesFetchedReceptor = (action: typeof AdminAnalyticsActions.activePartiesFetched.matches._TYPE) => {
+  const state = getState(AdminAnalyticsState)
+  return state.merge({
+    activeParties: action.analytics.data.reverse()
+  })
+}
+
+const activeLocationsFetchedReceptor = (action: typeof AdminAnalyticsActions.activeLocationsFetched.matches._TYPE) => {
+  const state = getState(AdminAnalyticsState)
+  return state.merge({
+    activeLocations: action.analytics.data.reverse()
+  })
+}
+
+const activeScenesFetchedReceptor = (action: typeof AdminAnalyticsActions.activeScenesFetched.matches._TYPE) => {
+  const state = getState(AdminAnalyticsState)
+  return state.merge({
+    activeScenes: action.analytics.data.reverse()
+  })
+}
+
+const channelUsersFetchedReceptor = (action: typeof AdminAnalyticsActions.channelUsersFetched.matches._TYPE) => {
+  const state = getState(AdminAnalyticsState)
+  return state.merge({
+    channelUsers: action.analytics.data.reverse()
+  })
+}
+
+const instanceUsersFetchedReceptor = (action: typeof AdminAnalyticsActions.instanceUsersFetched.matches._TYPE) => {
+  const state = getState(AdminAnalyticsState)
+  return state.merge({
+    instanceUsers: action.analytics.data.reverse()
+  })
+}
+
+const dailyNewUsersFetchedReceptor = (action: typeof AdminAnalyticsActions.dailyNewUsersFetched.matches._TYPE) => {
+  const state = getState(AdminAnalyticsState)
+  return state.merge({
+    dailyNewUsers: action.analytics.data.reverse()
+  })
+}
+
+const dailyUsersFetchedReceptor = (action: typeof AdminAnalyticsActions.dailyUsersFetched.matches._TYPE) => {
+  const state = getState(AdminAnalyticsState)
+  return state.merge({
+    dailyUsers: action.analytics.data.reverse()
+  })
+}
+
+export const AdminAnalyticsReceptors = {
+  activeInstancesFetchedReceptor,
+  activePartiesFetchedReceptor,
+  activeLocationsFetchedReceptor,
+  activeScenesFetchedReceptor,
+  channelUsersFetchedReceptor,
+  instanceUsersFetchedReceptor,
+  dailyNewUsersFetchedReceptor,
+  dailyUsersFetchedReceptor
 }
 
 export const accessAdminAnalyticsState = () => getState(AdminAnalyticsState)
@@ -90,7 +111,7 @@ export const ADminAnalyticsService = {
         }
       }
 
-      const activeParties = await client.service('analytics').find({
+      const activeParties = await API.instance.client.service('analytics').find({
         query: query
       })
       dispatchAction(AdminAnalyticsActions.activePartiesFetched({ analytics: activeParties }))
@@ -115,7 +136,7 @@ export const ADminAnalyticsService = {
     }
 
     try {
-      const activeInstances = await client.service('analytics').find({
+      const activeInstances = await API.instance.client.service('analytics').find({
         query: query
       })
       dispatchAction(AdminAnalyticsActions.activeInstancesFetched({ analytics: activeInstances }))
@@ -140,7 +161,7 @@ export const ADminAnalyticsService = {
         }
       }
 
-      const activeLocations = await client.service('analytics').find({
+      const activeLocations = await API.instance.client.service('analytics').find({
         query: query
       })
       dispatchAction(AdminAnalyticsActions.activeLocationsFetched({ analytics: activeLocations }))
@@ -165,7 +186,7 @@ export const ADminAnalyticsService = {
         }
       }
 
-      const activeScenes = await client.service('analytics').find({
+      const activeScenes = await API.instance.client.service('analytics').find({
         query: query
       })
       dispatchAction(AdminAnalyticsActions.activeScenesFetched({ analytics: activeScenes }))
@@ -190,7 +211,7 @@ export const ADminAnalyticsService = {
         }
       }
 
-      const channelUsers = await client.service('analytics').find({
+      const channelUsers = await API.instance.client.service('analytics').find({
         query: query
       })
       dispatchAction(AdminAnalyticsActions.channelUsersFetched({ analytics: channelUsers }))
@@ -215,7 +236,7 @@ export const ADminAnalyticsService = {
         }
       }
 
-      const instanceUsers = await client.service('analytics').find({
+      const instanceUsers = await API.instance.client.service('analytics').find({
         query: query
       })
       dispatchAction(AdminAnalyticsActions.instanceUsersFetched({ analytics: instanceUsers }))
@@ -240,7 +261,7 @@ export const ADminAnalyticsService = {
         }
       }
 
-      const dailyUsers = await client.service('analytics').find({
+      const dailyUsers = await API.instance.client.service('analytics').find({
         query: query
       })
       dispatchAction(AdminAnalyticsActions.dailyUsersFetched({ analytics: dailyUsers }))
@@ -265,7 +286,7 @@ export const ADminAnalyticsService = {
         }
       }
 
-      const dailyNewUsers = await client.service('analytics').find({
+      const dailyNewUsers = await API.instance.client.service('analytics').find({
         query: query
       })
       dispatchAction(AdminAnalyticsActions.dailyNewUsersFetched({ analytics: dailyNewUsers }))

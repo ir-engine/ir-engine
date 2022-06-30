@@ -8,7 +8,6 @@ import {
   Button,
   Dialog,
   Divider,
-  Drawer,
   IconButton,
   List,
   ListItem,
@@ -21,9 +20,11 @@ import {
   TableContainer,
   TableHead,
   TablePagination,
-  TableRow
+  TableRow,
+  Typography
 } from '@mui/material'
 
+import DrawerView from '../../../common/DrawerView'
 import InputSelect, { InputMenuItem } from '../../../common/InputSelect'
 import InputText from '../../../common/InputText'
 import styles from '../../../styles/settings.module.scss'
@@ -88,10 +89,10 @@ const ThemePlayground = () => {
       instanceId: 'koqwndpkqwndpkqwndpqkwndm',
       action: (
         <>
-          <a href="#h" className="actionStyle" onClick={() => {}}>
+          <a href="#" className="actionStyle" onClick={() => {}}>
             <span className="spanWhite">View</span>
           </a>
-          <a href="#h" className="actionStyle" onClick={() => {}}>
+          <a href="#" className="actionStyle" onClick={() => {}}>
             <span className="spanDange">Delete</span>
           </a>
         </>
@@ -105,10 +106,10 @@ const ThemePlayground = () => {
       instanceId: 'alksdnvoakewndawepdnpqwdew',
       action: (
         <>
-          <a href="#h" className="actionStyle" onClick={() => {}}>
+          <a href="#" className="actionStyle" onClick={() => {}}>
             <span className="spanWhite">View</span>
           </a>
-          <a href="#h" className="actionStyle" onClick={() => {}}>
+          <a href="#" className="actionStyle" onClick={() => {}}>
             <span className="spanDange">Delete</span>
           </a>
         </>
@@ -122,10 +123,10 @@ const ThemePlayground = () => {
       instanceId: 'qkpwejdpqwdmpqlcmnpqwmndqow',
       action: (
         <>
-          <a href="#h" className="actionStyle" onClick={() => {}}>
+          <a href="#" className="actionStyle" onClick={() => {}}>
             <span className="spanWhite">View</span>
           </a>
-          <a href="#h" className="actionStyle" onClick={() => {}}>
+          <a href="#" className="actionStyle" onClick={() => {}}>
             <span className="spanDange">Delete</span>
           </a>
         </>
@@ -142,12 +143,12 @@ const ThemePlayground = () => {
 
   return (
     <>
-      <label>Theme Playground:</label>
-      <br />
-      <br />
+      <Typography component="h1" className={styles.settingsHeading}>
+        {t('admin:components.setting.themePlayground')}
+      </Typography>
       <Box className="themeDemoArea">
         <nav className="navbar">
-          <div className="logoSection">XR-Engine</div>
+          <div className="logoSection">XREngine</div>
         </nav>
         <div className="mainSection">
           <div className="sidebar">
@@ -319,12 +320,7 @@ const ThemePlayground = () => {
               <Button variant="contained" className="filledButton" onClick={() => setDrawerValue(true)}>
                 Open Drawer
               </Button>
-              <Drawer
-                open={drawerValue}
-                anchor="right"
-                classes={{ paper: 'drawer' }}
-                onClose={() => setDrawerValue(false)}
-              ></Drawer>
+              <DrawerView open={drawerValue} onClose={() => setDrawerValue(false)}></DrawerView>
               <div className="textHeading">Popup</div>
               <Button variant="contained" className="filledButton" onClick={() => setDialog(true)}>
                 Open Popup

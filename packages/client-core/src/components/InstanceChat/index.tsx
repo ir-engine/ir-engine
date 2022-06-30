@@ -1,10 +1,10 @@
+import { Downgraded } from '@speigg/hookstate'
 import React, { Fragment, useEffect, useRef, useState } from 'react'
 
 import { useLocationInstanceConnectionState } from '@xrengine/client-core/src/common/services/LocationInstanceConnectionService'
 import { ChatService, ChatServiceReceptor, useChatState } from '@xrengine/client-core/src/social/services/ChatService'
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import { notificationAlertURL } from '@xrengine/common/src/constants/URL'
-import { Channel } from '@xrengine/common/src/interfaces/Channel'
 import multiLogger from '@xrengine/common/src/logger'
 import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
 import { useAudioState } from '@xrengine/engine/src/audio/AudioState'
@@ -63,23 +63,15 @@ export const useChatHooks = ({ chatWindowOpen, setUnreadMessages, messageRefInpu
    * Message display logic
    */
 
-  const chatState = useChatState()
-  const channelState = chatState.channels
-  const channels = channelState.channels.value
-
-  const activeChannelMatch = Object.entries(channels).find(([key, channel]) => channel.channelType === 'instance')
-  const activeChannel = activeChannelMatch && activeChannelMatch[1]
-  const sortedMessages = activeChannel
-    ? [...activeChannel.messages].sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
-    : []
+  const chatState = useChatState().attach(Downgraded).value
+  const channels = chatState.channels.channels
+  const activeChannelMatch = Object.values(channels).find((channel) => channel.channelType === 'instance')
+  const activeChannel = activeChannelMatch?.messages ? activeChannelMatch.messages : []
+  const sortedMessages = activeChannel.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
 
   useEffect(() => {
-    activeChannel &&
-      activeChannel.messages &&
-      activeChannel.messages.length > 0 &&
-      !chatWindowOpen &&
-      setUnreadMessages(true)
-  }, [activeChannel?.messages])
+    if (activeChannel?.length > 0 && !chatWindowOpen) setUnreadMessages(true)
+  }, [activeChannel])
 
   /**
    * Message composition logic
@@ -104,7 +96,7 @@ export const useChatHooks = ({ chatWindowOpen, setUnreadMessages, messageRefInpu
         WorldNetworkAction.setUserTyping({
           typing: false
         }),
-        [Engine.instance.currentWorld.worldNetwork.hostId]
+        Engine.instance.currentWorld.worldNetwork.hostId
       )
     }, 3000)
 
@@ -133,7 +125,7 @@ export const useChatHooks = ({ chatWindowOpen, setUnreadMessages, messageRefInpu
           WorldNetworkAction.setUserTyping({
             typing: true
           }),
-          [Engine.instance.currentWorld.worldNetwork.hostId]
+          Engine.instance.currentWorld.worldNetwork.hostId
         )
       }
     }
@@ -143,7 +135,7 @@ export const useChatHooks = ({ chatWindowOpen, setUnreadMessages, messageRefInpu
           WorldNetworkAction.setUserTyping({
             typing: false
           }),
-          [Engine.instance.currentWorld.worldNetwork.hostId]
+          Engine.instance.currentWorld.worldNetwork.hostId
         )
       }
     }
@@ -158,7 +150,7 @@ export const useChatHooks = ({ chatWindowOpen, setUnreadMessages, messageRefInpu
           WorldNetworkAction.setUserTyping({
             typing: false
           }),
-          [Engine.instance.currentWorld.worldNetwork.hostId]
+          Engine.instance.currentWorld.worldNetwork.hostId
         )
       }
 
@@ -243,6 +235,7 @@ const InstanceChat = ({
   const chatState = useChatState()
 
   // TODO: move to register event for chat widget
+  ChatService.useAPIListeners()
   useEffect(() => {
     addActionReceptor(ChatServiceReceptor)
     return () => {
@@ -271,7 +264,7 @@ const InstanceChat = ({
     const loadPromise = AssetLoader.loadAsync(notificationAlertURL)
     const node = createEntityNode(createEntity(Engine.instance.currentWorld))
     setEntity(node.entity)
-    createNewEditorNode(node.entity, ScenePrefabs.audio)
+    createNewEditorNode(node, ScenePrefabs.audio)
     addEntityNodeInTree(node, Engine.instance.currentWorld.entityTree.rootNode)
     const audioComponent = getComponent(node.entity, AudioComponent)
     audioComponent.volume = audioState.audio.value / 100
@@ -332,63 +325,65 @@ const InstanceChat = ({
         className={styles.backdrop + ' ' + (!chatWindowOpen ? styles.hideBackDrop : '')}
       ></div>
       <div className={styles['instance-chat-container'] + ' ' + (chatWindowOpen ? styles.open : '')}>
-        <div ref={messageRef} className={styles['instance-chat-msg-container']}>
-          <div className={styles['list-container']}>
-            <Card square={true} elevation={0} className={styles['message-wrapper']}>
-              <CardContent className={styles['message-container']}>
-                {sortedMessages &&
-                  sortedMessages.map((message, index, messages) => (
-                    <Fragment key={message.id}>
-                      {!isLeftOrJoinText(message.text) ? (
-                        <div key={message.id} className={`${styles.dFlex} ${styles.flexColumn} ${styles.mgSmall}`}>
-                          <div className={`${styles.selfEnd} ${styles.noMargin}`}>
-                            <div className={styles.dFlex}>
-                              <div className={styles.msgWrapper}>
-                                {messages[index - 1] && isLeftOrJoinText(messages[index - 1].text) ? (
-                                  <h3 className={styles.sender}>{message.sender.name}</h3>
+        {chatWindowOpen && (
+          <div ref={messageRef} className={styles['instance-chat-msg-container']}>
+            <div className={styles['list-container']}>
+              <Card square={true} elevation={0} className={styles['message-wrapper']}>
+                <CardContent className={styles['message-container']}>
+                  {sortedMessages &&
+                    sortedMessages.map((message, index, messages) => (
+                      <Fragment key={message.id}>
+                        {!isLeftOrJoinText(message.text) ? (
+                          <div key={message.id} className={`${styles.dFlex} ${styles.flexColumn} ${styles.mgSmall}`}>
+                            <div className={`${styles.selfEnd} ${styles.noMargin}`}>
+                              <div className={styles.dFlex}>
+                                <div className={styles.msgWrapper}>
+                                  {messages[index - 1] && isLeftOrJoinText(messages[index - 1].text) ? (
+                                    <h3 className={styles.sender}>{message.sender.name}</h3>
+                                  ) : (
+                                    messages[index - 1] &&
+                                    message.senderId !== messages[index - 1].senderId && (
+                                      <h3 className={styles.sender}>{message.sender.name}</h3>
+                                    )
+                                  )}
+                                  <div
+                                    className={`${
+                                      message.senderId !== user?.id.value ? styles.msgReplyContainer : styles.msgOwner
+                                    } ${styles.msgContainer} ${styles.mx2}`}
+                                  >
+                                    <p className={styles.text}>{message.text}</p>
+                                  </div>
+                                </div>
+                                {index !== 0 && messages[index - 1] && isLeftOrJoinText(messages[index - 1].text) ? (
+                                  <Avatar src={getAvatarURLForUser(message.senderId)} className={styles.avatar} />
                                 ) : (
                                   messages[index - 1] &&
                                   message.senderId !== messages[index - 1].senderId && (
-                                    <h3 className={styles.sender}>{message.sender.name}</h3>
+                                    <Avatar src={getAvatarURLForUser(message.senderId)} className={styles.avatar} />
                                   )
                                 )}
-                                <div
-                                  className={`${
-                                    message.senderId !== user?.id.value ? styles.msgReplyContainer : styles.msgOwner
-                                  } ${styles.msgContainer} ${styles.mx2}`}
-                                >
-                                  <p className={styles.text}>{message.text}</p>
-                                </div>
-                              </div>
-                              {index !== 0 && messages[index - 1] && isLeftOrJoinText(messages[index - 1].text) ? (
-                                <Avatar src={getAvatarURLForUser(message.senderId)} className={styles.avatar} />
-                              ) : (
-                                messages[index - 1] &&
-                                message.senderId !== messages[index - 1].senderId && (
+                                {index === 0 && (
                                   <Avatar src={getAvatarURLForUser(message.senderId)} className={styles.avatar} />
-                                )
-                              )}
-                              {index === 0 && (
-                                <Avatar src={getAvatarURLForUser(message.senderId)} className={styles.avatar} />
-                              )}
+                                )}
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      ) : (
-                        <div key={message.id} className={`${styles.selfEnd} ${styles.noMargin}`}>
-                          <div className={styles.dFlex}>
-                            <div className={`${styles.msgNotification} ${styles.mx2}`}>
-                              <p className={styles.greyText}>{message.text}</p>
+                        ) : (
+                          <div key={message.id} className={`${styles.selfEnd} ${styles.noMargin}`}>
+                            <div className={styles.dFlex}>
+                              <div className={`${styles.msgNotification} ${styles.mx2}`}>
+                                <p className={styles.greyText}>{message.text}</p>
+                              </div>
                             </div>
                           </div>
-                        </div>
-                      )}
-                    </Fragment>
-                  ))}
-              </CardContent>
-            </Card>
+                        )}
+                      </Fragment>
+                    ))}
+                </CardContent>
+              </Card>
+            </div>
           </div>
-        </div>
+        )}
         <div className={`${styles['bottom-box']}`}>
           <div className={`${styles['chat-input']} ${chatWindowOpen ? '' : styles.invisible} `}>
             <Card className={styles['chat-view']} style={{ boxShadow: 'none' }}>
@@ -443,7 +438,12 @@ const InstanceChat = ({
               invisible={!unreadMessages}
               anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
             >
-              <Fab className={styles.chatBadge} color="primary" onClick={() => toggleChatWindow()}>
+              <Fab
+                id="openMessagesButton"
+                className={styles.chatBadge}
+                color="primary"
+                onClick={() => toggleChatWindow()}
+              >
                 {!chatWindowOpen ? (
                   <MessageButton />
                 ) : (

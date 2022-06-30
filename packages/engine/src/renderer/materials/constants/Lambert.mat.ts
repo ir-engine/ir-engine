@@ -1,22 +1,23 @@
 import { Color, MeshLambertMaterial, MeshLambertMaterialParameters, Texture } from 'three'
 
 import { MaterialParms } from '../MaterialParms'
-import { formatMaterialArgs as format } from '../Utilities'
+import { extractDefaults as format } from '../Utilities'
 import { BasicArgs } from './Basic.mat'
+import { BoolArg, ColorArg, FloatArg, NormalizedFloatArg, TextureArg } from './DefaultArgs'
 
-export const DefaultArgs: MeshLambertMaterialParameters = {
+export const DefaultArgs = {
   ...BasicArgs,
-  emissive: new Color(0, 0, 0),
-  emissiveIntensity: 1.0,
-  emissiveMap: new Texture(),
-  fog: false,
-  opacity: 1.0,
-  transparent: false,
-  reflectivity: 0,
-  refractionRatio: 0.2
+  emissive: ColorArg,
+  emissiveIntensity: { ...FloatArg, default: 1 },
+  emissiveMap: TextureArg,
+  fog: BoolArg,
+  opacity: { ...NormalizedFloatArg, default: 1 },
+  transparent: BoolArg,
+  reflectivity: NormalizedFloatArg,
+  refractionRatio: { ...NormalizedFloatArg, default: 0.2 }
 }
 
-export default async function Lambert(args?: MeshLambertMaterialParameters): Promise<MaterialParms> {
+export default function Lambert(args?: MeshLambertMaterialParameters): MaterialParms {
   return {
     material: new MeshLambertMaterial(args ? { ...format(DefaultArgs), ...args } : format(DefaultArgs)),
     update: (dt) => {}

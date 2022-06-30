@@ -1,6 +1,6 @@
-import { createState, useState } from '@speigg/hookstate'
-
+import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { XR_FOLLOW_MODE, XR_ROTATION_MODE } from '@xrengine/engine/src/xr/types/XRUserSettings'
+import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
 type AvatarInputSettingsStateType = {
   controlType: 'None' | 'XR Hands' | 'Oculus Quest'
@@ -13,61 +13,55 @@ type AvatarInputSettingsStateType = {
   showAvatar: boolean
 }
 
-const state = createState<AvatarInputSettingsStateType>({
-  controlType: 'None',
-  invertRotationAndMoveSticks: true,
-  // TODO: implement the following
-  moving: XR_FOLLOW_MODE.CONTROLLER,
-  // rotation mode
-  rotation: XR_ROTATION_MODE.ANGLED,
-  // 0.1, 0.3, 0.5, 0.8, 1
-  rotationSmoothSpeed: 0.1,
-  // 15, 30, 45, 60
-  rotationAngle: 30,
-  rotationInvertAxes: true,
-  showAvatar: true
+const AvatarInputSettingsState = defineState({
+  name: 'AvatarInputSettingsState',
+  initial: () => ({
+    controlType: 'None',
+    invertRotationAndMoveSticks: true,
+    // TODO: implement the following
+    moving: XR_FOLLOW_MODE.CONTROLLER,
+    // rotation mode
+    rotation: XR_ROTATION_MODE.ANGLED,
+    // 0.1, 0.3, 0.5, 0.8, 1
+    rotationSmoothSpeed: 0.1,
+    // 15, 30, 45, 60
+    rotationAngle: 30,
+    rotationInvertAxes: true,
+    showAvatar: true
+  })
 })
 
-export function AvatarInputSettingsReceptor(action: AvatarInputSettingsActionType) {
-  state.batch((s) => {
-    switch (action.type) {
-      case 'AVATAR_SET_CONTROL_MODEL':
+export function AvatarInputSettingsReceptor(action) {
+  getState(AvatarInputSettingsState).batch((s) => {
+    matches(action)
+      .when(AvatarInputSettingsAction.setControlType.matches, (action) => {
         return s.merge({ controlType: action.controlType })
-      case 'SET_INVERT_ROTATION_AND_MOVE_STICKS':
+      })
+      .when(AvatarInputSettingsAction.setInvertRotationAndMoveSticks.matches, (action) => {
         return s.merge({ invertRotationAndMoveSticks: action.invertRotationAndMoveSticks })
-      case 'SET_SHOW_AVATAR':
+      })
+      .when(AvatarInputSettingsAction.setShowAvatar.matches, (action) => {
         return s.merge({ showAvatar: action.showAvatar })
-    }
-  }, action.type)
+      })
+  })
 }
 
-export const useAvatarInputSettingsState = () => useState(state) as any as typeof state
-export const accessAvatarInputSettingsState = () => state
+export const accessAvatarInputSettingsState = () => getState(AvatarInputSettingsState)
+export const useAvatarInputSettingsState = () => useState(accessAvatarInputSettingsState())
 
-export const AvatarInputSettingsAction = {
-  setControlType: (controlType: AvatarInputSettingsStateType['controlType']) => {
-    return {
-      store: 'ENGINE' as const,
-      type: 'AVATAR_SET_CONTROL_MODEL' as const,
-      controlType
-    }
-  },
-  setInvertRotationAndMoveSticks: (invertRotationAndMoveSticks: boolean) => {
-    return {
-      store: 'ENGINE' as const,
-      type: 'SET_INVERT_ROTATION_AND_MOVE_STICKS' as const,
-      invertRotationAndMoveSticks
-    }
-  },
-  setShowAvatar: (showAvatar: boolean) => {
-    return {
-      store: 'ENGINE' as const,
-      type: 'SET_SHOW_AVATAR' as const,
-      showAvatar
-    }
-  }
+export class AvatarInputSettingsAction {
+  static setControlType = defineAction({
+    type: 'AVATAR_SET_CONTROL_MODEL' as const,
+    controlType: matches.string as Validator<unknown, AvatarInputSettingsStateType['controlType']>
+  })
+
+  static setInvertRotationAndMoveSticks = defineAction({
+    type: 'SET_INVERT_ROTATION_AND_MOVE_STICKS' as const,
+    invertRotationAndMoveSticks: matches.boolean
+  })
+
+  static setShowAvatar = defineAction({
+    type: 'SET_SHOW_AVATAR' as const,
+    showAvatar: matches.boolean
+  })
 }
-
-export type AvatarInputSettingsActionType = ReturnType<
-  typeof AvatarInputSettingsAction[keyof typeof AvatarInputSettingsAction]
->

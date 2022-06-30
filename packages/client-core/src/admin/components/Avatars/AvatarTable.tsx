@@ -2,42 +2,40 @@ import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { AvatarInterface } from '@xrengine/common/src/interfaces/AvatarInterface'
-import { dispatchAction } from '@xrengine/hyperflux'
 
-import Drawer from '@mui/material/Drawer'
+import Box from '@mui/material/Box'
 
-import AvatarSelectMenu from '../../../user/components/UserMenu/menus/AvatarSelectMenu'
 import { useAuthState } from '../../../user/services/AuthService'
 import ConfirmModal from '../../common/ConfirmModal'
 import TableComponent from '../../common/Table'
 import { avatarColumns, AvatarData } from '../../common/variables/avatar'
-import { AdminAvatarActions, AVATAR_PAGE_LIMIT } from '../../services/AvatarService'
+import { AVATAR_PAGE_LIMIT } from '../../services/AvatarService'
 import { useAdminAvatarState } from '../../services/AvatarService'
 import { AdminAvatarService } from '../../services/AvatarService'
 import styles from '../../styles/admin.module.scss'
+import AvatarDrawer, { AvatarDrawerMode } from './AvatarDrawer'
 
 interface Props {
-  // locationState?: any
+  className?: string
   search: string
 }
 
-const AvatarTable = ({ search }: Props) => {
+const AvatarTable = ({ className, search }: Props) => {
+  const { t } = useTranslation()
+  const { user } = useAuthState().value
   const adminAvatarState = useAdminAvatarState()
-  const authState = useAuthState()
-  const user = authState.user
   const adminAvatars = adminAvatarState.avatars
   const adminAvatarCount = adminAvatarState.total
-  const { t } = useTranslation()
 
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(AVATAR_PAGE_LIMIT)
-  const [popConfirmOpen, setPopConfirmOpen] = useState(false)
+  const [openConfirm, setOpenConfirm] = useState(false)
   const [avatarId, setAvatarId] = useState('')
   const [avatarName, setAvatarName] = useState('')
   const [fieldOrder, setFieldOrder] = useState('asc')
   const [sortField, setSortField] = useState('name')
-  const [viewModal, setViewModal] = useState(false)
-  const [avatarData, setViewAvatarData] = useState<AvatarInterface | null>(null)
+  const [openAvatarDrawer, setOpenAvatarDrawer] = useState(false)
+  const [avatarData, setAvatarData] = useState<AvatarInterface | null>(null)
 
   const handlePageChange = (event: unknown, newPage: number) => {
     AdminAvatarService.fetchAdminAvatars(newPage, search, sortField, fieldOrder)
@@ -50,10 +48,6 @@ const AvatarTable = ({ search }: Props) => {
     }
   }, [fieldOrder])
 
-  const handleCloseModal = () => {
-    setPopConfirmOpen(false)
-  }
-
   const handleRowsPerPageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setRowsPerPage(parseInt(event.target.value, 10))
     setPage(0)
@@ -61,7 +55,7 @@ const AvatarTable = ({ search }: Props) => {
 
   useEffect(() => {
     AdminAvatarService.fetchAdminAvatars(0, search, sortField, fieldOrder)
-  }, [user?.id?.value, search, adminAvatarState.updateNeeded.value])
+  }, [user?.id, search, adminAvatarState.updateNeeded.value])
 
   const createData = (
     el: AvatarInterface,
@@ -77,22 +71,22 @@ const AvatarTable = ({ search }: Props) => {
       action: (
         <>
           <a
-            href="#h"
+            href="#"
             className={styles.actionStyle}
             onClick={() => {
-              setViewAvatarData(el)
-              setViewModal(true)
+              setAvatarData(el)
+              setOpenAvatarDrawer(true)
             }}
           >
             <span className={styles.spanWhite}>{t('user:avatar.view')}</span>
           </a>
           <a
-            href="#h"
+            href="#"
             className={styles.actionStyle}
             onClick={() => {
-              setPopConfirmOpen(true)
               setAvatarId(el.id)
               setAvatarName(name as any)
+              setOpenConfirm(true)
             }}
           >
             <span className={styles.spanDange}>{t('user:avatar.delete')}</span>
@@ -108,15 +102,11 @@ const AvatarTable = ({ search }: Props) => {
 
   const submitRemoveAvatar = async () => {
     await AdminAvatarService.removeAdminAvatar(avatarId, avatarName)
-    setPopConfirmOpen(false)
-  }
-
-  const closeViewModal = () => {
-    setViewModal(false)
+    setOpenConfirm(false)
   }
 
   return (
-    <React.Fragment>
+    <Box className={className}>
       <TableComponent
         allowSort={false}
         fieldOrder={fieldOrder}
@@ -130,23 +120,23 @@ const AvatarTable = ({ search }: Props) => {
         handlePageChange={handlePageChange}
         handleRowsPerPageChange={handleRowsPerPageChange}
       />
+
       <ConfirmModal
-        open={popConfirmOpen}
+        open={openConfirm}
         description={`${t('admin:components.avatar.confirmAvatarDelete')} '${avatarName}'?`}
-        onClose={handleCloseModal}
+        onClose={() => setOpenConfirm(false)}
         onSubmit={submitRemoveAvatar}
       />
-      {avatarData && viewModal && (
-        <Drawer anchor="right" open={viewModal} onClose={closeViewModal} classes={{ paper: styles.paperDrawer }}>
-          <AvatarSelectMenu
-            adminStyles={styles}
-            onAvatarUpload={() => dispatchAction(AdminAvatarActions.avatarUpdated())}
-            changeActiveMenu={closeViewModal}
-            avatarData={avatarData}
-          />
-        </Drawer>
+
+      {avatarData && openAvatarDrawer && (
+        <AvatarDrawer
+          open
+          selectedAvatar={avatarData}
+          mode={AvatarDrawerMode.ViewEdit}
+          onClose={() => setOpenAvatarDrawer(false)}
+        />
       )}
-    </React.Fragment>
+    </Box>
   )
 }
 

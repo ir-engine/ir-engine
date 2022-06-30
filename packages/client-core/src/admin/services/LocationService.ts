@@ -5,8 +5,8 @@ import { LocationType } from '@xrengine/common/src/interfaces/LocationType'
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
+import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
-import { client } from '../../feathers'
 
 //State
 export const LOCATION_PAGE_LIMIT = 100
@@ -27,34 +27,48 @@ const AdminLocationState = defineState({
   })
 })
 
-export const AdminLocationServiceReceptor = (action) => {
-  getState(AdminLocationState).batch((s) => {
-    matches(action)
-      .when(AdminLocationActions.locationsRetrieved.matches, (action) => {
-        return s.merge({
-          locations: action.locations.data,
-          skip: action.locations.skip,
-          limit: action.locations.limit,
-          total: action.locations.total,
-          retrieving: false,
-          fetched: true,
-          updateNeeded: false,
-          lastFetched: Date.now()
-        })
-      })
-      .when(AdminLocationActions.locationCreated.matches, (action) => {
-        return s.merge({ updateNeeded: true, created: true })
-      })
-      .when(AdminLocationActions.locationPatched.matches, (action) => {
-        return s.merge({ updateNeeded: true })
-      })
-      .when(AdminLocationActions.locationRemoved.matches, (action) => {
-        return s.merge({ updateNeeded: true })
-      })
-      .when(AdminLocationActions.locationTypesRetrieved.matches, (action) => {
-        return s.merge({ locationTypes: action.locationTypes.data, updateNeeded: false })
-      })
+export const locationsRetrievedReceptor = (action: typeof AdminLocationActions.locationsRetrieved.matches._TYPE) => {
+  const state = getState(AdminLocationState)
+  return state.merge({
+    locations: action.locations.data,
+    skip: action.locations.skip,
+    limit: action.locations.limit,
+    total: action.locations.total,
+    retrieving: false,
+    fetched: true,
+    updateNeeded: false,
+    lastFetched: Date.now()
   })
+}
+
+export const locationCreatedReceptor = (action: typeof AdminLocationActions.locationCreated.matches._TYPE) => {
+  const state = getState(AdminLocationState)
+  return state.merge({ updateNeeded: true, created: true })
+}
+
+export const locationPatchedReceptor = (action: typeof AdminLocationActions.locationPatched.matches._TYPE) => {
+  const state = getState(AdminLocationState)
+  return state.merge({ updateNeeded: true })
+}
+
+export const locationRemovedReceptor = (action: typeof AdminLocationActions.locationRemoved.matches._TYPE) => {
+  const state = getState(AdminLocationState)
+  return state.merge({ updateNeeded: true })
+}
+
+export const locationTypesRetrievedReceptor = (
+  action: typeof AdminLocationActions.locationTypesRetrieved.matches._TYPE
+) => {
+  const state = getState(AdminLocationState)
+  return state.merge({ locationTypes: action.locationTypes.data, updateNeeded: false })
+}
+
+export const AdminLocationReceptors = {
+  locationsRetrievedReceptor,
+  locationCreatedReceptor,
+  locationPatchedReceptor,
+  locationRemovedReceptor,
+  locationTypesRetrievedReceptor
 }
 
 export const accessAdminLocationState = () => getState(AdminLocationState)
@@ -64,24 +78,24 @@ export const useAdminLocationState = () => useState(accessAdminLocationState())
 //Service
 export const AdminLocationService = {
   fetchLocationTypes: async () => {
-    const locationTypes = (await client.service('location-type').find()) as Paginated<LocationType>
+    const locationTypes = (await API.instance.client.service('location-type').find()) as Paginated<LocationType>
     dispatchAction(AdminLocationActions.locationTypesRetrieved({ locationTypes }))
   },
   patchLocation: async (id: string, location: any) => {
     try {
-      const result = await client.service('location').patch(id, location)
+      const result = await API.instance.client.service('location').patch(id, location)
       dispatchAction(AdminLocationActions.locationPatched({ location: result }))
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   },
   removeLocation: async (id: string) => {
-    const result = await client.service('location').remove(id)
+    const result = await API.instance.client.service('location').remove(id)
     dispatchAction(AdminLocationActions.locationRemoved({ location: result }))
   },
   createLocation: async (location: any) => {
     try {
-      const result = await client.service('location').create(location)
+      const result = await API.instance.client.service('location').create(location)
       dispatchAction(AdminLocationActions.locationCreated({ location: result }))
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
@@ -104,7 +118,7 @@ export const AdminLocationService = {
         }
       }
 
-      const locations = (await client.service('location').find({
+      const locations = (await API.instance.client.service('location').find({
         query: {
           $sort: {
             ...sortData
@@ -126,7 +140,7 @@ export const AdminLocationService = {
   },
   searchAdminLocations: async (value, orderBy = 'asc') => {
     try {
-      const locations = (await client.service('location').find({
+      const locations = (await API.instance.client.service('location').find({
         query: {
           search: value,
           $sort: {

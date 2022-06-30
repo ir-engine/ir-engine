@@ -23,7 +23,9 @@ import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { AssetType } from '../../assets/enum/AssetType'
 import { AnimationManager } from '../../avatar/AnimationManager'
 import { LoopAnimationComponent } from '../../avatar/components/LoopAnimationComponent'
+import { OBCType } from '../../common/constants/OBCTypes'
 import { isClient } from '../../common/functions/isClient'
+import { addOBCPlugin } from '../../common/functions/OnBeforeCompilePlugin'
 import { insertAfterString, insertBeforeString } from '../../common/functions/string'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
@@ -38,7 +40,7 @@ import { Updatable } from '../../scene/interfaces/Updatable'
 import { createAvatarAnimationGraph } from '../animation/AvatarAnimationGraph'
 import { applySkeletonPose, isSkeletonInTPose, makeTPose } from '../animation/avatarPose'
 import { retargetSkeleton, syncModelSkeletons } from '../animation/retargetSkeleton'
-import avatarBoneMatching, { createSkeletonFromBone, findSkinnedMeshes } from '../AvatarBoneMatching'
+import avatarBoneMatching, { BoneNames, createSkeletonFromBone, findSkinnedMeshes } from '../AvatarBoneMatching'
 import { AnimationComponent } from '../components/AnimationComponent'
 import { AvatarAnimationComponent } from '../components/AvatarAnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
@@ -67,7 +69,11 @@ export const loadAvatarModelAsset = async (avatarURL: string) => {
     if (obj.material && obj.material.clone) {
       obj.material = obj.material.clone()
       //TODO: to fix alphablend issue of some models (mostly fbx converted models)
-      obj.material.depthWrite = true
+      if (obj.material.opacity != 0) {
+        obj.material.depthWrite = true
+      } else {
+        obj.material.depthWrite = false
+      }
       obj.material.depthTest = true
     }
     // Enable shadow for avatars
@@ -196,15 +202,18 @@ export const animateModel = (entity: Entity) => {
 
 export const setupAvatarMaterials = (entity, root) => {
   const materialList: Array<MaterialMap> = []
-
   setObjectLayers(root, ObjectLayers.Avatar)
+
+  const animationComponent = getComponent(entity, AvatarAnimationComponent)
+  const headBone = animationComponent.rig.Head
+
   root.traverse((object) => {
     if (object.isBone) object.visible = false
     if (object.material && object.material.clone) {
       const material = object.material.clone()
       // If local player's avatar
-      if (entity === Engine.instance.currentWorld.localClientEntity) {
-        setupHeadDecap(root, material)
+      if (object.isSkinnedMesh && headBone && entity === Engine.instance.currentWorld.localClientEntity) {
+        setupHeadDecap(object, headBone, material)
       }
       materialList.push({
         id: object.uuid,
@@ -320,33 +329,22 @@ export function makeSkinnedMeshFromBoneData(bonesData): SkinnedMesh {
  * @param model
  * @param material
  */
-function setupHeadDecap(model: Object3D, material: Material) {
-  const mesh = model.getObjectByProperty('type', 'SkinnedMesh') as SkinnedMesh
-
-  if (!mesh) {
-    console.warn("Could not find object's SkinnedMesh", model)
-    return
-  }
-
-  const bones = mesh.skeleton.bones
-  const headBone = bones.find((bone) => /head/i.test(bone.name))
-
-  if (!headBone) {
-    console.warn("Could not find SkinnedMesh's head bone", mesh)
-    return
-  }
-
+function setupHeadDecap(object: any, headBone: any | undefined, material: Material) {
   // Create a copy of the mesh to hide 'internal' polygons when opacity is below 1
-  const skinnedMeshMask = SkeletonUtils.clone(model).getObjectByProperty('type', 'SkinnedMesh') as SkinnedMesh
-  mesh.parent?.add(skinnedMeshMask)
-  skinnedMeshMask.skeleton = mesh.skeleton
-  skinnedMeshMask.bindMatrix = mesh.bindMatrix
-  skinnedMeshMask.bindMatrixInverse = mesh.bindMatrixInverse
-  skinnedMeshMask.material = new MeshBasicMaterial({ skinning: true, colorWrite: false } as any)
-  skinnedMeshMask.name = skinnedMeshMask.name + '_Mask'
-  skinnedMeshMask.renderOrder = 1
-  ;(mesh.material as any).depthWrite = false
+  if (material.opacity > 0) {
+    const mesh = object.getObjectByProperty('type', 'SkinnedMesh') as SkinnedMesh
+    const skinnedMeshMask = SkeletonUtils.clone(object).getObjectByProperty('type', 'SkinnedMesh') as SkinnedMesh
+    mesh.parent?.add(skinnedMeshMask)
+    skinnedMeshMask.skeleton = mesh.skeleton
+    skinnedMeshMask.bindMatrix = mesh.bindMatrix
+    skinnedMeshMask.bindMatrixInverse = mesh.bindMatrixInverse
+    skinnedMeshMask.material = new MeshBasicMaterial({ skinning: true, colorWrite: false } as any)
+    skinnedMeshMask.name = skinnedMeshMask.name + '_Mask'
+    skinnedMeshMask.renderOrder = 1
+    ;(mesh.material as any).depthWrite = false
+  }
 
+  const bones = object.skeleton.bones
   const bonesIndexes = getBoneChildrenIndexes(bones, headBone)
   const bonesToFade = new Matrix4()
   bonesToFade.elements.fill(-1)
@@ -384,57 +382,62 @@ function getBoneChildrenIndexes(bones: Object3D[], startingBone: Object3D): numb
  */
 export function addBoneOpacityParamsToMaterial(material, boneIndexes: Matrix4) {
   material.transparent = true
-  material.needsUpdate = true
-  material.onBeforeCompile = (shader, renderer) => {
-    shader.uniforms.boneIndexToFade = { value: boneIndexes }
-    shader.uniforms.boneOpacity = { value: 1.0 }
+  addOBCPlugin(material, {
+    id: OBCType.AVATAR,
+    compile: (shader) => {
+      shader.uniforms.boneIndexToFade = { value: boneIndexes }
+      shader.uniforms.boneOpacity = { value: 1.0 }
 
-    // Vertex Uniforms
-    const vertexUniforms = `uniform mat4 boneIndexToFade;
-      varying float vSelectedBone;`
+      // Vertex Uniforms
+      const vertexUniforms = `uniform mat4 boneIndexToFade;
+        varying float vSelectedBone;`
 
-    shader.vertexShader = insertBeforeString(shader.vertexShader, 'varying vec3 vViewPosition;', vertexUniforms)
+      shader.vertexShader = insertBeforeString(shader.vertexShader, 'varying vec3 vViewPosition;', vertexUniforms)
 
-    shader.vertexShader = insertAfterString(
-      shader.vertexShader,
-      '#include <skinning_vertex>',
-      `
-      vSelectedBone = 0.0;
+      shader.vertexShader = insertAfterString(
+        shader.vertexShader,
+        '#include <skinning_vertex>',
+        `
+        vSelectedBone = 0.0;
 
-      for(float i=0.0; i<16.0 && vSelectedBone == 0.0; i++){
-          int x = int(i/4.0);
-          int y = int(mod(i,4.0));
-          float boneIndex = boneIndexToFade[x][y];
-          if(boneIndex < 0.0) continue;
+        for(float i=0.0; i<16.0 && vSelectedBone == 0.0; i++){
+            int x = int(i/4.0);
+            int y = int(mod(i,4.0));
+            float boneIndex = boneIndexToFade[x][y];
+            if(boneIndex < 0.0) continue;
 
-          for(int j=0; j<4; j++){
-              if(skinIndex[j] == boneIndex){
-                  vSelectedBone = 1.0;
-                  break;
-              }
-          }
-      }
-      `
-    )
+            for(int j=0; j<4; j++){
+                if(skinIndex[j] == boneIndex){
+                    vSelectedBone = 1.0;
+                    break;
+                }
+            }
+        }
+        `
+      )
 
-    // Fragment Uniforms
-    const fragUniforms = `varying float vSelectedBone;
-      uniform float boneOpacity;
-      `
+      // Fragment Uniforms
+      const fragUniforms = `varying float vSelectedBone;
+        uniform float boneOpacity;
+        `
 
-    shader.fragmentShader = insertBeforeString(shader.fragmentShader, 'uniform vec3 diffuse;', fragUniforms)
+      shader.fragmentShader = insertBeforeString(shader.fragmentShader, 'uniform vec3 diffuse;', fragUniforms)
 
-    shader.fragmentShader = insertAfterString(
-      shader.fragmentShader,
-      'vec4 diffuseColor = vec4( diffuse, opacity );',
-      `if(vSelectedBone > 0.0){
-          diffuseColor.a = opacity * boneOpacity;
-      }
-      `
-    )
+      shader.fragmentShader = insertAfterString(
+        shader.fragmentShader,
+        'vec4 diffuseColor = vec4( diffuse, opacity );',
+        `if(vSelectedBone > 0.0){
+            diffuseColor.a = opacity * boneOpacity;
+            if (boneOpacity == 0.0) {
+              discard;
+            }
+        }
+        `
+      )
 
-    material.userData.shader = shader
-  }
+      material.userData.shader = shader
+    }
+  })
 }
 
 export const setAvatarHeadOpacity = (entity: Entity, opacity: number): void => {
@@ -447,10 +450,11 @@ export const setAvatarHeadOpacity = (entity: Entity, opacity: number): void => {
     if (shader?.uniforms) {
       shader.uniforms.boneOpacity.value = opacity
     }
+    material.transparent = opacity != 0
   })
 }
 
-export const getAvatarBoneWorldPosition = (entity: Entity, boneName: string, position: Vector3): boolean => {
+export const getAvatarBoneWorldPosition = (entity: Entity, boneName: BoneNames, position: Vector3): boolean => {
   const animationComponent = getComponent(entity, AvatarAnimationComponent)
   if (!animationComponent) return false
   const bone = animationComponent.rig[boneName]
