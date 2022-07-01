@@ -103,6 +103,9 @@ export const InteractiveModalView = () => {
           xr-pixel-ratio="1"
           dangerouslySetInnerHTML={{ __html: description.value || '' }}
         ></div>
+        <h5 className="price" xr-layer="true" xr-pixel-ratio="1.5">
+          Price: $125
+        </h5>
 
         <div className="model" xr-layer="true"></div>
       </div>
@@ -176,7 +179,7 @@ export const InteractiveModalView = () => {
           background:#0171C9;
           color: #fff;
           font-size: 15px;
-          width: 130px;
+          width: 120px;
           height: 40px
         }
         .link-cart {
@@ -188,7 +191,7 @@ export const InteractiveModalView = () => {
           background:#4E178B;
           color: #fff;
           font-size: 15px;
-          width: 130px;
+          width: 120px;
           height: 40px
         }
 
@@ -268,6 +271,14 @@ export const InteractiveModalView = () => {
           top: 30px;
           left: 30px;
           font-size: 20px;
+        }
+        .price{
+          position: absolute;
+          right: 215px;
+          bottom: 25px;
+          width: 80px;
+          color: #fff;
+          font-size: 12px;
         }
 
       `}

@@ -251,7 +251,9 @@ export const updateInteractUI = (modelEntity: Entity, xrui: ReturnType<typeof cr
   const eKeyMat = eKey.contentMesh.material as MeshBasicMaterial
 
   const description = uiContainer.rootLayer.querySelector('.description')!
+  const price = uiContainer.rootLayer.querySelector('.price')!
   const descriptionMat = description.contentMesh.material as MeshBasicMaterial
+  const priceMat = price.contentMesh.material as MeshBasicMaterial
 
   const stars = [
     uiContainer.rootLayer.querySelector('.star-1')!,
@@ -293,7 +295,9 @@ export const updateInteractUI = (modelEntity: Entity, xrui: ReturnType<typeof cr
     titleMat.opacity = MathUtils.lerp(titleMat.opacity, 0, alpha)
 
     description.position.lerp(description.domLayout.position, alpha)
+    price.position.lerp(price.domLayout.position, alpha)
     descriptionMat.opacity = MathUtils.lerp(descriptionMat.opacity, 0, alpha)
+    priceMat.opacity = MathUtils.lerp(priceMat.opacity, 0, alpha)
 
     link.position.lerp(link.domLayout.position, alpha)
     linkCart.position.lerp(linkCart.domLayout.position, alpha)
@@ -334,7 +338,9 @@ export const updateInteractUI = (modelEntity: Entity, xrui: ReturnType<typeof cr
     titleMat.opacity = MathUtils.lerp(titleMat.opacity, 1, alpha)
 
     description.position.lerp(description.domLayout.position, alpha)
+    price.position.lerp(price.domLayout.position, alpha)
     descriptionMat.opacity = MathUtils.lerp(descriptionMat.opacity, 0, alpha)
+    priceMat.opacity = MathUtils.lerp(priceMat.opacity, 0, alpha)
 
     link.position.lerp(link.domLayout.position, alpha)
     linkCart.position.lerp(linkCart.domLayout.position, alpha)
@@ -388,7 +394,9 @@ export const updateInteractUI = (modelEntity: Entity, xrui: ReturnType<typeof cr
     eKeyMat.opacity = MathUtils.lerp(eKeyMat.opacity, 0, alpha)
 
     description.position.lerp(description.domLayout.position, alpha)
+    price.position.lerp(price.domLayout.position, alpha)
     descriptionMat.opacity = MathUtils.lerp(descriptionMat.opacity, 1, alpha)
+    priceMat.opacity = MathUtils.lerp(priceMat.opacity, 1, alpha)
 
     link.position.lerp(link.domLayout.position, alpha)
     linkCart.position.lerp(linkCart.domLayout.position, alpha)
