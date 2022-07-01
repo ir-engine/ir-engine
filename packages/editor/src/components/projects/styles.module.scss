@@ -436,7 +436,7 @@
   }
 
   .deleteButtons {
-    display: flex
+    display: flex;
   }
 
   .processing {
@@ -499,4 +499,8 @@
       opacity: 1 !important;
     }
   }
+}
+
+.iconButton {
+  color: var(--iconButtonColor);
 }
