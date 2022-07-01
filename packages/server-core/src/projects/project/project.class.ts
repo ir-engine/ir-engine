@@ -238,7 +238,7 @@ export class Project extends Service {
    * @returns
    */
   // @ts-ignore
-  async update(data: { url: string; name?: string }, placeholder: null, params?: Params) {
+  async update(data: { url: string; name?: string }, placeholder?: null, params?: Params) {
     if (data.url === 'default-project') {
       copyDefaultProject()
       await uploadLocalProjectToProvider('default-project')
