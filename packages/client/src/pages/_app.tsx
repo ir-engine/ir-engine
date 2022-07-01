@@ -105,10 +105,6 @@ const App = (): any => {
   useEffect(initApp, [])
 
   useEffect(() => {
-    !clientSetting && ClientSettingService.fetchClientSettings()
-  }, [])
-
-  useEffect(() => {
     if (selfUser?.id && projectState.updateNeeded.value) ProjectService.fetchProjects()
   }, [selfUser, projectState.updateNeeded.value])
 
@@ -132,7 +128,7 @@ const App = (): any => {
       setDescription(clientSetting?.siteDescription)
       setClientThemeSettings(clientSetting?.themeSettings)
     }
-    ClientSettingService.fetchClientSettings()
+    if (clientSettingState?.updateNeeded?.value) ClientSettingService.fetchClientSettings()
   }, [clientSettingState?.updateNeeded?.value])
 
   useEffect(() => {
