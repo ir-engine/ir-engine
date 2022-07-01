@@ -1,8 +1,10 @@
 # Ethereal Engine _(XREngine)_
 
-![Ethereal Engine org black on white](https://user-images.githubusercontent.com/5104160/174094172-f7b6f90b-daad-4547-8c88-bb94372cffc1.png)
+![Ethereal Engine logo light mode](https://user-images.githubusercontent.com/507127/176916054-e2ddf82b-b8c6-4e9a-8607-44b6430f38ea.png#gh-light-mode-only)
 
->  Manifest your dreams on the open social special web.
+![Ethereal Engine logo dark mode](https://user-images.githubusercontent.com/507127/176916201-238cbf8f-7a79-4bdb-83b7-87c8edec1df1.png#gh-dark-mode-only)
+
+>  Manifest your dreams on the open social spatial web.
 
 ## Table of Contents
 

@@ -10,7 +10,7 @@ import { createEmoteDetailView } from './ui/EmoteDetailView'
 
 const widgetName = 'Emote Widget'
 
-export function createEmoteUI(world: World) {
+export function createEmoteWidget(world: World) {
   const ui = createEmoteDetailView()
 
   addComponent(ui.entity, PersistTagComponent, {})

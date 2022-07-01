@@ -5,14 +5,12 @@ import { XRUIComponent } from '@xrengine/engine/src/xrui/components/XRUIComponen
 import { ObjectFitFunctions } from '@xrengine/engine/src/xrui/functions/ObjectFitFunctions'
 import { Widgets } from '@xrengine/engine/src/xrui/Widgets'
 
-import SettingsIcon from '@mui/icons-material/Settings'
+import { createUploadAvatarMenu } from './ui/ProfileDetailView/UploadAvatarMenu'
 
-import { createSettingDetailView } from './ui/SettingDetailView'
+const widgetName = 'UploadAvatar'
 
-const widgetName = 'Settings'
-
-export function createSettingsUI(world: World) {
-  const ui = createSettingDetailView()
+export function createUploadAvatarWidget(world: World) {
+  const ui = createUploadAvatarMenu()
 
   addComponent(ui.entity, PersistTagComponent, {})
 
@@ -24,7 +22,6 @@ export function createSettingsUI(world: World) {
   Widgets.registerWidget(world, ui.entity, {
     ui,
     label: widgetName,
-    icon: SettingsIcon,
     system: () => {}
   })
 }

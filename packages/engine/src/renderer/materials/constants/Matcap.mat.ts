@@ -4,7 +4,7 @@ import { MaterialParms } from '../MaterialParms'
 import { extractDefaults as format } from '../Utilities'
 import { BoolArg, ColorArg, NormalizedFloatArg, TextureArg } from './DefaultArgs'
 
-export const MatcapArgs = {
+export const DefaultArgs = {
   alphaMap: TextureArg,
   alphaTest: NormalizedFloatArg,
   bumpMap: TextureArg,
@@ -19,7 +19,7 @@ export const MatcapArgs = {
 }
 
 export default function Matcap(args?: MeshMatcapMaterialParameters): MaterialParms {
-  const material = new MeshMatcapMaterial(args ? { ...format(MatcapArgs), ...args } : format(MatcapArgs))
+  const material = new MeshMatcapMaterial(args ? { ...format(DefaultArgs), ...args } : format(DefaultArgs))
   material.onBeforeCompile = (shader, renderer) => {
     ;['envMap', 'flipEnvMap', 'reflectivity', 'ior', 'refractionRatio'].map(
       (arg) => (shader.uniforms[arg] = { value: null })

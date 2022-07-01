@@ -12,7 +12,7 @@ import { setPropertyOnSelectionEntities } from '../../classes/History'
 import ColorInput from '../inputs/ColorInput'
 import CompoundNumericInput from '../inputs/CompoundNumericInput'
 import FolderInput from '../inputs/FolderInput'
-import ImageInput from '../inputs/ImageInput'
+import ImagePreviewInput from '../inputs/ImagePreviewInput'
 import InputGroup from '../inputs/InputGroup'
 import SelectInput from '../inputs/SelectInput'
 import NodeEditor from './NodeEditor'
@@ -124,7 +124,7 @@ export const EnvMapEditor: EditorComponentType = (props) => {
               <FolderInput value={envmapComponent.envMapSourceURL} onChange={onChangeCubemapURLSource} />
             )}
             {envmapComponent.envMapTextureType === EnvMapTextureType.Equirectangular && (
-              <ImageInput
+              <ImagePreviewInput
                 value={envmapComponent.envMapSourceURL}
                 onChange={updateProperty(EnvmapComponent, 'envMapSourceURL')}
               />

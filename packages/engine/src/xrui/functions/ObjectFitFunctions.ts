@@ -73,11 +73,11 @@ export const ObjectFitFunctions = {
   },
 
   attachObjectToPreferredTransform: (container: WebContainer3D) => {
-    const distance = 0.1
+    const distance = 1
     const scale = ObjectFitFunctions.computeContentFitScaleForCamera(
       distance,
-      container.rootLayer.element.clientWidth,
-      container.rootLayer.element.clientHeight
+      container.rootLayer.domSize.x,
+      container.rootLayer.domSize.y
     )
     if (getEngineState().xrSessionStarted.value) {
       ObjectFitFunctions.attachObjectToHand(container, 1)
