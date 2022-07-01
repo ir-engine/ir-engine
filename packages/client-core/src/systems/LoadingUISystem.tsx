@@ -65,13 +65,13 @@ export default async function LoadingUISystem(world: World) {
     const xrui = getComponent(ui.entity, XRUIComponent)
 
     if (xrui) {
-      const rootLayerElement = xrui.container.rootLayer.element
+      const rootLayer = xrui.container.rootLayer
       const distance = 1
 
       const scale = ObjectFitFunctions.computeContentFitScaleForCamera(
         distance,
-        rootLayerElement.clientWidth,
-        rootLayerElement.clientHeight,
+        rootLayer.domSize.x,
+        rootLayer.domSize.y,
         'cover'
       )
       ObjectFitFunctions.attachObjectInFrontOfCamera(xrui.container, scale, distance)

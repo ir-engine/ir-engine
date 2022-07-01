@@ -150,7 +150,7 @@ export const loadSceneFromJSON = async (sceneData: SceneJson, sceneSystems: Syst
   const promises = preCacheAssets(sceneData, onProgress)
 
   promises.forEach((promise) => promise.then(onComplete))
-  await Promise.all(promises)
+  await Promise.allSettled(promises)
 
   // todo: move these layer enable & disable to loading screen thing or something so they work with portals properly
   if (!getEngineState().isTeleporting.value) world.camera?.layers.disable(ObjectLayers.Scene)
