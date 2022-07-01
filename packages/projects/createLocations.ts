@@ -44,11 +44,10 @@ export const createLocations = async (app: Application, projectName: string) => 
 
         const existingLocation = await app.service('location').find({
           query: {
-              slugifiedName: sceneName
+            slugifiedName: sceneName
           }
         })
-        if (existingLocation.total === 0)
-            await app.service('location').create(location)
+        if (existingLocation.total === 0) await app.service('location').create(location)
       })
   )
 }

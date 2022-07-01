@@ -102,7 +102,12 @@ export class ProjectPermission<T = ProjectPermissionsDataType> extends Service {
       return super.create({
         projectId: data.projectId,
         userId: user.id,
-        type: (data.type === 'owner' || existingPermissionsCount === 0 || (selfUser.userRole === 'admin' && selfUser.id === user.id)) ? 'owner' : 'user'
+        type:
+          data.type === 'owner' ||
+          existingPermissionsCount === 0 ||
+          (selfUser.userRole === 'admin' && selfUser.id === user.id)
+            ? 'owner'
+            : 'user'
       })
     } catch (err) {
       logger.error(err)

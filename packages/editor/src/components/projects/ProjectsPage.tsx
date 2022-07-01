@@ -524,20 +524,24 @@ const ProjectsPage = () => {
           TransitionProps={{ onExited: () => setActiveProject(null) }}
           classes={{ paper: styles.filterMenu }}
         >
-          { activeProject && isInstalled(activeProject) && <MenuItem classes={{ root: styles.filterMenuItem }} onClick={openEditPermissionsDialog}>
-            <Group />
-            {t(`editor.projects.permissions`)}
-          </MenuItem> }
-          {activeProject && isInstalled(activeProject) && !hasRepo(activeProject) &&
+          {activeProject && isInstalled(activeProject) && (
+            <MenuItem classes={{ root: styles.filterMenuItem }} onClick={openEditPermissionsDialog}>
+              <Group />
+              {t(`editor.projects.permissions`)}
+            </MenuItem>
+          )}
+          {activeProject && isInstalled(activeProject) && !hasRepo(activeProject) && (
             <MenuItem classes={{ root: styles.filterMenuItem }} onClick={openRepoLinkDialog}>
               <Link />
               {t(`editor.projects.link`)}
-            </MenuItem>}
-          {activeProject && isInstalled(activeProject) && hasRepo(activeProject) &&
+            </MenuItem>
+          )}
+          {activeProject && isInstalled(activeProject) && hasRepo(activeProject) && (
             <MenuItem classes={{ root: styles.filterMenuItem }} onClick={openRepoUnlinkDialog}>
               <LinkOff />
               {t(`editor.projects.unlink`)}
-            </MenuItem>}
+            </MenuItem>
+          )}
           {activeProject && isInstalled(activeProject) && hasRepo(activeProject) && (
             <MenuItem classes={{ root: styles.filterMenuItem }} onClick={() => updateProject(activeProject)}>
               {downloadingProject ? <CircularProgress size={15} className={styles.progressbar} /> : <Download />}

@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useState} from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { ProjectInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
@@ -59,7 +59,7 @@ const ProjectTable = ({ className }: Props) => {
   }, [user?.id.value, adminProjectState.updateNeeded.value])
 
   useEffect(() => {
-    if (projectId) setProject(adminProjects.value.find(proj => proj.id === projectId))
+    if (projectId) setProject(adminProjects.value.find((proj) => proj.id === projectId))
   }, [adminProjects])
 
   const handleRemoveProject = async () => {
