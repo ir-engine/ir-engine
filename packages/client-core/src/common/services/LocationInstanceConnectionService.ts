@@ -121,11 +121,10 @@ export const LocationInstanceConnectionService = {
     const transport = Engine.instance.currentWorld.worldNetwork as SocketWebRTCClientNetwork
     logger.info({ socket: !!transport.socket, transport }, 'Connect To World Server')
     if (transport.socket) {
-      await leaveNetwork(transport, false)
+      leaveNetwork(transport, false)
     }
     const { ipAddress, port, locationId } = accessLocationInstanceConnectionState().instances.value[instanceId]
     await transport.initialize({ port, ipAddress, locationId })
-    transport.left = false
   },
   useAPIListeners: () => {
     useEffect(() => {

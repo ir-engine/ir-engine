@@ -32,6 +32,7 @@ const Project = () => {
 
   useEffect(() => {
     ProjectService.fetchProjects()
+    ProjectService.useAPIListeners()
   }, [])
 
   useEffect(() => {

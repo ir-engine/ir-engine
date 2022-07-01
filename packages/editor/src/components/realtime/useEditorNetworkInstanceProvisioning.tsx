@@ -1,5 +1,3 @@
-import { MathUtils } from 'three'
-
 import {
   LocationInstanceConnectionService,
   useLocationInstanceConnectionState
@@ -7,7 +5,7 @@ import {
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
-import { receiveSpectateWorld } from '@xrengine/engine/src/networking/functions/receiveJoinWorld'
+import { receiveJoinWorld } from '@xrengine/engine/src/networking/functions/receiveJoinWorld'
 import { useHookEffect } from '@xrengine/hyperflux'
 
 export const useEditorNetworkInstanceProvisioning = () => {
@@ -34,11 +32,13 @@ export const useEditorNetworkInstanceProvisioning = () => {
   ])
 
   useHookEffect(() => {
-    const transportRequestData = {}
+    const transportRequestData = {
+      spectateUserId: 'none'
+    }
     if (engineState.connectedWorld.value && engineState.sceneLoaded.value) {
       Engine.instance.currentWorld.worldNetwork
-        .request(MessageTypes.SpectateWorld.toString(), transportRequestData)
-        .then(receiveSpectateWorld)
+        .request(MessageTypes.JoinWorld.toString(), transportRequestData)
+        .then(receiveJoinWorld)
     }
   }, [engineState.connectedWorld, engineState.sceneLoaded])
 }
