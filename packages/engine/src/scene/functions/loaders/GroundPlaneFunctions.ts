@@ -23,7 +23,6 @@ import {
 import { NavMeshComponent } from '../../../navigation/component/NavMeshComponent'
 import { Physics } from '../../../physics/classes/PhysicsRapier'
 import { CollisionGroups } from '../../../physics/enums/CollisionGroups'
-import { createCollider } from '../../../physics/functions/createCollider'
 import { ColliderDescOptions } from '../../../physics/types/PhysicsTypes'
 import { TransformComponent } from '../../../transform/components/TransformComponent'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
