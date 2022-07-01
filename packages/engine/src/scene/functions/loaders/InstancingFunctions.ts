@@ -23,6 +23,7 @@ import {
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
 import { AssetLoader } from '../../../assets/classes/AssetLoader'
+import { AssetClass } from '../../../assets/enum/AssetClass'
 import { ComponentDeserializeFunction, ComponentSerializeFunction } from '../../../common/constants/PrefabFunctionType'
 import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
@@ -372,7 +373,7 @@ export const serializeInstancing: ComponentSerializeFunction = (entity) => {
 
 const loadTex = async <T>(props: T, prop: keyof T) => {
   let path = props[prop] as any
-  if (typeof path !== 'string') {
+  if (typeof path !== 'string' || ![AssetClass.Image, AssetClass.Video].includes(AssetLoader.getAssetClass(path))) {
     console.error('invalid texture path', path)
   }
   props[prop] = await AssetLoader.loadAsync(path)
@@ -400,6 +401,7 @@ export async function stageInstancing(entity: Entity, world = Engine.instance.cu
   const scatter = getComponent(entity, InstancingComponent)
   if (scatter.state === ScatterState.STAGING) {
     console.error('scatter component is already staging')
+    return
   }
   scatter.state = ScatterState.STAGING
   const targetGeo = getFirstMesh(obj3dFromUuid(scatter.surface, world))!.geometry

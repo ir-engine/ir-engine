@@ -24,6 +24,7 @@ import InputGroup, { InputGroupContent, InputGroupVerticalContainerWide, InputGr
 import NumericInput from './NumericInput'
 import SelectInput from './SelectInput'
 import StringInput, { ControlledStringInput } from './StringInput'
+import { TexturePreviewInputGroup } from './TexturePreviewInput'
 
 const GroupContainer = (styled as any).label`
   background-color: transparent;
@@ -144,6 +145,7 @@ export default function MaterialAssignment({ entity, node, modelComponent, value
   }
 
   async function onRefresh() {
+    /*
     await Promise.all(
       [...texturePaths.entries()].map(async ([assignmentKey, path]) => {
         const [_, uuid, prop] = /(.*)\-([\d\w]*)/.exec(assignmentKey)!
@@ -154,7 +156,7 @@ export default function MaterialAssignment({ entity, node, modelComponent, value
         }
         if (path !== '') assignment.args[prop] = await AssetLoader.loadAsync(path)
       })
-    )
+    )*/
     const nuVals = await refreshMaterials(node.entity)
     values.forEach((_, idx) => (values[idx] = nuVals[idx]))
     onChange(values)
@@ -246,15 +248,16 @@ export default function MaterialAssignment({ entity, node, modelComponent, value
                   )
                 case 'texture':
                   const argKey = texKey(index, k)
+                  const setTexture = setArgsProp(k)
                   function onChangeTexturePath(value) {
                     const nuPaths = new Map(texturePaths.entries())
                     nuPaths.set(argKey, value)
                     setTexturePaths(nuPaths)
                     if (assignment.args === undefined) assignment.args = argValues
-                    onChange(values)
+                    setTexture(value)
                   }
                   return (
-                    <ImagePreviewInputGroup
+                    <TexturePreviewInputGroup
                       key={compKey}
                       name={k}
                       label={k}

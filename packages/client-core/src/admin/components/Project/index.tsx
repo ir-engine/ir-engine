@@ -36,7 +36,7 @@ const Projects = () => {
     if (user?.id.value != null && adminProjectState.updateNeeded.value === true) {
       ProjectService.fetchProjects()
     }
-  }, [adminProjectState.updateNeeded.value])
+  }, [user?.id.value, adminProjectState.updateNeeded.value])
 
   return (
     <div>

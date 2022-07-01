@@ -80,10 +80,10 @@ const GroupDrawer = ({ open, mode, selectedGroup, onClose }: Props) => {
   }, [])
 
   useEffect(() => {
-    loadGroup()
+    loadSelectedGroup()
   }, [selectedGroup])
 
-  const loadGroup = () => {
+  const loadSelectedGroup = () => {
     if (selectedGroup) {
       setState({
         ...defaultState,
@@ -96,7 +96,7 @@ const GroupDrawer = ({ open, mode, selectedGroup, onClose }: Props) => {
 
   const handleCancel = () => {
     if (editMode) {
-      loadGroup()
+      loadSelectedGroup()
       setEditMode(false)
     } else handleClose()
   }

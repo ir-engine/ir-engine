@@ -92,10 +92,10 @@ const PartyDrawer = ({ open, mode, selectedParty, onClose }: Props) => {
   }, [])
 
   useEffect(() => {
-    loadParty()
+    loadSelectedParty()
   }, [selectedParty])
 
-  const loadParty = () => {
+  const loadSelectedParty = () => {
     if (selectedParty) {
       setState({
         ...defaultState,
@@ -107,7 +107,7 @@ const PartyDrawer = ({ open, mode, selectedParty, onClose }: Props) => {
 
   const handleCancel = () => {
     if (editMode) {
-      loadParty()
+      loadSelectedParty()
       setEditMode(false)
     } else handleClose()
   }
@@ -200,7 +200,7 @@ const PartyDrawer = ({ open, mode, selectedParty, onClose }: Props) => {
         />
 
         {viewMode === false && (
-          <DialogContentText className={styles.mb15}>
+          <DialogContentText className={styles.mb15px}>
             <span className={styles.spanWhite}>{t('admin:components.party.dontSeeLocation')}</span>
             <a href="/admin/locations" className={styles.textLink}>
               {t('admin:components.party.createOne')}

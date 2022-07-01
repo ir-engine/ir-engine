@@ -24,6 +24,7 @@ export default (app: Application) => {
       verifyChanges: { type: DataTypes.JSON },
       resetToken: { type: DataTypes.STRING },
       resetExpires: { type: DataTypes.DATE },
+      oauthToken: { type: DataTypes.STRING },
       type: {
         type: DataTypes.STRING,
         allowNull: false,

@@ -72,7 +72,7 @@ export const LoadEngineWithScene = () => {
     }
   }, [engineState.joinedWorld])
 
-  useHookEffect(async () => {
+  useHookEffect(() => {
     if (engineState.isTeleporting.value) {
       // TODO: this needs to be implemented on the server too
       // Use teleportAvatar function from moveAvatar.ts when required
@@ -93,16 +93,9 @@ export const LoadEngineWithScene = () => {
       history.push('/location/' + world.activePortal.location)
       LocationService.getLocationByName(world.activePortal.location)
 
-      // shut down connection with existing IS
-      await leaveNetwork(world.worldNetwork as SocketWebRTCClientNetwork)
-
-      if (world.mediaNetwork) {
-        const isInstanceMediaConnection =
-          accessMediaInstanceConnectionState().instances[world.mediaNetwork.hostId].channelType.value === 'instance'
-        if (isInstanceMediaConnection) {
-          await leaveNetwork(world.mediaNetwork as SocketWebRTCClientNetwork)
-        }
-      }
+      // shut down connection with existing world instance server
+      // leaving a world instance server will check if we are in a location media instance and shut that down too
+      leaveNetwork(world.worldNetwork as SocketWebRTCClientNetwork)
 
       teleportToScene()
     }

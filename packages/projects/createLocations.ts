@@ -42,7 +42,12 @@ export const createLocations = async (app: Application, projectName: string) => 
           isLobby: false
         } as Location
 
-        await app.service('location').create(location)
+        const existingLocation = await app.service('location').find({
+          query: {
+            slugifiedName: sceneName
+          }
+        })
+        if (existingLocation.total === 0) await app.service('location').create(location)
       })
   )
 }
