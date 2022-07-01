@@ -59,7 +59,7 @@ const ProjectTable = ({ className }: Props) => {
   }, [user?.id.value, adminProjectState.updateNeeded.value])
 
   useEffect(() => {
-    if (projectId) setProject(adminProjects.value.find((proj) => proj.id === projectId))
+    if (projectId) setProject(adminProjects.value.find((proj) => proj.id === projectId)!)
   }, [adminProjects])
 
   const handleRemoveProject = async () => {

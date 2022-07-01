@@ -135,7 +135,7 @@ const UserPermissionDrawer = ({ open, project, onClose }: Props) => {
                   disabled={
                     selfUserPermission !== 'owner' ||
                     selfUser.id.value === permission.userId ||
-                    project.project_permissions.length === 1
+                    project.project_permissions!.length === 1
                   }
                 />
                 {selfUserPermission === 'owner' && selfUser.id.value !== permission.userId && (
