@@ -24,7 +24,9 @@ import { disposeScene, initializeScene } from './sceneRenderFunctions'
  */
 export const getProjects = async (): Promise<ProjectInterface[]> => {
   try {
-    const { data } = await API.instance.client.service('project').find()
+    const { data } = await API.instance.client.service('project').find({
+      query: { allowed: true }
+    })
     return data
   } catch (error) {
     throw new Error(error)

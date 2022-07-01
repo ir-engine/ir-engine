@@ -28,8 +28,6 @@ export class SocketWebRTCClientNetwork extends Network {
   }
 
   mediasoupDevice = new mediasoupClient.Device(Engine.instance.isBot ? { handlerName: 'Chrome74' } : undefined)
-  leaving = false
-  left = false
   reconnecting = false
   recvTransport: MediaSoupTransport
   sendTransport: MediaSoupTransport

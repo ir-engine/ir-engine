@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { RouteComponentProps } from 'react-router-dom'
 
-import { useProjectState } from '@xrengine/client-core/src/common/services/ProjectService'
+import { ProjectAction, useProjectState } from '@xrengine/client-core/src/common/services/ProjectService'
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { initSystems } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
@@ -13,6 +13,7 @@ import {
 } from '@xrengine/engine/src/initializeEngine'
 import { dispatchAction } from '@xrengine/hyperflux'
 import { loadEngineInjection } from '@xrengine/projects/loadEngineInjection'
+import ProjectService from '@xrengine/server-core/src/projects/project/project.service'
 
 import EditorContainer from '../components/EditorContainer'
 import { EditorAction, useEditorState } from '../services/EditorServices'
