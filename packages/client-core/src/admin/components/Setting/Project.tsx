@@ -156,7 +156,7 @@ const Project = () => {
             <Button
               sx={{ maxWidth: '100%', ml: 1 }}
               variant="contained"
-              className={styles.gradientButton}
+              className={styles.saveBtn}
               onClick={handleSubmit}
             >
               {t('admin:components.setting.save')}
