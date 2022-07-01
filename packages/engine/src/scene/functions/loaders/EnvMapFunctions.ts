@@ -9,7 +9,8 @@ import {
   RGBAFormat,
   Scene,
   sRGBEncoding,
-  Vector3
+  Vector3,
+  VideoTexture
 } from 'three'
 
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
@@ -114,7 +115,7 @@ export const updateEnvMap: ComponentUpdateFunction = (entity: Entity, properties
             break
 
           case EnvMapTextureType.Equirectangular:
-            textureLoader.load(
+            AssetLoader.load(
               component.envMapSourceURL,
               (texture) => {
                 const EnvMap = getPmremGenerator().fromEquirectangular(texture).texture

@@ -258,8 +258,8 @@ export default {
           let result = context.result
           if (Array.isArray(result)) result = result[0]
           if (result?.userRole !== 'guest')
-            await context.app.service('user-api-key').create({
-              userId: context.result.id
+            await app.service('user-api-key').create({
+              userId: result.id
             })
           if (result?.userRole !== 'guest' && result?.inviteCode == null) {
             const code = await getFreeInviteCode(app)
