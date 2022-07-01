@@ -13,7 +13,7 @@ import { Socket } from 'socket.io'
 
 import { pipe } from '@xrengine/common/src/utils/pipe'
 
-import { Application, ServerTypeMode } from '../declarations'
+import { Application } from '../declarations'
 import config from './appconfig'
 import logger from './logger'
 import { createDefaultStorageProvider, createIPFSStorageProvider } from './media/storageprovider/storageprovider'
