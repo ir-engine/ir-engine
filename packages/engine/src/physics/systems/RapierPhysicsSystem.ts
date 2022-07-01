@@ -1,24 +1,16 @@
 import { pipe } from 'bitecs'
 import { Box3, Mesh, Quaternion, Vector3 } from 'three'
 
-import { createActionQueue } from '@xrengine/hyperflux'
-
-import { teleportObjectReceptor } from '../../avatar/AvatarSystem'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { Engine } from '../../ecs/classes/Engine'
-import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { BoundingBoxComponent } from '../../interaction/components/BoundingBoxComponent'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { NetworkObjectDirtyTag } from '../../networking/components/NetworkObjectDirtyTag'
-import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
-import { NameComponent } from '../../scene/components/NameComponent'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { Physics } from '../classes/PhysicsRapier'
-import { ColliderComponent } from '../components/ColliderComponent'
-import { CollisionComponent } from '../components/CollisionComponent'
 import { RaycastComponent } from '../components/RaycastComponent'
 import { RigidBodyComponent } from '../components/RigidBodyComponent'
 import { VelocityComponent } from '../components/VelocityComponent'
@@ -151,7 +143,7 @@ const processBodies = (world: World) => {
 }
 
 const processCollisions = (world: World) => {
-  // Physics.drainCollisionEventQueue(world.physicsWorld)
+  Physics.drainCollisionEventQueue(world.physicsWorld, world.physicsCollisionEventQueue)
 
   return world
 }
@@ -163,6 +155,7 @@ export default async function RapierPhysicsSystem(world: World) {
 
   await Physics.load()
   world.physicsWorld = Physics.createWorld()
+  world.physicsCollisionEventQueue = Physics.createCollisionEventQueue()
 
   return () => {
     // for (const action of teleportObjectQueue()) teleportObjectReceptor(action)
@@ -171,15 +164,15 @@ export default async function RapierPhysicsSystem(world: World) {
     //   processBoundingBox(entity, true)
     // }
 
-    for (const entity of rigidBodyQuery.exit()) {
-      Physics.removeRigidBody(entity, world.physicsWorld)
-    }
+    // for (const entity of rigidBodyQuery.exit()) {
+    //   Physics.removeRigidBody(entity, world.physicsWorld)
+    // }
 
     if (Engine.instance.isEditor) return
 
     simulationPipeline(world)
 
     // step physics world
-    world.physicsWorld.step()
+    world.physicsWorld.step(world.physicsCollisionEventQueue)
   }
 }

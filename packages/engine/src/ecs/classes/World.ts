@@ -1,3 +1,4 @@
+import { EventQueue } from '@dimforge/rapier3d-compat'
 import * as bitecs from 'bitecs'
 import { AudioListener, Object3D, OrthographicCamera, PerspectiveCamera, Scene } from 'three'
 
@@ -117,6 +118,7 @@ export class World {
 
   physics = new Physics()
   physicsWorld: PhysicsWorld
+  physicsCollisionEventQueue: EventQueue
 
   /**
    * Map of object lists by layer

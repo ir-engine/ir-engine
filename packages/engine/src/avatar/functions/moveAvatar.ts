@@ -6,6 +6,7 @@ import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
 import { addComponent, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
+import { RapierCollisionComponent } from '../../physics/components/RapierCollisionComponent'
 import { RaycastComponent } from '../../physics/components/RaycastComponent'
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
@@ -46,10 +47,9 @@ export const moveAvatar = (world: World, entity: Entity, camera: PerspectiveCame
 
   if (!controller.movementEnabled) return
 
-  const onGround = controller.collisions[0] || avatar.isGrounded
+  const collisionComponent = getComponent(entity, RapierCollisionComponent)
+  const onGround = collisionComponent
   controller.isInAir = !onGround
-
-  console.log('on ground', onGround)
 
   // move vec3 to controller input direction
   tempVec1.copy(controller.localMovementDirection).multiplyScalar(timeStep)

@@ -60,6 +60,7 @@ function createRigidBody(entity: Entity, world: World, rigidBodyDesc: RigidBodyD
   const rigidBodyUserdata = { entity: entity }
   rigidBody.userData = rigidBodyUserdata
 
+  // TODO: Add only when dynamic or kinematic?
   const linearVelocity = createVector3Proxy(VelocityComponent.linear, entity)
   const angularVelocity = createVector3Proxy(VelocityComponent.angular, entity)
   addComponent(entity, VelocityComponent, { linear: linearVelocity, angular: angularVelocity })
@@ -190,13 +191,29 @@ function createRigidBodyForObject(
   }
 }
 
+function removeCollidersFromRigidBody(entity: Entity, world: World) {
+  const rigidBody = getComponent(entity, RigidBodyComponent)
+  for (let index = 0; index < rigidBody.numColliders(); index++) {
+    const collider = rigidBody.collider(index)
+    world.removeCollider(collider, true)
+  }
+}
+
+function resizeColliders(entity: Entity, colliderDescs: ColliderDesc[], world: World) {
+  const rigidBody = getComponent(entity, RigidBodyComponent)
+  removeCollidersFromRigidBody(entity, world)
+  colliderDescs.forEach((desc) => world.createCollider(desc, rigidBody))
+}
+
 function removeRigidBody(entity: Entity, world: World) {
   const rigidBody = getComponent(entity, RigidBodyComponent)
-  const RigidBodyTypeTagComponent = getTagComponentForRigidBody(rigidBody)
-  removeComponent(entity, RigidBodyTypeTagComponent)
-  removeComponent(entity, RigidBodyComponent)
+  if (rigidBody && world.bodies.contains(rigidBody.handle)) {
+    const RigidBodyTypeTagComponent = getTagComponentForRigidBody(rigidBody)
+    removeComponent(entity, RigidBodyTypeTagComponent)
+    removeComponent(entity, RigidBodyComponent)
 
-  world.removeRigidBody(rigidBody)
+    world.removeRigidBody(rigidBody)
+  }
 }
 
 function changeRigidbodyType(entity: Entity, newType: RigidBodyType) {
@@ -251,6 +268,7 @@ function drainCollisionEventQueue(world: World, collisionEventQueue: EventQueue)
     const entity1 = (rigidBody1?.userData as any)['entity']
     const entity2 = (rigidBody2?.userData as any)['entity']
 
+    console.log(collider1, collider2, started)
     const collisionComponent1 = getComponent(entity1, RapierCollisionComponent)
     const collisionComponent2 = getComponent(entity2, RapierCollisionComponent)
 
@@ -316,6 +334,7 @@ export const Physics = {
   createRigidBody,
   createColliderDesc,
   createRigidBodyForObject,
+  resizeColliders,
   removeRigidBody,
   changeRigidbodyType,
   castRay,

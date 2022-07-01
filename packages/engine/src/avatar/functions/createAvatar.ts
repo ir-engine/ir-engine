@@ -1,4 +1,4 @@
-import { ColliderDesc, RigidBodyDesc } from '@dimforge/rapier3d-compat'
+import { ColliderDesc, RigidBody, RigidBodyDesc } from '@dimforge/rapier3d-compat'
 import { AnimationClip, AnimationMixer, Group, PerspectiveCamera, Quaternion, Vector3 } from 'three'
 
 import { createQuaternionProxy, createVector3Proxy } from '../../common/proxies/three'
@@ -31,7 +31,7 @@ import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
 import { SpawnPoseComponent } from '../components/SpawnPoseComponent'
 
-const avatarRadius = 0.25
+export const avatarRadius = 0.25
 export const defaultAvatarHeight = 1.8
 const capsuleHeight = defaultAvatarHeight - avatarRadius * 2
 export const defaultAvatarHalfHeight = defaultAvatarHeight / 2
@@ -120,8 +120,27 @@ export const createAvatar = (spawnAction: typeof WorldNetworkAction.spawnAvatar.
   return entity
 }
 
-export const createAvatarController = (entity: Entity) => {
+export const createAvatarCollider = (entity: Entity, height: number, radius: number): ColliderDesc => {
   const { position } = getComponent(entity, TransformComponent)
+  const interactionGroups = getInteractionGroups(CollisionGroups.Avatars, AvatarCollisionMask)
+  const colliderDesc = ColliderDesc.capsule(height, radius)
+    .setTranslation(position.x, position.y + defaultAvatarHalfHeight, position.z)
+    .setCollisionGroups(interactionGroups)
+
+  return colliderDesc
+}
+
+const createAvatarRigidBody = (entity: Entity, height: number, radius: number): RigidBody => {
+  const colliderDesc = createAvatarCollider(entity, height, radius)
+  const rigidBodyDesc = RigidBodyDesc.kinematicPositionBased()
+  const rigidBody = Physics.createRigidBody(entity, Engine.instance.currentWorld.physicsWorld, rigidBodyDesc, [
+    colliderDesc
+  ])
+
+  return rigidBody
+}
+
+export const createAvatarController = (entity: Entity) => {
   const { value } = getComponent(entity, Object3DComponent)
 
   if (!hasComponent(entity, InputComponent)) {
@@ -130,16 +149,6 @@ export const createAvatarController = (entity: Entity) => {
       data: new Map()
     })
   }
-
-  const interactionGroups = getInteractionGroups(CollisionGroups.Avatars, AvatarCollisionMask)
-  const colliderDesc = ColliderDesc.capsule(capsuleHeight / 2, avatarRadius)
-    .setTranslation(position.x, position.y + defaultAvatarHalfHeight, position.z)
-    .setCollisionGroups(interactionGroups)
-  const rigidBodyDesc = RigidBodyDesc.kinematicPositionBased()
-  const controller = Physics.createRigidBody(entity, Engine.instance.currentWorld.physicsWorld, rigidBodyDesc, [
-    colliderDesc
-  ])
-  // body.setActorFlag(PhysX.PxActorFlag.eDISABLE_GRAVITY, true) // TODO
 
   const frustumCamera = new PerspectiveCamera(60, 4, 0.1, 3)
   frustumCamera.position.setY(defaultAvatarHalfHeight)
@@ -154,6 +163,7 @@ export const createAvatarController = (entity: Entity) => {
     })
   }
 
+  const controller = createAvatarRigidBody(entity, capsuleHeight / 2, avatarRadius)
   const velocitySimulator = new VectorSpringSimulator(60, 50, 0.8)
   if (!hasComponent(entity, AvatarControllerComponent)) {
     addComponent(entity, AvatarControllerComponent, {
