@@ -357,7 +357,7 @@ const createNewTree = async (
     owner,
     repo,
     tree_sha: parentTreeSha,
-    recursive: true
+    recursive: 'true'
   })
   const committableFiles = oldTree.data.tree.filter((file) => file.type === 'blob')
   const committableFilesMap = committableFiles.map((file) => file.path)
@@ -369,7 +369,7 @@ const createNewTree = async (
     sha
   })) as any[]
   committableFilesMap.forEach((fileName) => {
-    if (paths.indexOf(fileName) < 0) {
+    if (fileName && paths.indexOf(fileName) < 0) {
       tree.push({
         path: fileName,
         mode: `100644`,
