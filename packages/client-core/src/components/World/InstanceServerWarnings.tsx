@@ -150,7 +150,7 @@ const InstanceServerWarnings = () => {
         const transport = Engine.instance.currentWorld.networks.get(
           Engine.instance.currentWorld.worldNetwork?.hostId
         ) as SocketWebRTCClientNetwork
-        if (transport.left || engineState.isTeleporting.value || transport.reconnecting) return
+        if (engineState.isTeleporting.value || transport.reconnecting) return
 
         setModalValues({
           open: true,
@@ -167,7 +167,7 @@ const InstanceServerWarnings = () => {
       case WarningModalTypes.CHANNEL_DISCONNECTED: {
         if (!Engine.instance.userId) return
         const transport = Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork
-        if (transport.left || transport.reconnecting) return
+        if (transport.reconnecting) return
 
         const channels = chatState.channels.channels.value
         const instanceChannel = Object.values(channels).find(
@@ -186,10 +186,7 @@ const InstanceServerWarnings = () => {
       }
 
       case WarningModalTypes.INSTANCE_WEBGL_DISCONNECTED: {
-        const transport = Engine.instance.currentWorld.networks.get(
-          Engine.instance.currentWorld.worldNetwork?.hostId
-        ) as SocketWebRTCClientNetwork
-        if (transport.left || engineState.isTeleporting.value) return
+        if (engineState.isTeleporting.value) return
 
         setModalValues({
           open: true,
