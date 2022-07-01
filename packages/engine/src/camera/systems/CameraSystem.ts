@@ -18,6 +18,7 @@ import { World } from '../../ecs/classes/World'
 import { addComponent, defineQuery, getComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
 import { NetworkObjectAuthorityTag } from '../../networking/components/NetworkObjectAuthorityTag'
+import { joinCurrentWorld } from '../../networking/functions/joinWorld'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
@@ -264,7 +265,13 @@ function updateSpectator(cameraEntity: Entity) {
 
   const networkAvatarEntity = world.getUserAvatarEntity(spectator.userId)
   if (!networkAvatarEntity) return
-  const headDecapComponent = getComponent(networkAvatarEntity, AvatarHeadDecapComponent)
+  let headDecapComponent = getComponent(networkAvatarEntity, AvatarHeadDecapComponent)
+
+  if (!headDecapComponent) {
+    headDecapComponent = { opacity: 1, ready: false }
+    addComponent(networkAvatarEntity, AvatarHeadDecapComponent, headDecapComponent)
+  }
+
   calculateCameraTarget(networkAvatarEntity, tempVec)
   const distance = tempVec.sub(networkTransform.position).length()
   headDecapComponent.opacity = getCameraTargetOpacity(distance, 0.6)
@@ -325,10 +332,14 @@ export default async function CameraSystem(world: World) {
 
     for (const action of spectateUserActions()) {
       const cameraEntity = Engine.instance.currentWorld.cameraEntity
-      addComponent(cameraEntity, SpectatorComponent, { userId: action.user })
-      const networkAvatarEntity = world.getUserAvatarEntity(action.user)
-      addComponent(networkAvatarEntity, AvatarHeadDecapComponent, { opacity: 1, ready: false })
-      console.log('Spectator component added', action.user)
+      if (action.user) {
+        addComponent(cameraEntity, SpectatorComponent, { userId: action.user })
+        console.log('Spectator component added', action.user)
+      } else {
+        removeComponent(cameraEntity, SpectatorComponent)
+        joinCurrentWorld()
+        console.log('Spectator component removed')
+      }
     }
 
     for (const entity of localAvatarQuery.enter()) {
