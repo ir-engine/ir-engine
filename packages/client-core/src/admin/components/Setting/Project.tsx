@@ -31,7 +31,7 @@ const Project = () => {
   const [selectedProject, setSelectedProject] = useState(projects.value.length > 0 ? projects.value[0].id : '')
 
   ProjectService.useAPIListeners()
-  
+
   useEffect(() => {
     ProjectService.fetchProjects()
   }, [])
@@ -156,7 +156,7 @@ const Project = () => {
             <Button
               sx={{ maxWidth: '100%', ml: 1 }}
               variant="contained"
-              className={styles.saveBtn}
+              className={styles.gradientButton}
               onClick={handleSubmit}
             >
               {t('admin:components.setting.save')}
