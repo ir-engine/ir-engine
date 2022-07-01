@@ -372,9 +372,9 @@ export async function handleJoinWorld(
   const world = Engine.instance.currentWorld
 
   let spawnPose
-  let spectateUserId
+  let { spectateUserId } = data
 
-  if (!network.app.isChannelInstance && data.spectateUserId !== 'string') {
+  if (!network.app.isChannelInstance && typeof spectateUserId !== 'string') {
     spawnPose = await getUserSpawnFromInvite(network, user, data.inviteCode!)
   }
 
