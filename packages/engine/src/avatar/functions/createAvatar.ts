@@ -123,9 +123,8 @@ export const createAvatar = (spawnAction: typeof WorldNetworkAction.spawnAvatar.
 export const createAvatarCollider = (entity: Entity, height: number, radius: number): ColliderDesc => {
   const { position } = getComponent(entity, TransformComponent)
   const interactionGroups = getInteractionGroups(CollisionGroups.Avatars, AvatarCollisionMask)
-  const colliderDesc = ColliderDesc.capsule(height, radius)
-    .setTranslation(position.x, position.y + defaultAvatarHalfHeight, position.z)
-    .setCollisionGroups(interactionGroups)
+  const colliderDesc = ColliderDesc.capsule(height, radius).setCollisionGroups(interactionGroups)
+  colliderDesc.translation.y = position.y + defaultAvatarHalfHeight
 
   return colliderDesc
 }
