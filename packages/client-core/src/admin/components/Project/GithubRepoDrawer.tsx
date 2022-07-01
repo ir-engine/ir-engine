@@ -28,7 +28,7 @@ const GithubRepoDrawer = ({ open, project, onClose }: Props) => {
   const [processing, setProcessing] = useState(false)
   const [projectURL, setProjectURL] = useState('')
 
-  const isCreateMode = project.repositoryPath ? false : true
+  const isCreateMode = !project.repositoryPath
 
   useEffect(() => {
     if (project.repositoryPath) {
@@ -95,7 +95,7 @@ const GithubRepoDrawer = ({ open, project, onClose }: Props) => {
                 {t('admin:components.common.cancel')}
               </Button>
 
-              {isCreateMode === false && (
+              {!isCreateMode && (
                 <Button className={styles.gradientButton} startIcon={<LinkOffIcon />} onClick={handleRemove}>
                   {t('admin:components.project.remove')}
                 </Button>
