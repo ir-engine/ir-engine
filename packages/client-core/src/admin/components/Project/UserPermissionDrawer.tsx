@@ -132,7 +132,7 @@ const UserPermissionDrawer = ({ open, project, onClose }: Props) => {
                   inputProps={{
                     'aria-labelledby': permission.id
                   }}
-                  disabled={selfUserPermission !== 'owner' || selfUser.id.value === permission.userId}
+                  disabled={selfUserPermission !== 'owner' || selfUser.id.value === permission.userId || project.project_permissions.length === 1}
                 />
                 {selfUserPermission === 'owner' && selfUser.id.value !== permission.userId && (
                   <IconButton

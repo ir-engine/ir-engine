@@ -33,15 +33,7 @@ export default {
     ],
     update: [],
     patch: [],
-    remove: [
-      (context: HookContext) => {
-        return context.app.service('project-permission').remove(null, {
-          query: {
-            projectId: context.result.id
-          }
-        })
-      }
-    ]
+    remove: []
   },
 
   error: {

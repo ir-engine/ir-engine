@@ -233,11 +233,12 @@ export class Project extends Service {
    * 2. If in production mode, uploads it to the storage provider
    * 3. Creates a database entry
    * @param data
+   * @param placeholder This is where data normally goes, but we've put data as the first parameter
    * @param params
    * @returns
    */
   // @ts-ignore
-  async update(data: { url: string; name?: string }, params?: Params) {
+  async update(data: { url: string; name?: string }, placeholder: null, params?: Params) {
     if (data.url === 'default-project') {
       copyDefaultProject()
       await uploadLocalProjectToProvider('default-project')
@@ -285,6 +286,13 @@ export class Project extends Service {
           params || {}
         )
       : existingProjectResult
+
+    if (!existingProjectResult) {
+      await this.app.service('project-permission').create({
+        projectId: returned.id,
+        userId: params!.user.id
+      })
+    }
 
     // run project install script
     if (projectConfig.onEvent) {

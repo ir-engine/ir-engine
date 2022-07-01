@@ -183,7 +183,7 @@ export const getUserRepos = async (app, token): Promise<string[]> => {
 export const pushProjectToGithub = async (app: Application, project: ProjectInterface, user) => {
   const storageProvider = getStorageProvider()
   try {
-    logger.info(`[ProjectPush]: Getting files for project project "${project.name}"...`)
+    logger.info(`[ProjectPush]: Getting files for project "${project.name}"...`)
     let files = await getFileKeysRecursive(`projects/${project.name}/`)
     files = files.filter((file) => /\.\w+$/.test(file))
     logger.info('[ProjectPush]: Found files:' + files)
@@ -281,7 +281,7 @@ const uploadToRepo = async (
   //Create blobs from all the files
   const fileBlobs = await Promise.all(filePaths.map(createBlobForFile(octo, org, repo)))
   // Create a new tree from all of the files, so that a new commit can be made from it
-  const newTree = await createNewTree(octo, org, repo, fileBlobs, filePaths, currentCommit.treeSha, projectName)
+  const newTree = await createNewTree(octo, org, repo, fileBlobs, filePaths.map(path => path.replace(`projects/${projectName}/`, '')), currentCommit.treeSha)
   const date = Date.now()
   const commitMessage = `Update by ${user.login} at ${new Date(date).toJSON()}`
   //Create the new commit with all of the file changes
@@ -344,16 +344,33 @@ const createNewTree = async (
   repo: string,
   blobs: any[],
   paths: string[],
-  parentTreeSha: string,
-  projectName: string
+  parentTreeSha: string
 ) => {
+  const oldTree = await octo.git.getTree({
+    owner,
+    repo,
+    tree_sha: parentTreeSha,
+    recursive: true
+  })
+  const committableFiles = oldTree.data.tree.filter(file => file.type === 'blob')
+  const committableFilesMap = committableFiles.map(file => file.path)
   // My custom config. Could be taken as parameters
   const tree = blobs.map(({ sha }, index) => ({
-    path: paths[index].replace(`projects/${projectName}/`, ''),
+    path: paths[index],
     mode: `100644`,
     type: `blob`,
     sha
   })) as any[]
+  committableFilesMap.forEach(fileName => {
+    if (paths.indexOf(fileName) < 0) {
+      tree.push({
+        path: fileName,
+        mode: `100644`,
+        type: 'blob',
+        sha: null
+      })
+    }
+  })
   const { data } = await octo.git.createTree({
     owner,
     repo,

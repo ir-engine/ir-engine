@@ -67,6 +67,7 @@ export class ProjectPermission<T = ProjectPermissionsDataType> extends Service {
   }
 
   async create(data: any, params?: Params): Promise<T> {
+    const selfUser = params!.user
     try {
       const searchParam = data.inviteCode
         ? {
@@ -101,7 +102,7 @@ export class ProjectPermission<T = ProjectPermissionsDataType> extends Service {
       return super.create({
         projectId: data.projectId,
         userId: user.id,
-        type: data.type === 'owner' || existingPermissionsCount === 0 ? 'owner' : 'user'
+        type: (data.type === 'owner' || existingPermissionsCount === 0 || (selfUser.userRole === 'admin' && selfUser.id === user.id)) ? 'owner' : 'user'
       })
     } catch (err) {
       logger.error(err)

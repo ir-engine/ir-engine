@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, {useEffect, useRef, useState} from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { ProjectInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
@@ -35,6 +35,7 @@ const ProjectTable = ({ className }: Props) => {
   const [popupInvalidateConfirmOpen, setPopupInvalidateConfirmOpen] = useState(false)
   const [popupRemoveConfirmOpen, setPopupRemoveConfirmOpen] = useState(false)
   const [popupPushToGithubOpen, setPopupPushToGithubOpen] = useState(false)
+  const [projectId, setProjectId] = useState(null)
   const [project, setProject] = useState<ProjectInterface>(null!)
   const [projectName, setProjectName] = useState('')
   const [showProjectFiles, setShowProjectFiles] = useState(false)
@@ -56,6 +57,10 @@ const ProjectTable = ({ className }: Props) => {
       ProjectService.fetchProjects()
     }
   }, [user?.id.value, adminProjectState.updateNeeded.value])
+
+  useEffect(() => {
+    if (projectId) setProject(adminProjects.value.find(proj => proj.id === projectId))
+  }, [adminProjects])
 
   const handleRemoveProject = async () => {
     try {
@@ -85,6 +90,7 @@ const ProjectTable = ({ className }: Props) => {
         )
         setProcessing(false)
         setProject(null!)
+        setProjectId(null!)
         setPopupReuploadConfirmOpen(false)
       }
     } catch (err) {
@@ -101,6 +107,7 @@ const ProjectTable = ({ className }: Props) => {
         await ProjectService.pushProject(project.id)
         setProcessing(false)
         setProject(null!)
+        setProjectId(null!)
         setPopupPushToGithubOpen(false)
       }
     } catch (err) {
@@ -116,6 +123,7 @@ const ProjectTable = ({ className }: Props) => {
       await ProjectService.invalidateProjectCache(project.name)
       setProcessing(false)
       setProject(null!)
+      setProjectId(null!)
       setPopupInvalidateConfirmOpen(false)
     } catch (err) {
       setProcessing(false)
@@ -125,41 +133,49 @@ const ProjectTable = ({ className }: Props) => {
 
   const handleOpenReuploadConfirmation = (row) => {
     setProject(row)
+    setProjectId(row.id)
     setPopupReuploadConfirmOpen(true)
   }
 
   const handleOpenPushConfirmation = (row) => {
     setProject(row)
+    setProjectId(row.id)
     setPopupPushToGithubOpen(true)
   }
 
   const handleOpenInvalidateConfirmation = (row) => {
     setProject(row)
+    setProjectId(row.id)
     setPopupInvalidateConfirmOpen(true)
   }
 
   const handleOpenRemoveConfirmation = (row) => {
     setProject(row)
+    setProjectId(row.id)
     setPopupRemoveConfirmOpen(true)
   }
 
   const handleCloseReuploadModal = () => {
     setProject(null!)
+    setProjectId(null!)
     setPopupReuploadConfirmOpen(false)
   }
 
   const handleCloseInvalidateModal = () => {
     setProject(null!)
+    setProjectId(null!)
     setPopupInvalidateConfirmOpen(false)
   }
 
   const handleCloseRemoveModal = () => {
     setProject(null!)
+    setProjectId(null!)
     setPopupRemoveConfirmOpen(false)
   }
 
   const handleClosePushModal = () => {
     setProject(null!)
+    setProjectId(null!)
     setPopupPushToGithubOpen(false)
   }
 
@@ -170,21 +186,25 @@ const ProjectTable = ({ className }: Props) => {
 
   const handleOpenGithubRepoDrawer = (row) => {
     setProject(row)
+    setProjectId(row.id)
     setOpenGithubRepoDrawer(true)
   }
 
   const handleCloseGithubRepoDrawer = () => {
     setProject(null!)
+    setProjectId(null!)
     setOpenGithubRepoDrawer(false)
   }
 
   const handleOpenUserPermissionDrawer = (row) => {
     setProject(row)
+    setProjectId(row.id)
     setOpenUserPermissionDrawer(true)
   }
 
   const handleCloseUserPermissionDrawer = () => {
     setProject(null!)
+    setProjectId(null!)
     setOpenUserPermissionDrawer(false)
   }
 
@@ -221,7 +241,7 @@ const ProjectTable = ({ className }: Props) => {
             <IconButton
               className={styles.iconButton}
               name="update"
-              disabled={!el.hasWriteAccess && !el.repositoryPath}
+              disabled={!el.hasWriteAccess || !el.repositoryPath}
               onClick={() => handleOpenPushConfirmation(el)}
             >
               <Upload />
