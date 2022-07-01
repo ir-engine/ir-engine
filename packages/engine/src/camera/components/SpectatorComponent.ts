@@ -4,6 +4,5 @@ import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
 
 export type SpectatorComponentType = {
   userId: UserId
-  headDecapReady: boolean
 }
 export const SpectatorComponent = createMappedComponent<SpectatorComponentType>('SpectatorComponent')
