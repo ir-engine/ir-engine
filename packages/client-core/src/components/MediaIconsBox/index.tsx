@@ -214,7 +214,7 @@ const MediaIconsBox = (props: Props) => {
       )}
       {engineState.spectating.value && (
         <button type="button" id="ExitSpectator" className={styles.iconContainer} onClick={handleExitSpectatorClick}>
-          Exit
+          Exit Spectate
         </button>
       )}
     </section>
