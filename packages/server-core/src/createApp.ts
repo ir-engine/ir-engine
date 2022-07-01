@@ -117,10 +117,7 @@ export const serverPipe = pipe(configureOpenAPI(), configureSocketIO(), configur
   app: Application
 ) => Application
 
-export const createFeathersExpressApp = (
-  serverMode: ServerTypeMode = 'API',
-  configurationPipe = serverPipe
-): Application => {
+export const createFeathersExpressApp = (configurationPipe = serverPipe): Application => {
   createDefaultStorageProvider()
 
   if (config.ipfs.enabled) {
@@ -128,7 +125,6 @@ export const createFeathersExpressApp = (
   }
 
   const app = express(feathers()) as Application
-  app.serverMode = serverMode
   app.set('nextReadyEmitter', new EventEmitter())
 
   // Feathers authentication-oauth will only append the port in production, but then it will also

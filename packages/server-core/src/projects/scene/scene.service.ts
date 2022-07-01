@@ -2,7 +2,7 @@ import { Params } from '@feathersjs/feathers'
 
 import { SceneData } from '@xrengine/common/src/interfaces/SceneInterface'
 
-import { Application, ServerMode } from '../../../declarations'
+import { Application } from '../../../declarations'
 import logger from '../../logger'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 import { getActiveInstancesForScene } from '../../networking/instance/instance.service'
@@ -118,25 +118,24 @@ export default (app: Application) => {
 
   service.hooks(hooks)
 
-  if (app.serverMode === ServerMode.API)
-    service.publish('updated', async (data, context) => {
-      const instances = await getActiveInstancesForScene(app)({ query: { sceneId: data.sceneId } })
-      const users = (
-        await Promise.all(
-          instances.map((instance) =>
-            app.service('user').Model.findAll({
-              where: {
-                instanceId: instance.id
-              }
-            })
-          )
+  service.publish('updated', async (data, context) => {
+    const instances = await getActiveInstancesForScene(app)({ query: { sceneId: data.sceneId } })
+    const users = (
+      await Promise.all(
+        instances.map((instance) =>
+          app.service('user').Model.findAll({
+            where: {
+              instanceId: instance.id
+            }
+          })
         )
-      ).flat()
-      const targetIds = users.map((user) => user.id)
-      return Promise.all(
-        targetIds.map((userId: string) => {
-          return app.channel(`userIds/${userId}`).send({})
-        })
       )
-    })
+    ).flat()
+    const targetIds = users.map((user) => user.id)
+    return Promise.all(
+      targetIds.map((userId: string) => {
+        return app.channel(`userIds/${userId}`).send({})
+      })
+    )
+  })
 }
