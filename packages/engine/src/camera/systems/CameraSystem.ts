@@ -1,4 +1,4 @@
-import { ArrowHelper, Clock, MathUtils, Matrix4, Quaternion, Raycaster, Vector3 } from 'three'
+import { ArrowHelper, Clock, MathUtils, Matrix4, Raycaster, Vector3 } from 'three'
 import { clamp } from 'three/src/math/MathUtils'
 
 import { createActionQueue, dispatchAction } from '@xrengine/hyperflux'
@@ -8,7 +8,6 @@ import { AvatarAnimationComponent } from '../../avatar/components/AvatarAnimatio
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { AvatarHeadDecapComponent } from '../../avatar/components/AvatarHeadDecapComponent'
 import { XRCameraUpdatePendingTagComponent } from '../../avatar/components/XRCameraUpdatePendingTagComponent'
-import { isClient } from '../../common/functions/isClient'
 import { smoothDamp } from '../../common/functions/MathLerpFunctions'
 import { createConeOfVectors } from '../../common/functions/vectorHelpers'
 import { createQuaternionProxy, createVector3Proxy } from '../../common/proxies/three'
@@ -19,7 +18,6 @@ import { World } from '../../ecs/classes/World'
 import { addComponent, defineQuery, getComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
 import { NetworkObjectAuthorityTag } from '../../networking/components/NetworkObjectAuthorityTag'
-import { joinCurrentWorld } from '../../networking/functions/joinWorld'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
@@ -257,13 +255,6 @@ function updateSpectator(cameraEntity: Entity) {
 
   const networkCameraEntity = world.getOwnedNetworkObjectWithComponent(spectator.userId, NetworkCameraComponent)
 
-  if (!networkCameraEntity) {
-    // Go back to normal mode
-    removeComponent(cameraEntity, SpectatorComponent)
-    if (isClient) joinCurrentWorld()
-    return
-  }
-
   const networkTransform = getComponent(networkCameraEntity, TransformComponent)
   if (!networkTransform) return
 
@@ -272,6 +263,7 @@ function updateSpectator(cameraEntity: Entity) {
   cameraTransform.rotation.copy(networkTransform.rotation)
 
   const networkAvatarEntity = world.getUserAvatarEntity(spectator.userId)
+  if (!networkAvatarEntity) return
   const headDecapComponent = getComponent(networkAvatarEntity, AvatarHeadDecapComponent)
   calculateCameraTarget(networkAvatarEntity, tempVec)
   const distance = tempVec.sub(networkTransform.position).length()
