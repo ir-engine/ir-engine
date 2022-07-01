@@ -13,7 +13,7 @@ export type Action = {
   type: string
 } & ActionOptions
 
-export type ActionReceptor = (action: Action) => void
+export type ActionReceptor = (action: ResolvedActionType) => void
 
 export type ActionRecipients = UserId | UserId[] | 'all' | 'others'
 
@@ -77,7 +77,7 @@ export type ActionOptions = {
   $ERROR?: { message: string; stack: string[] }
 }
 
-type ActionShape<ActionType extends Action> = {
+export type ActionShape<ActionType extends Action> = {
   [key in keyof ActionType]: key extends ActionType
     ? ActionType[key]
     : ActionType[key] extends Validator<unknown, unknown>
@@ -93,11 +93,11 @@ type ActionShape<ActionType extends Action> = {
 
 export type ResolvedActionShape<Shape extends ActionShape<any>> = {
   [key in keyof Shape]: Shape[key] extends Validator<unknown, infer B>
-    ? Validator<unknown, B>
+    ? Validator<unknown, Exclude<B, Validator<any, any>>>
     : Shape[key] extends MatchesWithDefault<infer C>
-    ? Validator<unknown, C>
+    ? Validator<unknown, Exclude<C, Validator<any, any>>>
     : Shape[key] extends string | number | boolean | any
-    ? Validator<unknown, Shape[key]>
+    ? Validator<unknown, Exclude<Shape[key], Validator<any, any>>>
     : never
 }
 
@@ -105,11 +105,11 @@ export type ResolvedActionShape<Shape extends ActionShape<any>> = {
 
 export type ResolvedActionShapeWithOptionals<Shape extends ActionShape<any>> = {
   [key in keyof Shape]: Shape[key] extends Validator<unknown, infer B>
-    ? Validator<unknown, B>
+    ? Validator<unknown, Exclude<B, Validator<any, any>>>
     : Shape[key] extends MatchesWithDefault<infer C>
-    ? Validator<unknown, C | undefined> | C | undefined
+    ? Validator<unknown, Exclude<C, Validator<any, any>> | undefined>
     : Shape[key] extends string | number | boolean | any
-    ? Validator<unknown, Shape[key] | undefined> | Shape[key] | undefined
+    ? Validator<unknown, Exclude<Shape[key], Validator<any, any>> | undefined>
     : never
 }
 
@@ -120,10 +120,13 @@ type ActionTypeFromShape<Shape extends ActionShape<any>> = {
     ? Shape[key]['_TYPE'] | A
     : Shape[key] extends MatchesWithDefault<Shape[key]>
     ? Shape[key]['matches']
-    : Shape[key]
+    : Exclude<Shape[key], Validator<any, any>>
 }
 
-// type t = ActionTypeFromShape<{store:'test', type:Validator<unknown,'hello'>, name:string, param: Validator<unknown,number>, count: MatchesWithDefault<number>}>
+// type x = ResolvedActionShape<ActionShape<any>>
+// // type t = ResolvedActionType<ActionShape<any>>
+// type z = ResolvedActionType
+// type t = ResolvedActionType<{store:'test', type:Validator<unknown,'hello'>|'hello', name:string, param: Validator<unknown,number>, count: MatchesWithDefault<number>}>
 
 type IsOptional<T> = null extends T ? true : undefined extends T ? true : false
 
@@ -150,7 +153,7 @@ type JustRequiredKeys<Shape extends ActionShape<any>> = {
 type JustOptionals<S extends ActionShape<any>> = Pick<S, JustOptionalKeys<S>>
 type JustRequired<S extends ActionShape<any>> = Pick<S, JustRequiredKeys<S>>
 
-export type ResolvedActionType<Shape extends ActionShape<any>> = Required<
+export type ResolvedActionType<Shape extends ActionShape<Action> = ActionShape<{ type: string }>> = Required<
   ActionTypeFromShape<ResolvedActionShape<Shape>> & ActionOptions
 >
 export type PartialActionType<Shape extends ActionShape<any>> = Omit<
@@ -161,6 +164,9 @@ export type PartialActionType<Shape extends ActionShape<any>> = Omit<
 >
 
 // type t = PartialActionType<{store:'TEST',type:'TEST',name:string, bla:Validator<unknown, any>}>
+// type t2 = ResolvedActionShape<{type:'test', count:MatchesWithDefault<number>}>
+// type t3 = ResolvedActionShapeWithOptionals<{type:'test', count:MatchesWithDefault<number>}>
+// type t = PartialActionType<{type:'test', count:MatchesWithDefault<number>}>
 
 /**
  * Defines an action
@@ -226,7 +232,7 @@ function defineAction<Shape extends ActionShape<Action>>(actionShape: Shape) {
 
   actionCreator.actionShape = actionShape
   actionCreator.resolvedActionShape = resolvedActionShape as ResolvedActionShape<Shape>
-  actionCreator.type = actionShape.type
+  actionCreator.type = actionShape.type as Shape['type']
   actionCreator.matches = matchesShape
 
   return actionCreator
@@ -262,8 +268,8 @@ const dispatchAction = <A extends Action>(
   }
 
   const mode = store.getDispatchMode(topic)
-  if (mode === 'local' || mode === 'host') store.actions.incoming.push(action as Required<Action>)
-  else store.actions.outgoing[topic].queue.push(action as Required<Action>)
+  if (mode === 'local' || mode === 'host') store.actions.incoming.push(action as Required<ResolvedActionType>)
+  else store.actions.outgoing[topic].queue.push(action as Required<ResolvedActionType>)
 }
 
 function addTopic(topic: string, store = HyperFlux.store) {
@@ -293,6 +299,7 @@ function removeTopic(topic: string, store = HyperFlux.store) {
  * Adds an action receptor to the store
  * @param store
  * @param receptor
+ * @deprecated use createActionQueue instead
  */
 function addActionReceptor(receptor: ActionReceptor, store = HyperFlux.store) {
   console.log(`[HyperFlux]: Added Receptor`, receptor.name)
@@ -312,7 +319,7 @@ function removeActionReceptor(receptor: ActionReceptor, store = HyperFlux.store)
   }
 }
 
-const _updateCachedActions = (incomingAction: Required<Action>, store = HyperFlux.store) => {
+const _updateCachedActions = (incomingAction: Required<ResolvedActionType>, store = HyperFlux.store) => {
   if (incomingAction.$cache) {
     const topic = incomingAction.$topic
     if (!store.actions.cached[topic]) {
@@ -354,7 +361,7 @@ const _updateCachedActions = (incomingAction: Required<Action>, store = HyperFlu
   }
 }
 
-const applyIncomingActionsToAllQueues = (action: Action, store = HyperFlux.store) => {
+const applyIncomingActionsToAllQueues = (action: Required<ResolvedActionType>, store = HyperFlux.store) => {
   for (const [shape, queues] of store.actions.queues) {
     matches(action).when(shape, () => {
       for (const queue of queues) {
@@ -364,7 +371,7 @@ const applyIncomingActionsToAllQueues = (action: Action, store = HyperFlux.store
   }
 }
 
-const _applyIncomingAction = (action: Required<Action>, store = HyperFlux.store) => {
+const _applyIncomingAction = (action: Required<ResolvedActionType>, store = HyperFlux.store) => {
   // ensure actions are idempotent
   if (store.actions.incomingHistoryUUIDs.has(action.$uuid)) {
     console.log('got repeat action', action)
@@ -432,9 +439,12 @@ const clearOutgoingActions = (store = HyperFlux.store) => {
   }
 }
 
-const createActionQueue = (shape: Validator<any, any>, store = HyperFlux.store) => {
+const createActionQueue = <V extends Validator<unknown, ResolvedActionType>>(
+  shape: V,
+  store = HyperFlux.store
+): (() => V['_TYPE'][]) => {
   if (!store.actions.queues.get(shape)) store.actions.queues.set(shape, [])
-  const queue = [] as any[]
+  const queue = [] as V['_TYPE'][]
   store.actions.queues.get(shape)!.push(queue)
   return () => {
     const result = [...queue]
@@ -456,3 +466,11 @@ export default {
 }
 
 export type MatchesWithDefault<A> = { matches: Validator<unknown, A>; defaultValue: () => A }
+
+export type ActionCreator<A extends ActionShape<Action>> = {
+  (partialAction?: PartialActionType<A>): Required<ActionTypeFromShape<ResolvedActionShape<A>> & ActionOptions>
+  actionShape: A
+  resolvedActionShape: ResolvedActionShape<A>
+  type: A['type']
+  matches: Validator<unknown, ResolvedActionType<A>>
+}
