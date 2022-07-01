@@ -380,8 +380,6 @@
       "userRoleCantEmpty": "User role can't be empty",
       "scopeTypeCantEmpty": "Scope type can't be empty",
       "createUser": "Create User",
-      "dontSeeUserRole": "Don't see user role?",
-      "createOne": "Create One",
       "submit": "Submit",
       "edit": "Edit",
       "cancel": "Cancel",

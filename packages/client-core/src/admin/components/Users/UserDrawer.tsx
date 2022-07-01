@@ -23,7 +23,6 @@ import { AdminStaticResourceService, useStaticResourceState } from '../../servic
 import { AdminUserRoleService, useAdminUserRoleState } from '../../services/UserRoleService'
 import { AdminUserService } from '../../services/UserService'
 import styles from '../../styles/admin.module.scss'
-import CreateUserRole from './CreateUserRole'
 
 export enum UserDrawerMode {
   Create,
@@ -54,7 +53,6 @@ const UserDrawer = ({ open, mode, selectedUser, onClose }: Props) => {
   const { t } = useTranslation()
   const [editMode, setEditMode] = useState(false)
   const [state, setState] = useState({ ...defaultState })
-  const [openCreateUserRole, setOpenCreateUserRole] = useState(false)
 
   const { user } = useAuthState().value
   const { userRole } = useAdminUserRoleState().value
@@ -209,119 +207,106 @@ const UserDrawer = ({ open, mode, selectedUser, onClose }: Props) => {
   }
 
   return (
-    <React.Fragment>
-      <DrawerView open={open} onClose={handleCancel}>
-        <Container maxWidth="sm" className={styles.mt20}>
-          <DialogTitle className={styles.textAlign}>
-            {mode === UserDrawerMode.Create && t('admin:components.user.createUser')}
-            {mode === UserDrawerMode.ViewEdit &&
-              editMode &&
-              `${t('admin:components.common.update')} ${selectedUser?.name}`}
-            {mode === UserDrawerMode.ViewEdit && !editMode && selectedUser?.name}
-          </DialogTitle>
+    <DrawerView open={open} onClose={handleCancel}>
+      <Container maxWidth="sm" className={styles.mt20}>
+        <DialogTitle className={styles.textAlign}>
+          {mode === UserDrawerMode.Create && t('admin:components.user.createUser')}
+          {mode === UserDrawerMode.ViewEdit &&
+            editMode &&
+            `${t('admin:components.common.update')} ${selectedUser?.name}`}
+          {mode === UserDrawerMode.ViewEdit && !editMode && selectedUser?.name}
+        </DialogTitle>
 
-          <InputText
-            name="name"
-            label={t('admin:components.user.name')}
-            value={state.name}
-            error={state.formErrors.name}
-            disabled={viewMode}
-            onChange={handleChange}
-          />
+        <InputText
+          name="name"
+          label={t('admin:components.user.name')}
+          value={state.name}
+          error={state.formErrors.name}
+          disabled={viewMode}
+          onChange={handleChange}
+        />
 
-          <InputSelect
-            name="avatar"
-            label={t('admin:components.user.avatar')}
-            value={state.avatar}
-            error={state.formErrors.avatar}
-            menu={staticResourceMenu}
-            disabled={viewMode}
-            onChange={handleChange}
-          />
+        <InputSelect
+          name="avatar"
+          label={t('admin:components.user.avatar')}
+          value={state.avatar}
+          error={state.formErrors.avatar}
+          menu={staticResourceMenu}
+          disabled={viewMode}
+          onChange={handleChange}
+        />
 
-          <InputSelect
-            name="userRole"
-            label={t('admin:components.user.userRole')}
-            value={state.userRole}
-            error={state.formErrors.userRole}
-            menu={userRoleMenu}
-            disabled={viewMode}
-            onChange={handleChange}
-          />
+        <InputSelect
+          name="userRole"
+          label={t('admin:components.user.userRole')}
+          value={state.userRole}
+          error={state.formErrors.userRole}
+          menu={userRoleMenu}
+          disabled={viewMode}
+          onChange={handleChange}
+        />
 
-          {viewMode && (
-            <>
-              <InputText
-                label={t('admin:components.user.location')}
-                value={selectedUser?.party?.location?.name || t('admin:components.index.none')}
-                disabled
-              />
-
-              <InputText
-                label={t('admin:components.user.inviteCode')}
-                value={selectedUser?.inviteCode || t('admin:components.index.none')}
-                disabled
-              />
-
-              <InputText
-                label={t('admin:components.user.instance')}
-                value={selectedUser?.party?.instance?.ipAddress || t('admin:components.index.none')}
-                disabled
-              />
-            </>
-          )}
-
-          {viewMode === false && (
-            <DialogContentText className={styles.mb15px}>
-              <span className={styles.select}>{t('admin:components.user.dontSeeUserRole')}</span>{' '}
-              <a href="#" className={styles.textLink} onClick={() => setOpenCreateUserRole(true)}>
-                {t('admin:components.user.createOne')}
-              </a>
-            </DialogContentText>
-          )}
-
-          {viewMode && (
-            <AutoComplete
-              data={scopeMenu}
-              label={t('admin:components.user.grantScope')}
-              defaultValue={state.scopes}
+        {viewMode && (
+          <>
+            <InputText
+              label={t('admin:components.user.location')}
+              value={selectedUser?.party?.location?.name || t('admin:components.index.none')}
               disabled
             />
-          )}
 
-          {viewMode === false && (
-            <AutoComplete
-              data={scopeMenu}
-              label={t('admin:components.user.grantScope')}
-              defaultValue={state.scopes}
-              onChange={handleChangeScopeType}
+            <InputText
+              label={t('admin:components.user.inviteCode')}
+              value={selectedUser?.inviteCode || t('admin:components.index.none')}
+              disabled
             />
-          )}
 
-          <DialogActions>
-            <Button className={styles.outlinedButton} onClick={handleCancel}>
-              {t('admin:components.common.cancel')}
+            <InputText
+              label={t('admin:components.user.instance')}
+              value={selectedUser?.party?.instance?.ipAddress || t('admin:components.index.none')}
+              disabled
+            />
+          </>
+        )}
+
+        {viewMode && (
+          <AutoComplete
+            data={scopeMenu}
+            label={t('admin:components.user.grantScope')}
+            defaultValue={state.scopes}
+            disabled
+          />
+        )}
+
+        {viewMode === false && (
+          <AutoComplete
+            data={scopeMenu}
+            label={t('admin:components.user.grantScope')}
+            defaultValue={state.scopes}
+            onChange={handleChangeScopeType}
+          />
+        )}
+
+        <DialogActions>
+          <Button className={styles.outlinedButton} onClick={handleCancel}>
+            {t('admin:components.common.cancel')}
+          </Button>
+          {(mode === UserDrawerMode.Create || editMode) && (
+            <Button className={styles.gradientButton} onClick={handleSubmit}>
+              {t('admin:components.common.submit')}
             </Button>
-            {(mode === UserDrawerMode.Create || editMode) && (
-              <Button className={styles.gradientButton} onClick={handleSubmit}>
-                {t('admin:components.common.submit')}
-              </Button>
-            )}
-            {mode === UserDrawerMode.ViewEdit && editMode === false && (
-              <Button
-                className={styles.gradientButton}
-                disabled={hasWriteAccess ? false : true}
-                onClick={() => setEditMode(true)}
-              >
-                {t('admin:components.common.edit')}
-              </Button>
-            )}
-          </DialogActions>
-        </Container>
-      </DrawerView>
-
-      <CreateUserRole open={openCreateUserRole} onClose={() => setOpenCreateUserRole(false)} />
-    </React.Fragment>
+          )}
+          {mode === UserDrawerMode.ViewEdit && editMode === false && (
+            <Button
+              className={styles.gradientButton}
+              disabled={hasWriteAccess ? false : true}
+              onClick={() => setEditMode(true)}
+            >
+              {t('admin:components.common.edit')}
+            </Button>
+          )}
+        </DialogActions>
+      </Container>
+    </DrawerView>
   )
 }
 
