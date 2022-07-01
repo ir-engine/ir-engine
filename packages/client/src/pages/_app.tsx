@@ -105,9 +105,12 @@ const App = (): any => {
   useEffect(initApp, [])
 
   useEffect(() => {
-    ProjectService.fetchProjects()
     !clientSetting && ClientSettingService.fetchClientSettings()
   }, [])
+
+  useEffect(() => {
+    if (selfUser?.id && projectState.updateNeeded.value) ProjectService.fetchProjects()
+  }, [selfUser, projectState.updateNeeded.value])
 
   useEffect(() => {
     if (projectState.projects.value.length > 0 && !fetchedProjectComponents) {

@@ -228,6 +228,7 @@ export const AuthService = {
         console.log('****************')
       }
     } catch (err) {
+      console.log('error on resolving auth user in doLoginAuto, logging out')
       console.error(err)
       dispatchAction(AuthAction.didLogoutAction())
 

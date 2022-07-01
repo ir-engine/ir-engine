@@ -1,31 +1,19 @@
 import { DataTypes, Model, Sequelize } from 'sequelize'
 
-import { ProjectInterface } from '@xrengine/common/src/dbmodels/Project'
+import { ProjectPermissionInterface } from '@xrengine/common/src/dbmodels/ProjectPermission'
 
 import { Application } from '../../../declarations'
 
 export default (app: Application) => {
   const sequelizeClient: Sequelize = app.get('sequelizeClient')
-  const Project = sequelizeClient.define<Model<ProjectInterface>>(
-    'project',
+  const ProjectPermission = sequelizeClient.define<Model<ProjectPermissionInterface>>(
+    'project_permission',
     {
       id: {
         type: DataTypes.UUID,
         defaultValue: DataTypes.UUIDV1,
         allowNull: false,
         primaryKey: true
-      },
-      name: {
-        type: DataTypes.STRING
-      },
-      thumbnail: {
-        type: DataTypes.STRING
-      },
-      repositoryPath: {
-        type: DataTypes.STRING
-      },
-      settings: {
-        type: DataTypes.STRING
       }
     },
     {
@@ -37,13 +25,15 @@ export default (app: Application) => {
     }
   )
 
-  ;(Project as any).associate = (models: any): void => {
-    ;(Project as any).hasMany(models.project_permission, {
+  ;(ProjectPermission as any).associate = (models: any): void => {
+    ;(ProjectPermission as any).belongsTo(models.user, { foreignKey: 'userId', allowNull: false, onDelete: 'cascade' })
+    ;(ProjectPermission as any).belongsTo(models.project, {
       foreignKey: 'projectId',
       allowNull: false,
       onDelete: 'cascade'
     })
+    ;(ProjectPermission as any).belongsTo(models.project_permission_type, { foreignKey: 'type' })
   }
 
-  return Project
+  return ProjectPermission
 }
