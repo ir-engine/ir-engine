@@ -30,9 +30,18 @@ import { createWidgetButtonsView } from './ui/WidgetMenuView'
 
 export default async function WidgetSystem(world: World) {
   const ui = createWidgetButtonsView()
+  ui.container.then(() => {
+    const xrui = getComponent(ui.entity, XRUIComponent)
+    ObjectFitFunctions.setUIVisible(xrui.container, false)
+  })
 
   addComponent(ui.entity, PersistTagComponent, {})
   addComponent(ui.entity, NameComponent, { name: 'widget_menu' })
+
+  const showWidgetMenu = (show: boolean) => {
+    const xrui = getComponent(ui.entity, XRUIComponent)
+    if (xrui) ObjectFitFunctions.setUIVisible(xrui.container, show)
+  }
 
   const toggleWidgetsMenu = () => {
     const state = accessWidgetAppState().widgets.value
@@ -54,13 +63,16 @@ export default async function WidgetSystem(world: World) {
   })
 
   function WidgetReceptor(action) {
-    matches(action).when(WidgetAppActions.showWidget.matches, (action) => {
-      const widget = Engine.instance.currentWorld.widgets.get(action.id)!
-      const xrui = getComponent(widget.ui.entity, XRUIComponent)
-      if (xrui) {
-        ObjectFitFunctions.setUIVisible(xrui.container, action.shown)
-      }
-    })
+    matches(action)
+      .when(WidgetAppActions.showWidget.matches, (action) => {
+        const widget = Engine.instance.currentWorld.widgets.get(action.id)!
+        const xrui = getComponent(widget.ui.entity, XRUIComponent)
+        if (xrui) ObjectFitFunctions.setUIVisible(xrui.container, action.shown)
+        showWidgetMenu(false)
+      })
+      .when(WidgetAppActions.showWidgetMenu.matches, (action) => {
+        showWidgetMenu(action.shown)
+      })
   }
   addActionReceptor(WidgetAppServiceReceptor)
   addActionReceptor(WidgetReceptor)
@@ -79,7 +91,6 @@ export default async function WidgetSystem(world: World) {
 
     if (xrui) {
       ObjectFitFunctions.attachObjectToPreferredTransform(xrui.container)
-      ObjectFitFunctions.setUIVisible(xrui.container, accessWidgetAppState().widgetsMenuOpen.value)
     }
 
     const widgetState = accessWidgetAppState()
