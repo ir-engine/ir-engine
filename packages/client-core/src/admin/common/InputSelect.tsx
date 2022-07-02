@@ -48,7 +48,7 @@ const InputSelect = ({ className, name, label, value, menu, error, disabled, end
           size="small"
           sx={{ flexGrow: 1 }}
         >
-          <InputLabel>{_.upperFirst(label)}</InputLabel>
+          <InputLabel sx={{ zIndex: 999 }}>{_.upperFirst(label)}</InputLabel>
 
           <Select
             name={name}

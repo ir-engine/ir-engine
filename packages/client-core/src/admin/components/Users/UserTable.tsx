@@ -6,7 +6,7 @@ import { User } from '@xrengine/common/src/interfaces/User'
 import Box from '@mui/material/Box'
 
 import { useAuthState } from '../../../user/services/AuthService'
-import ConfirmModal from '../../common/ConfirmModal'
+import ConfirmDialog from '../../common/ConfirmDialog'
 import TableComponent from '../../common/Table'
 import { userColumns, UserData, UserProps } from '../../common/variables/user'
 import { AdminUserService, USER_PAGE_LIMIT, useUserState } from '../../services/UserService'
@@ -145,7 +145,7 @@ const UserTable = ({ className, search }: UserProps) => {
         handlePageChange={handlePageChange}
         handleRowsPerPageChange={handleRowsPerPageChange}
       />
-      <ConfirmModal
+      <ConfirmDialog
         open={openConfirm}
         description={`${t('admin:components.user.confirmUserDelete')} '${userName}'?`}
         onClose={() => setOpenConfirm(false)}

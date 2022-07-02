@@ -3,7 +3,7 @@ import React, { memo, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import InfiniteScroll from 'react-infinite-scroller'
 
-import ConfirmModal from '@xrengine/client-core/src/admin/common/ConfirmModal'
+import ConfirmDialog from '@xrengine/client-core/src/admin/common/ConfirmDialog'
 import {
   FileBrowserService,
   FileBrowserServiceReceptor,
@@ -87,7 +87,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
   const filesValue = fileState.files.attach(Downgraded).value
   const [fileProperties, setFileProperties] = useState<any>(null)
   const [files, setFiles] = useState<FileDataType[]>([])
-  const [openPropertiesConfirmModal, setOpenPropertiesModal] = useState(false)
+  const [openProperties, setOpenPropertiesModal] = useState(false)
   const [openConfirm, setOpenConfirm] = useState(false)
   const [contentToDeletePath, setContentToDeletePath] = useState('')
   const [contentToDeleteType, setContentToDeleteType] = useState('')
@@ -345,9 +345,9 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
         <MenuItem onClick={createNewFolder}>{t('editor:layout.filebrowser.addNewFolder')}</MenuItem>
         <MenuItem onClick={pasteContent}>{t('editor:layout.filebrowser.pasteAsset')}</MenuItem>
       </ContextMenu>
-      {openPropertiesConfirmModal && fileProperties && (
+      {openProperties && fileProperties && (
         <Dialog
-          open={openPropertiesConfirmModal}
+          open={openProperties}
           onClose={() => setOpenPropertiesModal(false)}
           aria-labelledby="alert-dialog-title"
           aria-describedby="alert-dialog-description"
@@ -372,7 +372,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
           </Grid>
         </Dialog>
       )}
-      <ConfirmModal
+      <ConfirmDialog
         open={openConfirm}
         description={`${t('editor:dialog.confirmContentDelete')} ${
           contentToDeleteType == 'folder' ? t('editor:dialog.folder') : t('editor:dialog.file')

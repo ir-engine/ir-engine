@@ -8,7 +8,7 @@ import Box from '@mui/material/Box'
 import Chip from '@mui/material/Chip'
 
 import { useAuthState } from '../../../user/services/AuthService'
-import ConfirmModal from '../../common/ConfirmModal'
+import ConfirmDialog from '../../common/ConfirmDialog'
 import TableComponent from '../../common/Table'
 import { locationColumns } from '../../common/variables/location'
 import { AdminLocationService, LOCATION_PAGE_LIMIT, useAdminLocationState } from '../../services/LocationService'
@@ -176,7 +176,7 @@ const LocationTable = ({ className, search }: Props) => {
         handlePageChange={handlePageChange}
         handleRowsPerPageChange={handleRowsPerPageChange}
       />
-      <ConfirmModal
+      <ConfirmDialog
         open={openConfirm}
         description={`${t('admin:components.location.confirmLocationDelete')} '${locationName}'?`}
         onClose={() => setOpenConfirm(false)}

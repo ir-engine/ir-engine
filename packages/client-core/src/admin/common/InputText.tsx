@@ -55,7 +55,7 @@ const InputText = ({
         disabled={disabled}
         size="small"
       >
-        <InputLabel>{_.upperFirst(label)}</InputLabel>
+        <InputLabel sx={{ zIndex: 999 }}>{_.upperFirst(label)}</InputLabel>
 
         <OutlinedInput
           name={name}

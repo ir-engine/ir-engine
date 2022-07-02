@@ -6,7 +6,7 @@ import Grid from '@mui/material/Grid'
 
 import { ProjectService, useProjectState } from '../../../common/services/ProjectService'
 import { useAuthState } from '../../../user/services/AuthService'
-import ConfirmModal from '../../common/ConfirmModal'
+import ConfirmDialog from '../../common/ConfirmDialog'
 import { GithubAppService, useAdminGithubAppState } from '../../services/GithubAppService'
 import styles from '../../styles/admin.module.scss'
 import AddProject from './AddProject'
@@ -67,7 +67,7 @@ const Projects = () => {
 
       <ProjectTable className={styles.rootTable} />
 
-      <ConfirmModal
+      <ConfirmDialog
         open={rebuildModalOpen}
         description={t('admin:components.project.confirmProjectsRebuild')}
         onClose={() => setRebuildModalOpen(false)}

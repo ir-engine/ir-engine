@@ -6,7 +6,7 @@ import { Party } from '@xrengine/common/src/interfaces/Party'
 import Box from '@mui/material/Box'
 
 import { useAuthState } from '../../../user/services/AuthService'
-import ConfirmModal from '../../common/ConfirmModal'
+import ConfirmDialog from '../../common/ConfirmDialog'
 import TableComponent from '../../common/Table'
 import { partyColumns, PartyData, PartyPropsTable } from '../../common/variables/party'
 import { AdminPartyService, PARTY_PAGE_LIMIT, usePartyState } from '../../services/PartyService'
@@ -118,7 +118,7 @@ const PartyTable = ({ className, search }: PartyPropsTable) => {
         handlePageChange={handlePageChange}
         handleRowsPerPageChange={handleRowsPerPageChange}
       />
-      <ConfirmModal
+      <ConfirmDialog
         open={openConfirm}
         description={`${t('admin:components.party.confirmPartyDelete')} '${partyName}'?`}
         onClose={() => setOpenConfirm(false)}

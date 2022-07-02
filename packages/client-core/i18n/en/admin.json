@@ -375,7 +375,8 @@
       "leftClick": "Left Click",
       "rightClick": "Right Click",
       "scroll": "Scroll",
-      "loading": "Loading"
+      "loading": "Loading",
+      "confirmAvatarDelete": "Do you want to delete avatar"
     },
     "dialog": {
       "notAccess": "No access",

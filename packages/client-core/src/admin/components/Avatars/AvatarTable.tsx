@@ -6,7 +6,7 @@ import { AvatarInterface } from '@xrengine/common/src/interfaces/AvatarInterface
 import Box from '@mui/material/Box'
 
 import { useAuthState } from '../../../user/services/AuthService'
-import ConfirmModal from '../../common/ConfirmModal'
+import ConfirmDialog from '../../common/ConfirmDialog'
 import TableComponent from '../../common/Table'
 import { avatarColumns, AvatarData } from '../../common/variables/avatar'
 import { AVATAR_PAGE_LIMIT } from '../../services/AvatarService'
@@ -121,7 +121,7 @@ const AvatarTable = ({ className, search }: Props) => {
         handleRowsPerPageChange={handleRowsPerPageChange}
       />
 
-      <ConfirmModal
+      <ConfirmDialog
         open={openConfirm}
         description={`${t('admin:components.avatar.confirmAvatarDelete')} '${avatarName}'?`}
         onClose={() => setOpenConfirm(false)}
