@@ -9,6 +9,14 @@ import { ServiceTypes } from '@xrengine/common/declarations'
 
 import { SocketWebRTCServerNetwork } from '../instanceserver/src/SocketWebRTCServerNetwork'
 
+export const ServerMode = {
+  API: 'API' as const,
+  Instance: 'Instance' as const,
+  Analytics: 'Analytics' as const
+}
+
+export type ServerTypeMode = typeof ServerMode[keyof typeof ServerMode]
+
 export type Application = ExpressFeathers<ServiceTypes> & {
   // Common
   k8AgonesClient: k8s.CustomObjectsApi
@@ -20,6 +28,7 @@ export type Application = ExpressFeathers<ServiceTypes> & {
   io: SocketIO.Server
   transport: SocketWebRTCServerNetwork
   seed: () => Application // function
+  serverMode: ServerTypeMode
 
   // Instanceserver
   instance: any
