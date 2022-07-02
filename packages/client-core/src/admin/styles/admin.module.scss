@@ -625,6 +625,10 @@
   }
 }
 
+.secondaryText {
+  color: #808080;
+}
+
 .btnSelected {
   color: var(--textColor) !important;
   border-color: var(--buttonOutlined);
@@ -835,4 +839,8 @@
 
 .dialogContentText {
   color: var(--textColor);
+}
+
+.iconButton {
+  color: var(--iconButtonColor);
 }

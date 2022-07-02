@@ -6,7 +6,6 @@ export enum MessageTypes {
   Initialization = 3,
   JoinWorld = 4,
   LeaveWorld = 5,
-  SpectateWorld = 6,
   WebRTCTransportCreate = 7,
   WebRTCTransportConnect = 8,
   WebRTCTransportClose = 9,

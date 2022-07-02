@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useHistory } from 'react-router-dom'
 
-import { ProjectService } from '@xrengine/client-core/src/common/services/ProjectService'
+import { ProjectService, useProjectState } from '@xrengine/client-core/src/common/services/ProjectService'
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import { ProjectInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
 import { dispatchAction } from '@xrengine/hyperflux'
@@ -15,8 +15,12 @@ import {
   Download,
   DownloadDone,
   FilterList,
+  Group,
+  Link,
+  LinkOff,
   Search,
-  Settings
+  Settings,
+  Upload
 } from '@mui/icons-material'
 import {
   Accordion,
@@ -35,7 +39,10 @@ import { EditorAction } from '../../services/EditorServices'
 import { Button, MediumButton } from '../inputs/Button'
 import { CreateProjectDialog } from './CreateProjectDialog'
 import { DeleteDialog } from './DeleteDialog'
+import { EditGithubRepoDialog } from './EditGithubRepoDialog'
+import { EditPermissionsDialog } from './EditPermissionsDialog'
 import { InstallProjectDialog } from './InstallProjectDialog'
+import { LinkGithubRepoDialog } from './LinkGithubRepoDialog'
 import styles from './styles.module.scss'
 
 function sortAlphabetical(a, b) {
@@ -136,10 +143,17 @@ const ProjectsPage = () => {
   const [isInstallDialogOpen, setInstallDialogOpen] = useState(false)
   const [isDeleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [updatingProject, setUpdatingProject] = useState(false)
+  const [uploadingProject, setUploadingProject] = useState(false)
+  const [downloadingProject, setDownloadingProject] = useState(false)
+  const [repoLinkDialogOpen, setRepoLinkDialogOpen] = useState(false)
+  const [repoUnlinkDialogOpen, setRepoUnlinkDialogOpen] = useState(false)
+  const [editPermissionsDialogOpen, setPermissionsDialogOpen] = useState(false)
 
   const authState = useAuthState()
   const authUser = authState.authUser
   const user = authState.user
+  const projectState = useProjectState()
+  const projects = projectState.projects
 
   const { t } = useTranslation()
   const history = useHistory()
@@ -149,6 +163,7 @@ const ProjectsPage = () => {
     try {
       const data = await getProjects()
       setInstalledProjects(data.sort(sortAlphabetical) ?? [])
+      if (activeProject) setActiveProject(data.find((item) => item.id === activeProject.id) as ProjectInterface | null)
     } catch (error) {
       console.error(error)
       setError(error)
@@ -163,7 +178,7 @@ const ProjectsPage = () => {
         ? OfficialProjectData.filter((p) => p.name.includes(query) || p.description.includes(query))
         : OfficialProjectData)
 
-      setOfficialProjects(data.sort(sortAlphabetical) ?? [])
+      setOfficialProjects((data.sort(sortAlphabetical) as ProjectInterface[]) ?? [])
     } catch (error) {
       console.error(error)
       setError(error)
@@ -211,7 +226,22 @@ const ProjectsPage = () => {
 
   const onCreateProject = async (name) => {
     await ProjectService.createProject(name)
-    fetchInstalledProjects()
+    await fetchInstalledProjects()
+  }
+
+  const onCreatePermission = async (userInviteCode: string, projectId: string) => {
+    await ProjectService.createPermission(userInviteCode, projectId)
+    await fetchInstalledProjects()
+  }
+
+  const onPatchPermission = async (id: string, type: string) => {
+    await ProjectService.patchPermission(id, type)
+    await fetchInstalledProjects()
+  }
+
+  const onRemovePermission = async (id: string) => {
+    await ProjectService.removePermission(id)
+    await fetchInstalledProjects()
   }
 
   const openDeleteConfirm = () => setDeleteDialogOpen(true)
@@ -220,6 +250,12 @@ const ProjectsPage = () => {
   const closeCreateDialog = () => setCreateDialogOpen(false)
   const openInstallDialog = () => setInstallDialogOpen(true)
   const closeInstallDialog = () => setInstallDialogOpen(false)
+  const openRepoLinkDialog = () => setRepoLinkDialogOpen(true)
+  const closeRepoLinkDialog = () => setRepoLinkDialogOpen(false)
+  const openRepoUnlinkDialog = () => setRepoUnlinkDialogOpen(true)
+  const closeRepoUnlinkDialog = () => setRepoUnlinkDialogOpen(false)
+  const openEditPermissionsDialog = () => setPermissionsDialogOpen(true)
+  const closeEditPermissionsDialog = () => setPermissionsDialogOpen(false)
 
   const deleteProject = async () => {
     closeDeleteConfirm()
@@ -230,7 +266,7 @@ const ProjectsPage = () => {
         // TODO: using repo path as IDs & names are not properly implemented for official projects
         const proj = installedProjects.find((proj) => proj.id === activeProject.id)!
         await ProjectService.removeProject(proj.id)
-        fetchInstalledProjects()
+        await fetchInstalledProjects()
       } catch (err) {
         console.error(err)
       }
@@ -242,8 +278,21 @@ const ProjectsPage = () => {
 
   const installProject = async () => {
     if (updatingProject || !activeProject?.repositoryPath) return
-    installProjectFromURL(activeProject?.repositoryPath)
+    installProjectFromURL(activeProject.repositoryPath)
     closeProjectContextMenu()
+  }
+
+  const setProjectRemoteURL = async (url: string) => {
+    if (updatingProject) return
+    try {
+      if (activeProject?.id) await ProjectService.setRepositoryPath(activeProject.id, url)
+      closeProjectContextMenu()
+      setActiveProject(null)
+      await fetchInstalledProjects()
+    } catch (err) {
+      console.error(err)
+      throw err
+    }
   }
 
   const installProjectFromURL = async (url: string) => {
@@ -252,12 +301,36 @@ const ProjectsPage = () => {
     setUpdatingProject(true)
     try {
       await ProjectService.uploadProject(url)
-      fetchInstalledProjects()
+      await fetchInstalledProjects()
     } catch (err) {
       console.error(err)
     }
 
     setUpdatingProject(false)
+  }
+
+  const updateProject = async (project: ProjectInterface | null) => {
+    if (project) {
+      setDownloadingProject(true)
+      try {
+        await ProjectService.uploadProject(project.repositoryPath, project.name)
+        setDownloadingProject(false)
+      } catch (err) {
+        setDownloadingProject(false)
+        throw err
+      }
+    }
+  }
+
+  const pushProject = async (id: string) => {
+    setUploadingProject(true)
+    try {
+      await ProjectService.pushProject(id)
+      await fetchInstalledProjects()
+    } catch (err) {
+      console.error(err)
+    }
+    setUploadingProject(false)
   }
 
   const isInstalled = (project: ProjectInterface | null) => {
@@ -268,6 +341,12 @@ const ProjectsPage = () => {
     }
 
     return false
+  }
+
+  const hasRepo = (project: ProjectInterface | null) => {
+    if (!project) return false
+
+    return project.repositoryPath && project.repositoryPath.length > 0
   }
 
   const handleSearch = (e) => {
@@ -315,9 +394,13 @@ const ProjectsPage = () => {
               />
             </a>
             <div className={styles.headerContainer} id={'headerContainer-' + project.name}>
-              <h3 className={styles.header}>{project.name.replaceAll('-', ' ')}</h3>
+              <h3 className={styles.header}>{project.name.replace(/-/g, ' ')}</h3>
               {project.name !== 'default-project' && (
-                <IconButton disableRipple onClick={(e: any) => openProjectContextMenu(e, project)}>
+                <IconButton
+                  className={styles.iconButton}
+                  disableRipple
+                  onClick={(e: any) => openProjectContextMenu(e, project)}
+                >
                   <Settings />
                 </IconButton>
               )}
@@ -445,6 +528,36 @@ const ProjectsPage = () => {
           TransitionProps={{ onExited: () => setActiveProject(null) }}
           classes={{ paper: styles.filterMenu }}
         >
+          {activeProject && isInstalled(activeProject) && (
+            <MenuItem classes={{ root: styles.filterMenuItem }} onClick={openEditPermissionsDialog}>
+              <Group />
+              {t(`editor.projects.permissions`)}
+            </MenuItem>
+          )}
+          {activeProject && isInstalled(activeProject) && !hasRepo(activeProject) && (
+            <MenuItem classes={{ root: styles.filterMenuItem }} onClick={openRepoLinkDialog}>
+              <Link />
+              {t(`editor.projects.link`)}
+            </MenuItem>
+          )}
+          {activeProject && isInstalled(activeProject) && hasRepo(activeProject) && (
+            <MenuItem classes={{ root: styles.filterMenuItem }} onClick={openRepoUnlinkDialog}>
+              <LinkOff />
+              {t(`editor.projects.unlink`)}
+            </MenuItem>
+          )}
+          {activeProject && isInstalled(activeProject) && hasRepo(activeProject) && (
+            <MenuItem classes={{ root: styles.filterMenuItem }} onClick={() => updateProject(activeProject)}>
+              {downloadingProject ? <CircularProgress size={15} className={styles.progressbar} /> : <Download />}
+              {t(`editor.projects.updateFromGithub`)}
+            </MenuItem>
+          )}
+          {activeProject?.hasWriteAccess && hasRepo(activeProject) && (
+            <MenuItem classes={{ root: styles.filterMenuItem }} onClick={() => pushProject(activeProject.id)}>
+              {uploadingProject ? <CircularProgress size={15} className={styles.progressbar} /> : <Upload />}
+              {t(`editor.projects.pushToGithub`)}
+            </MenuItem>
+          )}
           {isInstalled(activeProject) ? (
             <MenuItem classes={{ root: styles.filterMenuItem }} onClick={openDeleteConfirm}>
               {updatingProject ? <CircularProgress size={15} className={styles.progressbar} /> : <Delete />}
@@ -460,6 +573,26 @@ const ProjectsPage = () => {
       )}
       <CreateProjectDialog open={isCreateDialogOpen} onSuccess={onCreateProject} onClose={closeCreateDialog} />
       <InstallProjectDialog open={isInstallDialogOpen} onSuccess={installProjectFromURL} onClose={closeInstallDialog} />
+      <LinkGithubRepoDialog open={repoLinkDialogOpen} onClose={closeRepoLinkDialog} onSuccess={setProjectRemoteURL} />
+      {activeProject && (
+        <EditGithubRepoDialog
+          open={repoUnlinkDialogOpen}
+          onClose={closeRepoUnlinkDialog}
+          onSuccess={setProjectRemoteURL}
+          url={activeProject.repositoryPath}
+        />
+      )}
+      {activeProject && activeProject.project_permissions && (
+        <EditPermissionsDialog
+          open={editPermissionsDialogOpen}
+          onClose={closeEditPermissionsDialog}
+          project={activeProject}
+          projectPermissions={activeProject.project_permissions}
+          addPermission={onCreatePermission}
+          patchPermission={onPatchPermission}
+          removePermission={onRemovePermission}
+        />
+      )}
       <DeleteDialog
         open={isDeleteDialogOpen}
         isProjectMenu

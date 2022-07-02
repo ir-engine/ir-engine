@@ -44,7 +44,7 @@ export default async function HyperspacePortalSystem(world: World) {
     // to trigger the hyperspace effect, add the hyperspace tag to the world entity
     for (const entity of hyperspaceTagComponent.enter()) {
       if (!EngineRenderer.instance.xrSession)
-        switchCameraMode(world.localClientEntity, { cameraMode: CameraMode.ShoulderCam }, true)
+        switchCameraMode(Engine.instance.currentWorld.cameraEntity, { cameraMode: CameraMode.ShoulderCam }, true)
 
       removeComponent(world.localClientEntity, AvatarControllerComponent)
       removeComponent(world.localClientEntity, InteractorComponent)
