@@ -42,13 +42,14 @@ const InputSelect = ({ className, name, label, value, menu, error, disabled, end
       <Box sx={{ display: 'flex' }}>
         <FormControl
           variant="outlined"
-          className={className ?? styles.selectField}
+          className={className ?? styles.inputField}
           error={error ? true : false}
           disabled={disabled}
           size="small"
           sx={{ flexGrow: 1 }}
         >
           <InputLabel>{_.upperFirst(label)}</InputLabel>
+
           <Select
             name={name}
             value={value}

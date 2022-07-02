@@ -113,6 +113,7 @@
       "new": "new",
       "select": "Select",
       "update": "Update",
+      "enter": "Enter",
       "fillRequiredFields": "Please fill all required field",
       "fixErrorFields": "Please fix all errors"
     },
