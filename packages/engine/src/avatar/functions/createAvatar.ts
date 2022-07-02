@@ -120,21 +120,32 @@ export const createAvatar = (spawnAction: typeof WorldNetworkAction.spawnAvatar.
   return entity
 }
 
-export const createAvatarCollider = (entity: Entity, height: number, radius: number): ColliderDesc => {
+export const createAvatarCollider = (entity: Entity, height: number, radius: number): ColliderDesc[] => {
   const { position } = getComponent(entity, TransformComponent)
   const interactionGroups = getInteractionGroups(CollisionGroups.Avatars, AvatarCollisionMask)
-  const colliderDesc = ColliderDesc.capsule(height, radius).setCollisionGroups(interactionGroups)
-  colliderDesc.translation.y = position.y + defaultAvatarHalfHeight
+  const colliderDescs = [] as ColliderDesc[]
+  const avatarBodyCollider = ColliderDesc.capsule(height, radius).setCollisionGroups(interactionGroups)
+  avatarBodyCollider.translation.y = position.y + defaultAvatarHalfHeight
 
-  return colliderDesc
+  const avatarFootCollider = ColliderDesc.cuboid(radius, height * 0.05, radius)
+    .setCollisionGroups(interactionGroups)
+    .setSensor(true)
+  avatarFootCollider.translation.y = position.y
+
+  colliderDescs.push(avatarBodyCollider, avatarFootCollider)
+
+  return colliderDescs
 }
 
 const createAvatarRigidBody = (entity: Entity, height: number, radius: number): RigidBody => {
-  const colliderDesc = createAvatarCollider(entity, height, radius)
+  const colliderDescs = createAvatarCollider(entity, height, radius)
   const rigidBodyDesc = RigidBodyDesc.kinematicPositionBased()
-  const rigidBody = Physics.createRigidBody(entity, Engine.instance.currentWorld.physicsWorld, rigidBodyDesc, [
-    colliderDesc
-  ])
+  const rigidBody = Physics.createRigidBody(
+    entity,
+    Engine.instance.currentWorld.physicsWorld,
+    rigidBodyDesc,
+    colliderDescs
+  )
 
   return rigidBody
 }

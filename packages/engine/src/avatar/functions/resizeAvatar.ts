@@ -14,9 +14,9 @@ export const resizeAvatar = (entity: Entity, height: number, center: Vector3) =>
   avatar.avatarHeight = height
   avatar.avatarHalfHeight = avatar.avatarHeight / 2
 
-  const colliderDesc = createAvatarCollider(entity, avatar.avatarHalfHeight - 0.25, avatarRadius)
-  colliderDesc.translation.y = center.y
-  Physics.resizeColliders(entity, [colliderDesc], Engine.instance.currentWorld.physicsWorld)
+  const colliderDescs = createAvatarCollider(entity, avatar.avatarHalfHeight - 0.25, avatarRadius)
+  colliderDescs[0].translation.y = center.y
+  Physics.resizeColliders(entity, colliderDescs, Engine.instance.currentWorld.physicsWorld)
 
   const raycast = getComponent(entity, RaycastComponent)
   raycast.maxDistance = avatar.avatarHalfHeight + 0.05 // add small offset so raycaster hits properly
