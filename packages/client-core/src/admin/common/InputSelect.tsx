@@ -61,17 +61,19 @@ const InputSelect = ({ className, name, label, value, menu, error, disabled, end
             size={'small'}
             onChange={onChange}
           >
-            <MenuItem
-              value=""
-              disabled
-              classes={{
-                root: styles.menuItem
-              }}
-            >
-              <em>
-                {t('admin:components.common.select')} {label}
-              </em>
-            </MenuItem>
+            {!disabled && (
+              <MenuItem
+                value=""
+                disabled
+                classes={{
+                  root: styles.menuItem
+                }}
+              >
+                <em>
+                  {t('admin:components.common.select')} {label}
+                </em>
+              </MenuItem>
+            )}
             {menu.map((el, index) => (
               <MenuItem
                 value={el.value}
