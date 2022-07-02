@@ -1,6 +1,7 @@
 import { QRCodeSVG } from 'qrcode.react'
-import React, { useRef } from 'react'
+import React, { useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { useHistory } from 'react-router'
 
 import { isShareAvailable } from '@xrengine/engine/src/common/functions/DetectFeatures'
 
@@ -74,13 +75,20 @@ export const useShareMenuHooks = ({ refLink }) => {
       return location
     }
   }
-
+  const updateUrl = () => {
+    const location = new URL(window.location as any)
+    let params = new URLSearchParams(location.search)
+    params.append('spectate', selfUser.id.value)
+    location.search = params.toString()
+    return location
+  }
   return {
     copyLinkToClipboard,
     shareOnApps,
     packageInvite,
     handleChang,
     getInviteLink,
+    updateUrl,
     email
   }
 }
@@ -89,12 +97,28 @@ interface Props {
 }
 const ShareMenu = (props: Props): JSX.Element => {
   const { t } = useTranslation()
-
+  const [isSpectatorMode, setSpectatorMode] = useState<boolean>(false)
   const refLink = useRef() as React.MutableRefObject<HTMLInputElement>
+  const history = useHistory()
+  const { copyLinkToClipboard, shareOnApps, packageInvite, handleChang, getInviteLink, updateUrl, email } =
+    useShareMenuHooks({
+      refLink
+    })
 
-  const { copyLinkToClipboard, shareOnApps, packageInvite, handleChang, getInviteLink, email } = useShareMenuHooks({
-    refLink
-  })
+  const handleToggleSpectatorMode = () => {
+    if (!isSpectatorMode) {
+      const location = updateUrl()
+      history.replace({ pathname: location.pathname, search: location.search })
+      setSpectatorMode(true)
+    } else {
+      const location = new URL(window.location as any)
+      let search = new URLSearchParams(location.search)
+      const instanceId = search.get('instanceId') as string
+      location.search = 'instanceId=' + instanceId
+      history.replace({ pathname: location.pathname, search: location.search })
+      setSpectatorMode(false)
+    }
+  }
 
   return (
     <div className={styles.menuPanel}>
@@ -116,6 +140,7 @@ const ShareMenu = (props: Props): JSX.Element => {
                   checkedIcon={<CheckBox fontSize="small" />}
                   name="checked"
                   color="primary"
+                  onChange={handleToggleSpectatorMode}
                 />
               }
               label={t('user:usermenu.share.lbl-spectator-mode')}
@@ -127,7 +152,7 @@ const ShareMenu = (props: Props): JSX.Element => {
           </Typography>
         )}
         <div className={styles.QRContainer}>
-          <QRCodeSVG height={176} width={200} value="" />
+          <QRCodeSVG height={176} width={200} value={getInviteLink().toString()} />
         </div>
         <TextField
           className={styles.copyField}

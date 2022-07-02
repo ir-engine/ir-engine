@@ -125,6 +125,15 @@
   --dockBackground: rgb(31 27 72 / 85%);
 }
 
+::selection {
+  /* Code for Firefox */
+  background: #000;
+}
+
+::selection {
+  background: #000;
+}
+
 ::-webkit-scrollbar {
   width: auto;
 }
