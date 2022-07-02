@@ -39,10 +39,9 @@ import { EditorAction } from '../../services/EditorServices'
 import { Button, MediumButton } from '../inputs/Button'
 import { CreateProjectDialog } from './CreateProjectDialog'
 import { DeleteDialog } from './DeleteDialog'
-import { EditGithubRepoDialog } from './EditGithubRepoDialog'
 import { EditPermissionsDialog } from './EditPermissionsDialog'
+import { GithubRepoDialog } from './GithubRepoDialog'
 import { InstallProjectDialog } from './InstallProjectDialog'
-import { LinkGithubRepoDialog } from './LinkGithubRepoDialog'
 import styles from './styles.module.scss'
 
 function sortAlphabetical(a, b) {
@@ -146,7 +145,6 @@ const ProjectsPage = () => {
   const [uploadingProject, setUploadingProject] = useState(false)
   const [downloadingProject, setDownloadingProject] = useState(false)
   const [repoLinkDialogOpen, setRepoLinkDialogOpen] = useState(false)
-  const [repoUnlinkDialogOpen, setRepoUnlinkDialogOpen] = useState(false)
   const [editPermissionsDialogOpen, setPermissionsDialogOpen] = useState(false)
 
   const authState = useAuthState()
@@ -252,8 +250,6 @@ const ProjectsPage = () => {
   const closeInstallDialog = () => setInstallDialogOpen(false)
   const openRepoLinkDialog = () => setRepoLinkDialogOpen(true)
   const closeRepoLinkDialog = () => setRepoLinkDialogOpen(false)
-  const openRepoUnlinkDialog = () => setRepoUnlinkDialogOpen(true)
-  const closeRepoUnlinkDialog = () => setRepoUnlinkDialogOpen(false)
   const openEditPermissionsDialog = () => setPermissionsDialogOpen(true)
   const closeEditPermissionsDialog = () => setPermissionsDialogOpen(false)
 
@@ -541,7 +537,7 @@ const ProjectsPage = () => {
             </MenuItem>
           )}
           {activeProject && isInstalled(activeProject) && hasRepo(activeProject) && (
-            <MenuItem classes={{ root: styles.filterMenuItem }} onClick={openRepoUnlinkDialog}>
+            <MenuItem classes={{ root: styles.filterMenuItem }} onClick={openRepoLinkDialog}>
               <LinkOff />
               {t(`editor.projects.unlink`)}
             </MenuItem>
@@ -573,14 +569,8 @@ const ProjectsPage = () => {
       )}
       <CreateProjectDialog open={isCreateDialogOpen} onSuccess={onCreateProject} onClose={closeCreateDialog} />
       <InstallProjectDialog open={isInstallDialogOpen} onSuccess={installProjectFromURL} onClose={closeInstallDialog} />
-      <LinkGithubRepoDialog open={repoLinkDialogOpen} onClose={closeRepoLinkDialog} onSuccess={setProjectRemoteURL} />
       {activeProject && (
-        <EditGithubRepoDialog
-          open={repoUnlinkDialogOpen}
-          onClose={closeRepoUnlinkDialog}
-          onSuccess={setProjectRemoteURL}
-          url={activeProject.repositoryPath}
-        />
+        <GithubRepoDialog open={repoLinkDialogOpen} onClose={closeRepoLinkDialog} project={activeProject} />
       )}
       {activeProject && activeProject.project_permissions && (
         <EditPermissionsDialog
