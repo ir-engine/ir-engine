@@ -17,7 +17,7 @@ import { WidgetAppActions } from './WidgetAppService'
 export type Widget = {
   ui: ReturnType<typeof createXRUI>
   label: string
-  icon: any
+  icon?: any
   system: () => void
 }
 

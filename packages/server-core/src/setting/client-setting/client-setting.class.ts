@@ -1,4 +1,4 @@
-import { NullableId, Paginated, Params } from '@feathersjs/feathers'
+import { Id, NullableId, Paginated, Params } from '@feathersjs/feathers'
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 
 import { ClientSetting as ClientSettingInterface } from '@xrengine/common/src/interfaces/ClientSetting'
@@ -36,6 +36,21 @@ export class ClientSetting<T = ClientSettingDataType> extends Service<T> {
       limit: clientSettings.limit,
       skip: clientSettings.skip,
       data
+    }
+  }
+
+  async get(id: Id, params?: Params): Promise<T> {
+    const clientSettings = (await super.get(id, params)) as any
+    let appSocialLinks = JSON.parse(clientSettings.appSocialLinks)
+    let themeSettings = JSON.parse(clientSettings.themeSettings)
+
+    if (typeof appSocialLinks === 'string') appSocialLinks = JSON.parse(appSocialLinks)
+    if (typeof themeSettings === 'string') themeSettings = JSON.parse(themeSettings)
+
+    return {
+      ...clientSettings,
+      appSocialLinks: appSocialLinks,
+      themeSettings: themeSettings
     }
   }
 

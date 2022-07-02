@@ -23,6 +23,7 @@ export const EngineState = defineState({
     interactionData: null! as InteractableComponentType,
     xrSupported: false,
     xrSessionStarted: false,
+    spectating: false,
     errorEntities: {} as { [key: Entity]: boolean },
     availableInteractable: null! as Entity,
     usersTyping: {} as { [key: string]: true }
@@ -74,6 +75,7 @@ export function EngineEventReceptor(a) {
       .when(EngineActions.availableInteractable.matches, (action) =>
         s.availableInteractable.set(action.availableInteractable)
       )
+      .when(EngineActions.spectateUser.matches, (action) => s.spectating.set(!!action.user))
   })
 }
 
@@ -190,6 +192,6 @@ export class EngineActions {
 
   static spectateUser = defineAction({
     type: 'CORE_SPECTATE_USER' as const,
-    user: matches.string
+    user: matches.string.optional()
   })
 }
