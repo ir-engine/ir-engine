@@ -55,10 +55,11 @@ const InputSelect = ({ className, name, label, value, menu, error, disabled, end
             value={value}
             label={_.upperFirst(label)}
             disabled={disabled}
+            size={'small'}
+            sx={{ opacity: disabled ? 0.38 : 1 }}
             fullWidth
             displayEmpty
             MenuProps={{ classes: { paper: styles.selectPaper } }}
-            size={'small'}
             onChange={onChange}
           >
             {!disabled && (

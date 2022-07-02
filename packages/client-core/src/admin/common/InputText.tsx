@@ -68,6 +68,7 @@ const InputText = ({
           size={'small'}
           startAdornment={startAdornment}
           endAdornment={endAdornment}
+          sx={{ opacity: disabled ? 0.38 : 1 }}
           onChange={onChange}
           onKeyDown={onKeyDown}
           fullWidth
