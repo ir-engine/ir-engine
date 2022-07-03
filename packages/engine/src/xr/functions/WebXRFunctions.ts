@@ -91,7 +91,6 @@ export const proxifyXRInputs = (entity: Entity) => {
 }
 
 export function setupXRCameraForLocalEntity(world: World) {
-  removeComponent(world.localClientEntity, FollowCameraComponent)
   const { container } = getComponent(world.localClientEntity, XRInputSourceComponent)
   container.add(Engine.instance.currentWorld.camera)
 }

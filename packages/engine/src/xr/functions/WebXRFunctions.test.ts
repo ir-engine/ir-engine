@@ -25,6 +25,7 @@ describe('WebXRFunctions Unit', async () => {
     addComponent(entity, FollowCameraComponent, FollowCameraDefaultValues)
     world.localClientEntity = entity
     Engine.instance.currentWorld.camera = new PerspectiveCamera()
+    setupXRInputSourceComponent(entity)
 
     setupXRCameraForLocalEntity(world)
 
@@ -87,7 +88,6 @@ describe('WebXRFunctions Unit', async () => {
     const setSessionCallArg = xrManagerMock.setSession.getCall(0).args[0]
     assert(setSessionCallArg === null)
     assert(Engine.instance.currentWorld.camera.parent === Engine.instance.currentWorld.scene)
-    assert(hasComponent(entity, FollowCameraComponent))
     assert(!hasComponent(entity, XRInputSourceComponent))
     assert(!hasComponent(entity, XRHandsInputComponent))
 
