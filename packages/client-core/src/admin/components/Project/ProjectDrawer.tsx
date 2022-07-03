@@ -23,7 +23,7 @@ interface Props {
   onClose: () => void
 }
 
-const AddProject = ({ open, repos, onClose }: Props) => {
+const ProjectDrawer = ({ open, repos, onClose }: Props) => {
   const { t } = useTranslation()
   const [projectURL, setProjectURL] = useState('')
   const [processing, setProcessing] = useState(false)
@@ -130,4 +130,4 @@ const AddProject = ({ open, repos, onClose }: Props) => {
   )
 }
 
-export default AddProject
+export default ProjectDrawer

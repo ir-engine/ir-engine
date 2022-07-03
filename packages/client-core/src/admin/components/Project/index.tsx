@@ -9,7 +9,7 @@ import { useAuthState } from '../../../user/services/AuthService'
 import ConfirmDialog from '../../common/ConfirmDialog'
 import { GithubAppService, useAdminGithubAppState } from '../../services/GithubAppService'
 import styles from '../../styles/admin.module.scss'
-import AddProject from './AddProject'
+import ProjectDrawer from './ProjectDrawer'
 import ProjectTable from './ProjectTable'
 
 const Projects = () => {
@@ -19,15 +19,15 @@ const Projects = () => {
   const githubAppState = useAdminGithubAppState()
   const githubAppRepos = githubAppState.repos.value
   const { t } = useTranslation()
-  const [uploadProjectsModalOpen, setUploadProjectsModalOpen] = useState(false)
+  const [openProjectDrawer, setOpenPartyDrawer] = useState(false)
   const [rebuildModalOpen, setRebuildModalOpen] = useState(false)
 
-  const onOpenUploadModal = () => {
+  const handleOpenProjectDrawer = () => {
     GithubAppService.fetchGithubAppRepos()
-    setUploadProjectsModalOpen(true)
+    setOpenPartyDrawer(true)
   }
 
-  const onSubmitRebuild = () => {
+  const handleSubmitRebuild = () => {
     setRebuildModalOpen(false)
     ProjectService.triggerReload()
   }
@@ -47,7 +47,7 @@ const Projects = () => {
             type="button"
             variant="contained"
             color="primary"
-            onClick={onOpenUploadModal}
+            onClick={handleOpenProjectDrawer}
           >
             {t('admin:components.project.addProject')}
           </Button>
@@ -71,14 +71,10 @@ const Projects = () => {
         open={rebuildModalOpen}
         description={t('admin:components.project.confirmProjectsRebuild')}
         onClose={() => setRebuildModalOpen(false)}
-        onSubmit={onSubmitRebuild}
+        onSubmit={handleSubmitRebuild}
       />
 
-      <AddProject
-        open={uploadProjectsModalOpen}
-        repos={githubAppRepos}
-        onClose={() => setUploadProjectsModalOpen(false)}
-      />
+      <ProjectDrawer open={openProjectDrawer} repos={githubAppRepos} onClose={() => setOpenPartyDrawer(false)} />
     </div>
   )
 }
