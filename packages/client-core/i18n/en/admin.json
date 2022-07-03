@@ -221,7 +221,8 @@
       "userInviteCode": "User Invite Code",
       "inviteCodeCantEmpty": "Invite code can't be empty",
       "inviteCodeRequired":  "Invite code is required",
-      "source": "Source"
+      "source": "Source",
+      "files": "Files"
     },
     "scene": {
       "sceneInfo": "Scene Information",

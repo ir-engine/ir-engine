@@ -59,6 +59,7 @@ const MemoFileGridItem = memo(FileBrowserItem)
 
 type FileBrowserContentPanelProps = {
   onSelectionChanged: (AssetSelectionChangePropsType) => void
+  disableDnD?: boolean
   selectedFile?: string
 }
 
@@ -327,6 +328,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
                   key={file.key}
                   contextMenuId={i.toString()}
                   item={file}
+                  disableDnD={props.disableDnD}
                   onClick={onSelect}
                   moveContent={moveContent}
                   deleteContent={handleConfirmDelete}

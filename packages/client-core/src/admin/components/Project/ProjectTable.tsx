@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { ProjectInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
@@ -21,8 +21,8 @@ import TableComponent from '../../common/Table'
 import { projectsColumns } from '../../common/variables/projects'
 import styles from '../../styles/admin.module.scss'
 import GithubRepoDrawer from './GithubRepoDrawer'
+import ProjectFilesDrawer from './ProjectFilesDrawer'
 import UserPermissionDrawer from './UserPermissionDrawer'
-import ViewProjectFiles from './ViewProjectFiles'
 
 interface Props {
   className?: string
@@ -334,7 +334,7 @@ const ProjectTable = ({ className }: Props) => {
       )}
 
       {showProjectFiles && project && (
-        <ViewProjectFiles name={project.name} open onClose={() => setShowProjectFiles(false)} />
+        <ProjectFilesDrawer open selectedProject={project} onClose={() => setShowProjectFiles(false)} />
       )}
 
       <ConfirmDialog
