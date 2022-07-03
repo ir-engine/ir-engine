@@ -90,8 +90,8 @@ export const proxifyXRInputs = (entity: Entity) => {
   )
 }
 
-export function setupXRCameraForLocalEntity(world: World) {
-  const { container } = getComponent(world.localClientEntity, XRInputSourceComponent)
+export function setupXRCameraForLocalEntity(entity: Entity) {
+  const { container } = getComponent(entity, XRInputSourceComponent)
   container.add(Engine.instance.currentWorld.camera)
 }
 
@@ -202,7 +202,7 @@ export const bindXRHandEvents = () => {
 export const startWebXR = async (): Promise<void> => {
   const world = Engine.instance.currentWorld
   setupXRInputSourceComponent(world.localClientEntity)
-  setupXRCameraForLocalEntity(world)
+  setupXRCameraForLocalEntity(world.localClientEntity)
   dispatchXRMode(true, accessAvatarInputSettingsState().controlType.value)
   bindXRControllers()
   bindXRHandEvents()

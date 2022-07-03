@@ -22,14 +22,12 @@ describe('WebXRFunctions Unit', async () => {
   it('check setupXRCamera', async () => {
     const world = Engine.instance.currentWorld
     const entity = createEntity(world)
-    addComponent(entity, FollowCameraComponent, FollowCameraDefaultValues)
     world.localClientEntity = entity
     Engine.instance.currentWorld.camera = new PerspectiveCamera()
+
     setupXRInputSourceComponent(entity)
+    setupXRCameraForLocalEntity(entity)
 
-    setupXRCameraForLocalEntity(world)
-
-    assert(!hasComponent(entity, FollowCameraComponent))
     assert(Engine.instance.currentWorld.camera.parent)
   })
 
