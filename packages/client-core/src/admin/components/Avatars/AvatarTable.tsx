@@ -78,7 +78,7 @@ const AvatarTable = ({ className, search }: Props) => {
               setOpenAvatarDrawer(true)
             }}
           >
-            <span className={styles.spanWhite}>{t('user:avatar.view')}</span>
+            <span className={styles.spanWhite}>{t('admin:components.common.view')}</span>
           </a>
           <a
             href="#"
@@ -89,7 +89,7 @@ const AvatarTable = ({ className, search }: Props) => {
               setOpenConfirm(true)
             }}
           >
-            <span className={styles.spanDange}>{t('user:avatar.delete')}</span>
+            <span className={styles.spanDange}>{t('admin:components.common.delete')}</span>
           </a>
         </>
       )

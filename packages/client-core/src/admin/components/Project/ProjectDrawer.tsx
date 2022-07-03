@@ -88,27 +88,23 @@ const ProjectDrawer = ({ open, repos, onClose }: Props) => {
           />
         )}
 
-        {!processing && (
-          <div className={styles.inputContainer}>
-            {source === 'list' && repos && repos.length != 0 ? (
-              <InputSelect
-                name="projectURL"
-                label={t('admin:components.project.project')}
-                value={projectURL}
-                menu={projectMenu}
-                error={error}
-                onChange={handleChange}
-              />
-            ) : (
-              <InputText
-                name="urlSelect"
-                label={t('admin:components.project.githubPublicUrl')}
-                value={projectURL}
-                error={error}
-                onChange={handleChange}
-              />
-            )}
-          </div>
+        {!processing && source === 'list' && repos && repos.length != 0 ? (
+          <InputSelect
+            name="projectURL"
+            label={t('admin:components.project.project')}
+            value={projectURL}
+            menu={projectMenu}
+            error={error}
+            onChange={handleChange}
+          />
+        ) : (
+          <InputText
+            name="urlSelect"
+            label={t('admin:components.project.githubPublicUrl')}
+            value={projectURL}
+            error={error}
+            onChange={handleChange}
+          />
         )}
 
         {processing && <LoadingView title={t('admin:components.project.processing')} variant="body1" />}

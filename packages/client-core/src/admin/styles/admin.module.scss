@@ -211,38 +211,9 @@
   margin-top: 10px;
 }
 
-.createInput {
-  display: flex;
-  align-items: center;
-  margin-top: 10px;
-  margin-bottom: 15px;
-  background: var(--inputBackground);
-  color: var(--textColor) !important;
-}
-
 .input {
   flex: 1;
   color: var(--textColor);
-}
-
-.redBorder {
-  border: 1px solid red;
-  padding: 2px 4px;
-  display: flex;
-  align-items: center;
-  margin-top: 10px;
-  margin-bottom: 15px;
-  background: var(--inputBackground);
-  color: var(--textColor) !important;
-}
-
-.select {
-  color: var(--textColor) !important;
-  height: 2.4rem !important;
-
-  svg {
-    color: var(--textColor) !important;
-  }
 }
 
 .selectPaper {
@@ -263,10 +234,6 @@
   color: var(--textColor);
   width: 100%;
   padding: 20px;
-}
-
-.container {
-  background: orangered;
 }
 
 .spanDange {
@@ -319,47 +286,6 @@
   background-color: #fff;
 }
 
-.modal {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.modalContent {
-  display: flex;
-  flex-direction: column;
-  width: 30%;
-  background-color: var(--popupBackground);
-
-  @media (max-width: 1200px) {
-    width: 50%;
-  }
-
-  @media (max-width: 768px) {
-    width: 90%;
-  }
-}
-
-.inputContainer {
-  width: 100%;
-  margin-bottom: 15px;
-
-  :global(.MuiFormControl-root) {
-    width: 100%;
-  }
-
-  input {
-    color: var(--textColor);
-    background-color: var(--inputBackground);
-  }
-}
-
-.errorMessage {
-  color: red;
-  font-size: 1.5em;
-  margin-top: 10px;
-}
-
 .buttonContainer {
   display: flex;
   flex-direction: row;
@@ -371,99 +297,8 @@
   margin-bottom: 5%;
 }
 
-.mb20px {
-  margin-bottom: 20px;
-}
-
-.rootPaper {
-  min-height: 15vh;
-  background: var(--panelCards);
-  color: var(--textColor);
-
-  @media (max-width: 900px) {
-    height: 10vh;
-  }
-}
-
-.locationTitle {
-  margin: 50px auto;
-  width: 300px;
-  text-align: center;
-
-  @media (max-width: 900px) {
-    margin: 10px auto;
-  }
-}
-
-.locationSubTitle {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.headingFont {
-  @media (max-width: 900px) {
-    font-size: 1.6rem;
-  }
-}
-
-.middlePaper {
-  color: var(--textColor);
-  padding: 20px 0 8px 20px;
-  background: var(--mainBackground);
-  height: 10rem;
-}
-
-.pdl {
-  padding-left: 1rem;
-
-  @media (max-width: 900px) {
-    padding-left: 0;
-  }
-}
-
-.typo {
-  line-height: 1rem;
-}
-
-.locationOtherInfo {
-  font-size: 1.2rem;
-}
-
-.mb {
-  margin-bottom: 10px;
-}
-
-.spacing {
-  padding-left: 2rem;
-  margin-top: 5%;
-
-  @media (max-width: 900px) {
-    padding-left: 1rem;
-  }
-}
-
-.typoFont {
-  @media (max-width: 900px) {
-    font-size: 1.5rem;
-    padding-left: 1rem;
-  }
-}
-
-.pdlarge {
-  padding-left: 2rem;
-
-  @media (max-width: 900px) {
-    padding-left: 1rem;
-  }
-}
-
 .mt10 {
   margin-top: 10%;
-}
-
-.mt15 {
-  margin-top: 15%;
 }
 
 .mt20 {
@@ -476,10 +311,6 @@
 
 .mt20px {
   margin-top: 20px;
-}
-
-.mt30px {
-  margin-top: 30px;
 }
 
 .textAlign {
@@ -508,39 +339,6 @@
   max-height: calc(100vh - 172px);
 }
 
-.scopeContainer {
-  max-height: 200px;
-  width: 100%;
-  overflow-y: scroll;
-
-  @media (max-width: 1200px) {
-    width: 100%;
-  }
-}
-
-.mt5 {
-  margin-top: 5%;
-  margin-left: 0;
-}
-
-.pad {
-  padding: 20px;
-}
-
-.centering {
-  justify-content: center;
-}
-
-.large {
-  width: 80px;
-  height: 80px;
-}
-
-.chip {
-  color: var(--textColor);
-  background-color: var(--panelCards);
-}
-
 .filterButton {
   svg {
     color: var(--iconButtonColor);
@@ -567,27 +365,6 @@
       background: var(--dropdownMenuSelectedBackground);
     }
   }
-}
-
-.scopeFlex {
-  display: grid;
-  grid-template-columns: 2fr 2fr;
-  grid-gap: 10px;
-  margin-top: 4%;
-
-  @media (max-width: 600px) {
-    display: grid;
-    grid-template-columns: 4fr;
-  }
-}
-
-.rootList {
-  width: 100%;
-  background-color: var(--panelCards);
-}
-
-.root {
-  flex-grow: 1;
 }
 
 .analyticsPaper {
@@ -690,10 +467,6 @@
   height: 100%;
   background-color: var(--inputBackground);
   top: 0;
-}
-
-.accentText {
-  color: var(--textColor);
 }
 
 .indicator {
