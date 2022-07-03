@@ -220,10 +220,6 @@ export const endXR = (): void => {
   Engine.instance.currentWorld.scene.add(Engine.instance.currentWorld.camera)
 
   const world = Engine.instance.currentWorld
-  addComponent(Engine.instance.currentWorld.cameraEntity, FollowCameraComponent, {
-    ...FollowCameraDefaultValues,
-    targetEntity: Engine.instance.currentWorld.localClientEntity
-  })
   removeComponent(world.localClientEntity, XRInputSourceComponent)
   removeComponent(world.localClientEntity, XRHandsInputComponent)
 
