@@ -136,7 +136,7 @@ const Users = () => {
               checked={checked}
             />
           }
-          label={t('admin:components.user.hideGuests') as string}
+          label={t('admin:components.user.hideGuests')}
         />
         <Button className={styles.gradientButton} sx={{ width: '100%' }} onClick={resetFilter}>
           Reset

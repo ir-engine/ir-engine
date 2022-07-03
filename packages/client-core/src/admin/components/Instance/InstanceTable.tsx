@@ -111,7 +111,7 @@ const InstanceTable = ({ className, search }: Props) => {
             setOpenConfirm(true)
           }}
         >
-          <span className={styles.spanDange}>{t('admin:components.locationModal.lbl-delete')}</span>
+          <span className={styles.spanDange}>{t('admin:components.common.delete')}</span>
         </a>
       )
     }

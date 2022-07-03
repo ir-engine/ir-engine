@@ -85,7 +85,7 @@ const GroupTable = ({ className, search }: Props) => {
       action: (
         <>
           <a href="#" className={styles.actionStyle} onClick={() => handleGroupDrawer(id)}>
-            <span className={styles.spanWhite}>{t('admin:components.group.view')}</span>
+            <span className={styles.spanWhite}>{t('admin:components.common.view')}</span>
           </a>
           <a
             href="#"
@@ -95,7 +95,7 @@ const GroupTable = ({ className, search }: Props) => {
               setGroupName(name)
             }}
           >
-            <span className={styles.spanDange}>{t('admin:components.group.delete')}</span>
+            <span className={styles.spanDange}>{t('admin:components.common.delete')}</span>
           </a>
         </>
       )

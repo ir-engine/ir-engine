@@ -165,7 +165,7 @@ const UserDrawer = ({ open, mode, selectedUser, onClose }: Props) => {
         tempErrors.avatar = value.length < 2 ? t('admin:components.user.avatarRequired') : ''
         break
       case 'userRole':
-        tempErrors.userRole = value.length < 2 ? t('admin:components.user.scopeTypeRequired') : ''
+        tempErrors.userRole = value.length < 2 ? t('admin:components.user.userRoleRequired') : ''
         break
       default:
         break
@@ -250,19 +250,19 @@ const UserDrawer = ({ open, mode, selectedUser, onClose }: Props) => {
           <>
             <InputText
               label={t('admin:components.user.location')}
-              value={selectedUser?.party?.location?.name || t('admin:components.index.none')}
+              value={selectedUser?.party?.location?.name || t('admin:components.common.none')}
               disabled
             />
 
             <InputText
               label={t('admin:components.user.inviteCode')}
-              value={selectedUser?.inviteCode || t('admin:components.index.none')}
+              value={selectedUser?.inviteCode || t('admin:components.common.none')}
               disabled
             />
 
             <InputText
               label={t('admin:components.user.instance')}
-              value={selectedUser?.party?.instance?.ipAddress || t('admin:components.index.none')}
+              value={selectedUser?.party?.instance?.ipAddress || t('admin:components.common.none')}
               disabled
             />
           </>

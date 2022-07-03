@@ -71,7 +71,7 @@ const PartyTable = ({ className, search }: PartyPropsTable) => {
       action: (
         <>
           <a href="#" className={styles.actionStyle} onClick={() => handleOpenPartyDrawer(true, el)}>
-            <span className={styles.spanWhite}>{t('admin:components.index.view')}</span>
+            <span className={styles.spanWhite}>{t('admin:components.common.view')}</span>
           </a>
           <a
             href="#"
@@ -82,7 +82,7 @@ const PartyTable = ({ className, search }: PartyPropsTable) => {
               setOpenConfirm(true)
             }}
           >
-            <span className={styles.spanDange}>{t('admin:components.index.delete')}</span>
+            <span className={styles.spanDange}>{t('admin:components.common.delete')}</span>
           </a>
         </>
       )
@@ -98,8 +98,8 @@ const PartyTable = ({ className, search }: PartyPropsTable) => {
     return createData(
       el,
       el.id!,
-      el?.instance?.ipAddress || <span className={styles.spanNone}>{t('admin:components.index.none')}</span>,
-      el.location?.name || <span className={styles.spanNone}>{t('admin:components.index.none')}</span>
+      el?.instance?.ipAddress || <span className={styles.spanNone}>{t('admin:components.common.none')}</span>,
+      el.location?.name || <span className={styles.spanNone}>{t('admin:components.common.none')}</span>
     )
   })
 

@@ -142,13 +142,13 @@ const ClientTheme = () => {
         handleChangeColor={handleChangeColor}
       />
       <Button sx={{ maxWidth: '100%' }} className={styles.outlinedButton} onClick={handleCancel}>
-        {t('admin:components.setting.cancel')}
+        {t('admin:components.common.cancel')}
       </Button>
       <Button sx={{ maxWidth: '100%', ml: 1 }} className={styles.outlinedButton} onClick={resetThemeToDefault}>
         {t('admin:components.setting.resetTheme')}
       </Button>
       <Button sx={{ maxWidth: '100%', ml: 1 }} className={styles.gradientButton} onClick={handleSubmit}>
-        {t('admin:components.setting.save')}
+        {t('admin:components.common.save')}
       </Button>
     </div>
   )

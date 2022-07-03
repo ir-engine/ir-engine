@@ -63,7 +63,7 @@ const ReceivedInvite = ({ search }: Props) => {
               setOpenConfirm(true)
             }}
           >
-            <span className={styles.spanDange}>{t('admin:components.index.delete')}</span>
+            <span className={styles.spanDange}>{t('admin:components.common.delete')}</span>
           </a>
         </>
       )

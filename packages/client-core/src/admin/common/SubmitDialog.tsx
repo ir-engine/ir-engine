@@ -27,7 +27,7 @@ const FormDialog = () => {
         aria-labelledby="form-dialog-title"
         classes={{ paper: styles.paperDialog }}
       >
-        <DialogTitle id="form-dialog-title"> {t('admin:components.dialog.notAccess')}</DialogTitle>
+        <DialogTitle id="form-dialog-title"> {t('admin:components.dialog.noAccess')}</DialogTitle>
         <DialogContent>
           <DialogContentText className={`${styles.spanNone} ${styles.mgBottom}`}>
             {t('admin:components.dialog.askAccessResourceMessage')}
@@ -39,7 +39,7 @@ const FormDialog = () => {
             {t('admin:components.dialog.login')}
           </Button>
           <Button onClick={handleClose} className={styles.gradientButton}>
-            {t('admin:components.dialog.submit')}
+            {t('admin:components.common.submit')}
           </Button>
         </DialogActions>
       </Dialog>

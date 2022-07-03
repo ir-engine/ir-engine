@@ -84,7 +84,7 @@ const UserTable = ({ className, search }: UserProps) => {
               setOpenUserDrawer(true)
             }}
           >
-            <span className={styles.spanWhite}>{t('admin:components.index.view')}</span>
+            <span className={styles.spanWhite}>{t('admin:components.common.view')}</span>
           </a>
           {user.id.value !== id && (
             <a
@@ -96,7 +96,7 @@ const UserTable = ({ className, search }: UserProps) => {
                 setOpenConfirm(true)
               }}
             >
-              <span className={styles.spanDange}>{t('admin:components.index.delete')}</span>
+              <span className={styles.spanDange}>{t('admin:components.common.delete')}</span>
             </a>
           )}
         </>
@@ -107,25 +107,25 @@ const UserTable = ({ className, search }: UserProps) => {
   const rows = adminUsers.map((el) => {
     const loc = el.party?.id ? el.party.location : null
     const loca = loc ? (
-      loc.name || <span className={styles.spanNone}>{t('admin:components.index.none')}</span>
+      loc.name || <span className={styles.spanNone}>{t('admin:components.common.none')}</span>
     ) : (
-      <span className={styles.spanNone}>{t('admin:components.index.none')}</span>
+      <span className={styles.spanNone}>{t('admin:components.common.none')}</span>
     )
     const ins = el.party?.id ? el.party.instance : null
     const inst = ins ? (
-      ins.ipAddress || <span className={styles.spanNone}>{t('admin:components.index.none')}</span>
+      ins.ipAddress || <span className={styles.spanNone}>{t('admin:components.common.none')}</span>
     ) : (
-      <span className={styles.spanNone}>{t('admin:components.index.none')}</span>
+      <span className={styles.spanNone}>{t('admin:components.common.none')}</span>
     )
 
     return createData(
       el.id || '',
       el,
       el.name,
-      el.avatarId || <span className={styles.spanNone}>{t('admin:components.index.none')}</span>,
-      el.userRole || <span className={styles.spanNone}>{t('admin:components.index.none')}</span>,
+      el.avatarId || <span className={styles.spanNone}>{t('admin:components.common.none')}</span>,
+      el.userRole || <span className={styles.spanNone}>{t('admin:components.common.none')}</span>,
       loca,
-      el.inviteCode || <span className={styles.spanNone}>{t('admin:components.index.none')}</span>,
+      el.inviteCode || <span className={styles.spanNone}>{t('admin:components.common.none')}</span>,
       inst
     )
   })

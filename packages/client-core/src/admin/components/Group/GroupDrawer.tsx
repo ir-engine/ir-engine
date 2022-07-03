@@ -219,7 +219,7 @@ const GroupDrawer = ({ open, mode, selectedGroup, onClose }: Props) => {
 
         {viewMode && (!selectedGroup || !selectedGroup.scopes) && (
           <DialogContentText className={`${styles.dialogContentText} ${styles.textAlign}`}>
-            {t('admin:components.index.none')}
+            {t('admin:components.common.none')}
           </DialogContentText>
         )}
 

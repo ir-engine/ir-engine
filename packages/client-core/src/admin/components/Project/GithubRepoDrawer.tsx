@@ -97,7 +97,7 @@ const GithubRepoDrawer = ({ open, project, onClose }: Props) => {
 
               {!isCreateMode && (
                 <Button className={styles.gradientButton} startIcon={<LinkOffIcon />} onClick={handleRemove}>
-                  {t('admin:components.project.remove')}
+                  {t('admin:components.common.remove')}
                 </Button>
               )}
               <Button
