@@ -72,17 +72,18 @@ export const ObjectFitFunctions = {
     }
   },
 
-  attachObjectToPreferredTransform: (container: WebContainer3D) => {
-    const distance = 1
-    const scale = ObjectFitFunctions.computeContentFitScaleForCamera(
-      distance,
-      container.rootLayer.domSize.x,
-      container.rootLayer.domSize.y
-    )
+  attachObjectToPreferredTransform: (container: WebContainer3D, distance = 0.1, scale = 0.1) => {
+    const fitScale =
+      scale ??
+      ObjectFitFunctions.computeContentFitScaleForCamera(
+        distance,
+        container.rootLayer.domSize.x,
+        container.rootLayer.domSize.y
+      )
     if (getEngineState().xrSessionStarted.value) {
-      ObjectFitFunctions.attachObjectToHand(container, 1)
+      ObjectFitFunctions.attachObjectToHand(container, fitScale)
     } else {
-      ObjectFitFunctions.attachObjectInFrontOfCamera(container, scale, distance)
+      ObjectFitFunctions.attachObjectInFrontOfCamera(container, fitScale, distance)
     }
   },
 

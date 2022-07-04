@@ -50,8 +50,11 @@ export const useClientSettingState = () => useState(accessClientSettingState())
 export const ClientSettingService = {
   fetchClientSettings: async (inDec?: 'increment' | 'decrement') => {
     try {
+      console.log('waitingForClientAuthenticated')
       await waitForClientAuthenticated()
+      console.log('CLIENT AUTHENTICATED!')
       const clientSettings = (await API.instance.client.service('client-setting').find()) as Paginated<ClientSetting>
+      console.log('Dispatching fetchedClient')
       dispatchAction(ClientSettingActions.fetchedClient({ clientSettings }))
     } catch (err) {
       console.log(err.message)

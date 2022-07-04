@@ -65,7 +65,6 @@ function RouterComp() {
     // The client and auth settigns will not be needed on these routes
     if (!/auth\/oauth/.test(location.pathname)) {
       AuthService.doLoginAuto()
-      ClientSettingService.fetchClientSettings()
       AuthSettingsService.fetchAuthSetting()
     }
     getCustomRoutes().then((routes) => {
