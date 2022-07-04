@@ -17,7 +17,8 @@ import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
 import { addComponent, defineQuery, getComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
-import { NetworkObjectAuthorityTag } from '../../networking/components/NetworkObjectAuthorityTag'
+import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
+import { NetworkObjectOwnedTag } from '../../networking/components/NetworkObjectOwnedTag'
 import { joinCurrentWorld } from '../../networking/functions/joinWorld'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
@@ -313,7 +314,7 @@ export function cameraSpawnReceptor(
 
 export default async function CameraSystem(world: World) {
   const followCameraQuery = defineQuery([FollowCameraComponent, TransformComponent])
-  const ownedNetworkCamera = defineQuery([NetworkCameraComponent, NetworkObjectAuthorityTag])
+  const ownedNetworkCamera = defineQuery([NetworkCameraComponent, NetworkObjectOwnedTag])
   const spectatorQuery = defineQuery([SpectatorComponent])
   const localAvatarQuery = defineQuery([AvatarComponent, LocalInputTagComponent])
 
