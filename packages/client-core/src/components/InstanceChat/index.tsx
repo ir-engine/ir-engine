@@ -411,16 +411,14 @@ const InstanceChat = ({
                   onKeyDown={(evt) => handleComposingMessageChange(evt)}
                   InputProps={{
                     endAdornment: (
-                      <InputAdornment position="end">
-                        <IconButton
-                          aria-label="send message"
-                          onClick={packageMessage}
-                          className={styles.sendButton}
-                          focusRipple={false}
-                        >
-                          <Send fontSize="small" />
-                        </IconButton>
-                      </InputAdornment>
+                      <IconButton
+                        aria-label="send message"
+                        onClick={packageMessage}
+                        className={styles.sendButton}
+                        focusRipple={false}
+                      >
+                        <Send fontSize="small" />
+                      </IconButton>
                     )
                   }}
                 />
