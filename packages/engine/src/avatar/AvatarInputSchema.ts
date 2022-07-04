@@ -409,6 +409,8 @@ const swerveVec = new Vector3()
 const moveFromXRInputs: InputBehaviorType = (entity: Entity, inputKey: InputAlias, inputValue: InputValue): void => {
   const controller = getComponent(entity, AvatarControllerComponent)
   const values = inputValue.value
+  values[0] = values[2]
+  values[1] = values[3]
   controller.localMovementDirection.x = values[0] ?? controller.localMovementDirection.x
   controller.localMovementDirection.z = values[1] ?? controller.localMovementDirection.z
   controller.localMovementDirection.normalize()
@@ -440,6 +442,8 @@ const lookFromXRInputs: InputBehaviorType = (entity: Entity, inputKey: InputAlia
   const avatarInputState = accessAvatarInputSettingsState()
   const rotationAngle = avatarInputState.rotationAngle.value
   let newAngleDiff = 0
+  values[0] = values[2]
+  values[1] = values[3]
   switch (avatarInputState.rotation.value) {
     case XR_ROTATION_MODE.ANGLED:
       if (switchChangedToZero && values[0] != 0) {
