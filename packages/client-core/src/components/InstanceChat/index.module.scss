@@ -98,6 +98,10 @@
               border: 0;
             }
 
+            textarea {
+              margin: auto;
+            }
+
             :global(.MuiInputLabel-formControl) {
               color: white;
               transform: translate(0, 12px) scale(1);
