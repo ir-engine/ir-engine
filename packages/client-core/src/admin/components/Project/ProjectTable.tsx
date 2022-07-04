@@ -208,7 +208,8 @@ const ProjectTable = ({ className }: Props) => {
   }
 
   const handleCloseConfirmation = () => {
-    setConfirm({ ...defaultConfirm, open: false })
+    setConfirm({ ...confirm, open: false })
+    setConfirm({ ...defaultConfirm })
     setProject(undefined)
   }
 
