@@ -30,7 +30,9 @@
   overflow: hidden;
 
   &.open {
-    @media (max-width: 1024px) { width: 100%; }
+    @media (max-width: 1024px) {
+      width: 100%;
+    }
   }
 
   .bottom-box {
@@ -96,14 +98,18 @@
               border: 0;
             }
 
+            textarea {
+              margin: auto;
+            }
+
             :global(.MuiInputLabel-formControl) {
               color: white;
               transform: translate(0, 12px) scale(1);
             }
 
             :global(.MuiInput-root) {
-              margin-top: 8px;
-              margin-bottom: 8px;
+              margin-top: 0;
+              margin-bottom: 0;
               color: #fff;
             }
 
