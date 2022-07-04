@@ -385,6 +385,119 @@
   }
 }
 
+.width100 {
+  width: 100%;
+}
+
+.githubRepoLinkDialog {
+  background: var(--popupBackground);
+  box-shadow: 16px 16px 32px 0 #11111159;
+  backdrop-filter: blur(50px);
+  color: var(--textColor);
+  width: 400px;
+
+  .inputContainer {
+    color: var(--textColor);
+    width: 100%;
+    font-size: 14px;
+    background-color: var(--inputBackground);
+  }
+
+  .input {
+    border-color: var(--inputOutline);
+    background-color: var(--inputBackground);
+  }
+
+  .input:hover + .outline {
+    border-color: var(--inputOutline);
+  }
+
+  .input:focus + .outline,
+  .outline {
+    border-color: var(--inputOutline);
+  }
+
+  .btn {
+    margin-top: 10px;
+    height: 35px;
+    width: 85px;
+    font-size: 15px;
+    background: linear-gradient(90deg, var(--buttonGradientStart), var(--buttonGradientEnd));
+
+    &:disabled {
+      cursor: not-allowed;
+      background: var(--disabled);
+    }
+  }
+
+  .errorMessage {
+    color: var(--red);
+    margin: 5px 2px;
+  }
+
+  .secondaryText {
+    color: #808080;
+  }
+
+  .deleteButtons {
+    display: flex;
+    margin-top: 10px;
+  }
+
+  .outlinedButton {
+    height: 40px;
+    width: 100%;
+    margin: 0 10px 0 0;
+
+    &:hover {
+      opacity: 0.8;
+    }
+
+    &:disabled {
+      background: var(--disabled);
+    }
+
+    @media (max-width: 900px) {
+      font-size: 0.7rem;
+    }
+  }
+
+  .gradientButton {
+    height: 40px;
+    width: 100%;
+    margin: 0 10px 0 0;
+    background: linear-gradient(90deg, var(--buttonGradientStart), var(--buttonGradientEnd));
+    color: var(--textColor) !important;
+
+    &:hover {
+      opacity: 0.8;
+    }
+
+    &:disabled {
+      background: var(--disabled);
+    }
+
+    @media (max-width: 900px) {
+      font-size: 0.7rem;
+    }
+  }
+
+  .processing {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+    svg {
+      color: var(--blue);
+    }
+
+    .text {
+      margin-top: 10px;
+      color: var(--textColor);
+    }
+  }
+}
+
 .createProjectDialog {
   background: var(--popupBackground);
   box-shadow: 16px 16px 32px 0 #11111159;

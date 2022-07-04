@@ -20,6 +20,7 @@ import { matches } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
+import { joinCurrentWorld } from '@xrengine/engine/src/networking/functions/joinWorld'
 import { JoinWorldRequestData, receiveJoinWorld } from '@xrengine/engine/src/networking/functions/receiveJoinWorld'
 import { addActionReceptor, dispatchAction, removeActionReceptor, useHookEffect } from '@xrengine/hyperflux'
 
@@ -130,9 +131,7 @@ export const NetworkInstanceProvisioning = () => {
 
     console.log('[NetworkInstanceProvisioning]: Request Join World', { transportRequestData })
 
-    Engine.instance.currentWorld.worldNetwork
-      .request(MessageTypes.JoinWorld.toString(), transportRequestData)
-      .then(receiveJoinWorld)
+    joinCurrentWorld(transportRequestData)
   }, [engineState.connectedWorld, appState.onBoardingStep])
 
   // media server provisioning

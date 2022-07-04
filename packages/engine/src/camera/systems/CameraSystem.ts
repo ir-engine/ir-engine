@@ -1,40 +1,29 @@
-import { ArrowHelper, Clock, Material, MathUtils, Matrix4, Quaternion, Raycaster, SkinnedMesh, Vector3 } from 'three'
+import { ArrowHelper, Clock, MathUtils, Matrix4, Raycaster, Vector3 } from 'three'
 import { clamp } from 'three/src/math/MathUtils'
 
-import { UserId } from '@xrengine/common/src/interfaces/UserId'
-import { addActionReceptor, createActionQueue, dispatchAction } from '@xrengine/hyperflux'
+import { createActionQueue, dispatchAction } from '@xrengine/hyperflux'
 
 import { BoneNames } from '../../avatar/AvatarBoneMatching'
 import { AvatarAnimationComponent } from '../../avatar/components/AvatarAnimationComponent'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
+import { AvatarHeadDecapComponent } from '../../avatar/components/AvatarHeadDecapComponent'
 import { XRCameraUpdatePendingTagComponent } from '../../avatar/components/XRCameraUpdatePendingTagComponent'
-import { setAvatarHeadOpacity } from '../../avatar/functions/avatarFunctions'
-import { matches } from '../../common/functions/MatchesUtils'
 import { smoothDamp } from '../../common/functions/MathLerpFunctions'
 import { createConeOfVectors } from '../../common/functions/vectorHelpers'
 import { createQuaternionProxy, createVector3Proxy } from '../../common/proxies/three'
 import { Engine } from '../../ecs/classes/Engine'
-import { EngineActions, getEngineState } from '../../ecs/classes/EngineState'
+import { EngineActions } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
-import {
-  addComponent,
-  defineQuery,
-  getComponent,
-  hasComponent,
-  removeComponent
-} from '../../ecs/functions/ComponentFunctions'
-import { createEntity } from '../../ecs/functions/EntityFunctions'
+import { addComponent, defineQuery, getComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
 import { NetworkObjectAuthorityTag } from '../../networking/components/NetworkObjectAuthorityTag'
-import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
+import { joinCurrentWorld } from '../../networking/functions/joinWorld'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
-import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { RAYCAST_PROPERTIES_DEFAULT_VALUES } from '../../scene/functions/loaders/CameraPropertiesFunctions'
-import { setCameraProperties } from '../../scene/functions/setCameraProperties'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { CameraTagComponent as NetworkCameraComponent } from '../components/CameraTagComponent'
@@ -43,7 +32,6 @@ import { SpectatorComponent } from '../components/SpectatorComponent'
 import { TargetCameraRotationComponent } from '../components/TargetCameraRotationComponent'
 
 const direction = new Vector3()
-const quaternion = new Quaternion()
 const upVector = new Vector3(0, 1, 0)
 const empty = new Vector3()
 const mx = new Matrix4()
@@ -93,15 +81,15 @@ export const getAvatarBonePosition = (entity: Entity, name: BoneNames, position:
   position.set(el[12], el[13], el[14])
 }
 
-export const updateCameraTargetOpacity = (cameraEntity: Entity) => {
-  const fadeDistance = 0.6
+const getCameraTargetOpacity = (distance: number, fadeDistance: number = 0.6): number => {
+  return Math.pow(clamp((distance - 0.1) / fadeDistance, 0, 1), 6)
+}
+
+export const updateCameraTargetHeadOpacity = (cameraEntity: Entity) => {
   const followCamera = getComponent(cameraEntity, FollowCameraComponent)
-
   if (!followCamera.targetEntity) return
-
-  const opacity = Math.pow(clamp((followCamera.distance - 0.1) / fadeDistance, 0, 1), 6)
-
-  setAvatarHeadOpacity(followCamera.targetEntity, opacity)
+  const headDecap = getComponent(followCamera.targetEntity, AvatarHeadDecapComponent)
+  if (headDecap) headDecap.opacity = getCameraTargetOpacity(followCamera.distance, 0.6)
 }
 
 export const updateCameraTargetRotation = (cameraEntity: Entity) => {
@@ -258,7 +246,7 @@ export const updateFollowCamera = (cameraEntity: Entity) => {
   mx.lookAt(direction, empty, upVector)
   cameraTransform.rotation.setFromRotationMatrix(mx)
 
-  updateCameraTargetOpacity(cameraEntity)
+  updateCameraTargetHeadOpacity(cameraEntity)
   updateCameraTargetRotation(cameraEntity)
 }
 
@@ -267,13 +255,26 @@ function updateSpectator(cameraEntity: Entity) {
   const spectator = getComponent(cameraEntity, SpectatorComponent)
 
   const networkCameraEntity = world.getOwnedNetworkObjectWithComponent(spectator.userId, NetworkCameraComponent)
-  const networkTransform = getComponent(networkCameraEntity, TransformComponent)
 
-  if (networkTransform) {
-    const cameraTransform = getComponent(cameraEntity, TransformComponent)
-    cameraTransform.position.copy(networkTransform.position)
-    cameraTransform.rotation.copy(networkTransform.rotation)
+  const networkTransform = getComponent(networkCameraEntity, TransformComponent)
+  if (!networkTransform) return
+
+  const cameraTransform = getComponent(cameraEntity, TransformComponent)
+  cameraTransform.position.copy(networkTransform.position)
+  cameraTransform.rotation.copy(networkTransform.rotation)
+
+  const networkAvatarEntity = world.getUserAvatarEntity(spectator.userId)
+  if (!networkAvatarEntity) return
+  let headDecapComponent = getComponent(networkAvatarEntity, AvatarHeadDecapComponent)
+
+  if (!headDecapComponent) {
+    headDecapComponent = { opacity: 1, ready: false }
+    addComponent(networkAvatarEntity, AvatarHeadDecapComponent, headDecapComponent)
   }
+
+  calculateCameraTarget(networkAvatarEntity, tempVec)
+  const distance = tempVec.sub(networkTransform.position).length()
+  headDecapComponent.opacity = getCameraTargetOpacity(distance, 0.6)
 }
 
 function enterFollowCameraQuery(entity: Entity) {
@@ -331,8 +332,14 @@ export default async function CameraSystem(world: World) {
 
     for (const action of spectateUserActions()) {
       const cameraEntity = Engine.instance.currentWorld.cameraEntity
-      addComponent(cameraEntity, SpectatorComponent, { userId: action.user })
-      console.log('Spectator component added', action.user)
+      if (action.user) {
+        addComponent(cameraEntity, SpectatorComponent, { userId: action.user })
+        console.log('Spectator component added', action.user)
+      } else {
+        removeComponent(cameraEntity, SpectatorComponent)
+        joinCurrentWorld()
+        console.log('Spectator component removed')
+      }
     }
 
     for (const entity of localAvatarQuery.enter()) {

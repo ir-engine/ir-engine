@@ -7,6 +7,7 @@ import { decode } from 'jsonwebtoken'
 import { IdentityProviderInterface } from '@xrengine/common/src/dbmodels/IdentityProvider'
 import { Channel } from '@xrengine/common/src/interfaces/Channel'
 import { Instance } from '@xrengine/common/src/interfaces/Instance'
+import { User } from '@xrengine/common/src/interfaces/User'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineActions, getEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
@@ -481,15 +482,18 @@ const shutdownServer = async (app: Application, instanceId: string) => {
 }
 
 // todo: this could be more elegant
-const getActiveUsersCount = (app: Application, userToIgnore) => {
+const getActiveUsersCount = (app: Application, userToIgnore: User) => {
   const activeClients = app.transport.peers
-  const activeUsers = [...activeClients].filter(
-    ([, v]) => v.userId !== Engine.instance.userId && v.userId !== userToIgnore.id
-  )
+  const activeUsers = [...activeClients].filter(([id]) => id !== Engine.instance.userId && id !== userToIgnore.id)
   return activeUsers.length
 }
 
-const handleUserDisconnect = async (app: Application, connection, user, instanceId) => {
+const handleUserDisconnect = async (
+  app: Application,
+  connection: SocketIOConnectionType,
+  user: User,
+  instanceId: string
+) => {
   try {
     const activeUsersCount = getActiveUsersCount(app, user)
     await app.service('instance').patch(instanceId, {
@@ -537,9 +541,8 @@ const handleUserDisconnect = async (app: Application, connection, user, instance
 
   await new Promise((resolve) => setTimeout(resolve, config.instanceserver.shutdownDelayMs))
 
-  // count again here, as it may have changed
-  const activeUsersCount = getActiveUsersCount(app, user)
-  if (activeUsersCount < 1) await shutdownServer(app, instanceId)
+  // check if there are no peers connected (1 being the server)
+  if (app.transport.peers.size === 1) await shutdownServer(app, instanceId)
 }
 
 const onConnection = (app: Application) => async (connection: SocketIOConnectionType) => {
