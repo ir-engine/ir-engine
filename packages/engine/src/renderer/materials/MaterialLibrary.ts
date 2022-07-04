@@ -4,10 +4,12 @@ import Caustics, { DefaultArgs as CausticsDefaultArgs } from './constants/Causti
 import Circuits, { DefaultArgs as CircuitsDefaultArgs } from './constants/Circuits.mat'
 import Cubes, { DefaultArgs as CubesDefaultArgs } from './constants/Cubes.mat'
 import DistanceFade, { DefaultArgs as DistanceFadeDefaultArgs } from './constants/DistanceFade.mat'
+import FireNoise, { DefaultArgs as FireNoiseDefaultArgs } from './constants/FireNoise.mat'
+import FireSlanted, { DefaultArgs as FireSlantedDefaultArgs } from './constants/FireSlanted.mat'
 import Galaxy, { DefaultArgs as GalaxyDefaultArgs } from './constants/Galaxy.mat'
 import Generators, { DefaultArgs as GeneratorsDefaultArgs } from './constants/Generators.mat'
 import Lambert, { DefaultArgs as LambertDefaultArgs } from './constants/Lambert.mat'
-import Matcap, { MatcapArgs as MatcapDefaultArgs } from './constants/Matcap.mat'
+import Matcap, { DefaultArgs as MatcapDefaultArgs } from './constants/Matcap.mat'
 import Noise_1, { DefaultArgs as Noise_1DefaultArgs } from './constants/Noise_1.mat'
 import Phong, { DefaultArgs as PhongDefaultArgs } from './constants/Phong.mat'
 import Physical, { DefaultArgs as PhysicalDefaultArgs } from './constants/Physical.mat'
@@ -22,6 +24,8 @@ export const MaterialLibrary = {
   Circuits: Circuits,
   Cubes: Cubes,
   DistanceFade: DistanceFade,
+  FireNoise: FireNoise,
+  FireSlanted: FireSlanted,
   Galaxy: Galaxy,
   Generators: Generators,
   Lambert: Lambert,
@@ -41,6 +45,8 @@ export const DefaultArguments = {
   Circuits: CircuitsDefaultArgs,
   Cubes: CubesDefaultArgs,
   DistanceFade: DistanceFadeDefaultArgs,
+  FireNoise: FireNoiseDefaultArgs,
+  FireSlanted: FireSlantedDefaultArgs,
   Galaxy: GalaxyDefaultArgs,
   Generators: GeneratorsDefaultArgs,
   Lambert: LambertDefaultArgs,

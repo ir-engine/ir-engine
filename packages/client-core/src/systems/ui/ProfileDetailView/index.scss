@@ -1,0 +1,1608 @@
+@import "@xrengine/client-core/src/styles/imports.module.scss";
+
+.primaryForeground {
+  color: var(--textColor);
+}
+
+.menuPanel {
+  display: flex;
+  flex-direction: column;
+  width: 500px;
+  padding: 0 30px;
+  margin: 5px 15px 20px 10px;
+  border-radius: 20px;
+  max-height: calc(100vh - 100px);
+  background-color: var(--popupBackground);
+
+  * {
+    touch-action: auto;
+  }
+
+  & > .profilePanel,
+  & > .accountPanel,
+  & > .settingPanel,
+  & > .sharePanel,
+  & > .locationPanel {
+    margin: 30px 0;
+  }
+
+  .inviteBox {
+    margin-top: 10px;
+    width: 100%;
+    color: var(--textColor);
+    display: inline-flex;
+    flex-direction: column;
+    position: relative;
+    min-width: 0;
+    padding: 0;
+    border: 0;
+    vertical-align: top;
+  }
+
+  .inviteContainer {
+    border-radius: 4px;
+    padding-right: 14px;
+    font-family: Roboto, Helvetica, Arial, sans-serif;
+    font-weight: 400;
+    font-size: 1rem;
+    line-height: 1.4375em;
+    letter-spacing: 0.00938em;
+    color: var(--textColor);
+    box-sizing: border-box;
+    position: relative;
+    cursor: text;
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .inviteLinkInput {
+    color: var(--textColor);
+    border-color: var(--inputOutline);
+    padding: 5px 0 10px 14px;
+    font: inherit;
+    letter-spacing: inherit;
+    border: 0;
+    box-sizing: content-box;
+    background: none;
+    height: 1.4375em;
+    margin: 0;
+    display: block;
+    min-width: 0;
+    width: 100%;
+  }
+
+  .refreshApiContainer {
+    color: var(--textColor);
+    cursor: pointer;
+    display: flex;
+    height: 0.01em;
+    max-height: 2em;
+    align-items: center;
+    white-space: nowrap;
+    margin-left: 8px;
+    margin-bottom: 5px;
+    z-index: 20;
+
+    svg {
+      width: 1em;
+      height: 1em;
+      display: inline-block;
+      flex-shrink: 0;
+      font-size: 1.5rem;
+      color: #fff;
+
+      path {
+        fill: var(--iconButtonColor);
+      }
+    }
+  }
+
+  .copyInviteContainer {
+    color: var(--textColor);
+    cursor: pointer;
+    display: flex;
+    height: 0.01em;
+    max-height: 2em;
+    align-items: center;
+    white-space: nowrap;
+    margin-left: 8px;
+    margin-bottom: 5px;
+    z-index: 20;
+
+    svg {
+      width: 1em;
+      height: 1em;
+      display: inline-block;
+      flex-shrink: 0;
+      font-size: 1.5rem;
+      color: #fff;
+
+      path {
+        fill: var(--iconButtonColor);
+      }
+    }
+  }
+
+  .linkFieldset {
+    border-color: var(--inputOutline);
+    text-align: left;
+    position: absolute;
+    inset: -5px 0 0;
+    margin: 0;
+    padding: 0 8px;
+    pointer-events: none;
+    border-radius: 4px;
+    border-style: solid;
+    border-width: 1px;
+    overflow: hidden;
+    min-width: 0%;
+  }
+
+  .linkLegend {
+    margin: 0;
+    padding: 0;
+  }
+
+  .detailsContainer {
+    display: flex;
+    align-items: center;
+    justify-content: right;
+
+    h2 {
+      margin: auto;
+    }
+  }
+
+  .themeSettingContainer {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .themeHeading {
+    font-size: 12px;
+    color: var(--textColor);
+  }
+
+  .switch {
+    position: relative;
+    display: inline-block;
+    width: 40px;
+    height: 18px;
+    margin: 8px 12px;
+  }
+
+  .switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+
+  .switchSlider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: var(--themeSwitchTrack);
+    transition: .4s;
+
+    svg {
+      path {
+        fill: white;
+      }
+    }
+
+    .iconContainer {
+      width: 20px;
+      height: 20px;
+    }
+  }
+
+  .switchSlider::before {
+    position: absolute;
+    content: "";
+    height: 32px;
+    width: 32px;
+    left: -7px;
+    bottom: -7px;
+    background-color: var(--themeSwitchThumb);
+    transition: .4s;
+  }
+
+  input:checked + .switchSlider {
+    background-color: var(--themeSwitchTrack);
+
+    .iconContainer {
+      transform: translateX(18px);
+    }
+  }
+
+  input:focus + .switchSlider {
+    box-shadow: 0 0 1px var(--themeSwitchTrack);
+  }
+
+  input:checked + .switchSlider::before {
+    transform: translateX(20px);
+  }
+
+  /* Rounded switchSliders */
+  .switchSlider.round {
+    border-radius: 34px;
+  }
+
+  .switchSlider.round::before {
+    border-radius: 50%;
+  }
+
+  .profilePanel {
+    display: flex;
+    flex-direction: column;
+    position: relative;
+
+    .closeButton {
+      position: fixed;
+      right: 8px;
+      top: 8px;
+
+      &:hover {
+        cursor: pointer;
+        color: red;
+      }
+    }
+
+    .profileBlock {
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+
+      .avatarBlock {
+        width: 80px;
+        height: 80px;
+        box-shadow: 0 2px 18px 0 #11111159;
+        border-radius: 50%;
+        background: white;
+        position: relative;
+        flex-shrink: 0;
+        flex-grow: 0;
+
+        img {
+          width: 100%;
+          height: 100%;
+          display: block;
+          border-radius: 10px;
+          border-radius: 50%;
+        }
+
+        .avatarBtn {
+          position: absolute;
+          width: 30px;
+          height: 30px;
+          bottom: -10px;
+          right: -10px;
+          margin: 0;
+          min-width: 30px;
+          border-radius: 50%;
+          color: var(--textColor);
+          border: none;
+          background-color: var(--iconButtonBackground);
+          transition: all 0.15s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+
+          &:hover,
+          &:focus {
+            background-color: var(--iconButtonSelectedBackground);
+          }
+
+          svg {
+            width: 20px;
+            height: 20px;
+
+            path {
+              fill: var(--iconButtonColor);
+            }
+          }
+        }
+      }
+
+      .headerBlock {
+        display: flex;
+        flex-flow: column wrap;
+        width: calc(100% - 110px);
+        align-content: center;
+
+        .panelHeader {
+          font-size: 14px;
+          font-weight: bold;
+          margin: 0;
+          color: var(--textColor);
+        }
+
+        .justify {
+          @media (max-width: 560px) {
+            justify-content: space-between !important;
+          }
+        }
+
+        h2 {
+          font-family: Roboto;
+          font-size: 14px;
+          text-align: left;
+          opacity: 0.8;
+          color: var(--textColor);
+
+          span {
+            text-transform: capitalize;
+            font-weight: 700;
+          }
+
+          &.showUserId {
+            &:hover {
+              color: black;
+              cursor: pointer;
+            }
+          }
+        }
+
+        h4 {
+          margin-top: 4px;
+          text-align: left;
+          color: var(--textColor);
+
+          .logout {
+            max-width: 50px;
+            font-size: 14px;
+
+            &:hover {
+              opacity: 0.8;
+              cursor: pointer;
+              color: black;
+            }
+          }
+        }
+      }
+    }
+
+    .emailPhoneSection {
+      margin-top: 20px;
+
+      .panelHeader {
+        font-size: 14px;
+        font-weight: bold;
+        margin: 0;
+        color: var(--textColor);
+      }
+
+      .emailField {
+        margin-top: 10px;
+        margin-bottom: 20px;
+        width: 100%;
+        color: var(--textColor);
+        background: transparent;
+
+        input {
+          color: var(--textColor);
+          border-color: var(--inputOutline);
+        }
+
+        :global(.MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline) {
+          border-color: var(--inputOutline);
+        }
+
+        .materialIconBlock {
+          @include material-icon-block-styling;
+        }
+      }
+    }
+
+    .walletSection {
+      text-align: center;
+
+      .textBlock {
+        color: var(--textColor);
+        font-size: 14px;
+        font-weight: normal;
+        text-align: center;
+        display: block;
+        cursor: initial;
+      }
+
+      .walletBtn {
+        height: 35px;
+        font-size: 14px;
+        width: 250px;
+        max-width: 100%;
+        background: linear-gradient(90deg, var(--buttonGradientStart), var(--buttonGradientEnd));
+        color: var(--textColor);
+        border-radius: 20px;
+        margin: 15px 0 20px;
+        border: none;
+
+        &:hover {
+          opacity: 0.8;
+        }
+      }
+    }
+
+    .socialBlock {
+      .socialContainer {
+        display: flex;
+        justify-content: space-evenly;
+        margin: 20px 0;
+
+        a {
+          color: #000;
+          outline: none !important;
+        }
+
+        & > a:hover svg,
+        & > a:focus svg {
+          opacity: 0.8;
+        }
+
+        svg {
+          height: 30px;
+          width: 30px;
+          flex-shrink: 0.9;
+          margin: 0 5px;
+          cursor: pointer;
+          opacity: 1;
+        }
+      }
+
+      .textBlock {
+        font-size: 14px;
+        color: var(--textColor);
+        font-weight: normal;
+        text-align: center;
+        display: block;
+        cursor: initial;
+      }
+
+      .smallTextBlock {
+        font-size: 12px;
+        color: var(--textColor);
+        font-weight: normal;
+        text-align: center;
+        display: block;
+        cursor: initial;
+      }
+    }
+  }
+
+  .settingPanel {
+    .settingSection {
+      color: var(--textColor);
+      position: relative;
+
+      & + .settingSection {
+        margin-top: 25px;
+      }
+    }
+
+    .row {
+      display: flex;
+      align-items: center;
+
+      & + .flexWrap {
+        flex-wrap: wrap;
+      }
+
+      & + .row {
+        margin-top: 5px;
+      }
+
+      .checkboxBlock {
+        margin: 4px 20px 0 0;
+
+        :global(.MuiCheckbox-root) {
+          padding: 0;
+          color: var(--buttonOutlined);
+          margin-right: 10px;
+
+          svg {
+            font-size: 24px;
+          }
+
+          span {
+            font-size: 14px;
+          }
+        }
+
+        :global(.MuiIconButton-colorSecondary) {
+          &:hover {
+            background: none;
+          }
+        }
+      }
+
+      .materialIconBlock {
+        width: 24px;
+        height: 24px;
+        flex-shrink: 0;
+
+        svg {
+          color: var(--buttonOutlined);
+        }
+      }
+
+      .settingLabel {
+        margin-left: 10px;
+        font-size: 14px;
+        width: 100px;
+        display: inline-block;
+        flex-shrink: 0;
+        font-family: Roboto;
+      }
+
+      :global(.MuiSlider-root) {
+        &.slider {
+          color: var(--iconButtonSelectedBackground);
+          margin: 0 10px;
+        }
+
+        :global(.MuiSlider-thumb) {
+          background: var(--iconButtonSelectedBackground);
+          border: var(--iconButtonSelectedBackground);
+          width: 16px;
+          height: 16px;
+        }
+      }
+    }
+
+    .automatic {
+      position: absolute;
+      top: -8px;
+      right: 0;
+
+      .checkboxBlock {
+        margin: 0 -2px 0 0;
+
+        :global(.MuiCheckbox-root) {
+          margin-left: 10px;
+          margin-right: 0;
+        }
+      }
+    }
+  }
+
+  .sharePanel {
+    position: relative;
+
+    .panelHeader {
+      font-size: 18px;
+      color: var(--textColor);
+      font-weight: bold;
+    }
+
+    .shareLink {
+      font-size: 16px;
+      color: #454d9a;
+      font-weight: 700;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      overflow: auto;
+      margin-bottom: 20px;
+      width: 100%;
+      height: 24px !important;
+      border: none;
+      background: transparent;
+      scrollbar-width: none;
+
+      /* IE */
+      resize: none;
+      outline: none !important;
+      -ms-overflow-style: none;
+
+      /* Firefox */
+      &::-webkit-scrollbar {
+        display: none;
+
+        /* Safari and Chrome */
+      }
+    }
+
+    .sendInviteContainer {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      margin: 20px auto 10px;
+      justify-content: center;
+
+      .sendInvite {
+        width: 125px;
+        height: 35px;
+        background: linear-gradient(90deg, var(--buttonGradientStart), var(--buttonGradientEnd));
+
+        &:hover {
+          opacity: 0.8;
+        }
+      }
+    }
+
+    h5 {
+      color: var(--textColor);
+      margin-top: 10px;
+      font-size: 14px;
+      font-weight: normal;
+    }
+
+    .copyField {
+      margin-top: 10px;
+      width: 100%;
+      color: var(--textColor);
+
+      input {
+        color: var(--textColor);
+        border-color: var(--inputOutline);
+        -webkit-text-fill-color: var(--textColor);
+      }
+
+      :global(.MuiOutlinedInput-root) {
+        fieldset {
+          border-color: var(--inputOutline);
+        }
+      }
+
+      :global(.MuiInputAdornment-root) {
+        color: var(--textColor);
+        cursor: pointer;
+
+        &:hover {
+          opacity: 0.8;
+        }
+      }
+
+      @media (max-width: 560px) {
+        width: 200px;
+      }
+    }
+
+    .emailField {
+      margin-top: 30px;
+      width: 100%;
+      color: var(--textColor);
+
+      input {
+        color: var(--textColor);
+        border-color: var(--inputOutline);
+      }
+
+      :global(.MuiOutlinedInput-root) {
+        fieldset {
+          border-color: var(--inputOutline);
+        }
+      }
+
+      :global(.MuiInputAdornment-root) {
+        color: var(--textColor);
+        cursor: pointer;
+
+        &:hover {
+          opacity: 0.8;
+        }
+      }
+    }
+
+    .shareBtnContainer {
+      margin-top: 15px;
+      text-align: center;
+
+      .shareBtn {
+        width: 100px;
+        height: 35px;
+        background: var(--purpleButtonColor);
+        color: "#fff";
+
+        &:hover {
+          opacity: 0.8;
+        }
+      }
+    }
+  }
+
+  .locationPanel {
+    .control {
+      margin-top: 10px;
+      display: flex;
+    }
+
+    .newLocation {
+      width: 90px;
+      background: var(--purpleButtonColor);
+      margin: 0;
+      height: 40px;
+      flex-shrink: 0;
+    }
+
+    .searchbox {
+      margin: 0;
+      margin-right: 10px;
+      width: 100%;
+      flex-shrink: 1;
+      background: white;
+      border-radius: 4px;
+
+      input,
+      svg {
+        color: #444;
+      }
+
+      border-color: #444;
+
+      &:focus-within {
+        svg {
+          color: var(--purpleButtonColor);
+        }
+      }
+    }
+
+    .tableContainer {
+      width: 100%;
+      overflow: auto;
+    }
+
+    .locationTable {
+      margin-top: 10px;
+
+      .tableHead {
+        background: var(--purpleButtonColor);
+        color: var(--textColor);
+      }
+
+      .tablebody {
+        .tableRow:hover {
+          background: #d5d5f2;
+          cursor: pointer;
+        }
+
+        .tableRow:focus {
+          background: #9696fa;
+        }
+
+        .tableCell {
+          color: #444;
+          border: none;
+          box-sizing: border-box;
+        }
+      }
+    }
+
+    .tablePagination {
+      color: #444;
+
+      button {
+        background: transparent;
+      }
+
+      button:hover {
+        background: var(--purpleButtonColor);
+        color: var(--textColor);
+      }
+    }
+
+    .formControl {
+      width: 100%;
+      margin-top: 15px;
+
+      label {
+        position: initial;
+        display: block;
+        transform: none;
+        margin-bottom: 5px;
+        color: var(--textColor);
+        font-size: 0.8rem;
+      }
+
+      .checkbox {
+        padding: 0 9px;
+
+        svg {
+          color: #666;
+        }
+
+        &:global(.Mui-checked) svg {
+          color: var(--iconButtonColor);
+        }
+
+        &:hover {
+          background: transparent;
+        }
+
+        input:focus + svg {
+          opacity: 0.7;
+        }
+      }
+
+      &:hover {
+        :global(.MuiOutlinedInput-notchedOutline) {
+          border: solid 1px #444;
+        }
+
+        .checkbox {
+          opacity: 0.7;
+        }
+      }
+    }
+
+    .textbox input,
+    .selectbox :global(.MuiSelect-selectMenu) {
+      color: #444;
+      background: #f4f4f4;
+    }
+
+    .deleteBtnContainer {
+      position: absolute;
+      top: 20px;
+      right: 22px;
+
+      .deletebtn {
+        width: 50px;
+        height: 20px;
+        color: rgb(241 57 57);
+        background: transparent;
+
+        &:disabled {
+          color: grey;
+        }
+
+        &::before {
+          content: "";
+          position: absolute;
+          width: 0;
+          height: 0;
+          border-radius: 25px;
+          background: rgb(241 57 57);
+          left: 50%;
+          top: 50%;
+          transform: translate(-50%, -50%);
+          transition: all 0.15s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+          z-index: -1;
+        }
+
+        &:hover,
+        &:focus {
+          color: #fff;
+
+          &::before {
+            width: 50px;
+            height: 50px;
+          }
+        }
+      }
+    }
+
+    .backbtn {
+      width: 25px;
+      height: 25px;
+      border-radius: 20px;
+      background: transparent;
+      color: var(--purpleButtonColor);
+      margin: 0;
+      min-width: 0;
+      margin-right: 10px;
+
+      &::before {
+        content: "";
+        position: absolute;
+        width: 0;
+        height: 0;
+        border-radius: 25px;
+        background: var(--purpleButtonColor);
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        transition: all 0.15s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+        z-index: -1;
+      }
+
+      &:hover,
+      &:focus {
+        color: #fff;
+
+        &::before {
+          width: 35px;
+          height: 35px;
+        }
+      }
+    }
+
+    .savebtn {
+      color: var(--textColor);
+      background: var(--purpleButtonColor);
+      height: 35px;
+      width: 150px;
+      margin-top: 25px;
+
+      &:hover {
+        opacity: 0.8;
+      }
+    }
+
+    .deleteDialogContainer {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+
+      .dialog {
+        background: white;
+        width: 300px;
+        border-radius: 4px;
+        padding: 25px;
+        box-shadow: 2px 2px 10px 2px #80808082;
+
+        h2 {
+          margin-top: 0;
+          justify-content: center;
+          color: #444;
+        }
+
+        .btnContainer {
+          display: flex;
+          flex-direction: row;
+
+          button {
+            padding: 0;
+            width: 100px;
+            height: 35px;
+            margin: 20px 10px;
+            background: var(--purpleButtonColor);
+            font-size: 0.8rem;
+
+            &.yesbtn {
+              background: rgb(241 57 57);
+            }
+          }
+
+          button:hover,
+          button:focus {
+            opacity: 0.8;
+          }
+        }
+      }
+    }
+  }
+
+  // @media (max-width: 560px) {
+  //   left: 100%;
+  //   width: auto;
+  //   bottom: 125px;
+  //   transform: none;
+  //   // position: absolute;
+  //   // left: 50%;
+  //   // top: 50%;
+  //   // transform: translate(-50%, -50%);
+  // }
+
+  @media screen and (max-width: 500px) {
+    .profileBlock {
+      justify-content: center !important;
+    }
+
+    .headerBlock {
+      width: 100% !important;
+      margin-top: 30px;
+    }
+  }
+
+  @media screen and (min-width: 768px) {
+    width: 600px;
+    min-height: 208px;
+  }
+}
+
+.avatarUploadPanel {
+  display: flex;
+  flex-direction: column;
+  width: 500px;
+  margin: 5px 15px 20px 10px;
+  border-radius: 20px;
+  padding: 20px;
+  max-height: calc(100vh - 100px);
+  background-color: var(--popupBackground);
+
+  .inviteBox {
+    margin-top: 10px;
+    width: 100%;
+    color: var(--textColor);
+    display: inline-flex;
+    flex-direction: column;
+    position: relative;
+    min-width: 0;
+    padding: 0;
+    border: 0;
+    vertical-align: top;
+  }
+
+  .inviteContainer {
+    border-radius: 4px;
+    padding-right: 14px;
+    font-family: Roboto, Helvetica, Arial, sans-serif;
+    font-weight: 400;
+    font-size: 1rem;
+    line-height: 1.4375em;
+    letter-spacing: 0.00938em;
+    color: var(--textColor);
+    box-sizing: border-box;
+    position: relative;
+    cursor: text;
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .inviteLinkInput {
+    color: var(--textColor);
+    border-color: var(--inputOutline);
+    padding: 5px 0 10px 14px;
+    font: inherit;
+    letter-spacing: inherit;
+    border: 0;
+    box-sizing: content-box;
+    background: none;
+    height: 1.4375em;
+    margin: 0;
+    display: block;
+    min-width: 0;
+    width: 100%;
+  }
+
+  .refreshApiContainer {
+    color: var(--textColor);
+    cursor: pointer;
+    display: flex;
+    height: 0.01em;
+    max-height: 2em;
+    align-items: center;
+    white-space: nowrap;
+    margin-left: 8px;
+    margin-bottom: 5px;
+    z-index: 20;
+
+    svg {
+      width: 1em;
+      height: 1em;
+      display: inline-block;
+      flex-shrink: 0;
+      font-size: 1.5rem;
+      color: #fff;
+
+      path {
+        fill: var(--iconButtonColor);
+      }
+    }
+  }
+
+  .copyInviteContainer {
+    color: var(--textColor);
+    cursor: pointer;
+    display: flex;
+    height: 0.01em;
+    max-height: 2em;
+    align-items: center;
+    white-space: nowrap;
+    margin-left: 8px;
+    margin-bottom: 5px;
+    z-index: 20;
+
+    svg {
+      width: 1em;
+      height: 1em;
+      display: inline-block;
+      flex-shrink: 0;
+      font-size: 1.5rem;
+      color: #fff;
+
+      path {
+        fill: var(--iconButtonColor);
+      }
+    }
+  }
+
+  .linkFieldset {
+    border-color: var(--inputOutline);
+    text-align: left;
+    position: absolute;
+    inset: -5px 0 0;
+    margin: 0;
+    padding: 0 8px;
+    pointer-events: none;
+    border-radius: 4px;
+    border-style: solid;
+    border-width: 1px;
+    overflow: hidden;
+    min-width: 0%;
+  }
+
+  .linkLegend {
+    margin: 0;
+    padding: 0;
+  }
+
+  .avatarHeaderBlock {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+
+    .iconBlock {
+      display: inline-block;
+      cursor: pointer;
+      color: var(--textColor);
+      background: transparent;
+    }
+
+    h2 {
+      font-size: 18px;
+      color: var(--textColor);
+      font-weight: bold;
+      display: inline-block;
+      vertical-align: middle;
+    }
+  }
+
+  .controlContainer {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 20px;
+
+    button {
+      height: 35px;
+      background-color: var(--iconButtonBackground);
+      padding: 0;
+      border: none;
+      color: var(--textColor);
+      flex-grow: 1;
+      border-radius: 3px;
+      font-size: 14px;
+
+      & > svg {
+        font-size: 18px;
+        margin-left: 5px;
+      }
+
+      &:hover {
+        background-color: var(--iconButtonSelectedBackground);
+      }
+    }
+
+    button + button {
+      margin-left: 5px;
+    }
+
+    button[disabled] {
+      background: var(--disabled);
+      opacity: 1 !important;
+    }
+
+    .browseBtn {
+      & > svg {
+        transform: rotate(180deg);
+      }
+    }
+
+    .uploadBtn {
+      background: linear-gradient(90deg, var(--buttonGradientStart), var(--buttonGradientEnd));
+      cursor: pointer;
+      font-size: 1rem;
+      font-weight: bold;
+      padding: 10px;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: center;
+
+      svg {
+        width: 15px;
+        height: 15px;
+        color: var(--iconButtonColor);
+
+        path {
+          fill: var(--iconButtonColor);
+        }
+      }
+    }
+
+    button:hover,
+    button:focus {
+      outline: none;
+      opacity: 0.7;
+    }
+
+    .selectBtns {
+      display: grid;
+      grid-gap: 10px;
+      grid-template-columns: 1fr 1fr;
+      margin: 8px 0;
+    }
+  }
+
+  .rootBtn {
+    font-size: 13px;
+    width: 100%;
+    font-weight: bold;
+    background: var(--buttonFilled);
+    padding: 6px 28px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+
+    &:hover {
+      opacity: 0.8;
+    }
+
+    svg {
+      width: 15px;
+      height: 15px;
+      color: var(--iconButtonColor);
+
+      path {
+        fill: var(--iconButtonColor);
+      }
+    }
+  }
+
+  .stageContainer {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .stage {
+    border-radius: 5px;
+    overflow: hidden;
+    position: relative;
+
+    .legendContainer {
+      position: absolute;
+      right: 5px;
+      top: 5px;
+
+      & > svg {
+        opacity: 1;
+        color: var(--iconButtonColor);
+
+        &:hover {
+          opacity: 0.8;
+        }
+      }
+
+      .legend {
+        position: absolute;
+        padding: 10px;
+        background: var(--popupBackground);
+        border-radius: 5px;
+        top: 30px;
+        right: 5px;
+        width: 130px;
+        color: var(--textColor);
+        font-size: 12px;
+        display: none;
+
+        span {
+          margin-left: 5px;
+        }
+
+        .shiftKey {
+          background: var(--popupBackground);
+          color: var(--textColor);
+          padding: 2px 4px;
+          border-radius: 4px;
+          font-weight: bold;
+          margin: 0 5px 0 0;
+        }
+
+        svg {
+          font-size: 18px;
+          margin-right: 5px;
+          width: 40px;
+          color: var(--iconButtonColor);
+
+          path {
+            fill: var(--iconButtonColor);
+          }
+        }
+
+        & > div + div {
+          margin-top: 10px;
+        }
+      }
+
+      &:hover {
+        .legend {
+          display: block;
+        }
+      }
+    }
+  }
+
+  .tabRoot {
+    display: flex;
+    margin: 10px 0;
+    flex-direction: row;
+    align-items: center;
+
+    .tab {
+      margin: 5px;
+      color: var(--textColor);
+      opacity: 0.8;
+    }
+
+    .selectedTab {
+      opacity: 1;
+      border-bottom: solid 1px var(--textColor);
+    }
+
+    &:first-child() {
+      margin-right: 10px;
+    }
+  }
+
+  .uploadInput {
+    display: none;
+  }
+
+  .thumbnailContainer {
+    display: flex;
+    width: 100%;
+    margin-top: 8px;
+
+    .thumbnailPreview {
+      max-width: 100px;
+      margin: auto;
+    }
+  }
+
+  .selectLabelContainer {
+    display: flex;
+    justify-content: space-around;
+    padding: 10px 0;
+
+    &:last-child {
+      margin-bottom: 10px;
+    }
+
+    .avatarSelectLabel,
+    .thumbnailSelectLabel {
+      margin: 20px 0 8px;
+      font-size: 15px;
+      color: var(--textColor);
+    }
+  }
+
+  .avatarNameContainer {
+    display: flex;
+    justify-content: space-around;
+    margin: 8px 0;
+
+    .avatarNameInput {
+      color: var(--textColor);
+      border-color: var(--inputOutline);
+      background: transparent;
+
+      input {
+        padding: 5px;
+        font-size: 14px;
+        color: var(--textColor);
+        border-color: var(--inputOutline);
+
+        &::selection {
+          background-color: transparent;
+        }
+      }
+
+      :global(.MuiFormLabel-root) {
+        color: var(--textColor);
+      }
+
+      :global(.MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline) {
+        border-color: white !important;
+      }
+    }
+  }
+
+  .iconBlock {
+    @include icon-block-styling;
+  }
+
+  @media (max-width: 400px) {
+    padding: 0 15px;
+    width: 330px;
+
+    .avatarHeaderBlock {
+      margin-top: 15px;
+    }
+
+    .controlContainer {
+      margin-bottom: 15px;
+    }
+  }
+}
+
+.ReadyPlayerPanel {
+  display: flex;
+  flex-direction: column;
+  width: 500px;
+  margin: 5px 15px 20px 10px;
+  border-radius: 20px;
+  max-height: calc(100vh - 100px);
+  background-color: var(--popupBackground);
+  padding: 0;
+
+  .controlContainer {
+    display: flex;
+    justify-content: space-between;
+
+    .actionBlock {
+      position: absolute;
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      left: 0;
+      padding: 0 20px;
+      top: 10px;
+    }
+  }
+
+  .iconBlock {
+    @include icon-block-styling;
+
+    background: transparent;
+  }
+
+  iframe {
+    width: 100%;
+    min-height: 450px;
+  }
+
+  .centerProgress {
+    position: fixed;
+    left: 50%;
+    top: 50%;
+  }
+
+  @media screen and (max-width: 500px) {
+    .profileBlock {
+      justify-content: center !important;
+    }
+
+    .headerBlock {
+      width: 100% !important;
+      margin-top: 30px;
+    }
+  }
+
+  @media screen and (min-width: 768px) {
+    width: 600px;
+    min-height: 208px;
+  }
+}
+
+.avatarSelectContainer {
+  display: flex;
+  flex-direction: column;
+  margin: 5px 15px 20px 10px;
+  border-radius: 20px;
+  padding: 15px;
+  max-height: calc(100vh - 100px);
+  background-color: var(--popupBackground);
+
+  .avatarContainer {
+    height: 90%;
+    margin-bottom: 20px;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+
+  .gridContainer {
+    display: grid;
+    grid-gap: 10px;
+    grid-template-columns: 1fr 1fr 1fr;
+  }
+
+  .menuContainer {
+    display: flex;
+    justify-content: space-between;
+    margin-left: 8px;
+  }
+
+  .innerMenuContainer {
+    display: flex;
+  }
+
+  .btnDeepColor {
+    background-color: #23af3a !important;
+  }
+
+  .btnDeepColorCancel {
+    background-color: #f87678 !important;
+  }
+
+  .btn {
+    border: none;
+    border-radius: 50%;
+    height: 30px;
+    width: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: all 0.2s;
+    cursor: pointer;
+
+    svg {
+      color: var(--iconButtonColor);
+
+      path {
+        fill: var(--iconButtonColor);
+      }
+    }
+  }
+
+  .btnPerson {
+    background-color: rgb(255 255 255 / 70%);
+
+    &:hover {
+      background: rgb(255 255 255 / 100%);
+    }
+  }
+
+  .btnCheck {
+    background-color: #a5f2b2;
+    margin: 0 10px;
+
+    &:hover {
+      background-color: #1e9932 !important;
+    }
+  }
+
+  .btnArrow {
+    background-color: var(--iconButtonBackground);
+    transition: all 0.2s;
+
+    &:hover {
+      opacity: 0.8;
+    }
+  }
+
+  .btnCancel {
+    color: var(--iconButtonColor);
+    background-color: #fca7a8;
+
+    &:hover {
+      background-color: #e76a6c !important;
+    }
+  }
+
+  .avatar {
+    height: 100%;
+    width: 100%;
+    cursor: pointer;
+  }
+
+  .size {
+    height: 15px;
+  }
+
+  .selectedAvatar {
+    border: 3px solid rgb(81 81 255 / 45%) !important;
+  }
+
+  .activeAvatar {
+    background: rgb(81 81 255 / 60%);
+    cursor: not-allowed;
+  }
+
+  .disabled {
+    opacity: 0.8;
+    cursor: not-allowed;
+  }
+
+  .disabledBtn {
+    cursor: not-allowed !important;
+  }
+}
