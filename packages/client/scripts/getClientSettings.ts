@@ -1,7 +1,6 @@
 import { DataTypes, Sequelize } from 'sequelize'
 
 export const getClientSetting = async () => {
-
   const db = {
     username: process.env.MYSQL_USER ?? 'server',
     password: process.env.MYSQL_PASSWORD ?? 'password',
@@ -19,7 +18,7 @@ export const getClientSetting = async () => {
       freezeTableName: true
     },
     logging: false
-  })
+  } as any) as any
   await sequelizeClient.sync()
   const clientSettingSchema = sequelizeClient.define('clientSetting', {
     logo: {
@@ -63,7 +62,7 @@ export const getClientSetting = async () => {
   const clientSetting = await clientSettingSchema
     .findAll()
     .then(([dbClient]) => {
-      const dbClientConfig = dbClient && {
+      const dbClientConfig = (dbClient && {
         paymentPointer: process.env.COIL_PAYMENT_POINTER || '',
         logo: dbClient.logo,
         title: dbClient.title,
@@ -74,7 +73,7 @@ export const getClientSetting = async () => {
         favicon16px: dbClient.favicon16px,
         icon192px: dbClient.icon192px,
         icon512px: dbClient.icon512px
-      } || {
+      }) || {
         logo: './logo.svg',
         title: 'XREngine',
         url: 'https://local.theoverlay.io',
@@ -94,6 +93,5 @@ export const getClientSetting = async () => {
       console.warn(e)
     })
 
-  return clientSetting
-
+  return clientSetting!
 }

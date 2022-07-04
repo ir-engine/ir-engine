@@ -1,3 +1,4 @@
+import { Paginated } from '@feathersjs/feathers/lib'
 import appRootPath from 'app-root-path'
 import fs from 'fs'
 import path from 'path'
@@ -42,11 +43,11 @@ export const createLocations = async (app: Application, projectName: string) => 
           isLobby: false
         } as Location
 
-        const existingLocation = await app.service('location').find({
+        const existingLocation = (await app.service('location').find({
           query: {
             slugifiedName: sceneName
           }
-        })
+        })) as Paginated<Location>
         if (existingLocation.total === 0) await app.service('location').create(location)
       })
   )
