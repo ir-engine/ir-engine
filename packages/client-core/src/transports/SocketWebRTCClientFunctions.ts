@@ -1,20 +1,13 @@
-import { Consumer, Transport as MediaSoupTransport, Producer } from 'mediasoup-client/lib/types'
-import {
-  BufferGeometry,
-  LinearFilter,
-  Mesh,
-  MeshBasicMaterial,
-  MeshLambertMaterial,
-  PlaneGeometry,
-  sRGBEncoding,
-  VideoTexture
-} from 'three'
+import { Transport as MediaSoupTransport } from 'mediasoup-client/lib/types'
+import { Mesh, MeshStandardMaterial, PlaneGeometry, sRGBEncoding, Vector4, VideoTexture } from 'three'
 
 import { MediaStreams } from '@xrengine/client-core/src/transports/MediaStreams'
 import { ChannelType } from '@xrengine/common/src/interfaces/Channel'
 import { MediaTagType } from '@xrengine/common/src/interfaces/MediaStreamConstants'
 import logger from '@xrengine/common/src/logger'
+import { OBCType } from '@xrengine/engine/src/common/constants/OBCTypes'
 import { matches } from '@xrengine/engine/src/common/functions/MatchesUtils'
+import { addOBCPlugin } from '@xrengine/engine/src/common/functions/OnBeforeCompilePlugin'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { defineQuery, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
@@ -22,7 +15,6 @@ import { NetworkTypes } from '@xrengine/engine/src/networking/classes/Network'
 import { PUBLIC_STUN_SERVERS } from '@xrengine/engine/src/networking/constants/STUNServers'
 import { CAM_VIDEO_SIMULCAST_ENCODINGS } from '@xrengine/engine/src/networking/constants/VideoConstants'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
-import { receiveJoinWorld } from '@xrengine/engine/src/networking/functions/receiveJoinWorld'
 import { WorldNetworkActionReceptor } from '@xrengine/engine/src/networking/functions/WorldNetworkActionReceptor'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 import { ScreenshareTargetComponent } from '@xrengine/engine/src/scene/components/ScreenshareTargetComponent'
@@ -39,7 +31,6 @@ import { NetworkConnectionService } from '../common/services/NetworkConnectionSe
 import { MediaStreamAction, MediaStreamService } from '../media/services/MediaStreamService'
 import { accessAuthState } from '../user/services/AuthService'
 import { UserService } from '../user/services/UserService'
-import { getSearchParamFromURL } from '../util/getSearchParamFromURL'
 import { SocketWebRTCClientNetwork } from './SocketWebRTCClientNetwork'
 import { updateNearbyAvatars } from './UpdateNearbyUsersSystem'
 
@@ -1018,17 +1009,44 @@ export const applyScreenshareToTexture = (video: HTMLVideoElement) => {
   video.onplay = () => {
     for (const entity of screenshareTargetQuery(Engine.instance.currentWorld)) {
       const obj3d = getComponent(entity, Object3DComponent)?.value
-      obj3d?.traverse((obj: Mesh<any, MeshBasicMaterial>) => {
+      obj3d?.traverse((obj: Mesh<any, MeshStandardMaterial>) => {
         if (obj.material) {
           const videoTexture = new VideoTexture(video)
           videoTexture.encoding = sRGBEncoding
-          const material = new MeshBasicMaterial({ color: 0xffffff, map: videoTexture })
-          obj.material = material
-          let screenAspect = 1
-          if (obj.geometry instanceof PlaneGeometry) {
-            screenAspect = obj.geometry.parameters.height / obj.geometry.parameters.width
-          }
+
+          obj.material = new MeshStandardMaterial({ color: 0xffffff, map: videoTexture })
           const imageAspect = video.videoWidth / video.videoHeight
+          const screenAspect =
+            obj.geometry instanceof PlaneGeometry ? obj.geometry.parameters.height / obj.geometry.parameters.width : 1
+
+          addOBCPlugin(obj.material, {
+            id: OBCType.UVCLIP,
+            compile: (shader) => {
+              shader.fragmentShader = shader.fragmentShader.replace(
+                'void main() {',
+                `uniform vec4 clipColor;\nvoid main() {\n`
+              )
+
+              const mapFragment = `#ifdef USE_MAP
+                vec4 sampledDiffuseColor = texture2D( map, vUv );
+
+                // Newly added clipping Logic /////
+                if (vUv.x < 0.0 || vUv.x > 1.0 || vUv.y < 0.0 || vUv.y > 1.0) sampledDiffuseColor = clipColor;
+                /////////////////////////////
+
+                #ifdef DECODE_VIDEO_TEXTURE
+                  sampledDiffuseColor = vec4( mix( pow( sampledDiffuseColor.rgb * 0.9478672986 + vec3( 0.0521327014 ), vec3( 2.4 ) ), sampledDiffuseColor.rgb * 0.0773993808, vec3( lessThanEqual( sampledDiffuseColor.rgb, vec3( 0.04045 ) ) ) ), sampledDiffuseColor.w );
+                #endif
+                diffuseColor *= sampledDiffuseColor;
+              #endif`
+
+              shader.fragmentShader = shader.fragmentShader.replace('#include <map_fragment>', mapFragment)
+
+              // TODO: Need to find better way to define variables
+              shader.uniforms.clipColor = { value: new Vector4(0, 0, 0, 1) }
+            }
+          })
+
           fitTexture(videoTexture, imageAspect, screenAspect, 'fit')
         }
       })
