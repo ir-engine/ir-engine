@@ -140,9 +140,10 @@ function copyGamepadState({ gamepad, handedness }: XRInputSource) {
     })
   })
 
-  const inputData = gamepad.axes.length > 2 ? [gamepad.axes[2], gamepad.axes[3]] : [gamepad.axes[0], gamepad.axes[1]]
-  if (Math.abs(inputData[0]) < 0.05) inputData[0] = 0
-  if (Math.abs(inputData[1]) < 0.05) inputData[1] = 0
+  const inputData = [...gamepad.axes]
+  for (let i = 0; i < inputData.length; i++) {
+    if (Math.abs(inputData[i]) < 0.05) inputData[i] = 0
+  }
 
   Engine.instance.currentWorld.inputState.set(mapping.axes, {
     type: InputType.TWODIM,
