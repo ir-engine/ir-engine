@@ -1,8 +1,8 @@
 import { World } from '../../ecs/classes/World'
 import { defineQuery } from '../../ecs/functions/ComponentFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { NetworkObjectAuthorityTag } from '../components/NetworkObjectAuthorityTag'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
+import { NetworkObjectOwnedTag } from '../components/NetworkObjectOwnedTag'
 import { createDataWriter } from '../serialization/DataWriter'
 
 /***********
@@ -11,7 +11,7 @@ import { createDataWriter } from '../serialization/DataWriter'
 
 export const networkTransformsQuery = defineQuery([NetworkObjectComponent, TransformComponent])
 const authoritativeNetworkTransformsQuery = defineQuery([
-  NetworkObjectAuthorityTag,
+  NetworkObjectOwnedTag,
   NetworkObjectComponent,
   TransformComponent
 ])
