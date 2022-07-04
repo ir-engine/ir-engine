@@ -100,39 +100,7 @@ export default async function XRSystem(world: World) {
     if (EngineRenderer.instance.xrManager?.isPresenting) {
       const session = Engine.instance.xrFrame.session
       for (const source of session.inputSources) {
-        if (source.gamepad) {
-          const mapping = gamepadMapping[source.gamepad.mapping || 'xr-standard'][source.handedness]
-          source.gamepad?.buttons.forEach((button, index) => {
-            // TODO : support button.touched and button.value
-            const prev = Engine.instance.currentWorld.prevInputState.get(mapping.buttons[index])
-            if (!prev && button.pressed == false) return
-            const continued = prev?.value && button.pressed
-            Engine.instance.currentWorld.inputState.set(mapping.buttons[index], {
-              type: InputType.BUTTON,
-              value: [button.pressed ? BinaryValue.ON : BinaryValue.OFF],
-              lifecycleState: button.pressed
-                ? continued
-                  ? LifecycleValue.Continued
-                  : LifecycleValue.Started
-                : LifecycleValue.Ended
-            })
-          })
-          const inputData =
-            source.gamepad?.axes.length > 2
-              ? [source.gamepad.axes[2], source.gamepad.axes[3]]
-              : [source.gamepad.axes[0], source.gamepad.axes[1]]
-          if (Math.abs(inputData[0]) < 0.05) {
-            inputData[0] = 0
-          }
-          if (Math.abs(inputData[1]) < 0.05) {
-            inputData[1] = 0
-          }
-          Engine.instance.currentWorld.inputState.set(mapping.axes, {
-            type: InputType.TWODIM,
-            value: inputData,
-            lifecycleState: LifecycleValue.Started
-          })
-        }
+        copyGamepadState(source)
       }
     }
 
@@ -149,4 +117,37 @@ export default async function XRSystem(world: World) {
       head.position.copy(Engine.instance.currentWorld.camera.position)
     }
   }
+}
+
+function copyGamepadState({ gamepad, handedness }: XRInputSource) {
+  if (!gamepad) return
+
+  const mapping = gamepadMapping[gamepad.mapping || 'xr-standard'][handedness]
+
+  gamepad.buttons.forEach((button, index) => {
+    // TODO : support button.touched and button.value
+    const prev = Engine.instance.currentWorld.prevInputState.get(mapping.buttons[index])
+    if (!prev && button.pressed == false) return
+    const continued = prev?.value && button.pressed
+    Engine.instance.currentWorld.inputState.set(mapping.buttons[index], {
+      type: InputType.BUTTON,
+      value: [button.pressed ? BinaryValue.ON : BinaryValue.OFF],
+      lifecycleState: button.pressed
+        ? continued
+          ? LifecycleValue.Continued
+          : LifecycleValue.Started
+        : LifecycleValue.Ended
+    })
+  })
+
+  const inputData = [...gamepad.axes]
+  for (let i = 0; i < inputData.length; i++) {
+    if (Math.abs(inputData[i]) < 0.05) inputData[i] = 0
+  }
+
+  Engine.instance.currentWorld.inputState.set(mapping.axes, {
+    type: InputType.TWODIM,
+    value: inputData,
+    lifecycleState: LifecycleValue.Started
+  })
 }

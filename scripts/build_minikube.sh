@@ -65,6 +65,13 @@ else
   VITE_INSTANCESERVER_HOST=$VITE_INSTANCESERVER_HOST
 fi
 
+if [ -z "$NODE_ENV" ]
+then
+  NODE_ENV=development
+else
+  NODE_ENV=$NODE_ENV
+fi
+
 docker start xrengine_minikube_db
 eval $(minikube docker-env)
 
@@ -75,6 +82,7 @@ find packages/projects/projects/ -name package.json -exec bash -c 'mkdir -p ./pr
 DOCKER_BUILDKIT=1 docker build -t root-builder -f dockerfiles/package-root/Dockerfile-root .
 
 DOCKER_BUILDKIT=1 docker build -t xrengine \
+  --build-arg NODE_ENV=$NODE_ENV \
   --build-arg MYSQL_HOST=$MYSQL_HOST \
   --build-arg MYSQL_PORT=$MYSQL_PORT \
   --build-arg MYSQL_PASSWORD=$MYSQL_PASSWORD \

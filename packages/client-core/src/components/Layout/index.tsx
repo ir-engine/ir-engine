@@ -57,7 +57,6 @@ const Layout = ({ useLoadingScreenOpacity, pageTitle, children, hideVideo, hideF
   const engineState = useEngineState()
 
   useEffect(() => {
-    !clientSetting && ClientSettingService.fetchClientSettings()
     !coilSetting && AdminCoilSettingService.fetchCoil()
     const topButtonsState = localStorage.getItem('isTopButtonsShown')
     const bottomButtonsState = localStorage.getItem('isBottomButtonsShown')

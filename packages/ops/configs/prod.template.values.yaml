@@ -363,6 +363,7 @@ testbot:
 
 builder:
   extraEnv:
+    NODE_ENV: production
     RELEASE_NAME: <RELEASE_NAME>
     AWS_ACCESS_KEY: <AWS_ACCESS_KEY>
     AWS_SECRET: <AWS_SECRET>

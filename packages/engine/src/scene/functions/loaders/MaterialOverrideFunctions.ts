@@ -5,6 +5,7 @@ import { AssetClass } from '../../../assets/enum/AssetClass'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent, removeComponent } from '../../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
+import loadVideoTexture from '../../../renderer/materials/LoadVideoTexture'
 import { DefaultArguments } from '../../../renderer/materials/MaterialLibrary'
 import { formatMaterialArgs } from '../../../renderer/materials/Utilities'
 import { MaterialOverrideComponent, MaterialOverrideComponentType } from '../../components/MaterialOverrideComponent'
@@ -27,8 +28,8 @@ export function initializeOverride(target: Entity, override: MaterialOverrideCom
       nuOR.args = formatMaterialArgs({ ...nuOR.args }, defaultArgs)
       await Promise.all(
         Object.entries(nuOR.args).map(async ([k, v], idx) => {
-          if (typeof v === 'string' && AssetLoader.getAssetClass(v) === AssetClass.Image) {
-            const nuTxr = (await AssetLoader.loadAsync(v)) as Texture
+          if (defaultArgs[k].type === 'texture' && typeof v === 'string') {
+            const nuTxr = await AssetLoader.loadAsync(v)
             nuOR.args[k] = nuTxr
           }
         })

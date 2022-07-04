@@ -5,14 +5,14 @@ import { XRUIComponent } from '@xrengine/engine/src/xrui/components/XRUIComponen
 import { ObjectFitFunctions } from '@xrengine/engine/src/xrui/functions/ObjectFitFunctions'
 import { Widgets } from '@xrengine/engine/src/xrui/Widgets'
 
-import LinkIcon from '@mui/icons-material/Link'
+import SettingsIcon from '@mui/icons-material/Settings'
 
-import { createShareLocationDetailView } from './ui/ShareLocationDetailView'
+import { createSettingDetailView } from './ui/SettingDetailView'
 
-const widgetName = 'Share'
+const widgetName = 'Settings'
 
-export function createShareLocationUI(world: World) {
-  const ui = createShareLocationDetailView()
+export function createSettingsWidget(world: World) {
+  const ui = createSettingDetailView()
 
   addComponent(ui.entity, PersistTagComponent, {})
 
@@ -24,7 +24,7 @@ export function createShareLocationUI(world: World) {
   Widgets.registerWidget(world, ui.entity, {
     ui,
     label: widgetName,
-    icon: LinkIcon,
+    icon: SettingsIcon,
     system: () => {}
   })
 }

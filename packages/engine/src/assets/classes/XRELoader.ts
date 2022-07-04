@@ -20,7 +20,7 @@ export class XRELoader {
     }
   }
 
-  parse(data: string, onLoad = (response: EntityTreeNode[]) => response) {
+  parse(data: string, onLoad = (response: EntityTreeNode[]) => {}) {
     const result = gltfToSceneJson(JSON.parse(data))
     return Promise.all(preCacheAssets(result, () => {}))
       .then(() => loadECSData(result))
@@ -35,7 +35,7 @@ export class XRELoader {
   ) {
     const url = AssetLoader.getAbsolutePath(_url)
     const loadCallback = (response) => {
-      this.parse(response)
+      this.parse(response, onLoad)
     }
     this.fileLoader.load(url, loadCallback, onProgress, onError)
   }

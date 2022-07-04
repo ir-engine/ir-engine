@@ -1,3 +1,4 @@
+import { AuthenticationRequest } from '@feathersjs/authentication'
 import { Params } from '@feathersjs/feathers'
 
 import { Application } from '../../../declarations'
@@ -23,6 +24,8 @@ export class GithubStrategy extends CustomOAuthStrategy {
       ...baseData,
       email: profile.email,
       type: 'github',
+      oauthToken: params.access_token,
+      userName: profile.login,
       userId
     }
   }
@@ -59,6 +62,7 @@ export class GithubStrategy extends CustomOAuthStrategy {
     const existingEntity = await super.findEntity(profile, params)
     if (!existingEntity) {
       profile.userId = user.id
+      profile.oauthToken = params.access_token
       const newIP = await super.createEntity(profile, params)
       if (entity.type === 'guest') await this.app.service('identity-provider').remove(entity.id)
       return newIP
@@ -90,6 +94,11 @@ export class GithubStrategy extends CustomOAuthStrategy {
       if (instanceId != null) returned = returned.concat(`&instanceId=${instanceId}`)
       return returned
     }
+  }
+
+  async authenticate(authentication: AuthenticationRequest, originalParams: Params) {
+    originalParams.access_token = authentication.access_token
+    return super.authenticate(authentication, originalParams)
   }
 }
 export default GithubStrategy
