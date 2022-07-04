@@ -1,6 +1,8 @@
 import React, { useState } from 'react'
 
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
+import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineState'
+import { dispatchAction } from '@xrengine/hyperflux'
 
 import LinkIcon from '@mui/icons-material/Link'
 import PersonIcon from '@mui/icons-material/Person'
@@ -67,7 +69,15 @@ const UserMenu = (props: Props): any => {
 
   return (
     <>
-      <ClickAwayListener onClickAway={() => setCurrentActiveMenu(null!)} mouseEvent="onMouseDown">
+      <ClickAwayListener
+        onClickAway={() => {
+          setCurrentActiveMenu(null!)
+          if (engineState.viewInAR.value) {
+            dispatchAction(EngineActions.viewInAR({ viewInAR: false }))
+          }
+        }}
+        mouseEvent="onMouseDown"
+      >
         <div>
           <section
             className={`${styles.settingContainer} ${props.animate} ${currentActiveMenu ? props.fadeOutBottom : ''}`}
@@ -93,6 +103,7 @@ const UserMenu = (props: Props): any => {
             )}
           </section>
           {currentActiveMenu && <Panel changeActiveMenu={setCurrentActiveMenu} />}
+          {engineState.viewInAR.value && <ShareMenu isMobileView={engineState.viewInAR.value} />}
         </div>
       </ClickAwayListener>
     </>

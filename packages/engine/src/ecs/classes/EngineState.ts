@@ -26,7 +26,8 @@ export const EngineState = defineState({
     spectating: false,
     errorEntities: {} as { [key: Entity]: boolean },
     availableInteractable: null! as Entity,
-    usersTyping: {} as { [key: string]: true }
+    usersTyping: {} as { [key: string]: true },
+    viewInAR: false
   }
 })
 
@@ -76,6 +77,7 @@ export function EngineEventReceptor(a) {
         s.availableInteractable.set(action.availableInteractable)
       )
       .when(EngineActions.spectateUser.matches, (action) => s.spectating.set(!!action.user))
+      .when(EngineActions.viewInAR.matches, (action) => s.viewInAR.set(action.viewInAR))
   })
 }
 
@@ -193,5 +195,10 @@ export class EngineActions {
   static spectateUser = defineAction({
     type: 'CORE_SPECTATE_USER' as const,
     user: matches.string.optional()
+  })
+
+  static viewInAR = defineAction({
+    type: 'CORE_VIEW_IN_AR' as const,
+    viewInAR: matches.boolean
   })
 }

@@ -2,7 +2,9 @@ import { createState, State, useState } from '@speigg/hookstate'
 import React from 'react'
 
 import { useXRUIState } from '@xrengine/engine/src/xrui/functions/useXRUIState'
+import { dispatchAction } from '@xrengine/hyperflux'
 
+import { EngineActions } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { NameComponent } from '../../scene/components/NameComponent'
@@ -134,6 +136,7 @@ export const InteractiveModalView = () => {
         xr-pixel-ratio="1.5"
         onClick={() => {
           // window.open(url.value, '_blank')!.focus()
+          dispatchAction(EngineActions.viewInAR({ viewInAR: true }))
         }}
       >
         View in AR
