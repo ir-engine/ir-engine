@@ -1,3 +1,5 @@
+import { Quaternion } from 'three'
+
 /** Interface for quaternion Axis. */
 export interface quatAxis {
   x: number
@@ -48,4 +50,13 @@ export function yawFromQuaternion(q: number[]): number {
 
   const result = Math.atan2(2 * (wz + xy), 1 - 2 * (y2 + z2))
   return result
+}
+
+export function quatNearEqual(a: Quaternion, b: Quaternion, epsilon: number = Number.EPSILON): boolean {
+  const tempQuat = new Quaternion()
+
+  return (
+    tempQuat.set(a.x - b.x, a.y - b.y, a.z - b.z, a.w - b.w).lengthSq() < epsilon ||
+    tempQuat.set(a.x + b.x, a.y + b.y, a.z + b.z, a.w + b.w).lengthSq() < epsilon
+  )
 }
