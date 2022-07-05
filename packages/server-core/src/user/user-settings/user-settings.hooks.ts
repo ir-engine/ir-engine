@@ -9,10 +9,10 @@ import authenticate from '../../hooks/authenticate'
 
 const ensureUserSettingsOwner = () => {
   return async (context: HookContext): Promise<HookContext> => {
-    const { app, params } = context
+    const { app, params, id } = context
     const user = params.user
-    const userSettings = await app.service('user-settings').get(params.id)
-    if (user.id !== userSettings.id) throw new Forbidden('You are not the owner of those user-settings')
+    const userSettings = await app.service('user-settings').get(id!)
+    if (user.id !== userSettings.userId) throw new Forbidden('You are not the owner of those user-settings')
     return context
   }
 }
