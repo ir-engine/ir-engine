@@ -1,7 +1,11 @@
 import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { defaultThemeModes, defaultThemeSettings } from '@xrengine/common/src/constants/DefaultThemeSettings'
+import {
+  defaultThemeModes,
+  defaultThemeSettings,
+  getCurrentTheme
+} from '@xrengine/common/src/constants/DefaultThemeSettings'
 import { ThemeMode, ThemeSetting } from '@xrengine/common/src/interfaces/ClientSetting'
 
 import { Button } from '@mui/material'
@@ -84,7 +88,7 @@ const ClientTheme = () => {
       id
     )
 
-    const currentTheme = selfUser?.user_setting?.value?.themeMode || 'dark'
+    const currentTheme = getCurrentTheme(selfUser?.user_setting?.value?.themeModes)
 
     if (newThemeSettings[currentTheme]) {
       for (let variable of Object.keys(newThemeSettings[currentTheme])) {

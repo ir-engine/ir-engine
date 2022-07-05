@@ -1,3 +1,5 @@
+import { ThemeMode } from '../interfaces/ClientSetting'
+
 export const defaultThemeSettings = {
   light: {
     textColor: '#585858',
@@ -128,4 +130,17 @@ export const defaultThemeModes = {
   client: 'light',
   studio: 'dark',
   admin: 'vaporwave'
+}
+
+export const getCurrentTheme = (themeModes: ThemeMode | undefined) => {
+  const currentThemeModes = themeModes || defaultThemeModes
+  const { pathname } = window.location
+
+  if (pathname.startsWith('/admin')) {
+    return currentThemeModes['admin']
+  } else if (pathname.startsWith('/editor')) {
+    return currentThemeModes['studio']
+  }
+
+  return currentThemeModes['client']
 }

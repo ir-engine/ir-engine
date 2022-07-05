@@ -17,6 +17,18 @@ const ensureUserSettingsOwner = () => {
   }
 }
 
+const ensureUserThemeModes = () => {
+  return async (context: HookContext): Promise<HookContext> => {
+    const { app, params, id } = context
+    const user = params.user
+    const clientSetting = await app.service('client-setting').find()
+    if (clientSetting) {
+      //TODO
+    }
+    return context
+  }
+}
+
 export default {
   before: {
     all: [authenticate()],
@@ -32,7 +44,7 @@ export default {
     all: [],
     find: [],
     get: [],
-    create: [],
+    create: [ensureUserThemeModes()],
     update: [],
     patch: [],
     remove: []

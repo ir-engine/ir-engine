@@ -23,6 +23,7 @@ import RouterComp from '../route/public'
 import './styles.scss'
 
 import { NotificationAction, NotificationActions } from '@xrengine/client-core/src/common/services/NotificationService'
+import { getCurrentTheme } from '@xrengine/common/src/constants/DefaultThemeSettings'
 import { addActionReceptor, removeActionReceptor } from '@xrengine/hyperflux'
 
 declare module '@mui/styles/defaultTheme' {
@@ -79,7 +80,7 @@ const App = (): any => {
   useEffect(() => {
     const html = document.querySelector('html')
     if (html) {
-      const currentTheme = selfUser?.user_setting?.value?.themeMode || 'dark'
+      const currentTheme = getCurrentTheme(selfUser?.user_setting?.value?.themeModes)
       html.dataset.theme = currentTheme
 
       updateTheme()
@@ -120,7 +121,7 @@ const App = (): any => {
   }, [clientThemeSettings])
 
   const updateTheme = () => {
-    const currentTheme = selfUser?.user_setting?.value?.themeMode || 'dark'
+    const currentTheme = getCurrentTheme(selfUser?.user_setting?.value?.themeModes)
 
     if (clientThemeSettings) {
       if (clientThemeSettings?.[currentTheme]) {
