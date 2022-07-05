@@ -9,10 +9,30 @@ import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
 import { ModelComponentType } from '@xrengine/engine/src/scene/components/ModelComponent'
 import { dispatchAction } from '@xrengine/hyperflux'
 
+import { ButtonGroup, Grid, List, ToggleButton, ToggleButtonGroup, Typography } from '@mui/material'
+import Divider from '@mui/material/Divider'
+import ListItem from '@mui/material/ListItem'
+import ListItemButton from '@mui/material/ListItemButton'
+
 import { Button } from '../inputs/Button'
 
 const TransformContainer = (styled as any).div`
+color: var(--textColor);
+text-align: -webkit-center;
+margin-top: 2em;
+margin-bottom: 4em;
+background-color: var(--background2);
+overflow: scroll;
+`
+
+const ElementsContainer = (styled as any).div`
 margin: 16px;
+padding: 8px;
+color: var(--textColor);
+`
+
+const FilterToggle = styled(ToggleButton)`
+  color: var(--textColor);
 `
 
 const OptimizeButton = styled(Button)`
@@ -54,7 +74,6 @@ const OptimizeButton = styled(Button)`
 `
 
 export default function ModelTransformProperties({ modelComponent, onChangeModel }) {
-  const editorState = useEditorState()
   const [transforming, setTransforming] = useState<boolean>(false)
   async function onTransformModel() {
     setTransforming(true)
@@ -65,8 +84,32 @@ export default function ModelTransformProperties({ modelComponent, onChangeModel
     onChangeModel(nuPath)
     setTransforming(false)
   }
+
+  const [internalFilter, setInternalFilter] = useState<string[]>(() => [])
+  async function onChangeFilter(event, nuFilter) {
+    setInternalFilter(nuFilter)
+  }
+
   return (
     <TransformContainer>
+      <ElementsContainer>
+        <Typography variant="h6" sx={{ textAlign: 'center', paddingTop: '16px', paddingBottom: '12px' }}></Typography>
+        <ToggleButtonGroup value={internalFilter} onChange={onChangeFilter}>
+          <FilterToggle value="meshes" aria-label="meshes" color="primary">
+            Mesh
+          </FilterToggle>
+          <FilterToggle value="textures" aria-label="textures" color="primary">
+            Texture
+          </FilterToggle>
+          <FilterToggle value="materials" aria-label="materials" color="primary">
+            Material
+          </FilterToggle>
+          <FilterToggle value="nodes" aria-label="nodes" color="primary">
+            Node
+          </FilterToggle>
+        </ToggleButtonGroup>
+        <List></List>
+      </ElementsContainer>
       {!transforming && <OptimizeButton onClick={onTransformModel}>Optimize</OptimizeButton>}
       {transforming && <p>Transforming...</p>}
     </TransformContainer>
