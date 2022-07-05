@@ -38,9 +38,7 @@ export default (app: Application): void => {
       try {
         try {
           await sequelize.query('SET FOREIGN_KEY_CHECKS = 0')
-        } catch(err) {
-
-        }
+        } catch (err) {}
 
         const tableCount = await sequelize.query(
           `select table_schema as xrengine,count(*) as tables from information_schema.tables where table_type = \'BASE TABLE\' and table_schema not in (\'information_schema\', \'sys\', \'performance_schema\', \'mysql\') group by table_schema order by table_schema;`
