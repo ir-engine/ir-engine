@@ -14,6 +14,7 @@ import {
 import os from 'os'
 import SocketIO from 'socket.io'
 
+import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
 import config from '@xrengine/server-core/src/appconfig'
@@ -152,7 +153,7 @@ export const handleConsumeDataEvent =
           appData: { peerId: userId, transportId: newTransport.id }
         })
 
-        dataConsumer.on('producerclose', () => {
+        dataConsumer.on('dataproducerclose', () => {
           dataConsumer.close()
           if (network.peers.has(userId)) network.peers.get(userId)!.dataConsumers!.delete(dataProducer.id)
         })
@@ -185,10 +186,7 @@ export const handleConsumeDataEvent =
     }
   }
 
-export async function closeTransport(
-  network: SocketWebRTCServerNetwork,
-  transport: WebRTCTransportExtension
-): Promise<void> {
+export async function closeTransport(network: SocketWebRTCServerNetwork, transport: WebRtcTransport): Promise<void> {
   logger.info(`Closing transport id "${transport.id}", appData: %o`, transport.appData)
   // our producer and consumer event handlers will take care of
   // calling closeProducer() and closeConsumer() on all the producers
@@ -206,8 +204,8 @@ export async function closeProducer(network: SocketWebRTCServerNetwork, producer
   network.producers = network.producers.filter((p) => p.id !== producer.id)
 
   const world = Engine.instance.currentWorld
-  if (network.peers.has(producer.appData.peerId)) {
-    delete network.peers.get(producer.appData.peerId)!.media![producer.appData.mediaTag]
+  if (network.peers.has(producer.appData.peerId as UserId)) {
+    delete network.peers.get(producer.appData.peerId as UserId)!.media![producer.appData.mediaTag as any]
   }
 }
 
@@ -230,7 +228,7 @@ export async function closeProducerAndAllPipeProducers(
     )
 
     // remove this track's info from our roomState...mediaTag bookkeeping
-    delete network.peers.get(producer.appData.peerId)?.media![producer.appData.mediaTag]
+    delete network.peers.get(producer.appData.peerId as UserId)?.media![producer.appData.mediaTag as any]
   }
 }
 
@@ -246,7 +244,7 @@ export async function closeConsumer(network: SocketWebRTCServerNetwork, consumer
     }
   }
 
-  delete network.peers.get(consumer.appData.peerId)?.consumerLayers![consumer.id]
+  delete network.peers.get(consumer.appData.peerId as UserId)?.consumerLayers![consumer.id]
 }
 
 export async function createWebRtcTransport(
@@ -802,10 +800,10 @@ export async function handleWebRtcResumeProducer(
     // await producer.resume();
     const world = Engine.instance.currentWorld
     if (userId && network.peers.has(userId)) {
-      network.peers.get(userId)!.media![producer.appData.mediaTag].paused = false
-      network.peers.get(userId)!.media![producer.appData.mediaTag].globalMute = false
+      network.peers.get(userId)!.media![producer.appData.mediaTag as any].paused = false
+      network.peers.get(userId)!.media![producer.appData.mediaTag as any].globalMute = false
       const hostClient = Array.from(network.peers.entries()).find(([, client]) => {
-        return client.media && client.media![producer.appData.mediaTag]?.producerId === producerId
+        return client.media && client.media![producer.appData.mediaTag as any]?.producerId === producerId
       })!
       if (hostClient && hostClient[1]) {
         hostClient[1].socket!.emit(MessageTypes.WebRTCResumeProducer.toString(), producer.id)
@@ -830,12 +828,12 @@ export async function handleWebRtcPauseProducer(
       object: producer,
       action: 'pause'
     })
-    if (userId && network.peers.has(userId) && network.peers.get(userId)!.media![producer.appData.mediaTag]) {
-      network.peers.get(userId)!.media![producer.appData.mediaTag].paused = true
-      network.peers.get(userId)!.media![producer.appData.mediaTag].globalMute = globalMute || false
+    if (userId && network.peers.has(userId) && network.peers.get(userId)!.media![producer.appData.mediaTag as any]) {
+      network.peers.get(userId)!.media![producer.appData.mediaTag as any].paused = true
+      network.peers.get(userId)!.media![producer.appData.mediaTag as any].globalMute = globalMute || false
       if (globalMute === true) {
         const hostClient = Array.from(network.peers.entries()).find(([, client]) => {
-          return client.media && client.media![producer.appData.mediaTag]?.producerId === producerId
+          return client.media && client.media![producer.appData.mediaTag as any]?.producerId === producerId
         })!
         if (hostClient && hostClient[1]) {
           hostClient[1].socket!.emit(MessageTypes.WebRTCPauseProducer.toString(), producer.id, true)
