@@ -6,6 +6,7 @@ node_modules/
 *.swo
 
 # npm / yarn / pnpm
+package-lock.json
 yarn.lock
 yarn-error.log
 .yarn/
