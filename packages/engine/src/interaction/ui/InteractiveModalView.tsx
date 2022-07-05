@@ -1,9 +1,11 @@
-import { createState, State, useState } from '@speigg/hookstate'
+import { createState, useState } from '@speigg/hookstate'
 import React from 'react'
+import { useHistory } from 'react-router-dom'
 
 import { useXRUIState } from '@xrengine/engine/src/xrui/functions/useXRUIState'
 import { dispatchAction } from '@xrengine/hyperflux'
 
+import { isMobile } from '../../common/functions/isMobile'
 import { EngineActions } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
@@ -87,7 +89,7 @@ export const InteractiveModalView = () => {
   const url = interactable.interactionUrls?.[0]
   const title = interactable.interactionText
   const description = interactable.interactionDescription
-
+  const history = useHistory()
   return (
     <div id={name} className={'modal ' + modalState.mode.value}>
       <div className="title" xr-layer="true" xr-pixel-ratio="1">
@@ -136,7 +138,11 @@ export const InteractiveModalView = () => {
         xr-pixel-ratio="1.5"
         onClick={() => {
           // window.open(url.value, '_blank')!.focus()
-          dispatchAction(EngineActions.viewInAR({ viewInAR: true }))
+          if (isMobile) {
+            // TO DO navigate to view in AR route
+          } else {
+            dispatchAction(EngineActions.viewInAR({ viewInAR: true }))
+          }
         }}
       >
         View in AR
@@ -183,7 +189,9 @@ export const InteractiveModalView = () => {
           color: #fff;
           font-size: 15px;
           width: 120px;
-          height: 40px
+          height: 40px;
+          z-index: 1000;
+          cursor: pointer;
         }
         .link-cart {
           position: absolute;
