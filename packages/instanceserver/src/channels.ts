@@ -234,8 +234,9 @@ const loadEngine = async (app: Application, sceneId: string) => {
   Engine.instance.publicPath = config.client.url
   Engine.instance.userId = hostId
   const world = Engine.instance.currentWorld
+  const topic = app.isChannelInstance ? NetworkTopics.media : NetworkTopics.world
 
-  const network = new SocketWebRTCServerNetwork(hostId, app)
+  const network = new SocketWebRTCServerNetwork(hostId, topic, app)
   app.transport = network
   const initPromise = network.initialize()
 
@@ -296,7 +297,7 @@ const loadEngine = async (app: Application, sceneId: string) => {
       name: 'server-' + hostId,
       index: network.userIndexCount++
     }),
-    app.isChannelInstance ? NetworkTopics.media : NetworkTopics.world
+    topic
   )
 
   dispatchAction(EngineActions.joinedWorld())

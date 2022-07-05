@@ -5,9 +5,9 @@ import { useEffect } from 'react'
 import { Instance } from '@xrengine/common/src/interfaces/Instance'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import logger from '@xrengine/common/src/logger'
-import { matches } from '@xrengine/engine/src/common/functions/MatchesUtils'
+import { matches, matchesUserId } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { NetworkTypes } from '@xrengine/engine/src/networking/classes/Network'
+import { NetworkTopics } from '@xrengine/engine/src/networking/classes/Network'
 import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
 import { API } from '../../API'
@@ -40,10 +40,10 @@ export const LocationInstanceConnectionServiceReceptor = (action) => {
   getState(LocationInstanceState).batch((s) => {
     matches(action)
       .when(LocationInstanceConnectionAction.serverProvisioned.matches, (action) => {
-        Engine.instance.currentWorld._worldHostId = action.instanceId as UserId
+        Engine.instance.currentWorld._worldHostId = action.instanceId
         Engine.instance.currentWorld.networks.set(
           action.instanceId,
-          new SocketWebRTCClientNetwork(action.instanceId, NetworkTypes.world)
+          new SocketWebRTCClientNetwork(action.instanceId, NetworkTopics.world)
         )
         return s.instances.merge({
           [action.instanceId]: {
@@ -105,7 +105,7 @@ export const LocationInstanceConnectionService = {
     if (provisionResult.ipAddress && provisionResult.port) {
       dispatchAction(
         LocationInstanceConnectionAction.serverProvisioned({
-          instanceId: provisionResult.id,
+          instanceId: provisionResult.id as UserId,
           ipAddress: provisionResult.ipAddress,
           port: provisionResult.port,
           locationId: locationId!,
@@ -155,7 +155,7 @@ export const LocationInstanceConnectionService = {
 export class LocationInstanceConnectionAction {
   static serverProvisioned = defineAction({
     type: 'LOCATION_INSTANCE_SERVER_PROVISIONED' as const,
-    instanceId: matches.string,
+    instanceId: matchesUserId,
     ipAddress: matches.string,
     port: matches.string,
     locationId: matches.string,

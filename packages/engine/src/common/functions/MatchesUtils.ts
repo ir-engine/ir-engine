@@ -4,8 +4,6 @@ import { matches, Validator } from 'ts-matches'
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 
-import { Engine } from '../../ecs/classes/Engine'
-
 export * from 'ts-matches'
 
 const matchesVec3Shape = matches.shape({

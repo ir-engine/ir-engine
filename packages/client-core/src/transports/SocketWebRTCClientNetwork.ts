@@ -2,10 +2,11 @@ import * as mediasoupClient from 'mediasoup-client'
 import { Consumer, DataProducer, Transport as MediaSoupTransport, Producer } from 'mediasoup-client/lib/types'
 import { io as ioclient, Socket } from 'socket.io-client'
 
+import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { Network, NetworkType } from '@xrengine/engine/src/networking/classes/Network'
+import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
-import { Action } from '@xrengine/hyperflux/functions/ActionFunctions'
+import { Action, Topic } from '@xrengine/hyperflux/functions/ActionFunctions'
 
 import { accessAuthState } from '../user/services/AuthService'
 import { instanceserverHost } from '../util/config'
@@ -21,10 +22,8 @@ const promisedRequest = (socket: Socket) => {
 }
 
 export class SocketWebRTCClientNetwork extends Network {
-  type: NetworkType
-  constructor(hostId: string, type: NetworkType) {
-    super(hostId)
-    this.type = type
+  constructor(hostId: UserId, topic: Topic) {
+    super(hostId, topic)
   }
 
   mediasoupDevice = new mediasoupClient.Device(Engine.instance.isBot ? { handlerName: 'Chrome74' } : undefined)

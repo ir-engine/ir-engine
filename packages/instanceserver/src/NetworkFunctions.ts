@@ -297,7 +297,7 @@ const getCachedActions = (network: SocketWebRTCServerNetwork, joinedUserId: User
 
   // send all cached and outgoing actions to joining user
   const cachedActions = [] as Required<Action>[]
-  for (const action of Engine.instance.store.actions.cached[NetworkTopics.world] as Array<
+  for (const action of Engine.instance.store.actions.cached[network.topic] as Array<
     ReturnType<typeof WorldNetworkAction.spawnAvatar>
   >) {
     // we may have a need to remove the check for the prefab type to enable this to work for networked objects too
@@ -432,7 +432,7 @@ export async function handleDisconnect(network: SocketWebRTCServerNetwork, socke
   // The new connection will overwrite the socketID for the user's client.
   // This will only clear transports if the client's socketId matches the socket that's disconnecting.
   if (socket.id === disconnectedClient?.socketId) {
-    dispatchAction(WorldNetworkAction.destroyPeer({ $from: userId }), NetworkTopics.world) /** @todo */
+    dispatchAction(WorldNetworkAction.destroyPeer({ $from: userId }), network.topic)
     logger.info('Disconnecting clients for user ' + userId)
     if (disconnectedClient?.instanceRecvTransport) disconnectedClient.instanceRecvTransport.close()
     if (disconnectedClient?.instanceSendTransport) disconnectedClient.instanceSendTransport.close()
@@ -453,13 +453,13 @@ export async function handleLeaveWorld(
   for (const [, transport] of Object.entries(network.mediasoupTransports))
     if ((transport as any).appData.peerId === userId) closeTransport(network, transport)
   if (network.peers.has(userId)) {
-    dispatchAction(WorldNetworkAction.destroyPeer({ $from: userId }), NetworkTopics.world) /** @todo */
+    dispatchAction(WorldNetworkAction.destroyPeer({ $from: userId }), network.topic)
   }
   if (callback !== undefined) callback({})
 }
 
 export function clearCachedActionsForDisconnectedUsers(network: SocketWebRTCServerNetwork) {
-  const cached = Engine.instance.store.actions.cached[NetworkTopics.world]
+  const cached = Engine.instance.store.actions.cached[network.topic]
   for (const action of [...cached]) {
     if (!network.peers.has(action.$from)) {
       const idx = cached.indexOf(action)
@@ -469,7 +469,7 @@ export function clearCachedActionsForDisconnectedUsers(network: SocketWebRTCServ
 }
 
 export function clearCachedActionsForUser(network: SocketWebRTCServerNetwork, user: UserId) {
-  const cached = Engine.instance.store.actions.cached[NetworkTopics.world]
+  const cached = Engine.instance.store.actions.cached[network.topic]
   for (const action of [...cached]) {
     if (action.$from === user) {
       const idx = cached.indexOf(action)

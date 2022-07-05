@@ -5,7 +5,7 @@ import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Network, NetworkTopics } from '@xrengine/engine/src/networking/classes/Network'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
-import { Action } from '@xrengine/hyperflux/functions/ActionFunctions'
+import { Action, Topic } from '@xrengine/hyperflux/functions/ActionFunctions'
 import { Application } from '@xrengine/server-core/declarations'
 import multiLogger from '@xrengine/server-core/src/logger'
 
@@ -32,8 +32,8 @@ export class SocketWebRTCServerNetwork extends Network {
   producers = [] as Producer[]
   consumers = [] as Consumer[]
 
-  constructor(hostId: string, app: Application) {
-    super(hostId)
+  constructor(hostId: UserId, topic: Topic, app: Application) {
+    super(hostId, topic)
     this.app = app
   }
 
@@ -47,9 +47,9 @@ export class SocketWebRTCServerNetwork extends Network {
       const arr: Action[] = []
       for (const a of [...actions]) {
         const action = { ...a }
-        if (outgoing[NetworkTopics.world].historyUUIDs.has(action.$uuid)) {
-          const idx = outgoing[NetworkTopics.world].queue.indexOf(action)
-          outgoing[NetworkTopics.world].queue.splice(idx, 1)
+        if (outgoing[this.topic].historyUUIDs.has(action.$uuid)) {
+          const idx = outgoing[this.topic].queue.indexOf(action)
+          outgoing[this.topic].queue.splice(idx, 1)
         }
         if (!action.$to) continue
         const toUserId = userIdMap[socketID]

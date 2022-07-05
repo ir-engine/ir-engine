@@ -11,7 +11,7 @@ import { addOBCPlugin } from '@xrengine/engine/src/common/functions/OnBeforeComp
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { defineQuery, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { NetworkTypes } from '@xrengine/engine/src/networking/classes/Network'
+import { NetworkTopics } from '@xrengine/engine/src/networking/classes/Network'
 import { PUBLIC_STUN_SERVERS } from '@xrengine/engine/src/networking/constants/STUNServers'
 import { CAM_VIDEO_SIMULCAST_ENCODINGS } from '@xrengine/engine/src/networking/constants/VideoConstants'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
@@ -38,7 +38,7 @@ export const getChannelTypeIdFromTransport = (network: SocketWebRTCClientNetwork
   const channelConnectionState = accessMediaInstanceConnectionState()
   const currentChannelInstanceConnection =
     channelConnectionState.instances[Engine.instance.currentWorld.mediaNetwork?.hostId].ornull
-  const isWorldConnection = network.type === NetworkTypes.world
+  const isWorldConnection = network.topic === NetworkTopics.world
   return {
     channelType: isWorldConnection ? 'instance' : currentChannelInstanceConnection.channelType.value,
     channelId: isWorldConnection ? null : currentChannelInstanceConnection.channelId.value
@@ -46,8 +46,8 @@ export const getChannelTypeIdFromTransport = (network: SocketWebRTCClientNetwork
 }
 
 export async function onConnectToInstance(network: SocketWebRTCClientNetwork) {
-  const isWorldConnection = network.type === NetworkTypes.world
-  console.log('[WebRTC]: connectting to instance type:', network.type, network.hostId)
+  const isWorldConnection = network.topic === NetworkTopics.world
+  console.log('[WebRTC]: connectting to instance type:', network.topic, network.hostId)
 
   if (isWorldConnection) {
     dispatchAction(LocationInstanceConnectionAction.instanceServerConnected({ instanceId: network.hostId }))
@@ -85,7 +85,7 @@ export async function onConnectToInstance(network: SocketWebRTCClientNetwork) {
   if (isWorldConnection) await onConnectToWorldInstance(network)
   else await onConnectToMediaInstance(network)
 
-  console.log('[WebRTC]: successfully connected to instance type:', network.type, network.hostId)
+  console.log('[WebRTC]: successfully connected to instance type:', network.topic, network.hostId)
 }
 
 export async function onConnectToWorldInstance(network: SocketWebRTCClientNetwork) {
@@ -334,7 +334,7 @@ export async function createDataProducer(
 export async function createTransport(network: SocketWebRTCClientNetwork, direction: string) {
   const { channelId, channelType } = getChannelTypeIdFromTransport(network)
 
-  console.log('[WebRTC]: creating transport:', network.type, direction, network.hostId, channelId, channelType)
+  console.log('[WebRTC]: creating transport:', network.topic, direction, network.hostId, channelId, channelType)
 
   // ask the server to create a server-side transport object and send
   // us back the info we need to create a client-side transport
@@ -441,7 +441,7 @@ export async function createTransport(network: SocketWebRTCClientNetwork, direct
   transport.on('connectionstatechange', async (state: string) => {
     if (state === 'closed' || state === 'failed' || state === 'disconnected') {
       dispatchAction(
-        network.type === NetworkTypes.world
+        network.topic === NetworkTopics.world
           ? NetworkConnectionService.actions.worldInstanceDisconnected()
           : NetworkConnectionService.actions.mediaInstanceDisconnected()
       )
@@ -461,7 +461,7 @@ export async function createTransport(network: SocketWebRTCClientNetwork, direct
         await createTransport(network, direction)
         console.log('Re-created transport', direction, channelType, channelId)
         dispatchAction(
-          network.type === NetworkTypes.world
+          network.topic === NetworkTopics.world
             ? NetworkConnectionService.actions.worldInstanceReconnected()
             : NetworkConnectionService.actions.mediaInstanceReconnected()
         )
@@ -874,7 +874,7 @@ export function leaveNetwork(network: SocketWebRTCClientNetwork, kicked?: boolea
 
     const world = Engine.instance.currentWorld
 
-    if (network.type === NetworkTypes.media) {
+    if (network.topic === NetworkTopics.media) {
       if (MediaStreams.instance.audioStream) {
         const audioTracks = MediaStreams.instance.audioStream?.getTracks()
         audioTracks.forEach((track) => track.stop())

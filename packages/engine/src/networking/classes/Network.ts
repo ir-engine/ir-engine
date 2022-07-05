@@ -7,16 +7,6 @@ import { Engine } from '../../ecs/classes/Engine'
 import { NetworkPeer } from '../interfaces/NetworkPeer'
 
 /**
- * Network types distinguish differences in functionality.
- */
-export const NetworkTypes = {
-  world: 'world' as const,
-  media: 'media' as const
-}
-
-export type NetworkType = typeof NetworkTypes[keyof typeof NetworkTypes]
-
-/**
  * Network topics are classes of networks. Topics are used to disitinguish between multiple networks of the same type.
  */
 export const NetworkTopics = {
@@ -95,7 +85,7 @@ export class Network {
    * The UserId of the host
    * - will either be a user's UserId, or an instance server's InstanceId
    */
-  hostId = null! as UserId
+  hostId: UserId
 
   /**
    * Check if this user is hosting the world.
@@ -104,7 +94,10 @@ export class Network {
     return Engine.instance.userId === this.hostId
   }
 
-  constructor(hostId) {
+  topic: Topic
+
+  constructor(hostId: UserId, topic: Topic) {
     this.hostId = hostId
+    this.topic = topic
   }
 }
