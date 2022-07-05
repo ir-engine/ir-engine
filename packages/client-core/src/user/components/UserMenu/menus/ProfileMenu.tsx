@@ -129,6 +129,8 @@ const ProfileMenu = ({ className, hideLogin, changeActiveMenu, setProfileMenuOpe
   const apiKey = selfUser.apiKey?.token?.value
   const userRole = selfUser.userRole.value
   const [oauthConnectedState, setOauthConnectedState] = useState(initialOAuthConnectedState)
+  const [deleteControlsOpen, setDeleteControlsOpen] = useState(false)
+  const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false)
 
   useEffect(() => {
     if (authSetting) {
@@ -712,6 +714,57 @@ const ProfileMenu = ({ className, hideLogin, changeActiveMenu, setProfileMenuOpe
                 )}
               </section>
             )}
+            <section className={styles.deletePanel}>
+              {userRole !== 'guest' && (
+                <div>
+                  <h2
+                    className={styles.deleteAccount}
+                    id="delete-account"
+                    onClick={() => {
+                      setDeleteControlsOpen(!deleteControlsOpen)
+                      setConfirmDeleteOpen(false)
+                    }}
+                  >
+                    {t('user:usermenu.profile.delete.deleteAccount')}
+                  </h2>
+                  {deleteControlsOpen && !confirmDeleteOpen && (
+                    <div className={styles.deleteContainer}>
+                      <h3 className={styles.deleteText}>{t('user:usermenu.profile.delete.deleteControlsText')}</h3>
+                      <Button className={styles.deleteCancelButton} onClick={() => setDeleteControlsOpen(false)}>
+                        {t('user:usermenu.profile.delete.deleteControlsCancel')}
+                      </Button>
+                      <Button
+                        className={styles.deleteConfirmButton}
+                        onClick={() => {
+                          setDeleteControlsOpen(false)
+                          setConfirmDeleteOpen(true)
+                        }}
+                      >
+                        {t('user:usermenu.profile.delete.deleteControlsConfirm')}
+                      </Button>
+                    </div>
+                  )}
+                  {confirmDeleteOpen && (
+                    <div className={styles.deleteContainer}>
+                      <h3 className={styles.deleteText}>{t('user:usermenu.profile.delete.finalDeleteText')}</h3>
+                      <Button
+                        className={styles.deleteConfirmButton}
+                        onClick={() => {
+                          AuthService.removeUser(userId)
+                          AuthService.logoutUser()
+                          setConfirmDeleteOpen(false)
+                        }}
+                      >
+                        {t('user:usermenu.profile.delete.finalDeleteConfirm')}
+                      </Button>
+                      <Button className={styles.deleteCancelButton} onClick={() => setConfirmDeleteOpen(false)}>
+                        {t('user:usermenu.profile.delete.finalDeleteCancel')}
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              )}
+            </section>
             {setProfileMenuOpen != null && (
               <div className={styles.closeButton} onClick={() => setProfileMenuOpen(false)}>
                 <Close />
