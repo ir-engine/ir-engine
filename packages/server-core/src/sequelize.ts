@@ -26,6 +26,7 @@ export default (app: Application): void => {
     const oldSetup = app.setup
 
     app.set('sequelizeClient', sequelize)
+    console.log('sequelize', sequelize)
 
     let promiseResolve, promiseReject
     app.isSetup = new Promise((resolve, reject) => {
