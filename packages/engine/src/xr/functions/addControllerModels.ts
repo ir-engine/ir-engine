@@ -157,7 +157,6 @@ export const cleanXRInputs = (entity) => {
 
 // pointer taken from https://github.com/mrdoob/three.js/blob/master/examples/webxr_vr_ballshooter.html
 const createController = (inputSource: XRInputSource) => {
-  console.log('createcontroller', inputSource)
   let geometry, material
   switch (inputSource.targetRayMode) {
     case 'tracked-pointer':

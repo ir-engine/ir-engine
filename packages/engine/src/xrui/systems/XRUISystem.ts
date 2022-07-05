@@ -61,7 +61,6 @@ export default async function XRUISystem(world: World) {
   // to the appropriate child Web3DLayer, and finally (back) to the
   // DOM to dispatch an event on the intended DOM target
   const redirectDOMEvent = (evt) => {
-    console.log(evt)
     for (const entity of xruiQuery()) {
       const layer = getComponent(entity, XRUIComponent).container
       const hit = layer.hitTest(screenRaycaster.ray)
@@ -115,7 +114,6 @@ export default async function XRUISystem(world: World) {
 
       if (interactable) {
         if (controller.lastHit?.target !== hit.target) {
-          console.log(controller.lastHit, hit.target.id)
           hoverAudio.pause()
           hoverAudio.currentTime = 0
           hoverAudio.play()
