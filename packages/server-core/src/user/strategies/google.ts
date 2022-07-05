@@ -1,7 +1,10 @@
 import { Params } from '@feathersjs/feathers'
+import { random } from 'lodash'
 
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
+import getFreeInviteCode from '../../util/get-free-invite-code'
+import { UserDataType } from '../user/user.class'
 import CustomOAuthStrategy from './custom-oauth'
 
 export class Googlestrategy extends CustomOAuthStrategy {
@@ -32,6 +35,19 @@ export class Googlestrategy extends CustomOAuthStrategy {
       { accessToken: params?.authentication?.accessToken },
       {}
     )
+    if (!entity.userId) {
+      const avatars = await this.app.service('avatar').find({ isInternal: true })
+      const code = await getFreeInviteCode(this.app)
+      const newUser = (await this.app.service('user').create({
+        userRole: 'user',
+        inviteCode: code,
+        avatarId: avatars[random(avatars.length - 1)].avatarId
+      })) as UserDataType
+      entity.userId = newUser.id
+      await this.app.service('identity-provider').patch(entity.id, {
+        userId: newUser.id
+      })
+    }
     const identityProvider = authResult['identity-provider']
     const user = await this.app.service('user').get(entity.userId)
     const adminCount = await this.app.service('user').Model.count({

@@ -357,9 +357,7 @@ export const AuthService = {
     const ipToRemove = ipResult.data.find((ip) => ip.type === service)
     if (ipToRemove) {
       if (ipResult.total === 1) {
-        console.log('show last warning modal')
-        await API.instance.client.service('user').remove(ipToRemove.userId)
-        await AuthService.logoutUser()
+        NotificationService.dispatchNotify('You can not remove your last login method.', { variant: 'warning' })
       } else {
         const otherIp = ipResult.data.find((ip) => ip.type !== service)
         const newToken = await API.instance.client.service('generate-token').create({
@@ -781,11 +779,6 @@ export const AuthService = {
   },
   removeUser: async (userId: string) => {
     await API.instance.client.service('user').remove(userId)
-    await API.instance.client.service('identity-provider').remove(null, {
-      query: {
-        userId: userId
-      }
-    })
     AuthService.logoutUser()
   },
 

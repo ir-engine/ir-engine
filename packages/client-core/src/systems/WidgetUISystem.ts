@@ -63,16 +63,11 @@ export default async function WidgetSystem(world: World) {
   })
 
   function WidgetReceptor(action) {
-    matches(action)
-      .when(WidgetAppActions.showWidget.matches, (action) => {
-        const widget = Engine.instance.currentWorld.widgets.get(action.id)!
-        const xrui = getComponent(widget.ui.entity, XRUIComponent)
-        if (xrui) ObjectFitFunctions.setUIVisible(xrui.container, action.shown)
-        showWidgetMenu(false)
-      })
-      .when(WidgetAppActions.showWidgetMenu.matches, (action) => {
-        showWidgetMenu(action.shown)
-      })
+    matches(action).when(WidgetAppActions.showWidget.matches, (action) => {
+      const widget = Engine.instance.currentWorld.widgets.get(action.id)!
+      const xrui = getComponent(widget.ui.entity, XRUIComponent)
+      if (xrui) ObjectFitFunctions.setUIVisible(xrui.container, action.shown)
+    })
   }
   addActionReceptor(WidgetAppServiceReceptor)
   addActionReceptor(WidgetReceptor)
@@ -92,6 +87,8 @@ export default async function WidgetSystem(world: World) {
     if (xrui) {
       ObjectFitFunctions.attachObjectToPreferredTransform(xrui.container)
     }
+
+    showWidgetMenu(accessWidgetAppState().widgetsMenuOpen.value)
 
     const widgetState = accessWidgetAppState()
 
