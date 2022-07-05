@@ -348,7 +348,8 @@
       "placeholderText": "This is the input placeholder",
       "delete" : "Delete",
       "addSocialLink": "Add Social Link",
-      "themePlayground": "Theme Playground"
+      "themePlayground": "Theme Playground",
+      "themeMode": "Theme Mode"
     },
     "avatar": {
       "source": "Source",

@@ -24,8 +24,8 @@ const ClientTheme = () => {
   const [mode, setMode] = useState(selfUser?.user_setting?.value?.themeMode || 'dark')
 
   const [themeSetting, setThemeSetting] = useState<ThemeSetting>({
-    light: { ...defaultThemeSettings.light, ...clientSetting?.themeSettings?.light },
-    dark: { ...defaultThemeSettings.dark, ...clientSetting?.themeSettings?.dark }
+    ...defaultThemeSettings,
+    ...clientSetting.themeSettings
   })
 
   const handleChangeColor = (name, value) => {
@@ -37,57 +37,27 @@ const ClientTheme = () => {
   }
 
   const handleChangeThemeMode = (event) => {
-    setMode(event.target.checked ? 'dark' : 'light')
+    const { value } = event.target
+    setMode(value)
   }
 
-  const resetThemeToDefault = () => {
+  const resetThemeToDefault = async () => {
     setThemeSetting({
-      light: { ...defaultThemeSettings.light },
-      dark: { ...defaultThemeSettings.dark }
+      ...defaultThemeSettings,
+      ...clientSetting.themeSettings
     })
 
-    ClientSettingService.patchClientSetting(
-      {
-        logo: clientSetting?.logo,
-        title: clientSetting?.title,
-        icon192px: clientSetting?.icon192px,
-        icon512px: clientSetting?.icon512px,
-        favicon16px: clientSetting?.favicon16px,
-        favicon32px: clientSetting?.favicon32px,
-        siteDescription: clientSetting?.siteDescription,
-        appTitle: clientSetting?.appTitle,
-        appSubtitle: clientSetting?.appSubtitle,
-        appDescription: clientSetting?.appDescription,
-        appBackground: clientSetting?.appBackground,
-        appSocialLinks: JSON.stringify(clientSetting?.appSocialLinks),
-        themeSettings: JSON.stringify(defaultThemeSettings)
-      },
-      id
-    )
-
-    const currentTheme = selfUser?.user_setting?.value?.themeMode || 'dark'
-
-    if (currentTheme === 'light' && defaultThemeSettings?.light) {
-      for (let variable of Object.keys(defaultThemeSettings.light)) {
-        ;(document.querySelector(`[data-theme=light]`) as any)?.style.setProperty(
-          '--' + variable,
-          defaultThemeSettings.light[variable]
-        )
-      }
-    } else if (currentTheme === 'dark' && defaultThemeSettings?.dark) {
-      for (let variable of Object.keys(defaultThemeSettings.dark)) {
-        ;(document.querySelector(`[data-theme=dark]`) as any)?.style.setProperty(
-          '--' + variable,
-          defaultThemeSettings.dark[variable]
-        )
-      }
-    }
+    await updateTheme(defaultThemeSettings)
   }
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault()
 
-    ClientSettingService.patchClientSetting(
+    await updateTheme(themeSetting)
+  }
+
+  const updateTheme = async (newThemeSetting: ThemeSetting) => {
+    await ClientSettingService.patchClientSetting(
       {
         logo: clientSetting?.logo,
         title: clientSetting?.title,
@@ -101,25 +71,18 @@ const ClientTheme = () => {
         appDescription: clientSetting?.appDescription,
         appBackground: clientSetting?.appBackground,
         appSocialLinks: JSON.stringify(clientSetting?.appSocialLinks),
-        themeSettings: JSON.stringify(themeSetting)
+        themeSettings: JSON.stringify(newThemeSetting)
       },
       id
     )
 
     const currentTheme = selfUser?.user_setting?.value?.themeMode || 'dark'
 
-    if (currentTheme === 'light' && themeSetting?.light) {
-      for (let variable of Object.keys(themeSetting.light)) {
-        ;(document.querySelector(`[data-theme=light]`) as any)?.style.setProperty(
+    if (newThemeSetting[currentTheme]) {
+      for (let variable of Object.keys(newThemeSetting[currentTheme])) {
+        ;(document.querySelector(`[data-theme=${currentTheme}]`) as any)?.style.setProperty(
           '--' + variable,
-          themeSetting.light[variable]
-        )
-      }
-    } else if (currentTheme === 'dark' && themeSetting?.dark) {
-      for (let variable of Object.keys(themeSetting.dark)) {
-        ;(document.querySelector(`[data-theme=dark]`) as any)?.style.setProperty(
-          '--' + variable,
-          themeSetting.dark[variable]
+          newThemeSetting[currentTheme][variable]
         )
       }
     }
@@ -138,6 +101,7 @@ const ClientTheme = () => {
       <ColorSelectionArea
         mode={mode}
         theme={theme}
+        themeModes={Object.keys(themeSetting)}
         handleChangeThemeMode={handleChangeThemeMode}
         handleChangeColor={handleChangeColor}
       />

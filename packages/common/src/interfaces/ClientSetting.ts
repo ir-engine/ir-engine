@@ -23,8 +23,7 @@ interface SocialLink {
 }
 
 export interface ThemeSetting {
-  light: ThemeOptions
-  dark: ThemeOptions
+  [key: string]: ThemeOptions
 }
 
 export interface ThemeOptions {

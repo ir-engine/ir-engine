@@ -82,23 +82,7 @@ const App = (): any => {
       const currentTheme = selfUser?.user_setting?.value?.themeMode || 'dark'
       html.dataset.theme = currentTheme
 
-      if (clientThemeSettings) {
-        if (currentTheme === 'light' && clientThemeSettings?.light) {
-          for (let variable of Object.keys(clientThemeSettings.light)) {
-            ;(document.querySelector(`[data-theme=light]`) as any)?.style.setProperty(
-              '--' + variable,
-              clientThemeSettings.light[variable]
-            )
-          }
-        } else if (currentTheme === 'dark' && clientThemeSettings?.dark) {
-          for (let variable of Object.keys(clientThemeSettings.dark)) {
-            ;(document.querySelector(`[data-theme=dark]`) as any)?.style.setProperty(
-              '--' + variable,
-              clientThemeSettings.dark[variable]
-            )
-          }
-        }
-      }
+      updateTheme()
     }
   }, [selfUser?.user_setting?.value])
 
@@ -132,26 +116,23 @@ const App = (): any => {
   }, [clientSettingState?.updateNeeded?.value])
 
   useEffect(() => {
+    updateTheme()
+  }, [clientThemeSettings])
+
+  const updateTheme = () => {
     const currentTheme = selfUser?.user_setting?.value?.themeMode || 'dark'
 
     if (clientThemeSettings) {
-      if (currentTheme === 'light' && clientThemeSettings?.light) {
-        for (let variable of Object.keys(clientThemeSettings.light)) {
-          ;(document.querySelector(`[data-theme=light]`) as any)?.style.setProperty(
+      if (clientThemeSettings?.[currentTheme]) {
+        for (let variable of Object.keys(clientThemeSettings[currentTheme])) {
+          ;(document.querySelector(`[data-theme=${currentTheme}]`) as any)?.style.setProperty(
             '--' + variable,
-            clientThemeSettings.light[variable]
-          )
-        }
-      } else if (currentTheme === 'dark' && clientThemeSettings?.dark) {
-        for (let variable of Object.keys(clientThemeSettings.dark)) {
-          ;(document.querySelector(`[data-theme=dark]`) as any)?.style.setProperty(
-            '--' + variable,
-            clientThemeSettings.dark[variable]
+            clientThemeSettings[currentTheme][variable]
           )
         }
       }
     }
-  }, [clientThemeSettings])
+  }
 
   return (
     <>
