@@ -56,9 +56,6 @@ export default async function AvatarControllerSystem(world: World) {
     }
 
     for (const entity of localXRInputQuery(world)) {
-      const headDecapComponent = getComponent(entity, AvatarHeadDecapComponent)
-      if (headDecapComponent) headDecapComponent.opacity = 0
-
       if (!hasComponent(entity, XRCameraRotateYComponent)) {
         moveXRAvatar(world, entity, Engine.instance.currentWorld.camera, lastCamPos, displacement)
         rotateXRAvatar(world, entity, Engine.instance.currentWorld.camera)
