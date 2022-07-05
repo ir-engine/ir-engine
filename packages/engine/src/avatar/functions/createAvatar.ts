@@ -127,25 +127,27 @@ export const createAvatarCollider = (entity: Entity, height: number, radius: num
   const avatarBodyCollider = ColliderDesc.capsule(height, radius).setCollisionGroups(interactionGroups)
   avatarBodyCollider.translation.y = position.y + defaultAvatarHalfHeight
 
-  const avatarFootCollider = ColliderDesc.cuboid(radius, height * 0.05, radius)
-    .setCollisionGroups(interactionGroups)
-    .setSensor(true)
-  avatarFootCollider.translation.y = position.y
+  const feetColliderHeight = height * 0.025
+  const avatarFeetCollider = ColliderDesc.cuboid(radius / 2, feetColliderHeight, radius / 2).setCollisionGroups(
+    interactionGroups
+  )
 
-  colliderDescs.push(avatarBodyCollider, avatarFootCollider)
+  colliderDescs.push(avatarBodyCollider, avatarFeetCollider)
 
   return colliderDescs
 }
 
 const createAvatarRigidBody = (entity: Entity, height: number, radius: number): RigidBody => {
   const colliderDescs = createAvatarCollider(entity, height, radius)
-  const rigidBodyDesc = RigidBodyDesc.kinematicPositionBased()
+  const rigidBodyDesc = RigidBodyDesc.dynamic()
   const rigidBody = Physics.createRigidBody(
     entity,
     Engine.instance.currentWorld.physicsWorld,
     rigidBodyDesc,
     colliderDescs
   )
+  rigidBody.setGravityScale(0.0, true)
+  rigidBody.lockRotations(true, true)
 
   return rigidBody
 }

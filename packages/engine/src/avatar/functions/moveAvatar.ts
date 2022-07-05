@@ -1,3 +1,4 @@
+import { Collider, Vector } from '@dimforge/rapier3d-compat'
 import { Matrix4, OrthographicCamera, PerspectiveCamera, Quaternion, Vector3 } from 'three'
 
 import checkPositionIsValid from '../../common/functions/checkPositionIsValid'
@@ -8,6 +9,7 @@ import { World } from '../../ecs/classes/World'
 import { addComponent, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { RapierCollisionComponent } from '../../physics/components/RapierCollisionComponent'
 import { RaycastComponent } from '../../physics/components/RaycastComponent'
+import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { XRInputSourceComponent } from '../../xr/components/XRInputSourceComponent'
@@ -27,8 +29,8 @@ const tempVec2 = new Vector3()
 const tempVec3 = new Vector3()
 
 const newVelocity = new Vector3()
-const onGroundVelocity = new Vector3()
 export const avatarCameraOffset = new Vector3(0, 0.14, 0.1)
+const contactNormal = new Vector3()
 
 /**
  * @author HydraFire <github.com/HydraFire>
@@ -41,14 +43,46 @@ export const moveAvatar = (world: World, entity: Entity, camera: PerspectiveCame
 
   const timeStep = timeScale * fixedDelta
 
-  const avatar = getComponent(entity, AvatarComponent)
   const velocity = getComponent(entity, VelocityComponent)
   const controller = getComponent(entity, AvatarControllerComponent)
 
   if (!controller.movementEnabled) return
 
-  const collisionComponent = getComponent(entity, RapierCollisionComponent)
-  const onGround = collisionComponent
+  let onGround = false
+
+  const physicsWorld = Engine.instance.currentWorld.physicsWorld
+  const rigidBody = getComponent(entity, RigidBodyComponent)
+  let avatarFeetCollider = rigidBody.collider(0)
+
+  for (let index = 0; index < rigidBody.numColliders(); index++) {
+    const collider = rigidBody.collider(index)
+    if (collider.translation().y < avatarFeetCollider.translation().y) avatarFeetCollider = collider
+  }
+
+  const collidersInContactWithFeet = [] as Collider[]
+  physicsWorld.contactsWith(avatarFeetCollider, (otherCollider) => {
+    collidersInContactWithFeet.push(otherCollider)
+  })
+
+  let contactDistance = 0
+  collidersInContactWithFeet.forEach((otherCollider) => {
+    physicsWorld.contactPair(avatarFeetCollider, otherCollider, (manifold, flipped) => {
+      for (let index = 0; index < manifold.numContacts(); index++) {
+        onGround = true
+        if (flipped) {
+          contactDistance += (manifold.localContactPoint1(index) as Vector).y
+          tempVec1.set(manifold.localNormal1().x, manifold.localNormal1().y, manifold.localNormal1().z)
+          contactNormal.add(tempVec1)
+        } else {
+          tempVec1.set(manifold.localNormal2().x, manifold.localNormal2().y, manifold.localNormal2().z)
+          contactNormal.add(tempVec1)
+        }
+      }
+      contactNormal.divideScalar(manifold.numContacts() + 1)
+      contactDistance = contactDistance / manifold.numContacts()
+    })
+  })
+
   controller.isInAir = !onGround
 
   // move vec3 to controller input direction
@@ -69,9 +103,6 @@ export const moveAvatar = (world: World, entity: Entity, camera: PerspectiveCame
   velocity.linear.setX(newVelocity.x)
   velocity.linear.setZ(newVelocity.z)
 
-  // apply gravity to avatar velocity
-  velocity.linear.y -= 0.15 * timeStep
-
   // threejs camera is weird, when in VR we must use the head diretion
   if (hasComponent(entity, XRInputSourceComponent))
     getComponent(entity, XRInputSourceComponent).head.getWorldDirection(tempVec1)
@@ -91,30 +122,12 @@ export const moveAvatar = (world: World, entity: Entity, camera: PerspectiveCame
   if (onGround) {
     // if we are falling
     if (velocity.linear.y < 0) {
-      // look for something to fall onto
-      const raycast = getComponent(entity, RaycastComponent)
-      const closestHit = raycast.hits[0]
-
-      // if something was found
-      if (closestHit) {
-        // groundVelocity = newVelocity (velocity sim w/quat applied)
-        // zero out Y - horizontal plane
-        onGroundVelocity.copy(newVelocity).setY(0)
-        // vec3 = closestHit.normal
-        tempVec1.set(closestHit.normal.x, closestHit.normal.y, closestHit.normal.z)
-        // quat = upVector w/closestHit.normal
-        quat.setFromUnitVectors(upVector, tempVec1)
-        mat4.makeRotationFromQuaternion(quat)
-        onGroundVelocity.applyMatrix4(mat4)
-        velocity.linear.y = onGroundVelocity.y
-      }
+      velocity.linear.y = 0
     }
 
     if (
       // if controller jump input pressed
       controller.localMovementDirection.y > 0 &&
-      // and we are on the ground
-      velocity.linear.y <= onGroundVelocity.y &&
       // and we are not already jumping
       !controller.isJumping
     ) {
@@ -125,17 +138,9 @@ export const moveAvatar = (world: World, entity: Entity, camera: PerspectiveCame
       // reset isJumping the following frame
       controller.isJumping = false
     }
-
-    // TODO: make a proper resizing function if we ever need it
-    //  collider.controller.resize(avatar.BODY_SIZE);
-
-    // TODO - Move on top of moving objects
-    // physx has a feature for this, we should integrate both
-    // if (avatar.rayResult.body.mass > 0) {
-    // 	const pointVelocity = new Vector3();
-    // 	avatar.rayResult.body.getVelocityAtWorldPoint(avatar.rayResult.hitPointWorld, pointVelocity);
-    // 	newVelocity.add(threeFromCannonVector(pointVelocity));
-    // }
+  } else {
+    // apply gravity to avatar velocity
+    velocity.linear.y -= 0.12 * timeStep
   }
 
   // clamp velocities [-1 .. 1]
@@ -154,13 +159,14 @@ export const moveAvatar = (world: World, entity: Entity, camera: PerspectiveCame
   if (Math.abs(newVelocity.y) < 0.001) newVelocity.y = 0
   if (Math.abs(newVelocity.z) < 0.001) newVelocity.z = 0
 
+  const velocityScale = 40
   const displacement = {
-    x: newVelocity.x,
-    y: velocity.linear.y,
-    z: newVelocity.z
+    x: newVelocity.x * velocityScale,
+    y: velocity.linear.y * velocityScale,
+    z: newVelocity.z * velocityScale
   }
 
-  moveAvatarController(world, entity, displacement)
+  controller.controller.setLinvel(displacement, true)
 
   return displacement
 }
@@ -260,31 +266,10 @@ export const alignXRCameraRotationWithAvatar = (entity: Entity, camera: Perspect
 
 const tempVector = new Vector3()
 const moveAvatarController = (world: World, entity: Entity, displacement: any) => {
-  const {
-    fixedDeltaSeconds: fixedDelta,
-    physics: { timeScale }
-  } = world
-
-  const timeStep = timeScale * fixedDelta
   const controller = getComponent(entity, AvatarControllerComponent).controller
-  // const filters = new PhysX.PxControllerFilters(controller.filterData, world.physics.defaultCCTQueryCallback, null!)
 
   const newPosition = tempVector.set(controller.translation().x, controller.translation().y, controller.translation().z)
   controller.setNextKinematicTranslation(newPosition.add(displacement))
-
-  // const collisionFlags = controller.controller.move(
-  //   displacement,
-  //   0.001,
-  //   timeStep,
-  //   filters,
-  //   world.physics.obstacleContext
-  // )
-
-  // controller.collisions = [
-  //   collisionFlags.isSet(PhysX.PxControllerCollisionFlag.eCOLLISION_DOWN),
-  //   collisionFlags.isSet(PhysX.PxControllerCollisionFlag.eCOLLISION_SIDES),
-  //   collisionFlags.isSet(PhysX.PxControllerCollisionFlag.eCOLLISION_UP)
-  // ]
 }
 
 /**
