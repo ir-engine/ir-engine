@@ -27,7 +27,10 @@ const ThemeSelectionArea = ({ themeModes, colorModes, onChangeThemeMode }: Theme
 
   return (
     <>
-      <Typography className={styles.settingsSubHeading}>{t('admin:components.setting.defaultThemes')}</Typography>
+      <Typography component="h1" className={styles.settingsHeading}>
+        {t('admin:components.setting.defaultThemes')}
+      </Typography>
+
       <Grid container spacing={4} sx={{ mb: 3 }}>
         {Object.keys(themeModes).map((mode, index) => (
           <Grid key={index} item xs={12} sm={6} md={4}>
