@@ -36,7 +36,11 @@ export default (app: Application): void => {
 
     app.setup = async function (...args: any) {
       try {
-        await sequelize.query('SET FOREIGN_KEY_CHECKS = 0')
+        try {
+          await sequelize.query('SET FOREIGN_KEY_CHECKS = 0')
+        } catch(err) {
+
+        }
 
         const tableCount = await sequelize.query(
           `select table_schema as xrengine,count(*) as tables from information_schema.tables where table_type = \'BASE TABLE\' and table_schema not in (\'information_schema\', \'sys\', \'performance_schema\', \'mysql\') group by table_schema order by table_schema;`
@@ -98,16 +102,16 @@ export default (app: Application): void => {
         promiseResolve()
         if ((prepareDb || forceRefresh) && (isDev || process.env.EXIT_ON_DB_INIT === 'true')) process.exit(0)
       } catch (err) {
-        logger.info('Sequelize setup error')
-        logger.info(err)
-        // promiseReject()
-        // throw err
+        logger.error('Sequelize setup error')
+        logger.error(err)
+        promiseReject()
+        throw err
       }
 
       return oldSetup.apply(this, args)
     }
   } catch (err) {
-    logger.info('Error in app/sequelize.ts')
-    logger.info(err)
+    logger.error('Error in app/sequelize.ts')
+    logger.error(err)
   }
 }
