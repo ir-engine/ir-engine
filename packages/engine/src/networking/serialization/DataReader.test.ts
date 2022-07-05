@@ -17,8 +17,8 @@ import { VelocityComponent } from '../../physics/components/VelocityComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { XRHandsInputComponent } from '../../xr/components/XRHandsInputComponent'
 import { XRHandBones } from '../../xr/types/XRHandBones'
-import { NetworkObjectAuthorityTag } from '../components/NetworkObjectAuthorityTag'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
+import { NetworkObjectOwnedTag } from '../components/NetworkObjectOwnedTag'
 import {
   checkBitflag,
   createDataReader,
@@ -537,7 +537,7 @@ describe('DataReader', () => {
       parameters: {}
     })
 
-    addComponent(entity, NetworkObjectAuthorityTag, {})
+    addComponent(entity, NetworkObjectOwnedTag, {})
 
     writeEntity(view, networkId, entity)
 

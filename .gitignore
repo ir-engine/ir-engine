@@ -6,7 +6,6 @@ node_modules/
 *.swo
 
 # npm / yarn / pnpm
-package-lock.json
 yarn.lock
 yarn-error.log
 .yarn/
@@ -159,6 +158,7 @@ packages/server/upload/
 
 /packages/client/public/projects/*
 /packages/projects/projects/*
+/packages/projects/package-lock.json
 
 # ignore all files other than template in ripple config folder
 /packages/ops/rippled/config/
