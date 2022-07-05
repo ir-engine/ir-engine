@@ -5,7 +5,8 @@
   "homepage": "xrengine.io",
   "private": true,
   "workspaces": [
-    "packages/*"
+    "packages/*",
+    "packages/projects/projects/*"
   ],
   "keywords": [
     "three",
@@ -35,7 +36,6 @@
   },
   "npmClient": "npm",
   "scripts": {
-    "postinstall": "cd packages/projects && npm install",
     "build-publish": "lerna run build-publish --parallel",
     "build-client": "cd packages/client && npm run build",
     "check": "npm run lint && npm run check-errors && npm run test && npm run test-e2e && npm run build-client",
