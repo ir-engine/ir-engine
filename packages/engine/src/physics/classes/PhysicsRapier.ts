@@ -193,8 +193,9 @@ function createRigidBodyForObject(
 
 function removeCollidersFromRigidBody(entity: Entity, world: World) {
   const rigidBody = getComponent(entity, RigidBodyComponent)
-  for (let index = 0; index < rigidBody.numColliders(); index++) {
-    const collider = rigidBody.collider(index)
+  const numColliders = rigidBody.numColliders()
+  for (let index = 0; index < numColliders; index++) {
+    const collider = rigidBody.collider(0)
     world.removeCollider(collider, true)
   }
 }
@@ -268,7 +269,6 @@ function drainCollisionEventQueue(world: World, collisionEventQueue: EventQueue)
     const entity1 = (rigidBody1?.userData as any)['entity']
     const entity2 = (rigidBody2?.userData as any)['entity']
 
-    console.log(collider1, collider2, started)
     const collisionComponent1 = getComponent(entity1, RapierCollisionComponent)
     const collisionComponent2 = getComponent(entity2, RapierCollisionComponent)
 
