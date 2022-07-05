@@ -2,11 +2,13 @@ import { clearOutgoingActions } from '@xrengine/hyperflux'
 
 import { Engine } from '../../ecs/classes/Engine'
 import { World } from '../../ecs/classes/World'
+import { NetworkTopics } from '../classes/Network'
 
 const sendOutgoingActions = (world: World) => {
+  const { queue } = Engine.instance.store.actions.outgoing[NetworkTopics.world]
   for (const [instanceId, network] of world.networks) {
     try {
-      network.sendActions(Engine.instance.store.actions.outgoing[instanceId].queue)
+      network.sendActions(queue)
     } catch (e) {
       console.error(e)
     }

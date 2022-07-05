@@ -1,18 +1,28 @@
-import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { addTopic } from '@xrengine/hyperflux'
-import { Action } from '@xrengine/hyperflux/functions/ActionFunctions'
+import { Action, Topic } from '@xrengine/hyperflux/functions/ActionFunctions'
 
 import { RingBuffer } from '../../common/classes/RingBuffer'
 import { Engine } from '../../ecs/classes/Engine'
 import { NetworkPeer } from '../interfaces/NetworkPeer'
 
+/**
+ * Network types distinguish differences in functionality.
+ */
 export const NetworkTypes = {
   world: 'world' as const,
   media: 'media' as const
 }
 
 export type NetworkType = typeof NetworkTypes[keyof typeof NetworkTypes]
+
+/**
+ * Network topics are classes of networks. Topics are used to disitinguish between multiple networks of the same type.
+ */
+export const NetworkTopics = {
+  world: 'world' as Topic,
+  media: 'media' as Topic
+}
 
 /** Interface for the Transport. */
 export class Network {
@@ -96,6 +106,5 @@ export class Network {
 
   constructor(hostId) {
     this.hostId = hostId
-    addTopic(hostId)
   }
 }

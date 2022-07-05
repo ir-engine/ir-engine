@@ -4,7 +4,7 @@ import { useAuthState } from '@xrengine/client-core/src/user/services/AuthServic
 import { SpawnPoints } from '@xrengine/engine/src/avatar/AvatarSpawnSystem'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { getEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
-import { Network } from '@xrengine/engine/src/networking/classes/Network'
+import { Network, NetworkTopics } from '@xrengine/engine/src/networking/classes/Network'
 import { receiveJoinWorld } from '@xrengine/engine/src/networking/functions/receiveJoinWorld'
 import { WorldNetworkAction } from '@xrengine/engine/src/networking/functions/WorldNetworkAction'
 import { WorldNetworkActionReceptor } from '@xrengine/engine/src/networking/functions/WorldNetworkActionReceptor'
@@ -32,7 +32,7 @@ export const OfflineLocation = () => {
         WorldNetworkAction.createPeer({
           index: index,
           name: authState.user.name.value,
-          $topic: userId
+          $topic: NetworkTopics.world
         })
       )
 

@@ -23,6 +23,7 @@ import {
   removeComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
+import { NetworkTopics } from '../../networking/classes/Network'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { NetworkObjectOwnedTag } from '../../networking/components/NetworkObjectOwnedTag'
 import { joinCurrentWorld } from '../../networking/functions/joinWorld'
@@ -337,7 +338,7 @@ export default async function CameraSystem(world: World) {
     }
 
     for (const entity of localAvatarQuery.enter()) {
-      dispatchAction(WorldNetworkAction.spawnCamera(), [world.worldNetwork.hostId])
+      dispatchAction(WorldNetworkAction.spawnCamera(), NetworkTopics.world)
     }
 
     if (EngineRenderer.instance.xrManager?.isPresenting) {

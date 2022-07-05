@@ -3,7 +3,6 @@ import { defineAction } from '@xrengine/hyperflux'
 import { matchesWeightsParameters } from '../../avatar/animation/Util'
 import {
   matches,
-  matchesHost,
   matchesNetworkId,
   matchesQuaternion,
   matchesUserId,

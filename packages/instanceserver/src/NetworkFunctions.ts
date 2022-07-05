@@ -12,6 +12,7 @@ import checkPositionIsValid from '@xrengine/engine/src/common/functions/checkPos
 import { performance } from '@xrengine/engine/src/common/functions/performance'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { NetworkTopics } from '@xrengine/engine/src/networking/classes/Network'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
 import { JoinWorldProps, JoinWorldRequestData } from '@xrengine/engine/src/networking/functions/receiveJoinWorld'
 import { WorldNetworkAction } from '@xrengine/engine/src/networking/functions/WorldNetworkAction'
@@ -296,7 +297,7 @@ const getCachedActions = (network: SocketWebRTCServerNetwork, joinedUserId: User
 
   // send all cached and outgoing actions to joining user
   const cachedActions = [] as Required<Action>[]
-  for (const action of Engine.instance.store.actions.cached[network.hostId] as Array<
+  for (const action of Engine.instance.store.actions.cached[NetworkTopics.world] as Array<
     ReturnType<typeof WorldNetworkAction.spawnAvatar>
   >) {
     // we may have a need to remove the check for the prefab type to enable this to work for networked objects too
@@ -305,6 +306,7 @@ const getCachedActions = (network: SocketWebRTCServerNetwork, joinedUserId: User
       if (ownerId) {
         const entity = world.getNetworkObject(ownerId, action.networkId)
         if (typeof entity !== 'undefined') {
+          console.log(action)
           const transform = getComponent(entity, TransformComponent)
           action.parameters.position = transform.position
           action.parameters.rotation = transform.rotation
@@ -408,7 +410,7 @@ export function handleIncomingActions(network: SocketWebRTCServerNetwork, socket
   for (const a of actions) {
     a['$fromSocketId'] = socket.id
     a.$from = userIdMap[socket.id]
-    dispatchAction(a, [network.hostId])
+    dispatchAction(a, a.$topic)
   }
   // logger.info('SERVER INCOMING ACTIONS: %s', JSON.stringify(actions))
 }
@@ -430,7 +432,7 @@ export async function handleDisconnect(network: SocketWebRTCServerNetwork, socke
   // The new connection will overwrite the socketID for the user's client.
   // This will only clear transports if the client's socketId matches the socket that's disconnecting.
   if (socket.id === disconnectedClient?.socketId) {
-    dispatchAction(WorldNetworkAction.destroyPeer({ $from: userId }), [network.hostId])
+    dispatchAction(WorldNetworkAction.destroyPeer({ $from: userId }), NetworkTopics.world) /** @todo */
     logger.info('Disconnecting clients for user ' + userId)
     if (disconnectedClient?.instanceRecvTransport) disconnectedClient.instanceRecvTransport.close()
     if (disconnectedClient?.instanceSendTransport) disconnectedClient.instanceSendTransport.close()
@@ -451,13 +453,13 @@ export async function handleLeaveWorld(
   for (const [, transport] of Object.entries(network.mediasoupTransports))
     if ((transport as any).appData.peerId === userId) closeTransport(network, transport)
   if (network.peers.has(userId)) {
-    dispatchAction(WorldNetworkAction.destroyPeer({ $from: userId }))
+    dispatchAction(WorldNetworkAction.destroyPeer({ $from: userId }), NetworkTopics.world) /** @todo */
   }
   if (callback !== undefined) callback({})
 }
 
 export function clearCachedActionsForDisconnectedUsers(network: SocketWebRTCServerNetwork) {
-  const cached = Engine.instance.store.actions.cached[network.hostId]
+  const cached = Engine.instance.store.actions.cached[NetworkTopics.world]
   for (const action of [...cached]) {
     if (!network.peers.has(action.$from)) {
       const idx = cached.indexOf(action)
@@ -467,7 +469,7 @@ export function clearCachedActionsForDisconnectedUsers(network: SocketWebRTCServ
 }
 
 export function clearCachedActionsForUser(network: SocketWebRTCServerNetwork, user: UserId) {
-  const cached = Engine.instance.store.actions.cached[network.hostId]
+  const cached = Engine.instance.store.actions.cached[NetworkTopics.world]
   for (const action of [...cached]) {
     if (action.$from === user) {
       const idx = cached.indexOf(action)

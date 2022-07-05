@@ -18,6 +18,7 @@ import { UserApiKey } from '@xrengine/common/src/interfaces/UserApiKey'
 import { UserAvatar } from '@xrengine/common/src/interfaces/UserAvatar'
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { NetworkTopics } from '@xrengine/engine/src/networking/classes/Network'
 import { WorldNetworkAction } from '@xrengine/engine/src/networking/functions/WorldNetworkAction'
 import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
@@ -774,7 +775,7 @@ export const AuthService = {
               thumbnailURL
             }
           }),
-          Engine.instance.currentWorld.worldNetwork.hostId
+          NetworkTopics.world
         )
       })
   },

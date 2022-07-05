@@ -44,6 +44,7 @@ import {
   unequipEntity
 } from '../interaction/functions/equippableFunctions'
 import { AutoPilotClickRequestComponent } from '../navigation/component/AutoPilotClickRequestComponent'
+import { NetworkTopics } from '../networking/classes/Network'
 import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
 import { boxDynamicConfig } from '../physics/functions/physicsObjectDebugFunctions'
 import { accessEngineRendererState, EngineRendererAction } from '../renderer/EngineRendererState'
@@ -530,7 +531,7 @@ export const handlePhysicsDebugEvent = (entity: Entity, inputKey: InputAlias, in
       WorldNetworkAction.spawnDebugPhysicsObject({
         config: boxDynamicConfig // Any custom config can be provided here
       }),
-      Engine.instance.currentWorld.worldNetwork.hostId
+      NetworkTopics.world
     )
   } else if (inputKey === PhysicsDebugInput.TOGGLE_PHYSICS_DEBUG) {
     dispatchAction(

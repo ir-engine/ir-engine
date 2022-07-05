@@ -42,7 +42,6 @@ export class SocketWebRTCClientNetwork extends Network {
 
   sendActions(actions: Action[]) {
     if (!actions.length) return
-    for (const action of actions) action.$topic = undefined!
     this.socket?.emit(MessageTypes.ActionData.toString(), /*encode(*/ actions) //)
   }
 

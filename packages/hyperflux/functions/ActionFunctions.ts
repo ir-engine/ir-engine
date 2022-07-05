@@ -1,10 +1,13 @@
 import { MathUtils } from 'three'
 import { matches, Validator } from 'ts-matches'
 
+import { OpaqueType } from '@xrengine/common/src/interfaces/OpaqueType'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { deepEqual } from '@xrengine/engine/src/common/functions/deepEqual'
 
 import { HyperFlux } from './StoreFunctions'
+
+export type Topic = OpaqueType<'topicId'> & string
 
 export type Action = {
   /**
@@ -54,7 +57,7 @@ export type ActionOptions = {
    */
   $time?: number | undefined
 
-  $topic?: string
+  $topic?: Topic
 
   /**
    * Specifies how this action should be cached for newly joining clients.
@@ -246,7 +249,7 @@ function defineAction<Shape extends ActionShape<Action>>(actionShape: Shape) {
  */
 const dispatchAction = <A extends Action>(
   action: A,
-  topics: string | string[] = HyperFlux.store.defaultTopic,
+  topics: Topic | Topic[] = HyperFlux.store.defaultTopic,
   store = HyperFlux.store
 ) => {
   const storeId = store.getDispatchId()

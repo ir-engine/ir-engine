@@ -34,10 +34,6 @@ const matchesQuaternion = matches.guard((v): v is Quaternion => matchesQuatShape
 const matchesUserId = matches.string as Validator<unknown, UserId>
 const matchesNetworkId = matches.number as Validator<unknown, NetworkId>
 
-const matchesHost = matches.guard<unknown, UserId | undefined>(($from): $from is UserId => {
-  return $from === Engine.instance.currentWorld.worldNetwork.hostId
-})
-
 const matchesActionFromUser = (userId: UserId) => {
   return matches.shape({ $from: matches.literal(userId) })
 }
@@ -48,12 +44,4 @@ const matchesWithDefault = <A>(matches: Validator<unknown, A>, defaultValue: () 
   return { matches, defaultValue }
 }
 
-export {
-  matchesUserId,
-  matchesNetworkId,
-  matchesHost,
-  matchesVector3,
-  matchesQuaternion,
-  matchesActionFromUser,
-  matchesWithDefault
-}
+export { matchesUserId, matchesNetworkId, matchesVector3, matchesQuaternion, matchesActionFromUser, matchesWithDefault }

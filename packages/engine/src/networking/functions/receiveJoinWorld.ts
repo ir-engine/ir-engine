@@ -7,6 +7,7 @@ import { Action } from '@xrengine/hyperflux/functions/ActionFunctions'
 
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions, getEngineState } from '../../ecs/classes/EngineState'
+import { NetworkTopics } from '../classes/Network'
 import { AvatarProps } from '../interfaces/WorldState'
 import { WorldNetworkAction } from './WorldNetworkAction'
 
@@ -53,12 +54,12 @@ export const receiveJoinWorld = (props: JoinWorldProps) => {
 
   for (const action of cachedActions) Engine.instance.store.actions.incoming.push({ ...action, $fromCache: true })
 
-  dispatchAction(WorldNetworkAction.createPeer(client), world.worldNetwork.hostId)
+  dispatchAction(WorldNetworkAction.createPeer(client), NetworkTopics.world)
 
   if (spectateUserId) {
     if (spectateUserId !== 'none') dispatchAction(EngineActions.spectateUser({ user: spectateUserId }))
   } else if (spawnPose) {
-    dispatchAction(WorldNetworkAction.spawnAvatar({ parameters: spawnPose }), world.worldNetwork.hostId)
-    dispatchAction(WorldNetworkAction.avatarDetails({ avatarDetail }), world.worldNetwork.hostId)
+    dispatchAction(WorldNetworkAction.spawnAvatar({ parameters: spawnPose }), NetworkTopics.world)
+    dispatchAction(WorldNetworkAction.avatarDetails({ avatarDetail }), NetworkTopics.world)
   }
 }

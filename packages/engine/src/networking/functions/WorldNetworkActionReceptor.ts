@@ -7,7 +7,7 @@ import { getEngineState } from '../../ecs/classes/EngineState'
 import { addComponent, getComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity, removeEntity } from '../../ecs/functions/EntityFunctions'
 import { generatePhysicsObject } from '../../physics/functions/physicsObjectDebugFunctions'
-import { Network } from '../classes/Network'
+import { Network, NetworkTopics } from '../classes/Network'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
 import { NetworkObjectOwnedTag } from '../components/NetworkObjectOwnedTag'
 import { WorldNetworkAction } from './WorldNetworkAction'
@@ -19,7 +19,7 @@ const removeAllNetworkPeers = (
 ) => {
   for (const [userId] of network.peers) {
     WorldNetworkActionReceptor.receiveDestroyPeers(
-      WorldNetworkAction.destroyPeer({ $from: userId, $topic: network.hostId }),
+      WorldNetworkAction.destroyPeer({ $from: userId, $topic: NetworkTopics.world }),
       removeSelf,
       world
     )
@@ -30,7 +30,7 @@ const receiveCreatePeers = (
   action: typeof WorldNetworkAction.createPeer.matches._TYPE,
   world = Engine.instance.currentWorld
 ) => {
-  const network = world.networks.get(action.$topic)!
+  const network = action.$topic === NetworkTopics.world ? world.worldNetwork : world.mediaNetwork
   // set utility maps - override if moving through portal
   network.userIdToUserIndex.set(action.$from, action.index)
   network.userIndexToUserId.set(action.index, action.$from)
@@ -57,7 +57,7 @@ const receiveDestroyPeers = (
   allowRemoveSelf = false,
   world = Engine.instance.currentWorld
 ) => {
-  const network = world.networks.get(action.$topic)!
+  const network = action.$topic === NetworkTopics.world ? world.worldNetwork : world.mediaNetwork
   if (!network.peers.has(action.$from))
     return console.warn(
       `[WorldNetworkActionReceptors]: tried to remove client with userId ${action.$from} that doesn't exit`
@@ -184,7 +184,7 @@ const receiveRequestAuthorityOverObject = (
       object: action.object,
       newAuthor: action.requester
     }),
-    Engine.instance.currentWorld.worldNetwork.hostId
+    NetworkTopics.world
   )
 }
 
@@ -225,7 +225,7 @@ const receiveSetEquippedObject = (
         object: action.object,
         requester: action.$from
       }),
-      Engine.instance.currentWorld.worldNetwork.hostId
+      NetworkTopics.world
     )
   } else {
     dispatchAction(
@@ -233,7 +233,7 @@ const receiveSetEquippedObject = (
         object: action.object,
         requester: Engine.instance.currentWorld.worldNetwork.hostId
       }),
-      Engine.instance.currentWorld.worldNetwork.hostId
+      NetworkTopics.world
     )
   }
 }

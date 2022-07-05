@@ -3,7 +3,7 @@ import { Consumer, DataProducer, Producer, Router, Transport, WebRtcTransport, W
 import { MediaStreamAppData } from '@xrengine/common/src/interfaces/MediaStreamConstants'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { Network } from '@xrengine/engine/src/networking/classes/Network'
+import { Network, NetworkTopics } from '@xrengine/engine/src/networking/classes/Network'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
 import { Action } from '@xrengine/hyperflux/functions/ActionFunctions'
 import { Application } from '@xrengine/server-core/declarations'
@@ -47,10 +47,9 @@ export class SocketWebRTCServerNetwork extends Network {
       const arr: Action[] = []
       for (const a of [...actions]) {
         const action = { ...a }
-        action.$topic = undefined!
-        if (outgoing[this.hostId].historyUUIDs.has(action.$uuid)) {
-          const idx = outgoing[this.hostId].queue.indexOf(action)
-          outgoing[this.hostId].queue.splice(idx, 1)
+        if (outgoing[NetworkTopics.world].historyUUIDs.has(action.$uuid)) {
+          const idx = outgoing[NetworkTopics.world].queue.indexOf(action)
+          outgoing[NetworkTopics.world].queue.splice(idx, 1)
         }
         if (!action.$to) continue
         const toUserId = userIdMap[socketID]
