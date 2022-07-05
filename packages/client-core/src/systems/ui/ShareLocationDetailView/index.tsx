@@ -47,15 +47,13 @@ const ShareLocationDetailView = () => {
             }
             endIconClick={copyLinkToClipboard}
           />
-          <div className="phoneEmailBox">
-            <XRInput
-              aria-invalid="false"
-              placeholder={t('user:usermenu.share.ph-phoneEmail')}
-              type="text"
-              value={email}
-              onChange={(e) => handleChange(e)}
-            />
-          </div>
+          <XRInput
+            aria-invalid="false"
+            placeholder={t('user:usermenu.share.ph-phoneEmail')}
+            type="text"
+            value={email}
+            onChange={(e) => handleChange(e)}
+          />
           <div className="sendInvitationContainer">
             <button onClick={packageInvite} className="sendInvitationButton" type="button">
               {t('user:usermenu.share.lbl-send-invite')}

@@ -2,7 +2,7 @@ import React from 'react'
 
 import styleString from './index.scss'
 
-const XRInput = (props) => {
+const XRInput = React.forwardRef((props: any, ref) => {
   const { border = true, startIcon, startIconClick, endIcon, endIconClick, ...inputProps } = props
 
   return (
@@ -15,7 +15,7 @@ const XRInput = (props) => {
               {startIcon}
             </div>
           )}
-          <input type="text" className="inputField" {...inputProps} />
+          <input ref={ref} type="text" className="inputField" {...inputProps} />
           {endIcon && (
             <div className="endIconContainer" onClick={endIconClick}>
               {endIcon}
@@ -28,6 +28,6 @@ const XRInput = (props) => {
       </div>
     </>
   )
-}
+})
 
 export default XRInput
