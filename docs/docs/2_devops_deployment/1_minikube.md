@@ -17,7 +17,7 @@ your minikube cluster, since we have some specific starting requirements.
 ## Clone this repo to your local machine
 To build the XREngine Docker image locally, and to have a pre-tested way to run various local
 services, you'll need to get the XREngine repo on your machine. This is most easily
-done by running `git clone https://github.com:XRFoundation/XREngine.git`
+done by running `git clone https://github.com/XRFoundation/XREngine.git`
 
 ## Start MariaDB server locally via Docker
 For simplicity, we recommend running a MariaDB server on your local machine outside of minikube.
