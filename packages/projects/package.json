@@ -3,9 +3,6 @@
   "version": "0.5.7",
   "main": "index.ts",
   "private": true,
-  "workspaces": [
-    "projects/*"
-  ],
   "description": "",
   "scripts": {
     "update-name-gh-package": "node scripts/update-name-gh-package.js"
