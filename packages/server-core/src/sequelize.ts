@@ -98,16 +98,16 @@ export default (app: Application): void => {
         promiseResolve()
         if ((prepareDb || forceRefresh) && (isDev || process.env.EXIT_ON_DB_INIT === 'true')) process.exit(0)
       } catch (err) {
-        logger.error('Sequelize setup error')
-        logger.error(err)
-        promiseReject()
-        throw err
+        logger.info('Sequelize setup error')
+        logger.info(err)
+        // promiseReject()
+        // throw err
       }
 
       return oldSetup.apply(this, args)
     }
   } catch (err) {
-    logger.error('Error in app/sequelize.ts')
-    logger.error(err)
+    logger.info('Error in app/sequelize.ts')
+    logger.info(err)
   }
 }
