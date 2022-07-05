@@ -1,5 +1,5 @@
 import type { WebContainer3D } from '@etherealjs/web-layer/three'
-import { MathUtils, Object3D, PerspectiveCamera } from 'three'
+import { MathUtils, Object3D, PerspectiveCamera, Vector3 } from 'three'
 
 import { AvatarAnimationComponent } from '../../avatar/components/AvatarAnimationComponent'
 import { HALF_PI } from '../../common/constants/MathConstants'
@@ -53,7 +53,12 @@ export const ObjectFitFunctions = {
   attachObjectInFrontOfCamera: (obj: Object3D, scale: number, distance: number) => {
     obj.scale.x = obj.scale.y = scale
     obj.position.z = -distance
-    if (obj.parent !== Engine.instance.currentWorld.camera) Engine.instance.currentWorld.camera.add(obj)
+    // obj.rotation.z = 0
+    // obj.rotation.y = 0
+    if (obj.parent !== Engine.instance.currentWorld.camera) {
+      obj.removeFromParent()
+      Engine.instance.currentWorld.camera.add(obj)
+    }
   },
 
   attachObjectToHand: (container: WebContainer3D, scale: number) => {
@@ -61,28 +66,32 @@ export const ObjectFitFunctions = {
     const avatarAnimationComponent = getComponent(userEntity, AvatarAnimationComponent)
     if (avatarAnimationComponent && avatarAnimationComponent.rig.LeftHand) {
       // todo: figure out how to scale this properly
-      container.scale.x = container.scale.y = 0.5 * scale
+      // container.scale.x = container.scale.y = 0.5 * scale
       // todo: use handedness option to settings
-      if (container.parent !== avatarAnimationComponent.rig.LeftHand)
-        avatarAnimationComponent.rig.LeftHand.add(container)
+      if (container.parent !== Engine.instance.currentWorld.scene) {
+        container.removeFromParent()
+        Engine.instance.currentWorld.scene.add(container)
+      }
+      avatarAnimationComponent.rig.LeftHand.getWorldPosition(container.position)
       // container.position.z = 0.1
       container.updateMatrixWorld(true)
-      container.rotation.z = HALF_PI
-      container.rotation.y = HALF_PI
+      // container.rotation.z = HALF_PI
+      // container.rotation.y = HALF_PI
     }
   },
 
-  attachObjectToPreferredTransform: (container: WebContainer3D) => {
-    const distance = 1
-    const scale = ObjectFitFunctions.computeContentFitScaleForCamera(
-      distance,
-      container.rootLayer.domSize.x,
-      container.rootLayer.domSize.y
-    )
+  attachObjectToPreferredTransform: (container: WebContainer3D, distance = 0.1, scale?: number) => {
+    const fitScale =
+      scale ??
+      ObjectFitFunctions.computeContentFitScaleForCamera(
+        distance,
+        container.rootLayer.domSize.x,
+        container.rootLayer.domSize.y
+      )
     if (getEngineState().xrSessionStarted.value) {
-      ObjectFitFunctions.attachObjectToHand(container, 1)
+      ObjectFitFunctions.attachObjectToHand(container, 10)
     } else {
-      ObjectFitFunctions.attachObjectInFrontOfCamera(container, scale, distance)
+      ObjectFitFunctions.attachObjectInFrontOfCamera(container, fitScale, distance)
     }
   },
 
