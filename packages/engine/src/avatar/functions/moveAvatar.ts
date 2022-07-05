@@ -64,22 +64,9 @@ export const moveAvatar = (world: World, entity: Entity, camera: PerspectiveCame
     collidersInContactWithFeet.push(otherCollider)
   })
 
-  let contactDistance = 0
   collidersInContactWithFeet.forEach((otherCollider) => {
     physicsWorld.contactPair(avatarFeetCollider, otherCollider, (manifold, flipped) => {
-      for (let index = 0; index < manifold.numContacts(); index++) {
-        onGround = true
-        if (flipped) {
-          contactDistance += (manifold.localContactPoint1(index) as Vector).y
-          tempVec1.set(manifold.localNormal1().x, manifold.localNormal1().y, manifold.localNormal1().z)
-          contactNormal.add(tempVec1)
-        } else {
-          tempVec1.set(manifold.localNormal2().x, manifold.localNormal2().y, manifold.localNormal2().z)
-          contactNormal.add(tempVec1)
-        }
-      }
-      contactNormal.divideScalar(manifold.numContacts() + 1)
-      contactDistance = contactDistance / manifold.numContacts()
+      if (manifold.numContacts() > 0) onGround = true
     })
   })
 
@@ -140,7 +127,7 @@ export const moveAvatar = (world: World, entity: Entity, camera: PerspectiveCame
     }
   } else {
     // apply gravity to avatar velocity
-    velocity.linear.y -= 0.12 * timeStep
+    velocity.linear.y -= 0.15 * timeStep
   }
 
   // clamp velocities [-1 .. 1]
