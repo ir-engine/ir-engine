@@ -1,7 +1,12 @@
-import { Group } from 'three'
+import { BufferGeometry, Group, Mesh, MeshBasicMaterial } from 'three'
 
 import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
 import { QuaternionSchema, Vector3Schema } from '../../transform/components/TransformComponent'
+
+export type ControllerGroup = Group & {
+  targetRay: Mesh<BufferGeometry, MeshBasicMaterial>
+  cursor: Mesh<BufferGeometry, MeshBasicMaterial>
+}
 
 export type XRInputSourceComponentType = {
   // Flatten the controller hirearchy
@@ -13,12 +18,12 @@ export type XRInputSourceComponentType = {
   controllerGripRightParent: Group
 
   /**
-   * @property {Group} controllerLeft
-   * @property {Group} controllerRight
+   * @property {ControllerGroup} controllerLeft
+   * @property {ControllerGroup} controllerRight
    * the controllers
    */
-  controllerLeft: Group
-  controllerRight: Group
+  controllerLeft: ControllerGroup
+  controllerRight: ControllerGroup
 
   /**
    * @property {Group} controllerGripLeft

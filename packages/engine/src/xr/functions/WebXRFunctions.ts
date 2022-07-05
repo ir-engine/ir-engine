@@ -15,7 +15,11 @@ import { addComponent, getComponent, hasComponent, removeComponent } from '../..
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { XRInputSourceComponent, XRInputSourceComponentType } from '../../xr/components/XRInputSourceComponent'
+import {
+  ControllerGroup,
+  XRInputSourceComponent,
+  XRInputSourceComponentType
+} from '../../xr/components/XRInputSourceComponent'
 import { XRHandsInputComponent } from '../components/XRHandsInputComponent'
 import { initializeHandModel } from './addControllerModels'
 
@@ -104,8 +108,8 @@ export function setupXRCameraForLocalEntity(entity: Entity) {
 export const setupXRInputSourceComponent = (entity: Entity): XRInputSourceComponentType => {
   const container = new Group(),
     head = new Group(),
-    controllerLeft = new Group(),
-    controllerRight = new Group(),
+    controllerLeft = new Group() as ControllerGroup,
+    controllerRight = new Group() as ControllerGroup,
     controllerGripLeft = new Group(),
     controllerGripRight = new Group(),
     controllerLeftParent = new Group(),

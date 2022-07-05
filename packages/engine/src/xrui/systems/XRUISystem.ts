@@ -1,4 +1,4 @@
-import { Color, Mesh, Raycaster } from 'three'
+import { Color, Mesh, MeshBasicMaterial, Raycaster } from 'three'
 
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { dispatchAction } from '@xrengine/hyperflux'
@@ -81,49 +81,55 @@ export default async function XRUISystem(world: World) {
   const updateControllerRayInteraction = (inputComponent: XRInputSourceComponentType) => {
     const controllers = [inputComponent.controllerLeft, inputComponent.controllerRight]
 
-    for (const entity of xruiQuery()) {
-      const layer = getComponent(entity, XRUIComponent).container
+    for (const [i, controller] of controllers.entries()) {
+      const cursor = controller.cursor
+      let hit = null! as any
 
-      for (const [i, controller] of controllers.entries()) {
-        const hit = layer.hitTest(controller)
-        const cursor = (controller as any).cursor as Mesh
+      for (const entity of xruiQuery()) {
+        const layer = getComponent(entity, XRUIComponent).container
 
-        if (hit) {
-          const interactable = window.getComputedStyle(hit.target).cursor == 'pointer'
+        /**
+         * get closest hit from all XRUIs
+         */
+        const layerHit = layer.hitTest(controller)
+        if (layerHit && (!hit || layerHit.intersection.distance < hit.intersection.distance)) hit = layerHit
+      }
 
-          if (cursor) {
-            cursor.visible = true
-            cursor.position.copy(hit.intersection.point)
-            controller.worldToLocal(cursor.position)
+      if (hit) {
+        const interactable = window.getComputedStyle(hit.target).cursor == 'pointer'
 
-            if (interactable) {
-              ;(cursor.material as any).color = hitColor
-            } else {
-              ;(cursor.material as any).color = normalColor
-            }
-          }
+        if (cursor) {
+          cursor.visible = true
+          cursor.position.copy(hit.intersection.point)
+          controller.worldToLocal(cursor.position)
 
           if (interactable) {
-            if (!hit.target.id) {
-              hit.target.id = 'interactable-' + ++idCounter
-            }
-
-            const lastHit = controllerLastHitTarget[i]
-
-            if (lastHit != hit.target.id) {
-              console.log(lastHit, hit.target.id)
-              hoverAudio.pause()
-              hoverAudio.currentTime = 0
-              hoverAudio.play()
-            }
-
-            controllerLastHitTarget[i] = hit.target.id
+            cursor.material.color = hitColor
+          } else {
+            cursor.material.color = normalColor
           }
-        } else {
-          if (cursor) {
-            ;(cursor.material as any).color = normalColor
-            cursor.visible = false
+        }
+
+        if (interactable) {
+          if (!hit.target.id) {
+            hit.target.id = 'interactable-' + ++idCounter
           }
+
+          const lastHit = controllerLastHitTarget[i]
+
+          if (lastHit != hit.target.id) {
+            console.log(lastHit, hit.target.id)
+            hoverAudio.pause()
+            hoverAudio.currentTime = 0
+            hoverAudio.play()
+          }
+
+          controllerLastHitTarget[i] = hit.target.id
+        }
+      } else {
+        if (cursor) {
+          cursor.material.color = normalColor
+          cursor.visible = false
         }
       }
     }
