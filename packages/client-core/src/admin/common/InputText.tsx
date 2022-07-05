@@ -22,6 +22,7 @@ interface Props {
   endAdornment?: React.ReactNode
   sx?: SxProps<Theme>
   onChange?: (e: any) => void
+  onKeyDown?: (e: any) => void
 }
 
 const InputText = ({
@@ -36,7 +37,8 @@ const InputText = ({
   startAdornment,
   endAdornment,
   sx,
-  onChange
+  onChange,
+  onKeyDown
 }: Props) => {
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', mb: 2, ...sx }}>
@@ -52,6 +54,7 @@ const InputText = ({
         disabled={disabled}
         size={'small'}
         onChange={onChange}
+        onKeyDown={onKeyDown}
         InputProps={{
           className: styles.input,
           startAdornment: startAdornment,

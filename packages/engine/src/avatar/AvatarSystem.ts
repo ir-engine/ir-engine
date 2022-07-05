@@ -5,6 +5,7 @@ import { createActionQueue } from '@xrengine/hyperflux'
 import { isClient } from '../common/functions/isClient'
 import { Object3DUtils } from '../common/functions/Object3DUtils'
 import { Engine } from '../ecs/classes/Engine'
+import { Entity } from '../ecs/classes/Entity'
 import { World } from '../ecs/classes/World'
 import {
   addComponent,
@@ -13,25 +14,25 @@ import {
   hasComponent,
   removeComponent
 } from '../ecs/functions/ComponentFunctions'
-import { AvatarControllerType } from '../input/enums/InputEnums'
 import { isEntityLocalClient } from '../networking/functions/isEntityLocalClient'
 import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
 import { RaycastComponent } from '../physics/components/RaycastComponent'
 import { VelocityComponent } from '../physics/components/VelocityComponent'
+import { Object3DComponent } from '../scene/components/Object3DComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { XRLGripButtonComponent, XRRGripButtonComponent } from '../xr/components/XRGripButtonComponent'
 import { XRHandsInputComponent } from '../xr/components/XRHandsInputComponent'
 import { XRInputSourceComponent } from '../xr/components/XRInputSourceComponent'
 import { initializeHandModel, initializeXRInputs } from '../xr/functions/addControllerModels'
 import { playTriggerPressAnimation, playTriggerReleaseAnimation } from '../xr/functions/controllerAnimation'
-import { proxifyXRInputs } from '../xr/functions/WebXRFunctions'
+import { proxifyXRInputs, setupXRInputSourceComponent } from '../xr/functions/WebXRFunctions'
 import { AvatarAnimationComponent } from './components/AvatarAnimationComponent'
 import { AvatarComponent } from './components/AvatarComponent'
 import { AvatarControllerComponent } from './components/AvatarControllerComponent'
+import { AvatarEffectComponent } from './components/AvatarEffectComponent'
 import { AvatarHandsIKComponent } from './components/AvatarHandsIKComponent'
 import { AvatarHeadIKComponent } from './components/AvatarHeadIKComponent'
 import { loadAvatarForUser } from './functions/avatarFunctions'
-import { accessAvatarInputSettingsState } from './state/AvatarInputSettingsState'
 
 export function avatarDetailsReceptor(
   action: ReturnType<typeof WorldNetworkAction.avatarDetails>,
@@ -57,26 +58,7 @@ export function setXRModeReceptor(
 
   if (action.enabled) {
     if (!hasComponent(entity, XRInputSourceComponent)) {
-      const inputData = {
-        controllerLeftParent: new Group(),
-        controllerRightParent: new Group(),
-        controllerGripLeftParent: new Group(),
-        controllerGripRightParent: new Group(),
-
-        controllerLeft: new Group(),
-        controllerRight: new Group(),
-        controllerGripLeft: new Group(),
-        controllerGripRight: new Group(),
-        container: new Group(),
-        head: new Group()
-      }
-
-      inputData.controllerLeftParent.add(inputData.controllerLeft)
-      inputData.controllerRightParent.add(inputData.controllerRight)
-      inputData.controllerGripLeftParent.add(inputData.controllerGripLeft)
-      inputData.controllerGripRightParent.add(inputData.controllerGripRight)
-
-      addComponent(entity, XRInputSourceComponent, inputData as any)
+      setupXRInputSourceComponent(entity)
     }
   } else if (hasComponent(entity, XRInputSourceComponent)) {
     removeComponent(entity, XRInputSourceComponent)
@@ -86,10 +68,10 @@ export function setXRModeReceptor(
 export function xrHandsConnectedReceptor(
   action: ReturnType<typeof WorldNetworkAction.xrHandsConnected>,
   world = Engine.instance.currentWorld
-) {
-  if (action.$from === Engine.instance.userId) return
+): boolean {
+  if (action.$from === Engine.instance.userId) return false
   const entity = world.getUserAvatarEntity(action.$from)
-  if (!entity) return
+  if (!entity) return false
 
   if (!hasComponent(entity, XRHandsInputComponent)) {
     addComponent(entity, XRHandsInputComponent, {
@@ -102,13 +84,15 @@ export function xrHandsConnectedReceptor(
   xrInputSource.hands.forEach((controller: any, i: number) => {
     initializeHandModel(entity, controller, i === 0 ? 'left' : 'right')
   })
+
+  return true
 }
 
 export function teleportObjectReceptor(
   action: ReturnType<typeof WorldNetworkAction.teleportObject>,
   world = Engine.instance.currentWorld
 ) {
-  const [x, y, z, qX, qY, qZ, qW] = action.pose
+  const [x, y, z] = action.pose
   const entity = world.getNetworkObject(action.object.ownerId, action.object.networkId)!
   const controllerComponent = getComponent(entity, AvatarControllerComponent)
   if (controllerComponent) {
@@ -139,80 +123,11 @@ export default async function AvatarSystem(world: World) {
     for (const action of teleportObjectQueue()) teleportObjectReceptor(action)
 
     for (const entity of xrInputQuery.enter(world)) {
-      const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
-      if (isClient) initializeXRInputs(entity)
-
-      xrInputSourceComponent.container.add(
-        xrInputSourceComponent.controllerLeftParent,
-        xrInputSourceComponent.controllerGripLeftParent,
-        xrInputSourceComponent.controllerRightParent,
-        xrInputSourceComponent.controllerGripRightParent
-      )
-
-      xrInputSourceComponent.container.name = 'XR Container'
-      xrInputSourceComponent.head.name = 'XR Head'
-      Engine.instance.currentWorld.scene.add(xrInputSourceComponent.container, xrInputSourceComponent.head)
-
-      // Add head IK Solver
-      if (!isEntityLocalClient(entity)) {
-        proxifyXRInputs(entity, xrInputSourceComponent)
-        addComponent(entity, AvatarHeadIKComponent, {
-          camera: xrInputSourceComponent.head,
-          rotationClamp: 0.785398
-        })
-      }
-
-      // Hands IK solver
-      const leftHint = new Object3D()
-      const rightHint = new Object3D()
-      const leftOffset = new Object3D()
-      const rightOffset = new Object3D()
-      const vec = new Vector3()
-
-      const animation = getComponent(entity, AvatarAnimationComponent)
-
-      // todo: load the avatar & rig on the server
-      if (isClient) {
-        Object3DUtils.getWorldPosition(animation.rig.LeftShoulder, leftHint.position)
-        Object3DUtils.getWorldPosition(animation.rig.LeftArm, vec)
-        vec.subVectors(vec, leftHint.position).normalize()
-        leftHint.position.add(vec)
-        animation.rig.LeftShoulder.attach(leftHint)
-
-        Object3DUtils.getWorldPosition(animation.rig.RightShoulder, rightHint.position)
-        Object3DUtils.getWorldPosition(animation.rig.RightArm, vec)
-        vec.subVectors(vec, rightHint.position).normalize()
-        rightHint.position.add(vec)
-        animation.rig.RightShoulder.attach(rightHint)
-      }
-
-      addComponent(entity, AvatarHandsIKComponent, {
-        leftTarget: xrInputSourceComponent.controllerGripLeftParent,
-        leftHint: leftHint,
-        leftTargetOffset: leftOffset,
-        leftTargetPosWeight: 1,
-        leftTargetRotWeight: 0,
-        leftHintWeight: 1,
-
-        rightTarget: xrInputSourceComponent.controllerGripRightParent,
-        rightHint: rightHint,
-        rightTargetOffset: rightOffset,
-        rightTargetPosWeight: 1,
-        rightTargetRotWeight: 0,
-        rightHintWeight: 1
-      })
+      xrInputQueryEnter(entity)
     }
 
     for (const entity of xrInputQuery.exit(world)) {
-      const xrInputComponent = getComponent(entity, XRInputSourceComponent, true)
-      xrInputComponent.container.removeFromParent()
-      xrInputComponent.head.removeFromParent()
-      removeComponent(entity, AvatarHeadIKComponent)
-
-      const ik = getComponent(entity, AvatarHandsIKComponent)
-      ik.leftHint?.removeFromParent()
-      ik.rightHint?.removeFromParent()
-      removeComponent(entity, AvatarHandsIKComponent)
+      xrInputQueryExit(entity)
     }
 
     for (const entity of xrHandsInputQuery.enter(world)) {
@@ -250,4 +165,102 @@ export default async function AvatarSystem(world: World) {
       if (inputComponent) playTriggerReleaseAnimation(inputComponent.controllerGripRight)
     }
   }
+}
+
+export function xrInputQueryExit(entity: Entity) {
+  const xrInputComponent = getComponent(entity, XRInputSourceComponent, true)
+  xrInputComponent.container.removeFromParent()
+  xrInputComponent.head.removeFromParent()
+  removeComponent(entity, AvatarHeadIKComponent)
+
+  const ik = getComponent(entity, AvatarHandsIKComponent)
+  ik.leftHint?.removeFromParent()
+  ik.rightHint?.removeFromParent()
+  removeComponent(entity, AvatarHandsIKComponent)
+}
+
+/**
+ * Setup head-ik for entity
+ * @param entity
+ * @returns
+ */
+export function setupHeadIK(entity: Entity) {
+  // Add head IK Solver
+  const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
+  addComponent(entity, AvatarHeadIKComponent, {
+    camera: xrInputSourceComponent.head,
+    rotationClamp: 0.785398
+  })
+}
+
+export function setupHandIK(entity: Entity) {
+  const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
+
+  // Hands IK solver
+  const leftHint = new Object3D()
+  const rightHint = new Object3D()
+  const leftOffset = new Object3D()
+  const rightOffset = new Object3D()
+  const vec = new Vector3()
+
+  const animation = getComponent(entity, AvatarAnimationComponent)
+
+  // todo: load the avatar & rig on the server
+  if (isClient) {
+    Object3DUtils.getWorldPosition(animation.rig.LeftShoulder, leftHint.position)
+    Object3DUtils.getWorldPosition(animation.rig.LeftArm, vec)
+    vec.subVectors(vec, leftHint.position).normalize()
+    leftHint.position.add(vec)
+    animation.rig.LeftShoulder.attach(leftHint)
+
+    Object3DUtils.getWorldPosition(animation.rig.RightShoulder, rightHint.position)
+    Object3DUtils.getWorldPosition(animation.rig.RightArm, vec)
+    vec.subVectors(vec, rightHint.position).normalize()
+    rightHint.position.add(vec)
+    animation.rig.RightShoulder.attach(rightHint)
+  }
+
+  addComponent(entity, AvatarHandsIKComponent, {
+    leftTarget: xrInputSourceComponent.controllerGripLeftParent,
+    leftHint: leftHint,
+    leftTargetOffset: leftOffset,
+    leftTargetPosWeight: 1,
+    leftTargetRotWeight: 0,
+    leftHintWeight: 1,
+
+    rightTarget: xrInputSourceComponent.controllerGripRightParent,
+    rightHint: rightHint,
+    rightTargetOffset: rightOffset,
+    rightTargetPosWeight: 1,
+    rightTargetRotWeight: 0,
+    rightHintWeight: 1
+  })
+}
+
+export function xrInputQueryEnter(entity: Entity) {
+  if (isClient) initializeXRInputs(entity)
+
+  setupXRInputSourceContainer(entity)
+
+  if (!isEntityLocalClient(entity)) {
+    proxifyXRInputs(entity)
+    setupHeadIK(entity)
+  }
+
+  setupHandIK(entity)
+}
+
+export function setupXRInputSourceContainer(entity: Entity) {
+  const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
+
+  xrInputSourceComponent.container.add(
+    xrInputSourceComponent.controllerLeftParent,
+    xrInputSourceComponent.controllerGripLeftParent,
+    xrInputSourceComponent.controllerRightParent,
+    xrInputSourceComponent.controllerGripRightParent
+  )
+
+  xrInputSourceComponent.container.name = 'XR Container'
+  xrInputSourceComponent.head.name = 'XR Head'
+  Engine.instance.currentWorld.scene.add(xrInputSourceComponent.container, xrInputSourceComponent.head)
 }

@@ -24,6 +24,7 @@ export default (app: Application) => {
       verifyChanges: { type: DataTypes.JSON },
       resetToken: { type: DataTypes.STRING },
       resetExpires: { type: DataTypes.DATE },
+      oauthToken: { type: DataTypes.STRING },
       type: {
         type: DataTypes.STRING,
         allowNull: false,
@@ -53,7 +54,7 @@ export default (app: Application) => {
   )
 
   ;(identityProvider as any).associate = (models: any): void => {
-    ;(identityProvider as any).belongsTo(models.user, { required: true })
+    ;(identityProvider as any).belongsTo(models.user, { required: true, onDelete: 'cascade' })
     ;(identityProvider as any).hasMany(models.login_token)
   }
 

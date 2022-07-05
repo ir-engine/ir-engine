@@ -16,10 +16,6 @@ export const HomePage = (): any => {
   const clientSettingState = useClientSettingState()
   const [clientSetting] = clientSettingState?.client?.value || []
 
-  useEffect(() => {
-    !clientSetting && ClientSettingService.fetchClientSettings()
-  }, [])
-
   if (ROOT_REDIRECT && ROOT_REDIRECT.length > 0 && ROOT_REDIRECT !== 'false') {
     const redirectParsed = new URL(ROOT_REDIRECT)
     if (redirectParsed.protocol == null) return <Redirect to={ROOT_REDIRECT} />

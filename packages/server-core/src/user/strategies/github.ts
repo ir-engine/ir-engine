@@ -1,7 +1,11 @@
+import { AuthenticationRequest } from '@feathersjs/authentication'
 import { Params } from '@feathersjs/feathers'
+import { random } from 'lodash'
 
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
+import getFreeInviteCode from '../../util/get-free-invite-code'
+import { UserDataType } from '../user/user.class'
 import CustomOAuthStrategy from './custom-oauth'
 
 export class GithubStrategy extends CustomOAuthStrategy {
@@ -23,6 +27,8 @@ export class GithubStrategy extends CustomOAuthStrategy {
       ...baseData,
       email: profile.email,
       type: 'github',
+      oauthToken: params.access_token,
+      userName: profile.login,
       userId
     }
   }
@@ -32,6 +38,19 @@ export class GithubStrategy extends CustomOAuthStrategy {
       { accessToken: params?.authentication?.accessToken },
       {}
     )
+    if (!entity.userId) {
+      const avatars = await this.app.service('avatar').find({ isInternal: true })
+      const code = await getFreeInviteCode(this.app)
+      const newUser = (await this.app.service('user').create({
+        userRole: 'user',
+        inviteCode: code,
+        avatarId: avatars[random(avatars.length - 1)].avatarId
+      })) as UserDataType
+      entity.userId = newUser.id
+      await this.app.service('identity-provider').patch(entity.id, {
+        userId: newUser.id
+      })
+    }
     const identityProvider = authResult['identity-provider']
     const user = await this.app.service('user').get(entity.userId)
     const adminCount = await this.app.service('user').Model.count({
@@ -59,6 +78,7 @@ export class GithubStrategy extends CustomOAuthStrategy {
     const existingEntity = await super.findEntity(profile, params)
     if (!existingEntity) {
       profile.userId = user.id
+      profile.oauthToken = params.access_token
       const newIP = await super.createEntity(profile, params)
       if (entity.type === 'guest') await this.app.service('identity-provider').remove(entity.id)
       return newIP
@@ -90,6 +110,11 @@ export class GithubStrategy extends CustomOAuthStrategy {
       if (instanceId != null) returned = returned.concat(`&instanceId=${instanceId}`)
       return returned
     }
+  }
+
+  async authenticate(authentication: AuthenticationRequest, originalParams: Params) {
+    originalParams.access_token = authentication.access_token
+    return super.authenticate(authentication, originalParams)
   }
 }
 export default GithubStrategy

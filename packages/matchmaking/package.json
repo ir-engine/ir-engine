@@ -28,8 +28,8 @@
     "local-minikube-start": "minikube start",
     "local-minikube-stop": "minikube stop",
     "open-frontend-service-port": "kubectl port-forward --namespace open-match service/open-match-frontend 51504:51504",
-    "ts-node": "10.7.0",
-    "typescript": "4.6.2",
+    "ts-node": "10.8.2",
+    "typescript": "4.7.4",
     "update-name-gh-package": "node scripts/update-name-gh-package.js"
   },
   "dependencies": {

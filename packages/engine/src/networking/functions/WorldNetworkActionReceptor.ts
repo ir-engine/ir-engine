@@ -8,8 +8,8 @@ import { addComponent, getComponent, hasComponent, removeComponent } from '../..
 import { createEntity, removeEntity } from '../../ecs/functions/EntityFunctions'
 import { generatePhysicsObject } from '../../physics/functions/physicsObjectDebugFunctions'
 import { Network } from '../classes/Network'
-import { NetworkObjectAuthorityTag } from '../components/NetworkObjectAuthorityTag'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
+import { NetworkObjectOwnedTag } from '../components/NetworkObjectOwnedTag'
 import { WorldNetworkAction } from './WorldNetworkAction'
 
 const removeAllNetworkPeers = (
@@ -132,7 +132,7 @@ const receiveSpawnObject = (
       entity = createEntity()
     }
   }
-  if (isOwnedByMe) addComponent(entity, NetworkObjectAuthorityTag, {})
+  if (isOwnedByMe) addComponent(entity, NetworkObjectOwnedTag, {})
 
   addComponent(entity, NetworkObjectComponent, {
     ownerId: action.$from,
@@ -204,12 +204,12 @@ const receiveTransferAuthorityOfObject = (
     )
 
   if (Engine.instance.userId === action.newAuthor) {
-    if (getComponent(entity, NetworkObjectAuthorityTag))
+    if (getComponent(entity, NetworkObjectOwnedTag))
       return console.warn(`Warning - User ${Engine.instance.userId} already has authority over entity ${entity}.`)
 
-    addComponent(entity, NetworkObjectAuthorityTag, {})
+    addComponent(entity, NetworkObjectOwnedTag, {})
   } else {
-    removeComponent(entity, NetworkObjectAuthorityTag)
+    removeComponent(entity, NetworkObjectOwnedTag)
   }
 }
 

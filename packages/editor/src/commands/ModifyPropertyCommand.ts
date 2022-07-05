@@ -104,9 +104,8 @@ function updateProperty<C extends ComponentConstructor<any, any>>(
           if (!result[finalProp]) result[finalProp] = new value.constructor()
           result[finalProp].copy(value)
         } else if (
-          value &&
+          typeof value !== 'undefined' &&
           typeof result[finalProp] === 'object' &&
-          'set' in result[finalProp] &&
           typeof result[finalProp].set === 'function'
         ) {
           result[finalProp].set(value)

@@ -149,12 +149,14 @@ const drop = (entity: Entity, inputKey: InputAlias, inputValue: InputValue): voi
 }
 
 /**
- * Switch Camera mode from first person to third person and wise versa.
+ * Switch Camera mode from first person to third person and vice versa.
  * @param entity Entity holding {@link camera/components/FollowCameraComponent.FollowCameraComponent | Follow camera} component.
  */
 const cycleCameraMode = (entity: Entity, inputKey: InputAlias, inputValue: InputValue): void => {
   if (inputValue.lifecycleState !== LifecycleValue.Started) return
-  const cameraFollow = getComponent(entity, FollowCameraComponent)
+
+  const cameraEntity = Engine.instance.currentWorld.cameraEntity
+  const cameraFollow = getComponent(cameraEntity, FollowCameraComponent)
 
   switch (cameraFollow?.mode) {
     case CameraMode.FirstPerson:
@@ -184,7 +186,7 @@ export const fixedCameraBehindAvatar: InputBehaviorType = (
   inputValue: InputValue
 ): void => {
   if (inputValue.lifecycleState !== LifecycleValue.Started) return
-  const follower = getComponent(entity, FollowCameraComponent)
+  const follower = getComponent(Engine.instance.currentWorld.cameraEntity, FollowCameraComponent)
   if (follower && follower.mode !== CameraMode.FirstPerson) {
     follower.locked = !follower.locked
   }
@@ -195,8 +197,9 @@ export const switchShoulderSide: InputBehaviorType = (
   inputKey: InputAlias,
   inputValue: InputValue
 ): void => {
+  const cameraEntity = Engine.instance.currentWorld.cameraEntity
   if (inputValue.lifecycleState !== LifecycleValue.Started) return
-  const cameraFollow = getComponent(entity, FollowCameraComponent)
+  const cameraFollow = getComponent(cameraEntity, FollowCameraComponent)
   if (cameraFollow) {
     cameraFollow.shoulderSide = !cameraFollow.shoulderSide
   }
@@ -238,7 +241,8 @@ export const changeCameraDistanceByDelta: InputBehaviorType = (
     return
   }
 
-  const followComponent = getComponent(entity, FollowCameraComponent)
+  const cameraEntity = Engine.instance.currentWorld.cameraEntity
+  const followComponent = getComponent(cameraEntity, FollowCameraComponent)
 
   if (!followComponent) {
     return
@@ -283,7 +287,9 @@ export const setCameraRotation: InputBehaviorType = (
   inputValue: InputValue
 ): void => {
   const { deltaSeconds: delta } = useWorld()
-  const followComponent = getComponent(entity, FollowCameraComponent)
+
+  const cameraEntity = Engine.instance.currentWorld.cameraEntity
+  const followComponent = getComponent(cameraEntity, FollowCameraComponent)
 
   switch (inputKey) {
     case BaseInput.CAMERA_ROTATE_LEFT:
@@ -403,6 +409,8 @@ const swerveVec = new Vector3()
 const moveFromXRInputs: InputBehaviorType = (entity: Entity, inputKey: InputAlias, inputValue: InputValue): void => {
   const controller = getComponent(entity, AvatarControllerComponent)
   const values = inputValue.value
+  values[0] = values[2]
+  values[1] = values[3]
   controller.localMovementDirection.x = values[0] ?? controller.localMovementDirection.x
   controller.localMovementDirection.z = values[1] ?? controller.localMovementDirection.z
   controller.localMovementDirection.normalize()
@@ -434,6 +442,8 @@ const lookFromXRInputs: InputBehaviorType = (entity: Entity, inputKey: InputAlia
   const avatarInputState = accessAvatarInputSettingsState()
   const rotationAngle = avatarInputState.rotationAngle.value
   let newAngleDiff = 0
+  values[0] = values[2]
+  values[1] = values[3]
   switch (avatarInputState.rotation.value) {
     case XR_ROTATION_MODE.ANGLED:
       if (switchChangedToZero && values[0] != 0) {
@@ -465,7 +475,9 @@ const lookFromXRInputs: InputBehaviorType = (entity: Entity, inputKey: InputAlia
 const axisLookSensitivity = 320
 
 const lookByInputAxis: InputBehaviorType = (entity: Entity, inputKey: InputAlias, inputValue: InputValue): void => {
-  const target = getComponent(entity, TargetCameraRotationComponent) || getComponent(entity, FollowCameraComponent)
+  const cameraEntity = Engine.instance.currentWorld.cameraEntity
+  const target =
+    getComponent(entity, TargetCameraRotationComponent) || getComponent(cameraEntity, FollowCameraComponent)
   if (target)
     setTargetCameraRotation(
       entity,

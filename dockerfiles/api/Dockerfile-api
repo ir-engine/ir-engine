@@ -8,7 +8,8 @@ WORKDIR /app
 # to make use of caching, copy only package files and install dependencies
 COPY packages/server/package.json ./packages/server/
 
-RUN npm install --production=false --loglevel notice --legacy-peer-deps
+ARG NODE_ENV
+RUN npm install --loglevel notice --legacy-peer-deps
 
 COPY . .
 

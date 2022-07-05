@@ -37,462 +37,10 @@
   }
 }
 
-.avatarUploadPanel {
-  padding: 0 30px;
-  border-radius: 20px;
-  background-color: transparent;
-  color: black;
-  overflow: auto;
-  width: 100%;
-  z-index: 1400;
-
-  .avatarSelectContainer {
-    position: absolute;
-    bottom: 110px;
-    padding: 15px 20px 20px 17px;
-    border-radius: 5px;
-    left: 50%;
-    transform: translateX(-50%);
-    color: black;
-    height: 550px;
-    overflow: hidden;
-    width: 400px;
-    z-index: 1400;
-    background: rgb(255 255 255 / 50%);
-    box-shadow: 0 4px 30px rgb(0 0 0 / 10%);
-    backdrop-filter: blur(4.9px);
-    -webkit-backdrop-filter: blur(4.9px);
-  }
-
-  .paperAvatar {
-    height: 140px;
-    width: 170px;
-    border: none;
-    position: relative;
-    cursor: pointer;
-    transition: all 0.2s;
-
-    &:hover {
-      background: rgb(81 81 255 / 45%);
-    }
-  }
-
-  .avatarContainer {
-    height: 80%;
-    margin-bottom: 70px;
-  }
-
-  .menuContainer {
-    display: flex;
-    justify-content: space-between;
-    margin-left: 8px;
-  }
-
-  .innerMenuContainer {
-    display: flex;
-  }
-
-  .btnDeepColor {
-    background-color: #23af3a !important;
-  }
-
-  .btnDeepColorCancel {
-    background-color: #f87678 !important;
-  }
-
-  .btn {
-    border: none;
-    border-radius: 50%;
-    height: 30px;
-    width: 30px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    transition: all 0.2s;
-    cursor: pointer;
-  }
-
-  .btnBack {
-    border: none;
-    border-radius: 50%;
-    height: 30px;
-    width: 30px;
-    display: flex;
-    align-items: center;
-    cursor: pointer;
-  }
-
-  .btnPerson {
-    background-color: rgb(255 255 255 / 70%);
-    color: #808080;
-
-    &:hover {
-      background: rgb(255 255 255 / 100%);
-    }
-  }
-
-  .btnCheck {
-    background-color: #a5f2b2;
-    color: #fff;
-    margin: 0 10px;
-
-    &:hover {
-      background-color: #1e9932 !important;
-    }
-  }
-
-  .btnArrow {
-    background-color: #6e6ef7;
-    color: #fff;
-    transition: all 0.2s;
-
-    &:hover {
-      background-color: #5f5ff8;
-    }
-  }
-
-  .btnCancel {
-    color: #fff;
-    background-color: #fca7a8;
-
-    &:hover {
-      background-color: #e76a6c !important;
-    }
-  }
-
-  .avatar {
-    height: 80%;
-    width: 80%;
-    position: absolute;
-    left: 50%;
-    top: 28px;
-    transform: translateX(-50%);
-    cursor: pointer;
-  }
-
-  .size {
-    height: 15px;
-  }
-
-  .selectedAvatar {
-    border: 3px solid rgb(81 81 255 / 45%) !important;
-  }
-
-  .activeAvatar {
-    background: rgb(81 81 255 / 60%);
-    cursor: not-allowed;
-  }
-
-  .disabled {
-    background-color: #a8a8fe !important;
-    cursor: not-allowed;
-  }
-
-  .disabledBtn {
-    cursor: not-allowed !important;
-  }
-
-  .container {
-    display: flex;
-    justify-content: center;
-    margin-bottom: 5px;
-  }
-
-  .paper {
-    background: var(--inputBackground);
-    display: flex;
-    align-items: center;
-  }
-
-  .rootBtn {
-    font-size: 13px;
-    width: auto;
-    font-weight: bold;
-    background: var(--buttonFilled);
-    padding: 6px 28px;
-
-    &:hover {
-      opacity: 0.8;
-    }
-  }
-
-  .btnContainer {
-    display: flex;
-    justify-content: flex-end;
-    margin-bottom: 10px;
-  }
-
-  .input {
-    font-size: 14px;
-    color: var(--textColor);
-    background-color: var(--inputBackground);
-  }
-
-  .tabRoot {
-    min-height: 20px;
-    color: #ccc;
-  }
-
-  .selected {
-    background: white;
-  }
-
-  .color {
-    color: var(--textColor);
-  }
-
-  .paper2 {
-    background: var(--inputBackground);
-    display: flex;
-    align-items: center;
-    width: 100%;
-    padding: 6px 0;
-  }
-
-  .selectedTab {
-    color: var(--textColor) !important;
-    font-weight: bold;
-    font-size: 17px;
-    text-transform: capitalize;
-  }
-
-  .unselectedTab {
-    color: var(--buttonFilled) !important;
-    font-weight: bold;
-    font-size: 17px;
-    text-transform: capitalize;
-  }
-
-  .avatarHeaderBlock {
-    margin: 30px 0 20px;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-
-    .iconBlock {
-      display: inline-block;
-      cursor: pointer;
-      color: var(--textColor);
-      background: transparent;
-    }
-
-    h2 {
-      font-size: 18px;
-      color: var(--textColor);
-      font-weight: bold;
-      display: inline-block;
-      vertical-align: middle;
-      margin-left: 10px;
-    }
-  }
-
-  .controlContainer {
-    display: flex;
-    flex-direction: column;
-    margin-bottom: 20px;
-
-    button {
-      height: 35px;
-      background-color: var(--buttonFilled);
-      padding: 0;
-      border: none;
-      color: var(--textColor);
-      flex-grow: 1;
-      border-radius: 3px;
-      font-size: 14px;
-
-      & > svg {
-        font-size: 18px;
-        margin-left: 5px;
-      }
-
-      &:hover {
-        opacity: 0.8;
-      }
-    }
-
-    button + button {
-      margin-left: 5px;
-    }
-
-    button[disabled] {
-      background: var(--disabled);
-      opacity: 1 !important;
-    }
-
-    .browseBtn {
-      & > svg {
-        transform: rotate(180deg);
-      }
-    }
-
-    .uploadBtn {
-      background: linear-gradient(90deg, var(--buttonGradientStart), var(--buttonGradientEnd));
-      cursor: pointer;
-      font-size: 1rem;
-      font-weight: bold;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    button:hover,
-    button:focus {
-      outline: none;
-      opacity: 0.7;
-    }
-
-    .selectBtns {
-      display: flex;
-      justify-content: flex-end;
-      margin: 8px 0;
-    }
-  }
-
-  .stage {
-    border-radius: 5px;
-    overflow: hidden;
-    position: relative;
-    margin: auto;
-
-    .legendContainer {
-      position: absolute;
-      right: 5px;
-      top: 5px;
-
-      & > svg {
-        opacity: 1;
-        color: var(--iconButtonColor);
-
-        &:hover {
-          opacity: 0.8;
-        }
-      }
-
-      .legend {
-        position: absolute;
-        padding: 10px;
-        background: var(--popupBackground);
-        border-radius: 5px;
-        top: 30px;
-        right: 5px;
-        width: 130px;
-        color: var(--textColor);
-        font-size: 12px;
-        display: none;
-
-        span {
-          margin-left: 5px;
-        }
-
-        .shiftKey {
-          background: var(--popupBackground);
-          color: var(--textColor);
-          padding: 2px 4px;
-          border-radius: 4px;
-          font-weight: bold;
-          margin: 0 5px 0 0;
-        }
-
-        svg {
-          font-size: 18px;
-          margin-right: 5px;
-          width: 40px;
-          color: var(--iconButtonColor);
-
-          path {
-            fill: var(--iconButtonColor);
-          }
-        }
-
-        & > div + div {
-          margin-top: 10px;
-        }
-      }
-
-      &:hover {
-        .legend {
-          display: block;
-        }
-      }
-    }
-  }
-
-  .thumbnailContainer {
-    display: flex;
-    width: 100%;
-    margin-top: 8px;
-
-    .thumbnailPreview {
-      max-width: 100px;
-      margin: auto;
-    }
-  }
-
-  .selectLabelContainer {
-    display: flex;
-    justify-content: space-around;
-    padding: 10px 0;
-
-    &:last-child {
-      margin-bottom: 10px;
-    }
-
-    .avatarSelectLabel,
-    .thumbnailSelectLabel {
-      margin: 20px 0 8px;
-      font-size: 15px;
-      color: var(--textColor);
-    }
-  }
-
-  .avatarNameContainer {
-    display: flex;
-    justify-content: space-around;
-    margin: 8px 0;
-
-    .avatarNameInput {
-      color: var(--textColor);
-      border-color: var(--inputOutline);
-      background: transparent;
-
-      input {
-        padding: 5px;
-        font-size: 14px;
-        color: var(--textColor);
-        border-color: var(--inputOutline);
-
-        &::selection {
-          background-color: transparent;
-        }
-      }
-
-      :global(.MuiFormLabel-root) {
-        color: var(--textColor);
-      }
-
-      :global(.MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline) {
-        border-color: white !important;
-      }
-    }
-  }
-
-  .iconBlock {
-    @include icon-block-styling;
-  }
-
-  @media (max-width: 400px) {
-    padding: 0 15px;
-    width: 330px;
-
-    .avatarHeaderBlock {
-      margin-top: 15px;
-    }
-
-    .controlContainer {
-      margin-bottom: 15px;
-    }
-  }
+.preview {
+  border: 1px solid var(--buttonOutlined);
+  border-radius: 8px;
+  box-shadow: 0 0 10px var(--buttonOutlined);
 }
 
 .gradientButton {
@@ -869,10 +417,6 @@
   align-items: center;
 }
 
-.mt10 {
-  margin-top: 10%;
-}
-
 .headingFont {
   @media (max-width: 900px) {
     font-size: 1.6rem;
@@ -930,16 +474,20 @@
   }
 }
 
-.mb15 {
-  margin-bottom: 15px;
+.mt10 {
+  margin-top: 10%;
+}
 
-  @media (max-width: 900px) {
-    margin-bottom: 0;
-  }
+.mt15 {
+  margin-top: 15%;
 }
 
 .mt20 {
   margin-top: 20%;
+}
+
+.mb15px {
+  margin-bottom: 15px;
 }
 
 .mt20px {
@@ -1075,6 +623,10 @@
   @media (max-width: 900px) {
     font-size: 0.6rem;
   }
+}
+
+.secondaryText {
+  color: #808080;
 }
 
 .btnSelected {
@@ -1268,8 +820,14 @@
   }
 }
 
-.iconButton {
-  color: var(--textColor);
+.radioField {
+  :global(.MuiFormLabel-root) {
+    color: var(--textColor);
+  }
+
+  :global(.MuiSvgIcon-root) {
+    color: var(--textColor);
+  }
 }
 
 .popover {
@@ -1281,4 +839,8 @@
 
 .dialogContentText {
   color: var(--textColor);
+}
+
+.iconButton {
+  color: var(--iconButtonColor);
 }

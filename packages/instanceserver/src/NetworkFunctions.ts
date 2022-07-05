@@ -1,6 +1,7 @@
 import AWS from 'aws-sdk'
 import { DataConsumer, DataProducer } from 'mediasoup/node/lib/types'
 import { Socket } from 'socket.io'
+import type { Quaternion } from 'three'
 
 import { UserInterface } from '@xrengine/common/src/dbmodels/UserInterface'
 import { Instance } from '@xrengine/common/src/interfaces/Instance'
@@ -12,7 +13,7 @@ import { performance } from '@xrengine/engine/src/common/functions/performance'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
-import { JoinWorldProps } from '@xrengine/engine/src/networking/functions/receiveJoinWorld'
+import { JoinWorldProps, JoinWorldRequestData } from '@xrengine/engine/src/networking/functions/receiveJoinWorld'
 import { WorldNetworkAction } from '@xrengine/engine/src/networking/functions/WorldNetworkAction'
 import { AvatarProps } from '@xrengine/engine/src/networking/interfaces/WorldState'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
@@ -227,16 +228,16 @@ export function getUserIdFromSocketId(network: SocketWebRTCServerNetwork, socket
 export async function handleConnectToWorld(
   network: SocketWebRTCServerNetwork,
   socket: Socket,
-  data,
-  callback,
+  data: any,
+  callback: Function,
   userId: UserId,
-  user: UserInterface
+  user: User
 ) {
   logger.info('Connect to world from ' + userId)
 
-  if (disconnectClientIfConnected(network, socket, userId)) return callback()
+  const avatarDetail = (await network.app.service('avatar').get(user.avatarId!)) as AvatarProps
 
-  const avatarDetail = (await network.app.service('avatar').get(user.avatarId)) as AvatarProps
+  if (disconnectClientIfConnected(network, socket, userId)) return callback()
 
   // Create a new client object
   // and add to the dictionary
@@ -265,7 +266,6 @@ export async function handleConnectToWorld(
   network.userIdToUserIndex.set(userId, userIndex)
   network.userIndexToUserId.set(userIndex, userId)
 
-  // Return initial world state to client to set things up
   callback({
     routerRtpCapabilities: network.routers.instance[0].rtpCapabilities
   })
@@ -319,81 +319,8 @@ const getCachedActions = (network: SocketWebRTCServerNetwork, joinedUserId: User
   return cachedActions
 }
 
-/**
- * For a user viewing an instance from the editor, or a non-participant viewer
- * @param network
- * @param socket
- * @param data
- * @param callback
- * @param joinedUserId
- * @param user
- */
-
-export const handleSpectateWorld = async (
-  network: SocketWebRTCServerNetwork,
-  socket: Socket,
-  data,
-  callback: Function,
-  joinedUserId: UserId,
-  user: User
-) => {
-  logger.info('Spectate World Request Received: %o', { joinedUserId, data, user })
-
+const getUserSpawnFromInvite = async (network: SocketWebRTCServerNetwork, user: User, inviteCode: string) => {
   const world = Engine.instance.currentWorld
-  const cachedActions = getCachedActions(network, joinedUserId)
-  const client = network.peers.get(joinedUserId)!
-  client.spectating = true
-  let spectateUser = data['spectateUser']
-
-  if (spectateUser) {
-    const handleInvalidUser = () => {
-      spectateUser = ''
-      logger.warn('The user to spectate in no longer on this instance.')
-    }
-
-    const result = (await network.app.service('user').find({
-      query: {
-        id: spectateUser
-      },
-      isInternal: true
-    })) as any
-
-    let users = result.data as User[]
-    if (users.length > 0) {
-      const inviterUser = users[0]
-      if (inviterUser.instanceId !== user.instanceId) {
-        handleInvalidUser()
-      }
-    } else {
-      handleInvalidUser()
-    }
-  }
-
-  callback({
-    highResTimeOrigin: performance.timeOrigin,
-    worldStartTime: world.startTime,
-    client: { name: user.name, index: client.index },
-    cachedActions,
-    spectateUser
-  })
-}
-
-export const handleJoinWorld = async (
-  network: SocketWebRTCServerNetwork,
-  socket: Socket,
-  data,
-  callback: (args: JoinWorldProps) => void,
-  joinedUserId: UserId,
-  user: User
-) => {
-  logger.info('Join World Request Received: %o', { joinedUserId, data, user })
-
-  // disallow join world request if already spawned
-  const world = Engine.instance.currentWorld
-  if (world.getUserAvatarEntity(joinedUserId) !== undefined) return callback(null!)
-
-  let spawnPose = SpawnPoints.instance.getRandomSpawnPoint()
-  const inviteCode = data['inviteCode']
 
   if (inviteCode) {
     const result = (await network.app.service('user').find({
@@ -418,9 +345,9 @@ export const handleJoinWorld = async (
         const validSpawnablePosition = checkPositionIsValid(inviterUserObject3d.value.position, false)
 
         if (validSpawnablePosition) {
-          spawnPose = {
+          return {
             position: inviterUserObject3d.value.position,
-            rotation: inviterUserTransform.rotation
+            rotation: inviterUserTransform.rotation as Quaternion
           }
         }
       } else {
@@ -429,23 +356,45 @@ export const handleJoinWorld = async (
     }
   }
 
-  logger.info('User successfully joined world: %o', { joinedUserId, data, spawnPose })
-  const client = network.peers.get(joinedUserId)!
+  return SpawnPoints.instance.getRandomSpawnPoint()
+}
 
-  if (!client) return callback(null! as any)
+export async function handleJoinWorld(
+  network: SocketWebRTCServerNetwork,
+  socket: Socket,
+  data: JoinWorldRequestData,
+  callback: (args: JoinWorldProps) => void,
+  userId: UserId,
+  user: User
+) {
+  logger.info('Join World Request Received: %o', { userId, data, user })
+
+  const world = Engine.instance.currentWorld
+
+  let spawnPose
+  let { spectateUserId } = data
+
+  if (!network.app.isChannelInstance && typeof spectateUserId !== 'string') {
+    spawnPose = await getUserSpawnFromInvite(network, user, data.inviteCode!)
+  }
+
+  const client = network.peers.get(userId)!
 
   clearCachedActionsForDisconnectedUsers(network)
-  clearCachedActionsForUser(network, joinedUserId)
+  clearCachedActionsForUser(network, userId)
 
-  const cachedActions = getCachedActions(network, joinedUserId)
+  const cachedActions = getCachedActions(network, userId)
+
+  logger.info('User successfully joined world: %o', { userId, data, spawnPose, spectateUserId, cachedActions })
 
   callback({
     highResTimeOrigin: performance.timeOrigin,
     worldStartTime: world.startTime,
     client: { name: user.name, index: client.index },
     cachedActions,
-    avatarDetail: world.users.get(joinedUserId)!.avatarDetail!,
-    avatarSpawnPose: spawnPose
+    avatarDetail: world.users.get(userId)!.avatarDetail!,
+    avatarSpawnPose: spawnPose,
+    spectateUserId
   })
 }
 

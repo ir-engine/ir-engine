@@ -31,12 +31,12 @@
   },
   "scripts": {
     "check-errors": "tsc --noemit",
-    "dev": "cross-env APP_ENV=development concurrently -n server,instanceserver,mediaserver,files \"ts-node-dev  --ignore-watch=.* --inspect --respawn --transpile-only  src/index.ts\" \"cd ../instanceserver && npm run dev\" \"cd ../instanceserver && npm run dev-channel\" \"npm run serve-local-files\"",
-    "start": "cross-env APP_ENV=production ts-node --transpile-only src/index.ts",
-    "dev-api-server": "ts-node-dev  --ignore-watch=.* --inspect --respawn --transpile-only  src/index.ts",
-    "dev-api-server-nossl": "cross-env NOSSL=true ts-node-dev  --ignore-watch=.* --inspect --respawn --transpile-only src/index.ts",
-    "dev-nossl": "concurrently \"cross-env NOSSL=true ts-node src/index.ts\" \"cd ../instanceserver && cross-env NOSSL=true ts-node-dev  --ignore-watch=.* --inspect --respawn --transpile-only src/index.ts\"",
-    "dev-reinit-db": "cross-env FORCE_DB_REFRESH=true ts-node --transpile-only src/index.ts",
+    "dev": "cross-env APP_ENV=development concurrently -n server,instanceserver,mediaserver,files \"ts-node --swc src/index.ts\" \"cd ../instanceserver && npm run dev\" \"cd ../instanceserver && npm run dev-channel\" \"npm run serve-local-files\"",
+    "start": "cross-env APP_ENV=production ts-node --swc src/index.ts",
+    "dev-api-server": "ts-node --swc src/index.ts",
+    "dev-api-server-nossl": "cross-env NOSSL=true ts-node --swc src/index.ts",
+    "dev-nossl": "concurrently \"cross-env NOSSL=true ts-node --swc src/index.ts\" \"cd ../instanceserver && cross-env NOSSL=true ts-node --swc src/index.ts\"",
+    "dev-reinit-db": "cross-env FORCE_DB_REFRESH=true ts-node --swc src/index.ts",
     "test": "echo \"TODO: no test specified\" && exit 0",
     "validate": "npm run build && npm run test",
     "upload-avatar": "node ./scripts/upload-avatar.js",
@@ -64,8 +64,8 @@
     "ps-list": "7.2.0",
     "sequelize": "6.15.1",
     "serve-favicon": "2.5.0",
-    "ts-node": "10.7.0",
-    "typescript": "4.6.2",
+    "ts-node": "10.8.2",
+    "typescript": "4.7.4",
     "uuid": "8.3.2"
   },
   "devDependencies": {
@@ -76,8 +76,7 @@
     "concurrently": "7.1.0",
     "http-server": "14.1.0",
     "nodemon": "2.0.15",
-    "supertest": "6.2.2",
-    "ts-node-dev": "1.1.8"
+    "supertest": "6.2.2"
   },
   "gitHead": "66449f6ffba4d32c424b16b4f0667fe0ad36562c"
 }

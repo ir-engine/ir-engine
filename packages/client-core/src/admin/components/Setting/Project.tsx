@@ -30,6 +30,8 @@ const Project = () => {
   const [settings, setSettings] = useState<Array<ProjectSetting> | []>([])
   const [selectedProject, setSelectedProject] = useState(projects.value.length > 0 ? projects.value[0].id : '')
 
+  ProjectService.useAPIListeners()
+
   useEffect(() => {
     ProjectService.fetchProjects()
   }, [])

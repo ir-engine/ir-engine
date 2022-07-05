@@ -115,7 +115,7 @@ const MediaIconsBox = (props: Props) => {
     ) {
       await endVideoChat(mediaNetwork, {})
       if (mediaNetwork.socket?.connected === true) {
-        await leaveNetwork(mediaNetwork, false)
+        leaveNetwork(mediaNetwork, false)
         await MediaInstanceConnectionService.provisionServer(instanceChannel.id)
       }
     }
@@ -156,6 +156,7 @@ const MediaIconsBox = (props: Props) => {
   }
 
   const handleVRClick = () => dispatchAction(EngineActions.xrStart())
+  const handleExitSpectatorClick = () => dispatchAction(EngineActions.spectateUser())
 
   const VideocamIcon = isCamVideoEnabled.value ? Videocam : VideocamOff
   const MicIcon = isCamAudioEnabled.value ? Mic : MicOff
@@ -209,6 +210,11 @@ const MediaIconsBox = (props: Props) => {
       {engineState.xrSupported.value && (
         <button type="button" id="UserXR" className={styles.iconContainer} onClick={handleVRClick}>
           <VrIcon />
+        </button>
+      )}
+      {engineState.spectating.value && (
+        <button type="button" id="ExitSpectator" className={styles.iconContainer} onClick={handleExitSpectatorClick}>
+          Exit Spectate
         </button>
       )}
     </section>

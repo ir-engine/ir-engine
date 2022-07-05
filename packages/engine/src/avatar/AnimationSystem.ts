@@ -4,8 +4,9 @@ import { createActionQueue } from '@xrengine/hyperflux'
 
 import { Axis } from '../common/constants/Axis3D'
 import { Engine } from '../ecs/classes/Engine'
+import { getEngineState } from '../ecs/classes/EngineState'
 import { World } from '../ecs/classes/World'
-import { defineQuery, getComponent } from '../ecs/functions/ComponentFunctions'
+import { defineQuery, getComponent, hasComponent } from '../ecs/functions/ComponentFunctions'
 import { NetworkObjectComponent } from '../networking/components/NetworkObjectComponent'
 import { isEntityLocalClient } from '../networking/functions/isEntityLocalClient'
 import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
@@ -20,20 +21,14 @@ import { AnimationManager } from './AnimationManager'
 import { AnimationComponent } from './components/AnimationComponent'
 import { AvatarAnimationComponent } from './components/AvatarAnimationComponent'
 import { AvatarHandsIKComponent } from './components/AvatarHandsIKComponent'
+import { AvatarHeadDecapComponent } from './components/AvatarHeadDecapComponent'
 import { AvatarHeadIKComponent } from './components/AvatarHeadIKComponent'
 
+const EPSILON = 1e-6
 const euler1YXZ = new Euler()
 euler1YXZ.order = 'YXZ'
 const euler2YXZ = new Euler()
 euler2YXZ.order = 'YXZ'
-
-const vrIKQuery = defineQuery([AvatarHandsIKComponent, AvatarAnimationComponent])
-const headIKQuery = defineQuery([AvatarHeadIKComponent, AvatarAnimationComponent])
-const desiredTransformQuery = defineQuery([DesiredTransformComponent])
-const tweenQuery = defineQuery([TweenComponent])
-const animationQuery = defineQuery([AnimationComponent])
-const forward = new Vector3()
-const avatarAnimationQuery = defineQuery([AnimationComponent, AvatarAnimationComponent])
 
 export function animationActionReceptor(
   action: ReturnType<typeof WorldNetworkAction.avatarAnimation>,
@@ -51,6 +46,15 @@ export function animationActionReceptor(
 }
 
 export default async function AnimationSystem(world: World) {
+  const vrIKQuery = defineQuery([AvatarHandsIKComponent, AvatarAnimationComponent])
+  const headIKQuery = defineQuery([AvatarHeadIKComponent, AvatarAnimationComponent])
+  const headDecapQuery = defineQuery([AvatarHeadDecapComponent])
+  const desiredTransformQuery = defineQuery([DesiredTransformComponent])
+  const tweenQuery = defineQuery([TweenComponent])
+  const animationQuery = defineQuery([AnimationComponent])
+  const forward = new Vector3()
+  const avatarAnimationQuery = defineQuery([AnimationComponent, AvatarAnimationComponent])
+
   const avatarAnimationQueue = createActionQueue(WorldNetworkAction.avatarAnimation.matches)
 
   await AnimationManager.instance.loadDefaultAnimations()
@@ -131,7 +135,7 @@ export default async function AnimationSystem(world: World) {
       const ik = getComponent(entity, AvatarHandsIKComponent)
       const { rig } = getComponent(entity, AvatarAnimationComponent)
 
-      if (!rig) return
+      if (!rig) continue
 
       // Arms should not be straight for the solver to work properly
       // TODO: Make this configurable
@@ -169,6 +173,18 @@ export default async function AnimationSystem(world: World) {
       const ik = getComponent(entity, AvatarHeadIKComponent)
       getForwardVector(ik.camera.matrixWorld, forward).multiplyScalar(-1)
       solveLookIK(rig.Head, forward, ik.rotationClamp)
+    }
+
+    for (const entity of headDecapQuery(world)) {
+      if (!hasComponent(entity, AvatarAnimationComponent)) continue
+      const rig = getComponent(entity, AvatarAnimationComponent).rig
+      rig.Head.scale.setScalar(EPSILON)
+    }
+
+    for (const entity of headDecapQuery.exit(world)) {
+      if (!hasComponent(entity, AvatarAnimationComponent)) continue
+      const rig = getComponent(entity, AvatarAnimationComponent).rig
+      rig.Head.scale.setScalar(1)
     }
   }
 }

@@ -6,6 +6,7 @@ import { precacheSupport } from '@xrengine/engine/src/assets/enum/AssetType'
 import { dispatchAction } from '@xrengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
+import { delay } from '../../common/functions/delay'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions, getEngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
@@ -27,12 +28,12 @@ import { ObjectLayers } from '../constants/ObjectLayers'
 import { resetEngineRenderer } from './loaders/RenderSettingsFunction'
 import { ScenePrefabTypes } from './registerPrefabs'
 
-export const createNewEditorNode = (entity: Entity, prefabType: ScenePrefabTypes): void => {
+export const createNewEditorNode = (entityNode: EntityTreeNode, prefabType: ScenePrefabTypes): void => {
   // Clone the defualt values so that it will not be bound to newly created node
   const components = cloneDeep(Engine.instance.currentWorld.scenePrefabRegistry.get(prefabType))
   if (!components) return console.warn(`[createNewEditorNode]: ${prefabType} is not a prefab`)
 
-  loadSceneEntity(createEntityNode(entity), { name: prefabType, components })
+  loadSceneEntity(entityNode, { name: prefabType, components })
 }
 
 export const preCacheAssets = (sceneData: any, onProgress) => {
@@ -149,7 +150,7 @@ export const loadSceneFromJSON = async (sceneData: SceneJson, sceneSystems: Syst
   const promises = preCacheAssets(sceneData, onProgress)
 
   promises.forEach((promise) => promise.then(onComplete))
-  await Promise.all(promises)
+  await Promise.allSettled(promises)
 
   // todo: move these layer enable & disable to loading screen thing or something so they work with portals properly
   if (!getEngineState().isTeleporting.value) world.camera?.layers.disable(ObjectLayers.Scene)
@@ -179,7 +180,9 @@ export const loadSceneFromJSON = async (sceneData: SceneJson, sceneSystems: Syst
 
   if (!getEngineState().isTeleporting.value) Engine.instance.currentWorld.camera?.layers.enable(ObjectLayers.Scene)
 
-  dispatchAction(EngineActions.sceneLoaded()) //.delay(0.1)
+  // TODO: Have to wait because scene is not being fully loaded at this moment
+  await delay(200)
+  dispatchAction(EngineActions.sceneLoaded())
 }
 
 /**

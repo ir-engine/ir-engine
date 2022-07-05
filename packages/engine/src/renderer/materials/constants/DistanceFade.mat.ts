@@ -6,7 +6,7 @@ import { EngineRenderer } from '../../WebGLRendererSystem'
 import { MaterialParms } from '../MaterialParms'
 import { extractDefaults as format } from '../Utilities'
 import { FloatArg, TextureArg, Vec2Arg } from './DefaultArgs'
-import { MatcapArgs } from './Matcap.mat'
+import { DefaultArgs as MatcapArgs } from './Matcap.mat'
 import { DefaultArgs as StandardArgs } from './Standard.mat'
 
 export const DefaultArgs = {
