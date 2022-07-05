@@ -1,4 +1,4 @@
-import defaultThemeSettings from '@xrengine/common/src/constants/DefaultThemeSettings'
+import { defaultThemeModes, defaultThemeSettings } from '@xrengine/common/src/constants/DefaultThemeSettings'
 
 export const clientSeed = {
   path: 'client-setting',
@@ -25,7 +25,8 @@ export const clientSeed = {
         { icon: 'static/discord.svg', link: 'https://discord.gg/xrf' },
         { icon: 'static/github.svg', link: 'https://github.com/XRFoundation' }
       ]),
-      themeSettings: JSON.stringify(defaultThemeSettings)
+      themeSettings: JSON.stringify(defaultThemeSettings),
+      themeModes: JSON.stringify(defaultThemeModes)
     }
   ]
 }

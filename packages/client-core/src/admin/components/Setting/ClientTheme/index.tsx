@@ -1,8 +1,8 @@
 import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import defaultThemeSettings from '@xrengine/common/src/constants/DefaultThemeSettings'
-import { ThemeSetting } from '@xrengine/common/src/interfaces/ClientSetting'
+import { defaultThemeModes, defaultThemeSettings } from '@xrengine/common/src/constants/DefaultThemeSettings'
+import { ThemeMode, ThemeSetting } from '@xrengine/common/src/interfaces/ClientSetting'
 
 import { Button } from '@mui/material'
 
@@ -12,51 +12,58 @@ import styles from '../../../styles/settings.module.scss'
 import ColorSelectionArea from './ColorSelectionArea'
 import DemoStyle from './DemoStyle'
 import ThemePlayground from './ThemePlayground'
+import ThemeSelectionArea from './ThemeSelectionArea'
 
 const ClientTheme = () => {
+  const { t } = useTranslation()
+
   const selfUser = useAuthState().user
   const clientSettingState = useClientSettingState()
   const [clientSetting] = clientSettingState?.client?.value || []
   const id = clientSetting?.id
 
-  const { t } = useTranslation()
-
-  const [mode, setMode] = useState(selfUser?.user_setting?.value?.themeMode || 'dark')
-
-  const [themeSetting, setThemeSetting] = useState<ThemeSetting>({
+  const [themeSettings, setThemeSettings] = useState<ThemeSetting>({
     ...defaultThemeSettings,
     ...clientSetting.themeSettings
   })
+  const [themeModes, setThemeModes] = useState<ThemeMode>({
+    ...defaultThemeModes,
+    ...clientSetting.themeModes
+  })
+  const [selectedMode, setSelectedMode] = useState('light')
 
   const handleChangeColor = (name, value) => {
-    const tempSetting = JSON.parse(JSON.stringify(themeSetting))
+    const tempSetting = JSON.parse(JSON.stringify(themeSettings))
 
-    tempSetting[mode][name] = value
+    tempSetting[selectedMode][name] = value
 
-    setThemeSetting(tempSetting)
+    setThemeSettings(tempSetting)
+  }
+
+  const handleChangeMode = (event) => {
+    const { value } = event.target
+    setSelectedMode(value)
   }
 
   const handleChangeThemeMode = (event) => {
-    const { value } = event.target
-    setMode(value)
+    const { name, value } = event.target
+    setThemeModes({ ...themeModes, [name]: value })
   }
 
   const resetThemeToDefault = async () => {
-    setThemeSetting({
-      ...defaultThemeSettings,
-      ...clientSetting.themeSettings
-    })
+    setThemeSettings({ ...defaultThemeSettings })
+    setThemeModes({ ...defaultThemeModes })
 
-    await updateTheme(defaultThemeSettings)
+    await updateTheme(defaultThemeSettings, defaultThemeModes)
   }
 
   const handleSubmit = async (event) => {
     event.preventDefault()
 
-    await updateTheme(themeSetting)
+    await updateTheme(themeSettings, themeModes)
   }
 
-  const updateTheme = async (newThemeSetting: ThemeSetting) => {
+  const updateTheme = async (newThemeSettings: ThemeSetting, newThemeModes: ThemeMode) => {
     await ClientSettingService.patchClientSetting(
       {
         logo: clientSetting?.logo,
@@ -71,43 +78,55 @@ const ClientTheme = () => {
         appDescription: clientSetting?.appDescription,
         appBackground: clientSetting?.appBackground,
         appSocialLinks: JSON.stringify(clientSetting?.appSocialLinks),
-        themeSettings: JSON.stringify(newThemeSetting)
+        themeSettings: JSON.stringify(newThemeSettings),
+        themeModes: JSON.stringify(newThemeModes)
       },
       id
     )
 
     const currentTheme = selfUser?.user_setting?.value?.themeMode || 'dark'
 
-    if (newThemeSetting[currentTheme]) {
-      for (let variable of Object.keys(newThemeSetting[currentTheme])) {
+    if (newThemeSettings[currentTheme]) {
+      for (let variable of Object.keys(newThemeSettings[currentTheme])) {
         ;(document.querySelector(`[data-theme=${currentTheme}]`) as any)?.style.setProperty(
           '--' + variable,
-          newThemeSetting[currentTheme][variable]
+          newThemeSettings[currentTheme][variable]
         )
       }
     }
   }
 
   const handleCancel = () => {
-    setThemeSetting(clientSetting?.themeSettings)
+    setThemeSettings(clientSetting?.themeSettings)
+    setThemeModes(clientSetting?.themeModes)
   }
 
-  const theme = themeSetting[mode]
+  const theme = themeSettings[selectedMode]
 
   return (
     <div>
       <DemoStyle theme={theme} />
-      <ThemePlayground />
-      <ColorSelectionArea
-        mode={mode}
-        theme={theme}
-        themeModes={Object.keys(themeSetting)}
-        handleChangeThemeMode={handleChangeThemeMode}
-        handleChangeColor={handleChangeColor}
+
+      <ThemeSelectionArea
+        themeModes={themeModes}
+        colorModes={Object.keys(themeSettings)}
+        onChangeThemeMode={handleChangeThemeMode}
       />
+
+      <ThemePlayground />
+
+      <ColorSelectionArea
+        mode={selectedMode}
+        theme={theme}
+        colorModes={Object.keys(themeSettings)}
+        onChangeMode={handleChangeMode}
+        onChangeColor={handleChangeColor}
+      />
+
       <Button sx={{ maxWidth: '100%' }} variant="outlined" className={styles.cancelButton} onClick={handleCancel}>
         {t('admin:components.setting.cancel')}
       </Button>
+
       <Button
         sx={{ maxWidth: '100%', ml: 1 }}
         variant="outlined"
@@ -116,6 +135,7 @@ const ClientTheme = () => {
       >
         {t('admin:components.setting.resetTheme')}
       </Button>
+
       <Button
         sx={{ maxWidth: '100%', ml: 1 }}
         variant="contained"

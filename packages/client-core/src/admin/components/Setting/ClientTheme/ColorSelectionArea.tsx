@@ -13,22 +13,16 @@ import styles from '../../../styles/settings.module.scss'
 
 interface ColorSelectionAreaProps {
   mode: string
-  themeModes: string[]
+  colorModes: string[]
   theme: ThemeOptions
-  handleChangeThemeMode: Function
-  handleChangeColor: Function
+  onChangeMode: Function
+  onChangeColor: Function
 }
 
-const ColorSelectionArea = ({
-  mode,
-  themeModes,
-  theme,
-  handleChangeThemeMode,
-  handleChangeColor
-}: ColorSelectionAreaProps) => {
+const ColorSelectionArea = ({ mode, colorModes, theme, onChangeMode, onChangeColor }: ColorSelectionAreaProps) => {
   const { t } = useTranslation()
 
-  const modesMenu: InputMenuItem[] = themeModes.map((el) => {
+  const colorModesMenu: InputMenuItem[] = colorModes.map((el) => {
     return {
       label: _.upperFirst(el),
       value: el
@@ -40,18 +34,19 @@ const ColorSelectionArea = ({
       <Grid item sm={12} md={12} marginTop="25px">
         <InputRadio
           name="mode"
-          label={t('admin:components.setting.themeMode')}
+          label={t('admin:components.setting.theme')}
           value={mode}
-          options={modesMenu}
-          onChange={(e) => handleChangeThemeMode(e)}
+          options={colorModesMenu}
+          onChange={(e) => onChangeMode(e)}
         />
       </Grid>
+      <Divider variant="inset" component="div" className={styles.colorGridDivider} />
       <Grid item sm={12} md={12} className={styles.colorGridContainer}>
         <label>Main Background:</label>
         <SketchColorPicker
           name="mainBackground"
           value={theme.mainBackground}
-          onChange={(color) => handleChangeColor('mainBackground', color)}
+          onChange={(color) => onChangeColor('mainBackground', color)}
         />
       </Grid>
       <Divider variant="inset" component="div" className={styles.colorGridDivider} />
@@ -60,7 +55,7 @@ const ColorSelectionArea = ({
         <SketchColorPicker
           name="navbarBackground"
           value={theme.navbarBackground}
-          onChange={(color) => handleChangeColor('navbarBackground', color)}
+          onChange={(color) => onChangeColor('navbarBackground', color)}
         />
       </Grid>
       <Grid item sm={12} md={6} className={styles.colorGridContainer}>
@@ -68,7 +63,7 @@ const ColorSelectionArea = ({
         <SketchColorPicker
           name="dockBackground"
           value={theme.dockBackground}
-          onChange={(color) => handleChangeColor('dockBackground', color)}
+          onChange={(color) => onChangeColor('dockBackground', color)}
         />
       </Grid>
       <Divider variant="inset" component="div" className={styles.colorGridDivider} />
@@ -77,7 +72,7 @@ const ColorSelectionArea = ({
         <SketchColorPicker
           name="sidebarBackground"
           value={theme.sidebarBackground}
-          onChange={(color) => handleChangeColor('sidebarBackground', color)}
+          onChange={(color) => onChangeColor('sidebarBackground', color)}
         />
       </Grid>
       <Grid item sm={12} md={6} className={styles.colorGridContainer}>
@@ -85,7 +80,7 @@ const ColorSelectionArea = ({
         <SketchColorPicker
           name="sidebarSelectedBackground"
           value={theme.sidebarSelectedBackground}
-          onChange={(color) => handleChangeColor('sidebarSelectedBackground', color)}
+          onChange={(color) => onChangeColor('sidebarSelectedBackground', color)}
         />
       </Grid>
       <Divider variant="inset" component="div" className={styles.colorGridDivider} />
@@ -94,7 +89,7 @@ const ColorSelectionArea = ({
         <SketchColorPicker
           name="tableHeaderBackground"
           value={theme.tableHeaderBackground}
-          onChange={(color) => handleChangeColor('tableHeaderBackground', color)}
+          onChange={(color) => onChangeColor('tableHeaderBackground', color)}
         />
       </Grid>
       <Grid item sm={12} md={6} className={styles.colorGridContainer}>
@@ -102,7 +97,7 @@ const ColorSelectionArea = ({
         <SketchColorPicker
           name="tableCellBackground"
           value={theme.tableCellBackground}
-          onChange={(color) => handleChangeColor('tableCellBackground', color)}
+          onChange={(color) => onChangeColor('tableCellBackground', color)}
         />
       </Grid>
       <Grid item sm={12} md={12} className={styles.colorGridContainer}>
@@ -110,7 +105,7 @@ const ColorSelectionArea = ({
         <SketchColorPicker
           name="tableFooterBackground"
           value={theme.tableFooterBackground}
-          onChange={(color) => handleChangeColor('tableFooterBackground', color)}
+          onChange={(color) => onChangeColor('tableFooterBackground', color)}
         />
       </Grid>
       <Divider variant="inset" component="div" className={styles.colorGridDivider} />
@@ -119,7 +114,7 @@ const ColorSelectionArea = ({
         <SketchColorPicker
           name="textColor"
           value={theme.textColor}
-          onChange={(color) => handleChangeColor('textColor', color)}
+          onChange={(color) => onChangeColor('textColor', color)}
         />
       </Grid>
       <Grid item sm={12} md={6} className={styles.colorGridContainer}>
@@ -127,7 +122,7 @@ const ColorSelectionArea = ({
         <SketchColorPicker
           name="textHeading"
           value={theme.textHeading}
-          onChange={(color) => handleChangeColor('textHeading', color)}
+          onChange={(color) => onChangeColor('textHeading', color)}
         />
       </Grid>
       <Grid item sm={12} md={6} className={styles.colorGridContainer}>
@@ -135,7 +130,7 @@ const ColorSelectionArea = ({
         <SketchColorPicker
           name="textSubheading"
           value={theme.textSubheading}
-          onChange={(color) => handleChangeColor('textSubheading', color)}
+          onChange={(color) => onChangeColor('textSubheading', color)}
         />
       </Grid>
       <Grid item sm={12} md={6} className={styles.colorGridContainer}>
@@ -143,7 +138,7 @@ const ColorSelectionArea = ({
         <SketchColorPicker
           name="textDescription"
           value={theme.textDescription}
-          onChange={(color) => handleChangeColor('textDescription', color)}
+          onChange={(color) => onChangeColor('textDescription', color)}
         />
       </Grid>
       <Divider variant="inset" component="div" className={styles.colorGridDivider} />
@@ -152,7 +147,7 @@ const ColorSelectionArea = ({
         <SketchColorPicker
           name="panelBackground"
           value={theme.panelBackground}
-          onChange={(color) => handleChangeColor('panelBackground', color)}
+          onChange={(color) => onChangeColor('panelBackground', color)}
         />
       </Grid>
       <Grid item sm={12} md={6} className={styles.colorGridContainer}>
@@ -160,7 +155,7 @@ const ColorSelectionArea = ({
         <SketchColorPicker
           name="panelCards"
           value={theme.panelCards}
-          onChange={(color) => handleChangeColor('panelCards', color)}
+          onChange={(color) => onChangeColor('panelCards', color)}
         />
       </Grid>
       <Grid item sm={12} md={6} className={styles.colorGridContainer}>
@@ -168,7 +163,7 @@ const ColorSelectionArea = ({
         <SketchColorPicker
           name="panelCardHoverOutline"
           value={theme.panelCardHoverOutline}
-          onChange={(color) => handleChangeColor('panelCardHoverOutline', color)}
+          onChange={(color) => onChangeColor('panelCardHoverOutline', color)}
         />
       </Grid>
       <Grid item sm={12} md={6} className={styles.colorGridContainer}>
@@ -176,7 +171,7 @@ const ColorSelectionArea = ({
         <SketchColorPicker
           name="panelCardIcon"
           value={theme.panelCardIcon}
-          onChange={(color) => handleChangeColor('panelCardIcon', color)}
+          onChange={(color) => onChangeColor('panelCardIcon', color)}
         />
       </Grid>
       <Divider variant="inset" component="div" className={styles.colorGridDivider} />
@@ -185,7 +180,7 @@ const ColorSelectionArea = ({
         <SketchColorPicker
           name="iconButtonColor"
           value={theme.iconButtonColor}
-          onChange={(color) => handleChangeColor('iconButtonColor', color)}
+          onChange={(color) => onChangeColor('iconButtonColor', color)}
         />
       </Grid>
       <Grid item sm={12} md={6} className={styles.colorGridContainer}>
@@ -193,7 +188,7 @@ const ColorSelectionArea = ({
         <SketchColorPicker
           name="iconButtonBackground"
           value={theme.iconButtonBackground}
-          onChange={(color) => handleChangeColor('iconButtonBackground', color)}
+          onChange={(color) => onChangeColor('iconButtonBackground', color)}
         />
       </Grid>
       <Grid item sm={12} md={6} className={styles.colorGridContainer}>
@@ -201,7 +196,7 @@ const ColorSelectionArea = ({
         <SketchColorPicker
           name="iconButtonHoverColor"
           value={theme.iconButtonHoverColor}
-          onChange={(color) => handleChangeColor('iconButtonHoverColor', color)}
+          onChange={(color) => onChangeColor('iconButtonHoverColor', color)}
         />
       </Grid>
       <Grid item sm={12} md={6} className={styles.colorGridContainer}>
@@ -209,7 +204,7 @@ const ColorSelectionArea = ({
         <SketchColorPicker
           name="iconButtonSelectedBackground"
           value={theme.iconButtonSelectedBackground}
-          onChange={(color) => handleChangeColor('iconButtonSelectedBackground', color)}
+          onChange={(color) => onChangeColor('iconButtonSelectedBackground', color)}
         />
       </Grid>
       <Divider variant="inset" component="div" className={styles.colorGridDivider} />
@@ -218,7 +213,7 @@ const ColorSelectionArea = ({
         <SketchColorPicker
           name="buttonTextColor"
           value={theme.buttonTextColor}
-          onChange={(color) => handleChangeColor('buttonTextColor', color)}
+          onChange={(color) => onChangeColor('buttonTextColor', color)}
         />
       </Grid>
       <Grid item sm={12} md={6} className={styles.colorGridContainer}>
@@ -226,7 +221,7 @@ const ColorSelectionArea = ({
         <SketchColorPicker
           name="buttonOutlined"
           value={theme.buttonOutlined}
-          onChange={(color) => handleChangeColor('buttonOutlined', color)}
+          onChange={(color) => onChangeColor('buttonOutlined', color)}
         />
       </Grid>
       <Grid item sm={12} md={6} className={styles.colorGridContainer}>
@@ -234,7 +229,7 @@ const ColorSelectionArea = ({
         <SketchColorPicker
           name="buttonFilled"
           value={theme.buttonFilled}
-          onChange={(color) => handleChangeColor('buttonFilled', color)}
+          onChange={(color) => onChangeColor('buttonFilled', color)}
         />
       </Grid>
       <Grid item sm={12} md={6} className={styles.colorGridContainer}>
@@ -242,13 +237,13 @@ const ColorSelectionArea = ({
         <SketchColorPicker
           name="buttonGradientStart"
           value={theme.buttonGradientStart}
-          onChange={(color) => handleChangeColor('buttonGradientStart', color)}
+          onChange={(color) => onChangeColor('buttonGradientStart', color)}
         />
         <label>to</label>
         <SketchColorPicker
           name="buttonGradientEnd"
           value={theme.buttonGradientEnd}
-          onChange={(color) => handleChangeColor('buttonGradientEnd', color)}
+          onChange={(color) => onChangeColor('buttonGradientEnd', color)}
         />
       </Grid>
       <Divider variant="inset" component="div" className={styles.colorGridDivider} />
@@ -257,13 +252,13 @@ const ColorSelectionArea = ({
         <SketchColorPicker
           name="scrollbarThumbXAxisStart"
           value={theme.scrollbarThumbXAxisStart}
-          onChange={(color) => handleChangeColor('scrollbarThumbXAxisStart', color)}
+          onChange={(color) => onChangeColor('scrollbarThumbXAxisStart', color)}
         />
         <label>to</label>
         <SketchColorPicker
           name="scrollbarThumbXAxisEnd"
           value={theme.scrollbarThumbXAxisEnd}
-          onChange={(color) => handleChangeColor('scrollbarThumbXAxisEnd', color)}
+          onChange={(color) => onChangeColor('scrollbarThumbXAxisEnd', color)}
         />
       </Grid>
       <Grid item sm={12} md={6} className={styles.colorGridContainer}>
@@ -271,13 +266,13 @@ const ColorSelectionArea = ({
         <SketchColorPicker
           name="scrollbarThumbYAxisStart"
           value={theme.scrollbarThumbYAxisStart}
-          onChange={(color) => handleChangeColor('scrollbarThumbYAxisStart', color)}
+          onChange={(color) => onChangeColor('scrollbarThumbYAxisStart', color)}
         />
         <label>to</label>
         <SketchColorPicker
           name="scrollbarThumbYAxisEnd"
           value={theme.scrollbarThumbYAxisEnd}
-          onChange={(color) => handleChangeColor('scrollbarThumbYAxisEnd', color)}
+          onChange={(color) => onChangeColor('scrollbarThumbYAxisEnd', color)}
         />
       </Grid>
       <Grid item sm={12} md={6} className={styles.colorGridContainer}>
@@ -285,7 +280,7 @@ const ColorSelectionArea = ({
         <SketchColorPicker
           name="scrollbarCorner"
           value={theme.scrollbarCorner}
-          onChange={(color) => handleChangeColor('scrollbarCorner', color)}
+          onChange={(color) => onChangeColor('scrollbarCorner', color)}
         />
       </Grid>
       <Divider variant="inset" component="div" className={styles.colorGridDivider} />
@@ -294,7 +289,7 @@ const ColorSelectionArea = ({
         <SketchColorPicker
           name="inputOutline"
           value={theme.inputOutline}
-          onChange={(color) => handleChangeColor('inputOutline', color)}
+          onChange={(color) => onChangeColor('inputOutline', color)}
         />
       </Grid>
       <Grid item sm={12} md={6} className={styles.colorGridContainer}>
@@ -302,7 +297,7 @@ const ColorSelectionArea = ({
         <SketchColorPicker
           name="inputBackground"
           value={theme.inputBackground}
-          onChange={(color) => handleChangeColor('inputBackground', color)}
+          onChange={(color) => onChangeColor('inputBackground', color)}
         />
       </Grid>
       <Divider variant="inset" component="div" className={styles.colorGridDivider} />
@@ -311,7 +306,7 @@ const ColorSelectionArea = ({
         <SketchColorPicker
           name="dropdownMenuBackground"
           value={theme.dropdownMenuBackground}
-          onChange={(color) => handleChangeColor('dropdownMenuBackground', color)}
+          onChange={(color) => onChangeColor('dropdownMenuBackground', color)}
         />
       </Grid>
       <Grid item sm={12} md={6} className={styles.colorGridContainer}>
@@ -319,7 +314,7 @@ const ColorSelectionArea = ({
         <SketchColorPicker
           name="dropdownMenuHoverBackground"
           value={theme.dropdownMenuHoverBackground}
-          onChange={(color) => handleChangeColor('dropdownMenuHoverBackground', color)}
+          onChange={(color) => onChangeColor('dropdownMenuHoverBackground', color)}
         />
       </Grid>
       <Grid item sm={12} md={6} className={styles.colorGridContainer}>
@@ -327,7 +322,7 @@ const ColorSelectionArea = ({
         <SketchColorPicker
           name="dropdownMenuSelectedBackground"
           value={theme.dropdownMenuSelectedBackground}
-          onChange={(color) => handleChangeColor('dropdownMenuSelectedBackground', color)}
+          onChange={(color) => onChangeColor('dropdownMenuSelectedBackground', color)}
         />
       </Grid>
       <Grid item sm={12} md={6} className={styles.colorGridContainer}>
@@ -335,7 +330,7 @@ const ColorSelectionArea = ({
         <SketchColorPicker
           name="drawerBackground"
           value={theme.drawerBackground}
-          onChange={(color) => handleChangeColor('drawerBackground', color)}
+          onChange={(color) => onChangeColor('drawerBackground', color)}
         />
       </Grid>
       <Grid item sm={12} md={6} className={styles.colorGridContainer}>
@@ -343,9 +338,10 @@ const ColorSelectionArea = ({
         <SketchColorPicker
           name="popupBackground"
           value={theme.popupBackground}
-          onChange={(color) => handleChangeColor('popupBackground', color)}
+          onChange={(color) => onChangeColor('popupBackground', color)}
         />
       </Grid>
+      <Divider variant="inset" component="div" className={styles.colorGridDivider} />
     </Grid>
   )
 }

@@ -96,7 +96,8 @@ const Client = () => {
         appDescription: appDescription,
         appBackground: appBackground,
         appSocialLinks: JSON.stringify(appSocialLinks),
-        themeSettings: JSON.stringify(clientSetting?.themeSettings)
+        themeSettings: JSON.stringify(clientSetting?.themeSettings),
+        themeModes: JSON.stringify(clientSetting?.themeModes)
       },
       id
     )

@@ -1,4 +1,4 @@
-const defaultThemeSettings = {
+export const defaultThemeSettings = {
   light: {
     textColor: '#585858',
     navbarBackground: '#e7e7e7',
@@ -124,4 +124,8 @@ const defaultThemeSettings = {
   }
 }
 
-export default defaultThemeSettings
+export const defaultThemeModes = {
+  client: 'light',
+  studio: 'dark',
+  admin: 'vaporwave'
+}

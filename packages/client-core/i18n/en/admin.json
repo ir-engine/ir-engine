@@ -349,7 +349,10 @@
       "delete" : "Delete",
       "addSocialLink": "Add Social Link",
       "themePlayground": "Theme Playground",
-      "themeMode": "Theme Mode"
+      "defaultThemes": "Default Themes",
+      "theme": "Theme",
+      "studio": "Studio",
+      "admin": "Admin"
     },
     "avatar": {
       "source": "Source",
