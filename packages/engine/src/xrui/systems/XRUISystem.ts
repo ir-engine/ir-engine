@@ -1,9 +1,11 @@
+import { WebContainer3D } from '@etherealjs/web-layer/three'
 import { Color, Mesh, MeshBasicMaterial, Raycaster } from 'three'
 
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { dispatchAction } from '@xrengine/hyperflux'
 
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
+import { LifecycleValue } from '../../common/enums/LifecycleValue'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions } from '../../ecs/classes/EngineState'
 import { World } from '../../ecs/classes/World'
@@ -11,10 +13,15 @@ import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunction
 import { InputComponent } from '../../input/components/InputComponent'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
 import { BaseInput } from '../../input/enums/BaseInput'
+import { InputValue } from '../../input/interfaces/InputValue'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
-import { XRInputSourceComponent, XRInputSourceComponentType } from '../../xr/components/XRInputSourceComponent'
+import {
+  ControllerGroup,
+  XRInputSourceComponent,
+  XRInputSourceComponentType
+} from '../../xr/components/XRInputSourceComponent'
 import { XRUIManager } from '../classes/XRUIManager'
 import { XRUIComponent } from '../components/XRUIComponent'
 
@@ -27,11 +34,9 @@ export default async function XRUISystem(world: World) {
   const xruiQuery = defineQuery([XRUIComponent])
   const avatar = defineQuery([AvatarComponent, NetworkObjectComponent])
   const localXRInputQuery = defineQuery([LocalInputTagComponent, XRInputSourceComponent])
-  const controllerLastHitTarget: string[] = []
   const hoverSfxPath = Engine.instance.publicPath + '/default_assets/audio/ui-hover.mp3'
   const hoverAudio = new Audio()
   hoverAudio.src = hoverSfxPath
-  let idCounter = 0
 
   const xrui = (XRUIManager.instance = new XRUIManager(await import('@etherealjs/web-layer/three')))
   xrui.WebLayerModule.WebLayerManager.initialize(renderer)
@@ -56,6 +61,7 @@ export default async function XRUISystem(world: World) {
   // to the appropriate child Web3DLayer, and finally (back) to the
   // DOM to dispatch an event on the intended DOM target
   const redirectDOMEvent = (evt) => {
+    console.log(evt)
     for (const entity of xruiQuery()) {
       const layer = getComponent(entity, XRUIComponent).container
       const hit = layer.hitTest(screenRaycaster.ray)
@@ -78,74 +84,70 @@ export default async function XRUISystem(world: World) {
     dispatchAction(EngineActions.userAvatarTapped({ userId: '' as UserId }))
   }
 
-  const updateControllerRayInteraction = (inputComponent: XRInputSourceComponentType) => {
-    const controllers = [inputComponent.controllerLeft, inputComponent.controllerRight]
+  const updateControllerRayInteraction = (controller: ControllerGroup) => {
+    const cursor = controller.cursor
+    let hit = null! as ReturnType<typeof WebContainer3D.prototype.hitTest>
 
-    for (const [i, controller] of controllers.entries()) {
-      const cursor = controller.cursor
-      let hit = null! as any
+    for (const entity of xruiQuery()) {
+      const layer = getComponent(entity, XRUIComponent).container
 
-      for (const entity of xruiQuery()) {
-        const layer = getComponent(entity, XRUIComponent).container
+      /**
+       * get closest hit from all XRUIs
+       */
+      const layerHit = layer.hitTest(controller)
+      if (layerHit && (!hit || layerHit.intersection.distance < hit.intersection.distance)) hit = layerHit
+    }
 
-        /**
-         * get closest hit from all XRUIs
-         */
-        const layerHit = layer.hitTest(controller)
-        if (layerHit && (!hit || layerHit.intersection.distance < hit.intersection.distance)) hit = layerHit
-      }
+    if (hit) {
+      const interactable = window.getComputedStyle(hit.target).cursor == 'pointer'
 
-      if (hit) {
-        const interactable = window.getComputedStyle(hit.target).cursor == 'pointer'
-
-        if (cursor) {
-          cursor.visible = true
-          cursor.position.copy(hit.intersection.point)
-          controller.worldToLocal(cursor.position)
-
-          if (interactable) {
-            cursor.material.color = hitColor
-          } else {
-            cursor.material.color = normalColor
-          }
-        }
+      if (cursor) {
+        cursor.visible = true
+        cursor.position.copy(hit.intersection.point)
+        controller.worldToLocal(cursor.position)
 
         if (interactable) {
-          if (!hit.target.id) {
-            hit.target.id = 'interactable-' + ++idCounter
-          }
-
-          const lastHit = controllerLastHitTarget[i]
-
-          if (lastHit != hit.target.id) {
-            console.log(lastHit, hit.target.id)
-            hoverAudio.pause()
-            hoverAudio.currentTime = 0
-            hoverAudio.play()
-          }
-
-          controllerLastHitTarget[i] = hit.target.id
-        }
-      } else {
-        if (cursor) {
+          cursor.material.color = hitColor
+        } else {
           cursor.material.color = normalColor
-          cursor.visible = false
         }
+      }
+
+      if (interactable) {
+        if (controller.lastHit?.target !== hit.target) {
+          console.log(controller.lastHit, hit.target.id)
+          hoverAudio.pause()
+          hoverAudio.currentTime = 0
+          hoverAudio.play()
+        }
+      }
+
+      controller.lastHit = hit
+    } else {
+      if (cursor) {
+        cursor.material.color = normalColor
+        cursor.visible = false
       }
     }
   }
 
-  let addedEventListeners = false
+  const updateClickEventsForController = (controller: ControllerGroup, inputValue: InputValue) => {
+    if (inputValue.lifecycleState !== LifecycleValue.Started) return
+    if (controller.cursor.visible) {
+      const hit = controller.lastHit
+      if (hit && hit.intersection.object.visible) {
+        hit.target.dispatchEvent(new PointerEvent('click', { bubbles: true }))
+        hit.target.focus()
+      }
+    }
+  }
+
+  const canvas = EngineRenderer.instance.renderer.getContext().canvas
+  canvas.addEventListener('click', redirectDOMEvent)
+  canvas.addEventListener('contextmenu', redirectDOMEvent)
+  canvas.addEventListener('dblclick', redirectDOMEvent)
 
   return () => {
-    if (!addedEventListeners) {
-      const canvas = EngineRenderer.instance.renderer.getContext().canvas
-      canvas.addEventListener('click', redirectDOMEvent)
-      canvas.addEventListener('contextmenu', redirectDOMEvent)
-      canvas.addEventListener('dblclick', redirectDOMEvent)
-      addedEventListeners = true
-    }
-
     const input = getComponent(world.localClientEntity, InputComponent)
     const screenXY = input?.data?.get(BaseInput.SCREENXY)?.value
     if (screenXY) {
@@ -167,7 +169,14 @@ export default async function XRUISystem(world: World) {
 
     for (const entity of localXRInputQuery()) {
       const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
-      updateControllerRayInteraction(xrInputSourceComponent)
+
+      updateControllerRayInteraction(xrInputSourceComponent.controllerLeft)
+      if (input?.data?.has(BaseInput.GRAB_LEFT))
+        updateClickEventsForController(xrInputSourceComponent.controllerLeft, input.data.get(BaseInput.GRAB_LEFT)!)
+
+      updateControllerRayInteraction(xrInputSourceComponent.controllerRight)
+      if (input?.data?.has(BaseInput.GRAB_RIGHT))
+        updateClickEventsForController(xrInputSourceComponent.controllerRight, input.data.get(BaseInput.GRAB_RIGHT)!)
     }
 
     for (const entity of localXRInputQuery.exit()) {

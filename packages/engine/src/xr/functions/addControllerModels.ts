@@ -29,16 +29,16 @@ const createUICursor = () => {
 const setupController = (inputSource: XRInputSource, controller: ControllerGroup) => {
   const avatarInputState = accessAvatarInputSettingsState()
   if (inputSource) {
-    const canUseController =
-      inputSource.hand === null && avatarInputState.controlType.value === AvatarControllerType.OculusQuest
-    const canUseHands = inputSource.hand !== null && avatarInputState.controlType.value === AvatarControllerType.XRHands
-    if (canUseController || canUseHands) {
-      const targetRay = createController(inputSource)
-      if (targetRay) {
-        controller.add(targetRay)
-        controller.targetRay = targetRay
-      }
+    // const canUseController =
+    //   inputSource.hand === null && avatarInputState.controlType.value === AvatarControllerType.OculusQuest
+    // const canUseHands = inputSource.hand !== null && avatarInputState.controlType.value === AvatarControllerType.XRHands
+    // if (canUseController || canUseHands) {
+    const targetRay = createController(inputSource)
+    if (targetRay) {
+      controller.add(targetRay)
+      controller.targetRay = targetRay
     }
+    // }
   }
 
   if (!controller.cursor) {

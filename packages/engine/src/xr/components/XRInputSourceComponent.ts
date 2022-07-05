@@ -1,3 +1,4 @@
+import { WebContainer3D } from '@etherealjs/web-layer/three/WebContainer3D'
 import { BufferGeometry, Group, Mesh, MeshBasicMaterial } from 'three'
 
 import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
@@ -6,6 +7,7 @@ import { QuaternionSchema, Vector3Schema } from '../../transform/components/Tran
 export type ControllerGroup = Group & {
   targetRay: Mesh<BufferGeometry, MeshBasicMaterial>
   cursor: Mesh<BufferGeometry, MeshBasicMaterial>
+  lastHit: ReturnType<typeof WebContainer3D.prototype.hitTest> | null
 }
 
 export type XRInputSourceComponentType = {

@@ -68,11 +68,11 @@ export const ObjectFitFunctions = {
       // todo: figure out how to scale this properly
       // container.scale.x = container.scale.y = 0.5 * scale
       // todo: use handedness option to settings
-      if (container.parent !== avatarAnimationComponent.rig.LeftHand) {
+      if (container.parent !== Engine.instance.currentWorld.scene) {
         container.removeFromParent()
         Engine.instance.currentWorld.scene.add(container)
-        avatarAnimationComponent.rig.LeftHand.getWorldPosition(container.position)
       }
+      avatarAnimationComponent.rig.LeftHand.getWorldPosition(container.position)
       // container.position.z = 0.1
       container.updateMatrixWorld(true)
       // container.rotation.z = HALF_PI
