@@ -56,7 +56,7 @@ export const useShareMenuHooks = ({ refLink }) => {
     setEmail('')
   }
 
-  const handleChang = (e) => {
+  const handleChange = (e) => {
     setEmail(e.target.value)
   }
 
@@ -76,7 +76,7 @@ export const useShareMenuHooks = ({ refLink }) => {
     copyLinkToClipboard,
     shareOnApps,
     packageInvite,
-    handleChang,
+    handleChange,
     getInviteLink,
     email
   }
@@ -87,7 +87,7 @@ const ShareMenu = (): JSX.Element => {
 
   const refLink = useRef() as React.MutableRefObject<HTMLInputElement>
 
-  const { copyLinkToClipboard, shareOnApps, packageInvite, handleChang, getInviteLink, email } = useShareMenuHooks({
+  const { copyLinkToClipboard, shareOnApps, packageInvite, handleChange, getInviteLink, email } = useShareMenuHooks({
     refLink
   })
 
@@ -118,7 +118,7 @@ const ShareMenu = (): JSX.Element => {
           placeholder={t('user:usermenu.share.ph-phoneEmail')}
           variant="outlined"
           value={email}
-          onChange={(e) => handleChang(e)}
+          onChange={(e) => handleChange(e)}
         />
         <div className={styles.sendInviteContainer}>
           <Button className={styles.sendInvite} onClick={packageInvite}>

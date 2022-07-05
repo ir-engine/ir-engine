@@ -32,6 +32,7 @@ import {
   validate
 } from '../../../user/components/UserMenu/menus/helperFunctions'
 import { AuthService } from '../../../user/services/AuthService'
+import XRInput from '../../components/XRInput'
 import styleString from './index.scss'
 
 export function createUploadAvatarMenu() {
@@ -283,23 +284,15 @@ export const UploadAvatarMenu = () => {
           </div>
         )}
         <div className="paper2">
-          <div className="inviteBox">
-            <div className="inviteContainer">
-              <input
-                aria-invalid="false"
-                id="avatarName"
-                name="avatarname"
-                type="text"
-                className="inviteLinkInput"
-                value={avatarName}
-                onChange={handleAvatarNameChange}
-                placeholder="Avatar Name"
-              />
-              <fieldset aria-hidden="true" className="linkFieldset">
-                <legend className="linkLegend" />
-              </fieldset>
-            </div>
-          </div>
+          <XRInput
+            aria-invalid="false"
+            id="avatarName"
+            name="avatarname"
+            type="text"
+            value={avatarName}
+            onChange={handleAvatarNameChange}
+            placeholder="Avatar Name"
+          />
         </div>
         <div className="tabRoot">
           <div
@@ -322,32 +315,8 @@ export const UploadAvatarMenu = () => {
         {activeSourceType === 0 ? (
           <div className="controlContainer">
             <div className="selectBtns" style={{ margin: '14px 0' }}>
-              <div className="inviteBox">
-                <div className="inviteContainer">
-                  <input
-                    placeholder="Paste Avatar Url..."
-                    className="inviteLinkInput"
-                    value={avatarUrl}
-                    onChange={handleAvatarUrlChange}
-                  />
-                  <fieldset aria-hidden="true" className="linkFieldset">
-                    <legend className="linkLegend" />
-                  </fieldset>
-                </div>
-              </div>
-              <div className="inviteBox">
-                <div className="inviteContainer">
-                  <input
-                    className="inviteLinkInput"
-                    value={thumbnailUrl}
-                    onChange={handleThumbnailUrlChange}
-                    placeholder="Paste Thumbnail Url..."
-                  />
-                  <fieldset aria-hidden="true" className="linkFieldset">
-                    <legend className="linkLegend" />
-                  </fieldset>
-                </div>
-              </div>
+              <XRInput placeholder="Paste Avatar Url..." value={avatarUrl} onChange={handleAvatarUrlChange} />
+              <XRInput value={thumbnailUrl} onChange={handleThumbnailUrlChange} placeholder="Paste Thumbnail Url..." />
             </div>
             <button
               type="button"

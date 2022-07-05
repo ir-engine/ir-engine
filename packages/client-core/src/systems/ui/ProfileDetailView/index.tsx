@@ -23,6 +23,7 @@ import { TwitterIcon } from '../../../common/components/Icons/TwitterIcon'
 import { NotificationService } from '../../../common/services/NotificationService'
 import { getAvatarURLForUser } from '../../../user/components/UserMenu/util'
 import { AuthService, useAuthState } from '../../../user/services/AuthService'
+import XRInput from '../../components/XRInput'
 import styleString from './index.scss'
 
 const initialAuthState = {
@@ -308,29 +309,17 @@ const ProfileDetailView = () => {
             </div>
             <div className="headerBlock">
               <h1 className="panelHeader">{t('user:usermenu.profile.lbl-username')}</h1>
-              <div className="inviteBox">
-                <div className="inviteContainer">
-                  <input
-                    aria-invalid="false"
-                    type="text"
-                    className="inviteLinkInput"
-                    value={username || ''}
-                    onChange={handleUsernameChange}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') updateUserName(e)
-                    }}
-                  />
-
-                  <div className="copyInviteContainer" onClick={updateUserName}>
-                    <Check className="primaryForeground" />
-                  </div>
-
-                  <fieldset aria-hidden="true" className="linkFieldset">
-                    <legend className="linkLegend" />
-                  </fieldset>
-                </div>
-              </div>
-
+              <XRInput
+                aria-invalid="false"
+                type="text"
+                value={username || ''}
+                onChange={handleUsernameChange}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') updateUserName(e)
+                }}
+                endIcon={<Check />}
+                endIconClick={updateUserName}
+              />
               <div className="detailsContainer">
                 <h2>
                   {userRole === 'admin' ? t('user:usermenu.profile.youAreAn') : t('user:usermenu.profile.youAreA')}
@@ -395,84 +384,54 @@ const ProfileDetailView = () => {
           {showUserId && (
             <section className="emailPhoneSection">
               <h1 className="panelHeader">{t('user:usermenu.profile.userIcon.userId')}</h1>
-              <div className="inviteBox">
-                <div className="inviteContainer">
-                  <input aria-invalid="false" disabled={true} type="text" className="inviteLinkInput" value={userId} />
-
-                  <div
-                    className="copyInviteContainer"
-                    onClick={() => {
-                      navigator.clipboard.writeText(userId)
-                      NotificationService.dispatchNotify('User ID copied', {
-                        variant: 'success'
-                      })
-                    }}
-                  >
-                    <ContentCopyIcon className="primaryForeground" />
-                  </div>
-
-                  <fieldset aria-hidden="true" className="linkFieldset">
-                    <legend className="linkLegend" />
-                  </fieldset>
-                </div>
-              </div>
+              <XRInput
+                aria-invalid="false"
+                disabled={true}
+                type="text"
+                value={userId}
+                endIcon={<ContentCopyIcon />}
+                endIconClick={() => {
+                  navigator.clipboard.writeText(userId)
+                  NotificationService.dispatchNotify('User ID copied', {
+                    variant: 'success'
+                  })
+                }}
+              />
             </section>
           )}
 
           {showApiKey && (
             <section className="emailPhoneSection">
               <h1 className="panelHeader">{t('user:usermenu.profile.apiKey')}</h1>
-              <div className="inviteBox">
-                <div className="inviteContainer">
-                  <div className="refreshApiContainer" onClick={refreshApiKey}>
-                    <RefreshIcon className="primaryForeground" />
-                  </div>
-                  <input aria-invalid="false" disabled={true} type="text" className="inviteLinkInput" value={apiKey} />
-
-                  <div
-                    className="copyInviteContainer"
-                    onClick={() => {
-                      navigator.clipboard.writeText(apiKey)
-                      NotificationService.dispatchNotify('API Key copied', {
-                        variant: 'success'
-                      })
-                    }}
-                  >
-                    <ContentCopyIcon className="primaryForeground" />
-                  </div>
-
-                  <fieldset aria-hidden="true" className="linkFieldset">
-                    <legend className="linkLegend" />
-                  </fieldset>
-                </div>
-              </div>
+              <XRInput
+                aria-invalid="false"
+                disabled={true}
+                type="text"
+                value={apiKey}
+                endIcon={<ContentCopyIcon />}
+                endIconClick={() => {
+                  navigator.clipboard.writeText(apiKey)
+                  NotificationService.dispatchNotify('API Key copied', {
+                    variant: 'success'
+                  })
+                }}
+              />
             </section>
           )}
 
           {userRole === 'guest' && enableConnect && (
             <section className="emailPhoneSection">
               <h1 className="panelHeader">{getConnectText()}</h1>
-              <div className="inviteBox">
-                <div className="inviteContainer">
-                  <input
-                    aria-invalid="false"
-                    type="text"
-                    className="inviteLinkInput"
-                    value={apiKey}
-                    placeholder={getConnectPlaceholder()}
-                    onChange={handleInputChange}
-                    onBlur={validate}
-                  />
-
-                  <div className="copyInviteContainer" onClick={handleGuestSubmit}>
-                    <ContentCopyIcon className="primaryForeground" />
-                  </div>
-
-                  <fieldset aria-hidden="true" className="linkFieldset">
-                    <legend className="linkLegend" />
-                  </fieldset>
-                </div>
-              </div>
+              <XRInput
+                aria-invalid="false"
+                type="text"
+                value={apiKey}
+                placeholder={getConnectPlaceholder()}
+                onChange={handleInputChange}
+                onBlur={validate}
+                endIcon={<ContentCopyIcon />}
+                endIconClick={handleGuestSubmit}
+              />
               {loading && (
                 <div className="container">
                   <CircularProgress size={30} />
