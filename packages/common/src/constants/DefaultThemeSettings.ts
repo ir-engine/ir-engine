@@ -128,7 +128,7 @@ export const defaultThemeSettings = {
 
 export const defaultThemeModes = {
   client: 'light',
-  studio: 'dark',
+  editor: 'dark',
   admin: 'vaporwave'
 }
 
@@ -139,7 +139,7 @@ export const getCurrentTheme = (themeModes: ThemeMode | undefined) => {
   if (pathname.startsWith('/admin')) {
     return currentThemeModes['admin']
   } else if (pathname.startsWith('/editor')) {
-    return currentThemeModes['studio']
+    return currentThemeModes['editor']
   }
 
   return currentThemeModes['client']
