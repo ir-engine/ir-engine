@@ -123,7 +123,7 @@ describe('Hyperflux Unit Tests', () => {
 
   it('should be able to dispatch an action to a peer store', () => {
     const store = createHyperStore({
-      getDispatchMode: () => 'peer',
+      forwardIncomingActions: () => 'peer',
       getDispatchId: () => 'id',
       getDispatchTime: () => Date.now()
     })
@@ -153,7 +153,7 @@ describe('Hyperflux Unit Tests', () => {
 
   it('should be able to dispatch an action to a host store', () => {
     const store = createHyperStore({
-      getDispatchMode: () => 'host',
+      forwardIncomingActions: () => 'host',
       getDispatchId: () => 'id',
       getDispatchTime: () => Date.now()
     })
@@ -178,7 +178,7 @@ describe('Hyperflux Unit Tests', () => {
 
   it('should be able to dispatch an action to a peer store', () => {
     const store = createHyperStore({
-      getDispatchMode: () => 'peer',
+      forwardIncomingActions: () => 'peer',
       getDispatchId: () => 'id',
       getDispatchTime: () => Date.now()
     })
@@ -305,7 +305,7 @@ describe('Hyperflux Unit Tests', () => {
 
   it('should be able to apply incoming actions to receptors in a peer store', () => {
     const store = createHyperStore({
-      getDispatchMode: () => 'peer',
+      forwardIncomingActions: () => 'peer',
       getDispatchId: () => 'id',
       getDispatchTime: () => Date.now()
     })
@@ -331,7 +331,7 @@ describe('Hyperflux Unit Tests', () => {
 
   it('should be able to apply multiple actions at once to a peer store', () => {
     const store = createHyperStore({
-      getDispatchMode: () => 'peer',
+      forwardIncomingActions: () => 'peer',
       getDispatchId: () => 'id',
       getDispatchTime: () => Date.now()
     })
@@ -369,7 +369,7 @@ describe('Hyperflux Unit Tests', () => {
 
   it('should be able to apply multiple actions at once to a host store', () => {
     const store = createHyperStore({
-      getDispatchMode: () => 'host',
+      forwardIncomingActions: () => 'host',
       getDispatchId: () => 'id',
       getDispatchTime: () => Date.now()
     })

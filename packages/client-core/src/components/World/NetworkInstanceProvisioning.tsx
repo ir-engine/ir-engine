@@ -122,7 +122,7 @@ export const NetworkInstanceProvisioning = () => {
   ])
 
   useHookEffect(() => {
-    if (!engineState.connectedWorld.value || !engineState.sceneLoaded.value || engineState.joinedWorld.value) return
+    if (!engineState.connectedWorld.value || !engineState.sceneLoaded.value) return
 
     const transportRequestData = {
       inviteCode: getSearchParamFromURL('inviteCode')!,

@@ -20,14 +20,10 @@ export class Engine {
   userId: UserId
 
   store = createHyperStore({
-    getDispatchMode: (topic: string) => {
-      console.log(topic)
-      return topic === this.store.defaultTopic
-        ? 'local'
-        : (topic === NetworkTopics.world ? this.currentWorld.worldNetwork : this.currentWorld.mediaNetwork)!.isHosting
-        ? 'host'
-        : 'peer'
-    },
+    forwardIncomingActions: (topic: string) =>
+      topic === this.store.defaultTopic
+        ? false
+        : (topic === NetworkTopics.world ? this.currentWorld.worldNetwork : this.currentWorld.mediaNetwork)!.isHosting,
     getDispatchId: () => Engine.instance.userId,
     getDispatchTime: () => Date.now(),
     defaultDispatchDelay: 1 / this.tickRate

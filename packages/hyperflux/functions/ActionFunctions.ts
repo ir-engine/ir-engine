@@ -270,9 +270,8 @@ const dispatchAction = <A extends Action>(
     action.$stack = stack
   }
 
-  const mode = store.getDispatchMode(topic)
-  if (mode === 'local' || mode === 'host') store.actions.incoming.push(action as Required<ResolvedActionType>)
-  else store.actions.outgoing[topic].queue.push(action as Required<ResolvedActionType>)
+  store.actions.incoming.push(action as Required<ResolvedActionType>)
+  store.actions.outgoing[topic].queue.push(action as Required<ResolvedActionType>)
 }
 
 function addTopic(topic: string, store = HyperFlux.store) {
@@ -391,7 +390,7 @@ const _applyIncomingAction = (action: Required<ResolvedActionType>, store = Hype
     console.log(`[Action]: ${action.type}`, action)
     for (const receptor of [...store.receptors]) receptor(action)
     store.actions.incomingHistory.set(action.$uuid, action)
-    if (store.getDispatchMode(action.$topic) === 'host') {
+    if (store.forwardIncomingActions(action.$topic)) {
       store.actions.outgoing[action.$topic].queue.push(action)
     }
   } catch (e) {

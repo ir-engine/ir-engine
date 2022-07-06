@@ -394,7 +394,6 @@ export async function handleJoinWorld(
     worldStartTime: world.startTime,
     client: { name: user.name, index: client.index },
     cachedActions,
-    avatarDetail: world.users.get(userId)!.avatarDetail!,
     avatarSpawnPose: spawnPose,
     spectateUserId
   })

@@ -21,45 +21,60 @@ export type JoinWorldProps = {
   worldStartTime: number
   client: { name: string; index: number }
   cachedActions: Required<Action>[]
-  avatarDetail: AvatarProps
   avatarSpawnPose?: { position: Vector3; rotation: Quaternion }
   spectateUserId?: UserId | 'none'
 }
 
+export type SpawnInWorldProps = {
+  avatarSpawnPose: { position: Vector3; rotation: Quaternion }
+  avatarDetail: AvatarProps
+  name: string
+}
+
+export const spawnLocalAvatarInWorld = (props: SpawnInWorldProps) => {
+  const { avatarSpawnPose, avatarDetail, name } = props
+  console.log('SPAWN IN WORLD', avatarSpawnPose, avatarDetail, name)
+  Engine.instance.currentWorld.users.set(Engine.instance.userId, {
+    userId: Engine.instance.userId,
+    name
+  })
+  dispatchAction(WorldNetworkAction.spawnAvatar({ parameters: avatarSpawnPose }), NetworkTopics.world)
+  dispatchAction(WorldNetworkAction.avatarDetails({ avatarDetail }), NetworkTopics.world)
+  dispatchAction(EngineActions.joinedWorld())
+}
+
 export const receiveJoinWorld = (props: JoinWorldProps) => {
   if (!props) return
-  const { highResTimeOrigin, worldStartTime, client, cachedActions, avatarDetail, avatarSpawnPose, spectateUserId } =
-    props
+  const { highResTimeOrigin, worldStartTime, client, cachedActions, avatarSpawnPose, spectateUserId } = props
   console.log(
     'RECEIVED JOIN WORLD RESPONSE',
     highResTimeOrigin,
     worldStartTime,
     client,
     cachedActions,
-    avatarDetail,
     avatarSpawnPose,
     spectateUserId
   )
-  dispatchAction(EngineActions.joinedWorld())
-  const world = Engine.instance.currentWorld
+  // const world = Engine.instance.currentWorld
 
-  const engineState = getEngineState()
+  // const engineState = getEngineState()
 
-  const spawnPose = engineState.isTeleporting.value
-    ? {
-        position: world.activePortal.remoteSpawnPosition,
-        rotation: world.activePortal.remoteSpawnRotation
-      }
-    : avatarSpawnPose
+  // const spawnPose = engineState.isTeleporting.value
+  //   ? {
+  //       position: world.activePortal.remoteSpawnPosition,
+  //       rotation: world.activePortal.remoteSpawnRotation
+  //     }
+  //   : avatarSpawnPose
 
   for (const action of cachedActions) Engine.instance.store.actions.incoming.push({ ...action, $fromCache: true })
 
   dispatchAction(WorldNetworkAction.createPeer(client), NetworkTopics.world)
-
   if (spectateUserId) {
     if (spectateUserId !== 'none') dispatchAction(EngineActions.spectateUser({ user: spectateUserId }))
-  } else if (spawnPose) {
-    dispatchAction(WorldNetworkAction.spawnAvatar({ parameters: spawnPose }), NetworkTopics.world)
-    dispatchAction(WorldNetworkAction.avatarDetails({ avatarDetail }), NetworkTopics.world)
   }
+  //  else if (spawnPose) {}
+
+  Engine.instance.store.actions.outgoing[NetworkTopics.world].queue.push(
+    ...Engine.instance.store.actions.outgoing[NetworkTopics.world].history
+  )
 }
