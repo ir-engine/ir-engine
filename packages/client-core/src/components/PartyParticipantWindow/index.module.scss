@@ -292,7 +292,6 @@
 
   &.screenpip {
     display: flex;
-    height: 400px;
 
     .screen-video-wrapper {
       width: 100%;
@@ -301,6 +300,9 @@
     }
 
     .user-controls {
+      visibility: hidden;
+      opacity: 0;
+      transition: visibility 0.2s, opacity 0.2s linear;
       display: flex;
       position: absolute;
       width: 100% !important;
@@ -340,4 +342,9 @@
       }
     }
   }
+}
+
+.resizeable-screen:hover .user-controls {
+  visibility: visible;
+  opacity: 1;
 }

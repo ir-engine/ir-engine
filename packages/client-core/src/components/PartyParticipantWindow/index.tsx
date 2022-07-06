@@ -44,6 +44,7 @@ import { useMediaInstanceConnectionState } from '../../common/services/MediaInst
 import { SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientNetwork'
 import Draggable from './Draggable'
 import styles from './index.module.scss'
+import Resizeable from './Resizeable'
 
 interface ContainerProportions {
   width: number | string
@@ -441,7 +442,7 @@ const PartyParticipantWindow = ({ peerId }: Props): JSX.Element => {
   const username = getUsername()
 
   return (
-    <Draggable isPiP={isPiP}>
+    <Resizeable isPiP={isPiP} isScreenMe={peerId === 'screen_me'}>
       <div
         tabIndex={0}
         id={peerId + '_container'}
@@ -551,7 +552,7 @@ const PartyParticipantWindow = ({ peerId }: Props): JSX.Element => {
           </div>
         </div>
       </div>
-    </Draggable>
+    </Resizeable>
   )
 }
 
