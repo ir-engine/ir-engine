@@ -2,7 +2,7 @@ import { UserId } from '@xrengine/common/src/interfaces/UserId'
 
 import { Engine } from '../../ecs/classes/Engine'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
-import { Network, NetworkTopics } from '../classes/Network'
+import { Network } from '../classes/Network'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
 import { WorldNetworkAction } from './WorldNetworkAction'
 import { WorldNetworkActionReceptor } from './WorldNetworkActionReceptor'
@@ -14,14 +14,13 @@ const createPeer = (
   name: string,
   world = Engine.instance.currentWorld
 ) => {
-  // set utility maps - override if moving through portal
-  network.userIdToUserIndex.set(userId, index)
-  network.userIndexToUserId.set(index, userId)
-
   if (network.peers.has(userId))
     return console.log(
       `[WorldNetworkActionReceptors]: peer with id ${userId} and name ${name} already exists. ignoring.`
     )
+
+  network.userIdToUserIndex.set(userId, index)
+  network.userIndexToUserId.set(index, userId)
 
   network.peers.set(userId, {
     userId: userId,

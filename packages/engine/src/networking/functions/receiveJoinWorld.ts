@@ -73,7 +73,8 @@ export const receiveJoinWorld = (props: JoinWorldProps) => {
   }
   //  else if (spawnPose) {}
 
-  Engine.instance.store.actions.outgoing[NetworkTopics.world].queue.push(
+  Engine.instance.currentWorld.worldNetwork.sendActions([
     ...Engine.instance.store.actions.outgoing[NetworkTopics.world].history
-  )
+  ])
+  // Engine.instance.store.actions.outgoing[NetworkTopics.world].queue.push()
 }

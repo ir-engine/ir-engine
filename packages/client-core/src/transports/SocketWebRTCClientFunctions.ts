@@ -93,6 +93,9 @@ export async function onConnectToInstance(network: SocketWebRTCClientNetwork) {
     for (const peer of peers) {
       if (!network.peers.has(peer.userId)) NetworkPeerFunctions.createPeer(network, peer.userId, peer.index, peer.name)
     }
+    for (const [userId, peer] of network.peers) {
+      if (!peers.find((p) => p.userId === userId)) NetworkPeerFunctions.destroyPeer(network, userId)
+    }
   }
 
   async function commonDisconnectHandler() {

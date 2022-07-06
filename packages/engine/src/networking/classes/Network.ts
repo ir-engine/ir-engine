@@ -66,8 +66,11 @@ export class Network {
   /** Buffer holding Mediasoup operations */
   mediasoupOperationQueue: RingBuffer<any> = new RingBuffer<any>(1000)
 
-  /** Connected clients */
+  /** Connected peers */
   peers = new Map() as Map<UserId, NetworkPeer>
+
+  /** Publish to connected peers that peer information has changed */
+  updatePeers() {}
 
   /** Map of numerical user index to user client IDs */
   userIndexToUserId = new Map<number, UserId>()
