@@ -191,6 +191,10 @@ function createRigidBodyForObject(
   }
 }
 
+function createColliderAndAttachToRigidBody(world: World, colliderDesc: ColliderDesc, rigidBody: RigidBody): Collider {
+  return world.createCollider(colliderDesc, rigidBody)
+}
+
 function removeCollidersFromRigidBody(entity: Entity, world: World) {
   const rigidBody = getComponent(entity, RigidBodyComponent)
   const numColliders = rigidBody.numColliders()
@@ -198,12 +202,6 @@ function removeCollidersFromRigidBody(entity: Entity, world: World) {
     const collider = rigidBody.collider(0)
     world.removeCollider(collider, true)
   }
-}
-
-function resizeColliders(entity: Entity, colliderDescs: ColliderDesc[], world: World) {
-  const rigidBody = getComponent(entity, RigidBodyComponent)
-  removeCollidersFromRigidBody(entity, world)
-  colliderDescs.forEach((desc) => world.createCollider(desc, rigidBody))
 }
 
 function removeRigidBody(entity: Entity, world: World) {
@@ -334,7 +332,8 @@ export const Physics = {
   createRigidBody,
   createColliderDesc,
   createRigidBodyForObject,
-  resizeColliders,
+  createColliderAndAttachToRigidBody,
+  removeCollidersFromRigidBody,
   removeRigidBody,
   changeRigidbodyType,
   castRay,

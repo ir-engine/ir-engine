@@ -1,4 +1,4 @@
-import { RigidBody } from '@dimforge/rapier3d-compat'
+import { Collider, RigidBody } from '@dimforge/rapier3d-compat'
 import { Vector3 } from 'three'
 
 import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
@@ -6,6 +6,8 @@ import { VectorSpringSimulator } from '../../physics/classes/springs/VectorSprin
 
 export type AvatarControllerComponentType = {
   controller: RigidBody
+  bodyCollider: Collider
+  feetCollider: Collider
   collisions: [boolean, boolean, boolean]
   movementEnabled: boolean
   isJumping: boolean

@@ -1,4 +1,4 @@
-import { ColliderDesc, RigidBody, RigidBodyDesc } from '@dimforge/rapier3d-compat'
+import { Collider, ColliderDesc, RigidBody, RigidBodyDesc } from '@dimforge/rapier3d-compat'
 import { AnimationClip, AnimationMixer, Group, PerspectiveCamera, Quaternion, Vector3 } from 'three'
 
 import { createQuaternionProxy, createVector3Proxy } from '../../common/proxies/three'
@@ -120,32 +120,45 @@ export const createAvatar = (spawnAction: typeof WorldNetworkAction.spawnAvatar.
   return entity
 }
 
-export const createAvatarCollider = (entity: Entity, height: number, radius: number): ColliderDesc[] => {
+export const createAvatarCollider = (
+  entity: Entity,
+  height: number,
+  radius: number,
+  rigidBody: RigidBody
+): Collider[] => {
+  const avatarControllerComponent = getComponent(entity, AvatarControllerComponent)
   const { position } = getComponent(entity, TransformComponent)
   const interactionGroups = getInteractionGroups(CollisionGroups.Avatars, AvatarCollisionMask)
-  const colliderDescs = [] as ColliderDesc[]
-  const avatarBodyCollider = ColliderDesc.capsule(height, radius).setCollisionGroups(interactionGroups)
-  avatarBodyCollider.translation.y = position.y + defaultAvatarHalfHeight
-
-  const feetColliderHeight = height * 0.025
-  const avatarFeetCollider = ColliderDesc.cuboid(radius / 2, feetColliderHeight, radius / 2).setCollisionGroups(
-    interactionGroups
+  const colliders = [] as Collider[]
+  const bodyColliderDesc = ColliderDesc.capsule(height, radius).setCollisionGroups(interactionGroups)
+  bodyColliderDesc.translation.y = position.y + defaultAvatarHalfHeight
+  const bodyCollider = Physics.createColliderAndAttachToRigidBody(
+    Engine.instance.currentWorld.physicsWorld,
+    bodyColliderDesc,
+    rigidBody
   )
 
-  colliderDescs.push(avatarBodyCollider, avatarFeetCollider)
+  const feetColliderHeight = height * 0.025
+  const feetColliderDesc = ColliderDesc.cuboid(radius / 2, feetColliderHeight, radius / 2).setCollisionGroups(
+    interactionGroups
+  )
+  const feetCollider = Physics.createColliderAndAttachToRigidBody(
+    Engine.instance.currentWorld.physicsWorld,
+    feetColliderDesc,
+    rigidBody
+  )
 
-  return colliderDescs
+  avatarControllerComponent.bodyCollider = bodyCollider
+  avatarControllerComponent.feetCollider = feetCollider
+
+  colliders.push(bodyCollider, feetCollider)
+
+  return colliders
 }
 
 const createAvatarRigidBody = (entity: Entity, height: number, radius: number): RigidBody => {
-  const colliderDescs = createAvatarCollider(entity, height, radius)
   const rigidBodyDesc = RigidBodyDesc.dynamic()
-  const rigidBody = Physics.createRigidBody(
-    entity,
-    Engine.instance.currentWorld.physicsWorld,
-    rigidBodyDesc,
-    colliderDescs
-  )
+  const rigidBody = Physics.createRigidBody(entity, Engine.instance.currentWorld.physicsWorld, rigidBodyDesc, [])
   rigidBody.setGravityScale(0.0, true)
   rigidBody.lockRotations(true, true)
 
@@ -180,6 +193,8 @@ export const createAvatarController = (entity: Entity) => {
   if (!hasComponent(entity, AvatarControllerComponent)) {
     addComponent(entity, AvatarControllerComponent, {
       controller,
+      bodyCollider: undefined!,
+      feetCollider: undefined!,
       collisions: [false, false, false],
       movementEnabled: true,
       isJumping: false,
@@ -191,4 +206,5 @@ export const createAvatarController = (entity: Entity) => {
       speedVelocity: { value: 0 }
     })
   }
+  const colliders = createAvatarCollider(entity, capsuleHeight / 2, avatarRadius, controller)
 }
