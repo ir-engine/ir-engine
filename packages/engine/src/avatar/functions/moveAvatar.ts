@@ -1,5 +1,8 @@
 import { MathUtils, Matrix4, OrthographicCamera, PerspectiveCamera, Quaternion, Vector3 } from 'three'
 
+import { rotate } from '@xrengine/common/src/utils/mathUtils'
+
+import { Direction } from '../../common/constants/Axis3D'
 import checkPositionIsValid from '../../common/functions/checkPositionIsValid'
 import { smoothDamp } from '../../common/functions/MathLerpFunctions'
 import { Engine } from '../../ecs/classes/Engine'
@@ -197,6 +200,23 @@ export const rotateXRAvatar = (world: World, entity: Entity, camera: Perspective
 
   // Rotate around camera
   moveAvatarController(world, entity, displacement)
+}
+
+const vec3 = new Vector3()
+
+/**
+ * Rotates the camera when in XR mode by a given amount
+ * @param {Entity} entity
+ * @param {number} amount
+ */
+export const rotateXRCamera = (amount: number) => {
+  const cameraParentRotation = Engine.instance.currentWorld.camera.parent?.rotation
+  if (cameraParentRotation) {
+    vec3.copy(Direction.Up).multiplyScalar(amount)
+    const quat = new Quaternion().copy(Engine.instance.currentWorld.camera.parent!.quaternion)
+    rotate(quat, vec3.x, vec3.y, vec3.z)
+    cameraParentRotation.setFromQuaternion(quat)
+  }
 }
 
 /**
