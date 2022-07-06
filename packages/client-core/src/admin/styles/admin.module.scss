@@ -44,45 +44,29 @@
 }
 
 .gradientButton {
-  height: 50px;
-  width: 100%;
-  margin: 0;
   background: linear-gradient(90deg, var(--buttonGradientStart), var(--buttonGradientEnd));
-  color: var(--textColor) !important;
+  color: var(--buttonTextColor) !important;
 
   &:hover {
     opacity: 0.8;
   }
 
   &:disabled {
-    background: var(--disabled);
-  }
-
-  @media (max-width: 900px) {
-    font-size: 0.7rem;
+    opacity: 0.5;
   }
 }
 
-.submitButton {
-  background: linear-gradient(90deg, var(--buttonGradientStart), var(--buttonGradientEnd));
-  color: var(--textColor) !important;
-
-  &:hover {
-    opacity: 0.8;
-  }
-
-  &:disabled {
-    background: var(--disabled);
-  }
-}
-
-.cancelButton {
+.outlinedButton {
   background: transparent;
   border: solid 1px var(--buttonOutlined);
-  color: var(--buttonOutlined) !important;
+  color: var(--buttonTextColor) !important;
 
   &:hover {
-    opacity: 0.8;
+    opacity: 0.7;
+  }
+
+  &:disabled {
+    opacity: 0.5;
   }
 }
 
@@ -227,38 +211,9 @@
   margin-top: 10px;
 }
 
-.createInput {
-  display: flex;
-  align-items: center;
-  margin-top: 10px;
-  margin-bottom: 15px;
-  background: var(--inputBackground);
-  color: var(--textColor) !important;
-}
-
 .input {
   flex: 1;
   color: var(--textColor);
-}
-
-.redBorder {
-  border: 1px solid red;
-  padding: 2px 4px;
-  display: flex;
-  align-items: center;
-  margin-top: 10px;
-  margin-bottom: 15px;
-  background: var(--inputBackground);
-  color: var(--textColor) !important;
-}
-
-.select {
-  color: var(--textColor) !important;
-  height: 2.4rem !important;
-
-  svg {
-    color: var(--textColor) !important;
-  }
 }
 
 .selectPaper {
@@ -279,10 +234,6 @@
   color: var(--textColor);
   width: 100%;
   padding: 20px;
-}
-
-.container {
-  background: orangered;
 }
 
 .spanDange {
@@ -335,47 +286,6 @@
   background-color: #fff;
 }
 
-.modal {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.modalContent {
-  display: flex;
-  flex-direction: column;
-  width: 30%;
-  background-color: var(--popupBackground);
-
-  @media (max-width: 1200px) {
-    width: 50%;
-  }
-
-  @media (max-width: 768px) {
-    width: 90%;
-  }
-}
-
-.inputContainer {
-  width: 100%;
-  margin-bottom: 15px;
-
-  :global(.MuiFormControl-root) {
-    width: 100%;
-  }
-
-  input {
-    color: var(--textColor);
-    background-color: var(--inputBackground);
-  }
-}
-
-.errorMessage {
-  color: red;
-  font-size: 1.5em;
-  margin-top: 10px;
-}
-
 .buttonContainer {
   display: flex;
   flex-direction: row;
@@ -387,99 +297,8 @@
   margin-bottom: 5%;
 }
 
-.mb20px {
-  margin-bottom: 20px;
-}
-
-.rootPaper {
-  min-height: 15vh;
-  background: var(--panelCards);
-  color: var(--textColor);
-
-  @media (max-width: 900px) {
-    height: 10vh;
-  }
-}
-
-.locationTitle {
-  margin: 50px auto;
-  width: 300px;
-  text-align: center;
-
-  @media (max-width: 900px) {
-    margin: 10px auto;
-  }
-}
-
-.locationSubTitle {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.headingFont {
-  @media (max-width: 900px) {
-    font-size: 1.6rem;
-  }
-}
-
-.middlePaper {
-  color: var(--textColor);
-  padding: 20px 0 8px 20px;
-  background: var(--mainBackground);
-  height: 10rem;
-}
-
-.pdl {
-  padding-left: 1rem;
-
-  @media (max-width: 900px) {
-    padding-left: 0;
-  }
-}
-
-.typo {
-  line-height: 1rem;
-}
-
-.locationOtherInfo {
-  font-size: 1.2rem;
-}
-
-.mb {
-  margin-bottom: 10px;
-}
-
-.spacing {
-  padding-left: 2rem;
-  margin-top: 5%;
-
-  @media (max-width: 900px) {
-    padding-left: 1rem;
-  }
-}
-
-.typoFont {
-  @media (max-width: 900px) {
-    font-size: 1.5rem;
-    padding-left: 1rem;
-  }
-}
-
-.pdlarge {
-  padding-left: 2rem;
-
-  @media (max-width: 900px) {
-    padding-left: 1rem;
-  }
-}
-
 .mt10 {
   margin-top: 10%;
-}
-
-.mt15 {
-  margin-top: 15%;
 }
 
 .mt20 {
@@ -492,10 +311,6 @@
 
 .mt20px {
   margin-top: 20px;
-}
-
-.mt30px {
-  margin-top: 30px;
 }
 
 .textAlign {
@@ -524,39 +339,6 @@
   max-height: calc(100vh - 172px);
 }
 
-.scopeContainer {
-  max-height: 200px;
-  width: 100%;
-  overflow-y: scroll;
-
-  @media (max-width: 1200px) {
-    width: 100%;
-  }
-}
-
-.mt5 {
-  margin-top: 5%;
-  margin-left: 0;
-}
-
-.pad {
-  padding: 20px;
-}
-
-.centering {
-  justify-content: center;
-}
-
-.large {
-  width: 80px;
-  height: 80px;
-}
-
-.chip {
-  color: var(--textColor);
-  background-color: var(--panelCards);
-}
-
 .filterButton {
   svg {
     color: var(--iconButtonColor);
@@ -583,27 +365,6 @@
       background: var(--dropdownMenuSelectedBackground);
     }
   }
-}
-
-.scopeFlex {
-  display: grid;
-  grid-template-columns: 2fr 2fr;
-  grid-gap: 10px;
-  margin-top: 4%;
-
-  @media (max-width: 600px) {
-    display: grid;
-    grid-template-columns: 4fr;
-  }
-}
-
-.rootList {
-  width: 100%;
-  background-color: var(--panelCards);
-}
-
-.root {
-  flex-grow: 1;
 }
 
 .analyticsPaper {
@@ -708,10 +469,6 @@
   top: 0;
 }
 
-.accentText {
-  color: var(--textColor);
-}
-
 .indicator {
   background-color: var(--textColor);
 }
@@ -733,7 +490,7 @@
   background-color: var(--panelCards);
 }
 
-.textField {
+.inputField {
   background: var(--inputBackground);
 
   /**
@@ -748,85 +505,66 @@
     -webkit-box-shadow: 0 0 0 30px var(--inputBackground) inset !important;
   }
 
-  :global(.MuiFormLabel-root) {
-    -webkit-text-fill-color: var(--textColor);
-    color: var(--textColor);
-  }
-
-  :global(.MuiInputBase-input) {
-    -webkit-text-fill-color: var(--textColor);
-    color: var(--textColor);
-  }
-
-  :global(.MuiInputBase-input.Mui-disabled) {
-    opacity: 0.5;
-  }
-
-  :global(.MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline) {
-    border-color: var(--inputOutline);
-  }
-}
-
-.selectField {
-  background: var(--inputBackground);
-
-  :global(.MuiInputLabel-formControl) {
-    -webkit-text-fill-color: var(--textColor);
-    color: var(--textColor);
-    transform-origin: top left;
-    -webkit-transform: translate(14px, -9px) scale(0.75);
-    -ms-transform: translate(14px, -9px) scale(0.75);
-    transform: translate(14px, -9px) scale(0.75);
-    position: absolute;
-    padding-left: 5px;
-    padding-right: 5px;
-    max-width: fit-content;
-    font-size: 16px;
-    margin-left: -5px;
-    margin-bottom: 7px;
-  }
-
-  :global(.MuiSvgIcon-root) {
-    -webkit-text-fill-color: var(--textColor);
-    color: var(--textColor);
-  }
-
-  :global(.MuiInputBase-input) {
-    -webkit-text-fill-color: var(--textColor);
-    color: var(--textColor);
-  }
-
-  :global(.MuiInputBase-input.Mui-disabled) {
-    opacity: 0.5;
-  }
-
-  :global(.MuiOutlinedInput-notchedOutline) {
-    border-color: var(--inputOutline) !important;
-
-    :global(legend) {
-      visibility: visible;
+  :global {
+    .MuiInputLabel-formControl,
+    .MuiInputLabel-root {
+      -webkit-text-fill-color: var(--textColor);
+      color: var(--textColor);
+      transform-origin: top left;
+      -webkit-transform: translate(14px, -9px) scale(0.75);
+      -ms-transform: translate(14px, -9px) scale(0.75);
+      transform: translate(14px, -9px) scale(0.75);
+      position: absolute;
+      padding-left: 5px;
+      padding-right: 5px;
       max-width: fit-content;
+      font-size: 16px;
+      margin-left: -5px;
+      margin-bottom: 7px;
+    }
+
+    .MuiSvgIcon-root,
+    .MuiInputBase-input {
+      -webkit-text-fill-color: var(--textColor);
+      color: var(--textColor);
+    }
+
+    .MuiOutlinedInput-notchedOutline {
+      border-color: var(--inputOutline) !important;
+
+      legend {
+        visibility: visible;
+        max-width: fit-content;
+      }
+    }
+
+    input:placeholder-shown {
+      font-style: italic;
     }
   }
 }
 
 .switchField {
-  :global(.MuiFormControlLabel-label) {
-    color: var(--textColor);
-  }
+  :global {
+    .MuiFormControlLabel-label {
+      color: var(--textColor);
+    }
 
-  :global(.MuiFormControlLabel-label.Mui-disabled) {
-    color: var(--textColor);
+    .MuiFormControlLabel-label.Mui-disabled {
+      color: var(--textColor);
+    }
   }
 }
 
 .radioField {
-  :global(.MuiFormLabel-root) {
-    color: var(--textColor);
-  }
+  :global {
+    .MuiFormLabel-root {
+      color: var(--textColor);
+    }
 
-  :global(.MuiSvgIcon-root) {
-    color: var(--textColor);
+    .MuiSvgIcon-root {
+      color: var(--textColor);
+    }
   }
 }
 
@@ -843,4 +581,19 @@
 
 .iconButton {
   color: var(--iconButtonColor);
+}
+
+.dialog {
+  background-color: var(--popupBackground);
+  color: var(--textColor);
+
+  :global {
+    .MuiDialogContentText-root {
+      color: var(--textColor);
+    }
+
+    .MuiDialogContent-root {
+      padding-bottom: 10px;
+    }
+  }
 }

@@ -30,11 +30,6 @@ const userRoleRetrievedReceptor = (action: typeof AdminUserRoleActions.userRoleR
   return state.merge({ userRole: action.types.data, updateNeeded: false })
 }
 
-const userRoleCreatedReceptor = (action: typeof AdminUserRoleActions.userRoleCreated.matches._TYPE) => {
-  const state = getState(AdminUserRoleState)
-  return state.merge({ updateNeeded: true })
-}
-
 const userRoleUpdatedReceptor = (action: typeof AdminUserRoleActions.userRoleUpdated.matches._TYPE) => {
   const state = getState(AdminUserRoleState)
   return state.merge({ updateNeeded: true })
@@ -42,7 +37,6 @@ const userRoleUpdatedReceptor = (action: typeof AdminUserRoleActions.userRoleUpd
 
 export const AdminUserRoleReceptors = {
   userRoleRetrievedReceptor,
-  userRoleCreatedReceptor,
   userRoleUpdatedReceptor
 }
 
@@ -60,10 +54,6 @@ export const AdminUserRoleService = {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   },
-  createUserRoleAction: async (data) => {
-    const result = (await API.instance.client.service('user-role').create(data)) as UserRole
-    dispatchAction(AdminUserRoleActions.userRoleCreated({ types: result }))
-  },
   updateUserRole: async (id: string, role: string) => {
     try {
       const userRole = (await API.instance.client.service('user').patch(id, { userRole: role })) as User
@@ -79,11 +69,6 @@ export class AdminUserRoleActions {
   static userRoleRetrieved = defineAction({
     type: 'USER_ROLE_RETRIEVED' as const,
     types: matches.object as Validator<unknown, Paginated<UserRole>>
-  })
-
-  static userRoleCreated = defineAction({
-    type: 'USER_ROLE_CREATED' as const,
-    types: matches.object as Validator<unknown, UserRole>
   })
 
   static userRoleUpdated = defineAction({

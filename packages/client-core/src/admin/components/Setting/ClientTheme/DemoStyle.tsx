@@ -179,14 +179,13 @@ const DemoStyle = ({ theme }: DemoStyleProps) => {
       }
 
       .outlinedButton {
-        margin: 0px;
         color: ${theme.buttonOutlined};
         background: transparent;
         border: solid 1px ${theme.buttonOutlined};
       }
 
       .outlinedButton:hover {
-        opacity: 0.8;
+        opacity: 0.7;
       }
 
       .filledButton {
@@ -200,9 +199,8 @@ const DemoStyle = ({ theme }: DemoStyleProps) => {
       }
 
       .gradientButton {
-        margin: 0px;
         color: ${theme.buttonTextColor};
-        background: linear-gradient(92.22deg, ${theme.buttonGradientStart}, ${theme.buttonGradientEnd});
+        background: linear-gradient(90deg, ${theme.buttonGradientStart}, ${theme.buttonGradientEnd});
       }
 
       .gradientButton:hover {
