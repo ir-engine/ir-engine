@@ -1,4 +1,5 @@
 import { AdminScopeType } from './AdminScopeType'
+import { ThemeMode } from './ClientSetting'
 import { IdentityProvider } from './IdentityProvider'
 import { LocationAdmin } from './LocationAdmin'
 import { LocationBan } from './LocationBan'
@@ -13,7 +14,7 @@ export interface UserSetting {
   volume?: number
   audio: number
   microphone: number
-  themeMode: string
+  themeModes: ThemeMode
 }
 
 export interface UserScope {

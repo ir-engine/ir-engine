@@ -53,9 +53,8 @@ import { XRLGripButtonComponent, XRRGripButtonComponent } from '../xr/components
 import { XR_ROTATION_MODE } from '../xr/types/XRUserSettings'
 import { AvatarSettings } from './AvatarControllerSystem'
 import { AvatarControllerComponent } from './components/AvatarControllerComponent'
-import { AvatarSwerveComponent } from './components/AvatarSwerveComponent'
 import { AvatarTeleportTagComponent } from './components/AvatarTeleportTagComponent'
-import { XRCameraRotateYComponent } from './components/XRCameraRotateYComponent'
+import { rotateXRCamera } from './functions/moveAvatar'
 import { switchCameraMode } from './functions/switchCameraMode'
 import { accessAvatarInputSettingsState } from './state/AvatarInputSettingsState'
 
@@ -402,13 +401,12 @@ const setLocalMovementDirection: InputBehaviorType = (
 
 let switchChangedToZero = true
 const deg2rad = Math.PI / 180
-const quat = new Quaternion()
-const upVec = new Vector3(0, 1, 0)
-const swerveVec = new Vector3()
 
 const moveFromXRInputs: InputBehaviorType = (entity: Entity, inputKey: InputAlias, inputValue: InputValue): void => {
   const controller = getComponent(entity, AvatarControllerComponent)
   const values = inputValue.value
+  values[0] = values[2]
+  values[1] = values[3]
   controller.localMovementDirection.x = values[0] ?? controller.localMovementDirection.x
   controller.localMovementDirection.z = values[1] ?? controller.localMovementDirection.z
   controller.localMovementDirection.normalize()
@@ -422,14 +420,6 @@ const moveFromXRInputs: InputBehaviorType = (entity: Entity, inputKey: InputAlia
       removeComponent(entity, AvatarTeleportTagComponent)
     }
 
-    if (Math.abs(controller.localMovementDirection.x) > 0.75 && !hasComponent(entity, AvatarSwerveComponent)) {
-      swerveVec.copy(upVec)
-      if (controller.localMovementDirection.x > 0) swerveVec.multiplyScalar(-1)
-      addComponent(entity, AvatarSwerveComponent, { axis: swerveVec })
-    } else if (controller.localMovementDirection.x === 0.0) {
-      removeComponent(entity, AvatarSwerveComponent)
-    }
-
     // This is required because we want to disable any direct movement of avatar as a result of joystick
     controller.localMovementDirection.setScalar(0)
   }
@@ -440,6 +430,8 @@ const lookFromXRInputs: InputBehaviorType = (entity: Entity, inputKey: InputAlia
   const avatarInputState = accessAvatarInputSettingsState()
   const rotationAngle = avatarInputState.rotationAngle.value
   let newAngleDiff = 0
+  values[0] = values[2]
+  values[1] = values[3]
   switch (avatarInputState.rotation.value) {
     case XR_ROTATION_MODE.ANGLED:
       if (switchChangedToZero && values[0] != 0) {
@@ -463,8 +455,7 @@ const lookFromXRInputs: InputBehaviorType = (entity: Entity, inputKey: InputAlia
   }
 
   if (Math.abs(newAngleDiff) > 0.001) {
-    if (!hasComponent(entity, XRCameraRotateYComponent))
-      addComponent(entity, XRCameraRotateYComponent, { angle: newAngleDiff * deg2rad })
+    rotateXRCamera(newAngleDiff * deg2rad)
   }
 }
 

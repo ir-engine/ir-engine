@@ -5,14 +5,14 @@ import { XRUIComponent } from '@xrengine/engine/src/xrui/components/XRUIComponen
 import { ObjectFitFunctions } from '@xrengine/engine/src/xrui/functions/ObjectFitFunctions'
 import { Widgets } from '@xrengine/engine/src/xrui/Widgets'
 
-import { Message as MessageIcon } from '@mui/icons-material'
+import PersonIcon from '@mui/icons-material/Person'
 
-import { createChatDetailView } from './ui/ChatDetailView'
+import { createProfileDetailView } from './ui/ProfileDetailView'
 
-const widgetName = 'Chat'
+const widgetName = 'Profile'
 
-export function createChatUI(world: World) {
-  const ui = createChatDetailView()
+export function createProfileWidget(world: World) {
+  const ui = createProfileDetailView()
 
   addComponent(ui.entity, PersistTagComponent, {})
 
@@ -24,7 +24,7 @@ export function createChatUI(world: World) {
   Widgets.registerWidget(world, ui.entity, {
     ui,
     label: widgetName,
-    icon: MessageIcon,
+    icon: PersonIcon,
     system: () => {}
   })
 }

@@ -74,6 +74,10 @@ export default (app: Application) => {
       themeSettings: {
         type: DataTypes.JSON,
         allowNull: true
+      },
+      themeModes: {
+        type: DataTypes.JSON,
+        allowNull: true
       }
     },
     {

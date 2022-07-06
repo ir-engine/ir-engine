@@ -1,8 +1,12 @@
 import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import defaultThemeSettings from '@xrengine/common/src/constants/DefaultThemeSettings'
-import { ThemeSetting } from '@xrengine/common/src/interfaces/ClientSetting'
+import {
+  defaultThemeModes,
+  defaultThemeSettings,
+  getCurrentTheme
+} from '@xrengine/common/src/constants/DefaultThemeSettings'
+import { ThemeMode, ThemeSetting } from '@xrengine/common/src/interfaces/ClientSetting'
 
 import { Button } from '@mui/material'
 
@@ -12,82 +16,59 @@ import styles from '../../../styles/settings.module.scss'
 import ColorSelectionArea from './ColorSelectionArea'
 import DemoStyle from './DemoStyle'
 import ThemePlayground from './ThemePlayground'
+import ThemeSelectionArea from './ThemeSelectionArea'
 
 const ClientTheme = () => {
+  const { t } = useTranslation()
+
   const selfUser = useAuthState().user
   const clientSettingState = useClientSettingState()
   const [clientSetting] = clientSettingState?.client?.value || []
   const id = clientSetting?.id
 
-  const { t } = useTranslation()
-
-  const [mode, setMode] = useState(selfUser?.user_setting?.value?.themeMode || 'dark')
-
-  const [themeSetting, setThemeSetting] = useState<ThemeSetting>({
-    light: { ...defaultThemeSettings.light, ...clientSetting?.themeSettings?.light },
-    dark: { ...defaultThemeSettings.dark, ...clientSetting?.themeSettings?.dark }
+  const [themeSettings, setThemeSettings] = useState<ThemeSetting>({
+    ...defaultThemeSettings,
+    ...clientSetting.themeSettings
   })
+  const [themeModes, setThemeModes] = useState<ThemeMode>({
+    ...defaultThemeModes,
+    ...clientSetting.themeModes
+  })
+  const [selectedMode, setSelectedMode] = useState('light')
 
   const handleChangeColor = (name, value) => {
-    const tempSetting = JSON.parse(JSON.stringify(themeSetting))
+    const tempSetting = JSON.parse(JSON.stringify(themeSettings))
 
-    tempSetting[mode][name] = value
+    tempSetting[selectedMode][name] = value
 
-    setThemeSetting(tempSetting)
+    setThemeSettings(tempSetting)
+  }
+
+  const handleChangeMode = (event) => {
+    const { value } = event.target
+    setSelectedMode(value)
   }
 
   const handleChangeThemeMode = (event) => {
-    setMode(event.target.checked ? 'dark' : 'light')
+    const { name, value } = event.target
+    setThemeModes({ ...themeModes, [name]: value })
   }
 
-  const resetThemeToDefault = () => {
-    setThemeSetting({
-      light: { ...defaultThemeSettings.light },
-      dark: { ...defaultThemeSettings.dark }
-    })
+  const resetThemeToDefault = async () => {
+    setThemeSettings({ ...defaultThemeSettings })
+    setThemeModes({ ...defaultThemeModes })
 
-    ClientSettingService.patchClientSetting(
-      {
-        logo: clientSetting?.logo,
-        title: clientSetting?.title,
-        icon192px: clientSetting?.icon192px,
-        icon512px: clientSetting?.icon512px,
-        favicon16px: clientSetting?.favicon16px,
-        favicon32px: clientSetting?.favicon32px,
-        siteDescription: clientSetting?.siteDescription,
-        appTitle: clientSetting?.appTitle,
-        appSubtitle: clientSetting?.appSubtitle,
-        appDescription: clientSetting?.appDescription,
-        appBackground: clientSetting?.appBackground,
-        appSocialLinks: JSON.stringify(clientSetting?.appSocialLinks),
-        themeSettings: JSON.stringify(defaultThemeSettings)
-      },
-      id
-    )
-
-    const currentTheme = selfUser?.user_setting?.value?.themeMode || 'dark'
-
-    if (currentTheme === 'light' && defaultThemeSettings?.light) {
-      for (let variable of Object.keys(defaultThemeSettings.light)) {
-        ;(document.querySelector(`[data-theme=light]`) as any)?.style.setProperty(
-          '--' + variable,
-          defaultThemeSettings.light[variable]
-        )
-      }
-    } else if (currentTheme === 'dark' && defaultThemeSettings?.dark) {
-      for (let variable of Object.keys(defaultThemeSettings.dark)) {
-        ;(document.querySelector(`[data-theme=dark]`) as any)?.style.setProperty(
-          '--' + variable,
-          defaultThemeSettings.dark[variable]
-        )
-      }
-    }
+    await updateTheme(defaultThemeSettings, defaultThemeModes)
   }
 
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault()
 
-    ClientSettingService.patchClientSetting(
+    await updateTheme(themeSettings, themeModes)
+  }
+
+  const updateTheme = async (newThemeSettings: ThemeSetting, newThemeModes: ThemeMode) => {
+    await ClientSettingService.patchClientSetting(
       {
         logo: clientSetting?.logo,
         title: clientSetting?.title,
@@ -101,65 +82,61 @@ const ClientTheme = () => {
         appDescription: clientSetting?.appDescription,
         appBackground: clientSetting?.appBackground,
         appSocialLinks: JSON.stringify(clientSetting?.appSocialLinks),
-        themeSettings: JSON.stringify(themeSetting)
+        themeSettings: JSON.stringify(newThemeSettings),
+        themeModes: JSON.stringify(newThemeModes)
       },
       id
     )
 
-    const currentTheme = selfUser?.user_setting?.value?.themeMode || 'dark'
+    const currentTheme = getCurrentTheme(selfUser?.user_setting?.value?.themeModes)
 
-    if (currentTheme === 'light' && themeSetting?.light) {
-      for (let variable of Object.keys(themeSetting.light)) {
-        ;(document.querySelector(`[data-theme=light]`) as any)?.style.setProperty(
+    if (newThemeSettings[currentTheme]) {
+      for (let variable of Object.keys(newThemeSettings[currentTheme])) {
+        ;(document.querySelector(`[data-theme=${currentTheme}]`) as any)?.style.setProperty(
           '--' + variable,
-          themeSetting.light[variable]
-        )
-      }
-    } else if (currentTheme === 'dark' && themeSetting?.dark) {
-      for (let variable of Object.keys(themeSetting.dark)) {
-        ;(document.querySelector(`[data-theme=dark]`) as any)?.style.setProperty(
-          '--' + variable,
-          themeSetting.dark[variable]
+          newThemeSettings[currentTheme][variable]
         )
       }
     }
   }
 
   const handleCancel = () => {
-    setThemeSetting(clientSetting?.themeSettings)
+    setThemeSettings(clientSetting?.themeSettings)
+    setThemeModes(clientSetting?.themeModes)
   }
 
-  const theme = themeSetting[mode]
+  const theme = themeSettings[selectedMode]
 
   return (
     <div>
       <DemoStyle theme={theme} />
-      <ThemePlayground />
-      <ColorSelectionArea
-        mode={mode}
-        theme={theme}
-        handleChangeThemeMode={handleChangeThemeMode}
-        handleChangeColor={handleChangeColor}
+
+      <ThemeSelectionArea
+        themeModes={themeModes}
+        colorModes={Object.keys(themeSettings)}
+        onChangeThemeMode={handleChangeThemeMode}
       />
-      <Button sx={{ maxWidth: '100%' }} variant="outlined" className={styles.cancelButton} onClick={handleCancel}>
-        {t('admin:components.setting.cancel')}
+
+      <ThemePlayground />
+
+      <ColorSelectionArea
+        mode={selectedMode}
+        theme={theme}
+        colorModes={Object.keys(themeSettings)}
+        onChangeMode={handleChangeMode}
+        onChangeColor={handleChangeColor}
+      />
+
+      <Button sx={{ maxWidth: '100%' }} className={styles.outlinedButton} onClick={handleCancel}>
+        {t('admin:components.common.cancel')}
       </Button>
-      <Button
-        sx={{ maxWidth: '100%', ml: 1 }}
-        variant="outlined"
-        className={styles.cancelButton}
-        onClick={resetThemeToDefault}
-      >
+
+      <Button sx={{ maxWidth: '100%', ml: 1 }} className={styles.outlinedButton} onClick={resetThemeToDefault}>
         {t('admin:components.setting.resetTheme')}
       </Button>
-      <Button
-        sx={{ maxWidth: '100%', ml: 1 }}
-        variant="contained"
-        className={styles.saveBtn}
-        type="submit"
-        onClick={handleSubmit}
-      >
-        {t('admin:components.setting.save')}
+
+      <Button sx={{ maxWidth: '100%', ml: 1 }} className={styles.gradientButton} onClick={handleSubmit}>
+        {t('admin:components.common.save')}
       </Button>
     </div>
   )

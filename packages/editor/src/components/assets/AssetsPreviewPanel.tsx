@@ -19,8 +19,8 @@ import { VedioPreviewPanel } from './AssetPreviewPanels/VedioPreviewPanel'
 
 const AssetHeading = styled.div`
   text-align: center;
-  font-size: 150%;
-  padding-bottom: 20px;
+  font-size: 0.9rem;
+  padding-bottom: 10px;
   color: #f1f1f1;
 `
 
@@ -122,9 +122,8 @@ export const AssetsPreviewPanel = React.forwardRef((props, ref) => {
 
   return (
     <>
-      <div>
-        <AssetHeading>{previewPanel.resourceProps.name}</AssetHeading>
-      </div>
+      <AssetHeading>{previewPanel.resourceProps.name}</AssetHeading>
+
       {previewPanel.PreviewSource && <previewPanel.PreviewSource resourceProps={previewPanel.resourceProps} />}
     </>
   )

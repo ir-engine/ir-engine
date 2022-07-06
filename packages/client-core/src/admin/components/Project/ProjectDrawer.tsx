@@ -3,8 +3,6 @@ import { useTranslation } from 'react-i18next'
 
 import { GithubAppInterface } from '@xrengine/common/src/interfaces/GithubAppInterface'
 
-import GitHubIcon from '@mui/icons-material/GitHub'
-import GroupIcon from '@mui/icons-material/Group'
 import Button from '@mui/material/Button'
 import Container from '@mui/material/Container'
 import DialogActions from '@mui/material/DialogActions'
@@ -13,6 +11,7 @@ import DialogTitle from '@mui/material/DialogTitle'
 import { NotificationService } from '../../../common/services/NotificationService'
 import { ProjectService } from '../../../common/services/ProjectService'
 import DrawerView from '../../common/DrawerView'
+import InputRadio from '../../common/InputRadio'
 import InputSelect, { InputMenuItem } from '../../common/InputSelect'
 import InputText from '../../common/InputText'
 import LoadingView from '../../common/LoadingView'
@@ -24,18 +23,14 @@ interface Props {
   onClose: () => void
 }
 
-const AddProject = ({ open, repos, onClose }: Props) => {
+const ProjectDrawer = ({ open, repos, onClose }: Props) => {
+  const { t } = useTranslation()
   const [projectURL, setProjectURL] = useState('')
   const [processing, setProcessing] = useState(false)
+  const [source, setSource] = useState('url')
   const [error, setError] = useState('')
-  const [isPublicUrl, setIsPublicUrl] = useState(false)
-  const { t } = useTranslation()
 
-  const trySelectPublicUrl = () => {
-    setIsPublicUrl(!isPublicUrl)
-  }
-
-  const tryUploadProject = async () => {
+  const handleSubmit = async () => {
     try {
       if (projectURL) {
         setProcessing(true)
@@ -49,6 +44,11 @@ const AddProject = ({ open, repos, onClose }: Props) => {
       setProcessing(false)
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
+  }
+
+  const handleChangeSource = (e) => {
+    const { value } = e.target
+    setSource(value)
   }
 
   const handleChange = (e) => {
@@ -75,28 +75,36 @@ const AddProject = ({ open, repos, onClose }: Props) => {
       <Container maxWidth="sm" className={styles.mt20}>
         <DialogTitle className={styles.textAlign}>{t('admin:components.project.addProject')}</DialogTitle>
 
-        {!processing && (
-          <div className={styles.inputContainer}>
-            {!isPublicUrl && repos && repos.length != 0 ? (
-              <InputSelect
-                name="projectURL"
-                label={t('admin:components.project.project')}
-                value={projectURL}
-                menu={projectMenu}
-                error={error}
-                onChange={handleChange}
-              />
-            ) : (
-              <InputText
-                name="urlSelect"
-                label={t('admin:components.project.url')}
-                placeholder={t('admin:components.project.insertPublicUrl')}
-                value={projectURL}
-                error={error}
-                onChange={handleChange}
-              />
-            )}
-          </div>
+        {!processing && repos && repos.length > 0 && (
+          <InputRadio
+            name="source"
+            label={t('admin:components.project.source')}
+            value={source}
+            options={[
+              { value: 'url', label: t('admin:components.project.publicUrl') },
+              { value: 'list', label: t('admin:components.project.selectFromList') }
+            ]}
+            onChange={handleChangeSource}
+          />
+        )}
+
+        {!processing && source === 'list' && repos && repos.length != 0 ? (
+          <InputSelect
+            name="projectURL"
+            label={t('admin:components.project.project')}
+            value={projectURL}
+            menu={projectMenu}
+            error={error}
+            onChange={handleChange}
+          />
+        ) : (
+          <InputText
+            name="urlSelect"
+            label={t('admin:components.project.githubPublicUrl')}
+            value={projectURL}
+            error={error}
+            onChange={handleChange}
+          />
         )}
 
         {processing && <LoadingView title={t('admin:components.project.processing')} variant="body1" />}
@@ -104,18 +112,11 @@ const AddProject = ({ open, repos, onClose }: Props) => {
         <DialogActions>
           {!processing && (
             <>
-              <Button className={styles.submitButton} startIcon={<GitHubIcon />} onClick={tryUploadProject}>
-                {t('admin:components.project.uploadProject')}
+              <Button className={styles.outlinedButton} onClick={onClose}>
+                {t('admin:components.common.cancel')}
               </Button>
-              {repos && repos.length > 0 && (
-                <Button className={styles.submitButton} startIcon={<GroupIcon />} onClick={trySelectPublicUrl}>
-                  {!isPublicUrl
-                    ? t('admin:components.project.customPublicUrl')
-                    : t('admin:components.project.selectFromList')}
-                </Button>
-              )}
-              <Button className={styles.cancelButton} onClick={onClose}>
-                {t('admin:components.setting.cancel')}
+              <Button className={styles.gradientButton} onClick={handleSubmit}>
+                {t('admin:components.common.submit')}
               </Button>
             </>
           )}
@@ -125,4 +126,4 @@ const AddProject = ({ open, repos, onClose }: Props) => {
   )
 }
 
-export default AddProject
+export default ProjectDrawer

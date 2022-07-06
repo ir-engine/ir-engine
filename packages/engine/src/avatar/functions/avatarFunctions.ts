@@ -46,6 +46,7 @@ import { AvatarAnimationComponent } from '../components/AvatarAnimationComponent
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
 import { AvatarEffectComponent, MaterialMap } from '../components/AvatarEffectComponent'
+import { AvatarHeadDecapComponent } from '../components/AvatarHeadDecapComponent'
 import { AvatarPendingComponent } from '../components/AvatarPendingComponent'
 import { defaultBonesData } from '../DefaultSkeletonBones'
 import { DissolveEffect } from '../DissolveEffect'
@@ -204,17 +205,10 @@ export const setupAvatarMaterials = (entity, root) => {
   const materialList: Array<MaterialMap> = []
   setObjectLayers(root, ObjectLayers.Avatar)
 
-  const animationComponent = getComponent(entity, AvatarAnimationComponent)
-  const headBone = animationComponent.rig.Head
-
   root.traverse((object) => {
     if (object.isBone) object.visible = false
     if (object.material && object.material.clone) {
       const material = object.material.clone()
-      // If local player's avatar
-      if (object.isSkinnedMesh && headBone && entity === Engine.instance.currentWorld.localClientEntity) {
-        setupHeadDecap(object, headBone, material)
-      }
       materialList.push({
         id: object.uuid,
         material: material
@@ -321,137 +315,6 @@ export function makeSkinnedMeshFromBoneData(bonesData): SkinnedMesh {
   group.add(hipBone)
 
   return skinnedMesh
-}
-
-/**
- * Adds required parameters to mesh's material
- * to enable avatar's head decapitation (opacity fade)
- * @param model
- * @param material
- */
-function setupHeadDecap(object: any, headBone: any | undefined, material: Material) {
-  // Create a copy of the mesh to hide 'internal' polygons when opacity is below 1
-  if (material.opacity > 0) {
-    const mesh = object.getObjectByProperty('type', 'SkinnedMesh') as SkinnedMesh
-    const skinnedMeshMask = SkeletonUtils.clone(object).getObjectByProperty('type', 'SkinnedMesh') as SkinnedMesh
-    mesh.parent?.add(skinnedMeshMask)
-    skinnedMeshMask.skeleton = mesh.skeleton
-    skinnedMeshMask.bindMatrix = mesh.bindMatrix
-    skinnedMeshMask.bindMatrixInverse = mesh.bindMatrixInverse
-    skinnedMeshMask.material = new MeshBasicMaterial({ skinning: true, colorWrite: false } as any)
-    skinnedMeshMask.name = skinnedMeshMask.name + '_Mask'
-    skinnedMeshMask.renderOrder = 1
-    ;(mesh.material as any).depthWrite = false
-  }
-
-  const bones = object.skeleton.bones
-  const bonesIndexes = getBoneChildrenIndexes(bones, headBone)
-  const bonesToFade = new Matrix4()
-  bonesToFade.elements.fill(-1)
-  const loopLength = Math.min(bonesToFade.elements.length, bonesIndexes.length)
-
-  for (let i = 0; i < loopLength; i++) {
-    bonesToFade.elements[i] = bonesIndexes[i]
-  }
-
-  addBoneOpacityParamsToMaterial(material, bonesToFade)
-}
-
-/**
- * Returns list of a bone's child indexes in bones list
- * including the starting bone
- * @param bones list of bones to search
- * @param startingBone bone to find childrend index from
- * @returns
- */
-function getBoneChildrenIndexes(bones: Object3D[], startingBone: Object3D): number[] {
-  const indexes: number[] = []
-
-  startingBone.traverse((c) => {
-    indexes.push(bones.findIndex((b) => c.name === b.name))
-  })
-
-  return indexes
-}
-
-/**
- * Adds opacity setting to a material based on single bone
- *
- * @param material
- * @param boneIndexes
- */
-export function addBoneOpacityParamsToMaterial(material, boneIndexes: Matrix4) {
-  material.transparent = true
-  addOBCPlugin(material, {
-    id: OBCType.AVATAR,
-    compile: (shader) => {
-      shader.uniforms.boneIndexToFade = { value: boneIndexes }
-      shader.uniforms.boneOpacity = { value: 1.0 }
-
-      // Vertex Uniforms
-      const vertexUniforms = `uniform mat4 boneIndexToFade;
-        varying float vSelectedBone;`
-
-      shader.vertexShader = insertBeforeString(shader.vertexShader, 'varying vec3 vViewPosition;', vertexUniforms)
-
-      shader.vertexShader = insertAfterString(
-        shader.vertexShader,
-        '#include <skinning_vertex>',
-        `
-        vSelectedBone = 0.0;
-
-        for(float i=0.0; i<16.0 && vSelectedBone == 0.0; i++){
-            int x = int(i/4.0);
-            int y = int(mod(i,4.0));
-            float boneIndex = boneIndexToFade[x][y];
-            if(boneIndex < 0.0) continue;
-
-            for(int j=0; j<4; j++){
-                if(skinIndex[j] == boneIndex){
-                    vSelectedBone = 1.0;
-                    break;
-                }
-            }
-        }
-        `
-      )
-
-      // Fragment Uniforms
-      const fragUniforms = `varying float vSelectedBone;
-        uniform float boneOpacity;
-        `
-
-      shader.fragmentShader = insertBeforeString(shader.fragmentShader, 'uniform vec3 diffuse;', fragUniforms)
-
-      shader.fragmentShader = insertAfterString(
-        shader.fragmentShader,
-        'vec4 diffuseColor = vec4( diffuse, opacity );',
-        `if(vSelectedBone > 0.0){
-            diffuseColor.a = opacity * boneOpacity;
-            if (boneOpacity == 0.0) {
-              discard;
-            }
-        }
-        `
-      )
-
-      material.userData.shader = shader
-    }
-  })
-}
-
-export const setAvatarHeadOpacity = (entity: Entity, opacity: number): void => {
-  const object3DComponent = getComponent(entity, Object3DComponent)
-  object3DComponent?.value.traverse((obj) => {
-    if (!(obj as SkinnedMesh).isSkinnedMesh) return
-    const material = (obj as SkinnedMesh).material as Material
-    if (!material.userData?.shader) return
-    const shader = material.userData.shader
-    if (shader?.uniforms) {
-      shader.uniforms.boneOpacity.value = opacity
-    }
-    material.transparent = opacity != 0
-  })
 }
 
 export const getAvatarBoneWorldPosition = (entity: Entity, boneName: BoneNames, position: Vector3): boolean => {

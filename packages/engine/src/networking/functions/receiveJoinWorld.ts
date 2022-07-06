@@ -10,35 +10,9 @@ import { EngineActions, getEngineState } from '../../ecs/classes/EngineState'
 import { AvatarProps } from '../interfaces/WorldState'
 import { WorldNetworkAction } from './WorldNetworkAction'
 
-export type SpectateWorldProps = {
-  highResTimeOrigin: number
-  worldStartTime: number
-  client: { name: string; index: number }
-  cachedActions: Required<Action>[]
-  spectateUser: string
-}
-
-export const receiveSpectateWorld = (props: SpectateWorldProps) => {
-  if (!props) return
-  const { highResTimeOrigin, worldStartTime, client, cachedActions, spectateUser } = props
-  console.log(
-    'RECEIVED SPECTATE WORLD RESPONSE',
-    highResTimeOrigin,
-    worldStartTime,
-    client,
-    cachedActions,
-    spectateUser
-  )
-  const world = Engine.instance.currentWorld
-
-  for (const action of cachedActions) Engine.instance.store.actions.incoming.push({ ...action, $fromCache: true })
-
-  if (spectateUser) {
-    dispatchAction(EngineActions.joinedWorld())
-    dispatchAction(EngineActions.spectateUser({ user: spectateUser }))
-  }
-
-  dispatchAction(WorldNetworkAction.createPeer(client), world.worldNetwork.hostId)
+export type JoinWorldRequestData = {
+  inviteCode?: string
+  spectateUserId?: UserId | 'none'
 }
 
 export type JoinWorldProps = {
@@ -47,12 +21,14 @@ export type JoinWorldProps = {
   client: { name: string; index: number }
   cachedActions: Required<Action>[]
   avatarDetail: AvatarProps
-  avatarSpawnPose: { position: Vector3; rotation: Quaternion }
+  avatarSpawnPose?: { position: Vector3; rotation: Quaternion }
+  spectateUserId?: UserId | 'none'
 }
 
 export const receiveJoinWorld = (props: JoinWorldProps) => {
   if (!props) return
-  const { highResTimeOrigin, worldStartTime, client, cachedActions, avatarDetail, avatarSpawnPose } = props
+  const { highResTimeOrigin, worldStartTime, client, cachedActions, avatarDetail, avatarSpawnPose, spectateUserId } =
+    props
   console.log(
     'RECEIVED JOIN WORLD RESPONSE',
     highResTimeOrigin,
@@ -60,7 +36,8 @@ export const receiveJoinWorld = (props: JoinWorldProps) => {
     client,
     cachedActions,
     avatarDetail,
-    avatarSpawnPose
+    avatarSpawnPose,
+    spectateUserId
   )
   dispatchAction(EngineActions.joinedWorld())
   const world = Engine.instance.currentWorld
@@ -77,6 +54,11 @@ export const receiveJoinWorld = (props: JoinWorldProps) => {
   for (const action of cachedActions) Engine.instance.store.actions.incoming.push({ ...action, $fromCache: true })
 
   dispatchAction(WorldNetworkAction.createPeer(client), world.worldNetwork.hostId)
-  dispatchAction(WorldNetworkAction.spawnAvatar({ parameters: spawnPose }), world.worldNetwork.hostId)
-  dispatchAction(WorldNetworkAction.avatarDetails({ avatarDetail }), world.worldNetwork.hostId)
+
+  if (spectateUserId) {
+    if (spectateUserId !== 'none') dispatchAction(EngineActions.spectateUser({ user: spectateUserId }))
+  } else if (spawnPose) {
+    dispatchAction(WorldNetworkAction.spawnAvatar({ parameters: spawnPose }), world.worldNetwork.hostId)
+    dispatchAction(WorldNetworkAction.avatarDetails({ avatarDetail }), world.worldNetwork.hostId)
+  }
 }

@@ -94,7 +94,7 @@ const SettingDetailView = () => {
 
   const handleChangeControlType = (event: React.ChangeEvent<HTMLSelectElement>) => {
     setControlType(event.target.value as any)
-    dispatchAction(AvatarInputSettingsAction.setControlType({ controlType: event.target.value as any }))
+    dispatchAction(AvatarInputSettingsAction.setControlType(event.target.value as any))
   }
 
   const handleChangeControlScheme = (event: React.ChangeEvent<HTMLSelectElement>) => {
@@ -258,7 +258,7 @@ const SettingDetailView = () => {
                     type="checkbox"
                     data-indeterminate="false"
                     checked={rendererState.automatic.value}
-                    onChange={(value: any) => {
+                    onChange={(value: React.ChangeEvent<HTMLInputElement>) => {
                       dispatchAction(EngineRendererAction.setAutomatic({ automatic: value.target.checked }))
                     }}
                   />
