@@ -361,7 +361,7 @@ const AvatarDrawerContent = ({ open, mode, selectedAvatar, onClose }: Props) => 
               type="file"
               onChange={handleChangeFile}
             />
-            <Button variant="outlined" component="span" startIcon={<FaceIcon />}>
+            <Button className={styles.gradientButton} component="span" startIcon={<FaceIcon />}>
               {t('admin:components.avatar.selectAvatar')}
             </Button>
           </label>
@@ -465,7 +465,7 @@ const AvatarDrawerContent = ({ open, mode, selectedAvatar, onClose }: Props) => 
               type="file"
               onChange={handleChangeFile}
             />
-            <Button variant="outlined" component="span" startIcon={<AccountCircleIcon />}>
+            <Button className={styles.gradientButton} component="span" startIcon={<AccountCircleIcon />}>
               {t('admin:components.avatar.selectThumbnail')}
             </Button>
           </label>
@@ -516,23 +516,23 @@ const AvatarDrawerContent = ({ open, mode, selectedAvatar, onClose }: Props) => 
       </Box>
 
       <DialogActions>
+        <Button className={styles.outlinedButton} onClick={handleCancel}>
+          {t('admin:components.common.cancel')}
+        </Button>
         {(mode === AvatarDrawerMode.Create || editMode) && (
-          <Button className={styles.submitButton} onClick={handleSubmit}>
+          <Button className={styles.gradientButton} onClick={handleSubmit}>
             {t('admin:components.common.submit')}
           </Button>
         )}
         {mode === AvatarDrawerMode.ViewEdit && editMode === false && (
           <Button
-            className={styles.submitButton}
+            className={styles.gradientButton}
             disabled={hasWriteAccess ? false : true}
             onClick={() => setEditMode(true)}
           >
             {t('admin:components.common.edit')}
           </Button>
         )}
-        <Button className={styles.cancelButton} onClick={handleCancel}>
-          {t('admin:components.common.cancel')}
-        </Button>
       </DialogActions>
     </Container>
   )

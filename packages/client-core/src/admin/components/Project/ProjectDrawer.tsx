@@ -23,7 +23,7 @@ interface Props {
   onClose: () => void
 }
 
-const AddProject = ({ open, repos, onClose }: Props) => {
+const ProjectDrawer = ({ open, repos, onClose }: Props) => {
   const { t } = useTranslation()
   const [projectURL, setProjectURL] = useState('')
   const [processing, setProcessing] = useState(false)
@@ -88,27 +88,23 @@ const AddProject = ({ open, repos, onClose }: Props) => {
           />
         )}
 
-        {!processing && (
-          <div className={styles.inputContainer}>
-            {source === 'list' && repos && repos.length != 0 ? (
-              <InputSelect
-                name="projectURL"
-                label={t('admin:components.project.project')}
-                value={projectURL}
-                menu={projectMenu}
-                error={error}
-                onChange={handleChange}
-              />
-            ) : (
-              <InputText
-                name="urlSelect"
-                label={t('admin:components.project.githubPublicUrl')}
-                value={projectURL}
-                error={error}
-                onChange={handleChange}
-              />
-            )}
-          </div>
+        {!processing && source === 'list' && repos && repos.length != 0 ? (
+          <InputSelect
+            name="projectURL"
+            label={t('admin:components.project.project')}
+            value={projectURL}
+            menu={projectMenu}
+            error={error}
+            onChange={handleChange}
+          />
+        ) : (
+          <InputText
+            name="urlSelect"
+            label={t('admin:components.project.githubPublicUrl')}
+            value={projectURL}
+            error={error}
+            onChange={handleChange}
+          />
         )}
 
         {processing && <LoadingView title={t('admin:components.project.processing')} variant="body1" />}
@@ -130,4 +126,4 @@ const AddProject = ({ open, repos, onClose }: Props) => {
   )
 }
 
-export default AddProject
+export default ProjectDrawer
