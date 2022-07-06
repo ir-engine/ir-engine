@@ -23,7 +23,10 @@ const ensureUserThemeModes = () => {
     const clientSetting = await app.service('client-setting').find()
     if (clientSetting && clientSetting.data.length > 0) {
       result.themeModes = clientSetting.data[0].themeModes
-      app.service('user-settings').patch(result.id, result)
+      await app.service('user-settings').patch(result.id, result)
+
+      // Setting themeModes value again to override the value updated in above patch() call.
+      result.themeModes = clientSetting.data[0].themeModes
     }
     return context
   }

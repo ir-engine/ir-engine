@@ -42,6 +42,40 @@ const restrictUserRemove = (context: HookContext) => {
   return context
 }
 
+const parseAllUserSettings = () => {
+  return async (context: HookContext): Promise<HookContext> => {
+    const { result } = context
+
+    for (const index in result.data) {
+      if (result.data[index].user_setting && result.data[index].user_setting.themeModes) {
+        let themeModes = JSON.parse(result.data[index].user_setting.themeModes)
+
+        if (typeof themeModes === 'string') themeModes = JSON.parse(themeModes)
+
+        result.data[index].user_setting.themeModes = themeModes
+      }
+    }
+
+    return context
+  }
+}
+
+const parseUserSettings = () => {
+  return async (context: HookContext): Promise<HookContext> => {
+    const { result } = context
+
+    if (result.user_setting && result.user_setting.themeModes) {
+      let themeModes = JSON.parse(result.user_setting.themeModes)
+
+      if (typeof themeModes === 'string') themeModes = JSON.parse(themeModes)
+
+      result.user_setting.themeModes = themeModes
+    }
+
+    return context
+  }
+}
+
 /**
  * This module used to declare and identify database relation
  * which will be used later in user service
@@ -175,6 +209,7 @@ export default {
   after: {
     all: [],
     find: [
+      parseAllUserSettings()
       // async (context: HookContext): Promise<HookContext> => {
       //   try {
       //     const { app, result } = context
@@ -209,6 +244,7 @@ export default {
       // }
     ],
     get: [
+      parseUserSettings()
       // async (context: HookContext): Promise<HookContext> => {
       //   try {
       //     if (context.result.subscriptions && context.result.subscriptions.length > 0) {

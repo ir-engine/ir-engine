@@ -461,7 +461,7 @@ const ProfileMenu = ({ className, hideLogin, changeActiveMenu, setProfileMenuOpe
                     <Grid key={index} item xs={12} sm={6} md={4}>
                       <InputSelect
                         name={mode}
-                        label={`${t(`admin:components.setting.${mode}`)} ${t('admin:components.setting.theme')}`}
+                        label={`${t(`user:usermenu.setting.${mode}`)} ${t('user:usermenu.setting.theme')}`}
                         value={themeModes[mode]}
                         menu={colorModesMenu}
                         onChange={(e) => handleChangeUserThemeMode(e)}
