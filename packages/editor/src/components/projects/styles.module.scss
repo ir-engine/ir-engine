@@ -45,26 +45,6 @@
       background: #00000080;
       z-index: 100;
     }
-
-    .profileMenuBlock {
-      position: absolute;
-      right: 25px;
-      top: 0;
-
-      .profileMenuContainer {
-        z-index: 100;
-        top: 70px;
-        bottom: unset;
-        right: 0;
-        left: unset;
-        transform: unset;
-        border-radius: 10px;
-
-        div[class^="_closeButton"] {
-          display: none;
-        }
-      }
-    }
   }
 }
 
@@ -616,4 +596,8 @@
 
 .iconButton {
   color: var(--iconButtonColor);
+}
+
+.profilePaper {
+  background-color: transparent;
 }

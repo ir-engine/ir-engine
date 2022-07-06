@@ -8,7 +8,7 @@ import { useLocation } from 'react-router-dom'
 import { validateEmail, validatePhoneNumber } from '@xrengine/common/src/config'
 import { defaultThemeModes, defaultThemeSettings } from '@xrengine/common/src/constants/DefaultThemeSettings'
 
-import { Check, Close, Create, GitHub, Send } from '@mui/icons-material'
+import { Check, Create, GitHub, Send } from '@mui/icons-material'
 import ContentCopyIcon from '@mui/icons-material/ContentCopy'
 import RefreshIcon from '@mui/icons-material/Refresh'
 import Button from '@mui/material/Button'
@@ -36,8 +36,9 @@ import { getAvatarURLForUser, Views } from '../util'
 interface Props {
   className?: string
   hideLogin?: boolean
+  isPopover?: boolean
   changeActiveMenu?: (type: string | null) => void
-  setProfileMenuOpen?: (open: boolean) => void
+  onClose?: () => void
 }
 
 const initialAuthState = {
@@ -62,7 +63,7 @@ const initialOAuthConnectedState = {
   twitter: false
 }
 
-const ProfileMenu = ({ className, hideLogin, changeActiveMenu, setProfileMenuOpen }: Props): JSX.Element => {
+const ProfileMenu = ({ className, hideLogin, isPopover, changeActiveMenu, onClose }: Props): JSX.Element => {
   const { t } = useTranslation()
   const location = useLocation()
 
@@ -259,7 +260,7 @@ const ProfileMenu = ({ className, hideLogin, changeActiveMenu, setProfileMenuOpe
 
   const handleLogout = async (e) => {
     if (changeActiveMenu != null) changeActiveMenu(null)
-    else if (setProfileMenuOpen != null) setProfileMenuOpen(false)
+    else if (onClose != null) onClose()
     setShowUserId(false)
     setShowApiKey(false)
     await AuthService.logoutUser()
@@ -349,7 +350,7 @@ const ProfileMenu = ({ className, hideLogin, changeActiveMenu, setProfileMenuOpe
   const enableConnect = authState?.emailMagicLink || authState?.smsMagicLink
 
   return (
-    <div className={styles.menuPanel + (className ? ' ' + className : '')}>
+    <div className={(isPopover ? styles.profilePanelRoot : styles.menuPanel) + (className ? ' ' + className : '')}>
       <section className={styles.profilePanel}>
         <section className={styles.profileBlock}>
           <div className={styles.avatarBlock}>
@@ -453,23 +454,6 @@ const ProfileMenu = ({ className, hideLogin, changeActiveMenu, setProfileMenuOpe
                   }
                 }}
               />
-            )}
-            {selfUser && (
-              <div className={styles.themeSettingContainer}>
-                <Grid container spacing={4} sx={{ mb: 3 }}>
-                  {accessibleThemeModes.map((mode, index) => (
-                    <Grid key={index} item xs={12} sm={6} md={4}>
-                      <InputSelect
-                        name={mode}
-                        label={`${t(`user:usermenu.setting.${mode}`)} ${t('user:usermenu.setting.theme')}`}
-                        value={themeModes[mode]}
-                        menu={colorModesMenu}
-                        onChange={(e) => handleChangeUserThemeMode(e)}
-                      />
-                    </Grid>
-                  ))}
-                </Grid>
-              </div>
             )}
             <h4>
               {userRole !== 'guest' && (
@@ -754,9 +738,23 @@ const ProfileMenu = ({ className, hideLogin, changeActiveMenu, setProfileMenuOpe
                 </div>
               )}
             </section>
-            {setProfileMenuOpen != null && (
-              <div className={styles.closeButton} onClick={() => setProfileMenuOpen(false)}>
-                <Close />
+
+            {selfUser && (
+              <div className={styles.themeSettingContainer}>
+                <h2 className={styles.themesHeading}>{t('user:usermenu.setting.themes')}</h2>
+                <Grid container spacing={2} sx={{ mt: 2 }}>
+                  {accessibleThemeModes.map((mode, index) => (
+                    <Grid key={index} item xs={12} sm={6} md={4}>
+                      <InputSelect
+                        name={mode}
+                        label={`${t(`user:usermenu.setting.${mode}`)} ${t('user:usermenu.setting.theme')}`}
+                        value={themeModes[mode]}
+                        menu={colorModesMenu}
+                        onChange={(e) => handleChangeUserThemeMode(e)}
+                      />
+                    </Grid>
+                  ))}
+                </Grid>
               </div>
             )}
           </>
