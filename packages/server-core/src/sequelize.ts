@@ -26,7 +26,6 @@ export default (app: Application): void => {
     const oldSetup = app.setup
 
     app.set('sequelizeClient', sequelize)
-    console.log('sequelize', sequelize)
 
     let promiseResolve, promiseReject
     app.isSetup = new Promise((resolve, reject) => {
@@ -36,9 +35,7 @@ export default (app: Application): void => {
 
     app.setup = async function (...args: any) {
       try {
-        try {
-          await sequelize.query('SET FOREIGN_KEY_CHECKS = 0')
-        } catch (err) {}
+        await sequelize.query('SET FOREIGN_KEY_CHECKS = 0')
 
         const tableCount = await sequelize.query(
           `select table_schema as xrengine,count(*) as tables from information_schema.tables where table_type = \'BASE TABLE\' and table_schema not in (\'information_schema\', \'sys\', \'performance_schema\', \'mysql\') group by table_schema order by table_schema;`
