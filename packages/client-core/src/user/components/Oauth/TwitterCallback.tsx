@@ -44,7 +44,7 @@ const TwitterCallbackComponent = (props): JSX.Element => {
     <Container className={styles.oauthError}>
       <div className={styles.title}>{t('user:oauth.authFailed', { service: 'Twitter' })}</div>
       <div className={styles.message}>{state.error}</div>
-      <Button onClick={redirectToRoot} className={styles.submitButton}>
+      <Button onClick={redirectToRoot} className={styles.gradientButton}>
         {t('user:oauth.redirectToRoot')}
       </Button>
     </Container>

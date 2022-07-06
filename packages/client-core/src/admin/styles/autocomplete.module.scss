@@ -30,25 +30,31 @@
     z-index: 1;
   }
 
-  :global(.MuiOutlinedInput-notchedOutline) {
-    position: absolute;
-    border-color: var(--inputOutline) !important;
-    border-radius: 4px;
-    border-style: solid;
-    border-width: 1px;
-    width: 100%;
-    top: -10px;
-    right: 0;
-    left: 0;
-    bottom: 0;
-    z-index: 0;
+  :global {
+    .MuiOutlinedInput-notchedOutline {
+      position: absolute;
+      border-color: var(--inputOutline) !important;
+      border-radius: 4px;
+      border-style: solid;
+      border-width: 1px;
+      width: 100%;
+      top: -10px;
+      right: 0;
+      left: 0;
+      bottom: 0;
+      z-index: 0;
 
-    :global(legend) {
-      visibility: visible;
-      font-size: 12px;
-      margin-left: 8px;
-      padding: 0 5px;
-      max-width: fit-content;
+      legend {
+        visibility: visible;
+        font-size: 12px;
+        margin-left: 8px;
+        padding: 0 5px;
+        max-width: fit-content;
+      }
+    }
+
+    .MuiOutlinedInput-notchedOutline.disabled {
+      border-color: rgb(var(--inputOutlineRgb) 0.38) !important;
     }
   }
 }
