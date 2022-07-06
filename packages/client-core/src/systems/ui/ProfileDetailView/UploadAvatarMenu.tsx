@@ -33,6 +33,8 @@ import {
 } from '../../../user/components/UserMenu/menus/helperFunctions'
 import { AuthService } from '../../../user/services/AuthService'
 import XRInput from '../../components/XRInput'
+import XRTextButton from '../../components/XRTextButton'
+import XRUploadButton from '../../components/XRUploadButton'
 import styleString from './index.scss'
 
 export function createUploadAvatarMenu() {
@@ -318,17 +320,19 @@ export const UploadAvatarMenu = () => {
               <XRInput placeholder="Paste Avatar Url..." value={avatarUrl} onChange={handleAvatarUrlChange} />
               <XRInput value={thumbnailUrl} onChange={handleThumbnailUrlChange} placeholder="Paste Thumbnail Url..." />
             </div>
-            <button
-              type="button"
-              className="uploadBtn"
+            <XRTextButton
+              content={
+                <>
+                  {t('user:avatar.lbl-upload')}
+                  <CloudUpload />
+                </>
+              }
+              variant="gradient"
               onClick={uploadAvatar}
               xr-layer="true"
               disabled={!validAvatarUrl}
               style={{ cursor: !validAvatarUrl ? 'not-allowed' : 'pointer' }}
-            >
-              {t('user:avatar.lbl-upload')}
-              <CloudUpload />
-            </button>
+            />
           </div>
         ) : (
           <>
@@ -339,43 +343,42 @@ export const UploadAvatarMenu = () => {
             )}
             <div className="controlContainer">
               <div className="selectBtns">
-                <label htmlFor="contained-button-file">
-                  <input
-                    accept={AVATAR_FILE_ALLOWED_EXTENSIONS}
-                    id="contained-button-file"
-                    type="file"
-                    className="uploadInput"
-                    onChange={handleAvatarChange}
-                  />
-                  <button className="rootBtn">
-                    {t('user:avatar.avatar')} <SystemUpdateAlt />
-                  </button>
-                </label>
-                <label htmlFor="contained-button-file-t">
-                  <input
-                    accept={THUMBNAIL_FILE_ALLOWED_EXTENSIONS}
-                    id="contained-button-file-t"
-                    className="uploadInput"
-                    type="file"
-                    onChange={handleThumbnailChange}
-                  />
-                  <button className="rootBtn">
-                    {t('user:avatar.lbl-thumbnail')}
-                    <AccountCircle />
-                  </button>
-                </label>
+                <XRUploadButton
+                  accept={AVATAR_FILE_ALLOWED_EXTENSIONS}
+                  type="file"
+                  onChange={handleAvatarChange}
+                  variant="filled"
+                  buttonContent={
+                    <>
+                      {t('user:avatar.avatar')} <SystemUpdateAlt />
+                    </>
+                  }
+                />
+                <XRUploadButton
+                  accept={THUMBNAIL_FILE_ALLOWED_EXTENSIONS}
+                  type="file"
+                  onChange={handleThumbnailChange}
+                  variant="filled"
+                  buttonContent={
+                    <>
+                      {t('user:avatar.lbl-thumbnail')} <AccountCircle />
+                    </>
+                  }
+                />
               </div>
-              <button
-                type="button"
-                className="uploadBtn"
+              <XRTextButton
+                content={
+                  <>
+                    {t('user:avatar.lbl-upload')}
+                    <CloudUpload />
+                  </>
+                }
+                variant="gradient"
                 xr-layer="true"
                 onClick={uploadAvatar}
                 style={{ cursor: uploadButtonEnabled ? 'pointer' : 'not-allowed' }}
                 disabled={!uploadButtonEnabled}
-              >
-                {t('user:avatar.lbl-upload')}
-                <CloudUpload />
-              </button>
+              />
             </div>
           </>
         )}

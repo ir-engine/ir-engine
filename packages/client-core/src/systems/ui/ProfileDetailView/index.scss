@@ -939,45 +939,6 @@
       margin-left: 5px;
     }
 
-    button[disabled] {
-      background: var(--disabled);
-      opacity: 1 !important;
-    }
-
-    .browseBtn {
-      & > svg {
-        transform: rotate(180deg);
-      }
-    }
-
-    .uploadBtn {
-      background: linear-gradient(90deg, var(--buttonGradientStart), var(--buttonGradientEnd));
-      cursor: pointer;
-      font-size: 1rem;
-      font-weight: bold;
-      padding: 10px;
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      justify-content: center;
-
-      svg {
-        width: 15px;
-        height: 15px;
-        color: var(--iconButtonColor);
-
-        path {
-          fill: var(--iconButtonColor);
-        }
-      }
-    }
-
-    button:hover,
-    button:focus {
-      outline: none;
-      opacity: 0.7;
-    }
-
     .selectBtns {
       display: grid;
       grid-gap: 10px;
@@ -1107,10 +1068,6 @@
     &:first-child() {
       margin-right: 10px;
     }
-  }
-
-  .uploadInput {
-    display: none;
   }
 
   .thumbnailContainer {
