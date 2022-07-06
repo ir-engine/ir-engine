@@ -22,10 +22,20 @@
 
   &.filled {
     background-color: var(--iconButtonBackground);
+
+    &:hover,
+    &:focus {
+      background-color: var(--iconButtonHoverColor);
+    }
   }
 
   &.iconOnly {
     background-color: transparent;
+
+    &:hover,
+    &:focus {
+      opacity: 0.9;
+    }
   }
 
   &.small {
@@ -59,10 +69,4 @@
 button[disabled] {
   opacity: 0.8;
   cursor: not-allowed;
-}
-
-button:hover,
-button:focus {
-  outline: none;
-  opacity: 0.7;
 }
