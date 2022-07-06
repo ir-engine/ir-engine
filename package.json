@@ -120,7 +120,7 @@
     "@feathersjs/feathers": "5.0.0-pre.10",
     "cli": "1.0.1",
     "dotenv": "14.3.2",
-    "lerna": "4.0.0",
+    "lerna": "5.1.7",
     "pino": "^7.10.0",
     "pino-pretty": "^7.6.1",
     "react-json-view": "^1.21.3",
