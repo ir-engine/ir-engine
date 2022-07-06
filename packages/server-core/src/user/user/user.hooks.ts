@@ -327,7 +327,8 @@ export default {
           logger.error(err, `USER AFTER PATCH ERROR: ${err.message}`)
         }
         return context
-      }
+      },
+      parseUserSettings()
     ],
     remove: []
   },
