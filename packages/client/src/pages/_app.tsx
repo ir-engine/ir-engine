@@ -24,6 +24,7 @@ import RouterComp from '../route/public'
 import './styles.scss'
 
 import { NotificationAction, NotificationActions } from '@xrengine/client-core/src/common/services/NotificationService'
+import { getCurrentTheme } from '@xrengine/common/src/constants/DefaultThemeSettings'
 import { addActionReceptor, removeActionReceptor } from '@xrengine/hyperflux'
 
 declare module '@mui/styles/defaultTheme' {
@@ -80,26 +81,10 @@ const App = (): any => {
   useEffect(() => {
     const html = document.querySelector('html')
     if (html) {
-      const currentTheme = selfUser?.user_setting?.value?.themeMode || 'dark'
+      const currentTheme = getCurrentTheme(selfUser?.user_setting?.value?.themeModes)
       html.dataset.theme = currentTheme
 
-      if (clientThemeSettings) {
-        if (currentTheme === 'light' && clientThemeSettings?.light) {
-          for (let variable of Object.keys(clientThemeSettings.light)) {
-            ;(document.querySelector(`[data-theme=light]`) as any)?.style.setProperty(
-              '--' + variable,
-              clientThemeSettings.light[variable]
-            )
-          }
-        } else if (currentTheme === 'dark' && clientThemeSettings?.dark) {
-          for (let variable of Object.keys(clientThemeSettings.dark)) {
-            ;(document.querySelector(`[data-theme=dark]`) as any)?.style.setProperty(
-              '--' + variable,
-              clientThemeSettings.dark[variable]
-            )
-          }
-        }
-      }
+      updateTheme()
     }
   }, [selfUser?.user_setting?.value])
 
@@ -138,26 +123,23 @@ const App = (): any => {
   }, [clientSettingState?.updateNeeded?.value])
 
   useEffect(() => {
-    const currentTheme = selfUser?.user_setting?.value?.themeMode || 'dark'
+    updateTheme()
+  }, [clientThemeSettings])
+
+  const updateTheme = () => {
+    const currentTheme = getCurrentTheme(selfUser?.user_setting?.value?.themeModes)
 
     if (clientThemeSettings) {
-      if (currentTheme === 'light' && clientThemeSettings?.light) {
-        for (let variable of Object.keys(clientThemeSettings.light)) {
-          ;(document.querySelector(`[data-theme=light]`) as any)?.style.setProperty(
+      if (clientThemeSettings?.[currentTheme]) {
+        for (let variable of Object.keys(clientThemeSettings[currentTheme])) {
+          ;(document.querySelector(`[data-theme=${currentTheme}]`) as any)?.style.setProperty(
             '--' + variable,
-            clientThemeSettings.light[variable]
-          )
-        }
-      } else if (currentTheme === 'dark' && clientThemeSettings?.dark) {
-        for (let variable of Object.keys(clientThemeSettings.dark)) {
-          ;(document.querySelector(`[data-theme=dark]`) as any)?.style.setProperty(
-            '--' + variable,
-            clientThemeSettings.dark[variable]
+            clientThemeSettings[currentTheme][variable]
           )
         }
       }
     }
-  }, [clientThemeSettings])
+  }
 
   return (
     <>

@@ -245,7 +245,11 @@
       "paginateMax": "Paginate Max",
       "placeholderText": "This is the input placeholder",
       "addSocialLink": "Add Social Link",
-      "themePlayground": "Theme Playground"
+      "themePlayground": "Theme Playground",
+      "defaultThemes": "Default Themes",
+      "theme": "Theme",
+      "editor": "Editor",
+      "admin": "Admin"
     },
     "avatar": {
       "source": "Source",

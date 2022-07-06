@@ -20,14 +20,17 @@ export class ClientSetting<T = ClientSettingDataType> extends Service<T> {
     const data = clientSettings.data.map((el) => {
       let appSocialLinks = JSON.parse(el.appSocialLinks)
       let themeSettings = JSON.parse(el.themeSettings)
+      let themeModes = JSON.parse(el.themeModes)
 
       if (typeof appSocialLinks === 'string') appSocialLinks = JSON.parse(appSocialLinks)
       if (typeof themeSettings === 'string') themeSettings = JSON.parse(themeSettings)
+      if (typeof themeModes === 'string') themeModes = JSON.parse(themeModes)
 
       return {
         ...el,
         appSocialLinks: appSocialLinks,
-        themeSettings: themeSettings
+        themeSettings: themeSettings,
+        themeModes: themeModes
       }
     })
 
@@ -43,14 +46,17 @@ export class ClientSetting<T = ClientSettingDataType> extends Service<T> {
     const clientSettings = (await super.get(id, params)) as any
     let appSocialLinks = JSON.parse(clientSettings.appSocialLinks)
     let themeSettings = JSON.parse(clientSettings.themeSettings)
+    let themeModes = JSON.parse(clientSettings.themeModes)
 
     if (typeof appSocialLinks === 'string') appSocialLinks = JSON.parse(appSocialLinks)
     if (typeof themeSettings === 'string') themeSettings = JSON.parse(themeSettings)
+    if (typeof themeModes === 'string') themeModes = JSON.parse(themeModes)
 
     return {
       ...clientSettings,
       appSocialLinks: appSocialLinks,
-      themeSettings: themeSettings
+      themeSettings: themeSettings,
+      themeModes: themeModes
     }
   }
 
