@@ -27,7 +27,7 @@ const FormDialog = () => {
         aria-labelledby="form-dialog-title"
         classes={{ paper: styles.paperDialog }}
       >
-        <DialogTitle id="form-dialog-title"> {t('admin:components.dialog.notAccess')}</DialogTitle>
+        <DialogTitle id="form-dialog-title"> {t('admin:components.dialog.noAccess')}</DialogTitle>
         <DialogContent>
           <DialogContentText className={`${styles.spanNone} ${styles.mgBottom}`}>
             {t('admin:components.dialog.askAccessResourceMessage')}
@@ -35,11 +35,11 @@ const FormDialog = () => {
           <TextField autoFocus id="name" label="Username" type="text" fullWidth />
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose} className={styles.cancelButton}>
+          <Button onClick={handleClose} className={styles.outlinedButton}>
             {t('admin:components.dialog.login')}
           </Button>
-          <Button onClick={handleClose} className={styles.submitButton}>
-            {t('admin:components.dialog.submit')}
+          <Button onClick={handleClose} className={styles.gradientButton}>
+            {t('admin:components.common.submit')}
           </Button>
         </DialogActions>
       </Dialog>

@@ -42,35 +42,39 @@ const InputSelect = ({ className, name, label, value, menu, error, disabled, end
       <Box sx={{ display: 'flex' }}>
         <FormControl
           variant="outlined"
-          className={className ?? styles.selectField}
+          className={className ?? styles.inputField}
           error={error ? true : false}
           disabled={disabled}
           size="small"
           sx={{ flexGrow: 1 }}
         >
-          <InputLabel>{_.upperFirst(label)}</InputLabel>
+          <InputLabel sx={{ zIndex: 999 }}>{_.upperFirst(label)}</InputLabel>
+
           <Select
             name={name}
             value={value}
             label={_.upperFirst(label)}
             disabled={disabled}
+            size={'small'}
+            sx={{ opacity: disabled ? 0.38 : 1 }}
             fullWidth
             displayEmpty
             MenuProps={{ classes: { paper: styles.selectPaper } }}
-            size={'small'}
             onChange={onChange}
           >
-            <MenuItem
-              value=""
-              disabled
-              classes={{
-                root: styles.menuItem
-              }}
-            >
-              <em>
-                {t('admin:components.common.select')} {label}
-              </em>
-            </MenuItem>
+            {!disabled && (
+              <MenuItem
+                value=""
+                disabled
+                classes={{
+                  root: styles.menuItem
+                }}
+              >
+                <em>
+                  {t('admin:components.common.select')} {label}
+                </em>
+              </MenuItem>
+            )}
             {menu.map((el, index) => (
               <MenuItem
                 value={el.value}

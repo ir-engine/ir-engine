@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
 import { PerspectiveCamera, Scene, WebGLRenderer } from 'three'
 
+import LoadingView from '@xrengine/client-core/src/admin/common/LoadingView'
 import {
   initialize3D,
   onWindowResize,
@@ -9,8 +10,6 @@ import {
 } from '@xrengine/client-core/src/user/components/UserMenu/menus/helperFunctions'
 import { loadAvatarModelAsset } from '@xrengine/engine/src/avatar/functions/avatarFunctions'
 import { getOrbitControls } from '@xrengine/engine/src/input/functions/loadOrbitControl'
-
-import CircularProgress from '@mui/material/CircularProgress'
 
 import styles from '../styles.module.scss'
 
@@ -82,17 +81,13 @@ export const ModelPreviewPanel = (props) => {
 
   return (
     <>
-      {loading && (
-        <div className={styles.container}>
-          <CircularProgress />
-        </div>
-      )}
+      {loading && <LoadingView />}
       {error && (
         <div className={styles.container}>
           <h1 className={styles.error}>{error}</h1>
         </div>
       )}
-      <div id="stage" style={{ width: '100%', height: '100%' }}></div>
+      <div id="stage" style={{ width: '100%', minHeight: '250px', height: '100%' }}></div>
     </>
   )
 }

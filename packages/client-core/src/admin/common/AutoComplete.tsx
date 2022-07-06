@@ -43,7 +43,6 @@ const AutoComplete = ({ data, label, disabled, onChange, defaultValue = [] }: Pr
     getOptionProps,
     groupedOptions,
     value,
-    focused,
     setAnchorEl
   } = useAutocomplete({
     id: 'autocomplete',
@@ -63,10 +62,12 @@ const AutoComplete = ({ data, label, disabled, onChange, defaultValue = [] }: Pr
     <React.Fragment>
       <div className={styles.root}>
         <div {...getRootProps()}>
-          <div ref={setAnchorEl} className={`${styles.inputWrapper} ${focused ? 'focused' : ''}`}>
+          <div ref={setAnchorEl} className={styles.inputWrapper}>
             <fieldset
               aria-hidden="true"
-              className="MuiOutlinedInput-notchedOutline-SCvfC knJUav MuiOutlinedInput-notchedOutline"
+              className={`MuiOutlinedInput-notchedOutline-SCvfC knJUav MuiOutlinedInput-notchedOutline ${
+                disabled ? 'disabled' : ''
+              }`}
             >
               <legend>
                 <span>{_.upperFirst(label)}</span>

@@ -107,7 +107,6 @@ export default async function AdminSystem(world: World) {
   const setUserRoleQueue = createActionQueue(AdminUserActions.setUserRole.matches)
   const resetFilterQueue = createActionQueue(AdminUserActions.resetFilter.matches)
   const userRoleRetrievedQueue = createActionQueue(AdminUserRoleActions.userRoleRetrieved.matches)
-  const userRoleCreatedQueue = createActionQueue(AdminUserRoleActions.userRoleCreated.matches)
   const userRoleUpdatedQueue = createActionQueue(AdminUserRoleActions.userRoleUpdated.matches)
   const fetchedInstanceServerQueue = createActionQueue(InstanceServerSettingActions.fetchedInstanceServer.matches)
   const chargebeeSettingRetrievedQueue = createActionQueue(
@@ -316,9 +315,6 @@ export default async function AdminSystem(world: World) {
     }
     for (const action of userRoleRetrievedQueue()) {
       AdminUserRoleReceptors.userRoleRetrievedReceptor(action)
-    }
-    for (const action of userRoleCreatedQueue()) {
-      AdminUserRoleReceptors.userRoleCreatedReceptor(action)
     }
     for (const action of userRoleUpdatedQueue()) {
       AdminUserRoleReceptors.userRoleUpdatedReceptor(action)

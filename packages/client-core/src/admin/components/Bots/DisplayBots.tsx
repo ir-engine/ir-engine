@@ -16,7 +16,7 @@ import Typography from '@mui/material/Typography'
 import { NotificationService } from '../../../common/services/NotificationService'
 import { useAuthState } from '../../../user/services/AuthService'
 import AddCommand from '../../common/AddCommand'
-import ConfirmModal from '../../common/ConfirmModal'
+import ConfirmDialog from '../../common/ConfirmDialog'
 import { AdminBotCommandService, useAdminBotCommandState } from '../../services/BotsCommand'
 import { AdminBotService, useAdminBotState } from '../../services/BotsService'
 import styles from '../../styles/admin.module.scss'
@@ -174,7 +174,7 @@ const DisplayBots = () => {
 
       <UpdateBot open={openUpdateBot} onClose={() => setOpenUpdateBot(false)} bot={bot} />
 
-      <ConfirmModal
+      <ConfirmDialog
         open={openConfirm}
         description={`${t('admin:components.bot.confirmBotDelete')} '${botName}'?`}
         onClose={() => setOpenConfirm(false)}
