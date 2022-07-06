@@ -23,7 +23,9 @@ import { TwitterIcon } from '../../../common/components/Icons/TwitterIcon'
 import { NotificationService } from '../../../common/services/NotificationService'
 import { getAvatarURLForUser } from '../../../user/components/UserMenu/util'
 import { AuthService, useAuthState } from '../../../user/services/AuthService'
+import XRIconButton from '../../components/XRIconButton'
 import XRInput from '../../components/XRInput'
+import XRTextButton from '../../components/XRTextButton'
 import styleString from './index.scss'
 
 const initialAuthState = {
@@ -303,9 +305,14 @@ const ProfileDetailView = () => {
           <section className="profileBlock">
             <div className="avatarBlock">
               <img src={getAvatarURLForUser(userId)} />
-              <button xr-layer="true" className="avatarBtn" id="select-avatar" onClick={handleOpenSelectAvatarWidget}>
-                <Create />
-              </button>
+              <XRIconButton
+                size="large"
+                xr-layer="true"
+                className="avatarBtn"
+                id="select-avatar"
+                onClick={handleOpenSelectAvatarWidget}
+                content={<Create />}
+              />
             </div>
             <div className="headerBlock">
               <h1 className="panelHeader">{t('user:usermenu.profile.lbl-username')}</h1>
@@ -442,9 +449,13 @@ const ProfileDetailView = () => {
           {userRole === 'guest' && (
             <section className="walletSection">
               <h3 className="textBlock">{t('user:usermenu.profile.or')}</h3>
-              <button xr-layer="true" onClick={handleOpenReadyPlayerWidget} className="walletBtn">
-                {t('user:usermenu.profile.loginWithReadyPlayerMe')}
-              </button>
+              <XRTextButton
+                variant="gradient"
+                xr-layer="true"
+                onClick={handleOpenReadyPlayerWidget}
+                className="walletBtn"
+                content={t('user:usermenu.profile.loginWithReadyPlayerMe')}
+              />
             </section>
           )}
 

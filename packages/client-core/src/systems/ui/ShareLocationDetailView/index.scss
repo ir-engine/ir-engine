@@ -29,61 +29,7 @@
   margin: 20px auto 10px;
 }
 
-.sendInvitationButton {
-  width: 125px;
-  height: 35px;
-  background: linear-gradient(92.22deg, var(--buttonGradientStart), var(--buttonGradientEnd));
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  box-sizing: border-box;
-  outline: 0;
-  border: 0;
-  margin: 0;
-  border-radius: 4px;
-  padding: 0;
-  cursor: pointer;
-  user-select: none;
-  vertical-align: middle;
-  appearance: none;
-  text-decoration: none;
-  color: var(--textColor);
-  font-family: Roboto, Helvetica, Arial, sans-serif;
-  line-height: 1.75;
-  letter-spacing: 0.02857em;
-  text-transform: uppercase;
-  min-width: 64px;
-  font-size: 16px;
-}
-
 .shareAppContainer {
   margin-top: 15px;
   text-align: center;
-}
-
-.shareAppButton {
-  width: 125px;
-  height: 35px;
-  background: buttonfilled;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  box-sizing: border-box;
-  outline: 0;
-  border: 0;
-  margin: 0;
-  border-radius: 4px;
-  padding: 0;
-  cursor: pointer;
-  user-select: none;
-  vertical-align: middle;
-  appearance: none;
-  text-decoration: none;
-  color: var(--textColor);
-  font-family: Roboto, Helvetica, Arial, sans-serif;
-  line-height: 1.75;
-  letter-spacing: 0.02857em;
-  text-transform: uppercase;
-  min-width: 64px;
-  font-size: 16px;
 }

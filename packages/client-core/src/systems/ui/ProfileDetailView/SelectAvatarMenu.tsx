@@ -13,6 +13,7 @@ import { dispatchAction } from '@xrengine/hyperflux'
 import { ArrowBackIos, ArrowForwardIos, Check, PersonAdd } from '@mui/icons-material'
 
 import { AuthService, useAuthState } from '../../../user/services/AuthService'
+import XRIconButton from '../../components/XRIconButton'
 import styleString from './index.scss'
 
 export function createSelectAvatarMenu() {
@@ -146,51 +147,42 @@ const SelectAvatarMenu = () => {
           </div>
         </div>
         <div className="menuContainer">
-          <button
-            type="button"
-            className={`btn btnArrow ${page === 0 ? 'disabled' : ''}`}
+          <XRIconButton
             xr-layer="true"
             onClick={loadPreviousAvatars}
-          >
-            <ArrowBackIos className="size" />
-          </button>
+            disabled={page === 0}
+            content={<ArrowBackIos className="size" />}
+          />
           <div className="innerMenuContainer">
-            <button
-              type="button"
-              color="secondary"
-              className={`btn btnCancel ${
-                selectedAvatar ? (selectedAvatar?.avatar?.name != avatarId ? 'btnDeepColorCancel' : '') : 'disabledBtn'
-              }`}
+            <XRIconButton
               xr-layer="true"
+              backgroundColor="#f87678"
               onClick={() => {
                 setSelectedAvatar('')
               }}
-            >
-              <span style={{ fontSize: '15px', fontWeight: 'bold' }}>X</span>
-            </button>
-            <button
-              type="button"
-              className={`btn btnCheck ${
-                selectedAvatar ? (selectedAvatar?.avatar?.name != avatarId ? 'btnDeepColor' : '') : 'disabledBtn'
-              }`}
-              disabled={selectedAvatar?.avatar?.name == avatarId}
-              onClick={confirmAvatar}
+              disabled={!selectedAvatar}
+              content={<span style={{ fontSize: '15px', fontWeight: 'bold' }}>X</span>}
+            />
+            <XRIconButton
               xr-layer="true"
-            >
-              <Check />
-            </button>
-            <button type="button" className={`btn btnPerson`} onClick={openAvatarSelectMenu} xr-layer="true">
-              <PersonAdd className="size" />
-            </button>
+              backgroundColor="#23af3a"
+              onClick={confirmAvatar}
+              disabled={selectedAvatar?.avatar?.name == avatarId}
+              content={<Check />}
+            />
+            <XRIconButton
+              xr-layer="true"
+              backgroundColor="rgb(255 255 255 / 70%)"
+              onClick={openAvatarSelectMenu}
+              content={<PersonAdd className="size" />}
+            />
           </div>
-          <button
-            type="button"
-            className={`btn btnArrow ${(page + 1) * imgPerPage >= avatarList.length ? 'disabled' : ''}`}
+          <XRIconButton
             xr-layer="true"
             onClick={loadNextAvatars}
-          >
-            <ArrowForwardIos className="size" />
-          </button>
+            disabled={(page + 1) * imgPerPage >= avatarList.length}
+            content={<ArrowForwardIos className="size" />}
+          />
         </div>
       </div>
     </>

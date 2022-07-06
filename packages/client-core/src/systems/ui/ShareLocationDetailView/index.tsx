@@ -7,6 +7,7 @@ import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
 
 import { useShareMenuHooks } from '../../../user/components/UserMenu/menus/ShareMenu'
 import XRInput from '../../components/XRInput'
+import XRTextButton from '../../components/XRTextButton'
 import styleString from './index.scss'
 
 export function createShareLocationDetailView() {
@@ -55,15 +56,15 @@ const ShareLocationDetailView = () => {
             onChange={(e) => handleChange(e)}
           />
           <div className="sendInvitationContainer">
-            <button onClick={packageInvite} className="sendInvitationButton" type="button">
-              {t('user:usermenu.share.lbl-send-invite')}
-            </button>
+            <XRTextButton
+              variant="gradient"
+              onClick={packageInvite}
+              content={t('user:usermenu.share.lbl-send-invite')}
+            />
           </div>
           {isShareAvailable ? (
             <div className="shareAppContainer">
-              <button onClick={shareOnApps} className="shareAppButton" type="button">
-                {t('user:usermenu.share.lbl-share')}
-              </button>
+              <XRTextButton variant="filled" onClick={shareOnApps} content={t('user:usermenu.share.lbl-share')} />
             </div>
           ) : null}
         </div>

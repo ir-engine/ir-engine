@@ -9,6 +9,9 @@
   align-items: center;
   color: var(--textColor);
   justify-content: center;
+  border: none;
+  border-radius: 4px;
+  text-transform: uppercase;
 
   &.filled {
     background-color: var(--buttonFilled);
@@ -20,7 +23,7 @@
   }
 
   &.gradient {
-    background-color: linear-gradient(90deg, var(--buttonGradientStart), var(--buttonGradientEnd));
+    background: linear-gradient(90deg, var(--buttonGradientStart), var(--buttonGradientEnd));
   }
 
   svg {

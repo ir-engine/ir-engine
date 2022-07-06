@@ -32,6 +32,7 @@ import {
   validate
 } from '../../../user/components/UserMenu/menus/helperFunctions'
 import { AuthService } from '../../../user/services/AuthService'
+import XRIconButton from '../../components/XRIconButton'
 import XRInput from '../../components/XRInput'
 import XRTextButton from '../../components/XRTextButton'
 import XRUploadButton from '../../components/XRUploadButton'
@@ -86,7 +87,6 @@ export const UploadAvatarMenu = () => {
   }
 
   const handleThumbnailUrlChange = (event) => {
-    event.preventDefault()
     setThumbnailUrl(event.target.value)
     if (REGEX_VALID_URL.test(event.target.value)) {
       fetch(event.target.value)
@@ -99,7 +99,6 @@ export const UploadAvatarMenu = () => {
   }
 
   const handleAvatarUrlChange = async (event) => {
-    event.preventDefault()
     setAvatarUrl(event.target.value)
     if (/\.(?:gltf|glb|vrm)/.test(event.target.value) && REGEX_VALID_URL.test(event.target.value)) {
       setValidAvatarUrl(true)
@@ -182,7 +181,6 @@ export const UploadAvatarMenu = () => {
   }
 
   const handleAvatarNameChange = (e) => {
-    e.preventDefault()
     setAvatarName(e.target.value)
   }
 
@@ -228,7 +226,6 @@ export const UploadAvatarMenu = () => {
   }
 
   const openAvatarMenu = (e) => {
-    e.preventDefault()
     setWidgetVisibility('SelectAvatar', true)
   }
 
@@ -259,9 +256,14 @@ export const UploadAvatarMenu = () => {
       <style>{styleString}</style>
       <div ref={panelRef} className="avatarUploadPanel">
         <div className="avatarHeaderBlock">
-          <button type="button" xr-layer="true" className="iconBlock" onClick={openAvatarMenu}>
-            <ArrowBack />
-          </button>
+          <XRIconButton
+            size="large"
+            xr-layer="true"
+            className="iconBlock"
+            variant="iconOnly"
+            onClick={openAvatarMenu}
+            content={<ArrowBack />}
+          />
           <h2>{t('user:avatar.title')}</h2>
         </div>
         <div className="stageContainer">

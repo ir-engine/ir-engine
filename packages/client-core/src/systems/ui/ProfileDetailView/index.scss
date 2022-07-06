@@ -1236,6 +1236,10 @@
 
   .innerMenuContainer {
     display: flex;
+
+    :not(:first-child) {
+      margin-left: 5px;
+    }
   }
 
   .btnDeepColor {

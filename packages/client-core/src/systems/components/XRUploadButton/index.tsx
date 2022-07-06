@@ -2,8 +2,14 @@ import React from 'react'
 
 import styleString from './index.scss'
 
+type uploadButtonVariant = 'filled' | 'outlined' | 'gradient'
+
 const XRUploadButton = (props) => {
-  const { variant = 'filled', buttonContent, ...inputProps } = props
+  const {
+    variant = 'filled',
+    buttonContent,
+    ...inputProps
+  }: { variant: uploadButtonVariant; buttonContent: any; inputProps: any } = props
 
   return (
     <>
