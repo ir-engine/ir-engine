@@ -934,18 +934,6 @@
       }
     }
 
-    .savebtn {
-      color: var(--textColor);
-      background: var(--purpleButtonColor);
-      height: 35px;
-      width: 150px;
-      margin-top: 25px;
-
-      &:hover {
-        opacity: 0.8;
-      }
-    }
-
     .deleteDialogContainer {
       position: absolute;
       width: 100%;
@@ -998,6 +986,7 @@
   .deletePanel {
     .deleteAccount {
       color: white;
+
       &:hover {
         cursor: pointer;
         color: mintcream;
@@ -1016,7 +1005,7 @@
 
       &:hover {
         cursor: pointer;
-        background: var(--red)
+        background: var(--red);
       }
     }
 
@@ -1026,7 +1015,7 @@
 
       &:hover {
         cursor: pointer;
-        background: var(--green)
+        background: var(--green);
       }
     }
   }

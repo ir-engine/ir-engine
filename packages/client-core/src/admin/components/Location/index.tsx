@@ -31,7 +31,7 @@ const Location = () => {
             variant="contained"
             onClick={() => setOpenLocationDrawer(true)}
           >
-            {t('admin:components.locationModal.createLocation')}
+            {t('admin:components.location.createLocation')}
           </Button>
         </Grid>
       </Grid>

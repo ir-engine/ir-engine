@@ -9,21 +9,18 @@ import {
   Mesh,
   MeshBasicMaterial,
   Object3D,
-  Quaternion,
   TorusGeometry,
   Vector3
 } from 'three'
 
-import { Deg2Rad, normalizeRange, rotate } from '@xrengine/common/src/utils/mathUtils'
+import { normalizeRange } from '@xrengine/common/src/utils/mathUtils'
 
 import checkPositionIsValid from '../common/functions/checkPositionIsValid'
-import { Engine } from '../ecs/classes/Engine'
 import { World } from '../ecs/classes/World'
-import { addComponent, defineQuery, getComponent, hasComponent } from '../ecs/functions/ComponentFunctions'
+import { addComponent, defineQuery, getComponent } from '../ecs/functions/ComponentFunctions'
 import { createEntity } from '../ecs/functions/EntityFunctions'
 import { Object3DComponent } from '../scene/components/Object3DComponent'
 import { XRInputSourceComponent } from '../xr/components/XRInputSourceComponent'
-import { AvatarSwerveComponent } from './components/AvatarSwerveComponent'
 import { AvatarTeleportTagComponent } from './components/AvatarTeleportTagComponent'
 import { teleportAvatar } from './functions/moveAvatar'
 
@@ -45,9 +42,6 @@ const currentVertexWorld = new Vector3()
 const nextVertexWorld = new Vector3()
 const tempVecP = new Vector3()
 const tempVecV = new Vector3()
-
-const swerveByDegrees = 15
-const tempSwerveVec = new Vector3()
 
 const white = new Color('white')
 const red = new Color('red')
@@ -113,21 +107,7 @@ export default async function AvatarTeleportSystem(world: World) {
   let canTeleport = false
 
   const avatarTeleportQuery = defineQuery([AvatarTeleportTagComponent])
-  const avatarSwerveQuery = defineQuery([AvatarSwerveComponent])
   return () => {
-    for (const entity of avatarSwerveQuery.enter(world)) {
-      const avatarSewerveComponent = getComponent(entity, AvatarSwerveComponent)
-      const cameraParentRotation = Engine.instance.currentWorld.camera.parent?.rotation
-      if (cameraParentRotation) {
-        let rad = swerveByDegrees * Deg2Rad()
-        tempSwerveVec.copy(avatarSewerveComponent.axis).multiplyScalar(rad)
-
-        const quat = new Quaternion().copy(Engine.instance.currentWorld.camera.parent!.quaternion)
-        rotate(quat, tempSwerveVec.x, tempSwerveVec.y, tempSwerveVec.z)
-        cameraParentRotation.setFromQuaternion(quat)
-      }
-    }
-
     for (const entity of avatarTeleportQuery.enter(world)) {
       const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
       const controller = xrInputSourceComponent.controllerRight

@@ -8,7 +8,7 @@ import Box from '@mui/material/Box'
 import Chip from '@mui/material/Chip'
 
 import { useAuthState } from '../../../user/services/AuthService'
-import ConfirmModal from '../../common/ConfirmModal'
+import ConfirmDialog from '../../common/ConfirmDialog'
 import TableComponent from '../../common/Table'
 import { locationColumns } from '../../common/variables/location'
 import { AdminLocationService, LOCATION_PAGE_LIMIT, useAdminLocationState } from '../../services/LocationService'
@@ -103,7 +103,7 @@ const LocationTable = ({ className, search }: Props) => {
       action: (
         <>
           <a href="#" className={styles.actionStyle} onClick={handleOpenLocationDrawer(true, el)}>
-            <span className={styles.spanWhite}>{t('admin:components.index.view')}</span>
+            <span className={styles.spanWhite}>{t('admin:components.common.view')}</span>
           </a>
           <a
             href="#"
@@ -114,7 +114,7 @@ const LocationTable = ({ className, search }: Props) => {
               setOpenConfirm(true)
             }}
           >
-            <span className={styles.spanDange}>{t('admin:components.index.delete')}</span>
+            <span className={styles.spanDange}>{t('admin:components.common.delete')}</span>
           </a>
         </>
       )
@@ -136,14 +136,14 @@ const LocationTable = ({ className, search }: Props) => {
           <Chip
             style={{ marginLeft: '5px' }}
             avatar={<Avatar>F</Avatar>}
-            label={t('admin:components.index.featured')}
+            label={t('admin:components.location.featured')}
             //  onClick={handleClick}
           />
         )}
         {el.isLobby && (
           <Chip
             avatar={<Avatar>L</Avatar>}
-            label={t('admin:components.index.lobby')}
+            label={t('admin:components.location.lobby')}
             // onClick={handleClick}
           />
         )}
@@ -151,12 +151,12 @@ const LocationTable = ({ className, search }: Props) => {
       <div>
         {/**@ts-ignore*/}
         {el.location_setting?.instanceMediaChatEnabled
-          ? t('admin:components.index.yes')
-          : t('admin:components.index.no')}
+          ? t('admin:components.common.yes')
+          : t('admin:components.common.no')}
       </div>,
       <div>
         {/**@ts-ignore*/}
-        {el.location_setting?.videoEnabled ? t('admin:components.index.yes') : t('admin:components.index.no')}
+        {el.location_setting?.videoEnabled ? t('admin:components.common.yes') : t('admin:components.common.no')}
       </div>
     )
   })
@@ -176,7 +176,7 @@ const LocationTable = ({ className, search }: Props) => {
         handlePageChange={handlePageChange}
         handleRowsPerPageChange={handleRowsPerPageChange}
       />
-      <ConfirmModal
+      <ConfirmDialog
         open={openConfirm}
         description={`${t('admin:components.location.confirmLocationDelete')} '${locationName}'?`}
         onClose={() => setOpenConfirm(false)}

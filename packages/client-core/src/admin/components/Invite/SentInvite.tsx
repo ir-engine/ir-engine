@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { InviteService } from '../../../social/services/InviteService'
 import { useInviteState } from '../../../social/services/InviteService'
 import { INVITE_PAGE_LIMIT } from '../../../social/services/InviteService'
-import ConfirmModal from '../../common/ConfirmModal'
+import ConfirmDialog from '../../common/ConfirmDialog'
 import TableComponent from '../../common/Table'
 import { inviteColumns } from '../../common/variables/invite'
 import styles from '../../styles/admin.module.scss'
@@ -63,7 +63,7 @@ const SentInvite = ({ search }: Props) => {
               setOpenConfirm(true)
             }}
           >
-            <span className={styles.spanDange}>{t('admin:components.index.delete')}</span>
+            <span className={styles.spanDange}>{t('admin:components.common.delete')}</span>
           </a>
         </>
       )
@@ -87,7 +87,7 @@ const SentInvite = ({ search }: Props) => {
         handlePageChange={handlePageChange}
         handleRowsPerPageChange={handleRowsPerPageChange}
       />
-      <ConfirmModal
+      <ConfirmDialog
         open={openConfirm}
         description={`${t('admin:components.invite.confirmInviteDelete')} '${inviteName}'?`}
         onClose={() => setOpenConfirm(false)}

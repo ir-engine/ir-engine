@@ -127,27 +127,16 @@ const ClientTheme = () => {
         onChangeColor={handleChangeColor}
       />
 
-      <Button sx={{ maxWidth: '100%' }} variant="outlined" className={styles.cancelButton} onClick={handleCancel}>
-        {t('admin:components.setting.cancel')}
+      <Button sx={{ maxWidth: '100%' }} className={styles.outlinedButton} onClick={handleCancel}>
+        {t('admin:components.common.cancel')}
       </Button>
 
-      <Button
-        sx={{ maxWidth: '100%', ml: 1 }}
-        variant="outlined"
-        className={styles.cancelButton}
-        onClick={resetThemeToDefault}
-      >
+      <Button sx={{ maxWidth: '100%', ml: 1 }} className={styles.outlinedButton} onClick={resetThemeToDefault}>
         {t('admin:components.setting.resetTheme')}
       </Button>
 
-      <Button
-        sx={{ maxWidth: '100%', ml: 1 }}
-        variant="contained"
-        className={styles.saveBtn}
-        type="submit"
-        onClick={handleSubmit}
-      >
-        {t('admin:components.setting.save')}
+      <Button sx={{ maxWidth: '100%', ml: 1 }} className={styles.gradientButton} onClick={handleSubmit}>
+        {t('admin:components.common.save')}
       </Button>
     </div>
   )

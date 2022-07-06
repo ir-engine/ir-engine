@@ -3,5 +3,6 @@ export enum OBCType {
   FOG = 'FOG',
   BPCEM = 'BPCEM',
   AVATAR = 'AVATAR',
-  OCEAN = 'OCEAN'
+  OCEAN = 'OCEAN',
+  UVCLIP = 'UVCLIP'
 }
