@@ -1,5 +1,7 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
+import { useHistory } from 'react-router'
 
+import { isMobile } from '@xrengine/engine/src/common/functions/isMobile'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { dispatchAction } from '@xrengine/hyperflux'
@@ -64,16 +66,21 @@ interface Props {
 const UserMenu = (props: Props): any => {
   const [currentActiveMenu, setCurrentActiveMenu] = useState<typeof Views[keyof typeof Views]>()
   const Panel = UserMenuPanels.get(currentActiveMenu!)!
-
+  const history = useHistory()
   const engineState = useEngineState()
 
+  useEffect(() => {
+    if (engineState.viewInAR.value && isMobile) {
+      history.push(`/ecommerce/item/${window.btoa(engineState.interactableModelUrl.value)}`)
+    }
+  }, [engineState.viewInAR.value])
   return (
     <>
       <ClickAwayListener
         onClickAway={() => {
           setCurrentActiveMenu(null!)
           if (engineState.viewInAR.value) {
-            dispatchAction(EngineActions.viewInAR({ viewInAR: false }))
+            dispatchAction(EngineActions.viewInAR({ viewInAR: false, interactableModelUrl: '' }))
           }
         }}
         mouseEvent="onMouseDown"
@@ -103,7 +110,7 @@ const UserMenu = (props: Props): any => {
             )}
           </section>
           {currentActiveMenu && <Panel changeActiveMenu={setCurrentActiveMenu} />}
-          {engineState.viewInAR.value && <ShareMenu isMobileView={engineState.viewInAR.value} />}
+          {engineState.viewInAR.value && !isMobile && <ShareMenu isMobileView={engineState.viewInAR.value} />}
         </div>
       </ClickAwayListener>
     </>

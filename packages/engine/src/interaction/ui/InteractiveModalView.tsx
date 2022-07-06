@@ -1,6 +1,6 @@
 import { createState, useState } from '@speigg/hookstate'
 import React from 'react'
-import { useHistory } from 'react-router-dom'
+import { useHistory } from 'react-router'
 
 import { useXRUIState } from '@xrengine/engine/src/xrui/functions/useXRUIState'
 import { dispatchAction } from '@xrengine/hyperflux'
@@ -89,6 +89,7 @@ export const InteractiveModalView = () => {
   const url = interactable.interactionUrls?.[0]
   const title = interactable.interactionText
   const description = interactable.interactionDescription
+  const interactableModelUrl = interactable.interactionModels[0].value
   const history = useHistory()
   return (
     <div id={name} className={'modal ' + modalState.mode.value}>
@@ -137,12 +138,7 @@ export const InteractiveModalView = () => {
         xr-layer="true"
         xr-pixel-ratio="1.5"
         onClick={() => {
-          // window.open(url.value, '_blank')!.focus()
-          if (isMobile) {
-            // TO DO navigate to view in AR route
-          } else {
-            dispatchAction(EngineActions.viewInAR({ viewInAR: true }))
-          }
+          dispatchAction(EngineActions.viewInAR({ viewInAR: true, interactableModelUrl }))
         }}
       >
         View in AR

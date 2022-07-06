@@ -3,6 +3,7 @@ import React, { useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { isShareAvailable } from '@xrengine/engine/src/common/functions/DetectFeatures'
+import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 
 import { CheckBox, CheckBoxOutlineBlank, FileCopy, IosShare, Send } from '@mui/icons-material'
 import Button from '@mui/material/Button'
@@ -97,6 +98,7 @@ interface Props {
 const ShareMenu = (props: Props): JSX.Element => {
   const { t } = useTranslation()
   const [isSpectatorMode, setSpectatorMode] = useState<boolean>(false)
+  const engineState = useEngineState()
   const refLink = useRef() as React.MutableRefObject<HTMLInputElement>
   const { copyLinkToClipboard, shareOnApps, packageInvite, handleChang, getInviteLink, getSpectateModeUrl, email } =
     useShareMenuHooks({
@@ -138,14 +140,34 @@ const ShareMenu = (props: Props): JSX.Element => {
           <QRCodeSVG
             height={176}
             width={200}
-            value={isSpectatorMode ? getSpectateModeUrl().toString() : getInviteLink().toString()}
+            value={
+              engineState.viewInAR.value
+                ? `https://${
+                    new URL(window.location as any).host +
+                    '/ecommerce/item/' +
+                    window.btoa(engineState.interactableModelUrl.value)
+                  }`
+                : isSpectatorMode
+                ? getSpectateModeUrl().toString()
+                : getInviteLink().toString()
+            }
           />
         </div>
         <TextField
           className={styles.copyField}
           size="small"
           variant="outlined"
-          value={isSpectatorMode ? getSpectateModeUrl().toString() : getInviteLink().toString()}
+          value={
+            engineState.viewInAR.value
+              ? `https://${
+                  new URL(window.location as any).host +
+                  '/ecommerce/item/' +
+                  window.btoa(engineState.interactableModelUrl.value)
+                }`
+              : isSpectatorMode
+              ? getSpectateModeUrl().toString()
+              : getInviteLink().toString()
+          }
           disabled={true}
           inputRef={refLink}
           InputProps={{
