@@ -363,7 +363,8 @@
             font-weight: 700;
           }
 
-          &.showUserId {
+          &.showUserId,
+          &.deleteAccount {
             &:hover {
               color: black;
               cursor: pointer;
@@ -978,6 +979,42 @@
             opacity: 0.8;
           }
         }
+      }
+    }
+  }
+
+  .deletePanel {
+    .deleteAccount {
+      color: white;
+      &:hover {
+        cursor: pointer;
+        color: mintcream;
+      }
+    }
+
+    .deleteText {
+      color: white;
+      margin-top: 10px;
+      font-size: 16px;
+    }
+
+    .deleteConfirmButton {
+      background: var(--lightRed);
+      margin-right: 10px;
+
+      &:hover {
+        cursor: pointer;
+        background: var(--red)
+      }
+    }
+
+    .deleteCancelButton {
+      background: var(--deemphasized);
+      margin-right: 10px;
+
+      &:hover {
+        cursor: pointer;
+        background: var(--green)
       }
     }
   }

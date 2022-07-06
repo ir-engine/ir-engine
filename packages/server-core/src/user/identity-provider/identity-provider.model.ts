@@ -54,7 +54,7 @@ export default (app: Application) => {
   )
 
   ;(identityProvider as any).associate = (models: any): void => {
-    ;(identityProvider as any).belongsTo(models.user, { required: true })
+    ;(identityProvider as any).belongsTo(models.user, { required: true, onDelete: 'cascade' })
     ;(identityProvider as any).hasMany(models.login_token)
   }
 

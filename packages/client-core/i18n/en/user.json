@@ -198,6 +198,15 @@
         "low": "Low",
         "spatialAudio": "Use Spatial Audio",
         "enterMuted": "Enter Room Muted"
+      },
+      "delete": {
+        "deleteAccount": "Delete your account",
+        "deleteControlsText": "Are you sure you want to delete your account?",
+        "deleteControlsCancel": "Cancel",
+        "deleteControlsConfirm": "Delete my account",
+        "finalDeleteText": "Deleting your account cannot be undone!",
+        "finalDeleteCancel": "Cancel",
+        "finalDeleteConfirm": "Delete my account"
       }
     },
     "oauth": {
