@@ -14,18 +14,6 @@ import { matchPose } from '../../transform/TransformInterfaces'
 import { matchesAvatarProps } from '../interfaces/WorldState'
 
 export class WorldNetworkAction {
-  static createPeer = defineAction({
-    type: 'network.CREATE_PEER',
-    name: matches.string,
-    index: matches.number,
-    $cache: true
-  })
-
-  static destroyPeer = defineAction({
-    type: 'network.DESTROY_PEER',
-    $to: 'others'
-  })
-
   static setXRMode = defineAction({
     type: 'network.SET_XR_MODE',
     enabled: matches.boolean,

@@ -24,7 +24,7 @@ import {
 } from '@xrengine/engine/src/initializeEngine'
 import { Network, NetworkTopics } from '@xrengine/engine/src/networking/classes/Network'
 import { matchActionOnce } from '@xrengine/engine/src/networking/functions/matchActionOnce'
-import { WorldNetworkAction } from '@xrengine/engine/src/networking/functions/WorldNetworkAction'
+import { NetworkPeerFunctions } from '@xrengine/engine/src/networking/functions/NetworkPeerFunctions'
 import { loadSceneFromJSON } from '@xrengine/engine/src/scene/functions/SceneLoading'
 import { dispatchAction } from '@xrengine/hyperflux'
 import { loadEngineInjection } from '@xrengine/projects/loadEngineInjection'
@@ -292,14 +292,13 @@ const loadEngine = async (app: Application, sceneId: string) => {
   }
   await initPromise
 
-  dispatchAction(
-    WorldNetworkAction.createPeer({
-      name: 'server-' + hostId,
-      index: network.userIndexCount++
-    }),
-    topic
+  NetworkPeerFunctions.createPeer(
+    network,
+    hostId,
+    network.userIndexCount++,
+    'server-' + hostId,
+    Engine.instance.currentWorld
   )
-
   dispatchAction(EngineActions.joinedWorld())
 }
 

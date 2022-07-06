@@ -12,88 +12,6 @@ import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
 import { NetworkObjectOwnedTag } from '../components/NetworkObjectOwnedTag'
 import { WorldNetworkAction } from './WorldNetworkAction'
 
-const removeAllNetworkPeers = (
-  removeSelf = false,
-  world = Engine.instance.currentWorld,
-  network = Engine.instance.currentWorld.worldNetwork
-) => {
-  for (const [userId] of network.peers) {
-    WorldNetworkActionReceptor.receiveDestroyPeers(
-      WorldNetworkAction.destroyPeer({ $from: userId, $topic: NetworkTopics.world }),
-      removeSelf,
-      world
-    )
-  }
-}
-
-const receiveCreatePeers = (
-  action: typeof WorldNetworkAction.createPeer.matches._TYPE,
-  world = Engine.instance.currentWorld
-) => {
-  const network = action.$topic === NetworkTopics.world ? world.worldNetwork : world.mediaNetwork
-  // set utility maps - override if moving through portal
-  network.userIdToUserIndex.set(action.$from, action.index)
-  network.userIndexToUserId.set(action.index, action.$from)
-
-  if (network.peers.has(action.$from))
-    return console.log(
-      `[WorldNetworkActionReceptors]: peer with id ${action.$from} and name ${action.name} already exists. ignoring.`
-    )
-
-  network.peers.set(action.$from, {
-    userId: action.$from,
-    index: action.index
-  })
-
-  if (!world.users.get(action.$from))
-    world.users.set(action.$from, {
-      userId: action.$from,
-      name: action.name
-    })
-}
-
-const receiveDestroyPeers = (
-  action: typeof WorldNetworkAction.destroyPeer.matches._TYPE,
-  allowRemoveSelf = false,
-  world = Engine.instance.currentWorld
-) => {
-  const network = action.$topic === NetworkTopics.world ? world.worldNetwork : world.mediaNetwork
-  if (!network.peers.has(action.$from))
-    return console.warn(
-      `[WorldNetworkActionReceptors]: tried to remove client with userId ${action.$from} that doesn't exit`
-    )
-  if (!allowRemoveSelf && action.$from === Engine.instance.userId)
-    return console.warn(`[WorldNetworkActionReceptors]: tried to remove local client`)
-
-  for (const eid of world.getOwnedNetworkObjects(action.$from)) {
-    const { networkId } = getComponent(eid, NetworkObjectComponent)
-    const destroyObjectAction = WorldNetworkAction.destroyObject({ $from: action.$from, networkId })
-    receiveDestroyObject(destroyObjectAction, world)
-  }
-
-  const { index: userIndex } = network.peers.get(action.$from)!
-  network.userIdToUserIndex.delete(action.$from)
-  network.userIndexToUserId.delete(userIndex)
-  network.peers.delete(action.$from)
-
-  Engine.instance.store.actions.cached[action.$topic] = Engine.instance.store.actions.cached[action.$topic].filter(
-    (a) => a.$from !== action.$from
-  )
-
-  /**
-   * if no other connections exist for this user exist, we want to remove them from world.users
-   */
-  const remainingPeersForDisconnectingUser = Object.entries(world.networks.entries())
-    .map(([id, network]: [string, Network]) => {
-      return network.peers.has(action.$from)
-    })
-    .filter((peer) => !!peer)
-
-  if (!remainingPeersForDisconnectingUser.length) {
-    world.users.delete(action.$from)
-  }
-}
-
 const receiveSpawnObject = (
   action: typeof WorldNetworkAction.spawnObject.matches._TYPE,
   world = Engine.instance.currentWorld
@@ -246,9 +164,6 @@ const receiveSetUserTyping = (
 }
 
 export const WorldNetworkActionReceptor = {
-  removeAllNetworkPeers,
-  receiveCreatePeers,
-  receiveDestroyPeers,
   receiveSpawnObject,
   receiveSpawnDebugPhysicsObject,
   receiveDestroyObject,

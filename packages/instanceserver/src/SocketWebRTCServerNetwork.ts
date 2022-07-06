@@ -37,6 +37,19 @@ export class SocketWebRTCServerNetwork extends Network {
     this.app = app
   }
 
+  public updatePeers = () => {
+    const peers = Array.from(this.peers.values()).map((peer) => {
+      return {
+        userId: peer.userId,
+        index: peer.index,
+        name: Engine.instance.currentWorld.users.get(peer.userId)?.name!
+      }
+    })
+    if (peers.length)
+      for (const [socketID, socket] of this.app.io.of('/').sockets)
+        socket.emit(MessageTypes.UpdatePeers.toString(), peers)
+  }
+
   public sendActions = (actions: Array<Required<Action>>): any => {
     if (!actions.length) return
     const userIdMap = {} as { [socketId: string]: UserId }

@@ -8,7 +8,9 @@ import { Action } from '@xrengine/hyperflux/functions/ActionFunctions'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions, getEngineState } from '../../ecs/classes/EngineState'
 import { NetworkTopics } from '../classes/Network'
+import { NetworkPeer } from '../interfaces/NetworkPeer'
 import { AvatarProps } from '../interfaces/WorldState'
+import { NetworkPeerFunctions } from './NetworkPeerFunctions'
 import { WorldNetworkAction } from './WorldNetworkAction'
 
 export type JoinWorldRequestData = {
@@ -19,7 +21,6 @@ export type JoinWorldRequestData = {
 export type JoinWorldProps = {
   highResTimeOrigin: number
   worldStartTime: number
-  client: { name: string; index: number }
   cachedActions: Required<Action>[]
   avatarSpawnPose?: { position: Vector3; rotation: Quaternion }
   spectateUserId?: UserId | 'none'
@@ -45,12 +46,11 @@ export const spawnLocalAvatarInWorld = (props: SpawnInWorldProps) => {
 
 export const receiveJoinWorld = (props: JoinWorldProps) => {
   if (!props) return
-  const { highResTimeOrigin, worldStartTime, client, cachedActions, avatarSpawnPose, spectateUserId } = props
+  const { highResTimeOrigin, worldStartTime, cachedActions, avatarSpawnPose, spectateUserId } = props
   console.log(
     'RECEIVED JOIN WORLD RESPONSE',
     highResTimeOrigin,
     worldStartTime,
-    client,
     cachedActions,
     avatarSpawnPose,
     spectateUserId
@@ -68,7 +68,6 @@ export const receiveJoinWorld = (props: JoinWorldProps) => {
 
   for (const action of cachedActions) Engine.instance.store.actions.incoming.push({ ...action, $fromCache: true })
 
-  dispatchAction(WorldNetworkAction.createPeer(client), NetworkTopics.world)
   if (spectateUserId) {
     if (spectateUserId !== 'none') dispatchAction(EngineActions.spectateUser({ user: spectateUserId }))
   }

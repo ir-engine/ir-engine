@@ -4,6 +4,7 @@ import { Mesh, MeshStandardMaterial, PlaneGeometry, sRGBEncoding, Vector4, Video
 import { MediaStreams } from '@xrengine/client-core/src/transports/MediaStreams'
 import { ChannelType } from '@xrengine/common/src/interfaces/Channel'
 import { MediaTagType } from '@xrengine/common/src/interfaces/MediaStreamConstants'
+import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import logger from '@xrengine/common/src/logger'
 import { OBCType } from '@xrengine/engine/src/common/constants/OBCTypes'
 import { matches } from '@xrengine/engine/src/common/functions/MatchesUtils'
@@ -15,6 +16,7 @@ import { NetworkTopics } from '@xrengine/engine/src/networking/classes/Network'
 import { PUBLIC_STUN_SERVERS } from '@xrengine/engine/src/networking/constants/STUNServers'
 import { CAM_VIDEO_SIMULCAST_ENCODINGS } from '@xrengine/engine/src/networking/constants/VideoConstants'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
+import { NetworkPeerFunctions } from '@xrengine/engine/src/networking/functions/NetworkPeerFunctions'
 import { WorldNetworkActionReceptor } from '@xrengine/engine/src/networking/functions/WorldNetworkActionReceptor'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 import { ScreenshareTargetComponent } from '@xrengine/engine/src/scene/components/ScreenshareTargetComponent'
@@ -45,6 +47,21 @@ export const getChannelTypeIdFromTransport = (network: SocketWebRTCClientNetwork
   }
 }
 
+function actionDataHandler(message) {
+  if (!message) return
+  const actions = message as any as Required<Action>[]
+  // const actions = decode(new Uint8Array(message)) as IncomingActionType[]
+  for (const a of actions) {
+    Engine.instance.store.actions.incoming.push(a)
+  }
+}
+
+type PeersUpdateType = Array<{
+  userId: UserId
+  index: number
+  name: string
+}>
+
 export async function onConnectToInstance(network: SocketWebRTCClientNetwork) {
   const isWorldConnection = network.topic === NetworkTopics.world
   console.log('[WebRTC]: connectting to instance type:', network.topic, network.hostId)
@@ -71,6 +88,22 @@ export async function onConnectToInstance(network: SocketWebRTCClientNetwork) {
 
   if (!success) return console.error('Unable to connect with credentials')
 
+  function peerUpdateHandler(peers: PeersUpdateType) {
+    console.log('peerUpdateHandler', peers)
+    for (const peer of peers) {
+      if (!network.peers.has(peer.userId)) NetworkPeerFunctions.createPeer(network, peer.userId, peer.index, peer.name)
+    }
+  }
+
+  async function commonDisconnectHandler() {
+    network.socket.off('disconnect', commonDisconnectHandler)
+    network.socket.off(MessageTypes.ActionData.toString(), actionDataHandler)
+    network.socket.off(MessageTypes.UpdatePeers.toString(), peerUpdateHandler)
+  }
+  network.socket.on('disconnect', commonDisconnectHandler)
+  network.socket.on(MessageTypes.ActionData.toString(), actionDataHandler)
+  network.socket.on(MessageTypes.UpdatePeers.toString(), peerUpdateHandler)
+
   const connectToWorldResponse = await network.request(MessageTypes.ConnectToWorld.toString())
 
   if (!connectToWorldResponse || !connectToWorldResponse.routerRtpCapabilities) {
@@ -89,15 +122,6 @@ export async function onConnectToInstance(network: SocketWebRTCClientNetwork) {
 }
 
 export async function onConnectToWorldInstance(network: SocketWebRTCClientNetwork) {
-  function actionDataHandler(message) {
-    if (!message) return
-    const actions = message as any as Required<Action>[]
-    // const actions = decode(new Uint8Array(message)) as IncomingActionType[]
-    for (const a of actions) {
-      Engine.instance.store.actions.incoming.push(a)
-    }
-  }
-
   async function consumeDataHandler(options) {
     const dataConsumer = await network.recvTransport.consumeData(options)
 
@@ -139,7 +163,6 @@ export async function onConnectToWorldInstance(network: SocketWebRTCClientNetwor
     dispatchAction(NetworkConnectionService.actions.worldInstanceDisconnected())
     dispatchAction(EngineActions.connectToWorld({ connectedWorld: false }))
     network.reconnecting = true
-    network.socket.off(MessageTypes.ActionData.toString(), actionDataHandler)
 
     // Get information for how to consume data from server and init a data consumer
     network.socket.off(MessageTypes.WebRTCConsumeData.toString(), consumeDataHandler)
@@ -149,11 +172,8 @@ export async function onConnectToWorldInstance(network: SocketWebRTCClientNetwor
   network.socket.on('disconnect', disconnectHandler)
   network.socket.io.on('reconnect', reconnectHandler)
 
-  network.socket.on(MessageTypes.ActionData.toString(), actionDataHandler)
-
   // Get information for how to consume data from server and init a data consumer
   network.socket.on(MessageTypes.WebRTCConsumeData.toString(), consumeDataHandler)
-
   network.socket.on(MessageTypes.Kick.toString(), kickHandler)
 
   await Promise.all([initSendTransport(network), initReceiveTransport(network)])
@@ -895,7 +915,7 @@ export function leaveNetwork(network: SocketWebRTCClientNetwork, kicked?: boolea
       world._mediaHostId = null!
       dispatchAction(MediaInstanceConnectionAction.disconnect({ instanceId: network.hostId }))
     } else {
-      WorldNetworkActionReceptor.removeAllNetworkPeers(false, world, network)
+      NetworkPeerFunctions.destroyAllPeers(network, false, world)
       world.networks.delete(network.hostId)
       world._worldHostId = null!
       dispatchAction(LocationInstanceConnectionAction.disconnect({ instanceId: network.hostId }))

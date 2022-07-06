@@ -14,6 +14,7 @@ import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { NetworkTopics } from '@xrengine/engine/src/networking/classes/Network'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
+import { NetworkPeerFunctions } from '@xrengine/engine/src/networking/functions/NetworkPeerFunctions'
 import { JoinWorldProps, JoinWorldRequestData } from '@xrengine/engine/src/networking/functions/receiveJoinWorld'
 import { WorldNetworkAction } from '@xrengine/engine/src/networking/functions/WorldNetworkAction'
 import { AvatarProps } from '@xrengine/engine/src/networking/interfaces/WorldState'
@@ -267,6 +268,8 @@ export async function handleConnectToWorld(
   network.userIdToUserIndex.set(userId, userIndex)
   network.userIndexToUserId.set(userIndex, userId)
 
+  network.updatePeers()
+
   callback({
     routerRtpCapabilities: network.routers.instance[0].rtpCapabilities
   })
@@ -380,8 +383,6 @@ export async function handleJoinWorld(
     spawnPose = await getUserSpawnFromInvite(network, user, data.inviteCode!)
   }
 
-  const client = network.peers.get(userId)!
-
   clearCachedActionsForDisconnectedUsers(network)
   clearCachedActionsForUser(network, userId)
 
@@ -392,7 +393,6 @@ export async function handleJoinWorld(
   callback({
     highResTimeOrigin: performance.timeOrigin,
     worldStartTime: world.startTime,
-    client: { name: user.name, index: client.index },
     cachedActions,
     avatarSpawnPose: spawnPose,
     spectateUserId
@@ -431,7 +431,8 @@ export async function handleDisconnect(network: SocketWebRTCServerNetwork, socke
   // The new connection will overwrite the socketID for the user's client.
   // This will only clear transports if the client's socketId matches the socket that's disconnecting.
   if (socket.id === disconnectedClient?.socketId) {
-    dispatchAction(WorldNetworkAction.destroyPeer({ $from: userId }), network.topic)
+    NetworkPeerFunctions.destroyPeer(network, userId, false, Engine.instance.currentWorld)
+    network.updatePeers()
     logger.info('Disconnecting clients for user ' + userId)
     if (disconnectedClient?.instanceRecvTransport) disconnectedClient.instanceRecvTransport.close()
     if (disconnectedClient?.instanceSendTransport) disconnectedClient.instanceSendTransport.close()
@@ -452,7 +453,8 @@ export async function handleLeaveWorld(
   for (const [, transport] of Object.entries(network.mediasoupTransports))
     if ((transport as any).appData.peerId === userId) closeTransport(network, transport)
   if (network.peers.has(userId)) {
-    dispatchAction(WorldNetworkAction.destroyPeer({ $from: userId }), network.topic)
+    NetworkPeerFunctions.destroyPeer(network, userId, false, Engine.instance.currentWorld)
+    network.updatePeers()
   }
   if (callback !== undefined) callback({})
 }
