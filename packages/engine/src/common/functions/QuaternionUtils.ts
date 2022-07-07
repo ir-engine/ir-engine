@@ -54,6 +54,8 @@ export function yawFromQuaternion(q: number[]): number {
 
 export function quatNearEqual(a: Quaternion, b: Quaternion, epsilon: number = Number.EPSILON): boolean {
   const tempQuat = new Quaternion()
+  console.log(tempQuat.set(a.x - b.x, a.y - b.y, a.z - b.z, a.w - b.w).lengthSq())
+  console.log(tempQuat.set(a.x + b.x, a.y + b.y, a.z + b.z, a.w + b.w).lengthSq())
 
   return (
     tempQuat.set(a.x - b.x, a.y - b.y, a.z - b.z, a.w - b.w).lengthSq() < epsilon ||

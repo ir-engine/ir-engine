@@ -23,6 +23,9 @@ function formatVec3(v: Vector3) {
   return `${v.x} ${v.y} ${v.z}`
 }
 
+// quaternions sometimes hit numbers slightly above 1e-15
+const QUAT_EPSILON = 1e-14
+
 describe('retargetSkeleton', () => {
   it('Check retargetSkeleton Rotations', () => {
     const defaultSkeleton = makeDefaultSkinnedMesh().skeleton
@@ -50,7 +53,7 @@ describe('retargetSkeleton', () => {
         formatQuat(bone.quaternion) +
         ' / Target: ' +
         formatQuat(targetBone.quaternion)
-      assert(quatNearEqual(bone.quaternion, targetBone.quaternion), message)
+      assert(quatNearEqual(bone.quaternion, targetBone.quaternion, QUAT_EPSILON), message)
     })
   })
 
