@@ -91,13 +91,13 @@ export async function onConnectToInstance(network: SocketWebRTCClientNetwork) {
   if (!success) return console.error('Unable to connect with credentials')
 
   function peerUpdateHandler(peers: PeersUpdateType) {
-    console.log('peerUpdateHandler', peers)
     for (const peer of peers) {
       if (!network.peers.has(peer.userId)) NetworkPeerFunctions.createPeer(network, peer.userId, peer.index, peer.name)
     }
     for (const [userId, peer] of network.peers) {
       if (!peers.find((p) => p.userId === userId)) NetworkPeerFunctions.destroyPeer(network, userId)
     }
+    console.log('[WebRTC]: Updated Peers', peers)
   }
 
   async function commonDisconnectHandler() {

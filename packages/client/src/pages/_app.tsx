@@ -96,7 +96,6 @@ const App = (): any => {
 
   useEffect(() => {
     Engine.instance.userId = selfUser.id.value
-    console.log('updated userId', Engine.instance.userId)
   }, [selfUser.id])
 
   useEffect(() => {
