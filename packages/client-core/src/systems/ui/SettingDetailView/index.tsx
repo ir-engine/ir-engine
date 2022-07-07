@@ -20,6 +20,7 @@ import { dispatchAction } from '@xrengine/hyperflux'
 import { BlurLinear, Mic, VolumeUp } from '@mui/icons-material'
 
 import { AuthService, useAuthState } from '../../../user/services/AuthService'
+import XRCheckboxButton from '../../components/XRCheckboxButton'
 import XRToggleButton from '../../components/XRToggleButton'
 import styleString from './index.scss'
 
@@ -109,6 +110,24 @@ const SettingDetailView = () => {
     setShowDetails(!showDetails)
   }
 
+  const handlePostProcessingCheckbox = () => {
+    dispatchAction(
+      EngineRendererAction.setPostProcessing({
+        usePostProcessing: !rendererState.usePostProcessing.value
+      })
+    )
+    dispatchAction(EngineRendererAction.setAutomatic({ automatic: false }))
+  }
+
+  const handleShadowCheckbox = () => {
+    dispatchAction(EngineRendererAction.setShadows({ useShadows: !rendererState.useShadows.value }))
+    dispatchAction(EngineRendererAction.setAutomatic({ automatic: false }))
+  }
+
+  const handleAutomaticCheckbox = () => {
+    dispatchAction(EngineRendererAction.setAutomatic({ automatic: !rendererState.automatic.value }))
+  }
+
   return (
     <>
       <style>{styleString}</style>
@@ -170,91 +189,23 @@ const SettingDetailView = () => {
             </div>
 
             <div className="graphicsCheckBoxRow">
-              <label className="checkBoxRow">
-                <span
-                  className="checkBoxSpan"
-                  onClick={() => {
-                    dispatchAction(
-                      EngineRendererAction.setPostProcessing({
-                        usePostProcessing: !rendererState.usePostProcessing.value
-                      })
-                    )
-                    dispatchAction(EngineRendererAction.setAutomatic({ automatic: false }))
-                  }}
-                >
-                  <input
-                    className="checkBoxInput"
-                    checked={rendererState.usePostProcessing.value}
-                    type="checkbox"
-                    data-indeterminate="false"
-                    onChange={(value: any) => {
-                      dispatchAction(
-                        EngineRendererAction.setPostProcessing({ usePostProcessing: value.target.checked })
-                      )
-                      dispatchAction(EngineRendererAction.setAutomatic({ automatic: false }))
-                    }}
-                  />
-                  <svg className="checkBoxSvg" focusable="false" aria-hidden="true" viewBox="0 0 24 24">
-                    {rendererState.usePostProcessing.value ? (
-                      <path d="M19 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.11 0 2-.9 2-2V5c0-1.1-.89-2-2-2zm-9 14l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"></path>
-                    ) : (
-                      <path d="M19 5v14H5V5h14m0-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"></path>
-                    )}
-                  </svg>
-                </span>
-                <span className="checkBoxLabel">{t('user:usermenu.setting.lbl-pp')}</span>
-              </label>
-              <label className="checkBoxRow">
-                <span
-                  className="checkBoxSpan"
-                  onClick={() => {
-                    dispatchAction(EngineRendererAction.setShadows({ useShadows: !rendererState.useShadows.value }))
-                    dispatchAction(EngineRendererAction.setAutomatic({ automatic: false }))
-                  }}
-                >
-                  <input
-                    className="checkBoxInput"
-                    type="checkbox"
-                    data-indeterminate="false"
-                    checked={rendererState.useShadows.value}
-                    onChange={(value: any) => {
-                      dispatchAction(EngineRendererAction.setShadows({ useShadows: value.target.checked }))
-                      dispatchAction(EngineRendererAction.setAutomatic({ automatic: false }))
-                    }}
-                  />
-                  <svg className="checkBoxSvg" focusable="false" aria-hidden="true" viewBox="0 0 24 24">
-                    {rendererState.useShadows.value ? (
-                      <path d="M19 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.11 0 2-.9 2-2V5c0-1.1-.89-2-2-2zm-9 14l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"></path>
-                    ) : (
-                      <path d="M19 5v14H5V5h14m0-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"></path>
-                    )}
-                  </svg>
-                </span>
-                <span className="checkBoxLabel">{t('user:usermenu.setting.lbl-shadow')}</span>
-              </label>
+              <XRCheckboxButton
+                checked={rendererState.usePostProcessing.value}
+                labelContent={t('user:usermenu.setting.lbl-pp')}
+                onChange={handlePostProcessingCheckbox}
+              />
+              <XRCheckboxButton
+                checked={rendererState.useShadows.value}
+                labelContent={t('user:usermenu.setting.lbl-shadow')}
+                onChange={handleShadowCheckbox}
+              />
             </div>
             <div className="automaticContainer">
-              <label className="automaticRow">
-                <span className="automaticCheckBoxSpan">
-                  <input
-                    className="checkBoxInput"
-                    type="checkbox"
-                    data-indeterminate="false"
-                    checked={rendererState.automatic.value}
-                    onChange={(value: React.ChangeEvent<HTMLInputElement>) => {
-                      dispatchAction(EngineRendererAction.setAutomatic({ automatic: value.target.checked }))
-                    }}
-                  />
-                  <svg className="checkBoxSvg" focusable="false" aria-hidden="true" viewBox="0 0 24 24">
-                    {rendererState.automatic.value ? (
-                      <path d="M19 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.11 0 2-.9 2-2V5c0-1.1-.89-2-2-2zm-9 14l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"></path>
-                    ) : (
-                      <path d="M19 5v14H5V5h14m0-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"></path>
-                    )}
-                  </svg>
-                </span>
-                <span className="checkBoxLabel">{t('user:usermenu.setting.lbl-automatic')}</span>
-              </label>
+              <XRCheckboxButton
+                checked={rendererState.automatic.value}
+                labelContent={t('user:usermenu.setting.lbl-automatic')}
+                onChange={handleAutomaticCheckbox}
+              />
             </div>
           </section>
         </div>
