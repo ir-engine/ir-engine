@@ -278,12 +278,10 @@ const ProfileDetailView = () => {
   }
 
   const handleOpenSelectAvatarWidget = () => {
-    // TODO open select avatar xrui widget menu
     setWidgetVisibility('SelectAvatar', true)
   }
 
   const handleOpenReadyPlayerWidget = () => {
-    // TODO open ready player xrui widget menu
     setWidgetVisibility('ReadyPlayer', true)
   }
 

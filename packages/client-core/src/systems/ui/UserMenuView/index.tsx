@@ -14,6 +14,7 @@ import { PartyService, PartyServiceReceptor } from '../../../social/services/Par
 import { getAvatarURLForUser } from '../../../user/components/UserMenu/util'
 import { useAuthState } from '../../../user/services/AuthService'
 import { UserService, useUserState } from '../../../user/services/UserService'
+import XRTextButton from '../../components/XRTextButton'
 import styleString from './index.scss'
 
 export function createAvatarContextMenuView() {
@@ -72,6 +73,10 @@ const AvatarContextMenu = () => {
     }
   }
 
+  const handleMute = () => {
+    console.log('Mute pressed')
+  }
+
   useEffect(() => {
     if (engineState.avatarTappedId.value !== authState.user.id.value)
       detailState.id.set(engineState.avatarTappedId.value)
@@ -85,23 +90,10 @@ const AvatarContextMenu = () => {
           <img className="ownerImage" src={getAvatarURLForUser(user?.id?.value)} />
           <div className="buttonContainer">
             <section className="buttonSection">
-              <Button className="button" onClick={inviteToParty}>
-                {t('user:personMenu.inviteToParty')}
-              </Button>
-              <Button className="button" onClick={addAsFriend}>
-                {t('user:personMenu.addAsFriend')}
-              </Button>
-              <Button
-                className="button"
-                onClick={() => {
-                  console.log('Mute')
-                }}
-              >
-                {t('user:personMenu.mute')}
-              </Button>
-              <Button className="buttonRed" onClick={blockUser}>
-                {t('user:personMenu.block')}
-              </Button>
+              <XRTextButton content={t('user:personMenu.inviteToParty')} onClick={inviteToParty} />
+              <XRTextButton content={t('user:personMenu.addAsFriend')} onClick={addAsFriend} />
+              <XRTextButton content={t('user:personMenu.mute')} onClick={handleMute} />
+              <XRTextButton content={t('user:personMenu.block')} onClick={blockUser} />
             </section>
           </div>
         </div>

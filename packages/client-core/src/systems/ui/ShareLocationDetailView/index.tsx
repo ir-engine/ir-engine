@@ -5,6 +5,8 @@ import { useTranslation } from 'react-i18next'
 import { isShareAvailable } from '@xrengine/engine/src/common/functions/DetectFeatures'
 import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
 
+import { FileCopy } from '@mui/icons-material'
+
 import { useShareMenuHooks } from '../../../user/components/UserMenu/menus/ShareMenu'
 import XRInput from '../../components/XRInput'
 import XRTextButton from '../../components/XRTextButton'
@@ -38,14 +40,7 @@ const ShareLocationDetailView = () => {
             disabled={true}
             type="text"
             value={getInviteLink() as any}
-            endIcon={
-              <svg className="copyIcon" aria-hidden="true" viewBox="0 0 24 24">
-                <path
-                  fill="#ffffff"
-                  d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm-1 4 6 6v10c0 1.1-.9 2-2 2H7.99C6.89 23 6 22.1 6 21l.01-14c0-1.1.89-2 1.99-2h7zm-1 7h5.5L14 6.5V12z"
-                ></path>
-              </svg>
-            }
+            endIcon={<FileCopy />}
             endIconClick={copyLinkToClipboard}
           />
           <XRInput
