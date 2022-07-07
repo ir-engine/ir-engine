@@ -27,7 +27,6 @@ export enum MessageTypes {
   WebRTCCreateProducer = 24,
   Authorization = 25,
   Kick = 26,
-  ConnectToWorld = 28, // TODO: refactor this to be entirely network aciton dispatch
   WebRTCRequestCurrentProducers = 29,
   InitializeRouter = 31,
   ActionData = 42

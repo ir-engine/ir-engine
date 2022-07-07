@@ -2,27 +2,24 @@
 import { Quaternion, Vector3 } from 'three'
 
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
+import { getSearchParamFromURL } from '@xrengine/common/src/utils/getSearchParamFromURL'
 import { dispatchAction } from '@xrengine/hyperflux'
 import { Action } from '@xrengine/hyperflux/functions/ActionFunctions'
 
 import { Engine } from '../../ecs/classes/Engine'
-import { EngineActions, getEngineState } from '../../ecs/classes/EngineState'
+import { EngineActions } from '../../ecs/classes/EngineState'
 import { NetworkTopics } from '../classes/Network'
-import { NetworkPeer } from '../interfaces/NetworkPeer'
 import { AvatarProps } from '../interfaces/WorldState'
-import { NetworkPeerFunctions } from './NetworkPeerFunctions'
 import { WorldNetworkAction } from './WorldNetworkAction'
 
 export type JoinWorldRequestData = {
   inviteCode?: string
-  spectateUserId?: UserId | 'none'
 }
 
 export type JoinWorldProps = {
   highResTimeOrigin: number
   worldStartTime: number
   cachedActions: Required<Action>[]
-  avatarSpawnPose?: { position: Vector3; rotation: Quaternion }
   spectateUserId?: UserId | 'none'
 }
 
@@ -46,35 +43,18 @@ export const spawnLocalAvatarInWorld = (props: SpawnInWorldProps) => {
 
 export const receiveJoinWorld = (props: JoinWorldProps) => {
   if (!props) return
-  const { highResTimeOrigin, worldStartTime, cachedActions, avatarSpawnPose, spectateUserId } = props
-  console.log(
-    'RECEIVED JOIN WORLD RESPONSE',
-    highResTimeOrigin,
-    worldStartTime,
-    cachedActions,
-    avatarSpawnPose,
-    spectateUserId
-  )
-  // const world = Engine.instance.currentWorld
-
-  // const engineState = getEngineState()
-
-  // const spawnPose = engineState.isTeleporting.value
-  //   ? {
-  //       position: world.activePortal.remoteSpawnPosition,
-  //       rotation: world.activePortal.remoteSpawnRotation
-  //     }
-  //   : avatarSpawnPose
+  const { highResTimeOrigin, worldStartTime, cachedActions } = props
+  console.log('RECEIVED JOIN WORLD RESPONSE', highResTimeOrigin, worldStartTime, cachedActions)
 
   for (const action of cachedActions) Engine.instance.store.actions.incoming.push({ ...action, $fromCache: true })
 
+  const spectateUserId = getSearchParamFromURL('spectate')
   if (spectateUserId) {
-    if (spectateUserId !== 'none') dispatchAction(EngineActions.spectateUser({ user: spectateUserId }))
+    dispatchAction(EngineActions.spectateUser({ user: spectateUserId }))
+    dispatchAction(EngineActions.joinedWorld())
   }
-  //  else if (spawnPose) {}
 
-  Engine.instance.currentWorld.worldNetwork.sendActions([
+  Engine.instance.store.actions.outgoing[NetworkTopics.world].queue.push(
     ...Engine.instance.store.actions.outgoing[NetworkTopics.world].history
-  ])
-  // Engine.instance.store.actions.outgoing[NetworkTopics.world].queue.push()
+  )
 }

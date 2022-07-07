@@ -6,6 +6,7 @@ import { ChannelType } from '@xrengine/common/src/interfaces/Channel'
 import { MediaTagType } from '@xrengine/common/src/interfaces/MediaStreamConstants'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import logger from '@xrengine/common/src/logger'
+import { getSearchParamFromURL } from '@xrengine/common/src/utils/getSearchParamFromURL'
 import { OBCType } from '@xrengine/engine/src/common/constants/OBCTypes'
 import { matches } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { addOBCPlugin } from '@xrengine/engine/src/common/functions/OnBeforeCompilePlugin'
@@ -17,6 +18,7 @@ import { PUBLIC_STUN_SERVERS } from '@xrengine/engine/src/networking/constants/S
 import { CAM_VIDEO_SIMULCAST_ENCODINGS } from '@xrengine/engine/src/networking/constants/VideoConstants'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
 import { NetworkPeerFunctions } from '@xrengine/engine/src/networking/functions/NetworkPeerFunctions'
+import { JoinWorldRequestData, receiveJoinWorld } from '@xrengine/engine/src/networking/functions/receiveJoinWorld'
 import { WorldNetworkActionReceptor } from '@xrengine/engine/src/networking/functions/WorldNetworkActionReceptor'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 import { ScreenshareTargetComponent } from '@xrengine/engine/src/scene/components/ScreenshareTargetComponent'
@@ -107,7 +109,11 @@ export async function onConnectToInstance(network: SocketWebRTCClientNetwork) {
   network.socket.on(MessageTypes.ActionData.toString(), actionDataHandler)
   network.socket.on(MessageTypes.UpdatePeers.toString(), peerUpdateHandler)
 
-  const connectToWorldResponse = await network.request(MessageTypes.ConnectToWorld.toString())
+  const joinWorldRequest = {
+    inviteCode: getSearchParamFromURL('inviteCode')
+  } as JoinWorldRequestData
+
+  const connectToWorldResponse = await network.request(MessageTypes.JoinWorld.toString(), joinWorldRequest)
 
   if (!connectToWorldResponse || !connectToWorldResponse.routerRtpCapabilities) {
     dispatchAction(NetworkConnectionService.actions.worldInstanceReconnected())
@@ -117,6 +123,8 @@ export async function onConnectToInstance(network: SocketWebRTCClientNetwork) {
   }
 
   if (network.mediasoupDevice.loaded !== true) await network.mediasoupDevice.load(connectToWorldResponse)
+
+  if (isWorldConnection) receiveJoinWorld(connectToWorldResponse)
 
   if (isWorldConnection) await onConnectToWorldInstance(network)
   else await onConnectToMediaInstance(network)

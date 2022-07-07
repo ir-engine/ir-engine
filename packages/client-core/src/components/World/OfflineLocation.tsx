@@ -4,6 +4,7 @@ import { useAuthState } from '@xrengine/client-core/src/user/services/AuthServic
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { getEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { Network, NetworkTopics } from '@xrengine/engine/src/networking/classes/Network'
+import { NetworkPeerFunctions } from '@xrengine/engine/src/networking/functions/NetworkPeerFunctions'
 import { receiveJoinWorld } from '@xrengine/engine/src/networking/functions/receiveJoinWorld'
 import { WorldNetworkAction } from '@xrengine/engine/src/networking/functions/WorldNetworkAction'
 import { WorldNetworkActionReceptor } from '@xrengine/engine/src/networking/functions/WorldNetworkActionReceptor'
@@ -25,21 +26,11 @@ export const OfflineLocation = () => {
       world.networks.set(userId, new Network(userId, NetworkTopics.world))
 
       const index = 1
-      WorldNetworkActionReceptor.receiveCreatePeers(
-        WorldNetworkAction.createPeer({
-          index: index,
-          name: authState.user.name.value,
-          $topic: NetworkTopics.world
-        })
-      )
+      NetworkPeerFunctions.createPeer(world.worldNetwork, userId, index, authState.user.name.value, world)
 
       receiveJoinWorld({
         highResTimeOrigin: performance.timeOrigin,
         worldStartTime: performance.now(),
-        client: {
-          index: 1,
-          name: authState.user.name.value
-        },
         cachedActions: []
       })
     }

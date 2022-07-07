@@ -1,6 +1,6 @@
 import { ArrowHelper, Clock, MathUtils, Matrix4, Raycaster, Vector3 } from 'three'
-import { clamp } from 'three/src/math/MathUtils'
 
+import { deleteSearchParams } from '@xrengine/common/src/utils/deleteSearchParams'
 import { createActionQueue, dispatchAction } from '@xrengine/hyperflux'
 
 import { BoneNames } from '../../avatar/AvatarBoneMatching'
@@ -26,7 +26,7 @@ import { LocalInputTagComponent } from '../../input/components/LocalInputTagComp
 import { NetworkTopics } from '../../networking/classes/Network'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { NetworkObjectOwnedTag } from '../../networking/components/NetworkObjectOwnedTag'
-import { joinCurrentWorld } from '../../networking/functions/joinWorld'
+import { spawnLocalAvatarInWorld } from '../../networking/functions/receiveJoinWorld'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
@@ -329,11 +329,10 @@ export default async function CameraSystem(world: World) {
       const cameraEntity = Engine.instance.currentWorld.cameraEntity
       if (action.user) {
         addComponent(cameraEntity, SpectatorComponent, { userId: action.user })
-        console.log('Spectator component added', action.user)
       } else {
         removeComponent(cameraEntity, SpectatorComponent)
-        joinCurrentWorld()
-        console.log('Spectator component removed')
+        deleteSearchParams('spectate')
+        dispatchAction(EngineActions.leaveWorld())
       }
     }
 

@@ -19,13 +19,9 @@ import { UserService, useUserState } from '@xrengine/client-core/src/user/servic
 import { matches } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
-import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
-import { joinCurrentWorld } from '@xrengine/engine/src/networking/functions/joinWorld'
-import { JoinWorldRequestData, receiveJoinWorld } from '@xrengine/engine/src/networking/functions/receiveJoinWorld'
 import { addActionReceptor, dispatchAction, removeActionReceptor, useHookEffect } from '@xrengine/hyperflux'
 
 import { UserServiceReceptor } from '../../user/services/UserService'
-import { getSearchParamFromURL } from '../../util/getSearchParamFromURL'
 import InstanceServerWarnings from './InstanceServerWarnings'
 
 export const NetworkInstanceProvisioning = () => {
@@ -120,19 +116,6 @@ export const NetworkInstanceProvisioning = () => {
     currentLocationInstanceConnection?.connecting,
     currentLocationInstanceConnection?.provisioned
   ])
-
-  useHookEffect(() => {
-    if (!engineState.connectedWorld.value || !engineState.sceneLoaded.value) return
-
-    const transportRequestData = {
-      inviteCode: getSearchParamFromURL('inviteCode')!,
-      spectateUserId: Engine.instance.isEditor ? 'none' : getSearchParamFromURL('spectate')
-    } as JoinWorldRequestData
-
-    console.log('[NetworkInstanceProvisioning]: Request Join World', { transportRequestData })
-
-    joinCurrentWorld(transportRequestData)
-  }, [engineState.connectedWorld, appState.onBoardingStep])
 
   // media server provisioning
   useHookEffect(() => {

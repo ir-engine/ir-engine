@@ -312,6 +312,7 @@ function addActionReceptor(receptor: ActionReceptor, store = HyperFlux.store) {
  * Removes an action receptor from the store
  * @param store
  * @param receptor
+ * @deprecated use createActionQueue instead
  */
 function removeActionReceptor(receptor: ActionReceptor, store = HyperFlux.store) {
   const idx = store.receptors.indexOf(receptor)
