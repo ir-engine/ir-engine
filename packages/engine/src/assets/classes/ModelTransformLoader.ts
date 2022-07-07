@@ -1,5 +1,5 @@
 import { NodeIO, Texture } from '@gltf-transform/core'
-import { MeshoptCompression, MeshQuantization, TextureBasisu } from '@gltf-transform/extensions'
+import { MeshGPUInstancing, MeshoptCompression, MeshQuantization, TextureBasisu } from '@gltf-transform/extensions'
 import { dedup, prune, quantize, reorder } from '@gltf-transform/functions'
 import { MeshoptDecoder, MeshoptEncoder } from 'meshoptimizer'
 import { FileLoader } from 'three'
@@ -9,7 +9,7 @@ import { AssetLoader } from './AssetLoader'
 
 export default function ModelTransformLoader() {
   const io = new NodeIO()
-  io.registerExtensions([MeshoptCompression, MeshQuantization, TextureBasisu])
+  io.registerExtensions([MeshGPUInstancing, MeshoptCompression, MeshQuantization, TextureBasisu])
   io.registerDependencies({
     'meshopt.decoder': MeshoptDecoder,
     'meshopt.encoder': MeshoptEncoder

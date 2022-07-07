@@ -22,6 +22,7 @@ import ListItemButton from '@mui/material/ListItemButton'
 import ListItemText from '@mui/material/ListItemText'
 
 import { Button } from '../inputs/Button'
+import CollapsibleBlock from '../layout/CollapsibleBlock'
 import ModelResourceProperties from './ModelResourceProperties'
 
 const TransformContainer = (styled as any).div`
@@ -136,47 +137,49 @@ export default function ModelTransformProperties({ modelComponent, onChangeModel
   }
 
   return (
-    <TransformContainer>
-      <ElementsContainer>
-        <Typography variant="h6" sx={{ textAlign: 'center', paddingTop: '16px', paddingBottom: '12px' }}></Typography>
-        <ToggleButtonGroup value={internalFilter} onChange={onChangeFilter} exclusive>
-          <FilterToggle value="meshes" aria-label="meshes" color="primary">
-            Mesh
-          </FilterToggle>
-          <FilterToggle value="textures" aria-label="textures" color="primary">
-            Texture
-          </FilterToggle>
-          <FilterToggle value="materials" aria-label="materials" color="primary">
-            Material
-          </FilterToggle>
-          <FilterToggle value="nodes" aria-label="nodes" color="primary">
-            Node
-          </FilterToggle>
-        </ToggleButtonGroup>
-        <List sx={{ maxHeight: '128px', overflowX: 'clip', overflowY: 'scroll' }}>
-          {[...resources.entries()].map(([key, resource]: [string, Property], index) => {
-            const resourceIcons = {
-              Mesh: () => <MeshIcon />,
-              Texture: () => <ImageIcon />,
-              Material: () => <MaterialIcon />,
-              Node: () => <NodeIcon />
-            }
-            return (
-              <ListItem key={key}>
-                <ListItemButton selected={selected === key} onClick={onChangeSelected(key)}>
-                  {resourceIcons[resource.propertyType]()}
-                  <ListItemText id={`model-resource-name-${key}`} primary={resource.getName()} />
-                </ListItemButton>
-              </ListItem>
-            )
-          })}
-        </List>
+    <CollapsibleBlock label="Model Transform Properties">
+      <TransformContainer>
         <ElementsContainer>
-          {!!selectedResource && <ModelResourceProperties prop={selectedResource} />}
+          <Typography variant="h6" sx={{ textAlign: 'center', paddingTop: '16px', paddingBottom: '12px' }}></Typography>
+          <ToggleButtonGroup value={internalFilter} onChange={onChangeFilter} exclusive>
+            <FilterToggle value="meshes" aria-label="meshes" color="primary">
+              Mesh
+            </FilterToggle>
+            <FilterToggle value="textures" aria-label="textures" color="primary">
+              Texture
+            </FilterToggle>
+            <FilterToggle value="materials" aria-label="materials" color="primary">
+              Material
+            </FilterToggle>
+            <FilterToggle value="nodes" aria-label="nodes" color="primary">
+              Node
+            </FilterToggle>
+          </ToggleButtonGroup>
+          <List sx={{ maxHeight: '128px', overflowX: 'clip', overflowY: 'scroll' }}>
+            {[...resources.entries()].map(([key, resource]: [string, Property], index) => {
+              const resourceIcons = {
+                Mesh: () => <MeshIcon />,
+                Texture: () => <ImageIcon />,
+                Material: () => <MaterialIcon />,
+                Node: () => <NodeIcon />
+              }
+              return (
+                <ListItem key={key}>
+                  <ListItemButton selected={selected === key} onClick={onChangeSelected(key)}>
+                    {resourceIcons[resource.propertyType]()}
+                    <ListItemText id={`model-resource-name-${key}`} primary={resource.getName()} />
+                  </ListItemButton>
+                </ListItem>
+              )
+            })}
+          </List>
+          <ElementsContainer>
+            {!!selectedResource && <ModelResourceProperties prop={selectedResource} />}
+          </ElementsContainer>
         </ElementsContainer>
-      </ElementsContainer>
-      {!transforming && <OptimizeButton onClick={onTransformModel}>Optimize</OptimizeButton>}
-      {transforming && <p>Transforming...</p>}
-    </TransformContainer>
+        {!transforming && <OptimizeButton onClick={onTransformModel}>Optimize</OptimizeButton>}
+        {transforming && <p>Transforming...</p>}
+      </TransformContainer>
+    </CollapsibleBlock>
   )
 }
