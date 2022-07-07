@@ -4,18 +4,22 @@ import { dispatchAction } from '@xrengine/hyperflux'
 
 import { BoneNames } from '../../avatar/AvatarBoneMatching'
 import { AvatarAnimationComponent } from '../../avatar/components/AvatarAnimationComponent'
+import { AvatarHeadDecapComponent } from '../../avatar/components/AvatarHeadDecapComponent'
 import { accessAvatarInputSettingsState } from '../../avatar/state/AvatarInputSettingsState'
-import { FollowCameraComponent, FollowCameraDefaultValues } from '../../camera/components/FollowCameraComponent'
 import { ParityValue } from '../../common/enums/ParityValue'
 import { proxifyQuaternion, proxifyVector3 } from '../../common/proxies/three'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
-import { World } from '../../ecs/classes/World'
 import { addComponent, getComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
+import { NetworkTopics } from '../../networking/classes/Network'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { XRInputSourceComponent, XRInputSourceComponentType } from '../../xr/components/XRInputSourceComponent'
+import {
+  ControllerGroup,
+  XRInputSourceComponent,
+  XRInputSourceComponentType
+} from '../../xr/components/XRInputSourceComponent'
 import { XRHandsInputComponent } from '../components/XRHandsInputComponent'
 import { initializeHandModel } from './addControllerModels'
 
@@ -93,6 +97,7 @@ export const proxifyXRInputs = (entity: Entity) => {
 export function setupXRCameraForLocalEntity(entity: Entity) {
   const { container } = getComponent(entity, XRInputSourceComponent)
   container.add(Engine.instance.currentWorld.camera)
+  if (!hasComponent(entity, AvatarHeadDecapComponent)) addComponent(entity, AvatarHeadDecapComponent, true)
 }
 
 /**
@@ -104,8 +109,8 @@ export function setupXRCameraForLocalEntity(entity: Entity) {
 export const setupXRInputSourceComponent = (entity: Entity): XRInputSourceComponentType => {
   const container = new Group(),
     head = new Group(),
-    controllerLeft = new Group(),
-    controllerRight = new Group(),
+    controllerLeft = new Group() as ControllerGroup,
+    controllerRight = new Group() as ControllerGroup,
     controllerGripLeft = new Group(),
     controllerGripRight = new Group(),
     controllerLeftParent = new Group(),
@@ -187,7 +192,7 @@ export const bindXRHandEvents = () => {
       initializeHandModel(world.localClientEntity, controller, xrInputSource.handedness)
 
       if (!eventSent) {
-        dispatchAction(WorldNetworkAction.xrHandsConnected({}), Engine.instance.currentWorld.worldNetwork.hostId)
+        dispatchAction(WorldNetworkAction.xrHandsConnected({}), NetworkTopics.world)
         eventSent = true
       }
     })
@@ -221,6 +226,7 @@ export const endXR = (): void => {
 
   const world = Engine.instance.currentWorld
   removeComponent(world.localClientEntity, XRInputSourceComponent)
+  removeComponent(world.localClientEntity, AvatarHeadDecapComponent)
   removeComponent(world.localClientEntity, XRHandsInputComponent)
 
   dispatchXRMode(false, '')
@@ -352,6 +358,6 @@ export function dispatchXRMode(enabled: boolean, avatarInputControllerType: stri
       enabled,
       avatarInputControllerType
     }),
-    [Engine.instance.currentWorld.worldNetwork.hostId]
+    NetworkTopics.world
   )
 }

@@ -31,19 +31,18 @@ import { AvatarComponent } from './components/AvatarComponent'
 import { AvatarControllerComponent } from './components/AvatarControllerComponent'
 import { AvatarEffectComponent } from './components/AvatarEffectComponent'
 import { AvatarHandsIKComponent } from './components/AvatarHandsIKComponent'
-import { AvatarHeadDecapComponent } from './components/AvatarHeadDecapComponent'
 import { AvatarHeadIKComponent } from './components/AvatarHeadIKComponent'
-import { loadAvatarForUser, setAvatarHeadOpacity, setupEntityHeadDecap } from './functions/avatarFunctions'
+import { loadAvatarForUser } from './functions/avatarFunctions'
 
 export function avatarDetailsReceptor(
   action: ReturnType<typeof WorldNetworkAction.avatarDetails>,
   world = Engine.instance.currentWorld
 ) {
-  const client = world.users.get(action.$from)
-  if (!client) throw Error(`Avatar details action received for a client that does not exist: ${action.$from}`)
-  if (client.avatarDetail?.avatarURL === action.avatarDetail.avatarURL)
+  const user = world.users.get(action.$from)
+  if (!user) throw Error(`Avatar details action received for a client that does not exist: ${action.$from}`)
+  if (user.avatarDetail?.avatarURL === action.avatarDetail.avatarURL)
     return console.log('[AvatarSystem]: ignoring same avatar url')
-  client.avatarDetail = action.avatarDetail
+  user.avatarDetail = action.avatarDetail
   if (isClient) {
     const entity = world.getUserAvatarEntity(action.$from)
     loadAvatarForUser(entity, action.avatarDetail.avatarURL)
@@ -116,7 +115,6 @@ export default async function AvatarSystem(world: World) {
   const xrHandsInputQuery = defineQuery([AvatarComponent, XRHandsInputComponent, XRInputSourceComponent])
   const xrLGripQuery = defineQuery([AvatarComponent, XRLGripButtonComponent, XRInputSourceComponent])
   const xrRGripQuery = defineQuery([AvatarComponent, XRRGripButtonComponent, XRInputSourceComponent])
-  const headDecapQuery = defineQuery([AvatarHeadDecapComponent, Object3DComponent])
 
   return () => {
     for (const action of avatarDetailsQueue()) avatarDetailsReceptor(action)
@@ -165,21 +163,6 @@ export default async function AvatarSystem(world: World) {
     for (const entity of xrRGripQuery.exit()) {
       const inputComponent = getComponent(entity, XRInputSourceComponent, true)
       if (inputComponent) playTriggerReleaseAnimation(inputComponent.controllerGripRight)
-    }
-
-    for (const entity of headDecapQuery(world)) {
-      const headDecapComponent = getComponent(entity, AvatarHeadDecapComponent)
-
-      if (!headDecapComponent.ready) {
-        const container = getComponent(entity, Object3DComponent).value
-        const isLoading = hasComponent(entity, AvatarEffectComponent)
-        if (container.getObjectByProperty('type', 'SkinnedMesh') && !isLoading) {
-          setupEntityHeadDecap(entity)
-          headDecapComponent.ready = true
-        }
-      } else {
-        setAvatarHeadOpacity(entity, headDecapComponent.opacity)
-      }
     }
   }
 }

@@ -71,6 +71,7 @@ export const FileListItem: React.FC<FileListItemProps> = (props) => {
 type FileBrowserItemType = {
   contextMenuId: string
   item: FileDataType
+  disableDnD?: boolean
   currentContent: MutableRefObject<{ item: FileDataType; isCopy: boolean }>
   setFileProperties: any
   setOpenPropertiesModal: any
@@ -83,6 +84,7 @@ type FileBrowserItemType = {
 export function FileBrowserItem({
   contextMenuId,
   item,
+  disableDnD,
   currentContent,
   setOpenPropertiesModal,
   setFileProperties,
@@ -148,25 +150,29 @@ export function FileBrowserItem({
 
   const rename = () => setRenamingAsset(true)
 
-  const [_dragProps, drag, preview] = useDrag(() => ({
-    type: item.type,
-    item,
-    multiple: false
-  }))
+  const [_dragProps, drag, preview] = disableDnD
+    ? [undefined, undefined, undefined]
+    : useDrag(() => ({
+        type: item.type,
+        item,
+        multiple: false
+      }))
 
-  const [{ isOver }, drop] = useDrop({
-    accept: [...SupportedFileTypes],
-    drop: (dropItem) => dropItemsOnPanel(dropItem, item),
-    collect: (monitor) => ({
-      isOver: monitor.isOver(),
-      canDrop: !!monitor.canDrop(),
-      moni: monitor.getItemType()
-    })
-  })
+  const [{ isOver }, drop] = disableDnD
+    ? [{ isOver: false }, undefined]
+    : useDrop({
+        accept: [...SupportedFileTypes],
+        drop: (dropItem) => dropItemsOnPanel(dropItem, item),
+        collect: (monitor) => ({
+          isOver: monitor.isOver(),
+          canDrop: !!monitor.canDrop(),
+          moni: monitor.getItemType()
+        })
+      })
 
   //showing the object in viewport once it drag and droped
   useEffect(() => {
-    preview(getEmptyImage(), { captureDraggingState: true })
+    if (preview) preview(getEmptyImage(), { captureDraggingState: true })
   }, [preview])
 
   const collectMenuProps = () => {

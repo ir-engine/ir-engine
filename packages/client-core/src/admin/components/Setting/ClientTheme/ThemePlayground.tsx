@@ -143,9 +143,7 @@ const ThemePlayground = () => {
 
   return (
     <>
-      <Typography component="h1" className={styles.settingsHeading}>
-        {t('admin:components.setting.themePlayground')}
-      </Typography>
+      <Typography className={styles.settingsSubHeading}>{t('admin:components.setting.themePlayground')}</Typography>
       <Box className="themeDemoArea">
         <nav className="navbar">
           <div className="logoSection">XREngine</div>

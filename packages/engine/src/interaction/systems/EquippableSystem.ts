@@ -10,7 +10,7 @@ import {
   hasComponent,
   removeComponent
 } from '../../ecs/functions/ComponentFunctions'
-import { NetworkObjectAuthorityTag } from '../../networking/components/NetworkObjectAuthorityTag'
+import { NetworkObjectOwnedTag } from '../../networking/components/NetworkObjectOwnedTag'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { ColliderComponent } from '../../physics/components/ColliderComponent'
 import { teleportRigidbody } from '../../physics/functions/teleportRigidbody'
@@ -63,7 +63,7 @@ export function equippableQueryAll(entity: Entity, world = Engine.instance.curre
   const equipperComponent = getComponent(entity, EquipperComponent)
   const equippedEntity = equipperComponent.equippedEntity
   if (equippedEntity) {
-    const isOwnedByMe = getComponent(equippedEntity, NetworkObjectAuthorityTag)
+    const isOwnedByMe = getComponent(equippedEntity, NetworkObjectOwnedTag)
     if (isOwnedByMe) {
       const equippedComponent = getComponent(equipperComponent.equippedEntity, EquippedComponent)
       const attachmentPoint = equippedComponent.attachmentPoint

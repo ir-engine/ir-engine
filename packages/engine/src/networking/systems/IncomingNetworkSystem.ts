@@ -30,6 +30,6 @@ export default async function IncomingNetworkSystem(world: World) {
     if (!engineState.isEngineInitialized.value) return
     applyIncomingNetworkState(world)
     if (world.worldNetwork?.isHosting && world.fixedTick % VALIDATE_NETWORK_INTERVAL === 0)
-      validateNetworkObjects(world.worldNetwork)
+      validateNetworkObjects(world, world.worldNetwork)
   }
 }

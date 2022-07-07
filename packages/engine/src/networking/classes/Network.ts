@@ -1,18 +1,18 @@
-import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { addTopic } from '@xrengine/hyperflux'
-import { Action } from '@xrengine/hyperflux/functions/ActionFunctions'
+import { Action, Topic } from '@xrengine/hyperflux/functions/ActionFunctions'
 
 import { RingBuffer } from '../../common/classes/RingBuffer'
 import { Engine } from '../../ecs/classes/Engine'
 import { NetworkPeer } from '../interfaces/NetworkPeer'
 
-export const NetworkTypes = {
-  world: 'world' as const,
-  media: 'media' as const
+/**
+ * Network topics are classes of networks. Topics are used to disitinguish between multiple networks of the same type.
+ */
+export const NetworkTopics = {
+  world: 'world' as Topic,
+  media: 'media' as Topic
 }
-
-export type NetworkType = typeof NetworkTypes[keyof typeof NetworkTypes]
 
 /** Interface for the Transport. */
 export class Network {
@@ -66,8 +66,11 @@ export class Network {
   /** Buffer holding Mediasoup operations */
   mediasoupOperationQueue: RingBuffer<any> = new RingBuffer<any>(1000)
 
-  /** Connected clients */
+  /** Connected peers */
   peers = new Map() as Map<UserId, NetworkPeer>
+
+  /** Publish to connected peers that peer information has changed */
+  updatePeers() {}
 
   /** Map of numerical user index to user client IDs */
   userIndexToUserId = new Map<number, UserId>()
@@ -85,7 +88,7 @@ export class Network {
    * The UserId of the host
    * - will either be a user's UserId, or an instance server's InstanceId
    */
-  hostId = null! as UserId
+  hostId: UserId
 
   /**
    * Check if this user is hosting the world.
@@ -94,8 +97,10 @@ export class Network {
     return Engine.instance.userId === this.hostId
   }
 
-  constructor(hostId) {
+  topic: Topic
+
+  constructor(hostId: UserId, topic: Topic) {
     this.hostId = hostId
-    addTopic(hostId)
+    this.topic = topic
   }
 }

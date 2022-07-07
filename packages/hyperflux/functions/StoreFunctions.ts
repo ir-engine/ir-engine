@@ -3,20 +3,19 @@ import { merge } from 'lodash'
 import { Validator } from 'ts-matches'
 
 import { addTopic } from '..'
-import { Action, ActionReceptor } from './ActionFunctions'
+import { Action, ActionReceptor, ActionShape, ResolvedActionType, Topic } from './ActionFunctions'
 
 export type StringLiteral<T> = T extends string ? (string extends T ? never : T) : never
 export interface HyperStore {
   /**
    * The topic to dispatch to when none are supplied
    */
-  defaultTopic: string
+  defaultTopic: Topic
   /**
-   *  If the store mode is `local`, actions are dispatched on the incoming queue.
-   *  If the store mode is `host`, actions are dispatched on the incoming queue and then forwarded to the outgoing queue.
-   *  If the store mode is `peer`, actions are dispatched on the outgoing queue.
+   *  If false, actions are dispatched on the incoming queue.
+   *  If true, actions are dispatched on the incoming queue and then forwarded to the outgoing queue.
    */
-  getDispatchMode: (topic: string) => 'local' | 'host' | 'peer'
+  forwardIncomingActions: (topic: string) => boolean
   /**
    * A function which returns the dispatch id assigned to actions
    * */
@@ -35,13 +34,13 @@ export interface HyperStore {
   state: { [type: string]: State<any> }
   actions: {
     /** */
-    queues: Map<Validator<any, any>, Array<Array<Action>>>
+    queues: Map<Validator<any, any>, Array<Array<ResolvedActionType>>>
     /** Cached actions */
-    cached: Record<string, Array<Required<Action>>>
+    cached: Record<string, Array<Required<ResolvedActionType>>>
     /** Incoming actions */
-    incoming: Array<Required<Action>>
+    incoming: Array<Required<ResolvedActionType>>
     /** All incoming actions that have been proccessed */
-    incomingHistory: Map<string, Required<Action>>
+    incomingHistory: Map<string, Required<ResolvedActionType>>
     /** All incoming action UUIDs that have been processed */
     incomingHistoryUUIDs: Set<string>
     /** Outgoing actions */
@@ -49,9 +48,9 @@ export interface HyperStore {
       string,
       {
         /** All actions that are waiting to be sent */
-        queue: Array<Required<Action>>
+        queue: Array<Required<ResolvedActionType>>
         /** All actions that have been sent */
-        history: Array<Required<Action>>
+        history: Array<Required<ResolvedActionType>>
         /** All incoming action UUIDs that have been processed */
         historyUUIDs: Set<string>
       }
@@ -68,14 +67,14 @@ export class HyperFlux {
 }
 
 function createHyperStore(options: {
-  getDispatchMode?: (topic: string) => 'local' | 'host' | 'peer'
+  forwardIncomingActions?: (topic: string) => boolean
   getDispatchId: () => string
   getDispatchTime: () => number
   defaultDispatchDelay?: number
 }) {
   const store = {
-    defaultTopic: 'default',
-    getDispatchMode: options.getDispatchMode ?? (() => 'local'),
+    defaultTopic: 'default' as Topic,
+    forwardIncomingActions: options.forwardIncomingActions ?? (() => false),
     getDispatchId: options.getDispatchId,
     getDispatchTime: options.getDispatchTime,
     defaultDispatchDelay: options.defaultDispatchDelay ?? 0,

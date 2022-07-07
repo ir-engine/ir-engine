@@ -1,6 +1,6 @@
 import { ArrowHelper, Clock, MathUtils, Matrix4, Raycaster, Vector3 } from 'three'
-import { clamp } from 'three/src/math/MathUtils'
 
+import { deleteSearchParams } from '@xrengine/common/src/utils/deleteSearchParams'
 import { createActionQueue, dispatchAction } from '@xrengine/hyperflux'
 
 import { BoneNames } from '../../avatar/AvatarBoneMatching'
@@ -15,10 +15,18 @@ import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
-import { addComponent, defineQuery, getComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
+import {
+  addComponent,
+  defineQuery,
+  getComponent,
+  hasComponent,
+  removeComponent
+} from '../../ecs/functions/ComponentFunctions'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
-import { NetworkObjectAuthorityTag } from '../../networking/components/NetworkObjectAuthorityTag'
-import { joinCurrentWorld } from '../../networking/functions/joinWorld'
+import { NetworkTopics } from '../../networking/classes/Network'
+import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
+import { NetworkObjectOwnedTag } from '../../networking/components/NetworkObjectOwnedTag'
+import { spawnLocalAvatarInWorld } from '../../networking/functions/receiveJoinWorld'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
@@ -81,15 +89,15 @@ export const getAvatarBonePosition = (entity: Entity, name: BoneNames, position:
   position.set(el[12], el[13], el[14])
 }
 
-const getCameraTargetOpacity = (distance: number, fadeDistance: number = 0.6): number => {
-  return Math.pow(clamp((distance - 0.1) / fadeDistance, 0, 1), 6)
-}
-
-export const updateCameraTargetHeadOpacity = (cameraEntity: Entity) => {
+export const updateCameraTargetHeadDecap = (cameraEntity: Entity) => {
   const followCamera = getComponent(cameraEntity, FollowCameraComponent)
   if (!followCamera.targetEntity) return
-  const headDecap = getComponent(followCamera.targetEntity, AvatarHeadDecapComponent)
-  if (headDecap) headDecap.opacity = getCameraTargetOpacity(followCamera.distance, 0.6)
+  // todo calculate head size and use that as the bound
+  if (hasComponent(followCamera.targetEntity, AvatarHeadDecapComponent)) {
+    if (followCamera.distance > 0.6) removeComponent(followCamera.targetEntity, AvatarHeadDecapComponent)
+  } else {
+    if (followCamera.distance < 0.6) addComponent(followCamera.targetEntity, AvatarHeadDecapComponent, true)
+  }
 }
 
 export const updateCameraTargetRotation = (cameraEntity: Entity) => {
@@ -246,7 +254,7 @@ export const updateFollowCamera = (cameraEntity: Entity) => {
   mx.lookAt(direction, empty, upVector)
   cameraTransform.rotation.setFromRotationMatrix(mx)
 
-  updateCameraTargetHeadOpacity(cameraEntity)
+  updateCameraTargetHeadDecap(cameraEntity)
   updateCameraTargetRotation(cameraEntity)
 }
 
@@ -262,19 +270,6 @@ function updateSpectator(cameraEntity: Entity) {
   const cameraTransform = getComponent(cameraEntity, TransformComponent)
   cameraTransform.position.copy(networkTransform.position)
   cameraTransform.rotation.copy(networkTransform.rotation)
-
-  const networkAvatarEntity = world.getUserAvatarEntity(spectator.userId)
-  if (!networkAvatarEntity) return
-  let headDecapComponent = getComponent(networkAvatarEntity, AvatarHeadDecapComponent)
-
-  if (!headDecapComponent) {
-    headDecapComponent = { opacity: 1, ready: false }
-    addComponent(networkAvatarEntity, AvatarHeadDecapComponent, headDecapComponent)
-  }
-
-  calculateCameraTarget(networkAvatarEntity, tempVec)
-  const distance = tempVec.sub(networkTransform.position).length()
-  headDecapComponent.opacity = getCameraTargetOpacity(distance, 0.6)
 }
 
 function enterFollowCameraQuery(entity: Entity) {
@@ -313,7 +308,7 @@ export function cameraSpawnReceptor(
 
 export default async function CameraSystem(world: World) {
   const followCameraQuery = defineQuery([FollowCameraComponent, TransformComponent])
-  const ownedNetworkCamera = defineQuery([NetworkCameraComponent, NetworkObjectAuthorityTag])
+  const ownedNetworkCamera = defineQuery([NetworkCameraComponent, NetworkObjectOwnedTag])
   const spectatorQuery = defineQuery([SpectatorComponent])
   const localAvatarQuery = defineQuery([AvatarComponent, LocalInputTagComponent])
 
@@ -334,27 +329,24 @@ export default async function CameraSystem(world: World) {
       const cameraEntity = Engine.instance.currentWorld.cameraEntity
       if (action.user) {
         addComponent(cameraEntity, SpectatorComponent, { userId: action.user })
-        console.log('Spectator component added', action.user)
       } else {
         removeComponent(cameraEntity, SpectatorComponent)
-        joinCurrentWorld()
-        console.log('Spectator component removed')
+        deleteSearchParams('spectate')
+        dispatchAction(EngineActions.leaveWorld())
       }
     }
 
     for (const entity of localAvatarQuery.enter()) {
-      dispatchAction(WorldNetworkAction.spawnCamera(), [world.worldNetwork.hostId])
+      dispatchAction(WorldNetworkAction.spawnCamera(), NetworkTopics.world)
     }
-
-    for (const cameraEntity of followCameraQuery.enter()) enterFollowCameraQuery(cameraEntity)
-
-    for (const cameraEntity of followCameraQuery()) updateFollowCamera(cameraEntity)
-
-    for (const cameraEntity of spectatorQuery(world)) updateSpectator(cameraEntity)
 
     if (EngineRenderer.instance.xrManager?.isPresenting) {
       EngineRenderer.instance.xrManager.updateCamera(Engine.instance.currentWorld.camera as THREE.PerspectiveCamera)
       removeComponent(Engine.instance.currentWorld.localClientEntity, XRCameraUpdatePendingTagComponent)
+    } else {
+      for (const cameraEntity of followCameraQuery.enter()) enterFollowCameraQuery(cameraEntity)
+      for (const cameraEntity of followCameraQuery()) updateFollowCamera(cameraEntity)
+      for (const cameraEntity of spectatorQuery(world)) updateSpectator(cameraEntity)
     }
 
     for (const networkCameraEntity of ownedNetworkCamera()) {

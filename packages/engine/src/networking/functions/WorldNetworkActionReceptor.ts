@@ -7,92 +7,10 @@ import { getEngineState } from '../../ecs/classes/EngineState'
 import { addComponent, getComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity, removeEntity } from '../../ecs/functions/EntityFunctions'
 import { generatePhysicsObject } from '../../physics/functions/physicsObjectDebugFunctions'
-import { Network } from '../classes/Network'
-import { NetworkObjectAuthorityTag } from '../components/NetworkObjectAuthorityTag'
+import { Network, NetworkTopics } from '../classes/Network'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
+import { NetworkObjectOwnedTag } from '../components/NetworkObjectOwnedTag'
 import { WorldNetworkAction } from './WorldNetworkAction'
-
-const removeAllNetworkPeers = (
-  removeSelf = false,
-  world = Engine.instance.currentWorld,
-  network = Engine.instance.currentWorld.worldNetwork
-) => {
-  for (const [userId] of network.peers) {
-    WorldNetworkActionReceptor.receiveDestroyPeers(
-      WorldNetworkAction.destroyPeer({ $from: userId, $topic: network.hostId }),
-      removeSelf,
-      world
-    )
-  }
-}
-
-const receiveCreatePeers = (
-  action: typeof WorldNetworkAction.createPeer.matches._TYPE,
-  world = Engine.instance.currentWorld
-) => {
-  const network = world.networks.get(action.$topic)!
-  // set utility maps - override if moving through portal
-  network.userIdToUserIndex.set(action.$from, action.index)
-  network.userIndexToUserId.set(action.index, action.$from)
-
-  if (network.peers.has(action.$from))
-    return console.log(
-      `[WorldNetworkActionReceptors]: peer with id ${action.$from} and name ${action.name} already exists. ignoring.`
-    )
-
-  network.peers.set(action.$from, {
-    userId: action.$from,
-    index: action.index
-  })
-
-  if (!world.users.get(action.$from))
-    world.users.set(action.$from, {
-      userId: action.$from,
-      name: action.name
-    })
-}
-
-const receiveDestroyPeers = (
-  action: typeof WorldNetworkAction.destroyPeer.matches._TYPE,
-  allowRemoveSelf = false,
-  world = Engine.instance.currentWorld
-) => {
-  const network = world.networks.get(action.$topic)!
-  if (!network.peers.has(action.$from))
-    return console.warn(
-      `[WorldNetworkActionReceptors]: tried to remove client with userId ${action.$from} that doesn't exit`
-    )
-  if (!allowRemoveSelf && action.$from === Engine.instance.userId)
-    return console.warn(`[WorldNetworkActionReceptors]: tried to remove local client`)
-
-  for (const eid of world.getOwnedNetworkObjects(action.$from)) {
-    const { networkId } = getComponent(eid, NetworkObjectComponent)
-    const destroyObjectAction = WorldNetworkAction.destroyObject({ $from: action.$from, networkId })
-    receiveDestroyObject(destroyObjectAction, world)
-  }
-
-  const { index: userIndex } = network.peers.get(action.$from)!
-  network.userIdToUserIndex.delete(action.$from)
-  network.userIndexToUserId.delete(userIndex)
-  network.peers.delete(action.$from)
-
-  Engine.instance.store.actions.cached[action.$topic] = Engine.instance.store.actions.cached[action.$topic].filter(
-    (a) => a.$from !== action.$from
-  )
-
-  /**
-   * if no other connections exist for this user exist, we want to remove them from world.users
-   */
-  const remainingPeersForDisconnectingUser = Object.entries(world.networks.entries())
-    .map(([id, network]: [string, Network]) => {
-      return network.peers.has(action.$from)
-    })
-    .filter((peer) => !!peer)
-
-  if (!remainingPeersForDisconnectingUser.length) {
-    world.users.delete(action.$from)
-  }
-}
 
 const receiveSpawnObject = (
   action: typeof WorldNetworkAction.spawnObject.matches._TYPE,
@@ -132,7 +50,7 @@ const receiveSpawnObject = (
       entity = createEntity()
     }
   }
-  if (isOwnedByMe) addComponent(entity, NetworkObjectAuthorityTag, {})
+  if (isOwnedByMe) addComponent(entity, NetworkObjectOwnedTag, {})
 
   addComponent(entity, NetworkObjectComponent, {
     ownerId: action.$from,
@@ -184,7 +102,7 @@ const receiveRequestAuthorityOverObject = (
       object: action.object,
       newAuthor: action.requester
     }),
-    Engine.instance.currentWorld.worldNetwork.hostId
+    NetworkTopics.world
   )
 }
 
@@ -204,12 +122,12 @@ const receiveTransferAuthorityOfObject = (
     )
 
   if (Engine.instance.userId === action.newAuthor) {
-    if (getComponent(entity, NetworkObjectAuthorityTag))
+    if (getComponent(entity, NetworkObjectOwnedTag))
       return console.warn(`Warning - User ${Engine.instance.userId} already has authority over entity ${entity}.`)
 
-    addComponent(entity, NetworkObjectAuthorityTag, {})
+    addComponent(entity, NetworkObjectOwnedTag, {})
   } else {
-    removeComponent(entity, NetworkObjectAuthorityTag)
+    removeComponent(entity, NetworkObjectOwnedTag)
   }
 }
 
@@ -225,7 +143,7 @@ const receiveSetEquippedObject = (
         object: action.object,
         requester: action.$from
       }),
-      Engine.instance.currentWorld.worldNetwork.hostId
+      NetworkTopics.world
     )
   } else {
     dispatchAction(
@@ -233,7 +151,7 @@ const receiveSetEquippedObject = (
         object: action.object,
         requester: Engine.instance.currentWorld.worldNetwork.hostId
       }),
-      Engine.instance.currentWorld.worldNetwork.hostId
+      NetworkTopics.world
     )
   }
 }
@@ -246,9 +164,6 @@ const receiveSetUserTyping = (
 }
 
 export const WorldNetworkActionReceptor = {
-  removeAllNetworkPeers,
-  receiveCreatePeers,
-  receiveDestroyPeers,
   receiveSpawnObject,
   receiveSpawnDebugPhysicsObject,
   receiveDestroyObject,
