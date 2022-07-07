@@ -23,7 +23,7 @@ export class Engine {
     forwardIncomingActions: (topic: string) =>
       topic === this.store.defaultTopic
         ? false
-        : (topic === NetworkTopics.world ? this.currentWorld.worldNetwork : this.currentWorld.mediaNetwork)!.isHosting,
+        : (topic === NetworkTopics.world ? this.currentWorld.worldNetwork : this.currentWorld.mediaNetwork)?.isHosting,
     getDispatchId: () => Engine.instance.userId,
     getDispatchTime: () => Date.now(),
     defaultDispatchDelay: 1 / this.tickRate

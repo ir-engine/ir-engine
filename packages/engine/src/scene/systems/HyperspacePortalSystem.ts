@@ -3,9 +3,7 @@ import { AmbientLight } from 'three'
 import { dispatchAction } from '@xrengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
-import { changeAvatarAnimationState } from '../../avatar/animation/AvatarAnimationGraph'
 import { AvatarStates } from '../../avatar/animation/Util'
-import { AnimationComponent } from '../../avatar/components/AnimationComponent'
 import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
 import { createAvatarController } from '../../avatar/functions/createAvatar'
 import { switchCameraMode } from '../../avatar/functions/switchCameraMode'
@@ -72,7 +70,7 @@ export default async function HyperspacePortalSystem(world: World) {
       Engine.instance.currentWorld.scene.add(hyperspaceEffect)
 
       // create receptor for joining the world to end the hyperspace effect
-      matchActionOnce(EngineActions.joinedWorld.matches, () => {
+      matchActionOnce(EngineActions.sceneLoaded.matches, () => {
         hyperspaceEffect.fadeOut(delta).then(() => {
           removeComponent(world.worldEntity, HyperspaceTagComponent)
         })
