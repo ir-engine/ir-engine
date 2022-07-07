@@ -13,6 +13,7 @@ import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, ComponentMap, getComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { NavMeshComponent } from '../../navigation/component/NavMeshComponent'
+import { NetworkTopics } from '../../networking/classes/Network'
 import { matchActionOnce } from '../../networking/functions/matchActionOnce'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { applyTransformToMeshWorld } from '../../physics/functions/parseModelColliders'
@@ -219,7 +220,7 @@ export const parseGLTFModel = (entity: Entity, props: ModelComponentType, obj3d:
           prefab: '',
           parameters: { sceneEntityId: node.uuid }
         }),
-        Engine.instance.currentWorld.worldNetwork.hostId
+        NetworkTopics.world
       )
     }
   }

@@ -6,7 +6,8 @@ import { World } from '../../ecs/classes/World'
 const sendOutgoingActions = (world: World) => {
   for (const [instanceId, network] of world.networks) {
     try {
-      network.sendActions(Engine.instance.store.actions.outgoing[instanceId].queue)
+      const queue = Engine.instance.store.actions.outgoing[network.topic].queue
+      network.sendActions(queue)
     } catch (e) {
       console.error(e)
     }

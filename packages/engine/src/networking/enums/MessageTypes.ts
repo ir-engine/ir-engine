@@ -6,6 +6,7 @@ export enum MessageTypes {
   Initialization = 3,
   JoinWorld = 4,
   LeaveWorld = 5,
+  UpdatePeers = 6,
   WebRTCTransportCreate = 7,
   WebRTCTransportConnect = 8,
   WebRTCTransportClose = 9,
@@ -26,7 +27,6 @@ export enum MessageTypes {
   WebRTCCreateProducer = 24,
   Authorization = 25,
   Kick = 26,
-  ConnectToWorld = 28, // TODO: refactor this to be entirely network aciton dispatch
   WebRTCRequestCurrentProducers = 29,
   InitializeRouter = 31,
   ActionData = 42
