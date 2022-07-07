@@ -271,7 +271,9 @@ const dispatchAction = <A extends Action>(
   }
 
   store.actions.incoming.push(action as Required<ResolvedActionType>)
-  store.actions.outgoing[topic].queue.push(action as Required<ResolvedActionType>)
+  if (!store.forwardIncomingActions(action.$topic)) {
+    store.actions.outgoing[topic].queue.push(action as Required<ResolvedActionType>)
+  }
 }
 
 function addTopic(topic: string, store = HyperFlux.store) {
