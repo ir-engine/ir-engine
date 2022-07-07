@@ -20,6 +20,7 @@ import { dispatchAction } from '@xrengine/hyperflux'
 import { BlurLinear, Mic, VolumeUp } from '@mui/icons-material'
 
 import { AuthService, useAuthState } from '../../../user/services/AuthService'
+import XRToggleButton from '../../components/XRToggleButton'
 import styleString from './index.scss'
 
 export function createSettingDetailView() {
@@ -154,7 +155,6 @@ const SettingDetailView = () => {
             <div className="sectionRow">
               <BlurLinear />
               <span className="label">{t('user:usermenu.setting.lbl-resolution')}</span>
-
               <input
                 className="slider"
                 type="range"
@@ -261,11 +261,11 @@ const SettingDetailView = () => {
         <section className="settingView">
           <h4 className="title">{t('user:usermenu.setting.user-avatar')}</h4>
           <div className="sectionRow">
-            <span className="label">{t('user:usermenu.setting.show-avatar')}</span>
-            <label className="switch">
-              <input type="checkbox" checked={showAvatar} onChange={handleChangeShowAvatar} />
-              <span className="switchSlider round"></span>
-            </label>
+            <XRToggleButton
+              labelContent={t('user:usermenu.setting.show-avatar')}
+              checked={showAvatar}
+              onChange={handleChangeShowAvatar}
+            />
           </div>
         </section>
         {engineState.xrSupported.value && (
@@ -274,15 +274,11 @@ const SettingDetailView = () => {
               <h4 className="title">{t('user:usermenu.setting.xrusersetting')}</h4>
               <div className="sectionRow justifySpaceBetween">
                 <div className="sectionRow">
-                  <span className="label">{t('user:usermenu.setting.invert-rotation')}</span>
-                  <label className="switch">
-                    <input
-                      type="checkbox"
-                      checked={invertRotationAndMoveSticks}
-                      onChange={handleChangeInvertRotationAndMoveSticks}
-                    />
-                    <span className="switchSlider round"></span>
-                  </label>
+                  <XRToggleButton
+                    labelContent={t('user:usermenu.setting.invert-rotation')}
+                    checked={invertRotationAndMoveSticks}
+                    onChange={handleChangeInvertRotationAndMoveSticks}
+                  />
                 </div>
                 <div className="showHideButton" onClick={toggleShowDetails}>
                   {showDetails ? 'hide details' : 'show details'}
