@@ -65,8 +65,8 @@ export class SocketWebRTCClientNetwork extends Network {
   public async initialize(args: {
     ipAddress: string
     port: string
-    locationId?: string
-    channelId?: string
+    locationId?: string | null
+    channelId?: string | null
   }): Promise<void> {
     this.reconnecting = false
     if (this.socket) return console.error('[SocketWebRTCClientNetwork]: already initialized')

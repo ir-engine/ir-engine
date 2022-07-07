@@ -1,17 +1,16 @@
 import { Paginated } from '@feathersjs/feathers'
-import { Downgraded, none } from '@speigg/hookstate'
+import { none } from '@speigg/hookstate'
 import { useEffect } from 'react'
 
 import { Instance } from '@xrengine/common/src/interfaces/Instance'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import logger from '@xrengine/common/src/logger'
-import { matches, matchesUserId } from '@xrengine/engine/src/common/functions/MatchesUtils'
+import { matches, matchesUserId, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { NetworkTopics } from '@xrengine/engine/src/networking/classes/Network'
 import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
 import { API } from '../../API'
-import { accessLocationState } from '../../social/services/LocationService'
 import { leaveNetwork } from '../../transports/SocketWebRTCClientFunctions'
 import { SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientNetwork'
 import { accessAuthState } from '../../user/services/AuthService'
@@ -20,8 +19,8 @@ import { NetworkConnectionService } from './NetworkConnectionService'
 type InstanceState = {
   ipAddress: string
   port: string
-  locationId: string
-  sceneId: string
+  locationId: string | null
+  sceneId: string | null
   provisioned: boolean
   connected: boolean
   readyToConnect: boolean
@@ -49,8 +48,8 @@ export const LocationInstanceConnectionServiceReceptor = (action) => {
           [action.instanceId]: {
             ipAddress: action.ipAddress,
             port: action.port,
-            locationId: action.locationId!,
-            sceneId: action.sceneId!,
+            locationId: action.locationId,
+            sceneId: action.sceneId,
             provisioned: true,
             readyToConnect: true,
             connected: false,
@@ -108,8 +107,8 @@ export const LocationInstanceConnectionService = {
           instanceId: provisionResult.id as UserId,
           ipAddress: provisionResult.ipAddress,
           port: provisionResult.port,
-          locationId: locationId!,
-          sceneId: sceneId!
+          locationId: locationId,
+          sceneId: sceneId
         })
       )
     } else {
@@ -158,8 +157,8 @@ export class LocationInstanceConnectionAction {
     instanceId: matchesUserId,
     ipAddress: matches.string,
     port: matches.string,
-    locationId: matches.string,
-    sceneId: matches.string
+    locationId: matches.any as Validator<unknown, string | null>,
+    sceneId: matches.any as Validator<unknown, string | null>
   })
 
   static connecting = defineAction({
