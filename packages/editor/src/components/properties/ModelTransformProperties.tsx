@@ -1,3 +1,4 @@
+import { Property, PropertyType } from '@gltf-transform/core'
 import React, { Fragment, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import styled from 'styled-components'
@@ -6,15 +7,22 @@ import { API } from '@xrengine/client-core/src/API'
 import { FileBrowserService } from '@xrengine/client-core/src/common/services/FileBrowserService'
 import { EditorAction, useEditorState } from '@xrengine/editor/src/services/EditorServices'
 import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
+import ModelTransformLoader from '@xrengine/engine/src/assets/classes/ModelTransformLoader'
 import { ModelComponentType } from '@xrengine/engine/src/scene/components/ModelComponent'
 import { dispatchAction } from '@xrengine/hyperflux'
 
-import { ButtonGroup, Grid, List, ToggleButton, ToggleButtonGroup, Typography } from '@mui/material'
+import NodeIcon from '@mui/icons-material/AccountTree'
+import ImageIcon from '@mui/icons-material/Image'
+import MaterialIcon from '@mui/icons-material/Texture'
+import MeshIcon from '@mui/icons-material/ViewInAr'
+import { Box, ButtonGroup, Grid, List, ToggleButton, ToggleButtonGroup, Typography } from '@mui/material'
 import Divider from '@mui/material/Divider'
 import ListItem from '@mui/material/ListItem'
 import ListItemButton from '@mui/material/ListItemButton'
+import ListItemText from '@mui/material/ListItemText'
 
 import { Button } from '../inputs/Button'
+import ModelResourceProperties from './ModelResourceProperties'
 
 const TransformContainer = (styled as any).div`
 color: var(--textColor);
@@ -75,6 +83,7 @@ const OptimizeButton = styled(Button)`
 
 export default function ModelTransformProperties({ modelComponent, onChangeModel }) {
   const [transforming, setTransforming] = useState<boolean>(false)
+
   async function onTransformModel() {
     setTransforming(true)
     const nuPath = await API.instance.client.service('model-transform').create({ path: modelComponent.src })
@@ -86,15 +95,51 @@ export default function ModelTransformProperties({ modelComponent, onChangeModel
   }
 
   const [internalFilter, setInternalFilter] = useState<string[]>(() => [])
+
+  async function getModelResources(filter) {
+    const { io, load } = ModelTransformLoader()
+    const document = await load(modelComponent.src)
+    const root = document.getRoot()
+    const listTable = (element) => {
+      switch (element) {
+        case 'meshes':
+          return root.listMeshes()
+        case 'textures':
+          return root.listTextures()
+        case 'materials':
+          return root.listMaterials()
+        case 'nodes':
+          return root.listNodes()
+        default:
+          return []
+      }
+    }
+    const entries = listTable(filter).map((resource, idx): [string, Property] => [
+      `${resource.propertyType}-${idx}`,
+      resource
+    ])
+    return new Map(entries)
+  }
+  const [resources, setResources] = useState<Map<any, any>>(() => new Map())
+
+  const [selected, setSelected] = useState<string>(() => '')
+
+  const selectedResource: Property = resources.has(selected) ? resources.get(selected)! : null
+
   async function onChangeFilter(event, nuFilter) {
     setInternalFilter(nuFilter)
+    setResources(await getModelResources(nuFilter))
+  }
+
+  function onChangeSelected(key) {
+    return () => setSelected(key)
   }
 
   return (
     <TransformContainer>
       <ElementsContainer>
         <Typography variant="h6" sx={{ textAlign: 'center', paddingTop: '16px', paddingBottom: '12px' }}></Typography>
-        <ToggleButtonGroup value={internalFilter} onChange={onChangeFilter}>
+        <ToggleButtonGroup value={internalFilter} onChange={onChangeFilter} exclusive>
           <FilterToggle value="meshes" aria-label="meshes" color="primary">
             Mesh
           </FilterToggle>
@@ -108,7 +153,27 @@ export default function ModelTransformProperties({ modelComponent, onChangeModel
             Node
           </FilterToggle>
         </ToggleButtonGroup>
-        <List></List>
+        <List sx={{ maxHeight: '128px', overflowX: 'clip', overflowY: 'scroll' }}>
+          {[...resources.entries()].map(([key, resource]: [string, Property], index) => {
+            const resourceIcons = {
+              Mesh: () => <MeshIcon />,
+              Texture: () => <ImageIcon />,
+              Material: () => <MaterialIcon />,
+              Node: () => <NodeIcon />
+            }
+            return (
+              <ListItem key={key}>
+                <ListItemButton selected={selected === key} onClick={onChangeSelected(key)}>
+                  {resourceIcons[resource.propertyType]()}
+                  <ListItemText id={`model-resource-name-${key}`} primary={resource.getName()} />
+                </ListItemButton>
+              </ListItem>
+            )
+          })}
+        </List>
+        <ElementsContainer>
+          {!!selectedResource && <ModelResourceProperties prop={selectedResource} />}
+        </ElementsContainer>
       </ElementsContainer>
       {!transforming && <OptimizeButton onClick={onTransformModel}>Optimize</OptimizeButton>}
       {transforming && <p>Transforming...</p>}

@@ -9,6 +9,8 @@ import { MeshoptDecoder, MeshoptEncoder } from 'meshoptimizer'
 import path from 'path'
 import util from 'util'
 
+import ModelTransformLoader from '@xrengine/engine/src/assets/classes/ModelTransformLoader'
+
 import { getContentType } from '../../util/fileUtils'
 
 export type ModelTransformArguments = {
@@ -52,12 +54,7 @@ export async function transformModel(app: Application, args: ModelTransformArgum
     return `${toValidFilename(texture.getName())}.${mimeToFileType(texture.getMimeType())}`
   }
 
-  const io = new NodeIO()
-  io.registerExtensions([MeshoptCompression, MeshQuantization, TextureBasisu])
-  io.registerDependencies({
-    'meshopt.decoder': MeshoptDecoder,
-    'meshopt.encoder': MeshoptEncoder
-  })
+  const { io } = ModelTransformLoader()
 
   const document = await io.read(args.src)
   const root = document.getRoot()
