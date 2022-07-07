@@ -38,6 +38,7 @@
     "@mui/styles": "5.6.1",
     "@rollup/plugin-inject": "4.0.4",
     "@speigg/hookstate": "3.0.13-stable-state",
+    "@swc/core": "^1.2.210",
     "@xrengine/client-core": "^0.5.7",
     "@xrengine/common": "^0.5.7",
     "@xrengine/editor": "^0.5.7",

@@ -5,7 +5,7 @@ import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
-import { Action } from '@xrengine/hyperflux/functions/ActionFunctions'
+import { Action, Topic } from '@xrengine/hyperflux/functions/ActionFunctions'
 import { Application } from '@xrengine/server-core/declarations'
 import multiLogger from '@xrengine/server-core/src/logger'
 
@@ -32,9 +32,22 @@ export class SocketWebRTCServerNetwork extends Network {
   producers = [] as Producer[]
   consumers = [] as Consumer[]
 
-  constructor(hostId: string, app: Application) {
-    super(hostId)
+  constructor(hostId: UserId, topic: Topic, app: Application) {
+    super(hostId, topic)
     this.app = app
+  }
+
+  public updatePeers = () => {
+    const peers = Array.from(this.peers.values()).map((peer) => {
+      return {
+        userId: peer.userId,
+        index: peer.index,
+        name: Engine.instance.currentWorld.users.get(peer.userId)?.name!
+      }
+    })
+    if (peers.length)
+      for (const [socketID, socket] of this.app.io.of('/').sockets)
+        socket.emit(MessageTypes.UpdatePeers.toString(), peers)
   }
 
   public sendActions = (actions: Array<Required<Action>>): any => {
@@ -47,10 +60,9 @@ export class SocketWebRTCServerNetwork extends Network {
       const arr: Action[] = []
       for (const a of [...actions]) {
         const action = { ...a }
-        action.$topic = undefined!
-        if (outgoing[this.hostId].historyUUIDs.has(action.$uuid)) {
-          const idx = outgoing[this.hostId].queue.indexOf(action)
-          outgoing[this.hostId].queue.splice(idx, 1)
+        if (outgoing[this.topic].historyUUIDs.has(action.$uuid)) {
+          const idx = outgoing[this.topic].queue.indexOf(action)
+          outgoing[this.topic].queue.splice(idx, 1)
         }
         if (!action.$to) continue
         const toUserId = userIdMap[socketID]

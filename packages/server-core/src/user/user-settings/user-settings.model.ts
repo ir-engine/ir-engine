@@ -33,10 +33,9 @@ export default (app: Application) => {
         type: DataTypes.BOOLEAN,
         defaultValue: true
       },
-      themeMode: {
-        type: DataTypes.STRING,
-        allowNull: false,
-        defaultValue: (): string => 'dark'
+      themeModes: {
+        type: DataTypes.JSON,
+        allowNull: true
       }
     },
     {

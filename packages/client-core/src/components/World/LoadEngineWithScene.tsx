@@ -2,23 +2,24 @@ import React, { useState } from 'react'
 import { useHistory } from 'react-router'
 
 import { LocationInstanceConnectionServiceReceptor } from '@xrengine/client-core/src/common/services/LocationInstanceConnectionService'
-import { accessLocationState, LocationService } from '@xrengine/client-core/src/social/services/LocationService'
+import { LocationService } from '@xrengine/client-core/src/social/services/LocationService'
 import { leaveNetwork } from '@xrengine/client-core/src/transports/SocketWebRTCClientFunctions'
+import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import {
   SceneActions,
-  SceneService,
   SceneServiceReceptor,
   useSceneState
 } from '@xrengine/client-core/src/world/services/SceneService'
 import multiLogger from '@xrengine/common/src/logger'
+import { getSearchParamFromURL } from '@xrengine/common/src/utils/getSearchParamFromURL'
+import { SpawnPoints } from '@xrengine/engine/src/avatar/AvatarSpawnSystem'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineActions, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
-import { WorldNetworkActionReceptor } from '@xrengine/engine/src/networking/functions/WorldNetworkActionReceptor'
+import { spawnLocalAvatarInWorld } from '@xrengine/engine/src/networking/functions/receiveJoinWorld'
 import { teleportToScene } from '@xrengine/engine/src/scene/functions/teleportToScene'
 import { addActionReceptor, dispatchAction, removeActionReceptor, useHookEffect } from '@xrengine/hyperflux'
 
 import { AppAction, GeneralStateList } from '../../common/services/AppService'
-import { accessMediaInstanceConnectionState } from '../../common/services/MediaInstanceConnectionService'
 import { SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientNetwork'
 import { initClient, loadScene } from './LocationLoadHelper'
 
@@ -28,6 +29,7 @@ export const LoadEngineWithScene = () => {
   const history = useHistory()
   const engineState = useEngineState()
   const sceneState = useSceneState()
+  const authState = useAuthState()
   const [clientReady, setClientReady] = useState(false)
 
   /**
@@ -59,6 +61,27 @@ export const LoadEngineWithScene = () => {
       })
     }
   }, [clientReady, sceneState.currentScene])
+
+  useHookEffect(async () => {
+    if (
+      engineState.joinedWorld.value ||
+      !engineState.sceneLoaded.value ||
+      !authState.user.value ||
+      getSearchParamFromURL('spectate')
+    )
+      return
+    const user = authState.user.value
+    const avatarDetails = authState.avatarList.value.find((avatar) => avatar.avatar?.name === user.avatarId)!
+    const avatarSpawnPose = SpawnPoints.instance.getRandomSpawnPoint()
+    spawnLocalAvatarInWorld({
+      avatarSpawnPose,
+      avatarDetail: {
+        avatarURL: avatarDetails.avatar?.url!,
+        thumbnailURL: avatarDetails['user-thumbnail']?.url!
+      },
+      name: user.name
+    })
+  }, [engineState.sceneLoaded, authState.user, engineState.joinedWorld])
 
   useHookEffect(() => {
     if (engineState.joinedWorld.value) {

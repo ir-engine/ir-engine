@@ -151,15 +151,15 @@ const Project = () => {
         {settings?.length > 0 && (
           <Grid item container xs={12}>
             <Button sx={{ maxWidth: '100%' }} variant="outlined" onClick={handleCancel}>
-              {t('admin:components.setting.cancel')}
+              {t('admin:components.common.cancel')}
             </Button>
             <Button
               sx={{ maxWidth: '100%', ml: 1 }}
               variant="contained"
-              className={styles.saveBtn}
+              className={styles.gradientButton}
               onClick={handleSubmit}
             >
-              {t('admin:components.setting.save')}
+              {t('admin:components.common.save')}
             </Button>
           </Grid>
         )}
