@@ -229,7 +229,7 @@ export const setupAvatarHeight = (entity: Entity, model: Object3D) => {
   const box = new Box3()
   box.expandByObject(model).getSize(tempVec3ForHeight)
   box.getCenter(tempVec3ForCenter)
-  resizeAvatar(entity, Math.max(tempVec3ForHeight.x, tempVec3ForHeight.y, tempVec3ForHeight.z), tempVec3ForCenter)
+  resizeAvatar(entity, tempVec3ForHeight.y, tempVec3ForCenter)
 }
 
 export const loadGrowingEffectObject = (entity: Entity, originalMatList: Array<MaterialMap>) => {

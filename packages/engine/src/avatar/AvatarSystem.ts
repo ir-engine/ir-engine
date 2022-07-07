@@ -108,7 +108,6 @@ export function teleportObjectReceptor(
   action: ReturnType<typeof WorldNetworkAction.teleportObject>,
   world = Engine.instance.currentWorld
 ) {
-  debugger
   const [x, y, z, qX, qY, qZ, qW] = action.pose
   const entity = world.getNetworkObject(action.object.ownerId, action.object.networkId)!
   const controllerComponent = getComponent(entity, AvatarControllerComponent)

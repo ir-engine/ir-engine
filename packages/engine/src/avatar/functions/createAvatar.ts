@@ -122,29 +122,31 @@ export const createAvatar = (spawnAction: typeof WorldNetworkAction.spawnAvatar.
 
 export const createAvatarCollider = (
   entity: Entity,
-  height: number,
+  halfHeight: number,
   radius: number,
-  rigidBody: RigidBody
+  rigidBody: RigidBody,
+  center: Vector3
 ): Collider[] => {
   const avatarControllerComponent = getComponent(entity, AvatarControllerComponent)
-  const { position } = getComponent(entity, TransformComponent)
   const interactionGroups = getInteractionGroups(CollisionGroups.Avatars, AvatarCollisionMask)
   const colliders = [] as Collider[]
-  const bodyColliderDesc = ColliderDesc.capsule(height, radius).setCollisionGroups(interactionGroups)
-  bodyColliderDesc.translation.y = position.y + defaultAvatarHalfHeight
-  const bodyCollider = Physics.createColliderAndAttachToRigidBody(
-    Engine.instance.currentWorld.physicsWorld,
-    bodyColliderDesc,
-    rigidBody
-  )
 
-  const feetColliderHeight = height * 0.025
+  const feetColliderHeight = halfHeight * 0.025
   const feetColliderDesc = ColliderDesc.cuboid(radius / 2, feetColliderHeight, radius / 2).setCollisionGroups(
     interactionGroups
   )
+  feetColliderDesc.setTranslation(0, center.y - halfHeight - radius, 0)
   const feetCollider = Physics.createColliderAndAttachToRigidBody(
     Engine.instance.currentWorld.physicsWorld,
     feetColliderDesc,
+    rigidBody
+  )
+
+  const bodyColliderDesc = ColliderDesc.capsule(halfHeight, radius).setCollisionGroups(interactionGroups)
+  bodyColliderDesc.setTranslation(0, center.y, 0)
+  const bodyCollider = Physics.createColliderAndAttachToRigidBody(
+    Engine.instance.currentWorld.physicsWorld,
+    bodyColliderDesc,
     rigidBody
   )
 
@@ -206,5 +208,13 @@ export const createAvatarController = (entity: Entity) => {
       speedVelocity: { value: 0 }
     })
   }
-  const colliders = createAvatarCollider(entity, capsuleHeight / 2, avatarRadius, controller)
+
+  const { position } = getComponent(entity, TransformComponent)
+  const colliders = createAvatarCollider(
+    entity,
+    capsuleHeight / 2,
+    avatarRadius,
+    controller,
+    new Vector3().setY(position.y + defaultAvatarHalfHeight)
+  )
 }
