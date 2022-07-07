@@ -1,10 +1,13 @@
 import { MathUtils } from 'three'
 import { matches, Validator } from 'ts-matches'
 
+import { OpaqueType } from '@xrengine/common/src/interfaces/OpaqueType'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { deepEqual } from '@xrengine/engine/src/common/functions/deepEqual'
 
 import { HyperFlux } from './StoreFunctions'
+
+export type Topic = OpaqueType<'topicId'> & string
 
 export type Action = {
   /**
@@ -54,7 +57,7 @@ export type ActionOptions = {
    */
   $time?: number | undefined
 
-  $topic?: string
+  $topic?: Topic
 
   /**
    * Specifies how this action should be cached for newly joining clients.
@@ -246,7 +249,7 @@ function defineAction<Shape extends ActionShape<Action>>(actionShape: Shape) {
  */
 const dispatchAction = <A extends Action>(
   action: A,
-  topics: string | string[] = HyperFlux.store.defaultTopic,
+  topics: Topic | Topic[] = HyperFlux.store.defaultTopic,
   store = HyperFlux.store
 ) => {
   const storeId = store.getDispatchId()
@@ -267,9 +270,10 @@ const dispatchAction = <A extends Action>(
     action.$stack = stack
   }
 
-  const mode = store.getDispatchMode(topic)
-  if (mode === 'local' || mode === 'host') store.actions.incoming.push(action as Required<ResolvedActionType>)
-  else store.actions.outgoing[topic].queue.push(action as Required<ResolvedActionType>)
+  store.actions.incoming.push(action as Required<ResolvedActionType>)
+  if (!store.forwardIncomingActions(action.$topic)) {
+    store.actions.outgoing[topic].queue.push(action as Required<ResolvedActionType>)
+  }
 }
 
 function addTopic(topic: string, store = HyperFlux.store) {
@@ -310,6 +314,7 @@ function addActionReceptor(receptor: ActionReceptor, store = HyperFlux.store) {
  * Removes an action receptor from the store
  * @param store
  * @param receptor
+ * @deprecated use createActionQueue instead
  */
 function removeActionReceptor(receptor: ActionReceptor, store = HyperFlux.store) {
   const idx = store.receptors.indexOf(receptor)
@@ -388,7 +393,7 @@ const _applyIncomingAction = (action: Required<ResolvedActionType>, store = Hype
     console.log(`[Action]: ${action.type}`, action)
     for (const receptor of [...store.receptors]) receptor(action)
     store.actions.incomingHistory.set(action.$uuid, action)
-    if (store.getDispatchMode(action.$topic) === 'host') {
+    if (store.forwardIncomingActions(action.$topic)) {
       store.actions.outgoing[action.$topic].queue.push(action)
     }
   } catch (e) {

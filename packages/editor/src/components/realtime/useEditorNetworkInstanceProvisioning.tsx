@@ -4,9 +4,6 @@ import {
 } from '@xrengine/client-core/src/common/services/LocationInstanceConnectionService'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
-import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
-import { joinCurrentWorld } from '@xrengine/engine/src/networking/functions/joinWorld'
-import { JoinWorldRequestData, receiveJoinWorld } from '@xrengine/engine/src/networking/functions/receiveJoinWorld'
 import { useHookEffect } from '@xrengine/hyperflux'
 
 export const useEditorNetworkInstanceProvisioning = () => {
@@ -31,13 +28,4 @@ export const useEditorNetworkInstanceProvisioning = () => {
     currentLocationInstanceConnection?.connecting,
     currentLocationInstanceConnection?.provisioned
   ])
-
-  useHookEffect(() => {
-    const transportRequestData = {
-      spectateUserId: 'none'
-    } as JoinWorldRequestData
-    if (engineState.connectedWorld.value && engineState.sceneLoaded.value) {
-      joinCurrentWorld(transportRequestData)
-    }
-  }, [engineState.connectedWorld, engineState.sceneLoaded])
 }

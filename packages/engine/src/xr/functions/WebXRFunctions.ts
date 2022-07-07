@@ -11,6 +11,7 @@ import { proxifyQuaternion, proxifyVector3 } from '../../common/proxies/three'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
+import { NetworkTopics } from '../../networking/classes/Network'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { TransformComponent } from '../../transform/components/TransformComponent'
@@ -191,7 +192,7 @@ export const bindXRHandEvents = () => {
       initializeHandModel(world.localClientEntity, controller, xrInputSource.handedness)
 
       if (!eventSent) {
-        dispatchAction(WorldNetworkAction.xrHandsConnected({}), Engine.instance.currentWorld.worldNetwork.hostId)
+        dispatchAction(WorldNetworkAction.xrHandsConnected({}), NetworkTopics.world)
         eventSent = true
       }
     })
@@ -357,6 +358,6 @@ export function dispatchXRMode(enabled: boolean, avatarInputControllerType: stri
       enabled,
       avatarInputControllerType
     }),
-    [Engine.instance.currentWorld.worldNetwork.hostId]
+    NetworkTopics.world
   )
 }

@@ -14,6 +14,7 @@ import { theme } from '@xrengine/client-core/src/theme'
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import GlobalStyle from '@xrengine/client-core/src/util/GlobalStyle'
 import { matches } from '@xrengine/engine/src/common/functions/MatchesUtils'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { loadWebappInjection } from '@xrengine/projects/loadWebappInjection'
 
 import { StyledEngineProvider, Theme, ThemeProvider } from '@mui/material/styles'
@@ -92,6 +93,10 @@ const App = (): any => {
   useEffect(() => {
     if (selfUser?.id && projectState.updateNeeded.value) ProjectService.fetchProjects()
   }, [selfUser, projectState.updateNeeded.value])
+
+  useEffect(() => {
+    Engine.instance.userId = selfUser.id.value
+  }, [selfUser.id])
 
   useEffect(() => {
     if (projectState.projects.value.length > 0 && !fetchedProjectComponents) {

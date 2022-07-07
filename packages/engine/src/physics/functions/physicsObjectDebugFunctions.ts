@@ -22,6 +22,7 @@ import { TransformComponent } from '@xrengine/engine/src/transform/components/Tr
 import { dispatchAction } from '@xrengine/hyperflux'
 
 import { getEngineState } from '../../ecs/classes/EngineState'
+import { NetworkTopics } from '../../networking/classes/Network'
 
 /**
  * Returns a random number between min (inclusive) and max (exclusive)
@@ -178,7 +179,7 @@ export const generatePhysicsObject = (
           prefab: '',
           parameters: { sceneEntityId: node.uuid, position: transform.position }
         }),
-        Engine.instance.currentWorld.worldNetwork.hostId
+        NetworkTopics.world
       )
     }
   }
