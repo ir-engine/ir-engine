@@ -1,6 +1,7 @@
 export interface UserAvatar {
   avatar?: AvatarItem
-  'user-thumbnail'?: UserThumbnail
+  userThumbnail?: UserThumbnail
+  'user-thumbnail'?: UserThumbnail // sequelize is frustrating
 }
 
 interface AvatarItem {
