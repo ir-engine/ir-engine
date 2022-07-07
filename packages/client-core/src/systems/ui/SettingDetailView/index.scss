@@ -33,6 +33,16 @@
 .sectionRow {
   display: flex;
   align-items: center;
+
+  svg {
+    width: 25px;
+    height: 25px;
+    color: var(--iconButtonColor);
+
+    path {
+      fill: var(--iconButtonColor);
+    }
+  }
 }
 
 .justifySpaceBetween {
