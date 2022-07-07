@@ -87,6 +87,49 @@
 
 :root[data-theme="dark"] {
   --textColor: #fff;
+  --navbarBackground: rgb(78 78 78 / 100%);
+  --sidebarBackground: rgb(80 80 80 / 100%);
+  --sidebarSelectedBackground: rgb(156 156 156 / 100%);
+  --mainBackground: rgb(53 53 53 / 100%);
+  --panelBackground: rgb(73 73 73 / 100%);
+  --panelCards: rgb(178 178 178 / 100%);
+  --panelCardHoverOutline: rgb(180 180 180 / 100%);
+  --panelCardIcon: rgb(39 39 39 / 100%);
+  --textHeading: #fff;
+  --textSubheading: #fff;
+  --textDescription: #fff;
+  --iconButtonColor: #fff;
+  --iconButtonHoverColor: rgb(148 148 148 / 100%);
+  --iconButtonBackground: rgb(163 163 163 / 100%);
+  --iconButtonSelectedBackground: rgb(146 146 146 / 100%);
+  --buttonOutlined: rgb(93 93 93 / 100%);
+  --buttonFilled: rgb(97 97 97 / 100%);
+  --buttonGradientStart: rgb(127 127 127 / 100%);
+  --buttonGradientEnd: rgb(95 95 95 / 100%);
+  --buttonTextColor: #fff;
+  --scrollbarThumbXAxisStart: rgb(124 124 124 / 100%);
+  --scrollbarThumbXAxisEnd: rgb(82 82 82 / 100%);
+  --scrollbarThumbYAxisStart: rgb(141 141 141 / 100%);
+  --scrollbarThumbYAxisEnd: rgb(97 97 97 / 100%);
+  --scrollbarCorner: rgb(255 255 255 / 0%);
+  --inputOutline: #fff;
+  --inputOutlineRgb: 255, 255, 255;
+  --inputBackground: rgb(80 80 80 / 100%);
+  --dropdownMenuBackground: rgb(61 61 61 / 100%);
+  --dropdownMenuHoverBackground: rgb(88 88 88 / 100%);
+  --dropdownMenuSelectedBackground: rgb(95 95 95 / 100%);
+  --drawerBackground: rgb(66 66 66 / 100%);
+  --popupBackground: rgb(90 90 90 / 100%);
+  --tableHeaderBackground: rgb(76 76 76 / 100%);
+  --tableCellBackground: rgb(104 104 104 / 100%);
+  --tableFooterBackground: rgb(71 71 71 / 100%);
+  --themeSwitchTrack: #8796a5;
+  --themeSwitchThumb: #02022d;
+  --dockBackground: rgb(185 185 185 / 100%);
+}
+
+:root[data-theme="vaporwave"] {
+  --textColor: #fff;
   --navbarBackground: rgb(31 27 72 / 85%);
   --sidebarBackground: rgb(31 27 72 / 100%);
   --sidebarSelectedBackground: #5f5ff1;
@@ -117,6 +160,7 @@
   --inputBackground: #3c3c6f;
   --dropdownMenuBackground: #1f1b48;
   --dropdownMenuHoverBackground: #2a2567;
+  --dropdownMenuSelectedBackground: #5f5ff1;
   --drawerBackground: #1f1b48;
   --popupBackground: #2c2c5f;
   --tableHeaderBackground: #1f1b48;
@@ -124,7 +168,7 @@
   --tableFooterBackground: #1f1b48;
   --themeSwitchTrack: #8796a5;
   --themeSwitchThumb: #02022d;
-  --dockBackground: rgb(31 27 72 / 85%);
+  --dockBackground: rgb(73 66 152 / 85%);
 }
 
 ::-webkit-scrollbar {
