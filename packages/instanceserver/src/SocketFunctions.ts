@@ -7,7 +7,6 @@ import { WebRtcTransportParams } from '@xrengine/server-core/src/types/WebRtcTra
 
 import {
   authorizeUserToJoinServer,
-  handleConnectToWorld,
   handleDisconnect,
   handleHeartbeat,
   handleIncomingActions,
@@ -89,13 +88,9 @@ export const setupSocketFunctions = (network: SocketWebRTCServerNetwork, socket:
 
     hasListeners = true
 
-    socket.on(MessageTypes.ConnectToWorld.toString(), async (data, callback) => {
-      handleConnectToWorld(network, socket, data, callback, userId, user)
-    })
-
-    socket.on(MessageTypes.JoinWorld.toString(), async (data, callback) =>
+    socket.on(MessageTypes.JoinWorld.toString(), async (data, callback) => {
       handleJoinWorld(network, socket, data, callback, userId, user)
-    )
+    })
 
     socket.on(MessageTypes.ActionData.toString(), (data) => handleIncomingActions(network, socket, data))
 

@@ -22,9 +22,9 @@ import {
   initializeSceneSystems,
   setupEngineActionSystems
 } from '@xrengine/engine/src/initializeEngine'
-import { Network } from '@xrengine/engine/src/networking/classes/Network'
+import { Network, NetworkTopics } from '@xrengine/engine/src/networking/classes/Network'
 import { matchActionOnce } from '@xrengine/engine/src/networking/functions/matchActionOnce'
-import { WorldNetworkAction } from '@xrengine/engine/src/networking/functions/WorldNetworkAction'
+import { NetworkPeerFunctions } from '@xrengine/engine/src/networking/functions/NetworkPeerFunctions'
 import { loadSceneFromJSON } from '@xrengine/engine/src/scene/functions/SceneLoading'
 import { dispatchAction } from '@xrengine/hyperflux'
 import { loadEngineInjection } from '@xrengine/projects/loadEngineInjection'
@@ -230,12 +230,13 @@ const initializeInstance = async (
  */
 
 const loadEngine = async (app: Application, sceneId: string) => {
-  const hostId = app.instance.id
+  const hostId = app.instance.id as UserId
   Engine.instance.publicPath = config.client.url
   Engine.instance.userId = hostId
   const world = Engine.instance.currentWorld
+  const topic = app.isChannelInstance ? NetworkTopics.media : NetworkTopics.world
 
-  const network = new SocketWebRTCServerNetwork(hostId, app)
+  const network = new SocketWebRTCServerNetwork(hostId, topic, app)
   app.transport = network
   const initPromise = network.initialize()
 
@@ -291,14 +292,13 @@ const loadEngine = async (app: Application, sceneId: string) => {
   }
   await initPromise
 
-  dispatchAction(
-    WorldNetworkAction.createPeer({
-      name: 'server-' + hostId,
-      index: network.userIndexCount++
-    }),
-    hostId
+  NetworkPeerFunctions.createPeer(
+    network,
+    hostId,
+    network.userIndexCount++,
+    'server-' + hostId,
+    Engine.instance.currentWorld
   )
-
   dispatchAction(EngineActions.joinedWorld())
 }
 

@@ -1,18 +1,24 @@
 import { Transport as MediaSoupTransport } from 'mediasoup-client/lib/types'
-import { Mesh, MeshBasicMaterial, PlaneGeometry, sRGBEncoding, VideoTexture } from 'three'
+import { Mesh, MeshStandardMaterial, PlaneGeometry, sRGBEncoding, Vector4, VideoTexture } from 'three'
 
 import { MediaStreams } from '@xrengine/client-core/src/transports/MediaStreams'
 import { ChannelType } from '@xrengine/common/src/interfaces/Channel'
 import { MediaTagType } from '@xrengine/common/src/interfaces/MediaStreamConstants'
+import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import logger from '@xrengine/common/src/logger'
+import { getSearchParamFromURL } from '@xrengine/common/src/utils/getSearchParamFromURL'
+import { OBCType } from '@xrengine/engine/src/common/constants/OBCTypes'
 import { matches } from '@xrengine/engine/src/common/functions/MatchesUtils'
+import { addOBCPlugin } from '@xrengine/engine/src/common/functions/OnBeforeCompilePlugin'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { defineQuery, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { NetworkTypes } from '@xrengine/engine/src/networking/classes/Network'
+import { NetworkTopics } from '@xrengine/engine/src/networking/classes/Network'
 import { PUBLIC_STUN_SERVERS } from '@xrengine/engine/src/networking/constants/STUNServers'
 import { CAM_VIDEO_SIMULCAST_ENCODINGS } from '@xrengine/engine/src/networking/constants/VideoConstants'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
+import { NetworkPeerFunctions } from '@xrengine/engine/src/networking/functions/NetworkPeerFunctions'
+import { JoinWorldRequestData, receiveJoinWorld } from '@xrengine/engine/src/networking/functions/receiveJoinWorld'
 import { WorldNetworkActionReceptor } from '@xrengine/engine/src/networking/functions/WorldNetworkActionReceptor'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 import { ScreenshareTargetComponent } from '@xrengine/engine/src/scene/components/ScreenshareTargetComponent'
@@ -36,16 +42,31 @@ export const getChannelTypeIdFromTransport = (network: SocketWebRTCClientNetwork
   const channelConnectionState = accessMediaInstanceConnectionState()
   const currentChannelInstanceConnection =
     channelConnectionState.instances[Engine.instance.currentWorld.mediaNetwork?.hostId].ornull
-  const isWorldConnection = network.type === NetworkTypes.world
+  const isWorldConnection = network.topic === NetworkTopics.world
   return {
     channelType: isWorldConnection ? 'instance' : currentChannelInstanceConnection.channelType.value,
     channelId: isWorldConnection ? null : currentChannelInstanceConnection.channelId.value
   }
 }
 
+function actionDataHandler(message) {
+  if (!message) return
+  const actions = message as any as Required<Action>[]
+  // const actions = decode(new Uint8Array(message)) as IncomingActionType[]
+  for (const a of actions) {
+    Engine.instance.store.actions.incoming.push(a)
+  }
+}
+
+type PeersUpdateType = Array<{
+  userId: UserId
+  index: number
+  name: string
+}>
+
 export async function onConnectToInstance(network: SocketWebRTCClientNetwork) {
-  const isWorldConnection = network.type === NetworkTypes.world
-  console.log('[WebRTC]: connectting to instance type:', network.type, network.hostId)
+  const isWorldConnection = network.topic === NetworkTopics.world
+  console.log('[WebRTC]: connectting to instance type:', network.topic, network.hostId)
 
   if (isWorldConnection) {
     dispatchAction(LocationInstanceConnectionAction.instanceServerConnected({ instanceId: network.hostId }))
@@ -69,7 +90,30 @@ export async function onConnectToInstance(network: SocketWebRTCClientNetwork) {
 
   if (!success) return console.error('Unable to connect with credentials')
 
-  const connectToWorldResponse = await network.request(MessageTypes.ConnectToWorld.toString())
+  function peerUpdateHandler(peers: PeersUpdateType) {
+    for (const peer of peers) {
+      if (!network.peers.has(peer.userId)) NetworkPeerFunctions.createPeer(network, peer.userId, peer.index, peer.name)
+    }
+    for (const [userId, peer] of network.peers) {
+      if (!peers.find((p) => p.userId === userId)) NetworkPeerFunctions.destroyPeer(network, userId)
+    }
+    console.log('[WebRTC]: Updated Peers', peers)
+  }
+
+  async function commonDisconnectHandler() {
+    network.socket.off('disconnect', commonDisconnectHandler)
+    network.socket.off(MessageTypes.ActionData.toString(), actionDataHandler)
+    network.socket.off(MessageTypes.UpdatePeers.toString(), peerUpdateHandler)
+  }
+  network.socket.on('disconnect', commonDisconnectHandler)
+  network.socket.on(MessageTypes.ActionData.toString(), actionDataHandler)
+  network.socket.on(MessageTypes.UpdatePeers.toString(), peerUpdateHandler)
+
+  const joinWorldRequest = {
+    inviteCode: getSearchParamFromURL('inviteCode')
+  } as JoinWorldRequestData
+
+  const connectToWorldResponse = await network.request(MessageTypes.JoinWorld.toString(), joinWorldRequest)
 
   if (!connectToWorldResponse || !connectToWorldResponse.routerRtpCapabilities) {
     dispatchAction(NetworkConnectionService.actions.worldInstanceReconnected())
@@ -80,23 +124,15 @@ export async function onConnectToInstance(network: SocketWebRTCClientNetwork) {
 
   if (network.mediasoupDevice.loaded !== true) await network.mediasoupDevice.load(connectToWorldResponse)
 
+  if (isWorldConnection) receiveJoinWorld(connectToWorldResponse)
+
   if (isWorldConnection) await onConnectToWorldInstance(network)
   else await onConnectToMediaInstance(network)
 
-  console.log('[WebRTC]: successfully connected to instance type:', network.type, network.hostId)
+  console.log('[WebRTC]: successfully connected to instance type:', network.topic, network.hostId)
 }
 
 export async function onConnectToWorldInstance(network: SocketWebRTCClientNetwork) {
-  function actionDataHandler(message) {
-    if (!message) return
-    const actions = message as any as Required<Action>[]
-    // const actions = decode(new Uint8Array(message)) as IncomingActionType[]
-    for (const a of actions) {
-      a.$topic = network.hostId
-      Engine.instance.store.actions.incoming.push(a)
-    }
-  }
-
   async function consumeDataHandler(options) {
     const dataConsumer = await network.recvTransport.consumeData(options)
 
@@ -138,7 +174,6 @@ export async function onConnectToWorldInstance(network: SocketWebRTCClientNetwor
     dispatchAction(NetworkConnectionService.actions.worldInstanceDisconnected())
     dispatchAction(EngineActions.connectToWorld({ connectedWorld: false }))
     network.reconnecting = true
-    network.socket.off(MessageTypes.ActionData.toString(), actionDataHandler)
 
     // Get information for how to consume data from server and init a data consumer
     network.socket.off(MessageTypes.WebRTCConsumeData.toString(), consumeDataHandler)
@@ -148,11 +183,8 @@ export async function onConnectToWorldInstance(network: SocketWebRTCClientNetwor
   network.socket.on('disconnect', disconnectHandler)
   network.socket.io.on('reconnect', reconnectHandler)
 
-  network.socket.on(MessageTypes.ActionData.toString(), actionDataHandler)
-
   // Get information for how to consume data from server and init a data consumer
   network.socket.on(MessageTypes.WebRTCConsumeData.toString(), consumeDataHandler)
-
   network.socket.on(MessageTypes.Kick.toString(), kickHandler)
 
   await Promise.all([initSendTransport(network), initReceiveTransport(network)])
@@ -333,7 +365,7 @@ export async function createDataProducer(
 export async function createTransport(network: SocketWebRTCClientNetwork, direction: string) {
   const { channelId, channelType } = getChannelTypeIdFromTransport(network)
 
-  console.log('[WebRTC]: creating transport:', network.type, direction, network.hostId, channelId, channelType)
+  console.log('[WebRTC]: creating transport:', network.topic, direction, network.hostId, channelId, channelType)
 
   // ask the server to create a server-side transport object and send
   // us back the info we need to create a client-side transport
@@ -440,7 +472,7 @@ export async function createTransport(network: SocketWebRTCClientNetwork, direct
   transport.on('connectionstatechange', async (state: string) => {
     if (state === 'closed' || state === 'failed' || state === 'disconnected') {
       dispatchAction(
-        network.type === NetworkTypes.world
+        network.topic === NetworkTopics.world
           ? NetworkConnectionService.actions.worldInstanceDisconnected()
           : NetworkConnectionService.actions.mediaInstanceDisconnected()
       )
@@ -460,7 +492,7 @@ export async function createTransport(network: SocketWebRTCClientNetwork, direct
         await createTransport(network, direction)
         console.log('Re-created transport', direction, channelType, channelId)
         dispatchAction(
-          network.type === NetworkTypes.world
+          network.topic === NetworkTopics.world
             ? NetworkConnectionService.actions.worldInstanceReconnected()
             : NetworkConnectionService.actions.mediaInstanceReconnected()
         )
@@ -873,7 +905,7 @@ export function leaveNetwork(network: SocketWebRTCClientNetwork, kicked?: boolea
 
     const world = Engine.instance.currentWorld
 
-    if (network.type === NetworkTypes.media) {
+    if (network.topic === NetworkTopics.media) {
       if (MediaStreams.instance.audioStream) {
         const audioTracks = MediaStreams.instance.audioStream?.getTracks()
         audioTracks.forEach((track) => track.stop())
@@ -894,7 +926,7 @@ export function leaveNetwork(network: SocketWebRTCClientNetwork, kicked?: boolea
       world._mediaHostId = null!
       dispatchAction(MediaInstanceConnectionAction.disconnect({ instanceId: network.hostId }))
     } else {
-      WorldNetworkActionReceptor.removeAllNetworkPeers(false, world, network)
+      NetworkPeerFunctions.destroyAllPeers(network, false, world)
       world.networks.delete(network.hostId)
       world._worldHostId = null!
       dispatchAction(LocationInstanceConnectionAction.disconnect({ instanceId: network.hostId }))
@@ -993,17 +1025,44 @@ export const applyScreenshareToTexture = (video: HTMLVideoElement) => {
   video.onplay = () => {
     for (const entity of screenshareTargetQuery(Engine.instance.currentWorld)) {
       const obj3d = getComponent(entity, Object3DComponent)?.value
-      obj3d?.traverse((obj: Mesh<any, MeshBasicMaterial>) => {
+      obj3d?.traverse((obj: Mesh<any, MeshStandardMaterial>) => {
         if (obj.material) {
           const videoTexture = new VideoTexture(video)
           videoTexture.encoding = sRGBEncoding
-          const material = new MeshBasicMaterial({ color: 0xffffff, map: videoTexture })
-          obj.material = material
-          let screenAspect = 1
-          if (obj.geometry instanceof PlaneGeometry) {
-            screenAspect = obj.geometry.parameters.height / obj.geometry.parameters.width
-          }
+
+          obj.material = new MeshStandardMaterial({ color: 0xffffff, map: videoTexture })
           const imageAspect = video.videoWidth / video.videoHeight
+          const screenAspect =
+            obj.geometry instanceof PlaneGeometry ? obj.geometry.parameters.height / obj.geometry.parameters.width : 1
+
+          addOBCPlugin(obj.material, {
+            id: OBCType.UVCLIP,
+            compile: (shader) => {
+              shader.fragmentShader = shader.fragmentShader.replace(
+                'void main() {',
+                `uniform vec4 clipColor;\nvoid main() {\n`
+              )
+
+              const mapFragment = `#ifdef USE_MAP
+                vec4 sampledDiffuseColor = texture2D( map, vUv );
+
+                // Newly added clipping Logic /////
+                if (vUv.x < 0.0 || vUv.x > 1.0 || vUv.y < 0.0 || vUv.y > 1.0) sampledDiffuseColor = clipColor;
+                /////////////////////////////
+
+                #ifdef DECODE_VIDEO_TEXTURE
+                  sampledDiffuseColor = vec4( mix( pow( sampledDiffuseColor.rgb * 0.9478672986 + vec3( 0.0521327014 ), vec3( 2.4 ) ), sampledDiffuseColor.rgb * 0.0773993808, vec3( lessThanEqual( sampledDiffuseColor.rgb, vec3( 0.04045 ) ) ) ), sampledDiffuseColor.w );
+                #endif
+                diffuseColor *= sampledDiffuseColor;
+              #endif`
+
+              shader.fragmentShader = shader.fragmentShader.replace('#include <map_fragment>', mapFragment)
+
+              // TODO: Need to find better way to define variables
+              shader.uniforms.clipColor = { value: new Vector4(0, 0, 0, 1) }
+            }
+          })
+
           fitTexture(videoTexture, imageAspect, screenAspect, 'fit')
         }
       })

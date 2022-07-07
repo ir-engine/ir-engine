@@ -34,13 +34,31 @@
   position: fixed;
 }
 
-.saveBtn {
-  color: var(--textColor);
+.gradientButton {
   background: linear-gradient(90deg, var(--buttonGradientStart), var(--buttonGradientEnd));
+  color: var(--buttonTextColor) !important;
+
+  &:hover {
+    opacity: 0.8;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+  }
 }
 
-.cancelButton {
-  color: var(--textColor);
+.outlinedButton {
+  background: transparent;
+  border: solid 1px var(--buttonOutlined);
+  color: var(--textColor) !important;
+
+  &:hover {
+    opacity: 0.7;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+  }
 }
 
 .filledButton {
@@ -101,18 +119,6 @@
 .selectInput {
   width: 100%;
   padding: 2px 4px;
-  margin-top: 10px;
-  margin-bottom: 15px;
-  background: var(--inputBackground);
-  border: 1px solid var(--inputOutline);
-  color: var(--textColor) !important;
-}
-
-.createInput {
-  width: 100%;
-  padding: 2px 4px;
-  display: flex;
-  align-items: center;
   margin-top: 10px;
   margin-bottom: 15px;
   background: var(--inputBackground);

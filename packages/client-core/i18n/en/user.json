@@ -140,7 +140,12 @@
       "moving": "Moving",
       "user-avatar": "Avatar Setting",
       "invert-rotation": "Invert Rotation And Move Sticks",
-      "show-avatar": "Show Avatar"
+      "show-avatar": "Show Avatar",
+      "themes": "Themes",
+      "theme": "Theme",
+      "client": "Client",
+      "editor": "Editor",
+      "admin": "Admin"
     },
     "profile": {
       "lbl-profile": "Profile",
@@ -200,6 +205,15 @@
         "low": "Low",
         "spatialAudio": "Use Spatial Audio",
         "enterMuted": "Enter Room Muted"
+      },
+      "delete": {
+        "deleteAccount": "Delete your account",
+        "deleteControlsText": "Are you sure you want to delete your account?",
+        "deleteControlsCancel": "Cancel",
+        "deleteControlsConfirm": "Delete my account",
+        "finalDeleteText": "Deleting your account cannot be undone!",
+        "finalDeleteCancel": "Cancel",
+        "finalDeleteConfirm": "Delete my account"
       }
     },
     "oauth": {
