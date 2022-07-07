@@ -126,7 +126,7 @@ const SelectAvatarMenu = () => {
             height: '140px',
             width: '170px',
             boxShadow: 'none',
-            backgroundColor: userSettings?.themeMode === 'dark' ? '#1A2027' : '#f1f1f1'
+            backgroundColor: 'var(--mainBackground)'
           }}
         >
           <img className="avatar" src={characterAvatar['user-thumbnail']?.url || ''} alt={avatar.name} />

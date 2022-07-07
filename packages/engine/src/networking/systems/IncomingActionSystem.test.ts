@@ -7,6 +7,7 @@ import ActionFunctions, { ActionRecipients } from '@xrengine/hyperflux/functions
 import { createMockNetwork } from '../../../tests/util/createMockNetwork'
 import { Engine } from '../../ecs/classes/Engine'
 import { createEngine } from '../../initializeEngine'
+import { NetworkTopics } from '../classes/Network'
 import { WorldNetworkAction } from '../functions/WorldNetworkAction'
 
 describe('IncomingActionSystem Unit Tests', async () => {
@@ -35,7 +36,7 @@ describe('IncomingActionSystem Unit Tests', async () => {
         $time: 2,
         $to: '0' as ActionRecipients
       })
-      action.$topic = world.worldNetwork.hostId
+      action.$topic = NetworkTopics.world
 
       Engine.instance.store.actions.incoming.push(action)
 
@@ -70,7 +71,7 @@ describe('IncomingActionSystem Unit Tests', async () => {
         $time: -1,
         $to: '0' as ActionRecipients
       })
-      action.$topic = world.worldNetwork.hostId
+      action.$topic = NetworkTopics.world
 
       Engine.instance.store.actions.incoming.push(action)
 
@@ -102,7 +103,7 @@ describe('IncomingActionSystem Unit Tests', async () => {
         $to: '0' as ActionRecipients,
         $cache: true
       })
-      action.$topic = world.worldNetwork.hostId
+      action.$topic = NetworkTopics.world
 
       Engine.instance.store.actions.incoming.push(action)
 

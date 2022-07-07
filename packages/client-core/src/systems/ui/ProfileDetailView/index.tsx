@@ -342,7 +342,7 @@ const ProfileDetailView = () => {
                 )}
               </div>
 
-              {selfUser && (
+              {/* {selfUser && (
                 <div className="themeSettingContainer">
                   <div className="themeHeading">Theme Mode:</div>
                   <label className="switch">
@@ -372,7 +372,7 @@ const ProfileDetailView = () => {
                     </span>
                   </label>
                 </div>
-              )}
+              )} */}
               <h4>
                 {userRole !== 'guest' && (
                   <div className="logout" onClick={handleLogout}>

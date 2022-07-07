@@ -5,6 +5,7 @@ import { dispatchAction } from '@xrengine/hyperflux'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
+import { NetworkTopics } from '../../networking/classes/Network'
 import { isEntityLocalClient } from '../../networking/functions/isEntityLocalClient'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { AnimationManager } from '../AnimationManager'
@@ -348,9 +349,7 @@ export function createAvatarAnimationGraph(
 
 function dispatchStateChange(name: string, graph: AnimationGraph): void {
   const params = {}
-  dispatchAction(WorldNetworkAction.avatarAnimation({ newStateName: name, params }), [
-    Engine.instance.currentWorld.worldNetwork.hostId
-  ])
+  dispatchAction(WorldNetworkAction.avatarAnimation({ newStateName: name, params }), NetworkTopics.world)
 }
 
 export function changeAvatarAnimationState(entity: Entity, newStateName: string): void {

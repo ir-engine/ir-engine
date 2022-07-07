@@ -138,7 +138,12 @@
       "moving": "Moving",
       "user-avatar": "Avatar Setting",
       "invert-rotation": "Invert Rotation And Move Sticks",
-      "show-avatar": "Show Avatar"
+      "show-avatar": "Show Avatar",
+      "themes": "Themes",
+      "theme": "Theme",
+      "client": "Client",
+      "editor": "Editor",
+      "admin": "Admin"
     },
     "profile": {
       "lbl-profile": "Profile",

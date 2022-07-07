@@ -3,6 +3,7 @@ import { createHyperStore } from '@xrengine/hyperflux'
 import { HyperStore } from '@xrengine/hyperflux/functions/StoreFunctions'
 
 import { nowMilliseconds } from '../../common/functions/nowMilliseconds'
+import { NetworkTopics } from '../../networking/classes/Network'
 import type { World } from '../classes/World'
 import type { SystemModuleType } from '../functions/SystemFunctions'
 
@@ -19,8 +20,10 @@ export class Engine {
   userId: UserId
 
   store = createHyperStore({
-    getDispatchMode: (topic: string) =>
-      topic === this.store.defaultTopic ? 'local' : this.currentWorld.networks.get(topic)!.isHosting ? 'host' : 'peer',
+    forwardIncomingActions: (topic: string) =>
+      topic === this.store.defaultTopic
+        ? false
+        : (topic === NetworkTopics.world ? this.currentWorld.worldNetwork : this.currentWorld.mediaNetwork)?.isHosting,
     getDispatchId: () => Engine.instance.userId,
     getDispatchTime: () => Date.now(),
     defaultDispatchDelay: 1 / this.tickRate

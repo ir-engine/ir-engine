@@ -4,9 +4,9 @@ import { useEffect } from 'react'
 import { ChannelType } from '@xrengine/common/src/interfaces/Channel'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import multiLogger from '@xrengine/common/src/logger'
-import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
+import { matches, matchesUserId, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { NetworkTypes } from '@xrengine/engine/src/networking/classes/Network'
+import { NetworkTopics } from '@xrengine/engine/src/networking/classes/Network'
 import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
 import { API } from '../../API'
@@ -42,10 +42,10 @@ export const MediaInstanceConnectionServiceReceptor = (action) => {
   getState(MediaInstanceState).batch((s) => {
     matches(action)
       .when(MediaInstanceConnectionAction.serverProvisioned.matches, (action) => {
-        Engine.instance.currentWorld._mediaHostId = action.instanceId as UserId
+        Engine.instance.currentWorld._mediaHostId = action.instanceId
         Engine.instance.currentWorld.networks.set(
           action.instanceId,
-          new SocketWebRTCClientNetwork(action.instanceId, NetworkTypes.media)
+          new SocketWebRTCClientNetwork(action.instanceId, NetworkTopics.media)
         )
         return s.instances[action.instanceId].set({
           ipAddress: action.ipAddress,
@@ -98,7 +98,7 @@ export const MediaInstanceConnectionService = {
     if (provisionResult.ipAddress && provisionResult.port) {
       dispatchAction(
         MediaInstanceConnectionAction.serverProvisioned({
-          instanceId: provisionResult.id,
+          instanceId: provisionResult.id as UserId,
           ipAddress: provisionResult.ipAddress,
           port: provisionResult.port,
           channelId: channelId ? channelId : '',
@@ -170,7 +170,7 @@ export const MediaInstanceConnectionService = {
 export class MediaInstanceConnectionAction {
   static serverProvisioned = defineAction({
     type: 'MEDIA_INSTANCE_SERVER_PROVISIONED' as const,
-    instanceId: matches.string,
+    instanceId: matchesUserId,
     ipAddress: matches.string,
     port: matches.string,
     channelType: matches.string as Validator<unknown, ChannelType>,

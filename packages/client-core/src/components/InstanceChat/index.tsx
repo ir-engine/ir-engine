@@ -16,6 +16,7 @@ import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { addEntityNodeInTree, createEntityNode } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
+import { NetworkTopics } from '@xrengine/engine/src/networking/classes/Network'
 import { matchActionOnce } from '@xrengine/engine/src/networking/functions/matchActionOnce'
 import { WorldNetworkAction } from '@xrengine/engine/src/networking/functions/WorldNetworkAction'
 import { toggleAudio } from '@xrengine/engine/src/scene/functions/loaders/AudioFunctions'
@@ -96,7 +97,7 @@ export const useChatHooks = ({ chatWindowOpen, setUnreadMessages, messageRefInpu
         WorldNetworkAction.setUserTyping({
           typing: false
         }),
-        Engine.instance.currentWorld.worldNetwork.hostId
+        NetworkTopics.world
       )
     }, 3000)
 
@@ -125,7 +126,7 @@ export const useChatHooks = ({ chatWindowOpen, setUnreadMessages, messageRefInpu
           WorldNetworkAction.setUserTyping({
             typing: true
           }),
-          Engine.instance.currentWorld.worldNetwork.hostId
+          NetworkTopics.world
         )
       }
     }
@@ -135,7 +136,7 @@ export const useChatHooks = ({ chatWindowOpen, setUnreadMessages, messageRefInpu
           WorldNetworkAction.setUserTyping({
             typing: false
           }),
-          Engine.instance.currentWorld.worldNetwork.hostId
+          NetworkTopics.world
         )
       }
     }
@@ -150,7 +151,7 @@ export const useChatHooks = ({ chatWindowOpen, setUnreadMessages, messageRefInpu
           WorldNetworkAction.setUserTyping({
             typing: false
           }),
-          Engine.instance.currentWorld.worldNetwork.hostId
+          NetworkTopics.world
         )
       }
 
