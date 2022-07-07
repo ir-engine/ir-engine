@@ -4,6 +4,7 @@ import { Matrix4, Quaternion, Vector3 } from 'three'
 
 import { V_000, V_010 } from '../common/constants/MathConstants'
 import { quatNearEqual } from '../common/functions/QuaternionUtils'
+import { createQuaternionProxy, createVector3Proxy } from '../common/proxies/three'
 import { Engine } from '../ecs/classes/Engine'
 import { addComponent } from '../ecs/functions/ComponentFunctions'
 import { createEntity } from '../ecs/functions/EntityFunctions'
@@ -55,9 +56,11 @@ describe('AvatarControllerSystem', async () => {
         getPosition: () => controllerPos
       }
     } as any
-    const transform = {
-      rotation: new Quaternion()
-    } as any
+
+    const position = createVector3Proxy(TransformComponent.position, entity)
+    const rotation = createQuaternionProxy(TransformComponent.rotation, entity)
+    const scale = createVector3Proxy(TransformComponent.scale, entity)
+    const transform = { position, rotation, scale }
 
     addComponent(entity, ColliderComponent, collider)
     addComponent(entity, AvatarControllerComponent, controller)
@@ -81,9 +84,12 @@ describe('AvatarControllerSystem', async () => {
         getPosition: () => controllerPos
       }
     } as any
-    const transform = {
-      position: new Vector3()
-    } as any
+
+    const position = createVector3Proxy(TransformComponent.position, entity)
+    const rotation = createQuaternionProxy(TransformComponent.rotation, entity)
+    const scale = createVector3Proxy(TransformComponent.scale, entity)
+    const transform = { position, rotation, scale }
+
     const avatar = {
       avatarHalfHeight: 1
     } as any
@@ -102,9 +108,12 @@ describe('AvatarControllerSystem', async () => {
   it('check rotateTowardsDisplacementVector', async () => {
     const world = Engine.instance.currentWorld
     const entity = createEntity(world)
-    const transform = {
-      rotation: new Quaternion().setFromAxisAngle(V_010, Math.PI * 0.5)
-    } as any
+
+    const position = createVector3Proxy(TransformComponent.position, entity)
+    const rotation = createQuaternionProxy(TransformComponent.rotation, entity)
+    const scale = createVector3Proxy(TransformComponent.scale, entity)
+    const transform = { position, rotation, scale }
+
     const testRotation = new Quaternion().copy(transform.rotation)
 
     addComponent(entity, TransformComponent, transform)
