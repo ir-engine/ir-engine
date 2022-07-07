@@ -143,7 +143,7 @@ you find who you need to talk to.
 ### [Sponsorship](https://opencollective.com/etherealengine) [![Open Collective](https://opencollective.com/etherealengine/tiers/badge.svg)](https://opencollective.com/etherealengine)
 
 ## License
-[MIT](LICENSE) - Copyright (c) 2020-2022 HyperConstruct
+[MIT](LICENSE) - Copyright (c) 2020-2022 Ethereal Engine team, formally XREngine by XR Foundation
 
 
 [Release History and Author Archive](/HISTORY.md)
