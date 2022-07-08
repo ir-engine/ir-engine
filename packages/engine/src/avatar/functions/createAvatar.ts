@@ -82,7 +82,7 @@ export const createAvatar = (spawnAction: typeof WorldNetworkAction.spawnAvatar.
     })
   }
 
-  addComponent(entity, VisibleComponent, {})
+  addComponent(entity, VisibleComponent, true)
 
   addComponent(entity, AnimationComponent, {
     mixer: new AnimationMixer(modelContainer),
