@@ -73,7 +73,7 @@ export default async function PositionalAudioSystem(world: World) {
   }
   addActionReceptor(audioReceptors)
 
-  let positionalAudioSettings: PositionalAudioSettingsComponentType
+  let positionalAudioSettings: PositionalAudioSettingsComponentType = {} as any
 
   const applyMediaAudioSettings = (props: AudioComponentType, setVolume = true): AudioComponentType => {
     props.audioType = positionalAudioSettings.usePositionalAudio ? AudioType.Positional : AudioType.Stereo
@@ -111,7 +111,7 @@ export default async function PositionalAudioSystem(world: World) {
         }
       }
 
-      const props = applyMediaAudioSettings(SCENE_COMPONENT_AUDIO_DEFAULT_VALUES)
+      // const props = applyMediaAudioSettings(SCENE_COMPONENT_AUDIO_DEFAULT_VALUES)
       // addComponent(entity, AudioComponent, props)
       // updateAudio(entity, props)
     }

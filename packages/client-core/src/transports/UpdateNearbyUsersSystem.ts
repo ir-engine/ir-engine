@@ -13,11 +13,12 @@ export const updateNearbyAvatars = () => {
 
   const nearbyUserIds = MediaStreams.instance.nearbyLayerUsers.map((user) => user.id)
   const network = Engine.instance.currentWorld.mediaNetwork
-  network.consumers.forEach((consumer) => {
-    if (!nearbyUserIds.includes(consumer._appData.peerId)) {
-      dispatchAction(MediaStreams.actions.closeConsumer({ consumer }))
-    }
-  })
+  if (network)
+    network.consumers.forEach((consumer) => {
+      if (!nearbyUserIds.includes(consumer._appData.peerId)) {
+        dispatchAction(MediaStreams.actions.closeConsumer({ consumer }))
+      }
+    })
 }
 
 export default async function UpdateNearbyUsersSystem(world: World) {

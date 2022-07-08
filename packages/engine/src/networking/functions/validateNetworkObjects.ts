@@ -10,7 +10,7 @@ export async function validateNetworkObjects(world: World, network: Network): Pr
     if (Date.now() - client.lastSeenTs > 30000) {
       console.log('Removing client ', userId, ' due to inactivity')
 
-      NetworkPeerFunctions.destroyPeer(network, userId, false, world)
+      NetworkPeerFunctions.destroyPeer(network, userId, world)
       network.updatePeers()
 
       console.log('Disconnected Client:', client.userId)
