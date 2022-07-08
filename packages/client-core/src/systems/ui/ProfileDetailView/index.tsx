@@ -1,19 +1,22 @@
 import { createState } from '@speigg/hookstate'
 import * as polyfill from 'credential-handler-polyfill'
+import _ from 'lodash'
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { validateEmail, validatePhoneNumber } from '@xrengine/common/src/config'
+import { defaultThemeModes, defaultThemeSettings } from '@xrengine/common/src/constants/DefaultThemeSettings'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
 import { accessWidgetAppState, WidgetAppActions } from '@xrengine/engine/src/xrui/WidgetAppService'
 import { dispatchAction } from '@xrengine/hyperflux'
 
-import { Check, Create, GitHub } from '@mui/icons-material'
+import { Check, Create, GitHub, Refresh } from '@mui/icons-material'
 import ContentCopyIcon from '@mui/icons-material/ContentCopy'
 import CircularProgress from '@mui/material/CircularProgress'
 
 import { useAuthSettingState } from '../../../admin/services/Setting/AuthSettingService'
+import { useClientSettingState } from '../../../admin/services/Setting/ClientSettingService'
 import { DiscordIcon } from '../../../common/components/Icons/DiscordIcon'
 import { FacebookIcon } from '../../../common/components/Icons/FacebookIcon'
 import { GoogleIcon } from '../../../common/components/Icons/GoogleIcon'
@@ -22,8 +25,10 @@ import { TwitterIcon } from '../../../common/components/Icons/TwitterIcon'
 import { NotificationService } from '../../../common/services/NotificationService'
 import { getAvatarURLForUser } from '../../../user/components/UserMenu/util'
 import { AuthService, useAuthState } from '../../../user/services/AuthService'
+import { userHasAccess } from '../../../user/userHasAccess'
 import XRIconButton from '../../components/XRIconButton'
 import XRInput from '../../components/XRInput'
+import XRSelectDropdown from '../../components/XRSelectDropdown'
 import XRTextButton from '../../components/XRTextButton'
 import styleString from './index.scss'
 
@@ -64,8 +69,6 @@ const ProfileDetailView = () => {
 
   const [username, setUsername] = useState(selfUser?.name.value)
   const [emailPhone, setEmailPhone] = useState('')
-  const [error, setError] = useState(false)
-  const [errorUsername, setErrorUsername] = useState(false)
   const [showUserId, setShowUserId] = useState(false)
   const [showApiKey, setShowApiKey] = useState(false)
   const authSettingState = useAuthSettingState()
@@ -76,7 +79,29 @@ const ProfileDetailView = () => {
   const userId = selfUser.id.value
   const apiKey = selfUser.apiKey?.token?.value
   const userRole = selfUser.userRole.value
+  const [deleteControlsOpen, setDeleteControlsOpen] = useState(false)
+  const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false)
   const [oauthConnectedState, setOauthConnectedState] = useState(initialOAuthConnectedState)
+
+  const clientSettingState = useClientSettingState()
+  const [clientSetting] = clientSettingState?.client?.value || []
+
+  const hasAdminAccess = selfUser?.id?.value?.length > 0 && selfUser?.userRole?.value === 'admin'
+  const hasEditorAccess = userHasAccess('editor:write')
+
+  const themeModes = { ...defaultThemeModes, ...userSettings?.themeModes }
+  const themeSettings = { ...defaultThemeSettings, ...clientSetting.themeSettings }
+
+  const accessibleThemeModes = Object.keys(themeModes).filter((mode) => {
+    if (mode === 'admin' && hasAdminAccess === false) {
+      return false
+    } else if (mode === 'editor' && hasEditorAccess === false) {
+      return false
+    }
+    return true
+  })
+
+  const colorModesMenu = Object.keys(themeSettings)
 
   useEffect(() => {
     if (authSetting) {
@@ -174,7 +199,6 @@ const ProfileDetailView = () => {
 
   const handleUsernameChange = (e) => {
     setUsername(e.target.value)
-    if (!e.target.value) setErrorUsername(true)
   }
 
   const handleUpdateUsername = () => {
@@ -192,11 +216,9 @@ const ProfileDetailView = () => {
     if (validateEmail(emailPhone.trim()) && authState?.emailMagicLink) type = 'email'
     else if (validatePhoneNumber(emailPhone.trim()) && authState.smsMagicLink) type = 'sms'
     else {
-      setError(true)
       return false
     }
 
-    setError(false)
     return true
   }
 
@@ -277,6 +299,11 @@ const ProfileDetailView = () => {
 
   const handleOpenReadyPlayerWidget = () => {
     setWidgetVisibility('ReadyPlayer', true)
+  }
+
+  const handleChangeUserThemeMode = (name, value) => {
+    const settings = { ...userSettings, themeModes: { ...themeModes, [name]: value } }
+    userSettings && AuthService.updateUserSettings(userSettings.id as string, settings)
   }
 
   const enableSocial =
@@ -375,6 +402,8 @@ const ProfileDetailView = () => {
                 disabled={true}
                 type="text"
                 value={apiKey}
+                startIcon={<Refresh />}
+                startIconClick={refreshApiKey}
                 endIcon={<ContentCopyIcon />}
                 endIconClick={() => {
                   navigator.clipboard.writeText(apiKey)
@@ -500,6 +529,77 @@ const ProfileDetailView = () => {
             </section>
           )}
         </section>
+        <section className="deletePanel">
+          {userRole !== 'guest' && (
+            <div>
+              <h2
+                className="deleteAccount"
+                id="delete-account"
+                onClick={() => {
+                  setDeleteControlsOpen(!deleteControlsOpen)
+                  setConfirmDeleteOpen(false)
+                }}
+              >
+                {t('user:usermenu.profile.delete.deleteAccount')}
+              </h2>
+              {deleteControlsOpen && !confirmDeleteOpen && (
+                <div className="deleteContainer">
+                  <h3 className="deleteText">{t('user:usermenu.profile.delete.deleteControlsText')}</h3>
+                  <button className="deleteCancelButton" onClick={() => setDeleteControlsOpen(false)}>
+                    {t('user:usermenu.profile.delete.deleteControlsCancel')}
+                  </button>
+                  <button
+                    className="deleteConfirmButton"
+                    onClick={() => {
+                      setDeleteControlsOpen(false)
+                      setConfirmDeleteOpen(true)
+                    }}
+                  >
+                    {t('user:usermenu.profile.delete.deleteControlsConfirm')}
+                  </button>
+                </div>
+              )}
+              {confirmDeleteOpen && (
+                <div className="deleteContainer">
+                  <h3 className="deleteText">{t('user:usermenu.profile.delete.finalDeleteText')}</h3>
+                  <button
+                    className="deleteConfirmButton"
+                    onClick={() => {
+                      AuthService.removeUser(userId)
+                      AuthService.logoutUser()
+                      setConfirmDeleteOpen(false)
+                    }}
+                  >
+                    {t('user:usermenu.profile.delete.finalDeleteConfirm')}
+                  </button>
+                  <button className="deleteCancelButton" onClick={() => setConfirmDeleteOpen(false)}>
+                    {t('user:usermenu.profile.delete.finalDeleteCancel')}
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+        </section>
+
+        {selfUser && (
+          <div className="modeSettingContainer">
+            <h1 className="modesHeading">{t('user:usermenu.setting.themes')}</h1>
+            <div className="modesContainer">
+              {accessibleThemeModes.map((mode, index) => (
+                <div key={index} className="modeContainer">
+                  <h2 className="modeHeading">{`${t(`user:usermenu.setting.${mode}`)} ${t(
+                    'user:usermenu.setting.theme'
+                  )}`}</h2>
+                  <XRSelectDropdown
+                    value={themeModes[mode]}
+                    options={colorModesMenu}
+                    onChange={(value) => handleChangeUserThemeMode(mode, value)}
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </>
   )

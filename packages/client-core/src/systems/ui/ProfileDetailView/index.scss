@@ -9,6 +9,7 @@
   flex-direction: column;
   width: 500px;
   padding: 0 30px;
+  overflow: auto;
   margin: 5px 15px 20px 10px;
   border-radius: 20px;
   max-height: calc(100vh - 100px);
@@ -877,6 +878,73 @@
     width: 600px;
     min-height: 208px;
   }
+
+  .deletePanel {
+    .deleteAccount {
+      color: white;
+
+      &:hover {
+        cursor: pointer;
+        color: mintcream;
+      }
+    }
+
+    .deleteText {
+      color: white;
+      margin-top: 10px;
+      font-size: 16px;
+    }
+
+    .deleteConfirmButton {
+      background: var(--lightRed);
+      margin-right: 10px;
+
+      &:hover {
+        cursor: pointer;
+        background: var(--red);
+      }
+    }
+
+    .deleteCancelButton {
+      background: var(--deemphasized);
+      margin-right: 10px;
+
+      &:hover {
+        cursor: pointer;
+        background: var(--green);
+      }
+    }
+  }
+
+  .modeSettingContainer {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .modesHeading {
+    font-size: 14px;
+    color: var(--textColor);
+  }
+
+  .modesContainer {
+    display: grid;
+    grid-gap: 10px;
+    grid-template-columns: 1fr 1fr 1fr;
+
+    @media screen and (max-width: 500px) {
+      grid-template-columns: 1fr;
+    }
+
+    .modeHeading {
+      font-size: 12px;
+      color: var(--textColor);
+    }
+
+    .modeContainer {
+      display: flex;
+      flex-direction: column;
+    }
+  }
 }
 
 .avatarUploadPanel {
@@ -886,6 +954,7 @@
   margin: 5px 15px 20px 10px;
   border-radius: 20px;
   padding: 20px;
+  overflow: auto;
   max-height: calc(100vh - 100px);
   background-color: var(--popupBackground);
 
@@ -1153,6 +1222,7 @@
   width: 500px;
   margin: 5px 15px 20px 10px;
   border-radius: 20px;
+  overflow: auto;
   max-height: calc(100vh - 100px);
   background-color: var(--popupBackground);
   padding: 0;
@@ -1212,6 +1282,7 @@
   margin: 5px 15px 20px 10px;
   border-radius: 20px;
   padding: 15px;
+  overflow: auto;
   max-height: calc(100vh - 100px);
   background-color: var(--popupBackground);
 
