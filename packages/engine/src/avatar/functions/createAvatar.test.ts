@@ -12,7 +12,6 @@ import { InteractorComponent } from '../../interaction/components/InteractorComp
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { CollisionComponent } from '../../physics/components/CollisionComponent'
-import { RaycastComponent } from '../../physics/components/RaycastComponent'
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
 import { NameComponent } from '../../scene/components/NameComponent'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
@@ -59,13 +58,13 @@ describe('createAvatar', () => {
       })
     )
 
+    // TODO: Update for rapier physics stuff
     assert(hasComponent(entity, TransformComponent))
     assert(hasComponent(entity, VelocityComponent))
     assert(hasComponent(entity, AvatarComponent))
     assert(hasComponent(entity, NameComponent))
     assert(hasComponent(entity, AvatarAnimationComponent))
     assert(hasComponent(entity, Object3DComponent))
-    assert(hasComponent(entity, RaycastComponent))
     assert(hasComponent(entity, CollisionComponent))
     assert(hasComponent(entity, SpawnPoseComponent))
     assert(hasComponent(entity, AvatarControllerComponent))

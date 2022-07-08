@@ -36,8 +36,7 @@ const createMovingAvatar = (world) => {
     {
       avatarHalfHeight: 10,
       avatarHeight: 20,
-      modelContainer,
-      isGrounded: false
+      modelContainer
     },
     world
   )

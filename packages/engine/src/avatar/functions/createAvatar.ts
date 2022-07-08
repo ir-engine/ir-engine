@@ -10,10 +10,7 @@ import { InteractorComponent } from '../../interaction/components/InteractorComp
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { Physics } from '../../physics/classes/PhysicsRapier'
 import { VectorSpringSimulator } from '../../physics/classes/springs/VectorSpringSimulator'
-import { ColliderComponent } from '../../physics/components/ColliderComponent'
 import { CollisionComponent } from '../../physics/components/CollisionComponent'
-import { RaycastComponent } from '../../physics/components/RaycastComponent'
-import { VelocityComponent } from '../../physics/components/VelocityComponent'
 import { AvatarCollisionMask, CollisionGroups } from '../../physics/enums/CollisionGroups'
 import { getInteractionGroups } from '../../physics/functions/getInteractionGroups'
 import { BodyType, SceneQueryType } from '../../physics/types/PhysicsTypes'
@@ -67,8 +64,7 @@ export const createAvatar = (spawnAction: typeof WorldNetworkAction.spawnAvatar.
   addComponent(entity, AvatarComponent, {
     avatarHalfHeight: defaultAvatarHalfHeight,
     avatarHeight: defaultAvatarHeight,
-    modelContainer,
-    isGrounded: false
+    modelContainer
   })
 
   addComponent(entity, NameComponent, {
@@ -96,15 +92,6 @@ export const createAvatar = (spawnAction: typeof WorldNetworkAction.spawnAvatar.
 
   addComponent(entity, Object3DComponent, { value: tiltContainer })
   setObjectLayers(tiltContainer, ObjectLayers.Avatar)
-
-  addComponent(entity, RaycastComponent, {
-    type: SceneQueryType.Closest,
-    hits: [],
-    origin: new Vector3(0, defaultAvatarHalfHeight, 0),
-    direction: new Vector3(0, -1, 0),
-    maxDistance: defaultAvatarHalfHeight + 0.05,
-    flags: getInteractionGroups(CollisionGroups.Avatars, AvatarCollisionMask)
-  })
 
   addComponent(entity, CollisionComponent, { collisions: [] })
 

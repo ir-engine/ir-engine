@@ -50,11 +50,6 @@ export default async function AvatarControllerSystem(world: World) {
       if (controller?.controller) {
         world.physicsWorld.removeRigidBody(controller.controller)
       }
-
-      const avatar = getComponent(entity, AvatarComponent)
-      if (avatar) {
-        avatar.isGrounded = false
-      }
     }
 
     for (const entity of localXRInputQuery(world)) {

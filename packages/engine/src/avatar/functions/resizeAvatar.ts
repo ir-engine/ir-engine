@@ -4,7 +4,6 @@ import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { Physics } from '../../physics/classes/PhysicsRapier'
-import { RaycastComponent } from '../../physics/components/RaycastComponent'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { avatarRadius, createAvatarCollider } from './createAvatar'
@@ -25,7 +24,4 @@ export const resizeAvatar = (entity: Entity, height: number, center: Vector3) =>
     rigidBody,
     center
   )
-
-  const raycast = getComponent(entity, RaycastComponent)
-  raycast.maxDistance = avatar.avatarHalfHeight + 0.05 // add small offset so raycaster hits properly
 }

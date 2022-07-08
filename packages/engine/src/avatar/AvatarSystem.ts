@@ -16,7 +16,6 @@ import {
 import { AvatarControllerType } from '../input/enums/InputEnums'
 import { isEntityLocalClient } from '../networking/functions/isEntityLocalClient'
 import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
-import { RaycastComponent } from '../physics/components/RaycastComponent'
 import { VelocityComponent } from '../physics/components/VelocityComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { XRLGripButtonComponent, XRRGripButtonComponent } from '../xr/components/XRGripButtonComponent'
@@ -126,7 +125,6 @@ export default async function AvatarSystem(world: World) {
   const xrHandsConnectedQueue = createActionQueue(WorldNetworkAction.xrHandsConnected.matches)
   const teleportObjectQueue = createActionQueue(WorldNetworkAction.teleportObject.matches)
 
-  const raycastQuery = defineQuery([AvatarComponent, RaycastComponent])
   const xrInputQuery = defineQuery([AvatarComponent, XRInputSourceComponent, AvatarAnimationComponent])
   const xrHandsInputQuery = defineQuery([AvatarComponent, XRHandsInputComponent, XRInputSourceComponent])
   const xrLGripQuery = defineQuery([AvatarComponent, XRLGripButtonComponent, XRInputSourceComponent])
@@ -220,14 +218,6 @@ export default async function AvatarSystem(world: World) {
       const xrHandsComponent = getComponent(entity, XRHandsInputComponent)
       const container = xrInputSourceComponent.container
       container.add(...xrHandsComponent.hands)
-    }
-
-    for (const entity of raycastQuery(world)) {
-      const raycastComponent = getComponent(entity, RaycastComponent)
-      const transform = getComponent(entity, TransformComponent)
-      const avatar = getComponent(entity, AvatarComponent)
-      raycastComponent.origin.copy(transform.position).y += avatar.avatarHalfHeight
-      avatar.isGrounded = Boolean(raycastComponent.hits.length > 0)
     }
 
     for (const entity of xrLGripQuery.enter()) {

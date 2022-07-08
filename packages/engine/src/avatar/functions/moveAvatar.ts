@@ -1,4 +1,4 @@
-import { Collider, Vector } from '@dimforge/rapier3d-compat'
+import { Collider } from '@dimforge/rapier3d-compat'
 import { Matrix4, OrthographicCamera, PerspectiveCamera, Quaternion, Vector3 } from 'three'
 
 import checkPositionIsValid from '../../common/functions/checkPositionIsValid'
@@ -7,10 +7,12 @@ import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
 import { addComponent, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
-import { RapierCollisionComponent } from '../../physics/components/RapierCollisionComponent'
-import { RaycastComponent } from '../../physics/components/RaycastComponent'
-import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
+import { Physics } from '../../physics/classes/PhysicsRapier'
+import { ShapecastComponentType } from '../../physics/components/ShapeCastComponent'
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
+import { CollisionGroups } from '../../physics/enums/CollisionGroups'
+import { getInteractionGroups } from '../../physics/functions/getInteractionGroups'
+import { RaycastHit, SceneQueryType } from '../../physics/types/PhysicsTypes'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { XRInputSourceComponent } from '../../xr/components/XRInputSourceComponent'
 import { AvatarSettings } from '../AvatarControllerSystem'
@@ -51,13 +53,7 @@ export const moveAvatar = (world: World, entity: Entity, camera: PerspectiveCame
   let onGround = false
 
   const physicsWorld = Engine.instance.currentWorld.physicsWorld
-  const rigidBody = getComponent(entity, RigidBodyComponent)
-  let avatarFeetCollider = rigidBody.collider(0)
-
-  for (let index = 0; index < rigidBody.numColliders(); index++) {
-    const collider = rigidBody.collider(index)
-    if (collider.translation().y < avatarFeetCollider.translation().y) avatarFeetCollider = collider
-  }
+  let avatarFeetCollider = controller.feetCollider
 
   const collidersInContactWithFeet = [] as Collider[]
   physicsWorld.contactsWith(avatarFeetCollider, (otherCollider) => {
@@ -147,15 +143,27 @@ export const moveAvatar = (world: World, entity: Entity, camera: PerspectiveCame
   if (Math.abs(newVelocity.z) < 0.001) newVelocity.z = 0
 
   const velocityScale = 40
-  const displacement = {
+  const velocityToSet = {
     x: newVelocity.x * velocityScale,
     y: velocity.linear.y * velocityScale,
     z: newVelocity.z * velocityScale
   }
 
-  controller.controller.setLinvel(displacement, true)
+  const shapecastComponentData = {
+    collider: controller.bodyCollider,
+    type: SceneQueryType.Closest,
+    hits: [] as RaycastHit[],
+    direction: velocityToSet,
+    maxDistance: 0.1,
+    collisionGroups: getInteractionGroups(CollisionGroups.Avatars, CollisionGroups.Default)
+  } as ShapecastComponentType
 
-  return displacement
+  Physics.castShape(Engine.instance.currentWorld.physicsWorld, shapecastComponentData)
+  if (shapecastComponentData.hits.length === 0) {
+    controller.controller.setLinvel(velocityToSet, true)
+  }
+
+  return velocityToSet
 }
 
 /**

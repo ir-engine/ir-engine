@@ -21,6 +21,7 @@ import { addComponent, ComponentType, getComponent, removeComponent } from '../.
 import { RapierCollisionComponent } from '../components/RapierCollisionComponent'
 import { RaycastComponent } from '../components/RaycastComponent'
 import { RigidBodyComponent } from '../components/RigidBodyComponent'
+import { ShapecastComponent } from '../components/ShapeCastComponent'
 import { VelocityComponent } from '../components/VelocityComponent'
 import { CollisionGroups, DefaultCollisionMask } from '../enums/CollisionGroups'
 import { getInteractionGroups } from '../functions/getInteractionGroups'
@@ -248,6 +249,30 @@ function castRay(world: World, raycastQuery: ComponentType<typeof RaycastCompone
   }
 }
 
+function castShape(world: World, shapecastQuery: ComponentType<typeof ShapecastComponent>) {
+  const maxToi = shapecastQuery.maxDistance
+  const groups = shapecastQuery.collisionGroups
+  const collider = shapecastQuery.collider
+
+  shapecastQuery.hits = []
+  let hitWithNormal = world.castShape(
+    collider.translation(),
+    collider.rotation(),
+    shapecastQuery.direction,
+    collider.shape,
+    maxToi,
+    groups
+  )
+  if (hitWithNormal != null) {
+    shapecastQuery.hits.push({
+      distance: hitWithNormal.toi,
+      position: hitWithNormal.witness1,
+      normal: hitWithNormal.normal1,
+      body: hitWithNormal.collider.parent() as RigidBody
+    })
+  }
+}
+
 function drainCollisionEventQueue(world: World, collisionEventQueue: EventQueue) {
   collisionEventQueue.drainCollisionEvents(function (handle1: number, handle2: number, started: boolean) {
     const isTriggerEvent = world.getCollider(handle1).isSensor() || world.getCollider(handle2).isSensor()
@@ -337,6 +362,7 @@ export const Physics = {
   removeRigidBody,
   changeRigidbodyType,
   castRay,
+  castShape,
   createCollisionEventQueue,
   drainCollisionEventQueue
 }
