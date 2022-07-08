@@ -18,13 +18,14 @@ const PartyVideoWindows = (): JSX.Element => {
   const selfUserId = useState(accessAuthState().user.id)
   const userState = useUserState()
   const channelConnectionState = useMediaInstanceConnectionState()
-  const currentChannelInstanceConnection =
-    channelConnectionState.instances[Engine.instance.currentWorld.mediaNetwork?.hostId].ornull
-  const displayedUsers = Engine.instance.currentWorld.mediaNetwork?.hostId
-    ? currentChannelInstanceConnection.channelType.value === 'channel'
-      ? userState.channelLayerUsers.value.filter((user) => user.id !== selfUserId.value)
-      : userState.layerUsers.value.filter((user) => !!nearbyLayerUsers.value.find((u) => u.id === user.id))
-    : []
+  const network = Engine.instance.currentWorld.mediaNetwork
+  const currentChannelInstanceConnection = network && channelConnectionState.instances[network.hostId].ornull
+  const displayedUsers =
+    network?.hostId && currentChannelInstanceConnection
+      ? currentChannelInstanceConnection.channelType.value === 'channel'
+        ? userState.channelLayerUsers.value.filter((user) => user.id !== selfUserId.value)
+        : userState.layerUsers.value.filter((user) => !!nearbyLayerUsers.value.find((u) => u.id === user.id))
+      : []
 
   const consumers = mediaState.consumers.value
   const screenShareConsumers = consumers?.filter((consumer) => consumer.appData.mediaTag === 'screen-video') || []

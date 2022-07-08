@@ -4,12 +4,13 @@ import { MediaStreams } from '@xrengine/client-core/src/transports/MediaStreams'
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { NearbyUser } from '@xrengine/engine/src/networking/functions/getNearbyUsers'
+import { getNearbyUsers } from '@xrengine/engine/src/networking/functions/getNearbyUsers'
 import { addActionReceptor, defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
 import { SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientNetwork'
 
 //State
-const MediaState = defineState({
+export const MediaState = defineState({
   name: 'MediaState',
   initial: () => ({
     isCamVideoEnabled: false,
@@ -46,9 +47,6 @@ export const MediaServiceReceptor = (action) => {
       })
       .when(MediaStreamAction.setConsumersAction.matches, (action) => {
         return s.consumers.set(action.consumers)
-      })
-      .when(MediaStreamAction.setNearbyLayerUsersAction.matches, (action) => {
-        return s.nearbyLayerUsers.set(action.users)
       })
   })
 }
@@ -97,8 +95,9 @@ export const MediaStreamService = {
       }, 1000)
     }
   },
-  triggerUpdateNearbyLayerUsers: () => {
-    dispatchAction(MediaStreamAction.setNearbyLayerUsersAction({ users: MediaStreams.instance.nearbyLayerUsers }))
+  updateNearbyLayerUsers: () => {
+    const mediaState = getState(MediaState)
+    mediaState.nearbyLayerUsers.set(getNearbyUsers(Engine.instance.userId))
   },
   updateFaceTrackingState: () => {
     dispatchAction(MediaStreamAction.setFaceTrackingStateAction({ isEnable: MediaStreams.instance.faceTracking }))
@@ -144,10 +143,5 @@ export class MediaStreamAction {
   static setConsumersAction = defineAction({
     type: 'CONSUMERS_CHANGED' as const,
     consumers: matches.any
-  })
-
-  static setNearbyLayerUsersAction = defineAction({
-    type: 'NEARBY_LAYER_USERS_CHANGED' as const,
-    users: matches.array as Validator<unknown, NearbyUser[]>
   })
 }

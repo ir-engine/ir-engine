@@ -112,7 +112,7 @@ export const UserService = {
       })
   },
 
-  getLayerUsers: async (instance) => {
+  getLayerUsers: async (instance: boolean) => {
     const search = window.location.search
     let instanceId
     if (search != null) {
@@ -125,11 +125,19 @@ export const UserService = {
         instanceId
       }
     })) as Paginated<User>
-    dispatchAction(
-      instance
-        ? UserAction.loadedLayerUsersAction({ users: layerUsers.data })
-        : UserAction.loadedChannelLayerUsersAction({ users: layerUsers.data })
-    )
+
+    const state = getState(UserState)
+
+    if (
+      JSON.stringify(instance ? state.layerUsers.value : state.channelLayerUsers.value) !==
+      JSON.stringify(layerUsers.data)
+    ) {
+      dispatchAction(
+        instance
+          ? UserAction.loadedLayerUsersAction({ users: layerUsers.data })
+          : UserAction.loadedChannelLayerUsersAction({ users: layerUsers.data })
+      )
+    }
   },
 
   requestFriend: (userId: string, relatedUserId: string) => {
