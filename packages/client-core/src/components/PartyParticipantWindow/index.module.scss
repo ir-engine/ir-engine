@@ -368,6 +368,7 @@
   bottom: 0;
   width: 100vw;
   height: 100vh;
+  z-index: 12;
 
   div {
     margin: 0;
@@ -375,6 +376,24 @@
 }
 
 .resizeable-screen-fullscreen > div {
-  width: auto !important;
-  height: auto !important;
+  width: 100% !important;
+  height: 100% !important;
+
+  .screen-video-wrapper {
+    width: 100vw !important;
+    height: 100vh !important;
+    line-height: 100vh;
+    text-align: center;
+    background: black;
+
+    video {
+      max-width: 100%;
+      max-height: 100%;
+      display: inline-block;
+      width: auto;
+      height: auto;
+      margin: 0 auto;
+      vertical-align: middle;
+    }
+  }
 }

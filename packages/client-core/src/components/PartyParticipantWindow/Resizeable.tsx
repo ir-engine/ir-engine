@@ -19,9 +19,14 @@ export const Resizeable = ({ isPiP, isScreenMe, children }: PropsType): JSX.Elem
   let resizableComponent
 
   useEffect(() => {
+    console.error(isOpen, isPiP, isScreenMe, resizableComponent)
     if (isOpen != isPiP && resizableComponent) {
-      resizableComponent.updateSize({ width: 'auto', height: 'auto' })
       setIsFixedWidth(isPiP)
+      if (!isOpen && isPiP && isScreenMe) {
+        resizableComponent.updateSize({ width: 500, height: 'auto' })
+      } else {
+        resizableComponent.updateSize({ width: 'auto', height: 'auto' })
+      }
     }
     setIsOpen(isPiP)
   }, [isPiP, isScreenMe])
@@ -30,7 +35,6 @@ export const Resizeable = ({ isPiP, isScreenMe, children }: PropsType): JSX.Elem
       className={classNames({
         [styles['resizeable-screen']]: isPiP && isScreenMe,
         [styles['resizeable-screen-mini']]: !isPiP && isScreenMe,
-        [styles['resizeable-screen-fixed']]: isFixedWidth && isScreenMe,
         [styles['resizeable-screen-fullscreen']]: isFullScreen
       })}
     >
@@ -61,6 +65,7 @@ export const Resizeable = ({ isPiP, isScreenMe, children }: PropsType): JSX.Elem
           }
         }}
         onResizeStart={() => {
+          console.error('onResizeStart')
           if (isFixedWidth) {
             resizableComponent.updateSize({ width: 500, height: 'auto' })
             setIsFixedWidth(false)
@@ -71,6 +76,7 @@ export const Resizeable = ({ isPiP, isScreenMe, children }: PropsType): JSX.Elem
           }
         }}
         onResize={() => {
+          console.error('onResize')
           if (resizableComponent) {
             if (clientHeight < resizableComponent.state.height) {
               resizableComponent.updateSize({ width: '100%', height: '100%' })
