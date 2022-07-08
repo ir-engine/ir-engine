@@ -156,7 +156,7 @@ export const loadSceneFromJSON = async (sceneData: SceneJson, sceneSystems: Syst
   if (!getEngineState().isTeleporting.value) world.camera?.layers.disable(ObjectLayers.Scene)
 
   // this needs to occur after the asset promises
-  await unloadScene(world)
+  if (getEngineState().sceneLoaded.value) await unloadScene(world)
 
   await initSystems(world, sceneSystems)
 
