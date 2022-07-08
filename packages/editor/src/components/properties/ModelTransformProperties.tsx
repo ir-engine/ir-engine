@@ -7,7 +7,9 @@ import { API } from '@xrengine/client-core/src/API'
 import { FileBrowserService } from '@xrengine/client-core/src/common/services/FileBrowserService'
 import { EditorAction, useEditorState } from '@xrengine/editor/src/services/EditorServices'
 import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
-import ModelTransformLoader from '@xrengine/engine/src/assets/classes/ModelTransformLoader'
+import ModelTransformLoader, {
+  ModelTransformParameters
+} from '@xrengine/engine/src/assets/classes/ModelTransformLoader'
 import { ModelComponentType } from '@xrengine/engine/src/scene/components/ModelComponent'
 import { dispatchAction } from '@xrengine/hyperflux'
 
@@ -21,7 +23,10 @@ import ListItem from '@mui/material/ListItem'
 import ListItemButton from '@mui/material/ListItemButton'
 import ListItemText from '@mui/material/ListItemText'
 
+import BooleanInput from '../inputs/BooleanInput'
 import { Button } from '../inputs/Button'
+import InputGroup from '../inputs/InputGroup'
+import SelectInput from '../inputs/SelectInput'
 import CollapsibleBlock from '../layout/CollapsibleBlock'
 import ModelResourceProperties from './ModelResourceProperties'
 
@@ -83,11 +88,31 @@ const OptimizeButton = styled(Button)`
 `
 
 export default function ModelTransformProperties({ modelComponent, onChangeModel }) {
+  const { t } = useTranslation()
+
   const [transforming, setTransforming] = useState<boolean>(false)
+
+  const [transformParms, setTransformParms] = useState<ModelTransformParameters>({
+    useDraco: false,
+    useMeshopt: true,
+    useMeshQuantization: false,
+    textureFormat: 'ktx2'
+  })
+
+  function onChangeTransformParm(k) {
+    return (val) => {
+      let nuParms = { ...transformParms }
+      nuParms[k] = val
+      setTransformParms(nuParms)
+    }
+  }
 
   async function onTransformModel() {
     setTransforming(true)
-    const nuPath = await API.instance.client.service('model-transform').create({ path: modelComponent.src })
+    const nuPath = await API.instance.client.service('model-transform').create({
+      path: modelComponent.src,
+      transformParameters: { ...transformParms }
+    })
     const [_, directoryToRefresh, fileName] = /.*\/(projects\/.*)\/([\w\d\s\-_\.]*)$/.exec(nuPath)!
     await FileBrowserService.fetchFiles(directoryToRefresh)
     await AssetLoader.loadAsync(nuPath)
@@ -177,8 +202,34 @@ export default function ModelTransformProperties({ modelComponent, onChangeModel
             {!!selectedResource && <ModelResourceProperties prop={selectedResource} />}
           </ElementsContainer>
         </ElementsContainer>
-        {!transforming && <OptimizeButton onClick={onTransformModel}>Optimize</OptimizeButton>}
-        {transforming && <p>Transforming...</p>}
+        <ElementsContainer>
+          <InputGroup name="Use Draco" label={t('editor:properties.model.transform.useDraco')}>
+            <BooleanInput value={transformParms.useDraco} onChange={onChangeTransformParm('useDraco')} />
+          </InputGroup>
+          <InputGroup name="Use Meshopt" label={t('editor:properties.model.transform.useMeshopt')}>
+            <BooleanInput value={transformParms.useMeshopt} onChange={onChangeTransformParm('useMeshopt')} />
+          </InputGroup>
+          <InputGroup name="Use Mesh Quantization" label={t('editor:properties.model.transform.useQuantization')}>
+            <BooleanInput
+              value={transformParms.useMeshQuantization}
+              onChange={onChangeTransformParm('useMeshQuantization')}
+            />
+          </InputGroup>
+          <InputGroup name="Texture Format" label={t('editor:properties.model.transform.textureFormat')}>
+            <SelectInput
+              value={transformParms.textureFormat}
+              onChange={onChangeTransformParm('textureFormat')}
+              options={[
+                { label: 'Default', value: 'default' },
+                { label: 'JPG', value: 'jpg' },
+                { label: 'KTX2', value: 'ktx2' },
+                { label: 'WebP', value: 'webp' }
+              ]}
+            />
+          </InputGroup>
+          {!transforming && <OptimizeButton onClick={onTransformModel}>Optimize</OptimizeButton>}
+          {transforming && <p>Transforming...</p>}
+        </ElementsContainer>
       </TransformContainer>
     </CollapsibleBlock>
   )

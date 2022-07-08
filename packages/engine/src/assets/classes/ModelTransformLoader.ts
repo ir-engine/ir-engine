@@ -7,6 +7,13 @@ import { FileLoader } from 'three'
 import { AssetType } from '../enum/AssetType'
 import { AssetLoader } from './AssetLoader'
 
+export type ModelTransformParameters = {
+  useMeshopt: boolean
+  useDraco: boolean
+  useMeshQuantization: boolean
+  textureFormat: 'default' | 'jpg' | 'ktx2' | 'webp'
+}
+
 export default function ModelTransformLoader() {
   const io = new NodeIO()
   io.registerExtensions([MeshGPUInstancing, MeshoptCompression, MeshQuantization, TextureBasisu])

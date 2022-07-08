@@ -9,13 +9,16 @@ import { MeshoptDecoder, MeshoptEncoder } from 'meshoptimizer'
 import path from 'path'
 import util from 'util'
 
-import ModelTransformLoader from '@xrengine/engine/src/assets/classes/ModelTransformLoader'
+import ModelTransformLoader, {
+  ModelTransformParameters
+} from '@xrengine/engine/src/assets/classes/ModelTransformLoader'
 
 import { getContentType } from '../../util/fileUtils'
 
 export type ModelTransformArguments = {
   src: string
   dst: string
+  parms: ModelTransformParameters
 }
 
 export async function transformModel(app: Application, args: ModelTransformArguments) {
