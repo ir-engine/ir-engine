@@ -19,7 +19,7 @@ export const teleportToScene = async () => {
   })
 
   // teleport player to where the portal is
-  const transform = getComponent(world.localClientEntity, TransformComponent)
+  const transform = getComponent(world.localAvatarEntity, TransformComponent)
   transform.position.copy(world.activePortal.remoteSpawnPosition)
   transform.rotation.setFromEuler(new Euler(0, world.activePortal.remoteSpawnEuler.y, 0, 'XYZ'))
 }

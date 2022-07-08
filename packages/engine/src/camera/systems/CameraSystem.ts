@@ -299,11 +299,6 @@ export function cameraSpawnReceptor(
   console.log('Camera Spawn Receptor Call', entity)
 
   addComponent(entity, NetworkCameraComponent, {})
-
-  const position = createVector3Proxy(TransformComponent.position, entity)
-  const rotation = createQuaternionProxy(TransformComponent.rotation, entity)
-  const scale = createVector3Proxy(TransformComponent.scale, entity).setScalar(1)
-  addComponent(entity, TransformComponent, { position, rotation, scale })
 }
 
 export default async function CameraSystem(world: World) {

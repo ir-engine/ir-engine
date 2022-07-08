@@ -52,43 +52,12 @@ export class SpawnPoints {
   }
 }
 
-export function avatarSpawnReceptor(
-  spawnAction: ReturnType<typeof WorldNetworkAction.spawnAvatar>,
-  world = Engine.instance.currentWorld
-) {
-  if (isClient) {
-    /**
-     * When changing location via a portal, the local client entity will be
-     * defined when the new world dispatches this action, so ignore it
-     */
-    if (Engine.instance.userId === spawnAction.$from && hasComponent(world.localClientEntity, AvatarComponent)) {
-      return
-    }
-  }
-  const entity = createAvatar(spawnAction)
-  if (isClient) {
-    addComponent(entity, AudioTagComponent, {})
-    addComponent(entity, ShadowComponent, { receiveShadow: true, castShadow: true })
-
-    if (spawnAction.$from === Engine.instance.userId) {
-      addComponent(entity, LocalInputTagComponent, {})
-    }
-    /*
-    dispatchAction(
-      Engine.store,
-      EngineActions.setupAnimation({
-        entity: entity
-      })
-    )*/
-  }
-}
-
 export default async function AvatarSpawnSystem(world: World) {
   const avatarSpawnQueue = createActionQueue(WorldNetworkAction.spawnAvatar.matches)
-
   const spawnPointQuery = defineQuery([SpawnPointComponent, TransformComponent])
+
   return () => {
-    for (const action of avatarSpawnQueue()) avatarSpawnReceptor(action, world)
+    for (const action of avatarSpawnQueue()) createAvatar(action)
 
     // Keep a list of spawn points so we can send our user to one
     for (const entity of spawnPointQuery.enter(world)) {

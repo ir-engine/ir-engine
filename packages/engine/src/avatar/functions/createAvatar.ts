@@ -1,10 +1,13 @@
 import { AnimationClip, AnimationMixer, Group, PerspectiveCamera, Quaternion, Vector3 } from 'three'
 
+import { AudioTagComponent } from '../../audio/components/AudioTagComponent'
+import { isClient } from '../../common/functions/isClient'
 import { createQuaternionProxy, createVector3Proxy } from '../../common/proxies/three'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { InputComponent } from '../../input/components/InputComponent'
+import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
 import { InteractorComponent } from '../../interaction/components/InteractorComponent'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { VectorSpringSimulator } from '../../physics/classes/springs/VectorSpringSimulator'
@@ -16,6 +19,7 @@ import { AvatarCollisionMask, CollisionGroups } from '../../physics/enums/Collis
 import { BodyType, SceneQueryType } from '../../physics/types/PhysicsTypes'
 import { NameComponent } from '../../scene/components/NameComponent'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
+import { ShadowComponent } from '../../scene/components/ShadowComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
@@ -38,18 +42,7 @@ export const createAvatar = (spawnAction: typeof WorldNetworkAction.spawnAvatar.
   const userId = spawnAction.$from
   const entity = world.getNetworkObject(spawnAction.$from, spawnAction.networkId)!
 
-  const position = createVector3Proxy(TransformComponent.position, entity)
-  const rotation = createQuaternionProxy(TransformComponent.rotation, entity)
-  const scale = createVector3Proxy(TransformComponent.scale, entity)
-
-  const transform = addComponent(entity, TransformComponent, { position, rotation, scale })
-  transform.position.copy(spawnAction.parameters.position)
-  transform.rotation.copy(spawnAction.parameters.rotation)
-  transform.scale.copy(new Vector3(1, 1, 1))
-
-  // set cached action refs to the new components so they stay up to date with future movements
-  spawnAction.parameters.position = position
-  spawnAction.parameters.rotation = rotation
+  const transform = getComponent(entity, TransformComponent)
 
   const linearVelocity = createVector3Proxy(VelocityComponent.linear, entity)
   const angularVelocity = createVector3Proxy(VelocityComponent.angular, entity)
@@ -76,11 +69,9 @@ export const createAvatar = (spawnAction: typeof WorldNetworkAction.spawnAvatar.
     isGrounded: false
   })
 
-  if (world.localClientEntity !== entity) {
-    addComponent(entity, NameComponent, {
-      name: ('avatar_' + userId) as string
-    })
-  }
+  addComponent(entity, NameComponent, {
+    name: ('avatar_' + userId) as string
+  })
 
   addComponent(entity, VisibleComponent, true)
 
@@ -121,14 +112,24 @@ export const createAvatar = (spawnAction: typeof WorldNetworkAction.spawnAvatar.
 
   addComponent(entity, CollisionComponent, { collisions: [] })
 
-  // If local player's avatar
+  addComponent(entity, SpawnPoseComponent, {
+    position: new Vector3().copy(transform.position),
+    rotation: new Quaternion().copy(transform.rotation)
+  })
+
   if (userId === Engine.instance.userId) {
-    addComponent(entity, SpawnPoseComponent, {
-      position: new Vector3().copy(spawnAction.parameters.position),
-      rotation: new Quaternion().copy(spawnAction.parameters.rotation)
-    })
     createAvatarController(entity)
   }
+
+  if (isClient) {
+    addComponent(entity, AudioTagComponent, {})
+    addComponent(entity, ShadowComponent, { receiveShadow: true, castShadow: true })
+
+    if (userId === Engine.instance.userId) {
+      addComponent(entity, LocalInputTagComponent, {})
+    }
+  }
+
   const shape = world.physics.createShape(
     new PhysX.PxCapsuleGeometry(avatarRadius, capsuleHeight / 2),
     world.physics.physics.createMaterial(0, 0, 0),
@@ -137,6 +138,7 @@ export const createAvatar = (spawnAction: typeof WorldNetworkAction.spawnAvatar.
       collisionMask: CollisionGroups.Default | CollisionGroups.Ground | CollisionGroups.Trigger
     }
   )
+
   const body = world.physics.addBody({
     shapes: [shape],
     type: BodyType.DYNAMIC,

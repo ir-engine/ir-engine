@@ -6,6 +6,7 @@ import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import ActionFunctions, { Topic } from '@xrengine/hyperflux/functions/ActionFunctions'
 
 import { createMockNetwork } from '../../../tests/util/createMockNetwork'
+import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { Engine } from '../../ecs/classes/Engine'
 import { addComponent, defineQuery, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
@@ -36,7 +37,6 @@ describe('WorldNetworkActionReceptors', () => {
       NetworkPeerFunctions.createPeer(network, hostUserId, 0, 'host', world)
       NetworkPeerFunctions.createPeer(network, userId, 1, 'user name', world)
 
-      const objParams = 123
       const objNetId = 3 as NetworkId
       const objPrefab = 'generic prefab'
 
@@ -44,7 +44,6 @@ describe('WorldNetworkActionReceptors', () => {
         WorldNetworkAction.spawnObject({
           $from: world.worldNetwork.hostId, // from  host
           prefab: objPrefab, // generic prefab
-          parameters: objParams, // arbitrary
           networkId: objNetId,
           $topic: NetworkTopics.world
         }),
@@ -62,8 +61,6 @@ describe('WorldNetworkActionReceptors', () => {
 
       assert.equal(getComponent(networkObjectEntities[0], NetworkObjectComponent).networkId, objNetId)
       assert.equal(getComponent(networkObjectEntities[0], NetworkObjectComponent).ownerId, hostUserId)
-      assert.equal(getComponent(networkObjectEntities[0], NetworkObjectComponent).parameters, objParams)
-      assert.equal(getComponent(networkObjectEntities[0], NetworkObjectComponent).prefab, objPrefab)
       assert.equal(hasComponent(networkObjectEntities[0], NetworkObjectOwnedTag), false)
     })
 
@@ -87,10 +84,8 @@ describe('WorldNetworkActionReceptors', () => {
         WorldNetworkAction.spawnObject({
           $from: userId, // from  user
           prefab: objPrefab, // generic prefab
-          parameters: objParams, // arbitrary
           networkId: objNetId
-        }),
-        world
+        })
       )
 
       const networkObjectQuery = defineQuery([NetworkObjectComponent])
@@ -104,8 +99,6 @@ describe('WorldNetworkActionReceptors', () => {
 
       assert.equal(getComponent(networkObjectEntities[0], NetworkObjectComponent).networkId, objNetId)
       assert.equal(getComponent(networkObjectEntities[0], NetworkObjectComponent).ownerId, userId)
-      assert.equal(getComponent(networkObjectEntities[0], NetworkObjectComponent).parameters, objParams)
-      assert.equal(getComponent(networkObjectEntities[0], NetworkObjectComponent).prefab, objPrefab)
       assert.equal(hasComponent(networkObjectEntities[0], NetworkObjectOwnedTag), true)
     })
 
@@ -133,7 +126,6 @@ describe('WorldNetworkActionReceptors', () => {
         WorldNetworkAction.spawnObject({
           $from: userId2, // from other user
           prefab: objPrefab, // generic prefab
-          parameters: objParams, // arbitrary
           networkId: objNetId,
           $topic: NetworkTopics.world
         }),
@@ -151,8 +143,6 @@ describe('WorldNetworkActionReceptors', () => {
 
       assert.equal(getComponent(networkObjectEntities[0], NetworkObjectComponent).networkId, objNetId)
       assert.equal(getComponent(networkObjectEntities[0], NetworkObjectComponent).ownerId, userId2)
-      assert.equal(getComponent(networkObjectEntities[0], NetworkObjectComponent).parameters, objParams)
-      assert.deepStrictEqual(getComponent(networkObjectEntities[0], NetworkObjectComponent).prefab, objPrefab)
       assert.equal(hasComponent(networkObjectEntities[0], NetworkObjectOwnedTag), false)
     })
 
@@ -162,7 +152,6 @@ describe('WorldNetworkActionReceptors', () => {
       Engine.instance.userId = userId
       const world = Engine.instance.currentWorld
       const network = world.worldNetwork
-      world.localClientEntity = createEntity(world)
 
       NetworkPeerFunctions.createPeer(network, userId, 1, 'user name', world)
 
@@ -177,18 +166,17 @@ describe('WorldNetworkActionReceptors', () => {
         WorldNetworkAction.spawnObject({
           $from: userId, // from user
           prefab: objPrefab, // generic prefab
-          parameters: objParams, // arbitrary
           networkId: objNetId,
           $topic: NetworkTopics.world
         }),
         world
       )
 
-      assert.equal(getComponent(world.localClientEntity, NetworkObjectComponent).networkId, objNetId)
-      assert.equal(getComponent(world.localClientEntity, NetworkObjectComponent).ownerId, userId)
-      assert.equal(getComponent(world.localClientEntity, NetworkObjectComponent).parameters, objParams)
-      assert.deepStrictEqual(getComponent(world.localClientEntity, NetworkObjectComponent).prefab, objPrefab)
-      assert.equal(hasComponent(world.localClientEntity, NetworkObjectOwnedTag), true)
+      const entity = world.getOwnedNetworkObjectWithComponent(userId, AvatarComponent)
+
+      assert.equal(getComponent(entity, NetworkObjectComponent).networkId, objNetId)
+      assert.equal(getComponent(entity, NetworkObjectComponent).ownerId, userId)
+      assert.equal(hasComponent(entity, NetworkObjectOwnedTag), true)
     })
   })
 
@@ -217,7 +205,6 @@ describe('WorldNetworkActionReceptors', () => {
         WorldNetworkAction.spawnObject({
           $from: hostUserId, // from host
           prefab: objPrefab, // generic prefab
-          parameters: objParams, // arbitrary
           networkId: objNetId,
           $topic: NetworkTopics.world
         }),
@@ -294,7 +281,6 @@ describe('WorldNetworkActionReceptors', () => {
         WorldNetworkAction.spawnObject({
           $from: world.worldNetwork.hostId, // from host
           prefab: objPrefab, // generic prefab
-          parameters: objParams, // arbitrary
           networkId: objNetId,
           $topic: NetworkTopics.world
         }),

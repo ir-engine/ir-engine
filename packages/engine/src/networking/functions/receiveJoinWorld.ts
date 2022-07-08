@@ -36,7 +36,7 @@ export const spawnLocalAvatarInWorld = (props: SpawnInWorldProps) => {
     userId: Engine.instance.userId,
     name
   })
-  dispatchAction(WorldNetworkAction.spawnAvatar({ parameters: avatarSpawnPose }), NetworkTopics.world)
+  dispatchAction(WorldNetworkAction.spawnAvatar(avatarSpawnPose), NetworkTopics.world)
   dispatchAction(WorldNetworkAction.avatarDetails({ avatarDetail }), NetworkTopics.world)
   dispatchAction(EngineActions.joinedWorld())
 }

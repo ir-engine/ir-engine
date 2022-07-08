@@ -14,7 +14,7 @@ import {
   hasComponent,
   removeComponent
 } from '../ecs/functions/ComponentFunctions'
-import { isEntityLocalClient } from '../networking/functions/isEntityLocalClient'
+import { NetworkObjectOwnedTag } from '../networking/components/NetworkObjectOwnedTag'
 import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
 import { RaycastComponent } from '../physics/components/RaycastComponent'
 import { VelocityComponent } from '../physics/components/VelocityComponent'
@@ -242,7 +242,7 @@ export function xrInputQueryEnter(entity: Entity) {
 
   setupXRInputSourceContainer(entity)
 
-  if (!isEntityLocalClient(entity)) {
+  if (!hasComponent(entity, NetworkObjectOwnedTag)) {
     proxifyXRInputs(entity)
     setupHeadIK(entity)
   }

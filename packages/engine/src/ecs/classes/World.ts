@@ -198,6 +198,13 @@ export class World {
   localClientEntity: Entity = NaN as Entity
 
   /**
+   * The local avatar entity
+   */
+  get localAvatarEntity() {
+    return this.getOwnedNetworkObjectWithComponent(Engine.instance.userId, AvatarComponent) || (NaN as Entity)
+  }
+
+  /**
    * Custom systems injected into this world
    */
   pipelines = {
