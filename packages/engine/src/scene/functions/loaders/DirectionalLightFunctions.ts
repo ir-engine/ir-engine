@@ -108,7 +108,7 @@ export const updateDirectionalLight: ComponentUpdateFunction = (
         activeCSMLightComponent.useInCSM = false
 
         if (!hasComponent(EngineRenderer.instance.activeCSMLightEntity, VisibleComponent)) {
-          addComponent(EngineRenderer.instance.activeCSMLightEntity, VisibleComponent, {})
+          addComponent(EngineRenderer.instance.activeCSMLightEntity, VisibleComponent, true)
         }
       }
 
@@ -127,7 +127,7 @@ export const updateDirectionalLight: ComponentUpdateFunction = (
       if (EngineRenderer.instance.activeCSMLightEntity === entity) EngineRenderer.instance.activeCSMLightEntity = null
 
       if (!hasComponent(entity, VisibleComponent)) {
-        addComponent(entity, VisibleComponent, {})
+        addComponent(entity, VisibleComponent, true)
       }
     }
   }

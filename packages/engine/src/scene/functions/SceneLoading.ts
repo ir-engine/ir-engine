@@ -156,7 +156,7 @@ export const loadSceneFromJSON = async (sceneData: SceneJson, sceneSystems: Syst
   if (!getEngineState().isTeleporting.value) world.camera?.layers.disable(ObjectLayers.Scene)
 
   // this needs to occur after the asset promises
-  await unloadScene(world)
+  if (getEngineState().sceneLoaded.value) await unloadScene(world)
 
   await initSystems(world, sceneSystems)
 
@@ -176,6 +176,7 @@ export const loadSceneFromJSON = async (sceneData: SceneJson, sceneSystems: Syst
   const tree = world.entityTree
   addComponent(tree.rootNode.entity, Object3DComponent, { value: world.scene })
   addComponent(tree.rootNode.entity, SceneTagComponent, {})
+  addComponent(tree.rootNode.entity, VisibleComponent, true)
   getComponent(tree.rootNode.entity, EntityNodeComponent).components.push(SCENE_COMPONENT_SCENE_TAG)
 
   if (!getEngineState().isTeleporting.value) Engine.instance.currentWorld.camera?.layers.enable(ObjectLayers.Scene)

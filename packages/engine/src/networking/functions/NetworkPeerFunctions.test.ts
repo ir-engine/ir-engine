@@ -22,6 +22,7 @@ describe('NetworkPeerFunctions', () => {
     it('should add peer', () => {
       const world = Engine.instance.currentWorld
       const userId = 'user id' as UserId
+      Engine.instance.userId = 'another user id' as UserId
       const userName = 'user name'
       const userIndex = 1
       const network = world.worldNetwork
@@ -40,6 +41,7 @@ describe('NetworkPeerFunctions', () => {
     it('should not add peer if already exists', () => {
       const world = Engine.instance.currentWorld
       const userId = 'user id' as UserId
+      Engine.instance.userId = 'another user id' as UserId
       const userName = 'user name'
       const userName2 = 'user name 2'
       const userIndex = 1
@@ -57,12 +59,13 @@ describe('NetworkPeerFunctions', () => {
     it('should remove peer', () => {
       const world = Engine.instance.currentWorld
       const userId = 'user id' as UserId
+      Engine.instance.userId = 'another user id' as UserId
       const userName = 'user name'
       const userIndex = 1
       const network = world.worldNetwork
 
       NetworkPeerFunctions.createPeer(network, userId, userIndex, userName, world)
-      NetworkPeerFunctions.destroyPeer(network, userId, false, world)
+      NetworkPeerFunctions.destroyPeer(network, userId, world)
 
       assert(!world.users.get(userId))
       assert(!network.peers.get(userId))
@@ -73,6 +76,7 @@ describe('NetworkPeerFunctions', () => {
     it('should remove peer and owned network objects', () => {
       const world = Engine.instance.currentWorld
       const userId = 'user id' as UserId
+      Engine.instance.userId = 'another user id' as UserId
       const userName = 'user name'
       const userIndex = 1
       const network = world.worldNetwork
@@ -90,7 +94,7 @@ describe('NetworkPeerFunctions', () => {
 
       // process remove actions and execute entity removal
       Engine.instance.store.defaultDispatchDelay = 0
-      NetworkPeerFunctions.destroyPeer(network, userId, true, world)
+      NetworkPeerFunctions.destroyPeer(network, userId, world)
 
       ActionFunctions.clearOutgoingActions()
       ActionFunctions.applyIncomingActions()

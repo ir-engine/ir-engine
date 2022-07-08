@@ -271,7 +271,7 @@ const dispatchAction = <A extends Action>(
   }
 
   store.actions.incoming.push(action as Required<ResolvedActionType>)
-  if (!store.forwardIncomingActions(action.$topic)) {
+  if (!store.forwardIncomingActions(action as Required<ResolvedActionType>)) {
     store.actions.outgoing[topic].queue.push(action as Required<ResolvedActionType>)
   }
 }
@@ -391,7 +391,7 @@ const _applyIncomingAction = (action: Required<ResolvedActionType>, store = Hype
   try {
     console.log(`[Action]: ${action.type}`, action)
     for (const receptor of [...store.receptors]) receptor(action)
-    if (store.forwardIncomingActions(action.$topic)) {
+    if (store.forwardIncomingActions(action)) {
       store.actions.outgoing[action.$topic].queue.push(action)
     }
   } catch (e) {
