@@ -61,6 +61,8 @@
 
 .contentContainer {
   display: flex;
+  flex-direction: column;
+  width: 100%;
   flex: 1;
   overflow: auto;
 }
@@ -179,4 +181,25 @@
 
 .breadcrumb {
   color: var(--textColor);
+}
+
+.pagination {
+  color: var(--textColor);
+
+  p {
+    font-size: 12px;
+  }
+}
+
+.fileBrowserRoot {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.filesLoading {
+  position: absolute;
+  background: #00000080;
+  z-index: 1000;
 }
