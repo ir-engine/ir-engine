@@ -1,4 +1,4 @@
-import { HookContext, Paginated } from '@feathersjs/feathers'
+import { HookContext, Paginated, Params } from '@feathersjs/feathers'
 import appRootPath from 'app-root-path'
 import * as path from 'path'
 import * as pug from 'pug'
@@ -87,96 +87,92 @@ async function generateSMS(
 }
 
 // This will attach the owner ID in the contact while creating/updating list item
-export default () => {
-  return async (context: HookContext<Application>): Promise<HookContext> => {
-    try {
-      // Getting logged in user and attaching owner of user
-      const { app, result, params } = context
+export const sendInvite = async (app: Application, result: InviteDataType, params: Params) => {
+  try {
+    // Getting logged in user and attaching owner of user
+    const {} = context
 
-      let token = ''
-      if (result.identityProviderType === 'email' || result.identityProviderType === 'sms') {
-        token = result.token
-      } else {
-        token = result.inviteeId
-      }
-      const inviteType = result.inviteType
-      const targetObjectId = result.targetObjectId
+    let token = ''
+    if (result.identityProviderType === 'email' || result.identityProviderType === 'sms') {
+      token = result.token
+    } else {
+      token = result.inviteeId
+    }
+    const inviteType = result.inviteType
+    const targetObjectId = result.targetObjectId
 
-      const authUser = params.user as UserDataType
+    const authUser = params.user as UserDataType
 
-      if (result.identityProviderType === 'email') {
-        await generateEmail(app, result, token, inviteType, authUser.name, targetObjectId)
-      } else if (result.identityProviderType === 'sms') {
-        await generateSMS(app, result, token, inviteType, authUser.name, targetObjectId)
-      } else if (result.inviteeId != null) {
-        if (inviteType === 'friend') {
-          const existingRelationshipStatus = (await app.service('user-relationship').find({
-            query: {
-              $or: [
-                {
-                  userRelationshipType: 'friend'
-                },
-                {
-                  userRelationshipType: 'requested'
-                }
-              ],
+    if (result.identityProviderType === 'email') {
+      await generateEmail(app, result, token, inviteType, authUser.name, targetObjectId)
+    } else if (result.identityProviderType === 'sms') {
+      await generateSMS(app, result, token, inviteType, authUser.name, targetObjectId)
+    } else if (result.inviteeId != null) {
+      if (inviteType === 'friend') {
+        const existingRelationshipStatus = (await app.service('user-relationship').find({
+          query: {
+            $or: [
+              {
+                userRelationshipType: 'friend'
+              },
+              {
+                userRelationshipType: 'requested'
+              }
+            ],
+            userId: result.userId,
+            relatedUserId: result.inviteeId
+          }
+        })) as Paginated<UserRelationshipDataType>
+        if (existingRelationshipStatus.total === 0) {
+          await app.service('user-relationship').create(
+            {
+              userRelationshipType: 'requested',
               userId: result.userId,
               relatedUserId: result.inviteeId
-            }
-          })) as Paginated<UserRelationshipDataType>
-          if (existingRelationshipStatus.total === 0) {
-            await app.service('user-relationship').create(
-              {
-                userRelationshipType: 'requested',
-                userId: result.userId,
-                relatedUserId: result.inviteeId
-              },
-              {}
-            )
-          }
+            },
+            {}
+          )
         }
+      }
 
-        const emailIdentityProviderResult = (await app.service('identity-provider').find({
+      const emailIdentityProviderResult = (await app.service('identity-provider').find({
+        query: {
+          userId: result.inviteeId,
+          type: 'email'
+        }
+      })) as Page<IdentityProviderInterface>
+
+      if (emailIdentityProviderResult.total > 0) {
+        await generateEmail(
+          app,
+          result,
+          emailIdentityProviderResult.data[0].token,
+          inviteType,
+          authUser.name,
+          targetObjectId
+        )
+      } else {
+        const SMSIdentityProviderResult = (await app.service('identity-provider').find({
           query: {
             userId: result.inviteeId,
-            type: 'email'
+            type: 'sms'
           }
         })) as Page<IdentityProviderInterface>
 
-        if (emailIdentityProviderResult.total > 0) {
-          await generateEmail(
+        if (SMSIdentityProviderResult.total > 0) {
+          await generateSMS(
             app,
             result,
-            emailIdentityProviderResult.data[0].token,
+            SMSIdentityProviderResult.data[0].token,
             inviteType,
             authUser.name,
             targetObjectId
           )
-        } else {
-          const SMSIdentityProviderResult = (await app.service('identity-provider').find({
-            query: {
-              userId: result.inviteeId,
-              type: 'sms'
-            }
-          })) as Page<IdentityProviderInterface>
-
-          if (SMSIdentityProviderResult.total > 0) {
-            await generateSMS(
-              app,
-              result,
-              SMSIdentityProviderResult.data[0].token,
-              inviteType,
-              authUser.name,
-              targetObjectId
-            )
-          }
         }
       }
-
-      return context
-    } catch (err) {
-      logger.error(err)
-      return null!
     }
+  } catch (err) {
+    logger.error(err)
+    return null!
   }
 }

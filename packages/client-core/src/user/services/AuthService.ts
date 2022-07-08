@@ -11,8 +11,9 @@ import { v1 } from 'uuid'
 
 import { validateEmail, validatePhoneNumber } from '@xrengine/common/src/config'
 import { AuthUser, AuthUserSeed, resolveAuthUser } from '@xrengine/common/src/interfaces/AuthUser'
-import { AvatarInterface, AvatarProps } from '@xrengine/common/src/interfaces/AvatarInterface'
+import { AvatarProps } from '@xrengine/common/src/interfaces/AvatarInterface'
 import { IdentityProvider, IdentityProviderSeed } from '@xrengine/common/src/interfaces/IdentityProvider'
+import { StaticResourceInterface } from '@xrengine/common/src/interfaces/StaticResourceInterface'
 import { resolveUser, resolveWalletUser, User, UserSeed, UserSetting } from '@xrengine/common/src/interfaces/User'
 import { UserApiKey } from '@xrengine/common/src/interfaces/UserApiKey'
 import { UserAvatar } from '@xrengine/common/src/interfaces/UserAvatar'
@@ -965,7 +966,7 @@ export class AuthAction {
 
   static updateAvatarListAction = defineAction({
     type: 'AVATAR_FETCHED' as const,
-    avatarList: matches.array as Validator<unknown, AvatarInterface[]>
+    avatarList: matches.array as Validator<unknown, StaticResourceInterface[]>
   })
 
   static apiKeyUpdatedAction = defineAction({
