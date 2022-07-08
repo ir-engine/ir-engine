@@ -39,10 +39,10 @@ export interface HyperStore {
     cached: Record<string, Array<Required<ResolvedActionType>>>
     /** Incoming actions */
     incoming: Array<Required<ResolvedActionType>>
-    /** All incoming actions that have been proccessed */
-    incomingHistory: Map<string, Required<ResolvedActionType>>
-    /** All incoming action UUIDs that have been processed */
-    incomingHistoryUUIDs: Set<string>
+    /** All actions that have been applied, in the order they were processed */
+    history: Array<Required<ResolvedActionType>>
+    /** All action UUIDs that have been processed and should not be processed again */
+    processedUUIDs: Set<string>
     /** Outgoing actions */
     outgoing: Record<
       string,
@@ -83,8 +83,8 @@ function createHyperStore(options: {
       queues: new Map(),
       cached: {},
       incoming: [],
-      incomingHistory: new Map(),
-      incomingHistoryUUIDs: new Set(),
+      history: new Array(),
+      processedUUIDs: new Set(),
       outgoing: {}
     },
     receptors: [],
