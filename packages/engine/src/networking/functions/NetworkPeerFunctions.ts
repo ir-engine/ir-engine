@@ -80,10 +80,9 @@ const destroyAllPeers = (network: Network, world = Engine.instance.currentWorld)
 }
 
 function clearActionsHistoryForUser(userId: UserId) {
-  for (const [uuid, action] of Engine.instance.store.actions.incomingHistory) {
+  for (const action of Engine.instance.store.actions.history) {
     if (action.$from === userId) {
-      Engine.instance.store.actions.incomingHistory.delete(uuid)
-      Engine.instance.store.actions.incomingHistoryUUIDs.delete(action.$uuid)
+      Engine.instance.store.actions.processedUUIDs.delete(action.$uuid)
     }
   }
 }

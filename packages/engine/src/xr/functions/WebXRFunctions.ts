@@ -208,7 +208,13 @@ export const startWebXR = async (): Promise<void> => {
   const world = Engine.instance.currentWorld
   setupXRInputSourceComponent(world.localClientEntity)
   setupXRCameraForLocalEntity(world.localClientEntity)
-  dispatchXRMode(true, accessAvatarInputSettingsState().controlType.value)
+  dispatchAction(
+    WorldNetworkAction.setXRMode({
+      enabled: true,
+      avatarInputControllerType: accessAvatarInputSettingsState().controlType.value
+    }),
+    NetworkTopics.world
+  )
   bindXRControllers()
   bindXRHandEvents()
 }
@@ -229,7 +235,13 @@ export const endXR = (): void => {
   removeComponent(world.localClientEntity, AvatarHeadDecapComponent)
   removeComponent(world.localClientEntity, XRHandsInputComponent)
 
-  dispatchXRMode(false, '')
+  dispatchAction(
+    WorldNetworkAction.setXRMode({
+      enabled: false,
+      avatarInputControllerType: ''
+    }),
+    NetworkTopics.world
+  )
 }
 
 /**
@@ -350,14 +362,4 @@ export const getHeadTransform = (entity: Entity): { position: Vector3; rotation:
     rotation: cameraTransform.rotation,
     scale: uniformScale
   }
-}
-
-export function dispatchXRMode(enabled: boolean, avatarInputControllerType: string) {
-  dispatchAction(
-    WorldNetworkAction.setXRMode({
-      enabled,
-      avatarInputControllerType
-    }),
-    NetworkTopics.world
-  )
 }

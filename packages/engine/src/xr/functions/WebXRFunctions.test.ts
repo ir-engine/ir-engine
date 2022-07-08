@@ -3,12 +3,15 @@ import proxyquire from 'proxyquire'
 import sinon from 'sinon'
 import { PerspectiveCamera } from 'three'
 
+import { dispatchAction } from '@xrengine/hyperflux'
+
 import { createMockNetwork } from '../../../tests/util/createMockNetwork'
 import { FollowCameraComponent, FollowCameraDefaultValues } from '../../camera/components/FollowCameraComponent'
 import { Engine } from '../../ecs/classes/Engine'
 import { addComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { createEngine } from '../../initializeEngine'
+import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { XRHandsInputComponent } from '../components/XRHandsInputComponent'
 import { XRInputSourceComponent } from '../components/XRInputSourceComponent'
@@ -37,24 +40,6 @@ describe('WebXRFunctions Unit', async () => {
     const inputSource = setupXRInputSourceComponent(entity)
     assert(inputSource)
     assert(hasComponent(entity, XRInputSourceComponent))
-  })
-
-  it('check dispatchXRMode', async () => {
-    createMockNetwork()
-
-    const hyperfluxStub = {} as any
-    const { dispatchXRMode } = proxyquire('./WebXRFunctions', {
-      '@xrengine/hyperflux': hyperfluxStub
-    })
-
-    sinon.spy(hyperfluxStub, 'dispatchAction')
-    dispatchXRMode(true, 'test')
-    assert(hyperfluxStub.dispatchAction.calledOnce)
-
-    const callArg = hyperfluxStub.dispatchAction.getCall(0).args[0]
-    assert(callArg.type === 'network.SET_XR_MODE')
-    assert(callArg.enabled)
-    assert(callArg.avatarInputControllerType === 'test')
   })
 
   it('check endXR', async () => {
@@ -91,7 +76,7 @@ describe('WebXRFunctions Unit', async () => {
 
     assert(hyperfluxStub.dispatchAction.calledOnce)
     const dispatchActionCallArg = hyperfluxStub.dispatchAction.getCall(0).args[0]
-    assert(dispatchActionCallArg.type === 'network.SET_XR_MODE')
+    assert(dispatchActionCallArg.type === WorldNetworkAction.setXRMode.type)
     assert(dispatchActionCallArg.enabled === false)
     assert(dispatchActionCallArg.avatarInputControllerType === '')
   })
