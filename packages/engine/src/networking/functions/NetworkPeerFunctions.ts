@@ -16,6 +16,7 @@ function createPeer(
   name: string,
   world = Engine.instance.currentWorld
 ) {
+  console.log('[Network]: Create Peer', network.topic, userId, index, name)
   if (network.peers.has(userId))
     return console.log(
       `[WorldNetworkActionReceptors]: peer with id ${userId} and name ${name} already exists. ignoring.`
@@ -36,17 +37,12 @@ function createPeer(
     })
 }
 
-function destroyPeer(network: Network, userId: UserId, allowRemoveSelf = false, world = Engine.instance.currentWorld) {
+function destroyPeer(network: Network, userId: UserId, world = Engine.instance.currentWorld) {
+  console.log('[Network]: Destroy Peer', network.topic, userId)
   if (!network.peers.has(userId))
     return console.warn(`[WorldNetworkActionReceptors]: tried to remove client with userId ${userId} that doesn't exit`)
-  if (!allowRemoveSelf && userId === Engine.instance.userId)
+  if (userId === Engine.instance.userId)
     return console.warn(`[WorldNetworkActionReceptors]: tried to remove local client`)
-
-  for (const eid of world.getOwnedNetworkObjects(userId)) {
-    const { networkId } = getComponent(eid, NetworkObjectComponent)
-    const destroyObjectAction = WorldNetworkAction.destroyObject({ $from: userId, networkId })
-    WorldNetworkActionReceptor.receiveDestroyObject(destroyObjectAction, world)
-  }
 
   const { index: userIndex } = network.peers.get(userId)!
   network.userIdToUserIndex.delete(userId)
@@ -68,21 +64,25 @@ function destroyPeer(network: Network, userId: UserId, allowRemoveSelf = false, 
 
   if (!remainingPeersForDisconnectingUser.length) {
     world.users.delete(userId)
+    for (const eid of world.getOwnedNetworkObjects(userId)) {
+      const { networkId } = getComponent(eid, NetworkObjectComponent)
+      const destroyObjectAction = WorldNetworkAction.destroyObject({ $from: userId, networkId })
+      WorldNetworkActionReceptor.receiveDestroyObject(destroyObjectAction, world)
+    }
   }
 
   clearCachedActionsForUser(network, userId)
   clearActionsHistoryForUser(userId)
 }
 
-const destroyAllPeers = (network: Network, removeSelf = false, world = Engine.instance.currentWorld) => {
-  for (const [userId] of network.peers) NetworkPeerFunctions.destroyPeer(network, userId, removeSelf, world)
+const destroyAllPeers = (network: Network, world = Engine.instance.currentWorld) => {
+  for (const [userId] of network.peers) NetworkPeerFunctions.destroyPeer(network, userId, world)
 }
 
 function clearActionsHistoryForUser(userId: UserId) {
-  for (const [uuid, action] of Engine.instance.store.actions.incomingHistory) {
+  for (const action of Engine.instance.store.actions.history) {
     if (action.$from === userId) {
-      Engine.instance.store.actions.incomingHistory.delete(uuid)
-      Engine.instance.store.actions.incomingHistoryUUIDs.delete(action.$uuid)
+      Engine.instance.store.actions.processedUUIDs.delete(action.$uuid)
     }
   }
 }
@@ -97,7 +97,7 @@ function clearCachedActionsForUser(network: Network, userId: UserId) {
   }
 }
 
-function getCachedActions(network: Network, joinedUserId: UserId) {
+function getCachedActionsForUser(network: Network, toUserId: UserId) {
   const world = Engine.instance.currentWorld
 
   // send all cached and outgoing actions to joining user
@@ -105,6 +105,7 @@ function getCachedActions(network: Network, joinedUserId: UserId) {
   for (const action of Engine.instance.store.actions.cached[network.topic] as Array<
     ReturnType<typeof WorldNetworkAction.spawnAvatar>
   >) {
+    if (action.$from === toUserId) continue
     // we may have a need to remove the check for the prefab type to enable this to work for networked objects too
     if (action.type === 'network.SPAWN_OBJECT' && action.prefab === 'avatar') {
       const ownerId = action.$from
@@ -117,7 +118,7 @@ function getCachedActions(network: Network, joinedUserId: UserId) {
         }
       }
     }
-    if (action.$to === 'all' || action.$to === joinedUserId) cachedActions.push({ ...action, $stack: undefined! })
+    if (action.$to === 'all' || action.$to === toUserId) cachedActions.push({ ...action, $stack: undefined! })
   }
 
   return cachedActions
@@ -128,5 +129,5 @@ export const NetworkPeerFunctions = {
   destroyPeer,
   destroyAllPeers,
   clearCachedActionsForUser,
-  getCachedActions
+  getCachedActionsForUser
 }

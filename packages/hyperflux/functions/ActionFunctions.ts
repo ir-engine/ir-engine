@@ -271,7 +271,7 @@ const dispatchAction = <A extends Action>(
   }
 
   store.actions.incoming.push(action as Required<ResolvedActionType>)
-  if (!store.forwardIncomingActions(action.$topic)) {
+  if (!store.forwardIncomingActions(action as Required<ResolvedActionType>)) {
     store.actions.outgoing[topic].queue.push(action as Required<ResolvedActionType>)
   }
 }
@@ -289,10 +289,9 @@ function addTopic(topic: string, store = HyperFlux.store) {
 
 function removeTopic(topic: string, store = HyperFlux.store) {
   console.log(`[HyperFlux]: Removed topic ${topic}`)
-  for (const [uuid, action] of store.actions.incomingHistory) {
+  for (const action of store.actions.history) {
     if (action.$topic.includes(topic)) {
-      store.actions.incomingHistory.delete(uuid)
-      store.actions.incomingHistoryUUIDs.delete(action.$uuid)
+      store.actions.processedUUIDs.delete(action.$uuid)
     }
   }
   delete store.actions.outgoing[topic]
@@ -378,7 +377,7 @@ const applyIncomingActionsToAllQueues = (action: Required<ResolvedActionType>, s
 
 const _applyIncomingAction = (action: Required<ResolvedActionType>, store = HyperFlux.store) => {
   // ensure actions are idempotent
-  if (store.actions.incomingHistoryUUIDs.has(action.$uuid)) {
+  if (store.actions.processedUUIDs.has(action.$uuid)) {
     console.log('got repeat action', action)
     const idx = store.actions.incoming.indexOf(action)
     store.actions.incoming.splice(idx, 1)
@@ -392,22 +391,18 @@ const _applyIncomingAction = (action: Required<ResolvedActionType>, store = Hype
   try {
     console.log(`[Action]: ${action.type}`, action)
     for (const receptor of [...store.receptors]) receptor(action)
-    store.actions.incomingHistory.set(action.$uuid, action)
-    if (store.forwardIncomingActions(action.$topic)) {
+    if (store.forwardIncomingActions(action)) {
       store.actions.outgoing[action.$topic].queue.push(action)
     }
   } catch (e) {
     const message = (e as Error).message
     const stack = (e as Error).stack!.split('\n')
     stack.shift()
-    store.actions.incomingHistory.set(action.$uuid, {
-      // @ts-ignore
-      $ERROR: { message, stack },
-      ...action
-    })
+    action.$ERROR = { message, stack }
     console.error(e)
   } finally {
-    store.actions.incomingHistoryUUIDs.add(action.$uuid)
+    store.actions.history.push(action)
+    store.actions.processedUUIDs.add(action.$uuid)
     const idx = store.actions.incoming.indexOf(action)
     store.actions.incoming.splice(idx, 1)
   }

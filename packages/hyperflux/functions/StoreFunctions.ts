@@ -3,7 +3,7 @@ import { merge } from 'lodash'
 import { Validator } from 'ts-matches'
 
 import { addTopic } from '..'
-import { Action, ActionReceptor, ActionShape, ResolvedActionType, Topic } from './ActionFunctions'
+import { ActionReceptor, ResolvedActionType, Topic } from './ActionFunctions'
 
 export type StringLiteral<T> = T extends string ? (string extends T ? never : T) : never
 export interface HyperStore {
@@ -15,7 +15,7 @@ export interface HyperStore {
    *  If false, actions are dispatched on the incoming queue.
    *  If true, actions are dispatched on the incoming queue and then forwarded to the outgoing queue.
    */
-  forwardIncomingActions: (topic: string) => boolean
+  forwardIncomingActions: (action: Required<ResolvedActionType>) => boolean
   /**
    * A function which returns the dispatch id assigned to actions
    * */
@@ -39,10 +39,10 @@ export interface HyperStore {
     cached: Record<string, Array<Required<ResolvedActionType>>>
     /** Incoming actions */
     incoming: Array<Required<ResolvedActionType>>
-    /** All incoming actions that have been proccessed */
-    incomingHistory: Map<string, Required<ResolvedActionType>>
-    /** All incoming action UUIDs that have been processed */
-    incomingHistoryUUIDs: Set<string>
+    /** All actions that have been applied, in the order they were processed */
+    history: Array<Required<ResolvedActionType>>
+    /** All action UUIDs that have been processed and should not be processed again */
+    processedUUIDs: Set<string>
     /** Outgoing actions */
     outgoing: Record<
       string,
@@ -67,7 +67,7 @@ export class HyperFlux {
 }
 
 function createHyperStore(options: {
-  forwardIncomingActions?: (topic: string) => boolean
+  forwardIncomingActions?: (action: Required<ResolvedActionType>) => boolean
   getDispatchId: () => string
   getDispatchTime: () => number
   defaultDispatchDelay?: number
@@ -83,8 +83,8 @@ function createHyperStore(options: {
       queues: new Map(),
       cached: {},
       incoming: [],
-      incomingHistory: new Map(),
-      incomingHistoryUUIDs: new Set(),
+      history: new Array(),
+      processedUUIDs: new Set(),
       outgoing: {}
     },
     receptors: [],

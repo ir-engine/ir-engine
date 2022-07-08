@@ -20,10 +20,14 @@ export class Engine {
   userId: UserId
 
   store = createHyperStore({
-    forwardIncomingActions: (topic: string) =>
-      topic === this.store.defaultTopic
-        ? false
-        : (topic === NetworkTopics.world ? this.currentWorld.worldNetwork : this.currentWorld.mediaNetwork)?.isHosting,
+    forwardIncomingActions: (action) => {
+      const isHost =
+        action.$topic === this.store.defaultTopic
+          ? false
+          : (action.$topic === NetworkTopics.world ? this.currentWorld.worldNetwork : this.currentWorld.mediaNetwork)
+              ?.isHosting
+      return isHost || action.$from === this.userId
+    },
     getDispatchId: () => Engine.instance.userId,
     getDispatchTime: () => Date.now(),
     defaultDispatchDelay: 1 / this.tickRate
