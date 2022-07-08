@@ -357,6 +357,18 @@ export class Location<T = LocationDataType> extends Service<T> {
    */
 
   async remove(id: string, params?: Params): Promise<T> {
+    const location = await this.app.service('location').Model.findOne({
+      where: {
+        isLobby: true,
+        id: id
+      },
+      attributes: ['id', 'isLobby']
+    })
+
+    if (location) {
+      throw new Error("Lobby can't be deleted")
+    }
+
     if (id != null) {
       const selfUser = params!.user as UserDataType
       const location = await this.app.service('location').get(id)
