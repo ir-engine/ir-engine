@@ -898,6 +898,7 @@ export async function closeConsumer(network: SocketWebRTCClientNetwork, consumer
 
 export function leaveNetwork(network: SocketWebRTCClientNetwork, kicked?: boolean) {
   try {
+    if (!network) return
     // Leaving a network should close all transports from the server side.
     // This will also destroy all the associated producers and consumers.
     // All we need to do on the client is null all references.
