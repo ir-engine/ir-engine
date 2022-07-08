@@ -15,19 +15,19 @@ import { matchesAvatarProps } from '../interfaces/WorldState'
 
 export class WorldNetworkAction {
   static setXRMode = defineAction({
-    type: 'network.SET_XR_MODE',
+    type: 'xre.world.SET_XR_MODE',
     enabled: matches.boolean,
     avatarInputControllerType: matches.string,
     $cache: { removePrevious: true }
   })
 
   static xrHandsConnected = defineAction({
-    type: 'network.XR_HANDS_CONNECTED',
+    type: 'xre.world.XR_HANDS_CONNECTED',
     $cache: true
   })
 
   static spawnObject = defineAction({
-    type: 'network.SPAWN_OBJECT',
+    type: 'xre.world.SPAWN_OBJECT',
     prefab: matches.string,
     networkId: matchesWithDefault(matchesNetworkId, () => Engine.instance.currentWorld.createNetworkId()),
     parameters: matches.any.optional(),
@@ -35,7 +35,7 @@ export class WorldNetworkAction {
   })
 
   static spawnDebugPhysicsObject = defineAction({
-    type: 'network.SPAWN_DEBUG_PHYSICS_OBJECT',
+    type: 'xre.world.SPAWN_DEBUG_PHYSICS_OBJECT',
     config: matches.any.optional()
   })
 
@@ -56,12 +56,12 @@ export class WorldNetworkAction {
   })
 
   static destroyObject = defineAction({
-    type: 'network.DESTROY_OBJECT',
+    type: 'xre.world.DESTROY_OBJECT',
     networkId: matchesNetworkId
   })
 
   static setEquippedObject = defineAction({
-    type: 'network.SET_EQUIPPED_OBJECT',
+    type: 'xre.world.SET_EQUIPPED_OBJECT',
     object: matches.shape({
       ownerId: matchesUserId,
       networkId: matchesNetworkId
@@ -72,7 +72,7 @@ export class WorldNetworkAction {
   })
 
   static avatarAnimation = defineAction({
-    type: 'network.AVATAR_ANIMATION',
+    type: 'xre.world.AVATAR_ANIMATION',
     newStateName: matches.string,
     params: matchesWeightsParameters,
     $cache: {
@@ -81,7 +81,7 @@ export class WorldNetworkAction {
   })
 
   static avatarDetails = defineAction({
-    type: 'network.AVATAR_DETAILS',
+    type: 'xre.world.AVATAR_DETAILS',
     avatarDetail: matchesAvatarProps,
     $cache: {
       removePrevious: true
@@ -89,7 +89,7 @@ export class WorldNetworkAction {
   })
 
   static teleportObject = defineAction({
-    type: 'network.TELEPORT_OBJECT',
+    type: 'xre.world.TELEPORT_OBJECT',
     object: matches.shape({
       ownerId: matchesUserId,
       networkId: matchesNetworkId
@@ -98,7 +98,7 @@ export class WorldNetworkAction {
   })
 
   static requestAuthorityOverObject = defineAction({
-    type: 'network.REQUEST_AUTHORITY_OVER_OBJECT',
+    type: 'xre.world.REQUEST_AUTHORITY_OVER_OBJECT',
     object: matches.shape({
       ownerId: matchesUserId,
       networkId: matchesNetworkId
@@ -107,7 +107,7 @@ export class WorldNetworkAction {
   })
 
   static transferAuthorityOfObject = defineAction({
-    type: 'network.TRANSFER_AUTHORITY_OF_OBJECT',
+    type: 'xre.world.TRANSFER_AUTHORITY_OF_OBJECT',
     object: matches.shape({
       ownerId: matchesUserId,
       networkId: matchesNetworkId
@@ -116,7 +116,7 @@ export class WorldNetworkAction {
   })
 
   static setUserTyping = defineAction({
-    type: 'network.USER_IS_TYPING',
+    type: 'xre.world.USER_IS_TYPING',
     typing: matches.boolean
   })
 }
