@@ -21,6 +21,8 @@ import { BlurLinear, Mic, VolumeUp } from '@mui/icons-material'
 
 import { AuthService, useAuthState } from '../../../user/services/AuthService'
 import XRCheckboxButton from '../../components/XRCheckboxButton'
+import XRSelectDropdown from '../../components/XRSelectDropdown'
+import XRSlider from '../../components/XRSlider'
 import XRToggleButton from '../../components/XRToggleButton'
 import styleString from './index.scss'
 
@@ -96,14 +98,14 @@ const SettingDetailView = () => {
     dispatchAction(AvatarInputSettingsAction.setShowAvatar({ showAvatar: !showAvatar }))
   }
 
-  const handleChangeControlType = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    setControlType(event.target.value as any)
-    dispatchAction(AvatarInputSettingsAction.setControlType(event.target.value as any))
+  const handleChangeControlType = (value) => {
+    setControlType(value as any)
+    dispatchAction(AvatarInputSettingsAction.setControlType(value as any))
   }
 
-  const handleChangeControlScheme = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    setControlScheme(event.target.value)
-    AvatarSettings.instance.movementScheme = AvatarMovementScheme[event.target.value]
+  const handleChangeControlScheme = (value: string) => {
+    setControlScheme(value)
+    AvatarSettings.instance.movementScheme = AvatarMovementScheme[value]
   }
 
   const toggleShowDetails = () => {
@@ -137,10 +139,8 @@ const SettingDetailView = () => {
             <h4 className="title">{t('user:usermenu.setting.audio')}</h4>
             <div className="sectionRow">
               <VolumeUp />
-              <span className="label">{t('user:usermenu.setting.lbl-volume')}</span>
-              <input
-                className="slider"
-                type="range"
+              <XRSlider
+                labelContent={t('user:usermenu.setting.lbl-volume')}
                 min="1"
                 max="100"
                 value={userSettings?.volume == null ? 100 : userSettings?.volume}
@@ -151,32 +151,27 @@ const SettingDetailView = () => {
                     mediaElements[i].volume = parseInt(event.target.value) / 100
                   }
                 }}
-              ></input>
+              />
             </div>
-
             <div className="sectionRow">
               <Mic />
-              <span className="label">{t('user:usermenu.setting.lbl-microphone')}</span>
-              <input
-                className="slider"
-                type="range"
+              <XRSlider
+                labelContent={t('user:usermenu.setting.lbl-microphone')}
                 min="1"
                 max="100"
                 value={userSettings?.microphone == null ? 100 : userSettings?.microphone}
                 onChange={(event: any) => {
                   setUserSettings({ microphone: parseInt(event.target.value) })
                 }}
-              ></input>
+              />
             </div>
           </section>
           <section className="graphicsSection">
             <h4 className="title">{t('user:usermenu.setting.graphics')}</h4>
             <div className="sectionRow">
               <BlurLinear />
-              <span className="label">{t('user:usermenu.setting.lbl-resolution')}</span>
-              <input
-                className="slider"
-                type="range"
+              <XRSlider
+                labelContent={t('user:usermenu.setting.lbl-resolution')}
                 min="1"
                 max="5"
                 step="1"
@@ -185,7 +180,7 @@ const SettingDetailView = () => {
                   dispatchAction(EngineRendererAction.setQualityLevel({ qualityLevel: parseInt(event.target.value) }))
                   dispatchAction(EngineRendererAction.setAutomatic({ automatic: false }))
                 }}
-              ></input>
+              />
             </div>
 
             <div className="graphicsCheckBoxRow">
@@ -261,23 +256,19 @@ const SettingDetailView = () => {
                 <h4 className="title">{t('user:usermenu.setting.controls')}</h4>
                 <div className="selectSize">
                   <span className="checkBoxLabel">{t('user:usermenu.setting.lbl-control-scheme')}</span>
-                  <select value={controlSchemeSelected} onChange={handleChangeControlScheme}>
-                    {controlSchemes.map((el, index) => (
-                      <option value={el} key={index}>
-                        {el}
-                      </option>
-                    ))}
-                  </select>
+                  <XRSelectDropdown
+                    value={controlSchemeSelected}
+                    onChange={handleChangeControlScheme}
+                    options={controlSchemes}
+                  />
                 </div>
                 <div className="selectSize">
                   <span className="checkBoxLabel">{t('user:usermenu.setting.lbl-control-type')}</span>
-                  <select value={controlTypeSelected} onChange={handleChangeControlType}>
-                    {controllerTypes.map((el, index) => (
-                      <option value={el} key={el + index}>
-                        {el}
-                      </option>
-                    ))}
-                  </select>
+                  <XRSelectDropdown
+                    value={controlTypeSelected}
+                    onChange={handleChangeControlType}
+                    options={controllerTypes}
+                  />
                 </div>
               </div>
             </section>
