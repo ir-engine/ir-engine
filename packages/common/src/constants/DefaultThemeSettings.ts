@@ -81,7 +81,7 @@ export const defaultThemeSettings = {
     tableFooterBackground: 'rgba(71,71,71,1)',
     themeSwitchTrack: '#8796a5',
     themeSwitchThumb: '#02022d',
-    dockBackground: 'rgba(78,78,78,1)'
+    dockBackground: 'rgba(53,53,53,0.93)'
   },
   vaporwave: {
     textColor: '#FFF',
