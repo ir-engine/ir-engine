@@ -6,7 +6,7 @@ import logger from '../logger'
 
 function processInclude(context: HookContext, includeCollection?: ModelType[]) {
   return includeCollection?.map((model: ModelType) => {
-    const newModel = { ...model, include: processInclude(context, model.include) } as ModelType
+    const newModel = { ...model, ...processInclude(context, model.include) } as ModelType
     newModel.model = context.app.services[model.model].Model
     return newModel
   })
