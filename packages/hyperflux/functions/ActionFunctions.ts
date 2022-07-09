@@ -284,7 +284,6 @@ function addTopic(topic: string, store = HyperFlux.store) {
       history: [],
       historyUUIDs: new Set()
     }
-  if (!store.actions.cached[topic]) store.actions.cached[topic] = []
 }
 
 function removeTopic(topic: string, store = HyperFlux.store) {
@@ -295,7 +294,6 @@ function removeTopic(topic: string, store = HyperFlux.store) {
     }
   }
   delete store.actions.outgoing[topic]
-  delete store.actions.cached[topic]
 }
 
 /**

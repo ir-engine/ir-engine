@@ -333,6 +333,8 @@ export default async function CameraSystem(world: World) {
 
     for (const entity of localAvatarQuery.enter()) {
       dispatchAction(WorldNetworkAction.spawnCamera(), NetworkTopics.world)
+      const followCamera = getComponent(world.cameraEntity, FollowCameraComponent)
+      if (followCamera) followCamera.targetEntity = entity
     }
 
     if (EngineRenderer.instance.xrManager?.isPresenting) {

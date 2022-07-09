@@ -3,6 +3,7 @@ import { Action } from '@xrengine/hyperflux/functions/ActionFunctions'
 
 import { Engine } from '../../ecs/classes/Engine'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
+import { removeEntity } from '../../ecs/functions/EntityFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { Network } from '../classes/Network'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
@@ -44,14 +45,7 @@ function destroyPeer(network: Network, userId: UserId, world = Engine.instance.c
   if (userId === Engine.instance.userId)
     return console.warn(`[WorldNetworkActionReceptors]: tried to remove local client`)
 
-  const { index: userIndex } = network.peers.get(userId)!
-  network.userIdToUserIndex.delete(userId)
-  network.userIndexToUserId.delete(userIndex)
   network.peers.delete(userId)
-
-  Engine.instance.store.actions.cached[network.topic] = Engine.instance.store.actions.cached[network.topic].filter(
-    (a) => a.$from !== userId
-  )
 
   /**
    * if no other connections exist for this user exist, we want to remove them from world.users
@@ -63,12 +57,9 @@ function destroyPeer(network: Network, userId: UserId, world = Engine.instance.c
     .filter((peer) => !!peer)
 
   if (!remainingPeersForDisconnectingUser.length) {
+    Engine.instance.store.actions.cached = Engine.instance.store.actions.cached.filter((a) => a.$from !== userId)
     world.users.delete(userId)
-    for (const eid of world.getOwnedNetworkObjects(userId)) {
-      const { networkId } = getComponent(eid, NetworkObjectComponent)
-      const destroyObjectAction = WorldNetworkAction.destroyObject({ $from: userId, networkId })
-      WorldNetworkActionReceptor.receiveDestroyObject(destroyObjectAction, world)
-    }
+    for (const eid of world.getOwnedNetworkObjects(userId)) removeEntity(eid)
   }
 
   clearCachedActionsForUser(network, userId)
@@ -88,7 +79,7 @@ function clearActionsHistoryForUser(userId: UserId) {
 }
 
 function clearCachedActionsForUser(network: Network, userId: UserId) {
-  const cached = Engine.instance.store.actions.cached[network.topic]
+  const cached = Engine.instance.store.actions.cached
   for (const action of [...cached]) {
     if (action.$from === userId) {
       const idx = cached.indexOf(action)
@@ -98,26 +89,12 @@ function clearCachedActionsForUser(network: Network, userId: UserId) {
 }
 
 function getCachedActionsForUser(network: Network, toUserId: UserId) {
-  const world = Engine.instance.currentWorld
-
   // send all cached and outgoing actions to joining user
   const cachedActions = [] as Required<Action>[]
-  for (const action of Engine.instance.store.actions.cached[network.topic] as Array<
+  for (const action of Engine.instance.store.actions.cached as Array<
     ReturnType<typeof WorldNetworkAction.spawnAvatar>
   >) {
     if (action.$from === toUserId) continue
-    // we may have a need to remove the check for the prefab type to enable this to work for networked objects too
-    if (action.type === 'network.SPAWN_OBJECT' && action.prefab === 'avatar') {
-      const ownerId = action.$from
-      if (ownerId) {
-        const entity = world.getNetworkObject(ownerId, action.networkId)
-        if (typeof entity !== 'undefined') {
-          const transform = getComponent(entity, TransformComponent)
-          action.parameters.position = transform.position
-          action.parameters.rotation = transform.rotation
-        }
-      }
-    }
     if (action.$to === 'all' || action.$to === toUserId) cachedActions.push({ ...action, $stack: undefined! })
   }
 

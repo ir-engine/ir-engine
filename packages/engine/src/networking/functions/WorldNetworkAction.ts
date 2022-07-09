@@ -33,7 +33,7 @@ export class WorldNetworkAction {
   })
 
   static spawnObject = defineAction({
-    type: 'network.SPAWN_OBJECT',
+    type: 'xre.world.SPAWN_OBJECT',
     prefab: matches.string,
     networkId: matchesWithDefault(matchesNetworkId, () => Engine.instance.currentWorld.createNetworkId()),
     position: matchesVector3.optional(),
@@ -57,7 +57,7 @@ export class WorldNetworkAction {
   })
 
   static interact = defineAction({
-    type: 'network.INTERACT',
+    type: 'xre.world.INTERACT',
     object: { ownerId: matchesUserId, networkId: matchesNetworkId },
     parity: matches.some(...Object.values(ParityValue).map((v) => matches.literal(v)))
   })
