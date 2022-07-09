@@ -5,11 +5,15 @@ import { Application } from '@xrengine/server-core/declarations'
 import logger from '../logger'
 
 function processInclude(context: HookContext, includeCollection?: ModelType[]) {
-  return includeCollection?.map((model: ModelType) => {
+  if (!includeCollection) {
+    return
+  }
+  includeCollection = includeCollection?.map((model: ModelType) => {
     const newModel = { ...model, ...processInclude(context, model.include) } as ModelType
     newModel.model = context.app.services[model.model].Model
     return newModel
   })
+  return { include: includeCollection }
 }
 
 type ModelType = {
@@ -28,7 +32,13 @@ export default (options: ModelAssociationsType): Hook => {
     try {
       const sequelize = context.params.sequelize || {}
       const include: ModelType[] = sequelize.include || []
-      sequelize.include = include.concat(processInclude(context, options.models) ?? [])
+      sequelize.include = include.concat(
+        options.models.map((model: ModelType) => {
+          const newModel = { ...model, ...processInclude(context, model.include) } as ModelType
+          newModel.model = context.app.services[model.model].Model
+          return newModel
+        })
+      )
       sequelize.raw = false
       context.params.sequelize = sequelize
     } catch (err) {
