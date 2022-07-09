@@ -103,7 +103,7 @@ export const NetworkInstanceProvisioning = () => {
   // 3. once engine is initialised and the server is provisioned, connect the the instance server
   useHookEffect(() => {
     if (
-      engineState.isEngineInitialized.value &&
+      engineState.sceneLoaded.value &&
       currentLocationInstanceConnection?.value &&
       !currentLocationInstanceConnection.connected.value &&
       currentLocationInstanceConnection.provisioned.value &&
@@ -111,7 +111,7 @@ export const NetworkInstanceProvisioning = () => {
     )
       LocationInstanceConnectionService.connectToServer(worldNetworkHostId)
   }, [
-    engineState.isEngineInitialized,
+    engineState.sceneLoaded,
     currentLocationInstanceConnection?.connected,
     currentLocationInstanceConnection?.connecting,
     currentLocationInstanceConnection?.provisioned

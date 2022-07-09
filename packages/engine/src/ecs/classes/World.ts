@@ -21,6 +21,7 @@ import { NameComponent } from '../../scene/components/NameComponent'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
 import { PortalComponent } from '../../scene/components/PortalComponent'
+import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { Widget } from '../../xrui/Widgets'
@@ -61,6 +62,7 @@ export class World {
     }
 
     this.cameraEntity = createEntity(this)
+    addComponent(this.cameraEntity, VisibleComponent, true, this)
     addComponent(this.cameraEntity, NameComponent, { name: 'camera' }, this)
     addComponent(this.cameraEntity, PersistTagComponent, {}, this)
     addComponent(this.cameraEntity, Object3DComponent, { value: this.camera }, this)

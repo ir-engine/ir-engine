@@ -97,7 +97,7 @@ export async function onConnectToInstance(network: SocketWebRTCClientNetwork) {
     for (const [userId, peer] of network.peers) {
       if (!peers.find((p) => p.userId === userId)) NetworkPeerFunctions.destroyPeer(network, userId)
     }
-    console.log('[WebRTC]: Updated Peers', peers)
+    console.log('[WebRTC]: ' + network.topic + ' Updated Peers', peers)
   }
 
   async function commonDisconnectHandler() {
@@ -898,6 +898,7 @@ export async function closeConsumer(network: SocketWebRTCClientNetwork, consumer
 
 export function leaveNetwork(network: SocketWebRTCClientNetwork, kicked?: boolean) {
   try {
+    if (!network) return
     // Leaving a network should close all transports from the server side.
     // This will also destroy all the associated producers and consumers.
     // All we need to do on the client is null all references.
@@ -926,7 +927,7 @@ export function leaveNetwork(network: SocketWebRTCClientNetwork, kicked?: boolea
       world._mediaHostId = null!
       dispatchAction(MediaInstanceConnectionAction.disconnect({ instanceId: network.hostId }))
     } else {
-      NetworkPeerFunctions.destroyAllPeers(network, false, world)
+      NetworkPeerFunctions.destroyAllPeers(network, world)
       world.networks.delete(network.hostId)
       world._worldHostId = null!
       dispatchAction(LocationInstanceConnectionAction.disconnect({ instanceId: network.hostId }))
