@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { AdminScopeType } from '@xrengine/common/src/interfaces/AdminScopeType'
-import { CreateEditUser, User } from '@xrengine/common/src/interfaces/User'
+import { CreateEditUser, UserInterface } from '@xrengine/common/src/interfaces/User'
 
 import Button from '@mui/material/Button'
 import Container from '@mui/material/Container'
@@ -32,7 +32,7 @@ export enum UserDrawerMode {
 interface Props {
   open: boolean
   mode: UserDrawerMode
-  selectedUser?: User
+  selectedUser?: UserInterface
   onClose: () => void
 }
 

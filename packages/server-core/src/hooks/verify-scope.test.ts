@@ -1,13 +1,14 @@
 import { HookContext } from '@feathersjs/feathers/lib'
 import assert from 'assert'
 
+import { UserInterface } from '@xrengine/common/src/interfaces/User'
+
 import { Application } from '../../declarations'
 import { createFeathersExpressApp } from '../createApp'
-import { UserDataType } from '../user/user/user.class'
 import { UnauthorizedException } from '../util/exceptions/exception'
 import verifyScope from './verify-scope'
 
-const mockUserHookContext = (user: UserDataType, app: Application) => {
+const mockUserHookContext = (user: UserInterface, app: Application) => {
   return {
     app,
     params: {
@@ -32,7 +33,7 @@ describe('verify-scope', () => {
       name,
       avatarId,
       userRole
-    })) as UserDataType
+    })) as UserInterface
 
     const verifyLocationReadScope = verifyScope('location', 'read')
     const hookContext = mockUserHookContext(user, app)
@@ -52,7 +53,7 @@ describe('verify-scope', () => {
       name,
       avatarId,
       userRole
-    })) as UserDataType
+    })) as UserInterface
 
     await app.service('scope').create({
       type: 'location:read',
@@ -77,7 +78,7 @@ describe('verify-scope', () => {
       name,
       avatarId,
       userRole
-    })) as UserDataType
+    })) as UserInterface
 
     await app.service('scope').create({
       type: 'location:read',
@@ -102,7 +103,7 @@ describe('verify-scope', () => {
       name,
       avatarId,
       userRole
-    })) as UserDataType
+    })) as UserInterface
 
     const verifyLocationReadScope = verifyScope('location', 'read')
     const hookContext = mockUserHookContext(user, app)

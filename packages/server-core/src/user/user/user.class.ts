@@ -4,16 +4,56 @@ import { Paginated } from '@feathersjs/feathers/lib'
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 import Sequelize, { Op } from 'sequelize'
 
-import { User as UserInterface } from '@xrengine/common/src/interfaces/User'
+import { CreateEditUser, UserInterface, UserScope } from '@xrengine/common/src/interfaces/User'
 
 import { Application } from '../../../declarations'
+import logger from '../../logger'
+import getFreeInviteCode from '../../util/get-free-invite-code'
 
-export type UserDataType = UserInterface
+export const afterCreate = async (app: Application, result: UserInterface, scopes?: UserScope[]) => {
+  await app.service('user-settings').create({
+    userId: result.id
+  })
+
+  scopes?.forEach((el) => {
+    app.service('scope').create({
+      type: el.type,
+      userId: result.id
+    })
+  })
+
+  if (Array.isArray(result)) result = result[0]
+  if (result?.userRole !== 'guest')
+    await app.service('user-api-key').create({
+      userId: result.id
+    })
+  if (result?.userRole !== 'guest' && result?.inviteCode == null) {
+    const code = await getFreeInviteCode(app)
+    await app.service('user').patch(result.id, {
+      inviteCode: code
+    })
+  }
+}
+
+export const afterPatch = async (app: Application, result: UserInterface) => {
+  try {
+    if (Array.isArray(result)) result = result[0]
+    if (result && result.userRole !== 'guest' && result.inviteCode == null) {
+      const code = await getFreeInviteCode(app)
+      await app.service('user').patch(result.id, {
+        inviteCode: code
+      })
+    }
+  } catch (err) {
+    logger.error(err, `USER AFTER PATCH ERROR: ${err.message}`)
+  }
+}
+
 /**
  * This class used to find user
  * and returns founded users
  */
-export class User<T = UserDataType> extends Service<T> {
+export class User extends Service<UserInterface> {
   app: Application
   docs: any
 
@@ -29,7 +69,7 @@ export class User<T = UserDataType> extends Service<T> {
    * @returns {@Array} of found users
    */
 
-  async find(params?: Params): Promise<T[] | Paginated<T>> {
+  async find(params?: Params): Promise<UserInterface[] | Paginated<UserInterface>> {
     if (!params) params = {}
     if (!params.query) params.query = {}
     const { action, $skip, $limit, search, ...query } = params.query!
@@ -43,7 +83,7 @@ export class User<T = UserDataType> extends Service<T> {
 
     if (action === 'friends') {
       delete params.query.action
-      const loggedInUser = params!.user as UserDataType
+      const loggedInUser = params!.user as UserInterface
       const userResult = await this.app.service('user').Model.findAndCountAll({
         offset: skip,
         limit: limit,
@@ -135,12 +175,32 @@ export class User<T = UserDataType> extends Service<T> {
     }
   }
 
-  async create(data: any, params?: Params): Promise<T | T[]> {
+  async create(data: Partial<CreateEditUser>, params?: Params): Promise<UserInterface | UserInterface[]> {
     data.inviteCode = Math.random().toString(36).slice(2)
-    return await super.create(data, params)
+    const result = (await super.create(data, params)) as UserInterface
+    try {
+      await afterCreate(this.app, result, data.scopes)
+    } catch (err) {
+      logger.error(err, `USER AFTER CREATE ERROR: ${err.message}`)
+      return null!
+    }
+    return result
   }
 
-  async patch(id: NullableId, data: any, params?: Params): Promise<T | T[]> {
-    return super.patch(id, data, params)
+  async patch(id: NullableId, data: any, params?: Params): Promise<UserInterface | UserInterface[]> {
+    const result = (await super.patch(id, data, params)) as UserInterface
+    await afterPatch(this.app, result)
+    return result
+  }
+
+  async remove(id: NullableId, params?: Params) {
+    const userId = id
+    const response = await super.remove(id, params)
+    await this.app.service('user-api-key').remove(null, {
+      query: {
+        userId: userId
+      }
+    })
+    return response
   }
 }

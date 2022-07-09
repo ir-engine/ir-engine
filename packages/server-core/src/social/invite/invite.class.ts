@@ -5,12 +5,12 @@ import Sequelize, { Op } from 'sequelize'
 
 import { IdentityProviderInterface } from '@xrengine/common/src/dbmodels/IdentityProvider'
 import { Invite as InviteType } from '@xrengine/common/src/interfaces/Invite'
+import { UserInterface } from '@xrengine/common/src/interfaces/User'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 
 import { Application } from '../../../declarations'
 import { sendInvite } from '../../hooks/send-invite'
 import logger from '../../logger'
-import { UserDataType } from '../../user/user/user.class'
 
 export type InviteDataType = InviteType & { targetObjectId: UserId; passcode: string }
 
@@ -184,7 +184,7 @@ export class Invite extends Service<InviteDataType> {
   async remove(id: string, params?: Params): Promise<InviteDataType> {
     const invite = await this.app.service('invite').get(id)
     if (invite.inviteType === 'friend' && invite.inviteeId != null && !params?.preventUserRelationshipRemoval) {
-      const selfUser = params!.user as UserDataType
+      const selfUser = params!.user as UserInterface
       const relatedUserId = invite.userId === selfUser.id ? invite.inviteeId : invite.userId
       await this.app.service('user-relationship').remove(relatedUserId, params)
     }

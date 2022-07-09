@@ -1,4 +1,3 @@
-import { AdminScopeType } from './AdminScopeType'
 import { ThemeMode } from './ClientSetting'
 import { IdentityProvider } from './IdentityProvider'
 import { LocationAdmin } from './LocationAdmin'
@@ -22,7 +21,7 @@ export interface UserScope {
   id: string
 }
 
-export interface User {
+export interface UserInterface {
   id: UserId
   name: string
   userRole?: string
@@ -43,7 +42,7 @@ export interface User {
   apiKey: UserApiKey
 }
 
-export const UserSeed: User = {
+export const UserSeed: UserInterface = {
   id: '' as UserId,
   name: '',
   userRole: '',
@@ -59,12 +58,13 @@ export const UserSeed: User = {
 
 export interface CreateEditUser {
   name: string
-  avatarId: string
+  avatarId?: string
+  inviteCode?: string
   userRole: string
-  scopes: AdminScopeType[]
+  scopes?: UserScope[]
 }
 
-export function resolveUser(user: any): User {
+export function resolveUser(user: any): UserInterface {
   let returned = user
   if (user?.identity_providers) {
     returned = {
@@ -96,7 +96,7 @@ export function resolveUser(user: any): User {
   return returned
 }
 
-export function resolveWalletUser(credentials: any): User {
+export function resolveWalletUser(credentials: any): UserInterface {
   let returned = {
     id: '' as UserId,
     instanceId: credentials.user.id,

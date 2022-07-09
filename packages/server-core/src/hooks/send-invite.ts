@@ -5,6 +5,7 @@ import * as pug from 'pug'
 
 import { IdentityProviderInterface } from '@xrengine/common/src/dbmodels/IdentityProvider'
 import { Invite as InviteType } from '@xrengine/common/src/interfaces/Invite'
+import { UserInterface } from '@xrengine/common/src/interfaces/User'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 
 import { Application } from '../../declarations'
@@ -13,7 +14,6 @@ import logger from '../logger'
 import Page from '../types/PageObject'
 import { getInviteLink, sendEmail, sendSms } from '../user/auth-management/auth-management.utils'
 import { UserRelationshipDataType } from '../user/user-relationship/user-relationship.class'
-import { UserDataType } from '../user/user/user.class'
 
 export type InviteDataType = InviteType & { targetObjectId: UserId; passcode: string }
 
@@ -101,7 +101,7 @@ export const sendInvite = async (app: Application, result: InviteDataType, param
     const inviteType = result.inviteType
     const targetObjectId = result.targetObjectId
 
-    const authUser = params.user as UserDataType
+    const authUser = params.user as UserInterface
 
     if (result.identityProviderType === 'email') {
       await generateEmail(app, result, token, inviteType, authUser.name, targetObjectId)

@@ -1,14 +1,14 @@
 import { BadRequest, Forbidden } from '@feathersjs/errors'
 import { HookContext } from '@feathersjs/feathers'
 
-import { UserDataType } from '../user/user/user.class'
+import { UserInterface } from '@xrengine/common/src/interfaces/User'
 
 // This will attach the owner ID in the contact while creating/updating list item
 export default () => {
   return async (context: HookContext): Promise<HookContext> => {
     let fetchedGroupId
     const { id, method, params, app, path } = context
-    const loggedInUser = params.user as UserDataType
+    const loggedInUser = params.user as UserInterface
     if (path === 'group-user' && method === 'remove') {
       const groupUser = await app.service('group-user').get(id!, null!)
       fetchedGroupId = groupUser.groupId

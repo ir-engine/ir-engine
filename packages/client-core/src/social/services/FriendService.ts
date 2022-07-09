@@ -3,7 +3,7 @@ import { none } from '@speigg/hookstate'
 import _ from 'lodash'
 import { useEffect } from 'react'
 
-import { User } from '@xrengine/common/src/interfaces/User'
+import { UserInterface } from '@xrengine/common/src/interfaces/User'
 import { UserRelationship } from '@xrengine/common/src/interfaces/UserRelationship'
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { addActionReceptor, defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
@@ -18,7 +18,7 @@ const FriendState = defineState({
   name: 'FriendState',
   initial: () => ({
     friends: {
-      friends: [] as Array<User>,
+      friends: [] as Array<UserInterface>,
       total: 0,
       limit: 5,
       skip: 0
@@ -121,7 +121,7 @@ export const FriendService = {
           $limit: limit != null ? limit : friendState.friends.limit.value,
           $skip: skip != null ? skip : friendState.friends.skip.value
         }
-      })) as Paginated<User>
+      })) as Paginated<UserInterface>
       dispatchAction(FriendAction.loadedFriendsAction({ friends: friendResult }))
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
@@ -250,7 +250,7 @@ export const FriendService = {
 export class FriendAction {
   static loadedFriendsAction = defineAction({
     type: 'LOADED_FRIENDS' as const,
-    friends: matches.any as Validator<unknown, Paginated<User>>
+    friends: matches.any as Validator<unknown, Paginated<UserInterface>>
   })
 
   static createdFriendAction = defineAction({
@@ -261,13 +261,13 @@ export class FriendAction {
   static patchedFriendAction = defineAction({
     type: 'PATCHED_FRIEND' as const,
     userRelationship: matches.object as Validator<unknown, UserRelationship>,
-    selfUser: matches.object as Validator<unknown, User>
+    selfUser: matches.object as Validator<unknown, UserInterface>
   })
 
   static removedFriendAction = defineAction({
     type: 'REMOVED_FRIEND' as const,
     userRelationship: matches.object as Validator<unknown, UserRelationship>,
-    selfUser: matches.object as Validator<unknown, User>
+    selfUser: matches.object as Validator<unknown, UserInterface>
   })
 
   static fetchingFriendsAction = defineAction({

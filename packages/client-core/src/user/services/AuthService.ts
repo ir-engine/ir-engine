@@ -14,7 +14,13 @@ import { AuthUser, AuthUserSeed, resolveAuthUser } from '@xrengine/common/src/in
 import { AvatarProps } from '@xrengine/common/src/interfaces/AvatarInterface'
 import { IdentityProvider, IdentityProviderSeed } from '@xrengine/common/src/interfaces/IdentityProvider'
 import { StaticResourceInterface } from '@xrengine/common/src/interfaces/StaticResourceInterface'
-import { resolveUser, resolveWalletUser, User, UserSeed, UserSetting } from '@xrengine/common/src/interfaces/User'
+import {
+  resolveUser,
+  resolveWalletUser,
+  UserInterface,
+  UserSeed,
+  UserSetting
+} from '@xrengine/common/src/interfaces/User'
 import { UserApiKey } from '@xrengine/common/src/interfaces/UserApiKey'
 import { UserAvatar } from '@xrengine/common/src/interfaces/UserAvatar'
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
@@ -931,7 +937,7 @@ export class AuthAction {
 
   static loadedUserDataAction = defineAction({
     type: 'LOADED_USER_DATA' as const,
-    user: matches.object as Validator<unknown, User>
+    user: matches.object as Validator<unknown, UserInterface>
   })
 
   static updatedUserSettingsAction = defineAction({
@@ -961,7 +967,7 @@ export class AuthAction {
 
   static userUpdatedAction = defineAction({
     type: 'USER_UPDATED' as const,
-    user: matches.object as Validator<unknown, User>
+    user: matches.object as Validator<unknown, UserInterface>
   })
 
   static updateAvatarListAction = defineAction({

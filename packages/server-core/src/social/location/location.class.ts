@@ -4,10 +4,10 @@ import Sequelize, { Op } from 'sequelize'
 import slugify from 'slugify'
 
 import { Location as LocationType } from '@xrengine/common/src/interfaces/Location'
+import { UserInterface } from '@xrengine/common/src/interfaces/User'
 
 import { Application } from '../../../declarations'
 import logger from '../../logger'
-import { UserDataType } from '../../user/user/user.class'
 
 export type LocationDataType = LocationType
 
@@ -181,7 +181,7 @@ export class Location<T = LocationDataType> extends Service<T> {
         data: locationResult.rows
       }
     } else if (adminnedLocations) {
-      const loggedInUser = params!.user as UserDataType
+      const loggedInUser = params!.user as UserInterface
       const include = [
         {
           model: this.app.service('location-settings').Model,
@@ -248,7 +248,7 @@ export class Location<T = LocationDataType> extends Service<T> {
     try {
       // @ts-ignore
       let { location_settings, ...locationData } = data
-      const loggedInUser = params!.user as UserDataType
+      const loggedInUser = params!.user as UserInterface
       locationData.slugifiedName = slugify(locationData.name, { lower: true })
 
       if (locationData.isLobby) await this.makeLobby(t, params)
@@ -370,7 +370,7 @@ export class Location<T = LocationDataType> extends Service<T> {
     }
 
     if (id != null) {
-      const selfUser = params!.user as UserDataType
+      const selfUser = params!.user as UserInterface
       const location = await this.app.service('location').get(id)
       if (location.locationSettingsId != null)
         await this.app.service('location-settings').remove(location.locationSettingsId)
@@ -389,7 +389,7 @@ export class Location<T = LocationDataType> extends Service<T> {
   }
 
   async makeLobby(t, params?: Params): Promise<void> {
-    const selfUser = params!.user as UserDataType
+    const selfUser = params!.user as UserInterface
 
     if (!selfUser || selfUser.userRole !== 'admin') throw new Error('Only Admin can set Lobby')
 
