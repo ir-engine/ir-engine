@@ -32,9 +32,9 @@ export class Network {
   sendData(data: any) {}
 
   /**
-   * Send actions through reliable channel
+   * Send outgoing actions through reliable channel
    */
-  sendActions(actions: Action[]) {}
+  sendActions() {}
 
   /**
    * Sends a message across the connection and resolves with the reponse
