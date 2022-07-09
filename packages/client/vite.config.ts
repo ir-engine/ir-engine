@@ -128,7 +128,6 @@ export default defineConfig(async () => {
       alias: {
         'react-json-tree': 'react-json-tree/umd/react-json-tree',
         'socket.io-client': 'socket.io-client/dist/socket.io.js',
-        'react-infinite-scroller': 'react-infinite-scroller/dist/InfiniteScroll',
         '@mui/styled-engine': '@mui/styled-engine-sc'
       }
     },
