@@ -81,7 +81,7 @@ function createHyperStore(options: {
     state: {},
     actions: {
       queues: new Map(),
-      cached: {},
+      cached: [],
       incoming: [],
       history: new Array(),
       processedUUIDs: new Set(),
