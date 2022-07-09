@@ -1,11 +1,15 @@
 import assert from 'assert'
+import proxyquire from 'proxyquire'
+import sinon from 'sinon'
+import { Vector3 } from 'three'
 
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 
 import { Engine } from '../ecs/classes/Engine'
-import { getComponent, hasComponent } from '../ecs/functions/ComponentFunctions'
+import { addComponent, getComponent, hasComponent } from '../ecs/functions/ComponentFunctions'
 import { createEntity } from '../ecs/functions/EntityFunctions'
 import { createEngine } from '../initializeEngine'
+import { VelocityComponent } from '../physics/components/VelocityComponent'
 import { XRHandsInputComponent } from '../xr/components/XRHandsInputComponent'
 import { XRInputSourceComponent } from '../xr/components/XRInputSourceComponent'
 import { setupXRInputSourceComponent } from '../xr/functions/WebXRFunctions'
@@ -14,9 +18,12 @@ import {
   setupHeadIK,
   setupXRInputSourceContainer,
   setXRModeReceptor,
+  teleportObjectReceptor,
   xrHandsConnectedReceptor,
   xrInputQueryExit
 } from './AvatarSystem'
+import { AvatarComponent } from './components/AvatarComponent'
+import { AvatarControllerComponent } from './components/AvatarControllerComponent'
 import { AvatarHandsIKComponent } from './components/AvatarHandsIKComponent'
 import { AvatarHeadIKComponent } from './components/AvatarHeadIKComponent'
 
@@ -121,5 +128,64 @@ describe('AvatarSystem', async () => {
     entity = createEntity(world)
     assert(xrHandsConnectedReceptor(actionStub, worldStub))
     assert(hasComponent(entity, XRHandsInputComponent))
+  })
+
+  it('check avatarDetailsReceptor', async () => {
+    let client = null as any
+    const userId = 'user' as UserId
+    const action = { $from: userId, avatarDetail: { avatarURL: '' } } as any
+    const isClient = { isClient: true } as any
+    const avatarFunctions = { loadAvatarForUser: () => {} } as any
+    const { avatarDetailsReceptor } = proxyquire('./AvatarSystem', {
+      '../common/functions/isClient': isClient,
+      './functions/avatarFunctions': avatarFunctions
+    })
+
+    const world = { users: { get: () => client }, getUserAvatarEntity: () => 0 }
+    sinon.spy(avatarFunctions, 'loadAvatarForUser')
+
+    let thrownError = false
+
+    try {
+      avatarDetailsReceptor(action, world)
+    } catch (e) {
+      thrownError = true
+    }
+
+    assert(thrownError)
+    client = {} as any
+    avatarDetailsReceptor(action, world)
+    assert(client.avatarDetail)
+    assert(client.avatarDetail === action.avatarDetail)
+    assert(avatarFunctions.loadAvatarForUser.calledOnce)
+    const loadAvatarForUserArgs = avatarFunctions.loadAvatarForUser.getCall(0).args
+    assert(loadAvatarForUserArgs[0] === world.getUserAvatarEntity())
+    assert(loadAvatarForUserArgs[1] === action.avatarDetail.avatarURL)
+  })
+
+  it('check teleportObjectReceptor', async () => {
+    const action = { pose: [1, 2, 3], object: { ownerId: 0, networkId: 0 } } as any
+    const world = Engine.instance.currentWorld
+    const entity = createEntity(world)
+    const worldStub = { getNetworkObject: () => entity } as any
+
+    const controller = { controller: { setPosition: () => {} } } as any
+    sinon.spy(controller.controller, 'setPosition')
+
+    addComponent(entity, AvatarControllerComponent, controller)
+    const avatar = { avatarHalfHeight: 1 } as any
+    addComponent(entity, AvatarComponent, avatar)
+    const velocity = { linear: new Vector3().setScalar(1), angular: new Vector3().setScalar(1) } as any
+    addComponent(entity, VelocityComponent, velocity)
+
+    teleportObjectReceptor(action, worldStub)
+
+    assert(controller.controller.setPosition.calledOnce)
+    const setPositionArg = controller.controller.setPosition.getCall(0).args[0]
+    assert(setPositionArg.x === action.pose[0])
+    assert(setPositionArg.y === action.pose[1] + avatar.avatarHalfHeight)
+    assert(setPositionArg.z === action.pose[2])
+    assert(velocity.linear.length() === 0)
+    assert(velocity.angular.length() === 0)
   })
 })
