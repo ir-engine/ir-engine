@@ -18,10 +18,6 @@ function createPeer(
   world = Engine.instance.currentWorld
 ) {
   console.log('[Network]: Create Peer', network.topic, userId, index, name)
-  if (network.peers.has(userId))
-    return console.log(
-      `[WorldNetworkActionReceptors]: peer with id ${userId} and name ${name} already exists. ignoring.`
-    )
 
   network.userIdToUserIndex.set(userId, index)
   network.userIndexToUserId.set(index, userId)
@@ -99,7 +95,7 @@ function getCachedActionsForUser(network: Network, toUserId: UserId) {
     if (action.type === 'network.SPAWN_OBJECT' && action.prefab === 'avatar') {
       const ownerId = action.$from
       if (ownerId) {
-        const entity = world.getNetworkObject(ownerId, action.networkId)
+        const entity = Engine.instance.currentWorld.getNetworkObject(ownerId, action.networkId)
         if (typeof entity !== 'undefined') {
           const transform = getComponent(entity, TransformComponent)
           action.parameters.position = transform.position

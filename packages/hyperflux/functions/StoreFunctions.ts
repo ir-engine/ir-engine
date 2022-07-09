@@ -36,7 +36,7 @@ export interface HyperStore {
     /** */
     queues: Map<Validator<any, any>, Array<Array<ResolvedActionType>>>
     /** Cached actions */
-    cached: Record<string, Array<Required<ResolvedActionType>>>
+    cached: Array<Required<ResolvedActionType>>
     /** Incoming actions */
     incoming: Array<Required<ResolvedActionType>>
     /** All actions that have been applied, in the order they were processed */
