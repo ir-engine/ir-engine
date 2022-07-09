@@ -63,33 +63,11 @@ export default async function AvatarControllerSystem(world: World) {
   }
 }
 
-export const controllerQueryUpdate = (
-  entity: Entity,
-  displacement: Vector3,
-  world: World = Engine.instance.currentWorld
-) => {
-  const transform = getComponent(entity, TransformComponent)
-
-  displacementXZ.set(displacement.x, 0, displacement.z)
-  displacementXZ.applyQuaternion(invOrientation.copy(transform.rotation).invert())
-
-  if (displacementXZ.lengthSq() > 0) {
-    rotMatrix.lookAt(displacementXZ, V_000, V_010)
-    targetOrientation.setFromRotationMatrix(rotMatrix)
-    transform.rotation.slerp(targetOrientation, Math.max(world.deltaSeconds * 2, 3 / 60))
-  }
-
-  const displace = moveAvatar(world, entity, Engine.instance.currentWorld.camera)
-  displacement.set(displace.x, displace.y, displace.z)
-
-  const controller = getComponent(entity, AvatarControllerComponent)
+export const updateColliderPose = (entity: Entity) => {
   const collider = getComponent(entity, ColliderComponent)
-  const avatar = getComponent(entity, AvatarComponent)
-
+  const controller = getComponent(entity, AvatarControllerComponent)
+  const transform = getComponent(entity, TransformComponent)
   const pose = controller.controller.getPosition()
-  transform.position.set(pose.x, pose.y - avatar.avatarHalfHeight, pose.z)
-
-  detectUserInCollisions(entity)
 
   collider.body.setGlobalPose(
     {
@@ -98,7 +76,44 @@ export const controllerQueryUpdate = (
     },
     true
   )
+}
 
+export const updateAvatarTransformPosition = (entity: Entity) => {
+  const transform = getComponent(entity, TransformComponent)
+  const controller = getComponent(entity, AvatarControllerComponent)
+  const avatar = getComponent(entity, AvatarComponent)
+  const pose = controller.controller.getPosition()
+  transform.position.set(pose.x, pose.y - avatar.avatarHalfHeight, pose.z)
+}
+
+export const rotateTowardsDisplacementVector = (entity: Entity, displacement: Vector3, world: World) => {
+  const transform = getComponent(entity, TransformComponent)
+
+  displacementXZ.set(displacement.x, 0, displacement.z)
+  displacementXZ.applyQuaternion(invOrientation.copy(transform.rotation).invert())
+
+  if (displacementXZ.lengthSq() <= 0) return
+
+  rotMatrix.lookAt(displacementXZ, V_000, V_010)
+  targetOrientation.setFromRotationMatrix(rotMatrix)
+  transform.rotation.slerp(targetOrientation, Math.max(world.deltaSeconds * 2, 3 / 60))
+}
+
+export const controllerQueryUpdate = (
+  entity: Entity,
+  displacement: Vector3,
+  world: World = Engine.instance.currentWorld
+) => {
+  rotateTowardsDisplacementVector(entity, displacement, world)
+
+  const displace = moveAvatar(world, entity, Engine.instance.currentWorld.camera)
+  displacement.set(displace.x, displace.y, displace.z)
+
+  updateAvatarTransformPosition(entity)
+  detectUserInCollisions(entity)
+  updateColliderPose(entity)
+
+  const transform = getComponent(entity, TransformComponent)
   // TODO: implement scene lower bounds parameter
   if (transform.position.y < -10) respawnAvatar(entity)
 }

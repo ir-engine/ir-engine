@@ -39,9 +39,9 @@ export class SocketWebRTCClientNetwork extends Network {
   producers = [] as Producer[]
   consumers = [] as Consumer[]
 
-  sendActions(actions: Action[]) {
-    if (!actions.length) return
-    this.socket?.emit(MessageTypes.ActionData.toString(), /*encode(*/ actions) //)
+  sendActions() {
+    const actions = [...Engine.instance.store.actions.outgoing[this.topic].queue]
+    if (actions.length) this.socket?.emit(MessageTypes.ActionData.toString(), /*encode(*/ actions) //)
   }
 
   // This sends message on a data channel (data channel creation is now handled explicitly/default)

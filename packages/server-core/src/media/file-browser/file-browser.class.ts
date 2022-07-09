@@ -1,5 +1,5 @@
 import { Forbidden } from '@feathersjs/errors'
-import { NullableId, Params, ServiceMethods } from '@feathersjs/feathers/lib/declarations'
+import { NullableId, Paginated, Params, ServiceMethods } from '@feathersjs/feathers/lib/declarations'
 import appRootPath from 'app-root-path'
 import fs from 'fs'
 import path from 'path/posix'
@@ -52,19 +52,30 @@ export class FileBrowserService implements ServiceMethods<any> {
    * @param params
    * @returns
    */
-  async get(directory: string, params?: Params): Promise<FileContentType[]> {
+  async get(directory: string, params?: Params): Promise<Paginated<FileContentType>> {
+    if (!params) params = {}
+    if (!params.query) params.query = {}
+    const { $skip, $limit } = params.query
+
+    const skip = $skip ? $skip : 0
+    const limit = $limit ? $limit : 100
+
     const storageProvider = getStorageProvider()
-    const isAdmin = params?.user && params.user.userRole === 'admin'
+    const isAdmin = params.user && params.user.userRole === 'admin'
     if (directory[0] === '/') directory = directory.slice(1) // remove leading slash
-    if (params?.provider && !isAdmin && directory !== '' && !/^projects/.test(directory))
+    if (params.provider && !isAdmin && directory !== '' && !/^projects/.test(directory))
       throw new Forbidden('Not allowed to access that directory')
     let result = await storageProvider.listFolderContent(directory)
 
-    if (params?.provider && !isAdmin) {
+    const total = result.length
+
+    result = result.slice(skip, skip + limit)
+
+    if (params.provider && !isAdmin) {
       const projectPermissions = await this.app.service('project-permission').Model.findAll({
         include: ['project'],
         where: {
-          userId: params?.user.id
+          userId: params.user.id
         }
       })
       const allowedProjectNames = projectPermissions.map((permission) => permission.project.name)
@@ -78,7 +89,12 @@ export class FileBrowserService implements ServiceMethods<any> {
         )
       })
     }
-    return result
+    return {
+      total,
+      limit,
+      skip,
+      data: result
+    }
   }
 
   /**
