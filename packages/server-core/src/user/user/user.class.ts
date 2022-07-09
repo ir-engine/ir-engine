@@ -195,12 +195,11 @@ export class User extends Service<UserInterface> {
 
   async remove(id: NullableId, params?: Params) {
     const userId = id
-    const response = await super.remove(id, params)
     await this.app.service('user-api-key').remove(null, {
       query: {
         userId: userId
       }
     })
-    return response
+    return super.remove(id, params)
   }
 }
