@@ -17,7 +17,7 @@ export class Bot extends Service {
     this.app = app
   }
 
-  async find(params?: Params): Promise<AdminBotDataType[] | Paginated<AdminBotDataType>> {
+  async find(params?: Params): Promise<Paginated<AdminBotDataType>> {
     const bots = await this.app.service('bot').Model.findAll({
       include: [
         {

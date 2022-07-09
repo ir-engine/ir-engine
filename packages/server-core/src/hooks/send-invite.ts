@@ -89,9 +89,6 @@ async function generateSMS(
 // This will attach the owner ID in the contact while creating/updating list item
 export const sendInvite = async (app: Application, result: InviteDataType, params: Params) => {
   try {
-    // Getting logged in user and attaching owner of user
-    const {} = context
-
     let token = ''
     if (result.identityProviderType === 'email' || result.identityProviderType === 'sms') {
       token = result.token
