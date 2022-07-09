@@ -151,10 +151,10 @@ export class Invite extends Service<InviteDataType> {
     this.app = app
   }
 
-  async create(data: any, params: Params): Promise<InviteDataType | InviteDataType[]> {
+  async create(data: any, params?: Params): Promise<InviteDataType | InviteDataType[]> {
     const result = (await super.create(data)) as InviteDataType
     data.passcode = crypto.randomBytes(8).toString('hex')
-    await sendInvite(this.app, result, params)
+    await sendInvite(this.app, result, params!)
     return result
   }
 

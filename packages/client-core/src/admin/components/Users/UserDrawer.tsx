@@ -179,7 +179,7 @@ const UserDrawer = ({ open, mode, selectedUser, onClose }: Props) => {
       name: state.name,
       avatarId: state.avatar,
       userRole: state.userRole,
-      scopes: state.scopes
+      scopes: state.scopes as any
     }
 
     let tempErrors = {
