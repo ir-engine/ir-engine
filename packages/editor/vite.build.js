@@ -11,11 +11,6 @@ const extensions = ['.js', '.ts', '.tsx'];
 
 export default defineConfig(() => {
   return {
-    resolve: {
-      alias: {
-        "react-infinite-scroller": "react-infinite-scroller/dist/InfiniteScroll",
-      }
-    },
     build: {
       lib: {
         entry: path.resolve(__dirname, 'src/index.ts'),
