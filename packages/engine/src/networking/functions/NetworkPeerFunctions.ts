@@ -27,11 +27,10 @@ function createPeer(
     index: index
   })
 
-  if (!world.users.get(userId))
-    world.users.set(userId, {
-      userId: userId,
-      name: name
-    })
+  world.users.set(userId, {
+    userId: userId,
+    name: name
+  })
 }
 
 function destroyPeer(network: Network, userId: UserId, world = Engine.instance.currentWorld) {
