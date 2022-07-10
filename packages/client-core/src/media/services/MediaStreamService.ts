@@ -1,9 +1,9 @@
 import mediasoup from 'mediasoup-client'
 
 import { MediaStreams } from '@xrengine/client-core/src/transports/MediaStreams'
+import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { NearbyUser } from '@xrengine/engine/src/networking/functions/getNearbyUsers'
 import { getNearbyUsers } from '@xrengine/engine/src/networking/functions/getNearbyUsers'
 import { addActionReceptor, defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
@@ -19,7 +19,7 @@ export const MediaState = defineState({
     isScreenAudioEnabled: false,
     isFaceTrackingEnabled: false,
     enableBydefault: true,
-    nearbyLayerUsers: [] as NearbyUser[],
+    nearbyLayerUsers: [] as UserId[],
     consumers: [] as mediasoup.types.Consumer[]
   })
 })
@@ -97,7 +97,9 @@ export const MediaStreamService = {
   },
   updateNearbyLayerUsers: () => {
     const mediaState = getState(MediaState)
-    mediaState.nearbyLayerUsers.set(getNearbyUsers(Engine.instance.userId))
+    const nearbyUsers = getNearbyUsers(Engine.instance.userId)
+    if (JSON.stringify(mediaState.nearbyLayerUsers.value) !== JSON.stringify(nearbyUsers))
+      mediaState.nearbyLayerUsers.set(nearbyUsers)
   },
   updateFaceTrackingState: () => {
     dispatchAction(MediaStreamAction.setFaceTrackingStateAction({ isEnable: MediaStreams.instance.faceTracking }))

@@ -1,6 +1,5 @@
 import { matches } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { localAudioConstraints, localVideoConstraints } from '@xrengine/engine/src/networking/constants/VideoConstants'
-import { NearbyUser } from '@xrengine/engine/src/networking/functions/getNearbyUsers'
 import { defineAction } from '@xrengine/hyperflux'
 
 /** System class for media streaming. */

@@ -31,7 +31,7 @@ import { NotificationService } from '../../../../common/services/NotificationSer
 import { AuthService, useAuthState } from '../../../services/AuthService'
 import { userHasAccess } from '../../../userHasAccess'
 import styles from '../index.module.scss'
-import { getAvatarURLForUser, Views } from '../util'
+import { useAvatarURLForUser, Views } from '../util'
 
 interface Props {
   className?: string
@@ -354,7 +354,7 @@ const ProfileMenu = ({ className, hideLogin, isPopover, changeActiveMenu, onClos
       <section className={styles.profilePanel}>
         <section className={styles.profileBlock}>
           <div className={styles.avatarBlock}>
-            <img src={getAvatarURLForUser(userId)} />
+            <img src={useAvatarURLForUser(userId)} />
             {changeActiveMenu != null && (
               <Button
                 className={styles.avatarBtn}

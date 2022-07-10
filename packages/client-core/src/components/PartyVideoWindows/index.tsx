@@ -24,7 +24,7 @@ const PartyVideoWindows = (): JSX.Element => {
     network?.hostId && currentChannelInstanceConnection
       ? currentChannelInstanceConnection.channelType.value === 'channel'
         ? userState.channelLayerUsers.value.filter((user) => user.id !== selfUserId.value)
-        : userState.layerUsers.value.filter((user) => !!nearbyLayerUsers.value.find((u) => u.id === user.id))
+        : userState.layerUsers.value.filter((user) => nearbyLayerUsers.value.includes(user.id))
       : []
 
   const consumers = mediaState.consumers.value

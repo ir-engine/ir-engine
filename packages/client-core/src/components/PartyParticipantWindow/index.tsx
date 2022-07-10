@@ -15,7 +15,7 @@ import {
   resumeConsumer,
   resumeProducer
 } from '@xrengine/client-core/src/transports/SocketWebRTCClientFunctions'
-import { getAvatarURLForUser } from '@xrengine/client-core/src/user/components/UserMenu/util'
+import { useAvatarURLForUser } from '@xrengine/client-core/src/user/components/UserMenu/util'
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import { useUserState } from '@xrengine/client-core/src/user/services/UserService'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
@@ -90,8 +90,8 @@ const PartyParticipantWindow = ({ peerId }: Props): JSX.Element => {
   const consumers = mediastream.consumers
 
   const channelConnectionState = useMediaInstanceConnectionState()
-  const currentChannelInstanceConnection =
-    channelConnectionState.instances[Engine.instance.currentWorld.mediaNetwork?.hostId].ornull
+  const mediaHostID = Engine.instance.currentWorld.mediaNetwork?.hostId
+  const currentChannelInstanceConnection = mediaHostID && channelConnectionState.instances[mediaHostID].ornull
 
   const setVideoStream = (value) => {
     videoStreamRef.current = value
@@ -455,7 +455,7 @@ const PartyParticipantWindow = ({ peerId }: Props): JSX.Element => {
       >
         <div className={styles['video-wrapper']}>
           {(videoStream == null || videoStreamPaused || videoProducerPaused || videoProducerGlobalMute) && (
-            <img src={getAvatarURLForUser(isSelfUser ? selfUser?.id : user?.id)} draggable={false} />
+            <img src={useAvatarURLForUser(isSelfUser ? selfUser?.id : user?.id)} draggable={false} />
           )}
           <video key={peerId + '_cam'} ref={videoRef} draggable={false} />
         </div>

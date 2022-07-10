@@ -16,6 +16,7 @@ import { InputValue } from '../../input/interfaces/InputValue'
 import { Network, NetworkTopics } from '../../networking/classes/Network'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { UserClient } from '../../networking/interfaces/NetworkPeer'
+import { AvatarProps } from '../../networking/interfaces/WorldState'
 import { Physics } from '../../physics/classes/Physics'
 import { NameComponent } from '../../scene/components/NameComponent'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
@@ -183,9 +184,6 @@ export class World {
   portalQuery = () => this.#portalQuery(this) as Entity[]
 
   activePortal = null! as ReturnType<typeof PortalComponent.get>
-
-  /** Users spawned in the world */
-  users = new Map() as Map<UserId, UserClient>
 
   /**
    * The world entity

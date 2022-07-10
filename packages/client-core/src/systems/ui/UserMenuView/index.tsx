@@ -11,7 +11,7 @@ import { addActionReceptor, removeActionReceptor } from '@xrengine/hyperflux'
 import Button from '@mui/material/Button'
 
 import { PartyService, PartyServiceReceptor } from '../../../social/services/PartyService'
-import { getAvatarURLForUser } from '../../../user/components/UserMenu/util'
+import { useAvatarURLForUser } from '../../../user/components/UserMenu/util'
 import { useAuthState } from '../../../user/services/AuthService'
 import { UserService, useUserState } from '../../../user/services/UserService'
 import styleString from './index.scss'
@@ -82,7 +82,7 @@ const AvatarContextMenu = () => {
       <style>{styleString}</style>
       {user?.id.value && (
         <div className="rootContainer">
-          <img className="ownerImage" src={getAvatarURLForUser(user?.id?.value)} />
+          <img className="ownerImage" src={useAvatarURLForUser(user?.id?.value)} />
           <div className="buttonContainer">
             <section className="buttonSection">
               <Button className="button" onClick={inviteToParty}>

@@ -1,7 +1,8 @@
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
 import { WorldNetworkAction } from '@xrengine/engine/src/networking/functions/WorldNetworkAction'
-import { createActionQueue } from '@xrengine/hyperflux'
+import { WorldState } from '@xrengine/engine/src/networking/interfaces/WorldState'
+import { createActionQueue, getState } from '@xrengine/hyperflux'
 
 import { SocketWebRTCServerNetwork } from './SocketWebRTCServerNetwork'
 
@@ -10,16 +11,16 @@ const receiveSpawnObject = (
   world = Engine.instance.currentWorld,
   network: SocketWebRTCServerNetwork
 ) => {
-  const user = world.users.get(action.$from)!
-  if (!user) return
-  if (network.peers.get(action.$from)!.spectating) return
+  const worldState = getState(WorldState)
+  const userName = worldState.userNames[action.$from].value
+  const spectating = network.peers.get(action.$from)!.spectating
 
   const app = (world.worldNetwork as SocketWebRTCServerNetwork).app
   app.service('message').create(
     {
       targetObjectId: app.instance.id,
       targetObjectType: 'instance',
-      text: `${user.name} joined the layer`,
+      text: `${userName} joined` + spectating ? ' as spectator' : '',
       isNotification: true
     },
     {
@@ -35,16 +36,14 @@ const receiveDestroyObject = (
   world = Engine.instance.currentWorld,
   network: SocketWebRTCServerNetwork
 ) => {
-  const user = world.users.get(action.$from)!
-  if (!user) return
-  if (network.peers.get(action.$from)!.spectating) return
-
+  const worldState = getState(WorldState)
+  const userName = worldState.userNames[action.$from].value
   const app = (world.worldNetwork as SocketWebRTCServerNetwork).app
   app.service('message').create(
     {
       targetObjectId: app.instance.id,
       targetObjectType: 'instance',
-      text: `${user.name} left the layer`,
+      text: `${userName} left`,
       isNotification: true
     },
     {

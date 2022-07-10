@@ -1,5 +1,7 @@
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { WorldState } from '@xrengine/engine/src/networking/interfaces/WorldState'
+import { getState, useState } from '@xrengine/hyperflux'
 
 import { accessUserState } from '../../services/UserService'
 
@@ -24,10 +26,9 @@ export interface SettingMenuProps {
 
 export const DEFAULT_PROFILE_IMG_PLACEHOLDER = '/placeholders/default-silhouette.svg'
 
-export function getAvatarURLForUser(userId?: UserId) {
-  const userState = accessUserState()
+export function useAvatarURLForUser(userId?: UserId) {
   const world = Engine.instance.currentWorld
   if (!world || !userId) return DEFAULT_PROFILE_IMG_PLACEHOLDER
-  if (!world.users.has(userId)) return DEFAULT_PROFILE_IMG_PLACEHOLDER
-  return world.users.get(userId)!.avatarDetail?.thumbnailURL || DEFAULT_PROFILE_IMG_PLACEHOLDER
+  const userAvatarDetails = useState(getState(WorldState)).userAvatarDetails
+  return userAvatarDetails[userId].thumbnailURL?.value || DEFAULT_PROFILE_IMG_PLACEHOLDER
 }

@@ -3,13 +3,13 @@ import { Quaternion, Vector3 } from 'three'
 
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { getSearchParamFromURL } from '@xrengine/common/src/utils/getSearchParamFromURL'
-import { dispatchAction } from '@xrengine/hyperflux'
+import { dispatchAction, getState } from '@xrengine/hyperflux'
 import { Action } from '@xrengine/hyperflux/functions/ActionFunctions'
 
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions } from '../../ecs/classes/EngineState'
 import { NetworkTopics } from '../classes/Network'
-import { AvatarProps } from '../interfaces/WorldState'
+import { AvatarProps, WorldState } from '../interfaces/WorldState'
 import { WorldNetworkAction } from './WorldNetworkAction'
 
 export type JoinWorldRequestData = {
@@ -32,10 +32,9 @@ export type SpawnInWorldProps = {
 export const spawnLocalAvatarInWorld = (props: SpawnInWorldProps) => {
   const { avatarSpawnPose, avatarDetail, name } = props
   console.log('SPAWN IN WORLD', avatarSpawnPose, avatarDetail, name)
-  Engine.instance.currentWorld.users.set(Engine.instance.userId, {
-    userId: Engine.instance.userId,
-    name
-  })
+  const worldState = getState(WorldState)
+  worldState.userNames[Engine.instance.userId].set(name)
+  worldState.userAvatarDetails[Engine.instance.userId].set(avatarDetail)
   dispatchAction(WorldNetworkAction.spawnAvatar(avatarSpawnPose), NetworkTopics.world)
   dispatchAction(WorldNetworkAction.avatarDetails({ avatarDetail }), NetworkTopics.world)
   dispatchAction(EngineActions.joinedWorld())

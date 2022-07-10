@@ -14,6 +14,7 @@ import { createEngine } from '../../initializeEngine'
 import { NetworkTopics } from '../classes/Network'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
 import { NetworkObjectOwnedTag } from '../components/NetworkObjectOwnedTag'
+import { WorldState } from '../interfaces/WorldState'
 import WorldNetworkActionSystem from '../systems/WorldNetworkActionSystem'
 import { NetworkPeerFunctions } from './NetworkPeerFunctions'
 import { WorldNetworkAction } from './WorldNetworkAction'
@@ -263,10 +264,6 @@ describe('WorldNetworkActionReceptors', () => {
       NetworkPeerFunctions.createPeer(network, userId, userIndex, userName, world)
 
       const hostIndex = 0
-      world.users.set(world.worldNetwork.hostId, {
-        userId: world.worldNetwork.hostId,
-        name: 'world'
-      })
 
       network.peers.set(world.worldNetwork.hostId, {
         userId: world.worldNetwork.hostId,

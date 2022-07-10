@@ -8,7 +8,7 @@ import { Send } from '@mui/icons-material'
 import Avatar from '@mui/material/Avatar'
 
 import { useChatHooks } from '../../../components/InstanceChat'
-import { getAvatarURLForUser } from '../../../user/components/UserMenu/util'
+import { useAvatarURLForUser } from '../../../user/components/UserMenu/util'
 import styleString from './index.scss'
 
 export function createChatDetailView() {
@@ -64,14 +64,14 @@ const ChatDetailView = () => {
                           </div>
                         </div>
                         {index !== 0 && messages[index - 1] && isLeftOrJoinText(messages[index - 1].text) ? (
-                          <Avatar src={getAvatarURLForUser(message.senderId)} className="avatar" />
+                          <Avatar src={useAvatarURLForUser(message.senderId)} className="avatar" />
                         ) : (
                           messages[index - 1] &&
                           message.senderId !== messages[index - 1].senderId && (
-                            <Avatar src={getAvatarURLForUser(message.senderId)} className="avatar" />
+                            <Avatar src={useAvatarURLForUser(message.senderId)} className="avatar" />
                           )
                         )}
-                        {index === 0 && <Avatar src={getAvatarURLForUser(message.senderId)} className="avatar" />}
+                        {index === 0 && <Avatar src={useAvatarURLForUser(message.senderId)} className="avatar" />}
                       </div>
                     </div>
                   </div>

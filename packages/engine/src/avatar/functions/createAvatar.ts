@@ -19,6 +19,7 @@ import { AvatarCollisionMask, CollisionGroups } from '../../physics/enums/Collis
 import { BodyType, SceneQueryType } from '../../physics/types/PhysicsTypes'
 import { NameComponent } from '../../scene/components/NameComponent'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
+import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
 import { ShadowComponent } from '../../scene/components/ShadowComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
@@ -156,6 +157,8 @@ export const createAvatar = (spawnAction: typeof WorldNetworkAction.spawnAvatar.
   })
   body.setActorFlag(PhysX.PxActorFlag.eDISABLE_GRAVITY, true)
   addComponent(entity, ColliderComponent, { body })
+
+  addComponent(entity, PersistTagComponent, true)
 
   return entity
 }

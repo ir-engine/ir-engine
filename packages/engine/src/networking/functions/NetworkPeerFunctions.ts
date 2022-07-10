@@ -1,5 +1,7 @@
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
+import { getState } from '@xrengine/hyperflux'
 import { Action } from '@xrengine/hyperflux/functions/ActionFunctions'
+import { none } from '@xrengine/hyperflux/functions/StateFunctions'
 
 import { Engine } from '../../ecs/classes/Engine'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
@@ -7,6 +9,7 @@ import { removeEntity } from '../../ecs/functions/EntityFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { Network } from '../classes/Network'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
+import { WorldState } from '../interfaces/WorldState'
 import { WorldNetworkAction } from './WorldNetworkAction'
 import { WorldNetworkActionReceptor } from './WorldNetworkActionReceptor'
 
@@ -27,10 +30,8 @@ function createPeer(
     index: index
   })
 
-  world.users.set(userId, {
-    userId: userId,
-    name: name
-  })
+  const worldState = getState(WorldState)
+  worldState.userNames[userId].set(name)
 }
 
 function destroyPeer(network: Network, userId: UserId, world = Engine.instance.currentWorld) {
@@ -53,7 +54,6 @@ function destroyPeer(network: Network, userId: UserId, world = Engine.instance.c
 
   if (!remainingPeersForDisconnectingUser.length) {
     Engine.instance.store.actions.cached = Engine.instance.store.actions.cached.filter((a) => a.$from !== userId)
-    world.users.delete(userId)
     for (const eid of world.getOwnedNetworkObjects(userId)) removeEntity(eid)
   }
 

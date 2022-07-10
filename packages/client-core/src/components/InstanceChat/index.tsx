@@ -34,7 +34,7 @@ import CardContent from '@mui/material/CardContent'
 import Fab from '@mui/material/Fab'
 import TextField from '@mui/material/TextField'
 
-import { getAvatarURLForUser } from '../../user/components/UserMenu/util'
+import { useAvatarURLForUser } from '../../user/components/UserMenu/util'
 import defaultStyles from './index.module.scss'
 
 const logger = multiLogger.child({ component: 'client-core:chat' })
@@ -356,15 +356,15 @@ const InstanceChat = ({
                                   </div>
                                 </div>
                                 {index !== 0 && messages[index - 1] && isLeftOrJoinText(messages[index - 1].text) ? (
-                                  <Avatar src={getAvatarURLForUser(message.senderId)} className={styles.avatar} />
+                                  <Avatar src={useAvatarURLForUser(message.senderId)} className={styles.avatar} />
                                 ) : (
                                   messages[index - 1] &&
                                   message.senderId !== messages[index - 1].senderId && (
-                                    <Avatar src={getAvatarURLForUser(message.senderId)} className={styles.avatar} />
+                                    <Avatar src={useAvatarURLForUser(message.senderId)} className={styles.avatar} />
                                   )
                                 )}
                                 {index === 0 && (
-                                  <Avatar src={getAvatarURLForUser(message.senderId)} className={styles.avatar} />
+                                  <Avatar src={useAvatarURLForUser(message.senderId)} className={styles.avatar} />
                                 )}
                               </div>
                             </div>

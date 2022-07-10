@@ -1,21 +1,13 @@
 import { Quaternion, Vector3 } from 'three'
-import matches from 'ts-matches'
 
 import { createActionQueue } from '@xrengine/hyperflux'
 
-import { AudioTagComponent } from '../audio/components/AudioTagComponent'
-import { FollowCameraComponent, FollowCameraDefaultValues } from '../camera/components/FollowCameraComponent'
-import { isClient } from '../common/functions/isClient'
-import { Engine } from '../ecs/classes/Engine'
 import { Entity } from '../ecs/classes/Entity'
 import { World } from '../ecs/classes/World'
-import { addComponent, defineQuery, getComponent, hasComponent } from '../ecs/functions/ComponentFunctions'
-import { LocalInputTagComponent } from '../input/components/LocalInputTagComponent'
+import { defineQuery, getComponent, hasComponent } from '../ecs/functions/ComponentFunctions'
 import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
-import { ShadowComponent } from '../scene/components/ShadowComponent'
 import { SpawnPointComponent } from '../scene/components/SpawnPointComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
-import { AvatarComponent } from './components/AvatarComponent'
 import { createAvatar } from './functions/createAvatar'
 
 const randomPositionCentered = (area: Vector3) => {
