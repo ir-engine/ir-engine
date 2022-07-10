@@ -284,7 +284,6 @@ function addTopic(topic: string, store = HyperFlux.store) {
       history: [],
       historyUUIDs: new Set()
     }
-  if (!store.actions.cached[topic]) store.actions.cached[topic] = []
 }
 
 function removeTopic(topic: string, store = HyperFlux.store) {
@@ -295,7 +294,6 @@ function removeTopic(topic: string, store = HyperFlux.store) {
     }
   }
   delete store.actions.outgoing[topic]
-  delete store.actions.cached[topic]
 }
 
 /**
@@ -325,12 +323,7 @@ function removeActionReceptor(receptor: ActionReceptor, store = HyperFlux.store)
 
 const _updateCachedActions = (incomingAction: Required<ResolvedActionType>, store = HyperFlux.store) => {
   if (incomingAction.$cache) {
-    const topic = incomingAction.$topic
-    if (!store.actions.cached[topic]) {
-      console.warn(`[HyperFlux]: got action from topic not subscribed to: '${topic}'`)
-      return
-    }
-    const cachedActions = store.actions.cached[topic]
+    const cachedActions = store.actions.cached
     // see if we must remove any previous actions
     if (typeof incomingAction.$cache === 'boolean') {
       if (incomingAction.$cache) cachedActions.push(incomingAction)

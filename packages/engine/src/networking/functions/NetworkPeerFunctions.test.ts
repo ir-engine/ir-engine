@@ -38,20 +38,25 @@ describe('NetworkPeerFunctions', () => {
       assert.equal(network.userIdToUserIndex.get(userId), userIndex)
     })
 
-    it('should not add peer if already exists', () => {
+    it('should udpate peer if it already exists', () => {
       const world = Engine.instance.currentWorld
       const userId = 'user id' as UserId
       Engine.instance.userId = 'another user id' as UserId
       const userName = 'user name'
       const userName2 = 'user name 2'
       const userIndex = 1
+      const userIndex2 = 2
       const network = world.worldNetwork
 
       NetworkPeerFunctions.createPeer(network, userId, userIndex, userName, world)
-      NetworkPeerFunctions.createPeer(network, userId, userIndex, userName2, world)
-
       assert.equal(network.peers.get(userId)?.userId, userId)
+      assert.equal(network.peers.get(userId)?.index, userIndex)
       assert.equal(world.users.get(userId)?.name, userName)
+
+      NetworkPeerFunctions.createPeer(network, userId, userIndex2, userName2, world)
+      assert.equal(network.peers.get(userId)?.userId, userId)
+      assert.equal(network.peers.get(userId)?.index, userIndex2)
+      assert.equal(world.users.get(userId)?.name, userName2)
     })
   })
 
@@ -69,8 +74,10 @@ describe('NetworkPeerFunctions', () => {
 
       assert(!world.users.get(userId))
       assert(!network.peers.get(userId))
-      assert(!network.userIndexToUserId.get(userIndex))
-      assert(!network.userIdToUserIndex.get(userId))
+
+      // indexes shouldn't be removed (no reason for these to ever change)
+      assert.equal(network.userIndexToUserId.get(userIndex), userId)
+      assert.equal(userIndex, network.userIdToUserIndex.get(userId))
     })
 
     it('should remove peer and owned network objects', () => {
@@ -102,8 +109,8 @@ describe('NetworkPeerFunctions', () => {
 
       assert(!world.users.get(userId))
       assert(!network.peers.get(userId))
-      assert(!network.userIndexToUserId.get(1))
-      assert(!network.userIdToUserIndex.get(userId))
+      assert.equal(network.userIndexToUserId.get(1), userId)
+      assert.equal(network.userIdToUserIndex.get(userId), 1)
 
       assert(!world.getNetworkObject(userId, networkId))
     })
