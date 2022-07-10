@@ -18,10 +18,6 @@ function createPeer(
   world = Engine.instance.currentWorld
 ) {
   console.log('[Network]: Create Peer', network.topic, userId, index, name)
-  if (network.peers.has(userId))
-    return console.log(
-      `[WorldNetworkActionReceptors]: peer with id ${userId} and name ${name} already exists. ignoring.`
-    )
 
   network.userIdToUserIndex.set(userId, index)
   network.userIndexToUserId.set(index, userId)
@@ -31,11 +27,10 @@ function createPeer(
     index: index
   })
 
-  if (!world.users.get(userId))
-    world.users.set(userId, {
-      userId: userId,
-      name: name
-    })
+  world.users.set(userId, {
+    userId: userId,
+    name: name
+  })
 }
 
 function destroyPeer(network: Network, userId: UserId, world = Engine.instance.currentWorld) {
