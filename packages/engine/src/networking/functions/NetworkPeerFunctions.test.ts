@@ -77,8 +77,6 @@ describe('NetworkPeerFunctions', () => {
       NetworkPeerFunctions.createPeer(network, userId, userIndex, userName, world)
       NetworkPeerFunctions.destroyPeer(network, userId, world)
 
-      const worldState = getState(WorldState)
-      assert(!worldState.userNames[userId])
       assert(!network.peers.get(userId))
 
       // indexes shouldn't be removed (no reason for these to ever change in a network)
@@ -111,8 +109,6 @@ describe('NetworkPeerFunctions', () => {
       ActionFunctions.applyIncomingActions()
       world.execute(0)
 
-      const worldState = getState(WorldState)
-      assert(!worldState.userNames[userId])
       assert(!network.peers.get(userId))
       assert.equal(network.userIndexToUserId.get(1), userId)
       assert.equal(network.userIdToUserIndex.get(userId), 1)

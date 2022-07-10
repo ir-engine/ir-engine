@@ -21,7 +21,7 @@ export const updateNearbyAvatars = () => {
   if (!currentChannelInstanceConnection?.value) return
 
   network?.request(MessageTypes.WebRTCRequestCurrentProducers.toString(), {
-    userIds: mediaState.nearbyLayerUsers.value.map((u) => u.id) || [],
+    userIds: mediaState.nearbyLayerUsers.value || [],
     channelType: currentChannelInstanceConnection.channelType.value,
     channelId: currentChannelInstanceConnection.channelId.value
   })

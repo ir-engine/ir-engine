@@ -3,6 +3,7 @@ import { Mesh, MeshNormalMaterial, Quaternion, SphereBufferGeometry, Vector3 } f
 
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
+import { getState } from '@xrengine/hyperflux'
 import ActionFunctions from '@xrengine/hyperflux/functions/ActionFunctions'
 
 import { Engine } from '../../src/ecs/classes/Engine'
@@ -14,6 +15,7 @@ import { EquipperComponent } from '../../src/interaction/components/EquipperComp
 import { equipEntity, unequipEntity } from '../../src/interaction/functions/equippableFunctions'
 import { equippableQueryEnter, equippableQueryExit } from '../../src/interaction/systems/EquippableSystem'
 import { NetworkObjectComponent } from '../../src/networking/components/NetworkObjectComponent'
+import { WorldState } from '../../src/networking/interfaces/WorldState'
 import { ColliderComponent } from '../../src/physics/components/ColliderComponent'
 import { CollisionComponent } from '../../src/physics/components/CollisionComponent'
 import { createBody, getAllShapesFromObject3D, ShapeOptions } from '../../src/physics/functions/createCollider'
@@ -34,7 +36,7 @@ describe('Equippables Integration Tests', () => {
     const hostUserId = 'world' as UserId
     world.worldNetwork.hostId = hostUserId
     const hostIndex = 0
-    world.users.set(hostUserId, { userId: hostUserId, name: 'world' })
+
     world.worldNetwork.peers.set(hostUserId, { userId: hostUserId, index: hostIndex })
 
     await Engine.instance.currentWorld.physics.createScene({ verbose: true })
