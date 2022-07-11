@@ -50,7 +50,8 @@ export class SocketWebRTCServerNetwork extends Network {
         socket.emit(MessageTypes.UpdatePeers.toString(), peers)
   }
 
-  public sendActions = (actions: Array<Required<Action>>): any => {
+  public sendActions = (): any => {
+    const actions = [...Engine.instance.store.actions.outgoing[this.topic].queue]
     if (!actions.length) return
     const userIdMap = {} as { [socketId: string]: UserId }
     for (const [id, client] of this.peers) userIdMap[client.socketId!] = id

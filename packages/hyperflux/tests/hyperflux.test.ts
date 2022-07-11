@@ -259,12 +259,12 @@ describe('Hyperflux Unit Tests', () => {
     applyIncomingActions(store)
 
     assert.equal(receivedCount, 5)
-    assert.equal(store.actions.cached[store.defaultTopic].length, 4)
+    assert.equal(store.actions.cached.length, 4)
 
     dispatchAction(greet({ $cache: { removePrevious: true } }), store.defaultTopic, store)
     applyIncomingActions(store)
     assert.equal(receivedCount, 6)
-    assert.equal(store.actions.cached[store.defaultTopic].length, 1)
+    assert.equal(store.actions.cached.length, 1)
 
     dispatchAction(greet({ $cache: true }), store.defaultTopic, store)
     dispatchAction(greet({ $cache: true }), store.defaultTopic, store)
@@ -273,14 +273,14 @@ describe('Hyperflux Unit Tests', () => {
     dispatchAction(greetAction, store.defaultTopic, store)
     applyIncomingActions(store)
     assert.equal(receivedCount, 10)
-    assert.equal(store.actions.cached[store.defaultTopic].length, 5)
+    assert.equal(store.actions.cached.length, 5)
     assert.equal(store.actions.history.at(-1)!['greeting'], 'welcome')
 
     greetAction = greet({ greeting: 'welcome', $cache: { removePrevious: ['greeting'], disable: true } })
     dispatchAction(greetAction, store.defaultTopic, store)
     applyIncomingActions(store)
     assert.equal(receivedCount, 11)
-    assert.equal(store.actions.cached[store.defaultTopic].length, 4)
+    assert.equal(store.actions.cached.length, 4)
     assert.equal(store.actions.history.at(-1)!['greeting'], 'welcome')
 
     dispatchAction(
@@ -290,12 +290,12 @@ describe('Hyperflux Unit Tests', () => {
     )
     applyIncomingActions(store)
     assert.equal(receivedCount, 12)
-    assert.equal(store.actions.cached[store.defaultTopic].length, 5)
+    assert.equal(store.actions.cached.length, 5)
 
     dispatchAction(greet({ $cache: { removePrevious: true, disable: true } }), store.defaultTopic, store)
     applyIncomingActions(store)
     assert.equal(receivedCount, 13)
-    assert.equal(store.actions.cached[store.defaultTopic].length, 1)
+    assert.equal(store.actions.cached.length, 1)
 
     dispatchAction(
       greet({ $from: 'differentUser' as UserId, $cache: { removePrevious: true, disable: true } }),
@@ -304,7 +304,7 @@ describe('Hyperflux Unit Tests', () => {
     )
     applyIncomingActions(store)
     assert.equal(receivedCount, 14)
-    assert.equal(store.actions.cached[store.defaultTopic].length, 0)
+    assert.equal(store.actions.cached.length, 0)
   })
 
   it('should be able to apply incoming actions to receptors in a peer store', () => {
