@@ -7,6 +7,8 @@ import { WebRtcTransportParams } from '@xrengine/server-core/src/types/WebRtcTra
 
 import {
   authorizeUserToJoinServer,
+  disconnectClientIfConnected,
+  handleConnectingPeer,
   handleDisconnect,
   handleHeartbeat,
   handleIncomingActions,
@@ -83,6 +85,11 @@ export const setupSocketFunctions = (network: SocketWebRTCServerNetwork, socket:
      * @todo Check that they are supposed to be in this instance
      * @todo Check that token is valid (to prevent users hacking with a manipulated user ID payload)
      */
+
+    if (disconnectClientIfConnected(network, socket, userId))
+      return callback({ success: false, message: 'user already connected' })
+
+    await handleConnectingPeer(network, socket, user)
 
     callback({ success: true })
 

@@ -7,7 +7,7 @@ import { Group } from '@xrengine/common/src/interfaces/Group'
 import { Instance } from '@xrengine/common/src/interfaces/Instance'
 import { Message } from '@xrengine/common/src/interfaces/Message'
 import { Party } from '@xrengine/common/src/interfaces/Party'
-import { User } from '@xrengine/common/src/interfaces/User'
+import { UserInterface } from '@xrengine/common/src/interfaces/User'
 import multiLogger from '@xrengine/common/src/logger'
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
@@ -40,7 +40,7 @@ const ChatState = defineState({
     },
     targetObjectType: '',
     targetObjectId: '',
-    targetObject: {} as User | Group | Party | Instance,
+    targetObject: {} as UserInterface | Group | Party | Instance,
     targetChannelId: '',
     updateMessageScroll: false,
     messageScrollInit: false,
@@ -421,7 +421,7 @@ export class ChatAction {
   static createdMessageAction = defineAction({
     type: 'CREATED_MESSAGE' as const,
     message: matches.object as Validator<unknown, Message>,
-    selfUser: matches.object as Validator<unknown, User>
+    selfUser: matches.object as Validator<unknown, UserInterface>
   })
 
   static patchedMessageAction = defineAction({

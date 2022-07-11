@@ -630,7 +630,8 @@
       "renameAsset": "Rename",
       "viewAssetProperties": "View Properties",
       "refresh": "Refresh",
-      "back": "Back"
+      "back": "Back",
+      "loadingFiles": "Loading files"
     }
   },
   "hierarchy": {

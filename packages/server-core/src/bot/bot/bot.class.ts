@@ -1,13 +1,14 @@
 import { NullableId, Paginated, Params } from '@feathersjs/feathers'
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 
-import { AdminBot } from '@xrengine/common/src/interfaces/AdminBot'
+import { AdminBot, CreateBotAsAdmin } from '@xrengine/common/src/interfaces/AdminBot'
 
 import { Application } from '../../../declarations'
+import { createBotCommands } from './bot.functions'
 
 export type AdminBotDataType = AdminBot
 
-export class Bot<T = AdminBotDataType> extends Service<T> {
+export class Bot extends Service {
   app: Application
   docs: any
 
@@ -16,7 +17,7 @@ export class Bot<T = AdminBotDataType> extends Service<T> {
     this.app = app
   }
 
-  async find(params?: Params): Promise<T[] | Paginated<T>> {
+  async find(params?: Params): Promise<Paginated<AdminBotDataType>> {
     const bots = await this.app.service('bot').Model.findAll({
       include: [
         {
@@ -30,15 +31,17 @@ export class Bot<T = AdminBotDataType> extends Service<T> {
         }
       ]
     })
-    return { data: bots } as Paginated<T>
+    return { data: bots } as Paginated<AdminBotDataType>
   }
 
-  async create(data): Promise<T> {
+  async create(data: CreateBotAsAdmin): Promise<AdminBotDataType> {
     data.instanceId = data.instanceId ? data.instanceId : null
-    return (await super.create(data)) as T
+    const result = await super.create(data)
+    createBotCommands(this.app, result, data.command!)
+    return result
   }
 
-  async patch(id: NullableId, data: any): Promise<T | T[]> {
+  async patch(id: NullableId, data: any): Promise<AdminBotDataType | AdminBotDataType[]> {
     return super.patch(id, data)
   }
 }
