@@ -22,13 +22,18 @@ export default function ModelTransformLoader() {
     'meshopt.encoder': MeshoptEncoder
   })
 
+  const transformHistory: string[] = []
   return {
     io,
     load: async (src) => {
       const loader = new FileLoader()
       loader.setResponseType('arraybuffer')
       const data = (await loader.loadAsync(src)) as ArrayBuffer
+      transformHistory.push(src)
       return io.readBinary(new Uint8Array(data))
+    },
+    get prev(): string | undefined {
+      return transformHistory.length > 0 ? transformHistory[0] : undefined
     }
   }
 }

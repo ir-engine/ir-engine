@@ -91,7 +91,7 @@ export default function ModelTransformProperties({ modelComponent, onChangeModel
   const { t } = useTranslation()
 
   const [transforming, setTransforming] = useState<boolean>(false)
-
+  const [transformHistory, setTransformHistory] = useState<string[]>(() => [])
   const [transformParms, setTransformParms] = useState<ModelTransformParameters>({
     useDraco: false,
     useMeshopt: true,
@@ -116,14 +116,22 @@ export default function ModelTransformProperties({ modelComponent, onChangeModel
     const [_, directoryToRefresh, fileName] = /.*\/(projects\/.*)\/([\w\d\s\-_\.]*)$/.exec(nuPath)!
     await FileBrowserService.fetchFiles(directoryToRefresh)
     await AssetLoader.loadAsync(nuPath)
+    setTransformHistory([nuPath, ...transformHistory])
     onChangeModel(nuPath)
     setTransforming(false)
   }
-
   const [internalFilter, setInternalFilter] = useState<string[]>(() => [])
+  function onUndoTransform() {
+    const { prev } = ModelTransformLoader()
+    onChangeModel(prev!)
+    setTransformHistory([...transformHistory].slice(1))
+  }
 
   async function getModelResources(filter) {
-    const { io, load } = ModelTransformLoader()
+    const load = async (src) => {
+      const { load } = ModelTransformLoader()
+      return load(src)
+    }
     const document = await load(modelComponent.src)
     const root = document.getRoot()
     const listTable = (element) => {
@@ -229,6 +237,7 @@ export default function ModelTransformProperties({ modelComponent, onChangeModel
           </InputGroup>
           {!transforming && <OptimizeButton onClick={onTransformModel}>Optimize</OptimizeButton>}
           {transforming && <p>Transforming...</p>}
+          {transformHistory.length > 0 && <Button onClick={onUndoTransform}>Undo</Button>}
         </ElementsContainer>
       </TransformContainer>
     </CollapsibleBlock>
