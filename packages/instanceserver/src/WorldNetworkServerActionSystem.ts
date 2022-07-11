@@ -20,7 +20,7 @@ const receiveSpawnObject = (
     {
       targetObjectId: app.instance.id,
       targetObjectType: 'instance',
-      text: `${userName} joined` + spectating ? ' as spectator' : '',
+      text: `${userName} joined` + (spectating ? ' as spectator' : ''),
       isNotification: true
     },
     {
