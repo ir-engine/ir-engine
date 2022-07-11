@@ -4,6 +4,7 @@ import { DracoMeshCompression, MeshoptCompression, MeshQuantization, TextureBasi
 import { dedup, prune, quantize, reorder } from '@gltf-transform/functions'
 import appRootPath from 'app-root-path'
 import { exec } from 'child_process'
+import draco3d from 'draco3dgltf'
 import fs from 'fs'
 import { MeshoptDecoder, MeshoptEncoder } from 'meshoptimizer'
 import path from 'path'
@@ -58,19 +59,26 @@ export async function transformModel(app: Application, args: ModelTransformArgum
     return `${toValidFilename(texture.getName())}.${mimeToFileType(texture.getMimeType())}`
   }
 
-  const { io } = ModelTransformLoader()
+  const { io } = await ModelTransformLoader()
 
   const document = await io.read(args.src)
   const root = document.getRoot()
 
   /* PROCESS MESHES */
-  document
-    .createExtension(MeshoptCompression)
-    .setRequired(true)
-    .setEncoderOptions({ method: MeshoptCompression.EncoderMethod.QUANTIZE })
+  if (args.parms.useMeshopt) {
+    document
+      .createExtension(MeshoptCompression)
+      .setRequired(true)
+      .setEncoderOptions({ method: MeshoptCompression.EncoderMethod.QUANTIZE })
 
-  await MeshoptEncoder.ready
-  await document.transform(dedup(), prune(), reorder({ encoder: MeshoptEncoder }))
+    await MeshoptEncoder.ready
+    await document.transform(dedup(), prune(), reorder({ encoder: MeshoptEncoder }))
+  }
+  if (args.parms.useMeshQuantization) {
+    document.createExtension(MeshQuantization).setRequired(true)
+    await document.transform(quantize())
+  }
+
   /* /PROCESS MESHES */
 
   /* PROCESS TEXTURES */
@@ -104,6 +112,11 @@ export async function transformModel(app: Application, args: ModelTransformArgum
       break
     case 'webp':
       break
+  }
+
+  //Draco compression option
+  if (args.parms.useDraco) {
+    document.createExtension(DracoMeshCompression).setRequired(true)
   }
 
   const data = await io.writeBinary(document)

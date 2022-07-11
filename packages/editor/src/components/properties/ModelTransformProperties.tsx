@@ -121,15 +121,15 @@ export default function ModelTransformProperties({ modelComponent, onChangeModel
     setTransforming(false)
   }
   const [internalFilter, setInternalFilter] = useState<string[]>(() => [])
-  function onUndoTransform() {
-    const { prev } = ModelTransformLoader()
+  async function onUndoTransform() {
+    const { prev } = await ModelTransformLoader()
     onChangeModel(prev!)
     setTransformHistory([...transformHistory].slice(1))
   }
 
   async function getModelResources(filter) {
     const load = async (src) => {
-      const { load } = ModelTransformLoader()
+      const { load } = await ModelTransformLoader()
       return load(src)
     }
     const document = await load(modelComponent.src)
