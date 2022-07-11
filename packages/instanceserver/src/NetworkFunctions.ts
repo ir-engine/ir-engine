@@ -332,8 +332,8 @@ const getUserSpawnFromInvite = async (network: SocketWebRTCServerNetwork, user: 
 
         if (validSpawnablePosition) {
           const spawnPoseComponent = getComponent(inviterUserAvatarEntity, SpawnPoseComponent)
-          spawnPoseComponent.position.copy(inviterUserObject3d.value.position)
-          spawnPoseComponent.rotation.copy(inviterUserTransform.rotation)
+          spawnPoseComponent?.position.copy(inviterUserObject3d.value.position)
+          spawnPoseComponent?.rotation.copy(inviterUserTransform.rotation)
           respawnAvatar(inviterUserAvatarEntity)
         }
       } else {
