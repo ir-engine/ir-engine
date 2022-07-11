@@ -19,6 +19,8 @@ export const Resizeable = ({ isPiP, isScreenMe, setIsControlVisible, children }:
   const clientHeight = EngineRenderer.instance.renderer.domElement.clientHeight - 150
   let resizableComponent
   let timeout
+  let currentDate
+  let isControlVisible
 
   useEffect(() => {
     if (isOpen != isPiP && resizableComponent) {
@@ -35,13 +37,22 @@ export const Resizeable = ({ isPiP, isScreenMe, setIsControlVisible, children }:
   const mouseEnter = () => {}
   const mouseLeave = () => {}
   const mouseMove = () => {
-    // if (isFullScreen > 0)
-    clearTimeout(timeout)
-    timeout = setTimeout(() => {
-      console.error('disable control visible')
-      setIsControlVisible(false)
-    }, 3000)
-    setIsControlVisible(true)
+    if (isControlVisible) {
+      clearTimeout(timeout)
+      timeout = setTimeout(() => {
+        console.error('disable control visible')
+        if (Date.now() - currentDate > 2800) {
+          isControlVisible = false
+          setIsControlVisible(isControlVisible)
+        }
+      }, 3000)
+    }
+
+    if (!isControlVisible) {
+      currentDate = Date.now()
+      isControlVisible = true
+      setIsControlVisible(true)
+    }
   }
   return (
     <div
