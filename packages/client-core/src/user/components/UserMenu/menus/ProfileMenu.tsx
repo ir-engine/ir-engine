@@ -30,6 +30,7 @@ import { FacebookIcon } from '../../../../common/components/Icons/FacebookIcon'
 import { GoogleIcon } from '../../../../common/components/Icons/GoogleIcon'
 import { LinkedInIcon } from '../../../../common/components/Icons/LinkedInIcon'
 import { TwitterIcon } from '../../../../common/components/Icons/TwitterIcon'
+import { initialAuthState, initialOAuthConnectedState } from '../../../../common/initialAuthState'
 import { NotificationService } from '../../../../common/services/NotificationService'
 import { AuthService, useAuthState } from '../../../services/AuthService'
 import { userHasAccess } from '../../../userHasAccess'
@@ -42,28 +43,6 @@ interface Props {
   isPopover?: boolean
   changeActiveMenu?: (type: string | null) => void
   onClose?: () => void
-}
-
-const initialAuthState = {
-  jwt: true,
-  local: false,
-  discord: false,
-  facebook: false,
-  github: false,
-  google: false,
-  linkedin: false,
-  twitter: false,
-  smsMagicLink: false,
-  emailMagicLink: false
-}
-
-const initialOAuthConnectedState = {
-  discord: false,
-  facebook: false,
-  github: false,
-  google: false,
-  linkedin: false,
-  twitter: false
 }
 
 const ProfileMenu = ({ className, hideLogin, isPopover, changeActiveMenu, onClose }: Props): JSX.Element => {
