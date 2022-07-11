@@ -214,13 +214,13 @@ export const parseGLTFModel = (entity: Entity, props: ModelComponentType, obj3d:
   if (!Engine.instance.isEditor && world.worldNetwork?.isHosting && props.isDynamicObject) {
     const node = world.entityTree.entityNodeMap.get(entity)
     if (node) {
-      dispatchAction(
-        WorldNetworkAction.spawnObject({
-          prefab: '',
-          parameters: { sceneEntityId: node.uuid }
-        }),
-        Engine.instance.currentWorld.worldNetwork.hostId
-      )
+      // dispatchAction(
+      //   WorldNetworkAction.spawnObject({
+      //     prefab: 'scene_object',
+      //     parameters: { sceneEntityId: node.uuid }
+      //   }),
+      //   Engine.instance.currentWorld.worldNetwork.hostId
+      // )
     }
   }
 

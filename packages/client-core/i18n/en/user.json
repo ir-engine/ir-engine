@@ -115,7 +115,9 @@
       "lbl-phoneEmail": "Send to email or phone number",
       "lbl-copy": "Copy",
       "lbl-send-invite": "Send Invite",
-      "title": "Share your Location URL with your team",
+      "lbl-spectator-mode": "Spectator Mode",
+      "title": "Share this Location",
+      "mobileTitle": "View this Item in AR on your Mobile Device",
       "linkCopied": "Link copied to clipboard."
     },
     "setting": {

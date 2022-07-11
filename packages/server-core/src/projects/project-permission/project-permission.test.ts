@@ -4,7 +4,7 @@ import assert from 'assert'
 import path from 'path'
 
 import { ProjectPermissionInterface } from '@xrengine/common/src/interfaces/ProjectPermissionInterface'
-import { User } from '@xrengine/common/src/interfaces/User'
+import { UserInterface } from '@xrengine/common/src/interfaces/User'
 
 import { Application } from '../../../declarations'
 import { createFeathersExpressApp } from '../../createApp'
@@ -31,10 +31,10 @@ const cleanup = async (app: Application) => {
 
 describe('project-permission.test', () => {
   let app: Application
-  let user1: User
-  let user2: User
-  let user3: User
-  let user4: User
+  let user1: UserInterface
+  let user2: UserInterface
+  let user3: UserInterface
+  let user4: UserInterface
   let project1, project1Permission1, project1Permission2, project1Permission4
   before(async () => {
     app = createFeathersExpressApp()
@@ -46,22 +46,22 @@ describe('project-permission.test', () => {
       name: `Test #${Math.random()}`,
       avatarId,
       userRole: 'user'
-    })) as User
+    })) as UserInterface
     user2 = (await app.service('user').create({
       name: `Test #${Math.random()}`,
       avatarId,
       userRole: 'user'
-    })) as User
+    })) as UserInterface
     user3 = (await app.service('user').create({
       name: `Test #${Math.random()}`,
       avatarId,
       userRole: 'user'
-    })) as User
+    })) as UserInterface
     user4 = (await app.service('user').create({
       name: `Test #${Math.random()}`,
       avatarId,
       userRole: 'admin'
-    })) as User
+    })) as UserInterface
     user1.apiKey = await app.service('user-api-key').Model.findOne({
       where: {
         userId: user1.id

@@ -4,10 +4,10 @@ import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 import { Op } from 'sequelize'
 
 import { Message as MessageInterface } from '@xrengine/common/src/interfaces/Message'
+import { UserInterface } from '@xrengine/common/src/interfaces/User'
 
 import { Application } from '../../../declarations'
 import logger from '../../logger'
-import { UserDataType } from '../../user/user/user.class'
 
 export type MessageDataType = MessageInterface
 
@@ -29,7 +29,7 @@ export class Message<T = MessageDataType> extends Service<T> {
   async create(data: any, params?: Params): Promise<T> {
     let channel, channelId
     let userIdList: any[] = []
-    const loggedInUser = params!.user as UserDataType
+    const loggedInUser = params!.user as UserInterface
     const userId = loggedInUser?.id
     const targetObjectId = data.targetObjectId
     const targetObjectType = data.targetObjectType

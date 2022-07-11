@@ -1,6 +1,6 @@
 import { ArrowHelper, Clock, MathUtils, Matrix4, Raycaster, Vector3 } from 'three'
-import { clamp } from 'three/src/math/MathUtils'
 
+import { deleteSearchParams } from '@xrengine/common/src/utils/deleteSearchParams'
 import { createActionQueue, dispatchAction } from '@xrengine/hyperflux'
 
 import { BoneNames } from '../../avatar/AvatarBoneMatching'
@@ -23,9 +23,8 @@ import {
   removeComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
-import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
+import { NetworkTopics } from '../../networking/classes/Network'
 import { NetworkObjectOwnedTag } from '../../networking/components/NetworkObjectOwnedTag'
-import { joinCurrentWorld } from '../../networking/functions/joinWorld'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
@@ -298,11 +297,6 @@ export function cameraSpawnReceptor(
   console.log('Camera Spawn Receptor Call', entity)
 
   addComponent(entity, NetworkCameraComponent, {})
-
-  const position = createVector3Proxy(TransformComponent.position, entity)
-  const rotation = createQuaternionProxy(TransformComponent.rotation, entity)
-  const scale = createVector3Proxy(TransformComponent.scale, entity).setScalar(1)
-  addComponent(entity, TransformComponent, { position, rotation, scale })
 }
 
 export default async function CameraSystem(world: World) {
@@ -317,7 +311,7 @@ export default async function CameraSystem(world: World) {
   if (!Engine.instance.isEditor) {
     addComponent(world.cameraEntity, FollowCameraComponent, {
       ...FollowCameraDefaultValues,
-      targetEntity: world.localClientEntity
+      targetEntity: world.worldEntity
     })
   }
 
@@ -328,16 +322,17 @@ export default async function CameraSystem(world: World) {
       const cameraEntity = Engine.instance.currentWorld.cameraEntity
       if (action.user) {
         addComponent(cameraEntity, SpectatorComponent, { userId: action.user })
-        console.log('Spectator component added', action.user)
       } else {
         removeComponent(cameraEntity, SpectatorComponent)
-        joinCurrentWorld()
-        console.log('Spectator component removed')
+        deleteSearchParams('spectate')
+        dispatchAction(EngineActions.leaveWorld())
       }
     }
 
     for (const entity of localAvatarQuery.enter()) {
-      dispatchAction(WorldNetworkAction.spawnCamera(), [world.worldNetwork.hostId])
+      dispatchAction(WorldNetworkAction.spawnCamera(), NetworkTopics.world)
+      const followCamera = getComponent(world.cameraEntity, FollowCameraComponent)
+      if (followCamera) followCamera.targetEntity = entity
     }
 
     if (EngineRenderer.instance.xrManager?.isPresenting) {

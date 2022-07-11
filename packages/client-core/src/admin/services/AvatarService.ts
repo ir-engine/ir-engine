@@ -1,5 +1,5 @@
-import { AvatarInterface } from '@xrengine/common/src/interfaces/AvatarInterface'
 import { AvatarResult } from '@xrengine/common/src/interfaces/AvatarResult'
+import { StaticResourceInterface } from '@xrengine/common/src/interfaces/StaticResourceInterface'
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
@@ -11,8 +11,8 @@ export const AVATAR_PAGE_LIMIT = 100
 const AdminAvatarState = defineState({
   name: 'AdminAvatarState',
   initial: () => ({
-    avatars: [] as Array<AvatarInterface>,
-    thumbnail: undefined as AvatarInterface | undefined,
+    avatars: [] as Array<StaticResourceInterface>,
+    thumbnail: undefined as StaticResourceInterface | undefined,
     skip: 0,
     limit: AVATAR_PAGE_LIMIT,
     total: 0,

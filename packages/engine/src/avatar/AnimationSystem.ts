@@ -8,7 +8,6 @@ import { getEngineState } from '../ecs/classes/EngineState'
 import { World } from '../ecs/classes/World'
 import { defineQuery, getComponent, hasComponent } from '../ecs/functions/ComponentFunctions'
 import { NetworkObjectComponent } from '../networking/components/NetworkObjectComponent'
-import { isEntityLocalClient } from '../networking/functions/isEntityLocalClient'
 import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
 import { DesiredTransformComponent } from '../transform/components/DesiredTransformComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
@@ -34,8 +33,8 @@ export function animationActionReceptor(
   action: ReturnType<typeof WorldNetworkAction.avatarAnimation>,
   world = Engine.instance.currentWorld
 ) {
+  if (Engine.instance.userId === action.$from) return // Only run on other clients
   const avatarEntity = world.getUserAvatarEntity(action.$from)
-  if (isEntityLocalClient(avatarEntity)) return // Only run on other clients
 
   const networkObject = getComponent(avatarEntity, NetworkObjectComponent)
   if (!networkObject) {

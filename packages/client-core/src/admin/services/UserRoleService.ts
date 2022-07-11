@@ -1,6 +1,6 @@
 import { Paginated } from '@feathersjs/feathers'
 
-import { User } from '@xrengine/common/src/interfaces/User'
+import { UserInterface } from '@xrengine/common/src/interfaces/User'
 import { UserRole } from '@xrengine/common/src/interfaces/UserRole'
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
@@ -56,7 +56,7 @@ export const AdminUserRoleService = {
   },
   updateUserRole: async (id: string, role: string) => {
     try {
-      const userRole = (await API.instance.client.service('user').patch(id, { userRole: role })) as User
+      const userRole = (await API.instance.client.service('user').patch(id, { userRole: role })) as UserInterface
       dispatchAction(AdminUserRoleActions.userRoleUpdated({ data: userRole }))
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
@@ -73,6 +73,6 @@ export class AdminUserRoleActions {
 
   static userRoleUpdated = defineAction({
     type: 'USER_ROLE_UPDATED' as const,
-    data: matches.object as Validator<unknown, User>
+    data: matches.object as Validator<unknown, UserInterface>
   })
 }

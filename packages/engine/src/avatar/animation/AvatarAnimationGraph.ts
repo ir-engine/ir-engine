@@ -4,8 +4,9 @@ import { dispatchAction } from '@xrengine/hyperflux'
 
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
-import { getComponent } from '../../ecs/functions/ComponentFunctions'
-import { isEntityLocalClient } from '../../networking/functions/isEntityLocalClient'
+import { getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
+import { NetworkTopics } from '../../networking/classes/Network'
+import { NetworkObjectOwnedTag } from '../../networking/components/NetworkObjectOwnedTag'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { AnimationManager } from '../AnimationManager'
 import { AvatarSettings } from '../AvatarControllerSystem'
@@ -46,13 +47,13 @@ export function createAvatarAnimationGraph(
 ): AnimationGraph {
   if (!mixer) return null!
 
-  const isLocalEntity = isEntityLocalClient(entity)
+  const isOwnedEntity = hasComponent(entity, NetworkObjectOwnedTag)
 
   const graph: AnimationGraph = {
     states: {},
     transitionRules: {},
     currentState: null!,
-    stateChanged: isLocalEntity ? dispatchStateChange : null!
+    stateChanged: isOwnedEntity ? dispatchStateChange : null!
   }
 
   // Initialize all the states
@@ -248,7 +249,7 @@ export function createAvatarAnimationGraph(
 
   const movementTransitionRule = vectorLengthTransitionRule(velocity, 0.001)
 
-  if (isLocalEntity) {
+  if (isOwnedEntity) {
     graph.transitionRules[AvatarStates.LOCOMOTION] = [
       // Jump
       {
@@ -348,9 +349,7 @@ export function createAvatarAnimationGraph(
 
 function dispatchStateChange(name: string, graph: AnimationGraph): void {
   const params = {}
-  dispatchAction(WorldNetworkAction.avatarAnimation({ newStateName: name, params }), [
-    Engine.instance.currentWorld.worldNetwork.hostId
-  ])
+  dispatchAction(WorldNetworkAction.avatarAnimation({ newStateName: name, params }), NetworkTopics.world)
 }
 
 export function changeAvatarAnimationState(entity: Entity, newStateName: string): void {

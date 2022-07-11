@@ -26,7 +26,9 @@ export const EngineState = defineState({
     spectating: false,
     errorEntities: {} as { [key: Entity]: boolean },
     availableInteractable: null! as Entity,
-    usersTyping: {} as { [key: string]: true }
+    usersTyping: {} as { [key: string]: true },
+    viewInAR: false,
+    interactableModelUrl: ''
   }
 })
 
@@ -47,25 +49,12 @@ export function EngineEventReceptor(a) {
       .when(EngineActions.initializeEngine.matches, (action) => s.merge({ isEngineInitialized: action.initialised }))
       .when(EngineActions.sceneUnloaded.matches, (action) => s.merge({ sceneLoaded: false }))
       .when(EngineActions.sceneLoaded.matches, (action) => s.merge({ sceneLoaded: true, loadingProgress: 100 }))
-      .when(EngineActions.joinedWorld.matches, (action) => {
-        s.merge({ joinedWorld: true })
-      })
-      .when(EngineActions.sceneLoadingProgress.matches, (action) => s.merge({ loadingProgress: action.progress }))
+      .when(EngineActions.joinedWorld.matches, (action) => s.merge({ joinedWorld: true }))
       .when(EngineActions.leaveWorld.matches, (action) => s.merge({ joinedWorld: false }))
+      .when(EngineActions.sceneLoadingProgress.matches, (action) => s.merge({ loadingProgress: action.progress }))
       .when(EngineActions.connectToWorld.matches, (action) => s.merge({ connectedWorld: action.connectedWorld }))
       .when(EngineActions.objectActivation.matches, (action) => s.merge({ interactionData: action.interactionData }))
-      .when(EngineActions.setTeleporting.matches, (action) => {
-        if (action.isTeleporting) {
-          s.merge({
-            connectedWorld: false,
-            sceneLoaded: false,
-            joinedWorld: false
-          })
-        }
-        return s.merge({
-          isTeleporting: action.isTeleporting
-        })
-      })
+      .when(EngineActions.setTeleporting.matches, (action) => s.merge({ isTeleporting: action.isTeleporting }))
       .when(EngineActions.setUserHasInteracted.matches, (action) => s.merge({ userHasInteracted: true }))
       .when(EngineActions.updateEntityError.matches, (action) => s.errorEntities[action.entity].set(!action.isResolved))
       .when(EngineActions.xrSupported.matches, (action) => s.xrSupported.set(action.xrSupported))
@@ -76,6 +65,10 @@ export function EngineEventReceptor(a) {
         s.availableInteractable.set(action.availableInteractable)
       )
       .when(EngineActions.spectateUser.matches, (action) => s.spectating.set(!!action.user))
+      .when(EngineActions.viewInAR.matches, (action) => {
+        s.viewInAR.set(action.viewInAR)
+        s.interactableModelUrl.set(action.interactableModelUrl)
+      })
   })
 }
 
@@ -193,5 +186,11 @@ export class EngineActions {
   static spectateUser = defineAction({
     type: 'xre.engine.SPECTATE_USER' as const,
     user: matches.string.optional()
+  })
+
+  static viewInAR = defineAction({
+    type: 'CORE_VIEW_IN_AR' as const,
+    viewInAR: matches.boolean,
+    interactableModelUrl: matches.string
   })
 }

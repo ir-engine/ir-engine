@@ -1,5 +1,5 @@
 import { MessageStatus } from './MessageStatus'
-import { User } from './User'
+import { UserInterface } from './User'
 import { UserId } from './UserId'
 
 export type Message = {
@@ -9,6 +9,6 @@ export type Message = {
   text: string
   createdAt: string
   updatedAt: string
-  sender: User
+  sender: UserInterface
   messageStatus: MessageStatus
 }

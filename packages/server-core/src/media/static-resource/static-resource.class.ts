@@ -1,19 +1,23 @@
-import { Paginated, Params } from '@feathersjs/feathers'
+import { Params } from '@feathersjs/feathers'
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 import _ from 'lodash'
 import { Op } from 'sequelize'
 
-import { AvatarInterface } from '@xrengine/common/src/interfaces/AvatarInterface'
+import { StaticResourceInterface } from '@xrengine/common/src/interfaces/StaticResourceInterface'
 
 import { Application } from '../../../declarations'
 
-export type AvatarDataType = AvatarInterface
+export type AvatarDataType = StaticResourceInterface
 
-/**
- * A class for Static Resource  service
- *
- * @author Vyacheslav Solovjov
- */
+export type CreateStaticResourceType = {
+  name?: string
+  mimeType: string
+  url: string
+  key: string
+  staticResourceType?: string
+  userId?: string
+}
+
 export class StaticResource<T = AvatarDataType> extends Service<T> {
   public docs: any
 
@@ -21,7 +25,8 @@ export class StaticResource<T = AvatarDataType> extends Service<T> {
     super(options)
   }
 
-  async create(data, params?: Params): Promise<T> {
+  // @ts-ignore
+  async create(data: CreateStaticResourceType, params?: Params): Promise<T> {
     const oldResource = await this.find({
       query: {
         $select: ['id'],

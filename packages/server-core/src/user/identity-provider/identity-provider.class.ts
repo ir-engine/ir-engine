@@ -6,6 +6,7 @@ import { Sequelize } from 'sequelize'
 import { v1 as uuidv1 } from 'uuid'
 
 import { IdentityProviderInterface } from '@xrengine/common/src/dbmodels/IdentityProvider'
+import { UserInterface } from '@xrengine/common/src/interfaces/User'
 import { isDev } from '@xrengine/common/src/utils/isDev'
 
 import { Application } from '../../../declarations'
@@ -13,7 +14,6 @@ import config from '../../appconfig'
 import { scopeTypeSeed } from '../../scope/scope-type/scope-type.seed'
 import Paginated from '../../types/PageObject'
 import getFreeInviteCode from '../../util/get-free-invite-code'
-import { UserDataType } from '../user/user.class'
 
 /**
  * A class for identity-provider service
@@ -237,7 +237,7 @@ export class IdentityProvider<T = IdentityProviderInterface> extends Service<T> 
   }
 
   async find(params?: Params): Promise<T[] | Paginated<T>> {
-    const loggedInUser = params!.user as UserDataType
+    const loggedInUser = params!.user as UserInterface
     if (params!.provider) params!.query!.userId = loggedInUser.id
     return super.find(params)
   }

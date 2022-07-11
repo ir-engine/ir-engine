@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { AvatarInterface } from '@xrengine/common/src/interfaces/AvatarInterface'
+import { StaticResourceInterface } from '@xrengine/common/src/interfaces/StaticResourceInterface'
 
 import Box from '@mui/material/Box'
 
@@ -35,7 +35,7 @@ const AvatarTable = ({ className, search }: Props) => {
   const [fieldOrder, setFieldOrder] = useState('asc')
   const [sortField, setSortField] = useState('name')
   const [openAvatarDrawer, setOpenAvatarDrawer] = useState(false)
-  const [avatarData, setAvatarData] = useState<AvatarInterface | null>(null)
+  const [avatarData, setAvatarData] = useState<StaticResourceInterface | null>(null)
 
   const handlePageChange = (event: unknown, newPage: number) => {
     AdminAvatarService.fetchAdminAvatars(newPage, search, sortField, fieldOrder)
@@ -58,7 +58,7 @@ const AvatarTable = ({ className, search }: Props) => {
   }, [user?.id, search, adminAvatarState.updateNeeded.value])
 
   const createData = (
-    el: AvatarInterface,
+    el: StaticResourceInterface,
     sid: string | undefined,
     name: string | undefined,
     key: string | undefined

@@ -1,22 +1,36 @@
-import { matches } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
-import { getNearbyUsers } from '@xrengine/engine/src/networking/functions/getNearbyUsers'
-import { WorldNetworkAction } from '@xrengine/engine/src/networking/functions/WorldNetworkAction'
-import { addActionReceptor, dispatchAction } from '@xrengine/hyperflux'
+import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
+import { dispatchAction, getState } from '@xrengine/hyperflux'
 
-import { MediaStreamService } from '../media/services/MediaStreamService'
+import { accessMediaInstanceConnectionState } from '../common/services/MediaInstanceConnectionService'
+import { MediaState, MediaStreamService } from '../media/services/MediaStreamService'
+import { UserService } from '../user/services/UserService'
 import { MediaStreams } from './MediaStreams'
 
 export const updateNearbyAvatars = () => {
-  MediaStreams.instance.nearbyLayerUsers = getNearbyUsers(Engine.instance.userId)
-  dispatchAction(MediaStreams.actions.triggerRequestCurrentProducers())
-
-  if (!MediaStreams.instance.nearbyLayerUsers.length) return
-
-  const nearbyUserIds = MediaStreams.instance.nearbyLayerUsers.map((user) => user.id)
   const network = Engine.instance.currentWorld.mediaNetwork
-  network.consumers.forEach((consumer) => {
+
+  const mediaState = getState(MediaState)
+
+  MediaStreamService.updateNearbyLayerUsers()
+
+  UserService.getLayerUsers(true)
+  const channelConnectionState = accessMediaInstanceConnectionState()
+  const currentChannelInstanceConnection = network && channelConnectionState.instances[network.hostId]?.ornull
+  if (!currentChannelInstanceConnection?.value) return
+
+  network?.request(MessageTypes.WebRTCRequestCurrentProducers.toString(), {
+    userIds: mediaState.nearbyLayerUsers.value || [],
+    channelType: currentChannelInstanceConnection.channelType.value,
+    channelId: currentChannelInstanceConnection.channelId.value
+  })
+
+  if (!mediaState.nearbyLayerUsers.length) return
+
+  const nearbyUserIds = mediaState.nearbyLayerUsers.map((user) => user.id)
+
+  network?.consumers.forEach((consumer) => {
     if (!nearbyUserIds.includes(consumer._appData.peerId)) {
       dispatchAction(MediaStreams.actions.closeConsumer({ consumer }))
     }
@@ -24,18 +38,6 @@ export const updateNearbyAvatars = () => {
 }
 
 export default async function UpdateNearbyUsersSystem(world: World) {
-  addActionReceptor((action) => {
-    matches(action)
-      .when(WorldNetworkAction.createPeer.matches, () => {
-        updateNearbyAvatars()
-        MediaStreamService.triggerUpdateNearbyLayerUsers()
-      })
-      .when(WorldNetworkAction.destroyPeer.matches, () => {
-        updateNearbyAvatars()
-        MediaStreamService.triggerUpdateNearbyLayerUsers()
-      })
-  })
-
   // every 5 seconds
   const NEARBY_AVATAR_UPDATE_PERIOD = Engine.instance.tickRate * 5
 

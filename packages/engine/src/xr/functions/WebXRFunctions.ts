@@ -4,6 +4,7 @@ import { dispatchAction } from '@xrengine/hyperflux'
 
 import { BoneNames } from '../../avatar/AvatarBoneMatching'
 import { AvatarAnimationComponent } from '../../avatar/components/AvatarAnimationComponent'
+import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { AvatarHeadDecapComponent } from '../../avatar/components/AvatarHeadDecapComponent'
 import { accessAvatarInputSettingsState } from '../../avatar/state/AvatarInputSettingsState'
 import { ParityValue } from '../../common/enums/ParityValue'
@@ -11,6 +12,7 @@ import { proxifyQuaternion, proxifyVector3 } from '../../common/proxies/three'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
+import { NetworkTopics } from '../../networking/classes/Network'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { TransformComponent } from '../../transform/components/TransformComponent'
@@ -96,7 +98,9 @@ export const proxifyXRInputs = (entity: Entity) => {
 export function setupXRCameraForLocalEntity(entity: Entity) {
   const { container } = getComponent(entity, XRInputSourceComponent)
   container.add(Engine.instance.currentWorld.camera)
-  if (!hasComponent(entity, AvatarHeadDecapComponent)) addComponent(entity, AvatarHeadDecapComponent, true)
+  const localClientEntity = Engine.instance.currentWorld.localClientEntity
+  if (localClientEntity && !hasComponent(localClientEntity, AvatarHeadDecapComponent))
+    addComponent(localClientEntity, AvatarHeadDecapComponent, true)
 }
 
 /**
@@ -191,7 +195,7 @@ export const bindXRHandEvents = () => {
       initializeHandModel(world.localClientEntity, controller, xrInputSource.handedness)
 
       if (!eventSent) {
-        dispatchAction(WorldNetworkAction.xrHandsConnected({}), Engine.instance.currentWorld.worldNetwork.hostId)
+        dispatchAction(WorldNetworkAction.xrHandsConnected({}), NetworkTopics.world)
         eventSent = true
       }
     })
@@ -207,7 +211,13 @@ export const startWebXR = async (): Promise<void> => {
   const world = Engine.instance.currentWorld
   setupXRInputSourceComponent(world.localClientEntity)
   setupXRCameraForLocalEntity(world.localClientEntity)
-  dispatchXRMode(true, accessAvatarInputSettingsState().controlType.value)
+  dispatchAction(
+    WorldNetworkAction.setXRMode({
+      enabled: true,
+      avatarInputControllerType: accessAvatarInputSettingsState().controlType.value
+    }),
+    NetworkTopics.world
+  )
   bindXRControllers()
   bindXRHandEvents()
 }
@@ -224,11 +234,18 @@ export const endXR = (): void => {
   Engine.instance.currentWorld.scene.add(Engine.instance.currentWorld.camera)
 
   const world = Engine.instance.currentWorld
-  removeComponent(world.localClientEntity, XRInputSourceComponent)
-  removeComponent(world.localClientEntity, AvatarHeadDecapComponent)
-  removeComponent(world.localClientEntity, XRHandsInputComponent)
+  const localClientEntity = world.getOwnedNetworkObjectWithComponent(Engine.instance.userId, XRInputSourceComponent)
+  removeComponent(localClientEntity, XRInputSourceComponent)
+  removeComponent(localClientEntity, AvatarHeadDecapComponent)
+  removeComponent(localClientEntity, XRHandsInputComponent)
 
-  dispatchXRMode(false, '')
+  dispatchAction(
+    WorldNetworkAction.setXRMode({
+      enabled: false,
+      avatarInputControllerType: ''
+    }),
+    NetworkTopics.world
+  )
 }
 
 /**
@@ -349,14 +366,4 @@ export const getHeadTransform = (entity: Entity): { position: Vector3; rotation:
     rotation: cameraTransform.rotation,
     scale: uniformScale
   }
-}
-
-export function dispatchXRMode(enabled: boolean, avatarInputControllerType: string) {
-  dispatchAction(
-    WorldNetworkAction.setXRMode({
-      enabled,
-      avatarInputControllerType
-    }),
-    [Engine.instance.currentWorld.worldNetwork.hostId]
-  )
 }

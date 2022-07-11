@@ -4,21 +4,26 @@ import { AudioListener, Object3D, OrthographicCamera, PerspectiveCamera, Scene }
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
+import { addTopic } from '@xrengine/hyperflux'
+import { Topic } from '@xrengine/hyperflux/functions/ActionFunctions'
 
 import { DEFAULT_LOD_DISTANCES } from '../../assets/constants/LoaderConstants'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { SceneLoaderType } from '../../common/constants/PrefabFunctionType'
 import { isClient } from '../../common/functions/isClient'
 import { nowMilliseconds } from '../../common/functions/nowMilliseconds'
+import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
 import { InputValue } from '../../input/interfaces/InputValue'
-import { Network } from '../../networking/classes/Network'
+import { Network, NetworkTopics } from '../../networking/classes/Network'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { UserClient } from '../../networking/interfaces/NetworkPeer'
+import { AvatarProps } from '../../networking/interfaces/WorldState'
 import { Physics } from '../../physics/classes/Physics'
 import { NameComponent } from '../../scene/components/NameComponent'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
 import { PortalComponent } from '../../scene/components/PortalComponent'
+import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { Widget } from '../../xrui/Widgets'
@@ -52,13 +57,8 @@ export class World {
     addComponent(this.worldEntity, PersistTagComponent, {}, this)
     addComponent(this.worldEntity, NameComponent, { name: 'world' }, this)
 
-    if (isClient) {
-      this.localClientEntity = createEntity(this)
-      addComponent(this.localClientEntity, PersistTagComponent, {}, this)
-      addComponent(this.localClientEntity, NameComponent, { name: 'local' }, this)
-    }
-
     this.cameraEntity = createEntity(this)
+    addComponent(this.cameraEntity, VisibleComponent, true, this)
     addComponent(this.cameraEntity, NameComponent, { name: 'camera' }, this)
     addComponent(this.cameraEntity, PersistTagComponent, {}, this)
     addComponent(this.cameraEntity, Object3DComponent, { value: this.camera }, this)
@@ -76,20 +76,31 @@ export class World {
 
     initializeEntityTree(this)
     this.scene.layers.set(ObjectLayers.Scene)
+
+    addTopic(NetworkTopics.world)
+    addTopic(NetworkTopics.media)
   }
 
   static [CreateWorld] = () => new World()
 
   /**
-   *
+   * get the default world network
    */
   get worldNetwork() {
     return this.networks.get(this._worldHostId)!
   }
 
+  /**
+   * get the default media network
+   */
   get mediaNetwork() {
-    return this.networks.get(this._mediaHostId)!
+    return this.networks.get(this._mediaHostId)
   }
+
+  /** @todo parties */
+  // get partyNetwork() {
+  //   return this.networks.get(NetworkTopics.localMedia)?.get(this._mediaHostId)!
+  // }
 
   _worldHostId = null! as UserId
   _mediaHostId = null! as UserId
@@ -169,9 +180,6 @@ export class World {
 
   activePortal = null! as ReturnType<typeof PortalComponent.get>
 
-  /** Users spawned in the world */
-  users = new Map() as Map<UserId, UserClient>
-
   /**
    * The world entity
    */
@@ -180,7 +188,9 @@ export class World {
   /**
    * The local client entity
    */
-  localClientEntity: Entity = NaN as Entity
+  get localClientEntity() {
+    return this.getOwnedNetworkObjectWithComponent(Engine.instance.userId, LocalInputTagComponent) || (NaN as Entity)
+  }
 
   /**
    * Custom systems injected into this world
@@ -242,11 +252,13 @@ export class World {
    * Get a network object by owner and NetworkId
    * @returns
    */
-  getNetworkObject(ownerId: UserId, networkId: NetworkId): Entity | undefined {
-    return this.networkObjectQuery(this).find((eid) => {
-      const networkObject = getComponent(eid, NetworkObjectComponent)
-      return networkObject.networkId === networkId && networkObject.ownerId === ownerId
-    })!
+  getNetworkObject(ownerId: UserId, networkId: NetworkId): Entity {
+    return (
+      this.networkObjectQuery(this).find((eid) => {
+        const networkObject = getComponent(eid, NetworkObjectComponent)
+        return networkObject.networkId === networkId && networkObject.ownerId === ownerId
+      }) || (NaN as Entity)
+    )
   }
 
   /**
@@ -265,9 +277,11 @@ export class World {
    * @returns
    */
   getOwnedNetworkObjectWithComponent<T, S extends bitecs.ISchema>(userId: UserId, component: MappedComponent<T, S>) {
-    return this.getOwnedNetworkObjects(userId).find((eid) => {
-      return hasComponent(eid, component, this)
-    })!
+    return (
+      this.getOwnedNetworkObjects(userId).find((eid) => {
+        return hasComponent(eid, component, this)
+      }) || (NaN as Entity)
+    )
   }
 
   /** ID of last network created. */
