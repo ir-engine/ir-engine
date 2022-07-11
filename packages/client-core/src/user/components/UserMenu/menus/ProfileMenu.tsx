@@ -115,7 +115,8 @@ const ProfileMenu = ({ className, hideLogin, isPopover, changeActiveMenu, onClos
     const settings = { ...userSettings, themeModes: { ...themeModes, [name]: value } }
     userSettings && AuthService.updateUserSettings(userSettings.id as string, settings)
   }
-
+  // If you're editing lines 114-230, be sure to make the same changes to the XRUI version over at
+  // packages/client-core/src/systems/ui/ProfileDetailView/index.tsx#75-191
   let type = ''
   const addMoreSocial =
     (authState?.discord && !oauthConnectedState.discord) ||
