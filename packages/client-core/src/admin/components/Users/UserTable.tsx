@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { User } from '@xrengine/common/src/interfaces/User'
+import { UserInterface } from '@xrengine/common/src/interfaces/User'
 
 import Box from '@mui/material/Box'
 
@@ -22,7 +22,7 @@ const UserTable = ({ className, search }: UserProps) => {
   const [fieldOrder, setFieldOrder] = useState('asc')
   const [sortField, setSortField] = useState('name')
   const [openUserDrawer, setOpenUserDrawer] = useState(false)
-  const [userAdmin, setUserAdmin] = useState<User | null>(null)
+  const [userAdmin, setUserAdmin] = useState<UserInterface | null>(null)
   const authState = useAuthState()
   const user = authState.user
   const adminUserState = useUserState()
@@ -57,7 +57,7 @@ const UserTable = ({ className, search }: UserProps) => {
 
   const createData = (
     id: string,
-    el: User,
+    el: UserInterface,
     name: string,
     avatarId: string | JSX.Element,
     userRole: string | JSX.Element,

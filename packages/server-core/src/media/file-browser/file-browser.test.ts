@@ -54,11 +54,11 @@ describe('file browser service', () => {
     fileNames.forEach((n) => fs.writeFileSync(path.join(dirStoragePath, n), 'Hello world'))
 
     let result = await app.service('file-browser').get(path.join(TEST_PROJECT, dirName))
-    result.forEach((r, i) => assert(r && r.key === path.join(TEST_PROJECT, dirName, fileNames[i])))
+    result.data.forEach((r, i) => assert(r && r.key === path.join(TEST_PROJECT, dirName, fileNames[i])))
 
     // If name starts with '/'
     result = await app.service('file-browser').get('/' + path.join(TEST_PROJECT, dirName))
-    result.forEach((r, i) => assert(r && r.key === path.join(TEST_PROJECT, dirName, fileNames[i])))
+    result.data.forEach((r, i) => assert(r && r.key === path.join(TEST_PROJECT, dirName, fileNames[i])))
 
     fs.rmSync(dirStoragePath, { force: true, recursive: true })
   })

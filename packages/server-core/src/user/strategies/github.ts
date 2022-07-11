@@ -2,10 +2,11 @@ import { AuthenticationRequest } from '@feathersjs/authentication'
 import { Params } from '@feathersjs/feathers'
 import { random } from 'lodash'
 
+import { UserInterface } from '@xrengine/common/src/interfaces/User'
+
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import getFreeInviteCode from '../../util/get-free-invite-code'
-import { UserDataType } from '../user/user.class'
 import CustomOAuthStrategy from './custom-oauth'
 
 export class GithubStrategy extends CustomOAuthStrategy {
@@ -45,7 +46,7 @@ export class GithubStrategy extends CustomOAuthStrategy {
         userRole: 'user',
         inviteCode: code,
         avatarId: avatars[random(avatars.length - 1)].avatarId
-      })) as UserDataType
+      })) as UserInterface
       entity.userId = newUser.id
       await this.app.service('identity-provider').patch(entity.id, {
         userId: newUser.id

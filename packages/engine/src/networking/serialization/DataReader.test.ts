@@ -81,7 +81,7 @@ describe('DataReader', () => {
     TransformComponent.position.z[entity] = 0
 
     view.cursor = 0
-
+    console.log('TransformComponent.position', TransformComponent.position)
     const readPosition = readComponent(TransformComponent.position)
 
     readPosition(view, entity)

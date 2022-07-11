@@ -1,6 +1,7 @@
 import assert from 'assert'
 import { Bone, Group, Matrix4, Quaternion, Vector3 } from 'three'
 
+import { quatNearEqual } from '../../common/functions/QuaternionUtils'
 import avatarBoneMatching from '../AvatarBoneMatching'
 import { makeDefaultSkinnedMesh, makeSkinnedMeshFromBoneData } from '../functions/avatarFunctions'
 import { retargetSkeleton } from './retargetSkeleton'
@@ -9,17 +10,9 @@ import { targetSkeletonData } from './retargetSkeleton.test-data'
 const EPSILON = 0.001
 const EPSILON_SQ = EPSILON * EPSILON
 const tempVec3 = new Vector3()
-const tempQuat = new Quaternion()
 
 function vec3NearEqual(a: Vector3, b: Vector3, epsilon: number = EPSILON_SQ): boolean {
   return tempVec3.subVectors(a, b).lengthSq() < epsilon
-}
-
-function quatNearEqual(a: Quaternion, b: Quaternion, epsilon: number = EPSILON_SQ): boolean {
-  return (
-    tempQuat.set(a.x - b.x, a.y - b.y, a.z - b.z, a.w - b.w).lengthSq() < epsilon ||
-    tempQuat.set(a.x + b.x, a.y + b.y, a.z + b.z, a.w + b.w).lengthSq() < epsilon
-  )
 }
 
 function formatQuat(q: Quaternion) {
@@ -29,6 +22,9 @@ function formatQuat(q: Quaternion) {
 function formatVec3(v: Vector3) {
   return `${v.x} ${v.y} ${v.z}`
 }
+
+// quaternions sometimes hit numbers slightly above 1e-15
+const QUAT_EPSILON = 1e-14
 
 describe('retargetSkeleton', () => {
   it('Check retargetSkeleton Rotations', () => {
@@ -57,7 +53,7 @@ describe('retargetSkeleton', () => {
         formatQuat(bone.quaternion) +
         ' / Target: ' +
         formatQuat(targetBone.quaternion)
-      assert(quatNearEqual(bone.quaternion, targetBone.quaternion), message)
+      assert(quatNearEqual(bone.quaternion, targetBone.quaternion, QUAT_EPSILON), message)
     })
   })
 

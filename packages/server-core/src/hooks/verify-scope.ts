@@ -1,13 +1,14 @@
 import { HookContext } from '@feathersjs/feathers'
 
-import { UserDataType } from '../user/user/user.class'
+import { UserInterface } from '@xrengine/common/src/interfaces/User'
+
 import { NotFoundException, UnauthenticatedException, UnauthorizedException } from '../util/exceptions/exception'
 import { Application } from './../../declarations'
 
 export default (currentType: string, scopeToVerify: string) => {
   return async (context: HookContext<Application>) => {
     if (context.params.isInternal) return context
-    const loggedInUser = context.params.user as UserDataType
+    const loggedInUser = context.params.user as UserInterface
     if (!loggedInUser) throw new UnauthenticatedException('No logged in user')
     const user = await context.app.service('user').get(loggedInUser.id!)
     if (user.userRole === 'admin') return context

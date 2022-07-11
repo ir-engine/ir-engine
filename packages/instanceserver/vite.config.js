@@ -45,7 +45,6 @@ export default defineConfig(() => {
     resolve: {
       alias: {
         "socket.io-client": "socket.io-client/dist/socket.io.js",
-        "react-infinite-scroller": "react-infinite-scroller/dist/InfiniteScroll",
       }
     },
     define: {

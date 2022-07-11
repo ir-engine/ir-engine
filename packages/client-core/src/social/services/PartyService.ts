@@ -8,7 +8,7 @@ import { useEffect } from 'react'
 import { Channel } from '@xrengine/common/src/interfaces/Channel'
 import { Party } from '@xrengine/common/src/interfaces/Party'
 import { PartyUser } from '@xrengine/common/src/interfaces/PartyUser'
-import { User } from '@xrengine/common/src/interfaces/User'
+import { UserInterface } from '@xrengine/common/src/interfaces/User'
 import multiLogger from '@xrengine/common/src/logger'
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
@@ -193,7 +193,7 @@ export const PartyService = {
         if (params.partyUser.userId === selfUser.id.value) {
           const party = await API.instance.client.service('party').get(params.partyUser.partyId)
           const userId = selfUser.id.value ?? ''
-          const dbUser = (await API.instance.client.service('user').get(userId)) as User
+          const dbUser = (await API.instance.client.service('user').get(userId)) as UserInterface
           if (party.instanceId != null && party.instanceId !== dbUser.instanceId) {
             const updateUser: PartyUser = {
               ...params.partyUser,
