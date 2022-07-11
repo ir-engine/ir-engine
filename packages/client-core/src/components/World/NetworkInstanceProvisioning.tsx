@@ -136,6 +136,7 @@ export const NetworkInstanceProvisioning = () => {
   useHookEffect(() => {
     if (
       mediaNetworkHostId &&
+      currentChannelInstanceConnection &&
       currentChannelInstanceConnection.provisioned.value === true &&
       currentChannelInstanceConnection.readyToConnect.value === true &&
       currentChannelInstanceConnection.connecting.value === false &&

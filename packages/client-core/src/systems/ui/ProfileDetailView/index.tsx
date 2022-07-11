@@ -1,13 +1,14 @@
-import { createState } from '@speigg/hookstate'
+import { createState, useHookstate } from '@speigg/hookstate'
 import * as polyfill from 'credential-handler-polyfill'
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { validateEmail, validatePhoneNumber } from '@xrengine/common/src/config'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { WorldState } from '@xrengine/engine/src/networking/interfaces/WorldState'
 import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
 import { accessWidgetAppState, WidgetAppActions } from '@xrengine/engine/src/xrui/WidgetAppService'
-import { dispatchAction } from '@xrengine/hyperflux'
+import { dispatchAction, getState } from '@xrengine/hyperflux'
 
 import { Check, Create, GitHub } from '@mui/icons-material'
 import ContentCopyIcon from '@mui/icons-material/ContentCopy'
@@ -75,6 +76,7 @@ const ProfileDetailView = () => {
   const apiKey = selfUser.apiKey?.token?.value
   const userRole = selfUser.userRole.value
   const [oauthConnectedState, setOauthConnectedState] = useState(initialOAuthConnectedState)
+  const userAvatarDetails = useHookstate(getState(WorldState).userAvatarDetails)
 
   useEffect(() => {
     if (authSetting) {
@@ -301,7 +303,7 @@ const ProfileDetailView = () => {
         <section className="profilePanel">
           <section className="profileBlock">
             <div className="avatarBlock">
-              <img src={getAvatarURLForUser(userId)} />
+              <img src={getAvatarURLForUser(userAvatarDetails, userId)} />
               <button xr-layer="true" className="avatarBtn" id="select-avatar" onClick={handleOpenSelectAvatarWidget}>
                 <Create />
               </button>
