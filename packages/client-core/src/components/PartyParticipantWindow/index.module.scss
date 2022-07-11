@@ -351,13 +351,18 @@
   }
 }
 
-.resizeable-screen:hover .user-controls {
-  visibility: visible;
-  opacity: 1;
+// .resizeable-screen:hover .user-controls {
+//   visibility: visible;
+//   opacity: 1;
+// }
+
+.user-controls-visible {
+  visibility: visible !important;
+  opacity: 1 !important;
 }
 
 .resizeable-screen-fixed {
-  width: 500px !important;
+  width: 250px !important;
 }
 
 .resizeable-screen-fullscreen {
@@ -368,7 +373,7 @@
   bottom: 0;
   width: 100vw;
   height: 100vh;
-  z-index: 12;
+  z-index: 9999;
 
   div {
     margin: 0;

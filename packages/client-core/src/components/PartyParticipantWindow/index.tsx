@@ -71,10 +71,13 @@ const PartyParticipantWindow = ({ peerId }: Props): JSX.Element => {
   const userState = useUserState()
   const videoRef = React.useRef<any>()
   const audioRef = React.useRef<any>()
+  const controlRef = React.useRef<any>()
   const videoStreamRef = useRef(videoStream)
   const audioStreamRef = useRef(audioStream)
   const mediastream = useMediaStreamState()
   const { t } = useTranslation()
+
+  const [isControlVisible, setIsControlVisible] = useState(false)
 
   const userHasInteracted = useEngineState().userHasInteracted
   const selfUser = useAuthState().user.value
@@ -442,7 +445,7 @@ const PartyParticipantWindow = ({ peerId }: Props): JSX.Element => {
   const username = getUsername()
 
   return (
-    <Resizeable isPiP={isPiP} isScreenMe={peerId === 'screen_me'}>
+    <Resizeable isPiP={isPiP} isScreenMe={peerId === 'screen_me'} setIsControlVisible={setIsControlVisible}>
       <div
         tabIndex={0}
         id={peerId + '_container'}
@@ -467,7 +470,13 @@ const PartyParticipantWindow = ({ peerId }: Props): JSX.Element => {
           <video key={peerId + '_cam'} ref={videoRef} draggable={false} />
         </div>
         <audio key={peerId + '_audio'} ref={audioRef} />
-        <div className={styles['user-controls']}>
+        <div
+          ref={controlRef}
+          className={classNames({
+            [styles['user-controls']]: true,
+            [styles['user-controls-visible']]: isControlVisible
+          })}
+        >
           <div className={styles['username']}>{username}</div>
           <div className={styles['controls']}>
             <div className={styles['mute-controls']}>
