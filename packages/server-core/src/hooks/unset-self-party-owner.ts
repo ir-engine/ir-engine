@@ -1,13 +1,13 @@
 import { HookContext } from '@feathersjs/feathers'
 
-import { UserDataType } from '../user/user/user.class'
+import { UserInterface } from '@xrengine/common/src/interfaces/User'
 
 // This will attach the owner ID in the contact while creating/updating list item
 export default () => {
   return async (context: HookContext): Promise<HookContext> => {
     // Getting logged in user and attaching owner of user
     const { result } = context
-    const loggedInUser = context.params.user as UserDataType
+    const loggedInUser = context.params.user as UserInterface
     if (loggedInUser?.id != null) {
       const user = await context.app.service('user').get(loggedInUser.id)
       if (user.partyId) {

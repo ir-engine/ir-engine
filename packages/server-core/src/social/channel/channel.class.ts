@@ -4,10 +4,10 @@ import _ from 'lodash'
 import { Op } from 'sequelize'
 
 import { Channel as ChannelInterface } from '@xrengine/common/src/interfaces/Channel'
+import { UserInterface } from '@xrengine/common/src/interfaces/User'
 
 import { Application } from '../../../declarations'
 import logger from '../../logger'
-import { UserDataType } from '../../user/user/user.class'
 
 export type ChannelDataType = ChannelInterface
 
@@ -32,7 +32,7 @@ export class Channel<T = ChannelDataType> extends Service<T> {
     const query = params.query!
     const skip = query?.skip || 0
     const limit = query?.limit || 10
-    const loggedInUser = params!.user as UserDataType
+    const loggedInUser = params!.user as UserInterface
     const userId = loggedInUser.id
     try {
       const subParams = {

@@ -5,10 +5,10 @@ import { Op } from 'sequelize'
 import { Sequelize } from 'sequelize'
 
 import { Party as PartyDataType } from '@xrengine/common/src/interfaces/Party'
+import { UserInterface } from '@xrengine/common/src/interfaces/User'
 
 // import { Params, Id, NullableId } from '@feathersjs/feathers'
 import { Application } from '../../../declarations'
-import { UserDataType } from '../../user/user/user.class'
 
 // import { Forbidden } from '@feathersjs/errors'
 
@@ -107,7 +107,7 @@ export class Party<T = PartyDataType> extends Service<T> {
    */
   async get(id: string, params?: Params): Promise<T> {
     if (id == null || id == '') {
-      const loggedInUser = params!.user as UserDataType
+      const loggedInUser = params!.user as UserInterface
       const partyUserResult = await this.app.service('party-user').find({
         query: {
           userId: loggedInUser.id

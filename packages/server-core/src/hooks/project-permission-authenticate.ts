@@ -2,14 +2,14 @@ import { BadRequest, Forbidden } from '@feathersjs/errors'
 import { HookContext } from '@feathersjs/feathers'
 
 import { GITHUB_URL_REGEX } from '@xrengine/common/src/constants/GitHubConstants'
+import { UserInterface } from '@xrengine/common/src/interfaces/User'
 
 import { checkUserRepoWriteStatus } from '../projects/githubapp/githubapp-helper'
-import { UserDataType } from '../user/user/user.class'
 
 export default (writeAccess) => {
   return async (context: HookContext): Promise<HookContext> => {
     const { params, app } = context
-    const loggedInUser = params.user as UserDataType
+    const loggedInUser = params.user as UserInterface
     if ((!writeAccess && loggedInUser.userRole === 'admin') || context.provider == null) return context
     let projectId, projectRepoPath
     const projectName = context.arguments[0]?.projectName || params.query?.projectName
