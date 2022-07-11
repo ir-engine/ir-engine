@@ -9,6 +9,7 @@ import { useEffect } from 'react'
 import { v1 } from 'uuid'
 
 import { validateEmail, validatePhoneNumber } from '@xrengine/common/src/config'
+import { AuthStrategies } from '@xrengine/common/src/interfaces/AuthStrategies'
 import { AuthUser, AuthUserSeed, resolveAuthUser } from '@xrengine/common/src/interfaces/AuthUser'
 import { AvatarProps } from '@xrengine/common/src/interfaces/AvatarInterface'
 import { IdentityProvider, IdentityProviderSeed } from '@xrengine/common/src/interfaces/IdentityProvider'
@@ -37,18 +38,6 @@ import { uploadToFeathersService } from '../../util/upload'
 import { userPatched } from '../functions/userPatched'
 
 const TIMEOUT_INTERVAL = 50 //ms per interval of waiting for authToken to be updated
-
-type AuthStrategies = {
-  jwt: Boolean
-  local: Boolean
-  facebook: Boolean
-  github: Boolean
-  google: Boolean
-  linkedin: Boolean
-  twitter: Boolean
-  smsMagicLink: Boolean
-  emailMagicLink: Boolean
-}
 
 //State
 const AuthState = defineState({
