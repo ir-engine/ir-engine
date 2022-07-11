@@ -7,7 +7,7 @@ import { decode } from 'jsonwebtoken'
 import { IdentityProviderInterface } from '@xrengine/common/src/dbmodels/IdentityProvider'
 import { Channel } from '@xrengine/common/src/interfaces/Channel'
 import { Instance } from '@xrengine/common/src/interfaces/Instance'
-import { User } from '@xrengine/common/src/interfaces/User'
+import { UserInterface } from '@xrengine/common/src/interfaces/User'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineActions, getEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
@@ -482,7 +482,7 @@ const shutdownServer = async (app: Application, instanceId: string) => {
 }
 
 // todo: this could be more elegant
-const getActiveUsersCount = (app: Application, userToIgnore: User) => {
+const getActiveUsersCount = (app: Application, userToIgnore: UserInterface) => {
   const activeClients = app.transport.peers
   const activeUsers = [...activeClients].filter(([id]) => id !== Engine.instance.userId && id !== userToIgnore.id)
   return activeUsers.length
@@ -491,7 +491,7 @@ const getActiveUsersCount = (app: Application, userToIgnore: User) => {
 const handleUserDisconnect = async (
   app: Application,
   connection: SocketIOConnectionType,
-  user: User,
+  user: UserInterface,
   instanceId: string
 ) => {
   try {

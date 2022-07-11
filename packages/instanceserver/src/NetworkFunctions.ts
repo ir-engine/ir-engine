@@ -2,7 +2,7 @@ import { DataConsumer, DataProducer } from 'mediasoup/node/lib/types'
 import { Socket } from 'socket.io'
 
 import { Instance } from '@xrengine/common/src/interfaces/Instance'
-import { User } from '@xrengine/common/src/interfaces/User'
+import { UserInterface } from '@xrengine/common/src/interfaces/User'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { SpawnPoseComponent } from '@xrengine/engine/src/avatar/components/SpawnPoseComponent'
 import { respawnAvatar } from '@xrengine/engine/src/avatar/functions/respawnAvatar'
@@ -223,7 +223,7 @@ export function getUserIdFromSocketId(network: SocketWebRTCServerNetwork, socket
   return client?.userId
 }
 
-export const handleConnectingPeer = async (network: SocketWebRTCServerNetwork, socket: Socket, user: User) => {
+export const handleConnectingPeer = async (network: SocketWebRTCServerNetwork, socket: Socket, user: UserInterface) => {
   const userId = user.id
   const avatarDetail = (await network.app.service('avatar').get(user.avatarId!)) as AvatarProps
 
@@ -258,7 +258,7 @@ export async function handleJoinWorld(
   data: JoinWorldRequestData,
   callback: Function,
   userId: UserId,
-  user: User
+  user: UserInterface
 ) {
   logger.info('Connect to world from ' + userId)
 
@@ -298,7 +298,7 @@ export function disconnectClientIfConnected(network: SocketWebRTCServerNetwork, 
   }
 }
 
-const getUserSpawnFromInvite = async (network: SocketWebRTCServerNetwork, user: User, inviteCode: string) => {
+const getUserSpawnFromInvite = async (network: SocketWebRTCServerNetwork, user: UserInterface, inviteCode: string) => {
   const world = Engine.instance.currentWorld
 
   if (inviteCode) {
@@ -309,7 +309,7 @@ const getUserSpawnFromInvite = async (network: SocketWebRTCServerNetwork, user: 
       }
     })) as any
 
-    const users = result.data as User[]
+    const users = result.data as UserInterface[]
     if (users.length > 0) {
       const inviterUser = users[0]
       if (inviterUser.instanceId === user.instanceId) {
@@ -326,8 +326,8 @@ const getUserSpawnFromInvite = async (network: SocketWebRTCServerNetwork, user: 
 
         if (validSpawnablePosition) {
           const spawnPoseComponent = getComponent(inviterUserAvatarEntity, SpawnPoseComponent)
-          spawnPoseComponent.position.copy(inviterUserObject3d.value.position)
-          spawnPoseComponent.rotation.copy(inviterUserTransform.rotation)
+          spawnPoseComponent?.position.copy(inviterUserObject3d.value.position)
+          spawnPoseComponent?.rotation.copy(inviterUserTransform.rotation)
           respawnAvatar(inviterUserAvatarEntity)
         }
       } else {

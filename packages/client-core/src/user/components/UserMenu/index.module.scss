@@ -1,4 +1,4 @@
-@import "@xrengine/client-core/src/styles/imports.module.scss";
+@import '@xrengine/client-core/src/styles/imports.module.scss';
 
 .primaryForeground {
   color: var(--textColor);
@@ -967,7 +967,6 @@
     }
 
     .copyField {
-      margin-top: 10px;
       width: 100%;
       color: var(--textColor);
 
@@ -990,10 +989,6 @@
         &:hover {
           opacity: 0.8;
         }
-      }
-
-      @media (max-width: 560px) {
-        width: 200px;
       }
     }
 
@@ -1028,10 +1023,11 @@
       text-align: center;
 
       .shareBtn {
-        width: 100px;
+        width: 100%;
         height: 35px;
         background: var(--purpleButtonColor);
-        color: "#fff";
+        color: #fff;
+        text-transform: capitalize;
 
         &:hover {
           opacity: 0.8;
@@ -1186,7 +1182,7 @@
         }
 
         &::before {
-          content: "";
+          content: '';
           position: absolute;
           width: 0;
           height: 0;
@@ -1222,7 +1218,7 @@
       margin-right: 10px;
 
       &::before {
-        content: "";
+        content: '';
         position: absolute;
         width: 0;
         height: 0;
@@ -1955,7 +1951,7 @@
 }
 
 .itemContainerPrev {
-  content: "";
+  content: '';
   width: 40px;
   height: 70px;
   position: absolute;
@@ -2011,7 +2007,7 @@
 }
 
 .itemContainerNext {
-  content: "";
+  content: '';
   width: 40px;
   height: 70px;
   position: absolute;
@@ -2433,6 +2429,35 @@
   color: #fff;
 }
 
+.label {
+  color: #c0c0c0;
+  font-weight: 100;
+  font-size: 15px;
+}
+
+.checkboxMode {
+  color: var(--textColor);
+}
+
+.formRoot {
+  padding: 15px 10px;
+}
+
+.QRContainer {
+  background: #fff;
+  padding: 25px 0;
+  margin: 0 auto 20px;
+  border-radius: 10px;
+  width: 250px;
+  text-align: center;
+}
+
+.title {
+  font-size: 14px;
+  font-weight: bold;
+  color: var(--textColor);
+  margin-bottom: 20px;
+}
 .themesHeading {
   color: var(--textColor);
   font-size: 14px;

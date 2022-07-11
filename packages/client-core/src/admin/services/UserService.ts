@@ -1,6 +1,6 @@
 import { Paginated } from '@feathersjs/feathers'
 
-import { CreateEditUser, User, UserSeed } from '@xrengine/common/src/interfaces/User'
+import { CreateEditUser, UserInterface, UserSeed } from '@xrengine/common/src/interfaces/User'
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
@@ -13,8 +13,8 @@ export const USER_PAGE_LIMIT = 10
 const AdminUserState = defineState({
   name: 'AdminUserState',
   initial: () => ({
-    users: [] as Array<User>,
-    singleUser: UserSeed as User,
+    users: [] as Array<UserInterface>,
+    singleUser: UserSeed as UserInterface,
     skip: 0,
     limit: USER_PAGE_LIMIT,
     total: 0,
@@ -161,7 +161,7 @@ export const AdminUserService = {
             $eq: userRole
           }
         }
-        const userResult = (await API.instance.client.service('user').find(params)) as Paginated<User>
+        const userResult = (await API.instance.client.service('user').find(params)) as Paginated<UserInterface>
         dispatchAction(AdminUserActions.loadedUsers({ userResult }))
       }
     } catch (err) {
@@ -170,7 +170,7 @@ export const AdminUserService = {
   },
   createUser: async (user: CreateEditUser) => {
     try {
-      const result = (await API.instance.client.service('user').create(user)) as User
+      const result = (await API.instance.client.service('user').create(user)) as UserInterface
       dispatchAction(AdminUserActions.userCreated({ user: result }))
     } catch (err) {
       console.log(err)
@@ -179,14 +179,14 @@ export const AdminUserService = {
   },
   patchUser: async (id: string, user: CreateEditUser) => {
     try {
-      const result = (await API.instance.client.service('user').patch(id, user)) as User
+      const result = (await API.instance.client.service('user').patch(id, user)) as UserInterface
       dispatchAction(AdminUserActions.userPatched({ user: result }))
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   },
   removeUserAdmin: async (id: string) => {
-    const result = (await API.instance.client.service('user').remove(id)) as User
+    const result = (await API.instance.client.service('user').remove(id)) as UserInterface
     dispatchAction(AdminUserActions.userAdminRemoved({ data: result }))
   },
   searchUserAction: async (data: any) => {
@@ -204,7 +204,7 @@ export const AdminUserService = {
           action: 'search',
           data
         }
-      })) as Paginated<User>
+      })) as Paginated<UserInterface>
       dispatchAction(AdminUserActions.searchedUser({ userResult }))
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
@@ -225,32 +225,32 @@ export const AdminUserService = {
 export class AdminUserActions {
   static fetchedSingleUser = defineAction({
     type: 'SINGLE_USER_ADMIN_LOADED' as const,
-    data: matches.object as Validator<unknown, User>
+    data: matches.object as Validator<unknown, UserInterface>
   })
 
   static loadedUsers = defineAction({
     type: 'ADMIN_LOADED_USERS' as const,
-    userResult: matches.object as Validator<unknown, Paginated<User>>
+    userResult: matches.object as Validator<unknown, Paginated<UserInterface>>
   })
 
   static userCreated = defineAction({
     type: 'USER_ADMIN_CREATED' as const,
-    user: matches.object as Validator<unknown, User>
+    user: matches.object as Validator<unknown, UserInterface>
   })
 
   static userPatched = defineAction({
     type: 'USER_ADMIN_PATCHED' as const,
-    user: matches.object as Validator<unknown, User>
+    user: matches.object as Validator<unknown, UserInterface>
   })
 
   static userAdminRemoved = defineAction({
     type: 'USER_ADMIN_REMOVED' as const,
-    data: matches.object as Validator<unknown, User>
+    data: matches.object as Validator<unknown, UserInterface>
   })
 
   static searchedUser = defineAction({
     type: 'USER_SEARCH_ADMIN' as const,
-    userResult: matches.object as Validator<unknown, Paginated<User>>
+    userResult: matches.object as Validator<unknown, Paginated<UserInterface>>
   })
 
   static setSkipGuests = defineAction({

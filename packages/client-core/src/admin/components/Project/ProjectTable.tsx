@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { ProjectInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
@@ -46,7 +46,7 @@ const ProjectTable = ({ className }: Props) => {
   const { t } = useTranslation()
   const [processing, setProcessing] = useState(false)
   const [confirm, setConfirm] = useState({ ...defaultConfirm })
-  const [project, setProject] = useState<ProjectInterface | undefined>()
+  const [project, _setProject] = useState<ProjectInterface | undefined>()
   const [showProjectFiles, setShowProjectFiles] = useState(false)
   const [openGithubRepoDrawer, setOpenGithubRepoDrawer] = useState(false)
   const [openUserPermissionDrawer, setOpenUserPermissionDrawer] = useState(false)
@@ -59,18 +59,23 @@ const ProjectTable = ({ className }: Props) => {
   const authState = useAuthState()
   const user = authState.user
 
+  const projectRef = useRef(project)
+
+  const setProject = (project: ProjectInterface | undefined) => {
+    projectRef.current = project
+    _setProject(project)
+  }
+
   ProjectService.useAPIListeners()
 
   useEffect(() => {
-    if (user?.id.value != null && adminProjectState.updateNeeded.value === true) {
-      ProjectService.fetchProjects()
-    }
-  }, [user?.id.value, adminProjectState.updateNeeded.value])
+    if (project) setProject(adminProjects.value.find((proj) => proj.name === project.name)!)
+  }, [adminProjects])
 
   const handleRemoveProject = async () => {
     try {
-      if (project) {
-        const projectToRemove = adminProjects.value.find((p) => p.name === project?.name)!
+      if (projectRef.current) {
+        const projectToRemove = adminProjects.value.find((p) => p.name === projectRef.current?.name)!
         if (projectToRemove) {
           await ProjectService.removeProject(projectToRemove.id)
           handleCloseConfirmation()
@@ -85,14 +90,14 @@ const ProjectTable = ({ className }: Props) => {
 
   const handleReuploadProjects = async () => {
     try {
-      if (project) {
-        if (!project.repositoryPath && project.name !== 'default-project') return
+      if (projectRef.current) {
+        if (!projectRef.current.repositoryPath && projectRef.current.name !== 'default-project') return
 
-        const existingProjects = adminProjects.value.find((p) => p.name === project.name)!
+        const existingProjects = adminProjects.value.find((p) => p.name === projectRef.current!.name)!
         setProcessing(true)
         await ProjectService.uploadProject(
-          project.name === 'default-project' ? 'default-project' : existingProjects.repositoryPath,
-          project.name
+          projectRef.current.name === 'default-project' ? 'default-project' : existingProjects.repositoryPath,
+          projectRef.current.name
         )
         setProcessing(false)
 
@@ -106,11 +111,11 @@ const ProjectTable = ({ className }: Props) => {
 
   const handlePushProjectToGithub = async () => {
     try {
-      if (project) {
-        if (!project.repositoryPath && project.name !== 'default-project') return
+      if (projectRef.current) {
+        if (!projectRef.current.repositoryPath && projectRef.current.name !== 'default-project') return
 
         setProcessing(true)
-        await ProjectService.pushProject(project.id)
+        await ProjectService.pushProject(projectRef.current.id)
         setProcessing(false)
 
         handleCloseConfirmation()
@@ -123,10 +128,8 @@ const ProjectTable = ({ className }: Props) => {
 
   const handleInvalidateCache = async () => {
     try {
-      handleCloseConfirmation()
-
       setProcessing(true)
-      await ProjectService.invalidateProjectCache(project!.name)
+      await ProjectService.invalidateProjectCache(projectRef.current!.name)
       setProcessing(false)
 
       handleCloseConfirmation()

@@ -2,7 +2,7 @@ import { Paginated } from '@feathersjs/feathers'
 import { useEffect } from 'react'
 
 import { Invite, SendInvite } from '@xrengine/common/src/interfaces/Invite'
-import { User } from '@xrengine/common/src/interfaces/User'
+import { UserInterface } from '@xrengine/common/src/interfaces/User'
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
@@ -137,7 +137,7 @@ export const InviteService = {
               action: 'invite-code-lookup',
               inviteCode: data.inviteCode
             }
-          })) as Paginated<User>
+          })) as Paginated<UserInterface>
 
           if (userResult.total === 0) {
             NotificationService.dispatchNotify('No user has that invite code', { variant: 'error' })
