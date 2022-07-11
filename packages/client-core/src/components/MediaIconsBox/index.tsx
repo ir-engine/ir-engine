@@ -166,7 +166,7 @@ const MediaIconsBox = (props: Props) => {
       {instanceMediaChatEnabled &&
       hasAudioDevice &&
       Engine.instance.currentWorld.mediaNetwork &&
-      currentChannelInstanceConnection.connected.value ? (
+      currentChannelInstanceConnection?.connected.value ? (
         <button
           type="button"
           id="UserAudio"
@@ -179,7 +179,7 @@ const MediaIconsBox = (props: Props) => {
       {videoEnabled &&
       hasVideoDevice &&
       Engine.instance.currentWorld.mediaNetwork &&
-      currentChannelInstanceConnection.connected.value ? (
+      currentChannelInstanceConnection?.connected.value ? (
         <>
           <button
             type="button"
