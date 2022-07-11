@@ -4,6 +4,7 @@ import { dispatchAction } from '@xrengine/hyperflux'
 
 import { BoneNames } from '../../avatar/AvatarBoneMatching'
 import { AvatarAnimationComponent } from '../../avatar/components/AvatarAnimationComponent'
+import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { AvatarHeadDecapComponent } from '../../avatar/components/AvatarHeadDecapComponent'
 import { accessAvatarInputSettingsState } from '../../avatar/state/AvatarInputSettingsState'
 import { ParityValue } from '../../common/enums/ParityValue'
@@ -97,7 +98,9 @@ export const proxifyXRInputs = (entity: Entity) => {
 export function setupXRCameraForLocalEntity(entity: Entity) {
   const { container } = getComponent(entity, XRInputSourceComponent)
   container.add(Engine.instance.currentWorld.camera)
-  if (!hasComponent(entity, AvatarHeadDecapComponent)) addComponent(entity, AvatarHeadDecapComponent, true)
+  const localClientEntity = Engine.instance.currentWorld.localClientEntity
+  if (localClientEntity && !hasComponent(localClientEntity, AvatarHeadDecapComponent))
+    addComponent(localClientEntity, AvatarHeadDecapComponent, true)
 }
 
 /**
@@ -231,9 +234,10 @@ export const endXR = (): void => {
   Engine.instance.currentWorld.scene.add(Engine.instance.currentWorld.camera)
 
   const world = Engine.instance.currentWorld
-  removeComponent(world.localClientEntity, XRInputSourceComponent)
-  removeComponent(world.localClientEntity, AvatarHeadDecapComponent)
-  removeComponent(world.localClientEntity, XRHandsInputComponent)
+  const localClientEntity = world.getOwnedNetworkObjectWithComponent(Engine.instance.userId, XRInputSourceComponent)
+  removeComponent(localClientEntity, XRInputSourceComponent)
+  removeComponent(localClientEntity, AvatarHeadDecapComponent)
+  removeComponent(localClientEntity, XRHandsInputComponent)
 
   dispatchAction(
     WorldNetworkAction.setXRMode({

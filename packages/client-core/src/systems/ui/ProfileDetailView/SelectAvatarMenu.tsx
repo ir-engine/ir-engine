@@ -48,7 +48,7 @@ const SelectAvatarMenu = () => {
   }, [authState.avatarList.value])
 
   const setAvatar = (avatarId: string, avatarURL: string, thumbnailURL: string) => {
-    if (hasComponent(useWorld().localClientEntity, AvatarEffectComponent)) return
+    if (hasComponent(Engine.instance.currentWorld.localClientEntity, AvatarEffectComponent)) return
     if (authState.user?.value) {
       AuthService.updateUserAvatarId(authState.user.id.value!, avatarId, avatarURL, thumbnailURL)
     }

@@ -136,6 +136,7 @@ export class EngineRenderer {
     }
 
     this.canvas = canvas
+    canvas.focus()
 
     canvas.ondragstart = (e) => {
       e.preventDefault()

@@ -41,16 +41,15 @@ describe.skip('EquippableSystem Integration Tests', () => {
 
     const networkObject = addComponent(player, NetworkObjectComponent, {
       ownerId: Engine.instance.userId,
-      networkId: 0 as NetworkId,
-      prefab: '',
-      parameters: {}
+      networkId: 0 as NetworkId
     })
 
     createAvatar(
       WorldNetworkAction.spawnAvatar({
         $from: Engine.instance.userId,
         networkId: networkObject.networkId,
-        parameters: { position: new Vector3(-0.48624888685311896, 0, -0.12087574159728942), rotation: new Quaternion() }
+        position: new Vector3(-0.48624888685311896, 0, -0.12087574159728942),
+        rotation: new Quaternion()
       })
     )
 

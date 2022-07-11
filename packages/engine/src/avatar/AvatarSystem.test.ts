@@ -1,19 +1,22 @@
 import assert from 'assert'
-import proxyquire from 'proxyquire'
 import sinon from 'sinon'
 import { Vector3 } from 'three'
 
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
+import { getState } from '@xrengine/hyperflux'
 
 import { Engine } from '../ecs/classes/Engine'
 import { addComponent, getComponent, hasComponent } from '../ecs/functions/ComponentFunctions'
 import { createEntity } from '../ecs/functions/EntityFunctions'
 import { createEngine } from '../initializeEngine'
+import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
+import { WorldState } from '../networking/interfaces/WorldState'
 import { VelocityComponent } from '../physics/components/VelocityComponent'
 import { XRHandsInputComponent } from '../xr/components/XRHandsInputComponent'
 import { XRInputSourceComponent } from '../xr/components/XRInputSourceComponent'
 import { setupXRInputSourceComponent } from '../xr/functions/WebXRFunctions'
 import {
+  avatarDetailsReceptor,
   setupHandIK,
   setupHeadIK,
   setupXRInputSourceContainer,
@@ -131,36 +134,17 @@ describe('AvatarSystem', async () => {
   })
 
   it('check avatarDetailsReceptor', async () => {
-    let client = null as any
-    const userId = 'user' as UserId
-    const action = { $from: userId, avatarDetail: { avatarURL: '' } } as any
-    const isClient = { isClient: true } as any
-    const avatarFunctions = { loadAvatarForUser: () => {} } as any
-    const { avatarDetailsReceptor } = proxyquire('./AvatarSystem', {
-      '../common/functions/isClient': isClient,
-      './functions/avatarFunctions': avatarFunctions
+    const action = WorldNetworkAction.avatarDetails({
+      avatarDetail: {
+        avatarURL: 'model',
+        thumbnailURL: 'thumbnail'
+      }
     })
 
-    const world = { users: { get: () => client }, getUserAvatarEntity: () => 0 }
-    sinon.spy(avatarFunctions, 'loadAvatarForUser')
+    avatarDetailsReceptor(action)
 
-    let thrownError = false
-
-    try {
-      avatarDetailsReceptor(action, world)
-    } catch (e) {
-      thrownError = true
-    }
-
-    assert(thrownError)
-    client = {} as any
-    avatarDetailsReceptor(action, world)
-    assert(client.avatarDetail)
-    assert(client.avatarDetail === action.avatarDetail)
-    assert(avatarFunctions.loadAvatarForUser.calledOnce)
-    const loadAvatarForUserArgs = avatarFunctions.loadAvatarForUser.getCall(0).args
-    assert(loadAvatarForUserArgs[0] === world.getUserAvatarEntity())
-    assert(loadAvatarForUserArgs[1] === action.avatarDetail.avatarURL)
+    const worldState = getState(WorldState)
+    assert.deepEqual(worldState.userAvatarDetails[Engine.instance.userId].value, action.avatarDetail)
   })
 
   it('check teleportObjectReceptor', async () => {

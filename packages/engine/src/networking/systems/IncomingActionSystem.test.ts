@@ -31,7 +31,6 @@ describe('IncomingActionSystem Unit Tests', async () => {
       const action = WorldNetworkAction.spawnObject({
         $from: '0' as UserId,
         prefab: '',
-        parameters: {},
         // incoming action from future
         $time: 2,
         $to: '0' as ActionRecipients
@@ -66,7 +65,6 @@ describe('IncomingActionSystem Unit Tests', async () => {
       const action = WorldNetworkAction.spawnObject({
         $from: '0' as UserId,
         prefab: '',
-        parameters: {},
         // incoming action from past
         $time: -1,
         $to: '0' as ActionRecipients
@@ -97,7 +95,6 @@ describe('IncomingActionSystem Unit Tests', async () => {
       const action = WorldNetworkAction.spawnObject({
         $from: '0' as UserId,
         prefab: '',
-        parameters: {},
         // incoming action from past
         $time: 0,
         $to: '0' as ActionRecipients,

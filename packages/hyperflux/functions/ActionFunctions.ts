@@ -225,6 +225,7 @@ function defineAction<Shape extends ActionShape<Action>>(actionShape: Shape) {
       ]) as [string, any]
     )
     let action = {
+      $from: HyperFlux.store?.getDispatchId(),
       ...allValuesNull,
       ...Object.fromEntries([...optionEntries, ...literalEntries]),
       ...defaultValues,
