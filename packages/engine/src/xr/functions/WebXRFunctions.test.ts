@@ -6,6 +6,7 @@ import { PerspectiveCamera } from 'three'
 import { dispatchAction } from '@xrengine/hyperflux'
 
 import { createMockNetwork } from '../../../tests/util/createMockNetwork'
+import { createAvatar } from '../../avatar/functions/createAvatar'
 import { FollowCameraComponent, FollowCameraDefaultValues } from '../../camera/components/FollowCameraComponent'
 import { Engine } from '../../ecs/classes/Engine'
 import { addComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
@@ -13,6 +14,7 @@ import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { createEngine } from '../../initializeEngine'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
+import { WorldNetworkActionReceptor } from '../../networking/functions/WorldNetworkActionReceptor'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { XRHandsInputComponent } from '../components/XRHandsInputComponent'
 import { XRInputSourceComponent } from '../components/XRInputSourceComponent'
@@ -25,9 +27,13 @@ describe('WebXRFunctions Unit', async () => {
 
   it('check setupXRCamera', async () => {
     const world = Engine.instance.currentWorld
-    const entity = createEntity(world)
-    world.localClientEntity = entity
-    Engine.instance.currentWorld.camera = new PerspectiveCamera()
+    await world.physics.createScene()
+
+    const action = WorldNetworkAction.spawnAvatar()
+    WorldNetworkActionReceptor.receiveSpawnObject(action)
+    createAvatar(action)
+
+    const entity = world.localClientEntity
 
     setupXRInputSourceComponent(entity)
     setupXRCameraForLocalEntity(entity)
@@ -47,8 +53,13 @@ describe('WebXRFunctions Unit', async () => {
     createMockNetwork()
 
     const world = Engine.instance.currentWorld
-    const entity = createEntity(world)
-    world.localClientEntity = entity
+    await world.physics.createScene()
+
+    const action = WorldNetworkAction.spawnAvatar()
+    WorldNetworkActionReceptor.receiveSpawnObject(action)
+    createAvatar(action)
+
+    const entity = world.localClientEntity
 
     const xrManagerMock = { setSession() {} } as any
     EngineRenderer.instance.xrSession = true as any
@@ -57,8 +68,6 @@ describe('WebXRFunctions Unit', async () => {
     sinon.spy(xrManagerMock, 'setSession')
 
     setupXRInputSourceComponent(entity)
-    addComponent(entity, XRHandsInputComponent, { hands: [] })
-    addComponent(entity, NetworkObjectComponent, { ownerId: Engine.instance.userId, networkId: 42 })
 
     const hyperfluxStub = {} as any
     const { endXR } = proxyquire('./WebXRFunctions', {

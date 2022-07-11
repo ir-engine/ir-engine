@@ -120,15 +120,12 @@ export const createAvatar = (spawnAction: typeof WorldNetworkAction.spawnAvatar.
 
   if (userId === Engine.instance.userId) {
     createAvatarController(entity)
+    addComponent(entity, LocalInputTagComponent, {})
   }
 
   if (isClient) {
     addComponent(entity, AudioTagComponent, {})
     addComponent(entity, ShadowComponent, { receiveShadow: true, castShadow: true })
-
-    if (userId === Engine.instance.userId) {
-      addComponent(entity, LocalInputTagComponent, {})
-    }
   }
 
   const shape = world.physics.createShape(

@@ -21,7 +21,7 @@ import { GoogleIcon } from '../../../common/components/Icons/GoogleIcon'
 import { LinkedInIcon } from '../../../common/components/Icons/LinkedInIcon'
 import { TwitterIcon } from '../../../common/components/Icons/TwitterIcon'
 import { NotificationService } from '../../../common/services/NotificationService'
-import { useAvatarURLForUser } from '../../../user/components/UserMenu/util'
+import { getAvatarURLForUser } from '../../../user/components/UserMenu/util'
 import { AuthService, useAuthState } from '../../../user/services/AuthService'
 import styleString from './index.scss'
 
@@ -301,7 +301,7 @@ const ProfileDetailView = () => {
         <section className="profilePanel">
           <section className="profileBlock">
             <div className="avatarBlock">
-              <img src={useAvatarURLForUser(userId)} />
+              <img src={getAvatarURLForUser(userId)} />
               <button xr-layer="true" className="avatarBtn" id="select-avatar" onClick={handleOpenSelectAvatarWidget}>
                 <Create />
               </button>

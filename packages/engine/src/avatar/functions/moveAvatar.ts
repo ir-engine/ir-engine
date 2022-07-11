@@ -302,7 +302,6 @@ const moveAvatarController = (world: World, entity: Entity, displacement: Vector
   // velocity.linear.setZ(displacement.z)
   velocity.linear.x = 0 //MathUtils.lerp(velocity.linear.x, displacement.x, world.deltaSeconds * 10)
   velocity.linear.y = velocity.linear.y < 0 && !controller.isInAir ? 0 : velocity.linear.y
-  console.log(controller.isJumping, controller.isInAir, velocity.linear.y)
   velocity.linear.z = Math.min(Math.max(displacement.length(), -1), 1) //MathUtils.lerp(velocity.linear.z, velocity.linear.z, world.deltaSeconds * 10) // MathUtils.lerp(velocity.linear.z, displacement.z, world.deltaSeconds * 10)
 }
 

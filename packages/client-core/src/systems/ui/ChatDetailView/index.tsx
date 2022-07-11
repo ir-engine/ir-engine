@@ -1,14 +1,16 @@
-import { createState } from '@speigg/hookstate'
+import { createState, useHookstate } from '@speigg/hookstate'
 import React, { Fragment, useRef, useState } from 'react'
 
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
+import { WorldState } from '@xrengine/engine/src/networking/interfaces/WorldState'
 import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
+import { getState } from '@xrengine/hyperflux'
 
 import { Send } from '@mui/icons-material'
 import Avatar from '@mui/material/Avatar'
 
 import { useChatHooks } from '../../../components/InstanceChat'
-import { useAvatarURLForUser } from '../../../user/components/UserMenu/util'
+import { getAvatarURLForUser } from '../../../user/components/UserMenu/util'
 import styleString from './index.scss'
 
 export function createChatDetailView() {
@@ -33,6 +35,8 @@ const ChatDetailView = () => {
   const isLeftOrJoinText = (text: string) => {
     return / left the layer|joined the layer/.test(text)
   }
+
+  const userAvatarDetails = useHookstate(getState(WorldState).userAvatarDetails)
 
   return (
     <>
@@ -64,14 +68,16 @@ const ChatDetailView = () => {
                           </div>
                         </div>
                         {index !== 0 && messages[index - 1] && isLeftOrJoinText(messages[index - 1].text) ? (
-                          <Avatar src={useAvatarURLForUser(message.senderId)} className="avatar" />
+                          <Avatar src={getAvatarURLForUser(userAvatarDetails, message.senderId)} className="avatar" />
                         ) : (
                           messages[index - 1] &&
                           message.senderId !== messages[index - 1].senderId && (
-                            <Avatar src={useAvatarURLForUser(message.senderId)} className="avatar" />
+                            <Avatar src={getAvatarURLForUser(userAvatarDetails, message.senderId)} className="avatar" />
                           )
                         )}
-                        {index === 0 && <Avatar src={useAvatarURLForUser(message.senderId)} className="avatar" />}
+                        {index === 0 && (
+                          <Avatar src={getAvatarURLForUser(userAvatarDetails, message.senderId)} className="avatar" />
+                        )}
                       </div>
                     </div>
                   </div>

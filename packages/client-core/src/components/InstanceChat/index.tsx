@@ -1,4 +1,4 @@
-import { Downgraded } from '@speigg/hookstate'
+import { Downgraded, useHookstate } from '@speigg/hookstate'
 import React, { Fragment, useEffect, useRef, useState } from 'react'
 
 import { useLocationInstanceConnectionState } from '@xrengine/client-core/src/common/services/LocationInstanceConnectionService'
@@ -19,11 +19,13 @@ import { addEntityNodeInTree, createEntityNode } from '@xrengine/engine/src/ecs/
 import { NetworkTopics } from '@xrengine/engine/src/networking/classes/Network'
 import { matchActionOnce } from '@xrengine/engine/src/networking/functions/matchActionOnce'
 import { WorldNetworkAction } from '@xrengine/engine/src/networking/functions/WorldNetworkAction'
+import { WorldState } from '@xrengine/engine/src/networking/interfaces/WorldState'
 import { toggleAudio } from '@xrengine/engine/src/scene/functions/loaders/AudioFunctions'
 import { updateAudio } from '@xrengine/engine/src/scene/functions/loaders/AudioFunctions'
 import { ScenePrefabs } from '@xrengine/engine/src/scene/functions/registerPrefabs'
 import { createNewEditorNode } from '@xrengine/engine/src/scene/functions/SceneLoading'
 import { addActionReceptor, dispatchAction, removeActionReceptor } from '@xrengine/hyperflux'
+import { getState } from '@xrengine/hyperflux'
 
 import { Cancel as CancelIcon, Message as MessageIcon, Send } from '@mui/icons-material'
 import { IconButton, InputAdornment } from '@mui/material'
@@ -34,7 +36,7 @@ import CardContent from '@mui/material/CardContent'
 import Fab from '@mui/material/Fab'
 import TextField from '@mui/material/TextField'
 
-import { useAvatarURLForUser } from '../../user/components/UserMenu/util'
+import { getAvatarURLForUser } from '../../user/components/UserMenu/util'
 import defaultStyles from './index.module.scss'
 
 const logger = multiLogger.child({ component: 'client-core:chat' })
@@ -315,6 +317,8 @@ const InstanceChat = ({
     return / left the layer|joined the layer/.test(text)
   }
 
+  const userAvatarDetails = useHookstate(getState(WorldState).userAvatarDetails)
+
   return (
     <>
       <div
@@ -356,15 +360,24 @@ const InstanceChat = ({
                                   </div>
                                 </div>
                                 {index !== 0 && messages[index - 1] && isLeftOrJoinText(messages[index - 1].text) ? (
-                                  <Avatar src={useAvatarURLForUser(message.senderId)} className={styles.avatar} />
+                                  <Avatar
+                                    src={getAvatarURLForUser(userAvatarDetails, message.senderId)}
+                                    className={styles.avatar}
+                                  />
                                 ) : (
                                   messages[index - 1] &&
                                   message.senderId !== messages[index - 1].senderId && (
-                                    <Avatar src={useAvatarURLForUser(message.senderId)} className={styles.avatar} />
+                                    <Avatar
+                                      src={getAvatarURLForUser(userAvatarDetails, message.senderId)}
+                                      className={styles.avatar}
+                                    />
                                   )
                                 )}
                                 {index === 0 && (
-                                  <Avatar src={useAvatarURLForUser(message.senderId)} className={styles.avatar} />
+                                  <Avatar
+                                    src={getAvatarURLForUser(userAvatarDetails, message.senderId)}
+                                    className={styles.avatar}
+                                  />
                                 )}
                               </div>
                             </div>
