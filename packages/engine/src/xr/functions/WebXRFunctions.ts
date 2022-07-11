@@ -98,9 +98,9 @@ export const proxifyXRInputs = (entity: Entity) => {
 export function setupXRCameraForLocalEntity(entity: Entity) {
   const { container } = getComponent(entity, XRInputSourceComponent)
   container.add(Engine.instance.currentWorld.camera)
-  const localAvatarEntity = Engine.instance.currentWorld.localAvatarEntity
-  if (!hasComponent(localAvatarEntity, AvatarHeadDecapComponent))
-    addComponent(localAvatarEntity, AvatarHeadDecapComponent, true)
+  const localClientEntity = Engine.instance.currentWorld.localClientEntity
+  if (localClientEntity && !hasComponent(localClientEntity, AvatarHeadDecapComponent))
+    addComponent(localClientEntity, AvatarHeadDecapComponent, true)
 }
 
 /**
@@ -234,10 +234,10 @@ export const endXR = (): void => {
   Engine.instance.currentWorld.scene.add(Engine.instance.currentWorld.camera)
 
   const world = Engine.instance.currentWorld
-  const localAvatarEntity = world.getOwnedNetworkObjectWithComponent(Engine.instance.userId, AvatarComponent)
-  removeComponent(localAvatarEntity, XRInputSourceComponent)
-  removeComponent(localAvatarEntity, AvatarHeadDecapComponent)
-  removeComponent(localAvatarEntity, XRHandsInputComponent)
+  const localClientEntity = world.getOwnedNetworkObjectWithComponent(Engine.instance.userId, XRInputSourceComponent)
+  removeComponent(localClientEntity, XRInputSourceComponent)
+  removeComponent(localClientEntity, AvatarHeadDecapComponent)
+  removeComponent(localClientEntity, XRHandsInputComponent)
 
   dispatchAction(
     WorldNetworkAction.setXRMode({

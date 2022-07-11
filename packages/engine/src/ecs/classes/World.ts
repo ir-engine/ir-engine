@@ -12,6 +12,7 @@ import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { SceneLoaderType } from '../../common/constants/PrefabFunctionType'
 import { isClient } from '../../common/functions/isClient'
 import { nowMilliseconds } from '../../common/functions/nowMilliseconds'
+import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
 import { InputValue } from '../../input/interfaces/InputValue'
 import { Network, NetworkTopics } from '../../networking/classes/Network'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
@@ -55,12 +56,6 @@ export class World {
     this.worldEntity = createEntity(this)
     addComponent(this.worldEntity, PersistTagComponent, {}, this)
     addComponent(this.worldEntity, NameComponent, { name: 'world' }, this)
-
-    if (isClient) {
-      this.localClientEntity = createEntity(this)
-      addComponent(this.localClientEntity, PersistTagComponent, {}, this)
-      addComponent(this.localClientEntity, NameComponent, { name: 'local' }, this)
-    }
 
     this.cameraEntity = createEntity(this)
     addComponent(this.cameraEntity, VisibleComponent, true, this)
@@ -193,13 +188,8 @@ export class World {
   /**
    * The local client entity
    */
-  localClientEntity: Entity = NaN as Entity
-
-  /**
-   * The local avatar entity
-   */
-  get localAvatarEntity() {
-    return this.getOwnedNetworkObjectWithComponent(Engine.instance.userId, AvatarComponent) || (NaN as Entity)
+  get localClientEntity() {
+    return this.getOwnedNetworkObjectWithComponent(Engine.instance.userId, LocalInputTagComponent) || (NaN as Entity)
   }
 
   /**
@@ -262,11 +252,13 @@ export class World {
    * Get a network object by owner and NetworkId
    * @returns
    */
-  getNetworkObject(ownerId: UserId, networkId: NetworkId): Entity | undefined {
-    return this.networkObjectQuery(this).find((eid) => {
-      const networkObject = getComponent(eid, NetworkObjectComponent)
-      return networkObject.networkId === networkId && networkObject.ownerId === ownerId
-    })!
+  getNetworkObject(ownerId: UserId, networkId: NetworkId): Entity {
+    return (
+      this.networkObjectQuery(this).find((eid) => {
+        const networkObject = getComponent(eid, NetworkObjectComponent)
+        return networkObject.networkId === networkId && networkObject.ownerId === ownerId
+      }) || (NaN as Entity)
+    )
   }
 
   /**
@@ -285,9 +277,11 @@ export class World {
    * @returns
    */
   getOwnedNetworkObjectWithComponent<T, S extends bitecs.ISchema>(userId: UserId, component: MappedComponent<T, S>) {
-    return this.getOwnedNetworkObjects(userId).find((eid) => {
-      return hasComponent(eid, component, this)
-    })!
+    return (
+      this.getOwnedNetworkObjects(userId).find((eid) => {
+        return hasComponent(eid, component, this)
+      }) || (NaN as Entity)
+    )
   }
 
   /** ID of last network created. */

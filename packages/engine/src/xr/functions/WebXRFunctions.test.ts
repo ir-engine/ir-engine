@@ -11,6 +11,7 @@ import { Engine } from '../../ecs/classes/Engine'
 import { addComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { createEngine } from '../../initializeEngine'
+import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { XRHandsInputComponent } from '../components/XRHandsInputComponent'
@@ -57,6 +58,7 @@ describe('WebXRFunctions Unit', async () => {
 
     setupXRInputSourceComponent(entity)
     addComponent(entity, XRHandsInputComponent, { hands: [] })
+    addComponent(entity, NetworkObjectComponent, { ownerId: Engine.instance.userId, networkId: 42 })
 
     const hyperfluxStub = {} as any
     const { endXR } = proxyquire('./WebXRFunctions', {

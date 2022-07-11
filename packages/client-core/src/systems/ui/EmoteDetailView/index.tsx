@@ -115,7 +115,7 @@ const EmoteDetailView = () => {
   }
 
   const runAnimation = (stateName: string) => {
-    const entity = Engine.instance.currentWorld.localAvatarEntity
+    const entity = Engine.instance.currentWorld.localClientEntity
     changeAvatarAnimationState(entity, stateName)
   }
 
