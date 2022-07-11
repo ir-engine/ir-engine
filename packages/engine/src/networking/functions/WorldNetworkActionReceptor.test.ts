@@ -3,18 +3,17 @@ import { Quaternion, Vector3 } from 'three'
 
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
-import ActionFunctions, { Topic } from '@xrengine/hyperflux/functions/ActionFunctions'
+import ActionFunctions from '@xrengine/hyperflux/functions/ActionFunctions'
 
 import { createMockNetwork } from '../../../tests/util/createMockNetwork'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
+import { createAvatar } from '../../avatar/functions/createAvatar'
 import { Engine } from '../../ecs/classes/Engine'
-import { addComponent, defineQuery, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
-import { createEntity } from '../../ecs/functions/EntityFunctions'
+import { defineQuery, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEngine } from '../../initializeEngine'
 import { NetworkTopics } from '../classes/Network'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
 import { NetworkObjectOwnedTag } from '../components/NetworkObjectOwnedTag'
-import { WorldState } from '../interfaces/WorldState'
 import WorldNetworkActionSystem from '../systems/WorldNetworkActionSystem'
 import { NetworkPeerFunctions } from './NetworkPeerFunctions'
 import { WorldNetworkAction } from './WorldNetworkAction'
@@ -103,7 +102,7 @@ describe('WorldNetworkActionReceptors', () => {
       assert.equal(hasComponent(networkObjectEntities[0], NetworkObjectOwnedTag), true)
     })
 
-    it('should spawn avatar owned by other', () => {
+    it('should spawn avatar owned by other', async () => {
       const hostUserId = 'world' as UserId
       const userId = 'user id' as UserId
       const userId2 = 'second user id' as UserId
@@ -111,6 +110,8 @@ describe('WorldNetworkActionReceptors', () => {
       Engine.instance.userId = userId
       const world = Engine.instance.currentWorld
       const network = world.worldNetwork
+
+      await world.physics.createScene()
 
       NetworkPeerFunctions.createPeer(network, hostUserId, 0, 'world', world)
       NetworkPeerFunctions.createPeer(network, userId, 1, 'user name', world)
@@ -147,35 +148,24 @@ describe('WorldNetworkActionReceptors', () => {
       assert.equal(hasComponent(networkObjectEntities[0], NetworkObjectOwnedTag), false)
     })
 
-    it('should spawn avatar owned by user', () => {
+    it('should spawn avatar owned by user', async () => {
       const userId = 'user id' as UserId
 
       Engine.instance.userId = userId
       const world = Engine.instance.currentWorld
       const network = world.worldNetwork
 
+      await world.physics.createScene()
+
       NetworkPeerFunctions.createPeer(network, userId, 1, 'user name', world)
 
-      const objParams = {
-        position: new Vector3(),
-        rotation: new Quaternion()
-      }
-      const objNetId = 3 as NetworkId
-      const objPrefab = 'avatar'
-
-      WorldNetworkActionReceptor.receiveSpawnObject(
-        WorldNetworkAction.spawnObject({
-          $from: userId, // from user
-          prefab: objPrefab, // generic prefab
-          networkId: objNetId,
-          $topic: NetworkTopics.world
-        }),
-        world
-      )
+      const action = WorldNetworkAction.spawnAvatar({ networkId: 42 as NetworkId })
+      WorldNetworkActionReceptor.receiveSpawnObject(action)
+      createAvatar(action)
 
       const entity = world.getOwnedNetworkObjectWithComponent(userId, AvatarComponent)
 
-      assert.equal(getComponent(entity, NetworkObjectComponent).networkId, objNetId)
+      assert.equal(getComponent(entity, NetworkObjectComponent).networkId, 42)
       assert.equal(getComponent(entity, NetworkObjectComponent).ownerId, userId)
       assert.equal(hasComponent(entity, NetworkObjectOwnedTag), true)
     })
@@ -261,6 +251,8 @@ describe('WorldNetworkActionReceptors', () => {
       const world = Engine.instance.currentWorld
       const network = world.worldNetwork
 
+      await world.physics.createScene()
+
       NetworkPeerFunctions.createPeer(network, userId, userIndex, userName, world)
 
       const hostIndex = 0
@@ -270,19 +262,17 @@ describe('WorldNetworkActionReceptors', () => {
         index: hostIndex
       })
 
-      const objParams = 123
       const objNetId = 3 as NetworkId
       const objPrefab = 'generic prefab'
 
-      WorldNetworkActionReceptor.receiveSpawnObject(
-        WorldNetworkAction.spawnObject({
-          $from: world.worldNetwork.hostId, // from host
-          prefab: objPrefab, // generic prefab
-          networkId: objNetId,
-          $topic: NetworkTopics.world
-        }),
-        world
-      )
+      const action = WorldNetworkAction.spawnObject({
+        $from: world.worldNetwork.hostId, // from host
+        prefab: objPrefab, // generic prefab
+        networkId: objNetId
+      })
+
+      WorldNetworkActionReceptor.receiveSpawnObject(action)
+      createAvatar(action)
 
       const networkObjectQuery = defineQuery([NetworkObjectComponent])
       const networkObjectOwnedQuery = defineQuery([NetworkObjectOwnedTag])
