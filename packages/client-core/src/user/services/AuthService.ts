@@ -4,16 +4,22 @@ import { Downgraded } from '@speigg/hookstate'
 // import { endVideoChat, leave } from '@xrengine/engine/src/networking/functions/SocketWebRTCClientFunctions';
 import axios from 'axios'
 import i18n from 'i18next'
-import _ from 'lodash'
 import querystring from 'querystring'
 import { useEffect } from 'react'
 import { v1 } from 'uuid'
 
 import { validateEmail, validatePhoneNumber } from '@xrengine/common/src/config'
 import { AuthUser, AuthUserSeed, resolveAuthUser } from '@xrengine/common/src/interfaces/AuthUser'
-import { AvatarInterface, AvatarProps } from '@xrengine/common/src/interfaces/AvatarInterface'
+import { AvatarProps } from '@xrengine/common/src/interfaces/AvatarInterface'
 import { IdentityProvider, IdentityProviderSeed } from '@xrengine/common/src/interfaces/IdentityProvider'
-import { resolveUser, resolveWalletUser, User, UserSeed, UserSetting } from '@xrengine/common/src/interfaces/User'
+import { StaticResourceInterface } from '@xrengine/common/src/interfaces/StaticResourceInterface'
+import {
+  resolveUser,
+  resolveWalletUser,
+  UserInterface,
+  UserSeed,
+  UserSetting
+} from '@xrengine/common/src/interfaces/User'
 import { UserApiKey } from '@xrengine/common/src/interfaces/UserApiKey'
 import { UserAvatar } from '@xrengine/common/src/interfaces/UserAvatar'
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
@@ -930,7 +936,7 @@ export class AuthAction {
 
   static loadedUserDataAction = defineAction({
     type: 'LOADED_USER_DATA' as const,
-    user: matches.object as Validator<unknown, User>
+    user: matches.object as Validator<unknown, UserInterface>
   })
 
   static updatedUserSettingsAction = defineAction({
@@ -960,12 +966,12 @@ export class AuthAction {
 
   static userUpdatedAction = defineAction({
     type: 'USER_UPDATED' as const,
-    user: matches.object as Validator<unknown, User>
+    user: matches.object as Validator<unknown, UserInterface>
   })
 
   static updateAvatarListAction = defineAction({
     type: 'AVATAR_FETCHED' as const,
-    avatarList: matches.array as Validator<unknown, AvatarInterface[]>
+    avatarList: matches.array as Validator<unknown, StaticResourceInterface[]>
   })
 
   static apiKeyUpdatedAction = defineAction({

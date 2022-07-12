@@ -1,8 +1,10 @@
-import { createState } from '@speigg/hookstate'
+import { createState, useHookstate } from '@speigg/hookstate'
 import React, { Fragment, useRef, useState } from 'react'
 
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
+import { WorldState } from '@xrengine/engine/src/networking/interfaces/WorldState'
 import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
+import { getState } from '@xrengine/hyperflux'
 
 import { Send } from '@mui/icons-material'
 import Avatar from '@mui/material/Avatar'
@@ -35,6 +37,8 @@ const ChatDetailView = () => {
     return / left the layer|joined the layer/.test(text)
   }
 
+  const userAvatarDetails = useHookstate(getState(WorldState).userAvatarDetails)
+
   return (
     <>
       <style>{styleString}</style>
@@ -65,14 +69,16 @@ const ChatDetailView = () => {
                           </div>
                         </div>
                         {index !== 0 && messages[index - 1] && isLeftOrJoinText(messages[index - 1].text) ? (
-                          <Avatar src={getAvatarURLForUser(message.senderId)} className="avatar" />
+                          <Avatar src={getAvatarURLForUser(userAvatarDetails, message.senderId)} className="avatar" />
                         ) : (
                           messages[index - 1] &&
                           message.senderId !== messages[index - 1].senderId && (
-                            <Avatar src={getAvatarURLForUser(message.senderId)} className="avatar" />
+                            <Avatar src={getAvatarURLForUser(userAvatarDetails, message.senderId)} className="avatar" />
                           )
                         )}
-                        {index === 0 && <Avatar src={getAvatarURLForUser(message.senderId)} className="avatar" />}
+                        {index === 0 && (
+                          <Avatar src={getAvatarURLForUser(userAvatarDetails, message.senderId)} className="avatar" />
+                        )}
                       </div>
                     </div>
                   </div>

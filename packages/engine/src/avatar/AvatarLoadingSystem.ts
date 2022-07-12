@@ -64,10 +64,6 @@ export default async function AvatarLoadingSystem(world: World) {
       object.add(pt)
       pt.rotation.x = -0.5 * Math.PI
 
-      // if (isEntityLocalClient(entity)) {
-      //   removeComponent(entity, LocalInputTagComponent)
-      // }
-
       addComponent(entity, TweenComponent, {
         tween: new Tween<any>(plateComponent)
           .to(

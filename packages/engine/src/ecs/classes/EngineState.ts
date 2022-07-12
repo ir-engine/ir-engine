@@ -26,7 +26,9 @@ export const EngineState = defineState({
     spectating: false,
     errorEntities: {} as { [key: Entity]: boolean },
     availableInteractable: null! as Entity,
-    usersTyping: {} as { [key: string]: true }
+    usersTyping: {} as { [key: string]: true },
+    viewInAR: false,
+    interactableModelUrl: ''
   }
 })
 
@@ -63,6 +65,10 @@ export function EngineEventReceptor(a) {
         s.availableInteractable.set(action.availableInteractable)
       )
       .when(EngineActions.spectateUser.matches, (action) => s.spectating.set(!!action.user))
+      .when(EngineActions.viewInAR.matches, (action) => {
+        s.viewInAR.set(action.viewInAR)
+        s.interactableModelUrl.set(action.interactableModelUrl)
+      })
   })
 }
 
@@ -180,5 +186,11 @@ export class EngineActions {
   static spectateUser = defineAction({
     type: 'xre.engine.SPECTATE_USER' as const,
     user: matches.string.optional()
+  })
+
+  static viewInAR = defineAction({
+    type: 'CORE_VIEW_IN_AR' as const,
+    viewInAR: matches.boolean,
+    interactableModelUrl: matches.string
   })
 }

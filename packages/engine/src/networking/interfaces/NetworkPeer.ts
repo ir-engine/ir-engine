@@ -3,8 +3,6 @@ import type SocketIO from 'socket.io'
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 
-import type { AvatarProps } from './WorldState'
-
 export interface NetworkPeer {
   userId: UserId
   index: number
@@ -29,5 +27,4 @@ export interface NetworkPeer {
 export interface UserClient {
   userId: UserId
   name: string
-  avatarDetail?: AvatarProps
 }

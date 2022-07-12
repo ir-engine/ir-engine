@@ -1,8 +1,13 @@
 import { MathUtils } from 'three'
 
+import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
+import { UserId } from '@xrengine/common/src/interfaces/UserId'
+
+import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { Engine } from '../classes/Engine'
 import { Entity } from '../classes/Entity'
 import EntityTree, { EntityTreeNode } from '../classes/EntityTree'
+import { addComponent, removeAllComponents } from './ComponentFunctions'
 
 // ========== Entity Tree Functions ========== //
 /**
@@ -30,8 +35,9 @@ export function removeFromEntityTreeMaps(node: EntityTreeNode, tree = Engine.ins
  * @param world World
  */
 export function initializeEntityTree(world = Engine.instance.currentWorld): void {
+  removeAllComponents(world.worldEntity)
   world.entityTree = {
-    rootNode: createEntityNode(-1 as Entity),
+    rootNode: createEntityNode(world.worldEntity),
     entityNodeMap: new Map(),
     uuidNodeMap: new Map()
   } as EntityTree
@@ -107,11 +113,19 @@ export function emptyEntityTree(tree = Engine.instance.currentWorld.entityTree):
  * @returns Newly created Entity node
  */
 export function createEntityNode(entity: Entity, uuid?: string): EntityTreeNode {
-  return {
+  const node = {
     type: 'EntityNode',
     entity,
     uuid: uuid || MathUtils.generateUUID()
-  }
+  } as const
+
+  // addComponent(entity, NetworkObjectComponent, {
+  //   ownerId: Engine.instance.currentWorld._worldHostId,
+  //   networkId: //node.uuid as NetworkId,
+  //   prefab: 'entity_node',
+  //   parameters: null
+  // })
+  return node
 }
 
 /**

@@ -1,14 +1,12 @@
-import _ from 'lodash'
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { AdminScopeType } from '@xrengine/common/src/interfaces/AdminScopeType'
-import { CreateEditUser, User } from '@xrengine/common/src/interfaces/User'
+import { CreateEditUser, UserInterface } from '@xrengine/common/src/interfaces/User'
 
 import Button from '@mui/material/Button'
 import Container from '@mui/material/Container'
 import DialogActions from '@mui/material/DialogActions'
-import DialogContentText from '@mui/material/DialogContentText'
 import DialogTitle from '@mui/material/DialogTitle'
 
 import { NotificationService } from '../../../common/services/NotificationService'
@@ -32,7 +30,7 @@ export enum UserDrawerMode {
 interface Props {
   open: boolean
   mode: UserDrawerMode
-  selectedUser?: User
+  selectedUser?: UserInterface
   onClose: () => void
 }
 
@@ -179,7 +177,7 @@ const UserDrawer = ({ open, mode, selectedUser, onClose }: Props) => {
       name: state.name,
       avatarId: state.avatar,
       userRole: state.userRole,
-      scopes: state.scopes
+      scopes: state.scopes as any
     }
 
     let tempErrors = {

@@ -12,9 +12,9 @@ import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { SkeletonUtils } from '../../avatar/SkeletonUtils'
 import { accessAvatarInputSettingsState } from '../../avatar/state/AvatarInputSettingsState'
 import { Entity } from '../../ecs/classes/Entity'
-import { getComponent } from '../../ecs/functions/ComponentFunctions'
+import { getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { AvatarControllerType } from '../../input/enums/InputEnums'
-import { isEntityLocalClient } from '../../networking/functions/isEntityLocalClient'
+import { NetworkObjectOwnedTag } from '../../networking/components/NetworkObjectOwnedTag'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { ControllerGroup, XRInputSourceComponent } from '../../xr/components/XRInputSourceComponent'
 import { XRHandMeshModel } from '../classes/XRHandMeshModel'
@@ -54,7 +54,7 @@ export const initializeXRInputs = (entity: Entity) => {
   const controllers = [xrInputSourceComponent.controllerLeft, xrInputSourceComponent.controllerRight]
   const controllersGrip = [xrInputSourceComponent.controllerGripLeft, xrInputSourceComponent.controllerGripRight]
 
-  if (isEntityLocalClient(entity)) {
+  if (hasComponent(entity, NetworkObjectOwnedTag)) {
     controllers.forEach((controller: ControllerGroup, i) => {
       if (controller.userData.initialized) {
         return

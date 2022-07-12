@@ -5,6 +5,8 @@ import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
+import { WorldState } from '@xrengine/engine/src/networking/interfaces/WorldState'
+import { getState } from '@xrengine/hyperflux'
 import { Action, Topic } from '@xrengine/hyperflux/functions/ActionFunctions'
 import { Application } from '@xrengine/server-core/declarations'
 import multiLogger from '@xrengine/server-core/src/logger'
@@ -38,11 +40,12 @@ export class SocketWebRTCServerNetwork extends Network {
   }
 
   public updatePeers = () => {
+    const userNames = getState(WorldState).userNames
     const peers = Array.from(this.peers.values()).map((peer) => {
       return {
         userId: peer.userId,
         index: peer.index,
-        name: Engine.instance.currentWorld.users.get(peer.userId)?.name!
+        name: userNames[peer.userId].value
       }
     })
     if (peers.length)

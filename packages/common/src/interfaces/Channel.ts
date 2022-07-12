@@ -2,7 +2,7 @@ import { Group } from './Group'
 import { Instance } from './Instance'
 import { Message } from './Message'
 import { Party } from './Party'
-import { User } from './User'
+import { UserInterface } from './User'
 
 export type ChannelType = 'channel' | 'user' | 'group' | 'instance' | 'party'
 
@@ -15,8 +15,8 @@ export type Channel = {
   groupId: string | null
   partyId: string | null
   instanceId: string | null
-  user1: User
-  user2: User
+  user1: UserInterface
+  user2: UserInterface
   group: Group
   party: Party
   instance: Instance

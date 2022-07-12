@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next'
 import { isShareAvailable } from '@xrengine/engine/src/common/functions/DetectFeatures'
 import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
 
-import { FileCopy } from '@mui/icons-material'
+import { FileCopy, Send } from '@mui/icons-material'
 
 import { useShareMenuHooks } from '../../../user/components/UserMenu/menus/ShareMenu'
 import XRInput from '../../components/XRInput'
@@ -49,14 +49,9 @@ const ShareLocationDetailView = () => {
             type="text"
             value={email}
             onChange={(e) => handleChange(e)}
+            endIcon={<Send />}
+            endIconClick={packageInvite}
           />
-          <div className="sendInvitationContainer">
-            <XRTextButton
-              variant="gradient"
-              onClick={packageInvite}
-              content={t('user:usermenu.share.lbl-send-invite')}
-            />
-          </div>
           {isShareAvailable ? (
             <div className="shareAppContainer">
               <XRTextButton variant="filled" onClick={shareOnApps} content={t('user:usermenu.share.lbl-share')} />

@@ -1,9 +1,9 @@
-import { User } from './User'
+import { UserInterface } from './User'
 
 export type PartyUser = {
   id: string
   isOwner: boolean
-  user: User
+  user: UserInterface
   partyId?: string
   userId?: string
 }

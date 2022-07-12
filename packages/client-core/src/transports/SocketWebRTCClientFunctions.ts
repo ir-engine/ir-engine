@@ -40,12 +40,12 @@ import { updateNearbyAvatars } from './UpdateNearbyUsersSystem'
 
 export const getChannelTypeIdFromTransport = (network: SocketWebRTCClientNetwork) => {
   const channelConnectionState = accessMediaInstanceConnectionState()
-  const currentChannelInstanceConnection =
-    channelConnectionState.instances[Engine.instance.currentWorld.mediaNetwork?.hostId].ornull
+  const mediaNetwork = Engine.instance.currentWorld.mediaNetwork
+  const currentChannelInstanceConnection = mediaNetwork && channelConnectionState.instances[mediaNetwork.hostId].ornull
   const isWorldConnection = network.topic === NetworkTopics.world
   return {
-    channelType: isWorldConnection ? 'instance' : currentChannelInstanceConnection.channelType.value,
-    channelId: isWorldConnection ? null : currentChannelInstanceConnection.channelId.value
+    channelType: isWorldConnection ? 'instance' : currentChannelInstanceConnection?.channelType.value,
+    channelId: isWorldConnection ? null : currentChannelInstanceConnection?.channelId.value
   }
 }
 
@@ -92,7 +92,7 @@ export async function onConnectToInstance(network: SocketWebRTCClientNetwork) {
 
   function peerUpdateHandler(peers: PeersUpdateType) {
     for (const peer of peers) {
-      if (!network.peers.has(peer.userId)) NetworkPeerFunctions.createPeer(network, peer.userId, peer.index, peer.name)
+      NetworkPeerFunctions.createPeer(network, peer.userId, peer.index, peer.name)
     }
     for (const [userId, peer] of network.peers) {
       if (!peers.find((p) => p.userId === userId)) NetworkPeerFunctions.destroyPeer(network, userId)
@@ -236,27 +236,13 @@ export async function onConnectToMediaInstance(network: SocketWebRTCClientNetwor
     ) {
       // that we don't already have consumers for...
       await subscribeToTrack(network as SocketWebRTCClientNetwork, socketId, mediaTag)
-      dispatchAction(MediaStreams.actions.triggerRequestCurrentProducers())
     }
   }
 
   async function consumerHandler(action) {
-    matches(action)
-      .when(MediaStreams.actions.closeConsumer.matches, ({ consumer }) => {
-        closeConsumer(network, consumer)
-      })
-      .when(MediaStreams.actions.triggerRequestCurrentProducers.matches, async () => {
-        MediaStreamService.triggerUpdateNearbyLayerUsers()
-        UserService.getLayerUsers(true)
-        const channelConnectionState = accessMediaInstanceConnectionState()
-        const currentChannelInstanceConnection = channelConnectionState.instances[network.hostId]?.ornull
-        if (!currentChannelInstanceConnection?.value) return
-        await network.request(MessageTypes.WebRTCRequestCurrentProducers.toString(), {
-          userIds: MediaStreams.instance.nearbyLayerUsers || [],
-          channelType: currentChannelInstanceConnection.channelType.value,
-          channelId: currentChannelInstanceConnection.channelId.value
-        })
-      })
+    matches(action).when(MediaStreams.actions.closeConsumer.matches, ({ consumer }) => {
+      closeConsumer(network, consumer)
+    })
   }
 
   async function reconnectHandler() {
@@ -471,6 +457,7 @@ export async function createTransport(network: SocketWebRTCClientNetwork, direct
   // failed, or disconnected, leave the  and reset
   transport.on('connectionstatechange', async (state: string) => {
     if (state === 'closed' || state === 'failed' || state === 'disconnected') {
+      NetworkPeerFunctions.destroyAllPeers(network)
       dispatchAction(
         network.topic === NetworkTopics.world
           ? NetworkConnectionService.actions.worldInstanceDisconnected()
@@ -805,7 +792,6 @@ export async function subscribeToTrack(network: SocketWebRTCClientNetwork, peerI
   } else await closeConsumer(network, consumer)
 
   dispatchAction(MediaStreams.actions.triggerUpdateConsumers())
-  dispatchAction(MediaStreams.actions.triggerRequestCurrentProducers())
 }
 
 export async function unsubscribeFromTrack(network: SocketWebRTCClientNetwork, peerId: any, mediaTag: any) {

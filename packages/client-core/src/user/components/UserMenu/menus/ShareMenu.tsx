@@ -1,10 +1,14 @@
-import React, { useEffect, useRef } from 'react'
+import { QRCodeSVG } from 'qrcode.react'
+import React, { useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { isShareAvailable } from '@xrengine/engine/src/common/functions/DetectFeatures'
+import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 
-import { FileCopy } from '@mui/icons-material'
+import { CheckBox, CheckBoxOutlineBlank, FileCopy, IosShare, Send } from '@mui/icons-material'
 import Button from '@mui/material/Button'
+import Checkbox from '@mui/material/Checkbox'
+import FormControlLabel from '@mui/material/FormControlLabel'
 import InputAdornment from '@mui/material/InputAdornment'
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
@@ -71,37 +75,99 @@ export const useShareMenuHooks = ({ refLink }) => {
       return location
     }
   }
-
+  const getSpectateModeUrl = () => {
+    const location = new URL(window.location as any)
+    let params = new URLSearchParams(location.search)
+    params.append('spectate', selfUser.id.value)
+    location.search = params.toString()
+    return location
+  }
   return {
     copyLinkToClipboard,
     shareOnApps,
     packageInvite,
     handleChange,
     getInviteLink,
+    getSpectateModeUrl,
     email
   }
 }
-
-const ShareMenu = (): JSX.Element => {
+interface Props {
+  isMobileView?: boolean
+}
+const ShareMenu = (props: Props): JSX.Element => {
   const { t } = useTranslation()
-
+  const [isSpectatorMode, setSpectatorMode] = useState<boolean>(false)
+  const engineState = useEngineState()
   const refLink = useRef() as React.MutableRefObject<HTMLInputElement>
-
-  const { copyLinkToClipboard, shareOnApps, packageInvite, handleChange, getInviteLink, email } = useShareMenuHooks({
-    refLink
-  })
+  const { copyLinkToClipboard, shareOnApps, packageInvite, handleChange, getInviteLink, getSpectateModeUrl, email } =
+    useShareMenuHooks({
+      refLink
+    })
 
   return (
     <div className={styles.menuPanel}>
       <div className={styles.sharePanel}>
-        <Typography variant="h1" className={styles.panelHeader}>
-          {t('user:usermenu.share.title')}
-        </Typography>
+        {!props.isMobileView ? (
+          <>
+            <Typography variant="h1" className={styles.panelHeader}>
+              {t('user:usermenu.share.title')}
+            </Typography>
+            <FormControlLabel
+              classes={{
+                label: styles.label,
+                root: styles.formRoot
+              }}
+              control={
+                <Checkbox
+                  className={styles.checkboxMode}
+                  icon={<CheckBoxOutlineBlank fontSize="small" />}
+                  checkedIcon={<CheckBox fontSize="small" />}
+                  name="checked"
+                  color="primary"
+                  onChange={() => setSpectatorMode(!isSpectatorMode)}
+                />
+              }
+              label={t('user:usermenu.share.lbl-spectator-mode')}
+            />
+          </>
+        ) : (
+          <Typography variant="h2" className={styles.title}>
+            {t('user:usermenu.share.mobileTitle')}
+          </Typography>
+        )}
+        <div className={styles.QRContainer}>
+          <QRCodeSVG
+            height={176}
+            width={200}
+            value={
+              engineState.viewInAR.value
+                ? `https://${
+                    new URL(window.location as any).host +
+                    '/ecommerce/item/' +
+                    window.btoa(engineState.interactableModelUrl.value)
+                  }`
+                : isSpectatorMode
+                ? getSpectateModeUrl().toString()
+                : getInviteLink().toString()
+            }
+          />
+        </div>
         <TextField
           className={styles.copyField}
           size="small"
           variant="outlined"
-          value={getInviteLink()}
+          value={
+            engineState.viewInAR.value
+              ? `https://${
+                  new URL(window.location as any).host +
+                  '/ecommerce/item/' +
+                  window.btoa(engineState.interactableModelUrl.value)
+                }`
+              : isSpectatorMode
+              ? getSpectateModeUrl().toString()
+              : getInviteLink().toString()
+          }
           disabled={true}
           inputRef={refLink}
           InputProps={{
@@ -119,19 +185,21 @@ const ShareMenu = (): JSX.Element => {
           variant="outlined"
           value={email}
           onChange={(e) => handleChange(e)}
+          InputProps={{
+            endAdornment: (
+              <InputAdornment position="end" onClick={packageInvite}>
+                <Send />
+              </InputAdornment>
+            )
+          }}
         />
-        <div className={styles.sendInviteContainer}>
-          <Button className={styles.sendInvite} onClick={packageInvite}>
-            {t('user:usermenu.share.lbl-send-invite')}
-          </Button>
-        </div>
-        {isShareAvailable ? (
+        {isShareAvailable && (
           <div className={styles.shareBtnContainer}>
-            <Button className={styles.shareBtn} onClick={shareOnApps}>
+            <Button className={styles.shareBtn} onClick={shareOnApps} endIcon={<IosShare />}>
               {t('user:usermenu.share.lbl-share')}
             </Button>
           </div>
-        ) : null}
+        )}
       </div>
     </div>
   )

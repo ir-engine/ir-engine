@@ -1,12 +1,13 @@
-import { createState } from '@speigg/hookstate'
+import { createState, useHookstate } from '@speigg/hookstate'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
+import { WorldState } from '@xrengine/engine/src/networking/interfaces/WorldState'
 import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
 import { useXRUIState } from '@xrengine/engine/src/xrui/functions/useXRUIState'
-import { addActionReceptor, removeActionReceptor } from '@xrengine/hyperflux'
+import { addActionReceptor, getState, removeActionReceptor } from '@xrengine/hyperflux'
 
 import Button from '@mui/material/Button'
 
@@ -39,6 +40,8 @@ const AvatarContextMenu = () => {
   const authState = useAuthState()
   const user = userState.layerUsers.find((user) => user.id.value === detailState.id.value)
   const { t } = useTranslation()
+
+  const userAvatarDetails = useHookstate(getState(WorldState).userAvatarDetails)
 
   // TODO: move these to widget register
   PartyService.useAPIListeners()
@@ -87,7 +90,12 @@ const AvatarContextMenu = () => {
       <style>{styleString}</style>
       {user?.id.value && (
         <div className="rootContainer">
-          <img className="ownerImage" src={getAvatarURLForUser(user?.id?.value)} />
+          <img
+            className="ownerImage"
+            src={getAvatarURLForUser(userAvatarDetails, user?.id?.value)}
+            alt=""
+            crossOrigin="anonymous"
+          />
           <div className="buttonContainer">
             <section className="buttonSection">
               <XRTextButton content={t('user:personMenu.inviteToParty')} onClick={inviteToParty} />

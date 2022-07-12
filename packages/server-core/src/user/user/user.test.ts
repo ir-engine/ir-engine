@@ -1,7 +1,7 @@
 import assert from 'assert'
 import { v1 } from 'uuid'
 
-import { User } from '@xrengine/common/src/interfaces/User'
+import { UserInterface } from '@xrengine/common/src/interfaces/User'
 
 import { Application } from '../../../declarations'
 import { createFeathersExpressApp } from '../../createApp'
@@ -29,7 +29,7 @@ describe('user service', () => {
       name,
       avatarId,
       userRole
-    })) as User
+    })) as UserInterface
     users.push(item)
 
     assert.equal(item.name, name)
@@ -47,7 +47,7 @@ describe('user service', () => {
       name,
       avatarId,
       userRole
-    })) as User
+    })) as UserInterface
     users.push(item)
 
     assert.equal(item.name, name)

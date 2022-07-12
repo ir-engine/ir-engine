@@ -28,9 +28,7 @@ describe('equippableFunctions', () => {
 
     const networkObject = addComponent(entity2, NetworkObjectComponent, {
       ownerId: 'world' as UserId,
-      networkId: 0 as NetworkId,
-      prefab: '',
-      parameters: {}
+      networkId: 0 as NetworkId
     })
 
     equipEntity(entity1, entity2)
@@ -43,9 +41,7 @@ describe('equippableFunctions', () => {
     const entity2: Entity = createEntity()
     const networkObject = addComponent(entity2, NetworkObjectComponent, {
       ownerId: 'world' as UserId,
-      networkId: 0 as NetworkId,
-      prefab: '',
-      parameters: {}
+      networkId: 0 as NetworkId
     })
 
     equipEntity(entity1, entity2)

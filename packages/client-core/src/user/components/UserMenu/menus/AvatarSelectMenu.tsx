@@ -11,7 +11,7 @@ import {
   THUMBNAIL_HEIGHT,
   THUMBNAIL_WIDTH
 } from '@xrengine/common/src/constants/AvatarConstants'
-import { AvatarInterface } from '@xrengine/common/src/interfaces/AvatarInterface'
+import { StaticResourceInterface } from '@xrengine/common/src/interfaces/StaticResourceInterface'
 import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
 import { loadAvatarForPreview } from '@xrengine/engine/src/avatar/functions/avatarFunctions'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
@@ -34,7 +34,7 @@ import { Views } from '../util'
 import { addAnimationLogic, initialize3D, onWindowResize, validate } from './helperFunctions'
 
 interface Props {
-  avatarData?: AvatarInterface
+  avatarData?: StaticResourceInterface
   isPublicAvatar?: boolean
   changeActiveMenu: Function
   onAvatarUpload?: () => void
@@ -304,7 +304,7 @@ export const AvatarUploadModal = ({ avatarData, isPublicAvatar, changeActiveMenu
       )}
       {thumbnailUrl.length > 0 && (
         <div className={styles.thumbnailContainer}>
-          <img src={thumbnailUrl} alt="Avatar" className={styles.thumbnailPreview} />
+          <img src={thumbnailUrl} crossOrigin="anonymous" alt="Avatar" className={styles.thumbnailPreview} />
         </div>
       )}
       <Paper className={styles.paper2}>

@@ -152,7 +152,7 @@ export const generatePhysicsObject = (
   createNewEditorNode(entityTreeNode, ScenePrefabs.model)
 
   const nameComponent = getComponent(entity, NameComponent)
-  nameComponent.name = uuid
+  nameComponent.name = 'physics_debug_' + uuid
 
   const obj3d = mesh
   obj3d.scale.copy(scale)
@@ -176,8 +176,9 @@ export const generatePhysicsObject = (
     if (node) {
       dispatchAction(
         WorldNetworkAction.spawnObject({
-          prefab: '',
-          parameters: { sceneEntityId: node.uuid, position: transform.position }
+          prefab: 'physics_debug',
+          position: transform.position,
+          rotation: transform.rotation
         }),
         NetworkTopics.world
       )
