@@ -165,7 +165,7 @@ export const disposeCSM = () => {
 
   if (EngineRenderer.instance.activeCSMLightEntity) {
     if (!hasComponent(EngineRenderer.instance.activeCSMLightEntity, VisibleComponent)) {
-      addComponent(EngineRenderer.instance.activeCSMLightEntity, VisibleComponent, {})
+      addComponent(EngineRenderer.instance.activeCSMLightEntity, VisibleComponent, true)
     }
   }
 

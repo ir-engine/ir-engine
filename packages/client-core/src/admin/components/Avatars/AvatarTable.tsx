@@ -1,21 +1,19 @@
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { AvatarInterface } from '@xrengine/common/src/interfaces/AvatarInterface'
-import { dispatchAction } from '@xrengine/hyperflux'
+import { StaticResourceInterface } from '@xrengine/common/src/interfaces/StaticResourceInterface'
 
 import Box from '@mui/material/Box'
 
-import AvatarSelectMenu from '../../../user/components/UserMenu/menus/AvatarSelectMenu'
 import { useAuthState } from '../../../user/services/AuthService'
-import ConfirmModal from '../../common/ConfirmModal'
-import DrawerView from '../../common/DrawerView'
+import ConfirmDialog from '../../common/ConfirmDialog'
 import TableComponent from '../../common/Table'
 import { avatarColumns, AvatarData } from '../../common/variables/avatar'
-import { AdminAvatarActions, AVATAR_PAGE_LIMIT } from '../../services/AvatarService'
+import { AVATAR_PAGE_LIMIT } from '../../services/AvatarService'
 import { useAdminAvatarState } from '../../services/AvatarService'
 import { AdminAvatarService } from '../../services/AvatarService'
 import styles from '../../styles/admin.module.scss'
+import AvatarDrawer, { AvatarDrawerMode } from './AvatarDrawer'
 
 interface Props {
   className?: string
@@ -23,12 +21,11 @@ interface Props {
 }
 
 const AvatarTable = ({ className, search }: Props) => {
+  const { t } = useTranslation()
+  const { user } = useAuthState().value
   const adminAvatarState = useAdminAvatarState()
-  const authState = useAuthState()
-  const user = authState.user
   const adminAvatars = adminAvatarState.avatars
   const adminAvatarCount = adminAvatarState.total
-  const { t } = useTranslation()
 
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(AVATAR_PAGE_LIMIT)
@@ -37,8 +34,8 @@ const AvatarTable = ({ className, search }: Props) => {
   const [avatarName, setAvatarName] = useState('')
   const [fieldOrder, setFieldOrder] = useState('asc')
   const [sortField, setSortField] = useState('name')
-  const [openDrawer, setOpenDrawer] = useState(false)
-  const [avatarData, setViewAvatarData] = useState<AvatarInterface | null>(null)
+  const [openAvatarDrawer, setOpenAvatarDrawer] = useState(false)
+  const [avatarData, setAvatarData] = useState<StaticResourceInterface | null>(null)
 
   const handlePageChange = (event: unknown, newPage: number) => {
     AdminAvatarService.fetchAdminAvatars(newPage, search, sortField, fieldOrder)
@@ -58,10 +55,10 @@ const AvatarTable = ({ className, search }: Props) => {
 
   useEffect(() => {
     AdminAvatarService.fetchAdminAvatars(0, search, sortField, fieldOrder)
-  }, [user?.id?.value, search, adminAvatarState.updateNeeded.value])
+  }, [user?.id, search, adminAvatarState.updateNeeded.value])
 
   const createData = (
-    el: AvatarInterface,
+    el: StaticResourceInterface,
     sid: string | undefined,
     name: string | undefined,
     key: string | undefined
@@ -77,11 +74,11 @@ const AvatarTable = ({ className, search }: Props) => {
             href="#"
             className={styles.actionStyle}
             onClick={() => {
-              setViewAvatarData(el)
-              setOpenDrawer(true)
+              setAvatarData(el)
+              setOpenAvatarDrawer(true)
             }}
           >
-            <span className={styles.spanWhite}>{t('user:avatar.view')}</span>
+            <span className={styles.spanWhite}>{t('admin:components.common.view')}</span>
           </a>
           <a
             href="#"
@@ -92,7 +89,7 @@ const AvatarTable = ({ className, search }: Props) => {
               setOpenConfirm(true)
             }}
           >
-            <span className={styles.spanDange}>{t('user:avatar.delete')}</span>
+            <span className={styles.spanDange}>{t('admin:components.common.delete')}</span>
           </a>
         </>
       )
@@ -123,21 +120,21 @@ const AvatarTable = ({ className, search }: Props) => {
         handlePageChange={handlePageChange}
         handleRowsPerPageChange={handleRowsPerPageChange}
       />
-      <ConfirmModal
+
+      <ConfirmDialog
         open={openConfirm}
         description={`${t('admin:components.avatar.confirmAvatarDelete')} '${avatarName}'?`}
         onClose={() => setOpenConfirm(false)}
         onSubmit={submitRemoveAvatar}
       />
-      {avatarData && openDrawer && (
-        <DrawerView open onClose={() => setOpenDrawer(false)}>
-          <AvatarSelectMenu
-            adminStyles={styles}
-            onAvatarUpload={() => dispatchAction(AdminAvatarActions.avatarUpdated())}
-            changeActiveMenu={() => setOpenDrawer(false)}
-            avatarData={avatarData}
-          />
-        </DrawerView>
+
+      {avatarData && openAvatarDrawer && (
+        <AvatarDrawer
+          open
+          selectedAvatar={avatarData}
+          mode={AvatarDrawerMode.ViewEdit}
+          onClose={() => setOpenAvatarDrawer(false)}
+        />
       )}
     </Box>
   )

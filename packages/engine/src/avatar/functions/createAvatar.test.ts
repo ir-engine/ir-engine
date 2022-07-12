@@ -11,6 +11,7 @@ import { createEngine } from '../../initializeEngine'
 import { InteractorComponent } from '../../interaction/components/InteractorComponent'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
+import { WorldNetworkActionReceptor } from '../../networking/functions/WorldNetworkActionReceptor'
 import { CollisionComponent } from '../../physics/components/CollisionComponent'
 import { RaycastComponent } from '../../physics/components/RaycastComponent'
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
@@ -38,26 +39,19 @@ describe('createAvatar', () => {
     Engine.instance.userId = 'user' as UserId
 
     // mock entity to apply incoming unreliable updates to
-    const entity = createEntity()
-
-    const networkObject = addComponent(entity, NetworkObjectComponent, {
-      // remote owner
-      ownerId: Engine.instance.userId,
-      networkId: 0 as NetworkId,
-      prefab: '',
-      parameters: {}
-    })
 
     const prevPhysicsBodies = Engine.instance.currentWorld.physics.bodies.size
     const prevPhysicsColliders = Engine.instance.currentWorld.physics.controllers.size
 
-    createAvatar(
-      WorldNetworkAction.spawnAvatar({
-        $from: Engine.instance.userId,
-        networkId: networkObject.networkId,
-        parameters: { position: new Vector3(-0.48624888685311896, 0, -0.12087574159728942), rotation: new Quaternion() }
-      })
-    )
+    const action = WorldNetworkAction.spawnAvatar({
+      $from: Engine.instance.userId,
+      position: new Vector3(-0.48624888685311896, 0, -0.12087574159728942),
+      rotation: new Quaternion()
+    })
+    WorldNetworkActionReceptor.receiveSpawnObject(action)
+    createAvatar(action)
+
+    const entity = world.getUserAvatarEntity(Engine.instance.userId)
 
     assert(hasComponent(entity, TransformComponent))
     assert(hasComponent(entity, VelocityComponent))
@@ -72,6 +66,5 @@ describe('createAvatar', () => {
     assert(hasComponent(entity, InteractorComponent))
     strictEqual(Engine.instance.currentWorld.physics.bodies.size, prevPhysicsBodies + 2)
     strictEqual(Engine.instance.currentWorld.physics.controllers.size, prevPhysicsColliders + 1)
-    strictEqual(getComponent(entity, NameComponent).name, Engine.instance.userId)
   })
 })

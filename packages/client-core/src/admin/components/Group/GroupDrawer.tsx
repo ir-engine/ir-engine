@@ -80,10 +80,10 @@ const GroupDrawer = ({ open, mode, selectedGroup, onClose }: Props) => {
   }, [])
 
   useEffect(() => {
-    loadGroup()
+    loadSelectedGroup()
   }, [selectedGroup])
 
-  const loadGroup = () => {
+  const loadSelectedGroup = () => {
     if (selectedGroup) {
       setState({
         ...defaultState,
@@ -96,7 +96,7 @@ const GroupDrawer = ({ open, mode, selectedGroup, onClose }: Props) => {
 
   const handleCancel = () => {
     if (editMode) {
-      loadGroup()
+      loadSelectedGroup()
       setEditMode(false)
     } else handleClose()
   }
@@ -219,7 +219,7 @@ const GroupDrawer = ({ open, mode, selectedGroup, onClose }: Props) => {
 
         {viewMode && (!selectedGroup || !selectedGroup.scopes) && (
           <DialogContentText className={`${styles.dialogContentText} ${styles.textAlign}`}>
-            {t('admin:components.index.none')}
+            {t('admin:components.common.none')}
           </DialogContentText>
         )}
 
@@ -244,23 +244,23 @@ const GroupDrawer = ({ open, mode, selectedGroup, onClose }: Props) => {
         </Grid>
 
         <DialogActions>
+          <Button className={styles.outlinedButton} onClick={handleCancel}>
+            {t('admin:components.common.cancel')}
+          </Button>
           {(mode === GroupDrawerMode.Create || editMode) && (
-            <Button className={styles.submitButton} onClick={handleSubmit}>
+            <Button className={styles.gradientButton} onClick={handleSubmit}>
               {t('admin:components.common.submit')}
             </Button>
           )}
           {mode === GroupDrawerMode.ViewEdit && editMode === false && (
             <Button
-              className={styles.submitButton}
+              className={styles.gradientButton}
               disabled={hasWriteAccess ? false : true}
               onClick={() => setEditMode(true)}
             >
               {t('admin:components.common.edit')}
             </Button>
           )}
-          <Button className={styles.cancelButton} onClick={handleCancel}>
-            {t('admin:components.common.cancel')}
-          </Button>
         </DialogActions>
       </Container>
     </DrawerView>

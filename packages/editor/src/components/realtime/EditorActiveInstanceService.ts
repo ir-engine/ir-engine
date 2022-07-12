@@ -6,6 +6,7 @@ import { LocationInstanceConnectionAction } from '@xrengine/client-core/src/comm
 import { accessAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import { InstanceInterface } from '@xrengine/common/src/dbmodels/Instance'
 import { Instance } from '@xrengine/common/src/interfaces/Instance'
+import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import logger from '@xrengine/common/src/logger'
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import {
@@ -66,7 +67,7 @@ export const EditorActiveInstanceService = {
     if (provisionResult.ipAddress && provisionResult.port) {
       dispatchAction(
         LocationInstanceConnectionAction.serverProvisioned({
-          instanceId: provisionResult.id,
+          instanceId: provisionResult.id as UserId,
           ipAddress: provisionResult.ipAddress,
           port: provisionResult.port,
           locationId: locationId!,

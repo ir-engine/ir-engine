@@ -22,6 +22,7 @@ import { TransformComponent } from '@xrengine/engine/src/transform/components/Tr
 import { dispatchAction } from '@xrengine/hyperflux'
 
 import { getEngineState } from '../../ecs/classes/EngineState'
+import { NetworkTopics } from '../../networking/classes/Network'
 
 /**
  * Returns a random number between min (inclusive) and max (exclusive)
@@ -151,7 +152,7 @@ export const generatePhysicsObject = (
   createNewEditorNode(entityTreeNode, ScenePrefabs.model)
 
   const nameComponent = getComponent(entity, NameComponent)
-  nameComponent.name = uuid
+  nameComponent.name = 'physics_debug_' + uuid
 
   const obj3d = mesh
   obj3d.scale.copy(scale)
@@ -175,10 +176,11 @@ export const generatePhysicsObject = (
     if (node) {
       dispatchAction(
         WorldNetworkAction.spawnObject({
-          prefab: '',
-          parameters: { sceneEntityId: node.uuid, position: transform.position }
+          prefab: 'physics_debug',
+          position: transform.position,
+          rotation: transform.rotation
         }),
-        Engine.instance.currentWorld.worldNetwork.hostId
+        NetworkTopics.world
       )
     }
   }

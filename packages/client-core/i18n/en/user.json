@@ -115,7 +115,9 @@
       "lbl-phoneEmail": "Send to email or phone number",
       "lbl-copy": "Copy",
       "lbl-send-invite": "Send Invite",
-      "title": "Share your Location URL with your team",
+      "lbl-spectator-mode": "Spectator Mode",
+      "title": "Share this Location",
+      "mobileTitle": "View this Item in AR on your Mobile Device",
       "linkCopied": "Link copied to clipboard."
     },
     "setting": {
@@ -143,7 +145,12 @@
       "lbl-media-instance": "Media Stream Volume",
       "lbl-notification": "Notification Volume",
       "lbl-sound-effect": "Sound Effects",
-      "lbl-background-music-volume": "Background Music"
+      "lbl-background-music-volume": "Background Music",
+      "themes": "Themes",
+      "theme": "Theme",
+      "client": "Client",
+      "editor": "Editor",
+      "admin": "Admin"
     },
     "profile": {
       "lbl-profile": "Profile",
@@ -203,6 +210,15 @@
         "low": "Low",
         "spatialAudio": "Use Spatial Audio",
         "enterMuted": "Enter Room Muted"
+      },
+      "delete": {
+        "deleteAccount": "Delete your account",
+        "deleteControlsText": "Are you sure you want to delete your account?",
+        "deleteControlsCancel": "Cancel",
+        "deleteControlsConfirm": "Delete my account",
+        "finalDeleteText": "Deleting your account cannot be undone!",
+        "finalDeleteCancel": "Cancel",
+        "finalDeleteConfirm": "Delete my account"
       }
     },
     "oauth": {

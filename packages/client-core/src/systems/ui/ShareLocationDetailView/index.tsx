@@ -41,7 +41,7 @@ const ShareLocationDetailView = () => {
                 value={getInviteLink() as any}
               />
 
-              <div className="copyInviteContainer" onClick={() => copyLinkToClipboard()}>
+              <div className="copyInviteContainer" onClick={copyLinkToClipboard}>
                 <svg className="copyIcon" aria-hidden="true" viewBox="0 0 24 24">
                   <path
                     fill="#ffffff"

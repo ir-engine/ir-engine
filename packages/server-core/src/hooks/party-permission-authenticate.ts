@@ -2,8 +2,9 @@ import { BadRequest, Forbidden } from '@feathersjs/errors'
 import { HookContext } from '@feathersjs/feathers'
 import _ from 'lodash'
 
+import { UserInterface } from '@xrengine/common/src/interfaces/User'
+
 import logger from '../logger'
-import { UserDataType } from '../user/user/user.class'
 
 // This will attach the owner ID in the contact while creating/updating list item
 export default () => {
@@ -11,7 +12,7 @@ export default () => {
     try {
       let fetchedPartyId
       const { id, data, method, params, app, path } = context
-      const loggedInUser = params.user as UserDataType
+      const loggedInUser = params.user as UserInterface
       if (path === 'party-user' && method === 'remove') {
         const partyUser = await app.service('party-user').get(id!)
         fetchedPartyId = partyUser.partyId

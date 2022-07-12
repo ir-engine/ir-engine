@@ -1,4 +1,4 @@
-import { Downgraded } from '@speigg/hookstate'
+import { Downgraded, useHookstate } from '@speigg/hookstate'
 import classNames from 'classnames'
 import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -21,7 +21,8 @@ import { useUserState } from '@xrengine/client-core/src/user/services/UserServic
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
-import { SCENE_COMPONENT_AUDIO_SETTINGS_DEFAULT_VALUES } from '@xrengine/engine/src/scene/functions/loaders/AudioSettingFunctions'
+import { WorldState } from '@xrengine/engine/src/networking/interfaces/WorldState'
+import { getState } from '@xrengine/hyperflux'
 
 import {
   Launch,
@@ -90,8 +91,8 @@ const PartyParticipantWindow = ({ peerId }: Props): JSX.Element => {
   const consumers = mediastream.consumers
 
   const channelConnectionState = useMediaInstanceConnectionState()
-  const currentChannelInstanceConnection =
-    channelConnectionState.instances[Engine.instance.currentWorld.mediaNetwork?.hostId].ornull
+  const mediaHostID = Engine.instance.currentWorld.mediaNetwork?.hostId
+  const currentChannelInstanceConnection = mediaHostID && channelConnectionState.instances[mediaHostID].ornull
 
   const setVideoStream = (value) => {
     videoStreamRef.current = value
@@ -440,6 +441,8 @@ const PartyParticipantWindow = ({ peerId }: Props): JSX.Element => {
   const isSelfUser = peerId === 'cam_me' || peerId === 'screen_me'
   const username = getUsername()
 
+  const userAvatarDetails = useHookstate(getState(WorldState).userAvatarDetails)
+
   return (
     <Draggable isPiP={isPiP}>
       <div
@@ -455,7 +458,7 @@ const PartyParticipantWindow = ({ peerId }: Props): JSX.Element => {
       >
         <div className={styles['video-wrapper']}>
           {(videoStream == null || videoStreamPaused || videoProducerPaused || videoProducerGlobalMute) && (
-            <img src={getAvatarURLForUser(isSelfUser ? selfUser?.id : user?.id)} draggable={false} />
+            <img src={getAvatarURLForUser(userAvatarDetails, isSelfUser ? selfUser?.id : user?.id)} draggable={false} />
           )}
           <video key={peerId + '_cam'} ref={videoRef} draggable={false} />
         </div>

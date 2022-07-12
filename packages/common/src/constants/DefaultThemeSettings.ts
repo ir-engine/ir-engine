@@ -1,4 +1,6 @@
-const defaultThemeSettings = {
+import { ThemeMode } from '../interfaces/ClientSetting'
+
+export const defaultThemeSettings = {
   light: {
     textColor: '#585858',
     navbarBackground: '#e7e7e7',
@@ -42,6 +44,47 @@ const defaultThemeSettings = {
   },
   dark: {
     textColor: '#FFF',
+    navbarBackground: 'rgba(78,78,78,1)',
+    sidebarBackground: 'rgba(80,80,80,1)',
+    sidebarSelectedBackground: 'rgba(156,156,156,1)',
+    mainBackground: 'rgba(53,53,53,1)',
+    panelBackground: 'rgba(73,73,73,1)',
+    panelCards: 'rgba(178,178,178,1)',
+    panelCardHoverOutline: 'rgba(180,180,180,1)',
+    panelCardIcon: 'rgba(39,39,39,1)',
+    textHeading: '#FFF',
+    textSubheading: '#FFF',
+    textDescription: '#FFF',
+    iconButtonColor: '#FFF',
+    iconButtonHoverColor: 'rgba(148,148,148,1)',
+    iconButtonBackground: 'rgba(163,163,163,1)',
+    iconButtonSelectedBackground: 'rgba(146,146,146,1)',
+    buttonOutlined: 'rgba(93,93,93,1)',
+    buttonFilled: 'rgba(97,97,97,1)',
+    buttonGradientStart: 'rgba(127,127,127,1)',
+    buttonGradientEnd: 'rgba(95,95,95,1)',
+    buttonTextColor: '#FFF',
+    scrollbarThumbXAxisStart: 'rgba(124,124,124,1)',
+    scrollbarThumbXAxisEnd: 'rgba(82,82,82,1)',
+    scrollbarThumbYAxisStart: 'rgba(141,141,141,1)',
+    scrollbarThumbYAxisEnd: 'rgba(97,97,97,1)',
+    scrollbarCorner: 'rgba(255, 255, 255, 0)',
+    inputOutline: '#FFF',
+    inputBackground: 'rgba(80,80,80,1)',
+    dropdownMenuBackground: 'rgba(61,61,61,1)',
+    dropdownMenuHoverBackground: 'rgba(88,88,88,1)',
+    dropdownMenuSelectedBackground: 'rgba(95,95,95,1)',
+    drawerBackground: 'rgba(66,66,66,1)',
+    popupBackground: 'rgba(90,90,90,1)',
+    tableHeaderBackground: 'rgba(76,76,76,1)',
+    tableCellBackground: 'rgba(104,104,104,1)',
+    tableFooterBackground: 'rgba(71,71,71,1)',
+    themeSwitchTrack: '#8796a5',
+    themeSwitchThumb: '#02022d',
+    dockBackground: 'rgba(53,53,53,0.93)'
+  },
+  vaporwave: {
+    textColor: '#FFF',
     navbarBackground: 'rgb(31 27 72 / 85%)',
     sidebarBackground: 'rgb(31 27 72 / 100%)',
     sidebarSelectedBackground: '#5f5ff1',
@@ -83,4 +126,21 @@ const defaultThemeSettings = {
   }
 }
 
-export default defaultThemeSettings
+export const defaultThemeModes = {
+  client: 'light',
+  editor: 'dark',
+  admin: 'vaporwave'
+}
+
+export const getCurrentTheme = (themeModes: ThemeMode | undefined) => {
+  const currentThemeModes = themeModes || defaultThemeModes
+  const { pathname } = window.location
+
+  if (pathname.startsWith('/admin')) {
+    return currentThemeModes['admin']
+  } else if (pathname.startsWith('/editor')) {
+    return currentThemeModes['editor']
+  }
+
+  return currentThemeModes['client']
+}

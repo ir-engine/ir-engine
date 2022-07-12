@@ -104,10 +104,10 @@ const LocationDrawer = ({ open, mode, selectedLocation, onClose }: Props) => {
   }, [])
 
   useEffect(() => {
-    loadLocation()
+    loadSelectedLocation()
   }, [selectedLocation])
 
-  const loadLocation = () => {
+  const loadSelectedLocation = () => {
     if (selectedLocation) {
       setState({
         ...defaultState,
@@ -128,7 +128,7 @@ const LocationDrawer = ({ open, mode, selectedLocation, onClose }: Props) => {
 
   const handleCancel = () => {
     if (editMode) {
-      loadLocation()
+      loadSelectedLocation()
       setEditMode(false)
     } else handleClose()
   }
@@ -145,16 +145,16 @@ const LocationDrawer = ({ open, mode, selectedLocation, onClose }: Props) => {
 
     switch (name) {
       case 'name':
-        tempErrors.name = value.length < 2 ? t('admin:components.locationModal.nameRequired') : ''
+        tempErrors.name = value.length < 2 ? t('admin:components.location.nameRequired') : ''
         break
       case 'maxUsers':
-        tempErrors.maxUsers = value.length < 1 ? t('admin:components.locationModal.maxUsersRequired') : ''
+        tempErrors.maxUsers = value.length < 1 ? t('admin:components.location.maxUsersRequired') : ''
         break
       case 'scene':
-        tempErrors.scene = value.length < 2 ? t('admin:components.locationModal.sceneRequired') : ''
+        tempErrors.scene = value.length < 2 ? t('admin:components.location.sceneRequired') : ''
         break
       case 'type':
-        tempErrors.type = value.length < 2 ? t('admin:components.locationModal.typeRequired') : ''
+        tempErrors.type = value.length < 2 ? t('admin:components.location.typeRequired') : ''
         break
       default:
         break
@@ -182,10 +182,10 @@ const LocationDrawer = ({ open, mode, selectedLocation, onClose }: Props) => {
 
     let tempErrors = {
       ...state.formErrors,
-      name: state.name ? '' : t('admin:components.locationModal.nameCantEmpty'),
-      maxUsers: state.maxUsers ? '' : t('admin:components.locationModal.maxUserCantEmpty'),
-      scene: state.scene ? '' : t('admin:components.locationModal.sceneCantEmpty'),
-      type: state.type ? '' : t('admin:components.locationModal.typeCantEmpty')
+      name: state.name ? '' : t('admin:components.location.nameCantEmpty'),
+      maxUsers: state.maxUsers ? '' : t('admin:components.location.maxUserCantEmpty'),
+      scene: state.scene ? '' : t('admin:components.location.sceneCantEmpty'),
+      type: state.type ? '' : t('admin:components.location.typeCantEmpty')
     }
 
     setState({ ...state, formErrors: tempErrors })
@@ -208,7 +208,7 @@ const LocationDrawer = ({ open, mode, selectedLocation, onClose }: Props) => {
     <DrawerView open={open} onClose={onClose}>
       <Container maxWidth="sm" className={styles.mt20}>
         <DialogTitle className={styles.textAlign}>
-          {mode === LocationDrawerMode.Create && t('admin:components.locationModal.createLocation')}
+          {mode === LocationDrawerMode.Create && t('admin:components.location.createLocation')}
           {mode === LocationDrawerMode.ViewEdit &&
             editMode &&
             `${t('admin:components.common.update')} ${selectedLocation?.name}`}
@@ -217,8 +217,7 @@ const LocationDrawer = ({ open, mode, selectedLocation, onClose }: Props) => {
 
         <InputText
           name="name"
-          label={t('admin:components.locationModal.lbl-name')}
-          placeholder={t('admin:components.locationModal.enterName')}
+          label={t('admin:components.location.lbl-name')}
           value={state.name ?? ''}
           error={state.formErrors.name}
           disabled={viewMode}
@@ -227,8 +226,7 @@ const LocationDrawer = ({ open, mode, selectedLocation, onClose }: Props) => {
 
         <InputText
           name="maxUsers"
-          label={t('admin:components.locationModal.lbl-maxuser')}
-          placeholder={t('admin:components.group.enterMaxUsers')}
+          label={t('admin:components.location.lbl-maxuser')}
           value={state.maxUsers}
           error={state.formErrors.maxUsers}
           type="number"
@@ -238,7 +236,7 @@ const LocationDrawer = ({ open, mode, selectedLocation, onClose }: Props) => {
 
         <InputSelect
           name="scene"
-          label={t('admin:components.locationModal.lbl-scene')}
+          label={t('admin:components.location.lbl-scene')}
           value={state.scene}
           error={state.formErrors.scene}
           menu={sceneMenu}
@@ -248,18 +246,18 @@ const LocationDrawer = ({ open, mode, selectedLocation, onClose }: Props) => {
 
         <InputSelect
           name="type"
-          label={t('admin:components.locationModal.type')}
+          label={t('admin:components.location.type')}
           value={state.type}
           menu={locationMenu}
           disabled={viewMode}
           onChange={handleChange}
         />
 
-        <Grid container spacing={5} className={styles.mb15}>
+        <Grid container spacing={5} className={styles.mb15px}>
           <Grid item xs={6}>
             <InputSwitch
               name="videoEnabled"
-              label={t('admin:components.locationModal.lbl-ve')}
+              label={t('admin:components.location.lbl-ve')}
               checked={state.videoEnabled}
               disabled={viewMode}
               onChange={(e) => setState({ ...state, videoEnabled: e.target.checked })}
@@ -267,7 +265,7 @@ const LocationDrawer = ({ open, mode, selectedLocation, onClose }: Props) => {
 
             <InputSwitch
               name="audioEnabled"
-              label={t('admin:components.locationModal.lbl-ae')}
+              label={t('admin:components.location.lbl-ae')}
               checked={state.audioEnabled}
               disabled={viewMode}
               onChange={(e) => setState({ ...state, audioEnabled: e.target.checked })}
@@ -275,7 +273,7 @@ const LocationDrawer = ({ open, mode, selectedLocation, onClose }: Props) => {
 
             <InputSwitch
               name="globalMediaEnabled"
-              label={t('admin:components.locationModal.lbl-gme')}
+              label={t('admin:components.location.lbl-gme')}
               checked={state.globalMediaEnabled}
               disabled={viewMode}
               onChange={(e) => setState({ ...state, globalMediaEnabled: e.target.checked })}
@@ -283,7 +281,7 @@ const LocationDrawer = ({ open, mode, selectedLocation, onClose }: Props) => {
 
             <InputSwitch
               name="screenSharingEnabled"
-              label={t('admin:components.locationModal.lbl-se')}
+              label={t('admin:components.location.lbl-se')}
               checked={state.screenSharingEnabled}
               disabled={viewMode}
               onChange={(e) => setState({ ...state, screenSharingEnabled: e.target.checked })}
@@ -293,7 +291,7 @@ const LocationDrawer = ({ open, mode, selectedLocation, onClose }: Props) => {
             <div style={{ marginLeft: 'auto' }}>
               <InputSwitch
                 name="faceStreamingEnabled"
-                label={t('admin:components.locationModal.lbl-fe')}
+                label={t('admin:components.location.lbl-fe')}
                 checked={state.faceStreamingEnabled}
                 disabled={viewMode}
                 onChange={(e) => setState({ ...state, faceStreamingEnabled: e.target.checked })}
@@ -301,7 +299,7 @@ const LocationDrawer = ({ open, mode, selectedLocation, onClose }: Props) => {
 
               <InputSwitch
                 name="isLobby"
-                label={t('admin:components.locationModal.lbl-lobby')}
+                label={t('admin:components.location.lbl-lobby')}
                 checked={state.isLobby}
                 disabled={viewMode}
                 onChange={(e) => setState({ ...state, isLobby: e.target.checked })}
@@ -309,7 +307,7 @@ const LocationDrawer = ({ open, mode, selectedLocation, onClose }: Props) => {
 
               <InputSwitch
                 name="isFeatured"
-                label={t('admin:components.locationModal.lbl-featured')}
+                label={t('admin:components.location.lbl-featured')}
                 checked={state.isFeatured}
                 disabled={viewMode}
                 onChange={(e) => setState({ ...state, isFeatured: e.target.checked })}
@@ -318,23 +316,23 @@ const LocationDrawer = ({ open, mode, selectedLocation, onClose }: Props) => {
           </Grid>
         </Grid>
         <DialogActions>
+          <Button className={styles.outlinedButton} onClick={handleCancel}>
+            {t('admin:components.common.cancel')}
+          </Button>
           {(mode === LocationDrawerMode.Create || editMode) && (
-            <Button className={styles.submitButton} onClick={handleSubmit}>
+            <Button className={styles.gradientButton} onClick={handleSubmit}>
               {t('admin:components.common.submit')}
             </Button>
           )}
           {mode === LocationDrawerMode.ViewEdit && editMode === false && (
             <Button
-              className={styles.submitButton}
+              className={styles.gradientButton}
               disabled={hasWriteAccess ? false : true}
               onClick={() => setEditMode(true)}
             >
               {t('admin:components.common.edit')}
             </Button>
           )}
-          <Button className={styles.cancelButton} onClick={handleCancel}>
-            {t('admin:components.common.cancel')}
-          </Button>
         </DialogActions>
       </Container>
     </DrawerView>

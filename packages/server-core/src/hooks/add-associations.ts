@@ -4,27 +4,37 @@ import { Application } from '@xrengine/server-core/declarations'
 
 import logger from '../logger'
 
-function processInclude(includeCollection: any, context: HookContext): any {
+function processInclude(context: HookContext, includeCollection?: ModelType[]) {
   if (!includeCollection) {
     return
   }
-  includeCollection = includeCollection.map((model: any) => {
-    const newModel = { ...model, ...processInclude(model.include, context) }
+  includeCollection = includeCollection?.map((model: ModelType) => {
+    const newModel = { ...model, ...processInclude(context, model.include) } as ModelType
     newModel.model = context.app.services[model.model].Model
     return newModel
   })
   return { include: includeCollection }
 }
 
-export default (options: any = {}): Hook => {
+type ModelType = {
+  model: string
+  include?: ModelType[]
+  as?: string
+}
+
+type ModelAssociationsType = {
+  models: ModelType[]
+}
+
+export default (options: ModelAssociationsType): Hook => {
   return (context: HookContext<Application>): HookContext => {
     if (!context.params) context.params = {}
     try {
       const sequelize = context.params.sequelize || {}
-      const include = sequelize.include || []
+      const include: ModelType[] = sequelize.include || []
       sequelize.include = include.concat(
-        options.models.map((model: any) => {
-          const newModel = { ...model, ...processInclude(model.include, context) }
+        options.models.map((model: ModelType) => {
+          const newModel = { ...model, ...processInclude(context, model.include) } as ModelType
           newModel.model = context.app.services[model.model].Model
           return newModel
         })

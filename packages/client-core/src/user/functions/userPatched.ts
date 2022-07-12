@@ -2,7 +2,8 @@ import { t } from 'i18next'
 
 import { resolveUser } from '@xrengine/common/src/interfaces/User'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { dispatchAction } from '@xrengine/hyperflux'
+import { WorldState } from '@xrengine/engine/src/networking/interfaces/WorldState'
+import { dispatchAction, getState } from '@xrengine/hyperflux'
 
 import { NotificationService } from '../../common/services/NotificationService'
 import { accessAuthState, AuthAction } from '../services/AuthService'
@@ -17,9 +18,8 @@ export const userPatched = (params) => {
 
   console.log('User patched', patchedUser)
 
-  if (Engine.instance.currentWorld.users.has(patchedUser.id)) {
-    Engine.instance.currentWorld.users.get(patchedUser.id)!.name = patchedUser.name
-  }
+  const worldState = getState(WorldState)
+  worldState.userNames[patchedUser.id].set(patchedUser.name)
 
   if (selfUser.id.value === patchedUser.id) {
     if (selfUser.instanceId.value !== patchedUser.instanceId) dispatchAction(UserAction.clearLayerUsersAction())

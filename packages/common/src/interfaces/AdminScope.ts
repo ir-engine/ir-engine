@@ -1,6 +1,6 @@
 import { AdminScopeType } from './AdminScopeType'
 import { Group } from './Group'
-import { User } from './User'
+import { UserInterface } from './User'
 
 export interface AdminScope {
   id: string
@@ -10,6 +10,6 @@ export interface AdminScope {
   groupId?: string
   type: string
   scopeType?: AdminScopeType
-  user?: User
+  user?: UserInterface
   group?: Group
 }

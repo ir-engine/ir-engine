@@ -73,10 +73,8 @@ export function solveTwoBoneIK(
 
   if (rotAxis.lengthSq() < sqrEpsilon) {
     hasHint ? rotAxis.crossVectors(ah, bc) : rotAxis.setScalar(0)
-
-    if (rotAxis.lengthSq() < sqrEpsilon) rotAxis.crossVectors(at, bc)
-
-    if (rotAxis.lengthSq() < sqrEpsilon) rotAxis.set(0, 1, 0)
+    rotAxis.crossVectors(at, bc)
+    rotAxis.set(0, 1, 0)
   }
 
   rot.setFromAxisAngle(rotAxis.normalize(), rotAngle)
