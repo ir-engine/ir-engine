@@ -108,26 +108,29 @@ export const useShareMenuHooks = ({ refLink }) => {
   }
 }
 
-interface Props {
-  isMobileView?: boolean
-}
+interface Props {}
 
 const ShareMenu = (props: Props): JSX.Element => {
   const { t } = useTranslation()
   const refLink = useRef() as React.MutableRefObject<HTMLInputElement>
+  const engineState = useEngineState()
   const { copyLinkToClipboard, shareOnApps, packageInvite, handleChangeEmail, email, shareLink, toggleSpectatorMode } =
     useShareMenuHooks({
       refLink
     })
 
   useEffect(() => {
-    return () => dispatchAction(EngineActions.shareInteractableLink({ shareLink: '' }))
+    return () => dispatchAction(EngineActions.shareInteractableLink({ shareLink: '', shareTitle: '' }))
   }, [])
 
   return (
     <div className={styles.menuPanel}>
       <div className={styles.sharePanel}>
-        {!props.isMobileView ? (
+        {engineState.shareTitle.value ? (
+          <Typography variant="h2" className={styles.title}>
+            {engineState.shareTitle.value}
+          </Typography>
+        ) : (
           <>
             <Typography variant="h1" className={styles.panelHeader}>
               {t('user:usermenu.share.title')}
@@ -150,10 +153,6 @@ const ShareMenu = (props: Props): JSX.Element => {
               label={t('user:usermenu.share.lbl-spectator-mode')}
             />
           </>
-        ) : (
-          <Typography variant="h2" className={styles.title}>
-            {t('user:usermenu.share.mobileTitle')}
-          </Typography>
         )}
         <div className={styles.QRContainer}>
           <QRCodeSVG height={176} width={200} value={shareLink} />

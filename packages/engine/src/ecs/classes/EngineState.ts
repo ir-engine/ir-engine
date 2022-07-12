@@ -30,7 +30,8 @@ export const EngineState = defineState({
     /**
      * An empty share link will default to the current URL, plus any modifiers (such as spectate mode)
      */
-    shareLink: ''
+    shareLink: '',
+    shareTitle: ''
   }
 })
 
@@ -67,7 +68,10 @@ export function EngineEventReceptor(a) {
         s.availableInteractable.set(action.availableInteractable)
       )
       .when(EngineActions.spectateUser.matches, (action) => s.spectating.set(!!action.user))
-      .when(EngineActions.shareInteractableLink.matches, (action) => s.shareLink.set(action.shareLink))
+      .when(EngineActions.shareInteractableLink.matches, (action) => {
+        s.shareLink.set(action.shareLink)
+        s.shareTitle.set(action.shareTitle)
+      })
   })
 }
 
@@ -189,6 +193,7 @@ export class EngineActions {
 
   static shareInteractableLink = defineAction({
     type: 'xre.engine.SHARE_LINK' as const,
-    shareLink: matches.string
+    shareLink: matches.string,
+    shareTitle: matches.string
   })
 }
