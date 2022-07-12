@@ -458,7 +458,12 @@ const PartyParticipantWindow = ({ peerId }: Props): JSX.Element => {
       >
         <div className={styles['video-wrapper']}>
           {(videoStream == null || videoStreamPaused || videoProducerPaused || videoProducerGlobalMute) && (
-            <img src={getAvatarURLForUser(userAvatarDetails, isSelfUser ? selfUser?.id : user?.id)} draggable={false} />
+            <img
+              src={getAvatarURLForUser(userAvatarDetails, isSelfUser ? selfUser?.id : user?.id)}
+              alt=""
+              crossOrigin="anonymous"
+              draggable={false}
+            />
           )}
           <video key={peerId + '_cam'} ref={videoRef} draggable={false} />
         </div>

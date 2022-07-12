@@ -105,7 +105,12 @@ const selectAvatarMenu = (props: Props) => {
               backgroundColor: (theme) => (theme.palette.mode === 'dark' ? '#1A2027' : '#f1f1f1')
             }}
           >
-            <img className={styles.avatar} src={characterAvatar['user-thumbnail']?.url || ''} alt={avatar.name} />
+            <img
+              className={styles.avatar}
+              src={characterAvatar['user-thumbnail']?.url || ''}
+              alt={avatar.name}
+              crossOrigin="anonymous"
+            />
           </Paper>
         </Grid>
       )
