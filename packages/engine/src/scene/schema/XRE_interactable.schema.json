@@ -8,7 +8,7 @@
   "properties": {
     "interactionType": {
       "type": "string",
-      "anyOf": [{ "const": "equippable" }, { "const": "ui-modal" }]
+      "anyOf": [{ "const": "equippable" }, { "const": "default" }]
     },
     "interactionText": { "type": "string" },
     "interactionDistance": { "type": "number" },

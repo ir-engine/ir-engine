@@ -27,8 +27,10 @@ export const EngineState = defineState({
     errorEntities: {} as { [key: Entity]: boolean },
     availableInteractable: null! as Entity,
     usersTyping: {} as { [key: string]: true },
-    viewInAR: false,
-    interactableModelUrl: ''
+    /**
+     * An empty share link will default to the current URL, plus any modifiers (such as spectate mode)
+     */
+    shareLink: ''
   }
 })
 
@@ -65,10 +67,7 @@ export function EngineEventReceptor(a) {
         s.availableInteractable.set(action.availableInteractable)
       )
       .when(EngineActions.spectateUser.matches, (action) => s.spectating.set(!!action.user))
-      .when(EngineActions.viewInAR.matches, (action) => {
-        s.viewInAR.set(action.viewInAR)
-        s.interactableModelUrl.set(action.interactableModelUrl)
-      })
+      .when(EngineActions.shareInteractableLink.matches, (action) => s.shareLink.set(action.shareLink))
   })
 }
 
@@ -188,9 +187,8 @@ export class EngineActions {
     user: matches.string.optional()
   })
 
-  static viewInAR = defineAction({
-    type: 'CORE_VIEW_IN_AR' as const,
-    viewInAR: matches.boolean,
-    interactableModelUrl: matches.string
+  static shareInteractableLink = defineAction({
+    type: 'xre.engine.SHARE_LINK' as const,
+    shareLink: matches.string
   })
 }
