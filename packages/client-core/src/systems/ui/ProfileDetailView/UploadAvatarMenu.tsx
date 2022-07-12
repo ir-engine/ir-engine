@@ -279,7 +279,7 @@ export const UploadAvatarMenu = () => {
         )}
         {thumbnailUrl.length > 0 && (
           <div className="thumbnailContainer">
-            <img src={thumbnailUrl} alt="Avatar" className="thumbnailPreview" />
+            <img src={thumbnailUrl} crossOrigin="anonymous" alt="Avatar" className="thumbnailPreview" />
           </div>
         )}
         <div className="paper2">
