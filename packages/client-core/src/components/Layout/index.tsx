@@ -15,6 +15,7 @@ import UserMenu from '@xrengine/client-core/src/user/components/UserMenu'
 import { SHOPPING_CENTER_SCENE_ID } from '@xrengine/common/src/constants/URL'
 import { respawnAvatar } from '@xrengine/engine/src/avatar/functions/respawnAvatar'
 import { isTouchAvailable } from '@xrengine/engine/src/common/functions/DetectFeatures'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import Cart from '@xrengine/projects/projects/XREngine-Project-eCommerce/components/Cart/index'
@@ -96,7 +97,7 @@ const Layout = ({ useLoadingScreenOpacity, pageTitle, children, hideVideo, hideF
   }
 
   const respawnCallback = (): void => {
-    respawnAvatar(useWorld().localClientEntity)
+    respawnAvatar(Engine.instance.currentWorld.localClientEntity)
   }
 
   const hideOtherMenus = (): void => {

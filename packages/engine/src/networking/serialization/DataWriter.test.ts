@@ -344,9 +344,7 @@ describe('DataWriter', () => {
 
     addComponent(entity, NetworkObjectComponent, {
       networkId,
-      ownerId: userId,
-      prefab: '',
-      parameters: {}
+      ownerId: userId
     })
 
     NetworkObjectComponent.networkId[entity] = networkId
@@ -414,9 +412,7 @@ describe('DataWriter', () => {
       })
       addComponent(entity, NetworkObjectComponent, {
         networkId,
-        ownerId: userId,
-        prefab: '',
-        parameters: {}
+        ownerId: userId
       })
     })
 
@@ -493,9 +489,7 @@ describe('DataWriter', () => {
       })
       addComponent(entity, NetworkObjectComponent, {
         networkId,
-        ownerId: userId,
-        prefab: '',
-        parameters: {}
+        ownerId: userId
       })
     })
 

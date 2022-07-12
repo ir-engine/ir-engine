@@ -47,7 +47,7 @@ export function PreviewDialog({ imageSrc, children, ...props }) {
   return (
     <Dialog {...props}>
       <LeftContent>
-        <img src={imageSrc} />
+        <img src={imageSrc} alt="" crossOrigin="anonymous" />
       </LeftContent>
       <RightContent>{children}</RightContent>
     </Dialog>

@@ -142,7 +142,7 @@ export default function ScenesPanel({ loadScene, newScene, toggleRefetchScenes }
               <div className={styles.sceneContainer} key={i}>
                 <a onClick={(e) => onClickExisting(e, scene)}>
                   <div className={styles.thumbnailContainer}>
-                    <img src={scene.thumbnailUrl} alt="" />
+                    <img src={scene.thumbnailUrl} alt="" crossOrigin="anonymous" />
                   </div>
                   <div className={styles.detailBlock}>
                     {activeScene === scene && isRenaming ? (

@@ -1,14 +1,10 @@
 import { matches } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { localAudioConstraints, localVideoConstraints } from '@xrengine/engine/src/networking/constants/VideoConstants'
-import { NearbyUser } from '@xrengine/engine/src/networking/functions/getNearbyUsers'
 import { defineAction } from '@xrengine/hyperflux'
 
 /** System class for media streaming. */
 export class MediaStreams {
   static actions = {
-    triggerRequestCurrentProducers: defineAction({
-      type: 'NETWORK_TRANSPORT_EVENT_REQUEST_CURRENT_PRODUCERS' as const
-    }),
     triggerUpdateConsumers: defineAction({
       type: 'NETWORK_TRANSPORT_EVENT_UPDATE_CONSUMERS' as const
     }),
@@ -48,8 +44,6 @@ export class MediaStreams {
   screenShareAudioPaused = false
   /** Whether the component is initialized or not. */
   initialized = false
-
-  nearbyLayerUsers = [] as NearbyUser[]
 
   /**
    * Set face tracking state.

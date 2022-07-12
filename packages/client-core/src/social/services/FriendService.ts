@@ -1,6 +1,5 @@
 import { Paginated } from '@feathersjs/feathers'
 import { none } from '@speigg/hookstate'
-import _ from 'lodash'
 import { useEffect } from 'react'
 
 import { UserInterface } from '@xrengine/common/src/interfaces/User'

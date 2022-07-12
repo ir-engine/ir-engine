@@ -1,11 +1,9 @@
 import { DataConsumer, DataProducer } from 'mediasoup/node/lib/types'
 import { Socket } from 'socket.io'
-import type { Quaternion } from 'three'
 
 import { Instance } from '@xrengine/common/src/interfaces/Instance'
 import { UserInterface } from '@xrengine/common/src/interfaces/User'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
-import { SpawnPoints } from '@xrengine/engine/src/avatar/AvatarSpawnSystem'
 import { SpawnPoseComponent } from '@xrengine/engine/src/avatar/components/SpawnPoseComponent'
 import { respawnAvatar } from '@xrengine/engine/src/avatar/functions/respawnAvatar'
 import checkPositionIsValid from '@xrengine/engine/src/common/functions/checkPositionIsValid'
@@ -15,11 +13,10 @@ import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFuncti
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
 import { NetworkPeerFunctions } from '@xrengine/engine/src/networking/functions/NetworkPeerFunctions'
 import { JoinWorldProps, JoinWorldRequestData } from '@xrengine/engine/src/networking/functions/receiveJoinWorld'
-import { WorldNetworkAction } from '@xrengine/engine/src/networking/functions/WorldNetworkAction'
-import { AvatarProps } from '@xrengine/engine/src/networking/interfaces/WorldState'
+import { AvatarProps, WorldState } from '@xrengine/engine/src/networking/interfaces/WorldState'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
-import { dispatchAction } from '@xrengine/hyperflux'
+import { dispatchAction, getState } from '@xrengine/hyperflux'
 import { Action } from '@xrengine/hyperflux/functions/ActionFunctions'
 import { Application } from '@xrengine/server-core/declarations'
 import config from '@xrengine/server-core/src/appconfig'
@@ -247,12 +244,9 @@ export const handleConnectingPeer = async (network: SocketWebRTCServerNetwork, s
     dataProducers: new Map<string, DataProducer>() // Key => label of data channel
   })
 
-  const world = Engine.instance.currentWorld
-  world.users.set(userId, {
-    userId,
-    name: user.name,
-    avatarDetail
-  })
+  const worldState = getState(WorldState)
+  worldState.userNames[userId].set(user.name)
+  worldState.userAvatarDetails[userId].set(avatarDetail)
 
   network.userIdToUserIndex.set(userId, userIndex)
   network.userIndexToUserId.set(userIndex, userId)

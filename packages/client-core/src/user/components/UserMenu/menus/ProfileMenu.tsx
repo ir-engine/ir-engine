@@ -1,3 +1,4 @@
+import { useHookstate } from '@speigg/hookstate'
 import * as polyfill from 'credential-handler-polyfill'
 import _ from 'lodash'
 import React, { useEffect, useState } from 'react'
@@ -7,6 +8,8 @@ import { useLocation } from 'react-router-dom'
 
 import { validateEmail, validatePhoneNumber } from '@xrengine/common/src/config'
 import { defaultThemeModes, defaultThemeSettings } from '@xrengine/common/src/constants/DefaultThemeSettings'
+import { WorldState } from '@xrengine/engine/src/networking/interfaces/WorldState'
+import { getState } from '@xrengine/hyperflux'
 
 import { Check, Create, GitHub, Send } from '@mui/icons-material'
 import ContentCopyIcon from '@mui/icons-material/ContentCopy'
@@ -93,6 +96,8 @@ const ProfileMenu = ({ className, hideLogin, isPopover, changeActiveMenu, onClos
 
   const hasAdminAccess = selfUser?.id?.value?.length > 0 && selfUser?.userRole?.value === 'admin'
   const hasEditorAccess = userHasAccess('editor:write')
+
+  const userAvatarDetails = useHookstate(getState(WorldState).userAvatarDetails)
 
   const themeModes = { ...defaultThemeModes, ...userSettings?.themeModes }
   const themeSettings = { ...defaultThemeSettings, ...clientSetting.themeSettings }
@@ -354,7 +359,7 @@ const ProfileMenu = ({ className, hideLogin, isPopover, changeActiveMenu, onClos
       <section className={styles.profilePanel}>
         <section className={styles.profileBlock}>
           <div className={styles.avatarBlock}>
-            <img src={getAvatarURLForUser(userId)} />
+            <img src={getAvatarURLForUser(userAvatarDetails, userId)} alt="" crossOrigin="anonymous" />
             {changeActiveMenu != null && (
               <Button
                 className={styles.avatarBtn}

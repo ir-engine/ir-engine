@@ -10,10 +10,6 @@ export type NetworkObjectComponentType = {
   ownerId: UserId
   /** The network id for this object (this id is only unique per owner) */
   networkId: NetworkId
-  /** All network objects need to be a registered prefab. */
-  prefab: string
-  /** The parameters by which the prefab was created */
-  parameters: any
 }
 
 const SCHEMA = {

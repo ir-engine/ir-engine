@@ -2,7 +2,6 @@ import { Paginated } from '@feathersjs/feathers'
 // TODO: Reenable me! But decoupled so we don't need to import this lib
 // import { endVideoChat } from '@xrengine/client-networking/src/transports/SocketWebRTCClientFunctions';
 import i18n from 'i18next'
-import _ from 'lodash'
 import { useEffect } from 'react'
 
 import { Channel } from '@xrengine/common/src/interfaces/Channel'
@@ -46,45 +45,33 @@ export const PartyServiceReceptor = (action) => {
         return s.updateNeeded.set(true)
       })
       .when(PartyAction.createdPartyUserAction.matches, (action) => {
-        const updateMap = _.cloneDeep(s.party.value)
-        if (updateMap != null) {
-          updateMap.partyUsers = Array.isArray(updateMap.partyUsers)
-            ? updateMap.partyUsers.find((pUser) => {
-                return pUser != null && pUser.id === action.partyUser.id
-              }) == null
-              ? updateMap.partyUsers.concat([action.partyUser])
-              : updateMap.partyUsers.map((pUser) => {
-                  return pUser != null && pUser.id === action.partyUser.id ? action.partyUser : pUser
-                })
-            : [action.partyUser]
+        if (s.party && s.party.partyUsers && s.party.partyUsers.value) {
+          const matchingPartyUserIndex = s.party.partyUsers.value.findIndex(
+            (partyUser) => partyUser?.id === action.partyUser.id
+          )
+          if (matchingPartyUserIndex > -1) return s.party.partyUsers[matchingPartyUserIndex].set(action.partyUser)
+          else return s.party.partyUsers.set(s.party.partyUsers.value.concat(action.partyUser))
         }
-        return s.merge({ party: updateMap, updateNeeded: true })
+        return s
       })
       .when(PartyAction.patchedPartyUserAction.matches, (action) => {
-        const updateMap = _.cloneDeep(s.party.value)
-        if (updateMap != null) {
-          updateMap.partyUsers = Array.isArray(updateMap.partyUsers)
-            ? updateMap.partyUsers.find((pUser) => {
-                return pUser != null && pUser.id === action.partyUser.id
-              }) == null
-              ? updateMap.partyUsers.concat([action.partyUser])
-              : updateMap.partyUsers.map((pUser) => {
-                  return pUser != null && pUser.id === action.partyUser.id ? action.partyUser : pUser
-                })
-            : [action.partyUser]
+        if (s.party && s.party.partyUsers && s.party.partyUsers.value) {
+          const matchingPartyUserIndex = s.party.partyUsers.value.findIndex(
+            (partyUser) => partyUser?.id === action.partyUser.id
+          )
+          if (matchingPartyUserIndex > -1) return s.party.partyUsers[matchingPartyUserIndex].set(action.partyUser)
         }
-        return s.party.set(updateMap)
+        return s
       })
       .when(PartyAction.removedPartyUserAction.matches, (action) => {
-        const updateMap = _.cloneDeep(s.party.value)
-        if (updateMap != null) {
-          updateMap.partyUsers &&
-            _.remove(updateMap.partyUsers, (pUser: PartyUser) => {
-              return pUser != null && action.partyUser.id === pUser.id
-            })
+        if (s.party && s.party.partyUsers && s.party.partyUsers.value) {
+          const matchingPartyUserIndex = s.party.partyUsers.value.findIndex(
+            (partyUser) => partyUser?.id === action.partyUser.id
+          )
+          if (matchingPartyUserIndex > -1)
+            return s.party.partyUsers.set(s.party.partyUsers.value.splice(matchingPartyUserIndex))
         }
-        s.party.set(updateMap)
-        return s.updateNeeded.set(true)
+        return s
       })
   })
 }
