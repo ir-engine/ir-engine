@@ -6,77 +6,52 @@ import { Application } from './../../declarations'
 
 export default () => {
   return async (context: HookContext<Application>): Promise<HookContext> => {
-    const foundItem = await context.app.service('scope').Model.findAll({
+    const foundItem = await context.app.service('scope').find({
       where: {
         userId: context.arguments[0]
       }
     })
-    if (!foundItem.length) {
-      if (context.arguments[1].userRole && context.arguments[1].userRole !== 'admin') {
-        config.scopes.user.forEach(async (el) => {
-          await context.app.service('scope').create({
-            type: el,
-            userId: context.arguments[0]
-          })
-        })
-      }
 
-      if (context.arguments[1].userRole === 'admin') {
-        scopeTypeSeed.templates.forEach(async (el) => {
-          await context.app.service('scope').create({
-            type: el.type,
-            userId: context.arguments[0]
-          })
-        })
-      }
+    if (foundItem.total) {
+      foundItem.data.forEach(async (scp) => {
+        try {
+          await context.app.service('scope').remove(scp.id)
+        } catch {}
+      })
+    }
 
-      if (context.arguments[1]?.scopes) {
-        context.arguments[1]?.scopes?.forEach(async (el) => {
-          await context.app.service('scope').create({
-            type: el.type,
-            userId: context.arguments[0]
-          })
-        })
-      }
-    } else {
-      if (context.arguments[1].userRole && context.arguments[1].userRole !== 'admin') {
-        const user = await context.app.service('user').Model.findOne({
-          where: { id: context.arguments[0] }
-        })
+    let createData: any = []
 
-        if (user?.dataValues?.userRole === 'admin') {
-          foundItem.forEach(async (scp) => {
-            if (!config.scopes.user.includes(scp.dataValues.type)) {
-              await context.app.service('scope').remove(scp.dataValues.id)
-            }
-          })
+    if (context.arguments[1]?.userRole === 'admin') {
+      createData = scopeTypeSeed.templates.map((el) => {
+        return {
+          type: el.type,
+          userId: context.arguments[0]
         }
-      }
+      })
+    } else {
+      createData = config.scopes.user.map((el) => {
+        return {
+          type: el,
+          userId: context.arguments[0]
+        }
+      })
+    }
 
-      if (context.arguments[1].userRole === 'admin') {
-        foundItem.forEach(async (scp) => {
-          await context.app.service('scope').remove(scp.dataValues.id)
-        })
-        scopeTypeSeed.templates.forEach(async (el) => {
-          await context.app.service('scope').create({
-            type: el.type,
-            userId: context.arguments[0]
-          })
-        })
-      }
-
-      if (context.arguments[1].scopes) {
-        foundItem.forEach(async (scp) => {
-          await context.app.service('scope').remove(scp.dataValues.id)
-        })
-        context.arguments[1]?.scopes?.forEach(async (el) => {
-          await context.app.service('scope').create({
-            type: el.type,
-            userId: context.arguments[0]
-          })
+    for (const el of context.arguments[1]?.scopes) {
+      const dataExists = createData.find((item) => item.type === el.type)
+      if (!dataExists) {
+        createData.push({
+          type: el.type,
+          userId: context.arguments[0]
         })
       }
     }
+
+    if (createData.length > 0) {
+      await context.app.service('scope').create(createData)
+    }
+
     return context
   }
 }

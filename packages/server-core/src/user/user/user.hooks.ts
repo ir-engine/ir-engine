@@ -283,12 +283,14 @@ export default {
             userId: context.result.id
           })
 
-          context.arguments[0]?.scopes?.forEach((el) => {
-            context.app.service('scope').create({
+          const data = context.arguments[0]?.scopes?.map((el) => {
+            return {
               type: el.type,
               userId: context.result.id
-            })
+            }
           })
+
+          context.app.service('scope').create(data)
 
           const app = context.app
           let result = context.result
