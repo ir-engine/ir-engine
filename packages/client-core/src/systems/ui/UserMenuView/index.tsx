@@ -85,7 +85,12 @@ const AvatarContextMenu = () => {
       <style>{styleString}</style>
       {user?.id.value && (
         <div className="rootContainer">
-          <img className="ownerImage" src={getAvatarURLForUser(userAvatarDetails, user?.id?.value)} />
+          <img
+            className="ownerImage"
+            src={getAvatarURLForUser(userAvatarDetails, user?.id?.value)}
+            alt=""
+            crossOrigin="anonymous"
+          />
           <div className="buttonContainer">
             <section className="buttonSection">
               <Button className="button" onClick={inviteToParty}>

@@ -359,7 +359,7 @@ const ProfileMenu = ({ className, hideLogin, isPopover, changeActiveMenu, onClos
       <section className={styles.profilePanel}>
         <section className={styles.profileBlock}>
           <div className={styles.avatarBlock}>
-            <img src={getAvatarURLForUser(userAvatarDetails, userId)} />
+            <img src={getAvatarURLForUser(userAvatarDetails, userId)} alt="" crossOrigin="anonymous" />
             {changeActiveMenu != null && (
               <Button
                 className={styles.avatarBtn}

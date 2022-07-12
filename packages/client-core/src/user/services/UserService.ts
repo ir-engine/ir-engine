@@ -124,7 +124,7 @@ export const UserService = {
         action: instance ? 'layer-users' : 'channel-users',
         instanceId
       }
-    })) as Paginated<User>
+    })) as Paginated<UserInterface>
 
     const state = getState(UserState)
 

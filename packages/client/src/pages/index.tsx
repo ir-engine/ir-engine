@@ -38,7 +38,7 @@ export const HomePage = (): any => {
         </Helmet>
         <div className="main-background">
           <div className="img-container">
-            {clientSetting?.appBackground && <img src={clientSetting.appBackground} alt="" />}
+            {clientSetting?.appBackground && <img src={clientSetting.appBackground} alt="" crossOrigin="anonymous" />}
           </div>
         </div>
         <nav className="navbar">
