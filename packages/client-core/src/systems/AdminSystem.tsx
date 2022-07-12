@@ -60,6 +60,7 @@ export default async function AdminSystem(world: World) {
   const avatarCreatedQueue = createActionQueue(AdminAvatarActions.avatarCreated.matches)
   const avatarRemovedQueue = createActionQueue(AdminAvatarActions.avatarRemoved.matches)
   const avatarUpdatedQueue = createActionQueue(AdminAvatarActions.avatarUpdated.matches)
+  const thumbnailFetchedQueue = createActionQueue(AdminAvatarActions.thumbnailFetched.matches)
   const scenesFetchedQueue = createActionQueue(AdminSceneActions.scenesFetched.matches)
   const locationsRetrievedQueue = createActionQueue(AdminLocationActions.locationsRetrieved.matches)
   const locationCreatedQueue = createActionQueue(AdminLocationActions.locationCreated.matches)
@@ -106,7 +107,6 @@ export default async function AdminSystem(world: World) {
   const setUserRoleQueue = createActionQueue(AdminUserActions.setUserRole.matches)
   const resetFilterQueue = createActionQueue(AdminUserActions.resetFilter.matches)
   const userRoleRetrievedQueue = createActionQueue(AdminUserRoleActions.userRoleRetrieved.matches)
-  const userRoleCreatedQueue = createActionQueue(AdminUserRoleActions.userRoleCreated.matches)
   const userRoleUpdatedQueue = createActionQueue(AdminUserRoleActions.userRoleUpdated.matches)
   const fetchedInstanceServerQueue = createActionQueue(InstanceServerSettingActions.fetchedInstanceServer.matches)
   const chargebeeSettingRetrievedQueue = createActionQueue(
@@ -174,6 +174,9 @@ export default async function AdminSystem(world: World) {
     }
     for (const action of avatarUpdatedQueue()) {
       AdminAvatarReceptors.avatarUpdatedReceptor(action)
+    }
+    for (const action of thumbnailFetchedQueue()) {
+      AdminAvatarReceptors.thumbnailFetchedReceptor(action)
     }
     for (const action of scenesFetchedQueue()) {
       AdminSceneReceptors.scenesFetchedReceptor(action)
@@ -312,9 +315,6 @@ export default async function AdminSystem(world: World) {
     }
     for (const action of userRoleRetrievedQueue()) {
       AdminUserRoleReceptors.userRoleRetrievedReceptor(action)
-    }
-    for (const action of userRoleCreatedQueue()) {
-      AdminUserRoleReceptors.userRoleCreatedReceptor(action)
     }
     for (const action of userRoleUpdatedQueue()) {
       AdminUserRoleReceptors.userRoleUpdatedReceptor(action)

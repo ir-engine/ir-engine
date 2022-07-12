@@ -21,7 +21,7 @@ export default async function AssetSystem(world: World) {
       if (asset == undefined || load == undefined) continue
       const node = nodeMap().get(entity)
       if (node === undefined) continue
-      load.roots.forEach((root) => {
+      load.roots?.forEach((root) => {
         reparentEntityNode(root, node)
         reparentObject3D(root, node)
       })

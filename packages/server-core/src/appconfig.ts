@@ -236,7 +236,8 @@ const authentication = {
     github: {
       appid: process.env.GITHUB_APP_ID!,
       key: process.env.GITHUB_CLIENT_ID!,
-      secret: process.env.GITHUB_CLIENT_SECRET!
+      secret: process.env.GITHUB_CLIENT_SECRET!,
+      scope: ['repo', 'user']
     },
     google: {
       key: process.env.GOOGLE_CLIENT_ID!,

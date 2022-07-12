@@ -1,21 +1,13 @@
 import { Quaternion, Vector3 } from 'three'
-import matches from 'ts-matches'
 
 import { createActionQueue } from '@xrengine/hyperflux'
 
-import { AudioTagComponent } from '../audio/components/AudioTagComponent'
-import { FollowCameraComponent, FollowCameraDefaultValues } from '../camera/components/FollowCameraComponent'
-import { isClient } from '../common/functions/isClient'
-import { Engine } from '../ecs/classes/Engine'
 import { Entity } from '../ecs/classes/Entity'
 import { World } from '../ecs/classes/World'
-import { addComponent, defineQuery, getComponent, hasComponent } from '../ecs/functions/ComponentFunctions'
-import { LocalInputTagComponent } from '../input/components/LocalInputTagComponent'
+import { defineQuery, getComponent, hasComponent } from '../ecs/functions/ComponentFunctions'
 import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
-import { ShadowComponent } from '../scene/components/ShadowComponent'
 import { SpawnPointComponent } from '../scene/components/SpawnPointComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
-import { AvatarComponent } from './components/AvatarComponent'
 import { createAvatar } from './functions/createAvatar'
 
 const randomPositionCentered = (area: Vector3) => {
@@ -52,44 +44,12 @@ export class SpawnPoints {
   }
 }
 
-export function avatarSpawnReceptor(
-  spawnAction: ReturnType<typeof WorldNetworkAction.spawnAvatar>,
-  world = Engine.instance.currentWorld
-) {
-  if (isClient) {
-    /**
-     * When changing location via a portal, the local client entity will be
-     * defined when the new world dispatches this action, so ignore it
-     */
-    if (Engine.instance.userId === spawnAction.$from && hasComponent(world.localClientEntity, AvatarComponent)) {
-      return
-    }
-  }
-  const entity = createAvatar(spawnAction)
-  if (isClient) {
-    addComponent(entity, AudioTagComponent, {})
-    addComponent(entity, ShadowComponent, { receiveShadow: true, castShadow: true })
-
-    if (spawnAction.$from === Engine.instance.userId) {
-      addComponent(entity, LocalInputTagComponent, {})
-      addComponent(entity, FollowCameraComponent, FollowCameraDefaultValues)
-    }
-    /*
-    dispatchAction(
-      Engine.store,
-      EngineActions.setupAnimation({
-        entity: entity
-      })
-    )*/
-  }
-}
-
 export default async function AvatarSpawnSystem(world: World) {
   const avatarSpawnQueue = createActionQueue(WorldNetworkAction.spawnAvatar.matches)
-
   const spawnPointQuery = defineQuery([SpawnPointComponent, TransformComponent])
+
   return () => {
-    for (const action of avatarSpawnQueue()) avatarSpawnReceptor(action, world)
+    for (const action of avatarSpawnQueue()) createAvatar(action)
 
     // Keep a list of spawn points so we can send our user to one
     for (const entity of spawnPointQuery.enter(world)) {

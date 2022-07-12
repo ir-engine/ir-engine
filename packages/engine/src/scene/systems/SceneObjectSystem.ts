@@ -66,7 +66,8 @@ const sceneObjectQuery = defineQuery([Object3DComponent])
 const simpleMaterialsQuery = defineQuery([Object3DComponent, SimpleMaterialTagComponent])
 const standardMaterialsQuery = defineQuery([Object3DComponent, Not(SimpleMaterialTagComponent)])
 const persistQuery = defineQuery([Object3DComponent, PersistTagComponent])
-const visibleQuery = defineQuery([VisibleComponent])
+const visibleQuery = defineQuery([Object3DComponent, VisibleComponent])
+const notVisibleQuery = defineQuery([Object3DComponent, Not(VisibleComponent)])
 const updatableQuery = defineQuery([Object3DComponent, UpdatableComponent])
 
 export default async function SceneObjectSystem(world: World) {
@@ -112,9 +113,6 @@ export default async function SceneObjectSystem(world: World) {
       }
 
       processObject3d(entity)
-
-      /** @todo this breaks a bunch of stuff */
-      // obj3d.visible = hasComponent(entity, VisibleComponent)
     }
 
     // Enable second camera layer for persistant entities for fun portal effects
@@ -132,14 +130,12 @@ export default async function SceneObjectSystem(world: World) {
       })
     }
 
-    for (const entity of visibleQuery.enter()) {
-      if (!hasComponent(entity, Object3DComponent)) return
+    for (const entity of visibleQuery()) {
       getComponent(entity, Object3DComponent).value.visible = true
     }
 
-    for (const entity of visibleQuery.exit()) {
-      const obj3d = getComponent(entity, Object3DComponent)
-      if (obj3d) obj3d.value.visible = false // On removal of entity Object3DComponent becomes null
+    for (const entity of notVisibleQuery()) {
+      getComponent(entity, Object3DComponent).value.visible = false
     }
 
     for (const entity of updatableQuery()) {

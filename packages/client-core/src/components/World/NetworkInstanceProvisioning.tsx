@@ -19,12 +19,9 @@ import { UserService, useUserState } from '@xrengine/client-core/src/user/servic
 import { matches } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
-import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
-import { receiveJoinWorld, receiveSpectateWorld } from '@xrengine/engine/src/networking/functions/receiveJoinWorld'
 import { addActionReceptor, dispatchAction, removeActionReceptor, useHookEffect } from '@xrengine/hyperflux'
 
 import { UserServiceReceptor } from '../../user/services/UserService'
-import { getSearchParamFromURL } from '../../util/getSearchParamFromURL'
 import InstanceServerWarnings from './InstanceServerWarnings'
 
 export const NetworkInstanceProvisioning = () => {
@@ -44,7 +41,8 @@ export const NetworkInstanceProvisioning = () => {
 
   const mediaNetworkHostId = Engine.instance.currentWorld.mediaNetwork?.hostId
   const channelConnectionState = useMediaInstanceConnectionState()
-  const currentChannelInstanceConnection = channelConnectionState.instances[mediaNetworkHostId].ornull
+  const currentChannelInstanceConnection =
+    mediaNetworkHostId && channelConnectionState.instances[mediaNetworkHostId].ornull
 
   MediaInstanceConnectionService.useAPIListeners()
 
@@ -106,7 +104,7 @@ export const NetworkInstanceProvisioning = () => {
   // 3. once engine is initialised and the server is provisioned, connect the the instance server
   useHookEffect(() => {
     if (
-      engineState.isEngineInitialized.value &&
+      engineState.sceneLoaded.value &&
       currentLocationInstanceConnection?.value &&
       !currentLocationInstanceConnection.connected.value &&
       currentLocationInstanceConnection.provisioned.value &&
@@ -114,30 +112,11 @@ export const NetworkInstanceProvisioning = () => {
     )
       LocationInstanceConnectionService.connectToServer(worldNetworkHostId)
   }, [
-    engineState.isEngineInitialized,
+    engineState.sceneLoaded,
     currentLocationInstanceConnection?.connected,
     currentLocationInstanceConnection?.connecting,
     currentLocationInstanceConnection?.provisioned
   ])
-
-  useHookEffect(() => {
-    if (!engineState.connectedWorld.value || !engineState.sceneLoaded.value) return
-
-    const spectateUser = getSearchParamFromURL('spectate')
-    if (spectateUser) {
-      const transportRequestData = { spectateUser }
-      Engine.instance.currentWorld.worldNetwork
-        .request(MessageTypes.SpectateWorld.toString(), transportRequestData)
-        .then(receiveSpectateWorld)
-    } else {
-      const transportRequestData = {
-        inviteCode: getSearchParamFromURL('inviteCode')!
-      }
-      Engine.instance.currentWorld.worldNetwork
-        .request(MessageTypes.JoinWorld.toString(), transportRequestData)
-        .then(receiveJoinWorld)
-    }
-  }, [engineState.connectedWorld, appState.onBoardingStep])
 
   // media server provisioning
   useHookEffect(() => {
@@ -157,6 +136,7 @@ export const NetworkInstanceProvisioning = () => {
   useHookEffect(() => {
     if (
       mediaNetworkHostId &&
+      currentChannelInstanceConnection &&
       currentChannelInstanceConnection.provisioned.value === true &&
       currentChannelInstanceConnection.readyToConnect.value === true &&
       currentChannelInstanceConnection.connecting.value === false &&

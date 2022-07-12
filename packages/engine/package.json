@@ -23,8 +23,6 @@
   },
   "scripts": {
     "check-errors": "tsc --noemit",
-    "dev": "vite",
-    "build-publish": "rimraf lib && cti entrypoint ./src -o index.ts && cross-env APP_ENV=production vite build --config vite.build.js",
     "test": "mocha --config .mocharc.js",
     "validate": "npm run test",
     "generate-doc": "node_modules/.bin/typedoc",
@@ -38,7 +36,6 @@
     "@gltf-transform/functions": "2.1.4",
     "@pixiv/three-vrm": "^1.0.0-beta.8",
     "@tweenjs/tween.js": "^18.6.4",
-    "@types/react-reconciler": "^0.26.4",
     "@vladmandic/face-api": "^1.6.1",
     "@xrengine/common": "^0.5.7",
     "@xrengine/hyperflux": "^0.5.7",
@@ -63,8 +60,9 @@
     "three-mesh-bvh": "^0.5.0",
     "ts-matches": "^5.1.0-1",
     "twitch-m3u8": "^1.1.4",
-    "typescript": "4.6.2",
+    "typescript": "4.7.4",
     "vite": "2.9.4",
+    "url-polyfill": "1.1.12",
     "web-worker": "1.2.0",
     "yuka": "0.7.7"
   },
@@ -79,6 +77,7 @@
     "@types/mock-require": "2.0.1",
     "@types/offscreencanvas": "2019.6.4",
     "@types/proxyquire": "^1.3.28",
+    "@types/react-reconciler": "^0.26.4",
     "@types/sinon": "10.0.11",
     "@types/three": "0.141.0",
     "@types/yuka": "0.7.1",
@@ -94,8 +93,7 @@
     "rollup-plugin-terser": "7.0.2",
     "sinon": "12.0.1",
     "trace-unhandled": "2.0.1",
-    "typedoc": "0.22.15",
-    "url-polyfill": "1.1.12"
+    "typedoc": "0.22.15"
   },
   "gitHead": "2313453697ca7c6b8d36b3b166b5a6445fe1c851"
 }

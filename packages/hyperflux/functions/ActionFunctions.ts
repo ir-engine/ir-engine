@@ -1,10 +1,13 @@
 import { MathUtils } from 'three'
 import { matches, Validator } from 'ts-matches'
 
+import { OpaqueType } from '@xrengine/common/src/interfaces/OpaqueType'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { deepEqual } from '@xrengine/engine/src/common/functions/deepEqual'
 
 import { HyperFlux } from './StoreFunctions'
+
+export type Topic = OpaqueType<'topicId'> & string
 
 export type Action = {
   /**
@@ -13,7 +16,7 @@ export type Action = {
   type: string
 } & ActionOptions
 
-export type ActionReceptor = (action: Action) => void
+export type ActionReceptor = (action: ResolvedActionType) => void
 
 export type ActionRecipients = UserId | UserId[] | 'all' | 'others'
 
@@ -54,7 +57,7 @@ export type ActionOptions = {
    */
   $time?: number | undefined
 
-  $topic?: string
+  $topic?: Topic
 
   /**
    * Specifies how this action should be cached for newly joining clients.
@@ -77,7 +80,7 @@ export type ActionOptions = {
   $ERROR?: { message: string; stack: string[] }
 }
 
-type ActionShape<ActionType extends Action> = {
+export type ActionShape<ActionType extends Action> = {
   [key in keyof ActionType]: key extends ActionType
     ? ActionType[key]
     : ActionType[key] extends Validator<unknown, unknown>
@@ -93,11 +96,11 @@ type ActionShape<ActionType extends Action> = {
 
 export type ResolvedActionShape<Shape extends ActionShape<any>> = {
   [key in keyof Shape]: Shape[key] extends Validator<unknown, infer B>
-    ? Validator<unknown, B>
+    ? Validator<unknown, Exclude<B, Validator<any, any>>>
     : Shape[key] extends MatchesWithDefault<infer C>
-    ? Validator<unknown, C>
+    ? Validator<unknown, Exclude<C, Validator<any, any>>>
     : Shape[key] extends string | number | boolean | any
-    ? Validator<unknown, Shape[key]>
+    ? Validator<unknown, Exclude<Shape[key], Validator<any, any>>>
     : never
 }
 
@@ -105,11 +108,11 @@ export type ResolvedActionShape<Shape extends ActionShape<any>> = {
 
 export type ResolvedActionShapeWithOptionals<Shape extends ActionShape<any>> = {
   [key in keyof Shape]: Shape[key] extends Validator<unknown, infer B>
-    ? Validator<unknown, B>
+    ? Validator<unknown, Exclude<B, Validator<any, any>>>
     : Shape[key] extends MatchesWithDefault<infer C>
-    ? Validator<unknown, C | undefined> | C | undefined
+    ? Validator<unknown, Exclude<C, Validator<any, any>> | undefined>
     : Shape[key] extends string | number | boolean | any
-    ? Validator<unknown, Shape[key] | undefined> | Shape[key] | undefined
+    ? Validator<unknown, Exclude<Shape[key], Validator<any, any>> | undefined>
     : never
 }
 
@@ -120,10 +123,13 @@ type ActionTypeFromShape<Shape extends ActionShape<any>> = {
     ? Shape[key]['_TYPE'] | A
     : Shape[key] extends MatchesWithDefault<Shape[key]>
     ? Shape[key]['matches']
-    : Shape[key]
+    : Exclude<Shape[key], Validator<any, any>>
 }
 
-// type t = ActionTypeFromShape<{store:'test', type:Validator<unknown,'hello'>, name:string, param: Validator<unknown,number>, count: MatchesWithDefault<number>}>
+// type x = ResolvedActionShape<ActionShape<any>>
+// // type t = ResolvedActionType<ActionShape<any>>
+// type z = ResolvedActionType
+// type t = ResolvedActionType<{store:'test', type:Validator<unknown,'hello'>|'hello', name:string, param: Validator<unknown,number>, count: MatchesWithDefault<number>}>
 
 type IsOptional<T> = null extends T ? true : undefined extends T ? true : false
 
@@ -150,7 +156,7 @@ type JustRequiredKeys<Shape extends ActionShape<any>> = {
 type JustOptionals<S extends ActionShape<any>> = Pick<S, JustOptionalKeys<S>>
 type JustRequired<S extends ActionShape<any>> = Pick<S, JustRequiredKeys<S>>
 
-export type ResolvedActionType<Shape extends ActionShape<any>> = Required<
+export type ResolvedActionType<Shape extends ActionShape<Action> = ActionShape<{ type: string }>> = Required<
   ActionTypeFromShape<ResolvedActionShape<Shape>> & ActionOptions
 >
 export type PartialActionType<Shape extends ActionShape<any>> = Omit<
@@ -161,6 +167,9 @@ export type PartialActionType<Shape extends ActionShape<any>> = Omit<
 >
 
 // type t = PartialActionType<{store:'TEST',type:'TEST',name:string, bla:Validator<unknown, any>}>
+// type t2 = ResolvedActionShape<{type:'test', count:MatchesWithDefault<number>}>
+// type t3 = ResolvedActionShapeWithOptionals<{type:'test', count:MatchesWithDefault<number>}>
+// type t = PartialActionType<{type:'test', count:MatchesWithDefault<number>}>
 
 /**
  * Defines an action
@@ -216,6 +225,7 @@ function defineAction<Shape extends ActionShape<Action>>(actionShape: Shape) {
       ]) as [string, any]
     )
     let action = {
+      $from: HyperFlux.store?.getDispatchId(),
       ...allValuesNull,
       ...Object.fromEntries([...optionEntries, ...literalEntries]),
       ...defaultValues,
@@ -226,7 +236,7 @@ function defineAction<Shape extends ActionShape<Action>>(actionShape: Shape) {
 
   actionCreator.actionShape = actionShape
   actionCreator.resolvedActionShape = resolvedActionShape as ResolvedActionShape<Shape>
-  actionCreator.type = actionShape.type
+  actionCreator.type = actionShape.type as Shape['type']
   actionCreator.matches = matchesShape
 
   return actionCreator
@@ -240,7 +250,7 @@ function defineAction<Shape extends ActionShape<Action>>(actionShape: Shape) {
  */
 const dispatchAction = <A extends Action>(
   action: A,
-  topics: string | string[] = HyperFlux.store.defaultTopic,
+  topics: Topic | Topic[] = HyperFlux.store.defaultTopic,
   store = HyperFlux.store
 ) => {
   const storeId = store.getDispatchId()
@@ -261,9 +271,10 @@ const dispatchAction = <A extends Action>(
     action.$stack = stack
   }
 
-  const mode = store.getDispatchMode(topic)
-  if (mode === 'local' || mode === 'host') store.actions.incoming.push(action as Required<Action>)
-  else store.actions.outgoing[topic].queue.push(action as Required<Action>)
+  store.actions.incoming.push(action as Required<ResolvedActionType>)
+  if (!store.forwardIncomingActions(action as Required<ResolvedActionType>)) {
+    store.actions.outgoing[topic].queue.push(action as Required<ResolvedActionType>)
+  }
 }
 
 function addTopic(topic: string, store = HyperFlux.store) {
@@ -274,25 +285,23 @@ function addTopic(topic: string, store = HyperFlux.store) {
       history: [],
       historyUUIDs: new Set()
     }
-  if (!store.actions.cached[topic]) store.actions.cached[topic] = []
 }
 
 function removeTopic(topic: string, store = HyperFlux.store) {
   console.log(`[HyperFlux]: Removed topic ${topic}`)
-  for (const [uuid, action] of store.actions.incomingHistory) {
+  for (const action of store.actions.history) {
     if (action.$topic.includes(topic)) {
-      store.actions.incomingHistory.delete(uuid)
-      store.actions.incomingHistoryUUIDs.delete(action.$uuid)
+      store.actions.processedUUIDs.delete(action.$uuid)
     }
   }
   delete store.actions.outgoing[topic]
-  delete store.actions.cached[topic]
 }
 
 /**
  * Adds an action receptor to the store
  * @param store
  * @param receptor
+ * @deprecated use createActionQueue instead
  */
 function addActionReceptor(receptor: ActionReceptor, store = HyperFlux.store) {
   console.log(`[HyperFlux]: Added Receptor`, receptor.name)
@@ -303,6 +312,7 @@ function addActionReceptor(receptor: ActionReceptor, store = HyperFlux.store) {
  * Removes an action receptor from the store
  * @param store
  * @param receptor
+ * @deprecated use createActionQueue instead
  */
 function removeActionReceptor(receptor: ActionReceptor, store = HyperFlux.store) {
   const idx = store.receptors.indexOf(receptor)
@@ -312,14 +322,9 @@ function removeActionReceptor(receptor: ActionReceptor, store = HyperFlux.store)
   }
 }
 
-const _updateCachedActions = (incomingAction: Required<Action>, store = HyperFlux.store) => {
+const _updateCachedActions = (incomingAction: Required<ResolvedActionType>, store = HyperFlux.store) => {
   if (incomingAction.$cache) {
-    const topic = incomingAction.$topic
-    if (!store.actions.cached[topic]) {
-      console.warn(`[HyperFlux]: got action from topic not subscribed to: '${topic}'`)
-      return
-    }
-    const cachedActions = store.actions.cached[topic]
+    const cachedActions = store.actions.cached
     // see if we must remove any previous actions
     if (typeof incomingAction.$cache === 'boolean') {
       if (incomingAction.$cache) cachedActions.push(incomingAction)
@@ -354,7 +359,7 @@ const _updateCachedActions = (incomingAction: Required<Action>, store = HyperFlu
   }
 }
 
-const applyIncomingActionsToAllQueues = (action: Action, store = HyperFlux.store) => {
+const applyIncomingActionsToAllQueues = (action: Required<ResolvedActionType>, store = HyperFlux.store) => {
   for (const [shape, queues] of store.actions.queues) {
     matches(action).when(shape, () => {
       for (const queue of queues) {
@@ -364,9 +369,9 @@ const applyIncomingActionsToAllQueues = (action: Action, store = HyperFlux.store
   }
 }
 
-const _applyIncomingAction = (action: Required<Action>, store = HyperFlux.store) => {
+const _applyIncomingAction = (action: Required<ResolvedActionType>, store = HyperFlux.store) => {
   // ensure actions are idempotent
-  if (store.actions.incomingHistoryUUIDs.has(action.$uuid)) {
+  if (store.actions.processedUUIDs.has(action.$uuid)) {
     console.log('got repeat action', action)
     const idx = store.actions.incoming.indexOf(action)
     store.actions.incoming.splice(idx, 1)
@@ -380,22 +385,18 @@ const _applyIncomingAction = (action: Required<Action>, store = HyperFlux.store)
   try {
     console.log(`[Action]: ${action.type}`, action)
     for (const receptor of [...store.receptors]) receptor(action)
-    store.actions.incomingHistory.set(action.$uuid, action)
-    if (store.getDispatchMode(action.$topic) === 'host') {
+    if (store.forwardIncomingActions(action)) {
       store.actions.outgoing[action.$topic].queue.push(action)
     }
   } catch (e) {
     const message = (e as Error).message
     const stack = (e as Error).stack!.split('\n')
     stack.shift()
-    store.actions.incomingHistory.set(action.$uuid, {
-      // @ts-ignore
-      $ERROR: { message, stack },
-      ...action
-    })
+    action.$ERROR = { message, stack }
     console.error(e)
   } finally {
-    store.actions.incomingHistoryUUIDs.add(action.$uuid)
+    store.actions.history.push(action)
+    store.actions.processedUUIDs.add(action.$uuid)
     const idx = store.actions.incoming.indexOf(action)
     store.actions.incoming.splice(idx, 1)
   }
@@ -432,9 +433,12 @@ const clearOutgoingActions = (store = HyperFlux.store) => {
   }
 }
 
-const createActionQueue = (shape: Validator<any, any>, store = HyperFlux.store) => {
+const createActionQueue = <V extends Validator<unknown, ResolvedActionType>>(
+  shape: V,
+  store = HyperFlux.store
+): (() => V['_TYPE'][]) => {
   if (!store.actions.queues.get(shape)) store.actions.queues.set(shape, [])
-  const queue = [] as any[]
+  const queue = [] as V['_TYPE'][]
   store.actions.queues.get(shape)!.push(queue)
   return () => {
     const result = [...queue]
@@ -456,3 +460,11 @@ export default {
 }
 
 export type MatchesWithDefault<A> = { matches: Validator<unknown, A>; defaultValue: () => A }
+
+export type ActionCreator<A extends ActionShape<Action>> = {
+  (partialAction?: PartialActionType<A>): Required<ActionTypeFromShape<ResolvedActionShape<A>> & ActionOptions>
+  actionShape: A
+  resolvedActionShape: ResolvedActionShape<A>
+  type: A['type']
+  matches: Validator<unknown, ResolvedActionType<A>>
+}

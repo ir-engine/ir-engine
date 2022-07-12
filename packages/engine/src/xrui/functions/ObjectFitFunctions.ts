@@ -1,5 +1,5 @@
 import type { WebContainer3D } from '@etherealjs/web-layer/three'
-import { MathUtils, PerspectiveCamera } from 'three'
+import { MathUtils, Object3D, PerspectiveCamera, Vector3 } from 'three'
 
 import { AvatarAnimationComponent } from '../../avatar/components/AvatarAnimationComponent'
 import { HALF_PI } from '../../common/constants/MathConstants'
@@ -41,54 +41,57 @@ export const ObjectFitFunctions = {
     distance: number,
     contentWidth: number,
     contentHeight: number,
-    fit: 'cover' | 'contain' | 'vertical' | 'horizontal' | 'constant' = 'constant',
+    fit: 'cover' | 'contain' | 'vertical' | 'horizontal' = 'contain',
     camera = Engine.instance.currentWorld.camera as PerspectiveCamera
   ) => {
-    const vFOV = camera.fov
-    const hFOV = Math.tan(vFOV / 2)
-    const targetHeight = hFOV * Math.abs(distance) * 2
+    const vFOV = camera.fov * MathUtils.DEG2RAD
+    const targetHeight = Math.tan(vFOV / 2) * Math.abs(distance) * 2
     const targetWidth = targetHeight * camera.aspect
-
-    if (fit === 'constant') {
-      // TODO: figure this out - harder than it seems - constant size regardless of fov, window size & aspect ratio
-      return distance
-    }
-
     return ObjectFitFunctions.computeContentFitScale(contentWidth, contentHeight, targetWidth, targetHeight, fit)
   },
 
-  attachObjectInFrontOfCamera: (container: WebContainer3D, scale: number, distance: number) => {
-    container.scale.x = container.scale.y = scale
-    container.position.z = -distance
-    container.parent = Engine.instance.currentWorld.camera
-  },
-
-  attachObjectToHand: (container: WebContainer3D, scale: number) => {
-    const userEntity = Engine.instance.currentWorld.localClientEntity
-    const avatarAnimationComponent = getComponent(userEntity, AvatarAnimationComponent)
-    if (avatarAnimationComponent && avatarAnimationComponent.rig.LeftHand) {
-      // todo: figure out how to scale this properly
-      container.scale.x = container.scale.y = 0.5 * scale
-      // todo: use handedness option to settings
-      container.parent = avatarAnimationComponent.rig.LeftHand
-      // container.position.z = 0.1
-      container.updateMatrixWorld(true)
-      container.rotation.z = HALF_PI
-      container.rotation.y = HALF_PI
+  attachObjectInFrontOfCamera: (obj: Object3D, scale: number, distance: number) => {
+    obj.scale.x = obj.scale.y = scale
+    obj.position.z = -distance
+    // obj.rotation.z = 0
+    // obj.rotation.y = 0
+    if (obj.parent !== Engine.instance.currentWorld.camera) {
+      obj.removeFromParent()
+      Engine.instance.currentWorld.camera.add(obj)
     }
   },
 
-  attachObjectToPreferredTransform: (container: WebContainer3D) => {
-    const distance = 0.1
-    const scale = ObjectFitFunctions.computeContentFitScaleForCamera(
-      distance,
-      container.rootLayer.element.clientWidth,
-      container.rootLayer.element.clientHeight
-    )
+  attachObjectToHand: (container: WebContainer3D, scale: number) => {
+    const { localClientEntity } = Engine.instance.currentWorld
+    const avatarAnimationComponent = getComponent(localClientEntity, AvatarAnimationComponent)
+    if (avatarAnimationComponent && avatarAnimationComponent.rig.LeftHand) {
+      // todo: figure out how to scale this properly
+      // container.scale.x = container.scale.y = 0.5 * scale
+      // todo: use handedness option to settings
+      if (container.parent !== Engine.instance.currentWorld.scene) {
+        container.removeFromParent()
+        Engine.instance.currentWorld.scene.add(container)
+      }
+      avatarAnimationComponent.rig.LeftHand.getWorldPosition(container.position)
+      // container.position.z = 0.1
+      container.updateMatrixWorld(true)
+      // container.rotation.z = HALF_PI
+      // container.rotation.y = HALF_PI
+    }
+  },
+
+  attachObjectToPreferredTransform: (container: WebContainer3D, distance = 0.1, scale?: number) => {
+    const fitScale =
+      scale ??
+      ObjectFitFunctions.computeContentFitScaleForCamera(
+        distance,
+        container.rootLayer.domSize.x,
+        container.rootLayer.domSize.y
+      )
     if (getEngineState().xrSessionStarted.value) {
-      ObjectFitFunctions.attachObjectToHand(container, 1)
+      ObjectFitFunctions.attachObjectToHand(container, 10)
     } else {
-      ObjectFitFunctions.attachObjectInFrontOfCamera(container, scale, distance)
+      ObjectFitFunctions.attachObjectInFrontOfCamera(container, fitScale, distance)
     }
   },
 

@@ -11,13 +11,12 @@ import {
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { SkeletonUtils } from '../../avatar/SkeletonUtils'
 import { accessAvatarInputSettingsState } from '../../avatar/state/AvatarInputSettingsState'
-import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
-import { getComponent } from '../../ecs/functions/ComponentFunctions'
+import { getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { AvatarControllerType } from '../../input/enums/InputEnums'
-import { isEntityLocalClient } from '../../networking/functions/isEntityLocalClient'
+import { NetworkObjectOwnedTag } from '../../networking/components/NetworkObjectOwnedTag'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
-import { XRInputSourceComponent } from '../../xr/components/XRInputSourceComponent'
+import { ControllerGroup, XRInputSourceComponent } from '../../xr/components/XRInputSourceComponent'
 import { XRHandMeshModel } from '../classes/XRHandMeshModel'
 import { initializeXRControllerAnimations } from './controllerAnimation'
 
@@ -27,19 +26,19 @@ const createUICursor = () => {
   return new Mesh(geometry, material)
 }
 
-const setupController = (inputSource, controller) => {
+const setupController = (inputSource: XRInputSource, controller: ControllerGroup) => {
   const avatarInputState = accessAvatarInputSettingsState()
   if (inputSource) {
-    const canUseController =
-      inputSource.hand === null && avatarInputState.controlType.value === AvatarControllerType.OculusQuest
-    const canUseHands = inputSource.hand !== null && avatarInputState.controlType.value === AvatarControllerType.XRHands
-    if (canUseController || canUseHands) {
-      const targetRay = createController(inputSource)
-      if (targetRay) {
-        controller.add(targetRay)
-        controller.targetRay = targetRay
-      }
+    // const canUseController =
+    //   inputSource.hand === null && avatarInputState.controlType.value === AvatarControllerType.OculusQuest
+    // const canUseHands = inputSource.hand !== null && avatarInputState.controlType.value === AvatarControllerType.XRHands
+    // if (canUseController || canUseHands) {
+    const targetRay = createController(inputSource)
+    if (targetRay) {
+      controller.add(targetRay)
+      controller.targetRay = targetRay
     }
+    // }
   }
 
   if (!controller.cursor) {
@@ -55,14 +54,14 @@ export const initializeXRInputs = (entity: Entity) => {
   const controllers = [xrInputSourceComponent.controllerLeft, xrInputSourceComponent.controllerRight]
   const controllersGrip = [xrInputSourceComponent.controllerGripLeft, xrInputSourceComponent.controllerGripRight]
 
-  if (isEntityLocalClient(entity)) {
-    controllers.forEach((controller: any, i) => {
+  if (hasComponent(entity, NetworkObjectOwnedTag)) {
+    controllers.forEach((controller: ControllerGroup, i) => {
       if (controller.userData.initialized) {
         return
       }
       controller.userData.initialized = true
 
-      controller.parent.addEventListener('connected', (ev) => {
+      controller.parent!.addEventListener('connected', (ev) => {
         const xrInputSource = ev.data as XRInputSource
 
         if (xrInputSource.targetRayMode !== 'tracked-pointer' && xrInputSource.targetRayMode !== 'gaze') {
@@ -157,7 +156,7 @@ export const cleanXRInputs = (entity) => {
 }
 
 // pointer taken from https://github.com/mrdoob/three.js/blob/master/examples/webxr_vr_ballshooter.html
-const createController = (inputSource) => {
+const createController = (inputSource: XRInputSource) => {
   let geometry, material
   switch (inputSource.targetRayMode) {
     case 'tracked-pointer':

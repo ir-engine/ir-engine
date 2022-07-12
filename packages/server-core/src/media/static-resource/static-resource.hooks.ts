@@ -1,5 +1,3 @@
-import { HookContext } from '@feathersjs/feathers'
-import dauria from 'dauria'
 import { disallow, iff, isProvider } from 'feathers-hooks-common'
 
 import collectAnalytics from '@xrengine/server-core/src/hooks/collect-analytics'
@@ -8,32 +6,13 @@ import attachOwnerIdInQuery from '@xrengine/server-core/src/hooks/set-loggedin-u
 
 import authenticate from '../../hooks/authenticate'
 import restrictUserRole from '../../hooks/restrict-user-role'
-import multiLogger from '../../logger'
-
-const logger = multiLogger.child({ component: 'server-core:static-resource' })
 
 export default {
   before: {
     all: [],
     find: [collectAnalytics()],
     get: [disallow('external')],
-    create: [
-      authenticate(),
-      restrictUserRole('admin'),
-      (context: HookContext): HookContext => {
-        if (!context.data.uri && context.params.file) {
-          const file = context.params.file
-          const uri = dauria.getBase64DataURI(file.buffer, file.mimetype)
-          logger.info(`uri is: ${uri}`)
-          const url = dauria.getBase64DataURI(file.buffer, file.mimetype)
-          const mimeType = context.data.mimeType ?? file.mimetype
-          logger.info(`mimeType is: ${file.mimetype}`)
-          const name = context.data.name ?? file.name
-          context.data = { uri: uri, mimeType: mimeType, name: name }
-        }
-        return context
-      }
-    ],
+    create: [authenticate(), restrictUserRole('admin')],
     update: [authenticate(), restrictUserRole('admin')],
     patch: [authenticate(), restrictUserRole('admin'), replaceThumbnailLink()],
     remove: [

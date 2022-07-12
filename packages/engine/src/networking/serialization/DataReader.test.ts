@@ -17,8 +17,8 @@ import { VelocityComponent } from '../../physics/components/VelocityComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { XRHandsInputComponent } from '../../xr/components/XRHandsInputComponent'
 import { XRHandBones } from '../../xr/types/XRHandBones'
-import { NetworkObjectAuthorityTag } from '../components/NetworkObjectAuthorityTag'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
+import { NetworkObjectOwnedTag } from '../components/NetworkObjectOwnedTag'
 import {
   checkBitflag,
   createDataReader,
@@ -81,7 +81,7 @@ describe('DataReader', () => {
     TransformComponent.position.z[entity] = 0
 
     view.cursor = 0
-
+    console.log('TransformComponent.position', TransformComponent.position)
     const readPosition = readComponent(TransformComponent.position)
 
     readPosition(view, entity)
@@ -463,9 +463,7 @@ describe('DataReader', () => {
 
     addComponent(entity, NetworkObjectComponent, {
       networkId,
-      ownerId: userId,
-      prefab: '',
-      parameters: {}
+      ownerId: userId
     })
 
     writeEntity(view, networkId, entity)
@@ -532,12 +530,10 @@ describe('DataReader', () => {
 
     addComponent(entity, NetworkObjectComponent, {
       networkId,
-      ownerId: userId,
-      prefab: '',
-      parameters: {}
+      ownerId: userId
     })
 
-    addComponent(entity, NetworkObjectAuthorityTag, {})
+    addComponent(entity, NetworkObjectOwnedTag, {})
 
     writeEntity(view, networkId, entity)
 
@@ -640,9 +636,7 @@ describe('DataReader', () => {
       })
       addComponent(entity, NetworkObjectComponent, {
         networkId,
-        ownerId: userId,
-        prefab: '',
-        parameters: {}
+        ownerId: userId
       })
       network.userIndexToUserId.set(userIndex, userId)
       network.userIdToUserIndex.set(userId, userIndex)
@@ -715,9 +709,7 @@ describe('DataReader', () => {
       })
       addComponent(entity, NetworkObjectComponent, {
         networkId,
-        ownerId: userId,
-        prefab: '',
-        parameters: {}
+        ownerId: userId
       })
     })
 
@@ -812,9 +804,7 @@ describe('DataReader', () => {
       })
       addComponent(entity, NetworkObjectComponent, {
         networkId,
-        ownerId: userId,
-        prefab: '',
-        parameters: {}
+        ownerId: userId
       })
       network.userIndexToUserId.set(userIndex, userId)
       network.userIdToUserIndex.set(userId, userIndex)
@@ -857,9 +847,7 @@ describe('DataReader', () => {
       })
       addComponent(entity, NetworkObjectComponent, {
         networkId,
-        ownerId: userId,
-        prefab: '',
-        parameters: {}
+        ownerId: userId
       })
       network.userIndexToUserId.set(userIndex, userId)
       network.userIdToUserIndex.set(userId, userIndex)
@@ -896,9 +884,7 @@ describe('DataReader', () => {
       })
       addComponent(entity, NetworkObjectComponent, {
         networkId,
-        ownerId: userId,
-        prefab: '',
-        parameters: {}
+        ownerId: userId
       })
       network.userIndexToUserId.set(userIndex, userId)
       network.userIdToUserIndex.set(userId, userIndex)

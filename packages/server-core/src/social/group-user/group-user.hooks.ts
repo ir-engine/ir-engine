@@ -14,7 +14,7 @@ export default {
     get: [disallow('external')],
     create: [iff(isProvider('external'), restrictUserRole('admin') as any)],
     update: [disallow('external')],
-    patch: [disallow()],
+    patch: [iff(isProvider('external'), groupUserPermissionAuthenticate() as any)],
     remove: [groupPermissionAuthenticate()]
   },
 
