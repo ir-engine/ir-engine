@@ -128,7 +128,12 @@ const SelectAvatarMenu = () => {
             backgroundColor: 'var(--mainBackground)'
           }}
         >
-          <img className="avatar" src={characterAvatar['user-thumbnail']?.url || ''} alt={avatar.name} />
+          <img
+            className="avatar"
+            crossOrigin="anonymous"
+            src={characterAvatar['user-thumbnail']?.url || ''}
+            alt={avatar.name}
+          />
         </div>
       )
     }

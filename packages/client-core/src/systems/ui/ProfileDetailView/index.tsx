@@ -303,7 +303,7 @@ const ProfileDetailView = () => {
         <section className="profilePanel">
           <section className="profileBlock">
             <div className="avatarBlock">
-              <img src={getAvatarURLForUser(userAvatarDetails, userId)} />
+              <img src={getAvatarURLForUser(userAvatarDetails, userId)} alt="" crossOrigin="anonymous" />
               <button xr-layer="true" className="avatarBtn" id="select-avatar" onClick={handleOpenSelectAvatarWidget}>
                 <Create />
               </button>
