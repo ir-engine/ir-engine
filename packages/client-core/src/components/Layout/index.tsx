@@ -10,11 +10,14 @@ import {
   useCoilSettingState
 } from '@xrengine/client-core/src/admin/services/Setting/CoilSettingService'
 import UIDialog from '@xrengine/client-core/src/common/components/Dialog'
+import { useLocationState } from '@xrengine/client-core/src/social/services/LocationService'
 import UserMenu from '@xrengine/client-core/src/user/components/UserMenu'
+import { SHOPPING_CENTER_SCENE_ID } from '@xrengine/common/src/constants/URL'
 import { respawnAvatar } from '@xrengine/engine/src/avatar/functions/respawnAvatar'
 import { isTouchAvailable } from '@xrengine/engine/src/common/functions/DetectFeatures'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
+import Cart from '@xrengine/projects/projects/XREngine-Project-eCommerce/components/Cart/index'
 
 import { FullscreenExit, Refresh, ZoomOutMap } from '@mui/icons-material'
 import KeyboardDoubleArrowDownIcon from '@mui/icons-material/KeyboardDoubleArrowDown'
@@ -53,7 +56,7 @@ const Layout = ({ useLoadingScreenOpacity, pageTitle, children, hideVideo, hideF
   const [showBottomIcons, setShowBottomIcons] = useState(true)
   const loadingSystemState = useLoadingSystemState()
   const [showTouchPad, setShowTouchPad] = useState(true)
-
+  const currentLocation = useLocationState().currentLocation.location
   const engineState = useEngineState()
 
   useEffect(() => {
@@ -222,6 +225,7 @@ const Layout = ({ useLoadingScreenOpacity, pageTitle, children, hideVideo, hideF
               setShowTouchPad={setShowTouchPad}
             />
           )}
+          {currentLocation.sceneId.value === SHOPPING_CENTER_SCENE_ID && <Cart />}
         </div>
       </section>
     </div>
