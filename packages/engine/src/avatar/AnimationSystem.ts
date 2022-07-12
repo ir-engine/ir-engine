@@ -177,13 +177,13 @@ export default async function AnimationSystem(world: World) {
     for (const entity of headDecapQuery(world)) {
       if (!hasComponent(entity, AvatarAnimationComponent)) continue
       const rig = getComponent(entity, AvatarAnimationComponent).rig
-      rig.Head.scale.setScalar(EPSILON)
+      rig.Head?.scale.setScalar(EPSILON)
     }
 
     for (const entity of headDecapQuery.exit(world)) {
       if (!hasComponent(entity, AvatarAnimationComponent)) continue
       const rig = getComponent(entity, AvatarAnimationComponent).rig
-      rig.Head.scale.setScalar(1)
+      rig.Head?.scale.setScalar(1)
     }
   }
 }
