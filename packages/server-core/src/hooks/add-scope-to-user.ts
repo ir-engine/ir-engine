@@ -4,21 +4,21 @@ import { Application } from './../../declarations'
 
 export default () => {
   return async (context: HookContext<Application>): Promise<HookContext> => {
-    const foundItem = await context.app.service('scope').Model.findAll({
-      where: {
-        userId: context.arguments[0]
-      }
-    })
-
-    if (foundItem.length > 0) {
-      foundItem.forEach(async (scp) => {
-        try {
-          await context.app.service('scope').remove(scp.id)
-        } catch {}
+    if (context.arguments[1]?.scopes?.length > 0) {
+      const foundItem = await context.app.service('scope').Model.findAll({
+        where: {
+          userId: context.arguments[0]
+        }
       })
-    }
 
-    if (context.arguments[1] && context.arguments[1].scopes && context.arguments[1].scopes.length > 0) {
+      if (foundItem.length > 0) {
+        foundItem.forEach(async (scp) => {
+          try {
+            await context.app.service('scope').remove(scp.id)
+          } catch {}
+        })
+      }
+
       const data = context.arguments[1].scopes.map((el) => {
         return {
           type: el.type,
