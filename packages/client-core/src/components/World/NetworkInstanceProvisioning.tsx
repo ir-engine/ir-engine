@@ -41,8 +41,7 @@ export const NetworkInstanceProvisioning = () => {
 
   const mediaNetworkHostId = Engine.instance.currentWorld.mediaNetwork?.hostId
   const channelConnectionState = useMediaInstanceConnectionState()
-  const currentChannelInstanceConnection =
-    mediaNetworkHostId && channelConnectionState.instances[mediaNetworkHostId].ornull
+  const currentChannelInstanceConnection = channelConnectionState.instances[mediaNetworkHostId!].ornull
 
   MediaInstanceConnectionService.useAPIListeners()
 
@@ -105,17 +104,19 @@ export const NetworkInstanceProvisioning = () => {
   useHookEffect(() => {
     if (
       engineState.sceneLoaded.value &&
-      currentLocationInstanceConnection?.value &&
-      !currentLocationInstanceConnection.connected.value &&
-      currentLocationInstanceConnection.provisioned.value &&
-      !currentLocationInstanceConnection.connecting.value
+      currentLocationInstanceConnection.value &&
+      currentLocationInstanceConnection.provisioned.value === true &&
+      currentLocationInstanceConnection.readyToConnect.value === true &&
+      currentLocationInstanceConnection.connecting.value === false &&
+      currentLocationInstanceConnection.connected.value === false
     )
       LocationInstanceConnectionService.connectToServer(worldNetworkHostId)
   }, [
     engineState.sceneLoaded,
     currentLocationInstanceConnection?.connected,
-    currentLocationInstanceConnection?.connecting,
-    currentLocationInstanceConnection?.provisioned
+    currentLocationInstanceConnection?.readyToConnect,
+    currentLocationInstanceConnection?.provisioned,
+    currentLocationInstanceConnection?.connecting
   ])
 
   // media server provisioning
@@ -136,7 +137,7 @@ export const NetworkInstanceProvisioning = () => {
   useHookEffect(() => {
     if (
       mediaNetworkHostId &&
-      currentChannelInstanceConnection &&
+      currentChannelInstanceConnection.value &&
       currentChannelInstanceConnection.provisioned.value === true &&
       currentChannelInstanceConnection.readyToConnect.value === true &&
       currentChannelInstanceConnection.connecting.value === false &&
