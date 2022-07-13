@@ -15,7 +15,7 @@ declare module '@xrengine/common/declarations' {
 
 export default (app: Application): void => {
   const options = {
-    Model: createModel(app),
+    Model: createModel(app.get('sequelizeClient')),
     paginate: app.get('paginate'),
     multi: true
   }

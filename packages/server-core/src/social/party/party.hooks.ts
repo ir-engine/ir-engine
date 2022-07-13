@@ -1,70 +1,29 @@
-import { HookContext } from '@feathersjs/feathers'
+import { HookOptions } from '@feathersjs/feathers'
 import { disallow, iff, isProvider } from 'feathers-hooks-common'
 
-import { UserInterface } from '@xrengine/common/src/interfaces/User'
-import createPartyOwner from '@xrengine/server-core/src/hooks/create-party-owner'
 import partyPermissionAuthenticate from '@xrengine/server-core/src/hooks/party-permission-authenticate'
-import removePartyUsers from '@xrengine/server-core/src/hooks/remove-party-users'
 
-import addAssociations from '../../hooks/add-associations'
 import authenticate from '../../hooks/authenticate'
 import restrictUserRole from '../../hooks/restrict-user-role'
-import logger from '../../logger'
 
 // Don't remove this comment. It's needed to format import lines nicely.
 
 export default {
   before: {
     all: [authenticate()],
-    find: [
-      iff(isProvider('external'), restrictUserRole('admin') as any),
-      addAssociations({
-        models: [
-          {
-            model: 'location'
-          },
-          {
-            model: 'instance'
-          },
-          {
-            model: 'party-user'
-          }
-        ]
-      })
-    ],
+    find: [iff(isProvider('external'), restrictUserRole('admin') as any)],
     get: [],
-    create: [
-      async (context): Promise<HookContext> => {
-        const loggedInUser = context.params.user as UserInterface
-        const currentPartyUser = await context.app.service('party-user').find({
-          query: {
-            userId: loggedInUser.id
-          }
-        })
-        if (currentPartyUser.total > 0) {
-          try {
-            await context.app.service('party-user').remove(currentPartyUser.data[0].id)
-          } catch (error) {
-            logger.error(error)
-          }
-          await context.app.service('user').patch(loggedInUser.id, {
-            partyId: null
-          })
-        }
-        return context
-      }
-    ],
+    create: [],
     update: [disallow()],
     patch: [iff(isProvider('external'), partyPermissionAuthenticate() as any)],
-    // TODO: Need to ask if we allow user to remove party or not
-    remove: [partyPermissionAuthenticate(), removePartyUsers()]
+    remove: []
   },
 
   after: {
     all: [],
     find: [],
     get: [],
-    create: [createPartyOwner()],
+    create: [],
     update: [],
     patch: [],
     remove: []
@@ -79,4 +38,4 @@ export default {
     patch: [],
     remove: []
   }
-} as any
+} as HookOptions<any, any>

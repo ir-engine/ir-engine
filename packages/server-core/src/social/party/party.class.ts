@@ -9,6 +9,9 @@ import { UserInterface } from '@xrengine/common/src/interfaces/User'
 
 // import { Params, Id, NullableId } from '@feathersjs/feathers'
 import { Application } from '../../../declarations'
+import logger from '../../logger'
+import { PartyUserModelStatic } from '../party-user/party-user.model'
+import { PartyModelStatic } from './party.model'
 
 // import { Forbidden } from '@feathersjs/errors'
 
@@ -64,11 +67,6 @@ export class Party<T = PartyDataType> extends Service<T> {
         limit: limit,
         order: order,
         include: [
-          {
-            model: (this.app.service('location') as any).Model,
-            required: true,
-            where: { ...name }
-          },
           {
             model: (this.app.service('instance') as any).Model,
             required: true,
@@ -134,5 +132,30 @@ export class Party<T = PartyDataType> extends Service<T> {
     } else {
       return await super.get(id)
     }
+  }
+
+  async create<PartyInterface>(_data?: {}, params?: Params): Promise<PartyInterface> {
+    if (!params) return null!
+
+    try {
+      const PartyUserMS = this.app.service('party-user').Model as PartyUserModelStatic
+      const userModel = this.app.service('user').Model
+      const PartyMS = this.app.service('party').Model as PartyModelStatic
+
+      await PartyUserMS.destroy({ where: { userId: params.user.id } })
+
+      const party = (await PartyMS.create({})).get()
+
+      await Promise.all([
+        PartyUserMS.create({ partyId: party.id, isOwner: true, userId: params.user.id }),
+        userModel.update({ partyId: party.id }, { where: { id: params.user.id } })
+      ])
+
+      return party as PartyInterface
+    } catch (err) {
+      logger.error(err)
+    }
+
+    return null!
   }
 }

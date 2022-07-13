@@ -1,4 +1,7 @@
 export interface PartyInterface {
   id: string
-  name: string
+  name: string | null
+  instanceId: string
+  createdAt: string
+  updatedAt: string
 }

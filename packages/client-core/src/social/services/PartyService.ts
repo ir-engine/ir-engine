@@ -128,7 +128,7 @@ export const PartyService = {
   },
   createParty: async () => {
     try {
-      await API.instance.client.service('party').create({})
+      await API.instance.client.service('party').create()
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
