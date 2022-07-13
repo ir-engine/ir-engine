@@ -30,6 +30,7 @@ import { FacebookIcon } from '../../../../common/components/Icons/FacebookIcon'
 import { GoogleIcon } from '../../../../common/components/Icons/GoogleIcon'
 import { LinkedInIcon } from '../../../../common/components/Icons/LinkedInIcon'
 import { TwitterIcon } from '../../../../common/components/Icons/TwitterIcon'
+import { initialAuthState, initialOAuthConnectedState } from '../../../../common/initialAuthState'
 import { NotificationService } from '../../../../common/services/NotificationService'
 import { AuthService, useAuthState } from '../../../services/AuthService'
 import { userHasAccess } from '../../../userHasAccess'
@@ -42,28 +43,6 @@ interface Props {
   isPopover?: boolean
   changeActiveMenu?: (type: string | null) => void
   onClose?: () => void
-}
-
-const initialAuthState = {
-  jwt: true,
-  local: false,
-  discord: false,
-  facebook: false,
-  github: false,
-  google: false,
-  linkedin: false,
-  twitter: false,
-  smsMagicLink: false,
-  emailMagicLink: false
-}
-
-const initialOAuthConnectedState = {
-  discord: false,
-  facebook: false,
-  github: false,
-  google: false,
-  linkedin: false,
-  twitter: false
 }
 
 const ProfileMenu = ({ className, hideLogin, isPopover, changeActiveMenu, onClose }: Props): JSX.Element => {
@@ -136,7 +115,8 @@ const ProfileMenu = ({ className, hideLogin, isPopover, changeActiveMenu, onClos
     const settings = { ...userSettings, themeModes: { ...themeModes, [name]: value } }
     userSettings && AuthService.updateUserSettings(userSettings.id as string, settings)
   }
-
+  // If you're editing lines 114-230, be sure to make the same changes to the XRUI version over at
+  // packages/client-core/src/systems/ui/ProfileDetailView/index.tsx#75-191
   let type = ''
   const addMoreSocial =
     (authState?.discord && !oauthConnectedState.discord) ||

@@ -21,32 +21,11 @@ import { FacebookIcon } from '../../../common/components/Icons/FacebookIcon'
 import { GoogleIcon } from '../../../common/components/Icons/GoogleIcon'
 import { LinkedInIcon } from '../../../common/components/Icons/LinkedInIcon'
 import { TwitterIcon } from '../../../common/components/Icons/TwitterIcon'
+import { initialAuthState, initialOAuthConnectedState } from '../../../common/initialAuthState'
 import { NotificationService } from '../../../common/services/NotificationService'
 import { getAvatarURLForUser } from '../../../user/components/UserMenu/util'
 import { AuthService, useAuthState } from '../../../user/services/AuthService'
 import styleString from './index.scss'
-
-const initialAuthState = {
-  jwt: true,
-  local: false,
-  discord: false,
-  facebook: false,
-  github: false,
-  google: false,
-  linkedin: false,
-  twitter: false,
-  smsMagicLink: false,
-  emailMagicLink: false
-}
-
-const initialOAuthConnectedState = {
-  discord: false,
-  facebook: false,
-  github: false,
-  google: false,
-  linkedin: false,
-  twitter: false
-}
 
 export function createProfileDetailView() {
   return createXRUI(ProfileDetailView, createProfileDetailState())
@@ -94,7 +73,8 @@ const ProfileDetailView = () => {
     const settings = { ...userSettings, themeMode: event.target.checked ? 'dark' : 'light' }
     userSettings && AuthService.updateUserSettings(userSettings.id as string, settings)
   }
-
+  // If you're editing lines 75-191, be sure to make the same changes to the non-XRUI version over at
+  // packages/client-core/src/user/components/UserMenu/menus/ProfileMenu.tsx#114-230
   let type = ''
   const addMoreSocial =
     (authState?.discord && !oauthConnectedState.discord) ||
