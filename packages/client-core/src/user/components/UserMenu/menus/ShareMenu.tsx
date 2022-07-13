@@ -1,9 +1,10 @@
 import { QRCodeSVG } from 'qrcode.react'
-import React, { useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { isShareAvailable } from '@xrengine/engine/src/common/functions/DetectFeatures'
-import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
+import { EngineActions, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
+import { dispatchAction } from '@xrengine/hyperflux'
 
 import { CheckBox, CheckBoxOutlineBlank, FileCopy, IosShare, Send } from '@mui/icons-material'
 import Button from '@mui/material/Button'
@@ -22,9 +23,12 @@ import styles from '../index.module.scss'
 export const useShareMenuHooks = ({ refLink }) => {
   const { t } = useTranslation()
   const [email, setEmail] = React.useState('')
+  const [isSpectatorMode, setSpectatorMode] = useState<boolean>(false)
+  const [shareLink, setShareLink] = useState('')
   const postTitle = 'AR/VR world'
   const siteTitle = 'XREngine'
   const inviteState = useInviteState()
+  const engineState = useEngineState()
 
   const copyLinkToClipboard = () => {
     navigator.clipboard.writeText(refLink.current.value)
@@ -60,7 +64,7 @@ export const useShareMenuHooks = ({ refLink }) => {
     setEmail('')
   }
 
-  const handleChang = (e) => {
+  const handleChangeEmail = (e) => {
     setEmail(e.target.value)
   }
 
@@ -70,45 +74,63 @@ export const useShareMenuHooks = ({ refLink }) => {
     if (selfUser?.inviteCode.value != null) {
       params.append('inviteCode', selfUser.inviteCode.value)
       location.search = params.toString()
-      return location
+      return location.toString()
     } else {
-      return location
+      return location.toString()
     }
   }
+
   const getSpectateModeUrl = () => {
     const location = new URL(window.location as any)
     let params = new URLSearchParams(location.search)
     params.append('spectate', selfUser.id.value)
     location.search = params.toString()
-    return location
+    return location.toString()
   }
+
+  const toggleSpectatorMode = () => {
+    setSpectatorMode(!isSpectatorMode)
+  }
+
+  useEffect(() => {
+    if (engineState.shareLink.value !== '') setShareLink(engineState.shareLink.value)
+    else setShareLink(isSpectatorMode ? getSpectateModeUrl() : getInviteLink())
+  }, [engineState.shareLink.value])
+
   return {
     copyLinkToClipboard,
     shareOnApps,
     packageInvite,
-    handleChang,
-    getInviteLink,
-    getSpectateModeUrl,
-    email
+    handleChangeEmail,
+    email,
+    shareLink,
+    toggleSpectatorMode
   }
 }
-interface Props {
-  isMobileView?: boolean
-}
+
+interface Props {}
+
 const ShareMenu = (props: Props): JSX.Element => {
   const { t } = useTranslation()
-  const [isSpectatorMode, setSpectatorMode] = useState<boolean>(false)
-  const engineState = useEngineState()
   const refLink = useRef() as React.MutableRefObject<HTMLInputElement>
-  const { copyLinkToClipboard, shareOnApps, packageInvite, handleChang, getInviteLink, getSpectateModeUrl, email } =
+  const engineState = useEngineState()
+  const { copyLinkToClipboard, shareOnApps, packageInvite, handleChangeEmail, email, shareLink, toggleSpectatorMode } =
     useShareMenuHooks({
       refLink
     })
 
+  useEffect(() => {
+    return () => dispatchAction(EngineActions.shareInteractableLink({ shareLink: '', shareTitle: '' }))
+  }, [])
+
   return (
     <div className={styles.menuPanel}>
       <div className={styles.sharePanel}>
-        {!props.isMobileView ? (
+        {engineState.shareTitle.value ? (
+          <Typography variant="h2" className={styles.title}>
+            {engineState.shareTitle.value}
+          </Typography>
+        ) : (
           <>
             <Typography variant="h1" className={styles.panelHeader}>
               {t('user:usermenu.share.title')}
@@ -125,49 +147,21 @@ const ShareMenu = (props: Props): JSX.Element => {
                   checkedIcon={<CheckBox fontSize="small" />}
                   name="checked"
                   color="primary"
-                  onChange={() => setSpectatorMode(!isSpectatorMode)}
+                  onChange={toggleSpectatorMode}
                 />
               }
               label={t('user:usermenu.share.lbl-spectator-mode')}
             />
           </>
-        ) : (
-          <Typography variant="h2" className={styles.title}>
-            {t('user:usermenu.share.mobileTitle')}
-          </Typography>
         )}
         <div className={styles.QRContainer}>
-          <QRCodeSVG
-            height={176}
-            width={200}
-            value={
-              engineState.viewInAR.value
-                ? `https://${
-                    new URL(window.location as any).host +
-                    '/ecommerce/item/' +
-                    window.btoa(engineState.interactableModelUrl.value)
-                  }`
-                : isSpectatorMode
-                ? getSpectateModeUrl().toString()
-                : getInviteLink().toString()
-            }
-          />
+          <QRCodeSVG height={176} width={200} value={shareLink} />
         </div>
         <TextField
           className={styles.copyField}
           size="small"
           variant="outlined"
-          value={
-            engineState.viewInAR.value
-              ? `https://${
-                  new URL(window.location as any).host +
-                  '/ecommerce/item/' +
-                  window.btoa(engineState.interactableModelUrl.value)
-                }`
-              : isSpectatorMode
-              ? getSpectateModeUrl().toString()
-              : getInviteLink().toString()
-          }
+          value={shareLink}
           disabled={true}
           inputRef={refLink}
           InputProps={{
@@ -184,7 +178,7 @@ const ShareMenu = (props: Props): JSX.Element => {
           placeholder={t('user:usermenu.share.ph-phoneEmail')}
           variant="outlined"
           value={email}
-          onChange={(e) => handleChang(e)}
+          onChange={(e) => handleChangeEmail(e)}
           InputProps={{
             endAdornment: (
               <InputAdornment position="end" onClick={packageInvite}>
