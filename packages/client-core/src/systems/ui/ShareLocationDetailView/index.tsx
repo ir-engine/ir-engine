@@ -24,7 +24,7 @@ const ShareLocationDetailView = () => {
   const { t } = useTranslation()
   const refLink = useRef() as React.MutableRefObject<HTMLInputElement>
 
-  const { copyLinkToClipboard, shareOnApps, packageInvite, handleChange, getInviteLink, email } = useShareMenuHooks({
+  const { copyLinkToClipboard, shareOnApps, packageInvite, handleChangeEmail, shareLink, email } = useShareMenuHooks({
     refLink
   })
 
@@ -39,8 +39,7 @@ const ShareLocationDetailView = () => {
             aria-invalid="false"
             disabled={true}
             type="text"
-            value={getInviteLink() as any}
-            endIcon={<FileCopy />}
+            value={shareLink}
             endIconClick={copyLinkToClipboard}
           />
           <XRInput
@@ -48,7 +47,7 @@ const ShareLocationDetailView = () => {
             placeholder={t('user:usermenu.share.ph-phoneEmail')}
             type="text"
             value={email}
-            onChange={(e) => handleChange(e)}
+            onChange={(e) => handleChangeEmail(e)}
             endIcon={<Send />}
             endIconClick={packageInvite}
           />

@@ -20,13 +20,26 @@ import { VolumetricComponent } from '../../scene/components/VolumetricComponent'
 import { toggleAudio } from '../../scene/functions/loaders/AudioFunctions'
 import { toggleVideo } from '../../scene/functions/loaders/VideoFunctions'
 import { toggleVolumetric } from '../../scene/functions/loaders/VolumetricFunctions'
+import { createXRUI } from '../../xrui/functions/createXRUI'
 import { BoundingBoxComponent } from '../components/BoundingBoxComponent'
-import { InteractableComponent } from '../components/InteractableComponent'
+import { DEFAULT_INTERACTABLE, InteractableComponent } from '../components/InteractableComponent'
 import { InteractedComponent } from '../components/InteractedComponent'
 import { InteractorComponent } from '../components/InteractorComponent'
 import { createBoxComponent } from '../functions/createBoxComponent'
 import { interactBoxRaycast } from '../functions/interactBoxRaycast'
 import { createInteractUI, updateInteractUI } from '../functions/interactUI'
+
+type InteractiveType = {
+  create: (entity: Entity) => ReturnType<typeof createXRUI>
+  update: (entity: Entity, xrui: ReturnType<typeof createXRUI>) => void
+}
+
+export const InteractiveViews = new Map<string, InteractiveType>()
+
+InteractiveViews.set(DEFAULT_INTERACTABLE, {
+  create: createInteractUI,
+  update: updateInteractUI
+})
 
 export default async function InteractiveSystem() {
   const interactorsQuery = defineQuery([InteractorComponent])
@@ -36,15 +49,18 @@ export default async function InteractiveSystem() {
 
   const interactedQuery = defineQuery([InteractedComponent])
 
-  const InteractiveUI = new Map<Entity, ReturnType<typeof createInteractUI>>()
+  const InteractiveUI = new Map<Entity, ReturnType<typeof createXRUI>>()
 
   const setupInteractable = (entity: Entity) => {
     const interactable = getComponent(entity, InteractableComponent).value
     if (!hasComponent(entity, BoundingBoxComponent)) {
       createBoxComponent(entity)
     }
-    if (interactable.interactionType === 'ui-modal' && !InteractiveUI.get(entity)) {
-      InteractiveUI.set(entity, createInteractUI(entity))
+    if (InteractiveViews.has(interactable.interactionType!)) {
+      const { create } = InteractiveViews.get(interactable.interactionType!)!
+      if (!InteractiveUI.get(entity)) {
+        InteractiveUI.set(entity, create(entity))
+      }
     }
   }
 
@@ -61,7 +77,11 @@ export default async function InteractiveSystem() {
     const interactives = interactableQuery()
 
     for (const entity of interactives) {
-      if (InteractiveUI.has(entity)) updateInteractUI(entity, InteractiveUI.get(entity)!)
+      if (InteractiveUI.has(entity)) {
+        const interactable = getComponent(entity, InteractableComponent).value
+        const { update } = InteractiveViews.get(interactable.interactionType!)!
+        update(entity, InteractiveUI.get(entity)!)
+      }
       if (hasComponent(entity, HighlightComponent)) removeComponent(entity, HighlightComponent)
     }
 
