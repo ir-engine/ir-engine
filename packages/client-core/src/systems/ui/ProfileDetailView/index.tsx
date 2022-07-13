@@ -1,21 +1,23 @@
 import { createState, useHookstate } from '@speigg/hookstate'
 import * as polyfill from 'credential-handler-polyfill'
+import _ from 'lodash'
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { validateEmail, validatePhoneNumber } from '@xrengine/common/src/config'
+import { defaultThemeModes, defaultThemeSettings } from '@xrengine/common/src/constants/DefaultThemeSettings'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { WorldState } from '@xrengine/engine/src/networking/interfaces/WorldState'
 import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
 import { accessWidgetAppState, WidgetAppActions } from '@xrengine/engine/src/xrui/WidgetAppService'
 import { dispatchAction, getState } from '@xrengine/hyperflux'
 
-import { Check, Create, GitHub } from '@mui/icons-material'
+import { Check, Create, GitHub, Refresh } from '@mui/icons-material'
 import ContentCopyIcon from '@mui/icons-material/ContentCopy'
-import RefreshIcon from '@mui/icons-material/Refresh'
 import CircularProgress from '@mui/material/CircularProgress'
 
 import { useAuthSettingState } from '../../../admin/services/Setting/AuthSettingService'
+import { useClientSettingState } from '../../../admin/services/Setting/ClientSettingService'
 import { DiscordIcon } from '../../../common/components/Icons/DiscordIcon'
 import { FacebookIcon } from '../../../common/components/Icons/FacebookIcon'
 import { GoogleIcon } from '../../../common/components/Icons/GoogleIcon'
@@ -25,6 +27,11 @@ import { initialAuthState, initialOAuthConnectedState } from '../../../common/in
 import { NotificationService } from '../../../common/services/NotificationService'
 import { getAvatarURLForUser } from '../../../user/components/UserMenu/util'
 import { AuthService, useAuthState } from '../../../user/services/AuthService'
+import { userHasAccess } from '../../../user/userHasAccess'
+import XRIconButton from '../../components/XRIconButton'
+import XRInput from '../../components/XRInput'
+import XRSelectDropdown from '../../components/XRSelectDropdown'
+import XRTextButton from '../../components/XRTextButton'
 import styleString from './index.scss'
 
 export function createProfileDetailView() {
@@ -42,8 +49,6 @@ const ProfileDetailView = () => {
 
   const [username, setUsername] = useState(selfUser?.name.value)
   const [emailPhone, setEmailPhone] = useState('')
-  const [error, setError] = useState(false)
-  const [errorUsername, setErrorUsername] = useState(false)
   const [showUserId, setShowUserId] = useState(false)
   const [showApiKey, setShowApiKey] = useState(false)
   const authSettingState = useAuthSettingState()
@@ -54,8 +59,30 @@ const ProfileDetailView = () => {
   const userId = selfUser.id.value
   const apiKey = selfUser.apiKey?.token?.value
   const userRole = selfUser.userRole.value
+  const [deleteControlsOpen, setDeleteControlsOpen] = useState(false)
+  const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false)
   const [oauthConnectedState, setOauthConnectedState] = useState(initialOAuthConnectedState)
   const userAvatarDetails = useHookstate(getState(WorldState).userAvatarDetails)
+
+  const clientSettingState = useClientSettingState()
+  const [clientSetting] = clientSettingState?.client?.value || []
+
+  const hasAdminAccess = selfUser?.id?.value?.length > 0 && selfUser?.userRole?.value === 'admin'
+  const hasEditorAccess = userHasAccess('editor:write')
+
+  const themeModes = { ...defaultThemeModes, ...userSettings?.themeModes }
+  const themeSettings = { ...defaultThemeSettings, ...clientSetting.themeSettings }
+
+  const accessibleThemeModes = Object.keys(themeModes).filter((mode) => {
+    if (mode === 'admin' && hasAdminAccess === false) {
+      return false
+    } else if (mode === 'editor' && hasEditorAccess === false) {
+      return false
+    }
+    return true
+  })
+
+  const colorModesMenu = Object.keys(themeSettings)
 
   useEffect(() => {
     if (authSetting) {
@@ -69,10 +96,11 @@ const ProfileDetailView = () => {
     }
   }, [authSettingState?.updateNeeded?.value])
 
-  const handleChangeUserThemeMode = (event) => {
-    const settings = { ...userSettings, themeMode: event.target.checked ? 'dark' : 'light' }
+  const handleChangeUserThemeMode = (name, value) => {
+    const settings = { ...userSettings, themeModes: { ...themeModes, [name]: value } }
     userSettings && AuthService.updateUserSettings(userSettings.id as string, settings)
   }
+
   // If you're editing lines 75-191, be sure to make the same changes to the non-XRUI version over at
   // packages/client-core/src/user/components/UserMenu/menus/ProfileMenu.tsx#114-230
   let type = ''
@@ -159,7 +187,6 @@ const ProfileDetailView = () => {
 
   const handleUsernameChange = (e) => {
     setUsername(e.target.value)
-    if (!e.target.value) setErrorUsername(true)
   }
 
   const handleUpdateUsername = () => {
@@ -177,11 +204,9 @@ const ProfileDetailView = () => {
     if (validateEmail(emailPhone.trim()) && authState?.emailMagicLink) type = 'email'
     else if (validatePhoneNumber(emailPhone.trim()) && authState.smsMagicLink) type = 'sms'
     else {
-      setError(true)
       return false
     }
 
-    setError(false)
     return true
   }
 
@@ -257,12 +282,10 @@ const ProfileDetailView = () => {
   }
 
   const handleOpenSelectAvatarWidget = () => {
-    // TODO open select avatar xrui widget menu
     setWidgetVisibility('SelectAvatar', true)
   }
 
   const handleOpenReadyPlayerWidget = () => {
-    // TODO open ready player xrui widget menu
     setWidgetVisibility('ReadyPlayer', true)
   }
 
@@ -284,35 +307,28 @@ const ProfileDetailView = () => {
           <section className="profileBlock">
             <div className="avatarBlock">
               <img src={getAvatarURLForUser(userAvatarDetails, userId)} alt="" crossOrigin="anonymous" />
-              <button xr-layer="true" className="avatarBtn" id="select-avatar" onClick={handleOpenSelectAvatarWidget}>
-                <Create />
-              </button>
+              <XRIconButton
+                size="large"
+                xr-layer="true"
+                className="avatarBtn"
+                id="select-avatar"
+                onClick={handleOpenSelectAvatarWidget}
+                content={<Create />}
+              />
             </div>
             <div className="headerBlock">
               <h1 className="panelHeader">{t('user:usermenu.profile.lbl-username')}</h1>
-              <div className="inviteBox">
-                <div className="inviteContainer">
-                  <input
-                    aria-invalid="false"
-                    type="text"
-                    className="inviteLinkInput"
-                    value={username || ''}
-                    onChange={handleUsernameChange}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter') updateUserName(e)
-                    }}
-                  />
-
-                  <div className="copyInviteContainer" onClick={updateUserName}>
-                    <Check className="primaryForeground" />
-                  </div>
-
-                  <fieldset aria-hidden="true" className="linkFieldset">
-                    <legend className="linkLegend" />
-                  </fieldset>
-                </div>
-              </div>
-
+              <XRInput
+                aria-invalid="false"
+                type="text"
+                value={username || ''}
+                onChange={handleUsernameChange}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') updateUserName(e)
+                }}
+                endIcon={<Check />}
+                endIconClick={updateUserName}
+              />
               <div className="detailsContainer">
                 <h2>
                   {userRole === 'admin' ? t('user:usermenu.profile.youAreAn') : t('user:usermenu.profile.youAreA')}
@@ -327,38 +343,6 @@ const ProfileDetailView = () => {
                   </h2>
                 )}
               </div>
-
-              {/* {selfUser && (
-                <div className="themeSettingContainer">
-                  <div className="themeHeading">Theme Mode:</div>
-                  <label className="switch">
-                    <input
-                      type="checkbox"
-                      checked={userSettings?.themeMode === 'dark'}
-                      onChange={handleChangeUserThemeMode}
-                    />
-                    <span className="switchSlider round">
-                      <div className="iconContainer">
-                        {userSettings?.themeMode !== 'dark' ? (
-                          <svg height="20" width="20" viewBox="0 0 20 20">
-                            <path
-                              fill="#fff"
-                              d="M9.305 1.667V3.75h1.389V1.667h-1.39zm-4.707 1.95l-.982.982L5.09 6.072l.982-.982-1.473-1.473zm10.802 0L13.927 5.09l.982.982 1.473-1.473-.982-.982zM10 5.139a4.872 4.872 0 00-4.862 4.86A4.872 4.872 0 0010 14.862 4.872 4.872 0 0014.86 10 4.872 4.872 0 0010 5.139zm0 1.389A3.462 3.462 0 0113.471 10a3.462 3.462 0 01-3.473 3.472A3.462 3.462 0 016.527 10 3.462 3.462 0 0110 6.528zM1.665 9.305v1.39h2.083v-1.39H1.666zm14.583 0v1.39h2.084v-1.39h-2.084zM5.09 13.928L3.616 15.4l.982.982 1.473-1.473-.982-.982zm9.82 0l-.982.982 1.473 1.473.982-.982-1.473-1.473zM9.305 16.25v2.083h1.389V16.25h-1.39z"
-                            />
-                          </svg>
-                        ) : (
-                          <svg height="20" width="20" viewBox="0 0 20 20">
-                            <path
-                              fill="#fff"
-                              d="M4.2 2.5l-.7 1.8-1.8.7 1.8.7.7 1.8.6-1.8L6.7 5l-1.9-.7-.6-1.8zm15 8.3a6.7 6.7 0 11-6.6-6.6 5.8 5.8 0 006.6 6.6z"
-                            />
-                          </svg>
-                        )}
-                      </div>
-                    </span>
-                  </label>
-                </div>
-              )} */}
               <h4>
                 {userRole !== 'guest' && (
                   <div className="logout" onClick={handleLogout}>
@@ -377,84 +361,56 @@ const ProfileDetailView = () => {
           {showUserId && (
             <section className="emailPhoneSection">
               <h1 className="panelHeader">{t('user:usermenu.profile.userIcon.userId')}</h1>
-              <div className="inviteBox">
-                <div className="inviteContainer">
-                  <input aria-invalid="false" disabled={true} type="text" className="inviteLinkInput" value={userId} />
-
-                  <div
-                    className="copyInviteContainer"
-                    onClick={() => {
-                      navigator.clipboard.writeText(userId)
-                      NotificationService.dispatchNotify('User ID copied', {
-                        variant: 'success'
-                      })
-                    }}
-                  >
-                    <ContentCopyIcon className="primaryForeground" />
-                  </div>
-
-                  <fieldset aria-hidden="true" className="linkFieldset">
-                    <legend className="linkLegend" />
-                  </fieldset>
-                </div>
-              </div>
+              <XRInput
+                aria-invalid="false"
+                disabled={true}
+                type="text"
+                value={userId}
+                endIcon={<ContentCopyIcon />}
+                endIconClick={() => {
+                  navigator.clipboard.writeText(userId)
+                  NotificationService.dispatchNotify('User ID copied', {
+                    variant: 'success'
+                  })
+                }}
+              />
             </section>
           )}
 
           {showApiKey && (
             <section className="emailPhoneSection">
               <h1 className="panelHeader">{t('user:usermenu.profile.apiKey')}</h1>
-              <div className="inviteBox">
-                <div className="inviteContainer">
-                  <div className="refreshApiContainer" onClick={refreshApiKey}>
-                    <RefreshIcon className="primaryForeground" />
-                  </div>
-                  <input aria-invalid="false" disabled={true} type="text" className="inviteLinkInput" value={apiKey} />
-
-                  <div
-                    className="copyInviteContainer"
-                    onClick={() => {
-                      navigator.clipboard.writeText(apiKey)
-                      NotificationService.dispatchNotify('API Key copied', {
-                        variant: 'success'
-                      })
-                    }}
-                  >
-                    <ContentCopyIcon className="primaryForeground" />
-                  </div>
-
-                  <fieldset aria-hidden="true" className="linkFieldset">
-                    <legend className="linkLegend" />
-                  </fieldset>
-                </div>
-              </div>
+              <XRInput
+                aria-invalid="false"
+                disabled={true}
+                type="text"
+                value={apiKey}
+                startIcon={<Refresh />}
+                startIconClick={refreshApiKey}
+                endIcon={<ContentCopyIcon />}
+                endIconClick={() => {
+                  navigator.clipboard.writeText(apiKey)
+                  NotificationService.dispatchNotify('API Key copied', {
+                    variant: 'success'
+                  })
+                }}
+              />
             </section>
           )}
 
           {userRole === 'guest' && enableConnect && (
             <section className="emailPhoneSection">
               <h1 className="panelHeader">{getConnectText()}</h1>
-              <div className="inviteBox">
-                <div className="inviteContainer">
-                  <input
-                    aria-invalid="false"
-                    type="text"
-                    className="inviteLinkInput"
-                    value={apiKey}
-                    placeholder={getConnectPlaceholder()}
-                    onChange={handleInputChange}
-                    onBlur={validate}
-                  />
-
-                  <div className="copyInviteContainer" onClick={handleGuestSubmit}>
-                    <ContentCopyIcon className="primaryForeground" />
-                  </div>
-
-                  <fieldset aria-hidden="true" className="linkFieldset">
-                    <legend className="linkLegend" />
-                  </fieldset>
-                </div>
-              </div>
+              <XRInput
+                aria-invalid="false"
+                type="text"
+                value={apiKey}
+                placeholder={getConnectPlaceholder()}
+                onChange={handleInputChange}
+                onBlur={validate}
+                endIcon={<ContentCopyIcon />}
+                endIconClick={handleGuestSubmit}
+              />
               {loading && (
                 <div className="container">
                   <CircularProgress size={30} />
@@ -465,9 +421,13 @@ const ProfileDetailView = () => {
           {userRole === 'guest' && (
             <section className="walletSection">
               <h3 className="textBlock">{t('user:usermenu.profile.or')}</h3>
-              <button xr-layer="true" onClick={handleOpenReadyPlayerWidget} className="walletBtn">
-                {t('user:usermenu.profile.loginWithReadyPlayerMe')}
-              </button>
+              <XRTextButton
+                variant="gradient"
+                xr-layer="true"
+                onClick={handleOpenReadyPlayerWidget}
+                className="walletBtn"
+                content={t('user:usermenu.profile.loginWithReadyPlayerMe')}
+              />
             </section>
           )}
 
@@ -552,6 +512,77 @@ const ProfileDetailView = () => {
             </section>
           )}
         </section>
+        <section className="deletePanel">
+          {userRole !== 'guest' && (
+            <div>
+              <h2
+                className="deleteAccount"
+                id="delete-account"
+                onClick={() => {
+                  setDeleteControlsOpen(!deleteControlsOpen)
+                  setConfirmDeleteOpen(false)
+                }}
+              >
+                {t('user:usermenu.profile.delete.deleteAccount')}
+              </h2>
+              {deleteControlsOpen && !confirmDeleteOpen && (
+                <div className="deleteContainer">
+                  <h3 className="deleteText">{t('user:usermenu.profile.delete.deleteControlsText')}</h3>
+                  <button className="deleteCancelButton" onClick={() => setDeleteControlsOpen(false)}>
+                    {t('user:usermenu.profile.delete.deleteControlsCancel')}
+                  </button>
+                  <button
+                    className="deleteConfirmButton"
+                    onClick={() => {
+                      setDeleteControlsOpen(false)
+                      setConfirmDeleteOpen(true)
+                    }}
+                  >
+                    {t('user:usermenu.profile.delete.deleteControlsConfirm')}
+                  </button>
+                </div>
+              )}
+              {confirmDeleteOpen && (
+                <div className="deleteContainer">
+                  <h3 className="deleteText">{t('user:usermenu.profile.delete.finalDeleteText')}</h3>
+                  <button
+                    className="deleteConfirmButton"
+                    onClick={() => {
+                      AuthService.removeUser(userId)
+                      AuthService.logoutUser()
+                      setConfirmDeleteOpen(false)
+                    }}
+                  >
+                    {t('user:usermenu.profile.delete.finalDeleteConfirm')}
+                  </button>
+                  <button className="deleteCancelButton" onClick={() => setConfirmDeleteOpen(false)}>
+                    {t('user:usermenu.profile.delete.finalDeleteCancel')}
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+        </section>
+
+        {selfUser && (
+          <div className="modeSettingContainer">
+            <h1 className="modesHeading">{t('user:usermenu.setting.themes')}</h1>
+            <div className="modesContainer">
+              {accessibleThemeModes.map((mode, index) => (
+                <div key={index} className="modeContainer">
+                  <h2 className="modeHeading">{`${t(`user:usermenu.setting.${mode}`)} ${t(
+                    'user:usermenu.setting.theme'
+                  )}`}</h2>
+                  <XRSelectDropdown
+                    value={themeModes[mode]}
+                    options={colorModesMenu}
+                    onChange={(value) => handleChangeUserThemeMode(mode, value)}
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </>
   )

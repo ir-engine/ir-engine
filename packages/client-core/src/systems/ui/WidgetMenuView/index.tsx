@@ -25,6 +25,7 @@ import {
   resumeProducer
 } from '../../../transports/SocketWebRTCClientFunctions'
 import { SocketWebRTCClientNetwork } from '../../../transports/SocketWebRTCClientNetwork'
+import XRIconButton from '../../components/XRIconButton'
 import styleString from './index.scss'
 
 export function createWidgetButtonsView() {
@@ -44,16 +45,19 @@ type WidgetButtonProps = {
 const WidgetButton = ({ Icon, toggle, label }: WidgetButtonProps) => {
   const [mouseOver, setMouseOver] = useState(false)
   return (
-    <div
-      className="button"
+    <XRIconButton
+      size="large"
+      content={
+        <>
+          <Icon className="svgIcon" />
+          {mouseOver && <div>{label}</div>}
+        </>
+      }
       onClick={toggle}
       onMouseEnter={() => setMouseOver(true)}
       onMouseLeave={() => setMouseOver(false)}
       xr-layer="true"
-    >
-      <Icon className="svgIcon" />
-      {mouseOver && <div>{label}</div>}
-    </div>
+    />
   )
 }
 
