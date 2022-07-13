@@ -528,18 +528,19 @@ const ProfileDetailView = () => {
               {deleteControlsOpen && !confirmDeleteOpen && (
                 <div className="deleteContainer">
                   <h3 className="deleteText">{t('user:usermenu.profile.delete.deleteControlsText')}</h3>
-                  <button className="deleteCancelButton" onClick={() => setDeleteControlsOpen(false)}>
-                    {t('user:usermenu.profile.delete.deleteControlsCancel')}
-                  </button>
-                  <button
-                    className="deleteConfirmButton"
+                  <XRTextButton
+                    variant="filled"
+                    content={t('user:usermenu.profile.delete.deleteControlsCancel')}
+                    onClick={() => setDeleteControlsOpen(false)}
+                  />
+                  <XRTextButton
+                    variant="filled"
+                    content={t('user:usermenu.profile.delete.deleteControlsConfirm')}
                     onClick={() => {
                       setDeleteControlsOpen(false)
                       setConfirmDeleteOpen(true)
                     }}
-                  >
-                    {t('user:usermenu.profile.delete.deleteControlsConfirm')}
-                  </button>
+                  />
                 </div>
               )}
               {confirmDeleteOpen && (
