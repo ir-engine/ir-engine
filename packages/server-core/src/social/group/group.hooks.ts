@@ -23,24 +23,19 @@ export default {
             groupId: context.arguments[0]
           }
         })
-        if (!foundItem.length) {
-          context.arguments[1]?.scopeTypes?.forEach(async (el) => {
-            await context.app.service('scope').create({
-              type: el.type,
-              groupId: context.arguments[0]
-            })
-          })
-        } else {
+        if (foundItem.length) {
           foundItem.forEach(async (scp) => {
             await context.app.service('scope').remove(scp.dataValues.id)
           })
-          context.arguments[1]?.scopeTypes?.forEach(async (el) => {
-            await context.app.service('scope').create({
-              type: el.type,
-              groupId: context.arguments[0]
-            })
-          })
         }
+        const data = context.arguments[1]?.scopeTypes?.map((el) => {
+          return {
+            type: el.type,
+            groupId: context.arguments[0]
+          }
+        })
+        await context.app.service('scope').create(data)
+
         return context
       }
     ],
@@ -55,12 +50,14 @@ export default {
       createGroupOwner(),
       async (context: HookContext): Promise<HookContext> => {
         try {
-          context.arguments[0]?.scopeTypes?.forEach(async (el) => {
-            await context.app.service('scope').create({
+          const data = context.arguments[0]?.scopeTypes?.map((el) => {
+            return {
               type: el.type,
               groupId: context.result.id
-            })
+            }
           })
+          await context.app.service('scope').create(data)
+
           return context
         } catch (err) {
           logger.error(err, `GROUP AFTER CREATE ERROR: ${err.error}`)
