@@ -47,12 +47,11 @@ export const deserializeVideo: ComponentDeserializeFunction = (
 
   if (!obj3d) {
     obj3d = addComponent(entity, Object3DComponent, { value: new Object3D() }).value
+    obj3d.userData.mesh = new Mesh()
   }
 
-  if (!obj3d.userData.videoMesh) {
-    obj3d.userData.videoMesh = new Mesh()
-  }
-  obj3d.userData.videoMesh.name = VIDEO_MESH_NAME
+  if (!obj3d.userData.mesh) obj3d.userData.mesh = { name: VIDEO_MESH_NAME }
+  else obj3d.userData.mesh.name = VIDEO_MESH_NAME
 
   const el = document.createElement('video')
   el.setAttribute('crossOrigin', 'anonymous')
@@ -92,7 +91,7 @@ export const deserializeVideo: ComponentDeserializeFunction = (
 
 export const updateVideo: ComponentUpdateFunction = (entity: Entity, properties: VideoComponentType) => {
   const obj3d = getComponent(entity, Object3DComponent).value as Mesh<any, MeshStandardMaterial>
-  const mesh = obj3d.userData.videoMesh
+  const mesh = obj3d.userData.mesh
   const component = getComponent(entity, VideoComponent)
 
   if (properties.videoSource) {
@@ -181,9 +180,9 @@ export const prepareVideoForGLTFExport: ComponentPrepareForGLTFExportFunction = 
     delete video.userData.videoEl
   }
 
-  if (video.userData.videoMesh) {
-    if (video.userData.videoMesh.parent) video.userData.videoMesh.removeFromParent()
-    delete video.userData.videoMesh
+  if (video.userData.mesh) {
+    if (video.userData.mesh.parent) video.userData.mesh.removeFromParent()
+    delete video.userData.mesh
   }
 }
 
