@@ -1,56 +1,30 @@
 import { HookContext } from '@feathersjs/feathers'
 
-import config from '../appconfig'
-import { scopeTypeSeed } from '../scope/scope-type/scope-type.seed'
 import { Application } from './../../declarations'
 
 export default () => {
   return async (context: HookContext<Application>): Promise<HookContext> => {
-    const foundItem = await context.app.service('scope').find({
+    const foundItem = await context.app.service('scope').Model.findAll({
       where: {
         userId: context.arguments[0]
       }
     })
 
-    if (foundItem.total) {
-      foundItem.data.forEach(async (scp) => {
+    if (foundItem.length > 0) {
+      foundItem.forEach(async (scp) => {
         try {
           await context.app.service('scope').remove(scp.id)
         } catch {}
       })
     }
 
-    let createData: any = []
-
-    if (context.arguments[1]?.userRole === 'admin') {
-      createData = scopeTypeSeed.templates.map((el) => {
-        return {
-          type: el.type,
-          userId: context.arguments[0]
-        }
-      })
-    } else {
-      createData = config.scopes.user.map((el) => {
-        return {
-          type: el,
-          userId: context.arguments[0]
-        }
-      })
-    }
-
-    for (const el of context.arguments[1]?.scopes) {
-      const dataExists = createData.find((item) => item.type === el.type)
-      if (!dataExists) {
-        createData.push({
-          type: el.type,
-          userId: context.arguments[0]
-        })
+    const data = context.arguments[1]?.scopes.map((el) => {
+      return {
+        type: el.type,
+        userId: context.arguments[0]
       }
-    }
-
-    if (createData.length > 0) {
-      await context.app.service('scope').create(createData)
-    }
+    })
+    await context.app.service('scope').create(data)
 
     return context
   }
