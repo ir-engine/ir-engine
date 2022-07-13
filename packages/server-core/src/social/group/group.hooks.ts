@@ -18,23 +18,25 @@ export default {
     patch: [
       groupPermissionAuthenticate(),
       async (context: HookContext): Promise<HookContext> => {
-        const foundItem = await (context.app.service('scope') as any).Model.findAll({
-          where: {
-            groupId: context.arguments[0]
-          }
-        })
-        if (foundItem.length) {
-          foundItem.forEach(async (scp) => {
-            await context.app.service('scope').remove(scp.dataValues.id)
+        if (context.arguments[1]?.scopes?.length > 0) {
+          const foundItem = await (context.app.service('scope') as any).Model.findAll({
+            where: {
+              groupId: context.arguments[0]
+            }
           })
-        }
-        const data = context.arguments[1]?.scopeTypes?.map((el) => {
-          return {
-            type: el.type,
-            groupId: context.arguments[0]
+          if (foundItem.length) {
+            foundItem.forEach(async (scp) => {
+              await context.app.service('scope').remove(scp.dataValues.id)
+            })
           }
-        })
-        await context.app.service('scope').create(data)
+          const data = context.arguments[1]?.scopes?.map((el) => {
+            return {
+              type: el.type,
+              groupId: context.arguments[0]
+            }
+          })
+          await context.app.service('scope').create(data)
+        }
 
         return context
       }
