@@ -24,9 +24,7 @@ import {
 } from '../../ecs/functions/ComponentFunctions'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
 import { NetworkTopics } from '../../networking/classes/Network'
-import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { NetworkObjectOwnedTag } from '../../networking/components/NetworkObjectOwnedTag'
-import { spawnLocalAvatarInWorld } from '../../networking/functions/receiveJoinWorld'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
@@ -299,11 +297,6 @@ export function cameraSpawnReceptor(
   console.log('Camera Spawn Receptor Call', entity)
 
   addComponent(entity, NetworkCameraComponent, {})
-
-  const position = createVector3Proxy(TransformComponent.position, entity)
-  const rotation = createQuaternionProxy(TransformComponent.rotation, entity)
-  const scale = createVector3Proxy(TransformComponent.scale, entity).setScalar(1)
-  addComponent(entity, TransformComponent, { position, rotation, scale })
 }
 
 export default async function CameraSystem(world: World) {
@@ -318,7 +311,7 @@ export default async function CameraSystem(world: World) {
   if (!Engine.instance.isEditor) {
     addComponent(world.cameraEntity, FollowCameraComponent, {
       ...FollowCameraDefaultValues,
-      targetEntity: world.localClientEntity
+      targetEntity: world.worldEntity
     })
   }
 
@@ -338,6 +331,8 @@ export default async function CameraSystem(world: World) {
 
     for (const entity of localAvatarQuery.enter()) {
       dispatchAction(WorldNetworkAction.spawnCamera(), NetworkTopics.world)
+      const followCamera = getComponent(world.cameraEntity, FollowCameraComponent)
+      if (followCamera) followCamera.targetEntity = entity
     }
 
     if (EngineRenderer.instance.xrManager?.isPresenting) {

@@ -80,7 +80,7 @@ export const addGenericAssetToS3AndStaticResources = async (
       promises.push(
         app.service('static-resource').create(
           {
-            name: args.name ?? null,
+            name: args.name,
             mimeType: args.contentType,
             url: assetURL,
             key: key,

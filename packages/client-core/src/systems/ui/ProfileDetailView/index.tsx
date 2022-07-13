@@ -1,13 +1,14 @@
-import { createState } from '@speigg/hookstate'
+import { createState, useHookstate } from '@speigg/hookstate'
 import * as polyfill from 'credential-handler-polyfill'
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { validateEmail, validatePhoneNumber } from '@xrengine/common/src/config'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { WorldState } from '@xrengine/engine/src/networking/interfaces/WorldState'
 import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
 import { accessWidgetAppState, WidgetAppActions } from '@xrengine/engine/src/xrui/WidgetAppService'
-import { dispatchAction } from '@xrengine/hyperflux'
+import { dispatchAction, getState } from '@xrengine/hyperflux'
 
 import { Check, Create, GitHub } from '@mui/icons-material'
 import ContentCopyIcon from '@mui/icons-material/ContentCopy'
@@ -20,32 +21,11 @@ import { FacebookIcon } from '../../../common/components/Icons/FacebookIcon'
 import { GoogleIcon } from '../../../common/components/Icons/GoogleIcon'
 import { LinkedInIcon } from '../../../common/components/Icons/LinkedInIcon'
 import { TwitterIcon } from '../../../common/components/Icons/TwitterIcon'
+import { initialAuthState, initialOAuthConnectedState } from '../../../common/initialAuthState'
 import { NotificationService } from '../../../common/services/NotificationService'
 import { getAvatarURLForUser } from '../../../user/components/UserMenu/util'
 import { AuthService, useAuthState } from '../../../user/services/AuthService'
 import styleString from './index.scss'
-
-const initialAuthState = {
-  jwt: true,
-  local: false,
-  discord: false,
-  facebook: false,
-  github: false,
-  google: false,
-  linkedin: false,
-  twitter: false,
-  smsMagicLink: false,
-  emailMagicLink: false
-}
-
-const initialOAuthConnectedState = {
-  discord: false,
-  facebook: false,
-  github: false,
-  google: false,
-  linkedin: false,
-  twitter: false
-}
 
 export function createProfileDetailView() {
   return createXRUI(ProfileDetailView, createProfileDetailState())
@@ -75,6 +55,7 @@ const ProfileDetailView = () => {
   const apiKey = selfUser.apiKey?.token?.value
   const userRole = selfUser.userRole.value
   const [oauthConnectedState, setOauthConnectedState] = useState(initialOAuthConnectedState)
+  const userAvatarDetails = useHookstate(getState(WorldState).userAvatarDetails)
 
   useEffect(() => {
     if (authSetting) {
@@ -92,7 +73,8 @@ const ProfileDetailView = () => {
     const settings = { ...userSettings, themeMode: event.target.checked ? 'dark' : 'light' }
     userSettings && AuthService.updateUserSettings(userSettings.id as string, settings)
   }
-
+  // If you're editing lines 75-191, be sure to make the same changes to the non-XRUI version over at
+  // packages/client-core/src/user/components/UserMenu/menus/ProfileMenu.tsx#114-230
   let type = ''
   const addMoreSocial =
     (authState?.discord && !oauthConnectedState.discord) ||
@@ -301,7 +283,7 @@ const ProfileDetailView = () => {
         <section className="profilePanel">
           <section className="profileBlock">
             <div className="avatarBlock">
-              <img src={getAvatarURLForUser(userId)} />
+              <img src={getAvatarURLForUser(userAvatarDetails, userId)} alt="" crossOrigin="anonymous" />
               <button xr-layer="true" className="avatarBtn" id="select-avatar" onClick={handleOpenSelectAvatarWidget}>
                 <Create />
               </button>

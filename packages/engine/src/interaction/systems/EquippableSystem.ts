@@ -58,27 +58,24 @@ export function equippableQueryEnter(entity: Entity, world = Engine.instance.cur
 }
 
 // since equippables are all client authoritative, we don't need to recompute this for all users
-export function equippableQueryAll(entity: Entity, world = Engine.instance.currentWorld) {
-  if (entity !== world.localClientEntity) return
-  const equipperComponent = getComponent(entity, EquipperComponent)
+export function equippableQueryAll(equipperEntity: Entity, world = Engine.instance.currentWorld) {
+  if (!hasComponent(equipperEntity, NetworkObjectOwnedTag)) return
+  const equipperComponent = getComponent(equipperEntity, EquipperComponent)
   const equippedEntity = equipperComponent.equippedEntity
   if (equippedEntity) {
-    const isOwnedByMe = getComponent(equippedEntity, NetworkObjectOwnedTag)
-    if (isOwnedByMe) {
-      const equippedComponent = getComponent(equipperComponent.equippedEntity, EquippedComponent)
-      const attachmentPoint = equippedComponent.attachmentPoint
-      const equippableTransform = getComponent(equipperComponent.equippedEntity, TransformComponent)
-      const handTransform = getHandTransform(entity, getParity(attachmentPoint))
-      const { position, rotation } = handTransform
+    const equippedComponent = getComponent(equipperComponent.equippedEntity, EquippedComponent)
+    const attachmentPoint = equippedComponent.attachmentPoint
+    const equippableTransform = getComponent(equipperComponent.equippedEntity, TransformComponent)
+    const handTransform = getHandTransform(equipperEntity, getParity(attachmentPoint))
+    const { position, rotation } = handTransform
 
-      const collider = getComponent(equippedEntity, ColliderComponent)
-      if (collider) {
-        teleportRigidbody(collider.body, position, rotation)
-      }
-
-      equippableTransform.position.copy(position)
-      equippableTransform.rotation.copy(rotation)
+    const collider = getComponent(equippedEntity, ColliderComponent)
+    if (collider) {
+      teleportRigidbody(collider.body, position, rotation)
     }
+
+    equippableTransform.position.copy(position)
+    equippableTransform.rotation.copy(rotation)
   }
 }
 

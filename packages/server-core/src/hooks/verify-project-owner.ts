@@ -1,14 +1,15 @@
 import { BadRequest, Forbidden } from '@feathersjs/errors'
 import { HookContext } from '@feathersjs/feathers'
 
+import { UserInterface } from '@xrengine/common/src/interfaces/User'
+
 import { Application } from '../../declarations'
-import { UserDataType } from '../user/user/user.class'
 import { NotFoundException, UnauthenticatedException, UnauthorizedException } from '../util/exceptions/exception'
 
 export default () => {
   return async (context: HookContext<Application>) => {
     if (context.params.isInternal) return context
-    const loggedInUser = context.params.user as UserDataType
+    const loggedInUser = context.params.user as UserInterface
     if (!loggedInUser) throw new UnauthenticatedException('No logged in user')
     if (loggedInUser.userRole === 'admin') return context
     const app = context.app

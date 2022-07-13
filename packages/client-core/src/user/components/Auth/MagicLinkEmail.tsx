@@ -10,23 +10,11 @@ import Grid from '@mui/material/Grid'
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
 
-import { AuthSettingsService } from '../../../admin/services/Setting/AuthSettingService'
 import { useAuthSettingState } from '../../../admin/services/Setting/AuthSettingService'
+import { initialAuthState } from '../../../common/initialAuthState'
 import { AuthService } from '../../services/AuthService'
 import { useAuthState } from '../../services/AuthService'
 import styles from './index.module.scss'
-
-const initialState = {
-  jwt: true,
-  local: false,
-  facebook: false,
-  github: false,
-  google: false,
-  linkedin: false,
-  twitter: false,
-  smsMagicLink: false,
-  emailMagicLink: false
-}
 
 interface Props {
   type?: 'email' | 'sms' | undefined
@@ -49,11 +37,11 @@ const MagicLinkEmail = ({ type, isAddConnection }: Props): JSX.Element => {
   const { t } = useTranslation()
   const authSettingState = useAuthSettingState()
   const [authSetting] = authSettingState?.authSettings?.value || []
-  const [authState, setAuthState] = useState(initialState)
+  const [authState, setAuthState] = useState(initialAuthState)
 
   useEffect(() => {
     if (authSetting) {
-      let temp = { ...initialState }
+      let temp = { ...initialAuthState }
       authSetting?.authStrategies?.forEach((el) => {
         Object.entries(el).forEach(([strategyName, strategy]) => {
           temp[strategyName] = strategy

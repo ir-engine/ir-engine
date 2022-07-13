@@ -1,6 +1,7 @@
 import { HookContext } from '@feathersjs/feathers'
 import { disallow, iff, isProvider } from 'feathers-hooks-common'
 
+import { UserInterface } from '@xrengine/common/src/interfaces/User'
 import createPartyOwner from '@xrengine/server-core/src/hooks/create-party-owner'
 import partyPermissionAuthenticate from '@xrengine/server-core/src/hooks/party-permission-authenticate'
 import removePartyUsers from '@xrengine/server-core/src/hooks/remove-party-users'
@@ -9,7 +10,6 @@ import addAssociations from '../../hooks/add-associations'
 import authenticate from '../../hooks/authenticate'
 import restrictUserRole from '../../hooks/restrict-user-role'
 import logger from '../../logger'
-import { UserDataType } from '../../user/user/user.class'
 
 // Don't remove this comment. It's needed to format import lines nicely.
 
@@ -35,7 +35,7 @@ export default {
     get: [],
     create: [
       async (context): Promise<HookContext> => {
-        const loggedInUser = context.params.user as UserDataType
+        const loggedInUser = context.params.user as UserInterface
         const currentPartyUser = await context.app.service('party-user').find({
           query: {
             userId: loggedInUser.id

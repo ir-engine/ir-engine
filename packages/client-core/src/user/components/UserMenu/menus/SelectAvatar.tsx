@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 
 import { UserAvatar } from '@xrengine/common/src/interfaces/UserAvatar'
 import { AvatarEffectComponent } from '@xrengine/engine/src/avatar/components/AvatarEffectComponent'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 
@@ -41,7 +42,7 @@ const selectAvatarMenu = (props: Props) => {
   }, [authState.avatarList.value])
 
   const setAvatar = (avatarId: string, avatarURL: string, thumbnailURL: string) => {
-    if (hasComponent(useWorld().localClientEntity, AvatarEffectComponent)) return
+    if (hasComponent(Engine.instance.currentWorld.localClientEntity, AvatarEffectComponent)) return
     if (authState.user?.value) {
       AuthService.updateUserAvatarId(authState.user.id.value!, avatarId, avatarURL, thumbnailURL)
     }
@@ -104,7 +105,12 @@ const selectAvatarMenu = (props: Props) => {
               backgroundColor: (theme) => (theme.palette.mode === 'dark' ? '#1A2027' : '#f1f1f1')
             }}
           >
-            <img className={styles.avatar} src={characterAvatar['user-thumbnail']?.url || ''} alt={avatar.name} />
+            <img
+              className={styles.avatar}
+              src={characterAvatar['user-thumbnail']?.url || ''}
+              alt={avatar.name}
+              crossOrigin="anonymous"
+            />
           </Paper>
         </Grid>
       )

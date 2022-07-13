@@ -1,7 +1,7 @@
 import { Paginated } from '@feathersjs/feathers/lib'
 import _ from 'lodash'
 
-import { User as UserInterface } from '@xrengine/common/src/interfaces/User'
+import { UserInterface } from '@xrengine/common/src/interfaces/User'
 
 import { Application } from '../../../declarations'
 import config from '../../appconfig'

@@ -60,12 +60,12 @@ export const readComponent = (component: any) => {
   }
 }
 
-export const readComponentProp = (v: ViewCursor, prop: TypedArray, entity: Entity | undefined) => {
-  if (entity !== undefined) prop[entity] = readProp(v, prop)
+export const readComponentProp = (v: ViewCursor, prop: TypedArray, entity: Entity) => {
+  if (!isNaN(entity)) prop[entity] = readProp(v, prop)
   else readProp(v, prop)
 }
 
-export const readVector3 = (vector3: Vector3SoA) => (v: ViewCursor, entity: Entity | undefined) => {
+export const readVector3 = (vector3: Vector3SoA) => (v: ViewCursor, entity: Entity) => {
   const changeMask = readUint8(v)
   let b = 0
   if (checkBitflag(changeMask, 1 << b++)) readComponentProp(v, vector3.x, entity)
@@ -75,7 +75,7 @@ export const readVector3 = (vector3: Vector3SoA) => (v: ViewCursor, entity: Enti
 
 // Reads a compressed Vector3 from the DataView. This must have been previously written
 // with writeCompressedVector3() in order to be properly decompressed.
-export const readCompressedVector3 = (vector3: Vector3SoA) => (v: ViewCursor, entity: Entity | undefined) => {
+export const readCompressedVector3 = (vector3: Vector3SoA) => (v: ViewCursor, entity: Entity) => {
   const changeMask = readUint8(v)
   if (changeMask <= 0) return
 
@@ -95,7 +95,7 @@ export const readCompressedVector3 = (vector3: Vector3SoA) => (v: ViewCursor, en
   y /= VEC3_MAX_RANGE * VEC3_PRECISION_MULT * offset_mult
   z /= VEC3_MAX_RANGE * VEC3_PRECISION_MULT * offset_mult
 
-  if (entity !== undefined) {
+  if (!isNaN(entity)) {
     vector3.x[entity] = x
     vector3.y[entity] = y
     vector3.z[entity] = z
@@ -106,7 +106,7 @@ export const readCompressedVector3 = (vector3: Vector3SoA) => (v: ViewCursor, en
   }
 }
 
-export const readVector4 = (vector4: Vector4SoA) => (v: ViewCursor, entity: Entity | undefined) => {
+export const readVector4 = (vector4: Vector4SoA) => (v: ViewCursor, entity: Entity) => {
   const changeMask = readUint8(v)
   let b = 0
   if (checkBitflag(changeMask, 1 << b++)) readComponentProp(v, vector4.x, entity)
@@ -117,7 +117,7 @@ export const readVector4 = (vector4: Vector4SoA) => (v: ViewCursor, entity: Enti
 
 // Reads a compressed rotation value from the DataView. This value must have been previously written
 // with WriteCompressedRotation() in order to be properly decompressed.
-export const readCompressedRotation = (vector4: Vector4SoA) => (v: ViewCursor, entity: Entity | undefined) => {
+export const readCompressedRotation = (vector4: Vector4SoA) => (v: ViewCursor, entity: Entity) => {
   const changeMask = readUint8(v)
   if (changeMask <= 0) return
 
@@ -162,7 +162,7 @@ export const readCompressedRotation = (vector4: Vector4SoA) => (v: ViewCursor, e
     w = d
   }
 
-  if (entity !== undefined) {
+  if (!isNaN(entity)) {
     vector4.x[entity] = x
     vector4.y[entity] = y
     vector4.z[entity] = z
@@ -180,14 +180,14 @@ export const readLinearVelocity = readVector3(VelocityComponent.linear)
 export const readAngularVelocity = readVector3(VelocityComponent.angular)
 export const readRotation = readCompressedRotation(TransformComponent.rotation) //readVector4(TransformComponent.rotation)
 
-export const readTransform = (v: ViewCursor, entity: Entity | undefined) => {
+export const readTransform = (v: ViewCursor, entity: Entity) => {
   const changeMask = readUint8(v)
   let b = 0
   if (checkBitflag(changeMask, 1 << b++)) readPosition(v, entity)
   if (checkBitflag(changeMask, 1 << b++)) readRotation(v, entity)
 }
 
-export const readVelocity = (v: ViewCursor, entity: Entity | undefined) => {
+export const readVelocity = (v: ViewCursor, entity: Entity) => {
   const changeMask = readUint8(v)
   let b = 0
   if (checkBitflag(changeMask, 1 << b++)) readCompressedVector3(VelocityComponent.linear)(v, entity)
@@ -220,7 +220,7 @@ export const readXRControllerGripRightRotation = readCompressedRotation(
   XRInputSourceComponent.controllerGripRightParent.quaternion
 )
 
-export const readXRInputs = (v: ViewCursor, entity: Entity | undefined) => {
+export const readXRInputs = (v: ViewCursor, entity: Entity) => {
   const changeMask = readUint16(v)
   let b = 0
 
@@ -243,7 +243,7 @@ export const readXRInputs = (v: ViewCursor, entity: Entity | undefined) => {
   if (checkBitflag(changeMask, 1 << b++)) readXRControllerGripRightRotation(v, entity)
 }
 
-export const readXRHandBoneJoints = (v: ViewCursor, entity: Entity | undefined, handedness: string, bone: string[]) => {
+export const readXRHandBoneJoints = (v: ViewCursor, entity: Entity, handedness: string, bone: string[]) => {
   const changeMask = readUint16(v)
   let b = 0
 
@@ -256,7 +256,7 @@ export const readXRHandBoneJoints = (v: ViewCursor, entity: Entity | undefined, 
     }
   })
 }
-export const readXRHandBones = (v: ViewCursor, entity: Entity | undefined) => {
+export const readXRHandBones = (v: ViewCursor, entity: Entity) => {
   const changeMask = readUint16(v)
   const handednessBitValue = readUint8(v)
   let b = 0
@@ -268,7 +268,7 @@ export const readXRHandBones = (v: ViewCursor, entity: Entity | undefined) => {
   })
 }
 
-export const readXRHands = (v: ViewCursor, entity: Entity | undefined) => {
+export const readXRHands = (v: ViewCursor, entity: Entity) => {
   const changeMask = readUint16(v)
   let b = 0
 
@@ -282,7 +282,7 @@ export const readEntity = (v: ViewCursor, world: World, fromUserId: UserId) => {
   const changeMask = readUint8(v)
 
   let entity = world.getNetworkObject(fromUserId, netId)
-  if (entity && hasComponent(entity, NetworkObjectOwnedTag)) entity = undefined
+  if (entity && hasComponent(entity, NetworkObjectOwnedTag)) entity = NaN as Entity
 
   let b = 0
   if (checkBitflag(changeMask, 1 << b++)) readTransform(v, entity)
@@ -290,7 +290,7 @@ export const readEntity = (v: ViewCursor, world: World, fromUserId: UserId) => {
   if (checkBitflag(changeMask, 1 << b++)) readXRInputs(v, entity)
   if (checkBitflag(changeMask, 1 << b++)) readXRHands(v, entity)
 
-  if (entity !== undefined && !hasComponent(entity, NetworkObjectDirtyTag)) {
+  if (!isNaN(entity) && !hasComponent(entity, NetworkObjectDirtyTag)) {
     addComponent(entity, NetworkObjectDirtyTag, {})
   }
 }

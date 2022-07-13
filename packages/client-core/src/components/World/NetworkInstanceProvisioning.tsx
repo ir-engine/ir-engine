@@ -41,7 +41,8 @@ export const NetworkInstanceProvisioning = () => {
 
   const mediaNetworkHostId = Engine.instance.currentWorld.mediaNetwork?.hostId
   const channelConnectionState = useMediaInstanceConnectionState()
-  const currentChannelInstanceConnection = channelConnectionState.instances[mediaNetworkHostId].ornull
+  const currentChannelInstanceConnection =
+    mediaNetworkHostId && channelConnectionState.instances[mediaNetworkHostId].ornull
 
   MediaInstanceConnectionService.useAPIListeners()
 
@@ -135,6 +136,7 @@ export const NetworkInstanceProvisioning = () => {
   useHookEffect(() => {
     if (
       mediaNetworkHostId &&
+      currentChannelInstanceConnection &&
       currentChannelInstanceConnection.provisioned.value === true &&
       currentChannelInstanceConnection.readyToConnect.value === true &&
       currentChannelInstanceConnection.connecting.value === false &&

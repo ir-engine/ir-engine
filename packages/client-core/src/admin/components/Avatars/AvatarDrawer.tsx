@@ -12,7 +12,7 @@ import {
   THUMBNAIL_HEIGHT,
   THUMBNAIL_WIDTH
 } from '@xrengine/common/src/constants/AvatarConstants'
-import { AvatarInterface } from '@xrengine/common/src/interfaces/AvatarInterface'
+import { StaticResourceInterface } from '@xrengine/common/src/interfaces/StaticResourceInterface'
 import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
 import { loadAvatarForPreview } from '@xrengine/engine/src/avatar/functions/avatarFunctions'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
@@ -66,7 +66,7 @@ export enum AvatarDrawerMode {
 interface Props {
   open: boolean
   mode: AvatarDrawerMode
-  selectedAvatar?: AvatarInterface
+  selectedAvatar?: StaticResourceInterface
   onClose: () => void
 }
 
@@ -496,7 +496,7 @@ const AvatarDrawerContent = ({ open, mode, selectedAvatar, onClose }: Props) => 
         className={styles.preview}
         style={{ width: '100px', height: '100px', position: 'relative', marginBottom: 15 }}
       >
-        <img src={thumbnailSrc} />
+        <img src={thumbnailSrc} crossOrigin="anonymous" />
         {((state.source === 'file' && !state.thumbnailFile) || (state.source === 'url' && !state.thumbnailUrl)) && (
           <Typography
             sx={{

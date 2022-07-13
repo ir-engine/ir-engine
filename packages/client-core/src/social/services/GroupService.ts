@@ -1,5 +1,4 @@
 import { none } from '@speigg/hookstate'
-import _ from 'lodash'
 import { useEffect } from 'react'
 
 import { CreateGroup, Group } from '@xrengine/common/src/interfaces/Group'

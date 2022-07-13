@@ -3,7 +3,7 @@ import { none } from '@speigg/hookstate'
 
 import { Relationship } from '@xrengine/common/src/interfaces/Relationship'
 import { RelationshipSeed } from '@xrengine/common/src/interfaces/Relationship'
-import { User } from '@xrengine/common/src/interfaces/User'
+import { UserInterface } from '@xrengine/common/src/interfaces/User'
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
@@ -14,11 +14,11 @@ const UserState = defineState({
   name: 'UserState',
   initial: () => ({
     relationship: RelationshipSeed,
-    users: [] as Array<User>,
+    users: [] as Array<UserInterface>,
     updateNeeded: true,
-    layerUsers: [] as Array<User>,
+    layerUsers: [] as Array<UserInterface>,
     layerUsersUpdateNeeded: true,
-    channelLayerUsers: [] as Array<User>,
+    channelLayerUsers: [] as Array<UserInterface>,
     channelLayerUsersUpdateNeeded: true
   })
 })
@@ -112,7 +112,7 @@ export const UserService = {
       })
   },
 
-  getLayerUsers: async (instance) => {
+  getLayerUsers: async (instance: boolean) => {
     const search = window.location.search
     let instanceId
     if (search != null) {
@@ -124,12 +124,20 @@ export const UserService = {
         action: instance ? 'layer-users' : 'channel-users',
         instanceId
       }
-    })) as Paginated<User>
-    dispatchAction(
-      instance
-        ? UserAction.loadedLayerUsersAction({ users: layerUsers.data })
-        : UserAction.loadedChannelLayerUsersAction({ users: layerUsers.data })
-    )
+    })) as Paginated<UserInterface>
+
+    const state = getState(UserState)
+
+    if (
+      JSON.stringify(instance ? state.layerUsers.value : state.channelLayerUsers.value) !==
+      JSON.stringify(layerUsers.data)
+    ) {
+      dispatchAction(
+        instance
+          ? UserAction.loadedLayerUsersAction({ users: layerUsers.data })
+          : UserAction.loadedChannelLayerUsersAction({ users: layerUsers.data })
+      )
+    }
   },
 
   requestFriend: (userId: string, relatedUserId: string) => {
@@ -208,7 +216,7 @@ export class UserAction {
 
   static loadedUsersAction = defineAction({
     type: 'ADMIN_LOADED_USERS' as const,
-    users: matches.array as Validator<unknown, User[]>
+    users: matches.array as Validator<unknown, UserInterface[]>
   })
 
   static changedRelationAction = defineAction({
@@ -217,7 +225,7 @@ export class UserAction {
 
   static loadedLayerUsersAction = defineAction({
     type: 'LOADED_LAYER_USERS' as const,
-    users: matches.array as Validator<unknown, User[]>
+    users: matches.array as Validator<unknown, UserInterface[]>
   })
 
   static clearLayerUsersAction = defineAction({
@@ -226,17 +234,17 @@ export class UserAction {
 
   static addedLayerUserAction = defineAction({
     type: 'ADDED_LAYER_USER' as const,
-    user: matches.object as Validator<unknown, User>
+    user: matches.object as Validator<unknown, UserInterface>
   })
 
   static removedLayerUserAction = defineAction({
     type: 'REMOVED_LAYER_USER' as const,
-    user: matches.object as Validator<unknown, User>
+    user: matches.object as Validator<unknown, UserInterface>
   })
 
   static loadedChannelLayerUsersAction = defineAction({
     type: 'LOADED_CHANNEL_LAYER_USERS' as const,
-    users: matches.array as Validator<unknown, User[]>
+    users: matches.array as Validator<unknown, UserInterface[]>
   })
 
   static clearChannelLayerUsersAction = defineAction({
@@ -245,11 +253,11 @@ export class UserAction {
 
   static addedChannelLayerUserAction = defineAction({
     type: 'ADDED_CHANNEL_LAYER_USER' as const,
-    user: matches.object as Validator<unknown, User>
+    user: matches.object as Validator<unknown, UserInterface>
   })
 
   static removedChannelLayerUserAction = defineAction({
     type: 'REMOVED_CHANNEL_LAYER_USER' as const,
-    user: matches.object as Validator<unknown, User>
+    user: matches.object as Validator<unknown, UserInterface>
   })
 }
