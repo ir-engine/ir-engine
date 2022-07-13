@@ -6,8 +6,10 @@ import { AvatarStates } from '@xrengine/engine/src/avatar/animation/Util'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
 
+import { ArrowBackIos, ArrowForwardIos } from '@mui/icons-material'
 import { Button } from '@mui/material'
 
+import XRIconButton from '../../components/XRIconButton'
 import styleString from './index.scss'
 
 export function createEmoteDetailView() {
@@ -172,24 +174,15 @@ const EmoteDetailView = () => {
       <section className="container" xr-layer="true">
         <div className="itemContainer">
           <div className="itemContainerPrev">
-            <button
-              type="button"
-              className="iconBlockPrev"
-              style={page === 0 ? { color: '#c3c3c3', cursor: 'initial' } : { color: '#ffffff' }}
+            <XRIconButton
+              xr-layer="true"
               onClick={loadPreviousEmotes}
-            >
-              <svg
-                className="arrowSvg"
-                focusable="false"
-                aria-hidden="true"
-                viewBox="0 0 24 24"
-                data-testid="NavigateBeforeIcon"
-              >
-                <path d="M15.41 7.41 14 6l-6 6 6 6 1.41-1.41L10.83 12z"></path>
-              </svg>
-            </button>
+              disabled={page === 0}
+              size="medium"
+              variant="iconOnly"
+              content={<ArrowBackIos />}
+            />
           </div>
-
           <div
             style={{
               width: menuItemRadius,
@@ -200,18 +193,14 @@ const EmoteDetailView = () => {
             {renderEmoteList()}
           </div>
           <div className="itemContainerNext">
-            <button
-              type="button"
-              className="iconBlockNext"
-              style={
-                (page + 1) * imgPerPage >= items.length ? { color: '#c3c3c3', cursor: 'initial' } : { color: '#ffffff' }
-              }
+            <XRIconButton
+              xr-layer="true"
               onClick={loadNextEmotes}
-            >
-              <svg className="arrowSvg" focusable="false" aria-hidden="true" viewBox="0 0 24 24">
-                <path d="M10 6 8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"></path>
-              </svg>
-            </button>
+              disabled={(page + 1) * imgPerPage >= items.length}
+              size="medium"
+              variant="iconOnly"
+              content={<ArrowForwardIos />}
+            />
           </div>
         </div>
       </section>

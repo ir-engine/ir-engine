@@ -3,6 +3,7 @@ import { AvatarInputSchema } from '@xrengine/engine/src/avatar/AvatarInputSchema
 import { LifecycleValue } from '@xrengine/engine/src/common/enums/LifecycleValue'
 import { matches } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
 import { addComponent, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { BaseInput } from '@xrengine/engine/src/input/enums/BaseInput'
@@ -16,7 +17,7 @@ import {
   WidgetAppActions,
   WidgetAppServiceReceptor
 } from '@xrengine/engine/src/xrui/WidgetAppService'
-import { addActionReceptor, dispatchAction } from '@xrengine/hyperflux'
+import { addActionReceptor, createActionQueue, dispatchAction } from '@xrengine/hyperflux'
 
 import { createChatWidget } from './createChatWidget'
 import { createEmoteWidget } from './createEmoteWidget'
@@ -38,7 +39,20 @@ export default async function WidgetSystem(world: World) {
   addComponent(ui.entity, PersistTagComponent, {})
   addComponent(ui.entity, NameComponent, { name: 'widget_menu' })
 
+  // lazily create XRUI widgets to speed up initial page loading time
+  let createdWidgets = false
   const showWidgetMenu = (show: boolean) => {
+    if (!createdWidgets) {
+      createdWidgets = true
+      createProfileWidget(world)
+      createEmoteWidget(world)
+      createChatWidget(world)
+      createShareLocationWidget(world)
+      createSettingsWidget(world)
+      createSelectAvatarWidget(world)
+      createUploadAvatarWidget(world)
+      createReadyPlayerWidget(world)
+    }
     const xrui = getComponent(ui.entity, XRUIComponent)
     if (xrui) ObjectFitFunctions.setUIVisible(xrui.container, show)
   }
@@ -57,6 +71,7 @@ export default async function WidgetSystem(world: World) {
   AvatarInputSchema.inputMap.set(GamepadButtons.X, BaseInput.TOGGLE_MENU_BUTTONS)
   // add escape key for local testing until we migrate fully with new interface story #6425
   if (isDev && !Engine.instance.isHMD) AvatarInputSchema.inputMap.set('Escape', BaseInput.TOGGLE_MENU_BUTTONS)
+
   AvatarInputSchema.behaviorMap.set(BaseInput.TOGGLE_MENU_BUTTONS, (entity, inputKey, inputValue) => {
     if (inputValue.lifecycleState !== LifecycleValue.Started) return
     toggleWidgetsMenu()
@@ -71,15 +86,6 @@ export default async function WidgetSystem(world: World) {
   }
   addActionReceptor(WidgetAppServiceReceptor)
   addActionReceptor(WidgetReceptor)
-
-  createProfileWidget(world)
-  createEmoteWidget(world)
-  createChatWidget(world)
-  createShareLocationWidget(world)
-  createSettingsWidget(world)
-  createSelectAvatarWidget(world)
-  createUploadAvatarWidget(world)
-  createReadyPlayerWidget(world)
 
   return () => {
     const xrui = getComponent(ui.entity, XRUIComponent)

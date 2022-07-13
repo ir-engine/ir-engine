@@ -1,3 +1,5 @@
+import { AuthStrategies } from './AuthStrategies'
+
 export interface AdminAuthSetting {
   id: string
   service: string
@@ -11,16 +13,6 @@ export interface AdminAuthSetting {
   oauth: Oauth
   createdAt: string
   updatedAt: string
-}
-
-interface AuthStrategies {
-  jwt?: boolean
-  local?: boolean
-  facebook?: boolean
-  github?: boolean
-  google?: boolean
-  linkedin?: boolean
-  twitter?: boolean
 }
 
 interface Local {
