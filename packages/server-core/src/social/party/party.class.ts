@@ -102,11 +102,11 @@ export class Party<T = PartyDataType> extends Service<T> {
    */
   async get(id: string, params?: Params): Promise<T> {
     if (id == null || id == '') {
+      const PartyUserMS = this.app.service('party-user').Model as PartyUserModelStatic
+
       const loggedInUser = params!.user as UserInterface
       const partyUserResult = await this.app.service('party-user').find({
-        query: {
-          userId: loggedInUser.id
-        }
+        query: { userId: loggedInUser.id }
       })
 
       if ((partyUserResult as any).total === 0) {
@@ -117,13 +117,20 @@ export class Party<T = PartyDataType> extends Service<T> {
 
       const party: any = await super.get(partyId)
 
-      party.partyUsers = await (this.app.service('party-user') as any).Model.findAll({
+      party.partyUsers = await PartyUserMS.findAll({
         where: {
-          partyId: party.id
+          partyId: party.id,
+          [Op.and]: Sequelize.literal('`user->static_resources`.`staticResourceType` = "user-thumbnail"')
         },
         include: [
           {
-            model: (this.app.service('user') as any).Model
+            model: this.app.service('user').Model,
+            include: [
+              {
+                model: this.app.service('static-resource').Model,
+                on: Sequelize.literal('`user`.`avatarId` = `user->static_resources`.`name`')
+              }
+            ]
           }
         ]
       })
@@ -134,7 +141,7 @@ export class Party<T = PartyDataType> extends Service<T> {
     }
   }
 
-  async create<PartyInterface>(_data?: {}, params?: Params): Promise<PartyInterface> {
+  async create<T>(_data?: {}, params?: Params): Promise<T> {
     if (!params) return null!
 
     try {
@@ -151,7 +158,7 @@ export class Party<T = PartyDataType> extends Service<T> {
         userModel.update({ partyId: party.id }, { where: { id: params.user.id } })
       ])
 
-      return party as PartyInterface
+      return party as T
     } catch (err) {
       logger.error(err)
     }

@@ -4,8 +4,7 @@ import { matches } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { EngineActions, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { addActionReceptor, removeActionReceptor } from '@xrengine/hyperflux'
 
-import PartyIcon from '@mui/icons-material/CalendarViewDay'
-import LinkIcon from '@mui/icons-material/Link'
+import GroupsIcon from '@mui/icons-material/Groups'
 import PersonIcon from '@mui/icons-material/Person'
 import SettingsIcon from '@mui/icons-material/Settings'
 import ClickAwayListener from '@mui/material/ClickAwayListener'
@@ -57,8 +56,7 @@ UserMenuPanels.set(Views.Emote, EmoteMenu)
 export const HotbarMenu = new Map<string, any>()
 HotbarMenu.set(Views.Profile, PersonIcon)
 HotbarMenu.set(Views.Settings, SettingsIcon)
-HotbarMenu.set(Views.Share, LinkIcon)
-HotbarMenu.set(Views.Party, PartyIcon)
+HotbarMenu.set(Views.Party, GroupsIcon)
 HotbarMenu.set(Views.Emote, 'EmoteIcon')
 
 interface Props {

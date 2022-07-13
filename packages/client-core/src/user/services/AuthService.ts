@@ -31,7 +31,7 @@ import { defineAction, defineState, dispatchAction, getState, useState } from '@
 import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
 import { accessLocationState } from '../../social/services/LocationService'
-import { accessPartyState } from '../../social/services/PartyService'
+import { accessPartyState, PartyService } from '../../social/services/PartyService'
 import { serverHost } from '../../util/config'
 import { accessStoredLocalState, StoredLocalAction } from '../../util/StoredLocalState'
 import { uploadToFeathersService } from '../../util/upload'
@@ -218,6 +218,12 @@ export const AuthService = {
         dispatchAction(AuthAction.loginUserSuccessAction({ authUser, message: '' }))
 
         await AuthService.loadUserData(authUser.identityProvider.userId)
+
+        // TODO: Nayan - Have to put this somewhere else
+        setTimeout(() => {
+          PartyService.getParty()
+          PartyService.getPartyUsers()
+        }, 5000)
       } else {
         console.log('****************')
       }

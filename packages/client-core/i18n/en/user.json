@@ -154,9 +154,11 @@
     },
     "party": {
       "title": "Party",
-      "join": "Join",
-      "Invite": "Invite",
-      "leave": "Leave"
+      "create": "Create",
+      "createPartyText": "Create Party to enjoy with people",
+      "invite": "Invite",
+      "leave": "Leave",
+      "kick": "Kick"
     },
     "setting": {
       "audio": "Audio",

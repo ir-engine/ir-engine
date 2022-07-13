@@ -97,56 +97,55 @@ export default (app: Application): void => {
    * @returns {@Object} updated party user
    */
   service.publish('patched', async (data): Promise<any> => {
-    data.isOwner = data.isOwner === 1 ? true : data.isOwner === 0 ? false : data.isOwner
-    try {
-      // const channel = await (app.service('channel')).Model.findOne({
-      //   where: {
-      //     partyId: data.partyId
-      //   }
-      // });
-      // if (channel != null) {
-      //   await app.service('channel').patch(channel.id, {
-      //     channelType: channel.channelType,
-      //     sequelize: {}
-      //   }, {
-      //     sequelize: {
-      //       silent: true
-      //     }
-      //   });
-      // }
-      const partyUsers = await app.service('party-user').find({
-        query: {
-          $limit: 1000,
-          partyId: data.partyId
-        }
-      })
-      data.user = await app.service('user').get(data.userId)
-      // const avatarResult = await app.service('static-resource').find({
-      //   query: {
-      //     staticResourceType: 'user-thumbnail',
-      //     userId: data.userId
-      //   }
-      // }) as any;
-      //
-      // if (avatarResult.total > 0) {
-      //   data.user.dataValues.avatarUrl = avatarResult.data[0].url;
-      // }
-
-      const targetIds = (partyUsers as any).data.map((partyUser) => {
-        return partyUser.userId
-      })
-      // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-      return Promise.all(
-        targetIds.map((userId: string) => {
-          return app.channel(`userIds/${userId}`).send({
-            partyUser: data
-          })
-        })
-      )
-    } catch (err) {
-      logger.error(err)
-      throw err
-    }
+    // data.isOwner = data.isOwner === 1 ? true : data.isOwner === 0 ? false : data.isOwner
+    // try {
+    //   // const channel = await (app.service('channel')).Model.findOne({
+    //   //   where: {
+    //   //     partyId: data.partyId
+    //   //   }
+    //   // });
+    //   // if (channel != null) {
+    //   //   await app.service('channel').patch(channel.id, {
+    //   //     channelType: channel.channelType,
+    //   //     sequelize: {}
+    //   //   }, {
+    //   //     sequelize: {
+    //   //       silent: true
+    //   //     }
+    //   //   });
+    //   // }
+    //   const partyUsers = await app.service('party-user').find({
+    //     query: {
+    //       $limit: 1000,
+    //       partyId: data.partyId
+    //     }
+    //   })
+    //   data.user = await app.service('user').get(data.userId)
+    //   // const avatarResult = await app.service('static-resource').find({
+    //   //   query: {
+    //   //     staticResourceType: 'user-thumbnail',
+    //   //     userId: data.userId
+    //   //   }
+    //   // }) as any;
+    //   //
+    //   // if (avatarResult.total > 0) {
+    //   //   data.user.dataValues.avatarUrl = avatarResult.data[0].url;
+    //   // }
+    //   const targetIds = (partyUsers as any).data.map((partyUser) => {
+    //     return partyUser.userId
+    //   })
+    //   // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+    //   return Promise.all(
+    //     targetIds.map((userId: string) => {
+    //       return app.channel(`userIds/${userId}`).send({
+    //         partyUser: data
+    //       })
+    //     })
+    //   )
+    // } catch (err) {
+    //   logger.error(err)
+    //   throw err
+    // }
   })
 
   /**

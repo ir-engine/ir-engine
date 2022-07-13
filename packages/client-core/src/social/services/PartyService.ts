@@ -26,6 +26,7 @@ const PartyState = defineState({
   name: 'PartyState',
   initial: () => ({
     party: null! as Party,
+    isOwned: false,
     updateNeeded: true
   })
 })
@@ -34,7 +35,7 @@ export const PartyServiceReceptor = (action) => {
   getState(PartyState).batch((s) => {
     matches(action)
       .when(PartyAction.loadedPartyAction.matches, (action) => {
-        s.merge({ party: action.party, updateNeeded: false })
+        s.merge({ party: action.party, isOwned: action.isOwned, updateNeeded: false })
       })
       .when(PartyAction.createdPartyAction.matches, (action) => {
         s.merge({ party: action.party, updateNeeded: true })
@@ -94,14 +95,20 @@ export const usePartyState = () => useState(accessPartyState())
 export const PartyService = {
   getParty: async () => {
     try {
-      // console.log('CALLING GETPARTY()');
       const partyResult = (await API.instance.client.service('party').get('')) as Party
-      dispatchAction(PartyAction.loadedPartyAction({ party: partyResult }))
+      dispatchAction(
+        PartyAction.loadedPartyAction({
+          party: partyResult,
+          isOwned:
+            accessAuthState().authUser.identityProvider.userId.value ===
+            partyResult.partyUsers.find((user) => user.isOwner)?.userId
+        })
+      )
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   },
-  // Temporary Method for arbitrary testing
+
   getParties: async (): Promise<void> => {
     let socketId: any
     if (API.instance.client.io && socketId === undefined) {
@@ -129,6 +136,7 @@ export const PartyService = {
   createParty: async () => {
     try {
       await API.instance.client.service('party').create()
+      PartyService.getParty()
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
@@ -159,6 +167,14 @@ export const PartyService = {
       NotificationService.dispatchNotify(i18n.t('social:partyInvitationSent'), {
         variant: 'success'
       })
+    } catch (err) {
+      NotificationService.dispatchNotify(err.message, { variant: 'error' })
+    }
+  },
+  getPartyUsers: async () => {
+    try {
+      const results = await API.instance.client.service('party-user').find()
+      console.debug(results)
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
@@ -274,7 +290,8 @@ export const PartyService = {
 export class PartyAction {
   static loadedPartyAction = defineAction({
     type: 'LOADED_PARTY' as const,
-    party: matches.object as Validator<unknown, Party>
+    party: matches.object as Validator<unknown, Party>,
+    isOwned: matches.boolean
   })
 
   static createdPartyAction = defineAction({

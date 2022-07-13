@@ -1,12 +1,12 @@
-import { HookContext } from '@feathersjs/feathers'
-import { disallow, iff, isProvider } from 'feathers-hooks-common'
+import { HookContext, HookOptions } from '@feathersjs/feathers'
+import { disallow } from 'feathers-hooks-common'
 
 import { UserInterface } from '@xrengine/common/src/interfaces/User'
 import checkPartyInstanceSize from '@xrengine/server-core/src/hooks/check-party-instance-size'
 import partyPermissionAuthenticate from '@xrengine/server-core/src/hooks/party-permission-authenticate'
-import partyUserPermissionAuthenticate from '@xrengine/server-core/src/hooks/party-user-permission-authenticate'
 import unsetSelfPartyOwner from '@xrengine/server-core/src/hooks/unset-self-party-owner'
 
+import addAssociations from '../../hooks/add-associations'
 import authenticate from '../../hooks/authenticate'
 import logger from '../../logger'
 
@@ -15,7 +15,7 @@ import logger from '../../logger'
 export default {
   before: {
     all: [authenticate()],
-    find: [iff(isProvider('external'), partyUserPermissionAuthenticate() as any)],
+    find: [],
     get: [],
     create: [
       async (context: HookContext): Promise<HookContext> => {
@@ -49,29 +49,13 @@ export default {
     ],
     update: [disallow()],
     patch: [partyPermissionAuthenticate()],
-    remove: [partyPermissionAuthenticate()]
+    remove: []
   },
 
   after: {
     all: [],
-    find: [
-      async (context: HookContext): Promise<HookContext> => {
-        const { app, result } = context
-        await Promise.all(
-          result.data.map(async (partyUser) => {
-            partyUser.user = await app.service('user').get(partyUser.userId)
-          })
-        )
-        return context
-      }
-    ],
-    get: [
-      async (context: HookContext): Promise<HookContext> => {
-        const { app, result } = context
-        result.user = await app.service('user').get(result.userId)
-        return context
-      }
-    ],
+    find: [],
+    get: [addAssociations({ models: [{ model: 'user' }] })],
     create: [
       async (context: HookContext): Promise<HookContext> => {
         const { app, result } = context
@@ -98,36 +82,7 @@ export default {
     ],
     update: [],
     patch: [unsetSelfPartyOwner()],
-    remove: [
-      async (context: HookContext): Promise<HookContext> => {
-        const { app, params, result } = context
-        if (params.partyUsersRemoved !== true) {
-          const party = await app.service('party').get(params.query!.partyId)
-          const partyUserCount = await app.service('party-user').find({
-            query: {
-              partyId: params.query!.partyId,
-              $limit: 0
-            }
-          })
-          if (partyUserCount.total < 1 && party.locationId == null) {
-            await app.service('party').remove(params.query!.partyId, params)
-          }
-          if (partyUserCount.total >= 1 && (result.isOwner === true || result.isOwner === 1)) {
-            const partyUserResult = await app.service('party-user').find({
-              query: {
-                partyId: params.query!.partyId
-              }
-            })
-            const partyUsers = partyUserResult.data
-            const newOwner = partyUsers[Math.floor(Math.random() * partyUsers.length)]
-            await app.service('party-user').patch(newOwner.id, {
-              isOwner: true
-            })
-          }
-        }
-        return context
-      }
-    ]
+    remove: []
   },
 
   error: {
@@ -139,4 +94,4 @@ export default {
     patch: [],
     remove: []
   }
-} as any
+} as HookOptions<any, any>
