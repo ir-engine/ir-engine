@@ -1,11 +1,10 @@
 import { createState } from '@speigg/hookstate'
 import React, { useState } from 'react'
 
-import { VrIcon } from '@xrengine/client-core/src/common/components/Icons/Vricon'
 import { Channel } from '@xrengine/common/src/interfaces/Channel'
 import { respawnAvatar } from '@xrengine/engine/src/avatar/functions/respawnAvatar'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { EngineActions, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
+import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
 import { accessWidgetAppState, useWidgetAppState, WidgetAppActions } from '@xrengine/engine/src/xrui/WidgetAppService'
 import { dispatchAction } from '@xrengine/hyperflux'
@@ -88,14 +87,6 @@ const WidgetButtons = () => {
   //     !widgetState.chatMenuOpen.value &&
   //     setUnreadMessages(true)
   // }, [activeChannel?.messages])
-
-  const toogleVRSession = () => {
-    if (engineState.xrSessionStarted.value) {
-      dispatchAction(EngineActions.xrEnd())
-    } else {
-      dispatchAction(EngineActions.xrStart())
-    }
-  }
 
   const handleRespawnAvatar = () => {
     respawnAvatar(Engine.instance.currentWorld.localClientEntity)
