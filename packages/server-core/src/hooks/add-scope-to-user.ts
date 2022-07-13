@@ -18,13 +18,15 @@ export default () => {
       })
     }
 
-    const data = context.arguments[1]?.scopes.map((el) => {
-      return {
-        type: el.type,
-        userId: context.arguments[0]
-      }
-    })
-    await context.app.service('scope').create(data)
+    if (context.arguments[1] && context.arguments[1].scopes && context.arguments[1].scopes.length > 0) {
+      const data = context.arguments[1].scopes.map((el) => {
+        return {
+          type: el.type,
+          userId: context.arguments[0]
+        }
+      })
+      await context.app.service('scope').create(data)
+    }
 
     return context
   }
