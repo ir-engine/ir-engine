@@ -474,38 +474,40 @@ const ProfileDetailView = () => {
               {selfUser?.userRole.value !== 'guest' && removeSocial && (
                 <h3 className="textBlock">{t('user:usermenu.profile.removeSocial')}</h3>
               )}
-              <div className="socialContainer">
-                {authState?.discord && oauthConnectedState.discord && (
-                  <a href="#" id="discord" onClick={handleRemoveOAuthServiceClick}>
-                    <DiscordIcon width="40" height="40" viewBox="0 0 40 40" />
-                  </a>
-                )}
-                {authState?.google && oauthConnectedState.google && (
-                  <a href="#" id="google" onClick={handleRemoveOAuthServiceClick}>
-                    <GoogleIcon width="40" height="40" viewBox="0 0 40 40" />
-                  </a>
-                )}
-                {authState?.facebook && oauthConnectedState.facebook && (
-                  <a href="#" id="facebook" onClick={handleRemoveOAuthServiceClick}>
-                    <FacebookIcon width="40" height="40" viewBox="0 0 40 40" />
-                  </a>
-                )}
-                {authState?.linkedin && oauthConnectedState.linkedin && (
-                  <a href="#" id="linkedin" onClick={handleRemoveOAuthServiceClick}>
-                    <LinkedInIcon width="40" height="40" viewBox="0 0 40 40" />
-                  </a>
-                )}
-                {authState?.twitter && oauthConnectedState.twitter && (
-                  <a href="#" id="twitter" onClick={handleRemoveOAuthServiceClick}>
-                    <TwitterIcon width="40" height="40" viewBox="0 0 40 40" />
-                  </a>
-                )}
-                {authState?.github && oauthConnectedState.github && (
-                  <a href="#" id="github" onClick={handleRemoveOAuthServiceClick}>
-                    <GitHub />
-                  </a>
-                )}
-              </div>
+              {selfUser?.userRole.value !== 'guest' && removeSocial && (
+                <div className="socialContainer">
+                  {authState?.discord && oauthConnectedState.discord && (
+                    <a href="#" id="discord" onClick={handleRemoveOAuthServiceClick}>
+                      <DiscordIcon width="40" height="40" viewBox="0 0 40 40" />
+                    </a>
+                  )}
+                  {authState?.google && oauthConnectedState.google && (
+                    <a href="#" id="google" onClick={handleRemoveOAuthServiceClick}>
+                      <GoogleIcon width="40" height="40" viewBox="0 0 40 40" />
+                    </a>
+                  )}
+                  {authState?.facebook && oauthConnectedState.facebook && (
+                    <a href="#" id="facebook" onClick={handleRemoveOAuthServiceClick}>
+                      <FacebookIcon width="40" height="40" viewBox="0 0 40 40" />
+                    </a>
+                  )}
+                  {authState?.linkedin && oauthConnectedState.linkedin && (
+                    <a href="#" id="linkedin" onClick={handleRemoveOAuthServiceClick}>
+                      <LinkedInIcon width="40" height="40" viewBox="0 0 40 40" />
+                    </a>
+                  )}
+                  {authState?.twitter && oauthConnectedState.twitter && (
+                    <a href="#" id="twitter" onClick={handleRemoveOAuthServiceClick}>
+                      <TwitterIcon width="40" height="40" viewBox="0 0 40 40" />
+                    </a>
+                  )}
+                  {authState?.github && oauthConnectedState.github && (
+                    <a href="#" id="github" onClick={handleRemoveOAuthServiceClick}>
+                      <GitHub />
+                    </a>
+                  )}
+                </div>
+              )}
               {selfUser?.userRole.value === 'guest' && (
                 <h4 className="smallTextBlock">{t('user:usermenu.profile.createOne')}</h4>
               )}
@@ -528,35 +530,42 @@ const ProfileDetailView = () => {
               {deleteControlsOpen && !confirmDeleteOpen && (
                 <div className="deleteContainer">
                   <h3 className="deleteText">{t('user:usermenu.profile.delete.deleteControlsText')}</h3>
-                  <XRTextButton
-                    content={t('user:usermenu.profile.delete.deleteControlsCancel')}
-                    onClick={() => setDeleteControlsOpen(false)}
-                  />
-                  <XRTextButton
-                    content={t('user:usermenu.profile.delete.deleteControlsConfirm')}
-                    onClick={() => {
-                      setDeleteControlsOpen(false)
-                      setConfirmDeleteOpen(true)
-                    }}
-                  />
+                  <div className="deleteButtonContainer">
+                    <XRTextButton
+                      variant="outlined"
+                      content={t('user:usermenu.profile.delete.deleteControlsCancel')}
+                      onClick={() => setDeleteControlsOpen(false)}
+                    />
+                    <XRTextButton
+                      variant="gradient"
+                      content={t('user:usermenu.profile.delete.deleteControlsConfirm')}
+                      onClick={() => {
+                        setDeleteControlsOpen(false)
+                        setConfirmDeleteOpen(true)
+                      }}
+                    />
+                  </div>
                 </div>
               )}
               {confirmDeleteOpen && (
                 <div className="deleteContainer">
                   <h3 className="deleteText">{t('user:usermenu.profile.delete.finalDeleteText')}</h3>
-                  <button
-                    className="deleteConfirmButton"
-                    onClick={() => {
-                      AuthService.removeUser(userId)
-                      AuthService.logoutUser()
-                      setConfirmDeleteOpen(false)
-                    }}
-                  >
-                    {t('user:usermenu.profile.delete.finalDeleteConfirm')}
-                  </button>
-                  <button className="deleteCancelButton" onClick={() => setConfirmDeleteOpen(false)}>
-                    {t('user:usermenu.profile.delete.finalDeleteCancel')}
-                  </button>
+                  <div className="deleteButtonContainer">
+                    <XRTextButton
+                      variant="gradient"
+                      content={t('user:usermenu.profile.delete.finalDeleteConfirm')}
+                      onClick={() => {
+                        AuthService.removeUser(userId)
+                        AuthService.logoutUser()
+                        setConfirmDeleteOpen(false)
+                      }}
+                    />
+                    <XRTextButton
+                      variant="outlined"
+                      content={t('user:usermenu.profile.delete.finalDeleteCancel')}
+                      onClick={() => setConfirmDeleteOpen(false)}
+                    />
+                  </div>
                 </div>
               )}
             </div>

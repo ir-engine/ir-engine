@@ -20,6 +20,7 @@
   &.outlined {
     color: var(--buttonOutlined);
     border: solid 1px var(--buttonOutlined);
+    background-color: transparent;
   }
 
   &.gradient {
