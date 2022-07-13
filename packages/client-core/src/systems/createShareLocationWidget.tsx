@@ -5,8 +5,6 @@ import { XRUIComponent } from '@xrengine/engine/src/xrui/components/XRUIComponen
 import { ObjectFitFunctions } from '@xrengine/engine/src/xrui/functions/ObjectFitFunctions'
 import { Widgets } from '@xrengine/engine/src/xrui/Widgets'
 
-import LinkIcon from '@mui/icons-material/Link'
-
 import { createShareLocationDetailView } from './ui/ShareLocationDetailView'
 
 const widgetName = 'Share'
@@ -24,7 +22,6 @@ export function createShareLocationWidget(world: World) {
   Widgets.registerWidget(world, ui.entity, {
     ui,
     label: widgetName,
-    icon: LinkIcon,
     system: () => {}
   })
 }

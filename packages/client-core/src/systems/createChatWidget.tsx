@@ -5,8 +5,6 @@ import { XRUIComponent } from '@xrengine/engine/src/xrui/components/XRUIComponen
 import { ObjectFitFunctions } from '@xrengine/engine/src/xrui/functions/ObjectFitFunctions'
 import { Widgets } from '@xrengine/engine/src/xrui/Widgets'
 
-import { Message as MessageIcon } from '@mui/icons-material'
-
 import { createChatDetailView } from './ui/ChatDetailView'
 
 const widgetName = 'Chat'
@@ -24,7 +22,6 @@ export function createChatWidget(world: World) {
   Widgets.registerWidget(world, ui.entity, {
     ui,
     label: widgetName,
-    icon: MessageIcon,
     system: () => {}
   })
 }

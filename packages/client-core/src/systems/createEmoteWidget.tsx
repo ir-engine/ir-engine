@@ -5,7 +5,6 @@ import { XRUIComponent } from '@xrengine/engine/src/xrui/components/XRUIComponen
 import { ObjectFitFunctions } from '@xrengine/engine/src/xrui/functions/ObjectFitFunctions'
 import { Widgets } from '@xrengine/engine/src/xrui/Widgets'
 
-import { EmoteIcon } from '../user/components/UserMenu'
 import { createEmoteDetailView } from './ui/EmoteDetailView'
 
 const widgetName = 'Emote Widget'
@@ -23,7 +22,6 @@ export function createEmoteWidget(world: World) {
   Widgets.registerWidget(world, ui.entity, {
     ui,
     label: widgetName,
-    icon: EmoteIcon,
     system: () => {}
   })
 }

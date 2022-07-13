@@ -161,7 +161,7 @@ const WidgetButtons = () => {
         xr-pixel-ratio="8"
         xr-layer="true"
       >
-        <WidgetButton Icon={RefreshIcon} toggle={handleRespawnAvatar} label={'Respawn'} />
+        {/* <WidgetButton Icon={RefreshIcon} toggle={handleRespawnAvatar} label={'Respawn'} />
         <WidgetButton
           Icon={MicIcon}
           toggle={handleMicClick}
@@ -171,7 +171,7 @@ const WidgetButtons = () => {
           Icon={VrIcon}
           toggle={toogleVRSession}
           label={engineState.xrSessionStarted.value ? 'Exit VR' : 'Enter VR'}
-        />
+        /> */}
         {widgets.map(
           (widget, i) =>
             widget.enabled &&
