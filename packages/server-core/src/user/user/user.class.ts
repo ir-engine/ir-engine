@@ -15,12 +15,14 @@ export const afterCreate = async (app: Application, result: UserInterface, scope
     userId: result.id
   })
 
-  const data = scopes?.map((el) => {
-    return {
-      type: el.type,
-      userId: result.id
-    }
-  })
+  const data =
+    scopes &&
+    scopes.map((el) => {
+      return {
+        type: el.type,
+        userId: result.id
+      }
+    })
   if (data && data.length > 0) {
     app.service('scope').create(data)
   }
