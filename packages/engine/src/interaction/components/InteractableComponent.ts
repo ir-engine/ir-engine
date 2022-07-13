@@ -16,8 +16,11 @@ import { defineMappedComponent } from '../../ecs/functions/ComponentFunctions'
 //   value: string
 // }
 
+export const DEFAULT_INTERACTABLE = 'default' as const
+export const EQUIPPABLE_INTERACTABLE = 'equippable' as const
+
 export type InteractableComponentType = {
-  interactionType?: 'equippable' | 'ui-modal'
+  interactionType?: typeof EQUIPPABLE_INTERACTABLE | typeof DEFAULT_INTERACTABLE | string
   // interactionContent?: InteractionContent[]
   interactionText?: string
   interactionDistance?: number

@@ -20,7 +20,7 @@ const ShareLocationDetailView = () => {
   const { t } = useTranslation()
   const refLink = useRef() as React.MutableRefObject<HTMLInputElement>
 
-  const { copyLinkToClipboard, shareOnApps, packageInvite, handleChang, getInviteLink, email } = useShareMenuHooks({
+  const { copyLinkToClipboard, shareOnApps, packageInvite, handleChangeEmail, shareLink, email } = useShareMenuHooks({
     refLink
   })
 
@@ -38,7 +38,7 @@ const ShareLocationDetailView = () => {
                 disabled={true}
                 type="text"
                 className="inviteLinkInput"
-                value={getInviteLink() as any}
+                value={shareLink}
               />
 
               <div className="copyInviteContainer" onClick={copyLinkToClipboard}>
@@ -63,7 +63,7 @@ const ShareLocationDetailView = () => {
               type="text"
               className="phoneEmailInput"
               value={email}
-              onChange={(e) => handleChang(e)}
+              onChange={(e) => handleChangeEmail(e)}
             />
           </div>
 

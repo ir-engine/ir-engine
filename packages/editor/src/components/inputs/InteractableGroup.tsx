@@ -3,7 +3,11 @@ import { useTranslation } from 'react-i18next'
 
 import { ImageFileTypes, ModelFileTypes, VideoFileTypes } from '@xrengine/engine/src/assets/constants/fileTypes'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { InteractableComponent } from '@xrengine/engine/src/interaction/components/InteractableComponent'
+import {
+  DEFAULT_INTERACTABLE,
+  InteractableComponent
+} from '@xrengine/engine/src/interaction/components/InteractableComponent'
+import { InteractiveViews } from '@xrengine/engine/src/interaction/systems/InteractiveSystem'
 import { ModelComponent } from '@xrengine/engine/src/scene/components/ModelComponent'
 
 import { setPropertyOnSelectionEntities } from '../../classes/History'
@@ -15,27 +19,6 @@ import InputGroup from './InputGroup'
 import NumericInputGroup from './NumericInputGroup'
 import SelectInput from './SelectInput'
 import StringInput from './StringInput'
-
-/**
- * Array containing options for InteractableOption.
- *
- * @author Ron Oyama
- * @type {Array}
- */
-const InteractableOption = [
-  {
-    label: 'InfoBox',
-    value: 'infoBox'
-  },
-  {
-    label: 'Open link',
-    value: 'link'
-  },
-  {
-    label: 'Equippable',
-    value: 'equippable'
-  }
-]
 
 export const InteractableGroup: EditorComponentType = (props) => {
   const { t } = useTranslation()
@@ -67,6 +50,13 @@ export const InteractableGroup: EditorComponentType = (props) => {
 
   const interactableComponent = getComponent(props.node.entity, InteractableComponent)?.value
   if (!interactableComponent) return null!
+
+  const interactableTypeOptions = Array.from(InteractiveViews.keys()).map((val) => {
+    return {
+      label: val,
+      value: val
+    }
+  })
 
   const renderInteractableModalOptions = () => {
     return (
@@ -132,7 +122,7 @@ export const InteractableGroup: EditorComponentType = (props) => {
       <InputGroup name="Interaction Type" label={t('editor:properties.interaction.type')}>
         <SelectInput
           key={props.node.entity}
-          options={InteractableOption}
+          options={interactableTypeOptions}
           value={interactableComponent.interactionType || ''}
           onChange={onChangeInteractionType}
         />
@@ -147,7 +137,7 @@ export const InteractableGroup: EditorComponentType = (props) => {
         largeStep={0.1}
         value={interactableComponent.interactionDistance || 0}
       />
-      {interactableComponent.interactionType === 'ui-modal' ? renderInteractableModalOptions() : null}
+      {interactableComponent.interactionType === DEFAULT_INTERACTABLE ? renderInteractableModalOptions() : null}
     </Fragment>
   )
 }
