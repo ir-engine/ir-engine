@@ -341,7 +341,7 @@ const SettingMenu = (): JSX.Element => {
               </div>
               <Collapse in={open} timeout="auto" unmountOnExit>
                 <Box margin={1}>
-                  <Table size="small" aria-label="purchases">
+                  <Table size="small">
                     <TableHead>
                       <TableRow>
                         <TableCell classes={{ root: styles.tableRow }}>{t('user:usermenu.setting.rotation')}</TableCell>
