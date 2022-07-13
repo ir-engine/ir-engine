@@ -232,45 +232,27 @@ export const AuthService = {
       // }
     }
   },
-  loadUserData: (userId: string): any => {
-    return API.instance.client
-      .service('user')
-      .get(userId)
-      .then((res: any) => {
-        if (res.user_setting == null) {
-          return API.instance.client
-            .service('user-settings')
-            .find({
-              query: {
-                userId: userId
-              }
-            })
-            .then((settingsRes: Paginated<UserSetting>) => {
-              if (settingsRes.total === 0) {
-                return API.instance.client
-                  .service('user-settings')
-                  .create({
-                    userId: userId
-                  })
-                  .then((newSettings) => {
-                    res.user_setting = newSettings
+  async loadUserData(userId: string) {
+    try {
+      const client = API.instance.client
+      const res: any = await client.service('user').get(userId)
+      if (!res.user_setting) {
+        const settingsRes = (await client
+          .service('user-settings')
+          .find({ query: { userId: userId } })) as Paginated<UserSetting>
 
-                    return Promise.resolve(res)
-                  })
-              }
-              res.user_setting = settingsRes.data[0]
-              return Promise.resolve(res)
-            })
+        if (settingsRes.total === 0) {
+          res.user_setting = await client.service('user-settings').create({ userId: userId })
+        } else {
+          res.user_setting = settingsRes.data[0]
         }
-        return Promise.resolve(res)
-      })
-      .then((res: any) => {
-        const user = resolveUser(res)
-        dispatchAction(AuthAction.loadedUserDataAction({ user }))
-      })
-      .catch((err: any) => {
-        NotificationService.dispatchNotify(i18n.t('common:error.loading-error'), { variant: 'error' })
-      })
+        return res
+      }
+      const user = resolveUser(res)
+      dispatchAction(AuthAction.loadedUserDataAction({ user }))
+    } catch (err) {
+      NotificationService.dispatchNotify(i18n.t('common:error.loading-error'), { variant: 'error' })
+    }
   },
   loginUserByPassword: async (form: EmailLoginForm) => {
     // check email validation.
