@@ -38,28 +38,14 @@
   border-top-right-radius: 50px;
   border-bottom-right-radius: 50px;
   opacity: 1;
-}
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: row;
 
-.iconBlockPrev {
-  position: relative;
-  border: none;
-  padding: 0;
-  background-color: transparent;
-  top: 18px;
-  right: 3px;
-  transform: rotate(-50deg);
-}
-
-.arrowSvg {
-  position: relative;
-  z-index: 1;
-  font-size: 30px;
-  user-select: none;
-  width: 1em;
-  height: 1em;
-  display: inline-block;
-  fill: currentcolor;
-  flex-shrink: 0;
+  button {
+    transform: rotate(-50deg);
+  }
 }
 
 .itemContainerNext {
@@ -74,16 +60,14 @@
   border-top-right-radius: 50px;
   border-bottom-right-radius: 50px;
   opacity: 1;
-}
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: row;
 
-.iconBlockNext {
-  position: relative;
-  border: none;
-  padding: 0;
-  top: 18px;
-  right: 3px;
-  background-color: transparent;
-  transform: rotate(-130deg);
+  button {
+    transform: rotate(-130deg);
+  }
 }
 
 .menuItem {

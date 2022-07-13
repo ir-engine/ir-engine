@@ -11,6 +11,7 @@ import Avatar from '@mui/material/Avatar'
 
 import { useChatHooks } from '../../../components/InstanceChat'
 import { getAvatarURLForUser } from '../../../user/components/UserMenu/util'
+import XRInput from '../../components/XRInput'
 import styleString from './index.scss'
 
 export function createChatDetailView() {
@@ -95,7 +96,7 @@ const ChatDetailView = () => {
           })}
         </div>
         <div className="messageBoxContainer">
-          <input
+          <XRInput
             className="messageInputBox"
             id="newMessage"
             placeholder={'World Chat...'}
@@ -103,10 +104,10 @@ const ChatDetailView = () => {
             value={composingMessage}
             onChange={handleComposingMessageChange}
             onKeyDown={(evt) => handleComposingMessageChange(evt)}
+            endIcon={<Send fontSize="small" />}
+            endIconClick={packageMessage}
+            border={false}
           />
-          <div onClick={packageMessage} className="sendButton">
-            <Send fontSize="small" />
-          </div>
         </div>
       </div>
     </>

@@ -15,12 +15,15 @@ export const afterCreate = async (app: Application, result: UserInterface, scope
     userId: result.id
   })
 
-  scopes?.forEach((el) => {
-    app.service('scope').create({
-      type: el.type,
-      userId: result.id
+  if (scopes && scopes.length > 0) {
+    const data = scopes.map((el) => {
+      return {
+        type: el.type,
+        userId: result.id
+      }
     })
-  })
+    app.service('scope').create(data)
+  }
 
   if (Array.isArray(result)) result = result[0]
   if (result?.userRole !== 'guest')

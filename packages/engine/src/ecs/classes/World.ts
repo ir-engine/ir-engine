@@ -11,6 +11,7 @@ import { DEFAULT_LOD_DISTANCES } from '../../assets/constants/LoaderConstants'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { SceneLoaderType } from '../../common/constants/PrefabFunctionType'
 import { isClient } from '../../common/functions/isClient'
+import { isMobile } from '../../common/functions/isMobile'
 import { nowMilliseconds } from '../../common/functions/nowMilliseconds'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
 import { InputValue } from '../../input/interfaces/InputValue'
@@ -23,6 +24,7 @@ import { NameComponent } from '../../scene/components/NameComponent'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
 import { PortalComponent } from '../../scene/components/PortalComponent'
+import { SimpleMaterialTagComponent } from '../../scene/components/SimpleMaterialTagComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { TransformComponent } from '../../transform/components/TransformComponent'
@@ -56,6 +58,7 @@ export class World {
     this.worldEntity = createEntity(this)
     addComponent(this.worldEntity, PersistTagComponent, {}, this)
     addComponent(this.worldEntity, NameComponent, { name: 'world' }, this)
+    if (isMobile) addComponent(this.worldEntity, SimpleMaterialTagComponent, {}, this)
 
     this.cameraEntity = createEntity(this)
     addComponent(this.cameraEntity, VisibleComponent, true, this)
