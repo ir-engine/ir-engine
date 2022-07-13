@@ -161,7 +161,6 @@ const WidgetButtons = () => {
         xr-pixel-ratio="8"
         xr-layer="true"
       >
-        {/* <WidgetButton Icon={RefreshIcon} toggle={handleRespawnAvatar} label={'Respawn'} /> */}
         {widgets.map(
           (widget, i) =>
             widget.enabled &&
@@ -169,15 +168,11 @@ const WidgetButtons = () => {
               <WidgetButton key={i} Icon={widget.icon} toggle={toggleWidget(widget)} label={widget.label} />
             )
         )}
+        <WidgetButton Icon={RefreshIcon} toggle={handleRespawnAvatar} label={'Respawn'} />
         <WidgetButton
           Icon={MicIcon}
           toggle={handleMicClick}
           label={isCamAudioEnabled.value ? 'Audio on' : 'Audio Off'}
-        />
-        <WidgetButton
-          Icon={VrIcon}
-          toggle={toogleVRSession}
-          label={engineState.xrSessionStarted.value ? 'Exit VR' : 'Enter VR'}
         />
       </div>
     </>
