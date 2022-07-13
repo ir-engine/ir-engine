@@ -529,12 +529,10 @@ const ProfileDetailView = () => {
                 <div className="deleteContainer">
                   <h3 className="deleteText">{t('user:usermenu.profile.delete.deleteControlsText')}</h3>
                   <XRTextButton
-                    variant="filled"
                     content={t('user:usermenu.profile.delete.deleteControlsCancel')}
                     onClick={() => setDeleteControlsOpen(false)}
                   />
                   <XRTextButton
-                    variant="filled"
                     content={t('user:usermenu.profile.delete.deleteControlsConfirm')}
                     onClick={() => {
                       setDeleteControlsOpen(false)
