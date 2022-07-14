@@ -7,6 +7,8 @@ import { respawnAvatar } from '@xrengine/engine/src/avatar/functions/respawnAvat
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineActions, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
+import { WidgetAppService } from '@xrengine/engine/src/xrui/WidgetAppService'
+import { WidgetName } from '@xrengine/engine/src/xrui/Widgets'
 import { dispatchAction } from '@xrengine/hyperflux'
 
 import { AdminPanelSettings, Help, Refresh, Report, ScreenshotMonitor } from '@mui/icons-material'
@@ -41,7 +43,7 @@ const LocationMenuView = () => {
   }
 
   const handleOpenEmoteMenuWidget = () => {
-    // TODO open emote menu widget here...
+    WidgetAppService.setWidgetVisibility(WidgetName.EMOTE, true)
   }
 
   const handleOpenHelpMenuWidget = () => {
@@ -57,7 +59,7 @@ const LocationMenuView = () => {
   }
 
   const handleOpenAdminControlsMenuWidget = () => {
-    // TODO open admin controls menu here...
+    WidgetAppService.setWidgetVisibility(WidgetName.ADMIN_CONTROLS, true)
   }
 
   return (

@@ -3,6 +3,8 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
+import { WidgetAppService } from '@xrengine/engine/src/xrui/WidgetAppService'
+import { WidgetName } from '@xrengine/engine/src/xrui/Widgets'
 
 import { Group, Groups, Newspaper, QrCode2 } from '@mui/icons-material'
 
@@ -29,11 +31,11 @@ const SocialsMenuView = () => {
   }
 
   const handleOpenMediaSessionsMenuWidget = () => {
-    // TODO open media session menu widget here...
+    WidgetAppService.setWidgetVisibility(WidgetName.MEDIA_SESSION, true)
   }
 
   const handleOpenShareLocationMenuWidget = () => {
-    // TODO open share location menu widget here...
+    WidgetAppService.setWidgetVisibility(WidgetName.SHARE_LOCATION, true)
   }
 
   return (

@@ -37,15 +37,20 @@
   position: absolute;
   flex-direction: column;
   color: var(--textColor);
-  background-color: var(--popupBackground);
+  background-color: var(--dropdownMenuBackground);
 
   &.visible {
     display: flex;
   }
 
   .selectOption {
+    width: 100%;
     cursor: pointer;
     font-size: 14px;
     font-family: Roboto;
+
+    &:hover {
+      background-color: var(--dropdownMenuHoverBackground);
+    }
   }
 }

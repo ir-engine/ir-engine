@@ -4,7 +4,6 @@ import React, { useState } from 'react'
 import { Channel } from '@xrengine/common/src/interfaces/Channel'
 import { respawnAvatar } from '@xrengine/engine/src/avatar/functions/respawnAvatar'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
 import { accessWidgetAppState, useWidgetAppState, WidgetAppActions } from '@xrengine/engine/src/xrui/WidgetAppService'
 import { dispatchAction } from '@xrengine/hyperflux'
@@ -63,7 +62,6 @@ const WidgetButton = ({ Icon, toggle, label }: WidgetButtonProps) => {
 const WidgetButtons = () => {
   let activeChannel: Channel | null = null
   const chatState = useChatState()
-  const engineState = useEngineState()
   const widgetState = useWidgetAppState()
   const channelState = chatState.channels
   const channels = channelState.channels.value as Channel[]
