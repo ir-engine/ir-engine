@@ -135,9 +135,6 @@ bin/
 # JetBrains WebStorm/PhpStorm
 .idea
 
-# Docs generated file
-/docs/docs/generated/
-
 .history
 .history/*
 packages/server/upload/
