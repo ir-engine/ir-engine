@@ -306,7 +306,7 @@ const ProfileDetailView = () => {
         <section className="profilePanel">
           <section className="profileBlock">
             <div className="avatarBlock">
-              <img src={getAvatarURLForUser(userAvatarDetails, userId)} alt="" crossOrigin="anonymous" />
+              <img src={getAvatarURLForUser(userAvatarDetails, userId)} alt="" />
               <XRIconButton
                 size="large"
                 xr-layer="true"
@@ -426,8 +426,9 @@ const ProfileDetailView = () => {
                 xr-layer="true"
                 onClick={handleOpenReadyPlayerWidget}
                 className="walletBtn"
-                content={t('user:usermenu.profile.loginWithReadyPlayerMe')}
-              />
+              >
+                {t('user:usermenu.profile.loginWithReadyPlayerMe')}
+              </XRTextButton>
             </section>
           )}
 
@@ -538,12 +539,13 @@ const ProfileDetailView = () => {
                     />
                     <XRTextButton
                       variant="gradient"
-                      content={t('user:usermenu.profile.delete.deleteControlsConfirm')}
                       onClick={() => {
                         setDeleteControlsOpen(false)
                         setConfirmDeleteOpen(true)
                       }}
-                    />
+                    >
+                      {t('user:usermenu.profile.delete.deleteControlsConfirm')}
+                    </XRTextButton>
                   </div>
                 </div>
               )}
@@ -553,18 +555,17 @@ const ProfileDetailView = () => {
                   <div className="deleteButtonContainer">
                     <XRTextButton
                       variant="gradient"
-                      content={t('user:usermenu.profile.delete.finalDeleteConfirm')}
                       onClick={() => {
                         AuthService.removeUser(userId)
                         AuthService.logoutUser()
                         setConfirmDeleteOpen(false)
                       }}
-                    />
-                    <XRTextButton
-                      variant="outlined"
-                      content={t('user:usermenu.profile.delete.finalDeleteCancel')}
-                      onClick={() => setConfirmDeleteOpen(false)}
-                    />
+                    >
+                      {t('user:usermenu.profile.delete.finalDeleteConfirm')}
+                    </XRTextButton>
+                    <XRTextButton variant="outlined" onClick={() => setConfirmDeleteOpen(false)}>
+                      {t('user:usermenu.profile.delete.finalDeleteCancel')}
+                    </XRTextButton>
                   </div>
                 </div>
               )}

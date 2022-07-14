@@ -53,7 +53,7 @@ const ShareLocationDetailView = () => {
           />
           {isShareAvailable ? (
             <div className="shareAppContainer">
-              <XRTextButton onClick={shareOnApps} content={t('user:usermenu.share.lbl-share')} />
+              <XRTextButton onClick={shareOnApps}>{t('user:usermenu.share.lbl-share')}</XRTextButton>
             </div>
           ) : null}
         </div>

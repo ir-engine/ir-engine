@@ -323,18 +323,15 @@ export const UploadAvatarMenu = () => {
               <XRInput value={thumbnailUrl} onChange={handleThumbnailUrlChange} placeholder="Paste Thumbnail Url..." />
             </div>
             <XRTextButton
-              content={
-                <>
-                  {t('user:avatar.lbl-upload')}
-                  <CloudUpload />
-                </>
-              }
               variant="gradient"
               onClick={uploadAvatar}
               xr-layer="true"
               disabled={!validAvatarUrl}
               style={{ cursor: !validAvatarUrl ? 'not-allowed' : 'pointer' }}
-            />
+            >
+              {t('user:avatar.lbl-upload')}
+              <CloudUpload />
+            </XRTextButton>
           </div>
         ) : (
           <>
@@ -369,18 +366,15 @@ export const UploadAvatarMenu = () => {
                 />
               </div>
               <XRTextButton
-                content={
-                  <>
-                    {t('user:avatar.lbl-upload')}
-                    <CloudUpload />
-                  </>
-                }
                 variant="gradient"
                 xr-layer="true"
                 onClick={uploadAvatar}
                 style={{ cursor: uploadButtonEnabled ? 'pointer' : 'not-allowed' }}
                 disabled={!uploadButtonEnabled}
-              />
+              >
+                {t('user:avatar.lbl-upload')}
+                <CloudUpload />
+              </XRTextButton>
             </div>
           </>
         )}

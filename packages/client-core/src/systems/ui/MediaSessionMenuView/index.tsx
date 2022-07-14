@@ -4,6 +4,19 @@ import { useTranslation } from 'react-i18next'
 
 import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
 
+import {
+  Chat,
+  Face,
+  FaceRetouchingOff,
+  Mic,
+  MicOff,
+  ScreenShare,
+  StopScreenShare,
+  Videocam,
+  VideocamOff
+} from '@mui/icons-material'
+
+import { useMediaStreamState } from '../../../media/services/MediaStreamService'
 import XRTextButton from '../../components/XRTextButton'
 import styleString from './index.scss'
 
@@ -17,6 +30,12 @@ function createMediaSessionMenuState() {
 
 const MediaSessionMenuView = () => {
   const { t } = useTranslation()
+  const mediastream = useMediaStreamState()
+
+  const isFaceTrackingEnabled = mediastream.isFaceTrackingEnabled
+  const isCamVideoEnabled = mediastream.isCamVideoEnabled
+  const isCamAudioEnabled = mediastream.isCamAudioEnabled
+  const isScreenVideoEnabled = mediastream.isScreenVideoEnabled
 
   const handleToggleAudio = () => {
     // TODO toggle audio here...
@@ -38,16 +57,36 @@ const MediaSessionMenuView = () => {
     // TODO open admin controls menu here...
   }
 
+  const MicIcon = isCamAudioEnabled.value ? Mic : MicOff
+  const VideocamIcon = isCamVideoEnabled.value ? Videocam : VideocamOff
+  const FaceTrackingIcon = isFaceTrackingEnabled.value ? Face : FaceRetouchingOff
+  const ScreenShareIcon = isScreenVideoEnabled.value ? ScreenShare : StopScreenShare
+
   return (
     <>
       <style>{styleString}</style>
       <div className="container" xr-layer="true">
         <h3 className="heading">{t('user:usermenu.mediaSession.containerHeading')}</h3>
-        <XRTextButton content={t('user:usermenu.mediaSession.btn-audio')} onClick={handleToggleAudio} />
-        <XRTextButton content={t('user:usermenu.mediaSession.btn-video')} onClick={handleToggleVideo} />
-        <XRTextButton content={t('user:usermenu.mediaSession.btn-faceTracking')} onClick={handleToggleFaceTracking} />
-        <XRTextButton content={t('user:usermenu.mediaSession.btn-screenShare')} onClick={handleToggleScreenShare} />
-        <XRTextButton content={t('user:usermenu.mediaSession.btn-chat')} onClick={handleOpenChatMenuWidget} />
+        <XRTextButton onClick={handleToggleAudio}>
+          <MicIcon />
+          {t('user:usermenu.mediaSession.btn-audio')}
+        </XRTextButton>
+        <XRTextButton onClick={handleToggleVideo}>
+          <VideocamIcon />
+          {t('user:usermenu.mediaSession.btn-video')}
+        </XRTextButton>
+        <XRTextButton onClick={handleToggleFaceTracking}>
+          <FaceTrackingIcon />
+          {t('user:usermenu.mediaSession.btn-faceTracking')}
+        </XRTextButton>
+        <XRTextButton onClick={handleToggleScreenShare}>
+          <ScreenShareIcon />
+          {t('user:usermenu.mediaSession.btn-screenShare')}
+        </XRTextButton>
+        <XRTextButton onClick={handleOpenChatMenuWidget}>
+          <Chat />
+          {t('user:usermenu.mediaSession.btn-chat')}
+        </XRTextButton>
       </div>
     </>
   )

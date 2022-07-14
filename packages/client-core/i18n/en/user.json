@@ -118,6 +118,7 @@
     },
     "location": {
       "containerHeading": "Current Location",
+      "btn-immersive": "Immersive Mode",
       "btn-respawn": "Respawn",
       "btn-emote": "Emote",
       "btn-help": "Help",

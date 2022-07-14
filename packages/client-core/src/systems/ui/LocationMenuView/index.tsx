@@ -2,10 +2,16 @@ import { createState } from '@speigg/hookstate'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { VrIcon } from '@xrengine/client-core/src/common/components/Icons/Vricon'
 import { respawnAvatar } from '@xrengine/engine/src/avatar/functions/respawnAvatar'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { EngineActions, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
+import { dispatchAction } from '@xrengine/hyperflux'
 
+import { AdminPanelSettings, Help, Refresh, Report, ScreenshotMonitor } from '@mui/icons-material'
+
+import { EmoteIcon } from '../../../user/components/UserMenu'
 import { useAuthState } from '../../../user/services/AuthService'
 import XRTextButton from '../../components/XRTextButton'
 import styleString from './index.scss'
@@ -20,8 +26,19 @@ function createLocationMenuState() {
 
 const LocationMenuView = () => {
   const { t } = useTranslation()
+  const engineState = useEngineState()
 
   const isAdmin = useAuthState().user?.userRole?.value === 'admin'
+
+  const handleStartXRSession = () => {
+    if (!engineState.xrSessionStarted.value) {
+      dispatchAction(EngineActions.xrStart())
+    }
+  }
+
+  const handleRespawnAvatar = () => {
+    respawnAvatar(Engine.instance.currentWorld.localClientEntity)
+  }
 
   const handleOpenEmoteMenuWidget = () => {
     // TODO open emote menu widget here...
@@ -43,25 +60,42 @@ const LocationMenuView = () => {
     // TODO open admin controls menu here...
   }
 
-  const handleRespawnAvatar = () => {
-    respawnAvatar(Engine.instance.currentWorld.localClientEntity)
-  }
-
   return (
     <>
       <style>{styleString}</style>
       <div className="container" xr-layer="true">
         <h3 className="heading">{t('user:usermenu.location.containerHeading')}</h3>
-        <XRTextButton content={t('user:usermenu.location.btn-respawn')} onClick={handleRespawnAvatar} />
-        <XRTextButton content={t('user:usermenu.location.btn-emote')} onClick={handleOpenEmoteMenuWidget} />
-        <XRTextButton content={t('user:usermenu.location.btn-help')} onClick={handleOpenHelpMenuWidget} />
-        <XRTextButton content={t('user:usermenu.location.btn-reportIssue')} onClick={handleOpenReportIssueMenuWidget} />
-        <XRTextButton content={t('user:usermenu.location.btn-screenRecord')} onClick={handleToggleScreenRecord} />
+        {!engineState.xrSessionStarted.value && (
+          <XRTextButton onClick={handleStartXRSession}>
+            <VrIcon />
+            {t('user:usermenu.location.btn-immersive')}
+          </XRTextButton>
+        )}
+        <XRTextButton onClick={handleRespawnAvatar}>
+          <Refresh />
+          {t('user:usermenu.location.btn-respawn')}
+        </XRTextButton>
+        <XRTextButton onClick={handleOpenEmoteMenuWidget}>
+          <EmoteIcon />
+          {t('user:usermenu.location.btn-emote')}
+        </XRTextButton>
+        <XRTextButton onClick={handleOpenHelpMenuWidget}>
+          <Help />
+          {t('user:usermenu.location.btn-help')}
+        </XRTextButton>
+        <XRTextButton onClick={handleOpenReportIssueMenuWidget}>
+          <Report />
+          {t('user:usermenu.location.btn-reportIssue')}
+        </XRTextButton>
+        <XRTextButton onClick={handleToggleScreenRecord}>
+          <ScreenshotMonitor />
+          {t('user:usermenu.location.btn-screenRecord')}
+        </XRTextButton>
         {isAdmin && (
-          <XRTextButton
-            content={t('user:usermenu.location.btn-adminControls')}
-            onClick={handleOpenAdminControlsMenuWidget}
-          />
+          <XRTextButton onClick={handleOpenAdminControlsMenuWidget}>
+            <AdminPanelSettings />
+            {t('user:usermenu.location.btn-adminControls')}
+          </XRTextButton>
         )}
       </div>
     </>
