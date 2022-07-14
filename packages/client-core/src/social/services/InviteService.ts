@@ -178,7 +178,8 @@ export const InviteService = {
         makeAdmin: data.makeAdmin,
         deleteOnUse: data.deleteOnUse,
         spawnType: data.spawnType,
-        spawnDetails: data.spawnDetails
+        spawnDetails: data.spawnDetails,
+        existenceCheck: true
       }
 
       const existingInviteResult = (await API.instance.client.service('invite').find({

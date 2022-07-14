@@ -377,6 +377,7 @@ export class AcceptInvite implements ServiceMethods<Data> {
           const spawnDetails = JSON.parse(invite.spawnDetails)
           if (invite.spawnType === 'inviteCode') returned.inviteCode = spawnDetails.inviteCode
           if (invite.spawnType === 'spawnPoint') returned.spawnPoint = spawnDetails.spawnPoint
+          if (invite.spawnType === 'spectate') returned.spectate = spawnDetails.spectate
         }
       }
 
@@ -398,6 +399,7 @@ export class AcceptInvite implements ServiceMethods<Data> {
           const spawnDetails = JSON.parse(invite.spawnDetails)
           if (invite.spawnType === 'inviteCode') returned.inviteCode = spawnDetails.inviteCode
           if (invite.spawnType === 'spawnPoint') returned.spawnPoint = spawnDetails.spawnPoint
+          if (invite.spawnType === 'spectate') returned.spectate = spawnDetails.spectate
         }
       }
       return returned

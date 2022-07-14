@@ -31,9 +31,11 @@ function redirect(req, res, next): any {
     if (res.data.locationName) {
       let path = `/location/${res.data.locationName}`
       if (res.data.inviteCode)
-        path += path.indexOf('?') > 0 ? `&inviteCode=${res.data.inviteCode}` : `?inviteCode=${res.data.inviteCode}`
+        path += path.indexOf('?') > -1 ? `&inviteCode=${res.data.inviteCode}` : `?inviteCode=${res.data.inviteCode}`
       if (res.data.spawnPoint)
-        path += path.indexOf('?') > 0 ? `&spawnPoint=${res.data.spawnPoint}` : `?spawnPoint=${res.data.spawnPoint}`
+        path += path.indexOf('?') > -1 ? `&spawnPoint=${res.data.spawnPoint}` : `?spawnPoint=${res.data.spawnPoint}`
+      if (res.data.spectate)
+        path += path.indexOf('?') > -1 ? `&spectate=${res.data.spectate}` : `?spectate=${res.data.spectate}`
       if (res.data.instanceId) path += `&instanceId=${res.data.instanceId}`
       link += `&path=${path}`
     }

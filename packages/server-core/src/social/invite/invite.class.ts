@@ -139,7 +139,8 @@ export const inviteSent = async (inviteService: Invite, query: Query) => {
 }
 
 export const inviteAll = async (inviteService: Invite, query: Query, user: UserInterface) => {
-  if (!user || user.userRole !== 'admin') throw new Forbidden('Must be admin to search invites in this way')
+  if ((!user || user.userRole !== 'admin') && !query.existenceCheck)
+    throw new Forbidden('Must be admin to search invites in this way')
 
   const { $sort, search } = query
   let q = {}
@@ -156,7 +157,8 @@ export const inviteAll = async (inviteService: Invite, query: Query, user: UserI
       ]
     }
   }
-  delete query.userId
+  if (!query.existenceCheck) delete query.userId
+  delete query.existenceCheck
   const result = (await Service.prototype.find.call(inviteService, {
     query: {
       // userId: query.userId,

@@ -17,7 +17,7 @@ export type Invite = {
   makeAdmin: boolean
   deleteOnUse: boolean
   spawnType?: string
-  spawnDetails?: { inviteCode?: string; spawnPoint?: string } | string | null
+  spawnDetails?: { inviteCode?: string; spawnPoint?: string; spectate?: string } | string | null
 }
 
 export const InviteSeed = {
@@ -34,7 +34,7 @@ export interface SendInvite {
   makeAdmin?: boolean | null
   deleteOnUse?: boolean | null
   spawnType?: string | null
-  spawnDetails?: { inviteCode?: string; spawnPoint?: string } | string | null
+  spawnDetails?: { inviteCode?: string; spawnPoint?: string; spectate?: string } | string | null
 }
 
 export interface InviteInterface {
@@ -49,7 +49,7 @@ export interface InviteInterface {
   makeAdmin: boolean
   deleteOnUse: boolean
   spawnType?: string
-  spawnDetails?: { inviteCode?: string; spawnPoint?: string } | string | null
+  spawnDetails?: { inviteCode?: string; spawnPoint?: string; spectate?: string } | string | null
   createdAt: string
   updatedAt: string
   userId: string

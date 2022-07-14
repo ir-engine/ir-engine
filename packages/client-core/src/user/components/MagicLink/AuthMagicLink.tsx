@@ -26,7 +26,7 @@ const AuthMagicLink = ({ token, type, instanceId, path }: Props): JSX.Element =>
     if (type === 'login') {
       let redirectSuccess = path ? `${path}` : null
       if (redirectSuccess && instanceId != null)
-        redirectSuccess += redirectSuccess.indexOf('?') > 0 ? `&instanceId=${instanceId}` : `?instanceId=${instanceId}`
+        redirectSuccess += redirectSuccess.indexOf('?') > -1 ? `&instanceId=${instanceId}` : `?instanceId=${instanceId}`
       AuthService.loginUserByJwt(token, redirectSuccess || '/', '/')
     } else if (type === 'connection') {
       AuthService.loginUserMagicLink(token, '/', '/')
