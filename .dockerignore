@@ -7,7 +7,6 @@ kubectl
 lib/
 packages/client/dist
 packages/native-plugin-example
-packages/docs
 packages/ops
 readme/
 tests/
