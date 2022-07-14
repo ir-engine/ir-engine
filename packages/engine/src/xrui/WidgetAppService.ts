@@ -1,7 +1,7 @@
 import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
-import { Downgraded, none } from '@xrengine/hyperflux/functions/StateFunctions'
+import { none } from '@xrengine/hyperflux/functions/StateFunctions'
 
-import { matches, Validator } from '../common/functions/MatchesUtils'
+import { matches } from '../common/functions/MatchesUtils'
 import { Engine } from '../ecs/classes/Engine'
 
 type WidgetState = {
