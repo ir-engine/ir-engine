@@ -23,20 +23,23 @@ export class PartyUser<T = PartyUserDataType> extends Service<T> {
 
   async find(params?: Params): Promise<any> {
     try {
-      const PartyUserMS = this.app.service('party-user').Model as PartyUserModelStatic
-
       const loggedInUser = params!.user as UserInterface
+      const isInternalOrAdmin = (params && params.isInternalRequest) || loggedInUser?.userRole === 'admin'
 
-      console.debug(loggedInUser)
-      const partyUser = await PartyUserMS.findOne({ where: { userId: loggedInUser.id } })
+      if (!isInternalOrAdmin && !loggedInUser) return null!
 
-      console.debug(partyUser)
+      const where = {
+        [Op.and]: Sequelize.literal('`user->static_resources`.`staticResourceType` = "user-thumbnail"')
+      } as any
 
-      await PartyUserMS.findAll({
-        where: {
-          partyId: loggedInUser.id,
-          [Op.and]: Sequelize.literal('`user->static_resources`.`staticResourceType` = "user-thumbnail"')
-        },
+      if (!isInternalOrAdmin) where.userId = loggedInUser.id
+      if (params?.query) {
+        if (typeof params.query.partyId !== 'undefined') where.partyId = params.query.partyId
+      }
+
+      const PartyUserMS = this.app.service('party-user').Model as PartyUserModelStatic
+      const users = await PartyUserMS.findAll({
+        where,
         include: [
           {
             model: this.app.service('user').Model,
@@ -49,6 +52,8 @@ export class PartyUser<T = PartyUserDataType> extends Service<T> {
           }
         ]
       })
+
+      return { data: users }
     } catch (e) {
       logger.error(e)
       return null!
@@ -61,9 +66,6 @@ export class PartyUser<T = PartyUserDataType> extends Service<T> {
       const PartyMS = this.app.service('party').Model as PartyModelStatic
 
       const partyUser = await PartyUserMS.findOne({ where: { userId: id } })
-
-      console.debug(partyUser)
-
       const partyUserCount = await PartyUserMS.count({ where: { partyId: partyUser?.getDataValue('partyId') } })
 
       if (partyUserCount < 1) await PartyMS.destroy({ where: { id: partyUser?.getDataValue('partyId') } })

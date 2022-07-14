@@ -8,13 +8,14 @@ import unsetSelfPartyOwner from '@xrengine/server-core/src/hooks/unset-self-part
 
 import addAssociations from '../../hooks/add-associations'
 import authenticate from '../../hooks/authenticate'
+import isInternalRequest from '../../hooks/isInternalRequest'
 import logger from '../../logger'
 
 // Don't remove this comment. It's needed to format import lines nicely.
 
 export default {
   before: {
-    all: [authenticate()],
+    all: [authenticate(), isInternalRequest()],
     find: [],
     get: [],
     create: [
