@@ -36,7 +36,6 @@ const PartyVideoWindows = (): JSX.Element => {
         <PartyParticipantWindow peerId={'screen_me'} key={'screen_me'} />
       )}
       <PartyParticipantWindow peerId={'cam_me'} key={'cam_me'} />
-      {/* <PartyParticipantWindow peerId={'cam_me'} key={'cam_me'} /> */}
       {displayedUsers.map((user) => (
         <>
           <PartyParticipantWindow peerId={user.id} key={user.id} />

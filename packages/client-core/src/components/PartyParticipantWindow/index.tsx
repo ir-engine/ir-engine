@@ -45,12 +45,6 @@ import { useMediaInstanceConnectionState } from '../../common/services/MediaInst
 import { SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientNetwork'
 import Draggable from './Draggable'
 import styles from './index.module.scss'
-import Resizeable from './Resizeable'
-
-interface ContainerProportions {
-  width: number | string
-  height: number | string
-}
 
 interface Props {
   peerId?: string | 'cam_me' | 'screen_me'
@@ -72,13 +66,10 @@ const PartyParticipantWindow = ({ peerId }: Props): JSX.Element => {
   const userState = useUserState()
   const videoRef = React.useRef<any>()
   const audioRef = React.useRef<any>()
-  const controlRef = React.useRef<any>()
   const videoStreamRef = useRef(videoStream)
   const audioStreamRef = useRef(audioStream)
   const mediastream = useMediaStreamState()
   const { t } = useTranslation()
-
-  const [isControlVisible, setIsControlVisible] = useState(false)
 
   const userHasInteracted = useEngineState().userHasInteracted
   const selfUser = useAuthState().user.value
@@ -86,7 +77,7 @@ const PartyParticipantWindow = ({ peerId }: Props): JSX.Element => {
   const enableGlobalMute =
     currentLocation?.locationSetting?.locationType?.value === 'showroom' &&
     selfUser?.locationAdmins?.find((locationAdmin) => currentLocation?.id?.value === locationAdmin.locationId) != null
-  const isScreen = peerId && peerId.startsWith('screen_')
+  const isScreen = Boolean(peerId && peerId.startsWith('screen_'))
   const userId = isScreen ? peerId!.replace('screen_', '') : peerId
   const user = userState.layerUsers.find((user) => user.id.value === userId)?.attach(Downgraded).value
 
@@ -448,23 +439,28 @@ const PartyParticipantWindow = ({ peerId }: Props): JSX.Element => {
   const userAvatarDetails = useHookstate(getState(WorldState).userAvatarDetails)
 
   return (
-    <Resizeable isPiP={isPiP} isScreenMe={peerId === 'screen_me'} setIsControlVisible={setIsControlVisible}>
+    <Draggable isPiP={isPiP}>
       <div
         tabIndex={0}
         id={peerId + '_container'}
         className={classNames({
+          [styles['resizeable-screen']]: isScreen && !isPiP,
+          [styles['resizeable-screen-fullscreen']]: isScreen && isPiP,
           [styles['party-chat-user']]: true,
           [styles['self-user']]: peerId === 'cam_me',
           [styles['no-video']]: videoStream == null,
           [styles['video-paused']]: videoStream && (videoProducerPaused || videoStreamPaused),
-          [styles.pip]: isPiP && peerId === 'cam_me',
-          [styles.screenpip]: isPiP && peerId === 'screen_me'
+          [styles.pip]: isPiP && !isScreen,
+          [styles.screenpip]: isPiP && isScreen
         })}
+        onClick={() => {
+          if (isScreen && isPiP) togglePiP()
+        }}
       >
         <div
           className={classNames({
-            [styles['video-wrapper']]: peerId === 'cam_me',
-            [styles['screen-video-wrapper']]: peerId === 'screen_me'
+            [styles['video-wrapper']]: !isScreen,
+            [styles['screen-video-wrapper']]: isScreen
           })}
         >
           {(videoStream == null || videoStreamPaused || videoProducerPaused || videoProducerGlobalMute) && (
@@ -478,13 +474,7 @@ const PartyParticipantWindow = ({ peerId }: Props): JSX.Element => {
           <video key={peerId + '_cam'} ref={videoRef} draggable={false} />
         </div>
         <audio key={peerId + '_audio'} ref={audioRef} />
-        <div
-          ref={controlRef}
-          className={classNames({
-            [styles['user-controls']]: true,
-            [styles['user-controls-visible']]: isControlVisible
-          })}
-        >
+        <div className={styles['user-controls']}>
           <div className={styles['username']}>{username}</div>
           <div className={styles['controls']}>
             <div className={styles['mute-controls']}>
@@ -569,7 +559,7 @@ const PartyParticipantWindow = ({ peerId }: Props): JSX.Element => {
           </div>
         </div>
       </div>
-    </Resizeable>
+    </Draggable>
   )
 }
 
