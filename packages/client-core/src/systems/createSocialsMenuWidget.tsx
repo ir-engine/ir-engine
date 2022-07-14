@@ -3,13 +3,11 @@ import { addComponent, getComponent } from '@xrengine/engine/src/ecs/functions/C
 import { PersistTagComponent } from '@xrengine/engine/src/scene/components/PersistTagComponent'
 import { XRUIComponent } from '@xrengine/engine/src/xrui/components/XRUIComponent'
 import { ObjectFitFunctions } from '@xrengine/engine/src/xrui/functions/ObjectFitFunctions'
-import { Widgets } from '@xrengine/engine/src/xrui/Widgets'
+import { WidgetName, Widgets } from '@xrengine/engine/src/xrui/Widgets'
 
 import GroupsIcon from '@mui/icons-material/Groups'
 
 import { createSocialsMenuView } from './ui/SocialsMenuView'
-
-const widgetName = 'SocialsMenu'
 
 export function createSocialsMenuWidget(world: World) {
   const ui = createSocialsMenuView()
@@ -23,7 +21,7 @@ export function createSocialsMenuWidget(world: World) {
 
   Widgets.registerWidget(world, ui.entity, {
     ui,
-    label: widgetName,
+    label: WidgetName.SOCIALS,
     icon: GroupsIcon,
     system: () => {}
   })

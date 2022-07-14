@@ -6,11 +6,11 @@ import { useTranslation } from 'react-i18next'
 
 import { validateEmail, validatePhoneNumber } from '@xrengine/common/src/config'
 import { defaultThemeModes, defaultThemeSettings } from '@xrengine/common/src/constants/DefaultThemeSettings'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { WorldState } from '@xrengine/engine/src/networking/interfaces/WorldState'
 import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
-import { accessWidgetAppState, WidgetAppActions } from '@xrengine/engine/src/xrui/WidgetAppService'
-import { dispatchAction, getState } from '@xrengine/hyperflux'
+import { WidgetAppService } from '@xrengine/engine/src/xrui/WidgetAppService'
+import { WidgetName } from '@xrengine/engine/src/xrui/Widgets'
+import { getState } from '@xrengine/hyperflux'
 
 import { Check, Create, GitHub, Refresh } from '@mui/icons-material'
 import ContentCopyIcon from '@mui/icons-material/ContentCopy'
@@ -227,7 +227,7 @@ const ProfileDetailView = () => {
   }
 
   const handleLogout = async (e) => {
-    setWidgetVisibility('Profile', false)
+    WidgetAppService.setWidgetVisibility(WidgetName.PROFILE, false)
     setShowUserId(false)
     setShowApiKey(false)
     await AuthService.logoutUser()
@@ -261,32 +261,12 @@ const ProfileDetailView = () => {
     }
   }
 
-  const setWidgetVisibility = (widgetName: string, visibility: boolean) => {
-    const widgetState = accessWidgetAppState()
-    const widgets = Object.entries(widgetState.widgets.value).map(([id, widgetState]) => ({
-      id,
-      ...widgetState,
-      ...Engine.instance.currentWorld.widgets.get(id)!
-    }))
-
-    const currentWidget = widgets.find((w) => w.label === widgetName)
-
-    // close currently open widgets until we support multiple widgets being open at once
-    for (let widget of widgets) {
-      if (currentWidget && widget.id !== currentWidget.id) {
-        dispatchAction(WidgetAppActions.showWidget({ id: widget.id, shown: false }))
-      }
-    }
-
-    currentWidget && dispatchAction(WidgetAppActions.showWidget({ id: currentWidget.id, shown: visibility }))
-  }
-
   const handleOpenSelectAvatarWidget = () => {
-    setWidgetVisibility('SelectAvatar', true)
+    WidgetAppService.setWidgetVisibility(WidgetName.SELECT_AVATAR, true)
   }
 
   const handleOpenReadyPlayerWidget = () => {
-    setWidgetVisibility('ReadyPlayer', true)
+    WidgetAppService.setWidgetVisibility(WidgetName.READY_PLAYER, true)
   }
 
   const enableSocial =
