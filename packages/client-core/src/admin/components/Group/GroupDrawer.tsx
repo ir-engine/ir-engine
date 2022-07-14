@@ -137,7 +137,7 @@ const GroupDrawer = ({ open, mode, selectedGroup, onClose }: Props) => {
     const data: CreateGroup = {
       name: state.name,
       description: state.description,
-      scopeTypes: state.scopeTypes
+      scopes: state.scopeTypes
     }
 
     let tempErrors = {

@@ -95,7 +95,7 @@ export const useShareMenuHooks = ({ refLink }) => {
   useEffect(() => {
     if (engineState.shareLink.value !== '') setShareLink(engineState.shareLink.value)
     else setShareLink(isSpectatorMode ? getSpectateModeUrl() : getInviteLink())
-  }, [engineState.shareLink.value])
+  }, [engineState.shareLink.value, isSpectatorMode])
 
   return {
     copyLinkToClipboard,

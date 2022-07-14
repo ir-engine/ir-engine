@@ -246,7 +246,6 @@ export const AuthService = {
         } else {
           res.user_setting = settingsRes.data[0]
         }
-        return res
       }
       const user = resolveUser(res)
       dispatchAction(AuthAction.loadedUserDataAction({ user }))
