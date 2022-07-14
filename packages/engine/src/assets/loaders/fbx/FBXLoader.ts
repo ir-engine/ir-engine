@@ -1,5 +1,6 @@
 //Three.js r136 FBXLoader
 //@ts-nocheck
+import * as fflate from 'fflate'
 import {
   AmbientLight,
   AnimationClip,
@@ -44,7 +45,6 @@ import {
   VectorKeyframeTrack
 } from 'three'
 
-import * as fflate from './fflate.module.js'
 import { NURBSCurve } from './NURBSCurve.ts'
 
 /**
