@@ -1,4 +1,4 @@
-import { SceneMetadata } from '@xrengine/common/src/interfaces/SceneInterface'
+import { SceneData, SceneMetadata } from '@xrengine/common/src/interfaces/SceneInterface'
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
@@ -17,7 +17,8 @@ const AdminSceneState = defineState({
     retrieving: false,
     fetched: false,
     updateNeeded: true,
-    lastFetched: Date.now()
+    lastFetched: Date.now(),
+    singleScene: { scene: {} } as SceneData
   })
 })
 
@@ -32,8 +33,20 @@ const scenesFetchedReceptor = (action: typeof AdminSceneActions.scenesFetched.ma
   })
 }
 
+const sceneFetchedReceptor = (action: typeof AdminSceneActions.sceneFetched.matches._TYPE) => {
+  const state = getState(AdminSceneState)
+  return state.merge({
+    singleScene: action.sceneData,
+    retrieving: false,
+    fetched: true,
+    updateNeeded: false,
+    lastFetched: Date.now()
+  })
+}
+
 export const AdminSceneReceptors = {
-  scenesFetchedReceptor
+  scenesFetchedReceptor,
+  sceneFetchedReceptor
 }
 
 export const accessAdminSceneState = () => getState(AdminSceneState)
@@ -44,6 +57,10 @@ export const AdminSceneService = {
   fetchAdminScenes: async (incDec?: 'increment' | 'decrement' | 'all') => {
     const scenes = await API.instance.client.service('scene').find()
     dispatchAction(AdminSceneActions.scenesFetched({ sceneData: scenes.data }))
+  },
+  fetchAdminScene: async (projectName, sceneName) => {
+    const scene = await API.instance.client.service('scene').get({ projectName, sceneName, metadataOnly: false })
+    dispatchAction(AdminSceneActions.sceneFetched({ sceneData: scene.data }))
   }
 }
 
@@ -52,5 +69,10 @@ export class AdminSceneActions {
   static scenesFetched = defineAction({
     type: 'ADMIN_SCENES_RETRIEVED' as const,
     sceneData: matches.array as Validator<unknown, SceneMetadata[]>
+  })
+
+  static sceneFetched = defineAction({
+    type: 'ADMIN_SCENE_RETRIEVED' as const,
+    sceneData: matches.object as Validator<unknown, SceneData>
   })
 }

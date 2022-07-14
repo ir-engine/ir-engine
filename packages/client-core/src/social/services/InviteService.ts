@@ -10,11 +10,11 @@ import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
 import { accessAuthState } from '../../user/services/AuthService'
 
-const emailRegex =
+export const emailRegex =
   /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/
-const phoneRegex = /^[0-9]{10}$/
-const userIdRegex = /^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$/
-const inviteCodeRegex = /^[0-9a-fA-F]{8}$/
+export const phoneRegex = /^[0-9]{10}$/
+export const userIdRegex = /^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$/
+export const inviteCodeRegex = /^[0-9a-fA-F]{8}$/
 
 //State
 export const INVITE_PAGE_LIMIT = 100
@@ -114,21 +114,27 @@ export const useInviteState = () => useState(accessInviteState())
 export const InviteService = {
   sendInvite: async (data: SendInvite) => {
     if (data.identityProviderType === 'email') {
-      if (emailRegex.test(data.token) !== true) {
-        NotificationService.dispatchNotify('Invalid email address', { variant: 'error' })
-        return
-      }
-    }
-    if (data.identityProviderType === 'sms') {
-      if (phoneRegex.test(data.token) !== true) {
-        NotificationService.dispatchNotify('Invalid 10-digit US phone number', { variant: 'error' })
+      if (!data.token || !emailRegex.test(data.token)) {
+        NotificationService.dispatchNotify(`Invalid email address: ${data.token}`, { variant: 'error' })
         return
       }
     }
 
+    if (data.identityProviderType === 'sms') {
+      if (!data.token || !phoneRegex.test(data.token)) {
+        NotificationService.dispatchNotify(`Invalid 10-digit US phone number: ${data.token}`, { variant: 'error' })
+        return
+      }
+    }
+
+    if (data.token && !data.identityProviderType) {
+      NotificationService.dispatchNotify(`Invalid value: ${data.token}`, { variant: 'error' })
+      return
+    }
+
     if (data.inviteCode != null) {
       if (!inviteCodeRegex.test(data.inviteCode)) {
-        NotificationService.dispatchNotify('Invalid Invite Code', { variant: 'error' })
+        NotificationService.dispatchNotify(`Invalid Invite Code: ${data.inviteCode}`, { variant: 'error' })
         return
       } else {
         try {
@@ -140,34 +146,40 @@ export const InviteService = {
           })) as Paginated<UserInterface>
 
           if (userResult.total === 0) {
-            NotificationService.dispatchNotify('No user has that invite code', { variant: 'error' })
+            NotificationService.dispatchNotify(`No user has the invite code ${data.inviteCode}`, { variant: 'error' })
             return
           }
+          data.inviteeId = userResult.data[0].id
         } catch (err) {
           NotificationService.dispatchNotify(err.message, { variant: 'error' })
         }
       }
     }
 
-    if (data.invitee != null) {
-      if (userIdRegex.test(data.invitee) !== true) {
+    if (data.inviteeId != null) {
+      if (!userIdRegex.test(data.inviteeId)) {
         NotificationService.dispatchNotify('Invalid user ID', { variant: 'error' })
         return
       }
     }
 
-    if ((data.token == null || data.token.length === 0) && (data.invitee == null || data.invitee.length === 0)) {
+    if ((data.token == null || data.token.length === 0) && (data.inviteeId == null || data.inviteeId.length === 0)) {
       NotificationService.dispatchNotify('Not a valid recipient', { variant: 'error' })
       return
     }
 
     try {
       const params = {
-        inviteType: data.type,
+        inviteType: data.inviteType,
         token: data.token,
         targetObjectId: data.targetObjectId,
         identityProviderType: data.identityProviderType,
-        inviteeId: data.invitee
+        inviteeId: data.inviteeId,
+        makeAdmin: data.makeAdmin,
+        deleteOnUse: data.deleteOnUse,
+        spawnType: data.spawnType,
+        spawnDetails: data.spawnDetails,
+        existenceCheck: true
       }
 
       const existingInviteResult = (await API.instance.client.service('invite').find({
@@ -178,7 +190,11 @@ export const InviteService = {
       if (existingInviteResult.total === 0) inviteResult = await API.instance.client.service('invite').create(params)
 
       NotificationService.dispatchNotify('Invite Sent', { variant: 'success' })
-      dispatchAction(InviteAction.sentInvite({ id: inviteResult }))
+      dispatchAction(
+        InviteAction.sentInvite({
+          id: existingInviteResult.total > 0 ? existingInviteResult.data[0].id : inviteResult.id
+        })
+      )
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
