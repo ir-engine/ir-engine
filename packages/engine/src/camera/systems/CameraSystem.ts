@@ -186,7 +186,7 @@ export const calculateCameraTarget = (entity: Entity, target: Vector3) => {
   if (!transform) return
 
   if (avatar) {
-    target.set(0, avatar.avatarHeight, 0.2)
+    target.set(0, avatar.avatarHeight - 0.1, 0.1)
     target.applyQuaternion(transform.rotation)
     target.add(transform.position)
   } else {
