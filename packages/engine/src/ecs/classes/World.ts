@@ -318,7 +318,7 @@ export class World {
 
     const end = nowMilliseconds()
     const duration = end - start
-    if (duration > 50) {
+    if (duration > 150) {
       console.warn(`Long frame execution detected. Duration: ${duration}. \n Incoming actions: `, incomingActions)
     }
   }

@@ -39,15 +39,21 @@ const logger = multiLogger.child({ component: 'instanceserver:socket' })
 export const setupSocketFunctions = (network: SocketWebRTCServerNetwork, socket: Socket) => {
   logger.info('Initialized new socket connection with id %s', socket.id)
 
-  let hasListeners = false
+  let startedAuthorization = false
+
   /**
+   * TODO: update this authorization procedure to use https://frontside.com/effection to better handle async flow
+   *
+   *
    * Authorize user and make sure everything is valid before allowing them to join the world
    **/
   socket.on(MessageTypes.Authorization.toString(), async (data, callback) => {
-    if (hasListeners) {
+    if (startedAuthorization) {
       callback({ success: true })
       return
     }
+
+    startedAuthorization = true
 
     logger.info('[MessageTypes.Authorization]: got auth request for %s', data.userId)
     const accessToken = data.accessToken
@@ -56,6 +62,7 @@ export const setupSocketFunctions = (network: SocketWebRTCServerNetwork, socket:
      * userId or access token were undefined, so something is wrong. Return failure
      */
     if (typeof accessToken === 'undefined' || accessToken === null) {
+      startedAuthorization = false
       callback({ success: false, message: 'accessToken is undefined' })
       return
     }
@@ -73,6 +80,7 @@ export const setupSocketFunctions = (network: SocketWebRTCServerNetwork, socket:
     })
 
     if (!user) {
+      startedAuthorization = false
       callback({ success: false, message: 'user not found' })
       return
     }
@@ -91,8 +99,6 @@ export const setupSocketFunctions = (network: SocketWebRTCServerNetwork, socket:
     await handleConnectingPeer(network, socket, user)
 
     callback({ success: true })
-
-    hasListeners = true
 
     socket.on(MessageTypes.JoinWorld.toString(), async (data, callback) => {
       handleJoinWorld(network, socket, data, callback, userId, user)
