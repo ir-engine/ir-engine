@@ -6,7 +6,7 @@ import { V_000, V_001, V_010 } from '../common/constants/MathConstants'
 import { Engine } from '../ecs/classes/Engine'
 import { Entity } from '../ecs/classes/Entity'
 import { World } from '../ecs/classes/World'
-import { defineQuery, getComponent } from '../ecs/functions/ComponentFunctions'
+import { defineQuery, getComponent, hasComponent } from '../ecs/functions/ComponentFunctions'
 import { LocalInputTagComponent } from '../input/components/LocalInputTagComponent'
 import { BaseInput } from '../input/enums/BaseInput'
 import { AvatarMovementScheme } from '../input/enums/InputEnums'
@@ -17,6 +17,7 @@ import { XRInputSourceComponent } from '../xr/components/XRInputSourceComponent'
 import { AvatarInputSchema } from './AvatarInputSchema'
 import { AvatarComponent } from './components/AvatarComponent'
 import { AvatarControllerComponent } from './components/AvatarControllerComponent'
+import { AvatarHeadDecapComponent } from './components/AvatarHeadDecapComponent'
 import { detectUserInCollisions } from './functions/detectUserInCollisions'
 import {
   alignXRCameraWithAvatar,
@@ -122,6 +123,19 @@ export const updateAvatarTransformPosition = (entity: Entity) => {
   transform.position.set(pose.x, pose.y - avatar.avatarHalfHeight, pose.z)
 }
 
+const _cameraDirection = new Vector3()
+const _mat = new Matrix4()
+const _desiredRotation = new Quaternion()
+export const rotateTowardsCameraDirection = (entity: Entity) => {
+  const world = Engine.instance.currentWorld
+  const avatarTransform = getComponent(entity, TransformComponent)
+  const cameraRotation = getComponent(Engine.instance.currentWorld.cameraEntity, TransformComponent).rotation
+  const direction = _cameraDirection.set(0, 0, 1).applyQuaternion(cameraRotation)
+  direction.y = 0
+  _desiredRotation.setFromRotationMatrix(_mat.lookAt(V_000, direction, V_010))
+  avatarTransform.rotation.slerp(_desiredRotation, Math.max(world.deltaSeconds * 2, 3 / 60))
+}
+
 export const rotateTowardsDisplacementVector = (entity: Entity, displacement: Vector3, world: World) => {
   const transform = getComponent(entity, TransformComponent)
 
@@ -140,7 +154,8 @@ export const controllerQueryUpdate = (
   displacement: Vector3,
   world: World = Engine.instance.currentWorld
 ) => {
-  rotateTowardsDisplacementVector(entity, displacement, world)
+  if (hasComponent(entity, AvatarHeadDecapComponent)) rotateTowardsCameraDirection(entity)
+  else rotateTowardsDisplacementVector(entity, displacement, world)
 
   const displace = moveAvatar(world, entity, Engine.instance.currentWorld.camera)
   displacement.set(displace.x, displace.y, displace.z)
