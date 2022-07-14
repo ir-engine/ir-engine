@@ -65,7 +65,7 @@ Host Demos
 
 Create composable plug-ins for XREngine scenes with XRModule Projects
 
-### [Create XRModule Projects](https://xrfoundation.github.io/Ethereal-Engine-Docs/docs/concepts/projects_api)
+### [Create XRModule Projects](https://xrfoundation.github.io/ethereal-engine-docs/docs/concepts/projects_api)
 
 XRModules are folders that contain all your custom code, assets and scenes. They are version controlled using git & github, and can be installed to any deployment with a single click. (more on that in the next chapter)
 
@@ -101,17 +101,17 @@ To install Ethereal Engine locally, the following pre-reqs are required.
 
 ### Getting Started
 
-See the [Installation instructions](https://xrfoundation.github.io/Ethereal-Engine-Docs/docs/installation/)
+See the [Installation instructions](https://xrfoundation.github.io/ethereal-engine-docs/docs/installation/)
 for more details.
 
 ## Usage
 
 ### Documentation
 
-* [General XREngine documentation](https://xrfoundation.github.io/Ethereal-Engine-Docs/docs)
-* [Auto-generated (tsdoc) API reference](https://xrfoundation.github.io/Ethereal-Engine-Docs/docs/generated/common/)
+* [General XREngine documentation](https://xrfoundation.github.io/ethereal-engine-docs/docs)
+* [Auto-generated (tsdoc) API reference](https://xrfoundation.github.io/ethereal-engine-docs/docs/generated/common/)
 * [Avatar, Scene & Asset Pipeline](https://github.com/XRFoundation/XREngine/wiki/Avatar,-Scene-&-Asset-Pipeline)
-* [Why are we building XREngine?](https://xrfoundation.github.io/Ethereal-Engine-Docs/docs/)
+* [Why are we building XREngine?](https://xrfoundation.github.io/ethereal-engine-docs/docs/)
 
 ## Contributing
 

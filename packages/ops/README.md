@@ -15,12 +15,12 @@ helm install my-release xrengine/xrengine
 For more details about the ethereal engine chart
 
 - [Ethereal Engine helm chart](xrengine/)
-- [Building the ethereal engine helm chart](https://xrfoundation.github.io/Ethereal-Engine-Docs/docs/devops_deployment/release_helm_chart)
+- [Building the ethereal engine helm chart](https://xrfoundation.github.io/ethereal-engine-docs/docs/devops_deployment/release_helm_chart)
 
 For deployment on different cloud providers:
 
-- [Deploying Ethereal Engine on AWS EKS](https://xrfoundation.github.io/Ethereal-Engine-Docs/docs/devops_deployment/AWS_setup)
-- [Managing Remote Kubernets Clusters - TBD](https://xrfoundation.github.io/Ethereal-Engine-Docs/docs/devops_deployment/managing_remote_kubernetes)
+- [Deploying Ethereal Engine on AWS EKS](https://xrfoundation.github.io/ethereal-engine-docs/docs/devops_deployment/AWS_setup)
+- [Managing Remote Kubernets Clusters - TBD](https://xrfoundation.github.io/ethereal-engine-docs/docs/devops_deployment/managing_remote_kubernetes)
 
 Requires Helm and access to a Kubernetes cluster, if you are new to those, check the following instructions:
 
