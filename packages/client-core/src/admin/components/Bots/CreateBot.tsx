@@ -125,7 +125,7 @@ const CreateBot = () => {
       setCommandData([])
       setCurrentIntance([])
     } else {
-      NotificationService.dispatchNotify(t('admin:components.bot.fillRequiredField'), { variant: 'error' })
+      NotificationService.dispatchNotify(t('admin:components.common.fillRequiredFields'), { variant: 'error' })
     }
   }
 

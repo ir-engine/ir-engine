@@ -6,7 +6,7 @@ import { Group } from '@xrengine/common/src/interfaces/Group'
 import Box from '@mui/material/Box'
 
 import { useAuthState } from '../../../user/services/AuthService'
-import ConfirmModal from '../../common/ConfirmModal'
+import ConfirmDialog from '../../common/ConfirmDialog'
 import TableComponent from '../../common/Table'
 import { columns, Data } from '../../common/variables/group'
 import { AdminGroupService, GROUP_PAGE_LIMIT, useAdminGroupState } from '../../services/GroupService'
@@ -28,7 +28,7 @@ const GroupTable = ({ className, search }: Props) => {
   const [groupName, setGroupName] = useState('')
   const [orderBy, setOrderBy] = useState('asc')
   const [sortField, setSortField] = useState('name')
-  const [showWarning, setShowWarning] = useState(false)
+  const [openConfirm, setOpenConfirm] = useState(false)
   const adminGroupState = useAdminGroupState()
   const adminGroups = adminGroupState.group
   const adminGroupCount = adminGroupState.total.value
@@ -59,17 +59,13 @@ const GroupTable = ({ className, search }: Props) => {
     }
   }
 
-  const handleCloseWarning = () => {
-    setShowWarning(false)
-  }
-
-  const handleShowWarning = (id: string) => {
+  const handleOpenConfirm = (id: string) => {
     setGroupId(id)
-    setShowWarning(true)
+    setOpenConfirm(true)
   }
 
   const deleteGroupHandler = () => {
-    setShowWarning(false)
+    setOpenConfirm(false)
     AdminGroupService.deleteGroupByAdmin(groupId)
   }
 
@@ -89,17 +85,17 @@ const GroupTable = ({ className, search }: Props) => {
       action: (
         <>
           <a href="#" className={styles.actionStyle} onClick={() => handleGroupDrawer(id)}>
-            <span className={styles.spanWhite}>{t('admin:components.group.view')}</span>
+            <span className={styles.spanWhite}>{t('admin:components.common.view')}</span>
           </a>
           <a
             href="#"
             className={styles.actionStyle}
             onClick={() => {
-              handleShowWarning(id)
+              handleOpenConfirm(id)
               setGroupName(name)
             }}
           >
-            <span className={styles.spanDange}>{t('admin:components.group.delete')}</span>
+            <span className={styles.spanDange}>{t('admin:components.common.delete')}</span>
           </a>
         </>
       )
@@ -125,10 +121,10 @@ const GroupTable = ({ className, search }: Props) => {
         handlePageChange={handlePageChange}
         handleRowsPerPageChange={handleRowsPerPageChange}
       />
-      <ConfirmModal
-        open={showWarning}
+      <ConfirmDialog
+        open={openConfirm}
         description={`${t('admin:components.group.confirmGroupDelete')} '${groupName}'?`}
-        onClose={handleCloseWarning}
+        onClose={() => setOpenConfirm(false)}
         onSubmit={deleteGroupHandler}
       />
       {singleGroup && openGroupDrawer && (

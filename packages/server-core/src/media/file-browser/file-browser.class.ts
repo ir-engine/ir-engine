@@ -1,4 +1,5 @@
-import { NullableId, Params, ServiceMethods } from '@feathersjs/feathers/lib/declarations'
+import { Forbidden } from '@feathersjs/errors'
+import { NullableId, Paginated, Params, ServiceMethods } from '@feathersjs/feathers/lib/declarations'
 import appRootPath from 'app-root-path'
 import fs from 'fs'
 import path from 'path/posix'
@@ -47,21 +48,58 @@ export class FileBrowserService implements ServiceMethods<any> {
 
   /**
    * Return the metadata for each file in a directory
-   * @param id
+   * @param directory
    * @param params
    * @returns
    */
-  async get(directory: string, _params?: Params): Promise<FileContentType[]> {
+  async get(directory: string, params?: Params): Promise<Paginated<FileContentType>> {
+    if (!params) params = {}
+    if (!params.query) params.query = {}
+    const { $skip, $limit } = params.query
+
+    const skip = $skip ? $skip : 0
+    const limit = $limit ? $limit : 100
+
     const storageProvider = getStorageProvider()
+    const isAdmin = params.user && params.user.userRole === 'admin'
     if (directory[0] === '/') directory = directory.slice(1) // remove leading slash
-    const result = await storageProvider.listFolderContent(directory)
-    return result
+    if (params.provider && !isAdmin && directory !== '' && !/^projects/.test(directory))
+      throw new Forbidden('Not allowed to access that directory')
+    let result = await storageProvider.listFolderContent(directory)
+
+    const total = result.length
+
+    result = result.slice(skip, skip + limit)
+
+    if (params.provider && !isAdmin) {
+      const projectPermissions = await this.app.service('project-permission').Model.findAll({
+        include: ['project'],
+        where: {
+          userId: params.user.id
+        }
+      })
+      const allowedProjectNames = projectPermissions.map((permission) => permission.project.name)
+      result = result.filter((item) => {
+        const projectRegexExec = /projects\/(.+)$/.exec(item.key)
+        const subFileRegexExec = /projects\/(.+)\//.exec(item.key)
+        return (
+          (subFileRegexExec && allowedProjectNames.indexOf(subFileRegexExec[1]) > -1) ||
+          (projectRegexExec && allowedProjectNames.indexOf(projectRegexExec[1]) > -1) ||
+          item.name === 'projects'
+        )
+      })
+    }
+    return {
+      total,
+      limit,
+      skip,
+      data: result
+    }
   }
 
   /**
    * Create a directory
    * @param directory
-   * @param params
    * @returns
    */
   async create(directory) {
@@ -87,7 +125,7 @@ export class FileBrowserService implements ServiceMethods<any> {
    * @param params
    * @returns
    */
-  async update(_id: NullableId, data: UpdateParamsType, _params?: Params) {
+  async update(id: NullableId, data: UpdateParamsType, params?: Params) {
     const storageProvider = getStorageProvider()
     const _oldPath = data.oldPath[0] === '/' ? data.oldPath.substring(1) : data.oldPath
     const _newPath = data.newPath[0] === '/' ? data.newPath.substring(1) : data.newPath
@@ -114,7 +152,7 @@ export class FileBrowserService implements ServiceMethods<any> {
    * @param data
    * @param params
    */
-  async patch(_id: NullableId, data: PatchParams, params?: Params) {
+  async patch(id: NullableId, data: PatchParams, params?: Params) {
     const storageProvider = getStorageProvider()
     const key = path.join(data.path[0] === '/' ? data.path.substring(1) : data.path, data.fileName)
 
@@ -141,11 +179,11 @@ export class FileBrowserService implements ServiceMethods<any> {
 
   /**
    * Remove a directory
-   * @param id
+   * @param key
    * @param params
    * @returns
    */
-  async remove(key: string, _params?: Params) {
+  async remove(key: string, params?: Params) {
     const storageProvider = getStorageProvider()
     const dirs = await storageProvider.listObjects(key, true)
     const result = await storageProvider.deleteResources([key, ...dirs.Contents.map((a) => a.Key)])

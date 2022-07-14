@@ -96,7 +96,8 @@ const Client = () => {
         appDescription: appDescription,
         appBackground: appBackground,
         appSocialLinks: JSON.stringify(appSocialLinks),
-        themeSettings: JSON.stringify(clientSetting?.themeSettings)
+        themeSettings: JSON.stringify(clientSetting?.themeSettings),
+        themeModes: JSON.stringify(clientSetting?.themeModes)
       },
       id
     )
@@ -174,7 +175,7 @@ const Client = () => {
                 />
 
                 <IconButton
-                  title={t('admin:components.setting.delete')}
+                  title={t('admin:components.common.delete')}
                   className={styles.iconButton}
                   onClick={() => handleRemoveSocialLinks(index)}
                 >
@@ -246,17 +247,11 @@ const Client = () => {
           />
         </Grid>
       </Grid>
-      <Button sx={{ maxWidth: '100%' }} variant="outlined" className={styles.cancelButton} onClick={handleCancel}>
-        {t('admin:components.setting.cancel')}
+      <Button sx={{ maxWidth: '100%' }} className={styles.outlinedButton} onClick={handleCancel}>
+        {t('admin:components.common.cancel')}
       </Button>
-      <Button
-        sx={{ maxWidth: '100%', ml: 1 }}
-        variant="contained"
-        className={styles.saveBtn}
-        type="submit"
-        onClick={handleSubmit}
-      >
-        {t('admin:components.setting.save')}
+      <Button sx={{ maxWidth: '100%', ml: 1 }} className={styles.gradientButton} onClick={handleSubmit}>
+        {t('admin:components.common.save')}
       </Button>
     </Box>
   )

@@ -1,17 +1,17 @@
-import { createState } from '@speigg/hookstate'
+import { createState, useHookstate } from '@speigg/hookstate'
 import React, { Fragment, useRef, useState } from 'react'
 
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
+import { WorldState } from '@xrengine/engine/src/networking/interfaces/WorldState'
 import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
-import { useXRUIState } from '@xrengine/engine/src/xrui/functions/useXRUIState'
+import { getState } from '@xrengine/hyperflux'
 
 import { Send } from '@mui/icons-material'
-import { IconButton, InputAdornment, TextField } from '@mui/material'
 import Avatar from '@mui/material/Avatar'
-import ListItemAvatar from '@mui/material/ListItemAvatar'
 
 import { useChatHooks } from '../../../components/InstanceChat'
 import { getAvatarURLForUser } from '../../../user/components/UserMenu/util'
+import XRInput from '../../components/XRInput'
 import styleString from './index.scss'
 
 export function createChatDetailView() {
@@ -22,14 +22,8 @@ function createChatDetailState() {
   return createState({})
 }
 
-interface ChatDetailState {
-  chatMenuOpen: boolean
-}
-
-// TODO: update this to newest chat implementation
 const ChatDetailView = () => {
   const [unreadMessages, setUnreadMessages] = useState(false)
-  const messageRefInput = useRef<HTMLInputElement>()
 
   const { dimensions, sortedMessages, handleComposingMessageChange, packageMessage, composingMessage } = useChatHooks({
     chatWindowOpen: true,
@@ -42,6 +36,8 @@ const ChatDetailView = () => {
   const isLeftOrJoinText = (text: string) => {
     return / left the layer|joined the layer/.test(text)
   }
+
+  const userAvatarDetails = useHookstate(getState(WorldState).userAvatarDetails)
 
   return (
     <>
@@ -73,14 +69,16 @@ const ChatDetailView = () => {
                           </div>
                         </div>
                         {index !== 0 && messages[index - 1] && isLeftOrJoinText(messages[index - 1].text) ? (
-                          <Avatar src={getAvatarURLForUser(message.senderId)} className="avatar" />
+                          <Avatar src={getAvatarURLForUser(userAvatarDetails, message.senderId)} className="avatar" />
                         ) : (
                           messages[index - 1] &&
                           message.senderId !== messages[index - 1].senderId && (
-                            <Avatar src={getAvatarURLForUser(message.senderId)} className="avatar" />
+                            <Avatar src={getAvatarURLForUser(userAvatarDetails, message.senderId)} className="avatar" />
                           )
                         )}
-                        {index === 0 && <Avatar src={getAvatarURLForUser(message.senderId)} className="avatar" />}
+                        {index === 0 && (
+                          <Avatar src={getAvatarURLForUser(userAvatarDetails, message.senderId)} className="avatar" />
+                        )}
                       </div>
                     </div>
                   </div>
@@ -98,7 +96,7 @@ const ChatDetailView = () => {
           })}
         </div>
         <div className="messageBoxContainer">
-          <input
+          <XRInput
             className="messageInputBox"
             id="newMessage"
             placeholder={'World Chat...'}
@@ -106,10 +104,10 @@ const ChatDetailView = () => {
             value={composingMessage}
             onChange={handleComposingMessageChange}
             onKeyDown={(evt) => handleComposingMessageChange(evt)}
+            endIcon={<Send fontSize="small" />}
+            endIconClick={packageMessage}
+            border={false}
           />
-          <div onClick={packageMessage} className="sendButton">
-            <Send fontSize="small" />
-          </div>
         </div>
       </div>
     </>

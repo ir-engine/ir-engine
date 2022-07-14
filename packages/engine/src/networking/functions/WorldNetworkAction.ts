@@ -1,9 +1,9 @@
 import { defineAction } from '@xrengine/hyperflux'
 
 import { matchesWeightsParameters } from '../../avatar/animation/Util'
+import { ParityValue } from '../../common/enums/ParityValue'
 import {
   matches,
-  matchesHost,
   matchesNetworkId,
   matchesQuaternion,
   matchesUserId,
@@ -15,60 +15,55 @@ import { matchPose } from '../../transform/TransformInterfaces'
 import { matchesAvatarProps } from '../interfaces/WorldState'
 
 export class WorldNetworkAction {
-  static createPeer = defineAction({
-    type: 'network.CREATE_PEER',
-    name: matches.string,
-    index: matches.number,
-    $cache: true
-  })
-
-  static destroyPeer = defineAction({
-    type: 'network.DESTROY_PEER',
-    $to: 'others'
-  })
-
   static setXRMode = defineAction({
-    type: 'network.SET_XR_MODE',
+    type: 'xre.world.SET_XR_MODE',
     enabled: matches.boolean,
     avatarInputControllerType: matches.string,
     $cache: { removePrevious: true }
   })
 
   static xrHandsConnected = defineAction({
-    type: 'network.XR_HANDS_CONNECTED',
-    $cache: true
-  })
-
-  static spawnObject = defineAction({
-    type: 'network.SPAWN_OBJECT',
-    prefab: matches.string,
-    networkId: matchesWithDefault(matchesNetworkId, () => Engine.instance.currentWorld.createNetworkId()),
-    parameters: matches.any.optional(),
+    type: 'xre.world.XR_HANDS_CONNECTED',
     $cache: true
   })
 
   static spawnDebugPhysicsObject = defineAction({
-    type: 'network.SPAWN_DEBUG_PHYSICS_OBJECT',
+    type: 'xre.world.SPAWN_DEBUG_PHYSICS_OBJECT',
     config: matches.any.optional()
+  })
+
+  static spawnObject = defineAction({
+    type: 'xre.world.SPAWN_OBJECT',
+    prefab: matches.string,
+    networkId: matchesWithDefault(matchesNetworkId, () => Engine.instance.currentWorld.createNetworkId()),
+    position: matchesVector3.optional(),
+    rotation: matchesQuaternion.optional(),
+    $cache: true
   })
 
   static spawnAvatar = defineAction({
     ...WorldNetworkAction.spawnObject.actionShape,
-    prefab: 'avatar',
-    parameters: matches.shape({
-      position: matchesVector3,
-      rotation: matchesQuaternion
-    }),
-    $cache: true
+    prefab: 'avatar'
+  })
+
+  static spawnCamera = defineAction({
+    ...WorldNetworkAction.spawnObject.actionShape,
+    prefab: 'camera'
   })
 
   static destroyObject = defineAction({
-    type: 'network.DESTROY_OBJECT',
+    type: 'xre.world.DESTROY_OBJECT',
     networkId: matchesNetworkId
   })
 
+  static interact = defineAction({
+    type: 'xre.world.INTERACT',
+    object: { ownerId: matchesUserId, networkId: matchesNetworkId },
+    parity: matches.some(...Object.values(ParityValue).map((v) => matches.literal(v)))
+  })
+
   static setEquippedObject = defineAction({
-    type: 'network.SET_EQUIPPED_OBJECT',
+    type: 'xre.world.SET_EQUIPPED_OBJECT',
     object: matches.shape({
       ownerId: matchesUserId,
       networkId: matchesNetworkId
@@ -79,7 +74,7 @@ export class WorldNetworkAction {
   })
 
   static avatarAnimation = defineAction({
-    type: 'network.AVATAR_ANIMATION',
+    type: 'xre.world.AVATAR_ANIMATION',
     newStateName: matches.string,
     params: matchesWeightsParameters,
     $cache: {
@@ -88,7 +83,7 @@ export class WorldNetworkAction {
   })
 
   static avatarDetails = defineAction({
-    type: 'network.AVATAR_DETAILS',
+    type: 'xre.world.AVATAR_DETAILS',
     avatarDetail: matchesAvatarProps,
     $cache: {
       removePrevious: true
@@ -96,7 +91,7 @@ export class WorldNetworkAction {
   })
 
   static teleportObject = defineAction({
-    type: 'network.TELEPORT_OBJECT',
+    type: 'xre.world.TELEPORT_OBJECT',
     object: matches.shape({
       ownerId: matchesUserId,
       networkId: matchesNetworkId
@@ -105,7 +100,7 @@ export class WorldNetworkAction {
   })
 
   static requestAuthorityOverObject = defineAction({
-    type: 'network.REQUEST_AUTHORITY_OVER_OBJECT',
+    type: 'xre.world.REQUEST_AUTHORITY_OVER_OBJECT',
     object: matches.shape({
       ownerId: matchesUserId,
       networkId: matchesNetworkId
@@ -114,7 +109,7 @@ export class WorldNetworkAction {
   })
 
   static transferAuthorityOfObject = defineAction({
-    type: 'network.TRANSFER_AUTHORITY_OF_OBJECT',
+    type: 'xre.world.TRANSFER_AUTHORITY_OF_OBJECT',
     object: matches.shape({
       ownerId: matchesUserId,
       networkId: matchesNetworkId
@@ -123,7 +118,7 @@ export class WorldNetworkAction {
   })
 
   static setUserTyping = defineAction({
-    type: 'network.USER_IS_TYPING',
+    type: 'xre.world.USER_IS_TYPING',
     typing: matches.boolean
   })
 }

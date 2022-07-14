@@ -1,8 +1,10 @@
-import { createState, State, useState } from '@speigg/hookstate'
+import { createState, useState } from '@speigg/hookstate'
 import React from 'react'
 
 import { useXRUIState } from '@xrengine/engine/src/xrui/functions/useXRUIState'
+import { dispatchAction } from '@xrengine/hyperflux'
 
+import { EngineActions } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { NameComponent } from '../../scene/components/NameComponent'
@@ -82,9 +84,7 @@ export const InteractiveModalView = () => {
   const entity = modalState.entity.value
   const name = getComponent(entity, NameComponent)?.name
   const interactable = useState(getComponent(entity, InteractableComponent))
-  const url = interactable.interactionUrls?.[0]
   const title = interactable.interactionText
-  const description = interactable.interactionDescription
 
   return (
     <div id={name} className={'modal ' + modalState.mode.value}>
@@ -96,49 +96,7 @@ export const InteractiveModalView = () => {
         <div>Press E to Interact</div>
       </div>
 
-      <div className="flex">
-        <div
-          className="description"
-          xr-layer="true"
-          xr-pixel-ratio="1"
-          dangerouslySetInnerHTML={{ __html: description.value || '' }}
-        ></div>
-
-        <div className="model" xr-layer="true"></div>
-      </div>
-
-      <button
-        className="link"
-        xr-layer="true"
-        xr-pixel-ratio="1.5"
-        onClick={() => {
-          window.open(url.value, '_blank')!.focus()
-        }}
-      >
-        Buy Now
-      </button>
-
-      <div className="rating">
-        <span xr-layer="true" className="star-1">
-          ★
-        </span>
-        <span xr-layer="true" className="star-2">
-          ★
-        </span>
-        <span xr-layer="true" className="star-3">
-          ★
-        </span>
-        <span xr-layer="true" className="star-4">
-          ★
-        </span>
-        <span xr-layer="true" className="star-5">
-          ☆
-        </span>
-      </div>
-
-      {/* <div className="content"></div> */}
-
-      {/* {renderMedia(detailState)} */}
+      {renderMedia(modalState)}
 
       <style>
         {`
@@ -163,23 +121,8 @@ export const InteractiveModalView = () => {
           display: auto;
         }
 
-        .link {
-          display: ${url ? 'auto' : 'none'};
-          position: absolute;
-          top: 30px;
-          left: 30px;
-          width: 140px;
-          height: 40px;
-          border-radius: 20px;
-          background-color: white;
-          border: none;
-          color: rgb(20,20,50,0,1);
-          fontSize: 20px;
-        }
-
         .flex {
           display: flex;
-          align-items: flex-start;
           flex-direction: row;
           align-items: stretch;
           height: 300px;
@@ -190,10 +133,6 @@ export const InteractiveModalView = () => {
           overflow: hidden;
           text-align: left;
           font-size: 10px;
-          flex: 1;
-        }
-
-        .model {
           flex: 1;
         }
 
@@ -219,7 +158,11 @@ export const InteractiveModalView = () => {
           box-shadow: #fff2 0 0 20px;
           margin: 20px auto;
         }
-
+        span[class^="star-"]{
+          background-image: linear-gradient(to bottom, #FFFFEB 0%, #FFF9B0 45%, #E49E15 75%);
+          -webkit-background-clip: text;
+          color:transparent;
+        }
         .hint {
           position: absolute;
           overflow: hidden; // contain margin
@@ -243,13 +186,6 @@ export const InteractiveModalView = () => {
 
         button:hover {
           background-color: darkgrey;
-        }
-
-        .rating {
-          position: absolute;
-          top: 30px;
-          right: 30px;
-          font-size: 28px;
         }
 
       `}

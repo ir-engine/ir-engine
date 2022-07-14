@@ -1,24 +1,23 @@
-import { Quaternion, Vector3 } from 'three'
+import { Matrix4, Quaternion, Vector3 } from 'three'
 
 import { addActionReceptor } from '@xrengine/hyperflux'
 
+import { V_000, V_010 } from '../common/constants/MathConstants'
 import { Engine } from '../ecs/classes/Engine'
+import { Entity } from '../ecs/classes/Entity'
 import { World } from '../ecs/classes/World'
-import { defineQuery, getComponent, hasComponent, removeComponent } from '../ecs/functions/ComponentFunctions'
+import { defineQuery, getComponent } from '../ecs/functions/ComponentFunctions'
 import { LocalInputTagComponent } from '../input/components/LocalInputTagComponent'
 import { BaseInput } from '../input/enums/BaseInput'
 import { AvatarMovementScheme } from '../input/enums/InputEnums'
 import { XRAxes } from '../input/enums/InputEnums'
-import { ColliderComponent } from '../physics/components/ColliderComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { XRInputSourceComponent } from '../xr/components/XRInputSourceComponent'
 import { AvatarInputSchema } from './AvatarInputSchema'
 import { AvatarComponent } from './components/AvatarComponent'
 import { AvatarControllerComponent } from './components/AvatarControllerComponent'
-import { XRCameraRotateYComponent } from './components/XRCameraRotateYComponent'
-import { setAvatarHeadOpacity } from './functions/avatarFunctions'
 import { detectUserInCollisions } from './functions/detectUserInCollisions'
-import { alignXRCameraPositionWithAvatar, moveAvatar, moveXRAvatar, rotateXRAvatar } from './functions/moveAvatar'
+import { moveAvatar, moveXRAvatar, rotateXRAvatar } from './functions/moveAvatar'
 import { respawnAvatar } from './functions/respawnAvatar'
 import { accessAvatarInputSettingsState, AvatarInputSettingsReceptor } from './state/AvatarInputSettingsState'
 
@@ -31,78 +30,96 @@ export class AvatarSettings {
   movementScheme = AvatarMovementScheme.Linear
 }
 
+const displacementXZ = new Vector3(),
+  invOrientation = new Quaternion(),
+  rotMatrix = new Matrix4(),
+  targetOrientation = new Quaternion()
+
 export default async function AvatarControllerSystem(world: World) {
   const controllerQuery = defineQuery([AvatarControllerComponent])
   const localXRInputQuery = defineQuery([LocalInputTagComponent, XRInputSourceComponent, AvatarControllerComponent])
-  const cameraRotationQuery = defineQuery([XRCameraRotateYComponent])
 
   addActionReceptor(AvatarInputSettingsReceptor)
 
   const lastCamPos = new Vector3(),
-    displacement = new Vector3(),
-    camRotation = new Quaternion(),
-    up = new Vector3(0, 1, 0)
+    displacement = new Vector3()
 
   return () => {
     for (const entity of controllerQuery.exit(world)) {
-      const controller = getComponent(entity, AvatarControllerComponent, true)
-
-      if (controller?.controller) {
-        world.physicsWorld.removeRigidBody(controller.controller)
-      }
+      avatarControllerExit(entity, world)
     }
 
     for (const entity of localXRInputQuery(world)) {
-      setAvatarHeadOpacity(entity, 0)
-      if (!hasComponent(entity, XRCameraRotateYComponent)) {
-        moveXRAvatar(world, entity, Engine.instance.currentWorld.camera, lastCamPos, displacement)
-        rotateXRAvatar(world, entity, Engine.instance.currentWorld.camera)
-      }
-    }
-
-    for (const entity of cameraRotationQuery.exit(world)) {
-      const camera = Engine.instance.currentWorld.camera
-      lastCamPos.subVectors(camera.position, camera.parent!.position)
-      alignXRCameraPositionWithAvatar(entity, Engine.instance.currentWorld.camera)
-      lastCamPos.add(camera.parent!.position)
-    }
-
-    for (const entity of cameraRotationQuery.enter(world)) {
-      const avatarTransform = getComponent(entity, TransformComponent)
-      const rotation = getComponent(entity, XRCameraRotateYComponent)
-      const cam = Engine.instance.currentWorld.camera
-      const camParent = cam.parent!
-
-      camRotation.setFromAxisAngle(up, rotation.angle)
-      avatarTransform.rotation.premultiply(camRotation)
-      camParent.quaternion.premultiply(camRotation)
-      camParent.position.copy(cam.position).multiplyScalar(-1)
-
-      removeComponent(entity, XRCameraRotateYComponent)
+      moveXRAvatar(world, entity, Engine.instance.currentWorld.camera, lastCamPos, displacement)
+      rotateXRAvatar(world, entity, Engine.instance.currentWorld.camera)
     }
 
     for (const entity of controllerQuery(world)) {
-      const displace = moveAvatar(world, entity, Engine.instance.currentWorld.camera)
-      displacement.set(displace.x, displace.y, displace.z)
-
-      const controller = getComponent(entity, AvatarControllerComponent)
-      const avatar = getComponent(entity, AvatarComponent)
-      const transform = getComponent(entity, TransformComponent)
-
-      const pose = controller.controller.translation()
-      transform.position.set(pose.x, pose.y, pose.z)
-
-      detectUserInCollisions(entity)
-
-      // TODO: implement scene lower bounds parameter
-      if (transform.position.y < -10) {
-        respawnAvatar(entity)
-        continue
-      }
+      controllerQueryUpdate(entity, displacement, world)
     }
 
     return world
   }
+}
+
+// export const updateColliderPose = (entity: Entity) => {
+//   const collider = getComponent(entity, ColliderComponent)
+//   const controller = getComponent(entity, AvatarControllerComponent)
+//   const transform = getComponent(entity, TransformComponent)
+//   const pose = controller.controller.getPosition()
+
+//   collider.body.setGlobalPose(
+//     {
+//       translation: pose,
+//       rotation: transform.rotation
+//     },
+//     true
+//   )
+// }
+
+export const updateAvatarTransformPosition = (entity: Entity) => {
+  const transform = getComponent(entity, TransformComponent)
+  const controller = getComponent(entity, AvatarControllerComponent)
+  const pose = controller.controller.translation()
+  transform.position.set(pose.x, pose.y, pose.z)
+}
+
+export const rotateTowardsDisplacementVector = (entity: Entity, displacement: Vector3, world: World) => {
+  const transform = getComponent(entity, TransformComponent)
+
+  displacementXZ.set(displacement.x, 0, displacement.z)
+  displacementXZ.applyQuaternion(invOrientation.copy(transform.rotation).invert())
+
+  if (displacementXZ.lengthSq() <= 0) return
+
+  rotMatrix.lookAt(displacementXZ, V_000, V_010)
+  targetOrientation.setFromRotationMatrix(rotMatrix)
+  transform.rotation.slerp(targetOrientation, Math.max(world.deltaSeconds * 2, 3 / 60))
+}
+
+export const controllerQueryUpdate = (
+  entity: Entity,
+  displacement: Vector3,
+  world: World = Engine.instance.currentWorld
+) => {
+  rotateTowardsDisplacementVector(entity, displacement, world)
+
+  const displace = moveAvatar(world, entity, Engine.instance.currentWorld.camera)
+  displacement.set(displace.x, displace.y, displace.z)
+
+  updateAvatarTransformPosition(entity)
+  detectUserInCollisions(entity)
+  // updateColliderPose(entity)
+
+  const transform = getComponent(entity, TransformComponent)
+  // TODO: implement scene lower bounds parameter
+  if (transform.position.y < -10) respawnAvatar(entity)
+}
+
+export const avatarControllerExit = (entity: Entity, world: World = Engine.instance.currentWorld) => {
+  const controller = getComponent(entity, AvatarControllerComponent, true)
+  if (controller?.controller) world.physicsWorld.removeRigidBody(controller.controller)
+  const avatar = getComponent(entity, AvatarComponent)
 }
 
 export const updateMap = () => {

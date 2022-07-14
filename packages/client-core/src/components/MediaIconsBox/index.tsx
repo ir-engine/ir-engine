@@ -56,8 +56,8 @@ const MediaIconsBox = (props: Props) => {
   )
   const currentLocation = useLocationState().currentLocation.location
   const channelConnectionState = useMediaInstanceConnectionState()
-  const currentChannelInstanceConnection =
-    channelConnectionState.instances[Engine.instance.currentWorld.mediaNetwork?.hostId].ornull
+  const mediaHostId = Engine.instance.currentWorld.mediaNetwork?.hostId
+  const currentChannelInstanceConnection = mediaHostId && channelConnectionState.instances[mediaHostId].ornull
   const mediastream = useMediaStreamState()
   const videoEnabled = currentLocation?.locationSetting?.value
     ? currentLocation?.locationSetting?.videoEnabled?.value
@@ -115,7 +115,7 @@ const MediaIconsBox = (props: Props) => {
     ) {
       await endVideoChat(mediaNetwork, {})
       if (mediaNetwork.socket?.connected === true) {
-        await leaveNetwork(mediaNetwork, false)
+        leaveNetwork(mediaNetwork, false)
         await MediaInstanceConnectionService.provisionServer(instanceChannel.id)
       }
     }
@@ -156,6 +156,7 @@ const MediaIconsBox = (props: Props) => {
   }
 
   const handleVRClick = () => dispatchAction(EngineActions.xrStart())
+  const handleExitSpectatorClick = () => dispatchAction(EngineActions.spectateUser())
 
   const VideocamIcon = isCamVideoEnabled.value ? Videocam : VideocamOff
   const MicIcon = isCamAudioEnabled.value ? Mic : MicOff
@@ -165,7 +166,7 @@ const MediaIconsBox = (props: Props) => {
       {instanceMediaChatEnabled &&
       hasAudioDevice &&
       Engine.instance.currentWorld.mediaNetwork &&
-      currentChannelInstanceConnection.connected.value ? (
+      currentChannelInstanceConnection?.connected.value ? (
         <button
           type="button"
           id="UserAudio"
@@ -178,7 +179,7 @@ const MediaIconsBox = (props: Props) => {
       {videoEnabled &&
       hasVideoDevice &&
       Engine.instance.currentWorld.mediaNetwork &&
-      currentChannelInstanceConnection.connected.value ? (
+      currentChannelInstanceConnection?.connected.value ? (
         <>
           <button
             type="button"
@@ -209,6 +210,11 @@ const MediaIconsBox = (props: Props) => {
       {engineState.xrSupported.value && (
         <button type="button" id="UserXR" className={styles.iconContainer} onClick={handleVRClick}>
           <VrIcon />
+        </button>
+      )}
+      {engineState.spectating.value && (
+        <button type="button" id="ExitSpectator" className={styles.iconContainer} onClick={handleExitSpectatorClick}>
+          Exit Spectate
         </button>
       )}
     </section>

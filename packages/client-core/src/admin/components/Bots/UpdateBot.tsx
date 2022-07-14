@@ -136,7 +136,7 @@ const UpdateBot = ({ open, bot, onClose }: Props) => {
       setCurrentIntance([])
       onClose()
     } else {
-      NotificationService.dispatchNotify(t('admin:components.bot.fillRequiredField'), { variant: 'error' })
+      NotificationService.dispatchNotify(t('admin:components.common.fillRequiredFields'), { variant: 'error' })
     }
   }
 
@@ -206,9 +206,9 @@ const UpdateBot = ({ open, bot, onClose }: Props) => {
               setFormErrors({ name: '', description: '', location: '' })
               onClose()
             }}
-            className={styles.submitButton}
+            className={styles.gradientButton}
           >
-            {t('admin:components.bot.cancel')}
+            {t('admin:components.common.cancel')}
           </Button>
           <Button
             variant="contained"
@@ -217,7 +217,7 @@ const UpdateBot = ({ open, bot, onClose }: Props) => {
             className={styles.openModalBtn}
             onClick={handleUpdate}
           >
-            <Save style={{ marginRight: '10px' }} /> {t('admin:components.bot.save')}
+            <Save style={{ marginRight: '10px' }} /> {t('admin:components.common.save')}
           </Button>
         </DialogActions>
       </Dialog>

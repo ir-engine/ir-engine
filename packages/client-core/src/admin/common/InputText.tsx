@@ -1,11 +1,12 @@
 import _ from 'lodash'
 import React from 'react'
+import { useTranslation } from 'react-i18next'
 
+import { InputLabel, OutlinedInput } from '@mui/material'
 import Box from '@mui/material/Box'
 import FormControl from '@mui/material/FormControl'
 import FormHelperText from '@mui/material/FormHelperText'
 import { SxProps, Theme } from '@mui/material/styles'
-import TextField from '@mui/material/TextField'
 
 import styles from '../styles/admin.module.scss'
 
@@ -22,6 +23,7 @@ interface Props {
   endAdornment?: React.ReactNode
   sx?: SxProps<Theme>
   onChange?: (e: any) => void
+  onKeyDown?: (e: any) => void
 }
 
 const InputText = ({
@@ -36,29 +38,42 @@ const InputText = ({
   startAdornment,
   endAdornment,
   sx,
-  onChange
+  onChange,
+  onKeyDown
 }: Props) => {
+  const { t } = useTranslation()
+
+  placeholder = placeholder ? placeholder : `${t('admin:components.common.enter')} ${label}`
+  placeholder = disabled ? undefined : placeholder
+
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', mb: 2, ...sx }}>
-      <TextField
-        className={className ?? styles.textField}
+      <FormControl
         variant="outlined"
-        name={name}
-        type={type}
-        placeholder={placeholder ? placeholder : `Enter ${label}`}
-        label={_.upperFirst(label)}
-        value={value}
+        className={className ?? styles.inputField}
         error={error ? true : false}
         disabled={disabled}
-        size={'small'}
-        onChange={onChange}
-        InputProps={{
-          className: styles.input,
-          startAdornment: startAdornment,
-          endAdornment: endAdornment
-        }}
-        fullWidth
-      />
+        size="small"
+      >
+        <InputLabel sx={{ zIndex: 999 }}>{_.upperFirst(label)}</InputLabel>
+
+        <OutlinedInput
+          name={name}
+          type={type}
+          placeholder={placeholder}
+          label={_.upperFirst(label)}
+          value={value}
+          error={error ? true : false}
+          disabled={disabled}
+          size={'small'}
+          startAdornment={startAdornment}
+          endAdornment={endAdornment}
+          sx={{ opacity: disabled ? 0.38 : 1 }}
+          onChange={onChange}
+          onKeyDown={onKeyDown}
+          fullWidth
+        />
+      </FormControl>
 
       {error && (
         <FormControl error>

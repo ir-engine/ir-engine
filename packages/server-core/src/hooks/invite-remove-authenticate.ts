@@ -2,9 +2,9 @@ import { BadRequest } from '@feathersjs/errors'
 import { HookContext } from '@feathersjs/feathers'
 
 import { IdentityProviderInterface } from '@xrengine/common/src/dbmodels/IdentityProvider'
+import { UserInterface } from '@xrengine/common/src/interfaces/User'
 
 import Paginated from '../types/PageObject'
-import { UserDataType } from '../user/user/user.class'
 
 // This will attach the owner ID in the contact while creating/updating list item
 export default () => {
@@ -12,7 +12,7 @@ export default () => {
     let inviteIdentityProviderUser
     // Getting logged in user and attaching owner of user
     const { id, params, app } = context
-    const loggedInUser = params.user as UserDataType
+    const loggedInUser = params.user as UserInterface
     const invite = await app.service('invite').get(id!)
     if (invite == null) {
       throw new BadRequest('Invalid invite ID')

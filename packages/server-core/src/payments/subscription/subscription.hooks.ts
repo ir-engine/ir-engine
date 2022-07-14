@@ -1,6 +1,7 @@
-import { disallow } from 'feathers-hooks-common'
+import { disallow, iff, isProvider } from 'feathers-hooks-common'
 
 import setLoggedInUser from '@xrengine/server-core/src/hooks/set-loggedin-user-in-body'
+import setLoggedInUserInQuery from '@xrengine/server-core/src/hooks/set-loggedin-user-in-query'
 
 import authenticate from '../../hooks/authenticate'
 
@@ -8,9 +9,9 @@ import authenticate from '../../hooks/authenticate'
 
 export default {
   before: {
-    all: [],
-    find: [authenticate()],
-    get: [authenticate()],
+    all: [authenticate()],
+    find: [disallow('external')],
+    get: [iff(isProvider('external'), setLoggedInUserInQuery('userId') as any)],
     create: [authenticate(), setLoggedInUser('userId')],
     update: [disallow('external')],
     patch: [disallow('external')],

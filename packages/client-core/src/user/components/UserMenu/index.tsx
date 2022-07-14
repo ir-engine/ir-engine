@@ -1,6 +1,8 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 
-import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
+import { matches } from '@xrengine/engine/src/common/functions/MatchesUtils'
+import { EngineActions, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
+import { addActionReceptor, removeActionReceptor } from '@xrengine/hyperflux'
 
 import LinkIcon from '@mui/icons-material/Link'
 import PersonIcon from '@mui/icons-material/Person'
@@ -8,8 +10,8 @@ import SettingsIcon from '@mui/icons-material/Settings'
 import ClickAwayListener from '@mui/material/ClickAwayListener'
 
 import styles from './index.module.scss'
-import EmoteMenu from './menus//EmoteMenu'
 import AvatarUploadModal from './menus/AvatarSelectMenu'
+import EmoteMenu from './menus/EmoteMenu'
 import ProfileMenu from './menus/ProfileMenu'
 import ReadyPlayerMenu from './menus/ReadyPlayerMenu'
 import SelectAvatarMenu from './menus/SelectAvatar'
@@ -24,6 +26,7 @@ export interface UserMenuProps {
 type UserMenuPanelType = (...props: any & { setActiveMenu: (menu: string) => {} }) => JSX.Element
 
 // panels that can be open
+/**  @todo  Replace these top level consts with hyperflux state once new hookstate version is brought in */
 export const UserMenuPanels = new Map<string, UserMenuPanelType>()
 
 export const EmoteIcon = () => (
@@ -62,40 +65,49 @@ interface Props {
 const UserMenu = (props: Props): any => {
   const [currentActiveMenu, setCurrentActiveMenu] = useState<typeof Views[keyof typeof Views]>()
   const Panel = UserMenuPanels.get(currentActiveMenu!)!
-
   const engineState = useEngineState()
 
+  useEffect(() => {
+    function shareLinkReceptor(a) {
+      matches(a).when(EngineActions.shareInteractableLink.matches, (action) => {
+        if (action.shareLink !== '') {
+          setCurrentActiveMenu(Views.Share)
+        }
+      })
+    }
+    addActionReceptor(shareLinkReceptor)
+    return () => removeActionReceptor(shareLinkReceptor)
+  }, [])
+
   return (
-    <>
-      <ClickAwayListener onClickAway={() => setCurrentActiveMenu(null!)} mouseEvent="onMouseDown">
-        <div>
-          <section
-            className={`${styles.settingContainer} ${props.animate} ${currentActiveMenu ? props.fadeOutBottom : ''}`}
-          >
-            {!engineState.xrSessionStarted.value && (
-              <div className={styles.iconContainer}>
-                {Array.from(HotbarMenu.keys()).map((id, index) => {
-                  const IconNode = HotbarMenu.get(id)
-                  return (
-                    <span
-                      key={index}
-                      id={id + '_' + index}
-                      onClick={() => setCurrentActiveMenu(id)}
-                      className={`${styles.materialIconBlock} ${
-                        currentActiveMenu && currentActiveMenu === id ? styles.activeMenu : null
-                      }`}
-                    >
-                      {typeof IconNode === 'string' ? <EmoteIcon /> : <IconNode className={styles.icon} />}
-                    </span>
-                  )
-                })}
-              </div>
-            )}
-          </section>
-          {currentActiveMenu && <Panel changeActiveMenu={setCurrentActiveMenu} />}
-        </div>
-      </ClickAwayListener>
-    </>
+    <ClickAwayListener onClickAway={() => setCurrentActiveMenu(null!)} mouseEvent="onMouseDown">
+      <div>
+        <section
+          className={`${styles.settingContainer} ${props.animate} ${currentActiveMenu ? props.fadeOutBottom : ''}`}
+        >
+          {!engineState.xrSessionStarted.value && (
+            <div className={styles.iconContainer}>
+              {Array.from(HotbarMenu.keys()).map((id, index) => {
+                const IconNode = HotbarMenu.get(id)
+                return (
+                  <span
+                    key={index}
+                    id={id + '_' + index}
+                    onClick={() => setCurrentActiveMenu(id)}
+                    className={`${styles.materialIconBlock} ${
+                      currentActiveMenu && currentActiveMenu === id ? styles.activeMenu : null
+                    }`}
+                  >
+                    {typeof IconNode === 'string' ? <EmoteIcon /> : <IconNode className={styles.icon} />}
+                  </span>
+                )
+              })}
+            </div>
+          )}
+        </section>
+        {currentActiveMenu && <Panel changeActiveMenu={setCurrentActiveMenu} />}
+      </div>
+    </ClickAwayListener>
   )
 }
 

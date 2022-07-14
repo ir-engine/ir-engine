@@ -1,8 +1,8 @@
 import { World } from '../../ecs/classes/World'
 import { defineQuery } from '../../ecs/functions/ComponentFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { NetworkObjectAuthorityTag } from '../components/NetworkObjectAuthorityTag'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
+import { NetworkObjectOwnedTag } from '../components/NetworkObjectOwnedTag'
 import { createDataWriter } from '../serialization/DataWriter'
 
 /***********
@@ -11,7 +11,7 @@ import { createDataWriter } from '../serialization/DataWriter'
 
 export const networkTransformsQuery = defineQuery([NetworkObjectComponent, TransformComponent])
 const authoritativeNetworkTransformsQuery = defineQuery([
-  NetworkObjectAuthorityTag,
+  NetworkObjectOwnedTag,
   NetworkObjectComponent,
   TransformComponent
 ])
@@ -25,7 +25,7 @@ const serializeAndSend = (world: World, serialize: Function) => {
 
     if (data.byteLength > 0) {
       // side effect - network IO
-      world.worldNetwork?.sendData(data)
+      world.worldNetwork.sendData(data)
     }
   }
 }
@@ -34,6 +34,6 @@ export default async function OutgoingNetworkSystem(world: World) {
   const serialize = createDataWriter()
 
   return () => {
-    serializeAndSend(world, serialize)
+    world.worldNetwork && serializeAndSend(world, serialize)
   }
 }

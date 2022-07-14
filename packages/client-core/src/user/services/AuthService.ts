@@ -4,20 +4,27 @@ import { Downgraded } from '@speigg/hookstate'
 // import { endVideoChat, leave } from '@xrengine/engine/src/networking/functions/SocketWebRTCClientFunctions';
 import axios from 'axios'
 import i18n from 'i18next'
-import _ from 'lodash'
 import querystring from 'querystring'
 import { useEffect } from 'react'
 import { v1 } from 'uuid'
 
 import { validateEmail, validatePhoneNumber } from '@xrengine/common/src/config'
+import { AuthStrategies } from '@xrengine/common/src/interfaces/AuthStrategies'
 import { AuthUser, AuthUserSeed, resolveAuthUser } from '@xrengine/common/src/interfaces/AuthUser'
-import { AvatarInterface, AvatarProps } from '@xrengine/common/src/interfaces/AvatarInterface'
+import { AvatarProps } from '@xrengine/common/src/interfaces/AvatarInterface'
 import { IdentityProvider, IdentityProviderSeed } from '@xrengine/common/src/interfaces/IdentityProvider'
-import { resolveUser, resolveWalletUser, User, UserSeed, UserSetting } from '@xrengine/common/src/interfaces/User'
+import { StaticResourceInterface } from '@xrengine/common/src/interfaces/StaticResourceInterface'
+import {
+  resolveUser,
+  resolveWalletUser,
+  UserInterface,
+  UserSeed,
+  UserSetting
+} from '@xrengine/common/src/interfaces/User'
 import { UserApiKey } from '@xrengine/common/src/interfaces/UserApiKey'
 import { UserAvatar } from '@xrengine/common/src/interfaces/UserAvatar'
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { NetworkTopics } from '@xrengine/engine/src/networking/classes/Network'
 import { WorldNetworkAction } from '@xrengine/engine/src/networking/functions/WorldNetworkAction'
 import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
@@ -31,18 +38,6 @@ import { uploadToFeathersService } from '../../util/upload'
 import { userPatched } from '../functions/userPatched'
 
 const TIMEOUT_INTERVAL = 50 //ms per interval of waiting for authToken to be updated
-
-type AuthStrategies = {
-  jwt: Boolean
-  local: Boolean
-  facebook: Boolean
-  github: Boolean
-  google: Boolean
-  linkedin: Boolean
-  twitter: Boolean
-  smsMagicLink: Boolean
-  emailMagicLink: Boolean
-}
 
 //State
 const AuthState = defineState({
@@ -228,6 +223,7 @@ export const AuthService = {
         console.log('****************')
       }
     } catch (err) {
+      console.log('error on resolving auth user in doLoginAuto, logging out')
       console.error(err)
       dispatchAction(AuthAction.didLogoutAction())
 
@@ -236,45 +232,26 @@ export const AuthService = {
       // }
     }
   },
-  loadUserData: (userId: string): any => {
-    return API.instance.client
-      .service('user')
-      .get(userId)
-      .then((res: any) => {
-        if (res.user_setting == null) {
-          return API.instance.client
-            .service('user-settings')
-            .find({
-              query: {
-                userId: userId
-              }
-            })
-            .then((settingsRes: Paginated<UserSetting>) => {
-              if (settingsRes.total === 0) {
-                return API.instance.client
-                  .service('user-settings')
-                  .create({
-                    userId: userId
-                  })
-                  .then((newSettings) => {
-                    res.user_setting = newSettings
+  async loadUserData(userId: string) {
+    try {
+      const client = API.instance.client
+      const res: any = await client.service('user').get(userId)
+      if (!res.user_setting) {
+        const settingsRes = (await client
+          .service('user-settings')
+          .find({ query: { userId: userId } })) as Paginated<UserSetting>
 
-                    return Promise.resolve(res)
-                  })
-              }
-              res.user_setting = settingsRes.data[0]
-              return Promise.resolve(res)
-            })
+        if (settingsRes.total === 0) {
+          res.user_setting = await client.service('user-settings').create({ userId: userId })
+        } else {
+          res.user_setting = settingsRes.data[0]
         }
-        return Promise.resolve(res)
-      })
-      .then((res: any) => {
-        const user = resolveUser(res)
-        dispatchAction(AuthAction.loadedUserDataAction({ user }))
-      })
-      .catch((err: any) => {
-        NotificationService.dispatchNotify(i18n.t('common:error.loading-error'), { variant: 'error' })
-      })
+      }
+      const user = resolveUser(res)
+      dispatchAction(AuthAction.loadedUserDataAction({ user }))
+    } catch (err) {
+      NotificationService.dispatchNotify(i18n.t('common:error.loading-error'), { variant: 'error' })
+    }
   },
   loginUserByPassword: async (form: EmailLoginForm) => {
     // check email validation.
@@ -355,9 +332,7 @@ export const AuthService = {
     const ipToRemove = ipResult.data.find((ip) => ip.type === service)
     if (ipToRemove) {
       if (ipResult.total === 1) {
-        console.log('show last warning modal')
-        await API.instance.client.service('user').remove(ipToRemove.userId)
-        await AuthService.logoutUser()
+        NotificationService.dispatchNotify('You can not remove your last login method.', { variant: 'warning' })
       } else {
         const otherIp = ipResult.data.find((ip) => ip.type !== service)
         const newToken = await API.instance.client.service('generate-token').create({
@@ -773,17 +748,12 @@ export const AuthService = {
               thumbnailURL
             }
           }),
-          Engine.instance.currentWorld.worldNetwork.hostId
+          NetworkTopics.world
         )
       })
   },
   removeUser: async (userId: string) => {
     await API.instance.client.service('user').remove(userId)
-    await API.instance.client.service('identity-provider').remove(null, {
-      query: {
-        userId: userId
-      }
-    })
     AuthService.logoutUser()
   },
 
@@ -936,7 +906,7 @@ export class AuthAction {
 
   static loadedUserDataAction = defineAction({
     type: 'LOADED_USER_DATA' as const,
-    user: matches.object as Validator<unknown, User>
+    user: matches.object as Validator<unknown, UserInterface>
   })
 
   static updatedUserSettingsAction = defineAction({
@@ -966,12 +936,12 @@ export class AuthAction {
 
   static userUpdatedAction = defineAction({
     type: 'USER_UPDATED' as const,
-    user: matches.object as Validator<unknown, User>
+    user: matches.object as Validator<unknown, UserInterface>
   })
 
   static updateAvatarListAction = defineAction({
     type: 'AVATAR_FETCHED' as const,
-    avatarList: matches.array as Validator<unknown, AvatarInterface[]>
+    avatarList: matches.array as Validator<unknown, StaticResourceInterface[]>
   })
 
   static apiKeyUpdatedAction = defineAction({

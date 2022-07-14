@@ -1,3 +1,5 @@
+import { ProjectPermissionInterface } from './ProjectPermissionInterface'
+
 export interface ProjectInterface {
   id: string
   name: string
@@ -5,4 +7,6 @@ export interface ProjectInterface {
   repositoryPath: string
   description?: string
   settings?: string
+  hasWriteAccess?: boolean
+  project_permissions?: ProjectPermissionInterface[]
 }

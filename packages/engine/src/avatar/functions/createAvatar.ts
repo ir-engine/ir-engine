@@ -1,11 +1,13 @@
 import { Collider, ColliderDesc, RigidBody, RigidBodyDesc } from '@dimforge/rapier3d-compat'
 import { AnimationClip, AnimationMixer, Group, PerspectiveCamera, Quaternion, Vector3 } from 'three'
 
-import { createQuaternionProxy, createVector3Proxy } from '../../common/proxies/three'
+import { AudioTagComponent } from '../../audio/components/AudioTagComponent'
+import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { InputComponent } from '../../input/components/InputComponent'
+import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
 import { InteractorComponent } from '../../interaction/components/InteractorComponent'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { Physics } from '../../physics/classes/PhysicsRapier'
@@ -16,6 +18,8 @@ import { getInteractionGroups } from '../../physics/functions/getInteractionGrou
 import { BodyType, SceneQueryType } from '../../physics/types/PhysicsTypes'
 import { NameComponent } from '../../scene/components/NameComponent'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
+import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
+import { ShadowComponent } from '../../scene/components/ShadowComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
@@ -38,18 +42,7 @@ export const createAvatar = (spawnAction: typeof WorldNetworkAction.spawnAvatar.
   const userId = spawnAction.$from
   const entity = world.getNetworkObject(spawnAction.$from, spawnAction.networkId)!
 
-  const position = createVector3Proxy(TransformComponent.position, entity)
-  const rotation = createQuaternionProxy(TransformComponent.rotation, entity)
-  const scale = createVector3Proxy(TransformComponent.scale, entity)
-
-  const transform = addComponent(entity, TransformComponent, { position, rotation, scale })
-  transform.position.copy(spawnAction.parameters.position)
-  transform.rotation.copy(spawnAction.parameters.rotation)
-  transform.scale.copy(new Vector3(1, 1, 1))
-
-  // set cached action refs to the new components so they stay up to date with future movements
-  spawnAction.parameters.position = position
-  spawnAction.parameters.rotation = rotation
+  const transform = getComponent(entity, TransformComponent)
 
   // The visuals group is centered for easy actor tilting
   const tiltContainer = new Group()
@@ -68,10 +61,10 @@ export const createAvatar = (spawnAction: typeof WorldNetworkAction.spawnAvatar.
   })
 
   addComponent(entity, NameComponent, {
-    name: userId as string
+    name: ('avatar_' + userId) as string
   })
 
-  addComponent(entity, VisibleComponent, {})
+  addComponent(entity, VisibleComponent, true)
 
   addComponent(entity, AnimationComponent, {
     mixer: new AnimationMixer(modelContainer),
@@ -95,14 +88,22 @@ export const createAvatar = (spawnAction: typeof WorldNetworkAction.spawnAvatar.
 
   addComponent(entity, CollisionComponent, { collisions: [] })
 
-  // If local player's avatar
+  addComponent(entity, SpawnPoseComponent, {
+    position: new Vector3().copy(transform.position),
+    rotation: new Quaternion().copy(transform.rotation)
+  })
+
   if (userId === Engine.instance.userId) {
-    addComponent(entity, SpawnPoseComponent, {
-      position: new Vector3().copy(spawnAction.parameters.position),
-      rotation: new Quaternion().copy(spawnAction.parameters.rotation)
-    })
     createAvatarController(entity)
+    addComponent(entity, LocalInputTagComponent, {})
   }
+
+  if (isClient) {
+    addComponent(entity, AudioTagComponent, {})
+    addComponent(entity, ShadowComponent, { receiveShadow: true, castShadow: true })
+  }
+
+  addComponent(entity, PersistTagComponent, true)
 
   return entity
 }

@@ -37,6 +37,7 @@ import { ImagePreviewInputGroup } from '../inputs/ImagePreviewInput'
 import InputGroup from '../inputs/InputGroup'
 import NumericInputGroup from '../inputs/NumericInputGroup'
 import SelectInput from '../inputs/SelectInput'
+import { TexturePreviewInputGroup } from '../inputs/TexturePreviewInput'
 import CollapsibleBlock from '../layout/CollapsibleBlock'
 import InstancingGrassProperties from './InstancingGrassProperties'
 import InstancingMeshProperties from './InstancingMeshProperties'
@@ -199,7 +200,7 @@ export const InstancingNodeEditor: EditorComponentType = (props) => {
         <CollapsibleBlock label={t('editor:properties.instancing.sampling.properties')}>
           {[SampleMode.SCATTER, SampleMode.VERTICES].includes(scatter.sampling) && (
             <Fragment>
-              <ImagePreviewInputGroup
+              <TexturePreviewInputGroup
                 name="Height Map"
                 label={t('editor:properties.instancing.sampling.heightMap')}
                 onChange={updateSampleProp('heightMap')}
@@ -216,7 +217,7 @@ export const InstancingNodeEditor: EditorComponentType = (props) => {
                 mediumStep={0.025}
                 largeStep={0.1}
               />
-              <ImagePreviewInputGroup
+              <TexturePreviewInputGroup
                 name="Density Map"
                 label={t('editor:properties.instancing.sampling.densityMap')}
                 onChange={updateSampleProp('densityMap')}

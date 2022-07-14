@@ -16,10 +16,6 @@ export const HomePage = (): any => {
   const clientSettingState = useClientSettingState()
   const [clientSetting] = clientSettingState?.client?.value || []
 
-  useEffect(() => {
-    !clientSetting && ClientSettingService.fetchClientSettings()
-  }, [])
-
   if (ROOT_REDIRECT && ROOT_REDIRECT.length > 0 && ROOT_REDIRECT !== 'false') {
     const redirectParsed = new URL(ROOT_REDIRECT)
     if (redirectParsed.protocol == null) return <Redirect to={ROOT_REDIRECT} />
@@ -42,7 +38,7 @@ export const HomePage = (): any => {
         </Helmet>
         <div className="main-background">
           <div className="img-container">
-            {clientSetting?.appBackground && <img src={clientSetting.appBackground} alt="" />}
+            {clientSetting?.appBackground && <img src={clientSetting.appBackground} alt="" crossOrigin="anonymous" />}
           </div>
         </div>
         <nav className="navbar">

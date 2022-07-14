@@ -1,4 +1,4 @@
-import { iff, isProvider } from 'feathers-hooks-common'
+import { disallow, iff, isProvider } from 'feathers-hooks-common'
 
 import authenticate from '../../hooks/authenticate'
 import restrictUserRole from '../../hooks/restrict-user-role'
@@ -11,7 +11,7 @@ export default {
     create: [],
     update: [],
     patch: [],
-    remove: []
+    remove: [disallow()]
   },
 
   after: {

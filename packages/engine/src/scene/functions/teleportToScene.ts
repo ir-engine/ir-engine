@@ -1,7 +1,5 @@
 import { Euler } from 'three'
 
-import { dispatchAction } from '@xrengine/hyperflux'
-
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions } from '../../ecs/classes/EngineState'
 import { addComponent, getComponent } from '../../ecs/functions/ComponentFunctions'
@@ -17,7 +15,7 @@ export const teleportToScene = async () => {
 
   // wait until the world has been joined
   await new Promise((resolve) => {
-    matchActionOnce(EngineActions.joinedWorld.matches, resolve)
+    matchActionOnce(EngineActions.sceneLoaded.matches, resolve)
   })
 
   // teleport player to where the portal is

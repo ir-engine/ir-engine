@@ -7,6 +7,7 @@ import { decode } from 'jsonwebtoken'
 import { IdentityProviderInterface } from '@xrengine/common/src/dbmodels/IdentityProvider'
 import { Channel } from '@xrengine/common/src/interfaces/Channel'
 import { Instance } from '@xrengine/common/src/interfaces/Instance'
+import { UserInterface } from '@xrengine/common/src/interfaces/User'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineActions, getEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
@@ -21,9 +22,9 @@ import {
   initializeSceneSystems,
   setupEngineActionSystems
 } from '@xrengine/engine/src/initializeEngine'
-import { Network } from '@xrengine/engine/src/networking/classes/Network'
+import { Network, NetworkTopics } from '@xrengine/engine/src/networking/classes/Network'
 import { matchActionOnce } from '@xrengine/engine/src/networking/functions/matchActionOnce'
-import { WorldNetworkAction } from '@xrengine/engine/src/networking/functions/WorldNetworkAction'
+import { NetworkPeerFunctions } from '@xrengine/engine/src/networking/functions/NetworkPeerFunctions'
 import { loadSceneFromJSON } from '@xrengine/engine/src/scene/functions/SceneLoading'
 import { dispatchAction } from '@xrengine/hyperflux'
 import { loadEngineInjection } from '@xrengine/projects/loadEngineInjection'
@@ -229,24 +230,17 @@ const initializeInstance = async (
  */
 
 const loadEngine = async (app: Application, sceneId: string) => {
-  const hostId = app.instance.id
+  const hostId = app.instance.id as UserId
   Engine.instance.publicPath = config.client.url
   Engine.instance.userId = hostId
   const world = Engine.instance.currentWorld
+  const topic = app.isChannelInstance ? NetworkTopics.media : NetworkTopics.world
 
-  const network = new SocketWebRTCServerNetwork(hostId, app)
+  const network = new SocketWebRTCServerNetwork(hostId, topic, app)
   app.transport = network
   const initPromise = network.initialize()
 
   world.networks.set(hostId, network)
-
-  dispatchAction(
-    WorldNetworkAction.createPeer({
-      name: 'server-' + hostId,
-      index: network.userIndexCount++
-    }),
-    [hostId]
-  )
 
   if (app.isChannelInstance) {
     world._mediaHostId = hostId as UserId
@@ -297,6 +291,14 @@ const loadEngine = async (app: Application, sceneId: string) => {
     // )
   }
   await initPromise
+
+  NetworkPeerFunctions.createPeer(
+    network,
+    hostId,
+    network.userIndexCount++,
+    'server-' + hostId,
+    Engine.instance.currentWorld
+  )
   dispatchAction(EngineActions.joinedWorld())
 }
 
@@ -480,15 +482,18 @@ const shutdownServer = async (app: Application, instanceId: string) => {
 }
 
 // todo: this could be more elegant
-const getActiveUsersCount = (app: Application, userToIgnore) => {
+const getActiveUsersCount = (app: Application, userToIgnore: UserInterface) => {
   const activeClients = app.transport.peers
-  const activeUsers = [...activeClients].filter(
-    ([, v]) => v.userId !== Engine.instance.userId && v.userId !== userToIgnore.id
-  )
+  const activeUsers = [...activeClients].filter(([id]) => id !== Engine.instance.userId && id !== userToIgnore.id)
   return activeUsers.length
 }
 
-const handleUserDisconnect = async (app: Application, connection, user, instanceId) => {
+const handleUserDisconnect = async (
+  app: Application,
+  connection: SocketIOConnectionType,
+  user: UserInterface,
+  instanceId: string
+) => {
   try {
     const activeUsersCount = getActiveUsersCount(app, user)
     await app.service('instance').patch(instanceId, {
@@ -536,9 +541,8 @@ const handleUserDisconnect = async (app: Application, connection, user, instance
 
   await new Promise((resolve) => setTimeout(resolve, config.instanceserver.shutdownDelayMs))
 
-  // count again here, as it may have changed
-  const activeUsersCount = getActiveUsersCount(app, user)
-  if (activeUsersCount < 1) await shutdownServer(app, instanceId)
+  // check if there are no peers connected (1 being the server)
+  if (app.transport.peers.size === 1) await shutdownServer(app, instanceId)
 }
 
 const onConnection = (app: Application) => async (connection: SocketIOConnectionType) => {

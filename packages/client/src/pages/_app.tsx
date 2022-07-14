@@ -14,6 +14,7 @@ import { theme } from '@xrengine/client-core/src/theme'
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import GlobalStyle from '@xrengine/client-core/src/util/GlobalStyle'
 import { matches } from '@xrengine/engine/src/common/functions/MatchesUtils'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { loadWebappInjection } from '@xrengine/projects/loadWebappInjection'
 
 import { StyledEngineProvider, Theme, ThemeProvider } from '@mui/material/styles'
@@ -23,6 +24,7 @@ import RouterComp from '../route/public'
 import './styles.scss'
 
 import { NotificationAction, NotificationActions } from '@xrengine/client-core/src/common/services/NotificationService'
+import { getCurrentTheme } from '@xrengine/common/src/constants/DefaultThemeSettings'
 import { addActionReceptor, removeActionReceptor } from '@xrengine/hyperflux'
 
 declare module '@mui/styles/defaultTheme' {
@@ -79,35 +81,22 @@ const App = (): any => {
   useEffect(() => {
     const html = document.querySelector('html')
     if (html) {
-      const currentTheme = selfUser?.user_setting?.value?.themeMode || 'dark'
+      const currentTheme = getCurrentTheme(selfUser?.user_setting?.value?.themeModes)
       html.dataset.theme = currentTheme
 
-      if (clientThemeSettings) {
-        if (currentTheme === 'light' && clientThemeSettings?.light) {
-          for (let variable of Object.keys(clientThemeSettings.light)) {
-            ;(document.querySelector(`[data-theme=light]`) as any)?.style.setProperty(
-              '--' + variable,
-              clientThemeSettings.light[variable]
-            )
-          }
-        } else if (currentTheme === 'dark' && clientThemeSettings?.dark) {
-          for (let variable of Object.keys(clientThemeSettings.dark)) {
-            ;(document.querySelector(`[data-theme=dark]`) as any)?.style.setProperty(
-              '--' + variable,
-              clientThemeSettings.dark[variable]
-            )
-          }
-        }
-      }
+      updateTheme()
     }
   }, [selfUser?.user_setting?.value])
 
   useEffect(initApp, [])
 
   useEffect(() => {
-    ProjectService.fetchProjects()
-    !clientSetting && ClientSettingService.fetchClientSettings()
-  }, [])
+    if (selfUser?.id.value && projectState.updateNeeded.value) ProjectService.fetchProjects()
+  }, [selfUser, projectState.updateNeeded.value])
+
+  useEffect(() => {
+    Engine.instance.userId = selfUser.id.value
+  }, [selfUser.id])
 
   useEffect(() => {
     if (projectState.projects.value.length > 0 && !fetchedProjectComponents) {
@@ -129,30 +118,27 @@ const App = (): any => {
       setDescription(clientSetting?.siteDescription)
       setClientThemeSettings(clientSetting?.themeSettings)
     }
-    ClientSettingService.fetchClientSettings()
+    if (clientSettingState?.updateNeeded?.value) ClientSettingService.fetchClientSettings()
   }, [clientSettingState?.updateNeeded?.value])
 
   useEffect(() => {
-    const currentTheme = selfUser?.user_setting?.value?.themeMode || 'dark'
+    updateTheme()
+  }, [clientThemeSettings])
+
+  const updateTheme = () => {
+    const currentTheme = getCurrentTheme(selfUser?.user_setting?.value?.themeModes)
 
     if (clientThemeSettings) {
-      if (currentTheme === 'light' && clientThemeSettings?.light) {
-        for (let variable of Object.keys(clientThemeSettings.light)) {
-          ;(document.querySelector(`[data-theme=light]`) as any)?.style.setProperty(
+      if (clientThemeSettings?.[currentTheme]) {
+        for (let variable of Object.keys(clientThemeSettings[currentTheme])) {
+          ;(document.querySelector(`[data-theme=${currentTheme}]`) as any)?.style.setProperty(
             '--' + variable,
-            clientThemeSettings.light[variable]
-          )
-        }
-      } else if (currentTheme === 'dark' && clientThemeSettings?.dark) {
-        for (let variable of Object.keys(clientThemeSettings.dark)) {
-          ;(document.querySelector(`[data-theme=dark]`) as any)?.style.setProperty(
-            '--' + variable,
-            clientThemeSettings.dark[variable]
+            clientThemeSettings[currentTheme][variable]
           )
         }
       }
     }
-  }, [clientThemeSettings])
+  }
 
   return (
     <>

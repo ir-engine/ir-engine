@@ -1,6 +1,6 @@
-# xrengine-ops
+# ethereal-engine-ops
 
-Deployment and Operations for xrengine services
+Deployment and Operations for ethereal engine services
 
 ## One-Click Deployment on Kubernetes using Helm
 
@@ -12,15 +12,15 @@ helm repo update
 helm install my-release xrengine/xrengine
 ```
 
-For more details about the XREngine chart
+For more details about the ethereal engine chart
 
-- [XREngine helm chart](xrengine/)
-- [Building the xrengine helm chart](https://github.com/XRFoundation/XREngine/blob/dev/docs/docs/2_devops_deployment/5_release_helm_chart.md)
+- [Ethereal Engine helm chart](xrengine/)
+- [Building the ethereal engine helm chart](https://xrfoundation.github.io/ethereal-engine-docs/docs/devops_deployment/release_helm_chart)
 
 For deployment on different cloud providers:
 
-- [Deploying XREngine on AWS EKS](https://github.com/XRFoundation/XREngine/blob/dev/docs/docs/2_devops_deployment/2_AWS_setup.md)
-- [Managing Remote Kubernets Clusters - TBD](https://github.com/XRFoundation/XREngine/blob/dev/docs/docs/2_devops_deployment/4_managing_remote_kubernetes.md)
+- [Deploying Ethereal Engine on AWS EKS](https://xrfoundation.github.io/ethereal-engine-docs/docs/devops_deployment/AWS_setup)
+- [Managing Remote Kubernets Clusters - TBD](https://xrfoundation.github.io/ethereal-engine-docs/docs/devops_deployment/managing_remote_kubernetes)
 
 Requires Helm and access to a Kubernetes cluster, if you are new to those, check the following instructions:
 
@@ -45,9 +45,9 @@ To run specific services
 docker-compose up <service-name>
 ```
 
-This will pull images from [xrengine's docker hub repo](https://hub.docker.com/u/xrengine)
+This will pull images from [ethereal engine's docker hub repo](https://hub.docker.com/u/xrengine)
 
-## XREngine services
+## Ethereal Engine services
 
 - [server](https://github.com/XRFoundation/xrsocial): backend server on <http://127.0.0.1:3030/docs>
 - [client](https://github.com/XRFoundation/xrsocial-client): frontend Next.js+react on <http://127.0.0.1:3000>

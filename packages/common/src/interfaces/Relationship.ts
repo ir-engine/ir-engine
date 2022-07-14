@@ -1,11 +1,11 @@
-import { User } from './User'
+import { UserInterface } from './User'
 
 export interface Relationship {
   userId: string
-  friend: User[]
-  requested: User[]
-  blocking: User[]
-  blocked: User[]
+  friend: UserInterface[]
+  requested: UserInterface[]
+  blocking: UserInterface[]
+  blocked: UserInterface[]
 }
 
 export const RelationshipSeed: Relationship = {

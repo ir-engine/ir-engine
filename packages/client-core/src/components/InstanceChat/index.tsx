@@ -1,4 +1,4 @@
-import { Downgraded } from '@speigg/hookstate'
+import { Downgraded, useHookstate } from '@speigg/hookstate'
 import React, { Fragment, useEffect, useRef, useState } from 'react'
 
 import { useLocationInstanceConnectionState } from '@xrengine/client-core/src/common/services/LocationInstanceConnectionService'
@@ -16,13 +16,16 @@ import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { addEntityNodeInTree, createEntityNode } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
+import { NetworkTopics } from '@xrengine/engine/src/networking/classes/Network'
 import { matchActionOnce } from '@xrengine/engine/src/networking/functions/matchActionOnce'
 import { WorldNetworkAction } from '@xrengine/engine/src/networking/functions/WorldNetworkAction'
+import { WorldState } from '@xrengine/engine/src/networking/interfaces/WorldState'
 import { toggleAudio } from '@xrengine/engine/src/scene/functions/loaders/AudioFunctions'
 import { updateAudio } from '@xrengine/engine/src/scene/functions/loaders/AudioFunctions'
 import { ScenePrefabs } from '@xrengine/engine/src/scene/functions/registerPrefabs'
 import { createNewEditorNode } from '@xrengine/engine/src/scene/functions/SceneLoading'
 import { addActionReceptor, dispatchAction, removeActionReceptor } from '@xrengine/hyperflux'
+import { getState } from '@xrengine/hyperflux'
 
 import { Cancel as CancelIcon, Message as MessageIcon, Send } from '@mui/icons-material'
 import { IconButton, InputAdornment } from '@mui/material'
@@ -96,7 +99,7 @@ export const useChatHooks = ({ chatWindowOpen, setUnreadMessages, messageRefInpu
         WorldNetworkAction.setUserTyping({
           typing: false
         }),
-        Engine.instance.currentWorld.worldNetwork.hostId
+        NetworkTopics.world
       )
     }, 3000)
 
@@ -125,7 +128,7 @@ export const useChatHooks = ({ chatWindowOpen, setUnreadMessages, messageRefInpu
           WorldNetworkAction.setUserTyping({
             typing: true
           }),
-          Engine.instance.currentWorld.worldNetwork.hostId
+          NetworkTopics.world
         )
       }
     }
@@ -135,7 +138,7 @@ export const useChatHooks = ({ chatWindowOpen, setUnreadMessages, messageRefInpu
           WorldNetworkAction.setUserTyping({
             typing: false
           }),
-          Engine.instance.currentWorld.worldNetwork.hostId
+          NetworkTopics.world
         )
       }
     }
@@ -150,7 +153,7 @@ export const useChatHooks = ({ chatWindowOpen, setUnreadMessages, messageRefInpu
           WorldNetworkAction.setUserTyping({
             typing: false
           }),
-          Engine.instance.currentWorld.worldNetwork.hostId
+          NetworkTopics.world
         )
       }
 
@@ -264,7 +267,7 @@ const InstanceChat = ({
     const loadPromise = AssetLoader.loadAsync(notificationAlertURL)
     const node = createEntityNode(createEntity(Engine.instance.currentWorld))
     setEntity(node.entity)
-    createNewEditorNode(node.entity, ScenePrefabs.audio)
+    createNewEditorNode(node, ScenePrefabs.audio)
     addEntityNodeInTree(node, Engine.instance.currentWorld.entityTree.rootNode)
     const audioComponent = getComponent(node.entity, AudioComponent)
     audioComponent.volume = audioState.audio.value / 100
@@ -314,6 +317,8 @@ const InstanceChat = ({
     return / left the layer|joined the layer/.test(text)
   }
 
+  const userAvatarDetails = useHookstate(getState(WorldState).userAvatarDetails)
+
   return (
     <>
       <div
@@ -355,15 +360,24 @@ const InstanceChat = ({
                                   </div>
                                 </div>
                                 {index !== 0 && messages[index - 1] && isLeftOrJoinText(messages[index - 1].text) ? (
-                                  <Avatar src={getAvatarURLForUser(message.senderId)} className={styles.avatar} />
+                                  <Avatar
+                                    src={getAvatarURLForUser(userAvatarDetails, message.senderId)}
+                                    className={styles.avatar}
+                                  />
                                 ) : (
                                   messages[index - 1] &&
                                   message.senderId !== messages[index - 1].senderId && (
-                                    <Avatar src={getAvatarURLForUser(message.senderId)} className={styles.avatar} />
+                                    <Avatar
+                                      src={getAvatarURLForUser(userAvatarDetails, message.senderId)}
+                                      className={styles.avatar}
+                                    />
                                   )
                                 )}
                                 {index === 0 && (
-                                  <Avatar src={getAvatarURLForUser(message.senderId)} className={styles.avatar} />
+                                  <Avatar
+                                    src={getAvatarURLForUser(userAvatarDetails, message.senderId)}
+                                    className={styles.avatar}
+                                  />
                                 )}
                               </div>
                             </div>
@@ -411,16 +425,14 @@ const InstanceChat = ({
                   onKeyDown={(evt) => handleComposingMessageChange(evt)}
                   InputProps={{
                     endAdornment: (
-                      <InputAdornment position="end">
-                        <IconButton
-                          aria-label="send message"
-                          onClick={packageMessage}
-                          className={styles.sendButton}
-                          focusRipple={false}
-                        >
-                          <Send fontSize="small" />
-                        </IconButton>
-                      </InputAdornment>
+                      <IconButton
+                        aria-label="send message"
+                        onClick={packageMessage}
+                        className={styles.sendButton}
+                        focusRipple={false}
+                      >
+                        <Send fontSize="small" />
+                      </IconButton>
                     )
                   }}
                 />

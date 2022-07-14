@@ -35,6 +35,7 @@ import { Physics } from '../classes/PhysicsRapier'
 import { RigidBodyComponent } from '../components/RigidBodyComponent'
 import { VelocityComponent } from '../components/VelocityComponent'
 import { getInteractionGroups } from './getInteractionGroups'
+import { NetworkTopics } from '../../networking/classes/Network'
 
 /**
  * Returns a random number between min (inclusive) and max (exclusive)
@@ -156,10 +157,10 @@ export const generatePhysicsObject = (
   const entity = createEntity()
   const uuid = getUUID()
   let entityTreeNode = createEntityNode(entity, uuid)
-  createNewEditorNode(entityTreeNode.entity, ScenePrefabs.model)
+  createNewEditorNode(entityTreeNode, ScenePrefabs.model)
 
   const nameComponent = getComponent(entity, NameComponent)
-  nameComponent.name = uuid
+  nameComponent.name = 'physics_debug_' + uuid
 
   const obj3d = mesh
   obj3d.scale.copy(scale)
@@ -184,10 +185,11 @@ export const generatePhysicsObject = (
     if (node) {
       dispatchAction(
         WorldNetworkAction.spawnObject({
-          prefab: '',
-          parameters: { sceneEntityId: node.uuid, position: transform.position }
+          prefab: 'physics_debug',
+          position: transform.position,
+          rotation: transform.rotation
         }),
-        Engine.instance.currentWorld.worldNetwork.hostId
+        NetworkTopics.world
       )
     }
   }

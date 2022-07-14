@@ -92,10 +92,10 @@ const PartyDrawer = ({ open, mode, selectedParty, onClose }: Props) => {
   }, [])
 
   useEffect(() => {
-    loadParty()
+    loadSelectedParty()
   }, [selectedParty])
 
-  const loadParty = () => {
+  const loadSelectedParty = () => {
     if (selectedParty) {
       setState({
         ...defaultState,
@@ -107,7 +107,7 @@ const PartyDrawer = ({ open, mode, selectedParty, onClose }: Props) => {
 
   const handleCancel = () => {
     if (editMode) {
-      loadParty()
+      loadSelectedParty()
       setEditMode(false)
     } else handleClose()
   }
@@ -200,7 +200,7 @@ const PartyDrawer = ({ open, mode, selectedParty, onClose }: Props) => {
         />
 
         {viewMode === false && (
-          <DialogContentText className={styles.mb15}>
+          <DialogContentText className={styles.mb15px}>
             <span className={styles.spanWhite}>{t('admin:components.party.dontSeeLocation')}</span>
             <a href="/admin/locations" className={styles.textLink}>
               {t('admin:components.party.createOne')}
@@ -209,23 +209,23 @@ const PartyDrawer = ({ open, mode, selectedParty, onClose }: Props) => {
         )}
 
         <DialogActions>
+          <Button className={styles.outlinedButton} onClick={handleCancel}>
+            {t('admin:components.common.cancel')}
+          </Button>
           {(mode === PartyDrawerMode.Create || editMode) && (
-            <Button className={styles.submitButton} onClick={handleSubmit}>
+            <Button className={styles.gradientButton} onClick={handleSubmit}>
               {t('admin:components.common.submit')}
             </Button>
           )}
           {mode === PartyDrawerMode.ViewEdit && editMode === false && (
             <Button
-              className={styles.submitButton}
+              className={styles.gradientButton}
               disabled={hasWriteAccess ? false : true}
               onClick={() => setEditMode(true)}
             >
               {t('admin:components.common.edit')}
             </Button>
           )}
-          <Button className={styles.cancelButton} onClick={handleCancel}>
-            {t('admin:components.common.cancel')}
-          </Button>
         </DialogActions>
       </Container>
     </DrawerView>

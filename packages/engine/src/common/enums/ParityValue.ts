@@ -1,5 +1,5 @@
 export enum ParityValue {
-  NONE,
-  LEFT,
-  RIGHT
+  NONE = 'none',
+  LEFT = 'left',
+  RIGHT = 'right'
 }

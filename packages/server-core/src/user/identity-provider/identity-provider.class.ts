@@ -6,6 +6,7 @@ import { Sequelize } from 'sequelize'
 import { v1 as uuidv1 } from 'uuid'
 
 import { IdentityProviderInterface } from '@xrengine/common/src/dbmodels/IdentityProvider'
+import { UserInterface } from '@xrengine/common/src/interfaces/User'
 import { isDev } from '@xrengine/common/src/utils/isDev'
 
 import { Application } from '../../../declarations'
@@ -13,7 +14,6 @@ import config from '../../appconfig'
 import { scopeTypeSeed } from '../../scope/scope-type/scope-type.seed'
 import Paginated from '../../types/PageObject'
 import getFreeInviteCode from '../../util/get-free-invite-code'
-import { UserDataType } from '../user/user.class'
 
 /**
  * A class for identity-provider service
@@ -200,23 +200,15 @@ export class IdentityProvider<T = IdentityProviderInterface> extends Service<T> 
     }
     // DRC
 
-    if (config.scopes.guest.length) {
-      config.scopes.guest.forEach(async (el) => {
-        await this.app.service('scope').create({
-          type: el,
-          userId: userId
-        })
-      })
-    }
-
     if (type === 'guest') {
       if (config.scopes.guest.length) {
-        config.scopes.guest.forEach(async (el) => {
-          await this.app.service('scope').create({
+        const data = config.scopes.guest.map((el) => {
+          return {
             type: el,
-            userId: userId
-          })
+            userId
+          }
         })
+        await this.app.service('scope').create(data)
       }
 
       result.accessToken = await this.app
@@ -224,10 +216,10 @@ export class IdentityProvider<T = IdentityProviderInterface> extends Service<T> 
         .createAccessToken({}, { subject: result.id.toString() })
     } else if (isDev && type === 'admin') {
       // in dev mode, add all scopes to the first user made an admin
-
-      for (const { type } of scopeTypeSeed.templates) {
-        await this.app.service('scope').create({ userId: userId, type })
-      }
+      const data = scopeTypeSeed.templates.map(({ type }) => {
+        return { userId, type }
+      })
+      await this.app.service('scope').create(data)
 
       result.accessToken = await this.app
         .service('authentication')
@@ -237,7 +229,7 @@ export class IdentityProvider<T = IdentityProviderInterface> extends Service<T> 
   }
 
   async find(params?: Params): Promise<T[] | Paginated<T>> {
-    const loggedInUser = params!.user as UserDataType
+    const loggedInUser = params!.user as UserInterface
     if (params!.provider) params!.query!.userId = loggedInUser.id
     return super.find(params)
   }

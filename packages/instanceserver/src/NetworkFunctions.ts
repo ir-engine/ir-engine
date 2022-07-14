@@ -1,23 +1,22 @@
-import AWS from 'aws-sdk'
 import { DataConsumer, DataProducer } from 'mediasoup/node/lib/types'
 import { Socket } from 'socket.io'
 
-import { UserInterface } from '@xrengine/common/src/dbmodels/UserInterface'
 import { Instance } from '@xrengine/common/src/interfaces/Instance'
-import { User } from '@xrengine/common/src/interfaces/User'
+import { UserInterface } from '@xrengine/common/src/interfaces/User'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
-import { SpawnPoints } from '@xrengine/engine/src/avatar/AvatarSpawnSystem'
+import { SpawnPoseComponent } from '@xrengine/engine/src/avatar/components/SpawnPoseComponent'
+import { respawnAvatar } from '@xrengine/engine/src/avatar/functions/respawnAvatar'
 import checkPositionIsValid from '@xrengine/engine/src/common/functions/checkPositionIsValid'
 import { performance } from '@xrengine/engine/src/common/functions/performance'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
-import { JoinWorldProps } from '@xrengine/engine/src/networking/functions/receiveJoinWorld'
-import { WorldNetworkAction } from '@xrengine/engine/src/networking/functions/WorldNetworkAction'
-import { AvatarProps } from '@xrengine/engine/src/networking/interfaces/WorldState'
+import { NetworkPeerFunctions } from '@xrengine/engine/src/networking/functions/NetworkPeerFunctions'
+import { JoinWorldProps, JoinWorldRequestData } from '@xrengine/engine/src/networking/functions/receiveJoinWorld'
+import { AvatarProps, WorldState } from '@xrengine/engine/src/networking/interfaces/WorldState'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
-import { dispatchAction } from '@xrengine/hyperflux'
+import { dispatchAction, getState } from '@xrengine/hyperflux'
 import { Action } from '@xrengine/hyperflux/functions/ActionFunctions'
 import { Application } from '@xrengine/server-core/declarations'
 import config from '@xrengine/server-core/src/appconfig'
@@ -224,19 +223,9 @@ export function getUserIdFromSocketId(network: SocketWebRTCServerNetwork, socket
   return client?.userId
 }
 
-export async function handleConnectToWorld(
-  network: SocketWebRTCServerNetwork,
-  socket: Socket,
-  data,
-  callback,
-  userId: UserId,
-  user: UserInterface
-) {
-  logger.info('Connect to world from ' + userId)
-
-  if (disconnectClientIfConnected(network, socket, userId)) return callback()
-
-  const avatarDetail = (await network.app.service('avatar').get(user.avatarId)) as AvatarProps
+export const handleConnectingPeer = async (network: SocketWebRTCServerNetwork, socket: Socket, user: UserInterface) => {
+  const userId = user.id
+  const avatarDetail = (await network.app.service('avatar').get(user.avatarId!)) as AvatarProps
 
   // Create a new client object
   // and add to the dictionary
@@ -255,23 +244,41 @@ export async function handleConnectToWorld(
     dataProducers: new Map<string, DataProducer>() // Key => label of data channel
   })
 
-  const world = Engine.instance.currentWorld
-  world.users.set(userId, {
-    userId,
-    name: user.name,
-    avatarDetail
-  })
+  const worldState = getState(WorldState)
+  worldState.userNames[userId].set(user.name)
+  worldState.userAvatarDetails[userId].set(avatarDetail)
 
   network.userIdToUserIndex.set(userId, userIndex)
   network.userIndexToUserId.set(userIndex, userId)
-
-  // Return initial world state to client to set things up
-  callback({
-    routerRtpCapabilities: network.routers.instance[0].rtpCapabilities
-  })
 }
 
-function disconnectClientIfConnected(network: SocketWebRTCServerNetwork, socket: Socket, userId: UserId) {
+export async function handleJoinWorld(
+  network: SocketWebRTCServerNetwork,
+  socket: Socket,
+  data: JoinWorldRequestData,
+  callback: Function,
+  userId: UserId,
+  user: UserInterface
+) {
+  logger.info('Connect to world from ' + userId)
+
+  const world = Engine.instance.currentWorld
+
+  const cachedActions = NetworkPeerFunctions.getCachedActionsForUser(network, userId)
+
+  network.updatePeers()
+
+  callback({
+    routerRtpCapabilities: network.routers.instance[0].rtpCapabilities,
+    highResTimeOrigin: performance.timeOrigin,
+    worldStartTime: world.startTime,
+    cachedActions
+  })
+
+  if (data.inviteCode) getUserSpawnFromInvite(network, user, data.inviteCode!)
+}
+
+export function disconnectClientIfConnected(network: SocketWebRTCServerNetwork, socket: Socket, userId: UserId) {
   // If we are already logged in, kick the other socket
   const client = network.peers.get(userId)
   if (client) {
@@ -291,83 +298,8 @@ function disconnectClientIfConnected(network: SocketWebRTCServerNetwork, socket:
   }
 }
 
-const getCachedActions = (network: SocketWebRTCServerNetwork, joinedUserId: UserId) => {
+const getUserSpawnFromInvite = async (network: SocketWebRTCServerNetwork, user: UserInterface, inviteCode: string) => {
   const world = Engine.instance.currentWorld
-
-  // send all cached and outgoing actions to joining user
-  const cachedActions = [] as Required<Action>[]
-  for (const action of Engine.instance.store.actions.cached[network.hostId] as Array<
-    ReturnType<typeof WorldNetworkAction.spawnAvatar>
-  >) {
-    // we may have a need to remove the check for the prefab type to enable this to work for networked objects too
-    if (action.type === 'network.SPAWN_OBJECT' && action.prefab === 'avatar') {
-      const ownerId = action.$from
-      if (ownerId) {
-        const entity = world.getNetworkObject(ownerId, action.networkId)
-        if (typeof entity !== 'undefined') {
-          const transform = getComponent(entity, TransformComponent)
-          action.parameters.position = transform.position
-          action.parameters.rotation = transform.rotation
-        }
-      }
-    }
-    if (action.$to === 'all' || action.$to === joinedUserId) cachedActions.push({ ...action, $stack: undefined! })
-  }
-
-  logger.info('Sending cached actions: %o', cachedActions)
-
-  return cachedActions
-}
-
-/**
- * For a user viewing an instance from the editor, or a non-participant viewer
- * @param network
- * @param socket
- * @param data
- * @param callback
- * @param joinedUserId
- * @param user
- */
-
-export const handleSpectateWorld = async (
-  network: SocketWebRTCServerNetwork,
-  socket: Socket,
-  data,
-  callback: Function,
-  joinedUserId: UserId,
-  user: User
-) => {
-  logger.info('Spectate World Request Received: %o', { joinedUserId, data, user })
-
-  const world = Engine.instance.currentWorld
-  const cachedActions = getCachedActions(network, joinedUserId)
-  const client = network.peers.get(joinedUserId)!
-  client.spectating = true
-
-  callback({
-    highResTimeOrigin: performance.timeOrigin,
-    worldStartTime: world.startTime,
-    client: { name: user.name, index: client.index },
-    cachedActions
-  })
-}
-
-export const handleJoinWorld = async (
-  network: SocketWebRTCServerNetwork,
-  socket: Socket,
-  data,
-  callback: (args: JoinWorldProps) => void,
-  joinedUserId: UserId,
-  user: User
-) => {
-  logger.info('Join World Request Received: %o', { joinedUserId, data, user })
-
-  // disallow join world request if already spawned
-  const world = Engine.instance.currentWorld
-  if (world.getUserAvatarEntity(joinedUserId) !== undefined) return callback(null!)
-
-  let spawnPose = SpawnPoints.instance.getRandomSpawnPoint()
-  const inviteCode = data['inviteCode']
 
   if (inviteCode) {
     const result = (await network.app.service('user').find({
@@ -377,7 +309,7 @@ export const handleJoinWorld = async (
       }
     })) as any
 
-    let users = result.data as User[]
+    const users = result.data as UserInterface[]
     if (users.length > 0) {
       const inviterUser = users[0]
       if (inviterUser.instanceId === user.instanceId) {
@@ -385,42 +317,24 @@ export const handleJoinWorld = async (
         const inviterUserAvatarEntity = world.getUserAvatarEntity(inviterUserId as UserId)
         const inviterUserTransform = getComponent(inviterUserAvatarEntity, TransformComponent)
 
-        // Translate infront of the inviter
+        /** @todo find nearest valid spawn position, rather than 2 in front */
         const inviterUserObject3d = getComponent(inviterUserAvatarEntity, Object3DComponent)
+        // Translate infront of the inviter
         inviterUserObject3d.value.translateZ(2)
 
         const validSpawnablePosition = checkPositionIsValid(inviterUserObject3d.value.position, false)
 
         if (validSpawnablePosition) {
-          spawnPose = {
-            position: inviterUserObject3d.value.position,
-            rotation: inviterUserTransform.rotation
-          }
+          const spawnPoseComponent = getComponent(inviterUserAvatarEntity, SpawnPoseComponent)
+          spawnPoseComponent?.position.copy(inviterUserObject3d.value.position)
+          spawnPoseComponent?.rotation.copy(inviterUserTransform.rotation)
+          respawnAvatar(inviterUserAvatarEntity)
         }
       } else {
         logger.warn('The user who invited this user in no longer on this instance.')
       }
     }
   }
-
-  logger.info('User successfully joined world: %o', { joinedUserId, data, spawnPose })
-  const client = network.peers.get(joinedUserId)!
-
-  if (!client) return callback(null! as any)
-
-  clearCachedActionsForDisconnectedUsers(network)
-  clearCachedActionsForUser(network, joinedUserId)
-
-  const cachedActions = getCachedActions(network, joinedUserId)
-
-  callback({
-    highResTimeOrigin: performance.timeOrigin,
-    worldStartTime: world.startTime,
-    client: { name: user.name, index: client.index },
-    cachedActions,
-    avatarDetail: world.users.get(joinedUserId)!.avatarDetail!,
-    avatarSpawnPose: spawnPose
-  })
 }
 
 export function handleIncomingActions(network: SocketWebRTCServerNetwork, socket: Socket, message) {
@@ -428,12 +342,14 @@ export function handleIncomingActions(network: SocketWebRTCServerNetwork, socket
 
   const userIdMap = {} as { [socketId: string]: UserId }
   for (const [id, client] of network.peers) userIdMap[client.socketId!] = id
+  if (!userIdMap[socket.id])
+    throw new Error('Received actions from a peer that does not exist: ' + JSON.stringify(message))
 
   const actions = /*decode(new Uint8Array(*/ message /*))*/ as Required<Action>[]
   for (const a of actions) {
     a['$fromSocketId'] = socket.id
     a.$from = userIdMap[socket.id]
-    dispatchAction(a, [network.hostId])
+    dispatchAction(a, a.$topic)
   }
   // logger.info('SERVER INCOMING ACTIONS: %s', JSON.stringify(actions))
 }
@@ -455,7 +371,8 @@ export async function handleDisconnect(network: SocketWebRTCServerNetwork, socke
   // The new connection will overwrite the socketID for the user's client.
   // This will only clear transports if the client's socketId matches the socket that's disconnecting.
   if (socket.id === disconnectedClient?.socketId) {
-    dispatchAction(WorldNetworkAction.destroyPeer({ $from: userId }), [network.hostId])
+    NetworkPeerFunctions.destroyPeer(network, userId, Engine.instance.currentWorld)
+    network.updatePeers()
     logger.info('Disconnecting clients for user ' + userId)
     if (disconnectedClient?.instanceRecvTransport) disconnectedClient.instanceRecvTransport.close()
     if (disconnectedClient?.instanceSendTransport) disconnectedClient.instanceSendTransport.close()
@@ -476,27 +393,8 @@ export async function handleLeaveWorld(
   for (const [, transport] of Object.entries(network.mediasoupTransports))
     if ((transport as any).appData.peerId === userId) closeTransport(network, transport)
   if (network.peers.has(userId)) {
-    dispatchAction(WorldNetworkAction.destroyPeer({ $from: userId }))
+    NetworkPeerFunctions.destroyPeer(network, userId, Engine.instance.currentWorld)
+    network.updatePeers()
   }
   if (callback !== undefined) callback({})
-}
-
-export function clearCachedActionsForDisconnectedUsers(network: SocketWebRTCServerNetwork) {
-  const cached = Engine.instance.store.actions.cached[network.hostId]
-  for (const action of [...cached]) {
-    if (!network.peers.has(action.$from)) {
-      const idx = cached.indexOf(action)
-      cached.splice(idx, 1)
-    }
-  }
-}
-
-export function clearCachedActionsForUser(network: SocketWebRTCServerNetwork, user: UserId) {
-  const cached = Engine.instance.store.actions.cached[network.hostId]
-  for (const action of [...cached]) {
-    if (action.$from === user) {
-      const idx = cached.indexOf(action)
-      cached.splice(idx, 1)
-    }
-  }
 }

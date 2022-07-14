@@ -2,14 +2,15 @@ import { BadRequest } from '@feathersjs/errors'
 import { HookContext } from '@feathersjs/feathers'
 import _ from 'lodash'
 
+import { UserInterface } from '@xrengine/common/src/interfaces/User'
+
 import logger from '../logger'
-import { UserDataType } from '../user/user/user.class'
 
 // This will attach the owner ID in the contact while creating/updating list item
 export default () => {
   return async (context: HookContext): Promise<HookContext> => {
     const { params, app } = context
-    const loggedInUser = params.user as UserDataType
+    const loggedInUser = params.user as UserInterface
     const partyId = params.query!.partyId
     const userId = params.query!.userId || loggedInUser.id
     const paramsClone = _.cloneDeep(context.params)
