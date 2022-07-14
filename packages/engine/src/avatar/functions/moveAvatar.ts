@@ -24,7 +24,6 @@ import { AvatarControllerComponent } from '../components/AvatarControllerCompone
 import { XRCameraUpdatePendingTagComponent } from '../components/XRCameraUpdatePendingTagComponent'
 import { getAvatarBoneWorldPosition } from './avatarFunctions'
 
-const upVector = new Vector3(0, 1, 0)
 const forward = new Vector3(0, 0, 1)
 const velocityScale = 40
 
@@ -38,6 +37,8 @@ const newVelocity = new Vector3()
 export const avatarCameraOffset = new Vector3(0, 0.14, 0.1)
 const displacementVec3 = new Vector3()
 const velocityToSet = new Vector3()
+
+const lastPosition = new Vector3()
 
 /**
  * @author HydraFire <github.com/HydraFire>
@@ -67,6 +68,7 @@ export const moveAvatar = (world: World, entity: Entity, camera: PerspectiveCame
 
   collidersInContactWithFeet.forEach((otherCollider) => {
     physicsWorld.contactPair(avatarFeetCollider, otherCollider, (manifold, flipped) => {
+      // TODO: Check contact normals and set onGround to true only when normal.y ~= -1
       if (manifold.numContacts() > 0) onGround = true
     })
   })
@@ -108,10 +110,7 @@ export const moveAvatar = (world: World, entity: Entity, camera: PerspectiveCame
   newVelocity.applyQuaternion(quat)
 
   if (onGround) {
-    // if we are falling
-    if (velocity.linear.y < 0) {
-      velocity.linear.y = 0
-    }
+    velocity.linear.y = newVelocity.y = 0
 
     if (
       // if controller jump input pressed
@@ -148,23 +147,22 @@ export const moveAvatar = (world: World, entity: Entity, camera: PerspectiveCame
   if (Math.abs(newVelocity.y) < 0.001) newVelocity.y = 0
   if (Math.abs(newVelocity.z) < 0.001) newVelocity.z = 0
 
-  displacementVec3.set(newVelocity.x, velocity.linear.y, newVelocity.z)
+  displacementVec3.set(newVelocity.x, newVelocity.y, newVelocity.z)
+  const shapeCastDirection = new Vector3().copy(displacementVec3).multiplyScalar(velocityScale)
 
   const shapecastComponentData = {
     collider: controller.bodyCollider,
     type: SceneQueryType.Closest,
     hits: [] as RaycastHit[],
-    direction: displacementVec3,
-    maxDistance: 0.1,
+    direction: shapeCastDirection,
+    maxDistance: 0.2,
     collisionGroups: getInteractionGroups(CollisionGroups.Avatars, CollisionGroups.Default)
   } as ShapecastComponentType
 
   Physics.castShape(Engine.instance.currentWorld.physicsWorld, shapecastComponentData)
   if (shapecastComponentData.hits.length === 0) {
     moveAvatarController(world, entity, displacementVec3)
-    // controller.controller.setLinvel(displacementVec3, true)
   }
-  // TODO: Set return velocity to zero if not applied to controller?
 
   return displacementVec3
 }
@@ -280,13 +278,12 @@ const moveAvatarController = (world: World, entity: Entity, displacement: Vector
   const controller = getComponent(entity, AvatarControllerComponent)
   const rigidBody = controller.controller
 
-  const positionBefore = rigidBody.translation()
-  
   velocityToSet.copy(displacement).multiplyScalar(velocityScale)
-  rigidBody.setLinvel(velocityToSet, true)
 
-  const positionAfter = rigidBody.translation()
-  displacement.copy(positionAfter as Vector3).sub(positionBefore as Vector3)
+  // Displacement is calculated using last position because the updated position of rigidbody will show up in next frame
+  // since we apply velocity to body and position is updated after physics engine step
+  const currentPosition = rigidBody.translation() as Vector3
+  displacement.copy(currentPosition as Vector3).sub(lastPosition as Vector3)
   const transform = getComponent(entity, TransformComponent)
   displacement.applyQuaternion(transform.rotation)
 
@@ -295,8 +292,12 @@ const moveAvatarController = (world: World, entity: Entity, displacement: Vector
   // velocity.linear.setX(displacement.x)
   // velocity.linear.setZ(displacement.z)
   velocity.linear.x = 0 //MathUtils.lerp(velocity.linear.x, displacement.x, world.deltaSeconds * 10)
-  velocity.linear.y = velocity.linear.y < 0 && !controller.isInAir ? 0 : velocity.linear.y
+  // velocity.linear.y = velocity.linear.y < 0 && !controller.isInAir ? 0 : velocity.linear.y
   velocity.linear.z = Math.min(Math.max(displacement.length(), -1), 1) //MathUtils.lerp(velocity.linear.z, velocity.linear.z, world.deltaSeconds * 10) // MathUtils.lerp(velocity.linear.z, displacement.z, world.deltaSeconds * 10)
+
+  lastPosition.copy(currentPosition)
+
+  rigidBody.setLinvel(velocityToSet, true)
 }
 
 /**

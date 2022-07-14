@@ -31,11 +31,11 @@ import { dispatchAction } from '@xrengine/hyperflux'
 
 import { createVector3Proxy } from '../../common/proxies/three'
 import { getEngineState } from '../../ecs/classes/EngineState'
+import { NetworkTopics } from '../../networking/classes/Network'
 import { Physics } from '../classes/PhysicsRapier'
 import { RigidBodyComponent } from '../components/RigidBodyComponent'
 import { VelocityComponent } from '../components/VelocityComponent'
 import { getInteractionGroups } from './getInteractionGroups'
-import { NetworkTopics } from '../../networking/classes/Network'
 
 /**
  * Returns a random number between min (inclusive) and max (exclusive)
@@ -82,8 +82,8 @@ export const boxDynamicConfig = {
   friction: 1,
   restitution: 0.1,
   isTrigger: false,
-  spawnPosition: new Vector3(0, 15, 5),
-  spawnScale: new Vector3(0.5, 0.5, 0.5)
+  spawnPosition: new Vector3(0, 1, 5),
+  spawnScale: new Vector3(0.5, 0.25, 0.5)
 } as ColliderDescOptions
 
 export const generateSimulationData = (numOfObjectsToGenerate) => {
@@ -131,7 +131,7 @@ export const generatePhysicsObject = (
   let geometry
   switch (type) {
     case ShapeType.Cuboid:
-      geometry = new BoxGeometry(1, 1, 1)
+      geometry = new BoxGeometry(1, 0.5, 1)
       break
 
     // case 'sphere':
