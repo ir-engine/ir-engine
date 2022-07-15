@@ -16,7 +16,8 @@ const LocationState = defineState({
     currentLocation: {
       location: LocationSeed as Location,
       bannedUsers: [] as UserId[],
-      selfUserBanned: false
+      selfUserBanned: false,
+      selfNotAuthorized: false
     },
     updateNeeded: true,
     currentLocationUpdateNeeded: true,
@@ -39,7 +40,8 @@ export const LocationServiceReceptor = (action) => {
           currentLocation: {
             location: LocationSeed as Location,
             bannedUsers: [] as UserId[],
-            selfUserBanned: false
+            selfUserBanned: false,
+            selfNotAuthorized: false
           },
           updateNeeded: true,
           currentLocationUpdateNeeded: true
@@ -58,7 +60,8 @@ export const LocationServiceReceptor = (action) => {
               locationSetting: (action.location as any).location_setting
             },
             bannedUsers,
-            selfUserBanned: false
+            selfUserBanned: false,
+            selfNotAuthorized: false
           },
           currentLocationUpdateNeeded: false,
           fetchingCurrentLocation: false
@@ -69,7 +72,8 @@ export const LocationServiceReceptor = (action) => {
           currentLocation: {
             location: LocationSeed,
             bannedUsers: [],
-            selfUserBanned: false
+            selfUserBanned: false,
+            selfNotAuthorized: false
           },
           currentLocationUpdateNeeded: false,
           fetchingCurrentLocation: false,
@@ -83,6 +87,10 @@ export const LocationServiceReceptor = (action) => {
         s.merge({ currentLocationUpdateNeeded: true })
         s.currentLocation.merge({ selfUserBanned: action.banned })
         return
+      })
+      .when(LocationAction.socialLocationNotAuthorized.matches, (action) => {
+        s.merge({ currentLocationUpdateNeeded: true })
+        return s.currentLocation.merge({ selfNotAuthorized: true })
       })
   })
 }
@@ -102,7 +110,7 @@ export const LocationService = {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   },
-  getLocationByName: async (locationName: string) => {
+  getLocationByName: async (locationName: string, userId: string) => {
     dispatchAction(LocationAction.fetchingCurrentSocialLocation())
     const locationResult = (await API.instance.client.service('location').find({
       query: {
@@ -112,7 +120,12 @@ export const LocationService = {
     })) as Paginated<Location>
 
     if (locationResult && locationResult.total > 0) {
-      dispatchAction(LocationAction.socialLocationRetrieved({ location: locationResult.data[0] }))
+      if (
+        locationResult.data[0].location_setting?.locationType === 'private' &&
+        !locationResult.data[0].location_authorized_users?.find((authUser) => authUser.userId === userId)
+      ) {
+        dispatchAction(LocationAction.socialLocationNotAuthorized({ location: locationResult.data[0] }))
+      } else dispatchAction(LocationAction.socialLocationRetrieved({ location: locationResult.data[0] }))
     } else {
       dispatchAction(LocationAction.socialLocationNotFound())
     }
@@ -166,6 +179,11 @@ export class LocationAction {
 
   static socialLocationNotFound = defineAction({
     type: 'LOCATION_NOT_FOUND' as const
+  })
+
+  static socialLocationNotAuthorized = defineAction({
+    type: 'LOCATION_NOT_AUTHORIZED' as const,
+    location: matches.object as Validator<unknown, Location>
   })
 
   static socialSelfUserBanned = defineAction({

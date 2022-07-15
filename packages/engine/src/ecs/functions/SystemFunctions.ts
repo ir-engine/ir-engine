@@ -55,7 +55,7 @@ export const initSystems = async (world: World, systemModulesToLoad: SystemModul
           }
           const end = nowMilliseconds()
           const duration = end - start
-          if (duration > 10) {
+          if (duration > 50) {
             console.warn(`Long system execution detected. System: ${name} \n Duration: ${duration}`)
           }
         }

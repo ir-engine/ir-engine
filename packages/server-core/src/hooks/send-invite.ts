@@ -15,7 +15,7 @@ import Page from '../types/PageObject'
 import { getInviteLink, sendEmail, sendSms } from '../user/auth-management/auth-management.utils'
 import { UserRelationshipDataType } from '../user/user-relationship/user-relationship.class'
 
-export type InviteDataType = InviteType & { targetObjectId: UserId; passcode: string }
+export type InviteDataType = InviteType
 
 const emailAccountTemplatesPath = path.join(appRootPath.path, 'packages', 'server-core', 'email-templates', 'invite')
 
@@ -27,7 +27,7 @@ async function generateEmail(
   inviterUsername: string,
   targetObjectId?: string
 ): Promise<void> {
-  let groupName
+  let groupName, locationName
   const hashLink = getInviteLink(inviteType, result.id, result.passcode)
 
   const templatePath = path.join(emailAccountTemplatesPath, `magiclink-email-invite-${inviteType}.pug`)
@@ -37,10 +37,22 @@ async function generateEmail(
     groupName = group.name
   }
 
+  if (inviteType === 'location') {
+    const location = await app.service('location').get(targetObjectId!)
+    locationName = location.name
+  }
+
+  if (inviteType === 'instance') {
+    const instance = await app.service('instance').get(targetObjectId!)
+    const location = await app.service('location').get(instance.locationId)
+    locationName = location.name
+  }
+
   const compiledHTML = pug.compileFile(templatePath)({
     logo: config.client.logo,
     title: config.client.title,
     groupName: groupName,
+    locationName: locationName,
     inviterUsername: inviterUsername,
     hashLink
   })
@@ -63,11 +75,22 @@ async function generateSMS(
   inviterUsername: string,
   targetObjectId?: string
 ): Promise<void> {
-  let groupName
+  let groupName, locationName
   const hashLink = getInviteLink(inviteType, result.id, result.passcode)
   if (inviteType === 'group') {
     const group = await app.service('group').get(targetObjectId!)
     groupName = group.name
+  }
+
+  if (inviteType === 'location') {
+    const location = await app.service('location').get(targetObjectId!)
+    locationName = location.name
+  }
+
+  if (inviteType === 'instance') {
+    const instance = await app.service('instance').get(targetObjectId!)
+    const location = await app.service('location').get(instance.locationId)
+    locationName = location.name
   }
   const templatePath = path.join(emailAccountTemplatesPath, `magiclink-sms-invite-${inviteType}.pug`)
   const compiledHTML = pug
@@ -75,6 +98,7 @@ async function generateSMS(
       title: config.client.title,
       inviterUsername: inviterUsername,
       groupName: groupName,
+      locationName: locationName,
       hashLink
     })
     .replace(/&amp;/g, '&') // Text message links can't have HTML escaped ampersands.
@@ -90,10 +114,10 @@ async function generateSMS(
 export const sendInvite = async (app: Application, result: InviteDataType, params: Params) => {
   try {
     let token = ''
-    if (result.identityProviderType === 'email' || result.identityProviderType === 'sms') {
-      token = result.token
+    if (result.identityProviderType === 'email' || (result.identityProviderType === 'sms' && result.token)) {
+      token = result.token as string
     } else {
-      token = result.inviteeId
+      token = result.inviteeId as string
     }
     const inviteType = result.inviteType
     const targetObjectId = result.targetObjectId

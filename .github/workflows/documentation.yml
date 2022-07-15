@@ -31,6 +31,7 @@ jobs:
           NODE_OPTIONS: --max_old_space_size=8192
         run: |
           npm install --legacy-peer-deps
+          git clone https://github.com/XRFoundation/ethereal-engine-docs.git docs
           cd docs
           npm install --legacy-peer-deps
           npm run build
@@ -52,11 +53,12 @@ jobs:
           NODE_OPTIONS: --max_old_space_size=8192
           USE_SSH: true
           GIT_USER: git
-          DEPLOYMENT_BRANCH: master
+          DEPLOYMENT_BRANCH: gh-pages
         run: |
           git config --global user.email "actions@github.com"
           git config --global user.name "gh-actions"
           npm install --legacy-peer-deps
+          git clone https://github.com/XRFoundation/ethereal-engine-docs.git docs
           cd docs
           npm install --legacy-peer-deps
           npm run deploy
