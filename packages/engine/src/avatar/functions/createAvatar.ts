@@ -149,7 +149,7 @@ export const createAvatarCollider = (
 const createAvatarRigidBody = (entity: Entity, height: number, radius: number): RigidBody => {
   const rigidBodyDesc = RigidBodyDesc.dynamic()
   const rigidBody = Physics.createRigidBody(entity, Engine.instance.currentWorld.physicsWorld, rigidBodyDesc, [])
-  rigidBody.setGravityScale(0.0, true)
+  // rigidBody.setGravityScale(0.0, true)
   rigidBody.lockRotations(true, true)
 
   return rigidBody
