@@ -134,8 +134,7 @@ export interface RaycastHit {
   distance: number
   position: Vec3
   normal: Vec3
-  body?: RigidBody | RAPIER.RigidBody // TODO: Only keep Rapier.RigidBody
-  _bodyID?: number // TODO: Remove
+  body?: RAPIER.RigidBody
 }
 
 // TODO: Remove this

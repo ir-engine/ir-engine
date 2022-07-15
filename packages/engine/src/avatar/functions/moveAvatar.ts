@@ -1,4 +1,4 @@
-import { Collider } from '@dimforge/rapier3d-compat'
+import { Collider, RigidBodyType } from '@dimforge/rapier3d-compat'
 import { MathUtils, Matrix4, OrthographicCamera, PerspectiveCamera, Quaternion, Vector3 } from 'three'
 
 import { rotate } from '@xrengine/common/src/utils/mathUtils'
@@ -11,9 +11,10 @@ import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
 import { addComponent, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { Physics } from '../../physics/classes/PhysicsRapier'
+import { RaycastComponentType } from '../../physics/components/RaycastComponent'
 import { ShapecastComponentType } from '../../physics/components/ShapeCastComponent'
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
-import { CollisionGroups } from '../../physics/enums/CollisionGroups'
+import { AvatarCollisionMask, CollisionGroups } from '../../physics/enums/CollisionGroups'
 import { getInteractionGroups } from '../../physics/functions/getInteractionGroups'
 import { RaycastHit, SceneQueryType } from '../../physics/types/PhysicsTypes'
 import { TransformComponent } from '../../transform/components/TransformComponent'
@@ -58,20 +59,33 @@ export const moveAvatar = (world: World, entity: Entity, camera: PerspectiveCame
 
   let onGround = false
 
-  const physicsWorld = Engine.instance.currentWorld.physicsWorld
-  let avatarFeetCollider = controller.feetCollider
+  const avatarFeetCollider = controller.feetCollider
 
-  const collidersInContactWithFeet = [] as Collider[]
-  physicsWorld.contactsWith(avatarFeetCollider, (otherCollider) => {
-    collidersInContactWithFeet.push(otherCollider)
-  })
+  const raycastComponentData = {
+    type: SceneQueryType.Closest,
+    hits: [] as RaycastHit[],
+    origin: avatarFeetCollider.translation(),
+    direction: Direction.Down,
+    maxDistance: 0.05,
+    flags: getInteractionGroups(CollisionGroups.Avatars, AvatarCollisionMask)
+  } as RaycastComponentType
 
-  collidersInContactWithFeet.forEach((otherCollider) => {
-    physicsWorld.contactPair(avatarFeetCollider, otherCollider, (manifold, flipped) => {
-      // TODO: Check contact normals and set onGround to true only when normal.y ~= -1
-      if (manifold.numContacts() > 0) onGround = true
-    })
-  })
+  Physics.castRay(Engine.instance.currentWorld.physicsWorld, raycastComponentData)
+  if (raycastComponentData.hits.length > 0) onGround = true
+
+  // Commenting this out because rapier does not register collision data some times with dynamic bodies.
+  // const physicsWorld = Engine.instance.currentWorld.physicsWorld
+  // const collidersInContactWithFeet = [] as Collider[]
+  // physicsWorld.contactsWith(avatarFeetCollider, (otherCollider) => {
+  //   collidersInContactWithFeet.push(otherCollider)
+  // })
+
+  // collidersInContactWithFeet.forEach((otherCollider) => {
+  //   physicsWorld.contactPair(avatarFeetCollider, otherCollider, (manifold, flipped) => {
+  //     // TODO: Check contact normals and set onGround to true only when normal.y ~= -1
+  //     if (manifold.numContacts() > 0) onGround = true
+  //   })
+  // })
 
   controller.isInAir = !onGround
 
@@ -155,12 +169,21 @@ export const moveAvatar = (world: World, entity: Entity, camera: PerspectiveCame
     type: SceneQueryType.Closest,
     hits: [] as RaycastHit[],
     direction: shapeCastDirection,
-    maxDistance: 0.2,
-    collisionGroups: getInteractionGroups(CollisionGroups.Avatars, CollisionGroups.Default)
+    maxDistance: 0.1,
+    collisionGroups: getInteractionGroups(CollisionGroups.Avatars, AvatarCollisionMask)
   } as ShapecastComponentType
 
   Physics.castShape(Engine.instance.currentWorld.physicsWorld, shapecastComponentData)
-  if (shapecastComponentData.hits.length === 0) {
+  let contactWithFixedRigidBody = false
+  if (
+    shapecastComponentData.hits.length > 0 &&
+    shapecastComponentData.hits[0].body?.bodyType() === RigidBodyType.Fixed
+  ) {
+    contactWithFixedRigidBody = true
+  }
+
+  // This is required to cater jitter in motion when in contact with fixed bodies.
+  if (!contactWithFixedRigidBody) {
     moveAvatarController(world, entity, displacementVec3)
   }
 
