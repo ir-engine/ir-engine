@@ -1,26 +1,35 @@
-import React, { useEffect, useRef } from 'react'
+import { QRCodeSVG } from 'qrcode.react'
+import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { SendInvite } from '@xrengine/common/src/interfaces/Invite'
 import { isShareAvailable } from '@xrengine/engine/src/common/functions/DetectFeatures'
+import { EngineActions, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
+import { dispatchAction } from '@xrengine/hyperflux'
 
-import { FileCopy } from '@mui/icons-material'
+import { CheckBox, CheckBoxOutlineBlank, FileCopy, IosShare, Send } from '@mui/icons-material'
 import Button from '@mui/material/Button'
+import Checkbox from '@mui/material/Checkbox'
+import FormControlLabel from '@mui/material/FormControlLabel'
 import InputAdornment from '@mui/material/InputAdornment'
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
 
 import { NotificationService } from '../../../../common/services/NotificationService'
-import { InviteService } from '../../../../social/services/InviteService'
+import { emailRegex, InviteService, phoneRegex } from '../../../../social/services/InviteService'
 import { useInviteState } from '../../../../social/services/InviteService'
 import { useAuthState } from '../../../services/AuthService'
 import styles from '../index.module.scss'
 
 export const useShareMenuHooks = ({ refLink }) => {
   const { t } = useTranslation()
-  const [email, setEmail] = React.useState('')
+  const [token, setToken] = React.useState('')
+  const [isSpectatorMode, setSpectatorMode] = useState<boolean>(false)
+  const [shareLink, setShareLink] = useState('')
   const postTitle = 'AR/VR world'
   const siteTitle = 'XREngine'
   const inviteState = useInviteState()
+  const engineState = useEngineState()
 
   const copyLinkToClipboard = () => {
     navigator.clipboard.writeText(refLink.current.value)
@@ -44,64 +53,131 @@ export const useShareMenuHooks = ({ refLink }) => {
   }
 
   const packageInvite = async (): Promise<void> => {
+    const isEmail = emailRegex.test(token)
+    const isPhone = phoneRegex.test(token)
+    const location = new URL(window.location as any)
+    let params = new URLSearchParams(location.search)
     const sendData = {
-      type: 'friend',
-      token: email,
-      inviteCode: null,
-      identityProviderType: 'email',
-      targetObjectId: inviteState.targetObjectId.value,
-      invitee: null
+      inviteType: 'instance',
+      token: token.length === 8 ? null : token,
+      inviteCode: token.length === 8 ? token : null,
+      identityProviderType: isEmail ? 'email' : isPhone ? 'sms' : null,
+      targetObjectId: params.get('instanceId'),
+      inviteeId: null,
+      deleteOnUse: true
+    } as SendInvite
+
+    if (isSpectatorMode) {
+      sendData.spawnType = 'spectate'
+      sendData.spawnDetails = { spectate: selfUser.id.value }
+    } else if (selfUser?.inviteCode.value) {
+      sendData.spawnType = 'inviteCode'
+      sendData.spawnDetails = { inviteCode: selfUser.inviteCode.value }
     }
+
     InviteService.sendInvite(sendData)
-    setEmail('')
+    setToken('')
   }
 
-  const handleChang = (e) => {
-    setEmail(e.target.value)
+  const handleChangeToken = (e) => {
+    setToken(e.target.value)
   }
 
   const getInviteLink = () => {
     const location = new URL(window.location as any)
     let params = new URLSearchParams(location.search)
     if (selfUser?.inviteCode.value != null) {
-      params.append('inviteCode', selfUser.inviteCode.value)
+      params.set('inviteCode', selfUser.inviteCode.value)
       location.search = params.toString()
-      return location
+      return location.toString()
     } else {
-      return location
+      return location.toString()
     }
   }
+
+  const getSpectateModeUrl = () => {
+    const location = new URL(window.location as any)
+    let params = new URLSearchParams(location.search)
+    params.set('spectate', selfUser.id.value)
+    params.delete('inviteCode')
+    location.search = params.toString()
+    return location.toString()
+  }
+
+  const toggleSpectatorMode = () => {
+    setSpectatorMode(!isSpectatorMode)
+  }
+
+  useEffect(() => {
+    if (engineState.shareLink.value !== '') setShareLink(engineState.shareLink.value)
+    else setShareLink(isSpectatorMode ? getSpectateModeUrl() : getInviteLink())
+  }, [engineState.shareLink.value, isSpectatorMode])
 
   return {
     copyLinkToClipboard,
     shareOnApps,
     packageInvite,
-    handleChang,
-    getInviteLink,
-    email
+    handleChangeToken,
+    token,
+    shareLink,
+    toggleSpectatorMode
   }
 }
 
-const ShareMenu = (): JSX.Element => {
+interface Props {}
+
+const ShareMenu = (props: Props): JSX.Element => {
   const { t } = useTranslation()
-
   const refLink = useRef() as React.MutableRefObject<HTMLInputElement>
+  const engineState = useEngineState()
+  const { copyLinkToClipboard, shareOnApps, packageInvite, handleChangeToken, token, shareLink, toggleSpectatorMode } =
+    useShareMenuHooks({
+      refLink
+    })
 
-  const { copyLinkToClipboard, shareOnApps, packageInvite, handleChang, getInviteLink, email } = useShareMenuHooks({
-    refLink
-  })
+  useEffect(() => {
+    return () => dispatchAction(EngineActions.shareInteractableLink({ shareLink: '', shareTitle: '' }))
+  }, [])
 
   return (
     <div className={styles.menuPanel}>
       <div className={styles.sharePanel}>
-        <Typography variant="h1" className={styles.panelHeader}>
-          {t('user:usermenu.share.title')}
-        </Typography>
+        {engineState.shareTitle.value ? (
+          <Typography variant="h2" className={styles.title}>
+            {engineState.shareTitle.value}
+          </Typography>
+        ) : (
+          <>
+            <Typography variant="h1" className={styles.panelHeader}>
+              {t('user:usermenu.share.title')}
+            </Typography>
+            <FormControlLabel
+              classes={{
+                label: styles.label,
+                root: styles.formRoot
+              }}
+              control={
+                <Checkbox
+                  className={styles.checkboxMode}
+                  icon={<CheckBoxOutlineBlank fontSize="small" />}
+                  checkedIcon={<CheckBox fontSize="small" />}
+                  name="checked"
+                  color="primary"
+                  onChange={toggleSpectatorMode}
+                />
+              }
+              label={t('user:usermenu.share.lbl-spectator-mode')}
+            />
+          </>
+        )}
+        <div className={styles.QRContainer}>
+          <QRCodeSVG height={176} width={200} value={shareLink} />
+        </div>
         <TextField
           className={styles.copyField}
           size="small"
           variant="outlined"
-          value={getInviteLink()}
+          value={shareLink}
           disabled={true}
           inputRef={refLink}
           InputProps={{
@@ -117,21 +193,23 @@ const ShareMenu = (): JSX.Element => {
           size="small"
           placeholder={t('user:usermenu.share.ph-phoneEmail')}
           variant="outlined"
-          value={email}
-          onChange={(e) => handleChang(e)}
+          value={token}
+          onChange={(e) => handleChangeToken(e)}
+          InputProps={{
+            endAdornment: (
+              <InputAdornment position="end" onClick={packageInvite}>
+                <Send />
+              </InputAdornment>
+            )
+          }}
         />
-        <div className={styles.sendInviteContainer}>
-          <Button className={styles.sendInvite} onClick={packageInvite}>
-            {t('user:usermenu.share.lbl-send-invite')}
-          </Button>
-        </div>
-        {isShareAvailable ? (
+        {isShareAvailable && (
           <div className={styles.shareBtnContainer}>
-            <Button className={styles.shareBtn} onClick={shareOnApps}>
+            <Button className={styles.shareBtn} onClick={shareOnApps} endIcon={<IosShare />}>
               {t('user:usermenu.share.lbl-share')}
             </Button>
           </div>
-        ) : null}
+        )}
       </div>
     </div>
   )

@@ -8,7 +8,6 @@ import { interactiveReachDistance } from '../../avatar/functions/getInteractiveI
 import { EngineActions } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
-import { isEntityLocalClient } from '../../networking/functions/isEntityLocalClient'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { BoundingBoxComponent } from '../components/BoundingBoxComponent'

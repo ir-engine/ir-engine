@@ -28,8 +28,8 @@ const AvatarDetailView = () => {
   const detailState = useXRUIState<AvatarDetailState>()
   const userState = useUserState()
   const user = userState.layerUsers.find((user) => user.id.value === detailState.id.value)
-  const worldState = useEngineState()
-  const usersTyping = useState(worldState.usersTyping[detailState.id.value]).value
+  const engineState = useEngineState()
+  const usersTyping = useState(engineState.usersTyping[detailState.id.value]).value
 
   return (
     <>

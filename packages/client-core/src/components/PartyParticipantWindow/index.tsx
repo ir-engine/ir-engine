@@ -1,4 +1,4 @@
-import { Downgraded } from '@speigg/hookstate'
+import { Downgraded, useHookstate } from '@speigg/hookstate'
 import classNames from 'classnames'
 import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -21,7 +21,8 @@ import { useUserState } from '@xrengine/client-core/src/user/services/UserServic
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
-import { SCENE_COMPONENT_AUDIO_SETTINGS_DEFAULT_VALUES } from '@xrengine/engine/src/scene/functions/loaders/AudioSettingFunctions'
+import { WorldState } from '@xrengine/engine/src/networking/interfaces/WorldState'
+import { getState } from '@xrengine/hyperflux'
 
 import {
   Launch,
@@ -44,11 +45,6 @@ import { useMediaInstanceConnectionState } from '../../common/services/MediaInst
 import { SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientNetwork'
 import Draggable from './Draggable'
 import styles from './index.module.scss'
-
-interface ContainerProportions {
-  width: number | string
-  height: number | string
-}
 
 interface Props {
   peerId?: string | 'cam_me' | 'screen_me'
@@ -81,7 +77,7 @@ const PartyParticipantWindow = ({ peerId }: Props): JSX.Element => {
   const enableGlobalMute =
     currentLocation?.locationSetting?.locationType?.value === 'showroom' &&
     selfUser?.locationAdmins?.find((locationAdmin) => currentLocation?.id?.value === locationAdmin.locationId) != null
-  const isScreen = peerId && peerId.startsWith('screen_')
+  const isScreen = Boolean(peerId && peerId.startsWith('screen_'))
   const userId = isScreen ? peerId!.replace('screen_', '') : peerId
   const user = userState.layerUsers.find((user) => user.id.value === userId)?.attach(Downgraded).value
 
@@ -90,8 +86,8 @@ const PartyParticipantWindow = ({ peerId }: Props): JSX.Element => {
   const consumers = mediastream.consumers
 
   const channelConnectionState = useMediaInstanceConnectionState()
-  const currentChannelInstanceConnection =
-    channelConnectionState.instances[Engine.instance.currentWorld.mediaNetwork?.hostId].ornull
+  const mediaHostID = Engine.instance.currentWorld.mediaNetwork?.hostId
+  const currentChannelInstanceConnection = mediaHostID && channelConnectionState.instances[mediaHostID].ornull
 
   const setVideoStream = (value) => {
     videoStreamRef.current = value
@@ -440,22 +436,40 @@ const PartyParticipantWindow = ({ peerId }: Props): JSX.Element => {
   const isSelfUser = peerId === 'cam_me' || peerId === 'screen_me'
   const username = getUsername()
 
+  const userAvatarDetails = useHookstate(getState(WorldState).userAvatarDetails)
+
   return (
     <Draggable isPiP={isPiP}>
       <div
         tabIndex={0}
         id={peerId + '_container'}
         className={classNames({
+          [styles['resizeable-screen']]: isScreen && !isPiP,
+          [styles['resizeable-screen-fullscreen']]: isScreen && isPiP,
           [styles['party-chat-user']]: true,
           [styles['self-user']]: peerId === 'cam_me',
           [styles['no-video']]: videoStream == null,
           [styles['video-paused']]: videoStream && (videoProducerPaused || videoStreamPaused),
-          [styles.pip]: isPiP
+          [styles.pip]: isPiP && !isScreen,
+          [styles.screenpip]: isPiP && isScreen
         })}
+        onClick={() => {
+          if (isScreen && isPiP) togglePiP()
+        }}
       >
-        <div className={styles['video-wrapper']}>
+        <div
+          className={classNames({
+            [styles['video-wrapper']]: !isScreen,
+            [styles['screen-video-wrapper']]: isScreen
+          })}
+        >
           {(videoStream == null || videoStreamPaused || videoProducerPaused || videoProducerGlobalMute) && (
-            <img src={getAvatarURLForUser(isSelfUser ? selfUser?.id : user?.id)} draggable={false} />
+            <img
+              src={getAvatarURLForUser(userAvatarDetails, isSelfUser ? selfUser?.id : user?.id)}
+              alt=""
+              crossOrigin="anonymous"
+              draggable={false}
+            />
           )}
           <video key={peerId + '_cam'} ref={videoRef} draggable={false} />
         </div>

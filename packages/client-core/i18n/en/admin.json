@@ -96,7 +96,23 @@
     "invite": {
       "sendInvite": "Send Invite",
       "receivedInvite": "Received Invite",
-      "confirmInviteDelete": "Do you want to delete invite"
+      "confirmInviteDelete": "Do you want to delete invite",
+      "confirmMultiInviteDelete": "Do you want to delete all of the selected invites?",
+      "create": "Create new invite(s)",
+      "singleTargetLabel": "Invite recipient",
+      "targetLabel": "Invite recipients",
+      "target": "Enter a comma-separated list of invite codes and/or emails/SMSes",
+      "singleTarget": "Enter an invite code or email/SMS",
+      "friend": "User invite code",
+      "group": "Group ID",
+      "party": "Party ID",
+      "submit": "Send Invite(s)",
+      "update": "Update Invite",
+      "location": "Location",
+      "instance": "Instance",
+      "user": "User",
+      "spawnPoint": "Spawn Point",
+      "deleteSelected": "Delete selected invites"
     },
     "party": {
       "locationRequired": "Location is required",

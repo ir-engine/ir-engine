@@ -300,9 +300,35 @@ const moveAvatarController = (world: World, entity: Entity, displacement: Vector
   // velocity.linear.lerp(displacement, world.deltaSeconds * 10)
   // velocity.linear.setX(displacement.x)
   // velocity.linear.setZ(displacement.z)
-  // velocity.linear.y = displacement.y
   velocity.linear.x = 0 //MathUtils.lerp(velocity.linear.x, displacement.x, world.deltaSeconds * 10)
+  velocity.linear.y = velocity.linear.y < 0 && !controller.isInAir ? 0 : velocity.linear.y
   velocity.linear.z = Math.min(Math.max(displacement.length(), -1), 1) //MathUtils.lerp(velocity.linear.z, velocity.linear.z, world.deltaSeconds * 10) // MathUtils.lerp(velocity.linear.z, displacement.z, world.deltaSeconds * 10)
+}
+
+export const xrCameraNeedsAlignment = (
+  entity: Entity,
+  camera: PerspectiveCamera | OrthographicCamera,
+  thresholdSq: number = 0.1
+): boolean => {
+  const avatarPosition = tempVec1
+  getAvatarCameraPosition(entity, avatarCameraOffset, avatarPosition)
+  return avatarPosition.subVectors(avatarPosition, camera.position).lengthSq() > thresholdSq
+}
+
+export const alignXRCameraWithAvatar = (
+  entity: Entity,
+  camera: PerspectiveCamera | OrthographicCamera,
+  lastCameraPos: Vector3
+): void => {
+  lastCameraPos.subVectors(camera.position, camera.parent!.position)
+
+  if (!hasComponent(entity, XRCameraUpdatePendingTagComponent)) {
+    alignXRCameraPositionWithAvatar(entity, camera)
+    addComponent(entity, XRCameraUpdatePendingTagComponent, {})
+  }
+
+  // Calculate new camera world position
+  lastCameraPos.add(camera.parent!.position)
 }
 
 /**
@@ -317,30 +343,19 @@ export const moveXRAvatar = (
   world: World,
   entity: Entity,
   camera: PerspectiveCamera | OrthographicCamera,
-  lastCameraPos: Vector3,
-  avatarVelocity: Vector3
+  lastCameraPos: Vector3
 ): void => {
   const cameraPosition = camera.position
   const avatarPosition = tempVec1
   getAvatarCameraPosition(entity, avatarCameraOffset, avatarPosition)
 
-  if (avatarPosition.subVectors(avatarPosition, cameraPosition).lengthSq() > 0.1 || avatarVelocity.lengthSq() > 0) {
-    lastCameraPos.subVectors(camera.position, camera.parent!.position)
-
-    if (!hasComponent(entity, XRCameraUpdatePendingTagComponent)) {
-      alignXRCameraPositionWithAvatar(entity, camera)
-      addComponent(entity, XRCameraUpdatePendingTagComponent, {})
-    }
-
-    // Calculate new camera world position
-    lastCameraPos.add(camera.parent!.position)
-    return
-  }
-
   avatarPosition.subVectors(cameraPosition, lastCameraPos)
   lastCameraPos.copy(cameraPosition)
 
   const displacement = new Vector3(avatarPosition.x, 0, avatarPosition.z)
+  const dl = displacement.lengthSq()
+  // Limit the distance traveled in a frame
+  if (displacement.lengthSq() > 1.0 || dl <= Number.EPSILON) return
 
   moveAvatarController(world, entity, displacement)
 }

@@ -7,24 +7,11 @@ import SocialIcon from '@mui/icons-material/Public'
 import Tab from '@mui/material/Tab'
 import Tabs from '@mui/material/Tabs'
 
-import { AuthSettingsService } from '../../../admin/services/Setting/AuthSettingService'
 import { useAuthSettingState } from '../../../admin/services/Setting/AuthSettingService'
+import { initialAuthState } from '../../../common/initialAuthState'
 import MagicLinkEmail from './MagicLinkEmail'
 import PasswordLogin from './PasswordLogin'
 import SocialLogin from './SocialLogin'
-
-const initialState = {
-  jwt: true,
-  local: false,
-  discord: false,
-  facebook: false,
-  github: false,
-  google: false,
-  linkedin: false,
-  twitter: false,
-  smsMagicLink: false,
-  emailMagicLink: false
-}
 
 interface Props {
   children: JSX.Element
@@ -39,11 +26,11 @@ const TabPanel = ({ children, value, index }: Props): JSX.Element => {
 const SignIn = (): JSX.Element => {
   const authSettingState = useAuthSettingState()
   const [authSetting] = authSettingState?.authSettings?.value || []
-  const [state, setState] = useState(initialState)
+  const [state, setState] = useState(initialAuthState)
 
   useEffect(() => {
     if (authSetting) {
-      let temp = { ...initialState }
+      let temp = { ...initialAuthState }
       authSetting?.authStrategies?.forEach((el) => {
         Object.entries(el).forEach(([strategyName, strategy]) => {
           temp[strategyName] = strategy

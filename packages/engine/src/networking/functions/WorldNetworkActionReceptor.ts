@@ -2,11 +2,13 @@ import { none } from '@speigg/hookstate'
 
 import { dispatchAction } from '@xrengine/hyperflux'
 
+import { createQuaternionProxy, createVector3Proxy } from '../../common/proxies/three'
 import { Engine } from '../../ecs/classes/Engine'
 import { getEngineState } from '../../ecs/classes/EngineState'
 import { addComponent, getComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity, removeEntity } from '../../ecs/functions/EntityFunctions'
 import { generatePhysicsObject } from '../../physics/functions/physicsObjectDebugFunctions'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 import { Network, NetworkTopics } from '../classes/Network'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
 import { NetworkObjectOwnedTag } from '../components/NetworkObjectOwnedTag'
@@ -16,48 +18,28 @@ const receiveSpawnObject = (
   action: typeof WorldNetworkAction.spawnObject.matches._TYPE,
   world = Engine.instance.currentWorld
 ) => {
-  const isSpawningAvatar = WorldNetworkAction.spawnAvatar.matches.test(action)
-  /**
-   * When changing location via a portal, the local client entity will be
-   * defined when the new world dispatches this action, so ignore it
-   */
-  if (
-    isSpawningAvatar &&
-    Engine.instance.userId === action.$from &&
-    hasComponent(world.localClientEntity, NetworkObjectComponent)
-  ) {
-    const networkComponent = getComponent(world.localClientEntity, NetworkObjectComponent)
-    console.log(
-      `[WorldNetworkActionReceptors]: Successfully updated local client entity's networkId from ${networkComponent.networkId} to ${action.networkId}`
-    )
-    networkComponent.networkId = action.networkId
-    return
-  }
-  const params = action.parameters
-  const isOwnedByMe = action.$from === Engine.instance.userId
-  let entity
-  if (isSpawningAvatar && isOwnedByMe) {
-    entity = world.localClientEntity
-  } else {
-    let networkObject = world.getNetworkObject(action.$from, action.networkId)
-    if (networkObject) {
-      entity = networkObject
-    } else if (params?.sceneEntityId) {
-      // spawn object from scene data
-      const node = world.entityTree.uuidNodeMap.get(params.sceneEntityId)
-      if (node) entity = node.entity
-    } else {
-      entity = createEntity()
-    }
-  }
-  if (isOwnedByMe) addComponent(entity, NetworkObjectOwnedTag, {})
+  const entity = createEntity()
 
   addComponent(entity, NetworkObjectComponent, {
     ownerId: action.$from,
-    networkId: action.networkId,
-    prefab: action.prefab,
-    parameters: action.parameters
+    networkId: action.networkId
   })
+
+  const isOwnedByMe = action.$from === Engine.instance.userId
+  if (isOwnedByMe) addComponent(entity, NetworkObjectOwnedTag, {})
+
+  const position = createVector3Proxy(TransformComponent.position, entity)
+  const rotation = createQuaternionProxy(TransformComponent.rotation, entity)
+  const scale = createVector3Proxy(TransformComponent.scale, entity)
+
+  const transform = addComponent(entity, TransformComponent, { position, rotation, scale })
+  action.position && transform.position.copy(action.position)
+  action.rotation && transform.rotation.copy(action.rotation)
+  transform.scale.setScalar(1)
+
+  // set cached action refs to the new components so they stay up to date with future movements
+  action.position = position
+  action.rotation = rotation
 }
 
 const receiveSpawnDebugPhysicsObject = (
@@ -76,8 +58,6 @@ const receiveDestroyObject = (
     return console.log(
       `Warning - tried to destroy entity belonging to ${action.$from} with ID ${action.networkId}, but it doesn't exist`
     )
-  if (entity === world.localClientEntity)
-    return console.warn(`[WorldNetworkActionReceptors]: tried to destroy local client`)
   removeEntity(entity)
 }
 

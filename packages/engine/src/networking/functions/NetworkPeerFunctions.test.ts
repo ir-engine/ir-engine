@@ -2,6 +2,7 @@ import assert from 'assert'
 
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
+import { getState } from '@xrengine/hyperflux'
 import ActionFunctions from '@xrengine/hyperflux/functions/ActionFunctions'
 
 import { createMockNetwork } from '../../../tests/util/createMockNetwork'
@@ -10,6 +11,7 @@ import { addComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { createEngine } from '../../initializeEngine'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
+import { WorldState } from '../interfaces/WorldState'
 import { NetworkPeerFunctions } from './NetworkPeerFunctions'
 
 describe('NetworkPeerFunctions', () => {
@@ -29,11 +31,12 @@ describe('NetworkPeerFunctions', () => {
 
       NetworkPeerFunctions.createPeer(network, userId, userIndex, userName, world)
 
+      const worldState = getState(WorldState)
+
       assert(network.peers.get(userId))
       assert.equal(network.peers.get(userId)?.userId, userId)
       assert.equal(network.peers.get(userId)?.index, userIndex)
-      assert.equal(world.users.get(userId)?.name, userName)
-      assert.equal(world.users.get(userId)?.userId, userId)
+      assert.equal(worldState.userNames[userId]?.value, userName)
       assert.equal(network.userIndexToUserId.get(userIndex), userId)
       assert.equal(network.userIdToUserIndex.get(userId), userIndex)
     })
@@ -48,15 +51,17 @@ describe('NetworkPeerFunctions', () => {
       const userIndex2 = 2
       const network = world.worldNetwork
 
+      const worldState = getState(WorldState)
+
       NetworkPeerFunctions.createPeer(network, userId, userIndex, userName, world)
       assert.equal(network.peers.get(userId)?.userId, userId)
       assert.equal(network.peers.get(userId)?.index, userIndex)
-      assert.equal(world.users.get(userId)?.name, userName)
+      assert.equal(worldState.userNames[userId].value, userName)
 
       NetworkPeerFunctions.createPeer(network, userId, userIndex2, userName2, world)
       assert.equal(network.peers.get(userId)?.userId, userId)
       assert.equal(network.peers.get(userId)?.index, userIndex2)
-      assert.equal(world.users.get(userId)?.name, userName2)
+      assert.equal(worldState.userNames[userId].value, userName2)
     })
   })
 
@@ -72,10 +77,9 @@ describe('NetworkPeerFunctions', () => {
       NetworkPeerFunctions.createPeer(network, userId, userIndex, userName, world)
       NetworkPeerFunctions.destroyPeer(network, userId, world)
 
-      assert(!world.users.get(userId))
       assert(!network.peers.get(userId))
 
-      // indexes shouldn't be removed (no reason for these to ever change)
+      // indexes shouldn't be removed (no reason for these to ever change in a network)
       assert.equal(network.userIndexToUserId.get(userIndex), userId)
       assert.equal(userIndex, network.userIdToUserIndex.get(userId))
     })
@@ -94,9 +98,7 @@ describe('NetworkPeerFunctions', () => {
       const entity = createEntity()
       addComponent(entity, NetworkObjectComponent, {
         ownerId: userId,
-        networkId,
-        prefab: 'prefab',
-        parameters: {}
+        networkId
       })
 
       // process remove actions and execute entity removal
@@ -107,7 +109,6 @@ describe('NetworkPeerFunctions', () => {
       ActionFunctions.applyIncomingActions()
       world.execute(0)
 
-      assert(!world.users.get(userId))
       assert(!network.peers.get(userId))
       assert.equal(network.userIndexToUserId.get(1), userId)
       assert.equal(network.userIdToUserIndex.get(userId), 1)

@@ -1,3 +1,4 @@
+import { useHookstate } from '@speigg/hookstate'
 import * as polyfill from 'credential-handler-polyfill'
 import _ from 'lodash'
 import React, { useEffect, useState } from 'react'
@@ -7,6 +8,8 @@ import { useLocation } from 'react-router-dom'
 
 import { validateEmail, validatePhoneNumber } from '@xrengine/common/src/config'
 import { defaultThemeModes, defaultThemeSettings } from '@xrengine/common/src/constants/DefaultThemeSettings'
+import { WorldState } from '@xrengine/engine/src/networking/interfaces/WorldState'
+import { getState } from '@xrengine/hyperflux'
 
 import { Check, Create, GitHub, Send } from '@mui/icons-material'
 import ContentCopyIcon from '@mui/icons-material/ContentCopy'
@@ -27,6 +30,7 @@ import { FacebookIcon } from '../../../../common/components/Icons/FacebookIcon'
 import { GoogleIcon } from '../../../../common/components/Icons/GoogleIcon'
 import { LinkedInIcon } from '../../../../common/components/Icons/LinkedInIcon'
 import { TwitterIcon } from '../../../../common/components/Icons/TwitterIcon'
+import { initialAuthState, initialOAuthConnectedState } from '../../../../common/initialAuthState'
 import { NotificationService } from '../../../../common/services/NotificationService'
 import { AuthService, useAuthState } from '../../../services/AuthService'
 import { userHasAccess } from '../../../userHasAccess'
@@ -39,28 +43,6 @@ interface Props {
   isPopover?: boolean
   changeActiveMenu?: (type: string | null) => void
   onClose?: () => void
-}
-
-const initialAuthState = {
-  jwt: true,
-  local: false,
-  discord: false,
-  facebook: false,
-  github: false,
-  google: false,
-  linkedin: false,
-  twitter: false,
-  smsMagicLink: false,
-  emailMagicLink: false
-}
-
-const initialOAuthConnectedState = {
-  discord: false,
-  facebook: false,
-  github: false,
-  google: false,
-  linkedin: false,
-  twitter: false
 }
 
 const ProfileMenu = ({ className, hideLogin, isPopover, changeActiveMenu, onClose }: Props): JSX.Element => {
@@ -93,6 +75,8 @@ const ProfileMenu = ({ className, hideLogin, isPopover, changeActiveMenu, onClos
 
   const hasAdminAccess = selfUser?.id?.value?.length > 0 && selfUser?.userRole?.value === 'admin'
   const hasEditorAccess = userHasAccess('editor:write')
+
+  const userAvatarDetails = useHookstate(getState(WorldState).userAvatarDetails)
 
   const themeModes = { ...defaultThemeModes, ...userSettings?.themeModes }
   const themeSettings = { ...defaultThemeSettings, ...clientSetting.themeSettings }
@@ -131,7 +115,8 @@ const ProfileMenu = ({ className, hideLogin, isPopover, changeActiveMenu, onClos
     const settings = { ...userSettings, themeModes: { ...themeModes, [name]: value } }
     userSettings && AuthService.updateUserSettings(userSettings.id as string, settings)
   }
-
+  // If you're editing lines 114-230, be sure to make the same changes to the XRUI version over at
+  // packages/client-core/src/systems/ui/ProfileDetailView/index.tsx#75-191
   let type = ''
   const addMoreSocial =
     (authState?.discord && !oauthConnectedState.discord) ||
@@ -354,7 +339,7 @@ const ProfileMenu = ({ className, hideLogin, isPopover, changeActiveMenu, onClos
       <section className={styles.profilePanel}>
         <section className={styles.profileBlock}>
           <div className={styles.avatarBlock}>
-            <img src={getAvatarURLForUser(userId)} />
+            <img src={getAvatarURLForUser(userAvatarDetails, userId)} alt="" crossOrigin="anonymous" />
             {changeActiveMenu != null && (
               <Button
                 className={styles.avatarBtn}

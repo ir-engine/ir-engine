@@ -1,4 +1,3 @@
-import _ from 'lodash'
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -138,7 +137,7 @@ const GroupDrawer = ({ open, mode, selectedGroup, onClose }: Props) => {
     const data: CreateGroup = {
       name: state.name,
       description: state.description,
-      scopeTypes: state.scopeTypes
+      scopes: state.scopeTypes
     }
 
     let tempErrors = {

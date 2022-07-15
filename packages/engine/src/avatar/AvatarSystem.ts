@@ -1,6 +1,6 @@
-import { Group, Object3D, Vector3 } from 'three'
+import { Group, Object3D, Quaternion, Vector3 } from 'three'
 
-import { createActionQueue } from '@xrengine/hyperflux'
+import { createActionQueue, getState } from '@xrengine/hyperflux'
 
 import { isClient } from '../common/functions/isClient'
 import { Object3DUtils } from '../common/functions/Object3DUtils'
@@ -14,11 +14,11 @@ import {
   hasComponent,
   removeComponent
 } from '../ecs/functions/ComponentFunctions'
-import { isEntityLocalClient } from '../networking/functions/isEntityLocalClient'
+import { NetworkObjectOwnedTag } from '../networking/components/NetworkObjectOwnedTag'
 import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
+import { WorldState } from '../networking/interfaces/WorldState'
 import { RaycastComponent } from '../physics/components/RaycastComponent'
 import { VelocityComponent } from '../physics/components/VelocityComponent'
-import { Object3DComponent } from '../scene/components/Object3DComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { XRLGripButtonComponent, XRRGripButtonComponent } from '../xr/components/XRGripButtonComponent'
 import { XRHandsInputComponent } from '../xr/components/XRHandsInputComponent'
@@ -29,7 +29,6 @@ import { proxifyXRInputs, setupXRInputSourceComponent } from '../xr/functions/We
 import { AvatarAnimationComponent } from './components/AvatarAnimationComponent'
 import { AvatarComponent } from './components/AvatarComponent'
 import { AvatarControllerComponent } from './components/AvatarControllerComponent'
-import { AvatarEffectComponent } from './components/AvatarEffectComponent'
 import { AvatarHandsIKComponent } from './components/AvatarHandsIKComponent'
 import { AvatarHeadIKComponent } from './components/AvatarHeadIKComponent'
 import { loadAvatarForUser } from './functions/avatarFunctions'
@@ -38,11 +37,8 @@ export function avatarDetailsReceptor(
   action: ReturnType<typeof WorldNetworkAction.avatarDetails>,
   world = Engine.instance.currentWorld
 ) {
-  const user = world.users.get(action.$from)
-  if (!user) throw Error(`Avatar details action received for a client that does not exist: ${action.$from}`)
-  if (user.avatarDetail?.avatarURL === action.avatarDetail.avatarURL)
-    return console.log('[AvatarSystem]: ignoring same avatar url')
-  user.avatarDetail = action.avatarDetail
+  const userAvatarDetails = getState(WorldState).userAvatarDetails
+  userAvatarDetails[action.$from].set(action.avatarDetail)
   if (isClient) {
     const entity = world.getUserAvatarEntity(action.$from)
     loadAvatarForUser(entity, action.avatarDetail.avatarURL)
@@ -205,6 +201,9 @@ export function setupHandIK(entity: Entity) {
 
   const animation = getComponent(entity, AvatarAnimationComponent)
 
+  leftOffset.rotation.set(-2.1, 3, 0.1)
+  rightOffset.rotation.set(-2.1, 0.1, 0.1)
+
   // todo: load the avatar & rig on the server
   if (isClient) {
     Object3DUtils.getWorldPosition(animation.rig.LeftShoulder, leftHint.position)
@@ -225,14 +224,14 @@ export function setupHandIK(entity: Entity) {
     leftHint: leftHint,
     leftTargetOffset: leftOffset,
     leftTargetPosWeight: 1,
-    leftTargetRotWeight: 0,
+    leftTargetRotWeight: 1,
     leftHintWeight: 1,
 
     rightTarget: xrInputSourceComponent.controllerGripRightParent,
     rightHint: rightHint,
     rightTargetOffset: rightOffset,
     rightTargetPosWeight: 1,
-    rightTargetRotWeight: 0,
+    rightTargetRotWeight: 1,
     rightHintWeight: 1
   })
 }
@@ -242,7 +241,7 @@ export function xrInputQueryEnter(entity: Entity) {
 
   setupXRInputSourceContainer(entity)
 
-  if (!isEntityLocalClient(entity)) {
+  if (!hasComponent(entity, NetworkObjectOwnedTag)) {
     proxifyXRInputs(entity)
     setupHeadIK(entity)
   }

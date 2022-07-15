@@ -1,4 +1,3 @@
-import _ from 'lodash'
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -72,31 +71,12 @@ const LocationDrawer = ({ open, mode, selectedLocation, onClose }: Props) => {
     }
   })
 
-  const locationMenu: InputMenuItem[] = locationTypes.map((el) => {
+  const locationTypesMenu: InputMenuItem[] = locationTypes.map((el) => {
     return {
       value: el.type,
       label: el.type
     }
   })
-
-  if (selectedLocation) {
-    const sceneExists = sceneMenu.find((item) => item.value === selectedLocation.location_setting?.locationType)
-    if (!sceneExists) {
-      locationMenu.push({
-        value: selectedLocation.location_setting?.locationType,
-        label: selectedLocation.location_setting?.locationType
-      })
-    }
-
-    const locationExists = locationMenu.find((item) => item.value === selectedLocation.sceneId)
-    if (!locationExists) {
-      const sceneSplit = selectedLocation.sceneId.split('/')
-      locationMenu.push({
-        value: selectedLocation.sceneId,
-        label: `${sceneSplit[1]} (${sceneSplit[0]})`
-      })
-    }
-  }
 
   useEffect(() => {
     AdminSceneService.fetchAdminScenes()
@@ -248,7 +228,7 @@ const LocationDrawer = ({ open, mode, selectedLocation, onClose }: Props) => {
           name="type"
           label={t('admin:components.location.type')}
           value={state.type}
-          menu={locationMenu}
+          menu={locationTypesMenu}
           disabled={viewMode}
           onChange={handleChange}
         />
@@ -324,12 +304,8 @@ const LocationDrawer = ({ open, mode, selectedLocation, onClose }: Props) => {
               {t('admin:components.common.submit')}
             </Button>
           )}
-          {mode === LocationDrawerMode.ViewEdit && editMode === false && (
-            <Button
-              className={styles.gradientButton}
-              disabled={hasWriteAccess ? false : true}
-              onClick={() => setEditMode(true)}
-            >
+          {mode === LocationDrawerMode.ViewEdit && !editMode && (
+            <Button className={styles.gradientButton} disabled={!hasWriteAccess} onClick={() => setEditMode(true)}>
               {t('admin:components.common.edit')}
             </Button>
           )}

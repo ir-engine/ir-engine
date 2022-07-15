@@ -60,7 +60,6 @@ describe('EntityTreeFunctions', () => {
   describe('initializeEntityTree function', () => {
     it('will initialize entity tree', () => {
       initializeEntityTree()
-      assert.equal(world.entityTree.rootNode.entity, -1)
       assert(world.entityTree.entityNodeMap)
       assert(world.entityTree.uuidNodeMap)
       assert.equal(world.entityTree.entityNodeMap.size, 0)

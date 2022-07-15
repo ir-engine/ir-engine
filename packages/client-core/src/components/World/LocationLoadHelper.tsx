@@ -20,7 +20,7 @@ import { getSystemsFromSceneData } from '@xrengine/projects/loadSystemInjection'
 
 const logger = multiLogger.child({ component: 'client-core:world' })
 
-export const retrieveLocationByName = (locationName: string) => {
+export const retrieveLocationByName = (locationName: string, userId: string) => {
   if (locationName === globalThis.process.env['VITE_LOBBY_LOCATION_NAME']) {
     const history = useHistory()
     LocationService.getLobby()
@@ -29,7 +29,7 @@ export const retrieveLocationByName = (locationName: string) => {
       })
       .catch((err) => logger.error(err, 'getLobby'))
   } else {
-    LocationService.getLocationByName(locationName)
+    LocationService.getLocationByName(locationName, userId)
   }
 }
 

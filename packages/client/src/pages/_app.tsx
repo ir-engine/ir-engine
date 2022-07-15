@@ -91,7 +91,7 @@ const App = (): any => {
   useEffect(initApp, [])
 
   useEffect(() => {
-    if (selfUser?.id && projectState.updateNeeded.value) ProjectService.fetchProjects()
+    if (selfUser?.id.value && projectState.updateNeeded.value) ProjectService.fetchProjects()
   }, [selfUser, projectState.updateNeeded.value])
 
   useEffect(() => {

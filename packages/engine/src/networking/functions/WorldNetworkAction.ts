@@ -1,6 +1,7 @@
 import { defineAction } from '@xrengine/hyperflux'
 
 import { matchesWeightsParameters } from '../../avatar/animation/Util'
+import { ParityValue } from '../../common/enums/ParityValue'
 import {
   matches,
   matchesNetworkId,
@@ -26,38 +27,39 @@ export class WorldNetworkAction {
     $cache: true
   })
 
-  static spawnObject = defineAction({
-    type: 'xre.world.SPAWN_OBJECT',
-    prefab: matches.string,
-    networkId: matchesWithDefault(matchesNetworkId, () => Engine.instance.currentWorld.createNetworkId()),
-    parameters: matches.any.optional(),
-    $cache: true
-  })
-
   static spawnDebugPhysicsObject = defineAction({
     type: 'xre.world.SPAWN_DEBUG_PHYSICS_OBJECT',
     config: matches.any.optional()
   })
 
+  static spawnObject = defineAction({
+    type: 'xre.world.SPAWN_OBJECT',
+    prefab: matches.string,
+    networkId: matchesWithDefault(matchesNetworkId, () => Engine.instance.currentWorld.createNetworkId()),
+    position: matchesVector3.optional(),
+    rotation: matchesQuaternion.optional(),
+    $cache: true
+  })
+
   static spawnAvatar = defineAction({
     ...WorldNetworkAction.spawnObject.actionShape,
-    prefab: 'avatar',
-    parameters: matches.shape({
-      position: matchesVector3,
-      rotation: matchesQuaternion
-    }),
-    $cache: true
+    prefab: 'avatar'
   })
 
   static spawnCamera = defineAction({
     ...WorldNetworkAction.spawnObject.actionShape,
-    prefab: 'camera',
-    $cache: true
+    prefab: 'camera'
   })
 
   static destroyObject = defineAction({
     type: 'xre.world.DESTROY_OBJECT',
     networkId: matchesNetworkId
+  })
+
+  static interact = defineAction({
+    type: 'xre.world.INTERACT',
+    object: { ownerId: matchesUserId, networkId: matchesNetworkId },
+    parity: matches.some(...Object.values(ParityValue).map((v) => matches.literal(v)))
   })
 
   static setEquippedObject = defineAction({

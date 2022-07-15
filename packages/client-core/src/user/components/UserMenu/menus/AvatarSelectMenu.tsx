@@ -304,7 +304,7 @@ export const AvatarUploadModal = ({ avatarData, isPublicAvatar, changeActiveMenu
       )}
       {thumbnailUrl.length > 0 && (
         <div className={styles.thumbnailContainer}>
-          <img src={thumbnailUrl} alt="Avatar" className={styles.thumbnailPreview} />
+          <img src={thumbnailUrl} crossOrigin="anonymous" alt="Avatar" className={styles.thumbnailPreview} />
         </div>
       )}
       <Paper className={styles.paper2}>

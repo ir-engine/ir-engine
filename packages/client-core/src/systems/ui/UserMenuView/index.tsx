@@ -1,12 +1,13 @@
-import { createState } from '@speigg/hookstate'
+import { createState, useHookstate } from '@speigg/hookstate'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
+import { WorldState } from '@xrengine/engine/src/networking/interfaces/WorldState'
 import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
 import { useXRUIState } from '@xrengine/engine/src/xrui/functions/useXRUIState'
-import { addActionReceptor, removeActionReceptor } from '@xrengine/hyperflux'
+import { addActionReceptor, getState, removeActionReceptor } from '@xrengine/hyperflux'
 
 import Button from '@mui/material/Button'
 
@@ -14,6 +15,7 @@ import { PartyService, PartyServiceReceptor } from '../../../social/services/Par
 import { getAvatarURLForUser } from '../../../user/components/UserMenu/util'
 import { useAuthState } from '../../../user/services/AuthService'
 import { UserService, useUserState } from '../../../user/services/UserService'
+import XRTextButton from '../../components/XRTextButton'
 import styleString from './index.scss'
 
 export function createAvatarContextMenuView() {
@@ -38,6 +40,8 @@ const AvatarContextMenu = () => {
   const authState = useAuthState()
   const user = userState.layerUsers.find((user) => user.id.value === detailState.id.value)
   const { t } = useTranslation()
+
+  const userAvatarDetails = useHookstate(getState(WorldState).userAvatarDetails)
 
   // TODO: move these to widget register
   PartyService.useAPIListeners()
@@ -72,6 +76,10 @@ const AvatarContextMenu = () => {
     }
   }
 
+  const handleMute = () => {
+    console.log('Mute pressed')
+  }
+
   useEffect(() => {
     if (engineState.avatarTappedId.value !== authState.user.id.value)
       detailState.id.set(engineState.avatarTappedId.value)
@@ -82,26 +90,18 @@ const AvatarContextMenu = () => {
       <style>{styleString}</style>
       {user?.id.value && (
         <div className="rootContainer">
-          <img className="ownerImage" src={getAvatarURLForUser(user?.id?.value)} />
+          <img
+            className="ownerImage"
+            src={getAvatarURLForUser(userAvatarDetails, user?.id?.value)}
+            alt=""
+            crossOrigin="anonymous"
+          />
           <div className="buttonContainer">
             <section className="buttonSection">
-              <Button className="button" onClick={inviteToParty}>
-                {t('user:personMenu.inviteToParty')}
-              </Button>
-              <Button className="button" onClick={addAsFriend}>
-                {t('user:personMenu.addAsFriend')}
-              </Button>
-              <Button
-                className="button"
-                onClick={() => {
-                  console.log('Mute')
-                }}
-              >
-                {t('user:personMenu.mute')}
-              </Button>
-              <Button className="buttonRed" onClick={blockUser}>
-                {t('user:personMenu.block')}
-              </Button>
+              <XRTextButton content={t('user:personMenu.inviteToParty')} onClick={inviteToParty} />
+              <XRTextButton content={t('user:personMenu.addAsFriend')} onClick={addAsFriend} />
+              <XRTextButton content={t('user:personMenu.mute')} onClick={handleMute} />
+              <XRTextButton content={t('user:personMenu.block')} onClick={blockUser} />
             </section>
           </div>
         </div>

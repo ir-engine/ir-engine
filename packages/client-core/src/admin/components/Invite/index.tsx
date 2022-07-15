@@ -1,20 +1,19 @@
 import { ConfirmProvider } from 'material-ui-confirm'
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import AppBar from '@mui/material/AppBar'
 import Box from '@mui/material/Box'
+import Button from '@mui/material/Button'
 import Grid from '@mui/material/Grid'
-import Tab from '@mui/material/Tab'
-import Tabs from '@mui/material/Tabs'
 
-import { InviteService, useInviteState } from '../../../social/services/InviteService'
 import { useAuthState } from '../../../user/services/AuthService'
+import ConfirmDialog from '../../common/ConfirmDialog'
 import Search from '../../common/Search'
+import { AdminInviteService, useAdminInviteState } from '../../services/InviteService'
 import { AdminUserService, useUserState } from '../../services/UserService'
 import styles from '../../styles/admin.module.scss'
-import ReceivedInvite from './ReceivedInvite'
-import SentInvite from './SentInvite'
+import AdminInvites from './AdminInvites'
+import CreateInviteModal from './CreateInviteModal'
 
 interface TabPanelProps {
   children?: React.ReactNode
@@ -49,12 +48,21 @@ const InvitesConsole = () => {
   const [refetch, setRefetch] = React.useState(false)
   const [value, setValue] = React.useState(0)
   const [search, setSearch] = React.useState('')
+  const [createInviteModalOpen, setCreateInviteModalOpen] = React.useState(false)
+  const [deleteMultiInviteModalOpen, setDeleteMultiInviteModalOpen] = React.useState(false)
+  const [selectedInviteIds, setSelectedInviteIds] = useState(() => new Set<string>())
 
-  const inviteState = useInviteState()
+  const handeCloseInviteModal = () => setCreateInviteModalOpen(false)
+  const handleCloseDeleteMultiInviteModal = () => setDeleteMultiInviteModalOpen(false)
 
   const adminUserState = useUserState()
   const user = useAuthState().user
   const { t } = useTranslation()
+
+  const confirmMultiInviteDelete = () => {
+    for (let id of selectedInviteIds) AdminInviteService.removeInvite(id)
+    handleCloseDeleteMultiInviteModal()
+  }
 
   const handleChange = (event: React.ChangeEvent<{}>, newValue: number) => {
     setValue(newValue)
@@ -78,18 +86,6 @@ const InvitesConsole = () => {
     setRefetch(false)
   }, [useAuthState(), adminUserState.updateNeeded.value, refetch])
 
-  useEffect(() => {
-    if (inviteState.sentUpdateNeeded.value === true) {
-      InviteService.retrieveSentInvites()
-    }
-  }, [inviteState.sentUpdateNeeded.value])
-
-  useEffect(() => {
-    if (inviteState.sentUpdateNeeded.value === true) {
-      InviteService.retrieveReceivedInvites()
-    }
-  }, [inviteState.sentUpdateNeeded.value])
-
   const handleSearchChange = (e: any) => {
     setSearch(e.target.value)
   }
@@ -98,30 +94,48 @@ const InvitesConsole = () => {
     <div>
       <ConfirmProvider>
         <Grid container spacing={1} className={styles.mb10px}>
-          <Grid item xs={12}>
+          <Grid item xs={8}>
             <Search text="invite" handleChange={handleSearchChange} />
+          </Grid>
+          <Grid item xs={2}>
+            <Button
+              className={styles.openModalBtn}
+              type="button"
+              variant="contained"
+              color="primary"
+              onClick={() => setCreateInviteModalOpen(true)}
+            >
+              {t('admin:components.invite.create')}
+            </Button>
+          </Grid>
+          <Grid item xs={2}>
+            <Button
+              className={styles.openModalBtn}
+              type="button"
+              variant="contained"
+              color="primary"
+              disabled={selectedInviteIds.size === 0}
+              onClick={() => setDeleteMultiInviteModalOpen(true)}
+            >
+              {t('admin:components.invite.deleteSelected')}
+            </Button>
           </Grid>
         </Grid>
         <div className={styles.rootTableWithSearch}>
-          <AppBar position="static" className={styles.inviteTabAppbar}>
-            <Tabs
-              value={value}
-              onChange={handleChange}
-              aria-label="simple tabs example"
-              classes={{ root: styles.tabsRoot, indicator: styles.indicator }}
-            >
-              <Tab label={t('admin:components.invite.receivedInvite')} {...a11yProps(0)} />
-              <Tab label={t('admin:components.invite.sendInvite')} {...a11yProps(1)} />
-            </Tabs>
-          </AppBar>
-          <TabPanel value={value} index={0}>
-            <ReceivedInvite search={search} />
-          </TabPanel>
-          <TabPanel value={value} index={1}>
-            <SentInvite search={search} />
-          </TabPanel>
+          <AdminInvites
+            search={search}
+            selectedInviteIds={selectedInviteIds}
+            setSelectedInviteIds={setSelectedInviteIds}
+          />
         </div>
       </ConfirmProvider>
+      <CreateInviteModal open={createInviteModalOpen} onClose={handeCloseInviteModal} />
+      <ConfirmDialog
+        open={deleteMultiInviteModalOpen}
+        description={t('admin:components.invite.confirmMultiInviteDelete')}
+        onClose={handleCloseDeleteMultiInviteModal}
+        onSubmit={confirmMultiInviteDelete}
+      />
     </div>
   )
 }
