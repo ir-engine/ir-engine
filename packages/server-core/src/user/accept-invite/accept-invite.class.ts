@@ -223,15 +223,15 @@ export class AcceptInvite implements ServiceMethods<Data> {
 
         const { query, ...paramsCopy } = params
 
-        const existingPartyUser = (await this.app.service('party-user').find({
-          query: {
+        const existingPartyUser = await this.app.service('party-user').Model.count({
+          where: {
             userId: inviteeIdentityProvider.userId,
             partyId: invite.targetObjectId,
             isOwner: false
           }
-        })) as any
+        })
 
-        if (existingPartyUser.total === 0) {
+        if (existingPartyUser === 0) {
           paramsCopy.skipAuth = true
           await this.app.service('party-user').create(
             {

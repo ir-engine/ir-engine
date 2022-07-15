@@ -1,9 +1,8 @@
-import { HookContext, Paginated } from '@feathersjs/feathers'
+import { HookContext } from '@feathersjs/feathers'
 import _ from 'lodash'
 import Sequelize, { Op } from 'sequelize'
 
 import { Instance } from '@xrengine/common/src/interfaces/Instance'
-import { PartyUser } from '@xrengine/common/src/interfaces/PartyUser'
 
 import { Application } from '../../declarations'
 import config from '../appconfig'

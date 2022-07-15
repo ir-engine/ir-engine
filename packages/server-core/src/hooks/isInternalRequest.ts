@@ -1,5 +1,5 @@
 import { HookContext } from '@feathersjs/feathers'
-import { isProvider } from 'feathers-hooks-common/types'
+import { isProvider } from 'feathers-hooks-common'
 
 import { Application } from './../../declarations'
 

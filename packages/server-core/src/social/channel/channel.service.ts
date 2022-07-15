@@ -106,42 +106,12 @@ export default (app: Application) => {
         }
         targetIds = groupUsers.map((groupUser) => groupUser.userId)
       } else if (data.channelType === 'party') {
-        if (data.party == null) {
-          data.party = await app.service('party').Model.findOne({
-            where: {
-              id: data.partyId
-            }
-          })
-        }
-        const partyUsers = await app.service('party-user').Model.findAll({
-          where: {
-            partyId: data.partyId
-          },
-          include: [
-            {
-              model: app.service('user').Model
-            }
-          ]
-        })
-        // await Promise.all(partyUsers.map(async (partyUser) => {
-        //   const avatarResult = await app.service('static-resource').find({
-        //     query: {
-        //       staticResourceType: 'user-thumbnail',
-        //       userId: partyUser.userId
-        //     }
-        //   }) as any;
-        //
-        //   if (avatarResult.total > 0) {
-        //     partyUser.dataValues.user.dataValues.avatarUrl = avatarResult.data[0].url;
-        //   }
-        //
-        //   return await Promise.resolve();
-        // }));
-        if (data.party?.dataValues) {
-          data.party.dataValues.partyUsers = partyUsers
-        } else if (data.party) {
-          data.party.partyUsers = partyUsers
-        }
+        if (data.party == null) data.party = await app.service('party').Model.findOne({ where: { id: data.partyId } })
+        const partyUsers = await app.service('party-user').find({ query: { partyId: data.partyId } })
+
+        if (data.party?.dataValues) data.party.dataValues.partyUsers = partyUsers.data
+        else if (data.party) data.party.partyUsers = partyUsers.data
+
         targetIds = partyUsers.map((partyUser) => partyUser.userId)
       } else if (data.channelType === 'instance') {
         if (data.instance == null) {
@@ -266,42 +236,12 @@ export default (app: Application) => {
         }
         targetIds = groupUsers.map((groupUser) => groupUser.userId)
       } else if (data.channelType === 'party') {
-        if (data.party == null) {
-          data.party = await app.service('party').Model.findOne({
-            where: {
-              id: data.partyId
-            }
-          })
-        }
-        const partyUsers = await app.service('party-user').Model.findAll({
-          where: {
-            partyId: data.partyId
-          },
-          include: [
-            {
-              model: app.service('user').Model
-            }
-          ]
-        })
-        // await Promise.all(partyUsers.map(async (partyUser) => {
-        //   const avatarResult = await app.service('static-resource').find({
-        //     query: {
-        //       staticResourceType: 'user-thumbnail',
-        //       userId: partyUser.userId
-        //     }
-        //   }) as any;
-        //
-        //   if (avatarResult.total > 0) {
-        //     partyUser.dataValues.user.dataValues.avatarUrl = avatarResult.data[0].url;
-        //   }
-        //
-        //   return await Promise.resolve();
-        // }));
-        if (data.party?.dataValues) {
-          data.party.dataValues.partyUsers = partyUsers
-        } else if (data.party) {
-          data.party.partyUsers = partyUsers
-        }
+        if (data.party == null) data.party = await app.service('party').Model.findOne({ where: { id: data.partyId } })
+        const partyUsers = await app.service('party-user').find({ query: { partyId: data.partyId } })
+
+        if (data.party?.dataValues) data.party.dataValues.partyUsers = partyUsers.data
+        else if (data.party) data.party.partyUsers = partyUsers.data
+
         targetIds = partyUsers.map((partyUser) => partyUser.userId)
       } else if (data.channelType === 'instance') {
         if (data.instance == null) {
@@ -370,11 +310,7 @@ export default (app: Application) => {
       })
       targetIds = groupUsers.map((groupUser) => groupUser.userId)
     } else if (data.channelType === 'party') {
-      const partyUsers = await app.service('party-user').Model.findAll({
-        where: {
-          partyId: data.partyId
-        }
-      })
+      const partyUsers = await app.service('party-user').Model.findAll({ where: { partyId: data.partyId } })
       targetIds = partyUsers.map((partyUser) => partyUser.userId)
     } else if (data.channelType === 'instance') {
       const instanceUsers = await app.service('user').Model.findAll({

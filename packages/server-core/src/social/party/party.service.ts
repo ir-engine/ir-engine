@@ -1,6 +1,7 @@
 import { Party as PartyDataType } from '@xrengine/common/src/interfaces/Party'
 
 import { Application } from '../../../declarations'
+import logger from '../../logger'
 import { Party } from './party.class'
 import partyDocs from './party.docs'
 import hooks from './party.hooks'
@@ -36,45 +37,27 @@ export default (app: Application): void => {
   //  * @param data of new party
   //  * @returns {@Object} created party
   //  */
-  // service.publish('created', async (data: PartyDataType): Promise<any> => {
-  //   try {
-  //     const partyUsers = (await app.service('party-user').find({
-  //       query: {
-  //         $limit: 1000,
-  //         partyId: data.id
-  //       }
-  //     })) as any
-  //     // await Promise.all(partyUsers.data.map(async (partyUser) => {
-  //     // const avatarResult = await app.service('static-resource').find({
-  //     //   query: {
-  //     //     staticResourceType: 'user-thumbnail',
-  //     //     userId: partyUser.userId
-  //     //   }
-  //     // }) as any;
-  //     //
-  //     // if (avatarResult.total > 0) {
-  //     //   partyUser.dataValues.user.dataValues.avatarUrl = avatarResult.data[0].url;
-  //     // }
+  service.publish('created', async (data: PartyDataType): Promise<any> => {
+    try {
+      const partyUsers = await app.service('party-user').find({
+        query: {
+          $limit: 1000,
+          partyId: data.id
+        }
+      })
 
-  //     // return await Promise.resolve();
-  //     // }));
-  //     data.partyUsers = partyUsers.data
-  //     const targetIds = partyUsers.data.map((partyUser) => {
-  //       return partyUser.userId
-  //     })
-  //     // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
-  //     return Promise.all(
-  //       targetIds.map((userId: string) => {
-  //         return app.channel(`userIds/${userId}`).send({
-  //           party: data
-  //         })
-  //       })
-  //     )
-  //   } catch (err) {
-  //     logger.error(err)
-  //     return err
-  //   }
-  // })
+      data.partyUsers = partyUsers.data
+      const targetIds = partyUsers.data.map((partyUser) => partyUser.userId)
+      return Promise.all(
+        targetIds.map((userId: string) => {
+          return app.channel(`userIds/${userId}`).send({ party: data })
+        })
+      )
+    } catch (err) {
+      logger.error(err)
+      return err
+    }
+  })
 
   /**
    * A function which is used to update new party
@@ -83,21 +66,13 @@ export default (app: Application): void => {
    * @returns {@Object} of new updated party
    */
   service.publish('patched', async (data: PartyDataType): Promise<any> => {
-    const partyUsers = await app.service('party-user').find({
-      query: {
-        $limit: 1000,
-        partyId: data.id
-      }
-    })
-    const targetIds = (partyUsers as any).data.map((partyUser) => {
-      return partyUser.userId
-    })
-    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+    const partyUsers = await app.service('party-user').Model.findOne({ where: { partyId: data.id }, limit: 1000 })
+    if (!partyUsers) return
+    const targetIds = partyUsers.map((partyUser) => partyUser.userId)
+
     return Promise.all(
       targetIds.map((userId: string) => {
-        return app.channel(`userIds/${userId}`).send({
-          party: data
-        })
+        return app.channel(`userIds/${userId}`).send({ party: data })
       })
     )
   })
@@ -110,21 +85,13 @@ export default (app: Application): void => {
    */
 
   service.publish('removed', async (data: PartyDataType): Promise<any> => {
-    const partyUsers = await app.service('party-user').find({
-      query: {
-        $limit: 1000,
-        partyId: data.id
-      }
-    })
-    const targetIds = (partyUsers as any).data.map((partyUser) => {
-      return partyUser.userId
-    })
-    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+    const partyUsers = await app.service('party-user').Model.findOne({ where: { partyId: data.id }, limit: 1000 })
+    if (!partyUsers) return
+    const targetIds = partyUsers.map((partyUser) => partyUser.userId)
+
     return Promise.all(
       targetIds.map((userId: string) => {
-        return app.channel(`userIds/${userId}`).send({
-          party: data
-        })
+        return app.channel(`userIds/${userId}`).send({ party: data })
       })
     )
   })

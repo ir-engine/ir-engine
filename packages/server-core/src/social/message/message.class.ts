@@ -106,14 +106,8 @@ export class Message<T = MessageDataType> extends Service<T> {
         })
       }
       channelId = channel.id
-      const partyUsers = await this.app.service('party-user').find({
-        query: {
-          partyId: targetObjectId
-        }
-      })
-      userIdList = (partyUsers as any).data.map((partyUser) => {
-        return partyUser.userId
-      })
+      const partyUsers = await this.app.service('party-user').Model.findAll({ where: { partyId: targetObjectId } })
+      userIdList = partyUsers.map((partyUser) => partyUser.userId)
     } else if (targetObjectType === 'instance') {
       const targetInstance = await this.app.service('instance').get(targetObjectId)
       if (targetInstance == null) {

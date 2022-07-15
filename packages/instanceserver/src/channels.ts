@@ -322,38 +322,35 @@ const notifyWorldAndPartiesUserHasJoined = async (
   sceneId: string
 ) => {
   const user = await app.service('user').get(userId)
+
   if (user.partyId != null) {
-    const partyUserResult = await app.service('party-user').find({
-      query: {
-        partyId: user.partyId
-      }
-    })
-    const party = await app.service('party').get(user.partyId, null!)
-    const partyUsers = (partyUserResult as any).data
-    const partyOwner = partyUsers.find((partyUser) => partyUser.isOwner === 1)
+    const party = await app.service('party').Model.findOne({ where: { id: user.partyId } })
+    if (!party) return
+
+    const partyUsers = await app.service('party-user').Model.findAll({ where: { partyId: user.partyId } })
+    const partyOwner = partyUsers.find((partyUser) => partyUser.isOwner)
+
     if (partyOwner?.userId === userId && party.instanceId !== app.instance.id) {
-      await app.service('party').patch(user.partyId, {
-        instanceId: app.instance.id
-      })
-      const nonOwners = partyUsers.filter((partyUser) => partyUser.isOwner !== 1 && partyUser.isOwner !== true)
+      await app.service('party').patch(user.partyId, { instanceId: app.instance.id })
+
+      const nonOwners = partyUsers.data.filter((partyUser) => partyUser.isOwner !== 1 && partyUser.isOwner !== true)
       const emittedIp = !config.kubernetes.enabled
         ? await getLocalServerIp(app.isChannelInstance)
         : {
             ipAddress: status.address,
             port: status.portsList[0].port
           }
-      await Promise.all(
-        nonOwners.map(async (partyUser) => {
-          await app.service('instance-provision').emit('created', {
-            userId: partyUser.userId,
-            ipAddress: emittedIp.ipAddress,
-            port: emittedIp.port,
-            locationId: locationId,
-            channelId: channelId,
-            sceneId: sceneId
-          })
+
+      nonOwners.map(async (partyUser) => {
+        app.service('instance-provision').emit('created', {
+          userId: partyUser.userId,
+          ipAddress: emittedIp.ipAddress,
+          port: emittedIp.port,
+          locationId: locationId,
+          channelId: channelId,
+          sceneId: sceneId
         })
-      )
+      })
     }
   }
 }

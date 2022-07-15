@@ -105,17 +105,12 @@ export class Party<T = PartyDataType> extends Service<T> {
       const PartyUserMS = this.app.service('party-user').Model as PartyUserModelStatic
 
       const loggedInUser = params!.user as UserInterface
-      const partyUserResult = await this.app.service('party-user').find({
-        query: { userId: loggedInUser.id }
-      })
+      const partyUserResult = await PartyUserMS.findOne({ where: { userId: loggedInUser.id } })
 
-      if ((partyUserResult as any).total === 0) {
-        throw new NotFound('User party not found')
-      }
+      if (!partyUserResult) throw new NotFound('User party not found')
 
-      const partyId = (partyUserResult as any).data[0].partyId
-
-      const party: any = await super.get(partyId)
+      const partyId = partyUserResult.getDataValue('partyId')
+      const party: any = await super.get(partyId as string)
 
       party.partyUsers = await PartyUserMS.findAll({
         where: {
