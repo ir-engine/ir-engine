@@ -45,6 +45,7 @@ export default (app: Application): void => {
       const partyUsers = await app.service('party-user').find({ query: { $limit: 1000, partyId: data.partyId } })
       const targetIds = partyUsers.map((partyUser) => partyUser.userId)
 
+      data.user = await app.service('user').Model.findOne({ where: { id: data.userId } })
       return Promise.all(
         targetIds.map((userId: string) => {
           return app.channel(`userIds/${userId}`).send({ partyUser: data })
@@ -70,6 +71,7 @@ export default (app: Application): void => {
         .Model.findAll({ where: { partyId: data.partyId }, limit: 1000 })
       const targetIds = partyUsers.map((partyUser) => partyUser.userId)
 
+      data.user = await app.service('user').Model.findOne({ where: { id: data.userId } })
       return Promise.all(
         targetIds.map((userId: string) => {
           return app.channel(`userIds/${userId}`).send({ partyUser: data })
@@ -96,6 +98,7 @@ export default (app: Application): void => {
         .Model.findAll({ where: { partyId: data.partyId }, limit: 1000 })
       const targetIds = partyUsers.map((partyUser) => partyUser.userId)
 
+      data.user = await app.service('user').Model.findOne({ where: { id: data.userId } })
       return Promise.all(
         targetIds.map((userId: string) => {
           return app.channel(`userIds/${userId}`).send({ partyUser: data })

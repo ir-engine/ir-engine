@@ -73,15 +73,12 @@ export const PartyServiceReceptor = (action) => {
         s.updateNeeded.set(true)
       })
       .when(PartyAction.removedPartyUserAction.matches, (action) => {
-        const index = s.party?.partyUsers?.value
-          ? s.party.partyUsers.findIndex((layerUser) => {
-              return layerUser != null && layerUser.id.value === action.partyUser.id
-            })
-          : -1
-        if (index > -1) {
-          s.party.partyUsers.merge([action.partyUser])
-          s.party.partyUsers[index].set(action.partyUser)
-          s.updateNeeded.set(true)
+        if (s.party && s.party.partyUsers && s.party.partyUsers.value) {
+          const matchingPartyUserIndex = s.party.partyUsers.value.findIndex(
+            (partyUser) => partyUser?.id === action.partyUser.id
+          )
+          if (matchingPartyUserIndex > -1)
+            return s.party.partyUsers.set(s.party.partyUsers.value.splice(matchingPartyUserIndex, 1))
         }
       })
   })
@@ -198,7 +195,6 @@ export const PartyService = {
   useAPIListeners: () => {
     useEffect(() => {
       const partyUserCreatedListener = async (params) => {
-        console.log('partyUserCreatedListener', params)
         const selfUser = accessAuthState().user
         if (accessPartyState().party.value == null) {
           dispatchAction(PartyAction.createdPartyAction({ party: params }))
@@ -206,7 +202,6 @@ export const PartyService = {
         dispatchAction(PartyAction.createdPartyUserAction({ partyUser: params.partyUser }))
         if (params.partyUser.userId === selfUser.id.value) {
           const party = await API.instance.client.service('party').get(params.partyUser.partyId)
-          console.log('party', party)
           const userId = selfUser.id.value ?? ''
           const dbUser = (await API.instance.client.service('user').get(userId)) as UserInterface
           if (party.instanceId != null && party.instanceId !== dbUser.instanceId) {
@@ -222,7 +217,6 @@ export const PartyService = {
       }
 
       const partyUserPatchedListener = (params) => {
-        console.log('partyUserPatchedListener', params)
         const updatedPartyUser = params.partyUser
         const selfUser = accessAuthState().user
         dispatchAction(PartyAction.patchedPartyUserAction({ partyUser: updatedPartyUser }))
