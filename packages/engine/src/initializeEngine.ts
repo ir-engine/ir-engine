@@ -212,6 +212,10 @@ export const initializeSceneSystems = async () => {
     {
       type: SystemUpdateType.FIXED_LATE,
       systemModulePromise: import('./physics/systems/PhysicsSystem')
+    },
+    {
+      type: SystemUpdateType.FIXED_LATE,
+      systemModulePromise: import('./physics/systems/RapierPhysicsSystem')
     }
   )
   if (isClient) {

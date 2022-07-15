@@ -17,6 +17,7 @@ import { NameComponent } from '../../scene/components/NameComponent'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { isDynamicBody, isStaticBody } from '../classes/Physics'
+import { Physics } from '../classes/PhysicsRapier'
 import { ColliderComponent } from '../components/ColliderComponent'
 import { CollisionComponent } from '../components/CollisionComponent'
 import { RaycastComponent } from '../components/RaycastComponent'
@@ -69,7 +70,7 @@ const processBoundingBox = (entity: Entity, force = false) => {
 
 const processRaycasts = (world: World) => {
   for (const entity of raycastQuery()) {
-    world.physics.doRaycast(getComponent(entity, RaycastComponent))
+    // world.physics.doRaycast(getComponent(entity, RaycastComponent))
   }
   return world
 }

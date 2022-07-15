@@ -17,9 +17,7 @@ import {
 import { NetworkObjectOwnedTag } from '../networking/components/NetworkObjectOwnedTag'
 import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
 import { WorldState } from '../networking/interfaces/WorldState'
-import { RaycastComponent } from '../physics/components/RaycastComponent'
 import { VelocityComponent } from '../physics/components/VelocityComponent'
-import { TransformComponent } from '../transform/components/TransformComponent'
 import { XRLGripButtonComponent, XRRGripButtonComponent } from '../xr/components/XRGripButtonComponent'
 import { XRHandsInputComponent } from '../xr/components/XRHandsInputComponent'
 import { XRInputSourceComponent } from '../xr/components/XRInputSourceComponent'
@@ -94,7 +92,7 @@ export function teleportObjectReceptor(
   if (controllerComponent) {
     const velocity = getComponent(entity, VelocityComponent)
     const avatar = getComponent(entity, AvatarComponent)
-    controllerComponent.controller.setPosition({ x, y: y + avatar.avatarHalfHeight, z })
+    controllerComponent.controller.setTranslation({ x, y: y + avatar.avatarHalfHeight, z }, true)
     velocity.linear.setScalar(0)
     velocity.angular.setScalar(0)
   }
@@ -106,7 +104,6 @@ export default async function AvatarSystem(world: World) {
   const xrHandsConnectedQueue = createActionQueue(WorldNetworkAction.xrHandsConnected.matches)
   const teleportObjectQueue = createActionQueue(WorldNetworkAction.teleportObject.matches)
 
-  const raycastQuery = defineQuery([AvatarComponent, RaycastComponent])
   const xrInputQuery = defineQuery([AvatarComponent, XRInputSourceComponent, AvatarAnimationComponent])
   const xrHandsInputQuery = defineQuery([AvatarComponent, XRHandsInputComponent, XRInputSourceComponent])
   const xrLGripQuery = defineQuery([AvatarComponent, XRLGripButtonComponent, XRInputSourceComponent])
@@ -131,14 +128,6 @@ export default async function AvatarSystem(world: World) {
       const xrHandsComponent = getComponent(entity, XRHandsInputComponent)
       const container = xrInputSourceComponent.container
       container.add(...xrHandsComponent.hands)
-    }
-
-    for (const entity of raycastQuery(world)) {
-      const raycastComponent = getComponent(entity, RaycastComponent)
-      const transform = getComponent(entity, TransformComponent)
-      const avatar = getComponent(entity, AvatarComponent)
-      raycastComponent.origin.copy(transform.position).y += avatar.avatarHalfHeight
-      avatar.isGrounded = Boolean(raycastComponent.hits.length > 0)
     }
 
     for (const entity of xrLGripQuery.enter()) {

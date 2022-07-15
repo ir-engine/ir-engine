@@ -1,4 +1,6 @@
-import { CircleBufferGeometry, Color, Group, Mesh, MeshStandardMaterial, Object3D } from 'three'
+import { RigidBodyType, ShapeType } from '@dimforge/rapier3d-compat'
+import { CircleGeometry, Color, CylinderGeometry, Group, Mesh, MeshStandardMaterial, Object3D, Vector3 } from 'three'
+import { Quaternion } from 'yuka'
 
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
@@ -19,8 +21,9 @@ import {
   removeComponent
 } from '../../../ecs/functions/ComponentFunctions'
 import { NavMeshComponent } from '../../../navigation/component/NavMeshComponent'
+import { Physics } from '../../../physics/classes/PhysicsRapier'
 import { CollisionGroups } from '../../../physics/enums/CollisionGroups'
-import { createCollider } from '../../../physics/functions/createCollider'
+import { ColliderDescOptions } from '../../../physics/types/PhysicsTypes'
 import { TransformComponent } from '../../../transform/components/TransformComponent'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { GroundPlaneComponent, GroundPlaneComponentType } from '../../components/GroundPlaneComponent'
@@ -36,16 +39,18 @@ export const deserializeGround: ComponentDeserializeFunction = async function (
   entity: Entity,
   json: ComponentJson<GroundPlaneComponentType>
 ): Promise<void> {
-  const mesh = new Mesh(new CircleBufferGeometry(1000, 32), new MeshStandardMaterial({ roughness: 1, metalness: 0 }))
+  const planeSize = new Vector3(1000, 0.1, 1000)
+  const mesh = new Mesh(new CircleGeometry(planeSize.x, 32), new MeshStandardMaterial({ roughness: 1, metalness: 0 }))
 
   mesh.name = 'GroundPlaneMesh'
   mesh.position.y = -0.05
-  mesh.rotation.x = -Math.PI / 2
-  mesh.userData = {
-    type: 'ground',
-    collisionLayer: CollisionGroups.Ground,
-    collisionMask: CollisionGroups.Default
-  }
+
+  const colliderDescOptions = {} as ColliderDescOptions
+  colliderDescOptions.bodyType = RigidBodyType.Fixed
+  colliderDescOptions.type = ShapeType.Cuboid
+  colliderDescOptions.size = planeSize
+  colliderDescOptions.collisionLayer = CollisionGroups.Ground
+  colliderDescOptions.collisionMask = CollisionGroups.Default | CollisionGroups.Avatars
 
   const groundPlane = new Object3D()
   groundPlane.userData.mesh = mesh
@@ -58,7 +63,15 @@ export const deserializeGround: ComponentDeserializeFunction = async function (
   getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_GROUND_PLANE)
 
   // @TODO: make this isomorphic with editor
-  if (!Engine.instance.isEditor) createCollider(entity, groundPlane.userData.mesh)
+  if (!Engine.instance.isEditor)
+    Physics.createRigidBodyForObject(
+      entity,
+      Engine.instance.currentWorld.physicsWorld,
+      groundPlane.userData.mesh,
+      colliderDescOptions
+    )
+
+  mesh.rotation.x = -Math.PI / 2
 
   updateGroundPlane(entity, props)
 }

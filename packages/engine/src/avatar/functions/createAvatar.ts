@@ -1,8 +1,8 @@
+import { Collider, ColliderDesc, RigidBody, RigidBodyDesc } from '@dimforge/rapier3d-compat'
 import { AnimationClip, AnimationMixer, Group, PerspectiveCamera, Quaternion, Vector3 } from 'three'
 
 import { AudioTagComponent } from '../../audio/components/AudioTagComponent'
 import { isClient } from '../../common/functions/isClient'
-import { createQuaternionProxy, createVector3Proxy } from '../../common/proxies/three'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
@@ -10,12 +10,11 @@ import { InputComponent } from '../../input/components/InputComponent'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
 import { InteractorComponent } from '../../interaction/components/InteractorComponent'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
+import { Physics } from '../../physics/classes/PhysicsRapier'
 import { VectorSpringSimulator } from '../../physics/classes/springs/VectorSpringSimulator'
-import { ColliderComponent } from '../../physics/components/ColliderComponent'
 import { CollisionComponent } from '../../physics/components/CollisionComponent'
-import { RaycastComponent } from '../../physics/components/RaycastComponent'
-import { VelocityComponent } from '../../physics/components/VelocityComponent'
 import { AvatarCollisionMask, CollisionGroups } from '../../physics/enums/CollisionGroups'
+import { getInteractionGroups } from '../../physics/functions/getInteractionGroups'
 import { BodyType, SceneQueryType } from '../../physics/types/PhysicsTypes'
 import { NameComponent } from '../../scene/components/NameComponent'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
@@ -33,7 +32,7 @@ import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
 import { SpawnPoseComponent } from '../components/SpawnPoseComponent'
 
-const avatarRadius = 0.25
+export const avatarRadius = 0.25
 export const defaultAvatarHeight = 1.8
 const capsuleHeight = defaultAvatarHeight - avatarRadius * 2
 export const defaultAvatarHalfHeight = defaultAvatarHeight / 2
@@ -44,14 +43,6 @@ export const createAvatar = (spawnAction: typeof WorldNetworkAction.spawnAvatar.
   const entity = world.getNetworkObject(spawnAction.$from, spawnAction.networkId)!
 
   const transform = getComponent(entity, TransformComponent)
-
-  const linearVelocity = createVector3Proxy(VelocityComponent.linear, entity)
-  const angularVelocity = createVector3Proxy(VelocityComponent.angular, entity)
-
-  addComponent(entity, VelocityComponent, {
-    linear: linearVelocity,
-    angular: angularVelocity
-  })
 
   // The visuals group is centered for easy actor tilting
   const tiltContainer = new Group()
@@ -66,8 +57,7 @@ export const createAvatar = (spawnAction: typeof WorldNetworkAction.spawnAvatar.
   addComponent(entity, AvatarComponent, {
     avatarHalfHeight: defaultAvatarHalfHeight,
     avatarHeight: defaultAvatarHeight,
-    modelContainer,
-    isGrounded: false
+    modelContainer
   })
 
   addComponent(entity, NameComponent, {
@@ -96,21 +86,6 @@ export const createAvatar = (spawnAction: typeof WorldNetworkAction.spawnAvatar.
   addComponent(entity, Object3DComponent, { value: tiltContainer })
   setObjectLayers(tiltContainer, ObjectLayers.Avatar)
 
-  const filterData = new PhysX.PxQueryFilterData()
-  filterData.setWords(AvatarCollisionMask, 0)
-  const flags = PhysX.PxQueryFlag.eSTATIC.value | PhysX.PxQueryFlag.eDYNAMIC.value | PhysX.PxQueryFlag.eANY_HIT.value
-  filterData.setFlags(flags)
-
-  addComponent(entity, RaycastComponent, {
-    filterData,
-    type: SceneQueryType.Closest,
-    hits: [],
-    origin: new Vector3(0, defaultAvatarHalfHeight, 0),
-    direction: new Vector3(0, -1, 0),
-    maxDistance: defaultAvatarHalfHeight + 0.05,
-    flags
-  })
-
   addComponent(entity, CollisionComponent, { collisions: [] })
 
   addComponent(entity, SpawnPoseComponent, {
@@ -128,40 +103,59 @@ export const createAvatar = (spawnAction: typeof WorldNetworkAction.spawnAvatar.
     addComponent(entity, ShadowComponent, { receiveShadow: true, castShadow: true })
   }
 
-  const shape = world.physics.createShape(
-    new PhysX.PxCapsuleGeometry(avatarRadius, capsuleHeight / 2),
-    world.physics.physics.createMaterial(0, 0, 0),
-    {
-      collisionLayer: CollisionGroups.Avatars,
-      collisionMask: CollisionGroups.Default | CollisionGroups.Ground | CollisionGroups.Trigger
-    }
-  )
-
-  const body = world.physics.addBody({
-    shapes: [shape],
-    type: BodyType.DYNAMIC,
-    transform: {
-      translation: {
-        x: transform.position.x,
-        y: transform.position.y + defaultAvatarHalfHeight,
-        z: transform.position.z
-      },
-      rotation: new Quaternion()
-    },
-    userData: {
-      entity
-    }
-  })
-  body.setActorFlag(PhysX.PxActorFlag.eDISABLE_GRAVITY, true)
-  addComponent(entity, ColliderComponent, { body })
-
   addComponent(entity, PersistTagComponent, true)
 
   return entity
 }
 
+export const createAvatarCollider = (
+  entity: Entity,
+  halfHeight: number,
+  radius: number,
+  rigidBody: RigidBody,
+  center: Vector3
+): Collider[] => {
+  const avatarControllerComponent = getComponent(entity, AvatarControllerComponent)
+  const interactionGroups = getInteractionGroups(CollisionGroups.Avatars, AvatarCollisionMask)
+  const colliders = [] as Collider[]
+
+  const feetColliderHeight = halfHeight * 0.025
+  const feetColliderDesc = ColliderDesc.cuboid(radius / 2, feetColliderHeight, radius / 2).setCollisionGroups(
+    interactionGroups
+  )
+  feetColliderDesc.setTranslation(0, center.y - halfHeight - radius, 0)
+  const feetCollider = Physics.createColliderAndAttachToRigidBody(
+    Engine.instance.currentWorld.physicsWorld,
+    feetColliderDesc,
+    rigidBody
+  )
+
+  const bodyColliderDesc = ColliderDesc.capsule(halfHeight, radius).setCollisionGroups(interactionGroups)
+  bodyColliderDesc.setTranslation(0, center.y, 0)
+  const bodyCollider = Physics.createColliderAndAttachToRigidBody(
+    Engine.instance.currentWorld.physicsWorld,
+    bodyColliderDesc,
+    rigidBody
+  )
+
+  avatarControllerComponent.bodyCollider = bodyCollider
+  avatarControllerComponent.feetCollider = feetCollider
+
+  colliders.push(bodyCollider, feetCollider)
+
+  return colliders
+}
+
+const createAvatarRigidBody = (entity: Entity, height: number, radius: number): RigidBody => {
+  const rigidBodyDesc = RigidBodyDesc.dynamic()
+  const rigidBody = Physics.createRigidBody(entity, Engine.instance.currentWorld.physicsWorld, rigidBodyDesc, [])
+  rigidBody.setGravityScale(0.0, true)
+  rigidBody.lockRotations(true, true)
+
+  return rigidBody
+}
+
 export const createAvatarController = (entity: Entity) => {
-  const { position } = getComponent(entity, TransformComponent)
   const { value } = getComponent(entity, Object3DComponent)
 
   if (!hasComponent(entity, InputComponent)) {
@@ -170,24 +164,6 @@ export const createAvatarController = (entity: Entity) => {
       data: new Map()
     })
   }
-  const world = Engine.instance.currentWorld
-  const controller = world.physics.createController({
-    isCapsule: true,
-    material: world.physics.createMaterial(),
-    position: {
-      x: position.x,
-      y: position.y + defaultAvatarHalfHeight,
-      z: position.z
-    },
-    contactOffset: 0.01,
-    stepOffset: 0.25,
-    slopeLimit: 0,
-    height: capsuleHeight,
-    radius: avatarRadius,
-    userData: {
-      entity
-    }
-  }) as PhysX.PxCapsuleController
 
   const frustumCamera = new PerspectiveCamera(60, 4, 0.1, 3)
   frustumCamera.position.setY(defaultAvatarHalfHeight)
@@ -202,16 +178,13 @@ export const createAvatarController = (entity: Entity) => {
     })
   }
 
+  const controller = createAvatarRigidBody(entity, capsuleHeight / 2, avatarRadius)
   const velocitySimulator = new VectorSpringSimulator(60, 50, 0.8)
   if (!hasComponent(entity, AvatarControllerComponent)) {
     addComponent(entity, AvatarControllerComponent, {
       controller,
-      filterData: new PhysX.PxFilterData(
-        CollisionGroups.Avatars,
-        CollisionGroups.Default | CollisionGroups.Ground | CollisionGroups.Trigger,
-        0,
-        0
-      ),
+      bodyCollider: undefined!,
+      feetCollider: undefined!,
       collisions: [false, false, false],
       movementEnabled: true,
       isJumping: false,
@@ -223,4 +196,13 @@ export const createAvatarController = (entity: Entity) => {
       speedVelocity: { value: 0 }
     })
   }
+
+  const { position } = getComponent(entity, TransformComponent)
+  const colliders = createAvatarCollider(
+    entity,
+    capsuleHeight / 2,
+    avatarRadius,
+    controller,
+    new Vector3().setY(position.y + defaultAvatarHalfHeight)
+  )
 }

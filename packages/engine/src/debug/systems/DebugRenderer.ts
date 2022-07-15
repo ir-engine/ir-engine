@@ -2,8 +2,11 @@ import { defineQuery } from 'bitecs'
 import {
   ArrayCamera,
   BoxBufferGeometry,
+  BufferAttribute,
   BufferGeometry,
   Float32BufferAttribute,
+  LineBasicMaterial,
+  LineSegments,
   Material,
   Matrix4,
   Mesh,
@@ -60,6 +63,13 @@ export const DebugRenderer = () => {
   const _boxGeometry = new BoxBufferGeometry()
   const _planeGeometry = new PlaneBufferGeometry(10000, 10000, 100, 100)
   let enabled = false
+
+  // For rapier debugging
+  const lineMaterial = new LineBasicMaterial()
+  lineMaterial.vertexColors = true
+  const _lineSegments = new LineSegments(new BufferGeometry(), lineMaterial)
+  Engine.instance.currentWorld.scene.add(_lineSegments)
+
   globalThis._meshes = _meshes
 
   const setEnabled = (_enabled) => {
@@ -77,6 +87,10 @@ export const DebugRenderer = () => {
       _meshes.clear()
       _raycasts.clear()
       _obstacles.clear()
+
+      _lineSegments.visible = false
+    } else {
+      _lineSegments.visible = true
     }
   }
 
@@ -301,6 +315,11 @@ export const DebugRenderer = () => {
         _meshes.delete(id)
       }
     })
+
+    const debugRenderBuffer = world.physicsWorld.debugRender()
+
+    _lineSegments.geometry.setAttribute('position', new BufferAttribute(debugRenderBuffer.vertices, 3))
+    _lineSegments.geometry.setAttribute('color', new BufferAttribute(debugRenderBuffer.colors, 4))
   }
 }
 

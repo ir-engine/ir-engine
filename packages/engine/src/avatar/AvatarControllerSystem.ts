@@ -11,7 +11,6 @@ import { LocalInputTagComponent } from '../input/components/LocalInputTagCompone
 import { BaseInput } from '../input/enums/BaseInput'
 import { AvatarMovementScheme } from '../input/enums/InputEnums'
 import { XRAxes } from '../input/enums/InputEnums'
-import { ColliderComponent } from '../physics/components/ColliderComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { XRInputSourceComponent } from '../xr/components/XRInputSourceComponent'
 import { AvatarInputSchema } from './AvatarInputSchema'
@@ -99,7 +98,7 @@ const alignXRCameraYawWithAvatar = (entity: Entity) => {
   dir.applyQuaternion(transform.rotation).setY(0).normalize()
   inputSource.container.quaternion.setFromUnitVectors(V_001, dir)
 }
-
+/*
 export const updateColliderPose = (entity: Entity) => {
   const collider = getComponent(entity, ColliderComponent)
   const controller = getComponent(entity, AvatarControllerComponent)
@@ -113,14 +112,13 @@ export const updateColliderPose = (entity: Entity) => {
     },
     true
   )
-}
+}*/
 
 export const updateAvatarTransformPosition = (entity: Entity) => {
   const transform = getComponent(entity, TransformComponent)
   const controller = getComponent(entity, AvatarControllerComponent)
-  const avatar = getComponent(entity, AvatarComponent)
-  const pose = controller.controller.getPosition()
-  transform.position.set(pose.x, pose.y - avatar.avatarHalfHeight, pose.z)
+  const pose = controller.controller.translation()
+  transform.position.set(pose.x, pose.y, pose.z)
 }
 
 const _cameraDirection = new Vector3()
@@ -162,7 +160,7 @@ export const controllerQueryUpdate = (
 
   updateAvatarTransformPosition(entity)
   detectUserInCollisions(entity)
-  updateColliderPose(entity)
+  // updateColliderPose(entity)
 
   const transform = getComponent(entity, TransformComponent)
   // TODO: implement scene lower bounds parameter
@@ -171,9 +169,8 @@ export const controllerQueryUpdate = (
 
 export const avatarControllerExit = (entity: Entity, world: World = Engine.instance.currentWorld) => {
   const controller = getComponent(entity, AvatarControllerComponent, true)
-  if (controller?.controller) world.physics.removeController(controller.controller)
+  if (controller?.controller) world.physicsWorld.removeRigidBody(controller.controller)
   const avatar = getComponent(entity, AvatarComponent)
-  if (avatar) avatar.isGrounded = false
 }
 
 export const updateMap = () => {

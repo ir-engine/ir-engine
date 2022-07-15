@@ -22,7 +22,7 @@ const avatarHeight = 1.8
 const capsuleHeight = avatarHeight - avatarRadius * 2
 const mockDelta = 1 / 60
 
-describe('Physics Interation Tests', () => {
+describe('PhysX Interation Tests', () => {
   beforeEach(async () => {
     createEngine()
     await Engine.instance.currentWorld.physics.createScene({ verbose: true })

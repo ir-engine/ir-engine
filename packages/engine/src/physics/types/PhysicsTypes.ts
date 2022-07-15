@@ -1,3 +1,6 @@
+import RAPIER, { ActiveCollisionTypes, ColliderHandle, RigidBodyType, ShapeType } from '@dimforge/rapier3d-compat'
+import { Vector3 } from 'three'
+
 export type ColliderTypes = 'box' | 'ground' | 'sphere' | 'capsule' | 'cylinder' | 'convex' | 'trimesh'
 
 export interface PhysXConfig {
@@ -131,10 +134,11 @@ export interface RaycastHit {
   distance: number
   position: Vec3
   normal: Vec3
-  body?: RigidBody
-  _bodyID: number // internal
+  body?: RigidBody | RAPIER.RigidBody // TODO: Only keep Rapier.RigidBody
+  _bodyID?: number // TODO: Remove
 }
 
+// TODO: Remove this
 export enum ControllerEvents {
   CONTROLLER_SHAPE_HIT = 'CONTROLLER_SHAPE_HIT',
   CONTROLLER_CONTROLLER_HIT = 'CONTROLLER_CONTROLLER_HIT',
@@ -150,6 +154,7 @@ export enum CollisionEvents {
   TRIGGER_END = 'TRIGGER_END'
 }
 
+// TODO: Remove this
 export type ControllerHitEvent = {
   type: ControllerEvents
   shape: PhysX.PxShape
@@ -174,10 +179,22 @@ type ContactData = {
 }
 
 export type ColliderHitEvent = {
-  type: CollisionEvents
-  bodySelf: PhysX.PxRigidActor
-  bodyOther: PhysX.PxRigidActor
-  shapeSelf: PhysX.PxShape
-  shapeOther: PhysX.PxShape
-  contacts: ContactData[]
+  type: CollisionEvents // TODO: Do we need this anymore if we the CollisionComponent is only going to be present during the lifespan of collision. Should only be used to differentiate between collsion & trigger. remove start,end states.
+  bodySelf: PhysX.PxRigidActor | RAPIER.RigidBody
+  bodyOther: PhysX.PxRigidActor | RAPIER.RigidBody
+  shapeSelf: PhysX.PxShape | RAPIER.Collider
+  shapeOther: PhysX.PxShape | RAPIER.Collider
+  contacts: ContactData[] | undefined // TODO: Figure out how to populate this using Rapier
+}
+
+export type ColliderDescOptions = {
+  type: ShapeType
+  bodyType?: RigidBodyType // TODO: This is only required at the root node, should be removed from here?
+  size?: Vector3 // For cases where mesh.scale can't provide the actual size of collider.
+  isTrigger?: boolean
+  friction?: number
+  restitution?: number
+  collisionLayer?: number
+  collisionMask?: number
+  activeCollisionTypes?: ActiveCollisionTypes
 }
