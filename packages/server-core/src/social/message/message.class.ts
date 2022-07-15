@@ -90,8 +90,8 @@ export class Message<T = MessageDataType> extends Service<T> {
         return groupUser.userId
       })
     } else if (targetObjectType === 'party') {
-      const targetParty = await this.app.service('party').get(targetObjectId, null!)
-      if (targetParty == null) {
+      const targetParty = await this.app.service('party').Model.count({ where: { id: targetObjectId } })
+      if (targetParty <= 0) {
         throw new BadRequest('Invalid target party ID')
       }
       channel = await channelModel.findOne({

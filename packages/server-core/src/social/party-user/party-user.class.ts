@@ -120,6 +120,7 @@ export class PartyUser<T = PartyUserDataType> extends Service<T> {
     try {
       const PartyUserMS = this.app.service('party-user').Model as PartyUserModelStatic
       const PartyMS = this.app.service('party').Model as PartyModelStatic
+      const userModel = this.app.service('user').Model
 
       const partyUser = await PartyUserMS.findOne({ where: { userId: id } })
       if (!partyUser) return false
@@ -136,6 +137,8 @@ export class PartyUser<T = PartyUserDataType> extends Service<T> {
 
         await oldestPartyUser?.update({ isOwner: true })
       }
+
+      await userModel.update({ partyId: null }, { where: { id: partyUser.getDataValue('userId') } })
 
       await partyUser?.destroy()
     } catch (e) {

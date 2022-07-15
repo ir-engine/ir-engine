@@ -15,24 +15,27 @@ export default () => {
     try {
       // Getting logged in user and attaching owner of user
       const { result, params } = context
-      const partyId = result.partyId
-      const party = await context.app.service('party').get(partyId)
-      const partyUserResult = (await context.app.service('party-user').find({
-        query: {
-          partyId: partyId
-        }
-      })) as any //TODO: as Paginated<PartyUser>
-      const partyOwner = partyUserResult.data.find((partyUser) => partyUser.isOwner === true)
+
+      const party = await context.app.service('party').Model.findOne({ where: { partyId: result.partyId } })
+      if (!party) return context
+
+      const partyUserResult = await context.app.service('party-user').Model.findAndCountAll({
+        where: { partyId: result.partyId }
+      })
+
+      const partyOwner = partyUserResult.rows.find((partyUser) => partyUser.isOwner === true)
+
       if (party.instanceId != null) {
         const instance = await context.app.service('instance').get(party.instanceId)
         const location = await context.app.service('location').get(instance.locationId)
+
         if (params.oldInstanceId !== instance.id && instance.currentUsers + 1 > location.maxUsersPerInstance) {
           logger.info('Putting party onto a new server')
           const availableLocationInstances = await context.app.service('instance').Model.findAll({
             where: {
               locationId: location.id,
               '$location.maxUsersPerInstance$': {
-                [Op.gt]: Sequelize.literal(`\`instance\`\.\`currentUsers\` + ${partyUserResult.total}`)
+                [Op.gt]: Sequelize.literal(`\`instance\`\.\`currentUsers\` + ${partyUserResult.count}`)
               },
               ended: false
             },
@@ -67,7 +70,7 @@ export default () => {
               selfIpAddress = `${emittedIp.ipAddress}:3031`
             }
             const instance = (await context.app.service('instance').create({
-              currentUsers: partyUserResult.total,
+              currentUsers: partyUserResult.count,
               locationId: location.id,
               ipAddress: selfIpAddress
             })) as Instance

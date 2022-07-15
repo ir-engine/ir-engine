@@ -39,15 +39,7 @@ export default (app: Application): void => {
   //  */
   service.publish('created', async (data: PartyDataType): Promise<any> => {
     try {
-      const partyUsers = await app.service('party-user').find({
-        query: {
-          $limit: 1000,
-          partyId: data.id
-        }
-      })
-
-      data.partyUsers = partyUsers.data
-      const targetIds = partyUsers.data.map((partyUser) => partyUser.userId)
+      const targetIds = data.partyUsers.map((partyUser) => partyUser.userId)
       return Promise.all(
         targetIds.map((userId: string) => {
           return app.channel(`userIds/${userId}`).send({ party: data })
@@ -66,8 +58,7 @@ export default (app: Application): void => {
    * @returns {@Object} of new updated party
    */
   service.publish('patched', async (data: PartyDataType): Promise<any> => {
-    const partyUsers = await app.service('party-user').Model.findOne({ where: { partyId: data.id }, limit: 1000 })
-    if (!partyUsers) return
+    const partyUsers = await app.service('party-user').Model.findAll({ where: { partyId: data.id }, limit: 1000 })
     const targetIds = partyUsers.map((partyUser) => partyUser.userId)
 
     return Promise.all(
@@ -85,8 +76,7 @@ export default (app: Application): void => {
    */
 
   service.publish('removed', async (data: PartyDataType): Promise<any> => {
-    const partyUsers = await app.service('party-user').Model.findOne({ where: { partyId: data.id }, limit: 1000 })
-    if (!partyUsers) return
+    const partyUsers = await app.service('party-user').Model.findAll({ where: { partyId: data.id }, limit: 1000 })
     const targetIds = partyUsers.map((partyUser) => partyUser.userId)
 
     return Promise.all(

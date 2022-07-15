@@ -210,9 +210,9 @@ export class AcceptInvite implements ServiceMethods<Data> {
           )
         }
       } else if (invite.inviteType === 'party') {
-        const party = await this.app.service('party').get(invite.targetObjectId, params)
+        const party = await this.app.service('party').Model.count({ where: { id: invite.targetObjectId } })
 
-        if (party == null) {
+        if (party <= 0) {
           return new BadRequest('Invalid party ID')
         }
 

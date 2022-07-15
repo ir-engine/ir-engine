@@ -1,8 +1,6 @@
 import { HookOptions } from '@feathersjs/feathers'
 import { disallow, iff, isProvider } from 'feathers-hooks-common'
 
-import partyPermissionAuthenticate from '@xrengine/server-core/src/hooks/party-permission-authenticate'
-
 import authenticate from '../../hooks/authenticate'
 import isInternalRequest from '../../hooks/isInternalRequest'
 import restrictUserRole from '../../hooks/restrict-user-role'
@@ -16,7 +14,7 @@ export default {
     get: [],
     create: [],
     update: [disallow()],
-    patch: [iff(isProvider('external'), partyPermissionAuthenticate() as any)],
+    patch: [iff(isProvider('external'), disallow())],
     remove: []
   },
 
