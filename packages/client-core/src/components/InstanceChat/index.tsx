@@ -235,7 +235,7 @@ const InstanceChat = ({
   const [isInitRender, setIsInitRender] = useState<Boolean>()
 
   const isMobile = /Mobi/i.test(window.navigator.userAgent)
-  const chatState = useChatState()
+  const chatState = useChatState().attach(Downgraded).value
 
   // TODO: move to register event for chat widget
   ChatService.useAPIListeners()
@@ -284,30 +284,31 @@ const InstanceChat = ({
     })
   }, [])
 
+  const messageRef = useRef<any>()
+
   useEffect(() => {
     if (
       sortedMessages &&
       sortedMessages[sortedMessages.length - 1]?.senderId !== user?.id.value &&
-      chatState.messageCreated.value
+      chatState.messageCreated
     ) {
       setUnreadMessages(true)
       entity && toggleAudio(entity)
     }
-  }, [chatState])
-
-  /**
-   * Message scroll
-   */
-
-  const messageRef = useRef<any>()
-  const messageEl = messageRef.current
-
-  useEffect(() => {
-    if (messageEl) messageEl.scrollTop = messageEl?.scrollHeight
-  }, [chatState])
+    if (messageRef.current && messageRef.current.scrollHeight - messageRef.current.scrollTop < 500)
+      messageRef.current.scrollTop = messageRef.current.scrollHeight
+  }, [chatState.messageCreated, sortedMessages])
 
   const toggleChatWindow = () => {
     if (!chatWindowOpen && isMobile) hideOtherMenus()
+    if (!chatWindowOpen) {
+      const messageRefCurrentRenderedInterval = setInterval(() => {
+        if (messageRef.current && messageRef.current.scrollHeight > 0) {
+          messageRef.current.scrollTop = messageRef.current.scrollHeight
+          clearInterval(messageRefCurrentRenderedInterval)
+        }
+      }, 50)
+    }
     setChatWindowOpen(!chatWindowOpen)
     chatWindowOpen && setUnreadMessages(false)
     setIsInitRender(false)
