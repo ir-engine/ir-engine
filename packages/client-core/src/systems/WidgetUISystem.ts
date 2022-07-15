@@ -58,7 +58,11 @@ export default async function WidgetSystem(world: World) {
       createShareLocationWidget(world)
       createSelectAvatarWidget(world)
       createUploadAvatarWidget(world)
-      createReadyPlayerWidget(world)
+      // TODO: Something in createReadyPlayerWidget is loading /location/undefined
+      // This is causing the engine to be created again, or at least to start being
+      // created again, which is not right. This will need to be fixed when this is
+      // restored.
+      // createReadyPlayerWidget(world)
     }
     const xrui = getComponent(ui.entity, XRUIComponent)
     if (xrui) ObjectFitFunctions.setUIVisible(xrui.container, show)

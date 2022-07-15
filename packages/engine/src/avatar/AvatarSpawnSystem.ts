@@ -2,6 +2,7 @@ import { Quaternion, Vector3 } from 'three'
 
 import { createActionQueue } from '@xrengine/hyperflux'
 
+import { Engine } from '../ecs/classes/Engine'
 import { Entity } from '../ecs/classes/Entity'
 import { World } from '../ecs/classes/World'
 import { defineQuery, getComponent, hasComponent } from '../ecs/functions/ComponentFunctions'
@@ -40,6 +41,24 @@ export class SpawnPoints {
     return {
       position: randomPositionCentered(new Vector3(2, 0, 2)),
       rotation: new Quaternion()
+    }
+  }
+
+  getSpawnPoint(id): { position: Vector3; rotation: Quaternion } {
+    const spawnPointEntity = Engine.instance.currentWorld.entityTree.uuidNodeMap.get(id)
+    try {
+      const spawnTransform = getComponent(spawnPointEntity!.entity, TransformComponent)
+      if (spawnTransform && this.spawnPoints.length > 0) {
+        return {
+          position: spawnTransform.position
+            .clone()
+            .add(randomPositionCentered(new Vector3(spawnTransform.scale.x, 0, spawnTransform.scale.z))),
+          rotation: new Quaternion() //spawnTransform.rotation.clone()
+        }
+      }
+      return this.getRandomSpawnPoint()
+    } catch (err) {
+      return this.getRandomSpawnPoint()
     }
   }
 }

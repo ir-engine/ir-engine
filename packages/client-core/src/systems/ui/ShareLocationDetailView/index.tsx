@@ -24,7 +24,7 @@ const ShareLocationDetailView = () => {
   const { t } = useTranslation()
   const refLink = useRef() as React.MutableRefObject<HTMLInputElement>
 
-  const { copyLinkToClipboard, shareOnApps, packageInvite, handleChangeEmail, shareLink, email } = useShareMenuHooks({
+  const { copyLinkToClipboard, shareOnApps, packageInvite, handleChangeToken, shareLink, token } = useShareMenuHooks({
     refLink
   })
 
@@ -46,8 +46,8 @@ const ShareLocationDetailView = () => {
             aria-invalid="false"
             placeholder={t('user:usermenu.share.ph-phoneEmail')}
             type="text"
-            value={email}
-            onChange={(e) => handleChangeEmail(e)}
+            value={token}
+            onChange={(e) => handleChangeToken(e)}
             endIcon={<Send />}
             endIconClick={packageInvite}
           />
