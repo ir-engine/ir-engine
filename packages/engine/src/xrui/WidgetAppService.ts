@@ -70,7 +70,7 @@ export const WidgetAppService = {
 
     // close currently open widgets until we support multiple widgets being open at once
     for (let widget of widgets) {
-      if (currentWidget && widget.id !== currentWidget.id) {
+      if (currentWidget && widget.id !== currentWidget.id && widget.visible) {
         dispatchAction(WidgetAppActions.showWidget({ id: widget.id, shown: false }))
       }
     }
