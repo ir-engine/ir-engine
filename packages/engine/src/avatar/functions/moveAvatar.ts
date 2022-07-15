@@ -162,14 +162,14 @@ export const moveAvatar = (world: World, entity: Entity, camera: PerspectiveCame
   if (Math.abs(newVelocity.z) < 0.001) newVelocity.z = 0
 
   displacementVec3.set(newVelocity.x, newVelocity.y, newVelocity.z)
-  const shapeCastDirection = new Vector3().copy(displacementVec3).multiplyScalar(velocityScale)
+  const shapeCastDirection = new Vector3().copy(displacementVec3).normalize()
 
   const shapecastComponentData = {
     collider: controller.bodyCollider,
     type: SceneQueryType.Closest,
     hits: [] as RaycastHit[],
     direction: shapeCastDirection,
-    maxDistance: 0.1,
+    maxDistance: 1.5,
     collisionGroups: getInteractionGroups(CollisionGroups.Avatars, AvatarCollisionMask)
   } as ShapecastComponentType
 
