@@ -62,11 +62,10 @@ body {
   }
 
   @media (max-width: 768px) {
-    flex-direction: row;
     overflow-x: auto;
     max-width: 100vw;
-    padding: 60px 20px 20px;
-    top: -50px;
+    padding: 20px 20px 60px;
+    top: -15px;
     right: -15px;
     margin: 0;
 
