@@ -46,16 +46,13 @@ export class AssetLibrary implements ServiceMethods<any> {
 
   async create(createParams: CreateParams, params?: Params): Promise<any> {
     try {
-      const pathData = /.*projects\/([\w\d\s\-_]+)\/assets\/([\w\d\s\-_]+).zip$/.exec(createParams.path)
+      const inPath = decodeURI(createParams.path)
+      const pathData = /.*projects\/([\w\d\s\-_]+)\/assets\/([\w\d\s\-_]+).zip$/.exec(inPath)
       if (!pathData) throw Error('could not extract path data')
       const [_, projectName, fileName] = pathData
       const assetRoot = `${projectName}/assets/${fileName}`
       const fullPath = path.join(this.rootPath, assetRoot)
-      await new Promise<void>((resolve) => {
-        fs.mkdir(fullPath, () => {
-          resolve()
-        })
-      })
+      fs.mkdirSync(fullPath)
       await extract(`${fullPath}.zip`, { dir: fullPath })
       return { assetRoot: assetRoot }
     } catch (e) {

@@ -1,35 +1,34 @@
 import {
   Extension,
   ExtensionProperty,
+  IProperty,
   NodeIO,
+  Nullable,
   PropertyType,
   ReaderContext,
   Texture,
+  TextureInfo,
   WriterContext
 } from '@gltf-transform/core'
-import {
-  DracoMeshCompression,
-  MeshGPUInstancing,
-  MeshoptCompression,
-  MeshQuantization,
-  TextureBasisu
-} from '@gltf-transform/extensions'
-import { dedup, prune, quantize, reorder } from '@gltf-transform/functions'
-import draco3d from 'draco3dgltf'
+import { MeshGPUInstancing, MeshoptCompression, MeshQuantization, TextureBasisu } from '@gltf-transform/extensions'
 import { MeshoptDecoder, MeshoptEncoder } from 'meshoptimizer'
+import sharp from 'sharp'
 import { FileLoader } from 'three'
-
-import { AssetType } from '../enum/AssetType'
-import { AssetLoader } from './AssetLoader'
 
 export type ModelTransformParameters = {
   useMeshopt: boolean
-  useDraco: boolean
   useMeshQuantization: boolean
-  textureFormat: 'default' | 'jpg' | 'ktx2' | 'webp'
+  textureFormat: 'default' | 'jpg' | 'ktx2' | 'png' | 'webp'
+  maxTextureSize: number
 }
 
 const EXTENSION_NAME = 'MOZ_lightmap'
+
+interface IMOZLightmap extends IProperty {
+  lightMap: Texture
+  lightMapInfo: TextureInfo
+  lightMapIntensity: number
+}
 
 export class MOZLightmap extends ExtensionProperty {
   public static EXTENSION_NAME = EXTENSION_NAME
@@ -42,10 +41,19 @@ export class MOZLightmap extends ExtensionProperty {
     this.propertyType = 'Lightmap'
     this.parentTypes = [PropertyType.MATERIAL]
   }
+
+  protected getDefaults(): Nullable<IMOZLightmap> {
+    return Object.assign(super.getDefaults() as IProperty, {
+      lightMap: null,
+      lightMapInfo: new TextureInfo(this.graph, 'lightMapInfo'),
+      lightMapIntensity: 1.0
+    })
+  }
 }
 
 export class MOZLightmapExtension extends Extension {
-  extensionName: string = EXTENSION_NAME
+  public readonly extensionName = EXTENSION_NAME
+  public static readonly EXTENSION_NAME = EXTENSION_NAME
 
   read(readerContext: ReaderContext): this {
     const materialDefs = readerContext.jsonDoc.json.materials || []
@@ -66,7 +74,7 @@ export class MOZLightmapExtension extends Extension {
           const matIdx = writerContext.materialIndexMap.get(material)!
           const matDef = json.json.materials![matIdx]
           matDef.extensions = matDef.extensions || {}
-          matDef.extensions[EXTENSION_NAME] = {}
+          //matDef.extensions[EXTENSION_NAME] = {}
         }
       })
     return this
@@ -79,12 +87,6 @@ export default async function ModelTransformLoader() {
   io.registerDependencies({
     'meshopt.decoder': MeshoptDecoder,
     'meshopt.encoder': MeshoptEncoder
-  })
-
-  //draco
-  io.registerExtensions([DracoMeshCompression]).registerDependencies({
-    'draco3d.decoder': await draco3d.createDecoderModule(),
-    'draco3d.encoder': await draco3d.createEncoderModule()
   })
 
   io.registerExtensions([MOZLightmapExtension])

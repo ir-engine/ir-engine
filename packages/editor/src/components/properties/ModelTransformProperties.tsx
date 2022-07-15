@@ -26,6 +26,7 @@ import ListItemText from '@mui/material/ListItemText'
 import BooleanInput from '../inputs/BooleanInput'
 import { Button } from '../inputs/Button'
 import InputGroup from '../inputs/InputGroup'
+import NumericInputGroup from '../inputs/NumericInputGroup'
 import SelectInput from '../inputs/SelectInput'
 import CollapsibleBlock from '../layout/CollapsibleBlock'
 import ModelResourceProperties from './ModelResourceProperties'
@@ -93,10 +94,10 @@ export default function ModelTransformProperties({ modelComponent, onChangeModel
   const [transforming, setTransforming] = useState<boolean>(false)
   const [transformHistory, setTransformHistory] = useState<string[]>(() => [])
   const [transformParms, setTransformParms] = useState<ModelTransformParameters>({
-    useDraco: false,
     useMeshopt: true,
     useMeshQuantization: false,
-    textureFormat: 'ktx2'
+    textureFormat: 'ktx2',
+    maxTextureSize: 1024
   })
 
   function onChangeTransformParm(k) {
@@ -211,9 +212,6 @@ export default function ModelTransformProperties({ modelComponent, onChangeModel
           </ElementsContainer>
         </ElementsContainer>
         <ElementsContainer>
-          <InputGroup name="Use Draco" label={t('editor:properties.model.transform.useDraco')}>
-            <BooleanInput value={transformParms.useDraco} onChange={onChangeTransformParm('useDraco')} />
-          </InputGroup>
           <InputGroup name="Use Meshopt" label={t('editor:properties.model.transform.useMeshopt')}>
             <BooleanInput value={transformParms.useMeshopt} onChange={onChangeTransformParm('useMeshopt')} />
           </InputGroup>
@@ -231,10 +229,19 @@ export default function ModelTransformProperties({ modelComponent, onChangeModel
                 { label: 'Default', value: 'default' },
                 { label: 'JPG', value: 'jpg' },
                 { label: 'KTX2', value: 'ktx2' },
+                { label: 'PNG', value: 'png' },
                 { label: 'WebP', value: 'webp' }
               ]}
             />
           </InputGroup>
+          <NumericInputGroup
+            name="Max Texture Size"
+            label={t('editor:properties.model.transform.maxTextureSize')}
+            value={transformParms.maxTextureSize}
+            onChange={onChangeTransformParm('maxTextureSize')}
+            max={4096}
+            min={64}
+          />
           {!transforming && <OptimizeButton onClick={onTransformModel}>Optimize</OptimizeButton>}
           {transforming && <p>Transforming...</p>}
           {transformHistory.length > 0 && <Button onClick={onUndoTransform}>Undo</Button>}
