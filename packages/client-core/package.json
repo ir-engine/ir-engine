@@ -92,7 +92,7 @@
     "@rollup/plugin-json": "4.1.0",
     "@rollup/plugin-node-resolve": "13.2.0",
     "@rollup/plugin-replace": "4.0.0",
-    "@types/node": "16.11.40",
+    "@types/node": "16.11.45",
     "@types/react": "17.0.44",
     "@types/three": "0.140.0",
     "create-ts-index": "1.14.0",
