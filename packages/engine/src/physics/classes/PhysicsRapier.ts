@@ -69,6 +69,29 @@ function createRigidBody(entity: Entity, world: World, rigidBodyDesc: RigidBodyD
   return rigidBody
 }
 
+function applyDescToCollider(
+  colliderDesc: ColliderDesc,
+  shapeOptions: ColliderDescOptions,
+  position: Vector3,
+  quaternion: Quaternion
+) {
+  shapeOptions.friction ? colliderDesc.setFriction(shapeOptions.friction) : 0
+  shapeOptions.restitution ? colliderDesc.setRestitution(shapeOptions.restitution) : 0
+
+  const collisionLayer = shapeOptions.collisionLayer ? Number(shapeOptions.collisionLayer) : CollisionGroups.Default
+  const collisionMask = shapeOptions.collisionMask ? Number(shapeOptions.collisionMask) : DefaultCollisionMask
+  colliderDesc.setCollisionGroups(getInteractionGroups(collisionLayer, collisionMask))
+
+  colliderDesc.setTranslation(position.x, position.y, position.z)
+  colliderDesc.setRotation(quaternion)
+
+  shapeOptions.isTrigger ? colliderDesc.setSensor(shapeOptions.isTrigger) : 0
+  shapeOptions.activeCollisionTypes
+    ? colliderDesc.setActiveCollisionTypes(shapeOptions.activeCollisionTypes)
+    : colliderDesc.setActiveCollisionTypes(ActiveCollisionTypes.ALL)
+  colliderDesc.setActiveEvents(ActiveEvents.COLLISION_EVENTS)
+}
+
 function createColliderDesc(mesh: Mesh, colliderDescOptions: ColliderDescOptions): ColliderDesc {
   // Type is required
   const shapeOptions = colliderDescOptions
@@ -125,21 +148,7 @@ function createColliderDesc(mesh: Mesh, colliderDescOptions: ColliderDescOptions
       return undefined!
   }
 
-  shapeOptions.friction ? colliderDesc.setFriction(shapeOptions.friction) : 0
-  shapeOptions.restitution ? colliderDesc.setRestitution(shapeOptions.restitution) : 0
-
-  const collisionLayer = shapeOptions.collisionLayer ? shapeOptions.collisionLayer : CollisionGroups.Default
-  const collisionMask = shapeOptions.collisionMask ? shapeOptions.collisionMask : DefaultCollisionMask
-  colliderDesc.setCollisionGroups(getInteractionGroups(collisionLayer, collisionMask))
-
-  colliderDesc.setTranslation(mesh.position.x, mesh.position.y, mesh.position.z)
-  colliderDesc.setRotation(mesh.quaternion)
-
-  shapeOptions.isTrigger ? colliderDesc.setSensor(shapeOptions.isTrigger) : 0
-  shapeOptions.activeCollisionTypes
-    ? colliderDesc.setActiveCollisionTypes(shapeOptions.activeCollisionTypes)
-    : colliderDesc.setActiveCollisionTypes(ActiveCollisionTypes.ALL)
-  colliderDesc.setActiveEvents(ActiveEvents.COLLISION_EVENTS)
+  applyDescToCollider(colliderDesc, shapeOptions, mesh.position, mesh.quaternion)
 
   return colliderDesc
 }
@@ -358,6 +367,7 @@ export const Physics = {
   createWorld,
   createRigidBody,
   createColliderDesc,
+  applyDescToCollider,
   createRigidBodyForObject,
   createColliderAndAttachToRigidBody,
   removeCollidersFromRigidBody,
