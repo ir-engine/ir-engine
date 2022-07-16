@@ -10,18 +10,13 @@ import { dispatchAction } from '@xrengine/hyperflux'
 
 import { Mic, MicOff, Refresh as RefreshIcon } from '@mui/icons-material'
 
-import {
-  MediaInstanceConnectionService,
-  useMediaInstanceConnectionState
-} from '../../../common/services/MediaInstanceConnectionService'
+import { useMediaInstanceConnectionState } from '../../../common/services/MediaInstanceConnectionService'
 import { MediaStreamService, useMediaStreamState } from '../../../media/services/MediaStreamService'
 import { useChatState } from '../../../social/services/ChatService'
 import { MediaStreams } from '../../../transports/MediaStreams'
 import {
   configureMediaTransports,
   createCamAudioProducer,
-  endVideoChat,
-  leaveNetwork,
   pauseProducer,
   resumeProducer
 } from '../../../transports/SocketWebRTCClientFunctions'

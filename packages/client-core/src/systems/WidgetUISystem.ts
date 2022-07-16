@@ -45,7 +45,8 @@ export default async function WidgetSystem(world: World) {
   // lazily create XRUI widgets to speed up initial page loading time
   let createdWidgets = false
   const showWidgetMenu = (show: boolean) => {
-    if (!createdWidgets) {
+    // temporarily only allow widgets on non hmd for local dev
+    if (!createdWidgets && (Engine.instance.isHMD || isDev)) {
       createdWidgets = true
       createProfileWidget(world)
       createSettingsWidget(world)
