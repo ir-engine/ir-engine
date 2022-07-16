@@ -47,6 +47,7 @@ export const serializeInteractable: ComponentSerializeFunction = (entity) => {
       interactionImages: component.interactionImages,
       interactionVideos: component.interactionVideos,
       interactionUrls: component.interactionUrls,
+      interactionUserData: component.interactionUserData,
       interactionModels: component.interactionModels
     }
   }

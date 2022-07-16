@@ -160,6 +160,11 @@ export const createFeathersExpressApp = (
   app.use(urlencoded({ extended: true }))
 
   app.configure(rest())
+  app.use(function (req, res, next) {
+    ;(req as any).feathers.req = req
+    ;(req as any).feathers.res = res
+    next()
+  })
 
   // Configure other middleware (see `middleware/index.js`)
   app.configure(authentication)
