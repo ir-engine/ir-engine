@@ -222,6 +222,7 @@ const InstanceChat = ({
 }: InstanceChatProps): any => {
   const [chatWindowOpen, setChatWindowOpen] = useState(false)
   const [unreadMessages, setUnreadMessages] = useState(false)
+  const [messageContainerVisible, setMessageContainerVisible] = useState(false)
   const messageRefInput = useRef<HTMLInputElement>()
 
   const { dimensions, sortedMessages, handleComposingMessageChange, packageMessage, composingMessage } = useChatHooks({
@@ -235,7 +236,7 @@ const InstanceChat = ({
   const [isInitRender, setIsInitRender] = useState<Boolean>()
 
   const isMobile = /Mobi/i.test(window.navigator.userAgent)
-  const chatState = useChatState().attach(Downgraded).value
+  const chatState = useChatState()
 
   // TODO: move to register event for chat widget
   ChatService.useAPIListeners()
@@ -290,24 +291,26 @@ const InstanceChat = ({
     if (
       sortedMessages &&
       sortedMessages[sortedMessages.length - 1]?.senderId !== user?.id.value &&
-      chatState.messageCreated
+      chatState.messageCreated.value
     ) {
       setUnreadMessages(true)
       entity && toggleAudio(entity)
     }
     if (messageRef.current && messageRef.current.scrollHeight - messageRef.current.scrollTop < 500)
       messageRef.current.scrollTop = messageRef.current.scrollHeight
-  }, [chatState.messageCreated, sortedMessages])
+  }, [chatState.messageCreated.value, sortedMessages])
 
   const toggleChatWindow = () => {
     if (!chatWindowOpen && isMobile) hideOtherMenus()
     if (!chatWindowOpen) {
+      setMessageContainerVisible(false)
       const messageRefCurrentRenderedInterval = setInterval(() => {
         if (messageRef.current && messageRef.current.scrollHeight > 0) {
           messageRef.current.scrollTop = messageRef.current.scrollHeight
+          setMessageContainerVisible(true)
           clearInterval(messageRefCurrentRenderedInterval)
         }
-      }, 50)
+      }, 5)
     }
     setChatWindowOpen(!chatWindowOpen)
     chatWindowOpen && setUnreadMessages(false)
@@ -332,7 +335,10 @@ const InstanceChat = ({
       ></div>
       <div className={styles['instance-chat-container'] + ' ' + (chatWindowOpen ? styles.open : '')}>
         {chatWindowOpen && (
-          <div ref={messageRef} className={styles['instance-chat-msg-container']}>
+          <div
+            ref={messageRef}
+            className={styles['instance-chat-msg-container'] + ' ' + (!messageContainerVisible ? styles.hidden : '')}
+          >
             <div className={styles['list-container']}>
               <Card square={true} elevation={0} className={styles['message-wrapper']}>
                 <CardContent className={styles['message-container']}>
