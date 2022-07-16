@@ -22,11 +22,11 @@
     "update-name-gh-package": "node scripts/update-name-gh-package.js"
   },
   "resolutions": {
-    "@types/react": "17.0.44",
+    "@types/react": "17.0.47",
     "react": "17.0.2"
   },
   "peerDependencies": {
-    "@types/react": "17.0.44",
+    "@types/react": "17.0.47",
     "react": "17.0.2"
   },
   "dependencies": {
@@ -93,7 +93,7 @@
     "@rollup/plugin-node-resolve": "13.2.0",
     "@rollup/plugin-replace": "4.0.0",
     "@types/node": "16.11.40",
-    "@types/react": "17.0.44",
+    "@types/react": "17.0.47",
     "@types/three": "0.140.0",
     "create-ts-index": "1.14.0",
     "esbuild": "0.14.42",
