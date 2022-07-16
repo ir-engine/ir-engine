@@ -66,7 +66,7 @@
     "feathers-authentication-hooks": "^1.0.2",
     "feathers-authentication-management": "^3.0.0",
     "feathers-blob": "^2.2.0",
-    "feathers-hooks-common": "^5.0.3",
+    "feathers-hooks-common": "^6.0.0",
     "feathers-mailer": "^3.0.1",
     "feathers-sequelize": "6.3.2",
     "feathers-swagger": "1.2.1",
