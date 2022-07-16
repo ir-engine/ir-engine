@@ -281,8 +281,8 @@ export const initializeSceneSystems = async () => {
         systemModulePromise: import('./renderer/HighlightSystem')
       },
       {
-        systemModulePromise: import('./scene/systems/EntityNodeEventSystem'),
-        type: SystemUpdateType.PRE_RENDER
+        type: SystemUpdateType.PRE_RENDER,
+        systemModulePromise: import('./scene/systems/EntityNodeEventSystem')
       }
     )
 
