@@ -26,6 +26,7 @@ export interface UserInterface {
   name: string
   userRole?: string
   avatarId?: string
+  identity_providers?: IdentityProvider[]
   identityProviders?: IdentityProvider[]
   locationAdmins?: LocationAdmin[]
   relationType?: RelationshipType
