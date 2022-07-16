@@ -10,7 +10,10 @@ import { dispatchAction } from '@xrengine/hyperflux'
 
 import { Mic, MicOff, Refresh as RefreshIcon } from '@mui/icons-material'
 
-import { MediaInstanceConnectionService } from '../../../common/services/MediaInstanceConnectionService'
+import {
+  MediaInstanceConnectionService,
+  useMediaInstanceConnectionState
+} from '../../../common/services/MediaInstanceConnectionService'
 import { MediaStreamService, useMediaStreamState } from '../../../media/services/MediaStreamService'
 import { useChatState } from '../../../social/services/ChatService'
 import { MediaStreams } from '../../../transports/MediaStreams'
@@ -38,12 +41,14 @@ type WidgetButtonProps = {
   Icon: any
   toggle: () => any
   label: string
+  disabled?: boolean
 }
 
-const WidgetButton = ({ Icon, toggle, label }: WidgetButtonProps) => {
+const WidgetButton = ({ Icon, toggle, label, disabled }: WidgetButtonProps) => {
   const [mouseOver, setMouseOver] = useState(false)
   return (
     <XRIconButton
+      disabled={disabled}
       size="large"
       content={
         <>
@@ -69,6 +74,9 @@ const WidgetButtons = () => {
   if (activeChannelMatch && activeChannelMatch.length > 0) {
     activeChannel = activeChannelMatch[1]
   }
+  const mediaState = useMediaInstanceConnectionState()
+  const mediaHostId = Engine.instance.currentWorld.mediaNetwork?.hostId
+  const mediaInstanceConnection = mediaHostId && mediaState.instances[mediaHostId].ornull
 
   const channelEntries = Object.values(channels).filter((channel) => !!channel) as any
   const instanceChannel = channelEntries.find(
@@ -108,30 +116,15 @@ const WidgetButtons = () => {
     dispatchAction(WidgetAppActions.showWidget({ id: toggledWidget.id, shown: !visible }))
   }
 
-  const checkEndVideoChat = async () => {
-    const mediaNetwork = Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork
-    if (
-      (MediaStreams.instance.audioPaused || MediaStreams.instance.camAudioProducer == null) &&
-      (MediaStreams.instance.videoPaused || MediaStreams.instance.camVideoProducer == null) &&
-      instanceChannel.channelType !== 'instance'
-    ) {
-      await endVideoChat(mediaNetwork, {})
-      if (mediaNetwork.socket?.connected === true) {
-        await leaveNetwork(mediaNetwork, false)
-        await MediaInstanceConnectionService.provisionServer(instanceChannel.id)
-      }
-    }
-  }
-
   const handleMicClick = async () => {
     const mediaNetwork = Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork
+    if (!mediaNetwork) return
     if (await configureMediaTransports(mediaNetwork, ['audio'])) {
       if (MediaStreams.instance.camAudioProducer == null) await createCamAudioProducer(mediaNetwork)
       else {
         const audioPaused = MediaStreams.instance.toggleAudioPaused()
         if (audioPaused) await pauseProducer(mediaNetwork, MediaStreams.instance.camAudioProducer)
         else await resumeProducer(mediaNetwork, MediaStreams.instance.camAudioProducer)
-        checkEndVideoChat()
       }
       MediaStreamService.updateCamAudioState()
     }
@@ -159,6 +152,7 @@ const WidgetButtons = () => {
         )}
         <WidgetButton Icon={RefreshIcon} toggle={handleRespawnAvatar} label={'Respawn'} />
         <WidgetButton
+          disabled={!mediaInstanceConnection}
           Icon={MicIcon}
           toggle={handleMicClick}
           label={isCamAudioEnabled.value ? 'Audio on' : 'Audio Off'}
