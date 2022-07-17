@@ -98,7 +98,20 @@ function createColliderDesc(mesh: Mesh, colliderDescOptions: ColliderDescOptions
 
   if (typeof shapeOptions.type === 'undefined') return undefined!
 
-  const shapeType = typeof shapeOptions.type === 'string' ? ShapeType[shapeOptions.type] : shapeOptions.type
+  let shapeType = typeof shapeOptions.type === 'string' ? ShapeType[shapeOptions.type] : shapeOptions.type
+  //check for old collider types to allow backwards compatibility
+  if (!shapeType) {
+    switch (shapeOptions.type) {
+      case 'box':
+        shapeType = ShapeType['Cuboid']
+        break
+      case 'trimesh':
+        shapeType = ShapeType['TriMesh']
+        break
+      default:
+        throw Error('unrecognized collider shape type', shapeOptions.type)
+    }
+  }
 
   const meshScale = mesh.getWorldScale(tempVector3)
   // If custom size has been provided use that else use mesh world scale.
