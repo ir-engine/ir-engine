@@ -100,8 +100,8 @@ function createColliderDesc(mesh: Mesh, colliderDescOptions: ColliderDescOptions
 
   let shapeType = typeof shapeOptions.type === 'string' ? ShapeType[shapeOptions.type] : shapeOptions.type
   //check for old collider types to allow backwards compatibility
-  if (!shapeType) {
-    switch (shapeOptions.type) {
+  if (typeof shapeType === 'undefined') {
+    switch (shapeOptions.type as unknown as string) {
       case 'box':
         shapeType = ShapeType['Cuboid']
         break
@@ -109,7 +109,7 @@ function createColliderDesc(mesh: Mesh, colliderDescOptions: ColliderDescOptions
         shapeType = ShapeType['TriMesh']
         break
       default:
-        throw Error('unrecognized collider shape type', shapeOptions.type)
+        throw Error('unrecognized collider shape type')
     }
   }
 
