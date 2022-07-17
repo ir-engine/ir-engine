@@ -43,8 +43,8 @@
     width: 4em;
 
     svg {
-      width: 100%;
-      height: 100%;
+      width: auto;
+      height: auto;
     }
 
     @media (max-width: 500px) {
@@ -2430,7 +2430,7 @@
 }
 
 .label {
-  color: #c0c0c0;
+  color: var(--textColor);
   font-weight: 100;
   font-size: 15px;
 }

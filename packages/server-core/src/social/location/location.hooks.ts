@@ -16,6 +16,9 @@ export default {
           },
           {
             model: 'location-settings'
+          },
+          {
+            model: 'location-authorized-user'
           }
         ]
       })
@@ -28,6 +31,9 @@ export default {
           },
           {
             model: 'location-settings'
+          },
+          {
+            model: 'location-authorized-user'
           }
         ]
       })

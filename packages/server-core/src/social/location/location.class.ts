@@ -171,6 +171,10 @@ export class Location<T = LocationDataType> extends Service<T> {
           {
             model: this.app.service('location-ban').Model,
             required: false
+          },
+          {
+            model: this.app.service('location-authorized-user').Model,
+            required: false
           }
         ]
       })
@@ -190,6 +194,10 @@ export class Location<T = LocationDataType> extends Service<T> {
         {
           model: this.app.service('location-ban').Model,
           required: false
+        },
+        {
+          model: this.app.service('location-authorized-user').Model,
+          require: false
         }
       ]
 
