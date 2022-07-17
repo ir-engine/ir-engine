@@ -47,7 +47,7 @@ const App = (): any => {
   const [favicon32, setFavicon32] = useState(clientSetting?.favicon32px)
   const [description, setDescription] = useState(clientSetting?.siteDescription)
   const [clientThemeSettings, setClientThemeSettings] = useState(clientSetting?.themeSettings)
-  const [projectComponents, setProjectComponents] = useState<Array<any>>(null!)
+  const [projectComponents, setProjectComponents] = useState<Array<any>>([])
   const [fetchedProjectComponents, setFetchedProjectComponents] = useState(false)
   const projectState = useProjectState()
 
@@ -162,7 +162,9 @@ const App = (): any => {
           >
             <GlobalStyle />
             <RouterComp />
-            {projectComponents}
+            {projectComponents.map((Component, i) => (
+              <Component key={i} />
+            ))}
           </SnackbarProvider>
         </ThemeProvider>
       </StyledEngineProvider>
