@@ -1,10 +1,6 @@
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
-import {
-  ComponentDeserializeFunction,
-  ComponentSerializeFunction,
-  ComponentUpdateFunction
-} from '../../../common/constants/PrefabFunctionType'
+import { ComponentDeserializeFunction, ComponentSerializeFunction } from '../../../common/constants/PrefabFunctionType'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
 import { MountPointComponent, MountPointComponentType } from '../../components/ChairComponent'

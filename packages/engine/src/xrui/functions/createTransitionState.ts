@@ -23,6 +23,9 @@ export const createTransitionState = (transitionPeriodSeconds: number) => {
   }
 
   return {
+    get state() {
+      return currentState
+    },
     setState,
     update
   }

@@ -80,8 +80,7 @@ import { deserializeInstancing, SCENE_COMPONENT_INSTANCING, serializeInstancing 
 import {
   deserializeInteractable,
   SCENE_COMPONENT_INTERACTABLE,
-  serializeInteractable,
-  updateInteractable
+  serializeInteractable
 } from './loaders/InteractableFunctions'
 import {
   deserializeInterior,
@@ -427,8 +426,7 @@ export const registerDefaultSceneFunctions = (world: World) => {
 
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_INTERACTABLE, {
     deserialize: deserializeInteractable,
-    serialize: serializeInteractable,
-    update: updateInteractable
+    serialize: serializeInteractable
   })
 
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_VOLUMETRIC, {

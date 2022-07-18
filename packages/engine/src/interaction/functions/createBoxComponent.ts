@@ -7,13 +7,9 @@ import { ColliderComponent } from '../../physics/components/ColliderComponent'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { BoundingBoxComponent } from '../components/BoundingBoxComponent'
-import { InteractableComponent } from '../components/InteractableComponent'
 
 export const createBoxComponent = (entity: Entity) => {
-  const interactable = getComponent(entity, InteractableComponent)?.value
-  const dynamic =
-    (hasComponent(entity, ColliderComponent) && isDynamicBody(getComponent(entity, ColliderComponent).body)) ||
-    (interactable && interactable.interactionType === 'equippable')
+  const dynamic = hasComponent(entity, ColliderComponent) && isDynamicBody(getComponent(entity, ColliderComponent).body)
 
   const calcBoundingBox = addComponent(entity, BoundingBoxComponent, { dynamic, box: new Box3() })
 
