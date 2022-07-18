@@ -38,7 +38,7 @@ export default (sequelizeClient: Sequelize) => {
     Party.belongsToMany(models.user, { through: 'party_user' })
     Party.hasMany(models.party_user)
     Party.hasOne(models.channel, { onDelete: 'cascade' })
-    Party.belongsTo(models.instance, { onDelete: 'cascade' })
+    // Party.belongsTo(models.instance, { onDelete: 'cascade' })
   }
   return Party
 }

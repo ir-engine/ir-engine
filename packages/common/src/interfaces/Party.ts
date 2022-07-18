@@ -7,14 +7,13 @@ export type Party = {
   partyUsers: PartyUser[]
   instance?: Instance
   instanceId?: string
-  location?: Location
-  locationId?: string
+  maxMembers: number
   name?: string | null
   createdAt?: string
   updatedAt?: string
 }
 
 export interface PatchParty {
-  instanceId: string
-  locationId: string
+  instanceId?: string
+  maxMembers: number
 }

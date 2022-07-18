@@ -111,7 +111,7 @@ export default async function WidgetSystem(world: World) {
     const widgetState = accessWidgetAppState()
 
     for (const [id, widget] of world.widgets) {
-      const widgetVisible = widgetState.widgets[id].ornull.visible.value
+      const widgetVisible = widgetState.widgets[id].ornull?.visible.value
       if (widgetVisible) {
         const widgetUI = getComponent(widget.ui.entity, XRUIComponent)
         if (widgetUI) {

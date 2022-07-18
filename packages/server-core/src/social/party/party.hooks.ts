@@ -15,7 +15,7 @@ export default {
     get: [],
     create: [],
     update: [disallow()],
-    patch: [iff(isProvider('external'), disallow())],
+    patch: [iff(isProvider('external'), restrictUserRole('admin') as any)],
     remove: []
   },
 

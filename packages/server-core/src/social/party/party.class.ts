@@ -65,18 +65,9 @@ export class Party<T = PartyDataType> extends Service<T> {
         order: order,
         include: [
           {
-            model: (this.app.service('instance') as any).Model,
-            required: true,
-            where: { ...ip }
-          },
-          {
-            model: (this.app.service('party-user') as any).Model,
-            required: false
+            model: (this.app.service('party-user') as any).Model
           }
-        ],
-        where: query,
-        raw: true,
-        nest: true
+        ]
       })
 
       return {
@@ -117,7 +108,7 @@ export class Party<T = PartyDataType> extends Service<T> {
     }
   }
 
-  async create(_data?: {}, params?: Params): Promise<any> {
+  async create(data?: any, params?: Params): Promise<any> {
     if (!params) return null!
 
     try {
@@ -127,7 +118,7 @@ export class Party<T = PartyDataType> extends Service<T> {
 
       await PartyUserMS.destroy({ where: { userId: params.user.id } })
 
-      const party = (await PartyMS.create({})).get()
+      const party = (await PartyMS.create(data)).get()
 
       await Promise.all([
         PartyUserMS.create({ partyId: party.id, isOwner: true, userId: params.user.id }),

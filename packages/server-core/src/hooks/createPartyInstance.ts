@@ -34,8 +34,8 @@ export default () => {
       emittedIp = { ipAddress: server.status.address, port: server.status.portsList[0].port }
       selfIpAddress = `${server.status.address as string}:${server.status.portsList[0].port as string}`
     } else {
-      emittedIp = await getLocalServerIp(false)
-      selfIpAddress = `${emittedIp.ipAddress}:3031`
+      emittedIp = await getLocalServerIp(true)
+      selfIpAddress = `${emittedIp.ipAddress}:${emittedIp.port}`
     }
 
     const channel = (await context.app.service('channel').create({
@@ -59,7 +59,9 @@ export default () => {
       userId: partyOwner.userId,
       ipAddress: emittedIp.ipAddress,
       port: emittedIp.port,
-      instanceId: instance.id
+      instanceId: instance.id,
+      channelId: channel.id,
+      channelType: channel.channelType
     })
 
     return context

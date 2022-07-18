@@ -6,17 +6,16 @@ import { Party } from '@xrengine/common/src/interfaces/Party'
 import Button from '@mui/material/Button'
 import Container from '@mui/material/Container'
 import DialogActions from '@mui/material/DialogActions'
-import DialogContentText from '@mui/material/DialogContentText'
 import DialogTitle from '@mui/material/DialogTitle'
 
 import { NotificationService } from '../../../common/services/NotificationService'
 import { useAuthState } from '../../../user/services/AuthService'
 import DrawerView from '../../common/DrawerView'
 import InputSelect, { InputMenuItem } from '../../common/InputSelect'
+import InputText from '../../common/InputText'
 import { validateForm } from '../../common/validation/formValidation'
 import { AdminInstanceService } from '../../services/InstanceService'
 import { useAdminInstanceState } from '../../services/InstanceService'
-import { AdminLocationService } from '../../services/LocationService'
 import { useAdminLocationState } from '../../services/LocationService'
 import { AdminPartyService } from '../../services/PartyService'
 import styles from '../../styles/admin.module.scss'
@@ -34,10 +33,10 @@ interface Props {
 }
 
 const defaultState = {
-  location: '',
+  maxMembers: 10,
   instance: '',
   formErrors: {
-    location: '',
+    maxMembers: '',
     instance: ''
   }
 }
@@ -76,18 +75,9 @@ const PartyDrawer = ({ open, mode, selectedParty, onClose }: Props) => {
         label: selectedParty.instance?.ipAddress!
       })
     }
-
-    const locationExists = locationMenu.find((item) => item.value === selectedParty.location?.id)
-    if (!locationExists) {
-      locationMenu.push({
-        value: selectedParty.location?.id!,
-        label: selectedParty.location?.name!
-      })
-    }
   }
 
   useEffect(() => {
-    AdminLocationService.fetchAdminLocations()
     AdminInstanceService.fetchAdminInstances()
   }, [])
 
@@ -100,7 +90,7 @@ const PartyDrawer = ({ open, mode, selectedParty, onClose }: Props) => {
       setState({
         ...defaultState,
         instance: selectedParty.instance?.id ?? '',
-        location: selectedParty.location?.id ?? ''
+        maxMembers: selectedParty.maxMembers ?? 0
       })
     }
   }
@@ -123,8 +113,8 @@ const PartyDrawer = ({ open, mode, selectedParty, onClose }: Props) => {
     let tempErrors = { ...state.formErrors }
 
     switch (name) {
-      case 'location':
-        tempErrors.location = value.length < 2 ? t('admin:components.party.locationRequired') : ''
+      case 'maxMembers':
+        tempErrors.maxMembers = value < 2 ? t('admin:components.party.maxMembersRequired') : ''
         break
       case 'instance':
         tempErrors.instance = value.length < 2 ? t('admin:components.party.instanceRequired') : ''
@@ -138,14 +128,14 @@ const PartyDrawer = ({ open, mode, selectedParty, onClose }: Props) => {
 
   const handleSubmit = async () => {
     const data = {
-      locationId: state.location,
+      maxMembers: state.maxMembers,
       instanceId: state.instance
     }
 
     let tempErrors = {
       ...state.formErrors,
-      location: state.location ? '' : t('admin:components.party.locationCantEmpty'),
-      instance: state.instance ? '' : t('admin:components.party.instanceCantEmpty')
+      maxMembers: state.maxMembers ? '' : t('admin:components.party.maxMembersRequired')
+      // instance: state.instance ? '' : t('admin:components.party.instanceCantEmpty')
     }
 
     setState({ ...state, formErrors: tempErrors })
@@ -171,12 +161,8 @@ const PartyDrawer = ({ open, mode, selectedParty, onClose }: Props) => {
           {mode === PartyDrawerMode.Create && t('admin:components.party.createParty')}
           {mode === PartyDrawerMode.ViewEdit &&
             editMode &&
-            `${t('admin:components.common.update')} ${selectedParty?.location?.name}/${
-              selectedParty?.instance?.ipAddress
-            }`}
-          {mode === PartyDrawerMode.ViewEdit &&
-            !editMode &&
-            `${selectedParty?.location?.name}/${selectedParty?.instance?.ipAddress}`}
+            `${t('admin:components.common.update')} ${selectedParty?.id}`}
+          {mode === PartyDrawerMode.ViewEdit && !editMode && `${selectedParty?.id}`}
         </DialogTitle>
 
         <InputSelect
@@ -189,24 +175,14 @@ const PartyDrawer = ({ open, mode, selectedParty, onClose }: Props) => {
           onChange={handleChange}
         />
 
-        <InputSelect
-          name="location"
-          label={t('admin:components.party.location')}
-          value={state.location}
-          error={state.formErrors.location}
-          menu={locationMenu}
+        <InputText
+          name="maxMembers"
+          label={t('admin:components.party.maxMembers')}
+          value={state.maxMembers}
+          error={state.formErrors.maxMembers}
           disabled={viewMode}
           onChange={handleChange}
         />
-
-        {viewMode === false && (
-          <DialogContentText className={styles.mb15px}>
-            <span className={styles.spanWhite}>{t('admin:components.party.dontSeeLocation')}</span>
-            <a href="/admin/locations" className={styles.textLink}>
-              {t('admin:components.party.createOne')}
-            </a>
-          </DialogContentText>
-        )}
 
         <DialogActions>
           <Button className={styles.outlinedButton} onClick={handleCancel}>

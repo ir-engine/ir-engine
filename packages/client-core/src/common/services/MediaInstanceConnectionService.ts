@@ -149,7 +149,7 @@ export const MediaInstanceConnectionService = {
         if (params.channelId != null) {
           dispatchAction(
             MediaInstanceConnectionAction.serverProvisioned({
-              instanceId: params.id,
+              instanceId: params.instanceId,
               ipAddress: params.ipAddress,
               port: params.port,
               channelId: params.channelId,
