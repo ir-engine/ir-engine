@@ -47,38 +47,41 @@ export const PartyServiceReceptor = (action) => {
         s.updateNeeded.set(true)
       })
       .when(PartyAction.createdPartyUserAction.matches, (action) => {
-        const index = s.party?.partyUsers?.value
-          ? s.party.partyUsers.findIndex((layerUser) => {
-              return layerUser != null && layerUser.id.value === action.partyUser.id
-            })
-          : -1
-        if (index === -1) {
-          s.party.partyUsers.merge([action.partyUser])
-        } else {
-          s.party.partyUsers[index].set(action.partyUser)
+        if (s.party && s.party.partyUsers && s.party.partyUsers.value) {
+          const users = JSON.parse(JSON.stringify(s.party.partyUsers.value)) as PartyUser[]
+          const index = users.findIndex((partyUser) => partyUser?.id === action.partyUser.id)
+
+          if (index > -1) users[index] = action.partyUser
+          else users.push(action.partyUser)
+
+          return s.party.merge({ partyUsers: users })
         }
         s.updateNeeded.set(true)
       })
       .when(PartyAction.patchedPartyUserAction.matches, (action) => {
-        const index = s.party?.partyUsers?.value
-          ? s.party.partyUsers.findIndex((layerUser) => {
-              return layerUser != null && layerUser.id.value === action.partyUser.id
-            })
-          : -1
-        if (index === -1) {
-          s.party.partyUsers.merge([action.partyUser])
-        } else {
-          s.party.partyUsers[index].set(action.partyUser)
+        if (s.party && s.party.partyUsers && s.party.partyUsers.value) {
+          const users = JSON.parse(JSON.stringify(s.party.partyUsers.value)) as PartyUser[]
+          const index = users.findIndex((partyUser) => partyUser?.id === action.partyUser.id)
+
+          if (index > -1) {
+            users[index] = action.partyUser
+            return s.party.merge({ partyUsers: users })
+          }
         }
         s.updateNeeded.set(true)
       })
       .when(PartyAction.removedPartyUserAction.matches, (action) => {
+        if (action.partyUser.userId === accessAuthState().user.id.value) {
+          return s.merge({ party: null!, isOwned: false })
+        }
+
         if (s.party && s.party.partyUsers && s.party.partyUsers.value) {
-          const matchingPartyUserIndex = s.party.partyUsers.value.findIndex(
-            (partyUser) => partyUser?.id === action.partyUser.id
-          )
-          if (matchingPartyUserIndex > -1)
-            return s.party.partyUsers.set(s.party.partyUsers.value.splice(matchingPartyUserIndex, 1))
+          const index = s.party.partyUsers.value.findIndex((partyUser) => partyUser?.id === action.partyUser.id)
+          if (index > -1) {
+            const users = JSON.parse(JSON.stringify(s.party.partyUsers.value))
+            users.splice(index, 1)
+            return s.party.merge({ partyUsers: users })
+          }
         }
       })
   })
@@ -171,7 +174,6 @@ export const PartyService = {
   getPartyUsers: async () => {
     try {
       const results = await API.instance.client.service('party-user').find()
-      console.debug(results)
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
@@ -195,25 +197,26 @@ export const PartyService = {
   useAPIListeners: () => {
     useEffect(() => {
       const partyUserCreatedListener = async (params) => {
-        const selfUser = accessAuthState().user
         if (accessPartyState().party.value == null) {
           dispatchAction(PartyAction.createdPartyAction({ party: params }))
         }
+
         dispatchAction(PartyAction.createdPartyUserAction({ partyUser: params.partyUser }))
-        if (params.partyUser.userId === selfUser.id.value) {
-          const party = await API.instance.client.service('party').get(params.partyUser.partyId)
-          const userId = selfUser.id.value ?? ''
-          const dbUser = (await API.instance.client.service('user').get(userId)) as UserInterface
-          if (party.instanceId != null && party.instanceId !== dbUser.instanceId) {
-            const updateUser: PartyUser = {
-              ...params.partyUser,
-              user: dbUser
-            }
-            updateUser.partyId = party.id
-            dispatchAction(PartyAction.patchedPartyUserAction({ partyUser: updateUser }))
-            await MediaInstanceConnectionService.provisionServer(party.instanceId, false)
-          }
-        }
+
+        // if (params.partyUser.userId === selfUser.id.value) {
+        //   const party = await API.instance.client.service('party').get(params.partyUser.partyId)
+        //   const userId = selfUser.id.value ?? ''
+        //   const dbUser = (await API.instance.client.service('user').get(userId)) as UserInterface
+        //   if (party.instanceId != null && party.instanceId !== dbUser.instanceId) {
+        //     const updateUser: PartyUser = {
+        //       ...params.partyUser,
+        //       user: dbUser
+        //     }
+        //     updateUser.partyId = party.id
+        //     dispatchAction(PartyAction.patchedPartyUserAction({ partyUser: updateUser }))
+        //     await MediaInstanceConnectionService.provisionServer(party.instanceId, false)
+        //   }
+        // }
       }
 
       const partyUserPatchedListener = (params) => {
@@ -237,7 +240,7 @@ export const PartyService = {
         const deletedPartyUser = params.partyUser
         const selfUser = accessAuthState().user
         dispatchAction(PartyAction.removedPartyUserAction({ partyUser: deletedPartyUser }))
-        dispatchAction(UserAction.removedChannelLayerUserAction({ user: deletedPartyUser.user }))
+        // dispatchAction(UserAction.removedChannelLayerUserAction({ user: deletedPartyUser.user }))
         if (params.partyUser.userId === selfUser.id) {
           ChatService.clearChatTargetIfCurrent('party', {
             id: params.partyUser.partyId

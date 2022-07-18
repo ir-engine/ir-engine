@@ -112,7 +112,7 @@ export default (app: Application) => {
         if (data.party?.dataValues) data.party.dataValues.partyUsers = partyUsers.data
         else if (data.party) data.party.partyUsers = partyUsers.data
 
-        targetIds = partyUsers.map((partyUser) => partyUser.userId)
+        targetIds = partyUsers.data.map((partyUser) => partyUser.userId)
       } else if (data.channelType === 'instance') {
         if (data.instance == null) {
           data.instance = await app.service('instance').Model.findOne({
@@ -242,7 +242,7 @@ export default (app: Application) => {
         if (data.party?.dataValues) data.party.dataValues.partyUsers = partyUsers.data
         else if (data.party) data.party.partyUsers = partyUsers.data
 
-        targetIds = partyUsers.map((partyUser) => partyUser.userId)
+        targetIds = partyUsers.data.map((partyUser) => partyUser.userId)
       } else if (data.channelType === 'instance') {
         if (data.instance == null) {
           data.instance = await app.service('instance').Model.findOne({

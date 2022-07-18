@@ -111,11 +111,6 @@ export default {
           },
           {
             model: 'party'
-            // include: [
-            //   {
-            //     model: 'location'
-            //   }
-            // ]
           }
         ]
       })
@@ -146,11 +141,6 @@ export default {
           },
           {
             model: 'party'
-            // include: [
-            //   {
-            //     model: 'location'
-            //   }
-            // ]
           }
         ]
       })

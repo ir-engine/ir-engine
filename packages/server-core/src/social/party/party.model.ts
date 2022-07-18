@@ -18,6 +18,11 @@ export default (sequelizeClient: Sequelize) => {
       name: {
         type: DataTypes.STRING,
         defaultValue: ''
+      },
+      maxMembers: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        defaultValue: 10
       }
     },
     {
@@ -32,6 +37,7 @@ export default (sequelizeClient: Sequelize) => {
   ;(Party as any).associate = (models: typeof Sequelize.prototype.models): void => {
     Party.belongsToMany(models.user, { through: 'party_user' })
     Party.hasMany(models.party_user)
+    Party.hasOne(models.channel, { onDelete: 'cascade' })
     Party.belongsTo(models.instance, { onDelete: 'cascade' })
   }
   return Party

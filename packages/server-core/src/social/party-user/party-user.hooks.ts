@@ -1,8 +1,6 @@
 import { HookOptions } from '@feathersjs/feathers'
 import { disallow, iff, isProvider } from 'feathers-hooks-common'
 
-import checkPartyInstanceSize from '@xrengine/server-core/src/hooks/check-party-instance-size'
-
 import authenticate from '../../hooks/authenticate'
 import isInternalRequest from '../../hooks/isInternalRequest'
 
@@ -23,7 +21,7 @@ export default {
     all: [],
     find: [],
     get: [],
-    create: [checkPartyInstanceSize()],
+    create: [],
     update: [],
     patch: [],
     remove: []

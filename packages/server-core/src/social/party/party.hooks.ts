@@ -2,6 +2,7 @@ import { HookOptions } from '@feathersjs/feathers'
 import { disallow, iff, isProvider } from 'feathers-hooks-common'
 
 import authenticate from '../../hooks/authenticate'
+import createPartyInstance from '../../hooks/createPartyInstance'
 import isInternalRequest from '../../hooks/isInternalRequest'
 import restrictUserRole from '../../hooks/restrict-user-role'
 
@@ -22,7 +23,7 @@ export default {
     all: [],
     find: [],
     get: [],
-    create: [],
+    create: [createPartyInstance()],
     update: [],
     patch: [],
     remove: []

@@ -1,21 +1,25 @@
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { SendInvite } from '@xrengine/common/src/interfaces/Invite'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 
+import { Send } from '@mui/icons-material'
+import { InputAdornment, TextField } from '@mui/material'
 import Button from '@mui/material/Button'
 import Typography from '@mui/material/Typography'
 
+import { emailRegex, InviteService, phoneRegex } from '../../../../social/services/InviteService'
 import { PartyService, usePartyState } from '../../../../social/services/PartyService'
 import { useAuthState } from '../../../services/AuthService'
-import { Views } from '../util'
 import styles from './PartyMenu.module.scss'
 
-export type SocialMenuProps = {
-  changeActiveMenu?: (type: string | null) => void
-}
-
 export const usePartyMenuHooks = () => {
+  const [token, setToken] = React.useState('')
+  const [isInviteOpen, setInviteOpen] = React.useState(false)
+  const partyState = usePartyState()
+  const selfUser = useAuthState().user
+
   const createParty = () => {
     PartyService.createParty()
   }
@@ -28,19 +32,53 @@ export const usePartyMenuHooks = () => {
     PartyService.getPartyUsers()
   }
 
+  const handleChangeToken = (e) => {
+    setToken(e.target.value)
+  }
+
+  const sendInvite = async (): Promise<void> => {
+    const isEmail = emailRegex.test(token)
+    const isPhone = phoneRegex.test(token)
+    const sendData = {
+      inviteType: 'party',
+      token,
+      inviteCode: null,
+      identityProviderType: isEmail ? 'email' : isPhone ? 'sms' : null,
+      targetObjectId: partyState.party.id.value,
+      inviteeId: null,
+      deleteOnUse: true,
+      spawnType: 'inviteCode',
+      spawnDetails: { inviteCode: selfUser.inviteCode.value }
+    } as SendInvite
+
+    InviteService.sendInvite(sendData)
+    setToken('')
+    setInviteOpen(false)
+  }
+
   return {
     createParty,
     kickUser,
-    getUsers
+    getUsers,
+    token,
+    handleChangeToken,
+    sendInvite,
+    isInviteOpen,
+    setInviteOpen
   }
 }
 
-const SocialMenu = (props: SocialMenuProps): JSX.Element => {
+const SocialMenu = (): JSX.Element => {
   const { t } = useTranslation()
   const partyState = usePartyState()
   const authUser = useAuthState().authUser.value
 
-  const { createParty, kickUser, getUsers } = usePartyMenuHooks()
+  const { createParty, kickUser, getUsers, token, handleChangeToken, sendInvite, isInviteOpen, setInviteOpen } =
+    usePartyMenuHooks()
+
+  useEffect(() => {
+    getUsers()
+  }, [])
 
   const renderCreate = () => {
     return (
@@ -70,22 +108,46 @@ const SocialMenu = (props: SocialMenuProps): JSX.Element => {
                   </div>
                   <div className={styles.userName}>{user.user.name}</div>
                 </div>
-                {partyState.isOwned.value && user.user.id !== authUser.identityProvider.userId && (
+                {user.user.id === authUser.identityProvider.userId ? (
+                  <span className={styles.admin}>{t('user:usermenu.party.you')}</span>
+                ) : partyState.isOwned.value ? (
                   <Button className={styles.kick} onClick={() => kickUser(user.user.id)}>
                     {t('user:usermenu.party.kick')}
                   </Button>
-                )}
+                ) : user.isOwner ? (
+                  <span className={styles.admin}>{t('user:usermenu.party.admin')}</span>
+                ) : null}
               </div>
             )
           })}
         </section>
         <section className={styles.actionBlock + ' ' + styles.backDrop}>
-          <Button className={styles.leave} onClick={() => kickUser(authUser.identityProvider.userId)}>
-            {t('user:usermenu.party.leave')}
-          </Button>
-          <Button className={styles.invite} onClick={() => props.changeActiveMenu?.(Views.Share)}>
-            {t('user:usermenu.party.invite')}
-          </Button>
+          {isInviteOpen ? (
+            <TextField
+              className={styles.emailField}
+              size="small"
+              placeholder={t('user:usermenu.share.ph-phoneEmail')}
+              variant="outlined"
+              value={token}
+              onChange={(e) => handleChangeToken(e)}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end" onClick={sendInvite} className={styles.send}>
+                    <Send />
+                  </InputAdornment>
+                )
+              }}
+            />
+          ) : (
+            <>
+              <Button className={styles.leave} onClick={() => kickUser(authUser.identityProvider.userId)}>
+                {t('user:usermenu.party.leave')}
+              </Button>
+              <Button className={styles.invite} onClick={() => setInviteOpen(true)}>
+                {t('user:usermenu.party.invite')}
+              </Button>
+            </>
+          )}
         </section>
       </>
     )

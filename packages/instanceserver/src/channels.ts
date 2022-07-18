@@ -333,7 +333,7 @@ const notifyWorldAndPartiesUserHasJoined = async (
     if (partyOwner?.userId === userId && party.instanceId !== app.instance.id) {
       await app.service('party').patch(user.partyId, { instanceId: app.instance.id })
 
-      const nonOwners = partyUsers.data.filter((partyUser) => partyUser.isOwner !== 1 && partyUser.isOwner !== true)
+      const nonOwners = partyUsers.filter((partyUser) => partyUser.isOwner !== 1 && partyUser.isOwner !== true)
       const emittedIp = !config.kubernetes.enabled
         ? await getLocalServerIp(app.isChannelInstance)
         : {

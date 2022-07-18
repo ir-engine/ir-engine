@@ -133,8 +133,9 @@ export class Party<T = PartyDataType> extends Service<T> {
         PartyUserMS.create({ partyId: party.id, isOwner: true, userId: params.user.id }),
         userModel.update({ partyId: party.id }, { where: { id: params.user.id } })
       ])
+      ;(party as any).partyUsers = (await this.app.service('party-user').find({ query: { partyId: party.id } }))?.data
 
-      return this.get(party.id!)
+      return party
     } catch (err) {
       logger.error(err)
     }

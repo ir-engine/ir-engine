@@ -43,7 +43,7 @@ export default (app: Application): void => {
     data.isOwner = data.isOwner === 1 ? true : data.isOwner === 0 ? false : data.isOwner
     try {
       const partyUsers = await app.service('party-user').find({ query: { $limit: 1000, partyId: data.partyId } })
-      const targetIds = partyUsers.map((partyUser) => partyUser.userId)
+      const targetIds = partyUsers.data.map((partyUser) => partyUser.userId)
 
       data.user = await app.service('user').Model.findOne({ where: { id: data.userId } })
       return Promise.all(
@@ -97,8 +97,9 @@ export default (app: Application): void => {
         .service('party-user')
         .Model.findAll({ where: { partyId: data.partyId }, limit: 1000 })
       const targetIds = partyUsers.map((partyUser) => partyUser.userId)
+      targetIds.push(data.userId)
 
-      data.user = await app.service('user').Model.findOne({ where: { id: data.userId } })
+      data.dataValues.user = await app.service('user').Model.findOne({ where: { id: data.userId } })
       return Promise.all(
         targetIds.map((userId: string) => {
           return app.channel(`userIds/${userId}`).send({ partyUser: data })

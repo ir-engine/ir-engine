@@ -68,6 +68,23 @@ export class PartyUser<T = PartyUserDataType> extends Service<T> {
     try {
       const PartyUserMS = this.app.service('party-user').Model as PartyUserModelStatic
       const userModel = this.app.service('user').Model
+      const PartyMS = this.app.service('party').Model as PartyModelStatic
+
+      const party = await PartyMS.findOne({
+        where: { id: data.partyId },
+        include: [{ model: this.app.service('channel').Model }]
+      })
+
+      if (!party) return null!
+
+      const instance = this.app.service('instance').Model.findOne({
+        where: {
+          currentUsers: { [Op.lt]: party.getDataValue('maxMembers') },
+          channelId: (party as any).channel.id
+        }
+      })
+
+      if (!instance) return null!
 
       await PartyUserMS.destroy({ where: { userId: data.userId } })
       const partyUser = (await PartyUserMS.create(data)).get()
@@ -127,8 +144,9 @@ export class PartyUser<T = PartyUserDataType> extends Service<T> {
 
       const partyUserCount = await PartyUserMS.count({ where: { partyId: partyUser?.getDataValue('partyId') } })
 
-      if (partyUserCount < 1) {
-        await PartyMS.destroy({ where: { id: partyUser?.getDataValue('partyId') } })
+      if (partyUserCount <= 1) {
+        await PartyMS.destroy({ where: { id: partyUser.getDataValue('partyId') } })
+        return partyUser
       } else if (partyUser?.getDataValue('isOwner')) {
         const oldestPartyUser = await PartyUserMS.findOne({
           limit: 1,
@@ -139,8 +157,9 @@ export class PartyUser<T = PartyUserDataType> extends Service<T> {
       }
 
       await userModel.update({ partyId: null }, { where: { id: partyUser.getDataValue('userId') } })
-
       await partyUser?.destroy()
+
+      return partyUser
     } catch (e) {
       logger.error(e)
       return null!

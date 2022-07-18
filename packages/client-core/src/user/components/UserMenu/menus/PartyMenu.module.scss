@@ -78,6 +78,13 @@
           }
         }
 
+        .admin {
+          color: var(--blueHover);
+          display: block;
+          text-align: center;
+          width: 50px;
+        }
+
         .kick {
           width: 50px;
           min-width: unset;
@@ -126,6 +133,29 @@
 
       .leave {
         background: var(--buttonGradientEnd);
+      }
+
+      .emailField {
+        width: 100%;
+        border: var(--textColor);
+
+        * {
+          border-color: var(--textColor);
+        }
+
+        input {
+          color: var(--textColor);
+        }
+
+        .send {
+          color: var(--blueHover);
+
+          &:hover,
+          &:focus-visible {
+            opacity: 0.8;
+            cursor: pointer;
+          }
+        }
       }
     }
   }

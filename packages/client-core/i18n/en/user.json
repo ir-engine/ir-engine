@@ -158,7 +158,9 @@
       "createPartyText": "Create Party to enjoy with people",
       "invite": "Invite",
       "leave": "Leave",
-      "kick": "Kick"
+      "kick": "Kick",
+      "admin": "Admin",
+      "you": "You"
     },
     "setting": {
       "audio": "Audio",
