@@ -18,6 +18,7 @@ import { SCENE_COMPONENT_IMAGE } from '@xrengine/engine/src/scene/functions/load
 import { SCENE_COMPONENT_INSTANCING } from '@xrengine/engine/src/scene/functions/loaders/InstancingFunctions'
 import { SCENE_COMPONENT_INTERIOR } from '@xrengine/engine/src/scene/functions/loaders/InteriorFunctions'
 import { SCENE_COMPONENT_MODEL } from '@xrengine/engine/src/scene/functions/loaders/ModelFunctions'
+import { SCENE_COMPONENT_MOUNT_POINT } from '@xrengine/engine/src/scene/functions/loaders/MountPointFunctions'
 import { SCENE_COMPONENT_OCEAN } from '@xrengine/engine/src/scene/functions/loaders/OceanFunctions'
 import { SCENE_COMPONENT_PARTICLE_EMITTER } from '@xrengine/engine/src/scene/functions/loaders/ParticleEmitterFunctions'
 import { SCENE_COMPONENT_POINT_LIGHT } from '@xrengine/engine/src/scene/functions/loaders/PointLightFunctions'
@@ -98,7 +99,7 @@ export const EntityNodeEditor = {
   [SCENE_COMPONENT_PARTICLE_EMITTER]: ParticleEmitterNodeEditor,
   [SCENE_COMPONENT_PORTAL]: PortalNodeEditor,
   [SCENE_COMPONENT_TRIGGER_VOLUME]: TriggerVolumeNodeEditor,
-  [SCENE_COMPONENT_SPAWN_POINT]: MountPointNodeEditor,
+  [SCENE_COMPONENT_MOUNT_POINT]: MountPointNodeEditor,
   [SCENE_COMPONENT_BOX_COLLIDER]: BoxColliderNodeEditor,
   [SCENE_COMPONENT_GROUP]: GroupNodeEditor,
   [SCENE_COMPONENT_ASSET]: AssetNodeEditor,
