@@ -1009,7 +1009,10 @@ export const stopScreenshare = async (network: SocketWebRTCClientNetwork) => {
 const screenshareTargetQuery = defineQuery([ScreenshareTargetComponent])
 
 export const applyScreenshareToTexture = (video: HTMLVideoElement) => {
-  video.onplay = () => {
+  const applyTexture = () => {
+    if ((video as any).appliedTexture) return
+    ;(video as any).appliedTexture = true
+    if (!video.videoWidth || !video.videoHeight) return
     for (const entity of screenshareTargetQuery(Engine.instance.currentWorld)) {
       const obj3d = getComponent(entity, Object3DComponent)?.value
       obj3d?.traverse((obj: Mesh<any, MeshStandardMaterial>) => {
@@ -1054,5 +1057,12 @@ export const applyScreenshareToTexture = (video: HTMLVideoElement) => {
         }
       })
     }
+  }
+  if (!video.readyState) {
+    video.onloadeddata = () => {
+      applyTexture()
+    }
+  } else {
+    applyTexture()
   }
 }
