@@ -136,8 +136,7 @@ const interact = (entity: Entity, inputKey: InputAlias, inputValue: InputValue):
   // }
   dispatchAction(
     EngineActions.interactedWithObject({
-      interacted: interactor.focusedInteractive,
-      interactor: entity
+      targetEntity: interactor.focusedInteractive
     })
   )
 }

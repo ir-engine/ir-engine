@@ -28,6 +28,9 @@ type InteractiveType = {
 
 const InteractiveUI = new Map<Entity, InteractiveType>()
 
+export const getInteractiveUI = (entity) => InteractiveUI.get(entity)
+export const removeInteractiveUI = (entity) => InteractiveUI.delete(entity)
+
 export const addInteractableUI = (
   entity: Entity,
   xrui: ReturnType<typeof createXRUI>,

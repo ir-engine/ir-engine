@@ -191,7 +191,6 @@ export class EngineActions {
 
   static interactedWithObject = defineAction({
     type: 'xre.engine.INTERACTED_WITH_OBJECT' as const,
-    interacted: matchesEntity,
-    interactor: matchesEntity
+    targetEntity: matchesEntity
   })
 }

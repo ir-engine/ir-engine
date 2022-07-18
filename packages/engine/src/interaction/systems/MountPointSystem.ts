@@ -22,8 +22,8 @@ export default async function MountPointSystem() {
     }
 
     for (const action of mountPointActionQueue()) {
-      if (!hasComponent(action.interacted, MountPointComponent)) return
-      const mountPoint = getComponent(action.interacted, MountPointComponent)
+      if (!hasComponent(action.targetEntity, MountPointComponent)) return
+      const mountPoint = getComponent(action.targetEntity, MountPointComponent)
       if (mountPoint.type === MountPoint.seat) {
         console.log('sitting')
       }
