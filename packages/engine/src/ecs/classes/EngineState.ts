@@ -20,7 +20,6 @@ export const EngineState = defineState({
     socketInstance: false,
     avatarTappedId: '' as UserId,
     userHasInteracted: false,
-    interactionData: null! as InteractableComponentType,
     xrSupported: false,
     xrSessionStarted: false,
     spectating: false,
@@ -56,7 +55,6 @@ export function EngineEventReceptor(a) {
       .when(EngineActions.leaveWorld.matches, (action) => s.merge({ joinedWorld: false }))
       .when(EngineActions.sceneLoadingProgress.matches, (action) => s.merge({ loadingProgress: action.progress }))
       .when(EngineActions.connectToWorld.matches, (action) => s.merge({ connectedWorld: action.connectedWorld }))
-      .when(EngineActions.objectActivation.matches, (action) => s.merge({ interactionData: action.interactionData }))
       .when(EngineActions.setTeleporting.matches, (action) => s.merge({ isTeleporting: action.isTeleporting }))
       .when(EngineActions.setUserHasInteracted.matches, (action) => s.merge({ userHasInteracted: true }))
       .when(EngineActions.updateEntityError.matches, (action) => s.errorEntities[action.entity].set(!action.isResolved))
@@ -124,11 +122,6 @@ export class EngineActions {
   static sceneLoadingProgress = defineAction({
     type: 'xre.engine.SCENE_LOADING_PROGRESS' as const,
     progress: matches.number
-  })
-
-  static objectActivation = defineAction({
-    type: 'xre.engine.OBJECT_ACTIVATION' as const,
-    interactionData: matches.any as Validator<unknown, InteractableComponentType>
   })
 
   static availableInteractable = defineAction({

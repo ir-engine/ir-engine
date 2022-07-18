@@ -103,6 +103,7 @@ import {
   updateMetaData
 } from './loaders/MetaDataFunctions'
 import { deserializeModel, SCENE_COMPONENT_MODEL, serializeModel, updateModel } from './loaders/ModelFunctions'
+import { deserializeMountPoint, SCENE_COMPONENT_MOUNT_POINT, serializeMountPoint } from './loaders/MountPointFunctions'
 import { deserializeOcean, SCENE_COMPONENT_OCEAN, serializeOcean, updateOcean } from './loaders/OceanFunctions'
 import {
   deserializeParticleEmitter,
@@ -487,5 +488,10 @@ export const registerDefaultSceneFunctions = (world: World) => {
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_SCREENSHARETARGET, {
     deserialize: deserializeScreenshareTarget,
     serialize: serializeScreenshareTarget
+  })
+
+  world.sceneLoadingRegistry.set(SCENE_COMPONENT_MOUNT_POINT, {
+    deserialize: deserializeMountPoint,
+    serialize: serializeMountPoint
   })
 }

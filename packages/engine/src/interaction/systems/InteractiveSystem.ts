@@ -47,7 +47,7 @@ export default async function InteractiveSystem() {
   // Included Object3DComponent in query because Object3DComponent might be added with delay for network spawned objects
   const interactableQuery = defineQuery([InteractableComponent, Object3DComponent, Not(AvatarComponent)])
 
-  const interactedQuery = defineQuery([InteractedComponent])
+  // const interactedQuery = defineQuery([InteractedComponent])
 
   const InteractiveUI = new Map<Entity, ReturnType<typeof createXRUI>>()
 
@@ -95,18 +95,16 @@ export default async function InteractiveSystem() {
       }
     }
 
-    for (const entity of interactedQuery.enter()) {
-      const interactiveComponent = getComponent(entity, InteractableComponent).value
-      if (hasComponent(entity, AudioComponent)) {
-        toggleAudio(entity)
-      } else if (hasComponent(entity, VideoComponent)) {
-        toggleVideo(entity)
-      } else if (hasComponent(entity, VolumetricComponent)) {
-        toggleVolumetric(entity)
-      } else {
-        dispatchAction(EngineActions.objectActivation({ interactionData: interactiveComponent }))
-      }
-      removeComponent(entity, InteractedComponent)
-    }
+    // for (const entity of interactedQuery.enter()) {
+    //   const interactiveComponent = getComponent(entity, InteractableComponent).value
+    //   if (hasComponent(entity, AudioComponent)) {
+    //     toggleAudio(entity)
+    //   } else if (hasComponent(entity, VideoComponent)) {
+    //     toggleVideo(entity)
+    //   } else if (hasComponent(entity, VolumetricComponent)) {
+    //     toggleVolumetric(entity)
+    //   }
+    //   removeComponent(entity, InteractedComponent)
+    // }
   }
 }

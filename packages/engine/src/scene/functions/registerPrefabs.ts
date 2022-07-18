@@ -42,6 +42,7 @@ import {
 } from './loaders/LoopAnimationFunctions'
 import { SCENE_COMPONENT_MEDIA, SCENE_COMPONENT_MEDIA_DEFAULT_VALUES } from './loaders/MediaFunctions'
 import { SCENE_COMPONENT_MODEL, SCENE_COMPONENT_MODEL_DEFAULT_VALUE } from './loaders/ModelFunctions'
+import { SCENE_COMPONENT_MOUNT_POINT, SCENE_COMPONENT_MOUNT_POINT_DEFAULT_VALUES } from './loaders/MountPointFunctions'
 import { SCENE_COMPONENT_OCEAN, SCENE_COMPONENT_OCEAN_DEFAULT_VALUES } from './loaders/OceanFunctions'
 import {
   SCENE_COMPONENT_PARTICLE_EMITTER,
@@ -90,6 +91,7 @@ export const ScenePrefabs = {
   particleEmitter: 'Particle Emitter' as const,
   portal: 'Portal' as const,
   triggerVolume: 'Trigger Volume' as const,
+  chair: 'Chair' as const,
   boxCollider: 'Box Collider' as const,
   postProcessing: 'Post Processing' as const,
   previewCamera: 'Preview Camera' as const,
@@ -299,5 +301,11 @@ export const registerPrefabs = (world: World) => {
     { name: SCENE_COMPONENT_TRANSFORM, props: SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES },
     { name: SCENE_COMPONENT_VISIBLE, props: SCENE_COMPONENT_VISIBLE_DEFAULT_VALUES },
     { name: SCENE_COMPONENT_INSTANCING, props: SCENE_COMPONENT_INSTANCING_DEFAULT_VALUES }
+  ])
+
+  world.scenePrefabRegistry.set(ScenePrefabs.chair, [
+    { name: SCENE_COMPONENT_TRANSFORM, props: SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES },
+    { name: SCENE_COMPONENT_VISIBLE, props: SCENE_COMPONENT_VISIBLE_DEFAULT_VALUES },
+    { name: SCENE_COMPONENT_MOUNT_POINT, props: SCENE_COMPONENT_MOUNT_POINT_DEFAULT_VALUES }
   ])
 }
