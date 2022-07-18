@@ -1,6 +1,6 @@
 import { Application } from '../../../declarations'
-import { AssetLibrary } from './assetLibrary.class'
-import hooks from './assetLibrary.hooks'
+import { AssetLibrary } from './asset-library.class'
+import hooks from './asset-library.hooks'
 
 declare module '@xrengine/common/declarations' {
   interface ServiceTypes {

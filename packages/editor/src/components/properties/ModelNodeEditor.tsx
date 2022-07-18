@@ -33,6 +33,7 @@ import MaterialAssignment from '../inputs/MaterialAssignment'
 import ModelInput from '../inputs/ModelInput'
 import SelectInput from '../inputs/SelectInput'
 import EnvMapEditor from './EnvMapEditor'
+import ModelTransformProperties from './ModelTransformProperties'
 import NodeEditor from './NodeEditor'
 import ScreenshareTargetNodeEditor from './ScreenshareTargetNodeEditor'
 import ShadowProperties from './ShadowProperties'
@@ -109,6 +110,12 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
           <div style={{ marginTop: 2, color: '#FF8C00' }}>{t('editor:properties.model.error-url')}</div>
         )}
       </InputGroup>
+      {modelComponent.parsed && (
+        <ModelTransformProperties
+          modelComponent={modelComponent}
+          onChangeModel={updateProperty(ModelComponent, 'src')}
+        />
+      )}
       <InputGroup name="Texture Override" label={t('editor:properties.model.lbl-textureOverride')}>
         <SelectInput
           key={props.node.entity}

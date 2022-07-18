@@ -104,8 +104,8 @@ export const addAnimationLogic = (
   ])
 }
 
-export const initialize3D = () => {
-  const container = document.getElementById('stage')!
+export const initialize3D = (containerId = 'stage', domEltId = 'avatarCanvas') => {
+  const container = document.getElementById(containerId)!
   const bounds = container.getBoundingClientRect()
   camera = new PerspectiveCamera(60, bounds.width / bounds.height, 0.25, 20)
   camera.position.set(0, 1.5, 0.6)
@@ -128,7 +128,7 @@ export const initialize3D = () => {
   renderer.setPixelRatio(window.devicePixelRatio)
   renderer.setSize(bounds.width, bounds.height)
   renderer.outputEncoding = sRGBEncoding
-  renderer.domElement.id = 'avatarCanvas'
+  renderer.domElement.id = domEltId
   container.appendChild(renderer.domElement)
 
   return {
