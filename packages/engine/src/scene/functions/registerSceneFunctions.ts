@@ -80,8 +80,7 @@ import { deserializeInstancing, SCENE_COMPONENT_INSTANCING, serializeInstancing 
 import {
   deserializeInteractable,
   SCENE_COMPONENT_INTERACTABLE,
-  serializeInteractable,
-  updateInteractable
+  serializeInteractable
 } from './loaders/InteractableFunctions'
 import {
   deserializeInterior,
@@ -103,6 +102,7 @@ import {
   updateMetaData
 } from './loaders/MetaDataFunctions'
 import { deserializeModel, SCENE_COMPONENT_MODEL, serializeModel, updateModel } from './loaders/ModelFunctions'
+import { deserializeMountPoint, SCENE_COMPONENT_MOUNT_POINT, serializeMountPoint } from './loaders/MountPointFunctions'
 import { deserializeOcean, SCENE_COMPONENT_OCEAN, serializeOcean, updateOcean } from './loaders/OceanFunctions'
 import {
   deserializeParticleEmitter,
@@ -426,8 +426,7 @@ export const registerDefaultSceneFunctions = (world: World) => {
 
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_INTERACTABLE, {
     deserialize: deserializeInteractable,
-    serialize: serializeInteractable,
-    update: updateInteractable
+    serialize: serializeInteractable
   })
 
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_VOLUMETRIC, {
@@ -487,5 +486,10 @@ export const registerDefaultSceneFunctions = (world: World) => {
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_SCREENSHARETARGET, {
     deserialize: deserializeScreenshareTarget,
     serialize: serializeScreenshareTarget
+  })
+
+  world.sceneLoadingRegistry.set(SCENE_COMPONENT_MOUNT_POINT, {
+    deserialize: deserializeMountPoint,
+    serialize: serializeMountPoint
   })
 }
