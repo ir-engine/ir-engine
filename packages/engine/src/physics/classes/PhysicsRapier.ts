@@ -301,6 +301,7 @@ function castShape(world: World, shapecastQuery: ComponentType<typeof ShapecastC
       distance: hitWithNormal.toi,
       position: hitWithNormal.witness1,
       normal: hitWithNormal.normal1,
+      collider: hitWithNormal.collider,
       body: hitWithNormal.collider.parent() as RigidBody
     })
   }

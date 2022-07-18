@@ -174,16 +174,17 @@ export const moveAvatar = (world: World, entity: Entity, camera: PerspectiveCame
   } as ShapecastComponentType
 
   Physics.castShape(Engine.instance.currentWorld.physicsWorld, shapecastComponentData)
-  let contactWithFixedRigidBody = false
+  let blockMovement = false
   if (
     shapecastComponentData.hits.length > 0 &&
+    !shapecastComponentData.hits[0].collider?.isSensor() &&
     shapecastComponentData.hits[0].body?.bodyType() === RigidBodyType.Fixed
   ) {
-    contactWithFixedRigidBody = true
+    blockMovement = true
   }
 
   // This is required to cater jitter in motion when in contact with fixed bodies.
-  if (!contactWithFixedRigidBody) {
+  if (!blockMovement) {
     moveAvatarController(world, entity, displacementVec3)
   }
 

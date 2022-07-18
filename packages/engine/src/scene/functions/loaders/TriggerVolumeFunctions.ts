@@ -31,7 +31,7 @@ export const deserializeTriggerVolume: ComponentDeserializeFunction = (
   const boxMesh = new Mesh(new BoxBufferGeometry(), new MeshBasicMaterial())
   boxMesh.material.visible = false
   boxMesh.userData = {
-    type: 'box',
+    type: 'Cuboid',
     isTrigger: true,
     isHelper: true,
     collisionLayer: CollisionGroups.Trigger,

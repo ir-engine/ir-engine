@@ -135,6 +135,7 @@ export interface RaycastHit {
   position: Vec3
   normal: Vec3
   body?: RAPIER.RigidBody
+  collider?: RAPIER.Collider
 }
 
 // TODO: Remove this
