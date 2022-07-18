@@ -109,7 +109,7 @@ function createColliderDesc(mesh: Mesh, colliderDescOptions: ColliderDescOptions
         shapeType = ShapeType['TriMesh']
         break
       default:
-        throw Error('unrecognized collider shape type')
+        console.error('unrecognized collider shape type')
     }
   }
 
@@ -175,7 +175,8 @@ function createRigidBodyForObject(
   if (!object) return undefined!
 
   const colliderDescs = [] as ColliderDesc[]
-  if ((object as Mesh).isMesh) {
+  // create collider desc for root from input desc options
+  if (object) {
     const colliderDescForRoot = createColliderDesc(object as Mesh, colliderDescOptionsForRoot)
     if (colliderDescForRoot) colliderDescs.push(colliderDescForRoot)
   }
@@ -186,6 +187,7 @@ function createRigidBodyForObject(
         ? ShapeType[colliderDescOptionsForRoot['bodyType']]
         : colliderDescOptionsForRoot['bodyType']
 
+    // create collider desc using userdata of each child mesh
     object.traverse((mesh: Mesh) => {
       const colliderDesc = createColliderDesc(mesh, mesh.userData as ColliderDescOptions)
       if (colliderDesc) colliderDescs.push(colliderDesc)
@@ -212,7 +214,14 @@ function createRigidBodyForObject(
 
     return createRigidBody(entity, world, rigidBodyDesc, colliderDescs)
   } else {
-    return undefined!
+    // Fallback case
+    // If bodyType is not present, parse all colliders and attach them to a fixed rigidbody.
+    object.traverse((mesh: Mesh) => {
+      const colliderDesc = createColliderDesc(mesh, mesh.userData as ColliderDescOptions)
+      if (colliderDesc) colliderDescs.push(colliderDesc)
+    })
+    const rigidBodyDesc = RigidBodyDesc.fixed()
+    return createRigidBody(entity, world, rigidBodyDesc, colliderDescs)
   }
 }
 
