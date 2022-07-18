@@ -42,22 +42,7 @@ export const createObjectEntityFromGLTF = (entity: Entity, obj3d: Object3D): voi
           _toLoad[parts[1]] = {}
         }
         if (parts.length > 2) {
-          //check for old collider data and convert to rapier
-          /*if (parts[1] === 'collider' && parts[2] === 'bodyType') {
-            switch (value) {
-              case 'box':
-                _toLoad[parts[1]][parts[2]] = 1 //Cuboid
-                break
-              case 'trimesh':
-                _toLoad[parts[1]][parts[2]] = 6 //TriMesh
-                break
-              default:
-                _toLoad[parts[1]][parts[2]] = value
-                break
-            }
-          } else {*/
           _toLoad[parts[1]][parts[2]] = value
-          //}
         }
         delete obj3d.userData[key]
       }

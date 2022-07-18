@@ -33,10 +33,10 @@ function cloneKeyframeTrack(sourceKeyframeTrack: KeyframeTrack, cloneUUIDLookup:
     const clonedUUID = cloneUUIDLookup.get(uuid)
 
     if (clonedUUID === undefined) {
-      throw new Error(`Error cloning model. Could not find KeyframeTrack target with uuid: "${uuid}"`)
+      //throw new Error(`Error cloning model. Could not find KeyframeTrack target with uuid: "${uuid}"`)
+    } else {
+      path += clonedUUID
     }
-
-    path += clonedUUID
   }
 
   if (objectName) path += '.' + objectName
