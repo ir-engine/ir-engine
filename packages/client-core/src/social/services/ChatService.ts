@@ -46,6 +46,8 @@ const ChatState = defineState({
     messageScrollInit: false,
     instanceChannelFetching: false,
     instanceChannelFetched: false,
+    partyChannelFetching: false,
+    partyChannelFetched: false,
     messageCreated: false
   })
 })
@@ -76,6 +78,16 @@ export const ChatServiceReceptor = (action) => {
           s.merge({
             instanceChannelFetched: true,
             instanceChannelFetching: false
+          })
+        }
+        else if (action.channelType === 'party') {
+          const endedPartyChannelIndex = s.channels.channels.findIndex(
+              (channel) => channel.channelType.value === 'party' && channel.id.value !== action.channel.id
+          )
+          if (endedPartyChannelIndex > -1) s.channels.channels[endedPartyChannelIndex].set(none)
+          s.merge({
+            partyChannelFetched: true,
+            partyChannelFetching: false
           })
         }
         s.merge({ messageCreated: true })
@@ -203,6 +215,9 @@ export const ChatServiceReceptor = (action) => {
       .when(ChatAction.fetchingInstanceChannelAction.matches, () => {
         return s.merge({ instanceChannelFetching: true })
       })
+      .when(ChatAction.fetchingPartyChannelAction.matches, () => {
+        return s.merge({ partyChannelFetching: true })
+      })
       .when(ChatAction.setUpdateMessageScrollAction.matches, (action) => {
         return s.merge({ updateMessageScroll: action.value })
       })
@@ -242,6 +257,20 @@ export const ChatService = {
       })) as Channel[]
       if (!channelResult.length) return setTimeout(() => ChatService.getInstanceChannel(), 2000)
       dispatchAction(ChatAction.loadedChannelAction({ channel: channelResult[0], channelType: 'instance' }))
+    } catch (err) {
+      NotificationService.dispatchNotify(err.message, { variant: 'error' })
+    }
+  },
+  getPartyChannel: async () => {
+    try {
+      const selfUser = accessAuthState().user.value
+      const channelResult = (await API.instance.client.service('channel').find({
+        query: {
+          channelType: 'party',
+          partyId: selfUser.partyId
+        }
+      })) as Channel[]
+      dispatchAction(ChatAction.loadedChannelAction({ channel: channelResult[0], channelType: 'party' }))
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
@@ -472,6 +501,10 @@ export class ChatAction {
 
   static fetchingInstanceChannelAction = defineAction({
     type: 'FETCHING_INSTANCE_CHANNEL' as const
+  })
+
+  static fetchingPartyChannelAction = defineAction({
+    type: 'FETCHING_PARTY_CHANNEL' as const
   })
 
   static setUpdateMessageScrollAction = defineAction({

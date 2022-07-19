@@ -331,8 +331,6 @@ const notifyWorldAndPartiesUserHasJoined = async (
     const partyOwner = partyUsers.find((partyUser) => partyUser.isOwner)
 
     if (partyOwner?.userId === userId && party.instanceId !== app.instance.id) {
-      await app.service('party').patch(user.partyId, { instanceId: app.instance.id })
-
       const nonOwners = partyUsers.filter((partyUser) => partyUser.isOwner !== 1 && partyUser.isOwner !== true)
       const emittedIp = !config.kubernetes.enabled
         ? await getLocalServerIp(app.isChannelInstance)
@@ -501,15 +499,29 @@ const handleUserDisconnect = async (
   }
 
   const instanceIdKey = app.isChannelInstance ? 'channelInstanceId' : 'instanceId'
+
+  const userPatch = {
+    [instanceIdKey]: null
+  }
+
+  if (user?.partyId && app.isChannelInstance) {
+    const partyChannel = app.service('channel').Model.findOne({
+      where: {
+        partyId: user.partyId
+      }
+    })
+    if (partyChannel?.id === app.instance.channelId) {
+      userPatch.partyId = null
+      await app.service('party-user').remove(user.partyId)
+    }
+  }
   // Patch the user's (channel)instanceId to null if they're leaving this instance.
   // But, don't change their (channel)instanceId if it's already something else.
   await app
     .service('user')
     .patch(
       null,
-      {
-        [instanceIdKey]: null
-      },
+      userPatch,
       {
         query: {
           id: user.id,

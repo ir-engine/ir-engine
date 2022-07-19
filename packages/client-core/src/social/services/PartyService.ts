@@ -20,7 +20,7 @@ import { leaveNetwork } from '../../transports/SocketWebRTCClientFunctions'
 import { SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientNetwork'
 import { accessAuthState } from '../../user/services/AuthService'
 import { UserAction } from '../../user/services/UserService'
-import { ChatService } from './ChatService'
+import {ChatService, accessChatState} from './ChatService'
 
 const logger = multiLogger.child({ component: 'client-core:social' })
 
@@ -158,6 +158,7 @@ export const PartyService = {
       }
       const party = (await API.instance.client.service('party').remove(partyId)) as Party
       dispatchAction(PartyAction.removedPartyAction({ party }))
+      await this.leavePartyNetwork()
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
@@ -185,9 +186,19 @@ export const PartyService = {
   removePartyUser: async (partyUserId: string) => {
     try {
       await API.instance.client.service('party-user').remove(partyUserId)
+      const selfUser = accessAuthState().user.value
+      if (partyUserId === selfUser.id)
+        await this.leavePartyNetwork()
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
+  },
+  leavePartyNetwork: async() => {
+    leaveNetwork(Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork)
+    const channels = accessChatState().channels.channels.value
+    const instanceChannel = Object.values(channels).find((channel) => channel.instanceId === Engine.instance.currentWorld.worldNetwork?.hostId)
+    if (instanceChannel)
+      await MediaInstanceConnectionService.provisionServer(instanceChannel?.id!, true)
   },
   transferPartyOwner: async (partyUserId: string) => {
     try {
@@ -245,6 +256,8 @@ export const PartyService = {
         const selfUser = accessAuthState().user
         dispatchAction(PartyAction.removedPartyUserAction({ partyUser: deletedPartyUser }))
         // dispatchAction(UserAction.removedChannelLayerUserAction({ user: deletedPartyUser.user }))
+        if (deletedPartyUser.userId === selfUser.id)
+          PartyService.leavePartyNetwork()
         if (params.partyUser.userId === selfUser.id) {
           ChatService.clearChatTargetIfCurrent('party', {
             id: params.partyUser.partyId
@@ -265,6 +278,7 @@ export const PartyService = {
 
       const partyRemovedListener = (params) => {
         dispatchAction(PartyAction.removedPartyAction({ party: params.party }))
+        PartyService.leavePartyNetwork()
       }
 
       API.instance.client.service('party-user').on('created', partyUserCreatedListener)

@@ -133,6 +133,7 @@ export class PartyUser<T = PartyUserDataType> extends Service<T> {
     }
   }
 
+  // NOTE: the ID here is the user's ID, not the party-user's ID
   async remove(id: string): Promise<any> {
     try {
       const PartyUserMS = this.app.service('party-user').Model as PartyUserModelStatic

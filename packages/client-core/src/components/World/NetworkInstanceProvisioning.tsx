@@ -11,7 +11,10 @@ import {
   useMediaInstanceConnectionState
 } from '@xrengine/client-core/src/common/services/MediaInstanceConnectionService'
 import { MediaServiceReceptor, MediaStreamService } from '@xrengine/client-core/src/media/services/MediaStreamService'
-import { useChatState } from '@xrengine/client-core/src/social/services/ChatService'
+import {
+  ChatService,
+  useChatState
+} from '@xrengine/client-core/src/social/services/ChatService'
 import { useLocationState } from '@xrengine/client-core/src/social/services/LocationService'
 import { MediaStreams } from '@xrengine/client-core/src/transports/MediaStreams'
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
@@ -124,7 +127,8 @@ export const NetworkInstanceProvisioning = () => {
     if (chatState.instanceChannelFetched.value) {
       const channels = chatState.channels.channels.value
       const instanceChannel = Object.values(channels).find((channel) => channel.instanceId === worldNetworkHostId)
-      MediaInstanceConnectionService.provisionServer(instanceChannel?.id!, true)
+      if (!currentChannelInstanceConnection?.provisioned.value && !currentChannelInstanceConnection?.provisioning.value)
+        MediaInstanceConnectionService.provisionServer(instanceChannel?.id!, true)
     }
   }, [chatState.instanceChannelFetched])
 
@@ -132,6 +136,16 @@ export const NetworkInstanceProvisioning = () => {
   useHookEffect(() => {
     if (selfUser?.instanceId.value != null && userState.layerUsersUpdateNeeded.value) UserService.getLayerUsers(true)
   }, [selfUser?.instanceId, userState.layerUsersUpdateNeeded])
+
+  useHookEffect(() => {
+    if (selfUser?.partyId?.value && chatState.channels.channels?.value) {
+      const partyChannel = Object.values(chatState.channels.channels.value).find(channel => channel.channelType === 'party' && (channel.partyId === selfUser.partyId.value))
+      if (partyChannel && currentChannelInstanceConnection?.channelId.value !== partyChannel.id)
+        MediaInstanceConnectionService.provisionServer(partyChannel?.id!, false)
+      else if (!chatState.partyChannelFetched.value && !chatState.partyChannelFetching.value)
+        ChatService.getPartyChannel()
+    }
+  }, [selfUser?.partyId?.value, chatState.partyChannelFetching?.value, chatState.partyChannelFetched?.value])
 
   // if a media connection has been provisioned and is ready, connect to it
   useHookEffect(() => {

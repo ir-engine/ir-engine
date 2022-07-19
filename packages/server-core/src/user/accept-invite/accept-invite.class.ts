@@ -46,6 +46,7 @@ export class AcceptInvite implements ServiceMethods<Data> {
 
   async get(id: Id, params?: Params): Promise<Data> {
     let inviteeIdentityProvider
+    let returned = {} as any
     if (!params) params = {}
     if (params.query?.t) {
       params.query.passcode = params.query.t
@@ -242,6 +243,37 @@ export class AcceptInvite implements ServiceMethods<Data> {
             paramsCopy
           )
         }
+
+        const ownerResult = await this.app.service('party-user').find({
+          query: {
+            partyId: invite.targetObjectId,
+            owner: true
+          },
+          sequelize: {
+            include: [
+              {
+                model: this.app.service('user').Model
+              }
+            ]
+          }
+        })
+
+        const owner = ownerResult.data[0]
+
+        if (owner && owner.user?.instanceId) {
+          const instance = await this.app.service('instance').get(owner.user.instanceId, {
+            sequelize: {
+              include: [
+                {
+                  model: this.app.service('location').Model
+                }
+              ]
+            }
+          })
+          returned.locationName = instance.location.slugifiedName
+          returned.instanceId = owner.user.instanceId
+          returned.inviteCode = owner.user.inviteCode
+        }
       }
 
       params.preventUserRelationshipRemoval = true
@@ -249,9 +281,8 @@ export class AcceptInvite implements ServiceMethods<Data> {
       const token = await this.app
         .service('authentication')
         .createAccessToken({}, { subject: params['identity-provider'].id.toString() })
-      let returned = {
-        token
-      } as any
+
+      returned.token = token
 
       if (invite.inviteType === 'location' || invite.inviteType === 'instance') {
         let instance =

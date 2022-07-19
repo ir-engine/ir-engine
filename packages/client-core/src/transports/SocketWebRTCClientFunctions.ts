@@ -926,7 +926,9 @@ export function leaveNetwork(network: SocketWebRTCClientNetwork, kicked?: boolea
         }
       }
     }
+    console.log('removing topic', network.hostId)
     removeTopic(network.hostId)
+    console.log('removed topic')
   } catch (err) {
     console.log('Error with leave()')
     console.log(err)
