@@ -20,6 +20,7 @@
   &.outlined {
     color: var(--buttonOutlined);
     border: solid 1px var(--buttonOutlined);
+    background-color: transparent;
   }
 
   &.gradient {
@@ -27,12 +28,13 @@
   }
 
   svg {
-    width: 15px;
-    height: 15px;
-    color: var(--textColor);
+    width: 25px;
+    height: 25px;
+    margin: 0 5px;
+    color: var(--iconButtonColor);
 
     path {
-      fill: var(--textColor);
+      fill: var(--iconButtonColor);
     }
   }
 }

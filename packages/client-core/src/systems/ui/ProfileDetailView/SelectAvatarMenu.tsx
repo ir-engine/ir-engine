@@ -5,10 +5,9 @@ import { UserAvatar } from '@xrengine/common/src/interfaces/UserAvatar'
 import { AvatarEffectComponent } from '@xrengine/engine/src/avatar/components/AvatarEffectComponent'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
-import { accessWidgetAppState, WidgetAppActions } from '@xrengine/engine/src/xrui/WidgetAppService'
-import { dispatchAction } from '@xrengine/hyperflux'
+import { WidgetAppService } from '@xrengine/engine/src/xrui/WidgetAppService'
+import { WidgetName } from '@xrengine/engine/src/xrui/Widgets'
 
 import { ArrowBackIos, ArrowForwardIos, Check, PersonAdd } from '@mui/icons-material'
 
@@ -72,7 +71,7 @@ const SelectAvatarMenu = () => {
         selectedAvatar?.avatar?.url || '',
         selectedAvatar['user-thumbnail']?.url || ''
       )
-      setWidgetVisibility('Profile', false)
+      WidgetAppService.setWidgetVisibility(WidgetName.PROFILE, false)
     }
     setSelectedAvatar('')
   }
@@ -82,27 +81,7 @@ const SelectAvatarMenu = () => {
   }
 
   const openAvatarSelectMenu = (e) => {
-    setWidgetVisibility('UploadAvatar', true)
-  }
-
-  const setWidgetVisibility = (widgetName: string, visibility: boolean) => {
-    const widgetState = accessWidgetAppState()
-    const widgets = Object.entries(widgetState.widgets.value).map(([id, widgetState]) => ({
-      id,
-      ...widgetState,
-      ...Engine.instance.currentWorld.widgets.get(id)!
-    }))
-
-    const currentWidget = widgets.find((w) => w.label === widgetName)
-
-    // close currently open widgets until we support multiple widgets being open at once
-    for (let widget of widgets) {
-      if (currentWidget && widget.id !== currentWidget.id) {
-        dispatchAction(WidgetAppActions.showWidget({ id: widget.id, shown: false }))
-      }
-    }
-
-    currentWidget && dispatchAction(WidgetAppActions.showWidget({ id: currentWidget.id, shown: visibility }))
+    WidgetAppService.setWidgetVisibility(WidgetName.UPLOAD_AVATAR, true)
   }
 
   const renderAvatarList = () => {

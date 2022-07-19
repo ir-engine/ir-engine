@@ -98,10 +98,10 @@ const AvatarContextMenu = () => {
           />
           <div className="buttonContainer">
             <section className="buttonSection">
-              <XRTextButton content={t('user:personMenu.inviteToParty')} onClick={inviteToParty} />
-              <XRTextButton content={t('user:personMenu.addAsFriend')} onClick={addAsFriend} />
-              <XRTextButton content={t('user:personMenu.mute')} onClick={handleMute} />
-              <XRTextButton content={t('user:personMenu.block')} onClick={blockUser} />
+              <XRTextButton onClick={inviteToParty}>{t('user:personMenu.inviteToParty')}</XRTextButton>
+              <XRTextButton onClick={addAsFriend}>{t('user:personMenu.addAsFriend')}</XRTextButton>
+              <XRTextButton onClick={handleMute}>{t('user:personMenu.mute')}</XRTextButton>
+              <XRTextButton onClick={blockUser}>{t('user:personMenu.block')}</XRTextButton>
             </section>
           </div>
         </div>
