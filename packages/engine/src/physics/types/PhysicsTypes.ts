@@ -180,10 +180,10 @@ type ContactData = {
 
 export type ColliderHitEvent = {
   type: CollisionEvents // TODO: Do we need this anymore if we the CollisionComponent is only going to be present during the lifespan of collision. Should only be used to differentiate between collsion & trigger. remove start,end states.
-  bodySelf: PhysX.PxRigidActor | RAPIER.RigidBody
-  bodyOther: PhysX.PxRigidActor | RAPIER.RigidBody
-  shapeSelf: PhysX.PxShape | RAPIER.Collider
-  shapeOther: PhysX.PxShape | RAPIER.Collider
+  bodySelf: RAPIER.RigidBody
+  bodyOther: RAPIER.RigidBody
+  shapeSelf: RAPIER.Collider
+  shapeOther: RAPIER.Collider
   contacts: ContactData[] | undefined // TODO: Figure out how to populate this using Rapier
 }
 

@@ -11,6 +11,7 @@ import { LocalInputTagComponent } from '../input/components/LocalInputTagCompone
 import { BaseInput } from '../input/enums/BaseInput'
 import { AvatarMovementScheme } from '../input/enums/InputEnums'
 import { XRAxes } from '../input/enums/InputEnums'
+import { RapierCollisionComponent } from '../physics/components/RapierCollisionComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { XRInputSourceComponent } from '../xr/components/XRInputSourceComponent'
 import { AvatarInputSchema } from './AvatarInputSchema'
@@ -50,6 +51,7 @@ export default async function AvatarControllerSystem(world: World) {
     AvatarControllerComponent,
     TransformComponent
   ])
+  const collisionQuery = defineQuery([AvatarControllerComponent, RapierCollisionComponent])
 
   addActionReceptor(AvatarInputSettingsReceptor)
 
@@ -87,6 +89,10 @@ export default async function AvatarControllerSystem(world: World) {
       controllerQueryUpdate(entity, displacement, world)
     }
 
+    for (const entity of collisionQuery(world)) {
+      detectUserInCollisions(entity)
+    }
+
     return world
   }
 }
@@ -98,21 +104,6 @@ const alignXRCameraYawWithAvatar = (entity: Entity) => {
   dir.applyQuaternion(transform.rotation).setY(0).normalize()
   inputSource.container.quaternion.setFromUnitVectors(V_001, dir)
 }
-/*
-export const updateColliderPose = (entity: Entity) => {
-  const collider = getComponent(entity, ColliderComponent)
-  const controller = getComponent(entity, AvatarControllerComponent)
-  const transform = getComponent(entity, TransformComponent)
-  const pose = controller.controller.getPosition()
-
-  collider.body.setGlobalPose(
-    {
-      translation: pose,
-      rotation: transform.rotation
-    },
-    true
-  )
-}*/
 
 export const updateAvatarTransformPosition = (entity: Entity) => {
   const transform = getComponent(entity, TransformComponent)
@@ -159,8 +150,6 @@ export const controllerQueryUpdate = (
   displacement.set(displace.x, displace.y, displace.z)
 
   updateAvatarTransformPosition(entity)
-  detectUserInCollisions(entity)
-  // updateColliderPose(entity)
 
   const transform = getComponent(entity, TransformComponent)
   // TODO: implement scene lower bounds parameter
