@@ -168,6 +168,100 @@ const SettingDetailView = () => {
                 }}
               />
             </div>
+            <div className="sectionRow">
+              <h4 className="title">{t('user:usermenu.setting.other-audio-setting')}</h4>
+              <div xr-layer className="showHideButton" onClick={toggleShowOtherAudioSettings}>
+                {showAudioDetails ? 'hide details' : 'show details'}
+              </div>
+            </div>
+            {showAudioDetails && (
+              <>
+                <div className="sectionRow">
+                  <span className="iconSpan">
+                    <svg className="iconSvg" focusable="false" aria-hidden="true" viewBox="0 0 24 24">
+                      <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"></path>
+                    </svg>
+                  </span>
+                  <span className="label">{t('user:usermenu.setting.lbl-media-instance')}</span>
+                  <input
+                    className="slider"
+                    type="range"
+                    min="1"
+                    max="100"
+                    value={audioState.mediaStreamVolume.value == null ? 100 : audioState.mediaStreamVolume.value}
+                    onChange={(event: any) => {
+                      dispatchAction(
+                        AudioSettingAction.setMediaStreamVolume({ mediastreamVolume: parseInt(event.target.value) })
+                      )
+                    }}
+                  ></input>
+                </div>
+                <div className="sectionRow">
+                  <span className="iconSpan">
+                    <svg className="iconSvg" focusable="false" aria-hidden="true" viewBox="0 0 24 24">
+                      <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"></path>
+                    </svg>
+                  </span>
+                  <span className="label">{t('user:usermenu.setting.lbl-notification')}</span>
+                  <input
+                    className="slider"
+                    type="range"
+                    min="1"
+                    max="100"
+                    value={audioState.notificationVolume.value == null ? 100 : audioState.notificationVolume.value}
+                    onChange={(event: any) => {
+                      dispatchAction(
+                        AudioSettingAction.setNotification({ notificationVolume: parseInt(event.target.value) })
+                      )
+                    }}
+                  ></input>
+                </div>
+                <div className="sectionRow">
+                  <span className="iconSpan">
+                    <svg className="iconSvg" focusable="false" aria-hidden="true" viewBox="0 0 24 24">
+                      <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"></path>
+                    </svg>
+                  </span>
+                  <span className="label">{t('user:usermenu.setting.lbl-sound-effect')}</span>
+                  <input
+                    className="slider"
+                    type="range"
+                    min="1"
+                    max="100"
+                    value={audioState.soundEffectsVolume.value == null ? 100 : audioState.soundEffectsVolume.value}
+                    onChange={(event: any) => {
+                      dispatchAction(
+                        AudioSettingAction.setSoundEffectsVolume({ soundEffectsVolume: parseInt(event.target.value) })
+                      )
+                    }}
+                  ></input>
+                </div>
+                <div className="sectionRow">
+                  <span className="iconSpan">
+                    <svg className="iconSvg" focusable="false" aria-hidden="true" viewBox="0 0 24 24">
+                      <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"></path>
+                    </svg>
+                  </span>
+                  <span className="label">{t('user:usermenu.setting.lbl-background-music-volume')}</span>
+                  <input
+                    className="slider"
+                    type="range"
+                    min="1"
+                    max="100"
+                    value={
+                      audioState.backgroundMusicVolume.value == null ? 100 : audioState.backgroundMusicVolume.value
+                    }
+                    onChange={(event: any) => {
+                      dispatchAction(
+                        AudioSettingAction.setBackgroundMusicVolume({
+                          backgroundMusicVolume: parseInt(event.target.value)
+                        })
+                      )
+                    }}
+                  ></input>
+                </div>
+              </>
+            )}
           </section>
           <section className="graphicsSection">
             <h4 className="title">{t('user:usermenu.setting.graphics')}</h4>
@@ -216,100 +310,6 @@ const SettingDetailView = () => {
               onChange={handleChangeShowAvatar}
             />
           </div>
-        </section>
-        <section>
-          <div className="sectionRow">
-            <h4 className="title">{t('user:usermenu.setting.other-audio-setting')}</h4>
-            <div className="showHideButton" onClick={toggleShowOtherAudioSettings}>
-              {showAudioDetails ? 'hide details' : 'show details'}
-            </div>
-          </div>
-          {showAudioDetails && (
-            <>
-              <div className="sectionRow">
-                <span className="iconSpan">
-                  <svg className="iconSvg" focusable="false" aria-hidden="true" viewBox="0 0 24 24">
-                    <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"></path>
-                  </svg>
-                </span>
-                <span className="label">{t('user:usermenu.setting.lbl-media-instance')}</span>
-                <input
-                  className="slider"
-                  type="range"
-                  min="1"
-                  max="100"
-                  value={audioState.mediaStreamVolume.value == null ? 100 : audioState.mediaStreamVolume.value}
-                  onChange={(event: any) => {
-                    dispatchAction(
-                      AudioSettingAction.setMediaStreamVolume({ mediastreamVolume: parseInt(event.target.value) })
-                    )
-                  }}
-                ></input>
-              </div>
-              <div className="sectionRow">
-                <span className="iconSpan">
-                  <svg className="iconSvg" focusable="false" aria-hidden="true" viewBox="0 0 24 24">
-                    <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"></path>
-                  </svg>
-                </span>
-                <span className="label">{t('user:usermenu.setting.lbl-notification')}</span>
-                <input
-                  className="slider"
-                  type="range"
-                  min="1"
-                  max="100"
-                  value={audioState.notificationVolume.value == null ? 100 : audioState.notificationVolume.value}
-                  onChange={(event: any) => {
-                    dispatchAction(
-                      AudioSettingAction.setNotification({ notificationVolume: parseInt(event.target.value) })
-                    )
-                  }}
-                ></input>
-              </div>
-              <div className="sectionRow">
-                <span className="iconSpan">
-                  <svg className="iconSvg" focusable="false" aria-hidden="true" viewBox="0 0 24 24">
-                    <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"></path>
-                  </svg>
-                </span>
-                <span className="label">{t('user:usermenu.setting.lbl-sound-effect')}</span>
-                <input
-                  className="slider"
-                  type="range"
-                  min="1"
-                  max="100"
-                  value={audioState.soundEffectsVolume.value == null ? 100 : audioState.soundEffectsVolume.value}
-                  onChange={(event: any) => {
-                    dispatchAction(
-                      AudioSettingAction.setSoundEffectsVolume({ soundEffectsVolume: parseInt(event.target.value) })
-                    )
-                  }}
-                ></input>
-              </div>
-              <div className="sectionRow">
-                <span className="iconSpan">
-                  <svg className="iconSvg" focusable="false" aria-hidden="true" viewBox="0 0 24 24">
-                    <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"></path>
-                  </svg>
-                </span>
-                <span className="label">{t('user:usermenu.setting.lbl-background-music-volume')}</span>
-                <input
-                  className="slider"
-                  type="range"
-                  min="1"
-                  max="100"
-                  value={audioState.backgroundMusicVolume.value == null ? 100 : audioState.backgroundMusicVolume.value}
-                  onChange={(event: any) => {
-                    dispatchAction(
-                      AudioSettingAction.setBackgroundMusicVolume({
-                        backgroundMusicVolume: parseInt(event.target.value)
-                      })
-                    )
-                  }}
-                ></input>
-              </div>
-            </>
-          )}
         </section>
         {engineState.xrSupported.value && (
           <>
