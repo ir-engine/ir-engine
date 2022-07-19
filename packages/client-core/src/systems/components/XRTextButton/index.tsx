@@ -7,16 +7,16 @@ type textButtonVariant = 'filled' | 'outlined' | 'gradient'
 const XRTextButton = (props) => {
   const {
     variant = 'filled',
-    content,
     className,
+    children,
     ...buttonProps
-  }: { variant: textButtonVariant; className: any; content: any; buttonProps: any } = props
+  }: { variant: textButtonVariant; className: any; content: any; children: React.ReactNode; buttonProps: any } = props
 
   return (
     <>
       <style>{styleString}</style>
       <button {...buttonProps} className={`buttonContainer ${className} ${variant}`}>
-        {content}
+        {children}
       </button>
     </>
   )

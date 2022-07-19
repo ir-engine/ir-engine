@@ -5,10 +5,10 @@ import { XRUIComponent } from '@xrengine/engine/src/xrui/components/XRUIComponen
 import { ObjectFitFunctions } from '@xrengine/engine/src/xrui/functions/ObjectFitFunctions'
 import { WidgetName, Widgets } from '@xrengine/engine/src/xrui/Widgets'
 
-import { createSelectAvatarMenu } from './ui/ProfileDetailView/SelectAvatarMenu'
+import { createMediaSessionMenuView } from './ui/MediaSessionMenuView'
 
-export function createSelectAvatarWidget(world: World) {
-  const ui = createSelectAvatarMenu()
+export function createMediaSessionMenuWidget(world: World) {
+  const ui = createMediaSessionMenuView()
 
   addComponent(ui.entity, PersistTagComponent, {})
 
@@ -19,7 +19,7 @@ export function createSelectAvatarWidget(world: World) {
 
   Widgets.registerWidget(world, ui.entity, {
     ui,
-    label: WidgetName.SELECT_AVATAR,
+    label: WidgetName.MEDIA_SESSION,
     system: () => {}
   })
 }

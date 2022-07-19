@@ -3,7 +3,6 @@ import { AvatarInputSchema } from '@xrengine/engine/src/avatar/AvatarInputSchema
 import { LifecycleValue } from '@xrengine/engine/src/common/enums/LifecycleValue'
 import { matches } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
 import { addComponent, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { BaseInput } from '@xrengine/engine/src/input/enums/BaseInput'
@@ -17,15 +16,19 @@ import {
   WidgetAppActions,
   WidgetAppServiceReceptor
 } from '@xrengine/engine/src/xrui/WidgetAppService'
-import { addActionReceptor, createActionQueue, dispatchAction } from '@xrengine/hyperflux'
+import { addActionReceptor, dispatchAction } from '@xrengine/hyperflux'
 
+import { createAdminControlsMenuWidget } from './createAdminControlsMenuWidget'
 import { createChatWidget } from './createChatWidget'
 import { createEmoteWidget } from './createEmoteWidget'
+import { createLocationMenuWidget } from './createLocationMenuWidget'
+import { createMediaSessionMenuWidget } from './createMediaSessionMenuWidget'
 import { createProfileWidget } from './createProfileWidget'
 import { createReadyPlayerWidget } from './createReadyPlayerWidget'
 import { createSelectAvatarWidget } from './createSelectAvatarWidget'
 import { createSettingsWidget } from './createSettingsWidget'
 import { createShareLocationWidget } from './createShareLocationWidget'
+import { createSocialsMenuWidget } from './createSocialsMenuWidget'
 import { createUploadAvatarWidget } from './createUploadAvatarWidget'
 import { createWidgetButtonsView } from './ui/WidgetMenuView'
 
@@ -42,13 +45,18 @@ export default async function WidgetSystem(world: World) {
   // lazily create XRUI widgets to speed up initial page loading time
   let createdWidgets = false
   const showWidgetMenu = (show: boolean) => {
-    if (!createdWidgets) {
+    // temporarily only allow widgets on non hmd for local dev
+    if (!createdWidgets && (Engine.instance.isHMD || isDev)) {
       createdWidgets = true
       createProfileWidget(world)
+      createSettingsWidget(world)
+      createSocialsMenuWidget(world)
+      createLocationMenuWidget(world)
+      createAdminControlsMenuWidget(world)
+      createMediaSessionMenuWidget(world)
       createEmoteWidget(world)
       createChatWidget(world)
       createShareLocationWidget(world)
-      createSettingsWidget(world)
       createSelectAvatarWidget(world)
       createUploadAvatarWidget(world)
       // TODO: Something in createReadyPlayerWidget is loading /location/undefined

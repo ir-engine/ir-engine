@@ -5,10 +5,10 @@ import { XRUIComponent } from '@xrengine/engine/src/xrui/components/XRUIComponen
 import { ObjectFitFunctions } from '@xrengine/engine/src/xrui/functions/ObjectFitFunctions'
 import { WidgetName, Widgets } from '@xrengine/engine/src/xrui/Widgets'
 
-import { createSelectAvatarMenu } from './ui/ProfileDetailView/SelectAvatarMenu'
+import { createAdminControlsMenuView } from './ui/AdminControlsMenuView'
 
-export function createSelectAvatarWidget(world: World) {
-  const ui = createSelectAvatarMenu()
+export function createAdminControlsMenuWidget(world: World) {
+  const ui = createAdminControlsMenuView()
 
   addComponent(ui.entity, PersistTagComponent, {})
 
@@ -19,7 +19,7 @@ export function createSelectAvatarWidget(world: World) {
 
   Widgets.registerWidget(world, ui.entity, {
     ui,
-    label: WidgetName.SELECT_AVATAR,
+    label: WidgetName.ADMIN_CONTROLS,
     system: () => {}
   })
 }

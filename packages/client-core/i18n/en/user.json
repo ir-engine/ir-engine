@@ -109,6 +109,38 @@
       "lbl-yes": "Yes",
       "lbl-no": "No"
     },
+    "socials": {
+      "containerHeading": "Socials",
+      "btn-friend": "Friends",
+      "btn-party-group": "Party / Group",
+      "btn-mediaSession": "Media Session",
+      "btn-share-invite": "Share Link / Invite Code"
+    },
+    "location": {
+      "containerHeading": "Current Location",
+      "btn-immersive": "Immersive Mode",
+      "btn-respawn": "Respawn",
+      "btn-emote": "Emote",
+      "btn-help": "Help",
+      "btn-reportIssue": "Report Issue",
+      "btn-screenRecord": "Screen Record",
+      "btn-adminControls": "Admin Controls"
+    },
+    "adminControls": {
+      "containerHeading": "Admin Controls",
+      "btn-userList": "User List",
+      "btn-banList": "Ban List",
+      "btn-help": "Help",
+      "btn-requestSystemAdmin": "Request System Admin"
+    },
+    "mediaSession": {
+      "containerHeading": "Media Session",
+      "btn-audio": "Toggle Audio",
+      "btn-video": "Toggle Video",
+      "btn-faceTracking": "Face Tracking",
+      "btn-screenShare": "Share Screen",
+      "btn-chat": "World Chat"
+    },
     "share": {
       "lbl-share": "Share",
       "ph-phoneEmail": "Invite by email or phone number",

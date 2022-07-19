@@ -5,10 +5,12 @@ import { XRUIComponent } from '@xrengine/engine/src/xrui/components/XRUIComponen
 import { ObjectFitFunctions } from '@xrengine/engine/src/xrui/functions/ObjectFitFunctions'
 import { WidgetName, Widgets } from '@xrengine/engine/src/xrui/Widgets'
 
-import { createSelectAvatarMenu } from './ui/ProfileDetailView/SelectAvatarMenu'
+import GroupsIcon from '@mui/icons-material/Groups'
 
-export function createSelectAvatarWidget(world: World) {
-  const ui = createSelectAvatarMenu()
+import { createSocialsMenuView } from './ui/SocialsMenuView'
+
+export function createSocialsMenuWidget(world: World) {
+  const ui = createSocialsMenuView()
 
   addComponent(ui.entity, PersistTagComponent, {})
 
@@ -19,7 +21,8 @@ export function createSelectAvatarWidget(world: World) {
 
   Widgets.registerWidget(world, ui.entity, {
     ui,
-    label: WidgetName.SELECT_AVATAR,
+    label: WidgetName.SOCIALS,
+    icon: GroupsIcon,
     system: () => {}
   })
 }

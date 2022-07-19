@@ -19,7 +19,10 @@
     touch-action: auto;
   }
 
-  & > .profilePanel,
+  & > .profilePanel {
+    margin: 30px 0 0;
+  }
+
   & > .accountPanel,
   & > .settingPanel,
   & > .sharePanel,
@@ -33,7 +36,7 @@
     justify-content: right;
 
     h2 {
-      margin: auto;
+      margin: auto !important;
     }
   }
 
@@ -212,6 +215,7 @@
           font-family: Roboto;
           font-size: 14px;
           text-align: left;
+          margin: 5px 0;
           opacity: 0.8;
           color: var(--textColor);
 
@@ -229,7 +233,7 @@
         }
 
         h4 {
-          margin-top: 4px;
+          margin: 5px 0;
           text-align: left;
           color: var(--textColor);
 
@@ -240,7 +244,6 @@
             &:hover {
               opacity: 0.8;
               cursor: pointer;
-              color: black;
             }
           }
         }
@@ -880,8 +883,17 @@
   }
 
   .deletePanel {
+    .deleteButtonContainer {
+      display: grid;
+      grid-gap: 10px;
+      grid-template-columns: 1fr 1fr;
+    }
+
     .deleteAccount {
-      color: white;
+      font-size: 14px;
+      font-weight: bold;
+      margin: 5px 0;
+      color: var(--textColor);
 
       &:hover {
         cursor: pointer;
@@ -890,35 +902,17 @@
     }
 
     .deleteText {
-      color: white;
-      margin-top: 10px;
       font-size: 16px;
-    }
-
-    .deleteConfirmButton {
-      background: var(--lightRed);
-      margin-right: 10px;
-
-      &:hover {
-        cursor: pointer;
-        background: var(--red);
-      }
-    }
-
-    .deleteCancelButton {
-      background: var(--deemphasized);
-      margin-right: 10px;
-
-      &:hover {
-        cursor: pointer;
-        background: var(--green);
-      }
+      font-weight: bold;
+      color: var(--textColor);
+      margin-top: 10px;
     }
   }
 
   .modeSettingContainer {
     display: flex;
     flex-direction: column;
+    margin-bottom: 20px;
   }
 
   .modesHeading {
