@@ -60,7 +60,7 @@ async function generateEmail(
   const email = {
     from: mailSender,
     to: toEmail,
-    subject: config.email.subject[inviteType],
+    subject: config.client.title + ' ' + (config.email.subject[inviteType] || 'Invitation'),
     html: compiledHTML
   }
 

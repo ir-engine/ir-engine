@@ -24,12 +24,16 @@
   letter-spacing: -0.01562em;
 }
 
-.sendInvitationContainer {
-  text-align: center;
-  margin: 20px auto 10px;
-}
-
 .shareAppContainer {
   margin-top: 15px;
+  text-align: center;
+}
+
+.qrContainer {
+  background: #fff;
+  padding: 25px 0;
+  margin: 0 auto 20px;
+  border-radius: 10px;
+  width: 250px;
   text-align: center;
 }

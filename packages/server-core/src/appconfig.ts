@@ -179,10 +179,13 @@ const email = {
   from: `${process.env.SMTP_FROM_NAME}` + ` <${process.env.SMTP_FROM_EMAIL}>`,
   subject: {
     // Subject of the Login Link email
-    login: 'XREngine login link',
-    friend: 'XREngine friend request',
-    group: 'XREngine group invitation',
-    party: 'XREngine party invitation'
+    'new-user': 'Signup',
+    location: 'Location invitation',
+    instance: 'Location invitation',
+    login: 'Login link',
+    friend: 'Friend request',
+    group: 'Group invitation',
+    party: 'Party invitation'
   },
   smsNameCharacterLimit: 20
 }

@@ -5,10 +5,12 @@ import { XRUIComponent } from '@xrengine/engine/src/xrui/components/XRUIComponen
 import { ObjectFitFunctions } from '@xrengine/engine/src/xrui/functions/ObjectFitFunctions'
 import { WidgetName, Widgets } from '@xrengine/engine/src/xrui/Widgets'
 
-import { createSelectAvatarMenu } from './ui/ProfileDetailView/SelectAvatarMenu'
+import LocationOnIcon from '@mui/icons-material/LocationOn'
 
-export function createSelectAvatarWidget(world: World) {
-  const ui = createSelectAvatarMenu()
+import { createLocationMenuView } from './ui/LocationMenuView'
+
+export function createLocationMenuWidget(world: World) {
+  const ui = createLocationMenuView()
 
   addComponent(ui.entity, PersistTagComponent, {})
 
@@ -19,7 +21,8 @@ export function createSelectAvatarWidget(world: World) {
 
   Widgets.registerWidget(world, ui.entity, {
     ui,
-    label: WidgetName.SELECT_AVATAR,
+    label: WidgetName.LOCATION,
+    icon: LocationOnIcon,
     system: () => {}
   })
 }
