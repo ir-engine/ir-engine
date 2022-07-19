@@ -215,7 +215,7 @@ export default async function PhysicsSystem(world: World) {
     for (const action of teleportObjectQueue()) teleportObjectReceptor(action)
 
     for (const entity of boxQuery.enter()) {
-      processBoundingBox(entity, true)
+      processBoundingBox(entity)
     }
 
     for (const entity of colliderQuery.exit()) {

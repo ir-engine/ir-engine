@@ -13,14 +13,20 @@ import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { EngineActions, getEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
-import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { addComponent, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { addEntityNodeInTree, createEntityNode } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
 import { NetworkTopics } from '@xrengine/engine/src/networking/classes/Network'
 import { matchActionOnce } from '@xrengine/engine/src/networking/functions/matchActionOnce'
 import { WorldNetworkAction } from '@xrengine/engine/src/networking/functions/WorldNetworkAction'
 import { WorldState } from '@xrengine/engine/src/networking/interfaces/WorldState'
-import { toggleAudio } from '@xrengine/engine/src/scene/functions/loaders/AudioFunctions'
+import UpdateableObject3D from '@xrengine/engine/src/scene/classes/UpdateableObject3D'
+import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
+import { PersistTagComponent } from '@xrengine/engine/src/scene/components/PersistTagComponent'
+import {
+  SCENE_COMPONENT_AUDIO_DEFAULT_VALUES,
+  toggleAudio
+} from '@xrengine/engine/src/scene/functions/loaders/AudioFunctions'
 import { updateAudio } from '@xrengine/engine/src/scene/functions/loaders/AudioFunctions'
 import { ScenePrefabs } from '@xrengine/engine/src/scene/functions/registerPrefabs'
 import { createNewEditorNode } from '@xrengine/engine/src/scene/functions/SceneLoading'
@@ -264,18 +270,14 @@ const InstanceChat = ({
 
   const fetchAudioAlert = async () => {
     setIsInitRender(true)
-    AssetLoader.Cache.delete(notificationAlertURL)
-    const loadPromise = AssetLoader.loadAsync(notificationAlertURL)
-    const node = createEntityNode(createEntity(Engine.instance.currentWorld))
-    setEntity(node.entity)
-    createNewEditorNode(node, ScenePrefabs.audio)
-    addEntityNodeInTree(node, Engine.instance.currentWorld.entityTree.rootNode)
-    const audioComponent = getComponent(node.entity, AudioComponent)
+    const entity = createEntity(Engine.instance.currentWorld)
+    setEntity(entity)
+    addComponent(entity, Object3DComponent, { value: new UpdateableObject3D() })
+    addComponent(entity, PersistTagComponent, true)
+    const audioComponent = addComponent(entity, AudioComponent, { ...SCENE_COMPONENT_AUDIO_DEFAULT_VALUES })
     audioComponent.volume = audioState.notificationVolume.value / 100
     audioComponent.audioSource = notificationAlertURL
-
-    await loadPromise
-    updateAudio(node.entity, { volume: audioState.notificationVolume.value / 100, audioSource: notificationAlertURL })
+    AssetLoader.loadAsync(notificationAlertURL)
   }
 
   useEffect(() => {

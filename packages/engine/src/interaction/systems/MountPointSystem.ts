@@ -13,11 +13,10 @@ const mountPointInteractMessages = {
 }
 
 export default async function MountPointSystem(world: World) {
-  const mountPointActionQueue = createActionQueue(EngineActions.interactedWithObject.matches)
-
-  const mountPointQuery = defineQuery([MountPointComponent])
-
   if (Engine.instance.isEditor) return () => {}
+
+  const mountPointActionQueue = createActionQueue(EngineActions.interactedWithObject.matches)
+  const mountPointQuery = defineQuery([MountPointComponent])
 
   return () => {
     for (const entity of mountPointQuery.enter()) {
@@ -26,14 +25,12 @@ export default async function MountPointSystem(world: World) {
     }
 
     for (const action of mountPointActionQueue()) {
-      if (!hasComponent(action.targetEntity, MountPointComponent)) return
+      if (action.$from !== Engine.instance.userId) continue
+      if (!hasComponent(action.targetEntity, MountPointComponent)) continue
       const mountPoint = getComponent(action.targetEntity, MountPointComponent)
       if (mountPoint.type === MountPoint.seat) {
         console.log('sitting')
       }
-    }
-
-    for (const entity of mountPointQuery.exit(world)) {
     }
   }
 }

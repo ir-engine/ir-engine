@@ -37,11 +37,8 @@ export const interactBoxRaycast = (entity: Entity, raycastList: Entity[]) => {
   const transform = getComponent(entity, TransformComponent)
   const controller = getComponent(entity, AvatarControllerComponent)
   const availableInteractable = getEngineState().availableInteractable.value
-  if (!controller) return
 
-  if (!interactor) return
-
-  if (!raycastList.length) return
+  if (!controller || !interactor || !raycastList.length) return
 
   // todo: add avatar's local head position to this calculation so its calculated from the head instead of the feet
 
