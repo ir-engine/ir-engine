@@ -49,15 +49,15 @@ technology and shared simulations should be as easy and natural as making a webs
 
 Guest Demos
 
-- ***[Apartment - CCO from Sketchfab](https://app.theoverlay.io/location/apartment)***
-- ***[Star Station - our dev coommunity hangout](https://app.theoverlay.io/location/sky-station)***
-- ***[Globe Concert Hall - collab with WildCapture.io](https://app.theoverlay.io/location/globe-theater)***
+- ***[Apartment - CCO from Sketchfab](https://app.etherealengine.com/location/apartment)***
+- ***[Star Station - our dev coommunity hangout](https://app.etherealengine.com/location/sky-station)***
+- ***[Globe Concert Hall - collab with WildCapture.io](https://app.etherealengine.com/location/globe-theater)***
 
 
 Host Demos 
 
-- [XRE Admin Console - Demo Cluster - Request Demo Access on our Discord](https://demo.theoverlay.io/admin)
-- [XRE XRModule Asset Editor - Demo Cluster - Request Demo Access on our Discord](https://demo.theoverlay.io/edior)
+- [XRE Admin Console - Demo Cluster - Request Demo Access on our Discord](https://demo.etherealengine.com/admin)
+- [XRE XRModule Asset Editor - Demo Cluster - Request Demo Access on our Discord](https://demo.etherealengine.com/edior)
 
 ## XRE XRModule
 

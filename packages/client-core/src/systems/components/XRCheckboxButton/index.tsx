@@ -17,16 +17,18 @@ const XRCheckboxButton = (props) => {
   return (
     <>
       <style>{styleString}</style>
-      {labelPosition === 'start' && <span className="label">{labelContent}</span>}
-      <label className="checkbox">
-        <input type="checkbox" checked={checked} {...inputProps} />
-        {checked && (
-          <span className="checkboxIcon">
-            <Check />
-          </span>
-        )}
-      </label>
-      {labelPosition === 'end' && <span className="label">{labelContent}</span>}
+      <div className="checkboxContainer">
+        {labelPosition === 'start' && <span className="label">{labelContent}</span>}
+        <label className="checkbox">
+          <input type="checkbox" checked={checked} {...inputProps} />
+          {checked && (
+            <span className="checkboxIcon">
+              <Check />
+            </span>
+          )}
+        </label>
+        {labelPosition === 'end' && <span className="label">{labelContent}</span>}
+      </div>
     </>
   )
 }

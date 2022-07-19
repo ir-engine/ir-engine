@@ -6,11 +6,11 @@ import { useTranslation } from 'react-i18next'
 
 import { validateEmail, validatePhoneNumber } from '@xrengine/common/src/config'
 import { defaultThemeModes, defaultThemeSettings } from '@xrengine/common/src/constants/DefaultThemeSettings'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { WorldState } from '@xrengine/engine/src/networking/interfaces/WorldState'
 import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
-import { accessWidgetAppState, WidgetAppActions } from '@xrengine/engine/src/xrui/WidgetAppService'
-import { dispatchAction, getState } from '@xrengine/hyperflux'
+import { WidgetAppService } from '@xrengine/engine/src/xrui/WidgetAppService'
+import { WidgetName } from '@xrengine/engine/src/xrui/Widgets'
+import { getState } from '@xrengine/hyperflux'
 
 import { Check, Create, GitHub, Refresh } from '@mui/icons-material'
 import ContentCopyIcon from '@mui/icons-material/ContentCopy'
@@ -227,7 +227,7 @@ const ProfileDetailView = () => {
   }
 
   const handleLogout = async (e) => {
-    setWidgetVisibility('Profile', false)
+    WidgetAppService.setWidgetVisibility(WidgetName.PROFILE, false)
     setShowUserId(false)
     setShowApiKey(false)
     await AuthService.logoutUser()
@@ -261,32 +261,12 @@ const ProfileDetailView = () => {
     }
   }
 
-  const setWidgetVisibility = (widgetName: string, visibility: boolean) => {
-    const widgetState = accessWidgetAppState()
-    const widgets = Object.entries(widgetState.widgets.value).map(([id, widgetState]) => ({
-      id,
-      ...widgetState,
-      ...Engine.instance.currentWorld.widgets.get(id)!
-    }))
-
-    const currentWidget = widgets.find((w) => w.label === widgetName)
-
-    // close currently open widgets until we support multiple widgets being open at once
-    for (let widget of widgets) {
-      if (currentWidget && widget.id !== currentWidget.id) {
-        dispatchAction(WidgetAppActions.showWidget({ id: widget.id, shown: false }))
-      }
-    }
-
-    currentWidget && dispatchAction(WidgetAppActions.showWidget({ id: currentWidget.id, shown: visibility }))
-  }
-
   const handleOpenSelectAvatarWidget = () => {
-    setWidgetVisibility('SelectAvatar', true)
+    WidgetAppService.setWidgetVisibility(WidgetName.SELECT_AVATAR, true)
   }
 
   const handleOpenReadyPlayerWidget = () => {
-    setWidgetVisibility('ReadyPlayer', true)
+    WidgetAppService.setWidgetVisibility(WidgetName.READY_PLAYER, true)
   }
 
   const enableSocial =
@@ -306,7 +286,7 @@ const ProfileDetailView = () => {
         <section className="profilePanel">
           <section className="profileBlock">
             <div className="avatarBlock">
-              <img src={getAvatarURLForUser(userAvatarDetails, userId)} alt="" crossOrigin="anonymous" />
+              <img src={getAvatarURLForUser(userAvatarDetails, userId)} alt="" />
               <XRIconButton
                 size="large"
                 xr-layer="true"
@@ -426,8 +406,9 @@ const ProfileDetailView = () => {
                 xr-layer="true"
                 onClick={handleOpenReadyPlayerWidget}
                 className="walletBtn"
-                content={t('user:usermenu.profile.loginWithReadyPlayerMe')}
-              />
+              >
+                {t('user:usermenu.profile.loginWithReadyPlayerMe')}
+              </XRTextButton>
             </section>
           )}
 
@@ -474,38 +455,40 @@ const ProfileDetailView = () => {
               {selfUser?.userRole.value !== 'guest' && removeSocial && (
                 <h3 className="textBlock">{t('user:usermenu.profile.removeSocial')}</h3>
               )}
-              <div className="socialContainer">
-                {authState?.discord && oauthConnectedState.discord && (
-                  <a href="#" id="discord" onClick={handleRemoveOAuthServiceClick}>
-                    <DiscordIcon width="40" height="40" viewBox="0 0 40 40" />
-                  </a>
-                )}
-                {authState?.google && oauthConnectedState.google && (
-                  <a href="#" id="google" onClick={handleRemoveOAuthServiceClick}>
-                    <GoogleIcon width="40" height="40" viewBox="0 0 40 40" />
-                  </a>
-                )}
-                {authState?.facebook && oauthConnectedState.facebook && (
-                  <a href="#" id="facebook" onClick={handleRemoveOAuthServiceClick}>
-                    <FacebookIcon width="40" height="40" viewBox="0 0 40 40" />
-                  </a>
-                )}
-                {authState?.linkedin && oauthConnectedState.linkedin && (
-                  <a href="#" id="linkedin" onClick={handleRemoveOAuthServiceClick}>
-                    <LinkedInIcon width="40" height="40" viewBox="0 0 40 40" />
-                  </a>
-                )}
-                {authState?.twitter && oauthConnectedState.twitter && (
-                  <a href="#" id="twitter" onClick={handleRemoveOAuthServiceClick}>
-                    <TwitterIcon width="40" height="40" viewBox="0 0 40 40" />
-                  </a>
-                )}
-                {authState?.github && oauthConnectedState.github && (
-                  <a href="#" id="github" onClick={handleRemoveOAuthServiceClick}>
-                    <GitHub />
-                  </a>
-                )}
-              </div>
+              {selfUser?.userRole.value !== 'guest' && removeSocial && (
+                <div className="socialContainer">
+                  {authState?.discord && oauthConnectedState.discord && (
+                    <a href="#" id="discord" onClick={handleRemoveOAuthServiceClick}>
+                      <DiscordIcon width="40" height="40" viewBox="0 0 40 40" />
+                    </a>
+                  )}
+                  {authState?.google && oauthConnectedState.google && (
+                    <a href="#" id="google" onClick={handleRemoveOAuthServiceClick}>
+                      <GoogleIcon width="40" height="40" viewBox="0 0 40 40" />
+                    </a>
+                  )}
+                  {authState?.facebook && oauthConnectedState.facebook && (
+                    <a href="#" id="facebook" onClick={handleRemoveOAuthServiceClick}>
+                      <FacebookIcon width="40" height="40" viewBox="0 0 40 40" />
+                    </a>
+                  )}
+                  {authState?.linkedin && oauthConnectedState.linkedin && (
+                    <a href="#" id="linkedin" onClick={handleRemoveOAuthServiceClick}>
+                      <LinkedInIcon width="40" height="40" viewBox="0 0 40 40" />
+                    </a>
+                  )}
+                  {authState?.twitter && oauthConnectedState.twitter && (
+                    <a href="#" id="twitter" onClick={handleRemoveOAuthServiceClick}>
+                      <TwitterIcon width="40" height="40" viewBox="0 0 40 40" />
+                    </a>
+                  )}
+                  {authState?.github && oauthConnectedState.github && (
+                    <a href="#" id="github" onClick={handleRemoveOAuthServiceClick}>
+                      <GitHub />
+                    </a>
+                  )}
+                </div>
+              )}
               {selfUser?.userRole.value === 'guest' && (
                 <h4 className="smallTextBlock">{t('user:usermenu.profile.createOne')}</h4>
               )}
@@ -528,36 +511,42 @@ const ProfileDetailView = () => {
               {deleteControlsOpen && !confirmDeleteOpen && (
                 <div className="deleteContainer">
                   <h3 className="deleteText">{t('user:usermenu.profile.delete.deleteControlsText')}</h3>
-                  <button className="deleteCancelButton" onClick={() => setDeleteControlsOpen(false)}>
-                    {t('user:usermenu.profile.delete.deleteControlsCancel')}
-                  </button>
-                  <button
-                    className="deleteConfirmButton"
-                    onClick={() => {
-                      setDeleteControlsOpen(false)
-                      setConfirmDeleteOpen(true)
-                    }}
-                  >
-                    {t('user:usermenu.profile.delete.deleteControlsConfirm')}
-                  </button>
+                  <div className="deleteButtonContainer">
+                    <XRTextButton
+                      variant="outlined"
+                      content={t('user:usermenu.profile.delete.deleteControlsCancel')}
+                      onClick={() => setDeleteControlsOpen(false)}
+                    />
+                    <XRTextButton
+                      variant="gradient"
+                      onClick={() => {
+                        setDeleteControlsOpen(false)
+                        setConfirmDeleteOpen(true)
+                      }}
+                    >
+                      {t('user:usermenu.profile.delete.deleteControlsConfirm')}
+                    </XRTextButton>
+                  </div>
                 </div>
               )}
               {confirmDeleteOpen && (
                 <div className="deleteContainer">
                   <h3 className="deleteText">{t('user:usermenu.profile.delete.finalDeleteText')}</h3>
-                  <button
-                    className="deleteConfirmButton"
-                    onClick={() => {
-                      AuthService.removeUser(userId)
-                      AuthService.logoutUser()
-                      setConfirmDeleteOpen(false)
-                    }}
-                  >
-                    {t('user:usermenu.profile.delete.finalDeleteConfirm')}
-                  </button>
-                  <button className="deleteCancelButton" onClick={() => setConfirmDeleteOpen(false)}>
-                    {t('user:usermenu.profile.delete.finalDeleteCancel')}
-                  </button>
+                  <div className="deleteButtonContainer">
+                    <XRTextButton
+                      variant="gradient"
+                      onClick={() => {
+                        AuthService.removeUser(userId)
+                        AuthService.logoutUser()
+                        setConfirmDeleteOpen(false)
+                      }}
+                    >
+                      {t('user:usermenu.profile.delete.finalDeleteConfirm')}
+                    </XRTextButton>
+                    <XRTextButton variant="outlined" onClick={() => setConfirmDeleteOpen(false)}>
+                      {t('user:usermenu.profile.delete.finalDeleteCancel')}
+                    </XRTextButton>
+                  </div>
                 </div>
               )}
             </div>

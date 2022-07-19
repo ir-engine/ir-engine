@@ -6,14 +6,13 @@ import { PerspectiveCamera, Scene, WebGLRenderer } from 'three'
 import { THUMBNAIL_HEIGHT, THUMBNAIL_WIDTH } from '@xrengine/common/src/constants/AvatarConstants'
 import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
 import { loadAvatarForPreview } from '@xrengine/engine/src/avatar/functions/avatarFunctions'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { getOrbitControls } from '@xrengine/engine/src/input/functions/loadOrbitControl'
 import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
-import { accessWidgetAppState, WidgetAppActions } from '@xrengine/engine/src/xrui/WidgetAppService'
-import { dispatchAction } from '@xrengine/hyperflux'
+import { WidgetAppService } from '@xrengine/engine/src/xrui/WidgetAppService'
+import { WidgetName } from '@xrengine/engine/src/xrui/Widgets'
 
 import { ArrowBack, Check } from '@mui/icons-material'
 import CircularProgress from '@mui/material/CircularProgress'
@@ -110,11 +109,11 @@ const ReadyPlayerMenu = () => {
   }
 
   const openProfileMenu = (e) => {
-    setWidgetVisibility('Profile', true)
+    WidgetAppService.setWidgetVisibility(WidgetName.PROFILE, true)
   }
 
   const closeMenu = (e) => {
-    setWidgetVisibility('Profile', false)
+    WidgetAppService.setWidgetVisibility(WidgetName.PROFILE, false)
     uploadAvatar()
   }
 
@@ -133,28 +132,8 @@ const ReadyPlayerMenu = () => {
 
     canvas.toBlob(async (blob) => {
       await AuthService.uploadAvatarModel(selectedFile, new File([blob!], thumbnailName), avatarName, undefined)
-      setWidgetVisibility('Profile', true)
+      WidgetAppService.setWidgetVisibility(WidgetName.PROFILE, true)
     })
-  }
-
-  const setWidgetVisibility = (widgetName: string, visibility: boolean) => {
-    const widgetState = accessWidgetAppState()
-    const widgets = Object.entries(widgetState.widgets.value).map(([id, widgetState]) => ({
-      id,
-      ...widgetState,
-      ...Engine.instance.currentWorld.widgets.get(id)!
-    }))
-
-    const currentWidget = widgets.find((w) => w.label === widgetName)
-
-    // close currently open widgets until we support multiple widgets being open at once
-    for (let widget of widgets) {
-      if (currentWidget && widget.id !== currentWidget.id) {
-        dispatchAction(WidgetAppActions.showWidget({ id: widget.id, shown: false }))
-      }
-    }
-
-    currentWidget && dispatchAction(WidgetAppActions.showWidget({ id: currentWidget.id, shown: visibility }))
   }
 
   return (

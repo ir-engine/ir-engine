@@ -1,7 +1,8 @@
 import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
-import { Downgraded, none } from '@xrengine/hyperflux/functions/StateFunctions'
+import { none } from '@xrengine/hyperflux/functions/StateFunctions'
 
-import { matches, Validator } from '../common/functions/MatchesUtils'
+import { matches } from '../common/functions/MatchesUtils'
+import { Engine } from '../ecs/classes/Engine'
 
 type WidgetState = {
   [id: string]: {
@@ -56,7 +57,27 @@ export const WidgetAppServiceReceptor = (action) => {
 export const accessWidgetAppState = () => getState(WidgetAppState)
 export const useWidgetAppState = () => useState(accessWidgetAppState())
 
-export const WidgetAppService = {}
+export const WidgetAppService = {
+  setWidgetVisibility: (widgetName: string, visibility: boolean) => {
+    const widgetState = accessWidgetAppState()
+    const widgets = Object.entries(widgetState.widgets.value).map(([id, widgetState]) => ({
+      id,
+      ...widgetState,
+      ...Engine.instance.currentWorld.widgets.get(id)!
+    }))
+
+    const currentWidget = widgets.find((w) => w.label === widgetName)
+
+    // close currently open widgets until we support multiple widgets being open at once
+    for (let widget of widgets) {
+      if (currentWidget && widget.id !== currentWidget.id && widget.visible) {
+        dispatchAction(WidgetAppActions.showWidget({ id: widget.id, shown: false }))
+      }
+    }
+
+    currentWidget && dispatchAction(WidgetAppActions.showWidget({ id: currentWidget.id, shown: visibility }))
+  }
+}
 
 export class WidgetAppActions {
   static showWidgetMenu = defineAction({

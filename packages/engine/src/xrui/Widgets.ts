@@ -14,6 +14,21 @@ import { WidgetAppActions } from './WidgetAppService'
  * @param {Function} system is a system that will run while a widget is enabled and visible
  */
 
+export const WidgetName = {
+  PROFILE: 'ProfileMenu',
+  SETTINGS: 'SettingsMenu',
+  SOCIALS: 'SocialsMenu',
+  LOCATION: 'LocationMenu',
+  ADMIN_CONTROLS: 'AdminControlsMenu',
+  MEDIA_SESSION: 'MediaSessionMenu',
+  CHAT: 'Chat',
+  EMOTE: 'Emote',
+  READY_PLAYER: 'ReadyPlayer',
+  SELECT_AVATAR: 'SelectAvatar',
+  SHARE_LOCATION: 'ShareLocation',
+  UPLOAD_AVATAR: 'UploadAvatar'
+}
+
 export type Widget = {
   ui: ReturnType<typeof createXRUI>
   label: string

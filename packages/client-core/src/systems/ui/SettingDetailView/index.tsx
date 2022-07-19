@@ -31,9 +31,7 @@ export function createSettingDetailView() {
 }
 
 function createSettingDetailState() {
-  return createState({
-    settingMenuOpen: false
-  })
+  return createState({})
 }
 
 // TODO: update this to newest settings implementation
