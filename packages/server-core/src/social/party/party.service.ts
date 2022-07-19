@@ -1,6 +1,6 @@
 import { Party as PartyDataType } from '@xrengine/common/src/interfaces/Party'
 
-import { Application } from '../../../declarations'
+import { Application, ServerMode } from '../../../declarations'
 import logger from '../../logger'
 import { Party } from './party.class'
 import partyDocs from './party.docs'
@@ -20,9 +20,6 @@ export default (app: Application): void => {
     multi: true
   }
 
-  /**
-   * Initialize our service with any options it requires and docs
-   */
   const event = new Party(options, app)
   event.docs = partyDocs
 
@@ -31,12 +28,9 @@ export default (app: Application): void => {
   const service = app.service('party')
 
   service.hooks(hooks)
-  // /**
-  //  * A function which is used to create new party
-  //  *
-  //  * @param data of new party
-  //  * @returns {@Object} created party
-  //  */
+
+  if (app.serverMode !== ServerMode.API) return
+
   service.publish('created', async (data: PartyDataType): Promise<any> => {
     try {
       const targetIds = data.partyUsers.map((partyUser) => partyUser.userId)
@@ -51,12 +45,6 @@ export default (app: Application): void => {
     }
   })
 
-  /**
-   * A function which is used to update new party
-   *
-   * @param data of new party
-   * @returns {@Object} of new updated party
-   */
   service.publish('patched', async (data: PartyDataType): Promise<any> => {
     const partyUsers = await app.service('party-user').Model.findAll({ where: { partyId: data.id }, limit: 1000 })
     const targetIds = partyUsers.map((partyUser) => partyUser.userId)
@@ -67,13 +55,6 @@ export default (app: Application): void => {
       })
     )
   })
-
-  /**
-   * A function which is used to remove single party
-   *
-   * @param data of single party
-   * @returns {@Object} of removed data
-   */
 
   service.publish('removed', async (data: PartyDataType): Promise<any> => {
     const partyUsers = await app.service('party-user').Model.findAll({ where: { partyId: data.id }, limit: 1000 })

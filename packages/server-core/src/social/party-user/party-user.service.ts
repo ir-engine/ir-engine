@@ -1,6 +1,6 @@
 import '@feathersjs/transport-commons'
 
-import { Application } from '../../../declarations'
+import { Application, ServerMode } from '../../../declarations'
 import logger from '../../logger'
 import { PartyUser } from './party-user.class'
 import partyUserDocs from './party-user.docs'
@@ -20,9 +20,6 @@ export default (app: Application): void => {
     multi: true
   }
 
-  /**
-   * An object for swagger documentation configiration
-   */
   const event = new PartyUser(options, app)
   event.docs = partyUserDocs
 
@@ -32,12 +29,7 @@ export default (app: Application): void => {
 
   service.hooks(hooks)
 
-  /**
-   * A function which is used to create new party user
-   *
-   * @param data of new party
-   * @returns {@Object} of created new party user
-   */
+  if (app.serverMode !== ServerMode.API) return
 
   service.publish('created', async (data): Promise<any> => {
     data.isOwner = data.isOwner === 1 ? true : data.isOwner === 0 ? false : data.isOwner
@@ -57,12 +49,6 @@ export default (app: Application): void => {
     }
   })
 
-  /**
-   * A function which is used to update party user
-   *
-   * @param data of new party user
-   * @returns {@Object} updated party user
-   */
   service.publish('patched', async (data): Promise<any> => {
     data.isOwner = data.isOwner === 1 ? true : data.isOwner === 0 ? false : data.isOwner
     try {
@@ -82,13 +68,6 @@ export default (app: Application): void => {
       throw err
     }
   })
-
-  /**
-   * A function which is used to remove party user
-   *
-   * @param data for single party user
-   * @returns {@Object} removed party user
-   */
 
   service.publish('removed', async (data): Promise<any> => {
     data.isOwner = data.isOwner === 1 ? true : data.isOwner === 0 ? false : data.isOwner

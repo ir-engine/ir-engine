@@ -10,11 +10,14 @@ import { PartyUser } from '@xrengine/common/src/interfaces/PartyUser'
 import { UserInterface } from '@xrengine/common/src/interfaces/User'
 import multiLogger from '@xrengine/common/src/logger'
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
 import { API } from '../../API'
 import { MediaInstanceConnectionService } from '../../common/services/MediaInstanceConnectionService'
 import { NotificationService } from '../../common/services/NotificationService'
+import { leaveNetwork } from '../../transports/SocketWebRTCClientFunctions'
+import { SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientNetwork'
 import { accessAuthState } from '../../user/services/AuthService'
 import { UserAction } from '../../user/services/UserService'
 import { ChatService } from './ChatService'
@@ -135,6 +138,7 @@ export const PartyService = {
   },
   createParty: async () => {
     try {
+      leaveNetwork(Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork)
       await API.instance.client.service('party').create()
       PartyService.getParty()
     } catch (err) {
