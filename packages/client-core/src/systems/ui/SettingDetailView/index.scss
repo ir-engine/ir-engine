@@ -95,14 +95,6 @@
   font-size: 1.5rem;
 }
 
-label {
-  margin-left: 10px;
-  font-size: 14px;
-  display: inline-block;
-  flex-shrink: 0;
-  font-family: Roboto;
-}
-
 .slider {
   width: 100%;
   accent-color: var(--iconButtonSelectedBackground);
@@ -113,7 +105,6 @@ label {
 }
 
 .graphicsSection {
-  margin-top: 25px;
   color: var(--textColor);
   position: relative;
 }

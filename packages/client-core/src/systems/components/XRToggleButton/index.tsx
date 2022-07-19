@@ -14,12 +14,12 @@ const XRToggleButton = (props) => {
   return (
     <>
       <style>{styleString}</style>
-      {labelPosition === 'start' && <span className="label">{labelContent}</span>}
+      {labelPosition === 'start' && <span className="label left">{labelContent}</span>}
       <label className="switch">
         <input type="checkbox" {...inputProps} />
         <span className="switchSlider round"></span>
       </label>
-      {labelPosition === 'end' && <span className="label">{labelContent}</span>}
+      {labelPosition === 'end' && <span className="label right">{labelContent}</span>}
     </>
   )
 }
