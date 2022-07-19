@@ -261,6 +261,10 @@
       }
     }
   }
+
+  .hidden {
+    visibility: hidden;
+  }
 }
 
 :global(.MuiPaper-root).message-wrapper {
