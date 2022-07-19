@@ -28,11 +28,11 @@ import ViewInArIcon from '@mui/icons-material/ViewInAr'
 import BooleanInput from '../inputs/BooleanInput'
 import { PropertiesPanelButton } from '../inputs/Button'
 import InputGroup from '../inputs/InputGroup'
-import InteractableGroup from '../inputs/InteractableGroup'
 import MaterialAssignment from '../inputs/MaterialAssignment'
 import ModelInput from '../inputs/ModelInput'
 import SelectInput from '../inputs/SelectInput'
 import EnvMapEditor from './EnvMapEditor'
+import ModelTransformProperties from './ModelTransformProperties'
 import NodeEditor from './NodeEditor'
 import ScreenshareTargetNodeEditor from './ScreenshareTargetNodeEditor'
 import ShadowProperties from './ShadowProperties'
@@ -46,7 +46,6 @@ import { EditorComponentType, updateProperty } from './Util'
  */
 export const ModelNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
-  const [isInteractable, setInteractable] = useState(false)
   const [animationPlaying, setAnimationPlaying] = useState(false)
   const engineState = useEngineState()
   const entity = props.node.entity
@@ -56,10 +55,6 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
   const obj3d = getComponent(entity, Object3DComponent)?.value ?? new Object3D() // quick hack to not crash
   const hasError = engineState.errorEntities[entity].get()
   const errorComponent = getComponent(entity, ErrorComponent)
-
-  useEffect(() => {
-    setInteractable(hasComponent(entity, InteractableComponent))
-  }, [])
 
   const updateSrc = async (src: string) => {
     // if(src !== modelComponent.src)
@@ -72,17 +67,6 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
   const onPlayAnimation = () => {
     if (!animationPlaying) playAnimationClip(animationComponent, loopAnimationComponent)
     setAnimationPlaying(!animationPlaying)
-  }
-
-  const onChangeInteractable = (interact) => {
-    setInteractable(interact)
-    if (interact) {
-      deserializeInteractable(entity, { name: '', props: SCENE_COMPONENT_INTERACTABLE_DEFAULT_VALUES })
-    } else {
-      const editorComponent = getComponent(entity, EntityNodeComponent).components
-      editorComponent.splice(editorComponent.indexOf(SCENE_COMPONENT_INTERACTABLE), 1)
-      removeComponent(entity, InteractableComponent)
-    }
   }
 
   const textureOverrideEntities = [] as { label: string; value: string }[]
@@ -109,6 +93,12 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
           <div style={{ marginTop: 2, color: '#FF8C00' }}>{t('editor:properties.model.error-url')}</div>
         )}
       </InputGroup>
+      {modelComponent.parsed && (
+        <ModelTransformProperties
+          modelComponent={modelComponent}
+          onChangeModel={updateProperty(ModelComponent, 'src')}
+        />
+      )}
       <InputGroup name="Texture Override" label={t('editor:properties.model.lbl-textureOverride')}>
         <SelectInput
           key={props.node.entity}
@@ -166,10 +156,6 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
       <PropertiesPanelButton onClick={onPlayAnimation}>
         {t(animationPlaying ? 'editor:properties.video.lbl-pause' : 'editor:properties.video.lbl-play')}
       </PropertiesPanelButton>
-      <InputGroup name="Interactable" label={t('editor:properties.model.lbl-interactable')}>
-        <BooleanInput value={isInteractable} onChange={onChangeInteractable} />
-      </InputGroup>
-      {isInteractable && <InteractableGroup node={props.node}></InteractableGroup>}
       <ScreenshareTargetNodeEditor node={props.node} multiEdit={props.multiEdit} />
       <EnvMapEditor node={props.node} />
       <ShadowProperties node={props.node} />
