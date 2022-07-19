@@ -1,11 +1,12 @@
 import { Location } from './Location'
+import { LocationSettings } from './LocationSettings'
 
 export interface Instance {
   id: string
   currentUsers: number
   ipAddress: string
   locationId: string
-  location?: Location
+  location: Location
   channelId: string
   podName?: string
   ended?: boolean
@@ -18,6 +19,26 @@ export const InstanceSeed: Instance = {
   id: '',
   ipAddress: '',
   currentUsers: 0,
+  location: {
+    id: '',
+    name: '',
+    slugifiedName: '',
+    maxUsersPerInstance: 10,
+    sceneId: '',
+    locationSettingsId: '',
+    locationSetting: {
+      id: '',
+      locationId: '',
+      locationType: 'public',
+      instanceMediaChatEnabled: false,
+      audioEnabled: false,
+      screenSharingEnabled: false,
+      faceStreamingEnabled: false,
+      videoEnabled: false
+    },
+    isLobby: false,
+    isFeatured: false
+  },
   podName: '',
   locationId: '',
   channelId: ''

@@ -1,34 +1,18 @@
 import Hls from 'hls.js'
-import {
-  AxesHelper,
-  BufferGeometry,
-  Group,
-  MathUtils,
-  Mesh,
-  MeshBasicMaterial,
-  Object3D,
-  Quaternion,
-  Vector3
-} from 'three'
+import { BufferGeometry, Group, MathUtils, Mesh, MeshBasicMaterial, Quaternion, Vector3 } from 'three'
 
 import { XRUIComponent } from '@xrengine/engine/src/xrui/components/XRUIComponent'
 
-import { AssetLoader } from '../../assets/classes/AssetLoader'
-import { FollowCameraComponent } from '../../camera/components/FollowCameraComponent'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
-import { useWorld } from '../../ecs/functions/SystemHooks'
-import { HighlightComponent } from '../../renderer/components/HighlightComponent'
 import { NameComponent } from '../../scene/components/NameComponent'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
-import { DesiredTransformComponent } from '../../transform/components/DesiredTransformComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { ObjectFitFunctions } from '../../xrui/functions/ObjectFitFunctions'
 import { BoundingBoxComponent } from '../components/BoundingBoxComponent'
-import { InteractableComponent } from '../components/InteractableComponent'
 import { InteractedComponent } from '../components/InteractedComponent'
 import { InteractorComponent } from '../components/InteractorComponent'
 import { createInteractiveModalView } from '../ui/InteractiveModalView'
@@ -194,7 +178,7 @@ const transitionStartTime = new Map<Entity, number>()
 export const updateInteractUI = (modelEntity: Entity, xrui: ReturnType<typeof createInteractUI>) => {
   if (Engine.instance.isEditor) return
 
-  const world = useWorld()
+  const world = Engine.instance.currentWorld
   const uiContainer = getComponent(xrui.entity, XRUIComponent)?.container
   const anchoredPosition = ANCHORED_POSITION.get(modelEntity)!
   const anchoredRotation = ANCHORED_ROTATION.get(modelEntity)!
@@ -223,9 +207,9 @@ export const updateInteractUI = (modelEntity: Entity, xrui: ReturnType<typeof cr
     transitionStartTime.set(modelEntity, world.elapsedSeconds)
     xrui.state.mode.set(nextMode)
     if (nextMode === 'interacting') {
-      Engine.instance.currentWorld.camera.attach(uiContainer)
+      world.camera.attach(uiContainer)
     } else {
-      Engine.instance.currentWorld.scene.attach(uiContainer)
+      world.scene.attach(uiContainer)
     }
     modelGroup.traverse((obj) => {
       const mesh = obj as Mesh<BufferGeometry, MeshBasicMaterial>
@@ -250,29 +234,6 @@ export const updateInteractUI = (modelEntity: Entity, xrui: ReturnType<typeof cr
   const eKey = uiContainer.rootLayer.querySelector('.hint')!
   const eKeyMat = eKey.contentMesh.material as MeshBasicMaterial
 
-  const description = uiContainer.rootLayer.querySelector('.description')!
-  const price = uiContainer.rootLayer.querySelector('.price')!
-  const descriptionMat = description.contentMesh.material as MeshBasicMaterial
-  const priceMat = price.contentMesh.material as MeshBasicMaterial
-
-  const stars = [
-    uiContainer.rootLayer.querySelector('.star-1')!,
-    uiContainer.rootLayer.querySelector('.star-2')!,
-    uiContainer.rootLayer.querySelector('.star-3')!,
-    uiContainer.rootLayer.querySelector('.star-4')!,
-    uiContainer.rootLayer.querySelector('.star-5')!
-  ]
-
-  const modelContainer = uiContainer.rootLayer.querySelector('.model')!
-  modelContainer.position.lerp(modelContainer.domLayout.position, alpha)
-  modelContainer.quaternion.slerp(modelContainer.domLayout.quaternion, alpha)
-  modelContainer.scale.lerp(modelContainer.domLayout.scale, alpha)
-
-  const link = uiContainer.rootLayer.querySelector('.link')!
-  const linkCart = uiContainer.rootLayer.querySelector('.link-cart')!
-  const linkMat = link.contentMesh.material as MeshBasicMaterial
-  const linkCartMat = linkCart.contentMesh.material as MeshBasicMaterial
-
   if (nextMode === 'inactive') {
     const uiContainerScale =
       Math.max(1, Engine.instance.currentWorld.camera.position.distanceTo(anchoredPosition)) * 0.8
@@ -294,26 +255,9 @@ export const updateInteractUI = (modelEntity: Entity, xrui: ReturnType<typeof cr
     title.scale.lerp(title.domLayout.scale, alpha)
     titleMat.opacity = MathUtils.lerp(titleMat.opacity, 0, alpha)
 
-    description.position.lerp(description.domLayout.position, alpha)
-    price.position.lerp(price.domLayout.position, alpha)
-    descriptionMat.opacity = MathUtils.lerp(descriptionMat.opacity, 0, alpha)
-    priceMat.opacity = MathUtils.lerp(priceMat.opacity, 0, alpha)
-
-    link.position.lerp(link.domLayout.position, alpha)
-    linkCart.position.lerp(linkCart.domLayout.position, alpha)
-    linkMat.opacity = MathUtils.lerp(linkMat.opacity, 0, alpha)
-    linkCartMat.opacity = MathUtils.lerp(linkCartMat.opacity, 0, alpha)
-
     eKey.position.copy(title.position)
     eKey.position.y -= 0.1
     eKeyMat.opacity = MathUtils.lerp(eKeyMat.opacity, 0, alpha)
-
-    for (const [i, s] of stars.entries()) {
-      s.position.lerp(s.domLayout.position, alpha)
-      s.scale.lerp(s.domLayout.scale.multiplyScalar(0.1), alpha)
-      const mat = s.contentMesh.material as MeshBasicMaterial
-      mat.opacity = MathUtils.lerp(mat.opacity, 0, alpha)
-    }
   } else if (nextMode === 'active') {
     const uiContainerScale =
       Math.max(1, Engine.instance.currentWorld.camera.position.distanceTo(anchoredPosition)) * 0.8
@@ -337,26 +281,9 @@ export const updateInteractUI = (modelEntity: Entity, xrui: ReturnType<typeof cr
     title.scale.lerp(title.domLayout.scale, alpha)
     titleMat.opacity = MathUtils.lerp(titleMat.opacity, 1, alpha)
 
-    description.position.lerp(description.domLayout.position, alpha)
-    price.position.lerp(price.domLayout.position, alpha)
-    descriptionMat.opacity = MathUtils.lerp(descriptionMat.opacity, 0, alpha)
-    priceMat.opacity = MathUtils.lerp(priceMat.opacity, 0, alpha)
-
-    link.position.lerp(link.domLayout.position, alpha)
-    linkCart.position.lerp(linkCart.domLayout.position, alpha)
-    linkMat.opacity = MathUtils.lerp(linkMat.opacity, 0, alpha)
-    linkCartMat.opacity = MathUtils.lerp(linkCartMat.opacity, 0, alpha)
-
     eKey.position.copy(title.position)
     eKey.position.y -= 0.1
     eKeyMat.opacity = MathUtils.lerp(eKeyMat.opacity, 1, alpha)
-
-    for (const [i, s] of stars.entries()) {
-      s.position.lerp(s.domLayout.position, alpha)
-      s.scale.lerp(s.domLayout.scale.multiplyScalar(0.1), alpha)
-      const mat = s.contentMesh.material as MeshBasicMaterial
-      mat.opacity = MathUtils.lerp(mat.opacity, 0, alpha)
-    }
   } else if (nextMode === 'interacting') {
     const uiSize = uiContainer.rootLayer.domSize
     const uiContainerScale =
@@ -366,25 +293,6 @@ export const updateInteractUI = (modelEntity: Entity, xrui: ReturnType<typeof cr
     uiContainer.quaternion.slerp(INTERACTING_CAMERA_ROTATION, alpha)
     uiContainer.scale.lerp(_vect.setScalar(uiContainerScale), alpha)
 
-    const modelBounds = getComponent(modelEntity, BoundingBoxComponent)
-    const modelSize = modelBounds.box.getSize(_vect)
-    const modelScale =
-      ObjectFitFunctions.computeContentFitScale(
-        modelSize.x,
-        modelSize.y,
-        modelContainer.domSize.x,
-        modelContainer.domSize.y,
-        'contain'
-      ) * 0.5
-
-    if (modelGroup.parent !== modelContainer) {
-      modelContainer.attach(modelGroup)
-    }
-
-    modelGroup.position.lerp(_vect.setScalar(0), alpha)
-    modelGroup.quaternion.slerp(_quat.copy(Engine.instance.currentWorld.camera.quaternion).invert(), alpha)
-    modelGroup.scale.lerp(_vect.setScalar(modelScale), alpha)
-
     rootMat.opacity = MathUtils.lerp(rootMat.opacity, 1, alpha)
 
     title.position.lerp(title.domLayout.position, alpha)
@@ -392,24 +300,6 @@ export const updateInteractUI = (modelEntity: Entity, xrui: ReturnType<typeof cr
 
     eKey.position.lerp(eKey.domLayout.position, alpha)
     eKeyMat.opacity = MathUtils.lerp(eKeyMat.opacity, 0, alpha)
-
-    description.position.lerp(description.domLayout.position, alpha)
-    price.position.lerp(price.domLayout.position, alpha)
-    descriptionMat.opacity = MathUtils.lerp(descriptionMat.opacity, 1, alpha)
-    priceMat.opacity = MathUtils.lerp(priceMat.opacity, 1, alpha)
-
-    link.position.lerp(link.domLayout.position, alpha)
-    linkCart.position.lerp(linkCart.domLayout.position, alpha)
-    linkMat.opacity = MathUtils.lerp(linkMat.opacity, 1, alpha)
-    linkCartMat.opacity = MathUtils.lerp(linkCartMat.opacity, 1, alpha)
-
-    for (const [i, s] of stars.entries()) {
-      const alpha = Math.min((transitionElapsed - i * 0.1) / (TRANSITION_DURATION * 3), 1)
-      s.position.lerp(s.domLayout.position, alpha)
-      s.scale.lerp(s.domLayout.scale, alpha)
-      const mat = s.contentMesh.material as MeshBasicMaterial
-      mat.opacity = MathUtils.lerp(mat.opacity, 1, alpha)
-    }
   }
 }
 

@@ -1,4 +1,4 @@
-import { Group, Object3D, Vector3 } from 'three'
+import { Group, Object3D, Quaternion, Vector3 } from 'three'
 
 import { createActionQueue, getState } from '@xrengine/hyperflux'
 
@@ -201,6 +201,9 @@ export function setupHandIK(entity: Entity) {
 
   const animation = getComponent(entity, AvatarAnimationComponent)
 
+  leftOffset.rotation.set(-2.1, 3, 0.1)
+  rightOffset.rotation.set(-2.1, 0.1, 0.1)
+
   // todo: load the avatar & rig on the server
   if (isClient) {
     Object3DUtils.getWorldPosition(animation.rig.LeftShoulder, leftHint.position)
@@ -221,14 +224,14 @@ export function setupHandIK(entity: Entity) {
     leftHint: leftHint,
     leftTargetOffset: leftOffset,
     leftTargetPosWeight: 1,
-    leftTargetRotWeight: 0,
+    leftTargetRotWeight: 1,
     leftHintWeight: 1,
 
     rightTarget: xrInputSourceComponent.controllerGripRightParent,
     rightHint: rightHint,
     rightTargetOffset: rightOffset,
     rightTargetPosWeight: 1,
-    rightTargetRotWeight: 0,
+    rightTargetRotWeight: 1,
     rightHintWeight: 1
   })
 }

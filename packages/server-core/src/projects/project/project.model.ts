@@ -25,7 +25,7 @@ export default (app: Application) => {
         type: DataTypes.STRING
       },
       settings: {
-        type: DataTypes.STRING
+        type: DataTypes.TEXT
       }
     },
     {

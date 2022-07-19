@@ -1,0 +1,17 @@
+.label {
+  margin-left: 10px;
+  font-size: 14px;
+  display: inline-block;
+  flex-shrink: 0;
+  font-family: Roboto;
+  color: var(--textColor);
+}
+
+.slider {
+  width: 100%;
+  accent-color: var(--iconButtonSelectedBackground);
+}
+
+input[range]::-webkit-slider-runnable-track {
+  background-color: var(--iconButtonSelectedBackground);
+}

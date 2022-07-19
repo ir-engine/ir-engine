@@ -15,14 +15,19 @@ interface Props {
   //auth: any
   type: string
   token: string
+  instanceId: string
+  path: string
 }
 
-const AuthMagicLink = ({ token, type }: Props): JSX.Element => {
+const AuthMagicLink = ({ token, type, instanceId, path }: Props): JSX.Element => {
   const { t } = useTranslation()
   const user = useAuthState().user
   useEffect(() => {
     if (type === 'login') {
-      AuthService.loginUserMagicLink(token, '/', '/')
+      let redirectSuccess = path ? `${path}` : null
+      if (redirectSuccess && instanceId != null)
+        redirectSuccess += redirectSuccess.indexOf('?') > -1 ? `&instanceId=${instanceId}` : `?instanceId=${instanceId}`
+      AuthService.loginUserByJwt(token, redirectSuccess || '/', '/')
     } else if (type === 'connection') {
       AuthService.loginUserMagicLink(token, '/', '/')
       // if (user !== null) {
@@ -47,6 +52,9 @@ const AuthMagicLinkWrapper = (props: any): JSX.Element => {
   const search = new URLSearchParams(useLocation().search)
   const token = search.get('token') as string
   const type = search.get('type') as string
+  const error = search.get('error') as string
+  const path = search.get('path') as string
+  const instanceId = search.get('instanceId') as string
 
   const handleResetPassword = (token: string, password: string): void => {
     AuthService.resetPassword(token, password)
@@ -57,7 +65,7 @@ const AuthMagicLinkWrapper = (props: any): JSX.Element => {
   } else if (type === 'reset') {
     return <ResetPassword resetPassword={handleResetPassword} token={token} />
   }
-  return <AuthMagicLink {...props} token={token} type={type} />
+  return <AuthMagicLink {...props} token={token} type={type} instanceId={instanceId} path={path} />
 }
 
 export default withRouter(AuthMagicLinkWrapper)

@@ -1,19 +1,19 @@
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
-import { dispatchAction, getState } from '@xrengine/hyperflux'
+import { dispatchAction } from '@xrengine/hyperflux'
 
 import { accessMediaInstanceConnectionState } from '../common/services/MediaInstanceConnectionService'
-import { MediaState, MediaStreamService } from '../media/services/MediaStreamService'
+import { accessMediaStreamState, MediaStreamService } from '../media/services/MediaStreamService'
 import { UserService } from '../user/services/UserService'
 import { MediaStreams } from './MediaStreams'
 
 export const updateNearbyAvatars = () => {
   const network = Engine.instance.currentWorld.mediaNetwork
 
-  const mediaState = getState(MediaState)
-
   MediaStreamService.updateNearbyLayerUsers()
+
+  const mediaState = accessMediaStreamState()
 
   UserService.getLayerUsers(true)
   const channelConnectionState = accessMediaInstanceConnectionState()
@@ -28,7 +28,7 @@ export const updateNearbyAvatars = () => {
 
   if (!mediaState.nearbyLayerUsers.length) return
 
-  const nearbyUserIds = mediaState.nearbyLayerUsers.map((user) => user.id)
+  const nearbyUserIds = mediaState.nearbyLayerUsers.value
 
   network?.consumers.forEach((consumer) => {
     if (!nearbyUserIds.includes(consumer._appData.peerId)) {

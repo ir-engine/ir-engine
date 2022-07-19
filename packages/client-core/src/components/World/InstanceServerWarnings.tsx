@@ -8,7 +8,6 @@ import {
 import { MediaInstanceConnectionService } from '@xrengine/client-core/src/common/services/MediaInstanceConnectionService'
 import { useChatState } from '@xrengine/client-core/src/social/services/ChatService'
 import { useLocationState } from '@xrengine/client-core/src/social/services/LocationService'
-import { MediaStreams } from '@xrengine/client-core/src/transports/MediaStreams'
 import { SocketWebRTCClientNetwork } from '@xrengine/client-core/src/transports/SocketWebRTCClientNetwork'
 import { matches } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
@@ -18,6 +17,7 @@ import WEBGL from '@xrengine/engine/src/renderer/THREE.WebGL'
 import { addActionReceptor } from '@xrengine/hyperflux'
 
 import { NetworkConnectionService } from '../../common/services/NetworkConnectionService'
+import { LocationAction } from '../../social/services/LocationService'
 import WarningRetryModal, { WarningRetryModalProps } from '../AlertModals/WarningRetryModal'
 
 const initialModalValues: WarningRetryModalProps = {
@@ -35,7 +35,8 @@ enum WarningModalTypes {
   INVALID_LOCATION,
   INSTANCE_WEBGL_DISCONNECTED,
   CHANNEL_DISCONNECTED,
-  DETECTED_LOW_FRAME
+  DETECTED_LOW_FRAME,
+  NOT_AUTHORIZED
 }
 
 const InstanceServerWarnings = () => {
@@ -90,6 +91,10 @@ const InstanceServerWarnings = () => {
         })
         .when(NetworkConnectionService.actions.mediaInstanceReconnected.matches, () => {
           reset(WarningModalTypes.CHANNEL_DISCONNECTED)
+        })
+        .when(LocationAction.socialLocationNotAuthorized.matches, () => {
+          updateWarningModal(WarningModalTypes.NOT_AUTHORIZED)
+          setCurrentError(WarningModalTypes.NOT_AUTHORIZED)
         })
     })
 
@@ -229,6 +234,17 @@ const InstanceServerWarnings = () => {
           title: t('common:instanceServer.low-frame-title'),
           body: t('common:instanceServer.low-frame-error'),
           timeout: 10000,
+          onClose: () => {}
+        })
+        break
+      }
+
+      case WarningModalTypes.NOT_AUTHORIZED: {
+        setModalValues({
+          open: true,
+          title: t('common:instanceServer.notAuthorizedAtLocationTitle'),
+          body: t('common:instanceServer.notAuthorizedAtLocation'),
+          noCountdown: true,
           onClose: () => {}
         })
         break

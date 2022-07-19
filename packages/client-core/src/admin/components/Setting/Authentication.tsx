@@ -5,24 +5,12 @@ import { useTranslation } from 'react-i18next'
 import { Box, Button, Grid, Typography } from '@mui/material'
 import IconButton from '@mui/material/IconButton'
 
+import { initialAuthState } from '../../../common/initialAuthState'
 import { useAuthState } from '../../../user/services/AuthService'
 import InputSwitch from '../../common/InputSwitch'
 import InputText from '../../common/InputText'
 import { AuthSettingsService, useAuthSettingState } from '../../services/Setting/AuthSettingService'
 import styles from '../../styles/settings.module.scss'
-
-const initialState = {
-  jwt: true,
-  local: false,
-  discord: false,
-  facebook: false,
-  github: false,
-  google: false,
-  linkedin: false,
-  twitter: false,
-  smsMagicLink: false,
-  emailMagicLink: false
-}
 
 const OAUTH_TYPES = {
   DISCORD: 'discord',
@@ -38,8 +26,8 @@ const Account = () => {
   const authSettingState = useAuthSettingState()
   const [authSetting] = authSettingState?.authSettings?.value || []
   const id = authSetting?.id
-  const [state, setState] = useState(initialState)
-  const [holdAuth, setHoldAuth] = useState(initialState)
+  const [state, setState] = useState(initialAuthState)
+  const [holdAuth, setHoldAuth] = useState(initialAuthState)
   const [keySecret, setKeySecret] = useState({
     discord: authSetting?.oauth.discord,
     github: authSetting?.oauth.github,
@@ -100,7 +88,7 @@ const Account = () => {
 
   useEffect(() => {
     if (authSetting) {
-      let temp = { ...initialState }
+      let temp = { ...initialAuthState }
       authSetting?.authStrategies?.forEach((el) => {
         Object.entries(el).forEach(([strategyName, strategy]) => {
           temp[strategyName] = strategy
@@ -139,7 +127,7 @@ const Account = () => {
   }
 
   const handleCancel = () => {
-    let temp = { ...initialState }
+    let temp = { ...initialAuthState }
     authSetting?.authStrategies?.forEach((el) => {
       Object.entries(el).forEach(([strategyName, strategy]) => {
         temp[strategyName] = strategy

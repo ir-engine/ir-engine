@@ -222,6 +222,7 @@ const InstanceChat = ({
 }: InstanceChatProps): any => {
   const [chatWindowOpen, setChatWindowOpen] = useState(false)
   const [unreadMessages, setUnreadMessages] = useState(false)
+  const [messageContainerVisible, setMessageContainerVisible] = useState(false)
   const messageRefInput = useRef<HTMLInputElement>()
 
   const { dimensions, sortedMessages, handleComposingMessageChange, packageMessage, composingMessage } = useChatHooks({
@@ -284,6 +285,8 @@ const InstanceChat = ({
     })
   }, [])
 
+  const messageRef = useRef<any>()
+
   useEffect(() => {
     if (
       sortedMessages &&
@@ -293,21 +296,23 @@ const InstanceChat = ({
       setUnreadMessages(true)
       entity && toggleAudio(entity)
     }
-  }, [chatState.messageCreated.value])
 
-  /**
-   * Message scroll
-   */
-
-  const messageRef = useRef<any>()
-  const messageEl = messageRef.current
-
-  useEffect(() => {
-    if (messageEl) messageEl.scrollTop = messageEl?.scrollHeight
-  }, [chatState])
+    if (messageRef.current && messageRef.current.scrollHeight - messageRef.current.scrollTop < 500)
+      messageRef.current.scrollTop = messageRef.current.scrollHeight
+  }, [chatState.messageCreated.value, sortedMessages])
 
   const toggleChatWindow = () => {
     if (!chatWindowOpen && isMobile) hideOtherMenus()
+    if (!chatWindowOpen) {
+      setMessageContainerVisible(false)
+      const messageRefCurrentRenderedInterval = setInterval(() => {
+        if (messageRef.current && messageRef.current.scrollHeight > 0) {
+          messageRef.current.scrollTop = messageRef.current.scrollHeight
+          setMessageContainerVisible(true)
+          clearInterval(messageRefCurrentRenderedInterval)
+        }
+      }, 5)
+    }
     setChatWindowOpen(!chatWindowOpen)
     chatWindowOpen && setUnreadMessages(false)
     setIsInitRender(false)
@@ -331,7 +336,10 @@ const InstanceChat = ({
       ></div>
       <div className={styles['instance-chat-container'] + ' ' + (chatWindowOpen ? styles.open : '')}>
         {chatWindowOpen && (
-          <div ref={messageRef} className={styles['instance-chat-msg-container']}>
+          <div
+            ref={messageRef}
+            className={styles['instance-chat-msg-container'] + ' ' + (!messageContainerVisible ? styles.hidden : '')}
+          >
             <div className={styles['list-container']}>
               <Card square={true} elevation={0} className={styles['message-wrapper']}>
                 <CardContent className={styles['message-container']}>

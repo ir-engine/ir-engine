@@ -1,3 +1,4 @@
+import { LocationAuthorizedUser } from './LocationAuthorizedUser'
 import { LocationSettings } from './LocationSettings'
 
 export interface Location {
@@ -12,6 +13,7 @@ export interface Location {
   isFeatured: boolean
   location_settings?: LocationSettings
   location_setting?: LocationSettings
+  location_authorized_users?: LocationAuthorizedUser[]
 }
 
 export interface LocationFetched {
@@ -25,6 +27,7 @@ export interface LocationFetched {
   isLobby: boolean
   isFeatured: boolean
   location_setting?: any
+  location_authorized_users?: LocationAuthorizedUser[]
 }
 
 export const LocationSeed: Location = {

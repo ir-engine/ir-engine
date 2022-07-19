@@ -49,15 +49,15 @@ technology and shared simulations should be as easy and natural as making a webs
 
 Guest Demos
 
-- ***[Apartment - CCO from Sketchfab](https://app.theoverlay.io/location/apartment)***
-- ***[Star Station - our dev coommunity hangout](https://app.theoverlay.io/location/sky-station)***
-- ***[Globe Concert Hall - collab with WildCapture.io](https://app.theoverlay.io/location/globe-theater)***
+- ***[Apartment - CCO from Sketchfab](https://app.etherealengine.com/location/apartment)***
+- ***[Star Station - our dev coommunity hangout](https://app.etherealengine.com/location/sky-station)***
+- ***[Globe Concert Hall - collab with WildCapture.io](https://app.etherealengine.com/location/globe-theater)***
 
 
 Host Demos 
 
-- [XRE Admin Console - Demo Cluster - Request Demo Access on our Discord](https://demo.theoverlay.io/admin)
-- [XRE XRModule Asset Editor - Demo Cluster - Request Demo Access on our Discord](https://demo.theoverlay.io/edior)
+- [XRE Admin Console - Demo Cluster - Request Demo Access on our Discord](https://demo.etherealengine.com/admin)
+- [XRE XRModule Asset Editor - Demo Cluster - Request Demo Access on our Discord](https://demo.etherealengine.com/edior)
 
 ## XRE XRModule
 
@@ -65,7 +65,7 @@ Host Demos
 
 Create composable plug-ins for XREngine scenes with XRModule Projects
 
-### [Create XRModule Projects](/docs/docs/3_concepts/1_projects_api.md)
+### [Create XRModule Projects](https://xrfoundation.github.io/ethereal-engine-docs/docs/concepts/projects_api)
 
 XRModules are folders that contain all your custom code, assets and scenes. They are version controlled using git & github, and can be installed to any deployment with a single click. (more on that in the next chapter)
 
@@ -101,17 +101,17 @@ To install Ethereal Engine locally, the following pre-reqs are required.
 
 ### Getting Started
 
-See the [Installation instructions](/docs/docs/1_installation/readme.md)
+See the [Installation instructions](https://xrfoundation.github.io/ethereal-engine-docs/docs/installation/)
 for more details.
 
 ## Usage
 
 ### Documentation
 
-* [General XREngine documentation](https://xrfoundation.github.io/xrengine-docs/docs)
-* [Auto-generated (tsdoc) API reference](https://xrfoundation.github.io/xrengine-docs/docs/generated/common/)
+* [General XREngine documentation](https://xrfoundation.github.io/ethereal-engine-docs/docs)
+* [Auto-generated (tsdoc) API reference](https://xrfoundation.github.io/ethereal-engine-docs/docs/generated/common/)
 * [Avatar, Scene & Asset Pipeline](https://github.com/XRFoundation/XREngine/wiki/Avatar,-Scene-&-Asset-Pipeline)
-* [Why are we building XREngine?](/docs/docs/0_start_here.md)
+* [Why are we building XREngine?](https://xrfoundation.github.io/ethereal-engine-docs/docs/)
 
 ## Contributing
 

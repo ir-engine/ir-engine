@@ -9,6 +9,7 @@
   flex-direction: column;
   width: 500px;
   padding: 0 30px;
+  overflow: auto;
   margin: 5px 15px 20px 10px;
   border-radius: 20px;
   max-height: calc(100vh - 100px);
@@ -18,129 +19,15 @@
     touch-action: auto;
   }
 
-  & > .profilePanel,
+  & > .profilePanel {
+    margin: 30px 0 0;
+  }
+
   & > .accountPanel,
   & > .settingPanel,
   & > .sharePanel,
   & > .locationPanel {
     margin: 30px 0;
-  }
-
-  .inviteBox {
-    margin-top: 10px;
-    width: 100%;
-    color: var(--textColor);
-    display: inline-flex;
-    flex-direction: column;
-    position: relative;
-    min-width: 0;
-    padding: 0;
-    border: 0;
-    vertical-align: top;
-  }
-
-  .inviteContainer {
-    border-radius: 4px;
-    padding-right: 14px;
-    font-family: Roboto, Helvetica, Arial, sans-serif;
-    font-weight: 400;
-    font-size: 1rem;
-    line-height: 1.4375em;
-    letter-spacing: 0.00938em;
-    color: var(--textColor);
-    box-sizing: border-box;
-    position: relative;
-    cursor: text;
-    display: inline-flex;
-    align-items: center;
-  }
-
-  .inviteLinkInput {
-    color: var(--textColor);
-    border-color: var(--inputOutline);
-    padding: 5px 0 10px 14px;
-    font: inherit;
-    letter-spacing: inherit;
-    border: 0;
-    box-sizing: content-box;
-    background: none;
-    height: 1.4375em;
-    margin: 0;
-    display: block;
-    min-width: 0;
-    width: 100%;
-  }
-
-  .refreshApiContainer {
-    color: var(--textColor);
-    cursor: pointer;
-    display: flex;
-    height: 0.01em;
-    max-height: 2em;
-    align-items: center;
-    white-space: nowrap;
-    margin-left: 8px;
-    margin-bottom: 5px;
-    z-index: 20;
-
-    svg {
-      width: 1em;
-      height: 1em;
-      display: inline-block;
-      flex-shrink: 0;
-      font-size: 1.5rem;
-      color: #fff;
-
-      path {
-        fill: var(--iconButtonColor);
-      }
-    }
-  }
-
-  .copyInviteContainer {
-    color: var(--textColor);
-    cursor: pointer;
-    display: flex;
-    height: 0.01em;
-    max-height: 2em;
-    align-items: center;
-    white-space: nowrap;
-    margin-left: 8px;
-    margin-bottom: 5px;
-    z-index: 20;
-
-    svg {
-      width: 1em;
-      height: 1em;
-      display: inline-block;
-      flex-shrink: 0;
-      font-size: 1.5rem;
-      color: #fff;
-
-      path {
-        fill: var(--iconButtonColor);
-      }
-    }
-  }
-
-  .linkFieldset {
-    border-color: var(--inputOutline);
-    text-align: left;
-    position: absolute;
-    inset: -5px 0 0;
-    margin: 0;
-    padding: 0 8px;
-    pointer-events: none;
-    border-radius: 4px;
-    border-style: solid;
-    border-width: 1px;
-    overflow: hidden;
-    min-width: 0%;
-  }
-
-  .linkLegend {
-    margin: 0;
-    padding: 0;
   }
 
   .detailsContainer {
@@ -149,7 +36,7 @@
     justify-content: right;
 
     h2 {
-      margin: auto;
+      margin: auto !important;
     }
   }
 
@@ -328,6 +215,7 @@
           font-family: Roboto;
           font-size: 14px;
           text-align: left;
+          margin: 5px 0;
           opacity: 0.8;
           color: var(--textColor);
 
@@ -345,7 +233,7 @@
         }
 
         h4 {
-          margin-top: 4px;
+          margin: 5px 0;
           text-align: left;
           color: var(--textColor);
 
@@ -356,7 +244,6 @@
             &:hover {
               opacity: 0.8;
               cursor: pointer;
-              color: black;
             }
           }
         }
@@ -994,6 +881,64 @@
     width: 600px;
     min-height: 208px;
   }
+
+  .deletePanel {
+    .deleteButtonContainer {
+      display: grid;
+      grid-gap: 10px;
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .deleteAccount {
+      font-size: 14px;
+      font-weight: bold;
+      margin: 5px 0;
+      color: var(--textColor);
+
+      &:hover {
+        cursor: pointer;
+        color: mintcream;
+      }
+    }
+
+    .deleteText {
+      font-size: 16px;
+      font-weight: bold;
+      color: var(--textColor);
+      margin-top: 10px;
+    }
+  }
+
+  .modeSettingContainer {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 20px;
+  }
+
+  .modesHeading {
+    font-size: 14px;
+    color: var(--textColor);
+  }
+
+  .modesContainer {
+    display: grid;
+    grid-gap: 10px;
+    grid-template-columns: 1fr 1fr 1fr;
+
+    @media screen and (max-width: 500px) {
+      grid-template-columns: 1fr;
+    }
+
+    .modeHeading {
+      font-size: 12px;
+      color: var(--textColor);
+    }
+
+    .modeContainer {
+      display: flex;
+      flex-direction: column;
+    }
+  }
 }
 
 .avatarUploadPanel {
@@ -1003,125 +948,9 @@
   margin: 5px 15px 20px 10px;
   border-radius: 20px;
   padding: 20px;
+  overflow: auto;
   max-height: calc(100vh - 100px);
   background-color: var(--popupBackground);
-
-  .inviteBox {
-    margin-top: 10px;
-    width: 100%;
-    color: var(--textColor);
-    display: inline-flex;
-    flex-direction: column;
-    position: relative;
-    min-width: 0;
-    padding: 0;
-    border: 0;
-    vertical-align: top;
-  }
-
-  .inviteContainer {
-    border-radius: 4px;
-    padding-right: 14px;
-    font-family: Roboto, Helvetica, Arial, sans-serif;
-    font-weight: 400;
-    font-size: 1rem;
-    line-height: 1.4375em;
-    letter-spacing: 0.00938em;
-    color: var(--textColor);
-    box-sizing: border-box;
-    position: relative;
-    cursor: text;
-    display: inline-flex;
-    align-items: center;
-  }
-
-  .inviteLinkInput {
-    color: var(--textColor);
-    border-color: var(--inputOutline);
-    padding: 5px 0 10px 14px;
-    font: inherit;
-    letter-spacing: inherit;
-    border: 0;
-    box-sizing: content-box;
-    background: none;
-    height: 1.4375em;
-    margin: 0;
-    display: block;
-    min-width: 0;
-    width: 100%;
-  }
-
-  .refreshApiContainer {
-    color: var(--textColor);
-    cursor: pointer;
-    display: flex;
-    height: 0.01em;
-    max-height: 2em;
-    align-items: center;
-    white-space: nowrap;
-    margin-left: 8px;
-    margin-bottom: 5px;
-    z-index: 20;
-
-    svg {
-      width: 1em;
-      height: 1em;
-      display: inline-block;
-      flex-shrink: 0;
-      font-size: 1.5rem;
-      color: #fff;
-
-      path {
-        fill: var(--iconButtonColor);
-      }
-    }
-  }
-
-  .copyInviteContainer {
-    color: var(--textColor);
-    cursor: pointer;
-    display: flex;
-    height: 0.01em;
-    max-height: 2em;
-    align-items: center;
-    white-space: nowrap;
-    margin-left: 8px;
-    margin-bottom: 5px;
-    z-index: 20;
-
-    svg {
-      width: 1em;
-      height: 1em;
-      display: inline-block;
-      flex-shrink: 0;
-      font-size: 1.5rem;
-      color: #fff;
-
-      path {
-        fill: var(--iconButtonColor);
-      }
-    }
-  }
-
-  .linkFieldset {
-    border-color: var(--inputOutline);
-    text-align: left;
-    position: absolute;
-    inset: -5px 0 0;
-    margin: 0;
-    padding: 0 8px;
-    pointer-events: none;
-    border-radius: 4px;
-    border-style: solid;
-    border-width: 1px;
-    overflow: hidden;
-    min-width: 0%;
-  }
-
-  .linkLegend {
-    margin: 0;
-    padding: 0;
-  }
 
   .avatarHeaderBlock {
     display: flex;
@@ -1171,45 +1000,6 @@
 
     button + button {
       margin-left: 5px;
-    }
-
-    button[disabled] {
-      background: var(--disabled);
-      opacity: 1 !important;
-    }
-
-    .browseBtn {
-      & > svg {
-        transform: rotate(180deg);
-      }
-    }
-
-    .uploadBtn {
-      background: linear-gradient(90deg, var(--buttonGradientStart), var(--buttonGradientEnd));
-      cursor: pointer;
-      font-size: 1rem;
-      font-weight: bold;
-      padding: 10px;
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      justify-content: center;
-
-      svg {
-        width: 15px;
-        height: 15px;
-        color: var(--iconButtonColor);
-
-        path {
-          fill: var(--iconButtonColor);
-        }
-      }
-    }
-
-    button:hover,
-    button:focus {
-      outline: none;
-      opacity: 0.7;
     }
 
     .selectBtns {
@@ -1343,10 +1133,6 @@
     }
   }
 
-  .uploadInput {
-    display: none;
-  }
-
   .thumbnailContainer {
     display: flex;
     width: 100%;
@@ -1430,6 +1216,7 @@
   width: 500px;
   margin: 5px 15px 20px 10px;
   border-radius: 20px;
+  overflow: auto;
   max-height: calc(100vh - 100px);
   background-color: var(--popupBackground);
   padding: 0;
@@ -1489,6 +1276,7 @@
   margin: 5px 15px 20px 10px;
   border-radius: 20px;
   padding: 15px;
+  overflow: auto;
   max-height: calc(100vh - 100px);
   background-color: var(--popupBackground);
 
@@ -1513,6 +1301,10 @@
 
   .innerMenuContainer {
     display: flex;
+
+    :not(:first-child) {
+      margin-left: 5px;
+    }
   }
 
   .btnDeepColor {

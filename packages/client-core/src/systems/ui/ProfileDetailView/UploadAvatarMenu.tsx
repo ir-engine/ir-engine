@@ -20,7 +20,8 @@ import { createEntity, removeEntity } from '@xrengine/engine/src/ecs/functions/E
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { getOrbitControls } from '@xrengine/engine/src/input/functions/loadOrbitControl'
 import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
-import { accessWidgetAppState, WidgetAppActions } from '@xrengine/engine/src/xrui/WidgetAppService'
+import { accessWidgetAppState, WidgetAppActions, WidgetAppService } from '@xrengine/engine/src/xrui/WidgetAppService'
+import { WidgetName } from '@xrengine/engine/src/xrui/Widgets'
 import { dispatchAction } from '@xrengine/hyperflux'
 
 import { AccountCircle, ArrowBack, CloudUpload, SystemUpdateAlt } from '@mui/icons-material'
@@ -32,6 +33,10 @@ import {
   validate
 } from '../../../user/components/UserMenu/menus/helperFunctions'
 import { AuthService } from '../../../user/services/AuthService'
+import XRIconButton from '../../components/XRIconButton'
+import XRInput from '../../components/XRInput'
+import XRTextButton from '../../components/XRTextButton'
+import XRUploadButton from '../../components/XRUploadButton'
 import styleString from './index.scss'
 
 export function createUploadAvatarMenu() {
@@ -83,7 +88,6 @@ export const UploadAvatarMenu = () => {
   }
 
   const handleThumbnailUrlChange = (event) => {
-    event.preventDefault()
     setThumbnailUrl(event.target.value)
     if (REGEX_VALID_URL.test(event.target.value)) {
       fetch(event.target.value)
@@ -96,7 +100,6 @@ export const UploadAvatarMenu = () => {
   }
 
   const handleAvatarUrlChange = async (event) => {
-    event.preventDefault()
     setAvatarUrl(event.target.value)
     if (/\.(?:gltf|glb|vrm)/.test(event.target.value) && REGEX_VALID_URL.test(event.target.value)) {
       setValidAvatarUrl(true)
@@ -179,7 +182,6 @@ export const UploadAvatarMenu = () => {
   }
 
   const handleAvatarNameChange = (e) => {
-    e.preventDefault()
     setAvatarName(e.target.value)
   }
 
@@ -202,7 +204,7 @@ export const UploadAvatarMenu = () => {
       await AuthService.uploadAvatarModel(avatarBlob, thumbnailBlob, avatarName, false)
     }
 
-    setWidgetVisibility('Profile', true)
+    WidgetAppService.setWidgetVisibility(WidgetName.PROFILE, true)
   }
 
   const handleThumbnailChange = (e) => {
@@ -225,28 +227,7 @@ export const UploadAvatarMenu = () => {
   }
 
   const openAvatarMenu = (e) => {
-    e.preventDefault()
-    setWidgetVisibility('SelectAvatar', true)
-  }
-
-  const setWidgetVisibility = (widgetName: string, visibility: boolean) => {
-    const widgetState = accessWidgetAppState()
-    const widgets = Object.entries(widgetState.widgets.value).map(([id, widgetState]) => ({
-      id,
-      ...widgetState,
-      ...Engine.instance.currentWorld.widgets.get(id)!
-    }))
-
-    const currentWidget = widgets.find((w) => w.label === widgetName)
-
-    // close currently open widgets until we support multiple widgets being open at once
-    for (let widget of widgets) {
-      if (currentWidget && widget.id !== currentWidget.id) {
-        dispatchAction(WidgetAppActions.showWidget({ id: widget.id, shown: false }))
-      }
-    }
-
-    currentWidget && dispatchAction(WidgetAppActions.showWidget({ id: currentWidget.id, shown: visibility }))
+    WidgetAppService.setWidgetVisibility(WidgetName.SELECT_AVATAR, true)
   }
 
   const uploadButtonEnabled = !!fileSelected && !error && avatarName.length > 3
@@ -256,9 +237,14 @@ export const UploadAvatarMenu = () => {
       <style>{styleString}</style>
       <div ref={panelRef} className="avatarUploadPanel">
         <div className="avatarHeaderBlock">
-          <button type="button" xr-layer="true" className="iconBlock" onClick={openAvatarMenu}>
-            <ArrowBack />
-          </button>
+          <XRIconButton
+            size="large"
+            xr-layer="true"
+            className="iconBlock"
+            variant="iconOnly"
+            onClick={openAvatarMenu}
+            content={<ArrowBack />}
+          />
           <h2>{t('user:avatar.title')}</h2>
         </div>
         <div className="stageContainer">
@@ -283,23 +269,15 @@ export const UploadAvatarMenu = () => {
           </div>
         )}
         <div className="paper2">
-          <div className="inviteBox">
-            <div className="inviteContainer">
-              <input
-                aria-invalid="false"
-                id="avatarName"
-                name="avatarname"
-                type="text"
-                className="inviteLinkInput"
-                value={avatarName}
-                onChange={handleAvatarNameChange}
-                placeholder="Avatar Name"
-              />
-              <fieldset aria-hidden="true" className="linkFieldset">
-                <legend className="linkLegend" />
-              </fieldset>
-            </div>
-          </div>
+          <XRInput
+            aria-invalid="false"
+            id="avatarName"
+            name="avatarname"
+            type="text"
+            value={avatarName}
+            onChange={handleAvatarNameChange}
+            placeholder="Avatar Name"
+          />
         </div>
         <div className="tabRoot">
           <div
@@ -322,36 +300,11 @@ export const UploadAvatarMenu = () => {
         {activeSourceType === 0 ? (
           <div className="controlContainer">
             <div className="selectBtns" style={{ margin: '14px 0' }}>
-              <div className="inviteBox">
-                <div className="inviteContainer">
-                  <input
-                    placeholder="Paste Avatar Url..."
-                    className="inviteLinkInput"
-                    value={avatarUrl}
-                    onChange={handleAvatarUrlChange}
-                  />
-                  <fieldset aria-hidden="true" className="linkFieldset">
-                    <legend className="linkLegend" />
-                  </fieldset>
-                </div>
-              </div>
-              <div className="inviteBox">
-                <div className="inviteContainer">
-                  <input
-                    className="inviteLinkInput"
-                    value={thumbnailUrl}
-                    onChange={handleThumbnailUrlChange}
-                    placeholder="Paste Thumbnail Url..."
-                  />
-                  <fieldset aria-hidden="true" className="linkFieldset">
-                    <legend className="linkLegend" />
-                  </fieldset>
-                </div>
-              </div>
+              <XRInput placeholder="Paste Avatar Url..." value={avatarUrl} onChange={handleAvatarUrlChange} />
+              <XRInput value={thumbnailUrl} onChange={handleThumbnailUrlChange} placeholder="Paste Thumbnail Url..." />
             </div>
-            <button
-              type="button"
-              className="uploadBtn"
+            <XRTextButton
+              variant="gradient"
               onClick={uploadAvatar}
               xr-layer="true"
               disabled={!validAvatarUrl}
@@ -359,7 +312,7 @@ export const UploadAvatarMenu = () => {
             >
               {t('user:avatar.lbl-upload')}
               <CloudUpload />
-            </button>
+            </XRTextButton>
           </div>
         ) : (
           <>
@@ -370,35 +323,31 @@ export const UploadAvatarMenu = () => {
             )}
             <div className="controlContainer">
               <div className="selectBtns">
-                <label htmlFor="contained-button-file">
-                  <input
-                    accept={AVATAR_FILE_ALLOWED_EXTENSIONS}
-                    id="contained-button-file"
-                    type="file"
-                    className="uploadInput"
-                    onChange={handleAvatarChange}
-                  />
-                  <button className="rootBtn">
-                    {t('user:avatar.avatar')} <SystemUpdateAlt />
-                  </button>
-                </label>
-                <label htmlFor="contained-button-file-t">
-                  <input
-                    accept={THUMBNAIL_FILE_ALLOWED_EXTENSIONS}
-                    id="contained-button-file-t"
-                    className="uploadInput"
-                    type="file"
-                    onChange={handleThumbnailChange}
-                  />
-                  <button className="rootBtn">
-                    {t('user:avatar.lbl-thumbnail')}
-                    <AccountCircle />
-                  </button>
-                </label>
+                <XRUploadButton
+                  accept={AVATAR_FILE_ALLOWED_EXTENSIONS}
+                  type="file"
+                  onChange={handleAvatarChange}
+                  variant="filled"
+                  buttonContent={
+                    <>
+                      {t('user:avatar.avatar')} <SystemUpdateAlt />
+                    </>
+                  }
+                />
+                <XRUploadButton
+                  accept={THUMBNAIL_FILE_ALLOWED_EXTENSIONS}
+                  type="file"
+                  onChange={handleThumbnailChange}
+                  variant="filled"
+                  buttonContent={
+                    <>
+                      {t('user:avatar.lbl-thumbnail')} <AccountCircle />
+                    </>
+                  }
+                />
               </div>
-              <button
-                type="button"
-                className="uploadBtn"
+              <XRTextButton
+                variant="gradient"
                 xr-layer="true"
                 onClick={uploadAvatar}
                 style={{ cursor: uploadButtonEnabled ? 'pointer' : 'not-allowed' }}
@@ -406,7 +355,7 @@ export const UploadAvatarMenu = () => {
               >
                 {t('user:avatar.lbl-upload')}
                 <CloudUpload />
-              </button>
+              </XRTextButton>
             </div>
           </>
         )}

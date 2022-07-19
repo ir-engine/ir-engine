@@ -1,4 +1,4 @@
-@import '@xrengine/client-core/src/styles/imports.module.scss';
+@import "@xrengine/client-core/src/styles/imports.module.scss";
 
 .primaryForeground {
   color: var(--textColor);
@@ -43,8 +43,8 @@
     width: 4em;
 
     svg {
-      width: 100%;
-      height: 100%;
+      width: auto;
+      height: auto;
     }
 
     @media (max-width: 500px) {
@@ -1183,7 +1183,7 @@
         }
 
         &::before {
-          content: '';
+          content: "";
           position: absolute;
           width: 0;
           height: 0;
@@ -1219,7 +1219,7 @@
       margin-right: 10px;
 
       &::before {
-        content: '';
+        content: "";
         position: absolute;
         width: 0;
         height: 0;
@@ -1952,7 +1952,7 @@
 }
 
 .itemContainerPrev {
-  content: '';
+  content: "";
   width: 40px;
   height: 70px;
   position: absolute;
@@ -2008,7 +2008,7 @@
 }
 
 .itemContainerNext {
-  content: '';
+  content: "";
   width: 40px;
   height: 70px;
   position: absolute;
@@ -2431,7 +2431,7 @@
 }
 
 .label {
-  color: #c0c0c0;
+  color: var(--textColor);
   font-weight: 100;
   font-size: 15px;
 }
@@ -2459,6 +2459,7 @@
   color: var(--textColor);
   margin-bottom: 20px;
 }
+
 .themesHeading {
   color: var(--textColor);
   font-size: 14px;

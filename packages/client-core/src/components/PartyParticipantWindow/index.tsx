@@ -46,11 +46,6 @@ import { SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientNe
 import Draggable from './Draggable'
 import styles from './index.module.scss'
 
-interface ContainerProportions {
-  width: number | string
-  height: number | string
-}
-
 interface Props {
   peerId?: string | 'cam_me' | 'screen_me'
 }
@@ -82,7 +77,7 @@ const PartyParticipantWindow = ({ peerId }: Props): JSX.Element => {
   const enableGlobalMute =
     currentLocation?.locationSetting?.locationType?.value === 'showroom' &&
     selfUser?.locationAdmins?.find((locationAdmin) => currentLocation?.id?.value === locationAdmin.locationId) != null
-  const isScreen = peerId && peerId.startsWith('screen_')
+  const isScreen = Boolean(peerId && peerId.startsWith('screen_'))
   const userId = isScreen ? peerId!.replace('screen_', '') : peerId
   const user = userState.layerUsers.find((user) => user.id.value === userId)?.attach(Downgraded).value
 
@@ -449,14 +444,25 @@ const PartyParticipantWindow = ({ peerId }: Props): JSX.Element => {
         tabIndex={0}
         id={peerId + '_container'}
         className={classNames({
+          [styles['resizeable-screen']]: isScreen && !isPiP,
+          [styles['resizeable-screen-fullscreen']]: isScreen && isPiP,
           [styles['party-chat-user']]: true,
           [styles['self-user']]: peerId === 'cam_me',
           [styles['no-video']]: videoStream == null,
           [styles['video-paused']]: videoStream && (videoProducerPaused || videoStreamPaused),
-          [styles.pip]: isPiP
+          [styles.pip]: isPiP && !isScreen,
+          [styles.screenpip]: isPiP && isScreen
         })}
+        onClick={() => {
+          if (isScreen && isPiP) togglePiP()
+        }}
       >
-        <div className={styles['video-wrapper']}>
+        <div
+          className={classNames({
+            [styles['video-wrapper']]: !isScreen,
+            [styles['screen-video-wrapper']]: isScreen
+          })}
+        >
           {(videoStream == null || videoStreamPaused || videoProducerPaused || videoProducerGlobalMute) && (
             <img
               src={getAvatarURLForUser(userAvatarDetails, isSelfUser ? selfUser?.id : user?.id)}
