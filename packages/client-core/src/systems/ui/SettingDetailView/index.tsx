@@ -170,7 +170,7 @@ const SettingDetailView = () => {
             </div>
             <div className="sectionRow">
               <h4 className="title">{t('user:usermenu.setting.other-audio-setting')}</h4>
-              <div xr-layer className="showHideButton" onClick={toggleShowOtherAudioSettings}>
+              <div xr-layer="true" className="showHideButton" onClick={toggleShowOtherAudioSettings}>
                 {showAudioDetails ? 'hide details' : 'show details'}
               </div>
             </div>
