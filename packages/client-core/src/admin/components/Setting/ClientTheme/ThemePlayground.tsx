@@ -31,7 +31,7 @@ import { InputMenuItem } from '../../../common/InputSelect'
 import styles from '../../../styles/settings.module.scss'
 
 /*
-  Don't use replace basic components from ThemePlayground with custom made or any library components
+  Don't replace basic components from ThemePlayground with custom made or any library components
   since basic components are here styled according to the temporary selected theme for playground,
   not the main theme used everywhere in app.
 */
