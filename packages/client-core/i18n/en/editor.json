@@ -591,6 +591,18 @@
       "lbl-forNearDistance": "Fog Near Distance",
       "lbl-fogFarDistance": "Fog Far Distance",
       "lbl-fogDensity": "Fog Density"
+    },
+    "mountPoint": {
+      "name": "Mount point",
+      "description": "Attach different actions for interactable mount point",
+      "lbl-type": "Type",
+      "lbl-animations": "Animations",
+      "lbl-enter": "Enter",
+      "lbl-leave": "Leave",
+      "lbl-active": "Active",
+      "lbl-file": "File",
+      "lbl-animation": "Animation",
+      "error-url": "Error Loading URL"
     }
   },
   "projects": {

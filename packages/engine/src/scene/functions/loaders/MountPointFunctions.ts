@@ -14,7 +14,8 @@ import { setObjectLayers } from '../setObjectLayers'
 
 export const SCENE_COMPONENT_MOUNT_POINT = 'mount-point'
 export const SCENE_COMPONENT_MOUNT_POINT_DEFAULT_VALUES = {
-  type: 'seat'
+  type: 'seat',
+  animation: {}
 }
 
 export const deserializeMountPoint: ComponentDeserializeFunction = (
@@ -42,13 +43,15 @@ export const serializeMountPoint: ComponentSerializeFunction = (entity) => {
   return {
     name: SCENE_COMPONENT_MOUNT_POINT,
     props: {
-      type: component.type
+      type: component.type,
+      animation: component.animation
     }
   }
 }
 
 export const parseMountPointProperties = (props): MountPointComponentType => {
   return {
-    type: props.type ?? SCENE_COMPONENT_MOUNT_POINT_DEFAULT_VALUES.type
+    type: props.type ?? SCENE_COMPONENT_MOUNT_POINT_DEFAULT_VALUES.type,
+    animation: props.animation ?? SCENE_COMPONENT_MOUNT_POINT_DEFAULT_VALUES.animation
   }
 }

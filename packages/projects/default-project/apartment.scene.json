@@ -1132,7 +1132,21 @@
         {
           "name": "mount-point",
           "props": {
-            "type": "seat"
+            "type": "seat",
+            "animation": {
+              "enter": {
+                "file": "__$project$__/default-project/Sit_To_Stand.fbx",
+                "animation": "any"
+              },
+              "leave": {
+                "file": "__$project$__/default-project/Sit_To_Stand.fbx",
+                "animation": "any"
+              },
+              "active": {
+                "file": "__$project$__/default-project/Sitting_Idle.fbx",
+                "animation": "any"
+              }
+            }
           }
         }
       ],
