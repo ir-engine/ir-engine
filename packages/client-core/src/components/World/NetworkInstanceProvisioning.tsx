@@ -18,6 +18,7 @@ import {
 import { useLocationState } from '@xrengine/client-core/src/social/services/LocationService'
 import { MediaStreams } from '@xrengine/client-core/src/transports/MediaStreams'
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
+import { PartyService, usePartyState } from "../../social/services/PartyService";
 import { UserService, useUserState } from '@xrengine/client-core/src/user/services/UserService'
 import { matches } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
@@ -36,7 +37,7 @@ export const NetworkInstanceProvisioning = () => {
   const isUserBanned = locationState.currentLocation.selfUserBanned.value
   const engineState = useEngineState()
   const history = useHistory()
-  const appState = useAppState()
+  const partyState = usePartyState()
 
   const worldNetworkHostId = Engine.instance.currentWorld.worldNetwork?.hostId
   const instanceConnectionState = useLocationInstanceConnectionState()
@@ -138,6 +139,11 @@ export const NetworkInstanceProvisioning = () => {
   }, [selfUser?.instanceId, userState.layerUsersUpdateNeeded])
 
   useHookEffect(() => {
+    if (selfUser?.partyId?.value && !partyState?.party?.value) {
+      PartyService.getParty()
+      PartyService.getPartyUsers()
+    }
+
     if (selfUser?.partyId?.value && chatState.channels.channels?.value) {
       const partyChannel = Object.values(chatState.channels.channels.value).find(channel => channel.channelType === 'party' && (channel.partyId === selfUser.partyId.value))
       if (partyChannel && currentChannelInstanceConnection?.channelId.value !== partyChannel.id)

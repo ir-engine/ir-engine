@@ -50,7 +50,7 @@ interface Props {
   peerId?: string | 'cam_me' | 'screen_me'
 }
 
-const PartyParticipantWindow = ({ peerId }: Props): JSX.Element => {
+const UserMediaWindow = ({ peerId }: Props): JSX.Element => {
   const [isPiP, setPiP] = useState(false)
   const [videoStream, _setVideoStream] = useState<any>(null)
   const [audioStream, _setAudioStream] = useState<any>(null)
@@ -126,12 +126,26 @@ const PartyParticipantWindow = ({ peerId }: Props): JSX.Element => {
   }
 
   const resumeProducerListener = (producerId: string) => {
+    console.log('resumeProducerListener', producerId)
     if (producerId === videoStreamRef?.current?.id) {
       setVideoProducerPaused(false)
       setVideoProducerGlobalMute(false)
     } else if (producerId === audioStreamRef?.current?.id) {
       setAudioProducerPaused(false)
       setAudioProducerGlobalMute(false)
+    }
+  }
+
+  const closeProducerListener = (producerId: string) => {
+    console.log('closeProducerListener', producerId, videoStreamRef?.current?.id)
+    if (producerId === videoStreamRef?.current?.id) {
+      videoRef.current?.srcObject?.getVideoTracks()[0].stop()
+      MediaStreams.instance.videoStream.getVideoTracks()[0].stop()
+    }
+
+    if (producerId === audioStreamRef?.current?.id) {
+      audioRef.current?.srcObject?.getAudioTracks()[0].stop()
+      MediaStreams.instance.audioStream.getAudioTracks()[0].stop()
     }
   }
 
@@ -191,6 +205,8 @@ const PartyParticipantWindow = ({ peerId }: Props): JSX.Element => {
     if (typeof socket?.on === 'function') socket?.on(MessageTypes.WebRTCPauseProducer.toString(), pauseProducerListener)
     if (typeof socket?.on === 'function')
       socket?.on(MessageTypes.WebRTCResumeProducer.toString(), resumeProducerListener)
+    if (typeof socket?.on === 'function')
+      socket?.on(MessageTypes.WebRTCCloseProducer.toString(), closeProducerListener)
 
     return () => {
       if (typeof socket?.on === 'function')
@@ -201,6 +217,8 @@ const PartyParticipantWindow = ({ peerId }: Props): JSX.Element => {
         socket?.off(MessageTypes.WebRTCPauseProducer.toString(), pauseProducerListener)
       if (typeof socket?.on === 'function')
         socket?.off(MessageTypes.WebRTCResumeProducer.toString(), resumeProducerListener)
+      if (typeof socket?.on === 'function')
+        socket?.off(MessageTypes.WebRTCCloseProducer.toString(), closeProducerListener)
     }
   }, [currentChannelInstanceConnection])
 
@@ -242,7 +260,7 @@ const PartyParticipantWindow = ({ peerId }: Props): JSX.Element => {
       videoRef.current.muted = true
       videoRef.current.setAttribute('playsinline', 'true')
       if (videoStream != null) {
-        setVideoProducerPaused(videoStream.paused)
+        setVideoProducerPaused(false)
         const originalTrackEnabledInterval = setInterval(() => {
           if (videoStream.track.enabled) {
             clearInterval(originalTrackEnabledInterval)
@@ -264,44 +282,22 @@ const PartyParticipantWindow = ({ peerId }: Props): JSX.Element => {
     return () => {
       videoTrackClones.forEach((track) => track.stop())
     }
-  }, [videoStream])
+  }, [videoStream?.track?.id])
 
   useEffect(() => {
     if (peerId === 'cam_me' || peerId === 'screen_me') {
       setAudioStreamPaused(MediaStreams.instance.audioPaused)
-      if (!MediaStreams.instance.audioPaused && audioStream != null && audioRef.current != null) {
-        const originalTrackEnabledInterval = setInterval(() => {
-          if (audioStream.track.enabled) {
-            clearInterval(originalTrackEnabledInterval)
-
-            if (!audioRef.current?.srcObject?.getAudioTracks()[0].enabled) {
-              const newAudioTrack = audioStream.track.clone()
-              const updateAudioTrackClones = audioTrackClones.concat(newAudioTrack)
-              setAudioTrackClones(updateAudioTrackClones)
-              audioRef.current.srcObject = new MediaStream([newAudioTrack])
-            }
-          }
-        })
-      }
     }
   }, [MediaStreams.instance.audioPaused])
 
   useEffect(() => {
     if (peerId === 'cam_me' || peerId === 'screen_me') {
       setVideoStreamPaused(MediaStreams.instance.videoPaused)
-      if (!MediaStreams.instance.videoPaused && videoStream != null && videoRef.current != null) {
-        const originalTrackEnabledInterval = setInterval(() => {
-          if (videoStream.track.enabled) {
-            clearInterval(originalTrackEnabledInterval)
-
-            if (!videoRef.current?.srcObject?.getVideoTracks()[0].enabled) {
-              const newVideoTrack = videoStream.track.clone()
-              videoTrackClones.forEach((track) => track.stop())
-              setVideoTrackClones([newVideoTrack])
-              videoRef.current.srcObject = new MediaStream([newVideoTrack])
-            }
-          }
-        }, 100)
+      if (videoRef.current != null) {
+        if (MediaStreams.instance.videoPaused) {
+          videoRef.current?.srcObject?.getVideoTracks()[0].stop()
+          MediaStreams.instance.videoStream.getVideoTracks()[0].stop()
+        }
       }
     }
   }, [MediaStreams.instance.videoPaused])
@@ -563,4 +559,4 @@ const PartyParticipantWindow = ({ peerId }: Props): JSX.Element => {
   )
 }
 
-export default PartyParticipantWindow
+export default UserMediaWindow

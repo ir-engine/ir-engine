@@ -88,14 +88,14 @@ export class Party<T = PartyDataType> extends Service<T> {
    * @param params contains user info
    * @returns {@Object} of single party
    */
-  async get(id: string, params?: Params): Promise<T> {
+  async get(id: string, params?: Params): Promise<T | null> {
     if (id == null || id == '') {
       const PartyUserMS = this.app.service('party-user').Model as PartyUserModelStatic
 
       const loggedInUser = params!.user as UserInterface
       const partyUserResult = await PartyUserMS.findOne({ where: { userId: loggedInUser.id } })
 
-      if (!partyUserResult) throw new NotFound('User party not found')
+      if (!partyUserResult) return null
 
       const partyId = partyUserResult.getDataValue('partyId')
       const party: any = await super.get(partyId as string)

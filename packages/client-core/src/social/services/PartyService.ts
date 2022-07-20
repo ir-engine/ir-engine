@@ -16,7 +16,7 @@ import { defineAction, defineState, dispatchAction, getState, useState } from '@
 import { API } from '../../API'
 import { MediaInstanceConnectionService } from '../../common/services/MediaInstanceConnectionService'
 import { NotificationService } from '../../common/services/NotificationService'
-import { leaveNetwork } from '../../transports/SocketWebRTCClientFunctions'
+import {endVideoChat, leaveNetwork} from '../../transports/SocketWebRTCClientFunctions'
 import { SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientNetwork'
 import { accessAuthState } from '../../user/services/AuthService'
 import { UserAction } from '../../user/services/UserService'
@@ -34,60 +34,80 @@ const PartyState = defineState({
   })
 })
 
-export const PartyServiceReceptor = (action) => {
-  getState(PartyState).batch((s) => {
-    matches(action)
-      .when(PartyAction.loadedPartyAction.matches, (action) => {
-        s.merge({ party: action.party, isOwned: action.isOwned, updateNeeded: false })
-      })
-      .when(PartyAction.createdPartyAction.matches, (action) => {
-        s.merge({ party: action.party, updateNeeded: true })
-      })
-      .when(PartyAction.removedPartyAction.matches, () => {
-        s.merge({ party: null!, updateNeeded: true })
-      })
-      .when(PartyAction.invitedPartyUserAction.matches, () => {
-        s.updateNeeded.set(true)
-      })
-      .when(PartyAction.createdPartyUserAction.matches, (action) => {
-        if (s.party && s.party.partyUsers && s.party.partyUsers.value) {
-          const users = JSON.parse(JSON.stringify(s.party.partyUsers.value)) as PartyUser[]
-          const index = users.findIndex((partyUser) => partyUser?.id === action.partyUser.id)
+const loadedPartyReceptor = (action: typeof PartyActions.loadedPartyAction.matches._TYPE) => {
+  console.log('loadedPartyReceptor')
+  const state = getState(PartyState)
+  return state.merge({ party: action.party, isOwned: action.isOwned, updateNeeded: false })
+}
 
-          if (index > -1) users[index] = action.partyUser
-          else users.push(action.partyUser)
+const createdPartyReceptor = (action: typeof PartyActions.createdPartyAction.matches._TYPE) => {
+  const state = getState(PartyState)
+  return state.merge({ party: action.party, updateNeeded: true })
+}
 
-          return s.party.merge({ partyUsers: users })
-        }
-        s.updateNeeded.set(true)
-      })
-      .when(PartyAction.patchedPartyUserAction.matches, (action) => {
-        if (s.party && s.party.partyUsers && s.party.partyUsers.value) {
-          const users = JSON.parse(JSON.stringify(s.party.partyUsers.value)) as PartyUser[]
-          const index = users.findIndex((partyUser) => partyUser?.id === action.partyUser.id)
+const removedPartyReceptor = (action: typeof PartyActions.removedPartyAction.matches._TYPE) => {
+  const state = getState(PartyState)
+  return state.merge({ party: null!, updateNeeded: true })
+}
 
-          if (index > -1) {
-            users[index] = action.partyUser
-            return s.party.merge({ partyUsers: users })
-          }
-        }
-        s.updateNeeded.set(true)
-      })
-      .when(PartyAction.removedPartyUserAction.matches, (action) => {
-        if (action.partyUser.userId === accessAuthState().user.id.value) {
-          return s.merge({ party: null!, isOwned: false })
-        }
+const invitedPartyUserReceptor = (action: typeof PartyActions.invitedPartyUserAction.matches._TYPE) => {
+  const state = getState(PartyState)
+  return state.updateNeeded.set(true)
+}
 
-        if (s.party && s.party.partyUsers && s.party.partyUsers.value) {
-          const index = s.party.partyUsers.value.findIndex((partyUser) => partyUser?.id === action.partyUser.id)
-          if (index > -1) {
-            const users = JSON.parse(JSON.stringify(s.party.partyUsers.value))
-            users.splice(index, 1)
-            return s.party.merge({ partyUsers: users })
-          }
-        }
-      })
-  })
+const createdPartyUserReceptor = (action: typeof PartyActions.createdPartyUserAction.matches._TYPE) => {
+  const state = getState(PartyState)
+  if (state.party && state.party.partyUsers && state.party.partyUsers.value) {
+    const users = JSON.parse(JSON.stringify(state.party.partyUsers.value)) as PartyUser[]
+    const index = users.findIndex((partyUser) => partyUser?.id === action.partyUser.id)
+
+    if (index > -1) users[index] = action.partyUser
+    else users.push(action.partyUser)
+
+    return state.party.merge({ partyUsers: users })
+  }
+  state.updateNeeded.set(true)
+}
+
+const patchedPartyUserReceptor = (action: typeof PartyActions.patchedPartyUserAction.matches._TYPE) => {
+  const state = getState(PartyState)
+  if (state.party && state.party.partyUsers && state.party.partyUsers.value) {
+    const users = JSON.parse(JSON.stringify(state.party.partyUsers.value)) as PartyUser[]
+    const index = users.findIndex((partyUser) => partyUser?.id === action.partyUser.id)
+
+    if (index > -1) {
+      users[index] = action.partyUser
+      return state.party.merge({ partyUsers: users })
+    }
+  }
+  state.updateNeeded.set(true)
+}
+
+const removedPartyUserReceptor = (action: typeof PartyActions.removedPartyUserAction.matches._TYPE) => {
+  const state = getState(PartyState)
+
+  if (action.partyUser.userId === accessAuthState().user.id.value) {
+    return state.merge({ party: null!, isOwned: false })
+  }
+
+  if (state.party && state.party.partyUsers && state.party.partyUsers.value) {
+    const index = state.party.partyUsers.value.findIndex((partyUser) => partyUser?.id === action.partyUser.id)
+    if (index > -1) {
+      const users = JSON.parse(JSON.stringify(state.party.partyUsers.value))
+      users.splice(index, 1)
+      return state.party.merge({ partyUsers: users })
+    }
+  }
+}
+
+export const PartyServiceReceptors = {
+  loadedPartyReceptor,
+  createdPartyReceptor,
+  removedPartyReceptor,
+  invitedPartyUserReceptor,
+  createdPartyUserReceptor,
+  patchedPartyUserReceptor,
+  removedPartyUserReceptor
 }
 
 export const accessPartyState = () => getState(PartyState)
@@ -99,14 +119,16 @@ export const PartyService = {
   getParty: async () => {
     try {
       const partyResult = (await API.instance.client.service('party').get('')) as Party
-      dispatchAction(
-        PartyAction.loadedPartyAction({
-          party: partyResult,
-          isOwned:
-            accessAuthState().authUser.identityProvider.userId.value ===
-            partyResult.partyUsers.find((user) => user.isOwner)?.userId
-        })
-      )
+      console.log('partyResult', partyResult)
+      if (partyResult)
+          dispatchAction(
+              PartyActions.loadedPartyAction({
+                party: partyResult,
+                isOwned:
+                    accessAuthState().authUser.identityProvider.userId.value ===
+                    partyResult.partyUsers.find((user) => user.isOwner)?.userId
+              })
+          )
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
@@ -138,7 +160,9 @@ export const PartyService = {
   },
   createParty: async () => {
     try {
-      leaveNetwork(Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork)
+      const network = Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork
+      await endVideoChat(network, {})
+      leaveNetwork(network)
       await API.instance.client.service('party').create()
       PartyService.getParty()
     } catch (err) {
@@ -157,8 +181,8 @@ export const PartyService = {
         await API.instance.client.service('channel').remove(channelResult.data[0].id)
       }
       const party = (await API.instance.client.service('party').remove(partyId)) as Party
-      dispatchAction(PartyAction.removedPartyAction({ party }))
-      await this.leavePartyNetwork()
+      dispatchAction(PartyActions.removedPartyAction({ party }))
+      await PartyService.leavePartyNetwork()
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
@@ -188,13 +212,15 @@ export const PartyService = {
       await API.instance.client.service('party-user').remove(partyUserId)
       const selfUser = accessAuthState().user.value
       if (partyUserId === selfUser.id)
-        await this.leavePartyNetwork()
+        await PartyService.leavePartyNetwork()
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   },
   leavePartyNetwork: async() => {
-    leaveNetwork(Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork)
+    const network = Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork
+    await endVideoChat(network, {})
+    leaveNetwork(network)
     const channels = accessChatState().channels.channels.value
     const instanceChannel = Object.values(channels).find((channel) => channel.instanceId === Engine.instance.currentWorld.worldNetwork?.hostId)
     if (instanceChannel)
@@ -213,10 +239,10 @@ export const PartyService = {
     useEffect(() => {
       const partyUserCreatedListener = async (params) => {
         if (accessPartyState().party.value == null) {
-          dispatchAction(PartyAction.createdPartyAction({ party: params }))
+          dispatchAction(PartyActions.createdPartyAction({ party: params }))
         }
 
-        dispatchAction(PartyAction.createdPartyUserAction({ partyUser: params.partyUser }))
+        dispatchAction(PartyActions.createdPartyUserAction({ partyUser: params.partyUser }))
 
         // if (params.partyUser.userId === selfUser.id.value) {
         //   const party = await API.instance.client.service('party').get(params.partyUser.partyId)
@@ -228,7 +254,7 @@ export const PartyService = {
         //       user: dbUser
         //     }
         //     updateUser.partyId = party.id
-        //     dispatchAction(PartyAction.patchedPartyUserAction({ partyUser: updateUser }))
+        //     dispatchAction(PartyActions.patchedPartyUserAction({ partyUser: updateUser }))
         //     await MediaInstanceConnectionService.provisionServer(party.instanceId, false)
         //   }
         // }
@@ -237,7 +263,7 @@ export const PartyService = {
       const partyUserPatchedListener = (params) => {
         const updatedPartyUser = params.partyUser
         const selfUser = accessAuthState().user
-        dispatchAction(PartyAction.patchedPartyUserAction({ partyUser: updatedPartyUser }))
+        dispatchAction(PartyActions.patchedPartyUserAction({ partyUser: updatedPartyUser }))
         if (
           updatedPartyUser.user.channelInstanceId != null &&
           updatedPartyUser.user.channelInstanceId === selfUser.channelInstanceId.value
@@ -254,7 +280,7 @@ export const PartyService = {
       const partyUserRemovedListener = (params) => {
         const deletedPartyUser = params.partyUser
         const selfUser = accessAuthState().user
-        dispatchAction(PartyAction.removedPartyUserAction({ partyUser: deletedPartyUser }))
+        dispatchAction(PartyActions.removedPartyUserAction({ partyUser: deletedPartyUser }))
         // dispatchAction(UserAction.removedChannelLayerUserAction({ user: deletedPartyUser.user }))
         if (deletedPartyUser.userId === selfUser.id)
           PartyService.leavePartyNetwork()
@@ -268,16 +294,16 @@ export const PartyService = {
       }
 
       const partyCreatedListener = (params) => {
-        dispatchAction(PartyAction.createdPartyAction({ party: params.party }))
+        dispatchAction(PartyActions.createdPartyAction({ party: params.party }))
       }
 
       const partyPatchedListener = (params) => {
-        dispatchAction(PartyAction.patchedPartyAction({ party: params.party }))
+        dispatchAction(PartyActions.patchedPartyAction({ party: params.party }))
         ChatService.clearChatTargetIfCurrent('party', params.party)
       }
 
       const partyRemovedListener = (params) => {
-        dispatchAction(PartyAction.removedPartyAction({ party: params.party }))
+        dispatchAction(PartyActions.removedPartyAction({ party: params.party }))
         PartyService.leavePartyNetwork()
       }
 
@@ -302,7 +328,7 @@ export const PartyService = {
 
 //Action
 
-export class PartyAction {
+export class PartyActions {
   static loadedPartyAction = defineAction({
     type: 'LOADED_PARTY' as const,
     party: matches.object as Validator<unknown, Party>,

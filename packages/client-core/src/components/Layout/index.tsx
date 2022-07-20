@@ -25,7 +25,7 @@ import { useLoadingSystemState } from '../../systems/state/LoadingState'
 import Debug from '../Debug'
 import InstanceChat from '../InstanceChat'
 import MediaIconsBox from '../MediaIconsBox'
-import PartyVideoWindows from '../PartyVideoWindows'
+import UserMediaWindows from '../UserMediaWindows'
 import { useFullscreen } from '../useFullscreen'
 import styles from './index.module.scss'
 
@@ -159,7 +159,7 @@ const Layout = ({ useLoadingScreenOpacity, pageTitle, children, hideVideo, hideF
             {!hideVideo && (
               <>
                 <section className={styles.locationUserMenu}>
-                  <PartyVideoWindows />
+                  <UserMediaWindows />
                 </section>
               </>
             )}

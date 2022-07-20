@@ -219,11 +219,6 @@ export const AuthService = {
 
         await AuthService.loadUserData(authUser.identityProvider.userId)
 
-        // TODO: Nayan - Have to put this somewhere else
-        setTimeout(() => {
-          PartyService.getParty()
-          PartyService.getPartyUsers()
-        }, 5000)
       } else {
         console.log('****************')
       }

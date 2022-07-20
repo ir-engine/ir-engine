@@ -11,7 +11,7 @@ import { addActionReceptor, getState, removeActionReceptor } from '@xrengine/hyp
 
 import Button from '@mui/material/Button'
 
-import { PartyService, PartyServiceReceptor } from '../../../social/services/PartyService'
+import { PartyService } from '../../../social/services/PartyService'
 import { getAvatarURLForUser } from '../../../user/components/UserMenu/util'
 import { useAuthState } from '../../../user/services/AuthService'
 import { UserService, useUserState } from '../../../user/services/UserService'
@@ -45,12 +45,6 @@ const AvatarContextMenu = () => {
 
   // TODO: move these to widget register
   PartyService.useAPIListeners()
-  useEffect(() => {
-    addActionReceptor(PartyServiceReceptor)
-    return () => {
-      removeActionReceptor(PartyServiceReceptor)
-    }
-  }, [])
 
   const blockUser = () => {
     if (authState.user?.id?.value !== null && user) {

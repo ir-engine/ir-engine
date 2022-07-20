@@ -15,6 +15,7 @@ import { endVideoChat, leaveNetwork } from '../../transports/SocketWebRTCClientF
 import { SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientNetwork'
 import { accessAuthState } from '../../user/services/AuthService'
 import { NetworkConnectionService } from './NetworkConnectionService'
+import { accessChatState } from '../../social/services/ChatService'
 
 const logger = multiLogger.child({ component: 'client-core:service:media-instance' })
 
@@ -102,7 +103,7 @@ export const MediaInstanceConnectionService = {
           ipAddress: provisionResult.ipAddress,
           port: provisionResult.port,
           channelId: channelId ? channelId : '',
-          channelType: isWorldConnection ? 'instance' : 'channel'
+          channelType: accessChatState().channels.channels.value.find(channel => channel.id === channelId).channelType
         })
       )
     } else {
