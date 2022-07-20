@@ -1,4 +1,4 @@
-import { Box3, Frustum, Matrix4, Mesh, Vector3 } from 'three'
+import { Frustum, Matrix4 } from 'three'
 
 import { getEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { dispatchAction } from '@xrengine/hyperflux'
@@ -8,7 +8,6 @@ import { interactiveReachDistance } from '../../avatar/functions/getInteractiveI
 import { EngineActions } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
-import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { BoundingBoxComponent } from '../components/BoundingBoxComponent'
 import { InteractableComponent } from '../components/InteractableComponent'
@@ -24,7 +23,6 @@ const projectionMatrix = new Matrix4().makePerspective(
   2 // far
 )
 const frustum = new Frustum()
-const vec3 = new Vector3()
 
 type RaycastResult = [Entity, boolean, number]
 
@@ -45,6 +43,8 @@ export const interactBoxRaycast = (entity: Entity, raycastList: Entity[]) => {
 
   if (!raycastList.length) return
 
+  // todo: add avatar's local head position to this calculation so its calculated from the head instead of the feet
+
   interactor.frustumCamera.updateMatrixWorld()
   interactor.frustumCamera.matrixWorldInverse.copy(interactor.frustumCamera.matrixWorld).invert()
 
@@ -54,7 +54,7 @@ export const interactBoxRaycast = (entity: Entity, raycastList: Entity[]) => {
   const subFocusedArray = raycastList
     .map((entityIn): RaycastResult => {
       const boundingBox = getComponent(entityIn, BoundingBoxComponent)
-      if (!boundingBox.box) return [entityIn, false, 0]
+      if (!boundingBox?.box) return [entityIn, false, 0]
       return [entityIn, frustum.intersectsBox(boundingBox.box), boundingBox.box.distanceToPoint(transform.position)]
     })
     .filter((value) => value[1])
@@ -76,12 +76,11 @@ export const interactBoxRaycast = (entity: Entity, raycastList: Entity[]) => {
 
   let resultIsCloseEnough = false
   if (focussed) {
-    const interactable = getComponent(focussed, InteractableComponent)?.value
+    const interactable = getComponent(focussed, InteractableComponent)
     if (!interactable) return
-    const interactDistance = interactable?.interactionDistance ?? interactiveReachDistance
     const boundingBox = getComponent(focussed, BoundingBoxComponent)
     const distance = boundingBox.box.distanceToPoint(transform.position)
-    resultIsCloseEnough = distance < interactDistance
+    resultIsCloseEnough = distance < interactiveReachDistance
   }
 
   if (focussed && resultIsCloseEnough) {

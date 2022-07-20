@@ -65,7 +65,7 @@ const Projects = () => {
         </Grid>
       </Grid>
 
-      <ProjectTable className={styles.rootTable} />
+      <ProjectTable className={styles.rootTableWithSearch} />
 
       <ConfirmDialog
         open={rebuildModalOpen}

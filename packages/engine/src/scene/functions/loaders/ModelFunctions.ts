@@ -1,4 +1,4 @@
-import { Mesh, Texture } from 'three'
+import { Mesh, Object3D, Texture } from 'three'
 
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
@@ -15,7 +15,7 @@ import { addComponent, getComponent, hasComponent, removeComponent } from '../..
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { MaterialOverrideComponentType } from '../../components/MaterialOverrideComponent'
 import { ModelComponent, ModelComponentType } from '../../components/ModelComponent'
-import { Object3DComponent } from '../../components/Object3DComponent'
+import { Object3DComponent, Object3DWithEntity } from '../../components/Object3DComponent'
 import { SimpleMaterialTagComponent } from '../../components/SimpleMaterialTagComponent'
 import cloneObject3D from '../cloneObject3D'
 import { addError, removeError } from '../ErrorFunctions'
@@ -52,13 +52,28 @@ export const deserializeModel: ComponentDeserializeFunction = (
 
 export const updateModel: ComponentUpdateFunction = (entity: Entity, properties: ModelComponentType) => {
   const component = getComponent(entity, ModelComponent)
+  let scene: Object3DWithEntity
   if (properties.src) {
     try {
       hasComponent(entity, Object3DComponent) && removeComponent(entity, Object3DComponent)
-      const gltf = AssetLoader.getFromCache(properties.src) as GLTF
-      const scene = cloneObject3D(gltf.scene)
-      addComponent(entity, Object3DComponent, { value: scene })
+      switch (/\.[\d\s\w]+$/.exec(properties.src)![0]) {
+        case '.glb':
+        case '.gltf':
+          const gltf = AssetLoader.getFromCache(properties.src) as GLTF
+          scene = gltf.scene as any
+          break
+        case '.fbx':
+          scene = AssetLoader.getFromCache(properties.src).scene
+          break
+        default:
+          scene = new Object3D() as Object3DWithEntity
+          break
+      }
+      scene = cloneObject3D(scene)
       parseGLTFModel(entity, component, scene)
+
+      addComponent(entity, Object3DComponent, { value: scene })
+
       removeError(entity, 'srcError')
     } catch (err) {
       console.error(err)

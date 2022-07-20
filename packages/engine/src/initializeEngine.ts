@@ -246,6 +246,10 @@ export const initializeSceneSystems = async () => {
       },
       {
         type: SystemUpdateType.PRE_RENDER,
+        systemModulePromise: import('./interaction/systems/MountPointSystem')
+      },
+      {
+        type: SystemUpdateType.PRE_RENDER,
         systemModulePromise: import('./interaction/systems/MediaControlSystem')
       },
       {
