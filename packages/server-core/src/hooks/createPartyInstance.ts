@@ -31,8 +31,8 @@ export default () => {
       )) as any
       const readyServers = _.filter(serverResult?.body!.items, (server) => server.status.state === 'Ready')
       const server = readyServers[Math.floor(Math.random() * readyServers.length)]
-      emittedIp = { ipAddress: server.status.address, port: server.status.portsList[0].port }
-      selfIpAddress = `${server.status.address as string}:${server.status.portsList[0].port as string}`
+      emittedIp = { ipAddress: server.status.address, port: server.status.ports[0].port.toString() }
+      selfIpAddress = `${server.status.address as string}:${server.status.ports[0].port.toString() }`
     } else {
       emittedIp = await getLocalServerIp(true)
       selfIpAddress = `${emittedIp.ipAddress}:${emittedIp.port}`

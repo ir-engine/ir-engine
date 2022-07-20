@@ -6,6 +6,7 @@ import { PartyUser } from './party-user.class'
 import partyUserDocs from './party-user.docs'
 import hooks from './party-user.hooks'
 import createModel from './party-user.model'
+import Sequelize from 'sequelize'
 
 declare module '@xrengine/common/declarations' {
   interface ServiceTypes {
@@ -41,8 +42,8 @@ export default (app: Application): void => {
         where: { id: data.userId },
         include: [
           {
-            model: this.app.service('static-resource').Model,
-            on: Sequelize.literal('`user`.`avatarId` = `user->static_resources`.`name`')
+            model: app.service('static-resource').Model,
+            on: Sequelize.literal('`avatarId` = `static_resources`.`name` AND `static_resources`.`staticResourceType` = "user-thumbnail"')
           }
         ]
       })
@@ -69,8 +70,8 @@ export default (app: Application): void => {
         where: { id: data.userId },
         include: [
           {
-            model: this.app.service('static-resource').Model,
-            on: Sequelize.literal('`user`.`avatarId` = `user->static_resources`.`name`')
+            model: app.service('static-resource').Model,
+            on: Sequelize.literal('`avatarId` = `static_resources`.`name` AND `static_resources`.`staticResourceType` = "user-thumbnail"')
           }
         ]
       })

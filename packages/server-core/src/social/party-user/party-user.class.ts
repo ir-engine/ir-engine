@@ -28,9 +28,7 @@ export class PartyUser<T = PartyUserDataType> extends Service<T> {
 
       if (!isInternalOrAdmin && !loggedInUser) return null!
 
-      const where = {
-        [Op.and]: Sequelize.literal('`user->static_resources`.`staticResourceType` = "user-thumbnail"')
-      } as any
+      const where = {} as any
 
       if (!isInternalOrAdmin) where.userId = loggedInUser.id
       if (params?.query) {
@@ -39,6 +37,7 @@ export class PartyUser<T = PartyUserDataType> extends Service<T> {
         if (typeof params.query.isOwner !== 'undefined') where.isOwner = params.query.isOwner
       }
 
+      console.log('where', where)
       const PartyUserMS = this.app.service('party-user').Model as PartyUserModelStatic
       const users = await PartyUserMS.findAll({
         where,
@@ -48,7 +47,7 @@ export class PartyUser<T = PartyUserDataType> extends Service<T> {
             include: [
               {
                 model: this.app.service('static-resource').Model,
-                on: Sequelize.literal('`user`.`avatarId` = `user->static_resources`.`name`')
+                on: Sequelize.literal('`user`.`avatarId` = `user->static_resources`.`name` AND `user->static_resources`.`staticResourceType` = "user-thumbnail"')
               }
             ]
           }

@@ -66,7 +66,7 @@ type PeersUpdateType = Array<{
 
 export async function onConnectToInstance(network: SocketWebRTCClientNetwork) {
   const isWorldConnection = network.topic === NetworkTopics.world
-  console.log('[WebRTC]: connectting to instance type:', network.topic, network.hostId)
+  console.log('[WebRTC]: connecting to instance type:', network.topic, network.hostId)
 
   if (isWorldConnection) {
     dispatchAction(LocationInstanceConnectionAction.instanceServerConnected({ instanceId: network.hostId }))
@@ -91,6 +91,7 @@ export async function onConnectToInstance(network: SocketWebRTCClientNetwork) {
   if (!success) return console.error('Unable to connect with credentials')
 
   function peerUpdateHandler(peers: PeersUpdateType) {
+    console.log('peerUpdateHandler', network, peers)
     for (const peer of peers) {
       NetworkPeerFunctions.createPeer(network, peer.userId, peer.index, peer.name)
     }
