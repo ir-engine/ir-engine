@@ -86,7 +86,6 @@ export const VEC3_MAX_RANGE = 1 / 32
 /**
  * This function compresses the number to specified number of bits. E.g if 10 bits are to be used then 9bits are precision bits and the 10th bit is used for storing sign.
  * If number is negative, sign bit will be 1.
- * @author Hamza Mushtaq <hamzzam@github>
  */
 export const compress = (value: number, numOfBitsToUse: number) => {
   const signBitWriteMask = Math.pow(2, numOfBitsToUse - 1)
@@ -105,7 +104,6 @@ export const compress = (value: number, numOfBitsToUse: number) => {
 
 /**
  * This function is used to expand number compressed using the compress function. Same number of bits must be specified as used when compressing the number.
- * @author Hamza Mushtaq <hamzzam@github>
  */
 export const expand = (compressedBinaryData: number, numOfBitsToUse: number) => {
   const signBitReadMask = Math.pow(2, numOfBitsToUse - 1)

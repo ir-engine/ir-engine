@@ -15,7 +15,6 @@ import { EditorComponentType } from './Util'
 /**
  * ScenePreviewCameraNodeEditor provides the editor view to customize properties.
  *
- * @author Robert Long
  * @type {Class component}
  */
 export const ScenePreviewCameraNodeEditor: EditorComponentType = (props) => {

@@ -868,10 +868,12 @@
       .settingLabel {
         margin-left: 10px;
         font-size: 14px;
-        width: 100px;
+
+        // width: 100px;
         display: inline-block;
         flex-shrink: 0;
         font-family: Roboto;
+        width: 28%;
       }
 
       :global(.MuiSlider-root) {

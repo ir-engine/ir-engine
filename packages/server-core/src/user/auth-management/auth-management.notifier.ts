@@ -13,7 +13,6 @@ const emailAccountTemplatesPath = path.join(appRootPath.path, 'packages', 'serve
  *
  * @param app
  * @returns {@function} sentEmail with app and email
- * @author Vyacheslav Solovjov
  */
 export default (app: Application) => {
   return {

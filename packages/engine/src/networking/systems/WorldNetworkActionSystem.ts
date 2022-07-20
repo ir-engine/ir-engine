@@ -3,10 +3,6 @@ import { createActionQueue } from '@xrengine/hyperflux'
 import { WorldNetworkAction } from '../functions/WorldNetworkAction'
 import { WorldNetworkActionReceptor } from '../functions/WorldNetworkActionReceptor'
 
-/**
- * @author Gheric Speiginer <github.com/speigg>
- * @author Josh Field <github.com/HexaField>
- */
 export default async function WorldNetworkActionSystem() {
   const spawnObjectQueue = createActionQueue(WorldNetworkAction.spawnObject.matches)
   const spawnDebugPhysicsObjectQueue = createActionQueue(WorldNetworkAction.spawnDebugPhysicsObject.matches)

@@ -1,17 +1,23 @@
+import classNames from 'classnames'
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { SendInvite } from '@xrengine/common/src/interfaces/Invite'
-import { Location } from '@xrengine/common/src/interfaces/Location'
 
+import HighlightOffIcon from '@mui/icons-material/HighlightOff'
 import Button from '@mui/material/Button'
 import Checkbox from '@mui/material/Checkbox'
 import Container from '@mui/material/Container'
 import DialogTitle from '@mui/material/DialogTitle'
 import FormControlLabel from '@mui/material/FormControlLabel'
 import FormGroup from '@mui/material/FormGroup'
+import IconButton from '@mui/material/IconButton'
 import Tab from '@mui/material/Tab'
 import Tabs from '@mui/material/Tabs'
+import TextField from '@mui/material/TextField'
+import { AdapterMoment } from '@mui/x-date-pickers/AdapterMoment'
+import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker'
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider'
 
 import { NotificationService } from '../../../common/services/NotificationService'
 import { emailRegex, InviteService, phoneRegex } from '../../../social/services/InviteService'
@@ -50,6 +56,9 @@ const CreateInviteModal = ({ open, onClose }: Props) => {
   const [spawnPointUUID, setSpawnPointUUID] = useState('')
   const [setSpawn, setSetSpawn] = useState(false)
   const [spawnTypeTab, setSpawnTypeTab] = useState(0)
+  const [timed, setTimed] = useState(false)
+  const [startTime, setStartTime] = useState<Date | null>(null)
+  const [endTime, setEndTime] = useState<Date | null>(null)
   const { t } = useTranslation()
   const adminLocationState = useAdminLocationState()
   const adminInstanceState = useAdminInstanceState()
@@ -171,6 +180,11 @@ const CreateInviteModal = ({ open, onClose }: Props) => {
           sendData.spawnType = 'spawnPoint'
           sendData.spawnDetails = { spawnPoint: spawnPointUUID }
         }
+        sendData.timed = timed && (startTime != null || endTime != null)
+        if (sendData.timed) {
+          sendData.startTime = startTime
+          sendData.endTime = endTime
+        }
         await InviteService.sendInvite(sendData)
         setInstanceId('')
         setLocationId('')
@@ -182,6 +196,9 @@ const CreateInviteModal = ({ open, onClose }: Props) => {
         setSpawnPointUUID('')
         setSpawnTypeTab(0)
         setInviteTypeTab(0)
+        setTimed(false)
+        setStartTime(null)
+        setEndTime(null)
         return
       } catch (err) {
         NotificationService.dispatchNotify(err.message, { variant: 'error' })
@@ -206,6 +223,7 @@ const CreateInviteModal = ({ open, onClose }: Props) => {
         <FormGroup>
           <Tabs
             value={inviteTypeTab}
+            className={styles.marginBottom10px}
             onChange={handleChangeInviteTypeTab}
             aria-label="Invite Type"
             classes={{ root: styles.tabRoot, indicator: styles.selected }}
@@ -244,6 +262,55 @@ const CreateInviteModal = ({ open, onClose }: Props) => {
             }
             label="One-time use"
           />
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={timed}
+                onChange={() => {
+                  setTimed(!timed)
+                }}
+              />
+            }
+            label="Timed invite"
+          />
+          {timed && (
+            <div className={styles.datePickerContainer}>
+              <LocalizationProvider dateAdapter={AdapterMoment}>
+                <div className={styles.pickerControls}>
+                  <DateTimePicker
+                    label="Start Time"
+                    value={startTime}
+                    onChange={(e) => setStartTime(e)}
+                    renderInput={(params) => <TextField className={styles.dateTimePickerDialog} {...params} />}
+                  />
+                  <IconButton
+                    color="primary"
+                    size="small"
+                    className={styles.clearTime}
+                    onClick={() => setStartTime(null)}
+                  >
+                    <HighlightOffIcon />
+                  </IconButton>
+                </div>
+                <div className={styles.pickerControls}>
+                  <DateTimePicker
+                    label="End Time"
+                    value={endTime}
+                    onChange={(e) => setEndTime(e)}
+                    renderInput={(params) => <TextField className={styles.dateTimePickerDialog} {...params} />}
+                  />
+                  <IconButton
+                    color="primary"
+                    size="small"
+                    className={styles.clearTime}
+                    onClick={() => setEndTime(null)}
+                  >
+                    <HighlightOffIcon />
+                  </IconButton>
+                </div>
+              </LocalizationProvider>
+            </div>
+          )}
           {inviteTypeTab === 0 && (
             <FormControlLabel
               control={
@@ -257,17 +324,37 @@ const CreateInviteModal = ({ open, onClose }: Props) => {
               label="Make user admin"
             />
           )}
-          {inviteTypeTab === 1 && (
-            <div>
-              <InputSelect
-                name="location"
-                label={t('admin:components.invite.location')}
-                value={locationId}
-                menu={locationMenu}
-                disabled={false}
-                onChange={handleLocationChange}
-              />
-              {locationId && (
+          {(inviteTypeTab === 1 || inviteTypeTab === 2) && (
+            <div className={styles.marginBottom10px}>
+              {inviteTypeTab === 1 && (
+                <InputSelect
+                  name="location"
+                  className={classNames({
+                    [styles.maxWidth90]: true,
+                    [styles.inputField]: true
+                  })}
+                  label={t('admin:components.invite.location')}
+                  value={locationId}
+                  menu={locationMenu}
+                  disabled={false}
+                  onChange={handleLocationChange}
+                />
+              )}
+              {inviteTypeTab === 2 && (
+                <InputSelect
+                  name="instance"
+                  className={classNames({
+                    [styles.maxWidth90]: true,
+                    [styles.inputField]: true
+                  })}
+                  label={t('admin:components.invite.instance')}
+                  value={instanceId}
+                  menu={instanceMenu}
+                  disabled={false}
+                  onChange={handleInstanceChange}
+                />
+              )}
+              {((inviteTypeTab === 1 && locationId) || (inviteTypeTab === 2 && instanceId)) && (
                 <FormControlLabel
                   control={
                     <Checkbox
@@ -283,6 +370,7 @@ const CreateInviteModal = ({ open, onClose }: Props) => {
               {setSpawn && (
                 <Tabs
                   value={spawnTypeTab}
+                  className={styles.marginBottom10px}
                   onChange={handleChangeSpawnTypeTab}
                   aria-label="Spawn position"
                   classes={{ root: styles.tabRoot, indicator: styles.selected }}
@@ -301,6 +389,10 @@ const CreateInviteModal = ({ open, onClose }: Props) => {
               {setSpawn && spawnTypeTab === 0 && (
                 <InputSelect
                   name="user"
+                  className={classNames({
+                    [styles.maxWidth90]: true,
+                    [styles.inputField]: true
+                  })}
                   label={t('admin:components.invite.user')}
                   value={userInviteCode}
                   menu={userMenu}
@@ -311,67 +403,10 @@ const CreateInviteModal = ({ open, onClose }: Props) => {
               {setSpawn && spawnTypeTab === 1 && (
                 <InputSelect
                   name="spawnPoint"
-                  label={t('admin:components.invite.spawnPoint')}
-                  value={spawnPointUUID}
-                  menu={spawnPointMenu}
-                  disabled={false}
-                  onChange={handleSpawnPointChange}
-                />
-              )}
-            </div>
-          )}
-          {inviteTypeTab === 2 && (
-            <div>
-              <InputSelect
-                name="instance"
-                label={t('admin:components.invite.instance')}
-                value={instanceId}
-                menu={instanceMenu}
-                disabled={false}
-                onChange={handleInstanceChange}
-              />
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={setSpawn}
-                    onChange={() => {
-                      setSetSpawn(!setSpawn)
-                    }}
-                  />
-                }
-                label="Spawn at position"
-              />
-              {setSpawn && (
-                <Tabs
-                  value={spawnTypeTab}
-                  onChange={handleChangeSpawnTypeTab}
-                  aria-label="Spawn position"
-                  classes={{ root: styles.tabRoot, indicator: styles.selected }}
-                >
-                  <Tab
-                    className={spawnTypeTab === 0 ? styles.selectedTab : styles.unselectedTab}
-                    label="User position"
-                    classes={{ root: styles.tabRoot }}
-                  />
-                  <Tab
-                    className={spawnTypeTab === 1 ? styles.selectedTab : styles.unselectedTab}
-                    label={'Spawn Point'}
-                  />
-                </Tabs>
-              )}
-              {setSpawn && spawnTypeTab === 0 && (
-                <InputSelect
-                  name="user"
-                  label={t('admin:components.invite.user')}
-                  value={userInviteCode}
-                  menu={userMenu}
-                  disabled={false}
-                  onChange={handleUserChange}
-                />
-              )}
-              {setSpawn && spawnTypeTab === 1 && (
-                <InputSelect
-                  name="spawnPoint"
+                  className={classNames({
+                    [styles.maxWidth90]: true,
+                    [styles.inputField]: true
+                  })}
                   label={t('admin:components.invite.spawnPoint')}
                   value={spawnPointUUID}
                   menu={spawnPointMenu}

@@ -1,29 +1,17 @@
 import React from 'react'
 import styled from 'styled-components'
 
-/**
- *
- *  @author Robert Long
- */
 export const PanelIcon = (styled as any).div`
   color: var(--textColor);
   margin-right: 6px;
   width: 18px;
 `
 
-/**
- *
- *  @author Robert Long
- */
 export const PanelTitle = (styled as any).div`
   color: var(--textColor);
   position: relative;
 `
 
-/**
- *
- *  @author Hanzla  Mateen
- */
 export const PanelDragContainer = (styled as any).div`
   display: flex;
   flex: 1;
@@ -42,10 +30,6 @@ export const PanelDragContainer = (styled as any).div`
   }
 `
 
-/**
- *
- *  @author Robert Long
- */
 export const PanelContainer = (styled as any).div`
   position: relative;
   display: flex;
@@ -56,10 +40,7 @@ export const PanelContainer = (styled as any).div`
   overflow: hidden;
   user-select: none;
 `
-/**
- *
- *  @author Robert Long
- */
+
 export const PanelToolbar = (styled as any).div`
   display: flex;
   padding: 4px;
@@ -68,10 +49,6 @@ export const PanelToolbar = (styled as any).div`
   border-bottom: 1px solid rgba(0, 0, 0, 0.2);
 `
 
-/**
- *
- *  @author Robert Long
- */
 export const PanelContent = (styled as any).div`
   display: flex;
   flex: 1;
@@ -80,10 +57,6 @@ export const PanelContent = (styled as any).div`
   overflow: hidden;
 `
 
-/**
- *
- *  @author Robert Long
- */
 export const Panel = ({ icon, title, children, toolbarContent, ...rest }) => {
   return (
     <PanelContainer {...rest}>

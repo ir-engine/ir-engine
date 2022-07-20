@@ -179,6 +179,9 @@ export const InviteService = {
         deleteOnUse: data.deleteOnUse,
         spawnType: data.spawnType,
         spawnDetails: data.spawnDetails,
+        timed: data.timed,
+        startTime: data.startTime,
+        endTime: data.endTime,
         existenceCheck: true
       }
 

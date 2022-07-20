@@ -9,7 +9,6 @@ import { InfoTooltip } from '../layout/Tooltip'
 /**
  * Used to provide styles for InputGroupContainer div.
  *
- * @author Robert Long
  * @type {Styled component}
  */
 export const InputGroupContainer = (styled as any).div`
@@ -38,7 +37,6 @@ export const InputGroupContainer = (styled as any).div`
 /**
  * Used to provide styles for InputGroupContent div.
  *
- * @author Robert Long
  * @type {Styled component}
  */
 export const InputGroupContent = (styled as any).div`
@@ -104,7 +102,6 @@ export const InputGroupVerticalContent = (styled as any).div`
 /**
  * Used to provide styles for InputGroupInfoIcon div.
  *
- *  @author Robert Long
  *  @type {styled component}
  */
 export const InputGroupInfoIcon = (styled as any)(HelpOutlineIcon)`
@@ -123,7 +120,6 @@ interface InputGroupInfoProp {
 /**
  * Used to render InfoTooltip component.
  *
- * @author Robert Long
  * @param  {string} info
  * @constructor
  */
@@ -138,7 +134,6 @@ export function InputGroupInfo({ info }: InputGroupInfoProp) {
 /**
  * Declaring proptypes for InputGroupInfo Component.
  *
- * @author Robert Long
  * @type {Object}
  */
 type InputGroupPropType = React.PropsWithChildren<
@@ -175,8 +170,6 @@ function BaseInputGroup({ name, children, disabled, label, ...rest }: InputGroup
 /**
  * InputGroup used to render the view of component.
  *
- * @author Robert Long
- * @author David Gordon
  * @param       {string} name
  * @param       {any} children
  * @param       {boolean} disabled

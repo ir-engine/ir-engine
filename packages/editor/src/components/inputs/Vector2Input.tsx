@@ -17,10 +17,6 @@ interface Vector2InputProp {
   hideLabels?: boolean
 }
 
-/**
- *
- * @author Robert Long
- */
 export const Vector2Input = ({ value, onChange, uniformScaling, hideLabels, ...rest }: Vector2InputProp) => {
   const id = uniqueId++
   const newValue = new Vector2()

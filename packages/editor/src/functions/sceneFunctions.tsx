@@ -38,7 +38,6 @@ export const getScene = async (projectName: string, sceneName: string, metadataO
 /**
  * deleteScene used to delete project using projectId.
  *
- * @author Robert Long
  * @param  {any}  sceneId
  * @return {Promise}
  */
@@ -65,8 +64,6 @@ export const renameScene = async (projectName: string, newSceneName: string, old
 /**
  * saveScene used to save changes in existing project.
  *
- * @author Robert Long
- * @author Abhishek Pathak
  * @param  {any}  sceneName
  * @param  {any}  signal
  * @return {Promise}

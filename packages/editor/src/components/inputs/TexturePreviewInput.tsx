@@ -14,9 +14,6 @@ import InputGroup from './InputGroup'
 /**
  * VideoInput used to render component view for video inputs.
  *
- * @author Robert Long
- * @author Hanzla Mateen
- * @author David Gordon
  * @param       {function} onChange
  * @param       {any} rest
  * @constructor

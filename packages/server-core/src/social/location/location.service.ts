@@ -18,8 +18,6 @@ export default (app: Application) => {
   }
   /**
    * Initialize our service with any options it requires and docs
-   *
-   * @author Vyacheslav Solovjov
    */
   const event = new Location(options, app)
   event.docs = locationDocs
@@ -28,8 +26,6 @@ export default (app: Application) => {
 
   /**
    * Get our initialized service so that we can register hooks
-   *
-   * @author Vyacheslav Solovjov
    */
   const service = app.service('location')
 

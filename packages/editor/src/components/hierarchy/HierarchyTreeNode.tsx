@@ -30,7 +30,6 @@ import styles from './styles.module.scss'
 /**
  * getNodeElId function provides id for node.
  *
- * @author Robert Long
  * @param  {object} node
  * @return {string}
  */

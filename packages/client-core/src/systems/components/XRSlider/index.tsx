@@ -14,9 +14,9 @@ const XRSlider = (props) => {
   return (
     <>
       <style>{styleString}</style>
-      {labelPosition === 'start' && <span className="label">{labelContent}</span>}
+      {labelPosition === 'start' && <span className="label left">{labelContent}</span>}
       <input className="slider" type="range" {...inputProps} />
-      {labelPosition === 'end' && <span className="label">{labelContent}</span>}
+      {labelPosition === 'end' && <span className="label right">{labelContent}</span>}
     </>
   )
 }

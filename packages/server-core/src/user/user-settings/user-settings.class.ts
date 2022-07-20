@@ -8,8 +8,6 @@ import { Application } from '../../../declarations'
 export type UserSettingsDataType = UserSetting
 /**
  * A class for User Settings service
- *
- * @author Vyacheslav Solovjov
  */
 export class UserSettings<T = UserSettingsDataType> extends Service<T> {
   public docs: any

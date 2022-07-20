@@ -4,7 +4,7 @@ import { useHistory } from 'react-router'
 import { LocationInstanceConnectionServiceReceptor } from '@xrengine/client-core/src/common/services/LocationInstanceConnectionService'
 import { LocationService } from '@xrengine/client-core/src/social/services/LocationService'
 import { leaveNetwork } from '@xrengine/client-core/src/transports/SocketWebRTCClientFunctions'
-import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
+import { AuthService, useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import {
   SceneActions,
   SceneServiceReceptor,
@@ -55,6 +55,7 @@ export const LoadEngineWithScene = () => {
   useHookEffect(() => {
     const sceneData = sceneState.currentScene.value
     if (clientReady && sceneData) {
+      AuthService.fetchAvatarList()
       dispatchAction(AppAction.setAppOnBoardingStep({ onBoardingStep: GeneralStateList.SCENE_LOADING }))
       loadScene(sceneData).then(() => {
         dispatchAction(AppAction.setAppOnBoardingStep({ onBoardingStep: GeneralStateList.SCENE_LOADED }))

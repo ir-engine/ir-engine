@@ -32,6 +32,10 @@
     color: var(--textColor) !important;
   }
 
+  label {
+    color: var(--textColor) !important;
+  }
+
   fieldset {
     border-color: var(--inputOutline) !important;
   }
@@ -336,7 +340,7 @@
   display: flex;
   flex-direction: column;
   color: var(--textColor);
-  max-height: calc(100vh - 172px);
+  max-height: calc(100vh - 158px);
 }
 
 .filterButton {
@@ -419,7 +423,7 @@
   margin: 10px 0;
   flex-direction: row;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: space-between;
 
   input {
     color: var(--textColor);
@@ -431,6 +435,12 @@
 
   fieldset:hover {
     border-color: rgb(var(--inputOutline) 0.8);
+  }
+
+  @media (max-width: 768px) {
+    align-items: flex-start;
+    flex-direction: column;
+    height: 120px;
   }
 }
 
@@ -596,4 +606,60 @@
       padding-bottom: 10px;
     }
   }
+}
+
+.selectedTab {
+  color: var(--textColor) !important;
+  font-weight: bold;
+  font-size: 17px;
+  text-transform: capitalize;
+}
+
+.unselectedTab {
+  color: var(--buttonFilled) !important;
+  font-weight: bold;
+  font-size: 17px;
+  text-transform: capitalize;
+}
+
+.tabRoot {
+  min-height: 20px;
+  color: #ccc;
+}
+
+.selected {
+  background: white;
+}
+
+.marginBottom10px {
+  margin-bottom: 10px;
+}
+
+.maxWidth90 {
+  max-width: 90%;
+}
+
+[class*="MuiDialog-root"] {
+  [class*=".MuiTabs-root"] {
+    min-height: initial;
+  }
+
+  [class*="MuiPickersToolbar-root"] {
+    button {
+      width: initial;
+      margin: initial;
+    }
+  }
+
+  [class*="MuiDialogActions-root"] {
+    button {
+      background-color: var(--popupBackground) !important;
+      color: var(--iconButtonColor) !important;
+    }
+  }
+}
+
+.pickerControls {
+  display: flex;
+  flex-direction: row;
 }

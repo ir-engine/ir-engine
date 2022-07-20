@@ -7,6 +7,7 @@ import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunction
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { InputComponent, InputComponentType } from '../components/InputComponent'
 import { LocalInputTagComponent } from '../components/LocalInputTagComponent'
+import { BaseInput } from '../enums/BaseInput'
 import { InputType } from '../enums/InputType'
 import { addClientInputListeners } from '../functions/clientInputListeners'
 import { handleGamepads } from '../functions/GamepadInput'
@@ -122,6 +123,7 @@ export default async function ClientInputSystem(world: World) {
   const localClientInputQuery = defineQuery([InputComponent, LocalInputTagComponent])
 
   addClientInputListeners()
+  world.pointerScreenRaycaster.layers.enableAll()
 
   return () => {
     if (!EngineRenderer.instance?.xrSession) {
@@ -133,6 +135,19 @@ export default async function ClientInputSystem(world: World) {
     // copy client input state to input component
     for (const entity of localClientInputQuery(world)) {
       processInputComponentData(entity)
+    }
+
+    const input = getComponent(world.localClientEntity, InputComponent)
+    const screenXY = input?.data?.get(BaseInput.SCREENXY)?.value
+
+    if (screenXY) {
+      world.pointerScreenRaycaster.setFromCamera(
+        { x: screenXY[0], y: screenXY[1] },
+        Engine.instance.currentWorld.camera
+      )
+    } else {
+      world.pointerScreenRaycaster.ray.origin.set(Infinity, Infinity, Infinity)
+      world.pointerScreenRaycaster.ray.direction.set(0, -1, 0)
     }
   }
 }

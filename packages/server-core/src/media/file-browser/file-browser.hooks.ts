@@ -3,10 +3,6 @@ import { disallow, iff, isProvider } from 'feathers-hooks-common'
 import authenticate from '../../hooks/authenticate'
 import verifyScope from '../../hooks/verify-scope'
 
-/**
- * @author Abhishek Pathak
- */
-
 export default {
   before: {
     all: [authenticate(), iff(isProvider('external'), verifyScope('editor', 'write') as any)],

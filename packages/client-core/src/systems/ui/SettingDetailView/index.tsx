@@ -3,6 +3,7 @@ import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { UserSetting } from '@xrengine/common/src/interfaces/User'
+import { AudioSettingAction, useAudioState } from '@xrengine/engine/src/audio/AudioState'
 import { AvatarSettings, updateMap } from '@xrengine/engine/src/avatar/AvatarControllerSystem'
 import { AvatarComponent } from '@xrengine/engine/src/avatar/components/AvatarComponent'
 import {
@@ -31,16 +32,14 @@ export function createSettingDetailView() {
 }
 
 function createSettingDetailState() {
-  return createState({
-    settingMenuOpen: false
-  })
+  return createState({})
 }
 
 // TODO: update this to newest settings implementation
 const SettingDetailView = () => {
   const { t } = useTranslation()
   const rendererState = useEngineRendererState()
-
+  const audioState = useAudioState()
   const engineState = useEngineState()
   const avatarInputState = useAvatarInputSettingsState()
   const [controlTypeSelected, setControlType] = useState(avatarInputState.controlType.value)
@@ -53,6 +52,7 @@ const SettingDetailView = () => {
   const selfUser = authState.user
   const firstRender = useRef(true)
   const [showDetails, setShowDetails] = useState(false)
+  const [showAudioDetails, setShowAudioDetails] = useState(false)
   const [userSettings, setUserSetting] = useState<UserSetting>(selfUser?.user_setting.value!)
 
   const controllerTypes = Object.values(AvatarControllerType).filter((value) => typeof value === 'string')
@@ -112,6 +112,10 @@ const SettingDetailView = () => {
     setShowDetails(!showDetails)
   }
 
+  const toggleShowOtherAudioSettings = () => {
+    setShowAudioDetails(!showAudioDetails)
+  }
+
   const handlePostProcessingCheckbox = () => {
     dispatchAction(
       EngineRendererAction.setPostProcessing({
@@ -165,6 +169,76 @@ const SettingDetailView = () => {
                 }}
               />
             </div>
+            <div className="sectionRow justifySpaceBetween">
+              <h4 className="title">{t('user:usermenu.setting.other-audio-setting')}</h4>
+              <div xr-layer className="showHideButton" onClick={toggleShowOtherAudioSettings}>
+                {showAudioDetails ? 'hide details' : 'show details'}
+              </div>
+            </div>
+            {showAudioDetails && (
+              <>
+                <div className="sectionRow">
+                  <VolumeUp />
+                  <XRSlider
+                    labelContent={t('user:usermenu.setting.lbl-media-instance')}
+                    min="1"
+                    max="100"
+                    value={audioState.mediaStreamVolume.value == null ? 100 : audioState.mediaStreamVolume.value}
+                    onChange={(event: any) => {
+                      dispatchAction(
+                        AudioSettingAction.setMediaStreamVolume({ mediastreamVolume: parseInt(event.target.value) })
+                      )
+                    }}
+                  />
+                </div>
+                <div className="sectionRow">
+                  <VolumeUp />
+                  <XRSlider
+                    labelContent={t('user:usermenu.setting.lbl-notification')}
+                    min="1"
+                    max="100"
+                    value={audioState.notificationVolume.value == null ? 100 : audioState.notificationVolume.value}
+                    onChange={(event: any) => {
+                      dispatchAction(
+                        AudioSettingAction.setNotification({ notificationVolume: parseInt(event.target.value) })
+                      )
+                    }}
+                  />
+                </div>
+                <div className="sectionRow">
+                  <VolumeUp />
+                  <XRSlider
+                    labelContent={t('user:usermenu.setting.lbl-sound-effect')}
+                    min="1"
+                    max="100"
+                    value={audioState.soundEffectsVolume.value == null ? 100 : audioState.soundEffectsVolume.value}
+                    onChange={(event: any) => {
+                      dispatchAction(
+                        AudioSettingAction.setSoundEffectsVolume({ soundEffectsVolume: parseInt(event.target.value) })
+                      )
+                    }}
+                  />
+                </div>
+                <div className="sectionRow">
+                  <VolumeUp />
+                  <XRSlider
+                    labelContent={t('user:usermenu.setting.lbl-background-music-volume')}
+                    min="1"
+                    max="100"
+                    value={
+                      audioState.backgroundMusicVolume.value == null ? 100 : audioState.backgroundMusicVolume.value
+                    }
+                    onChange={(event: any) => {
+                      dispatchAction(
+                        AudioSettingAction.setBackgroundMusicVolume({
+                          backgroundMusicVolume: parseInt(event.target.value)
+                        })
+                      )
+                    }}
+                  />
+                </div>
+              </>
+            )}
           </section>
           <section className="graphicsSection">
             <h4 className="title">{t('user:usermenu.setting.graphics')}</h4>

@@ -209,7 +209,7 @@ const initializeInstance = async (
           channelType: 'instance',
           instanceId: instance.id
         },
-        'identity-provider': user['identity_providers'][0]
+        'identity-provider': user['identity_providers']![0]
       })) as Channel[]
       if (existingChannel.length === 0) {
         await app.service('channel').create({

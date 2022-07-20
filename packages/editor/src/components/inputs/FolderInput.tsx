@@ -8,7 +8,6 @@ import FileBrowserInput from './FileBrowserInput'
 /**
  * FolderInput used to render component view for folder inputs.
  *
- * @author Hanzla Mateen
  * @param       {function} onChange
  * @param       {any} rest
  * @constructor

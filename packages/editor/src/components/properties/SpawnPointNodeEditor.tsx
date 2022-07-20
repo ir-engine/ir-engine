@@ -9,7 +9,6 @@ import { EditorComponentType } from './Util'
 /**
  * SpawnPointNodeEditor component used to provide the editor view to customize Spawn Point properties.
  *
- * @author Robert Long
  * @type {Class component}
  */
 export const SpawnPointNodeEditor: EditorComponentType = (props) => {

@@ -10,8 +10,6 @@ export type AnalyticsDataType = AdminAnalyticsResult
 
 /**
  * A class for Intance service
- *
- * @author Vyacheslav Solovjov
  */
 export class Analytics<T = AnalyticsDataType> extends Service<T> {
   app: Application

@@ -1,9 +1,5 @@
 import styled from 'styled-components'
 
-/**
- *
- *  @author Robert Long
- */
 const Well = (styled as any).div`
   display: flex;
   flex-direction: column;

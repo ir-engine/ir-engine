@@ -189,8 +189,6 @@ export const inviteAll = async (inviteService: Invite, query: Query, user: UserI
 
 /**
  * A class for Invite service
- *
- * @author Vyacheslav Solovjov
  */
 export class Invite extends Service<InviteDataType> {
   app: Application
@@ -215,7 +213,6 @@ export class Invite extends Service<InviteDataType> {
    *
    * @param params of query with type and userId
    * @returns invite data
-   * @author Vyacheslav Solovjov
    */
   async find(params?: Params): Promise<InviteDataType[] | Paginated<InviteDataType>> {
     let result: Paginated<InviteDataType> = null!

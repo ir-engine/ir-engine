@@ -109,6 +109,38 @@
       "lbl-yes": "Yes",
       "lbl-no": "No"
     },
+    "socials": {
+      "containerHeading": "Socials",
+      "btn-friend": "Friends",
+      "btn-party-group": "Party / Group",
+      "btn-mediaSession": "Media Session",
+      "btn-share-invite": "Share Link / Invite Code"
+    },
+    "location": {
+      "containerHeading": "Current Location",
+      "btn-immersive": "Immersive Mode",
+      "btn-respawn": "Respawn",
+      "btn-emote": "Emote",
+      "btn-help": "Help",
+      "btn-reportIssue": "Report Issue",
+      "btn-screenRecord": "Screen Record",
+      "btn-adminControls": "Admin Controls"
+    },
+    "adminControls": {
+      "containerHeading": "Admin Controls",
+      "btn-userList": "User List",
+      "btn-banList": "Ban List",
+      "btn-help": "Help",
+      "btn-requestSystemAdmin": "Request System Admin"
+    },
+    "mediaSession": {
+      "containerHeading": "Media Session",
+      "btn-audio": "Toggle Audio",
+      "btn-video": "Toggle Video",
+      "btn-faceTracking": "Face Tracking",
+      "btn-screenShare": "Share Screen",
+      "btn-chat": "World Chat"
+    },
     "share": {
       "lbl-share": "Share",
       "ph-phoneEmail": "Invite by email or phone number",
@@ -134,6 +166,7 @@
       "lbl-pbr": "Full PBR",
       "lbl-automatic": "Automatic",
       "xrusersetting": "XR User Settings",
+      "other-audio-setting": "Other Audio Settings",
       "rotation": "Rotation",
       "rotation-smooth-speed": "Rotation Smooth Speed",
       "rotation-angle": "Rotation Angle",
@@ -141,6 +174,10 @@
       "user-avatar": "Avatar Setting",
       "invert-rotation": "Invert Rotation And Move Sticks",
       "show-avatar": "Show Avatar",
+      "lbl-media-instance": "Media Stream Volume",
+      "lbl-notification": "Notification Volume",
+      "lbl-sound-effect": "Sound Effects",
+      "lbl-background-music-volume": "Background Music",
       "themes": "Themes",
       "theme": "Theme",
       "client": "Client",

@@ -267,7 +267,6 @@ export class S3Provider implements StorageProviderInterface {
   }
 
   /**
-   * @author Nayankumar Patel
    * @param oldName
    * @param oldPath
    * @param newName

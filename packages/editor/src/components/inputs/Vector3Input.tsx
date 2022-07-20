@@ -59,10 +59,6 @@ interface Vector3InputProp {
   onChange: Function
 }
 
-/**
- *
- * @author Robert Long
- */
 export const Vector3Input = ({
   uniformScaling,
   smallStep,
