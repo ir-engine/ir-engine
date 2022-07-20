@@ -1,5 +1,5 @@
 import * as bitecs from 'bitecs'
-import { AudioListener, Object3D, OrthographicCamera, PerspectiveCamera, Scene } from 'three'
+import { AudioListener, Object3D, OrthographicCamera, PerspectiveCamera, Raycaster, Scene } from 'three'
 
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
@@ -242,6 +242,9 @@ export class World {
 
   /** Registry map of prefabs  */
   scenePrefabRegistry = new Map<string, ComponentJson[]>()
+
+  /** A screenspace raycaster for the pointer */
+  pointerScreenRaycaster = new Raycaster()
 
   /**
    * Get the network objects owned by a given user

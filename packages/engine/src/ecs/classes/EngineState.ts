@@ -1,8 +1,7 @@
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { defineAction, defineState, getState, useState } from '@xrengine/hyperflux'
 
-import { matches, matchesUserId, Validator } from '../../common/functions/MatchesUtils'
-import { InteractableComponentType } from '../../interaction/components/InteractableComponent'
+import { matches, matchesEntity, matchesUserId, Validator } from '../../common/functions/MatchesUtils'
 import { Entity } from './Entity'
 
 // TODO: #6016 Refactor EngineState into multiple state objects: timer, scene, world, xr, etc.
@@ -20,7 +19,6 @@ export const EngineState = defineState({
     socketInstance: false,
     avatarTappedId: '' as UserId,
     userHasInteracted: false,
-    interactionData: null! as InteractableComponentType,
     xrSupported: false,
     xrSessionStarted: false,
     spectating: false,
@@ -56,7 +54,6 @@ export function EngineEventReceptor(a) {
       .when(EngineActions.leaveWorld.matches, (action) => s.merge({ joinedWorld: false }))
       .when(EngineActions.sceneLoadingProgress.matches, (action) => s.merge({ loadingProgress: action.progress }))
       .when(EngineActions.connectToWorld.matches, (action) => s.merge({ connectedWorld: action.connectedWorld }))
-      .when(EngineActions.objectActivation.matches, (action) => s.merge({ interactionData: action.interactionData }))
       .when(EngineActions.setTeleporting.matches, (action) => s.merge({ isTeleporting: action.isTeleporting }))
       .when(EngineActions.setUserHasInteracted.matches, (action) => s.merge({ userHasInteracted: true }))
       .when(EngineActions.updateEntityError.matches, (action) => s.errorEntities[action.entity].set(!action.isResolved))
@@ -126,11 +123,6 @@ export class EngineActions {
     progress: matches.number
   })
 
-  static objectActivation = defineAction({
-    type: 'xre.engine.OBJECT_ACTIVATION' as const,
-    interactionData: matches.any as Validator<unknown, InteractableComponentType>
-  })
-
   static availableInteractable = defineAction({
     type: 'xre.engine.AVAILABLE_INTERACTABLE' as const,
     availableInteractable: matches.any
@@ -195,5 +187,10 @@ export class EngineActions {
     type: 'xre.engine.SHARE_LINK' as const,
     shareLink: matches.string,
     shareTitle: matches.string
+  })
+
+  static interactedWithObject = defineAction({
+    type: 'xre.engine.INTERACTED_WITH_OBJECT' as const,
+    targetEntity: matchesEntity
   })
 }

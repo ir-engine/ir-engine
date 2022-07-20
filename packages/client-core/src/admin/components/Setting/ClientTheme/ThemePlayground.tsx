@@ -9,11 +9,13 @@ import {
   Dialog,
   Divider,
   IconButton,
+  InputBase,
   List,
   ListItem,
   ListItemText,
   Menu,
   MenuItem,
+  Select,
   Table,
   TableBody,
   TableCell,
@@ -25,9 +27,14 @@ import {
 } from '@mui/material'
 
 import DrawerView from '../../../common/DrawerView'
-import InputSelect, { InputMenuItem } from '../../../common/InputSelect'
-import InputText from '../../../common/InputText'
+import { InputMenuItem } from '../../../common/InputSelect'
 import styles from '../../../styles/settings.module.scss'
+
+/*
+  Don't replace basic components from ThemePlayground with custom made or any library components
+  since basic components are here styled according to the temporary selected theme for playground,
+  not the main theme used everywhere in app.
+*/
 
 const ThemePlayground = () => {
   const [dock, setDock] = useState(false)
@@ -303,22 +310,36 @@ const ThemePlayground = () => {
                   ))}
                 </Menu>
                 <label className="textSubheading">Select Dropdown:</label>
-                <InputSelect
-                  name="dropdown"
+                <Select
+                  displayEmpty
                   value={selectValue}
-                  menu={selectMenu}
+                  className="select"
+                  MenuProps={{ classes: { paper: 'selectPaper' } }}
                   onChange={(e) => setSelectValue(e.target.value)}
-                />
+                >
+                  <MenuItem value="" key={-1} disabled classes={{ root: 'option', selected: 'optionSelected' }}>
+                    Select Option
+                  </MenuItem>
+                  {['Option 1', 'Option 2', 'Option 3', 'Option 4'].map((el, index) => (
+                    <MenuItem value={el} key={index} classes={{ root: 'option', selected: 'optionSelected' }}>
+                      {el}
+                    </MenuItem>
+                  ))}
+                </Select>
               </div>
               <Divider variant="inset" component="div" className={styles.colorGridDivider} />
               <div className="textHeading">Input</div>
-              <InputText placeholder={t('admin:components.setting.placeholderText')} />
+              <InputBase className="input" placeholder={t('admin:components.setting.placeholderText')} />
               <Divider variant="inset" component="div" className={styles.colorGridDivider} />
               <div className="textHeading">Drawer</div>
               <Button variant="contained" className="filledButton" onClick={() => setDrawerValue(true)}>
                 Open Drawer
               </Button>
-              <DrawerView open={drawerValue} onClose={() => setDrawerValue(false)}></DrawerView>
+              <DrawerView
+                open={drawerValue}
+                classes={{ paper: 'drawer' }}
+                onClose={() => setDrawerValue(false)}
+              ></DrawerView>
               <div className="textHeading">Popup</div>
               <Button variant="contained" className="filledButton" onClick={() => setDialog(true)}>
                 Open Popup

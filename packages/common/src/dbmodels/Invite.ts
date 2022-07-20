@@ -8,4 +8,7 @@ export interface InviteInterface {
   makeAdmin: boolean
   spawnType: string
   spawnDetails: object
+  timed?: boolean
+  startTime?: string
+  endTime?: string
 }

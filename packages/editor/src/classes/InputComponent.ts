@@ -2,7 +2,7 @@ import { createMappedComponent } from '@xrengine/engine/src/ecs/functions/Compon
 
 import { ActionKey, ActionSets, ActionState, InputActionMapping } from '../controls/input-mappings'
 
-export type InputComponentType = {
+export type EditorInputComponentType = {
   mappings: Map<ActionSets, InputActionMapping>
   activeMapping: InputActionMapping
   actionState: ActionState
@@ -10,4 +10,4 @@ export type InputComponentType = {
   resetKeys: Set<ActionKey>
 }
 
-export const InputComponent = createMappedComponent<InputComponentType>('InputComponent')
+export const EditorInputComponent = createMappedComponent<EditorInputComponentType>('EditorInputComponent')

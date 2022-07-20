@@ -7,7 +7,7 @@ import { TransformMode } from '@xrengine/engine/src/scene/constants/transformCon
 
 import { EditorControlComponent } from '../classes/EditorControlComponent'
 import { FlyControlComponent } from '../classes/FlyControlComponent'
-import { InputComponent } from '../classes/InputComponent'
+import { EditorInputComponent } from '../classes/InputComponent'
 import { SceneState } from './sceneRenderFunctions'
 
 export const createEditorEntity = (): Entity => {
@@ -21,7 +21,7 @@ export const createEditorEntity = (): Entity => {
 
   addComponent(entity, EditorControlComponent, {})
 
-  addComponent(entity, InputComponent, {
+  addComponent(entity, EditorInputComponent, {
     mappings: new Map(),
     activeMapping: null!,
     actionState: null!,
