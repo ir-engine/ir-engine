@@ -168,8 +168,6 @@ export default async function RapierPhysicsSystem(world: World) {
     //   Physics.removeRigidBody(entity, world.physicsWorld)
     // }
 
-    if (Engine.instance.isEditor) return
-
     simulationPipeline(world)
 
     // step physics world

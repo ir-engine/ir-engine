@@ -26,7 +26,6 @@ import { XRCameraUpdatePendingTagComponent } from '../components/XRCameraUpdateP
 import { getAvatarBoneWorldPosition } from './avatarFunctions'
 
 const forward = new Vector3(0, 0, 1)
-const velocityScale = 40
 
 const quat = new Quaternion()
 const mat4 = new Matrix4()
@@ -61,31 +60,31 @@ export const moveAvatar = (world: World, entity: Entity, camera: PerspectiveCame
 
   const avatarFeetCollider = controller.feetCollider
 
-  const raycastComponentData = {
-    type: SceneQueryType.Closest,
-    hits: [] as RaycastHit[],
-    origin: avatarFeetCollider.translation(),
-    direction: Direction.Down,
-    maxDistance: 0.05,
-    flags: getInteractionGroups(CollisionGroups.Avatars, AvatarCollisionMask)
-  } as RaycastComponentType
+  // const raycastComponentData = {
+  //   type: SceneQueryType.Closest,
+  //   hits: [] as RaycastHit[],
+  //   origin: avatarFeetCollider.translation(),
+  //   direction: Direction.Down,
+  //   maxDistance: 0.05,
+  //   flags: getInteractionGroups(CollisionGroups.Avatars, AvatarCollisionMask)
+  // } as RaycastComponentType
 
-  Physics.castRay(Engine.instance.currentWorld.physicsWorld, raycastComponentData)
-  if (raycastComponentData.hits.length > 0) onGround = true
+  // Physics.castRay(Engine.instance.currentWorld.physicsWorld, raycastComponentData)
+  // if (raycastComponentData.hits.length > 0) onGround = true
 
   // Commenting this out because rapier does not register collision data some times with dynamic bodies.
-  // const physicsWorld = Engine.instance.currentWorld.physicsWorld
-  // const collidersInContactWithFeet = [] as Collider[]
-  // physicsWorld.contactsWith(avatarFeetCollider, (otherCollider) => {
-  //   collidersInContactWithFeet.push(otherCollider)
-  // })
+  const physicsWorld = Engine.instance.currentWorld.physicsWorld
+  const collidersInContactWithFeet = [] as Collider[]
+  physicsWorld.contactsWith(avatarFeetCollider, (otherCollider) => {
+    collidersInContactWithFeet.push(otherCollider)
+  })
 
-  // collidersInContactWithFeet.forEach((otherCollider) => {
-  //   physicsWorld.contactPair(avatarFeetCollider, otherCollider, (manifold, flipped) => {
-  //     // TODO: Check contact normals and set onGround to true only when normal.y ~= -1
-  //     if (manifold.numContacts() > 0) onGround = true
-  //   })
-  // })
+  collidersInContactWithFeet.forEach((otherCollider) => {
+    physicsWorld.contactPair(avatarFeetCollider, otherCollider, (manifold, flipped) => {
+      // TODO: Check contact normals and set onGround to true only when normal.y ~= -1
+      if (manifold.numContacts() > 0) onGround = true
+    })
+  })
 
   controller.isInAir = !onGround
 
@@ -162,31 +161,8 @@ export const moveAvatar = (world: World, entity: Entity, camera: PerspectiveCame
   if (Math.abs(newVelocity.z) < 0.001) newVelocity.z = 0
 
   displacementVec3.set(newVelocity.x, newVelocity.y, newVelocity.z)
-  const shapeCastDirection = new Vector3().copy(displacementVec3).normalize()
 
-  const shapecastComponentData = {
-    collider: controller.bodyCollider,
-    type: SceneQueryType.Closest,
-    hits: [] as RaycastHit[],
-    direction: shapeCastDirection,
-    maxDistance: 1.5,
-    collisionGroups: getInteractionGroups(CollisionGroups.Avatars, AvatarCollisionMask)
-  } as ShapecastComponentType
-
-  Physics.castShape(Engine.instance.currentWorld.physicsWorld, shapecastComponentData)
-  let blockMovement = false
-  if (
-    shapecastComponentData.hits.length > 0 &&
-    !shapecastComponentData.hits[0].collider?.isSensor() &&
-    shapecastComponentData.hits[0].body?.bodyType() === RigidBodyType.Fixed
-  ) {
-    blockMovement = true
-  }
-
-  // This is required to cater jitter in motion when in contact with fixed bodies.
-  if (!blockMovement) {
-    moveAvatarController(world, entity, displacementVec3)
-  }
+  moveAvatarController(world, entity, displacementVec3)
 
   return displacementVec3
 }
@@ -294,15 +270,11 @@ export const alignXRCameraRotationWithAvatar = (entity: Entity, camera: Perspect
 }
 
 const moveAvatarController = (world: World, entity: Entity, displacement: Vector3) => {
-  const {
-    fixedDeltaSeconds: fixedDelta,
-    physics: { timeScale }
-  } = world
-
   const controller = getComponent(entity, AvatarControllerComponent)
   const rigidBody = controller.controller
 
-  velocityToSet.copy(displacement).multiplyScalar(velocityScale)
+  // multiply by reciprocal of delta seconds to move 1 unit per second
+  velocityToSet.copy(displacement).multiplyScalar(1 / world.fixedDeltaSeconds)
 
   // Displacement is calculated using last position because the updated position of rigidbody will show up in next frame
   // since we apply velocity to body and position is updated after physics engine step

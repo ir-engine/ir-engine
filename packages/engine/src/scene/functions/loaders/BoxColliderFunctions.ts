@@ -1,5 +1,5 @@
 import { ColliderDesc, RigidBodyDesc } from '@dimforge/rapier3d-compat'
-import { Mesh, Object3D } from 'three'
+import { Mesh, Object3D, Quaternion, Vector3 } from 'three'
 
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
@@ -33,21 +33,15 @@ export const deserializeBoxCollider: ComponentDeserializeFunction = (
 ): void => {
   const boxColliderProps = parseBoxColliderProperties(json.props)
   const transform = getComponent(entity, TransformComponent)
-  console.log('deserializeBoxCollider', boxColliderProps)
-  console.log(Math.abs(transform.scale.x), Math.abs(transform.scale.y), Math.abs(transform.scale.z), transform.position)
   const colliderDesc = ColliderDesc.cuboid(
     Math.abs(transform.scale.x),
     Math.abs(transform.scale.y),
     Math.abs(transform.scale.z)
   )
-  Physics.applyDescToCollider(colliderDesc, { type: 0, ...boxColliderProps }, transform.position, transform.rotation)
+  Physics.applyDescToCollider(colliderDesc, { type: 0, ...boxColliderProps }, new Vector3(), new Quaternion())
 
   const bodyDesc = RigidBodyDesc.fixed()
   Physics.createRigidBody(entity, Engine.instance.currentWorld.physicsWorld, bodyDesc, [colliderDesc])
-
-  // const body = createBody(entity, { bodyType: 0 }, [shape])
-  // addComponent(entity, ColliderComponent, { body })
-  // addComponent(entity, CollisionComponent, { collisions: [] })
 
   getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_BOX_COLLIDER)
 
@@ -63,7 +57,6 @@ export const deserializeBoxCollider: ComponentDeserializeFunction = (
 
 export const updateBoxCollider: ComponentUpdateFunction = (entity: Entity) => {
   const data = serializeBoxCollider(entity) as any
-  console.log('updateBoxCollider', data)
   const boxColliderProps = parseBoxColliderProperties(data.props)
 
   const rigidbody = getComponent(entity, RigidBodyComponent)
