@@ -61,6 +61,7 @@ export const updateModel: ComponentUpdateFunction = (entity: Entity, properties:
       parseGLTFModel(entity, component, scene)
       removeError(entity, 'srcError')
     } catch (err) {
+      console.error(err)
       addError(entity, 'srcError', err.message)
     }
   }

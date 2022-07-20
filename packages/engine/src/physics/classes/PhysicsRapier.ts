@@ -18,6 +18,7 @@ import { mergeBufferGeometries } from '../../common/classes/BufferGeometryUtils'
 import { createVector3Proxy } from '../../common/proxies/three'
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, ComponentType, getComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 import { RapierCollisionComponent } from '../components/RapierCollisionComponent'
 import { RaycastComponent } from '../components/RaycastComponent'
 import { RigidBodyComponent } from '../components/RigidBodyComponent'
@@ -49,6 +50,11 @@ function createCollisionEventQueue() {
 }
 
 function createRigidBody(entity: Entity, world: World, rigidBodyDesc: RigidBodyDesc, colliderDesc: ColliderDesc[]) {
+  // apply the initial transform
+  const { position, rotation } = getComponent(entity, TransformComponent)
+  rigidBodyDesc.setTranslation(position.x, position.y, position.z)
+  rigidBodyDesc.setRotation(rotation)
+
   const rigidBody = world.createRigidBody(rigidBodyDesc)
   colliderDesc.forEach((desc) => world.createCollider(desc, rigidBody))
 
@@ -78,8 +84,10 @@ function applyDescToCollider(
   shapeOptions.friction ? colliderDesc.setFriction(shapeOptions.friction) : 0
   shapeOptions.restitution ? colliderDesc.setRestitution(shapeOptions.restitution) : 0
 
-  const collisionLayer = shapeOptions.collisionLayer ? Number(shapeOptions.collisionLayer) : CollisionGroups.Default
-  const collisionMask = shapeOptions.collisionMask ? Number(shapeOptions.collisionMask) : DefaultCollisionMask
+  const collisionLayer =
+    typeof shapeOptions.collisionLayer !== 'undefined' ? Number(shapeOptions.collisionLayer) : CollisionGroups.Default
+  const collisionMask =
+    typeof shapeOptions.collisionMask !== 'undefined' ? Number(shapeOptions.collisionMask) : DefaultCollisionMask
   colliderDesc.setCollisionGroups(getInteractionGroups(collisionLayer, collisionMask))
 
   colliderDesc.setTranslation(position.x, position.y, position.z)
@@ -109,13 +117,12 @@ function createColliderDesc(mesh: Mesh, colliderDescOptions: ColliderDescOptions
         shapeType = ShapeType['TriMesh']
         break
       default:
-        console.error('unrecognized collider shape type')
+        console.error('unrecognized collider shape type: ' + shapeOptions.type)
     }
   }
 
-  const meshScale = mesh.getWorldScale(tempVector3)
-  // If custom size has been provided use that else use mesh world scale.
-  const colliderSize = shapeOptions.size ? shapeOptions.size : meshScale
+  // If custom size has been provided use that else use mesh scale
+  const colliderSize = shapeOptions.size ? shapeOptions.size : mesh.scale
 
   // Check for case mismatch
   if (typeof shapeOptions.collisionLayer === 'undefined' && typeof (shapeOptions as any).collisionlayer !== 'undefined')
@@ -175,54 +182,42 @@ function createRigidBodyForObject(
   if (!object) return undefined!
 
   const colliderDescs = [] as ColliderDesc[]
-  // create collider desc for root from input desc options
-  if (object) {
-    const colliderDescForRoot = createColliderDesc(object as Mesh, colliderDescOptionsForRoot)
-    if (colliderDescForRoot) colliderDescs.push(colliderDescForRoot)
+
+  // create collider desc using userdata of each child mesh
+  object.traverse((mesh: Mesh) => {
+    const colliderDesc = createColliderDesc(
+      mesh,
+      mesh === object ? colliderDescOptionsForRoot : (mesh.userData as ColliderDescOptions)
+    )
+    if (colliderDesc) colliderDescs.push(colliderDesc)
+  })
+
+  const rigidBodyType =
+    typeof colliderDescOptionsForRoot['bodyType'] === 'string'
+      ? RigidBodyType[colliderDescOptionsForRoot['bodyType']]
+      : colliderDescOptionsForRoot['bodyType']
+
+  let rigidBodyDesc: RigidBodyDesc = undefined!
+  switch (rigidBodyType) {
+    case RigidBodyType.Dynamic:
+    default:
+      rigidBodyDesc = RigidBodyDesc.dynamic()
+      break
+
+    case RigidBodyType.Fixed:
+      rigidBodyDesc = RigidBodyDesc.fixed()
+      break
+
+    case RigidBodyType.KinematicPositionBased:
+      rigidBodyDesc = RigidBodyDesc.kinematicPositionBased()
+      break
+
+    case RigidBodyType.KinematicVelocityBased:
+      rigidBodyDesc = RigidBodyDesc.kinematicVelocityBased()
+      break
   }
 
-  if ('bodyType' in colliderDescOptionsForRoot) {
-    const rigidBodyType =
-      typeof colliderDescOptionsForRoot['bodyType'] === 'string'
-        ? ShapeType[colliderDescOptionsForRoot['bodyType']]
-        : colliderDescOptionsForRoot['bodyType']
-
-    // create collider desc using userdata of each child mesh
-    object.traverse((mesh: Mesh) => {
-      const colliderDesc = createColliderDesc(mesh, mesh.userData as ColliderDescOptions)
-      if (colliderDesc) colliderDescs.push(colliderDesc)
-    })
-
-    let rigidBodyDesc
-    switch (rigidBodyType) {
-      case RigidBodyType.Dynamic:
-        rigidBodyDesc = RigidBodyDesc.dynamic()
-        break
-
-      case RigidBodyType.Fixed:
-        rigidBodyDesc = RigidBodyDesc.fixed()
-        break
-
-      case RigidBodyType.KinematicPositionBased:
-        rigidBodyDesc = RigidBodyDesc.kinematicPositionBased()
-        break
-
-      case RigidBodyType.KinematicVelocityBased:
-        rigidBodyDesc = RigidBodyDesc.kinematicVelocityBased()
-        break
-    }
-
-    return createRigidBody(entity, world, rigidBodyDesc, colliderDescs)
-  } else {
-    // Fallback case
-    // If bodyType is not present, parse all colliders and attach them to a fixed rigidbody.
-    object.traverse((mesh: Mesh) => {
-      const colliderDesc = createColliderDesc(mesh, mesh.userData as ColliderDescOptions)
-      if (colliderDesc) colliderDescs.push(colliderDesc)
-    })
-    const rigidBodyDesc = RigidBodyDesc.fixed()
-    return createRigidBody(entity, world, rigidBodyDesc, colliderDescs)
-  }
+  return createRigidBody(entity, world, rigidBodyDesc, colliderDescs)
 }
 
 function createColliderAndAttachToRigidBody(world: World, colliderDesc: ColliderDesc, rigidBody: RigidBody): Collider {

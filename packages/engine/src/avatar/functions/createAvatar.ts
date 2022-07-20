@@ -178,6 +178,9 @@ export const createAvatarController = (entity: Entity) => {
     })
   }
 
+  // offset so rigidboyd has feet at spawn position
+  getComponent(entity, TransformComponent).position.y += capsuleHeight / 2
+
   const controller = createAvatarRigidBody(entity, capsuleHeight / 2, avatarRadius)
   const velocitySimulator = new VectorSpringSimulator(60, 50, 0.8)
   if (!hasComponent(entity, AvatarControllerComponent)) {
