@@ -11,9 +11,6 @@ const MAX_FOCUS_DISTANCE = 1000
 const PAN_SPEED = 1
 const ORBIT_SPEED = 5
 
-/**
- * @author Gheric Speiginer <github.com/speigg>
- */
 export default async function GizmoSystem(world: World) {
   const box = new Box3()
   const delta = new Vector3()

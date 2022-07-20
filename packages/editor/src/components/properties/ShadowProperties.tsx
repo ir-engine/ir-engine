@@ -12,7 +12,6 @@ import { EditorComponentType, updateProperty } from './Util'
 /**
  * ShadowProperties used to create editor view for the properties of ModelNode.
  *
- * @author Nayankumar Patel <github.com/NPatel10>
  * @type {class component}
  */
 export const ShadowProperties: EditorComponentType = (props) => {

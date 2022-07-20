@@ -16,7 +16,7 @@ import {
 } from 'three'
 
 /**
- * @author zz85 / https://github.com/zz85
+ * https://github.com/zz85
  *
  * Based on "A Practical Analytic Model for Daylight"
  * aka The Preetham Model, the de facto standard analytic skydome model

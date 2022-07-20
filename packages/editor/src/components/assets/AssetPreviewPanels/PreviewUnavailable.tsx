@@ -1,7 +1,6 @@
 import React from 'react'
 
 /**
- * @author Abhishek Pathak <abhi.pathak401@gmail.com>
  * @param props
  * @returns
  */

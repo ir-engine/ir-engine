@@ -11,8 +11,6 @@ import { resolveModelData } from '../../util/model-resolver'
 export type UserRelationshipDataType = UserRelationshipInterface
 /**
  * A class for User Relationship service
- *
- * @author Vyacheslav Solovjov
  */
 export class UserRelationship<T = UserRelationshipDataType> extends Service<T> {
   app: Application

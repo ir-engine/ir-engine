@@ -4,10 +4,7 @@ import { Prompt } from 'react-router-dom'
 type BrowserPromptProps = {
   message: ((...args: any[]) => any) | string
 }
-/**
- *
- * @author Robert Long
- */
+
 export const BrowserPrompt = (props: BrowserPromptProps) => {
   const onBeforeUnload = (e) => {
     const dialogText = props.message

@@ -3,7 +3,6 @@ import { createGlobalStyle } from 'styled-components'
 /**
  * GlobalStyle component used to provide common styles all over application.
  *
- * @author Robert Long
  * @type {styled component}
  */
 const GlobalStyle = createGlobalStyle<{ theme: any }>`

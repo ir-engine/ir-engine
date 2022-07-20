@@ -22,7 +22,6 @@ import { EditorComponentType, updateProperty } from './Util'
 /**
  * VideoNodeEditor used to render editor view for property customization.
  *
- * @author Robert Long
  * @param       {any} props
  * @constructor
  */

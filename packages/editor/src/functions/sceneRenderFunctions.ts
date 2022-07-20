@@ -88,7 +88,6 @@ export async function initializeScene(projectFile: SceneJson): Promise<Error[] |
 /**
  * Function initializeRenderer used to render canvas.
  *
- * @author Robert Long
  * @param  {any} canvas [ contains canvas data ]
  */
 export async function initializeRenderer(): Promise<void> {
@@ -151,7 +150,6 @@ function removeUnusedObjects(object3d: Object3D) {
 /**
  * Function exportScene used to export scene.
  *
- * @author Robert Long
  * @param  {any}  signal       [show the Network status]
  * @param  {Object}  [options={}]
  * @return {Promise}              [scene data as object]

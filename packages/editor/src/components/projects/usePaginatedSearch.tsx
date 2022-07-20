@@ -3,7 +3,6 @@ import { useFetch } from 'use-http'
 
 /**
  *
- * @author Robert Long
  * @param path
  * @param queryParams
  * @param options

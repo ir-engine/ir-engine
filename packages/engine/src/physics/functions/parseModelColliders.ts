@@ -5,11 +5,6 @@ import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 
 /**
- * @author HydraFire <github.com/HydraFire>
- * @author Josh Field <github.com/HexaField>
- */
-
-/**
  * Applies an entity's transform component to a base mesh
  * @param {Entity} entity
  * @param {Mesh} mesh

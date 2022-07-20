@@ -18,8 +18,6 @@ declare module '@xrengine/common/declarations' {
 
 /**
  * Initialize our service with any options it requires and docs
- *
- * @author Vyacheslav Solovjov
  */
 export default (app: Application): void => {
   const options = {

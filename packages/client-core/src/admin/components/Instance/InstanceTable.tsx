@@ -23,7 +23,6 @@ interface Props {
  *
  * @param props
  * @returns DOM Element
- * @author KIMENYI Kevin
  */
 const InstanceTable = ({ className, search }: Props) => {
   const [page, setPage] = useState(0)

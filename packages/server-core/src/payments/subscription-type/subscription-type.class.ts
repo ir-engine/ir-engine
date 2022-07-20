@@ -8,8 +8,6 @@ export type SubscriptionTypeDataType = SubscriptionTypeInterface
 
 /**
  * A class for Subscription Type  service
- *
- * @author Vyacheslav Solovjov
  */
 export class SubscriptionType<T = SubscriptionTypeDataType> extends Service<T> {
   public docs: any

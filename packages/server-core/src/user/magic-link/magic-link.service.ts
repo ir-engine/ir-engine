@@ -17,8 +17,6 @@ export default (app: Application): void => {
 
   /**
    * Initialize our service with any options it requires and docs
-   *
-   * @author Vyacheslav Solovjov
    */
   const event = new Magiclink(options, app)
   event.docs = magicLinkDocs
@@ -26,8 +24,6 @@ export default (app: Application): void => {
 
   /**
    * Get our initialized service so that we can register hooks
-   *
-   * @author Vyacheslav Solovjov
    */
   const service = app.service('magic-link')
 

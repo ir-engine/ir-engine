@@ -17,7 +17,6 @@ import { EditorComponentType, updateProperty } from './Util'
 /**
  * FogTypeOptions array containing fogType options.
  *
- * @author Robert Long
  * @type {Array}
  */
 const FogTypeOptions = [
@@ -48,7 +47,6 @@ const FogTypeOptions = [
  * FogNodeEditor component used to customize the ambient light element on the scene
  * ambient light is basically used to illuminates all the objects present inside the scene.
  *
- * @author Robert Long
  * @type {[component class]}
  */
 export const FogNodeEditor: EditorComponentType = (props) => {

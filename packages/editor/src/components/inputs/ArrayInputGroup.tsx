@@ -21,11 +21,6 @@ export interface ArrayInputGroupState {
   values: any
 }
 
-/**
- *
- * @author Ron Oyama
- */
-
 const onChangeSize = (text, values, onChange) => {
   console.log('onChangeSize', text, values, onChange)
   const count = parseInt(text)

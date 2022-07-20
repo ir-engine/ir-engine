@@ -57,10 +57,6 @@ export const StyledProjectsHeader = (styled as any).div`
  align-items: center;
 `
 
-/**
- *
- * @author Robert Long
- */
 const ProjectGridContainer = styled.div`
   display: flex;
   flex: 1;
@@ -69,10 +65,6 @@ const ProjectGridContainer = styled.div`
   border-radius: 3px;
 `
 
-/**
- *
- * @author Robert Long
- */
 const ProjectGridContent = styled.div`
   display: flex;
   flex: 1;

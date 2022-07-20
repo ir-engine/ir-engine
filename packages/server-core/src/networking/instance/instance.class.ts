@@ -10,8 +10,6 @@ export type InstanceDataType = InstanceInterface
 
 /**
  * A class for Intance service
- *
- * @author Vyacheslav Solovjov
  */
 export class Instance<T = InstanceDataType> extends Service<T> {
   app: Application

@@ -3,9 +3,6 @@ import RCSlider from 'rc-slider/es/Slider'
 import React from 'react'
 import { createGlobalStyle } from 'styled-components'
 
-/**
- * @author Robert Long
- */
 const SliderGlobalStyles = createGlobalStyle`
   .rc-slider {
     display: flex;
@@ -76,7 +73,6 @@ const SliderGlobalStyles = createGlobalStyle`
 `
 /**
  *
- * @author Robert Long
  * @param props
  * @returns
  */
