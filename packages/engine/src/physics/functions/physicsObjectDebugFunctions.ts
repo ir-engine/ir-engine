@@ -8,7 +8,7 @@ import {
 } from '@dimforge/rapier3d-compat'
 import { BoxGeometry, Mesh, MeshBasicMaterial, Object3D, SphereGeometry, Vector3 } from 'three'
 
-import { getColorForBodyType } from '@xrengine/engine/src/debug/systems/DebugRenderer'
+// import { getColorForBodyType } from '@xrengine/engine/src/debug/systems/DebugRenderer'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
 import { addComponent, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
@@ -76,13 +76,13 @@ export default async function PhysicsSimulationTestSystem(world: World) {
 
 export const boxDynamicConfig = {
   type: ShapeType.Cuboid,
-  bodyType: RigidBodyType.Dynamic,
+  bodyType: RigidBodyType.Fixed,
   collisionLayer: CollisionGroups.Default,
   collisionMask: CollisionGroups.Default | CollisionGroups.Avatars | CollisionGroups.Ground,
   friction: 1,
   restitution: 0.1,
   isTrigger: false,
-  spawnPosition: new Vector3(0, 1, 5),
+  spawnPosition: new Vector3(0, 0.25, 5),
   spawnScale: new Vector3(0.5, 0.25, 0.5)
 } as ColliderDescOptions
 
