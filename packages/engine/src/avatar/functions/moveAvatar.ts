@@ -4,6 +4,7 @@ import { MathUtils, Matrix4, OrthographicCamera, PerspectiveCamera, Quaternion, 
 import { rotate } from '@xrengine/common/src/utils/mathUtils'
 
 import { Direction } from '../../common/constants/Axis3D'
+import { V_010 } from '../../common/constants/MathConstants'
 import checkPositionIsValid from '../../common/functions/checkPositionIsValid'
 import { smoothDamp } from '../../common/functions/MathLerpFunctions'
 import { Engine } from '../../ecs/classes/Engine'
@@ -39,6 +40,7 @@ const displacementVec3 = new Vector3()
 const velocityToSet = new Vector3()
 
 const lastPosition = new Vector3()
+const degrees60 = (60 * Math.PI) / 180
 
 /**
  * @author HydraFire <github.com/HydraFire>
@@ -58,33 +60,21 @@ export const moveAvatar = (world: World, entity: Entity, camera: PerspectiveCame
 
   let onGround = false
 
-  const avatarFeetCollider = controller.feetCollider
-
-  // const raycastComponentData = {
-  //   type: SceneQueryType.Closest,
-  //   hits: [] as RaycastHit[],
-  //   origin: avatarFeetCollider.translation(),
-  //   direction: Direction.Down,
-  //   maxDistance: 0.05,
-  //   flags: getInteractionGroups(CollisionGroups.Avatars, AvatarCollisionMask)
-  // } as RaycastComponentType
-
-  // Physics.castRay(Engine.instance.currentWorld.physicsWorld, raycastComponentData)
-  // if (raycastComponentData.hits.length > 0) onGround = true
-
-  // Commenting this out because rapier does not register collision data some times with dynamic bodies.
   const physicsWorld = Engine.instance.currentWorld.physicsWorld
   const collidersInContactWithFeet = [] as Collider[]
-  physicsWorld.contactsWith(avatarFeetCollider, (otherCollider) => {
+  physicsWorld.contactsWith(controller.bodyCollider, (otherCollider) => {
     collidersInContactWithFeet.push(otherCollider)
   })
 
-  collidersInContactWithFeet.forEach((otherCollider) => {
-    physicsWorld.contactPair(avatarFeetCollider, otherCollider, (manifold, flipped) => {
-      // TODO: Check contact normals and set onGround to true only when normal.y ~= -1
-      if (manifold.numContacts() > 0) onGround = true
+  for (const otherCollider of collidersInContactWithFeet) {
+    physicsWorld.contactPair(controller.bodyCollider, otherCollider, (manifold, flipped) => {
+      if (manifold.numContacts() > 0) {
+        tempVec1.copy(manifold.normal() as Vector3)
+        const angle = tempVec1.angleTo(V_010)
+        if (angle < degrees60) onGround = true
+      }
     })
-  })
+  }
 
   controller.isInAir = !onGround
 

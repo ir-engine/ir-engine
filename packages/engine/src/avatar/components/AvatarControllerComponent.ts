@@ -7,7 +7,6 @@ import { VectorSpringSimulator } from '../../physics/classes/springs/VectorSprin
 export type AvatarControllerComponentType = {
   controller: RigidBody
   bodyCollider: Collider
-  feetCollider: Collider
   collisions: [boolean, boolean, boolean]
   movementEnabled: boolean
   isJumping: boolean

@@ -34,7 +34,7 @@ export class AvatarSettings {
   // Speeds are same as animation's root motion
   walkSpeed = 1.6762927669761485
   runSpeed = 3.769894125544925 * 1.5
-  jumpHeight = 4
+  jumpHeight = 6
   movementScheme = AvatarMovementScheme.Linear
 }
 
