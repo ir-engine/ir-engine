@@ -16,10 +16,6 @@ import { CollisionGroups, DefaultCollisionMask } from '../enums/CollisionGroups'
 import { BodyType, ColliderTypes, ObstacleConfig } from '../types/PhysicsTypes'
 import { vectorToArray } from './physxHelpers'
 
-/**
- * @author Josh Field <github.com/HexaField>
- */
-
 const quat1 = new Quaternion()
 const quat2 = new Quaternion()
 const xVec = new Vector3(1, 0, 0)

@@ -32,7 +32,6 @@ export class Magiclink implements ServiceMethods<Data> {
    *
    * @param params
    * @returns {@Array} all magic link
-   * @author Vyacheslav Solovjov
    */
   async find(params?: Params): Promise<Data[] | Paginated<Data>> {
     return []
@@ -44,7 +43,6 @@ export class Magiclink implements ServiceMethods<Data> {
    * @param id of specific magic link
    * @param params
    * @returns {@Object} contains id of magic link and message
-   * @author Vyacheslav Solovjov
    */
   async get(id: Id, params?: Params): Promise<Data> {
     return {
@@ -59,7 +57,6 @@ export class Magiclink implements ServiceMethods<Data> {
    * @param data which will be used for updating magic link
    * @param params
    * @returns updated data
-   * @author Vyacheslav Solovjov
    */
   async update(id: NullableId, data: Data, params?: Params): Promise<Data> {
     return data
@@ -96,7 +93,6 @@ export class Magiclink implements ServiceMethods<Data> {
    * @param identityProvider of user
    * @param subscriptionId optional subscription ID
    * @returns {@function} sent email
-   * @author Vyacheslav Solovjov
    */
   async sendEmail(
     toEmail: string,
@@ -150,7 +146,6 @@ export class Magiclink implements ServiceMethods<Data> {
    * @param token generated token
    * @param type of login
    * @returns {@function}  send sms
-   * @author Vyacheslav Solovjov
    */
 
   async sendSms(mobile: string, token: string, type: 'connection' | 'login'): Promise<void> {
@@ -175,7 +170,6 @@ export class Magiclink implements ServiceMethods<Data> {
    * @param data used create magic link
    * @param params contain user info
    * @returns creted data
-   * @author Vyacheslav Solovjov
    */
 
   async create(data: any, params?: Params): Promise<Data> {

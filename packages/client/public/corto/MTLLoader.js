@@ -1,8 +1,6 @@
 
 /**
  * Loads a Wavefront .mtl file specifying materials
- *
- * @author angelxuanchang
  */
 
 THREE.MTLLoader = function ( manager ) {

@@ -3,7 +3,6 @@ import { guessContentType } from './guessContentType'
 
 /**
  *  getContentType is used to get content type url.
- * @author Abhishek Pathak
  * @param  {any}  contentUrl
  * @return {Promise}
  */

@@ -1,7 +1,3 @@
-/**
- * @author HydraFire <github.com/HydraFire>
- */
-
 export enum CollisionGroups {
   None = 0,
   Default = 1 << 0,

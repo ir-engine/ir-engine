@@ -10,7 +10,6 @@ import Input from './Input'
 /**
  * ColorInputContainer used to provide styles for ColorInputContainer div.
  *
- * @author Robert Long
  * @type {styled component}
  */
 const ColorInputContainer = (styled as any).div`
@@ -23,7 +22,6 @@ const ColorInputContainer = (styled as any).div`
 /**
  * StyledColorInput used to provide styles for StyledColorInput div.
  *
- * @author Robert Long
  * @type {styled component}
  */
 const StyledColorInput = (styled as any)(Input)`
@@ -36,7 +34,6 @@ const StyledColorInput = (styled as any)(Input)`
 /**
  * ColorPreview used to provide styles for ColorPreview div.
  *
- * @author Robert Long
  * @type {styled component}
  */
 const ColorPreview = (styled as any).div`
@@ -50,7 +47,6 @@ const ColorPreview = (styled as any).div`
 /**
  * ColorText used to provide styles for ColorText div.
  *
- * @author Robert Long
  * @type {styled component}
  */
 const ColorText = (styled as any).div`
@@ -60,7 +56,6 @@ const ColorText = (styled as any).div`
 /**
  * ColorInputPopover used to provide styles for ColorText popover.
  *
- * @author Robert Long
  * @type {styled component}
  */
 const ColorInputPopover = (styled as any).div`
@@ -78,9 +73,8 @@ interface ColorInputProp {
 /**
  * ColorInput used to render the view of component.
  *
- * @author Robert Long
  * @param       {object | number} value
- * @param       {function} onChange
+ * @param       {Function} onChange
  * @param       {boolean} disabled
  * @param       {any} rest
  * @constructor

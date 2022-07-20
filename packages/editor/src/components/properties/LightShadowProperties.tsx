@@ -17,8 +17,6 @@ import { updateProperty } from './Util'
 
 /**
  *  Array containing options for shadow resolution
- *
- * @author Robert Long
  */
 const ShadowMapResolutionOptions = [
   {
@@ -53,7 +51,6 @@ type LightShadowPropertiesProps = {
  * OnChangeShadowMapResolution used to customize properties of LightShadowProperties
  * Used with LightNodeEditors.
  *
- * @author Robert Long
  * @type {[class component]}
  */
 export const LightShadowProperties = (props: LightShadowPropertiesProps) => {

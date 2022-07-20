@@ -17,7 +17,6 @@ const pressureThresholdPercent = 0.8
 
 /**
  * An method which start server for instance
- * @author Vyacheslav Solovjov
  */
 export async function getFreeInstanceserver(
   app: Application,
@@ -144,8 +143,6 @@ export async function checkForDuplicatedAssignments(
 
 /**
  * @class for InstanceProvision service
- *
- * @author Vyacheslav Solovjov
  */
 export class InstanceProvision implements ServiceMethods<any> {
   app: Application
@@ -164,7 +161,6 @@ export class InstanceProvision implements ServiceMethods<any> {
    * @param locationId
    * @param channelId
    * @returns id, ipAddress and port
-   * @author Vyacheslav Solovjov
    */
 
   async getISInService(availableLocationInstances, locationId: string, channelId: string): Promise<any> {
@@ -216,7 +212,6 @@ export class InstanceProvision implements ServiceMethods<any> {
    *
    * @param instance of ipaddress and port
    * @returns {@Boolean}
-   * @author Vyacheslav Solovjov
    */
 
   async isCleanup(instance): Promise<boolean> {
@@ -272,7 +267,6 @@ export class InstanceProvision implements ServiceMethods<any> {
    *
    * @param params of query of locationId and instanceId
    * @returns {@function} getFreeInstanceserver and getISInService
-   * @author Vyacheslav Solovjov
    */
 
   async find(params?: Params): Promise<InstanceServerProvisionResult> {

@@ -8,8 +8,6 @@ export type LocationBanDataType = LocationBanInterface
 
 /**
  * A class for Location Ban service
- *
- * @author Vyacheslav Solovjov
  */
 export class LocationBan<T = LocationBanDataType> extends Service<T> {
   public docs: any

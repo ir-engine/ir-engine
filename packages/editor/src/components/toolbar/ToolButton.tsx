@@ -3,10 +3,6 @@ import styled from 'styled-components'
 
 import { InfoTooltip } from '../layout/Tooltip'
 
-/**
- *
- * @author Robert Long
- */
 const StyledToolButton = (styled as any).button`
   width: 40px;
   height: 40px;
@@ -21,11 +17,6 @@ const StyledToolButton = (styled as any).button`
   }
 `
 
-/**
- *
- * @author Robert Long
- * @author Abhishek Pathak
- */
 const Icon = (styled as any).div`
   width: '100%';
   height: '100%';
@@ -43,7 +34,6 @@ interface ToolButtonProp {
 
 /**
  *
- * @author Robert Long
  * @param {any} id
  * @param {any} icon
  * @param {any} onClick

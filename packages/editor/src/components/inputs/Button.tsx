@@ -3,7 +3,6 @@ import styled from 'styled-components'
 /**
  * Button used to provide styles to button input.
  *
- * @author Robert Long
  * @type {Styled component}
  */
 export const Button = styled.button.attrs((props) => ({
@@ -49,7 +48,6 @@ export const Button = styled.button.attrs((props) => ({
 /**
  * MediumButton used to create medium size button.
  *
- * @author Robert Long
  * @type {styled component}
  */
 export const MediumButton = styled(Button)`
@@ -61,7 +59,6 @@ export const MediumButton = styled(Button)`
 /**
  * LargeButton used to create large size button.
  *
- * @author Robert Long
  * @type {Styled component}
  */
 export const LargeButton = styled(Button)`
@@ -73,7 +70,6 @@ export const LargeButton = styled(Button)`
 /**
  * SecondaryButton is the button used for performing secondary action like cancel.
  *
- * @author Robert Long
  * @type {Styled component}
  */
 export const SecondaryButton = styled(Button)`
@@ -101,7 +97,6 @@ export const SecondaryButton = styled(Button)`
 /**
  * MenuButton used to show menus like context menus.
  *
- * @author Robert Long
  * @type {styled component}
  */
 export const MenuButton = styled(Button)`
@@ -132,7 +127,6 @@ export const MenuButton = styled(Button)`
 /**
  * PropertiesPanelButton used in property penal like in ScenePreviewCamera nodes we using it as set from viewport.
  *
- * @author Robert Long
  * @type {Styled component}
  */
 export const PropertiesPanelButton = styled(Button)`

@@ -196,7 +196,7 @@ const UpdateBot = ({ open, bot, onClose }: Props) => {
             }
           />
         </DialogContent>
-        <DialogActions style={{ marginRight: '15px' }}>
+        <DialogActions>
           <Button
             variant="outlined"
             disableElevation
@@ -206,7 +206,7 @@ const UpdateBot = ({ open, bot, onClose }: Props) => {
               setFormErrors({ name: '', description: '', location: '' })
               onClose()
             }}
-            className={styles.gradientButton}
+            className={styles.outlinedButton}
           >
             {t('admin:components.common.cancel')}
           </Button>
@@ -214,7 +214,7 @@ const UpdateBot = ({ open, bot, onClose }: Props) => {
             variant="contained"
             disableElevation
             type="submit"
-            className={styles.openModalBtn}
+            className={styles.gradientButton}
             onClick={handleUpdate}
           >
             <Save style={{ marginRight: '10px' }} /> {t('admin:components.common.save')}

@@ -20,7 +20,8 @@ import { createEntity, removeEntity } from '@xrengine/engine/src/ecs/functions/E
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { getOrbitControls } from '@xrengine/engine/src/input/functions/loadOrbitControl'
 import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
-import { accessWidgetAppState, WidgetAppActions } from '@xrengine/engine/src/xrui/WidgetAppService'
+import { accessWidgetAppState, WidgetAppActions, WidgetAppService } from '@xrengine/engine/src/xrui/WidgetAppService'
+import { WidgetName } from '@xrengine/engine/src/xrui/Widgets'
 import { dispatchAction } from '@xrengine/hyperflux'
 
 import { AccountCircle, ArrowBack, CloudUpload, SystemUpdateAlt } from '@mui/icons-material'
@@ -203,7 +204,7 @@ export const UploadAvatarMenu = () => {
       await AuthService.uploadAvatarModel(avatarBlob, thumbnailBlob, avatarName, false)
     }
 
-    setWidgetVisibility('Profile', true)
+    WidgetAppService.setWidgetVisibility(WidgetName.PROFILE, true)
   }
 
   const handleThumbnailChange = (e) => {
@@ -226,27 +227,7 @@ export const UploadAvatarMenu = () => {
   }
 
   const openAvatarMenu = (e) => {
-    setWidgetVisibility('SelectAvatar', true)
-  }
-
-  const setWidgetVisibility = (widgetName: string, visibility: boolean) => {
-    const widgetState = accessWidgetAppState()
-    const widgets = Object.entries(widgetState.widgets.value).map(([id, widgetState]) => ({
-      id,
-      ...widgetState,
-      ...Engine.instance.currentWorld.widgets.get(id)!
-    }))
-
-    const currentWidget = widgets.find((w) => w.label === widgetName)
-
-    // close currently open widgets until we support multiple widgets being open at once
-    for (let widget of widgets) {
-      if (currentWidget && widget.id !== currentWidget.id) {
-        dispatchAction(WidgetAppActions.showWidget({ id: widget.id, shown: false }))
-      }
-    }
-
-    currentWidget && dispatchAction(WidgetAppActions.showWidget({ id: currentWidget.id, shown: visibility }))
+    WidgetAppService.setWidgetVisibility(WidgetName.SELECT_AVATAR, true)
   }
 
   const uploadButtonEnabled = !!fileSelected && !error && avatarName.length > 3
@@ -323,18 +304,15 @@ export const UploadAvatarMenu = () => {
               <XRInput value={thumbnailUrl} onChange={handleThumbnailUrlChange} placeholder="Paste Thumbnail Url..." />
             </div>
             <XRTextButton
-              content={
-                <>
-                  {t('user:avatar.lbl-upload')}
-                  <CloudUpload />
-                </>
-              }
               variant="gradient"
               onClick={uploadAvatar}
               xr-layer="true"
               disabled={!validAvatarUrl}
               style={{ cursor: !validAvatarUrl ? 'not-allowed' : 'pointer' }}
-            />
+            >
+              {t('user:avatar.lbl-upload')}
+              <CloudUpload />
+            </XRTextButton>
           </div>
         ) : (
           <>
@@ -369,18 +347,15 @@ export const UploadAvatarMenu = () => {
                 />
               </div>
               <XRTextButton
-                content={
-                  <>
-                    {t('user:avatar.lbl-upload')}
-                    <CloudUpload />
-                  </>
-                }
                 variant="gradient"
                 xr-layer="true"
                 onClick={uploadAvatar}
                 style={{ cursor: uploadButtonEnabled ? 'pointer' : 'not-allowed' }}
                 disabled={!uploadButtonEnabled}
-              />
+              >
+                {t('user:avatar.lbl-upload')}
+                <CloudUpload />
+              </XRTextButton>
             </div>
           </>
         )}

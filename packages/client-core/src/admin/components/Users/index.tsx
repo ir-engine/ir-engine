@@ -102,7 +102,7 @@ const Users = () => {
           </Box>
         </Grid>
       </Grid>
-      <UserTable className={styles.rootTable} search={search} />
+      <UserTable className={styles.rootTableWithSearch} search={search} />
       <UserDrawer open={openUserDrawer} mode={UserDrawerMode.Create} onClose={() => setOpenUserDrawer(false)} />
       <Popover
         classes={{ paper: styles.popover }}

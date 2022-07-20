@@ -1,26 +1,22 @@
 import { createState } from '@speigg/hookstate'
 import React, { useState } from 'react'
 
-import { VrIcon } from '@xrengine/client-core/src/common/components/Icons/Vricon'
 import { Channel } from '@xrengine/common/src/interfaces/Channel'
 import { respawnAvatar } from '@xrengine/engine/src/avatar/functions/respawnAvatar'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { EngineActions, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
 import { accessWidgetAppState, useWidgetAppState, WidgetAppActions } from '@xrengine/engine/src/xrui/WidgetAppService'
 import { dispatchAction } from '@xrengine/hyperflux'
 
 import { Mic, MicOff, Refresh as RefreshIcon } from '@mui/icons-material'
 
-import { MediaInstanceConnectionService } from '../../../common/services/MediaInstanceConnectionService'
+import { useMediaInstanceConnectionState } from '../../../common/services/MediaInstanceConnectionService'
 import { MediaStreamService, useMediaStreamState } from '../../../media/services/MediaStreamService'
 import { useChatState } from '../../../social/services/ChatService'
 import { MediaStreams } from '../../../transports/MediaStreams'
 import {
   configureMediaTransports,
   createCamAudioProducer,
-  endVideoChat,
-  leaveNetwork,
   pauseProducer,
   resumeProducer
 } from '../../../transports/SocketWebRTCClientFunctions'
@@ -40,12 +36,14 @@ type WidgetButtonProps = {
   Icon: any
   toggle: () => any
   label: string
+  disabled?: boolean
 }
 
-const WidgetButton = ({ Icon, toggle, label }: WidgetButtonProps) => {
+const WidgetButton = ({ Icon, toggle, label, disabled }: WidgetButtonProps) => {
   const [mouseOver, setMouseOver] = useState(false)
   return (
     <XRIconButton
+      disabled={disabled}
       size="large"
       content={
         <>
@@ -64,7 +62,6 @@ const WidgetButton = ({ Icon, toggle, label }: WidgetButtonProps) => {
 const WidgetButtons = () => {
   let activeChannel: Channel | null = null
   const chatState = useChatState()
-  const engineState = useEngineState()
   const widgetState = useWidgetAppState()
   const channelState = chatState.channels
   const channels = channelState.channels.value as Channel[]
@@ -72,6 +69,9 @@ const WidgetButtons = () => {
   if (activeChannelMatch && activeChannelMatch.length > 0) {
     activeChannel = activeChannelMatch[1]
   }
+  const mediaState = useMediaInstanceConnectionState()
+  const mediaHostId = Engine.instance.currentWorld.mediaNetwork?.hostId
+  const mediaInstanceConnection = mediaHostId && mediaState.instances[mediaHostId].ornull
 
   const channelEntries = Object.values(channels).filter((channel) => !!channel) as any
   const instanceChannel = channelEntries.find(
@@ -88,14 +88,6 @@ const WidgetButtons = () => {
   //     !widgetState.chatMenuOpen.value &&
   //     setUnreadMessages(true)
   // }, [activeChannel?.messages])
-
-  const toogleVRSession = () => {
-    if (engineState.xrSessionStarted.value) {
-      dispatchAction(EngineActions.xrEnd())
-    } else {
-      dispatchAction(EngineActions.xrStart())
-    }
-  }
 
   const handleRespawnAvatar = () => {
     respawnAvatar(Engine.instance.currentWorld.localClientEntity)
@@ -119,30 +111,15 @@ const WidgetButtons = () => {
     dispatchAction(WidgetAppActions.showWidget({ id: toggledWidget.id, shown: !visible }))
   }
 
-  const checkEndVideoChat = async () => {
-    const mediaNetwork = Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork
-    if (
-      (MediaStreams.instance.audioPaused || MediaStreams.instance.camAudioProducer == null) &&
-      (MediaStreams.instance.videoPaused || MediaStreams.instance.camVideoProducer == null) &&
-      instanceChannel.channelType !== 'instance'
-    ) {
-      await endVideoChat(mediaNetwork, {})
-      if (mediaNetwork.socket?.connected === true) {
-        await leaveNetwork(mediaNetwork, false)
-        await MediaInstanceConnectionService.provisionServer(instanceChannel.id)
-      }
-    }
-  }
-
   const handleMicClick = async () => {
     const mediaNetwork = Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork
+    if (!mediaNetwork) return
     if (await configureMediaTransports(mediaNetwork, ['audio'])) {
       if (MediaStreams.instance.camAudioProducer == null) await createCamAudioProducer(mediaNetwork)
       else {
         const audioPaused = MediaStreams.instance.toggleAudioPaused()
         if (audioPaused) await pauseProducer(mediaNetwork, MediaStreams.instance.camAudioProducer)
         else await resumeProducer(mediaNetwork, MediaStreams.instance.camAudioProducer)
-        checkEndVideoChat()
       }
       MediaStreamService.updateCamAudioState()
     }
@@ -161,17 +138,6 @@ const WidgetButtons = () => {
         xr-pixel-ratio="8"
         xr-layer="true"
       >
-        <WidgetButton Icon={RefreshIcon} toggle={handleRespawnAvatar} label={'Respawn'} />
-        <WidgetButton
-          Icon={MicIcon}
-          toggle={handleMicClick}
-          label={isCamAudioEnabled.value ? 'Audio on' : 'Audio Off'}
-        />
-        <WidgetButton
-          Icon={VrIcon}
-          toggle={toogleVRSession}
-          label={engineState.xrSessionStarted.value ? 'Exit VR' : 'Enter VR'}
-        />
         {widgets.map(
           (widget, i) =>
             widget.enabled &&
@@ -179,6 +145,13 @@ const WidgetButtons = () => {
               <WidgetButton key={i} Icon={widget.icon} toggle={toggleWidget(widget)} label={widget.label} />
             )
         )}
+        <WidgetButton Icon={RefreshIcon} toggle={handleRespawnAvatar} label={'Respawn'} />
+        <WidgetButton
+          disabled={!mediaInstanceConnection}
+          Icon={MicIcon}
+          toggle={handleMicClick}
+          label={isCamAudioEnabled.value ? 'Audio on' : 'Audio Off'}
+        />
       </div>
     </>
   )

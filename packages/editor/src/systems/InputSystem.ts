@@ -1,16 +1,14 @@
 import { World } from '@xrengine/engine/src/ecs/classes/World'
 import { defineQuery, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 
-import { InputComponent } from '../classes/InputComponent'
+import { EditorInputComponent } from '../classes/InputComponent'
 
-/**
- * @author Nayankumar Patel <github.com/NPatel10>
- */
-export default async function InputSystem(_: World) {
-  const inputQuery = defineQuery([InputComponent])
+export default async function InputSystem(world: World) {
+  const inputQuery = defineQuery([EditorInputComponent])
+
   return () => {
     for (const entity of inputQuery()) {
-      const inputComponent = getComponent(entity, InputComponent)
+      const inputComponent = getComponent(entity, EditorInputComponent)
       const computed = inputComponent.activeMapping?.computed
 
       if (!computed) return

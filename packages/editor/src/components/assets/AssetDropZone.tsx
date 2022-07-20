@@ -19,7 +19,6 @@ import useUpload from './useUpload'
 /**
  * DropZoneBackground provides styles for the view port area where we drag and drop objects.
  *
- * @author Robert Long
  * @param {styled component}
  */
 const DropZoneBackground = (styled as any).div`
@@ -45,7 +44,6 @@ const DropZoneBackground = (styled as any).div`
 /**
  * AssetDropZone function used to create view port where we can drag and drop objects.
  *
- * @author Robert Long
  * @param       {any} afterUpload
  * @param       {any} uploadOptions
  * @constructor

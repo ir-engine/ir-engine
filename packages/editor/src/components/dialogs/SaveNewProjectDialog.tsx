@@ -8,7 +8,6 @@ import PreviewDialog from './PreviewDialog'
 /**
  * SaveNewProjectDialog used to show dialog when to save new project.
  *
- * @author Robert Long
  * @param       {string} thumbnailUrl
  * @param       {string} initialName
  * @param       {function} onConfirm
@@ -29,7 +28,6 @@ export function SaveNewProjectDialog({ thumbnailUrl, initialName, onConfirm, onC
   /**
    * onConfirmCallback callback function is used handle confirm dialog.
    *
-   * @author Robert Long
    * @type {function}
    */
   const onConfirmCallback = useCallback(
@@ -43,7 +41,6 @@ export function SaveNewProjectDialog({ thumbnailUrl, initialName, onConfirm, onC
   /**
    * onCancelCallback callback function used to handle cancel of dialog.
    *
-   * @author Robert Long
    * @type {function}
    */
   const onCancelCallback = useCallback(

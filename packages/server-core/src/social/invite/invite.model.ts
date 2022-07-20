@@ -43,6 +43,16 @@ export default (app: Application) => {
       },
       spawnDetails: {
         type: DataTypes.JSON
+      },
+      timed: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: false
+      },
+      startTime: {
+        type: DataTypes.DATE
+      },
+      endTime: {
+        type: DataTypes.DATE
       }
     },
     {

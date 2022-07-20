@@ -4,10 +4,6 @@ import { Object3DComponent } from '../components/Object3DComponent'
 import { RenderedComponent } from '../components/RenderedComponent'
 import { Updatable } from '../interfaces/Updatable'
 
-/**
- * @author Dhara Patel <github.com/frozencrystal>
- */
-
 const renderedQuery = defineQuery([Object3DComponent, RenderedComponent])
 
 export default async function RendererUpdateSystem(world: World) {

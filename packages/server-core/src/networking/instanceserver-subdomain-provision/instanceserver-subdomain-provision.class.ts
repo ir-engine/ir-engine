@@ -8,8 +8,6 @@ export type InstanceserverSubdomainProvisionDataType = InstanceserverSubdomainPr
 
 /**
  * A class for instance server domain provision  service
- *
- * @author Vyacheslav Solovjov
  */
 export class InstanceserverSubdomainProvision<T = InstanceserverSubdomainProvisionDataType> extends Service<T> {
   public docs: any

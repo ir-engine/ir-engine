@@ -8,8 +8,6 @@ import FileBrowserInput from './FileBrowserInput'
 /**
  * VideoInput used to render component view for video inputs.
  *
- * @author Robert Long
- * @author Hanzla Mateen
  * @param       {function} onChange
  * @param       {any} rest
  * @constructor

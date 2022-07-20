@@ -104,7 +104,7 @@ export const NetworkInstanceProvisioning = () => {
   useHookEffect(() => {
     if (
       engineState.sceneLoaded.value &&
-      currentLocationInstanceConnection.value &&
+      currentLocationInstanceConnection?.value &&
       currentLocationInstanceConnection.provisioned.value === true &&
       currentLocationInstanceConnection.readyToConnect.value === true &&
       currentLocationInstanceConnection.connecting.value === false &&
@@ -137,7 +137,7 @@ export const NetworkInstanceProvisioning = () => {
   useHookEffect(() => {
     if (
       mediaNetworkHostId &&
-      currentChannelInstanceConnection.value &&
+      currentChannelInstanceConnection?.value &&
       currentChannelInstanceConnection.provisioned.value === true &&
       currentChannelInstanceConnection.readyToConnect.value === true &&
       currentChannelInstanceConnection.connecting.value === false &&

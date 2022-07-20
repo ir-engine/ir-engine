@@ -222,6 +222,7 @@ const InstanceChat = ({
 }: InstanceChatProps): any => {
   const [chatWindowOpen, setChatWindowOpen] = useState(false)
   const [unreadMessages, setUnreadMessages] = useState(false)
+  const [messageContainerVisible, setMessageContainerVisible] = useState(false)
   const messageRefInput = useRef<HTMLInputElement>()
 
   const { dimensions, sortedMessages, handleComposingMessageChange, packageMessage, composingMessage } = useChatHooks({
@@ -256,10 +257,10 @@ const InstanceChat = ({
   useEffect(() => {
     if (entity) {
       const audioComponent = getComponent(entity, AudioComponent)
-      audioComponent.volume = audioState.audio.value / 100
-      updateAudio(entity, { volume: audioState.audio.value / 100 })
+      audioComponent.volume = audioState.notificationVolume.value / 100
+      updateAudio(entity, { volume: audioState.notificationVolume.value / 100 })
     }
-  }, [audioState.audio.value])
+  }, [audioState.notificationVolume.value])
 
   const fetchAudioAlert = async () => {
     setIsInitRender(true)
@@ -270,11 +271,11 @@ const InstanceChat = ({
     createNewEditorNode(node, ScenePrefabs.audio)
     addEntityNodeInTree(node, Engine.instance.currentWorld.entityTree.rootNode)
     const audioComponent = getComponent(node.entity, AudioComponent)
-    audioComponent.volume = audioState.audio.value / 100
+    audioComponent.volume = audioState.notificationVolume.value / 100
     audioComponent.audioSource = notificationAlertURL
 
     await loadPromise
-    updateAudio(node.entity, { volume: audioState.audio.value / 100, audioSource: notificationAlertURL })
+    updateAudio(node.entity, { volume: audioState.notificationVolume.value / 100, audioSource: notificationAlertURL })
   }
 
   useEffect(() => {
@@ -283,6 +284,8 @@ const InstanceChat = ({
       fetchAudioAlert()
     })
   }, [])
+
+  const messageRef = useRef<any>()
 
   useEffect(() => {
     if (
@@ -293,21 +296,23 @@ const InstanceChat = ({
       setUnreadMessages(true)
       entity && toggleAudio(entity)
     }
-  }, [chatState])
 
-  /**
-   * Message scroll
-   */
-
-  const messageRef = useRef<any>()
-  const messageEl = messageRef.current
-
-  useEffect(() => {
-    if (messageEl) messageEl.scrollTop = messageEl?.scrollHeight
-  }, [chatState])
+    if (messageRef.current && messageRef.current.scrollHeight - messageRef.current.scrollTop < 500)
+      messageRef.current.scrollTop = messageRef.current.scrollHeight
+  }, [chatState.messageCreated.value, sortedMessages])
 
   const toggleChatWindow = () => {
     if (!chatWindowOpen && isMobile) hideOtherMenus()
+    if (!chatWindowOpen) {
+      setMessageContainerVisible(false)
+      const messageRefCurrentRenderedInterval = setInterval(() => {
+        if (messageRef.current && messageRef.current.scrollHeight > 0) {
+          messageRef.current.scrollTop = messageRef.current.scrollHeight
+          setMessageContainerVisible(true)
+          clearInterval(messageRefCurrentRenderedInterval)
+        }
+      }, 5)
+    }
     setChatWindowOpen(!chatWindowOpen)
     chatWindowOpen && setUnreadMessages(false)
     setIsInitRender(false)
@@ -331,7 +336,10 @@ const InstanceChat = ({
       ></div>
       <div className={styles['instance-chat-container'] + ' ' + (chatWindowOpen ? styles.open : '')}>
         {chatWindowOpen && (
-          <div ref={messageRef} className={styles['instance-chat-msg-container']}>
+          <div
+            ref={messageRef}
+            className={styles['instance-chat-msg-container'] + ' ' + (!messageContainerVisible ? styles.hidden : '')}
+          >
             <div className={styles['list-container']}>
               <Card square={true} elevation={0} className={styles['message-wrapper']}>
                 <CardContent className={styles['message-container']}>

@@ -12,10 +12,6 @@ import SelectInput from '../../inputs/SelectInput'
 import { InfoTooltip } from '../../layout/Tooltip'
 import * as styles from '../styles.module.scss'
 
-/**
- *
- * @author Robert Long
- */
 const translationSnapOptions = [
   { label: '0.1m', value: 0.1 },
   { label: '0.125m', value: 0.125 },
@@ -26,10 +22,6 @@ const translationSnapOptions = [
   { label: '4m', value: 4 }
 ]
 
-/**
- *
- * @author Robert Long
- */
 const rotationSnapOptions = [
   { label: '1°', value: 1 },
   { label: '5°', value: 5 },
