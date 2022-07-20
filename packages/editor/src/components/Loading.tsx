@@ -5,7 +5,6 @@ import styled from 'styled-components'
 /**
  * StyledLoading provides the styles for loading component.
  *
- * @author Robert Long
  * @type {styled component}
  */
 const StyledLoading = (styled as any).div`
@@ -25,7 +24,6 @@ const StyledLoading = (styled as any).div`
 /**
  * loading class used to render loading message.
  *
- * @author Robert Long
  * @type {component class}
  */
 export const Loading = (props: any) => {

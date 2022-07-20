@@ -10,7 +10,6 @@ let uniqueId = 0
 /**
  * StyledBooleanInput used to provide styles to input box element.
  *
- * @author Robert Long
  * @type {Styled component}
  */
 const StyledBooleanInput = (styled as any).input`
@@ -26,7 +25,6 @@ const StyledBooleanInput = (styled as any).input`
 /**
  * BooleanInputLabel used to provide styles to label.
  *
- * @author Robert Long
  * @type {styled component}
  */
 const BooleanInputLabel = (styled as any)(Input).attrs(() => ({ as: 'label' }))`
@@ -42,7 +40,6 @@ const BooleanInputLabel = (styled as any)(Input).attrs(() => ({ as: 'label' }))`
 /**
  * BooleanCheck used to provide styles for check icon.
  *
- * @author Robert Long
  * @type {styled component}
  */
 const BooleanCheck = (styled as any)(CheckIcon)`
@@ -62,7 +59,6 @@ interface BooleanInputProp {
 /**
  * BooleanInput component used to provide view for checkbox.
  *
- * @author Robert Long
  * @type {functional component}
  */
 export const BooleanInput = (props: BooleanInputProp) => {

@@ -6,8 +6,6 @@ import { Application } from '../../../declarations'
 
 /**
  * A class for Party user service
- *
- * @author Vyacheslav Solovjov
  */
 export class PartyUser<T = PartyUserDataType> extends Service<T> {
   app: Application

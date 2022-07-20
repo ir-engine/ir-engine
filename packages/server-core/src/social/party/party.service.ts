@@ -22,8 +22,6 @@ export default (app: Application): void => {
 
   /**
    * Initialize our service with any options it requires and docs
-   *
-   * @author Vyacheslav Solovjov
    */
   const event = new Party(options, app)
   event.docs = partyDocs
@@ -38,7 +36,6 @@ export default (app: Application): void => {
    *
    * @param data of new party
    * @returns {@Object} created party
-   * @author Vyacheslav Solovjov
    */
   service.publish('created', async (data: PartyDataType): Promise<any> => {
     try {
@@ -85,7 +82,6 @@ export default (app: Application): void => {
    *
    * @param data of new party
    * @returns {@Object} of new updated party
-   * @author Vyacheslav Solovjov
    */
   service.publish('patched', async (data: PartyDataType): Promise<any> => {
     const partyUsers = await app.service('party-user').find({
@@ -112,7 +108,6 @@ export default (app: Application): void => {
    *
    * @param data of single party
    * @returns {@Object} of removed data
-   * @author Vyacheslav Solovjov
    */
 
   service.publish('removed', async (data: PartyDataType): Promise<any> => {

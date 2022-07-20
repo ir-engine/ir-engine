@@ -20,7 +20,6 @@ import { EditorComponentType, updateProperty } from './Util'
 /**
  * Define properties for Script component.
  *
- * @author Hanzla Mateen
  * @type {Object}
  */
 
@@ -58,7 +57,6 @@ const systemUpdateTypes = [
 /**
  * For Scripts
  *
- * @author Hanzla Mateen
  * @param       {Object} props
  * @constructor
  */

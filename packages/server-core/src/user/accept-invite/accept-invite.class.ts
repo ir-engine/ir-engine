@@ -31,7 +31,6 @@ export class AcceptInvite implements ServiceMethods<Data> {
    * @param params number of limit and skip for pagination
    * Number should be passed as query parmas
    * @returns {@Array} all listed invite
-   * @author Vyacheslav Solovjov
    */
   async find(params?: Params): Promise<Data[] | Paginated<Data>> {
     return []
@@ -43,7 +42,6 @@ export class AcceptInvite implements ServiceMethods<Data> {
    * @param id of specific accept invite
    * @param params query which contain passcode
    * @returns {@Object} contains single invite
-   * @author Vyacheslav Solovjov
    */
 
   async get(id: Id, params?: Params): Promise<Data> {
@@ -414,7 +412,6 @@ export class AcceptInvite implements ServiceMethods<Data> {
    *
    * @param data which will be used for creating new accept invite
    * @param params
-   * @author Vyacheslav Solovjov
    */
   async create(data: Data, params?: Params): Promise<Data> {
     if (Array.isArray(data)) {
@@ -431,7 +428,6 @@ export class AcceptInvite implements ServiceMethods<Data> {
    * @param data for updating accept invite
    * @param params
    * @returns Data
-   * @author Vyacheslav Solovjov
    */
   async update(id: NullableId, data: Data, params?: Params): Promise<Data> {
     return data
@@ -444,7 +440,6 @@ export class AcceptInvite implements ServiceMethods<Data> {
    * @param data for updaing accept invite
    * @param params
    * @returns Data
-   * @author Vyacheslav Solovjov
    */
   async patch(id: NullableId, data: Data, params?: Params): Promise<Data> {
     return data
@@ -455,7 +450,6 @@ export class AcceptInvite implements ServiceMethods<Data> {
    * @param id of specific accept invite
    * @param params
    * @returns id
-   * @author Vyacheslav Solovjov
    */
   async remove(id: NullableId, params?: Params): Promise<Data> {
     return { id }

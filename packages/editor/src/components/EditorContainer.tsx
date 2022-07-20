@@ -50,8 +50,6 @@ import ToolBar from './toolbar/ToolBar'
 /**
  *Styled component used as dock container.
  *
- * @author Hanzla Mateen
- * @author Abhishek Pathak
  * @type {type}
  */
 export const DockContainer = (styled as any).div`
@@ -101,9 +99,7 @@ export const DockContainer = (styled as any).div`
     border-color: var(--iconButtonColor);
   }
 `
-/**
- * @author Abhishek Pathak
- */
+
 DockContainer.defaultProps = {
   dividerAlpha: 0
 }
@@ -111,7 +107,6 @@ DockContainer.defaultProps = {
 /**
  * EditorContainer class used for creating container for Editor
  *
- *  @author Robert Long
  */
 const EditorContainer = () => {
   const editorState = useEditorState()

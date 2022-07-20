@@ -8,9 +8,7 @@ import FileBrowserInput from './FileBrowserInput'
 /**
  * ImageInput used to render component view for image inputs.
  *
- * @author Robert Long
- * @author Hanzla Mateen
- * @param       {function} onChange
+ * @param       {Function} onChange
  * @param       {any} rest
  * @constructor
  */

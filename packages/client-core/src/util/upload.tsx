@@ -73,7 +73,6 @@ export const uploadToFeathersService = (
 /**
  * matchesFileTypes function used to match file type with existing file types.
  *
- * @author Robert Long
  * @param  {Object} file      [object contains file data]
  * @param  {array} fileTypes [Array contains existing file types]
  * @return {boolean}           [true if file type found in existing fileTypes]

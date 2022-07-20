@@ -10,8 +10,6 @@ import config from '../../appconfig'
 export type LoginTokenDataType = LoginTokenInterface & { identityProviderId: string }
 /**
  * A class for Login Token service
- *
- * @author Vyacheslav Solovjov
  */
 
 export class LoginToken<T = LoginTokenDataType> extends Service<T> {
@@ -27,7 +25,6 @@ export class LoginToken<T = LoginTokenDataType> extends Service<T> {
    *
    * @param data with identityProviderId in it
    * @returns {@Object} contains token
-   * @author Vyacheslav Solovjov
    */
   async create(data: any): Promise<T> {
     const { identityProviderId } = data

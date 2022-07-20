@@ -1,5 +1,5 @@
 /**
- * @author robp94 / https://github.com/robp94
+ * https://github.com/robp94
  */
 
 import { Task } from 'yuka';

@@ -15,7 +15,6 @@ import Dialog from './Dialog'
 /**
  * ProgressContainer used as a wrapper element for the ProgressMessage and ProgressBar components.
  *
- * @author Robert Long
  * @type {Styled component}
  */
 const ConfirmContainer = (styled as any).div`
@@ -31,7 +30,6 @@ const ConfirmContainer = (styled as any).div`
 /**
  * ProgressMessage used to provide styles to the message content on ProgressDialog.
  *
- * @author Robert Long
  * @type {styled component}
  */
 const ConfirmMessage = (styled as any).div`
@@ -42,7 +40,6 @@ const ConfirmMessage = (styled as any).div`
 /**
  * ProgressDialog component used to render view.
  *
- * @author Robert Long
  * @param       {string} message    [content to be shown on the ProgressDialog]
  * @param       {function} onConfirm
  * @param       {boolean} cancelable

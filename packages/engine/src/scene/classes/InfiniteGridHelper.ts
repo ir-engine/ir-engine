@@ -8,7 +8,6 @@ import { addIsHelperFlag } from '../../scene/functions/addIsHelperFlag'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 
 /**
- * Original Author: Fyrestar
  * https://discourse.threejs.org/t/three-infinitegridhelper-anti-aliased/8377
  */
 const vertexShader = `

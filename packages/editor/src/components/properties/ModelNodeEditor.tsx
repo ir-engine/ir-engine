@@ -41,7 +41,6 @@ import { EditorComponentType, updateProperty } from './Util'
 /**
  * ModelNodeEditor used to create editor view for the properties of ModelNode.
  *
- * @author Robert Long
  * @type {class component}
  */
 export const ModelNodeEditor: EditorComponentType = (props) => {

@@ -3,7 +3,6 @@ import styled from 'styled-components'
 /**
  * BorderColor used to return border color.
  *
- * @author Robert Long
  * @param  {object} props
  * @param  {string} defaultColor
  */
@@ -20,7 +19,6 @@ function borderColor(props, defaultColor) {
 /**
  * Used to provide styles for input field.
  *
- * @author Robert Long
  * @type {styled component}
  */
 const Input = styled.input`
@@ -50,7 +48,5 @@ const Input = styled.input`
 `
 /**
  * Used to render component view.
- *
- * @author Robert Long
  */
 export default Input

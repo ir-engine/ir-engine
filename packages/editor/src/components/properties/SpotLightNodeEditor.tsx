@@ -17,7 +17,6 @@ import { EditorComponentType, updateProperty } from './Util'
 /**
  * SpotLightNodeEditor component class used to provide editor view for property customization.
  *
- *  @author Robert Long
  *  @type {class component}
  */
 export const SpotLightNodeEditor: EditorComponentType = (props) => {

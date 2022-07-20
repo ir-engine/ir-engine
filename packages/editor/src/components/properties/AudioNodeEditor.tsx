@@ -24,7 +24,6 @@ import { EditorComponentType, updateProperty } from './Util'
 /**
  * AudioNodeEditor used to customize audio element on the scene.
  *
- * @author Robert Long
  * @param       {Object} props
  * @constructor
  */

@@ -3,9 +3,6 @@ import { defineQuery, getComponent } from '@xrengine/engine/src/ecs/functions/Co
 
 import { InputComponent } from '../classes/InputComponent'
 
-/**
- * @author Nayankumar Patel <github.com/NPatel10>
- */
 export default async function InputSystem(_: World) {
   const inputQuery = defineQuery([InputComponent])
   return () => {

@@ -26,7 +26,6 @@ interface Props {
  *
  * @param param0 children props
  * @returns @ReactDomElements
- * @author Kevin KIMENYI <kimenyikevin@gmail.com>
  */
 
 const Dashboard = ({ children }: Props) => {

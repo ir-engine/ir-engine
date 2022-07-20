@@ -19,7 +19,6 @@ import { EditorComponentType, updateProperty } from './Util'
 /**
  * Clouds Editor provides the editor to customize properties.
  *
- * @author Robert Long
  * @type {class component}
  */
 export const CloudsNodeEditor: EditorComponentType = (props) => {

@@ -7,8 +7,6 @@ import { Application } from '../../../declarations'
 export type LocationAdminDataType = LocationAdminInterface
 /**
  * A class for Location Admin service
- *
- * @author Vyacheslav Solovjov
  */
 export class LocationAdmin<T = LocationAdminDataType> extends Service<T> {
   public docs: any
