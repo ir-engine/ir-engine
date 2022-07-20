@@ -36,7 +36,7 @@ const Avatar = () => {
         </Grid>
       </Grid>
 
-      <AvatarTable className={styles.rootTable} search={search} />
+      <AvatarTable className={styles.rootTableWithSearch} search={search} />
 
       {openAvatarDrawer && (
         <AvatarDrawer open mode={AvatarDrawerMode.Create} onClose={() => setOpenAvatarDrawer(false)} />
