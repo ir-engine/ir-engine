@@ -112,7 +112,11 @@ const SettingMenu = (): JSX.Element => {
           </Typography>
           <div className={styles.row}>
             <span className={styles.materialIconBlock}>
-              {audioState.audio.value == 0 ? <VolumeOff color="primary" /> : <VolumeUp color="primary" />}
+              {audioState.audio.value == 0 ? (
+                <VolumeOff className={styles.iconBtn} />
+              ) : (
+                <VolumeUp className={styles.iconBtn} />
+              )}
             </span>
             <span className={styles.settingLabel}>{t('user:usermenu.setting.lbl-volume')}</span>
             <Slider
@@ -131,7 +135,11 @@ const SettingMenu = (): JSX.Element => {
           </div>
           <div className={styles.row}>
             <span className={styles.materialIconBlock}>
-              {audioState.microphone.value == 0 ? <MicOff color="primary" /> : <Mic color="primary" />}
+              {audioState.microphone.value == 0 ? (
+                <MicOff className={styles.iconBtn} />
+              ) : (
+                <Mic className={styles.iconBtn} />
+              )}
             </span>
             <span className={styles.settingLabel}>{t('user:usermenu.setting.lbl-microphone')}</span>
             <Slider
@@ -161,9 +169,9 @@ const SettingMenu = (): JSX.Element => {
                 <div className={styles.row}>
                   <span className={styles.materialIconBlock}>
                     {audioState.mediaStreamVolume.value == 0 ? (
-                      <VolumeOff color="primary" />
+                      <VolumeOff className={styles.iconBtn} />
                     ) : (
-                      <VolumeUp color="primary" />
+                      <VolumeUp className={styles.iconBtn} />
                     )}
                   </span>
                   <span className={styles.settingLabel}>{t('user:usermenu.setting.lbl-media-instance')}</span>
@@ -180,9 +188,9 @@ const SettingMenu = (): JSX.Element => {
                 <div className={styles.row}>
                   <span className={styles.materialIconBlock}>
                     {audioState.notificationVolume.value == 0 ? (
-                      <VolumeOff color="primary" />
+                      <VolumeOff className={styles.iconBtn} />
                     ) : (
-                      <VolumeUp color="primary" />
+                      <VolumeUp className={styles.iconBtn} />
                     )}
                   </span>
                   <span className={styles.settingLabel}>{t('user:usermenu.setting.lbl-notification')}</span>
@@ -199,9 +207,9 @@ const SettingMenu = (): JSX.Element => {
                 <div className={styles.row}>
                   <span className={styles.materialIconBlock}>
                     {audioState.soundEffectsVolume.value == 0 ? (
-                      <VolumeOff color="primary" />
+                      <VolumeOff className={styles.iconBtn} />
                     ) : (
-                      <VolumeUp color="primary" />
+                      <VolumeUp className={styles.iconBtn} />
                     )}
                   </span>
                   <span className={styles.settingLabel}>{t('user:usermenu.setting.lbl-sound-effect')}</span>
@@ -218,9 +226,9 @@ const SettingMenu = (): JSX.Element => {
                 <div className={styles.row}>
                   <span className={styles.materialIconBlock}>
                     {audioState.backgroundMusicVolume.value == 0 ? (
-                      <VolumeOff color="primary" />
+                      <VolumeOff className={styles.iconBtn} />
                     ) : (
-                      <VolumeUp color="primary" />
+                      <VolumeUp className={styles.iconBtn} />
                     )}
                   </span>
                   <span className={styles.settingLabel}>{t('user:usermenu.setting.lbl-background-music-volume')}</span>
@@ -246,7 +254,7 @@ const SettingMenu = (): JSX.Element => {
           </Typography>
           <div className={styles.row}>
             <span className={styles.materialIconBlock}>
-              <BlurLinear color="primary" />
+              <BlurLinear className={styles.iconBtn} />
             </span>
             <span className={styles.settingLabel}>{t('user:usermenu.setting.lbl-resolution')}</span>
             <Slider
@@ -310,7 +318,7 @@ const SettingMenu = (): JSX.Element => {
           <FormControlLabel
             label={t('user:usermenu.setting.show-avatar')}
             labelPlacement="start"
-            control={<Switch checked={showAvatar} onChange={handleChangeShowAvatar} color="primary" />}
+            control={<Switch checked={showAvatar} onChange={handleChangeShowAvatar} className={styles.iconBtn} />}
           />
         </section>
         {engineState.xrSupported.value && (
@@ -333,7 +341,7 @@ const SettingMenu = (): JSX.Element => {
                     <Switch
                       checked={invertRotationAndMoveSticks}
                       onChange={handleChangeInvertRotationAndMoveSticks}
-                      color="primary"
+                      className={styles.iconBtn}
                     />
                   }
                   label={t('user:usermenu.setting.invert-rotation')}
