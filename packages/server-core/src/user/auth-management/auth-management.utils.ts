@@ -11,8 +11,8 @@ import logger from '../../logger'
  */
 export function getLink(type: string, hash: string, subscriptionId?: string): string {
   return subscriptionId != null && subscriptionId.length > 0
-    ? `${config.client.url}/auth/magiclink/${hash}?subId=${subscriptionId}`
-    : `${config.client.url}/auth/magiclink/?token=${hash}&type=${type}`
+    ? `${config.server.url}/login/${hash}?subId=${subscriptionId}`
+    : `${config.server.url}/login/${hash}`
 }
 
 /**
