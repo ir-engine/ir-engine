@@ -26,7 +26,6 @@ export const deserializeCollider: ComponentDeserializeFunction = (
       json.props as ColliderDescOptions
     )
 
-  // createColliderForObject3D(entity, json.props, false)
   getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_COLLIDER)
 }
 

@@ -2,13 +2,13 @@ import { Box3, Mesh, Vector3 } from 'three'
 
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
+import { RigidBodyDynamicTagComponent } from '../../physics/components/RigidBodyDynamicTagComponent'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { BoundingBoxComponent } from '../components/BoundingBoxComponent'
 
 export const createBoxComponent = (entity: Entity) => {
-  // TODO: Equippables to Rapier
-  const dynamic = true //hasComponent(entity, ColliderComponent) && isDynamicBody(getComponent(entity, ColliderComponent).body)
+  const dynamic = hasComponent(entity, RigidBodyDynamicTagComponent)
 
   const calcBoundingBox = addComponent(entity, BoundingBoxComponent, { dynamic, box: new Box3() })
 

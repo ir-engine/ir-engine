@@ -70,10 +70,8 @@ export const updateModel: ComponentUpdateFunction = (entity: Entity, properties:
           break
       }
       scene = cloneObject3D(scene)
-      parseGLTFModel(entity, component, scene)
-
       addComponent(entity, Object3DComponent, { value: scene })
-
+      parseGLTFModel(entity, component, scene)
       removeError(entity, 'srcError')
     } catch (err) {
       console.error(err)

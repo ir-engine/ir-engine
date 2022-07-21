@@ -12,6 +12,7 @@ import {
 } from '../../ecs/functions/ComponentFunctions'
 import { NetworkObjectOwnedTag } from '../../networking/components/NetworkObjectOwnedTag'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
+import { RigidBodyDynamicTagComponent } from '../../physics/components/RigidBodyDynamicTagComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { getHandTransform } from '../../xr/functions/WebXRFunctions'
 import { EquippedComponent } from '../components/EquippedComponent'
@@ -83,7 +84,7 @@ export function equippableQueryExit(entity: Entity, world = Engine.instance.curr
   const equippedEntity = equipperComponent.equippedEntity
 
   const equippedTransform = getComponent(equippedEntity, TransformComponent)
-  const collider = getComponent(equippedEntity, ColliderComponent)
+  const collider = getComponent(equippedEntity, RigidBodyDynamicTagComponent)
   if (collider) {
     // TODO: Equippables to Rapier
     // let phsyxRigidbody = collider.body as PhysX.PxRigidBody

@@ -1,4 +1,3 @@
-import { RigidBodyType } from '@dimforge/rapier3d-compat'
 import {
   ArrowHelper,
   Box3Helper,
@@ -14,7 +13,7 @@ import {
 } from 'three'
 
 import { matches } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { addActionReceptor, removeActionReceptor } from '@xrengine/hyperflux'
+import { addActionReceptor, createActionQueue, removeActionReceptor } from '@xrengine/hyperflux'
 
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { Engine } from '../../ecs/classes/Engine'
@@ -25,8 +24,6 @@ import { BoundingBoxComponent } from '../../interaction/components/BoundingBoxCo
 import { NavMeshComponent } from '../../navigation/component/NavMeshComponent'
 import { createGraphHelper } from '../../navigation/GraphHelper'
 import { createConvexRegionHelper } from '../../navigation/NavMeshHelper'
-import { RapierCollisionComponent } from '../../physics/components/RapierCollisionComponent'
-import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
 import { accessEngineRendererState, EngineRendererAction } from '../../renderer/EngineRendererState'
 import InfiniteGridHelper from '../../scene/classes/InfiniteGridHelper'
@@ -35,8 +32,6 @@ import { XRInputSourceComponent } from '../../xr/components/XRInputSourceCompone
 import { DebugArrowComponent } from '../DebugArrowComponent'
 import { DebugNavMeshComponent } from '../DebugNavMeshComponent'
 import { DebugRenderer } from './DebugRenderer'
-
-type ComponentHelpers = 'viewVector' | 'ikExtents' | 'helperArrow' | 'velocityArrow' | 'box' | 'navmesh' | 'navpath'
 
 const vector3 = new Vector3()
 const quat = new Quaternion()
@@ -62,7 +57,6 @@ export default async function DebugHelpersSystem(world: World) {
 
   const avatarDebugQuery = defineQuery([AvatarComponent])
   const boundingBoxQuery = defineQuery([BoundingBoxComponent])
-  const colliderQuery = defineQuery([RapierCollisionComponent])
   const arrowHelperQuery = defineQuery([DebugArrowComponent])
   const ikAvatarQuery = defineQuery([XRInputSourceComponent])
   const navmeshQuery = defineQuery([DebugNavMeshComponent, NavMeshComponent])
@@ -92,20 +86,13 @@ export default async function DebugHelpersSystem(world: World) {
     }
   }
 
-  const receptor = (action) => {
-    matches(action)
-      .when(EngineRendererAction.setPhysicsDebug.matches, (action) => {
-        physicsDebugUpdate(action.physicsDebugEnable)
-      })
-      .when(EngineRendererAction.setAvatarDebug.matches, (action) => {
-        avatarDebugUpdate(action.avatarDebugEnable)
-      })
-  }
-  addActionReceptor(receptor)
+  const physicsDebugActionQueue = createActionQueue(EngineRendererAction.setPhysicsDebug.matches)
+  const avatarDebugActionQueue = createActionQueue(EngineRendererAction.setAvatarDebug.matches)
 
   return () => {
-    // Remove Receptor
-    removeActionReceptor(receptor)
+    for (const action of physicsDebugActionQueue()) physicsDebugUpdate(action.physicsDebugEnable)
+    for (const action of avatarDebugActionQueue()) avatarDebugUpdate(action.avatarDebugEnable)
+
     // ===== AVATAR ===== //
 
     for (const entity of avatarDebugQuery.enter()) {
@@ -118,11 +105,6 @@ export default async function DebugHelpersSystem(world: World) {
     }
 
     for (const entity of avatarDebugQuery.exit()) {
-      // view vector
-      // const arrowHelper = helpersByEntity.viewVector.get(entity) as Object3D
-      // Engine.instance.currentWorld.scene.remove(arrowHelper)
-      // helpersByEntity.viewVector.delete(entity)
-
       // velocity
       const velocityArrowHelper = helpersByEntity.velocityArrow.get(entity) as Object3D
       Engine.instance.currentWorld.scene.remove(velocityArrowHelper)
@@ -130,16 +112,9 @@ export default async function DebugHelpersSystem(world: World) {
     }
 
     for (const entity of avatarDebugQuery()) {
-      // view vector
       const avatar = getComponent(entity, AvatarComponent)
       const velocity = getComponent(entity, VelocityComponent)
       const transform = getComponent(entity, TransformComponent)
-      // const arrowHelper = helpersByEntity.viewVector.get(entity) as ArrowHelper
-
-      // if (arrowHelper != null) {
-      //   arrowHelper.setDirection(vector3.copy(avatar.viewVector).setY(0).normalize())
-      //   arrowHelper.position.copy(transform.position).y += avatar.avatarHalfHeight
-      // }
 
       // velocity
       const velocityArrowHelper = helpersByEntity.velocityArrow.get(entity) as ArrowHelper
@@ -182,90 +157,8 @@ export default async function DebugHelpersSystem(world: World) {
       helpersByEntity.ikExtents.delete(entity)
     }
 
-    // ===== COLLIDERS ===== //
+    // ===== BOUNDING BOX ===== //
 
-    for (const entity of colliderQuery.exit()) {
-      // view vector
-      const arrowHelper = helpersByEntity.viewVector.get(entity) as Object3D
-      Engine.instance.currentWorld.scene.remove(arrowHelper)
-      helpersByEntity.viewVector.delete(entity)
-
-      // velocity
-      const velocityArrowHelper = helpersByEntity.velocityArrow.get(entity) as Object3D
-      Engine.instance.currentWorld.scene.remove(velocityArrowHelper)
-      helpersByEntity.velocityArrow.delete(entity)
-    }
-
-    for (const entity of colliderQuery.enter()) {
-      const rigidBody = getComponent(entity, RigidBodyComponent)
-      if (rigidBody.bodyType() === RigidBodyType.Fixed) continue
-
-      // view vector
-      const origin = new Vector3(0, 2, 0)
-      const length = 0.5
-      const hex = 0xffff00
-      const engineRendererState = accessEngineRendererState()
-
-      const arrowHelper = new ArrowHelper(
-        vector3.copy(rigidBody.translation() as Vector3).normalize(),
-        origin,
-        length,
-        hex
-      )
-      arrowHelper.visible = engineRendererState.avatarDebugEnable.value
-      Engine.instance.currentWorld.scene.add(arrowHelper)
-      helpersByEntity.viewVector.set(entity, arrowHelper)
-
-      // velocity
-      const velocityColor = 0x0000ff
-      const velocityArrowHelper = new ArrowHelper(new Vector3(), new Vector3(0, 0, 0), 0.5, velocityColor)
-      velocityArrowHelper.visible = engineRendererState.avatarDebugEnable.value
-      Engine.instance.currentWorld.scene.add(velocityArrowHelper)
-      helpersByEntity.velocityArrow.set(entity, velocityArrowHelper)
-    }
-
-    for (const entity of colliderQuery()) {
-      // view vector
-      const rigidBody = getComponent(entity, RigidBodyComponent)
-      const transform = getComponent(entity, TransformComponent)
-      const arrowHelper = helpersByEntity.viewVector.get(entity) as ArrowHelper
-
-      if (arrowHelper != null) {
-        arrowHelper.setDirection(
-          new Vector3()
-            .copy(rigidBody.translation() as Vector3)
-            .setY(0)
-            .normalize()
-        )
-        arrowHelper.position.copy(transform.position)
-      }
-
-      // velocity
-      const velocityArrowHelper = helpersByEntity.velocityArrow.get(entity) as ArrowHelper
-      if (velocityArrowHelper != null) {
-        const vel = new Vector3().copy(rigidBody.linvel() as Vector3)
-        velocityArrowHelper.setLength(vel.length() * 60)
-        velocityArrowHelper.setDirection(vel.normalize())
-        velocityArrowHelper.position.copy(transform.position)
-      }
-
-      if (Engine.instance.isEditor) {
-        rigidBody.setTranslation({ x: transform.position.x, y: transform.position.y, z: transform.position.z }, true)
-        rigidBody.setRotation(
-          {
-            x: transform.rotation.x,
-            y: transform.rotation.y,
-            z: transform.rotation.z,
-            w: transform.rotation.w
-          },
-          true
-        )
-      }
-    }
-
-    // ===== INTERACTABLES ===== //
-
-    // bounding box
     for (const entity of boundingBoxQuery.exit()) {
       const boxHelper = helpersByEntity.box.get(entity) as Box3Helper
       Engine.instance.currentWorld.scene.remove(boxHelper)
