@@ -90,12 +90,7 @@ export default async function PhysicsSystem(world: World) {
     RigidBodyDynamicTagComponent
   ])
 
-  const rigidBodyQuery = defineQuery([
-    Not(NetworkObjectComponent),
-    RigidBodyComponent,
-    RigidBodyDynamicTagComponent,
-    Not(AvatarComponent)
-  ])
+  const rigidBodyQuery = defineQuery([Not(NetworkObjectComponent), RigidBodyComponent, RigidBodyDynamicTagComponent])
 
   const teleportObjectQueue = createActionQueue(WorldNetworkAction.teleportObject.matches)
 
