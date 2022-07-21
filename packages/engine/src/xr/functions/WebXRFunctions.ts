@@ -4,7 +4,6 @@ import { dispatchAction } from '@xrengine/hyperflux'
 
 import { BoneNames } from '../../avatar/AvatarBoneMatching'
 import { AvatarAnimationComponent } from '../../avatar/components/AvatarAnimationComponent'
-import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { AvatarHeadDecapComponent } from '../../avatar/components/AvatarHeadDecapComponent'
 import { accessAvatarInputSettingsState } from '../../avatar/state/AvatarInputSettingsState'
 import { ParityValue } from '../../common/enums/ParityValue'
@@ -26,55 +25,107 @@ import { initializeHandModel } from './addControllerModels'
 
 const rotate180onY = new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), Math.PI)
 
-const assignControllerAndGrip = (xrManager, controller, grip, i): void => {
-  xrManager.getController(i).add(controller)
-  xrManager.getControllerGrip(i).add(grip)
-}
-
 /**
- * Map input source controller groups to correct index
- * @param xrInput
- * @returns {void}
+ * Map XR input source controller groups to correct hand
+ * Should be called before xr session creation
+ * Call only once
  */
+export const setupLocalXRInputs = () => {
+  const world = Engine.instance.currentWorld
+  const xr = EngineRenderer.instance.xrManager
+  const controllers = [xr.getController(0), xr.getController(1)]
+  const controllerGrips = [xr.getControllerGrip(0), xr.getControllerGrip(1)]
+  const hands = [xr.getHand(0), xr.getHand(1)]
 
-export const mapXRControllers = (xrInput: XRInputSourceComponentType): void => {
-  const xrm = EngineRenderer.instance.xrManager
-
-  // https://github.com/mrdoob/three.js/blob/0c26bb4bb8220126447c8373154ac045588441de/src/renderers/webxr/WebXRManager.js#L355
-  assignControllerAndGrip(xrm, xrInput.controllerLeft, xrInput.controllerGripLeft, 0)
-  assignControllerAndGrip(xrm, xrInput.controllerRight, xrInput.controllerGripRight, 1)
-
-  if (xrInput.controllerGripLeft.parent) {
-    xrInput.controllerGripLeftParent = xrInput.controllerGripLeft.parent as Group
+  const assignController = (input: XRInputSourceComponentType, prop: string, controller: Object3D) => {
+    const { parent } = input[prop]
+    input[prop].removeFromParent()
+    input[prop] = controller
+    parent?.add(controller)
   }
 
-  if (xrInput.controllerGripRight.parent) {
-    xrInput.controllerGripRightParent = xrInput.controllerGripRight.parent as Group
-  }
+  controllers.forEach((controller) => {
+    controller.addEventListener('connected', function ({ data }) {
+      const entity = world.localClientEntity
+      const input = getComponent(entity, XRInputSourceComponent)
 
-  if (xrInput.controllerLeft.parent) {
-    xrInput.controllerLeftParent = xrInput.controllerLeft.parent as Group
-  }
+      if (data.handedness === 'left') {
+        controller.add(input.controllerLeft)
+        assignController(input, 'controllerLeftParent', controller)
+        proxifyVector3(XRInputSourceComponent.controllerLeftParent.position, entity, controller.position)
+        proxifyQuaternion(XRInputSourceComponent.controllerLeftParent.quaternion, entity, controller.quaternion)
+      } else if (data.handedness === 'right') {
+        controller.add(input.controllerRight)
+        assignController(input, 'controllerRightParent', controller)
+        proxifyVector3(XRInputSourceComponent.controllerRightParent.position, entity, controller.position)
+        proxifyQuaternion(XRInputSourceComponent.controllerRightParent.quaternion, entity, controller.quaternion)
+      }
+    })
 
-  if (xrInput.controllerRight.parent) {
-    xrInput.controllerRightParent = xrInput.controllerRight.parent as Group
-  }
+    // TODO: Handle disconnect event
+  })
+
+  controllerGrips.forEach((controller) => {
+    controller.addEventListener('connected', function ({ data }) {
+      const entity = world.localClientEntity
+      const input = getComponent(entity, XRInputSourceComponent)
+
+      if (data.handedness === 'left') {
+        controller.add(input.controllerGripLeft)
+        assignController(input, 'controllerGripLeftParent', controller)
+        proxifyVector3(XRInputSourceComponent.controllerGripLeftParent.position, entity, controller.position)
+        proxifyQuaternion(XRInputSourceComponent.controllerGripLeftParent.quaternion, entity, controller.quaternion)
+      } else if (data.handedness === 'right') {
+        controller.add(input.controllerGripRight)
+        assignController(input, 'controllerGripRightParent', controller)
+        proxifyVector3(XRInputSourceComponent.controllerGripRightParent.position, entity, controller.position)
+        proxifyQuaternion(XRInputSourceComponent.controllerGripRightParent.quaternion, entity, controller.quaternion)
+      }
+    })
+
+    // TODO: Handle disconnect event
+  })
+
+  let eventSent = false
+
+  // TODO: we should unify the logic here and in AvatarSystem xrHandsConnected receptor
+  hands.forEach((controller) => {
+    controller.addEventListener('connected', ({ data: xrInputSource }) => {
+      if (!xrInputSource.hand || controller.userData.mesh) {
+        return
+      }
+
+      if (!hasComponent(world.localClientEntity, XRHandsInputComponent)) {
+        addComponent(world.localClientEntity, XRHandsInputComponent, {
+          hands
+        })
+      }
+
+      initializeHandModel(world.localClientEntity, controller, xrInputSource.handedness)
+
+      if (!eventSent) {
+        dispatchAction(WorldNetworkAction.xrHandsConnected({}), NetworkTopics.world)
+        eventSent = true
+      }
+    })
+
+    // TODO: Handle disconnect event
+  })
 }
 
-export const proxifyXRInputs = (entity: Entity) => {
-  const {
-    head,
-    container,
-    controllerLeftParent,
-    controllerGripLeftParent,
-    controllerRightParent,
-    controllerGripRightParent
-  } = getComponent(entity, XRInputSourceComponent)
-
+export const proxifyXRHeadAndContainer = (entity: Entity) => {
+  const { head, container } = getComponent(entity, XRInputSourceComponent)
   proxifyVector3(XRInputSourceComponent.head.position, entity, head.position)
   proxifyQuaternion(XRInputSourceComponent.head.quaternion, entity, head.quaternion)
   proxifyVector3(XRInputSourceComponent.container.position, entity, container.position)
   proxifyQuaternion(XRInputSourceComponent.container.quaternion, entity, container.quaternion)
+}
+
+export const proxifyXRInputs = (entity: Entity) => {
+  const { controllerLeftParent, controllerGripLeftParent, controllerRightParent, controllerGripRightParent } =
+    getComponent(entity, XRInputSourceComponent)
+
+  proxifyXRHeadAndContainer(entity)
 
   proxifyVector3(XRInputSourceComponent.controllerLeftParent.position, entity, controllerLeftParent.position)
   proxifyVector3(XRInputSourceComponent.controllerRightParent.position, entity, controllerRightParent.position)
@@ -141,62 +192,6 @@ export const setupXRInputSourceComponent = (entity: Entity): XRInputSourceCompon
   return inputData
 }
 
-/**
- * Initializes XR controllers for local client
- * @returns {void}
- */
-
-export const bindXRControllers = () => {
-  const world = Engine.instance.currentWorld
-  const xrInputSourceComponent = getComponent(world.localClientEntity, XRInputSourceComponent)
-
-  const inputSourceChanged = (event) => {
-    // Map input sources
-    mapXRControllers(xrInputSourceComponent)
-    // Proxify only after input handedness is determined
-    proxifyXRInputs(world.localClientEntity)
-    EngineRenderer.instance.xrSession.removeEventListener('inputsourceschange', inputSourceChanged)
-  }
-
-  EngineRenderer.instance.xrSession.addEventListener('inputsourceschange', inputSourceChanged)
-}
-
-/**
- * Initializes XR hand controllers for local client
- * @returns {void}
- */
-
-export const bindXRHandEvents = () => {
-  const world = Engine.instance.currentWorld
-
-  const hands = [EngineRenderer.instance.xrManager.getHand(0), EngineRenderer.instance.xrManager.getHand(1)]
-  let eventSent = false
-
-  // TODO: we should unify the logic here and in AvatarSystem xrHandsConnected receptor
-  hands.forEach((controller: any) => {
-    controller.addEventListener('connected', (ev) => {
-      const xrInputSource = ev.data
-
-      if (!xrInputSource.hand || controller.userData.mesh) {
-        return
-      }
-
-      if (!hasComponent(world.localClientEntity, XRHandsInputComponent)) {
-        addComponent(world.localClientEntity, XRHandsInputComponent, {
-          hands
-        })
-      }
-
-      initializeHandModel(world.localClientEntity, controller, xrInputSource.handedness)
-
-      if (!eventSent) {
-        dispatchAction(WorldNetworkAction.xrHandsConnected({}), NetworkTopics.world)
-        eventSent = true
-      }
-    })
-  })
-}
-
 export const startWebXR = async (): Promise<void> => {
   const world = Engine.instance.currentWorld
   setupXRInputSourceComponent(world.localClientEntity)
@@ -208,8 +203,8 @@ export const startWebXR = async (): Promise<void> => {
     }),
     NetworkTopics.world
   )
-  bindXRControllers()
-  bindXRHandEvents()
+
+  proxifyXRHeadAndContainer(world.localClientEntity)
 }
 
 export const endXR = (): void => {
