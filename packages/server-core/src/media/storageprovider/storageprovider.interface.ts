@@ -1,14 +1,24 @@
 import { FileContentType } from '@xrengine/common/src/interfaces/FileContentType'
 
+/**
+ * Put object parameters interface for adding to storage.
+ */
 export interface PutObjectParams {
   isDirectory?: boolean
 }
+
+/**
+ * Interface defining storage object.
+ */
 export interface StorageObjectInterface {
   Key?: string
   Body: Buffer
   ContentType: string
 }
 
+/**
+ * Interface defining storage list object.
+ */
 export interface StorageListObjectInterface {
   Prefix?: string
   IsTruncated?: boolean
@@ -17,6 +27,9 @@ export interface StorageListObjectInterface {
   CommonPrefixes?: { Prefix: string }[]
 }
 
+/**
+ * Interface defining signed url response.
+ */
 export interface SignedURLResponse {
   fields: {
     [key: string]: string
@@ -26,6 +39,9 @@ export interface SignedURLResponse {
   cacheDomain: string
 }
 
+/**
+ * Interface defining blob store object.
+ */
 export interface BlobStore {
   path: string
   cache: any
