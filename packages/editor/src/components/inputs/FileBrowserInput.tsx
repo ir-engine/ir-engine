@@ -9,7 +9,6 @@ import { ControlledStringInput } from './StringInput'
 /**
  * Function component used for rendering FileBrowserInput.
  *
- * @author Hanzla Mateen
  * @param {function} onChange
  * @param {any} rest
  * @returns

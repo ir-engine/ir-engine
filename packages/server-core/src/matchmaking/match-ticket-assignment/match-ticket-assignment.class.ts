@@ -14,8 +14,6 @@ interface ServiceOptions {}
 
 /**
  * A class for OpenMatch Tickets service
- *
- * @author Vyacheslav Solovjov
  */
 export class MatchTicketAssignment implements ServiceMethods<Data> {
   app: Application

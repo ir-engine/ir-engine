@@ -12,8 +12,6 @@ declare module '@xrengine/common/declarations' {
 export default (app: Application): void => {
   /**
    * Initialize our service with any options it requires and docs
-   *
-   * @author Vyacheslav Solovjov
    */
   const s = new MatchTicket({}, app)
   s.docs = matchTicketDocs

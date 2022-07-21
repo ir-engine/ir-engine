@@ -1,6 +1,3 @@
-/**
- * @author HydraFire <github.com/HydraFire>
- */
 export enum XR_FOLLOW_MODE {
   HEAD,
   CONTROLLER

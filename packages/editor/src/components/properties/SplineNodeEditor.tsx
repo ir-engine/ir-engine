@@ -13,7 +13,6 @@ import { EditorComponentType } from './Util'
 /**
  * SplineNodeEditor used to create and customize splines in the scene.
  *
- * @author Hamza Mushtaq
  * @param       {Object} props
  * @constructor
  */

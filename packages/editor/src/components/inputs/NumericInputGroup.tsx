@@ -55,8 +55,6 @@ function BaseNumericInputGroup({ name, className, label, ...rest }: NumericInput
 
 /**
  *
- * @author Robert Long
- * @author David Gordon
  * @param {any} name
  * @param {any} className
  * @param {any} rest

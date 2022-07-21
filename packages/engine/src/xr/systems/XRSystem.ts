@@ -59,7 +59,6 @@ export function setXRModeReceptor(action: typeof WorldNetworkAction.setXRMode.ma
 
 /**
  * System for XR session and input handling
- * @author Josh Field <github.com/hexafield>
  */
 
 export default async function XRSystem(world: World) {

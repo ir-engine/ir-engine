@@ -33,8 +33,7 @@
     "gridDebug": "Grid",
     "simpleMaterials": "Simple Materials",
     "tick": "Tick",
-    "worldStore": "World Store",
-    "engineStore": "Engine Store",
+    "state": "State",
     "namedEntities": "Named Entities",
     "networks": "Networks"
   },

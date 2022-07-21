@@ -3,9 +3,6 @@ import { defineQuery, getComponent } from '@xrengine/engine/src/ecs/functions/Co
 
 import { EditorInputComponent } from '../classes/InputComponent'
 
-/**
- * @author Nayankumar Patel <github.com/NPatel10>
- */
 export default async function InputSystem(world: World) {
   const inputQuery = defineQuery([EditorInputComponent])
 

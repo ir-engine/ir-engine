@@ -8,8 +8,6 @@ export type InstanceAttendanceDataType = InstanceAttendanceInterface
 
 /**
  * A class for Intance service
- *
- * @author Vyacheslav Solovjov
  */
 export class InstanceAttendance<T = InstanceAttendanceDataType> extends Service<T> {
   app: Application

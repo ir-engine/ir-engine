@@ -4,7 +4,6 @@ import { ContextMenuTrigger } from '../layout/ContextMenu'
 
 /**
  *
- * @author Robert Long
  * @param {any} className
  * @param {any} attributes
  * @param {any} children

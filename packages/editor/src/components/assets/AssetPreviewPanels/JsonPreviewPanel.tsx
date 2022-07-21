@@ -6,11 +6,6 @@ import CircularProgress from '@mui/material/CircularProgress'
 import styles from '../styles.module.scss'
 
 /**
- * @author Fabrice IRANKUNDA
- */
-
-/**
- * @author Fabrice IRANKUNDA <irankundafabrice8@gmail.com>
  * @param props
  */
 

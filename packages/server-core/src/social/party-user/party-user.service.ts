@@ -22,8 +22,6 @@ export default (app: Application): void => {
 
   /**
    * An object for swagger documentation configiration
-   *
-   * @author Kevin KIMENYI
    */
   const event = new PartyUser(options, app)
   event.docs = partyUserDocs
@@ -39,7 +37,6 @@ export default (app: Application): void => {
    *
    * @param data of new party
    * @returns {@Object} of created new party user
-   * @author Vyacheslav Solovjov
    */
 
   service.publish('created', async (data): Promise<any> => {
@@ -98,7 +95,6 @@ export default (app: Application): void => {
    *
    * @param data of new party user
    * @returns {@Object} updated party user
-   * @author Vyacheslav Solovjov
    */
   service.publish('patched', async (data): Promise<any> => {
     data.isOwner = data.isOwner === 1 ? true : data.isOwner === 0 ? false : data.isOwner
@@ -158,7 +154,6 @@ export default (app: Application): void => {
    *
    * @param data for single party user
    * @returns {@Object} removed party user
-   * @author Vyacheslav Solovjov
    */
 
   service.publish('removed', async (data): Promise<any> => {

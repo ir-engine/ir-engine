@@ -16,7 +16,6 @@ import { EditorComponentType } from './Util'
 /**
  * Creating styled component using InputGroup component.
  *
- * @author Robert Long
  * @type {Styled Component}
  */
 const StyledNameInputGroup = (styled as any)(InputGroup)`
@@ -28,7 +27,6 @@ const StyledNameInputGroup = (styled as any)(InputGroup)`
 /**
  * NameInputGroup is used to render input group PropertiesPanelContainer.
  *
- * @author Robert Long
  * @type {class component}
  */
 export const NameInputGroup: EditorComponentType = (props) => {

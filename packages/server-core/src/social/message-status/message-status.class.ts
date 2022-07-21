@@ -6,8 +6,6 @@ import { Application } from '../../../declarations'
 
 /**
  * A class for invite type service
- *
- * @author Vyacheslav Solovjov
  */
 export class MessageStatus<T = MessageStatusDataType> extends Service<T> {
   public docs: any

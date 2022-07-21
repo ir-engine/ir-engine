@@ -12,7 +12,6 @@ type NodeEditorProps = EditorPropType & {
 /**
  * NodeEditor component used to render editor view.
  *
- * @author Robert Long
  * @type {class component}
  */
 export const NodeEditor: React.FC<NodeEditorProps> = ({ description, children, name }) => {

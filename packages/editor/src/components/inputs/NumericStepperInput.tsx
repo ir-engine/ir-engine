@@ -7,10 +7,6 @@ import ArrowRightIcon from '@mui/icons-material/ArrowRight'
 import { InfoTooltip } from '../layout/Tooltip'
 import NumericInput from './NumericInput'
 
-/**
- *
- * @author Robert Long
- */
 const StepperInputContainer = (styled as any).div`
   display: flex;
   flex: 1;
@@ -24,10 +20,6 @@ const StepperInputContainer = (styled as any).div`
   }
 `
 
-/**
- *
- * @author Robert Long
- */
 const StepperButton = (styled as any).button`
   display: flex;
   justify-content: center;
@@ -56,8 +48,6 @@ const StepperButton = (styled as any).button`
 
 /**
  *
- *
- * @author Robert Long
  * @param {any} style
  * @param {any} className
  * @param {any} decrementTooltip

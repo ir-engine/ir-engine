@@ -19,7 +19,6 @@ import { EditorComponentType, updateProperty } from './Util'
 /**
  * Ocean Editor provides the editor to customize properties.
  *
- * @author Robert Long
  * @type {class component}
  */
 export const OceanNodeEditor: EditorComponentType = (props) => {

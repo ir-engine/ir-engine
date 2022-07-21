@@ -10,7 +10,6 @@ import styles from './styles.module.scss'
 /**
  * ControlText used to render viewport.
  *
- * @author Robert Long
  * @constructor
  */
 export function ControlText() {

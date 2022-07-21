@@ -58,7 +58,6 @@ export const ProjectDockContainer = (styled as any).div`
 
 /**
  * ProjectBrowserPanel used to render view for Project Panel.
- * @author Abhishek Pathak
  * @constructor
  */
 

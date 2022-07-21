@@ -24,8 +24,6 @@ function isValidTicketParams(data: unknown): data is TicketParams {
 
 /**
  * A class for OpenMatch Tickets service
- *
- * @author Vyacheslav Solovjov
  */
 export class MatchTicket implements ServiceMethods<Data> {
   app: Application

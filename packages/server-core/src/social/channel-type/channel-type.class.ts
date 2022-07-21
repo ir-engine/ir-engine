@@ -7,8 +7,6 @@ import { Application } from '../../../declarations'
 export type ChannelTypeDataType = ChannelTypeInterface
 /**
  * A class for channel type service
- *
- * @author Vyacheslav Solovjov
  */
 export class ChannelType<T = ChannelTypeDataType> extends Service<T> {
   public docs: any

@@ -78,7 +78,6 @@ type PrefabListItemType = {
 /**
  * AssetGridItem used to create grid item view.
  *
- * @author Robert Long
  * @param       {string} contextMenuId
  * @param       {ReactNode} tooltipComponent
  * @param       {PrefabItemType} item
@@ -115,21 +114,15 @@ function PrefabListItem({ contextMenuId, item, onClick }: PrefabListItemType) {
 }
 
 /**
- *
  * Memo
  * React renders the component and memoizes the result.
  * Before the next render, if the new props are the same,
  * React reuses the memoized result skipping the next rendering
- *
- *
- * @author Robert Long
  */
 const MemoAssetGridItem = memo(PrefabListItem)
 
 /**
  * AssetGrid component used to render AssetGridItems.
- *
- * @author Robert Long
  */
 export function ElementList() {
   const { t } = useTranslation()
