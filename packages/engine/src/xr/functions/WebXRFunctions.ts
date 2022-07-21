@@ -33,6 +33,7 @@ const rotate180onY = new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), Mat
 export const setupLocalXRInputs = () => {
   const world = Engine.instance.currentWorld
   const xr = EngineRenderer.instance.xrManager
+  if (!xr) return
   const controllers = [xr.getController(0), xr.getController(1)]
   const controllerGrips = [xr.getControllerGrip(0), xr.getControllerGrip(1)]
   const hands = [xr.getHand(0), xr.getHand(1)]
