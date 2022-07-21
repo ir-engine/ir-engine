@@ -5,6 +5,7 @@ import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
 import { getComponent } from '../../../ecs/functions/ComponentFunctions'
 import { Physics } from '../../../physics/classes/PhysicsRapier'
+import { RigidBodyComponent } from '../../../physics/components/RigidBodyComponent'
 import { ColliderDescOptions } from '../../../physics/types/PhysicsTypes'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
@@ -30,7 +31,7 @@ export const deserializeCollider: ComponentDeserializeFunction = (
 }
 
 export const serializeCollider: ComponentSerializeFunction = (entity) => {
-  const component = getComponent(entity, ColliderComponent)
+  const component = getComponent(entity, RigidBodyComponent)
   if (!component) return
 
   return {
