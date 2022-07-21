@@ -18,12 +18,12 @@ const END_EVENT = { type: 'end' }
 const EPS = 0.000001
 
 /**
- * https://github.com/qiao
- * http://mrdoob.com
- * http://alteredqualia.com/
- * http://github.com/WestLangley
- * http://erichaines.com
- * http://github.com/nicolaspanel
+ * @author qiao / https://github.com/qiao
+ * @author mrdoob / http://mrdoob.com
+ * @author alteredq / http://alteredqualia.com/
+ * @author WestLangley / http://github.com/WestLangley
+ * @author erich666 / http://erichaines.com
+ * @author nicolaspanel / http://github.com/nicolaspanel
  *
  * This set of controls performs orbiting, dollying (zooming), and panning.
  * Unlike TrackballControls, it maintains the "up" direction object.up (+Y by default).
