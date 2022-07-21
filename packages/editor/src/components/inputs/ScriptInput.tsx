@@ -8,7 +8,6 @@ import FileBrowserInput from './FileBrowserInput'
 /**
  * ScriptInput used to render component view for script inputs.
  *
- * @author Hanzla Mateen
  * @param       {function} onChange
  * @param       {any} rest
  * @constructor

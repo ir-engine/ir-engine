@@ -16,9 +16,6 @@ const EPSILON = 10e-5
 const UP = new Vector3(0, 1, 0)
 const IDENTITY = new Matrix4().identity()
 
-/**
- * @author Nayankumar Patel <github.com/NPatel10>
- */
 export default async function FlyControlSystem(world: World) {
   const flyControlQuery = defineQuery([FlyControlComponent])
   const direction = new Vector3()

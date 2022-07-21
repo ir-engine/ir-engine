@@ -11,8 +11,6 @@ export type SeatDataType = SeatInterface
 
 /**
  * A class for Seat service
- *
- * @author Vyacheslav Solovjov
  */
 export class Seat<T = SeatDataType> extends Service<T> {
   app: Application

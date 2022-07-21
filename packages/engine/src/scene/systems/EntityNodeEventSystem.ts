@@ -19,9 +19,6 @@ import { FogType } from '../constants/FogType'
 import { createFogFromSceneNode } from '../functions/loaders/FogFunctions'
 import { SCENE_PREVIEW_CAMERA_HELPER } from '../functions/loaders/ScenePreviewCameraFunctions'
 
-/**
- * @author Nayankumar Patel <github.com/NPatel10>
- */
 export default async function EntityNodeEventSystem(_: World) {
   const skyboxQuery = defineQuery([SkyboxComponent])
   const fogQuery = defineQuery([FogComponent])

@@ -10,8 +10,6 @@ interface ServiceOptions {}
 
 /**
  * A class for Sms service
- *
- * @author Vyacheslav Solovjov
  */
 export class Sms implements ServiceMethods<Data> {
   app: Application

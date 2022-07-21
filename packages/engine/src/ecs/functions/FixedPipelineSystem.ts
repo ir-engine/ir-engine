@@ -5,8 +5,6 @@ import { SystemUpdateType } from './SystemUpdateType'
 
 /**
  * System for running simulation logic with fixed time intervals
- * @author Josh Field <github.com/hexafield>
- * @author Gheric Speiginer <github.com/speigg>
  */
 export default function FixedPipelineSystem(world: World, args: { tickRate: number }) {
   const timestep = 1 / args.tickRate

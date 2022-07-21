@@ -20,8 +20,6 @@ export default (app: Application) => {
 
   /**
    * Initialize our service with any options it requires and docs
-   *
-   * @author Vyacheslav Solovjov
    */
   const event = new Message(options, app)
   event.docs = messageDocs
@@ -29,8 +27,6 @@ export default (app: Application) => {
 
   /**
    * Get our initialized service so that we can register hooks
-   *
-   * @author Vyacheslav Solovjov
    */
   const service = app.service('message')
 
@@ -41,7 +37,6 @@ export default (app: Application) => {
    *
    * @param data of new message
    * @returns {@Object} created message
-   * @author Vyacheslav Solovjov
    */
   service.publish('created', async (data: MessageInterface): Promise<any> => {
     data.sender = await app.service('user').get(data.senderId)
@@ -99,7 +94,6 @@ export default (app: Application) => {
    *
    * @param data contains sender
    * @returns removed data
-   * @author Vyacheslav Solovjov
    */
   service.publish('removed', async (data: MessageInterface): Promise<any> => {
     data.sender = await app.service('user').get(data.senderId)
@@ -157,7 +151,6 @@ export default (app: Application) => {
    *
    * @param data of updated message
    * @returns {@Object} updated message
-   * @author Vyacheslav Solovjov
    */
   service.publish('patched', async (data: MessageInterface): Promise<any> => {
     data.sender = await app.service('user').get(data.senderId)

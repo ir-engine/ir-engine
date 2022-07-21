@@ -8,8 +8,6 @@ export type LocationTypeDataType = LocationTypeInterface
 
 /**
  * A class for Location Type  service
- *
- * @author Vyacheslav Solovjov
  */
 export class LocationType<T = LocationTypeDataType> extends Service<T> {
   public docs: any

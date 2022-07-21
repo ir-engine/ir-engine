@@ -22,7 +22,6 @@ import styles from './styles.module.scss'
 
 /**
  * Displays the scenes that exist in the current project.
- * @author Josh Field
  */
 export default function ScenesPanel({ loadScene, newScene, toggleRefetchScenes }) {
   const { t } = useTranslation()

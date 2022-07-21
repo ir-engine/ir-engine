@@ -32,8 +32,6 @@ interface PatchParams {
 
 /**
  * A class for Managing files in FileBrowser
- *
- * @author Abhishek Pathak
  */
 
 export class FileBrowserService implements ServiceMethods<any> {

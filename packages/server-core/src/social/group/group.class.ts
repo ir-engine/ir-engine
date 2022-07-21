@@ -10,8 +10,6 @@ import { Application } from '../../../declarations'
 export type GroupDataType = GroupInterface
 /**
  * A class for Croup service
- *
- * @author Vyacheslav Solovjov
  */
 export class Group<T = GroupDataType> extends Service<T> {
   app: Application
@@ -26,7 +24,6 @@ export class Group<T = GroupDataType> extends Service<T> {
    *
    * @param params of query which contains group limit and number skip
    * @returns {@Object} of group
-   * @author Vyacheslav Solovjov
    */
 
   async find(params?: Params): Promise<Paginated<T>> {

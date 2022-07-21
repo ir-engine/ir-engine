@@ -164,9 +164,6 @@ const PredicationMode = [
   { label: 'CUSTOM', value: 2 }
 ]
 
-/**
- * @author Abhishek Pathak <abhi.pathak401@gmail.com>
- */
 export const PostProcessingNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
 

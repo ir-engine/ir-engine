@@ -9,10 +9,6 @@ import TextField from '@mui/material/TextField'
 
 import styles from './selectInput.module.scss'
 
-/**
- * @author Robert Long
- */
-
 interface SelectInputProp {
   value: any
   options: Array<{ label: string; value: any }>
@@ -32,7 +28,6 @@ interface SelectInputProp {
 
 /**
  *
- * @author Robert Long
  * @param {any} value
  * @param {any} options
  * @param {function} onChange

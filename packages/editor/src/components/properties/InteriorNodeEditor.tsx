@@ -18,7 +18,6 @@ import { EditorComponentType, updateProperty } from './Util'
 /**
  * Interior Editor provides the editor to customize properties.
  *
- * @author Robert Long
  * @type {class component}
  */
 export const InteriorNodeEditor: EditorComponentType = (props) => {

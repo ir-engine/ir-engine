@@ -21,7 +21,6 @@ const AudioTypeOptions = [
  * AudioSourceProperties provides properties to custom audio element on the scene
  * used inside AudioNodeEditor component.
  *
- * @author Robert Long
  * @param       {any} node
  * @param       {any} multiEdit
  * @constructor

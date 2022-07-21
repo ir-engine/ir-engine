@@ -8,7 +8,6 @@ import { ItemTypes } from '../../constants/AssetTypes'
 /**
  * DragLayerContainer used as wrapper for DragPreviewContainer.
  *
- * @author Robert Long
  * @type {Styled component}
  */
 const DragLayerContainer = (styled as any).div`
@@ -24,7 +23,6 @@ const DragLayerContainer = (styled as any).div`
 /**
  * DragPreviewContainer used to provide styles to preview object in editor view.
  *
- * @author Robert Long
  * @type {Styled component}
  */
 const DragPreviewContainer = (styled as any).div.attrs((props) => ({
@@ -43,7 +41,6 @@ const DragPreviewContainer = (styled as any).div.attrs((props) => ({
 /**
  * DragLayer component used to provide area in editor where we can drag and drop elements.
  *
- * @author Robert Long
  * @constructor
  */
 export default function DragLayer() {

@@ -14,8 +14,6 @@ import { Application } from '../../../declarations'
 
 /**
  * A class for Party service
- *
- * @author Vyacheslav Solovjov
  */
 export class Party<T = PartyDataType> extends Service<T> {
   app: Application
@@ -103,7 +101,6 @@ export class Party<T = PartyDataType> extends Service<T> {
    * @param id of specific party
    * @param params contains user info
    * @returns {@Object} of single party
-   * @author Vyacheslav Solovjov
    */
   async get(id: string, params?: Params): Promise<T> {
     if (id == null || id == '') {

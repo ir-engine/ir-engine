@@ -22,8 +22,6 @@ export default (app: Application) => {
 
   /**
    * Initialize our service with any options it requires and docs
-   *
-   * @author Vyacheslav Solovjov
    */
   const event = new Invite(options, app)
   event.docs = inviteDocs
@@ -31,8 +29,6 @@ export default (app: Application) => {
 
   /**
    * Get our initialized service so that we can register hooks
-   *
-   * @author Vyacheslav Solovjov
    */
   const service = app.service('invite')
 
@@ -43,7 +39,6 @@ export default (app: Application) => {
    *
    * @param data which is parsed to create invite
    * @returns created invite data
-   * @author Vyacheslav Solovjov
    */
   service.publish('created', async (data: InviteDataType): Promise<any> => {
     try {
@@ -80,7 +75,6 @@ export default (app: Application) => {
    *
    * @param data which contains userId and inviteeId
    * @returns deleted channel with invite data
-   * @author Vyacheslav Solovjov
    */
 
   service.publish('removed', async (data: InviteDataType): Promise<any> => {

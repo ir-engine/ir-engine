@@ -25,7 +25,6 @@ function getResizedCanvas(canvas: HTMLCanvasElement, width: number, height: numb
 /**
  * Function takeScreenshot used for taking screenshots.
  *
- * @author Robert Long
  * @param  {any}  width
  * @param  {any}  height
  * @return {Promise}        [generated screenshot according to height and width]

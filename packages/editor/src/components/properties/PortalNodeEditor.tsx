@@ -35,7 +35,6 @@ const rotation = new Quaternion()
 /**
  * PortalNodeEditor provides the editor for properties of PortalNode.
  *
- * @author Josh Field <github.com/HexaField>
  * @type {class component}
  */
 export const PortalNodeEditor: EditorComponentType = (props) => {

@@ -6,8 +6,6 @@ import notifier from './auth-management.notifier'
 
 /**
  * A function which register service for auth management
- *
- * @author Vyacheslav Solovjov
  */
 declare module '@xrengine/common/declarations' {
   interface ServiceTypes {

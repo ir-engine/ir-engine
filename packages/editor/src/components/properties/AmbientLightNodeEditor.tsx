@@ -17,7 +17,6 @@ import { EditorComponentType, updateProperty } from './Util'
  * AmbientLightNodeEditor component used to customize the ambient light element on the scene
  * ambient light is basically used to illuminates all the objects present inside the scene.
  *
- * @author Robert Long
  * @type {[component class]}
  */
 export const AmbientLightNodeEditor: EditorComponentType = (props) => {

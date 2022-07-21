@@ -40,7 +40,6 @@ const PlayModeOptions = [
 /**
  * VolumetricNodeEditor provides the editor view to customize properties.
  *
- * @author Robert Long
  * @param       {any} props
  * @constructor
  */

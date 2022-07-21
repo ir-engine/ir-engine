@@ -39,7 +39,6 @@ import { EditorComponentType, updateProperty } from './Util'
 /**
  * ToneMappingOptions array containing tone mapping type options.
  *
- * @author Josh Field
  * @type {Array}
  */
 const ToneMappingOptions = [
@@ -68,7 +67,6 @@ const ToneMappingOptions = [
 /**
  * ShadowTypeOptions array containing shadow type options.
  *
- * @author Josh Field
  * @type {Array}
  */
 const ShadowTypeOptions = [
@@ -97,7 +95,6 @@ const ShadowTypeOptions = [
 /**
  * SceneNodeEditor provides the editor view for property customization.
  *
- * @author Robert Long
  * @param       props
  * @constructor
  */
