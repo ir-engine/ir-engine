@@ -1,3 +1,4 @@
+import { RigidBodyType } from '@dimforge/rapier3d-compat'
 import {
   ArrowHelper,
   Box3Helper,
@@ -24,9 +25,8 @@ import { BoundingBoxComponent } from '../../interaction/components/BoundingBoxCo
 import { NavMeshComponent } from '../../navigation/component/NavMeshComponent'
 import { createGraphHelper } from '../../navigation/GraphHelper'
 import { createConvexRegionHelper } from '../../navigation/NavMeshHelper'
-import { isStaticBody } from '../../physics/classes/Physics'
-import { ColliderComponent } from '../../physics/components/ColliderComponent'
-import { ObstaclesComponent } from '../../physics/components/ObstaclesComponent'
+import { RapierCollisionComponent } from '../../physics/components/RapierCollisionComponent'
+import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
 import { accessEngineRendererState, EngineRendererAction } from '../../renderer/EngineRendererState'
 import InfiniteGridHelper from '../../scene/classes/InfiniteGridHelper'
@@ -60,10 +60,9 @@ export default async function DebugHelpersSystem(world: World) {
     navpath: new Map()
   }
 
-  const obstacleQuery = defineQuery([ObstaclesComponent])
   const avatarDebugQuery = defineQuery([AvatarComponent])
   const boundingBoxQuery = defineQuery([BoundingBoxComponent])
-  const colliderQuery = defineQuery([ColliderComponent])
+  const colliderQuery = defineQuery([RapierCollisionComponent])
   const arrowHelperQuery = defineQuery([DebugArrowComponent])
   const ikAvatarQuery = defineQuery([XRInputSourceComponent])
   const navmeshQuery = defineQuery([DebugNavMeshComponent, NavMeshComponent])
@@ -198,8 +197,8 @@ export default async function DebugHelpersSystem(world: World) {
     }
 
     for (const entity of colliderQuery.enter()) {
-      const collider = getComponent(entity, ColliderComponent)
-      if (isStaticBody(collider.body)) continue
+      const rigidBody = getComponent(entity, RigidBodyComponent)
+      if (rigidBody.bodyType() === RigidBodyType.Fixed) continue
 
       // view vector
       const origin = new Vector3(0, 2, 0)
@@ -208,7 +207,7 @@ export default async function DebugHelpersSystem(world: World) {
       const engineRendererState = accessEngineRendererState()
 
       const arrowHelper = new ArrowHelper(
-        vector3.copy(collider.body.getGlobalPose().translation as Vector3).normalize(),
+        vector3.copy(rigidBody.translation() as Vector3).normalize(),
         origin,
         length,
         hex
@@ -227,14 +226,14 @@ export default async function DebugHelpersSystem(world: World) {
 
     for (const entity of colliderQuery()) {
       // view vector
-      const collider = getComponent(entity, ColliderComponent)
+      const rigidBody = getComponent(entity, RigidBodyComponent)
       const transform = getComponent(entity, TransformComponent)
       const arrowHelper = helpersByEntity.viewVector.get(entity) as ArrowHelper
 
       if (arrowHelper != null) {
         arrowHelper.setDirection(
           new Vector3()
-            .copy(collider.body.getGlobalPose().translation as Vector3)
+            .copy(rigidBody.translation() as Vector3)
             .setY(0)
             .normalize()
         )
@@ -244,22 +243,20 @@ export default async function DebugHelpersSystem(world: World) {
       // velocity
       const velocityArrowHelper = helpersByEntity.velocityArrow.get(entity) as ArrowHelper
       if (velocityArrowHelper != null) {
-        const vel = new Vector3().copy(collider.body.getLinearVelocity() as Vector3)
+        const vel = new Vector3().copy(rigidBody.linvel() as Vector3)
         velocityArrowHelper.setLength(vel.length() * 60)
         velocityArrowHelper.setDirection(vel.normalize())
         velocityArrowHelper.position.copy(transform.position)
       }
 
       if (Engine.instance.isEditor) {
-        collider.body.setGlobalPose(
+        rigidBody.setTranslation({ x: transform.position.x, y: transform.position.y, z: transform.position.z }, true)
+        rigidBody.setRotation(
           {
-            translation: { x: transform.position.x, y: transform.position.y, z: transform.position.z },
-            rotation: {
-              x: transform.rotation.x,
-              y: transform.rotation.y,
-              z: transform.rotation.z,
-              w: transform.rotation.w
-            }
+            x: transform.rotation.x,
+            y: transform.rotation.y,
+            z: transform.rotation.z,
+            w: transform.rotation.w
           },
           true
         )
@@ -336,21 +333,6 @@ export default async function DebugHelpersSystem(world: World) {
     }
     // ===== Autopilot Helper ===== //
     // TODO add createPathHelper for navpathQuery
-
-    // TODO: move this to an editor action receptor after commands have been updated to FLUX pattern
-    if (Engine.instance.isEditor) {
-      for (const entity of obstacleQuery()) {
-        const obstaclesComponent = getComponent(entity, ObstaclesComponent)
-        if (obstaclesComponent) {
-          for (const obstacle of obstaclesComponent.obstacles) {
-            const mesh = (obstacle as any)._mesh
-            mesh.updateMatrixWorld(true, true)
-            obstacle.setPosition(mesh.getWorldPosition(new Vector3()))
-            obstacle.setRotation(mesh.getWorldQuaternion(new Quaternion()))
-          }
-        }
-      }
-    }
 
     physicsDebugRenderer(world, accessEngineRendererState().physicsDebugEnable.value)
   }

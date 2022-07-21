@@ -5,7 +5,7 @@ import { World } from '../../ecs/classes/World'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 
-export const DebugRenderer = (world: World) => {
+export const DebugRenderer = () => {
   let enabled = false
 
   const lineMaterial = new LineBasicMaterial({ vertexColors: true })
