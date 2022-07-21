@@ -4,10 +4,9 @@ import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { Physics } from '../../physics/classes/Physics'
-import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
-import { avatarRadius, createAvatarCollider } from './createAvatar'
+import { createAvatarCollider } from './createAvatar'
 
 export const resizeAvatar = (entity: Entity, height: number, center: Vector3) => {
   const avatar = getComponent(entity, AvatarComponent)

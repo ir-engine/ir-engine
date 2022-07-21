@@ -110,13 +110,13 @@ export const createAvatar = (spawnAction: typeof WorldNetworkAction.spawnAvatar.
 export const createAvatarCollider = (entity: Entity): Collider => {
   const interactionGroups = getInteractionGroups(CollisionGroups.Avatars, AvatarCollisionMask)
   const avatarComponent = getComponent(entity, AvatarComponent)
-  const { position } = getComponent(entity, TransformComponent)
   const rigidBody = getComponent(entity, RigidBodyComponent)
   console.log('avatarComponent.avatarHalfHeight', avatarComponent.avatarHalfHeight)
-  const bodyColliderDesc = ColliderDesc.capsule(avatarComponent.avatarHalfHeight, avatarRadius).setCollisionGroups(
-    interactionGroups
-  )
-  bodyColliderDesc.setTranslation(0, position.y + avatarComponent.avatarHalfHeight, 0)
+  const bodyColliderDesc = ColliderDesc.capsule(
+    avatarComponent.avatarHalfHeight - avatarRadius,
+    avatarRadius
+  ).setCollisionGroups(interactionGroups)
+  bodyColliderDesc.setTranslation(0, avatarComponent.avatarHalfHeight, 0)
 
   return Physics.createColliderAndAttachToRigidBody(
     Engine.instance.currentWorld.physicsWorld,
@@ -159,11 +159,10 @@ export const createAvatarController = (entity: Entity) => {
   }
 
   // offset so rigidboyd has feet at spawn position
-  getComponent(entity, TransformComponent).position.y += avatarComponent.avatarHalfHeight
-
-  const rigidBody = createAvatarRigidBody(entity)
   const velocitySimulator = new VectorSpringSimulator(60, 50, 0.8)
   if (!hasComponent(entity, AvatarControllerComponent)) {
+    getComponent(entity, TransformComponent).position.y += avatarComponent.avatarHalfHeight
+    const rigidBody = createAvatarRigidBody(entity)
     addComponent(entity, AvatarControllerComponent, {
       controller: rigidBody,
       bodyCollider: undefined!,

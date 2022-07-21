@@ -8,7 +8,7 @@ import { AvatarControllerComponent } from '../../avatar/components/AvatarControl
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
-import { defineQuery, getComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineQuery, getComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { NetworkObjectDirtyTag } from '../../networking/components/NetworkObjectDirtyTag'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
@@ -18,8 +18,6 @@ import { RaycastComponent } from '../components/RaycastComponent'
 import { RigidBodyComponent } from '../components/RigidBodyComponent'
 import { RigidBodyDynamicTagComponent } from '../components/RigidBodyDynamicTagComponent'
 import { VelocityComponent } from '../components/VelocityComponent'
-import { isDynamicBody, isStaticBody } from '../functions/helpers'
-import { teleportRigidbody } from '../functions/helpers'
 
 // Receptor
 export function teleportObjectReceptor(
@@ -43,7 +41,7 @@ const processRaycasts = (world: World, entity: Entity) => {
 }
 
 // Set network state to physics body pose for objects not owned by this user.
-const processNetworkBodies = (world: World, entity: Entity) => {
+const updateDirtyDynamicBodiesFromNetwork = (world: World, entity: Entity) => {
   const network = getComponent(entity, NetworkObjectComponent)
 
   // Ignore if we own this object or no new network state has been received for this object
@@ -54,56 +52,27 @@ const processNetworkBodies = (world: World, entity: Entity) => {
   }
 
   const body = getComponent(entity, RigidBodyComponent)
-  const transform = getComponent(entity, TransformComponent)
+  const { position, rotation } = getComponent(entity, TransformComponent)
+  const { linear, angular } = getComponent(entity, VelocityComponent)
 
-  teleportRigidbody(body, transform.position, transform.rotation)
-
-  const linearVelocity = getComponent(entity, VelocityComponent).linear
-  const angularVelocity = getComponent(entity, VelocityComponent).angular
-  body.setLinvel(linearVelocity, true)
-  body.setAngvel(angularVelocity, true)
+  body.setTranslation(position, true)
+  body.setRotation(rotation, true)
+  body.setLinvel(linear, true)
+  body.setAngvel(angular, true)
 
   removeComponent(entity, NetworkObjectDirtyTag)
-
-  // console.log(
-  //   'physics velocity of network object:',
-  //   nameComponent.name,
-  //   world.fixedTick,
-  //   angularVelocity.x,
-  //   angularVelocity.y,
-  //   angularVelocity.z
-  // )
 }
 
-const processBodies = (world: World, entity: Entity) => {
-  const velocity = getComponent(entity, VelocityComponent)
+const updateTransformFromBody = (world: World, entity: Entity) => {
   const body = getComponent(entity, RigidBodyComponent)
-  const transform = getComponent(entity, TransformComponent)
+  const { position, rotation } = getComponent(entity, TransformComponent)
+  const { linear, angular } = getComponent(entity, VelocityComponent)
 
-  if (Engine.instance.isEditor || isStaticBody(body)) {
-    if (velocity) {
-      velocity.linear.subVectors(body.translation() as Vector3, transform.position)
-      velocity.angular.setScalar(0) // TODO: Assuming zero velocity for static objects for now.
-    } else {
-      // console.warn("Physics entity found with no velocity component!")
-    }
+  position.copy(body.translation() as Vector3)
+  rotation.copy(body.rotation() as Quaternion)
 
-    teleportRigidbody(body, transform.position, transform.rotation)
-  } else if (isDynamicBody(body)) {
-    const linearVelocity = body.linvel()
-    const angularVelocity = body.angvel()
-    if (velocity) {
-      velocity.linear.copy(linearVelocity as Vector3)
-      velocity.angular.copy(angularVelocity as Vector3)
-
-      // const nameComponent = getComponent(entity, NameComponent)
-      // console.log("setting velocity component:", nameComponent.name, angularVelocity.x, angularVelocity.y, angularVelocity.z)
-    } else {
-      // console.warn("Physics entity found with no velocity component!")
-    }
-    transform.position.copy(body.translation() as Vector3)
-    transform.rotation.copy(body.rotation() as Quaternion)
-  }
+  linear.copy(body.linvel() as Vector3)
+  angular.copy(body.angvel() as Vector3)
 }
 
 const processCollisions = (world: World) => {
@@ -113,13 +82,20 @@ const processCollisions = (world: World) => {
 
 export default async function PhysicsSystem(world: World) {
   const raycastQuery = defineQuery([RaycastComponent])
-  const networkRigidBodyQuery = defineQuery([
+
+  const networkRigidBodyDirtyQuery = defineQuery([
     NetworkObjectComponent,
     RigidBodyComponent,
     NetworkObjectDirtyTag,
     RigidBodyDynamicTagComponent
   ])
-  const rigidBodyQuery = defineQuery([RigidBodyComponent, Not(AvatarComponent)])
+
+  const rigidBodyQuery = defineQuery([
+    Not(NetworkObjectComponent),
+    RigidBodyComponent,
+    RigidBodyDynamicTagComponent,
+    Not(AvatarComponent)
+  ])
 
   const teleportObjectQueue = createActionQueue(WorldNetworkAction.teleportObject.matches)
 
@@ -135,8 +111,11 @@ export default async function PhysicsSystem(world: World) {
     }
 
     for (const entity of raycastQuery()) processRaycasts(world, entity)
-    for (const entity of networkRigidBodyQuery()) processNetworkBodies(world, entity)
-    for (const entity of rigidBodyQuery()) processBodies(world, entity)
+    for (const entity of networkRigidBodyDirtyQuery()) updateDirtyDynamicBodiesFromNetwork(world, entity)
+
+    if (!Engine.instance.isEditor) {
+      for (const entity of rigidBodyQuery()) updateTransformFromBody(world, entity)
+    }
 
     processCollisions(world)
 
