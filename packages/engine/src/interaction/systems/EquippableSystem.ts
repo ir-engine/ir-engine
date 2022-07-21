@@ -95,10 +95,6 @@ export function equippableQueryExit(entity: Entity, world = Engine.instance.curr
   removeComponent(equippedEntity, EquippedComponent)
 }
 
-/**
- * @author Josh Field <github.com/HexaField>
- * @author Hamza Mushtaq <github.com/hamzzam>
- */
 export default async function EquippableSystem(world: World) {
   const setEquippedObjectQueue = createActionQueue(WorldNetworkAction.setEquippedObject.matches)
 

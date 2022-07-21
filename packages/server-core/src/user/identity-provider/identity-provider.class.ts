@@ -17,8 +17,6 @@ import getFreeInviteCode from '../../util/get-free-invite-code'
 
 /**
  * A class for identity-provider service
- *
- * @author Vyacheslav Solovjov
  */
 export class IdentityProvider<T = IdentityProviderInterface> extends Service<T> {
   public app: Application

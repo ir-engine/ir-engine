@@ -46,11 +46,6 @@ const raycastQuery = defineQuery([RaycastComponent])
 const rigidBodyQuery = defineQuery([RigidBodyComponent])
 
 // Simulation Handlers
-
-/**
- * @author HydraFire <github.com/HydraFire>
- * @author Josh Field <github.com/HexaField>
- */
 const scratchBox = new Box3()
 const processBoundingBox = (entity: Entity, force = false) => {
   const boundingBox = getComponent(entity, BoundingBoxComponent)

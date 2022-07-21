@@ -57,7 +57,6 @@ const EnvMapTextureOptions = [
 /**
  * EnvMapEditor provides the editor view for environment map property customization.
  *
- * @author Nayankumar Patel
  * @param       props
  * @constructor
  */

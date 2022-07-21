@@ -13,7 +13,6 @@ const useStyles = makeStyles<any, {}, any>((theme: any) => {
 
 /**
  *
- * @author Robert Long
  * @param {any} info
  * @param {any} children
  * @param {any} rest

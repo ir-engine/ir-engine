@@ -8,8 +8,6 @@ export type MatchInstanceDataType = MatchInstanceInterface
 
 /**
  * A class for OpenMatch Tickets service
- *
- * @author Vyacheslav Solovjov
  */
 export class MatchInstance<T = MatchInstanceDataType> extends Service<T> {
   app: Application

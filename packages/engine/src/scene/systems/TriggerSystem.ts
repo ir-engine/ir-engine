@@ -10,10 +10,6 @@ import { PortalComponent } from '../components/PortalComponent'
 import { TriggerDetectedComponent } from '../components/TriggerDetectedComponent'
 import { TriggerVolumeComponent } from '../components/TriggerVolumeComponent'
 
-/**
- * @author Hamza Mushtaq <github.com/hamzzam>
- */
-
 export default async function TriggerSystem(world: World) {
   const triggerCollidedQuery = defineQuery([TriggerDetectedComponent])
   const sceneEntityCaches: any = []

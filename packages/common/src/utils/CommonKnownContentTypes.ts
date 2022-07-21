@@ -1,7 +1,6 @@
 /**
  * CommonKnownContentTypes object containing common content types.
  *
- * @author Robert Long
  * @type {Object}
  */
 export const CommonKnownContentTypes = {

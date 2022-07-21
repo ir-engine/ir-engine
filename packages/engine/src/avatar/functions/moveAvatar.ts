@@ -42,9 +42,6 @@ const velocityToSet = new Vector3()
 const lastPosition = new Vector3()
 const degrees60 = (60 * Math.PI) / 180
 
-/**
- * @author HydraFire <github.com/HydraFire>
- */
 export const moveAvatar = (world: World, entity: Entity, camera: PerspectiveCamera | OrthographicCamera): any => {
   const {
     fixedDeltaSeconds: fixedDelta,
@@ -271,6 +268,7 @@ const moveAvatarController = (world: World, entity: Entity, displacement: Vector
   // since we apply velocity to body and position is updated after physics engine step
   const currentPosition = rigidBody.translation() as Vector3
   displacement.copy(currentPosition as Vector3).sub(lastPosition as Vector3)
+
   const transform = getComponent(entity, TransformComponent)
   displacement.applyQuaternion(transform.rotation)
 

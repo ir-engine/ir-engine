@@ -24,7 +24,6 @@ export class Channel<T = ChannelDataType> extends Service<T> {
    *
    * @param params of query which contains items limit and numberr skip
    * @returns {@Array} which contains list of channel
-   * @author Vyacheslav Solovjov
    */
 
   async find(params?: Params): Promise<T[] | Paginated<T>> {

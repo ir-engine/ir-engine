@@ -193,7 +193,6 @@ export class LocalStorage implements StorageProviderInterface {
   }
 
   /**
-   * @author Abhishek Pathak
    * @param relativeDirPath
    * @returns
    */
@@ -208,7 +207,6 @@ export class LocalStorage implements StorageProviderInterface {
   }
 
   /**
-   * @author Nayankumar Patel
    * @param oldName
    * @param oldPath
    * @param newName

@@ -36,7 +36,6 @@ import styles from './styles.module.scss'
 /**
  * uploadOption initializing object containing Properties multiple, accepts.
  *
- * @author Robert Long
  * @type {Object}
  */
 const uploadOptions = {
@@ -47,7 +46,6 @@ const uploadOptions = {
 /**
  * getNodeKey function used to get object id at given index.
  *
- * @author Robert Long
  * @param  {number} index [index of the node to get object id]
  * @param  {object} data
  * @return {string}
@@ -58,15 +56,12 @@ function getNodeKey(index: number, data: HierarchyTreeNodeData) {
 
 /**
  * initializing MemoTreeNode.
- *
- * @author Robert Long
  */
 const MemoTreeNode = memo(HierarchyTreeNode, areEqual)
 
 /**
  * HierarchyPanel function component provides view for hierarchy tree.
  *
- * @author Robert Long
  * @constructor
  */
 export default function HierarchyPanel() {

@@ -8,8 +8,6 @@ export type StaticResourceTypeDataType = StaticResourceTypeInterface
 
 /**
  * A class for Static Resource Type service
- *
- * @author Vyacheslav Solovjov
  */
 export class StaticResourceType<T = StaticResourceTypeDataType> extends Service<T> {
   public docs: any

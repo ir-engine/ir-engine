@@ -202,8 +202,8 @@ export const Debug = () => {
         </div>
         <StatsPanel show={showingStateRef.current} resetCounter={resetStats} />
         <div className={styles.jsonPanel}>
-          <h1>{t('common:debug.engineStore')}</h1>
-          <JSONTree data={Engine.instance.store} />
+          <h1>{t('common:debug.state')}</h1>
+          <JSONTree data={Engine.instance.store.state} postprocessValue={(v) => v?.value ?? v} />
         </div>
         <div className={styles.jsonPanel}>
           <h1>{t('common:debug.namedEntities')}</h1>

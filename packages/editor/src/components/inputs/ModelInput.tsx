@@ -8,8 +8,7 @@ import FileBrowserInput from './FileBrowserInput'
 /**
  * ModelInput used to render component view for script inputs.
  *
- * @author Hanzla Mateen
- * @param       {function} onChange
+ * @param       {Function} onChange
  * @param       {any} rest
  * @constructor
  */

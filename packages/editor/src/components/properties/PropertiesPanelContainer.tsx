@@ -24,19 +24,11 @@ import InputGroup from '../inputs/InputGroup'
 import NameInputGroup from './NameInputGroup'
 import TransformPropertyGroup from './TransformPropertyGroup'
 
-/**
- * StyledNodeEditor used as wrapper container element properties container.
- *
- * @author Robert Long
- * @type {styled component}
- */
 const StyledNodeEditor = (styled as any).div`
 `
 
 /**
  * PropertiesHeader used as a wrapper for NameInputGroupContainer component.
- *
- * @author Robert Long
  */
 const PropertiesHeader = (styled as any).div`
   border: none !important;
@@ -46,15 +38,12 @@ const PropertiesHeader = (styled as any).div`
 /**
  * NameInputGroupContainer used to provides styles and contains NameInputGroup and VisibleInputGroup.
  *
- *  @author Robert Long
  *  @type {Styled Component}
  */
 const NameInputGroupContainer = (styled as any).div`
 `
 /**
  * Styled component used to provide styles for visiblity checkbox.
- *
- * @author Robert Long
  */
 const VisibleInputGroup = (styled as any)(InputGroup)`
   & > label {
@@ -64,8 +53,6 @@ const VisibleInputGroup = (styled as any)(InputGroup)`
 
 /**
  * Styled component used to provide styles for visiblity checkbox.
- *
- * @author Robert Long
  */
 const PersistInputGroup = (styled as any)(InputGroup)`
  & > label {
@@ -75,8 +62,6 @@ const PersistInputGroup = (styled as any)(InputGroup)`
 
 /**
  * PropertiesPanelContent used as container element contains content of editor view.
- *
- * @author Robert Long
  * @type {Styled Component}
  */
 const PropertiesPanelContent = (styled as any).div`
@@ -87,7 +72,6 @@ const PropertiesPanelContent = (styled as any).div`
 /**
  * NoNodeSelectedMessage used to show the message when no selected no is there.
  *
- * @author Robert Long
  * @type {Styled component}
  */
 const NoNodeSelectedMessage = (styled as any).div`
@@ -101,7 +85,6 @@ const NoNodeSelectedMessage = (styled as any).div`
 /**
  * PropertiesPanelContainer used to render editor view to customize property of selected element.
  *
- * @author Robert Long
  * @extends Component
  */
 export const PropertiesPanelContainer = () => {

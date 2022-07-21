@@ -9,8 +9,4 @@ const Center = (styled as any).div`
 
 Center.displayName = 'Center'
 
-/**
- *
- * @author Robert Long
- */
 export default Center

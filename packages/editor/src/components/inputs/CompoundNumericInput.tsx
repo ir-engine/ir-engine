@@ -7,7 +7,6 @@ import Slider from './Slider'
 /**
  * StyledCompoundNumericInput used to provide styles for CompoundNumericInput.
  *
- * @author Robert Long
  * @type {Styled component}
  */
 const StyledCompoundNumericInput = (styled as any).div`
@@ -21,7 +20,6 @@ const StyledCompoundNumericInput = (styled as any).div`
 /**
  * CompoundNumericInput used to render the view of component.
  *
- * @author Robert Long
  * @param       {number} value
  * @param       {function} onChange
  * @param       {any} extras

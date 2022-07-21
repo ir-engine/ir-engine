@@ -1,9 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
 
-/**
- * @author Fabrice IRANKUNDA
- */
 const TxtPreview = styled.div`
   margin-left: auto;
   margin-right: auto;
@@ -14,7 +11,6 @@ const TxtPreview = styled.div`
 `
 
 /**
- * @author Fabrice IRANKUNDA <irankundafabrice8@gmail.com>
  * @param props
  */
 

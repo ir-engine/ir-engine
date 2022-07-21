@@ -7,8 +7,6 @@ import { Application } from '../../../declarations'
 export type MatchUserDataType = MatchUserInterface
 /**
  * A class for OpenMatch Tickets service
- *
- * @author Vyacheslav Solovjov
  */
 export class MatchUser<T = MatchUserDataType> extends Service<T> {
   app: Application
