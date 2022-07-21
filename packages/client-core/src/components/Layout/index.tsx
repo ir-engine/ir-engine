@@ -23,6 +23,7 @@ import KeyboardDoubleArrowUpIcon from '@mui/icons-material/KeyboardDoubleArrowUp
 
 import { useLoadingSystemState } from '../../systems/state/LoadingState'
 import Debug from '../Debug'
+import InviteToast from '../InviteToast'
 import InstanceChat from '../InstanceChat'
 import MediaIconsBox from '../MediaIconsBox'
 import UserMediaWindows from '../UserMediaWindows'
@@ -180,6 +181,7 @@ const Layout = ({ useLoadingScreenOpacity, pageTitle, children, hideVideo, hideF
               <TouchGamepad layout="default" />{' '}
             </Suspense>
           )}
+          <InviteToast />
 
           {!iOS() && (
             <>

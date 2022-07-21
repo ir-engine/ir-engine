@@ -211,8 +211,10 @@ export class AcceptInvite implements ServiceMethods<Data> {
           )
         }
       } else if (invite.inviteType === 'party') {
+        console.log('party invite')
         const party = await this.app.service('party').Model.count({ where: { id: invite.targetObjectId } })
 
+        console.log('party', party)
         if (party <= 0) {
           return new BadRequest('Invalid party ID')
         }
@@ -232,6 +234,8 @@ export class AcceptInvite implements ServiceMethods<Data> {
           }
         })
 
+        console.log('existingPartyUser', existingPartyUser)
+
         if (existingPartyUser === 0) {
           paramsCopy.skipAuth = true
           await this.app.service('party-user').create(
@@ -247,7 +251,7 @@ export class AcceptInvite implements ServiceMethods<Data> {
         const ownerResult = await this.app.service('party-user').find({
           query: {
             partyId: invite.targetObjectId,
-            owner: true
+            isOwner: true
           },
           sequelize: {
             include: [
@@ -259,6 +263,7 @@ export class AcceptInvite implements ServiceMethods<Data> {
         })
 
         const owner = ownerResult.data[0]
+        console.log('owner', owner, owner.user)
 
         if (owner && owner.user?.instanceId) {
           const instance = await this.app.service('instance').get(owner.user.instanceId, {

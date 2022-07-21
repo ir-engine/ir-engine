@@ -21,6 +21,7 @@ import { SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientNe
 import { accessAuthState } from '../../user/services/AuthService'
 import { UserAction } from '../../user/services/UserService'
 import {ChatService, accessChatState} from './ChatService'
+import {SendInvite} from "@xrengine/common/src/interfaces/Invite";
 
 const logger = multiLogger.child({ component: 'client-core:social' })
 
@@ -189,10 +190,12 @@ export const PartyService = {
   },
   inviteToParty: async (partyId: string, userId: string) => {
     try {
-      const result = await API.instance.client.service('party-user').create({
-        partyId,
-        userId
-      })
+      const sendData = {
+        inviteType: 'party',
+        inviteeId: userId,
+        targetObjectId: partyId,
+      } as SendInvite
+      await InviteService.sendInvite(sendData)
       NotificationService.dispatchNotify(i18n.t('social:partyInvitationSent'), {
         variant: 'success'
       })
