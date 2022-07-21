@@ -136,6 +136,14 @@ const PartyParticipantWindow = ({ peerId }: Props): JSX.Element => {
   }
 
   useEffect(() => {
+    !isCamVideoEnabled.value && videoRef.current?.srcObject?.getVideoTracks().forEach((track) => track.stop())
+  }, [isCamVideoEnabled.value])
+
+  useEffect(() => {
+    !isCamAudioEnabled.value && audioRef.current?.srcObject?.getAudioTracks().forEach((track) => track.stop())
+  }, [isCamAudioEnabled.value])
+
+  useEffect(() => {
     if (peerId === 'cam_me') {
       setVideoStream(MediaStreams.instance.camVideoProducer)
       setVideoStreamPaused(MediaStreams.instance.videoPaused)

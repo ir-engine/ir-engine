@@ -108,18 +108,19 @@ const MediaIconsBox = (props: Props) => {
 
   const checkEndVideoChat = async () => {
     const mediaNetwork = Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork
-    if (
-      (MediaStreams.instance.audioPaused || MediaStreams.instance.camAudioProducer == null) &&
-      (MediaStreams.instance.videoPaused || MediaStreams.instance.camVideoProducer == null) &&
-      instanceChannel.channelType !== 'instance'
-    ) {
+
+    if (MediaStreams.instance.videoPaused) {
       await endVideoChat(mediaNetwork, {})
+    }
+
+    if (MediaStreams.instance.audioPaused && MediaStreams.instance.videoPaused) {
       if (mediaNetwork.socket?.connected === true) {
         leaveNetwork(mediaNetwork, false)
         await MediaInstanceConnectionService.provisionServer(instanceChannel.id)
       }
     }
   }
+
   const handleMicClick = async () => {
     const mediaNetwork = Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork
     if (await configureMediaTransports(mediaNetwork, ['audio'])) {
