@@ -12,9 +12,6 @@ import {
 } from '../../ecs/functions/ComponentFunctions'
 import { NetworkObjectOwnedTag } from '../../networking/components/NetworkObjectOwnedTag'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
-import { ColliderComponent } from '../../physics/components/ColliderComponent'
-import { teleportRigidbody } from '../../physics/functions/teleportRigidbody'
-import { BodyType } from '../../physics/types/PhysicsTypes'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { getHandTransform } from '../../xr/functions/WebXRFunctions'
 import { EquippedComponent } from '../components/EquippedComponent'
@@ -49,11 +46,12 @@ export function equippableQueryEnter(entity: Entity, world = Engine.instance.cur
   const equipperComponent = getComponent(entity, EquipperComponent)
   if (equipperComponent) {
     const equippedEntity = getComponent(entity, EquipperComponent).equippedEntity
-    const collider = getComponent(equippedEntity, ColliderComponent)
-    if (collider) {
-      let phsyxRigidbody = collider.body as PhysX.PxRigidBody
-      world.physics.changeRigidbodyType(phsyxRigidbody, BodyType.KINEMATIC)
-    }
+    // TODO: Equippables to Rapier
+    // const collider = getComponent(equippedEntity, ColliderComponent)
+    // if (collider) {
+    //   let phsyxRigidbody = collider.body as PhysX.PxRigidBody
+    //   world.physics.changeRigidbodyType(phsyxRigidbody, BodyType.KINEMATIC)
+    // }
   }
 }
 
@@ -69,10 +67,11 @@ export function equippableQueryAll(equipperEntity: Entity, world = Engine.instan
     const handTransform = getHandTransform(equipperEntity, getParity(attachmentPoint))
     const { position, rotation } = handTransform
 
-    const collider = getComponent(equippedEntity, ColliderComponent)
-    if (collider) {
-      teleportRigidbody(collider.body, position, rotation)
-    }
+    // TODO: Equippables to Rapier
+    // const collider = getComponent(equippedEntity, ColliderComponent)
+    // if (collider) {
+    //   teleportRigidbody(collider.body, position, rotation)
+    // }
 
     equippableTransform.position.copy(position)
     equippableTransform.rotation.copy(rotation)
@@ -86,9 +85,10 @@ export function equippableQueryExit(entity: Entity, world = Engine.instance.curr
   const equippedTransform = getComponent(equippedEntity, TransformComponent)
   const collider = getComponent(equippedEntity, ColliderComponent)
   if (collider) {
-    let phsyxRigidbody = collider.body as PhysX.PxRigidBody
-    world.physics.changeRigidbodyType(phsyxRigidbody, BodyType.DYNAMIC)
-    teleportRigidbody(collider.body, equippedTransform.position, equippedTransform.rotation)
+    // TODO: Equippables to Rapier
+    // let phsyxRigidbody = collider.body as PhysX.PxRigidBody
+    // world.physics.changeRigidbodyType(phsyxRigidbody, BodyType.DYNAMIC)
+    // teleportRigidbody(collider.body, equippedTransform.position, equippedTransform.rotation)
   }
 
   removeComponent(equippedEntity, EquippedComponent)
