@@ -80,7 +80,7 @@ export const boxDynamicConfig = {
   collisionLayer: CollisionGroups.Default,
   collisionMask: CollisionGroups.Default | CollisionGroups.Avatars | CollisionGroups.Ground,
   friction: 1,
-  restitution: 0.1,
+  restitution: 0,
   isTrigger: false,
   spawnPosition: new Vector3(0, 0.25, 5),
   spawnScale: new Vector3(0.5, 0.25, 0.5)
