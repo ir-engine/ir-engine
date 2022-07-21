@@ -26,8 +26,8 @@ import { LocomotionState } from './locomotionState'
 import { SingleAnimationState } from './singleAnimationState'
 import { AvatarAnimations, AvatarStates } from './Util'
 
-const getAnimationAction = (name: string, mixer: AnimationMixer) => {
-  const clip = AnimationClip.findByName(AnimationManager.instance._animations, name)
+export const getAnimationAction = (name: string, mixer: AnimationMixer, animations?: AnimationClip[]) => {
+  const clip = AnimationClip.findByName(animations ?? AnimationManager.instance._animations, name)
   return mixer.clipAction(clip)
 }
 
@@ -229,6 +229,32 @@ export function createAvatarAnimationGraph(
     clamp: false
   }
 
+  // Mount Point
+
+  const mountEnterState: SingleAnimationState = {
+    name: AvatarStates.MOUNT_ENTER,
+    type: 'SingleAnimationState',
+    action: getAnimationAction(AvatarAnimations.IDLE, mixer),
+    loop: false,
+    clamp: true
+  }
+
+  const mountLeaveState: SingleAnimationState = {
+    name: AvatarStates.MOUNT_LEAVE,
+    type: 'SingleAnimationState',
+    action: getAnimationAction(AvatarAnimations.IDLE, mixer),
+    loop: false,
+    clamp: true
+  }
+
+  const mountActiveState: SingleAnimationState = {
+    name: AvatarStates.MOUNT_ACTIVE,
+    type: 'SingleAnimationState',
+    action: getAnimationAction(AvatarAnimations.IDLE, mixer),
+    loop: true,
+    clamp: false
+  }
+
   // Add states to the graph
   graph.states[AvatarStates.LOCOMOTION] = locomotionState
   graph.states[AvatarStates.JUMP_UP] = jumpUpState
@@ -244,6 +270,9 @@ export function createAvatarAnimationGraph(
   graph.states[AvatarStates.DANCE2] = dance2State
   graph.states[AvatarStates.DANCE3] = dance3State
   graph.states[AvatarStates.DANCE4] = dance4State
+  graph.states[AvatarStates.MOUNT_ENTER] = mountEnterState
+  graph.states[AvatarStates.MOUNT_LEAVE] = mountLeaveState
+  graph.states[AvatarStates.MOUNT_ACTIVE] = mountActiveState
 
   // Transition rules
 
@@ -340,6 +369,25 @@ export function createAvatarAnimationGraph(
   graph.transitionRules[AvatarStates.DANCE2] = [{ rule: movementTransitionRule, nextState: AvatarStates.LOCOMOTION }]
   graph.transitionRules[AvatarStates.DANCE3] = [{ rule: movementTransitionRule, nextState: AvatarStates.LOCOMOTION }]
   graph.transitionRules[AvatarStates.DANCE4] = [{ rule: movementTransitionRule, nextState: AvatarStates.LOCOMOTION }]
+
+  graph.transitionRules[AvatarStates.MOUNT_ENTER] = [
+    {
+      rule: animationTimeTransitionRule(mountEnterState.action, 0.95),
+      nextState: AvatarStates.MOUNT_ACTIVE
+    },
+    { rule: movementTransitionRule, nextState: AvatarStates.LOCOMOTION }
+  ]
+
+  graph.transitionRules[AvatarStates.MOUNT_LEAVE] = [
+    { rule: movementTransitionRule, nextState: AvatarStates.LOCOMOTION }
+  ]
+
+  graph.transitionRules[AvatarStates.MOUNT_ACTIVE] = [
+    {
+      rule: animationTimeTransitionRule(mountEnterState.action, 0.95),
+      nextState: AvatarStates.MOUNT_LEAVE
+    }
+  ]
 
   graph.currentState = locomotionState
   enterAnimationState(graph.currentState)

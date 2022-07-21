@@ -1135,16 +1135,25 @@
             "type": "seat",
             "animation": {
               "enter": {
-                "file": "__$project$__/default-project/Sit_To_Stand.fbx",
-                "animation": "any"
+                "file": "__$project$__/default-project/assets/Stand To Sit.glb",
+                "animation": "Stand_To_Sit",
+                "animations": [
+                  "Stand_To_Sit"
+                ]
               },
               "leave": {
-                "file": "__$project$__/default-project/Sit_To_Stand.fbx",
-                "animation": "any"
+                "file": "__$project$__/default-project/assets/Sit To Stand.glb",
+                "animation": "Sit_To_Stand.001",
+                "animations": [
+                  "Sit_To_Stand.001"
+                ]
               },
               "active": {
-                "file": "__$project$__/default-project/Sitting_Idle.fbx",
-                "animation": "any"
+                "file": "__$project$__/default-project/assets/Sit Idle.glb",
+                "animation": "Sit_Idle",
+                "animations": [
+                  "Sit_Idle"
+                ]
               }
             }
           }

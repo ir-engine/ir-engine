@@ -48,9 +48,11 @@ export const useEmoteMenuHooks = (node: EntityTreeNode) => {
           animation: '',
           animations: []
         }
+      } else if (!mountPointComponent.animation[type]!.animations) {
+        mountPointComponent.animation[type]!.animations = []
       }
 
-      model.scene?.animations.forEach((animation) => {
+      ;(model.animations ?? model.scene.animations).forEach((animation) => {
         mountPointComponent.animation[type]!.animations.push(animation.name)
         animations.push({ label: animation.name, value: animation.name })
       })
@@ -104,6 +106,8 @@ export const MountPointNodeEditor: React.FC<EditorPropType> = (props) => {
   const engineState = useEngineState()
   const {
     enterAnimations,
+    leaveAnimations,
+    activeAnimations,
     updateEnterAnimationFile,
     updateActiveAnimationFile,
     updateLeaveAnimationFile,
@@ -113,9 +117,29 @@ export const MountPointNodeEditor: React.FC<EditorPropType> = (props) => {
   } = useEmoteMenuHooks(props.node)
 
   useEffect(() => {
-    if (mountPointComponent.animation.enter) updateEnterAnimations()
-    if (mountPointComponent.animation.active) updateActiveAnimations()
-    if (mountPointComponent.animation.leave) updateLeaveAnimations()
+    if (mountPointComponent.animation.enter) {
+      if (!mountPointComponent.animation.enter.animations) {
+        updateEnterAnimationFile(mountPointComponent.animation.enter.file)
+      } else {
+        updateEnterAnimations()
+      }
+    }
+
+    if (mountPointComponent.animation.active) {
+      if (!mountPointComponent.animation.active.animations) {
+        updateActiveAnimationFile(mountPointComponent.animation.active.file)
+      } else {
+        updateActiveAnimations()
+      }
+    }
+
+    if (mountPointComponent.animation.leave) {
+      if (!mountPointComponent.animation.leave.animations) {
+        updateLeaveAnimationFile(mountPointComponent.animation.leave.file)
+      } else {
+        updateLeaveAnimations()
+      }
+    }
   }, [])
 
   const mountPointComponent = getComponent(props.node.entity, MountPointComponent)
@@ -142,7 +166,7 @@ export const MountPointNodeEditor: React.FC<EditorPropType> = (props) => {
             {t('editor:properties.mountPoint.lbl-animations')}
             <div>
               {t('editor:properties.mountPoint.lbl-enter')}
-              <InputGroup name="Entering File" label={t('editor:properties.mountPoint.lbl-file')}>
+              <InputGroup name="Enter File" label={t('editor:properties.mountPoint.lbl-file')}>
                 <ModelInput
                   value={mountPointComponent.animation.enter?.file || ''}
                   onChange={updateEnterAnimationFile}
@@ -151,7 +175,7 @@ export const MountPointNodeEditor: React.FC<EditorPropType> = (props) => {
                   <div style={{ marginTop: 2, color: '#FF8C00' }}>{t('editor:properties.mountPoint.error-url')}</div>
                 )}
               </InputGroup>
-              <InputGroup name="Entering Animation" label={t('editor:properties.mountPoint.lbl-animation')}>
+              <InputGroup name="Enter Animation" label={t('editor:properties.mountPoint.lbl-animation')}>
                 <SelectInput
                   key={props.node.entity}
                   options={enterAnimations}
@@ -162,7 +186,7 @@ export const MountPointNodeEditor: React.FC<EditorPropType> = (props) => {
             </div>
             <div>
               {t('editor:properties.mountPoint.lbl-active')}
-              <InputGroup name="Entering File" label={t('editor:properties.mountPoint.lbl-file')}>
+              <InputGroup name="Active File" label={t('editor:properties.mountPoint.lbl-file')}>
                 <ModelInput
                   value={mountPointComponent.animation.active?.file || ''}
                   onChange={updateActiveAnimationFile}
@@ -171,10 +195,10 @@ export const MountPointNodeEditor: React.FC<EditorPropType> = (props) => {
                   <div style={{ marginTop: 2, color: '#FF8C00' }}>{t('editor:properties.mountPoint.error-url')}</div>
                 )}
               </InputGroup>
-              <InputGroup name="Entering Animation" label={t('editor:properties.mountPoint.lbl-animation')}>
+              <InputGroup name="Active Animation" label={t('editor:properties.mountPoint.lbl-animation')}>
                 <SelectInput
                   key={props.node.entity}
-                  options={enterAnimations}
+                  options={activeAnimations}
                   value={mountPointComponent.animation.active?.animation ?? ''}
                   onChange={updateProperty(MountPointComponent, 'animation.active.animation' as any)}
                 />
@@ -182,7 +206,7 @@ export const MountPointNodeEditor: React.FC<EditorPropType> = (props) => {
             </div>
             <div>
               {t('editor:properties.mountPoint.lbl-leave')}
-              <InputGroup name="Entering File" label={t('editor:properties.mountPoint.lbl-file')}>
+              <InputGroup name="Leave File" label={t('editor:properties.mountPoint.lbl-file')}>
                 <ModelInput
                   value={mountPointComponent.animation.leave?.file || ''}
                   onChange={updateLeaveAnimationFile}
@@ -191,10 +215,10 @@ export const MountPointNodeEditor: React.FC<EditorPropType> = (props) => {
                   <div style={{ marginTop: 2, color: '#FF8C00' }}>{t('editor:properties.mountPoint.error-url')}</div>
                 )}
               </InputGroup>
-              <InputGroup name="Entering Animation" label={t('editor:properties.mountPoint.lbl-animation')}>
+              <InputGroup name="Leave Animation" label={t('editor:properties.mountPoint.lbl-animation')}>
                 <SelectInput
                   key={props.node.entity}
-                  options={enterAnimations}
+                  options={leaveAnimations}
                   value={mountPointComponent.animation.leave?.animation ?? ''}
                   onChange={updateProperty(MountPointComponent, 'animation.leave.animation' as any)}
                 />

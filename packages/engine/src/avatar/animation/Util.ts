@@ -28,7 +28,12 @@ export const AvatarStates = {
   DANCE1: 'DANCE1',
   DANCE2: 'DANCE2',
   DANCE3: 'DANCE3',
-  DANCE4: 'DANCE4'
+  DANCE4: 'DANCE4',
+
+  // Mount Point
+  MOUNT_ENTER: 'MOUNT_ENTER',
+  MOUNT_LEAVE: 'MOUNT_LEAVE',
+  MOUNT_ACTIVE: 'MOUNT_ACTIVE'
 }
 
 export const matchesAvatarState = matches.some(
