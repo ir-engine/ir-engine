@@ -1,13 +1,18 @@
 import { pipe } from 'bitecs'
 import { Box3, Mesh, Quaternion, Vector3 } from 'three'
 
+import { createActionQueue } from '@xrengine/hyperflux'
+
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
+import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
 import { Engine } from '../../ecs/classes/Engine'
+import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { BoundingBoxComponent } from '../../interaction/components/BoundingBoxComponent'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { NetworkObjectDirtyTag } from '../../networking/components/NetworkObjectDirtyTag'
+import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { Physics } from '../classes/PhysicsRapier'
@@ -18,17 +23,21 @@ import { isDynamicBody, isStaticBody } from '../functions/helpers'
 import { teleportRigidbody } from '../functions/helpers'
 
 // Receptor
-// export function physicsActionReceptor(
-//   action: typeof WorldNetworkAction.teleportObject.matches._TYPE,
-//   world = Engine.instance.currentWorld
-// ) {
-//   const [x, y, z, qX, qY, qZ, qW] = action.pose
-//   const entity = world.getNetworkObject(action.object.ownerId, action.object.networkId)!
-//   const colliderComponent = getComponent(entity, ColliderComponent)
-//   if (colliderComponent) {
-//     teleportRigidbody(colliderComponent.body, new Vector3(x, y, z), new Quaternion(qX, qY, qZ, qW))
-//   }
-// }
+export function teleportObjectReceptor(
+  action: ReturnType<typeof WorldNetworkAction.teleportObject>,
+  world = Engine.instance.currentWorld
+) {
+  const [x, y, z] = action.pose
+  const entity = world.getNetworkObject(action.object.ownerId, action.object.networkId)!
+  const controllerComponent = getComponent(entity, AvatarControllerComponent)
+  if (controllerComponent) {
+    const velocity = getComponent(entity, VelocityComponent)
+    const avatar = getComponent(entity, AvatarComponent)
+    controllerComponent.controller.setTranslation({ x, y: y + avatar.avatarHalfHeight, z }, true)
+    velocity.linear.setScalar(0)
+    velocity.angular.setScalar(0)
+  }
+}
 
 // Queries
 const boxQuery = defineQuery([BoundingBoxComponent, Object3DComponent])
@@ -42,23 +51,22 @@ const rigidBodyQuery = defineQuery([RigidBodyComponent])
  * @author HydraFire <github.com/HydraFire>
  * @author Josh Field <github.com/HexaField>
  */
-
-// const scratchBox = new Box3()
-// const processBoundingBox = (entity: Entity, force = false) => {
-//   const boundingBox = getComponent(entity, BoundingBoxComponent)
-//   if (boundingBox.dynamic || force) {
-//     const object3D = getComponent(entity, Object3DComponent)
-//     let object3DAABB = boundingBox.box.makeEmpty()
-//     object3D.value.traverse((mesh: Mesh) => {
-//       if (mesh instanceof Mesh) {
-//         if (!mesh.geometry.boundingBox) mesh.geometry.computeBoundingBox() // only here for edge cases, this would already be calculated
-//         const meshAABB = scratchBox.copy(mesh.geometry.boundingBox!)
-//         meshAABB.applyMatrix4(mesh.matrixWorld)
-//         object3DAABB.union(meshAABB)
-//       }
-//     })
-//   }
-// }
+const scratchBox = new Box3()
+const processBoundingBox = (entity: Entity, force = false) => {
+  const boundingBox = getComponent(entity, BoundingBoxComponent)
+  if (boundingBox.dynamic || force) {
+    const object3D = getComponent(entity, Object3DComponent)
+    let object3DAABB = boundingBox.box.makeEmpty()
+    object3D.value.traverse((mesh: Mesh) => {
+      if (mesh instanceof Mesh) {
+        if (!mesh.geometry.boundingBox) mesh.geometry.computeBoundingBox() // only here for edge cases, this would already be calculated
+        const meshAABB = scratchBox.copy(mesh.geometry.boundingBox!)
+        meshAABB.applyMatrix4(mesh.matrixWorld)
+        object3DAABB.union(meshAABB)
+      }
+    })
+  }
+}
 
 const processRaycasts = (world: World) => {
   for (const entity of raycastQuery()) {
@@ -144,29 +152,28 @@ const processBodies = (world: World) => {
 
 const processCollisions = (world: World) => {
   Physics.drainCollisionEventQueue(world.physicsWorld, world.physicsCollisionEventQueue)
-
   return world
 }
 
 const simulationPipeline = pipe(processRaycasts, processNetworkBodies, processBodies, processCollisions)
 
 export default async function RapierPhysicsSystem(world: World) {
-  // const teleportObjectQueue = createActionQueue(WorldNetworkAction.teleportObject.matches)
+  const teleportObjectQueue = createActionQueue(WorldNetworkAction.teleportObject.matches)
 
   await Physics.load()
   world.physicsWorld = Physics.createWorld()
   world.physicsCollisionEventQueue = Physics.createCollisionEventQueue()
 
   return () => {
-    // for (const action of teleportObjectQueue()) teleportObjectReceptor(action)
+    for (const action of teleportObjectQueue()) teleportObjectReceptor(action)
 
-    // for (const entity of boxQuery.enter()) {
-    //   processBoundingBox(entity, true)
-    // }
+    for (const entity of boxQuery.enter()) {
+      processBoundingBox(entity, true)
+    }
 
-    // for (const entity of rigidBodyQuery.exit()) {
-    //   Physics.removeRigidBody(entity, world.physicsWorld)
-    // }
+    for (const entity of rigidBodyQuery.exit()) {
+      Physics.removeRigidBody(entity, world.physicsWorld)
+    }
 
     simulationPipeline(world)
 
