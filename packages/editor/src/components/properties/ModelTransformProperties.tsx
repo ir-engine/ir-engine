@@ -114,26 +114,24 @@ export default function ModelTransformProperties({ modelComponent, onChangeModel
       path: modelComponent.src,
       transformParameters: { ...transformParms }
     })
+    setTransformHistory([modelComponent.src, ...transformHistory])
     const [_, directoryToRefresh, fileName] = /.*\/(projects\/.*)\/([\w\d\s\-_\.]*)$/.exec(nuPath)!
     await FileBrowserService.fetchFiles(directoryToRefresh)
     await AssetLoader.loadAsync(nuPath)
-    setTransformHistory([nuPath, ...transformHistory])
     onChangeModel(nuPath)
     setTransforming(false)
   }
   const [internalFilter, setInternalFilter] = useState<string[]>(() => [])
+
+  const transformer = ModelTransformLoader()
   async function onUndoTransform() {
-    const { prev } = await ModelTransformLoader()
-    onChangeModel(prev!)
+    const prev = transformHistory[0]
+    onChangeModel(prev)
     setTransformHistory([...transformHistory].slice(1))
   }
 
   async function getModelResources(filter) {
-    const load = async (src) => {
-      const { load } = await ModelTransformLoader()
-      return load(src)
-    }
-    const document = await load(modelComponent.src)
+    const document = await transformer.load(modelComponent.src, true)
     const root = document.getRoot()
     const listTable = (element) => {
       switch (element) {

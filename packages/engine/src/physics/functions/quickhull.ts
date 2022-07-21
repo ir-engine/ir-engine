@@ -29,7 +29,7 @@
   THE SOFTWARE.
 
 
-    http://mark-lundin.com
+    @author mark lundin / http://mark-lundin.com
 
     This is a 3D implementation of the Quick Hull algorithm.
     It is a fast way of computing a convex hull with average complexity
