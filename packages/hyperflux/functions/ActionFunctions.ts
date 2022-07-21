@@ -438,7 +438,7 @@ const createActionQueue = <V extends Validator<unknown, ResolvedActionType>>(
   store = HyperFlux.store
 ): (() => V['_TYPE'][]) => {
   if (!store.actions.queues.get(shape)) store.actions.queues.set(shape, [])
-  const queue = [] as V['_TYPE'][]
+  const queue = store.actions.history.filter(shape.test)
   store.actions.queues.get(shape)!.push(queue)
   return () => {
     const result = [...queue]
