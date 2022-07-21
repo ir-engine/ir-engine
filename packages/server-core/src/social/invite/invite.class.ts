@@ -45,15 +45,12 @@ const afterInviteFind = async (app: Application, result: Paginated<InviteDataTyp
 }
 
 export const inviteReceived = async (inviteService: Invite, query) => {
-  console.log('userId', query.userId)
   const identityProviders = await inviteService.app.service('identity-provider').find({
     query: {
       userId: query.userId
     }
   })
-  console.log('identityProviders', identityProviders)
   const identityProviderTokens = (identityProviders as any).data.map((provider) => provider.token)
-  console.log('identityProviderTokens', identityProviderTokens)
 
   const { $sort, search } = query
 
@@ -72,28 +69,25 @@ export const inviteReceived = async (inviteService: Invite, query) => {
     }
   }
 
-  const qq = {
-    $or: [
-      {
-        inviteeId: query.userId,
-      },
-      {
-        token: {
-          $in: identityProviderTokens
-        }
-      }
-    ],
-    ...q,
-    $sort: $sort,
-    $limit: query.$limit,
-    // $skip: query.$skip
-  }
-  console.log('query to use in find', qq)
   const result = (await Service.prototype.find.call(inviteService, {
-    query: qq
+    query: {
+      $or: [
+        {
+          inviteeId: query.userId,
+        },
+        {
+          token: {
+            $in: identityProviderTokens
+          }
+        }
+      ],
+      ...q,
+      $sort: $sort,
+      $limit: query.$limit,
+      $skip: query.$skip
+    }
   })) as Paginated<InviteDataType>
 
-  console.log('invite result', result)
   await Promise.all(
     result.data.map(async (invite) => {
       if (invite.inviteType === 'group' && invite.targetObjectId) {
@@ -247,6 +241,7 @@ export class Invite extends Service<InviteDataType> {
   }
 
   async remove(id: string, params?: Params): Promise<InviteDataType> {
+    console.log('remove invite', id)
     const invite = await this.app.service('invite').get(id)
     if (invite.inviteType === 'friend' && invite.inviteeId != null && !params?.preventUserRelationshipRemoval) {
       const selfUser = params!.user as UserInterface

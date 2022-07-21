@@ -3,6 +3,7 @@ import styles from "./index.module.scss";
 import {Button} from "@xrengine/editor/src/components/inputs/Button";
 import React, { useEffect } from "react";
 import { useTranslation } from 'react-i18next'
+import capitalizeFirstLetter from "@xrengine/common/src/utils/capitalizeFirstLetter";
 
 interface Props {
     animate?: any
@@ -10,14 +11,14 @@ interface Props {
 
 const InviteToast = (props: Props) => {
     const InviteState = useInviteState()
-    console.log('InviteState', InviteState)
     const newestInvite = InviteState.receivedInvites.total.value > 0 ? InviteState.receivedInvites.invites[0].value : {}
-    console.log('newestInvite', newestInvite)
     const { t } = useTranslation()
 
     useEffect(() => {
-        InviteService.retrieveReceivedInvites('decrement', undefined, 'createdAt', 'desc')
-    }, [])
+      if (InviteState.receivedUpdateNeeded.value) InviteService.retrieveReceivedInvites(undefined, undefined, 'createdAt', 'desc')
+    }, [InviteState.receivedUpdateNeeded.value])
+
+    InviteService.useAPIListeners()
 
     const acceptInvite = (invite) => {
         InviteService.acceptInvite(invite.id, invite.passcode)
@@ -27,18 +28,18 @@ const InviteToast = (props: Props) => {
         InviteService.declineInvite(invite)
     }
     return (
-        <div className={`${styles.inviteToast}`}>
-            {InviteState.receivedInvites.total.value > 0 &&
-                <div>
-                    <span>`${newestInvite.inviteType} from ${newestInvite.user?.name}`</span>
-                    <Button variant="contained" className={styles.acceptBtn} onClick={() => acceptInvite(newestInvite)}>
+        <div className={`${styles.inviteToast} ${InviteState.receivedInvites.total.value > 0 ? styles.animateLeft : styles.fadeOutLeft}`}>
+            <div className={`${styles.toastContainer} `}>
+                { newestInvite?.inviteType && <span>{capitalizeFirstLetter(newestInvite?.inviteType).replace('-', ' ')} invite from {newestInvite.user?.name}</span> }
+                <div className={`${styles.btnContainer}`}>
+                    <Button variant="contained" color="primary" className={styles.acceptBtn} onClick={() => acceptInvite(newestInvite)}>
                         {t('social:invite.accept')}
                     </Button>
-                    <Button variant="contained" className={styles.declineBtn} onClick={() => declineInvite(newestInvite)}>
+                    <Button variant="contained" color="secondary" className={styles.declineBtn} onClick={() => declineInvite(newestInvite)}>
                         {t('social:invite.decline')}
                     </Button>
                 </div>
-            }
+            </div>
         </div>
     )
 }

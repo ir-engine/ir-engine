@@ -99,7 +99,7 @@ const SocialMenu = (): JSX.Element => {
     return (
       <>
         <section className={styles.midBlock}>
-          {partyState.party.partyUsers.value.map((user, i) => {
+          {partyState.party.partyUsers.value?.map((user, i) => {
             return (
               <div className={styles.partyUserBlock + ' ' + styles.backDrop} key={i}>
                 <div className={styles.userBlock}>

@@ -221,9 +221,11 @@ export const PartyService = {
     }
   },
   leavePartyNetwork: async() => {
+    console.log('leavePartyNetwork')
     const network = Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork
     await endVideoChat(network, {})
     leaveNetwork(network)
+    console.log('left network')
     const channels = accessChatState().channels.channels.value
     const instanceChannel = Object.values(channels).find((channel) => channel.instanceId === Engine.instance.currentWorld.worldNetwork?.hostId)
     if (instanceChannel)
@@ -281,18 +283,20 @@ export const PartyService = {
       }
 
       const partyUserRemovedListener = (params) => {
+        console.log('partyUserRemovedListener', params)
         const deletedPartyUser = params.partyUser
         const selfUser = accessAuthState().user
+        console.log('deletedPartyUser', deletedPartyUser)
+        console.log('selfUser', selfUser)
         dispatchAction(PartyActions.removedPartyUserAction({ partyUser: deletedPartyUser }))
         // dispatchAction(UserAction.removedChannelLayerUserAction({ user: deletedPartyUser.user }))
-        if (deletedPartyUser.userId === selfUser.id)
+        if (deletedPartyUser.userId === selfUser.id.value) {
+          NotificationService.dispatchNotify('You have left the party', { variant: 'warning' })
+          console.log('Left party, so leave network and such')
           PartyService.leavePartyNetwork()
-        if (params.partyUser.userId === selfUser.id) {
           ChatService.clearChatTargetIfCurrent('party', {
             id: params.partyUser.partyId
           })
-          // TODO: Reenable me!
-          // endVideoChat({ leftParty: true });
         }
       }
 

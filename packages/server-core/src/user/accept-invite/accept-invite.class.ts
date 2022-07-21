@@ -56,8 +56,14 @@ export class AcceptInvite implements ServiceMethods<Data> {
       params.provider = null!
       let invite
       try {
-        invite = await this.app.service('invite').get(id, params)
+        invite = await this.app.service('invite').Model.findOne({
+          where: {
+            id: id
+          }
+        })
       } catch (err) {}
+
+      console.log('invite', invite)
 
       if (invite == null) {
         logger.info('INVALID INVITE ID')

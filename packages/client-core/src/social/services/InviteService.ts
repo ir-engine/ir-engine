@@ -45,7 +45,7 @@ const InviteState = defineState({
 
 export const InviteServiceReceptor = (action) => {
   getState(InviteState).batch((s) => {
-    matches(InviteState)
+    matches(action)
       .when(InviteAction.sentInvite.matches, () => {
         return s.sentUpdateNeeded.set(true)
       })
@@ -62,6 +62,7 @@ export const InviteServiceReceptor = (action) => {
         })
       })
       .when(InviteAction.retrievedReceivedInvites.matches, (action) => {
+        console.log('match on retrievedReceivedInvites')
         return s.merge({
           receivedInvites: {
             invites: action.invites,
@@ -234,6 +235,7 @@ export const InviteService = {
           search: search
         }
       })) as Paginated<Invite>
+      console.log('inviteResult', inviteResult)
       dispatchAction(
         InviteAction.retrievedReceivedInvites({
           invites: inviteResult.data,
@@ -242,6 +244,7 @@ export const InviteService = {
           limit: inviteResult.limit
         })
       )
+      console.log('dispatched retrievedReceivedInvite action')
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }

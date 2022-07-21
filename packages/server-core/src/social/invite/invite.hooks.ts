@@ -17,14 +17,16 @@ export default {
       attachOwnerIdInQuery('userId'),
       addAssociations({
         models: [{
-          model: 'user'
+          model: 'user',
+          as: 'user'
         }]
       })
     ],
     get: [iff(isProvider('external'), authenticate() as any, attachOwnerIdInQuery('userId') as any),
       addAssociations({
         models: [{
-          model: 'user'
+          model: 'user',
+          as: 'user'
         }]
       })],
     create: [authenticate(), attachOwnerIdInBody('userId')],

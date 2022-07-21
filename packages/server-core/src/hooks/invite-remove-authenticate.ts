@@ -9,11 +9,14 @@ import Paginated from '../types/PageObject'
 // This will attach the owner ID in the contact while creating/updating list item
 export default () => {
   return async (context: HookContext): Promise<HookContext> => {
+    console.log('inviteRemoveAuthenticate')
     let inviteIdentityProviderUser
     // Getting logged in user and attaching owner of user
     const { id, params, app } = context
     const loggedInUser = params.user as UserInterface
+    console.log('id', id)
     const invite = await app.service('invite').get(id!)
+    console.log('invite to remove', invite)
     if (invite == null) {
       throw new BadRequest('Invalid invite ID')
     }

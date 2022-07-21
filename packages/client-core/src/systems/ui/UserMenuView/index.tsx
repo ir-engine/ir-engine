@@ -43,7 +43,8 @@ const AvatarContextMenu = () => {
   const { t } = useTranslation()
 
   const userAvatarDetails = useHookstate(getState(WorldState).userAvatarDetails)
-  const partyOwner = partyState.party?.partyUsers?.find(partyUser => partyUser.isOwner)
+  console.log('partyUsers Blergh', partyState.party?.partyUsers)
+  const partyOwner = partyState.party?.partyUsers?.value ? partyState.party.partyUsers.find(partyUser => partyUser.isOwner) : null
 
   // TODO: move these to widget register
   PartyService.useAPIListeners()
