@@ -48,9 +48,10 @@ const degrees60 = (60 * Math.PI) / 180
 export const moveAvatar = (world: World, entity: Entity, camera: PerspectiveCamera | OrthographicCamera): any => {
   const {
     fixedDeltaSeconds: fixedDelta,
-    physics: { timeScale }
+    physicsWorld: { timestep }
   } = world
 
+  const timeScale = timestep * 60
   const timeStep = timeScale * fixedDelta
 
   const velocity = getComponent(entity, VelocityComponent)

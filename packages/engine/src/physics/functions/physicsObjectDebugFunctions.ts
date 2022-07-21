@@ -15,11 +15,8 @@ import { addComponent, getComponent } from '@xrengine/engine/src/ecs/functions/C
 import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { addEntityNodeInTree, createEntityNode } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
 import { WorldNetworkAction } from '@xrengine/engine/src/networking/functions/WorldNetworkAction'
-import { ColliderComponent } from '@xrengine/engine/src/physics/components/ColliderComponent'
 import { CollisionGroups } from '@xrengine/engine/src/physics/enums/CollisionGroups'
-import { ShapeOptions } from '@xrengine/engine/src/physics/functions/createCollider'
-import { teleportRigidbody } from '@xrengine/engine/src/physics/functions/teleportRigidbody'
-import { BodyType, ColliderDescOptions, ColliderTypes } from '@xrengine/engine/src/physics/types/PhysicsTypes'
+import { ColliderDescOptions } from '@xrengine/engine/src/physics/types/PhysicsTypes'
 import { ModelComponent } from '@xrengine/engine/src/scene/components/ModelComponent'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
@@ -68,7 +65,7 @@ let simulationObjectsGenerated = false
 export default async function PhysicsSimulationTestSystem(world: World) {
   return () => {
     const isInitialized = getEngineState().isEngineInitialized.value
-    if (!isInitialized || !world.physics.physics || simulationObjectsGenerated) return
+    if (!isInitialized || !world.physicsWorld || simulationObjectsGenerated) return
     simulationObjectsGenerated = true
     generateSimulationData(0)
   }

@@ -152,7 +152,6 @@ export class World {
    */
   scene = new Scene()
 
-  physics = new Physics()
   physicsWorld: PhysicsWorld
   physicsCollisionEventQueue: EventQueue
 

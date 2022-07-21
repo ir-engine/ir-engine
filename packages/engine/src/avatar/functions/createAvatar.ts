@@ -12,7 +12,6 @@ import { InteractorComponent } from '../../interaction/components/InteractorComp
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { Physics } from '../../physics/classes/PhysicsRapier'
 import { VectorSpringSimulator } from '../../physics/classes/springs/VectorSpringSimulator'
-import { CollisionComponent } from '../../physics/components/CollisionComponent'
 import { AvatarCollisionMask, CollisionGroups } from '../../physics/enums/CollisionGroups'
 import { getInteractionGroups } from '../../physics/functions/getInteractionGroups'
 import { NameComponent } from '../../scene/components/NameComponent'
@@ -83,8 +82,6 @@ export const createAvatar = (spawnAction: typeof WorldNetworkAction.spawnAvatar.
 
   addComponent(entity, Object3DComponent, { value: tiltContainer })
   setObjectLayers(tiltContainer, ObjectLayers.Avatar)
-
-  addComponent(entity, CollisionComponent, { collisions: [] })
 
   addComponent(entity, SpawnPoseComponent, {
     position: new Vector3().copy(transform.position),
