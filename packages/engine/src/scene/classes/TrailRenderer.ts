@@ -18,7 +18,7 @@ import {
 } from 'three'
 
 /**
- * http://www.github.com/mkkellogg
+ * @author Mark Kellogg - http://www.github.com/mkkellogg
  */
 
 //=======================================
