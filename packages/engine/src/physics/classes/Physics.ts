@@ -31,9 +31,6 @@ import { ColliderDescOptions, ColliderHitEvent, CollisionEvents } from '../types
 
 export type PhysicsWorld = World
 
-const tempQuat = new Quaternion()
-const tempVector3 = new Vector3()
-
 function load() {
   // eslint-disable-next-line import/no-named-as-default-member
   return RAPIER.init()

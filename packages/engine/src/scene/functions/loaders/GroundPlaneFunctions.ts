@@ -21,7 +21,7 @@ import {
   removeComponent
 } from '../../../ecs/functions/ComponentFunctions'
 import { NavMeshComponent } from '../../../navigation/component/NavMeshComponent'
-import { Physics } from '../../../physics/classes/PhysicsRapier'
+import { Physics } from '../../../physics/classes/Physics'
 import { CollisionGroups } from '../../../physics/enums/CollisionGroups'
 import { ColliderDescOptions } from '../../../physics/types/PhysicsTypes'
 import { TransformComponent } from '../../../transform/components/TransformComponent'

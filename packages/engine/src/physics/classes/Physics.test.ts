@@ -22,7 +22,7 @@ import { getInteractionGroups } from '../functions/getInteractionGroups'
 import { getTagComponentForRigidBody } from '../functions/getTagComponentForRigidBody'
 import { boxDynamicConfig } from '../functions/physicsObjectDebugFunctions'
 import { CollisionEvents, RaycastHit, SceneQueryType } from '../types/PhysicsTypes'
-import { Physics } from './PhysicsRapier'
+import { Physics } from './Physics'
 
 describe('Physics', () => {
   before(async () => {

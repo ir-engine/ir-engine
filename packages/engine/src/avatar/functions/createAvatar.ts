@@ -10,7 +10,7 @@ import { InputComponent } from '../../input/components/InputComponent'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
 import { InteractorComponent } from '../../interaction/components/InteractorComponent'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
-import { Physics } from '../../physics/classes/PhysicsRapier'
+import { Physics } from '../../physics/classes/Physics'
 import { VectorSpringSimulator } from '../../physics/classes/springs/VectorSpringSimulator'
 import { AvatarCollisionMask, CollisionGroups } from '../../physics/enums/CollisionGroups'
 import { getInteractionGroups } from '../../physics/functions/getInteractionGroups'
@@ -91,6 +91,8 @@ export const createAvatar = (spawnAction: typeof WorldNetworkAction.spawnAvatar.
   if (userId === Engine.instance.userId) {
     createAvatarController(entity)
     addComponent(entity, LocalInputTagComponent, {})
+  } else {
+    createAvatarRigidBody(entity)
   }
 
   if (isClient) {

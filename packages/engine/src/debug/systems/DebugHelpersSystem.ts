@@ -55,7 +55,7 @@ export default async function DebugHelpersSystem(world: World) {
     navpath: new Map()
   }
 
-  const avatarDebugQuery = defineQuery([AvatarComponent])
+  const avatarDebugQuery = defineQuery([AvatarComponent, VelocityComponent, TransformComponent])
   const boundingBoxQuery = defineQuery([BoundingBoxComponent])
   const arrowHelperQuery = defineQuery([DebugArrowComponent])
   const ikAvatarQuery = defineQuery([XRInputSourceComponent])

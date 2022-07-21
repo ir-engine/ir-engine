@@ -1,7 +1,7 @@
 import { Vector3 } from 'three'
 
 import { Engine } from '../../ecs/classes/Engine'
-import { Physics } from '../../physics/classes/PhysicsRapier'
+import { Physics } from '../../physics/classes/Physics'
 import { AvatarCollisionMask, CollisionGroups } from '../../physics/enums/CollisionGroups'
 import { getInteractionGroups } from '../../physics/functions/getInteractionGroups'
 import { RaycastHit, SceneQueryType } from '../../physics/types/PhysicsTypes'

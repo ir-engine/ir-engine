@@ -21,7 +21,7 @@ import { NetworkObjectComponent } from '../../networking/components/NetworkObjec
 import { UserClient } from '../../networking/interfaces/NetworkPeer'
 import { AvatarProps } from '../../networking/interfaces/WorldState'
 import { Physics } from '../../physics/classes/Physics'
-import { PhysicsWorld } from '../../physics/classes/PhysicsRapier'
+import { PhysicsWorld } from '../../physics/classes/Physics'
 import { NameComponent } from '../../scene/components/NameComponent'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
