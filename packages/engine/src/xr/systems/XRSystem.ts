@@ -20,7 +20,7 @@ import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { XRInputSourceComponent } from '../components/XRInputSourceComponent'
 import { cleanXRInputs } from '../functions/addControllerModels'
 import { updateXRControllerAnimations } from '../functions/controllerAnimation'
-import { endXR, startWebXR } from '../functions/WebXRFunctions'
+import { endXR, setupLocalXRInputs, startWebXR } from '../functions/WebXRFunctions'
 
 const startXRSession = async () => {
   const sessionInit = { optionalFeatures: ['local-floor', 'hand-tracking', 'layers'] }
@@ -68,6 +68,8 @@ export default async function XRSystem(world: World) {
   ;(navigator as any).xr?.isSessionSupported('immersive-vr').then((supported) => {
     dispatchAction(EngineActions.xrSupported({ xrSupported: supported }))
   })
+
+  setupLocalXRInputs()
 
   // TEMPORARY - precache controller model
   // Cache hand models
