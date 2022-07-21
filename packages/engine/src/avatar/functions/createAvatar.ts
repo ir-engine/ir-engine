@@ -12,6 +12,7 @@ import { InteractorComponent } from '../../interaction/components/InteractorComp
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { Physics } from '../../physics/classes/Physics'
 import { VectorSpringSimulator } from '../../physics/classes/springs/VectorSpringSimulator'
+import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { AvatarCollisionMask, CollisionGroups } from '../../physics/enums/CollisionGroups'
 import { getInteractionGroups } from '../../physics/functions/getInteractionGroups'
 import { NameComponent } from '../../scene/components/NameComponent'
@@ -93,6 +94,7 @@ export const createAvatar = (spawnAction: typeof WorldNetworkAction.spawnAvatar.
     addComponent(entity, LocalInputTagComponent, {})
   } else {
     createAvatarRigidBody(entity)
+    createAvatarCollider(entity)
   }
 
   if (isClient) {
@@ -105,33 +107,25 @@ export const createAvatar = (spawnAction: typeof WorldNetworkAction.spawnAvatar.
   return entity
 }
 
-export const createAvatarCollider = (
-  entity: Entity,
-  halfHeight: number,
-  radius: number,
-  rigidBody: RigidBody,
-  center: Vector3
-): Collider[] => {
-  const avatarControllerComponent = getComponent(entity, AvatarControllerComponent)
+export const createAvatarCollider = (entity: Entity): Collider => {
   const interactionGroups = getInteractionGroups(CollisionGroups.Avatars, AvatarCollisionMask)
-  const colliders = [] as Collider[]
+  const avatarComponent = getComponent(entity, AvatarComponent)
+  const { position } = getComponent(entity, TransformComponent)
+  const rigidBody = getComponent(entity, RigidBodyComponent)
+  console.log('avatarComponent.avatarHalfHeight', avatarComponent.avatarHalfHeight)
+  const bodyColliderDesc = ColliderDesc.capsule(avatarComponent.avatarHalfHeight, avatarRadius).setCollisionGroups(
+    interactionGroups
+  )
+  bodyColliderDesc.setTranslation(0, position.y + avatarComponent.avatarHalfHeight, 0)
 
-  const bodyColliderDesc = ColliderDesc.capsule(halfHeight, radius).setCollisionGroups(interactionGroups)
-  bodyColliderDesc.setTranslation(0, center.y, 0)
-  const bodyCollider = Physics.createColliderAndAttachToRigidBody(
+  return Physics.createColliderAndAttachToRigidBody(
     Engine.instance.currentWorld.physicsWorld,
     bodyColliderDesc,
     rigidBody
   )
-
-  avatarControllerComponent.bodyCollider = bodyCollider
-
-  colliders.push(bodyCollider)
-
-  return colliders
 }
 
-const createAvatarRigidBody = (entity: Entity, height: number, radius: number): RigidBody => {
+const createAvatarRigidBody = (entity: Entity): RigidBody => {
   const rigidBodyDesc = RigidBodyDesc.dynamic()
   const rigidBody = Physics.createRigidBody(entity, Engine.instance.currentWorld.physicsWorld, rigidBodyDesc, [])
   // rigidBody.setGravityScale(0.0, true)
@@ -167,11 +161,11 @@ export const createAvatarController = (entity: Entity) => {
   // offset so rigidboyd has feet at spawn position
   getComponent(entity, TransformComponent).position.y += avatarComponent.avatarHalfHeight
 
-  const controller = createAvatarRigidBody(entity, avatarComponent.avatarHalfHeight, avatarRadius)
+  const rigidBody = createAvatarRigidBody(entity)
   const velocitySimulator = new VectorSpringSimulator(60, 50, 0.8)
   if (!hasComponent(entity, AvatarControllerComponent)) {
     addComponent(entity, AvatarControllerComponent, {
-      controller,
+      controller: rigidBody,
       bodyCollider: undefined!,
       collisions: [false, false, false],
       movementEnabled: true,
@@ -185,12 +179,6 @@ export const createAvatarController = (entity: Entity) => {
     })
   }
 
-  const { position } = getComponent(entity, TransformComponent)
-  const colliders = createAvatarCollider(
-    entity,
-    avatarComponent.avatarHalfHeight,
-    avatarRadius,
-    controller,
-    new Vector3().setY(position.y + avatarComponent.avatarHalfHeight)
-  )
+  const avatarControllerComponent = getComponent(entity, AvatarControllerComponent)
+  avatarControllerComponent.bodyCollider = createAvatarCollider(entity)
 }
