@@ -131,7 +131,6 @@ function createColliderDesc(mesh: Mesh, colliderDescOptions: ColliderDescOptions
     shapeOptions.collisionMask = (shapeOptions as any).collisionmask
 
   let colliderDesc: ColliderDesc
-  let geometry, vertices, indices
   switch (shapeType as ShapeType) {
     case ShapeType.Cuboid:
       colliderDesc = ColliderDesc.cuboid(Math.abs(colliderSize.x), Math.abs(colliderSize.y), Math.abs(colliderSize.z))
@@ -149,19 +148,23 @@ function createColliderDesc(mesh: Mesh, colliderDescOptions: ColliderDescOptions
       colliderDesc = ColliderDesc.cylinder(Math.abs(colliderSize.y), Math.abs(colliderSize.x))
       break
 
-    case ShapeType.ConvexPolyhedron:
-      geometry = mergeBufferGeometries([mesh.geometry]) // TODO: is this needed?
-      vertices = new Float32Array(geometry!.attributes.position.array)
-      indices = new Uint32Array(geometry!.index!.array)
+    case ShapeType.ConvexPolyhedron: {
+      if (!mesh.geometry)
+        return console.warn('[Physics]: Tried to load convex mesh but did not find a geometry', mesh) as any
+      const vertices = new Float32Array(mesh.geometry.attributes.position.array)
+      const indices = new Uint32Array(mesh.geometry.index!.array)
       colliderDesc = ColliderDesc.convexMesh(vertices, indices) as ColliderDesc
       break
+    }
 
-    case ShapeType.TriMesh:
-      geometry = mergeBufferGeometries([mesh.geometry]) // TODO: is this needed?
-      vertices = new Float32Array(geometry!.attributes.position.array)
-      indices = new Uint32Array(geometry!.index!.array)
+    case ShapeType.TriMesh: {
+      if (!mesh.geometry)
+        return console.warn('[Physics]: Tried to load tri mesh but did not find a geometry', mesh) as any
+      const vertices = new Float32Array(mesh.geometry.attributes.position.array)
+      const indices = new Uint32Array(mesh.geometry.index!.array)
       colliderDesc = ColliderDesc.trimesh(vertices, indices)
       break
+    }
 
     default:
       console.error('unknown shape', shapeOptions)
