@@ -126,19 +126,19 @@ export interface StorageProviderInterface {
   cacheDomain: string
 
   /**
-   * Invalidates items in the storage.
+   * Invalidate items in the storage.
    * @param invalidationItems List of keys.
    */
   createInvalidation(invalidationItems: string[]): Promise<any>
 
   /**
-   * Deletes resources in the storage.
+   * Delete resources in the storage.
    * @param keys List of keys.
    */
   deleteResources(keys: string[]): Promise<any>
 
   /**
-   * Checks if an object exists in the storage.
+   * Check if an object exists in the storage.
    * @param fileName Name of file in the storage.
    * @param directoryPath Directory of file in the storage.
    * @returns {Promise<boolean>}
@@ -146,27 +146,27 @@ export interface StorageProviderInterface {
   doesExist(fileName: string, directoryPath: string): Promise<boolean>
 
   /**
-   * Gets the object from edge cache, otherwise returns getObject.
+   * Get the object from edge cache, otherwise returns getObject.
    * @param key Key of object.
    * @returns {StorageObjectInterface}
    */
   getCachedObject(key: string): Promise<StorageObjectInterface>
 
   /**
-   * Gets the storage object.
+   * Get the storage object.
    * @param key Key of object.
    * @returns {StorageObjectInterface}
    */
   getObject(key: string): Promise<StorageObjectInterface>
 
   /**
-   * Gets the instance of current storage provider.
+   * Get the instance of current storage provider.
    * @returns {StorageProviderInterface}
    */
   getProvider(): StorageProviderInterface
 
   /**
-   * Gets the signed url response of the storage object.
+   * Get the signed url response of the storage object.
    * @param key Key of object.
    * @param expiresAfter The number of seconds for which signed policy should be valid. Defaults to 3600 (one hour).
    * @param conditions An array of conditions that must be met for certain providers like S3.
@@ -175,13 +175,13 @@ export interface StorageProviderInterface {
   getSignedUrl(key: string, expiresAfter: number, conditions): Promise<SignedURLResponse>
 
   /**
-   * Gets the BlobStore object for current storage.
+   * Get the BlobStore object for current storage.
    * @returns {BlobStore} Blob store.
    */
   getStorage(): BlobStore
 
   /**
-   * Checks if an object is directory or not.
+   * Check if an object is directory or not.
    * @param fileName Name of file in the storage.
    * @param directoryPath Directory of file in the storage.
    * @returns {Promise<boolean>}
@@ -205,7 +205,7 @@ export interface StorageProviderInterface {
   listObjects(prefix: string, recursive?: boolean, continuationToken?: string): Promise<StorageListObjectInterface>
 
   /**
-   * Moves or copy object from one place to another.
+   * Move or copy object from one place to another.
    * @param oldName Name of the old object.
    * @param newName Name of the new object.
    * @param oldPath Path of the old object.

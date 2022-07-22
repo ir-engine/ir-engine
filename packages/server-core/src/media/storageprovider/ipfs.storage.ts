@@ -31,7 +31,7 @@ export class IPFSStorage implements StorageProviderInterface {
   cacheDomain: string
 
   /**
-   * Checks if an object exists in the IPFS storage.
+   * Check if an object exists in the IPFS storage.
    * @param fileName Name of file in the storage.
    * @param directoryPath Directory of file in the storage.
    */
@@ -44,7 +44,7 @@ export class IPFSStorage implements StorageProviderInterface {
   }
 
   /**
-   * Checks if an object is directory or not.
+   * Check if an object is directory or not.
    * @param fileName Name of file in the storage.
    * @param directoryPath Directory of file in the storage.
    */
@@ -57,7 +57,7 @@ export class IPFSStorage implements StorageProviderInterface {
   }
 
   /**
-   * Gets the IPFS storage object.
+   * Get the IPFS storage object.
    * @param key Key of object.
    */
   async getObject(key: string): Promise<StorageObjectInterface> {
@@ -84,7 +84,7 @@ export class IPFSStorage implements StorageProviderInterface {
   }
 
   /**
-   * Gets the object from cache, otherwise returns getObject.
+   * Get the object from cache, otherwise returns getObject.
    * @param key Key of object.
    */
   async getCachedObject(key: string): Promise<StorageObjectInterface> {
@@ -92,19 +92,19 @@ export class IPFSStorage implements StorageProviderInterface {
   }
 
   /**
-   * Gets the instance of IPFS storage provider.
+   * Get the instance of IPFS storage provider.
    */
   getProvider(): StorageProviderInterface {
     return this
   }
 
   /**
-   * Gets the signed url response of the storage object.
+   * Get the signed url response of the storage object.
    * @param key Key of object.
    * @param expiresAfter The number of seconds for which signed policy should be valid. Defaults to 3600 (one hour).
    * @param conditions An array of conditions that must be met for certain providers. Not used in IPFS provider.
    */
-  async getSignedUrl(key: string, _expiresAfter: number, _conditions: any): Promise<any> {
+  async getSignedUrl(key: string, _expiresAfter: number, _conditions: any) {
     const url = await this._getUrl(key)
     return {
       fields: { Key: key },
@@ -115,7 +115,7 @@ export class IPFSStorage implements StorageProviderInterface {
   }
 
   /**
-   * Gets the BlobStore object for IPFS storage.
+   * Get the BlobStore object for IPFS storage.
    */
   getStorage(): BlobStore {
     return this._blobStore
@@ -177,10 +177,10 @@ export class IPFSStorage implements StorageProviderInterface {
   }
 
   /**
-   * Deletes resources in the IPFS storage.
+   * Delete resources in the IPFS storage.
    * @param keys List of keys.
    */
-  async deleteResources(keys: string[]): Promise<any> {
+  async deleteResources(keys: string[]) {
     const status: boolean[] = []
 
     for (const key of keys) {
@@ -202,10 +202,12 @@ export class IPFSStorage implements StorageProviderInterface {
   }
 
   /**
-   * Invalidates items in the IPFS storage.
+   * Invalidate items in the IPFS storage.
    * @param invalidationItems List of keys.
    */
-  createInvalidation = async (): Promise<any> => Promise.resolve()
+  async createInvalidation() {
+    Promise.resolve()
+  }
 
   /**
    * List all the files/folders in the directory.
@@ -239,7 +241,7 @@ export class IPFSStorage implements StorageProviderInterface {
   }
 
   /**
-   * Moves or copy object from one place to another in the IPFS storage.
+   * Move or copy object from one place to another in the IPFS storage.
    * @param oldName Name of the old object.
    * @param newName Name of the new object.
    * @param oldPath Path of the old object.
@@ -264,7 +266,7 @@ export class IPFSStorage implements StorageProviderInterface {
   }
 
   /**
-   * Initializes the IPFS storage. It port forwards the IPFS pod to expose its REST API for consumption.
+   * Initialize the IPFS storage. It port forwards the IPFS pod to expose its REST API for consumption.
    * @param podName Name of IPFS pod in cluster.
    */
   async initialize(podName: string): Promise<void> {
@@ -373,7 +375,7 @@ export class IPFSStorage implements StorageProviderInterface {
       .catch(() => new URL(`http://${this.cacheDomain}`).href)
   }
 
-  private _formatBytes = (bytes, decimals = 2) => {
+  private _formatBytes(bytes, decimals = 2) {
     if (bytes === 0) return '0 Bytes'
 
     const k = 1024
