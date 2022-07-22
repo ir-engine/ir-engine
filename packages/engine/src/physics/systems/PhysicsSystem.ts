@@ -3,8 +3,6 @@ import { Quaternion, Vector3 } from 'three'
 
 import { createActionQueue } from '@xrengine/hyperflux'
 
-import { AvatarComponent } from '../../avatar/components/AvatarComponent'
-import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
@@ -24,15 +22,13 @@ export function teleportObjectReceptor(
   action: ReturnType<typeof WorldNetworkAction.teleportObject>,
   world = Engine.instance.currentWorld
 ) {
-  const [x, y, z] = action.pose
   const entity = world.getNetworkObject(action.object.ownerId, action.object.networkId)!
-  const controllerComponent = getComponent(entity, AvatarControllerComponent)
-  if (controllerComponent) {
-    const velocity = getComponent(entity, VelocityComponent)
-    const avatar = getComponent(entity, AvatarComponent)
-    controllerComponent.controller.setTranslation({ x, y: y + avatar.avatarHalfHeight, z }, true)
-    velocity.linear.setScalar(0)
-    velocity.angular.setScalar(0)
+  const body = getComponent(entity, RigidBodyComponent)
+  if (body) {
+    body.setTranslation(action.position, true)
+    body.setRotation(action.rotation, true)
+    body.setLinvel({ x: 0, y: 0, z: 0 }, true)
+    body.setAngvel({ x: 0, y: 0, z: 0 }, true)
   }
 }
 

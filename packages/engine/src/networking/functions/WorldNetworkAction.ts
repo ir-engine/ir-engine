@@ -96,7 +96,8 @@ export class WorldNetworkAction {
       ownerId: matchesUserId,
       networkId: matchesNetworkId
     }),
-    pose: matchPose
+    position: matchesVector3,
+    rotation: matchesQuaternion
   })
 
   static requestAuthorityOverObject = defineAction({

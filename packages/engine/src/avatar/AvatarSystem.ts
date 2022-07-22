@@ -1,4 +1,4 @@
-import { Group, Object3D, Quaternion, Vector3 } from 'three'
+import { Group, Object3D, Vector3 } from 'three'
 
 import { createActionQueue, getState } from '@xrengine/hyperflux'
 
@@ -17,7 +17,6 @@ import {
 import { NetworkObjectOwnedTag } from '../networking/components/NetworkObjectOwnedTag'
 import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
 import { WorldState } from '../networking/interfaces/WorldState'
-import { VelocityComponent } from '../physics/components/VelocityComponent'
 import { XRLGripButtonComponent, XRRGripButtonComponent } from '../xr/components/XRGripButtonComponent'
 import { XRHandsInputComponent } from '../xr/components/XRHandsInputComponent'
 import { XRInputSourceComponent } from '../xr/components/XRInputSourceComponent'
@@ -26,7 +25,6 @@ import { playTriggerPressAnimation, playTriggerReleaseAnimation } from '../xr/fu
 import { proxifyXRInputs, setupXRInputSourceComponent } from '../xr/functions/WebXRFunctions'
 import { AvatarAnimationComponent } from './components/AvatarAnimationComponent'
 import { AvatarComponent } from './components/AvatarComponent'
-import { AvatarControllerComponent } from './components/AvatarControllerComponent'
 import { AvatarHandsIKComponent } from './components/AvatarHandsIKComponent'
 import { AvatarHeadIKComponent } from './components/AvatarHeadIKComponent'
 import { loadAvatarForUser } from './functions/avatarFunctions'
@@ -82,27 +80,10 @@ export function xrHandsConnectedReceptor(
   return true
 }
 
-export function teleportObjectReceptor(
-  action: ReturnType<typeof WorldNetworkAction.teleportObject>,
-  world = Engine.instance.currentWorld
-) {
-  const [x, y, z] = action.pose
-  const entity = world.getNetworkObject(action.object.ownerId, action.object.networkId)!
-  const controllerComponent = getComponent(entity, AvatarControllerComponent)
-  if (controllerComponent) {
-    const velocity = getComponent(entity, VelocityComponent)
-    const avatar = getComponent(entity, AvatarComponent)
-    controllerComponent.controller.setTranslation({ x, y: y + avatar.avatarHalfHeight, z }, true)
-    velocity.linear.setScalar(0)
-    velocity.angular.setScalar(0)
-  }
-}
-
 export default async function AvatarSystem(world: World) {
   const avatarDetailsQueue = createActionQueue(WorldNetworkAction.avatarDetails.matches)
   const setXRModeQueue = createActionQueue(WorldNetworkAction.setXRMode.matches)
   const xrHandsConnectedQueue = createActionQueue(WorldNetworkAction.xrHandsConnected.matches)
-  const teleportObjectQueue = createActionQueue(WorldNetworkAction.teleportObject.matches)
 
   const xrInputQuery = defineQuery([AvatarComponent, XRInputSourceComponent, AvatarAnimationComponent])
   const xrHandsInputQuery = defineQuery([AvatarComponent, XRHandsInputComponent, XRInputSourceComponent])
@@ -113,7 +94,6 @@ export default async function AvatarSystem(world: World) {
     for (const action of avatarDetailsQueue()) avatarDetailsReceptor(action)
     for (const action of setXRModeQueue()) setXRModeReceptor(action)
     for (const action of xrHandsConnectedQueue()) xrHandsConnectedReceptor(action)
-    for (const action of teleportObjectQueue()) teleportObjectReceptor(action)
 
     for (const entity of xrInputQuery.enter(world)) {
       xrInputQueryEnter(entity)
