@@ -71,8 +71,6 @@ export const moveAvatar = (world: World, entity: Entity, camera: PerspectiveCame
 
   // move vec3 to controller input direction
   tempVec1.copy(controller.localMovementDirection).multiplyScalar(timeStep)
-  // @ts-ignore
-  console.log(...tempVec1)
 
   // set velocity simulator target to vec3
   controller.velocitySimulator.target.copy(tempVec1)
@@ -262,7 +260,6 @@ const moveAvatarController = (world: World, entity: Entity, displacement: Vector
   // Displacement is calculated using last position because the updated position of rigidbody will show up in next frame
   // since we apply velocity to body and position is updated after physics engine step
   const currentPosition = rigidBody.translation() as Vector3
-  console.log(currentPosition, controller.lastPosition)
   displacement.copy(currentPosition as Vector3).sub(controller.lastPosition as Vector3)
 
   const transform = getComponent(entity, TransformComponent)
