@@ -20,9 +20,15 @@ import {
  * Storage provide class to communicate with AWS S3 API.
  */
 export class S3Provider implements StorageProviderInterface {
-  private bucket = config.aws.s3.staticResourceBucket
+  /**
+   * Name of S3 bucket.
+   */
+  bucket = config.aws.s3.staticResourceBucket
 
-  private provider: AWS.S3 = new AWS.S3({
+  /**
+   * Instance of S3 service object. This object has one method for each API operation.
+   */
+  provider: AWS.S3 = new AWS.S3({
     accessKeyId: config.aws.keys.accessKeyId,
     secretAccessKey: config.aws.keys.secretAccessKey,
     endpoint: config.aws.s3.endpoint,
@@ -30,6 +36,14 @@ export class S3Provider implements StorageProviderInterface {
     s3ForcePathStyle: true,
     maxRetries: 1
   })
+
+  /**
+   * Domain address of S3 cache.
+   */
+  cacheDomain =
+    config.server.storageProvider === 'aws'
+      ? config.aws.cloudfront.domain
+      : `${config.aws.cloudfront.domain}/${this.bucket}`
 
   private bucketAssetURL =
     config.server.storageProvider === 'aws'
@@ -47,14 +61,6 @@ export class S3Provider implements StorageProviderInterface {
     accessKeyId: config.aws.keys.accessKeyId,
     secretAccessKey: config.aws.keys.secretAccessKey
   })
-
-  /**
-   * Domain address of S3 cache.
-   */
-  cacheDomain =
-    config.server.storageProvider === 'aws'
-      ? config.aws.cloudfront.domain
-      : `${config.aws.cloudfront.domain}/${this.bucket}`
 
   /**
    * Get the instance of S3 storage provider.
