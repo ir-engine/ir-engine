@@ -2,9 +2,6 @@ import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
-import { isTriggerShape } from '@xrengine/engine/src/physics/classes/Physics'
-import { ColliderComponent } from '@xrengine/engine/src/physics/components/ColliderComponent'
 import { RigidBodyComponent } from '@xrengine/engine/src/physics/components/RigidBodyComponent'
 import { updateBoxCollider } from '@xrengine/engine/src/scene/functions/loaders/BoxColliderFunctions'
 

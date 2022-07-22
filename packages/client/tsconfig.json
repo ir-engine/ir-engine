@@ -27,12 +27,11 @@
     "outDir": "./lib"
   },
   "exclude": [
-    "../**",
     "**/node_modules/**"
   ],
   "include": [
     "../server-core/src/",
-    "./src/**/*.ts",
-    "./src/**/*.tsx"
+    "./**/*.ts",
+    "./**/*.tsx"
   ]
 }
