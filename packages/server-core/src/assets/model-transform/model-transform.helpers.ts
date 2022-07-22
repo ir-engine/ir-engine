@@ -101,6 +101,10 @@ export async function transformModel(app: Application, args: ModelTransformArgum
   //resize textures
   const handleImage = async (inPath, outPath, dstImgFormat) => {
     try {
+      if (path.extname(inPath) === '.ktx2') {
+        console.warn('cannot resize ktx2 compressed image at ' + inPath)
+        return
+      }
       const img = await sharp(inPath)
       const metadata = await img.metadata()
       await img
@@ -120,7 +124,7 @@ export async function transformModel(app: Application, args: ModelTransformArgum
     .filter(
       (texture) =>
         (mimeToFileType(texture.getMimeType()) !== parms.textureFormat && !!texture.getSize()) ||
-        texture.getSize()!.reduce((x, y) => Math.max(x, y))! > parms.maxTextureSize
+        texture.getSize()?.reduce((x, y) => Math.max(x, y))! > parms.maxTextureSize
     )
   for (const texture of textures) {
     const oldImg = texture.getImage()
@@ -132,14 +136,21 @@ export async function transformModel(app: Application, args: ModelTransformArgum
       fs.mkdirSync(tmpDir)
     }
     fs.writeFileSync(oldPath, oldImg!)
-    const nuFileName = fileName.replace(`.${mimeToFileType(texture.getMimeType())}`, `-resized.${parms.textureFormat}`)
+    const xResizedName = fileName.replace(
+      `.${mimeToFileType(texture.getMimeType())}`,
+      `-resized.${parms.textureFormat}`
+    )
+    const nuFileName = fileName.replace(
+      `.${mimeToFileType(texture.getMimeType())}`,
+      `-transformed.${parms.textureFormat}`
+    )
     const nuPath = `${tmpDir}/${nuFileName}`
     await handleImage(oldPath, resizedPath, resizeExtension)
     if (parms.textureFormat === 'ktx2') {
       //KTX2 Basisu Compression
       document.createExtension(TextureBasisu).setRequired(true)
       await promiseExec(`${BASIS_U} -ktx2 ${resizedPath}`)
-      await promiseExec(`mv ${serverDir}/${nuFileName} ${nuPath}`)
+      await promiseExec(`mv ${serverDir}/${xResizedName} ${nuPath}`)
 
       console.log('loaded ktx2 image ' + nuPath)
     } else {
