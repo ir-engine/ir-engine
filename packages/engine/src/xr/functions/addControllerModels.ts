@@ -27,7 +27,7 @@ const createUICursor = () => {
 }
 
 const setupController = (inputSource: XRInputSource, controller: ControllerGroup) => {
-  const avatarInputState = accessAvatarInputSettingsState()
+  // const avatarInputState = accessAvatarInputSettingsState()
   if (inputSource) {
     // const canUseController =
     //   inputSource.hand === null && avatarInputState.controlType.value === AvatarControllerType.OculusQuest

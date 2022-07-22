@@ -1,5 +1,5 @@
 /**
- * https://github.com/deepkolos
+ * @author Deepkolos / https://github.com/deepkolos
  */
 
 export class WorkerPool {
