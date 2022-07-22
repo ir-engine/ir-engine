@@ -20,15 +20,15 @@ import {
  * Storage provide class to communicate with InterPlanetary File System (IPFS) using Mutable File System (MFS).
  */
 export class IPFSStorage implements StorageProviderInterface {
-  /**
-   * Domain address of cache.
-   */
-  cacheDomain: string
-
   private _client: IPFSHTTPClient
   private _blobStore: IPFSBlobStore
   private _pathPrefix: string = '/'
   private _apiDomain: string
+
+  /**
+   * Domain address of cache.
+   */
+  cacheDomain: string
 
   /**
    * Checks if an object exists in the IPFS storage.
