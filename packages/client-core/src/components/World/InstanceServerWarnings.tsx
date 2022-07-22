@@ -6,8 +6,7 @@ import {
   useLocationInstanceConnectionState
 } from '@xrengine/client-core/src/common/services/LocationInstanceConnectionService'
 import { MediaInstanceConnectionService } from '@xrengine/client-core/src/common/services/MediaInstanceConnectionService'
-import {ChatService, useChatState} from '@xrengine/client-core/src/social/services/ChatService'
-import { useAuthState } from "../../user/services/AuthService";
+import { ChatService, useChatState } from '@xrengine/client-core/src/social/services/ChatService'
 import { useLocationState } from '@xrengine/client-core/src/social/services/LocationService'
 import { SocketWebRTCClientNetwork } from '@xrengine/client-core/src/transports/SocketWebRTCClientNetwork'
 import { matches } from '@xrengine/engine/src/common/functions/MatchesUtils'
@@ -19,6 +18,7 @@ import { addActionReceptor } from '@xrengine/hyperflux'
 
 import { NetworkConnectionService } from '../../common/services/NetworkConnectionService'
 import { LocationAction } from '../../social/services/LocationService'
+import { useAuthState } from '../../user/services/AuthService'
 import WarningRetryModal, { WarningRetryModalProps } from '../AlertModals/WarningRetryModal'
 
 const initialModalValues: WarningRetryModalProps = {
@@ -162,9 +162,11 @@ const InstanceServerWarnings = () => {
 
       case WarningModalTypes.NO_MEDIA_SERVER_PROVISIONED: {
         const channels = chatState.channels.channels.value
-        const partyChannel = Object.values(channels).find(channel => channel.channelType === 'party' && (channel.partyId === selfUser.partyId.value))
+        const partyChannel = Object.values(channels).find(
+          (channel) => channel.channelType === 'party' && channel.partyId === selfUser.partyId.value
+        )
         const instanceChannel = Object.values(channels).find(
-            (channel) => channel.instanceId === Engine.instance.currentWorld.mediaNetwork?.hostId
+          (channel) => channel.instanceId === Engine.instance.currentWorld.mediaNetwork?.hostId
         )
         const channelId = partyChannel ? partyChannel.id : instanceChannel.id
         setModalValues({

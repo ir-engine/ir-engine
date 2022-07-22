@@ -49,10 +49,10 @@ function destroyPeer(network: Network, userId: UserId, world = Engine.instance.c
    */
   if (network.topic === 'world') {
     const remainingPeersForDisconnectingUser = Object.entries(world.networks.entries())
-        .map(([id, network]: [string, Network]) => {
-          return network.peers.has(userId)
-        })
-        .filter((peer) => !!peer)
+      .map(([id, network]: [string, Network]) => {
+        return network.peers.has(userId)
+      })
+      .filter((peer) => !!peer)
 
     if (!remainingPeersForDisconnectingUser.length) {
       Engine.instance.store.actions.cached = Engine.instance.store.actions.cached.filter((a) => a.$from !== userId)

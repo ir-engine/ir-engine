@@ -79,10 +79,9 @@ export const ChatServiceReceptor = (action) => {
             instanceChannelFetched: true,
             instanceChannelFetching: false
           })
-        }
-        else if (action.channelType === 'party') {
+        } else if (action.channelType === 'party') {
           const endedPartyChannelIndex = s.channels.channels.findIndex(
-              (channel) => channel.channelType.value === 'party' && channel.id.value !== action.channel.id
+            (channel) => channel.channelType.value === 'party' && channel.id.value !== action.channel.id
           )
           if (endedPartyChannelIndex > -1) s.channels.channels[endedPartyChannelIndex].set(none)
           s.merge({

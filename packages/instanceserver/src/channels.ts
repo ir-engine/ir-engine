@@ -479,16 +479,12 @@ const handleUserDisconnect = async (
   // But, don't change their (channel)instanceId if it's already something else.
   const userPatchResult = await app
     .service('user')
-    .patch(
-      null,
-      userPatch,
-      {
-        query: {
-          id: user.id,
-          [instanceIdKey]: instanceId
-        }
+    .patch(null, userPatch, {
+      query: {
+        id: user.id,
+        [instanceIdKey]: instanceId
       }
-    )
+    })
     .catch((err) => {
       logger.warn(err, "Failed to patch user, probably because they don't have an ID yet.")
     })

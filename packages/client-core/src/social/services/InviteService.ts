@@ -5,11 +5,11 @@ import { Invite, SendInvite } from '@xrengine/common/src/interfaces/Invite'
 import { UserInterface } from '@xrengine/common/src/interfaces/User'
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
-import { PartyService } from "./PartyService";
 
 import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
 import { accessAuthState } from '../../user/services/AuthService'
+import { PartyService } from './PartyService'
 
 export const emailRegex =
   /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/
@@ -308,8 +308,7 @@ export const InviteService = {
           passcode: invite.passcode
         }
       })
-      if (invite.inviteType === 'party')
-        PartyService.leaveNetwork(false)
+      if (invite.inviteType === 'party') PartyService.leaveNetwork(false)
       dispatchAction(InviteAction.acceptedInvite({}))
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })

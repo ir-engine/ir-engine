@@ -5,6 +5,7 @@ import i18n from 'i18next'
 import { useEffect } from 'react'
 
 import { Channel } from '@xrengine/common/src/interfaces/Channel'
+import { SendInvite } from '@xrengine/common/src/interfaces/Invite'
 import { Party } from '@xrengine/common/src/interfaces/Party'
 import { PartyUser } from '@xrengine/common/src/interfaces/PartyUser'
 import { UserInterface } from '@xrengine/common/src/interfaces/User'
@@ -16,12 +17,11 @@ import { defineAction, defineState, dispatchAction, getState, useState } from '@
 import { API } from '../../API'
 import { MediaInstanceConnectionService } from '../../common/services/MediaInstanceConnectionService'
 import { NotificationService } from '../../common/services/NotificationService'
-import {endVideoChat, leaveNetwork} from '../../transports/SocketWebRTCClientFunctions'
+import { endVideoChat, leaveNetwork } from '../../transports/SocketWebRTCClientFunctions'
 import { SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientNetwork'
 import { accessAuthState } from '../../user/services/AuthService'
 import { UserAction } from '../../user/services/UserService'
-import {ChatService, accessChatState} from './ChatService'
-import {SendInvite} from "@xrengine/common/src/interfaces/Invite";
+import { accessChatState, ChatService } from './ChatService'
 
 const logger = multiLogger.child({ component: 'client-core:social' })
 
@@ -130,12 +130,12 @@ export const PartyService = {
       if (partyResult) {
         partyResult.partyUsers = partyResult.party_users
         dispatchAction(
-            PartyActions.loadedPartyAction({
-              party: partyResult,
-              isOwned:
-                  accessAuthState().authUser.identityProvider.userId.value ===
-                  partyResult.partyUsers.find((user) => user.isOwner)?.userId
-            })
+          PartyActions.loadedPartyAction({
+            party: partyResult,
+            isOwned:
+              accessAuthState().authUser.identityProvider.userId.value ===
+              partyResult.partyUsers.find((user) => user.isOwner)?.userId
+          })
         )
       }
     } catch (err) {
@@ -201,7 +201,7 @@ export const PartyService = {
       const sendData = {
         inviteType: 'party',
         inviteeId: userId,
-        targetObjectId: partyId,
+        targetObjectId: partyId
       } as SendInvite
       await InviteService.sendInvite(sendData)
       NotificationService.dispatchNotify(i18n.t('social:partyInvitationSent'), {
@@ -222,19 +222,20 @@ export const PartyService = {
     try {
       await API.instance.client.service('party-user').remove(partyUserId)
       const selfUser = accessAuthState().user.value
-      if (partyUserId === selfUser.id)
-        await PartyService.leaveNetwork(true)
+      if (partyUserId === selfUser.id) await PartyService.leaveNetwork(true)
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   },
-  leaveNetwork: async(joinInstanceChannelServer = false) => {
+  leaveNetwork: async (joinInstanceChannelServer = false) => {
     const network = Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork
     await endVideoChat(network, {})
     leaveNetwork(network)
     if (joinInstanceChannelServer) {
       const channels = accessChatState().channels.channels.value
-      const instanceChannel = Object.values(channels).find((channel) => channel.instanceId === Engine.instance.currentWorld.worldNetwork?.hostId)
+      const instanceChannel = Object.values(channels).find(
+        (channel) => channel.instanceId === Engine.instance.currentWorld.worldNetwork?.hostId
+      )
       if (instanceChannel) {
         console.log('provisioning instance media server because of leaving a party')
         await MediaInstanceConnectionService.provisionServer(instanceChannel?.id!, true)
@@ -262,8 +263,10 @@ export const PartyService = {
         console.log('self id', accessAuthState().user.id.value)
         console.log('incoming partyId', params.partyUser.partyId)
         console.log('party id', accessPartyState().party.id?.value)
-        if ((params.partyUser.userId !== accessAuthState().user.id.value) ||
-            (params.partyUser.userId === accessAuthState().user.id.value && params.partyUser.partyId === accessPartyState().party?.id?.value)
+        if (
+          params.partyUser.userId !== accessAuthState().user.id.value ||
+          (params.partyUser.userId === accessAuthState().user.id.value &&
+            params.partyUser.partyId === accessPartyState().party?.id?.value)
         )
           dispatchAction(PartyActions.createdPartyUserAction({ partyUser: params.partyUser }))
         else {

@@ -1,47 +1,68 @@
-import { InviteService, useInviteState } from '../../social/services/InviteService'
-import styles from "./index.module.scss";
-import {Button} from "@xrengine/editor/src/components/inputs/Button";
-import React, { useEffect } from "react";
+import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import capitalizeFirstLetter from "@xrengine/common/src/utils/capitalizeFirstLetter";
+
+import capitalizeFirstLetter from '@xrengine/common/src/utils/capitalizeFirstLetter'
+import { Button } from '@xrengine/editor/src/components/inputs/Button'
+
+import { InviteService, useInviteState } from '../../social/services/InviteService'
+import styles from './index.module.scss'
 
 interface Props {
-    animate?: any
+  animate?: any
 }
 
 const InviteToast = (props: Props) => {
-    const InviteState = useInviteState()
-    const newestInvite = InviteState.receivedInvites.total.value > 0 ? InviteState.receivedInvites.invites[0].value : {}
-    const { t } = useTranslation()
+  const InviteState = useInviteState()
+  const newestInvite = InviteState.receivedInvites.total.value > 0 ? InviteState.receivedInvites.invites[0].value : {}
+  const { t } = useTranslation()
 
-    useEffect(() => {
-      if (InviteState.receivedUpdateNeeded.value) InviteService.retrieveReceivedInvites(undefined, undefined, 'createdAt', 'desc')
-    }, [InviteState.receivedUpdateNeeded.value])
+  useEffect(() => {
+    if (InviteState.receivedUpdateNeeded.value)
+      InviteService.retrieveReceivedInvites(undefined, undefined, 'createdAt', 'desc')
+  }, [InviteState.receivedUpdateNeeded.value])
 
-    InviteService.useAPIListeners()
+  InviteService.useAPIListeners()
 
-    const acceptInvite = (invite) => {
-        InviteService.acceptInvite(invite, invite)
-    }
+  const acceptInvite = (invite) => {
+    InviteService.acceptInvite(invite, invite)
+  }
 
-    const declineInvite = (invite) => {
-        InviteService.declineInvite(invite)
-    }
-    return (
-        <div className={`${styles.inviteToast} ${InviteState.receivedInvites.total.value > 0 ? styles.animateLeft : styles.fadeOutLeft}`}>
-            <div className={`${styles.toastContainer} `}>
-                { newestInvite?.inviteType && <span>{capitalizeFirstLetter(newestInvite?.inviteType).replace('-', ' ')} invite from {newestInvite.user?.name}</span> }
-                <div className={`${styles.btnContainer}`}>
-                    <Button variant="contained" color="primary" className={styles.acceptBtn} onClick={() => acceptInvite(newestInvite)}>
-                        {t('social:invite.accept')}
-                    </Button>
-                    <Button variant="contained" color="secondary" className={styles.declineBtn} onClick={() => declineInvite(newestInvite)}>
-                        {t('social:invite.decline')}
-                    </Button>
-                </div>
-            </div>
+  const declineInvite = (invite) => {
+    InviteService.declineInvite(invite)
+  }
+  return (
+    <div
+      className={`${styles.inviteToast} ${
+        InviteState.receivedInvites.total.value > 0 ? styles.animateLeft : styles.fadeOutLeft
+      }`}
+    >
+      <div className={`${styles.toastContainer} `}>
+        {newestInvite?.inviteType && (
+          <span>
+            {capitalizeFirstLetter(newestInvite?.inviteType).replace('-', ' ')} invite from {newestInvite.user?.name}
+          </span>
+        )}
+        <div className={`${styles.btnContainer}`}>
+          <Button
+            variant="contained"
+            color="primary"
+            className={styles.acceptBtn}
+            onClick={() => acceptInvite(newestInvite)}
+          >
+            {t('social:invite.accept')}
+          </Button>
+          <Button
+            variant="contained"
+            color="secondary"
+            className={styles.declineBtn}
+            onClick={() => declineInvite(newestInvite)}
+          >
+            {t('social:invite.decline')}
+          </Button>
         </div>
-    )
+      </div>
+    </div>
+  )
 }
 
 export default InviteToast

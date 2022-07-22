@@ -30,10 +30,14 @@ export const usePartyMenuHooks = () => {
   const kickUser = (userId: UserId) => {
     console.log('user leaving party', userId)
     console.log('partyUsers', partyState.party?.partyUsers?.value)
-    const partyUser = partyState.party?.partyUsers?.value ? partyState.party.partyUsers.value.find(partyUser => { console.log('partyUser', partyUser, partyUser.userId, partyUser.userId.value); return partyUser.userId === userId }) : null
+    const partyUser = partyState.party?.partyUsers?.value
+      ? partyState.party.partyUsers.value.find((partyUser) => {
+          console.log('partyUser', partyUser, partyUser.userId, partyUser.userId.value)
+          return partyUser.userId === userId
+        })
+      : null
     console.log('partyUser', partyUser)
-    if (partyUser)
-      PartyService.removePartyUser(partyUser.id)
+    if (partyUser) PartyService.removePartyUser(partyUser.id)
   }
 
   const handleChangeToken = (e) => {
@@ -85,8 +89,20 @@ const SocialMenu = (): JSX.Element => {
   const partyState = usePartyState()
   const authUser = useAuthState().authUser.value
 
-  const { createParty, kickUser, token, handleChangeToken, sendInvite, isInviteOpen, setInviteOpen, isDeleteConfirmOpen, setIsDeleteConfirmOpen, deleteParty, isOwned, selfUser } =
-    usePartyMenuHooks()
+  const {
+    createParty,
+    kickUser,
+    token,
+    handleChangeToken,
+    sendInvite,
+    isInviteOpen,
+    setInviteOpen,
+    isDeleteConfirmOpen,
+    setIsDeleteConfirmOpen,
+    deleteParty,
+    isOwned,
+    selfUser
+  } = usePartyMenuHooks()
 
   console.log('isOwned', isOwned)
   const renderCreate = () => {
@@ -141,9 +157,9 @@ const SocialMenu = (): JSX.Element => {
               onChange={(e) => handleChangeToken(e)}
               InputProps={{
                 startAdornment: (
-                    <InputAdornment position="start" onClick={() => setInviteOpen(false)} className={styles.cancelInvite}>
-                      <Clear />
-                    </InputAdornment>
+                  <InputAdornment position="start" onClick={() => setInviteOpen(false)} className={styles.cancelInvite}>
+                    <Clear />
+                  </InputAdornment>
                 ),
                 endAdornment: (
                   <InputAdornment position="end" onClick={sendInvite} className={styles.send}>
@@ -158,17 +174,19 @@ const SocialMenu = (): JSX.Element => {
                 <Button className={styles.leave} onClick={() => kickUser(authUser.identityProvider.userId)}>
                   {t('user:usermenu.party.leave')}
                 </Button>
-                {isOwned && <Button className={styles.invite} onClick={() => setInviteOpen(true)}>
-                  {t('user:usermenu.party.invite')}
-                </Button>
-                }
+                {isOwned && (
+                  <Button className={styles.invite} onClick={() => setInviteOpen(true)}>
+                    {t('user:usermenu.party.invite')}
+                  </Button>
+                )}
               </div>
-              { isOwned && !isDeleteConfirmOpen && <Button className={styles.startDelete} onClick={() => setIsDeleteConfirmOpen(true)}>
-                {t('user:usermenu.party.initDelete')}
-              </Button>
-              }
-              {
-                isOwned && isDeleteConfirmOpen && <div className={styles.confirmDeleteButtons}>
+              {isOwned && !isDeleteConfirmOpen && (
+                <Button className={styles.startDelete} onClick={() => setIsDeleteConfirmOpen(true)}>
+                  {t('user:usermenu.party.initDelete')}
+                </Button>
+              )}
+              {isOwned && isDeleteConfirmOpen && (
+                <div className={styles.confirmDeleteButtons}>
                   <Button className={styles.confirmDelete} onClick={() => deleteParty(partyState.party.id.value)}>
                     {t('user:usermenu.party.confirmDelete')}
                   </Button>
@@ -176,7 +194,7 @@ const SocialMenu = (): JSX.Element => {
                     {t('user:usermenu.party.cancelDelete')}
                   </Button>
                 </div>
-              }
+              )}
             </div>
           )}
         </section>

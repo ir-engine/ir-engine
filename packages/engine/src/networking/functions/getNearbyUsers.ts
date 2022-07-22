@@ -35,5 +35,8 @@ export function getNearbyUsers(userId: UserId, nonPartyUserIds: UserId[]): Array
       distance: position.distanceTo(userPosition)
     })
   }
-  return userDistances.filter(u => nonPartyUserIds.indexOf(u.id) > -1).sort(compareDistance).map((u) => u.id)
+  return userDistances
+    .filter((u) => nonPartyUserIds.indexOf(u.id) > -1)
+    .sort(compareDistance)
+    .map((u) => u.id)
 }

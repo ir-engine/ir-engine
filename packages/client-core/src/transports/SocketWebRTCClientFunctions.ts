@@ -717,8 +717,10 @@ export async function endVideoChat(
         })
       }
 
-      if (network.recvTransport?.closed !== true && typeof network.recvTransport?.close === 'function') await network.recvTransport.close()
-      if (network.sendTransport?.closed !== true && typeof network.sendTransport?.close === 'function') await network.sendTransport.close()
+      if (network.recvTransport?.closed !== true && typeof network.recvTransport?.close === 'function')
+        await network.recvTransport.close()
+      if (network.sendTransport?.closed !== true && typeof network.sendTransport?.close === 'function')
+        await network.sendTransport.close()
 
       resetProducer()
       return true

@@ -168,14 +168,14 @@ const UserMediaWindow = ({ peerId }: Props): JSX.Element => {
       const network = Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork
       if (network) {
         setVideoStream(
-            network.consumers?.find(
-                (c) => c.appData.peerId === userId && c.appData.mediaTag === (isScreen ? 'screen-video' : 'cam-video')
-            )
+          network.consumers?.find(
+            (c) => c.appData.peerId === userId && c.appData.mediaTag === (isScreen ? 'screen-video' : 'cam-video')
+          )
         )
         setAudioStream(
-            network.consumers?.find(
-                (c) => c.appData.peerId === userId && c.appData.mediaTag === (isScreen ? 'screen-audio' : 'cam-audio')
-            )
+          network.consumers?.find(
+            (c) => c.appData.peerId === userId && c.appData.mediaTag === (isScreen ? 'screen-audio' : 'cam-audio')
+          )
         )
       }
     }
@@ -207,8 +207,7 @@ const UserMediaWindow = ({ peerId }: Props): JSX.Element => {
     if (typeof socket?.on === 'function') socket?.on(MessageTypes.WebRTCPauseProducer.toString(), pauseProducerListener)
     if (typeof socket?.on === 'function')
       socket?.on(MessageTypes.WebRTCResumeProducer.toString(), resumeProducerListener)
-    if (typeof socket?.on === 'function')
-      socket?.on(MessageTypes.WebRTCCloseProducer.toString(), closeProducerListener)
+    if (typeof socket?.on === 'function') socket?.on(MessageTypes.WebRTCCloseProducer.toString(), closeProducerListener)
 
     return () => {
       if (typeof socket?.on === 'function')

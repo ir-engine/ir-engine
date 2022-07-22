@@ -23,11 +23,11 @@ import KeyboardDoubleArrowUpIcon from '@mui/icons-material/KeyboardDoubleArrowUp
 
 import { useLoadingSystemState } from '../../systems/state/LoadingState'
 import Debug from '../Debug'
-import InviteToast from '../InviteToast'
 import InstanceChat from '../InstanceChat'
+import InviteToast from '../InviteToast'
 import MediaIconsBox from '../MediaIconsBox'
-import UserMediaWindows from '../UserMediaWindows'
 import { useFullscreen } from '../useFullscreen'
+import UserMediaWindows from '../UserMediaWindows'
 import styles from './index.module.scss'
 
 const TouchGamepad = React.lazy(() => import('@xrengine/client-core/src/common/components/TouchGamepad'))

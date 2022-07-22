@@ -73,7 +73,7 @@ export const inviteReceived = async (inviteService: Invite, query) => {
     query: {
       $or: [
         {
-          inviteeId: query.userId,
+          inviteeId: query.userId
         },
         {
           token: {

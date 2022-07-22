@@ -8,9 +8,9 @@ import {
 } from '@xrengine/client-core/src/media/services/MediaStreamService'
 import { accessAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import { useUserState } from '@xrengine/client-core/src/user/services/UserService'
-import { usePartyState } from "../../social/services/PartyService";
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 
+import { usePartyState } from '../../social/services/PartyService'
 import UserMediaWindow from '../UserMediaWindow'
 
 const UserMediaWindows = (): JSX.Element => {
@@ -24,7 +24,13 @@ const UserMediaWindows = (): JSX.Element => {
   const displayedUsers =
     network?.hostId && currentChannelInstanceConnection
       ? currentChannelInstanceConnection.channelType?.value === 'party'
-        ? userState.layerUsers?.value.filter((user) => { return user.id !== selfUserId.value && user.channelInstanceId != null && user.channelInstanceId === network?.hostId}) || []
+        ? userState.layerUsers?.value.filter((user) => {
+            return (
+              user.id !== selfUserId.value &&
+              user.channelInstanceId != null &&
+              user.channelInstanceId === network?.hostId
+            )
+          }) || []
         : currentChannelInstanceConnection.channelType?.value === 'instance'
         ? userState.layerUsers.value.filter((user) => nearbyLayerUsers.value.includes(user.id))
         : []

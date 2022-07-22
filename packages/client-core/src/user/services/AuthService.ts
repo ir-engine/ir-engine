@@ -218,7 +218,6 @@ export const AuthService = {
         dispatchAction(AuthAction.loginUserSuccessAction({ authUser, message: '' }))
 
         await AuthService.loadUserData(authUser.identityProvider.userId)
-
       } else {
         console.log('****************')
       }

@@ -1,12 +1,13 @@
 import '@feathersjs/transport-commons'
 
+import Sequelize from 'sequelize'
+
 import { Application, ServerMode } from '../../../declarations'
 import logger from '../../logger'
 import { PartyUser } from './party-user.class'
 import partyUserDocs from './party-user.docs'
 import hooks from './party-user.hooks'
 import createModel from './party-user.model'
-import Sequelize from 'sequelize'
 
 declare module '@xrengine/common/declarations' {
   interface ServiceTypes {
@@ -43,7 +44,9 @@ export default (app: Application): void => {
         include: [
           {
             model: app.service('static-resource').Model,
-            on: Sequelize.literal('`avatarId` = `static_resources`.`name` AND `static_resources`.`staticResourceType` = "user-thumbnail"')
+            on: Sequelize.literal(
+              '`avatarId` = `static_resources`.`name` AND `static_resources`.`staticResourceType` = "user-thumbnail"'
+            )
           }
         ]
       })
@@ -71,7 +74,9 @@ export default (app: Application): void => {
         include: [
           {
             model: app.service('static-resource').Model,
-            on: Sequelize.literal('`avatarId` = `static_resources`.`name` AND `static_resources`.`staticResourceType` = "user-thumbnail"')
+            on: Sequelize.literal(
+              '`avatarId` = `static_resources`.`name` AND `static_resources`.`staticResourceType` = "user-thumbnail"'
+            )
           }
         ]
       })
@@ -100,8 +105,7 @@ export default (app: Application): void => {
       console.log('targetIds', targetIds)
       if (data.dataValues)
         data.dataValues.user = await app.service('user').Model.findOne({ where: { id: data.userId } })
-      else
-        data.user = await app.service('user').Model.findOne({ where: { id: data.userId } })
+      else data.user = await app.service('user').Model.findOne({ where: { id: data.userId } })
       return Promise.all(
         targetIds.map((userId: string) => {
           return app.channel(`userIds/${userId}`).send({ partyUser: data })

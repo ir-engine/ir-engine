@@ -10,12 +10,12 @@ import { NetworkTopics } from '@xrengine/engine/src/networking/classes/Network'
 import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
 import { API } from '../../API'
+import { accessChatState } from '../../social/services/ChatService'
 import { accessLocationState } from '../../social/services/LocationService'
 import { endVideoChat, leaveNetwork } from '../../transports/SocketWebRTCClientFunctions'
 import { SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientNetwork'
 import { accessAuthState } from '../../user/services/AuthService'
 import { NetworkConnectionService } from './NetworkConnectionService'
-import { accessChatState } from '../../social/services/ChatService'
 
 const logger = multiLogger.child({ component: 'client-core:service:media-instance' })
 
@@ -103,7 +103,7 @@ export const MediaInstanceConnectionService = {
           ipAddress: provisionResult.ipAddress,
           port: provisionResult.port,
           channelId: channelId ? channelId : '',
-          channelType: accessChatState().channels.channels.value.find(channel => channel.id === channelId).channelType
+          channelType: accessChatState().channels.channels.value.find((channel) => channel.id === channelId).channelType
         })
       )
     } else {

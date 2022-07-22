@@ -11,20 +11,17 @@ import {
   useMediaInstanceConnectionState
 } from '@xrengine/client-core/src/common/services/MediaInstanceConnectionService'
 import { MediaServiceReceptor, MediaStreamService } from '@xrengine/client-core/src/media/services/MediaStreamService'
-import {
-  ChatService,
-  useChatState
-} from '@xrengine/client-core/src/social/services/ChatService'
+import { ChatService, useChatState } from '@xrengine/client-core/src/social/services/ChatService'
 import { useLocationState } from '@xrengine/client-core/src/social/services/LocationService'
 import { MediaStreams } from '@xrengine/client-core/src/transports/MediaStreams'
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
-import { PartyService, usePartyState } from "../../social/services/PartyService";
 import { UserService, useUserState } from '@xrengine/client-core/src/user/services/UserService'
 import { matches } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { addActionReceptor, dispatchAction, removeActionReceptor, useHookEffect } from '@xrengine/hyperflux'
 
+import { PartyService, usePartyState } from '../../social/services/PartyService'
 import { UserServiceReceptor } from '../../user/services/UserService'
 import InstanceServerWarnings from './InstanceServerWarnings'
 
@@ -128,8 +125,13 @@ export const NetworkInstanceProvisioning = () => {
     if (chatState.instanceChannelFetched.value) {
       const channels = chatState.channels.channels.value
       const instanceChannel = Object.values(channels).find((channel) => channel.instanceId === worldNetworkHostId)
-      if (!currentChannelInstanceConnection?.provisioned.value && !currentChannelInstanceConnection?.provisioning.value) {
-        console.log('Provisioning instance media server because instanceChannel was fetched and there was no media connection')
+      if (
+        !currentChannelInstanceConnection?.provisioned.value &&
+        !currentChannelInstanceConnection?.provisioning.value
+      ) {
+        console.log(
+          'Provisioning instance media server because instanceChannel was fetched and there was no media connection'
+        )
         MediaInstanceConnectionService.provisionServer(instanceChannel?.id!, true)
       }
     }
@@ -142,22 +144,27 @@ export const NetworkInstanceProvisioning = () => {
 
   useHookEffect(() => {
     if (selfUser?.partyId?.value && chatState.channels.channels?.value) {
-      const partyChannel = Object.values(chatState.channels.channels.value).find(channel => channel.channelType === 'party' && (channel.partyId === selfUser.partyId.value))
+      const partyChannel = Object.values(chatState.channels.channels.value).find(
+        (channel) => channel.channelType === 'party' && channel.partyId === selfUser.partyId.value
+      )
       console.log('partyChannel', partyChannel)
       console.log('currentChannelInstanceConnection channelId', currentChannelInstanceConnection?.channelId.value)
       console.log('partyChannel ID', partyChannel?.id)
       if (partyChannel && currentChannelInstanceConnection?.channelId.value !== partyChannel.id) {
         console.log('provisioning media server because partyId changed', partyChannel.id)
         MediaInstanceConnectionService.provisionServer(partyChannel?.id!, false)
-      }
-      else if (!chatState.partyChannelFetched.value && !chatState.partyChannelFetching.value)
+      } else if (!chatState.partyChannelFetched.value && !chatState.partyChannelFetching.value)
         ChatService.getPartyChannel()
     }
-  }, [selfUser?.partyId?.value, chatState.channels.channels.value, chatState.partyChannelFetching?.value, chatState.partyChannelFetched?.value])
+  }, [
+    selfUser?.partyId?.value,
+    chatState.channels.channels.value,
+    chatState.partyChannelFetching?.value,
+    chatState.partyChannelFetched?.value
+  ])
 
   useHookEffect(() => {
-    if (partyState.updateNeeded.value)
-      PartyService.getParty()
+    if (partyState.updateNeeded.value) PartyService.getParty()
   }, [partyState.updateNeeded.value])
 
   // if a media connection has been provisioned and is ready, connect to it

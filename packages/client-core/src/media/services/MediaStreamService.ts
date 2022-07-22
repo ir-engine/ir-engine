@@ -7,9 +7,8 @@ import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { getNearbyUsers } from '@xrengine/engine/src/networking/functions/getNearbyUsers'
 import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
-import { accessUserState } from '../../user/services/UserService'
-
 import { SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientNetwork'
+import { accessUserState } from '../../user/services/UserService'
 
 //State
 export const MediaState = defineState({
@@ -101,7 +100,9 @@ export const MediaStreamService = {
     const mediaState = getState(MediaState)
     const UserState = accessUserState()
 
-    const nonPartyUserIds = UserState.layerUsers.filter(user => user.partyId.value == null).map(user => user.id.value)
+    const nonPartyUserIds = UserState.layerUsers
+      .filter((user) => user.partyId.value == null)
+      .map((user) => user.id.value)
     const nearbyUsers = getNearbyUsers(Engine.instance.userId, nonPartyUserIds)
     if (JSON.stringify(mediaState.nearbyLayerUsers.value) !== JSON.stringify(nearbyUsers))
       mediaState.nearbyLayerUsers.set(nearbyUsers)

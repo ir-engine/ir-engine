@@ -545,8 +545,7 @@ export async function handleWebRtcCloseProducer(network: SocketWebRTCServerNetwo
     const hostClient = Array.from(network.peers.entries()).find(([, client]) => {
       return client.media && client.media![producer.appData.mediaTag as any]?.producerId === producerId
     })!
-    if (hostClient && hostClient[1])
-      hostClient[1].socket!.emit(MessageTypes.WebRTCCloseProducer.toString(), producerId)
+    if (hostClient && hostClient[1]) hostClient[1].socket!.emit(MessageTypes.WebRTCCloseProducer.toString(), producerId)
     await closeProducerAndAllPipeProducers(network, producer)
   } catch (err) {
     logger.error(err, 'Error closing WebRTC producer.')

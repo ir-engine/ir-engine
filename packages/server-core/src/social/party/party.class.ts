@@ -92,19 +92,20 @@ export class Party<T = PartyDataType> extends Service<T> {
     if (id == null || id == '') {
       const user = params!.user as UserInterface
       if (user.partyId)
-
-      try {
-        const party = await super.get(user.partyId)
-        party.party_users = (await this.app.service('party-user').find({
-          query: {
-            partyId: user.partyId
-          }
-        })).data
-        console.log('party', party, party.party_users)
-        return party
-      } catch(err) {
-        return null
-      }
+        try {
+          const party = await super.get(user.partyId)
+          party.party_users = (
+            await this.app.service('party-user').find({
+              query: {
+                partyId: user.partyId
+              }
+            })
+          ).data
+          console.log('party', party, party.party_users)
+          return party
+        } catch (err) {
+          return null
+        }
     } else {
       return await super.get(id)
     }
@@ -122,16 +123,18 @@ export class Party<T = PartyDataType> extends Service<T> {
         }
       })
 
-      await Promise.all(existingPartyUsers.data.map(partyUser => {
-        return new Promise(async(resolve, reject) => {
-          try {
-            await self.app.service('party-user').remove(partyUser.id)
-            resolve()
-          } catch(err) {
-            reject(err)
-          }
+      await Promise.all(
+        existingPartyUsers.data.map((partyUser) => {
+          return new Promise(async (resolve, reject) => {
+            try {
+              await self.app.service('party-user').remove(partyUser.id)
+              resolve()
+            } catch (err) {
+              reject(err)
+            }
+          })
         })
-      }))
+      )
 
       const party = await super.create(data)
 
