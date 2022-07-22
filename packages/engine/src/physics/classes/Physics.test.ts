@@ -9,10 +9,12 @@ import assert from 'assert'
 import { BoxGeometry, Mesh, MeshBasicMaterial, Vector3 } from 'three'
 
 import { Direction } from '../../common/constants/Axis3D'
+import { createQuaternionProxy, createVector3Proxy } from '../../common/proxies/three'
 import { Engine } from '../../ecs/classes/Engine'
-import { getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
+import { addComponent, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { createEngine } from '../../initializeEngine'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 import { RapierCollisionComponent } from '../components/RapierCollisionComponent'
 import { RigidBodyComponent } from '../components/RigidBodyComponent'
 import { RigidBodyDynamicTagComponent } from '../components/RigidBodyDynamicTagComponent'
@@ -25,9 +27,10 @@ import { CollisionEvents, RaycastHit, SceneQueryType } from '../types/PhysicsTyp
 import { Physics } from './Physics'
 
 describe('Physics', () => {
-  before(async () => {
+  beforeEach(async () => {
     createEngine()
     await Physics.load()
+    Engine.instance.currentWorld.physicsWorld = Physics.createWorld()
   })
 
   it('should create rapier world & event queue', async () => {
@@ -40,6 +43,12 @@ describe('Physics', () => {
   it('should create & remove rigidBody', async () => {
     const world = Engine.instance.currentWorld
     const entity = createEntity(world)
+
+    addComponent(entity, TransformComponent, {
+      position: createVector3Proxy(TransformComponent.position, entity),
+      rotation: createQuaternionProxy(TransformComponent.rotation, entity),
+      scale: createVector3Proxy(TransformComponent.scale, entity).setScalar(1)
+    })
 
     const physicsWorld = Physics.createWorld()
 
@@ -64,6 +73,12 @@ describe('Physics', () => {
   it('component type should match rigid body type', async () => {
     const world = Engine.instance.currentWorld
     const entity = createEntity(world)
+
+    addComponent(entity, TransformComponent, {
+      position: createVector3Proxy(TransformComponent.position, entity),
+      rotation: createQuaternionProxy(TransformComponent.rotation, entity),
+      scale: createVector3Proxy(TransformComponent.scale, entity).setScalar(1)
+    })
 
     const physicsWorld = Physics.createWorld()
 
@@ -117,6 +132,12 @@ describe('Physics', () => {
     const world = Engine.instance.currentWorld
     const entity = createEntity(world)
 
+    addComponent(entity, TransformComponent, {
+      position: createVector3Proxy(TransformComponent.position, entity),
+      rotation: createQuaternionProxy(TransformComponent.rotation, entity),
+      scale: createVector3Proxy(TransformComponent.scale, entity).setScalar(1)
+    })
+
     const physicsWorld = Physics.createWorld()
 
     const geometry = new BoxGeometry(1, 1, 1)
@@ -136,7 +157,8 @@ describe('Physics', () => {
     const collider = rigidBody.collider(0)
     assert.deepEqual(hasComponent(entity, RigidBodyComponent), true)
     assert.deepEqual(getComponent(entity, RigidBodyComponent), rigidBody)
-    assert.deepEqual(hasComponent(entity, RigidBodyDynamicTagComponent), true)
+    assert.deepEqual(hasComponent(entity, RigidBodyFixedTagComponent), true)
+    assert.deepEqual(hasComponent(entity, RigidBodyDynamicTagComponent), false)
     assert.deepEqual(rigidBody.bodyType(), boxDynamicConfig.bodyType)
     assert.deepEqual(collider.shape.type, boxDynamicConfig.type)
     assert.deepEqual(collider.collisionGroups(), interactionGroups)
@@ -149,6 +171,12 @@ describe('Physics', () => {
   it('should change rigidBody type', async () => {
     const world = Engine.instance.currentWorld
     const entity = createEntity(world)
+
+    addComponent(entity, TransformComponent, {
+      position: createVector3Proxy(TransformComponent.position, entity),
+      rotation: createQuaternionProxy(TransformComponent.rotation, entity),
+      scale: createVector3Proxy(TransformComponent.scale, entity).setScalar(1)
+    })
 
     const physicsWorld = Physics.createWorld()
 
@@ -178,6 +206,12 @@ describe('Physics', () => {
   it('should cast ray and hit rigidbody', async () => {
     const world = Engine.instance.currentWorld
     const entity = createEntity(world)
+
+    addComponent(entity, TransformComponent, {
+      position: createVector3Proxy(TransformComponent.position, entity),
+      rotation: createQuaternionProxy(TransformComponent.rotation, entity),
+      scale: createVector3Proxy(TransformComponent.scale, entity).setScalar(1)
+    })
 
     const physicsWorld = Physics.createWorld()
 
@@ -211,6 +245,17 @@ describe('Physics', () => {
     const world = Engine.instance.currentWorld
     const entity1 = createEntity(world)
     const entity2 = createEntity(world)
+
+    addComponent(entity1, TransformComponent, {
+      position: createVector3Proxy(TransformComponent.position, entity1),
+      rotation: createQuaternionProxy(TransformComponent.rotation, entity1),
+      scale: createVector3Proxy(TransformComponent.scale, entity1).setScalar(1)
+    })
+    addComponent(entity2, TransformComponent, {
+      position: createVector3Proxy(TransformComponent.position, entity2),
+      rotation: createQuaternionProxy(TransformComponent.rotation, entity2),
+      scale: createVector3Proxy(TransformComponent.scale, entity2).setScalar(1)
+    })
 
     const physicsWorld = Physics.createWorld()
     const collisionEventQueue = Physics.createCollisionEventQueue()
@@ -255,6 +300,17 @@ describe('Physics', () => {
     const world = Engine.instance.currentWorld
     const entity1 = createEntity(world)
     const entity2 = createEntity(world)
+
+    addComponent(entity1, TransformComponent, {
+      position: createVector3Proxy(TransformComponent.position, entity1),
+      rotation: createQuaternionProxy(TransformComponent.rotation, entity1),
+      scale: createVector3Proxy(TransformComponent.scale, entity1).setScalar(1)
+    })
+    addComponent(entity2, TransformComponent, {
+      position: createVector3Proxy(TransformComponent.position, entity2),
+      rotation: createQuaternionProxy(TransformComponent.rotation, entity2),
+      scale: createVector3Proxy(TransformComponent.scale, entity2).setScalar(1)
+    })
 
     const physicsWorld = Physics.createWorld()
     const collisionEventQueue = Physics.createCollisionEventQueue()

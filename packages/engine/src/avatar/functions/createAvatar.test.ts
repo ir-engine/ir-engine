@@ -1,18 +1,18 @@
 import assert, { strictEqual } from 'assert'
 import { Quaternion, Vector3 } from 'three'
 
-import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 
 import { Engine } from '../../ecs/classes/Engine'
-import { addComponent, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
-import { createEntity } from '../../ecs/functions/EntityFunctions'
+import { hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEngine } from '../../initializeEngine'
+import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
 import { InteractorComponent } from '../../interaction/components/InteractorComponent'
-import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { WorldNetworkActionReceptor } from '../../networking/functions/WorldNetworkActionReceptor'
-import { CollisionComponent } from '../../physics/components/CollisionComponent'
+import { Physics } from '../../physics/classes/Physics'
+import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
+import { RigidBodyDynamicTagComponent } from '../../physics/components/RigidBodyDynamicTagComponent'
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
 import { NameComponent } from '../../scene/components/NameComponent'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
@@ -26,11 +26,8 @@ import { createAvatar } from './createAvatar'
 describe('createAvatar', () => {
   beforeEach(async () => {
     createEngine()
-    await Engine.instance.currentWorld.physics.createScene({ verbose: true })
-  })
-
-  afterEach(() => {
-    delete (globalThis as any).PhysX
+    await Physics.load()
+    Engine.instance.currentWorld.physicsWorld = Physics.createWorld()
   })
 
   it('check the create avatar function', () => {
@@ -38,13 +35,9 @@ describe('createAvatar', () => {
     Engine.instance.userId = 'user' as UserId
 
     // mock entity to apply incoming unreliable updates to
-
-    const prevPhysicsBodies = Engine.instance.currentWorld.physics.bodies.size
-    const prevPhysicsColliders = Engine.instance.currentWorld.physics.controllers.size
-
     const action = WorldNetworkAction.spawnAvatar({
       $from: Engine.instance.userId,
-      position: new Vector3(-0.48624888685311896, 0, -0.12087574159728942),
+      position: new Vector3(),
       rotation: new Quaternion()
     })
     WorldNetworkActionReceptor.receiveSpawnObject(action)
@@ -59,11 +52,12 @@ describe('createAvatar', () => {
     assert(hasComponent(entity, NameComponent))
     assert(hasComponent(entity, AvatarAnimationComponent))
     assert(hasComponent(entity, Object3DComponent))
-    assert(hasComponent(entity, CollisionComponent))
     assert(hasComponent(entity, SpawnPoseComponent))
     assert(hasComponent(entity, AvatarControllerComponent))
     assert(hasComponent(entity, InteractorComponent))
-    strictEqual(Engine.instance.currentWorld.physics.bodies.size, prevPhysicsBodies + 2)
-    strictEqual(Engine.instance.currentWorld.physics.controllers.size, prevPhysicsColliders + 1)
+    assert(hasComponent(entity, LocalInputTagComponent))
+    assert(hasComponent(entity, RigidBodyComponent))
+    assert(hasComponent(entity, RigidBodyDynamicTagComponent))
+    strictEqual(Engine.instance.currentWorld.physicsWorld.colliders.len(), 1)
   })
 })

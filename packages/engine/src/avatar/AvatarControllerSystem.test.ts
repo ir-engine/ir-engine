@@ -9,13 +9,12 @@ import { Engine } from '../ecs/classes/Engine'
 import { addComponent } from '../ecs/functions/ComponentFunctions'
 import { createEntity } from '../ecs/functions/EntityFunctions'
 import { createEngine } from '../initializeEngine'
-import { ColliderComponent } from '../physics/components/ColliderComponent'
+import { Physics } from '../physics/classes/Physics'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import {
   avatarControllerExit,
   rotateTowardsDisplacementVector,
-  updateAvatarTransformPosition,
-  updateColliderPose
+  updateAvatarTransformPosition
 } from './AvatarControllerSystem'
 import { AvatarComponent } from './components/AvatarComponent'
 import { AvatarControllerComponent } from './components/AvatarControllerComponent'
@@ -23,56 +22,25 @@ import { AvatarControllerComponent } from './components/AvatarControllerComponen
 describe('AvatarControllerSystem', async () => {
   beforeEach(async () => {
     createEngine()
+    await Physics.load()
+    Engine.instance.currentWorld.physicsWorld = Physics.createWorld()
   })
 
   it('check avatarControllerExit', async () => {
     const world = Engine.instance.currentWorld
     const entity = createEntity(world)
-    const physics = { removeController: () => {} } as any
-    const worldMock = { physics } as any
+    const physicsWorld = { removeRigidBody: () => {} } as any
+    const worldMock = { physicsWorld } as any
     const controller = { controller: {} } as any
-    const avatar = { isGrounded: true } as any
 
     ;(AvatarControllerComponent as any)._setPrevious(entity, controller)
-    addComponent(entity, AvatarComponent, avatar)
 
-    sinon.spy(physics, 'removeController')
+    sinon.spy(physicsWorld, 'removeRigidBody')
 
     avatarControllerExit(entity, worldMock)
-    assert(physics.removeController.calledOnce)
-    const removeControllerCallArg = physics.removeController.getCall(0).args[0]
-    assert(removeControllerCallArg === controller.controller)
-    assert(avatar.isGrounded === false)
-  })
-
-  it('check updateColliderPose', async () => {
-    const world = Engine.instance.currentWorld
-    const entity = createEntity(world)
-    const colliderBody = { setGlobalPose: () => {} } as any
-    const collider = { body: colliderBody } as any
-    const controllerPos = new Vector3(1, 2, 3)
-    const controller = {
-      controller: {
-        getPosition: () => controllerPos
-      }
-    } as any
-
-    const position = createVector3Proxy(TransformComponent.position, entity)
-    const rotation = createQuaternionProxy(TransformComponent.rotation, entity)
-    const scale = createVector3Proxy(TransformComponent.scale, entity)
-    const transform = { position, rotation, scale }
-
-    addComponent(entity, ColliderComponent, collider)
-    addComponent(entity, AvatarControllerComponent, controller)
-    addComponent(entity, TransformComponent, transform)
-
-    sinon.spy(colliderBody, 'setGlobalPose')
-
-    updateColliderPose(entity)
-    assert(colliderBody.setGlobalPose.calledOnce)
-    const setGlobalPoseArgs = colliderBody.setGlobalPose.getCall(0).args
-    assert(setGlobalPoseArgs[0].translation === controllerPos)
-    assert(setGlobalPoseArgs[0].rotation === transform.rotation)
+    assert(physicsWorld.removeRigidBody.calledOnce)
+    const removeRigidBodyCallArg = physicsWorld.removeRigidBody.getCall(0).args[0]
+    assert(removeRigidBodyCallArg === controller.controller)
   })
 
   it('check updateAvatarTransformPosition', async () => {
@@ -81,7 +49,7 @@ describe('AvatarControllerSystem', async () => {
     const controllerPos = new Vector3(1, 2, 3)
     const controller = {
       controller: {
-        getPosition: () => controllerPos
+        translation: () => controllerPos
       }
     } as any
 
@@ -101,7 +69,7 @@ describe('AvatarControllerSystem', async () => {
     updateAvatarTransformPosition(entity)
 
     assert(transform.position.x === 1)
-    assert(transform.position.y === 1)
+    assert(transform.position.y === 2)
     assert(transform.position.z === 3)
   })
 

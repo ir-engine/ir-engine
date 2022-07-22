@@ -1,4 +1,3 @@
-// This file will be renamed to Physics.ts when we are ready to take out physx completely.
 import RAPIER, {
   ActiveCollisionTypes,
   ActiveEvents,
@@ -14,10 +13,15 @@ import RAPIER, {
 } from '@dimforge/rapier3d-compat'
 import { Mesh, Object3D, Quaternion, Vector3 } from 'three'
 
-import { mergeBufferGeometries } from '../../common/classes/BufferGeometryUtils'
 import { createVector3Proxy } from '../../common/proxies/three'
 import { Entity } from '../../ecs/classes/Entity'
-import { addComponent, ComponentType, getComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
+import {
+  addComponent,
+  ComponentType,
+  getComponent,
+  hasComponent,
+  removeComponent
+} from '../../ecs/functions/ComponentFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { RapierCollisionComponent } from '../components/RapierCollisionComponent'
 import { RaycastComponent } from '../components/RaycastComponent'
@@ -47,10 +51,18 @@ function createCollisionEventQueue() {
 }
 
 function createRigidBody(entity: Entity, world: World, rigidBodyDesc: RigidBodyDesc, colliderDesc: ColliderDesc[]) {
-  // apply the initial transform
-  const { position, rotation } = getComponent(entity, TransformComponent)
-  rigidBodyDesc.setTranslation(position.x, position.y, position.z)
-  rigidBodyDesc.setRotation(rotation)
+  // apply the initial transform if there is one
+  if (hasComponent(entity, TransformComponent)) {
+    const { position, rotation } = getComponent(entity, TransformComponent)
+    rigidBodyDesc.setTranslation(
+      position.x + rigidBodyDesc.translation.x,
+      position.y + rigidBodyDesc.translation.y,
+      position.z + rigidBodyDesc.translation.z
+    )
+    rigidBodyDesc.setRotation(
+      new Quaternion().copy(rotation).multiply(new Quaternion().copy(rigidBodyDesc.rotation as Quaternion))
+    )
+  }
 
   const rigidBody = world.createRigidBody(rigidBodyDesc)
   colliderDesc.forEach((desc) => world.createCollider(desc, rigidBody))

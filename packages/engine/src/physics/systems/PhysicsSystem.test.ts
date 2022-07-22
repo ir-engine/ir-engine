@@ -10,7 +10,6 @@ import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { createEngine } from '../../initializeEngine'
 import { Physics } from '../classes/Physics'
 import { VelocityComponent } from '../components/VelocityComponent'
-import { loadRapier } from '../rapier/loadRapier'
 import { teleportObjectReceptor } from './PhysicsSystem'
 
 /**
@@ -19,7 +18,7 @@ import { teleportObjectReceptor } from './PhysicsSystem'
 describe('PhysicsSystem', () => {
   beforeEach(async () => {
     createEngine()
-    await loadRapier()
+    await Physics.load()
     Engine.instance.currentWorld.physicsWorld = Physics.createWorld()
   })
 

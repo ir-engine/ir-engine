@@ -159,7 +159,6 @@ export const controllerQueryUpdate = (
 export const avatarControllerExit = (entity: Entity, world: World = Engine.instance.currentWorld) => {
   const controller = getComponent(entity, AvatarControllerComponent, true)
   if (controller?.controller) world.physicsWorld.removeRigidBody(controller.controller)
-  const avatar = getComponent(entity, AvatarComponent)
 }
 
 export const updateMap = () => {

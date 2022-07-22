@@ -111,7 +111,7 @@ export const createAvatarCollider = (entity: Entity): Collider => {
   const interactionGroups = getInteractionGroups(CollisionGroups.Avatars, AvatarCollisionMask)
   const avatarComponent = getComponent(entity, AvatarComponent)
   const rigidBody = getComponent(entity, RigidBodyComponent)
-  console.log('avatarComponent.avatarHalfHeight', avatarComponent.avatarHalfHeight)
+
   const bodyColliderDesc = ColliderDesc.capsule(
     avatarComponent.avatarHalfHeight - avatarRadius,
     avatarRadius
@@ -174,7 +174,8 @@ export const createAvatarController = (entity: Entity) => {
       localMovementDirection: new Vector3(),
       velocitySimulator,
       currentSpeed: 0,
-      speedVelocity: { value: 0 }
+      speedVelocity: { value: 0 },
+      lastPosition: new Vector3() //.copy(rigidBody.translation() as Vector3)
     })
   }
 

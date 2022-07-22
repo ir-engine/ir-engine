@@ -18,6 +18,7 @@ export type AvatarControllerComponentType = {
   // walk and run speeds
   currentSpeed: number
   speedVelocity: { value: number }
+  lastPosition: Vector3
 }
 
 export const AvatarControllerComponent =
