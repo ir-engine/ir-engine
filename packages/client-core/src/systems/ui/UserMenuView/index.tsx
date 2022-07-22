@@ -74,7 +74,8 @@ const AvatarContextMenu = () => {
       const sendData = {
         inviteType: 'party',
         inviteeId: userId,
-        targetObjectId: partyId
+        targetObjectId: partyId,
+        token: null
       } as SendInvite
       InviteService.sendInvite(sendData)
     }
