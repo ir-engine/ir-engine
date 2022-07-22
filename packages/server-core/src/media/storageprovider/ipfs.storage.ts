@@ -392,6 +392,8 @@ export class IPFSStorage implements StorageProviderInterface {
  * Blob store class for IPFS storage.
  */
 class IPFSBlobStore implements BlobStore {
+  private _client: IPFSHTTPClient
+
   /**
    * Path for the IPFS blob store.
    */
@@ -400,8 +402,6 @@ class IPFSBlobStore implements BlobStore {
    * Cache for the IPFS blob store.
    */
   cache: any
-
-  private _client: IPFSHTTPClient
 
   /**
    * Constructor of IPFSBlobStore class.
