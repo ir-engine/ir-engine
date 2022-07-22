@@ -168,7 +168,7 @@ const InstanceServerWarnings = () => {
         const instanceChannel = Object.values(channels).find(
           (channel) => channel.instanceId === Engine.instance.currentWorld.mediaNetwork?.hostId
         )
-        const channelId = partyChannel ? partyChannel.id : instanceChannel.id
+        const channelId = partyChannel ? partyChannel.id : instanceChannel!.id
         setModalValues({
           open: true,
           title: t('common:instanceServer.noAvailableServers'),

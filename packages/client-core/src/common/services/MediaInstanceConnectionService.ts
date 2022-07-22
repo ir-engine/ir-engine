@@ -103,7 +103,8 @@ export const MediaInstanceConnectionService = {
           ipAddress: provisionResult.ipAddress,
           port: provisionResult.port,
           channelId: channelId ? channelId : '',
-          channelType: accessChatState().channels.channels.value.find((channel) => channel.id === channelId).channelType
+          channelType: accessChatState().channels.channels.value.find((channel) => channel.id === channelId)!
+            .channelType
         })
       )
     } else {

@@ -32,7 +32,6 @@ export const usePartyMenuHooks = () => {
     console.log('partyUsers', partyState.party?.partyUsers?.value)
     const partyUser = partyState.party?.partyUsers?.value
       ? partyState.party.partyUsers.value.find((partyUser) => {
-          console.log('partyUser', partyUser, partyUser.userId, partyUser.userId.value)
           return partyUser.userId === userId
         })
       : null

@@ -13,7 +13,8 @@ interface Props {
 
 const InviteToast = (props: Props) => {
   const InviteState = useInviteState()
-  const newestInvite = InviteState.receivedInvites.total.value > 0 ? InviteState.receivedInvites.invites[0].value : {}
+  const newestInvite =
+    InviteState.receivedInvites.total.value > 0 ? InviteState.receivedInvites.invites[0].value : ({} as any)
   const { t } = useTranslation()
 
   useEffect(() => {
@@ -24,7 +25,7 @@ const InviteToast = (props: Props) => {
   InviteService.useAPIListeners()
 
   const acceptInvite = (invite) => {
-    InviteService.acceptInvite(invite, invite)
+    InviteService.acceptInvite(invite)
   }
 
   const declineInvite = (invite) => {
@@ -43,20 +44,10 @@ const InviteToast = (props: Props) => {
           </span>
         )}
         <div className={`${styles.btnContainer}`}>
-          <Button
-            variant="contained"
-            color="primary"
-            className={styles.acceptBtn}
-            onClick={() => acceptInvite(newestInvite)}
-          >
+          <Button color="primary" className={styles.acceptBtn} onClick={() => acceptInvite(newestInvite)}>
             {t('social:invite.accept')}
           </Button>
-          <Button
-            variant="contained"
-            color="secondary"
-            className={styles.declineBtn}
-            onClick={() => declineInvite(newestInvite)}
-          >
+          <Button color="secondary" className={styles.declineBtn} onClick={() => declineInvite(newestInvite)}>
             {t('social:invite.decline')}
           </Button>
         </div>

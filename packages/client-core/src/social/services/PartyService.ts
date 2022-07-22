@@ -22,6 +22,7 @@ import { SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientNe
 import { accessAuthState } from '../../user/services/AuthService'
 import { UserAction } from '../../user/services/UserService'
 import { accessChatState, ChatService } from './ChatService'
+import { InviteService } from './InviteService'
 
 const logger = multiLogger.child({ component: 'client-core:social' })
 
@@ -70,7 +71,7 @@ const createdPartyUserReceptor = (action: typeof PartyActions.createdPartyUserAc
   state.updateNeeded.set(true)
 }
 
-const changedPartyReceptor = (action: typeof PartyActions.changedPartyAction.match._TYPE) => {
+const changedPartyReceptor = (action: typeof PartyActions.changedPartyAction.matches._TYPE) => {
   const state = getState(PartyState)
   return state.updateNeeded.set(true)
 }
@@ -128,7 +129,7 @@ export const PartyService = {
       const partyResult = (await API.instance.client.service('party').get('')) as Party
       console.log('partyResult', partyResult)
       if (partyResult) {
-        partyResult.partyUsers = partyResult.party_users
+        partyResult.partyUsers = (partyResult as any).party_users
         dispatchAction(
           PartyActions.loadedPartyAction({
             party: partyResult,

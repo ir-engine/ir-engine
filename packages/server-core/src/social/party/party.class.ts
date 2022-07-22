@@ -88,12 +88,12 @@ export class Party<T = PartyDataType> extends Service<T> {
    * @param params contains user info
    * @returns {@Object} of single party
    */
-  async get(id: string, params?: Params): Promise<T | null> {
+  async get(id: string, params?: Params): Promise<T> {
     if (id == null || id == '') {
       const user = params!.user as UserInterface
       if (user.partyId)
         try {
-          const party = await super.get(user.partyId)
+          const party = (await super.get(user.partyId)) as any
           party.party_users = (
             await this.app.service('party-user').find({
               query: {
@@ -104,11 +104,12 @@ export class Party<T = PartyDataType> extends Service<T> {
           console.log('party', party, party.party_users)
           return party
         } catch (err) {
-          return null
+          return null!
         }
     } else {
       return await super.get(id)
     }
+    return null!
   }
 
   async create(data?: any, params?: Params): Promise<any> {
@@ -125,7 +126,7 @@ export class Party<T = PartyDataType> extends Service<T> {
 
       await Promise.all(
         existingPartyUsers.data.map((partyUser) => {
-          return new Promise(async (resolve, reject) => {
+          return new Promise<void>(async (resolve, reject) => {
             try {
               await self.app.service('party-user').remove(partyUser.id)
               resolve()
@@ -136,7 +137,7 @@ export class Party<T = PartyDataType> extends Service<T> {
         })
       )
 
-      const party = await super.create(data)
+      const party = (await super.create(data)) as any
 
       await this.app.service('party-user').create({
         partyId: party.id,

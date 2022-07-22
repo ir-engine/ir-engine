@@ -84,7 +84,7 @@ export class PartyUser<T = PartyUserDataType> extends Service<T> {
 
       await Promise.all(
         existingPartyUsers.data.map((partyUser) => {
-          return new Promise(async (resolve, reject) => {
+          return new Promise<void>(async (resolve, reject) => {
             try {
               console.log('Removing party user', partyUser)
               await self.app.service('party-user').remove(partyUser.id)
@@ -96,7 +96,7 @@ export class PartyUser<T = PartyUserDataType> extends Service<T> {
           })
         })
       )
-      const partyUser = await super.create(data)
+      const partyUser = (await super.create(data)) as any
       console.log('new partyUser', partyUser)
       const user = await this.app.service('user').get(partyUser.userId)
 
@@ -126,7 +126,7 @@ export class PartyUser<T = PartyUserDataType> extends Service<T> {
   async patch(id: string, data: any, params?: Params): Promise<any> {
     try {
       const partyUserToPatch = await this.app.service('party-user').get(id)
-      if (partyUserToPatch.userId !== params.user!.id && params.user.userRole !== 'admin')
+      if (partyUserToPatch.userId !== params!.user!.id && params!.user.userRole !== 'admin')
         throw new Forbidden('You do not own that party user')
 
       // If we're removing ownership from the party owner somehow, make another party user the owner (if there is another)
@@ -156,7 +156,7 @@ export class PartyUser<T = PartyUserDataType> extends Service<T> {
   async remove(id: string, params?: Params): Promise<any> {
     try {
       console.log('party-user remove', id)
-      const partyUser = await this.app.service('party-user').get(id)
+      const partyUser = (await this.app.service('party-user').get(id)) as any
 
       const partyUserCount = await this.app.service('party-user').Model.count({ where: { partyId: partyUser.partyId } })
 

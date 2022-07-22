@@ -126,8 +126,8 @@ export const NetworkInstanceProvisioning = () => {
       const channels = chatState.channels.channels.value
       const instanceChannel = Object.values(channels).find((channel) => channel.instanceId === worldNetworkHostId)
       if (
-        !currentChannelInstanceConnection?.provisioned.value &&
-        !currentChannelInstanceConnection?.provisioning.value
+        !currentChannelInstanceConnection?.provisioned.value
+        //  &&!currentChannelInstanceConnection?.provisioning.value
       ) {
         console.log(
           'Provisioning instance media server because instanceChannel was fetched and there was no media connection'
@@ -158,7 +158,7 @@ export const NetworkInstanceProvisioning = () => {
     }
   }, [
     selfUser?.partyId?.value,
-    chatState.channels.channels.value,
+    chatState.channels.channels.value as any,
     chatState.partyChannelFetching?.value,
     chatState.partyChannelFetched?.value
   ])
