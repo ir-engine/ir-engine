@@ -548,7 +548,8 @@
       "uvolPaths": "UVOL Paths",
       "playmode": "Play Mode",
       "playtitle": "Play",
-      "pausetitle": "Pause"
+      "pausetitle": "Pause",
+      "mute": "Mute"
     },
     "spline": {
       "description": "Dynamically create and customize curves.",
