@@ -276,7 +276,7 @@ const moveAvatarController = (world: World, entity: Entity, displacement: Vector
 
   const collisionFlags = controller.controller.move(
     displacement,
-    0.001,
+    0.02,
     timeStep,
     filters,
     world.physics.obstacleContext

@@ -81,7 +81,8 @@ export class MOZLightmapExtension extends Extension {
   }
 }
 
-export default async function ModelTransformLoader() {
+const transformHistory: string[] = []
+export default function ModelTransformLoader() {
   const io = new NodeIO()
   io.registerExtensions([MeshGPUInstancing, MeshoptCompression, MeshQuantization, TextureBasisu])
   io.registerDependencies({
@@ -90,15 +91,13 @@ export default async function ModelTransformLoader() {
   })
 
   io.registerExtensions([MOZLightmapExtension])
-
-  const transformHistory: string[] = []
   return {
     io,
-    load: async (src) => {
+    load: async (src, noHistory = false) => {
       const loader = new FileLoader()
       loader.setResponseType('arraybuffer')
       const data = (await loader.loadAsync(src)) as ArrayBuffer
-      transformHistory.push(src)
+      if (!noHistory) transformHistory.push(src)
       return io.readBinary(new Uint8Array(data))
     },
     get prev(): string | undefined {
