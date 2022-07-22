@@ -4,6 +4,7 @@ import { AudioListener, Object3D, OrthographicCamera, PerspectiveCamera, Raycast
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
+import multiLogger from '@xrengine/common/src/logger'
 import { addTopic } from '@xrengine/hyperflux'
 import { Topic } from '@xrengine/hyperflux/functions/ActionFunctions'
 
@@ -48,6 +49,8 @@ import EntityTree from './EntityTree'
 const TimerConfig = {
   MAX_DELTA_SECONDS: 1 / 10
 }
+
+const logger = multiLogger.child({ component: 'engine:ecs:World' })
 
 export const CreateWorld = Symbol('CreateWorld')
 export class World {
@@ -217,7 +220,9 @@ export class World {
     const nameMap = this.#nameMap
     for (const entity of this.#nameQuery.enter()) {
       const { name } = getComponent(entity, NameComponent)
-      if (nameMap.has(name)) console.warn(`An Entity with name "${name}" already exists.`)
+      if (nameMap.has(name)) {
+        logger.warn(`An Entity with name "${name}" already exists.`)
+      }
       nameMap.set(name, entity)
       const obj3d = getComponent(entity, Object3DComponent)?.value
       if (obj3d) obj3d.name = name
@@ -322,7 +327,7 @@ export class World {
     const end = nowMilliseconds()
     const duration = end - start
     if (duration > 150) {
-      console.warn(`Long frame execution detected. Duration: ${duration}. \n Incoming actions: `, incomingActions)
+      logger.warn(`Long frame execution detected. Duration: ${duration}. \n Incoming actions: %o`, incomingActions)
     }
   }
 }
