@@ -29,6 +29,7 @@ export default (app: Application): void => {
 
   service.hooks(hooks)
 
+  console.log('party service app.serverMode', app.serverMode)
   if (app.serverMode !== ServerMode.API) return
 
   service.publish('created', async (data: PartyDataType): Promise<any> => {
@@ -57,9 +58,11 @@ export default (app: Application): void => {
   })
 
   service.publish('removed', async (data: PartyDataType): Promise<any> => {
+    console.log('party removed', data)
     const partyUsers = await app.service('party-user').Model.findAll({ where: { partyId: data.id }, limit: 1000 })
     const targetIds = partyUsers.map((partyUser) => partyUser.userId)
 
+    console.log('party removed recipients', targetIds)
     return Promise.all(
       targetIds.map((userId: string) => {
         return app.channel(`userIds/${userId}`).send({ party: data })

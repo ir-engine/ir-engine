@@ -5,6 +5,7 @@ import { Invite, SendInvite } from '@xrengine/common/src/interfaces/Invite'
 import { UserInterface } from '@xrengine/common/src/interfaces/User'
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
+import { PartyService } from "./PartyService";
 
 import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
@@ -300,13 +301,15 @@ export const InviteService = {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   },
-  acceptInvite: async (inviteId: string, passcode: string) => {
+  acceptInvite: async (invite: Invite) => {
     try {
-      await API.instance.client.service('a-i').get(inviteId, {
+      await API.instance.client.service('a-i').get(invite.id, {
         query: {
-          passcode: passcode
+          passcode: invite.passcode
         }
       })
+      if (invite.inviteType === 'party')
+        PartyService.leaveNetwork(false)
       dispatchAction(InviteAction.acceptedInvite({}))
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })

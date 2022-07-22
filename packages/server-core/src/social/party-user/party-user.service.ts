@@ -75,6 +75,7 @@ export default (app: Application): void => {
           }
         ]
       })
+      console.log('data.user on party-user patched', data.user)
       return Promise.all(
         targetIds.map((userId: string) => {
           return app.channel(`userIds/${userId}`).send({ partyUser: data })
@@ -87,6 +88,7 @@ export default (app: Application): void => {
   })
 
   service.publish('removed', async (data): Promise<any> => {
+    console.log('party-user removed', data)
     data.isOwner = data.isOwner === 1 ? true : data.isOwner === 0 ? false : data.isOwner
     try {
       const partyUsers = await app
@@ -95,6 +97,7 @@ export default (app: Application): void => {
       const targetIds = partyUsers.map((partyUser) => partyUser.userId)
       targetIds.push(data.userId)
 
+      console.log('targetIds', targetIds)
       if (data.dataValues)
         data.dataValues.user = await app.service('user').Model.findOne({ where: { id: data.userId } })
       else

@@ -90,47 +90,67 @@ export class Party<T = PartyDataType> extends Service<T> {
    */
   async get(id: string, params?: Params): Promise<T | null> {
     if (id == null || id == '') {
-      const PartyUserMS = this.app.service('party-user').Model as PartyUserModelStatic
+      const user = params!.user as UserInterface
+      if (user.partyId)
 
-      const loggedInUser = params!.user as UserInterface
-      const partyUserResult = await PartyUserMS.findOne({ where: { userId: loggedInUser.id } })
-
-      if (!partyUserResult) return null
-
-      const partyId = partyUserResult.getDataValue('partyId')
-      const party: any = await super.get(partyId as string)
-
-      party.partyUsers = (await this.app.service('party-user').find({ query: { partyId: party.id } }))?.data
-
-      return party
+      try {
+        const party = await super.get(user.partyId)
+        party.party_users = (await this.app.service('party-user').find({
+          query: {
+            partyId: user.partyId
+          }
+        })).data
+        console.log('party', party, party.party_users)
+        return party
+      } catch(err) {
+        return null
+      }
     } else {
       return await super.get(id)
     }
   }
 
   async create(data?: any, params?: Params): Promise<any> {
+    const self = this
     if (!params) return null!
+    const userId = params!.user.id
 
     try {
-      const PartyUserMS = this.app.service('party-user').Model as PartyUserModelStatic
-      const userModel = this.app.service('user').Model
-      const PartyMS = this.app.service('party').Model as PartyModelStatic
+      const existingPartyUsers = await this.app.service('party-user').find({
+        query: {
+          userId: userId
+        }
+      })
 
-      await PartyUserMS.destroy({ where: { userId: params.user.id } })
+      await Promise.all(existingPartyUsers.data.map(partyUser => {
+        return new Promise(async(resolve, reject) => {
+          try {
+            await self.app.service('party-user').remove(partyUser.id)
+            resolve()
+          } catch(err) {
+            reject(err)
+          }
+        })
+      }))
 
-      const party = (await PartyMS.create(data)).get()
+      const party = await super.create(data)
 
-      await Promise.all([
-        PartyUserMS.create({ partyId: party.id, isOwner: true, userId: params.user.id }),
-        userModel.update({ partyId: party.id }, { where: { id: params.user.id } })
-      ])
-      ;(party as any).partyUsers = (await this.app.service('party-user').find({ query: { partyId: party.id } }))?.data
+      await this.app.service('party-user').create({
+        partyId: party.id,
+        isOwner: true,
+        userId: userId
+      })
 
-      return party
+      await this.app.service('user').patch(userId, {
+        partyId: party.id
+      })
+
+      const returned = await this.app.service('party').get(party.id)
+      console.log('returned', returned)
+      return returned
     } catch (err) {
       logger.error(err)
+      throw err
     }
-
-    return null!
   }
 }

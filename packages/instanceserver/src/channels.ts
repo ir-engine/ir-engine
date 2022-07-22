@@ -303,57 +303,6 @@ const loadEngine = async (app: Application, sceneId: string) => {
 }
 
 /**
- * Puts a message into the message channel that the connecting user has joined the layer.
- * If the user is in a party and the party instance id has changed, notify the other users
- * @param app
- * @param userId
- * @param status
- * @param locationId
- * @param channelId
- * @param sceneId
- */
-
-const notifyWorldAndPartiesUserHasJoined = async (
-  app: Application,
-  userId: UserId,
-  status: InstanceserverStatus,
-  locationId: string,
-  channelId: string,
-  sceneId: string
-) => {
-  const user = await app.service('user').get(userId)
-
-  if (user.partyId != null) {
-    const party = await app.service('party').Model.findOne({ where: { id: user.partyId } })
-    if (!party) return
-
-    const partyUsers = await app.service('party-user').Model.findAll({ where: { partyId: user.partyId } })
-    const partyOwner = partyUsers.find((partyUser) => partyUser.isOwner)
-
-    if (partyOwner?.userId === userId && party.instanceId !== app.instance.id) {
-      const nonOwners = partyUsers.filter((partyUser) => partyUser.isOwner !== 1 && partyUser.isOwner !== true)
-      const emittedIp = !config.kubernetes.enabled
-        ? await getLocalServerIp(app.isChannelInstance)
-        : {
-            ipAddress: status.address,
-            port: status.portsList[0].port
-          }
-
-      nonOwners.map(async (partyUser) => {
-        app.service('instance-provision').emit('created', {
-          userId: partyUser.userId,
-          ipAddress: emittedIp.ipAddress,
-          port: emittedIp.port,
-          locationId: locationId,
-          channelId: channelId,
-          sceneId: sceneId
-        })
-      })
-    }
-  }
-}
-
-/**
  * Update instance attendance with the new user for analytics purposes
  * @param app
  * @param userId
@@ -363,9 +312,10 @@ const handleUserAttendance = async (app: Application, userId: UserId) => {
   const instanceIdKey = app.isChannelInstance ? 'channelInstanceId' : 'instanceId'
   logger.info(`Patching user ${userId} ${instanceIdKey} to ${app.instance.id}`)
 
-  await app.service('user').patch(userId, {
+  const instanceIdPatchResult = await app.service('user').patch(userId, {
     [instanceIdKey]: app.instance.id
   })
+  logger.info('Patched new user instanceId to', instanceIdPatchResult)
   await app.service('instance-attendance').patch(
     null,
     {
@@ -504,20 +454,30 @@ const handleUserDisconnect = async (
     [instanceIdKey]: null
   }
 
+  console.log('Check if this is a media server and the user has a partyId', user?.partyId, app.isChannelInstance)
   if (user?.partyId && app.isChannelInstance) {
+    console.log('Checking if this media server is handling the party channel')
     const partyChannel = app.service('channel').Model.findOne({
       where: {
         partyId: user.partyId
       }
     })
     if (partyChannel?.id === app.instance.channelId) {
+      console.log('This server is the party mediaserver, removing user from party')
       userPatch.partyId = null
-      await app.service('party-user').remove(user.partyId)
+      const partyUser = await app.service('party-user').find({
+        query: {
+          userId: user.id,
+          partyId: user.partyId
+        }
+      })
+      // if (partyUser)
+      //   await app.service('party-user').remove(partyUser.id)
     }
   }
   // Patch the user's (channel)instanceId to null if they're leaving this instance.
   // But, don't change their (channel)instanceId if it's already something else.
-  await app
+  const userPatchResult = await app
     .service('user')
     .patch(
       null,
@@ -532,6 +492,7 @@ const handleUserDisconnect = async (
     .catch((err) => {
       logger.warn(err, "Failed to patch user, probably because they don't have an ID yet.")
     })
+  logger.info('Patched disconnecting user to', userPatchResult)
   await app.service('instance-attendance').patch(
     null,
     {
@@ -617,9 +578,6 @@ const onConnection = (app: Application) => async (connection: SocketIOConnection
   app.channel(`instanceIds/${app.instance.id as string}`).join(connection)
 
   await handleUserAttendance(app, userId)
-  if (!app.isChannelInstance) {
-    await notifyWorldAndPartiesUserHasJoined(app, userId, status, locationId, channelId, sceneId)
-  }
 }
 
 const onDisconnection = (app: Application) => async (connection: SocketIOConnectionType) => {

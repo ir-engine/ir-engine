@@ -155,12 +155,15 @@
     "party": {
       "title": "Party",
       "create": "Create",
-      "createPartyText": "Create Party to enjoy with people",
+      "createPartyText": "Create a Party for private conversations",
       "invite": "Invite",
       "leave": "Leave",
       "kick": "Kick",
       "admin": "Admin",
-      "you": "You"
+      "you": "You",
+      "initDelete": "Delete",
+      "confirmDelete": "Confirm",
+      "cancelDelete": "Cancel"
     },
     "setting": {
       "audio": "Audio",

@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { SendInvite } from '@xrengine/common/src/interfaces/Invite'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 
-import { Send } from '@mui/icons-material'
+import { Clear, Send } from '@mui/icons-material'
 import { InputAdornment, TextField } from '@mui/material'
 import Button from '@mui/material/Button'
 import Typography from '@mui/material/Typography'
@@ -17,23 +17,31 @@ import styles from './PartyMenu.module.scss'
 export const usePartyMenuHooks = () => {
   const [token, setToken] = React.useState('')
   const [isInviteOpen, setInviteOpen] = React.useState(false)
+  const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = React.useState(false)
   const partyState = usePartyState()
   const selfUser = useAuthState().user
+
+  const isOwned = partyState.isOwned?.value
 
   const createParty = () => {
     PartyService.createParty()
   }
 
   const kickUser = (userId: UserId) => {
-    PartyService.removePartyUser(userId)
-  }
-
-  const getUsers = () => {
-    PartyService.getPartyUsers()
+    console.log('user leaving party', userId)
+    console.log('partyUsers', partyState.party?.partyUsers?.value)
+    const partyUser = partyState.party?.partyUsers?.value ? partyState.party.partyUsers.value.find(partyUser => { console.log('partyUser', partyUser, partyUser.userId, partyUser.userId.value); return partyUser.userId === userId }) : null
+    console.log('partyUser', partyUser)
+    if (partyUser)
+      PartyService.removePartyUser(partyUser.id)
   }
 
   const handleChangeToken = (e) => {
     setToken(e.target.value)
+  }
+
+  const deleteParty = (partyId: string) => {
+    PartyService.removeParty(partyId)
   }
 
   const sendInvite = async (): Promise<void> => {
@@ -59,12 +67,16 @@ export const usePartyMenuHooks = () => {
   return {
     createParty,
     kickUser,
-    getUsers,
     token,
     handleChangeToken,
     sendInvite,
     isInviteOpen,
-    setInviteOpen
+    setInviteOpen,
+    isDeleteConfirmOpen,
+    setIsDeleteConfirmOpen,
+    deleteParty,
+    isOwned,
+    selfUser
   }
 }
 
@@ -73,13 +85,10 @@ const SocialMenu = (): JSX.Element => {
   const partyState = usePartyState()
   const authUser = useAuthState().authUser.value
 
-  const { createParty, kickUser, getUsers, token, handleChangeToken, sendInvite, isInviteOpen, setInviteOpen } =
+  const { createParty, kickUser, token, handleChangeToken, sendInvite, isInviteOpen, setInviteOpen, isDeleteConfirmOpen, setIsDeleteConfirmOpen, deleteParty, isOwned, selfUser } =
     usePartyMenuHooks()
 
-  useEffect(() => {
-    getUsers()
-  }, [])
-
+  console.log('isOwned', isOwned)
   const renderCreate = () => {
     return (
       <>
@@ -131,6 +140,11 @@ const SocialMenu = (): JSX.Element => {
               value={token}
               onChange={(e) => handleChangeToken(e)}
               InputProps={{
+                startAdornment: (
+                    <InputAdornment position="start" onClick={() => setInviteOpen(false)} className={styles.cancelInvite}>
+                      <Clear />
+                    </InputAdornment>
+                ),
                 endAdornment: (
                   <InputAdornment position="end" onClick={sendInvite} className={styles.send}>
                     <Send />
@@ -139,14 +153,31 @@ const SocialMenu = (): JSX.Element => {
               }}
             />
           ) : (
-            <>
-              <Button className={styles.leave} onClick={() => kickUser(authUser.identityProvider.userId)}>
-                {t('user:usermenu.party.leave')}
+            <div className={styles.controls}>
+              <div className={styles.leaveInviteButtons}>
+                <Button className={styles.leave} onClick={() => kickUser(authUser.identityProvider.userId)}>
+                  {t('user:usermenu.party.leave')}
+                </Button>
+                {isOwned && <Button className={styles.invite} onClick={() => setInviteOpen(true)}>
+                  {t('user:usermenu.party.invite')}
+                </Button>
+                }
+              </div>
+              { isOwned && !isDeleteConfirmOpen && <Button className={styles.startDelete} onClick={() => setIsDeleteConfirmOpen(true)}>
+                {t('user:usermenu.party.initDelete')}
               </Button>
-              <Button className={styles.invite} onClick={() => setInviteOpen(true)}>
-                {t('user:usermenu.party.invite')}
-              </Button>
-            </>
+              }
+              {
+                isOwned && isDeleteConfirmOpen && <div className={styles.confirmDeleteButtons}>
+                  <Button className={styles.confirmDelete} onClick={() => deleteParty(partyState.party.id.value)}>
+                    {t('user:usermenu.party.confirmDelete')}
+                  </Button>
+                  <Button className={styles.cancelDelete} onClick={() => setIsDeleteConfirmOpen(false)}>
+                    {t('user:usermenu.party.cancelDelete')}
+                  </Button>
+                </div>
+              }
+            </div>
           )}
         </section>
       </>

@@ -128,8 +128,10 @@ export const NetworkInstanceProvisioning = () => {
     if (chatState.instanceChannelFetched.value) {
       const channels = chatState.channels.channels.value
       const instanceChannel = Object.values(channels).find((channel) => channel.instanceId === worldNetworkHostId)
-      if (!currentChannelInstanceConnection?.provisioned.value && !currentChannelInstanceConnection?.provisioning.value)
+      if (!currentChannelInstanceConnection?.provisioned.value && !currentChannelInstanceConnection?.provisioning.value) {
+        console.log('Provisioning instance media server because instanceChannel was fetched and there was no media connection')
         MediaInstanceConnectionService.provisionServer(instanceChannel?.id!, true)
+      }
     }
   }, [chatState.instanceChannelFetched])
 
@@ -139,19 +141,24 @@ export const NetworkInstanceProvisioning = () => {
   }, [selfUser?.instanceId, userState.layerUsersUpdateNeeded])
 
   useHookEffect(() => {
-    if (selfUser?.partyId?.value && !partyState?.party?.value) {
-      PartyService.getParty()
-      PartyService.getPartyUsers()
-    }
-
     if (selfUser?.partyId?.value && chatState.channels.channels?.value) {
       const partyChannel = Object.values(chatState.channels.channels.value).find(channel => channel.channelType === 'party' && (channel.partyId === selfUser.partyId.value))
-      if (partyChannel && currentChannelInstanceConnection?.channelId.value !== partyChannel.id)
+      console.log('partyChannel', partyChannel)
+      console.log('currentChannelInstanceConnection channelId', currentChannelInstanceConnection?.channelId.value)
+      console.log('partyChannel ID', partyChannel?.id)
+      if (partyChannel && currentChannelInstanceConnection?.channelId.value !== partyChannel.id) {
+        console.log('provisioning media server because partyId changed', partyChannel.id)
         MediaInstanceConnectionService.provisionServer(partyChannel?.id!, false)
+      }
       else if (!chatState.partyChannelFetched.value && !chatState.partyChannelFetching.value)
         ChatService.getPartyChannel()
     }
-  }, [selfUser?.partyId?.value, chatState.partyChannelFetching?.value, chatState.partyChannelFetched?.value])
+  }, [selfUser?.partyId?.value, chatState.channels.channels.value, chatState.partyChannelFetching?.value, chatState.partyChannelFetched?.value])
+
+  useHookEffect(() => {
+    if (partyState.updateNeeded.value)
+      PartyService.getParty()
+  }, [partyState.updateNeeded.value])
 
   // if a media connection has been provisioned and is ready, connect to it
   useHookEffect(() => {

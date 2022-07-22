@@ -21,7 +21,7 @@ const InviteToast = (props: Props) => {
     InviteService.useAPIListeners()
 
     const acceptInvite = (invite) => {
-        InviteService.acceptInvite(invite.id, invite.passcode)
+        InviteService.acceptInvite(invite, invite)
     }
 
     const declineInvite = (invite) => {

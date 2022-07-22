@@ -166,16 +166,18 @@ const UserMediaWindow = ({ peerId }: Props): JSX.Element => {
   useEffect(() => {
     if (peerId !== 'cam_me' && peerId !== 'screen_me') {
       const network = Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork
-      setVideoStream(
-        network.consumers?.find(
-          (c) => c.appData.peerId === userId && c.appData.mediaTag === (isScreen ? 'screen-video' : 'cam-video')
+      if (network) {
+        setVideoStream(
+            network.consumers?.find(
+                (c) => c.appData.peerId === userId && c.appData.mediaTag === (isScreen ? 'screen-video' : 'cam-video')
+            )
         )
-      )
-      setAudioStream(
-        network.consumers?.find(
-          (c) => c.appData.peerId === userId && c.appData.mediaTag === (isScreen ? 'screen-audio' : 'cam-audio')
+        setAudioStream(
+            network.consumers?.find(
+                (c) => c.appData.peerId === userId && c.appData.mediaTag === (isScreen ? 'screen-audio' : 'cam-audio')
+            )
         )
-      )
+      }
     }
   }, [consumers.value])
 

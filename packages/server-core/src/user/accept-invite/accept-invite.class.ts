@@ -289,11 +289,10 @@ export class AcceptInvite implements ServiceMethods<Data> {
 
       params.preventUserRelationshipRemoval = true
       if (invite.deleteOnUse) await this.app.service('invite').remove(invite.id, params)
-      const token = await this.app
+
+      returned.token = await this.app
         .service('authentication')
         .createAccessToken({}, { subject: params['identity-provider'].id.toString() })
-
-      returned.token = token
 
       if (invite.inviteType === 'location' || invite.inviteType === 'instance') {
         let instance =

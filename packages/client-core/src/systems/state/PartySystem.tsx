@@ -10,6 +10,7 @@ export default async function PartySystem() {
     const createdPartyUserQueue = createActionQueue(PartyActions.createdPartyUserAction.matches)
     const patchedPartyUserQueue = createActionQueue(PartyActions.patchedPartyUserAction.matches)
     const removedPartyUserQueue = createActionQueue(PartyActions.removedPartyUserAction.matches)
+    const changedPartyActionQueue = createActionQueue(PartyActions.changedPartyAction.matches)
 
     return () => {
         for (const action of loadedPartyQueue()) {
@@ -34,6 +35,9 @@ export default async function PartySystem() {
         }
         for (const action of removedPartyUserQueue()) {
             PartyServiceReceptors.removedPartyUserReceptor(action)
+        }
+        for (const action of changedPartyActionQueue()) {
+            PartyServiceReceptors.changedPartyReceptor(action)
         }
     }
 }
