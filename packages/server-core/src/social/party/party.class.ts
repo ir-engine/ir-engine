@@ -101,7 +101,6 @@ export class Party<T = PartyDataType> extends Service<T> {
               }
             })
           ).data
-          console.log('party', party, party.party_users)
           return party
         } catch (err) {
           return null!
@@ -156,5 +155,17 @@ export class Party<T = PartyDataType> extends Service<T> {
       logger.error(err)
       throw err
     }
+  }
+
+  async remove(id: string, params?: Params): Promise<T> {
+    const partyUsers = (await this.app.service('party-user').find({
+      query: {
+        partyId: id
+      }
+    })).data
+    console.log('party users before removing party', partyUsers)
+    const removedParty = await super.remove(id)
+    removedParty.party_users = partyUsers
+    return removedParty
   }
 }

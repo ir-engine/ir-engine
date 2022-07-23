@@ -10,6 +10,7 @@ import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
 import { accessAuthState } from '../../user/services/AuthService'
 import { PartyService } from './PartyService'
+import { MediaInstanceConnectionAction } from "../../common/services/MediaInstanceConnectionService";
 
 export const emailRegex =
   /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/
@@ -303,6 +304,10 @@ export const InviteService = {
   },
   acceptInvite: async (invite: Invite) => {
     try {
+      if (invite.inviteType === 'party') {
+        console.log('Dispatching acceptingPartyInvite')
+        dispatchAction(MediaInstanceConnectionAction.acceptingPartyInvite())
+      }
       await API.instance.client.service('a-i').get(invite.id, {
         query: {
           passcode: invite.passcode

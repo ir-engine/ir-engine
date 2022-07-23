@@ -81,13 +81,18 @@ type InstanceMetadata = {
 const createNewInstance = async (app: Application, newInstance: InstanceMetadata) => {
   const { locationId, channelId } = newInstance
 
-  logger.info('Creating new instance: %o', newInstance, locationId, channelId)
+  logger.info('Creating new instance: %o', newInstance)
+  logger.info('locationId %s', locationId)
+  logger.info('channelId %s', channelId)
   const instanceResult = (await app.service('instance').create(newInstance)) as Instance
+  logger.info('instanceResult %o', instanceResult)
   if (!channelId) {
-    await app.service('channel').create({
+    logger.info('Creating instance channel')
+    const channelResult = await app.service('channel').create({
       channelType: 'instance',
       instanceId: instanceResult.id
     })
+    logger.info('Created instance channel %o', channelResult)
   }
   await app.agonesSDK.allocate()
   app.instance = instanceResult
@@ -218,7 +223,7 @@ const initializeInstance = async (
         })
       }
     }
-    if (!authorizeUserToJoinServer(app, instance, userId)) return
+    if (!(await authorizeUserToJoinServer(app, instance, userId))) return
     await assignExistingInstance(app, instance, channelId, locationId)
   }
 }

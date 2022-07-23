@@ -38,7 +38,6 @@ export class PartyUser<T = PartyUserDataType> extends Service<T> {
         if (typeof params.query.isOwner !== 'undefined') where.isOwner = params.query.isOwner
       }
 
-      console.log('where', where)
       const PartyUserMS = this.app.service('party-user').Model as PartyUserModelStatic
       const users = await PartyUserMS.findAll({
         where,

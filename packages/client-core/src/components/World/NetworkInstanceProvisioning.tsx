@@ -11,7 +11,7 @@ import {
   useMediaInstanceConnectionState
 } from '@xrengine/client-core/src/common/services/MediaInstanceConnectionService'
 import { MediaServiceReceptor, MediaStreamService } from '@xrengine/client-core/src/media/services/MediaStreamService'
-import { ChatService, useChatState } from '@xrengine/client-core/src/social/services/ChatService'
+import {ChatAction, ChatService, useChatState} from '@xrengine/client-core/src/social/services/ChatService'
 import { useLocationState } from '@xrengine/client-core/src/social/services/LocationService'
 import { MediaStreams } from '@xrengine/client-core/src/transports/MediaStreams'
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
@@ -143,6 +143,12 @@ export const NetworkInstanceProvisioning = () => {
   }, [selfUser?.instanceId, userState.layerUsersUpdateNeeded])
 
   useHookEffect(() => {
+    console.log('media provision hook, something changed')
+    console.log('partyId', selfUser?.value, selfUser?.partyId?.value)
+    console.log('channels', chatState.channels.channels?.value)
+    console.log('partyChannelFetching', chatState.partyChannelFetching?.value)
+    console.log('partyChannelFetched', chatState.partyChannelFetched?.value)
+    console.log('party', partyState.party?.value)
     if (selfUser?.partyId?.value && chatState.channels.channels?.value) {
       const partyChannel = Object.values(chatState.channels.channels.value).find(
         (channel) => channel.channelType === 'party' && channel.partyId === selfUser.partyId.value
@@ -150,7 +156,13 @@ export const NetworkInstanceProvisioning = () => {
       console.log('partyChannel', partyChannel)
       console.log('currentChannelInstanceConnection channelId', currentChannelInstanceConnection?.channelId.value)
       console.log('partyChannel ID', partyChannel?.id)
-      if (partyChannel && currentChannelInstanceConnection?.channelId.value !== partyChannel.id) {
+      const partyUser = partyState.party?.partyUsers?.value
+          ? partyState.party.partyUsers.value.find((partyUser) => {
+            return partyUser.userId === selfUser.id.value
+          })
+          : null
+      console.log('partyUser', partyUser)
+      if (chatState.partyChannelFetched?.value && partyChannel && currentChannelInstanceConnection?.channelId.value !== partyChannel.id && partyUser) {
         console.log('provisioning media server because partyId changed', partyChannel.id)
         MediaInstanceConnectionService.provisionServer(partyChannel?.id!, false)
       } else if (!chatState.partyChannelFetched.value && !chatState.partyChannelFetching.value)
@@ -158,12 +170,18 @@ export const NetworkInstanceProvisioning = () => {
     }
   }, [
     selfUser?.partyId?.value,
+    partyState.party?.id,
     chatState.channels.channels.value as any,
     chatState.partyChannelFetching?.value,
     chatState.partyChannelFetched?.value
   ])
 
   useHookEffect(() => {
+    if (selfUser.partyId.value) dispatchAction(ChatAction.refetchPartyChannelAction())
+  }, [selfUser.partyId.value])
+
+  useHookEffect(() => {
+    console.log('partyState.updateNeeded changed to', partyState.updateNeeded.value)
     if (partyState.updateNeeded.value) PartyService.getParty()
   }, [partyState.updateNeeded.value])
 

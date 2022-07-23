@@ -220,6 +220,16 @@ export const ChatServiceReceptor = (action) => {
       .when(ChatAction.setUpdateMessageScrollAction.matches, (action) => {
         return s.merge({ updateMessageScroll: action.value })
       })
+      .when(ChatAction.refetchPartyChannelAction.matches, () => {
+        return s.merge({ partyChannelFetched: false })
+      })
+      .when(ChatAction.removePartyChannelAction.matches, () => {
+        const endedPartyChannelIndex = s.channels.channels.findIndex(
+            (channel) => channel.channelType.value === 'party'
+        )
+        if (endedPartyChannelIndex > -1) s.channels.channels[endedPartyChannelIndex].set(none)
+        return s
+      })
   })
 }
 
@@ -269,7 +279,10 @@ export const ChatService = {
           partyId: selfUser.partyId
         }
       })) as Channel[]
-      dispatchAction(ChatAction.loadedChannelAction({ channel: channelResult[0], channelType: 'party' }))
+      if (channelResult[0])
+        dispatchAction(ChatAction.loadedChannelAction({ channel: channelResult[0], channelType: 'party' }))
+      else
+        dispatchAction(ChatAction.removePartyChannelAction())
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
@@ -509,5 +522,13 @@ export class ChatAction {
   static setUpdateMessageScrollAction = defineAction({
     type: 'SET_UPDATE_MESSAGE_SCROLL' as const,
     value: matches.boolean
+  })
+
+  static refetchPartyChannelAction = defineAction({
+    type: 'REFETCH_PARTY_CHANNEL' as const
+  })
+
+  static removePartyChannelAction = defineAction({
+    type: 'REMOVE_PARTY_CHANNEL' as const
   })
 }

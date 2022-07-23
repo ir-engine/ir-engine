@@ -8,6 +8,7 @@ import { dispatchAction, getState } from '@xrengine/hyperflux'
 import { NotificationService } from '../../common/services/NotificationService'
 import { accessAuthState, AuthAction } from '../services/AuthService'
 import { accessUserState, UserAction } from '../services/UserService'
+import { MediaInstanceConnectionAction } from "../../common/services/MediaInstanceConnectionService";
 
 export const userPatched = (params) => {
   console.log('USER PATCHED', params)
@@ -39,6 +40,10 @@ export const userPatched = (params) => {
         window.history.replaceState({}, '', parsed.toString())
       }
     }
+
+    console.log('User patched, checking if we can dispatch acceptedPartyInvite', patchedUser.partyId, selfUser.partyId.value)
+    if (patchedUser.partyId && patchedUser.partyId !== selfUser.partyId.value)
+      dispatchAction(MediaInstanceConnectionAction.acceptedPartyInvite())
   } else {
     const isLayerUser = userState.layerUsers.value.find((item) => item.id === patchedUser.id)
 

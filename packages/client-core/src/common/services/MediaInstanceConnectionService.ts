@@ -35,7 +35,8 @@ type InstanceState = {
 const MediaInstanceState = defineState({
   name: 'MediaInstanceState',
   initial: () => ({
-    instances: {} as { [id: string]: InstanceState }
+    instances: {} as { [id: string]: InstanceState },
+    acceptingPartyInvite: false
   })
 })
 
@@ -77,6 +78,12 @@ export const MediaInstanceConnectionServiceReceptor = (action) => {
       })
       .when(MediaInstanceConnectionAction.disconnect.matches, (action) => {
         return s.instances[action.instanceId].set(none)
+      })
+      .when(MediaInstanceConnectionAction.acceptingPartyInvite.matches, (action) => {
+        return s.acceptingPartyInvite.set(true)
+      })
+      .when(MediaInstanceConnectionAction.acceptedPartyInvite.matches, (action) => {
+        return s.acceptingPartyInvite.set(false)
       })
   })
 }
@@ -198,5 +205,13 @@ export class MediaInstanceConnectionAction {
   static disconnect = defineAction({
     type: 'MEDIA_INSTANCE_SERVER_DISCONNECT' as const,
     instanceId: matches.string
+  })
+
+  static acceptingPartyInvite = defineAction({
+    type: 'ACCEPTING_PARTY_INVITE' as const
+  })
+
+  static acceptedPartyInvite = defineAction({
+    type: 'ACCEPTED_PARTY_INVITE' as const
   })
 }
