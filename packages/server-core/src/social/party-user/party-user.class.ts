@@ -1,4 +1,3 @@
-import { Forbidden } from '@feathersjs/errors'
 import { Params } from '@feathersjs/feathers/lib'
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 import { Op, Sequelize } from 'sequelize'
@@ -8,7 +7,6 @@ import { UserInterface } from '@xrengine/common/src/interfaces/User'
 
 import { Application } from '../../../declarations'
 import logger from '../../logger'
-import { PartyModelStatic } from '../party/party.model'
 import { PartyUserModelStatic } from './party-user.model'
 
 /**
@@ -56,7 +54,7 @@ export class PartyUser<T = PartyUserDataType> extends Service<T> {
         ]
       })
 
-      return { data: users }
+      return { data: users, total: users.length }
     } catch (e) {
       logger.error(e)
       return null!
@@ -85,9 +83,7 @@ export class PartyUser<T = PartyUserDataType> extends Service<T> {
         existingPartyUsers.data.map((partyUser) => {
           return new Promise<void>(async (resolve, reject) => {
             try {
-              console.log('Removing party user', partyUser)
               await self.app.service('party-user').remove(partyUser.id)
-              console.log('Removed party user', partyUser.id)
               resolve()
             } catch (err) {
               reject(err)
@@ -96,7 +92,6 @@ export class PartyUser<T = PartyUserDataType> extends Service<T> {
         })
       )
       const partyUser = (await super.create(data)) as any
-      console.log('new partyUser', partyUser)
       const user = await this.app.service('user').get(partyUser.userId)
 
       await this.app.service('user').patch(partyUser.userId, { partyId: partyUser.partyId })
@@ -124,10 +119,10 @@ export class PartyUser<T = PartyUserDataType> extends Service<T> {
 
   async patch(id: string, data: any, params?: Params): Promise<any> {
     try {
+      console.log('party-user patch', id, data)
       const partyUserToPatch = await this.app.service('party-user').get(id)
-      if (partyUserToPatch.userId !== params!.user!.id && params!.user.userRole !== 'admin')
-        throw new Forbidden('You do not own that party user')
 
+      console.log('partyUser to patch', partyUserToPatch)
       // If we're removing ownership from the party owner somehow, make another party user the owner (if there is another)
       if (partyUserToPatch.isOwner && data.isOwner === false) {
         const otherPartyUsers = await this.app.service('party-user').find({
@@ -154,7 +149,6 @@ export class PartyUser<T = PartyUserDataType> extends Service<T> {
 
   async remove(id: string, params?: Params): Promise<any> {
     try {
-      console.log('party-user remove', id)
       const partyUser = (await this.app.service('party-user').get(id)) as any
 
       const partyUserCount = await this.app.service('party-user').Model.count({ where: { partyId: partyUser.partyId } })
@@ -163,16 +157,19 @@ export class PartyUser<T = PartyUserDataType> extends Service<T> {
         await this.app.service('party').remove(partyUser.partyId)
         return partyUser
       } else if (partyUser.isOwner) {
-        const oldestPartyUser = await this.app.service('party-user').find({
-          query: {
-            partyId: partyUser.partyId
+        const oldestPartyUser = await this.app.service('party-user').Model.findAll({
+          where: {
+            partyId: partyUser.partyId,
+            id: {
+              [Op.ne]: partyUser.id
+            }
           },
           $sort: {
             updatedAt: 1
           }
         })
 
-        await this.app.service('party-user').patch(oldestPartyUser.id, { isOwner: true })
+        await this.app.service('party-user').patch(oldestPartyUser[0].id, { isOwner: true })
       }
 
       await this.app.service('user').patch(partyUser.userId, {

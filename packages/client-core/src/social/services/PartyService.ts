@@ -139,7 +139,6 @@ export const PartyService = {
   getParty: async () => {
     try {
       const partyResult = (await API.instance.client.service('party').get('')) as Party
-      console.log('partyResult', partyResult)
       if (partyResult) {
         partyResult.partyUsers = (partyResult as any).party_users
         dispatchAction(
@@ -221,13 +220,6 @@ export const PartyService = {
       NotificationService.dispatchNotify(i18n.t('social:partyInvitationSent'), {
         variant: 'success'
       })
-    } catch (err) {
-      NotificationService.dispatchNotify(err.message, { variant: 'error' })
-    }
-  },
-  getPartyUsers: async () => {
-    try {
-      const results = await API.instance.client.service('party-user').find()
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
@@ -324,11 +316,8 @@ export const PartyService = {
       }
 
       const partyUserRemovedListener = (params) => {
-        console.log('partyUserRemovedListener', params)
         const deletedPartyUser = params.partyUser
         const selfUser = accessAuthState().user.value
-        console.log('deletedPartyUser', deletedPartyUser, deletedPartyUser.partyId)
-        console.log('selfUser', selfUser, selfUser.partyId)
         dispatchAction(PartyActions.removedPartyUserAction({ partyUser: deletedPartyUser }))
         // dispatchAction(UserAction.removedChannelLayerUserAction({ user: deletedPartyUser.user }))
         if (deletedPartyUser.userId === selfUser.id) {

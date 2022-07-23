@@ -1,12 +1,9 @@
-import { Instance } from './Instance'
-import { Location } from './Location'
 import { PartyUser } from './PartyUser'
 
 export type Party = {
   id: string
-  partyUsers: PartyUser[]
-  instance?: Instance
-  instanceId?: string
+  partyUsers?: PartyUser[]
+  party_users?: PartyUser[]
   maxMembers: number
   name?: string | null
   createdAt?: string
@@ -14,6 +11,5 @@ export type Party = {
 }
 
 export interface PatchParty {
-  instanceId?: string
   maxMembers: number
 }

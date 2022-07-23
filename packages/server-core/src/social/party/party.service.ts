@@ -29,7 +29,6 @@ export default (app: Application): void => {
 
   service.hooks(hooks)
 
-  console.log('party service app.serverMode', app.serverMode)
   if (app.serverMode !== ServerMode.API) return
 
   service.publish('created', async (data: PartyDataType): Promise<any> => {
@@ -58,15 +57,18 @@ export default (app: Application): void => {
   })
 
   service.publish('removed', async (data: PartyDataType): Promise<any> => {
-    console.log('party removed', data)
-    const targetIds = data.party_users?.map((partyUser) => partyUser.userId) || []
+    if (data.party_users) {
+      const targetIds = data.party_users.map((partyUser) => partyUser.userId) || []
 
-    console.log('party removed recipients', targetIds)
-    await Promise.all(data.party_users.map(partyUser => app.service('party-user').emit('removed', partyUser)))
-    return Promise.all(
-      targetIds.map((userId: string) => {
-        return app.channel(`userIds/${userId}`).send({ party: data })
-      })
-    )
+      await Promise.all(data.party_users.map(partyUser => app.service('party-user').emit('removed', partyUser)))
+      return Promise.all(
+          targetIds.map((userId: string) => {
+            return app.channel(`userIds/${userId}`).send({party: data})
+          })
+      )
+    }
+    else {
+      return Promise.resolve()
+    }
   })
 }

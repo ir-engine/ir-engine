@@ -93,7 +93,6 @@ export default (app: Application): void => {
   })
 
   service.publish('removed', async (data): Promise<any> => {
-    console.log('party-user removed', data)
     data.isOwner = data.isOwner === 1 ? true : data.isOwner === 0 ? false : data.isOwner
     try {
       const partyUsers = await app

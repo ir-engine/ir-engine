@@ -84,7 +84,7 @@ export async function checkForDuplicatedAssignments(
   podName = undefined as undefined | string
 ): Promise<InstanceServerProvisionResult> {
   //Create an assigned instance at this IP
-  logger.info('checkForDuplicatedAssignments', ipAddress, iteration, locationId, channelId, podName)
+  logger.info('checkForDuplicatedAssignments %s %s %s %s %s', ipAddress, iteration, locationId, channelId, podName)
   const assignResult: any = await app.service('instance').create({
     ipAddress: ipAddress,
     locationId: locationId,
@@ -103,7 +103,7 @@ export async function checkForDuplicatedAssignments(
     }
   })
 
-  logger.info('duplicateIPAssignment %o', duplicateIPAssignment)
+  logger.info('duplicateIPAssignment %o %s', duplicateIPAssignment, duplicateIPAssignment.total)
 
   const duplicateLocationAssignment: any = await app.service('instance').find({
     query: {
@@ -114,7 +114,7 @@ export async function checkForDuplicatedAssignments(
     }
   })
 
-  logger.info('duplicateLocationAssignment %o', duplicateIPAssignment)
+  logger.info('duplicateLocationAssignment %o %s', duplicateLocationAssignment, duplicateLocationAssignment.total)
   //If there's more than one instance assigned to this IP, then one of them was made in error, possibly because
   //there were two instance-provision calls at almost the same time.
   if (duplicateIPAssignment.total > 1) {
@@ -122,10 +122,22 @@ export async function checkForDuplicatedAssignments(
     //Iterate through all of the assignments to this IP address. If this one is later than any other one,
     //then this one needs to find a different IS
     for (let instance of duplicateIPAssignment.data) {
-      if (instance.id !== assignResult.id) logger.info('Duplicate assignment', instance.assignedAt, assignResult.assignedAt)
+      if (instance.id !== assignResult.id) logger.info('Duplicate IP assignment %s %s', instance.assignedAt, assignResult.assignedAt)
       if (instance.id !== assignResult.id && instance.assignedAt < assignResult.assignedAt) {
         isFirstAssignment = false
         break
+      }
+
+      //If this instance was made at the exact same time as another, then randomly decide which one is removed
+      //by converting their IDs to integers via base 16 and pick the 'larger' one. This is arbitrary, but
+      //otherwise this process can get stuck if two provisions are occurring in lockstep.
+      if (instance.id !== assignResult.id && instance.assignedAt.getTime() === assignResult.assignedAt.getTime()) {
+        const integerizedInstanceId = parseInt(instance.id.replace(/-/g, ''), 16)
+        const integerizedAssignResultId = parseInt(instance.id.replace(/-/g, ''), 16)
+        if (integerizedAssignResultId < integerizedInstanceId) {
+          isFirstAssignment = false
+          break
+        }
       }
     }
     if (!isFirstAssignment) {
@@ -147,33 +159,52 @@ export async function checkForDuplicatedAssignments(
     }
   }
 
+  //If there's more than one instance created for a location/channel, then we need to only return one of them
+  //and remove the others, lest two different instanceservers be handling the same 'instance' of a location
+  //or the same 'channel'.
   if (duplicateLocationAssignment.total > 1) {
+    let earlierInstance
     let isFirstAssignment = true
-    //Iterate through all of the assignments to this IP address. If this one is later than any other one,
+    //Iterate through all of the assignments for this location/channel. If this one is later than any other one,
     //then this one needs to find a different IS
     for (let instance of duplicateLocationAssignment.data) {
-      if (instance.id !== assignResult.id) logger.info('Duplicate assignment', instance.assignedAt, assignResult.assignedAt)
+      if (instance.id !== assignResult.id) logger.info('Duplicate location assignment %s %s', instance.assignedAt, assignResult.assignedAt)
       if (instance.id !== assignResult.id && instance.assignedAt < assignResult.assignedAt) {
         isFirstAssignment = false
+        const ipSplit = instance.ipAddress.split(':')
+        earlierInstance = {
+          id: instance.id,
+          ipAddress: ipSplit[0],
+          port: ipSplit[1],
+          podName: instance.podName
+        }
         break
+      }
+
+      //If this instance was made at the exact same time as another, then randomly decide which one is removed
+      //by converting their IDs to integers via base 16 and pick the 'larger' one. This is arbitrary, but
+      //otherwise this process can get stuck if two provisions are occurring in lockstep.
+      if (instance.id !== assignResult.id && instance.assignedAt.getTime() === assignResult.assignedAt.getTime()) {
+        const integerizedInstanceId = parseInt(instance.id.replace(/-/g, ''), 16)
+        const integerizedAssignResultId = parseInt(instance.id.replace(/-/g, ''), 16)
+        if (integerizedAssignResultId < integerizedInstanceId) {
+          isFirstAssignment = false
+          const ipSplit = instance.ipAddress.split(':')
+          earlierInstance = {
+            id: instance.id,
+            ipAddress: ipSplit[0],
+            port: ipSplit[1],
+            podName: instance.podName
+          }
+          break
+        }
       }
     }
     if (!isFirstAssignment) {
+      logger.info('Returning an earlier instance provision record %o', earlierInstance)
       //If this is not the first assignment to this IP, remove the assigned instance row
       await app.service('instance').remove(assignResult.id)
-      //If this is the 10th or more attempt to get a free instanceserver, then there probably aren't any free ones,
-      //
-      if (iteration < 10) {
-        return getFreeInstanceserver(app, iteration + 1, locationId, channelId)
-      } else {
-        logger.info('Made 10 attempts to get free instanceserver without success, returning null')
-        return {
-          id: null!,
-          ipAddress: null!,
-          port: null!,
-          podName: null!
-        }
-      }
+      return earlierInstance
     }
   }
 

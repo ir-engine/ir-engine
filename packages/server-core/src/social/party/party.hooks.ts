@@ -1,12 +1,11 @@
 import { HookOptions } from '@feathersjs/feathers'
 import { disallow, iff, isProvider } from 'feathers-hooks-common'
-import Sequelize from 'sequelize'
 
 import addAssociations from '../../hooks/add-associations'
 import authenticate from '../../hooks/authenticate'
-import createPartyInstance from '../../hooks/createPartyInstance'
 import isInternalRequest from '../../hooks/isInternalRequest'
 import restrictUserRole from '../../hooks/restrict-user-role'
+import partyPermissionAuthenticate from "../../hooks/party-permission-authenticate";
 
 // Don't remove this comment. It's needed to format import lines nicely.
 
@@ -44,8 +43,8 @@ export default {
     ],
     create: [],
     update: [disallow()],
-    patch: [iff(isProvider('external'), restrictUserRole('admin') as any)],
-    remove: []
+    patch: [iff(isProvider('external'), partyPermissionAuthenticate() as any)],
+    remove: [iff(isProvider('external'), partyPermissionAuthenticate() as any)]
   },
 
   after: {

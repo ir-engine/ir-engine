@@ -1,4 +1,3 @@
-import { NotFound } from '@feathersjs/errors/lib'
 import { Paginated, Params } from '@feathersjs/feathers'
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 import { Op } from 'sequelize'
@@ -7,13 +6,8 @@ import { Sequelize } from 'sequelize'
 import { Party as PartyDataType } from '@xrengine/common/src/interfaces/Party'
 import { UserInterface } from '@xrengine/common/src/interfaces/User'
 
-// import { Params, Id, NullableId } from '@feathersjs/feathers'
 import { Application } from '../../../declarations'
 import logger from '../../logger'
-import { PartyUserModelStatic } from '../party-user/party-user.model'
-import { PartyModelStatic } from './party.model'
-
-// import { Forbidden } from '@feathersjs/errors'
 
 /**
  * A class for Party service
@@ -106,7 +100,7 @@ export class Party<T = PartyDataType> extends Service<T> {
           return null!
         }
     } else {
-      return await super.get(id)
+      return super.get(id, params)
     }
     return null!
   }
@@ -124,16 +118,16 @@ export class Party<T = PartyDataType> extends Service<T> {
       })
 
       await Promise.all(
-        existingPartyUsers.data.map((partyUser) => {
-          return new Promise<void>(async (resolve, reject) => {
-            try {
-              await self.app.service('party-user').remove(partyUser.id)
-              resolve()
-            } catch (err) {
-              reject(err)
-            }
-          })
-        })
+        existingPartyUsers.data.map((partyUser) => new Promise<void>(async (resolve, reject) => {
+          try {
+            console.log('Removing', partyUser)
+            await self.app.service('party-user').remove(partyUser.id)
+            console.log('removed', partyUser)
+            resolve()
+          } catch (err) {
+            reject(err)
+          }
+        }))
       )
 
       const party = (await super.create(data)) as any
@@ -148,9 +142,8 @@ export class Party<T = PartyDataType> extends Service<T> {
         partyId: party.id
       })
 
-      const returned = await this.app.service('party').get(party.id)
-      console.log('returned', returned)
-      return returned
+      return this.app.service('party').get(party.id)
+
     } catch (err) {
       logger.error(err)
       throw err
@@ -163,9 +156,8 @@ export class Party<T = PartyDataType> extends Service<T> {
         partyId: id
       }
     })).data
-    console.log('party users before removing party', partyUsers)
-    const removedParty = await super.remove(id)
-    removedParty.party_users = partyUsers
+    const removedParty = await super.remove(id) as T
+    ;(removedParty as any).party_users = partyUsers
     return removedParty
   }
 }

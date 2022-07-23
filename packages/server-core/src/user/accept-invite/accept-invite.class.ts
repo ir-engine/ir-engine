@@ -238,8 +238,6 @@ export class AcceptInvite implements ServiceMethods<Data> {
           }
         })
 
-        console.log('existingPartyUser', existingPartyUser)
-
         if (existingPartyUser === 0) {
           paramsCopy.skipAuth = true
           await this.app.service('party-user').create(
