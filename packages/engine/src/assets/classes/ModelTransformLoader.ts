@@ -8,6 +8,7 @@ import {
   ReaderContext,
   Texture,
   TextureInfo,
+  WebIO,
   WriterContext
 } from '@gltf-transform/core'
 import { MeshGPUInstancing, MeshoptCompression, MeshQuantization, TextureBasisu } from '@gltf-transform/extensions'
@@ -83,7 +84,7 @@ export class MOZLightmapExtension extends Extension {
 
 const transformHistory: string[] = []
 export default function ModelTransformLoader() {
-  const io = new NodeIO()
+  const io = new WebIO()
   io.registerExtensions([MeshGPUInstancing, MeshoptCompression, MeshQuantization, TextureBasisu])
   io.registerDependencies({
     'meshopt.decoder': MeshoptDecoder,
