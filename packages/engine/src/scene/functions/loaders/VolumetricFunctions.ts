@@ -141,7 +141,10 @@ export const updateVolumetric: ComponentUpdateFunction = (entity: Entity, proper
 
       //setup callbacks
       obj3d.play = () => {
-        if (checkUserInput()) obj3d.userData.player.play(component.mute)
+        if (checkUserInput()) {
+          obj3d.userData.player.play(component.mute)
+          obj3d.userData.player.video.muted = component.mute
+        }
       }
 
       obj3d.pause = () => {
@@ -149,7 +152,10 @@ export const updateVolumetric: ComponentUpdateFunction = (entity: Entity, proper
       }
 
       obj3d.seek = () => {
-        if (checkUserInput()) obj3d.userData.player.playOneFrame()
+        if (checkUserInput()) {
+          obj3d.userData.player.playOneFrame()
+          obj3d.userData.player.video.muted = component.mute
+        }
       }
 
       obj3d.callbacks = () => {
@@ -203,6 +209,7 @@ export const toggleVolumetric = (entity: Entity): boolean => {
       obj3d.userData.player.paused = false
     } else {
       obj3d.userData.player.play(component.mute)
+      obj3d.userData.player.video.muted = component.mute
     }
     return true
   }
