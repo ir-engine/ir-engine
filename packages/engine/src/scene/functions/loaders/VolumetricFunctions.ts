@@ -55,7 +55,8 @@ export const VolumetricsExtensions = ['drcs', 'uvol']
 export const SCENE_COMPONENT_VOLUMETRIC = 'volumetric'
 export const SCENE_COMPONENT_VOLUMETRIC_DEFAULT_VALUES = {
   paths: [],
-  playMode: VolumetricPlayMode.Single
+  playMode: VolumetricPlayMode.Single,
+  mute: false
 }
 
 export const deserializeVolumetric: ComponentDeserializeFunction = (
@@ -100,6 +101,8 @@ export const updateVolumetric: ComponentUpdateFunction = (entity: Entity, proper
         onMeshBuffering: (_progress) => {},
         onHandleEvent: (type, data) => {
           if (checkUserInput() && type == 'videostatus' && data.status == 'initplay') {
+            const video = obj3d.userData.player.video
+            video.muted = component.mute
             height = calculateHeight(obj3d)
             height = height * obj3d.scale.y + 1
             step = height / 150
@@ -130,14 +133,18 @@ export const updateVolumetric: ComponentUpdateFunction = (entity: Entity, proper
             obj3d.userData.isEffect = false
             endLoadingEffect(entity, obj3d)
             obj3d.userData.player.updateStatus('ready')
-            obj3d.userData.player.play()
+            obj3d.userData.player.play(component.mute)
+            obj3d.userData.player.video.muted = component.mute
           }
         }
       }
 
       //setup callbacks
       obj3d.play = () => {
-        if (checkUserInput()) obj3d.userData.player.play()
+        if (checkUserInput()) {
+          obj3d.userData.player.play(component.mute)
+          obj3d.userData.player.video.muted = component.mute
+        }
       }
 
       obj3d.pause = () => {
@@ -145,7 +152,10 @@ export const updateVolumetric: ComponentUpdateFunction = (entity: Entity, proper
       }
 
       obj3d.seek = () => {
-        if (checkUserInput()) obj3d.userData.player.playOneFrame()
+        if (checkUserInput()) {
+          obj3d.userData.player.playOneFrame()
+          obj3d.userData.player.video.muted = component.mute
+        }
       }
 
       obj3d.callbacks = () => {
@@ -172,7 +182,8 @@ export const serializeVolumetric: ComponentSerializeFunction = (entity) => {
     name: SCENE_COMPONENT_VOLUMETRIC,
     props: {
       paths: component.paths,
-      playMode: component.playMode
+      playMode: component.playMode,
+      mute: component.mute
     }
   }
 }
@@ -187,6 +198,7 @@ export const prepareVolumetricForGLTFExport: ComponentPrepareForGLTFExportFuncti
 export const toggleVolumetric = (entity: Entity): boolean => {
   if (!checkUserInput()) return false
   const obj3d = getComponent(entity, Object3DComponent)?.value as VolumetricObject3D
+  const component = getComponent(entity, VolumetricComponent)
   if (!obj3d) return false
 
   if (obj3d.userData.player.hasPlayed && !obj3d.userData.player.paused) {
@@ -196,7 +208,8 @@ export const toggleVolumetric = (entity: Entity): boolean => {
     if (obj3d.userData.player.paused) {
       obj3d.userData.player.paused = false
     } else {
-      obj3d.userData.player.play()
+      obj3d.userData.player.play(component.mute)
+      obj3d.userData.player.video.muted = component.mute
     }
     return true
   }
@@ -275,8 +288,5 @@ const calculateHeight = (obj3d) => {
 }
 
 const parseVolumetricProperties = (props): VolumetricVideoComponentType => {
-  return {
-    paths: props.paths ?? SCENE_COMPONENT_VOLUMETRIC_DEFAULT_VALUES.paths,
-    playMode: props.playMode ?? SCENE_COMPONENT_VOLUMETRIC_DEFAULT_VALUES.playMode
-  }
+  return { ...SCENE_COMPONENT_VOLUMETRIC_DEFAULT_VALUES, ...props }
 }

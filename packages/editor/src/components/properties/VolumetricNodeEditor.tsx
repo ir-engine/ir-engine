@@ -11,6 +11,7 @@ import VideocamIcon from '@mui/icons-material/Videocam'
 
 import { ItemTypes } from '../../constants/AssetTypes'
 import ArrayInputGroup from '../inputs/ArrayInputGroup'
+import BooleanInput from '../inputs/BooleanInput'
 import { Button } from '../inputs/Button'
 import InputGroup from '../inputs/InputGroup'
 import SelectInput from '../inputs/SelectInput'
@@ -80,6 +81,9 @@ export const VolumetricNodeEditor: EditorComponentType = (props) => {
             {isPlaying ? t('editor:properties.volumetric.pausetitle') : t('editor:properties.volumetric.playtitle')}
           </Button>
         )}
+      </InputGroup>
+      <InputGroup name="Mute" label={t('editor:properties.volumetric.mute')}>
+        <BooleanInput value={volumetricComponent.mute} onChange={updateProperty(VolumetricComponent, 'mute')} />
       </InputGroup>
     </NodeEditor>
   )
