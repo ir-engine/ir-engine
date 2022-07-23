@@ -425,16 +425,12 @@ describe('party.test', () => {
 
         assert.strictEqual(partyUsers.total, 0)
 
-        // assert.rejects(
-        //     async () => {
-        try {
-          app.service('party').get(party1.id)
-        } catch(err) {
-          console.log('PANTSY ERROR')
-        }
-            // },
-            // { code: 404 }
-        // )
+        assert.rejects(
+            async () => {
+              await app.service('party').get(party1.id)
+            },
+            { code: 404 }
+        )
       })
 
       it('should delete all party members when the party owner deletes the party', async function () {
@@ -462,14 +458,19 @@ describe('party.test', () => {
         })
         assert.strictEqual(partyUsers.total, 2)
         await app.service('party').remove(party1.id)
-        const party = app.service('party').get(party1.id)
+
+        assert.rejects(
+            async () => {
+              await app.service('party').get(party1.id)
+            },
+            { code: 404 }
+        )
         const noPartyUsers = await app.service('party-user').find({
           query: {
             partyId: party1.id
           }
         })
         assert.strictEqual(noPartyUsers.total, 0)
-        assert.strictEqual(party, null)
       })
     })
 

@@ -70,7 +70,6 @@ export class PartyUser<T = PartyUserDataType> extends Service<T> {
         include: [{ model: this.app.service('channel').Model }]
       })
 
-      console.log('party before create party-user', party)
       if (!party) return null!
 
       const existingPartyUsers = await this.app.service('party-user').find({
@@ -119,10 +118,8 @@ export class PartyUser<T = PartyUserDataType> extends Service<T> {
 
   async patch(id: string, data: any, params?: Params): Promise<any> {
     try {
-      console.log('party-user patch', id, data)
       const partyUserToPatch = await this.app.service('party-user').get(id)
 
-      console.log('partyUser to patch', partyUserToPatch)
       // If we're removing ownership from the party owner somehow, make another party user the owner (if there is another)
       if (partyUserToPatch.isOwner && data.isOwner === false) {
         const otherPartyUsers = await this.app.service('party-user').find({
