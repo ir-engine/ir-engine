@@ -1,10 +1,12 @@
-import { WebContainer3D, WebLayer3D, WebLayerManager } from '@etherealjs/web-layer/three'
+import { WebContainer3D, WebLayerManager } from '@etherealjs/web-layer/three'
 import { State } from '@speigg/hookstate'
 import React from 'react'
+import { Object3D, Vector3 } from 'three'
 
+import { createObjectPool } from '../../common/functions/ObjectPool'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
-import { addComponent } from '../../ecs/functions/ComponentFunctions'
+import { addComponent, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
@@ -12,6 +14,7 @@ import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 import { XRUIComponent } from '../components/XRUIComponent'
 import { XRUIStateContext } from '../XRUIStateContext'
+import { ObjectFitFunctions } from './ObjectFitFunctions'
 
 let depsLoaded: Promise<[typeof import('@etherealjs/web-layer/three'), typeof import('react-dom')]>
 
@@ -73,4 +76,90 @@ export interface XRUI<S> {
   entity: Entity
   state: S
   container: Promise<WebContainer3D>
+}
+
+export function createXRUIPool(
+  create: (entity: Entity) => () => ReturnType<typeof createXRUI>,
+  onShown: (entity: Entity, xrui: ReturnType<typeof createXRUI>) => void,
+  onHidden: (entity: Entity, xrui: ReturnType<typeof createXRUI>) => void
+) {
+  const object3Ds = [] as Object3D[]
+  let closestObjects = [] as Array<Object3D>
+  let displayedObjects = [] as Array<Object3D>
+
+  const xruiObjectPool = createObjectPool<ReturnType<typeof createXRUI>>()
+  const xruiCreateMap = new Map<Object3D, Entity>()
+
+  const vec3 = new Vector3()
+
+  const update = () => {
+    // calculate distance
+    for (const obj of object3Ds) {
+      obj.getWorldPosition(vec3)
+      const distanceToCamera = Engine.instance.currentWorld.camera.position.distanceTo(vec3)
+      obj.userData.distance = distanceToCamera
+    }
+
+    // sort based on distance
+    object3Ds.sort((a, b) => a.userData.distance - b.userData.distance)
+    const removeList = [] as Object3D[]
+    closestObjects = object3Ds.slice(0, Math.max(3, xruiObjectPool.size()))
+
+    // find objects no longer in distance
+    for (const obj of displayedObjects) {
+      if (
+        !closestObjects.find((n) => n === obj)
+        //  || obj.userData.distance > args.maxDistance // TODO
+      )
+        removeList.push(obj)
+    }
+
+    // hide objects no longer in distance
+    for (const obj of removeList) {
+      displayedObjects.splice(displayedObjects.indexOf(obj), 1)
+      xruiObjectPool.recycle(obj.userData.xrui)
+      const { container } = getComponent(obj.userData.xrui.entity, XRUIComponent)
+      onHidden(xruiCreateMap.get(obj)!, obj.userData.xrui)
+      container.userData.node = undefined
+      obj.userData.xrui = undefined
+    }
+
+    // add closests objects not in the pool to the pool
+    for (const obj of closestObjects) {
+      if (!obj.userData.xrui) {
+        const xrui = xruiObjectPool.use(create(xruiCreateMap.get(obj)!))
+        console.log(xrui)
+        xrui.container.then(() => {
+          obj.userData.xrui = xrui
+          const { container } = getComponent(xrui.entity, XRUIComponent)
+          container.userData.node = obj
+          onShown(xruiCreateMap.get(obj)!, obj.userData.xrui)
+        })
+        displayedObjects.push(obj)
+      }
+    }
+    WebLayerManager.instance.serializeQueue.sort((a, b) => {
+      const aNode = WebLayerManager.instance.layersByElement.get(a.layer.element)?.userData.node
+      const bNode = WebLayerManager.instance.layersByElement.get(b.layer.element)?.userData.node
+      if (!aNode || !bNode) return 0
+      return aNode - bNode
+    })
+  }
+
+  const addObject = (entity: Entity) => {
+    const obj = getComponent(entity, Object3DComponent).value
+    object3Ds.push(obj)
+    xruiCreateMap.set(obj, entity)
+  }
+
+  const removeObject = (obj: Object3D) => {
+    object3Ds.splice(object3Ds.indexOf(obj), 1)
+    xruiCreateMap.delete(obj)
+  }
+
+  return {
+    update,
+    addObject,
+    removeObject
+  }
 }

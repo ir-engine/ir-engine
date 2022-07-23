@@ -89,6 +89,8 @@ export const addInteractableUI = (
   }
 
   InteractiveUI.set(entity, { xrui, update })
+
+  return xrui
 }
 
 export default async function InteractiveSystem(world: World) {
