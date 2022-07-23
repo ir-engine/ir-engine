@@ -2,7 +2,6 @@ import {
   Extension,
   ExtensionProperty,
   IProperty,
-  NodeIO,
   Nullable,
   PropertyType,
   ReaderContext,
@@ -13,7 +12,6 @@ import {
 } from '@gltf-transform/core'
 import { MeshGPUInstancing, MeshoptCompression, MeshQuantization, TextureBasisu } from '@gltf-transform/extensions'
 import { MeshoptDecoder, MeshoptEncoder } from 'meshoptimizer'
-import sharp from 'sharp'
 import { FileLoader } from 'three'
 
 export type ModelTransformParameters = {
