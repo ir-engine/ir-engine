@@ -91,7 +91,6 @@ export async function onConnectToInstance(network: SocketWebRTCClientNetwork) {
   if (!success) return console.error('Unable to connect with credentials')
 
   function peerUpdateHandler(peers: PeersUpdateType) {
-    console.log('peerUpdateHandler', network, peers)
     for (const peer of peers) {
       NetworkPeerFunctions.createPeer(network, peer.userId, peer.index, peer.name)
     }
@@ -929,9 +928,7 @@ export function leaveNetwork(network: SocketWebRTCClientNetwork, kicked?: boolea
         }
       }
     }
-    console.log('removing topic', network.hostId)
     removeTopic(network.hostId)
-    console.log('removed topic')
   } catch (err) {
     console.log('Error with leave()')
     console.log(err)

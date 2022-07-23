@@ -4,8 +4,8 @@ import { disallow, iff, isProvider } from 'feathers-hooks-common'
 import addAssociations from '../../hooks/add-associations'
 import authenticate from '../../hooks/authenticate'
 import isInternalRequest from '../../hooks/isInternalRequest'
+import partyPermissionAuthenticate from '../../hooks/party-permission-authenticate'
 import restrictUserRole from '../../hooks/restrict-user-role'
-import partyPermissionAuthenticate from "../../hooks/party-permission-authenticate";
 
 // Don't remove this comment. It's needed to format import lines nicely.
 

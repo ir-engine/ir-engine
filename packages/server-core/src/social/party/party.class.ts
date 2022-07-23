@@ -118,16 +118,17 @@ export class Party<T = PartyDataType> extends Service<T> {
       })
 
       await Promise.all(
-        existingPartyUsers.data.map((partyUser) => new Promise<void>(async (resolve, reject) => {
-          try {
-            console.log('Removing', partyUser)
-            await self.app.service('party-user').remove(partyUser.id)
-            console.log('removed', partyUser)
-            resolve()
-          } catch (err) {
-            reject(err)
-          }
-        }))
+        existingPartyUsers.data.map(
+          (partyUser) =>
+            new Promise<void>(async (resolve, reject) => {
+              try {
+                await self.app.service('party-user').remove(partyUser.id)
+                resolve()
+              } catch (err) {
+                reject(err)
+              }
+            })
+        )
       )
 
       const party = (await super.create(data)) as any
@@ -143,7 +144,6 @@ export class Party<T = PartyDataType> extends Service<T> {
       })
 
       return this.app.service('party').get(party.id)
-
     } catch (err) {
       logger.error(err)
       throw err
@@ -151,12 +151,14 @@ export class Party<T = PartyDataType> extends Service<T> {
   }
 
   async remove(id: string, params?: Params): Promise<T> {
-    const partyUsers = (await this.app.service('party-user').find({
-      query: {
-        partyId: id
-      }
-    })).data
-    const removedParty = await super.remove(id) as T
+    const partyUsers = (
+      await this.app.service('party-user').find({
+        query: {
+          partyId: id
+        }
+      })
+    ).data
+    const removedParty = (await super.remove(id)) as T
     ;(removedParty as any).party_users = partyUsers
     return removedParty
   }

@@ -34,10 +34,8 @@ interface Props {
 
 const defaultState = {
   maxMembers: 10,
-  instance: '',
   formErrors: {
-    maxMembers: '',
-    instance: ''
+    maxMembers: ''
   }
 }
 
@@ -47,39 +45,9 @@ const PartyDrawer = ({ open, mode, selectedParty, onClose }: Props) => {
   const [state, setState] = useState({ ...defaultState })
 
   const { user } = useAuthState().value
-  const { locations } = useAdminLocationState().value
-  const { instances } = useAdminInstanceState().value
 
   const hasWriteAccess = user.scopes && user.scopes.find((item) => item.type === 'party:write')
-  const viewMode = mode === PartyDrawerMode.ViewEdit && editMode === false
-
-  const instanceMenu: InputMenuItem[] = instances.map((el) => {
-    return {
-      value: el?.id,
-      label: el?.ipAddress
-    }
-  })
-
-  const locationMenu: InputMenuItem[] = locations.map((el) => {
-    return {
-      value: el?.id,
-      label: el?.name
-    }
-  })
-
-  if (selectedParty) {
-    const instanceExists = instanceMenu.find((item) => item.value === selectedParty.instance?.id)
-    if (!instanceExists) {
-      instanceMenu.push({
-        value: selectedParty.instance?.id!,
-        label: selectedParty.instance?.ipAddress!
-      })
-    }
-  }
-
-  useEffect(() => {
-    AdminInstanceService.fetchAdminInstances()
-  }, [])
+  const viewMode = mode === PartyDrawerMode.ViewEdit && !editMode
 
   useEffect(() => {
     loadSelectedParty()
@@ -89,7 +57,6 @@ const PartyDrawer = ({ open, mode, selectedParty, onClose }: Props) => {
     if (selectedParty) {
       setState({
         ...defaultState,
-        instance: selectedParty.instance?.id ?? '',
         maxMembers: selectedParty.maxMembers ?? 0
       })
     }
@@ -116,9 +83,6 @@ const PartyDrawer = ({ open, mode, selectedParty, onClose }: Props) => {
       case 'maxMembers':
         tempErrors.maxMembers = value < 2 ? t('admin:components.party.maxMembersRequired') : ''
         break
-      case 'instance':
-        tempErrors.instance = value.length < 2 ? t('admin:components.party.instanceRequired') : ''
-        break
       default:
         break
     }
@@ -128,14 +92,12 @@ const PartyDrawer = ({ open, mode, selectedParty, onClose }: Props) => {
 
   const handleSubmit = async () => {
     const data = {
-      maxMembers: state.maxMembers,
-      instanceId: state.instance
+      maxMembers: state.maxMembers
     }
 
     let tempErrors = {
       ...state.formErrors,
       maxMembers: state.maxMembers ? '' : t('admin:components.party.maxMembersRequired')
-      // instance: state.instance ? '' : t('admin:components.party.instanceCantEmpty')
     }
 
     setState({ ...state, formErrors: tempErrors })
@@ -165,16 +127,6 @@ const PartyDrawer = ({ open, mode, selectedParty, onClose }: Props) => {
           {mode === PartyDrawerMode.ViewEdit && !editMode && `${selectedParty?.id}`}
         </DialogTitle>
 
-        <InputSelect
-          name="instance"
-          label={t('admin:components.party.instance')}
-          value={state.instance}
-          error={state.formErrors.instance}
-          menu={instanceMenu}
-          disabled={viewMode}
-          onChange={handleChange}
-        />
-
         <InputText
           name="maxMembers"
           label={t('admin:components.party.maxMembers')}
@@ -193,12 +145,8 @@ const PartyDrawer = ({ open, mode, selectedParty, onClose }: Props) => {
               {t('admin:components.common.submit')}
             </Button>
           )}
-          {mode === PartyDrawerMode.ViewEdit && editMode === false && (
-            <Button
-              className={styles.gradientButton}
-              disabled={hasWriteAccess ? false : true}
-              onClick={() => setEditMode(true)}
-            >
+          {mode === PartyDrawerMode.ViewEdit && !editMode && (
+            <Button className={styles.gradientButton} disabled={!hasWriteAccess} onClick={() => setEditMode(true)}>
               {t('admin:components.common.edit')}
             </Button>
           )}

@@ -28,14 +28,11 @@ export const usePartyMenuHooks = () => {
   }
 
   const kickUser = (userId: UserId) => {
-    console.log('user leaving party', userId)
-    console.log('partyUsers', partyState.party?.partyUsers?.value)
     const partyUser = partyState.party?.partyUsers?.value
       ? partyState.party.partyUsers.value.find((partyUser) => {
           return partyUser.userId === userId
         })
       : null
-    console.log('partyUser', partyUser)
     if (partyUser) PartyService.removePartyUser(partyUser.id)
   }
 
@@ -103,7 +100,6 @@ const SocialMenu = (): JSX.Element => {
     selfUser
   } = usePartyMenuHooks()
 
-  console.log('isOwned', isOwned)
   const renderCreate = () => {
     return (
       <>
@@ -186,7 +182,13 @@ const SocialMenu = (): JSX.Element => {
               )}
               {isOwned && isDeleteConfirmOpen && (
                 <div className={styles.confirmDeleteButtons}>
-                  <Button className={styles.confirmDelete} onClick={() => deleteParty(partyState.party.id.value)}>
+                  <Button
+                    className={styles.confirmDelete}
+                    onClick={() => {
+                      deleteParty(partyState.party.id.value)
+                      setIsDeleteConfirmOpen(false)
+                    }}
+                  >
                     {t('user:usermenu.party.confirmDelete')}
                   </Button>
                   <Button className={styles.cancelDelete} onClick={() => setIsDeleteConfirmOpen(false)}>

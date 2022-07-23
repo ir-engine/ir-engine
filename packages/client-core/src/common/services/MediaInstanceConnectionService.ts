@@ -104,6 +104,7 @@ export const MediaInstanceConnectionService = {
       }
     })
     if (provisionResult.ipAddress && provisionResult.port) {
+      console.log('current channels', accessChatState().channels.channels.value)
       dispatchAction(
         MediaInstanceConnectionAction.serverProvisioned({
           instanceId: provisionResult.id as UserId,

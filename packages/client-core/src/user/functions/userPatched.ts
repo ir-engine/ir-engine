@@ -5,10 +5,10 @@ import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { WorldState } from '@xrengine/engine/src/networking/interfaces/WorldState'
 import { dispatchAction, getState } from '@xrengine/hyperflux'
 
+import { MediaInstanceConnectionAction } from '../../common/services/MediaInstanceConnectionService'
 import { NotificationService } from '../../common/services/NotificationService'
 import { accessAuthState, AuthAction } from '../services/AuthService'
 import { accessUserState, UserAction } from '../services/UserService'
-import { MediaInstanceConnectionAction } from "../../common/services/MediaInstanceConnectionService";
 
 export const userPatched = (params) => {
   console.log('USER PATCHED', params)
@@ -41,7 +41,6 @@ export const userPatched = (params) => {
       }
     }
 
-    console.log('User patched, checking if we can dispatch acceptedPartyInvite', patchedUser.partyId, selfUser.partyId.value)
     if (patchedUser.partyId && patchedUser.partyId !== selfUser.partyId.value)
       dispatchAction(MediaInstanceConnectionAction.acceptedPartyInvite())
   } else {

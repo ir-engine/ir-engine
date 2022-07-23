@@ -126,7 +126,6 @@ const UserMediaWindow = ({ peerId }: Props): JSX.Element => {
   }
 
   const resumeProducerListener = (producerId: string) => {
-    console.log('resumeProducerListener', producerId)
     if (producerId === videoStreamRef?.current?.id) {
       setVideoProducerPaused(false)
       setVideoProducerGlobalMute(false)
@@ -137,7 +136,6 @@ const UserMediaWindow = ({ peerId }: Props): JSX.Element => {
   }
 
   const closeProducerListener = (producerId: string) => {
-    console.log('closeProducerListener', producerId, videoStreamRef?.current?.id)
     if (producerId === videoStreamRef?.current?.id) {
       videoRef.current?.srcObject?.getVideoTracks()[0].stop()
       MediaStreams.instance.videoStream.getVideoTracks()[0].stop()

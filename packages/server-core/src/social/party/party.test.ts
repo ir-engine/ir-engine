@@ -2,8 +2,8 @@ import appRootPath from 'app-root-path'
 import assert from 'assert'
 import path from 'path'
 
-import { UserInterface } from '@xrengine/common/src/interfaces/User'
 import { Party } from '@xrengine/common/src/interfaces/Party'
+import { UserInterface } from '@xrengine/common/src/interfaces/User'
 
 import { Application } from '../../../declarations'
 import { createFeathersExpressApp } from '../../createApp'
@@ -83,7 +83,7 @@ describe('party.test', () => {
     })
   })
 
-  describe("party", () => {
+  describe('party', () => {
     describe('create', () => {
       it('should create a party owned by creating user, and set their partyId to the party ID', async function () {
         const params = {
@@ -92,10 +92,7 @@ describe('party.test', () => {
           },
           provider: 'rest'
         }
-        party2 = await app.service('party').create(
-            {},
-            params
-        )
+        party2 = await app.service('party').create({}, params)
 
         const party2Users = await app.service('party-user').find({
           query: {
@@ -113,17 +110,14 @@ describe('party.test', () => {
         assert.strictEqual(user.partyId, party2.id)
       })
 
-      it('should delete the user\'s old party-user if they create a new party, and make a new party', async function () {
+      it("should delete the user's old party-user if they create a new party, and make a new party", async function () {
         const params = {
           headers: {
             authorization: `Bearer ${user1.apiKey.token}`
           },
           provider: 'rest'
         }
-        party1 = await app.service('party').create(
-            {},
-            params
-        )
+        party1 = await app.service('party').create({}, params)
 
         const user = await app.service('user').get(user1.id)
 
@@ -139,7 +133,6 @@ describe('party.test', () => {
             partyId: party1.id
           }
         })
-
 
         assert.strictEqual(oldPartyUserResult.total, 0)
         assert.strictEqual(party1Users.total, 1)
@@ -163,11 +156,13 @@ describe('party.test', () => {
 
         assert.strictEqual(returnedParty.id, party1.id)
         assert.strictEqual(returnedParty.party_users?.length, 1)
-        const returnedPartyUser1 = returnedParty.party_users ? returnedParty.party_users[0] : {
-          partyId: '',
-          userId: '',
-          isOwner: false
-        }
+        const returnedPartyUser1 = returnedParty.party_users
+          ? returnedParty.party_users[0]
+          : {
+              partyId: '',
+              userId: '',
+              isOwner: false
+            }
         assert.strictEqual(returnedPartyUser1.partyId, party1.id)
         assert.strictEqual(returnedPartyUser1.userId, user1.id)
         assert.strictEqual(returnedPartyUser1.isOwner, true)
@@ -195,16 +190,16 @@ describe('party.test', () => {
           provider: 'rest'
         }
         assert.rejects(
-            async () => {
-              await app.service('party').patch(
-                  party1.id,
-                  {
-                    name: 'foobar'
-                  },
-                  params
-              )
-            },
-            { message: 'You are not the owner of this party' }
+          async () => {
+            await app.service('party').patch(
+              party1.id,
+              {
+                name: 'foobar'
+              },
+              params
+            )
+          },
+          { message: 'You are not the owner of this party' }
         )
       })
 
@@ -221,16 +216,16 @@ describe('party.test', () => {
           provider: 'rest'
         }
         assert.rejects(
-            async () => {
-              await app.service('party').patch(
-                  party1.id,
-                  {
-                    name: 'foobar'
-                  },
-                  params
-              )
-            },
-            { message: 'You are not the owner of this party' }
+          async () => {
+            await app.service('party').patch(
+              party1.id,
+              {
+                name: 'foobar'
+              },
+              params
+            )
+          },
+          { message: 'You are not the owner of this party' }
         )
       })
 
@@ -241,13 +236,13 @@ describe('party.test', () => {
           },
           provider: 'rest'
         }
-        const patchedParty = await app.service('party').patch(
-            party1.id,
-            {
-              name: 'foobar'
-            },
-            params
-        ) as Party
+        const patchedParty = (await app.service('party').patch(
+          party1.id,
+          {
+            name: 'foobar'
+          },
+          params
+        )) as Party
 
         assert.strictEqual(patchedParty.name, 'foobar')
       })
@@ -262,10 +257,10 @@ describe('party.test', () => {
           provider: 'rest'
         }
         assert.rejects(
-            async () => {
-              await app.service('party').remove(party1.id, params)
-            },
-            { message: 'You are not the owner of this party' }
+          async () => {
+            await app.service('party').remove(party1.id, params)
+          },
+          { message: 'You are not the owner of this party' }
         )
       })
 
@@ -277,10 +272,10 @@ describe('party.test', () => {
           provider: 'rest'
         }
         assert.rejects(
-            async () => {
-              await app.service('party').remove(party1.id, params)
-            },
-            { message: 'You are not the owner of this party' }
+          async () => {
+            await app.service('party').remove(party1.id, params)
+          },
+          { message: 'You are not the owner of this party' }
         )
       })
 
@@ -292,17 +287,17 @@ describe('party.test', () => {
           provider: 'rest'
         }
         assert.rejects(
-            async () => {
-              await app.service('party-user').remove(partyUser1.id, params)
-            },
-            { message: 'You are not the owner of this party' }
+          async () => {
+            await app.service('party-user').remove(partyUser1.id, params)
+          },
+          { message: 'You are not the owner of this party' }
         )
 
         assert.rejects(
-            async () => {
-              await app.service('party-user').remove(partyUser2.id, params)
-            },
-            { message: 'You are not the owner of this party' }
+          async () => {
+            await app.service('party-user').remove(partyUser2.id, params)
+          },
+          { message: 'You are not the owner of this party' }
         )
       })
 
@@ -319,17 +314,17 @@ describe('party.test', () => {
           provider: 'rest'
         }
         assert.rejects(
-            async () => {
-              await app.service('party-user').remove(partyUser1.id, params)
-            },
-            { message: 'You are not the owner of this party' }
+          async () => {
+            await app.service('party-user').remove(partyUser1.id, params)
+          },
+          { message: 'You are not the owner of this party' }
         )
 
         assert.rejects(
-            async () => {
-              await app.service('party-user').remove(partyUser3.id, params)
-            },
-            { message: 'You are not the owner of this party' }
+          async () => {
+            await app.service('party-user').remove(partyUser3.id, params)
+          },
+          { message: 'You are not the owner of this party' }
         )
       })
 
@@ -426,10 +421,10 @@ describe('party.test', () => {
         assert.strictEqual(partyUsers.total, 0)
 
         assert.rejects(
-            async () => {
-              await app.service('party').get(party1.id)
-            },
-            { code: 404 }
+          async () => {
+            await app.service('party').get(party1.id)
+          },
+          { code: 404 }
         )
       })
 
@@ -441,10 +436,7 @@ describe('party.test', () => {
           provider: 'rest'
         }
 
-        party1 = await app.service('party').create(
-            {},
-            params
-        )
+        party1 = await app.service('party').create({}, params)
 
         partyUser2 = await app.service('party-user').create({
           partyId: party1.id,
@@ -460,10 +452,10 @@ describe('party.test', () => {
         await app.service('party').remove(party1.id)
 
         assert.rejects(
-            async () => {
-              await app.service('party').get(party1.id)
-            },
-            { code: 404 }
+          async () => {
+            await app.service('party').get(party1.id)
+          },
+          { code: 404 }
         )
         const noPartyUsers = await app.service('party-user').find({
           query: {

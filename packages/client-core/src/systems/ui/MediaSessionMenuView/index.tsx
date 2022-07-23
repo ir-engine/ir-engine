@@ -81,7 +81,6 @@ const MediaSessionMenuView = () => {
       await endVideoChat(mediaNetwork, {})
       if (mediaNetwork.socket?.connected === true) {
         await leaveNetwork(mediaNetwork, false)
-        console.log('Provisioning instance media server from checkEndVideoChat')
         await MediaInstanceConnectionService.provisionServer(instanceChannel.id)
       }
     }

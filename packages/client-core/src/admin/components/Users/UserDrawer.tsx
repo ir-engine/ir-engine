@@ -251,12 +251,6 @@ const UserDrawer = ({ open, mode, selectedUser, onClose }: Props) => {
               value={selectedUser?.inviteCode || t('admin:components.common.none')}
               disabled
             />
-
-            <InputText
-              label={t('admin:components.user.instance')}
-              value={selectedUser?.party?.instance?.ipAddress || t('admin:components.common.none')}
-              disabled
-            />
           </>
         )}
 

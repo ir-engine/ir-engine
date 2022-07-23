@@ -109,8 +109,8 @@ export default (app: Application) => {
         if (data.party == null) data.party = await app.service('party').Model.findOne({ where: { id: data.partyId } })
         const partyUsers = await app.service('party-user').find({ query: { partyId: data.partyId } })
 
-        if (data.party?.dataValues) data.party.dataValues.partyUsers = partyUsers.data
-        else if (data.party) data.party.partyUsers = partyUsers.data
+        if (data.party?.dataValues) data.party.dataValues.party_users = partyUsers.data
+        else if (data.party) data.party.party_users = partyUsers.data
 
         targetIds = partyUsers.data.map((partyUser) => partyUser.userId)
       } else if (data.channelType === 'instance') {
@@ -239,8 +239,8 @@ export default (app: Application) => {
         if (data.party == null) data.party = await app.service('party').Model.findOne({ where: { id: data.partyId } })
         const partyUsers = await app.service('party-user').find({ query: { partyId: data.partyId } })
 
-        if (data.party?.dataValues) data.party.dataValues.partyUsers = partyUsers.data
-        else if (data.party) data.party.partyUsers = partyUsers.data
+        if (data.party?.dataValues) data.party.dataValues.party_users = partyUsers.data
+        else if (data.party) data.party.party_users = partyUsers.data
 
         targetIds = partyUsers.data.map((partyUser) => partyUser.userId)
       } else if (data.channelType === 'instance') {

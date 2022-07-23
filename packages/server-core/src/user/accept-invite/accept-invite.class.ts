@@ -63,8 +63,6 @@ export class AcceptInvite implements ServiceMethods<Data> {
         })
       } catch (err) {}
 
-      console.log('invite', invite)
-
       if (invite == null) {
         logger.info('INVALID INVITE ID')
         return {

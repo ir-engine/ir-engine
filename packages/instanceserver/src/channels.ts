@@ -81,18 +81,13 @@ type InstanceMetadata = {
 const createNewInstance = async (app: Application, newInstance: InstanceMetadata) => {
   const { locationId, channelId } = newInstance
 
-  logger.info('Creating new instance: %o', newInstance)
-  logger.info('locationId %s', locationId)
-  logger.info('channelId %s', channelId)
+  logger.info('Creating new instance: %o %s, %s', newInstance, locationId, channelId)
   const instanceResult = (await app.service('instance').create(newInstance)) as Instance
-  logger.info('instanceResult %o', instanceResult)
   if (!channelId) {
-    logger.info('Creating instance channel')
     const channelResult = await app.service('channel').create({
       channelType: 'instance',
       instanceId: instanceResult.id
     })
-    logger.info('Created instance channel %o', channelResult)
   }
   await app.agonesSDK.allocate()
   app.instance = instanceResult
@@ -459,16 +454,13 @@ const handleUserDisconnect = async (
     [instanceIdKey]: null
   }
 
-  console.log('Check if this is a media server and the user has a partyId', user?.partyId, app.isChannelInstance)
   if (user?.partyId && app.isChannelInstance) {
-    console.log('Checking if this media server is handling the party channel')
     const partyChannel = app.service('channel').Model.findOne({
       where: {
         partyId: user.partyId
       }
     })
     if (partyChannel?.id === app.instance.channelId) {
-      console.log('This server is the party mediaserver, removing user from party')
       userPatch.partyId = null
       const partyUser = await app.service('party-user').find({
         query: {

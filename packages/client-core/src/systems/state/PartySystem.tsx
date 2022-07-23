@@ -15,11 +15,9 @@ export default async function PartySystem() {
 
   return () => {
     for (const action of loadedPartyQueue()) {
-      console.log('loadedPartyQueue popping', action)
       PartyServiceReceptors.loadedPartyReceptor(action)
     }
     for (const action of createdPartyQueue()) {
-      console.log('createdPartyQueue popping')
       PartyServiceReceptors.createdPartyReceptor(action)
     }
     for (const action of removedPartyQueue()) {

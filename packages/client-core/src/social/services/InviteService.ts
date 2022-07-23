@@ -7,10 +7,10 @@ import { matches, Validator } from '@xrengine/engine/src/common/functions/Matche
 import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
 import { API } from '../../API'
+import { MediaInstanceConnectionAction } from '../../common/services/MediaInstanceConnectionService'
 import { NotificationService } from '../../common/services/NotificationService'
 import { accessAuthState } from '../../user/services/AuthService'
 import { PartyService } from './PartyService'
-import { MediaInstanceConnectionAction } from "../../common/services/MediaInstanceConnectionService";
 
 export const emailRegex =
   /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/
@@ -64,7 +64,6 @@ export const InviteServiceReceptor = (action) => {
         })
       })
       .when(InviteAction.retrievedReceivedInvites.matches, (action) => {
-        console.log('match on retrievedReceivedInvites')
         return s.merge({
           receivedInvites: {
             invites: action.invites,
@@ -237,7 +236,6 @@ export const InviteService = {
           search: search
         }
       })) as Paginated<Invite>
-      console.log('inviteResult', inviteResult)
       dispatchAction(
         InviteAction.retrievedReceivedInvites({
           invites: inviteResult.data,
@@ -246,7 +244,6 @@ export const InviteService = {
           limit: inviteResult.limit
         })
       )
-      console.log('dispatched retrievedReceivedInvite action')
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
@@ -305,7 +302,6 @@ export const InviteService = {
   acceptInvite: async (invite: Invite) => {
     try {
       if (invite.inviteType === 'party') {
-        console.log('Dispatching acceptingPartyInvite')
         dispatchAction(MediaInstanceConnectionAction.acceptingPartyInvite())
       }
       await API.instance.client.service('a-i').get(invite.id, {

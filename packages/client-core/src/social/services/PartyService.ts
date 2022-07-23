@@ -15,13 +15,16 @@ import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
 import { API } from '../../API'
-import { MediaInstanceConnectionService, accessMediaInstanceConnectionState } from '../../common/services/MediaInstanceConnectionService'
+import {
+  accessMediaInstanceConnectionState,
+  MediaInstanceConnectionService
+} from '../../common/services/MediaInstanceConnectionService'
 import { NotificationService } from '../../common/services/NotificationService'
 import { endVideoChat, leaveNetwork } from '../../transports/SocketWebRTCClientFunctions'
 import { SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientNetwork'
 import { accessAuthState } from '../../user/services/AuthService'
 import { UserAction } from '../../user/services/UserService'
-import {accessChatState, ChatAction, ChatService} from './ChatService'
+import { accessChatState, ChatAction, ChatService } from './ChatService'
 import { InviteService } from './InviteService'
 
 const logger = multiLogger.child({ component: 'client-core:social' })
@@ -37,7 +40,6 @@ const PartyState = defineState({
 })
 
 const loadedPartyReceptor = (action: typeof PartyActions.loadedPartyAction.matches._TYPE) => {
-  console.log('loadedPartyReceptor')
   const state = getState(PartyState)
   return state.merge({ party: action.party, isOwned: action.isOwned, updateNeeded: false })
 }
@@ -72,7 +74,6 @@ const createdPartyUserReceptor = (action: typeof PartyActions.createdPartyUserAc
 }
 
 const changedPartyReceptor = (action: typeof PartyActions.changedPartyAction.matches._TYPE) => {
-  console.log('changedPartyReceptor')
   const state = getState(PartyState)
   return state.updateNeeded.set(true)
 }
@@ -91,23 +92,16 @@ const patchedPartyUserReceptor = (action: typeof PartyActions.patchedPartyUserAc
   state.updateNeeded.set(true)
 }
 
-const resetUpdateNeededReceptor = (action: typeof PartyAction.resetUpdateNeededAction.matches._TYPE) => {
-  console.log('resetUpdateNeeded')
+const resetUpdateNeededReceptor = (action: typeof PartyActions.resetUpdateNeededAction.matches._TYPE) => {
   const state = getState(PartyState)
   return state.updateNeeded.set(false)
 }
 
 const removedPartyUserReceptor = (action: typeof PartyActions.removedPartyUserAction.matches._TYPE) => {
-  console.log('removedPartyUserReceptor', action)
   const state = getState(PartyState)
 
-  console.log('Checking if self user, in which case remove party', action.partyUser.userId, accessAuthState().user.id.value)
-  if (action.partyUser.userId === accessAuthState().user.id.value) {
-    console.log('Self party user removed, null out the party value from state')
-    return state.merge({ party: null!, isOwned: false })
-  }
+  if (action.partyUser.userId === accessAuthState().user.id.value) state.merge({ party: null!, isOwned: false })
 
-  console.log('Checking if user is in a party')
   if (state.party && state.party.partyUsers && state.party.partyUsers.value) {
     const index = state.party.partyUsers.value.findIndex((partyUser) => partyUser?.id === action.partyUser.id)
     if (index > -1) {
@@ -140,13 +134,13 @@ export const PartyService = {
     try {
       const partyResult = (await API.instance.client.service('party').get('')) as Party
       if (partyResult) {
-        partyResult.partyUsers = (partyResult as any).party_users
+        partyResult.partyUsers = partyResult.party_users
         dispatchAction(
           PartyActions.loadedPartyAction({
             party: partyResult,
             isOwned:
-              accessAuthState().authUser.identityProvider.userId.value ===
-              partyResult.partyUsers.find((user) => user.isOwner)?.userId
+              accessAuthState().user.id.value ===
+              (partyResult.partyUsers && partyResult.partyUsers.find((user) => user.isOwner)?.userId)
           })
         )
       } else {
@@ -154,31 +148,6 @@ export const PartyService = {
       }
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
-    }
-  },
-
-  getParties: async (): Promise<void> => {
-    let socketId: any
-    if (API.instance.client.io && socketId === undefined) {
-      API.instance.client.io.emit('request-user-id', ({ id }: { id: number }) => {
-        socketId = id
-      })
-      ;(window as any).joinParty = (userId: number, partyId: number) => {
-        API.instance.client.io.emit('join-party', {
-          userId,
-          partyId
-        })
-      }
-      ;(window as any).messageParty = (userId: number, partyId: number, message: string) => {
-        API.instance.client.io.emit('message-party-request', {
-          userId,
-          partyId,
-          message
-        })
-      }
-      ;(window as any).partyInit = (userId: number) => {
-        API.instance.client.io.emit('party-init', { userId })
-      }
     }
   },
   createParty: async () => {
@@ -237,17 +206,12 @@ export const PartyService = {
     const network = Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork
     await endVideoChat(network, {})
     leaveNetwork(network)
-    console.log('acceptingPartyInvite', accessMediaInstanceConnectionState().acceptingPartyInvite?.value)
     if (joinInstanceChannelServer && !accessMediaInstanceConnectionState().acceptingPartyInvite.value) {
       const channels = accessChatState().channels.channels.value
-      console.log('channels before provisioning instance media server', channels)
       const instanceChannel = Object.values(channels).find(
         (channel) => channel.instanceId === Engine.instance.currentWorld.worldNetwork?.hostId
       )
-      if (instanceChannel) {
-        console.log('provisioning instance media server because of leaving a party')
-        await MediaInstanceConnectionService.provisionServer(instanceChannel?.id!, true)
-      }
+      if (instanceChannel) await MediaInstanceConnectionService.provisionServer(instanceChannel?.id!, true)
     }
   },
   transferPartyOwner: async (partyUserId: string) => {
@@ -266,11 +230,6 @@ export const PartyService = {
           dispatchAction(PartyActions.changedPartyAction())
         }
 
-        console.log('partyUserCreated Listener')
-        console.log('incoming partyUserId', params.partyUser.userId)
-        console.log('self id', accessAuthState().user.id.value)
-        console.log('incoming partyId', params.partyUser.partyId)
-        console.log('party id', accessPartyState().party.id?.value)
         if (
           params.partyUser.userId !== accessAuthState().user.id.value ||
           (params.partyUser.userId === accessAuthState().user.id.value &&
@@ -331,6 +290,7 @@ export const PartyService = {
       }
 
       const partyCreatedListener = (params) => {
+        params.party.partyUsers = params.party.party_users
         dispatchAction(ChatAction.refetchPartyChannelAction())
         dispatchAction(PartyActions.createdPartyAction({ party: params.party }))
       }
@@ -343,11 +303,6 @@ export const PartyService = {
       const partyRemovedListener = (params) => {
         dispatchAction(ChatAction.refetchPartyChannelAction())
         dispatchAction(PartyActions.removedPartyAction({ party: params.party }))
-
-        // const selfUser = accessAuthState().user.value
-        // console.log('partyRemovedListener', params.party)
-        // console.log('selfUser', selfUser, selfUser.partyId)
-        // if (params.party.id === selfUser.partyId) PartyService.leaveNetwork(true)
       }
 
       API.instance.client.service('party-user').on('created', partyUserCreatedListener)

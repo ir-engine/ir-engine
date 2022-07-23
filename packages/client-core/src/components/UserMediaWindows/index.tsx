@@ -36,8 +36,6 @@ const UserMediaWindows = (): JSX.Element => {
         : []
       : []
 
-  console.log('displayedUsers', displayedUsers)
-
   const consumers = mediaState.consumers.value
   const screenShareConsumers = consumers?.filter((consumer) => consumer.appData.mediaTag === 'screen-video') || []
 

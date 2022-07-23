@@ -43,9 +43,8 @@ const AvatarContextMenu = () => {
   const { t } = useTranslation()
 
   const userAvatarDetails = useHookstate(getState(WorldState).userAvatarDetails)
-  console.log('partyUsers Blergh', partyState.party?.partyUsers)
   const partyOwner = partyState.party?.partyUsers?.value
-    ? partyState.party.partyUsers.find((partyUser) => partyUser.isOwner)
+    ? partyState.party.partyUsers.value.find((partyUser) => partyUser.isOwner)
     : null
 
   // TODO: move these to widget register
@@ -104,8 +103,8 @@ const AvatarContextMenu = () => {
           <div className="buttonContainer">
             <section className="buttonSection">
               {partyState?.party?.id?.value != null &&
-                partyOwner?.userId?.value != null &&
-                partyOwner.userId?.value === authState.user?.id?.value &&
+                partyOwner?.userId != null &&
+                partyOwner.userId === authState.user?.id?.value &&
                 user.partyId.value !== partyState.party?.id?.value && (
                   <XRTextButton onClick={inviteToParty}>{t('user:personMenu.inviteToParty')}</XRTextButton>
                 )}

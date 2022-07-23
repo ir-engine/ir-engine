@@ -221,11 +221,9 @@ export class Invite extends Service<InviteDataType> {
    * @returns invite data
    */
   async find(params?: Params): Promise<InviteDataType[] | Paginated<InviteDataType>> {
-    console.log('invite.find')
     let result: Paginated<InviteDataType> = null!
     if (params && params.query) {
       const query = params.query
-      console.log('query', query)
       if (query.type === 'received') {
         result = await inviteReceived(this, query)
       } else if (query.type === 'sent') {
@@ -241,7 +239,6 @@ export class Invite extends Service<InviteDataType> {
   }
 
   async remove(id: string, params?: Params): Promise<InviteDataType> {
-    console.log('remove invite', id)
     const invite = await this.app.service('invite').get(id)
     if (invite.inviteType === 'friend' && invite.inviteeId != null && !params?.preventUserRelationshipRemoval) {
       const selfUser = params!.user as UserInterface

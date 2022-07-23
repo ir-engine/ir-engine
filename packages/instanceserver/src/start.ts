@@ -48,7 +48,6 @@ const onSocket = async (app: Application, socket: Socket) => {
   if (!getEngineState().joinedWorld.value) {
     await new Promise((resolve) => matchActionOnce(EngineActions.joinedWorld.matches, resolve))
   }
-  logger.info('Calling setupSocketFunctions')
   setupSocketFunctions(app.transport, socket)
 }
 
@@ -60,7 +59,6 @@ export const instanceServerPipe = pipe(
 ) as (app: Application) => Application
 
 export const start = async (): Promise<Application> => {
-  logger.info('INSTANCESERVER START')
   const app = createFeathersExpressApp(ServerMode.Instance, instanceServerPipe)
 
   const agonesSDK = new AgonesSDK()
