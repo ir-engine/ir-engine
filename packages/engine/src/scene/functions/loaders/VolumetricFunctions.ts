@@ -100,6 +100,7 @@ export const updateVolumetric: ComponentUpdateFunction = (entity: Entity, proper
         onMeshBuffering: (_progress) => {},
         onHandleEvent: (type, data) => {
           if (checkUserInput() && type == 'videostatus' && data.status == 'initplay') {
+            const video = obj3d.userData.player.video
             height = calculateHeight(obj3d)
             height = height * obj3d.scale.y + 1
             step = height / 150
@@ -137,7 +138,9 @@ export const updateVolumetric: ComponentUpdateFunction = (entity: Entity, proper
 
       //setup callbacks
       obj3d.play = () => {
-        if (checkUserInput()) obj3d.userData.player.play()
+        if (checkUserInput()) {
+          obj3d.userData.player.play()
+        }
       }
 
       obj3d.pause = () => {
@@ -145,7 +148,9 @@ export const updateVolumetric: ComponentUpdateFunction = (entity: Entity, proper
       }
 
       obj3d.seek = () => {
-        if (checkUserInput()) obj3d.userData.player.playOneFrame()
+        if (checkUserInput()) {
+          obj3d.userData.player.playOneFrame()
+        }
       }
 
       obj3d.callbacks = () => {
@@ -187,6 +192,7 @@ export const prepareVolumetricForGLTFExport: ComponentPrepareForGLTFExportFuncti
 export const toggleVolumetric = (entity: Entity): boolean => {
   if (!checkUserInput()) return false
   const obj3d = getComponent(entity, Object3DComponent)?.value as VolumetricObject3D
+  const component = getComponent(entity, VolumetricComponent)
   if (!obj3d) return false
 
   if (obj3d.userData.player.hasPlayed && !obj3d.userData.player.paused) {
@@ -275,8 +281,5 @@ const calculateHeight = (obj3d) => {
 }
 
 const parseVolumetricProperties = (props): VolumetricVideoComponentType => {
-  return {
-    paths: props.paths ?? SCENE_COMPONENT_VOLUMETRIC_DEFAULT_VALUES.paths,
-    playMode: props.playMode ?? SCENE_COMPONENT_VOLUMETRIC_DEFAULT_VALUES.playMode
-  }
+  return { ...SCENE_COMPONENT_VOLUMETRIC_DEFAULT_VALUES, ...props }
 }

@@ -35,6 +35,15 @@ export const addClientInputListeners = () => {
 
   window.addEventListener('DOMMouseScroll', preventDefault, false)
   window.addEventListener('touchmove', preventDefault, { capture: true, passive: false })
+  window.addEventListener(
+    'keydown',
+    (evt) => {
+      if (evt.key === 'Tab') {
+        evt.preventDefault()
+      }
+    },
+    false
+  )
 
   const addListener = (
     domElement: HTMLElement | Document | Window,
