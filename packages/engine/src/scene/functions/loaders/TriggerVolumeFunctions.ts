@@ -1,3 +1,4 @@
+import { RigidBodyType } from '@dimforge/rapier3d-compat'
 import { BoxBufferGeometry, Mesh, MeshBasicMaterial } from 'three'
 
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
@@ -32,6 +33,7 @@ export const deserializeTriggerVolume: ComponentDeserializeFunction = (
   boxMesh.material.visible = false
   boxMesh.userData = {
     type: 'Cuboid',
+    bodyType: RigidBodyType.Fixed,
     isTrigger: true,
     isHelper: true,
     collisionLayer: CollisionGroups.Trigger,
