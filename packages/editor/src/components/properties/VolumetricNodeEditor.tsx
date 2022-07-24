@@ -82,9 +82,6 @@ export const VolumetricNodeEditor: EditorComponentType = (props) => {
           </Button>
         )}
       </InputGroup>
-      <InputGroup name="Mute" label={t('editor:properties.volumetric.mute')}>
-        <BooleanInput value={volumetricComponent.mute} onChange={updateProperty(VolumetricComponent, 'mute')} />
-      </InputGroup>
     </NodeEditor>
   )
 }

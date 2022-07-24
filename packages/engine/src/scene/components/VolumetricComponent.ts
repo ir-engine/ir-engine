@@ -4,7 +4,6 @@ import { VolumetricPlayMode } from '../constants/VolumetricPlayMode'
 export type VolumetricVideoComponentType = {
   paths: string[]
   playMode: VolumetricPlayMode
-  mute: boolean
 }
 
 export const VolumetricComponent = createMappedComponent<VolumetricVideoComponentType>('VolumetricComponent')
