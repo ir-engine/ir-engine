@@ -3,6 +3,7 @@ import { Consumer, DataProducer, Transport as MediaSoupTransport, Producer } fro
 import { io as ioclient, Socket } from 'socket.io-client'
 
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
+import multiLogger from '@xrengine/common/src/logger'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
@@ -11,6 +12,8 @@ import { Action, Topic } from '@xrengine/hyperflux/functions/ActionFunctions'
 import { accessAuthState } from '../user/services/AuthService'
 import { instanceserverHost } from '../util/config'
 import { onConnectToInstance } from './SocketWebRTCClientFunctions'
+
+const logger = multiLogger.child({ component: 'client-core:SocketWebRTCClientNetwork' })
 
 // import { encode, decode } from 'msgpackr'
 
@@ -51,7 +54,7 @@ export class SocketWebRTCClientNetwork extends Network {
   }
 
   close() {
-    console.log('SocketWebRTCClientNetwork close')
+    logger.info('SocketWebRTCClientNetwork close')
     this.recvTransport.close()
     this.sendTransport.close()
     this.recvTransport = null!
@@ -69,8 +72,10 @@ export class SocketWebRTCClientNetwork extends Network {
     channelId?: string | null
   }): Promise<void> {
     this.reconnecting = false
-    if (this.socket) return console.error('[SocketWebRTCClientNetwork]: already initialized')
-    console.log('[SocketWebRTCClientNetwork]: Initialising transport with args', args)
+    if (this.socket) {
+      return logger.error(new Error('Network already initialized'))
+    }
+    logger.info('Initialising transport with args %o', args)
     const { ipAddress, port, locationId, channelId } = args
 
     const authState = accessAuthState()
@@ -111,7 +116,7 @@ export class SocketWebRTCClientNetwork extends Network {
       if ((this.socket as any)._connected) return
       ;(this.socket as any)._connected = true
 
-      console.log('CONNECT to port', port, locationId)
+      logger.info('CONNECT to port %o', { port, locationId })
       onConnectToInstance(this)
 
       // Send heartbeat every second

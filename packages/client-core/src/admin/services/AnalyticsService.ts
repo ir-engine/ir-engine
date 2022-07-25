@@ -1,8 +1,11 @@
 import { AdminAnalytics, AdminAnalyticsResult } from '@xrengine/common/src/interfaces/AdminAnalyticsData'
+import multiLogger from '@xrengine/common/src/logger'
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
 import { API } from '../../API'
+
+const logger = multiLogger.child({ component: 'client-core:AnalyticsService' })
 
 //State
 export const ANALYTICS_PAGE_LIMIT = 100
@@ -116,7 +119,7 @@ export const ADminAnalyticsService = {
       })
       dispatchAction(AdminAnalyticsActions.activePartiesFetched({ analytics: activeParties }))
     } catch (err) {
-      console.log(err)
+      logger.error(err)
     }
   },
   fetchActiveInstances: async (startDate?: Date, endDate?: Date) => {
@@ -141,7 +144,7 @@ export const ADminAnalyticsService = {
       })
       dispatchAction(AdminAnalyticsActions.activeInstancesFetched({ analytics: activeInstances }))
     } catch (err) {
-      console.log(err)
+      logger.error(err)
     }
   },
   fetchActiveLocations: async (startDate?: Date, endDate?: Date) => {
@@ -166,7 +169,7 @@ export const ADminAnalyticsService = {
       })
       dispatchAction(AdminAnalyticsActions.activeLocationsFetched({ analytics: activeLocations }))
     } catch (err) {
-      console.log(err)
+      logger.error(err)
     }
   },
   fetchActiveScenes: async (startDate?: Date, endDate?: Date) => {
@@ -191,7 +194,7 @@ export const ADminAnalyticsService = {
       })
       dispatchAction(AdminAnalyticsActions.activeScenesFetched({ analytics: activeScenes }))
     } catch (err) {
-      console.log(err)
+      logger.error(err)
     }
   },
   fetchChannelUsers: async (startDate?: Date, endDate?: Date) => {
@@ -216,7 +219,7 @@ export const ADminAnalyticsService = {
       })
       dispatchAction(AdminAnalyticsActions.channelUsersFetched({ analytics: channelUsers }))
     } catch (err) {
-      console.log(err)
+      logger.error(err)
     }
   },
   fetchInstanceUsers: async (startDate?: Date, endDate?: Date) => {
@@ -241,7 +244,7 @@ export const ADminAnalyticsService = {
       })
       dispatchAction(AdminAnalyticsActions.instanceUsersFetched({ analytics: instanceUsers }))
     } catch (err) {
-      console.log(err)
+      logger.error(err)
     }
   },
   fetchDailyUsers: async (startDate?: Date, endDate?: Date) => {
@@ -266,7 +269,7 @@ export const ADminAnalyticsService = {
       })
       dispatchAction(AdminAnalyticsActions.dailyUsersFetched({ analytics: dailyUsers }))
     } catch (error) {
-      console.log(error)
+      logger.error(error)
     }
   },
   fetchDailyNewUsers: async (startDate?: Date, endDate?: Date) => {
@@ -291,7 +294,7 @@ export const ADminAnalyticsService = {
       })
       dispatchAction(AdminAnalyticsActions.dailyNewUsersFetched({ analytics: dailyNewUsers }))
     } catch (err) {
-      console.log(err)
+      logger.error(err)
     }
   }
 }

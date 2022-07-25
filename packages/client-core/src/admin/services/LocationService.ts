@@ -2,11 +2,14 @@ import { Paginated } from '@feathersjs/feathers'
 
 import { Location } from '@xrengine/common/src/interfaces/Location'
 import { LocationType } from '@xrengine/common/src/interfaces/LocationType'
+import multiLogger from '@xrengine/common/src/logger'
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
 import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
+
+const logger = multiLogger.child({ component: 'client-core:LocationService' })
 
 //State
 export const LOCATION_PAGE_LIMIT = 100
@@ -135,7 +138,7 @@ export const AdminLocationService = {
       })
       dispatchAction(AdminLocationActions.locationsRetrieved({ locations }))
     } catch (error) {
-      console.error(error)
+      logger.error(error)
     }
   },
   searchAdminLocations: async (value, orderBy = 'asc') => {
@@ -155,7 +158,7 @@ export const AdminLocationService = {
         if (locationData.location_setting) locationData.locationSetting = locationData.location_setting
       })
     } catch (error) {
-      console.error(error)
+      logger.error(error)
     }
   }
 }

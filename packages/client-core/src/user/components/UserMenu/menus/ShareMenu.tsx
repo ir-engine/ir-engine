@@ -3,6 +3,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { SendInvite } from '@xrengine/common/src/interfaces/Invite'
+import multiLogger from '@xrengine/common/src/logger'
 import { isShareAvailable } from '@xrengine/engine/src/common/functions/DetectFeatures'
 import { EngineActions, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { dispatchAction } from '@xrengine/hyperflux'
@@ -20,6 +21,8 @@ import { emailRegex, InviteService, phoneRegex } from '../../../../social/servic
 import { useInviteState } from '../../../../social/services/InviteService'
 import { useAuthState } from '../../../services/AuthService'
 import styles from '../index.module.scss'
+
+const logger = multiLogger.child({ component: 'client-core:ShareMenu' })
 
 export const useShareMenuHooks = ({ refLink }) => {
   const { t } = useTranslation()
@@ -44,10 +47,10 @@ export const useShareMenuHooks = ({ refLink }) => {
         url: document.location.href
       })
       .then(() => {
-        console.log('Successfully shared')
+        logger.info('Successfully shared')
       })
       .catch((error) => {
-        console.error('Something went wrong sharing the world', error)
+        logger.error(error, 'Error during sharing')
       })
   }
 

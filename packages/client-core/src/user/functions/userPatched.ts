@@ -1,6 +1,7 @@
 import { t } from 'i18next'
 
 import { resolveUser } from '@xrengine/common/src/interfaces/User'
+import multiLogger from '@xrengine/common/src/logger'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { WorldState } from '@xrengine/engine/src/networking/interfaces/WorldState'
 import { dispatchAction, getState } from '@xrengine/hyperflux'
@@ -10,14 +11,16 @@ import { NotificationService } from '../../common/services/NotificationService'
 import { accessAuthState, AuthAction } from '../services/AuthService'
 import { accessUserState, UserAction } from '../services/UserService'
 
+const logger = multiLogger.child({ component: 'client-core:userPatched' })
+
 export const userPatched = (params) => {
-  console.log('USER PATCHED', params)
+  logger.info('USER PATCHED %o', params)
 
   const selfUser = accessAuthState().user
   const userState = accessUserState()
   const patchedUser = resolveUser(params.userRelationship)
 
-  console.log('User patched', patchedUser)
+  logger.info('Resolved patched user %o', patchedUser)
 
   const worldState = getState(WorldState)
   worldState.userNames[patchedUser.id].set(patchedUser.name)

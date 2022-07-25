@@ -1,8 +1,11 @@
 import { BotCommands, CreateBotCammand } from '@xrengine/common/src/interfaces/AdminBot'
+import multiLogger from '@xrengine/common/src/logger'
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
 import { API } from '../../API'
+
+const logger = multiLogger.child({ component: 'client-core:BotsCommand' })
 
 //State
 export const BOTS_PAGE_LIMIT = 100
@@ -46,7 +49,7 @@ export const AdminBotCommandService = {
       const botCommand = (await API.instance.client.service('bot-command').create(data)) as BotCommands
       dispatchAction(AdminBotCommandActions.botCommandCreated({ botCommand }))
     } catch (error) {
-      console.error(error)
+      logger.error(error)
     }
   },
   removeBotsCommand: async (id: string) => {
@@ -54,7 +57,7 @@ export const AdminBotCommandService = {
       const result = (await API.instance.client.service('bot-command').remove(id)) as BotCommands
       dispatchAction(AdminBotCommandActions.botCommandRemoved({ botCommand: result }))
     } catch (error) {
-      console.error(error)
+      logger.error(error)
     }
   }
 }
