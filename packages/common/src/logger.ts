@@ -109,7 +109,10 @@ const multiLogger = {
  *
  * Usage:
  * encodeLogParams(new TypeError('Error message'))
- * -> { msg: 'TypeError: Error message', stack }
+ * -> { msg: '{"error": "TypeError"", "message": "Error message", stack, cause }' }
+ *
+ * encodeLogParams(new Error('Error message'), 'Error while loading user')
+ * -> { msg: '{"error": "Error"", "message": "Error while loading user: Error message", stack, cause }' }
  *
  * encodeLogParams('Message') -> { msg: 'Message' }
  *
@@ -132,7 +135,7 @@ function encodeLogParams(first, second, third) {
   let message: string
 
   if (first instanceof Error) {
-    message = stringifyError(first)
+    message = stringifyError(first, second)
   } else if (typeof first === 'string') {
     message = interpolate(first, second)
   } else {
@@ -156,7 +159,7 @@ function interpolate(message, interpolationObject): string {
   return message?.replace('%o', JSON.stringify(interpolationObject))
 }
 
-function stringifyError(error) {
+function stringifyError(error, errorContextMessage?) {
   let cause, stack
 
   const trace = { stack: '' }
@@ -167,7 +170,13 @@ function stringifyError(error) {
     cause = stringifyError(error)
   }
 
-  return JSON.stringify({ error: error.name, message: error.message, stack, cause })
+  let message = error.message
+
+  if (errorContextMessage) {
+    message = `${errorContextMessage}: ${message}`
+  }
+
+  return JSON.stringify({ error: error.name, message, stack, cause })
 }
 
 export default multiLogger
