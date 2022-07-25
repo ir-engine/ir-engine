@@ -117,7 +117,7 @@ export const LoadEngineWithScene = () => {
 
       const world = Engine.instance.currentWorld
 
-      dispatchAction(SceneActions.unloadCurrentScene())
+      dispatchAction(SceneActions.unloadCurrentScene({}))
       history.push('/location/' + world.activePortal.location)
       LocationService.getLocationByName(world.activePortal.location, authState.user.id.value)
 

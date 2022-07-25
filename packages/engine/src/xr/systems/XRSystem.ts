@@ -30,11 +30,11 @@ const startXRSession = async () => {
     EngineRenderer.instance.xrSession = session
     EngineRenderer.instance.xrManager.setSession(session)
     EngineRenderer.instance.xrManager.setFoveation(1)
-    dispatchAction(EngineActions.xrSession())
+    dispatchAction(EngineActions.xrSession({}))
 
     const onSessionEnd = () => {
       EngineRenderer.instance.xrManager.removeEventListener('sessionend', onSessionEnd)
-      dispatchAction(EngineActions.xrEnd())
+      dispatchAction(EngineActions.xrEnd({}))
     }
     EngineRenderer.instance.xrManager.addEventListener('sessionend', onSessionEnd)
 

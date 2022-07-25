@@ -48,7 +48,7 @@ export class AssetLibrary implements ServiceMethods<any> {
     try {
       const inPath = decodeURI(createParams.path)
       const pathData = /.*projects\/([\w\d\s\-_]+)\/assets\/([\w\d\s\-_]+).zip$/.exec(inPath)
-      if (!pathData) throw Error('could not extract path data')
+      if (!pathData) throw new Error('could not extract path data')
       const [_, projectName, fileName] = pathData
       const assetRoot = `${projectName}/assets/${fileName}`
       const fullPath = path.join(this.rootPath, assetRoot)
@@ -56,7 +56,7 @@ export class AssetLibrary implements ServiceMethods<any> {
       await extract(`${fullPath}.zip`, { dir: fullPath })
       return { assetRoot: assetRoot }
     } catch (e) {
-      throw Error('error unzipping archive:', e)
+      throw new Error('error unzipping archive:', e)
     }
   }
 }

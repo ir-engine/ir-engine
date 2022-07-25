@@ -3,9 +3,12 @@ import { matches, Validator } from 'ts-matches'
 
 import { OpaqueType } from '@xrengine/common/src/interfaces/OpaqueType'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
+import multiLogger from '@xrengine/common/src/logger'
 import { deepEqual } from '@xrengine/engine/src/common/functions/deepEqual'
 
 import { HyperFlux } from './StoreFunctions'
+
+const logger = multiLogger.child({ component: 'hyperflux:Action' })
 
 export type Topic = OpaqueType<'topicId'> & string
 
@@ -217,7 +220,7 @@ function defineAction<Shape extends ActionShape<Action>>(actionShape: Shape) {
 
   const matchesShape = matches.shape(resolvedActionShape) as Validator<unknown, ResolvedAction>
 
-  const actionCreator = (partialAction: PartialAction = {} as any) => {
+  const actionCreator = (partialAction: PartialAction) => {
     const defaultValues = Object.fromEntries(
       defaultEntries.map(([k, v]) => [
         k,
@@ -248,20 +251,15 @@ function defineAction<Shape extends ActionShape<Action>>(actionShape: Shape) {
  * @param topics @todo potentially in the future, support dispatching to multiple topics
  * @param store
  */
-const dispatchAction = <A extends Action>(
-  action: A,
-  topics: Topic | Topic[] = HyperFlux.store.defaultTopic,
-  store = HyperFlux.store
-) => {
+const dispatchAction = <A extends Action>(action: A, store = HyperFlux.store) => {
   const storeId = store.getDispatchId()
-  const topic = Array.isArray(topics) ? topics[0] : topics
 
   action.$from = action.$from ?? (storeId as UserId)
   action.$to = action.$to ?? 'all'
   action.$time = action.$time ?? store.getDispatchTime() + store.defaultDispatchDelay
   action.$cache = action.$cache ?? false
   action.$uuid = action.$uuid ?? MathUtils.generateUUID()
-  action.$topic = topic
+  const topic = (action.$topic = action.$topic ?? HyperFlux.store.defaultTopic)
 
   if (process.env.APP_ENV === 'development' && !action.$stack) {
     const trace = { stack: '' }
@@ -278,7 +276,7 @@ const dispatchAction = <A extends Action>(
 }
 
 function addTopic(topic: string, store = HyperFlux.store) {
-  console.log(`[HyperFlux]: Added topic ${topic}`)
+  logger.info(`Added topic ${topic}`)
   if (!store.actions.outgoing[topic])
     store.actions.outgoing[topic] = {
       queue: [],
@@ -288,7 +286,7 @@ function addTopic(topic: string, store = HyperFlux.store) {
 }
 
 function removeTopic(topic: string, store = HyperFlux.store) {
-  console.log(`[HyperFlux]: Removed topic ${topic}`)
+  logger.info(`Removed topic ${topic}`)
   for (const action of store.actions.history) {
     if (action.$topic.includes(topic)) {
       store.actions.processedUUIDs.delete(action.$uuid)
@@ -304,7 +302,7 @@ function removeTopic(topic: string, store = HyperFlux.store) {
  * @deprecated use createActionQueue instead
  */
 function addActionReceptor(receptor: ActionReceptor, store = HyperFlux.store) {
-  console.log(`[HyperFlux]: Added Receptor`, receptor.name)
+  logger.info(`Added Receptor ${receptor.name}`)
   ;(store.receptors as Array<ActionReceptor>).push(receptor)
 }
 
@@ -317,7 +315,7 @@ function addActionReceptor(receptor: ActionReceptor, store = HyperFlux.store) {
 function removeActionReceptor(receptor: ActionReceptor, store = HyperFlux.store) {
   const idx = store.receptors.indexOf(receptor)
   if (idx >= 0) {
-    console.log(`[HyperFlux]: Removed Receptor`, receptor.name)
+    logger.info(`Removed Receptor ${receptor.name}`)
     ;(store.receptors as Array<ActionReceptor>).splice(idx, 1)
   }
 }
@@ -361,18 +359,16 @@ const _updateCachedActions = (incomingAction: Required<ResolvedActionType>, stor
 
 const applyIncomingActionsToAllQueues = (action: Required<ResolvedActionType>, store = HyperFlux.store) => {
   for (const [shape, queues] of store.actions.queues) {
-    matches(action).when(shape, () => {
-      for (const queue of queues) {
-        queue.push(action)
-      }
-    })
+    if (shape.test(action)) {
+      for (const queue of queues) queue.push(action)
+    }
   }
 }
 
 const _applyIncomingAction = (action: Required<ResolvedActionType>, store = HyperFlux.store) => {
   // ensure actions are idempotent
   if (store.actions.processedUUIDs.has(action.$uuid)) {
-    console.log('got repeat action', action)
+    logger.info('Repeat action %o', action)
     const idx = store.actions.incoming.indexOf(action)
     store.actions.incoming.splice(idx, 1)
     return
@@ -383,7 +379,7 @@ const _applyIncomingAction = (action: Required<ResolvedActionType>, store = Hype
   applyIncomingActionsToAllQueues(action, store)
 
   try {
-    console.log(`[Action]: ${action.type}`, action)
+    logger.info(`[Action]: ${action.type} %o`, action)
     for (const receptor of [...store.receptors]) receptor(action)
     if (store.forwardIncomingActions(action)) {
       store.actions.outgoing[action.$topic].queue.push(action)
@@ -393,7 +389,7 @@ const _applyIncomingAction = (action: Required<ResolvedActionType>, store = Hype
     const stack = (e as Error).stack!.split('\n')
     stack.shift()
     action.$ERROR = { message, stack }
-    console.error(e)
+    logger.error(e)
   } finally {
     store.actions.history.push(action)
     store.actions.processedUUIDs.add(action.$uuid)

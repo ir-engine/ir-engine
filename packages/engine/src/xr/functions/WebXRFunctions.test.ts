@@ -27,7 +27,7 @@ describe('WebXRFunctions Unit', async () => {
   it('check setupXRCamera', async () => {
     const world = Engine.instance.currentWorld
 
-    const action = WorldNetworkAction.spawnAvatar()
+    const action = WorldNetworkAction.spawnAvatar({})
     WorldNetworkActionReceptor.receiveSpawnObject(action)
     createAvatar(action)
 
@@ -52,7 +52,7 @@ describe('WebXRFunctions Unit', async () => {
 
     const world = Engine.instance.currentWorld
 
-    const action = WorldNetworkAction.spawnAvatar()
+    const action = WorldNetworkAction.spawnAvatar({})
     WorldNetworkActionReceptor.receiveSpawnObject(action)
     createAvatar(action)
 

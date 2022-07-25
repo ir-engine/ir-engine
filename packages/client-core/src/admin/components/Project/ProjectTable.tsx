@@ -80,7 +80,7 @@ const ProjectTable = ({ className }: Props) => {
           await ProjectService.removeProject(projectToRemove.id)
           handleCloseConfirmation()
         } else {
-          throw Error('Failed to find the project')
+          throw new Error('Failed to find the project')
         }
       }
     } catch (err) {

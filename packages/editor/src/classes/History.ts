@@ -2,6 +2,7 @@
  * @author dforrer / https://github.com/dforrer
  * Developed as part of a project at University of Applied Sciences and Arts Northwestern Switzerland (www.fhnw.ch)
  */
+import multiLogger from '@xrengine/common/src/logger'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { MappedComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { getEntityNodeArrayFromEntities } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
@@ -14,6 +15,8 @@ import EditorCommands, {
   CommandParamsType
 } from '../constants/EditorCommands'
 import { accessSelectionState } from '../services/SelectionServices'
+
+const logger = multiLogger.child({ component: 'editor:History' })
 
 const ALLOWED_TIME_FOR_MERGER = 1000
 
@@ -69,14 +72,18 @@ export function executeCommandWithHistory(command: CommandParamsType): void {
   ) {
     commandFunctions.update?.(lastCmd, command)
 
-    if (EditorHistory.debug) console.log(`update:`, commandFunctions.toString(lastCmd))
+    if (EditorHistory.debug) {
+      logger.info(`update: ${commandFunctions.toString(lastCmd)}`)
+    }
   } else {
     // the command is not updatable and is added as a new part of the history
     EditorHistory.undos.push(command)
     command.id = ++EditorHistory.idCounter
     commandFunctions.execute(command)
 
-    if (EditorHistory.debug) console.log(`execute:`, commandFunctions.toString(command))
+    if (EditorHistory.debug) {
+      logger.info(`execute: ${commandFunctions.toString(command)}`)
+    }
   }
 
   EditorHistory.lastCmdTime = new Date()
@@ -165,7 +172,7 @@ export function revertHistory(checkpointId: Entity): void {
   if (typeof lastCmd.id === 'undefined') return
 
   if (lastCmd && checkpointId > lastCmd.id) {
-    console.warn('Tried to revert back to an undo action with an id greater than the last action')
+    logger.warn('Tried to revert back to an undo action with an id greater than the last action')
     return
   }
 
@@ -177,7 +184,9 @@ export function revertHistory(checkpointId: Entity): void {
     commandFunctions.undo(cmd)
     EditorHistory.redos.push(cmd)
 
-    if (EditorHistory.debug) console.log(`revert: ${commandFunctions.toString(cmd)}`)
+    if (EditorHistory.debug) {
+      logger.info(`revert: ${commandFunctions.toString(cmd)}`)
+    }
     cmd = EditorHistory.undos.pop()!
   }
 }
@@ -193,7 +202,9 @@ export function undoCommand(): CommandParamsType | undefined {
   CommandFuncs[cmd.type].undo(cmd)
   EditorHistory.redos.push(cmd)
 
-  if (EditorHistory.debug) console.log(`undo: ${CommandFuncs[cmd.type].toString(cmd)}`)
+  if (EditorHistory.debug) {
+    logger.info(`undo: ${CommandFuncs[cmd.type].toString(cmd)}`)
+  }
 
   return cmd
 }
@@ -209,7 +220,9 @@ export function redoCommand(): CommandParamsType | undefined {
   CommandFuncs[cmd.type].undo(cmd)
   EditorHistory.undos.push(cmd)
 
-  if (EditorHistory.debug) console.log(`redo: ${CommandFuncs[cmd.type].toString(cmd)}`)
+  if (EditorHistory.debug) {
+    logger.info(`redo: ${CommandFuncs[cmd.type].toString(cmd)}`)
+  }
 
   return cmd
 }

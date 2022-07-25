@@ -116,7 +116,7 @@ export const AdminAvatarService = {
       })
       avatarThumbnail?.data?.length > 0 &&
         (await API.instance.client.service('static-resource').remove(avatarThumbnail?.data[0]?.id))
-      dispatchAction(AdminAvatarActions.avatarRemoved())
+      dispatchAction(AdminAvatarActions.avatarRemoved({}))
     } catch (err) {
       console.error(err)
     }

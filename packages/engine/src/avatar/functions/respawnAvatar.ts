@@ -4,7 +4,6 @@ import { dispatchAction } from '@xrengine/hyperflux'
 
 import { Entity } from '../../ecs/classes/Entity'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
-import { NetworkTopics } from '../../networking/classes/Network'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { AvatarComponent } from '../components/AvatarComponent'
@@ -22,7 +21,6 @@ export const respawnAvatar = (entity: Entity) => {
       },
       position: new Vector3(position.x, position.y - avatarComponent.avatarHalfHeight, position.z),
       rotation: new Quaternion()
-    }),
-    NetworkTopics.world
+    })
   )
 }

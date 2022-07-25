@@ -97,7 +97,7 @@ export const AdminInviteService = {
     value: string | null = null
   ) => {
     try {
-      dispatchAction(InviteAction.fetchingReceivedInvites())
+      dispatchAction(InviteAction.fetchingReceivedInvites({}))
       const inviteState = accessInviteState().value
       const skip = inviteState.receivedInvites.skip
       const limit = inviteState.receivedInvites.limit

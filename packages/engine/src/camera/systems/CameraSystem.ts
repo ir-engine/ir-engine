@@ -325,12 +325,12 @@ export default async function CameraSystem(world: World) {
       } else {
         removeComponent(cameraEntity, SpectatorComponent)
         deleteSearchParams('spectate')
-        dispatchAction(EngineActions.leaveWorld())
+        dispatchAction(EngineActions.leaveWorld({}))
       }
     }
 
     for (const entity of localAvatarQuery.enter()) {
-      dispatchAction(WorldNetworkAction.spawnCamera(), NetworkTopics.world)
+      dispatchAction(WorldNetworkAction.spawnCamera({}))
       const followCamera = getComponent(world.cameraEntity, FollowCameraComponent)
       if (followCamera) followCamera.targetEntity = entity
     }

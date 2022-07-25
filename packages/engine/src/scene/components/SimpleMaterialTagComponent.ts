@@ -1,3 +1,3 @@
 import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
 
-export const SimpleMaterialTagComponent = createMappedComponent('SimpleMaterialTagComponent')
+export const SimpleMaterialTagComponent = createMappedComponent<true>('SimpleMaterialTagComponent')

@@ -40,7 +40,7 @@ export default async function AudioSystem(world: World) {
     console.log('starting audio')
     audioReady = true
     Engine.instance.currentWorld.audioListener.context.resume()
-    dispatchAction(EngineActions.startSuspendedContexts())
+    dispatchAction(EngineActions.startSuspendedContexts({}))
 
     callbacks.forEach((cb) => cb())
     callbacks = null!
