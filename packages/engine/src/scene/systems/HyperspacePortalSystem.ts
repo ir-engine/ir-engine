@@ -1,23 +1,21 @@
-import { AmbientLight } from 'three'
+import { AmbientLight, Euler } from 'three'
 
 import { dispatchAction } from '@xrengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { AvatarStates } from '../../avatar/animation/Util'
 import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
-import { createAvatarController } from '../../avatar/functions/createAvatar'
 import { switchCameraMode } from '../../avatar/functions/switchCameraMode'
 import { CameraMode } from '../../camera/types/CameraMode'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions } from '../../ecs/classes/EngineState'
 import { World } from '../../ecs/classes/World'
-import { addComponent, defineQuery, getComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
-import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
-import { InteractorComponent } from '../../interaction/components/InteractorComponent'
+import { defineQuery, getComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { NetworkTopics } from '../../networking/classes/Network'
 import { matchActionOnce } from '../../networking/functions/matchActionOnce'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
+import { TransformComponent } from '../../transform/components/TransformComponent'
 import { PortalEffect } from '../classes/PortalEffect'
 import { HyperspaceTagComponent } from '../components/HyperspaceTagComponent'
 import { Object3DComponent } from '../components/Object3DComponent'
@@ -45,9 +43,7 @@ export default async function HyperspacePortalSystem(world: World) {
       if (!EngineRenderer.instance.xrSession)
         switchCameraMode(Engine.instance.currentWorld.cameraEntity, { cameraMode: CameraMode.ShoulderCam }, true)
 
-      removeComponent(world.localClientEntity, AvatarControllerComponent)
-      removeComponent(world.localClientEntity, InteractorComponent)
-      removeComponent(world.localClientEntity, LocalInputTagComponent)
+      getComponent(world.localClientEntity, AvatarControllerComponent).movementEnabled = false
 
       dispatchAction(WorldNetworkAction.avatarAnimation({ newStateName: AvatarStates.FALL_IDLE, params: {} }))
 
@@ -77,8 +73,12 @@ export default async function HyperspacePortalSystem(world: World) {
 
     // the hyperspace exit runs once the fadeout transition has finished
     for (const entity of hyperspaceTagComponent.exit()) {
-      createAvatarController(world.localClientEntity)
-      addComponent(world.localClientEntity, LocalInputTagComponent, {})
+      getComponent(world.localClientEntity, AvatarControllerComponent).movementEnabled = true
+
+      // teleport player to where the portal spawn position is
+      const { position, rotation } = getComponent(world.localClientEntity, TransformComponent)
+      position.copy(world.activePortal.remoteSpawnPosition)
+      rotation.setFromEuler(new Euler(0, world.activePortal.remoteSpawnEuler.y, 0, 'XYZ'))
 
       hyperspaceEffect.removeFromParent()
 

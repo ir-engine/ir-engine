@@ -7,15 +7,19 @@ import { Engine } from '../../../ecs/classes/Engine'
 import { addComponent, getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
 import { createEngine } from '../../../initializeEngine'
+import { Physics } from '../../../physics/classes/Physics'
 import { TransformComponent } from '../../../transform/components/TransformComponent'
 import { PortalComponent } from '../../components/PortalComponent'
 import { deserializePortal } from './PortalFunctions'
 
 describe('PortalFunctions', () => {
-  it('deserializePortal', async () => {
+  beforeEach(async () => {
     createEngine()
-    await Engine.instance.currentWorld.physics.createScene({ verbose: true })
+    await Physics.load()
+    Engine.instance.currentWorld.physicsWorld = Physics.createWorld()
+  })
 
+  it('deserializePortal', async () => {
     const entity = createEntity()
 
     const quat = new Quaternion().random()
@@ -53,8 +57,5 @@ describe('PortalFunctions', () => {
     assert.equal(portalComponent.location, 'test')
     assert.equal(portalComponent.linkedPortalId, linkedPortalId)
     assert(Engine.instance.currentWorld.portalQuery().includes(entity))
-
-    // clean up physx
-    delete (globalThis as any).PhysX
   })
 })
