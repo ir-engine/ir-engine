@@ -42,7 +42,7 @@ export const userPatched = (params) => {
     }
 
     if (patchedUser.partyId && patchedUser.partyId !== selfUser.partyId.value)
-      dispatchAction(MediaInstanceConnectionAction.acceptedPartyInvite())
+      dispatchAction(MediaInstanceConnectionAction.acceptedPartyInvite({}))
   } else {
     const isLayerUser = userState.layerUsers.value.find((item) => item.id === patchedUser.id)
 

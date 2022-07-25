@@ -302,7 +302,7 @@ export const InviteService = {
   acceptInvite: async (invite: Invite) => {
     try {
       if (invite.inviteType === 'party') {
-        dispatchAction(MediaInstanceConnectionAction.acceptingPartyInvite())
+        dispatchAction(MediaInstanceConnectionAction.acceptingPartyInvite({}))
       }
       await API.instance.client.service('a-i').get(invite.id, {
         query: {

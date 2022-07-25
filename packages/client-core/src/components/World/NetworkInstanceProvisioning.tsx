@@ -162,7 +162,7 @@ export const NetworkInstanceProvisioning = () => {
   ])
 
   useHookEffect(() => {
-    if (selfUser.partyId.value) dispatchAction(ChatAction.refetchPartyChannelAction())
+    if (selfUser.partyId.value) dispatchAction(ChatAction.refetchPartyChannelAction({}))
   }, [selfUser.partyId.value])
 
   useHookEffect(() => {

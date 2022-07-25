@@ -144,7 +144,7 @@ export const PartyService = {
           })
         )
       } else {
-        dispatchAction(PartyActions.resetUpdateNeededAction())
+        dispatchAction(PartyActions.resetUpdateNeededAction({}))
       }
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
@@ -227,7 +227,7 @@ export const PartyService = {
     useEffect(() => {
       const partyUserCreatedListener = async (params) => {
         if (accessPartyState().party.value == null) {
-          dispatchAction(PartyActions.changedPartyAction())
+          dispatchAction(PartyActions.changedPartyAction({}))
         }
 
         if (
@@ -237,8 +237,8 @@ export const PartyService = {
         )
           dispatchAction(PartyActions.createdPartyUserAction({ partyUser: params.partyUser }))
         else {
-          dispatchAction(ChatAction.refetchPartyChannelAction())
-          dispatchAction(PartyActions.changedPartyAction())
+          dispatchAction(ChatAction.refetchPartyChannelAction({}))
+          dispatchAction(PartyActions.changedPartyAction({}))
         }
 
         // if (params.partyUser.userId === selfUser.id.value) {
@@ -280,7 +280,7 @@ export const PartyService = {
         dispatchAction(PartyActions.removedPartyUserAction({ partyUser: deletedPartyUser }))
         // dispatchAction(UserAction.removedChannelLayerUserAction({ user: deletedPartyUser.user }))
         if (deletedPartyUser.userId === selfUser.id) {
-          dispatchAction(ChatAction.refetchPartyChannelAction())
+          dispatchAction(ChatAction.refetchPartyChannelAction({}))
           NotificationService.dispatchNotify('You have left the party', { variant: 'warning' })
           if (selfUser.partyId === deletedPartyUser.partyId) PartyService.leaveNetwork(true)
           ChatService.clearChatTargetIfCurrent('party', {
@@ -291,7 +291,7 @@ export const PartyService = {
 
       const partyCreatedListener = (params) => {
         params.party.partyUsers = params.party.party_users
-        dispatchAction(ChatAction.refetchPartyChannelAction())
+        dispatchAction(ChatAction.refetchPartyChannelAction({}))
         dispatchAction(PartyActions.createdPartyAction({ party: params.party }))
       }
 
@@ -301,7 +301,7 @@ export const PartyService = {
       }
 
       const partyRemovedListener = (params) => {
-        dispatchAction(ChatAction.refetchPartyChannelAction())
+        dispatchAction(ChatAction.refetchPartyChannelAction({}))
         dispatchAction(PartyActions.removedPartyAction({ party: params.party }))
       }
 

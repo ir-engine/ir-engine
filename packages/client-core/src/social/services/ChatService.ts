@@ -279,7 +279,7 @@ export const ChatService = {
       })) as Channel[]
       if (channelResult[0])
         dispatchAction(ChatAction.loadedChannelAction({ channel: channelResult[0], channelType: 'party' }))
-      else dispatchAction(ChatAction.removePartyChannelAction())
+      else dispatchAction(ChatAction.removePartyChannelAction({}))
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
