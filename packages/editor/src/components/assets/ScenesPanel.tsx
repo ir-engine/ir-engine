@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { useHistory } from 'react-router-dom'
 
 import { SceneData } from '@xrengine/common/src/interfaces/SceneInterface'
+import multiLogger from '@xrengine/common/src/logger'
 import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { dispatchAction } from '@xrengine/hyperflux'
 
@@ -19,6 +20,8 @@ import { Button } from '../inputs/Button'
 import { InfoTooltip } from '../layout/Tooltip'
 import { DeleteDialog } from '../projects/DeleteDialog'
 import styles from './styles.module.scss'
+
+const logger = multiLogger.child({ component: 'editor:ScenesPanel' })
 
 /**
  * Displays the scenes that exist in the current project.
@@ -42,7 +45,7 @@ export default function ScenesPanel({ loadScene, newScene, toggleRefetchScenes }
       const data = await getScenes(editorState.projectName.value!)
       setScenes(data ?? [])
     } catch (error) {
-      console.error(error)
+      logger.error(error, 'Error fetching scenes')
     }
   }
 

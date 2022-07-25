@@ -4,10 +4,13 @@ import { none } from '@speigg/hookstate'
 import { Relationship } from '@xrengine/common/src/interfaces/Relationship'
 import { RelationshipSeed } from '@xrengine/common/src/interfaces/Relationship'
 import { UserInterface } from '@xrengine/common/src/interfaces/User'
+import multiLogger from '@xrengine/common/src/logger'
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
 import { API } from '../../API'
+
+const logger = multiLogger.child({ component: 'client-core:UserService' })
 
 //State
 const UserState = defineState({
@@ -108,7 +111,7 @@ export const UserService = {
         dispatchAction(UserAction.loadedUserRelationshipAction({ relationship: res as Relationship }))
       })
       .catch((err: any) => {
-        console.log(err)
+        logger.error(err)
       })
   },
 
@@ -172,7 +175,7 @@ function createRelation(userId: string, relatedUserId: string, type: 'friend' | 
       dispatchAction(UserAction.changedRelationAction({}))
     })
     .catch((err: any) => {
-      console.log(err)
+      logger.error(err)
     })
 }
 
@@ -184,7 +187,7 @@ function removeRelation(userId: string, relatedUserId: string) {
       dispatchAction(UserAction.changedRelationAction({}))
     })
     .catch((err: any) => {
-      console.log(err)
+      logger.error(err)
     })
 }
 
@@ -198,7 +201,7 @@ function patchRelation(userId: string, relatedUserId: string, type: 'friend') {
       dispatchAction(UserAction.changedRelationAction({}))
     })
     .catch((err: any) => {
-      console.log(err)
+      logger.error(err)
     })
 }
 
