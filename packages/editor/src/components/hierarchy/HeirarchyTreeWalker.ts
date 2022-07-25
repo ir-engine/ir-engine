@@ -1,12 +1,19 @@
+import { Object3D } from 'three'
+
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
-import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 
 export type HeirarchyTreeNodeType = {
   depth: number
   entityNode: EntityTreeNode
   childIndex: number
   lastChild: boolean
+  /**
+   * @param obj3d is used for exploding models, it will eventually be replaced when
+   *   the scene graph is implemented on the ECS instead of threejs
+   */
+  obj3d?: Object3D
   isLeaf?: boolean
   isCollapsed?: boolean
   selected?: boolean
@@ -22,9 +29,9 @@ export type HeirarchyTreeCollapsedNodeType = { [key: number]: boolean }
  */
 export function* heirarchyTreeWalker(
   treeNode: EntityTreeNode,
-  selectedEntities: Entity[],
+  selectedEntities: (Entity | string)[],
   collapsedNodes: HeirarchyTreeCollapsedNodeType,
-  tree = useWorld().entityTree
+  tree = Engine.instance.currentWorld.entityTree
 ): Generator<HeirarchyTreeNodeType> {
   if (!treeNode) return
 

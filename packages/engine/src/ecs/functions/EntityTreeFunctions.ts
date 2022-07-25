@@ -309,12 +309,13 @@ export function isEntityNode(node: any): node is EntityTreeNode {
  * @returns Entity Tree node array obtained from passed Entities.
  */
 export function getEntityNodeArrayFromEntities(
-  entities: Entity[],
+  entities: (Entity | string)[],
   tree = Engine.instance.currentWorld.entityTree
 ): EntityTreeNode[] {
   const arr = [] as EntityTreeNode[]
 
   for (const entity of entities) {
+    if (typeof entity === 'string') continue
     const node = tree.entityNodeMap.get(entity)
     if (node) arr.push(node)
   }
