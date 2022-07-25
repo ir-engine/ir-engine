@@ -480,7 +480,7 @@ const PartyParticipantWindow = ({ peerId }: Props): JSX.Element => {
             <div className={styles['mute-controls']}>
               {videoStream && !videoProducerPaused ? (
                 <Tooltip title={!videoProducerPaused && !videoStreamPaused ? 'Pause Video' : 'Resume Video'}>
-                  <IconButton color="secondary" size="small" className={styles['video-control']} onClick={toggleVideo}>
+                  <IconButton size="small" className={styles['icon-button']} onClick={toggleVideo}>
                     {videoStreamPaused ? <VideocamOff /> : <Videocam />}
                   </IconButton>
                 </Tooltip>
@@ -493,12 +493,7 @@ const PartyParticipantWindow = ({ peerId }: Props): JSX.Element => {
                       : (t('user:person.unmuteForEveryone') as string)
                   }
                 >
-                  <IconButton
-                    color="secondary"
-                    size="small"
-                    className={styles['audio-control']}
-                    onClick={toggleGlobalMute}
-                  >
+                  <IconButton size="small" className={styles['icon-button']} onClick={toggleGlobalMute}>
                     {audioProducerGlobalMute ? <VoiceOverOff /> : <RecordVoiceOver />}
                   </IconButton>
                 </Tooltip>
@@ -515,7 +510,7 @@ const PartyParticipantWindow = ({ peerId }: Props): JSX.Element => {
                       : t('user:person.unmuteThisPerson')) as string
                   }
                 >
-                  <IconButton color="secondary" size="small" className={styles['audio-control']} onClick={toggleAudio}>
+                  <IconButton size="small" className={styles['icon-button']} onClick={toggleAudio}>
                     {isSelfUser ? (
                       audioStreamPaused ? (
                         <MicOff />
@@ -532,8 +527,8 @@ const PartyParticipantWindow = ({ peerId }: Props): JSX.Element => {
               ) : null}
               <Tooltip title={t('user:person.openPictureInPicture') as string}>
                 <IconButton
-                  color="secondary"
                   size="small"
+                  className={styles['icon-button']}
                   onClick={(e) => {
                     e.preventDefault()
                     e.stopPropagation()
