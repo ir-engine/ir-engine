@@ -7,8 +7,10 @@ import { matches, Validator } from '@xrengine/engine/src/common/functions/Matche
 import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
 import { API } from '../../API'
+import { MediaInstanceConnectionAction } from '../../common/services/MediaInstanceConnectionService'
 import { NotificationService } from '../../common/services/NotificationService'
 import { accessAuthState } from '../../user/services/AuthService'
+import { PartyService } from './PartyService'
 
 export const emailRegex =
   /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/
@@ -45,7 +47,7 @@ const InviteState = defineState({
 
 export const InviteServiceReceptor = (action) => {
   getState(InviteState).batch((s) => {
-    matches(InviteState)
+    matches(action)
       .when(InviteAction.sentInvite.matches, () => {
         return s.sentUpdateNeeded.set(true)
       })
@@ -297,13 +299,17 @@ export const InviteService = {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   },
-  acceptInvite: async (inviteId: string, passcode: string) => {
+  acceptInvite: async (invite: Invite) => {
     try {
-      await API.instance.client.service('a-i').get(inviteId, {
+      if (invite.inviteType === 'party') {
+        dispatchAction(MediaInstanceConnectionAction.acceptingPartyInvite({}))
+      }
+      await API.instance.client.service('a-i').get(invite.id, {
         query: {
-          passcode: passcode
+          passcode: invite.passcode
         }
       })
+      if (invite.inviteType === 'party') PartyService.leaveNetwork(false)
       dispatchAction(InviteAction.acceptedInvite({}))
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })

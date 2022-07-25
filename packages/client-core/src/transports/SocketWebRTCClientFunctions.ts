@@ -66,7 +66,7 @@ type PeersUpdateType = Array<{
 
 export async function onConnectToInstance(network: SocketWebRTCClientNetwork) {
   const isWorldConnection = network.topic === NetworkTopics.world
-  console.log('[WebRTC]: connectting to instance type:', network.topic, network.hostId)
+  console.log('[WebRTC]: connecting to instance type:', network.topic, network.hostId)
 
   if (isWorldConnection) {
     dispatchAction(LocationInstanceConnectionAction.instanceServerConnected({ instanceId: network.hostId }))
@@ -716,8 +716,10 @@ export async function endVideoChat(
         })
       }
 
-      if (network.recvTransport?.closed !== true) await network.recvTransport.close()
-      if (network.sendTransport?.closed !== true) await network.sendTransport.close()
+      if (network.recvTransport?.closed !== true && typeof network.recvTransport?.close === 'function')
+        await network.recvTransport.close()
+      if (network.sendTransport?.closed !== true && typeof network.sendTransport?.close === 'function')
+        await network.sendTransport.close()
 
       resetProducer()
       return true

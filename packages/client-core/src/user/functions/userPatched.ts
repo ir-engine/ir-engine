@@ -5,6 +5,7 @@ import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { WorldState } from '@xrengine/engine/src/networking/interfaces/WorldState'
 import { dispatchAction, getState } from '@xrengine/hyperflux'
 
+import { MediaInstanceConnectionAction } from '../../common/services/MediaInstanceConnectionService'
 import { NotificationService } from '../../common/services/NotificationService'
 import { accessAuthState, AuthAction } from '../services/AuthService'
 import { accessUserState, UserAction } from '../services/UserService'
@@ -39,6 +40,9 @@ export const userPatched = (params) => {
         window.history.replaceState({}, '', parsed.toString())
       }
     }
+
+    if (patchedUser.partyId && patchedUser.partyId !== selfUser.partyId.value)
+      dispatchAction(MediaInstanceConnectionAction.acceptedPartyInvite({}))
   } else {
     const isLayerUser = userState.layerUsers.value.find((item) => item.id === patchedUser.id)
 

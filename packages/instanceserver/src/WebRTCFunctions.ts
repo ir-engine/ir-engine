@@ -542,6 +542,10 @@ export async function handleWebRtcCloseProducer(network: SocketWebRTCServerNetwo
   const { producerId } = data
   const producer = network.producers.find((p) => p.id === producerId)!
   try {
+    const hostClient = Array.from(network.peers.entries()).find(([, client]) => {
+      return client.media && client.media![producer.appData.mediaTag as any]?.producerId === producerId
+    })!
+    if (hostClient && hostClient[1]) hostClient[1].socket!.emit(MessageTypes.WebRTCCloseProducer.toString(), producerId)
     await closeProducerAndAllPipeProducers(network, producer)
   } catch (err) {
     logger.error(err, 'Error closing WebRTC producer.')
@@ -809,16 +813,14 @@ export async function handleWebRtcResumeProducer(
       action: 'resume'
     })
     // await producer.resume();
-    const world = Engine.instance.currentWorld
     if (userId && network.peers.has(userId)) {
       network.peers.get(userId)!.media![producer.appData.mediaTag as any].paused = false
       network.peers.get(userId)!.media![producer.appData.mediaTag as any].globalMute = false
       const hostClient = Array.from(network.peers.entries()).find(([, client]) => {
         return client.media && client.media![producer.appData.mediaTag as any]?.producerId === producerId
       })!
-      if (hostClient && hostClient[1]) {
+      if (hostClient && hostClient[1])
         hostClient[1].socket!.emit(MessageTypes.WebRTCResumeProducer.toString(), producer.id)
-      }
     }
   }
   callback({ resumed: true })
@@ -846,9 +848,8 @@ export async function handleWebRtcPauseProducer(
         const hostClient = Array.from(network.peers.entries()).find(([, client]) => {
           return client.media && client.media![producer.appData.mediaTag as any]?.producerId === producerId
         })!
-        if (hostClient && hostClient[1]) {
+        if (hostClient && hostClient[1])
           hostClient[1].socket!.emit(MessageTypes.WebRTCPauseProducer.toString(), producer.id, true)
-        }
       }
     }
   }

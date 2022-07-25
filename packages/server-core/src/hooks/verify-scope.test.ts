@@ -105,6 +105,11 @@ describe('verify-scope', () => {
       userRole
     })) as UserInterface
 
+    await app.service('scope').create({
+      type: 'location:read',
+      userId: user.id
+    })
+
     const verifyLocationReadScope = verifyScope('location', 'read')
     const hookContext = mockUserHookContext(user, app)
 
