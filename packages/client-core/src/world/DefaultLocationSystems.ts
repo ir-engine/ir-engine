@@ -14,6 +14,10 @@ export const DefaultLocationSystems: SystemModuleType<any>[] = [
     systemModulePromise: import('../systems/WidgetUISystem')
   },
   {
+    type: 'PRE_RENDER',
+    systemModulePromise: import('../systems/state/PartySystem')
+  },
+  {
     type: 'FIXED',
     systemModulePromise: import('../transports/UpdateNearbyUsersSystem')
   }

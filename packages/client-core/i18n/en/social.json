@@ -198,5 +198,9 @@
     "logIn": "Log in",
     "LogInTo": "Log in to",
     "continueAsGuest": "Continue as guest"
+  },
+  "invite": {
+    "accept": "Accept",
+    "decline": "Decline"
   }
 }

@@ -46,6 +46,7 @@ export class AcceptInvite implements ServiceMethods<Data> {
 
   async get(id: Id, params?: Params): Promise<Data> {
     let inviteeIdentityProvider
+    let returned = {} as any
     if (!params) params = {}
     if (params.query?.t) {
       params.query.passcode = params.query.t
@@ -55,7 +56,11 @@ export class AcceptInvite implements ServiceMethods<Data> {
       params.provider = null!
       let invite
       try {
-        invite = await this.app.service('invite').get(id, params)
+        invite = await this.app.service('invite').Model.findOne({
+          where: {
+            id: id
+          }
+        })
       } catch (err) {}
 
       if (invite == null) {
@@ -210,9 +215,9 @@ export class AcceptInvite implements ServiceMethods<Data> {
           )
         }
       } else if (invite.inviteType === 'party') {
-        const party = await this.app.service('party').get(invite.targetObjectId, params)
+        const party = await this.app.service('party').Model.count({ where: { id: invite.targetObjectId } })
 
-        if (party == null) {
+        if (party <= 0) {
           return new BadRequest('Invalid party ID')
         }
 
@@ -223,15 +228,15 @@ export class AcceptInvite implements ServiceMethods<Data> {
 
         const { query, ...paramsCopy } = params
 
-        const existingPartyUser = (await this.app.service('party-user').find({
-          query: {
+        const existingPartyUser = await this.app.service('party-user').Model.count({
+          where: {
             userId: inviteeIdentityProvider.userId,
             partyId: invite.targetObjectId,
             isOwner: false
           }
-        })) as any
+        })
 
-        if (existingPartyUser.total === 0) {
+        if (existingPartyUser === 0) {
           paramsCopy.skipAuth = true
           await this.app.service('party-user').create(
             {
@@ -242,16 +247,45 @@ export class AcceptInvite implements ServiceMethods<Data> {
             paramsCopy
           )
         }
+
+        const ownerResult = await this.app.service('party-user').find({
+          query: {
+            partyId: invite.targetObjectId,
+            isOwner: true
+          },
+          sequelize: {
+            include: [
+              {
+                model: this.app.service('user').Model
+              }
+            ]
+          }
+        })
+
+        const owner = ownerResult.data[0]
+
+        if (owner && owner.user?.instanceId) {
+          const instance = await this.app.service('instance').get(owner.user.instanceId, {
+            sequelize: {
+              include: [
+                {
+                  model: this.app.service('location').Model
+                }
+              ]
+            }
+          })
+          returned.locationName = instance.location.slugifiedName
+          returned.instanceId = owner.user.instanceId
+          returned.inviteCode = owner.user.inviteCode
+        }
       }
 
       params.preventUserRelationshipRemoval = true
       if (invite.deleteOnUse) await this.app.service('invite').remove(invite.id, params)
-      const token = await this.app
+
+      returned.token = await this.app
         .service('authentication')
         .createAccessToken({}, { subject: params['identity-provider'].id.toString() })
-      let returned = {
-        token
-      } as any
 
       if (invite.inviteType === 'location' || invite.inviteType === 'instance') {
         let instance =

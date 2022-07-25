@@ -248,12 +248,14 @@ export class MediaStreams {
    */
   async getVideoStream(): Promise<boolean> {
     try {
-      console.log('Getting video stream')
-      console.log(localVideoConstraints)
       this.videoStream = await navigator.mediaDevices.getUserMedia(localVideoConstraints)
-      console.log(this.videoStream)
+      if (this.camVideoProducer) {
+        await this.camVideoProducer.replaceTrack({
+          track: this.videoStream.getVideoTracks()[0]
+        })
+      }
       if (this.videoStream.active) {
-        this.videoPaused = false
+        this.videoPaused = this.camVideoProducer != null
         return true
       }
       this.videoPaused = true
@@ -271,12 +273,13 @@ export class MediaStreams {
    */
   async getAudioStream(): Promise<boolean> {
     try {
-      console.log('Getting audio stream')
-      console.log(localAudioConstraints)
       this.audioStream = await navigator.mediaDevices.getUserMedia(localAudioConstraints)
-      console.log(this.audioStream)
+      if (this.camAudioProducer)
+        await this.camAudioProducer.replaceTrack({
+          track: this.audioStream.getAudioTracks()[0]
+        })
       if (this.audioStream.active) {
-        this.audioPaused = false
+        this.audioPaused = this.camAudioProducer != null
         return true
       }
       this.audioPaused = true

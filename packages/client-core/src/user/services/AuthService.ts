@@ -31,7 +31,7 @@ import { defineAction, defineState, dispatchAction, getState, useState } from '@
 import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
 import { accessLocationState } from '../../social/services/LocationService'
-import { accessPartyState } from '../../social/services/PartyService'
+import { PartyService } from '../../social/services/PartyService'
 import { serverHost } from '../../util/config'
 import { accessStoredLocalState, StoredLocalAction } from '../../util/StoredLocalState'
 import { uploadToFeathersService } from '../../util/upload'
@@ -764,20 +764,12 @@ export const AuthService = {
       const userPatchedListener = (params) => dispatchAction(AuthAction.userPatchedAction({ params }))
       const locationBanCreatedListener = async (params) => {
         const selfUser = accessAuthState().user
-        const party = accessPartyState().party.value
-        const selfPartyUser =
-          party && party.partyUsers
-            ? party.partyUsers.find((partyUser) => partyUser.id === selfUser.id.value)
-            : ({} as any)
         const currentLocation = accessLocationState().currentLocation.location
         const locationBan = params.locationBan
         if (selfUser.id.value === locationBan.userId && currentLocation.id.value === locationBan.locationId) {
           // TODO: Decouple and reenable me!
           // endVideoChat({ leftParty: true });
           // leave(true);
-          if (selfPartyUser != undefined && selfPartyUser?.id != null) {
-            await API.instance.client.service('party-user').remove(selfPartyUser.id)
-          }
           const userId = selfUser.id.value ?? ''
           const user = resolveUser(await API.instance.client.service('user').get(userId))
           dispatchAction(AuthAction.userUpdatedAction({ user }))
