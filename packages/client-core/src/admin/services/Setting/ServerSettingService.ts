@@ -47,7 +47,7 @@ export const ServerSettingService = {
   patchServerSetting: async (data: PatchServerSetting, id: string) => {
     try {
       await API.instance.client.service('server-setting').patch(id, data)
-      dispatchAction(AdminServerSettingActions.serverSettingPatched())
+      dispatchAction(AdminServerSettingActions.serverSettingPatched({}))
     } catch (err) {
       console.log(err)
       NotificationService.dispatchNotify(err.message, { variant: 'error' })

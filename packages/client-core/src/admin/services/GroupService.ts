@@ -80,7 +80,7 @@ export const AdminGroupService = {
       if (sortField.length > 0) {
         sortData[sortField] = orderBy === 'desc' ? 0 : 1
       }
-      dispatchAction(AdminGroupActions.fetchingGroup())
+      dispatchAction(AdminGroupActions.fetchingGroup({}))
       const list = await API.instance.client.service('group').find({
         query: {
           $sort: {

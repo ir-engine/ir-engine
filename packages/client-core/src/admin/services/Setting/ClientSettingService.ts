@@ -64,7 +64,7 @@ export const ClientSettingService = {
   patchClientSetting: async (data: PatchClientSetting, id: string) => {
     try {
       await API.instance.client.service('client-setting').patch(id, data)
-      dispatchAction(ClientSettingActions.clientSettingPatched())
+      dispatchAction(ClientSettingActions.clientSettingPatched({}))
     } catch (err) {
       console.log(err)
       NotificationService.dispatchNotify(err.message, { variant: 'error' })

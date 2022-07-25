@@ -208,7 +208,7 @@ export const InviteService = {
     sortField = 'id',
     orderBy = 'asc'
   ) => {
-    dispatchAction(InviteAction.fetchingReceivedInvites())
+    dispatchAction(InviteAction.fetchingReceivedInvites({}))
     const inviteState = accessInviteState().value
     const skip = inviteState.receivedInvites.skip
     const limit = inviteState.receivedInvites.limit
@@ -252,7 +252,7 @@ export const InviteService = {
     sortField = 'id',
     orderBy = 'asc'
   ) => {
-    dispatchAction(InviteAction.fetchingSentInvites())
+    dispatchAction(InviteAction.fetchingSentInvites({}))
     const inviteState = accessInviteState().value
     const skip = inviteState.sentInvites.skip
     const limit = inviteState.sentInvites.limit
@@ -292,7 +292,7 @@ export const InviteService = {
   removeInvite: async (inviteId: string) => {
     try {
       await API.instance.client.service('invite').remove(inviteId)
-      dispatchAction(InviteAction.removedSentInvite())
+      dispatchAction(InviteAction.removedSentInvite({}))
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
@@ -304,7 +304,7 @@ export const InviteService = {
           passcode: passcode
         }
       })
-      dispatchAction(InviteAction.acceptedInvite())
+      dispatchAction(InviteAction.acceptedInvite({}))
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
@@ -312,7 +312,7 @@ export const InviteService = {
   declineInvite: async (invite: Invite) => {
     try {
       await API.instance.client.service('invite').remove(invite.id)
-      dispatchAction(InviteAction.declinedInvite())
+      dispatchAction(InviteAction.declinedInvite({}))
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
@@ -326,9 +326,9 @@ export const InviteService = {
         const invite = params.invite
         const selfUser = accessAuthState().user
         if (invite.userId === selfUser.id.value) {
-          dispatchAction(InviteAction.createdSentInvite())
+          dispatchAction(InviteAction.createdSentInvite({}))
         } else {
-          dispatchAction(InviteAction.createdReceivedInvite())
+          dispatchAction(InviteAction.createdReceivedInvite({}))
         }
       }
 
@@ -336,9 +336,9 @@ export const InviteService = {
         const invite = params.invite
         const selfUser = accessAuthState().user
         if (invite.userId === selfUser.id.value) {
-          dispatchAction(InviteAction.removedSentInvite())
+          dispatchAction(InviteAction.removedSentInvite({}))
         } else {
-          dispatchAction(InviteAction.removedReceivedInvite())
+          dispatchAction(InviteAction.removedReceivedInvite({}))
         }
       }
 

@@ -10,7 +10,7 @@ import { createAdminControlsMenuView } from './ui/AdminControlsMenuView'
 export function createAdminControlsMenuWidget(world: World) {
   const ui = createAdminControlsMenuView()
 
-  addComponent(ui.entity, PersistTagComponent, {})
+  addComponent(ui.entity, PersistTagComponent, true)
 
   ui.container.then(() => {
     const xrui = getComponent(ui.entity, XRUIComponent)

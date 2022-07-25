@@ -156,7 +156,7 @@ export const useGroupState = () => useState(accessGroupState())
 //Service
 export const GroupService = {
   getGroups: async (skip?: number, limit?: number) => {
-    dispatchAction(GroupAction.fetchingGroups())
+    dispatchAction(GroupAction.fetchingGroups({}))
     const groupActionState = accessGroupState().value
     try {
       const groupResults = await API.instance.client.service('group').find({
@@ -223,13 +223,13 @@ export const GroupService = {
   removeGroupUser: async (groupUserId: string) => {
     try {
       await API.instance.client.service('group-user').remove(groupUserId)
-      dispatchAction(GroupAction.leftGroup())
+      dispatchAction(GroupAction.leftGroup({}))
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   },
   getInvitableGroups: async (skip?: number, limit?: number) => {
-    dispatchAction(GroupAction.fetchingInvitableGroups())
+    dispatchAction(GroupAction.fetchingInvitableGroups({}))
     const groupActionState = accessGroupState().value
     try {
       const groupResults = await API.instance.client.service('group').find({

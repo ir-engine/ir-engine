@@ -313,7 +313,7 @@ const AvatarDrawerContent = ({ open, mode, selectedAvatar, onClose }: Props) => 
 
     if (avatarBlob && thumbnailBlob) {
       await AuthService.uploadAvatarModel(avatarBlob, thumbnailBlob, state.name)
-      dispatchAction(AdminAvatarActions.avatarUpdated())
+      dispatchAction(AdminAvatarActions.avatarUpdated({}))
 
       onClose()
     }

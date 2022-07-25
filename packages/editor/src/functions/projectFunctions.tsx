@@ -52,7 +52,7 @@ export async function runPreprojectLoadTasks(): Promise<void> {
  * Loads scene from provided project file.
  */
 export async function loadProjectScene(projectFile: SceneJson) {
-  dispatchAction(EngineActions.sceneUnloaded())
+  dispatchAction(EngineActions.sceneUnloaded({}))
 
   executeCommand({ type: EditorCommands.REPLACE_SELECTION, affectedNodes: [] })
   clearHistory()
@@ -66,7 +66,7 @@ export async function loadProjectScene(projectFile: SceneJson) {
   const errors = await initializeScene(projectFile)
 
   dispatchAction(EditorAction.projectLoaded({ loaded: true }))
-  dispatchAction(SelectionAction.changedSceneGraph())
+  dispatchAction(SelectionAction.changedSceneGraph({}))
 
   if (errors && errors.length > 0) {
     const error = new MultiError('Errors loading project', errors)

@@ -12,7 +12,7 @@ import { createSocialsMenuView } from './ui/SocialsMenuView'
 export function createSocialsMenuWidget(world: World) {
   const ui = createSocialsMenuView()
 
-  addComponent(ui.entity, PersistTagComponent, {})
+  addComponent(ui.entity, PersistTagComponent, true)
 
   ui.container.then(() => {
     const xrui = getComponent(ui.entity, XRUIComponent)

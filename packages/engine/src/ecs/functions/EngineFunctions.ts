@@ -37,7 +37,7 @@ export const shutdownEngine = async () => {
 /** Reset the engine and remove everything from memory. */
 export function reset() {
   console.log('RESETTING ENGINE')
-  dispatchAction(EngineActions.sceneUnloaded())
+  dispatchAction(EngineActions.sceneUnloaded({}))
 
   disposeDracoLoaderWorkers()
 

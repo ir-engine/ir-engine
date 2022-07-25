@@ -44,7 +44,7 @@ export const useInstanceserverState = () => useState(accessInstanceserverState()
 export const InstanceserverService = {
   patchInstanceserver: async (locationId) => {
     try {
-      dispatchAction(InstanceserverActions.patchInstanceserver())
+      dispatchAction(InstanceserverActions.patchInstanceserver({}))
       const patch = await API.instance.client.service('instanceserver-provision').patch({ locationId })
       dispatchAction(InstanceserverActions.patchedInstanceserver({ patch }))
     } catch (error) {

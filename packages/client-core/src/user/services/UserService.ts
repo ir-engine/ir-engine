@@ -169,7 +169,7 @@ function createRelation(userId: string, relatedUserId: string, type: 'friend' | 
       userRelationshipType: type
     })
     .then((res: any) => {
-      dispatchAction(UserAction.changedRelationAction())
+      dispatchAction(UserAction.changedRelationAction({}))
     })
     .catch((err: any) => {
       console.log(err)
@@ -181,7 +181,7 @@ function removeRelation(userId: string, relatedUserId: string) {
     .service('user-relationship')
     .remove(relatedUserId)
     .then((res: any) => {
-      dispatchAction(UserAction.changedRelationAction())
+      dispatchAction(UserAction.changedRelationAction({}))
     })
     .catch((err: any) => {
       console.log(err)
@@ -195,7 +195,7 @@ function patchRelation(userId: string, relatedUserId: string, type: 'friend') {
       userRelationshipType: type
     })
     .then((res: any) => {
-      dispatchAction(UserAction.changedRelationAction())
+      dispatchAction(UserAction.changedRelationAction({}))
     })
     .catch((err: any) => {
       console.log(err)

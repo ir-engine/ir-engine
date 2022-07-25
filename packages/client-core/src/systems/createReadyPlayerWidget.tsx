@@ -10,7 +10,7 @@ import { createReadyPlayerMenu } from './ui/ProfileDetailView/ReadyPlayerMenu'
 export function createReadyPlayerWidget(world: World) {
   const ui = createReadyPlayerMenu()
 
-  addComponent(ui.entity, PersistTagComponent, {})
+  addComponent(ui.entity, PersistTagComponent, true)
 
   ui.container.then(() => {
     const xrui = getComponent(ui.entity, XRUIComponent)
