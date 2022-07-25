@@ -1,10 +1,9 @@
-import { Bone, Euler, Vector3 } from 'three'
+import { AxesHelper, Bone, Euler, Quaternion, Vector3 } from 'three'
 
 import { createActionQueue } from '@xrengine/hyperflux'
 
 import { Axis } from '../common/constants/Axis3D'
 import { Engine } from '../ecs/classes/Engine'
-import { getEngineState } from '../ecs/classes/EngineState'
 import { World } from '../ecs/classes/World'
 import { defineQuery, getComponent, hasComponent } from '../ecs/functions/ComponentFunctions'
 import { NetworkObjectComponent } from '../networking/components/NetworkObjectComponent'
@@ -13,12 +12,14 @@ import { DesiredTransformComponent } from '../transform/components/DesiredTransf
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { TweenComponent } from '../transform/components/TweenComponent'
 import { updateAnimationGraph } from './animation/AnimationGraph'
+import { applyBoneTwist } from './animation/armsTwistCorrection'
 import { changeAvatarAnimationState } from './animation/AvatarAnimationGraph'
 import { getForwardVector, solveLookIK } from './animation/LookAtIKSolver'
 import { solveTwoBoneIK } from './animation/TwoBoneIKSolver'
 import { AnimationManager } from './AnimationManager'
 import { AnimationComponent } from './components/AnimationComponent'
 import { AvatarAnimationComponent } from './components/AvatarAnimationComponent'
+import { AvatarArmsTwistCorrectionComponent } from './components/AvatarArmsTwistCorrectionComponent'
 import { AvatarHandsIKComponent } from './components/AvatarHandsIKComponent'
 import { AvatarHeadDecapComponent } from './components/AvatarHeadDecapComponent'
 import { AvatarHeadIKComponent } from './components/AvatarHeadIKComponent'
@@ -53,10 +54,17 @@ export default async function AnimationSystem(world: World) {
   const animationQuery = defineQuery([AnimationComponent])
   const forward = new Vector3()
   const avatarAnimationQuery = defineQuery([AnimationComponent, AvatarAnimationComponent])
+  const armsTwistCorrectionQuery = defineQuery([AvatarArmsTwistCorrectionComponent, AvatarAnimationComponent])
+
+  const lRotInv = new Quaternion()
+  const twistBindRot = new Quaternion()
 
   const avatarAnimationQueue = createActionQueue(WorldNetworkAction.avatarAnimation.matches)
 
   await AnimationManager.instance.loadDefaultAnimations()
+
+  const axesHelper = new AxesHelper(0.2)
+  Engine.instance.currentWorld.scene.add(axesHelper)
 
   return () => {
     const { deltaSeconds: delta } = world
@@ -130,6 +138,13 @@ export default async function AnimationSystem(world: World) {
       if (avatarAnimationComponent.rig.Hips) avatarAnimationComponent.rig.Hips.position.setX(rootPos.x).setZ(rootPos.z)
     }
 
+    for (const entity of armsTwistCorrectionQuery.enter()) {
+      const { bindRig } = getComponent(entity, AvatarAnimationComponent)
+      const twistCorrection = getComponent(entity, AvatarArmsTwistCorrectionComponent)
+      twistCorrection.LeftHandBindRotationInv.copy(bindRig.LeftHand.quaternion).invert()
+      twistCorrection.RightHandBindRotationInv.copy(bindRig.RightHand.quaternion).invert()
+    }
+
     for (const entity of vrIKQuery()) {
       const ik = getComponent(entity, AvatarHandsIKComponent)
       const { rig } = getComponent(entity, AvatarAnimationComponent)
@@ -165,6 +180,31 @@ export default async function AnimationSystem(world: World) {
         ik.rightTargetRotWeight,
         ik.rightHintWeight
       )
+    }
+
+    for (const entity of armsTwistCorrectionQuery()) {
+      const { rig, bindRig } = getComponent(entity, AvatarAnimationComponent)
+      const twistCorrection = getComponent(entity, AvatarArmsTwistCorrectionComponent)
+
+      if (rig.LeftForeArmTwist) {
+        applyBoneTwist(
+          twistCorrection.LeftHandBindRotationInv,
+          rig.LeftHand.quaternion,
+          bindRig.LeftForeArmTwist.quaternion,
+          rig.LeftForeArmTwist.quaternion,
+          twistCorrection.LeftArmTwistAmount
+        )
+      }
+
+      if (rig.RightForeArmTwist) {
+        applyBoneTwist(
+          twistCorrection.RightHandBindRotationInv,
+          rig.RightHand.quaternion,
+          bindRig.RightForeArmTwist.quaternion,
+          rig.RightForeArmTwist.quaternion,
+          twistCorrection.RightArmTwistAmount
+        )
+      }
     }
 
     for (const entity of headIKQuery(world)) {

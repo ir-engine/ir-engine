@@ -1,4 +1,4 @@
-import { Group, Object3D, Quaternion, Vector3 } from 'three'
+import { Group, Mesh, MeshBasicMaterial, Object3D, Plane, Quaternion, SphereGeometry, Vector3 } from 'three'
 
 import { createActionQueue, getState } from '@xrengine/hyperflux'
 
@@ -27,6 +27,7 @@ import { initializeHandModel, initializeXRInputs } from '../xr/functions/addCont
 import { playTriggerPressAnimation, playTriggerReleaseAnimation } from '../xr/functions/controllerAnimation'
 import { proxifyXRInputs, setupXRInputSourceComponent } from '../xr/functions/WebXRFunctions'
 import { AvatarAnimationComponent } from './components/AvatarAnimationComponent'
+import { AvatarArmsTwistCorrectionComponent } from './components/AvatarArmsTwistCorrectionComponent'
 import { AvatarComponent } from './components/AvatarComponent'
 import { AvatarControllerComponent } from './components/AvatarControllerComponent'
 import { AvatarHandsIKComponent } from './components/AvatarHandsIKComponent'
@@ -107,10 +108,19 @@ export default async function AvatarSystem(world: World) {
   const teleportObjectQueue = createActionQueue(WorldNetworkAction.teleportObject.matches)
 
   const raycastQuery = defineQuery([AvatarComponent, RaycastComponent])
-  const xrInputQuery = defineQuery([AvatarComponent, XRInputSourceComponent, AvatarAnimationComponent])
+  const xrInputQuery = defineQuery([
+    AvatarComponent,
+    XRInputSourceComponent,
+    AvatarAnimationComponent,
+    TransformComponent
+  ])
   const xrHandsInputQuery = defineQuery([AvatarComponent, XRHandsInputComponent, XRInputSourceComponent])
   const xrLGripQuery = defineQuery([AvatarComponent, XRLGripButtonComponent, XRInputSourceComponent])
   const xrRGripQuery = defineQuery([AvatarComponent, XRRGripButtonComponent, XRInputSourceComponent])
+
+  let lSphere = new Mesh(new SphereGeometry(0.1, 6, 6), new MeshBasicMaterial({ color: 0x00ff00, wireframe: true }))
+  let rSphere = new Mesh(new SphereGeometry(0.1, 6, 6), new MeshBasicMaterial({ color: 0xff0000, wireframe: true }))
+  Engine.instance.currentWorld.scene.add(lSphere, rSphere)
 
   return () => {
     for (const action of avatarDetailsQueue()) avatarDetailsReceptor(action)
@@ -120,6 +130,12 @@ export default async function AvatarSystem(world: World) {
 
     for (const entity of xrInputQuery.enter(world)) {
       xrInputQueryEnter(entity)
+    }
+
+    for (const entity of xrInputQuery(world)) {
+      const { leftHint, rightHint } = getComponent(entity, AvatarHandsIKComponent)
+      leftHint?.getWorldPosition(lSphere.position)
+      rightHint?.getWorldPosition(rSphere.position)
     }
 
     for (const entity of xrInputQuery.exit(world)) {
@@ -168,11 +184,11 @@ export function xrInputQueryExit(entity: Entity) {
   xrInputComponent.container.removeFromParent()
   xrInputComponent.head.removeFromParent()
   removeComponent(entity, AvatarHeadIKComponent)
-
-  const ik = getComponent(entity, AvatarHandsIKComponent)
-  ik.leftHint?.removeFromParent()
-  ik.rightHint?.removeFromParent()
+  const { leftHint, rightHint } = getComponent(entity, AvatarHandsIKComponent)
+  leftHint?.removeFromParent()
+  rightHint?.removeFromParent()
   removeComponent(entity, AvatarHandsIKComponent)
+  removeComponent(entity, AvatarArmsTwistCorrectionComponent)
 }
 
 /**
@@ -201,8 +217,8 @@ export function setupHandIK(entity: Entity) {
 
   const animation = getComponent(entity, AvatarAnimationComponent)
 
-  leftOffset.rotation.set(-2.1, 3, 0.1)
-  rightOffset.rotation.set(-2.1, 0.1, 0.1)
+  leftOffset.rotation.set(-Math.PI * 0.5, Math.PI, 0)
+  rightOffset.rotation.set(-Math.PI * 0.5, 0, 0)
 
   // todo: load the avatar & rig on the server
   if (isClient) {
@@ -220,19 +236,25 @@ export function setupHandIK(entity: Entity) {
   }
 
   addComponent(entity, AvatarHandsIKComponent, {
-    leftTarget: xrInputSourceComponent.controllerGripLeftParent,
+    leftTarget: xrInputSourceComponent.controllerLeftParent,
     leftHint: leftHint,
     leftTargetOffset: leftOffset,
     leftTargetPosWeight: 1,
     leftTargetRotWeight: 1,
     leftHintWeight: 1,
-
-    rightTarget: xrInputSourceComponent.controllerGripRightParent,
+    rightTarget: xrInputSourceComponent.controllerRightParent,
     rightHint: rightHint,
     rightTargetOffset: rightOffset,
     rightTargetPosWeight: 1,
     rightTargetRotWeight: 1,
     rightHintWeight: 1
+  })
+
+  addComponent(entity, AvatarArmsTwistCorrectionComponent, {
+    LeftHandBindRotationInv: new Quaternion(),
+    LeftArmTwistAmount: 0.6,
+    RightHandBindRotationInv: new Quaternion(),
+    RightArmTwistAmount: 0.6
   })
 }
 

@@ -159,6 +159,8 @@ export const rigAvatarModel = (entity: Entity) => (model: Object3D) => {
   retargetSkeleton(targetSkeleton, sourceSkeleton)
   syncModelSkeletons(model, targetSkeleton)
 
+  avatarAnimationComponent.bindRig = avatarBoneMatching(SkeletonUtils.clone(rootBone))
+
   const targetHips = avatarAnimationComponent.rig.Hips
   const sourceHips = sourceSkeleton.bones[0]
   avatarAnimationComponent.rootYRatio = targetHips.position.y / sourceHips.position.y
