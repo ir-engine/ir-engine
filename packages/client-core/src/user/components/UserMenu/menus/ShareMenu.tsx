@@ -28,7 +28,6 @@ export const useShareMenuHooks = ({ refLink }) => {
   const [shareLink, setShareLink] = useState('')
   const postTitle = 'AR/VR world'
   const siteTitle = 'XREngine'
-  const inviteState = useInviteState()
   const engineState = useEngineState()
 
   const copyLinkToClipboard = () => {

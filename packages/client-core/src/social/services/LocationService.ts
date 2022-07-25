@@ -103,7 +103,7 @@ export const useLocationState = () => useState(accessLocationState())
 export const LocationService = {
   getLocation: async (locationId: string) => {
     try {
-      dispatchAction(LocationAction.fetchingCurrentSocialLocation())
+      dispatchAction(LocationAction.fetchingCurrentSocialLocation({}))
       const location = await API.instance.client.service('location').get(locationId)
       dispatchAction(LocationAction.socialLocationRetrieved({ location }))
     } catch (err) {
@@ -111,7 +111,7 @@ export const LocationService = {
     }
   },
   getLocationByName: async (locationName: string, userId: string) => {
-    dispatchAction(LocationAction.fetchingCurrentSocialLocation())
+    dispatchAction(LocationAction.fetchingCurrentSocialLocation({}))
     const locationResult = (await API.instance.client.service('location').find({
       query: {
         slugifiedName: locationName,
@@ -127,7 +127,7 @@ export const LocationService = {
         dispatchAction(LocationAction.socialLocationNotAuthorized({ location: locationResult.data[0] }))
       } else dispatchAction(LocationAction.socialLocationRetrieved({ location: locationResult.data[0] }))
     } else {
-      dispatchAction(LocationAction.socialLocationNotFound())
+      dispatchAction(LocationAction.socialLocationNotFound({}))
     }
   },
   getLobby: async () => {
@@ -150,7 +150,7 @@ export const LocationService = {
         userId: userId,
         locationId: locationId
       })
-      dispatchAction(LocationAction.socialLocationBanCreated())
+      dispatchAction(LocationAction.socialLocationBanCreated({}))
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }

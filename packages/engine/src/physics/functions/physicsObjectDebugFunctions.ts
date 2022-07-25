@@ -179,8 +179,7 @@ export const generatePhysicsObject = (
           prefab: 'physics_debug',
           position: transform.position,
           rotation: transform.rotation
-        }),
-        NetworkTopics.world
+        })
       )
     }
   }

@@ -385,7 +385,7 @@ export function createAvatarAnimationGraph(
 
 function dispatchStateChange(name: string, graph: AnimationGraph): void {
   const params = {}
-  dispatchAction(WorldNetworkAction.avatarAnimation({ newStateName: name, params }), NetworkTopics.world)
+  dispatchAction(WorldNetworkAction.avatarAnimation({ newStateName: name, params }))
 }
 
 export function changeAvatarAnimationState(entity: Entity, newStateName: string): void {

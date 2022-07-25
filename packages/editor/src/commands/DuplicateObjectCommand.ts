@@ -97,7 +97,7 @@ function emitEventAfter(command: DuplicateObjectCommandParams) {
   if (command.preventEvents) return
 
   dispatchAction(EditorAction.sceneModified({ modified: true }))
-  dispatchAction(SelectionAction.changedSceneGraph())
+  dispatchAction(SelectionAction.changedSceneGraph({}))
 }
 
 function toString(command: DuplicateObjectCommandParams) {

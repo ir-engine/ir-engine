@@ -49,10 +49,7 @@ export default async function HyperspacePortalSystem(world: World) {
       removeComponent(world.localClientEntity, InteractorComponent)
       removeComponent(world.localClientEntity, LocalInputTagComponent)
 
-      dispatchAction(
-        WorldNetworkAction.avatarAnimation({ newStateName: AvatarStates.FALL_IDLE, params: {} }),
-        NetworkTopics.world
-      )
+      dispatchAction(WorldNetworkAction.avatarAnimation({ newStateName: AvatarStates.FALL_IDLE, params: {} }))
 
       // TODO: add BPCEM of old and new scenes and fade them in and out too
       hyperspaceEffect.fadeIn(delta)

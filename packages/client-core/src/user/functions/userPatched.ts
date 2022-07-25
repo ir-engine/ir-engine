@@ -5,6 +5,7 @@ import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { WorldState } from '@xrengine/engine/src/networking/interfaces/WorldState'
 import { dispatchAction, getState } from '@xrengine/hyperflux'
 
+import { MediaInstanceConnectionAction } from '../../common/services/MediaInstanceConnectionService'
 import { NotificationService } from '../../common/services/NotificationService'
 import { accessAuthState, AuthAction } from '../services/AuthService'
 import { accessUserState, UserAction } from '../services/UserService'
@@ -22,9 +23,9 @@ export const userPatched = (params) => {
   worldState.userNames[patchedUser.id].set(patchedUser.name)
 
   if (selfUser.id.value === patchedUser.id) {
-    if (selfUser.instanceId.value !== patchedUser.instanceId) dispatchAction(UserAction.clearLayerUsersAction())
+    if (selfUser.instanceId.value !== patchedUser.instanceId) dispatchAction(UserAction.clearLayerUsersAction({}))
     if (selfUser.channelInstanceId.value !== patchedUser.channelInstanceId)
-      dispatchAction(UserAction.clearChannelLayerUsersAction())
+      dispatchAction(UserAction.clearChannelLayerUsersAction({}))
     dispatchAction(AuthAction.userUpdatedAction({ user: patchedUser }))
     // if (user.partyId) {
     //   setRelationship('party', user.partyId);
@@ -39,6 +40,9 @@ export const userPatched = (params) => {
         window.history.replaceState({}, '', parsed.toString())
       }
     }
+
+    if (patchedUser.partyId && patchedUser.partyId !== selfUser.partyId.value)
+      dispatchAction(MediaInstanceConnectionAction.acceptedPartyInvite({}))
   } else {
     const isLayerUser = userState.layerUsers.value.find((item) => item.id === patchedUser.id)
 

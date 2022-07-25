@@ -10,7 +10,7 @@ export default class WEBGL {
   }
 
   static dispatchWebGLDisconnectedEvent() {
-    dispatchAction(WEBGL.EVENTS.webglDisconnected())
+    dispatchAction(WEBGL.EVENTS.webglDisconnected({}))
   }
 
   static isWebGLAvailable() {

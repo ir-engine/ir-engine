@@ -81,10 +81,10 @@ type InstanceMetadata = {
 const createNewInstance = async (app: Application, newInstance: InstanceMetadata) => {
   const { locationId, channelId } = newInstance
 
-  logger.info('Creating new instance: %o', newInstance, locationId, channelId)
+  logger.info('Creating new instance: %o %s, %s', newInstance, locationId, channelId)
   const instanceResult = (await app.service('instance').create(newInstance)) as Instance
   if (!channelId) {
-    await app.service('channel').create({
+    const channelResult = await app.service('channel').create({
       channelType: 'instance',
       instanceId: instanceResult.id
     })
@@ -218,7 +218,7 @@ const initializeInstance = async (
         })
       }
     }
-    if (!authorizeUserToJoinServer(app, instance, userId)) return
+    if (!(await authorizeUserToJoinServer(app, instance, userId))) return
     await assignExistingInstance(app, instance, channelId, locationId)
   }
 }
@@ -248,7 +248,7 @@ const loadEngine = async (app: Application, sceneId: string) => {
     await initializeRealtimeSystems(true, false)
     const projects = (await app.service('project').find(null!)).data.map((project) => project.name)
     await loadEngineInjection(world, projects)
-    dispatchAction(EngineActions.sceneLoaded())
+    dispatchAction(EngineActions.sceneLoaded({}))
   } else {
     world._worldHostId = hostId as UserId
 
@@ -299,63 +299,7 @@ const loadEngine = async (app: Application, sceneId: string) => {
     'server-' + hostId,
     Engine.instance.currentWorld
   )
-  dispatchAction(EngineActions.joinedWorld())
-}
-
-/**
- * Puts a message into the message channel that the connecting user has joined the layer.
- * If the user is in a party and the party instance id has changed, notify the other users
- * @param app
- * @param userId
- * @param status
- * @param locationId
- * @param channelId
- * @param sceneId
- */
-
-const notifyWorldAndPartiesUserHasJoined = async (
-  app: Application,
-  userId: UserId,
-  status: InstanceserverStatus,
-  locationId: string,
-  channelId: string,
-  sceneId: string
-) => {
-  const user = await app.service('user').get(userId)
-  if (user.partyId != null) {
-    const partyUserResult = await app.service('party-user').find({
-      query: {
-        partyId: user.partyId
-      }
-    })
-    const party = await app.service('party').get(user.partyId, null!)
-    const partyUsers = (partyUserResult as any).data
-    const partyOwner = partyUsers.find((partyUser) => partyUser.isOwner === 1)
-    if (partyOwner?.userId === userId && party.instanceId !== app.instance.id) {
-      await app.service('party').patch(user.partyId, {
-        instanceId: app.instance.id
-      })
-      const nonOwners = partyUsers.filter((partyUser) => partyUser.isOwner !== 1 && partyUser.isOwner !== true)
-      const emittedIp = !config.kubernetes.enabled
-        ? await getLocalServerIp(app.isChannelInstance)
-        : {
-            ipAddress: status.address,
-            port: status.portsList[0].port
-          }
-      await Promise.all(
-        nonOwners.map(async (partyUser) => {
-          await app.service('instance-provision').emit('created', {
-            userId: partyUser.userId,
-            ipAddress: emittedIp.ipAddress,
-            port: emittedIp.port,
-            locationId: locationId,
-            channelId: channelId,
-            sceneId: sceneId
-          })
-        })
-      )
-    }
-  }
+  dispatchAction(EngineActions.joinedWorld({}))
 }
 
 /**
@@ -368,9 +312,10 @@ const handleUserAttendance = async (app: Application, userId: UserId) => {
   const instanceIdKey = app.isChannelInstance ? 'channelInstanceId' : 'instanceId'
   logger.info(`Patching user ${userId} ${instanceIdKey} to ${app.instance.id}`)
 
-  await app.service('user').patch(userId, {
+  const instanceIdPatchResult = await app.service('user').patch(userId, {
     [instanceIdKey]: app.instance.id
   })
+  logger.info('Patched new user instanceId to', instanceIdPatchResult)
   await app.service('instance-attendance').patch(
     null,
     {
@@ -504,25 +449,42 @@ const handleUserDisconnect = async (
   }
 
   const instanceIdKey = app.isChannelInstance ? 'channelInstanceId' : 'instanceId'
+
+  const userPatch = {
+    [instanceIdKey]: null
+  }
+
+  if (user?.partyId && app.isChannelInstance) {
+    const partyChannel = await app.service('channel').Model.findOne({
+      where: {
+        partyId: user.partyId
+      }
+    })
+    if (partyChannel?.id === app.instance.channelId) {
+      userPatch.partyId = null
+      const partyUser = await app.service('party-user').find({
+        query: {
+          userId: user.id,
+          partyId: user.partyId
+        }
+      })
+      if (partyUser.total > 0) await app.service('party-user').remove(partyUser.data[0].id)
+    }
+  }
   // Patch the user's (channel)instanceId to null if they're leaving this instance.
   // But, don't change their (channel)instanceId if it's already something else.
-  await app
+  const userPatchResult = await app
     .service('user')
-    .patch(
-      null,
-      {
-        [instanceIdKey]: null
-      },
-      {
-        query: {
-          id: user.id,
-          [instanceIdKey]: instanceId
-        }
+    .patch(null, userPatch, {
+      query: {
+        id: user.id,
+        [instanceIdKey]: instanceId
       }
-    )
+    })
     .catch((err) => {
       logger.warn(err, "Failed to patch user, probably because they don't have an ID yet.")
     })
+  logger.info('Patched disconnecting user to', userPatchResult)
   await app.service('instance-attendance').patch(
     null,
     {
@@ -608,9 +570,6 @@ const onConnection = (app: Application) => async (connection: SocketIOConnection
   app.channel(`instanceIds/${app.instance.id as string}`).join(connection)
 
   await handleUserAttendance(app, userId)
-  if (!app.isChannelInstance) {
-    await notifyWorldAndPartiesUserHasJoined(app, userId, status, locationId, channelId, sceneId)
-  }
 }
 
 const onDisconnection = (app: Application) => async (connection: SocketIOConnectionType) => {

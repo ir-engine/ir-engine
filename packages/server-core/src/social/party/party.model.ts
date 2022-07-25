@@ -1,12 +1,12 @@
-import { DataTypes, Model, Sequelize } from 'sequelize'
+import { DataTypes, Model, ModelStatic, Sequelize } from 'sequelize'
 
 import { PartyInterface } from '@xrengine/common/src/dbmodels/Party'
 
-import { Application } from '../../../declarations'
+export type PartyModel = Model<Partial<PartyInterface>>
+export type PartyModelStatic = ModelStatic<PartyModel>
 
-export default (app: Application) => {
-  const sequelizeClient: Sequelize = app.get('sequelizeClient')
-  const Party = sequelizeClient.define<Model<PartyInterface>>(
+export default (sequelizeClient: Sequelize) => {
+  const Party = sequelizeClient.define<PartyModel>(
     'party',
     {
       id: {
@@ -18,6 +18,11 @@ export default (app: Application) => {
       name: {
         type: DataTypes.STRING,
         defaultValue: ''
+      },
+      maxMembers: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        defaultValue: 10
       }
     },
     {
@@ -29,11 +34,11 @@ export default (app: Application) => {
     }
   )
 
-  ;(Party as any).associate = (models: any): void => {
-    ;(Party as any).belongsToMany(models.user, { through: 'party_user' })
-    ;(Party as any).hasMany(models.party_user, { unique: false })
-    ;(Party as any).belongsTo(models.instance)
-    ;(Party as any).belongsTo(models.location, { onDelete: 'cascade', hooks: true })
+  ;(Party as any).associate = (models: typeof Sequelize.prototype.models): void => {
+    Party.belongsToMany(models.user, { through: 'party_user' })
+    Party.hasMany(models.party_user)
+    Party.hasOne(models.channel, { onDelete: 'cascade' })
+    // Party.belongsTo(models.instance, { onDelete: 'cascade' })
   }
   return Party
 }

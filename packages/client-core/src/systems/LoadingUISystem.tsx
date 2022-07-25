@@ -38,7 +38,7 @@ export default async function LoadingUISystem(world: World) {
     new Promise<Texture | null>((resolve) => textureLoader.load(thumbnailUrl, resolve, null!, () => resolve(null)))
   ])
 
-  addComponent(ui.entity, PersistTagComponent, {})
+  addComponent(ui.entity, PersistTagComponent, true)
 
   const mesh = new Mesh(
     new SphereGeometry(10),

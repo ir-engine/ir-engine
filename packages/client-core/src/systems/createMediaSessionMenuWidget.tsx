@@ -10,7 +10,7 @@ import { createMediaSessionMenuView } from './ui/MediaSessionMenuView'
 export function createMediaSessionMenuWidget(world: World) {
   const ui = createMediaSessionMenuView()
 
-  addComponent(ui.entity, PersistTagComponent, {})
+  addComponent(ui.entity, PersistTagComponent, true)
 
   ui.container.then(() => {
     const xrui = getComponent(ui.entity, XRUIComponent)

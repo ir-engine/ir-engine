@@ -31,7 +31,7 @@ import { defineAction, defineState, dispatchAction, getState, useState } from '@
 import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
 import { accessLocationState } from '../../social/services/LocationService'
-import { accessPartyState } from '../../social/services/PartyService'
+import { PartyService } from '../../social/services/PartyService'
 import { serverHost } from '../../util/config'
 import { accessStoredLocalState, StoredLocalAction } from '../../util/StoredLocalState'
 import { uploadToFeathersService } from '../../util/upload'
@@ -64,7 +64,6 @@ const AuthState = defineState({
                   authUser: state.authUser
                 }
               }),
-              undefined,
               store
             )
         }
@@ -132,7 +131,7 @@ export const AuthServiceReceptor = (action) => {
         const stored = accessStoredLocalState().attach(Downgraded).value
         return s.merge({
           authUser: stored.authUser,
-          identityProvider: stored.authUser.identityProvider
+          identityProvider: stored.authUser?.identityProvider
         })
       })
       .when(AuthAction.avatarUpdatedAction.matches, (action) => {
@@ -188,7 +187,7 @@ export const AuthService = {
         res = await API.instance.client.reAuthenticate()
       } catch (err) {
         if (err.className === 'not-found' || (err.className === 'not-authenticated' && err.message === 'jwt expired')) {
-          await dispatchAction(AuthAction.didLogoutAction())
+          await dispatchAction(AuthAction.didLogoutAction({}))
           await API.instance.client.authentication.reset()
           const newProvider = await API.instance.client.service('identity-provider').create({
             type: 'guest',
@@ -203,7 +202,7 @@ export const AuthService = {
       }
       if (res) {
         if (res['identity-provider']?.id == null) {
-          await dispatchAction(AuthAction.didLogoutAction())
+          await dispatchAction(AuthAction.didLogoutAction({}))
           await API.instance.client.authentication.reset()
           const newProvider = await API.instance.client.service('identity-provider').create({
             type: 'guest',
@@ -225,7 +224,7 @@ export const AuthService = {
     } catch (err) {
       console.log('error on resolving auth user in doLoginAuto, logging out')
       console.error(err)
-      dispatchAction(AuthAction.didLogoutAction())
+      dispatchAction(AuthAction.didLogoutAction({}))
 
       // if (window.location.pathname !== '/') {
       //   window.location.href = '/';
@@ -404,8 +403,8 @@ export const AuthService = {
     dispatchAction(AuthAction.actionProcessing({ processing: true }))
     API.instance.client
       .logout()
-      .then(() => dispatchAction(AuthAction.didLogoutAction()))
-      .catch(() => dispatchAction(AuthAction.didLogoutAction()))
+      .then(() => dispatchAction(AuthAction.didLogoutAction({})))
+      .catch(() => dispatchAction(AuthAction.didLogoutAction({})))
       .finally(() => {
         dispatchAction(AuthAction.actionProcessing({ processing: false }))
         AuthService.doLoginAuto(true)
@@ -747,8 +746,7 @@ export const AuthService = {
               avatarURL,
               thumbnailURL
             }
-          }),
-          NetworkTopics.world
+          })
         )
       })
   },
@@ -766,20 +764,12 @@ export const AuthService = {
       const userPatchedListener = (params) => dispatchAction(AuthAction.userPatchedAction({ params }))
       const locationBanCreatedListener = async (params) => {
         const selfUser = accessAuthState().user
-        const party = accessPartyState().party.value
-        const selfPartyUser =
-          party && party.partyUsers
-            ? party.partyUsers.find((partyUser) => partyUser.id === selfUser.id.value)
-            : ({} as any)
         const currentLocation = accessLocationState().currentLocation.location
         const locationBan = params.locationBan
         if (selfUser.id.value === locationBan.userId && currentLocation.id.value === locationBan.locationId) {
           // TODO: Decouple and reenable me!
           // endVideoChat({ leftParty: true });
           // leave(true);
-          if (selfPartyUser != undefined && selfPartyUser?.id != null) {
-            await API.instance.client.service('party-user').remove(selfPartyUser.id)
-          }
           const userId = selfUser.id.value ?? ''
           const user = resolveUser(await API.instance.client.service('user').get(userId))
           dispatchAction(AuthAction.userUpdatedAction({ user }))

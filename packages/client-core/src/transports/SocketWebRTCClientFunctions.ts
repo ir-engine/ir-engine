@@ -66,14 +66,14 @@ type PeersUpdateType = Array<{
 
 export async function onConnectToInstance(network: SocketWebRTCClientNetwork) {
   const isWorldConnection = network.topic === NetworkTopics.world
-  console.log('[WebRTC]: connectting to instance type:', network.topic, network.hostId)
+  console.log('[WebRTC]: connecting to instance type:', network.topic, network.hostId)
 
   if (isWorldConnection) {
     dispatchAction(LocationInstanceConnectionAction.instanceServerConnected({ instanceId: network.hostId }))
-    dispatchAction(NetworkConnectionService.actions.worldInstanceReconnected())
+    dispatchAction(NetworkConnectionService.actions.worldInstanceReconnected({}))
   } else {
     dispatchAction(MediaInstanceConnectionAction.serverConnected({ instanceId: network.hostId }))
-    dispatchAction(NetworkConnectionService.actions.mediaInstanceReconnected())
+    dispatchAction(NetworkConnectionService.actions.mediaInstanceReconnected({}))
   }
 
   const authState = accessAuthState()
@@ -116,7 +116,7 @@ export async function onConnectToInstance(network: SocketWebRTCClientNetwork) {
   const connectToWorldResponse = await network.request(MessageTypes.JoinWorld.toString(), joinWorldRequest)
 
   if (!connectToWorldResponse || !connectToWorldResponse.routerRtpCapabilities) {
-    dispatchAction(NetworkConnectionService.actions.worldInstanceReconnected())
+    dispatchAction(NetworkConnectionService.actions.worldInstanceReconnected({}))
     network.reconnecting = false
     onConnectToInstance(network)
     return
@@ -163,7 +163,7 @@ export async function onConnectToWorldInstance(network: SocketWebRTCClientNetwor
   }
 
   async function reconnectHandler() {
-    dispatchAction(NetworkConnectionService.actions.worldInstanceReconnected())
+    dispatchAction(NetworkConnectionService.actions.worldInstanceReconnected({}))
     network.reconnecting = false
     await onConnectToInstance(network)
     network.socket.io.off('reconnect', reconnectHandler)
@@ -171,7 +171,7 @@ export async function onConnectToWorldInstance(network: SocketWebRTCClientNetwor
   }
 
   async function disconnectHandler() {
-    dispatchAction(NetworkConnectionService.actions.worldInstanceDisconnected())
+    dispatchAction(NetworkConnectionService.actions.worldInstanceDisconnected({}))
     dispatchAction(EngineActions.connectToWorld({ connectedWorld: false }))
     network.reconnecting = true
 
@@ -213,7 +213,7 @@ export async function onConnectToMediaInstance(network: SocketWebRTCClientNetwor
 
   async function webRTCCloseConsumerHandler(consumerId) {
     network.consumers = network.consumers.filter((c) => c.id !== consumerId)
-    dispatchAction(MediaStreams.actions.triggerUpdateConsumers())
+    dispatchAction(MediaStreams.actions.triggerUpdateConsumers({}))
   }
 
   async function webRTCCreateProducerHandler(socketId, mediaTag, producerId, channelType: ChannelType, channelId) {
@@ -246,7 +246,7 @@ export async function onConnectToMediaInstance(network: SocketWebRTCClientNetwor
   }
 
   async function reconnectHandler() {
-    dispatchAction(NetworkConnectionService.actions.mediaInstanceReconnected())
+    dispatchAction(NetworkConnectionService.actions.mediaInstanceReconnected({}))
     network.reconnecting = false
     await onConnectToInstance(network)
     await updateNearbyAvatars()
@@ -301,7 +301,7 @@ export async function onConnectToMediaInstance(network: SocketWebRTCClientNetwor
     if (network.sendTransport?.closed !== true) await network.sendTransport.close()
     network.consumers.forEach((consumer) => closeConsumer(network, consumer))
     network.socket.off(MessageTypes.WebRTCCreateProducer.toString(), webRTCCreateProducerHandler)
-    dispatchAction(NetworkConnectionService.actions.mediaInstanceDisconnected())
+    dispatchAction(NetworkConnectionService.actions.mediaInstanceDisconnected({}))
     network.reconnecting = true
     network.socket.off(MessageTypes.WebRTCPauseConsumer.toString(), webRTCPauseConsumerHandler)
     network.socket.off(MessageTypes.WebRTCResumeConsumer.toString(), webRTCResumeConsumerHandler)
@@ -460,8 +460,8 @@ export async function createTransport(network: SocketWebRTCClientNetwork, direct
       NetworkPeerFunctions.destroyAllPeers(network)
       dispatchAction(
         network.topic === NetworkTopics.world
-          ? NetworkConnectionService.actions.worldInstanceDisconnected()
-          : NetworkConnectionService.actions.mediaInstanceDisconnected()
+          ? NetworkConnectionService.actions.worldInstanceDisconnected({})
+          : NetworkConnectionService.actions.mediaInstanceDisconnected({})
       )
       console.error('Transport', transport, ' transitioned to state', state)
       console.error(
@@ -480,8 +480,8 @@ export async function createTransport(network: SocketWebRTCClientNetwork, direct
         console.log('Re-created transport', direction, channelType, channelId)
         dispatchAction(
           network.topic === NetworkTopics.world
-            ? NetworkConnectionService.actions.worldInstanceReconnected()
-            : NetworkConnectionService.actions.mediaInstanceReconnected()
+            ? NetworkConnectionService.actions.worldInstanceReconnected({})
+            : NetworkConnectionService.actions.mediaInstanceReconnected({})
         )
       }, 5000)
       // await request(MessageTypes.WebRTCTransportClose.toString(), {transportId: transport.id});
@@ -716,8 +716,10 @@ export async function endVideoChat(
         })
       }
 
-      if (network.recvTransport?.closed !== true) await network.recvTransport.close()
-      if (network.sendTransport?.closed !== true) await network.sendTransport.close()
+      if (network.recvTransport?.closed !== true && typeof network.recvTransport?.close === 'function')
+        await network.recvTransport.close()
+      if (network.sendTransport?.closed !== true && typeof network.sendTransport?.close === 'function')
+        await network.sendTransport.close()
 
       resetProducer()
       return true
@@ -791,7 +793,7 @@ export async function subscribeToTrack(network: SocketWebRTCClientNetwork, peerI
     await resumeConsumer(network, consumer)
   } else await closeConsumer(network, consumer)
 
-  dispatchAction(MediaStreams.actions.triggerUpdateConsumers())
+  dispatchAction(MediaStreams.actions.triggerUpdateConsumers({}))
 }
 
 export async function unsubscribeFromTrack(network: SocketWebRTCClientNetwork, peerId: any, mediaTag: any) {

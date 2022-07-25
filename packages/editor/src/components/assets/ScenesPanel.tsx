@@ -77,7 +77,7 @@ export default function ScenesPanel({ loadScene, newScene, toggleRefetchScenes }
       await deleteScene(editorState.projectName.value, activeScene.name)
       if (editorState.sceneName.value === activeScene.name) {
         dispatchAction(EditorAction.sceneChanged({ sceneName: null }))
-        dispatchAction(EngineActions.sceneUnloaded())
+        dispatchAction(EngineActions.sceneUnloaded({}))
         disposeProject()
         history.push(`/editor/${editorState.projectName.value}`)
       }

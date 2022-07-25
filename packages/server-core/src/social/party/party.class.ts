@@ -1,4 +1,3 @@
-import { NotFound } from '@feathersjs/errors/lib'
 import { Paginated, Params } from '@feathersjs/feathers'
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 import { Op } from 'sequelize'
@@ -7,10 +6,8 @@ import { Sequelize } from 'sequelize'
 import { Party as PartyDataType } from '@xrengine/common/src/interfaces/Party'
 import { UserInterface } from '@xrengine/common/src/interfaces/User'
 
-// import { Params, Id, NullableId } from '@feathersjs/feathers'
 import { Application } from '../../../declarations'
-
-// import { Forbidden } from '@feathersjs/errors'
+import logger from '../../logger'
 
 /**
  * A class for Party service
@@ -40,9 +37,6 @@ export class Party<T = PartyDataType> extends Service<T> {
           if (name === 'instance') {
             //item.push(this.app.service('instance').Model)
             item.push(Sequelize.literal('`instance.ipAddress`'))
-          } else if (name === 'location') {
-            //item.push(this.app.service('location').Model)
-            item.push(Sequelize.literal('`location.name`'))
           } else {
             item.push(name)
           }
@@ -65,23 +59,9 @@ export class Party<T = PartyDataType> extends Service<T> {
         order: order,
         include: [
           {
-            model: (this.app.service('location') as any).Model,
-            required: true,
-            where: { ...name }
-          },
-          {
-            model: (this.app.service('instance') as any).Model,
-            required: true,
-            where: { ...ip }
-          },
-          {
-            model: (this.app.service('party-user') as any).Model,
-            required: false
+            model: (this.app.service('party-user') as any).Model
           }
-        ],
-        where: query,
-        raw: true,
-        nest: true
+        ]
       })
 
       return {
@@ -104,35 +84,82 @@ export class Party<T = PartyDataType> extends Service<T> {
    */
   async get(id: string, params?: Params): Promise<T> {
     if (id == null || id == '') {
-      const loggedInUser = params!.user as UserInterface
-      const partyUserResult = await this.app.service('party-user').find({
+      const user = params!.user as UserInterface
+      if (user.partyId)
+        try {
+          const party = (await super.get(user.partyId)) as any
+          party.party_users = (
+            await this.app.service('party-user').find({
+              query: {
+                partyId: user.partyId
+              }
+            })
+          ).data
+          return party
+        } catch (err) {
+          return null!
+        }
+    } else {
+      return super.get(id, params)
+    }
+    return null!
+  }
+
+  async create(data?: any, params?: Params): Promise<any> {
+    const self = this
+    if (!params) return null!
+    const userId = params!.user.id
+
+    try {
+      const existingPartyUsers = await this.app.service('party-user').find({
         query: {
-          userId: loggedInUser.id
+          userId: userId
         }
       })
 
-      if ((partyUserResult as any).total === 0) {
-        throw new NotFound('User party not found')
-      }
+      await Promise.all(
+        existingPartyUsers.data.map(
+          (partyUser) =>
+            new Promise<void>(async (resolve, reject) => {
+              try {
+                await self.app.service('party-user').remove(partyUser.id)
+                resolve()
+              } catch (err) {
+                reject(err)
+              }
+            })
+        )
+      )
 
-      const partyId = (partyUserResult as any).data[0].partyId
+      const party = (await super.create(data)) as any
 
-      const party: any = await super.get(partyId)
-
-      party.partyUsers = await (this.app.service('party-user') as any).Model.findAll({
-        where: {
-          partyId: party.id
-        },
-        include: [
-          {
-            model: (this.app.service('user') as any).Model
-          }
-        ]
+      await this.app.service('party-user').create({
+        partyId: party.id,
+        isOwner: true,
+        userId: userId
       })
 
-      return party
-    } else {
-      return await super.get(id)
+      await this.app.service('user').patch(userId, {
+        partyId: party.id
+      })
+
+      return this.app.service('party').get(party.id)
+    } catch (err) {
+      logger.error(err)
+      throw err
     }
+  }
+
+  async remove(id: string, params?: Params): Promise<T> {
+    const partyUsers = (
+      await this.app.service('party-user').find({
+        query: {
+          partyId: id
+        }
+      })
+    ).data
+    const removedParty = (await super.remove(id)) as T
+    ;(removedParty as any).party_users = partyUsers
+    return removedParty
   }
 }

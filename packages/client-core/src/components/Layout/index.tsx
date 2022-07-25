@@ -24,9 +24,10 @@ import KeyboardDoubleArrowUpIcon from '@mui/icons-material/KeyboardDoubleArrowUp
 import { useLoadingSystemState } from '../../systems/state/LoadingState'
 import Debug from '../Debug'
 import InstanceChat from '../InstanceChat'
+import InviteToast from '../InviteToast'
 import MediaIconsBox from '../MediaIconsBox'
-import PartyVideoWindows from '../PartyVideoWindows'
 import { useFullscreen } from '../useFullscreen'
+import UserMediaWindows from '../UserMediaWindows'
 import styles from './index.module.scss'
 
 const TouchGamepad = React.lazy(() => import('@xrengine/client-core/src/common/components/TouchGamepad'))
@@ -159,7 +160,7 @@ const Layout = ({ useLoadingScreenOpacity, pageTitle, children, hideVideo, hideF
             {!hideVideo && (
               <>
                 <section className={styles.locationUserMenu}>
-                  <PartyVideoWindows />
+                  <UserMediaWindows />
                 </section>
               </>
             )}
@@ -180,6 +181,7 @@ const Layout = ({ useLoadingScreenOpacity, pageTitle, children, hideVideo, hideF
               <TouchGamepad layout="default" />{' '}
             </Suspense>
           )}
+          <InviteToast />
 
           {!iOS() && (
             <>

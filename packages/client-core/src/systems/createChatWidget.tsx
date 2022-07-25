@@ -10,7 +10,7 @@ import { createChatDetailView } from './ui/ChatDetailView'
 export function createChatWidget(world: World) {
   const ui = createChatDetailView()
 
-  addComponent(ui.entity, PersistTagComponent, {})
+  addComponent(ui.entity, PersistTagComponent, true)
 
   ui.container.then(() => {
     const xrui = getComponent(ui.entity, XRUIComponent)

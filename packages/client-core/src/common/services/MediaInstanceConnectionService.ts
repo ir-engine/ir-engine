@@ -10,6 +10,7 @@ import { NetworkTopics } from '@xrengine/engine/src/networking/classes/Network'
 import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
 import { API } from '../../API'
+import { accessChatState } from '../../social/services/ChatService'
 import { accessLocationState } from '../../social/services/LocationService'
 import { endVideoChat, leaveNetwork } from '../../transports/SocketWebRTCClientFunctions'
 import { SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientNetwork'
@@ -34,7 +35,8 @@ type InstanceState = {
 const MediaInstanceState = defineState({
   name: 'MediaInstanceState',
   initial: () => ({
-    instances: {} as { [id: string]: InstanceState }
+    instances: {} as { [id: string]: InstanceState },
+    acceptingPartyInvite: false
   })
 })
 
@@ -77,6 +79,12 @@ export const MediaInstanceConnectionServiceReceptor = (action) => {
       .when(MediaInstanceConnectionAction.disconnect.matches, (action) => {
         return s.instances[action.instanceId].set(none)
       })
+      .when(MediaInstanceConnectionAction.acceptingPartyInvite.matches, (action) => {
+        return s.acceptingPartyInvite.set(true)
+      })
+      .when(MediaInstanceConnectionAction.acceptedPartyInvite.matches, (action) => {
+        return s.acceptingPartyInvite.set(false)
+      })
   })
 }
 
@@ -96,17 +104,19 @@ export const MediaInstanceConnectionService = {
       }
     })
     if (provisionResult.ipAddress && provisionResult.port) {
+      console.log('current channels', accessChatState().channels.channels.value)
       dispatchAction(
         MediaInstanceConnectionAction.serverProvisioned({
           instanceId: provisionResult.id as UserId,
           ipAddress: provisionResult.ipAddress,
           port: provisionResult.port,
           channelId: channelId ? channelId : '',
-          channelType: isWorldConnection ? 'instance' : 'channel'
+          channelType: accessChatState().channels.channels.value.find((channel) => channel.id === channelId)!
+            .channelType
         })
       )
     } else {
-      dispatchAction(NetworkConnectionService.actions.noWorldServersAvailable({ instanceId: channelId! ?? '' }))
+      dispatchAction(NetworkConnectionService.actions.noMediaServersAvailable({ instanceId: channelId! ?? '' }))
     }
   },
   connectToServer: async (instanceId: string, channelId: string) => {
@@ -149,7 +159,7 @@ export const MediaInstanceConnectionService = {
         if (params.channelId != null) {
           dispatchAction(
             MediaInstanceConnectionAction.serverProvisioned({
-              instanceId: params.id,
+              instanceId: params.instanceId,
               ipAddress: params.ipAddress,
               port: params.port,
               channelId: params.channelId,
@@ -196,5 +206,13 @@ export class MediaInstanceConnectionAction {
   static disconnect = defineAction({
     type: 'MEDIA_INSTANCE_SERVER_DISCONNECT' as const,
     instanceId: matches.string
+  })
+
+  static acceptingPartyInvite = defineAction({
+    type: 'ACCEPTING_PARTY_INVITE' as const
+  })
+
+  static acceptedPartyInvite = defineAction({
+    type: 'ACCEPTED_PARTY_INVITE' as const
   })
 }

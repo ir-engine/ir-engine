@@ -49,6 +49,7 @@ export async function emulate_getTicketsAssignment(app, ticketId, userId): Promi
 
   if (!matchUser) {
     // throw new BadRequest('MatchUser not found. ticket is outdated?')
+    // FIXME: not a valid Error format
     throw { code: 5, message: `Ticket id: ${ticketId} not found` }
   }
 

@@ -10,7 +10,7 @@ import { createEmoteDetailView } from './ui/EmoteDetailView'
 export function createEmoteWidget(world: World) {
   const ui = createEmoteDetailView()
 
-  addComponent(ui.entity, PersistTagComponent, {})
+  addComponent(ui.entity, PersistTagComponent, true)
 
   ui.container.then(() => {
     const xrui = getComponent(ui.entity, XRUIComponent)
