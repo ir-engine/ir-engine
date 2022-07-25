@@ -135,12 +135,10 @@ const Layout = ({ useLoadingScreenOpacity, pageTitle, children, hideVideo, hideF
         </Helmet>
 
         {children}
-        {
-          <UserMenu
-            animate={showBottomIcons ? styles.animateBottom : styles.fadeOutBottom}
-            fadeOutBottom={styles.fadeOutBottom}
-          />
-        }
+        <UserMenu
+          animate={showBottomIcons ? styles.animateBottom : styles.fadeOutBottom}
+          fadeOutBottom={styles.fadeOutBottom}
+        />
         <Debug />
 
         {/** Container for fading most stuff in and out depending on if the location is loaded or not  */}
@@ -157,11 +155,9 @@ const Layout = ({ useLoadingScreenOpacity, pageTitle, children, hideVideo, hideF
           <MediaIconsBox animate={showMediaIcons ? styles.animateTop : styles.fadeOutTop} />
           <header className={showMediaIcons ? styles.animateTop : styles.fadeOutTop}>
             {!hideVideo && (
-              <>
-                <section className={styles.locationUserMenu}>
-                  <PartyVideoWindows />
-                </section>
-              </>
+              <section className={styles.locationUserMenu}>
+                <PartyVideoWindows />
+              </section>
             )}
           </header>
           <button
@@ -176,7 +172,6 @@ const Layout = ({ useLoadingScreenOpacity, pageTitle, children, hideVideo, hideF
           <UIDialog />
           {isTouchAvailable && showTouchPad && (
             <Suspense fallback={<></>}>
-              {' '}
               <TouchGamepad layout="default" />{' '}
             </Suspense>
           )}
