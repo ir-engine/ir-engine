@@ -6,7 +6,9 @@ import { initReactI18next } from 'react-i18next'
 import getClientCoreI18nConfigs from '@xrengine/client-core/src/i18n'
 import { getI18nConfigs } from '@xrengine/client-core/src/i18nImporter'
 
+//@ts-ignore
 const projects = import.meta.globEager('../../projects/projects/**/i18n/**/*.json')
+//@ts-ignore
 const clientI18nConfigs = import.meta.globEager('../i18n/**/*.json')
 
 export const initializei18n = () => {

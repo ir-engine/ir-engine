@@ -1,6 +1,8 @@
 import React, { useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import multiLogger from '@xrengine/common/src/logger'
+
 import { Visibility, VisibilityOff } from '@mui/icons-material'
 import Button from '@mui/material/Button'
 import Container from '@mui/material/Container'
@@ -11,6 +13,8 @@ import OutlinedInput from '@mui/material/OutlinedInput'
 
 import { AuthService } from '../../services/AuthService'
 import styles from './index.module.scss'
+
+const logger = multiLogger.child({ component: 'client-core:RegisterApp' })
 
 const SignUp = (): JSX.Element => {
   const initialState = {
@@ -27,10 +31,7 @@ const SignUp = (): JSX.Element => {
 
   const handleRegister = (e: any): void => {
     e.preventDefault()
-    console.log('handleRegister', {
-      email: state.email,
-      password: state.password
-    })
+    logger.info('handleRegister', { email: state.email })
 
     AuthService.registerUserByEmail({
       email: state.email,

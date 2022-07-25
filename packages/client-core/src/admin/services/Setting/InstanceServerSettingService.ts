@@ -38,7 +38,6 @@ export const InstanceServerSettingService = {
         .find()) as Paginated<InstanceServerSetting>
       dispatchAction(InstanceServerSettingActions.fetchedInstanceServer({ instanceServerSettings }))
     } catch (err) {
-      console.log(err.message)
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   }

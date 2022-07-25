@@ -1,3 +1,4 @@
+import { EventQueue } from '@dimforge/rapier3d-compat'
 import * as bitecs from 'bitecs'
 import { AudioListener, Object3D, OrthographicCamera, PerspectiveCamera, Raycaster, Scene } from 'three'
 
@@ -6,21 +7,17 @@ import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import multiLogger from '@xrengine/common/src/logger'
 import { addTopic } from '@xrengine/hyperflux'
-import { Topic } from '@xrengine/hyperflux/functions/ActionFunctions'
 
 import { DEFAULT_LOD_DISTANCES } from '../../assets/constants/LoaderConstants'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { SceneLoaderType } from '../../common/constants/PrefabFunctionType'
-import { isClient } from '../../common/functions/isClient'
 import { isMobile } from '../../common/functions/isMobile'
 import { nowMilliseconds } from '../../common/functions/nowMilliseconds'
-import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
+import { LocalAvatarTagComponent } from '../../input/components/LocalAvatarTagComponent'
 import { InputValue } from '../../input/interfaces/InputValue'
 import { Network, NetworkTopics } from '../../networking/classes/Network'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
-import { UserClient } from '../../networking/interfaces/NetworkPeer'
-import { AvatarProps } from '../../networking/interfaces/WorldState'
-import { Physics } from '../../physics/classes/Physics'
+import { PhysicsWorld } from '../../physics/classes/Physics'
 import { NameComponent } from '../../scene/components/NameComponent'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
@@ -153,7 +150,8 @@ export class World {
    */
   scene = new Scene()
 
-  physics = new Physics()
+  physicsWorld: PhysicsWorld
+  physicsCollisionEventQueue: EventQueue
 
   /**
    * Map of object lists by layer
@@ -195,7 +193,7 @@ export class World {
    * The local client entity
    */
   get localClientEntity() {
-    return this.getOwnedNetworkObjectWithComponent(Engine.instance.userId, LocalInputTagComponent) || (NaN as Entity)
+    return this.getOwnedNetworkObjectWithComponent(Engine.instance.userId, LocalAvatarTagComponent) || (NaN as Entity)
   }
 
   /**

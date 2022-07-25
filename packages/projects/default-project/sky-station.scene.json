@@ -681,9 +681,9 @@
               "z": 0
             },
             "scale": {
-              "x": 0.10000000000000009,
-              "y": 0.10000000000000009,
-              "z": 0.10000000000000009
+              "x": 1,
+              "y": 1,
+              "z": 1
             }
           }
         },
@@ -701,9 +701,9 @@
         {
           "name": "gltf-model",
           "props": {
-            "src": "__$project$__/default-project/assets/collisioncube.glb",
+            "src": "__$project$__/default-project/assets/test-equippable.glb",
             "textureOverride": "",
-            "matrixAutoUpdate": false,
+            "matrixAutoUpdate": true,
             "isUsingGPUInstancing": false,
             "isDynamicObject": true
           }
@@ -775,9 +775,9 @@
               "z": 0
             },
             "scale": {
-              "x": 0.10000000000000009,
+              "x": 1,
               "y": 1,
-              "z": 1
+              "z": 0.10000000149011612
             }
           }
         },

@@ -18,7 +18,7 @@ cli.main(async () => {
     })
   }
 
-  const response = await fetch(process.env.TWA_LINK)
+  const response = await fetch(process.env.TWA_LINK!)
   if (fs.existsSync(envPath)) fs.rmSync(envPath)
 
   const data = await readStreamFirstData(response.body!)

@@ -123,7 +123,6 @@ export const AdminUserService = {
       const result = await API.instance.client.service('user').get(id)
       dispatchAction(AdminUserActions.fetchedSingleUser({ data: result }))
     } catch (err) {
-      console.log(err)
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   },
@@ -173,7 +172,6 @@ export const AdminUserService = {
       const result = (await API.instance.client.service('user').create(user)) as UserInterface
       dispatchAction(AdminUserActions.userCreated({ user: result }))
     } catch (err) {
-      console.log(err)
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   },

@@ -40,7 +40,6 @@ export const ServerSettingService = {
       const serverSettings = (await API.instance.client.service('server-setting').find()) as Paginated<ServerSetting>
       dispatchAction(AdminServerSettingActions.fetchedSeverInfo({ serverSettings }))
     } catch (err) {
-      console.log(err)
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   },
@@ -49,7 +48,6 @@ export const ServerSettingService = {
       await API.instance.client.service('server-setting').patch(id, data)
       dispatchAction(AdminServerSettingActions.serverSettingPatched({}))
     } catch (err) {
-      console.log(err)
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   }
