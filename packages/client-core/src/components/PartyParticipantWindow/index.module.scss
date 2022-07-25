@@ -207,6 +207,10 @@
     &:hover,
     &:focus {
       display: flex;
+      padding: 10px 10px 10px 25px;
+      z-index: 10;
+      min-width: 150px;
+      width: auto;
     }
   }
 
