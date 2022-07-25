@@ -16,7 +16,7 @@ import { NavMeshComponent } from '../../navigation/component/NavMeshComponent'
 import { matchActionOnce } from '../../networking/functions/matchActionOnce'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { applyTransformToMeshWorld } from '../../physics/functions/parseModelColliders'
-import { TransformChildComponent } from '../../transform/components/TransformChildComponent'
+import { TransformOffsetComponent } from '../../transform/components/TransformChildComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { ModelComponent, ModelComponentType } from '../components/ModelComponent'
 import { NameComponent } from '../components/NameComponent'
@@ -110,8 +110,8 @@ export const parseObjectComponentsFromGLTF = (entity: Entity, object3d?: Object3
 
     // to ensure colliders and other entities from gltf metadata move with models in the editor, we need to add a child transform component
     if (Engine.instance.isEditor)
-      addComponent(e, TransformChildComponent, {
-        parent: entity,
+      addComponent(e, TransformOffsetComponent, {
+        referenceEntity: entity,
         offsetPosition: localPosition,
         offsetQuaternion: localRotation
       })

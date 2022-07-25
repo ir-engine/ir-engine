@@ -1,6 +1,7 @@
 import { createState } from '@speigg/hookstate'
 import React, { useState } from 'react'
 
+// import { VrIcon } from '../../../common/components/Icons/VRIcon'
 import { Channel } from '@xrengine/common/src/interfaces/Channel'
 import { respawnAvatar } from '@xrengine/engine/src/avatar/functions/respawnAvatar'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
@@ -89,6 +90,14 @@ const WidgetButtons = () => {
   //     setUnreadMessages(true)
   // }, [activeChannel?.messages])
 
+  // const toogleVRSession = () => {
+  //   if (engineState.xrSessionStarted.value) {
+  //     dispatchAction(XRAction.endSession({}))
+  //   } else {
+  //     dispatchAction(XRAction.requestSession({}))
+  //   }
+  // }
+
   const handleRespawnAvatar = () => {
     respawnAvatar(Engine.instance.currentWorld.localClientEntity)
   }
@@ -138,6 +147,17 @@ const WidgetButtons = () => {
         xr-pixel-ratio="8"
         xr-layer="true"
       >
+        <WidgetButton Icon={RefreshIcon} toggle={handleRespawnAvatar} label={'Respawn'} />
+        <WidgetButton
+          Icon={MicIcon}
+          toggle={handleMicClick}
+          label={isCamAudioEnabled.value ? 'Audio on' : 'Audio Off'}
+        />
+        {/* <WidgetButton
+          Icon={VrIcon}
+          toggle={toogleVRSession}
+          label={engineState.xrSessionStarted.value ? 'Exit VR' : 'Enter VR'}
+        /> */}
         {widgets.map(
           (widget, i) =>
             widget.enabled &&

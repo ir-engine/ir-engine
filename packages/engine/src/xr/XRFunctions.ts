@@ -1,27 +1,28 @@
 import { Group, Object3D, Quaternion, Vector3 } from 'three'
 
+import { createHookableFunction } from '@xrengine/common/src/utils/createMutableFunction'
 import { dispatchAction } from '@xrengine/hyperflux'
 
-import { BoneNames } from '../../avatar/AvatarBoneMatching'
-import { AvatarAnimationComponent } from '../../avatar/components/AvatarAnimationComponent'
-import { AvatarHeadDecapComponent } from '../../avatar/components/AvatarHeadDecapComponent'
-import { accessAvatarInputSettingsState } from '../../avatar/state/AvatarInputSettingsState'
-import { ParityValue } from '../../common/enums/ParityValue'
-import { proxifyQuaternion, proxifyVector3 } from '../../common/proxies/three'
-import { Engine } from '../../ecs/classes/Engine'
-import { Entity } from '../../ecs/classes/Entity'
-import { addComponent, getComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
-import { NetworkTopics } from '../../networking/classes/Network'
-import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
-import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
-import { TransformComponent } from '../../transform/components/TransformComponent'
+import { BoneNames } from '../avatar/AvatarBoneMatching'
+import { AvatarAnimationComponent } from '../avatar/components/AvatarAnimationComponent'
+import { AvatarHeadDecapComponent } from '../avatar/components/AvatarHeadDecapComponent'
+import { accessAvatarInputSettingsState } from '../avatar/state/AvatarInputSettingsState'
+import { ParityValue } from '../common/enums/ParityValue'
+import { proxifyQuaternion, proxifyVector3 } from '../common/proxies/three'
+import { Engine } from '../ecs/classes/Engine'
+import { Entity } from '../ecs/classes/Entity'
+import { addComponent, getComponent, hasComponent, removeComponent } from '../ecs/functions/ComponentFunctions'
+import { NetworkTopics } from '../networking/classes/Network'
+import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
+import { EngineRenderer } from '../renderer/WebGLRendererSystem'
+import { TransformComponent } from '../transform/components/TransformComponent'
 import {
   ControllerGroup,
+  XRHandsInputComponent,
   XRInputSourceComponent,
   XRInputSourceComponentType
-} from '../../xr/components/XRInputSourceComponent'
-import { XRHandsInputComponent } from '../components/XRHandsInputComponent'
-import { initializeHandModel } from './addControllerModels'
+} from './XRComponents'
+import { initializeHandModel } from './XRControllerFunctions'
 
 const rotate180onY = new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), Math.PI)
 
@@ -146,12 +147,11 @@ export const proxifyXRInputs = (entity: Entity) => {
   )
 }
 
-export function setupXRCameraForLocalEntity(entity: Entity) {
+export function setupXRCameraForLocalEntity() {
+  const entity = Engine.instance.currentWorld.localClientEntity
   const { container } = getComponent(entity, XRInputSourceComponent)
   container.add(Engine.instance.currentWorld.camera)
-  const localClientEntity = Engine.instance.currentWorld.localClientEntity
-  if (localClientEntity && !hasComponent(localClientEntity, AvatarHeadDecapComponent))
-    addComponent(localClientEntity, AvatarHeadDecapComponent, true)
+  if (entity && !hasComponent(entity, AvatarHeadDecapComponent)) addComponent(entity, AvatarHeadDecapComponent, true)
 }
 
 /**
@@ -191,40 +191,6 @@ export const setupXRInputSourceComponent = (entity: Entity): XRInputSourceCompon
 
   addComponent(entity, XRInputSourceComponent, inputData)
   return inputData
-}
-
-export const startWebXR = async (): Promise<void> => {
-  const world = Engine.instance.currentWorld
-  setupXRInputSourceComponent(world.localClientEntity)
-  setupXRCameraForLocalEntity(world.localClientEntity)
-  dispatchAction(
-    WorldNetworkAction.setXRMode({
-      enabled: true,
-      avatarInputControllerType: accessAvatarInputSettingsState().controlType.value
-    })
-  )
-
-  proxifyXRHeadAndContainer(world.localClientEntity)
-}
-
-export const endXR = (): void => {
-  // EngineRenderer.instance.xrSession?.end()
-  EngineRenderer.instance.xrSession = null!
-  EngineRenderer.instance.xrManager.setSession(null!)
-  Engine.instance.currentWorld.scene.add(Engine.instance.currentWorld.camera)
-
-  const world = Engine.instance.currentWorld
-  const localClientEntity = world.getOwnedNetworkObjectWithComponent(Engine.instance.userId, XRInputSourceComponent)
-  removeComponent(localClientEntity, XRInputSourceComponent)
-  removeComponent(localClientEntity, AvatarHeadDecapComponent)
-  removeComponent(localClientEntity, XRHandsInputComponent)
-
-  dispatchAction(
-    WorldNetworkAction.setXRMode({
-      enabled: false,
-      avatarInputControllerType: ''
-    })
-  )
 }
 
 export const isInXR = (entity: Entity) => {
@@ -311,29 +277,5 @@ export const getHandTransform = (
   return {
     position: vec3,
     rotation: quat
-  }
-}
-
-/**
- * Gets the head transform in world space
- * @param entity the player entity
- * @returns { position: Vector3, rotation: Quaternion }
- */
-
-export const getHeadTransform = (entity: Entity): { position: Vector3; rotation: Quaternion; scale: Vector3 } => {
-  const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
-  if (xrInputSourceComponent) {
-    Engine.instance.currentWorld.camera.matrix.decompose(vec3, quat, v3)
-    return {
-      position: vec3,
-      rotation: quat,
-      scale: uniformScale
-    }
-  }
-  const cameraTransform = getComponent(Engine.instance.currentWorld.cameraEntity, TransformComponent)
-  return {
-    position: cameraTransform.position,
-    rotation: cameraTransform.rotation,
-    scale: uniformScale
   }
 }

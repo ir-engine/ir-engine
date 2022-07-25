@@ -16,6 +16,8 @@ import { isTouchAvailable } from '@xrengine/engine/src/common/functions/DetectFe
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
+import { XRState } from '@xrengine/engine/src/xr/XRState'
+import { getState, useHookstate } from '@xrengine/hyperflux'
 
 import { FullscreenExit, Refresh, ZoomOutMap } from '@mui/icons-material'
 import KeyboardDoubleArrowDownIcon from '@mui/icons-material/KeyboardDoubleArrowDown'
@@ -54,6 +56,8 @@ const Layout = ({ useLoadingScreenOpacity, pageTitle, children, hideVideo, hideF
   const [showBottomIcons, setShowBottomIcons] = useState(true)
   const loadingSystemState = useLoadingSystemState()
   const [showTouchPad, setShowTouchPad] = useState(true)
+
+  const xrSessionActive = useHookstate(getState(XRState).sessionActive)
 
   const engineState = useEngineState()
 
@@ -216,13 +220,11 @@ const Layout = ({ useLoadingScreenOpacity, pageTitle, children, hideVideo, hideF
           >
             <Refresh />
           </button>
-          {!engineState.xrSessionStarted.value && (
-            <InstanceChat
-              animate={styles.animateBottom}
-              hideOtherMenus={hideOtherMenus}
-              setShowTouchPad={setShowTouchPad}
-            />
-          )}
+          <InstanceChat
+            animate={styles.animateBottom}
+            hideOtherMenus={hideOtherMenus}
+            setShowTouchPad={setShowTouchPad}
+          />
         </div>
       </section>
     </div>

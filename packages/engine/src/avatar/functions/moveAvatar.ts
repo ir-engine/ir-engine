@@ -12,7 +12,7 @@ import { addComponent, getComponent, hasComponent } from '../../ecs/functions/Co
 import { RaycastComponent } from '../../physics/components/RaycastComponent'
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { XRInputSourceComponent } from '../../xr/components/XRInputSourceComponent'
+import { XRInputSourceComponent } from '../../xr/XRComponents'
 import { AvatarSettings } from '../AvatarControllerSystem'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
@@ -72,17 +72,17 @@ export const moveAvatar = (world: World, entity: Entity, camera: PerspectiveCame
   velocity.linear.y = newVelocity.y = velocity.linear.y - 0.15 * timeStep
 
   // threejs camera is weird, when in VR we must use the head diretion
-  if (hasComponent(entity, XRInputSourceComponent))
-    getComponent(entity, XRInputSourceComponent).head.getWorldDirection(tempVec1)
-  else camera.getWorldDirection(tempVec1)
+  // if (hasComponent(entity, XRInputSourceComponent))
+  //   getComponent(entity, XRInputSourceComponent).head.getWorldDirection(tempVec1)
+  const cameraDirection = camera.getWorldDirection(tempVec1)
 
   // vec3 holds state of (controller input * timeStep)
   // set y to 0 and normalize horizontal plane
-  tempVec1.setY(0).normalize()
+  cameraDirection.setY(0).normalize()
 
   // forward.z = 1
   // quat = forward w/(controller input * timeStep)
-  quat.setFromUnitVectors(forward, tempVec1)
+  quat.setFromUnitVectors(forward, cameraDirection)
 
   // apply quat to avatar velocity (= velocity sim position * moveSpeed)
   newVelocity.applyQuaternion(quat)
@@ -319,10 +319,10 @@ export const alignXRCameraWithAvatar = (
 ): void => {
   lastCameraPos.subVectors(camera.position, camera.parent!.position)
 
-  if (!hasComponent(entity, XRCameraUpdatePendingTagComponent)) {
-    alignXRCameraPositionWithAvatar(entity, camera)
-    addComponent(entity, XRCameraUpdatePendingTagComponent, {})
-  }
+  // if (!hasComponent(entity, XRCameraUpdatePendingTagComponent)) {
+  //   alignXRCameraPositionWithAvatar(entity, camera)
+  //   addComponent(entity, XRCameraUpdatePendingTagComponent, {})
+  // }
 
   // Calculate new camera world position
   lastCameraPos.add(camera.parent!.position)

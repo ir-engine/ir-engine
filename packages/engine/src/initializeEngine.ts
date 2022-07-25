@@ -148,12 +148,12 @@ export const initializeCoreSystems = async () => {
   if (isClient) {
     systemsToLoad.push(
       {
-        type: SystemUpdateType.POST_RENDER,
-        systemModulePromise: import('./renderer/WebGLRendererSystem')
+        type: SystemUpdateType.UPDATE,
+        systemModulePromise: import('./camera/systems/CameraSystem')
       },
       {
         type: SystemUpdateType.UPDATE,
-        systemModulePromise: import('./xr/systems/XRSystem')
+        systemModulePromise: import('./xr/XRSystem')
       },
       {
         type: SystemUpdateType.UPDATE,
@@ -170,6 +170,10 @@ export const initializeCoreSystems = async () => {
       {
         type: SystemUpdateType.FIXED_LATE,
         systemModulePromise: import('./scene/systems/InstancingSystem')
+      },
+      {
+        type: SystemUpdateType.POST_RENDER,
+        systemModulePromise: import('./renderer/WebGLRendererSystem')
       }
     )
   }
@@ -223,10 +227,6 @@ export const initializeSceneSystems = async () => {
       {
         type: SystemUpdateType.UPDATE,
         systemModulePromise: import('./scene/systems/HyperspacePortalSystem')
-      },
-      {
-        type: SystemUpdateType.UPDATE,
-        systemModulePromise: import('./camera/systems/CameraSystem')
       },
       {
         type: SystemUpdateType.FIXED,

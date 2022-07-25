@@ -14,7 +14,8 @@ import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { AvatarControllerType, AvatarMovementScheme } from '@xrengine/engine/src/input/enums/InputEnums'
 import { EngineRendererAction, useEngineRendererState } from '@xrengine/engine/src/renderer/EngineRendererState'
-import { dispatchAction } from '@xrengine/hyperflux'
+import { XRState } from '@xrengine/engine/src/xr/XRState'
+import { dispatchAction, getState, useHookstate } from '@xrengine/hyperflux'
 
 import { BlurLinear, Mic, MicOff, VolumeOff, VolumeUp } from '@mui/icons-material'
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
@@ -53,7 +54,8 @@ const SettingMenu = (): JSX.Element => {
   const invertRotationAndMoveSticks = avatarInputState.invertRotationAndMoveSticks.value
   const showAvatar = avatarInputState.showAvatar.value
   const firstRender = useRef(true)
-  const engineState = useEngineState()
+  const xrSupportedModes = useHookstate(getState(XRState).supportedSessionModes)
+  const xrSupported = xrSupportedModes['immersive-ar'].value || xrSupportedModes['immersive-vr'].value
   const controllerTypes = Object.values(AvatarControllerType).filter((value) => typeof value === 'string')
   const controlSchemes = Object.values(AvatarMovementScheme).filter((value) => typeof value === 'string')
   const [open, setOpen] = useState(false)
@@ -321,7 +323,7 @@ const SettingMenu = (): JSX.Element => {
             control={<Switch checked={showAvatar} onChange={handleChangeShowAvatar} className={styles.iconBtn} />}
           />
         </section>
-        {engineState.xrSupported.value && (
+        {xrSupported && (
           <>
             <section className={styles.settingSection}>
               <div className={styles.sectionBar}>

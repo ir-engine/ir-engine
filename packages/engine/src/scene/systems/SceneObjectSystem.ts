@@ -95,14 +95,14 @@ export default async function SceneObjectSystem(world: World) {
       if (node) {
         if (node.parentEntity) reparentObject3D(node, node.parentEntity, undefined, world.entityTree)
       } else {
-        let found = false
-        Engine.instance.currentWorld.scene.traverse((obj) => {
-          if (obj === obj3d) {
-            found = true
+        const scene = Engine.instance.currentWorld.scene
+        let isInScene = false
+        obj3d.traverseAncestors((ancestor) => {
+          if (ancestor === scene) {
+            isInScene = true
           }
         })
-
-        if (!found) Engine.instance.currentWorld.scene.add(obj3d)
+        if (!isInScene) scene.add(obj3d)
       }
 
       processObject3d(entity)

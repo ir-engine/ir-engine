@@ -1,12 +1,14 @@
 import type { WebContainer3D } from '@etherealjs/web-layer/three'
 import { MathUtils, Object3D, PerspectiveCamera, Quaternion, Vector3 } from 'three'
 
+import { getState } from '@xrengine/hyperflux'
+
 import { AvatarAnimationComponent } from '../../avatar/components/AvatarAnimationComponent'
 import { HALF_PI } from '../../common/constants/MathConstants'
 import { Object3DUtils } from '../../common/functions/Object3DUtils'
 import { Engine } from '../../ecs/classes/Engine'
-import { getEngineState } from '../../ecs/classes/EngineState'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
+import { XRState } from '../../xr/XRState'
 
 const _pos = new Vector3()
 const _quat = new Quaternion()
@@ -103,7 +105,8 @@ export const ObjectFitFunctions = {
         container.rootLayer.domSize.x,
         container.rootLayer.domSize.y
       )
-    if (getEngineState().xrSessionStarted.value) {
+    const xrState = getState(XRState)
+    if (xrState.sessionActive.value) {
       ObjectFitFunctions.attachObjectToHand(container, 10)
     } else {
       ObjectFitFunctions.attachObjectInFrontOfCamera(container, fitScale, distance)

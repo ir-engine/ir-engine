@@ -1,4 +1,4 @@
-import { ArrowHelper, Clock, MathUtils, Matrix4, Raycaster, Vector3 } from 'three'
+import { ArrowHelper, Clock, MathUtils, Matrix4, PerspectiveCamera, Raycaster, Vector3 } from 'three'
 
 import { deleteSearchParams } from '@xrengine/common/src/utils/deleteSearchParams'
 import { createActionQueue, dispatchAction } from '@xrengine/hyperflux'
@@ -336,7 +336,10 @@ export default async function CameraSystem(world: World) {
     }
 
     if (EngineRenderer.instance.xrManager?.isPresenting) {
-      EngineRenderer.instance.xrManager.updateCamera(Engine.instance.currentWorld.camera as THREE.PerspectiveCamera)
+      const camera = Engine.instance.currentWorld.camera as THREE.PerspectiveCamera
+      EngineRenderer.instance.xrManager.updateCamera(camera)
+      camera.matrix.decompose(camera.position, camera.quaternion, camera.scale)
+      camera.updateMatrixWorld(true)
       removeComponent(Engine.instance.currentWorld.localClientEntity, XRCameraUpdatePendingTagComponent)
     } else {
       for (const cameraEntity of followCameraQuery.enter()) enterFollowCameraQuery(cameraEntity)

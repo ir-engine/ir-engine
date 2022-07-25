@@ -1,10 +1,10 @@
 import { Group, Object3D, SkinnedMesh } from 'three'
 
-import { proxifyQuaternion, proxifyVector3 } from '../../common/proxies/three'
-import { Entity } from '../../ecs/classes/Entity'
-import { useWorld } from '../../ecs/functions/SystemHooks'
-import { XRHandsInputComponent } from '../components/XRHandsInputComponent'
-import { XRHandBones } from '../types/XRHandBones'
+import { Engine } from '../ecs/classes/Engine'
+import { proxifyQuaternion, proxifyVector3 } from './../common/proxies/three'
+import { Entity } from './../ecs/classes/Entity'
+import { XRHandsInputComponent } from './XRComponents'
+import { XRHandBones } from './XRHandBones'
 
 export class XRHandMeshModel extends Object3D {
   controller: Group
@@ -14,7 +14,7 @@ export class XRHandMeshModel extends Object3D {
   constructor(entity: Entity, controller: Group, model: Object3D, handedness: string) {
     super()
 
-    const world = useWorld()
+    const world = Engine.instance.currentWorld
 
     this.controller = controller
     this.bones = []

@@ -1,13 +1,13 @@
 import assert from 'assert'
 import proxyquire from 'proxyquire'
 
-import { BinaryValue } from '../../common/enums/BinaryValue'
-import { LifecycleValue } from '../../common/enums/LifecycleValue'
-import { Engine } from '../../ecs/classes/Engine'
-import { createEngine } from '../../initializeEngine'
-import { GamepadButtons, XRAxes } from '../../input/enums/InputEnums'
-import { InputType } from '../../input/enums/InputType'
-import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
+import { BinaryValue } from '../common/enums/BinaryValue'
+import { LifecycleValue } from '../common/enums/LifecycleValue'
+import { Engine } from '../ecs/classes/Engine'
+import { createEngine } from '../initializeEngine'
+import { GamepadButtons, XRAxes } from '../input/enums/InputEnums'
+import { InputType } from '../input/enums/InputType'
+import { EngineRenderer } from '../renderer/WebGLRendererSystem'
 
 describe('XRSystem Tests', async () => {
   let xrSystem

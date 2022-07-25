@@ -15,8 +15,9 @@ import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { AvatarControllerType, AvatarMovementScheme } from '@xrengine/engine/src/input/enums/InputEnums'
 import { EngineRendererAction, useEngineRendererState } from '@xrengine/engine/src/renderer/EngineRendererState'
+import { XRState } from '@xrengine/engine/src/xr/XRState'
 import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
-import { dispatchAction } from '@xrengine/hyperflux'
+import { dispatchAction, getState, useHookstate } from '@xrengine/hyperflux'
 
 import { BlurLinear, Mic, VolumeUp } from '@mui/icons-material'
 
@@ -40,9 +41,8 @@ const SettingDetailView = () => {
   const { t } = useTranslation()
   const rendererState = useEngineRendererState()
   const audioState = useAudioState()
-  const engineState = useEngineState()
+  const xrSessionActive = useHookstate(getState(XRState).sessionActive)
   const avatarInputState = useAvatarInputSettingsState()
-  const [controlTypeSelected, setControlType] = useState(avatarInputState.controlType.value)
   const [controlSchemeSelected, setControlScheme] = useState(
     AvatarMovementScheme[AvatarSettings.instance.movementScheme]
   )
@@ -99,7 +99,6 @@ const SettingDetailView = () => {
   }
 
   const handleChangeControlType = (value) => {
-    setControlType(value as any)
     dispatchAction(AvatarInputSettingsAction.setControlType(value as any))
   }
 
@@ -288,7 +287,7 @@ const SettingDetailView = () => {
             />
           </div>
         </section>
-        {engineState.xrSupported.value && (
+        {xrSessionActive.value && (
           <>
             <section className="settingView">
               <h4 className="title">{t('user:usermenu.setting.xrusersetting')}</h4>
@@ -339,7 +338,7 @@ const SettingDetailView = () => {
                 <div className="selectSize">
                   <span className="checkBoxLabel">{t('user:usermenu.setting.lbl-control-type')}</span>
                   <XRSelectDropdown
-                    value={controlTypeSelected}
+                    value={avatarInputState.controlType.value}
                     onChange={handleChangeControlType}
                     options={controllerTypes}
                   />

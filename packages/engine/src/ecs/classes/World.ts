@@ -1,5 +1,5 @@
 import * as bitecs from 'bitecs'
-import { AudioListener, Object3D, OrthographicCamera, PerspectiveCamera, Raycaster, Scene } from 'three'
+import { AudioListener, Group, Object3D, OrthographicCamera, PerspectiveCamera, Raycaster, Scene } from 'three'
 
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
@@ -13,6 +13,7 @@ import { SceneLoaderType } from '../../common/constants/PrefabFunctionType'
 import { isClient } from '../../common/functions/isClient'
 import { isMobile } from '../../common/functions/isMobile'
 import { nowMilliseconds } from '../../common/functions/nowMilliseconds'
+import { createVector3Proxy } from '../../common/proxies/three'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
 import { InputValue } from '../../input/interfaces/InputValue'
 import { Network, NetworkTopics } from '../../networking/classes/Network'
@@ -27,7 +28,8 @@ import { PortalComponent } from '../../scene/components/PortalComponent'
 import { SimpleMaterialTagComponent } from '../../scene/components/SimpleMaterialTagComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
-import { TransformComponent } from '../../transform/components/TransformComponent'
+import { addTransformOffsetComponent } from '../../transform/components/TransformChildComponent'
+import { addTransfromComponent, TransformComponent } from '../../transform/components/TransformComponent'
 import { Widget } from '../../xrui/Widgets'
 import {
   addComponent,
@@ -58,6 +60,7 @@ export class World {
     this.worldEntity = createEntity(this)
     addComponent(this.worldEntity, PersistTagComponent, true, this)
     addComponent(this.worldEntity, NameComponent, { name: 'world' }, this)
+    addTransfromComponent(this.worldEntity, this)
     if (isMobile) addComponent(this.worldEntity, SimpleMaterialTagComponent, true, this)
 
     this.cameraEntity = createEntity(this)
@@ -65,17 +68,13 @@ export class World {
     addComponent(this.cameraEntity, NameComponent, { name: 'camera' }, this)
     addComponent(this.cameraEntity, PersistTagComponent, true, this)
     addComponent(this.cameraEntity, Object3DComponent, { value: this.camera }, this)
-    addComponent(
-      this.cameraEntity,
-      TransformComponent,
-      {
-        position: this.camera.position,
-        rotation: this.camera.quaternion,
-        scale: this.camera.scale
-      },
-      this
-    )
-    this.scene.add(this.camera)
+    addTransfromComponent(this.cameraEntity, this)
+    addTransformOffsetComponent(this.cameraEntity, this.worldEntity, this)
+
+    this.sceneEntity = createEntity(this)
+    addComponent(this.sceneEntity, VisibleComponent, true, this)
+    addTransfromComponent(this.sceneEntity, this)
+    addTransformOffsetComponent(this.sceneEntity, this.worldEntity, this)
 
     initializeEntityTree(this)
     this.scene.layers.set(ObjectLayers.Scene)
@@ -145,11 +144,6 @@ export class World {
    */
   fixedTick = 0
 
-  /**
-   * Reference to the three.js scene object.
-   */
-  scene = new Scene()
-
   physics = new Physics()
 
   /**
@@ -157,6 +151,17 @@ export class World {
    * (automatically updated by the SceneObjectSystem)
    */
   objectLayerList = {} as { [layer: number]: Set<Object3D> }
+
+  /**
+   * The world entity, which defines the root coordinate system for both the camera and scene
+   */
+  worldEntity: Entity = NaN as Entity
+
+  /**
+   * The scene that is being rendered
+   */
+  scene = new Scene()
+  sceneEntity: Entity = NaN as Entity
 
   /**
    * Reference to the three.js perspective camera object.
@@ -182,11 +187,6 @@ export class World {
   portalQuery = () => this.#portalQuery(this) as Entity[]
 
   activePortal = null! as ReturnType<typeof PortalComponent.get>
-
-  /**
-   * The world entity
-   */
-  worldEntity: Entity = NaN as Entity
 
   /**
    * The local client entity
@@ -334,4 +334,10 @@ export function createWorld() {
 export function destroyWorld(world: World) {
   bitecs.resetWorld(world)
   bitecs.deleteWorld(world)
+}
+function createQuaternionProxy(
+  rotation: SoAComponentType<{ x: 'f32'; y: 'f32'; z: 'f32'; w: 'f32' }>,
+  worldEntity: Entity
+): any {
+  throw new Error('Function not implemented.')
 }

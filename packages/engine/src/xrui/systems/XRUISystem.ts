@@ -17,11 +17,7 @@ import { InputValue } from '../../input/interfaces/InputValue'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
-import {
-  ControllerGroup,
-  XRInputSourceComponent,
-  XRInputSourceComponentType
-} from '../../xr/components/XRInputSourceComponent'
+import { ControllerGroup, XRInputSourceComponent, XRInputSourceComponentType } from '../../xr/XRComponents'
 import { XRUIManager } from '../classes/XRUIManager'
 import { XRUIComponent } from '../components/XRUIComponent'
 
@@ -149,6 +145,11 @@ export default async function XRUISystem(world: World) {
     for (const entity of xruiQuery.enter()) {
       const layer = getComponent(entity, XRUIComponent).container
       layer.interactionRays = xrui.interactionRays
+    }
+
+    for (const entity of xruiQuery.exit()) {
+      const layer = getComponent(entity, XRUIComponent).container
+      layer.destroy()
     }
 
     for (const entity of localXRInputQuery.enter()) {

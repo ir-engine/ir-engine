@@ -12,15 +12,13 @@ import { createEngine } from '../initializeEngine'
 import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
 import { WorldState } from '../networking/interfaces/WorldState'
 import { VelocityComponent } from '../physics/components/VelocityComponent'
-import { XRHandsInputComponent } from '../xr/components/XRHandsInputComponent'
-import { XRInputSourceComponent } from '../xr/components/XRInputSourceComponent'
-import { setupXRInputSourceComponent } from '../xr/functions/WebXRFunctions'
+import { XRHandsInputComponent, XRInputSourceComponent } from '../xr/XRComponents'
+import { setupXRInputSourceComponent } from '../xr/XRFunctions'
 import {
   avatarDetailsReceptor,
   setupHandIK,
   setupHeadIK,
   setupXRInputSourceContainer,
-  setXRModeReceptor,
   teleportObjectReceptor,
   xrHandsConnectedReceptor,
   xrInputQueryExit

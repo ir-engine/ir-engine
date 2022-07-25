@@ -1,5 +1,5 @@
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { XR_FOLLOW_MODE, XR_ROTATION_MODE } from '@xrengine/engine/src/xr/types/XRUserSettings'
+import { XR_FOLLOW_MODE, XR_ROTATION_MODE } from '@xrengine/engine/src/xr/XRUserSettings'
 import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
 type AvatarInputSettingsStateType = {

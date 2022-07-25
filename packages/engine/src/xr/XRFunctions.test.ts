@@ -3,22 +3,17 @@ import proxyquire from 'proxyquire'
 import sinon from 'sinon'
 import { PerspectiveCamera } from 'three'
 
-import { dispatchAction } from '@xrengine/hyperflux'
-
-import { createMockNetwork } from '../../../tests/util/createMockNetwork'
-import { createAvatar } from '../../avatar/functions/createAvatar'
-import { FollowCameraComponent, FollowCameraDefaultValues } from '../../camera/components/FollowCameraComponent'
-import { Engine } from '../../ecs/classes/Engine'
-import { addComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
-import { createEntity } from '../../ecs/functions/EntityFunctions'
-import { createEngine } from '../../initializeEngine'
-import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
-import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
-import { WorldNetworkActionReceptor } from '../../networking/functions/WorldNetworkActionReceptor'
-import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
-import { XRHandsInputComponent } from '../components/XRHandsInputComponent'
-import { XRInputSourceComponent } from '../components/XRInputSourceComponent'
-import { setupXRCameraForLocalEntity, setupXRInputSourceComponent } from './WebXRFunctions'
+import { createMockNetwork } from '../../tests/util/createMockNetwork'
+import { createAvatar } from '../avatar/functions/createAvatar'
+import { Engine } from '../ecs/classes/Engine'
+import { hasComponent } from '../ecs/functions/ComponentFunctions'
+import { createEntity } from '../ecs/functions/EntityFunctions'
+import { createEngine } from '../initializeEngine'
+import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
+import { WorldNetworkActionReceptor } from '../networking/functions/WorldNetworkActionReceptor'
+import { EngineRenderer } from '../renderer/WebGLRendererSystem'
+import { XRHandsInputComponent, XRInputSourceComponent } from './XRComponents'
+import { setupXRCameraForLocalEntity, setupXRInputSourceComponent } from './XRFunctions'
 
 describe('WebXRFunctions Unit', async () => {
   beforeEach(async () => {
@@ -36,7 +31,7 @@ describe('WebXRFunctions Unit', async () => {
     const entity = world.localClientEntity
 
     setupXRInputSourceComponent(entity)
-    setupXRCameraForLocalEntity(entity)
+    setupXRCameraForLocalEntity()
 
     assert(Engine.instance.currentWorld.camera.parent)
   })

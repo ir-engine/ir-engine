@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react'
 
-import { VrIcon } from '@xrengine/client-core/src/common/components/Icons/Vricon'
 import {
   MediaInstanceConnectionService,
   useMediaInstanceConnectionState
@@ -24,12 +23,16 @@ import { useAuthState } from '@xrengine/client-core/src/user/services/AuthServic
 import logger from '@xrengine/common/src/logger'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineActions, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
-import { dispatchAction } from '@xrengine/hyperflux'
+import { XRAction } from '@xrengine/engine/src/xr/XRAction'
+import { XRState } from '@xrengine/engine/src/xr/XRState'
+import { dispatchAction, getState, useHookstate } from '@xrengine/hyperflux'
 
 import { Mic, MicOff, Videocam, VideocamOff } from '@mui/icons-material'
 import FaceIcon from '@mui/icons-material/Face'
 import ScreenShareIcon from '@mui/icons-material/ScreenShare'
+import ViewInArIcon from '@mui/icons-material/ViewInAr'
 
+import { VrIcon } from '../../common/components/Icons/Vricon'
 import {
   startFaceTracking,
   startLipsyncTracking,
@@ -72,6 +75,9 @@ const MediaIconsBox = (props: Props) => {
   const isScreenVideoEnabled = mediastream.isScreenVideoEnabled
 
   const engineState = useEngineState()
+  const xrState = useHookstate(getState(XRState))
+  const supportsXR =
+    xrState.supportedSessionModes['immersive-ar'].value || xrState.supportedSessionModes['immersive-vr'].value
 
   useEffect(() => {
     navigator.mediaDevices
@@ -155,7 +161,14 @@ const MediaIconsBox = (props: Props) => {
     else await stopScreenshare(mediaNetwork)
   }
 
-  const handleVRClick = () => dispatchAction(EngineActions.xrStart({}))
+  const xrMode = xrState.supportedSessionModes['immersive-ar'].value
+    ? 'immersive-ar'
+    : xrState.supportedSessionModes['immersive-vr'].value
+    ? 'immersive-vr'
+    : null
+  const xrSessionActive = xrState.sessionActive.value
+  const handleXRClick = () =>
+    dispatchAction(xrSessionActive ? XRAction.endSession({}) : XRAction.requestSession({ mode: xrMode }))
   const handleExitSpectatorClick = () => dispatchAction(EngineActions.spectateUser({}))
 
   const VideocamIcon = isCamVideoEnabled.value ? Videocam : VideocamOff
@@ -207,9 +220,14 @@ const MediaIconsBox = (props: Props) => {
           </button>
         </>
       ) : null}
-      {engineState.xrSupported.value && (
-        <button type="button" id="UserXR" className={styles.iconContainer} onClick={handleVRClick}>
-          <VrIcon />
+      {supportsXR && (
+        <button
+          type="button"
+          id="UserXR"
+          className={styles.iconContainer + ' ' + (xrSessionActive ? styles.on : '')}
+          onClick={handleXRClick}
+        >
+          {xrState.supportedSessionModes['immersive-ar'].value ? <ViewInArIcon /> : <VrIcon />}
         </button>
       )}
       {engineState.spectating.value && (

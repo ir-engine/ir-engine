@@ -20,12 +20,15 @@ import { WorldState } from '../networking/interfaces/WorldState'
 import { RaycastComponent } from '../physics/components/RaycastComponent'
 import { VelocityComponent } from '../physics/components/VelocityComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
-import { XRLGripButtonComponent, XRRGripButtonComponent } from '../xr/components/XRGripButtonComponent'
-import { XRHandsInputComponent } from '../xr/components/XRHandsInputComponent'
-import { XRInputSourceComponent } from '../xr/components/XRInputSourceComponent'
-import { initializeHandModel, initializeXRInputs } from '../xr/functions/addControllerModels'
-import { playTriggerPressAnimation, playTriggerReleaseAnimation } from '../xr/functions/controllerAnimation'
-import { proxifyXRInputs, setupXRInputSourceComponent } from '../xr/functions/WebXRFunctions'
+import {
+  XRHandsInputComponent,
+  XRInputSourceComponent,
+  XRLGripButtonComponent,
+  XRRGripButtonComponent
+} from '../xr/XRComponents'
+import { initializeHandModel, initializeXRInputs } from '../xr/XRControllerFunctions'
+import { playTriggerPressAnimation, playTriggerReleaseAnimation } from '../xr/XRControllerFunctions'
+import { proxifyXRInputs, setupXRInputSourceComponent } from '../xr/XRFunctions'
 import { AvatarAnimationComponent } from './components/AvatarAnimationComponent'
 import { AvatarComponent } from './components/AvatarComponent'
 import { AvatarControllerComponent } from './components/AvatarControllerComponent'
@@ -42,22 +45,6 @@ export function avatarDetailsReceptor(
   if (isClient) {
     const entity = world.getUserAvatarEntity(action.$from)
     loadAvatarForUser(entity, action.avatarDetail.avatarURL)
-  }
-}
-
-export function setXRModeReceptor(
-  action: ReturnType<typeof WorldNetworkAction.setXRMode>,
-  world = Engine.instance.currentWorld
-) {
-  const entity = world.getUserAvatarEntity(action.$from)
-  if (!entity) return
-
-  if (action.enabled) {
-    if (!hasComponent(entity, XRInputSourceComponent)) {
-      setupXRInputSourceComponent(entity)
-    }
-  } else if (hasComponent(entity, XRInputSourceComponent)) {
-    removeComponent(entity, XRInputSourceComponent)
   }
 }
 
@@ -102,7 +89,6 @@ export function teleportObjectReceptor(
 
 export default async function AvatarSystem(world: World) {
   const avatarDetailsQueue = createActionQueue(WorldNetworkAction.avatarDetails.matches)
-  const setXRModeQueue = createActionQueue(WorldNetworkAction.setXRMode.matches)
   const xrHandsConnectedQueue = createActionQueue(WorldNetworkAction.xrHandsConnected.matches)
   const teleportObjectQueue = createActionQueue(WorldNetworkAction.teleportObject.matches)
 
@@ -114,7 +100,6 @@ export default async function AvatarSystem(world: World) {
 
   return () => {
     for (const action of avatarDetailsQueue()) avatarDetailsReceptor(action)
-    for (const action of setXRModeQueue()) setXRModeReceptor(action)
     for (const action of xrHandsConnectedQueue()) xrHandsConnectedReceptor(action)
     for (const action of teleportObjectQueue()) teleportObjectReceptor(action)
 

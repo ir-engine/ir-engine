@@ -13,7 +13,7 @@ import { AvatarMovementScheme } from '../input/enums/InputEnums'
 import { XRAxes } from '../input/enums/InputEnums'
 import { ColliderComponent } from '../physics/components/ColliderComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
-import { XRInputSourceComponent } from '../xr/components/XRInputSourceComponent'
+import { XRInputSourceComponent } from '../xr/XRComponents'
 import { AvatarInputSchema } from './AvatarInputSchema'
 import { AvatarComponent } from './components/AvatarComponent'
 import { AvatarControllerComponent } from './components/AvatarControllerComponent'
@@ -29,6 +29,9 @@ import {
 import { respawnAvatar } from './functions/respawnAvatar'
 import { accessAvatarInputSettingsState, AvatarInputSettingsReceptor } from './state/AvatarInputSettingsState'
 
+/**
+ * TODO: convert this to hyperflux state
+ */
 export class AvatarSettings {
   static instance: AvatarSettings = new AvatarSettings()
   // Speeds are same as animation's root motion
