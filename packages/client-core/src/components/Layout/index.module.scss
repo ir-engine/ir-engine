@@ -46,6 +46,31 @@ body {
   min-width: 90px;
   scrollbar-width: none;
 
+  .conferenceModeButtons {
+    width: 100%;
+    display: none;
+    margin-top: 5px;
+    flex-direction: row;
+    align-items: center;
+    justify-content: end;
+
+    .conferenceModeButton {
+      padding: 1px;
+      cursor: pointer;
+      background-color: var(--iconButtonBackground);
+
+      svg {
+        width: 20px;
+        height: 20px;
+        color: var(--iconButtonColor);
+
+        path {
+          fill: var(--iconButtonColor);
+        }
+      }
+    }
+  }
+
   /* IE */
   -ms-overflow-style: none;
 
@@ -72,6 +97,13 @@ body {
 
     &::after {
       display: inline-block;
+    }
+  }
+
+  &:hover,
+  &:focus {
+    .conferenceModeButtons {
+      display: flex;
     }
   }
 

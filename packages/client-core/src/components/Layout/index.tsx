@@ -18,6 +18,7 @@ import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 
 import { FullscreenExit, Refresh, ZoomOutMap } from '@mui/icons-material'
+import GridViewIcon from '@mui/icons-material/GridView'
 import KeyboardDoubleArrowDownIcon from '@mui/icons-material/KeyboardDoubleArrowDown'
 import KeyboardDoubleArrowUpIcon from '@mui/icons-material/KeyboardDoubleArrowUp'
 
@@ -156,6 +157,11 @@ const Layout = ({ useLoadingScreenOpacity, pageTitle, children, hideVideo, hideF
           <header className={showMediaIcons ? styles.animateTop : styles.fadeOutTop}>
             {!hideVideo && (
               <section className={styles.locationUserMenu}>
+                <div className={styles.conferenceModeButtons}>
+                  <div className={styles.conferenceModeButton}>
+                    <GridViewIcon />
+                  </div>
+                </div>
                 <PartyVideoWindows />
               </section>
             )}
