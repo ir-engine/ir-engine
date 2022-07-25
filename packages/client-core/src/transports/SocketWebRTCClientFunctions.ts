@@ -1,5 +1,5 @@
 import { Transport as MediaSoupTransport } from 'mediasoup-client/lib/types'
-import { Mesh, MeshStandardMaterial, PlaneGeometry, sRGBEncoding, Vector4, VideoTexture } from 'three'
+import { Mesh, MeshStandardMaterial, PlaneGeometry, sRGBEncoding, Vector3, Vector4, VideoTexture } from 'three'
 
 import { MediaStreams } from '@xrengine/client-core/src/transports/MediaStreams'
 import { ChannelType } from '@xrengine/common/src/interfaces/Channel'
@@ -1022,8 +1022,9 @@ export const applyScreenshareToTexture = (video: HTMLVideoElement) => {
 
           obj.material = new MeshStandardMaterial({ color: 0xffffff, map: videoTexture })
           const imageAspect = video.videoWidth / video.videoHeight
-          const screenAspect =
-            obj.geometry instanceof PlaneGeometry ? obj.geometry.parameters.height / obj.geometry.parameters.width : 1
+          // todo: include goemetry in calculation of
+          const worldScale = obj.getWorldScale(new Vector3())
+          const screenAspect = obj.geometry instanceof PlaneGeometry ? worldScale.x / worldScale.y : 1
 
           addOBCPlugin(obj.material, {
             id: OBCType.UVCLIP,

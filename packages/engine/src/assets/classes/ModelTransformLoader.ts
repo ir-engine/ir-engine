@@ -2,17 +2,16 @@ import {
   Extension,
   ExtensionProperty,
   IProperty,
-  NodeIO,
   Nullable,
   PropertyType,
   ReaderContext,
   Texture,
   TextureInfo,
+  WebIO,
   WriterContext
 } from '@gltf-transform/core'
 import { MeshGPUInstancing, MeshoptCompression, MeshQuantization, TextureBasisu } from '@gltf-transform/extensions'
 import { MeshoptDecoder, MeshoptEncoder } from 'meshoptimizer'
-import sharp from 'sharp'
 import { FileLoader } from 'three'
 
 export type ModelTransformParameters = {
@@ -83,7 +82,7 @@ export class MOZLightmapExtension extends Extension {
 
 const transformHistory: string[] = []
 export default function ModelTransformLoader() {
-  const io = new NodeIO()
+  const io = new WebIO()
   io.registerExtensions([MeshGPUInstancing, MeshoptCompression, MeshQuantization, TextureBasisu])
   io.registerDependencies({
     'meshopt.decoder': MeshoptDecoder,
