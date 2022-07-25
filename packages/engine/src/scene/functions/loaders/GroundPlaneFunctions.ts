@@ -39,7 +39,6 @@ export const deserializeGround: ComponentDeserializeFunction = async function (
   const mesh = new Mesh(new CircleBufferGeometry(1000, 32), new MeshStandardMaterial({ roughness: 1, metalness: 0 }))
 
   mesh.name = 'GroundPlaneMesh'
-  mesh.position.y = -0.05
   mesh.rotation.x = -Math.PI / 2
   mesh.userData = {
     type: 'ground',
