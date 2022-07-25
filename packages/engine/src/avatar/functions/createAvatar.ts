@@ -7,6 +7,7 @@ import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { InputComponent } from '../../input/components/InputComponent'
+import { LocalAvatarTagComponent } from '../../input/components/LocalAvatarTagComponent'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
 import { InteractorComponent } from '../../interaction/components/InteractorComponent'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
@@ -91,7 +92,8 @@ export const createAvatar = (spawnAction: typeof WorldNetworkAction.spawnAvatar.
 
   if (userId === Engine.instance.userId) {
     createAvatarController(entity)
-    addComponent(entity, LocalInputTagComponent, {})
+    addComponent(entity, LocalAvatarTagComponent, true)
+    addComponent(entity, LocalInputTagComponent, true)
   } else {
     createAvatarRigidBody(entity)
     createAvatarCollider(entity)

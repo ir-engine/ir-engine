@@ -86,6 +86,8 @@ export default async function AvatarControllerSystem(world: World) {
     }
 
     for (const entity of controllerQuery(world)) {
+      const controller = getComponent(entity, AvatarControllerComponent)
+      if (!controller.movementEnabled) continue
       controllerQueryUpdate(entity, displacement, world)
     }
 

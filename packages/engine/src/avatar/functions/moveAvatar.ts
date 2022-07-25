@@ -47,8 +47,6 @@ export const moveAvatar = (world: World, entity: Entity, camera: PerspectiveCame
   const velocity = getComponent(entity, VelocityComponent)
   const controller = getComponent(entity, AvatarControllerComponent)
 
-  if (!controller.movementEnabled) return
-
   let onGround = false
 
   const physicsWorld = Engine.instance.currentWorld.physicsWorld

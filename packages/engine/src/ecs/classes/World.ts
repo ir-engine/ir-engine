@@ -12,7 +12,7 @@ import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { SceneLoaderType } from '../../common/constants/PrefabFunctionType'
 import { isMobile } from '../../common/functions/isMobile'
 import { nowMilliseconds } from '../../common/functions/nowMilliseconds'
-import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
+import { LocalAvatarTagComponent } from '../../input/components/LocalAvatarTagComponent'
 import { InputValue } from '../../input/interfaces/InputValue'
 import { Network, NetworkTopics } from '../../networking/classes/Network'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
@@ -190,7 +190,7 @@ export class World {
    * The local client entity
    */
   get localClientEntity() {
-    return this.getOwnedNetworkObjectWithComponent(Engine.instance.userId, LocalInputTagComponent) || (NaN as Entity)
+    return this.getOwnedNetworkObjectWithComponent(Engine.instance.userId, LocalAvatarTagComponent) || (NaN as Entity)
   }
 
   /**

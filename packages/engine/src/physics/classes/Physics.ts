@@ -244,12 +244,14 @@ function removeCollidersFromRigidBody(entity: Entity, world: World) {
   }
 }
 
-function removeRigidBody(entity: Entity, world: World) {
-  const rigidBody = getComponent(entity, RigidBodyComponent)
+function removeRigidBody(entity: Entity, world: World, hasBeenRemoved = false) {
+  const rigidBody = getComponent(entity, RigidBodyComponent, hasBeenRemoved)
   if (rigidBody && world.bodies.contains(rigidBody.handle)) {
-    const RigidBodyTypeTagComponent = getTagComponentForRigidBody(rigidBody)
-    removeComponent(entity, RigidBodyTypeTagComponent)
-    removeComponent(entity, RigidBodyComponent)
+    if (!hasBeenRemoved) {
+      const RigidBodyTypeTagComponent = getTagComponentForRigidBody(rigidBody)
+      removeComponent(entity, RigidBodyTypeTagComponent)
+      removeComponent(entity, RigidBodyComponent)
+    }
 
     world.removeRigidBody(rigidBody)
   }

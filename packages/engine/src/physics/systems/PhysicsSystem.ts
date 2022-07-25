@@ -79,14 +79,19 @@ const processCollisions = (world: World) => {
 export default async function PhysicsSystem(world: World) {
   const raycastQuery = defineQuery([RaycastComponent])
 
-  const networkRigidBodyDirtyQuery = defineQuery([
+  const dirtyNetworkedDynamicRigidBodyQuery = defineQuery([
     NetworkObjectComponent,
     RigidBodyComponent,
     NetworkObjectDirtyTag,
     RigidBodyDynamicTagComponent
   ])
 
-  const rigidBodyQuery = defineQuery([Not(NetworkObjectComponent), RigidBodyComponent, RigidBodyDynamicTagComponent])
+  const nonNetworkedDynamicRigidBodyQuery = defineQuery([
+    Not(NetworkObjectComponent),
+    RigidBodyComponent,
+    RigidBodyDynamicTagComponent
+  ])
+  const rigidBodyQuery = defineQuery([RigidBodyComponent])
 
   const teleportObjectQueue = createActionQueue(WorldNetworkAction.teleportObject.matches)
 
@@ -98,14 +103,14 @@ export default async function PhysicsSystem(world: World) {
     for (const action of teleportObjectQueue()) teleportObjectReceptor(action)
 
     for (const entity of rigidBodyQuery.exit()) {
-      Physics.removeRigidBody(entity, world.physicsWorld)
+      Physics.removeRigidBody(entity, world.physicsWorld, true)
     }
 
     for (const entity of raycastQuery()) processRaycasts(world, entity)
-    for (const entity of networkRigidBodyDirtyQuery()) updateDirtyDynamicBodiesFromNetwork(world, entity)
+    for (const entity of dirtyNetworkedDynamicRigidBodyQuery()) updateDirtyDynamicBodiesFromNetwork(world, entity)
 
     if (!Engine.instance.isEditor) {
-      for (const entity of rigidBodyQuery()) updateTransformFromBody(world, entity)
+      for (const entity of nonNetworkedDynamicRigidBodyQuery()) updateTransformFromBody(world, entity)
     }
 
     processCollisions(world)

@@ -52,13 +52,13 @@ export class SocketWebRTCClientNetwork extends Network {
 
   close() {
     console.log('SocketWebRTCClientNetwork close')
-    this.recvTransport.close()
-    this.sendTransport.close()
+    this.recvTransport?.close()
+    this.sendTransport?.close()
     this.recvTransport = null!
     this.sendTransport = null!
-    clearInterval(this.heartbeat)
-    this.socket.removeAllListeners()
-    this.socket.close()
+    this.heartbeat && clearInterval(this.heartbeat)
+    this.socket?.removeAllListeners()
+    this.socket?.close()
     this.socket = null!
   }
 
