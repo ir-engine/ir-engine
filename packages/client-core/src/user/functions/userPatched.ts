@@ -22,9 +22,9 @@ export const userPatched = (params) => {
   worldState.userNames[patchedUser.id].set(patchedUser.name)
 
   if (selfUser.id.value === patchedUser.id) {
-    if (selfUser.instanceId.value !== patchedUser.instanceId) dispatchAction(UserAction.clearLayerUsersAction())
+    if (selfUser.instanceId.value !== patchedUser.instanceId) dispatchAction(UserAction.clearLayerUsersAction({}))
     if (selfUser.channelInstanceId.value !== patchedUser.channelInstanceId)
-      dispatchAction(UserAction.clearChannelLayerUsersAction())
+      dispatchAction(UserAction.clearChannelLayerUsersAction({}))
     dispatchAction(AuthAction.userUpdatedAction({ user: patchedUser }))
     // if (user.partyId) {
     //   setRelationship('party', user.partyId);

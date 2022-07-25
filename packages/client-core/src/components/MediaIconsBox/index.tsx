@@ -155,8 +155,8 @@ const MediaIconsBox = (props: Props) => {
     else await stopScreenshare(mediaNetwork)
   }
 
-  const handleVRClick = () => dispatchAction(EngineActions.xrStart())
-  const handleExitSpectatorClick = () => dispatchAction(EngineActions.spectateUser())
+  const handleVRClick = () => dispatchAction(EngineActions.xrStart({}))
+  const handleExitSpectatorClick = () => dispatchAction(EngineActions.spectateUser({}))
 
   const VideocamIcon = isCamVideoEnabled.value ? Videocam : VideocamOff
   const MicIcon = isCamAudioEnabled.value ? Mic : MicOff

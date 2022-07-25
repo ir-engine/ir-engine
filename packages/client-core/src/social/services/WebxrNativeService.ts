@@ -32,14 +32,14 @@ export const useWebxrNativeState = () => useState(accessWebxrNativeState())
 export const WebxrNativeService = {
   getWebXrNative: () => {
     try {
-      dispatchAction(WebxrNativeAction.setWebXrNative())
+      dispatchAction(WebxrNativeAction.setWebXrNative({}))
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   },
   changeWebXrNative: () => {
     try {
-      dispatchAction(WebxrNativeAction.toggleWebXrNative())
+      dispatchAction(WebxrNativeAction.toggleWebXrNative({}))
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }

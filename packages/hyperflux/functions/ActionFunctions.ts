@@ -217,7 +217,7 @@ function defineAction<Shape extends ActionShape<Action>>(actionShape: Shape) {
 
   const matchesShape = matches.shape(resolvedActionShape) as Validator<unknown, ResolvedAction>
 
-  const actionCreator = (partialAction: PartialAction = {} as any) => {
+  const actionCreator = (partialAction: PartialAction) => {
     const defaultValues = Object.fromEntries(
       defaultEntries.map(([k, v]) => [
         k,
@@ -248,20 +248,15 @@ function defineAction<Shape extends ActionShape<Action>>(actionShape: Shape) {
  * @param topics @todo potentially in the future, support dispatching to multiple topics
  * @param store
  */
-const dispatchAction = <A extends Action>(
-  action: A,
-  topics: Topic | Topic[] = HyperFlux.store.defaultTopic,
-  store = HyperFlux.store
-) => {
+const dispatchAction = <A extends Action>(action: A, store = HyperFlux.store) => {
   const storeId = store.getDispatchId()
-  const topic = Array.isArray(topics) ? topics[0] : topics
 
   action.$from = action.$from ?? (storeId as UserId)
   action.$to = action.$to ?? 'all'
   action.$time = action.$time ?? store.getDispatchTime() + store.defaultDispatchDelay
   action.$cache = action.$cache ?? false
   action.$uuid = action.$uuid ?? MathUtils.generateUUID()
-  action.$topic = topic
+  const topic = (action.$topic = action.$topic ?? HyperFlux.store.defaultTopic)
 
   if (process.env.APP_ENV === 'development' && !action.$stack) {
     const trace = { stack: '' }
@@ -361,11 +356,9 @@ const _updateCachedActions = (incomingAction: Required<ResolvedActionType>, stor
 
 const applyIncomingActionsToAllQueues = (action: Required<ResolvedActionType>, store = HyperFlux.store) => {
   for (const [shape, queues] of store.actions.queues) {
-    matches(action).when(shape, () => {
-      for (const queue of queues) {
-        queue.push(action)
-      }
-    })
+    if (shape.test(action)) {
+      for (const queue of queues) queue.push(action)
+    }
   }
 }
 

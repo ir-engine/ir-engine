@@ -56,14 +56,14 @@ export class World {
     Engine.instance.worlds.push(this)
 
     this.worldEntity = createEntity(this)
-    addComponent(this.worldEntity, PersistTagComponent, {}, this)
+    addComponent(this.worldEntity, PersistTagComponent, true, this)
     addComponent(this.worldEntity, NameComponent, { name: 'world' }, this)
-    if (isMobile) addComponent(this.worldEntity, SimpleMaterialTagComponent, {}, this)
+    if (isMobile) addComponent(this.worldEntity, SimpleMaterialTagComponent, true, this)
 
     this.cameraEntity = createEntity(this)
     addComponent(this.cameraEntity, VisibleComponent, true, this)
     addComponent(this.cameraEntity, NameComponent, { name: 'camera' }, this)
-    addComponent(this.cameraEntity, PersistTagComponent, {}, this)
+    addComponent(this.cameraEntity, PersistTagComponent, true, this)
     addComponent(this.cameraEntity, Object3DComponent, { value: this.camera }, this)
     addComponent(
       this.cameraEntity,

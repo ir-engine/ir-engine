@@ -90,7 +90,7 @@ function emitEventAfter(command: RemoveObjectCommandParams) {
   if (command.preventEvents) return
 
   dispatchAction(EditorAction.sceneModified({ modified: true }))
-  dispatchAction(SelectionAction.changedSceneGraph())
+  dispatchAction(SelectionAction.changedSceneGraph({}))
 }
 
 function removeObject(command: RemoveObjectCommandParams) {

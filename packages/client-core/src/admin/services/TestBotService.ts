@@ -63,7 +63,7 @@ export const TestBotService = {
   },
   spawnTestBot: async () => {
     try {
-      dispatchAction(AdminTestBotActions.spawnBots())
+      dispatchAction(AdminTestBotActions.spawnBots({}))
       const spawn = await API.instance.client.service('testbot').create()
       dispatchAction(AdminTestBotActions.spawnedBots({ spawn }))
     } catch (error) {

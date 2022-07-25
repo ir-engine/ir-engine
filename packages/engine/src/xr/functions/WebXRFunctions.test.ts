@@ -29,7 +29,7 @@ describe('WebXRFunctions Unit', async () => {
     const world = Engine.instance.currentWorld
     await world.physics.createScene()
 
-    const action = WorldNetworkAction.spawnAvatar()
+    const action = WorldNetworkAction.spawnAvatar({})
     WorldNetworkActionReceptor.receiveSpawnObject(action)
     createAvatar(action)
 
@@ -55,7 +55,7 @@ describe('WebXRFunctions Unit', async () => {
     const world = Engine.instance.currentWorld
     await world.physics.createScene()
 
-    const action = WorldNetworkAction.spawnAvatar()
+    const action = WorldNetworkAction.spawnAvatar({})
     WorldNetworkActionReceptor.receiveSpawnObject(action)
     createAvatar(action)
 

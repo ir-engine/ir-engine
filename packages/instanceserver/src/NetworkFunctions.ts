@@ -373,7 +373,7 @@ export function handleIncomingActions(network: SocketWebRTCServerNetwork, socket
   for (const a of actions) {
     a['$fromSocketId'] = socket.id
     a.$from = userIdMap[socket.id]
-    dispatchAction(a, a.$topic)
+    dispatchAction(a)
   }
   // logger.info('SERVER INCOMING ACTIONS: %s', JSON.stringify(actions))
 }

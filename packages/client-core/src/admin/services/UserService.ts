@@ -217,7 +217,7 @@ export const AdminUserService = {
     dispatchAction(AdminUserActions.setUserRole({ userRole }))
   },
   resetFilter: () => {
-    dispatchAction(AdminUserActions.resetFilter())
+    dispatchAction(AdminUserActions.resetFilter({}))
   }
 }
 

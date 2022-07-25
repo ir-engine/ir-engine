@@ -22,13 +22,13 @@ const UIDialog = (): JSX.Element => {
 
   useEffect(() => {
     history.listen(() => {
-      dispatchAction(DialogAction.dialogClose())
+      dispatchAction(DialogAction.dialogClose({}))
     })
   }, [])
 
   const handleClose = (e: any): void => {
     e.preventDefault()
-    dispatchAction(DialogAction.dialogClose())
+    dispatchAction(DialogAction.dialogClose({}))
   }
 
   return (
