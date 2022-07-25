@@ -455,7 +455,7 @@ const handleUserDisconnect = async (
   }
 
   if (user?.partyId && app.isChannelInstance) {
-    const partyChannel = app.service('channel').Model.findOne({
+    const partyChannel = await app.service('channel').Model.findOne({
       where: {
         partyId: user.partyId
       }
@@ -468,8 +468,7 @@ const handleUserDisconnect = async (
           partyId: user.partyId
         }
       })
-      // if (partyUser)
-      //   await app.service('party-user').remove(partyUser.id)
+      if (partyUser.total > 0) await app.service('party-user').remove(partyUser.data[0].id)
     }
   }
   // Patch the user's (channel)instanceId to null if they're leaving this instance.
