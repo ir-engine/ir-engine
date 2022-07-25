@@ -1,12 +1,12 @@
 import { Bone, Euler, Vector3 } from 'three'
 
+import { Deg2Rad } from '@xrengine/common/src/utils/mathUtils'
 import { createActionQueue } from '@xrengine/hyperflux'
 
 import { Axis } from '../common/constants/Axis3D'
 import { Engine } from '../ecs/classes/Engine'
-import { getEngineState } from '../ecs/classes/EngineState'
 import { World } from '../ecs/classes/World'
-import { defineQuery, getComponent, hasComponent } from '../ecs/functions/ComponentFunctions'
+import { defineQuery, getComponent, hasComponent, removeComponent } from '../ecs/functions/ComponentFunctions'
 import { NetworkObjectComponent } from '../networking/components/NetworkObjectComponent'
 import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
 import { DesiredTransformComponent } from '../transform/components/DesiredTransformComponent'
@@ -19,6 +19,8 @@ import { solveTwoBoneIK } from './animation/TwoBoneIKSolver'
 import { AnimationManager } from './AnimationManager'
 import { AnimationComponent } from './components/AnimationComponent'
 import { AvatarAnimationComponent } from './components/AvatarAnimationComponent'
+import { AvatarComponent } from './components/AvatarComponent'
+import { AvatarControllerComponent } from './components/AvatarControllerComponent'
 import { AvatarHandsIKComponent } from './components/AvatarHandsIKComponent'
 import { AvatarHeadDecapComponent } from './components/AvatarHeadDecapComponent'
 import { AvatarHeadIKComponent } from './components/AvatarHeadIKComponent'
@@ -49,10 +51,14 @@ export default async function AnimationSystem(world: World) {
   const headIKQuery = defineQuery([AvatarHeadIKComponent, AvatarAnimationComponent])
   const headDecapQuery = defineQuery([AvatarHeadDecapComponent])
   const desiredTransformQuery = defineQuery([DesiredTransformComponent])
+  const avatarDesiredTransformQuery = defineQuery([AvatarControllerComponent, DesiredTransformComponent])
   const tweenQuery = defineQuery([TweenComponent])
   const animationQuery = defineQuery([AnimationComponent])
   const forward = new Vector3()
   const avatarAnimationQuery = defineQuery([AnimationComponent, AvatarAnimationComponent])
+  const diffPos = new Vector3()
+  const PositionEpsilon = 0.1
+  const RotationEpsilon = 1 * Deg2Rad()
 
   const avatarAnimationQueue = createActionQueue(WorldNetworkAction.avatarAnimation.matches)
 
@@ -63,17 +69,53 @@ export default async function AnimationSystem(world: World) {
 
     for (const action of avatarAnimationQueue()) animationActionReceptor(action, world)
 
+    for (const entity of avatarDesiredTransformQuery.enter(world)) {
+      const desiredTransform = getComponent(entity, DesiredTransformComponent)
+      const transform = getComponent(entity, TransformComponent)
+
+      // set the desired transform at the same height as avatar.
+      desiredTransform.position.y = transform.position.y
+
+      const controllerComponent = getComponent(entity, AvatarControllerComponent)
+
+      // disable physics based movement on avatar
+      controllerComponent.movementEnabled = false
+    }
+
+    for (const entity of avatarDesiredTransformQuery.exit(world)) {
+      const controllerComponent = getComponent(entity, AvatarControllerComponent)
+      const transform = getComponent(entity, TransformComponent)
+      const avatar = getComponent(entity, AvatarComponent)
+
+      controllerComponent.controller.setPosition({
+        x: transform.position.x,
+        y: transform.position.y + avatar.avatarHalfHeight,
+        z: transform.position.z
+      })
+
+      // Reanable physics based movement on avatar
+      controllerComponent.movementEnabled = true
+    }
+
     for (const entity of desiredTransformQuery(world)) {
       const desiredTransform = getComponent(entity, DesiredTransformComponent)
-
       const mutableTransform = getComponent(entity, TransformComponent)
-      mutableTransform.position.lerp(desiredTransform.position, desiredTransform.positionRate * delta)
+
+      desiredTransform.positionDelta = Math.min(
+        desiredTransform.positionDelta + desiredTransform.positionRate * delta,
+        1
+      )
+      mutableTransform.position.lerp(desiredTransform.position, desiredTransform.positionDelta)
 
       // store rotation before interpolation
       euler1YXZ.setFromQuaternion(mutableTransform.rotation)
       // lerp to desired rotation
 
-      mutableTransform.rotation.slerp(desiredTransform.rotation, desiredTransform.rotationRate * delta)
+      desiredTransform.rotationDelta = Math.min(
+        desiredTransform.rotationDelta + desiredTransform.rotationRate * delta,
+        1
+      )
+      mutableTransform.rotation.slerp(desiredTransform.rotation, desiredTransform.rotationDelta)
       euler2YXZ.setFromQuaternion(mutableTransform.rotation)
       // use axis locks - yes this is correct, the axis order is weird because quaternions
       if (desiredTransform.lockRotationAxis[0]) {
@@ -85,7 +127,16 @@ export default async function AnimationSystem(world: World) {
       if (desiredTransform.lockRotationAxis[1]) {
         euler2YXZ.z = euler1YXZ.z
       }
+
       mutableTransform.rotation.setFromEuler(euler2YXZ)
+
+      // If it reaches near destination remove desired transform component
+      diffPos.subVectors(mutableTransform.position, desiredTransform.position)
+      const angle = mutableTransform.rotation.angleTo(desiredTransform.rotation)
+
+      if (diffPos.length() < PositionEpsilon && Math.abs(angle) < RotationEpsilon) {
+        removeComponent(entity, DesiredTransformComponent)
+      }
     }
 
     for (const entity of tweenQuery(world)) {

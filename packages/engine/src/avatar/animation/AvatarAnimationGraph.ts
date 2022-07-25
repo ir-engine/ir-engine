@@ -234,7 +234,7 @@ export function createAvatarAnimationGraph(
   const mountEnterState: SingleAnimationState = {
     name: AvatarStates.MOUNT_ENTER,
     type: 'SingleAnimationState',
-    action: getAnimationAction(AvatarAnimations.IDLE, mixer),
+    action: null!,
     loop: false,
     clamp: true
   }
@@ -242,7 +242,7 @@ export function createAvatarAnimationGraph(
   const mountLeaveState: SingleAnimationState = {
     name: AvatarStates.MOUNT_LEAVE,
     type: 'SingleAnimationState',
-    action: getAnimationAction(AvatarAnimations.IDLE, mixer),
+    action: null!,
     loop: false,
     clamp: true
   }
@@ -250,7 +250,7 @@ export function createAvatarAnimationGraph(
   const mountActiveState: SingleAnimationState = {
     name: AvatarStates.MOUNT_ACTIVE,
     type: 'SingleAnimationState',
-    action: getAnimationAction(AvatarAnimations.IDLE, mixer),
+    action: null!,
     loop: true,
     clamp: false
   }
@@ -374,18 +374,6 @@ export function createAvatarAnimationGraph(
     {
       rule: animationTimeTransitionRule(mountEnterState.action, 0.95),
       nextState: AvatarStates.MOUNT_ACTIVE
-    },
-    { rule: movementTransitionRule, nextState: AvatarStates.LOCOMOTION }
-  ]
-
-  graph.transitionRules[AvatarStates.MOUNT_LEAVE] = [
-    { rule: movementTransitionRule, nextState: AvatarStates.LOCOMOTION }
-  ]
-
-  graph.transitionRules[AvatarStates.MOUNT_ACTIVE] = [
-    {
-      rule: animationTimeTransitionRule(mountEnterState.action, 0.95),
-      nextState: AvatarStates.MOUNT_LEAVE
     }
   ]
 

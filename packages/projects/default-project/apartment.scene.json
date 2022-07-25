@@ -1135,24 +1135,84 @@
             "type": "seat",
             "animation": {
               "enter": {
-                "file": "__$project$__/default-project/assets/Stand To Sit.glb",
-                "animation": "Stand_To_Sit",
+                "file": "__$project$__/default-project/assets/New folder/Stand to Sit.glb",
+                "animation": "Armature|mixamo.com|Layer0",
                 "animations": [
-                  "Stand_To_Sit"
+                  "Armature|mixamo.com|Layer0"
                 ]
               },
               "leave": {
-                "file": "__$project$__/default-project/assets/Sit To Stand.glb",
-                "animation": "Sit_To_Stand.001",
+                "file": "__$project$__/default-project/assets/Animations.glb",
+                "animation": "kiss",
                 "animations": [
-                  "Sit_To_Stand.001"
+                  "clapping",
+                  "cry",
+                  "dance1",
+                  "dance2",
+                  "dance3",
+                  "dance4",
+                  "defeat",
+                  "falling_idle",
+                  "idle",
+                  "jump_down",
+                  "jump_up",
+                  "kiss",
+                  "laugh",
+                  "run_backward",
+                  "run_backward_root",
+                  "run_forward",
+                  "run_forward_root",
+                  "run_left",
+                  "run_left_root",
+                  "run_right",
+                  "run_right_root",
+                  "tpose",
+                  "walk_backward",
+                  "walk_backward_root",
+                  "walk_forward",
+                  "walk_forward_root",
+                  "walk_left",
+                  "walk_left_root",
+                  "walk_right",
+                  "walk_right_root",
+                  "wave"
                 ]
               },
               "active": {
-                "file": "__$project$__/default-project/assets/Sit Idle.glb",
-                "animation": "Sit_Idle",
+                "file": "__$project$__/default-project/assets/Animations.glb",
+                "animation": "dance2",
                 "animations": [
-                  "Sit_Idle"
+                  "clapping",
+                  "cry",
+                  "dance1",
+                  "dance2",
+                  "dance3",
+                  "dance4",
+                  "defeat",
+                  "falling_idle",
+                  "idle",
+                  "jump_down",
+                  "jump_up",
+                  "kiss",
+                  "laugh",
+                  "run_backward",
+                  "run_backward_root",
+                  "run_forward",
+                  "run_forward_root",
+                  "run_left",
+                  "run_left_root",
+                  "run_right",
+                  "run_right_root",
+                  "tpose",
+                  "walk_backward",
+                  "walk_backward_root",
+                  "walk_forward",
+                  "walk_forward_root",
+                  "walk_left",
+                  "walk_left_root",
+                  "walk_right",
+                  "walk_right_root",
+                  "wave"
                 ]
               }
             }

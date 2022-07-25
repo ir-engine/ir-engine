@@ -158,11 +158,12 @@ export const controllerQueryUpdate = (
   else rotateTowardsDisplacementVector(entity, displacement, world)
 
   const displace = moveAvatar(world, entity, Engine.instance.currentWorld.camera)
-  displacement.set(displace.x, displace.y, displace.z)
-
-  updateAvatarTransformPosition(entity)
-  detectUserInCollisions(entity)
-  updateColliderPose(entity)
+  if (displace) {
+    displacement.set(displace.x, displace.y, displace.z)
+    updateAvatarTransformPosition(entity)
+    detectUserInCollisions(entity)
+    updateColliderPose(entity)
+  }
 
   const transform = getComponent(entity, TransformComponent)
   // TODO: implement scene lower bounds parameter

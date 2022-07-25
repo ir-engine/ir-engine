@@ -32,7 +32,11 @@ const newVelocity = new Vector3()
 const onGroundVelocity = new Vector3()
 export const avatarCameraOffset = new Vector3(0, 0.14, 0.1)
 
-export const moveAvatar = (world: World, entity: Entity, camera: PerspectiveCamera | OrthographicCamera): any => {
+export const moveAvatar = (
+  world: World,
+  entity: Entity,
+  camera: PerspectiveCamera | OrthographicCamera
+): Vector3 | undefined => {
   const {
     fixedDeltaSeconds: fixedDelta,
     physics: { timeScale }

@@ -30,6 +30,7 @@ import { insertAfterString, insertBeforeString } from '../../common/functions/st
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
+import { setMountAnimationAction } from '../../interaction/systems/MountPointSystem'
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
 import UpdateableObject3D from '../../scene/classes/UpdateableObject3D'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
@@ -114,7 +115,11 @@ export const setupAvatarForUser = (entity: Entity, model: Object3D) => {
 }
 
 export const setupAvatarModel = (entity: Entity) =>
-  pipe(boneMatchAvatarModel(entity), rigAvatarModel(entity), animateAvatarModel(entity))
+  pipe(boneMatchAvatarModel(entity), rigAvatarModel(entity), animateAvatarModel(entity), setMountAnimation(entity))
+
+export const setMountAnimation = (entity: Entity) => (_model: Object3D) => {
+  setMountAnimationAction(entity)
+}
 
 export const boneMatchAvatarModel = (entity: Entity) => (model: Object3D) => {
   const assetType = model.userData.type

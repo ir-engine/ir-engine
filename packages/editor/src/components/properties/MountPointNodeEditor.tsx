@@ -12,6 +12,7 @@ import { addError } from '@xrengine/engine/src/scene/functions/ErrorFunctions'
 import InputGroup from '../inputs/InputGroup'
 import ModelInput from '../inputs/ModelInput'
 import SelectInput from '../inputs/SelectInput'
+import CollapsibleBlock from '../layout/CollapsibleBlock'
 import NodeEditor from './NodeEditor'
 import { EditorPropType, updateProperty } from './Util'
 
@@ -48,7 +49,7 @@ export const useEmoteMenuHooks = (node: EntityTreeNode) => {
           animation: '',
           animations: []
         }
-      } else if (!mountPointComponent.animation[type]!.animations) {
+      } else {
         mountPointComponent.animation[type]!.animations = []
       }
 
@@ -162,10 +163,8 @@ export const MountPointNodeEditor: React.FC<EditorPropType> = (props) => {
       </InputGroup>
       {mountPointComponent.type === MountPoint.seat && (
         <>
-          <div>
-            {t('editor:properties.mountPoint.lbl-animations')}
-            <div>
-              {t('editor:properties.mountPoint.lbl-enter')}
+          <CollapsibleBlock label={t('editor:properties.mountPoint.lbl-animations')}>
+            <CollapsibleBlock label={t('editor:properties.mountPoint.lbl-enter')}>
               <InputGroup name="Enter File" label={t('editor:properties.mountPoint.lbl-file')}>
                 <ModelInput
                   value={mountPointComponent.animation.enter?.file || ''}
@@ -183,9 +182,8 @@ export const MountPointNodeEditor: React.FC<EditorPropType> = (props) => {
                   onChange={updateProperty(MountPointComponent, 'animation.enter.animation' as any)}
                 />
               </InputGroup>
-            </div>
-            <div>
-              {t('editor:properties.mountPoint.lbl-active')}
+            </CollapsibleBlock>
+            <CollapsibleBlock label={t('editor:properties.mountPoint.lbl-active')}>
               <InputGroup name="Active File" label={t('editor:properties.mountPoint.lbl-file')}>
                 <ModelInput
                   value={mountPointComponent.animation.active?.file || ''}
@@ -203,9 +201,8 @@ export const MountPointNodeEditor: React.FC<EditorPropType> = (props) => {
                   onChange={updateProperty(MountPointComponent, 'animation.active.animation' as any)}
                 />
               </InputGroup>
-            </div>
-            <div>
-              {t('editor:properties.mountPoint.lbl-leave')}
+            </CollapsibleBlock>
+            <CollapsibleBlock label={t('editor:properties.mountPoint.lbl-leave')}>
               <InputGroup name="Leave File" label={t('editor:properties.mountPoint.lbl-file')}>
                 <ModelInput
                   value={mountPointComponent.animation.leave?.file || ''}
@@ -223,8 +220,8 @@ export const MountPointNodeEditor: React.FC<EditorPropType> = (props) => {
                   onChange={updateProperty(MountPointComponent, 'animation.leave.animation' as any)}
                 />
               </InputGroup>
-            </div>
-          </div>
+            </CollapsibleBlock>
+          </CollapsibleBlock>
         </>
       )}
     </NodeEditor>
