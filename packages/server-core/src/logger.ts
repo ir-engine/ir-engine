@@ -1,3 +1,10 @@
+/**
+ * A server-side only multi-stream logger.
+ * For isomorphic or client-side logging, use packages/common/src/logger.ts
+ * (which will send all log events to this server-side logger here, via an
+ *  API endpoint).
+ */
+import os from 'os'
 import pino from 'pino'
 import pinoElastic from 'pino-elasticsearch'
 import pretty from 'pino-pretty'
@@ -20,7 +27,11 @@ const streams = [streamToPretty, streamToElastic]
 
 const logger = pino(
   {
-    level: 'debug'
+    level: 'debug',
+    base: {
+      hostname: os.hostname,
+      component: 'server-core'
+    }
   },
   pino.multistream(streams)
 )
