@@ -8,6 +8,57 @@ body {
   align-items: center;
 }
 
+.conferenceModeContainer {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  z-index: 100000000;
+  flex-direction: column;
+  background-color: var(--mainBackground);
+
+  .toolbar {
+    display: flex;
+    padding: 3px;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-end;
+    background-color: var(--navbarBackground);
+
+    .toolbarCrossButton {
+      padding: 1px;
+      cursor: pointer;
+      border-radius: 50%;
+      background-color: red;
+
+      svg {
+        width: 20px;
+        height: 20px;
+        color: white;
+
+        path {
+          fill: white;
+        }
+      }
+    }
+  }
+
+  .participants {
+    display: grid;
+    padding: 10px;
+    grid-gap: 10px;
+    overflow: auto;
+    grid-template-columns: 1fr 1fr 1fr;
+
+    @media (max-width: 999px) {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    @media (max-width: 786px) {
+      grid-template-columns: 1fr;
+    }
+  }
+}
+
 .box {
   display: flex;
   width: 200px;
