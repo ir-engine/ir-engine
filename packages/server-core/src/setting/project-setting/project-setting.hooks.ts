@@ -12,7 +12,10 @@ export default {
     get: [disallow()],
     create: [disallow()],
     update: [disallow()],
-    patch: [authenticate(), iff(isProvider('external'), restrictUserRole('admin') as any)],
+    patch: [
+      authenticate(),
+      iff(isProvider('external'), restrictUserRole('admin') as any, verifyScope('editor', 'write') as any)
+    ],
     remove: [disallow()]
   },
 
