@@ -67,7 +67,11 @@ const onUpdate = (entity: Entity, mountPoint: ReturnType<typeof createInteractUI
 }
 
 export const getInteractiveUI = (entity) => InteractiveUI.get(entity)
-export const removeInteractiveUI = (entity) => InteractiveUI.delete(entity)
+export const removeInteractiveUI = (entity) => {
+  if (hasComponent(entity, InteractableComponent)) {
+    removeComponent(entity, InteractableComponent)
+  }
+}
 
 export const addInteractableUI = (
   entity: Entity,

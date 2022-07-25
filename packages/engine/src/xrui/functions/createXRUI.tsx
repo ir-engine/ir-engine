@@ -6,7 +6,7 @@ import { Object3D, Vector3 } from 'three'
 import { createObjectPool } from '../../common/functions/ObjectPool'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
-import { addComponent, getComponent } from '../../ecs/functions/ComponentFunctions'
+import { addComponent, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
@@ -14,7 +14,6 @@ import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 import { XRUIComponent } from '../components/XRUIComponent'
 import { XRUIStateContext } from '../XRUIStateContext'
-import { ObjectFitFunctions } from './ObjectFitFunctions'
 
 let depsLoaded: Promise<[typeof import('@etherealjs/web-layer/three'), typeof import('react-dom')]>
 
@@ -81,7 +80,8 @@ export interface XRUI<S> {
 export function createXRUIPool(
   create: (entity: Entity) => () => ReturnType<typeof createXRUI>,
   onShown: (entity: Entity, xrui: ReturnType<typeof createXRUI>) => void,
-  onHidden: (entity: Entity, xrui: ReturnType<typeof createXRUI>) => void
+  onHidden: (entity: Entity, xrui: ReturnType<typeof createXRUI>) => void,
+  count = 3
 ) {
   const object3Ds = [] as Object3D[]
   let closestObjects = [] as Array<Object3D>
@@ -103,7 +103,7 @@ export function createXRUIPool(
     // sort based on distance
     object3Ds.sort((a, b) => a.userData.distance - b.userData.distance)
     const removeList = [] as Object3D[]
-    closestObjects = object3Ds.slice(0, Math.max(3, xruiObjectPool.size()))
+    closestObjects = object3Ds.slice(0, count)
 
     // find objects no longer in distance
     for (const obj of displayedObjects) {
@@ -127,14 +127,14 @@ export function createXRUIPool(
     // add closests objects not in the pool to the pool
     for (const obj of closestObjects) {
       if (!obj.userData.xrui) {
-        const xrui = xruiObjectPool.use(create(xruiCreateMap.get(obj)!))
-        console.log(xrui)
-        xrui.container.then(() => {
-          obj.userData.xrui = xrui
+        const entity = xruiCreateMap.get(obj)!
+        const xrui = xruiObjectPool.use(create(entity))
+        obj.userData.xrui = xrui
+        if (hasComponent(xrui.entity, XRUIComponent)) {
           const { container } = getComponent(xrui.entity, XRUIComponent)
           container.userData.node = obj
-          onShown(xruiCreateMap.get(obj)!, obj.userData.xrui)
-        })
+          onShown(entity, obj.userData.xrui)
+        }
         displayedObjects.push(obj)
       }
     }
