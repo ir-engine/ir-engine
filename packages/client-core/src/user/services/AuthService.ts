@@ -23,6 +23,7 @@ import {
 } from '@xrengine/common/src/interfaces/User'
 import { UserApiKey } from '@xrengine/common/src/interfaces/UserApiKey'
 import { UserAvatar } from '@xrengine/common/src/interfaces/UserAvatar'
+import multiLogger from '@xrengine/common/src/logger'
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { NetworkTopics } from '@xrengine/engine/src/networking/classes/Network'
 import { WorldNetworkAction } from '@xrengine/engine/src/networking/functions/WorldNetworkAction'
@@ -36,6 +37,8 @@ import { serverHost } from '../../util/config'
 import { accessStoredLocalState, StoredLocalAction } from '../../util/StoredLocalState'
 import { uploadToFeathersService } from '../../util/upload'
 import { userPatched } from '../functions/userPatched'
+
+const logger = multiLogger.child({ component: 'client-core:AuthService' })
 
 const TIMEOUT_INTERVAL = 50 //ms per interval of waiting for authToken to be updated
 
@@ -78,6 +81,7 @@ export const avatarFetchedReceptor = (s: any, action: any) => {
   for (let resource of resources) {
     const r = avatarData[(resource as any).name] || {}
     if (!r) {
+      logger.warn('Avatar resource is empty, have you synced avatars to your static file storage?')
       console.warn(i18n.t('user:avatar.warning-msg'))
       return
     }
@@ -197,6 +201,7 @@ export const AuthService = {
           await API.instance.client.authentication.setAccessToken(accessToken as string)
           res = await API.instance.client.reAuthenticate()
         } else {
+          logger.error(err, 'Error re-authenticating')
           throw err
         }
       }
@@ -222,8 +227,7 @@ export const AuthService = {
         console.log('****************')
       }
     } catch (err) {
-      console.log('error on resolving auth user in doLoginAuto, logging out')
-      console.error(err)
+      logger.error(err, 'Error on resolving auth user in doLoginAuto, logging out')
       dispatchAction(AuthAction.didLogoutAction({}))
 
       // if (window.location.pathname !== '/') {
@@ -296,7 +300,6 @@ export const AuthService = {
       dispatchAction(AuthAction.actionProcessing({ processing: true }))
 
       const credentials: any = parseUserWalletCredentials(wallet)
-      console.log(credentials)
 
       const walletUser = resolveWalletUser(credentials)
 
@@ -425,7 +428,7 @@ export const AuthService = {
         window.location.href = '/auth/confirm'
       })
       .catch((err: any) => {
-        console.log('error', err)
+        logger.error(err, 'Error registering user by email')
         dispatchAction(AuthAction.registerUserByEmailErrorAction({ message: err.message }))
         NotificationService.dispatchNotify(err.message, { variant: 'error' })
       })
@@ -471,7 +474,7 @@ export const AuthService = {
   },
   forgotPassword: async (email: string) => {
     dispatchAction(AuthAction.actionProcessing({ processing: true }))
-    console.log('forgotPassword', email)
+    logger.info('forgotPassword event for email "${email}".')
     API.instance.client
       .service('authManagement')
       .create({
