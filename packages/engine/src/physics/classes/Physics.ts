@@ -90,8 +90,8 @@ function applyDescToCollider(
   position: Vector3,
   quaternion: Quaternion
 ) {
-  shapeOptions.friction ? colliderDesc.setFriction(shapeOptions.friction) : 0
-  shapeOptions.restitution ? colliderDesc.setRestitution(shapeOptions.restitution) : 0
+  if (typeof shapeOptions.friction !== 'undefined') colliderDesc.setFriction(shapeOptions.friction)
+  if (typeof shapeOptions.restitution !== 'undefined') colliderDesc.setRestitution(shapeOptions.restitution)
 
   const collisionLayer =
     typeof shapeOptions.collisionLayer !== 'undefined' ? Number(shapeOptions.collisionLayer) : CollisionGroups.Default
@@ -102,7 +102,8 @@ function applyDescToCollider(
   colliderDesc.setTranslation(position.x, position.y, position.z)
   colliderDesc.setRotation(quaternion)
 
-  shapeOptions.isTrigger ? colliderDesc.setSensor(shapeOptions.isTrigger) : 0
+  if (typeof shapeOptions.isTrigger !== 'undefined') colliderDesc.setSensor(shapeOptions.isTrigger)
+
   shapeOptions.activeCollisionTypes
     ? colliderDesc.setActiveCollisionTypes(shapeOptions.activeCollisionTypes)
     : colliderDesc.setActiveCollisionTypes(ActiveCollisionTypes.ALL)
