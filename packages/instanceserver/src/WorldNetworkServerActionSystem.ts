@@ -11,7 +11,7 @@ const receiveSpawnObject = (
   world = Engine.instance.currentWorld,
   network: SocketWebRTCServerNetwork
 ) => {
-  if (action.prefab !== 'camera') {
+  if (action.prefab !== 'avatar') {
     return
   }
 
