@@ -103,7 +103,7 @@ const SettingDetailView = () => {
     dispatchAction(AvatarInputSettingsAction.setControlType(value as any))
   }
 
-  const handleChangeControlScheme = (value: string) => {
+  const handleChangeControlScheme = (value: AvatarMovementScheme) => {
     setControlScheme(value)
     AvatarSettings.instance.movementScheme = AvatarMovementScheme[value]
   }

@@ -10,7 +10,7 @@ import { createSelectAvatarMenu } from './ui/ProfileDetailView/SelectAvatarMenu'
 export function createSelectAvatarWidget(world: World) {
   const ui = createSelectAvatarMenu()
 
-  addComponent(ui.entity, PersistTagComponent, {})
+  addComponent(ui.entity, PersistTagComponent, true)
 
   ui.container.then(() => {
     const xrui = getComponent(ui.entity, XRUIComponent)

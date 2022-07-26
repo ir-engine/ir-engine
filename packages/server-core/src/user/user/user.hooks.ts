@@ -110,12 +110,7 @@ export default {
             model: 'scope'
           },
           {
-            model: 'party',
-            include: [
-              {
-                model: 'location'
-              }
-            ]
+            model: 'party'
           }
         ]
       })
@@ -145,12 +140,7 @@ export default {
             model: 'scope'
           },
           {
-            model: 'party',
-            include: [
-              {
-                model: 'location'
-              }
-            ]
+            model: 'party'
           }
         ]
       })

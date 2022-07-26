@@ -21,7 +21,8 @@
     "local": "npm run localbuild && npm run localstart",
     "localbuild": "cross-env APP_ENV=production VITE_LOCAL_BUILD=true npm run build",
     "localstart": "cross-env APP_ENV=production VITE_LOCAL_BUILD=true npm run start",
-    "buildenv": "cross-env APP_ENV=production ts-node --swc scripts/create-env-production.ts"
+    "buildenv": "cross-env APP_ENV=production ts-node --swc scripts/create-env-production.ts",
+    "populate-assetlinks": "cross-env APP_ENV=production ts-node --swc scripts/populate-assetlinks.ts"
   },
   "resolutions": {
     "@types/react": "17.0.44",
@@ -79,8 +80,11 @@
     "@types/react": "17.0.44",
     "@types/react-dom": "18.0.0",
     "@types/yuka": "0.7.1",
+    "app-root-path": "3.0.0",
+    "cli": "1.0.1",
     "config": "3.3.7",
-    "trace-unhandled": "2.0.1"
+    "trace-unhandled": "2.0.1",
+    "node-fetch": "2.6.7"
   },
   "license": "ISC"
 }

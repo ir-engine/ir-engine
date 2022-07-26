@@ -10,9 +10,10 @@ import { accessAuthState } from '@xrengine/client-core/src/user/services/AuthSer
 import { useUserState } from '@xrengine/client-core/src/user/services/UserService'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 
-import PartyParticipantWindow from '../PartyParticipantWindow'
+import { usePartyState } from '../../social/services/PartyService'
+import UserMediaWindow from '../UserMediaWindow'
 
-const PartyVideoWindows = (): JSX.Element => {
+const UserMediaWindows = (): JSX.Element => {
   const mediaState = useMediaStreamState()
   const nearbyLayerUsers = mediaState.nearbyLayerUsers
   const selfUserId = useState(accessAuthState().user.id)
@@ -22,9 +23,17 @@ const PartyVideoWindows = (): JSX.Element => {
   const currentChannelInstanceConnection = network && channelConnectionState.instances[network.hostId].ornull
   const displayedUsers =
     network?.hostId && currentChannelInstanceConnection
-      ? currentChannelInstanceConnection.channelType.value === 'channel'
-        ? userState.channelLayerUsers.value.filter((user) => user.id !== selfUserId.value)
-        : userState.layerUsers.value.filter((user) => nearbyLayerUsers.value.includes(user.id))
+      ? currentChannelInstanceConnection.channelType?.value === 'party'
+        ? userState.layerUsers?.value.filter((user) => {
+            return (
+              user.id !== selfUserId.value &&
+              user.channelInstanceId != null &&
+              user.channelInstanceId === network?.hostId
+            )
+          }) || []
+        : currentChannelInstanceConnection.channelType?.value === 'instance'
+        ? userState.layerUsers.value.filter((user) => nearbyLayerUsers.value.includes(user.id))
+        : []
       : []
 
   const consumers = mediaState.consumers.value
@@ -33,14 +42,14 @@ const PartyVideoWindows = (): JSX.Element => {
   return (
     <>
       {(mediaState.isScreenAudioEnabled.value || mediaState.isScreenVideoEnabled.value) && (
-        <PartyParticipantWindow peerId={'screen_me'} key={'screen_me'} />
+        <UserMediaWindow peerId={'screen_me'} key={'screen_me'} />
       )}
-      <PartyParticipantWindow peerId={'cam_me'} key={'cam_me'} />
+      <UserMediaWindow peerId={'cam_me'} key={'cam_me'} />
       {displayedUsers.map((user) => (
         <>
-          <PartyParticipantWindow peerId={user.id} key={user.id} />
+          <UserMediaWindow peerId={user.id} key={user.id} />
           {screenShareConsumers.find((consumer) => consumer.appData.peerId === user.id) && (
-            <PartyParticipantWindow peerId={'screen_' + user.id} key={'screen_' + user.id} />
+            <UserMediaWindow peerId={'screen_' + user.id} key={'screen_' + user.id} />
           )}
         </>
       ))}
@@ -48,4 +57,4 @@ const PartyVideoWindows = (): JSX.Element => {
   )
 }
 
-export default PartyVideoWindows
+export default UserMediaWindows

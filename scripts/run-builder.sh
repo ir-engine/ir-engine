@@ -17,6 +17,10 @@ npm run check-db-exists
 npm run install-projects
 npm run prepare-database
 cd packages/client && npm run buildenv
+if [ -n "$TWA_LINK" ]
+then
+  npm run populate-assetlinks
+fi
 cd ../..
 bash ./scripts/cleanup_builder.sh $DOCKER_LABEL
 

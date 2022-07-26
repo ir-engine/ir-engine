@@ -58,7 +58,7 @@ function emitEventBefore(command: AddToSelectionCommandParams) {
   if (command.preventEvents) return
 
   cancelGrabOrPlacement()
-  dispatchAction(SelectionAction.changedBeforeSelection())
+  dispatchAction(SelectionAction.changedBeforeSelection({}))
 }
 
 function emitEventAfter(command: AddToSelectionCommandParams) {

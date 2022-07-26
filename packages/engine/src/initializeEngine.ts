@@ -100,7 +100,7 @@ export const initializeBrowser = () => {
 
 const setupInitialClickListener = () => {
   const initialClickListener = () => {
-    dispatchAction(EngineActions.setUserHasInteracted())
+    dispatchAction(EngineActions.setUserHasInteracted({}))
     window.removeEventListener('click', initialClickListener)
     window.removeEventListener('touchend', initialClickListener)
   }
@@ -281,8 +281,8 @@ export const initializeSceneSystems = async () => {
         systemModulePromise: import('./renderer/HighlightSystem')
       },
       {
-        systemModulePromise: import('./scene/systems/EntityNodeEventSystem'),
-        type: SystemUpdateType.PRE_RENDER
+        type: SystemUpdateType.PRE_RENDER,
+        systemModulePromise: import('./scene/systems/EntityNodeEventSystem')
       }
     )
 

@@ -39,7 +39,7 @@ export default async function WidgetSystem(world: World) {
     ObjectFitFunctions.setUIVisible(xrui.container, false)
   })
 
-  addComponent(ui.entity, PersistTagComponent, {})
+  addComponent(ui.entity, PersistTagComponent, true)
   addComponent(ui.entity, NameComponent, { name: 'widget_menu' })
 
   // lazily create XRUI widgets to speed up initial page loading time
@@ -111,7 +111,7 @@ export default async function WidgetSystem(world: World) {
     const widgetState = accessWidgetAppState()
 
     for (const [id, widget] of world.widgets) {
-      const widgetVisible = widgetState.widgets[id].ornull.visible.value
+      const widgetVisible = widgetState.widgets[id].ornull?.visible.value
       if (widgetVisible) {
         const widgetUI = getComponent(widget.ui.entity, XRUIComponent)
         if (widgetUI) {

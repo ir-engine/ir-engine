@@ -1,6 +1,7 @@
 import { Paginated } from '@feathersjs/feathers'
 
 import { Invite as InviteInterface } from '@xrengine/common/src/interfaces/Invite'
+import multiLogger from '@xrengine/common/src/logger'
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 import { InviteDataType } from '@xrengine/server-core/src/hooks/send-invite'
@@ -8,6 +9,8 @@ import { InviteDataType } from '@xrengine/server-core/src/hooks/send-invite'
 import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
 import { accessInviteState, InviteAction } from '../../social/services/InviteService'
+
+const logger = multiLogger.child({ component: 'client-core:InviteService' })
 
 //State
 export const INVITE_PAGE_LIMIT = 100
@@ -97,7 +100,7 @@ export const AdminInviteService = {
     value: string | null = null
   ) => {
     try {
-      dispatchAction(InviteAction.fetchingReceivedInvites())
+      dispatchAction(InviteAction.fetchingReceivedInvites({}))
       const inviteState = accessInviteState().value
       const skip = inviteState.receivedInvites.skip
       const limit = inviteState.receivedInvites.limit
@@ -124,7 +127,7 @@ export const AdminInviteService = {
       })) as Paginated<InviteInterface>
       dispatchAction(AdminInviteActions.invitesRetrieved({ invites }))
     } catch (error) {
-      console.error(error)
+      logger.error(error)
     }
   },
   searchAdminInvites: async (value, orderBy = 'asc') => {
@@ -140,7 +143,7 @@ export const AdminInviteService = {
         }
       })) as Paginated<InviteInterface>
     } catch (error) {
-      console.error(error)
+      logger.error(error)
     }
   }
 }

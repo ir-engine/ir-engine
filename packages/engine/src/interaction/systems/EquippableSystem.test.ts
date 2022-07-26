@@ -10,6 +10,7 @@ import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { createEngine } from '../../initializeEngine'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
+import { Physics } from '../../physics/classes/Physics'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { getHandTransform } from '../../xr/functions/WebXRFunctions'
 import { EquippedComponent } from '../components/EquippedComponent'
@@ -22,16 +23,10 @@ import EquippableSystem from './EquippableSystem'
 
 describe.skip('EquippableSystem Integration Tests', () => {
   let equippableSystem
-
-  before(async () => {
+  beforeEach(async () => {
     createEngine()
-    const world = Engine.instance.currentWorld
-    await Engine.instance.currentWorld.physics.createScene({ verbose: true })
-    equippableSystem = await EquippableSystem(world)
-  })
-
-  after(() => {
-    delete (globalThis as any).PhysX
+    await Physics.load()
+    Engine.instance.currentWorld.physicsWorld = Physics.createWorld()
   })
 
   it('system test', async () => {

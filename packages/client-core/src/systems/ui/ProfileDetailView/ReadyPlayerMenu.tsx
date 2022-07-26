@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { PerspectiveCamera, Scene, WebGLRenderer } from 'three'
 
 import { THUMBNAIL_HEIGHT, THUMBNAIL_WIDTH } from '@xrengine/common/src/constants/AvatarConstants'
+import multiLogger from '@xrengine/common/src/logger'
 import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
 import { loadAvatarForPreview } from '@xrengine/engine/src/avatar/functions/avatarFunctions'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
@@ -25,6 +26,8 @@ import {
 } from '../../../user/components/UserMenu/menus/helperFunctions'
 import { AuthService } from '../../../user/services/AuthService'
 import styleString from './index.scss'
+
+const logger = multiLogger.child({ component: 'client-core:ReadyPlayerMenu' })
 
 export function createReadyPlayerMenu() {
   return createXRUI(ReadyPlayerMenu, createReadyPlayerMenuState())
@@ -98,11 +101,11 @@ const ReadyPlayerMenu = () => {
             .then((data) => setSelectedFile(data))
             .catch((err) => {
               setError(err.message)
-              console.log(err.message)
+              logger.error(err)
             })
         }
       } catch (error) {
-        console.error(error)
+        logger.error(error)
         setError(t('user:usermenu.avatar.selectValidFile'))
       }
     }

@@ -118,16 +118,14 @@
       "deleteSelected": "Delete selected invites"
     },
     "party": {
-      "locationRequired": "Location is required",
+      "maxMembersRequired": "Atleast 2 members requires",
       "instanceRequired": "Instance is required",
-      "locationCantEmpty": "Location can't be empty",
       "instanceCantEmpty": "Instance can't be empty",
       "instance": "Instance",
-      "location": "Location",
+      "maxMembers": "Max Members",
       "createOne": "Create One",
-      "dontSeeLocation": "Don't see Location?",
       "createParty": "Create Party",
-      "confirmPartyDelete": "Do you want to delete party with instance of"
+      "confirmPartyDelete": "Do you want to delete party?"
     },
     "project": {
       "addProject": "Add Project",

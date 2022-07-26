@@ -44,7 +44,9 @@ export default (app: Application) => {
         port: data.port,
         locationId: data.locationId,
         sceneId: data.sceneId,
-        channelId: data.channelId
+        channelId: data.channelId,
+        channelType: data.channelType,
+        instanceId: data.instanceId
       })
     } catch (err) {
       logger.error(err)

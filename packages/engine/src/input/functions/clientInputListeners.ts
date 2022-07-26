@@ -38,7 +38,8 @@ export const addClientInputListeners = () => {
   window.addEventListener(
     'keydown',
     (evt) => {
-      if (evt.key === 'Tab') {
+      // prevent DOM tab selection and spacebar/enter button toggling (since it interferes with avatar controls)
+      if (evt.code === 'Tab' || evt.code === 'Space' || evt.code === 'Enter') {
         evt.preventDefault()
       }
     },

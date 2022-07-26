@@ -111,7 +111,7 @@ export const FriendService = {
   // }
 
   getFriends: async (skip: number = 0, limit: number = 10) => {
-    dispatchAction(FriendAction.fetchingFriendsAction())
+    dispatchAction(FriendAction.fetchingFriendsAction({}))
     try {
       const friendState = accessFriendState()
       const friendResult = (await API.instance.client.service('user').find({

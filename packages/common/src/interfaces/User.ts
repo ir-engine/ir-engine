@@ -3,6 +3,7 @@ import { IdentityProvider } from './IdentityProvider'
 import { LocationAdmin } from './LocationAdmin'
 import { LocationBan } from './LocationBan'
 import { Party } from './Party'
+import { StaticResourceInterface } from './StaticResourceInterface'
 import { UserApiKey } from './UserApiKey'
 import { UserId } from './UserId'
 import { RelationshipType } from './UserRelationship'
@@ -41,6 +42,7 @@ export interface UserInterface {
   party?: Party
   scopes?: UserScope[]
   apiKey: UserApiKey
+  static_resources?: StaticResourceInterface
 }
 
 export const UserSeed: UserInterface = {

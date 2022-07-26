@@ -8,6 +8,7 @@ export const Views = {
   Profile: 'Profile',
   Settings: 'Settings',
   Share: 'Share',
+  Party: 'Party',
   DeleteAccount: 'accountDelete',
   Login: 'Login',
   AvatarUpload: 'AvatarUpload',

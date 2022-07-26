@@ -10,7 +10,7 @@ import { createUploadAvatarMenu } from './ui/ProfileDetailView/UploadAvatarMenu'
 export function createUploadAvatarWidget(world: World) {
   const ui = createUploadAvatarMenu()
 
-  addComponent(ui.entity, PersistTagComponent, {})
+  addComponent(ui.entity, PersistTagComponent, true)
 
   ui.container.then(() => {
     const xrui = getComponent(ui.entity, XRUIComponent)

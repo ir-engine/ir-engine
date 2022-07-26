@@ -2,16 +2,16 @@ import { createState, useHookstate } from '@speigg/hookstate'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { SendInvite } from '@xrengine/common/src/interfaces/Invite'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { WorldState } from '@xrengine/engine/src/networking/interfaces/WorldState'
 import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
 import { useXRUIState } from '@xrengine/engine/src/xrui/functions/useXRUIState'
-import { addActionReceptor, getState, removeActionReceptor } from '@xrengine/hyperflux'
+import { getState } from '@xrengine/hyperflux'
 
-import Button from '@mui/material/Button'
-
-import { PartyService, PartyServiceReceptor } from '../../../social/services/PartyService'
+import { InviteService } from '../../../social/services/InviteService'
+import { PartyService, usePartyState } from '../../../social/services/PartyService'
 import { getAvatarURLForUser } from '../../../user/components/UserMenu/util'
 import { useAuthState } from '../../../user/services/AuthService'
 import { UserService, useUserState } from '../../../user/services/UserService'
@@ -36,21 +36,19 @@ const AvatarContextMenu = () => {
 
   const engineState = useEngineState()
   const userState = useUserState()
+  const partyState = usePartyState()
 
   const authState = useAuthState()
   const user = userState.layerUsers.find((user) => user.id.value === detailState.id.value)
   const { t } = useTranslation()
 
   const userAvatarDetails = useHookstate(getState(WorldState).userAvatarDetails)
+  const partyOwner = partyState.party?.partyUsers?.value
+    ? partyState.party.partyUsers.value.find((partyUser) => partyUser.isOwner)
+    : null
 
   // TODO: move these to widget register
   PartyService.useAPIListeners()
-  useEffect(() => {
-    addActionReceptor(PartyServiceReceptor)
-    return () => {
-      removeActionReceptor(PartyServiceReceptor)
-    }
-  }, [])
 
   const blockUser = () => {
     if (authState.user?.id?.value !== null && user) {
@@ -69,10 +67,16 @@ const AvatarContextMenu = () => {
   }
 
   const inviteToParty = () => {
-    if (authState.user?.partyId?.value !== null && user) {
+    if (authState.user?.partyId?.value && user?.id?.value) {
       const partyId = authState.user?.partyId?.value ?? ''
-      const userId = user.id?.value ?? ''
-      PartyService.inviteToParty(partyId, userId)
+      const userId = user.id?.value
+      const sendData = {
+        inviteType: 'party',
+        inviteeId: userId,
+        targetObjectId: partyId,
+        token: null
+      } as SendInvite
+      InviteService.sendInvite(sendData)
     }
   }
 
@@ -98,7 +102,12 @@ const AvatarContextMenu = () => {
           />
           <div className="buttonContainer">
             <section className="buttonSection">
-              <XRTextButton onClick={inviteToParty}>{t('user:personMenu.inviteToParty')}</XRTextButton>
+              {partyState?.party?.id?.value != null &&
+                partyOwner?.userId != null &&
+                partyOwner.userId === authState.user?.id?.value &&
+                user.partyId.value !== partyState.party?.id?.value && (
+                  <XRTextButton onClick={inviteToParty}>{t('user:personMenu.inviteToParty')}</XRTextButton>
+                )}
               <XRTextButton onClick={addAsFriend}>{t('user:personMenu.addAsFriend')}</XRTextButton>
               <XRTextButton onClick={handleMute}>{t('user:personMenu.mute')}</XRTextButton>
               <XRTextButton onClick={blockUser}>{t('user:personMenu.block')}</XRTextButton>

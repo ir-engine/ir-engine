@@ -183,7 +183,7 @@ export const loadSceneFromJSON = async (sceneData: SceneJson, sceneSystems: Syst
 
   // TODO: Have to wait because scene is not being fully loaded at this moment
   await delay(200)
-  dispatchAction(EngineActions.sceneLoaded())
+  dispatchAction(EngineActions.sceneLoaded({}))
 }
 
 /**
