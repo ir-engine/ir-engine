@@ -2,8 +2,12 @@ import { State } from '@speigg/hookstate'
 import * as bitECS from 'bitecs'
 import { ArrayByType, ISchema, Type } from 'bitecs'
 
+import multiLogger from '@xrengine/common/src/logger'
+
 import { Engine } from '../classes/Engine'
 import { Entity } from '../classes/Entity'
+
+const logger = multiLogger.child({ component: 'engine:ecs:ComponentFunctions' })
 
 const INITIAL_COMPONENT_SIZE = 1000 // TODO set to 0 after next bitECS update
 bitECS.setDefaultSize(1000)
@@ -326,7 +330,7 @@ export const removeAllComponents = (entity: Entity, world = Engine.instance.curr
       removeComponent(entity, component as MappedComponent<any, any>, world)
     }
   } catch (_) {
-    console.warn('Components of entity already removed')
+    logger.warn('Components of entity already removed')
   }
 }
 

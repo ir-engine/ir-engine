@@ -1,9 +1,12 @@
 import { AvatarResult } from '@xrengine/common/src/interfaces/AvatarResult'
 import { StaticResourceInterface } from '@xrengine/common/src/interfaces/StaticResourceInterface'
+import multiLogger from '@xrengine/common/src/logger'
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
 import { API } from '../../API'
+
+const logger = multiLogger.child({ component: 'client-core:AvatarService' })
 
 //State
 export const AVATAR_PAGE_LIMIT = 100
@@ -118,7 +121,7 @@ export const AdminAvatarService = {
         (await API.instance.client.service('static-resource').remove(avatarThumbnail?.data[0]?.id))
       dispatchAction(AdminAvatarActions.avatarRemoved({}))
     } catch (err) {
-      console.error(err)
+      logger.error(err)
     }
   }
 }

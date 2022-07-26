@@ -105,13 +105,13 @@ const UserTable = ({ className, search }: UserProps) => {
   }
 
   const rows = adminUsers.map((el) => {
-    const loc = el.party?.id ? el.party.location : null
+    const loc: any = null
     const loca = loc ? (
       loc.name || <span className={styles.spanNone}>{t('admin:components.common.none')}</span>
     ) : (
       <span className={styles.spanNone}>{t('admin:components.common.none')}</span>
     )
-    const ins = el.party?.id ? el.party.instance : null
+    const ins: any = null
     const inst = ins ? (
       ins.ipAddress || <span className={styles.spanNone}>{t('admin:components.common.none')}</span>
     ) : (

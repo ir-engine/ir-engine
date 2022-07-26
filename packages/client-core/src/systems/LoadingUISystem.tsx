@@ -20,7 +20,7 @@ import { createLoaderDetailView } from './ui/LoadingDetailView'
 
 export default async function LoadingUISystem(world: World) {
   const transitionPeriodSeconds = 1
-  const transition = createTransitionState(transitionPeriodSeconds)
+  const transition = createTransitionState(transitionPeriodSeconds, 'IN')
 
   // todo: push timeout to accumulator
   matchActionOnce(EngineActions.joinedWorld.matches, () => {
@@ -64,26 +64,25 @@ export default async function LoadingUISystem(world: World) {
 
     const xrui = getComponent(ui.entity, XRUIComponent)
 
-    if (xrui) {
-      const distance = 0.1
-      const ppu = xrui.container.options.manager.pixelsPerMeter
-      const contentWidth = ui.state.imageWidth.value / ppu
-      const contentHeight = ui.state.imageHeight.value / ppu
+    const distance = 0.1
+    const ppu = xrui.container.options.manager.pixelsPerMeter
+    const contentWidth = ui.state.imageWidth.value / ppu
+    const contentHeight = ui.state.imageHeight.value / ppu
 
-      const scale = ObjectFitFunctions.computeContentFitScaleForCamera(distance, contentWidth, contentHeight, 'cover')
-      ObjectFitFunctions.attachObjectInFrontOfCamera(xrui.container, scale, distance)
+    const scale = ObjectFitFunctions.computeContentFitScaleForCamera(distance, contentWidth, contentHeight, 'cover')
+    ObjectFitFunctions.attachObjectInFrontOfCamera(xrui.container, scale, distance)
 
-      transition.update(world, (opacity) => {
-        if (opacity !== 1 - LoadingSystemState.opacity.value) LoadingSystemState.opacity.set(1 - opacity)
-        mesh.material.opacity = opacity
-        mesh.visible = opacity > 0
-        xrui.container.rootLayer.traverseLayersPreOrder((layer: WebLayer3D) => {
-          const mat = layer.contentMesh.material as THREE.MeshBasicMaterial
-          mat.opacity = opacity
-          mat.visible = opacity > 0
-          layer.visible = opacity > 0
-        })
+    transition.update(world, (opacity) => {
+      if (opacity !== LoadingSystemState.loadingScreenOpacity.value)
+        LoadingSystemState.loadingScreenOpacity.set(opacity)
+      mesh.material.opacity = opacity
+      mesh.visible = opacity > 0
+      xrui.container.rootLayer.traverseLayersPreOrder((layer: WebLayer3D) => {
+        const mat = layer.contentMesh.material as THREE.MeshBasicMaterial
+        mat.opacity = opacity
+        mat.visible = opacity > 0
+        layer.visible = opacity > 0
       })
-    }
+    })
   }
 }

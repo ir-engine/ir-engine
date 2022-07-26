@@ -6,7 +6,7 @@ import { defineAction, defineState, dispatchAction, getState, useState } from '@
 
 import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
-import { accessAuthState } from '../../user/services/AuthService'
+import { accessAuthState, AuthService } from '../../user/services/AuthService'
 
 //State
 export const USER_PAGE_LIMIT = 10
@@ -123,7 +123,6 @@ export const AdminUserService = {
       const result = await API.instance.client.service('user').get(id)
       dispatchAction(AdminUserActions.fetchedSingleUser({ data: result }))
     } catch (err) {
-      console.log(err)
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   },
@@ -173,7 +172,6 @@ export const AdminUserService = {
       const result = (await API.instance.client.service('user').create(user)) as UserInterface
       dispatchAction(AdminUserActions.userCreated({ user: result }))
     } catch (err) {
-      console.log(err)
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   },
@@ -181,6 +179,7 @@ export const AdminUserService = {
     try {
       const result = (await API.instance.client.service('user').patch(id, user)) as UserInterface
       dispatchAction(AdminUserActions.userPatched({ user: result }))
+      if (id === accessAuthState().user.id.value) await AuthService.loadUserData(id)
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }

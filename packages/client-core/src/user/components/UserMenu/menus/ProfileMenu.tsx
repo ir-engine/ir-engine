@@ -8,6 +8,7 @@ import { useLocation } from 'react-router-dom'
 
 import { validateEmail, validatePhoneNumber } from '@xrengine/common/src/config'
 import { defaultThemeModes, defaultThemeSettings } from '@xrengine/common/src/constants/DefaultThemeSettings'
+import multiLogger from '@xrengine/common/src/logger'
 import { WorldState } from '@xrengine/engine/src/networking/interfaces/WorldState'
 import { getState } from '@xrengine/hyperflux'
 
@@ -36,6 +37,8 @@ import { AuthService, useAuthState } from '../../../services/AuthService'
 import { userHasAccess } from '../../../userHasAccess'
 import styles from '../index.module.scss'
 import { getAvatarURLForUser, Views } from '../util'
+
+const logger = multiLogger.child({ component: 'client-core:ProfileMenu' })
 
 interface Props {
   className?: string
@@ -143,7 +146,7 @@ const ProfileMenu = ({ className, hideLogin, isPopover, changeActiveMenu, onClos
       await polyfill.loadOnce(mediator)
       console.log('Ready to work with credentials!')
     } catch (e) {
-      console.error('Error loading polyfill:', e)
+      logger.error(e, 'Error loading polyfill')
     }
   }
 

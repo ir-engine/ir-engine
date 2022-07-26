@@ -1,17 +1,14 @@
 import assert from 'assert'
-import sinon from 'sinon'
-import { Vector3 } from 'three'
 
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { getState } from '@xrengine/hyperflux'
 
 import { Engine } from '../ecs/classes/Engine'
-import { addComponent, getComponent, hasComponent } from '../ecs/functions/ComponentFunctions'
+import { getComponent, hasComponent } from '../ecs/functions/ComponentFunctions'
 import { createEntity } from '../ecs/functions/EntityFunctions'
 import { createEngine } from '../initializeEngine'
 import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
 import { WorldState } from '../networking/interfaces/WorldState'
-import { VelocityComponent } from '../physics/components/VelocityComponent'
 import { XRHandsInputComponent } from '../xr/components/XRHandsInputComponent'
 import { XRInputSourceComponent } from '../xr/components/XRInputSourceComponent'
 import { setupXRInputSourceComponent } from '../xr/functions/WebXRFunctions'
@@ -21,12 +18,9 @@ import {
   setupHeadIK,
   setupXRInputSourceContainer,
   setXRModeReceptor,
-  teleportObjectReceptor,
   xrHandsConnectedReceptor,
   xrInputQueryExit
 } from './AvatarSystem'
-import { AvatarComponent } from './components/AvatarComponent'
-import { AvatarControllerComponent } from './components/AvatarControllerComponent'
 import { AvatarHandsIKComponent } from './components/AvatarHandsIKComponent'
 import { AvatarHeadIKComponent } from './components/AvatarHeadIKComponent'
 
@@ -145,31 +139,5 @@ describe('AvatarSystem', async () => {
 
     const worldState = getState(WorldState)
     assert.deepEqual(worldState.userAvatarDetails[Engine.instance.userId].value, action.avatarDetail)
-  })
-
-  it('check teleportObjectReceptor', async () => {
-    const action = { pose: [1, 2, 3], object: { ownerId: 0, networkId: 0 } } as any
-    const world = Engine.instance.currentWorld
-    const entity = createEntity(world)
-    const worldStub = { getNetworkObject: () => entity } as any
-
-    const controller = { controller: { setPosition: () => {} } } as any
-    sinon.spy(controller.controller, 'setPosition')
-
-    addComponent(entity, AvatarControllerComponent, controller)
-    const avatar = { avatarHalfHeight: 1 } as any
-    addComponent(entity, AvatarComponent, avatar)
-    const velocity = { linear: new Vector3().setScalar(1), angular: new Vector3().setScalar(1) } as any
-    addComponent(entity, VelocityComponent, velocity)
-
-    teleportObjectReceptor(action, worldStub)
-
-    assert(controller.controller.setPosition.calledOnce)
-    const setPositionArg = controller.controller.setPosition.getCall(0).args[0]
-    assert(setPositionArg.x === action.pose[0])
-    assert(setPositionArg.y === action.pose[1] + avatar.avatarHalfHeight)
-    assert(setPositionArg.z === action.pose[2])
-    assert(velocity.linear.length() === 0)
-    assert(velocity.angular.length() === 0)
   })
 })

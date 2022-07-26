@@ -71,10 +71,16 @@ export const inviteReceived = async (inviteService: Invite, query) => {
 
   const result = (await Service.prototype.find.call(inviteService, {
     query: {
-      inviteeId: query.userId,
-      token: {
-        $in: identityProviderTokens
-      },
+      $or: [
+        {
+          inviteeId: query.userId
+        },
+        {
+          token: {
+            $in: identityProviderTokens
+          }
+        }
+      ],
       ...q,
       $sort: $sort,
       $limit: query.$limit,

@@ -1,23 +1,20 @@
-import { AmbientLight } from 'three'
+import { AmbientLight, Euler, Quaternion } from 'three'
 
 import { dispatchAction } from '@xrengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { AvatarStates } from '../../avatar/animation/Util'
 import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
-import { createAvatarController } from '../../avatar/functions/createAvatar'
 import { switchCameraMode } from '../../avatar/functions/switchCameraMode'
 import { CameraMode } from '../../camera/types/CameraMode'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions } from '../../ecs/classes/EngineState'
 import { World } from '../../ecs/classes/World'
-import { addComponent, defineQuery, getComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
-import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
-import { InteractorComponent } from '../../interaction/components/InteractorComponent'
-import { NetworkTopics } from '../../networking/classes/Network'
+import { defineQuery, getComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { matchActionOnce } from '../../networking/functions/matchActionOnce'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
+import { createTransitionState } from '../../xrui/functions/createTransitionState'
 import { PortalEffect } from '../classes/PortalEffect'
 import { HyperspaceTagComponent } from '../components/HyperspaceTagComponent'
 import { Object3DComponent } from '../components/Object3DComponent'
@@ -28,6 +25,8 @@ export default async function HyperspacePortalSystem(world: World) {
   const hyperspaceTagComponent = defineQuery([HyperspaceTagComponent])
   const texture = await AssetLoader.loadAsync('/hdr/galaxyTexture.jpg')
 
+  const transition = createTransitionState(1, 'IN')
+
   const hyperspaceEffect = new PortalEffect(texture)
   hyperspaceEffect.scale.set(10, 10, 10)
   setObjectLayers(hyperspaceEffect, ObjectLayers.Portal)
@@ -36,8 +35,6 @@ export default async function HyperspacePortalSystem(world: World) {
   light.layers.enable(ObjectLayers.Portal)
 
   return () => {
-    const { deltaSeconds: delta } = world
-
     const playerObj = getComponent(world.localClientEntity, Object3DComponent)
 
     // to trigger the hyperspace effect, add the hyperspace tag to the world entity
@@ -45,14 +42,12 @@ export default async function HyperspacePortalSystem(world: World) {
       if (!EngineRenderer.instance.xrSession)
         switchCameraMode(Engine.instance.currentWorld.cameraEntity, { cameraMode: CameraMode.ShoulderCam }, true)
 
-      removeComponent(world.localClientEntity, AvatarControllerComponent)
-      removeComponent(world.localClientEntity, InteractorComponent)
-      removeComponent(world.localClientEntity, LocalInputTagComponent)
+      getComponent(world.localClientEntity, AvatarControllerComponent).movementEnabled = false
 
       dispatchAction(WorldNetworkAction.avatarAnimation({ newStateName: AvatarStates.FALL_IDLE, params: {} }))
 
       // TODO: add BPCEM of old and new scenes and fade them in and out too
-      hyperspaceEffect.fadeIn(delta)
+      transition.setState('IN')
 
       hyperspaceEffect.position.copy(playerObj.value.position)
       hyperspaceEffect.quaternion.copy(playerObj.value.quaternion)
@@ -68,17 +63,25 @@ export default async function HyperspacePortalSystem(world: World) {
 
       // create receptor for joining the world to end the hyperspace effect
       matchActionOnce(EngineActions.sceneLoaded.matches, () => {
-        hyperspaceEffect.fadeOut(delta).then(() => {
-          removeComponent(world.worldEntity, HyperspaceTagComponent)
-        })
+        transition.setState('OUT')
         return true
       })
     }
 
     // the hyperspace exit runs once the fadeout transition has finished
     for (const entity of hyperspaceTagComponent.exit()) {
-      createAvatarController(world.localClientEntity)
-      addComponent(world.localClientEntity, LocalInputTagComponent, {})
+      const controller = getComponent(world.localClientEntity, AvatarControllerComponent)
+      controller.movementEnabled = true
+
+      // teleport player to where the portal spawn position is
+      controller.controller.setTranslation(world.activePortal!.remoteSpawnPosition, true)
+      controller.controller.setRotation(
+        new Quaternion().setFromEuler(new Euler(0, world.activePortal!.remoteSpawnEuler.y, 0, 'XYZ')),
+        true
+      )
+
+      world.activePortal = null
+      dispatchAction(EngineActions.setTeleporting({ isTeleporting: false }))
 
       hyperspaceEffect.removeFromParent()
 
@@ -92,13 +95,20 @@ export default async function HyperspacePortalSystem(world: World) {
 
     // run the logic for
     for (const entity of hyperspaceTagComponent()) {
-      hyperspaceEffect.update(delta)
+      transition.update(world, (opacity) => {
+        hyperspaceEffect.update(world.deltaSeconds)
+        hyperspaceEffect.tubeMaterial.opacity = opacity
+
+        if (opacity === 0) {
+          removeComponent(world.worldEntity, HyperspaceTagComponent)
+        }
+      })
 
       hyperspaceEffect.position.copy(playerObj.value.position)
       hyperspaceEffect.quaternion.copy(playerObj.value.quaternion)
 
       if (Engine.instance.currentWorld.camera.zoom > 0.75) {
-        Engine.instance.currentWorld.camera.zoom -= delta
+        Engine.instance.currentWorld.camera.zoom -= world.deltaSeconds
         Engine.instance.currentWorld.camera.updateProjectionMatrix()
       }
     }

@@ -11,6 +11,7 @@ import { createAvatar } from '../../avatar/functions/createAvatar'
 import { Engine } from '../../ecs/classes/Engine'
 import { defineQuery, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEngine } from '../../initializeEngine'
+import { Physics } from '../../physics/classes/Physics'
 import { NetworkTopics } from '../classes/Network'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
 import { NetworkObjectOwnedTag } from '../components/NetworkObjectOwnedTag'
@@ -20,9 +21,11 @@ import { WorldNetworkAction } from './WorldNetworkAction'
 import { WorldNetworkActionReceptor } from './WorldNetworkActionReceptor'
 
 describe('WorldNetworkActionReceptors', () => {
-  beforeEach(() => {
+  beforeEach(async () => {
     createEngine()
     createMockNetwork()
+    await Physics.load()
+    Engine.instance.currentWorld.physicsWorld = Physics.createWorld()
   })
 
   describe('spawnObject', () => {
@@ -111,8 +114,6 @@ describe('WorldNetworkActionReceptors', () => {
       const world = Engine.instance.currentWorld
       const network = world.worldNetwork
 
-      await world.physics.createScene()
-
       NetworkPeerFunctions.createPeer(network, hostUserId, 0, 'world', world)
       NetworkPeerFunctions.createPeer(network, userId, 1, 'user name', world)
       NetworkPeerFunctions.createPeer(network, userId2, 2, 'second user name', world)
@@ -154,8 +155,6 @@ describe('WorldNetworkActionReceptors', () => {
       Engine.instance.userId = userId
       const world = Engine.instance.currentWorld
       const network = world.worldNetwork
-
-      await world.physics.createScene()
 
       NetworkPeerFunctions.createPeer(network, userId, 1, 'user name', world)
 
@@ -250,8 +249,6 @@ describe('WorldNetworkActionReceptors', () => {
 
       const world = Engine.instance.currentWorld
       const network = world.worldNetwork
-
-      await world.physics.createScene()
 
       NetworkPeerFunctions.createPeer(network, userId, userIndex, userName, world)
 

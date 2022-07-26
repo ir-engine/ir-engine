@@ -22,9 +22,10 @@ import { useLoadingSystemState } from '../../systems/state/LoadingState'
 import ConferenceMode from '../ConferenceMode'
 import Debug from '../Debug'
 import InstanceChat from '../InstanceChat'
+import InviteToast from '../InviteToast'
 import MediaIconsBox from '../MediaIconsBox'
-import PartyVideoWindows from '../PartyVideoWindows'
 import { useFullscreen } from '../useFullscreen'
+import UserMediaWindows from '../UserMediaWindows'
 import styles from './index.module.scss'
 
 const TouchGamepad = React.lazy(() => import('@xrengine/client-core/src/common/components/TouchGamepad'))
@@ -115,7 +116,7 @@ const Layout = ({ useLoadingScreenOpacity, pageTitle, children, hideVideo, hideF
   }
 
   const useOpacity = typeof useLoadingScreenOpacity !== 'undefined' && useLoadingScreenOpacity === true
-  const layoutOpacity = useOpacity ? loadingSystemState.opacity.value : 1
+  const layoutOpacity = useOpacity ? 1 - loadingSystemState.loadingScreenOpacity.value : 1
   const MediaIconHider = showMediaIcons ? KeyboardDoubleArrowUpIcon : KeyboardDoubleArrowDownIcon
   const BottomIconHider = showBottomIcons ? KeyboardDoubleArrowDownIcon : KeyboardDoubleArrowUpIcon
   // info about current mode to conditional render menus
@@ -176,7 +177,7 @@ const Layout = ({ useLoadingScreenOpacity, pageTitle, children, hideVideo, hideF
                         <GridViewIcon />
                       </div>
                     </div>
-                    <PartyVideoWindows />
+                    <UserMediaWindows />
                   </section>
                 )}
               </header>
@@ -192,9 +193,11 @@ const Layout = ({ useLoadingScreenOpacity, pageTitle, children, hideVideo, hideF
               <UIDialog />
               {isTouchAvailable && showTouchPad && (
                 <Suspense fallback={<></>}>
+                  {' '}
                   <TouchGamepad layout="default" />{' '}
                 </Suspense>
               )}
+              <InviteToast />
 
               {!iOS() && (
                 <>

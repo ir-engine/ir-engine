@@ -11,7 +11,7 @@ import { LocalInputTagComponent } from '../input/components/LocalInputTagCompone
 import { BaseInput } from '../input/enums/BaseInput'
 import { AvatarMovementScheme } from '../input/enums/InputEnums'
 import { XRAxes } from '../input/enums/InputEnums'
-import { ColliderComponent } from '../physics/components/ColliderComponent'
+import { RapierCollisionComponent } from '../physics/components/RapierCollisionComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { XRInputSourceComponent } from '../xr/components/XRInputSourceComponent'
 import { AvatarInputSchema } from './AvatarInputSchema'
@@ -34,7 +34,7 @@ export class AvatarSettings {
   // Speeds are same as animation's root motion
   walkSpeed = 1.6762927669761485
   runSpeed = 3.769894125544925 * 1.5
-  jumpHeight = 4
+  jumpHeight = 6
   movementScheme = AvatarMovementScheme.Linear
 }
 
@@ -51,6 +51,7 @@ export default async function AvatarControllerSystem(world: World) {
     AvatarControllerComponent,
     TransformComponent
   ])
+  const collisionQuery = defineQuery([AvatarControllerComponent, RapierCollisionComponent])
 
   addActionReceptor(AvatarInputSettingsReceptor)
 
@@ -85,7 +86,13 @@ export default async function AvatarControllerSystem(world: World) {
     }
 
     for (const entity of controllerQuery(world)) {
+      const controller = getComponent(entity, AvatarControllerComponent)
+      if (!controller.movementEnabled) continue
       controllerQueryUpdate(entity, displacement, world)
+    }
+
+    for (const entity of collisionQuery(world)) {
+      detectUserInCollisions(entity)
     }
 
     return world
@@ -100,27 +107,11 @@ const alignXRCameraYawWithAvatar = (entity: Entity) => {
   inputSource.container.quaternion.setFromUnitVectors(V_001, dir)
 }
 
-export const updateColliderPose = (entity: Entity) => {
-  const collider = getComponent(entity, ColliderComponent)
-  const controller = getComponent(entity, AvatarControllerComponent)
-  const transform = getComponent(entity, TransformComponent)
-  const pose = controller.controller.getPosition()
-
-  collider.body.setGlobalPose(
-    {
-      translation: pose,
-      rotation: transform.rotation
-    },
-    true
-  )
-}
-
 export const updateAvatarTransformPosition = (entity: Entity) => {
   const transform = getComponent(entity, TransformComponent)
   const controller = getComponent(entity, AvatarControllerComponent)
-  const avatar = getComponent(entity, AvatarComponent)
-  const pose = controller.controller.getPosition()
-  transform.position.set(pose.x, pose.y - avatar.avatarHalfHeight, pose.z)
+  const pose = controller.controller.translation()
+  transform.position.set(pose.x, pose.y, pose.z)
 }
 
 const _cameraDirection = new Vector3()
@@ -161,8 +152,6 @@ export const controllerQueryUpdate = (
   displacement.set(displace.x, displace.y, displace.z)
 
   updateAvatarTransformPosition(entity)
-  detectUserInCollisions(entity)
-  updateColliderPose(entity)
 
   const transform = getComponent(entity, TransformComponent)
   // TODO: implement scene lower bounds parameter
@@ -171,9 +160,7 @@ export const controllerQueryUpdate = (
 
 export const avatarControllerExit = (entity: Entity, world: World = Engine.instance.currentWorld) => {
   const controller = getComponent(entity, AvatarControllerComponent, true)
-  if (controller?.controller) world.physics.removeController(controller.controller)
-  const avatar = getComponent(entity, AvatarComponent)
-  if (avatar) avatar.isGrounded = false
+  if (controller?.controller) world.physicsWorld.removeRigidBody(controller.controller)
 }
 
 export const updateMap = () => {

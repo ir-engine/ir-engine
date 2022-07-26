@@ -34,10 +34,8 @@ import { createWidgetButtonsView } from './ui/WidgetMenuView'
 
 export default async function WidgetSystem(world: World) {
   const ui = createWidgetButtonsView()
-  ui.container.then(() => {
-    const xrui = getComponent(ui.entity, XRUIComponent)
-    ObjectFitFunctions.setUIVisible(xrui.container, false)
-  })
+  const xrui = getComponent(ui.entity, XRUIComponent)
+  ObjectFitFunctions.setUIVisible(xrui.container, false)
 
   addComponent(ui.entity, PersistTagComponent, true)
   addComponent(ui.entity, NameComponent, { name: 'widget_menu' })
@@ -66,7 +64,7 @@ export default async function WidgetSystem(world: World) {
       // createReadyPlayerWidget(world)
     }
     const xrui = getComponent(ui.entity, XRUIComponent)
-    if (xrui) ObjectFitFunctions.setUIVisible(xrui.container, show)
+    ObjectFitFunctions.setUIVisible(xrui.container, show)
   }
 
   const toggleWidgetsMenu = () => {
@@ -93,7 +91,7 @@ export default async function WidgetSystem(world: World) {
     matches(action).when(WidgetAppActions.showWidget.matches, (action) => {
       const widget = Engine.instance.currentWorld.widgets.get(action.id)!
       const xrui = getComponent(widget.ui.entity, XRUIComponent)
-      if (xrui) ObjectFitFunctions.setUIVisible(xrui.container, action.shown)
+      ObjectFitFunctions.setUIVisible(xrui.container, action.shown)
     })
   }
   addActionReceptor(WidgetAppServiceReceptor)
@@ -102,21 +100,17 @@ export default async function WidgetSystem(world: World) {
   return () => {
     const xrui = getComponent(ui.entity, XRUIComponent)
 
-    if (xrui) {
-      ObjectFitFunctions.attachObjectToPreferredTransform(xrui.container)
-    }
+    ObjectFitFunctions.attachObjectToPreferredTransform(xrui.container)
 
     showWidgetMenu(accessWidgetAppState().widgetsMenuOpen.value)
 
     const widgetState = accessWidgetAppState()
 
     for (const [id, widget] of world.widgets) {
-      const widgetVisible = widgetState.widgets[id].ornull.visible.value
+      const widgetVisible = widgetState.widgets[id].ornull?.visible.value
       if (widgetVisible) {
         const widgetUI = getComponent(widget.ui.entity, XRUIComponent)
-        if (widgetUI) {
-          ObjectFitFunctions.attachObjectToPreferredTransform(widgetUI.container)
-        }
+        ObjectFitFunctions.attachObjectToPreferredTransform(widgetUI.container)
         widget.system()
       }
     }

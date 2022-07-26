@@ -18,10 +18,9 @@ const PartyTable = ({ className, search }: PartyPropsTable) => {
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(PARTY_PAGE_LIMIT)
   const [openConfirm, setOpenConfirm] = useState(false)
-  const [partyName, setPartyName] = useState('')
   const [partyId, setPartyId] = useState('')
   const [fieldOrder, setFieldOrder] = useState('asc')
-  const [sortField, setSortField] = useState('location')
+  const [sortField, setSortField] = useState('maxMembers')
   const [openPartyDrawer, setOpenPartyDrawer] = useState(false)
   const [partyAdmin, setPartyAdmin] = useState<Party>()
 
@@ -62,12 +61,11 @@ const PartyTable = ({ className, search }: PartyPropsTable) => {
     setOpenPartyDrawer(false)
   }
 
-  const createData = (el: Party, id: string, instance: any, location: any): PartyData => {
+  const createData = (el: Party, id: string, maxMembers: any): PartyData => {
     return {
       el,
       id,
-      instance,
-      location,
+      maxMembers,
       action: (
         <>
           <a href="#" className={styles.actionStyle} onClick={() => handleOpenPartyDrawer(true, el)}>
@@ -77,7 +75,6 @@ const PartyTable = ({ className, search }: PartyPropsTable) => {
             href="#"
             className={styles.actionStyle}
             onClick={() => {
-              setPartyName(instance)
               setPartyId(id)
               setOpenConfirm(true)
             }}
@@ -98,8 +95,7 @@ const PartyTable = ({ className, search }: PartyPropsTable) => {
     return createData(
       el,
       el.id!,
-      el?.instance?.ipAddress || <span className={styles.spanNone}>{t('admin:components.common.none')}</span>,
-      el.location?.name || <span className={styles.spanNone}>{t('admin:components.common.none')}</span>
+      el.maxMembers || <span className={styles.spanNone}>{t('admin:components.common.none')}</span>
     )
   })
 
@@ -120,7 +116,7 @@ const PartyTable = ({ className, search }: PartyPropsTable) => {
       />
       <ConfirmDialog
         open={openConfirm}
-        description={`${t('admin:components.party.confirmPartyDelete')} '${partyName}'?`}
+        description={`${t('admin:components.party.confirmPartyDelete')}`}
         onClose={() => setOpenConfirm(false)}
         onSubmit={submitRemoveParty}
       />

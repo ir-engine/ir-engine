@@ -152,6 +152,19 @@
       "mobileTitle": "View this Item in AR on your Mobile Device",
       "linkCopied": "Link copied to clipboard."
     },
+    "party": {
+      "title": "Party",
+      "create": "Create",
+      "createPartyText": "Create a Party for private conversations",
+      "invite": "Invite",
+      "leave": "Leave",
+      "kick": "Kick",
+      "admin": "Admin",
+      "you": "You",
+      "initDelete": "Delete",
+      "confirmDelete": "Confirm",
+      "cancelDelete": "Cancel"
+    },
     "setting": {
       "audio": "Audio",
       "lbl-volume": "Volume",
