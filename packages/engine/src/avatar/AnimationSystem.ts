@@ -1,4 +1,4 @@
-import { AxesHelper, Bone, Euler, Quaternion, Vector3 } from 'three'
+import { Bone, Euler, Vector3 } from 'three'
 
 import { createActionQueue } from '@xrengine/hyperflux'
 
@@ -55,16 +55,9 @@ export default async function AnimationSystem(world: World) {
   const forward = new Vector3()
   const avatarAnimationQuery = defineQuery([AnimationComponent, AvatarAnimationComponent])
   const armsTwistCorrectionQuery = defineQuery([AvatarArmsTwistCorrectionComponent, AvatarAnimationComponent])
-
-  const lRotInv = new Quaternion()
-  const twistBindRot = new Quaternion()
-
   const avatarAnimationQueue = createActionQueue(WorldNetworkAction.avatarAnimation.matches)
 
   await AnimationManager.instance.loadDefaultAnimations()
-
-  const axesHelper = new AxesHelper(0.2)
-  Engine.instance.currentWorld.scene.add(axesHelper)
 
   return () => {
     const { deltaSeconds: delta } = world

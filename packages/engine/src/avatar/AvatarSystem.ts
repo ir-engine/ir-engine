@@ -1,4 +1,4 @@
-import { Group, Mesh, MeshBasicMaterial, Object3D, Plane, Quaternion, SphereGeometry, Vector3 } from 'three'
+import { Group, Object3D, Quaternion, Vector3 } from 'three'
 
 import { createActionQueue, getState } from '@xrengine/hyperflux'
 
@@ -118,10 +118,6 @@ export default async function AvatarSystem(world: World) {
   const xrLGripQuery = defineQuery([AvatarComponent, XRLGripButtonComponent, XRInputSourceComponent])
   const xrRGripQuery = defineQuery([AvatarComponent, XRRGripButtonComponent, XRInputSourceComponent])
 
-  let lSphere = new Mesh(new SphereGeometry(0.1, 6, 6), new MeshBasicMaterial({ color: 0x00ff00, wireframe: true }))
-  let rSphere = new Mesh(new SphereGeometry(0.1, 6, 6), new MeshBasicMaterial({ color: 0xff0000, wireframe: true }))
-  Engine.instance.currentWorld.scene.add(lSphere, rSphere)
-
   return () => {
     for (const action of avatarDetailsQueue()) avatarDetailsReceptor(action)
     for (const action of setXRModeQueue()) setXRModeReceptor(action)
@@ -130,12 +126,6 @@ export default async function AvatarSystem(world: World) {
 
     for (const entity of xrInputQuery.enter(world)) {
       xrInputQueryEnter(entity)
-    }
-
-    for (const entity of xrInputQuery(world)) {
-      const { leftHint, rightHint } = getComponent(entity, AvatarHandsIKComponent)
-      leftHint?.getWorldPosition(lSphere.position)
-      rightHint?.getWorldPosition(rSphere.position)
     }
 
     for (const entity of xrInputQuery.exit(world)) {
