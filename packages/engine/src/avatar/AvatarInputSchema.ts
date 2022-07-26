@@ -524,8 +524,7 @@ export const handlePhysicsDebugEvent = (entity: Entity, inputKey: InputAlias, in
     dispatchAction(
       WorldNetworkAction.spawnDebugPhysicsObject({
         config: boxDynamicConfig // Any custom config can be provided here
-      }),
-      NetworkTopics.world
+      })
     )
   } else if (inputKey === PhysicsDebugInput.TOGGLE_PHYSICS_DEBUG) {
     dispatchAction(

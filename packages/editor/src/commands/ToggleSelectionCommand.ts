@@ -63,7 +63,7 @@ function emitEventBefore(command: ToggleSelectionCommandParams) {
   if (command.preventEvents) return
 
   cancelGrabOrPlacement()
-  dispatchAction(SelectionAction.changedBeforeSelection())
+  dispatchAction(SelectionAction.changedBeforeSelection({}))
 }
 
 function emitEventAfter(command: ToggleSelectionCommandParams) {

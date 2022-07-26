@@ -78,6 +78,12 @@ export const scopeTypeSeed = {
     },
     {
       type: 'projects:write'
+    },
+    {
+      type: 'settings:read'
+    },
+    {
+      type: 'settings:write'
     }
   ]
 }

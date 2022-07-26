@@ -37,7 +37,7 @@ function prepare<C extends ComponentConstructor<any, any>>(command: ModifyProper
 
         for (const propertyName of propertyNames) {
           const { result, finalProp } = getNestedObject(comp, propertyName)
-          const oldValue = result[finalProp]
+          const oldValue = result ? result[finalProp] : {}
           oldProps[propertyName] = oldValue && oldValue.clone ? oldValue.clone() : oldValue
         }
 
@@ -146,6 +146,7 @@ export function getNestedObject(object: any, propertyName: string): { result: an
   let result = object
 
   for (let i = 0; i < props.length - 1; i++) {
+    if (typeof result[props[i]] === 'undefined') result[props[i]] = {}
     result = result[props[i]]
   }
 

@@ -74,7 +74,7 @@ export const AdminPartyService = {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   },
-  fetchAdminParty: async (value: string | null = null, skip = 0, sortField = 'location', orderBy = 'asc') => {
+  fetchAdminParty: async (value: string | null = null, skip = 0, sortField = 'maxMembers', orderBy = 'asc') => {
     const user = accessAuthState().user
 
     try {

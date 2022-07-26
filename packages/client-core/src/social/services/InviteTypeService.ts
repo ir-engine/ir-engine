@@ -38,7 +38,7 @@ export const useInviteTypeState = () => useState(accessInviteTypeState())
 //Service
 export const InviteTypeService = {
   retrieveInvites: async () => {
-    dispatchAction(InviteTypeAction.fetchingInvitesTypes())
+    dispatchAction(InviteTypeAction.fetchingInvitesTypes({}))
     try {
       const inviteTypeResult = (await API.instance.client.service('invite-type').find()) as Paginated<InviteType>
       dispatchAction(

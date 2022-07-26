@@ -27,16 +27,19 @@ export const InteractiveModalView = () => {
         <div>{modalState.interactMessage.value}</div>
       </div>
       <style>
-        {`
+        {`        
         .modal {
-          background-color: rgb(20,20,50,0.9);
+          font-size: 60px;
+          background-color: #000d;
           color: white;
-          font-family: 'Roboto', sans-serif;
-          border: 0.5px solid white;
-          border-radius: 40px;
-          width: ${162 * 4}px;
-          height: ${100 * 4}px;
-          margin:1px;
+          font-family: Roboto, sans-serif;
+          border: 10px solid white;
+          border-radius: 50px;
+          padding: 20px;
+          margin: 60px;
+          box-shadow: #fff2 0 0 30px;
+          width: 400px;
+          text-align: center;
         }
       `}
       </style>

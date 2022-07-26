@@ -44,7 +44,10 @@ const ProtectedRoutes = () => {
     instance: false,
     invite: false,
     globalAvatars: false,
-    benchmarking: false
+    benchmarking: false,
+    routes: false,
+    projects: false,
+    settings: false
   }
   const scopes = admin?.scopes?.value || []
 
@@ -91,18 +94,18 @@ const ProtectedRoutes = () => {
         {isEngineInitialized && (
           <Switch>
             <PrivateRoute exact path="/admin" component={analytic} />
-            <PrivateRoute exact path="/admin/avatars" component={avatars} />
-            <PrivateRoute exact path="/admin/benchmarking" component={benchmarking} />
-            <PrivateRoute exact path="/admin/groups" component={groups} />
-            <PrivateRoute exact path="/admin/instance" component={instance} />
-            <PrivateRoute exact path="/admin/invites" component={invites} />
-            <PrivateRoute exact path="/admin/locations" component={locations} />
-            <PrivateRoute exact path="/admin/routes" component={routes} />
-            <PrivateRoute exact path="/admin/parties" component={party} />
-            <PrivateRoute exact path="/admin/bots" component={botSetting} />
-            <PrivateRoute exact path="/admin/projects" component={projects} />
-            <PrivateRoute exact path="/admin/settings" component={setting} />
-            <PrivateRoute exact Path="/admin/users" component={users} />
+            {allowedRoutes.globalAvatars && <PrivateRoute exact path="/admin/avatars" component={avatars} />}
+            {allowedRoutes.benchmarking && <PrivateRoute exact path="/admin/benchmarking" component={benchmarking} />}
+            {allowedRoutes.groups && <PrivateRoute exact path="/admin/groups" component={groups} />}
+            {allowedRoutes.instance && <PrivateRoute exact path="/admin/instance" component={instance} />}
+            {allowedRoutes.invite && <PrivateRoute exact path="/admin/invites" component={invites} />}
+            {allowedRoutes.location && <PrivateRoute exact path="/admin/locations" component={locations} />}
+            {allowedRoutes.routes && <PrivateRoute exact path="/admin/routes" component={routes} />}
+            {allowedRoutes.party && <PrivateRoute exact path="/admin/parties" component={party} />}
+            {allowedRoutes.bot && <PrivateRoute exact path="/admin/bots" component={botSetting} />}
+            {allowedRoutes.projects && <PrivateRoute exact path="/admin/projects" component={projects} />}
+            {allowedRoutes.settings && <PrivateRoute exact path="/admin/settings" component={setting} />}
+            {allowedRoutes.user && <PrivateRoute exact Path="/admin/users" component={users} />}
           </Switch>
         )}
       </Suspense>

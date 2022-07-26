@@ -1,4 +1,5 @@
-import { BoxBufferGeometry, Mesh, MeshBasicMaterial, Object3D } from 'three'
+import { RigidBodyType } from '@dimforge/rapier3d-compat'
+import { BoxBufferGeometry, Mesh, MeshBasicMaterial } from 'three'
 
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
@@ -7,11 +8,13 @@ import {
   ComponentSerializeFunction,
   ComponentUpdateFunction
 } from '../../../common/constants/PrefabFunctionType'
+import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
-import { ColliderComponent } from '../../../physics/components/ColliderComponent'
-import { CollisionGroups } from '../../../physics/enums/CollisionGroups'
-import { createCollider } from '../../../physics/functions/createCollider'
+import { Physics } from '../../../physics/classes/Physics'
+import { RigidBodyComponent } from '../../../physics/components/RigidBodyComponent'
+import { CollisionGroups, DefaultCollisionMask } from '../../../physics/enums/CollisionGroups'
+import { ColliderDescOptions } from '../../../physics/types/PhysicsTypes'
 import { TransformComponent } from '../../../transform/components/TransformComponent'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
@@ -29,14 +32,20 @@ export const deserializeTriggerVolume: ComponentDeserializeFunction = (
   const boxMesh = new Mesh(new BoxBufferGeometry(), new MeshBasicMaterial())
   boxMesh.material.visible = false
   boxMesh.userData = {
-    type: 'box',
+    type: 'Cuboid',
+    bodyType: RigidBodyType.Fixed,
     isTrigger: true,
     isHelper: true,
     collisionLayer: CollisionGroups.Trigger,
-    collisionMask: CollisionGroups.Default
+    collisionMask: DefaultCollisionMask
   }
   boxMesh.scale.set(transform.scale.x, transform.scale.y, transform.scale.z)
-  createCollider(entity, boxMesh)
+  Physics.createRigidBodyForObject(
+    entity,
+    Engine.instance.currentWorld.physicsWorld,
+    boxMesh,
+    boxMesh.userData as ColliderDescOptions
+  )
 
   addComponent(entity, TriggerVolumeComponent, {
     onEnter: json.props.onEnter,
@@ -52,12 +61,9 @@ export const deserializeTriggerVolume: ComponentDeserializeFunction = (
 
 export const updateTriggerVolume: ComponentUpdateFunction = (entity: Entity, prop: any) => {
   const transform = getComponent(entity, TransformComponent)
-  const component = getComponent(entity, ColliderComponent)
-  const pose = component.body.getGlobalPose()
-  pose.translation = transform.position
-  pose.rotation = transform.rotation
-  component.body.setGlobalPose(pose, false)
-  component.body._debugNeedsUpdate = true
+  const rigidBody = getComponent(entity, RigidBodyComponent)
+  rigidBody.setTranslation(transform.position, true)
+  rigidBody.setRotation(transform.rotation, true)
 }
 
 export const serializeTriggerVolume: ComponentSerializeFunction = (entity) => {

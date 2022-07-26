@@ -12,12 +12,10 @@ import { createSettingDetailView } from './ui/SettingDetailView'
 export function createSettingsWidget(world: World) {
   const ui = createSettingDetailView()
 
-  addComponent(ui.entity, PersistTagComponent, {})
+  addComponent(ui.entity, PersistTagComponent, true)
 
-  ui.container.then(() => {
-    const xrui = getComponent(ui.entity, XRUIComponent)
-    ObjectFitFunctions.setUIVisible(xrui.container, false)
-  })
+  const xrui = getComponent(ui.entity, XRUIComponent)
+  ObjectFitFunctions.setUIVisible(xrui.container, false)
 
   Widgets.registerWidget(world, ui.entity, {
     ui,

@@ -37,7 +37,7 @@ technology and shared simulations should be as easy and natural as making a webs
 - Social features like chat, groups, friends, blocking and moderation
 - Complete world editing and administration
 - 2D, 3D and XR Avatars with full inverse kinematics and facial expressions
-- Fully networked physics using PhysX compiled to wasm
+- Fully networked physics using Rapier Physics
 - Voice and video over WebRTC
 - Instant login and location sharing with phone number or email
 - Modular- Use the engine, server, client, editor and scalable devops infrastructure as needed

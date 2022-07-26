@@ -47,7 +47,7 @@ export const EmailSettingService = {
   patchEmailSetting: async (data: PatchEmailSetting, id: string) => {
     try {
       await API.instance.client.service('email-setting').patch(id, data)
-      dispatchAction(EmailSettingActions.emailSettingPatched())
+      dispatchAction(EmailSettingActions.emailSettingPatched({}))
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }

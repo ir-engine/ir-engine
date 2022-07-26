@@ -77,7 +77,7 @@ export const FileBrowserService = {
       }
     }
 
-    dispatchAction(FileBrowserAction.filesFetching())
+    dispatchAction(FileBrowserAction.filesFetching({}))
     const files = (await API.instance.client
       .service('file-browser')
       .get(directory, params)) as Paginated<FileContentType>

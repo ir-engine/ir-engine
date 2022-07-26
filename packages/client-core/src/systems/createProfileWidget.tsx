@@ -12,12 +12,10 @@ import { createProfileDetailView } from './ui/ProfileDetailView'
 export function createProfileWidget(world: World) {
   const ui = createProfileDetailView()
 
-  addComponent(ui.entity, PersistTagComponent, {})
+  addComponent(ui.entity, PersistTagComponent, true)
 
-  ui.container.then(() => {
-    const xrui = getComponent(ui.entity, XRUIComponent)
-    ObjectFitFunctions.setUIVisible(xrui.container, false)
-  })
+  const xrui = getComponent(ui.entity, XRUIComponent)
+  ObjectFitFunctions.setUIVisible(xrui.container, false)
 
   Widgets.registerWidget(world, ui.entity, {
     ui,

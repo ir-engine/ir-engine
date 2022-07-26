@@ -1,7 +1,9 @@
 import { Vector3 } from 'three'
 
-import { useWorld } from '../../ecs/functions/SystemHooks'
+import { Engine } from '../../ecs/classes/Engine'
+import { Physics } from '../../physics/classes/Physics'
 import { AvatarCollisionMask, CollisionGroups } from '../../physics/enums/CollisionGroups'
+import { getInteractionGroups } from '../../physics/functions/getInteractionGroups'
 import { RaycastHit, SceneQueryType } from '../../physics/types/PhysicsTypes'
 
 /**
@@ -18,24 +20,18 @@ export default function checkPositionIsValid(
   onlyAllowPositionOnGround = true,
   raycastDirection = new Vector3(0, -1, 0)
 ) {
-  const filterData = new PhysX.PxQueryFilterData()
-  onlyAllowPositionOnGround
-    ? filterData.setWords(CollisionGroups.Ground, 0)
-    : filterData.setWords(AvatarCollisionMask, 0)
-  const flags = PhysX.PxQueryFlag.eSTATIC.value | PhysX.PxQueryFlag.eDYNAMIC.value | PhysX.PxQueryFlag.eANY_HIT.value
-  filterData.setFlags(flags)
+  const collisionLayer = onlyAllowPositionOnGround ? CollisionGroups.Ground : AvatarCollisionMask
+  const interactionGroups = getInteractionGroups(CollisionGroups.Avatars, collisionLayer)
 
-  const world = useWorld()
   const raycastComponentData = {
-    filterData,
     type: SceneQueryType.Closest,
     hits: [],
     origin: position,
     direction: raycastDirection,
     maxDistance: 2,
-    flags
+    flags: interactionGroups
   }
-  world.physics.doRaycast(raycastComponentData)
+  Physics.castRay(Engine.instance.currentWorld.physicsWorld, raycastComponentData)
 
   let positionValid = false
   let raycastHit = null as any

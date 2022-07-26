@@ -66,15 +66,14 @@ export default async function AnimationSystem(world: World) {
 
     for (const entity of desiredTransformQuery(world)) {
       const desiredTransform = getComponent(entity, DesiredTransformComponent)
-
       const mutableTransform = getComponent(entity, TransformComponent)
-      mutableTransform.position.lerp(desiredTransform.position, desiredTransform.positionRate * delta)
 
+      mutableTransform.position.lerp(desiredTransform.position, desiredTransform.positionRate * delta)
       // store rotation before interpolation
       euler1YXZ.setFromQuaternion(mutableTransform.rotation)
       // lerp to desired rotation
-
       mutableTransform.rotation.slerp(desiredTransform.rotation, desiredTransform.rotationRate * delta)
+
       euler2YXZ.setFromQuaternion(mutableTransform.rotation)
       // use axis locks - yes this is correct, the axis order is weird because quaternions
       if (desiredTransform.lockRotationAxis[0]) {

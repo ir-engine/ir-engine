@@ -35,27 +35,7 @@ export default function (app: Application): void {
 
   service.publish('created', async (data, params): Promise<any> => {
     try {
-      const targetIds = [data.userId]
-      const user = await app.service('user').get(data.userId)
-      const partyUser: any = await app.service('party-user').find({
-        query: {
-          partyId: user.partyId,
-          userId: user.id
-        }
-      })
-      if (partyUser.total > 0) {
-        const { query, ...paramsCopy } = params as any
-        paramsCopy.skipAuth = true
-        await app.service('party-user').remove(partyUser.data[0].id, paramsCopy)
-      }
-
-      return Promise.all(
-        targetIds.map((userId: string) => {
-          return app.channel(`userIds/${userId}`).send({
-            locationBan: data
-          })
-        })
-      )
+      return Promise.all([app.channel(`userIds/${data.userId}`).send({ locationBan: data })])
     } catch (err) {
       logger.error(err)
     }

@@ -6,17 +6,16 @@ import { Party } from '@xrengine/common/src/interfaces/Party'
 import Button from '@mui/material/Button'
 import Container from '@mui/material/Container'
 import DialogActions from '@mui/material/DialogActions'
-import DialogContentText from '@mui/material/DialogContentText'
 import DialogTitle from '@mui/material/DialogTitle'
 
 import { NotificationService } from '../../../common/services/NotificationService'
 import { useAuthState } from '../../../user/services/AuthService'
 import DrawerView from '../../common/DrawerView'
 import InputSelect, { InputMenuItem } from '../../common/InputSelect'
+import InputText from '../../common/InputText'
 import { validateForm } from '../../common/validation/formValidation'
 import { AdminInstanceService } from '../../services/InstanceService'
 import { useAdminInstanceState } from '../../services/InstanceService'
-import { AdminLocationService } from '../../services/LocationService'
 import { useAdminLocationState } from '../../services/LocationService'
 import { AdminPartyService } from '../../services/PartyService'
 import styles from '../../styles/admin.module.scss'
@@ -34,11 +33,9 @@ interface Props {
 }
 
 const defaultState = {
-  location: '',
-  instance: '',
+  maxMembers: 10,
   formErrors: {
-    location: '',
-    instance: ''
+    maxMembers: ''
   }
 }
 
@@ -48,48 +45,9 @@ const PartyDrawer = ({ open, mode, selectedParty, onClose }: Props) => {
   const [state, setState] = useState({ ...defaultState })
 
   const { user } = useAuthState().value
-  const { locations } = useAdminLocationState().value
-  const { instances } = useAdminInstanceState().value
 
   const hasWriteAccess = user.scopes && user.scopes.find((item) => item.type === 'party:write')
-  const viewMode = mode === PartyDrawerMode.ViewEdit && editMode === false
-
-  const instanceMenu: InputMenuItem[] = instances.map((el) => {
-    return {
-      value: el?.id,
-      label: el?.ipAddress
-    }
-  })
-
-  const locationMenu: InputMenuItem[] = locations.map((el) => {
-    return {
-      value: el?.id,
-      label: el?.name
-    }
-  })
-
-  if (selectedParty) {
-    const instanceExists = instanceMenu.find((item) => item.value === selectedParty.instance?.id)
-    if (!instanceExists) {
-      instanceMenu.push({
-        value: selectedParty.instance?.id!,
-        label: selectedParty.instance?.ipAddress!
-      })
-    }
-
-    const locationExists = locationMenu.find((item) => item.value === selectedParty.location?.id)
-    if (!locationExists) {
-      locationMenu.push({
-        value: selectedParty.location?.id!,
-        label: selectedParty.location?.name!
-      })
-    }
-  }
-
-  useEffect(() => {
-    AdminLocationService.fetchAdminLocations()
-    AdminInstanceService.fetchAdminInstances()
-  }, [])
+  const viewMode = mode === PartyDrawerMode.ViewEdit && !editMode
 
   useEffect(() => {
     loadSelectedParty()
@@ -99,8 +57,7 @@ const PartyDrawer = ({ open, mode, selectedParty, onClose }: Props) => {
     if (selectedParty) {
       setState({
         ...defaultState,
-        instance: selectedParty.instance?.id ?? '',
-        location: selectedParty.location?.id ?? ''
+        maxMembers: selectedParty.maxMembers ?? 0
       })
     }
   }
@@ -123,11 +80,8 @@ const PartyDrawer = ({ open, mode, selectedParty, onClose }: Props) => {
     let tempErrors = { ...state.formErrors }
 
     switch (name) {
-      case 'location':
-        tempErrors.location = value.length < 2 ? t('admin:components.party.locationRequired') : ''
-        break
-      case 'instance':
-        tempErrors.instance = value.length < 2 ? t('admin:components.party.instanceRequired') : ''
+      case 'maxMembers':
+        tempErrors.maxMembers = value < 2 ? t('admin:components.party.maxMembersRequired') : ''
         break
       default:
         break
@@ -138,14 +92,12 @@ const PartyDrawer = ({ open, mode, selectedParty, onClose }: Props) => {
 
   const handleSubmit = async () => {
     const data = {
-      locationId: state.location,
-      instanceId: state.instance
+      maxMembers: state.maxMembers
     }
 
     let tempErrors = {
       ...state.formErrors,
-      location: state.location ? '' : t('admin:components.party.locationCantEmpty'),
-      instance: state.instance ? '' : t('admin:components.party.instanceCantEmpty')
+      maxMembers: state.maxMembers ? '' : t('admin:components.party.maxMembersRequired')
     }
 
     setState({ ...state, formErrors: tempErrors })
@@ -171,42 +123,18 @@ const PartyDrawer = ({ open, mode, selectedParty, onClose }: Props) => {
           {mode === PartyDrawerMode.Create && t('admin:components.party.createParty')}
           {mode === PartyDrawerMode.ViewEdit &&
             editMode &&
-            `${t('admin:components.common.update')} ${selectedParty?.location?.name}/${
-              selectedParty?.instance?.ipAddress
-            }`}
-          {mode === PartyDrawerMode.ViewEdit &&
-            !editMode &&
-            `${selectedParty?.location?.name}/${selectedParty?.instance?.ipAddress}`}
+            `${t('admin:components.common.update')} ${selectedParty?.id}`}
+          {mode === PartyDrawerMode.ViewEdit && !editMode && `${selectedParty?.id}`}
         </DialogTitle>
 
-        <InputSelect
-          name="instance"
-          label={t('admin:components.party.instance')}
-          value={state.instance}
-          error={state.formErrors.instance}
-          menu={instanceMenu}
+        <InputText
+          name="maxMembers"
+          label={t('admin:components.party.maxMembers')}
+          value={state.maxMembers}
+          error={state.formErrors.maxMembers}
           disabled={viewMode}
           onChange={handleChange}
         />
-
-        <InputSelect
-          name="location"
-          label={t('admin:components.party.location')}
-          value={state.location}
-          error={state.formErrors.location}
-          menu={locationMenu}
-          disabled={viewMode}
-          onChange={handleChange}
-        />
-
-        {viewMode === false && (
-          <DialogContentText className={styles.mb15px}>
-            <span className={styles.spanWhite}>{t('admin:components.party.dontSeeLocation')}</span>
-            <a href="/admin/locations" className={styles.textLink}>
-              {t('admin:components.party.createOne')}
-            </a>
-          </DialogContentText>
-        )}
 
         <DialogActions>
           <Button className={styles.outlinedButton} onClick={handleCancel}>
@@ -217,12 +145,8 @@ const PartyDrawer = ({ open, mode, selectedParty, onClose }: Props) => {
               {t('admin:components.common.submit')}
             </Button>
           )}
-          {mode === PartyDrawerMode.ViewEdit && editMode === false && (
-            <Button
-              className={styles.gradientButton}
-              disabled={hasWriteAccess ? false : true}
-              onClick={() => setEditMode(true)}
-            >
+          {mode === PartyDrawerMode.ViewEdit && !editMode && (
+            <Button className={styles.gradientButton} disabled={!hasWriteAccess} onClick={() => setEditMode(true)}>
               {t('admin:components.common.edit')}
             </Button>
           )}
