@@ -50,7 +50,11 @@ const ChatDetailView = () => {
                 {!isLeftOrJoinText(message.text) ? (
                   <div key={index} className="dFlex flexColumn mgSmall">
                     <div className="selfEnd noMargin">
-                      <div className="dFlex">
+                      <div
+                        className={`${
+                          message.senderId !== user?.id.value ? 'msgReplyContainer' : 'msgOwner'
+                        } msgContainer dFlex`}
+                      >
                         <div className="msgWrapper">
                           {messages[index - 1] && isLeftOrJoinText(messages[index - 1].text) ? (
                             <h3 className="sender">{message.sender.name}</h3>
@@ -60,13 +64,7 @@ const ChatDetailView = () => {
                               <h3 className="sender">{message.sender.name}</h3>
                             )
                           )}
-                          <div
-                            className={`${
-                              message.senderId !== user?.id.value ? 'msgReplyContainer' : 'msgOwner'
-                            } msgContainer mx2`}
-                          >
-                            <p className="text">{message.text}</p>
-                          </div>
+                          <p className="text">{message.text}</p>
                         </div>
                         {index !== 0 && messages[index - 1] && isLeftOrJoinText(messages[index - 1].text) ? (
                           <Avatar src={getAvatarURLForUser(userAvatarDetails, message.senderId)} className="avatar" />

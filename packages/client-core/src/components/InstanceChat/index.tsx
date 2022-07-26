@@ -351,7 +351,11 @@ const InstanceChat = ({
                         {!isLeftOrJoinText(message.text) ? (
                           <div key={message.id} className={`${styles.dFlex} ${styles.flexColumn} ${styles.mgSmall}`}>
                             <div className={`${styles.selfEnd} ${styles.noMargin}`}>
-                              <div className={styles.dFlex}>
+                              <div
+                                className={`${
+                                  message.senderId !== user?.id.value ? styles.msgReplyContainer : styles.msgOwner
+                                } ${styles.msgContainer} ${styles.dFlex}`}
+                              >
                                 <div className={styles.msgWrapper}>
                                   {messages[index - 1] && isLeftOrJoinText(messages[index - 1].text) ? (
                                     <h3 className={styles.sender}>{message.sender.name}</h3>
@@ -361,13 +365,7 @@ const InstanceChat = ({
                                       <h3 className={styles.sender}>{message.sender.name}</h3>
                                     )
                                   )}
-                                  <div
-                                    className={`${
-                                      message.senderId !== user?.id.value ? styles.msgReplyContainer : styles.msgOwner
-                                    } ${styles.msgContainer} ${styles.mx2}`}
-                                  >
-                                    <p className={styles.text}>{message.text}</p>
-                                  </div>
+                                  <p className={styles.text}>{message.text}</p>
                                 </div>
                                 {index !== 0 && messages[index - 1] && isLeftOrJoinText(messages[index - 1].text) ? (
                                   <Avatar

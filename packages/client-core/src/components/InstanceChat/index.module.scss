@@ -335,8 +335,8 @@
 }
 
 .msgContainer {
-  padding: 10px 12px;
-  border-radius: 15px;
+  padding: 5px 7px;
+  border-radius: 10px;
   max-width: 290px;
   word-wrap: break-word;
 }
@@ -392,7 +392,7 @@
 }
 
 .sender {
-  color: #fff;
+  color: var(--textColor);
   font-weight: bold;
   margin-bottom: 5px;
 }
