@@ -11,6 +11,7 @@ import VideocamIcon from '@mui/icons-material/Videocam'
 
 import { ItemTypes } from '../../constants/AssetTypes'
 import ArrayInputGroup from '../inputs/ArrayInputGroup'
+import BooleanInput from '../inputs/BooleanInput'
 import { Button } from '../inputs/Button'
 import InputGroup from '../inputs/InputGroup'
 import SelectInput from '../inputs/SelectInput'

@@ -8,6 +8,8 @@ export type DesiredTransformComponentType = {
   positionRate: number
   rotationRate: number
   lockRotationAxis: [boolean, boolean, boolean]
+  positionDelta: number
+  rotationDelta: number
 }
 
 export const DesiredTransformComponent =

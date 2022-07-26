@@ -10,7 +10,7 @@ import { PersistTagComponent } from '../../components/PersistTagComponent'
 export const SCENE_COMPONENT_PERSIST = 'persist'
 
 export const deserializePersist: ComponentDeserializeFunction = (entity: Entity, _: ComponentJson<{}>) => {
-  if (isClient) addComponent(entity, PersistTagComponent, {})
+  if (isClient) addComponent(entity, PersistTagComponent, true)
   getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_PERSIST)
 }
 

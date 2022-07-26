@@ -3,18 +3,15 @@ import proxyquire from 'proxyquire'
 import sinon from 'sinon'
 import { PerspectiveCamera } from 'three'
 
-import { dispatchAction } from '@xrengine/hyperflux'
-
 import { createMockNetwork } from '../../../tests/util/createMockNetwork'
 import { createAvatar } from '../../avatar/functions/createAvatar'
-import { FollowCameraComponent, FollowCameraDefaultValues } from '../../camera/components/FollowCameraComponent'
 import { Engine } from '../../ecs/classes/Engine'
-import { addComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
+import { hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { createEngine } from '../../initializeEngine'
-import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { WorldNetworkActionReceptor } from '../../networking/functions/WorldNetworkActionReceptor'
+import { Physics } from '../../physics/classes/Physics'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { XRHandsInputComponent } from '../components/XRHandsInputComponent'
 import { XRInputSourceComponent } from '../components/XRInputSourceComponent'
@@ -23,13 +20,14 @@ import { setupXRCameraForLocalEntity, setupXRInputSourceComponent } from './WebX
 describe('WebXRFunctions Unit', async () => {
   beforeEach(async () => {
     createEngine()
+    await Physics.load()
+    Engine.instance.currentWorld.physicsWorld = Physics.createWorld()
   })
 
   it('check setupXRCamera', async () => {
     const world = Engine.instance.currentWorld
-    await world.physics.createScene()
 
-    const action = WorldNetworkAction.spawnAvatar()
+    const action = WorldNetworkAction.spawnAvatar({})
     WorldNetworkActionReceptor.receiveSpawnObject(action)
     createAvatar(action)
 
@@ -53,9 +51,8 @@ describe('WebXRFunctions Unit', async () => {
     createMockNetwork()
 
     const world = Engine.instance.currentWorld
-    await world.physics.createScene()
 
-    const action = WorldNetworkAction.spawnAvatar()
+    const action = WorldNetworkAction.spawnAvatar({})
     WorldNetworkActionReceptor.receiveSpawnObject(action)
     createAvatar(action)
 

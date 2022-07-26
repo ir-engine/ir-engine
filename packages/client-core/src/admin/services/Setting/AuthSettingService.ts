@@ -79,7 +79,7 @@ export const AuthSettingsService = {
   patchAuthSetting: async (data: PatchAuthSetting, id: string) => {
     try {
       await API.instance.client.service('authentication-setting').patch(id, data)
-      dispatchAction(AuthSettingsActions.authSettingPatched())
+      dispatchAction(AuthSettingsActions.authSettingPatched({}))
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }

@@ -8,7 +8,8 @@ export class NetworkConnectionService {
       instanceId: matches.string
     }),
     noMediaServersAvailable: defineAction({
-      type: 'WEBRTC_PROVISION_CHANNEL_NO_INSTANCESERVERS_AVAILABLE' as const
+      type: 'WEBRTC_PROVISION_CHANNEL_NO_INSTANCESERVERS_AVAILABLE' as const,
+      instanceId: matches.string
     }),
     worldInstanceKicked: defineAction({
       type: 'WEBRTC_INSTANCE_KICKED' as const,

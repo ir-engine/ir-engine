@@ -1,12 +1,12 @@
-import { DataTypes, Model, Sequelize } from 'sequelize'
+import { DataTypes, Model, ModelStatic, Sequelize } from 'sequelize'
 
 import { PartyUserInterface } from '@xrengine/common/src/dbmodels/PartyUser'
 
-import { Application } from '../../../declarations'
+export type PartyUserModel = Model<Partial<PartyUserInterface>>
+export type PartyUserModelStatic = ModelStatic<PartyUserModel>
 
-export default (app: Application) => {
-  const sequelizeClient: Sequelize = app.get('sequelizeClient')
-  const partyUser = sequelizeClient.define<Model<PartyUserInterface>>(
+export default (sequelizeClient: Sequelize) => {
+  const partyUser = sequelizeClient.define<PartyUserModel>(
     'party_user',
     {
       id: {
@@ -33,9 +33,9 @@ export default (app: Application) => {
     }
   )
 
-  ;(partyUser as any).associate = (models: any): void => {
-    ;(partyUser as any).belongsTo(models.party, { primaryKey: true, required: true, allowNull: false })
-    ;(partyUser as any).belongsTo(models.user, { primaryKey: true, required: true, allowNull: false })
+  ;(partyUser as any).associate = (models: typeof Sequelize.prototype.models): void => {
+    partyUser.belongsTo(models.party)
+    partyUser.belongsTo(models.user)
   }
 
   return partyUser

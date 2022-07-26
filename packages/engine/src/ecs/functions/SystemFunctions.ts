@@ -1,7 +1,11 @@
 /** Functions to provide system level functionalities. */
+import multiLogger from '@xrengine/common/src/logger'
+
 import { nowMilliseconds } from '../../common/functions/nowMilliseconds'
 import { World } from '../classes/World'
 import { SystemUpdateType } from '../functions/SystemUpdateType'
+
+const logger = multiLogger.child({ component: 'engine:ecs:SystemFunctions' })
 
 export type CreateSystemSyncFunctionType<A extends any> = (world: World, props?: A) => () => void
 export type CreateSystemFunctionType<A extends any> = (world: World, props?: A) => Promise<() => void>
@@ -39,9 +43,9 @@ export const initSystems = async (world: World, systemModulesToLoad: SystemModul
   const loadSystemInjection = async (s: SystemFactoryType<any>) => {
     const name = s.systemModule.default.name
     try {
-      console.log(`${name} initializing on ${s.type} pipeline`)
+      logger.info(`${name} initializing on ${s.type} pipeline`)
       const system = await s.systemModule.default(world, s.args)
-      console.log(`${name} ready`)
+      logger.info(`${name} ready`)
       return {
         name,
         type: s.type,
@@ -51,18 +55,17 @@ export const initSystems = async (world: World, systemModulesToLoad: SystemModul
           try {
             system()
           } catch (e) {
-            console.error(e)
+            logger.error(e)
           }
           const end = nowMilliseconds()
           const duration = end - start
           if (duration > 50) {
-            console.warn(`Long system execution detected. System: ${name} \n Duration: ${duration}`)
+            logger.warn(`Long system execution detected. System: ${name} \n Duration: ${duration}`)
           }
         }
       } as SystemInstanceType
     } catch (e) {
-      console.error(`System ${name} failed to initialize! `)
-      console.error(e)
+      logger.error(new Error(`System ${name} failed to initialize!`, { cause: e }))
       return null
     }
   }
@@ -86,9 +89,9 @@ export const initSystems = async (world: World, systemModulesToLoad: SystemModul
 
 export const initSystemSync = (world: World, systemArgs: SystemSyncFunctionType<any>) => {
   const name = systemArgs.systemFunction.name
-  console.log(`${name} initializing on ${systemArgs.type} pipeline`)
+  logger.info(`${name} initializing on ${systemArgs.type} pipeline`)
   const system = systemArgs.systemFunction(world, systemArgs.args)
-  console.log(`${name} ready`)
+  logger.info(`${name} ready`)
   const systemData = {
     name,
     type: systemArgs.type,
@@ -98,12 +101,12 @@ export const initSystemSync = (world: World, systemArgs: SystemSyncFunctionType<
       try {
         system()
       } catch (e) {
-        console.error(e)
+        logger.error(e)
       }
       const end = nowMilliseconds()
       const duration = end - start
       if (duration > 10) {
-        console.warn(`Long system execution detected. System: ${name} \n Duration: ${duration}`)
+        logger.warn(`Long system execution detected. System: ${name} \n Duration: ${duration}`)
       }
     }
   } as SystemInstanceType

@@ -34,7 +34,7 @@ const LocationMenuView = () => {
 
   const handleStartXRSession = () => {
     if (!engineState.xrSessionStarted.value) {
-      dispatchAction(EngineActions.xrStart())
+      dispatchAction(EngineActions.xrStart({}))
     }
   }
 

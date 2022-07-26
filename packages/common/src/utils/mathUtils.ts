@@ -78,6 +78,19 @@ export const normalizeRange = (val, rangeMin, rangeMax) => {
   return (val - rangeMin) / (rangeMax - rangeMin)
 }
 
-export const equalsEpsillon = (v1: number, v2: number, epsilon = 0.001) => {
+export const equalsEpsilon = (v1: number, v2: number, epsilon = 0.001) => {
   return Math.abs(v1 - v2) < epsilon
+}
+
+export const vector3EqualsEpsilon = (v1: Vector3, v2: Vector3, epsilon = 0.001) => {
+  return equalsEpsilon(v1.x, v2.x, epsilon) && equalsEpsilon(v1.y, v2.y, epsilon) && equalsEpsilon(v1.z, v2.z, epsilon)
+}
+
+export const quaternionEqualsEpsilon = (v1: Quaternion, v2: Quaternion, epsilon = 0.001) => {
+  return (
+    equalsEpsilon(v1.x, v2.x, epsilon) &&
+    equalsEpsilon(v1.y, v2.y, epsilon) &&
+    equalsEpsilon(v1.z, v2.z, epsilon) &&
+    equalsEpsilon(v1.w, v2.w, epsilon)
+  )
 }

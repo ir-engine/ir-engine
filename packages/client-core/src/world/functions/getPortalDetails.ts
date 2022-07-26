@@ -1,3 +1,4 @@
+import multiLogger from '@xrengine/common/src/logger'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
@@ -5,6 +6,8 @@ import { PortalComponent } from '@xrengine/engine/src/scene/components/PortalCom
 import { setRemoteLocationDetail } from '@xrengine/engine/src/scene/functions/createPortal'
 
 import { API } from '../../API'
+
+const logger = multiLogger.child({ component: 'client-core:getPortalDetails' })
 
 export const getPortalDetails = () => {
   Engine.instance.currentWorld.portalQuery().map(async (entity: Entity): Promise<void> => {
@@ -30,7 +33,7 @@ export const getPortalDetails = () => {
         // }
       }
     } catch (e) {
-      console.log(e)
+      logger.error(e)
     }
   })
 }

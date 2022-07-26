@@ -15,8 +15,9 @@ import { getSearchParamFromURL } from '@xrengine/common/src/utils/getSearchParam
 import { SpawnPoints } from '@xrengine/engine/src/avatar/AvatarSpawnSystem'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineActions, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
+import { addComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { spawnLocalAvatarInWorld } from '@xrengine/engine/src/networking/functions/receiveJoinWorld'
-import { teleportToScene } from '@xrengine/engine/src/scene/functions/teleportToScene'
+import { HyperspaceTagComponent } from '@xrengine/engine/src/scene/components/HyperspaceTagComponent'
 import { addActionReceptor, dispatchAction, removeActionReceptor, useHookEffect } from '@xrengine/hyperflux'
 
 import { AppAction, GeneralStateList } from '../../common/services/AppService'
@@ -116,7 +117,7 @@ export const LoadEngineWithScene = () => {
 
       const world = Engine.instance.currentWorld
 
-      dispatchAction(SceneActions.unloadCurrentScene())
+      dispatchAction(SceneActions.unloadCurrentScene({}))
       history.push('/location/' + world.activePortal.location)
       LocationService.getLocationByName(world.activePortal.location, authState.user.id.value)
 
@@ -124,7 +125,8 @@ export const LoadEngineWithScene = () => {
       // leaving a world instance server will check if we are in a location media instance and shut that down too
       leaveNetwork(world.worldNetwork as SocketWebRTCClientNetwork)
 
-      teleportToScene()
+      // the HyperspaceTagComponent is what trigges the portal logic to begin
+      addComponent(world.worldEntity, HyperspaceTagComponent, true)
     }
   }, [engineState.isTeleporting])
 

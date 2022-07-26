@@ -50,7 +50,7 @@ export const ProjectService = {
   createProject: async (name: string) => {
     const result = await API.instance.client.service('project').create({ name })
     logger.info({ result }, 'Create project result')
-    dispatchAction(ProjectAction.createdProject())
+    dispatchAction(ProjectAction.createdProject({}))
     await ProjectService.fetchProjects()
   },
 
@@ -58,7 +58,7 @@ export const ProjectService = {
   uploadProject: async (url: string, name?: string) => {
     const result = await API.instance.client.service('project').update({ url, name })
     logger.info({ result }, 'Upload project result')
-    dispatchAction(ProjectAction.postProject())
+    dispatchAction(ProjectAction.postProject({}))
     await ProjectService.fetchProjects()
   },
 

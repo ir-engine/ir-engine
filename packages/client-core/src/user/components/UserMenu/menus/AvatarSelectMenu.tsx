@@ -12,6 +12,7 @@ import {
   THUMBNAIL_WIDTH
 } from '@xrengine/common/src/constants/AvatarConstants'
 import { StaticResourceInterface } from '@xrengine/common/src/interfaces/StaticResourceInterface'
+import multiLogger from '@xrengine/common/src/logger'
 import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
 import { loadAvatarForPreview } from '@xrengine/engine/src/avatar/functions/avatarFunctions'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
@@ -32,6 +33,8 @@ import { AuthService } from '../../../services/AuthService'
 import styles from '../index.module.scss'
 import { Views } from '../util'
 import { addAnimationLogic, initialize3D, onWindowResize, validate } from './helperFunctions'
+
+const logger = multiLogger.child({ component: 'client-core:AvatarSelectMenu' })
 
 interface Props {
   avatarData?: StaticResourceInterface
@@ -105,7 +108,7 @@ export const AvatarUploadModal = ({ avatarData, isPublicAvatar, changeActiveMenu
         obj.name = 'avatar'
       }
     } catch (err) {
-      console.error(err)
+      logger.error(err)
       setError(err)
     }
   }
@@ -197,7 +200,7 @@ export const AvatarUploadModal = ({ avatarData, isPublicAvatar, changeActiveMenu
           loadAvatarByURL(objectURL)
         }
       } catch (error) {
-        console.error(error)
+        logger.error(error)
         setError(t('user:avatar.selectValidFile'))
       }
     }
@@ -207,7 +210,7 @@ export const AvatarUploadModal = ({ avatarData, isPublicAvatar, changeActiveMenu
       setFileSelected(true)
       setSelectedFile(e.target.files[0])
     } catch (error) {
-      console.error(e)
+      logger.error(error)
       setError(t('user:avatar.selectValidFile'))
     }
   }
@@ -254,7 +257,7 @@ export const AvatarUploadModal = ({ avatarData, isPublicAvatar, changeActiveMenu
     try {
       setSelectedThumbnail(e.target.files[0])
     } catch (error) {
-      console.error(e)
+      logger.error(error)
       setError(t('user:avatar.selectValidThumbnail'))
     }
   }

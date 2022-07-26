@@ -49,9 +49,8 @@ export const AwsSettingService = {
   patchAwsSetting: async (data: PatchAwsSetting, id: string) => {
     try {
       await API.instance.client.service('aws-setting').patch(id, data)
-      dispatchAction(AdminAwsSettingActions.awsSettingPatched())
+      dispatchAction(AdminAwsSettingActions.awsSettingPatched({}))
     } catch (err) {
-      console.log(err)
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   }

@@ -77,7 +77,7 @@ export const EditorActiveInstanceService = {
     }
   },
   getActiveInstances: async (sceneId: string) => {
-    dispatchAction(EditorActiveInstanceAction.fetchingActiveInstances())
+    dispatchAction(EditorActiveInstanceAction.fetchingActiveInstances({}))
     const activeInstances = await API.instance.client.service('instances-active').find({
       query: { sceneId }
     })

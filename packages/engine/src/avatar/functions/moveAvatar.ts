@@ -1,15 +1,16 @@
-import { MathUtils, Matrix4, OrthographicCamera, PerspectiveCamera, Quaternion, Vector3 } from 'three'
+import { Collider } from '@dimforge/rapier3d-compat'
+import { Matrix4, OrthographicCamera, PerspectiveCamera, Quaternion, Vector3 } from 'three'
 
 import { rotate } from '@xrengine/common/src/utils/mathUtils'
 
 import { Direction } from '../../common/constants/Axis3D'
+import { V_010 } from '../../common/constants/MathConstants'
 import checkPositionIsValid from '../../common/functions/checkPositionIsValid'
 import { smoothDamp } from '../../common/functions/MathLerpFunctions'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
 import { addComponent, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
-import { RaycastComponent } from '../../physics/components/RaycastComponent'
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { XRInputSourceComponent } from '../../xr/components/XRInputSourceComponent'
@@ -19,7 +20,6 @@ import { AvatarControllerComponent } from '../components/AvatarControllerCompone
 import { XRCameraUpdatePendingTagComponent } from '../components/XRCameraUpdatePendingTagComponent'
 import { getAvatarBoneWorldPosition } from './avatarFunctions'
 
-const upVector = new Vector3(0, 1, 0)
 const forward = new Vector3(0, 0, 1)
 
 const quat = new Quaternion()
@@ -29,24 +29,42 @@ const tempVec2 = new Vector3()
 const tempVec3 = new Vector3()
 
 const newVelocity = new Vector3()
-const onGroundVelocity = new Vector3()
 export const avatarCameraOffset = new Vector3(0, 0.14, 0.1)
+const displacementVec3 = new Vector3()
+const velocityToSet = new Vector3()
 
-export const moveAvatar = (world: World, entity: Entity, camera: PerspectiveCamera | OrthographicCamera): any => {
+const degrees60 = (60 * Math.PI) / 180
+
+export const moveAvatar = (world: World, entity: Entity, camera: PerspectiveCamera | OrthographicCamera): Vector3 => {
   const {
     fixedDeltaSeconds: fixedDelta,
-    physics: { timeScale }
+    physicsWorld: { timestep }
   } = world
 
+  const timeScale = timestep * 60
   const timeStep = timeScale * fixedDelta
 
-  const avatar = getComponent(entity, AvatarComponent)
   const velocity = getComponent(entity, VelocityComponent)
   const controller = getComponent(entity, AvatarControllerComponent)
 
-  if (!controller.movementEnabled) return
+  let onGround = false
 
-  const onGround = controller.collisions[0] || avatar.isGrounded
+  const physicsWorld = Engine.instance.currentWorld.physicsWorld
+  const collidersInContactWithFeet = [] as Collider[]
+  physicsWorld.contactsWith(controller.bodyCollider, (otherCollider) => {
+    collidersInContactWithFeet.push(otherCollider)
+  })
+
+  for (const otherCollider of collidersInContactWithFeet) {
+    physicsWorld.contactPair(controller.bodyCollider, otherCollider, (manifold, flipped) => {
+      if (manifold.numContacts() > 0) {
+        tempVec1.copy(manifold.normal() as Vector3)
+        const angle = tempVec1.angleTo(V_010)
+        if (angle < degrees60) onGround = true
+      }
+    })
+  }
+
   controller.isInAir = !onGround
 
   // move vec3 to controller input direction
@@ -67,10 +85,6 @@ export const moveAvatar = (world: World, entity: Entity, camera: PerspectiveCame
   // velocity.linear.setX(newVelocity.x)
   // velocity.linear.setZ(newVelocity.z)
 
-  // apply gravity to avatar velocity
-  // velocity.linear.y -= 0.15 * timeStep
-  velocity.linear.y = newVelocity.y = velocity.linear.y - 0.15 * timeStep
-
   // threejs camera is weird, when in VR we must use the head diretion
   if (hasComponent(entity, XRInputSourceComponent))
     getComponent(entity, XRInputSourceComponent).head.getWorldDirection(tempVec1)
@@ -88,32 +102,11 @@ export const moveAvatar = (world: World, entity: Entity, camera: PerspectiveCame
   newVelocity.applyQuaternion(quat)
 
   if (onGround) {
-    // if we are falling
-    if (newVelocity.y < 0) {
-      // look for something to fall onto
-      const raycast = getComponent(entity, RaycastComponent)
-      const closestHit = raycast.hits[0]
-
-      // if something was found
-      if (closestHit) {
-        // groundVelocity = newVelocity (velocity sim w/quat applied)
-        // zero out Y - horizontal plane
-        onGroundVelocity.copy(newVelocity).setY(0)
-        // vec3 = closestHit.normal
-        tempVec1.set(closestHit.normal.x, closestHit.normal.y, closestHit.normal.z)
-        // quat = upVector w/closestHit.normal
-        quat.setFromUnitVectors(upVector, tempVec1)
-        mat4.makeRotationFromQuaternion(quat)
-        onGroundVelocity.applyMatrix4(mat4)
-        newVelocity.y = onGroundVelocity.y
-      }
-    }
+    velocity.linear.y = newVelocity.y = 0
 
     if (
       // if controller jump input pressed
       controller.localMovementDirection.y > 0 &&
-      // and we are on the ground
-      newVelocity.y <= onGroundVelocity.y &&
       // and we are not already jumping
       !controller.isJumping
     ) {
@@ -124,17 +117,10 @@ export const moveAvatar = (world: World, entity: Entity, camera: PerspectiveCame
       // reset isJumping the following frame
       controller.isJumping = false
     }
-
-    // TODO: make a proper resizing function if we ever need it
-    //  collider.controller.resize(avatar.BODY_SIZE);
-
-    // TODO - Move on top of moving objects
-    // physx has a feature for this, we should integrate both
-    // if (avatar.rayResult.body.mass > 0) {
-    // 	const pointVelocity = new Vector3();
-    // 	avatar.rayResult.body.getVelocityAtWorldPoint(avatar.rayResult.hitPointWorld, pointVelocity);
-    // 	newVelocity.add(threeFromCannonVector(pointVelocity));
-    // }
+  } else {
+    // apply gravity to avatar velocity
+    // velocity.linear.y -= 0.15 * timeStep
+    velocity.linear.y = newVelocity.y = velocity.linear.y - 0.15 * timeStep
   }
 
   // clamp velocities [-1 .. 1]
@@ -153,11 +139,11 @@ export const moveAvatar = (world: World, entity: Entity, camera: PerspectiveCame
   if (Math.abs(newVelocity.y) < 0.001) newVelocity.y = 0
   if (Math.abs(newVelocity.z) < 0.001) newVelocity.z = 0
 
-  const displacement = new Vector3(newVelocity.x, newVelocity.y, newVelocity.z)
+  displacementVec3.set(newVelocity.x, newVelocity.y, newVelocity.z)
 
-  moveAvatarController(world, entity, displacement)
+  moveAvatarController(world, entity, displacementVec3)
 
-  return displacement
+  return displacementVec3
 }
 
 /**
@@ -263,43 +249,27 @@ export const alignXRCameraRotationWithAvatar = (entity: Entity, camera: Perspect
 }
 
 const moveAvatarController = (world: World, entity: Entity, displacement: Vector3) => {
-  const {
-    fixedDeltaSeconds: fixedDelta,
-    physics: { timeScale }
-  } = world
-
-  const timeStep = timeScale * fixedDelta
   const controller = getComponent(entity, AvatarControllerComponent)
-  const filters = new PhysX.PxControllerFilters(controller.filterData, world.physics.defaultCCTQueryCallback, null!)
+  const rigidBody = controller.controller
 
-  const positionBefore = controller.controller.getPosition()
+  // multiply by reciprocal of delta seconds to move 1 unit per second
+  velocityToSet.copy(displacement).multiplyScalar(1 / world.fixedDeltaSeconds)
 
-  const collisionFlags = controller.controller.move(
-    displacement,
-    0.001,
-    timeStep,
-    filters,
-    world.physics.obstacleContext
-  )
+  // Displacement is calculated using last position because the updated position of rigidbody will show up in next frame
+  // since we apply velocity to body and position is updated after physics engine step
+  const currentPosition = rigidBody.translation() as Vector3
+  displacement.copy(currentPosition as Vector3).sub(controller.lastPosition as Vector3)
 
-  controller.collisions = [
-    collisionFlags.isSet(PhysX.PxControllerCollisionFlag.eCOLLISION_DOWN),
-    collisionFlags.isSet(PhysX.PxControllerCollisionFlag.eCOLLISION_SIDES),
-    collisionFlags.isSet(PhysX.PxControllerCollisionFlag.eCOLLISION_UP)
-  ]
-
-  const positionAfter = controller.controller.getPosition()
-  displacement.copy(positionAfter as Vector3).sub(positionBefore as Vector3)
   const transform = getComponent(entity, TransformComponent)
   displacement.applyQuaternion(transform.rotation)
 
   const velocity = getComponent(entity, VelocityComponent)
-  // velocity.linear.lerp(displacement, world.deltaSeconds * 10)
-  // velocity.linear.setX(displacement.x)
-  // velocity.linear.setZ(displacement.z)
-  velocity.linear.x = 0 //MathUtils.lerp(velocity.linear.x, displacement.x, world.deltaSeconds * 10)
-  velocity.linear.y = velocity.linear.y < 0 && !controller.isInAir ? 0 : velocity.linear.y
-  velocity.linear.z = Math.min(Math.max(displacement.length(), -1), 1) //MathUtils.lerp(velocity.linear.z, velocity.linear.z, world.deltaSeconds * 10) // MathUtils.lerp(velocity.linear.z, displacement.z, world.deltaSeconds * 10)
+  velocity.linear.x = 0
+  velocity.linear.z = Math.min(Math.max(displacement.length(), -1), 1)
+
+  controller.lastPosition.copy(currentPosition)
+
+  rigidBody.setLinvel(velocityToSet, true)
 }
 
 export const xrCameraNeedsAlignment = (
@@ -372,7 +342,7 @@ export const teleportAvatar = (entity: Entity, newPosition: Vector3): void => {
     const avatar = getComponent(entity, AvatarComponent)
     const controllerComponent = getComponent(entity, AvatarControllerComponent)
     newPosition.y = newPosition.y + avatar.avatarHalfHeight
-    controllerComponent.controller.setPosition(newPosition)
+    controllerComponent.controller.setTranslation(newPosition, true)
   } else {
     console.log('invalid position', newPosition)
   }

@@ -44,7 +44,6 @@ const GithubRepoDrawer = ({ open, project, onClose }: Props) => {
       setProcessing(false)
       onClose()
     } catch (err) {
-      console.error(err)
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
       setProcessing(false)
       throw err
@@ -59,7 +58,6 @@ const GithubRepoDrawer = ({ open, project, onClose }: Props) => {
       setProcessing(false)
       onClose()
     } catch (err) {
-      console.error(err)
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
       setProcessing(false)
       throw err

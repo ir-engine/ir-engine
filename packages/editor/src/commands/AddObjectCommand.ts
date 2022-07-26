@@ -80,7 +80,7 @@ function emitEventBefore(command: AddObjectCommandParams) {
   if (command.preventEvents) return
 
   cancelGrabOrPlacement()
-  dispatchAction(SelectionAction.changedBeforeSelection())
+  dispatchAction(SelectionAction.changedBeforeSelection({}))
 }
 
 function emitEventAfter(command: AddObjectCommandParams) {
@@ -89,7 +89,7 @@ function emitEventAfter(command: AddObjectCommandParams) {
   if (command.updateSelection) updateOutlinePassSelection()
 
   dispatchAction(EditorAction.sceneModified({ modified: true }))
-  dispatchAction(SelectionAction.changedSceneGraph())
+  dispatchAction(SelectionAction.changedSceneGraph({}))
 }
 
 function addObject(command: AddObjectCommandParams) {

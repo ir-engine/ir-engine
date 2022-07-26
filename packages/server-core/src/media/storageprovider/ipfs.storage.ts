@@ -16,14 +16,25 @@ import {
   StorageProviderInterface
 } from './storageprovider.interface'
 
+/**
+ * Storage provide class to communicate with InterPlanetary File System (IPFS) using Mutable File System (MFS).
+ */
 export class IPFSStorage implements StorageProviderInterface {
+  private _client: IPFSHTTPClient
+  private _blobStore: IPFSBlobStore
+  private _pathPrefix: string = '/'
+  private _apiDomain: string
+
+  /**
+   * Domain address of cache.
+   */
   cacheDomain: string
 
-  _client: IPFSHTTPClient
-  _blobStore: IPFSBlobStore
-  _pathPrefix: string = '/'
-  _apiDomain: string
-
+  /**
+   * Check if an object exists in the IPFS storage.
+   * @param fileName Name of file in the storage.
+   * @param directoryPath Directory of file in the storage.
+   */
   doesExist(fileName: string, directoryPath: string): Promise<boolean> {
     const filePath = path.join(this._pathPrefix, directoryPath, fileName)
     return this._client.files
@@ -31,6 +42,12 @@ export class IPFSStorage implements StorageProviderInterface {
       .then(() => true)
       .catch(() => false)
   }
+
+  /**
+   * Check if an object is directory or not.
+   * @param fileName Name of file in the storage.
+   * @param directoryPath Directory of file in the storage.
+   */
   isDirectory(fileName: string, directoryPath: string): Promise<boolean> {
     const filePath = path.join(this._pathPrefix, directoryPath, fileName)
     return this._client.files
@@ -38,6 +55,11 @@ export class IPFSStorage implements StorageProviderInterface {
       .then((res) => res.type === 'directory')
       .catch(() => false)
   }
+
+  /**
+   * Get the IPFS storage object.
+   * @param key Key of object.
+   */
   async getObject(key: string): Promise<StorageObjectInterface> {
     const filePath = path.join(this._pathPrefix, key)
     const chunks: Uint8Array[] = []
@@ -60,13 +82,29 @@ export class IPFSStorage implements StorageProviderInterface {
       ContentType: 'application/octet-stream'
     }
   }
+
+  /**
+   * Get the object from cache, otherwise returns getObject.
+   * @param key Key of object.
+   */
   async getCachedObject(key: string): Promise<StorageObjectInterface> {
     return this.getObject(key)
   }
+
+  /**
+   * Get the instance of IPFS storage provider.
+   */
   getProvider(): StorageProviderInterface {
     return this
   }
-  async getSignedUrl(key: string, _expiresAfter: number, _conditions: any): Promise<any> {
+
+  /**
+   * Get the signed url response of the storage object.
+   * @param key Key of object.
+   * @param expiresAfter The number of seconds for which signed policy should be valid. Defaults to 3600 (one hour).
+   * @param conditions An array of conditions that must be met for certain providers. Not used in IPFS provider.
+   */
+  async getSignedUrl(key: string, _expiresAfter: number, _conditions: any) {
     const url = await this._getUrl(key)
     return {
       fields: { Key: key },
@@ -75,9 +113,20 @@ export class IPFSStorage implements StorageProviderInterface {
       cacheDomain: this.cacheDomain
     }
   }
+
+  /**
+   * Get the BlobStore object for IPFS storage.
+   */
   getStorage(): BlobStore {
     return this._blobStore
   }
+
+  /**
+   * Get a list of keys under a path.
+   * @param prefix Path relative to root in order to list objects.
+   * @param recursive If true it will list content from sub folders as well.
+   * @param continuationToken It indicates that the list is being continued with a token. Not used in IPFS provider.
+   */
   async listObjects(
     prefix: string,
     recursive?: boolean,
@@ -105,6 +154,12 @@ export class IPFSStorage implements StorageProviderInterface {
       Contents: results
     }
   }
+
+  /**
+   * Adds an object into the IPFS storage.
+   * @param object Storage object to be added.
+   * @param params Parameters of the add request.
+   */
   async putObject(object: StorageObjectInterface, params: PutObjectParams): Promise<boolean> {
     const filePath = path.join(this._pathPrefix, object.Key!)
 
@@ -120,7 +175,12 @@ export class IPFSStorage implements StorageProviderInterface {
 
     return true
   }
-  async deleteResources(keys: string[]): Promise<any> {
+
+  /**
+   * Delete resources in the IPFS storage.
+   * @param keys List of keys.
+   */
+  async deleteResources(keys: string[]) {
     const status: boolean[] = []
 
     for (const key of keys) {
@@ -140,7 +200,20 @@ export class IPFSStorage implements StorageProviderInterface {
 
     return status
   }
-  createInvalidation = async (): Promise<any> => Promise.resolve()
+
+  /**
+   * Invalidate items in the IPFS storage.
+   * @param invalidationItems List of keys.
+   */
+  async createInvalidation() {
+    Promise.resolve()
+  }
+
+  /**
+   * List all the files/folders in the directory.
+   * @param folderName Name of folder in the storage.
+   * @param recursive If true it will list content from sub folders as well.
+   */
   async listFolderContent(folderName: string, recursive?: boolean): Promise<FileContentType[]> {
     const filePath = path.join(this._pathPrefix, folderName)
 
@@ -166,6 +239,15 @@ export class IPFSStorage implements StorageProviderInterface {
 
     return results
   }
+
+  /**
+   * Move or copy object from one place to another in the IPFS storage.
+   * @param oldName Name of the old object.
+   * @param newName Name of the new object.
+   * @param oldPath Path of the old object.
+   * @param newPath Path of the new object.
+   * @param isCopy If true it will create a copy of object.
+   */
   async moveObject(oldName: string, newName: string, oldPath: string, newPath: string, isCopy?: boolean): Promise<any> {
     const oldFilePath = path.join(this._pathPrefix, oldPath, oldName)
     const newFilePath = path.join(this._pathPrefix, newPath, newName)
@@ -183,6 +265,10 @@ export class IPFSStorage implements StorageProviderInterface {
     return true
   }
 
+  /**
+   * Initialize the IPFS storage. It port forwards the IPFS pod to expose its REST API for consumption.
+   * @param podName Name of IPFS pod in cluster.
+   */
   async initialize(podName: string): Promise<void> {
     if (config.kubernetes.enabled) {
       const kc = new k8s.KubeConfig()
@@ -197,6 +283,9 @@ export class IPFSStorage implements StorageProviderInterface {
     }
   }
 
+  /**
+   * Get the name of IPFS pod running in current cluster.
+   */
   async getIPFSPod(): Promise<string> {
     if (config.kubernetes.enabled) {
       const kc = new k8s.KubeConfig()
@@ -222,7 +311,7 @@ export class IPFSStorage implements StorageProviderInterface {
     return ''
   }
 
-  async _forwardIPFS(podName: string, forward: k8s.PortForward, forwardPort: number): Promise<string> {
+  private async _forwardIPFS(podName: string, forward: k8s.PortForward, forwardPort: number): Promise<string> {
     return new Promise((resolve) => {
       const server = net.createServer((socket) => {
         forward.portForward('default', podName, [forwardPort], socket, socket, socket)
@@ -236,7 +325,7 @@ export class IPFSStorage implements StorageProviderInterface {
     })
   }
 
-  async _parseMFSDirectory(
+  private async _parseMFSDirectory(
     currentPath: string,
     results: {
       Key: string
@@ -251,7 +340,7 @@ export class IPFSStorage implements StorageProviderInterface {
     }
   }
 
-  async _parseMFSDirectoryAsType(currentPath: string, results: FileContentType[]) {
+  private async _parseMFSDirectoryAsType(currentPath: string, results: FileContentType[]) {
     for await (const file of this._client.files.ls(currentPath)) {
       const res: FileContentType = {
         key: file.cid.toString(),
@@ -269,7 +358,7 @@ export class IPFSStorage implements StorageProviderInterface {
     }
   }
 
-  async _getUrl(assetPath: string): Promise<string> {
+  private async _getUrl(assetPath: string): Promise<string> {
     if (!this.cacheDomain) throw new Error('No cache domain found - please check the storage provider configuration')
 
     const filePath = path.join(this._pathPrefix, assetPath)
@@ -286,7 +375,7 @@ export class IPFSStorage implements StorageProviderInterface {
       .catch(() => new URL(`http://${this.cacheDomain}`).href)
   }
 
-  _formatBytes = (bytes, decimals = 2) => {
+  private _formatBytes(bytes, decimals = 2) {
     if (bytes === 0) return '0 Bytes'
 
     const k = 1024
@@ -299,15 +388,34 @@ export class IPFSStorage implements StorageProviderInterface {
   }
 }
 
+/**
+ * Blob store class for IPFS storage.
+ */
 class IPFSBlobStore implements BlobStore {
+  private _client: IPFSHTTPClient
+
+  /**
+   * Path for the IPFS blob store.
+   */
   path: string = '/'
+  /**
+   * Cache for the IPFS blob store.
+   */
   cache: any
 
-  _client: IPFSHTTPClient
-
+  /**
+   * Constructor of IPFSBlobStore class.
+   * @param client Instance of IPFSHTTPClient object to communicate with IPFS instance.
+   */
   constructor(client: IPFSHTTPClient) {
     this._client = client
   }
+
+  /**
+   * Creates a write stream for the IPFS blob store.
+   * @param options Options for blob store.
+   * @param cb Callback one the stream is ready.
+   */
   createWriteStream(options: string | { key: string }, cb?: (err: any, result: any) => void) {
     if (typeof options === 'string') options = { key: options }
     if (options['name']) options.key = options['name']
@@ -344,6 +452,12 @@ class IPFSBlobStore implements BlobStore {
 
     return bufferStream
   }
+
+  /**
+   * Creates a read stream for the IPFS blob store.
+   * @param key Key of object.
+   * @param options Options for blob store.
+   */
   async createReadStream(key: string | { key: string }, options?: any) {
     if (typeof options === 'string') options = { key: options }
     if (options.name) options.key = options.name
@@ -363,6 +477,12 @@ class IPFSBlobStore implements BlobStore {
       ContentType: 'application/octet-stream'
     }
   }
+
+  /**
+   * Checks whether an object exists in the IPFS blob store.
+   * @param options Options for blob store.
+   * @param cb Callback one the stream is ready.
+   */
   exists(options: string | { key: string }, cb?: (err: any, result: any) => void) {
     if (typeof options === 'string') options = { key: options }
     if (options['name']) options.key = options['name']
@@ -380,6 +500,12 @@ class IPFSBlobStore implements BlobStore {
         return false
       })
   }
+
+  /**
+   * Removes an object from the IPFS blob store.
+   * @param options Options for blob store.
+   * @param cb Callback one the stream is ready.
+   */
   remove(options: string | { key: string }, cb?: (err: any, result: any) => void) {
     if (typeof options === 'string') options = { key: options }
     if (options['name']) options.key = options['name']

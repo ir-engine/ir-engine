@@ -1,4 +1,3 @@
-import { Paginated } from '@feathersjs/feathers/lib'
 import _ from 'lodash'
 
 import { UserInterface } from '@xrengine/common/src/interfaces/User'
@@ -52,11 +51,6 @@ export default (app: Application): void => {
           userId: data.id
         }
       })
-      const partyUsers = await app.service('party-user').Model.findAll({
-        where: {
-          userId: data.id
-        }
-      })
       const userRelationships = await app.service('user-relationship').Model.findAll({
         where: {
           userRelationshipType: 'friend',
@@ -83,18 +77,6 @@ export default (app: Application): void => {
           })
         )
         targetIds.push(groupUser.userId)
-      })
-      partyUsers.forEach((partyUser) => {
-        updatePromises.push(
-          app.service('party-user').patch(
-            partyUser.id,
-            {
-              isOwner: partyUser.isOwner
-            },
-            params
-          )
-        )
-        targetIds.push(partyUser.userId)
       })
       userRelationships.forEach((userRelationship) => {
         updatePromises.push(

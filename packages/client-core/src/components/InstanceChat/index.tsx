@@ -104,8 +104,7 @@ export const useChatHooks = ({ chatWindowOpen, setUnreadMessages, messageRefInpu
       dispatchAction(
         WorldNetworkAction.setUserTyping({
           typing: false
-        }),
-        NetworkTopics.world
+        })
       )
     }, 3000)
 
@@ -133,8 +132,7 @@ export const useChatHooks = ({ chatWindowOpen, setUnreadMessages, messageRefInpu
         dispatchAction(
           WorldNetworkAction.setUserTyping({
             typing: true
-          }),
-          NetworkTopics.world
+          })
         )
       }
     }
@@ -143,8 +141,7 @@ export const useChatHooks = ({ chatWindowOpen, setUnreadMessages, messageRefInpu
         dispatchAction(
           WorldNetworkAction.setUserTyping({
             typing: false
-          }),
-          NetworkTopics.world
+          })
         )
       }
     }
@@ -158,8 +155,7 @@ export const useChatHooks = ({ chatWindowOpen, setUnreadMessages, messageRefInpu
         dispatchAction(
           WorldNetworkAction.setUserTyping({
             typing: false
-          }),
-          NetworkTopics.world
+          })
         )
       }
 
