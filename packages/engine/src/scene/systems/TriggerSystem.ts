@@ -20,6 +20,17 @@ export default async function TriggerSystem(world: World) {
 
       if (getComponent(triggerEntity, PortalComponent)) {
         const portalComponent = getComponent(triggerEntity, PortalComponent)
+
+        // TODO: support same-scene portals
+        // if (currentScene === portalComponent.location) {
+        //   teleportAvatar(
+        //     world.localClientEntity,
+        //     portalComponent.remoteSpawnPosition,
+        //     portalComponent.remoteSpawnRotation
+        //   )
+        //   continue
+        // }
+
         if (isClient && portalComponent.redirect) {
           window.location.href = Engine.instance.publicPath + '/location/' + portalComponent.location
           continue
@@ -67,7 +78,7 @@ export default async function TriggerSystem(world: World) {
       const { triggerEntity } = getComponent(entity, TriggerDetectedComponent, true)
       const triggerComponent = getComponent(triggerEntity, TriggerVolumeComponent)
 
-      if (!triggerCollidedQuery) continue
+      if (!triggerCollidedQuery || !triggerComponent) continue
       const onExit = triggerComponent.onExit
 
       const filtered = sceneEntityCaches.filter((cache: any) => cache.target == triggerComponent.target)

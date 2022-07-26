@@ -74,7 +74,8 @@ export default async function LoadingUISystem(world: World) {
       ObjectFitFunctions.attachObjectInFrontOfCamera(xrui.container, scale, distance)
 
       transition.update(world, (opacity) => {
-        if (opacity !== LoadingSystemState.opacity.value) LoadingSystemState.opacity.set(opacity)
+        if (opacity !== LoadingSystemState.loadingScreenOpacity.value)
+          LoadingSystemState.loadingScreenOpacity.set(opacity)
         mesh.material.opacity = opacity
         mesh.visible = opacity > 0
         xrui.container.rootLayer.traverseLayersPreOrder((layer: WebLayer3D) => {

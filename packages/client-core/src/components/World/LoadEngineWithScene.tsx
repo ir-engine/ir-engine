@@ -89,37 +89,20 @@ export const LoadEngineWithScene = () => {
   }, [engineState.sceneLoaded, authState.user, engineState.joinedWorld])
 
   useHookEffect(() => {
-    if (engineState.joinedWorld.value) {
-      if (engineState.isTeleporting.value) {
-        // if we are coming from another scene, reset our teleporting status
-        dispatchAction(EngineActions.setTeleporting({ isTeleporting: false }))
-      } else {
-        dispatchAction(AppAction.setAppOnBoardingStep({ onBoardingStep: GeneralStateList.SUCCESS }))
-        dispatchAction(AppAction.setAppLoaded({ loaded: true }))
-      }
+    if (engineState.joinedWorld.value && !engineState.isTeleporting.value) {
+      dispatchAction(AppAction.setAppOnBoardingStep({ onBoardingStep: GeneralStateList.SUCCESS }))
+      dispatchAction(AppAction.setAppLoaded({ loaded: true }))
     }
   }, [engineState.joinedWorld])
 
   useHookEffect(() => {
     if (engineState.isTeleporting.value) {
-      // TODO: this needs to be implemented on the server too
-      // Use teleportAvatar function from moveAvatar.ts when required
-      // if (slugifiedNameOfCurrentLocation === portalComponent.location) {
-      //   teleportAvatar(
-      //     useWorld().localClientEntity,
-      //     portalComponent.remoteSpawnPosition,
-      //     portalComponent.remoteSpawnRotation
-      //   )
-      //   return
-      // }
-
       logger.info('Resetting connection for portal teleport.')
-
       const world = Engine.instance.currentWorld
 
       dispatchAction(SceneActions.unloadCurrentScene({}))
-      history.push('/location/' + world.activePortal.location)
-      LocationService.getLocationByName(world.activePortal.location, authState.user.id.value)
+      history.push('/location/' + world.activePortal!.location)
+      LocationService.getLocationByName(world.activePortal!.location, authState.user.id.value)
 
       // shut down connection with existing world instance server
       // leaving a world instance server will check if we are in a location media instance and shut that down too
