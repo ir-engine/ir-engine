@@ -594,15 +594,8 @@
     },
     "mountPoint": {
       "name": "Mount point",
-      "description": "Attach different actions for interactable mount point",
-      "lbl-type": "Type",
-      "lbl-animations": "Animations",
-      "lbl-enter": "Enter",
-      "lbl-leave": "Leave",
-      "lbl-active": "Active",
-      "lbl-file": "File",
-      "lbl-animation": "Animation",
-      "error-url": "Error Loading URL"
+      "description": "An object with a pose to define interactable behaviors.",
+      "lbl-type": "Type"
     }
   },
   "projects": {

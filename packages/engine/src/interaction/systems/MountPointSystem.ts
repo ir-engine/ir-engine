@@ -1,23 +1,31 @@
+import { Not } from 'bitecs'
+import { Vector3 } from 'three'
+
+import { Deg2Rad } from '@xrengine/common/src/utils/mathUtils'
 import { createActionQueue } from '@xrengine/hyperflux'
 
-import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { changeState } from '../../avatar/animation/AnimationGraph'
-import { animationTimeTransitionRule } from '../../avatar/animation/AnimationStateTransitionsRule'
-import { getAnimationAction } from '../../avatar/animation/AvatarAnimationGraph'
-import { SingleAnimationState } from '../../avatar/animation/singleAnimationState'
 import { AvatarStates } from '../../avatar/animation/Util'
-import { AvatarInputSchema } from '../../avatar/AvatarInputSchema'
-import { AnimationComponent } from '../../avatar/components/AnimationComponent'
 import { AvatarAnimationComponent } from '../../avatar/components/AvatarAnimationComponent'
+import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
+import checkPositionIsValid from '../../common/functions/checkPositionIsValid'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions } from '../../ecs/classes/EngineState'
-import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
-import { addComponent, defineQuery, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
-import { BaseInput } from '../../input/enums/BaseInput'
-import { MountingComponent } from '../../scene/components/MountingComponent'
+import {
+  addComponent,
+  defineQuery,
+  getComponent,
+  hasComponent,
+  removeComponent
+} from '../../ecs/functions/ComponentFunctions'
+import { Physics } from '../../physics/classes/Physics'
+import { CollisionGroups } from '../../physics/enums/CollisionGroups'
+import { getInteractionGroups } from '../../physics/functions/getInteractionGroups'
+import { RaycastHit, SceneQueryType } from '../../physics/types/PhysicsTypes'
 import { MountPoint, MountPointComponent } from '../../scene/components/MountPointComponent'
+import { SittingComponent } from '../../scene/components/SittingComponent'
 import { DesiredTransformComponent } from '../../transform/components/DesiredTransformComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { createInteractUI } from '../functions/interactUI'
@@ -27,148 +35,17 @@ const mountPointInteractMessages = {
   [MountPoint.seat]: 'Press E to Sit'
 }
 
-/**
- * Loads and sets mount animations action to mount state
- * @param mountPointEntity Mount point entity
- * @param avatarEntity Avatar entity which is being mounted
- */
-export const setMountAnimationAction = async (avatarEntity: Entity): Promise<void> => {
-  const mountPointQuery = defineQuery([MountPointComponent])
-  const promises = [] as Promise<any>[]
-
-  for (const mountPointEntity of mountPointQuery.enter()) {
-    const mountPoint = getComponent(mountPointEntity, MountPointComponent)
-    const animationComponent = getComponent(avatarEntity, AnimationComponent)
-    const avatarAnimationComponent = getComponent(avatarEntity, AvatarAnimationComponent)
-    const graph = avatarAnimationComponent.animationGraph
-
-    if (mountPoint.animation.enter && !(graph.states[AvatarStates.MOUNT_ENTER] as SingleAnimationState).action) {
-      promises.push(
-        AssetLoader.loadAsync(mountPoint.animation.enter.file).then((animations) => {
-          if (!animations) return
-          const action = getAnimationAction(
-            mountPoint.animation.enter!.animation,
-            animationComponent.mixer,
-            animations.animations ?? animations.scene.animations
-          )
-          ;(graph.states[AvatarStates.MOUNT_ENTER] as SingleAnimationState).action = action
-
-          // need to reapply the rule since the action is changed
-          graph.transitionRules[AvatarStates.MOUNT_ENTER][0].rule = animationTimeTransitionRule(action, 0.95)
-        })
-      )
-    }
-
-    if (mountPoint.animation.active && !(graph.states[AvatarStates.MOUNT_ACTIVE] as SingleAnimationState).action) {
-      promises.push(
-        AssetLoader.loadAsync(mountPoint.animation.active.file).then((animations) => {
-          if (!animations) return
-          const action = getAnimationAction(
-            mountPoint.animation.active!.animation,
-            animationComponent.mixer,
-            animations.animations ?? animations.scene.animations
-          )
-          ;(graph.states[AvatarStates.MOUNT_ACTIVE] as SingleAnimationState).action = action
-        })
-      )
-    }
-
-    if (mountPoint.animation.leave && !(graph.states[AvatarStates.MOUNT_LEAVE] as SingleAnimationState).action) {
-      promises.push(
-        AssetLoader.loadAsync(mountPoint.animation.leave.file).then((animations) => {
-          if (!animations) return
-          const action = getAnimationAction(
-            mountPoint.animation.leave!.animation,
-            animationComponent.mixer,
-            animations.animations ?? animations.scene.animations
-          )
-          ;(graph.states[AvatarStates.MOUNT_LEAVE] as SingleAnimationState).action = action
-        })
-      )
-    }
-  }
-
-  await Promise.all(promises)
-}
-
-/**
- * Updates input action map and remove binding for movement.
- * This is require to play leave animation while maintaining the position.
- * Otherwise avatar will move while playing leave animation.
- *
- * @param mountPointEntity Mount point entity
- * @param avatarEntity Avatar entity which is being mounted
- */
-const updateInputActionMap = (mountPointEntity: Entity, avatarEntity: Entity) => {
-  // Save previous bindings
-  const prevBehaviour = {
-    jump: AvatarInputSchema.behaviorMap.get(BaseInput.JUMP),
-    forward: AvatarInputSchema.behaviorMap.get(BaseInput.FORWARD),
-    backward: AvatarInputSchema.behaviorMap.get(BaseInput.BACKWARD),
-    left: AvatarInputSchema.behaviorMap.get(BaseInput.LEFT),
-    right: AvatarInputSchema.behaviorMap.get(BaseInput.RIGHT)
-  }
-
-  const restoreInputActionMap = (e?: any) => {
-    if (e && e.type === 'finished') {
-      const avatarAnimationComponent = getComponent(avatarEntity, AvatarAnimationComponent)
-      const leaveAction = (
-        avatarAnimationComponent.animationGraph.states[AvatarStates.MOUNT_LEAVE] as SingleAnimationState
-      ).action
-
-      // return if not emmited by leave action
-      if (avatarAnimationComponent && e.action !== leaveAction) return
-
-      // Remove the listener and change animation state to locomotion
-      const animationComponent = getComponent(avatarEntity, AnimationComponent)
-      animationComponent.mixer.removeEventListener('finished', restoreInputActionMap)
-      changeState(avatarAnimationComponent.animationGraph, AvatarStates.LOCOMOTION)
-    }
-
-    // Restore the input bindings
-    if (prevBehaviour.jump) AvatarInputSchema.behaviorMap.set(BaseInput.JUMP, prevBehaviour.jump)
-    if (prevBehaviour.forward) AvatarInputSchema.behaviorMap.set(BaseInput.FORWARD, prevBehaviour.forward)
-    if (prevBehaviour.backward) AvatarInputSchema.behaviorMap.set(BaseInput.BACKWARD, prevBehaviour.backward)
-    if (prevBehaviour.left) AvatarInputSchema.behaviorMap.set(BaseInput.LEFT, prevBehaviour.left)
-    if (prevBehaviour.right) AvatarInputSchema.behaviorMap.set(BaseInput.RIGHT, prevBehaviour.right)
-  }
-
-  const restore = (e) => {
-    const mountPoint = getComponent(mountPointEntity, MountPointComponent)
-
-    // If there is leave animation on mount point play it otherwise restore the animation
-    if (mountPoint.animation.leave) {
-      const avatarAnimationComponent = getComponent(avatarEntity, AvatarAnimationComponent)
-      const animationComponent = getComponent(avatarEntity, AnimationComponent)
-
-      changeState(avatarAnimationComponent.animationGraph, AvatarStates.MOUNT_LEAVE)
-      animationComponent.mixer.addEventListener('finished', restoreInputActionMap)
-
-      // Remove the bindings to prevent avatar movement
-      AvatarInputSchema.behaviorMap.delete(BaseInput.JUMP)
-      AvatarInputSchema.behaviorMap.delete(BaseInput.FORWARD)
-      AvatarInputSchema.behaviorMap.delete(BaseInput.BACKWARD)
-      AvatarInputSchema.behaviorMap.delete(BaseInput.LEFT)
-      AvatarInputSchema.behaviorMap.delete(BaseInput.RIGHT)
-    } else {
-      restoreInputActionMap()
-    }
-  }
-
-  // change the bindings to run restore
-  AvatarInputSchema.behaviorMap.set(BaseInput.JUMP, restore)
-  AvatarInputSchema.behaviorMap.set(BaseInput.FORWARD, restore)
-  AvatarInputSchema.behaviorMap.set(BaseInput.BACKWARD, restore)
-  AvatarInputSchema.behaviorMap.set(BaseInput.LEFT, restore)
-  AvatarInputSchema.behaviorMap.set(BaseInput.RIGHT, restore)
-}
-
 export default async function MountPointSystem(world: World) {
   if (Engine.instance.isEditor) return () => {}
 
   const mountPointActionQueue = createActionQueue(EngineActions.interactedWithObject.matches)
   const mountPointQuery = defineQuery([MountPointComponent])
-  const avatarDesiredTransformQuery = defineQuery([AvatarControllerComponent, DesiredTransformComponent])
+  const sittingTransitionQuery = defineQuery([SittingComponent, DesiredTransformComponent])
+  const sittingIdleQuery = defineQuery([SittingComponent, Not(DesiredTransformComponent)])
+
+  const diffPos = new Vector3()
+  const PositionEpsilon = 0.1
+  const RotationEpsilon = 1 * Deg2Rad()
 
   return () => {
     for (const entity of mountPointQuery.enter()) {
@@ -182,43 +59,112 @@ export default async function MountPointSystem(world: World) {
 
       const mountPoint = getComponent(action.targetEntity, MountPointComponent)
       if (mountPoint.type === MountPoint.seat) {
-        const avatarEntity = Engine.instance.currentWorld.namedEntities.get('avatar_' + action.$from)
-        if (!avatarEntity) return
+        const avatarEntity = Engine.instance.currentWorld.localClientEntity
+
+        if (hasComponent(avatarEntity, SittingComponent)) continue
 
         // Add desired transform component to move the avatar to mounting point
         const transform = getComponent(action.targetEntity, TransformComponent)
-        addComponent(avatarEntity, DesiredTransformComponent, {
+        const desiredTransform = addComponent(avatarEntity, DesiredTransformComponent, {
           position: transform.position.clone(),
           rotation: transform.rotation.clone(),
-          positionRate: 1,
-          rotationRate: 1,
+          positionRate: 2,
+          rotationRate: 2,
+          lockRotationAxis: [false, false, false],
+          positionDelta: 0,
+          rotationDelta: 0
+        }) // set the desired transform at the same height as avatar.
+        desiredTransform.position.y = transform.position.y
+
+        addComponent(avatarEntity, SittingComponent, {
+          mountPointEntity: action.targetEntity,
+          state: AvatarStates.SIT_ENTER
+        })
+        getComponent(avatarEntity, AvatarControllerComponent).movementEnabled = false
+      }
+    }
+
+    for (const entity of sittingTransitionQuery(world)) {
+      const controllerComponent = getComponent(entity, AvatarControllerComponent)
+      const transform = getComponent(entity, TransformComponent)
+      const avatar = getComponent(entity, AvatarComponent)
+      const desiredTransform = getComponent(entity, DesiredTransformComponent)
+      const sitting = getComponent(entity, SittingComponent)
+
+      controllerComponent.controller.setTranslation(
+        {
+          x: transform.position.x,
+          y: transform.position.y + avatar.avatarHalfHeight,
+          z: transform.position.z
+        },
+        true
+      )
+
+      diffPos.subVectors(transform.position, desiredTransform.position)
+      const angle = transform.rotation.angleTo(desiredTransform.rotation)
+
+      // Once avatar reaches desired transform change animation state to mount enter or mount active
+      if (diffPos.length() < PositionEpsilon && Math.abs(angle) < RotationEpsilon) {
+        removeComponent(entity, DesiredTransformComponent)
+        const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
+
+        if (sitting.state === 'SIT_ENTER') {
+          changeState(avatarAnimationComponent.animationGraph, AvatarStates.SIT_IDLE)
+          sitting.state = AvatarStates.SIT_IDLE
+        } else if (sitting.state === 'SIT_LEAVE') {
+          changeState(avatarAnimationComponent.animationGraph, AvatarStates.LOCOMOTION)
+          removeComponent(entity, SittingComponent)
+          getComponent(Engine.instance.currentWorld.localClientEntity, AvatarControllerComponent).movementEnabled = true
+        }
+      }
+    }
+
+    for (const entity of sittingIdleQuery(world)) {
+      const controller = getComponent(entity, AvatarControllerComponent)
+      const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
+      const avatarComponent = getComponent(entity, AvatarComponent)
+      const sitting = getComponent(entity, SittingComponent)
+
+      if (controller.localMovementDirection.lengthSq() > 0.1) {
+        sitting.state = AvatarStates.SIT_LEAVE
+
+        changeState(avatarAnimationComponent.animationGraph, AvatarStates.SIT_LEAVE)
+        const avatarEntity = Engine.instance.currentWorld.localClientEntity
+
+        const transform = getComponent(avatarEntity, TransformComponent)
+        const newPos = transform.position.clone().add(new Vector3(0, 0, 1).applyQuaternion(transform.rotation))
+
+        const interactionGroups = getInteractionGroups(CollisionGroups.Avatars, CollisionGroups.Ground)
+        const raycastComponentData = {
+          type: SceneQueryType.Closest,
+          hits: [],
+          origin: newPos,
+          direction: new Vector3(0, -1, 0),
+          maxDistance: 2,
+          flags: interactionGroups
+        }
+        Physics.castRay(Engine.instance.currentWorld.physicsWorld, raycastComponentData)
+
+        if (raycastComponentData.hits.length > 0) {
+          const raycastHit = raycastComponentData.hits[0] as RaycastHit
+          if (raycastHit.normal.y > 0.9) {
+            newPos.y -= raycastHit.distance
+          }
+        } else {
+          newPos.copy(transform.position)
+          newPos.y += avatarComponent.avatarHalfHeight
+        }
+
+        addComponent(avatarEntity, DesiredTransformComponent, {
+          position: newPos,
+          rotation: transform.rotation.clone(),
+          positionRate: 2,
+          rotationRate: 2,
           lockRotationAxis: [false, false, false],
           positionDelta: 0,
           rotationDelta: 0
         })
-
-        // Add mounting point component to avatar to bind avatar with mount point
-        if (hasComponent(avatarEntity, MountingComponent)) {
-          getComponent(avatarEntity, MountingComponent).mountPointEntity = action.targetEntity
-        } else {
-          addComponent(avatarEntity, MountingComponent, { mountPointEntity: action.targetEntity })
-        }
-
-        // update input bindings
-        updateInputActionMap(action.targetEntity, avatarEntity)
       }
-    }
-
-    for (const entity of avatarDesiredTransformQuery.exit(world)) {
-      const mounting = getComponent(entity, MountingComponent)
-      const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
-      const mountPoint = getComponent(mounting.mountPointEntity, MountPointComponent)
-
-      // Once avatar reaches desired transform change animation state to mount enter or mount active
-      changeState(
-        avatarAnimationComponent.animationGraph,
-        mountPoint.animation.enter ? AvatarStates.MOUNT_ENTER : AvatarStates.MOUNT_ACTIVE
-      )
     }
   }
 }

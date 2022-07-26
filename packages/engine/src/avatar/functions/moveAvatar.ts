@@ -35,11 +35,7 @@ const velocityToSet = new Vector3()
 
 const degrees60 = (60 * Math.PI) / 180
 
-export const moveAvatar = (
-  world: World,
-  entity: Entity,
-  camera: PerspectiveCamera | OrthographicCamera
-): Vector3 | undefined => {
+export const moveAvatar = (world: World, entity: Entity, camera: PerspectiveCamera | OrthographicCamera): Vector3 => {
   const {
     fixedDeltaSeconds: fixedDelta,
     physicsWorld: { timestep }

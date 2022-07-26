@@ -43,15 +43,13 @@ export const serializeMountPoint: ComponentSerializeFunction = (entity) => {
   return {
     name: SCENE_COMPONENT_MOUNT_POINT,
     props: {
-      type: component.type,
-      animation: component.animation
+      type: component.type
     }
   }
 }
 
 export const parseMountPointProperties = (props): MountPointComponentType => {
   return {
-    type: props.type ?? SCENE_COMPONENT_MOUNT_POINT_DEFAULT_VALUES.type,
-    animation: props.animation ?? SCENE_COMPONENT_MOUNT_POINT_DEFAULT_VALUES.animation
+    type: props.type ?? SCENE_COMPONENT_MOUNT_POINT_DEFAULT_VALUES.type
   }
 }
