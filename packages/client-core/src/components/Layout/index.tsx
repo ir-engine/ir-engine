@@ -141,9 +141,7 @@ const Layout = ({ useLoadingScreenOpacity, pageTitle, children, hideVideo, hideF
                 <Close />
               </div>
             </div>
-            <div className={styles.participants}>
-              <ConferenceMode />
-            </div>
+            <ConferenceMode />
           </div>
         )}
 

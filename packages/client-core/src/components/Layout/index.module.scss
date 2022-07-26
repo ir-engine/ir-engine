@@ -41,22 +41,6 @@ body {
       }
     }
   }
-
-  .participants {
-    display: grid;
-    padding: 10px;
-    grid-gap: 10px;
-    overflow: auto;
-    grid-template-columns: 1fr 1fr 1fr;
-
-    @media (max-width: 999px) {
-      grid-template-columns: 1fr 1fr;
-    }
-
-    @media (max-width: 786px) {
-      grid-template-columns: 1fr;
-    }
-  }
 }
 
 .box {

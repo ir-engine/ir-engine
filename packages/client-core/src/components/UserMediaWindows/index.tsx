@@ -2,15 +2,11 @@ import { useState } from '@speigg/hookstate'
 import React from 'react'
 
 import { useMediaInstanceConnectionState } from '@xrengine/client-core/src/common/services/MediaInstanceConnectionService'
-import {
-  accessMediaStreamState,
-  useMediaStreamState
-} from '@xrengine/client-core/src/media/services/MediaStreamService'
+import { useMediaStreamState } from '@xrengine/client-core/src/media/services/MediaStreamService'
 import { accessAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import { useUserState } from '@xrengine/client-core/src/user/services/UserService'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 
-import { usePartyState } from '../../social/services/PartyService'
 import UserMediaWindow from '../UserMediaWindow'
 
 const UserMediaWindows = (): JSX.Element => {

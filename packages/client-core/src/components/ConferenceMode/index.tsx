@@ -1,4 +1,5 @@
 import { useState } from '@speigg/hookstate'
+import classNames from 'classnames'
 import React from 'react'
 
 import { useMediaInstanceConnectionState } from '@xrengine/client-core/src/common/services/MediaInstanceConnectionService'
@@ -8,6 +9,7 @@ import { useUserState } from '@xrengine/client-core/src/user/services/UserServic
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 
 import ConferenceModeParticipant from './ConferenceModeParticipant'
+import styles from './index.module.scss'
 
 const ConferenceMode = (): JSX.Element => {
   const mediaState = useMediaStreamState()
@@ -19,16 +21,45 @@ const ConferenceMode = (): JSX.Element => {
   const currentChannelInstanceConnection = network && channelConnectionState.instances[network.hostId].ornull
   const displayedUsers =
     network?.hostId && currentChannelInstanceConnection
-      ? currentChannelInstanceConnection.channelType.value === 'channel'
-        ? userState.channelLayerUsers.value.filter((user) => user.id !== selfUserId.value)
-        : userState.layerUsers.value.filter((user) => nearbyLayerUsers.value.includes(user.id))
+      ? currentChannelInstanceConnection.channelType?.value === 'party'
+        ? userState.layerUsers?.value.filter((user) => {
+            return (
+              user.id !== selfUserId.value &&
+              user.channelInstanceId != null &&
+              user.channelInstanceId === network?.hostId
+            )
+          }) || []
+        : currentChannelInstanceConnection.channelType?.value === 'instance'
+        ? userState.layerUsers.value.filter((user) => nearbyLayerUsers.value.includes(user.id))
+        : []
       : []
 
   const consumers = mediaState.consumers.value
   const screenShareConsumers = consumers?.filter((consumer) => consumer.appData.mediaTag === 'screen-video') || []
 
+  let totalScreens = 1
+
+  if (mediaState.isScreenAudioEnabled.value || mediaState.isScreenVideoEnabled.value) {
+    totalScreens += 1
+  }
+
+  for (let user of displayedUsers) {
+    totalScreens += 1
+
+    if (screenShareConsumers.find((consumer) => consumer.appData.peerId === user.id)) {
+      totalScreens += 1
+    }
+  }
+
   return (
-    <>
+    <div
+      className={classNames({
+        [styles['participants']]: true,
+        [styles['single-grid']]: totalScreens === 1,
+        [styles['double-grid']]: totalScreens === 2 || totalScreens === 4,
+        [styles['multi-grid']]: totalScreens === 3 || totalScreens > 4
+      })}
+    >
       {(mediaState.isScreenAudioEnabled.value || mediaState.isScreenVideoEnabled.value) && (
         <ConferenceModeParticipant peerId={'screen_me'} key={'screen_me'} />
       )}
@@ -41,7 +72,7 @@ const ConferenceMode = (): JSX.Element => {
           )}
         </>
       ))}
-    </>
+    </div>
   )
 }
 

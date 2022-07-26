@@ -50,7 +50,6 @@ interface Props {
 }
 
 const ConferenceModeParticipant = ({ peerId }: Props): JSX.Element => {
-  const [isPiP, setPiP] = useState(false)
   const [videoStream, _setVideoStream] = useState<any>(null)
   const [audioStream, _setAudioStream] = useState<any>(null)
   const [videoStreamPaused, setVideoStreamPaused] = useState(false)
@@ -134,6 +133,18 @@ const ConferenceModeParticipant = ({ peerId }: Props): JSX.Element => {
     }
   }
 
+  const closeProducerListener = (producerId: string) => {
+    if (producerId === videoStreamRef?.current?.id) {
+      videoRef.current?.srcObject?.getVideoTracks()[0].stop()
+      MediaStreams.instance.videoStream.getVideoTracks()[0].stop()
+    }
+
+    if (producerId === audioStreamRef?.current?.id) {
+      audioRef.current?.srcObject?.getAudioTracks()[0].stop()
+      MediaStreams.instance.audioStream.getAudioTracks()[0].stop()
+    }
+  }
+
   useEffect(() => {
     if (peerId === 'cam_me') {
       setVideoStream(MediaStreams.instance.camVideoProducer)
@@ -151,16 +162,18 @@ const ConferenceModeParticipant = ({ peerId }: Props): JSX.Element => {
   useEffect(() => {
     if (peerId !== 'cam_me' && peerId !== 'screen_me') {
       const network = Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork
-      setVideoStream(
-        network.consumers?.find(
-          (c) => c.appData.peerId === userId && c.appData.mediaTag === (isScreen ? 'screen-video' : 'cam-video')
+      if (network) {
+        setVideoStream(
+          network.consumers?.find(
+            (c) => c.appData.peerId === userId && c.appData.mediaTag === (isScreen ? 'screen-video' : 'cam-video')
+          )
         )
-      )
-      setAudioStream(
-        network.consumers?.find(
-          (c) => c.appData.peerId === userId && c.appData.mediaTag === (isScreen ? 'screen-audio' : 'cam-audio')
+        setAudioStream(
+          network.consumers?.find(
+            (c) => c.appData.peerId === userId && c.appData.mediaTag === (isScreen ? 'screen-audio' : 'cam-audio')
+          )
         )
-      )
+      }
     }
   }, [consumers.value])
 
@@ -190,6 +203,7 @@ const ConferenceModeParticipant = ({ peerId }: Props): JSX.Element => {
     if (typeof socket?.on === 'function') socket?.on(MessageTypes.WebRTCPauseProducer.toString(), pauseProducerListener)
     if (typeof socket?.on === 'function')
       socket?.on(MessageTypes.WebRTCResumeProducer.toString(), resumeProducerListener)
+    if (typeof socket?.on === 'function') socket?.on(MessageTypes.WebRTCCloseProducer.toString(), closeProducerListener)
 
     return () => {
       if (typeof socket?.on === 'function')
@@ -200,6 +214,8 @@ const ConferenceModeParticipant = ({ peerId }: Props): JSX.Element => {
         socket?.off(MessageTypes.WebRTCPauseProducer.toString(), pauseProducerListener)
       if (typeof socket?.on === 'function')
         socket?.off(MessageTypes.WebRTCResumeProducer.toString(), resumeProducerListener)
+      if (typeof socket?.on === 'function')
+        socket?.off(MessageTypes.WebRTCCloseProducer.toString(), closeProducerListener)
     }
   }, [currentChannelInstanceConnection])
 
@@ -241,7 +257,7 @@ const ConferenceModeParticipant = ({ peerId }: Props): JSX.Element => {
       videoRef.current.muted = true
       videoRef.current.setAttribute('playsinline', 'true')
       if (videoStream != null) {
-        setVideoProducerPaused(videoStream.paused)
+        setVideoProducerPaused(false)
         const originalTrackEnabledInterval = setInterval(() => {
           if (videoStream.track.enabled) {
             clearInterval(originalTrackEnabledInterval)
@@ -263,44 +279,22 @@ const ConferenceModeParticipant = ({ peerId }: Props): JSX.Element => {
     return () => {
       videoTrackClones.forEach((track) => track.stop())
     }
-  }, [videoStream])
+  }, [videoStream?.track?.id])
 
   useEffect(() => {
     if (peerId === 'cam_me' || peerId === 'screen_me') {
       setAudioStreamPaused(MediaStreams.instance.audioPaused)
-      if (!MediaStreams.instance.audioPaused && audioStream != null && audioRef.current != null) {
-        const originalTrackEnabledInterval = setInterval(() => {
-          if (audioStream.track.enabled) {
-            clearInterval(originalTrackEnabledInterval)
-
-            if (!audioRef.current?.srcObject?.getAudioTracks()[0].enabled) {
-              const newAudioTrack = audioStream.track.clone()
-              const updateAudioTrackClones = audioTrackClones.concat(newAudioTrack)
-              setAudioTrackClones(updateAudioTrackClones)
-              audioRef.current.srcObject = new MediaStream([newAudioTrack])
-            }
-          }
-        })
-      }
     }
   }, [MediaStreams.instance.audioPaused])
 
   useEffect(() => {
     if (peerId === 'cam_me' || peerId === 'screen_me') {
       setVideoStreamPaused(MediaStreams.instance.videoPaused)
-      if (!MediaStreams.instance.videoPaused && videoStream != null && videoRef.current != null) {
-        const originalTrackEnabledInterval = setInterval(() => {
-          if (videoStream.track.enabled) {
-            clearInterval(originalTrackEnabledInterval)
-
-            if (!videoRef.current?.srcObject?.getVideoTracks()[0].enabled) {
-              const newVideoTrack = videoStream.track.clone()
-              videoTrackClones.forEach((track) => track.stop())
-              setVideoTrackClones([newVideoTrack])
-              videoRef.current.srcObject = new MediaStream([newVideoTrack])
-            }
-          }
-        }, 100)
+      if (videoRef.current != null) {
+        if (MediaStreams.instance.videoPaused) {
+          videoRef.current?.srcObject?.getVideoTracks()[0].stop()
+          MediaStreams.instance.videoStream.getVideoTracks()[0].stop()
+        }
       }
     }
   }, [MediaStreams.instance.videoPaused])
@@ -430,8 +424,6 @@ const ConferenceModeParticipant = ({ peerId }: Props): JSX.Element => {
     return user?.name
   }
 
-  const togglePiP = () => setPiP(!isPiP)
-
   const isSelfUser = peerId === 'cam_me' || peerId === 'screen_me'
   const username = getUsername()
 
@@ -442,18 +434,12 @@ const ConferenceModeParticipant = ({ peerId }: Props): JSX.Element => {
       tabIndex={0}
       id={peerId + '_container'}
       className={classNames({
-        [styles['resizeable-screen']]: isScreen && !isPiP,
-        [styles['resizeable-screen-fullscreen']]: isScreen && isPiP,
         [styles['party-chat-user']]: true,
+        [styles.pip]: true,
         [styles['self-user']]: peerId === 'cam_me',
         [styles['no-video']]: videoStream == null,
-        [styles['video-paused']]: videoStream && (videoProducerPaused || videoStreamPaused),
-        [styles.pip]: isPiP && !isScreen,
-        [styles.screenpip]: isPiP && isScreen
+        [styles['video-paused']]: videoStream && (videoProducerPaused || videoStreamPaused)
       })}
-      onClick={() => {
-        if (isScreen && isPiP) togglePiP()
-      }}
     >
       <div
         className={classNames({
@@ -478,7 +464,7 @@ const ConferenceModeParticipant = ({ peerId }: Props): JSX.Element => {
           <div className={styles['mute-controls']}>
             {videoStream && !videoProducerPaused ? (
               <Tooltip title={!videoProducerPaused && !videoStreamPaused ? 'Pause Video' : 'Resume Video'}>
-                <IconButton color="secondary" size="small" className={styles['video-control']} onClick={toggleVideo}>
+                <IconButton size="small" className={styles['icon-button']} onClick={toggleVideo}>
                   {videoStreamPaused ? <VideocamOff /> : <Videocam />}
                 </IconButton>
               </Tooltip>
@@ -491,12 +477,7 @@ const ConferenceModeParticipant = ({ peerId }: Props): JSX.Element => {
                     : (t('user:person.unmuteForEveryone') as string)
                 }
               >
-                <IconButton
-                  color="secondary"
-                  size="small"
-                  className={styles['audio-control']}
-                  onClick={toggleGlobalMute}
-                >
+                <IconButton size="small" className={styles['icon-button']} onClick={toggleGlobalMute}>
                   {audioProducerGlobalMute ? <VoiceOverOff /> : <RecordVoiceOver />}
                 </IconButton>
               </Tooltip>
@@ -513,7 +494,7 @@ const ConferenceModeParticipant = ({ peerId }: Props): JSX.Element => {
                     : t('user:person.unmuteThisPerson')) as string
                 }
               >
-                <IconButton color="secondary" size="small" className={styles['audio-control']} onClick={toggleAudio}>
+                <IconButton size="small" className={styles['icon-button']} onClick={toggleAudio}>
                   {isSelfUser ? (
                     audioStreamPaused ? (
                       <MicOff />
@@ -528,19 +509,6 @@ const ConferenceModeParticipant = ({ peerId }: Props): JSX.Element => {
                 </IconButton>
               </Tooltip>
             ) : null}
-            <Tooltip title={t('user:person.openPictureInPicture') as string}>
-              <IconButton
-                color="secondary"
-                size="small"
-                onClick={(e) => {
-                  e.preventDefault()
-                  e.stopPropagation()
-                  togglePiP()
-                }}
-              >
-                <Launch className={styles.pipBtn} />
-              </IconButton>
-            </Tooltip>
           </div>
           {audioProducerGlobalMute && <div className={styles['global-mute']}>Muted by Admin</div>}
           {audioStream &&
