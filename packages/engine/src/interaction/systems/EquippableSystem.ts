@@ -1,6 +1,10 @@
+import { MeshBasicMaterial, Vector3 } from 'three'
+
 import { createActionQueue } from '@xrengine/hyperflux'
 
+import { getAvatarBoneWorldPosition } from '../../avatar/functions/avatarFunctions'
 import { Engine } from '../../ecs/classes/Engine'
+import { EngineActions } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
 import {
@@ -15,9 +19,18 @@ import { WorldNetworkAction } from '../../networking/functions/WorldNetworkActio
 import { RigidBodyDynamicTagComponent } from '../../physics/components/RigidBodyDynamicTagComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { getHandTransform } from '../../xr/functions/WebXRFunctions'
+import { XRUIComponent } from '../../xrui/components/XRUIComponent'
+import { EquippableComponent } from '../components/EquippableComponent'
 import { EquippedComponent } from '../components/EquippedComponent'
 import { EquipperComponent } from '../components/EquipperComponent'
-import { getParity } from '../functions/equippableFunctions'
+import { changeHand, getAttachmentPoint, getParity } from '../functions/equippableFunctions'
+import { createInteractUI } from '../functions/interactUI'
+import {
+  addInteractableUI,
+  InteractableTransitions,
+  onInteractableUpdate,
+  removeInteractiveUI
+} from './InteractiveSystem'
 
 export function setEquippedObjectReceptor(
   action: ReturnType<typeof WorldNetworkAction.setEquippedObject>,
@@ -43,7 +56,7 @@ export function setEquippedObjectReceptor(
   }
 }
 
-export function equippableQueryEnter(entity: Entity, world = Engine.instance.currentWorld) {
+export function equipperQueryEnter(entity: Entity, world = Engine.instance.currentWorld) {
   const equipperComponent = getComponent(entity, EquipperComponent)
   if (equipperComponent) {
     const equippedEntity = getComponent(entity, EquipperComponent).equippedEntity
@@ -57,7 +70,7 @@ export function equippableQueryEnter(entity: Entity, world = Engine.instance.cur
 }
 
 // since equippables are all client authoritative, we don't need to recompute this for all users
-export function equippableQueryAll(equipperEntity: Entity, world = Engine.instance.currentWorld) {
+export function equipperQueryAll(equipperEntity: Entity, world = Engine.instance.currentWorld) {
   if (!hasComponent(equipperEntity, NetworkObjectOwnedTag)) return
   const equipperComponent = getComponent(equipperEntity, EquipperComponent)
   const equippedEntity = equipperComponent.equippedEntity
@@ -79,7 +92,7 @@ export function equippableQueryAll(equipperEntity: Entity, world = Engine.instan
   }
 }
 
-export function equippableQueryExit(entity: Entity, world = Engine.instance.currentWorld) {
+export function equipperQueryExit(entity: Entity, world = Engine.instance.currentWorld) {
   const equipperComponent = getComponent(entity, EquipperComponent, true)
   const equippedEntity = equipperComponent.equippedEntity
 
@@ -95,24 +108,90 @@ export function equippableQueryExit(entity: Entity, world = Engine.instance.curr
   removeComponent(equippedEntity, EquippedComponent)
 }
 
+const vec3 = new Vector3()
+
+export const onEquippableInteractUpdate = (entity: Entity, xrui: ReturnType<typeof createInteractUI>) => {
+  const world = Engine.instance.currentWorld
+  const isEquipped = hasComponent(entity, EquippedComponent)
+  const transform = getComponent(xrui.entity, TransformComponent)
+  if (!transform || !getComponent(world.localClientEntity, TransformComponent)) return
+  transform.position.copy(getComponent(entity, TransformComponent).position)
+  transform.rotation.copy(getComponent(entity, TransformComponent).rotation)
+  transform.position.y += 1
+  const transition = InteractableTransitions.get(entity)!
+  getAvatarBoneWorldPosition(world.localClientEntity, 'Hips', vec3)
+  const distance = vec3.distanceToSquared(transform.position)
+  const inRange = distance < 5
+  if (transition.state === 'OUT' && inRange) {
+    transition.setState('IN')
+  }
+  if (transition.state === 'IN' && !inRange) {
+    transition.setState('OUT')
+  }
+  transition.update(world, (opacity) => {
+    xrui.container.rootLayer.traverseLayersPreOrder((layer) => {
+      const mat = layer.contentMesh.material as MeshBasicMaterial
+      mat.opacity = opacity
+    })
+  })
+}
+
+/**
+ * @todo refactor this into i18n and configurable
+ */
+export const equippableInteractMessage = 'Equip'
+
 export default async function EquippableSystem(world: World) {
   const setEquippedObjectQueue = createActionQueue(WorldNetworkAction.setEquippedObject.matches)
+  const interactedActionQueue = createActionQueue(EngineActions.interactedWithObject.matches)
 
-  const equippableQuery = defineQuery([EquipperComponent])
+  const equipperQuery = defineQuery([EquipperComponent])
+  const equippableQuery = defineQuery([EquippedComponent])
 
   return () => {
-    for (const action of setEquippedObjectQueue()) setEquippedObjectReceptor(action, world)
+    for (const action of interactedActionQueue()) {
+      if (action.$from !== Engine.instance.userId) continue
+      if (!hasComponent(action.targetEntity, EquippableComponent)) continue
 
-    for (const entity of equippableQuery.enter()) {
-      equippableQueryEnter(entity, world)
+      const avatarEntity = Engine.instance.currentWorld.localClientEntity
+
+      const equipperComponent = getComponent(avatarEntity, EquipperComponent)
+      if (equipperComponent?.equippedEntity) {
+        const equippedComponent = getComponent(equipperComponent.equippedEntity, EquippedComponent)
+        const attachmentPoint = equippedComponent.attachmentPoint
+        const currentParity = getParity(attachmentPoint)
+        if (currentParity !== action.parityValue) {
+          changeHand(avatarEntity, getAttachmentPoint(action.parityValue))
+        } else {
+          // drop(entity, inputKey, inputValue)
+        }
+        continue
+      }
     }
 
-    for (const entity of equippableQuery()) {
-      equippableQueryAll(entity, world)
+    for (const action of setEquippedObjectQueue()) setEquippedObjectReceptor(action, world)
+
+    /**
+     * @todo use an XRUI pool
+     */
+    for (const entity of equippableQuery.enter()) {
+      addInteractableUI(entity, createInteractUI(entity, equippableInteractMessage))
     }
 
     for (const entity of equippableQuery.exit()) {
-      equippableQueryExit(entity, world)
+      removeInteractiveUI(entity)
+    }
+
+    for (const entity of equipperQuery.enter()) {
+      equipperQueryEnter(entity, world)
+    }
+
+    for (const entity of equipperQuery()) {
+      equipperQueryAll(entity, world)
+    }
+
+    for (const entity of equipperQuery.exit()) {
+      equipperQueryExit(entity, world)
     }
   }
 }

@@ -29,8 +29,7 @@ export const SCENE_COMPONENT_MODEL_DEFAULT_VALUE = {
   materialOverrides: [] as MaterialOverrideComponentType[],
   matrixAutoUpdate: true,
   useBasicMaterial: false,
-  isUsingGPUInstancing: false,
-  isDynamicObject: false
+  isUsingGPUInstancing: false
 }
 
 export const deserializeModel: ComponentDeserializeFunction = (
@@ -118,8 +117,7 @@ export const serializeModel: ComponentSerializeFunction = (entity) => {
       materialOverrides: overrides,
       matrixAutoUpdate: component.matrixAutoUpdate,
       useBasicMaterial: component.useBasicMaterial,
-      isUsingGPUInstancing: component.isUsingGPUInstancing,
-      isDynamicObject: component.isDynamicObject
+      isUsingGPUInstancing: component.isUsingGPUInstancing
     }
   }
 }
@@ -131,7 +129,6 @@ const parseModelProperties = (props): ModelComponentType => {
     materialOverrides: props.materialOverrides ?? SCENE_COMPONENT_MODEL_DEFAULT_VALUE.materialOverrides,
     matrixAutoUpdate: props.matrixAutoUpdate ?? SCENE_COMPONENT_MODEL_DEFAULT_VALUE.matrixAutoUpdate,
     useBasicMaterial: props.useBasicMaterial ?? SCENE_COMPONENT_MODEL_DEFAULT_VALUE.useBasicMaterial,
-    isUsingGPUInstancing: props.isUsingGPUInstancing ?? SCENE_COMPONENT_MODEL_DEFAULT_VALUE.isUsingGPUInstancing,
-    isDynamicObject: props.isDynamicObject ?? SCENE_COMPONENT_MODEL_DEFAULT_VALUE.isDynamicObject
+    isUsingGPUInstancing: props.isUsingGPUInstancing ?? SCENE_COMPONENT_MODEL_DEFAULT_VALUE.isUsingGPUInstancing
   }
 }

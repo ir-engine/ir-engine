@@ -8,7 +8,6 @@ export type ModelComponentType = {
   matrixAutoUpdate: boolean
   useBasicMaterial: boolean
   isUsingGPUInstancing: boolean
-  isDynamicObject: boolean
   curScr?: string
   parsed?: boolean
 }

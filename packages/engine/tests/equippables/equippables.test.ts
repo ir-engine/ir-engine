@@ -13,7 +13,7 @@ import { createEngine } from '../../src/initializeEngine'
 import { EquippedComponent } from '../../src/interaction/components/EquippedComponent'
 import { EquipperComponent } from '../../src/interaction/components/EquipperComponent'
 import { equipEntity, unequipEntity } from '../../src/interaction/functions/equippableFunctions'
-import { equippableQueryEnter, equippableQueryExit } from '../../src/interaction/systems/EquippableSystem'
+import { equipperQueryEnter, equipperQueryExit } from '../../src/interaction/systems/EquippableSystem'
 import { NetworkObjectComponent } from '../../src/networking/components/NetworkObjectComponent'
 import { Physics } from '../../src/physics/classes/Physics'
 import { Object3DComponent } from '../../src/scene/components/Object3DComponent'
@@ -88,7 +88,7 @@ describe('Equippables Integration Tests', () => {
     ActionFunctions.clearOutgoingActions()
     ActionFunctions.applyIncomingActions()
 
-    equippableQueryEnter(equipperEntity)
+    equipperQueryEnter(equipperEntity)
 
     // validations for equip
     assert(hasComponent(equipperEntity, EquipperComponent))
@@ -103,7 +103,7 @@ describe('Equippables Integration Tests', () => {
     ActionFunctions.clearOutgoingActions()
     ActionFunctions.applyIncomingActions()
 
-    equippableQueryExit(equipperEntity)
+    equipperQueryExit(equipperEntity)
 
     // validations for unequip
     assert(!hasComponent(equipperEntity, EquipperComponent))

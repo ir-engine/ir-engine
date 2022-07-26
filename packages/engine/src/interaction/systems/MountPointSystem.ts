@@ -31,6 +31,9 @@ import { TransformComponent } from '../../transform/components/TransformComponen
 import { createInteractUI } from '../functions/interactUI'
 import { addInteractableUI } from './InteractiveSystem'
 
+/**
+ * @todo refactor this into i18n and configurable
+ */
 const mountPointInteractMessages = {
   [MountPoint.seat]: 'Press E to Sit'
 }

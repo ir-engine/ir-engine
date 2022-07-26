@@ -503,8 +503,7 @@
             "materialOverrides": [],
             "matrixAutoUpdate": true,
             "useBasicMaterial": false,
-            "isUsingGPUInstancing": false,
-            "isDynamicObject": false
+            "isUsingGPUInstancing": false
           }
         },
         {
@@ -1011,8 +1010,7 @@
             "materialOverrides": [],
             "matrixAutoUpdate": true,
             "useBasicMaterial": false,
-            "isUsingGPUInstancing": false,
-            "isDynamicObject": false
+            "isUsingGPUInstancing": false
           }
         },
         {

@@ -373,8 +373,7 @@
             "src": "__$project$__/default-project/assets/Skybase.glb",
             "textureOverride": "",
             "matrixAutoUpdate": true,
-            "isUsingGPUInstancing": false,
-            "isDynamicObject": false
+            "isUsingGPUInstancing": false
           }
         },
         {
@@ -704,8 +703,7 @@
             "src": "__$project$__/default-project/assets/test-equippable.glb",
             "textureOverride": "",
             "matrixAutoUpdate": true,
-            "isUsingGPUInstancing": false,
-            "isDynamicObject": true
+            "isUsingGPUInstancing": false
           }
         },
         {
@@ -857,8 +855,7 @@
             "src": "__$project$__/default-project/assets/portal_frame.glb",
             "textureOverride": "",
             "matrixAutoUpdate": true,
-            "isUsingGPUInstancing": false,
-            "isDynamicObject": false
+            "isUsingGPUInstancing": false
           }
         },
         {

@@ -30,25 +30,24 @@ import { createBoxComponent } from '../functions/createBoxComponent'
 import { interactBoxRaycast } from '../functions/interactBoxRaycast'
 import { createInteractUI } from '../functions/interactUI'
 
-type InteractiveType = {
+export type InteractiveType = {
   xrui: ReturnType<typeof createXRUI>
   update: (entity: Entity, xrui: ReturnType<typeof createXRUI>) => void
 }
 
-const InteractiveUI = new Map<Entity, InteractiveType>()
-const Transitions = new Map<Entity, ReturnType<typeof createTransitionState>>()
+export const InteractiveUI = new Map<Entity, InteractiveType>()
+export const InteractableTransitions = new Map<Entity, ReturnType<typeof createTransitionState>>()
 
 const vec3 = new Vector3()
 
-const onUpdate = (entity: Entity, mountPoint: ReturnType<typeof createInteractUI>) => {
+export const onInteractableUpdate = (entity: Entity, xrui: ReturnType<typeof createInteractUI>) => {
   const world = Engine.instance.currentWorld
-  const xrui = getComponent(mountPoint.entity, XRUIComponent)
-  const transform = getComponent(mountPoint.entity, TransformComponent)
+  const transform = getComponent(xrui.entity, TransformComponent)
   if (!transform || !getComponent(world.localClientEntity, TransformComponent)) return
   transform.position.copy(getComponent(entity, TransformComponent).position)
   transform.rotation.copy(getComponent(entity, TransformComponent).rotation)
   transform.position.y += 1
-  const transition = Transitions.get(entity)!
+  const transition = InteractableTransitions.get(entity)!
   getAvatarBoneWorldPosition(world.localClientEntity, 'Hips', vec3)
   const distance = vec3.distanceToSquared(transform.position)
   const inRange = distance < 5
@@ -66,8 +65,8 @@ const onUpdate = (entity: Entity, mountPoint: ReturnType<typeof createInteractUI
   })
 }
 
-export const getInteractiveUI = (entity) => InteractiveUI.get(entity)
-export const removeInteractiveUI = (entity) => InteractiveUI.delete(entity)
+export const getInteractiveUI = (entity: Entity) => InteractiveUI.get(entity)
+export const removeInteractiveUI = (entity: Entity) => InteractiveUI.delete(entity)
 
 export const addInteractableUI = (
   entity: Entity,
@@ -82,10 +81,10 @@ export const addInteractableUI = (
   }
 
   if (!update) {
-    update = onUpdate
+    update = onInteractableUpdate
     const transition = createTransitionState(0.25)
     transition.setState('OUT')
-    Transitions.set(entity, transition)
+    InteractableTransitions.set(entity, transition)
   }
 
   InteractiveUI.set(entity, { xrui, update })
@@ -99,7 +98,7 @@ export default async function InteractiveSystem(world: World) {
 
   return () => {
     for (const entity of interactableQuery.exit()) {
-      if (Transitions.has(entity)) Transitions.delete(entity)
+      if (InteractableTransitions.has(entity)) InteractableTransitions.delete(entity)
       if (InteractiveUI.has(entity)) InteractiveUI.delete(entity)
       if (hasComponent(entity, HighlightComponent)) removeComponent(entity, HighlightComponent)
     }
