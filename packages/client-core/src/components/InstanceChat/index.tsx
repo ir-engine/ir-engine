@@ -106,7 +106,7 @@ export const useChatHooks = ({ chatWindowOpen, setUnreadMessages, messageRefInpu
   }, [composingMessage])
 
   const handleComposingMessageChange = (event: any): void => {
-    if (event.key === 'Enter' && event.ctrlKey) {
+    if (event.key === 'Enter' && event.shiftKey) {
       event.preventDefault()
       const selectionStart = (event.target as HTMLInputElement).selectionStart
 
@@ -114,7 +114,7 @@ export const useChatHooks = ({ chatWindowOpen, setUnreadMessages, messageRefInpu
         composingMessage.substring(0, selectionStart || 0) + '\n' + composingMessage.substring(selectionStart || 0)
       )
       return
-    } else if (event.key === 'Enter' && !event.ctrlKey) {
+    } else if (event.key === 'Enter' && !event.shiftKey) {
       event.preventDefault()
       packageMessage()
       return
@@ -293,8 +293,12 @@ const InstanceChat = ({
       entity && toggleAudio(entity)
     }
 
-    if (messageRef.current && messageRef.current.scrollHeight - messageRef.current.scrollTop < 500)
-      messageRef.current.scrollTop = messageRef.current.scrollHeight
+    const messageRefCurrentRenderedInterval = setInterval(() => {
+      if (messageRef.current && messageRef.current.scrollHeight > 0) {
+        messageRef.current.scrollTop = messageRef.current.scrollHeight
+        clearInterval(messageRefCurrentRenderedInterval)
+      }
+    }, 5)
   }, [chatState.messageCreated.value, sortedMessages])
 
   const toggleChatWindow = () => {

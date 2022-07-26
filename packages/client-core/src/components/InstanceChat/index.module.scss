@@ -366,11 +366,13 @@
   color: var(--textColor);
   font-size: 0.9rem;
   line-height: 1.3;
+  white-space: pre-wrap;
 }
 
 .greyText {
   color: #888686;
   font-size: 0.7rem;
+  white-space: pre-wrap;
 }
 
 .animateTop {
