@@ -30,15 +30,10 @@ export const TransformComponent = createMappedComponent<TransformComponentType, 
 
 globalThis.TransformComponent = TransformComponent
 
-export function addTransfromComponent(entity: Entity, world: World = Engine.instance.currentWorld) {
-  return addComponent(
-    entity,
-    TransformComponent,
-    {
-      position: createVector3Proxy(TransformComponent.position, entity),
-      rotation: createQuaternionProxy(TransformComponent.rotation, entity),
-      scale: createVector3Proxy(TransformComponent.scale, entity).setScalar(1)
-    },
-    world
-  )
+export function addTransfromComponent(entity: Entity) {
+  return addComponent(entity, TransformComponent, {
+    position: createVector3Proxy(TransformComponent.position, entity),
+    rotation: createQuaternionProxy(TransformComponent.rotation, entity),
+    scale: createVector3Proxy(TransformComponent.scale, entity).setScalar(1)
+  })
 }

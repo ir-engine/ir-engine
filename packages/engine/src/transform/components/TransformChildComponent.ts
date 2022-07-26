@@ -14,20 +14,11 @@ export type TransformOffsetComponentType = {
 
 export const TransformOffsetComponent = createMappedComponent<TransformOffsetComponentType>('TransformOffsetComponent')
 
-export function addTransformOffsetComponent(
-  entity: Entity,
-  referenceEntity: Entity,
-  world: World = Engine.instance.currentWorld
-) {
-  return addComponent(
-    entity,
-    TransformOffsetComponent,
-    {
-      referenceEntity,
-      depth: 0,
-      offsetPosition: new Vector3(),
-      offsetRotation: new Quaternion()
-    },
-    world
-  )
+export function addTransformOffsetComponent(entity: Entity, referenceEntity: Entity) {
+  return addComponent(entity, TransformOffsetComponent, {
+    referenceEntity,
+    depth: 0,
+    offsetPosition: new Vector3(),
+    offsetRotation: new Quaternion()
+  })
 }

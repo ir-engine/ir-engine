@@ -32,7 +32,7 @@ export const createEngine = async () => {
     destroyWorld(Engine.instance.currentWorld)
   }
   Engine.instance = new Engine()
-  Engine.instance.currentWorld = createWorld()
+  createWorld()
   EngineRenderer.instance = new EngineRenderer()
   registerState(EngineState)
   addActionReceptor(EngineEventReceptor)
