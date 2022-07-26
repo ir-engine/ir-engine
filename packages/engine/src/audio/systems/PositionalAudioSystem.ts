@@ -8,7 +8,7 @@ import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
-import { addComponent, defineQuery, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineQuery, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import {
@@ -16,12 +16,6 @@ import {
   PositionalAudioSettingsComponentType
 } from '../../scene/components/AudioSettingsComponent'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
-import {
-  deserializeAudio,
-  SCENE_COMPONENT_AUDIO,
-  SCENE_COMPONENT_AUDIO_DEFAULT_VALUES,
-  updateAudio
-} from '../../scene/functions/loaders/AudioFunctions'
 import { AudioComponent, AudioComponentType } from '../components/AudioComponent'
 import { AudioTagComponent } from '../components/AudioTagComponent'
 import { AudioType } from '../constants/AudioConstants'

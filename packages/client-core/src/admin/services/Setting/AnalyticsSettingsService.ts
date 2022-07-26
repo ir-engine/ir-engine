@@ -35,7 +35,6 @@ export const AdminSettingAnalyticsService = {
         .find()) as Paginated<SettingAnalytics>
       dispatchAction(AdminAnalyticsSettingActions.fetchedAnalytics({ analyticsSettings }))
     } catch (err) {
-      console.log(err.message)
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   }

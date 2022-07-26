@@ -101,7 +101,7 @@ const SettingMenu = (): JSX.Element => {
   }
 
   const handleChangeControlScheme = (event: SelectChangeEvent) => {
-    setControlScheme(event.target.value)
+    setControlScheme(event.target.value as AvatarMovementScheme)
     AvatarSettings.instance.movementScheme = AvatarMovementScheme[event.target.value]
   }
 

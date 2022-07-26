@@ -68,7 +68,7 @@ agones:
       failureThreshold: 3
       timeoutSeconds: 1
   ping:
-    install: true
+    install: false
     resources: {}
     nodeSelector: {}
     tolerations:

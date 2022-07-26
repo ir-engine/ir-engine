@@ -4,15 +4,15 @@ export interface PartyPropsTable {
 }
 
 export interface PartyColumn {
-  id: 'instance' | 'location' | 'action'
+  id: 'id' | 'maxMembers' | 'action'
   label: string
   minWidth?: number
   align?: 'right'
 }
 
 export const partyColumns: PartyColumn[] = [
-  { id: 'instance', label: 'Instance', minWidth: 65 },
-  { id: 'location', label: 'Location', minWidth: 65 },
+  { id: 'id', label: 'ID', minWidth: 65 },
+  { id: 'maxMembers', label: 'Max Members', minWidth: 65 },
   {
     id: 'action',
     label: 'Action',
@@ -24,7 +24,7 @@ export const partyColumns: PartyColumn[] = [
 export interface PartyData {
   el: any
   id: string
-  instance: string
-  location: string
+  instance?: string
+  maxMembers: number
   action: any
 }

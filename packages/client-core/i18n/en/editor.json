@@ -591,6 +591,11 @@
       "lbl-forNearDistance": "Fog Near Distance",
       "lbl-fogFarDistance": "Fog Far Distance",
       "lbl-fogDensity": "Fog Density"
+    },
+    "mountPoint": {
+      "name": "Mount point",
+      "description": "An object with a pose to define interactable behaviors.",
+      "lbl-type": "Type"
     }
   },
   "projects": {

@@ -12,17 +12,16 @@ import {
   THUMBNAIL_HEIGHT,
   THUMBNAIL_WIDTH
 } from '@xrengine/common/src/constants/AvatarConstants'
+import multiLogger from '@xrengine/common/src/logger'
 import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
 import { loadAvatarForPreview } from '@xrengine/engine/src/avatar/functions/avatarFunctions'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { createEntity, removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { getOrbitControls } from '@xrengine/engine/src/input/functions/loadOrbitControl'
 import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
-import { accessWidgetAppState, WidgetAppActions, WidgetAppService } from '@xrengine/engine/src/xrui/WidgetAppService'
+import { WidgetAppService } from '@xrengine/engine/src/xrui/WidgetAppService'
 import { WidgetName } from '@xrengine/engine/src/xrui/Widgets'
-import { dispatchAction } from '@xrengine/hyperflux'
 
 import { AccountCircle, ArrowBack, CloudUpload, SystemUpdateAlt } from '@mui/icons-material'
 
@@ -38,6 +37,8 @@ import XRInput from '../../components/XRInput'
 import XRTextButton from '../../components/XRTextButton'
 import XRUploadButton from '../../components/XRUploadButton'
 import styleString from './index.scss'
+
+const logger = multiLogger.child({ component: 'client-core:UploadAvatarMenu' })
 
 export function createUploadAvatarMenu() {
   return createXRUI(UploadAvatarMenu, createUploadAvatarMenuState())
@@ -82,7 +83,7 @@ export const UploadAvatarMenu = () => {
         obj.name = 'avatar'
       }
     } catch (err) {
-      console.error(err)
+      logger.error(err)
       setError(err)
     }
   }
@@ -166,7 +167,7 @@ export const UploadAvatarMenu = () => {
           loadAvatarByURL(objectURL)
         }
       } catch (error) {
-        console.error(error)
+        logger.error(error)
         setError(t('user:avatar.selectValidFile'))
       }
     }
@@ -176,7 +177,7 @@ export const UploadAvatarMenu = () => {
       setFileSelected(true)
       setSelectedFile(e.target.files[0])
     } catch (error) {
-      console.error(e)
+      logger.error(e)
       setError(t('user:avatar.selectValidFile'))
     }
   }
@@ -221,7 +222,7 @@ export const UploadAvatarMenu = () => {
     try {
       setSelectedThumbnail(e.target.files[0])
     } catch (error) {
-      console.error(e)
+      logger.error(e)
       setError(t('user:avatar.selectValidThumbnail'))
     }
   }

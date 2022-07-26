@@ -1,26 +1,25 @@
+import { EventQueue } from '@dimforge/rapier3d-compat'
 import * as bitecs from 'bitecs'
 import { AudioListener, Group, Object3D, OrthographicCamera, PerspectiveCamera, Raycaster, Scene } from 'three'
 
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
+import multiLogger from '@xrengine/common/src/logger'
 import { addTopic } from '@xrengine/hyperflux'
-import { Topic } from '@xrengine/hyperflux/functions/ActionFunctions'
 
 import { DEFAULT_LOD_DISTANCES } from '../../assets/constants/LoaderConstants'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { SceneLoaderType } from '../../common/constants/PrefabFunctionType'
-import { isClient } from '../../common/functions/isClient'
 import { isMobile } from '../../common/functions/isMobile'
 import { nowMilliseconds } from '../../common/functions/nowMilliseconds'
 import { createVector3Proxy } from '../../common/proxies/three'
+import { LocalAvatarTagComponent } from '../../input/components/LocalAvatarTagComponent'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
 import { InputValue } from '../../input/interfaces/InputValue'
 import { Network, NetworkTopics } from '../../networking/classes/Network'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
-import { UserClient } from '../../networking/interfaces/NetworkPeer'
-import { AvatarProps } from '../../networking/interfaces/WorldState'
-import { Physics } from '../../physics/classes/Physics'
+import { PhysicsWorld } from '../../physics/classes/Physics'
 import { NameComponent } from '../../scene/components/NameComponent'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
@@ -51,30 +50,33 @@ const TimerConfig = {
   MAX_DELTA_SECONDS: 1 / 10
 }
 
+const logger = multiLogger.child({ component: 'engine:ecs:World' })
+
 export const CreateWorld = Symbol('CreateWorld')
 export class World {
   private constructor() {
     bitecs.createWorld(this, 1000)
     Engine.instance.worlds.push(this)
+    Engine.instance.currentWorld = this
 
-    this.worldEntity = createEntity(this)
-    addComponent(this.worldEntity, PersistTagComponent, true, this)
-    addComponent(this.worldEntity, NameComponent, { name: 'world' }, this)
-    addTransfromComponent(this.worldEntity, this)
-    if (isMobile) addComponent(this.worldEntity, SimpleMaterialTagComponent, true, this)
+    this.worldEntity = createEntity()
+    addComponent(this.worldEntity, PersistTagComponent, true)
+    addComponent(this.worldEntity, NameComponent, { name: 'world' })
+    addTransfromComponent(this.worldEntity)
+    if (isMobile) addComponent(this.worldEntity, SimpleMaterialTagComponent, true)
 
-    this.cameraEntity = createEntity(this)
-    addComponent(this.cameraEntity, VisibleComponent, true, this)
-    addComponent(this.cameraEntity, NameComponent, { name: 'camera' }, this)
-    addComponent(this.cameraEntity, PersistTagComponent, true, this)
-    addComponent(this.cameraEntity, Object3DComponent, { value: this.camera }, this)
-    addTransfromComponent(this.cameraEntity, this)
-    addTransformOffsetComponent(this.cameraEntity, this.worldEntity, this)
+    this.cameraEntity = createEntity()
+    addComponent(this.cameraEntity, VisibleComponent, true)
+    addComponent(this.cameraEntity, NameComponent, { name: 'camera' })
+    addComponent(this.cameraEntity, PersistTagComponent, true)
+    addComponent(this.cameraEntity, Object3DComponent, { value: this.camera })
+    addTransfromComponent(this.cameraEntity)
+    addTransformOffsetComponent(this.cameraEntity, this.worldEntity)
 
-    this.sceneEntity = createEntity(this)
-    addComponent(this.sceneEntity, VisibleComponent, true, this)
-    addTransfromComponent(this.sceneEntity, this)
-    addTransformOffsetComponent(this.sceneEntity, this.worldEntity, this)
+    this.sceneEntity = createEntity()
+    addComponent(this.sceneEntity, VisibleComponent, true)
+    addTransfromComponent(this.sceneEntity)
+    addTransformOffsetComponent(this.sceneEntity, this.worldEntity)
 
     initializeEntityTree(this)
     this.scene.layers.set(ObjectLayers.Scene)
@@ -144,7 +146,8 @@ export class World {
    */
   fixedTick = 0
 
-  physics = new Physics()
+  physicsWorld: PhysicsWorld
+  physicsCollisionEventQueue: EventQueue
 
   /**
    * Map of object lists by layer
@@ -186,13 +189,13 @@ export class World {
   #portalQuery = bitecs.defineQuery([PortalComponent])
   portalQuery = () => this.#portalQuery(this) as Entity[]
 
-  activePortal = null! as ReturnType<typeof PortalComponent.get>
+  activePortal = null as ReturnType<typeof PortalComponent.get> | null
 
   /**
    * The local client entity
    */
   get localClientEntity() {
-    return this.getOwnedNetworkObjectWithComponent(Engine.instance.userId, LocalInputTagComponent) || (NaN as Entity)
+    return this.getOwnedNetworkObjectWithComponent(Engine.instance.userId, LocalAvatarTagComponent) || (NaN as Entity)
   }
 
   /**
@@ -217,7 +220,9 @@ export class World {
     const nameMap = this.#nameMap
     for (const entity of this.#nameQuery.enter()) {
       const { name } = getComponent(entity, NameComponent)
-      if (nameMap.has(name)) console.warn(`An Entity with name "${name}" already exists.`)
+      if (nameMap.has(name)) {
+        logger.warn(`An Entity with name "${name}" already exists.`)
+      }
       nameMap.set(name, entity)
       const obj3d = getComponent(entity, Object3DComponent)?.value
       if (obj3d) obj3d.name = name
@@ -322,7 +327,7 @@ export class World {
     const end = nowMilliseconds()
     const duration = end - start
     if (duration > 150) {
-      console.warn(`Long frame execution detected. Duration: ${duration}. \n Incoming actions: `, incomingActions)
+      logger.warn(`Long frame execution detected. Duration: ${duration}. \n Incoming actions: %o`, incomingActions)
     }
   }
 }
@@ -334,10 +339,4 @@ export function createWorld() {
 export function destroyWorld(world: World) {
   bitecs.resetWorld(world)
   bitecs.deleteWorld(world)
-}
-function createQuaternionProxy(
-  rotation: SoAComponentType<{ x: 'f32'; y: 'f32'; z: 'f32'; w: 'f32' }>,
-  worldEntity: Entity
-): any {
-  throw new Error('Function not implemented.')
 }

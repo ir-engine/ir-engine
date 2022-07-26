@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { ProjectInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
+import multiLogger from '@xrengine/common/src/logger'
 
 import Cached from '@mui/icons-material/Cached'
 import Cross from '@mui/icons-material/Cancel'
@@ -23,6 +24,8 @@ import styles from '../../styles/admin.module.scss'
 import GithubRepoDrawer from './GithubRepoDrawer'
 import ProjectFilesDrawer from './ProjectFilesDrawer'
 import UserPermissionDrawer from './UserPermissionDrawer'
+
+const logger = multiLogger.child({ component: 'client-core:ProjectTable' })
 
 interface Props {
   className?: string
@@ -80,11 +83,11 @@ const ProjectTable = ({ className }: Props) => {
           await ProjectService.removeProject(projectToRemove.id)
           handleCloseConfirmation()
         } else {
-          throw Error('Failed to find the project')
+          throw new Error('Failed to find the project')
         }
       }
     } catch (err) {
-      console.log(err)
+      logger.error(err)
     }
   }
 
@@ -105,7 +108,7 @@ const ProjectTable = ({ className }: Props) => {
       }
     } catch (err) {
       setProcessing(false)
-      console.log(err)
+      logger.error(err)
     }
   }
 
@@ -122,7 +125,7 @@ const ProjectTable = ({ className }: Props) => {
       }
     } catch (err) {
       setProcessing(false)
-      console.log(err)
+      logger.error(err)
     }
   }
 
@@ -135,7 +138,7 @@ const ProjectTable = ({ className }: Props) => {
       handleCloseConfirmation()
     } catch (err) {
       setProcessing(false)
-      console.log(err)
+      logger.error(err)
     }
   }
 

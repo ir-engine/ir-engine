@@ -11,6 +11,7 @@ import { createEntity } from '../ecs/functions/EntityFunctions'
 import { createEngine } from '../initializeEngine'
 import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
 import { WorldNetworkActionReceptor } from '../networking/functions/WorldNetworkActionReceptor'
+import { Physics } from '../physics/classes/Physics'
 import { EngineRenderer } from '../renderer/WebGLRendererSystem'
 import { XRHandsInputComponent, XRInputSourceComponent } from './XRComponents'
 import { setupXRCameraForLocalEntity, setupXRInputSourceComponent } from './XRFunctions'
@@ -18,11 +19,12 @@ import { setupXRCameraForLocalEntity, setupXRInputSourceComponent } from './XRFu
 describe('WebXRFunctions Unit', async () => {
   beforeEach(async () => {
     createEngine()
+    await Physics.load()
+    Engine.instance.currentWorld.physicsWorld = Physics.createWorld()
   })
 
   it('check setupXRCamera', async () => {
     const world = Engine.instance.currentWorld
-    await world.physics.createScene()
 
     const action = WorldNetworkAction.spawnAvatar({})
     WorldNetworkActionReceptor.receiveSpawnObject(action)
@@ -48,7 +50,6 @@ describe('WebXRFunctions Unit', async () => {
     createMockNetwork()
 
     const world = Engine.instance.currentWorld
-    await world.physics.createScene()
 
     const action = WorldNetworkAction.spawnAvatar({})
     WorldNetworkActionReceptor.receiveSpawnObject(action)

@@ -23,17 +23,19 @@ const DashboardMenuItem = ({ location }: Props) => {
   const { t } = useTranslation()
 
   let allowedRoutes = {
-    routes: true,
     location: false,
     user: false,
     bot: false,
+    scene: false,
     party: false,
     groups: false,
     instance: false,
     invite: false,
     globalAvatars: false,
     benchmarking: false,
-    projects: false
+    routes: false,
+    projects: false,
+    settings: false
   }
 
   scopes.forEach((scope) => {

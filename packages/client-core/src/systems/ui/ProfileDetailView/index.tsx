@@ -1,11 +1,11 @@
 import { createState, useHookstate } from '@speigg/hookstate'
 import * as polyfill from 'credential-handler-polyfill'
-import _ from 'lodash'
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { validateEmail, validatePhoneNumber } from '@xrengine/common/src/config'
 import { defaultThemeModes, defaultThemeSettings } from '@xrengine/common/src/constants/DefaultThemeSettings'
+import multiLogger from '@xrengine/common/src/logger'
 import { WorldState } from '@xrengine/engine/src/networking/interfaces/WorldState'
 import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
 import { WidgetAppService } from '@xrengine/engine/src/xrui/WidgetAppService'
@@ -33,6 +33,8 @@ import XRInput from '../../components/XRInput'
 import XRSelectDropdown from '../../components/XRSelectDropdown'
 import XRTextButton from '../../components/XRTextButton'
 import styleString from './index.scss'
+
+const logger = multiLogger.child({ component: 'client-core:ProfileDetailView' })
 
 export function createProfileDetailView() {
   return createXRUI(ProfileDetailView, createProfileDetailState())
@@ -127,9 +129,8 @@ const ProfileDetailView = () => {
       )}`
 
       await polyfill.loadOnce(mediator)
-      console.log('Ready to work with credentials!')
     } catch (e) {
-      console.error('Error loading polyfill:', e)
+      logger.error(e, 'Error loading polyfill')
     }
   }
 

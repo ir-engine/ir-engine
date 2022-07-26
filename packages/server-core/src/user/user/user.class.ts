@@ -140,11 +140,7 @@ export class User extends Service<UserInterface> {
       const { $sort } = params?.query ?? {}
       if ($sort != null)
         Object.keys($sort).forEach((name, val) => {
-          if (name === 'location') {
-            order.push([Sequelize.literal('`party.location.name`'), $sort[name] === 0 ? 'DESC' : 'ASC'])
-          } else {
-            order.push([name, $sort[name] === 0 ? 'DESC' : 'ASC'])
-          }
+          order.push([name, $sort[name] === 0 ? 'DESC' : 'ASC'])
         })
 
       if (order.length > 0) {

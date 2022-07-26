@@ -19,7 +19,6 @@ export const createMediaControlsUI = (entity: Entity) => {
   })
   ui.container.then(() => {
     const xrui = getComponent(ui.entity, XRUIComponent)
-    if (!xrui?.container) return
     xrui.container.rootLayer.traverseLayersPreOrder((layer: WebLayer3D) => {
       const mat = layer.contentMesh.material as THREE.MeshBasicMaterial
       mat.transparent = true

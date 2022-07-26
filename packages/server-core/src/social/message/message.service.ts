@@ -43,16 +43,10 @@ export default (app: Application) => {
     const channel = await app.service('channel').get(data.channelId)
     let targetIds: any[] = []
     if (channel.channelType === 'party') {
-      const partyUsers = await app.service('party-user').find({
-        query: {
-          $limit: 1000,
-          partyId: channel.partyId
-        }
-      })
-
-      targetIds = (partyUsers as any).data.map((partyUser) => {
-        return partyUser.userId
-      })
+      const partyUsers = await app
+        .service('party-user')
+        .Model.findAll({ where: { partyId: channel.partyId }, limit: 1000 })
+      targetIds = partyUsers.map((partyUser) => partyUser.userId)
     } else if (channel.channelType === 'group') {
       const groupUsers = await app.service('group-user').find({
         query: {
@@ -100,16 +94,10 @@ export default (app: Application) => {
     const channel = await app.service('channel').get(data.channelId)
     let targetIds: any[] = []
     if (channel.channelType === 'party') {
-      const partyUsers = await app.service('party-user').find({
-        query: {
-          $limit: 1000,
-          partyId: channel.partyId
-        }
-      })
-
-      targetIds = (partyUsers as any).data.map((partyUser) => {
-        return partyUser.userId
-      })
+      const partyUsers = await app
+        .service('party-user')
+        .Model.findAll({ where: { partyId: channel.partyId }, limit: 1000 })
+      targetIds = partyUsers.map((partyUser) => partyUser.userId)
     } else if (channel.channelType === 'group') {
       const groupUsers = await app.service('group-user').find({
         query: {
@@ -157,16 +145,10 @@ export default (app: Application) => {
     const channel = await app.service('channel').get(data.channelId)
     let targetIds: any[] = []
     if (channel.channelType === 'party') {
-      const partyUsers = await app.service('party-user').find({
-        query: {
-          $limit: 1000,
-          partyId: channel.partyId
-        }
-      })
-
-      targetIds = (partyUsers as any).data.map((partyUser) => {
-        return partyUser.userId
-      })
+      const partyUsers = await app
+        .service('party-user')
+        .Model.findAll({ where: { partyId: channel.partyId }, limit: 1000 })
+      targetIds = partyUsers.map((partyUser) => partyUser.userId)
     } else if (channel.channelType === 'group') {
       const groupUsers = await app.service('group-user').find({
         query: {

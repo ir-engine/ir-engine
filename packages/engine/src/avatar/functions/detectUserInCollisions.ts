@@ -1,35 +1,28 @@
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
-import { CollisionComponent } from '../../physics/components/CollisionComponent'
+import { RapierCollisionComponent } from '../../physics/components/RapierCollisionComponent'
 import { ColliderHitEvent, CollisionEvents } from '../../physics/types/PhysicsTypes'
 import { TriggerDetectedComponent } from '../../scene/components/TriggerDetectedComponent'
 import { TriggerVolumeComponent } from '../../scene/components/TriggerVolumeComponent'
 
-export const detectActiveTriggerCollision = (collidingEntity: Entity, collision: ColliderHitEvent) => {
-  const triggerEntity = (collision?.bodyOther as any)?.userData?.entity as Entity
-  if (typeof triggerEntity === 'undefined') return
-
+export const detectActiveTriggerCollision = (entity: Entity, otherEntity: Entity, collision: ColliderHitEvent) => {
+  const triggerEntity = otherEntity
   const triggerComponent = getComponent(triggerEntity, TriggerVolumeComponent)
   if (!triggerComponent?.active) return
 
   if (collision.type == CollisionEvents.TRIGGER_START) {
-    if (hasComponent(collidingEntity, TriggerDetectedComponent))
-      removeComponent(collidingEntity, TriggerDetectedComponent)
-    addComponent(collidingEntity, TriggerDetectedComponent, { triggerEntity })
+    if (hasComponent(entity, TriggerDetectedComponent)) removeComponent(entity, TriggerDetectedComponent)
+    addComponent(entity, TriggerDetectedComponent, { triggerEntity })
   } else if (!collision.type || collision.type == CollisionEvents.TRIGGER_END) {
-    if (getComponent(collidingEntity, TriggerDetectedComponent)) {
-      removeComponent(collidingEntity, TriggerDetectedComponent)
+    if (getComponent(entity, TriggerDetectedComponent)) {
+      removeComponent(entity, TriggerDetectedComponent)
     }
   }
 }
 
 export const detectUserInCollisions = (entity: Entity): void => {
-  const collisions = getComponent(entity, CollisionComponent).collisions
-  //Trigger
-  if (collisions.length != 0) {
-    // console.log(collisions)
-    collisions.forEach((collision) => {
-      detectActiveTriggerCollision(entity, collision as ColliderHitEvent)
-    })
-  }
+  const collisionComponent = getComponent(entity, RapierCollisionComponent)
+  collisionComponent.collisions.forEach((colliderHitEvent: ColliderHitEvent, otherEntity: Entity, map) => {
+    detectActiveTriggerCollision(entity, otherEntity, colliderHitEvent)
+  })
 }

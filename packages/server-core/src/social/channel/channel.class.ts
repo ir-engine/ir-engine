@@ -133,9 +133,44 @@ export class Channel<T = ChannelDataType> extends Service<T> {
           limit: limit
         }
       } else {
+        let where
+
+        if (query.instanceId)
+          where = {
+            channelType: query.channelType,
+            instanceId: query.instanceId
+          }
+        else if (query.partyId)
+          where = {
+            channelType: query.channelType,
+            partyId: query.partyId
+          }
+        else if (query.groupId)
+          where = {
+            channelType: query.channelType,
+            groupId: query.groupId
+          }
+        else if (query.friendId)
+          where = {
+            channelType: query.channelType,
+            [Op.or]: [
+              {
+                userId1: userId,
+                userId2: query.friendId
+              },
+              {
+                userId2: userId,
+                userId1: query.friendId
+              }
+            ]
+          }
+        else
+          where = {
+            channelType: 'intentionallyBadType'
+          }
         return this.app.service('channel').Model.findAll({
           include: params.sequelize.include,
-          where: { channelType: query.channelType, instanceId: query.instanceId }
+          where: where
         })
       }
     } catch (err) {

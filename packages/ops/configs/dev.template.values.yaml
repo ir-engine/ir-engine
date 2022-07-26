@@ -47,7 +47,7 @@ client:
   ingress:
     annotations:
       kubernetes.io/ingress.class: nginx
-      nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+      nginx.ingress.kubernetes.io/force-ssl-redirect: "false"
     hosts:
       - host: dev.<domain>
         paths:
@@ -159,7 +159,7 @@ api:
   ingress:
     annotations:
       kubernetes.io/ingress.class: nginx
-      nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+      nginx.ingress.kubernetes.io/force-ssl-redirect: "false"
       nginx.ingress.kubernetes.io/enable-cors: "false"
       nginx.ingress.kubernetes.io/proxy-body-size: 256m
       nginx.ingress.kubernetes.io/affinity: cookie
@@ -265,7 +265,7 @@ media:
   ingress:
     annotations:
       kubernetes.io/ingress.class: nginx
-      nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+      nginx.ingress.kubernetes.io/force-ssl-redirect: "false"
       nginx.ingress.kubernetes.io/enable-cors: "true"
       nginx.ingress.kubernetes.io/cors-allow-origin: https://dev.<domain>
       nginx.ingress.kubernetes.io/proxy-body-size: 256m
@@ -307,7 +307,7 @@ instanceserver:
   ingress:
     annotations:
       kubernetes.io/ingress.class: nginx
-      nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+      nginx.ingress.kubernetes.io/force-ssl-redirect: "false"
       nginx.ingress.kubernetes.io/enable-cors: "false"
       nginx.ingress.kubernetes.io/proxy-body-size: 256m
       nginx.ingress.kubernetes.io/affinity: cookie

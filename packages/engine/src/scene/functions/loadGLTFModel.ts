@@ -34,8 +34,7 @@ export const createObjectEntityFromGLTF = (entity: Entity, obj3d: Object3D): voi
   for (const [key, value] of data) {
     const parts = key.split('.')
     if (parts.length > 1) {
-      // TODO: deprecate xrengine
-      if (parts[0] === 'realitypack' || parts[0] === 'xrengine') {
+      if (parts[0] === 'xrengine') {
         const componentExists = ComponentMap.has(parts[1])
         const _toLoad = componentExists ? components : prefabs
         if (typeof _toLoad[parts[1]] === 'undefined') {
@@ -71,7 +70,7 @@ export const parseObjectComponentsFromGLTF = (entity: Entity, object3d?: Object3
   const meshesToProcess: Mesh[] = []
 
   obj3d.traverse((mesh: Mesh) => {
-    if ('xrengine.entity' in mesh.userData || 'realitypack.entity' in mesh.userData) {
+    if ('xrengine.entity' in mesh.userData) {
       meshesToProcess.push(mesh)
     }
   })
@@ -84,11 +83,10 @@ export const parseObjectComponentsFromGLTF = (entity: Entity, object3d?: Object3
   for (const mesh of meshesToProcess) {
     const e = createEntity()
     addComponent(e, NameComponent, {
-      name: mesh.userData['xrengine.entity'] ?? mesh.userData['realitypack.entity'] ?? mesh.uuid
+      name: mesh.userData['xrengine.entity'] ?? mesh.uuid
     })
 
     delete mesh.userData['xrengine.entity']
-    delete mesh.userData['realitypack.entity']
     delete mesh.userData.name
 
     const localPosition = new Vector3().copy(mesh.position)

@@ -44,21 +44,24 @@ function destroyPeer(network: Network, userId: UserId, world = Engine.instance.c
   network.peers.delete(userId)
 
   /**
-   * if no other connections exist for this user exist, we want to remove them from world.users
+   * if no other connections exist for this user, and this action is occurring on the world network,
+   * we want to remove them from world.users
    */
-  const remainingPeersForDisconnectingUser = Object.entries(world.networks.entries())
-    .map(([id, network]: [string, Network]) => {
-      return network.peers.has(userId)
-    })
-    .filter((peer) => !!peer)
+  if (network.topic === 'world') {
+    const remainingPeersForDisconnectingUser = Object.entries(world.networks.entries())
+      .map(([id, network]: [string, Network]) => {
+        return network.peers.has(userId)
+      })
+      .filter((peer) => !!peer)
 
-  if (!remainingPeersForDisconnectingUser.length) {
-    Engine.instance.store.actions.cached = Engine.instance.store.actions.cached.filter((a) => a.$from !== userId)
-    for (const eid of world.getOwnedNetworkObjects(userId)) removeEntity(eid)
+    if (!remainingPeersForDisconnectingUser.length) {
+      Engine.instance.store.actions.cached = Engine.instance.store.actions.cached.filter((a) => a.$from !== userId)
+      for (const eid of world.getOwnedNetworkObjects(userId)) removeEntity(eid)
+    }
+
+    clearCachedActionsForUser(network, userId)
+    clearActionsHistoryForUser(userId)
   }
-
-  clearCachedActionsForUser(network, userId)
-  clearActionsHistoryForUser(userId)
 }
 
 const destroyAllPeers = (network: Network, world = Engine.instance.currentWorld) => {
