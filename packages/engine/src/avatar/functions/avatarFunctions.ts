@@ -7,8 +7,6 @@ import {
   Box3,
   DoubleSide,
   Group,
-  Material,
-  Matrix4,
   Mesh,
   MeshBasicMaterial,
   Object3D,
@@ -23,11 +21,7 @@ import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { AssetType } from '../../assets/enum/AssetType'
 import { AnimationManager } from '../../avatar/AnimationManager'
 import { LoopAnimationComponent } from '../../avatar/components/LoopAnimationComponent'
-import { OBCType } from '../../common/constants/OBCTypes'
 import { isClient } from '../../common/functions/isClient'
-import { addOBCPlugin } from '../../common/functions/OnBeforeCompilePlugin'
-import { insertAfterString, insertBeforeString } from '../../common/functions/string'
-import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
@@ -46,7 +40,6 @@ import { AvatarAnimationComponent } from '../components/AvatarAnimationComponent
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
 import { AvatarEffectComponent, MaterialMap } from '../components/AvatarEffectComponent'
-import { AvatarHeadDecapComponent } from '../components/AvatarHeadDecapComponent'
 import { AvatarPendingComponent } from '../components/AvatarPendingComponent'
 import { defaultBonesData } from '../DefaultSkeletonBones'
 import { DissolveEffect } from '../DissolveEffect'
