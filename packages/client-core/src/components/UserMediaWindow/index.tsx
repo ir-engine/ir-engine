@@ -50,7 +50,7 @@ interface Props {
   peerId?: string | 'cam_me' | 'screen_me'
 }
 
-const UserMediaWindow = ({ peerId }: Props): JSX.Element => {
+export const useUserMediaWindowHook = ({ peerId }) => {
   const [isPiP, setPiP] = useState(false)
   const [videoStream, _setVideoStream] = useState<any>(null)
   const [audioStream, _setAudioStream] = useState<any>(null)
@@ -432,6 +432,64 @@ const UserMediaWindow = ({ peerId }: Props): JSX.Element => {
   const username = getUsername()
 
   const userAvatarDetails = useHookstate(getState(WorldState).userAvatarDetails)
+
+  return {
+    user,
+    isPiP,
+    volume,
+    isScreen,
+    username,
+    selfUser,
+    audioRef,
+    videoRef,
+    isSelfUser,
+    videoStream,
+    audioStream,
+    enableGlobalMute,
+    userAvatarDetails,
+    videoStreamPaused,
+    audioStreamPaused,
+    videoProducerPaused,
+    audioProducerPaused,
+    videoProducerGlobalMute,
+    audioProducerGlobalMute,
+    t,
+    togglePiP,
+    toggleAudio,
+    toggleVideo,
+    adjustVolume,
+    toggleGlobalMute
+  }
+}
+
+const UserMediaWindow = ({ peerId }: Props): JSX.Element => {
+  const {
+    user,
+    isPiP,
+    volume,
+    isScreen,
+    username,
+    selfUser,
+    audioRef,
+    videoRef,
+    isSelfUser,
+    videoStream,
+    audioStream,
+    enableGlobalMute,
+    userAvatarDetails,
+    videoStreamPaused,
+    audioStreamPaused,
+    videoProducerPaused,
+    audioProducerPaused,
+    videoProducerGlobalMute,
+    audioProducerGlobalMute,
+    t,
+    togglePiP,
+    toggleAudio,
+    toggleVideo,
+    adjustVolume,
+    toggleGlobalMute
+  } = useUserMediaWindowHook({ peerId })
 
   return (
     <Draggable isPiP={isPiP}>
