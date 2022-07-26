@@ -232,7 +232,7 @@ export function createAvatarAnimationGraph(
   // Mount Point
 
   const mountEnterState: SingleAnimationState = {
-    name: AvatarStates.MOUNT_ENTER,
+    name: AvatarStates.SIT_ENTER,
     type: 'SingleAnimationState',
     action: null!,
     loop: false,
@@ -240,7 +240,7 @@ export function createAvatarAnimationGraph(
   }
 
   const mountLeaveState: SingleAnimationState = {
-    name: AvatarStates.MOUNT_LEAVE,
+    name: AvatarStates.SIT_LEAVE,
     type: 'SingleAnimationState',
     action: null!,
     loop: false,
@@ -248,7 +248,7 @@ export function createAvatarAnimationGraph(
   }
 
   const mountActiveState: SingleAnimationState = {
-    name: AvatarStates.MOUNT_ACTIVE,
+    name: AvatarStates.SIT_IDLE,
     type: 'SingleAnimationState',
     action: null!,
     loop: true,
@@ -270,9 +270,9 @@ export function createAvatarAnimationGraph(
   graph.states[AvatarStates.DANCE2] = dance2State
   graph.states[AvatarStates.DANCE3] = dance3State
   graph.states[AvatarStates.DANCE4] = dance4State
-  graph.states[AvatarStates.MOUNT_ENTER] = mountEnterState
-  graph.states[AvatarStates.MOUNT_LEAVE] = mountLeaveState
-  graph.states[AvatarStates.MOUNT_ACTIVE] = mountActiveState
+  graph.states[AvatarStates.SIT_ENTER] = mountEnterState
+  graph.states[AvatarStates.SIT_LEAVE] = mountLeaveState
+  graph.states[AvatarStates.SIT_IDLE] = mountActiveState
 
   // Transition rules
 
@@ -370,10 +370,10 @@ export function createAvatarAnimationGraph(
   graph.transitionRules[AvatarStates.DANCE3] = [{ rule: movementTransitionRule, nextState: AvatarStates.LOCOMOTION }]
   graph.transitionRules[AvatarStates.DANCE4] = [{ rule: movementTransitionRule, nextState: AvatarStates.LOCOMOTION }]
 
-  graph.transitionRules[AvatarStates.MOUNT_ENTER] = [
+  graph.transitionRules[AvatarStates.SIT_ENTER] = [
     {
       rule: animationTimeTransitionRule(mountEnterState.action, 0.95),
-      nextState: AvatarStates.MOUNT_ACTIVE
+      nextState: AvatarStates.SIT_IDLE
     }
   ]
 
