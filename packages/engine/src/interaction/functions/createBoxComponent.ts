@@ -37,7 +37,7 @@ export const createBoxComponent = (entity: Entity) => {
   })
   // if no meshes, create a small bb so interactables still detect it
   if (!hasBoxExpanded) {
-    calcBoundingBox.box = new Box3(
+    calcBoundingBox.box.set(
       new Vector3(-0.05, -0.05, -0.05).add(transform.position),
       new Vector3(0.05, 0.05, 0.05).add(transform.position)
     )

@@ -116,9 +116,9 @@
               "z": -6.339259624481201
             },
             "rotation": {
-              "x": -2.7229010428794185,
-              "y": -0.3808815581541687,
-              "z": -2.977651941923775
+              "x": -2.7229009547123577,
+              "y": -0.38088154982435857,
+              "z": -2.9776519059033015
             },
             "scale": {
               "x": 1,
@@ -436,9 +436,9 @@
               "z": 0.5
             },
             "rotation": {
-              "x": -1.2025318056747563,
-              "y": -0.4572762556646684,
-              "z": -1.0530810346514675e-8
+              "x": -1.202531834261702,
+              "y": -0.4572762621960275,
+              "z": -2.017327418528485e-8
             },
             "scale": {
               "x": 1,
@@ -500,7 +500,9 @@
           "props": {
             "src": "__$project$__/default-project/assets/apartment.glb",
             "textureOverride": "",
+            "materialOverrides": [],
             "matrixAutoUpdate": true,
+            "useBasicMaterial": false,
             "isUsingGPUInstancing": false,
             "isDynamicObject": false
           }
@@ -787,9 +789,9 @@
               "z": 3
             },
             "rotation": {
-              "x": -5.8365159420641365e-18,
+              "x": -5.836514699747665e-18,
               "y": 0.05759586483318637,
-              "z": 2.7795421078617295e-16
+              "z": 2.779542107503869e-16
             },
             "scale": {
               "x": 0.5,
@@ -824,9 +826,9 @@
               "z": -2.3505780696868896
             },
             "rotation": {
-              "x": -5.875937832995113e-18,
-              "y": -0.12936496012163695,
-              "z": 2.768601881633056e-16
+              "x": 0,
+              "y": -0.1221730502166255,
+              "z": 0
             },
             "scale": {
               "x": 0.4000000059604645,
@@ -1006,7 +1008,9 @@
           "props": {
             "src": "__$project$__/default-project/assets/portal_frame.glb",
             "textureOverride": "",
+            "materialOverrides": [],
             "matrixAutoUpdate": true,
+            "useBasicMaterial": false,
             "isUsingGPUInstancing": false,
             "isDynamicObject": false
           }
@@ -1096,8 +1100,45 @@
         }
       ],
       "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
-      "index": 7,
+      "index": 19,
       "name": "Fog"
+    },
+    "2057cac5-6a0c-42f3-ba03-16eb9ef5fbd7": {
+      "components": [
+        {
+          "name": "transform",
+          "props": {
+            "position": {
+              "x": -3.351901054382324,
+              "y": 0.6000000238418579,
+              "z": -2.362102746963501
+            },
+            "rotation": {
+              "x": 3.141592653589793,
+              "y": -1.413716519796023,
+              "z": 3.141592653589793
+            },
+            "scale": {
+              "x": 1,
+              "y": 1,
+              "z": 1
+            }
+          }
+        },
+        {
+          "name": "visible",
+          "props": {}
+        },
+        {
+          "name": "mount-point",
+          "props": {
+            "type": "seat"
+          }
+        }
+      ],
+      "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
+      "index": 20,
+      "name": "Chair"
     }
   },
   "root": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC"

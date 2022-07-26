@@ -20,7 +20,7 @@ import { createLoaderDetailView } from './ui/LoadingDetailView'
 
 export default async function LoadingUISystem(world: World) {
   const transitionPeriodSeconds = 1
-  const transition = createTransitionState(transitionPeriodSeconds)
+  const transition = createTransitionState(transitionPeriodSeconds, 'IN')
 
   // todo: push timeout to accumulator
   matchActionOnce(EngineActions.joinedWorld.matches, () => {
@@ -74,7 +74,8 @@ export default async function LoadingUISystem(world: World) {
       ObjectFitFunctions.attachObjectInFrontOfCamera(xrui.container, scale, distance)
 
       transition.update(world, (opacity) => {
-        if (opacity !== 1 - LoadingSystemState.opacity.value) LoadingSystemState.opacity.set(1 - opacity)
+        if (opacity !== LoadingSystemState.loadingScreenOpacity.value)
+          LoadingSystemState.loadingScreenOpacity.set(opacity)
         mesh.material.opacity = opacity
         mesh.visible = opacity > 0
         xrui.container.rootLayer.traverseLayersPreOrder((layer: WebLayer3D) => {
