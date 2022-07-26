@@ -11,16 +11,19 @@ const receiveSpawnObject = (
   world = Engine.instance.currentWorld,
   network: SocketWebRTCServerNetwork
 ) => {
+  if (action.prefab !== 'camera') {
+    return
+  }
+
   const worldState = getState(WorldState)
   const userName = worldState.userNames[action.$from].value
-  const spectating = network.peers.get(action.$from)!.spectating
 
   const app = (world.worldNetwork as SocketWebRTCServerNetwork).app
   app.service('message').create(
     {
       targetObjectId: app.instance.id,
       targetObjectType: 'instance',
-      text: `${userName} joined` + (spectating ? ' as spectator' : ''),
+      text: `${userName} joined`,
       isNotification: true
     },
     {
