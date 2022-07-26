@@ -1,8 +1,7 @@
-import { WebContainer3D, WebLayer3D, WebLayerManager } from '@etherealjs/web-layer/three'
+import { WebContainer3D, WebLayerManager } from '@etherealjs/web-layer/three'
 import { State } from '@speigg/hookstate'
 import React from 'react'
 
-import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
@@ -13,7 +12,8 @@ import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 import { XRUIComponent } from '../components/XRUIComponent'
 import { XRUIStateContext } from '../XRUIStateContext'
 
-let Ethereal, ReactDOM
+let Ethereal: typeof import('@etherealjs/web-layer/three')
+let ReactDOM: typeof import('react-dom')
 
 export async function loadXRUIDeps() {
   ;[Ethereal, ReactDOM] = await Promise.all([import('@etherealjs/web-layer/three'), import('react-dom')])
@@ -48,15 +48,6 @@ export function createXRUI<S extends State<any> | null>(UIFunc: React.FC, state 
   })
 
   container.raycaster.layers.enableAll()
-
-  // Make sure entity still exists, since we are adding these components asynchronously,
-  // and bad things might happen if we add these components after entity has been removed
-  // TODO: revise this pattern after refactor
-  if (!Engine.instance.currentWorld.entityQuery().includes(entity)) {
-    console.warn('XRUI layer initialized after entity removed from world')
-    container.rootLayer.dispose()
-    return null!
-  }
 
   addComponent(entity, Object3DComponent, { value: container })
   setObjectLayers(container, ObjectLayers.UI)
