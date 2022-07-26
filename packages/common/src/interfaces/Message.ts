@@ -7,6 +7,7 @@ export type Message = {
   senderId: UserId
   channelId: string
   text: string
+  isNotification: boolean
   createdAt: string
   updatedAt: string
   sender: UserInterface

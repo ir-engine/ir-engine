@@ -140,7 +140,8 @@ export class Message<T = MessageDataType> extends Service<T> {
     const messageData: any = {
       senderId: userId,
       channelId: channelId,
-      text: data.text
+      text: data.text,
+      isNotification: data.isNotification
     }
     const newMessage: any = await super.create({ ...messageData })
 
