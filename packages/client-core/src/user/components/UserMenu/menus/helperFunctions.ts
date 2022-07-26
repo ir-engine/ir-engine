@@ -83,6 +83,7 @@ export const addAnimationLogic = (
       stateChanged: null!
     },
     rig: {} as BoneStructure,
+    bindRig: {} as BoneStructure,
     rootYRatio: 1
   })
   addComponent(entity, VelocityComponent, { linear: new Vector3(), angular: new Vector3() })
