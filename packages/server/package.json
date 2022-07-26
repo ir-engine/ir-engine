@@ -75,7 +75,7 @@
     "@types/serve-favicon": "2.5.3",
     "concurrently": "7.2.1",
     "http-server": "14.1.1",
-    "nodemon": "2.0.15",
+    "nodemon": "2.0.19",
     "supertest": "6.2.2",
     "ts-node-dev": "1.1.8"
   },
