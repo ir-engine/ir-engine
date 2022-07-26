@@ -1,5 +1,6 @@
 import React, { Suspense, useEffect, useState } from 'react'
 import { Helmet } from 'react-helmet'
+import { useTranslation } from 'react-i18next'
 
 import { useClientSettingState } from '@xrengine/client-core/src/admin/services/Setting/ClientSettingService'
 import {
@@ -17,6 +18,7 @@ import { Close, FullscreenExit, Refresh, ZoomOutMap } from '@mui/icons-material'
 import GridViewIcon from '@mui/icons-material/GridView'
 import KeyboardDoubleArrowDownIcon from '@mui/icons-material/KeyboardDoubleArrowDown'
 import KeyboardDoubleArrowUpIcon from '@mui/icons-material/KeyboardDoubleArrowUp'
+import { Tooltip } from '@mui/material'
 
 import { useLoadingSystemState } from '../../systems/state/LoadingState'
 import ConferenceMode from '../ConferenceMode'
@@ -56,6 +58,8 @@ const Layout = ({ useLoadingScreenOpacity, pageTitle, children, hideVideo, hideF
   const [conferenceMode, setConferenceMode] = useState(false)
 
   const engineState = useEngineState()
+
+  const { t } = useTranslation()
 
   useEffect(() => {
     !coilSetting && AdminCoilSettingService.fetchCoil()
@@ -137,9 +141,11 @@ const Layout = ({ useLoadingScreenOpacity, pageTitle, children, hideVideo, hideF
         {conferenceMode && (
           <div className={styles.conferenceModeContainer}>
             <div className={styles.toolbar}>
-              <div className={styles.toolbarCrossButton} onClick={() => setConferenceMode(false)}>
-                <Close />
-              </div>
+              <Tooltip title={t('user:person.closeConferenceMode')}>
+                <div className={styles.toolbarCrossButton} onClick={() => setConferenceMode(false)}>
+                  <Close />
+                </div>
+              </Tooltip>
             </div>
             <ConferenceMode />
           </div>
@@ -171,9 +177,11 @@ const Layout = ({ useLoadingScreenOpacity, pageTitle, children, hideVideo, hideF
                 {!hideVideo && (
                   <section className={styles.locationUserMenu}>
                     <div className={styles.conferenceModeButtons}>
-                      <div className={styles.conferenceModeButton} onClick={() => setConferenceMode(true)}>
-                        <GridViewIcon />
-                      </div>
+                      <Tooltip title={t('user:person.openConferenceMode')}>
+                        <div className={styles.conferenceModeButton} onClick={() => setConferenceMode(true)}>
+                          <GridViewIcon />
+                        </div>
+                      </Tooltip>
                     </div>
                     <UserMediaWindows />
                   </section>
