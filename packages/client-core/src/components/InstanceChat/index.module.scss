@@ -38,7 +38,7 @@
   .bottom-box {
     display: flex;
     flex-direction: row-reverse;
-    align-items: end;
+    align-items: center;
     justify-content: end;
     transition: all 0.2s;
 
@@ -201,6 +201,13 @@
       .chatBadge {
         border-radius: 50%;
         box-shadow: 0 3px 5px -1px rgb(0 0 0 / 20%);
+      }
+    }
+
+    .chatOpen {
+      button {
+        width: 36px;
+        height: 36px;
       }
     }
   }

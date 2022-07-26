@@ -15,8 +15,6 @@ import { EngineActions, getEngineState } from '@xrengine/engine/src/ecs/classes/
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { addComponent, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
-import { addEntityNodeInTree, createEntityNode } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
-import { NetworkTopics } from '@xrengine/engine/src/networking/classes/Network'
 import { matchActionOnce } from '@xrengine/engine/src/networking/functions/matchActionOnce'
 import { WorldNetworkAction } from '@xrengine/engine/src/networking/functions/WorldNetworkAction'
 import { WorldState } from '@xrengine/engine/src/networking/interfaces/WorldState'
@@ -28,13 +26,11 @@ import {
   toggleAudio
 } from '@xrengine/engine/src/scene/functions/loaders/AudioFunctions'
 import { updateAudio } from '@xrengine/engine/src/scene/functions/loaders/AudioFunctions'
-import { ScenePrefabs } from '@xrengine/engine/src/scene/functions/registerPrefabs'
-import { createNewEditorNode } from '@xrengine/engine/src/scene/functions/SceneLoading'
 import { addActionReceptor, dispatchAction, removeActionReceptor } from '@xrengine/hyperflux'
 import { getState } from '@xrengine/hyperflux'
 
-import { Cancel as CancelIcon, Message as MessageIcon, Send } from '@mui/icons-material'
-import { IconButton, InputAdornment } from '@mui/material'
+import { Close as CloseIcon, Message as MessageIcon, Send } from '@mui/icons-material'
+import { IconButton } from '@mui/material'
 import Avatar from '@mui/material/Avatar'
 import Badge from '@mui/material/Badge'
 import Card from '@mui/material/Card'
@@ -216,7 +212,7 @@ interface InstanceChatProps {
 const InstanceChat = ({
   styles = defaultStyles,
   MessageButton = MessageIcon,
-  CloseButton = CancelIcon,
+  CloseButton = CloseIcon,
   newMessageLabel = 'World Chat...',
   animate,
   hideOtherMenus,
@@ -450,7 +446,7 @@ const InstanceChat = ({
           <div
             className={`${styles.iconCallChat} ${
               isInitRender ? animate : !chatWindowOpen ? (isMobile ? styles.animateTop : styles.animateLeft) : ''
-            } ${!chatWindowOpen ? '' : styles.iconCallPos}`}
+            } ${!chatWindowOpen ? '' : styles.chatOpen}`}
           >
             <Badge
               color="primary"
