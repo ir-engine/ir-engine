@@ -31,8 +31,7 @@ export async function createLoaderDetailView() {
       )
     }, createState({ imageWidth: 1, imageHeight: 1 }))
   })
-  const container = await xrui.container
-  await container.updateUntilReady()
+  await xrui.container.updateUntilReady()
   return xrui
 }
 

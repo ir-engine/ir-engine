@@ -17,12 +17,11 @@ export const createMediaControlsUI = (entity: Entity) => {
   addComponent(ui.entity, NameComponent, {
     name: 'mediacontrols-ui-' + (mediaComponent.el ? mediaComponent.el.src : entity)
   })
-  ui.container.then(() => {
-    const xrui = getComponent(ui.entity, XRUIComponent)
-    xrui.container.rootLayer.traverseLayersPreOrder((layer: WebLayer3D) => {
-      const mat = layer.contentMesh.material as THREE.MeshBasicMaterial
-      mat.transparent = true
-    })
+
+  const xrui = getComponent(ui.entity, XRUIComponent)
+  xrui.container.rootLayer.traverseLayersPreOrder((layer: WebLayer3D) => {
+    const mat = layer.contentMesh.material as THREE.MeshBasicMaterial
+    mat.transparent = true
   })
 
   const transform = getComponent(entity, TransformComponent)

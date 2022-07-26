@@ -44,7 +44,7 @@ const onUpdate = (entity: Entity, mountPoint: ReturnType<typeof createInteractUI
   const world = Engine.instance.currentWorld
   const xrui = getComponent(mountPoint.entity, XRUIComponent)
   const transform = getComponent(mountPoint.entity, TransformComponent)
-  if (!xrui?.container || !transform || !getComponent(world.localClientEntity, TransformComponent)) return
+  if (!transform || !getComponent(world.localClientEntity, TransformComponent)) return
   transform.position.copy(getComponent(entity, TransformComponent).position)
   transform.rotation.copy(getComponent(entity, TransformComponent).rotation)
   transform.position.y += 1
