@@ -33,10 +33,6 @@ const ChatDetailView = () => {
 
   const user = useAuthState().user
 
-  const isLeftOrJoinText = (text: string) => {
-    return / left the layer|joined the layer/.test(text)
-  }
-
   const userAvatarDetails = useHookstate(getState(WorldState).userAvatarDetails)
 
   return (
@@ -47,7 +43,15 @@ const ChatDetailView = () => {
           {sortedMessages.map((message, index, messages) => {
             return (
               <Fragment key={index}>
-                {!isLeftOrJoinText(message.text) ? (
+                {message.isNotification ? (
+                  <div key={message.id} className="selfEnd noMargin">
+                    <div className="dFlex">
+                      <div className="msgNotification mx2">
+                        <p className="greyText">{message.text}</p>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
                   <div key={index} className="dFlex flexColumn mgSmall">
                     <div className="selfEnd noMargin">
                       <div
@@ -56,7 +60,7 @@ const ChatDetailView = () => {
                         } msgContainer dFlex`}
                       >
                         <div className="msgWrapper">
-                          {messages[index - 1] && isLeftOrJoinText(messages[index - 1].text) ? (
+                          {messages[index - 1] && messages[index - 1].isNotification ? (
                             <h3 className="sender">{message.sender.name}</h3>
                           ) : (
                             messages[index - 1] &&
@@ -66,7 +70,7 @@ const ChatDetailView = () => {
                           )}
                           <p className="text">{message.text}</p>
                         </div>
-                        {index !== 0 && messages[index - 1] && isLeftOrJoinText(messages[index - 1].text) ? (
+                        {index !== 0 && messages[index - 1] && messages[index - 1].isNotification ? (
                           <Avatar src={getAvatarURLForUser(userAvatarDetails, message.senderId)} className="avatar" />
                         ) : (
                           messages[index - 1] &&
@@ -77,14 +81,6 @@ const ChatDetailView = () => {
                         {index === 0 && (
                           <Avatar src={getAvatarURLForUser(userAvatarDetails, message.senderId)} className="avatar" />
                         )}
-                      </div>
-                    </div>
-                  </div>
-                ) : (
-                  <div key={message.id} className="selfEnd noMargin">
-                    <div className="dFlex">
-                      <div className="msgNotification mx2">
-                        <p className="greyText">{message.text}</p>
                       </div>
                     </div>
                   </div>

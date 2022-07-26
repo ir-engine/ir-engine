@@ -20,7 +20,9 @@ export default (app: Application) => {
         allowNull: false
       },
       isNotification: {
-        type: DataTypes.BOOLEAN
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false
       }
     },
     {

@@ -316,10 +316,6 @@ const InstanceChat = ({
     setIsInitRender(false)
   }
 
-  const isLeftOrJoinText = (text: string) => {
-    return / left the layer|joined the layer/.test(text)
-  }
-
   const userAvatarDetails = useHookstate(getState(WorldState).userAvatarDetails)
 
   return (
@@ -344,7 +340,15 @@ const InstanceChat = ({
                   {sortedMessages &&
                     sortedMessages.map((message, index, messages) => (
                       <Fragment key={message.id}>
-                        {!isLeftOrJoinText(message.text) ? (
+                        {message.isNotification ? (
+                          <div key={message.id} className={`${styles.selfEnd} ${styles.noMargin}`}>
+                            <div className={styles.dFlex}>
+                              <div className={`${styles.msgNotification} ${styles.mx2}`}>
+                                <p className={styles.greyText}>{message.text}</p>
+                              </div>
+                            </div>
+                          </div>
+                        ) : (
                           <div key={message.id} className={`${styles.dFlex} ${styles.flexColumn} ${styles.mgSmall}`}>
                             <div className={`${styles.selfEnd} ${styles.noMargin}`}>
                               <div
@@ -353,7 +357,7 @@ const InstanceChat = ({
                                 } ${styles.msgContainer} ${styles.dFlex}`}
                               >
                                 <div className={styles.msgWrapper}>
-                                  {messages[index - 1] && isLeftOrJoinText(messages[index - 1].text) ? (
+                                  {messages[index - 1] && messages[index - 1].isNotification ? (
                                     <h3 className={styles.sender}>{message.sender.name}</h3>
                                   ) : (
                                     messages[index - 1] &&
@@ -363,7 +367,7 @@ const InstanceChat = ({
                                   )}
                                   <p className={styles.text}>{message.text}</p>
                                 </div>
-                                {index !== 0 && messages[index - 1] && isLeftOrJoinText(messages[index - 1].text) ? (
+                                {index !== 0 && messages[index - 1] && messages[index - 1].isNotification ? (
                                   <Avatar
                                     src={getAvatarURLForUser(userAvatarDetails, message.senderId)}
                                     className={styles.avatar}
@@ -383,14 +387,6 @@ const InstanceChat = ({
                                     className={styles.avatar}
                                   />
                                 )}
-                              </div>
-                            </div>
-                          </div>
-                        ) : (
-                          <div key={message.id} className={`${styles.selfEnd} ${styles.noMargin}`}>
-                            <div className={styles.dFlex}>
-                              <div className={`${styles.msgNotification} ${styles.mx2}`}>
-                                <p className={styles.greyText}>{message.text}</p>
                               </div>
                             </div>
                           </div>
