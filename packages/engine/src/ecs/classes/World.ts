@@ -182,7 +182,7 @@ export class World {
   #portalQuery = bitecs.defineQuery([PortalComponent])
   portalQuery = () => this.#portalQuery(this) as Entity[]
 
-  activePortal = null! as ReturnType<typeof PortalComponent.get>
+  activePortal = null as ReturnType<typeof PortalComponent.get> | null
 
   /**
    * The world entity
