@@ -70,8 +70,8 @@ export default async function AnimationSystem(world: World) {
       // store rotation before interpolation
       euler1YXZ.setFromQuaternion(mutableTransform.rotation)
       // lerp to desired rotation
-
       mutableTransform.rotation.slerp(desiredTransform.rotation, desiredTransform.rotationRate * delta)
+
       euler2YXZ.setFromQuaternion(mutableTransform.rotation)
       // use axis locks - yes this is correct, the axis order is weird because quaternions
       if (desiredTransform.lockRotationAxis[0]) {
@@ -83,7 +83,6 @@ export default async function AnimationSystem(world: World) {
       if (desiredTransform.lockRotationAxis[1]) {
         euler2YXZ.z = euler1YXZ.z
       }
-
       mutableTransform.rotation.setFromEuler(euler2YXZ)
     }
 
