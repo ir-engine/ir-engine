@@ -34,36 +34,35 @@ const AppState = defineState({
 })
 
 export const AppServiceReceptor = (action) => {
-  getState(AppState).batch((s) => {
-    matches(action)
-      .when(AppAction.setAppLoaded.matches, (action) => {
-        return s.merge({ loaded: action.loaded })
-      })
-      .when(AppAction.setAppLoadPercent.matches, (action) => {
-        return s.merge({ loadPercent: action.loadPercent })
-      })
-      .when(AppAction.setAppOnBoardingStep.matches, (action) => {
-        return action.onBoardingStep === GeneralStateList.ALL_DONE
-          ? s.merge({
-              onBoardingStep:
-                action.onBoardingStep >= s.onBoardingStep.value ? action.onBoardingStep : s.onBoardingStep.value
-            })
-          : action.onBoardingStep === GeneralStateList.SCENE_LOADED
-          ? s.merge({
-              onBoardingStep:
-                action.onBoardingStep >= s.onBoardingStep.value ? action.onBoardingStep : s.onBoardingStep.value,
-              isTutorial: true
-            })
-          : s.merge({
-              onBoardingStep:
-                action.onBoardingStep >= s.onBoardingStep.value ? action.onBoardingStep : s.onBoardingStep.value,
-              isTutorial: false
-            })
-      })
-      .when(AppAction.setAppSpecificOnBoardingStep.matches, (action) => {
-        return s.merge({ onBoardingStep: action.onBoardingStep, isTutorial: action.isTutorial })
-      })
-  })
+  const s = getState(AppState)
+  matches(action)
+    .when(AppAction.setAppLoaded.matches, (action) => {
+      return s.merge({ loaded: action.loaded })
+    })
+    .when(AppAction.setAppLoadPercent.matches, (action) => {
+      return s.merge({ loadPercent: action.loadPercent })
+    })
+    .when(AppAction.setAppOnBoardingStep.matches, (action) => {
+      return action.onBoardingStep === GeneralStateList.ALL_DONE
+        ? s.merge({
+            onBoardingStep:
+              action.onBoardingStep >= s.onBoardingStep.value ? action.onBoardingStep : s.onBoardingStep.value
+          })
+        : action.onBoardingStep === GeneralStateList.SCENE_LOADED
+        ? s.merge({
+            onBoardingStep:
+              action.onBoardingStep >= s.onBoardingStep.value ? action.onBoardingStep : s.onBoardingStep.value,
+            isTutorial: true
+          })
+        : s.merge({
+            onBoardingStep:
+              action.onBoardingStep >= s.onBoardingStep.value ? action.onBoardingStep : s.onBoardingStep.value,
+            isTutorial: false
+          })
+    })
+    .when(AppAction.setAppSpecificOnBoardingStep.matches, (action) => {
+      return s.merge({ onBoardingStep: action.onBoardingStep, isTutorial: action.isTutorial })
+    })
 }
 
 export const accessAppState = () => getState(AppState)

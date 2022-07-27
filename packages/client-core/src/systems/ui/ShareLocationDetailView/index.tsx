@@ -1,4 +1,4 @@
-import { createState } from '@speigg/hookstate'
+import { createState } from '@hookstate/core'
 import { QRCodeSVG } from 'qrcode.react'
 import React, { useRef } from 'react'
 import { useTranslation } from 'react-i18next'

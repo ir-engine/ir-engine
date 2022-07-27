@@ -1,5 +1,5 @@
 import { Paginated } from '@feathersjs/feathers'
-import { none } from '@speigg/hookstate'
+import { none } from '@hookstate/core'
 import { useEffect } from 'react'
 
 import { Instance } from '@xrengine/common/src/interfaces/Instance'
@@ -36,41 +36,40 @@ const LocationInstanceState = defineState({
 })
 
 export const LocationInstanceConnectionServiceReceptor = (action) => {
-  getState(LocationInstanceState).batch((s) => {
-    matches(action)
-      .when(LocationInstanceConnectionAction.serverProvisioned.matches, (action) => {
-        Engine.instance.currentWorld._worldHostId = action.instanceId
-        Engine.instance.currentWorld.networks.set(
-          action.instanceId,
-          new SocketWebRTCClientNetwork(action.instanceId, NetworkTopics.world)
-        )
-        return s.instances.merge({
-          [action.instanceId]: {
-            ipAddress: action.ipAddress,
-            port: action.port,
-            locationId: action.locationId,
-            sceneId: action.sceneId,
-            provisioned: true,
-            readyToConnect: true,
-            connected: false,
-            connecting: false
-          }
-        })
+  const s = getState(LocationInstanceState)
+  matches(action)
+    .when(LocationInstanceConnectionAction.serverProvisioned.matches, (action) => {
+      Engine.instance.currentWorld._worldHostId = action.instanceId
+      Engine.instance.currentWorld.networks.set(
+        action.instanceId,
+        new SocketWebRTCClientNetwork(action.instanceId, NetworkTopics.world)
+      )
+      return s.instances.merge({
+        [action.instanceId]: {
+          ipAddress: action.ipAddress,
+          port: action.port,
+          locationId: action.locationId,
+          sceneId: action.sceneId,
+          provisioned: true,
+          readyToConnect: true,
+          connected: false,
+          connecting: false
+        }
       })
-      .when(LocationInstanceConnectionAction.connecting.matches, (action) => {
-        return s.instances[action.instanceId].connecting.set(true)
+    })
+    .when(LocationInstanceConnectionAction.connecting.matches, (action) => {
+      return s.instances[action.instanceId].connecting.set(true)
+    })
+    .when(LocationInstanceConnectionAction.instanceServerConnected.matches, (action) => {
+      return s.instances[action.instanceId].merge({
+        connected: true,
+        connecting: false,
+        readyToConnect: false
       })
-      .when(LocationInstanceConnectionAction.instanceServerConnected.matches, (action) => {
-        return s.instances[action.instanceId].merge({
-          connected: true,
-          connecting: false,
-          readyToConnect: false
-        })
-      })
-      .when(LocationInstanceConnectionAction.disconnect.matches, (action) => {
-        return s.instances[action.instanceId].set(none)
-      })
-  })
+    })
+    .when(LocationInstanceConnectionAction.disconnect.matches, (action) => {
+      return s.instances[action.instanceId].set(none)
+    })
 }
 
 export const accessLocationInstanceConnectionState = () => getState(LocationInstanceState)

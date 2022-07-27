@@ -1,4 +1,4 @@
-import { createState, useHookstate } from '@speigg/hookstate'
+import { createState, useHookstate } from '@hookstate/core'
 import * as polyfill from 'credential-handler-polyfill'
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'

@@ -1,4 +1,4 @@
-import { createState } from '@speigg/hookstate'
+import { createState } from '@hookstate/core'
 import React from 'react'
 
 import { Entity } from '../../ecs/classes/Entity'

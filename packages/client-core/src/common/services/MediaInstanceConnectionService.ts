@@ -1,4 +1,4 @@
-import { Downgraded, none } from '@speigg/hookstate'
+import { Downgraded, none } from '@hookstate/core'
 import { useEffect } from 'react'
 
 import { ChannelType } from '@xrengine/common/src/interfaces/Channel'
@@ -41,51 +41,50 @@ const MediaInstanceState = defineState({
 })
 
 export const MediaInstanceConnectionServiceReceptor = (action) => {
-  getState(MediaInstanceState).batch((s) => {
-    matches(action)
-      .when(MediaInstanceConnectionAction.serverProvisioned.matches, (action) => {
-        Engine.instance.currentWorld._mediaHostId = action.instanceId
-        Engine.instance.currentWorld.networks.set(
-          action.instanceId,
-          new SocketWebRTCClientNetwork(action.instanceId, NetworkTopics.media)
-        )
-        return s.instances[action.instanceId].set({
-          ipAddress: action.ipAddress,
-          port: action.port,
-          channelType: action.channelType!,
-          channelId: action.channelId!,
-          videoEnabled: false,
-          provisioned: true,
-          readyToConnect: true,
-          connected: false,
-          connecting: false
-        })
+  const s = getState(MediaInstanceState)
+  matches(action)
+    .when(MediaInstanceConnectionAction.serverProvisioned.matches, (action) => {
+      Engine.instance.currentWorld._mediaHostId = action.instanceId
+      Engine.instance.currentWorld.networks.set(
+        action.instanceId,
+        new SocketWebRTCClientNetwork(action.instanceId, NetworkTopics.media)
+      )
+      return s.instances[action.instanceId].set({
+        ipAddress: action.ipAddress,
+        port: action.port,
+        channelType: action.channelType!,
+        channelId: action.channelId!,
+        videoEnabled: false,
+        provisioned: true,
+        readyToConnect: true,
+        connected: false,
+        connecting: false
       })
-      .when(MediaInstanceConnectionAction.serverConnecting.matches, (action) => {
-        return s.instances[action.instanceId].connecting.set(true)
+    })
+    .when(MediaInstanceConnectionAction.serverConnecting.matches, (action) => {
+      return s.instances[action.instanceId].connecting.set(true)
+    })
+    .when(MediaInstanceConnectionAction.serverConnected.matches, (action) => {
+      return s.instances[action.instanceId].merge({
+        connected: true,
+        connecting: false,
+        readyToConnect: false
       })
-      .when(MediaInstanceConnectionAction.serverConnected.matches, (action) => {
-        return s.instances[action.instanceId].merge({
-          connected: true,
-          connecting: false,
-          readyToConnect: false
-        })
+    })
+    .when(MediaInstanceConnectionAction.enableVideo.matches, (action) => {
+      return s.instances[action.instanceId].merge({
+        videoEnabled: action.enableVideo
       })
-      .when(MediaInstanceConnectionAction.enableVideo.matches, (action) => {
-        return s.instances[action.instanceId].merge({
-          videoEnabled: action.enableVideo
-        })
-      })
-      .when(MediaInstanceConnectionAction.disconnect.matches, (action) => {
-        return s.instances[action.instanceId].set(none)
-      })
-      .when(MediaInstanceConnectionAction.acceptingPartyInvite.matches, (action) => {
-        return s.acceptingPartyInvite.set(true)
-      })
-      .when(MediaInstanceConnectionAction.acceptedPartyInvite.matches, (action) => {
-        return s.acceptingPartyInvite.set(false)
-      })
-  })
+    })
+    .when(MediaInstanceConnectionAction.disconnect.matches, (action) => {
+      return s.instances[action.instanceId].set(none)
+    })
+    .when(MediaInstanceConnectionAction.acceptingPartyInvite.matches, (action) => {
+      return s.acceptingPartyInvite.set(true)
+    })
+    .when(MediaInstanceConnectionAction.acceptedPartyInvite.matches, (action) => {
+      return s.acceptingPartyInvite.set(false)
+    })
 }
 
 export const accessMediaInstanceConnectionState = () => getState(MediaInstanceState)
