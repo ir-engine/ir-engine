@@ -8,6 +8,9 @@ import { useLocationState } from '@xrengine/client-core/src/social/services/Loca
 import { MediaStreams } from '@xrengine/client-core/src/transports/MediaStreams'
 import {
   applyScreenshareToTexture,
+  configureMediaTransports,
+  createCamAudioProducer,
+  createCamVideoProducer,
   globalMuteProducer,
   globalUnmuteProducer,
   pauseConsumer,
@@ -349,10 +352,15 @@ export const useUserMediaWindowHook = ({ peerId }) => {
     e.stopPropagation()
     const mediaNetwork = Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork
     if (peerId === 'cam_me') {
-      const videoPaused = MediaStreams.instance.toggleVideoPaused()
-      if (videoPaused) await pauseProducer(mediaNetwork, MediaStreams.instance.camVideoProducer)
-      else await resumeProducer(mediaNetwork, MediaStreams.instance.camVideoProducer)
-      MediaStreamService.updateCamVideoState()
+      if (await configureMediaTransports(mediaNetwork, ['video'])) {
+        if (MediaStreams.instance.camVideoProducer == null) await createCamVideoProducer(mediaNetwork)
+        else {
+          const videoPaused = MediaStreams.instance.toggleVideoPaused()
+          if (videoPaused) await pauseProducer(mediaNetwork, MediaStreams.instance.camVideoProducer)
+          else await resumeProducer(mediaNetwork, MediaStreams.instance.camVideoProducer)
+        }
+        MediaStreamService.updateCamVideoState()
+      }
     } else if (peerId === 'screen_me') {
       const videoPaused = MediaStreams.instance.toggleScreenShareVideoPaused()
       if (videoPaused) await pauseProducer(mediaNetwork, MediaStreams.instance.screenVideoProducer)
@@ -375,10 +383,15 @@ export const useUserMediaWindowHook = ({ peerId }) => {
     e.stopPropagation()
     const mediaNetwork = Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork
     if (peerId === 'cam_me') {
-      const audioPaused = MediaStreams.instance.toggleAudioPaused()
-      if (audioPaused) await pauseProducer(mediaNetwork, MediaStreams.instance.camAudioProducer)
-      else await resumeProducer(mediaNetwork, MediaStreams.instance.camAudioProducer)
-      MediaStreamService.updateCamAudioState()
+      if (await configureMediaTransports(mediaNetwork, ['audio'])) {
+        if (MediaStreams.instance.camAudioProducer == null) await createCamAudioProducer(mediaNetwork)
+        else {
+          const audioPaused = MediaStreams.instance.toggleAudioPaused()
+          if (audioPaused) await pauseProducer(mediaNetwork, MediaStreams.instance.camAudioProducer)
+          else await resumeProducer(mediaNetwork, MediaStreams.instance.camAudioProducer)
+        }
+        MediaStreamService.updateCamAudioState()
+      }
     } else if (peerId === 'screen_me') {
       const audioPaused = MediaStreams.instance.toggleScreenShareAudioPaused()
       if (audioPaused) await pauseProducer(mediaNetwork, MediaStreams.instance.screenAudioProducer)

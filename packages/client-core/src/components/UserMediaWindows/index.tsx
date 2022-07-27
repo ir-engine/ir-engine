@@ -20,7 +20,7 @@ const UserMediaWindows = (): JSX.Element => {
   const displayedUsers =
     network?.hostId && currentChannelInstanceConnection
       ? currentChannelInstanceConnection.channelType?.value === 'party'
-        ? userState.layerUsers?.value.filter((user) => {
+        ? userState.channelLayerUsers?.value.filter((user) => {
             return (
               user.id !== selfUserId.value &&
               user.channelInstanceId != null &&

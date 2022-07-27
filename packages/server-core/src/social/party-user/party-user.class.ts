@@ -150,10 +150,7 @@ export class PartyUser<T = PartyUserDataType> extends Service<T> {
 
       const partyUserCount = await this.app.service('party-user').Model.count({ where: { partyId: partyUser.partyId } })
 
-      if (partyUserCount <= 1) {
-        await this.app.service('party').remove(partyUser.partyId)
-        return partyUser
-      } else if (partyUser.isOwner) {
+      if (partyUserCount > 1 && partyUser.isOwner) {
         const oldestPartyUser = await this.app.service('party-user').Model.findAll({
           where: {
             partyId: partyUser.partyId,
@@ -173,7 +170,12 @@ export class PartyUser<T = PartyUserDataType> extends Service<T> {
         partyId: null
       })
 
-      return super.remove(id, params)
+      const returned = super.remove(id, params)
+
+      if (partyUserCount <= 1 && !params!.skipPartyDelete)
+        await this.app.service('party').remove(partyUser.partyId, { skipPartyUserDelete: true })
+
+      return returned
     } catch (err) {
       logger.error(err)
       throw err
