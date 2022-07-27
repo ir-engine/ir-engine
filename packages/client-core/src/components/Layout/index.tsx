@@ -1,10 +1,8 @@
 import React, { Suspense, useEffect, useState } from 'react'
 import { Helmet } from 'react-helmet'
+import { useTranslation } from 'react-i18next'
 
-import {
-  ClientSettingService,
-  useClientSettingState
-} from '@xrengine/client-core/src/admin/services/Setting/ClientSettingService'
+import { useClientSettingState } from '@xrengine/client-core/src/admin/services/Setting/ClientSettingService'
 import {
   AdminCoilSettingService,
   useCoilSettingState
@@ -15,18 +13,21 @@ import { respawnAvatar } from '@xrengine/engine/src/avatar/functions/respawnAvat
 import { isTouchAvailable } from '@xrengine/engine/src/common/functions/DetectFeatures'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
-import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 
-import { FullscreenExit, Refresh, ZoomOutMap } from '@mui/icons-material'
+import { Close, FullscreenExit, Refresh, ZoomOutMap } from '@mui/icons-material'
+import GridViewIcon from '@mui/icons-material/GridView'
 import KeyboardDoubleArrowDownIcon from '@mui/icons-material/KeyboardDoubleArrowDown'
 import KeyboardDoubleArrowUpIcon from '@mui/icons-material/KeyboardDoubleArrowUp'
+import { Tooltip } from '@mui/material'
 
 import { useLoadingSystemState } from '../../systems/state/LoadingState'
+import ConferenceMode from '../ConferenceMode'
 import Debug from '../Debug'
 import InstanceChat from '../InstanceChat'
+import InviteToast from '../InviteToast'
 import MediaIconsBox from '../MediaIconsBox'
-import PartyVideoWindows from '../PartyVideoWindows'
 import { useFullscreen } from '../useFullscreen'
+import UserMediaWindows from '../UserMediaWindows'
 import styles from './index.module.scss'
 
 const TouchGamepad = React.lazy(() => import('@xrengine/client-core/src/common/components/TouchGamepad'))
@@ -54,8 +55,11 @@ const Layout = ({ useLoadingScreenOpacity, pageTitle, children, hideVideo, hideF
   const [showBottomIcons, setShowBottomIcons] = useState(true)
   const loadingSystemState = useLoadingSystemState()
   const [showTouchPad, setShowTouchPad] = useState(true)
+  const [conferenceMode, setConferenceMode] = useState(false)
 
   const engineState = useEngineState()
+
+  const { t } = useTranslation()
 
   useEffect(() => {
     !coilSetting && AdminCoilSettingService.fetchCoil()
@@ -116,7 +120,7 @@ const Layout = ({ useLoadingScreenOpacity, pageTitle, children, hideVideo, hideF
   }
 
   const useOpacity = typeof useLoadingScreenOpacity !== 'undefined' && useLoadingScreenOpacity === true
-  const layoutOpacity = useOpacity ? loadingSystemState.opacity.value : 1
+  const layoutOpacity = useOpacity ? 1 - loadingSystemState.loadingScreenOpacity.value : 1
   const MediaIconHider = showMediaIcons ? KeyboardDoubleArrowUpIcon : KeyboardDoubleArrowDownIcon
   const BottomIconHider = showBottomIcons ? KeyboardDoubleArrowDownIcon : KeyboardDoubleArrowUpIcon
   // info about current mode to conditional render menus
@@ -134,96 +138,118 @@ const Layout = ({ useLoadingScreenOpacity, pageTitle, children, hideVideo, hideF
           {favicon32 && <link rel="icon" type="image/png" sizes="32x32" href={favicon32} />}
         </Helmet>
 
+        {conferenceMode && (
+          <div className={styles.conferenceModeContainer}>
+            <div className={styles.toolbar}>
+              <Tooltip title={t('user:person.closeConferenceMode')}>
+                <div className={styles.toolbarCrossButton} onClick={() => setConferenceMode(false)}>
+                  <Close />
+                </div>
+              </Tooltip>
+            </div>
+            <ConferenceMode />
+          </div>
+        )}
+
         {children}
-        {
-          <UserMenu
-            animate={showBottomIcons ? styles.animateBottom : styles.fadeOutBottom}
-            fadeOutBottom={styles.fadeOutBottom}
-          />
-        }
-        <Debug />
 
-        {/** Container for fading most stuff in and out depending on if the location is loaded or not  */}
-        <div style={{ opacity: layoutOpacity }}>
-          <button
-            type="button"
-            className={`${showMediaIcons ? styles.btn : styles.smBtn} ${
-              showMediaIcons ? styles.rotate : styles.rotateBack
-            } ${styles.showIconMedia} `}
-            onClick={handleShowMediaIcons}
-          >
-            <MediaIconHider />
-          </button>
-          <MediaIconsBox animate={showMediaIcons ? styles.animateTop : styles.fadeOutTop} />
-          <header className={showMediaIcons ? styles.animateTop : styles.fadeOutTop}>
-            {!hideVideo && (
-              <>
-                <section className={styles.locationUserMenu}>
-                  <PartyVideoWindows />
-                </section>
-              </>
-            )}
-          </header>
-          <button
-            type="button"
-            className={`${showBottomIcons ? styles.btn : styles.smBtn} ${
-              showBottomIcons ? styles.rotate : styles.rotateBack
-            } ${styles.showIcon} `}
-            onClick={handleShowBottomIcons}
-          >
-            <BottomIconHider />
-          </button>
-          <UIDialog />
-          {isTouchAvailable && showTouchPad && (
-            <Suspense fallback={<></>}>
-              {' '}
-              <TouchGamepad layout="default" />{' '}
-            </Suspense>
-          )}
-
-          {!iOS() && (
-            <>
-              {hideFullscreen ? null : fullScreenActive ? (
-                <button
-                  type="button"
-                  className={`${styles.btn} ${styles.fullScreen} ${
-                    showBottomIcons ? styles.animateBottom : styles.fadeOutBottom
-                  } `}
-                  onClick={() => setFullScreenActive(false)}
-                >
-                  <FullscreenExit />
-                </button>
-              ) : (
-                <button
-                  type="button"
-                  className={`${styles.btn} ${styles.fullScreen} ${
-                    showBottomIcons ? styles.animateBottom : styles.fadeOutBottom
-                  } `}
-                  onClick={() => setFullScreenActive(true)}
-                >
-                  <ZoomOutMap />
-                </button>
-              )}
-            </>
-          )}
-          <button
-            type="button"
-            className={`${styles.btn} ${styles.respawn} ${
-              showBottomIcons ? styles.animateBottom : styles.fadeOutBottom
-            } ${!iOS() ? '' : styles.refreshBtn}`}
-            id="respawn"
-            onClick={respawnCallback}
-          >
-            <Refresh />
-          </button>
-          {!engineState.xrSessionStarted.value && (
-            <InstanceChat
-              animate={styles.animateBottom}
-              hideOtherMenus={hideOtherMenus}
-              setShowTouchPad={setShowTouchPad}
+        {!conferenceMode && (
+          <>
+            <UserMenu
+              animate={showBottomIcons ? styles.animateBottom : styles.fadeOutBottom}
+              fadeOutBottom={styles.fadeOutBottom}
             />
-          )}
-        </div>
+            <Debug />
+
+            {/** Container for fading most stuff in and out depending on if the location is loaded or not  */}
+            <div style={{ opacity: layoutOpacity }}>
+              <button
+                type="button"
+                className={`${showMediaIcons ? styles.btn : styles.smBtn} ${
+                  showMediaIcons ? styles.rotate : styles.rotateBack
+                } ${styles.showIconMedia} `}
+                onClick={handleShowMediaIcons}
+              >
+                <MediaIconHider />
+              </button>
+              <MediaIconsBox animate={showMediaIcons ? styles.animateTop : styles.fadeOutTop} />
+              <header className={showMediaIcons ? styles.animateTop : styles.fadeOutTop}>
+                {!hideVideo && (
+                  <section className={styles.locationUserMenu}>
+                    <div className={styles.conferenceModeButtons}>
+                      <Tooltip title={t('user:person.openConferenceMode')}>
+                        <div className={styles.conferenceModeButton} onClick={() => setConferenceMode(true)}>
+                          <GridViewIcon />
+                        </div>
+                      </Tooltip>
+                    </div>
+                    <UserMediaWindows />
+                  </section>
+                )}
+              </header>
+              <button
+                type="button"
+                className={`${showBottomIcons ? styles.btn : styles.smBtn} ${
+                  showBottomIcons ? styles.rotate : styles.rotateBack
+                } ${styles.showIcon} `}
+                onClick={handleShowBottomIcons}
+              >
+                <BottomIconHider />
+              </button>
+              <UIDialog />
+              {isTouchAvailable && showTouchPad && (
+                <Suspense fallback={<></>}>
+                  {' '}
+                  <TouchGamepad layout="default" />{' '}
+                </Suspense>
+              )}
+              <InviteToast />
+
+              {!iOS() && (
+                <>
+                  {hideFullscreen ? null : fullScreenActive ? (
+                    <button
+                      type="button"
+                      className={`${styles.btn} ${styles.fullScreen} ${
+                        showBottomIcons ? styles.animateBottom : styles.fadeOutBottom
+                      } `}
+                      onClick={() => setFullScreenActive(false)}
+                    >
+                      <FullscreenExit />
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      className={`${styles.btn} ${styles.fullScreen} ${
+                        showBottomIcons ? styles.animateBottom : styles.fadeOutBottom
+                      } `}
+                      onClick={() => setFullScreenActive(true)}
+                    >
+                      <ZoomOutMap />
+                    </button>
+                  )}
+                </>
+              )}
+              <button
+                type="button"
+                className={`${styles.btn} ${styles.respawn} ${
+                  showBottomIcons ? styles.animateBottom : styles.fadeOutBottom
+                } ${!iOS() ? '' : styles.refreshBtn}`}
+                id="respawn"
+                onClick={respawnCallback}
+              >
+                <Refresh />
+              </button>
+              {!engineState.xrSessionStarted.value && (
+                <InstanceChat
+                  animate={styles.animateBottom}
+                  hideOtherMenus={hideOtherMenus}
+                  setShowTouchPad={setShowTouchPad}
+                />
+              )}
+            </div>
+          </>
+        )}
       </section>
     </div>
   )

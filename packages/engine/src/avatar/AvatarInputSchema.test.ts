@@ -11,7 +11,6 @@ import { createEntity } from '../ecs/functions/EntityFunctions'
 import { createEngine } from '../initializeEngine'
 import { InputType } from '../input/enums/InputType'
 import { VectorSpringSimulator } from '../physics/classes/springs/VectorSpringSimulator'
-import { CollisionGroups } from '../physics/enums/CollisionGroups'
 import {
   fixedCameraBehindAvatar,
   setTargetCameraRotation,
@@ -23,9 +22,6 @@ import { AvatarControllerComponent } from './components/AvatarControllerComponen
 describe('avatarInputSchema', () => {
   beforeEach(async () => {
     createEngine()
-    delete (globalThis as any).PhysX
-    const world = Engine.instance.currentWorld
-    await world.physics.createScene()
   })
 
   it('check fixedCameraBehindAvatar', () => {
@@ -99,36 +95,12 @@ describe('avatarInputSchema', () => {
 
   it('check setWalking', async () => {
     const world = Engine.instance.currentWorld
-    await Engine.instance.currentWorld.physics.createScene({ verbose: true })
     const entity = createEntity(world)
-
-    const controller = world.physics.createController({
-      isCapsule: true,
-      material: world.physics.createMaterial(),
-      position: {
-        x: 0,
-        y: 10,
-        z: 0
-      },
-      contactOffset: 0.01,
-      stepOffset: 0.25,
-      slopeLimit: 0,
-      height: 20,
-      radius: 4,
-      userData: {
-        entity
-      }
-    }) as PhysX.PxCapsuleController
 
     const velocitySimulator = new VectorSpringSimulator(60, 50, 0.8)
     const c = addComponent(entity, AvatarControllerComponent, {
-      controller,
-      filterData: new PhysX.PxFilterData(
-        CollisionGroups.Avatars,
-        CollisionGroups.Default | CollisionGroups.Ground | CollisionGroups.Trigger,
-        0,
-        0
-      ),
+      controller: null!,
+      bodyCollider: null!,
       currentSpeed: 0,
       speedVelocity: { value: 0 },
       collisions: [false, false, false],
@@ -137,7 +109,8 @@ describe('avatarInputSchema', () => {
       isWalking: false,
       isInAir: false,
       localMovementDirection: new Vector3(),
-      velocitySimulator
+      velocitySimulator,
+      lastPosition: new Vector3()
     })
 
     const firstValue = c.isWalking

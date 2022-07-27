@@ -43,8 +43,8 @@
     width: 4em;
 
     svg {
-      width: 100%;
-      height: 100%;
+      width: auto;
+      height: auto;
     }
 
     @media (max-width: 500px) {
@@ -836,7 +836,7 @@
 
         :global(.MuiCheckbox-root) {
           padding: 0;
-          color: var(--buttonOutlined);
+          color: var(--sidebarSelectedBackground);
           margin-right: 10px;
 
           svg {
@@ -868,10 +868,12 @@
       .settingLabel {
         margin-left: 10px;
         font-size: 14px;
-        width: 100px;
+
+        // width: 100px;
         display: inline-block;
         flex-shrink: 0;
         font-family: Roboto;
+        width: 28%;
       }
 
       :global(.MuiSlider-root) {
@@ -2421,7 +2423,7 @@
 
 .collapseBtn {
   background-color: transparent !important;
-  color: var(--buttonOutlined);
+  color: var(--textColor);
 }
 
 .tableRow {
@@ -2430,7 +2432,7 @@
 }
 
 .label {
-  color: #c0c0c0;
+  color: var(--textColor);
   font-weight: 100;
   font-size: 15px;
 }
@@ -2464,4 +2466,8 @@
   font-size: 14px;
   margin-right: 7px;
   margin-top: 7px;
+}
+
+.iconBtn {
+  color: var(--sidebarSelectedBackground) !important;
 }

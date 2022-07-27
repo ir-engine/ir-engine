@@ -10,10 +10,6 @@ import SelectInput from '../../inputs/SelectInput'
 import { InfoTooltip } from '../../layout/Tooltip'
 import * as styles from '../styles.module.scss'
 
-/**
- *
- * @author Robert Long
- */
 const transformSpaceOptions = [
   { label: 'Selection', value: TransformSpace.LocalSelection },
   { label: 'World', value: TransformSpace.World }

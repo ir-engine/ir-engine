@@ -22,7 +22,6 @@ export class Subscription<T = SubscriptionDataType> extends Service<T> {
    * @param data for creating new subscription
    * @param params which contains user info
    * @returns {@Object} of created new subscription
-   * @author
    */
   async create(data: any, params?: Params): Promise<T> {
     const userId = (params as any).connection['identity-provider'].userId || params?.body?.userId

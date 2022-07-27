@@ -16,7 +16,6 @@ import { EditorComponentType } from './Util'
 /**
  * TransformPropertyGroup component is used to render editor view to customize properties.
  *
- * @author Robert Long
  * @type {class component}
  */
 export const TransformPropertyGroup: EditorComponentType = (props) => {

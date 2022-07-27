@@ -10,10 +10,6 @@ import SelectInput from '../../inputs/SelectInput'
 import { InfoTooltip } from '../../layout/Tooltip'
 import * as styles from '../styles.module.scss'
 
-/**
- *
- * @author Robert Long
- */
 const transformPivotOptions = [
   { label: 'Selection', value: TransformPivot.Selection },
   { label: 'Center', value: TransformPivot.Center },

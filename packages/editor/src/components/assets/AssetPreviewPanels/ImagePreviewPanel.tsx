@@ -1,9 +1,6 @@
 import React from 'react'
 import styled from 'styled-components'
 
-/**
- * @author Abhishek Pathak
- */
 const ImagePreview = styled.img`
   display: block;
   margin-left: auto;
@@ -12,7 +9,6 @@ const ImagePreview = styled.img`
 `
 
 /**
- * @author Abhishek Pathak <abhi.pathak401@gmail.com>
  * @param props
  */
 

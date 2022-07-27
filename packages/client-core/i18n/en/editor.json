@@ -249,7 +249,13 @@
       "lbl-learnMore": "Learn More Url",
       "lbl-htmlContent": "Html Content",
       "lbl-interactionText": "Interaction Text",
-      "lbl-interactionType": "Interaction Type"
+      "lbl-interactionType": "Interaction Type",
+      "transform": {
+        "useDraco": "Use DRACO Mesh Compression",
+        "useMeshopt": "Use Meshoptimizer",
+        "useQuantization": "Use Mesh Quantization",
+        "textureFormat": "Image Format"
+      }
     },
     "materialAssignment": {
       "lbl-materialID": "Material",
@@ -585,6 +591,11 @@
       "lbl-forNearDistance": "Fog Near Distance",
       "lbl-fogFarDistance": "Fog Far Distance",
       "lbl-fogDensity": "Fog Density"
+    },
+    "mountPoint": {
+      "name": "Mount point",
+      "description": "An object with a pose to define interactable behaviors.",
+      "lbl-type": "Type"
     }
   },
   "projects": {

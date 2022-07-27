@@ -1,8 +1,7 @@
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { defineAction, defineState, getState, useState } from '@xrengine/hyperflux'
 
-import { matches, matchesUserId, Validator } from '../../common/functions/MatchesUtils'
-import { InteractableComponentType } from '../../interaction/components/InteractableComponent'
+import { matches, matchesEntity, matchesUserId, Validator } from '../../common/functions/MatchesUtils'
 import { Entity } from './Entity'
 
 // TODO: #6016 Refactor EngineState into multiple state objects: timer, scene, world, xr, etc.
@@ -20,7 +19,6 @@ export const EngineState = defineState({
     socketInstance: false,
     avatarTappedId: '' as UserId,
     userHasInteracted: false,
-    interactionData: null! as InteractableComponentType,
     xrSupported: false,
     xrSessionStarted: false,
     spectating: false,
@@ -36,43 +34,41 @@ export const EngineState = defineState({
 })
 
 export function EngineEventReceptor(a) {
-  getState(EngineState).batch((s) => {
-    matches(a)
-      .when(EngineActions.browserNotSupported.matches, (action) => {})
-      .when(EngineActions.resetEngine.matches, (action) =>
-        s.merge({
-          socketInstance: action.instance
-        })
-      )
-      .when(EngineActions.userAvatarTapped.matches, (action) =>
-        s.merge({
-          avatarTappedId: action.userId
-        })
-      )
-      .when(EngineActions.initializeEngine.matches, (action) => s.merge({ isEngineInitialized: action.initialised }))
-      .when(EngineActions.sceneUnloaded.matches, (action) => s.merge({ sceneLoaded: false }))
-      .when(EngineActions.sceneLoaded.matches, (action) => s.merge({ sceneLoaded: true, loadingProgress: 100 }))
-      .when(EngineActions.joinedWorld.matches, (action) => s.merge({ joinedWorld: true }))
-      .when(EngineActions.leaveWorld.matches, (action) => s.merge({ joinedWorld: false }))
-      .when(EngineActions.sceneLoadingProgress.matches, (action) => s.merge({ loadingProgress: action.progress }))
-      .when(EngineActions.connectToWorld.matches, (action) => s.merge({ connectedWorld: action.connectedWorld }))
-      .when(EngineActions.objectActivation.matches, (action) => s.merge({ interactionData: action.interactionData }))
-      .when(EngineActions.setTeleporting.matches, (action) => s.merge({ isTeleporting: action.isTeleporting }))
-      .when(EngineActions.setUserHasInteracted.matches, (action) => s.merge({ userHasInteracted: true }))
-      .when(EngineActions.updateEntityError.matches, (action) => s.errorEntities[action.entity].set(!action.isResolved))
-      .when(EngineActions.xrSupported.matches, (action) => s.xrSupported.set(action.xrSupported))
-      .when(EngineActions.xrStart.matches, (action) => s.xrSessionStarted.set(true))
-      .when(EngineActions.xrSession.matches, (action) => s.xrSessionStarted.set(true))
-      .when(EngineActions.xrEnd.matches, (action) => s.xrSessionStarted.set(false))
-      .when(EngineActions.availableInteractable.matches, (action) =>
-        s.availableInteractable.set(action.availableInteractable)
-      )
-      .when(EngineActions.spectateUser.matches, (action) => s.spectating.set(!!action.user))
-      .when(EngineActions.shareInteractableLink.matches, (action) => {
-        s.shareLink.set(action.shareLink)
-        s.shareTitle.set(action.shareTitle)
+  const s = getState(EngineState)
+  matches(a)
+    .when(EngineActions.browserNotSupported.matches, (action) => {})
+    .when(EngineActions.resetEngine.matches, (action) =>
+      s.merge({
+        socketInstance: action.instance
       })
-  })
+    )
+    .when(EngineActions.userAvatarTapped.matches, (action) =>
+      s.merge({
+        avatarTappedId: action.userId
+      })
+    )
+    .when(EngineActions.initializeEngine.matches, (action) => s.merge({ isEngineInitialized: action.initialised }))
+    .when(EngineActions.sceneUnloaded.matches, (action) => s.merge({ sceneLoaded: false }))
+    .when(EngineActions.sceneLoaded.matches, (action) => s.merge({ sceneLoaded: true, loadingProgress: 100 }))
+    .when(EngineActions.joinedWorld.matches, (action) => s.merge({ joinedWorld: true }))
+    .when(EngineActions.leaveWorld.matches, (action) => s.merge({ joinedWorld: false }))
+    .when(EngineActions.sceneLoadingProgress.matches, (action) => s.merge({ loadingProgress: action.progress }))
+    .when(EngineActions.connectToWorld.matches, (action) => s.merge({ connectedWorld: action.connectedWorld }))
+    .when(EngineActions.setTeleporting.matches, (action) => s.merge({ isTeleporting: action.isTeleporting }))
+    .when(EngineActions.setUserHasInteracted.matches, (action) => s.merge({ userHasInteracted: true }))
+    .when(EngineActions.updateEntityError.matches, (action) => s.errorEntities[action.entity].set(!action.isResolved))
+    .when(EngineActions.xrSupported.matches, (action) => s.xrSupported.set(action.xrSupported))
+    .when(EngineActions.xrStart.matches, (action) => s.xrSessionStarted.set(true))
+    .when(EngineActions.xrSession.matches, (action) => s.xrSessionStarted.set(true))
+    .when(EngineActions.xrEnd.matches, (action) => s.xrSessionStarted.set(false))
+    .when(EngineActions.availableInteractable.matches, (action) =>
+      s.availableInteractable.set(action.availableInteractable)
+    )
+    .when(EngineActions.spectateUser.matches, (action) => s.spectating.set(!!action.user))
+    .when(EngineActions.shareInteractableLink.matches, (action) => {
+      s.shareLink.set(action.shareLink)
+      s.shareTitle.set(action.shareTitle)
+    })
 }
 
 export const getEngineState = () => getState(EngineState)
@@ -124,11 +120,6 @@ export class EngineActions {
   static sceneLoadingProgress = defineAction({
     type: 'xre.engine.SCENE_LOADING_PROGRESS' as const,
     progress: matches.number
-  })
-
-  static objectActivation = defineAction({
-    type: 'xre.engine.OBJECT_ACTIVATION' as const,
-    interactionData: matches.any as Validator<unknown, InteractableComponentType>
   })
 
   static availableInteractable = defineAction({
@@ -195,5 +186,10 @@ export class EngineActions {
     type: 'xre.engine.SHARE_LINK' as const,
     shareLink: matches.string,
     shareTitle: matches.string
+  })
+
+  static interactedWithObject = defineAction({
+    type: 'xre.engine.INTERACTED_WITH_OBJECT' as const,
+    targetEntity: matchesEntity
   })
 }

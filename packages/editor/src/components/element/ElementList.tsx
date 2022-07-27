@@ -4,11 +4,11 @@ import { getEmptyImage } from 'react-dnd-html5-backend'
 import { useTranslation } from 'react-i18next'
 import { Vector2 } from 'three'
 
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { createEntityNode } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
-import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { ScenePrefabTypes } from '@xrengine/engine/src/scene/functions/registerPrefabs'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 
@@ -37,7 +37,7 @@ const ELEMENT_CONTEXT_ID = 'el-menu'
 const getPrefabList = () => {
   const arr = [] as PrefabItemType[]
 
-  useWorld().scenePrefabRegistry.forEach((_, prefabType: ScenePrefabTypes) => {
+  Engine.instance.currentWorld.scenePrefabRegistry.forEach((_, prefabType: ScenePrefabTypes) => {
     if (shouldPrefabDeserialize(prefabType)) {
       arr.push({
         prefabType,
@@ -78,7 +78,6 @@ type PrefabListItemType = {
 /**
  * AssetGridItem used to create grid item view.
  *
- * @author Robert Long
  * @param       {string} contextMenuId
  * @param       {ReactNode} tooltipComponent
  * @param       {PrefabItemType} item
@@ -115,21 +114,15 @@ function PrefabListItem({ contextMenuId, item, onClick }: PrefabListItemType) {
 }
 
 /**
- *
  * Memo
  * React renders the component and memoizes the result.
  * Before the next render, if the new props are the same,
  * React reuses the memoized result skipping the next rendering
- *
- *
- * @author Robert Long
  */
 const MemoAssetGridItem = memo(PrefabListItem)
 
 /**
  * AssetGrid component used to render AssetGridItems.
- *
- * @author Robert Long
  */
 export function ElementList() {
   const { t } = useTranslation()

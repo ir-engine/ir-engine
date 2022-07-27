@@ -8,6 +8,7 @@ import { useHistory } from 'react-router-dom'
 import styled from 'styled-components'
 
 import { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
+import multiLogger from '@xrengine/common/src/logger'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { getEngineState, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { gltfToSceneJson, sceneToGLTF } from '@xrengine/engine/src/scene/functions/GLTFConversion'
@@ -47,11 +48,11 @@ import Search from './Search/Search'
 import * as styles from './styles.module.scss'
 import ToolBar from './toolbar/ToolBar'
 
+const logger = multiLogger.child({ component: 'editor:EditorContainer' })
+
 /**
  *Styled component used as dock container.
  *
- * @author Hanzla Mateen
- * @author Abhishek Pathak
  * @type {type}
  */
 export const DockContainer = (styled as any).div`
@@ -101,9 +102,7 @@ export const DockContainer = (styled as any).div`
     border-color: var(--iconButtonColor);
   }
 `
-/**
- * @author Abhishek Pathak
- */
+
 DockContainer.defaultProps = {
   dividerAlpha: 0
 }
@@ -111,7 +110,6 @@ DockContainer.defaultProps = {
 /**
  * EditorContainer class used for creating container for Editor
  *
- *  @author Robert Long
  */
 const EditorContainer = () => {
   const editorState = useEditorState()
@@ -140,7 +138,7 @@ const EditorContainer = () => {
       dispatchAction(EditorAction.sceneModified({ modified: true }))
       setDialogComponent(null)
     } catch (error) {
-      console.error(error)
+      logger.error(error)
       setDialogComponent(
         <ErrorDialog
           title={t('editor:loadingError')}
@@ -160,7 +158,7 @@ const EditorContainer = () => {
 
   useHookEffect(() => {
     if (sceneName.value && editorReady) {
-      console.log(`Loading scene ${sceneName.value} via given url`)
+      logger.info(`Loading scene ${sceneName.value} via given url`)
       loadScene(sceneName.value)
     }
   }, [editorReady, sceneName])
@@ -182,7 +180,7 @@ const EditorContainer = () => {
 
       setDialogComponent(null)
     } catch (error) {
-      console.error(error)
+      logger.error(error)
 
       setDialogComponent(
         <ErrorDialog
@@ -206,7 +204,7 @@ const EditorContainer = () => {
       reRouteToLoadScene(sceneData.sceneName)
       setDialogComponent(null)
     } catch (error) {
-      console.error(error)
+      logger.error(error)
 
       setDialogComponent(
         <ErrorDialog
@@ -223,13 +221,11 @@ const EditorContainer = () => {
    */
 
   const onEditorError = (error) => {
-    console.log(error)
+    logger.error(error)
     if (error['aborted']) {
       setDialogComponent(null)
       return
     }
-
-    console.error(error)
 
     setDialogComponent(
       <ErrorDialog
@@ -275,7 +271,7 @@ const EditorContainer = () => {
       }
       setDialogComponent(null)
     } catch (error) {
-      console.error(error)
+      logger.error(error)
       setDialogComponent(
         <ErrorDialog title={t('editor:savingError')} message={error.message || t('editor:savingErrorMsg')} />
       )
@@ -300,7 +296,7 @@ const EditorContainer = () => {
         const zipFiles = nuUrl.filter((url) => /\.zip$/.test(url))
         const extractPromises = [...zipFiles.map((zipped) => extractZip(zipped))]
         Promise.all(extractPromises).then(() => {
-          console.log('extraction complete')
+          logger.info('extraction complete')
         })
       }
     }
@@ -397,7 +393,7 @@ const EditorContainer = () => {
 
       setDialogComponent(null)
     } catch (error) {
-      console.error(error)
+      logger.error(error)
 
       setDialogComponent(
         <ErrorDialog title={t('editor:savingError')} message={error.message || t('editor:savingErrorMsg')} />

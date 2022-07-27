@@ -1,25 +1,23 @@
+import { EventQueue } from '@dimforge/rapier3d-compat'
 import * as bitecs from 'bitecs'
-import { AudioListener, Object3D, OrthographicCamera, PerspectiveCamera, Scene } from 'three'
+import { AudioListener, Object3D, OrthographicCamera, PerspectiveCamera, Raycaster, Scene } from 'three'
 
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
+import multiLogger from '@xrengine/common/src/logger'
 import { addTopic } from '@xrengine/hyperflux'
-import { Topic } from '@xrengine/hyperflux/functions/ActionFunctions'
 
 import { DEFAULT_LOD_DISTANCES } from '../../assets/constants/LoaderConstants'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { SceneLoaderType } from '../../common/constants/PrefabFunctionType'
-import { isClient } from '../../common/functions/isClient'
 import { isMobile } from '../../common/functions/isMobile'
 import { nowMilliseconds } from '../../common/functions/nowMilliseconds'
-import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
+import { LocalAvatarTagComponent } from '../../input/components/LocalAvatarTagComponent'
 import { InputValue } from '../../input/interfaces/InputValue'
 import { Network, NetworkTopics } from '../../networking/classes/Network'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
-import { UserClient } from '../../networking/interfaces/NetworkPeer'
-import { AvatarProps } from '../../networking/interfaces/WorldState'
-import { Physics } from '../../physics/classes/Physics'
+import { PhysicsWorld } from '../../physics/classes/Physics'
 import { NameComponent } from '../../scene/components/NameComponent'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { PersistTagComponent } from '../../scene/components/PersistTagComponent'
@@ -49,6 +47,8 @@ const TimerConfig = {
   MAX_DELTA_SECONDS: 1 / 10
 }
 
+const logger = multiLogger.child({ component: 'engine:ecs:World' })
+
 export const CreateWorld = Symbol('CreateWorld')
 export class World {
   private constructor() {
@@ -56,14 +56,14 @@ export class World {
     Engine.instance.worlds.push(this)
 
     this.worldEntity = createEntity(this)
-    addComponent(this.worldEntity, PersistTagComponent, {}, this)
+    addComponent(this.worldEntity, PersistTagComponent, true, this)
     addComponent(this.worldEntity, NameComponent, { name: 'world' }, this)
-    if (isMobile) addComponent(this.worldEntity, SimpleMaterialTagComponent, {}, this)
+    if (isMobile) addComponent(this.worldEntity, SimpleMaterialTagComponent, true, this)
 
     this.cameraEntity = createEntity(this)
     addComponent(this.cameraEntity, VisibleComponent, true, this)
     addComponent(this.cameraEntity, NameComponent, { name: 'camera' }, this)
-    addComponent(this.cameraEntity, PersistTagComponent, {}, this)
+    addComponent(this.cameraEntity, PersistTagComponent, true, this)
     addComponent(this.cameraEntity, Object3DComponent, { value: this.camera }, this)
     addComponent(
       this.cameraEntity,
@@ -150,7 +150,8 @@ export class World {
    */
   scene = new Scene()
 
-  physics = new Physics()
+  physicsWorld: PhysicsWorld
+  physicsCollisionEventQueue: EventQueue
 
   /**
    * Map of object lists by layer
@@ -181,7 +182,7 @@ export class World {
   #portalQuery = bitecs.defineQuery([PortalComponent])
   portalQuery = () => this.#portalQuery(this) as Entity[]
 
-  activePortal = null! as ReturnType<typeof PortalComponent.get>
+  activePortal = null as ReturnType<typeof PortalComponent.get> | null
 
   /**
    * The world entity
@@ -192,7 +193,7 @@ export class World {
    * The local client entity
    */
   get localClientEntity() {
-    return this.getOwnedNetworkObjectWithComponent(Engine.instance.userId, LocalInputTagComponent) || (NaN as Entity)
+    return this.getOwnedNetworkObjectWithComponent(Engine.instance.userId, LocalAvatarTagComponent) || (NaN as Entity)
   }
 
   /**
@@ -217,7 +218,9 @@ export class World {
     const nameMap = this.#nameMap
     for (const entity of this.#nameQuery.enter()) {
       const { name } = getComponent(entity, NameComponent)
-      if (nameMap.has(name)) console.warn(`An Entity with name "${name}" already exists.`)
+      if (nameMap.has(name)) {
+        logger.warn(`An Entity with name "${name}" already exists.`)
+      }
       nameMap.set(name, entity)
       const obj3d = getComponent(entity, Object3DComponent)?.value
       if (obj3d) obj3d.name = name
@@ -242,6 +245,9 @@ export class World {
 
   /** Registry map of prefabs  */
   scenePrefabRegistry = new Map<string, ComponentJson[]>()
+
+  /** A screenspace raycaster for the pointer */
+  pointerScreenRaycaster = new Raycaster()
 
   /**
    * Get the network objects owned by a given user
@@ -319,7 +325,7 @@ export class World {
     const end = nowMilliseconds()
     const duration = end - start
     if (duration > 150) {
-      console.warn(`Long frame execution detected. Duration: ${duration}. \n Incoming actions: `, incomingActions)
+      logger.warn(`Long frame execution detected. Duration: ${duration}. \n Incoming actions: %o`, incomingActions)
     }
   }
 }

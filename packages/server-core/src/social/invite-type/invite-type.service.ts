@@ -21,8 +21,6 @@ export default (app: Application) => {
 
   /**
    * Initialize our service with any options it requires and docs
-   *
-   * @author Vyacheslav Solovjov
    */
 
   const event = new InviteType(options, app)
@@ -31,8 +29,6 @@ export default (app: Application) => {
 
   /**
    * Get our initialized service so that we can register hooks
-   *
-   * @author Vyacheslav Solovjov
    */
   const service = app.service('invite-type')
 

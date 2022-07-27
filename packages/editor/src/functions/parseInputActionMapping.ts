@@ -2,7 +2,7 @@ import * as Mousetrap from 'mousetrap'
 
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 
-import { InputComponent } from '../classes/InputComponent'
+import { EditorInputComponent } from '../classes/InputComponent'
 import { ActionKey, ActionSets, ActionState, InputActionMapping, InputMapping } from '../controls/input-mappings'
 import { SceneState } from './sceneRenderFunctions'
 
@@ -178,7 +178,7 @@ export const parseInputActionMapping = (inputMapping: InputActionMapping) => {
 }
 
 export const updateInputActionMapping = () => {
-  const inputComponent = getComponent(SceneState.editorEntity, InputComponent)
+  const inputComponent = getComponent(SceneState.editorEntity, EditorInputComponent)
   const mappings = mergeMappings(inputComponent.mappings)
 
   const parsedMapping = parseInputActionMapping(mappings)
@@ -190,13 +190,13 @@ export const updateInputActionMapping = () => {
 }
 
 export const addInputActionMapping = (inputSet: ActionSets, mapping: InputActionMapping): void => {
-  const inputComponent = getComponent(SceneState.editorEntity, InputComponent)
+  const inputComponent = getComponent(SceneState.editorEntity, EditorInputComponent)
   inputComponent.mappings.set(inputSet, mapping)
   updateInputActionMapping()
 }
 
 export const removeInputActionMapping = (inputSet: ActionSets): void => {
-  const inputComponent = getComponent(SceneState.editorEntity, InputComponent)
+  const inputComponent = getComponent(SceneState.editorEntity, EditorInputComponent)
 
   const mapping = inputComponent.mappings.get(inputSet)
   if (!mapping) return
@@ -248,7 +248,7 @@ export const removeInputActionMapping = (inputSet: ActionSets): void => {
 }
 
 export const getInput = (key: ActionKey) => {
-  const inputComponent = getComponent(SceneState.editorEntity, InputComponent)
+  const inputComponent = getComponent(SceneState.editorEntity, EditorInputComponent)
   if (!inputComponent?.actionState) return
   return inputComponent.actionState[key] ?? 0
 }

@@ -1,4 +1,4 @@
-import { Downgraded } from '@speigg/hookstate'
+import { Downgraded } from '@hookstate/core'
 
 import { AuthUser } from '@xrengine/common/src/interfaces/AuthUser'
 import { matches } from '@xrengine/engine/src/common/functions/MatchesUtils'
@@ -12,15 +12,14 @@ const LocalState = defineState({
 })
 
 export const LocalStateServiceReceptor = (action) => {
-  getState(LocalState).batch((s) => {
-    matches(action).when(StoredLocalAction.storedLocal.matches, (action) => {
-      s.merge(action.newState)
-      const newState = s.attach(Downgraded).value
-      localStorage.setItem(
-        globalThis.process.env['VITE_LOCAL_STORAGE_KEY'] || 'xrengine-client-store-key-v1',
-        JSON.stringify(newState)
-      )
-    })
+  const s = getState(LocalState)
+  matches(action).when(StoredLocalAction.storedLocal.matches, (action) => {
+    s.merge(action.newState)
+    const newState = s.attach(Downgraded).value
+    localStorage.setItem(
+      globalThis.process.env['VITE_LOCAL_STORAGE_KEY'] || 'xrengine-client-store-key-v1',
+      JSON.stringify(newState)
+    )
   })
 }
 

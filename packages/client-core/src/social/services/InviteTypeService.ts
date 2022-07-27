@@ -19,14 +19,13 @@ const InviteTypeState = defineState({
 })
 
 export const InviteTypeServiceReceptor = (action) => {
-  getState(InviteTypeState).batch((s) => {
-    matches(action).when(InviteTypeAction.retrievedInvitesTypes.matches, (action) => {
-      return s.merge({
-        invitesType: action.invitesType.data,
-        skip: action.skip,
-        limit: action.limit,
-        total: action.total
-      })
+  const s = getState(InviteTypeState)
+  matches(action).when(InviteTypeAction.retrievedInvitesTypes.matches, (action) => {
+    return s.merge({
+      invitesType: action.invitesType.data,
+      skip: action.skip,
+      limit: action.limit,
+      total: action.total
     })
   })
 }
@@ -38,7 +37,7 @@ export const useInviteTypeState = () => useState(accessInviteTypeState())
 //Service
 export const InviteTypeService = {
   retrieveInvites: async () => {
-    dispatchAction(InviteTypeAction.fetchingInvitesTypes())
+    dispatchAction(InviteTypeAction.fetchingInvitesTypes({}))
     try {
       const inviteTypeResult = (await API.instance.client.service('invite-type').find()) as Paginated<InviteType>
       dispatchAction(

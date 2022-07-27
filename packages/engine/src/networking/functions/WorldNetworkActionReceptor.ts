@@ -1,4 +1,4 @@
-import { none } from '@speigg/hookstate'
+import { none } from '@hookstate/core'
 
 import { dispatchAction } from '@xrengine/hyperflux'
 
@@ -81,8 +81,7 @@ const receiveRequestAuthorityOverObject = (
     WorldNetworkAction.transferAuthorityOfObject({
       object: action.object,
       newAuthor: action.requester
-    }),
-    NetworkTopics.world
+    })
   )
 }
 
@@ -122,16 +121,14 @@ const receiveSetEquippedObject = (
       WorldNetworkAction.requestAuthorityOverObject({
         object: action.object,
         requester: action.$from
-      }),
-      NetworkTopics.world
+      })
     )
   } else {
     dispatchAction(
       WorldNetworkAction.requestAuthorityOverObject({
         object: action.object,
         requester: Engine.instance.currentWorld.worldNetwork.hostId
-      }),
-      NetworkTopics.world
+      })
     )
   }
 }

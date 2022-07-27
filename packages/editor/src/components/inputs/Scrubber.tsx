@@ -1,4 +1,4 @@
-import { useHookstate } from '@speigg/hookstate'
+import { useHookstate } from '@hookstate/core'
 import React, { ReactNode, useEffect, useRef } from 'react'
 import styled from 'styled-components'
 
@@ -10,19 +10,11 @@ import { getStepSize, toPrecision } from '../../functions/utils'
 import Overlay from '../layout/Overlay'
 import Portal from '../layout/Portal'
 
-/**
- *
- * @author Robert Long
- */
 const ScrubberContainer = (styled as any).div`
   cursor: ew-resize;
   user-select: none;
 `
 
-/**
- *
- * @author Robert Long
- */
 const Cursor = (styled as any)(MultipleStopIcon).attrs(({ x, y }) => ({
   style: {
     transform: `translate(${x}px,${y}px)`
@@ -55,10 +47,6 @@ type ScrubberProp = {
   onCommit?: Function
 }
 
-/**
- *
- * @author Robert Long
- */
 const Scrubber = ({
   tag,
   children,
@@ -168,8 +156,4 @@ Scrubber.defaultProps = {
   convertTo: (value) => value
 }
 
-/**
- *
- * @author Robert Long
- */
 export default React.memo(Scrubber)

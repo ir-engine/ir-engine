@@ -9,7 +9,6 @@ import { EditorComponentType } from './Util'
 /**
  * GroupNodeEditor used to render group of multiple objects.
  *
- * @author Robert Long
  * @type {class component}
  */
 export const GroupNodeEditor: EditorComponentType = (props) => {

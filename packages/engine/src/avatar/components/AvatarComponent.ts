@@ -8,7 +8,6 @@ export type AvatarComponentType = {
    * It's center is at the center of the collider, except with y sitting at the bottom of the collider, flush with the ground
    */
   modelContainer: Group
-  isGrounded: boolean
   avatarHeight: number
   avatarHalfHeight: number
 }

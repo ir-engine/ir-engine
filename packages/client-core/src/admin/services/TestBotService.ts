@@ -1,8 +1,11 @@
 import { SpawnTestBot, TestBot } from '@xrengine/common/src/interfaces/TestBot'
+import multiLogger from '@xrengine/common/src/logger'
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
 import { API } from '../../API'
+
+const logger = multiLogger.child({ component: 'client-core:TestBotService' })
 
 const AdminTestBotState = defineState({
   name: 'AdminTestBotState',
@@ -58,16 +61,16 @@ export const TestBotService = {
       const bots = await API.instance.client.service('testbot').get()
       dispatchAction(AdminTestBotActions.fetchedBots({ bots }))
     } catch (error) {
-      console.error(error)
+      logger.error(error)
     }
   },
   spawnTestBot: async () => {
     try {
-      dispatchAction(AdminTestBotActions.spawnBots())
+      dispatchAction(AdminTestBotActions.spawnBots({}))
       const spawn = await API.instance.client.service('testbot').create()
       dispatchAction(AdminTestBotActions.spawnedBots({ spawn }))
     } catch (error) {
-      console.error(error)
+      logger.error(error)
     }
   }
 }

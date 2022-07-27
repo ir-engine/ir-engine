@@ -17,9 +17,6 @@ import {
 import { NetworkObjectOwnedTag } from '../networking/components/NetworkObjectOwnedTag'
 import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
 import { WorldState } from '../networking/interfaces/WorldState'
-import { RaycastComponent } from '../physics/components/RaycastComponent'
-import { VelocityComponent } from '../physics/components/VelocityComponent'
-import { TransformComponent } from '../transform/components/TransformComponent'
 import { XRLGripButtonComponent, XRRGripButtonComponent } from '../xr/components/XRGripButtonComponent'
 import { XRHandsInputComponent } from '../xr/components/XRHandsInputComponent'
 import { XRInputSourceComponent } from '../xr/components/XRInputSourceComponent'
@@ -27,8 +24,8 @@ import { initializeHandModel, initializeXRInputs } from '../xr/functions/addCont
 import { playTriggerPressAnimation, playTriggerReleaseAnimation } from '../xr/functions/controllerAnimation'
 import { proxifyXRInputs, setupXRInputSourceComponent } from '../xr/functions/WebXRFunctions'
 import { AvatarAnimationComponent } from './components/AvatarAnimationComponent'
+import { AvatarArmsTwistCorrectionComponent } from './components/AvatarArmsTwistCorrectionComponent'
 import { AvatarComponent } from './components/AvatarComponent'
-import { AvatarControllerComponent } from './components/AvatarControllerComponent'
 import { AvatarHandsIKComponent } from './components/AvatarHandsIKComponent'
 import { AvatarHeadIKComponent } from './components/AvatarHeadIKComponent'
 import { loadAvatarForUser } from './functions/avatarFunctions'
@@ -84,29 +81,11 @@ export function xrHandsConnectedReceptor(
   return true
 }
 
-export function teleportObjectReceptor(
-  action: ReturnType<typeof WorldNetworkAction.teleportObject>,
-  world = Engine.instance.currentWorld
-) {
-  const [x, y, z] = action.pose
-  const entity = world.getNetworkObject(action.object.ownerId, action.object.networkId)!
-  const controllerComponent = getComponent(entity, AvatarControllerComponent)
-  if (controllerComponent) {
-    const velocity = getComponent(entity, VelocityComponent)
-    const avatar = getComponent(entity, AvatarComponent)
-    controllerComponent.controller.setPosition({ x, y: y + avatar.avatarHalfHeight, z })
-    velocity.linear.setScalar(0)
-    velocity.angular.setScalar(0)
-  }
-}
-
 export default async function AvatarSystem(world: World) {
   const avatarDetailsQueue = createActionQueue(WorldNetworkAction.avatarDetails.matches)
   const setXRModeQueue = createActionQueue(WorldNetworkAction.setXRMode.matches)
   const xrHandsConnectedQueue = createActionQueue(WorldNetworkAction.xrHandsConnected.matches)
-  const teleportObjectQueue = createActionQueue(WorldNetworkAction.teleportObject.matches)
 
-  const raycastQuery = defineQuery([AvatarComponent, RaycastComponent])
   const xrInputQuery = defineQuery([AvatarComponent, XRInputSourceComponent, AvatarAnimationComponent])
   const xrHandsInputQuery = defineQuery([AvatarComponent, XRHandsInputComponent, XRInputSourceComponent])
   const xrLGripQuery = defineQuery([AvatarComponent, XRLGripButtonComponent, XRInputSourceComponent])
@@ -116,7 +95,6 @@ export default async function AvatarSystem(world: World) {
     for (const action of avatarDetailsQueue()) avatarDetailsReceptor(action)
     for (const action of setXRModeQueue()) setXRModeReceptor(action)
     for (const action of xrHandsConnectedQueue()) xrHandsConnectedReceptor(action)
-    for (const action of teleportObjectQueue()) teleportObjectReceptor(action)
 
     for (const entity of xrInputQuery.enter(world)) {
       xrInputQueryEnter(entity)
@@ -131,14 +109,6 @@ export default async function AvatarSystem(world: World) {
       const xrHandsComponent = getComponent(entity, XRHandsInputComponent)
       const container = xrInputSourceComponent.container
       container.add(...xrHandsComponent.hands)
-    }
-
-    for (const entity of raycastQuery(world)) {
-      const raycastComponent = getComponent(entity, RaycastComponent)
-      const transform = getComponent(entity, TransformComponent)
-      const avatar = getComponent(entity, AvatarComponent)
-      raycastComponent.origin.copy(transform.position).y += avatar.avatarHalfHeight
-      avatar.isGrounded = Boolean(raycastComponent.hits.length > 0)
     }
 
     for (const entity of xrLGripQuery.enter()) {
@@ -168,11 +138,11 @@ export function xrInputQueryExit(entity: Entity) {
   xrInputComponent.container.removeFromParent()
   xrInputComponent.head.removeFromParent()
   removeComponent(entity, AvatarHeadIKComponent)
-
-  const ik = getComponent(entity, AvatarHandsIKComponent)
-  ik.leftHint?.removeFromParent()
-  ik.rightHint?.removeFromParent()
+  const { leftHint, rightHint } = getComponent(entity, AvatarHandsIKComponent)
+  leftHint?.removeFromParent()
+  rightHint?.removeFromParent()
   removeComponent(entity, AvatarHandsIKComponent)
+  removeComponent(entity, AvatarArmsTwistCorrectionComponent)
 }
 
 /**
@@ -201,8 +171,8 @@ export function setupHandIK(entity: Entity) {
 
   const animation = getComponent(entity, AvatarAnimationComponent)
 
-  leftOffset.rotation.set(-2.1, 3, 0.1)
-  rightOffset.rotation.set(-2.1, 0.1, 0.1)
+  leftOffset.rotation.set(-Math.PI * 0.5, Math.PI, 0)
+  rightOffset.rotation.set(-Math.PI * 0.5, 0, 0)
 
   // todo: load the avatar & rig on the server
   if (isClient) {
@@ -220,19 +190,25 @@ export function setupHandIK(entity: Entity) {
   }
 
   addComponent(entity, AvatarHandsIKComponent, {
-    leftTarget: xrInputSourceComponent.controllerGripLeftParent,
+    leftTarget: xrInputSourceComponent.controllerLeftParent,
     leftHint: leftHint,
     leftTargetOffset: leftOffset,
     leftTargetPosWeight: 1,
     leftTargetRotWeight: 1,
     leftHintWeight: 1,
-
-    rightTarget: xrInputSourceComponent.controllerGripRightParent,
+    rightTarget: xrInputSourceComponent.controllerRightParent,
     rightHint: rightHint,
     rightTargetOffset: rightOffset,
     rightTargetPosWeight: 1,
     rightTargetRotWeight: 1,
     rightHintWeight: 1
+  })
+
+  addComponent(entity, AvatarArmsTwistCorrectionComponent, {
+    LeftHandBindRotationInv: new Quaternion(),
+    LeftArmTwistAmount: 0.6,
+    RightHandBindRotationInv: new Quaternion(),
+    RightArmTwistAmount: 0.6
   })
 }
 

@@ -19,6 +19,44 @@ import EditorContainer from '../components/EditorContainer'
 import { EditorAction, useEditorState } from '../services/EditorServices'
 import { registerEditorReceptors } from '../services/EditorServicesReceptor'
 
+const systems = [
+  {
+    systemModulePromise: import('../systems/RenderSystem'),
+    type: SystemUpdateType.POST_RENDER,
+    args: { enabled: true }
+  },
+  {
+    systemModulePromise: import('../systems/InputSystem'),
+    type: SystemUpdateType.PRE_RENDER,
+    args: { enabled: true }
+  },
+  {
+    systemModulePromise: import('../systems/FlyControlSystem'),
+    type: SystemUpdateType.PRE_RENDER,
+    args: { enabled: true }
+  },
+  {
+    systemModulePromise: import('../systems/EditorControlSystem'),
+    type: SystemUpdateType.PRE_RENDER,
+    args: { enabled: true }
+  },
+  {
+    systemModulePromise: import('../systems/EditorCameraSystem'),
+    type: SystemUpdateType.PRE_RENDER,
+    args: { enabled: true }
+  },
+  {
+    systemModulePromise: import('../systems/ResetInputSystem'),
+    type: SystemUpdateType.PRE_RENDER,
+    args: { enabled: true }
+  },
+  {
+    systemModulePromise: import('../systems/GizmoSystem'),
+    type: SystemUpdateType.PRE_RENDER,
+    args: { enabled: true }
+  }
+]
+
 export const EditorPage = (props: RouteComponentProps<{ sceneName: string; projectName: string }>) => {
   const editorState = useEditorState()
   const projectState = useProjectState()
@@ -32,44 +70,6 @@ export const EditorPage = (props: RouteComponentProps<{ sceneName: string; proje
   useEffect(() => {
     registerEditorReceptors()
   }, [])
-
-  const systems = [
-    {
-      systemModulePromise: import('../systems/RenderSystem'),
-      type: SystemUpdateType.POST_RENDER,
-      args: { enabled: true }
-    },
-    {
-      systemModulePromise: import('../systems/InputSystem'),
-      type: SystemUpdateType.PRE_RENDER,
-      args: { enabled: true }
-    },
-    {
-      systemModulePromise: import('../systems/FlyControlSystem'),
-      type: SystemUpdateType.PRE_RENDER,
-      args: { enabled: true }
-    },
-    {
-      systemModulePromise: import('../systems/EditorControlSystem'),
-      type: SystemUpdateType.PRE_RENDER,
-      args: { enabled: true }
-    },
-    {
-      systemModulePromise: import('../systems/EditorCameraSystem'),
-      type: SystemUpdateType.PRE_RENDER,
-      args: { enabled: true }
-    },
-    {
-      systemModulePromise: import('../systems/ResetInputSystem'),
-      type: SystemUpdateType.PRE_RENDER,
-      args: { enabled: true }
-    },
-    {
-      systemModulePromise: import('../systems/GizmoSystem'),
-      type: SystemUpdateType.PRE_RENDER,
-      args: { enabled: true }
-    }
-  ]
 
   useEffect(() => {
     const _isAuthenticated =

@@ -2,18 +2,13 @@ import { Box3, Mesh, Vector3 } from 'three'
 
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
-import { isDynamicBody } from '../../physics/classes/Physics'
-import { ColliderComponent } from '../../physics/components/ColliderComponent'
+import { RigidBodyDynamicTagComponent } from '../../physics/components/RigidBodyDynamicTagComponent'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { BoundingBoxComponent } from '../components/BoundingBoxComponent'
-import { InteractableComponent } from '../components/InteractableComponent'
 
 export const createBoxComponent = (entity: Entity) => {
-  const interactable = getComponent(entity, InteractableComponent)?.value
-  const dynamic =
-    (hasComponent(entity, ColliderComponent) && isDynamicBody(getComponent(entity, ColliderComponent).body)) ||
-    (interactable && interactable.interactionType === 'equippable')
+  const dynamic = hasComponent(entity, RigidBodyDynamicTagComponent)
 
   const calcBoundingBox = addComponent(entity, BoundingBoxComponent, { dynamic, box: new Box3() })
 
@@ -42,7 +37,7 @@ export const createBoxComponent = (entity: Entity) => {
   })
   // if no meshes, create a small bb so interactables still detect it
   if (!hasBoxExpanded) {
-    calcBoundingBox.box = new Box3(
+    calcBoundingBox.box.set(
       new Vector3(-0.05, -0.05, -0.05).add(transform.position),
       new Vector3(0.05, 0.05, 0.05).add(transform.position)
     )

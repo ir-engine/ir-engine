@@ -8,8 +8,6 @@ export type GroupUserDataType = GroupUserInterface
 
 /**
  * A class for Group user service
- *
- * @author Vyacheslav Solovjov
  */
 export class GroupUser<T = GroupUserDataType> extends Service<T> {
   public docs: any

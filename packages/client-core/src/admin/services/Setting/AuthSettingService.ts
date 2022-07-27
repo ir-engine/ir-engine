@@ -22,21 +22,20 @@ const AuthSettingsState = defineState({
 })
 
 export const AuthSettingsServiceReceptor = (action) => {
-  getState(AuthSettingsState).batch((s) => {
-    matches(action)
-      .when(AuthSettingsActions.authSettingRetrieved.matches, (action) => {
-        return s.merge({
-          authSettings: action.authSetting.data,
-          skip: action.authSetting.skip,
-          limit: action.authSetting.limit,
-          total: action.authSetting.total,
-          updateNeeded: false
-        })
+  const s = getState(AuthSettingsState)
+  matches(action)
+    .when(AuthSettingsActions.authSettingRetrieved.matches, (action) => {
+      return s.merge({
+        authSettings: action.authSetting.data,
+        skip: action.authSetting.skip,
+        limit: action.authSetting.limit,
+        total: action.authSetting.total,
+        updateNeeded: false
       })
-      .when(AuthSettingsActions.authSettingPatched.matches, (action) => {
-        return s.updateNeeded.set(true)
-      })
-  })
+    })
+    .when(AuthSettingsActions.authSettingPatched.matches, (action) => {
+      return s.updateNeeded.set(true)
+    })
 }
 
 // const authSettingRetrievedReceptor = (action: typeof AuthSettingsActions.authSettingRetrieved.matches._TYPE) => {
@@ -79,7 +78,7 @@ export const AuthSettingsService = {
   patchAuthSetting: async (data: PatchAuthSetting, id: string) => {
     try {
       await API.instance.client.service('authentication-setting').patch(id, data)
-      dispatchAction(AuthSettingsActions.authSettingPatched())
+      dispatchAction(AuthSettingsActions.authSettingPatched({}))
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }

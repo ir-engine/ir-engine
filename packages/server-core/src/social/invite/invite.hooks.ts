@@ -5,16 +5,39 @@ import inviteRemoveAuthenticate from '@xrengine/server-core/src/hooks/invite-rem
 import attachOwnerIdInBody from '@xrengine/server-core/src/hooks/set-loggedin-user-in-body'
 import attachOwnerIdInQuery from '@xrengine/server-core/src/hooks/set-loggedin-user-in-query'
 
+import addAssociations from '../../hooks/add-associations'
 import authenticate from '../../hooks/authenticate'
+import restrictUserRole from '../../hooks/restrict-user-role'
 
 export default {
   before: {
     all: [],
-    find: [authenticate(), attachOwnerIdInQuery('userId')],
-    get: [iff(isProvider('external'), authenticate() as any, attachOwnerIdInQuery('userId') as any)],
+    find: [
+      authenticate(),
+      attachOwnerIdInQuery('userId'),
+      addAssociations({
+        models: [
+          {
+            model: 'user',
+            as: 'user'
+          }
+        ]
+      })
+    ],
+    get: [
+      iff(isProvider('external'), authenticate() as any, attachOwnerIdInQuery('userId') as any),
+      addAssociations({
+        models: [
+          {
+            model: 'user',
+            as: 'user'
+          }
+        ]
+      })
+    ],
     create: [authenticate(), attachOwnerIdInBody('userId')],
-    update: [disallow()],
-    patch: [disallow()],
+    update: [iff(isProvider('external'), authenticate() as any, restrictUserRole('admin') as any)],
+    patch: [iff(isProvider('external'), authenticate() as any, restrictUserRole('admin') as any)],
     remove: [authenticate(), inviteRemoveAuthenticate()]
   },
 

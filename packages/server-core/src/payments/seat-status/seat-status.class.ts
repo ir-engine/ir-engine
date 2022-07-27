@@ -7,8 +7,6 @@ import { Application } from '../../../declarations'
 export type SeatStatusDataType = SeatStatusInterface
 /**
  * A class for Seat Status service
- *
- * @author Vyacheslav Solovjov
  */
 export class SeatStatus<T = SeatStatusDataType> extends Service<T> {
   public docs: any

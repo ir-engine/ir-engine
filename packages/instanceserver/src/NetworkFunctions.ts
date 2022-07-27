@@ -250,6 +250,22 @@ export const handleConnectingPeer = async (network: SocketWebRTCServerNetwork, s
 
   network.userIdToUserIndex.set(userId, userIndex)
   network.userIndexToUserId.set(userIndex, userId)
+
+  const spectating = network.peers.get(userId)!.spectating
+
+  network.app.service('message').create(
+    {
+      targetObjectId: network.app.instance.id,
+      targetObjectType: 'instance',
+      text: `${user.name} joined` + (spectating ? ' as spectator' : ''),
+      isNotification: true
+    },
+    {
+      'identity-provider': {
+        userId: userId
+      }
+    }
+  )
 }
 
 export async function handleJoinWorld(
@@ -275,7 +291,7 @@ export async function handleJoinWorld(
     cachedActions
   })
 
-  if (data.inviteCode) getUserSpawnFromInvite(network, user, data.inviteCode!)
+  if (data.inviteCode && !network.app.isChannelInstance) await getUserSpawnFromInvite(network, user, data.inviteCode!)
 }
 
 export function disconnectClientIfConnected(network: SocketWebRTCServerNetwork, socket: Socket, userId: UserId) {
@@ -298,7 +314,12 @@ export function disconnectClientIfConnected(network: SocketWebRTCServerNetwork, 
   }
 }
 
-const getUserSpawnFromInvite = async (network: SocketWebRTCServerNetwork, user: UserInterface, inviteCode: string) => {
+const getUserSpawnFromInvite = async (
+  network: SocketWebRTCServerNetwork,
+  user: UserInterface,
+  inviteCode: string,
+  iteration = 0
+) => {
   const world = Engine.instance.currentWorld
 
   if (inviteCode) {
@@ -313,8 +334,27 @@ const getUserSpawnFromInvite = async (network: SocketWebRTCServerNetwork, user: 
     if (users.length > 0) {
       const inviterUser = users[0]
       if (inviterUser.instanceId === user.instanceId) {
+        const selfAvatarEntity = world.getUserAvatarEntity(user.id as UserId)
+        if (!selfAvatarEntity) {
+          if (iteration >= 100) {
+            logger.warn(
+              `User ${user.id} did not spawn their avatar within 5 seconds, abandoning attempts to spawn at inviter`
+            )
+            return
+          }
+          return setTimeout(() => getUserSpawnFromInvite(network, user, inviteCode, iteration + 1), 50)
+        }
         const inviterUserId = inviterUser.id
         const inviterUserAvatarEntity = world.getUserAvatarEntity(inviterUserId as UserId)
+        if (!inviterUserAvatarEntity) {
+          if (iteration >= 100) {
+            logger.warn(
+              `inviting user ${inviterUserId} did not have a spawned avatar within 5 seconds, abandoning attempts to spawn at inviter`
+            )
+            return
+          }
+          return setTimeout(() => getUserSpawnFromInvite(network, user, inviteCode, iteration + 1), 50)
+        }
         const inviterUserTransform = getComponent(inviterUserAvatarEntity, TransformComponent)
 
         /** @todo find nearest valid spawn position, rather than 2 in front */
@@ -325,10 +365,10 @@ const getUserSpawnFromInvite = async (network: SocketWebRTCServerNetwork, user: 
         const validSpawnablePosition = checkPositionIsValid(inviterUserObject3d.value.position, false)
 
         if (validSpawnablePosition) {
-          const spawnPoseComponent = getComponent(inviterUserAvatarEntity, SpawnPoseComponent)
+          const spawnPoseComponent = getComponent(selfAvatarEntity, SpawnPoseComponent)
           spawnPoseComponent?.position.copy(inviterUserObject3d.value.position)
           spawnPoseComponent?.rotation.copy(inviterUserTransform.rotation)
-          respawnAvatar(inviterUserAvatarEntity)
+          respawnAvatar(selfAvatarEntity)
         }
       } else {
         logger.warn('The user who invited this user in no longer on this instance.')
@@ -349,7 +389,7 @@ export function handleIncomingActions(network: SocketWebRTCServerNetwork, socket
   for (const a of actions) {
     a['$fromSocketId'] = socket.id
     a.$from = userIdMap[socket.id]
-    dispatchAction(a, a.$topic)
+    dispatchAction(a)
   }
   // logger.info('SERVER INCOMING ACTIONS: %s', JSON.stringify(actions))
 }
@@ -371,6 +411,23 @@ export async function handleDisconnect(network: SocketWebRTCServerNetwork, socke
   // The new connection will overwrite the socketID for the user's client.
   // This will only clear transports if the client's socketId matches the socket that's disconnecting.
   if (socket.id === disconnectedClient?.socketId) {
+    const state = getState(WorldState)
+    const userName = state.userNames[userId].value
+
+    network.app.service('message').create(
+      {
+        targetObjectId: network.app.instance.id,
+        targetObjectType: 'instance',
+        text: `${userName} left`,
+        isNotification: true
+      },
+      {
+        'identity-provider': {
+          userId: userId
+        }
+      }
+    )
+
     NetworkPeerFunctions.destroyPeer(network, userId, Engine.instance.currentWorld)
     network.updatePeers()
     logger.info('Disconnecting clients for user ' + userId)

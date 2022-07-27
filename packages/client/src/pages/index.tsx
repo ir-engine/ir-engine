@@ -7,6 +7,7 @@ import {
   ClientSettingService,
   useClientSettingState
 } from '@xrengine/client-core/src/admin/services/Setting/ClientSettingService'
+import { NotificationService } from '@xrengine/client-core/src/common/services/NotificationService'
 import ProfileMenu from '@xrengine/client-core/src/user/components/UserMenu/menus/ProfileMenu'
 
 const ROOT_REDIRECT: any = globalThis.process.env['VITE_ROOT_REDIRECT']
@@ -15,6 +16,11 @@ export const HomePage = (): any => {
   const { t } = useTranslation()
   const clientSettingState = useClientSettingState()
   const [clientSetting] = clientSettingState?.client?.value || []
+
+  useEffect(() => {
+    const error = new URL(window.location.href).searchParams.get('error')
+    if (error) NotificationService.dispatchNotify(error, { variant: 'error' })
+  }, [])
 
   if (ROOT_REDIRECT && ROOT_REDIRECT.length > 0 && ROOT_REDIRECT !== 'false') {
     const redirectParsed = new URL(ROOT_REDIRECT)

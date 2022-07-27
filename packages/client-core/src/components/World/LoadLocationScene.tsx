@@ -13,6 +13,7 @@ export const LoadLocationScene = () => {
   const authState = useAuthState()
   const locationState = useLocationState()
   const isUserBanned = locationState.currentLocation.selfUserBanned.value
+  const userNotAuthorized = locationState.currentLocation.selfNotAuthorized.value
 
   /**
    * Once we have logged in, retrieve the location data
@@ -31,15 +32,16 @@ export const LoadLocationScene = () => {
       locationState.locationName.value &&
       authState.isLoggedIn.value
     ) {
-      retrieveLocationByName(locationState.locationName.value)
+      retrieveLocationByName(locationState.locationName.value, selfUser.id.value)
     }
-  }, [authState.isLoggedIn, locationState.locationName])
+  }, [authState.isLoggedIn.value, locationState.locationName.value])
 
   useHookEffect(() => {
     if (authState.user.id.value) dispatchAction(EngineActions.connect({ id: authState.user.id.value }))
   }, [authState.user])
 
   if (isUserBanned) return <div className="banned">{t('location.youHaveBeenBannedMsg')}</div>
+  if (userNotAuthorized) return <div className="not-authorized">{t('location.notAuthorizedAtLocation')}</div>
 
   return <> </>
 }

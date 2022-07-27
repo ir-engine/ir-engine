@@ -1,7 +1,7 @@
-import { createState, useState } from '@speigg/hookstate'
+import { createState, useState } from '@hookstate/core'
 
 export const LoadingSystemState = createState({
-  opacity: 0
+  loadingScreenOpacity: 0
 })
 export const accessLoadingSystemState = () => LoadingSystemState
 export const useLoadingSystemState = () =>

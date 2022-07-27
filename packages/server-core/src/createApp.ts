@@ -1,4 +1,4 @@
-import express, { static as _static, errorHandler, json, rest, urlencoded } from '@feathersjs/express'
+import express, { errorHandler, json, rest, urlencoded } from '@feathersjs/express'
 import { feathers } from '@feathersjs/feathers'
 import socketio from '@feathersjs/socketio'
 import * as k8s from '@kubernetes/client-node'
@@ -9,6 +9,7 @@ import swagger from 'feathers-swagger'
 import sync from 'feathers-sync'
 import helmet from 'helmet'
 import path from 'path'
+import pinoHttp from 'pino-http'
 import { Socket } from 'socket.io'
 
 import { pipe } from '@xrengine/common/src/utils/pipe'
@@ -20,6 +21,26 @@ import { createDefaultStorageProvider, createIPFSStorageProvider } from './media
 import sequelize from './sequelize'
 import services from './services'
 import authentication from './user/authentication'
+
+/**
+ * Logs all Express API calls (except for the ones marked as 'silent').
+ */
+const requestLogger = pinoHttp({
+  logger: logger.child({ component: 'api' }),
+
+  customLogLevel(req, res, err) {
+    if (res.req.url === '/api/log' || res.req.url === '/healthcheck') {
+      return 'silent'
+    } else if (res.statusCode === 404) {
+      return 'info'
+    } else if (res.statusCode >= 400 || err) {
+      return 'error'
+    } else if (res.statusCode >= 300 && res.statusCode < 400) {
+      return 'silent'
+    }
+    return 'info'
+  }
+})
 
 export const configureOpenAPI = () => (app: Application) => {
   app.configure(
@@ -155,11 +176,19 @@ export const createFeathersExpressApp = (
       credentials: true
     }) as any
   )
+
+  app.use(requestLogger)
+
   app.use(compress())
   app.use(json())
   app.use(urlencoded({ extended: true }))
 
   app.configure(rest())
+  // app.use(function (req, res, next) {
+  //   ;(req as any).feathers.req = req
+  //   ;(req as any).feathers.res = res
+  //   next()
+  // })
 
   // Configure other middleware (see `middleware/index.js`)
   app.configure(authentication)
@@ -169,6 +198,13 @@ export const createFeathersExpressApp = (
 
   app.use('/healthcheck', (req, res) => {
     res.sendStatus(200)
+  })
+
+  // Receive client-side log events (only active when APP_ENV != 'development')
+  app.post('/api/log', (req, res) => {
+    const { msg, ...mergeObject } = req.body
+    logger.info({ user: req.params?.user, ...mergeObject }, msg)
+    return res.status(204).send()
   })
 
   app.use(errorHandler({ logger }))

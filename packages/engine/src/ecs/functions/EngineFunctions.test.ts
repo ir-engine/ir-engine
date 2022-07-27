@@ -24,7 +24,7 @@ describe('EngineFunctions', () => {
       addComponent(createEntity(), Object3DComponent, { value: new Object3D() })
       const persistedEntity = createEntity()
       addComponent(persistedEntity, Object3DComponent, { value: new Object3D() })
-      addComponent(persistedEntity, PersistTagComponent, {})
+      addComponent(persistedEntity, PersistTagComponent, true)
 
       const objectEntities = object3dQuery(world)
 
@@ -57,7 +57,7 @@ describe('EngineFunctions', () => {
       addComponent(createEntity(), Object3DComponent, { value: new Object3D() })
       const persistedEntity = createEntity()
       addComponent(persistedEntity, Object3DComponent, { value: new Object3D() })
-      addComponent(persistedEntity, PersistTagComponent, {})
+      addComponent(persistedEntity, PersistTagComponent, true)
 
       const objectEntities = getEntities(world)
 

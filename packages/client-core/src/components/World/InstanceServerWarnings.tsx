@@ -6,9 +6,8 @@ import {
   useLocationInstanceConnectionState
 } from '@xrengine/client-core/src/common/services/LocationInstanceConnectionService'
 import { MediaInstanceConnectionService } from '@xrengine/client-core/src/common/services/MediaInstanceConnectionService'
-import { useChatState } from '@xrengine/client-core/src/social/services/ChatService'
+import { ChatService, useChatState } from '@xrengine/client-core/src/social/services/ChatService'
 import { useLocationState } from '@xrengine/client-core/src/social/services/LocationService'
-import { MediaStreams } from '@xrengine/client-core/src/transports/MediaStreams'
 import { SocketWebRTCClientNetwork } from '@xrengine/client-core/src/transports/SocketWebRTCClientNetwork'
 import { matches } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
@@ -18,6 +17,8 @@ import WEBGL from '@xrengine/engine/src/renderer/THREE.WebGL'
 import { addActionReceptor } from '@xrengine/hyperflux'
 
 import { NetworkConnectionService } from '../../common/services/NetworkConnectionService'
+import { LocationAction } from '../../social/services/LocationService'
+import { useAuthState } from '../../user/services/AuthService'
 import WarningRetryModal, { WarningRetryModalProps } from '../AlertModals/WarningRetryModal'
 
 const initialModalValues: WarningRetryModalProps = {
@@ -29,13 +30,15 @@ const initialModalValues: WarningRetryModalProps = {
 
 enum WarningModalTypes {
   INDEXED_DB_NOT_SUPPORTED,
-  NO_INSTANCE_SERVER_PROVISIONED,
+  NO_WORLD_SERVER_PROVISIONED,
+  NO_MEDIA_SERVER_PROVISIONED,
   INSTANCE_DISCONNECTED,
   USER_KICKED,
   INVALID_LOCATION,
   INSTANCE_WEBGL_DISCONNECTED,
   CHANNEL_DISCONNECTED,
-  DETECTED_LOW_FRAME
+  DETECTED_LOW_FRAME,
+  NOT_AUTHORIZED
 }
 
 const InstanceServerWarnings = () => {
@@ -50,6 +53,9 @@ const InstanceServerWarnings = () => {
   const [erroredInstanceId, setErroredInstanceId] = useState<string>(null!)
   const [hasShownLowFramerateError, setHasShownLowFramerateError] = useState(false)
   const { t } = useTranslation()
+  const authState = useAuthState()
+
+  const selfUser = authState.user
 
   const currentErrorRef = useRef(currentError)
   const isWindow = (): boolean => {
@@ -66,8 +72,13 @@ const InstanceServerWarnings = () => {
       matches(action)
         .when(NetworkConnectionService.actions.noWorldServersAvailable.matches, ({ instanceId }) => {
           setErroredInstanceId(instanceId)
-          updateWarningModal(WarningModalTypes.NO_INSTANCE_SERVER_PROVISIONED)
-          setCurrentError(WarningModalTypes.NO_INSTANCE_SERVER_PROVISIONED)
+          updateWarningModal(WarningModalTypes.NO_WORLD_SERVER_PROVISIONED)
+          setCurrentError(WarningModalTypes.NO_WORLD_SERVER_PROVISIONED)
+        })
+        .when(NetworkConnectionService.actions.noMediaServersAvailable.matches, ({ instanceId }) => {
+          setErroredInstanceId(instanceId)
+          updateWarningModal(WarningModalTypes.NO_MEDIA_SERVER_PROVISIONED)
+          setCurrentError(WarningModalTypes.NO_MEDIA_SERVER_PROVISIONED)
         })
         .when(WEBGL.EVENTS.webglDisconnected.matches, () => {
           updateWarningModal(WarningModalTypes.INSTANCE_WEBGL_DISCONNECTED)
@@ -90,6 +101,10 @@ const InstanceServerWarnings = () => {
         })
         .when(NetworkConnectionService.actions.mediaInstanceReconnected.matches, () => {
           reset(WarningModalTypes.CHANNEL_DISCONNECTED)
+        })
+        .when(LocationAction.socialLocationNotAuthorized.matches, () => {
+          updateWarningModal(WarningModalTypes.NOT_AUTHORIZED)
+          setCurrentError(WarningModalTypes.NOT_AUTHORIZED)
         })
     })
 
@@ -131,7 +146,7 @@ const InstanceServerWarnings = () => {
         break
       }
 
-      case WarningModalTypes.NO_INSTANCE_SERVER_PROVISIONED: {
+      case WarningModalTypes.NO_WORLD_SERVER_PROVISIONED: {
         const currentLocation = locationState.currentLocation.location.value
         setModalValues({
           open: true,
@@ -139,6 +154,27 @@ const InstanceServerWarnings = () => {
           body: t('common:instanceServer.noAvailableServersMessage'),
           action: async () => LocationInstanceConnectionService.provisionServer(currentLocation.id),
           parameters: [currentLocation.id, erroredInstanceId, currentLocation.sceneId],
+          noCountdown: false,
+          onClose: () => {}
+        })
+        break
+      }
+
+      case WarningModalTypes.NO_MEDIA_SERVER_PROVISIONED: {
+        const channels = chatState.channels.channels.value
+        const partyChannel = Object.values(channels).find(
+          (channel) => channel.channelType === 'party' && channel.partyId === selfUser.partyId.value
+        )
+        const instanceChannel = Object.values(channels).find(
+          (channel) => channel.instanceId === Engine.instance.currentWorld.mediaNetwork?.hostId
+        )
+        const channelId = partyChannel ? partyChannel.id : instanceChannel!.id
+        setModalValues({
+          open: true,
+          title: t('common:instanceServer.noAvailableServers'),
+          body: t('common:instanceServer.noAvailableServersMessage'),
+          action: async () => MediaInstanceConnectionService.provisionServer(channelId, false),
+          parameters: [channelId, false],
           noCountdown: false,
           onClose: () => {}
         })
@@ -229,6 +265,17 @@ const InstanceServerWarnings = () => {
           title: t('common:instanceServer.low-frame-title'),
           body: t('common:instanceServer.low-frame-error'),
           timeout: 10000,
+          onClose: () => {}
+        })
+        break
+      }
+
+      case WarningModalTypes.NOT_AUTHORIZED: {
+        setModalValues({
+          open: true,
+          title: t('common:instanceServer.notAuthorizedAtLocationTitle'),
+          body: t('common:instanceServer.notAuthorizedAtLocation'),
+          noCountdown: true,
           onClose: () => {}
         })
         break

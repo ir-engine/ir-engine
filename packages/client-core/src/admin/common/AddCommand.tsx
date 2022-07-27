@@ -31,8 +31,8 @@ const AddCommand = ({ command, handleChangeCommand, addCommandData, commandData,
         <Grid item xs={4}>
           <InputText
             name="name"
-            label={t('admin:components.bot:command')}
-            placeholder={t('admin:components.bot:enterCommand')}
+            label={t('admin:components.bot.command')}
+            placeholder={t('admin:components.bot.enterCommand')}
             value={command.name}
             onChange={handleChangeCommand}
           />
@@ -40,8 +40,8 @@ const AddCommand = ({ command, handleChangeCommand, addCommandData, commandData,
         <Grid item xs={8}>
           <InputText
             name="description"
-            label={t('admin:components.bot:description')}
-            placeholder={t('admin:components.bot:enterDescription')}
+            label={t('admin:components.bot.description')}
+            placeholder={t('admin:components.bot.enterDescription')}
             value={command.description ?? ''}
             onChange={handleChangeCommand}
           />
@@ -49,7 +49,7 @@ const AddCommand = ({ command, handleChangeCommand, addCommandData, commandData,
       </Grid>
 
       <Button variant="contained" className={styles.openModalBtn} onClick={() => addCommandData(command)}>
-        {t('admin:components.bot:addCommand')}
+        {t('admin:components.bot.addCommand')}
       </Button>
       <div className={commandData.length > 0 ? styles.alterContainer : styles.createAlterContainer}>
         {commandData.map((el, i) => {

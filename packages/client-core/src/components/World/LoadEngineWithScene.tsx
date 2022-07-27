@@ -4,7 +4,7 @@ import { useHistory } from 'react-router'
 import { LocationInstanceConnectionServiceReceptor } from '@xrengine/client-core/src/common/services/LocationInstanceConnectionService'
 import { LocationService } from '@xrengine/client-core/src/social/services/LocationService'
 import { leaveNetwork } from '@xrengine/client-core/src/transports/SocketWebRTCClientFunctions'
-import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
+import { AuthService, useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import {
   SceneActions,
   SceneServiceReceptor,
@@ -15,8 +15,9 @@ import { getSearchParamFromURL } from '@xrengine/common/src/utils/getSearchParam
 import { SpawnPoints } from '@xrengine/engine/src/avatar/AvatarSpawnSystem'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineActions, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
+import { addComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { spawnLocalAvatarInWorld } from '@xrengine/engine/src/networking/functions/receiveJoinWorld'
-import { teleportToScene } from '@xrengine/engine/src/scene/functions/teleportToScene'
+import { HyperspaceTagComponent } from '@xrengine/engine/src/scene/components/HyperspaceTagComponent'
 import { addActionReceptor, dispatchAction, removeActionReceptor, useHookEffect } from '@xrengine/hyperflux'
 
 import { AppAction, GeneralStateList } from '../../common/services/AppService'
@@ -55,6 +56,7 @@ export const LoadEngineWithScene = () => {
   useHookEffect(() => {
     const sceneData = sceneState.currentScene.value
     if (clientReady && sceneData) {
+      AuthService.fetchAvatarList()
       dispatchAction(AppAction.setAppOnBoardingStep({ onBoardingStep: GeneralStateList.SCENE_LOADING }))
       loadScene(sceneData).then(() => {
         dispatchAction(AppAction.setAppOnBoardingStep({ onBoardingStep: GeneralStateList.SCENE_LOADED }))
@@ -72,7 +74,10 @@ export const LoadEngineWithScene = () => {
       return
     const user = authState.user.value
     const avatarDetails = authState.avatarList.value.find((avatar) => avatar.avatar?.name === user.avatarId)!
-    const avatarSpawnPose = SpawnPoints.instance.getRandomSpawnPoint()
+    const spawnPoint = getSearchParamFromURL('spawnPoint')
+    let avatarSpawnPose
+    if (spawnPoint) avatarSpawnPose = SpawnPoints.instance.getSpawnPoint(spawnPoint)
+    else avatarSpawnPose = SpawnPoints.instance.getRandomSpawnPoint()
     spawnLocalAvatarInWorld({
       avatarSpawnPose,
       avatarDetail: {
@@ -84,43 +89,27 @@ export const LoadEngineWithScene = () => {
   }, [engineState.sceneLoaded, authState.user, engineState.joinedWorld])
 
   useHookEffect(() => {
-    if (engineState.joinedWorld.value) {
-      if (engineState.isTeleporting.value) {
-        // if we are coming from another scene, reset our teleporting status
-        dispatchAction(EngineActions.setTeleporting({ isTeleporting: false }))
-      } else {
-        dispatchAction(AppAction.setAppOnBoardingStep({ onBoardingStep: GeneralStateList.SUCCESS }))
-        dispatchAction(AppAction.setAppLoaded({ loaded: true }))
-      }
+    if (engineState.joinedWorld.value && !engineState.isTeleporting.value) {
+      dispatchAction(AppAction.setAppOnBoardingStep({ onBoardingStep: GeneralStateList.SUCCESS }))
+      dispatchAction(AppAction.setAppLoaded({ loaded: true }))
     }
   }, [engineState.joinedWorld])
 
   useHookEffect(() => {
     if (engineState.isTeleporting.value) {
-      // TODO: this needs to be implemented on the server too
-      // Use teleportAvatar function from moveAvatar.ts when required
-      // if (slugifiedNameOfCurrentLocation === portalComponent.location) {
-      //   teleportAvatar(
-      //     useWorld().localClientEntity,
-      //     portalComponent.remoteSpawnPosition,
-      //     portalComponent.remoteSpawnRotation
-      //   )
-      //   return
-      // }
-
       logger.info('Resetting connection for portal teleport.')
-
       const world = Engine.instance.currentWorld
 
-      dispatchAction(SceneActions.unloadCurrentScene())
-      history.push('/location/' + world.activePortal.location)
-      LocationService.getLocationByName(world.activePortal.location)
+      dispatchAction(SceneActions.unloadCurrentScene({}))
+      history.push('/location/' + world.activePortal!.location)
+      LocationService.getLocationByName(world.activePortal!.location, authState.user.id.value)
 
       // shut down connection with existing world instance server
       // leaving a world instance server will check if we are in a location media instance and shut that down too
       leaveNetwork(world.worldNetwork as SocketWebRTCClientNetwork)
 
-      teleportToScene()
+      // the HyperspaceTagComponent is what trigges the portal logic to begin
+      addComponent(world.worldEntity, HyperspaceTagComponent, true)
     }
   }, [engineState.isTeleporting])
 

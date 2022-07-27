@@ -7,14 +7,16 @@ import { matches, Validator } from '@xrengine/engine/src/common/functions/Matche
 import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
 import { API } from '../../API'
+import { MediaInstanceConnectionAction } from '../../common/services/MediaInstanceConnectionService'
 import { NotificationService } from '../../common/services/NotificationService'
 import { accessAuthState } from '../../user/services/AuthService'
+import { PartyService } from './PartyService'
 
-const emailRegex =
+export const emailRegex =
   /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/
-const phoneRegex = /^[0-9]{10}$/
-const userIdRegex = /^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$/
-const inviteCodeRegex = /^[0-9a-fA-F]{8}$/
+export const phoneRegex = /^[0-9]{10}$/
+export const userIdRegex = /^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$/
+export const inviteCodeRegex = /^[0-9a-fA-F]{8}$/
 
 //State
 export const INVITE_PAGE_LIMIT = 100
@@ -44,66 +46,65 @@ const InviteState = defineState({
 })
 
 export const InviteServiceReceptor = (action) => {
-  getState(InviteState).batch((s) => {
-    matches(InviteState)
-      .when(InviteAction.sentInvite.matches, () => {
-        return s.sentUpdateNeeded.set(true)
+  const s = getState(InviteState)
+  matches(action)
+    .when(InviteAction.sentInvite.matches, () => {
+      return s.sentUpdateNeeded.set(true)
+    })
+    .when(InviteAction.retrievedSentInvites.matches, (action) => {
+      return s.merge({
+        sentInvites: {
+          invites: action.invites,
+          skip: action.skip,
+          limit: action.limit,
+          total: action.total
+        },
+        sentUpdateNeeded: false,
+        getSentInvitesInProgress: false
       })
-      .when(InviteAction.retrievedSentInvites.matches, (action) => {
-        return s.merge({
-          sentInvites: {
-            invites: action.invites,
-            skip: action.skip,
-            limit: action.limit,
-            total: action.total
-          },
-          sentUpdateNeeded: false,
-          getSentInvitesInProgress: false
-        })
+    })
+    .when(InviteAction.retrievedReceivedInvites.matches, (action) => {
+      return s.merge({
+        receivedInvites: {
+          invites: action.invites,
+          skip: action.skip,
+          limit: action.limit,
+          total: action.total
+        },
+        receivedUpdateNeeded: false,
+        getReceivedInvitesInProgress: false
       })
-      .when(InviteAction.retrievedReceivedInvites.matches, (action) => {
-        return s.merge({
-          receivedInvites: {
-            invites: action.invites,
-            skip: action.skip,
-            limit: action.limit,
-            total: action.total
-          },
-          receivedUpdateNeeded: false,
-          getReceivedInvitesInProgress: false
-        })
+    })
+    .when(InviteAction.createdReceivedInvite.matches, () => {
+      return s.receivedUpdateNeeded.set(true)
+    })
+    .when(InviteAction.createdSentInvite.matches, () => {
+      return s.receivedUpdateNeeded.set(true)
+    })
+    .when(InviteAction.removedReceivedInvite.matches, () => {
+      return s.receivedUpdateNeeded.set(true)
+    })
+    .when(InviteAction.removedSentInvite.matches, () => {
+      return s.sentUpdateNeeded.set(true)
+    })
+    .when(InviteAction.acceptedInvite.matches, () => {
+      return s.receivedUpdateNeeded.set(true)
+    })
+    .when(InviteAction.declinedInvite.matches, () => {
+      return s.receivedUpdateNeeded.set(true)
+    })
+    .when(InviteAction.setInviteTarget.matches, (action) => {
+      return s.merge({
+        targetObjectId: action.targetObjectId || '',
+        targetObjectType: action.targetObjectType || ''
       })
-      .when(InviteAction.createdReceivedInvite.matches, () => {
-        return s.receivedUpdateNeeded.set(true)
-      })
-      .when(InviteAction.createdSentInvite.matches, () => {
-        return s.receivedUpdateNeeded.set(true)
-      })
-      .when(InviteAction.removedReceivedInvite.matches, () => {
-        return s.receivedUpdateNeeded.set(true)
-      })
-      .when(InviteAction.removedSentInvite.matches, () => {
-        return s.sentUpdateNeeded.set(true)
-      })
-      .when(InviteAction.acceptedInvite.matches, () => {
-        return s.receivedUpdateNeeded.set(true)
-      })
-      .when(InviteAction.declinedInvite.matches, () => {
-        return s.receivedUpdateNeeded.set(true)
-      })
-      .when(InviteAction.setInviteTarget.matches, (action) => {
-        return s.merge({
-          targetObjectId: action.targetObjectId || '',
-          targetObjectType: action.targetObjectType || ''
-        })
-      })
-      .when(InviteAction.fetchingSentInvites.matches, () => {
-        return s.getSentInvitesInProgress.set(true)
-      })
-      .when(InviteAction.fetchingReceivedInvites.matches, () => {
-        return s.getReceivedInvitesInProgress.set(true)
-      })
-  })
+    })
+    .when(InviteAction.fetchingSentInvites.matches, () => {
+      return s.getSentInvitesInProgress.set(true)
+    })
+    .when(InviteAction.fetchingReceivedInvites.matches, () => {
+      return s.getReceivedInvitesInProgress.set(true)
+    })
 }
 
 export const accessInviteState = () => getState(InviteState)
@@ -114,21 +115,27 @@ export const useInviteState = () => useState(accessInviteState())
 export const InviteService = {
   sendInvite: async (data: SendInvite) => {
     if (data.identityProviderType === 'email') {
-      if (emailRegex.test(data.token) !== true) {
-        NotificationService.dispatchNotify('Invalid email address', { variant: 'error' })
-        return
-      }
-    }
-    if (data.identityProviderType === 'sms') {
-      if (phoneRegex.test(data.token) !== true) {
-        NotificationService.dispatchNotify('Invalid 10-digit US phone number', { variant: 'error' })
+      if (!data.token || !emailRegex.test(data.token)) {
+        NotificationService.dispatchNotify(`Invalid email address: ${data.token}`, { variant: 'error' })
         return
       }
     }
 
+    if (data.identityProviderType === 'sms') {
+      if (!data.token || !phoneRegex.test(data.token)) {
+        NotificationService.dispatchNotify(`Invalid 10-digit US phone number: ${data.token}`, { variant: 'error' })
+        return
+      }
+    }
+
+    if (data.token && !data.identityProviderType) {
+      NotificationService.dispatchNotify(`Invalid value: ${data.token}`, { variant: 'error' })
+      return
+    }
+
     if (data.inviteCode != null) {
       if (!inviteCodeRegex.test(data.inviteCode)) {
-        NotificationService.dispatchNotify('Invalid Invite Code', { variant: 'error' })
+        NotificationService.dispatchNotify(`Invalid Invite Code: ${data.inviteCode}`, { variant: 'error' })
         return
       } else {
         try {
@@ -140,34 +147,43 @@ export const InviteService = {
           })) as Paginated<UserInterface>
 
           if (userResult.total === 0) {
-            NotificationService.dispatchNotify('No user has that invite code', { variant: 'error' })
+            NotificationService.dispatchNotify(`No user has the invite code ${data.inviteCode}`, { variant: 'error' })
             return
           }
+          data.inviteeId = userResult.data[0].id
         } catch (err) {
           NotificationService.dispatchNotify(err.message, { variant: 'error' })
         }
       }
     }
 
-    if (data.invitee != null) {
-      if (userIdRegex.test(data.invitee) !== true) {
+    if (data.inviteeId != null) {
+      if (!userIdRegex.test(data.inviteeId)) {
         NotificationService.dispatchNotify('Invalid user ID', { variant: 'error' })
         return
       }
     }
 
-    if ((data.token == null || data.token.length === 0) && (data.invitee == null || data.invitee.length === 0)) {
+    if ((data.token == null || data.token.length === 0) && (data.inviteeId == null || data.inviteeId.length === 0)) {
       NotificationService.dispatchNotify('Not a valid recipient', { variant: 'error' })
       return
     }
 
     try {
       const params = {
-        inviteType: data.type,
+        inviteType: data.inviteType,
         token: data.token,
         targetObjectId: data.targetObjectId,
         identityProviderType: data.identityProviderType,
-        inviteeId: data.invitee
+        inviteeId: data.inviteeId,
+        makeAdmin: data.makeAdmin,
+        deleteOnUse: data.deleteOnUse,
+        spawnType: data.spawnType,
+        spawnDetails: data.spawnDetails,
+        timed: data.timed,
+        startTime: data.startTime,
+        endTime: data.endTime,
+        existenceCheck: true
       }
 
       const existingInviteResult = (await API.instance.client.service('invite').find({
@@ -178,7 +194,11 @@ export const InviteService = {
       if (existingInviteResult.total === 0) inviteResult = await API.instance.client.service('invite').create(params)
 
       NotificationService.dispatchNotify('Invite Sent', { variant: 'success' })
-      dispatchAction(InviteAction.sentInvite({ id: inviteResult }))
+      dispatchAction(
+        InviteAction.sentInvite({
+          id: existingInviteResult.total > 0 ? existingInviteResult.data[0].id : inviteResult.id
+        })
+      )
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
@@ -189,7 +209,7 @@ export const InviteService = {
     sortField = 'id',
     orderBy = 'asc'
   ) => {
-    dispatchAction(InviteAction.fetchingReceivedInvites())
+    dispatchAction(InviteAction.fetchingReceivedInvites({}))
     const inviteState = accessInviteState().value
     const skip = inviteState.receivedInvites.skip
     const limit = inviteState.receivedInvites.limit
@@ -233,7 +253,7 @@ export const InviteService = {
     sortField = 'id',
     orderBy = 'asc'
   ) => {
-    dispatchAction(InviteAction.fetchingSentInvites())
+    dispatchAction(InviteAction.fetchingSentInvites({}))
     const inviteState = accessInviteState().value
     const skip = inviteState.sentInvites.skip
     const limit = inviteState.sentInvites.limit
@@ -273,19 +293,23 @@ export const InviteService = {
   removeInvite: async (inviteId: string) => {
     try {
       await API.instance.client.service('invite').remove(inviteId)
-      dispatchAction(InviteAction.removedSentInvite())
+      dispatchAction(InviteAction.removedSentInvite({}))
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   },
-  acceptInvite: async (inviteId: string, passcode: string) => {
+  acceptInvite: async (invite: Invite) => {
     try {
-      await API.instance.client.service('a-i').get(inviteId, {
+      if (invite.inviteType === 'party') {
+        dispatchAction(MediaInstanceConnectionAction.acceptingPartyInvite({}))
+      }
+      await API.instance.client.service('a-i').get(invite.id, {
         query: {
-          passcode: passcode
+          passcode: invite.passcode
         }
       })
-      dispatchAction(InviteAction.acceptedInvite())
+      if (invite.inviteType === 'party') PartyService.leaveNetwork(false)
+      dispatchAction(InviteAction.acceptedInvite({}))
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
@@ -293,7 +317,7 @@ export const InviteService = {
   declineInvite: async (invite: Invite) => {
     try {
       await API.instance.client.service('invite').remove(invite.id)
-      dispatchAction(InviteAction.declinedInvite())
+      dispatchAction(InviteAction.declinedInvite({}))
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
@@ -307,9 +331,9 @@ export const InviteService = {
         const invite = params.invite
         const selfUser = accessAuthState().user
         if (invite.userId === selfUser.id.value) {
-          dispatchAction(InviteAction.createdSentInvite())
+          dispatchAction(InviteAction.createdSentInvite({}))
         } else {
-          dispatchAction(InviteAction.createdReceivedInvite())
+          dispatchAction(InviteAction.createdReceivedInvite({}))
         }
       }
 
@@ -317,9 +341,9 @@ export const InviteService = {
         const invite = params.invite
         const selfUser = accessAuthState().user
         if (invite.userId === selfUser.id.value) {
-          dispatchAction(InviteAction.removedSentInvite())
+          dispatchAction(InviteAction.removedSentInvite({}))
         } else {
-          dispatchAction(InviteAction.removedReceivedInvite())
+          dispatchAction(InviteAction.removedReceivedInvite({}))
         }
       }
 

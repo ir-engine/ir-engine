@@ -1,7 +1,7 @@
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { EngineRenderer } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
 
-import { InputComponent, InputComponentType } from '../classes/InputComponent'
+import { EditorInputComponent, EditorInputComponentType } from '../classes/InputComponent'
 import isInputSelected from '../functions/isInputSelected'
 import { SceneState } from '../functions/sceneRenderFunctions'
 import { Action, ActionKey, ActionState, InputMapping, MouseButtons, SpecialAliases } from './input-mappings'
@@ -16,7 +16,7 @@ const InputData: InputDataType = {
   mouseDownTarget: null
 } as InputDataType
 
-let inputComponent: InputComponentType
+let inputComponent: EditorInputComponentType
 
 export function initInputEvents() {
   const canvas = EngineRenderer.instance.renderer.domElement
@@ -75,7 +75,7 @@ function onKeyDown(event: KeyboardEvent): void {
   // Skip actions if input field is active
   if (isInputSelected()) return
 
-  inputComponent = getComponent(SceneState.editorEntity, InputComponent)
+  inputComponent = getComponent(SceneState.editorEntity, EditorInputComponent)
   const keyboardMapping = inputComponent.activeMapping.keyboard
   if (!keyboardMapping) return
 
@@ -93,7 +93,7 @@ function onKeyUp(event: KeyboardEvent): void {
   // Skip actions if input field is active
   if (isInputSelected()) return
 
-  inputComponent = getComponent(SceneState.editorEntity, InputComponent)
+  inputComponent = getComponent(SceneState.editorEntity, EditorInputComponent)
   const keyboardMapping = inputComponent.activeMapping.keyboard
   if (!keyboardMapping) return
 
@@ -127,7 +127,7 @@ function onWindowMouseUp(event: MouseEvent): void {
 }
 
 function onMouseDown(event: MouseEvent): void {
-  inputComponent = getComponent(SceneState.editorEntity, InputComponent)
+  inputComponent = getComponent(SceneState.editorEntity, EditorInputComponent)
   const mouseMapping = inputComponent.activeMapping.mouse
   if (!mouseMapping) return
 
@@ -150,7 +150,7 @@ function onMouseDown(event: MouseEvent): void {
 }
 
 function onMouseUp(event: MouseEvent): void {
-  inputComponent = getComponent(SceneState.editorEntity, InputComponent)
+  inputComponent = getComponent(SceneState.editorEntity, EditorInputComponent)
   const mouseMapping = inputComponent.activeMapping.mouse
   if (!mouseMapping) return
 
@@ -174,7 +174,7 @@ function onMouseUp(event: MouseEvent): void {
 }
 
 function onMouseMove(event: MouseEvent): void {
-  inputComponent = getComponent(SceneState.editorEntity, InputComponent)
+  inputComponent = getComponent(SceneState.editorEntity, EditorInputComponent)
   const mouseMapping = inputComponent.activeMapping.mouse
   if (!mouseMapping) return
 
@@ -206,7 +206,7 @@ function onMouseMove(event: MouseEvent): void {
 function onWheel(event: WheelEvent): boolean {
   event.preventDefault()
 
-  inputComponent = getComponent(SceneState.editorEntity, InputComponent)
+  inputComponent = getComponent(SceneState.editorEntity, EditorInputComponent)
   const mouseMapping = inputComponent.activeMapping.mouse
   if (!mouseMapping) return false
 
@@ -234,7 +234,7 @@ function onWheel(event: WheelEvent): boolean {
 }
 
 function onClick(event: MouseEvent): void {
-  inputComponent = getComponent(SceneState.editorEntity, InputComponent)
+  inputComponent = getComponent(SceneState.editorEntity, EditorInputComponent)
   const mouseMapping = inputComponent.activeMapping.mouse
   if (!mouseMapping) return
 
@@ -246,7 +246,7 @@ function onClick(event: MouseEvent): void {
 }
 
 function onDoubleClick(event: MouseEvent): void {
-  inputComponent = getComponent(SceneState.editorEntity, InputComponent)
+  inputComponent = getComponent(SceneState.editorEntity, EditorInputComponent)
   const mouseMapping = inputComponent.activeMapping.mouse
   if (!mouseMapping) return
 
@@ -268,7 +268,7 @@ function onResize(): void {
 }
 
 function onWindowBlur(): void {
-  inputComponent = getComponent(SceneState.editorEntity, InputComponent)
+  inputComponent = getComponent(SceneState.editorEntity, EditorInputComponent)
   const defaultState = inputComponent.defaultState
 
   const keys = Object.keys(defaultState)

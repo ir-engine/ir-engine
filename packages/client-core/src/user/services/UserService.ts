@@ -1,13 +1,16 @@
 import { Paginated } from '@feathersjs/feathers'
-import { none } from '@speigg/hookstate'
+import { none } from '@hookstate/core'
 
 import { Relationship } from '@xrengine/common/src/interfaces/Relationship'
 import { RelationshipSeed } from '@xrengine/common/src/interfaces/Relationship'
 import { UserInterface } from '@xrengine/common/src/interfaces/User'
+import multiLogger from '@xrengine/common/src/logger'
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
 import { API } from '../../API'
+
+const logger = multiLogger.child({ component: 'client-core:UserService' })
 
 //State
 const UserState = defineState({
@@ -24,71 +27,70 @@ const UserState = defineState({
 })
 
 export const UserServiceReceptor = (action) => {
-  getState(UserState).batch((s) => {
-    matches(action)
-      .when(UserAction.loadedUserRelationshipAction.matches, (action) => {
-        return s.merge({ relationship: action.relationship, updateNeeded: false })
+  const s = getState(UserState)
+  matches(action)
+    .when(UserAction.loadedUserRelationshipAction.matches, (action) => {
+      return s.merge({ relationship: action.relationship, updateNeeded: false })
+    })
+    .when(UserAction.loadedUsersAction.matches, (action) => {
+      s.merge({ users: action.users, updateNeeded: false })
+    })
+    .when(UserAction.changedRelationAction.matches, () => {
+      return s.updateNeeded.set(true)
+    })
+    .when(UserAction.clearLayerUsersAction.matches, () => {
+      return s.merge({ layerUsers: [], layerUsersUpdateNeeded: true })
+    })
+    .when(UserAction.loadedLayerUsersAction.matches, (action) => {
+      return s.merge({ layerUsers: action.users, layerUsersUpdateNeeded: false })
+    })
+    .when(UserAction.addedLayerUserAction.matches, (action) => {
+      const index = s.layerUsers.findIndex((layerUser) => {
+        return layerUser != null && layerUser.id.value === action.user.id
       })
-      .when(UserAction.loadedUsersAction.matches, (action) => {
-        s.merge({ users: action.users, updateNeeded: false })
+      if (index === -1) {
+        return s.layerUsers.merge([action.user])
+      } else {
+        return s.layerUsers[index].set(action.user)
+      }
+    })
+    .when(UserAction.removedLayerUserAction.matches, (action) => {
+      const layerUsers = s.layerUsers
+      const index = layerUsers.findIndex((layerUser) => {
+        return layerUser != null && layerUser.value.id === action.user.id
       })
-      .when(UserAction.changedRelationAction.matches, () => {
-        return s.updateNeeded.set(true)
+      return s.layerUsers[index].set(none)
+    })
+    .when(UserAction.clearChannelLayerUsersAction.matches, () => {
+      return s.merge({
+        channelLayerUsers: [],
+        channelLayerUsersUpdateNeeded: true
       })
-      .when(UserAction.clearLayerUsersAction.matches, () => {
-        return s.merge({ layerUsers: [], layerUsersUpdateNeeded: true })
+    })
+    .when(UserAction.loadedChannelLayerUsersAction.matches, (action) => {
+      return s.merge({
+        channelLayerUsers: action.users,
+        channelLayerUsersUpdateNeeded: false
       })
-      .when(UserAction.loadedLayerUsersAction.matches, (action) => {
-        return s.merge({ layerUsers: action.users, layerUsersUpdateNeeded: false })
+    })
+    .when(UserAction.addedChannelLayerUserAction.matches, (action) => {
+      const index = s.channelLayerUsers.findIndex((layerUser) => {
+        return layerUser != null && layerUser.value.id === action.user.id
       })
-      .when(UserAction.addedLayerUserAction.matches, (action) => {
-        const index = s.layerUsers.findIndex((layerUser) => {
-          return layerUser != null && layerUser.id.value === action.user.id
-        })
-        if (index === -1) {
-          return s.layerUsers.merge([action.user])
-        } else {
-          return s.layerUsers[index].set(action.user)
-        }
-      })
-      .when(UserAction.removedLayerUserAction.matches, (action) => {
-        const layerUsers = s.layerUsers
-        const index = layerUsers.findIndex((layerUser) => {
-          return layerUser != null && layerUser.value.id === action.user.id
-        })
-        return s.layerUsers[index].set(none)
-      })
-      .when(UserAction.clearChannelLayerUsersAction.matches, () => {
-        return s.merge({
-          channelLayerUsers: [],
-          channelLayerUsersUpdateNeeded: true
-        })
-      })
-      .when(UserAction.loadedChannelLayerUsersAction.matches, (action) => {
-        return s.merge({
-          channelLayerUsers: action.users,
-          channelLayerUsersUpdateNeeded: false
-        })
-      })
-      .when(UserAction.addedChannelLayerUserAction.matches, (action) => {
+      if (index === -1) {
+        return s.channelLayerUsers.merge([action.user])
+      } else {
+        return s.channelLayerUsers[index].set(action.user)
+      }
+    })
+    .when(UserAction.removedChannelLayerUserAction.matches, (action) => {
+      if (action.user) {
         const index = s.channelLayerUsers.findIndex((layerUser) => {
           return layerUser != null && layerUser.value.id === action.user.id
         })
-        if (index === -1) {
-          return s.channelLayerUsers.merge([action.user])
-        } else {
-          return s.channelLayerUsers[index].set(action.user)
-        }
-      })
-      .when(UserAction.removedChannelLayerUserAction.matches, (action) => {
-        if (action.user) {
-          const index = s.channelLayerUsers.findIndex((layerUser) => {
-            return layerUser != null && layerUser.value.id === action.user.id
-          })
-          return s.channelLayerUsers[index].set(none)
-        } else return s
-      })
-  })
+        return s.channelLayerUsers[index].set(none)
+      } else return s
+    })
 }
 
 export const accessUserState = () => getState(UserState)
@@ -108,7 +110,7 @@ export const UserService = {
         dispatchAction(UserAction.loadedUserRelationshipAction({ relationship: res as Relationship }))
       })
       .catch((err: any) => {
-        console.log(err)
+        logger.error(err)
       })
   },
 
@@ -169,10 +171,10 @@ function createRelation(userId: string, relatedUserId: string, type: 'friend' | 
       userRelationshipType: type
     })
     .then((res: any) => {
-      dispatchAction(UserAction.changedRelationAction())
+      dispatchAction(UserAction.changedRelationAction({}))
     })
     .catch((err: any) => {
-      console.log(err)
+      logger.error(err)
     })
 }
 
@@ -181,10 +183,10 @@ function removeRelation(userId: string, relatedUserId: string) {
     .service('user-relationship')
     .remove(relatedUserId)
     .then((res: any) => {
-      dispatchAction(UserAction.changedRelationAction())
+      dispatchAction(UserAction.changedRelationAction({}))
     })
     .catch((err: any) => {
-      console.log(err)
+      logger.error(err)
     })
 }
 
@@ -195,10 +197,10 @@ function patchRelation(userId: string, relatedUserId: string, type: 'friend') {
       userRelationshipType: type
     })
     .then((res: any) => {
-      dispatchAction(UserAction.changedRelationAction())
+      dispatchAction(UserAction.changedRelationAction({}))
     })
     .catch((err: any) => {
-      console.log(err)
+      logger.error(err)
     })
 }
 

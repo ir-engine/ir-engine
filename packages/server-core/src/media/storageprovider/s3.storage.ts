@@ -16,12 +16,18 @@ import {
   StorageProviderInterface
 } from './storageprovider.interface'
 
+/**
+ * Storage provide class to communicate with AWS S3 API.
+ */
 export class S3Provider implements StorageProviderInterface {
+  /**
+   * Name of S3 bucket.
+   */
   bucket = config.aws.s3.staticResourceBucket
-  cacheDomain =
-    config.server.storageProvider === 'aws'
-      ? config.aws.cloudfront.domain
-      : `${config.aws.cloudfront.domain}/${this.bucket}`
+
+  /**
+   * Instance of S3 service object. This object has one method for each API operation.
+   */
   provider: AWS.S3 = new AWS.S3({
     accessKeyId: config.aws.keys.accessKeyId,
     secretAccessKey: config.aws.keys.secretAccessKey,
@@ -31,27 +37,43 @@ export class S3Provider implements StorageProviderInterface {
     maxRetries: 1
   })
 
-  bucketAssetURL =
+  /**
+   * Domain address of S3 cache.
+   */
+  cacheDomain =
+    config.server.storageProvider === 'aws'
+      ? config.aws.cloudfront.domain
+      : `${config.aws.cloudfront.domain}/${this.bucket}`
+
+  private bucketAssetURL =
     config.server.storageProvider === 'aws'
       ? `https://${this.bucket}.s3.${config.aws.s3.region}.amazonaws.com`
       : `https://${config.aws.cloudfront.domain}/${this.bucket}`
 
-  blob: typeof S3BlobStore = new S3BlobStore({
+  private blob: typeof S3BlobStore = new S3BlobStore({
     client: this.provider,
     bucket: config.aws.s3.staticResourceBucket,
     ACL: 'public-read'
   })
 
-  cloudfront: AWS.CloudFront = new AWS.CloudFront({
+  private cloudfront: AWS.CloudFront = new AWS.CloudFront({
     region: config.aws.s3.region,
     accessKeyId: config.aws.keys.accessKeyId,
     secretAccessKey: config.aws.keys.secretAccessKey
   })
 
-  getProvider = (): StorageProviderInterface => {
+  /**
+   * Get the instance of S3 storage provider.
+   */
+  getProvider(): StorageProviderInterface {
     return this
   }
 
+  /**
+   * Check if an object exists in the S3 storage.
+   * @param fileName Name of file in the storage.
+   * @param directoryPath Directory of file in the storage.
+   */
   async doesExist(fileName: string, directoryPath: string): Promise<boolean> {
     // have to use listOBjectsV2 since other object related methods does not check existance of a folder on S3
     const result = await this.provider
@@ -67,6 +89,11 @@ export class S3Provider implements StorageProviderInterface {
     return result
   }
 
+  /**
+   * Check if an object is directory or not.
+   * @param fileName Name of file in the storage.
+   * @param directoryPath Directory of file in the storage.
+   */
   async isDirectory(fileName: string, directoryPath: string): Promise<boolean> {
     // last character of the key of directory is '/'
     // https://docs.aws.amazon.com/AmazonS3/latest/userguide/using-folders.htmlhow to
@@ -83,26 +110,41 @@ export class S3Provider implements StorageProviderInterface {
     return result
   }
 
-  getObject = async (key: string): Promise<StorageObjectInterface> => {
+  /**
+   * Get the S3 storage object.
+   * @param key Key of object.
+   */
+  async getObject(key: string): Promise<StorageObjectInterface> {
     const data = await this.provider.getObject({ Bucket: this.bucket, Key: key }).promise()
     return { Body: data.Body as Buffer, ContentType: data.ContentType! }
   }
 
+  /**
+   * Get the object from cache.
+   * @param key Key of object.
+   */
   async getCachedObject(key: string): Promise<StorageObjectInterface> {
     const data = await fetch(getCachedURL(key, this.cacheDomain))
     return { Body: Buffer.from(await data.arrayBuffer()), ContentType: (await data.headers.get('content-type')) || '' }
   }
 
-  getObjectContentType = async (key: string): Promise<any> => {
+  /**
+   * Get the content type of storage object.
+   * @param key Key of object.
+   */
+  async getObjectContentType(key: string): Promise<any> {
     const data = await this.provider.headObject({ Bucket: this.bucket, Key: key }).promise()
     return data.ContentType
   }
 
-  listObjects = async (
-    prefix: string,
-    recursive = true,
-    continuationToken?: string
-  ): Promise<StorageListObjectInterface> => {
+  /**
+   * Get a list of keys under a path.
+   * @param prefix Path relative to root in order to list objects.
+   * @param recursive If true it will list content from sub folders as well. Default is true.
+   * @param continuationToken It indicates that the list is being continued with a token. Used for certain providers like S3.
+   * @returns {Promise<StorageListObjectInterface>}
+   */
+  async listObjects(prefix: string, recursive = true, continuationToken?: string): Promise<StorageListObjectInterface> {
     const data = await this.provider
       .listObjectsV2({
         Bucket: this.bucket,
@@ -124,7 +166,12 @@ export class S3Provider implements StorageProviderInterface {
     return data as StorageListObjectInterface
   }
 
-  putObject = async (data: StorageObjectInterface, params: PutObjectParams = {}): Promise<any> => {
+  /**
+   * Adds an object into the S3 storage.
+   * @param object Storage object to be added.
+   * @param params Parameters of the add request.
+   */
+  async putObject(data: StorageObjectInterface, params: PutObjectParams = {}): Promise<any> {
     if (!data.Key) return
 
     // key should not contain '/' at the begining
@@ -151,7 +198,11 @@ export class S3Provider implements StorageProviderInterface {
     return result
   }
 
-  createInvalidation = async (invalidationItems: any[]): Promise<any> => {
+  /**
+   * Invalidate items in the S3 storage.
+   * @param invalidationItems List of keys.
+   */
+  async createInvalidation(invalidationItems: any[]) {
     // for non-standard s3 setups, we don't use cloudfront
     if (config.server.storageProvider !== 'aws') return
     const data = await this.cloudfront
@@ -170,9 +221,20 @@ export class S3Provider implements StorageProviderInterface {
     return data
   }
 
-  getStorage = (): typeof S3BlobStore => this.blob
+  /**
+   * Get the BlobStore object for S3 storage.
+   */
+  getStorage(): typeof S3BlobStore {
+    this.blob
+  }
 
-  getSignedUrl = async (key: string, expiresAfter: number, conditions): Promise<SignedURLResponse> => {
+  /**
+   * Get the form fields and target URL for direct POST uploading.
+   * @param key Key of object.
+   * @param expiresAfter The number of seconds for which signed policy should be valid. Defaults to 3600 (one hour).
+   * @param conditions An array of conditions that must be met for the form upload to be accepted by S3..
+   */
+  async getSignedUrl(key: string, expiresAfter: number, conditions): Promise<SignedURLResponse> {
     const result = await new Promise<PresignedPost>((resolve) => {
       this.provider.createPresignedPost(
         {
@@ -197,7 +259,11 @@ export class S3Provider implements StorageProviderInterface {
     }
   }
 
-  deleteResources = async (keys: string[]): Promise<any> => {
+  /**
+   * Delete resources in the S3 storage.
+   * @param keys List of keys.
+   */
+  async deleteResources(keys: string[]) {
     // Create batches of 1000 since S3 supports deletion of 1000 object max per request
     const batches = [] as ObjectIdentifierList[]
 
@@ -222,7 +288,12 @@ export class S3Provider implements StorageProviderInterface {
     return data
   }
 
-  listFolderContent = async (folderName: string, recursive = false): Promise<FileContentType[]> => {
+  /**
+   * List all the files/folders in the directory.
+   * @param folderName Name of folder in the storage.
+   * @param recursive If true it will list content from sub folders as well.
+   */
+  async listFolderContent(folderName: string, recursive = false): Promise<FileContentType[]> {
     const folderContent = await this.listObjects(folderName, recursive)
 
     const promises: Promise<FileContentType>[] = []
@@ -267,21 +338,14 @@ export class S3Provider implements StorageProviderInterface {
   }
 
   /**
-   * @author Nayankumar Patel
-   * @param oldName
-   * @param oldPath
-   * @param newName
-   * @param newPath
-   * @param isCopy
-   * @returns
+   * Move or copy object from one place to another in the S3 storage.
+   * @param oldName Name of the old object.
+   * @param newName Name of the new object.
+   * @param oldPath Path of the old object.
+   * @param newPath Path of the new object.
+   * @param isCopy If true it will create a copy of object.
    */
-  moveObject = async (
-    oldName: string,
-    newName: string,
-    oldPath: string,
-    newPath: string,
-    isCopy = false
-  ): Promise<any[]> => {
+  async moveObject(oldName: string, newName: string, oldPath: string, newPath: string, isCopy = false) {
     const oldFilePath = path.join(oldPath, oldName)
     const newFilePath = path.join(newPath, newName)
     const listResponse = await this.listObjects(oldFilePath, true)
@@ -304,4 +368,5 @@ export class S3Provider implements StorageProviderInterface {
     return result
   }
 }
+
 export default S3Provider

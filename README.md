@@ -1,8 +1,6 @@
 # Ethereal Engine _(XREngine)_
 
-![Ethereal Engine logo light mode](https://user-images.githubusercontent.com/507127/176916054-e2ddf82b-b8c6-4e9a-8607-44b6430f38ea.png#gh-light-mode-only)
-
-![Ethereal Engine logo dark mode](https://user-images.githubusercontent.com/507127/176916201-238cbf8f-7a79-4bdb-83b7-87c8edec1df1.png#gh-dark-mode-only)
+![Ethereal Engine logo](https://user-images.githubusercontent.com/5104160/181167947-2cf42b34-7dd6-4e71-b840-c25b8cf850e6.png)
 
 >  Manifest your dreams on the open social spatial web.
 
@@ -37,7 +35,7 @@ technology and shared simulations should be as easy and natural as making a webs
 - Social features like chat, groups, friends, blocking and moderation
 - Complete world editing and administration
 - 2D, 3D and XR Avatars with full inverse kinematics and facial expressions
-- Fully networked physics using PhysX compiled to wasm
+- Fully networked physics using Rapier Physics
 - Voice and video over WebRTC
 - Instant login and location sharing with phone number or email
 - Modular- Use the engine, server, client, editor and scalable devops infrastructure as needed
@@ -49,15 +47,15 @@ technology and shared simulations should be as easy and natural as making a webs
 
 Guest Demos
 
-- ***[Apartment - CCO from Sketchfab](https://app.theoverlay.io/location/apartment)***
-- ***[Star Station - our dev coommunity hangout](https://app.theoverlay.io/location/sky-station)***
-- ***[Globe Concert Hall - collab with WildCapture.io](https://app.theoverlay.io/location/globe-theater)***
+- ***[Apartment - CCO from Sketchfab](https://app.etherealengine.com/location/apartment)***
+- ***[Star Station - our dev coommunity hangout](https://app.etherealengine.com/location/sky-station)***
+- ***[Globe Concert Hall - collab with WildCapture.io](https://app.etherealengine.com/location/globe-theater)***
 
 
 Host Demos 
 
-- [XRE Admin Console - Demo Cluster - Request Demo Access on our Discord](https://demo.theoverlay.io/admin)
-- [XRE XRModule Asset Editor - Demo Cluster - Request Demo Access on our Discord](https://demo.theoverlay.io/edior)
+- [XRE Admin Console - Demo Cluster - Request Demo Access on our Discord](https://demo.etherealengine.com/admin)
+- [XRE XRModule Asset Editor - Demo Cluster - Request Demo Access on our Discord](https://demo.etherealengine.com/edior)
 
 ## XRE XRModule
 
@@ -137,6 +135,8 @@ do our best to get you set up.
 We are always hiring talented people who want to be leaders in what is to come. 
 Inquire with anyone who seems like they know what's going on and they'll help 
 you find who you need to talk to.
+
+![msf-member-badge-small](https://user-images.githubusercontent.com/5104160/181168132-57a91f8b-16c9-45f0-a0ee-c89f8f018a80.png)
 
 ### [Join our Discord](https://discord.gg/xrf)  [![Discord Chat](https://img.shields.io/discord/692672143053422678.svg)](https://discord.gg/xrf)
 

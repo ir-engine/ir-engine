@@ -1,9 +1,12 @@
 import { StaticResource } from '@xrengine/common/src/interfaces/StaticResource'
 import { StaticResourceResult } from '@xrengine/common/src/interfaces/StaticResourceResult'
+import multiLogger from '@xrengine/common/src/logger'
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
 import { API } from '../../API'
+
+const logger = multiLogger.child({ component: 'client-core:StaticResourceService' })
 
 //State
 export const USER_PAGE_LIMIT = 100
@@ -53,7 +56,7 @@ export const AdminStaticResourceService = {
       })
       dispatchAction(AdminStaticResourceActions.fetchedStaticResource({ staticResource }))
     } catch (error) {
-      console.error(error)
+      logger.error(error)
     }
   }
 }

@@ -1,5 +1,5 @@
 import { Paginated } from '@feathersjs/feathers'
-import { none } from '@speigg/hookstate'
+import { none } from '@hookstate/core'
 import { useEffect } from 'react'
 
 import { UserInterface } from '@xrengine/common/src/interfaces/User'
@@ -28,60 +28,59 @@ const FriendState = defineState({
 })
 
 export const FriendServiceReceptor = (action) => {
-  getState(FriendState).batch((s) => {
-    matches(action)
-      .when(FriendAction.loadedFriendsAction.matches, (action) => {
-        s.friends.merge({
-          skip: action.friends.skip,
-          limit: action.friends.limit,
-          total: action.friends.total,
-          friends: action.friends.data
-        })
-        s.updateNeeded.set(false)
-        s.getFriendsInProgress.set(false)
-        return
+  const s = getState(FriendState)
+  matches(action)
+    .when(FriendAction.loadedFriendsAction.matches, (action) => {
+      s.friends.merge({
+        skip: action.friends.skip,
+        limit: action.friends.limit,
+        total: action.friends.total,
+        friends: action.friends.data
       })
-      .when(FriendAction.createdFriendAction.matches, (action) => {
-        let newValues
-        newValues = action
-        const createdUserRelationship = newValues.userRelationship
-        return s.friends.friends.set([...s.friends.friends.value, createdUserRelationship])
-      })
-      .when(FriendAction.patchedFriendAction.matches, (action) => {
-        let newValues, selfUser, otherUser
-        newValues = action
-        const patchedUserRelationship = newValues.userRelationship
-        selfUser = newValues.selfUser
-        otherUser =
-          patchedUserRelationship.userId === selfUser.id
-            ? patchedUserRelationship.relatedUser
-            : patchedUserRelationship.user
+      s.updateNeeded.set(false)
+      s.getFriendsInProgress.set(false)
+      return
+    })
+    .when(FriendAction.createdFriendAction.matches, (action) => {
+      let newValues
+      newValues = action
+      const createdUserRelationship = newValues.userRelationship
+      return s.friends.friends.set([...s.friends.friends.value, createdUserRelationship])
+    })
+    .when(FriendAction.patchedFriendAction.matches, (action) => {
+      let newValues, selfUser, otherUser
+      newValues = action
+      const patchedUserRelationship = newValues.userRelationship
+      selfUser = newValues.selfUser
+      otherUser =
+        patchedUserRelationship.userId === selfUser.id
+          ? patchedUserRelationship.relatedUser
+          : patchedUserRelationship.user
 
-        const patchedFriendIndex = s.friends.friends.value.findIndex((friendItem) => {
-          return friendItem != null && friendItem.id === otherUser.id
-        })
-        if (patchedFriendIndex === -1) {
-          return s.friends.friends.set([...s.friends.friends.value, otherUser])
-        } else {
-          return s.friends.friends[patchedFriendIndex].set(otherUser)
-        }
+      const patchedFriendIndex = s.friends.friends.value.findIndex((friendItem) => {
+        return friendItem != null && friendItem.id === otherUser.id
       })
-      .when(FriendAction.removedFriendAction.matches, (action) => {
-        const otherUserId =
-          action.userRelationship.userId === action.selfUser.id
-            ? action.userRelationship.relatedUserId
-            : action.userRelationship.userId
+      if (patchedFriendIndex === -1) {
+        return s.friends.friends.set([...s.friends.friends.value, otherUser])
+      } else {
+        return s.friends.friends[patchedFriendIndex].set(otherUser)
+      }
+    })
+    .when(FriendAction.removedFriendAction.matches, (action) => {
+      const otherUserId =
+        action.userRelationship.userId === action.selfUser.id
+          ? action.userRelationship.relatedUserId
+          : action.userRelationship.userId
 
-        const friendId = s.friends.friends.value.findIndex((friendItem) => {
-          return friendItem != null && friendItem.id === otherUserId
-        })
+      const friendId = s.friends.friends.value.findIndex((friendItem) => {
+        return friendItem != null && friendItem.id === otherUserId
+      })
 
-        return s.friends.friends[friendId].set(none)
-      })
-      .when(FriendAction.fetchingFriendsAction.matches, () => {
-        return s.getFriendsInProgress.set(true)
-      })
-  })
+      return s.friends.friends[friendId].set(none)
+    })
+    .when(FriendAction.fetchingFriendsAction.matches, () => {
+      return s.getFriendsInProgress.set(true)
+    })
 }
 
 export const accessFriendState = () => getState(FriendState)
@@ -111,7 +110,7 @@ export const FriendService = {
   // }
 
   getFriends: async (skip: number = 0, limit: number = 10) => {
-    dispatchAction(FriendAction.fetchingFriendsAction())
+    dispatchAction(FriendAction.fetchingFriendsAction({}))
     try {
       const friendState = accessFriendState()
       const friendResult = (await API.instance.client.service('user').find({

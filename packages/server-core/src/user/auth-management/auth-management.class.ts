@@ -28,7 +28,6 @@ export class Authmanagement implements ServiceMethods<Data> {
    *
    * @param params
    * @returns {@Array} all listed auth
-   * @author Vyacheslav Solovjov
    */
 
   async find(params?: Params): Promise<Data[] | Paginated<Data>> {
@@ -41,7 +40,6 @@ export class Authmanagement implements ServiceMethods<Data> {
    * @param id of specific auth
    * @param params
    * @returns {@Object} contain single auth
-   * @author Vyacheslav Solovjov
    */
 
   async get(id: Id, params?: Params): Promise<Data> {
@@ -56,7 +54,6 @@ export class Authmanagement implements ServiceMethods<Data> {
    *
    * @param data wich will be used for creating new auth
    * @param params
-   * @author Vyacheslav Solovjov
    */
   async create(data: Data, params?: Params): Promise<Data> {
     if (Array.isArray(data)) {
@@ -72,7 +69,6 @@ export class Authmanagement implements ServiceMethods<Data> {
    * @param id
    * @param data for updating auth
    * @param params
-   * @author Vyacheslav Solovjov
    */
 
   async update(id: NullableId, data: Data, params?: Params): Promise<Data> {

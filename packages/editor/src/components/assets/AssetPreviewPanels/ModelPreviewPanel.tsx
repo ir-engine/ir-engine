@@ -13,10 +13,6 @@ import { getOrbitControls } from '@xrengine/engine/src/input/functions/loadOrbit
 
 import styles from '../styles.module.scss'
 
-/**
- * @author Abhishek Pathak
- */
-
 const ModelPreview = (styled as any).canvas`
   display: block;
   margin-left: auto;
@@ -27,7 +23,6 @@ const ModelPreview = (styled as any).canvas`
 `
 
 /**
- * @author Abhishek Pathak <abhi.pathak401@gmail.com>
  * @param props
  * @returns
  */

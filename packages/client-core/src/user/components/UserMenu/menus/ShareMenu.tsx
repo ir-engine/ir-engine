@@ -2,6 +2,8 @@ import { QRCodeSVG } from 'qrcode.react'
 import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { SendInvite } from '@xrengine/common/src/interfaces/Invite'
+import multiLogger from '@xrengine/common/src/logger'
 import { isShareAvailable } from '@xrengine/engine/src/common/functions/DetectFeatures'
 import { EngineActions, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { dispatchAction } from '@xrengine/hyperflux'
@@ -15,19 +17,20 @@ import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
 
 import { NotificationService } from '../../../../common/services/NotificationService'
-import { InviteService } from '../../../../social/services/InviteService'
+import { emailRegex, InviteService, phoneRegex } from '../../../../social/services/InviteService'
 import { useInviteState } from '../../../../social/services/InviteService'
 import { useAuthState } from '../../../services/AuthService'
 import styles from '../index.module.scss'
 
+const logger = multiLogger.child({ component: 'client-core:ShareMenu' })
+
 export const useShareMenuHooks = ({ refLink }) => {
   const { t } = useTranslation()
-  const [email, setEmail] = React.useState('')
+  const [token, setToken] = React.useState('')
   const [isSpectatorMode, setSpectatorMode] = useState<boolean>(false)
   const [shareLink, setShareLink] = useState('')
   const postTitle = 'AR/VR world'
   const siteTitle = 'XREngine'
-  const inviteState = useInviteState()
   const engineState = useEngineState()
 
   const copyLinkToClipboard = () => {
@@ -44,35 +47,49 @@ export const useShareMenuHooks = ({ refLink }) => {
         url: document.location.href
       })
       .then(() => {
-        console.log('Successfully shared')
+        logger.info('Successfully shared')
       })
       .catch((error) => {
-        console.error('Something went wrong sharing the world', error)
+        logger.error(error, 'Error during sharing')
       })
   }
 
   const packageInvite = async (): Promise<void> => {
+    const isEmail = emailRegex.test(token)
+    const isPhone = phoneRegex.test(token)
+    const location = new URL(window.location as any)
+    let params = new URLSearchParams(location.search)
     const sendData = {
-      type: 'friend',
-      token: email,
-      inviteCode: null,
-      identityProviderType: 'email',
-      targetObjectId: inviteState.targetObjectId.value,
-      invitee: null
+      inviteType: 'instance',
+      token: token.length === 8 ? null : token,
+      inviteCode: token.length === 8 ? token : null,
+      identityProviderType: isEmail ? 'email' : isPhone ? 'sms' : null,
+      targetObjectId: params.get('instanceId'),
+      inviteeId: null,
+      deleteOnUse: true
+    } as SendInvite
+
+    if (isSpectatorMode) {
+      sendData.spawnType = 'spectate'
+      sendData.spawnDetails = { spectate: selfUser.id.value }
+    } else if (selfUser?.inviteCode.value) {
+      sendData.spawnType = 'inviteCode'
+      sendData.spawnDetails = { inviteCode: selfUser.inviteCode.value }
     }
+
     InviteService.sendInvite(sendData)
-    setEmail('')
+    setToken('')
   }
 
-  const handleChangeEmail = (e) => {
-    setEmail(e.target.value)
+  const handleChangeToken = (e) => {
+    setToken(e.target.value)
   }
 
   const getInviteLink = () => {
     const location = new URL(window.location as any)
     let params = new URLSearchParams(location.search)
     if (selfUser?.inviteCode.value != null) {
-      params.append('inviteCode', selfUser.inviteCode.value)
+      params.set('inviteCode', selfUser.inviteCode.value)
       location.search = params.toString()
       return location.toString()
     } else {
@@ -83,7 +100,8 @@ export const useShareMenuHooks = ({ refLink }) => {
   const getSpectateModeUrl = () => {
     const location = new URL(window.location as any)
     let params = new URLSearchParams(location.search)
-    params.append('spectate', selfUser.id.value)
+    params.set('spectate', selfUser.id.value)
+    params.delete('inviteCode')
     location.search = params.toString()
     return location.toString()
   }
@@ -101,8 +119,8 @@ export const useShareMenuHooks = ({ refLink }) => {
     copyLinkToClipboard,
     shareOnApps,
     packageInvite,
-    handleChangeEmail,
-    email,
+    handleChangeToken,
+    token,
     shareLink,
     toggleSpectatorMode
   }
@@ -114,7 +132,7 @@ const ShareMenu = (props: Props): JSX.Element => {
   const { t } = useTranslation()
   const refLink = useRef() as React.MutableRefObject<HTMLInputElement>
   const engineState = useEngineState()
-  const { copyLinkToClipboard, shareOnApps, packageInvite, handleChangeEmail, email, shareLink, toggleSpectatorMode } =
+  const { copyLinkToClipboard, shareOnApps, packageInvite, handleChangeToken, token, shareLink, toggleSpectatorMode } =
     useShareMenuHooks({
       refLink
     })
@@ -177,8 +195,8 @@ const ShareMenu = (props: Props): JSX.Element => {
           size="small"
           placeholder={t('user:usermenu.share.ph-phoneEmail')}
           variant="outlined"
-          value={email}
-          onChange={(e) => handleChangeEmail(e)}
+          value={token}
+          onChange={(e) => handleChangeToken(e)}
           InputProps={{
             endAdornment: (
               <InputAdornment position="end" onClick={packageInvite}>

@@ -1,12 +1,13 @@
+import multiLogger from '@xrengine/common/src/logger'
+
 import { nowMilliseconds } from '../../common/functions/nowMilliseconds'
 import { getEngineState } from '../classes/EngineState'
 import { World } from '../classes/World'
 import { SystemUpdateType } from './SystemUpdateType'
 
+const logger = multiLogger.child({ component: 'engine:ecs:FixedPipelineSystem' })
 /**
  * System for running simulation logic with fixed time intervals
- * @author Josh Field <github.com/hexafield>
- * @author Gheric Speiginer <github.com/speigg>
  */
 export default function FixedPipelineSystem(world: World, args: { tickRate: number }) {
   const timestep = 1 / args.tickRate
@@ -49,7 +50,7 @@ export default function FixedPipelineSystem(world: World, args: { tickRate: numb
     }
 
     if (updatesLimitReached || accumulator > maxTimeDifference) {
-      console.warn(
+      logger.warn(
         'FixedPipelineSystem: update limit reached, skipping world.fixedElapsedTime ahead to catch up with world.elapsedTime'
       )
       world.fixedElapsedSeconds = world.elapsedSeconds

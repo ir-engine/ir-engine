@@ -56,7 +56,7 @@ function RouterComp() {
     addActionReceptor(ProjectServiceReceptor)
     addActionReceptor(MediaInstanceConnectionServiceReceptor)
 
-    dispatchAction(StoredLocalAction.restoreLocalData())
+    dispatchAction(StoredLocalAction.restoreLocalData({}))
     StoredLocalStoreService.fetchLocalStoredState()
 
     // Oauth callbacks may be running when a guest identity-provider has been deleted.

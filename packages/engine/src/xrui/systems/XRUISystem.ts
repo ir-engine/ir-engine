@@ -17,17 +17,16 @@ import { InputValue } from '../../input/interfaces/InputValue'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
-import {
-  ControllerGroup,
-  XRInputSourceComponent,
-  XRInputSourceComponentType
-} from '../../xr/components/XRInputSourceComponent'
+import { ControllerGroup, XRInputSourceComponent } from '../../xr/components/XRInputSourceComponent'
 import { XRUIManager } from '../classes/XRUIManager'
 import { XRUIComponent } from '../components/XRUIComponent'
+import { loadXRUIDeps } from '../functions/createXRUI'
 
 export default async function XRUISystem(world: World) {
   const renderer = EngineRenderer.instance.renderer
   if (!renderer) throw new Error('EngineRenderer.instance.renderer must exist before initializing XRUISystem')
+
+  await loadXRUIDeps()
 
   const hitColor = new Color(0x00e6e6)
   const normalColor = new Color(0xffffff)
@@ -53,9 +52,7 @@ export default async function XRUISystem(world: World) {
   //   pvrtcSupported: false
   // }
 
-  const screenRaycaster = new Raycaster()
-  screenRaycaster.layers.enableAll()
-  xrui.interactionRays = [screenRaycaster.ray]
+  xrui.interactionRays = [world.pointerScreenRaycaster.ray]
 
   // redirect DOM events from the canvas, to the 3D scene,
   // to the appropriate child Web3DLayer, and finally (back) to the
@@ -63,7 +60,7 @@ export default async function XRUISystem(world: World) {
   const redirectDOMEvent = (evt) => {
     for (const entity of xruiQuery()) {
       const layer = getComponent(entity, XRUIComponent).container
-      const hit = layer.hitTest(screenRaycaster.ray)
+      const hit = layer.hitTest(world.pointerScreenRaycaster.ray)
       if (hit && hit.intersection.object.visible) {
         hit.target.dispatchEvent(new evt.constructor(evt.type, evt))
         hit.target.focus()
@@ -73,7 +70,7 @@ export default async function XRUISystem(world: World) {
 
     for (const entity of avatar(world)) {
       const model = getComponent(entity, Object3DComponent).value
-      const intersectObjects = screenRaycaster.intersectObject(model, true)
+      const intersectObjects = world.pointerScreenRaycaster.intersectObject(model, true)
       if (intersectObjects.length > 0) {
         const userId = getComponent(entity, NetworkObjectComponent).ownerId
         dispatchAction(EngineActions.userAvatarTapped({ userId }))
@@ -147,13 +144,6 @@ export default async function XRUISystem(world: World) {
 
   return () => {
     const input = getComponent(world.localClientEntity, InputComponent)
-    const screenXY = input?.data?.get(BaseInput.SCREENXY)?.value
-    if (screenXY) {
-      screenRaycaster.setFromCamera({ x: screenXY[0], y: screenXY[1] }, Engine.instance.currentWorld.camera)
-    } else {
-      screenRaycaster.ray.origin.set(Infinity, Infinity, Infinity)
-      screenRaycaster.ray.direction.set(0, -1, 0)
-    }
 
     for (const entity of xruiQuery.enter()) {
       const layer = getComponent(entity, XRUIComponent).container
@@ -178,7 +168,7 @@ export default async function XRUISystem(world: World) {
     }
 
     for (const entity of localXRInputQuery.exit()) {
-      xrui.interactionRays = [screenRaycaster.ray]
+      xrui.interactionRays = [world.pointerScreenRaycaster.ray]
     }
 
     for (const entity of xruiQuery()) {

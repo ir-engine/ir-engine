@@ -5,6 +5,7 @@ import { useHistory } from 'react-router-dom'
 import { ProjectService, useProjectState } from '@xrengine/client-core/src/common/services/ProjectService'
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import { ProjectInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
+import multiLogger from '@xrengine/common/src/logger'
 import { dispatchAction } from '@xrengine/hyperflux'
 
 import {
@@ -43,6 +44,8 @@ import { EditPermissionsDialog } from './EditPermissionsDialog'
 import { GithubRepoDialog } from './GithubRepoDialog'
 import { InstallProjectDialog } from './InstallProjectDialog'
 import styles from './styles.module.scss'
+
+const logger = multiLogger.child({ component: 'editor:ProjectsPage' })
 
 function sortAlphabetical(a, b) {
   if (a > b) return -1
@@ -163,7 +166,7 @@ const ProjectsPage = () => {
       setInstalledProjects(data.sort(sortAlphabetical) ?? [])
       if (activeProject) setActiveProject(data.find((item) => item.id === activeProject.id) as ProjectInterface | null)
     } catch (error) {
-      console.error(error)
+      logger.error(error)
       setError(error)
     }
     setLoading(false)
@@ -178,7 +181,7 @@ const ProjectsPage = () => {
 
       setOfficialProjects((data.sort(sortAlphabetical) as ProjectInterface[]) ?? [])
     } catch (error) {
-      console.error(error)
+      logger.error(error)
       setError(error)
     }
     setLoading(false)
@@ -193,7 +196,7 @@ const ProjectsPage = () => {
 
       setCommunityProjects(data.sort(sortAlphabetical) ?? [])
     } catch (error) {
-      console.error(error)
+      logger.error(error)
       setError(error)
     }
     setLoading(false)
@@ -210,7 +213,7 @@ const ProjectsPage = () => {
 
   // TODO: Implement tutorial
   const openTutorial = () => {
-    console.log('Implement Tutorial...')
+    logger.info('Implement Tutorial...')
   }
 
   const onClickExisting = (event, project) => {
@@ -264,7 +267,7 @@ const ProjectsPage = () => {
         await ProjectService.removeProject(proj.id)
         await fetchInstalledProjects()
       } catch (err) {
-        console.error(err)
+        logger.error(err)
       }
     }
 
@@ -286,7 +289,7 @@ const ProjectsPage = () => {
       setActiveProject(null)
       await fetchInstalledProjects()
     } catch (err) {
-      console.error(err)
+      logger.error(err)
       throw err
     }
   }
@@ -299,7 +302,7 @@ const ProjectsPage = () => {
       await ProjectService.uploadProject(url)
       await fetchInstalledProjects()
     } catch (err) {
-      console.error(err)
+      logger.error(err)
     }
 
     setUpdatingProject(false)
@@ -324,7 +327,7 @@ const ProjectsPage = () => {
       await ProjectService.pushProject(id)
       await fetchInstalledProjects()
     } catch (err) {
-      console.error(err)
+      logger.error(err)
     }
     setUploadingProject(false)
   }

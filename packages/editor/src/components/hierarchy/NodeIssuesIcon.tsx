@@ -9,7 +9,6 @@ import Tooltip from '../layout/Tooltip'
 /**
  * IssuesTooltipContainer used to provide styles and showing issues list.
  *
- * @author Robert Long
  * @type {styled component}
  */
 const IssuesTooltipContainer = (styled as any).div`
@@ -42,7 +41,6 @@ const IssuesTooltipContainer = (styled as any).div`
 /**
  * IssueIcon used to provide styles to issue icon.
  *
- * @author Robert Long
  * @param {styled component} styled
  */
 const IssueIcon = (styled as any)(ErrorOutlineIcon)`
@@ -55,7 +53,6 @@ const IssueIcon = (styled as any)(ErrorOutlineIcon)`
 /**
  * NodeIssuesIcon function component used to provide view of issues list.
  *
- * @author Robert Long
  * @param       {function component} node
  * @constructor
  */
@@ -74,7 +71,6 @@ export function NodeIssuesIcon({ node }) {
   /**
    * renderInfo function used to return view.
    *
-   * @author Robert Long
    * @type {function}
    */
   const renderInfo = useCallback(() => {

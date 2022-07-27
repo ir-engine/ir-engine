@@ -1,3 +1,4 @@
+import { Forbidden } from '@feathersjs/errors'
 import { Paginated, Params, Query } from '@feathersjs/feathers'
 import crypto from 'crypto'
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
@@ -12,7 +13,7 @@ import { Application } from '../../../declarations'
 import { sendInvite } from '../../hooks/send-invite'
 import logger from '../../logger'
 
-export type InviteDataType = InviteType & { targetObjectId: UserId; passcode: string }
+export type InviteDataType = InviteType
 
 const afterInviteFind = async (app: Application, result: Paginated<InviteDataType>) => {
   try {
@@ -70,10 +71,16 @@ export const inviteReceived = async (inviteService: Invite, query) => {
 
   const result = (await Service.prototype.find.call(inviteService, {
     query: {
-      inviteeId: query.userId,
-      token: {
-        $in: identityProviderTokens
-      },
+      $or: [
+        {
+          inviteeId: query.userId
+        },
+        {
+          token: {
+            $in: identityProviderTokens
+          }
+        }
+      ],
       ...q,
       $sort: $sort,
       $limit: query.$limit,
@@ -83,7 +90,7 @@ export const inviteReceived = async (inviteService: Invite, query) => {
 
   await Promise.all(
     result.data.map(async (invite) => {
-      if (invite.inviteType === 'group') {
+      if (invite.inviteType === 'group' && invite.targetObjectId) {
         try {
           const group = await inviteService.app.service('group').get(invite.targetObjectId)
           invite.groupName = group.name
@@ -124,7 +131,7 @@ export const inviteSent = async (inviteService: Invite, query: Query) => {
 
   await Promise.all(
     result.data.map(async (invite) => {
-      if (invite.inviteType === 'group') {
+      if (invite.inviteType === 'group' && invite.targetObjectId) {
         try {
           const group = await inviteService.app.service('group').get(invite.targetObjectId)
           invite.groupName = group.name
@@ -137,10 +144,57 @@ export const inviteSent = async (inviteService: Invite, query: Query) => {
   return result
 }
 
+export const inviteAll = async (inviteService: Invite, query: Query, user: UserInterface) => {
+  if ((!user || user.userRole !== 'admin') && !query.existenceCheck)
+    throw new Forbidden('Must be admin to search invites in this way')
+
+  const { $sort, search } = query
+  let q = {}
+
+  if (search) {
+    q = {
+      [Op.or]: [
+        Sequelize.where(Sequelize.fn('lower', Sequelize.col('inviteType')), {
+          [Op.like]: '%' + search.toLowerCase() + '%'
+        }),
+        Sequelize.where(Sequelize.fn('lower', Sequelize.col('passcode')), {
+          [Op.like]: '%' + search.toLowerCase() + '%'
+        })
+      ]
+    }
+  }
+  if (!query.existenceCheck) delete query.userId
+  delete query.existenceCheck
+  const result = (await Service.prototype.find.call(inviteService, {
+    query: {
+      // userId: query.userId,
+      ...query,
+      ...q,
+      $sort: $sort || {},
+      $limit: query.$limit || 10,
+      $skip: query.$skip || 0
+    }
+  })) as Paginated<InviteDataType>
+
+  await Promise.all(
+    result.data.map(async (invite) => {
+      if (invite.inviteType === 'group' && invite.targetObjectId) {
+        try {
+          const group = await inviteService.app.service('group').get(invite.targetObjectId)
+          if (!group) throw new Error()
+          invite.groupName = group.name
+        } catch (err) {
+          invite.groupName = '<A deleted group>'
+        }
+      }
+    })
+  )
+
+  return result
+}
+
 /**
  * A class for Invite service
- *
- * @author Vyacheslav Solovjov
  */
 export class Invite extends Service<InviteDataType> {
   app: Application
@@ -152,8 +206,10 @@ export class Invite extends Service<InviteDataType> {
   }
 
   async create(data: any, params?: Params): Promise<InviteDataType | InviteDataType[]> {
-    const result = (await super.create(data)) as InviteDataType
+    const user = params!.user
+    if (user.userRole !== 'admin') delete data.makeAdmin
     data.passcode = crypto.randomBytes(8).toString('hex')
+    const result = (await super.create(data)) as InviteDataType
     await sendInvite(this.app, result, params!)
     return result
   }
@@ -163,7 +219,6 @@ export class Invite extends Service<InviteDataType> {
    *
    * @param params of query with type and userId
    * @returns invite data
-   * @author Vyacheslav Solovjov
    */
   async find(params?: Params): Promise<InviteDataType[] | Paginated<InviteDataType>> {
     let result: Paginated<InviteDataType> = null!
@@ -173,6 +228,8 @@ export class Invite extends Service<InviteDataType> {
         result = await inviteReceived(this, query)
       } else if (query.type === 'sent') {
         result = await inviteSent(this, query)
+      } else {
+        result = await inviteAll(this, query, params.user)
       }
     } else {
       result = (await super.find(params)) as Paginated<InviteDataType>

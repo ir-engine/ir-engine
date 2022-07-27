@@ -22,13 +22,6 @@ import { registerDefaultSceneFunctions } from '../functions/registerSceneFunctio
 import { reparentObject3D } from '../functions/ReparentFunction'
 import { Updatable } from '../interfaces/Updatable'
 
-/**
- * @author Josh Field <github.com/HexaField>
- */
-
-// TODO: refactor this to be named something more generic like ObjectSystem, add object-object interactions (physics & non physics)
-// GameManagerSystem already has physics interaction behaviors, these could be made generic and not game dependent
-
 type BPCEMProps = {
   bakeScale: Vector3
   bakePositionOffset: Vector3

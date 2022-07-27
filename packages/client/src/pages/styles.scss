@@ -525,7 +525,8 @@ body {
   }
 }
 
-[class*="MuiModal-root"] {
+[class*="MuiModal-root"],
+[class*="MuiPopper-root"] {
   pointer-events: auto;
 }
 

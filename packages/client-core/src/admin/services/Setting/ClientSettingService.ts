@@ -1,12 +1,15 @@
 import { Paginated } from '@feathersjs/feathers'
 
 import { ClientSetting, PatchClientSetting } from '@xrengine/common/src/interfaces/ClientSetting'
+import multiLogger from '@xrengine/common/src/logger'
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
 import { API } from '../../../API'
 import { NotificationService } from '../../../common/services/NotificationService'
 import waitForClientAuthenticated from '../../../util/wait-for-client-authenticated'
+
+const logger = multiLogger.child({ component: 'client-core:ClientSettingService' })
 
 const AdminClientSettingsState = defineState({
   name: 'AdminClientSettingsState',
@@ -17,15 +20,14 @@ const AdminClientSettingsState = defineState({
 })
 
 export const ClientSettingsServiceReceptor = (action) => {
-  getState(AdminClientSettingsState).batch((s) => {
-    matches(action)
-      .when(ClientSettingActions.fetchedClient.matches, (action) => {
-        return s.merge({ client: action.clientSettings.data, updateNeeded: false })
-      })
-      .when(ClientSettingActions.clientSettingPatched.matches, (action) => {
-        return s.updateNeeded.set(true)
-      })
-  })
+  const s = getState(AdminClientSettingsState)
+  matches(action)
+    .when(ClientSettingActions.fetchedClient.matches, (action) => {
+      return s.merge({ client: action.clientSettings.data, updateNeeded: false })
+    })
+    .when(ClientSettingActions.clientSettingPatched.matches, (action) => {
+      return s.updateNeeded.set(true)
+    })
 }
 
 // const fetchedClientReceptor = (action: typeof ClientSettingActions.fetchedClient.matches._TYPE) => {
@@ -50,23 +52,23 @@ export const useClientSettingState = () => useState(accessClientSettingState())
 export const ClientSettingService = {
   fetchClientSettings: async (inDec?: 'increment' | 'decrement') => {
     try {
-      console.log('waitingForClientAuthenticated')
+      logger.info('waitingForClientAuthenticated')
       await waitForClientAuthenticated()
-      console.log('CLIENT AUTHENTICATED!')
+      logger.info('CLIENT AUTHENTICATED!')
       const clientSettings = (await API.instance.client.service('client-setting').find()) as Paginated<ClientSetting>
-      console.log('Dispatching fetchedClient')
+      logger.info('Dispatching fetchedClient')
       dispatchAction(ClientSettingActions.fetchedClient({ clientSettings }))
     } catch (err) {
-      console.log(err.message)
+      logger.error(err)
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   },
   patchClientSetting: async (data: PatchClientSetting, id: string) => {
     try {
       await API.instance.client.service('client-setting').patch(id, data)
-      dispatchAction(ClientSettingActions.clientSettingPatched())
+      dispatchAction(ClientSettingActions.clientSettingPatched({}))
     } catch (err) {
-      console.log(err)
+      logger.error(err)
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   }

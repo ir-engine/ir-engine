@@ -111,7 +111,7 @@ function emitEventBefore(command: ReparentCommandParams) {
   if (command.preventEvents) return
 
   cancelGrabOrPlacement()
-  dispatchAction(SelectionAction.changedBeforeSelection())
+  dispatchAction(SelectionAction.changedBeforeSelection({}))
 }
 
 function emitEventAfter(command: ReparentCommandParams) {
@@ -120,7 +120,7 @@ function emitEventAfter(command: ReparentCommandParams) {
   if (command.updateSelection) updateOutlinePassSelection()
 
   dispatchAction(EditorAction.sceneModified({ modified: true }))
-  dispatchAction(SelectionAction.changedSceneGraph())
+  dispatchAction(SelectionAction.changedSceneGraph({}))
 }
 
 function reparent(command: ReparentCommandParams, isUndo: boolean) {

@@ -11,7 +11,7 @@ import {
   useMediaInstanceConnectionState
 } from '@xrengine/client-core/src/common/services/MediaInstanceConnectionService'
 import { MediaServiceReceptor, MediaStreamService } from '@xrengine/client-core/src/media/services/MediaStreamService'
-import { useChatState } from '@xrengine/client-core/src/social/services/ChatService'
+import { ChatAction, ChatService, useChatState } from '@xrengine/client-core/src/social/services/ChatService'
 import { useLocationState } from '@xrengine/client-core/src/social/services/LocationService'
 import { MediaStreams } from '@xrengine/client-core/src/transports/MediaStreams'
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
@@ -21,6 +21,7 @@ import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { addActionReceptor, dispatchAction, removeActionReceptor, useHookEffect } from '@xrengine/hyperflux'
 
+import { PartyService, usePartyState } from '../../social/services/PartyService'
 import { UserServiceReceptor } from '../../user/services/UserService'
 import InstanceServerWarnings from './InstanceServerWarnings'
 
@@ -33,7 +34,7 @@ export const NetworkInstanceProvisioning = () => {
   const isUserBanned = locationState.currentLocation.selfUserBanned.value
   const engineState = useEngineState()
   const history = useHistory()
-  const appState = useAppState()
+  const partyState = usePartyState()
 
   const worldNetworkHostId = Engine.instance.currentWorld.worldNetwork?.hostId
   const instanceConnectionState = useLocationInstanceConnectionState()
@@ -104,7 +105,7 @@ export const NetworkInstanceProvisioning = () => {
   useHookEffect(() => {
     if (
       engineState.sceneLoaded.value &&
-      currentLocationInstanceConnection.value &&
+      currentLocationInstanceConnection?.value &&
       currentLocationInstanceConnection.provisioned.value === true &&
       currentLocationInstanceConnection.readyToConnect.value === true &&
       currentLocationInstanceConnection.connecting.value === false &&
@@ -124,7 +125,8 @@ export const NetworkInstanceProvisioning = () => {
     if (chatState.instanceChannelFetched.value) {
       const channels = chatState.channels.channels.value
       const instanceChannel = Object.values(channels).find((channel) => channel.instanceId === worldNetworkHostId)
-      MediaInstanceConnectionService.provisionServer(instanceChannel?.id!, true)
+      if (!currentChannelInstanceConnection?.provisioned.value)
+        MediaInstanceConnectionService.provisionServer(instanceChannel?.id!, true)
     }
   }, [chatState.instanceChannelFetched])
 
@@ -133,11 +135,45 @@ export const NetworkInstanceProvisioning = () => {
     if (selfUser?.instanceId.value != null && userState.layerUsersUpdateNeeded.value) UserService.getLayerUsers(true)
   }, [selfUser?.instanceId, userState.layerUsersUpdateNeeded])
 
+  useHookEffect(() => {
+    if (selfUser?.partyId?.value && chatState.channels.channels?.value) {
+      const partyChannel = Object.values(chatState.channels.channels.value).find(
+        (channel) => channel.channelType === 'party' && channel.partyId === selfUser.partyId.value
+      )
+      const partyUser = partyState.party?.partyUsers?.value
+        ? partyState.party.partyUsers.value.find((partyUser) => partyUser.userId === selfUser.id.value)
+        : null
+      if (
+        chatState.partyChannelFetched?.value &&
+        partyChannel &&
+        currentChannelInstanceConnection?.channelId.value !== partyChannel.id &&
+        partyUser
+      )
+        MediaInstanceConnectionService.provisionServer(partyChannel?.id!, false)
+      else if (!chatState.partyChannelFetched.value && !chatState.partyChannelFetching.value)
+        ChatService.getPartyChannel()
+    }
+  }, [
+    selfUser?.partyId?.value,
+    partyState.party?.id,
+    chatState.channels.channels.value as any,
+    chatState.partyChannelFetching?.value,
+    chatState.partyChannelFetched?.value
+  ])
+
+  useHookEffect(() => {
+    if (selfUser.partyId.value) dispatchAction(ChatAction.refetchPartyChannelAction({}))
+  }, [selfUser.partyId.value])
+
+  useHookEffect(() => {
+    if (partyState.updateNeeded.value) PartyService.getParty()
+  }, [partyState.updateNeeded.value])
+
   // if a media connection has been provisioned and is ready, connect to it
   useHookEffect(() => {
     if (
       mediaNetworkHostId &&
-      currentChannelInstanceConnection.value &&
+      currentChannelInstanceConnection?.value &&
       currentChannelInstanceConnection.provisioned.value === true &&
       currentChannelInstanceConnection.readyToConnect.value === true &&
       currentChannelInstanceConnection.connecting.value === false &&

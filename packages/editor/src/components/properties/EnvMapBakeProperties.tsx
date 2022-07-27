@@ -1,6 +1,3 @@
-/**
- * @author Abhishek Pathak <abhi.pathak401@gmail.com>
- */
 import React from 'react'
 
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'

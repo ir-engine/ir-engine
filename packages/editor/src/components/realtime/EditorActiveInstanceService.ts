@@ -36,15 +36,14 @@ const EditorActiveInstanceState = defineState({
 })
 
 export const EditorActiveInstanceServiceReceptor = (action): any => {
-  getState(EditorActiveInstanceState).batch((s) => {
-    matches(action)
-      .when(EditorActiveInstanceAction.fetchingActiveInstances.matches, (action) => {
-        return s.merge({ fetching: true })
-      })
-      .when(EditorActiveInstanceAction.fetchedActiveInstances.matches, (action) => {
-        return s.merge({ activeInstances: action.activeInstances, fetching: false })
-      })
-  })
+  const state = getState(EditorActiveInstanceState)
+  matches(action)
+    .when(EditorActiveInstanceAction.fetchingActiveInstances.matches, (action) => {
+      return state.merge({ fetching: true })
+    })
+    .when(EditorActiveInstanceAction.fetchedActiveInstances.matches, (action) => {
+      return state.merge({ activeInstances: action.activeInstances, fetching: false })
+    })
 }
 
 export const accessEditorActiveInstanceState = () => getState(EditorActiveInstanceState)
@@ -77,7 +76,7 @@ export const EditorActiveInstanceService = {
     }
   },
   getActiveInstances: async (sceneId: string) => {
-    dispatchAction(EditorActiveInstanceAction.fetchingActiveInstances())
+    dispatchAction(EditorActiveInstanceAction.fetchingActiveInstances({}))
     const activeInstances = await API.instance.client.service('instances-active').find({
       query: { sceneId }
     })

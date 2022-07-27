@@ -33,8 +33,7 @@
     "gridDebug": "Grid",
     "simpleMaterials": "Simple Materials",
     "tick": "Tick",
-    "worldStore": "World Store",
-    "engineStore": "Engine Store",
+    "state": "State",
     "namedEntities": "Named Entities",
     "networks": "Networks"
   },
@@ -64,6 +63,8 @@
     "youKickedFromWorldMessage": "You were kicked from this world for the following reason",
     "invalidLocation": "Invalid location",
     "cantFindLocation": "We can't find the location",
+    "notAuthorizedAtLocationTitle": "Not Authorized at this location",
+    "notAuthorizedAtLocation": "You are not authorized to be at this location",
     "misspelledOrNotExist": "It may be misspelled, or it may not exist.",
     "loading": "loading",
     "low-frame-error": "Detected a poor perfomance consider enabling Use Hardware acceleration in your browser and relauch your browser",

@@ -1,3 +1,4 @@
+import { Downgraded } from '@hookstate/core'
 import { getEntityComponents } from 'bitecs'
 import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -5,6 +6,7 @@ import JSONTree from 'react-json-tree'
 
 import { mapToObject } from '@xrengine/common/src/utils/mapToObject'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { EngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import {
   addComponent,
   getComponent,
@@ -20,57 +22,43 @@ import {
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
 import { SimpleMaterialTagComponent } from '@xrengine/engine/src/scene/components/SimpleMaterialTagComponent'
 import { ObjectLayers } from '@xrengine/engine/src/scene/constants/ObjectLayers'
-import { dispatchAction } from '@xrengine/hyperflux'
+import { dispatchAction, getState, useHookstate } from '@xrengine/hyperflux'
 
 import BlurOffIcon from '@mui/icons-material/BlurOff'
 import GridOnIcon from '@mui/icons-material/GridOn'
 import ManIcon from '@mui/icons-material/Man'
-import RefreshIcon from '@mui/icons-material/Refresh'
 import SelectAllIcon from '@mui/icons-material/SelectAll'
 import SquareFootIcon from '@mui/icons-material/SquareFoot'
 
 import { StatsPanel } from './StatsPanel'
 import styles from './styles.module.scss'
-import { Tick } from './Tick'
 
 export const Debug = () => {
+  // This is here to force the debug view to update ECS data on every frame
+  useHookstate(getState(EngineState).fixedTick).value
+
   const [isShowing, setShowing] = useState(false)
-  const [remountCount, setRemountCount] = useState(0)
-  const [resetStats, setResetStats] = useState(0)
   const showingStateRef = useRef(isShowing)
   const engineRendererState = useEngineRendererState()
   const { t } = useTranslation()
 
   const networks = mapToObject(Engine.instance.currentWorld.networks)
 
-  function setupListener() {
-    window.addEventListener('keydown', downHandler)
-  }
-
-  // If pressed key is our target key then set to true
-  function downHandler({ keyCode }) {
-    if (keyCode === 192) {
-      // `
-      showingStateRef.current = !showingStateRef.current
-      setShowing(showingStateRef.current)
-    }
-  }
-
   // Add event listeners
   useEffect(() => {
-    setupListener()
-    const interval = setInterval(() => {
-      setRemountCount(Math.random())
-    }, 1000)
+    // If pressed key is our target key then set to true
+    function downHandler({ keyCode }) {
+      if (keyCode === 192) {
+        // `
+        showingStateRef.current = !showingStateRef.current
+        setShowing(showingStateRef.current)
+      }
+    }
+    window.addEventListener('keydown', downHandler)
     return () => {
-      clearInterval(interval)
+      window.removeEventListener('keydown', downHandler)
     }
   }, [])
-
-  const refresh = () => {
-    setResetStats(resetStats + 1)
-    setRemountCount(remountCount + 1)
-  }
 
   const togglePhysicsDebug = () => {
     dispatchAction(
@@ -133,11 +121,15 @@ export const Debug = () => {
   const simpleMaterials = () => {
     if (hasComponent(Engine.instance.currentWorld.worldEntity, SimpleMaterialTagComponent))
       removeComponent(Engine.instance.currentWorld.worldEntity, SimpleMaterialTagComponent)
-    else addComponent(Engine.instance.currentWorld.worldEntity, SimpleMaterialTagComponent, {})
+    else addComponent(Engine.instance.currentWorld.worldEntity, SimpleMaterialTagComponent, true)
     dispatchAction(
       EngineRendererAction.changeGridToolVisibility({ visibility: !accessEngineRendererState().gridVisibility.value })
     )
   }
+
+  const namedEntities = useHookstate({})
+
+  namedEntities.set(renderNamedEntities())
 
   if (isShowing)
     return (
@@ -192,22 +184,16 @@ export const Debug = () => {
                 <BlurOffIcon fontSize="small" />
               </button>
             </div>
-            <div className={styles.refreshBlock}>
-              <Tick />
-              <button type="submit" title={t('common:debug.refresh')} onClick={refresh} className={styles.refreshBtn}>
-                <RefreshIcon fontSize="small" />
-              </button>
-            </div>
           </div>
         </div>
-        <StatsPanel show={showingStateRef.current} resetCounter={resetStats} />
+        <StatsPanel show={showingStateRef.current} />
         <div className={styles.jsonPanel}>
-          <h1>{t('common:debug.engineStore')}</h1>
-          <JSONTree data={Engine.instance.store} />
+          <h1>{t('common:debug.state')}</h1>
+          <JSONTree data={Engine.instance.store.state} postprocessValue={(v) => v?.value ?? v} />
         </div>
         <div className={styles.jsonPanel}>
           <h1>{t('common:debug.namedEntities')}</h1>
-          <JSONTree data={renderNamedEntities()} />
+          <JSONTree data={namedEntities.value} />
         </div>
         <div className={styles.jsonPanel}>
           <h1>{t('common:debug.networks')}</h1>

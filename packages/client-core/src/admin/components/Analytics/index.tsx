@@ -23,7 +23,6 @@ import UserGraph from './UserGraph'
  * Function for analytics on admin dashboard
  *
  * @returns @ReactDomElements
- * @author Kevin KIMENYI <kimenyikevin@gmail.com>
  */
 
 const Analytics = () => {

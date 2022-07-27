@@ -25,6 +25,7 @@ void main() {
 
       gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
 
+      // this is necessary to avoid z fighting
       gl_Position.z -= 0.01;
 }
 `

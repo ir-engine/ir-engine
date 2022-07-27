@@ -36,8 +36,6 @@
   "include": [
     "../server-core/src/",
     "./**/*.ts",
-    "./**/*.tsx",
-    "../../PhysX.d.ts",
-    "../../PhysXDebug.d.ts"
+    "./**/*.tsx"
 , "../engine/src/common/functions/MatchesUtils.ts"  ]
 }

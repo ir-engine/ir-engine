@@ -1,4 +1,4 @@
-import { Downgraded } from '@speigg/hookstate'
+import { Downgraded } from '@hookstate/core'
 import React, { memo, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -31,9 +31,6 @@ import { FileBrowserItem } from './FileBrowserGrid'
 import { FileDataType } from './FileDataType'
 import styles from './styles.module.scss'
 
-/**
- * @author Abhishek Pathak
- */
 export const PrefabFileType = {
   gltf: ScenePrefabs.model,
   'gltf-binary': ScenePrefabs.model,
@@ -76,7 +73,6 @@ export function isFileDataType(value: any): value is FileDataType {
 
 /**
  * FileBrowserPanel used to render view for AssetsPanel.
- * @author Abhishek Pathak
  * @constructor
  */
 const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) => {

@@ -1,10 +1,14 @@
-import { createState, SetInitialStateAction, State } from '@speigg/hookstate'
+import { createState, SetInitialStateAction, State } from '@hookstate/core'
 import React from 'react'
 import Reconciler from 'react-reconciler'
 
+import multiLogger from '@xrengine/common/src/logger'
+
 import { HyperFlux, HyperStore } from './StoreFunctions'
 
-export * from '@speigg/hookstate'
+export * from '@hookstate/core'
+
+const logger = multiLogger.child({ component: 'hyperflux:State' })
 
 type StateDefinition<S> = {
   name: string
@@ -17,9 +21,12 @@ function defineState<S>(definition: StateDefinition<S>) {
 }
 
 function registerState<S>(StateDefinition: StateDefinition<S>, store = HyperFlux.store) {
-  console.log('[HyperFlux]: registerState', StateDefinition.name)
-  if (StateDefinition.name in store.state)
-    throw new Error(`State ${StateDefinition.name} has already been registered in Store`)
+  logger.info(`registerState ${StateDefinition.name}`)
+  if (StateDefinition.name in store.state) {
+    const err = new Error(`State ${StateDefinition.name} has already been registered in Store`)
+    logger.error(err)
+    throw err
+  }
   const initial =
     typeof StateDefinition.initial === 'function'
       ? (StateDefinition.initial as Function)()

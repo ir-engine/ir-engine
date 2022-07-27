@@ -90,8 +90,8 @@ export class Message<T = MessageDataType> extends Service<T> {
         return groupUser.userId
       })
     } else if (targetObjectType === 'party') {
-      const targetParty = await this.app.service('party').get(targetObjectId, null!)
-      if (targetParty == null) {
+      const targetParty = await this.app.service('party').Model.count({ where: { id: targetObjectId } })
+      if (targetParty <= 0) {
         throw new BadRequest('Invalid target party ID')
       }
       channel = await channelModel.findOne({
@@ -106,14 +106,8 @@ export class Message<T = MessageDataType> extends Service<T> {
         })
       }
       channelId = channel.id
-      const partyUsers = await this.app.service('party-user').find({
-        query: {
-          partyId: targetObjectId
-        }
-      })
-      userIdList = (partyUsers as any).data.map((partyUser) => {
-        return partyUser.userId
-      })
+      const partyUsers = await this.app.service('party-user').Model.findAll({ where: { partyId: targetObjectId } })
+      userIdList = partyUsers.map((partyUser) => partyUser.userId)
     } else if (targetObjectType === 'instance') {
       const targetInstance = await this.app.service('instance').get(targetObjectId)
       if (targetInstance == null) {
@@ -146,7 +140,8 @@ export class Message<T = MessageDataType> extends Service<T> {
     const messageData: any = {
       senderId: userId,
       channelId: channelId,
-      text: data.text
+      text: data.text,
+      isNotification: data.isNotification
     }
     const newMessage: any = await super.create({ ...messageData })
 

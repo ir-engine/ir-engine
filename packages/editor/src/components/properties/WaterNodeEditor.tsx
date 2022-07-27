@@ -13,7 +13,6 @@ type WaterNodeEditorProps = {
 /**
  * WaterNodeEditor provides the editor to customize properties.
  *
- * @author Robert Long
  * @type {class component}
  */
 export const WaterNodeEditor = (props: WaterNodeEditorProps) => {

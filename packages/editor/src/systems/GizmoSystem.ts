@@ -7,9 +7,6 @@ import { TransformGizmoComponent } from '@xrengine/engine/src/scene/components/T
 
 const GIZMO_SIZE = 10
 
-/**
- * @author Nayankumar Patel <github.com/NPatel10>
- */
 export default async function GizmoSystem(_: World) {
   const gizmoQuery = defineQuery([TransformGizmoComponent])
 

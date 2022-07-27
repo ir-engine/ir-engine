@@ -1,7 +1,6 @@
 /**
  * guessContentType function to get contentType from url.
  *
- * @author Robert Long
  * @param  {any} url
  * @return {string}     [contentType]
  */

@@ -84,8 +84,6 @@ export default (app: Application) => {
 
   /**
    * Initialize our service with any options it requires and docs
-   *
-   * @author Vyacheslav Solovjov
    */
   const event = new Instance(options, app)
   event.docs = instanceDocs
@@ -100,7 +98,6 @@ export default (app: Application) => {
    *
    * @param data
    * @returns deleted channel
-   * @author Vyacheslav Solovjov
    */
   service.publish('removed', async (data): Promise<any> => {
     try {

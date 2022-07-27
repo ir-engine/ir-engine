@@ -1,4 +1,4 @@
-import { createState, State, useHookstate } from '@speigg/hookstate'
+import { createState, State, useHookstate } from '@hookstate/core'
 import getImagePalette from 'image-palette-core'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -31,8 +31,7 @@ export async function createLoaderDetailView() {
       )
     }, createState({ imageWidth: 1, imageHeight: 1 }))
   })
-  const container = await xrui.container
-  await container.updateUntilReady()
+  await xrui.container.updateUntilReady()
   return xrui
 }
 

@@ -8,7 +8,6 @@ const degToRad = _Math.degToRad
 
 /**
  *
- * @author Robert Long
  * @param {any} convertTo
  * @param {any} convertFrom
  * @param {any} rest

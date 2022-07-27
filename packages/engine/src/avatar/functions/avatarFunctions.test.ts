@@ -84,6 +84,7 @@ describe('avatarFunctions Unit', async () => {
           stateChanged: null!
         },
         rig: {} as BoneStructure,
+        bindRig: {} as BoneStructure,
         rootYRatio: 1
       })
 

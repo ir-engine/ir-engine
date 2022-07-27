@@ -20,7 +20,7 @@ import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { XRInputSourceComponent } from '../components/XRInputSourceComponent'
 import { cleanXRInputs } from '../functions/addControllerModels'
 import { updateXRControllerAnimations } from '../functions/controllerAnimation'
-import { endXR, startWebXR } from '../functions/WebXRFunctions'
+import { endXR, setupLocalXRInputs, startWebXR } from '../functions/WebXRFunctions'
 
 const startXRSession = async () => {
   const sessionInit = { optionalFeatures: ['local-floor', 'hand-tracking', 'layers'] }
@@ -30,11 +30,11 @@ const startXRSession = async () => {
     EngineRenderer.instance.xrSession = session
     EngineRenderer.instance.xrManager.setSession(session)
     EngineRenderer.instance.xrManager.setFoveation(1)
-    dispatchAction(EngineActions.xrSession())
+    dispatchAction(EngineActions.xrSession({}))
 
     const onSessionEnd = () => {
       EngineRenderer.instance.xrManager.removeEventListener('sessionend', onSessionEnd)
-      dispatchAction(EngineActions.xrEnd())
+      dispatchAction(EngineActions.xrEnd({}))
     }
     EngineRenderer.instance.xrManager.addEventListener('sessionend', onSessionEnd)
 
@@ -59,7 +59,6 @@ export function setXRModeReceptor(action: typeof WorldNetworkAction.setXRMode.ma
 
 /**
  * System for XR session and input handling
- * @author Josh Field <github.com/hexafield>
  */
 
 export default async function XRSystem(world: World) {
@@ -69,6 +68,8 @@ export default async function XRSystem(world: World) {
   ;(navigator as any).xr?.isSessionSupported('immersive-vr').then((supported) => {
     dispatchAction(EngineActions.xrSupported({ xrSupported: supported }))
   })
+
+  setupLocalXRInputs()
 
   // TEMPORARY - precache controller model
   // Cache hand models

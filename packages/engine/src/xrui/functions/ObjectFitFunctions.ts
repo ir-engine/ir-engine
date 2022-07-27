@@ -1,11 +1,21 @@
 import type { WebContainer3D } from '@etherealjs/web-layer/three'
-import { MathUtils, Object3D, PerspectiveCamera, Vector3 } from 'three'
+import { MathUtils, Object3D, PerspectiveCamera, Quaternion, Vector3 } from 'three'
 
 import { AvatarAnimationComponent } from '../../avatar/components/AvatarAnimationComponent'
 import { HALF_PI } from '../../common/constants/MathConstants'
+import { Object3DUtils } from '../../common/functions/Object3DUtils'
 import { Engine } from '../../ecs/classes/Engine'
 import { getEngineState } from '../../ecs/classes/EngineState'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
+
+const _pos = new Vector3()
+const _quat = new Quaternion()
+
+// yes, multiple by the same direction twice, as the local coordinate changes with each rotation
+const _handRotation = new Quaternion()
+  .setFromAxisAngle(new Vector3(0, 1, 0), Math.PI / 2)
+  .multiply(new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), Math.PI))
+  .multiply(new Quaternion().setFromAxisAngle(new Vector3(0, 0, 1), Math.PI / 2))
 
 export const ObjectFitFunctions = {
   computeContentFitScale: (
@@ -72,11 +82,16 @@ export const ObjectFitFunctions = {
         container.removeFromParent()
         Engine.instance.currentWorld.scene.add(container)
       }
-      avatarAnimationComponent.rig.LeftHand.getWorldPosition(container.position)
-      // container.position.z = 0.1
+
+      _pos.copy(avatarAnimationComponent.rig.LeftHand.position)
+      _pos.x -= 0.1
+      _pos.y -= 0.1
+      container.position.copy(avatarAnimationComponent.rig.LeftHand.localToWorld(_pos))
+      container.quaternion
+        .set(0, 0, 0, 1)
+        .multiply(Object3DUtils.getWorldQuaternion(avatarAnimationComponent.rig.LeftHand, _quat))
+        .multiply(_handRotation)
       container.updateMatrixWorld(true)
-      // container.rotation.z = HALF_PI
-      // container.rotation.y = HALF_PI
     }
   },
 
