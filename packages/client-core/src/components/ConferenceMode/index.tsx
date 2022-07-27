@@ -1,4 +1,5 @@
 import { useState } from '@hookstate/core'
+import classNames from 'classnames'
 import React from 'react'
 
 import { useMediaInstanceConnectionState } from '@xrengine/client-core/src/common/services/MediaInstanceConnectionService'
@@ -7,9 +8,10 @@ import { accessAuthState } from '@xrengine/client-core/src/user/services/AuthSer
 import { useUserState } from '@xrengine/client-core/src/user/services/UserService'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 
-import UserMediaWindow from '../UserMediaWindow'
+import ConferenceModeParticipant from './ConferenceModeParticipant'
+import styles from './index.module.scss'
 
-const UserMediaWindows = (): JSX.Element => {
+const ConferenceMode = (): JSX.Element => {
   const mediaState = useMediaStreamState()
   const nearbyLayerUsers = mediaState.nearbyLayerUsers
   const selfUserId = useState(accessAuthState().user.id)
@@ -35,22 +37,43 @@ const UserMediaWindows = (): JSX.Element => {
   const consumers = mediaState.consumers.value
   const screenShareConsumers = consumers?.filter((consumer) => consumer.appData.mediaTag === 'screen-video') || []
 
+  let totalScreens = 1
+
+  if (mediaState.isScreenAudioEnabled.value || mediaState.isScreenVideoEnabled.value) {
+    totalScreens += 1
+  }
+
+  for (let user of displayedUsers) {
+    totalScreens += 1
+
+    if (screenShareConsumers.find((consumer) => consumer.appData.peerId === user.id)) {
+      totalScreens += 1
+    }
+  }
+
   return (
-    <>
+    <div
+      className={classNames({
+        [styles['participants']]: true,
+        [styles['single-grid']]: totalScreens === 1,
+        [styles['double-grid']]: totalScreens === 2 || totalScreens === 4,
+        [styles['multi-grid']]: totalScreens === 3 || totalScreens > 4
+      })}
+    >
       {(mediaState.isScreenAudioEnabled.value || mediaState.isScreenVideoEnabled.value) && (
-        <UserMediaWindow peerId={'screen_me'} key={'screen_me'} />
+        <ConferenceModeParticipant peerId={'screen_me'} key={'screen_me'} />
       )}
-      <UserMediaWindow peerId={'cam_me'} key={'cam_me'} />
+      <ConferenceModeParticipant peerId={'cam_me'} key={'cam_me'} />
       {displayedUsers.map((user) => (
         <>
-          <UserMediaWindow peerId={user.id} key={user.id} />
+          <ConferenceModeParticipant peerId={user.id} key={user.id} />
           {screenShareConsumers.find((consumer) => consumer.appData.peerId === user.id) && (
-            <UserMediaWindow peerId={'screen_' + user.id} key={'screen_' + user.id} />
+            <ConferenceModeParticipant peerId={'screen_' + user.id} key={'screen_' + user.id} />
           )}
         </>
       ))}
-    </>
+    </div>
   )
 }
 
-export default UserMediaWindows
+export default ConferenceMode

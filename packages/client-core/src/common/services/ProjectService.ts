@@ -21,18 +21,17 @@ export const ProjectState = defineState({
 })
 
 export const ProjectServiceReceptor = (action) => {
-  getState(ProjectState).batch((s) => {
-    matches(action)
-      .when(ProjectAction.projectsFetched.matches, (action) => {
-        return s.merge({
-          projects: action.projectResult,
-          updateNeeded: false
-        })
+  const s = getState(ProjectState)
+  matches(action)
+    .when(ProjectAction.projectsFetched.matches, (action) => {
+      return s.merge({
+        projects: action.projectResult,
+        updateNeeded: false
       })
-      .when(ProjectAction.patchedProject.matches, (action) => {
-        return s.merge({ updateNeeded: true })
-      })
-  })
+    })
+    .when(ProjectAction.patchedProject.matches, (action) => {
+      return s.merge({ updateNeeded: true })
+    })
 }
 
 export const accessProjectState = () => getState(ProjectState)

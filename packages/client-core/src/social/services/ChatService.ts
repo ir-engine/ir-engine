@@ -1,5 +1,5 @@
 import { Paginated } from '@feathersjs/feathers'
-import { none } from '@speigg/hookstate'
+import { none } from '@hookstate/core'
 import { useEffect } from 'react'
 
 import { Channel } from '@xrengine/common/src/interfaces/Channel'
@@ -53,182 +53,181 @@ const ChatState = defineState({
 })
 
 export const ChatServiceReceptor = (action) => {
-  getState(ChatState).batch((s) => {
-    matches(action)
-      .when(ChatAction.loadedChannelsAction.matches, (action) => {
-        return s.channels.merge({
-          limit: action.channels.limit,
-          skip: action.channels.skip,
-          total: action.channels.total,
-          updateNeeded: false,
-          channels: action.channels.data
+  const s = getState(ChatState)
+  matches(action)
+    .when(ChatAction.loadedChannelsAction.matches, (action) => {
+      return s.channels.merge({
+        limit: action.channels.limit,
+        skip: action.channels.skip,
+        total: action.channels.total,
+        updateNeeded: false,
+        channels: action.channels.data
+      })
+    })
+    .when(ChatAction.loadedChannelAction.matches, (action) => {
+      let findIndex
+      if (typeof action.channel.id === 'string')
+        findIndex = s.channels.channels.findIndex((c) => c.id.value === action.channel.id)
+      let idx = findIndex > -1 ? findIndex : s.channels.channels.length
+      s.channels.channels[idx].set(action.channel)
+      if (action.channelType === 'instance') {
+        const endedInstanceChannelIndex = s.channels.channels.findIndex(
+          (channel) => channel.channelType.value === 'instance' && channel.id.value !== action.channel.id
+        )
+        if (endedInstanceChannelIndex > -1) s.channels.channels[endedInstanceChannelIndex].set(none)
+        s.merge({
+          instanceChannelFetched: true,
+          instanceChannelFetching: false
         })
-      })
-      .when(ChatAction.loadedChannelAction.matches, (action) => {
-        let findIndex
-        if (typeof action.channel.id === 'string')
-          findIndex = s.channels.channels.findIndex((c) => c.id.value === action.channel.id)
-        let idx = findIndex > -1 ? findIndex : s.channels.channels.length
-        s.channels.channels[idx].set(action.channel)
-        if (action.channelType === 'instance') {
-          const endedInstanceChannelIndex = s.channels.channels.findIndex(
-            (channel) => channel.channelType.value === 'instance' && channel.id.value !== action.channel.id
-          )
-          if (endedInstanceChannelIndex > -1) s.channels.channels[endedInstanceChannelIndex].set(none)
-          s.merge({
-            instanceChannelFetched: true,
-            instanceChannelFetching: false
-          })
-        } else if (action.channelType === 'party') {
-          const endedPartyChannelIndex = s.channels.channels.findIndex(
-            (channel) => channel.channelType.value === 'party' && channel.id.value !== action.channel.id
-          )
-          if (endedPartyChannelIndex > -1) s.channels.channels[endedPartyChannelIndex].set(none)
-          s.merge({
-            partyChannelFetched: true,
-            partyChannelFetching: false
-          })
-        }
-        s.merge({ messageCreated: true })
-        return
-      })
-      .when(ChatAction.createdMessageAction.matches, (action) => {
-        const channelId = action.message.channelId
-        const selfUser = action.selfUser
-        const channel = s.channels.channels.find((c) => c.id.value === channelId)
-
-        if (!channel) {
-          s.channels.updateNeeded.set(true)
-        } else {
-          if (!channel.messages.length) channel.messages.set([action.message])
-          else channel.messages[channel.messages.length].set(action.message)
-        }
-
-        s.updateMessageScroll.set(true)
-        s.merge({ messageCreated: true })
-        if (s.targetChannelId.value.length === 0 && channel) {
-          const channelType = channel.channelType.value
-          const targetObject =
-            channelType === 'user'
-              ? channel.userId1.value === selfUser.id
-                ? channel.user1
-                : channel.user2
-              : channelType === 'group'
-              ? channel.group
-              : channelType === 'instance'
-              ? channel.instance
-              : channel.party
-          s.merge({
-            targetChannelId: channelId,
-            targetObjectType: channelType,
-            targetObject: targetObject.value,
-            targetObjectId: targetObject.id.value
-          })
-        }
-        return
-      })
-      .when(ChatAction.loadedMessagesAction.matches, (action) => {
-        const channelId = action.channelId
-        const channel = s.channels.channels.find((c) => c.id.value === channelId)
-        if (channel) {
-          for (const m of action.messages) {
-            const message = channel.messages.find((m2) => m2.id.value === m.id)
-            if (message) message.set(m)
-            else channel.messages[channel.messages.length].set(m)
-          }
-        }
-
-        return
-      })
-      .when(ChatAction.removedMessageAction.matches, (action) => {
-        const channelId = action.message.channelId
-        const channel = s.channels.channels.find((c) => c.id.value === channelId)
-        if (channel) {
-          const messageIdx = channel.messages.findIndex((m) => m.id.value === action.message.id)
-          if (messageIdx > -1) channel.messages.merge({ [messageIdx]: none })
-        } else {
-          s.channels.updateNeeded.set(true)
-        }
-
-        return
-      })
-      .when(ChatAction.patchedMessageAction.matches, (action) => {
-        const channelId = action.message.channelId
-        const channel = s.channels.channels.find((c) => c.id.value === channelId)
-        if (channel) {
-          const messageIdx = channel.messages.findIndex((m) => m.id.value === action.message.id)
-          if (messageIdx > -1) channel.messages[messageIdx].set(action.message)
-        } else {
-          s.channels.updateNeeded.set(true)
-        }
-
-        return
-      })
-      .when(ChatAction.createdChannelAction.matches, (action) => {
-        const channelId = action.channel.id
-        const channel = s.channels.channels.find((c) => c.id.value === channelId)
-
-        if (channel) {
-          channel.merge(action.channel)
-        } else {
-          s.channels.channels[s.channels.channels.length].set(action.channel)
-        }
-
-        return
-      })
-      .when(ChatAction.patchedChannelAction.matches, (action) => {
-        const channelId = action.channel.id
-        const channel = s.channels.channels.find((c) => c.id.value === channelId)
-
-        if (channel) {
-          channel.merge(action.channel)
-        } else {
-          s.channels.channels[s.channels.channels.length].set(action.channel)
-        }
-        s.merge({ messageCreated: false })
-        return
-      })
-      .when(ChatAction.removedChannelAction.matches, (action) => {
-        const channelId = action.channel.id
-        const channelIdx = s.channels.channels.findIndex((c) => c.id.value === channelId)
-        if (channelIdx > -1) {
-          s.channels.channels[channelIdx].set(none)
-        }
-        return
-      })
-      .when(ChatAction.setChatTargetAction.matches, (action) => {
-        const { targetObjectType, targetObject, targetChannelId } = action
-        return s.merge({
-          targetObjectType: targetObjectType,
-          targetObjectId: targetObject.id,
-          targetObject: targetObject,
-          targetChannelId: targetChannelId,
-          updateMessageScroll: true,
-          messageScrollInit: true
-        })
-      })
-      .when(ChatAction.setMessageScrollInitAction.matches, (action) => {
-        const { value } = action
-        return s.merge({ messageScrollInit: value })
-      })
-      .when(ChatAction.fetchingInstanceChannelAction.matches, () => {
-        return s.merge({ instanceChannelFetching: true })
-      })
-      .when(ChatAction.fetchingPartyChannelAction.matches, () => {
-        return s.merge({ partyChannelFetching: true })
-      })
-      .when(ChatAction.setUpdateMessageScrollAction.matches, (action) => {
-        return s.merge({ updateMessageScroll: action.value })
-      })
-      .when(ChatAction.refetchPartyChannelAction.matches, () => {
-        return s.merge({ partyChannelFetched: false })
-      })
-      .when(ChatAction.removePartyChannelAction.matches, () => {
-        const endedPartyChannelIndex = s.channels.channels.findIndex((channel) => channel.channelType.value === 'party')
+      } else if (action.channelType === 'party') {
+        const endedPartyChannelIndex = s.channels.channels.findIndex(
+          (channel) => channel.channelType.value === 'party' && channel.id.value !== action.channel.id
+        )
         if (endedPartyChannelIndex > -1) s.channels.channels[endedPartyChannelIndex].set(none)
-        return s
+        s.merge({
+          partyChannelFetched: true,
+          partyChannelFetching: false
+        })
+      }
+      s.merge({ messageCreated: true })
+      return
+    })
+    .when(ChatAction.createdMessageAction.matches, (action) => {
+      const channelId = action.message.channelId
+      const selfUser = action.selfUser
+      const channel = s.channels.channels.find((c) => c.id.value === channelId)
+
+      if (!channel) {
+        s.channels.updateNeeded.set(true)
+      } else {
+        if (!channel.messages.length) channel.messages.set([action.message])
+        else channel.messages[channel.messages.length].set(action.message)
+      }
+
+      s.updateMessageScroll.set(true)
+      s.merge({ messageCreated: true })
+      if (s.targetChannelId.value.length === 0 && channel) {
+        const channelType = channel.channelType.value
+        const targetObject =
+          channelType === 'user'
+            ? channel.userId1.value === selfUser.id
+              ? channel.user1
+              : channel.user2
+            : channelType === 'group'
+            ? channel.group
+            : channelType === 'instance'
+            ? channel.instance
+            : channel.party
+        s.merge({
+          targetChannelId: channelId,
+          targetObjectType: channelType,
+          targetObject: targetObject.value,
+          targetObjectId: targetObject.id.value
+        })
+      }
+      return
+    })
+    .when(ChatAction.loadedMessagesAction.matches, (action) => {
+      const channelId = action.channelId
+      const channel = s.channels.channels.find((c) => c.id.value === channelId)
+      if (channel) {
+        for (const m of action.messages) {
+          const message = channel.messages.find((m2) => m2.id.value === m.id)
+          if (message) message.set(m)
+          else channel.messages[channel.messages.length].set(m)
+        }
+      }
+
+      return
+    })
+    .when(ChatAction.removedMessageAction.matches, (action) => {
+      const channelId = action.message.channelId
+      const channel = s.channels.channels.find((c) => c.id.value === channelId)
+      if (channel) {
+        const messageIdx = channel.messages.findIndex((m) => m.id.value === action.message.id)
+        if (messageIdx > -1) channel.messages.merge({ [messageIdx]: none })
+      } else {
+        s.channels.updateNeeded.set(true)
+      }
+
+      return
+    })
+    .when(ChatAction.patchedMessageAction.matches, (action) => {
+      const channelId = action.message.channelId
+      const channel = s.channels.channels.find((c) => c.id.value === channelId)
+      if (channel) {
+        const messageIdx = channel.messages.findIndex((m) => m.id.value === action.message.id)
+        if (messageIdx > -1) channel.messages[messageIdx].set(action.message)
+      } else {
+        s.channels.updateNeeded.set(true)
+      }
+
+      return
+    })
+    .when(ChatAction.createdChannelAction.matches, (action) => {
+      const channelId = action.channel.id
+      const channel = s.channels.channels.find((c) => c.id.value === channelId)
+
+      if (channel) {
+        channel.merge(action.channel)
+      } else {
+        s.channels.channels[s.channels.channels.length].set(action.channel)
+      }
+
+      return
+    })
+    .when(ChatAction.patchedChannelAction.matches, (action) => {
+      const channelId = action.channel.id
+      const channel = s.channels.channels.find((c) => c.id.value === channelId)
+
+      if (channel) {
+        channel.merge(action.channel)
+      } else {
+        s.channels.channels[s.channels.channels.length].set(action.channel)
+      }
+      s.merge({ messageCreated: false })
+      return
+    })
+    .when(ChatAction.removedChannelAction.matches, (action) => {
+      const channelId = action.channel.id
+      const channelIdx = s.channels.channels.findIndex((c) => c.id.value === channelId)
+      if (channelIdx > -1) {
+        s.channels.channels[channelIdx].set(none)
+      }
+      return
+    })
+    .when(ChatAction.setChatTargetAction.matches, (action) => {
+      const { targetObjectType, targetObject, targetChannelId } = action
+      return s.merge({
+        targetObjectType: targetObjectType,
+        targetObjectId: targetObject.id,
+        targetObject: targetObject,
+        targetChannelId: targetChannelId,
+        updateMessageScroll: true,
+        messageScrollInit: true
       })
-  })
+    })
+    .when(ChatAction.setMessageScrollInitAction.matches, (action) => {
+      const { value } = action
+      return s.merge({ messageScrollInit: value })
+    })
+    .when(ChatAction.fetchingInstanceChannelAction.matches, () => {
+      return s.merge({ instanceChannelFetching: true })
+    })
+    .when(ChatAction.fetchingPartyChannelAction.matches, () => {
+      return s.merge({ partyChannelFetching: true })
+    })
+    .when(ChatAction.setUpdateMessageScrollAction.matches, (action) => {
+      return s.merge({ updateMessageScroll: action.value })
+    })
+    .when(ChatAction.refetchPartyChannelAction.matches, () => {
+      return s.merge({ partyChannelFetched: false })
+    })
+    .when(ChatAction.removePartyChannelAction.matches, () => {
+      const endedPartyChannelIndex = s.channels.channels.findIndex((channel) => channel.channelType.value === 'party')
+      if (endedPartyChannelIndex > -1) s.channels.channels[endedPartyChannelIndex].set(none)
+      return s
+    })
 }
 
 export const accessChatState = () => getState(ChatState)

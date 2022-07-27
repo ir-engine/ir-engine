@@ -1,4 +1,4 @@
-import { useHookstate } from '@speigg/hookstate'
+import { useHookstate } from '@hookstate/core'
 import * as polyfill from 'credential-handler-polyfill'
 import _ from 'lodash'
 import React, { useEffect, useState } from 'react'

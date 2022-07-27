@@ -57,36 +57,35 @@ export const accessAudioState = () => getState(AudioState)
 export const useAudioState = () => useState(accessAudioState())
 
 export function AudioSettingReceptor(action) {
-  getState(AudioState).batch((s) => {
-    matches(action)
-      .when(AudioSettingAction.setAudio.matches, (action) => {
-        s.merge({ audio: action.audio })
-        ClientStorage.set(AudioSettingKeys.AUDIO, action.audio)
-      })
-      .when(AudioSettingAction.setMicrophone.matches, (action) => {
-        s.merge({ microphone: action.microphone })
-        ClientStorage.set(AudioSettingKeys.MICROPHONE, action.microphone)
-      })
-      .when(AudioSettingAction.setMediaStreamVolume.matches, (action) => {
-        s.merge({ mediaStreamVolume: action.mediastreamVolume })
-        ClientStorage.set(AudioSettingKeys.MEDIA_STREAM_VOLUME, action.mediastreamVolume)
-      })
-      .when(AudioSettingAction.setNotification.matches, (action) => {
-        s.merge({ notificationVolume: action.notificationVolume })
-        ClientStorage.set(AudioSettingKeys.NOTIFICATION_VOLUME, action.notificationVolume)
-      })
-      .when(AudioSettingAction.setSoundEffectsVolume.matches, (action) => {
-        s.merge({ soundEffectsVolume: action.soundEffectsVolume })
-        ClientStorage.set(AudioSettingKeys.SOUND_EFFECT_VOLUME, action.soundEffectsVolume)
-      })
-      .when(AudioSettingAction.setBackgroundMusicVolume.matches, (action) => {
-        s.merge({ backgroundMusicVolume: action.backgroundMusicVolume })
-        ClientStorage.set(AudioSettingKeys.BACKGROUND_MUSIC_VOLUME, action.backgroundMusicVolume)
-      })
-      .when(AudioSettingAction.restoreStorageData.matches, (action) => {
-        s.merge(action.state)
-      })
-  })
+  const s = getState(AudioState)
+  matches(action)
+    .when(AudioSettingAction.setAudio.matches, (action) => {
+      s.merge({ audio: action.audio })
+      ClientStorage.set(AudioSettingKeys.AUDIO, action.audio)
+    })
+    .when(AudioSettingAction.setMicrophone.matches, (action) => {
+      s.merge({ microphone: action.microphone })
+      ClientStorage.set(AudioSettingKeys.MICROPHONE, action.microphone)
+    })
+    .when(AudioSettingAction.setMediaStreamVolume.matches, (action) => {
+      s.merge({ mediaStreamVolume: action.mediastreamVolume })
+      ClientStorage.set(AudioSettingKeys.MEDIA_STREAM_VOLUME, action.mediastreamVolume)
+    })
+    .when(AudioSettingAction.setNotification.matches, (action) => {
+      s.merge({ notificationVolume: action.notificationVolume })
+      ClientStorage.set(AudioSettingKeys.NOTIFICATION_VOLUME, action.notificationVolume)
+    })
+    .when(AudioSettingAction.setSoundEffectsVolume.matches, (action) => {
+      s.merge({ soundEffectsVolume: action.soundEffectsVolume })
+      ClientStorage.set(AudioSettingKeys.SOUND_EFFECT_VOLUME, action.soundEffectsVolume)
+    })
+    .when(AudioSettingAction.setBackgroundMusicVolume.matches, (action) => {
+      s.merge({ backgroundMusicVolume: action.backgroundMusicVolume })
+      ClientStorage.set(AudioSettingKeys.BACKGROUND_MUSIC_VOLUME, action.backgroundMusicVolume)
+    })
+    .when(AudioSettingAction.restoreStorageData.matches, (action) => {
+      s.merge(action.state)
+    })
 }
 
 export class AudioSettingAction {

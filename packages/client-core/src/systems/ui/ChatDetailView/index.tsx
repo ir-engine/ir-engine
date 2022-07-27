@@ -1,4 +1,4 @@
-import { createState, useHookstate } from '@speigg/hookstate'
+import { createState, useHookstate } from '@hookstate/core'
 import React, { Fragment, useRef, useState } from 'react'
 
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
