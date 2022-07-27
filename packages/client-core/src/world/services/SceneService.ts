@@ -17,19 +17,18 @@ const SceneState = defineState({
 })
 
 export const SceneServiceReceptor = (action) => {
-  getState(SceneState).batch((s) => {
-    matches(action)
-      .when(SceneActions.currentSceneChanged.matches, (action) => {
-        return s.merge({
-          currentScene: action.sceneData
-        })
+  const s = getState(SceneState)
+  matches(action)
+    .when(SceneActions.currentSceneChanged.matches, (action) => {
+      return s.merge({
+        currentScene: action.sceneData
       })
-      .when(SceneActions.unloadCurrentScene.matches, (action) => {
-        return s.merge({
-          currentScene: null
-        })
+    })
+    .when(SceneActions.unloadCurrentScene.matches, (action) => {
+      return s.merge({
+        currentScene: null
       })
-  })
+    })
 }
 
 export const accessSceneState = () => getState(SceneState)

@@ -177,7 +177,9 @@ export const createFeathersExpressApp = (
     }) as any
   )
 
-  app.use(requestLogger)
+  // TODO: Investigate why this is letting healthcheck requests through
+  // Disabling for the moment
+  // app.use(requestLogger)
 
   app.use(compress())
   app.use(json())

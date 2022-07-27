@@ -1,4 +1,4 @@
-import { useHookstate } from '@speigg/hookstate'
+import { useHookstate } from '@hookstate/core'
 import React, { ReactNode, useEffect, useRef } from 'react'
 import styled from 'styled-components'
 

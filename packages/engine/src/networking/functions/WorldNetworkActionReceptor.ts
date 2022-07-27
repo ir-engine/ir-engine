@@ -1,4 +1,4 @@
-import { none } from '@speigg/hookstate'
+import { none } from '@hookstate/core'
 
 import { dispatchAction } from '@xrengine/hyperflux'
 

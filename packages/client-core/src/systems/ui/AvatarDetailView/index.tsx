@@ -1,5 +1,5 @@
-import { createState } from '@speigg/hookstate'
-import { useState } from '@speigg/hookstate'
+import { createState } from '@hookstate/core'
+import { useState } from '@hookstate/core'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 

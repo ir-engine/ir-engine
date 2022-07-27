@@ -20,38 +20,37 @@ const WidgetAppState = defineState({
 })
 
 export const WidgetAppServiceReceptor = (action) => {
-  getState(WidgetAppState).batch((s) => {
-    matches(action)
-      .when(WidgetAppActions.showWidgetMenu.matches, (action) => {
-        return s.widgetsMenuOpen.set(action.shown)
-      })
-      .when(WidgetAppActions.registerWidget.matches, (action) => {
-        return s.widgets.merge({
-          [action.id]: {
-            enabled: true,
-            visible: false
-          }
-        })
-      })
-      .when(WidgetAppActions.unregisterWidget.matches, (action) => {
-        if (s.widgets[action.id].visible) {
-          s.widgetsMenuOpen.set(true)
+  const s = getState(WidgetAppState)
+  matches(action)
+    .when(WidgetAppActions.showWidgetMenu.matches, (action) => {
+      return s.widgetsMenuOpen.set(action.shown)
+    })
+    .when(WidgetAppActions.registerWidget.matches, (action) => {
+      return s.widgets.merge({
+        [action.id]: {
+          enabled: true,
+          visible: false
         }
-        return s.widgets[action.id].set(none)
       })
-      .when(WidgetAppActions.enableWidget.matches, (action) => {
-        return s.widgets[action.id].merge({
-          enabled: action.enabled
-        })
+    })
+    .when(WidgetAppActions.unregisterWidget.matches, (action) => {
+      if (s.widgets[action.id].visible) {
+        s.widgetsMenuOpen.set(true)
+      }
+      return s.widgets[action.id].set(none)
+    })
+    .when(WidgetAppActions.enableWidget.matches, (action) => {
+      return s.widgets[action.id].merge({
+        enabled: action.enabled
       })
-      .when(WidgetAppActions.showWidget.matches, (action) => {
-        // if opening or closing a widget, close or open the main menu
-        s.widgetsMenuOpen.set(!action.shown)
-        return s.widgets[action.id].merge({
-          visible: action.shown
-        })
+    })
+    .when(WidgetAppActions.showWidget.matches, (action) => {
+      // if opening or closing a widget, close or open the main menu
+      s.widgetsMenuOpen.set(!action.shown)
+      return s.widgets[action.id].merge({
+        visible: action.shown
       })
-  })
+    })
 }
 
 export const accessWidgetAppState = () => getState(WidgetAppState)

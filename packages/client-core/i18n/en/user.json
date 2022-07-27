@@ -223,6 +223,7 @@
       "phoneError": "Invalid phone #",
       "emailError": "Invalid email address",
       "loginWithReadyPlayerMe": "Login with Ready Player Me",
+      "loginWithXRWallet": "Login with XR Wallet",
       "connectSocial": "Connect with social accounts",
       "addSocial": "Add additional social accounts",
       "removeSocial": "Remove social accounts",
@@ -377,6 +378,8 @@
     "unmuteMe": "Unmute me",
     "muteThisPerson": "Mute this person",
     "unmuteThisPerson": "Unmute this person",
-    "openPictureInPicture": "Open Picture in Picture"
+    "openPictureInPicture": "Open Picture in Picture",
+    "openConferenceMode": "Open Conference Mode",
+    "closeConferenceMode": "Close Conference Mode"
   }
 }

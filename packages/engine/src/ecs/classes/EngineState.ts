@@ -35,42 +35,41 @@ export const EngineState = defineState({
 })
 
 export function EngineEventReceptor(a) {
-  getState(EngineState).batch((s) => {
-    matches(a)
-      .when(EngineActions.browserNotSupported.matches, (action) => {})
-      .when(EngineActions.resetEngine.matches, (action) =>
-        s.merge({
-          socketInstance: action.instance
-        })
-      )
-      .when(EngineActions.userAvatarTapped.matches, (action) =>
-        s.merge({
-          avatarTappedId: action.userId
-        })
-      )
-      .when(EngineActions.initializeEngine.matches, (action) => s.merge({ isEngineInitialized: action.initialised }))
-      .when(EngineActions.sceneUnloaded.matches, (action) => s.merge({ sceneLoaded: false }))
-      .when(EngineActions.sceneLoaded.matches, (action) => s.merge({ sceneLoaded: true, loadingProgress: 100 }))
-      .when(EngineActions.joinedWorld.matches, (action) => s.merge({ joinedWorld: true }))
-      .when(EngineActions.leaveWorld.matches, (action) => s.merge({ joinedWorld: false }))
-      .when(EngineActions.sceneLoadingProgress.matches, (action) => s.merge({ loadingProgress: action.progress }))
-      .when(EngineActions.connectToWorld.matches, (action) => s.merge({ connectedWorld: action.connectedWorld }))
-      .when(EngineActions.setTeleporting.matches, (action) => s.merge({ isTeleporting: action.isTeleporting }))
-      .when(EngineActions.setUserHasInteracted.matches, (action) => s.merge({ userHasInteracted: true }))
-      .when(EngineActions.updateEntityError.matches, (action) => s.errorEntities[action.entity].set(!action.isResolved))
-      .when(EngineActions.xrSupported.matches, (action) => s.xrSupported.set(action.xrSupported))
-      .when(EngineActions.xrStart.matches, (action) => s.xrSessionStarted.set(true))
-      .when(EngineActions.xrSession.matches, (action) => s.xrSessionStarted.set(true))
-      .when(EngineActions.xrEnd.matches, (action) => s.xrSessionStarted.set(false))
-      .when(EngineActions.availableInteractable.matches, (action) =>
-        s.availableInteractable.set(action.availableInteractable)
-      )
-      .when(EngineActions.spectateUser.matches, (action) => s.spectating.set(!!action.user))
-      .when(EngineActions.shareInteractableLink.matches, (action) => {
-        s.shareLink.set(action.shareLink)
-        s.shareTitle.set(action.shareTitle)
+  const s = getState(EngineState)
+  matches(a)
+    .when(EngineActions.browserNotSupported.matches, (action) => {})
+    .when(EngineActions.resetEngine.matches, (action) =>
+      s.merge({
+        socketInstance: action.instance
       })
-  })
+    )
+    .when(EngineActions.userAvatarTapped.matches, (action) =>
+      s.merge({
+        avatarTappedId: action.userId
+      })
+    )
+    .when(EngineActions.initializeEngine.matches, (action) => s.merge({ isEngineInitialized: action.initialised }))
+    .when(EngineActions.sceneUnloaded.matches, (action) => s.merge({ sceneLoaded: false }))
+    .when(EngineActions.sceneLoaded.matches, (action) => s.merge({ sceneLoaded: true, loadingProgress: 100 }))
+    .when(EngineActions.joinedWorld.matches, (action) => s.merge({ joinedWorld: true }))
+    .when(EngineActions.leaveWorld.matches, (action) => s.merge({ joinedWorld: false }))
+    .when(EngineActions.sceneLoadingProgress.matches, (action) => s.merge({ loadingProgress: action.progress }))
+    .when(EngineActions.connectToWorld.matches, (action) => s.merge({ connectedWorld: action.connectedWorld }))
+    .when(EngineActions.setTeleporting.matches, (action) => s.merge({ isTeleporting: action.isTeleporting }))
+    .when(EngineActions.setUserHasInteracted.matches, (action) => s.merge({ userHasInteracted: true }))
+    .when(EngineActions.updateEntityError.matches, (action) => s.errorEntities[action.entity].set(!action.isResolved))
+    .when(EngineActions.xrSupported.matches, (action) => s.xrSupported.set(action.xrSupported))
+    .when(EngineActions.xrStart.matches, (action) => s.xrSessionStarted.set(true))
+    .when(EngineActions.xrSession.matches, (action) => s.xrSessionStarted.set(true))
+    .when(EngineActions.xrEnd.matches, (action) => s.xrSessionStarted.set(false))
+    .when(EngineActions.availableInteractable.matches, (action) =>
+      s.availableInteractable.set(action.availableInteractable)
+    )
+    .when(EngineActions.spectateUser.matches, (action) => s.spectating.set(!!action.user))
+    .when(EngineActions.shareInteractableLink.matches, (action) => {
+      s.shareLink.set(action.shareLink)
+      s.shareTitle.set(action.shareTitle)
+    })
 }
 
 export const getEngineState = () => getState(EngineState)

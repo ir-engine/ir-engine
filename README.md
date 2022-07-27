@@ -1,8 +1,6 @@
 # Ethereal Engine _(XREngine)_
 
-![Ethereal Engine logo light mode](https://user-images.githubusercontent.com/507127/176916054-e2ddf82b-b8c6-4e9a-8607-44b6430f38ea.png#gh-light-mode-only)
-
-![Ethereal Engine logo dark mode](https://user-images.githubusercontent.com/507127/176916201-238cbf8f-7a79-4bdb-83b7-87c8edec1df1.png#gh-dark-mode-only)
+![Ethereal Engine logo](https://user-images.githubusercontent.com/5104160/181167947-2cf42b34-7dd6-4e71-b840-c25b8cf850e6.png)
 
 >  Manifest your dreams on the open social spatial web.
 
@@ -137,6 +135,8 @@ do our best to get you set up.
 We are always hiring talented people who want to be leaders in what is to come. 
 Inquire with anyone who seems like they know what's going on and they'll help 
 you find who you need to talk to.
+
+![msf-member-badge-small](https://user-images.githubusercontent.com/5104160/181168132-57a91f8b-16c9-45f0-a0ee-c89f8f018a80.png)
 
 ### [Join our Discord](https://discord.gg/xrf)  [![Discord Chat](https://img.shields.io/discord/692672143053422678.svg)](https://discord.gg/xrf)
 

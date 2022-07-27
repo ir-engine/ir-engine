@@ -1,5 +1,9 @@
 @import "@xrengine/client-core/src/styles/imports.module.scss";
 
+.credential-mediator {
+  pointer-events: auto;
+}
+
 :root {
   --lato: "Lato", sans-serif;
   --zilla: "Zilla Slab", sans-serif;
