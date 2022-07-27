@@ -20,15 +20,14 @@ const AdminClientSettingsState = defineState({
 })
 
 export const ClientSettingsServiceReceptor = (action) => {
-  getState(AdminClientSettingsState).batch((s) => {
-    matches(action)
-      .when(ClientSettingActions.fetchedClient.matches, (action) => {
-        return s.merge({ client: action.clientSettings.data, updateNeeded: false })
-      })
-      .when(ClientSettingActions.clientSettingPatched.matches, (action) => {
-        return s.updateNeeded.set(true)
-      })
-  })
+  const s = getState(AdminClientSettingsState)
+  matches(action)
+    .when(ClientSettingActions.fetchedClient.matches, (action) => {
+      return s.merge({ client: action.clientSettings.data, updateNeeded: false })
+    })
+    .when(ClientSettingActions.clientSettingPatched.matches, (action) => {
+      return s.updateNeeded.set(true)
+    })
 }
 
 // const fetchedClientReceptor = (action: typeof ClientSettingActions.fetchedClient.matches._TYPE) => {

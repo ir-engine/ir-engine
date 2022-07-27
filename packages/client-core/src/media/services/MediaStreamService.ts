@@ -26,30 +26,29 @@ export const MediaState = defineState({
 })
 
 export const MediaServiceReceptor = (action) => {
-  getState(MediaState).batch((s) => {
-    matches(action)
-      .when(MediaStreamAction.setCamVideoStateAction.matches, (action) => {
-        return s.isCamVideoEnabled.set(action.isEnable)
-      })
-      .when(MediaStreamAction.setCamAudioStateAction.matches, (action) => {
-        return s.isCamAudioEnabled.set(action.isEnable)
-      })
-      .when(MediaStreamAction.setScreenVideoStateAction.matches, (action) => {
-        return s.isScreenVideoEnabled.set(action.isEnable)
-      })
-      .when(MediaStreamAction.setScreenAudioStateAction.matches, (action) => {
-        return s.isScreenAudioEnabled.set(action.isEnable)
-      })
-      .when(MediaStreamAction.setFaceTrackingStateAction.matches, (action) => {
-        return s.isFaceTrackingEnabled.set(action.isEnable)
-      })
-      .when(MediaStreamAction.setMediaEnabledByDefaultAction.matches, (action) => {
-        return s.enableBydefault.set(action.isEnable)
-      })
-      .when(MediaStreamAction.setConsumersAction.matches, (action) => {
-        return s.consumers.set(action.consumers)
-      })
-  })
+  const s = getState(MediaState)
+  matches(action)
+    .when(MediaStreamAction.setCamVideoStateAction.matches, (action) => {
+      return s.isCamVideoEnabled.set(action.isEnable)
+    })
+    .when(MediaStreamAction.setCamAudioStateAction.matches, (action) => {
+      return s.isCamAudioEnabled.set(action.isEnable)
+    })
+    .when(MediaStreamAction.setScreenVideoStateAction.matches, (action) => {
+      return s.isScreenVideoEnabled.set(action.isEnable)
+    })
+    .when(MediaStreamAction.setScreenAudioStateAction.matches, (action) => {
+      return s.isScreenAudioEnabled.set(action.isEnable)
+    })
+    .when(MediaStreamAction.setFaceTrackingStateAction.matches, (action) => {
+      return s.isFaceTrackingEnabled.set(action.isEnable)
+    })
+    .when(MediaStreamAction.setMediaEnabledByDefaultAction.matches, (action) => {
+      return s.enableBydefault.set(action.isEnable)
+    })
+    .when(MediaStreamAction.setConsumersAction.matches, (action) => {
+      return s.consumers.set(action.consumers)
+    })
 }
 
 export const accessMediaStreamState = () => getState(MediaState)

@@ -1,4 +1,4 @@
-import { none } from '@speigg/hookstate'
+import { none } from '@hookstate/core'
 import { useEffect } from 'react'
 
 import { CreateGroup, Group } from '@xrengine/common/src/interfaces/Group'
@@ -38,115 +38,114 @@ const GroupState = defineState({
 })
 
 export const GroupServiceReceptor = (action) => {
-  getState(GroupState).batch((s) => {
-    matches(action)
-      .when(GroupAction.loadedGroups.matches, (action) => {
-        if (s.updateNeeded.value === true) {
-          s.groups.groups.set(action.groups)
-        } else {
-          s.groups.groups.set([...s.groups.groups.value, ...action.groups])
-        }
-        s.groups.merge({ skip: action.skip, limit: action.limit, total: action.total })
-        s.updateNeeded.set(false)
-        return s.getGroupsInProgress.set(false)
+  const s = getState(GroupState)
+  matches(action)
+    .when(GroupAction.loadedGroups.matches, (action) => {
+      if (s.updateNeeded.value === true) {
+        s.groups.groups.set(action.groups)
+      } else {
+        s.groups.groups.set([...s.groups.groups.value, ...action.groups])
+      }
+      s.groups.merge({ skip: action.skip, limit: action.limit, total: action.total })
+      s.updateNeeded.set(false)
+      return s.getGroupsInProgress.set(false)
+    })
+    .when(GroupAction.loadedInvitableGroups.matches, (action) => {
+      if (s.updateNeeded.value === true) {
+        s.invitableGroups.groups.set(action.groups)
+      } else {
+        s.invitableGroups.groups.set([...s.invitableGroups.groups.value, ...action.groups])
+      }
+      s.invitableGroups.skip.set(action.skip)
+      s.invitableGroups.limit.set(action.limit)
+      s.invitableGroups.total.set(action.total)
+      return s.merge({ invitableUpdateNeeded: false, getInvitableGroupsInProgress: false })
+    })
+    .when(GroupAction.createdGroup.matches, () => {
+      return s.merge({ updateNeeded: true, invitableUpdateNeeded: true })
+    })
+    .when(GroupAction.patchedGroup.matches, (action) => {
+      const groupIndex = s.groups.groups.value.findIndex((groupItem) => {
+        return groupItem != null && groupItem.id === action.group.id
       })
-      .when(GroupAction.loadedInvitableGroups.matches, (action) => {
-        if (s.updateNeeded.value === true) {
-          s.invitableGroups.groups.set(action.groups)
-        } else {
-          s.invitableGroups.groups.set([...s.invitableGroups.groups.value, ...action.groups])
-        }
-        s.invitableGroups.skip.set(action.skip)
-        s.invitableGroups.limit.set(action.limit)
-        s.invitableGroups.total.set(action.total)
-        return s.merge({ invitableUpdateNeeded: false, getInvitableGroupsInProgress: false })
+      if (groupIndex !== -1) {
+        return s.groups.groups[groupIndex].set(action.group)
+      }
+      return s
+    })
+    .when(GroupAction.removedGroup.matches, () => {
+      s.updateNeeded.set(true)
+      return s.invitableUpdateNeeded.set(true)
+    })
+    .when(GroupAction.invitedGroupUser.matches, () => {
+      return s.updateNeeded.set(true)
+    })
+    .when(GroupAction.leftGroup.matches, () => {
+      return s.updateNeeded.set(true)
+    })
+    .when(GroupAction.fetchingGroups.matches, () => {
+      return s.getGroupsInProgress.set(true)
+    })
+    .when(GroupAction.fetchingInvitableGroups.matches, () => {
+      return s.getInvitableGroupsInProgress.set(true)
+    })
+    .when(GroupAction.createdGroupUser.matches, (action) => {
+      const groupIndex = s.groups.groups.value.findIndex((groupItem) => {
+        return groupItem != null && groupItem.id === action.groupUser.groupId
       })
-      .when(GroupAction.createdGroup.matches, () => {
-        return s.merge({ updateNeeded: true, invitableUpdateNeeded: true })
-      })
-      .when(GroupAction.patchedGroup.matches, (action) => {
-        const groupIndex = s.groups.groups.value.findIndex((groupItem) => {
-          return groupItem != null && groupItem.id === action.group.id
+      if (groupIndex !== -1) {
+        const group = s.groups.groups[groupIndex]
+        const groupUserIndex = group.groupUsers.value!.findIndex((groupUserItem) => {
+          return groupUserItem != null && groupUserItem.id === action.groupUser.id
         })
-        if (groupIndex !== -1) {
-          return s.groups.groups[groupIndex].set(action.group)
+        if (groupUserIndex !== -1) {
+          group.groupUsers[groupUserIndex].set(action.groupUser)
+        } else {
+          group.groupUsers.merge(action.groupUser)
         }
-        return s
-      })
-      .when(GroupAction.removedGroup.matches, () => {
-        s.updateNeeded.set(true)
-        return s.invitableUpdateNeeded.set(true)
-      })
-      .when(GroupAction.invitedGroupUser.matches, () => {
-        return s.updateNeeded.set(true)
-      })
-      .when(GroupAction.leftGroup.matches, () => {
-        return s.updateNeeded.set(true)
-      })
-      .when(GroupAction.fetchingGroups.matches, () => {
-        return s.getGroupsInProgress.set(true)
-      })
-      .when(GroupAction.fetchingInvitableGroups.matches, () => {
-        return s.getInvitableGroupsInProgress.set(true)
-      })
-      .when(GroupAction.createdGroupUser.matches, (action) => {
-        const groupIndex = s.groups.groups.value.findIndex((groupItem) => {
-          return groupItem != null && groupItem.id === action.groupUser.groupId
-        })
-        if (groupIndex !== -1) {
-          const group = s.groups.groups[groupIndex]
-          const groupUserIndex = group.groupUsers.value!.findIndex((groupUserItem) => {
-            return groupUserItem != null && groupUserItem.id === action.groupUser.id
-          })
-          if (groupUserIndex !== -1) {
-            group.groupUsers[groupUserIndex].set(action.groupUser)
-          } else {
-            group.groupUsers.merge(action.groupUser)
-          }
-        }
+      }
 
-        return s.merge({ updateNeeded: true })
+      return s.merge({ updateNeeded: true })
+    })
+    .when(GroupAction.patchedGroupUser.matches, (action) => {
+      const groupIndex = s.groups.groups.value.findIndex((groupItem) => {
+        return groupItem != null && groupItem.id === action.groupUser.groupId
       })
-      .when(GroupAction.patchedGroupUser.matches, (action) => {
-        const groupIndex = s.groups.groups.value.findIndex((groupItem) => {
-          return groupItem != null && groupItem.id === action.groupUser.groupId
+      if (groupIndex !== -1) {
+        const group = s.groups.groups[groupIndex]
+        const groupUserIndex = group.groupUsers.value!.findIndex((groupUserItem) => {
+          return groupUserItem != null && groupUserItem.id === action.groupUser.id
         })
-        if (groupIndex !== -1) {
-          const group = s.groups.groups[groupIndex]
-          const groupUserIndex = group.groupUsers.value!.findIndex((groupUserItem) => {
-            return groupUserItem != null && groupUserItem.id === action.groupUser.id
-          })
-          if (groupUserIndex !== -1) {
-            group.groupUsers[groupUserIndex].set(action.groupUser)
-          } else {
-            group.groupUsers.merge(action.groupUser)
-          }
+        if (groupUserIndex !== -1) {
+          group.groupUsers[groupUserIndex].set(action.groupUser)
+        } else {
+          group.groupUsers.merge(action.groupUser)
         }
-        return s
+      }
+      return s
+    })
+    .when(GroupAction.removedGroupUser.matches, (action) => {
+      const groupIndex = s.groups.groups.value.findIndex((groupItem) => {
+        return groupItem != null && groupItem.id === action.groupUser.groupId
       })
-      .when(GroupAction.removedGroupUser.matches, (action) => {
-        const groupIndex = s.groups.groups.value.findIndex((groupItem) => {
-          return groupItem != null && groupItem.id === action.groupUser.groupId
+      if (groupIndex !== -1) {
+        const group = s.groups.groups[groupIndex]
+        const groupUserIndex = group.groupUsers.value!.findIndex((groupUserItem) => {
+          return groupUserItem != null && groupUserItem.id === action.groupUser.id
         })
-        if (groupIndex !== -1) {
-          const group = s.groups.groups[groupIndex]
-          const groupUserIndex = group.groupUsers.value!.findIndex((groupUserItem) => {
-            return groupUserItem != null && groupUserItem.id === action.groupUser.id
+        if (groupUserIndex !== -1) {
+          group.groupUsers.merge({
+            [groupUserIndex]: none
           })
-          if (groupUserIndex !== -1) {
-            group.groupUsers.merge({
-              [groupUserIndex]: none
-            })
-          }
         }
-        return action.self === true
-          ? s.merge({ closeDetails: action.groupUser.groupId, updateNeeded: true })
-          : s.merge({ updateNeeded: true })
-      })
-      .when(GroupAction.removeCloseGroupDetail.matches, () => {
-        return s.closeDetails.set('')
-      })
-  })
+      }
+      return action.self === true
+        ? s.merge({ closeDetails: action.groupUser.groupId, updateNeeded: true })
+        : s.merge({ updateNeeded: true })
+    })
+    .when(GroupAction.removeCloseGroupDetail.matches, () => {
+      return s.closeDetails.set('')
+    })
 }
 
 export const accessGroupState = () => getState(GroupState)

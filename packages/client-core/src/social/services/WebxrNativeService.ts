@@ -1,4 +1,4 @@
-import { createState } from '@speigg/hookstate'
+import { createState } from '@hookstate/core'
 
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { addActionReceptor, defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
@@ -14,15 +14,14 @@ const WebxrState = defineState({
 })
 
 export const WebxrNativeServiceReceptor = (action) => {
-  getState(WebxrState).batch((s) => {
-    matches(action)
-      .when(WebxrNativeAction.setWebXrNative.matches, () => {
-        return s.webxrnative.set(false)
-      })
-      .when(WebxrNativeAction.toggleWebXrNative.matches, () => {
-        return s.webxrnative.set(!s.webxrnative.value)
-      })
-  })
+  const s = getState(WebxrState)
+  matches(action)
+    .when(WebxrNativeAction.setWebXrNative.matches, () => {
+      return s.webxrnative.set(false)
+    })
+    .when(WebxrNativeAction.toggleWebXrNative.matches, () => {
+      return s.webxrnative.set(!s.webxrnative.value)
+    })
 }
 
 export const accessWebxrNativeState = () => getState(WebxrState)

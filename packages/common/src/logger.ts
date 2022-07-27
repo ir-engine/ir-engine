@@ -71,7 +71,7 @@ const multiLogger = {
           const logParams = encodeLogParams(...args)
 
           // In addition to sending to logging endpoint,  output to console
-          consoleMethods[level]({ component: opts.component, level, ...logParams })
+          consoleMethods[level](...args)
 
           // Send to backend /api/log endpoint for aggregation
           if (hostDefined) {

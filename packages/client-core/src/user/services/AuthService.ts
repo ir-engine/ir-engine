@@ -1,5 +1,5 @@
 import { Paginated } from '@feathersjs/feathers'
-import { Downgraded } from '@speigg/hookstate'
+import { Downgraded } from '@hookstate/core'
 // TODO: Decouple this
 // import { endVideoChat, leave } from '@xrengine/engine/src/networking/functions/SocketWebRTCClientFunctions';
 import axios from 'axios'
@@ -93,76 +93,75 @@ export const avatarFetchedReceptor = (s: any, action: any) => {
 }
 
 export const AuthServiceReceptor = (action) => {
-  getState(AuthState).batch((s) => {
-    matches(action)
-      .when(AuthAction.actionProcessing.matches, (action) => {
-        return s.merge({ isProcessing: action.processing, error: '' })
+  const s = getState(AuthState)
+  matches(action)
+    .when(AuthAction.actionProcessing.matches, (action) => {
+      return s.merge({ isProcessing: action.processing, error: '' })
+    })
+    .when(AuthAction.loginUserSuccessAction.matches, (action) => {
+      return s.merge({ authUser: action.authUser })
+    })
+    .when(AuthAction.loadedUserDataAction.matches, (action) => {
+      return s.merge({ isLoggedIn: true, user: action.user })
+    })
+    .when(AuthAction.loginUserErrorAction.matches, (action) => {
+      return s.merge({ error: action.message })
+    })
+    .when(AuthAction.loginUserByGithubSuccessAction.matches, (action) => {
+      return s
+    })
+    .when(AuthAction.loginUserByLinkedinSuccessAction.matches, (action) => {
+      return s
+    })
+    .when(AuthAction.loginUserByGithubErrorAction.matches, (action) => {
+      return s.merge({ error: action.message })
+    })
+    .when(AuthAction.loginUserByLinkedinErrorAction.matches, (action) => {
+      return s.merge({ error: action.message })
+    })
+    .when(AuthAction.registerUserByEmailSuccessAction.matches, (action) => {
+      return s.merge({ identityProvider: action.identityProvider })
+    })
+    .when(AuthAction.registerUserByEmailErrorAction.matches, (action) => {
+      return s
+    })
+    .when(AuthAction.didLogoutAction.matches, () => {
+      return s.merge({ isLoggedIn: false, user: UserSeed, authUser: AuthUserSeed })
+    })
+    .when(AuthAction.didVerifyEmailAction.matches, (action) => {
+      return s.identityProvider.merge({ isVerified: action.result })
+    })
+    .when(StoredLocalAction.restoreLocalData.matches, () => {
+      const stored = accessStoredLocalState().attach(Downgraded).value
+      return s.merge({
+        authUser: stored.authUser,
+        identityProvider: stored.authUser?.identityProvider
       })
-      .when(AuthAction.loginUserSuccessAction.matches, (action) => {
-        return s.merge({ authUser: action.authUser })
-      })
-      .when(AuthAction.loadedUserDataAction.matches, (action) => {
-        return s.merge({ isLoggedIn: true, user: action.user })
-      })
-      .when(AuthAction.loginUserErrorAction.matches, (action) => {
-        return s.merge({ error: action.message })
-      })
-      .when(AuthAction.loginUserByGithubSuccessAction.matches, (action) => {
-        return s
-      })
-      .when(AuthAction.loginUserByLinkedinSuccessAction.matches, (action) => {
-        return s
-      })
-      .when(AuthAction.loginUserByGithubErrorAction.matches, (action) => {
-        return s.merge({ error: action.message })
-      })
-      .when(AuthAction.loginUserByLinkedinErrorAction.matches, (action) => {
-        return s.merge({ error: action.message })
-      })
-      .when(AuthAction.registerUserByEmailSuccessAction.matches, (action) => {
-        return s.merge({ identityProvider: action.identityProvider })
-      })
-      .when(AuthAction.registerUserByEmailErrorAction.matches, (action) => {
-        return s
-      })
-      .when(AuthAction.didLogoutAction.matches, () => {
-        return s.merge({ isLoggedIn: false, user: UserSeed, authUser: AuthUserSeed })
-      })
-      .when(AuthAction.didVerifyEmailAction.matches, (action) => {
-        return s.identityProvider.merge({ isVerified: action.result })
-      })
-      .when(StoredLocalAction.restoreLocalData.matches, () => {
-        const stored = accessStoredLocalState().attach(Downgraded).value
-        return s.merge({
-          authUser: stored.authUser,
-          identityProvider: stored.authUser?.identityProvider
-        })
-      })
-      .when(AuthAction.avatarUpdatedAction.matches, (action) => {
-        return s.user.merge({ avatarUrl: action.url })
-      })
-      .when(AuthAction.usernameUpdatedAction.matches, (action) => {
-        return s.user.merge({ name: action.name })
-      })
-      .when(AuthAction.apiKeyUpdatedAction.matches, (action) => {
-        return s.user.merge({ apiKey: action.apiKey })
-      })
-      .when(AuthAction.userAvatarIdUpdatedAction.matches, (action) => {
-        return s.user.merge({ avatarId: action.avatarId })
-      })
-      .when(AuthAction.userUpdatedAction.matches, (action) => {
-        return s.merge({ user: action.user })
-      })
-      .when(AuthAction.userPatchedAction.matches, (action) => {
-        return userPatched(action.params)
-      })
-      .when(AuthAction.updatedUserSettingsAction.matches, (action) => {
-        return s.user.merge({ user_setting: action.data })
-      })
-      .when(AuthAction.updateAvatarListAction.matches, (action) => {
-        return avatarFetchedReceptor(s, action)
-      })
-  })
+    })
+    .when(AuthAction.avatarUpdatedAction.matches, (action) => {
+      return s.user.merge({ avatarUrl: action.url })
+    })
+    .when(AuthAction.usernameUpdatedAction.matches, (action) => {
+      return s.user.merge({ name: action.name })
+    })
+    .when(AuthAction.apiKeyUpdatedAction.matches, (action) => {
+      return s.user.merge({ apiKey: action.apiKey })
+    })
+    .when(AuthAction.userAvatarIdUpdatedAction.matches, (action) => {
+      return s.user.merge({ avatarId: action.avatarId })
+    })
+    .when(AuthAction.userUpdatedAction.matches, (action) => {
+      return s.merge({ user: action.user })
+    })
+    .when(AuthAction.userPatchedAction.matches, (action) => {
+      return userPatched(action.params)
+    })
+    .when(AuthAction.updatedUserSettingsAction.matches, (action) => {
+      return s.user.merge({ user_setting: action.data })
+    })
+    .when(AuthAction.updateAvatarListAction.matches, (action) => {
+      return avatarFetchedReceptor(s, action)
+    })
 }
 
 export const accessAuthState = () => getState(AuthState)

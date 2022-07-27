@@ -1,5 +1,5 @@
 import { WebContainer3D, WebLayerManager } from '@etherealjs/web-layer/three'
-import { State } from '@speigg/hookstate'
+import { State } from '@hookstate/core'
 import React from 'react'
 
 import { Entity } from '../../ecs/classes/Entity'
