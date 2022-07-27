@@ -98,8 +98,6 @@ const grip = (entity: Entity, inputKey: InputAlias, inputValue: InputValue): voi
  */
 
 const interact = (entity: Entity, inputKey: InputAlias, inputValue: InputValue): void => {
-  /** @todo refactor this into new interactable implementation */
-
   if (inputValue.lifecycleState !== LifecycleValue.Started) return
   const parityValue = getParityFromInputValue(inputKey)
 

@@ -47,6 +47,7 @@ import { EditorComponentType, updateProperty } from './Util'
 export const ModelNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
   const [animationPlaying, setAnimationPlaying] = useState(false)
+  const [isEquippable, setEquippable] = useState(hasComponent(props.node.entity, EquippableComponent))
   const engineState = useEngineState()
   const entity = props.node.entity
 
@@ -78,14 +79,17 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
       value: node.uuid
     })
   })
-  const isEquippable = hasComponent(props.node.entity, EquippableComponent)
+
   const onChangeEquippable = () => {
     if (isEquippable) {
       const editorComponent = getComponent(entity, EntityNodeComponent).components
       editorComponent.splice(editorComponent.indexOf(SCENE_COMPONENT_EQUIPPABLE), 1)
       removeComponent(props.node.entity, EquippableComponent)
+      setEquippable(false)
     } else {
       addComponent(props.node.entity, EquippableComponent, true)
+      getComponent(entity, EntityNodeComponent).components.push(SCENE_COMPONENT_EQUIPPABLE)
+      setEquippable(true)
     }
   }
 

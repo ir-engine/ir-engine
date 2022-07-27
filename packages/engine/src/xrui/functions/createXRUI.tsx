@@ -1,7 +1,8 @@
-import { WebContainer3D, WebLayerManager } from '@etherealjs/web-layer/three'
+import type { WebContainer3D } from '@etherealjs/web-layer/three'
 import { State } from '@speigg/hookstate'
 import React from 'react'
 
+import { isNode } from '../../common/functions/getEnvironment'
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
@@ -19,33 +20,24 @@ export async function loadXRUIDeps() {
   ;[Ethereal, ReactDOM] = await Promise.all([import('@etherealjs/web-layer/three'), import('react-dom')])
 }
 
-function createWebContainer<S extends State<any> | null>(
-  UI: React.FC,
-  state: S,
-  options: import('@etherealjs/web-layer/three').WebContainer3DOptions
-) {
+export function createXRUI<S extends State<any> | null>(UIFunc: React.FC, state = null as S): XRUI<S> {
+  if (isNode) throw new Error('XRUI is not supported in nodejs')
+
+  const entity = createEntity()
+
   const containerElement = document.createElement('div')
   containerElement.style.position = 'fixed'
-  containerElement.id = 'xrui-' + UI.name
+  containerElement.id = 'xrui-' + UIFunc.name
 
   ReactDOM.render(
     //@ts-ignore
     <XRUIStateContext.Provider value={state}>
-      <UI />
+      <UIFunc />
     </XRUIStateContext.Provider>,
     containerElement
   )
 
-  options.autoRefresh = options.autoRefresh ?? true
-  return new Ethereal.WebContainer3D(containerElement, options)
-}
-
-export function createXRUI<S extends State<any> | null>(UIFunc: React.FC, state = null as S): XRUI<S> {
-  const entity = createEntity()
-
-  const container = createWebContainer(UIFunc, state, {
-    manager: WebLayerManager.instance
-  })
+  const container = new Ethereal.WebContainer3D(containerElement, { manager: Ethereal.WebLayerManager.instance })
 
   container.raycaster.layers.enableAll()
 

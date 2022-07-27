@@ -94,7 +94,7 @@ describe('Equippables Integration Tests', () => {
     assert(hasComponent(equipperEntity, EquipperComponent))
     const equipperComponent = getComponent(equipperEntity, EquipperComponent)
     assert.equal(equippableEntity, equipperComponent.equippedEntity)
-    // assert(hasComponent(equippableEntity, NetworkObjectOwnedTag))
+    // assert(hasComponent(equippableEntity, NetworkObjectAuthorityTag))
     assert(hasComponent(equippableEntity, EquippedComponent))
 
     // unequip stuff
@@ -107,7 +107,7 @@ describe('Equippables Integration Tests', () => {
 
     // validations for unequip
     assert(!hasComponent(equipperEntity, EquipperComponent))
-    // assert(!hasComponent(equippableEntity, NetworkObjectOwnedTag))
+    // assert(!hasComponent(equippableEntity, NetworkObjectAuthorityTag))
     assert(!hasComponent(equippableEntity, EquippedComponent))
   })
 })

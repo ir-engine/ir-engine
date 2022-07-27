@@ -6,18 +6,20 @@ import { RigidBodyDynamicTagComponent } from '../../physics/components/RigidBody
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { BoundingBoxComponent } from '../components/BoundingBoxComponent'
+import { BoundingBoxDynamicTagComponent } from '../components/BoundingBoxDynamicTagComponent'
 
 export const createBoxComponent = (entity: Entity) => {
   const dynamic = hasComponent(entity, RigidBodyDynamicTagComponent)
 
-  const calcBoundingBox = addComponent(entity, BoundingBoxComponent, { dynamic, box: new Box3() })
+  if (dynamic) addComponent(entity, BoundingBoxDynamicTagComponent, true)
+
+  const calcBoundingBox = addComponent(entity, BoundingBoxComponent, { box: new Box3() })
 
   const object3D = getComponent(entity, Object3DComponent).value
   const transform = getComponent(entity, TransformComponent)
 
   object3D.position.copy(transform.position)
   object3D.rotation.setFromQuaternion(transform.rotation)
-  if (!calcBoundingBox.dynamic) object3D.updateMatrixWorld()
 
   let hasBoxExpanded = false
 
@@ -26,7 +28,7 @@ export const createBoxComponent = (entity: Entity) => {
     if (obj3d.isMesh) {
       obj3d.geometry.computeBoundingBox()
       const aabb = new Box3().copy(obj3d.geometry.boundingBox!)
-      if (!calcBoundingBox.dynamic) aabb.applyMatrix4(obj3d.matrixWorld)
+      aabb.applyMatrix4(obj3d.matrixWorld)
       if (hasBoxExpanded) {
         calcBoundingBox.box.union(aabb)
       } else {

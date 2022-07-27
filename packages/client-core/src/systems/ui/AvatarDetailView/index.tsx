@@ -33,6 +33,7 @@ const AvatarDetailView = () => {
 
   return (
     <>
+      <link href="https://fonts.googleapis.com/css?family=Lato:400" rel="stylesheet" type="text/css" />
       <style>{styleString}</style>
       {user && (
         <div className="avatarName">

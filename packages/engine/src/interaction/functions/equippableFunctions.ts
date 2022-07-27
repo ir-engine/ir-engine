@@ -17,38 +17,31 @@ export const equipEntity = (
   attachmentPoint: EquippableAttachmentPoint = EquippableAttachmentPoint.RIGHT_HAND
 ): void => {
   if (!hasComponent(equipperEntity, EquipperComponent) && !hasComponent(equippedEntity, EquippedComponent)) {
-    addComponent(equipperEntity, EquipperComponent, { equippedEntity, data: {} as any })
+    addComponent(equipperEntity, EquipperComponent, { equippedEntity })
     addComponent(equippedEntity, EquippedComponent, { equipperEntity, attachmentPoint })
-    dispatchEquipEntity(equippedEntity, true)
+    const networkComponent = getComponent(equippedEntity, NetworkObjectComponent)
+    dispatchAction(
+      WorldNetworkAction.requestAuthorityOverObject({
+        networkId: networkComponent.networkId,
+        ownerId: networkComponent.ownerId,
+        newAuthority: Engine.instance.userId,
+        $to: networkComponent.ownerId
+      })
+    )
   }
 }
 
 export const unequipEntity = (equipperEntity: Entity): void => {
-  console.log('unequip')
   const equipperComponent = getComponent(equipperEntity, EquipperComponent)
   if (!equipperComponent) return
-
-  console.log(equipperComponent)
   removeComponent(equipperEntity, EquipperComponent)
-  dispatchEquipEntity(equipperComponent.equippedEntity, false)
-}
-
-const dispatchEquipEntity = (equippedEntity: Entity, equip: boolean): void => {
-  const world = Engine.instance.currentWorld
-  if (Engine.instance.userId === world.worldNetwork.hostId) return
-
-  const equippedComponent = getComponent(equippedEntity, EquippedComponent)
-  const attachmentPoint = equippedComponent.attachmentPoint
-  const networkComponet = getComponent(equippedEntity, NetworkObjectComponent)
-
+  const networkComponent = getComponent(equipperComponent.equippedEntity, NetworkObjectComponent)
   dispatchAction(
-    WorldNetworkAction.setEquippedObject({
-      object: {
-        ownerId: networkComponet.ownerId,
-        networkId: networkComponet.networkId
-      },
-      attachmentPoint: attachmentPoint,
-      equip: equip
+    WorldNetworkAction.transferAuthorityOfObject({
+      networkId: networkComponent.networkId,
+      ownerId: networkComponent.ownerId,
+      newAuthority: networkComponent.ownerId,
+      $to: networkComponent.ownerId
     })
   )
 }

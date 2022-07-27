@@ -3,6 +3,7 @@ import { Quaternion, Vector3 } from 'three'
 
 import { createActionQueue } from '@xrengine/hyperflux'
 
+import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
@@ -14,7 +15,7 @@ import { TransformComponent } from '../../transform/components/TransformComponen
 import { Physics } from '../classes/Physics'
 import { RaycastComponent } from '../components/RaycastComponent'
 import { RigidBodyComponent } from '../components/RigidBodyComponent'
-import { RigidBodyDynamicTagComponent } from '../components/RigidBodyDynamicTagComponent'
+import { RigidBodyFixedTagComponent } from '../components/RigidBodyFixedTagComponent'
 import { VelocityComponent } from '../components/VelocityComponent'
 
 // Receptor
@@ -81,15 +82,15 @@ export default async function PhysicsSystem(world: World) {
 
   const dirtyNetworkedDynamicRigidBodyQuery = defineQuery([
     NetworkObjectComponent,
-    RigidBodyComponent,
     NetworkObjectDirtyTag,
-    RigidBodyDynamicTagComponent
+    RigidBodyComponent,
+    Not(RigidBodyFixedTagComponent)
   ])
 
   const nonNetworkedDynamicRigidBodyQuery = defineQuery([
-    Not(NetworkObjectComponent),
+    Not(AvatarComponent),
     RigidBodyComponent,
-    RigidBodyDynamicTagComponent
+    Not(RigidBodyFixedTagComponent)
   ])
   const rigidBodyQuery = defineQuery([RigidBodyComponent])
 
@@ -109,13 +110,13 @@ export default async function PhysicsSystem(world: World) {
     for (const entity of raycastQuery()) processRaycasts(world, entity)
     for (const entity of dirtyNetworkedDynamicRigidBodyQuery()) updateDirtyDynamicBodiesFromNetwork(world, entity)
 
-    if (!Engine.instance.isEditor) {
-      for (const entity of nonNetworkedDynamicRigidBodyQuery()) updateTransformFromBody(world, entity)
-    }
-
     processCollisions(world)
 
     // step physics world
     world.physicsWorld.step(world.physicsCollisionEventQueue)
+
+    if (!Engine.instance.isEditor) {
+      for (const entity of nonNetworkedDynamicRigidBodyQuery()) updateTransformFromBody(world, entity)
+    }
   }
 }

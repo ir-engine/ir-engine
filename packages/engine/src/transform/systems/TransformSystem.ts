@@ -1,7 +1,11 @@
+import { Box3, Mesh, Object3D } from 'three'
+
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { Engine } from '../../ecs/classes/Engine'
 import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
+import { BoundingBoxComponent } from '../../interaction/components/BoundingBoxComponent'
+import { BoundingBoxDynamicTagComponent } from '../../interaction/components/BoundingBoxDynamicTagComponent'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { SpawnPointComponent } from '../../scene/components/SpawnPointComponent'
 import { CopyTransformComponent } from '../components/CopyTransformComponent'
@@ -9,13 +13,21 @@ import { TransformChildComponent } from '../components/TransformChildComponent'
 import { TransformComponent } from '../components/TransformComponent'
 import { TransformParentComponent } from '../components/TransformParentComponent'
 
-const parentQuery = defineQuery([TransformParentComponent, TransformComponent])
-const childQuery = defineQuery([TransformChildComponent, TransformComponent])
-const copyTransformQuery = defineQuery([CopyTransformComponent])
-const transformObjectQuery = defineQuery([TransformComponent, Object3DComponent])
-const spawnPointQuery = defineQuery([SpawnPointComponent])
-
 export default async function TransformSystem(world: World) {
+  const parentQuery = defineQuery([TransformParentComponent, TransformComponent])
+  const childQuery = defineQuery([TransformChildComponent, TransformComponent])
+  const copyTransformQuery = defineQuery([CopyTransformComponent])
+  const transformObjectQuery = defineQuery([TransformComponent, Object3DComponent])
+  const spawnPointQuery = defineQuery([SpawnPointComponent])
+  const boundingBoxQuery = defineQuery([
+    TransformComponent,
+    BoundingBoxComponent,
+    BoundingBoxDynamicTagComponent,
+    Object3DComponent
+  ])
+
+  const aabb = new Box3()
+
   return () => {
     for (const entity of parentQuery(world)) {
       const parentTransform = getComponent(entity, TransformComponent)
@@ -92,6 +104,27 @@ export default async function TransformSystem(world: World) {
         const obj3d = getComponent(entity, Object3DComponent)?.value
         if (obj3d) obj3d.userData.helperModel?.scale.set(1 / obj3d.scale.x, 1 / obj3d.scale.y, 1 / obj3d.scale.z)
       }
+    }
+
+    for (const entity of boundingBoxQuery()) {
+      const boundingBox = getComponent(entity, BoundingBoxComponent)
+
+      let hasBoxExpanded = false
+      const object3D = getComponent(entity, Object3DComponent).value
+
+      // expand bounding box to
+      object3D.traverse((obj3d: Mesh) => {
+        if (obj3d.isMesh) {
+          aabb.copy(obj3d.geometry.boundingBox!)
+          aabb.applyMatrix4(obj3d.matrixWorld)
+          if (hasBoxExpanded) {
+            boundingBox.box.union(aabb)
+          } else {
+            boundingBox.box.copy(aabb)
+            hasBoxExpanded = true
+          }
+        }
+      })
     }
   }
 }

@@ -2,8 +2,6 @@ import { WebLayer3D } from '@etherealjs/web-layer/three'
 import { Not } from 'bitecs'
 import { Vector3 } from 'three'
 
-import { createState } from '@xrengine/hyperflux/functions/StateFunctions'
-
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { getAvatarBoneWorldPosition } from '../../avatar/functions/avatarFunctions'
 import { Engine } from '../../ecs/classes/Engine'
@@ -20,9 +18,9 @@ import { HighlightComponent } from '../../renderer/components/HighlightComponent
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { SCENE_COMPONENT_INTERACTABLE_DEFAULT_VALUES } from '../../scene/functions/loaders/InteractableFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { XRUIComponent } from '../../xrui/components/XRUIComponent'
 import { createTransitionState } from '../../xrui/functions/createTransitionState'
 import { createXRUI } from '../../xrui/functions/createXRUI'
+import { ObjectFitFunctions } from '../../xrui/functions/ObjectFitFunctions'
 import { BoundingBoxComponent } from '../components/BoundingBoxComponent'
 import { InteractableComponent } from '../components/InteractableComponent'
 import { InteractorComponent } from '../components/InteractorComponent'
@@ -63,6 +61,7 @@ export const onInteractableUpdate = (entity: Entity, xrui: ReturnType<typeof cre
       mat.opacity = opacity
     })
   })
+  ObjectFitFunctions.lookAtCameraFromPosition(xrui.container, transform.position)
 }
 
 export const getInteractiveUI = (entity: Entity) => InteractiveUI.get(entity)
@@ -110,7 +109,6 @@ export default async function InteractiveSystem(world: World) {
         const { update, xrui } = InteractiveUI.get(entity)!
         update(entity, xrui)
       }
-      if (hasComponent(entity, HighlightComponent)) removeComponent(entity, HighlightComponent)
     }
 
     for (const entity of interactorsQuery()) {
