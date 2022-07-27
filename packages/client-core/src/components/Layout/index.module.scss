@@ -8,6 +8,45 @@ body {
   align-items: center;
 }
 
+.conferenceModeContainer {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  z-index: 100000000;
+  flex-direction: column;
+  background-color: var(--mainBackground);
+
+  .toolbar {
+    display: flex;
+    padding: 3px;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-end;
+    background-color: var(--navbarBackground);
+
+    .toolbarCrossButton {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      margin: 1px;
+      padding: 1px;
+      cursor: pointer;
+      border-radius: 50%;
+      background-color: red;
+
+      svg {
+        width: 20px;
+        height: 20px;
+        color: white;
+
+        path {
+          fill: white;
+        }
+      }
+    }
+  }
+}
+
 .box {
   display: flex;
   width: 200px;
@@ -35,6 +74,7 @@ body {
 .locationUserMenu {
   display: inline-flex;
   flex-direction: column;
+  align-items: end;
   padding: 0 20px;
   position: fixed;
   top: 0;
@@ -44,6 +84,31 @@ body {
   overflow-y: auto;
   min-width: 90px;
   scrollbar-width: none;
+
+  .conferenceModeButtons {
+    width: 100%;
+    display: none;
+    margin-top: 5px;
+    flex-direction: row;
+    align-items: center;
+    justify-content: end;
+
+    .conferenceModeButton {
+      padding: 1px;
+      cursor: pointer;
+      background-color: var(--iconButtonBackground);
+
+      svg {
+        width: 20px;
+        height: 20px;
+        color: var(--iconButtonColor);
+
+        path {
+          fill: var(--iconButtonColor);
+        }
+      }
+    }
+  }
 
   /* IE */
   -ms-overflow-style: none;
@@ -74,14 +139,23 @@ body {
     }
   }
 
+  &:hover,
+  &:focus {
+    .conferenceModeButtons {
+      display: flex;
+    }
+  }
+
   @media (min-width: 769px) {
-    &:hover,
-    &:focus {
-      [class*="user-controls"] {
-        padding: 10px 10px 10px 25px;
-        z-index: 10;
-        min-width: 150px;
-        width: auto;
+    [class*="party-chat-user"] {
+      &:hover,
+      &:focus {
+        [class*="user-controls"] {
+          padding: 10px 10px 10px 25px;
+          z-index: 10;
+          min-width: 150px;
+          width: auto;
+        }
       }
     }
   }
