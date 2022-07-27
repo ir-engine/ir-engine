@@ -32,18 +32,17 @@ const AvatarInputSettingsState = defineState({
 })
 
 export function AvatarInputSettingsReceptor(action) {
-  getState(AvatarInputSettingsState).batch((s) => {
-    matches(action)
-      .when(AvatarInputSettingsAction.setControlType.matches, (action) => {
-        return s.merge({ controlType: action.controlType })
-      })
-      .when(AvatarInputSettingsAction.setInvertRotationAndMoveSticks.matches, (action) => {
-        return s.merge({ invertRotationAndMoveSticks: action.invertRotationAndMoveSticks })
-      })
-      .when(AvatarInputSettingsAction.setShowAvatar.matches, (action) => {
-        return s.merge({ showAvatar: action.showAvatar })
-      })
-  })
+  const s = getState(AvatarInputSettingsState)
+  matches(action)
+    .when(AvatarInputSettingsAction.setControlType.matches, (action) => {
+      return s.merge({ controlType: action.controlType })
+    })
+    .when(AvatarInputSettingsAction.setInvertRotationAndMoveSticks.matches, (action) => {
+      return s.merge({ invertRotationAndMoveSticks: action.invertRotationAndMoveSticks })
+    })
+    .when(AvatarInputSettingsAction.setShowAvatar.matches, (action) => {
+      return s.merge({ showAvatar: action.showAvatar })
+    })
 }
 
 export const accessAvatarInputSettingsState = () => getState(AvatarInputSettingsState)

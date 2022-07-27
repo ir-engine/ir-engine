@@ -1,4 +1,4 @@
-import { Downgraded, State } from '@speigg/hookstate'
+import { Downgraded, State } from '@hookstate/core'
 import { merge } from 'lodash'
 import { Validator } from 'ts-matches'
 

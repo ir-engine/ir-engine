@@ -1,4 +1,4 @@
-import { useState } from '@speigg/hookstate'
+import { useState } from '@hookstate/core'
 
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { addActionReceptor, defineAction, defineState, getState, registerState } from '@xrengine/hyperflux'
@@ -32,27 +32,26 @@ const EditorState = defineState({
 })
 
 export const EditorServiceReceptor = (action) => {
-  getState(EditorState).batch((s) => {
-    matches(action)
-      .when(EditorAction.sceneChanged.matches, (action) => {
-        return s.merge({ sceneName: action.sceneName, sceneModified: false })
-      })
-      .when(EditorAction.projectChanged.matches, (action) => {
-        return s.merge({ projectName: action.projectName, sceneName: null, sceneModified: false })
-      })
-      .when(EditorAction.sceneModified.matches, (action) => {
-        return s.merge({ sceneModified: action.modified })
-      })
-      .when(EditorAction.updatePreprojectLoadTask.matches, (action) => {
-        return s.merge({ preprojectLoadTaskStatus: action.taskStatus })
-      })
-      .when(EditorAction.projectLoaded.matches, (action) => {
-        return s.merge({ projectLoaded: action.loaded })
-      })
-      .when(EditorAction.rendererInitialized.matches, (action) => {
-        return s.merge({ rendererInitialized: action.initialized })
-      })
-  })
+  const s = getState(EditorState)
+  matches(action)
+    .when(EditorAction.sceneChanged.matches, (action) => {
+      return s.merge({ sceneName: action.sceneName, sceneModified: false })
+    })
+    .when(EditorAction.projectChanged.matches, (action) => {
+      return s.merge({ projectName: action.projectName, sceneName: null, sceneModified: false })
+    })
+    .when(EditorAction.sceneModified.matches, (action) => {
+      return s.merge({ sceneModified: action.modified })
+    })
+    .when(EditorAction.updatePreprojectLoadTask.matches, (action) => {
+      return s.merge({ preprojectLoadTaskStatus: action.taskStatus })
+    })
+    .when(EditorAction.projectLoaded.matches, (action) => {
+      return s.merge({ projectLoaded: action.loaded })
+    })
+    .when(EditorAction.rendererInitialized.matches, (action) => {
+      return s.merge({ rendererInitialized: action.initialized })
+    })
 }
 
 export const accessEditorState = () => getState(EditorState)

@@ -1,4 +1,4 @@
-import { createState, SetInitialStateAction, State } from '@speigg/hookstate'
+import { createState, SetInitialStateAction, State } from '@hookstate/core'
 import React from 'react'
 import Reconciler from 'react-reconciler'
 
@@ -6,7 +6,7 @@ import multiLogger from '@xrengine/common/src/logger'
 
 import { HyperFlux, HyperStore } from './StoreFunctions'
 
-export * from '@speigg/hookstate'
+export * from '@hookstate/core'
 
 const logger = multiLogger.child({ component: 'hyperflux:State' })
 

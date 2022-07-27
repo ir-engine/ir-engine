@@ -1,4 +1,4 @@
-import { Downgraded, useHookstate } from '@speigg/hookstate'
+import { Downgraded, useHookstate } from '@hookstate/core'
 import React, { Fragment, useEffect, useRef, useState } from 'react'
 
 import { useLocationInstanceConnectionState } from '@xrengine/client-core/src/common/services/LocationInstanceConnectionService'
@@ -72,7 +72,9 @@ export const useChatHooks = ({ chatWindowOpen, setUnreadMessages, messageRefInpu
   const channels = chatState.channels.channels
   const activeChannelMatch = Object.values(channels).find((channel) => channel.channelType === 'instance')
   const activeChannel = activeChannelMatch?.messages ? activeChannelMatch.messages : []
-  const sortedMessages = activeChannel.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
+  const sortedMessages = [...activeChannel].sort(
+    (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+  )
 
   useEffect(() => {
     if (activeChannel?.length > 0 && !chatWindowOpen) setUnreadMessages(true)

@@ -3,7 +3,7 @@ import StateFunctions from './functions/StateFunctions'
 import StoreFunctions, { HyperStore } from './functions/StoreFunctions'
 
 export * from './utils/useHookEffect'
-export { useState, useHookstate } from '@speigg/hookstate'
+export { useState, useHookstate } from '@hookstate/core'
 
 function dynamicFunctionReference<M extends { [name: string]: Function }, K extends keyof M>(
   functionMap: M,
