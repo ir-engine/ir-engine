@@ -36,9 +36,9 @@ export default function FixedPipelineSystem(world: World, args: { tickRate: numb
       world.fixedTick = Math.floor(world.fixedElapsedSeconds / world.fixedDeltaSeconds)
       getEngineState().fixedTick.set(world.fixedTick)
 
-      for (const s of world.pipelines[SystemUpdateType.FIXED_EARLY]) s.execute()
-      for (const s of world.pipelines[SystemUpdateType.FIXED]) s.execute()
-      for (const s of world.pipelines[SystemUpdateType.FIXED_LATE]) s.execute()
+      for (const s of world.pipelines[SystemUpdateType.FIXED_EARLY]) s.enabled && s.execute()
+      for (const s of world.pipelines[SystemUpdateType.FIXED]) s.enabled && s.execute()
+      for (const s of world.pipelines[SystemUpdateType.FIXED_LATE]) s.enabled && s.execute()
 
       accumulator -= world.fixedDeltaSeconds
       ++updatesCount

@@ -47,6 +47,7 @@ export const requestXRSession = createHookableFunction(
 
       const session = await navigator.xr!.requestSession(mode, sessionInit)
       xrState.sessionActive.set(true)
+      EngineRenderer.instance.canvas.style.display = 'none'
       EngineRenderer.instance.xrSession = session
       EngineRenderer.instance.xrManager.setSession(session)
       EngineRenderer.instance.xrManager.setFoveation(1)
@@ -69,6 +70,7 @@ export const requestXRSession = createHookableFunction(
 
       const onSessionEnd = () => {
         xrState.sessionActive.set(false)
+        EngineRenderer.instance.canvas.style.display = ''
         EngineRenderer.instance.xrManager.removeEventListener('sessionend', onSessionEnd)
         EngineRenderer.instance.xrSession = null!
         EngineRenderer.instance.xrManager.setSession(null!)

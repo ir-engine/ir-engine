@@ -6,8 +6,9 @@ import { Entity } from './Entity'
 
 // TODO: #6016 Refactor EngineState into multiple state objects: timer, scene, world, xr, etc.
 export const EngineState = defineState({
-  name: 'engine',
+  name: 'EngineState',
   initial: {
+    frameTime: 0,
     fixedTick: 0,
     isEngineInitialized: false,
     sceneLoaded: false,

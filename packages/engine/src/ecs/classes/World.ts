@@ -6,7 +6,7 @@ import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import multiLogger from '@xrengine/common/src/logger'
-import { addTopic } from '@xrengine/hyperflux'
+import { addTopic, getState } from '@xrengine/hyperflux'
 
 import { DEFAULT_LOD_DISTANCES } from '../../assets/constants/LoaderConstants'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
@@ -43,6 +43,7 @@ import { initializeEntityTree } from '../functions/EntityTreeFunctions'
 import { SystemInstanceType } from '../functions/SystemFunctions'
 import { SystemUpdateType } from '../functions/SystemUpdateType'
 import { Engine } from './Engine'
+import { EngineState } from './EngineState'
 import { Entity } from './Entity'
 import EntityTree from './EntityTree'
 
@@ -202,11 +203,14 @@ export class World {
    * Custom systems injected into this world
    */
   pipelines = {
+    [SystemUpdateType.UPDATE_EARLY]: [],
     [SystemUpdateType.UPDATE]: [],
+    [SystemUpdateType.UPDATE_LATE]: [],
     [SystemUpdateType.FIXED_EARLY]: [],
     [SystemUpdateType.FIXED]: [],
     [SystemUpdateType.FIXED_LATE]: [],
     [SystemUpdateType.PRE_RENDER]: [],
+    [SystemUpdateType.RENDER]: [],
     [SystemUpdateType.POST_RENDER]: []
   } as { [pipeline: string]: SystemInstanceType[] }
 
@@ -318,9 +322,12 @@ export class World {
     this.deltaSeconds = Math.max(0, Math.min(TimerConfig.MAX_DELTA_SECONDS, worldElapsedSeconds - this.elapsedSeconds))
     this.elapsedSeconds = worldElapsedSeconds
 
-    for (const system of this.pipelines[SystemUpdateType.UPDATE]) system.execute()
-    for (const system of this.pipelines[SystemUpdateType.PRE_RENDER]) system.execute()
-    for (const system of this.pipelines[SystemUpdateType.POST_RENDER]) system.execute()
+    for (const system of this.pipelines[SystemUpdateType.UPDATE_EARLY]) system.enabled && system.execute()
+    for (const system of this.pipelines[SystemUpdateType.UPDATE]) system.enabled && system.execute()
+    for (const system of this.pipelines[SystemUpdateType.UPDATE_LATE]) system.enabled && system.execute()
+    for (const system of this.pipelines[SystemUpdateType.PRE_RENDER]) system.enabled && system.execute()
+    for (const system of this.pipelines[SystemUpdateType.RENDER]) system.enabled && system.execute()
+    for (const system of this.pipelines[SystemUpdateType.POST_RENDER]) system.enabled && system.execute()
 
     for (const entity of this.#entityRemovedQuery(this)) bitecs.removeEntity(this, entity)
 

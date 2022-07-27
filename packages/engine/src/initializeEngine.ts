@@ -3,7 +3,7 @@ import _ from 'lodash'
 import { AudioListener, PerspectiveCamera } from 'three'
 
 import { BotUserAgent } from '@xrengine/common/src/constants/BotUserAgent'
-import { addActionReceptor, dispatchAction, registerState } from '@xrengine/hyperflux'
+import { addActionReceptor, dispatchAction, getState, registerState } from '@xrengine/hyperflux'
 
 import { getGLTFLoader } from './assets/classes/AssetLoader'
 import { initializeKTX2Loader } from './assets/functions/createGLTFLoader'
@@ -118,7 +118,8 @@ export const initializeNode = () => {
 }
 
 const executeWorlds = (elapsedTime) => {
-  Engine.instance.frameTime = elapsedTime
+  const engineState = getState(EngineState)
+  engineState.frameTime.set(elapsedTime)
   for (const world of Engine.instance.worlds) {
     world.execute(elapsedTime)
   }
@@ -132,7 +133,7 @@ export const initializeCoreSystems = async () => {
   const systemsToLoad: SystemModuleType<any>[] = []
   systemsToLoad.push(
     {
-      type: SystemUpdateType.FIXED_LATE,
+      type: SystemUpdateType.UPDATE_LATE,
       systemModulePromise: import('./transform/systems/TransformSystem')
     },
     {
@@ -148,15 +149,15 @@ export const initializeCoreSystems = async () => {
   if (isClient) {
     systemsToLoad.push(
       {
-        type: SystemUpdateType.UPDATE,
+        type: SystemUpdateType.UPDATE_EARLY,
         systemModulePromise: import('./camera/systems/CameraSystem')
       },
       {
-        type: SystemUpdateType.UPDATE,
+        type: SystemUpdateType.UPDATE_EARLY,
         systemModulePromise: import('./xr/XRSystem')
       },
       {
-        type: SystemUpdateType.UPDATE,
+        type: SystemUpdateType.UPDATE_EARLY,
         systemModulePromise: import('./input/systems/ClientInputSystem')
       },
       {
@@ -172,7 +173,7 @@ export const initializeCoreSystems = async () => {
         systemModulePromise: import('./scene/systems/InstancingSystem')
       },
       {
-        type: SystemUpdateType.POST_RENDER,
+        type: SystemUpdateType.RENDER,
         systemModulePromise: import('./renderer/WebGLRendererSystem')
       }
     )
