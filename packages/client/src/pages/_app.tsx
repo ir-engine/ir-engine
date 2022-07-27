@@ -1,3 +1,4 @@
+import * as chapiWalletPolyfill from 'credential-handler-polyfill'
 import { SnackbarProvider } from 'notistack'
 import React, { createRef, useCallback, useEffect, useState } from 'react'
 import { Helmet } from 'react-helmet'
@@ -89,6 +90,13 @@ const App = (): any => {
   }, [selfUser?.user_setting?.value])
 
   useEffect(initApp, [])
+
+  useEffect(() => {
+    chapiWalletPolyfill
+      .loadOnce()
+      .then(() => console.log('CHAPI wallet polyfill loaded.'))
+      .catch((e) => console.error('Error loading polyfill:', e))
+  }, [])
 
   useEffect(() => {
     if (selfUser?.id.value && projectState.updateNeeded.value) ProjectService.fetchProjects()

@@ -167,7 +167,7 @@ export const AuthServiceReceptor = (action) => {
 export const accessAuthState = () => getState(AuthState)
 export const useAuthState = () => useState(accessAuthState())
 
-//Service
+// Service
 export const AuthService = {
   doLoginAuto: async (forceClientAuthReset?: boolean) => {
     try {
@@ -175,13 +175,16 @@ export const AuthService = {
       let accessToken =
         forceClientAuthReset !== true && authData && authData.authUser ? authData.authUser.accessToken : undefined
 
-      if (forceClientAuthReset === true) await API.instance.client.authentication.reset()
-      if (accessToken == null || accessToken.length === 0) {
+      if (forceClientAuthReset === true) {
+        await API.instance.client.authentication.reset()
+      }
+      if (!accessToken) {
         const newProvider = await API.instance.client.service('identity-provider').create({
           type: 'guest',
           token: v1()
         })
         accessToken = newProvider.accessToken
+        console.log(`Created new guest accessToken: ${accessToken}`)
       }
 
       await API.instance.client.authentication.setAccessToken(accessToken as string)
@@ -221,7 +224,7 @@ export const AuthService = {
         // Should dispatch
         dispatchAction(AuthAction.loginUserSuccessAction({ authUser, message: '' }))
 
-        await AuthService.loadUserData(authUser.identityProvider.userId)
+        await AuthService.loadUserData(authUser.identityProvider?.userId)
       } else {
         console.log('****************')
       }
@@ -255,6 +258,7 @@ export const AuthService = {
       NotificationService.dispatchNotify(i18n.t('common:error.loading-error'), { variant: 'error' })
     }
   },
+
   loginUserByPassword: async (form: EmailLoginForm) => {
     // check email validation.
     if (!validateEmail(form.email)) {
@@ -275,7 +279,7 @@ export const AuthService = {
       .then((res: any) => {
         const authUser = resolveAuthUser(res)
 
-        if (!authUser.identityProvider.isVerified) {
+        if (!authUser.identityProvider?.isVerified) {
           API.instance.client.logout()
 
           dispatchAction(
@@ -294,20 +298,46 @@ export const AuthService = {
       })
       .finally(() => dispatchAction(AuthAction.actionProcessing({ processing: false })))
   },
-  loginUserByXRWallet: async (wallet: any) => {
+
+  /**
+   * Example vprResult:
+   * {
+   *   "type": "web",
+   *   "dataType": "VerifiablePresentation",
+   *   "data": { "presentation": vp }
+   * }
+   * Where `vp` is a VerifiablePresentation containing multiple VCs
+   * (LoginDisplayCredential, UserPreferencesCredential).
+   *
+   * @param vprResult {object} - VPR Query result from a user's wallet.
+   */
+  loginUserByXRWallet: async (vprResult: any) => {
     try {
       dispatchAction(AuthAction.actionProcessing({ processing: true }))
 
-      const credentials: any = parseUserWalletCredentials(wallet)
+      const credentials: any = parseUserWalletCredentials(vprResult)
+      console.log(credentials)
 
       const walletUser = resolveWalletUser(credentials)
+      const authUser = {
+        accessToken: '',
+        authentication: { strategy: 'did-auth' },
+        identityProvider: {
+          id: 0,
+          token: '',
+          type: 'chapiWallet',
+          isVerified: true,
+          userId: walletUser.id
+        }
+      }
 
-      //TODO: This is temp until we move completely to XR wallet
+      // TODO: This is temp until we move completely to XR wallet
       const oldId = accessAuthState().user.id.value
       walletUser.id = oldId
 
       // loadXRAvatarForUpdatedUser(walletUser) // TODO
       dispatchAction(AuthAction.loadedUserDataAction({ user: walletUser }))
+      dispatchAction(AuthAction.loginUserSuccessAction({ authUser: authUser, message: '' }))
     } catch (err) {
       dispatchAction(AuthAction.loginUserErrorAction({ message: i18n.t('common:error.login-error') }))
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
@@ -315,6 +345,7 @@ export const AuthService = {
       dispatchAction(AuthAction.actionProcessing({ processing: false }))
     }
   },
+
   loginUserByOAuth: async (service: string, location: any) => {
     dispatchAction(AuthAction.actionProcessing({ processing: true }))
     const token = accessAuthState().authUser.accessToken.value
@@ -366,7 +397,7 @@ export const AuthService = {
       const authUser = resolveAuthUser(res)
 
       dispatchAction(AuthAction.loginUserSuccessAction({ authUser: authUser, message: '' }))
-      await AuthService.loadUserData(authUser.identityProvider.userId)
+      await AuthService.loadUserData(authUser.identityProvider?.userId)
       dispatchAction(AuthAction.actionProcessing({ processing: false }))
       let timeoutTimer = 0
       // The new JWT does not always get stored in localStorage successfully by this point, and if the user is
@@ -789,15 +820,31 @@ export const AuthService = {
   }
 }
 
-const parseUserWalletCredentials = (wallet) => {
+/**
+ * @param vprResult {any} See `loginUserByXRWallet()`'s docstring.
+ */
+function parseUserWalletCredentials(vprResult: any) {
+  console.log('PARSING:', vprResult)
+
+  const {
+    data: { presentation: vp }
+  } = vprResult
+  const credentials = Array.isArray(vp.verifiableCredential) ? vp.verifiableCredential : [vp.verifiableCredential]
+
+  const displayName = parseDisplayName(credentials)
+
   return {
     user: {
-      id: 'did:web:example.com',
-      displayName: 'alice',
+      id: vp.holder || 'did:web:example.com',
+      displayName,
       icon: 'https://material-ui.com/static/images/avatar/1.jpg'
       // session // this will contain the access token and helper methods
     }
   }
+}
+
+function parseDisplayName(credentials) {
+  return 'Wallet User'
 }
 
 // Action
