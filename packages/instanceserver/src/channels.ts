@@ -260,13 +260,6 @@ const loadEngine = async (app: Application, sceneId: string) => {
     await initializeCoreSystems()
     await initializeRealtimeSystems(false, true)
     await initializeSceneSystems()
-    await initSystems(world, [
-      {
-        type: SystemUpdateType.FIXED_LATE,
-        systemModulePromise: import('./WorldNetworkServerActionSystem'),
-        args: { network }
-      }
-    ])
 
     const projects = (await projectsPromise).data.map((project) => project.name)
     await loadEngineInjection(world, projects)

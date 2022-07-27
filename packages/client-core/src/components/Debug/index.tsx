@@ -1,4 +1,4 @@
-import { Downgraded } from '@speigg/hookstate'
+import { Downgraded } from '@hookstate/core'
 import { getEntityComponents } from 'bitecs'
 import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -220,10 +220,7 @@ export const Debug = () => {
         </div>
         <div className={styles.jsonPanel}>
           <h1>{t('common:debug.namedEntities')}</h1>
-          <JSONTree
-            data={namedEntities.value}
-            postprocessValue={(v) => (v?.get && v?.set && v?.attach ? v.attach(Downgraded).value : v)}
-          />
+          <JSONTree data={namedEntities.value} />
         </div>
         <div className={styles.jsonPanel}>
           <h1>{t('common:debug.networks')}</h1>

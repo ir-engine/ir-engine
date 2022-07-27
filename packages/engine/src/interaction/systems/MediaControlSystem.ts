@@ -14,7 +14,6 @@ export const MediaFadeTransitions = new Map<Entity, ReturnType<typeof createTran
 
 const onUpdate = (world: World) => (entity: Entity, mediaControls: ReturnType<typeof createMediaControlsUI>) => {
   const xrui = getComponent(mediaControls.entity, XRUIComponent)
-  if (!xrui?.container) return
   const transition = MediaFadeTransitions.get(entity)!
   const buttonLayer = xrui.container.rootLayer.querySelector('button')!
   const model = getComponent(entity, Object3DComponent).value

@@ -250,6 +250,22 @@ export const handleConnectingPeer = async (network: SocketWebRTCServerNetwork, s
 
   network.userIdToUserIndex.set(userId, userIndex)
   network.userIndexToUserId.set(userIndex, userId)
+
+  const spectating = network.peers.get(userId)!.spectating
+
+  network.app.service('message').create(
+    {
+      targetObjectId: network.app.instance.id,
+      targetObjectType: 'instance',
+      text: `${user.name} joined` + (spectating ? ' as spectator' : ''),
+      isNotification: true
+    },
+    {
+      'identity-provider': {
+        userId: userId
+      }
+    }
+  )
 }
 
 export async function handleJoinWorld(
@@ -395,6 +411,23 @@ export async function handleDisconnect(network: SocketWebRTCServerNetwork, socke
   // The new connection will overwrite the socketID for the user's client.
   // This will only clear transports if the client's socketId matches the socket that's disconnecting.
   if (socket.id === disconnectedClient?.socketId) {
+    const state = getState(WorldState)
+    const userName = state.userNames[userId].value
+
+    network.app.service('message').create(
+      {
+        targetObjectId: network.app.instance.id,
+        targetObjectType: 'instance',
+        text: `${userName} left`,
+        isNotification: true
+      },
+      {
+        'identity-provider': {
+          userId: userId
+        }
+      }
+    )
+
     NetworkPeerFunctions.destroyPeer(network, userId, Engine.instance.currentWorld)
     network.updatePeers()
     logger.info('Disconnecting clients for user ' + userId)

@@ -1,4 +1,4 @@
-import { StateMethods } from '@speigg/hookstate'
+import { StateMethods } from '@hookstate/core'
 import { useEffect } from 'react'
 
 type PrimitiveType = string | number | boolean | null | undefined

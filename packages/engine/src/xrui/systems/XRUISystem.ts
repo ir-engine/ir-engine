@@ -20,10 +20,13 @@ import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { ControllerGroup, XRInputSourceComponent, XRInputSourceComponentType } from '../../xr/XRComponents'
 import { XRUIManager } from '../classes/XRUIManager'
 import { XRUIComponent } from '../components/XRUIComponent'
+import { loadXRUIDeps } from '../functions/createXRUI'
 
 export default async function XRUISystem(world: World) {
   const renderer = EngineRenderer.instance.renderer
   if (!renderer) throw new Error('EngineRenderer.instance.renderer must exist before initializing XRUISystem')
+
+  await loadXRUIDeps()
 
   const hitColor = new Color(0x00e6e6)
   const normalColor = new Color(0xffffff)

@@ -1,4 +1,4 @@
-import { Downgraded, useHookstate } from '@speigg/hookstate'
+import { Downgraded, useHookstate } from '@hookstate/core'
 import classNames from 'classnames'
 import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -50,7 +50,7 @@ interface Props {
   peerId?: string | 'cam_me' | 'screen_me'
 }
 
-const UserMediaWindow = ({ peerId }: Props): JSX.Element => {
+export const useUserMediaWindowHook = ({ peerId }) => {
   const [isPiP, setPiP] = useState(false)
   const [videoStream, _setVideoStream] = useState<any>(null)
   const [audioStream, _setAudioStream] = useState<any>(null)
@@ -433,6 +433,64 @@ const UserMediaWindow = ({ peerId }: Props): JSX.Element => {
 
   const userAvatarDetails = useHookstate(getState(WorldState).userAvatarDetails)
 
+  return {
+    user,
+    isPiP,
+    volume,
+    isScreen,
+    username,
+    selfUser,
+    audioRef,
+    videoRef,
+    isSelfUser,
+    videoStream,
+    audioStream,
+    enableGlobalMute,
+    userAvatarDetails,
+    videoStreamPaused,
+    audioStreamPaused,
+    videoProducerPaused,
+    audioProducerPaused,
+    videoProducerGlobalMute,
+    audioProducerGlobalMute,
+    t,
+    togglePiP,
+    toggleAudio,
+    toggleVideo,
+    adjustVolume,
+    toggleGlobalMute
+  }
+}
+
+const UserMediaWindow = ({ peerId }: Props): JSX.Element => {
+  const {
+    user,
+    isPiP,
+    volume,
+    isScreen,
+    username,
+    selfUser,
+    audioRef,
+    videoRef,
+    isSelfUser,
+    videoStream,
+    audioStream,
+    enableGlobalMute,
+    userAvatarDetails,
+    videoStreamPaused,
+    audioStreamPaused,
+    videoProducerPaused,
+    audioProducerPaused,
+    videoProducerGlobalMute,
+    audioProducerGlobalMute,
+    t,
+    togglePiP,
+    toggleAudio,
+    toggleVideo,
+    adjustVolume,
+    toggleGlobalMute
+  } = useUserMediaWindowHook({ peerId })
+
   return (
     <Draggable isPiP={isPiP}>
       <div
@@ -475,7 +533,7 @@ const UserMediaWindow = ({ peerId }: Props): JSX.Element => {
             <div className={styles['mute-controls']}>
               {videoStream && !videoProducerPaused ? (
                 <Tooltip title={!videoProducerPaused && !videoStreamPaused ? 'Pause Video' : 'Resume Video'}>
-                  <IconButton color="secondary" size="small" className={styles['video-control']} onClick={toggleVideo}>
+                  <IconButton size="small" className={styles['icon-button']} onClick={toggleVideo}>
                     {videoStreamPaused ? <VideocamOff /> : <Videocam />}
                   </IconButton>
                 </Tooltip>
@@ -488,12 +546,7 @@ const UserMediaWindow = ({ peerId }: Props): JSX.Element => {
                       : (t('user:person.unmuteForEveryone') as string)
                   }
                 >
-                  <IconButton
-                    color="secondary"
-                    size="small"
-                    className={styles['audio-control']}
-                    onClick={toggleGlobalMute}
-                  >
+                  <IconButton size="small" className={styles['icon-button']} onClick={toggleGlobalMute}>
                     {audioProducerGlobalMute ? <VoiceOverOff /> : <RecordVoiceOver />}
                   </IconButton>
                 </Tooltip>
@@ -510,7 +563,7 @@ const UserMediaWindow = ({ peerId }: Props): JSX.Element => {
                       : t('user:person.unmuteThisPerson')) as string
                   }
                 >
-                  <IconButton color="secondary" size="small" className={styles['audio-control']} onClick={toggleAudio}>
+                  <IconButton size="small" className={styles['icon-button']} onClick={toggleAudio}>
                     {isSelfUser ? (
                       audioStreamPaused ? (
                         <MicOff />
@@ -527,8 +580,8 @@ const UserMediaWindow = ({ peerId }: Props): JSX.Element => {
               ) : null}
               <Tooltip title={t('user:person.openPictureInPicture') as string}>
                 <IconButton
-                  color="secondary"
                   size="small"
+                  className={styles['icon-button']}
                   onClick={(e) => {
                     e.preventDefault()
                     e.stopPropagation()

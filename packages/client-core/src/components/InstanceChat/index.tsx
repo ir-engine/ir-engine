@@ -1,4 +1,4 @@
-import { Downgraded, useHookstate } from '@speigg/hookstate'
+import { Downgraded, useHookstate } from '@hookstate/core'
 import React, { Fragment, useEffect, useRef, useState } from 'react'
 
 import { useLocationInstanceConnectionState } from '@xrengine/client-core/src/common/services/LocationInstanceConnectionService'
@@ -15,8 +15,6 @@ import { EngineActions, getEngineState } from '@xrengine/engine/src/ecs/classes/
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { addComponent, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
-import { addEntityNodeInTree, createEntityNode } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
-import { NetworkTopics } from '@xrengine/engine/src/networking/classes/Network'
 import { matchActionOnce } from '@xrengine/engine/src/networking/functions/matchActionOnce'
 import { WorldNetworkAction } from '@xrengine/engine/src/networking/functions/WorldNetworkAction'
 import { WorldState } from '@xrengine/engine/src/networking/interfaces/WorldState'
@@ -28,13 +26,11 @@ import {
   toggleAudio
 } from '@xrengine/engine/src/scene/functions/loaders/AudioFunctions'
 import { updateAudio } from '@xrengine/engine/src/scene/functions/loaders/AudioFunctions'
-import { ScenePrefabs } from '@xrengine/engine/src/scene/functions/registerPrefabs'
-import { createNewEditorNode } from '@xrengine/engine/src/scene/functions/SceneLoading'
 import { addActionReceptor, dispatchAction, removeActionReceptor } from '@xrengine/hyperflux'
 import { getState } from '@xrengine/hyperflux'
 
-import { Cancel as CancelIcon, Message as MessageIcon, Send } from '@mui/icons-material'
-import { IconButton, InputAdornment } from '@mui/material'
+import { Close as CloseIcon, Message as MessageIcon, Send } from '@mui/icons-material'
+import { IconButton } from '@mui/material'
 import Avatar from '@mui/material/Avatar'
 import Badge from '@mui/material/Badge'
 import Card from '@mui/material/Card'
@@ -76,7 +72,9 @@ export const useChatHooks = ({ chatWindowOpen, setUnreadMessages, messageRefInpu
   const channels = chatState.channels.channels
   const activeChannelMatch = Object.values(channels).find((channel) => channel.channelType === 'instance')
   const activeChannel = activeChannelMatch?.messages ? activeChannelMatch.messages : []
-  const sortedMessages = activeChannel.sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
+  const sortedMessages = [...activeChannel].sort(
+    (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+  )
 
   useEffect(() => {
     if (activeChannel?.length > 0 && !chatWindowOpen) setUnreadMessages(true)
@@ -112,7 +110,7 @@ export const useChatHooks = ({ chatWindowOpen, setUnreadMessages, messageRefInpu
   }, [composingMessage])
 
   const handleComposingMessageChange = (event: any): void => {
-    if (event.key === 'Enter' && event.ctrlKey) {
+    if (event.key === 'Enter' && event.shiftKey) {
       event.preventDefault()
       const selectionStart = (event.target as HTMLInputElement).selectionStart
 
@@ -120,7 +118,7 @@ export const useChatHooks = ({ chatWindowOpen, setUnreadMessages, messageRefInpu
         composingMessage.substring(0, selectionStart || 0) + '\n' + composingMessage.substring(selectionStart || 0)
       )
       return
-    } else if (event.key === 'Enter' && !event.ctrlKey) {
+    } else if (event.key === 'Enter' && !event.shiftKey) {
       event.preventDefault()
       packageMessage()
       return
@@ -216,7 +214,7 @@ interface InstanceChatProps {
 const InstanceChat = ({
   styles = defaultStyles,
   MessageButton = MessageIcon,
-  CloseButton = CancelIcon,
+  CloseButton = CloseIcon,
   newMessageLabel = 'World Chat...',
   animate,
   hideOtherMenus,
@@ -295,8 +293,12 @@ const InstanceChat = ({
       entity && toggleAudio(entity)
     }
 
-    if (messageRef.current && messageRef.current.scrollHeight - messageRef.current.scrollTop < 500)
-      messageRef.current.scrollTop = messageRef.current.scrollHeight
+    const messageRefCurrentRenderedInterval = setInterval(() => {
+      if (messageRef.current && messageRef.current.scrollHeight > 0) {
+        messageRef.current.scrollTop = messageRef.current.scrollHeight
+        clearInterval(messageRefCurrentRenderedInterval)
+      }
+    }, 5)
   }, [chatState.messageCreated.value, sortedMessages])
 
   const toggleChatWindow = () => {
@@ -314,10 +316,6 @@ const InstanceChat = ({
     setChatWindowOpen(!chatWindowOpen)
     chatWindowOpen && setUnreadMessages(false)
     setIsInitRender(false)
-  }
-
-  const isLeftOrJoinText = (text: string) => {
-    return / left the layer|joined the layer/.test(text)
   }
 
   const userAvatarDetails = useHookstate(getState(WorldState).userAvatarDetails)
@@ -344,12 +342,24 @@ const InstanceChat = ({
                   {sortedMessages &&
                     sortedMessages.map((message, index, messages) => (
                       <Fragment key={message.id}>
-                        {!isLeftOrJoinText(message.text) ? (
+                        {message.isNotification ? (
+                          <div key={message.id} className={`${styles.selfEnd} ${styles.noMargin}`}>
+                            <div className={styles.dFlex}>
+                              <div className={`${styles.msgNotification} ${styles.mx2}`}>
+                                <p className={styles.greyText}>{message.text}</p>
+                              </div>
+                            </div>
+                          </div>
+                        ) : (
                           <div key={message.id} className={`${styles.dFlex} ${styles.flexColumn} ${styles.mgSmall}`}>
                             <div className={`${styles.selfEnd} ${styles.noMargin}`}>
-                              <div className={styles.dFlex}>
+                              <div
+                                className={`${
+                                  message.senderId !== user?.id.value ? styles.msgReplyContainer : styles.msgOwner
+                                } ${styles.msgContainer} ${styles.dFlex}`}
+                              >
                                 <div className={styles.msgWrapper}>
-                                  {messages[index - 1] && isLeftOrJoinText(messages[index - 1].text) ? (
+                                  {messages[index - 1] && messages[index - 1].isNotification ? (
                                     <h3 className={styles.sender}>{message.sender.name}</h3>
                                   ) : (
                                     messages[index - 1] &&
@@ -357,15 +367,9 @@ const InstanceChat = ({
                                       <h3 className={styles.sender}>{message.sender.name}</h3>
                                     )
                                   )}
-                                  <div
-                                    className={`${
-                                      message.senderId !== user?.id.value ? styles.msgReplyContainer : styles.msgOwner
-                                    } ${styles.msgContainer} ${styles.mx2}`}
-                                  >
-                                    <p className={styles.text}>{message.text}</p>
-                                  </div>
+                                  <p className={styles.text}>{message.text}</p>
                                 </div>
-                                {index !== 0 && messages[index - 1] && isLeftOrJoinText(messages[index - 1].text) ? (
+                                {index !== 0 && messages[index - 1] && messages[index - 1].isNotification ? (
                                   <Avatar
                                     src={getAvatarURLForUser(userAvatarDetails, message.senderId)}
                                     className={styles.avatar}
@@ -385,14 +389,6 @@ const InstanceChat = ({
                                     className={styles.avatar}
                                   />
                                 )}
-                              </div>
-                            </div>
-                          </div>
-                        ) : (
-                          <div key={message.id} className={`${styles.selfEnd} ${styles.noMargin}`}>
-                            <div className={styles.dFlex}>
-                              <div className={`${styles.msgNotification} ${styles.mx2}`}>
-                                <p className={styles.greyText}>{message.text}</p>
                               </div>
                             </div>
                           </div>
@@ -448,7 +444,7 @@ const InstanceChat = ({
           <div
             className={`${styles.iconCallChat} ${
               isInitRender ? animate : !chatWindowOpen ? (isMobile ? styles.animateTop : styles.animateLeft) : ''
-            } ${!chatWindowOpen ? '' : styles.iconCallPos}`}
+            } ${!chatWindowOpen ? '' : styles.chatOpen}`}
           >
             <Badge
               color="primary"

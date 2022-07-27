@@ -12,15 +12,14 @@ const DialogState = defineState({
 })
 
 export const DialogServiceReceptor = (action) => {
-  getState(DialogState).batch((s) => {
-    matches(action)
-      .when(DialogAction.dialogShow.matches, (action) => {
-        return s.merge({ isOpened: true, content: action.content })
-      })
-      .when(DialogAction.dialogClose.matches, () => {
-        return s.merge({ isOpened: false, content: DialogSeed })
-      })
-  })
+  const s = getState(DialogState)
+  matches(action)
+    .when(DialogAction.dialogShow.matches, (action) => {
+      return s.merge({ isOpened: true, content: action.content })
+    })
+    .when(DialogAction.dialogClose.matches, () => {
+      return s.merge({ isOpened: false, content: DialogSeed })
+    })
 }
 
 export const dialogState = () => getState(DialogState)

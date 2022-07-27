@@ -1,4 +1,4 @@
-import { createState } from '@speigg/hookstate'
+import { createState } from '@hookstate/core'
 import React, { useState } from 'react'
 
 // import { VrIcon } from '../../../common/components/Icons/VRIcon'

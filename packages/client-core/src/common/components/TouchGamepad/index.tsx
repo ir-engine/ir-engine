@@ -1,4 +1,4 @@
-import { useState } from '@speigg/hookstate'
+import { useState } from '@hookstate/core'
 import React, { FunctionComponent, useEffect } from 'react'
 import { Joystick } from 'react-joystick-component'
 
