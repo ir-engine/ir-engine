@@ -11,6 +11,9 @@ export type AvatarAnimationComponentType = {
   /** Holds all the bones */
   rig: BoneStructure
 
+  /** Read-only bones in bind pose */
+  bindRig: BoneStructure
+
   /** ratio between original and target skeleton's root.position.y */
   rootYRatio: number
 }

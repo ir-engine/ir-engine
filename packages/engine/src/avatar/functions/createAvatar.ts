@@ -79,6 +79,7 @@ export const createAvatar = (spawnAction: typeof WorldNetworkAction.spawnAvatar.
       stateChanged: null!
     },
     rig: {} as BoneStructure,
+    bindRig: {} as BoneStructure,
     rootYRatio: 1
   })
 
