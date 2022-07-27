@@ -234,7 +234,7 @@ export function createAvatarAnimationGraph(
   const mountEnterState: SingleAnimationState = {
     name: AvatarStates.SIT_ENTER,
     type: 'SingleAnimationState',
-    action: null!,
+    action: getAnimationAction(AvatarAnimations.SIT_ENTER, mixer),
     loop: false,
     clamp: true
   }
@@ -242,7 +242,7 @@ export function createAvatarAnimationGraph(
   const mountLeaveState: SingleAnimationState = {
     name: AvatarStates.SIT_LEAVE,
     type: 'SingleAnimationState',
-    action: null!,
+    action: getAnimationAction(AvatarAnimations.SIT_LEAVE, mixer),
     loop: false,
     clamp: true
   }
@@ -250,7 +250,7 @@ export function createAvatarAnimationGraph(
   const mountActiveState: SingleAnimationState = {
     name: AvatarStates.SIT_IDLE,
     type: 'SingleAnimationState',
-    action: null!,
+    action: getAnimationAction(AvatarAnimations.SIT_IDLE, mixer),
     loop: true,
     clamp: false
   }

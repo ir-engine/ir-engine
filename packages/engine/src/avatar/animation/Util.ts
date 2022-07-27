@@ -79,7 +79,10 @@ export const AvatarAnimations = {
   KISS: 'kiss',
   DEFEAT: 'defeat',
   PAUSE: 'pause',
-  CRY: 'cry'
+  CRY: 'cry',
+  SIT_ENTER: 'sit_down',
+  SIT_LEAVE: 'stand_up',
+  SIT_IDLE: 'sit_idle'
 }
 
 const matchesMovementType = matches.shape({

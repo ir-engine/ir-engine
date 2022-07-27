@@ -5,13 +5,17 @@ import { Deg2Rad } from '@xrengine/common/src/utils/mathUtils'
 import { createActionQueue } from '@xrengine/hyperflux'
 
 import { changeState } from '../../avatar/animation/AnimationGraph'
+import { SingleAnimationState } from '../../avatar/animation/singleAnimationState'
 import { AvatarStates } from '../../avatar/animation/Util'
+import { AvatarInputSchema } from '../../avatar/AvatarInputSchema'
+import { AnimationComponent } from '../../avatar/components/AnimationComponent'
 import { AvatarAnimationComponent } from '../../avatar/components/AvatarAnimationComponent'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
 import checkPositionIsValid from '../../common/functions/checkPositionIsValid'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions } from '../../ecs/classes/EngineState'
+import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
 import {
   addComponent,
@@ -20,6 +24,7 @@ import {
   hasComponent,
   removeComponent
 } from '../../ecs/functions/ComponentFunctions'
+import { BaseInput } from '../../input/enums/BaseInput'
 import { Physics } from '../../physics/classes/Physics'
 import { CollisionGroups } from '../../physics/enums/CollisionGroups'
 import { getInteractionGroups } from '../../physics/functions/getInteractionGroups'
@@ -41,11 +46,118 @@ export default async function MountPointSystem(world: World) {
   const mountPointActionQueue = createActionQueue(EngineActions.interactedWithObject.matches)
   const mountPointQuery = defineQuery([MountPointComponent])
   const sittingTransitionQuery = defineQuery([SittingComponent, DesiredTransformComponent])
-  const sittingIdleQuery = defineQuery([SittingComponent, Not(DesiredTransformComponent)])
 
   const diffPos = new Vector3()
   const PositionEpsilon = 0.1
   const RotationEpsilon = 1 * Deg2Rad()
+  let prevBehaviour = {} as any
+
+  const leaveSit = (avatarEntity: Entity) => {
+    // Remove the bindings to prevent avatar movement
+    AvatarInputSchema.behaviorMap.delete(BaseInput.JUMP)
+    AvatarInputSchema.behaviorMap.delete(BaseInput.FORWARD)
+    AvatarInputSchema.behaviorMap.delete(BaseInput.BACKWARD)
+    AvatarInputSchema.behaviorMap.delete(BaseInput.LEFT)
+    AvatarInputSchema.behaviorMap.delete(BaseInput.RIGHT)
+
+    const avatarAnimationComponent = getComponent(avatarEntity, AvatarAnimationComponent)
+    changeState(avatarAnimationComponent.animationGraph, AvatarStates.SIT_LEAVE)
+  }
+
+  const restoreInputActionMap = () => {
+    // Restore the input bindings
+    if (prevBehaviour.jump) AvatarInputSchema.behaviorMap.set(BaseInput.JUMP, prevBehaviour.jump)
+    if (prevBehaviour.forward) AvatarInputSchema.behaviorMap.set(BaseInput.FORWARD, prevBehaviour.forward)
+    if (prevBehaviour.backward) AvatarInputSchema.behaviorMap.set(BaseInput.BACKWARD, prevBehaviour.backward)
+    if (prevBehaviour.left) AvatarInputSchema.behaviorMap.set(BaseInput.LEFT, prevBehaviour.left)
+    if (prevBehaviour.right) AvatarInputSchema.behaviorMap.set(BaseInput.RIGHT, prevBehaviour.right)
+  }
+
+  const changeAnimationState = (avatarEntity: Entity) => {
+    // Remove the listener and change animation state to locomotion
+    const avatarAnimationComponent = getComponent(avatarEntity, AvatarAnimationComponent)
+    const sittingComponent = getComponent(avatarEntity, SittingComponent)
+    sittingComponent.state = 'SIT_LEAVE'
+    changeState(avatarAnimationComponent.animationGraph, AvatarStates.LOCOMOTION)
+
+    const transform = getComponent(avatarEntity, TransformComponent)
+    const newPos = transform.position.clone().add(new Vector3(0, 0, 1).applyQuaternion(transform.rotation))
+
+    const interactionGroups = getInteractionGroups(CollisionGroups.Avatars, CollisionGroups.Ground)
+    const raycastComponentData = {
+      type: SceneQueryType.Closest,
+      hits: [],
+      origin: newPos,
+      direction: new Vector3(0, -1, 0),
+      maxDistance: 2,
+      flags: interactionGroups
+    }
+    Physics.castRay(Engine.instance.currentWorld.physicsWorld, raycastComponentData)
+
+    if (raycastComponentData.hits.length > 0) {
+      const raycastHit = raycastComponentData.hits[0] as RaycastHit
+      if (raycastHit.normal.y > 0.9) {
+        newPos.y -= raycastHit.distance
+      }
+    } else {
+      const avatarComponent = getComponent(avatarEntity, AvatarComponent)
+      newPos.copy(transform.position)
+      newPos.y += avatarComponent.avatarHalfHeight
+    }
+
+    addComponent(avatarEntity, DesiredTransformComponent, {
+      position: newPos,
+      rotation: transform.rotation.clone(),
+      positionRate: 2,
+      rotationRate: 2,
+      lockRotationAxis: [false, false, false],
+      positionDelta: 0,
+      rotationDelta: 0
+    })
+  }
+
+  /**
+   * Updates input action map and remove binding for movement.
+   * This is require to play leave animation while maintaining the position.
+   * Otherwise avatar will move while playing leave animation.
+   *
+   * @param mountPointEntity Mount point entity
+   * @param avatarEntity Avatar entity which is being mounted
+   */
+  const updateInputActionMap = (avatarEntity: Entity) => {
+    // Save previous bindings
+    prevBehaviour = {
+      jump: AvatarInputSchema.behaviorMap.get(BaseInput.JUMP),
+      forward: AvatarInputSchema.behaviorMap.get(BaseInput.FORWARD),
+      backward: AvatarInputSchema.behaviorMap.get(BaseInput.BACKWARD),
+      left: AvatarInputSchema.behaviorMap.get(BaseInput.LEFT),
+      right: AvatarInputSchema.behaviorMap.get(BaseInput.RIGHT)
+    }
+
+    const animationComponent = getComponent(avatarEntity, AnimationComponent)
+    const behaviour = () => leaveSit(avatarEntity)
+    const executeAfterLeaveSit = (e) => {
+      // return if not emmited by leave action
+      const avatarAnimationComponent = getComponent(avatarEntity, AvatarAnimationComponent)
+      const leaveAction = (
+        avatarAnimationComponent.animationGraph.states[AvatarStates.SIT_LEAVE] as SingleAnimationState
+      ).action
+
+      if (e.action !== leaveAction) return
+
+      changeAnimationState(avatarEntity)
+      restoreInputActionMap()
+      animationComponent.mixer.removeEventListener('finished', executeAfterLeaveSit)
+    }
+    animationComponent.mixer.addEventListener('finished', executeAfterLeaveSit)
+
+    // change the bindings to run restore
+    AvatarInputSchema.behaviorMap.set(BaseInput.JUMP, behaviour)
+    AvatarInputSchema.behaviorMap.set(BaseInput.FORWARD, behaviour)
+    AvatarInputSchema.behaviorMap.set(BaseInput.BACKWARD, behaviour)
+    AvatarInputSchema.behaviorMap.set(BaseInput.LEFT, behaviour)
+    AvatarInputSchema.behaviorMap.set(BaseInput.RIGHT, behaviour)
+  }
 
   return () => {
     for (const entity of mountPointQuery.enter()) {
@@ -81,6 +193,9 @@ export default async function MountPointSystem(world: World) {
           state: AvatarStates.SIT_ENTER
         })
         getComponent(avatarEntity, AvatarControllerComponent).movementEnabled = false
+
+        // update input bindings
+        updateInputActionMap(avatarEntity)
       }
     }
 
@@ -109,61 +224,13 @@ export default async function MountPointSystem(world: World) {
         const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
 
         if (sitting.state === 'SIT_ENTER') {
-          changeState(avatarAnimationComponent.animationGraph, AvatarStates.SIT_IDLE)
-          sitting.state = AvatarStates.SIT_IDLE
+          changeState(avatarAnimationComponent.animationGraph, AvatarStates.SIT_ENTER)
+          sitting.state = AvatarStates.SIT_IDLE // Animation state will be transfered to idle after completion of enter state automatically
         } else if (sitting.state === 'SIT_LEAVE') {
           changeState(avatarAnimationComponent.animationGraph, AvatarStates.LOCOMOTION)
           removeComponent(entity, SittingComponent)
           getComponent(Engine.instance.currentWorld.localClientEntity, AvatarControllerComponent).movementEnabled = true
         }
-      }
-    }
-
-    for (const entity of sittingIdleQuery(world)) {
-      const controller = getComponent(entity, AvatarControllerComponent)
-      const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
-      const avatarComponent = getComponent(entity, AvatarComponent)
-      const sitting = getComponent(entity, SittingComponent)
-
-      if (controller.localMovementDirection.lengthSq() > 0.1) {
-        sitting.state = AvatarStates.SIT_LEAVE
-
-        changeState(avatarAnimationComponent.animationGraph, AvatarStates.SIT_LEAVE)
-        const avatarEntity = Engine.instance.currentWorld.localClientEntity
-
-        const transform = getComponent(avatarEntity, TransformComponent)
-        const newPos = transform.position.clone().add(new Vector3(0, 0, 1).applyQuaternion(transform.rotation))
-
-        const interactionGroups = getInteractionGroups(CollisionGroups.Avatars, CollisionGroups.Ground)
-        const raycastComponentData = {
-          type: SceneQueryType.Closest,
-          hits: [],
-          origin: newPos,
-          direction: new Vector3(0, -1, 0),
-          maxDistance: 2,
-          flags: interactionGroups
-        }
-        Physics.castRay(Engine.instance.currentWorld.physicsWorld, raycastComponentData)
-
-        if (raycastComponentData.hits.length > 0) {
-          const raycastHit = raycastComponentData.hits[0] as RaycastHit
-          if (raycastHit.normal.y > 0.9) {
-            newPos.y -= raycastHit.distance
-          }
-        } else {
-          newPos.copy(transform.position)
-          newPos.y += avatarComponent.avatarHalfHeight
-        }
-
-        addComponent(avatarEntity, DesiredTransformComponent, {
-          position: newPos,
-          rotation: transform.rotation.clone(),
-          positionRate: 2,
-          rotationRate: 2,
-          lockRotationAxis: [false, false, false],
-          positionDelta: 0,
-          rotationDelta: 0
-        })
       }
     }
   }

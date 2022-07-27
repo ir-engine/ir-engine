@@ -88,7 +88,7 @@ describe('avatarFunctions Unit', async () => {
       })
 
       const animationGLTF = await loadGLTFAssetNode(animGLB)
-      AnimationManager.instance.getAnimations(animationGLTF)
+      AnimationManager.instance.getAnimations([animationGLTF])
 
       const group = new Group()
       animateAvatarModel(entity)(group)

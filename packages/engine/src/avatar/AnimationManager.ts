@@ -2,12 +2,17 @@ import { AnimationClip, Bone, SkinnedMesh } from 'three'
 
 import { AssetLoader } from '../assets/classes/AssetLoader'
 import { GLTF } from '../assets/loaders/gltf/GLTFLoader'
-import { Engine } from '../ecs/classes/Engine'
 import { findRootBone, processRootAnimation } from './animation/Util'
 import { makeDefaultSkinnedMesh } from './functions/avatarFunctions'
 
 export class AnimationManager {
   static instance: AnimationManager = new AnimationManager()
+  private defaultPaths = [
+    '/default_assets/Animations.glb',
+    '/default_assets/SitIdle.glb',
+    '/default_assets/SitToStand.glb',
+    '/default_assets/StandToSit.glb'
+  ]
 
   _animations: AnimationClip[]
   _defaultSkinnedMesh: SkinnedMesh
@@ -19,20 +24,28 @@ export class AnimationManager {
     return animation ? animation.duration : 0
   }
 
-  async loadDefaultAnimations(path: string = '/default_assets/Animations.glb') {
-    const gltf = await AssetLoader.loadAsync(path)
-    this.getAnimations(gltf)
+  async loadDefaultAnimations(paths: string[] = this.defaultPaths) {
+    const gltfs = await Promise.all(paths.map((path) => AssetLoader.loadAsync(path)))
+    this.getAnimations(gltfs)
   }
 
-  getAnimations(gltf: GLTF): AnimationClip[] {
+  getAnimations(gltfs: GLTF[]): AnimationClip[] {
     if (this._animations) {
       return this._animations
     }
-    gltf.scene.traverse((child: SkinnedMesh) => {
-      if (child.type === 'SkinnedMesh' && !this._defaultSkinnedMesh) {
-        this._defaultSkinnedMesh = child
-      }
-    })
+
+    this._animations = []
+    this._rootAnimationData = {}
+
+    for (const gltf of gltfs) {
+      gltf.scene.traverse((child: SkinnedMesh) => {
+        if (child.type === 'SkinnedMesh' && !this._defaultSkinnedMesh) {
+          this._defaultSkinnedMesh = child
+        }
+      })
+
+      if (this._defaultSkinnedMesh) break
+    }
 
     if (!this._defaultSkinnedMesh) {
       // reconstruct skeleton from stored data
@@ -40,18 +53,22 @@ export class AnimationManager {
     }
 
     this._defaultRootBone = findRootBone(this._defaultSkinnedMesh)!
-    this._rootAnimationData = {}
-    this._animations = gltf.animations
-    this._animations?.forEach((clip) => {
-      // TODO: make list of morph targets names
-      clip.tracks = clip.tracks.filter((track) => !track.name.match(/^CC_Base_/))
 
-      const rootData = processRootAnimation(clip, this._defaultRootBone)
+    gltfs.forEach((gltf) => {
+      gltf.animations?.forEach((clip) => {
+        // TODO: make list of morph targets names
+        clip.tracks = clip.tracks.filter((track) => !track.name.match(/^CC_Base_/))
 
-      if (rootData) {
-        this._rootAnimationData[clip.name] = rootData
-      }
+        const rootData = processRootAnimation(clip, this._defaultRootBone)
+
+        if (rootData) {
+          this._rootAnimationData[clip.name] = rootData
+        }
+
+        this._animations.push(clip)
+      })
     })
+
     return this._animations
   }
 }
