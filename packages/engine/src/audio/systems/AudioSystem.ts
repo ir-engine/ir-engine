@@ -5,7 +5,7 @@ import { EngineActions } from '../../ecs/classes/EngineState'
 import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { matchActionOnce } from '../../networking/functions/matchActionOnce'
-import { AudioSettingReceptor, restoreAudioSettings } from '../AudioState'
+import { accessAudioState, AudioSettingReceptor, restoreAudioSettings } from '../AudioState'
 import { BackgroundMusic } from '../components/BackgroundMusic'
 import { PlaySoundEffect } from '../components/PlaySoundEffect'
 import { SoundEffect } from '../components/SoundEffect'
@@ -56,7 +56,7 @@ export default async function AudioSystem(world: World) {
     if (music.src && !audio) {
       music.audio = new Audio()
       music.audio.loop = true
-      music.audio.volume = music.volume
+      music.audio.volume = accessAudioState().backgroundMusicVolume.value
       music.audio.addEventListener('loadeddata', () => {
         music.audio.play()
       })
@@ -83,7 +83,7 @@ export default async function AudioSystem(world: World) {
     const sound = getComponent(ent, SoundEffect)
     const playTag = getComponent(ent, PlaySoundEffect)
     const audio = sound.audio[playTag.index]
-    audio.volume = Math.min(Math.max(playTag.volume, 0), 1)
+    audio.volume = accessAudioState().soundEffectsVolume.value
     audio.play()
     removeComponent(ent, PlaySoundEffect)
   }
