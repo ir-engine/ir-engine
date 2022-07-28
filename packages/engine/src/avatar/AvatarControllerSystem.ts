@@ -80,7 +80,7 @@ export default async function AvatarControllerSystem(world: World) {
       }
 
       if (!isLocalXRCameraReady) {
-        alignXRCameraYawWithAvatar(entity)
+        alignXRInputContainerYawWithAvatar(entity)
         isLocalXRCameraReady = true
       }
 
@@ -102,7 +102,7 @@ export default async function AvatarControllerSystem(world: World) {
   }
 }
 
-const alignXRCameraYawWithAvatar = (entity: Entity) => {
+const alignXRInputContainerYawWithAvatar = (entity: Entity) => {
   const inputSource = getComponent(entity, XRInputSourceComponent)
   const transform = getComponent(entity, TransformComponent)
   const dir = new Vector3(0, 0, -1)

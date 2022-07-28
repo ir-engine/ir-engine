@@ -18,7 +18,7 @@ function triangleAngle(aLen: number, bLen: number, cLen: number): number {
 
 /**
  * Solves Two-Bone IK.
- * targetOffset param position/rotation properties are assumed to be in world space (e.g no parents)
+ * targetOffset is assumed to have no parents
  * @param {Bone} root root joint
  * @param {Bone} mid mid joint
  * @param {Bone} tip tip joint

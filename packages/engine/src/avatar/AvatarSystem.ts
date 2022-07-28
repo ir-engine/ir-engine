@@ -1,4 +1,4 @@
-import { Group, Object3D, Vector3 } from 'three'
+import { Group, Object3D, Quaternion, Vector3 } from 'three'
 
 import { createActionQueue, getState } from '@xrengine/hyperflux'
 
@@ -27,6 +27,7 @@ import { initializeHandModel, initializeXRInputs } from '../xr/XRControllerFunct
 import { playTriggerPressAnimation, playTriggerReleaseAnimation } from '../xr/XRControllerFunctions'
 import { proxifyXRInputs } from '../xr/XRFunctions'
 import { AvatarAnimationComponent } from './components/AvatarAnimationComponent'
+import { AvatarArmsTwistCorrectionComponent } from './components/AvatarArmsTwistCorrectionComponent'
 import { AvatarComponent } from './components/AvatarComponent'
 import { AvatarHandsIKComponent } from './components/AvatarHandsIKComponent'
 import { AvatarHeadIKComponent } from './components/AvatarHeadIKComponent'
@@ -122,11 +123,11 @@ export function xrInputQueryExit(entity: Entity) {
   xrInputComponent.container.removeFromParent()
   xrInputComponent.head.removeFromParent()
   removeComponent(entity, AvatarHeadIKComponent)
-
-  const ik = getComponent(entity, AvatarHandsIKComponent)
-  ik.leftHint?.removeFromParent()
-  ik.rightHint?.removeFromParent()
+  const { leftHint, rightHint } = getComponent(entity, AvatarHandsIKComponent)
+  leftHint?.removeFromParent()
+  rightHint?.removeFromParent()
   removeComponent(entity, AvatarHandsIKComponent)
+  removeComponent(entity, AvatarArmsTwistCorrectionComponent)
 }
 
 /**
@@ -155,8 +156,8 @@ export function setupHandIK(entity: Entity) {
 
   const animation = getComponent(entity, AvatarAnimationComponent)
 
-  leftOffset.rotation.set(-2.1, 3, 0.1)
-  rightOffset.rotation.set(-2.1, 0.1, 0.1)
+  leftOffset.rotation.set(-Math.PI * 0.5, Math.PI, 0)
+  rightOffset.rotation.set(-Math.PI * 0.5, 0, 0)
 
   // todo: load the avatar & rig on the server
   if (isClient) {
@@ -174,19 +175,25 @@ export function setupHandIK(entity: Entity) {
   }
 
   addComponent(entity, AvatarHandsIKComponent, {
-    leftTarget: xrInputSourceComponent.controllerGripLeftParent,
+    leftTarget: xrInputSourceComponent.controllerLeftParent,
     leftHint: leftHint,
     leftTargetOffset: leftOffset,
     leftTargetPosWeight: 1,
     leftTargetRotWeight: 1,
     leftHintWeight: 1,
-
-    rightTarget: xrInputSourceComponent.controllerGripRightParent,
+    rightTarget: xrInputSourceComponent.controllerRightParent,
     rightHint: rightHint,
     rightTargetOffset: rightOffset,
     rightTargetPosWeight: 1,
     rightTargetRotWeight: 1,
     rightHintWeight: 1
+  })
+
+  addComponent(entity, AvatarArmsTwistCorrectionComponent, {
+    LeftHandBindRotationInv: new Quaternion(),
+    LeftArmTwistAmount: 0.6,
+    RightHandBindRotationInv: new Quaternion(),
+    RightArmTwistAmount: 0.6
   })
 }
 
