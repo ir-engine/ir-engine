@@ -1,31 +1,32 @@
-import { addActionReceptor, dispatchAction } from '@xrengine/hyperflux'
+import { Not } from 'bitecs'
+import { DoubleSide, Mesh, MeshBasicMaterial, PlaneBufferGeometry } from 'three'
 
+import { addActionReceptor, createActionQueue, dispatchAction } from '@xrengine/hyperflux'
+
+import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions } from '../../ecs/classes/EngineState'
 import { World } from '../../ecs/classes/World'
-import { defineQuery, getComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { matchActionOnce } from '../../networking/functions/matchActionOnce'
+import { Object3DComponent } from '../../scene/components/Object3DComponent'
+import { VideoComponent } from '../../scene/components/VideoComponent'
+import { VolumetricComponent } from '../../scene/components/VolumetricComponent'
+import { ObjectLayers } from '../../scene/constants/ObjectLayers'
+import { updateAudio } from '../../scene/functions/loaders/AudioFunctions'
+import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 import { AudioSettingReceptor, restoreAudioSettings } from '../AudioState'
-import { BackgroundMusic } from '../components/BackgroundMusic'
-import { PlaySoundEffect } from '../components/PlaySoundEffect'
-import { SoundEffect } from '../components/SoundEffect'
+import { AudioComponent } from '../components/AudioComponent'
+
+const AUDIO_TEXTURE_PATH = '/static/editor/audio-icon.png' // Static
 
 export default async function AudioSystem(world: World) {
-  const soundEffectQuery = defineQuery([SoundEffect])
-  const musicQuery = defineQuery([BackgroundMusic])
-  const playQuery = defineQuery([SoundEffect, PlaySoundEffect])
+  const audioTexture = await AssetLoader.loadAsync(AUDIO_TEXTURE_PATH)
 
-  /** Indicates whether the system is ready or not. */
   let audioReady = false
-  /** Callbacks to be called after system is ready. */
   let callbacks: any[] = []
-  /** Audio Element. */
   let audio: any
 
-  /**
-   * Call the callbacks when system is ready or push callbacks in array otherwise.
-   * @param cb Callback to be called when system is ready.
-   */
   const whenReady = (cb): void => {
     if (audioReady) {
       cb()
@@ -34,7 +35,6 @@ export default async function AudioSystem(world: World) {
     }
   }
 
-  /** Enable and start audio system. */
   const startAudio = (e) => {
     window.removeEventListener('pointerdown', startAudio, true)
     console.log('starting audio')
@@ -47,79 +47,48 @@ export default async function AudioSystem(world: World) {
   }
   window.addEventListener('pointerdown', startAudio, true)
 
-  /**
-   * Start Background music if available.
-   * @param ent Entity to get the {@link audio/components/BackgroundMusic.BackgroundMusic | BackgroundMusic} Component.
-   */
-  const startBackgroundMusic = (ent): void => {
-    const music = ent.getComponent(BackgroundMusic)
-    if (music.src && !audio) {
-      music.audio = new Audio()
-      music.audio.loop = true
-      music.audio.volume = music.volume
-      music.audio.addEventListener('loadeddata', () => {
-        music.audio.play()
-      })
-      music.audio.src = music.src
-    }
-  }
-
-  /**
-   * Stop Background Music.
-   * @param ent Entity to get the {@link audio/components/BackgroundMusic.BackgroundMusic | BackgroundMusic} Component.
-   */
-  const stopBackgroundMusic = (ent): void => {
-    const music = ent.getComponent(BackgroundMusic)
-    if (music && music.audio) {
-      music.audio.pause()
-    }
-  }
-
-  /**
-   * Play sound effect.
-   * @param ent Entity to get the {@link audio/components/PlaySoundEffect.PlaySoundEffect | PlaySoundEffect} Component.
-   */
-  const playSoundEffect = (ent): void => {
-    const sound = getComponent(ent, SoundEffect)
-    const playTag = getComponent(ent, PlaySoundEffect)
-    const audio = sound.audio[playTag.index]
-    audio.volume = Math.min(Math.max(playTag.volume, 0), 1)
-    audio.play()
-    removeComponent(ent, PlaySoundEffect)
-  }
-
   matchActionOnce(EngineActions.joinedWorld.matches, () => {
     restoreAudioSettings()
   })
 
   addActionReceptor(AudioSettingReceptor)
 
+  const modifyPropertyActionQuue = createActionQueue(EngineActions.sceneObjectUpdate.matches)
+
+  const audioStereoQuery = defineQuery([AudioComponent, Not(VideoComponent), Not(VolumetricComponent)])
+  const videoQuery = defineQuery([AudioComponent, VideoComponent, Not(VolumetricComponent)])
+  const volumetricQuery = defineQuery([AudioComponent, Not(VideoComponent), VolumetricComponent])
+
   return () => {
-    for (const entity of soundEffectQuery.enter(world)) {
-      const effect = getComponent(entity, SoundEffect)
-      if (!audio) {
-        effect.src.forEach((src, i) => {
-          if (!src) {
-            return
-          }
+    for (const entity of audioStereoQuery.enter()) {
+      if (Engine.instance.isEditor) {
+        const obj3d = getComponent(entity, Object3DComponent).value
 
-          const audio = new Audio()
-          effect.audio[i] = audio
-          audio.src = src
-        })
+        obj3d.userData.textureMesh = new Mesh(
+          new PlaneBufferGeometry(),
+          new MeshBasicMaterial({ transparent: true, side: DoubleSide })
+        )
+        obj3d.add(obj3d.userData.textureMesh)
+        obj3d.userData.textureMesh.userData.disableOutline = true
+        obj3d.userData.textureMesh.userData.isHelper = true
+        setObjectLayers(obj3d.userData.textureMesh, ObjectLayers.NodeHelper)
+
+        obj3d.userData.textureMesh.material.map = audioTexture
       }
+      updateAudio(entity)
     }
 
-    for (const entity of musicQuery.enter(world)) {
-      whenReady(() => startBackgroundMusic(entity))
+    for (const entity of audioStereoQuery.exit()) {
+      const obj3d = getComponent(entity, Object3DComponent).value
+      if (Engine.instance.isEditor) {
+        obj3d.remove(obj3d.userData.textureMesh)
+        obj3d.userData.textureMesh = undefined
+      }
+      obj3d.remove(obj3d.userData.audioEl)
+      obj3d.userData.audioEl = undefined
     }
 
-    for (const entity of musicQuery.exit(world)) {
-      stopBackgroundMusic(entity)
-    }
-
-    for (const entity of playQuery.enter(world)) {
-      whenReady(() => playSoundEffect(entity))
-    }
+    for (const action of modifyPropertyActionQuue())
+      for (const entity of action.entities) if (audioStereoQuery().includes(entity)) updateAudio(entity)
   }
 }

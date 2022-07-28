@@ -1,13 +1,4 @@
-import {
-  Audio,
-  DoubleSide,
-  Mesh,
-  MeshBasicMaterial,
-  Object3D,
-  PlaneBufferGeometry,
-  PositionalAudio,
-  Texture
-} from 'three'
+import { Audio, Object3D, PositionalAudio } from 'three'
 
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
@@ -28,16 +19,14 @@ import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunc
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { MediaComponent } from '../../components/MediaComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
-import { ObjectLayers } from '../../constants/ObjectLayers'
 import { addError, removeError } from '../ErrorFunctions'
-import { setObjectLayers } from '../setObjectLayers'
 import { updateAutoStartTimeForMedia } from './MediaFunctions'
 
 export const SCENE_COMPONENT_AUDIO = 'audio'
 export const SCENE_COMPONENT_AUDIO_DEFAULT_VALUES = {
   audioSource: '',
   volume: 1,
-  audioType: AudioType.Positional as AudioTypeType,
+  audioType: AudioType.Stereo as AudioTypeType,
   distanceModel: 'linear' as DistanceModelType,
   rolloffFactor: 1,
   refDistance: 20,
@@ -46,9 +35,6 @@ export const SCENE_COMPONENT_AUDIO_DEFAULT_VALUES = {
   coneOuterAngle: 360,
   coneOuterGain: 1
 }
-
-let audioTexture: Texture = null!
-const AUDIO_TEXTURE_PATH = '/static/editor/audio-icon.png' // Static
 
 export const deserializeAudio: ComponentDeserializeFunction = async (
   entity: Entity,
@@ -61,64 +47,44 @@ export const deserializeAudio: ComponentDeserializeFunction = async (
 
   const props = parseAudioProperties(json.props)
   addComponent(entity, AudioComponent, props)
-
   getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_AUDIO)
-
-  obj3d.userData.textureMesh = new Mesh(
-    new PlaneBufferGeometry(),
-    new MeshBasicMaterial({ transparent: true, side: DoubleSide })
-  )
-  obj3d.add(obj3d.userData.textureMesh)
-  obj3d.userData.textureMesh.userData.disableOutline = true
-  obj3d.userData.textureMesh.userData.isHelper = true
-  setObjectLayers(obj3d.userData.textureMesh, ObjectLayers.NodeHelper)
-
-  if (audioTexture) {
-    obj3d.userData.textureMesh.material.map = audioTexture
-  } else {
-    // can't use await since component should have to be deserialize for media component to work properly
-    AssetLoader.loadAsync(AUDIO_TEXTURE_PATH).then((texture) => {
-      audioTexture = texture!
-      obj3d.userData.textureMesh.material.map = audioTexture
-    })
-  }
-
-  updateAudio(entity, props)
-
-  const mediaComponent = getComponent(entity, MediaComponent)
-  if (mediaComponent) {
-    obj3d.userData.audioEl.autoplay = mediaComponent.autoplay
-    obj3d.userData.audioEl.setLoop(mediaComponent.loop)
-    updateAutoStartTimeForMedia(entity)
-  }
 }
 
-export const updateAudio: ComponentUpdateFunction = (entity: Entity, properties: AudioComponentType) => {
+export const updateAudio = (entity: Entity) => {
   const obj3d = getComponent(entity, Object3DComponent).value
-  const component = getComponent(entity, AudioComponent)
+  const audioComponent = getComponent(entity, AudioComponent)
+  console.log('updateAudio', entity, audioComponent)
   let audioTypeChanged = false
 
-  if (typeof properties.audioType !== 'undefined') {
+  if (audioComponent.audioType === AudioType.Stereo && !(obj3d.userData.audioEl instanceof Audio)) {
     if (obj3d.userData.audioEl) obj3d.userData.audioEl.removeFromParent()
-    obj3d.userData.audioEl =
-      component.audioType === AudioType.Stereo
-        ? new Audio(Engine.instance.currentWorld.audioListener)
-        : new PositionalAudio(Engine.instance.currentWorld.audioListener)
 
+    obj3d.userData.audioEl = new Audio(Engine.instance.currentWorld.audioListener)
     obj3d.userData.audioEl.matrixAutoUpdate = false
     obj3d.add(obj3d.userData.audioEl)
+
     updateAutoStartTimeForMedia(entity)
     audioTypeChanged = true
   }
 
-  if (properties.audioSource) {
+  if (audioComponent.audioType === AudioType.Positional && !(obj3d.userData.audioEl instanceof PositionalAudio)) {
+    if (obj3d.userData.audioEl) obj3d.userData.audioEl.removeFromParent()
+
+    obj3d.userData.audioEl = new PositionalAudio(Engine.instance.currentWorld.audioListener)
+    obj3d.add(obj3d.userData.audioEl)
+
+    updateAutoStartTimeForMedia(entity)
+    audioTypeChanged = true
+  }
+
+  if (obj3d.userData.audioEl.src !== audioComponent.audioSource) {
     try {
-      const assetType = AssetLoader.getAssetClass(component.audioSource)
+      const assetType = AssetLoader.getAssetClass(audioComponent.audioSource)
       if (assetType !== AssetClass.Audio) {
-        addError(entity, 'error', `Audio format ${component.audioSource.split('.').pop()}not supported`)
+        addError(entity, 'error', `Audio format ${audioComponent.audioSource.split('.').pop()}not supported`)
         return
       }
-      const audioBuffer = AssetLoader.getFromCache(component.audioSource)
+      const audioBuffer = AssetLoader.getFromCache(audioComponent.audioSource)
       if (!audioBuffer) return addError(entity, 'error', 'Failed to load audio buffer')
 
       if (obj3d.userData.audioEl.isPlaying) obj3d.userData.audioEl.stop()
@@ -132,24 +98,32 @@ export const updateAudio: ComponentUpdateFunction = (entity: Entity, properties:
     }
   }
 
-  if (typeof properties.volume !== 'undefined') {
-    obj3d.userData.audioEl.setVolume(component.volume)
+  if (typeof audioComponent.volume !== 'undefined') {
+    obj3d.userData.audioEl.setVolume(audioComponent.volume)
   }
 
-  if (component.audioType === AudioType.Positional) {
+  if (audioComponent.audioType === AudioType.Positional) {
     const audioEl = obj3d.userData.audioEl as PositionalAudio
-    if (audioTypeChanged || typeof properties.distanceModel !== 'undefined')
-      audioEl.setDistanceModel(component.distanceModel)
-    if (audioTypeChanged || typeof properties.rolloffFactor !== 'undefined')
-      audioEl.setRolloffFactor(component.rolloffFactor)
-    if (audioTypeChanged || typeof properties.refDistance !== 'undefined') audioEl.setRefDistance(component.refDistance)
-    if (audioTypeChanged || typeof properties.maxDistance !== 'undefined') audioEl.setMaxDistance(component.maxDistance)
-    if (audioTypeChanged || typeof properties.coneInnerAngle !== 'undefined')
-      audioEl.panner.coneInnerAngle = component.coneInnerAngle
-    if (audioTypeChanged || typeof properties.coneOuterAngle !== 'undefined')
-      audioEl.panner.coneOuterAngle = component.coneOuterAngle
-    if (audioTypeChanged || typeof properties.coneOuterGain !== 'undefined')
-      audioEl.panner.coneOuterGain = component.coneOuterGain
+    if (audioTypeChanged || audioComponent.distanceModel !== audioEl.getDistanceModel())
+      audioEl.setDistanceModel(audioComponent.distanceModel)
+    if (audioTypeChanged || audioComponent.rolloffFactor !== audioEl.getRolloffFactor())
+      audioEl.setRolloffFactor(audioComponent.rolloffFactor)
+    if (audioTypeChanged || audioComponent.refDistance !== audioEl.getRefDistance())
+      audioEl.setRefDistance(audioComponent.refDistance)
+    if (audioTypeChanged || audioComponent.maxDistance !== audioEl.getMaxDistance())
+      audioEl.setMaxDistance(audioComponent.maxDistance)
+    if (audioTypeChanged || audioComponent.coneInnerAngle !== audioEl.panner.coneInnerAngle)
+      audioEl.panner.coneInnerAngle = audioComponent.coneInnerAngle
+    if (audioTypeChanged || audioComponent.coneOuterAngle !== audioEl.panner.coneOuterAngle)
+      audioEl.panner.coneOuterAngle = audioComponent.coneOuterAngle
+    if (audioTypeChanged || audioComponent.coneOuterGain !== audioEl.panner.coneOuterAngle)
+      audioEl.panner.coneOuterGain = audioComponent.coneOuterGain
+  }
+
+  const mediaComponent = getComponent(entity, MediaComponent)
+  if (mediaComponent) {
+    obj3d.userData.audioEl.autoplay = mediaComponent.autoplay
+    obj3d.userData.audioEl.setLoop(mediaComponent.loop)
   }
 }
 

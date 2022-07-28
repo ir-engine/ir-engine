@@ -11,8 +11,7 @@ import {
   deserializeAudio,
   prepareAudioForGLTFExport,
   SCENE_COMPONENT_AUDIO,
-  serializeAudio,
-  updateAudio
+  serializeAudio
 } from './loaders/AudioFunctions'
 import {
   deserializeAudioSetting,
@@ -407,7 +406,6 @@ export const registerDefaultSceneFunctions = (world: World) => {
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_AUDIO, {
     deserialize: deserializeAudio,
     serialize: serializeAudio,
-    update: updateAudio,
     prepareForGLTFExport: prepareAudioForGLTFExport
   })
 
