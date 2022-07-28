@@ -173,20 +173,6 @@ const Layout = ({ useLoadingScreenOpacity, pageTitle, children, hideVideo, hideF
                 <MediaIconHider />
               </button>
               <MediaIconsBox animate={showMediaIcons ? styles.animateTop : styles.fadeOutTop} />
-              <header className={showMediaIcons ? styles.animateTop : styles.fadeOutTop}>
-                {!hideVideo && (
-                  <section className={styles.locationUserMenu}>
-                    <div className={styles.conferenceModeButtons}>
-                      <Tooltip title={t('user:person.openConferenceMode')}>
-                        <div className={styles.conferenceModeButton} onClick={() => setConferenceMode(true)}>
-                          <GridViewIcon />
-                        </div>
-                      </Tooltip>
-                    </div>
-                    <UserMediaWindows />
-                  </section>
-                )}
-              </header>
               <button
                 type="button"
                 className={`${showBottomIcons ? styles.btn : styles.smBtn} ${
@@ -240,13 +226,24 @@ const Layout = ({ useLoadingScreenOpacity, pageTitle, children, hideVideo, hideF
               >
                 <Refresh />
               </button>
-              {!engineState.xrSessionStarted.value && (
-                <InstanceChat
-                  animate={styles.animateBottom}
-                  hideOtherMenus={hideOtherMenus}
-                  setShowTouchPad={setShowTouchPad}
-                />
-              )}
+
+              <div className={styles.rightSidebar}>
+                <div
+                  className={`${styles.userMediaWindowsContainer} ${
+                    showMediaIcons ? styles.animateTop : styles.fadeOutTop
+                  }`}
+                >
+                  {!hideVideo && <UserMediaWindows className={styles.userMediaWindows} />}
+                </div>
+
+                {!engineState.xrSessionStarted.value && (
+                  <InstanceChat
+                    animate={styles.animateBottom}
+                    hideOtherMenus={hideOtherMenus}
+                    setShowTouchPad={setShowTouchPad}
+                  />
+                )}
+              </div>
             </div>
           </>
         )}
