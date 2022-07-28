@@ -15,6 +15,7 @@ import {
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
+import { useHookEffect } from '@xrengine/hyperflux'
 
 import { EditorCameraComponent } from '../../classes/EditorCameraComponent'
 import { executeCommandWithHistory, setPropertyOnEntityNode } from '../../classes/History'
@@ -99,7 +100,7 @@ export default function HierarchyPanel() {
   )
 
   useEffect(updateNodeHierarchy, [collapsedNodes])
-  useEffect(updateNodeHierarchy, [selectionState.selectedEntities, selectionState.sceneGraphChangeCounter])
+  useHookEffect(updateNodeHierarchy, [selectionState.selectedEntities, selectionState.sceneGraphChangeCounter])
 
   /* Expand & Collapse Functions */
   const expandNode = useCallback(
