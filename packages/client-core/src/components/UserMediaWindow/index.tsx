@@ -22,6 +22,7 @@ import {
 import { getAvatarURLForUser } from '@xrengine/client-core/src/user/components/UserMenu/util'
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import { useUserState } from '@xrengine/client-core/src/user/services/UserService'
+import { isMobile } from '@xrengine/engine/src/common/functions/isMobile'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
@@ -58,8 +59,8 @@ export const useUserMediaWindowHook = ({ peerId }) => {
   const [isPiP, setPiP] = useState(false)
   const [videoStream, _setVideoStream] = useState<any>(null)
   const [audioStream, _setAudioStream] = useState<any>(null)
-  const [videoStreamPaused, setVideoStreamPaused] = useState(false)
-  const [audioStreamPaused, setAudioStreamPaused] = useState(false)
+  const [videoStreamPaused, _setVideoStreamPaused] = useState(false)
+  const [audioStreamPaused, _setAudioStreamPaused] = useState(false)
   const [videoProducerPaused, setVideoProducerPaused] = useState(false)
   const [audioProducerPaused, setAudioProducerPaused] = useState(false)
   const [videoProducerGlobalMute, setVideoProducerGlobalMute] = useState(false)
@@ -68,8 +69,12 @@ export const useUserMediaWindowHook = ({ peerId }) => {
   const [videoTrackClones, setVideoTrackClones] = useState<any[]>([])
   const [volume, setVolume] = useState(100)
   const userState = useUserState()
-  const videoRef = React.useRef<any>()
-  const audioRef = React.useRef<any>()
+  const videoRef = useRef<any>()
+  const audioRef = useRef<any>()
+  const audioStreamPausedRef = useRef(audioStreamPaused)
+  const videoStreamPausedRef = useRef(videoStreamPaused)
+  const resumeVideoOnUnhide = useRef<boolean>(false)
+  const resumeAudioOnUnhide = useRef<boolean>(false)
   const videoStreamRef = useRef(videoStream)
   const audioStreamRef = useRef(audioStream)
   const mediastream = useMediaStreamState()
@@ -101,6 +106,16 @@ export const useUserMediaWindowHook = ({ peerId }) => {
   const setAudioStream = (value) => {
     audioStreamRef.current = value
     _setAudioStream(value)
+  }
+
+  const setVideoStreamPaused = (value) => {
+    videoStreamPausedRef.current = value
+    _setVideoStreamPaused(value)
+  }
+
+  const setAudioStreamPaused = (value) => {
+    audioStreamPausedRef.current = value
+    _setAudioStreamPaused(value)
   }
 
   const pauseConsumerListener = (consumerId: string) => {
@@ -447,6 +462,45 @@ export const useUserMediaWindowHook = ({ peerId }) => {
   const username = getUsername()
 
   const userAvatarDetails = useHookstate(getState(WorldState).userAvatarDetails)
+
+  const handleVisibilityChange = () => {
+    if (document.hidden) {
+      if (videoStreamRef.current != null && !videoStreamRef.current.paused && !videoStreamPausedRef.current) {
+        resumeVideoOnUnhide.current = true
+        toggleVideo({
+          stopPropagation: () => {}
+        })
+      }
+      if (audioStreamRef.current != null && !audioStreamRef.current.paused && !audioStreamPausedRef.current) {
+        resumeAudioOnUnhide.current = true
+        toggleAudio({
+          stopPropagation: () => {}
+        })
+      }
+    }
+    if (!document.hidden) {
+      if (videoStreamRef.current != null && resumeVideoOnUnhide.current)
+        toggleVideo({
+          stopPropagation: () => {}
+        })
+      if (audioStreamRef.current != null && resumeAudioOnUnhide.current)
+        toggleAudio({
+          stopPropagation: () => {}
+        })
+      resumeVideoOnUnhide.current = false
+      resumeAudioOnUnhide.current = false
+    }
+  }
+
+  useEffect(() => {
+    if (isMobile) {
+      document.addEventListener('visibilitychange', handleVisibilityChange)
+
+      return () => {
+        document.removeEventListener('visibilitychange', handleVisibilityChange)
+      }
+    }
+  }, [])
 
   return {
     user,
