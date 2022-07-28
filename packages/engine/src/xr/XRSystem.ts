@@ -19,12 +19,7 @@ import { ObjectLayers } from './../scene/constants/ObjectLayers'
 import { XRAction } from './XRAction'
 import { XRHandsInputComponent, XRInputSourceComponent } from './XRComponents'
 import { cleanXRInputs, updateXRControllerAnimations } from './XRControllerFunctions'
-import {
-  proxifyXRInputs,
-  setupLocalXRInputs,
-  setupXRCameraForLocalEntity,
-  setupXRInputSourceComponent
-} from './XRFunctions'
+import { proxifyXRInputs, setupLocalXRInputs, setupXRInputSourceComponent } from './XRFunctions'
 import { XRState } from './XRState'
 
 const skyboxQuery = defineQuery([SkyboxComponent])
@@ -55,7 +50,6 @@ export const requestXRSession = createHookableFunction(
       const world = Engine.instance.currentWorld
       setupXRInputSourceComponent(world.localClientEntity)
       proxifyXRInputs(world.localClientEntity)
-      setupXRCameraForLocalEntity()
 
       const cameras = EngineRenderer.instance.xrManager.getCamera()
       cameras.layers.enableAll()
@@ -156,13 +150,10 @@ export default async function XRSystem(world: World) {
       const session = EngineRenderer.instance.xrManager!.getSession()!
       for (const source of session.inputSources) copyGamepadState(source)
 
-      const xrInputSourceComponent = getComponent(
-        Engine.instance.currentWorld.localClientEntity,
-        XRInputSourceComponent
-      )
-      const head = xrInputSourceComponent.head
-      head.quaternion.copy(Engine.instance.currentWorld.camera.quaternion)
-      head.position.copy(Engine.instance.currentWorld.camera.position)
+      // const xrInputSourceComponent = getComponent(world.localClientEntity, XRInputSourceComponent)
+      // const head = xrInputSourceComponent.head
+      // head.quaternion.copy(Engine.instance.currentWorld.camera.quaternion)
+      // head.position.copy(Engine.instance.currentWorld.camera.position)
     }
 
     //XR Controller mesh animation update

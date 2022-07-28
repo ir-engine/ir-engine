@@ -147,13 +147,6 @@ export const proxifyXRInputs = (entity: Entity) => {
   )
 }
 
-export function setupXRCameraForLocalEntity() {
-  const entity = Engine.instance.currentWorld.localClientEntity
-  const { container } = getComponent(entity, XRInputSourceComponent)
-  container.add(Engine.instance.currentWorld.camera)
-  if (entity && !hasComponent(entity, AvatarHeadDecapComponent)) addComponent(entity, AvatarHeadDecapComponent, true)
-}
-
 /**
  * Setup XRInputSourceComponent on entity, required for all input control types
  * @returns XRInputSourceComponentType

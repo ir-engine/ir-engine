@@ -1,9 +1,10 @@
 import { Not } from 'bitecs'
 import { Quaternion, Vector3 } from 'three'
 
-import { createActionQueue } from '@xrengine/hyperflux'
+import { createActionQueue, getState } from '@xrengine/hyperflux'
 
 import { Engine } from '../../ecs/classes/Engine'
+import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
@@ -100,6 +101,8 @@ export default async function PhysicsSystem(world: World) {
   world.physicsCollisionEventQueue = Physics.createCollisionEventQueue()
 
   return () => {
+    world.physicsWorld.timestep = getState(EngineState).fixedDeltaSeconds.value
+
     for (const action of teleportObjectQueue()) teleportObjectReceptor(action)
 
     for (const entity of rigidBodyQuery.exit()) {

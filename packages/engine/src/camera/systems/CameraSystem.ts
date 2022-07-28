@@ -31,6 +31,7 @@ import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { RAYCAST_PROPERTIES_DEFAULT_VALUES } from '../../scene/functions/loaders/CameraPropertiesFunctions'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
+import { TransformOffsetComponent } from '../../transform/components/TransformChildComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { CameraTagComponent as NetworkCameraComponent } from '../components/CameraTagComponent'
 import { FollowCameraComponent, FollowCameraDefaultValues } from '../components/FollowCameraComponent'
@@ -240,17 +241,17 @@ export const updateFollowCamera = (cameraEntity: Entity) => {
   const thetaRad = MathUtils.degToRad(theta)
   const phiRad = MathUtils.degToRad(followCamera.phi)
 
-  const cameraTransform = getComponent(Engine.instance.currentWorld.cameraEntity, TransformComponent)
-  cameraTransform.position.set(
+  const cameraPose = getComponent(Engine.instance.currentWorld.cameraEntity, TransformOffsetComponent)
+  cameraPose.offsetPosition.set(
     tempVec.x + followCamera.distance * Math.sin(thetaRad) * Math.cos(phiRad),
     tempVec.y + followCamera.distance * Math.sin(phiRad),
     tempVec.z + followCamera.distance * Math.cos(thetaRad) * Math.cos(phiRad)
   )
 
-  direction.copy(cameraTransform.position).sub(tempVec).normalize()
+  direction.copy(cameraPose.offsetPosition).sub(tempVec).normalize()
 
   mx.lookAt(direction, empty, upVector)
-  cameraTransform.rotation.setFromRotationMatrix(mx)
+  cameraPose.offsetRotation.setFromRotationMatrix(mx)
 
   updateCameraTargetHeadDecap(cameraEntity)
   updateCameraTargetRotation(cameraEntity)
@@ -338,13 +339,13 @@ export default async function CameraSystem(world: World) {
     if (EngineRenderer.instance.xrManager?.isPresenting) {
       const camera = Engine.instance.currentWorld.camera as THREE.PerspectiveCamera
       EngineRenderer.instance.xrManager.updateCamera(camera)
+      // the following is necessary workaround until this PR is merged: https://github.com/mrdoob/three.js/pull/22362
       camera.matrix.decompose(camera.position, camera.quaternion, camera.scale)
       camera.updateMatrixWorld(true)
-      removeComponent(Engine.instance.currentWorld.localClientEntity, XRCameraUpdatePendingTagComponent)
     } else {
       for (const cameraEntity of followCameraQuery.enter()) enterFollowCameraQuery(cameraEntity)
       for (const cameraEntity of followCameraQuery()) updateFollowCamera(cameraEntity)
-      for (const cameraEntity of spectatorQuery(world)) updateSpectator(cameraEntity)
+      for (const cameraEntity of spectatorQuery()) updateSpectator(cameraEntity)
     }
 
     for (const networkCameraEntity of ownedNetworkCamera()) {

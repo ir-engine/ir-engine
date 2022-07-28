@@ -1,5 +1,6 @@
 import { insertionSort } from '@xrengine/common/src/utils/insertionSort'
 
+import { proxifyQuaternion, proxifyVector3 } from '../../common/proxies/three'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
@@ -49,6 +50,19 @@ export default async function TransformSystem(world: World) {
           .applyQuaternion(referenceTransform.rotation)
           .add(referenceTransform.position)
         transform.rotation.copy(referenceTransform.rotation).multiply(offset.offsetRotation)
+      }
+    }
+
+    for (const entity of transformObjectQuery.enter()) {
+      const transform = getComponent(entity, TransformComponent)
+      const object3D = getComponent(entity, Object3DComponent).value
+      if (transform && object3D) {
+        object3D.position.copy(transform.position)
+        object3D.quaternion.copy(transform.rotation)
+        object3D.scale.copy(transform.scale)
+        proxifyVector3(TransformComponent.position, entity, object3D.position)
+        proxifyQuaternion(TransformComponent.rotation, entity, object3D.quaternion)
+        proxifyVector3(TransformComponent.scale, entity, object3D.scale)
       }
     }
 

@@ -30,7 +30,7 @@ export const TransformComponent = createMappedComponent<TransformComponentType, 
 
 globalThis.TransformComponent = TransformComponent
 
-export function addTransfromComponent(entity: Entity) {
+export function addTransformComponent(entity: Entity) {
   return addComponent(entity, TransformComponent, {
     position: createVector3Proxy(TransformComponent.position, entity),
     rotation: createQuaternionProxy(TransformComponent.rotation, entity),

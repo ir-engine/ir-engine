@@ -16,8 +16,11 @@ import { NavMeshComponent } from '../../navigation/component/NavMeshComponent'
 import { matchActionOnce } from '../../networking/functions/matchActionOnce'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { applyTransformToMeshWorld } from '../../physics/functions/parseModelColliders'
-import { TransformOffsetComponent } from '../../transform/components/TransformChildComponent'
-import { TransformComponent } from '../../transform/components/TransformComponent'
+import {
+  addTransformOffsetComponent,
+  TransformOffsetComponent
+} from '../../transform/components/TransformChildComponent'
+import { addTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
 import { ModelComponent, ModelComponentType } from '../components/ModelComponent'
 import { NameComponent } from '../components/NameComponent'
 import { Object3DComponent } from '../components/Object3DComponent'
@@ -89,16 +92,10 @@ export const parseObjectComponentsFromGLTF = (entity: Entity, object3d?: Object3
     delete mesh.userData['xrengine.entity']
     delete mesh.userData.name
 
-    const localPosition = new Vector3().copy(mesh.position)
-    const localRotation = new Quaternion().copy(mesh.quaternion)
-
     // apply root mesh's world transform to this mesh locally
     applyTransformToMeshWorld(entity, mesh)
 
-    const position = createVector3Proxy(TransformComponent.position, e)
-    const rotation = createQuaternionProxy(TransformComponent.rotation, e)
-    const scale = createVector3Proxy(TransformComponent.scale, e)
-    const transform = addComponent(e, TransformComponent, { position, rotation, scale })
+    const transform = addTransformComponent(e)
     mesh.getWorldPosition(transform.position)
     mesh.getWorldQuaternion(transform.rotation)
     mesh.getWorldScale(transform.scale)
@@ -107,12 +104,11 @@ export const parseObjectComponentsFromGLTF = (entity: Entity, object3d?: Object3
     addComponent(e, Object3DComponent, { value: mesh })
 
     // to ensure colliders and other entities from gltf metadata move with models in the editor, we need to add a child transform component
-    if (Engine.instance.isEditor)
-      addComponent(e, TransformOffsetComponent, {
-        referenceEntity: entity,
-        offsetPosition: localPosition,
-        offsetQuaternion: localRotation
-      })
+    if (Engine.instance.isEditor) {
+      const offset = addTransformOffsetComponent(e, entity)
+      offset.offsetPosition.copy(mesh.position)
+      offset.offsetRotation.copy(mesh.quaternion)
+    }
 
     createObjectEntityFromGLTF(e, mesh)
   }

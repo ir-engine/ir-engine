@@ -1,6 +1,6 @@
 import { EventQueue } from '@dimforge/rapier3d-compat'
 import * as bitecs from 'bitecs'
-import { AudioListener, Group, Object3D, OrthographicCamera, PerspectiveCamera, Raycaster, Scene } from 'three'
+import { AudioListener, Object3D, OrthographicCamera, PerspectiveCamera, Raycaster, Scene } from 'three'
 
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
@@ -13,9 +13,7 @@ import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { SceneLoaderType } from '../../common/constants/PrefabFunctionType'
 import { isMobile } from '../../common/functions/isMobile'
 import { nowMilliseconds } from '../../common/functions/nowMilliseconds'
-import { createVector3Proxy } from '../../common/proxies/three'
 import { LocalAvatarTagComponent } from '../../input/components/LocalAvatarTagComponent'
-import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
 import { InputValue } from '../../input/interfaces/InputValue'
 import { Network, NetworkTopics } from '../../networking/classes/Network'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
@@ -28,7 +26,7 @@ import { SimpleMaterialTagComponent } from '../../scene/components/SimpleMateria
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { addTransformOffsetComponent } from '../../transform/components/TransformChildComponent'
-import { addTransfromComponent, TransformComponent } from '../../transform/components/TransformComponent'
+import { addTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
 import { Widget } from '../../xrui/Widgets'
 import {
   addComponent,
@@ -63,7 +61,7 @@ export class World {
     this.worldEntity = createEntity()
     addComponent(this.worldEntity, PersistTagComponent, true)
     addComponent(this.worldEntity, NameComponent, { name: 'world' })
-    addTransfromComponent(this.worldEntity)
+    addTransformComponent(this.worldEntity)
     if (isMobile) addComponent(this.worldEntity, SimpleMaterialTagComponent, true)
 
     this.cameraEntity = createEntity()
@@ -71,12 +69,12 @@ export class World {
     addComponent(this.cameraEntity, NameComponent, { name: 'camera' })
     addComponent(this.cameraEntity, PersistTagComponent, true)
     addComponent(this.cameraEntity, Object3DComponent, { value: this.camera })
-    addTransfromComponent(this.cameraEntity)
+    addTransformComponent(this.cameraEntity)
     addTransformOffsetComponent(this.cameraEntity, this.worldEntity)
 
     this.sceneEntity = createEntity()
     addComponent(this.sceneEntity, VisibleComponent, true)
-    addTransfromComponent(this.sceneEntity)
+    addTransformComponent(this.sceneEntity)
     addTransformOffsetComponent(this.sceneEntity, this.worldEntity)
 
     initializeEntityTree(this)
@@ -131,11 +129,6 @@ export class World {
    * The elapsed seconds since `startTime`
    */
   elapsedSeconds = 0
-
-  /**
-   * The seconds since the last fixed pipeline execution, in fixed time steps (generally 1/60)
-   */
-  fixedDeltaSeconds = 0
 
   /**
    * The elapsed seconds since `startTime`, in fixed time steps.

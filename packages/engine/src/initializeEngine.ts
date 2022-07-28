@@ -43,8 +43,7 @@ export const setupEngineActionSystems = () => {
   const world = Engine.instance.currentWorld
   initSystemSync(world, {
     type: SystemUpdateType.UPDATE,
-    systemFunction: FixedPipelineSystem,
-    args: { tickRate: 60 }
+    systemFunction: FixedPipelineSystem
   })
   initSystemSync(world, {
     type: SystemUpdateType.FIXED_EARLY,
