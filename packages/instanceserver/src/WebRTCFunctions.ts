@@ -70,7 +70,6 @@ export const sendNewProducer =
   (network: SocketWebRTCServerNetwork, socket: SocketIO.Socket, channelType: string, channelId?: string) =>
   async (producer: Producer): Promise<void> => {
     const userId = getUserIdFromSocketId(network, socket.id)!
-    const world = Engine.instance.currentWorld
     const selfClient = network.peers.get(userId)!
     if (selfClient?.socketId != null) {
       for (const [, client] of network.peers) {
@@ -237,7 +236,6 @@ export async function closeConsumer(network: SocketWebRTCServerNetwork, consumer
 
   network.consumers = network.consumers.filter((c) => c.id !== consumer.id)
 
-  const world = Engine.instance.currentWorld
   for (const [, client] of network.peers) {
     if (client.socket) {
       client.socket!.emit(MessageTypes.WebRTCCloseConsumer.toString(), consumer.id)
@@ -595,7 +593,6 @@ export async function handleWebRtcSendTrack(network: SocketWebRTCServerNetwork, 
     }
     network.producers?.push(producer)
 
-    const world = Engine.instance.currentWorld
     if (userId && network.peers.has(userId)) {
       network.peers.get(userId)!.media![appData.mediaTag] = {
         paused,
@@ -833,7 +830,6 @@ export async function handleWebRtcPauseProducer(
   callback
 ): Promise<any> {
   const userId = getUserIdFromSocketId(network, socket.id)
-  const world = Engine.instance.currentWorld
   const { producerId, globalMute } = data
   const producer = network.producers.find((p) => p.id === producerId)
   if (producer) {

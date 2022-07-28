@@ -13,7 +13,8 @@ import {
   pauseConsumer,
   pauseProducer,
   resumeConsumer,
-  resumeProducer
+  resumeProducer,
+  stopScreenshare
 } from '@xrengine/client-core/src/transports/SocketWebRTCClientFunctions'
 import { getAvatarURLForUser } from '@xrengine/client-core/src/user/components/UserMenu/util'
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
@@ -138,12 +139,13 @@ export const useUserMediaWindowHook = ({ peerId }) => {
   const closeProducerListener = (producerId: string) => {
     if (producerId === videoStreamRef?.current?.id) {
       videoRef.current?.srcObject?.getVideoTracks()[0].stop()
-      MediaStreams.instance.videoStream.getVideoTracks()[0].stop()
+      if (!isScreen) MediaStreams.instance.videoStream.getVideoTracks()[0].stop()
+      else MediaStreams.instance.localScreen.getVideoTracks()[0].stop
     }
 
     if (producerId === audioStreamRef?.current?.id) {
       audioRef.current?.srcObject?.getAudioTracks()[0].stop()
-      MediaStreams.instance.audioStream.getAudioTracks()[0].stop()
+      if (!isScreen) MediaStreams.instance.audioStream.getAudioTracks()[0].stop()
     }
   }
 
@@ -355,8 +357,8 @@ export const useUserMediaWindowHook = ({ peerId }) => {
       MediaStreamService.updateCamVideoState()
     } else if (peerId === 'screen_me') {
       const videoPaused = MediaStreams.instance.toggleScreenShareVideoPaused()
-      if (videoPaused) await pauseProducer(mediaNetwork, MediaStreams.instance.screenVideoProducer)
-      else await resumeProducer(mediaNetwork, MediaStreams.instance.screenVideoProducer)
+      if (videoPaused) await stopScreenshare(mediaNetwork)
+      // else await resumeProducer(mediaNetwork, MediaStreams.instance.screenVideoProducer)
       setVideoStreamPaused(videoPaused)
       MediaStreamService.updateScreenAudioState()
       MediaStreamService.updateScreenVideoState()
