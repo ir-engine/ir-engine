@@ -8,6 +8,7 @@ import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
+import { LocalAvatarTagComponent } from '../../input/components/LocalAvatarTagComponent'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { NetworkObjectDirtyTag } from '../../networking/components/NetworkObjectDirtyTag'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
@@ -101,13 +102,15 @@ export default async function PhysicsSystem(world: World) {
   world.physicsCollisionEventQueue = Physics.createCollisionEventQueue()
 
   return () => {
-    world.physicsWorld.timestep = getState(EngineState).fixedDeltaSeconds.value
-
     for (const action of teleportObjectQueue()) teleportObjectReceptor(action)
 
     for (const entity of rigidBodyQuery.exit()) {
       Physics.removeRigidBody(entity, world.physicsWorld, true)
     }
+
+    // step physics world
+    world.physicsWorld.timestep = getState(EngineState).fixedDeltaSeconds.value
+    world.physicsWorld.step(world.physicsCollisionEventQueue)
 
     for (const entity of raycastQuery()) processRaycasts(world, entity)
     for (const entity of dirtyNetworkedDynamicRigidBodyQuery()) updateDirtyDynamicBodiesFromNetwork(world, entity)
@@ -117,8 +120,5 @@ export default async function PhysicsSystem(world: World) {
     }
 
     processCollisions(world)
-
-    // step physics world
-    world.physicsWorld.step(world.physicsCollisionEventQueue)
   }
 }

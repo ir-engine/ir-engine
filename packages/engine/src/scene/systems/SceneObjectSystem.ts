@@ -1,10 +1,13 @@
 import { Not } from 'bitecs'
 import { Material, Mesh, Vector3 } from 'three'
 
+import { getState } from '@xrengine/hyperflux'
+
 import { loadDRACODecoder } from '../../assets/loaders/gltf/NodeDracoLoader'
 import { isNode } from '../../common/functions/getEnvironment'
 import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
+import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
@@ -131,9 +134,10 @@ export default async function SceneObjectSystem(world: World) {
       getComponent(entity, Object3DComponent).value.visible = false
     }
 
+    const fixedDelta = getState(EngineState).fixedDeltaSeconds.value
     for (const entity of updatableQuery()) {
       const obj = getComponent(entity, Object3DComponent)?.value as unknown as Updatable
-      obj?.update(world.fixedDeltaSeconds)
+      obj?.update(fixedDelta)
     }
 
     /**
