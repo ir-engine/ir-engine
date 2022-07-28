@@ -3,9 +3,9 @@ import { dispatchAction } from '@xrengine/hyperflux'
 import { ParityValue } from '../../common/enums/ParityValue'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
-import { addComponent, getComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
-import { NetworkTopics } from '../../networking/classes/Network'
+import { getComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
+import { NetworkObjectOwnedTag } from '../../networking/components/NetworkObjectOwnedTag'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { EquippedComponent } from '../components/EquippedComponent'
 import { EquipperComponent } from '../components/EquipperComponent'
@@ -17,17 +17,28 @@ export const equipEntity = (
   attachmentPoint: EquippableAttachmentPoint = EquippableAttachmentPoint.RIGHT_HAND
 ): void => {
   if (!hasComponent(equipperEntity, EquipperComponent) && !hasComponent(equippedEntity, EquippedComponent)) {
-    addComponent(equipperEntity, EquipperComponent, { equippedEntity })
-    addComponent(equippedEntity, EquippedComponent, { equipperEntity, attachmentPoint })
     const networkComponent = getComponent(equippedEntity, NetworkObjectComponent)
-    dispatchAction(
-      WorldNetworkAction.requestAuthorityOverObject({
-        networkId: networkComponent.networkId,
-        ownerId: networkComponent.ownerId,
-        newAuthority: Engine.instance.userId,
-        $to: networkComponent.ownerId
-      })
-    )
+    if (networkComponent.authorityUserId === Engine.instance.userId) {
+      dispatchAction(
+        WorldNetworkAction.setEquippedObject({
+          object: {
+            networkId: networkComponent.networkId,
+            ownerId: networkComponent.ownerId
+          },
+          equip: true,
+          attachmentPoint
+        })
+      )
+    } else {
+      dispatchAction(
+        WorldNetworkAction.requestAuthorityOverObject({
+          networkId: networkComponent.networkId,
+          ownerId: networkComponent.ownerId,
+          newAuthority: Engine.instance.userId,
+          $to: networkComponent.authorityUserId
+        })
+      )
+    }
   }
 }
 
@@ -36,14 +47,27 @@ export const unequipEntity = (equipperEntity: Entity): void => {
   if (!equipperComponent) return
   removeComponent(equipperEntity, EquipperComponent)
   const networkComponent = getComponent(equipperComponent.equippedEntity, NetworkObjectComponent)
-  dispatchAction(
-    WorldNetworkAction.transferAuthorityOfObject({
-      networkId: networkComponent.networkId,
-      ownerId: networkComponent.ownerId,
-      newAuthority: networkComponent.ownerId,
-      $to: networkComponent.ownerId
-    })
-  )
+  const networkOwnerComponent = getComponent(equipperComponent.equippedEntity, NetworkObjectOwnedTag)
+  if (networkComponent.authorityUserId === Engine.instance.userId) {
+    dispatchAction(
+      WorldNetworkAction.setEquippedObject({
+        object: {
+          networkId: networkComponent.networkId,
+          ownerId: networkComponent.ownerId
+        },
+        equip: false,
+        attachmentPoint: null!
+      })
+    )
+  } else {
+    dispatchAction(
+      WorldNetworkAction.transferAuthorityOfObject({
+        networkId: networkComponent.networkId,
+        ownerId: networkComponent.ownerId,
+        newAuthority: networkComponent.authorityUserId
+      })
+    )
+  }
 }
 
 export const changeHand = (equipperEntity: Entity, attachmentPoint: EquippableAttachmentPoint): void => {

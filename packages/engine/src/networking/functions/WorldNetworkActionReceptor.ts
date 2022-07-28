@@ -23,12 +23,13 @@ const receiveSpawnObject = (
 
   addComponent(entity, NetworkObjectComponent, {
     ownerId: action.$from,
+    authorityUserId: action.$from,
     networkId: action.networkId
   })
 
   const isOwnedByMe = action.$from === Engine.instance.userId
   if (isOwnedByMe) {
-    addComponent(entity, NetworkObjectOwnedTag, {})
+    addComponent(entity, NetworkObjectOwnedTag, true)
     addComponent(entity, NetworkObjectAuthorityTag, true)
   }
 
@@ -54,12 +55,13 @@ const receiveRegisterSceneObject = (
 
   addComponent(entity, NetworkObjectComponent, {
     ownerId: action.$from,
+    authorityUserId: action.$from,
     networkId: action.networkId
   })
 
   const isOwnedByMe = action.$from === Engine.instance.userId
   if (isOwnedByMe) {
-    addComponent(entity, NetworkObjectOwnedTag, {})
+    addComponent(entity, NetworkObjectOwnedTag, true)
     addComponent(entity, NetworkObjectAuthorityTag, true)
   }
 }
@@ -123,6 +125,8 @@ const receiveTransferAuthorityOfObject = (
     return console.log(
       `Warning - tried to get entity belonging to ${action.ownerId} with ID ${action.networkId}, but it doesn't exist`
     )
+
+  getComponent(entity, NetworkObjectComponent).authorityUserId = action.newAuthority
 
   if (Engine.instance.userId === action.newAuthority) {
     if (hasComponent(entity, NetworkObjectAuthorityTag))

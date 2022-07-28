@@ -29,7 +29,7 @@ export function getNearbyUsers(userId: UserId, nonPartyUserIds: UserId[]): Array
   for (const avatarEntity of remoteAvatars()) {
     if (userAvatarEntity === avatarEntity) continue
     const position = getComponent(avatarEntity, TransformComponent).position
-    const ownerId = getComponent(avatarEntity, NetworkObjectComponent).ownerId
+    const ownerId = getComponent(avatarEntity, NetworkObjectComponent).authorityUserId
     userDistances.push({
       id: ownerId,
       distance: position.distanceTo(userPosition)

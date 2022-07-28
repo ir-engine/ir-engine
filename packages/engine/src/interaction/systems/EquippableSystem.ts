@@ -16,7 +16,6 @@ import {
   hasComponent,
   removeComponent
 } from '../../ecs/functions/ComponentFunctions'
-import { NetworkObjectAuthorityTag } from '../../networking/components/NetworkObjectAuthorityTag'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { RigidBodyDynamicTagComponent } from '../../physics/components/RigidBodyDynamicTagComponent'
@@ -27,26 +26,59 @@ import { getHandTransform } from '../../xr/functions/WebXRFunctions'
 import { EquippableComponent } from '../components/EquippableComponent'
 import { EquippedComponent } from '../components/EquippedComponent'
 import { EquipperComponent } from '../components/EquipperComponent'
+import { EquippableAttachmentPoint } from '../enums/EquippedEnums'
 import { changeHand, equipEntity, getAttachmentPoint, getParity } from '../functions/equippableFunctions'
 import { createInteractUI } from '../functions/interactUI'
 import { addInteractableUI, InteractableTransitions, removeInteractiveUI } from './InteractiveSystem'
 
-export function equipperQueryEnter(entity: Entity, world = Engine.instance.currentWorld) {
-  const equipperComponent = getComponent(entity, EquipperComponent)
-  if (equipperComponent) {
-    const equippedEntity = getComponent(entity, EquipperComponent).equippedEntity
-    const body = getComponent(equippedEntity, RigidBodyComponent)
-    if (body) {
+export function setEquippedObjectReceptor(
+  action: ReturnType<typeof WorldNetworkAction.setEquippedObject>,
+  world = Engine.instance.currentWorld
+) {
+  const equippedEntity = world.getNetworkObject(action.object.ownerId, action.object.networkId)!
+  if (action.$from === Engine.instance.userId) {
+    const equipperEntity = world.localClientEntity
+    addComponent(equipperEntity, EquipperComponent, { equippedEntity })
+    addComponent(equippedEntity, EquippedComponent, { equipperEntity, attachmentPoint: action.attachmentPoint })
+  }
+  const body = getComponent(equippedEntity, RigidBodyComponent)
+  if (body) {
+    if (action.equip) {
       addComponent(equippedEntity, RigidBodyKinematicPositionBasedTagComponent, true)
       removeComponent(equippedEntity, RigidBodyDynamicTagComponent)
       body.setBodyType(RigidBodyType.KinematicPositionBased)
-      for (let i = 0; i < body.numColliders(); i++) {
-        const collider = body.collider(i)
-        let oldCollisionGroups = collider.collisionGroups()
-        oldCollisionGroups ^= CollisionGroups.Default << 16
-        collider.setCollisionGroups(oldCollisionGroups)
-      }
+    } else {
+      addComponent(equippedEntity, RigidBodyDynamicTagComponent, true)
+      removeComponent(equippedEntity, RigidBodyKinematicPositionBasedTagComponent)
+      body.setBodyType(RigidBodyType.Dynamic)
     }
+    for (let i = 0; i < body.numColliders(); i++) {
+      const collider = body.collider(i)
+      let oldCollisionGroups = collider.collisionGroups()
+      oldCollisionGroups ^= CollisionGroups.Default << 16
+      collider.setCollisionGroups(oldCollisionGroups)
+    }
+  }
+}
+
+export function transferAuthorityOfObjectReceptor(
+  action: ReturnType<typeof WorldNetworkAction.transferAuthorityOfObject>,
+  world = Engine.instance.currentWorld
+) {
+  if (action.newAuthority !== Engine.instance.userId) return
+  const equippableEntity = world.getNetworkObject(action.ownerId, action.networkId)!
+  if (hasComponent(equippableEntity, EquippableComponent)) {
+    dispatchAction(
+      WorldNetworkAction.setEquippedObject({
+        object: {
+          networkId: action.networkId,
+          ownerId: action.ownerId
+        },
+        equip: !hasComponent(equippableEntity, EquippedComponent),
+        // todo, pass attachment point through actions somehow
+        attachmentPoint: EquippableAttachmentPoint.RIGHT_HAND
+      })
+    )
   }
 }
 
@@ -74,12 +106,6 @@ export function equipperQueryAll(equipperEntity: Entity, world = Engine.instance
 export function equipperQueryExit(entity: Entity, world = Engine.instance.currentWorld) {
   const equipperComponent = getComponent(entity, EquipperComponent, true)
   const equippedEntity = equipperComponent.equippedEntity
-  const body = getComponent(equippedEntity, RigidBodyComponent)
-  if (body) {
-    addComponent(equippedEntity, RigidBodyDynamicTagComponent, true)
-    removeComponent(equippedEntity, RigidBodyKinematicPositionBasedTagComponent)
-    body.setBodyType(RigidBodyType.Dynamic)
-  }
   removeComponent(equippedEntity, EquippedComponent)
 }
 
@@ -126,6 +152,8 @@ export const equippableInteractMessage = 'Equip'
 
 export default async function EquippableSystem(world: World) {
   const interactedActionQueue = createActionQueue(EngineActions.interactedWithObject.matches)
+  const transferAuthorityOfObjectQueue = createActionQueue(WorldNetworkAction.transferAuthorityOfObject.matches)
+  const setEquippedObjectQueue = createActionQueue(WorldNetworkAction.setEquippedObject.matches)
 
   const equipperQuery = defineQuery([EquipperComponent])
   const equippableQuery = defineQuery([EquippableComponent])
@@ -152,6 +180,10 @@ export default async function EquippableSystem(world: World) {
       }
     }
 
+    for (const action of setEquippedObjectQueue()) setEquippedObjectReceptor(action)
+
+    for (const action of transferAuthorityOfObjectQueue()) transferAuthorityOfObjectReceptor(action)
+
     /**
      * @todo use an XRUI pool
      */
@@ -165,10 +197,6 @@ export default async function EquippableSystem(world: World) {
 
     for (const entity of equippableQuery.exit()) {
       removeInteractiveUI(entity)
-    }
-
-    for (const entity of equipperQuery.enter()) {
-      equipperQueryEnter(entity, world)
     }
 
     for (const entity of equipperQuery()) {

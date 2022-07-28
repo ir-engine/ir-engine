@@ -63,7 +63,7 @@ describe('WorldNetworkActionReceptors', () => {
       assert.equal(networkObjectOwnedEntities.length, 0)
 
       assert.equal(getComponent(networkObjectEntities[0], NetworkObjectComponent).networkId, objNetId)
-      assert.equal(getComponent(networkObjectEntities[0], NetworkObjectComponent).ownerId, hostUserId)
+      assert.equal(getComponent(networkObjectEntities[0], NetworkObjectComponent).authorityUserId, hostUserId)
       assert.equal(hasComponent(networkObjectEntities[0], NetworkObjectOwnedTag), false)
     })
 
@@ -101,7 +101,7 @@ describe('WorldNetworkActionReceptors', () => {
       assert.equal(networkObjectOwnedEntities.length, 1)
 
       assert.equal(getComponent(networkObjectEntities[0], NetworkObjectComponent).networkId, objNetId)
-      assert.equal(getComponent(networkObjectEntities[0], NetworkObjectComponent).ownerId, userId)
+      assert.equal(getComponent(networkObjectEntities[0], NetworkObjectComponent).authorityUserId, userId)
       assert.equal(hasComponent(networkObjectEntities[0], NetworkObjectOwnedTag), true)
     })
 
@@ -145,7 +145,7 @@ describe('WorldNetworkActionReceptors', () => {
       assert.equal(networkObjectOwnedEntities.length, 0)
 
       assert.equal(getComponent(networkObjectEntities[0], NetworkObjectComponent).networkId, objNetId)
-      assert.equal(getComponent(networkObjectEntities[0], NetworkObjectComponent).ownerId, userId2)
+      assert.equal(getComponent(networkObjectEntities[0], NetworkObjectComponent).authorityUserId, userId2)
       assert.equal(hasComponent(networkObjectEntities[0], NetworkObjectOwnedTag), false)
     })
 
@@ -165,7 +165,7 @@ describe('WorldNetworkActionReceptors', () => {
       const entity = world.getOwnedNetworkObjectWithComponent(userId, AvatarComponent)
 
       assert.equal(getComponent(entity, NetworkObjectComponent).networkId, 42)
-      assert.equal(getComponent(entity, NetworkObjectComponent).ownerId, userId)
+      assert.equal(getComponent(entity, NetworkObjectComponent).authorityUserId, userId)
       assert.equal(hasComponent(entity, NetworkObjectOwnedTag), true)
     })
   })
@@ -236,7 +236,7 @@ describe('WorldNetworkActionReceptors', () => {
       assert.equal(networkObjectOwnedEntitiesAfter.length, 0)
 
       assert.equal(getComponent(networkObjectEntitiesAfter[0], NetworkObjectComponent).networkId, objNetId)
-      assert.equal(getComponent(networkObjectEntitiesAfter[0], NetworkObjectComponent).ownerId, hostUserId)
+      assert.equal(getComponent(networkObjectEntitiesAfter[0], NetworkObjectComponent).authorityUserId, hostUserId)
       assert.equal(hasComponent(networkObjectEntitiesAfter[0], NetworkObjectOwnedTag), false)
     })
 
@@ -279,7 +279,10 @@ describe('WorldNetworkActionReceptors', () => {
 
       assert.equal(networkObjectEntities.length, 1)
       assert.equal(networkObjectOwnedEntities.length, 0)
-      assert.equal(getComponent(networkObjectEntities[0], NetworkObjectComponent).ownerId, world.worldNetwork.hostId)
+      assert.equal(
+        getComponent(networkObjectEntities[0], NetworkObjectComponent).authorityUserId,
+        world.worldNetwork.hostId
+      )
 
       WorldNetworkActionReceptor.receiveRequestAuthorityOverObject(
         WorldNetworkAction.requestAuthorityOverObject({
@@ -302,7 +305,10 @@ describe('WorldNetworkActionReceptors', () => {
       assert.equal(networkObjectOwnedEntities.length, 0)
 
       assert.equal(getComponent(networkObjectEntities[0], NetworkObjectComponent).networkId, objNetId)
-      assert.equal(getComponent(networkObjectEntities[0], NetworkObjectComponent).ownerId, world.worldNetwork.hostId)
+      assert.equal(
+        getComponent(networkObjectEntities[0], NetworkObjectComponent).authorityUserId,
+        world.worldNetwork.hostId
+      )
       assert.equal(hasComponent(networkObjectEntities[0], NetworkObjectOwnedTag), false)
     })
   })

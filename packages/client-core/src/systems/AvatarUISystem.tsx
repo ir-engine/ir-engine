@@ -60,7 +60,7 @@ export default async function AvatarUISystem(world: World) {
         logger.info({ userEntity }, 'Entity already exists.')
         continue
       }
-      const userId = getComponent(userEntity, NetworkObjectComponent).ownerId
+      const userId = getComponent(userEntity, NetworkObjectComponent).authorityUserId
       const ui = createAvatarDetailView(userId)
       AvatarUI.set(userEntity, ui)
     }

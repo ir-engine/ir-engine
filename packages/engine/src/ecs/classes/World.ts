@@ -254,7 +254,9 @@ export class World {
    * @param ownerId
    */
   getOwnedNetworkObjects(ownerId: UserId) {
-    return this.networkObjectQuery(this).filter((eid) => getComponent(eid, NetworkObjectComponent).ownerId === ownerId)
+    return this.networkObjectQuery(this).filter(
+      (eid) => getComponent(eid, NetworkObjectComponent).authorityUserId === ownerId
+    )
   }
 
   /**
@@ -265,7 +267,7 @@ export class World {
     return (
       this.networkObjectQuery(this).find((eid) => {
         const networkObject = getComponent(eid, NetworkObjectComponent)
-        return networkObject.networkId === networkId && networkObject.ownerId === ownerId
+        return networkObject.networkId === networkId && networkObject.authorityUserId === ownerId
       }) || (NaN as Entity)
     )
   }

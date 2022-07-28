@@ -1,5 +1,5 @@
 import type { WebContainer3D } from '@etherealjs/web-layer/three'
-import { State } from '@speigg/hookstate'
+import { State } from '@hookstate/core'
 import React from 'react'
 
 import { isNode } from '../../common/functions/getEnvironment'

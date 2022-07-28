@@ -11,6 +11,7 @@ import { defineQuery, getComponent, removeComponent } from '../../ecs/functions/
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { NetworkObjectDirtyTag } from '../../networking/components/NetworkObjectDirtyTag'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
+import { NameComponent } from '../../scene/components/NameComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { Physics } from '../classes/Physics'
 import { RaycastComponent } from '../components/RaycastComponent'
@@ -43,7 +44,7 @@ const updateDirtyDynamicBodiesFromNetwork = (world: World, entity: Entity) => {
 
   // Ignore if we own this object or no new network state has been received for this object
   // (i.e. packet loss and/or state not sent out from server because no change in state since last frame)
-  if (network.ownerId === Engine.instance.userId) {
+  if (network.authorityUserId === Engine.instance.userId) {
     // console.log('ignoring state for:', nameComponent)
     return
   }
@@ -51,6 +52,8 @@ const updateDirtyDynamicBodiesFromNetwork = (world: World, entity: Entity) => {
   const body = getComponent(entity, RigidBodyComponent)
   const { position, rotation } = getComponent(entity, TransformComponent)
   const { linear, angular } = getComponent(entity, VelocityComponent)
+
+  // console.log('updateDirtyDynamicBodiesFromNetwork',getComponent(entity, NetworkObjectComponent), getComponent(entity, NameComponent).name, body.bodyType())
 
   body.setTranslation(position, true)
   body.setRotation(rotation, true)
@@ -64,6 +67,8 @@ const updateTransformFromBody = (world: World, entity: Entity) => {
   const body = getComponent(entity, RigidBodyComponent)
   const { position, rotation } = getComponent(entity, TransformComponent)
   const { linear, angular } = getComponent(entity, VelocityComponent)
+
+  // console.log('updateTransformFromBody', getComponent(entity, NetworkObjectComponent), getComponent(entity, NameComponent).name, body.bodyType())
 
   position.copy(body.translation() as Vector3)
   rotation.copy(body.rotation() as Quaternion)
