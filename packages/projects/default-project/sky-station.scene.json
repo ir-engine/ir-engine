@@ -516,86 +516,6 @@
       "index": 6,
       "name": "Directional Light"
     },
-    "A7187B08-8E63-498D-9878-58A99D39C6EB": {
-      "components": [
-        {
-          "name": "transform",
-          "props": {
-            "position": {
-              "x": 0,
-              "y": 4,
-              "z": 12.5
-            },
-            "rotation": {
-              "x": -3.141592653589793,
-              "y": 1.2246468525851679e-16,
-              "z": -3.141592653589793
-            },
-            "scale": {
-              "x": 1,
-              "y": 1,
-              "z": 1
-            }
-          }
-        },
-        {
-          "name": "visible",
-          "props": {}
-        },
-        {
-          "name": "shadow",
-          "props": {
-            "cast": true,
-            "receive": true
-          }
-        },
-        {
-          "name": "media",
-          "props": {
-            "paths": [
-              "__$project$__/default-project/assets/SampleVideo.mp4"
-            ],
-            "playMode": 3,
-            "controls": true,
-            "autoplay": true,
-            "autoStartTime": 0
-          }
-        },
-        {
-          "name": "audio",
-          "props": {
-            "volume": 0.5,
-            "audioType": "Positional",
-            "distanceModel": "linear",
-            "rolloffFactor": 1,
-            "refDistance": 20,
-            "maxDistance": 1000,
-            "coneInnerAngle": 120,
-            "coneOuterAngle": 180,
-            "coneOuterGain": 0
-          }
-        },
-        {
-          "name": "image",
-          "props": {
-            "imageSource": "",
-            "alphaCutoff": 0.5,
-            "alphaMode": "Opaque",
-            "projection": "Flat",
-            "side": 2
-          }
-        },
-        {
-          "name": "video",
-          "props": {
-            "elementId": "earth video"
-          }
-        }
-      ],
-      "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
-      "index": 7,
-      "name": "Video"
-    },
     "3CCDC88B-250C-4F26-9BE0-4AC39440EDAF": {
       "components": [
         {
@@ -910,6 +830,86 @@
       "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
       "index": 11,
       "name": "Model 2"
+    },
+    "A7187B08-8E63-498D-9878-58A99D39C6EB": {
+      "components": [
+        {
+          "name": "transform",
+          "props": {
+            "position": {
+              "x": 0,
+              "y": 4,
+              "z": 12.5
+            },
+            "rotation": {
+              "x": -3.141592653589793,
+              "y": 1.2246468525851679e-16,
+              "z": -3.141592653589793
+            },
+            "scale": {
+              "x": 1,
+              "y": 1,
+              "z": 1
+            }
+          }
+        },
+        {
+          "name": "visible",
+          "props": {}
+        },
+        {
+          "name": "shadow",
+          "props": {
+            "cast": true,
+            "receive": true
+          }
+        },
+        {
+          "name": "media",
+          "props": {
+            "paths": [
+              "__$project$__/default-project/assets/SampleVideo.mp4"
+            ],
+            "playMode": 3,
+            "controls": true,
+            "autoplay": true,
+            "autoStartTime": 0
+          }
+        },
+        {
+          "name": "audio",
+          "props": {
+            "volume": 0.5,
+            "audioType": "Positional",
+            "distanceModel": "linear",
+            "rolloffFactor": 1,
+            "refDistance": 20,
+            "maxDistance": 1000,
+            "coneInnerAngle": 120,
+            "coneOuterAngle": 180,
+            "coneOuterGain": 0
+          }
+        },
+        {
+          "name": "image",
+          "props": {
+            "imageSource": "",
+            "alphaCutoff": 0.5,
+            "alphaMode": "Opaque",
+            "projection": "Flat",
+            "side": 2
+          }
+        },
+        {
+          "name": "video",
+          "props": {
+            "elementId": "earth video"
+          }
+        }
+      ],
+      "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
+      "index": 7,
+      "name": "Video"
     },
     "65f5428e-6548-49aa-be22-bd5b65674743": {
       "components": [
