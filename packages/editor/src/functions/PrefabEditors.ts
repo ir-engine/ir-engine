@@ -17,6 +17,7 @@ import { SCENE_COMPONENT_HEMISPHERE_LIGHT } from '@xrengine/engine/src/scene/fun
 import { SCENE_COMPONENT_IMAGE } from '@xrengine/engine/src/scene/functions/loaders/ImageFunctions'
 import { SCENE_COMPONENT_INSTANCING } from '@xrengine/engine/src/scene/functions/loaders/InstancingFunctions'
 import { SCENE_COMPONENT_INTERIOR } from '@xrengine/engine/src/scene/functions/loaders/InteriorFunctions'
+import { SCENE_COMPONENT_MEDIA } from '@xrengine/engine/src/scene/functions/loaders/MediaFunctions'
 import { SCENE_COMPONENT_MODEL } from '@xrengine/engine/src/scene/functions/loaders/ModelFunctions'
 import { SCENE_COMPONENT_MOUNT_POINT } from '@xrengine/engine/src/scene/functions/loaders/MountPointFunctions'
 import { SCENE_COMPONENT_OCEAN } from '@xrengine/engine/src/scene/functions/loaders/OceanFunctions'
@@ -54,6 +55,7 @@ import HemisphereLightNodeEditor from '../components/properties/HemisphereLightN
 import ImageNodeEditor from '../components/properties/ImageNodeEditor'
 import InstancingNodeEditor from '../components/properties/InstancingNodeEditor'
 import InteriorNodeEditor from '../components/properties/InteriorNodeEditor'
+import MediaNodeEditor from '../components/properties/MediaNodeEditor'
 import ModelNodeEditor from '../components/properties/ModelNodeEditor'
 import MountPointNodeEditor from '../components/properties/MountPointNodeEditor'
 import OceanNodeEditor from '../components/properties/OceanNodeEditor'
@@ -108,6 +110,7 @@ export const EntityNodeEditor = {
   [SCENE_COMPONENT_SCENE_PREVIEW_CAMERA]: ScenePreviewCameraNodeEditor,
   [SCENE_COMPONENT_SKYBOX]: SkyboxNodeEditor,
   [SCENE_COMPONENT_SPAWN_POINT]: SpawnPointNodeEditor,
+  [SCENE_COMPONENT_MEDIA]: MediaNodeEditor,
   [SCENE_COMPONENT_IMAGE]: ImageNodeEditor,
   [SCENE_COMPONENT_AUDIO]: AudioNodeEditor,
   [SCENE_COMPONENT_VIDEO]: VideoNodeEditor,

@@ -2,4 +2,9 @@ import type Volumetric from '@xrfoundation/volumetric/player'
 
 import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
 
-export const VolumetricComponent = createMappedComponent<Volumetric>('VolumetricComponent')
+export type VolumetricComponentType = {
+  player: Volumetric
+  useLoadingEffect: boolean
+}
+
+export const VolumetricComponent = createMappedComponent<VolumetricComponentType>('VolumetricComponent')

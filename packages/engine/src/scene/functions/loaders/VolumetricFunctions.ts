@@ -21,13 +21,12 @@ import UpdateableObject3D from '../../classes/UpdateableObject3D'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { MediaComponent } from '../../components/MediaComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
-import { VolumetricComponent } from '../../components/VolumetricComponent'
+import { VolumetricComponent, VolumetricComponentType } from '../../components/VolumetricComponent'
 import { PlayMode } from '../../constants/PlayMode'
 import { addError, removeError } from '../ErrorFunctions'
 
 type VolumetricObject3D = UpdateableObject3D & {
   userData: {
-    player: typeof import('@xrfoundation/volumetric/player').default.prototype
     isEffect: boolean
     time: number
   }
@@ -55,15 +54,17 @@ export const VolumetricCallbacks = [
 export const VolumetricsExtensions = ['drcs', 'uvol']
 export const SCENE_COMPONENT_VOLUMETRIC = 'volumetric'
 export const SCENE_COMPONENT_VOLUMETRIC_DEFAULT_VALUES = {
-  paths: [],
-  playMode: PlayMode.Single
+  useLoadingEffect: true
 }
 
-export const deserializeVolumetric: ComponentDeserializeFunction = (entity: Entity, json: ComponentJson<{}>) => {
+export const deserializeVolumetric: ComponentDeserializeFunction = (
+  entity: Entity,
+  json: ComponentJson<VolumetricComponentType>
+) => {
   if (!isClient) return
   try {
     removeError(entity, 'error')
-    addVolumetricComponent(entity)
+    addVolumetricComponent(entity, json.props)
   } catch (error) {
     console.error(error)
     addError(entity, 'error', error.message)
@@ -71,18 +72,20 @@ export const deserializeVolumetric: ComponentDeserializeFunction = (entity: Enti
   getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_VOLUMETRIC)
 }
 
-export const addVolumetricComponent = (entity: Entity) => {
+export const addVolumetricComponent = (entity: Entity, props: VolumetricComponentType) => {
   const obj3d = getComponent(entity, Object3DComponent).value as VolumetricObject3D
   const mediaComponent = getComponent(entity, MediaComponent)
 
   let height = 0
   let step = 0.001
 
+  const properties = parseVolumetricProperties(props)
+
   const player = new DracosisPlayer({
     scene: obj3d,
     renderer: EngineRenderer.instance.renderer,
     paths: mediaComponent.paths,
-    isLoadingEffect: isClient,
+    isLoadingEffect: properties.useLoadingEffect,
     isVideoTexture: false,
     playMode: mediaComponent.playMode as any,
     onMeshBuffering: (_progress) => {},
@@ -98,7 +101,10 @@ export const addVolumetricComponent = (entity: Entity) => {
     }
   })
 
-  addComponent(entity, VolumetricComponent, player)
+  addComponent(entity, VolumetricComponent, {
+    player,
+    ...properties
+  })
 
   obj3d.update = () => {
     if (!getEngineState().userHasInteracted.value) return
@@ -147,7 +153,7 @@ export const addVolumetricComponent = (entity: Entity) => {
 
 export const updateVolumetric: ComponentUpdateFunction = (entity: Entity) => {
   const obj3d = getComponent(entity, Object3DComponent).value as VolumetricObject3D
-  const player = getComponent(entity, VolumetricComponent)
+  const { player } = getComponent(entity, VolumetricComponent)
   const mediaComponent = getComponent(entity, MediaComponent)
 
   const paths = mediaComponent.paths.filter((p) => p)
@@ -158,10 +164,13 @@ export const updateVolumetric: ComponentUpdateFunction = (entity: Entity) => {
 }
 
 export const serializeVolumetric: ComponentSerializeFunction = (entity) => {
-  if (!hasComponent(entity, VolumetricComponent)) return
+  const vol = getComponent(entity, VolumetricComponent)
+  if (!vol) return
   return {
     name: SCENE_COMPONENT_VOLUMETRIC,
-    props: {}
+    props: {
+      useLoadingEffect: vol.useLoadingEffect
+    }
   }
 }
 
@@ -175,19 +184,25 @@ export const prepareVolumetricForGLTFExport: ComponentPrepareForGLTFExportFuncti
 export const toggleVolumetric = (entity: Entity): boolean => {
   if (!getEngineState().userHasInteracted.value) return false
   const obj3d = getComponent(entity, Object3DComponent)?.value as VolumetricObject3D
-  const videoComponent = getComponent(entity, VolumetricComponent)
+  const { player } = getComponent(entity, VolumetricComponent)
   if (!obj3d) return false
 
-  if (videoComponent.hasPlayed && !videoComponent.paused) {
-    videoComponent.pause()
+  if (player.hasPlayed && !player.paused) {
+    player.pause()
     return false
   } else {
-    if (videoComponent.paused) {
-      videoComponent.paused = false
+    if (player.paused) {
+      player.paused = false
     } else {
-      videoComponent.play()
+      player.play()
     }
     return true
+  }
+}
+
+const parseVolumetricProperties = (props: Partial<VolumetricComponentType>) => {
+  return {
+    useLoadingEffect: props.useLoadingEffect ?? SCENE_COMPONENT_VOLUMETRIC_DEFAULT_VALUES.useLoadingEffect
   }
 }
 
