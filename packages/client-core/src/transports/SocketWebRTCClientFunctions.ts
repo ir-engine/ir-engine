@@ -961,7 +961,7 @@ export const startScreenshare = async (network: SocketWebRTCClientNetwork) => {
   MediaStreams.instance.setScreenShareVideoPaused(false)
   MediaStreams.instance.screenVideoProducer = await network.sendTransport.produce({
     track: MediaStreams.instance.localScreen.getVideoTracks()[0],
-    encodings: SCREEN_SHARE_SIMULCAST_ENCODINGS, // TODO: Add me
+    encodings: SCREEN_SHARE_SIMULCAST_ENCODINGS,
     appData: { mediaTag: 'screen-video', channelType: channelType, channelId: channelId }
   })
 
