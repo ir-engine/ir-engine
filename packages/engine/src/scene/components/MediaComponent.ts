@@ -5,13 +5,13 @@ export type MediaComponentType = {
   /** scene data properties */
   paths: string[]
   playMode: PlayMode
-  currentSource: number
-  playing: boolean
   controls: boolean
   autoplay: boolean
+  autoStartTime: number
 
   /** runtime properties */
-  autoStartTime: number
+  playing: boolean
+  currentSource: number
   startTimer: any
   el: HTMLMediaElement
   stopOnNextTrack: boolean

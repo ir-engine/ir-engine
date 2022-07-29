@@ -1,10 +1,6 @@
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
-import {
-  ComponentDeserializeFunction,
-  ComponentSerializeFunction,
-  ComponentUpdateFunction
-} from '../../../common/constants/PrefabFunctionType'
+import { ComponentDeserializeFunction, ComponentSerializeFunction } from '../../../common/constants/PrefabFunctionType'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
 import UpdateableObject3D from '../../classes/UpdateableObject3D'
@@ -47,11 +43,11 @@ export const serializeMedia: ComponentSerializeFunction = (entity) => {
   return {
     name: SCENE_COMPONENT_MEDIA,
     props: {
+      paths: component.paths,
+      playMode: component.playMode,
       controls: component.controls,
       autoplay: component.autoplay,
-      autoStartTime: component.autoStartTime,
-      paths: component.paths,
-      playMode: component.playMode
+      autoStartTime: component.autoStartTime
     }
   }
 }
@@ -119,12 +115,12 @@ export const updateAutoStartTimeForMedia = (entity: Entity) => {
   }
 }
 
-const parseMediaProperties = (props: MediaComponentType): MediaComponentType => {
+const parseMediaProperties = (props: Partial<MediaComponentType>): Partial<MediaComponentType> => {
   return {
+    paths: props.paths ?? SCENE_COMPONENT_MEDIA_DEFAULT_VALUES.paths,
+    playMode: props.playMode ?? SCENE_COMPONENT_MEDIA_DEFAULT_VALUES.playMode,
     controls: props.controls ?? SCENE_COMPONENT_MEDIA_DEFAULT_VALUES.controls,
     autoplay: props.autoplay ?? SCENE_COMPONENT_MEDIA_DEFAULT_VALUES.autoplay,
-    autoStartTime: props.autoStartTime ?? SCENE_COMPONENT_MEDIA_DEFAULT_VALUES.autoStartTime,
-    playMode: props.playMode ?? SCENE_COMPONENT_MEDIA_DEFAULT_VALUES.playMode,
-    paths: props.paths ?? SCENE_COMPONENT_MEDIA_DEFAULT_VALUES.paths
-  } as MediaComponentType
+    autoStartTime: props.autoStartTime ?? SCENE_COMPONENT_MEDIA_DEFAULT_VALUES.autoStartTime
+  } as Partial<MediaComponentType>
 }
