@@ -38,7 +38,7 @@ export default {
     create: [authenticate(), attachOwnerIdInBody('userId')],
     update: [iff(isProvider('external'), authenticate() as any, restrictUserRole('admin') as any)],
     patch: [iff(isProvider('external'), authenticate() as any, restrictUserRole('admin') as any)],
-    remove: [authenticate(), inviteRemoveAuthenticate()]
+    remove: [authenticate(), iff(isProvider('external'), inviteRemoveAuthenticate() as any)]
   },
 
   after: {

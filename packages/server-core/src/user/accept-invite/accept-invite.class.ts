@@ -116,7 +116,7 @@ export class AcceptInvite implements ServiceMethods<Data> {
         const invitee = await this.app.service('user').get(invite.inviteeId)
 
         if (invitee == null || invitee.identity_providers == null || invitee.identity_providers.length === 0) {
-          return new BadRequest('Invalid invitee ID')
+          throw new BadRequest('Invalid invitee ID')
         }
 
         inviteeIdentityProvider = invitee.identity_providers[0]
@@ -130,6 +130,13 @@ export class AcceptInvite implements ServiceMethods<Data> {
         })
 
       if (invite.inviteType === 'friend') {
+        const inviter = await this.app.service('user').Model.findOne({ where: { id: invite.userId } })
+
+        if (inviter == null) {
+          await this.app.service('invite').remove(invite.id)
+          throw new BadRequest('Invalid user ID')
+        }
+
         const existingRelationshipResult = (await this.app.service('user-relationship').find({
           query: {
             $or: [
@@ -188,10 +195,11 @@ export class AcceptInvite implements ServiceMethods<Data> {
             params
           )
       } else if (invite.inviteType === 'group') {
-        const group = await this.app.service('group').get(invite.targetObjectId)
+        const group = await this.app.service('group').Model.findOne({ where: { id: invite.targetObjectId } })
 
         if (group == null) {
-          return new BadRequest('Invalid group ID')
+          await this.app.service('invite').remove(invite.id)
+          throw new BadRequest('Invalid group ID')
         }
 
         const { query, ...paramsCopy } = params
@@ -215,9 +223,10 @@ export class AcceptInvite implements ServiceMethods<Data> {
           )
         }
       } else if (invite.inviteType === 'party') {
-        const party = await this.app.service('party').Model.count({ where: { id: invite.targetObjectId } })
+        const party = await this.app.service('party').Model.findOne({ where: { id: invite.targetObjectId } })
 
-        if (party <= 0) {
+        if (party == null) {
+          await this.app.service('invite').remove(invite.id)
           return new BadRequest('Invalid party ID')
         }
 
@@ -314,7 +323,7 @@ export class AcceptInvite implements ServiceMethods<Data> {
       return returned
     } catch (err) {
       logger.error(err)
-      return null!
+      throw err
     }
   }
 

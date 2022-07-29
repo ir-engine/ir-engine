@@ -130,10 +130,14 @@ export const NetworkInstanceProvisioning = () => {
     }
   }, [chatState.instanceChannelFetched])
 
-  // periodically listening for users spatially near
   useHookEffect(() => {
     if (selfUser?.instanceId.value != null && userState.layerUsersUpdateNeeded.value) UserService.getLayerUsers(true)
   }, [selfUser?.instanceId, userState.layerUsersUpdateNeeded])
+
+  useHookEffect(() => {
+    if (selfUser?.channelInstanceId.value != null && userState.channelLayerUsersUpdateNeeded.value)
+      UserService.getLayerUsers(false)
+  }, [selfUser?.channelInstanceId, userState.channelLayerUsersUpdateNeeded])
 
   useHookEffect(() => {
     if (selfUser?.partyId?.value && chatState.channels.channels?.value) {
