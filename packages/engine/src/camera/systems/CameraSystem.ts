@@ -342,6 +342,9 @@ export default async function CameraSystem(world: World) {
       // the following is necessary workaround until this PR is merged: https://github.com/mrdoob/three.js/pull/22362
       camera.matrix.decompose(camera.position, camera.quaternion, camera.scale)
       camera.updateMatrixWorld(true)
+      const cameraPose = getComponent(Engine.instance.currentWorld.cameraEntity, TransformOffsetComponent)
+      cameraPose.offsetPosition.copy(camera.position)
+      cameraPose.offsetRotation.copy(camera.quaternion)
     } else {
       for (const cameraEntity of followCameraQuery.enter()) enterFollowCameraQuery(cameraEntity)
       for (const cameraEntity of followCameraQuery()) updateFollowCamera(cameraEntity)

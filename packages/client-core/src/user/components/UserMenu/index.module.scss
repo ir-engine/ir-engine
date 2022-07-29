@@ -823,12 +823,14 @@
       display: flex;
       align-items: center;
 
-      & + .flexWrap {
-        flex-wrap: wrap;
-      }
 
       & + .row {
         margin-top: 5px;
+      }
+
+      > div {
+        flex: 1;
+        margin: 10px;
       }
 
       .checkboxBlock {
@@ -2394,6 +2396,7 @@
   display: flex;
   justify-content: space-between;
   align-items: end;
+  flex: 1;
 }
 
 .selectSize {

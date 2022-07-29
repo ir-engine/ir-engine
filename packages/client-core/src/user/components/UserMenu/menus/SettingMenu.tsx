@@ -17,7 +17,7 @@ import { EngineRendererAction, useEngineRendererState } from '@xrengine/engine/s
 import { XRState } from '@xrengine/engine/src/xr/XRState'
 import { dispatchAction, getState, useHookstate } from '@xrengine/hyperflux'
 
-import { BlurLinear, Mic, MicOff, VolumeOff, VolumeUp } from '@mui/icons-material'
+import { BlurLinear, Gamepad, Mic, MicOff, VolumeOff, VolumeUp } from '@mui/icons-material'
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp'
 import Box from '@mui/material/Box'
@@ -38,6 +38,7 @@ import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
 import Typography from '@mui/material/Typography'
 
+import InputSelect from '../../../../admin/common/InputSelect'
 import styles from '../index.module.scss'
 
 const SettingMenu = (): JSX.Element => {
@@ -58,7 +59,7 @@ const SettingMenu = (): JSX.Element => {
   const xrSupported = xrSupportedModes['immersive-ar'].value || xrSupportedModes['immersive-vr'].value
   const controllerTypes = Object.values(AvatarControllerType).filter((value) => typeof value === 'string')
   const controlSchemes = Object.values(AvatarMovementScheme).filter((value) => typeof value === 'string')
-  const [open, setOpen] = useState(false)
+  // const [open, setOpen] = useState(false)
   const [openOtherAudioSettings, setOpenOtherAudioSettings] = useState(false)
 
   const handleChangeInvertRotationAndMoveSticks = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -163,7 +164,7 @@ const SettingMenu = (): JSX.Element => {
                 size="small"
                 onClick={() => setOpenOtherAudioSettings(!openOtherAudioSettings)}
               >
-                {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+                {openOtherAudioSettings ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
               </IconButton>
             </div>
             <Collapse in={openOtherAudioSettings} timeout="auto" unmountOnExit>
@@ -271,7 +272,7 @@ const SettingMenu = (): JSX.Element => {
               step={1}
             />
           </div>
-          <div className={`${styles.row} ${styles.FlexWrap}`}>
+          <div className={`${styles.row}`}>
             <FormControlLabel
               className={styles.checkboxBlock}
               control={<Checkbox checked={rendererState.usePostProcessing.value} size="small" />}
@@ -313,7 +314,7 @@ const SettingMenu = (): JSX.Element => {
             />
           </div>
         </section>
-        <section className={styles.settingSection}>
+        {/* <section className={styles.settingSection}>
           <Typography variant="h6" className={styles.settingHeader}>
             {t('user:usermenu.setting.user-avatar')}
           </Typography>
@@ -322,118 +323,81 @@ const SettingMenu = (): JSX.Element => {
             labelPlacement="start"
             control={<Switch checked={showAvatar} onChange={handleChangeShowAvatar} className={styles.iconBtn} />}
           />
-        </section>
+        </section> */}
         {xrSupported && (
-          <>
-            <section className={styles.settingSection}>
-              <div className={styles.sectionBar}>
-                <Typography variant="h6" className={styles.settingHeader}>
-                  {t('user:usermenu.setting.xrusersetting')}
-                </Typography>
-                <IconButton
-                  className={styles.collapseBtn}
-                  aria-label="expand"
-                  size="small"
-                  onClick={() => setOpen(!open)}
-                >
-                  {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
-                </IconButton>
-                <FormControlLabel
-                  control={
-                    <Switch
-                      checked={invertRotationAndMoveSticks}
-                      onChange={handleChangeInvertRotationAndMoveSticks}
-                      className={styles.iconBtn}
-                    />
-                  }
-                  label={t('user:usermenu.setting.invert-rotation')}
+          <section className={styles.settingSection}>
+            <Typography variant="h6" className={styles.settingHeader}>
+              {t('user:usermenu.setting.xrusersetting')}
+            </Typography>
+
+            {/* <div className={styles.row}>
+              <span className={styles.materialIconBlock}>
+                <Gamepad className={styles.iconBtn} />
+              </span>
+              <span className={styles.settingLabel}>{t('user:usermenu.setting.controls')}</span>
+              <InputSelect
+                name={'control-scheme'}
+                label={t('user:usermenu.setting.lbl-control-scheme')}
+                value={controlSchemeSelected}
+                menu={controlSchemes.map((el) => {return {label:el.split('_')[1], value:el}})}
+                onChange={(e) => handleChangeControlScheme(e)}
+              />
+              <InputSelect
+                name={'control-type'}
+                label={t('user:usermenu.setting.lbl-control-type')}
+                value={controlTypeSelected}
+                menu={controllerTypes.map((el) => {return {label:el.split('_')[1], value:el}})}
+                onChange={(e) => handleChangeControlType(e)}
+              />
+            </div> */}
+
+            <FormControlLabel
+              control={
+                <Switch
+                  checked={invertRotationAndMoveSticks}
+                  onChange={handleChangeInvertRotationAndMoveSticks}
+                  className={styles.iconBtn}
                 />
-              </div>
-              <Collapse in={open} timeout="auto" unmountOnExit>
-                <Box margin={1}>
-                  <Table size="small">
-                    <TableHead>
-                      <TableRow>
-                        <TableCell classes={{ root: styles.tableRow }}>{t('user:usermenu.setting.rotation')}</TableCell>
-                        <TableCell classes={{ root: styles.tableRow }}>
-                          {t('user:usermenu.setting.rotation-angle')}
-                        </TableCell>
-                        <TableCell align="right" classes={{ root: styles.tableRow }}>
-                          {t('user:usermenu.setting.rotation-smooth-speed')}
-                        </TableCell>
-                        <TableCell align="right" classes={{ root: styles.tableRow }}>
-                          {t('user:usermenu.setting.moving')}
-                        </TableCell>
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      <TableRow>
-                        <TableCell align="center" classes={{ root: styles.tableRow }} component="th" scope="row">
-                          {avatarInputState.rotation.value}
-                        </TableCell>
-                        <TableCell align="center" classes={{ root: styles.tableRow }}>
-                          {avatarInputState.rotationAngle.value}
-                        </TableCell>
-                        <TableCell align="center" classes={{ root: styles.tableRow }}>
-                          {avatarInputState.rotationSmoothSpeed.value}
-                        </TableCell>
-                        <TableCell align="center" classes={{ root: styles.tableRow }}>
-                          {avatarInputState.moving.value}
-                        </TableCell>
-                      </TableRow>
-                    </TableBody>
-                  </Table>
-                </Box>
-              </Collapse>
-            </section>
-            <section className={styles.settingSection}>
-              <div className={styles.controlsContainer}>
-                <Typography variant="h6" className={styles.settingHeader}>
-                  {t('user:usermenu.setting.controls')}
-                </Typography>
-                <div className={styles.selectSize}>
-                  <FormControl fullWidth>
-                    <InputLabel>{t('user:usermenu.setting.lbl-control-scheme')}</InputLabel>
-                    <Select
-                      value={controlSchemeSelected}
-                      onChange={handleChangeControlScheme}
-                      size="small"
-                      classes={{
-                        select: styles.select
-                      }}
-                      MenuProps={{ classes: { paper: styles.paper } }}
-                    >
-                      {controlSchemes.map((el) => (
-                        <MenuItem value={el} key={el} classes={{ root: styles.menuItem }}>
-                          {el}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-                </div>
-                <div className={styles.selectSize}>
-                  <FormControl fullWidth>
-                    <InputLabel>{t('user:usermenu.setting.lbl-control-type')}</InputLabel>
-                    <Select
-                      value={controlTypeSelected}
-                      onChange={handleChangeControlType}
-                      size="small"
-                      classes={{
-                        select: styles.select
-                      }}
-                      MenuProps={{ classes: { paper: styles.paper } }}
-                    >
-                      {controllerTypes.map((el, index) => (
-                        <MenuItem value={el} key={el + index} classes={{ root: styles.menuItem }}>
-                          {el}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-                </div>
-              </div>
-            </section>
-          </>
+              }
+              label={t('user:usermenu.setting.invert-rotation')}
+            />
+            {/* <Collapse in={open} timeout="auto" unmountOnExit>
+              <Box margin={1}>
+                <Table size="small">
+                  <TableHead>
+                    <TableRow>
+                      <TableCell classes={{ root: styles.tableRow }}>{t('user:usermenu.setting.rotation')}</TableCell>
+                      <TableCell classes={{ root: styles.tableRow }}>
+                        {t('user:usermenu.setting.rotation-angle')}
+                      </TableCell>
+                      <TableCell align="right" classes={{ root: styles.tableRow }}>
+                        {t('user:usermenu.setting.rotation-smooth-speed')}
+                      </TableCell>
+                      <TableCell align="right" classes={{ root: styles.tableRow }}>
+                        {t('user:usermenu.setting.moving')}
+                      </TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    <TableRow>
+                      <TableCell align="center" classes={{ root: styles.tableRow }} component="th" scope="row">
+                        {avatarInputState.rotation.value}
+                      </TableCell>
+                      <TableCell align="center" classes={{ root: styles.tableRow }}>
+                        {avatarInputState.rotationAngle.value}
+                      </TableCell>
+                      <TableCell align="center" classes={{ root: styles.tableRow }}>
+                        {avatarInputState.rotationSmoothSpeed.value}
+                      </TableCell>
+                      <TableCell align="center" classes={{ root: styles.tableRow }}>
+                        {avatarInputState.moving.value}
+                      </TableCell>
+                    </TableRow>
+                  </TableBody>
+                </Table>
+              </Box>
+            </Collapse> */}
+          </section>
         )}
       </div>
     </div>

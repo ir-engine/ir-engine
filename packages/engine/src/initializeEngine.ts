@@ -148,7 +148,7 @@ export const initializeCoreSystems = async () => {
   if (isClient) {
     systemsToLoad.push(
       {
-        type: SystemUpdateType.UPDATE_EARLY,
+        type: SystemUpdateType.UPDATE,
         systemModulePromise: import('./camera/systems/CameraSystem')
       },
       {

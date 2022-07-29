@@ -42,7 +42,7 @@ export const requestXRSession = createHookableFunction(
 
       const session = await navigator.xr!.requestSession(mode, sessionInit)
       xrState.sessionActive.set(true)
-      EngineRenderer.instance.canvas.style.display = 'none'
+      if (mode === 'immersive-ar') EngineRenderer.instance.canvas.style.display = 'none'
       EngineRenderer.instance.xrSession = session
       EngineRenderer.instance.xrManager.setSession(session)
       EngineRenderer.instance.xrManager.setFoveation(1)
