@@ -93,7 +93,7 @@ import {
   serializeLoopAnimation,
   updateLoopAnimation
 } from './loaders/LoopAnimationFunctions'
-import { deserializeMedia, SCENE_COMPONENT_MEDIA, serializeMedia, updateMedia } from './loaders/MediaFunctions'
+import { deserializeMedia, SCENE_COMPONENT_MEDIA, serializeMedia } from './loaders/MediaFunctions'
 import {
   deserializeMetaData,
   SCENE_COMPONENT_METADATA,

@@ -49,6 +49,8 @@ export const updateVideo: ComponentUpdateFunction = (entity: Entity, properties:
   const videoComponent = getComponent(entity, VideoComponent)
   const mediaComponent = getComponent(entity, MediaComponent)
 
+  const currentPath = mediaComponent.paths.length ? mediaComponent.paths[mediaComponent.currentSource] : ''
+
   if (!mediaComponent.el) {
     const el = document.createElement('video')
     el.setAttribute('crossOrigin', 'anonymous')
@@ -80,11 +82,11 @@ export const updateVideo: ComponentUpdateFunction = (entity: Entity, properties:
   const el = getComponent(entity, MediaComponent).el! as HTMLVideoElement
   const mesh = obj3d.userData.mesh as Mesh<any, any>
 
-  if (videoComponent.videoSource !== el.src) {
+  if (currentPath !== el.src) {
     try {
-      if (isHLS(videoComponent.videoSource)) {
+      if (isHLS(currentPath)) {
         if (videoComponent.hls) videoComponent.hls.destroy()
-        videoComponent.hls = setupHLS(entity, videoComponent.videoSource)
+        videoComponent.hls = setupHLS(entity, currentPath)
         videoComponent.hls?.attachMedia(el)
       }
       // else if (isDash(url)) {
@@ -96,7 +98,7 @@ export const updateVideo: ComponentUpdateFunction = (entity: Entity, properties:
       else {
         el.addEventListener('error', () => addError(entity, 'error', 'Error Loading video'))
         el.addEventListener('loadeddata', () => removeError(entity, 'error'))
-        el.src = videoComponent.videoSource
+        el.src = currentPath
       }
 
       const texture = new VideoTexture(el)
@@ -130,7 +132,7 @@ export const updateVideo: ComponentUpdateFunction = (entity: Entity, properties:
           mesh.material.map.image.width = mesh.material.map.image.videoWidth
           if (getComponent(entity, ImageComponent)?.projection === ImageProjection.Flat) resizeImageMesh(mesh)
 
-          updateAutoStartTimeForMedia(entity)
+          if (!Engine.instance.isEditor) updateAutoStartTimeForMedia(entity)
         },
         { once: true }
       )
@@ -149,7 +151,6 @@ export const serializeVideo: ComponentSerializeFunction = (entity) => {
   return {
     name: SCENE_COMPONENT_VIDEO,
     props: {
-      videoSource: component.videoSource,
       elementId: component.elementId
     }
   }
@@ -208,7 +209,6 @@ export const toggleVideo = (entity: Entity) => {
 
 export const parseVideoProperties = (props): Partial<VideoComponentType> => {
   return {
-    videoSource: props.videoSource ?? SCENE_COMPONENT_VIDEO_DEFAULT_VALUES.videoSource,
     elementId: props.elementId ?? SCENE_COMPONENT_VIDEO_DEFAULT_VALUES.elementId
   }
 }

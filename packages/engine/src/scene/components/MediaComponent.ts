@@ -4,10 +4,10 @@ import { PlayMode } from '../constants/PlayMode'
 export type MediaComponentType = {
   paths: string[]
   playMode: PlayMode
+  currentSource: number
   playing: boolean
   controls: boolean
   autoplay: boolean
-  loop: boolean
   autoStartTime?: number
   startTimer?: any
   el?: HTMLMediaElement

@@ -61,22 +61,27 @@ export const SCENE_COMPONENT_VOLUMETRIC_DEFAULT_VALUES = {
 
 export const deserializeVolumetric: ComponentDeserializeFunction = (entity: Entity, json: ComponentJson<{}>) => {
   if (!isClient) return
-  addVolumetricComponent(entity)
+  try {
+    removeError(entity, 'error')
+    addVolumetricComponent(entity)
+  } catch (error) {
+    console.error(error)
+    addError(entity, 'error', error.message)
+  }
   getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_VOLUMETRIC)
 }
-
-let height = 0
-let step = 0.001
 
 export const addVolumetricComponent = (entity: Entity) => {
   const obj3d = getComponent(entity, Object3DComponent).value as VolumetricObject3D
   const mediaComponent = getComponent(entity, MediaComponent)
-  const paths = mediaComponent.paths.filter((p) => p)
+
+  let height = 0
+  let step = 0.001
 
   const player = new DracosisPlayer({
     scene: obj3d,
     renderer: EngineRenderer.instance.renderer,
-    paths,
+    paths: mediaComponent.paths,
     isLoadingEffect: isClient,
     isVideoTexture: false,
     playMode: mediaComponent.playMode as any,
@@ -142,26 +147,13 @@ export const addVolumetricComponent = (entity: Entity) => {
 
 export const updateVolumetric: ComponentUpdateFunction = (entity: Entity) => {
   const obj3d = getComponent(entity, Object3DComponent).value as VolumetricObject3D
-  const videoComponent = getComponent(entity, VolumetricComponent)
+  const player = getComponent(entity, VolumetricComponent)
   const mediaComponent = getComponent(entity, MediaComponent)
 
   const paths = mediaComponent.paths.filter((p) => p)
 
-  try {
-    removeError(entity, 'error')
-
-    if (!videoComponent) {
-    }
-  } catch (error) {
-    console.error(error)
-    addError(entity, 'error', error.message)
-  }
-
-  if (paths.length && JSON.stringify(videoComponent.paths) !== JSON.stringify(paths)) {
-    videoComponent.paths = paths
-    //TODO: it is breaking the video play. need to check later
-    // const audioSource = Engine.instance.currentWorld.audioListener.context.createMediaElementSource(videoComponent.video)
-    // obj3d.userData.audioEl.setNodeSource(audioSource)
+  if (paths.length && JSON.stringify(player.paths) !== JSON.stringify(paths)) {
+    player.paths = paths
   }
 }
 

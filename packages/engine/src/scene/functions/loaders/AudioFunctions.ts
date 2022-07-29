@@ -12,6 +12,7 @@ import {
   ComponentSerializeFunction
 } from '../../../common/constants/PrefabFunctionType'
 import { isClient } from '../../../common/functions/isClient'
+import { Engine } from '../../../ecs/classes/Engine'
 import { EngineActions, getEngineState } from '../../../ecs/classes/EngineState'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent, removeComponent } from '../../../ecs/functions/ComponentFunctions'
@@ -28,7 +29,6 @@ export const AUDIO_TEXTURE_PATH = '/static/editor/audio-icon.png' // Static
 
 export const SCENE_COMPONENT_AUDIO = 'audio'
 export const SCENE_COMPONENT_AUDIO_DEFAULT_VALUES = {
-  audioSource: '',
   volume: 1,
   audioType: AudioType.Stereo as AudioTypeType,
   distanceModel: 'linear' as DistanceModelType,
@@ -38,7 +38,7 @@ export const SCENE_COMPONENT_AUDIO_DEFAULT_VALUES = {
   coneInnerAngle: 360,
   coneOuterAngle: 360,
   coneOuterGain: 1
-}
+} as AudioComponentType
 
 export const AudioElementObjects = new WeakMap<Object3D, Mesh>()
 
@@ -58,6 +58,8 @@ export const updateAudio = (entity: Entity) => {
   const audioComponent = getComponent(entity, AudioComponent)
   const mediaComponent = getComponent(entity, MediaComponent)
   const obj3d = getComponent(entity, Object3DComponent).value
+
+  const currentPath = mediaComponent.paths.length ? mediaComponent.paths[mediaComponent.currentSource] : ''
 
   if (!AudioElementObjects.has(obj3d)) {
     const textureMesh = new Mesh(
@@ -101,15 +103,13 @@ export const updateAudio = (entity: Entity) => {
 
   const el = getComponent(entity, MediaComponent).el!
 
-  if (audioComponent.audioType === AudioType.Stereo && hasComponent(entity, PositionalAudioTagComponent)) {
+  if (audioComponent.audioType === AudioType.Stereo && hasComponent(entity, PositionalAudioTagComponent))
     removeComponent(entity, PositionalAudioTagComponent)
-  }
 
-  if (audioComponent.audioType === AudioType.Positional && !hasComponent(entity, PositionalAudioTagComponent)) {
+  if (audioComponent.audioType === AudioType.Positional && !hasComponent(entity, PositionalAudioTagComponent))
     addComponent(entity, PositionalAudioTagComponent, true)
-  }
 
-  if (audioComponent.audioSource !== el.src) {
+  if (currentPath !== el.src) {
     el.addEventListener(
       'loadeddata',
       () => {
@@ -123,13 +123,13 @@ export const updateAudio = (entity: Entity) => {
               return true
             })
           }
-          updateAutoStartTimeForMedia(entity)
+
+          if (!Engine.instance.isEditor) updateAutoStartTimeForMedia(entity)
         }
       },
       { once: true }
     )
-    el.src = audioComponent.audioSource
-    removeError(entity, 'error')
+    el.src = currentPath
   }
 
   if (el.volume !== audioComponent.volume) el.volume = audioComponent.volume
@@ -159,7 +159,6 @@ export const serializeAudio: ComponentSerializeFunction = (entity) => {
   return {
     name: SCENE_COMPONENT_AUDIO,
     props: {
-      audioSource: component.audioSource,
       volume: component.volume,
       audioType: component.audioType,
       distanceModel: component.distanceModel,
@@ -179,7 +178,6 @@ export const prepareAudioForGLTFExport: ComponentPrepareForGLTFExportFunction = 
 
 export const parseAudioProperties = (props): AudioComponentType => {
   return {
-    audioSource: props.audioSource ?? SCENE_COMPONENT_AUDIO_DEFAULT_VALUES.audioSource,
     volume: props.volume ?? SCENE_COMPONENT_AUDIO_DEFAULT_VALUES.volume,
     audioType: props.audioType ?? SCENE_COMPONENT_AUDIO_DEFAULT_VALUES.audioType,
     distanceModel: props.distanceModel ?? SCENE_COMPONENT_AUDIO_DEFAULT_VALUES.distanceModel,
