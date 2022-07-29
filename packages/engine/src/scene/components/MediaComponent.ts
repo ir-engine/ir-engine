@@ -1,11 +1,14 @@
 import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
+import { PlayMode } from '../constants/PlayMode'
 
 export type MediaComponentType = {
-  playing?: boolean
-  controls?: boolean
-  autoplay?: boolean
+  paths: string[]
+  playMode: PlayMode
+  playing: boolean
+  controls: boolean
+  autoplay: boolean
+  loop: boolean
   autoStartTime?: number
-  loop?: boolean
   startTimer?: any
   el?: HTMLMediaElement
 }

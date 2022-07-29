@@ -412,14 +412,12 @@ export const registerDefaultSceneFunctions = (world: World) => {
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_VIDEO, {
     deserialize: deserializeVideo,
     serialize: serializeVideo,
-    update: updateVideo,
     prepareForGLTFExport: prepareVideoForGLTFExport
   })
 
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_MEDIA, {
     deserialize: deserializeMedia,
-    serialize: serializeMedia,
-    update: updateMedia
+    serialize: serializeMedia
   })
 
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_INTERACTABLE, {

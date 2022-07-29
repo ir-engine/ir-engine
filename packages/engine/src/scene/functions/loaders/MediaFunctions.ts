@@ -18,9 +18,10 @@ export const SCENE_COMPONENT_MEDIA = 'media'
 export const SCENE_COMPONENT_MEDIA_DEFAULT_VALUES = {
   controls: false,
   autoplay: false,
+  playing: false,
   autoStartTime: 0,
   loop: false
-}
+} as MediaComponentType
 
 export const deserializeMedia: ComponentDeserializeFunction = (
   entity: Entity,
@@ -30,30 +31,25 @@ export const deserializeMedia: ComponentDeserializeFunction = (
   addComponent(entity, MediaComponent, { ...props, playing: false })
   addComponent(entity, Object3DComponent, { value: new UpdateableObject3D() })
   addComponent(entity, UpdatableComponent, {})
-
   getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_MEDIA)
-
-  updateMedia(entity, props)
 }
 
 export const updateMedia: ComponentUpdateFunction = (entity: Entity, properties: MediaComponentType) => {
   const obj3d = getComponent(entity, Object3DComponent).value
   const component = getComponent(entity, MediaComponent)
 
-  if (!Engine.instance.isEditor) {
-    if (obj3d.userData.player) {
-      if (typeof properties.autoplay !== 'undefined') obj3d.userData.player.autoplay = component.autoplay
-    } else if (obj3d.userData.videoEl) {
-      if (typeof properties.autoplay !== 'undefined') obj3d.userData.videoEl.autoplay = component.autoplay
-      if (typeof properties.controls !== 'undefined') obj3d.userData.videoEl.controls = component.controls
-      if (typeof properties.loop !== 'undefined') obj3d.userData.videoEl.loop = component.loop
-      if (typeof properties.autoStartTime !== 'undefined') updateAutoStartTimeForMedia(entity)
-    } else if (obj3d.userData.audioEl) {
-      if (typeof properties.autoplay !== 'undefined') obj3d.userData.audioEl.autoplay = component.autoplay
-      if (typeof properties.loop !== 'undefined') obj3d.userData.audioEl.setLoop(component.loop)
-      if (typeof properties.autoStartTime !== 'undefined') updateAutoStartTimeForMedia(entity)
-    }
-  }
+  // if (obj3d.userData.player) {
+  //   if (typeof properties.autoplay !== 'undefined') obj3d.userData.player.autoplay = component.autoplay
+  // } else if (obj3d.userData.videoEl) {
+  //   if (typeof properties.autoplay !== 'undefined') obj3d.userData.videoEl.autoplay = component.autoplay
+  //   if (typeof properties.controls !== 'undefined') obj3d.userData.videoEl.controls = component.controls
+  //   if (typeof properties.loop !== 'undefined') obj3d.userData.videoEl.loop = component.loop
+  //   if (typeof properties.autoStartTime !== 'undefined') updateAutoStartTimeForMedia(entity)
+  // } else if (obj3d.userData.audioEl) {
+  //   if (typeof properties.autoplay !== 'undefined') obj3d.userData.audioEl.autoplay = component.autoplay
+  //   if (typeof properties.loop !== 'undefined') obj3d.userData.audioEl.setLoop(component.loop)
+  //   if (typeof properties.autoStartTime !== 'undefined') updateAutoStartTimeForMedia(entity)
+  // }
 }
 
 export const serializeMedia: ComponentSerializeFunction = (entity) => {

@@ -6,10 +6,10 @@ import { AudioComponent } from '@xrengine/engine/src/audio/components/AudioCompo
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { ErrorComponent } from '@xrengine/engine/src/scene/components/ErrorComponent'
+import { MediaComponent } from '@xrengine/engine/src/scene/components/MediaComponent'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 import { VideoComponent } from '@xrengine/engine/src/scene/components/VideoComponent'
 import { VolumetricComponent } from '@xrengine/engine/src/scene/components/VolumetricComponent'
-import { toggleAudio } from '@xrengine/engine/src/scene/functions/loaders/AudioFunctions'
 
 import VolumeUpIcon from '@mui/icons-material/VolumeUp'
 
@@ -44,9 +44,11 @@ export const AudioNodeEditor: EditorComponentType = (props) => {
     await AssetLoader.loadAsync(src)
     updateProperty(AudioComponent, 'audioSource')(src)
   }
+  const mediaComponent = getComponent(entity, MediaComponent)
 
   const onToggleAudio = () => {
-    toggleAudio(entity)
+    if (mediaComponent.playing) mediaComponent.el?.pause()
+    else mediaComponent.el?.play()
     setState(_ + 1)
   }
 

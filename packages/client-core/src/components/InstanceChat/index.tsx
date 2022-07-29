@@ -19,14 +19,13 @@ import { matchActionOnce } from '@xrengine/engine/src/networking/functions/match
 import { WorldNetworkAction } from '@xrengine/engine/src/networking/functions/WorldNetworkAction'
 import { WorldState } from '@xrengine/engine/src/networking/interfaces/WorldState'
 import UpdateableObject3D from '@xrengine/engine/src/scene/classes/UpdateableObject3D'
+import { MediaComponent } from '@xrengine/engine/src/scene/components/MediaComponent'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 import { PersistTagComponent } from '@xrengine/engine/src/scene/components/PersistTagComponent'
-import {
-  SCENE_COMPONENT_AUDIO_DEFAULT_VALUES,
-  toggleAudio
-} from '@xrengine/engine/src/scene/functions/loaders/AudioFunctions'
+import { SCENE_COMPONENT_AUDIO_DEFAULT_VALUES } from '@xrengine/engine/src/scene/functions/loaders/AudioFunctions'
 import { updateAudio } from '@xrengine/engine/src/scene/functions/loaders/AudioFunctions'
+import { SCENE_COMPONENT_MEDIA_DEFAULT_VALUES } from '@xrengine/engine/src/scene/functions/loaders/MediaFunctions'
 import { addActionReceptor, dispatchAction, removeActionReceptor } from '@xrengine/hyperflux'
 import { getState } from '@xrengine/hyperflux'
 
@@ -252,36 +251,35 @@ const InstanceChat = ({
    * Audio effect
    */
 
+  /** @todo */
   const audioState = useAudioState()
-  const [entity, setEntity] = useState<Entity>()
+  // const [entity] = useState<Entity>(createEntity(Engine.instance.currentWorld))
 
-  useEffect(() => {
-    if (entity) {
-      const audioComponent = getComponent(entity, AudioComponent)
-      audioComponent.volume = audioState.notificationVolume.value / 100
-      updateAudio(entity)
-    }
-  }, [audioState.notificationVolume])
+  // useEffect(() => {
+  //   if (entity) {
+  //     const audioComponent = getComponent(entity, AudioComponent)
+  //     audioComponent.volume = audioState.notificationVolume.value / 100
+  //     updateAudio(entity)
+  //   }
+  // }, [audioState.notificationVolume])
 
-  const fetchAudioAlert = async () => {
-    setIsInitRender(true)
-    const entity = createEntity(Engine.instance.currentWorld)
-    setEntity(entity)
-    addComponent(entity, NameComponent, { name: 'Audio Alert Entity' })
-    addComponent(entity, Object3DComponent, { value: new UpdateableObject3D() })
-    addComponent(entity, PersistTagComponent, true)
-    const audioComponent = addComponent(entity, AudioComponent, { ...SCENE_COMPONENT_AUDIO_DEFAULT_VALUES })
-    audioComponent.volume = audioState.notificationVolume.value / 100
-    audioComponent.audioSource = notificationAlertURL
-    AssetLoader.loadAsync(notificationAlertURL)
-  }
+  // const fetchAudioAlert = async () => {
+  //   setIsInitRender(true)
+  //   addComponent(entity, NameComponent, { name: 'Audio Alert Entity' })
+  //   addComponent(entity, Object3DComponent, { value: new UpdateableObject3D() })
+  //   addComponent(entity, PersistTagComponent, true)
+  //   const audioComponent = addComponent(entity, AudioComponent, { ...SCENE_COMPONENT_AUDIO_DEFAULT_VALUES })
+  //   audioComponent.volume = audioState.notificationVolume.value / 100
+  //   audioComponent.audioSource = notificationAlertURL
+  //   AssetLoader.loadAsync(notificationAlertURL)
+  // }
 
-  useEffect(() => {
-    if (getEngineState().sceneLoaded.value) fetchAudioAlert()
-    matchActionOnce(EngineActions.sceneLoaded.matches, () => {
-      fetchAudioAlert()
-    })
-  }, [])
+  // useEffect(() => {
+  //   if (getEngineState().sceneLoaded.value) fetchAudioAlert()
+  //   matchActionOnce(EngineActions.sceneLoaded.matches, () => {
+  //     fetchAudioAlert()
+  //   })
+  // }, [])
 
   const messageRef = useRef<any>()
 
@@ -292,7 +290,7 @@ const InstanceChat = ({
       chatState.messageCreated.value
     ) {
       setUnreadMessages(true)
-      entity && toggleAudio(entity)
+      el.play()
     }
 
     const messageRefCurrentRenderedInterval = setInterval(() => {

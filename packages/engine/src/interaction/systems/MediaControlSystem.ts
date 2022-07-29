@@ -51,6 +51,8 @@ export default async function MediaControlSystem(world: World) {
 
     for (const entity of mediaQuery.exit(world)) {
       if (MediaFadeTransitions.has(entity)) MediaFadeTransitions.delete(entity)
+      const mediaComponent = getComponent(entity, MediaComponent, true)
+      mediaComponent.el?.remove()
     }
   }
 }

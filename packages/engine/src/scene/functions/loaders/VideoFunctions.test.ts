@@ -50,7 +50,12 @@ describe('VideoFunctions', () => {
   beforeEach(() => {
     createEngine()
     entity = createEntity()
-    addComponent(entity, MediaComponent, { autoplay: true })
+    addComponent(entity, MediaComponent, {
+      autoplay: true,
+      playing: false,
+      controls: false,
+      loop: false
+    })
     const obj3d = addComponent(entity, Object3DComponent, { value: new Object3D() }).value
     obj3d.userData.mesh = new Mesh()
   })

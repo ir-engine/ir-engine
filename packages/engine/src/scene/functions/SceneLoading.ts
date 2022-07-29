@@ -172,6 +172,8 @@ export const loadSceneFromJSON = async (sceneData: SceneJson, sceneSystems: Syst
     loadSceneEntity(entityMap[key], sceneData.entities[key])
   })
 
+  dispatchAction(EngineActions.sceneObjectUpdate({ entities: Object.values(entityMap).map((node) => node.entity) }))
+
   const tree = world.entityTree
   addComponent(tree.rootNode.entity, Object3DComponent, { value: world.scene })
   addComponent(tree.rootNode.entity, SceneTagComponent, {})

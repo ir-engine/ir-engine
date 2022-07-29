@@ -13,8 +13,6 @@ import { PostprocessingComponent } from '../components/PostprocessingComponent'
 import { ScenePreviewCameraTagComponent } from '../components/ScenePreviewCamera'
 import { SelectTagComponent } from '../components/SelectTagComponent'
 import { SkyboxComponent } from '../components/SkyboxComponent'
-import { VideoComponent } from '../components/VideoComponent'
-import { VolumetricComponent } from '../components/VolumetricComponent'
 import { FogType } from '../constants/FogType'
 import { createFogFromSceneNode } from '../functions/loaders/FogFunctions'
 import { SCENE_PREVIEW_CAMERA_HELPER } from '../functions/loaders/ScenePreviewCameraFunctions'
@@ -24,9 +22,6 @@ export default async function EntityNodeEventSystem(_: World) {
   const fogQuery = defineQuery([FogComponent])
   const postProcessingQuery = defineQuery([PostprocessingComponent])
   const scenePreviewCameraQuery = defineQuery([ScenePreviewCameraTagComponent])
-  const videoQuery = defineQuery([VideoComponent])
-  const videoAudioQuery = defineQuery([VideoComponent, AudioComponent])
-  const volumetricAudioQuery = defineQuery([VolumetricComponent, AudioComponent])
 
   const directionalLightQuery = defineQuery([DirectionalLightComponent])
   const directionalLightSelectQuery = defineQuery([DirectionalLightComponent, SelectTagComponent])
@@ -93,22 +88,6 @@ export default async function EntityNodeEventSystem(_: World) {
     for (const _ of scenePreviewCameraQuery.exit()) {
       const obj3d = Engine.instance.currentWorld.scene.getObjectByName(SCENE_PREVIEW_CAMERA_HELPER)
       if (obj3d) Engine.instance.currentWorld.scene.remove(obj3d)
-    }
-
-    for (const entity of videoQuery.exit()) {
-      const videoComponent = getComponent(entity, VideoComponent, true)
-      document.getElementById(videoComponent.elementId)?.remove()
-    }
-
-    /* Misc */
-    for (const entity of videoAudioQuery.enter()) {
-      const obj3d = getComponent(entity, Object3DComponent).value
-      obj3d.userData.textureMesh?.removeFromParent()
-    }
-
-    for (const entity of volumetricAudioQuery.enter()) {
-      const obj3d = getComponent(entity, Object3DComponent).value
-      obj3d.userData.textureMesh?.removeFromParent()
     }
 
     for (const entity of directionalLightQuery.enter()) {
