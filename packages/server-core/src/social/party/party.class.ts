@@ -117,6 +117,7 @@ export class Party<T = PartyDataType> extends Service<T> {
         }
       })
 
+      console.log('existingPartyUsers', existingPartyUsers.data)
       await Promise.all(
         existingPartyUsers.data.map(
           (partyUser) =>
@@ -158,8 +159,20 @@ export class Party<T = PartyDataType> extends Service<T> {
         }
       })
     ).data
+    if (!params!.skipPartyUserDelete)
+      await Promise.all(
+        partyUsers.map(async (partyUser) =>
+          this.app.service('party-user').remove(partyUser.id, { skipPartyDelete: true })
+        )
+      )
     const removedParty = (await super.remove(id)) as T
     ;(removedParty as any).party_users = partyUsers
+    await this.app.service('invite').remove(null!, {
+      query: {
+        inviteType: 'party',
+        targetObjectId: id
+      }
+    })
     return removedParty
   }
 }
