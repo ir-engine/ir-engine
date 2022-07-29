@@ -21,9 +21,10 @@ import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { MediaComponent } from '../../components/MediaComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 import { ObjectLayers } from '../../constants/ObjectLayers'
+import { PlayMode } from '../../constants/PlayMode'
 import { removeError } from '../ErrorFunctions'
 import { setObjectLayers } from '../setObjectLayers'
-import { updateAutoStartTimeForMedia } from './MediaFunctions'
+import { getNextPlaylistItem, updateAutoStartTimeForMedia } from './MediaFunctions'
 
 export const AUDIO_TEXTURE_PATH = '/static/editor/audio-icon.png' // Static
 
@@ -77,7 +78,11 @@ export const updateAudio = (entity: Entity) => {
   if (!mediaComponent.el) {
     const el = document.createElement('audio')
     el.setAttribute('crossOrigin', 'anonymous')
-    el.setAttribute('loop', 'true')
+    if (
+      mediaComponent.playMode === PlayMode.SingleLoop ||
+      (mediaComponent.playMode === PlayMode.Loop && mediaComponent.paths.length === 1)
+    )
+      el.setAttribute('loop', 'true')
     el.setAttribute('preload', 'metadata')
 
     // Setting autoplay to false will not work
@@ -97,6 +102,13 @@ export const updateAudio = (entity: Entity) => {
     })
     el.addEventListener('pause', () => {
       mediaComponent.playing = false
+    })
+    el.addEventListener('ended', () => {
+      if (mediaComponent.stopOnNextTrack) return
+      const nextItem = getNextPlaylistItem(entity)
+      mediaComponent.currentSource = nextItem
+      el.src = mediaComponent.paths[mediaComponent.currentSource]
+      el.play()
     })
     mediaComponent.el = el
   }

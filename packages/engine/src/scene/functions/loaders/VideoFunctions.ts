@@ -21,10 +21,11 @@ import { ImageComponent } from '../../components/ImageComponent'
 import { MediaComponent } from '../../components/MediaComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 import { VideoComponent, VideoComponentType } from '../../components/VideoComponent'
+import { PlayMode } from '../../constants/PlayMode'
 import { addError, removeError } from '../ErrorFunctions'
 import isHLS from '../isHLS'
 import { resizeImageMesh } from './ImageFunctions'
-import { updateAutoStartTimeForMedia } from './MediaFunctions'
+import { getNextPlaylistItem, updateAutoStartTimeForMedia } from './MediaFunctions'
 
 export const SCENE_COMPONENT_VIDEO = 'video'
 export const VIDEO_MESH_NAME = 'VideoMesh'
@@ -54,7 +55,11 @@ export const updateVideo: ComponentUpdateFunction = (entity: Entity, properties:
   if (!mediaComponent.el) {
     const el = document.createElement('video')
     el.setAttribute('crossOrigin', 'anonymous')
-    el.setAttribute('loop', 'true')
+    if (
+      mediaComponent.playMode === PlayMode.SingleLoop ||
+      (mediaComponent.playMode === PlayMode.Loop && mediaComponent.paths.length === 1)
+    )
+      el.setAttribute('loop', 'true')
     el.setAttribute('preload', 'metadata')
 
     // Setting autoplay to false will not work
@@ -75,6 +80,13 @@ export const updateVideo: ComponentUpdateFunction = (entity: Entity, properties:
     })
     el.addEventListener('pause', () => {
       mediaComponent.playing = false
+    })
+    el.addEventListener('ended', () => {
+      if (mediaComponent.stopOnNextTrack) return
+      const nextItem = getNextPlaylistItem(entity)
+      mediaComponent.currentSource = nextItem
+      el.src = mediaComponent.paths[mediaComponent.currentSource]
+      el.play()
     })
     mediaComponent.el = el
   }

@@ -28,7 +28,13 @@ export const deserializeMedia: ComponentDeserializeFunction = (
   json: ComponentJson<MediaComponentType>
 ) => {
   const props = parseMediaProperties(json.props)
-  addComponent(entity, MediaComponent, { ...props, currentSource: 0, playing: false })
+  addComponent(entity, MediaComponent, {
+    ...props,
+    currentSource: 0,
+    playing: false,
+    stopOnNextTrack: false
+  })
+  getNextPlaylistItem(entity)
   addComponent(entity, Object3DComponent, { value: new UpdateableObject3D() })
   addComponent(entity, UpdatableComponent, {})
   getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_MEDIA)
@@ -48,6 +54,26 @@ export const serializeMedia: ComponentSerializeFunction = (entity) => {
       playMode: component.playMode
     }
   }
+}
+
+export function getNextPlaylistItem(entity: Entity) {
+  const mediaComponent = getComponent(entity, MediaComponent)
+  let nextTrack = 0
+  if (mediaComponent.playMode == PlayMode.Random) {
+    nextTrack = Math.floor(Math.random() * mediaComponent.paths.length)
+  } else if (mediaComponent.playMode == PlayMode.Single) {
+    nextTrack = (mediaComponent.currentSource + 1) % mediaComponent.paths.length
+    if (mediaComponent.currentSource + 1 == mediaComponent.paths.length) {
+      nextTrack = 0
+      mediaComponent.stopOnNextTrack = true
+    }
+  } else if (mediaComponent.playMode == PlayMode.SingleLoop) {
+    nextTrack = mediaComponent.currentSource
+  } else {
+    //PlayMode.Loop
+    nextTrack = (mediaComponent.currentSource + 1) % mediaComponent.paths.length
+  }
+  return nextTrack
 }
 
 export const updateAutoStartTimeForMedia = (entity: Entity) => {
