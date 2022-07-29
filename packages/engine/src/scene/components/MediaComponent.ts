@@ -12,6 +12,7 @@ export type MediaComponentType = {
   /** runtime properties */
   playing: boolean
   currentSource: number
+  // TODO replace startTimer with accumulator
   startTimer: any
   el: HTMLMediaElement
   stopOnNextTrack: boolean
