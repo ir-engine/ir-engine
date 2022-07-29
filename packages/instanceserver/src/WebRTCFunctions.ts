@@ -840,13 +840,11 @@ export async function handleWebRtcPauseProducer(
     if (userId && network.peers.has(userId) && network.peers.get(userId)!.media![producer.appData.mediaTag as any]) {
       network.peers.get(userId)!.media![producer.appData.mediaTag as any].paused = true
       network.peers.get(userId)!.media![producer.appData.mediaTag as any].globalMute = globalMute || false
-      if (globalMute === true) {
-        const hostClient = Array.from(network.peers.entries()).find(([, client]) => {
-          return client.media && client.media![producer.appData.mediaTag as any]?.producerId === producerId
-        })!
-        if (hostClient && hostClient[1])
-          hostClient[1].socket!.emit(MessageTypes.WebRTCPauseProducer.toString(), producer.id, true)
-      }
+      const hostClient = Array.from(network.peers.entries()).find(([, client]) => {
+        return client.media && client.media![producer.appData.mediaTag as any]?.producerId === producerId
+      })!
+      if (hostClient && hostClient[1])
+        hostClient[1].socket!.emit(MessageTypes.WebRTCPauseProducer.toString(), producer.id, true)
     }
   }
   callback({ paused: true })
