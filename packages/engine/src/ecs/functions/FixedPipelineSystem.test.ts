@@ -51,7 +51,6 @@ describe('FixedPipelineSystem', () => {
     assert.equal(world.elapsedSeconds, deltaSeconds)
     assert.equal(world.fixedElapsedSeconds, deltaSeconds)
     assert.equal(world.fixedTick, ticks)
-    assert.equal(world.fixedDeltaSeconds, 1 / 60)
     assert.equal(mockState.count.value, ticks)
   })
 

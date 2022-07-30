@@ -1,5 +1,8 @@
 import { Material, Mesh } from 'three'
 
+import { getState } from '@xrengine/hyperflux'
+
+import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
@@ -72,11 +75,12 @@ export default async function MaterialOverrideSystem(world: World) {
     }
 
     //Performs update functions for each override that is currently active in the scene
+    const fixedDelta = getState(EngineState).fixedDeltaSeconds.value
     for (const entity of overrideQuery()) {
       const override = getComponent(entity, MaterialOverrideComponent)
       const entityEntry = overrideTable.get(override.targetEntity!)!
       for (const overrideEntry of entityEntry.values()) {
-        overrideEntry.matParm.update(world.fixedDeltaSeconds / 4)
+        overrideEntry.matParm.update(fixedDelta / 4)
       }
     }
   }

@@ -36,6 +36,7 @@ export type SystemInstanceType = {
   name: string
   type: SystemUpdateType
   sceneSystem: boolean
+  enabled: boolean
   execute: () => void
 }
 
@@ -50,6 +51,7 @@ export const initSystems = async (world: World, systemModulesToLoad: SystemModul
         name,
         type: s.type,
         sceneSystem: s.sceneSystem,
+        enabled: true,
         execute: () => {
           const start = nowMilliseconds()
           try {
@@ -96,6 +98,7 @@ export const initSystemSync = (world: World, systemArgs: SystemSyncFunctionType<
     name,
     type: systemArgs.type,
     sceneSystem: false,
+    enabled: true,
     execute: () => {
       const start = nowMilliseconds()
       try {

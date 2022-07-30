@@ -6,7 +6,7 @@ import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import multiLogger from '@xrengine/common/src/logger'
-import { addTopic } from '@xrengine/hyperflux'
+import { addTopic, getState } from '@xrengine/hyperflux'
 
 import { DEFAULT_LOD_DISTANCES } from '../../assets/constants/LoaderConstants'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
@@ -25,7 +25,8 @@ import { PortalComponent } from '../../scene/components/PortalComponent'
 import { SimpleMaterialTagComponent } from '../../scene/components/SimpleMaterialTagComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
-import { TransformComponent } from '../../transform/components/TransformComponent'
+import { addTransformOffsetComponent } from '../../transform/components/TransformChildComponent'
+import { addTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
 import { Widget } from '../../xrui/Widgets'
 import {
   addComponent,
@@ -40,6 +41,7 @@ import { initializeEntityTree } from '../functions/EntityTreeFunctions'
 import { SystemInstanceType } from '../functions/SystemFunctions'
 import { SystemUpdateType } from '../functions/SystemUpdateType'
 import { Engine } from './Engine'
+import { EngineState } from './EngineState'
 import { Entity } from './Entity'
 import EntityTree from './EntityTree'
 
@@ -54,28 +56,28 @@ export class World {
   private constructor() {
     bitecs.createWorld(this, 1000)
     Engine.instance.worlds.push(this)
+    Engine.instance.currentWorld = this
 
-    this.worldEntity = createEntity(this)
-    addComponent(this.worldEntity, PersistTagComponent, true, this)
-    addComponent(this.worldEntity, NameComponent, { name: 'world' }, this)
-    if (isMobile) addComponent(this.worldEntity, SimpleMaterialTagComponent, true, this)
+    this.sceneEntity = createEntity()
+    addComponent(this.sceneEntity, NameComponent, { name: 'scene' })
+    addComponent(this.sceneEntity, PersistTagComponent, true)
+    addComponent(this.sceneEntity, VisibleComponent, true)
+    addTransformComponent(this.sceneEntity)
+    if (isMobile) addComponent(this.sceneEntity, SimpleMaterialTagComponent, true)
 
-    this.cameraEntity = createEntity(this)
-    addComponent(this.cameraEntity, VisibleComponent, true, this)
-    addComponent(this.cameraEntity, NameComponent, { name: 'camera' }, this)
-    addComponent(this.cameraEntity, PersistTagComponent, true, this)
-    addComponent(this.cameraEntity, Object3DComponent, { value: this.camera }, this)
-    addComponent(
-      this.cameraEntity,
-      TransformComponent,
-      {
-        position: this.camera.position,
-        rotation: this.camera.quaternion,
-        scale: this.camera.scale
-      },
-      this
-    )
-    this.scene.add(this.camera)
+    this.localOriginEntity = createEntity()
+    addComponent(this.localOriginEntity, NameComponent, { name: 'local-origin' })
+    addComponent(this.localOriginEntity, PersistTagComponent, true)
+    addTransformComponent(this.localOriginEntity)
+    addTransformOffsetComponent(this.localOriginEntity, this.sceneEntity)
+
+    this.cameraEntity = createEntity()
+    addComponent(this.cameraEntity, NameComponent, { name: 'camera' })
+    addComponent(this.cameraEntity, PersistTagComponent, true)
+    addComponent(this.cameraEntity, VisibleComponent, true)
+    addComponent(this.cameraEntity, Object3DComponent, { value: this.camera })
+    addTransformComponent(this.cameraEntity)
+    // addTransformOffsetComponent(this.cameraEntity, this.localOriginEntity)
 
     initializeEntityTree(this)
     this.scene.layers.set(ObjectLayers.Scene)
@@ -131,11 +133,6 @@ export class World {
   elapsedSeconds = 0
 
   /**
-   * The seconds since the last fixed pipeline execution, in fixed time steps (generally 1/60)
-   */
-  fixedDeltaSeconds = 0
-
-  /**
    * The elapsed seconds since `startTime`, in fixed time steps.
    */
   fixedElapsedSeconds = 0
@@ -144,11 +141,6 @@ export class World {
    * The current fixed tick (fixedElapsedSeconds / fixedDeltaSeconds)
    */
   fixedTick = 0
-
-  /**
-   * Reference to the three.js scene object.
-   */
-  scene = new Scene()
 
   physicsWorld: PhysicsWorld
   physicsCollisionEventQueue: EventQueue
@@ -160,9 +152,28 @@ export class World {
   objectLayerList = {} as { [layer: number]: Set<Object3D> }
 
   /**
+   * Reference to the three.js scene object.
+   */
+  scene = new Scene()
+
+  /**
    * Reference to the three.js perspective camera object.
    */
   camera: PerspectiveCamera | OrthographicCamera = new PerspectiveCamera(60, 1, 0.1, 10000)
+
+  /**
+   * The scene entity
+   */
+  sceneEntity: Entity = NaN as Entity
+
+  /**
+   * The reference space in which the local avatar, camera, and spatial inputs are positioned
+   */
+  localOriginEntity: Entity = NaN as Entity
+
+  /**
+   * The camera entity
+   */
   cameraEntity: Entity = NaN as Entity
 
   /**
@@ -185,11 +196,6 @@ export class World {
   activePortal = null as ReturnType<typeof PortalComponent.get> | null
 
   /**
-   * The world entity
-   */
-  worldEntity: Entity = NaN as Entity
-
-  /**
    * The local client entity
    */
   get localClientEntity() {
@@ -200,11 +206,14 @@ export class World {
    * Custom systems injected into this world
    */
   pipelines = {
+    [SystemUpdateType.UPDATE_EARLY]: [],
     [SystemUpdateType.UPDATE]: [],
+    [SystemUpdateType.UPDATE_LATE]: [],
     [SystemUpdateType.FIXED_EARLY]: [],
     [SystemUpdateType.FIXED]: [],
     [SystemUpdateType.FIXED_LATE]: [],
     [SystemUpdateType.PRE_RENDER]: [],
+    [SystemUpdateType.RENDER]: [],
     [SystemUpdateType.POST_RENDER]: []
   } as { [pipeline: string]: SystemInstanceType[] }
 
@@ -316,9 +325,12 @@ export class World {
     this.deltaSeconds = Math.max(0, Math.min(TimerConfig.MAX_DELTA_SECONDS, worldElapsedSeconds - this.elapsedSeconds))
     this.elapsedSeconds = worldElapsedSeconds
 
-    for (const system of this.pipelines[SystemUpdateType.UPDATE]) system.execute()
-    for (const system of this.pipelines[SystemUpdateType.PRE_RENDER]) system.execute()
-    for (const system of this.pipelines[SystemUpdateType.POST_RENDER]) system.execute()
+    for (const system of this.pipelines[SystemUpdateType.UPDATE_EARLY]) system.enabled && system.execute()
+    for (const system of this.pipelines[SystemUpdateType.UPDATE]) system.enabled && system.execute()
+    for (const system of this.pipelines[SystemUpdateType.UPDATE_LATE]) system.enabled && system.execute()
+    for (const system of this.pipelines[SystemUpdateType.PRE_RENDER]) system.enabled && system.execute()
+    for (const system of this.pipelines[SystemUpdateType.RENDER]) system.enabled && system.execute()
+    for (const system of this.pipelines[SystemUpdateType.POST_RENDER]) system.enabled && system.execute()
 
     for (const entity of this.#entityRemovedQuery(this)) bitecs.removeEntity(this, entity)
 

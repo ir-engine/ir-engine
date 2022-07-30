@@ -311,7 +311,7 @@ export default async function CameraSystem(world: World) {
   if (!Engine.instance.isEditor) {
     addComponent(world.cameraEntity, FollowCameraComponent, {
       ...FollowCameraDefaultValues,
-      targetEntity: world.worldEntity
+      targetEntity: world.sceneEntity
     })
   }
 

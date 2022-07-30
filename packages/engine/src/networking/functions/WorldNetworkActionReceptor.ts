@@ -8,7 +8,7 @@ import { getEngineState } from '../../ecs/classes/EngineState'
 import { addComponent, getComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity, removeEntity } from '../../ecs/functions/EntityFunctions'
 import { generatePhysicsObject } from '../../physics/functions/physicsObjectDebugFunctions'
-import { TransformComponent } from '../../transform/components/TransformComponent'
+import { addTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
 import { Network, NetworkTopics } from '../classes/Network'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
 import { NetworkObjectOwnedTag } from '../components/NetworkObjectOwnedTag'
@@ -28,18 +28,14 @@ const receiveSpawnObject = (
   const isOwnedByMe = action.$from === Engine.instance.userId
   if (isOwnedByMe) addComponent(entity, NetworkObjectOwnedTag, {})
 
-  const position = createVector3Proxy(TransformComponent.position, entity)
-  const rotation = createQuaternionProxy(TransformComponent.rotation, entity)
-  const scale = createVector3Proxy(TransformComponent.scale, entity)
-
-  const transform = addComponent(entity, TransformComponent, { position, rotation, scale })
+  const transform = addTransformComponent(entity)
   action.position && transform.position.copy(action.position)
   action.rotation && transform.rotation.copy(action.rotation)
   transform.scale.setScalar(1)
 
   // set cached action refs to the new components so they stay up to date with future movements
-  action.position = position
-  action.rotation = rotation
+  action.position = transform.position
+  action.rotation = transform.rotation
 }
 
 const receiveSpawnDebugPhysicsObject = (

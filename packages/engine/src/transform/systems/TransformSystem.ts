@@ -1,75 +1,69 @@
-import { AvatarComponent } from '../../avatar/components/AvatarComponent'
+import { insertionSort } from '@xrengine/common/src/utils/insertionSort'
+
+import { proxifyQuaternion, proxifyVector3 } from '../../common/proxies/three'
 import { Engine } from '../../ecs/classes/Engine'
+import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
-import { defineQuery, getComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { SpawnPointComponent } from '../../scene/components/SpawnPointComponent'
-import { CopyTransformComponent } from '../components/CopyTransformComponent'
-import { TransformChildComponent } from '../components/TransformChildComponent'
+import { TransformOffsetComponent } from '../components/TransformChildComponent'
 import { TransformComponent } from '../components/TransformComponent'
-import { TransformParentComponent } from '../components/TransformParentComponent'
 
-const parentQuery = defineQuery([TransformParentComponent, TransformComponent])
-const childQuery = defineQuery([TransformChildComponent, TransformComponent])
-const copyTransformQuery = defineQuery([CopyTransformComponent])
+const transformOffsetQuery = defineQuery([TransformOffsetComponent, TransformComponent])
 const transformObjectQuery = defineQuery([TransformComponent, Object3DComponent])
 const spawnPointQuery = defineQuery([SpawnPointComponent])
 
+const updateOffsetDepth = (entity: Entity) => {
+  const offset = getComponent(entity, TransformOffsetComponent)
+  let depth = 0
+  let reference = offset.referenceEntity
+  while (reference) {
+    depth++
+    reference = getComponent(reference, TransformOffsetComponent)?.referenceEntity
+  }
+  offset.depth = depth
+}
+
+const compareChildDepth = (a: Entity, b: Entity) => {
+  const aTransform = getComponent(a, TransformOffsetComponent)
+  const bTransform = getComponent(b, TransformOffsetComponent)
+  return aTransform.depth - bTransform.depth
+}
+
 export default async function TransformSystem(world: World) {
   return () => {
-    for (const entity of parentQuery(world)) {
-      const parentTransform = getComponent(entity, TransformComponent)
-      const parentingComponent = getComponent(entity, TransformParentComponent)
-      for (const child of parentingComponent.children) {
-        if (!hasComponent(child, Object3DComponent)) {
-          continue
-        }
-        const {
-          value: { position: childPosition, quaternion: childQuaternion }
-        } = getComponent(child, Object3DComponent)
-        const childTransformComponent = getComponent(child, TransformComponent)
-        // reset to "local"
-        if (childTransformComponent) {
-          childPosition.copy(childTransformComponent.position)
-          childQuaternion.copy(childTransformComponent.rotation)
-        } else {
-          childPosition.setScalar(0)
-          childQuaternion.set(0, 0, 0, 0)
-        }
-        // add parent
-        childPosition.add(parentTransform.position)
-        childQuaternion.multiply(parentTransform.rotation)
+    const offsetTransformEntities = transformOffsetQuery(world)
+
+    for (const entity of offsetTransformEntities) updateOffsetDepth(entity)
+
+    // Insertion sort is O(n) for mostly sorted arrays
+    insertionSort(offsetTransformEntities, compareChildDepth)
+
+    for (const entity of offsetTransformEntities) {
+      const offset = getComponent(entity, TransformOffsetComponent)
+      const transform = getComponent(entity, TransformComponent)
+      const referenceTransform = getComponent(offset.referenceEntity, TransformComponent)
+      if (transform && referenceTransform) {
+        transform.position
+          .copy(offset.offsetPosition)
+          .applyQuaternion(referenceTransform.rotation)
+          .add(referenceTransform.position)
+        transform.rotation.copy(referenceTransform.rotation).multiply(offset.offsetRotation)
       }
     }
 
-    for (const entity of childQuery(world)) {
-      const childComponent = getComponent(entity, TransformChildComponent)
-      const parent = childComponent.parent
-      const parentTransform = getComponent(parent, TransformComponent)
-      const childTransformComponent = getComponent(entity, TransformComponent)
-      if (childTransformComponent && parentTransform) {
-        childTransformComponent.position.setScalar(0).add(parentTransform.position).add(childComponent.offsetPosition)
-        childTransformComponent.rotation
-          .set(0, 0, 0, 1)
-          .multiply(parentTransform.rotation)
-          .multiply(childComponent.offsetQuaternion)
+    for (const entity of transformObjectQuery.enter()) {
+      const transform = getComponent(entity, TransformComponent)
+      const object3D = getComponent(entity, Object3DComponent).value
+      if (transform && object3D) {
+        object3D.position.copy(transform.position)
+        object3D.quaternion.copy(transform.rotation)
+        object3D.scale.copy(transform.scale)
+        proxifyVector3(TransformComponent.position, entity, object3D.position)
+        proxifyQuaternion(TransformComponent.rotation, entity, object3D.quaternion)
+        proxifyVector3(TransformComponent.scale, entity, object3D.scale)
       }
-    }
-
-    for (const entity of copyTransformQuery(world)) {
-      const inputEntity = getComponent(entity, CopyTransformComponent)?.input
-      const outputTransform = getComponent(entity, TransformComponent)
-      const inputTransform = getComponent(inputEntity, TransformComponent)
-
-      if (!inputTransform || !outputTransform) {
-        // wait for both transforms to appear?
-        continue
-      }
-
-      outputTransform.position.copy(inputTransform.position)
-      outputTransform.rotation.copy(inputTransform.rotation)
-
-      removeComponent(entity, CopyTransformComponent)
     }
 
     for (const entity of transformObjectQuery(world)) {
@@ -84,13 +78,17 @@ export default async function TransformSystem(world: World) {
       object3DComponent.value.position.copy(transform.position)
       object3DComponent.value.quaternion.copy(transform.rotation)
       object3DComponent.value.scale.copy(transform.scale)
-      if (!hasComponent(entity, AvatarComponent)) object3DComponent.value.updateMatrixWorld()
-    }
 
-    if (Engine.instance.isEditor) {
-      for (let entity of spawnPointQuery()) {
-        const obj3d = getComponent(entity, Object3DComponent)?.value
-        if (obj3d) obj3d.userData.helperModel?.scale.set(1 / obj3d.scale.x, 1 / obj3d.scale.y, 1 / obj3d.scale.z)
+      // replace scale 0 with epsilon to prevent NaN
+      if (transform.scale.x === 0) object3DComponent.value.scale.x = 1 - 1e-10
+      if (transform.scale.y === 0) object3DComponent.value.scale.y = 1 - 1e-10
+      if (transform.scale.z === 0) object3DComponent.value.scale.z = 1 - 1e-10
+
+      if (Engine.instance.isEditor) {
+        for (let entity of spawnPointQuery()) {
+          const obj3d = getComponent(entity, Object3DComponent)?.value
+          if (obj3d) obj3d.userData.helperModel?.scale.set(1 / obj3d.scale.x, 1 / obj3d.scale.y, 1 / obj3d.scale.z)
+        }
       }
     }
   }

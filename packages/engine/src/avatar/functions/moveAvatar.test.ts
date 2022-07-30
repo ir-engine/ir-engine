@@ -1,7 +1,10 @@
 import assert, { strictEqual } from 'assert'
 import { PerspectiveCamera, Quaternion, Vector3 } from 'three'
 
+import { getState } from '@xrengine/hyperflux'
+
 import { Engine } from '../../ecs/classes/Engine'
+import { EngineState } from '../../ecs/classes/EngineState'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEngine } from '../../initializeEngine'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
@@ -22,8 +25,8 @@ describe('moveAvatar function tests', () => {
 
   it('should apply world.fixedDelta @ 60 tick to avatar movement, consistent with physics simulation', () => {
     const world = Engine.instance.currentWorld
-    /* mock */
-    world.fixedDeltaSeconds = 1000 / 60
+    const engineState = getState(EngineState)
+    engineState.fixedDeltaSeconds.set(1000 / 60)
 
     const spawnAvatar = WorldNetworkAction.spawnAvatar({
       $from: Engine.instance.userId,
@@ -58,8 +61,8 @@ describe('moveAvatar function tests', () => {
 
   it('should apply world.fixedDelta @ 120 tick to avatar movement, consistent with physics simulation', () => {
     const world = Engine.instance.currentWorld
-    /* mock */
-    world.fixedDeltaSeconds = 1000 / 120
+    const engineState = getState(EngineState)
+    engineState.fixedDeltaSeconds.set(1000 / 60)
 
     const spawnAvatar = WorldNetworkAction.spawnAvatar({
       $from: Engine.instance.userId,
@@ -91,9 +94,11 @@ describe('moveAvatar function tests', () => {
 
   it('should take world.physics.timeScale into account when moving avatars, consistent with physics simulation', () => {
     const world = Engine.instance.currentWorld
+    const engineState = getState(EngineState)
+    engineState.fixedDeltaSeconds.set(1000 / 60)
+
     /* mock */
     world.physicsWorld.timestep = 1 / 2
-    world.fixedDeltaSeconds = 1000 / 60
 
     const spawnAvatar = WorldNetworkAction.spawnAvatar({
       $from: Engine.instance.userId,
@@ -125,8 +130,8 @@ describe('moveAvatar function tests', () => {
 
   it('should not allow velocity to breach a full unit through multiple frames', () => {
     const world = Engine.instance.currentWorld
-    /* mock */
-    world.fixedDeltaSeconds = 1000 / 60
+    const engineState = getState(EngineState)
+    engineState.fixedDeltaSeconds.set(1000 / 60)
 
     const spawnAvatar = WorldNetworkAction.spawnAvatar({
       $from: Engine.instance.userId,
