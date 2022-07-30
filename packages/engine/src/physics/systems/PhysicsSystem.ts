@@ -110,19 +110,15 @@ export default async function PhysicsSystem(world: World) {
 
     for (const entity of dirtyNetworkedDynamicRigidBodyQuery()) updateDirtyDynamicBodiesFromNetwork(world, entity)
 
+    // step physics world
+    world.physicsWorld.timestep = getState(EngineState).fixedDeltaSeconds.value
+    world.physicsWorld.step(world.physicsCollisionEventQueue)
+
     for (const entity of raycastQuery()) processRaycasts(world, entity)
     processCollisions(world)
 
     if (!Engine.instance.isEditor) {
       for (const entity of nonNetworkedDynamicRigidBodyQuery()) updateTransformFromBody(world, entity)
     }
-
-    // TODO: logically, the physics world should probably be stepped earlier in the physics system; however,
-    // the avatar struggles to climb up stairs if we move this to earlier in the physics system.
-    // We should investigate this further later.
-
-    // step physics world
-    world.physicsWorld.timestep = getState(EngineState).fixedDeltaSeconds.value
-    world.physicsWorld.step(world.physicsCollisionEventQueue)
   }
 }
