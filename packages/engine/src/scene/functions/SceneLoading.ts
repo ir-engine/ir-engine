@@ -21,7 +21,6 @@ import { TransformComponent } from '../../transform/components/TransformComponen
 import { EntityNodeComponent } from '../components/EntityNodeComponent'
 import { NameComponent } from '../components/NameComponent'
 import { Object3DComponent } from '../components/Object3DComponent'
-import { PostprocessingComponent } from '../components/PostprocessingComponent'
 import { SCENE_COMPONENT_SCENE_TAG, SceneTagComponent } from '../components/SceneTagComponent'
 import { VisibleComponent } from '../components/VisibleComponent'
 import { ObjectLayers } from '../constants/ObjectLayers'
@@ -172,6 +171,8 @@ export const loadSceneFromJSON = async (sceneData: SceneJson, sceneSystems: Syst
     addEntityNodeInTree(node, sceneEntity.parent ? entityMap[sceneEntity.parent] : undefined)
     loadSceneEntity(entityMap[key], sceneData.entities[key])
   })
+
+  dispatchAction(EngineActions.sceneObjectUpdate({ entities: Object.values(entityMap).map((node) => node.entity) }))
 
   const tree = world.entityTree
   addComponent(tree.rootNode.entity, Object3DComponent, { value: world.scene })

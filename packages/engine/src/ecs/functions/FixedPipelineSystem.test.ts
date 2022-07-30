@@ -1,8 +1,8 @@
 import assert from 'assert'
 
-import { defineState, getState, registerState } from '@xrengine/hyperflux'
+import { defineState, getState } from '@xrengine/hyperflux'
 
-import { createEngine, initializeCoreSystems, setupEngineActionSystems } from '../../initializeEngine'
+import { createEngine, setupEngineActionSystems } from '../../initializeEngine'
 import { Engine } from '../classes/Engine'
 import { World } from '../classes/World'
 import { initSystems } from './SystemFunctions'
@@ -16,7 +16,6 @@ const MockState = defineState({
 const MockSystemModulePromise = async () => {
   return {
     default: async (world: World) => {
-      registerState(MockState)
       return () => {
         getState(MockState).count.set((c) => c + 1)
       }
@@ -51,7 +50,6 @@ describe('FixedPipelineSystem', () => {
     assert.equal(world.elapsedSeconds, deltaSeconds)
     assert.equal(world.fixedElapsedSeconds, deltaSeconds)
     assert.equal(world.fixedTick, ticks)
-    assert.equal(world.fixedDeltaSeconds, 1 / 60)
     assert.equal(mockState.count.value, ticks)
   })
 

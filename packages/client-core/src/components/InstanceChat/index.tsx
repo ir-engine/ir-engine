@@ -4,28 +4,12 @@ import React, { Fragment, useEffect, useRef, useState } from 'react'
 import { useLocationInstanceConnectionState } from '@xrengine/client-core/src/common/services/LocationInstanceConnectionService'
 import { ChatService, ChatServiceReceptor, useChatState } from '@xrengine/client-core/src/social/services/ChatService'
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
-import { notificationAlertURL } from '@xrengine/common/src/constants/URL'
 import multiLogger from '@xrengine/common/src/logger'
-import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
-import { useAudioState } from '@xrengine/engine/src/audio/AudioState'
-import { AudioComponent } from '@xrengine/engine/src/audio/components/AudioComponent'
+import { AudioEffectPlayer } from '@xrengine/engine/src/audio/systems/AudioSystem'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
-import { EngineActions, getEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
-import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
-import { addComponent, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
-import { matchActionOnce } from '@xrengine/engine/src/networking/functions/matchActionOnce'
 import { WorldNetworkAction } from '@xrengine/engine/src/networking/functions/WorldNetworkAction'
 import { WorldState } from '@xrengine/engine/src/networking/interfaces/WorldState'
-import UpdateableObject3D from '@xrengine/engine/src/scene/classes/UpdateableObject3D'
-import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
-import { PersistTagComponent } from '@xrengine/engine/src/scene/components/PersistTagComponent'
-import {
-  SCENE_COMPONENT_AUDIO_DEFAULT_VALUES,
-  toggleAudio
-} from '@xrengine/engine/src/scene/functions/loaders/AudioFunctions'
-import { updateAudio } from '@xrengine/engine/src/scene/functions/loaders/AudioFunctions'
 import { addActionReceptor, dispatchAction, removeActionReceptor } from '@xrengine/hyperflux'
 import { getState } from '@xrengine/hyperflux'
 
@@ -250,36 +234,13 @@ const InstanceChat = ({
   /**
    * Audio effect
    */
-
-  const audioState = useAudioState()
-  const [entity, setEntity] = useState<Entity>()
-
   useEffect(() => {
-    if (entity) {
-      const audioComponent = getComponent(entity, AudioComponent)
-      audioComponent.volume = audioState.notificationVolume.value / 100
-      updateAudio(entity, { volume: audioState.notificationVolume.value / 100 })
-    }
-  }, [audioState.notificationVolume.value])
-
-  const fetchAudioAlert = async () => {
-    setIsInitRender(true)
-    const entity = createEntity(Engine.instance.currentWorld)
-    setEntity(entity)
-    addComponent(entity, Object3DComponent, { value: new UpdateableObject3D() })
-    addComponent(entity, PersistTagComponent, true)
-    const audioComponent = addComponent(entity, AudioComponent, { ...SCENE_COMPONENT_AUDIO_DEFAULT_VALUES })
-    audioComponent.volume = audioState.notificationVolume.value / 100
-    audioComponent.audioSource = notificationAlertURL
-    AssetLoader.loadAsync(notificationAlertURL)
-  }
-
-  useEffect(() => {
-    if (getEngineState().sceneLoaded.value) fetchAudioAlert()
-    matchActionOnce(EngineActions.sceneLoaded.matches, () => {
-      fetchAudioAlert()
-    })
-  }, [])
+    const message = sortedMessages[sortedMessages.length - 1]
+    if (!message) return
+    AudioEffectPlayer.instance.play(
+      message.isNotification ? AudioEffectPlayer.SOUNDS.notification : AudioEffectPlayer.SOUNDS.message
+    )
+  }, [chatState.messageCreated])
 
   const messageRef = useRef<any>()
 
@@ -290,7 +251,6 @@ const InstanceChat = ({
       chatState.messageCreated.value
     ) {
       setUnreadMessages(true)
-      entity && toggleAudio(entity)
     }
 
     const messageRefCurrentRenderedInterval = setInterval(() => {
@@ -299,7 +259,7 @@ const InstanceChat = ({
         clearInterval(messageRefCurrentRenderedInterval)
       }
     }, 5)
-  }, [chatState.messageCreated.value, sortedMessages])
+  }, [chatState.messageCreated, sortedMessages])
 
   const toggleChatWindow = () => {
     if (!chatWindowOpen && isMobile) hideOtherMenus()
@@ -452,6 +412,8 @@ const InstanceChat = ({
                 className={styles.chatBadge}
                 color="primary"
                 onClick={() => toggleChatWindow()}
+                onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
               >
                 {!chatWindowOpen ? (
                   <MessageButton />

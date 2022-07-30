@@ -1,4 +1,5 @@
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineState'
 import {
   ComponentConstructor,
   ComponentType,
@@ -117,12 +118,14 @@ function updateProperty<C extends ComponentConstructor<any, any>>(
       }
     }
 
+    /** @todo deprecate in favour of 'EngineActions.sceneObjectUpdate' action */
     const nodeComponent = getComponent(entity, EntityNodeComponent)
     for (const component of nodeComponent.components) {
       Engine.instance.currentWorld.sceneLoadingRegistry.get(component)?.update?.(entity, props)
     }
   }
 
+  dispatchAction(EngineActions.sceneObjectUpdate({ entities: command.affectedNodes.map((node) => node.entity) }))
   dispatchAction(EditorAction.sceneModified({ modified: true }))
 }
 

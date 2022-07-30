@@ -25,7 +25,7 @@ import { JoinWorldRequestData, receiveJoinWorld } from '@xrengine/engine/src/net
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 import { ScreenshareTargetComponent } from '@xrengine/engine/src/scene/components/ScreenshareTargetComponent'
 import { fitTexture } from '@xrengine/engine/src/scene/functions/fitTexture'
-import { addActionReceptor, dispatchAction, removeActionReceptor, removeTopic } from '@xrengine/hyperflux'
+import { addActionReceptor, dispatchAction, removeActionReceptor, removeActionsForTopic } from '@xrengine/hyperflux'
 import { Action } from '@xrengine/hyperflux/functions/ActionFunctions'
 
 import { LocationInstanceConnectionAction } from '../common/services/LocationInstanceConnectionService'
@@ -932,7 +932,7 @@ export function leaveNetwork(network: SocketWebRTCClientNetwork, kicked?: boolea
         }
       }
     }
-    removeTopic(network.hostId)
+    removeActionsForTopic(network.hostId)
   } catch (err) {
     logger.error(err, 'Error with leave()')
   }

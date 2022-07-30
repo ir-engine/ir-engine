@@ -6,8 +6,10 @@ import { Entity } from './Entity'
 
 // TODO: #6016 Refactor EngineState into multiple state objects: timer, scene, world, xr, etc.
 export const EngineState = defineState({
-  name: 'engine',
+  name: 'EngineState',
   initial: {
+    frameTime: 0,
+    fixedDeltaSeconds: 1 / 60,
     fixedTick: 0,
     isEngineInitialized: false,
     sceneLoaded: false,
@@ -29,7 +31,8 @@ export const EngineState = defineState({
      * An empty share link will default to the current URL, plus any modifiers (such as spectate mode)
      */
     shareLink: '',
-    shareTitle: ''
+    shareTitle: '',
+    transformOffsetsNeedSorting: true
   }
 })
 
@@ -191,5 +194,14 @@ export class EngineActions {
   static interactedWithObject = defineAction({
     type: 'xre.engine.INTERACTED_WITH_OBJECT' as const,
     targetEntity: matchesEntity
+  })
+
+  /**
+   * Dispatched whenever an otherwise unchanging scene object has it's properties changed,
+   *   such as making changes from the editor.
+   **/
+  static sceneObjectUpdate = defineAction({
+    type: 'xre.engine.SCENE_OBJECT_UPDATE' as const,
+    entities: matches.array as Validator<unknown, Entity[]>
   })
 }

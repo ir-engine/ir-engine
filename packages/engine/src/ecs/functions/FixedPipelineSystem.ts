@@ -1,7 +1,8 @@
 import multiLogger from '@xrengine/common/src/logger'
+import { getState } from '@xrengine/hyperflux'
 
 import { nowMilliseconds } from '../../common/functions/nowMilliseconds'
-import { getEngineState } from '../classes/EngineState'
+import { EngineState, getEngineState } from '../classes/EngineState'
 import { World } from '../classes/World'
 import { SystemUpdateType } from './SystemUpdateType'
 
@@ -9,13 +10,7 @@ const logger = multiLogger.child({ component: 'engine:ecs:FixedPipelineSystem' }
 /**
  * System for running simulation logic with fixed time intervals
  */
-export default function FixedPipelineSystem(world: World, args: { tickRate: number }) {
-  const timestep = 1 / args.tickRate
-  const limit = timestep * 2000
-  const updatesLimit = args.tickRate
-
-  world.fixedDeltaSeconds = timestep
-
+export default function FixedPipelineSystem(world: World) {
   // If the difference between fixedElapsedTime and elapsedTime becomes too large,
   // we should simply skip ahead.
   const maxTimeDifference = 2
@@ -27,24 +22,30 @@ export default function FixedPipelineSystem(world: World, args: { tickRate: numb
 
     let accumulator = world.elapsedSeconds - world.fixedElapsedSeconds
 
+    const engineState = getState(EngineState)
+
+    const timestep = engineState.fixedDeltaSeconds.value
+    const limit = timestep * 2000
+    const updatesLimit = 1 / timestep
+
     let accumulatorDepleted = accumulator < timestep
     let timeout = timeUsed > limit
     let updatesLimitReached = updatesCount > updatesLimit
 
     while (!accumulatorDepleted && !timeout && !updatesLimitReached) {
-      world.fixedElapsedSeconds += world.fixedDeltaSeconds
-      world.fixedTick = Math.floor(world.fixedElapsedSeconds / world.fixedDeltaSeconds)
+      world.fixedElapsedSeconds += timestep
+      world.fixedTick = Math.floor(world.fixedElapsedSeconds / timestep)
       getEngineState().fixedTick.set(world.fixedTick)
 
-      for (const s of world.pipelines[SystemUpdateType.FIXED_EARLY]) s.execute()
-      for (const s of world.pipelines[SystemUpdateType.FIXED]) s.execute()
-      for (const s of world.pipelines[SystemUpdateType.FIXED_LATE]) s.execute()
+      for (const s of world.pipelines[SystemUpdateType.FIXED_EARLY]) s.enabled && s.execute()
+      for (const s of world.pipelines[SystemUpdateType.FIXED]) s.enabled && s.execute()
+      for (const s of world.pipelines[SystemUpdateType.FIXED_LATE]) s.enabled && s.execute()
 
-      accumulator -= world.fixedDeltaSeconds
+      accumulator -= timestep
       ++updatesCount
 
       timeUsed = nowMilliseconds() - start
-      accumulatorDepleted = accumulator < world.fixedDeltaSeconds
+      accumulatorDepleted = accumulator < timestep
       timeout = timeUsed > limit
       updatesLimitReached = updatesCount >= updatesLimit
     }
@@ -54,7 +55,7 @@ export default function FixedPipelineSystem(world: World, args: { tickRate: numb
         'FixedPipelineSystem: update limit reached, skipping world.fixedElapsedTime ahead to catch up with world.elapsedTime'
       )
       world.fixedElapsedSeconds = world.elapsedSeconds
-      world.fixedTick = Math.floor(world.fixedElapsedSeconds / world.fixedDeltaSeconds)
+      world.fixedTick = Math.floor(world.fixedElapsedSeconds / timestep)
     }
   }
 }
