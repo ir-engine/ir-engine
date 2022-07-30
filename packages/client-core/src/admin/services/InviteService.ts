@@ -81,7 +81,7 @@ export const AdminInviteService = {
     }
   },
   removeInvite: async (id: string) => {
-    const result = await API.instance.client.service('invite').remove(id)
+    const result = (await API.instance.client.service('invite').remove(id)) as InviteInterface
     dispatchAction(AdminInviteActions.inviteRemoved({ invite: result }))
   },
   createInvite: async (invite: any) => {

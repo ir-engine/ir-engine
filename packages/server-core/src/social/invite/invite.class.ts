@@ -238,7 +238,8 @@ export class Invite extends Service<InviteDataType> {
     return result
   }
 
-  async remove(id: string, params?: Params): Promise<InviteDataType> {
+  async remove(id: string, params?: Params): Promise<InviteDataType[] | InviteDataType> {
+    if (!id) return super.remove(id, params)
     const invite = await this.app.service('invite').get(id)
     if (invite.inviteType === 'friend' && invite.inviteeId != null && !params?.preventUserRelationshipRemoval) {
       const selfUser = params!.user as UserInterface

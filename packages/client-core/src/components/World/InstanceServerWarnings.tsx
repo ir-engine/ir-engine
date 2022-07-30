@@ -165,20 +165,27 @@ const InstanceServerWarnings = () => {
         const partyChannel = Object.values(channels).find(
           (channel) => channel.channelType === 'party' && channel.partyId === selfUser.partyId.value
         )
-        const instanceChannel = Object.values(channels).find(
-          (channel) => channel.instanceId === Engine.instance.currentWorld.mediaNetwork?.hostId
-        )
-        const channelId = partyChannel ? partyChannel.id : instanceChannel!.id
-        setModalValues({
-          open: true,
-          title: t('common:instanceServer.noAvailableServers'),
-          body: t('common:instanceServer.noAvailableServersMessage'),
-          action: async () => MediaInstanceConnectionService.provisionServer(channelId, false),
-          parameters: [channelId, false],
-          noCountdown: false,
-          onClose: () => {}
-        })
-        break
+        const instanceChannel = Object.values(channels).find((channel) => channel.channelType === 'instance')
+
+        if (!partyChannel && !instanceChannel) {
+          setTimeout(() => {
+            ChatService.getInstanceChannel()
+            updateWarningModal(WarningModalTypes.NO_MEDIA_SERVER_PROVISIONED)
+          }, 2000)
+          break
+        } else {
+          const channelId = partyChannel ? partyChannel.id : instanceChannel!.id
+          setModalValues({
+            open: true,
+            title: t('common:instanceServer.noAvailableServers'),
+            body: t('common:instanceServer.noAvailableServersMessage'),
+            action: async () => MediaInstanceConnectionService.provisionServer(channelId, false),
+            parameters: [channelId, false],
+            noCountdown: false,
+            onClose: () => {}
+          })
+          break
+        }
       }
 
       case WarningModalTypes.INSTANCE_DISCONNECTED: {

@@ -71,18 +71,41 @@ body {
   }
 }
 
-.locationUserMenu {
-  display: inline-flex;
+.rightSidebar {
+  display: flex;
   flex-direction: column;
   align-items: end;
-  padding: 0 20px;
+  justify-content: space-between;
   position: fixed;
   top: 0;
   right: 0;
-  z-index: 9;
-  max-height: calc(100vh - 120px);
+  bottom: 0;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.userMediaWindowsContainer {
+  flex: 1;
+  overflow: auto;
+  margin: 15px 15px 0;
+  pointer-events: all;
+
+  @media (max-width: 1024px) {
+    flex: none;
+  }
+
+  @media (max-width: 450px) {
+    margin: 0;
+  }
+}
+
+.userMediaWindows {
+  display: flex;
+  flex-direction: column;
+  align-items: end;
+  padding: 0 15px;
   overflow-y: auto;
-  min-width: 90px;
   scrollbar-width: none;
 
   .conferenceModeButtons {
@@ -161,8 +184,7 @@ body {
   }
 
   @media (max-width: 450px) {
-    padding-left: 0;
-    padding-right: 0;
+    padding: 0;
   }
 }
 

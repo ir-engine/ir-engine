@@ -60,7 +60,6 @@ export default (app: Application): void => {
     if (data.party_users) {
       const targetIds = data.party_users.map((partyUser) => partyUser.userId) || []
 
-      await Promise.all(data.party_users.map((partyUser) => app.service('party-user').emit('removed', partyUser)))
       return Promise.all(
         targetIds.map((userId: string) => {
           return app.channel(`userIds/${userId}`).send({ party: data })
