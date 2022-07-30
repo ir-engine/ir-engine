@@ -81,7 +81,7 @@ export const Debug = () => {
           .map(([key, eid]) => {
             try {
               return [
-                key + '(' + eid + ')',
+                '(eid:' + eid + ') ' + key,
                 Object.fromEntries(
                   getEntityComponents(Engine.instance.currentWorld, eid).reduce<[string, any][]>(
                     (components, C: MappedComponent<any, any>) => {
