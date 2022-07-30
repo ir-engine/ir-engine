@@ -41,16 +41,16 @@ async function MockSystemInitialiser(world: World, args: {}) {
     // console.log('run MockSystem')
     for (const entity of mockQuery.enter()) {
       const component = getComponent(entity, MockComponent)
-      console.log('Mock query enter', entity, component)
+      // console.log('Mock query enter', entity, component)
       mockState.push(component.mockValue)
-      console.log('externalState', mockState)
+      // console.log('externalState', mockState)
     }
 
     for (const entity of mockQuery.exit()) {
       const component = getComponent(entity, MockComponent, true)
-      console.log('Mock query exit', entity, component)
+      // console.log('Mock query exit', entity, component)
       mockState.splice(mockState.indexOf(component.mockValue))
-      console.log('externalState', mockState)
+      // console.log('externalState', mockState)
     }
   }
 }
@@ -75,7 +75,6 @@ describe('ECS', () => {
     const world = Engine.instance.currentWorld
     assert(world)
     const entities = world.entityQuery()
-    console.log(entities)
     assert(entities.includes(world.sceneEntity))
     assert(entities.includes(world.cameraEntity))
     assert(entities.includes(world.localOriginEntity))
@@ -204,7 +203,6 @@ describe('ECS', () => {
     addComponent(entity, MockComponent, { mockValue: newMockValue })
     assert.equal(bitecs.hasComponent(Engine.instance.currentWorld!, MockComponent, entity), true)
     const component = getComponent(entity, MockComponent)
-    console.log(component)
     assert(component)
     assert.strictEqual(component.mockValue, newMockValue)
     world.execute(world.startTime + mockDeltaMillis * 2)
