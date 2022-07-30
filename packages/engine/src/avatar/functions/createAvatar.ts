@@ -101,7 +101,7 @@ export const createAvatar = (spawnAction: typeof WorldNetworkAction.spawnAvatar.
   }
 
   if (isClient) {
-    addComponent(entity, AudioTagComponent, {})
+    addComponent(entity, AudioTagComponent, true)
     addComponent(entity, ShadowComponent, { receiveShadow: true, castShadow: true })
   }
 

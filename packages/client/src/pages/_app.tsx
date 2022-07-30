@@ -26,6 +26,7 @@ import './styles.scss'
 
 import { NotificationAction, NotificationActions } from '@xrengine/client-core/src/common/services/NotificationService'
 import { getCurrentTheme } from '@xrengine/common/src/constants/DefaultThemeSettings'
+import { AudioEffectPlayer } from '@xrengine/engine/src/audio/systems/AudioSystem'
 import { addActionReceptor, removeActionReceptor } from '@xrengine/hyperflux'
 
 declare module '@mui/styles/defaultTheme' {
@@ -66,6 +67,7 @@ const App = (): any => {
   useEffect(() => {
     const receptor = (action): any => {
       matches(action).when(NotificationAction.notify.matches, (action) => {
+        AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.alert, 0.5)
         notistackRef.current?.enqueueSnackbar(action.message, {
           variant: action.options.variant,
           action: NotificationActions[action.options.actionType ?? 'default']

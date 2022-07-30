@@ -36,7 +36,7 @@ export const precacheSupport = Object.freeze({
   [AssetType.MP4]: false,
   [AssetType.TS]: true,
   [AssetType.MKV]: false,
-  [AssetType.MP3]: false,
+  [AssetType.MP3]: true,
   [AssetType.OGG]: false,
   [AssetType.M4A]: false,
   [AssetType.AAC]: false,
