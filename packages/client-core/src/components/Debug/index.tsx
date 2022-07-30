@@ -121,9 +121,9 @@ export const Debug = () => {
   }
 
   const simpleMaterials = () => {
-    if (hasComponent(Engine.instance.currentWorld.worldEntity, SimpleMaterialTagComponent))
-      removeComponent(Engine.instance.currentWorld.worldEntity, SimpleMaterialTagComponent)
-    else addComponent(Engine.instance.currentWorld.worldEntity, SimpleMaterialTagComponent, true)
+    if (hasComponent(Engine.instance.currentWorld.sceneEntity, SimpleMaterialTagComponent))
+      removeComponent(Engine.instance.currentWorld.sceneEntity, SimpleMaterialTagComponent)
+    else addComponent(Engine.instance.currentWorld.sceneEntity, SimpleMaterialTagComponent, true)
     dispatchAction(
       EngineRendererAction.changeGridToolVisibility({ visibility: !accessEngineRendererState().gridVisibility.value })
     )
@@ -179,7 +179,7 @@ export const Debug = () => {
                 onClick={simpleMaterials}
                 className={
                   styles.flagBtn +
-                  (hasComponent(Engine.instance.currentWorld.worldEntity, SimpleMaterialTagComponent)
+                  (hasComponent(Engine.instance.currentWorld.sceneEntity, SimpleMaterialTagComponent)
                     ? ' ' + styles.active
                     : '')
                 }

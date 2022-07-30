@@ -58,24 +58,26 @@ export class World {
     Engine.instance.worlds.push(this)
     Engine.instance.currentWorld = this
 
-    this.worldEntity = createEntity()
-    addComponent(this.worldEntity, PersistTagComponent, true)
-    addComponent(this.worldEntity, NameComponent, { name: 'world' })
-    addTransformComponent(this.worldEntity)
-    if (isMobile) addComponent(this.worldEntity, SimpleMaterialTagComponent, true)
-
-    this.cameraEntity = createEntity()
-    addComponent(this.cameraEntity, VisibleComponent, true)
-    addComponent(this.cameraEntity, NameComponent, { name: 'camera' })
-    addComponent(this.cameraEntity, PersistTagComponent, true)
-    addComponent(this.cameraEntity, Object3DComponent, { value: this.camera })
-    addTransformComponent(this.cameraEntity)
-    addTransformOffsetComponent(this.cameraEntity, this.worldEntity)
-
     this.sceneEntity = createEntity()
+    addComponent(this.sceneEntity, NameComponent, { name: 'scene' })
+    addComponent(this.sceneEntity, PersistTagComponent, true)
     addComponent(this.sceneEntity, VisibleComponent, true)
     addTransformComponent(this.sceneEntity)
-    addTransformOffsetComponent(this.sceneEntity, this.worldEntity)
+    if (isMobile) addComponent(this.sceneEntity, SimpleMaterialTagComponent, true)
+
+    this.localOriginEntity = createEntity()
+    addComponent(this.localOriginEntity, NameComponent, { name: 'local-origin' })
+    addComponent(this.localOriginEntity, PersistTagComponent, true)
+    addTransformComponent(this.localOriginEntity)
+    addTransformOffsetComponent(this.cameraEntity, this.sceneEntity)
+
+    this.cameraEntity = createEntity()
+    addComponent(this.cameraEntity, NameComponent, { name: 'camera' })
+    addComponent(this.cameraEntity, PersistTagComponent, true)
+    addComponent(this.cameraEntity, VisibleComponent, true)
+    addComponent(this.cameraEntity, Object3DComponent, { value: this.camera })
+    addTransformComponent(this.cameraEntity)
+    addTransformOffsetComponent(this.cameraEntity, this.localOriginEntity)
 
     initializeEntityTree(this)
     this.scene.layers.set(ObjectLayers.Scene)
@@ -150,20 +152,28 @@ export class World {
   objectLayerList = {} as { [layer: number]: Set<Object3D> }
 
   /**
-   * The world entity, which defines the root coordinate system for both the camera and scene
-   */
-  worldEntity: Entity = NaN as Entity
-
-  /**
-   * The scene that is being rendered
+   * Reference to the three.js scene object.
    */
   scene = new Scene()
-  sceneEntity: Entity = NaN as Entity
 
   /**
    * Reference to the three.js perspective camera object.
    */
   camera: PerspectiveCamera | OrthographicCamera = new PerspectiveCamera(60, 1, 0.1, 10000)
+
+  /**
+   * The scene entity
+   */
+  sceneEntity: Entity = NaN as Entity
+
+  /**
+   * The reference space in which the local avatar, camera, and spatial inputs are positioned
+   */
+  localOriginEntity: Entity = NaN as Entity
+
+  /**
+   * The camera entity
+   */
   cameraEntity: Entity = NaN as Entity
 
   /**
