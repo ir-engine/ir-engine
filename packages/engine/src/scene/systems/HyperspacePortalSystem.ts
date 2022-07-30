@@ -100,7 +100,7 @@ export default async function HyperspacePortalSystem(world: World) {
         hyperspaceEffect.tubeMaterial.opacity = opacity
 
         if (opacity === 0) {
-          removeComponent(world.worldEntity, HyperspaceTagComponent)
+          removeComponent(world.sceneEntity, HyperspaceTagComponent)
         }
       })
 

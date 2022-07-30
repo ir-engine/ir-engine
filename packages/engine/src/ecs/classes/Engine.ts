@@ -1,5 +1,5 @@
 import type { UserId } from '@xrengine/common/src/interfaces/UserId'
-import { createHyperStore } from '@xrengine/hyperflux'
+import { createHyperStore, getState } from '@xrengine/hyperflux'
 import { HyperStore } from '@xrengine/hyperflux/functions/StoreFunctions'
 
 import { nowMilliseconds } from '../../common/functions/nowMilliseconds'
@@ -8,6 +8,8 @@ import type { World } from '../classes/World'
 import type { SystemModuleType } from '../functions/SystemFunctions'
 
 import '../utils/threejsPatches'
+
+import { EngineState } from './EngineState'
 
 export class Engine {
   static instance: Engine
@@ -36,7 +38,9 @@ export class Engine {
   /**
    * Current frame timestamp, relative to performance.timeOrigin
    */
-  frameTime = nowMilliseconds()
+  get frameTime() {
+    return getState(EngineState).frameTime.value
+  }
 
   engineTimer: { start: Function; stop: Function; clear: Function } = null!
 

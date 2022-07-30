@@ -2,12 +2,14 @@ import { Collider } from '@dimforge/rapier3d-compat'
 import { Matrix4, OrthographicCamera, PerspectiveCamera, Quaternion, Vector3 } from 'three'
 
 import { rotate } from '@xrengine/common/src/utils/mathUtils'
+import { getState } from '@xrengine/hyperflux'
 
 import { Direction } from '../../common/constants/Axis3D'
 import { V_010 } from '../../common/constants/MathConstants'
 import checkPositionIsValid from '../../common/functions/checkPositionIsValid'
 import { smoothDamp } from '../../common/functions/MathLerpFunctions'
 import { Engine } from '../../ecs/classes/Engine'
+import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
 import { addComponent, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
@@ -36,14 +38,7 @@ const velocityToSet = new Vector3()
 const degrees60 = (60 * Math.PI) / 180
 
 export const moveAvatar = (world: World, entity: Entity, camera: PerspectiveCamera | OrthographicCamera): Vector3 => {
-  const {
-    fixedDeltaSeconds: fixedDelta,
-    physicsWorld: { timestep }
-  } = world
-
-  const timeScale = timestep * 60
-  const timeStep = timeScale * fixedDelta
-
+  const timeStep = getState(EngineState).fixedDeltaSeconds.value
   const velocity = getComponent(entity, VelocityComponent)
   const controller = getComponent(entity, AvatarControllerComponent)
 
@@ -253,7 +248,8 @@ const moveAvatarController = (world: World, entity: Entity, displacement: Vector
   const rigidBody = controller.controller
 
   // multiply by reciprocal of delta seconds to move 1 unit per second
-  velocityToSet.copy(displacement).multiplyScalar(1 / world.fixedDeltaSeconds)
+  const fixedDelta = getState(EngineState).fixedDeltaSeconds.value
+  velocityToSet.copy(displacement).multiplyScalar(1 / fixedDelta)
 
   // Displacement is calculated using last position because the updated position of rigidbody will show up in next frame
   // since we apply velocity to body and position is updated after physics engine step

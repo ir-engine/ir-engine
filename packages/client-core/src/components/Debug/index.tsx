@@ -14,6 +14,7 @@ import {
   MappedComponent,
   removeComponent
 } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { SystemInstanceType } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
 import {
   accessEngineRendererState,
   EngineRendererAction,
@@ -29,13 +30,14 @@ import GridOnIcon from '@mui/icons-material/GridOn'
 import ManIcon from '@mui/icons-material/Man'
 import SelectAllIcon from '@mui/icons-material/SelectAll'
 import SquareFootIcon from '@mui/icons-material/SquareFoot'
+import { Checkbox } from '@mui/material'
 
 import { StatsPanel } from './StatsPanel'
 import styles from './styles.module.scss'
 
 export const Debug = () => {
   // This is here to force the debug view to update ECS data on every frame
-  useHookstate(getState(EngineState).fixedTick).value
+  useHookstate(getState(EngineState).frameTime).value
 
   const [isShowing, setShowing] = useState(false)
   const showingStateRef = useRef(isShowing)
@@ -72,6 +74,7 @@ export const Debug = () => {
     )
   }
 
+  // todo: display all entities?
   const renderNamedEntities = () => {
     return {
       ...Object.fromEntries(
@@ -79,7 +82,7 @@ export const Debug = () => {
           .map(([key, eid]) => {
             try {
               return [
-                key + '(' + eid + ')',
+                '(eid:' + eid + ') ' + key,
                 Object.fromEntries(
                   getEntityComponents(Engine.instance.currentWorld, eid).reduce<[string, any][]>(
                     (components, C: MappedComponent<any, any>) => {
@@ -119,9 +122,9 @@ export const Debug = () => {
   }
 
   const simpleMaterials = () => {
-    if (hasComponent(Engine.instance.currentWorld.worldEntity, SimpleMaterialTagComponent))
-      removeComponent(Engine.instance.currentWorld.worldEntity, SimpleMaterialTagComponent)
-    else addComponent(Engine.instance.currentWorld.worldEntity, SimpleMaterialTagComponent, true)
+    if (hasComponent(Engine.instance.currentWorld.sceneEntity, SimpleMaterialTagComponent))
+      removeComponent(Engine.instance.currentWorld.sceneEntity, SimpleMaterialTagComponent)
+    else addComponent(Engine.instance.currentWorld.sceneEntity, SimpleMaterialTagComponent, true)
     dispatchAction(
       EngineRendererAction.changeGridToolVisibility({ visibility: !accessEngineRendererState().gridVisibility.value })
     )
@@ -130,6 +133,8 @@ export const Debug = () => {
   const namedEntities = useHookstate({})
 
   namedEntities.set(renderNamedEntities())
+
+  const pipelines = Engine.instance.currentWorld.pipelines
 
   if (isShowing)
     return (
@@ -175,7 +180,7 @@ export const Debug = () => {
                 onClick={simpleMaterials}
                 className={
                   styles.flagBtn +
-                  (hasComponent(Engine.instance.currentWorld.worldEntity, SimpleMaterialTagComponent)
+                  (hasComponent(Engine.instance.currentWorld.sceneEntity, SimpleMaterialTagComponent)
                     ? ' ' + styles.active
                     : '')
                 }
@@ -188,12 +193,38 @@ export const Debug = () => {
         </div>
         <StatsPanel show={showingStateRef.current} />
         <div className={styles.jsonPanel}>
+          <h1>{t('common:debug.systems')}</h1>
+          <JSONTree
+            data={pipelines}
+            postprocessValue={(v) => {
+              if (!v?.name) return v
+              const s = new String(v?.name) as any
+              s.instance = v
+              return s
+            }} // yes, all this is a hack. We probably shouldn't use JSONTree for this
+            valueRenderer={(raw, value: any) => (
+              <>
+                <input
+                  type="checkbox"
+                  checked={value?.instance?.enabled}
+                  onChange={() => (value.instance.enabled = !value.instance.enabled)}
+                ></input>{' '}
+                — {value}
+              </>
+            )}
+            shouldExpandNode={(keyPath, data, level) => level > 0}
+          />
+        </div>
+        <div className={styles.jsonPanel}>
           <h1>{t('common:debug.state')}</h1>
           <JSONTree data={Engine.instance.store.state} postprocessValue={(v) => v?.value ?? v} />
         </div>
         <div className={styles.jsonPanel}>
-          <h1>{t('common:debug.namedEntities')}</h1>
-          <JSONTree data={namedEntities.value} />
+          <h1>{t('common:debug.entities')}</h1>
+          <JSONTree
+            data={namedEntities.value}
+            postprocessValue={(v) => (v?.attach && v?.get && v?.set ? v.attach(Downgraded).value : v)}
+          />
         </div>
         <div className={styles.jsonPanel}>
           <h1>{t('common:debug.networks')}</h1>

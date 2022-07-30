@@ -347,3 +347,6 @@ export function defineQuery(components: (bitECS.Component | bitECS.QueryModifier
 export type Query = ReturnType<typeof defineQuery>
 
 export const EntityRemovedComponent = createMappedComponent<{}>('EntityRemovedComponent')
+
+globalThis.XRE_getComponent = getComponent
+globalThis.XRE_getAllComponents = getAllComponents
