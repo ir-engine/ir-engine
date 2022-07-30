@@ -463,6 +463,7 @@ describe('DataReader', () => {
 
     addComponent(entity, NetworkObjectComponent, {
       networkId,
+      authorityUserId: userId,
       ownerId: userId
     })
 
@@ -530,10 +531,11 @@ describe('DataReader', () => {
 
     addComponent(entity, NetworkObjectComponent, {
       networkId,
+      authorityUserId: userId,
       ownerId: userId
     })
 
-    addComponent(entity, NetworkObjectAuthorityTag, {})
+    addComponent(entity, NetworkObjectAuthorityTag, true)
 
     writeEntity(view, networkId, entity)
 
@@ -636,6 +638,7 @@ describe('DataReader', () => {
       })
       addComponent(entity, NetworkObjectComponent, {
         networkId,
+        authorityUserId: userId,
         ownerId: userId
       })
       network.userIndexToUserId.set(userIndex, userId)
@@ -709,6 +712,7 @@ describe('DataReader', () => {
       })
       addComponent(entity, NetworkObjectComponent, {
         networkId,
+        authorityUserId: userId,
         ownerId: userId
       })
     })
@@ -804,6 +808,7 @@ describe('DataReader', () => {
       })
       addComponent(entity, NetworkObjectComponent, {
         networkId,
+        authorityUserId: userId,
         ownerId: userId
       })
       network.userIndexToUserId.set(userIndex, userId)
@@ -847,6 +852,7 @@ describe('DataReader', () => {
       })
       addComponent(entity, NetworkObjectComponent, {
         networkId,
+        authorityUserId: userId,
         ownerId: userId
       })
       network.userIndexToUserId.set(userIndex, userId)
@@ -884,6 +890,7 @@ describe('DataReader', () => {
       })
       addComponent(entity, NetworkObjectComponent, {
         networkId,
+        authorityUserId: userId,
         ownerId: userId
       })
       network.userIndexToUserId.set(userIndex, userId)
