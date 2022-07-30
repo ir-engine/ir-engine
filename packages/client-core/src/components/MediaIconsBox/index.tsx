@@ -158,7 +158,7 @@ const MediaIconsBox = (props: Props) => {
           className={styles.iconContainer + ' ' + (isCamAudioEnabled.value ? styles.on : '')}
           onClick={handleMicClick}
           onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
-          onMouseEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+          onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
         >
           <MicIcon />
         </button>
@@ -174,7 +174,7 @@ const MediaIconsBox = (props: Props) => {
             className={styles.iconContainer + ' ' + (isCamVideoEnabled.value ? styles.on : '')}
             onClick={handleCamClick}
             onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
-            onMouseEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+            onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
           >
             <VideocamIcon />
           </button>
@@ -184,7 +184,7 @@ const MediaIconsBox = (props: Props) => {
             className={styles.iconContainer + ' ' + (isFaceTrackingEnabled.value ? styles.on : '')}
             onClick={handleFaceClick}
             onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
-            onMouseEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+            onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
           >
             <FaceIcon />
           </button>
@@ -194,7 +194,7 @@ const MediaIconsBox = (props: Props) => {
             className={styles.iconContainer + ' ' + (isScreenVideoEnabled.value ? styles.on : '')}
             onClick={handleScreenShare}
             onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
-            onMouseEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+            onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
           >
             <ScreenShareIcon />
           </button>
@@ -207,7 +207,7 @@ const MediaIconsBox = (props: Props) => {
           className={styles.iconContainer}
           onClick={handleVRClick}
           onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
-          onMouseEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+          onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
         >
           <VrIcon />
         </button>
@@ -219,7 +219,7 @@ const MediaIconsBox = (props: Props) => {
           className={styles.iconContainer}
           onClick={handleExitSpectatorClick}
           onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
-          onMouseEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+          onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
         >
           Exit Spectate
         </button>

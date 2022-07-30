@@ -413,7 +413,7 @@ const InstanceChat = ({
                 color="primary"
                 onClick={() => toggleChatWindow()}
                 onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
-                onMouseEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
               >
                 {!chatWindowOpen ? (
                   <MessageButton />

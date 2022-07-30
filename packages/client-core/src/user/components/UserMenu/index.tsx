@@ -106,7 +106,7 @@ const UserMenu = (props: Props): any => {
                     <IconNode
                       className={styles.icon}
                       onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
-                      onMouseEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                      onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
                     />
                   </span>
                 )
