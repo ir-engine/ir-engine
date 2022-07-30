@@ -2,6 +2,7 @@ import { ArrowHelper, Clock, MathUtils, Matrix4, PerspectiveCamera, Raycaster, V
 
 import { deleteSearchParams } from '@xrengine/common/src/utils/deleteSearchParams'
 import { createActionQueue, dispatchAction } from '@xrengine/hyperflux'
+import { getState } from '@xrengine/hyperflux'
 
 import { BoneNames } from '../../avatar/AvatarBoneMatching'
 import { AvatarAnimationComponent } from '../../avatar/components/AvatarAnimationComponent'
@@ -12,7 +13,7 @@ import { smoothDamp } from '../../common/functions/MathLerpFunctions'
 import { createConeOfVectors } from '../../common/functions/vectorHelpers'
 import { createQuaternionProxy, createVector3Proxy } from '../../common/proxies/three'
 import { Engine } from '../../ecs/classes/Engine'
-import { EngineActions } from '../../ecs/classes/EngineState'
+import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
 import {
@@ -336,14 +337,18 @@ export default async function CameraSystem(world: World) {
     }
 
     if (EngineRenderer.instance.xrManager?.isPresenting) {
-      const camera = Engine.instance.currentWorld.camera as THREE.PerspectiveCamera
+      const camera = world.camera as THREE.PerspectiveCamera
       EngineRenderer.instance.xrManager.updateCamera(camera)
       // the following is necessary workaround until this PR is merged: https://github.com/mrdoob/three.js/pull/22362
       camera.matrix.decompose(camera.position, camera.quaternion, camera.scale)
       camera.updateMatrixWorld(true)
-      const cameraPose = getComponent(Engine.instance.currentWorld.cameraEntity, TransformOffsetComponent)
+      const cameraPose = getComponent(world.cameraEntity, TransformOffsetComponent)
       cameraPose.offsetPosition.copy(camera.position)
       cameraPose.offsetRotation.copy(camera.quaternion)
+      // Assume world.camera.layers is source of truth for all xr cameras
+      const xrCamera = EngineRenderer.instance.xrManager.getCamera()
+      xrCamera.layers.mask = camera.layers.mask
+      for (const c of xrCamera.cameras) c.layers.mask = camera.layers.mask
     } else {
       for (const cameraEntity of followCameraQuery.enter()) enterFollowCameraQuery(cameraEntity)
       for (const cameraEntity of followCameraQuery()) updateFollowCamera(cameraEntity)
@@ -351,7 +356,7 @@ export default async function CameraSystem(world: World) {
     }
 
     for (const networkCameraEntity of ownedNetworkCamera()) {
-      const cameraEntity = Engine.instance.currentWorld.cameraEntity
+      const cameraEntity = world.cameraEntity
       const networkTransform = getComponent(networkCameraEntity, TransformComponent)
       const transform = getComponent(cameraEntity, TransformComponent)
       networkTransform.position.copy(transform.position)

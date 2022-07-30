@@ -20,13 +20,10 @@ export const DebugRenderer = () => {
       else Engine.instance.currentWorld.scene.remove(_lineSegments)
       _lineSegments.visible = enabled
 
-      const xrCameras = EngineRenderer.instance.xrManager?.getCamera()
       if (enabled) {
         Engine.instance.currentWorld.camera.layers.enable(ObjectLayers.PhysicsHelper)
-        if (xrCameras) xrCameras.cameras.forEach((camera) => camera.layers.enable(ObjectLayers.PhysicsHelper))
       } else {
         Engine.instance.currentWorld.camera.layers.disable(ObjectLayers.PhysicsHelper)
-        if (xrCameras) xrCameras.cameras.forEach((camera) => camera.layers.disable(ObjectLayers.PhysicsHelper))
       }
     }
 

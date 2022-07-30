@@ -51,15 +51,6 @@ export const requestXRSession = createHookableFunction(
       setupXRInputSourceComponent(world.localClientEntity)
       proxifyXRInputs(world.localClientEntity)
 
-      const cameras = EngineRenderer.instance.xrManager.getCamera()
-      cameras.layers.enableAll()
-      cameras.cameras.forEach((camera) => {
-        camera.layers.disableAll()
-        camera.layers.enable(ObjectLayers.Scene)
-        camera.layers.enable(ObjectLayers.Avatar)
-        camera.layers.enable(ObjectLayers.UI)
-      })
-
       if (mode === 'immersive-ar') world.scene.background = null
 
       const onSessionEnd = () => {
@@ -69,7 +60,6 @@ export const requestXRSession = createHookableFunction(
         EngineRenderer.instance.xrSession = null!
         EngineRenderer.instance.xrManager.setSession(null!)
         const world = Engine.instance.currentWorld
-        world.scene.add(Engine.instance.currentWorld.camera)
         cleanXRInputs(world.localClientEntity)
         removeComponent(world.localClientEntity, XRInputSourceComponent)
         removeComponent(world.localClientEntity, AvatarHeadDecapComponent)
