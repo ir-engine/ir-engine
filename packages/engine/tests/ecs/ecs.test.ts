@@ -77,8 +77,8 @@ describe('ECS', () => {
     assert(world)
     const entities = world.entityQuery()
     console.log(entities)
-    assert.strictEqual(entities.length, 2)
-    assert.strictEqual(entities[0], world.sceneEntity)
+    assert.strictEqual(entities.length, 3)
+    assert(entities.includes(world.sceneEntity))
   })
 
   it('should add systems', async () => {
