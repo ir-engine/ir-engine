@@ -192,4 +192,13 @@ export class EngineActions {
     type: 'xre.engine.INTERACTED_WITH_OBJECT' as const,
     targetEntity: matchesEntity
   })
+
+  /**
+   * Dispatched whenever an otherwise unchanging scene object has it's properties changed,
+   *   such as making changes from the editor.
+   **/
+  static sceneObjectUpdate = defineAction({
+    type: 'xre.engine.SCENE_OBJECT_UPDATE' as const,
+    entities: matches.array as Validator<unknown, Entity[]>
+  })
 }

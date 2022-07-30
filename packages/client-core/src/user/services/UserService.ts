@@ -124,11 +124,9 @@ export const UserService = {
     } as any
     if (!instance) query.channelInstanceId = Engine.instance.currentWorld._mediaHostId
     else query.instanceId = Engine.instance.currentWorld._worldHostId
-    console.log('query', query)
     const layerUsers = (await API.instance.client.service('user').find({
       query: query
     })) as Paginated<UserInterface>
-    console.log('layerUsers', layerUsers.data)
 
     const state = getState(UserState)
 

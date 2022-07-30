@@ -111,19 +111,19 @@
           "name": "transform",
           "props": {
             "position": {
-              "x": 75.83377071893172,
-              "y": 22.754914443536105,
-              "z": 18.400897195875466
+              "x": 75.83377075195312,
+              "y": 22.754915237426758,
+              "z": 18.400897979736328
             },
             "rotation": {
-              "x": -0.9238421630987409,
-              "y": 1.1208489301818776,
-              "z": 0.8727784216484146
+              "x": -0.9238422617867781,
+              "y": 1.120849191534366,
+              "z": 0.8727785283333842
             },
             "scale": {
-              "x": 0.9999999999999999,
+              "x": 1,
               "y": 1,
-              "z": 0.9999999999999999
+              "z": 1
             }
           }
         },
@@ -250,9 +250,12 @@
           "name": "postprocessing",
           "props": {
             "options": {
-              "FXAAEffect": {
+              "SMAAEffect": {
                 "isActive": true,
-                "blendFunction": 13
+                "blendFunction": 23,
+                "preset": 1,
+                "edgeDetectionMode": 2,
+                "predicationMode": 0
               },
               "OutlineEffect": {
                 "isActive": true,
@@ -340,8 +343,8 @@
           "name": "transform",
           "props": {
             "position": {
-              "x": -6.1,
-              "y": 1.3,
+              "x": -6.099999904632568,
+              "y": 1.2999999523162842,
               "z": 0
             },
             "rotation": {
@@ -372,7 +375,9 @@
           "props": {
             "src": "__$project$__/default-project/assets/Skybase.glb",
             "textureOverride": "",
+            "materialOverrides": [],
             "matrixAutoUpdate": true,
+            "useBasicMaterial": false,
             "isUsingGPUInstancing": false,
             "isDynamicObject": false
           }
@@ -483,10 +488,6 @@
           }
         },
         {
-          "name": "visible",
-          "props": {}
-        },
-        {
           "name": "shadow",
           "props": {
             "cast": true,
@@ -527,7 +528,7 @@
             },
             "rotation": {
               "x": -3.141592653589793,
-              "y": 1.2246467991473532e-16,
+              "y": 1.2246468525851679e-16,
               "z": -3.141592653589793
             },
             "scale": {
@@ -551,16 +552,18 @@
         {
           "name": "media",
           "props": {
+            "paths": [
+              "__$project$__/default-project/assets/SampleVideo.mp4"
+            ],
+            "playMode": 3,
             "controls": true,
             "autoplay": true,
-            "autoStartTime": 0,
-            "loop": true
+            "autoStartTime": 0
           }
         },
         {
           "name": "audio",
           "props": {
-            "audioSource": "",
             "volume": 0.5,
             "audioType": "Positional",
             "distanceModel": "linear",
@@ -585,7 +588,6 @@
         {
           "name": "video",
           "props": {
-            "videoSource": "__$project$__/default-project/assets/SampleVideo.mp4",
             "elementId": "earth video"
           }
         }
@@ -600,19 +602,19 @@
           "name": "transform",
           "props": {
             "position": {
-              "x": 22,
-              "y": 2.5,
-              "z": 0
+              "x": -20.97391128540039,
+              "y": 15.137579917907715,
+              "z": 22.027408599853516
             },
             "rotation": {
-              "x": -1.5707963267948963,
+              "x": -1.5707962925663537,
               "y": 0,
               "z": 0
             },
             "scale": {
-              "x": 1,
-              "y": 1,
-              "z": 1
+              "x": 2,
+              "y": 2,
+              "z": 2
             }
           }
         },
@@ -631,30 +633,30 @@
           "name": "particle-emitter",
           "props": {
             "src": "/static/editor/dot.png",
-            "startColor": 16711680,
-            "middleColor": 65280,
-            "endColor": 255,
+            "startColor": 11860735,
+            "middleColor": 7785939,
+            "endColor": 45055,
             "startOpacity": 1,
             "middleOpacity": 1,
-            "endOpacity": 1,
+            "endOpacity": 0,
             "colorCurve": "linear",
             "sizeCurve": "linear",
             "startSize": 0.25,
-            "endSize": 0.25,
+            "endSize": 0,
             "sizeRandomness": 0,
             "ageRandomness": 10,
             "lifetime": 5,
             "lifetimeRandomness": 5,
-            "particleCount": 100,
+            "particleCount": 1000,
             "startVelocity": {
               "x": 0,
-              "y": 0.10000000000000009,
-              "z": 0.5
+              "y": 0,
+              "z": 1
             },
             "endVelocity": {
               "x": 0,
-              "y": 0.19999999999999996,
-              "z": 0.5
+              "y": 0,
+              "z": 5
             },
             "velocityCurve": "linear",
             "angularVelocity": 0
@@ -703,7 +705,9 @@
           "props": {
             "src": "__$project$__/default-project/assets/test-equippable.glb",
             "textureOverride": "",
+            "materialOverrides": [],
             "matrixAutoUpdate": true,
+            "useBasicMaterial": false,
             "isUsingGPUInstancing": false,
             "isDynamicObject": true
           }
@@ -717,9 +721,7 @@
         },
         {
           "name": "interactable",
-          "props": {
-            "interactionType": "equippable"
-          }
+          "props": {}
         },
         {
           "name": "envmap",
@@ -771,7 +773,7 @@
             },
             "rotation": {
               "x": 0,
-              "y": 1.5707963267948966,
+              "y": 1.5704380627536063,
               "z": 0
             },
             "scale": {
@@ -797,6 +799,7 @@
           "props": {
             "location": "apartment",
             "linkedPortalId": "5BF21A35-BECE-4C15-A261-DAF1BA2FEB39",
+            "redirect": false,
             "spawnPosition": {
               "x": 48,
               "y": 2.5,
@@ -804,7 +807,7 @@
             },
             "spawnRotation": {
               "x": 0,
-              "y": -0.2007128639793479,
+              "y": -0.012516635979854984,
               "z": 0
             }
           }
@@ -830,7 +833,7 @@
             },
             "rotation": {
               "x": 0,
-              "y": 1.5707963267948966,
+              "y": 1.5704380627536063,
               "z": 0
             },
             "scale": {
@@ -856,7 +859,9 @@
           "props": {
             "src": "__$project$__/default-project/assets/portal_frame.glb",
             "textureOverride": "",
+            "materialOverrides": [],
             "matrixAutoUpdate": true,
+            "useBasicMaterial": false,
             "isUsingGPUInstancing": false,
             "isDynamicObject": false
           }
@@ -905,6 +910,63 @@
       "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
       "index": 11,
       "name": "Model 2"
+    },
+    "65f5428e-6548-49aa-be22-bd5b65674743": {
+      "components": [
+        {
+          "name": "transform",
+          "props": {
+            "position": {
+              "x": 1.9821311235427856,
+              "y": 3.451725959777832,
+              "z": -12.379348754882812
+            },
+            "rotation": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "scale": {
+              "x": 1,
+              "y": 1,
+              "z": 1
+            }
+          }
+        },
+        {
+          "name": "visible",
+          "props": {}
+        },
+        {
+          "name": "media",
+          "props": {
+            "paths": [
+              "__$project$__/default-project/assets/SampleAudio.mp3"
+            ],
+            "playMode": 3,
+            "controls": true,
+            "autoplay": false,
+            "autoStartTime": 0
+          }
+        },
+        {
+          "name": "audio",
+          "props": {
+            "volume": 0.19,
+            "audioType": "Positional",
+            "distanceModel": "linear",
+            "rolloffFactor": 1,
+            "refDistance": 20,
+            "maxDistance": 1000,
+            "coneInnerAngle": 360,
+            "coneOuterAngle": 360,
+            "coneOuterGain": 1
+          }
+        }
+      ],
+      "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
+      "index": 12,
+      "name": "Audio"
     }
   },
   "root": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC"
