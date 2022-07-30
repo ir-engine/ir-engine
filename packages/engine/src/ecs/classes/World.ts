@@ -177,6 +177,13 @@ export class World {
   cameraEntity: Entity = NaN as Entity
 
   /**
+   * The local client entity
+   */
+  get localClientEntity() {
+    return this.getOwnedNetworkObjectWithComponent(Engine.instance.userId, LocalAvatarTagComponent) || (NaN as Entity)
+  }
+
+  /**
    * Reference to the audioListener.
    * This is a virtual listner for all positional and non-positional audio.
    */
@@ -194,13 +201,6 @@ export class World {
   portalQuery = () => this.#portalQuery(this) as Entity[]
 
   activePortal = null as ReturnType<typeof PortalComponent.get> | null
-
-  /**
-   * The local client entity
-   */
-  get localClientEntity() {
-    return this.getOwnedNetworkObjectWithComponent(Engine.instance.userId, LocalAvatarTagComponent) || (NaN as Entity)
-  }
 
   /**
    * Custom systems injected into this world
