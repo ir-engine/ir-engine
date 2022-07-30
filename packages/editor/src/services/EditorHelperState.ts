@@ -12,14 +12,7 @@ import {
   TransformPivotType,
   TransformSpace
 } from '@xrengine/engine/src/scene/constants/transformConstants'
-import {
-  addActionReceptor,
-  defineAction,
-  defineState,
-  dispatchAction,
-  getState,
-  registerState
-} from '@xrengine/hyperflux'
+import { defineAction, defineState, dispatchAction, getState } from '@xrengine/hyperflux'
 
 import { EditorHelperKeys } from '../constants/EditorHelperKeys'
 import { SceneState } from '../functions/sceneRenderFunctions'

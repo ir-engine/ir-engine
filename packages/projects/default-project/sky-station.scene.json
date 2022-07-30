@@ -551,16 +551,18 @@
         {
           "name": "media",
           "props": {
+            "paths": [
+              "__$project$__/default-project/assets/SampleVideo.mp4"
+            ],
+            "playMode": 3,
             "controls": true,
             "autoplay": true,
-            "autoStartTime": 0,
-            "loop": true
+            "autoStartTime": 0
           }
         },
         {
           "name": "audio",
           "props": {
-            "audioSource": "",
             "volume": 0.5,
             "audioType": "Positional",
             "distanceModel": "linear",
@@ -585,7 +587,6 @@
         {
           "name": "video",
           "props": {
-            "videoSource": "__$project$__/default-project/assets/SampleVideo.mp4",
             "elementId": "earth video"
           }
         }
@@ -600,9 +601,9 @@
           "name": "transform",
           "props": {
             "position": {
-              "x": 22,
-              "y": 2.5,
-              "z": 0
+              "x": -20.97391128540039,
+              "y": 15.137579917907715,
+              "z": 22.027408599853516
             },
             "rotation": {
               "x": -1.5707962925663537,
@@ -610,9 +611,9 @@
               "z": 0
             },
             "scale": {
-              "x": 1,
-              "y": 1,
-              "z": 1
+              "x": 2,
+              "y": 2,
+              "z": 2
             }
           }
         },
@@ -631,30 +632,30 @@
           "name": "particle-emitter",
           "props": {
             "src": "/static/editor/dot.png",
-            "startColor": 16711680,
-            "middleColor": 65280,
-            "endColor": 255,
+            "startColor": 11860735,
+            "middleColor": 7785939,
+            "endColor": 45055,
             "startOpacity": 1,
             "middleOpacity": 1,
-            "endOpacity": 1,
+            "endOpacity": 0,
             "colorCurve": "linear",
             "sizeCurve": "linear",
             "startSize": 0.25,
-            "endSize": 0.25,
+            "endSize": 0,
             "sizeRandomness": 0,
             "ageRandomness": 10,
             "lifetime": 5,
             "lifetimeRandomness": 5,
-            "particleCount": 100,
+            "particleCount": 1000,
             "startVelocity": {
               "x": 0,
-              "y": 0.10000000000000009,
-              "z": 0.5
+              "y": 0,
+              "z": 1
             },
             "endVelocity": {
               "x": 0,
-              "y": 0.19999999999999996,
-              "z": 0.5
+              "y": 0,
+              "z": 5
             },
             "velocityCurve": "linear",
             "angularVelocity": 0
@@ -910,6 +911,63 @@
       "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
       "index": 11,
       "name": "Model 2"
+    },
+    "65f5428e-6548-49aa-be22-bd5b65674743": {
+      "components": [
+        {
+          "name": "transform",
+          "props": {
+            "position": {
+              "x": 1.9821311235427856,
+              "y": 3.451725959777832,
+              "z": -12.379348754882812
+            },
+            "rotation": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "scale": {
+              "x": 1,
+              "y": 1,
+              "z": 1
+            }
+          }
+        },
+        {
+          "name": "visible",
+          "props": {}
+        },
+        {
+          "name": "media",
+          "props": {
+            "paths": [
+              "__$project$__/default-project/assets/SampleAudio.mp3"
+            ],
+            "playMode": 3,
+            "controls": true,
+            "autoplay": false,
+            "autoStartTime": 0
+          }
+        },
+        {
+          "name": "audio",
+          "props": {
+            "volume": 0.19,
+            "audioType": "Positional",
+            "distanceModel": "linear",
+            "rolloffFactor": 1,
+            "refDistance": 20,
+            "maxDistance": 1000,
+            "coneInnerAngle": 360,
+            "coneOuterAngle": 360,
+            "coneOuterGain": 1
+          }
+        }
+      ],
+      "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
+      "index": 12,
+      "name": "Audio"
     }
   },
   "root": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC"

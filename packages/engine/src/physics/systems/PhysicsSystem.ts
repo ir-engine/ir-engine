@@ -1,13 +1,15 @@
 import { Not } from 'bitecs'
 import { Quaternion, Vector3 } from 'three'
 
-import { createActionQueue } from '@xrengine/hyperflux'
+import { createActionQueue, getState } from '@xrengine/hyperflux'
 
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { Engine } from '../../ecs/classes/Engine'
+import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
+import { LocalAvatarTagComponent } from '../../input/components/LocalAvatarTagComponent'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { NetworkObjectDirtyTag } from '../../networking/components/NetworkObjectDirtyTag'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
@@ -112,13 +114,14 @@ export default async function PhysicsSystem(world: World) {
       Physics.removeRigidBody(entity, world.physicsWorld, true)
     }
 
-    for (const entity of raycastQuery()) processRaycasts(world, entity)
     for (const entity of dirtyNetworkedDynamicRigidBodyQuery()) updateDirtyDynamicBodiesFromNetwork(world, entity)
 
-    processCollisions(world)
-
     // step physics world
+    world.physicsWorld.timestep = getState(EngineState).fixedDeltaSeconds.value
     world.physicsWorld.step(world.physicsCollisionEventQueue)
+
+    for (const entity of raycastQuery()) processRaycasts(world, entity)
+    processCollisions(world)
 
     if (!Engine.instance.isEditor) {
       for (const entity of nonNetworkedDynamicRigidBodyQuery()) updateTransformFromBody(world, entity)

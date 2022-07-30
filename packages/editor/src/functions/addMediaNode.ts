@@ -1,14 +1,13 @@
 import { getContentType } from '@xrengine/common/src/utils/getContentType'
 import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
-import { AudioComponent } from '@xrengine/engine/src/audio/components/AudioComponent'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { createEntityNode } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
 import { AssetComponent } from '@xrengine/engine/src/scene/components/AssetComponent'
 import { ImageComponent } from '@xrengine/engine/src/scene/components/ImageComponent'
 import { LinkComponent } from '@xrengine/engine/src/scene/components/LinkComponent'
+import { MediaComponent } from '@xrengine/engine/src/scene/components/MediaComponent'
 import { ModelComponent } from '@xrengine/engine/src/scene/components/ModelComponent'
-import { VideoComponent } from '@xrengine/engine/src/scene/components/VideoComponent'
 import { ScenePrefabs, ScenePrefabTypes } from '@xrengine/engine/src/scene/functions/registerPrefabs'
 
 import { executeCommandWithHistory, setPropertyOnEntityNode } from '../classes/History'
@@ -55,14 +54,14 @@ export async function addMediaNode(
         },
         false
       )
-  } else if (contentType.startsWith('video/') || hostname === 'www.twitch.tv') {
+  } else if (contentType.startsWith('video/') || hostname.includes('twitch.tv') || hostname.includes('youtube.com')) {
     prefabType = ScenePrefabs.video
     updateFunc = () =>
       setPropertyOnEntityNode(
         {
           affectedNodes: [node],
-          component: VideoComponent,
-          properties: [{ videoSource: url }]
+          component: MediaComponent,
+          properties: [{ paths: [url] }]
         },
         false
       )
@@ -83,8 +82,8 @@ export async function addMediaNode(
       setPropertyOnEntityNode(
         {
           affectedNodes: [node],
-          component: AudioComponent,
-          properties: [{ audioSource: url }]
+          component: MediaComponent,
+          properties: [{ paths: [url] }]
         },
         false
       )
@@ -94,8 +93,8 @@ export async function addMediaNode(
       setPropertyOnEntityNode(
         {
           affectedNodes: [node],
-          component: AudioComponent,
-          properties: [{ audioSource: url }]
+          component: MediaComponent,
+          properties: [{ paths: [url] }]
         },
         false
       )

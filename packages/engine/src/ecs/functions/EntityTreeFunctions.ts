@@ -35,9 +35,8 @@ export function removeFromEntityTreeMaps(node: EntityTreeNode, tree = Engine.ins
  * @param world World
  */
 export function initializeEntityTree(world = Engine.instance.currentWorld): void {
-  removeAllComponents(world.worldEntity)
   world.entityTree = {
-    rootNode: createEntityNode(world.worldEntity),
+    rootNode: createEntityNode(world.sceneEntity),
     entityNodeMap: new Map(),
     uuidNodeMap: new Map()
   } as EntityTree

@@ -271,25 +271,27 @@ const dispatchAction = <A extends Action>(action: A, store = HyperFlux.store) =>
 
   store.actions.incoming.push(action as Required<ResolvedActionType>)
   if (!store.forwardIncomingActions(action as Required<ResolvedActionType>)) {
+    addOutgoingTopicIfNecessary(topic)
     store.actions.outgoing[topic].queue.push(action as Required<ResolvedActionType>)
   }
 }
 
-function addTopic(topic: string, store = HyperFlux.store) {
-  logger.info(`Added topic ${topic}`)
-  if (!store.actions.outgoing[topic])
+function addOutgoingTopicIfNecessary(topic: string, store = HyperFlux.store) {
+  if (!store.actions.outgoing[topic]) {
+    logger.info(`Added topic ${topic}`)
     store.actions.outgoing[topic] = {
       queue: [],
       history: [],
       historyUUIDs: new Set()
     }
+  }
 }
 
-function removeTopic(topic: string, store = HyperFlux.store) {
-  logger.info(`Removed topic ${topic}`)
+function removeActionsForTopic(topic: string, store = HyperFlux.store) {
+  logger.info(`Removing actions with topic ${topic}`)
   for (const action of store.actions.history) {
     if (action.$topic.includes(topic)) {
-      store.actions.processedUUIDs.delete(action.$uuid)
+      store.actions.knownUUIDs.delete(action.$uuid)
     }
   }
   delete store.actions.outgoing[topic]
@@ -367,7 +369,7 @@ const applyIncomingActionsToAllQueues = (action: Required<ResolvedActionType>, s
 
 const _applyIncomingAction = (action: Required<ResolvedActionType>, store = HyperFlux.store) => {
   // ensure actions are idempotent
-  if (store.actions.processedUUIDs.has(action.$uuid)) {
+  if (store.actions.knownUUIDs.has(action.$uuid)) {
     logger.info('Repeat action %o', action)
     const idx = store.actions.incoming.indexOf(action)
     store.actions.incoming.splice(idx, 1)
@@ -382,6 +384,7 @@ const _applyIncomingAction = (action: Required<ResolvedActionType>, store = Hype
     logger.info(`[Action]: ${action.type} %o`, action)
     for (const receptor of [...store.receptors]) receptor(action)
     if (store.forwardIncomingActions(action)) {
+      addOutgoingTopicIfNecessary(action.$topic, store)
       store.actions.outgoing[action.$topic].queue.push(action)
     }
   } catch (e) {
@@ -392,7 +395,7 @@ const _applyIncomingAction = (action: Required<ResolvedActionType>, store = Hype
     logger.error(e)
   } finally {
     store.actions.history.push(action)
-    store.actions.processedUUIDs.add(action.$uuid)
+    store.actions.knownUUIDs.add(action.$uuid)
     const idx = store.actions.incoming.indexOf(action)
     store.actions.incoming.splice(idx, 1)
   }
@@ -448,8 +451,8 @@ export default {
   dispatchAction,
   addActionReceptor,
   createActionQueue,
-  addTopic,
-  removeTopic,
+  addOutgoingTopicIfNecessary,
+  removeActionsForTopic,
   removeActionReceptor,
   applyIncomingActions,
   clearOutgoingActions

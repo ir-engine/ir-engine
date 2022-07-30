@@ -147,16 +147,22 @@
       "lbl-unload": "Unload",
       "lbl-reload": "Reload"
     },
-    "audio": {
-      "name": "Audio",
-      "description": "Dynamically loads audio.",
-      "lbl-audiourl": "Audio Url",
+    "media": {
+      "name": "Media",
+      "paths": "Source Paths",
+      "playmode": "Play Mode",
+      "playtitle": "Play",
+      "pausetitle": "Pause",
       "lbl-controls": "controls",
       "info-controls": "Toggle the visibility of the media controls.",
       "lbl-autoplay": "Auto Play",
       "info-autoplay": "If true, the media will play when first entering the scene.",
       "lbl-synchronize": "Synchronize",
-      "info-synchronize": "If true, the media will be Synchronized on all the connected clients.",
+      "info-synchronize": "If true, the media will be Synchronized on all the connected clients."
+    },
+    "audio": {
+      "name": "Audio",
+      "description": "Dynamically loads audio.",
       "lbl-loop": "Loop",
       "info-loop": "If true the media will loop indefinitely.",
       "lbl-audioType": "Audio Type",
@@ -545,10 +551,7 @@
     "volumetric": {
       "name": "Volumetric",
       "description": "Dynamically loads a volumetric video.",
-      "uvolPaths": "UVOL Paths",
-      "playmode": "Play Mode",
-      "playtitle": "Play",
-      "pausetitle": "Pause"
+      "lbl-useLoadingEffect": "Use Loading Effect"
     },
     "spline": {
       "description": "Dynamically create and customize curves.",

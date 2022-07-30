@@ -24,7 +24,7 @@ export default async function FlyControlSystem(world: World) {
   const quat = new Quaternion()
   const worldPos = new Vector3()
   const worldQuat = new Quaternion()
-  const worldScale = new Vector3()
+  const worldScale = new Vector3(1, 1, 1)
   const candidateWorldQuat = new Quaternion()
   const normalMatrix = new Matrix3()
   const editorHelperState = accessEditorHelperState()
@@ -32,16 +32,16 @@ export default async function FlyControlSystem(world: World) {
   return () => {
     for (let entity of flyControlQuery()) {
       const flyControlComponent = getComponent(entity, FlyControlComponent)
+      const camera = Engine.instance.currentWorld.camera
 
       if (getInput(EditorActionSet.disableFlyMode)) {
         const cameraComponent = getComponent(Engine.instance.currentWorld.cameraEntity, EditorCameraComponent)
-        const cameraObject = getComponent(Engine.instance.currentWorld.cameraEntity, Object3DComponent)
 
         removeInputActionMapping(ActionSets.FLY)
-        const distance = cameraObject.value.position.distanceTo(cameraComponent.center)
+        const distance = camera.position.distanceTo(cameraComponent.center)
         cameraComponent.center.addVectors(
-          cameraObject.value.position,
-          tempVec3.set(0, 0, -distance).applyMatrix3(normalMatrix.getNormalMatrix(cameraObject.value.matrix))
+          camera.position,
+          tempVec3.set(0, 0, -distance).applyMatrix3(normalMatrix.getNormalMatrix(camera.matrix))
         )
 
         dispatchAction(EditorHelperAction.changedFlyMode({ isFlyModeEnabled: false }))
@@ -55,9 +55,9 @@ export default async function FlyControlSystem(world: World) {
       if (!editorHelperState.isFlyModeEnabled.value) return
 
       // assume that Engine.instance.currentWorld.camera[position,quaterion/rotation,scale] are authority
-      Engine.instance.currentWorld.camera.updateMatrix()
-      Engine.instance.currentWorld.camera.updateMatrixWorld()
-      Engine.instance.currentWorld.camera.matrixWorld.decompose(worldPos, worldQuat, worldScale)
+      camera.updateMatrix()
+      camera.updateMatrixWorld()
+      camera.matrixWorld.decompose(worldPos, worldQuat, worldScale)
 
       // rotate about the camera's local x axis
       candidateWorldQuat.multiplyQuaternions(
@@ -77,52 +77,32 @@ export default async function FlyControlSystem(world: World) {
         newCamUpY > 0 && ((newCamForwardY < extrema && newCamForwardY > -extrema) || newCamUpY > camUpY)
 
       if (allowRotationInX) {
-        Engine.instance.currentWorld.camera.matrixWorld.compose(worldPos, candidateWorldQuat, worldScale)
+        camera.matrixWorld.compose(worldPos, candidateWorldQuat, worldScale)
         // assume that if camera.parent exists, its matrixWorld is up to date
-        parentInverse
-          .copy(
-            Engine.instance.currentWorld.camera.parent
-              ? Engine.instance.currentWorld.camera.parent.matrixWorld
-              : IDENTITY
-          )
-          .invert()
-        Engine.instance.currentWorld.camera.matrix.multiplyMatrices(
-          parentInverse,
-          Engine.instance.currentWorld.camera.matrixWorld
-        )
-        Engine.instance.currentWorld.camera.matrixWorld.decompose(
-          Engine.instance.currentWorld.camera.position,
-          Engine.instance.currentWorld.camera.quaternion,
-          Engine.instance.currentWorld.camera.scale
-        )
+        parentInverse.copy(camera.parent ? camera.parent.matrixWorld : IDENTITY).invert()
+        camera.matrix.multiplyMatrices(parentInverse, camera.matrixWorld)
+        camera.matrixWorld.decompose(camera.position, camera.quaternion, camera.scale)
       }
 
-      Engine.instance.currentWorld.camera.matrixWorld.decompose(worldPos, worldQuat, worldScale)
+      camera.matrixWorld.decompose(worldPos, worldQuat, worldScale)
       // rotate about the world y axis
       candidateWorldQuat.multiplyQuaternions(
         quat.setFromAxisAngle(UP, getInput(FlyActionSet.lookX) * flyControlComponent.lookSensitivity),
         worldQuat
       )
 
-      Engine.instance.currentWorld.camera.matrixWorld.compose(worldPos, candidateWorldQuat, worldScale)
-      Engine.instance.currentWorld.camera.matrix.multiplyMatrices(
-        parentInverse,
-        Engine.instance.currentWorld.camera.matrixWorld
-      )
-      Engine.instance.currentWorld.camera.matrix.decompose(
-        Engine.instance.currentWorld.camera.position,
-        Engine.instance.currentWorld.camera.quaternion,
-        Engine.instance.currentWorld.camera.scale
-      )
+      camera.matrixWorld.compose(worldPos, candidateWorldQuat, worldScale)
+      camera.matrix.multiplyMatrices(parentInverse, camera.matrixWorld)
+      camera.matrix.decompose(camera.position, camera.quaternion, camera.scale)
 
       // translate
       direction.set(getInput(FlyActionSet.moveX), 0, getInput(FlyActionSet.moveZ))
       const boostSpeed = getInput(FlyActionSet.boost) ? flyControlComponent.boostSpeed : 1
       const speed = world.deltaSeconds * flyControlComponent.moveSpeed * boostSpeed
 
-      if (direction.lengthSq() > EPSILON) Engine.instance.currentWorld.camera.translateOnAxis(direction, speed)
+      if (direction.lengthSq() > EPSILON) camera.translateOnAxis(direction, speed)
 
-      Engine.instance.currentWorld.camera.position.y +=
+      camera.position.y +=
         getInput(FlyActionSet.moveY) * world.deltaSeconds * flyControlComponent.moveSpeed * boostSpeed
     }
   }
