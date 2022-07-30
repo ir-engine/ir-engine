@@ -98,6 +98,7 @@ describe('NetworkPeerFunctions', () => {
       const entity = createEntity()
       addComponent(entity, NetworkObjectComponent, {
         ownerId: userId,
+        authorityUserId: userId,
         networkId
       })
 

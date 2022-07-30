@@ -59,13 +59,6 @@ describe('ColliderFunctions', () => {
   })
 
   describe('serializeCollider()', () => {
-    it('should properly serialize collider', () => {
-      const entity = createEntity()
-      addComponent(entity, Object3DComponent, { value: new Object3D() })
-      deserializeCollider(entity, sceneComponent)
-      assert.deepEqual(serializeCollider(entity), { ...sceneComponent, props: {} })
-    })
-
     it('should return undefine if there is no collider component', () => {
       const entity = createEntity()
       assert(serializeCollider(entity) === undefined)
