@@ -9,6 +9,7 @@ import {
 } from '@xrengine/client-core/src/admin/services/Setting/CoilSettingService'
 import UIDialog from '@xrengine/client-core/src/common/components/Dialog'
 import UserMenu from '@xrengine/client-core/src/user/components/UserMenu'
+import { AudioEffectPlayer } from '@xrengine/engine/src/audio/systems/AudioSystem'
 import { respawnAvatar } from '@xrengine/engine/src/avatar/functions/respawnAvatar'
 import { isTouchAvailable } from '@xrengine/engine/src/common/functions/DetectFeatures'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
@@ -169,6 +170,8 @@ const Layout = ({ useLoadingScreenOpacity, pageTitle, children, hideVideo, hideF
                   showMediaIcons ? styles.rotate : styles.rotateBack
                 } ${styles.showIconMedia} `}
                 onClick={handleShowMediaIcons}
+                onPointerDown={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                onMouseEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
               >
                 <MediaIconHider />
               </button>
@@ -179,6 +182,8 @@ const Layout = ({ useLoadingScreenOpacity, pageTitle, children, hideVideo, hideF
                   showBottomIcons ? styles.rotate : styles.rotateBack
                 } ${styles.showIcon} `}
                 onClick={handleShowBottomIcons}
+                onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                onMouseEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
               >
                 <BottomIconHider />
               </button>
@@ -200,6 +205,8 @@ const Layout = ({ useLoadingScreenOpacity, pageTitle, children, hideVideo, hideF
                         showBottomIcons ? styles.animateBottom : styles.fadeOutBottom
                       } `}
                       onClick={() => setFullScreenActive(false)}
+                      onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                      onMouseEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
                     >
                       <FullscreenExit />
                     </button>
@@ -210,6 +217,8 @@ const Layout = ({ useLoadingScreenOpacity, pageTitle, children, hideVideo, hideF
                         showBottomIcons ? styles.animateBottom : styles.fadeOutBottom
                       } `}
                       onClick={() => setFullScreenActive(true)}
+                      onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                      onMouseEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
                     >
                       <ZoomOutMap />
                     </button>
@@ -223,6 +232,8 @@ const Layout = ({ useLoadingScreenOpacity, pageTitle, children, hideVideo, hideF
                 } ${!iOS() ? '' : styles.refreshBtn}`}
                 id="respawn"
                 onClick={respawnCallback}
+                onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                onMouseEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
               >
                 <Refresh />
               </button>

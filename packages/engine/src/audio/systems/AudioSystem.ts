@@ -16,8 +16,37 @@ import { VolumetricComponent } from '../../scene/components/VolumetricComponent'
 import { AUDIO_TEXTURE_PATH, AudioElementObjects, updateAudio } from '../../scene/functions/loaders/AudioFunctions'
 import { updateVideo } from '../../scene/functions/loaders/VideoFunctions'
 import { updateVolumetric } from '../../scene/functions/loaders/VolumetricFunctions'
-import { AudioSettingReceptor, restoreAudioSettings } from '../AudioState'
+import { accessAudioState, AudioSettingAction, AudioSettingReceptor, restoreAudioSettings } from '../AudioState'
 import { AudioComponent } from '../components/AudioComponent'
+
+export class AudioEffectPlayer {
+  static instance = new AudioEffectPlayer()
+
+  static SOUNDS = {
+    notification: '/sfx/notification.mp3',
+    message: '/sfx/message.mp3',
+    alert: '/sfx/alert.mp3',
+    ui: '/sfx/ui.mp3'
+  }
+
+  #el: HTMLAudioElement
+
+  _init() {
+    const audioElement = document.createElement('audio')
+    audioElement.loop = false
+    this.#el = audioElement
+  }
+
+  play(sound: string, volumeMultiplier = 1) {
+    if (!this.#el) return
+    this.#el.volume = accessAudioState().audio.value * volumeMultiplier * 0.01
+    if (this.#el.src !== sound) this.#el.src = sound
+    this.#el.currentTime = 0
+    this.#el.play()
+  }
+}
+
+globalThis.AudioEffectPlayer = AudioEffectPlayer
 
 export default async function AudioSystem(world: World) {
   await AssetLoader.loadAsync(AUDIO_TEXTURE_PATH)
@@ -53,12 +82,17 @@ export default async function AudioSystem(world: World) {
   addActionReceptor(AudioSettingReceptor)
 
   const modifyPropertyActionQueue = createActionQueue(EngineActions.sceneObjectUpdate.matches)
+  const userInteractActionQueue = createActionQueue(EngineActions.setUserHasInteracted.matches)
 
   const audioQuery = defineQuery([AudioComponent, Not(VideoComponent), Not(VolumetricComponent)])
   const videoQuery = defineQuery([AudioComponent, VideoComponent, Not(VolumetricComponent)])
   const volQuery = defineQuery([AudioComponent, Not(VideoComponent), VolumetricComponent])
 
   return () => {
+    for (const action of userInteractActionQueue()) {
+      AudioEffectPlayer.instance._init()
+    }
+
     for (const entity of audioQuery.exit()) {
       const obj3d = getComponent(entity, Object3DComponent).value
       AudioElementObjects.get(obj3d)?.removeFromParent()

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 
+import { AudioEffectPlayer } from '@xrengine/engine/src/audio/systems/AudioSystem'
 import { matches } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { EngineActions, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { addActionReceptor, removeActionReceptor } from '@xrengine/hyperflux'
@@ -59,7 +60,7 @@ HotbarMenu.set(Views.Profile, PersonIcon)
 HotbarMenu.set(Views.Settings, SettingsIcon)
 HotbarMenu.set(Views.Share, LinkIcon)
 HotbarMenu.set(Views.Party, GroupsIcon)
-HotbarMenu.set(Views.Emote, 'EmoteIcon')
+HotbarMenu.set(Views.Emote, EmoteIcon)
 
 interface Props {
   animate?: any
@@ -102,7 +103,11 @@ const UserMenu = (props: Props): any => {
                       currentActiveMenu && currentActiveMenu === id ? styles.activeMenu : null
                     }`}
                   >
-                    {typeof IconNode === 'string' ? <EmoteIcon /> : <IconNode className={styles.icon} />}
+                    <IconNode
+                      className={styles.icon}
+                      onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                      onMouseEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                    />
                   </span>
                 )
               })}

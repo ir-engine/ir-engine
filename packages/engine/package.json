@@ -41,7 +41,7 @@
     "@xrengine/hyperflux": "^0.5.7",
     "@xrfoundation/volumetric": "1.0.0",
     "@dimforge/rapier3d-compat": "^0.8.1",
-    "bitecs": "^0.3.38",
+    "bitecs": "0.3.38",
     "browserfs": "^1.4.3",
     "comlink": "4.3.1",
     "cross-env": "7.0.3",
