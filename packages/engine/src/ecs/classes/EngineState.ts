@@ -31,7 +31,8 @@ export const EngineState = defineState({
      * An empty share link will default to the current URL, plus any modifiers (such as spectate mode)
      */
     shareLink: '',
-    shareTitle: ''
+    shareTitle: '',
+    transformOffsetsNeedSorting: true
   }
 })
 

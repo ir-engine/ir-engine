@@ -16,11 +16,11 @@ import { NavMeshComponent } from '../../navigation/component/NavMeshComponent'
 import { matchActionOnce } from '../../networking/functions/matchActionOnce'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { applyTransformToMeshWorld } from '../../physics/functions/parseModelColliders'
+import { addTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
 import {
   addTransformOffsetComponent,
   TransformOffsetComponent
-} from '../../transform/components/TransformChildComponent'
-import { addTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
+} from '../../transform/components/TransformOffsetComponent'
 import { ModelComponent, ModelComponentType } from '../components/ModelComponent'
 import { NameComponent } from '../components/NameComponent'
 import { Object3DComponent } from '../components/Object3DComponent'

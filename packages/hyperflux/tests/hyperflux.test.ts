@@ -5,7 +5,6 @@ import { matches, matchesWithDefault } from '@xrengine/engine/src/common/functio
 
 import {
   addActionReceptor,
-  addTopic,
   applyIncomingActions,
   clearOutgoingActions,
   createHyperStore,
@@ -13,15 +12,12 @@ import {
   defineState,
   dispatchAction,
   getState,
-  registerState,
   removeActionReceptor
 } from '..'
+import StateFunctions from '../functions/StateFunctions'
 
 describe('Hyperflux Unit Tests', () => {
   it('should be able to define and create an action', () => {
-    const testMissingStore = defineAction({
-      type: 'TEST_ACTION'
-    })
     const test = defineAction({
       type: 'TEST_ACTION'
     })
@@ -354,12 +350,12 @@ describe('Hyperflux Unit Tests', () => {
     applyIncomingActions(store)
     assert.equal(receivedCount, 4)
     assert.equal(store.actions.history.length, 4)
-    assert.equal(store.actions.processedUUIDs.size, 4)
+    assert.equal(store.actions.knownUUIDs.size, 4)
     store.actions.incoming.push(...store.actions.outgoing[store.defaultTopic].history)
     applyIncomingActions(store)
     assert.equal(receivedCount, 4)
     assert.equal(store.actions.history.length, 4)
-    assert.equal(store.actions.processedUUIDs.size, 4)
+    assert.equal(store.actions.knownUUIDs.size, 4)
   })
 
   it('should be able to apply multiple actions at once to a host store', () => {
@@ -394,14 +390,14 @@ describe('Hyperflux Unit Tests', () => {
     applyIncomingActions(store)
     assert.equal(receivedCount, 4)
     assert.equal(store.actions.history.length, 4)
-    assert.equal(store.actions.processedUUIDs.size, 4)
+    assert.equal(store.actions.knownUUIDs.size, 4)
     assert.equal(store.actions.outgoing[store.defaultTopic].queue.length, 4)
     assert.equal(store.actions.outgoing[store.defaultTopic].history.length, 0)
     clearOutgoingActions(store)
     assert.equal(store.actions.incoming.length, 0)
     assert.equal(store.actions.outgoing[store.defaultTopic].queue.length, 0)
     assert.equal(store.actions.history.length, 4)
-    assert.equal(store.actions.processedUUIDs.size, 4)
+    assert.equal(store.actions.knownUUIDs.size, 4)
     assert.equal(store.actions.outgoing[store.defaultTopic].history.length, 4)
     assert.equal(store.actions.outgoing[store.defaultTopic].historyUUIDs.size, 4)
     const history = Array.from(store.actions.history.values())
@@ -416,7 +412,7 @@ describe('Hyperflux Unit Tests', () => {
     assert.equal(store.actions.incoming.length, 0)
     assert.equal(store.actions.outgoing[store.defaultTopic].queue.length, 0)
     assert.equal(store.actions.history.length, 4)
-    assert.equal(store.actions.processedUUIDs.size, 4)
+    assert.equal(store.actions.knownUUIDs.size, 4)
     assert.equal(store.actions.outgoing[store.defaultTopic].history.length, 4)
     assert.equal(store.actions.outgoing[store.defaultTopic].historyUUIDs.size, 4)
   })
@@ -430,7 +426,7 @@ describe('Hyperflux Unit Tests', () => {
       })
     })
     const store = createHyperStore({ getDispatchId: () => 'id', getDispatchTime: () => Date.now() })
-    registerState(HospitalityState, store)
+    StateFunctions.registerState(HospitalityState, store)
     assert(store.state.hospitality)
   })
 
@@ -446,7 +442,7 @@ describe('Hyperflux Unit Tests', () => {
       }
     })
     const store = createHyperStore({ getDispatchId: () => 'id', getDispatchTime: () => Date.now() })
-    registerState(HospitalityState, store)
+    StateFunctions.registerState(HospitalityState, store)
     const hospitality = getState(HospitalityState, store).value
     assert.equal(hospitality.create, true)
   })
@@ -460,7 +456,7 @@ describe('Hyperflux Unit Tests', () => {
       })
     })
     const store = createHyperStore({ getDispatchId: () => 'id', getDispatchTime: () => Date.now() })
-    registerState(HospitalityState, store)
+    StateFunctions.registerState(HospitalityState, store)
     assert(store.state.hospitality)
     const hospitality = getState(HospitalityState, store).value
     assert.equal(hospitality.greetingCount, 0)
@@ -481,7 +477,7 @@ describe('Hyperflux Unit Tests', () => {
     })
 
     const store = createHyperStore({ getDispatchId: () => 'id', getDispatchTime: () => Date.now() })
-    registerState(HospitalityState, store)
+    StateFunctions.registerState(HospitalityState, store)
     assert(store.state.hospitality)
 
     addActionReceptor((action) => {

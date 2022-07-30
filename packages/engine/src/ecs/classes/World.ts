@@ -6,7 +6,6 @@ import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import multiLogger from '@xrengine/common/src/logger'
-import { addTopic, getState } from '@xrengine/hyperflux'
 
 import { DEFAULT_LOD_DISTANCES } from '../../assets/constants/LoaderConstants'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
@@ -25,8 +24,8 @@ import { PortalComponent } from '../../scene/components/PortalComponent'
 import { SimpleMaterialTagComponent } from '../../scene/components/SimpleMaterialTagComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
-import { addTransformOffsetComponent } from '../../transform/components/TransformChildComponent'
 import { addTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
+import { addTransformOffsetComponent } from '../../transform/components/TransformOffsetComponent'
 import { Widget } from '../../xrui/Widgets'
 import {
   addComponent,
@@ -81,9 +80,6 @@ export class World {
 
     initializeEntityTree(this)
     this.scene.layers.set(ObjectLayers.Scene)
-
-    addTopic(NetworkTopics.world)
-    addTopic(NetworkTopics.media)
   }
 
   static [CreateWorld] = () => new World()

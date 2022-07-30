@@ -1,9 +1,9 @@
 import { detect, detectOS } from 'detect-browser'
 import _ from 'lodash'
-import { AudioListener, PerspectiveCamera } from 'three'
+import { AudioListener } from 'three'
 
 import { BotUserAgent } from '@xrengine/common/src/constants/BotUserAgent'
-import { addActionReceptor, dispatchAction, getState, registerState } from '@xrengine/hyperflux'
+import { addActionReceptor, dispatchAction, getState } from '@xrengine/hyperflux'
 
 import { getGLTFLoader } from './assets/classes/AssetLoader'
 import { initializeKTX2Loader } from './assets/functions/createGLTFLoader'
@@ -34,7 +34,6 @@ export const createEngine = async () => {
   Engine.instance = new Engine()
   createWorld()
   EngineRenderer.instance = new EngineRenderer()
-  registerState(EngineState)
   addActionReceptor(EngineEventReceptor)
   Engine.instance.engineTimer = Timer(executeWorlds, Engine.instance.tickRate)
 }

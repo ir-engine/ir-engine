@@ -2,7 +2,7 @@ import { Downgraded, State } from '@hookstate/core'
 import { merge } from 'lodash'
 import { Validator } from 'ts-matches'
 
-import { addTopic } from '..'
+import ActionFunctions from './ActionFunctions'
 import { ActionReceptor, ResolvedActionType, Topic } from './ActionFunctions'
 
 export type StringLiteral<T> = T extends string ? (string extends T ? never : T) : never
@@ -42,7 +42,7 @@ export interface HyperStore {
     /** All actions that have been applied, in the order they were processed */
     history: Array<Required<ResolvedActionType>>
     /** All action UUIDs that have been processed and should not be processed again */
-    processedUUIDs: Set<string>
+    knownUUIDs: Set<string>
     /** Outgoing actions */
     outgoing: Record<
       string,
@@ -84,7 +84,7 @@ function createHyperStore(options: {
       cached: [],
       incoming: [],
       history: new Array(),
-      processedUUIDs: new Set(),
+      knownUUIDs: new Set(),
       outgoing: {}
     },
     receptors: [],
@@ -99,8 +99,8 @@ function createHyperStore(options: {
       }
     }
   } as HyperStore
-  addTopic(store.defaultTopic, store)
   HyperFlux.store = store
+  ActionFunctions.addOutgoingTopicIfNecessary(store.defaultTopic)
   return store
 }
 
