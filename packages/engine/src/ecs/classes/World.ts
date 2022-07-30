@@ -69,7 +69,7 @@ export class World {
     addComponent(this.localOriginEntity, NameComponent, { name: 'local-origin' })
     addComponent(this.localOriginEntity, PersistTagComponent, true)
     addTransformComponent(this.localOriginEntity)
-    addTransformOffsetComponent(this.cameraEntity, this.sceneEntity)
+    addTransformOffsetComponent(this.localOriginEntity, this.sceneEntity)
 
     this.cameraEntity = createEntity()
     addComponent(this.cameraEntity, NameComponent, { name: 'camera' })
