@@ -6,7 +6,6 @@ import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import multiLogger from '@xrengine/common/src/logger'
-import { addTopic, getState } from '@xrengine/hyperflux'
 
 import { DEFAULT_LOD_DISTANCES } from '../../assets/constants/LoaderConstants'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
@@ -15,7 +14,7 @@ import { isMobile } from '../../common/functions/isMobile'
 import { nowMilliseconds } from '../../common/functions/nowMilliseconds'
 import { LocalAvatarTagComponent } from '../../input/components/LocalAvatarTagComponent'
 import { InputValue } from '../../input/interfaces/InputValue'
-import { Network, NetworkTopics } from '../../networking/classes/Network'
+import { Network } from '../../networking/classes/Network'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { PhysicsWorld } from '../../physics/classes/Physics'
 import { NameComponent } from '../../scene/components/NameComponent'
@@ -25,8 +24,8 @@ import { PortalComponent } from '../../scene/components/PortalComponent'
 import { SimpleMaterialTagComponent } from '../../scene/components/SimpleMaterialTagComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
-import { addTransformOffsetComponent } from '../../transform/components/TransformChildComponent'
 import { addTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
+import { addTransformOffsetComponent } from '../../transform/components/TransformOffsetComponent'
 import { Widget } from '../../xrui/Widgets'
 import {
   addComponent,
@@ -77,13 +76,10 @@ export class World {
     addComponent(this.cameraEntity, VisibleComponent, true)
     addComponent(this.cameraEntity, Object3DComponent, { value: this.camera })
     addTransformComponent(this.cameraEntity)
-    addTransformOffsetComponent(this.cameraEntity, this.localOriginEntity)
+    // addTransformOffsetComponent(this.cameraEntity, this.localOriginEntity)
 
     initializeEntityTree(this)
     this.scene.layers.set(ObjectLayers.Scene)
-
-    addTopic(NetworkTopics.world)
-    addTopic(NetworkTopics.media)
   }
 
   static [CreateWorld] = () => new World()
@@ -177,6 +173,13 @@ export class World {
   cameraEntity: Entity = NaN as Entity
 
   /**
+   * The local client entity
+   */
+  get localClientEntity() {
+    return this.getOwnedNetworkObjectWithComponent(Engine.instance.userId, LocalAvatarTagComponent) || (NaN as Entity)
+  }
+
+  /**
    * Reference to the audioListener.
    * This is a virtual listner for all positional and non-positional audio.
    */
@@ -194,13 +197,6 @@ export class World {
   portalQuery = () => this.#portalQuery(this) as Entity[]
 
   activePortal = null as ReturnType<typeof PortalComponent.get> | null
-
-  /**
-   * The local client entity
-   */
-  get localClientEntity() {
-    return this.getOwnedNetworkObjectWithComponent(Engine.instance.userId, LocalAvatarTagComponent) || (NaN as Entity)
-  }
 
   /**
    * Custom systems injected into this world

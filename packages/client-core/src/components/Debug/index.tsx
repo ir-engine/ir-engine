@@ -74,6 +74,7 @@ export const Debug = () => {
     )
   }
 
+  // todo: display all entities?
   const renderNamedEntities = () => {
     return {
       ...Object.fromEntries(
@@ -219,7 +220,7 @@ export const Debug = () => {
           <JSONTree data={Engine.instance.store.state} postprocessValue={(v) => v?.value ?? v} />
         </div>
         <div className={styles.jsonPanel}>
-          <h1>{t('common:debug.namedEntities')}</h1>
+          <h1>{t('common:debug.entities')}</h1>
           <JSONTree
             data={namedEntities.value}
             postprocessValue={(v) => (v?.attach && v?.get && v?.set ? v.attach(Downgraded).value : v)}

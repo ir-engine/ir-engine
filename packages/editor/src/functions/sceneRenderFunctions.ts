@@ -3,6 +3,7 @@ import { Group, Object3D, Scene, Vector3, WebGLInfo } from 'three'
 import { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
+import { addComponent, removeComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { emptyEntityTree } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
 import {
@@ -17,11 +18,11 @@ import { ObjectLayers } from '@xrengine/engine/src/scene/constants/ObjectLayers'
 import { loadSceneFromJSON } from '@xrengine/engine/src/scene/functions/SceneLoading'
 import { dispatchAction } from '@xrengine/hyperflux'
 
+import { EditorCameraComponent } from '../classes/EditorCameraComponent'
 import { ActionSets, EditorMapping } from '../controls/input-mappings'
 import { initInputEvents } from '../controls/InputEvents'
 import { restoreEditorHelperData } from '../services/EditorHelperState'
 import { EditorAction } from '../services/EditorServices'
-import { createCameraEntity } from './createCameraEntity'
 import { createEditorEntity } from './createEditorEntity'
 import { createGizmoEntity } from './createGizmoEntity'
 import { addInputActionMapping } from './parseInputActionMapping'
@@ -65,10 +66,20 @@ export async function initializeScene(projectFile: SceneJson): Promise<Error[] |
   Engine.instance.currentWorld.camera.layers.enable(ObjectLayers.NodeHelper)
   Engine.instance.currentWorld.camera.layers.enable(ObjectLayers.Gizmos)
 
+  removeComponent(Engine.instance.currentWorld.cameraEntity, EditorCameraComponent)
+  addComponent(Engine.instance.currentWorld.cameraEntity, EditorCameraComponent, {
+    center: new Vector3(),
+    zoomDelta: 0,
+    isOrbiting: false,
+    isPanning: false,
+    cursorDeltaX: 0,
+    cursorDeltaY: 0,
+    focusedObjects: []
+  })
+
   SceneState.transformGizmo = new TransformGizmo()
 
   SceneState.gizmoEntity = createGizmoEntity(SceneState.transformGizmo)
-  Engine.instance.currentWorld.cameraEntity = createCameraEntity()
   SceneState.editorEntity = createEditorEntity()
 
   // Engine.instance.currentWorld.scene.add(Engine.instance.currentWorld.camera)
@@ -215,7 +226,7 @@ export async function exportScene(options = {} as DefaultExportOptionsType) {
 export function disposeScene() {
   EngineRenderer.instance.activeCSMLightEntity = null
   EngineRenderer.instance.directionalLightEntities = []
-  if (Engine.instance.currentWorld.cameraEntity) removeEntity(Engine.instance.currentWorld.cameraEntity, true)
+
   if (SceneState.gizmoEntity) removeEntity(SceneState.gizmoEntity, true)
   if (SceneState.editorEntity) removeEntity(SceneState.editorEntity, true)
 

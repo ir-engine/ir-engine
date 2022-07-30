@@ -77,7 +77,7 @@ describe('EngineFunctions', () => {
       assert(hasComponent(world.sceneEntity, PersistTagComponent))
 
       const persistedEntites = persistQuery(world)
-      assert.equal(persistedEntites.length, 3)
+      assert.equal(persistedEntites.length, 4)
     })
   })
 

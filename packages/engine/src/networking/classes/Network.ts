@@ -1,6 +1,5 @@
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
-import { addTopic } from '@xrengine/hyperflux'
-import { Action, Topic } from '@xrengine/hyperflux/functions/ActionFunctions'
+import { Topic } from '@xrengine/hyperflux/functions/ActionFunctions'
 
 import { RingBuffer } from '../../common/classes/RingBuffer'
 import { Engine } from '../../ecs/classes/Engine'

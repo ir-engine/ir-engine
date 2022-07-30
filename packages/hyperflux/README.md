@@ -39,20 +39,15 @@ addActionReceptor((a) =>
 )
 ```
 
-State objects can also be defined and registered on a store:
+State objects can also be defined and retrieved from a store:
 
 ```ts
 const PeerState = defineState('peers', () => {
     return [] // initial state
 })
 
-registerState(Engine.instance.store, PeerState)
-
-// get immutable state
+// get state
 const peerState = getState(Engine.instance.store, PeerState)
-
-// or, get mutable state (if and only if in a receptor function)
-const mutablePeerState = getMutableState(Engine.instance.store, PeerState)
 ```
 
 All incoming, outoing, and historical actions accessible on the `store.actions` object. 

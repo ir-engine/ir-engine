@@ -1,14 +1,16 @@
 import { insertionSort } from '@xrengine/common/src/utils/insertionSort'
+import { getState } from '@xrengine/hyperflux'
 
 import { proxifyQuaternion, proxifyVector3 } from '../../common/proxies/three'
 import { Engine } from '../../ecs/classes/Engine'
+import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { SpawnPointComponent } from '../../scene/components/SpawnPointComponent'
-import { TransformOffsetComponent } from '../components/TransformChildComponent'
 import { TransformComponent } from '../components/TransformComponent'
+import { TransformOffsetComponent } from '../components/TransformOffsetComponent'
 
 const transformOffsetQuery = defineQuery([TransformOffsetComponent, TransformComponent])
 const transformObjectQuery = defineQuery([TransformComponent, Object3DComponent])
@@ -17,10 +19,10 @@ const spawnPointQuery = defineQuery([SpawnPointComponent])
 const updateOffsetDepth = (entity: Entity) => {
   const offset = getComponent(entity, TransformOffsetComponent)
   let depth = 0
-  let parent = offset.referenceEntity
-  while (parent) {
+  let reference = offset.referenceEntity
+  while (reference) {
     depth++
-    parent = getComponent(parent, TransformOffsetComponent).referenceEntity
+    reference = getComponent(reference, TransformOffsetComponent)?.referenceEntity
   }
   offset.depth = depth
 }
@@ -33,12 +35,14 @@ const compareChildDepth = (a: Entity, b: Entity) => {
 
 export default async function TransformSystem(world: World) {
   return () => {
+    const { transformOffsetsNeedSorting } = getState(EngineState)
     const offsetTransformEntities = transformOffsetQuery(world)
 
-    for (const entity of offsetTransformEntities) updateOffsetDepth(entity)
-
-    // Insertion sort is O(n) for mostly sorted arrays
-    insertionSort(offsetTransformEntities, compareChildDepth)
+    if (transformOffsetsNeedSorting.value) {
+      for (const entity of offsetTransformEntities) updateOffsetDepth(entity)
+      insertionSort(offsetTransformEntities, compareChildDepth) // Insertion sort is speedy O(n) for mostly sorted arrays
+      transformOffsetsNeedSorting.set(false)
+    }
 
     for (const entity of offsetTransformEntities) {
       const offset = getComponent(entity, TransformOffsetComponent)
