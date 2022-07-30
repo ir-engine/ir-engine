@@ -41,6 +41,7 @@ export default async function TransformSystem(world: World) {
     if (transformOffsetsNeedSorting.value) {
       for (const entity of offsetTransformEntities) updateOffsetDepth(entity)
       insertionSort(offsetTransformEntities, compareChildDepth) // Insertion sort is speedy O(n) for mostly sorted arrays
+      transformOffsetsNeedSorting.set(false)
     }
 
     for (const entity of offsetTransformEntities) {
