@@ -344,6 +344,7 @@ describe('DataWriter', () => {
 
     addComponent(entity, NetworkObjectComponent, {
       networkId,
+      authorityUserId: userId,
       ownerId: userId
     })
 
@@ -412,6 +413,7 @@ describe('DataWriter', () => {
       })
       addComponent(entity, NetworkObjectComponent, {
         networkId,
+        authorityUserId: userId,
         ownerId: userId
       })
     })
@@ -489,6 +491,7 @@ describe('DataWriter', () => {
       })
       addComponent(entity, NetworkObjectComponent, {
         networkId,
+        authorityUserId: userId,
         ownerId: userId
       })
     })

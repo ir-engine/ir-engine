@@ -16,7 +16,7 @@ export const respawnAvatar = (entity: Entity) => {
   dispatchAction(
     WorldNetworkAction.teleportObject({
       object: {
-        ownerId: networkObject.authorityUserId,
+        ownerId: networkObject.ownerId,
         networkId: networkObject.networkId
       },
       position: new Vector3(position.x, position.y - avatarComponent.avatarHalfHeight, position.z),

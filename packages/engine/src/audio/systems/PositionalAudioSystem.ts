@@ -95,7 +95,7 @@ export default async function PositionalAudioSystem(world: World) {
     for (const entity of avatarAudioQuery.enter()) {
       const entityNetworkObject = getComponent(entity, NetworkObjectComponent)
       if (entityNetworkObject) {
-        const peerId = entityNetworkObject.authorityUserId
+        const peerId = entityNetworkObject.ownerId
 
         const consumer = network?.consumers.find(
           (c: any) => c.appData.peerId === peerId && c.appData.mediaTag === 'cam-audio'
@@ -120,7 +120,7 @@ export default async function PositionalAudioSystem(world: World) {
       const entityNetworkObject = getComponent(entity, NetworkObjectComponent)
       let consumer
       if (entityNetworkObject != null) {
-        const peerId = entityNetworkObject.authorityUserId
+        const peerId = entityNetworkObject.ownerId
         consumer = network?.consumers.find(
           (c: any) => c.appData.peerId === peerId && c.appData.mediaTag === 'cam-audio'
         )

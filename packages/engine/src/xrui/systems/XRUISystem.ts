@@ -72,7 +72,7 @@ export default async function XRUISystem(world: World) {
       const model = getComponent(entity, Object3DComponent).value
       const intersectObjects = world.pointerScreenRaycaster.intersectObject(model, true)
       if (intersectObjects.length > 0) {
-        const userId = getComponent(entity, NetworkObjectComponent).authorityUserId
+        const userId = getComponent(entity, NetworkObjectComponent).ownerId
         dispatchAction(EngineActions.userAvatarTapped({ userId }))
         return
       }
