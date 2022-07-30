@@ -7,7 +7,7 @@ import multiLogger from '@xrengine/common/src/logger'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Network } from '@xrengine/engine/src/networking/classes/Network'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
-import { Action, Topic } from '@xrengine/hyperflux/functions/ActionFunctions'
+import ActionFunctions, { Action, Topic } from '@xrengine/hyperflux/functions/ActionFunctions'
 
 import { accessAuthState } from '../user/services/AuthService'
 import { instanceserverHost } from '../util/config'
@@ -27,6 +27,7 @@ const promisedRequest = (socket: Socket) => {
 export class SocketWebRTCClientNetwork extends Network {
   constructor(hostId: UserId, topic: Topic) {
     super(hostId, topic)
+    ActionFunctions.addOutgoingTopicIfNecessary(topic)
   }
 
   mediasoupDevice = new mediasoupClient.Device(Engine.instance.isBot ? { handlerName: 'Chrome74' } : undefined)
