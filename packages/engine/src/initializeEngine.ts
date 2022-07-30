@@ -201,10 +201,11 @@ export const initializeSceneSystems = async () => {
       type: SystemUpdateType.FIXED,
       systemModulePromise: import('./avatar/AvatarSystem')
     },
-    {
-      type: SystemUpdateType.FIXED_LATE,
-      systemModulePromise: import('./interaction/systems/EquippableSystem')
-    },
+    /** @todo fix equippable implementation */
+    // {
+    //   type: SystemUpdateType.FIXED_LATE,
+    //   systemModulePromise: import('./interaction/systems/EquippableSystem')
+    // },
     {
       type: SystemUpdateType.FIXED_LATE,
       systemModulePromise: import('./scene/systems/TriggerSystem')
