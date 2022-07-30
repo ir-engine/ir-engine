@@ -76,7 +76,7 @@ export class World {
     addComponent(this.cameraEntity, VisibleComponent, true)
     addComponent(this.cameraEntity, Object3DComponent, { value: this.camera })
     addTransformComponent(this.cameraEntity)
-    // addTransformOffsetComponent(this.cameraEntity, this.localOriginEntity)
+    addTransformOffsetComponent(this.cameraEntity, this.localOriginEntity)
 
     initializeEntityTree(this)
     this.scene.layers.set(ObjectLayers.Scene)
