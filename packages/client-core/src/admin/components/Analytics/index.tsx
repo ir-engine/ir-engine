@@ -10,7 +10,7 @@ import { Box, TextField, ToggleButton, ToggleButtonGroup } from '@mui/material'
 
 import { useAuthState } from '../../../user/services/AuthService'
 import { useAdminAnalyticsState } from '../../services/AnalyticsService'
-import { ADminAnalyticsService } from '../../services/AnalyticsService'
+import { AdminAnalyticsService } from '../../services/AnalyticsService'
 import styles from '../../styles/admin.module.scss'
 import ActivityGraph from './ActivityGraph'
 import Card from './CardNumber'
@@ -99,14 +99,14 @@ const Analytics = () => {
 
   useEffect(() => {
     if (refetch === true && startDate < endDate) {
-      ADminAnalyticsService.fetchActiveParties(startDate?.toDate(), endDate?.toDate())
-      ADminAnalyticsService.fetchInstanceUsers(startDate?.toDate(), endDate?.toDate())
-      ADminAnalyticsService.fetchChannelUsers(startDate?.toDate(), endDate?.toDate())
-      ADminAnalyticsService.fetchActiveLocations(startDate?.toDate(), endDate?.toDate())
-      ADminAnalyticsService.fetchActiveScenes(startDate?.toDate(), endDate?.toDate())
-      ADminAnalyticsService.fetchActiveInstances(startDate?.toDate(), endDate?.toDate())
-      ADminAnalyticsService.fetchDailyUsers(startDate?.toDate(), endDate?.toDate())
-      ADminAnalyticsService.fetchDailyNewUsers(startDate?.toDate(), endDate?.toDate())
+      AdminAnalyticsService.fetchActiveParties(startDate?.toDate(), endDate?.toDate())
+      AdminAnalyticsService.fetchInstanceUsers(startDate?.toDate(), endDate?.toDate())
+      AdminAnalyticsService.fetchChannelUsers(startDate?.toDate(), endDate?.toDate())
+      AdminAnalyticsService.fetchActiveLocations(startDate?.toDate(), endDate?.toDate())
+      AdminAnalyticsService.fetchActiveScenes(startDate?.toDate(), endDate?.toDate())
+      AdminAnalyticsService.fetchActiveInstances(startDate?.toDate(), endDate?.toDate())
+      AdminAnalyticsService.fetchDailyUsers(startDate?.toDate(), endDate?.toDate())
+      AdminAnalyticsService.fetchDailyNewUsers(startDate?.toDate(), endDate?.toDate())
       setRefetch(false)
     }
   }, [refetch, startDate, endDate])

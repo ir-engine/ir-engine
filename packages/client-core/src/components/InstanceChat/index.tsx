@@ -336,68 +336,63 @@ const InstanceChat = ({
             ref={messageRef}
             className={styles['instance-chat-msg-container'] + ' ' + (!messageContainerVisible ? styles.hidden : '')}
           >
-            <div className={styles['list-container']}>
-              <Card square={true} elevation={0} className={styles['message-wrapper']}>
-                <CardContent className={styles['message-container']}>
-                  {sortedMessages &&
-                    sortedMessages.map((message, index, messages) => (
-                      <Fragment key={message.id}>
-                        {message.isNotification ? (
-                          <div key={message.id} className={`${styles.selfEnd} ${styles.noMargin}`}>
-                            <div className={styles.dFlex}>
-                              <div className={`${styles.msgNotification} ${styles.mx2}`}>
-                                <p className={styles.greyText}>{message.text}</p>
-                              </div>
-                            </div>
+            <div className={styles.scrollFix} />
+            {sortedMessages &&
+              sortedMessages.map((message, index, messages) => (
+                <Fragment key={message.id}>
+                  {message.isNotification ? (
+                    <div key={message.id} className={`${styles.selfEnd} ${styles.noMargin}`}>
+                      <div className={styles.dFlex}>
+                        <div className={`${styles.msgNotification} ${styles.mx2}`}>
+                          <p className={styles.greyText}>{message.text}</p>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div key={message.id} className={`${styles.dFlex} ${styles.flexColumn} ${styles.mgSmall}`}>
+                      <div className={`${styles.selfEnd} ${styles.noMargin}`}>
+                        <div
+                          className={`${
+                            message.senderId !== user?.id.value ? styles.msgReplyContainer : styles.msgOwner
+                          } ${styles.msgContainer} ${styles.dFlex}`}
+                        >
+                          <div className={styles.msgWrapper}>
+                            {messages[index - 1] && messages[index - 1].isNotification ? (
+                              <h3 className={styles.sender}>{message.sender.name}</h3>
+                            ) : (
+                              messages[index - 1] &&
+                              message.senderId !== messages[index - 1].senderId && (
+                                <h3 className={styles.sender}>{message.sender.name}</h3>
+                              )
+                            )}
+                            <p className={styles.text}>{message.text}</p>
                           </div>
-                        ) : (
-                          <div key={message.id} className={`${styles.dFlex} ${styles.flexColumn} ${styles.mgSmall}`}>
-                            <div className={`${styles.selfEnd} ${styles.noMargin}`}>
-                              <div
-                                className={`${
-                                  message.senderId !== user?.id.value ? styles.msgReplyContainer : styles.msgOwner
-                                } ${styles.msgContainer} ${styles.dFlex}`}
-                              >
-                                <div className={styles.msgWrapper}>
-                                  {messages[index - 1] && messages[index - 1].isNotification ? (
-                                    <h3 className={styles.sender}>{message.sender.name}</h3>
-                                  ) : (
-                                    messages[index - 1] &&
-                                    message.senderId !== messages[index - 1].senderId && (
-                                      <h3 className={styles.sender}>{message.sender.name}</h3>
-                                    )
-                                  )}
-                                  <p className={styles.text}>{message.text}</p>
-                                </div>
-                                {index !== 0 && messages[index - 1] && messages[index - 1].isNotification ? (
-                                  <Avatar
-                                    src={getAvatarURLForUser(userAvatarDetails, message.senderId)}
-                                    className={styles.avatar}
-                                  />
-                                ) : (
-                                  messages[index - 1] &&
-                                  message.senderId !== messages[index - 1].senderId && (
-                                    <Avatar
-                                      src={getAvatarURLForUser(userAvatarDetails, message.senderId)}
-                                      className={styles.avatar}
-                                    />
-                                  )
-                                )}
-                                {index === 0 && (
-                                  <Avatar
-                                    src={getAvatarURLForUser(userAvatarDetails, message.senderId)}
-                                    className={styles.avatar}
-                                  />
-                                )}
-                              </div>
-                            </div>
-                          </div>
-                        )}
-                      </Fragment>
-                    ))}
-                </CardContent>
-              </Card>
-            </div>
+                          {index !== 0 && messages[index - 1] && messages[index - 1].isNotification ? (
+                            <Avatar
+                              src={getAvatarURLForUser(userAvatarDetails, message.senderId)}
+                              className={styles.avatar}
+                            />
+                          ) : (
+                            messages[index - 1] &&
+                            message.senderId !== messages[index - 1].senderId && (
+                              <Avatar
+                                src={getAvatarURLForUser(userAvatarDetails, message.senderId)}
+                                className={styles.avatar}
+                              />
+                            )
+                          )}
+                          {index === 0 && (
+                            <Avatar
+                              src={getAvatarURLForUser(userAvatarDetails, message.senderId)}
+                              className={styles.avatar}
+                            />
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </Fragment>
+              ))}
           </div>
         )}
         <div className={`${styles['bottom-box']}`}>

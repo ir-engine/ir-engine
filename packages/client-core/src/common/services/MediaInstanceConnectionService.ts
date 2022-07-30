@@ -36,7 +36,7 @@ const MediaInstanceState = defineState({
   name: 'MediaInstanceState',
   initial: () => ({
     instances: {} as { [id: string]: InstanceState },
-    acceptingPartyInvite: false
+    joiningNonInstanceMediaChannel: false
   })
 })
 
@@ -65,6 +65,7 @@ export const MediaInstanceConnectionServiceReceptor = (action) => {
       return s.instances[action.instanceId].connecting.set(true)
     })
     .when(MediaInstanceConnectionAction.serverConnected.matches, (action) => {
+      s.joiningNonInstanceMediaChannel.set(false)
       return s.instances[action.instanceId].merge({
         connected: true,
         connecting: false,
@@ -79,11 +80,8 @@ export const MediaInstanceConnectionServiceReceptor = (action) => {
     .when(MediaInstanceConnectionAction.disconnect.matches, (action) => {
       return s.instances[action.instanceId].set(none)
     })
-    .when(MediaInstanceConnectionAction.acceptingPartyInvite.matches, (action) => {
-      return s.acceptingPartyInvite.set(true)
-    })
-    .when(MediaInstanceConnectionAction.acceptedPartyInvite.matches, (action) => {
-      return s.acceptingPartyInvite.set(false)
+    .when(MediaInstanceConnectionAction.joiningNonInstanceMediaChannel.matches, (action) => {
+      return s.joiningNonInstanceMediaChannel.set(true)
     })
 }
 
@@ -207,11 +205,7 @@ export class MediaInstanceConnectionAction {
     instanceId: matches.string
   })
 
-  static acceptingPartyInvite = defineAction({
-    type: 'ACCEPTING_PARTY_INVITE' as const
-  })
-
-  static acceptedPartyInvite = defineAction({
-    type: 'ACCEPTED_PARTY_INVITE' as const
+  static joiningNonInstanceMediaChannel = defineAction({
+    type: 'JOINING_NON_INSTANCE_MEDIA_CHANNEL' as const
   })
 }
