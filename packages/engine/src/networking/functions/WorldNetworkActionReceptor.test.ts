@@ -172,144 +172,144 @@ describe('WorldNetworkActionReceptors', () => {
 
   describe('destroyObject', () => {})
 
-  describe('transfer ownership of object', () => {
-    it('should transfer ownership of object from host to client', async () => {
-      const hostUserId = 'world' as UserId
-      const userId = 'user id' as UserId
+  // describe.skip('transfer ownership of object', () => {
+  //   it('should transfer ownership of object from host to client', async () => {
+  //     const hostUserId = 'world' as UserId
+  //     const userId = 'user id' as UserId
 
-      // Run as host
-      Engine.instance.userId = hostUserId
-      const world = Engine.instance.currentWorld
-      const network = world.worldNetwork
+  //     // Run as host
+  //     Engine.instance.userId = hostUserId
+  //     const world = Engine.instance.currentWorld
+  //     const network = world.worldNetwork
 
-      Engine.instance.store.defaultDispatchDelay = 0
+  //     Engine.instance.store.defaultDispatchDelay = 0
 
-      NetworkPeerFunctions.createPeer(network, hostUserId, 0, 'world', world)
-      NetworkPeerFunctions.createPeer(network, userId, 1, 'user name', world)
+  //     NetworkPeerFunctions.createPeer(network, hostUserId, 0, 'world', world)
+  //     NetworkPeerFunctions.createPeer(network, userId, 1, 'user name', world)
 
-      const objParams = 123
-      const objNetId = 3 as NetworkId
-      const objPrefab = 'generic prefab'
+  //     const objParams = 123
+  //     const objNetId = 3 as NetworkId
+  //     const objPrefab = 'generic prefab'
 
-      WorldNetworkActionReceptor.receiveSpawnObject(
-        WorldNetworkAction.spawnObject({
-          $from: hostUserId, // from host
-          prefab: objPrefab, // generic prefab
-          networkId: objNetId,
-          $topic: NetworkTopics.world
-        }),
-        world
-      )
+  //     WorldNetworkActionReceptor.receiveSpawnObject(
+  //       WorldNetworkAction.spawnObject({
+  //         $from: hostUserId, // from host
+  //         prefab: objPrefab, // generic prefab
+  //         networkId: objNetId,
+  //         $topic: NetworkTopics.world
+  //       }),
+  //       world
+  //     )
 
-      const networkObjectQuery = defineQuery([NetworkObjectComponent])
-      const networkObjectOwnedQuery = defineQuery([NetworkObjectOwnedTag])
+  //     const networkObjectQuery = defineQuery([NetworkObjectComponent])
+  //     const networkObjectOwnedQuery = defineQuery([NetworkObjectOwnedTag])
 
-      const networkObjectEntitiesBefore = networkObjectQuery(world)
-      const networkObjectOwnedEntitiesBefore = networkObjectOwnedQuery(world)
+  //     const networkObjectEntitiesBefore = networkObjectQuery(world)
+  //     const networkObjectOwnedEntitiesBefore = networkObjectOwnedQuery(world)
 
-      assert.equal(networkObjectEntitiesBefore.length, 1)
-      assert.equal(networkObjectOwnedEntitiesBefore.length, 1)
+  //     assert.equal(networkObjectEntitiesBefore.length, 1)
+  //     assert.equal(networkObjectOwnedEntitiesBefore.length, 1)
 
-      WorldNetworkActionReceptor.receiveRequestAuthorityOverObject(
-        WorldNetworkAction.requestAuthorityOverObject({
-          $from: userId, // from user
-          object: {
-            ownerId: hostUserId,
-            networkId: objNetId
-          },
-          requester: userId,
-          $topic: NetworkTopics.world
-        }),
-        world
-      )
+  //     WorldNetworkActionReceptor.receiveRequestAuthorityOverObject(
+  //       WorldNetworkAction.requestAuthorityOverObject({
+  //         $from: userId, // from user
+  //         object: {
+  //           ownerId: hostUserId,
+  //           networkId: objNetId
+  //         },
+  //         requester: userId,
+  //         $topic: NetworkTopics.world
+  //       }),
+  //       world
+  //     )
 
-      const system = await WorldNetworkActionSystem()
+  //     const system = await WorldNetworkActionSystem()
 
-      ActionFunctions.clearOutgoingActions()
-      ActionFunctions.applyIncomingActions()
-      system()
+  //     ActionFunctions.clearOutgoingActions()
+  //     ActionFunctions.applyIncomingActions()
+  //     system()
 
-      const networkObjectEntitiesAfter = networkObjectQuery(world)
-      const networkObjectOwnedEntitiesAfter = networkObjectOwnedQuery(world)
+  //     const networkObjectEntitiesAfter = networkObjectQuery(world)
+  //     const networkObjectOwnedEntitiesAfter = networkObjectOwnedQuery(world)
 
-      assert.equal(networkObjectEntitiesAfter.length, 1)
-      assert.equal(networkObjectOwnedEntitiesAfter.length, 0)
+  //     assert.equal(networkObjectEntitiesAfter.length, 1)
+  //     assert.equal(networkObjectOwnedEntitiesAfter.length, 0)
 
-      assert.equal(getComponent(networkObjectEntitiesAfter[0], NetworkObjectComponent).networkId, objNetId)
-      assert.equal(getComponent(networkObjectEntitiesAfter[0], NetworkObjectComponent).authorityUserId, hostUserId)
-      assert.equal(hasComponent(networkObjectEntitiesAfter[0], NetworkObjectOwnedTag), false)
-    })
+  //     assert.equal(getComponent(networkObjectEntitiesAfter[0], NetworkObjectComponent).networkId, objNetId)
+  //     assert.equal(getComponent(networkObjectEntitiesAfter[0], NetworkObjectComponent).authorityUserId, hostUserId)
+  //     assert.equal(hasComponent(networkObjectEntitiesAfter[0], NetworkObjectOwnedTag), false)
+  //   })
 
-    it('should not transfer authority of object (only host can process authority transfer)', async () => {
-      // Run as client
-      const userId = 'user id' as UserId
-      const userName = 'user name'
-      const userIndex = 1
-      Engine.instance.userId = userId
+  //   it('should not transfer authority of object (only host can process authority transfer)', async () => {
+  //     // Run as client
+  //     const userId = 'user id' as UserId
+  //     const userName = 'user name'
+  //     const userIndex = 1
+  //     Engine.instance.userId = userId
 
-      const world = Engine.instance.currentWorld
-      const network = world.worldNetwork
+  //     const world = Engine.instance.currentWorld
+  //     const network = world.worldNetwork
 
-      NetworkPeerFunctions.createPeer(network, userId, userIndex, userName, world)
+  //     NetworkPeerFunctions.createPeer(network, userId, userIndex, userName, world)
 
-      const hostIndex = 0
+  //     const hostIndex = 0
 
-      network.peers.set(world.worldNetwork.hostId, {
-        userId: world.worldNetwork.hostId,
-        index: hostIndex
-      })
+  //     network.peers.set(world.worldNetwork.hostId, {
+  //       userId: world.worldNetwork.hostId,
+  //       index: hostIndex
+  //     })
 
-      const objNetId = 3 as NetworkId
-      const objPrefab = 'generic prefab'
+  //     const objNetId = 3 as NetworkId
+  //     const objPrefab = 'generic prefab'
 
-      const action = WorldNetworkAction.spawnObject({
-        $from: world.worldNetwork.hostId, // from host
-        prefab: objPrefab, // generic prefab
-        networkId: objNetId
-      })
+  //     const action = WorldNetworkAction.spawnObject({
+  //       $from: world.worldNetwork.hostId, // from host
+  //       prefab: objPrefab, // generic prefab
+  //       networkId: objNetId
+  //     })
 
-      WorldNetworkActionReceptor.receiveSpawnObject(action)
-      createAvatar(action)
+  //     WorldNetworkActionReceptor.receiveSpawnObject(action)
+  //     createAvatar(action)
 
-      const networkObjectQuery = defineQuery([NetworkObjectComponent])
-      const networkObjectOwnedQuery = defineQuery([NetworkObjectOwnedTag])
+  //     const networkObjectQuery = defineQuery([NetworkObjectComponent])
+  //     const networkObjectOwnedQuery = defineQuery([NetworkObjectOwnedTag])
 
-      const networkObjectEntities = networkObjectQuery(world)
-      const networkObjectOwnedEntities = networkObjectOwnedQuery(world)
+  //     const networkObjectEntities = networkObjectQuery(world)
+  //     const networkObjectOwnedEntities = networkObjectOwnedQuery(world)
 
-      assert.equal(networkObjectEntities.length, 1)
-      assert.equal(networkObjectOwnedEntities.length, 0)
-      assert.equal(
-        getComponent(networkObjectEntities[0], NetworkObjectComponent).authorityUserId,
-        world.worldNetwork.hostId
-      )
+  //     assert.equal(networkObjectEntities.length, 1)
+  //     assert.equal(networkObjectOwnedEntities.length, 0)
+  //     assert.equal(
+  //       getComponent(networkObjectEntities[0], NetworkObjectComponent).authorityUserId,
+  //       world.worldNetwork.hostId
+  //     )
 
-      WorldNetworkActionReceptor.receiveRequestAuthorityOverObject(
-        WorldNetworkAction.requestAuthorityOverObject({
-          $from: userId, // from user
-          object: {
-            ownerId: world.worldNetwork.hostId,
-            networkId: objNetId
-          },
-          requester: userId,
-          $topic: NetworkTopics.world
-        }),
-        world
-      )
+  //     WorldNetworkActionReceptor.receiveRequestAuthorityOverObject(
+  //       WorldNetworkAction.requestAuthorityOverObject({
+  //         $from: userId, // from user
+  //         object: {
+  //           ownerId: world.worldNetwork.hostId,
+  //           networkId: objNetId
+  //         },
+  //         requester: userId,
+  //         $topic: NetworkTopics.world
+  //       }),
+  //       world
+  //     )
 
-      ActionFunctions.clearOutgoingActions()
-      ActionFunctions.applyIncomingActions()
-      world.execute(0)
+  //     ActionFunctions.clearOutgoingActions()
+  //     ActionFunctions.applyIncomingActions()
+  //     world.execute(0)
 
-      assert.equal(networkObjectEntities.length, 1)
-      assert.equal(networkObjectOwnedEntities.length, 0)
+  //     assert.equal(networkObjectEntities.length, 1)
+  //     assert.equal(networkObjectOwnedEntities.length, 0)
 
-      assert.equal(getComponent(networkObjectEntities[0], NetworkObjectComponent).networkId, objNetId)
-      assert.equal(
-        getComponent(networkObjectEntities[0], NetworkObjectComponent).authorityUserId,
-        world.worldNetwork.hostId
-      )
-      assert.equal(hasComponent(networkObjectEntities[0], NetworkObjectOwnedTag), false)
-    })
-  })
+  //     assert.equal(getComponent(networkObjectEntities[0], NetworkObjectComponent).networkId, objNetId)
+  //     assert.equal(
+  //       getComponent(networkObjectEntities[0], NetworkObjectComponent).authorityUserId,
+  //       world.worldNetwork.hostId
+  //     )
+  //     assert.equal(hasComponent(networkObjectEntities[0], NetworkObjectOwnedTag), false)
+  //   })
+  // })
 })
