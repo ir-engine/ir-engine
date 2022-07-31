@@ -1,6 +1,7 @@
 import { EventQueue } from '@dimforge/rapier3d-compat'
 import * as bitecs from 'bitecs'
 import { AudioListener, Object3D, OrthographicCamera, PerspectiveCamera, Raycaster, Scene } from 'three'
+import { Vector3 } from 'yuka'
 
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
@@ -164,12 +165,6 @@ export class World {
    */
   camera: PerspectiveCamera | OrthographicCamera = new PerspectiveCamera(60, 1, 0.1, 10000)
   cameraEntity: Entity = NaN as Entity
-
-  /**
-   * Reference to the audioListener.
-   * This is a virtual listner for all positional and non-positional audio.
-   */
-  audioListener: AudioListener = null!
 
   inputState = new Map<any, InputValue>()
   prevInputState = new Map<any, InputValue>()

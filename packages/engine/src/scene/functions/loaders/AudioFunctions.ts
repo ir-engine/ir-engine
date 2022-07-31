@@ -60,9 +60,8 @@ export const createAudioNode = (
   el: HTMLMediaElement | MediaStream,
   source: MediaElementAudioSourceNode | MediaStreamAudioSourceNode
 ): AudioElementNode => {
-  const listener = Engine.instance.currentWorld.audioListener
-  const gain = listener.context.createGain()
-  gain.connect(listener.getInput())
+  const gain = Engine.instance.audioContext.createGain()
+  gain.connect(Engine.instance.cameraGainNode)
   source.connect(gain)
   const audioObject = { source, gain }
   AudioElementNodes.set(el, audioObject)
@@ -126,7 +125,7 @@ export const updateAudio = (entity: Entity) => {
     })
     mediaComponent.el = el
 
-    createAudioNode(el, Engine.instance.currentWorld.audioListener.context.createMediaElementSource(el))
+    createAudioNode(el, Engine.instance.audioContext.createMediaElementSource(el))
   }
 
   const el = getComponent(entity, MediaComponent).el!

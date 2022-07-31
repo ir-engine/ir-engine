@@ -1,5 +1,5 @@
 import { Not } from 'bitecs'
-import { Object3D, PositionalAudio, Quaternion, Vector3 } from 'three'
+import { Quaternion, Vector3 } from 'three'
 
 import { createActionQueue } from '@xrengine/hyperflux'
 
@@ -24,7 +24,7 @@ import { TransformComponent } from '../../transform/components/TransformComponen
 import { AudioComponent } from '../components/AudioComponent'
 import { PositionalAudioTagComponent } from '../components/PositionalAudioTagComponent'
 import { AudioType } from '../constants/AudioConstants'
-import { AudioElementNodes } from './AudioSystem'
+import { AudioElementNode, AudioElementNodes } from './AudioSystem'
 
 /**
  * https://discourse.threejs.org/t/positionalaudio-setmediastreamsource-with-webrtc-question-not-hearing-any-sound/14301/14
@@ -33,12 +33,43 @@ import { AudioElementNodes } from './AudioSystem'
 const SHOULD_CREATE_SILENT_AUDIO_ELS = typeof navigator !== 'undefined' && /chrome/i.test(navigator.userAgent)
 function createSilentAudioEl(streamsLive: MediaProvider) {
   if (SHOULD_CREATE_SILENT_AUDIO_ELS) return null!
-  const audioEl = new Audio()
+  let audioEl = new Audio()
   audioEl.setAttribute('autoplay', 'autoplay')
   audioEl.setAttribute('playsinline', 'playsinline')
   audioEl.srcObject = streamsLive
-  audioEl.volume = 0 // we don't actually want to hear audio from this element
-  return audioEl
+  // we don't actually want to hear audio from this element
+  audioEl.volume = 0
+  audioEl.muted = true
+  // remove reference to be GC'd once audio is flowing
+  audioEl.addEventListener('canplaythrough', () => {
+    audioEl = null!
+  })
+}
+
+export const addPannerNode = (audioObject: AudioElementNode, opts = Engine.instance.spatialAudioSettings) => {
+  const panner = Engine.instance.audioContext.createPanner()
+  audioObject.source.disconnect(audioObject.gain)
+  audioObject.source.connect(panner)
+  panner.connect(audioObject.gain)
+  audioObject.panner = panner
+
+  panner.refDistance = opts.refDistance
+  panner.rolloffFactor = opts.rolloffFactor
+  panner.maxDistance = opts.maxDistance
+  panner.distanceModel = opts.distanceModel
+
+  panner.coneInnerAngle = opts.coneInnerAngle
+  panner.coneOuterAngle = opts.coneOuterAngle
+  panner.coneOuterGain = opts.coneOuterGain
+
+  return panner
+}
+
+export const removePannerNode = (audioObject: AudioElementNode) => {
+  audioObject.source.connect(audioObject.gain)
+  audioObject.source.disconnect(audioObject.panner!)
+  audioObject.panner!.disconnect(audioObject.gain)
+  audioObject.panner = undefined
 }
 
 export const updatePositionalAudioTag = (entity: Entity) => {
@@ -53,10 +84,8 @@ export const updatePositionalAudioTag = (entity: Entity) => {
 
 export default async function PositionalAudioSystem(world: World) {
   const _rot = new Vector3()
-  const updateAudioPanner = (panner: PannerNode, position: Vector3, rotation: Quaternion) => {
-    const audioListener = Engine.instance.currentWorld.audioListener
+  const updateAudioPanner = (panner: PannerNode, position: Vector3, rotation: Quaternion, endTime: number) => {
     _rot.set(0, 0, 1).applyQuaternion(rotation)
-    const endTime = audioListener.context.currentTime + audioListener.timeDelta
     panner.positionX.linearRampToValueAtTime(position.x, endTime)
     panner.positionY.linearRampToValueAtTime(position.y, endTime)
     panner.positionZ.linearRampToValueAtTime(position.z, endTime)
@@ -78,28 +107,17 @@ export default async function PositionalAudioSystem(world: World) {
     PositionalAudioTagComponent,
     TransformComponent
   ])
-  const positionalAudioQuery = defineQuery([PositionalAudioTagComponent])
 
   /**
    * Avatars
    */
   const networkedAvatarAudioQuery = defineQuery([AvatarComponent, NetworkObjectComponent, Not(LocalAvatarTagComponent)])
 
-  /**
-   * Weak map entry is automatically GC'd when network object is removed
-   */
-
-  const avatarAudioObjs: WeakMap<
-    NetworkObjectComponentType,
-    {
-      stream: any
-      bugEl: HTMLAudioElement
-    }
-  > = new WeakMap()
+  /** Weak map entry is automatically GC'd when network object is removed */
+  const avatarAudioObjs: WeakMap<NetworkObjectComponentType, MediaStream> = new WeakMap()
 
   return () => {
-    const audioListener = Engine.instance.currentWorld.audioListener
-    audioListener.updateMatrixWorld(true)
+    const audioContext = Engine.instance.audioContext
     const network = Engine.instance.currentWorld.mediaNetwork
 
     /**
@@ -114,24 +132,20 @@ export default async function PositionalAudioSystem(world: World) {
 
     for (const entity of positionalAudioSceneObjectQuery.enter()) {
       const el = getComponent(entity, MediaComponent).el
-      const panner = audioListener.context.createPanner()
-      panner.panningModel = 'HRTF'
       const audioObject = AudioElementNodes.get(el)!
-      panner.connect(audioObject.gain)
-      audioObject.panner = panner
+      addPannerNode(audioObject)
     }
 
     for (const entity of positionalAudioSceneObjectQuery.exit()) {
       const el = getComponent(entity, MediaComponent).el
       const audioObject = AudioElementNodes.get(el)!
-      audioObject.panner!.disconnect(audioObject.gain)
-      audioObject.panner = undefined
+      removePannerNode(audioObject)
     }
 
     /**
      * No need to update pose of positional audio objects if the audio context is not running
      */
-    if (audioListener.context.state !== 'running') return
+    if (audioContext.state !== 'running') return
 
     /**
      * Avatars
@@ -154,31 +168,27 @@ export default async function PositionalAudioSystem(world: World) {
       // audio stream exists and has already been handled
       if (avatarAudioObjs.has(networkObject)) continue
 
+      // get existing stream - need to wait for UserWindowMedia to populate
+      const existingAudioObject = document.getElementById(`${peerId}_audio`)! as HTMLAudioElement
+      if (!existingAudioObject) continue
+
+      // mute existing stream
+      existingAudioObject.muted = true
+
       // audio streams exists but has not been handled
       const mediaTrack = consumer.track as MediaStreamTrack
       const stream = new MediaStream([mediaTrack.clone()])
 
-      // TODO: test that this isn't needed anymore
-      const bugEl = createSilentAudioEl(stream)
+      createSilentAudioEl(stream)
 
-      const audioStreamSource = audioListener.context.createMediaStreamSource(stream)
-      const audioObject = createAudioNode(stream, audioStreamSource)
+      const audioObject = createAudioNode(stream, audioContext.createMediaStreamSource(stream))
 
-      const panner = audioListener.context.createPanner()
-      panner.panningModel = 'HRTF'
-      panner.connect(audioObject.gain)
-      panner.refDistance = 20
-      panner.distanceModel = 'linear'
-      audioObject.panner = panner
-      // panner.coneInnerAngle = 180
-      // panner.coneOuterAngle = 230
-      // panner.coneOuterGain = 0.1
+      addPannerNode(audioObject)
 
-      avatarAudioObjs.set(networkObject, { stream, bugEl: null! })
-
-      const existingAudioObject = document.getElementById(`${peerId}_audio`)! as HTMLAudioElement
-      existingAudioObject.volume = 0
+      avatarAudioObjs.set(networkObject, stream)
     }
+
+    const endTime = Engine.instance.audioContext.currentTime + world.deltaSeconds
 
     /**
      * Update panner nodes
@@ -190,7 +200,7 @@ export default async function PositionalAudioSystem(world: World) {
       const { position, rotation } = getComponent(entity, TransformComponent)
       const audioObject = AudioElementNodes.get(mediaComponent.el)!
 
-      updateAudioPanner(audioObject.panner!, position, rotation)
+      updateAudioPanner(audioObject.panner!, position, rotation, endTime)
     }
 
     /** @todo, only apply this to closest 8 (configurable) avatars */
@@ -201,13 +211,30 @@ export default async function PositionalAudioSystem(world: World) {
       const audioObj = avatarAudioObjs.get(networkObject)!
       if (!audioObj) continue
 
-      const panner = AudioElementNodes.get(audioObj.stream)?.panner!
+      const panner = AudioElementNodes.get(audioObj)?.panner!
       if (!panner) continue
 
       getAvatarBoneWorldPosition(entity, 'Head', _vec3)
       const { rotation } = getComponent(entity, TransformComponent)
 
-      updateAudioPanner(panner, _vec3, rotation)
+      updateAudioPanner(panner, _vec3, rotation, endTime)
     }
+
+    /**
+     * Update camera listener position
+     */
+    const { position, rotation } = getComponent(Engine.instance.currentWorld.cameraEntity, TransformComponent)
+    _rot.set(0, 0, -1).applyQuaternion(rotation)
+    audioContext.listener.positionX.linearRampToValueAtTime(position.x, endTime)
+    audioContext.listener.positionY.linearRampToValueAtTime(position.y, endTime)
+    audioContext.listener.positionZ.linearRampToValueAtTime(position.z, endTime)
+    audioContext.listener.forwardX.linearRampToValueAtTime(_rot.x, endTime)
+    audioContext.listener.forwardY.linearRampToValueAtTime(_rot.y, endTime)
+    audioContext.listener.forwardZ.linearRampToValueAtTime(_rot.z, endTime)
+
+    /** @todo support different world ups */
+    // audioContext.listener.upX.linearRampToValueAtTime(camera.up.x, endTime)
+    // audioContext.listener.upY.linearRampToValueAtTime(camera.up.y, endTime)
+    // audioContext.listener.upZ.linearRampToValueAtTime(camera.up.z, endTime)
   }
 }

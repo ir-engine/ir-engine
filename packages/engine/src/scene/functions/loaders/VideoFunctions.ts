@@ -91,7 +91,7 @@ export const updateVideo: ComponentUpdateFunction = (entity: Entity, properties:
     })
     mediaComponent.el = el
 
-    createAudioNode(el, Engine.instance.currentWorld.audioListener.context.createMediaElementSource(el))
+    createAudioNode(el, Engine.instance.audioContext.createMediaElementSource(el))
   }
 
   const el = getComponent(entity, MediaComponent).el! as HTMLVideoElement

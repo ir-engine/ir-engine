@@ -76,7 +76,7 @@ export default async function AudioSystem(world: World) {
 
   return () => {
     if (userInteractActionQueue().length) {
-      const context = Engine.instance.currentWorld.audioListener.context
+      const context = Engine.instance.audioContext
       if (context.state === 'suspended') context.resume()
       AudioEffectPlayer.instance._init()
       if (!Engine.instance.isEditor) {

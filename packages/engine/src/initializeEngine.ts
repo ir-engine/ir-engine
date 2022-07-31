@@ -62,11 +62,13 @@ export const setupEngineActionSystems = () => {
  * initializes everything for the browser context
  */
 export const initializeBrowser = () => {
+  const audioContext = new (globalThis.AudioContext || globalThis.webkitAudioContext)()
+  audioContext.resume()
+  Engine.instance.audioContext = audioContext
   Engine.instance.publicPath = location.origin
+  Engine.instance.cameraGainNode = audioContext.createGain()
+  Engine.instance.cameraGainNode.connect(audioContext.destination)
   const world = Engine.instance.currentWorld
-  world.audioListener = new AudioListener()
-  world.audioListener.context.resume()
-  world.camera.add(world.audioListener)
   world.camera.layers.disableAll()
   world.camera.layers.enable(ObjectLayers.Scene)
   world.camera.layers.enable(ObjectLayers.Avatar)
