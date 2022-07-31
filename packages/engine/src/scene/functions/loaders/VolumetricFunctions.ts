@@ -13,6 +13,7 @@ import {
   ComponentUpdateFunction
 } from '../../../common/constants/PrefabFunctionType'
 import { isClient } from '../../../common/functions/isClient'
+import { Engine } from '../../../ecs/classes/Engine'
 import { getEngineState } from '../../../ecs/classes/EngineState'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent, removeComponent } from '../../../ecs/functions/ComponentFunctions'
@@ -24,6 +25,7 @@ import { Object3DComponent } from '../../components/Object3DComponent'
 import { VolumetricComponent, VolumetricComponentType } from '../../components/VolumetricComponent'
 import { PlayMode } from '../../constants/PlayMode'
 import { addError, removeError } from '../ErrorFunctions'
+import { createAudioNode } from './AudioFunctions'
 
 type VolumetricObject3D = UpdateableObject3D & {
   userData: {
@@ -148,7 +150,11 @@ export const addVolumetricComponent = (entity: Entity, props: VolumetricComponen
     return VolumetricCallbacks
   }
 
-  mediaComponent.el = obj3d as any
+  const el = player.video
+
+  mediaComponent.el = el
+
+  createAudioNode(el, Engine.instance.currentWorld.audioListener.context.createMediaElementSource(el))
 }
 
 export const updateVolumetric: ComponentUpdateFunction = (entity: Entity) => {

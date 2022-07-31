@@ -49,6 +49,14 @@ export class AudioEffectPlayer {
 
 globalThis.AudioEffectPlayer = AudioEffectPlayer
 
+export type AudioElementNode = {
+  gain: GainNode
+  source: MediaElementAudioSourceNode | MediaStreamAudioSourceNode
+  panner?: PannerNode
+}
+
+export const AudioElementNodes = new WeakMap<HTMLMediaElement | MediaStream, AudioElementNode>()
+
 export default async function AudioSystem(world: World) {
   await AssetLoader.loadAsync(AUDIO_TEXTURE_PATH)
 

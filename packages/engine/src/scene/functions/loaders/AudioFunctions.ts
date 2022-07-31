@@ -1,4 +1,4 @@
-import { Audio, DoubleSide, Mesh, MeshBasicMaterial, Object3D, PlaneBufferGeometry } from 'three'
+import { Audio, DoubleSide, Mesh, MeshBasicMaterial, Object3D, PlaneBufferGeometry, PositionalAudio } from 'three'
 
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
@@ -6,6 +6,7 @@ import { AssetLoader } from '../../../assets/classes/AssetLoader'
 import { AudioComponent, AudioComponentType } from '../../../audio/components/AudioComponent'
 import { PositionalAudioTagComponent } from '../../../audio/components/PositionalAudioTagComponent'
 import { AudioType, AudioTypeType } from '../../../audio/constants/AudioConstants'
+import { AudioElementNode, AudioElementNodes } from '../../../audio/systems/AudioSystem'
 import {
   ComponentDeserializeFunction,
   ComponentPrepareForGLTFExportFunction,
@@ -53,6 +54,19 @@ export const deserializeAudio: ComponentDeserializeFunction = async (
   const props = parseAudioProperties(json.props)
   addComponent(entity, AudioComponent, props)
   getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_AUDIO)
+}
+
+export const createAudioNode = (
+  el: HTMLMediaElement | MediaStream,
+  source: MediaElementAudioSourceNode | MediaStreamAudioSourceNode
+): AudioElementNode => {
+  const listener = Engine.instance.currentWorld.audioListener
+  const gain = listener.context.createGain()
+  gain.connect(listener.getInput())
+  source.connect(gain)
+  const audioObject = { source, gain }
+  AudioElementNodes.set(el, audioObject)
+  return audioObject
 }
 
 export const updateAudio = (entity: Entity) => {
@@ -111,16 +125,11 @@ export const updateAudio = (entity: Entity) => {
       el.play()
     })
     mediaComponent.el = el
+
+    createAudioNode(el, Engine.instance.currentWorld.audioListener.context.createMediaElementSource(el))
   }
 
   const el = getComponent(entity, MediaComponent).el!
-
-  if (audioComponent.audioType === AudioType.Stereo && hasComponent(entity, PositionalAudioTagComponent))
-    removeComponent(entity, PositionalAudioTagComponent)
-
-  if (audioComponent.audioType === AudioType.Positional && !hasComponent(entity, PositionalAudioTagComponent))
-    addComponent(entity, PositionalAudioTagComponent, true)
-
   if (currentPath !== el.src) {
     const onloadeddata = () => {
       el.removeEventListener('loadeddata', onloadeddata)

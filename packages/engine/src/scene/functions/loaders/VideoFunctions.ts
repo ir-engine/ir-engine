@@ -24,6 +24,7 @@ import { VideoComponent, VideoComponentType } from '../../components/VideoCompon
 import { PlayMode } from '../../constants/PlayMode'
 import { addError, removeError } from '../ErrorFunctions'
 import isHLS from '../isHLS'
+import { createAudioNode } from './AudioFunctions'
 import { resizeImageMesh } from './ImageFunctions'
 import { getNextPlaylistItem, updateAutoStartTimeForMedia } from './MediaFunctions'
 
@@ -89,6 +90,8 @@ export const updateVideo: ComponentUpdateFunction = (entity: Entity, properties:
       el.play()
     })
     mediaComponent.el = el
+
+    createAudioNode(el, Engine.instance.currentWorld.audioListener.context.createMediaElementSource(el))
   }
 
   const el = getComponent(entity, MediaComponent).el! as HTMLVideoElement
