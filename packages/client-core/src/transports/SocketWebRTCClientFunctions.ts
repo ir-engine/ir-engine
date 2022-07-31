@@ -177,11 +177,10 @@ export async function onConnectToWorldInstance(network: SocketWebRTCClientNetwor
   async function disconnectHandler() {
     dispatchAction(NetworkConnectionService.actions.worldInstanceDisconnected({}))
     dispatchAction(EngineActions.connectToWorld({ connectedWorld: false }))
-    network.reconnecting = true
-
-    // Get information for how to consume data from server and init a data consumer
+    dispatchAction(NetworkConnectionService.actions.worldInstanceDisconnected({}))
     network.socket.off(MessageTypes.WebRTCConsumeData.toString(), consumeDataHandler)
     network.socket.off(MessageTypes.Kick.toString(), kickHandler)
+    removeActionReceptor(consumeDataHandler)
   }
 
   network.socket.on('disconnect', disconnectHandler)
@@ -306,7 +305,6 @@ export async function onConnectToMediaInstance(network: SocketWebRTCClientNetwor
     network.consumers.forEach((consumer) => closeConsumer(network, consumer))
     network.socket.off(MessageTypes.WebRTCCreateProducer.toString(), webRTCCreateProducerHandler)
     dispatchAction(NetworkConnectionService.actions.mediaInstanceDisconnected({}))
-    network.reconnecting = true
     network.socket.off(MessageTypes.WebRTCPauseConsumer.toString(), webRTCPauseConsumerHandler)
     network.socket.off(MessageTypes.WebRTCResumeConsumer.toString(), webRTCResumeConsumerHandler)
     network.socket.off(MessageTypes.WebRTCCloseConsumer.toString(), webRTCCloseConsumerHandler)
