@@ -33,10 +33,10 @@ const MediaControlsView = (props: MediaControlsProps) => {
   const mediaComponent = getComponent(props.entity, MediaComponent)
 
   useEffect(() => {
-    mediaComponent.el?.addEventListener('playing', () => {
+    mediaComponent.el.addEventListener('playing', () => {
       detailState.merge({ playing: true })
     })
-    mediaComponent.el?.addEventListener('pause', () => {
+    mediaComponent.el.addEventListener('pause', () => {
       detailState.merge({ playing: false })
     })
   }, [])

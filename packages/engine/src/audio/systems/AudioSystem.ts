@@ -10,6 +10,7 @@ import { EngineActions } from '../../ecs/classes/EngineState'
 import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { matchActionOnce } from '../../networking/functions/matchActionOnce'
+import { MediaComponent } from '../../scene/components/MediaComponent'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { VideoComponent } from '../../scene/components/VideoComponent'
 import { VolumetricComponent } from '../../scene/components/VolumetricComponent'
@@ -51,30 +52,6 @@ globalThis.AudioEffectPlayer = AudioEffectPlayer
 export default async function AudioSystem(world: World) {
   await AssetLoader.loadAsync(AUDIO_TEXTURE_PATH)
 
-  let audioReady = false
-  let callbacks: any[] = []
-  let audio: any
-
-  const whenReady = (cb): void => {
-    if (audioReady) {
-      cb()
-    } else {
-      callbacks.push(cb)
-    }
-  }
-
-  const startAudio = (e) => {
-    window.removeEventListener('pointerdown', startAudio, true)
-    console.log('starting audio')
-    audioReady = true
-    Engine.instance.currentWorld.audioListener.context.resume()
-    dispatchAction(EngineActions.startSuspendedContexts({}))
-
-    callbacks.forEach((cb) => cb())
-    callbacks = null!
-  }
-  window.addEventListener('pointerdown', startAudio, true)
-
   matchActionOnce(EngineActions.joinedWorld.matches, () => {
     restoreAudioSettings()
   })
@@ -87,10 +64,19 @@ export default async function AudioSystem(world: World) {
   const audioQuery = defineQuery([AudioComponent, Not(VideoComponent), Not(VolumetricComponent)])
   const videoQuery = defineQuery([AudioComponent, VideoComponent, Not(VolumetricComponent)])
   const volQuery = defineQuery([AudioComponent, Not(VideoComponent), VolumetricComponent])
+  const mediaQuery = defineQuery([MediaComponent])
 
   return () => {
-    for (const action of userInteractActionQueue()) {
+    if (userInteractActionQueue().length) {
+      const context = Engine.instance.currentWorld.audioListener.context
+      if (context.state === 'suspended') context.resume()
       AudioEffectPlayer.instance._init()
+      if (!Engine.instance.isEditor) {
+        for (const entity of mediaQuery()) {
+          const audio = getComponent(entity, MediaComponent).el
+          if (audio.autoplay) audio.play()
+        }
+      }
     }
 
     for (const entity of audioQuery.exit()) {

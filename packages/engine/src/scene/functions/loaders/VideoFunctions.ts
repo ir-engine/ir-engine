@@ -132,11 +132,6 @@ export const updateVideo: ComponentUpdateFunction = (entity: Entity, properties:
           if (el.autoplay) {
             if (getEngineState().userHasInteracted.value) {
               el.play()
-            } else {
-              matchActionOnce(EngineActions.setUserHasInteracted.matches, () => {
-                el.play()
-                return true
-              })
             }
           }
 

@@ -30,6 +30,8 @@ type VolumetricObject3D = UpdateableObject3D & {
     isEffect: boolean
     time: number
   }
+  autoplay: boolean
+  controls: boolean
   play()
   pause()
   seek()
@@ -84,7 +86,7 @@ export const addVolumetricComponent = (entity: Entity, props: VolumetricComponen
   const player = new DracosisPlayer({
     scene: obj3d,
     renderer: EngineRenderer.instance.renderer,
-    paths: mediaComponent.paths,
+    paths: mediaComponent.paths.length ? mediaComponent.paths : ['fake-path'],
     isLoadingEffect: properties.useLoadingEffect,
     isVideoTexture: false,
     playMode: mediaComponent.playMode as any,
@@ -131,24 +133,22 @@ export const addVolumetricComponent = (entity: Entity, props: VolumetricComponen
 
   //setup callbacks
   obj3d.play = () => {
-    if (getEngineState().userHasInteracted.value) {
-      player.play()
-    }
+    player.play()
   }
 
   obj3d.pause = () => {
-    if (getEngineState().userHasInteracted.value) player.pause()
+    player.pause()
   }
 
   obj3d.seek = () => {
-    if (getEngineState().userHasInteracted.value) {
-      player.playOneFrame()
-    }
+    player.playOneFrame()
   }
 
   obj3d.callbacks = () => {
     return VolumetricCallbacks
   }
+
+  mediaComponent.el = obj3d as any
 }
 
 export const updateVolumetric: ComponentUpdateFunction = (entity: Entity) => {
@@ -161,6 +161,9 @@ export const updateVolumetric: ComponentUpdateFunction = (entity: Entity) => {
   if (paths.length && JSON.stringify(player.paths) !== JSON.stringify(paths)) {
     player.paths = paths
   }
+
+  obj3d.autoplay = mediaComponent.autoplay
+  obj3d.controls = mediaComponent.controls
 }
 
 export const serializeVolumetric: ComponentSerializeFunction = (entity) => {

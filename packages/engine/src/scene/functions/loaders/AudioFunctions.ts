@@ -122,25 +122,18 @@ export const updateAudio = (entity: Entity) => {
     addComponent(entity, PositionalAudioTagComponent, true)
 
   if (currentPath !== el.src) {
-    el.addEventListener(
-      'loadeddata',
-      () => {
-        el.muted = false
-        if (el.autoplay) {
-          if (getEngineState().userHasInteracted.value) {
-            el.play()
-          } else {
-            matchActionOnce(EngineActions.setUserHasInteracted.matches, () => {
-              el.play()
-              return true
-            })
-          }
-
-          if (!Engine.instance.isEditor) updateAutoStartTimeForMedia(entity)
+    const onloadeddata = () => {
+      el.removeEventListener('loadeddata', onloadeddata)
+      el.muted = false
+      if (el.autoplay) {
+        if (getEngineState().userHasInteracted.value) {
+          el.play()
         }
-      },
-      { once: true }
-    )
+
+        if (!Engine.instance.isEditor) updateAutoStartTimeForMedia(entity)
+      }
+    }
+    el.addEventListener('loadeddata', onloadeddata, { once: true })
     el.src = currentPath
   }
 

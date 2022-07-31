@@ -246,15 +246,15 @@ export const initializeSceneSystems = async () => {
       },
       {
         type: SystemUpdateType.PRE_RENDER,
-        systemModulePromise: import('./interaction/systems/MediaControlSystem')
-      },
-      {
-        type: SystemUpdateType.PRE_RENDER,
         systemModulePromise: import('./audio/systems/AudioSystem')
       },
       {
         type: SystemUpdateType.PRE_RENDER,
         systemModulePromise: import('./audio/systems/PositionalAudioSystem')
+      },
+      {
+        type: SystemUpdateType.PRE_RENDER,
+        systemModulePromise: import('./interaction/systems/MediaControlSystem')
       },
       {
         type: SystemUpdateType.PRE_RENDER,
