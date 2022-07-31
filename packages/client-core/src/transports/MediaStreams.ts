@@ -252,7 +252,7 @@ export class MediaStreams {
     try {
       logger.info('Getting video stream %o', localVideoConstraints)
       this.videoStream = await navigator.mediaDevices.getUserMedia(localVideoConstraints)
-      if (this.camVideoProducer) {
+      if (this.camVideoProducer && !this.camVideoProducer.closed) {
         await this.camVideoProducer.replaceTrack({
           track: this.videoStream.getVideoTracks()[0]
         })
@@ -277,7 +277,7 @@ export class MediaStreams {
     try {
       logger.info('Getting audio stream %o', localAudioConstraints)
       this.audioStream = await navigator.mediaDevices.getUserMedia(localAudioConstraints)
-      if (this.camAudioProducer)
+      if (this.camAudioProducer && !this.camAudioProducer.closed)
         await this.camAudioProducer.replaceTrack({
           track: this.audioStream.getAudioTracks()[0]
         })
