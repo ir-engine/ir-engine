@@ -43,10 +43,10 @@ export default async function MediaControlSystem(world: World) {
   return () => {
     for (const entity of mediaQuery.enter(world)) {
       if (!getComponent(entity, MediaComponent).controls) return
-      // addInteractableUI(entity, createMediaControlsUI(entity), update)
-      // const transition = createTransitionState(0.25)
-      // transition.setState('OUT')
-      // MediaFadeTransitions.set(entity, transition)
+      addInteractableUI(entity, createMediaControlsUI(entity), update)
+      const transition = createTransitionState(0.25)
+      transition.setState('OUT')
+      MediaFadeTransitions.set(entity, transition)
     }
 
     for (const entity of mediaQuery.exit(world)) {
