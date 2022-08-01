@@ -13,7 +13,7 @@ import { AudioSettingKeys } from './AudioSettingConstants'
 export const AudioState = defineState({
   name: 'AudioState',
   initial: () => ({
-    masterVolume: 0.1,
+    masterVolume: 0.5,
     microphoneGain: 0.5,
     usePositionalAudio: false, // only for avatars
     mediaStreamVolume: 0.5,
