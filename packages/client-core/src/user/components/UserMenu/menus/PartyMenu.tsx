@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { SendInvite } from '@xrengine/common/src/interfaces/Invite'
@@ -83,7 +83,6 @@ export const usePartyMenuHooks = () => {
 const SocialMenu = (): JSX.Element => {
   const { t } = useTranslation()
   const partyState = usePartyState()
-  const authUser = useAuthState().authUser.value
 
   const {
     createParty,
@@ -127,15 +126,14 @@ const SocialMenu = (): JSX.Element => {
                     <img src={user.user.static_resources && user.user.static_resources[0].url} alt="" />
                   </div>
                   <div className={styles.userName}>{user.user.name}</div>
+                  {user.isOwner && <img src="/icons/crown.svg" alt="" />}
                 </div>
-                {user.user.id === authUser.identityProvider.userId ? (
+                {user.user.id === selfUser.id.value ? (
                   <span className={styles.admin}>{t('user:usermenu.party.you')}</span>
                 ) : partyState.isOwned.value ? (
                   <Button className={styles.kick} onClick={() => kickUser(user.user.id)}>
                     {t('user:usermenu.party.kick')}
                   </Button>
-                ) : user.isOwner ? (
-                  <span className={styles.admin}>{t('user:usermenu.party.admin')}</span>
                 ) : null}
               </div>
             )
@@ -166,7 +164,7 @@ const SocialMenu = (): JSX.Element => {
           ) : (
             <div className={styles.controls}>
               <div className={styles.leaveInviteButtons}>
-                <Button className={styles.leave} onClick={() => kickUser(authUser.identityProvider.userId)}>
+                <Button className={styles.leave} onClick={() => kickUser(selfUser.id.value)}>
                   {t('user:usermenu.party.leave')}
                 </Button>
                 {isOwned && (

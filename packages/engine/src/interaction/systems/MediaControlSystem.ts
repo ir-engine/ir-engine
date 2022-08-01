@@ -42,6 +42,7 @@ export default async function MediaControlSystem(world: World) {
 
   return () => {
     for (const entity of mediaQuery.enter(world)) {
+      if (!getComponent(entity, MediaComponent).controls) return
       addInteractableUI(entity, createMediaControlsUI(entity), update)
       const transition = createTransitionState(0.25)
       transition.setState('OUT')
@@ -49,7 +50,9 @@ export default async function MediaControlSystem(world: World) {
     }
 
     for (const entity of mediaQuery.exit(world)) {
-      MediaFadeTransitions.delete(entity)
+      if (MediaFadeTransitions.has(entity)) MediaFadeTransitions.delete(entity)
+      const mediaComponent = getComponent(entity, MediaComponent, true)
+      mediaComponent.el?.remove()
     }
   }
 }

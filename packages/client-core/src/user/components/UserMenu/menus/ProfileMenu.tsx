@@ -139,9 +139,9 @@ const ProfileMenu = ({ className, hideLogin, isPopover, changeActiveMenu, onClos
 
   const loadCredentialHandler = async () => {
     try {
-      const mediator = `${globalThis.process.env['VITE_MEDIATOR_SERVER']}/mediator?origin=${encodeURIComponent(
-        window.location.origin
-      )}`
+      const mediator =
+        globalThis.process.env['VITE_MEDIATOR_SERVER'] +
+        `/mediator?origin=${encodeURIComponent(window.location.origin)}`
 
       await polyfill.loadOnce(mediator)
       console.log('Ready to work with credentials!')
@@ -255,7 +255,7 @@ const ProfileMenu = ({ className, hideLogin, isPopover, changeActiveMenu, onClos
     // window.location.reload()
   }
 
-  /*  const handleWalletLoginClick = async (e) => {
+  async function handleWalletLoginClick() {
     const domain = window.location.origin
     const challenge = '99612b24-63d9-11ea-b99f-4f66f3e4f81a' // TODO: generate
 
@@ -275,12 +275,12 @@ const ProfileMenu = ({ className, hideLogin, isPopover, changeActiveMenu, onClos
       }
     }
 
-    // Use Credential Handler API to authenticate
-    const result: any = await navigator.credentials.get(didAuthQuery)
-    console.log(result)
+    // Use Credential Handler API to authenticate and receive basic login display credentials
+    const vprResult: any = await navigator.credentials.get(didAuthQuery)
+    console.log(vprResult)
 
-    AuthService.loginUserByXRWallet(result)
-  }*/
+    AuthService.loginUserByXRWallet(vprResult)
+  }
 
   const refreshApiKey = () => {
     AuthService.updateApiKey()
@@ -327,6 +327,9 @@ const ProfileMenu = ({ className, hideLogin, isPopover, changeActiveMenu, onClos
     if (userId && token)
       window.open(`${globalThis.process.env['VITE_ETH_MARKETPLACE']}?data=${userId}&token=${token}`, '_blank')
   }
+
+  const enableWalletLogin = !!globalThis.process.env['VITE_LOGIN_WITH_WALLET']
+
   const enableSocial =
     authState?.discord ||
     authState?.facebook ||
@@ -572,22 +575,25 @@ const ProfileMenu = ({ className, hideLogin, isPopover, changeActiveMenu, onClos
                 </form>
               </section>
             )}
-            {userRole === 'guest' && changeActiveMenu != null && (
+            {userRole === 'guest' && changeActiveMenu && (
               <section className={styles.walletSection}>
                 <Typography variant="h3" className={styles.textBlock}>
                   {t('user:usermenu.profile.or')}
                 </Typography>
-                {/*<Button onClick={handleWalletLoginClick} className={styles.walletBtn}>
-                  {t('user:usermenu.profile.lbl-wallet')}
-                </Button>
-                <br/>*/}
-                <Button onClick={() => changeActiveMenu(Views.ReadyPlayer)} className={styles.walletBtn}>
-                  {t('user:usermenu.profile.loginWithReadyPlayerMe')}
-                </Button>
+
+                {enableWalletLogin ? (
+                  <Button onClick={() => handleWalletLoginClick()} className={styles.walletBtn}>
+                    {t('user:usermenu.profile.loginWithXRWallet')}
+                  </Button>
+                ) : (
+                  <Button onClick={() => changeActiveMenu(Views.ReadyPlayer)} className={styles.walletBtn}>
+                    {t('user:usermenu.profile.loginWithReadyPlayerMe')}
+                  </Button>
+                )}
               </section>
             )}
 
-            {enableSocial && (
+            {enableSocial && !enableWalletLogin && (
               <section className={styles.socialBlock}>
                 {selfUser?.userRole.value === 'guest' && (
                   <Typography variant="h3" className={styles.textBlock}>

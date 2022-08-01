@@ -16,7 +16,7 @@ import { InfoTooltip } from '../../layout/Tooltip'
 import * as styles from '../styles.module.scss'
 
 export const HelperToggleTool = () => {
-  const engineRenderState = accessEngineRendererState()
+  const engineRenderState = useEngineRendererState()
   const [, updateState] = useState<any>()
   const forceUpdate = useCallback(() => updateState({}), [])
   const engineRendererState = useEngineRendererState()

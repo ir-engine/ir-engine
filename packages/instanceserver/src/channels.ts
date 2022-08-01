@@ -461,7 +461,11 @@ const handleUserDisconnect = async (
           partyId: user.partyId
         }
       })
-      if (partyUser.total > 0) await app.service('party-user').remove(partyUser.data[0].id)
+      if (partyUser.total > 0) {
+        try {
+          await app.service('party-user').remove(partyUser.data[0].id)
+        } catch (err) {}
+      }
     }
   }
   // Patch the user's (channel)instanceId to null if they're leaving this instance.

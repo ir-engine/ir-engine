@@ -223,6 +223,7 @@
       "phoneError": "Invalid phone #",
       "emailError": "Invalid email address",
       "loginWithReadyPlayerMe": "Login with Ready Player Me",
+      "loginWithXRWallet": "Login with XR Wallet",
       "connectSocial": "Connect with social accounts",
       "addSocial": "Add additional social accounts",
       "removeSocial": "Remove social accounts",

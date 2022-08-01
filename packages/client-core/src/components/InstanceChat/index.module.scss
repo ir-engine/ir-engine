@@ -8,7 +8,6 @@
   height: 100vh;
   background: #00000091;
   pointer-events: all;
-  z-index: 10;
 
   &.hideBackDrop {
     display: none;
@@ -20,18 +19,23 @@
 }
 
 .instance-chat-container {
-  position: fixed;
-  bottom: 0;
-  right: 0;
-  display: grid;
-  z-index: 10;
+  display: flex;
+  flex-direction: column;
   padding: 15px 15px 20px;
-  transition: all 225ms cubic-bezier(0, 0, 0.2, 1) 0ms;
   overflow: hidden;
+  pointer-events: all;
 
   &.open {
+    flex: 1;
+
     @media (max-width: 1024px) {
-      width: 100%;
+      top: 0;
+      bottom: 0;
+      position: fixed;
+      width: 100vw;
+      height: 100vh;
+      z-index: 10;
+      flex: none;
     }
   }
 
@@ -213,19 +217,13 @@
   }
 
   .instance-chat-msg-container {
-    max-height: 400px;
-    overflow-y: auto;
-    overflow-x: clip;
-
-    @media (max-width: 1024px) {
-      max-height: 76vh;
-    }
-  }
-
-  .list-container {
+    flex: 1;
     display: flex;
     flex-direction: column;
     padding: 0 10px;
+    margin-bottom: 5px;
+    overflow-y: auto;
+    overflow-x: clip;
 
     @media (max-width: 1024px) {
       margin: 15px 15px 20px;
@@ -274,51 +272,11 @@
   }
 }
 
-:global(.MuiPaper-root).message-wrapper {
-  display: flex;
-  flex-direction: column;
-  background-color: transparent;
-
-  @media (max-width: 1024px) {
-    margin-left: 0;
-  }
-
-  .message-container {
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
-    height: 100%;
-    background: transparent;
-    padding: 5px;
-
-    .first-message-placeholder {
-      font-size: 2em;
-      margin: auto;
-    }
-
-    .message-sender-avatar {
-      margin: 0 10px;
-      min-width: auto;
-    }
-
-    .message-left {
-      justify-content: flex-start;
-      text-align: start;
-    }
-
-    .message-left-text {
-      border-radius: 10px 10px 10px 0;
-    }
-
-    .message-right {
-      justify-content: flex-end;
-      text-align: end;
-    }
-
-    .message-right-text {
-      border-radius: 10px 10px 0;
-    }
-  }
+/**
+* https://stackoverflow.com/a/51976603/2077741
+**/
+.scrollFix {
+  flex: 1 1 auto;
 }
 
 .dFlex {

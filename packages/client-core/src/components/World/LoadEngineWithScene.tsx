@@ -109,7 +109,7 @@ export const LoadEngineWithScene = () => {
       leaveNetwork(world.worldNetwork as SocketWebRTCClientNetwork)
 
       // the HyperspaceTagComponent is what trigges the portal logic to begin
-      addComponent(world.worldEntity, HyperspaceTagComponent, true)
+      addComponent(world.sceneEntity, HyperspaceTagComponent, true)
     }
   }, [engineState.isTeleporting])
 

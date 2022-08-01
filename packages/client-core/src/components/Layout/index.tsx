@@ -9,6 +9,7 @@ import {
 } from '@xrengine/client-core/src/admin/services/Setting/CoilSettingService'
 import UIDialog from '@xrengine/client-core/src/common/components/Dialog'
 import UserMenu from '@xrengine/client-core/src/user/components/UserMenu'
+import { AudioEffectPlayer } from '@xrengine/engine/src/audio/systems/AudioSystem'
 import { respawnAvatar } from '@xrengine/engine/src/avatar/functions/respawnAvatar'
 import { isTouchAvailable } from '@xrengine/engine/src/common/functions/DetectFeatures'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
@@ -169,30 +170,20 @@ const Layout = ({ useLoadingScreenOpacity, pageTitle, children, hideVideo, hideF
                   showMediaIcons ? styles.rotate : styles.rotateBack
                 } ${styles.showIconMedia} `}
                 onClick={handleShowMediaIcons}
+                onPointerDown={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
               >
                 <MediaIconHider />
               </button>
               <MediaIconsBox animate={showMediaIcons ? styles.animateTop : styles.fadeOutTop} />
-              <header className={showMediaIcons ? styles.animateTop : styles.fadeOutTop}>
-                {!hideVideo && (
-                  <section className={styles.locationUserMenu}>
-                    <div className={styles.conferenceModeButtons}>
-                      <Tooltip title={t('user:person.openConferenceMode')}>
-                        <div className={styles.conferenceModeButton} onClick={() => setConferenceMode(true)}>
-                          <GridViewIcon />
-                        </div>
-                      </Tooltip>
-                    </div>
-                    <UserMediaWindows />
-                  </section>
-                )}
-              </header>
               <button
                 type="button"
                 className={`${showBottomIcons ? styles.btn : styles.smBtn} ${
                   showBottomIcons ? styles.rotate : styles.rotateBack
                 } ${styles.showIcon} `}
                 onClick={handleShowBottomIcons}
+                onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
               >
                 <BottomIconHider />
               </button>
@@ -214,6 +205,8 @@ const Layout = ({ useLoadingScreenOpacity, pageTitle, children, hideVideo, hideF
                         showBottomIcons ? styles.animateBottom : styles.fadeOutBottom
                       } `}
                       onClick={() => setFullScreenActive(false)}
+                      onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                      onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
                     >
                       <FullscreenExit />
                     </button>
@@ -224,6 +217,8 @@ const Layout = ({ useLoadingScreenOpacity, pageTitle, children, hideVideo, hideF
                         showBottomIcons ? styles.animateBottom : styles.fadeOutBottom
                       } `}
                       onClick={() => setFullScreenActive(true)}
+                      onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                      onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
                     >
                       <ZoomOutMap />
                     </button>
@@ -237,16 +232,29 @@ const Layout = ({ useLoadingScreenOpacity, pageTitle, children, hideVideo, hideF
                 } ${!iOS() ? '' : styles.refreshBtn}`}
                 id="respawn"
                 onClick={respawnCallback}
+                onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
               >
                 <Refresh />
               </button>
-              {!engineState.xrSessionStarted.value && (
-                <InstanceChat
-                  animate={styles.animateBottom}
-                  hideOtherMenus={hideOtherMenus}
-                  setShowTouchPad={setShowTouchPad}
-                />
-              )}
+
+              <div className={styles.rightSidebar}>
+                <div
+                  className={`${styles.userMediaWindowsContainer} ${
+                    showMediaIcons ? styles.animateTop : styles.fadeOutTop
+                  }`}
+                >
+                  {!hideVideo && <UserMediaWindows className={styles.userMediaWindows} />}
+                </div>
+
+                {!engineState.xrSessionStarted.value && (
+                  <InstanceChat
+                    animate={styles.animateBottom}
+                    hideOtherMenus={hideOtherMenus}
+                    setShowTouchPad={setShowTouchPad}
+                  />
+                )}
+              </div>
             </div>
           </>
         )}

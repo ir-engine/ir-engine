@@ -15,14 +15,17 @@ import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { defineQuery, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { NetworkTopics } from '@xrengine/engine/src/networking/classes/Network'
 import { PUBLIC_STUN_SERVERS } from '@xrengine/engine/src/networking/constants/STUNServers'
-import { CAM_VIDEO_SIMULCAST_ENCODINGS } from '@xrengine/engine/src/networking/constants/VideoConstants'
+import {
+  CAM_VIDEO_SIMULCAST_ENCODINGS,
+  SCREEN_SHARE_SIMULCAST_ENCODINGS
+} from '@xrengine/engine/src/networking/constants/VideoConstants'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
 import { NetworkPeerFunctions } from '@xrengine/engine/src/networking/functions/NetworkPeerFunctions'
 import { JoinWorldRequestData, receiveJoinWorld } from '@xrengine/engine/src/networking/functions/receiveJoinWorld'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 import { ScreenshareTargetComponent } from '@xrengine/engine/src/scene/components/ScreenshareTargetComponent'
 import { fitTexture } from '@xrengine/engine/src/scene/functions/fitTexture'
-import { addActionReceptor, dispatchAction, removeActionReceptor, removeTopic } from '@xrengine/hyperflux'
+import { addActionReceptor, dispatchAction, removeActionReceptor, removeActionsForTopic } from '@xrengine/hyperflux'
 import { Action } from '@xrengine/hyperflux/functions/ActionFunctions'
 
 import { LocationInstanceConnectionAction } from '../common/services/LocationInstanceConnectionService'
@@ -174,11 +177,10 @@ export async function onConnectToWorldInstance(network: SocketWebRTCClientNetwor
   async function disconnectHandler() {
     dispatchAction(NetworkConnectionService.actions.worldInstanceDisconnected({}))
     dispatchAction(EngineActions.connectToWorld({ connectedWorld: false }))
-    network.reconnecting = true
-
-    // Get information for how to consume data from server and init a data consumer
+    dispatchAction(NetworkConnectionService.actions.worldInstanceDisconnected({}))
     network.socket.off(MessageTypes.WebRTCConsumeData.toString(), consumeDataHandler)
     network.socket.off(MessageTypes.Kick.toString(), kickHandler)
+    removeActionReceptor(consumeDataHandler)
   }
 
   network.socket.on('disconnect', disconnectHandler)
@@ -303,7 +305,6 @@ export async function onConnectToMediaInstance(network: SocketWebRTCClientNetwor
     network.consumers.forEach((consumer) => closeConsumer(network, consumer))
     network.socket.off(MessageTypes.WebRTCCreateProducer.toString(), webRTCCreateProducerHandler)
     dispatchAction(NetworkConnectionService.actions.mediaInstanceDisconnected({}))
-    network.reconnecting = true
     network.socket.off(MessageTypes.WebRTCPauseConsumer.toString(), webRTCPauseConsumerHandler)
     network.socket.off(MessageTypes.WebRTCResumeConsumer.toString(), webRTCResumeConsumerHandler)
     network.socket.off(MessageTypes.WebRTCCloseConsumer.toString(), webRTCCloseConsumerHandler)
@@ -931,7 +932,7 @@ export function leaveNetwork(network: SocketWebRTCClientNetwork, kicked?: boolea
         }
       }
     }
-    removeTopic(network.hostId)
+    removeActionsForTopic(network.hostId)
   } catch (err) {
     logger.error(err, 'Error with leave()')
   }
@@ -955,12 +956,12 @@ export const startScreenshare = async (network: SocketWebRTCClientNetwork) => {
   const channelId = currentChannelInstanceConnection.channelId.value
 
   // create a producer for video
+  MediaStreams.instance.setScreenShareVideoPaused(false)
   MediaStreams.instance.screenVideoProducer = await network.sendTransport.produce({
     track: MediaStreams.instance.localScreen.getVideoTracks()[0],
-    encodings: [], // TODO: Add me
+    encodings: SCREEN_SHARE_SIMULCAST_ENCODINGS,
     appData: { mediaTag: 'screen-video', channelType: channelType, channelId: channelId }
   })
-  MediaStreams.instance.setScreenShareVideoPaused(false)
 
   // create a producer for audio, if we have it
   if (MediaStreams.instance.localScreen.getAudioTracks().length) {
@@ -984,6 +985,7 @@ export const startScreenshare = async (network: SocketWebRTCClientNetwork) => {
 export const stopScreenshare = async (network: SocketWebRTCClientNetwork) => {
   logger.info('Screen share stopped')
   await MediaStreams.instance.screenVideoProducer.pause()
+  MediaStreams.instance.setScreenShareVideoPaused(true)
 
   const { error } = await network.request(MessageTypes.WebRTCCloseProducer.toString(), {
     producerId: MediaStreams.instance.screenVideoProducer.id
@@ -993,7 +995,6 @@ export const stopScreenshare = async (network: SocketWebRTCClientNetwork) => {
 
   await MediaStreams.instance.screenVideoProducer.close()
   MediaStreams.instance.screenVideoProducer = null
-  MediaStreams.instance.setScreenShareVideoPaused(true)
 
   if (MediaStreams.instance.screenAudioProducer) {
     const { error: screenAudioProducerError } = await network.request(MessageTypes.WebRTCCloseProducer.toString(), {

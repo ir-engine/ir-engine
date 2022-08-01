@@ -8,16 +8,21 @@ import { useLocationState } from '@xrengine/client-core/src/social/services/Loca
 import { MediaStreams } from '@xrengine/client-core/src/transports/MediaStreams'
 import {
   applyScreenshareToTexture,
+  configureMediaTransports,
+  createCamAudioProducer,
+  createCamVideoProducer,
   globalMuteProducer,
   globalUnmuteProducer,
   pauseConsumer,
   pauseProducer,
   resumeConsumer,
-  resumeProducer
+  resumeProducer,
+  stopScreenshare
 } from '@xrengine/client-core/src/transports/SocketWebRTCClientFunctions'
 import { getAvatarURLForUser } from '@xrengine/client-core/src/user/components/UserMenu/util'
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import { useUserState } from '@xrengine/client-core/src/user/services/UserService'
+import { isMobile } from '@xrengine/engine/src/common/functions/isMobile'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
@@ -54,8 +59,8 @@ export const useUserMediaWindowHook = ({ peerId }) => {
   const [isPiP, setPiP] = useState(false)
   const [videoStream, _setVideoStream] = useState<any>(null)
   const [audioStream, _setAudioStream] = useState<any>(null)
-  const [videoStreamPaused, setVideoStreamPaused] = useState(false)
-  const [audioStreamPaused, setAudioStreamPaused] = useState(false)
+  const [videoStreamPaused, _setVideoStreamPaused] = useState(false)
+  const [audioStreamPaused, _setAudioStreamPaused] = useState(false)
   const [videoProducerPaused, setVideoProducerPaused] = useState(false)
   const [audioProducerPaused, setAudioProducerPaused] = useState(false)
   const [videoProducerGlobalMute, setVideoProducerGlobalMute] = useState(false)
@@ -64,8 +69,12 @@ export const useUserMediaWindowHook = ({ peerId }) => {
   const [videoTrackClones, setVideoTrackClones] = useState<any[]>([])
   const [volume, setVolume] = useState(100)
   const userState = useUserState()
-  const videoRef = React.useRef<any>()
-  const audioRef = React.useRef<any>()
+  const videoRef = useRef<any>()
+  const audioRef = useRef<any>()
+  const audioStreamPausedRef = useRef(audioStreamPaused)
+  const videoStreamPausedRef = useRef(videoStreamPaused)
+  const resumeVideoOnUnhide = useRef<boolean>(false)
+  const resumeAudioOnUnhide = useRef<boolean>(false)
   const videoStreamRef = useRef(videoStream)
   const audioStreamRef = useRef(audioStream)
   const mediastream = useMediaStreamState()
@@ -97,6 +106,16 @@ export const useUserMediaWindowHook = ({ peerId }) => {
   const setAudioStream = (value) => {
     audioStreamRef.current = value
     _setAudioStream(value)
+  }
+
+  const setVideoStreamPaused = (value) => {
+    videoStreamPausedRef.current = value
+    _setVideoStreamPaused(value)
+  }
+
+  const setAudioStreamPaused = (value) => {
+    audioStreamPausedRef.current = value
+    _setAudioStreamPaused(value)
   }
 
   const pauseConsumerListener = (consumerId: string) => {
@@ -138,12 +157,13 @@ export const useUserMediaWindowHook = ({ peerId }) => {
   const closeProducerListener = (producerId: string) => {
     if (producerId === videoStreamRef?.current?.id) {
       videoRef.current?.srcObject?.getVideoTracks()[0].stop()
-      MediaStreams.instance.videoStream.getVideoTracks()[0].stop()
+      if (!isScreen) MediaStreams.instance.videoStream.getVideoTracks()[0].stop()
+      else MediaStreams.instance.localScreen.getVideoTracks()[0].stop
     }
 
     if (producerId === audioStreamRef?.current?.id) {
       audioRef.current?.srcObject?.getAudioTracks()[0].stop()
-      MediaStreams.instance.audioStream.getAudioTracks()[0].stop()
+      if (!isScreen) MediaStreams.instance.audioStream.getAudioTracks()[0].stop()
     }
   }
 
@@ -349,14 +369,19 @@ export const useUserMediaWindowHook = ({ peerId }) => {
     e.stopPropagation()
     const mediaNetwork = Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork
     if (peerId === 'cam_me') {
-      const videoPaused = MediaStreams.instance.toggleVideoPaused()
-      if (videoPaused) await pauseProducer(mediaNetwork, MediaStreams.instance.camVideoProducer)
-      else await resumeProducer(mediaNetwork, MediaStreams.instance.camVideoProducer)
-      MediaStreamService.updateCamVideoState()
+      if (await configureMediaTransports(mediaNetwork, ['video'])) {
+        if (MediaStreams.instance.camVideoProducer == null) await createCamVideoProducer(mediaNetwork)
+        else {
+          const videoPaused = MediaStreams.instance.toggleVideoPaused()
+          if (videoPaused) await pauseProducer(mediaNetwork, MediaStreams.instance.camVideoProducer)
+          else await resumeProducer(mediaNetwork, MediaStreams.instance.camVideoProducer)
+        }
+        MediaStreamService.updateCamVideoState()
+      }
     } else if (peerId === 'screen_me') {
       const videoPaused = MediaStreams.instance.toggleScreenShareVideoPaused()
-      if (videoPaused) await pauseProducer(mediaNetwork, MediaStreams.instance.screenVideoProducer)
-      else await resumeProducer(mediaNetwork, MediaStreams.instance.screenVideoProducer)
+      if (videoPaused) await stopScreenshare(mediaNetwork)
+      // else await resumeProducer(mediaNetwork, MediaStreams.instance.screenVideoProducer)
       setVideoStreamPaused(videoPaused)
       MediaStreamService.updateScreenAudioState()
       MediaStreamService.updateScreenVideoState()
@@ -375,10 +400,15 @@ export const useUserMediaWindowHook = ({ peerId }) => {
     e.stopPropagation()
     const mediaNetwork = Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork
     if (peerId === 'cam_me') {
-      const audioPaused = MediaStreams.instance.toggleAudioPaused()
-      if (audioPaused) await pauseProducer(mediaNetwork, MediaStreams.instance.camAudioProducer)
-      else await resumeProducer(mediaNetwork, MediaStreams.instance.camAudioProducer)
-      MediaStreamService.updateCamAudioState()
+      if (await configureMediaTransports(mediaNetwork, ['audio'])) {
+        if (MediaStreams.instance.camAudioProducer == null) await createCamAudioProducer(mediaNetwork)
+        else {
+          const audioPaused = MediaStreams.instance.toggleAudioPaused()
+          if (audioPaused) await pauseProducer(mediaNetwork, MediaStreams.instance.camAudioProducer)
+          else await resumeProducer(mediaNetwork, MediaStreams.instance.camAudioProducer)
+        }
+        MediaStreamService.updateCamAudioState()
+      }
     } else if (peerId === 'screen_me') {
       const audioPaused = MediaStreams.instance.toggleScreenShareAudioPaused()
       if (audioPaused) await pauseProducer(mediaNetwork, MediaStreams.instance.screenAudioProducer)
@@ -432,6 +462,45 @@ export const useUserMediaWindowHook = ({ peerId }) => {
   const username = getUsername()
 
   const userAvatarDetails = useHookstate(getState(WorldState).userAvatarDetails)
+
+  const handleVisibilityChange = () => {
+    if (document.hidden) {
+      if (videoStreamRef.current != null && !videoStreamRef.current.paused && !videoStreamPausedRef.current) {
+        resumeVideoOnUnhide.current = true
+        toggleVideo({
+          stopPropagation: () => {}
+        })
+      }
+      if (audioStreamRef.current != null && !audioStreamRef.current.paused && !audioStreamPausedRef.current) {
+        resumeAudioOnUnhide.current = true
+        toggleAudio({
+          stopPropagation: () => {}
+        })
+      }
+    }
+    if (!document.hidden) {
+      if (videoStreamRef.current != null && resumeVideoOnUnhide.current)
+        toggleVideo({
+          stopPropagation: () => {}
+        })
+      if (audioStreamRef.current != null && resumeAudioOnUnhide.current)
+        toggleAudio({
+          stopPropagation: () => {}
+        })
+      resumeVideoOnUnhide.current = false
+      resumeAudioOnUnhide.current = false
+    }
+  }
+
+  useEffect(() => {
+    if (isMobile) {
+      document.addEventListener('visibilitychange', handleVisibilityChange)
+
+      return () => {
+        document.removeEventListener('visibilitychange', handleVisibilityChange)
+      }
+    }
+  }, [])
 
   return {
     user,

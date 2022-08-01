@@ -14,4 +14,4 @@ export type EditorCameraComponentType = {
   refocus?: boolean
 }
 
-export const EditorCameraComponent = createMappedComponent<EditorCameraComponentType>('TransformGizmo')
+export const EditorCameraComponent = createMappedComponent<EditorCameraComponentType>('EditorCameraComponent')

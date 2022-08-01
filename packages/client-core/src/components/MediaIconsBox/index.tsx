@@ -22,6 +22,7 @@ import {
 } from '@xrengine/client-core/src/transports/SocketWebRTCClientFunctions'
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import logger from '@xrengine/common/src/logger'
+import { AudioEffectPlayer } from '@xrengine/engine/src/audio/systems/AudioSystem'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineActions, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { dispatchAction } from '@xrengine/hyperflux'
@@ -156,6 +157,8 @@ const MediaIconsBox = (props: Props) => {
           id="UserAudio"
           className={styles.iconContainer + ' ' + (isCamAudioEnabled.value ? styles.on : '')}
           onClick={handleMicClick}
+          onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+          onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
         >
           <MicIcon />
         </button>
@@ -170,6 +173,8 @@ const MediaIconsBox = (props: Props) => {
             id="UserVideo"
             className={styles.iconContainer + ' ' + (isCamVideoEnabled.value ? styles.on : '')}
             onClick={handleCamClick}
+            onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+            onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
           >
             <VideocamIcon />
           </button>
@@ -178,6 +183,8 @@ const MediaIconsBox = (props: Props) => {
             id="UserFaceTracking"
             className={styles.iconContainer + ' ' + (isFaceTrackingEnabled.value ? styles.on : '')}
             onClick={handleFaceClick}
+            onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+            onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
           >
             <FaceIcon />
           </button>
@@ -186,18 +193,34 @@ const MediaIconsBox = (props: Props) => {
             id="UserScreenSharing"
             className={styles.iconContainer + ' ' + (isScreenVideoEnabled.value ? styles.on : '')}
             onClick={handleScreenShare}
+            onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+            onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
           >
             <ScreenShareIcon />
           </button>
         </>
       ) : null}
       {engineState.xrSupported.value && (
-        <button type="button" id="UserXR" className={styles.iconContainer} onClick={handleVRClick}>
+        <button
+          type="button"
+          id="UserXR"
+          className={styles.iconContainer}
+          onClick={handleVRClick}
+          onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+          onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+        >
           <VrIcon />
         </button>
       )}
       {engineState.spectating.value && (
-        <button type="button" id="ExitSpectator" className={styles.iconContainer} onClick={handleExitSpectatorClick}>
+        <button
+          type="button"
+          id="ExitSpectator"
+          className={styles.iconContainer}
+          onClick={handleExitSpectatorClick}
+          onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+          onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+        >
           Exit Spectate
         </button>
       )}

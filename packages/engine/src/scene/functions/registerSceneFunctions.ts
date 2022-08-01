@@ -11,8 +11,7 @@ import {
   deserializeAudio,
   prepareAudioForGLTFExport,
   SCENE_COMPONENT_AUDIO,
-  serializeAudio,
-  updateAudio
+  serializeAudio
 } from './loaders/AudioFunctions'
 import {
   deserializeAudioSetting,
@@ -94,7 +93,7 @@ import {
   serializeLoopAnimation,
   updateLoopAnimation
 } from './loaders/LoopAnimationFunctions'
-import { deserializeMedia, SCENE_COMPONENT_MEDIA, serializeMedia, updateMedia } from './loaders/MediaFunctions'
+import { deserializeMedia, SCENE_COMPONENT_MEDIA, serializeMedia } from './loaders/MediaFunctions'
 import {
   deserializeMetaData,
   SCENE_COMPONENT_METADATA,
@@ -407,21 +406,18 @@ export const registerDefaultSceneFunctions = (world: World) => {
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_AUDIO, {
     deserialize: deserializeAudio,
     serialize: serializeAudio,
-    update: updateAudio,
     prepareForGLTFExport: prepareAudioForGLTFExport
   })
 
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_VIDEO, {
     deserialize: deserializeVideo,
     serialize: serializeVideo,
-    update: updateVideo,
     prepareForGLTFExport: prepareVideoForGLTFExport
   })
 
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_MEDIA, {
     deserialize: deserializeMedia,
-    serialize: serializeMedia,
-    update: updateMedia
+    serialize: serializeMedia
   })
 
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_INTERACTABLE, {
