@@ -95,7 +95,11 @@ export const updateVideo: ComponentUpdateFunction = (entity: Entity, properties:
     el.muted = true
     el.volume = 0
 
-    createAudioNode(el, Engine.instance.audioContext.createMediaElementSource(el))
+    createAudioNode(
+      el,
+      Engine.instance.audioContext.createMediaElementSource(el),
+      Engine.instance.gainNodeMixBuses.soundEffects
+    )
   }
 
   const el = getComponent(entity, MediaComponent).el! as HTMLVideoElement

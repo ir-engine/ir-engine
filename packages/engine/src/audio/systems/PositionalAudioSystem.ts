@@ -103,7 +103,6 @@ export default async function PositionalAudioSystem(world: World) {
     const audioContext = Engine.instance.audioContext
     const network = Engine.instance.currentWorld.mediaNetwork
     const xrSessionStarted = getState(EngineState).xrSessionStarted.value
-    const audioState = getState(AudioState)
 
     /**
      * Scene Objects
@@ -162,13 +161,21 @@ export default async function PositionalAudioSystem(world: World) {
 
       // mute existing stream
       existingAudioObject.muted = true
+      // todo, refactor this out of event listener
+      existingAudioObject.addEventListener('volumechange', () => {
+        audioObject.gain.gain.setTargetAtTime(existingAudioObject.volume, audioContext.currentTime, 0.01)
+      })
 
       // audio streams exists but has not been handled
       const mediaTrack = consumer.track as MediaStreamTrack
       const stream = new MediaStream([mediaTrack.clone()])
 
-      const audioObject = createAudioNode(stream, audioContext.createMediaStreamSource(stream))
-      audioObject.gain.gain.setTargetAtTime(audioState.mediaStreamVolume.value, audioContext.currentTime, 0.01)
+      const audioObject = createAudioNode(
+        stream,
+        audioContext.createMediaStreamSource(stream),
+        Engine.instance.gainNodeMixBuses.mediaStreams
+      )
+      audioObject.gain.gain.setTargetAtTime(existingAudioObject.volume, audioContext.currentTime, 0.01)
 
       addPannerNode(audioObject)
 

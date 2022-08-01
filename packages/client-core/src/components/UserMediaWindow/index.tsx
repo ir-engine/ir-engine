@@ -81,7 +81,7 @@ export const useUserMediaWindowHook = ({ peerId }) => {
   const { t } = useTranslation()
   const audioState = useAudioState()
 
-  const [_volume, _setVolume] = useState(0)
+  const [_volume, _setVolume] = useState(1)
 
   const userHasInteracted = useEngineState().userHasInteracted
   const selfUser = useAuthState().user.value
@@ -212,15 +212,6 @@ export const useUserMediaWindowHook = ({ peerId }) => {
   }, [userHasInteracted.value])
 
   useEffect(() => {
-    // TODO: uncomment these two lines to silence main audio in favor of spatial audio
-    // if (SCENE_COMPONENT_AUDIO_SETTINGS_DEFAULT_VALUES.usePositionalAudio && audioRef.current != null)
-    //   audioRef.current.volume = 0
-    // else audioRef.current!.volume = volume / 100
-    // (selfUser?.user_setting?.spatialAudioEnabled === false || selfUser?.user_setting?.spatialAudioEnabled === 0) &&
-    // Engine.instance.spatialAudio
-  }, [selfUser])
-
-  useEffect(() => {
     if (!currentChannelInstanceConnection) return
     const mediaNetwork = Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork
     const socket = mediaNetwork.socket
@@ -254,7 +245,7 @@ export const useUserMediaWindowHook = ({ peerId }) => {
       if (peerId === 'cam_me' || peerId === 'screen_me') {
         audioRef.current.muted = true
       } else {
-        audioRef.current.volume = volume / 100
+        audioRef.current.volume = volume
       }
       if (audioStream != null) {
         const newAudioTrack = audioStream.track.clone()
@@ -447,8 +438,9 @@ export const useUserMediaWindowHook = ({ peerId }) => {
     if (isSelf) {
       dispatchAction(AudioSettingAction.setMicrophoneVolume({ value }))
     } else {
-      audioRef.current.volume = value / 100
+      audioRef.current.volume = value
     }
+    _setVolume(value)
   }
 
   const getUsername = () => {

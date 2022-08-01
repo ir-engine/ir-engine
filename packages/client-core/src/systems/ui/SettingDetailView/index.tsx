@@ -224,7 +224,7 @@ const SettingDetailView = () => {
                     value={audioState.backgroundMusicVolume.value}
                     onChange={(event: any) => {
                       dispatchAction(
-                        AudioSettingAction.setBackgroundMusicVolume({
+                        AudioSettingAction.setMusicVolume({
                           value: parseInt(event.target.value)
                         })
                       )

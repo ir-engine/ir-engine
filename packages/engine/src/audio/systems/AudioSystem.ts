@@ -64,15 +64,19 @@ export const AudioElementNodes = new WeakMap<HTMLMediaElement | MediaStream, Aud
 export default async function AudioSystem(world: World) {
   await AssetLoader.loadAsync(AUDIO_TEXTURE_PATH)
 
-  matchActionOnce(EngineActions.initializeEngine.matches, () => {
-    restoreAudioSettings()
-  })
+  /** create gain nodes for mix buses */
+  Engine.instance.gainNodeMixBuses.mediaStreams = Engine.instance.audioContext.createGain()
+  Engine.instance.gainNodeMixBuses.mediaStreams.connect(Engine.instance.cameraGainNode)
+  Engine.instance.gainNodeMixBuses.notifications = Engine.instance.audioContext.createGain()
+  Engine.instance.gainNodeMixBuses.notifications.connect(Engine.instance.cameraGainNode)
+  Engine.instance.gainNodeMixBuses.music = Engine.instance.audioContext.createGain()
+  Engine.instance.gainNodeMixBuses.music.connect(Engine.instance.cameraGainNode)
+  Engine.instance.gainNodeMixBuses.soundEffects = Engine.instance.audioContext.createGain()
+  Engine.instance.gainNodeMixBuses.soundEffects.connect(Engine.instance.cameraGainNode)
+
+  restoreAudioSettings()
 
   addActionReceptor(AudioSettingReceptor)
-
-  const setMasterVolumeActionQueue = createActionQueue(AudioSettingAction.setMasterVolume.matches)
-  const setSoundEffectsVolumeActionQueue = createActionQueue(AudioSettingAction.setSoundEffectsVolume.matches)
-  const setBackgroundMusicVolumeActionQueue = createActionQueue(AudioSettingAction.setBackgroundMusicVolume.matches)
 
   const modifyPropertyActionQueue = createActionQueue(EngineActions.sceneObjectUpdate.matches)
   const userInteractActionQueue = createActionQueue(EngineActions.setUserHasInteracted.matches)
@@ -99,24 +103,6 @@ export default async function AudioSystem(world: World) {
           if (audio.autoplay) audio.play()
         }
       }
-    }
-
-    for (const action of setMasterVolumeActionQueue()) {
-      Engine.instance.cameraGainNode.gain.setTargetAtTime(action.value, audioContext.currentTime, 0.01)
-    }
-
-    for (const action of setSoundEffectsVolumeActionQueue()) {
-      for (const entity of mediaEntities) {
-        const el = getComponent(entity, MediaComponent).el
-        const audioObject = AudioElementNodes.get(el)!
-        if (audioObject) {
-          audioObject.gain.gain.setTargetAtTime(action.value, audioContext.currentTime, 0.01)
-        }
-      }
-    }
-
-    for (const action of setBackgroundMusicVolumeActionQueue()) {
-      // todo: add background music boolean / tag to audio objects
     }
 
     for (const entity of audioQuery.exit()) {

@@ -4,6 +4,7 @@ import { matches, Validator } from '@xrengine/engine/src/common/functions/Matche
 import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
 import { ClientStorage } from '../common/classes/ClientStorage'
+import { Engine } from '../ecs/classes/Engine'
 import { AudioSettingKeys } from './AudioSettingConstants'
 
 /**
@@ -43,8 +44,7 @@ export async function restoreAudioSettings(): Promise<void> {
       dispatchAction(AudioSettingAction.setSoundEffectsVolume({ value: MathUtils.clamp(v, 0, 1) }))
   })
   ClientStorage.get(AudioSettingKeys.BACKGROUND_MUSIC_VOLUME).then((v: number) => {
-    if (typeof v !== 'undefined')
-      dispatchAction(AudioSettingAction.setBackgroundMusicVolume({ value: MathUtils.clamp(v, 0, 1) }))
+    if (typeof v !== 'undefined') dispatchAction(AudioSettingAction.setMusicVolume({ value: MathUtils.clamp(v, 0, 1) }))
   })
 }
 
@@ -57,6 +57,7 @@ export function AudioSettingReceptor(action) {
     .when(AudioSettingAction.setMasterVolume.matches, (action) => {
       s.merge({ masterVolume: action.value })
       ClientStorage.set(AudioSettingKeys.AUDIO, action.value)
+      Engine.instance.cameraGainNode.gain.setTargetAtTime(action.value, Engine.instance.audioContext.currentTime, 0.01)
     })
     .when(AudioSettingAction.setMicrophoneVolume.matches, (action) => {
       s.merge({ microphoneGain: action.value })
@@ -65,18 +66,38 @@ export function AudioSettingReceptor(action) {
     .when(AudioSettingAction.setMediaStreamVolume.matches, (action) => {
       s.merge({ mediaStreamVolume: action.value })
       ClientStorage.set(AudioSettingKeys.MEDIA_STREAM_VOLUME, action.value)
+      Engine.instance.gainNodeMixBuses.mediaStreams.gain.setTargetAtTime(
+        action.value,
+        Engine.instance.audioContext.currentTime,
+        0.01
+      )
     })
     .when(AudioSettingAction.setNotificationVolume.matches, (action) => {
       s.merge({ notificationVolume: action.value })
       ClientStorage.set(AudioSettingKeys.NOTIFICATION_VOLUME, action.value)
+      Engine.instance.gainNodeMixBuses.notifications.gain.setTargetAtTime(
+        action.value,
+        Engine.instance.audioContext.currentTime,
+        0.01
+      )
     })
     .when(AudioSettingAction.setSoundEffectsVolume.matches, (action) => {
       s.merge({ soundEffectsVolume: action.value })
       ClientStorage.set(AudioSettingKeys.SOUND_EFFECT_VOLUME, action.value)
+      Engine.instance.gainNodeMixBuses.soundEffects.gain.setTargetAtTime(
+        action.value,
+        Engine.instance.audioContext.currentTime,
+        0.01
+      )
     })
-    .when(AudioSettingAction.setBackgroundMusicVolume.matches, (action) => {
+    .when(AudioSettingAction.setMusicVolume.matches, (action) => {
       s.merge({ backgroundMusicVolume: action.value })
       ClientStorage.set(AudioSettingKeys.BACKGROUND_MUSIC_VOLUME, action.value)
+      Engine.instance.gainNodeMixBuses.music.gain.setTargetAtTime(
+        action.value,
+        Engine.instance.audioContext.currentTime,
+        0.01
+      )
     })
 }
 
@@ -101,7 +122,7 @@ export class AudioSettingAction {
     type: 'core.audio.SOUND_EFFECT_VOLUME' as const,
     value: matches.number
   })
-  static setBackgroundMusicVolume = defineAction({
+  static setMusicVolume = defineAction({
     type: 'core.audio.BACKGROUND_MUSIC_VOLUME' as const,
     value: matches.number
   })

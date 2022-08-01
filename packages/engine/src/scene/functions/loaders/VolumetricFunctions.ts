@@ -159,7 +159,11 @@ export const addVolumetricComponent = (entity: Entity, props: VolumetricComponen
 
   mediaComponent.el = el
 
-  createAudioNode(el, Engine.instance.audioContext.createMediaElementSource(el))
+  createAudioNode(
+    el,
+    Engine.instance.audioContext.createMediaElementSource(el),
+    Engine.instance.gainNodeMixBuses.soundEffects
+  )
 }
 
 export const updateVolumetric: ComponentUpdateFunction = (entity: Entity) => {

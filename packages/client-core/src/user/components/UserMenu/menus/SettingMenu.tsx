@@ -236,7 +236,7 @@ const SettingMenu = (): JSX.Element => {
                   <Slider
                     value={audioState.backgroundMusicVolume.value}
                     onChange={(_, value: number) => {
-                      dispatchAction(AudioSettingAction.setBackgroundMusicVolume({ value }))
+                      dispatchAction(AudioSettingAction.setMusicVolume({ value }))
                     }}
                     className={styles.slider}
                     max={1}

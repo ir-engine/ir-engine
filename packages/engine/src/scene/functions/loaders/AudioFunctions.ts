@@ -57,10 +57,11 @@ export const deserializeAudio: ComponentDeserializeFunction = async (
 
 export const createAudioNode = (
   el: HTMLMediaElement | MediaStream,
-  source: MediaElementAudioSourceNode | MediaStreamAudioSourceNode
+  source: MediaElementAudioSourceNode | MediaStreamAudioSourceNode,
+  mixbusNode: GainNode
 ): AudioElementNode => {
   const gain = Engine.instance.audioContext.createGain()
-  gain.connect(Engine.instance.cameraGainNode)
+  gain.connect(mixbusNode)
   source.connect(gain)
   const audioObject = { source, gain }
   AudioElementNodes.set(el, audioObject)
@@ -129,8 +130,12 @@ export const updateAudio = (entity: Entity) => {
     el.volume = 0
 
     const audioState = getState(AudioState)
-    const { gain } = createAudioNode(el, Engine.instance.audioContext.createMediaElementSource(el))
-    console.log('audioState.mediaStreamVolume.value', audioState.mediaStreamVolume.value)
+    // todo: music / sfx option
+    const { gain } = createAudioNode(
+      el,
+      Engine.instance.audioContext.createMediaElementSource(el),
+      Engine.instance.gainNodeMixBuses.soundEffects
+    )
     gain.gain.setTargetAtTime(audioState.mediaStreamVolume.value, Engine.instance.audioContext.currentTime, 0.01)
   }
 

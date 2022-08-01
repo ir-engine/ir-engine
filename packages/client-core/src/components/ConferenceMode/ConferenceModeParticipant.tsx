@@ -135,17 +135,15 @@ const ConferenceModeParticipant = ({ peerId }: Props): JSX.Element => {
             ) : null}
           </div>
           {audioProducerGlobalMute && <div className={styles['global-mute']}>Muted by Admin</div>}
-          {audioStream &&
-            !audioProducerPaused &&
-            !audioProducerGlobalMute &&
-            selfUser?.user_setting?.spatialAudioEnabled === false && (
-              <div className={styles['audio-slider']}>
-                {volume > 0 && <VolumeDown />}
-                {volume === 0 && <VolumeMute />}
-                <Slider value={volume} onChange={adjustVolume} aria-labelledby="continuous-slider" />
-                <VolumeUp />
-              </div>
-            )}
+          {audioStream && !audioProducerPaused && !audioProducerGlobalMute && (
+            <div className={styles['audio-slider']}>
+              {volume === 0 && <VolumeMute />}
+              {volume > 0 && volume < 0.7 && <VolumeDown />}
+              {volume >= 0.7 && <VolumeUp />}
+              <Slider value={volume} onChange={adjustVolume} aria-labelledby="continuous-slider" />
+              <VolumeUp />
+            </div>
+          )}
         </div>
       </div>
     </div>
