@@ -14,8 +14,11 @@ import { TweenComponent } from '../transform/components/TweenComponent'
 import { updateAnimationGraph } from './animation/AnimationGraph'
 import { applyBoneTwist } from './animation/armsTwistCorrection'
 import { changeAvatarAnimationState } from './animation/AvatarAnimationGraph'
+import { LocomotionState } from './animation/locomotionState'
 import { getForwardVector, solveLookIK } from './animation/LookAtIKSolver'
+import { SingleAnimationState } from './animation/singleAnimationState'
 import { solveTwoBoneIK } from './animation/TwoBoneIKSolver'
+import { AvatarStates } from './animation/Util'
 import { AnimationManager } from './AnimationManager'
 import { AnimationComponent } from './components/AnimationComponent'
 import { AvatarAnimationComponent } from './components/AvatarAnimationComponent'
@@ -126,8 +129,15 @@ export default async function AnimationSystem(world: World) {
       })
 
       // TODO: Find a more elegant way to handle root motion
-      const rootPos = AnimationManager.instance._defaultRootBone.position
-      if (avatarAnimationComponent.rig.Hips) avatarAnimationComponent.rig.Hips.position.setX(rootPos.x).setZ(rootPos.z)
+      const clip =
+        avatarAnimationComponent.animationGraph.currentState.name === AvatarStates.LOCOMOTION
+          ? (avatarAnimationComponent.animationGraph.currentState as LocomotionState).idleAction.getClip()
+          : (avatarAnimationComponent.animationGraph.currentState as SingleAnimationState)?.action.getClip()
+
+      const rootPos = AnimationManager.instance.clipRootBoneMap.get(clip.name)?.position
+      if (avatarAnimationComponent.rig.Hips && rootPos) {
+        avatarAnimationComponent.rig.Hips.position.setX(rootPos.x).setZ(rootPos.z)
+      }
     }
 
     for (const entity of armsTwistCorrectionQuery.enter()) {

@@ -57,7 +57,7 @@ describe('avatarFunctions Unit', async () => {
       const entity = createEntity()
       const animationComponent = addComponent(entity, AvatarAnimationComponent, {} as any)
       const model = boneMatchAvatarModel(entity)(SkeletonUtils.clone(assetModel.scene))
-      AnimationManager.instance._defaultSkinnedMesh = makeDefaultSkinnedMesh()
+      AnimationManager.instance._defaultSkinnedMesh = [makeDefaultSkinnedMesh()]
       rigAvatarModel(entity)(model)
       assert(animationComponent.rootYRatio > 0)
     })

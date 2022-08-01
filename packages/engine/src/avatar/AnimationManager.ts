@@ -15,9 +15,10 @@ export class AnimationManager {
   ]
 
   _animations: AnimationClip[]
-  _defaultSkinnedMesh: SkinnedMesh
+  _defaultSkinnedMesh = [] as SkinnedMesh[]
   _rootAnimationData: {}
-  _defaultRootBone: Bone
+  _defaultRootBone: Bone[] = []
+  clipRootBoneMap = new Map<string, Bone>()
 
   getAnimationDuration(name: string): number {
     const animation = this._animations.find((a) => a.name === name)
@@ -36,35 +37,33 @@ export class AnimationManager {
 
     this._animations = []
     this._rootAnimationData = {}
+    this._defaultSkinnedMesh = []
 
-    for (const gltf of gltfs) {
+    gltfs.forEach((gltf, i) => {
       gltf.scene.traverse((child: SkinnedMesh) => {
-        if (child.type === 'SkinnedMesh' && !this._defaultSkinnedMesh) {
-          this._defaultSkinnedMesh = child
+        if (child.type === 'SkinnedMesh') {
+          this._defaultSkinnedMesh[i] = child
         }
       })
 
-      if (this._defaultSkinnedMesh) break
-    }
+      if (!this._defaultSkinnedMesh[i]) {
+        // reconstruct skeleton from stored data
+        this._defaultSkinnedMesh[i] = makeDefaultSkinnedMesh()
+      }
 
-    if (!this._defaultSkinnedMesh) {
-      // reconstruct skeleton from stored data
-      this._defaultSkinnedMesh = makeDefaultSkinnedMesh()
-    }
+      this._defaultRootBone[i] = findRootBone(this._defaultSkinnedMesh[i])!
 
-    this._defaultRootBone = findRootBone(this._defaultSkinnedMesh)!
-
-    gltfs.forEach((gltf) => {
       gltf.animations?.forEach((clip) => {
         // TODO: make list of morph targets names
         clip.tracks = clip.tracks.filter((track) => !track.name.match(/^CC_Base_/))
 
-        const rootData = processRootAnimation(clip, this._defaultRootBone)
+        const rootData = processRootAnimation(clip, this._defaultRootBone[i])
 
         if (rootData) {
           this._rootAnimationData[clip.name] = rootData
         }
 
+        this.clipRootBoneMap.set(clip.name, this._defaultRootBone[i])
         this._animations.push(clip)
       })
     })

@@ -135,7 +135,7 @@ export const boneMatchAvatarModel = (entity: Entity) => (model: Object3D) => {
 }
 
 export const rigAvatarModel = (entity: Entity) => (model: Object3D) => {
-  const sourceSkeleton = AnimationManager.instance._defaultSkinnedMesh.skeleton
+  const sourceSkeleton = AnimationManager.instance._defaultSkinnedMesh[0].skeleton
   const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
   const { rig } = avatarAnimationComponent
   const rootBone = rig.Root || rig.Hips
