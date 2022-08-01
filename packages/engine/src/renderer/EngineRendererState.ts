@@ -219,16 +219,6 @@ export const EngineRendererAction = {
     qualityLevel: matches.number
   }),
 
-  setAudio: defineAction({
-    type: 'xre.renderer.AUDIO_VOLUME' as const,
-    audio: matches.number
-  }),
-
-  setMicrophone: defineAction({
-    type: 'xre.renderer.MICROPHONE_VOLUME' as const,
-    microphone: matches.number
-  }),
-
   setAutomatic: defineAction({
     type: 'xre.renderer.WEBGL_RENDERER_AUTO' as const,
     automatic: matches.boolean

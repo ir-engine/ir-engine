@@ -1,8 +1,10 @@
 import { DoubleSide, Mesh, MeshBasicMaterial, Object3D, PlaneBufferGeometry } from 'three'
 
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
+import { getState } from '@xrengine/hyperflux'
 
 import { AssetLoader } from '../../../assets/classes/AssetLoader'
+import { AudioState } from '../../../audio/AudioState'
 import { AudioComponent, AudioComponentType } from '../../../audio/components/AudioComponent'
 import { AudioType, AudioTypeType } from '../../../audio/constants/AudioConstants'
 import { AudioElementNode, AudioElementNodes } from '../../../audio/systems/AudioSystem'
@@ -122,7 +124,14 @@ export const updateAudio = (entity: Entity) => {
     })
     mediaComponent.el = el
 
-    createAudioNode(el, Engine.instance.audioContext.createMediaElementSource(el))
+    // mute and set volume to 0, as we use the audio api gain nodes to connect the source
+    el.muted = true
+    el.volume = 0
+
+    const audioState = getState(AudioState)
+    const { gain } = createAudioNode(el, Engine.instance.audioContext.createMediaElementSource(el))
+    console.log('audioState.mediaStreamVolume.value', audioState.mediaStreamVolume.value)
+    gain.gain.setTargetAtTime(audioState.mediaStreamVolume.value, Engine.instance.audioContext.currentTime, 0.01)
   }
 
   const el = getComponent(entity, MediaComponent).el!

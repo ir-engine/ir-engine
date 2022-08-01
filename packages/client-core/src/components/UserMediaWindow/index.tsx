@@ -22,12 +22,13 @@ import {
 import { getAvatarURLForUser } from '@xrengine/client-core/src/user/components/UserMenu/util'
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import { useUserState } from '@xrengine/client-core/src/user/services/UserService'
+import { AudioSettingAction, useAudioState } from '@xrengine/engine/src/audio/AudioState'
 import { isMobile } from '@xrengine/engine/src/common/functions/isMobile'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
 import { WorldState } from '@xrengine/engine/src/networking/interfaces/WorldState'
-import { getState } from '@xrengine/hyperflux'
+import { dispatchAction, getState } from '@xrengine/hyperflux'
 
 import {
   Launch,
@@ -67,7 +68,6 @@ export const useUserMediaWindowHook = ({ peerId }) => {
   const [audioProducerGlobalMute, setAudioProducerGlobalMute] = useState(false)
   const [audioTrackClones, setAudioTrackClones] = useState<any[]>([])
   const [videoTrackClones, setVideoTrackClones] = useState<any[]>([])
-  const [volume, setVolume] = useState(100)
   const userState = useUserState()
   const videoRef = useRef<any>()
   const audioRef = useRef<any>()
@@ -79,6 +79,9 @@ export const useUserMediaWindowHook = ({ peerId }) => {
   const audioStreamRef = useRef(audioStream)
   const mediastream = useMediaStreamState()
   const { t } = useTranslation()
+  const audioState = useAudioState()
+
+  const [_volume, _setVolume] = useState(0)
 
   const userHasInteracted = useEngineState().userHasInteracted
   const selfUser = useAuthState().user.value
@@ -86,6 +89,8 @@ export const useUserMediaWindowHook = ({ peerId }) => {
   const enableGlobalMute =
     currentLocation?.locationSetting?.locationType?.value === 'showroom' &&
     selfUser?.locationAdmins?.find((locationAdmin) => currentLocation?.id?.value === locationAdmin.locationId) != null
+  const isSelf = peerId === 'cam_me' || peerId === 'screen_me'
+  const volume = isSelf ? audioState.microphoneGain.value : _volume
   const isScreen = Boolean(peerId && peerId.startsWith('screen_'))
   const userId = isScreen ? peerId!.replace('screen_', '') : peerId
   const user = userState.layerUsers.find((user) => user.id.value === userId)?.attach(Downgraded).value
@@ -248,6 +253,8 @@ export const useUserMediaWindowHook = ({ peerId }) => {
       audioRef.current.setAttribute('playsinline', 'true')
       if (peerId === 'cam_me' || peerId === 'screen_me') {
         audioRef.current.muted = true
+      } else {
+        audioRef.current.volume = volume / 100
       }
       if (audioStream != null) {
         const newAudioTrack = audioStream.track.clone()
@@ -256,15 +263,6 @@ export const useUserMediaWindowHook = ({ peerId }) => {
         audioRef.current.srcObject = new MediaStream([newAudioTrack])
         setAudioProducerPaused(audioStream.paused)
       }
-      // TODO: handle 3d spatial audio switch on/off
-      // if (selfUser?.user_setting?.spatialAudioEnabled === true) audioRef.current.volume = 0
-      // {
-      audioRef.current.volume = volume / 100
-      // PositionalAudioSystem.instance?.suspend()
-      // }
-      // selfUser?.user_setting?.spatialAudioEnabled === false ||
-      // (selfUser?.user_setting?.spatialAudioEnabled === 0 && Engine.instance.spatialAudio)
-      setVolume(volume)
     }
 
     return () => {
@@ -365,6 +363,14 @@ export const useUserMediaWindowHook = ({ peerId }) => {
     }
   }, [audioProducerPaused])
 
+  useEffect(() => {
+    MediaStreams.instance.microphoneGainNode?.gain.setTargetAtTime(
+      audioState.microphoneGain.value,
+      Engine.instance.audioContext.currentTime,
+      0.01
+    )
+  }, [audioState.microphoneGain])
+
   const toggleVideo = async (e) => {
     e.stopPropagation()
     const mediaNetwork = Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork
@@ -437,16 +443,12 @@ export const useUserMediaWindowHook = ({ peerId }) => {
     }
   }
 
-  const adjustVolume = (e, newValue) => {
-    if (peerId === 'cam_me' || peerId === 'screen_me') {
-      MediaStreams.instance.audioGainNode.gain.setValueAtTime(
-        newValue / 100,
-        MediaStreams.instance.audioGainNode.context.currentTime + 1
-      )
+  const adjustVolume = (e, value) => {
+    if (isSelf) {
+      dispatchAction(AudioSettingAction.setMicrophoneVolume({ value }))
     } else {
-      audioRef.current.volume = newValue / 100
+      audioRef.current.volume = value / 100
     }
-    setVolume(newValue)
   }
 
   const getUsername = () => {
@@ -662,17 +664,21 @@ const UserMediaWindow = ({ peerId }: Props): JSX.Element => {
               </Tooltip>
             </div>
             {audioProducerGlobalMute && <div className={styles['global-mute']}>Muted by Admin</div>}
-            {audioStream &&
-              !audioProducerPaused &&
-              !audioProducerGlobalMute &&
-              selfUser?.user_setting?.spatialAudioEnabled === false && (
-                <div className={styles['audio-slider']}>
-                  {volume > 0 && <VolumeDown />}
-                  {volume === 0 && <VolumeMute />}
-                  <Slider value={volume} onChange={adjustVolume} aria-labelledby="continuous-slider" />
-                  <VolumeUp />
-                </div>
-              )}
+            {audioStream && !audioProducerPaused && !audioProducerGlobalMute && (
+              <div className={styles['audio-slider']}>
+                {volume === 0 && <VolumeMute />}
+                {volume > 0 && volume < 0.7 && <VolumeDown />}
+                {volume >= 0.7 && <VolumeUp />}
+                <Slider
+                  min={0}
+                  max={1}
+                  step={0.01}
+                  value={volume}
+                  onChange={adjustVolume}
+                  aria-labelledby="continuous-slider"
+                />
+              </div>
+            )}
           </div>
         </div>
       </div>

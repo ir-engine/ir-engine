@@ -21,6 +21,7 @@ import { NetworkObjectComponent, NetworkObjectComponentType } from '../../networ
 import { MediaComponent } from '../../scene/components/MediaComponent'
 import { createAudioNode } from '../../scene/functions/loaders/AudioFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
+import { AudioSettingAction, AudioState } from '../AudioState'
 import { AudioComponent } from '../components/AudioComponent'
 import { PositionalAudioTagComponent } from '../components/PositionalAudioTagComponent'
 import { AudioType } from '../constants/AudioConstants'
@@ -93,6 +94,8 @@ export default async function PositionalAudioSystem(world: World) {
    */
   const networkedAvatarAudioQuery = defineQuery([AvatarComponent, NetworkObjectComponent, Not(LocalAvatarTagComponent)])
 
+  const setMediaStreamVolumeActionQueue = createActionQueue(AudioSettingAction.setMediaStreamVolume.matches)
+
   /** Weak map entry is automatically GC'd when network object is removed */
   const avatarAudioObjs: WeakMap<NetworkObjectComponentType, MediaStream> = new WeakMap()
 
@@ -100,6 +103,7 @@ export default async function PositionalAudioSystem(world: World) {
     const audioContext = Engine.instance.audioContext
     const network = Engine.instance.currentWorld.mediaNetwork
     const xrSessionStarted = getState(EngineState).xrSessionStarted.value
+    const audioState = getState(AudioState)
 
     /**
      * Scene Objects
@@ -164,10 +168,24 @@ export default async function PositionalAudioSystem(world: World) {
       const stream = new MediaStream([mediaTrack.clone()])
 
       const audioObject = createAudioNode(stream, audioContext.createMediaStreamSource(stream))
+      audioObject.gain.gain.setTargetAtTime(audioState.mediaStreamVolume.value, audioContext.currentTime, 0.01)
 
       addPannerNode(audioObject)
 
       avatarAudioObjs.set(networkObject, stream)
+    }
+
+    /**
+     * Update avatar volume when the value is changed
+     */
+    for (const action of setMediaStreamVolumeActionQueue()) {
+      for (const entity of networkedAvatarAudioEntities) {
+        const networkObject = getComponent(entity, NetworkObjectComponent)
+        const audioObj = avatarAudioObjs.get(networkObject)!
+        if (!audioObj) continue
+        const gain = AudioElementNodes.get(audioObj)?.gain!
+        if (gain) gain.gain.setTargetAtTime(action.value, audioContext.currentTime, 0.01)
+      }
     }
 
     const endTime = Engine.instance.audioContext.currentTime + world.deltaSeconds
