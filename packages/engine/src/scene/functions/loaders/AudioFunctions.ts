@@ -1,10 +1,9 @@
-import { Audio, DoubleSide, Mesh, MeshBasicMaterial, Object3D, PlaneBufferGeometry, PositionalAudio } from 'three'
+import { DoubleSide, Mesh, MeshBasicMaterial, Object3D, PlaneBufferGeometry } from 'three'
 
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
 import { AssetLoader } from '../../../assets/classes/AssetLoader'
 import { AudioComponent, AudioComponentType } from '../../../audio/components/AudioComponent'
-import { PositionalAudioTagComponent } from '../../../audio/components/PositionalAudioTagComponent'
 import { AudioType, AudioTypeType } from '../../../audio/constants/AudioConstants'
 import { AudioElementNode, AudioElementNodes } from '../../../audio/systems/AudioSystem'
 import {
@@ -14,16 +13,14 @@ import {
 } from '../../../common/constants/PrefabFunctionType'
 import { isClient } from '../../../common/functions/isClient'
 import { Engine } from '../../../ecs/classes/Engine'
-import { EngineActions, getEngineState } from '../../../ecs/classes/EngineState'
+import { getEngineState } from '../../../ecs/classes/EngineState'
 import { Entity } from '../../../ecs/classes/Entity'
-import { addComponent, getComponent, hasComponent, removeComponent } from '../../../ecs/functions/ComponentFunctions'
-import { matchActionOnce } from '../../../networking/functions/matchActionOnce'
+import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { MediaComponent } from '../../components/MediaComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 import { ObjectLayers } from '../../constants/ObjectLayers'
 import { PlayMode } from '../../constants/PlayMode'
-import { removeError } from '../ErrorFunctions'
 import { setObjectLayers } from '../setObjectLayers'
 import { getNextPlaylistItem, updateAutoStartTimeForMedia } from './MediaFunctions'
 
@@ -146,23 +143,6 @@ export const updateAudio = (entity: Entity) => {
   }
 
   if (el.volume !== audioComponent.volume) el.volume = audioComponent.volume
-
-  // if (hasComponent(entity, PositionalAudioTagComponent)) {
-  //   if (audioTypeChanged || audioComponent.distanceModel !== audioEl.getDistanceModel())
-  //     audioEl.setDistanceModel(audioComponent.distanceModel)
-  //   if (audioTypeChanged || audioComponent.rolloffFactor !== audioEl.getRolloffFactor())
-  //     audioEl.setRolloffFactor(audioComponent.rolloffFactor)
-  //   if (audioTypeChanged || audioComponent.refDistance !== audioEl.getRefDistance())
-  //     audioEl.setRefDistance(audioComponent.refDistance)
-  //   if (audioTypeChanged || audioComponent.maxDistance !== audioEl.getMaxDistance())
-  //     audioEl.setMaxDistance(audioComponent.maxDistance)
-  //   if (audioTypeChanged || audioComponent.coneInnerAngle !== audioEl.panner.coneInnerAngle)
-  //     audioEl.panner.coneInnerAngle = audioComponent.coneInnerAngle
-  //   if (audioTypeChanged || audioComponent.coneOuterAngle !== audioEl.panner.coneOuterAngle)
-  //     audioEl.panner.coneOuterAngle = audioComponent.coneOuterAngle
-  //   if (audioTypeChanged || audioComponent.coneOuterGain !== audioEl.panner.coneOuterAngle)
-  //     audioEl.panner.coneOuterGain = audioComponent.coneOuterGain
-  // }
 }
 
 export const serializeAudio: ComponentSerializeFunction = (entity) => {

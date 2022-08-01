@@ -1,10 +1,8 @@
 import { Not } from 'bitecs'
-import { Audio, Object3D, PositionalAudio } from 'three'
 
-import { addActionReceptor, createActionQueue, dispatchAction } from '@xrengine/hyperflux'
+import { addActionReceptor, createActionQueue } from '@xrengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
-import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions } from '../../ecs/classes/EngineState'
 import { World } from '../../ecs/classes/World'
@@ -17,7 +15,7 @@ import { VolumetricComponent } from '../../scene/components/VolumetricComponent'
 import { AUDIO_TEXTURE_PATH, AudioElementObjects, updateAudio } from '../../scene/functions/loaders/AudioFunctions'
 import { updateVideo } from '../../scene/functions/loaders/VideoFunctions'
 import { updateVolumetric } from '../../scene/functions/loaders/VolumetricFunctions'
-import { accessAudioState, AudioSettingAction, AudioSettingReceptor, restoreAudioSettings } from '../AudioState'
+import { accessAudioState, AudioSettingReceptor, restoreAudioSettings } from '../AudioState'
 import { AudioComponent } from '../components/AudioComponent'
 
 export class AudioEffectPlayer {
