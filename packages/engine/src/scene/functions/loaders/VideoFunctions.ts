@@ -24,6 +24,7 @@ import { VideoComponent, VideoComponentType } from '../../components/VideoCompon
 import { PlayMode } from '../../constants/PlayMode'
 import { addError, removeError } from '../ErrorFunctions'
 import isHLS from '../isHLS'
+import { createAudioNode } from './AudioFunctions'
 import { resizeImageMesh } from './ImageFunctions'
 import { getNextPlaylistItem, updateAutoStartTimeForMedia } from './MediaFunctions'
 
@@ -89,6 +90,16 @@ export const updateVideo: ComponentUpdateFunction = (entity: Entity, properties:
       el.play()
     })
     mediaComponent.el = el
+
+    // mute and set volume to 0, as we use the audio api gain nodes to connect the source
+    el.muted = true
+    el.volume = 0
+
+    createAudioNode(
+      el,
+      Engine.instance.audioContext.createMediaElementSource(el),
+      Engine.instance.gainNodeMixBuses.soundEffects
+    )
   }
 
   const el = getComponent(entity, MediaComponent).el! as HTMLVideoElement
@@ -132,11 +143,6 @@ export const updateVideo: ComponentUpdateFunction = (entity: Entity, properties:
           if (el.autoplay) {
             if (getEngineState().userHasInteracted.value) {
               el.play()
-            } else {
-              matchActionOnce(EngineActions.setUserHasInteracted.matches, () => {
-                el.play()
-                return true
-              })
             }
           }
 

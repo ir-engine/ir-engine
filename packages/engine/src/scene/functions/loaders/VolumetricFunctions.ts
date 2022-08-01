@@ -13,6 +13,7 @@ import {
   ComponentUpdateFunction
 } from '../../../common/constants/PrefabFunctionType'
 import { isClient } from '../../../common/functions/isClient'
+import { Engine } from '../../../ecs/classes/Engine'
 import { getEngineState } from '../../../ecs/classes/EngineState'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent, removeComponent } from '../../../ecs/functions/ComponentFunctions'
@@ -24,12 +25,15 @@ import { Object3DComponent } from '../../components/Object3DComponent'
 import { VolumetricComponent, VolumetricComponentType } from '../../components/VolumetricComponent'
 import { PlayMode } from '../../constants/PlayMode'
 import { addError, removeError } from '../ErrorFunctions'
+import { createAudioNode } from './AudioFunctions'
 
 type VolumetricObject3D = UpdateableObject3D & {
   userData: {
     isEffect: boolean
     time: number
   }
+  autoplay: boolean
+  controls: boolean
   play()
   pause()
   seek()
@@ -84,7 +88,8 @@ export const addVolumetricComponent = (entity: Entity, props: VolumetricComponen
   const player = new DracosisPlayer({
     scene: obj3d,
     renderer: EngineRenderer.instance.renderer,
-    paths: mediaComponent.paths,
+    // https://github.com/XRFoundation/Universal-Volumetric/issues/117
+    paths: mediaComponent.paths.length ? mediaComponent.paths : ['fake-path'],
     isLoadingEffect: properties.useLoadingEffect,
     isVideoTexture: false,
     playMode: mediaComponent.playMode as any,
@@ -131,24 +136,34 @@ export const addVolumetricComponent = (entity: Entity, props: VolumetricComponen
 
   //setup callbacks
   obj3d.play = () => {
-    if (getEngineState().userHasInteracted.value) {
-      player.play()
-    }
+    player.play()
   }
 
   obj3d.pause = () => {
-    if (getEngineState().userHasInteracted.value) player.pause()
+    player.pause()
   }
 
   obj3d.seek = () => {
-    if (getEngineState().userHasInteracted.value) {
-      player.playOneFrame()
-    }
+    player.playOneFrame()
   }
 
   obj3d.callbacks = () => {
     return VolumetricCallbacks
   }
+
+  const el = player.video
+
+  // mute and set volume to 0, as we use the audio api gain nodes to connect the source
+  el.muted = true
+  el.volume = 0
+
+  mediaComponent.el = el
+
+  createAudioNode(
+    el,
+    Engine.instance.audioContext.createMediaElementSource(el),
+    Engine.instance.gainNodeMixBuses.soundEffects
+  )
 }
 
 export const updateVolumetric: ComponentUpdateFunction = (entity: Entity) => {
@@ -161,6 +176,9 @@ export const updateVolumetric: ComponentUpdateFunction = (entity: Entity) => {
   if (paths.length && JSON.stringify(player.paths) !== JSON.stringify(paths)) {
     player.paths = paths
   }
+
+  obj3d.autoplay = mediaComponent.autoplay
+  obj3d.controls = mediaComponent.controls
 }
 
 export const serializeVolumetric: ComponentSerializeFunction = (entity) => {

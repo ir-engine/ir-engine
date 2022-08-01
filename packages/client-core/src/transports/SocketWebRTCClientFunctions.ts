@@ -612,7 +612,7 @@ export async function createCamAudioProducer(network: SocketWebRTCClientNetwork)
     const gainNode = ctx.createGain()
     gainNode.gain.value = 1
     ;[src, gainNode, dst].reduce((a, b) => a && (a.connect(b) as any))
-    MediaStreams.instance.audioGainNode = gainNode
+    MediaStreams.instance.microphoneGainNode = gainNode
     MediaStreams.instance.audioStream.removeTrack(audioTrack)
     MediaStreams.instance.audioStream.addTrack(dst.stream.getAudioTracks()[0])
     // same thing for audio, but we can use our already-created

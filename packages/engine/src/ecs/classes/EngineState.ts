@@ -147,14 +147,6 @@ export class EngineActions {
     id: matches.string
   })
 
-  static startSuspendedContexts = defineAction({
-    type: 'xre.engine.START_SUSPENDED_CONTEXTS' as const
-  })
-
-  static suspendPositionalAudio = defineAction({
-    type: 'xre.engine.SUSPEND_POSITIONAL_AUDIO' as const
-  })
-
   static browserNotSupported = defineAction({
     type: 'xre.engine.BROWSER_NOT_SUPPORTED' as const,
     msg: matches.string

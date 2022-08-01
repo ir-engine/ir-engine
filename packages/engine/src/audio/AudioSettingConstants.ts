@@ -1,4 +1,4 @@
-const AudioSettingDBPrefix = 'graphics-settings-'
+const AudioSettingDBPrefix = 'audio-settings-'
 export const AudioSettingKeys = {
   AUDIO: AudioSettingDBPrefix + 'audio',
   MICROPHONE: AudioSettingDBPrefix + 'microphone',
