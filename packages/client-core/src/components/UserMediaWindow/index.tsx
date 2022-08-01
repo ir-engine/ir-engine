@@ -61,8 +61,8 @@ export const useUserMediaWindowHook = ({ peerId }) => {
   const [audioStream, _setAudioStream] = useState<any>(null)
   const [videoStreamPaused, _setVideoStreamPaused] = useState(false)
   const [audioStreamPaused, _setAudioStreamPaused] = useState(false)
-  const [videoProducerPaused, setVideoProducerPaused] = useState(false)
-  const [audioProducerPaused, setAudioProducerPaused] = useState(false)
+  const [videoProducerPaused, setVideoProducerPaused] = useState(true)
+  const [audioProducerPaused, setAudioProducerPaused] = useState(true)
   const [videoProducerGlobalMute, setVideoProducerGlobalMute] = useState(false)
   const [audioProducerGlobalMute, setAudioProducerGlobalMute] = useState(false)
   const [audioTrackClones, setAudioTrackClones] = useState<any[]>([])
@@ -75,6 +75,8 @@ export const useUserMediaWindowHook = ({ peerId }) => {
   const videoStreamPausedRef = useRef(videoStreamPaused)
   const resumeVideoOnUnhide = useRef<boolean>(false)
   const resumeAudioOnUnhide = useRef<boolean>(false)
+  const selfVideoPausedRef = useRef<boolean>(false)
+  const selfAudioPausedRef = useRef<boolean>(false)
   const videoStreamRef = useRef(videoStream)
   const audioStreamRef = useRef(audioStream)
   const mediastream = useMediaStreamState()
@@ -119,19 +121,13 @@ export const useUserMediaWindowHook = ({ peerId }) => {
   }
 
   const pauseConsumerListener = (consumerId: string) => {
-    if (consumerId === videoStreamRef?.current?.id) {
-      setVideoProducerPaused(true)
-    } else if (consumerId === audioStreamRef?.current?.id) {
-      setAudioProducerPaused(true)
-    }
+    if (consumerId === videoStreamRef?.current?.id) setVideoStreamPaused(true)
+    else if (consumerId === audioStreamRef?.current?.id) setAudioStreamPaused(true)
   }
 
   const resumeConsumerListener = (consumerId: string) => {
-    if (consumerId === videoStreamRef?.current?.id) {
-      setVideoProducerPaused(false)
-    } else if (consumerId === audioStreamRef?.current?.id) {
-      setAudioProducerPaused(false)
-    }
+    if (consumerId === videoStreamRef?.current?.id && !selfVideoPausedRef.current) setVideoStreamPaused(false)
+    else if (consumerId === audioStreamRef?.current?.id && !selfAudioPausedRef.current) setAudioStreamPaused(false)
   }
 
   const pauseProducerListener = (producerId: string, globalMute: boolean) => {
@@ -141,6 +137,22 @@ export const useUserMediaWindowHook = ({ peerId }) => {
     } else if (producerId === audioStreamRef?.current?.id && globalMute) {
       setAudioProducerPaused(true)
       setAudioProducerGlobalMute(true)
+    } else {
+      const network = Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork
+      const videoConsumer = network.consumers?.find(
+        (c) => c.appData.peerId === userId && c.appData.mediaTag === (isScreen ? 'screen-video' : 'cam-video')
+      )
+      const audioConsumer = network.consumers?.find(
+        (c) => c.appData.peerId === userId && c.appData.mediaTag === (isScreen ? 'screen-audio' : 'cam-audio')
+      )
+      if (videoConsumer) {
+        ;(videoConsumer as any).producerPaused = true
+        setVideoProducerPaused(true)
+      }
+      if (audioConsumer) {
+        ;(audioConsumer as any).producerPaused = true
+        setAudioProducerPaused(true)
+      }
     }
   }
 
@@ -151,6 +163,22 @@ export const useUserMediaWindowHook = ({ peerId }) => {
     } else if (producerId === audioStreamRef?.current?.id) {
       setAudioProducerPaused(false)
       setAudioProducerGlobalMute(false)
+    } else {
+      const network = Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork
+      const videoConsumer = network.consumers?.find(
+        (c) => c.appData.peerId === userId && c.appData.mediaTag === (isScreen ? 'screen-video' : 'cam-video')
+      )
+      const audioConsumer = network.consumers?.find(
+        (c) => c.appData.peerId === userId && c.appData.mediaTag === (isScreen ? 'screen-audio' : 'cam-audio')
+      )
+      if (videoConsumer) {
+        ;(videoConsumer as any).producerPaused = false
+        setVideoProducerPaused(false)
+      }
+      if (audioConsumer) {
+        ;(audioConsumer as any).producerPaused = false
+        setAudioProducerPaused(false)
+      }
     }
   }
 
@@ -185,16 +213,22 @@ export const useUserMediaWindowHook = ({ peerId }) => {
     if (peerId !== 'cam_me' && peerId !== 'screen_me') {
       const network = Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork
       if (network) {
-        setVideoStream(
-          network.consumers?.find(
-            (c) => c.appData.peerId === userId && c.appData.mediaTag === (isScreen ? 'screen-video' : 'cam-video')
-          )
+        const videoConsumer = network.consumers?.find(
+          (c) => c.appData.peerId === userId && c.appData.mediaTag === (isScreen ? 'screen-video' : 'cam-video')
         )
-        setAudioStream(
-          network.consumers?.find(
-            (c) => c.appData.peerId === userId && c.appData.mediaTag === (isScreen ? 'screen-audio' : 'cam-audio')
-          )
+        const audioConsumer = network.consumers?.find(
+          (c) => c.appData.peerId === userId && c.appData.mediaTag === (isScreen ? 'screen-audio' : 'cam-audio')
         )
+        if (videoConsumer) {
+          setVideoProducerPaused((videoConsumer as any).producerPaused)
+          setVideoStreamPaused(videoConsumer.paused)
+        }
+        if (audioConsumer) {
+          setAudioProducerPaused((audioConsumer as any).producerPaused)
+          setAudioStreamPaused(audioConsumer.paused)
+        }
+        setVideoStream(videoConsumer)
+        setAudioStream(audioConsumer)
       }
     }
   }, [consumers.value])
@@ -279,7 +313,7 @@ export const useUserMediaWindowHook = ({ peerId }) => {
       videoRef.current.muted = true
       videoRef.current.setAttribute('playsinline', 'true')
       if (videoStream != null) {
-        setVideoProducerPaused(false)
+        if (peerId === 'cam_me' || peerId === 'screen_me') setVideoProducerPaused(false)
         const originalTrackEnabledInterval = setInterval(() => {
           if (videoStream.track.enabled) {
             clearInterval(originalTrackEnabledInterval)
@@ -386,10 +420,12 @@ export const useUserMediaWindowHook = ({ peerId }) => {
       MediaStreamService.updateScreenAudioState()
       MediaStreamService.updateScreenVideoState()
     } else {
-      if (videoStream.paused === false) {
+      if (!videoStreamPausedRef.current) {
+        selfVideoPausedRef.current = true
         await pauseConsumer(mediaNetwork, videoStream)
         setVideoStreamPaused(true)
       } else {
+        selfVideoPausedRef.current = false
         await resumeConsumer(mediaNetwork, videoStream)
         setVideoStreamPaused(false)
       }
@@ -415,10 +451,12 @@ export const useUserMediaWindowHook = ({ peerId }) => {
       else await resumeProducer(mediaNetwork, MediaStreams.instance.screenAudioProducer)
       setAudioStreamPaused(audioPaused)
     } else {
-      if (audioStream.paused === false) {
+      if (!audioStreamPausedRef.current) {
+        selfAudioPausedRef.current = true
         await pauseConsumer(mediaNetwork, audioStream)
         setAudioStreamPaused(true)
       } else {
+        selfAudioPausedRef.current = false
         await resumeConsumer(mediaNetwork, audioStream)
         setAudioStreamPaused(false)
       }

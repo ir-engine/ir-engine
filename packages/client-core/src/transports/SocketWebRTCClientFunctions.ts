@@ -160,7 +160,6 @@ export async function onConnectToWorldInstance(network: SocketWebRTCClientNetwor
   }
 
   function kickHandler(message) {
-    // console.log("TODO: SNACKBAR HERE");
     leaveNetwork(network, true)
     dispatchAction(NetworkConnectionService.actions.worldInstanceKicked({ message }))
     logger.info('Client has been kicked from the world')
@@ -365,8 +364,6 @@ export async function createTransport(network: SocketWebRTCClientNetwork, direct
   // us back the info we need to create a client-side transport
   let transport: MediaSoupTransport
 
-  // console.log('Requesting transport creation', direction, channelType, channelId)
-
   const { transportOptions } = await network.request(MessageTypes.WebRTCTransportCreate.toString(), {
     direction,
     sctpCapabilities: network.mediasoupDevice.sctpCapabilities,
@@ -383,7 +380,6 @@ export async function createTransport(network: SocketWebRTCClientNetwork, direct
   // start flowing for the first time. send dtlsParameters to the
   // server, then call callback() on success or errback() on failure.
   transport.on('connect', async ({ dtlsParameters }: any, callback: () => void, errback: () => void) => {
-    // console.log('\n\n\n\nWebRTCTransportConnect', direction, dtlsParameters, transportOptions, '\n\n\n')
     const connectResult = await network.request(MessageTypes.WebRTCTransportConnect.toString(), {
       transportId: transportOptions.id,
       dtlsParameters
@@ -471,10 +467,10 @@ export async function createTransport(network: SocketWebRTCClientNetwork, direct
           : NetworkConnectionService.actions.mediaInstanceDisconnected({})
       )
       logger.error(new Error(`Transport ${transport} transitioned to state ${state}.`))
-      console.error(
+      logger.error(
         'If this occurred unexpectedly shortly after joining a world, check that the instanceserver nodegroup has public IP addresses.'
       )
-      console.log('Waiting 5 seconds to make a new transport')
+      logger.info('Waiting 5 seconds to make a new transport')
       setTimeout(async () => {
         logger.info('Re-creating transport after unexpected closing/fail/disconnect %o', {
           direction,
@@ -489,15 +485,7 @@ export async function createTransport(network: SocketWebRTCClientNetwork, direct
             : NetworkConnectionService.actions.mediaInstanceReconnected({})
         )
       }, 5000)
-      // await request(MessageTypes.WebRTCTransportClose.toString(), {transportId: transport.id});
     }
-    // if (state === 'connected' && transport.direction === 'recv') {
-    //   console.log('requesting current producers for', channelType, channelId)
-    //   await request(MessageTypes.WebRTCRequestCurrentProducers.toString(), {
-    //     channelType: channelType,
-    //     channelId: channelId
-    //   })
-    // }
   })
   ;(transport as any).channelType = channelType
   ;(transport as any).channelId = channelId
@@ -782,6 +770,8 @@ export async function subscribeToTrack(network: SocketWebRTCClientNetwork, peerI
     paused: true
   })
 
+  ;(consumer as any).producerPaused = consumerParameters.producerPaused
+
   // if we do already have a consumer, we shouldn't have called this method
   const existingConsumer = network.consumers?.find(
     (c) => c?.appData?.peerId === peerId && c?.appData?.mediaTag === mediaTag
@@ -789,12 +779,14 @@ export async function subscribeToTrack(network: SocketWebRTCClientNetwork, peerI
   if (existingConsumer == null) {
     network.consumers.push(consumer)
     // okay, we're ready. let's ask the peer to send us media
-    await resumeConsumer(network, consumer)
+    if (!(consumer as any).producerPaused) await resumeConsumer(network, consumer)
+    else await pauseConsumer(network, consumer)
   } else if (existingConsumer?.track?.muted) {
     await closeConsumer(network, existingConsumer)
     network.consumers.push(consumer)
     // okay, we're ready. let's ask the peer to send us media
-    await resumeConsumer(network, consumer)
+    if (!(consumer as any).producerPaused) await resumeConsumer(network, consumer)
+    else await pauseConsumer(network, consumer)
   } else await closeConsumer(network, consumer)
 
   dispatchAction(MediaStreams.actions.triggerUpdateConsumers({}))
