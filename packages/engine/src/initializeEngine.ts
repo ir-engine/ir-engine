@@ -1,6 +1,5 @@
 import { detect, detectOS } from 'detect-browser'
 import _ from 'lodash'
-import { AudioListener } from 'three'
 
 import { BotUserAgent } from '@xrengine/common/src/constants/BotUserAgent'
 import { addActionReceptor, dispatchAction, getState } from '@xrengine/hyperflux'

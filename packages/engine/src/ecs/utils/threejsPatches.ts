@@ -1,14 +1,4 @@
-import {
-  AudioListener,
-  BufferGeometry,
-  Euler,
-  Mesh,
-  Object3D,
-  PositionalAudio,
-  Quaternion,
-  Vector2,
-  Vector3
-} from 'three'
+import { BufferGeometry, Euler, Mesh, Quaternion, Vector2, Vector3 } from 'three'
 import { acceleratedRaycast, computeBoundsTree, disposeBoundsTree } from 'three-mesh-bvh'
 
 //@ts-ignore
