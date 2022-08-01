@@ -2,8 +2,10 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 import styled from 'styled-components'
 
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
+import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import { hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { PersistTagComponent } from '@xrengine/engine/src/scene/components/PersistTagComponent'
 import { PreventBakeTagComponent } from '@xrengine/engine/src/scene/components/PreventBakeTagComponent'
 import { SceneTagComponent } from '@xrengine/engine/src/scene/components/SceneTagComponent'
@@ -22,6 +24,7 @@ import { useSelectionState } from '../../services/SelectionServices'
 import BooleanInput from '../inputs/BooleanInput'
 import InputGroup from '../inputs/InputGroup'
 import NameInputGroup from './NameInputGroup'
+import Object3DNodeEditor from './Object3DNodeEditor'
 import TransformPropertyGroup from './TransformPropertyGroup'
 
 const StyledNodeEditor = (styled as any).div`
@@ -138,43 +141,49 @@ export const PropertiesPanelContainer = () => {
   let content
   const multiEdit = selectedEntities.length > 1
   const nodeEntity = selectedEntities[selectedEntities.length - 1]
-  const node = useWorld().entityTree.entityNodeMap.get(nodeEntity)
+  const isObject3D = typeof nodeEntity === 'string'
+  const node = isObject3D
+    ? Engine.instance.currentWorld.scene.getObjectByProperty('uuid', nodeEntity)
+    : Engine.instance.currentWorld.entityTree.entityNodeMap.get(nodeEntity)
 
   if (!nodeEntity || !node) {
     content = <NoNodeSelectedMessage>{t('editor:properties.noNodeSelected')}</NoNodeSelectedMessage>
   } else {
     // get all editors that this entity has a component for
-    const editors = getNodeEditorsForEntity(nodeEntity)
-    const transform =
-      hasComponent(nodeEntity, TransformComponent) &&
-      !selectedEntities.some((entity) => hasComponent(entity, DisableTransformTagComponent))
+    const editors = isObject3D ? [Object3DNodeEditor] : getNodeEditorsForEntity(nodeEntity)
+    const transform = isObject3D
+      ? null
+      : hasComponent(nodeEntity, TransformComponent) &&
+        !selectedEntities.some((entity: Entity) => hasComponent(entity, DisableTransformTagComponent))
 
     content = (
       <StyledNodeEditor>
-        <PropertiesHeader>
-          <NameInputGroupContainer>
-            <NameInputGroup node={node} key={nodeEntity} />
-            {!hasComponent(nodeEntity, SceneTagComponent) && (
-              <>
-                <VisibleInputGroup name="Visible" label={t('editor:properties.lbl-visible')}>
-                  <BooleanInput value={hasComponent(nodeEntity, VisibleComponent)} onChange={onChangeVisible} />
-                </VisibleInputGroup>
-                <VisibleInputGroup name="Prevent Baking" label={t('editor:properties.lbl-preventBake')}>
-                  <BooleanInput
-                    value={hasComponent(nodeEntity, PreventBakeTagComponent)}
-                    onChange={onChangeBakeStatic}
-                  />
-                </VisibleInputGroup>
-              </>
-            )}
-          </NameInputGroupContainer>
-          <PersistInputGroup name="Persist" label={t('editor:properties.lbl-persist')}>
-            <BooleanInput value={hasComponent(nodeEntity, PersistTagComponent)} onChange={onChangePersist} />
-          </PersistInputGroup>
-          {transform && <TransformPropertyGroup node={node} />}
-        </PropertiesHeader>
+        {!isObject3D && (
+          <PropertiesHeader>
+            <NameInputGroupContainer>
+              <NameInputGroup node={node as EntityTreeNode} key={nodeEntity} />
+              {!hasComponent(nodeEntity, SceneTagComponent) && (
+                <>
+                  <VisibleInputGroup name="Visible" label={t('editor:properties.lbl-visible')}>
+                    <BooleanInput value={hasComponent(nodeEntity, VisibleComponent)} onChange={onChangeVisible} />
+                  </VisibleInputGroup>
+                  <VisibleInputGroup name="Prevent Baking" label={t('editor:properties.lbl-preventBake')}>
+                    <BooleanInput
+                      value={hasComponent(nodeEntity, PreventBakeTagComponent)}
+                      onChange={onChangeBakeStatic}
+                    />
+                  </VisibleInputGroup>
+                </>
+              )}
+            </NameInputGroupContainer>
+            <PersistInputGroup name="Persist" label={t('editor:properties.lbl-persist')}>
+              <BooleanInput value={hasComponent(nodeEntity, PersistTagComponent)} onChange={onChangePersist} />
+            </PersistInputGroup>
+            {transform && <TransformPropertyGroup node={node as EntityTreeNode} />}
+          </PropertiesHeader>
+        )}
         {editors.map((Editor, i) => (
-          <Editor key={i} multiEdit={multiEdit} node={node} />
+          <Editor key={i} multiEdit={multiEdit} node={node as EntityTreeNode} />
         ))}
       </StyledNodeEditor>
     )

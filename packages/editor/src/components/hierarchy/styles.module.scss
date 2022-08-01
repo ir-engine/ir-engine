@@ -29,6 +29,10 @@
     color: var(--textColor);
   }
 
+  &.obj3d {
+    color: #666;
+  }
+
   &.rootNode {
     background: var(--dropdownMenuSelectedBackground);
   }
