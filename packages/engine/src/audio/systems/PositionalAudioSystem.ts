@@ -26,26 +26,6 @@ import { PositionalAudioTagComponent } from '../components/PositionalAudioTagCom
 import { AudioType } from '../constants/AudioConstants'
 import { AudioElementNode, AudioElementNodes } from './AudioSystem'
 
-/**
- * https://discourse.threejs.org/t/positionalaudio-setmediastreamsource-with-webrtc-question-not-hearing-any-sound/14301/14
- * https://bugs.chromium.org/p/chromium/issues/detail?id=933677
- */
-const SHOULD_CREATE_SILENT_AUDIO_ELS = typeof navigator !== 'undefined' && /chrome/i.test(navigator.userAgent)
-function createSilentAudioEl(streamsLive: MediaProvider) {
-  if (SHOULD_CREATE_SILENT_AUDIO_ELS) return null!
-  let audioEl = new Audio()
-  audioEl.setAttribute('autoplay', 'autoplay')
-  audioEl.setAttribute('playsinline', 'playsinline')
-  audioEl.srcObject = streamsLive
-  // we don't actually want to hear audio from this element
-  audioEl.volume = 0
-  audioEl.muted = true
-  // remove reference to be GC'd once audio is flowing
-  audioEl.addEventListener('canplaythrough', () => {
-    audioEl = null!
-  })
-}
-
 export const addPannerNode = (audioObject: AudioElementNode, opts = Engine.instance.spatialAudioSettings) => {
   const panner = Engine.instance.audioContext.createPanner()
   audioObject.source.disconnect(audioObject.gain)
@@ -182,8 +162,6 @@ export default async function PositionalAudioSystem(world: World) {
       // audio streams exists but has not been handled
       const mediaTrack = consumer.track as MediaStreamTrack
       const stream = new MediaStream([mediaTrack.clone()])
-
-      createSilentAudioEl(stream)
 
       const audioObject = createAudioNode(stream, audioContext.createMediaStreamSource(stream))
 
