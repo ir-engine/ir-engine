@@ -28,6 +28,7 @@ import { AudioType } from '../constants/AudioConstants'
 import { AudioElementNode, AudioElementNodes } from './AudioSystem'
 
 export const addPannerNode = (audioObject: AudioElementNode, opts = Engine.instance.spatialAudioSettings) => {
+  console.log('addPannerNode')
   const panner = Engine.instance.audioContext.createPanner()
   audioObject.source.disconnect(audioObject.gain)
   audioObject.source.connect(panner)
@@ -47,6 +48,7 @@ export const addPannerNode = (audioObject: AudioElementNode, opts = Engine.insta
 }
 
 export const removePannerNode = (audioObject: AudioElementNode) => {
+  console.log('removePannerNode')
   audioObject.source.connect(audioObject.gain)
   audioObject.source.disconnect(audioObject.panner!)
   audioObject.panner!.disconnect(audioObject.gain)
@@ -103,6 +105,8 @@ export default async function PositionalAudioSystem(world: World) {
     const audioContext = Engine.instance.audioContext
     const network = Engine.instance.currentWorld.mediaNetwork
     const xrSessionStarted = getState(EngineState).xrSessionStarted.value
+    const audioState = getState(AudioState)
+    const useAvatarPositionalAudio = audioState.usePositionalAudio.value && !xrSessionStarted
 
     /**
      * Scene Objects
@@ -143,17 +147,23 @@ export default async function PositionalAudioSystem(world: World) {
         (c: any) => c.appData.peerId === peerId && c.appData.mediaTag === 'cam-audio'
       )
 
-      // avatar still exists bu audio stream does not
+      // avatar still exists but audio stream does not
       if (!consumer) {
         if (avatarAudioObjs.has(networkObject)) avatarAudioObjs.delete(networkObject)
         continue
       }
 
-      // only use positional audio for avatar media in XR
-      if (!xrSessionStarted) continue
+      const existingAudioObj = avatarAudioObjs.get(networkObject)
 
-      // audio stream exists and has already been handled
-      if (avatarAudioObjs.has(networkObject)) continue
+      if (existingAudioObj) {
+        // only force positional audio for avatar media streams in XR
+        const audioEl = AudioElementNodes.get(existingAudioObj)!
+        if (audioEl.panner && !useAvatarPositionalAudio) removePannerNode(audioEl)
+        else if (!audioEl.panner && useAvatarPositionalAudio) addPannerNode(audioEl)
+
+        // audio stream exists and has already been handled
+        continue
+      }
 
       // get existing stream - need to wait for UserWindowMedia to populate
       const existingAudioObject = document.getElementById(`${peerId}_audio`)! as HTMLAudioElement
@@ -177,7 +187,7 @@ export default async function PositionalAudioSystem(world: World) {
       )
       audioObject.gain.gain.setTargetAtTime(existingAudioObject.volume, audioContext.currentTime, 0.01)
 
-      addPannerNode(audioObject)
+      if (useAvatarPositionalAudio) addPannerNode(audioObject)
 
       avatarAudioObjs.set(networkObject, stream)
     }
