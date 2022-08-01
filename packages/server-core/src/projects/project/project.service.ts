@@ -41,7 +41,9 @@ declare module '@xrengine/common/declarations' {
  * returns a list of projects installed by name from their folder names
  */
 export const getProjectsList = async () => {
-  return fs.readdirSync(projectsRootFolder)
+  return fs
+    .readdirSync(projectsRootFolder)
+    .filter((projectFolder) => fs.existsSync(path.join(projectsRootFolder, projectFolder, 'xrengine.config.ts')))
 }
 
 export default (app: Application): void => {
