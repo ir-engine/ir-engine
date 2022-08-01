@@ -34,6 +34,7 @@ import { getSystemsFromSceneData } from '@xrengine/projects/loadSystemInjection'
 import { Application } from '@xrengine/server-core/declarations'
 import config from '@xrengine/server-core/src/appconfig'
 import multiLogger from '@xrengine/server-core/src/logger'
+import { getProjectsList } from '@xrengine/server-core/src/projects/project/project.service'
 import getLocalServerIp from '@xrengine/server-core/src/util/get-local-server-ip'
 
 import { authorizeUserToJoinServer } from './NetworkFunctions'
@@ -241,12 +242,12 @@ const loadEngine = async (app: Application, sceneId: string) => {
   const initPromise = network.initialize()
 
   world.networks.set(hostId, network)
+  const projects = await getProjectsList()
 
   if (app.isChannelInstance) {
     world._mediaHostId = hostId as UserId
     await initializeMediaServerSystems()
     await initializeRealtimeSystems(true, false)
-    const projects = (await app.service('project').find(null!)).data.map((project) => project.name)
     await loadEngineInjection(world, projects)
     dispatchAction(EngineActions.sceneLoaded({}))
   } else {
@@ -255,13 +256,11 @@ const loadEngine = async (app: Application, sceneId: string) => {
     const [projectName, sceneName] = sceneId.split('/')
 
     const sceneResultPromise = app.service('scene').get({ projectName, sceneName, metadataOnly: false }, null!)
-    const projectsPromise = app.service('project').find(null!)
 
     await initializeCoreSystems()
     await initializeRealtimeSystems(false, true)
     await initializeSceneSystems()
 
-    const projects = (await projectsPromise).data.map((project) => project.name)
     await loadEngineInjection(world, projects)
 
     const sceneUpdatedListener = async () => {

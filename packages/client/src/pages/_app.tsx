@@ -24,6 +24,7 @@ import RouterComp from '../route/public'
 
 import './styles.scss'
 
+import { API } from '@xrengine/client-core/src/API'
 import { NotificationAction, NotificationActions } from '@xrengine/client-core/src/common/services/NotificationService'
 import { getCurrentTheme } from '@xrengine/common/src/constants/DefaultThemeSettings'
 import { AudioEffectPlayer } from '@xrengine/engine/src/audio/systems/AudioSystem'
@@ -101,24 +102,25 @@ const App = (): any => {
   }, [])
 
   useEffect(() => {
-    if (selfUser?.id.value && projectState.updateNeeded.value) ProjectService.fetchProjects()
+    if (selfUser?.id.value && projectState.updateNeeded.value) {
+      ProjectService.fetchProjects()
+      if (!fetchedProjectComponents) {
+        setFetchedProjectComponents(true)
+        API.instance.client
+          .service('projects')
+          .find()
+          .then((projects) => {
+            loadWebappInjection(projects).then((result) => {
+              setProjectComponents(result)
+            })
+          })
+      }
+    }
   }, [selfUser, projectState.updateNeeded.value])
 
   useEffect(() => {
     Engine.instance.userId = selfUser.id.value
   }, [selfUser.id])
-
-  useEffect(() => {
-    if (projectState.projects.value.length > 0 && !fetchedProjectComponents) {
-      setFetchedProjectComponents(true)
-      loadWebappInjection(
-        {},
-        projectState.projects.value.map((project) => project.name)
-      ).then((result) => {
-        setProjectComponents(result)
-      })
-    }
-  }, [projectState.projects.value])
 
   useEffect(() => {
     if (clientSetting) {
