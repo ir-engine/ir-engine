@@ -102,26 +102,25 @@ const App = (): any => {
   }, [])
 
   useEffect(() => {
-    if (selfUser?.id.value && projectState.updateNeeded.value) ProjectService.fetchProjects()
+    if (selfUser?.id.value && projectState.updateNeeded.value) {
+      ProjectService.fetchProjects()
+      if (!fetchedProjectComponents) {
+        setFetchedProjectComponents(true)
+        API.instance.client
+          .service('projects')
+          .find()
+          .then((projects) => {
+            loadWebappInjection(projects).then((result) => {
+              setProjectComponents(result)
+            })
+          })
+      }
+    }
   }, [selfUser, projectState.updateNeeded.value])
 
   useEffect(() => {
     Engine.instance.userId = selfUser.id.value
   }, [selfUser.id])
-
-  useEffect(() => {
-    if (projectState.projects.value.length > 0 && !fetchedProjectComponents) {
-      setFetchedProjectComponents(true)
-      API.instance.client
-        .service('projects')
-        .find()
-        .then((projects) => {
-          loadWebappInjection({}, projects).then((result) => {
-            setProjectComponents(result)
-          })
-        })
-    }
-  }, [projectState.projects.value])
 
   useEffect(() => {
     if (clientSetting) {
