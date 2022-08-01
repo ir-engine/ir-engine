@@ -7,16 +7,21 @@ import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { BoundingBoxComponent } from '../components/BoundingBoxComponent'
 
+// TODO: Move all logic into a system.
+// This code breaks if the entity does not immediately have Object3DComponent or TransformComponent components added.
+
 export const createBoxComponent = (entity: Entity) => {
   const dynamic = hasComponent(entity, RigidBodyDynamicTagComponent)
 
   const calcBoundingBox = addComponent(entity, BoundingBoxComponent, { dynamic, box: new Box3() })
 
   const object3D = getComponent(entity, Object3DComponent).value
-  const transform = getComponent(entity, TransformComponent)
 
+  const transform = getComponent(entity, TransformComponent)
   object3D.position.copy(transform.position)
   object3D.rotation.setFromQuaternion(transform.rotation)
+  object3D.scale.copy(transform.scale)
+
   if (!calcBoundingBox.dynamic) object3D.updateMatrixWorld()
 
   let hasBoxExpanded = false
