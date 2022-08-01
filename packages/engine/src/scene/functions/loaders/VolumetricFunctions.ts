@@ -88,6 +88,7 @@ export const addVolumetricComponent = (entity: Entity, props: VolumetricComponen
   const player = new DracosisPlayer({
     scene: obj3d,
     renderer: EngineRenderer.instance.renderer,
+    // https://github.com/XRFoundation/Universal-Volumetric/issues/117
     paths: mediaComponent.paths.length ? mediaComponent.paths : ['fake-path'],
     isLoadingEffect: properties.useLoadingEffect,
     isVideoTexture: false,
