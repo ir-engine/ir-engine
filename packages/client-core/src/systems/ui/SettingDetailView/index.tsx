@@ -19,6 +19,7 @@ import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
 import { dispatchAction } from '@xrengine/hyperflux'
 
 import { BlurLinear, Mic, VolumeUp } from '@mui/icons-material'
+import SurroundSoundIcon from '@mui/icons-material/SurroundSound'
 
 import { AuthService, useAuthState } from '../../../user/services/AuthService'
 import XRCheckboxButton from '../../components/XRCheckboxButton'
@@ -175,6 +176,16 @@ const SettingDetailView = () => {
             </div>
             {showAudioDetails && (
               <>
+                <div className="sectionRow">
+                  <SurroundSoundIcon />
+                  <XRCheckboxButton
+                    labelContent={t('user:usermenu.setting.use-positional-audio')}
+                    checked={audioState.usePositionalAudio.value}
+                    onChange={(_, value: boolean) => {
+                      dispatchAction(AudioSettingAction.setUsePositionalAudio({ value }))
+                    }}
+                  />
+                </div>
                 <div className="sectionRow">
                   <VolumeUp />
                   <XRSlider
