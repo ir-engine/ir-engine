@@ -19,6 +19,7 @@ import { dispatchAction } from '@xrengine/hyperflux'
 import { BlurLinear, Mic, MicOff, VolumeOff, VolumeUp } from '@mui/icons-material'
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp'
+import SurroundSoundIcon from '@mui/icons-material/SurroundSound'
 import Box from '@mui/material/Box'
 import Checkbox from '@mui/material/Checkbox'
 import Collapse from '@mui/material/Collapse'
@@ -164,6 +165,20 @@ const SettingMenu = (): JSX.Element => {
             </div>
             <Collapse in={openOtherAudioSettings} timeout="auto" unmountOnExit>
               <Box margin={1}>
+                <div className={styles.row}>
+                  <span className={styles.materialIconBlock}>
+                    <SurroundSoundIcon />
+                  </span>
+                  <span className={styles.settingLabel}>{t('user:usermenu.setting.use-positional-audio')}</span>
+                  <Checkbox
+                    className={styles.checkboxBlock}
+                    checked={audioState.usePositionalAudio.value}
+                    onChange={(_, value: boolean) => {
+                      dispatchAction(AudioSettingAction.setUsePositionalAudio({ value }))
+                    }}
+                    size="small"
+                  />
+                </div>
                 <div className={styles.row}>
                   <span className={styles.materialIconBlock}>
                     {audioState.mediaStreamVolume.value == 0 ? (

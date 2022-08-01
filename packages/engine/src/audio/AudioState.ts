@@ -13,8 +13,9 @@ import { AudioSettingKeys } from './AudioSettingConstants'
 export const AudioState = defineState({
   name: 'AudioState',
   initial: () => ({
-    masterVolume: 0.1,
+    masterVolume: 0.5,
     microphoneGain: 0.5,
+    usePositionalAudio: false, // only for avatars
     mediaStreamVolume: 0.5,
     notificationVolume: 0.5,
     soundEffectsVolume: 0.5,
@@ -30,6 +31,9 @@ export async function restoreAudioSettings(): Promise<void> {
   ClientStorage.get(AudioSettingKeys.MICROPHONE).then((v: number) => {
     if (typeof v !== 'undefined')
       dispatchAction(AudioSettingAction.setMicrophoneVolume({ value: MathUtils.clamp(v, 0, 1) }))
+  })
+  ClientStorage.get(AudioSettingKeys.USE_POSITIONAL_AUDIO).then((v: boolean) => {
+    if (typeof v !== 'undefined') dispatchAction(AudioSettingAction.setUsePositionalAudio({ value: Boolean(v) }))
   })
   ClientStorage.get(AudioSettingKeys.MEDIA_STREAM_VOLUME).then((v: number) => {
     if (typeof v !== 'undefined')
@@ -62,6 +66,10 @@ export function AudioSettingReceptor(action) {
     .when(AudioSettingAction.setMicrophoneVolume.matches, (action) => {
       s.merge({ microphoneGain: action.value })
       ClientStorage.set(AudioSettingKeys.MICROPHONE, action.value)
+    })
+    .when(AudioSettingAction.setUsePositionalAudio.matches, (action) => {
+      s.merge({ usePositionalAudio: action.value })
+      ClientStorage.set(AudioSettingKeys.USE_POSITIONAL_AUDIO, action.value)
     })
     .when(AudioSettingAction.setMediaStreamVolume.matches, (action) => {
       s.merge({ mediaStreamVolume: action.value })
@@ -109,6 +117,10 @@ export class AudioSettingAction {
   static setMicrophoneVolume = defineAction({
     type: 'core.audio.MICROPHONE_VOLUME' as const,
     value: matches.number
+  })
+  static setUsePositionalAudio = defineAction({
+    type: 'core.audio.POSITIONAL_AUDIO' as const,
+    value: matches.boolean
   })
   static setMediaStreamVolume = defineAction({
     type: 'core.audio.MEDIA_STREAM_VOLUME' as const,
