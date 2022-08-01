@@ -90,107 +90,107 @@
       color: #a8a8ff;
     }
 
-    .avatarPanel {
-      position: absolute;
-      bottom: 75px;
-      padding: 0 20px;
-      background-color: var(--popupBackground);
-      border-radius: 20px;
-      width: 140px;
-      right: 100px;
-      box-shadow: 16px 16px 32px 0 #11111159;
-      color: black;
-      max-height: calc(100vh - 100px);
-      overflow: auto;
-
-      & > .avatarContainer {
-        margin-top: 40px;
-      }
-
-      & > .controlContainer {
-        margin-bottom: 10px;
-      }
-
-      .avatarContainer {
-        display: flex;
-        align-items: flex-start;
-        flex-wrap: wrap;
-        height: auto;
-
-        .avatarPreviewWrapper {
-          width: 90px;
-          height: 90px;
-          cursor: pointer;
-          margin: 5px;
-          flex-grow: 0;
-          background: white;
-          box-shadow: 0 2px 18px 0 #11111159;
-          position: relative;
-
-          .avatarPreview {
-            width: 100%;
-            height: 100%;
-            border-radius: 10px;
-          }
-
-          &.activeAvatar {
-            @include active-avatar;
-          }
-
-          &.selectedAvatar {
-            @include selected-avatar;
-          }
-        }
-      }
-
-      .controlContainer {
-        margin-top: 10px;
-        display: flex;
-        justify-content: space-between;
-
-        .actionBlock {
-          position: absolute;
-          width: 100%;
-          display: flex;
-          justify-content: space-between;
-          left: 0;
-          padding: 0 20px;
-          top: 10px;
-        }
-      }
-
-      .iconBlock {
-        @include icon-block-styling;
-      }
-
-      @media screen and (min-width: 768px) {
-        width: 320px;
-
-        & > .avatarContainer {
-          margin-top: 55px;
-        }
-
-        .avatarContainer {
-          .avatarPreviewWrapper {
-            width: 130px;
-            height: 130px;
-          }
-        }
-
-        .controlContainer {
-          .actionBlock {
-            position: initial;
-            width: 140px;
-          }
-        }
-      }
-    }
-
     @media (max-width: 560px) {
       height: 100%;
       flex-direction: column;
       margin-left: 10px;
       justify-content: space-around;
+    }
+  }
+
+  .avatarPanel {
+    position: absolute;
+    bottom: 75px;
+    padding: 0 20px;
+    background-color: var(--popupBackground);
+    border-radius: 20px;
+    width: 140px;
+    right: 100px;
+    box-shadow: 16px 16px 32px 0 #11111159;
+    color: black;
+    max-height: calc(100vh - 100px);
+    overflow: auto;
+
+    & > .avatarContainer {
+      margin-top: 40px;
+    }
+
+    & > .controlContainer {
+      margin-bottom: 10px;
+    }
+
+    .avatarContainer {
+      display: flex;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      height: auto;
+
+      .avatarPreviewWrapper {
+        width: 90px;
+        height: 90px;
+        cursor: pointer;
+        margin: 5px;
+        flex-grow: 0;
+        background: white;
+        box-shadow: 0 2px 18px 0 #11111159;
+        position: relative;
+
+        .avatarPreview {
+          width: 100%;
+          height: 100%;
+          border-radius: 10px;
+        }
+
+        &.activeAvatar {
+          @include active-avatar;
+        }
+
+        &.selectedAvatar {
+          @include selected-avatar;
+        }
+      }
+    }
+
+    .controlContainer {
+      margin-top: 10px;
+      display: flex;
+      justify-content: space-between;
+
+      .actionBlock {
+        position: absolute;
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        left: 0;
+        padding: 0 20px;
+        top: 10px;
+      }
+    }
+
+    .iconBlock {
+      @include icon-block-styling;
+    }
+
+    @media screen and (min-width: 768px) {
+      width: 320px;
+
+      & > .avatarContainer {
+        margin-top: 55px;
+      }
+
+      .avatarContainer {
+        .avatarPreviewWrapper {
+          width: 130px;
+          height: 130px;
+        }
+      }
+
+      .controlContainer {
+        .actionBlock {
+          position: initial;
+          width: 140px;
+        }
+      }
     }
   }
 
