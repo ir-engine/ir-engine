@@ -32,6 +32,8 @@
   font-size: 3rem;
   background: var(--iconButtonBackground);
   position: fixed;
+  width: auto;
+  min-width: auto;
 }
 
 .gradientButton {
@@ -67,7 +69,6 @@
 
 .hoverSettings {
   display: flex;
-  z-index: 3;
   flex-direction: column;
   text-align: center;
   background: var(--sidebarBackground);
@@ -75,6 +76,7 @@
   max-width: 310px;
   position: absolute;
   padding: 2px 18px;
+  margin: 5px -5px;
   left: 0;
   top: 0;
 }
@@ -193,12 +195,14 @@
 }
 
 .invisible {
+  z-index: 1000;
   display: none;
   color: var(--textColor);
 
   @media (max-width: 1200px) {
     display: inline-block;
-    margin-bottom: 3rem;
+    position: absolute;
+    margin: 20px 5px;
   }
 }
 
