@@ -285,9 +285,7 @@ export class EngineRenderer {
 }
 
 export default async function WebGLRendererSystem(world: World) {
-  matchActionOnce(EngineActions.joinedWorld.matches, () => {
-    restoreEngineRendererData()
-  })
+  restoreEngineRendererData()
 
   const setQualityLevelActions = createActionQueue(EngineRendererAction.setQualityLevel.matches)
   const setAutomaticActions = createActionQueue(EngineRendererAction.setAutomatic.matches)

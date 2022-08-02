@@ -23,7 +23,7 @@ export const AudioState = defineState({
   })
 })
 
-export async function restoreAudioSettings(): Promise<void> {
+export function restoreAudioSettings() {
   ClientStorage.get(AudioSettingKeys.AUDIO).then((v: number) => {
     if (typeof v !== 'undefined')
       dispatchAction(AudioSettingAction.setMasterVolume({ value: MathUtils.clamp(v, 0, 1) }))

@@ -81,9 +81,9 @@ export default async function AudioSystem(world: World) {
   const modifyPropertyActionQueue = createActionQueue(EngineActions.sceneObjectUpdate.matches)
   const userInteractActionQueue = createActionQueue(EngineActions.setUserHasInteracted.matches)
 
-  const audioQuery = defineQuery([AudioComponent, Not(VideoComponent), Not(VolumetricComponent)])
-  const videoQuery = defineQuery([AudioComponent, VideoComponent, Not(VolumetricComponent)])
-  const volQuery = defineQuery([AudioComponent, Not(VideoComponent), VolumetricComponent])
+  const audioQuery = defineQuery([Object3DComponent, AudioComponent, Not(VideoComponent), Not(VolumetricComponent)])
+  const videoQuery = defineQuery([Object3DComponent, AudioComponent, VideoComponent, Not(VolumetricComponent)])
+  const volQuery = defineQuery([Object3DComponent, AudioComponent, Not(VideoComponent), VolumetricComponent])
   const mediaQuery = defineQuery([MediaComponent])
 
   return () => {
@@ -106,7 +106,7 @@ export default async function AudioSystem(world: World) {
     }
 
     for (const entity of audioQuery.exit()) {
-      const obj3d = getComponent(entity, Object3DComponent).value
+      const obj3d = getComponent(entity, Object3DComponent, true)?.value
       AudioElementObjects.get(obj3d)?.removeFromParent()
     }
 
