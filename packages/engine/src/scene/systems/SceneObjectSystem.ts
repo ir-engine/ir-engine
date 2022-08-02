@@ -158,7 +158,7 @@ export default async function SceneObjectSystem(world: World) {
      * As we iterative down the scene hierarchy, we don't want to override entities that have a SimpleMaterialTagComponent
      */
     for (const entity of simpleMaterialsQuery.exit()) {
-      const object3DComponent = getComponent(entity, Object3DComponent)
+      const object3DComponent = getComponent(entity, Object3DComponent, true)
       if (object3DComponent.value === world.scene) {
         Engine.instance.simpleMaterials = false
       }

@@ -29,4 +29,6 @@ export const deserializeCollider: ComponentDeserializeFunction = (
   getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_COLLIDER)
 }
 
-export const serializeCollider: ComponentSerializeFunction = (entity) => {}
+export const serializeCollider: ComponentSerializeFunction = (entity) => {
+  return undefined!
+}
