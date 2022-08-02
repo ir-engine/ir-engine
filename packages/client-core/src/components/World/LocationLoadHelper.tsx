@@ -18,6 +18,8 @@ import { loadSceneFromJSON } from '@xrengine/engine/src/scene/functions/SceneLoa
 import { loadEngineInjection } from '@xrengine/projects/loadEngineInjection'
 import { getSystemsFromSceneData } from '@xrengine/projects/loadSystemInjection'
 
+import { API } from '../../API'
+
 const logger = multiLogger.child({ component: 'client-core:world' })
 
 export const retrieveLocationByName = (locationName: string, userId: string) => {
@@ -34,13 +36,13 @@ export const retrieveLocationByName = (locationName: string, userId: string) => 
 }
 
 export const initClient = async () => {
-  const projects = accessProjectState().projects.value.map((project) => project.name)
   const world = Engine.instance.currentWorld
+  const projects = API.instance.client.service('projects').find()
 
   await initializeCoreSystems()
   await initializeRealtimeSystems()
   await initializeSceneSystems()
-  await loadEngineInjection(world, projects)
+  await loadEngineInjection(world, await projects)
 }
 
 export const loadScene = async (sceneData: SceneData) => {

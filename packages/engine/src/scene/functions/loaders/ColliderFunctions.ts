@@ -30,16 +30,5 @@ export const deserializeCollider: ComponentDeserializeFunction = (
 }
 
 export const serializeCollider: ComponentSerializeFunction = (entity) => {
-  const component = getComponent(entity, RigidBodyComponent)
-  if (!component) return
-
-  return {
-    name: SCENE_COMPONENT_COLLIDER,
-    props: {
-      /**
-       * TODO: rewrite this when we clean up our physics implementation
-       * since this is only ever used from gltf metadata, we dont yet need to support serialisation
-       */
-    }
-  }
+  return undefined!
 }

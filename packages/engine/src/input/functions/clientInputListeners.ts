@@ -34,7 +34,6 @@ export const addClientInputListeners = () => {
   const canvas = EngineRenderer.instance.canvas
 
   window.addEventListener('DOMMouseScroll', preventDefault, false)
-  window.addEventListener('touchmove', preventDefault, { capture: true, passive: false })
   window.addEventListener(
     'keydown',
     (evt) => {
@@ -104,7 +103,6 @@ export const removeClientInputListeners = () => {
   if (!boundListeners.length) return
 
   window.removeEventListener('DOMMouseScroll', preventDefault, false)
-  window.removeEventListener('touchmove', preventDefault, { capture: true })
 
   boundListeners.forEach(({ domElement, eventName, callback }) => {
     domElement.removeEventListener(eventName, callback)

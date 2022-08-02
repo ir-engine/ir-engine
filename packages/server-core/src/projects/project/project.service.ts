@@ -1,6 +1,9 @@
 import { Id, NullableId, Params, ServiceMethods } from '@feathersjs/feathers'
+import appRootPath from 'app-root-path'
 import { iff, isProvider } from 'feathers-hooks-common'
+import fs from 'fs'
 import _ from 'lodash'
+import path from 'path'
 
 import { UserInterface } from '@xrengine/common/src/dbmodels/UserInterface'
 import logger from '@xrengine/common/src/logger'
@@ -18,8 +21,12 @@ import projectDocs from './project.docs'
 import hooks from './project.hooks'
 import createModel from './project.model'
 
+const projectsRootFolder = path.join(appRootPath.path, 'packages/projects/projects/')
 declare module '@xrengine/common/declarations' {
   interface ServiceTypes {
+    projects: {
+      find: () => ReturnType<typeof getProjectsList>
+    }
     project: Project
     'project-build': any
     'project-invalidate': any
@@ -28,6 +35,15 @@ declare module '@xrengine/common/declarations' {
   interface Models {
     project: ReturnType<typeof createModel>
   }
+}
+
+/**
+ * returns a list of projects installed by name from their folder names
+ */
+export const getProjectsList = async () => {
+  return fs
+    .readdirSync(projectsRootFolder)
+    .filter((projectFolder) => fs.existsSync(path.join(projectsRootFolder, projectFolder, 'xrengine.config.ts')))
 }
 
 export default (app: Application): void => {
@@ -43,6 +59,16 @@ export default (app: Application): void => {
   app.use('project', projectClass)
 
   // TODO: move these to sub-methods of 'project' service
+
+  app.use('projects', {
+    find: getProjectsList
+  })
+
+  app.service('projects').hooks({
+    before: {
+      find: [authenticate()]
+    }
+  })
 
   app.use('project-build', {
     patch: async ({ rebuild }, params) => {

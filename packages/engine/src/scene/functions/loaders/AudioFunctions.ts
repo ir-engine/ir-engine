@@ -1,11 +1,13 @@
-import { Audio, DoubleSide, Mesh, MeshBasicMaterial, Object3D, PlaneBufferGeometry } from 'three'
+import { DoubleSide, Mesh, MeshBasicMaterial, Object3D, PlaneBufferGeometry } from 'three'
 
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
+import { getState } from '@xrengine/hyperflux'
 
 import { AssetLoader } from '../../../assets/classes/AssetLoader'
+import { AudioState } from '../../../audio/AudioState'
 import { AudioComponent, AudioComponentType } from '../../../audio/components/AudioComponent'
-import { PositionalAudioTagComponent } from '../../../audio/components/PositionalAudioTagComponent'
 import { AudioType, AudioTypeType } from '../../../audio/constants/AudioConstants'
+import { AudioElementNode, AudioElementNodes } from '../../../audio/systems/AudioSystem'
 import {
   ComponentDeserializeFunction,
   ComponentPrepareForGLTFExportFunction,
@@ -13,16 +15,15 @@ import {
 } from '../../../common/constants/PrefabFunctionType'
 import { isClient } from '../../../common/functions/isClient'
 import { Engine } from '../../../ecs/classes/Engine'
-import { EngineActions, getEngineState } from '../../../ecs/classes/EngineState'
+import { getEngineState } from '../../../ecs/classes/EngineState'
 import { Entity } from '../../../ecs/classes/Entity'
-import { addComponent, getComponent, hasComponent, removeComponent } from '../../../ecs/functions/ComponentFunctions'
-import { matchActionOnce } from '../../../networking/functions/matchActionOnce'
+import { addComponent, getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { MediaComponent } from '../../components/MediaComponent'
+import { MediaElementComponent } from '../../components/MediaElementComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 import { ObjectLayers } from '../../constants/ObjectLayers'
 import { PlayMode } from '../../constants/PlayMode'
-import { removeError } from '../ErrorFunctions'
 import { setObjectLayers } from '../setObjectLayers'
 import { getNextPlaylistItem, updateAutoStartTimeForMedia } from './MediaFunctions'
 
@@ -37,8 +38,8 @@ export const SCENE_COMPONENT_AUDIO_DEFAULT_VALUES = {
   refDistance: 20,
   maxDistance: 1000,
   coneInnerAngle: 360,
-  coneOuterAngle: 360,
-  coneOuterGain: 1
+  coneOuterAngle: 0,
+  coneOuterGain: 0
 } as AudioComponentType
 
 export const AudioElementObjects = new WeakMap<Object3D, Mesh>()
@@ -53,6 +54,19 @@ export const deserializeAudio: ComponentDeserializeFunction = async (
   const props = parseAudioProperties(json.props)
   addComponent(entity, AudioComponent, props)
   getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_AUDIO)
+}
+
+export const createAudioNode = (
+  el: HTMLMediaElement | MediaStream,
+  source: MediaElementAudioSourceNode | MediaStreamAudioSourceNode,
+  mixbusNode: GainNode
+): AudioElementNode => {
+  const gain = Engine.instance.audioContext.createGain()
+  gain.connect(mixbusNode)
+  source.connect(gain)
+  const audioObject = { source, gain }
+  AudioElementNodes.set(el, audioObject)
+  return audioObject
 }
 
 export const updateAudio = (entity: Entity) => {
@@ -75,7 +89,7 @@ export const updateAudio = (entity: Entity) => {
     AudioElementObjects.set(obj3d, textureMesh)
   }
 
-  if (!mediaComponent.el) {
+  if (!hasComponent(entity, MediaElementComponent)) {
     const el = document.createElement('audio')
     el.setAttribute('crossOrigin', 'anonymous')
     if (
@@ -110,58 +124,41 @@ export const updateAudio = (entity: Entity) => {
       el.src = mediaComponent.paths[mediaComponent.currentSource]
       el.play()
     })
-    mediaComponent.el = el
+
+    addComponent(entity, MediaElementComponent, el)
+
+    // mute and set volume to 0, as we use the audio api gain nodes to connect the source
+    el.muted = true
+    el.volume = 0
+
+    const audioState = getState(AudioState)
+    // todo: music / sfx option
+    const { gain } = createAudioNode(
+      el,
+      Engine.instance.audioContext.createMediaElementSource(el),
+      Engine.instance.gainNodeMixBuses.soundEffects
+    )
+    gain.gain.setTargetAtTime(audioState.mediaStreamVolume.value, Engine.instance.audioContext.currentTime, 0.01)
   }
 
-  const el = getComponent(entity, MediaComponent).el!
-
-  if (audioComponent.audioType === AudioType.Stereo && hasComponent(entity, PositionalAudioTagComponent))
-    removeComponent(entity, PositionalAudioTagComponent)
-
-  if (audioComponent.audioType === AudioType.Positional && !hasComponent(entity, PositionalAudioTagComponent))
-    addComponent(entity, PositionalAudioTagComponent, true)
-
+  const el = getComponent(entity, MediaElementComponent)
   if (currentPath !== el.src) {
-    el.addEventListener(
-      'loadeddata',
-      () => {
-        el.muted = false
-        if (el.autoplay) {
-          if (getEngineState().userHasInteracted.value) {
-            el.play()
-          } else {
-            matchActionOnce(EngineActions.setUserHasInteracted.matches, () => {
-              el.play()
-              return true
-            })
-          }
-
-          if (!Engine.instance.isEditor) updateAutoStartTimeForMedia(entity)
+    const onloadeddata = () => {
+      el.removeEventListener('loadeddata', onloadeddata)
+      el.muted = false
+      if (el.autoplay) {
+        if (getEngineState().userHasInteracted.value) {
+          el.play()
         }
-      },
-      { once: true }
-    )
+
+        if (!Engine.instance.isEditor) updateAutoStartTimeForMedia(entity)
+      }
+    }
+    el.addEventListener('loadeddata', onloadeddata, { once: true })
     el.src = currentPath
   }
 
   if (el.volume !== audioComponent.volume) el.volume = audioComponent.volume
-
-  // if (hasComponent(entity, PositionalAudioTagComponent)) {
-  //   if (audioTypeChanged || audioComponent.distanceModel !== audioEl.getDistanceModel())
-  //     audioEl.setDistanceModel(audioComponent.distanceModel)
-  //   if (audioTypeChanged || audioComponent.rolloffFactor !== audioEl.getRolloffFactor())
-  //     audioEl.setRolloffFactor(audioComponent.rolloffFactor)
-  //   if (audioTypeChanged || audioComponent.refDistance !== audioEl.getRefDistance())
-  //     audioEl.setRefDistance(audioComponent.refDistance)
-  //   if (audioTypeChanged || audioComponent.maxDistance !== audioEl.getMaxDistance())
-  //     audioEl.setMaxDistance(audioComponent.maxDistance)
-  //   if (audioTypeChanged || audioComponent.coneInnerAngle !== audioEl.panner.coneInnerAngle)
-  //     audioEl.panner.coneInnerAngle = audioComponent.coneInnerAngle
-  //   if (audioTypeChanged || audioComponent.coneOuterAngle !== audioEl.panner.coneOuterAngle)
-  //     audioEl.panner.coneOuterAngle = audioComponent.coneOuterAngle
-  //   if (audioTypeChanged || audioComponent.coneOuterGain !== audioEl.panner.coneOuterAngle)
-  //     audioEl.panner.coneOuterGain = audioComponent.coneOuterGain
-  // }
 }
 
 export const serializeAudio: ComponentSerializeFunction = (entity) => {
