@@ -1,9 +1,11 @@
 import { WebLayer3D } from '@etherealjs/web-layer/three'
 
+import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { MediaComponent } from '../../scene/components/MediaComponent'
+import { MediaElementComponent } from '../../scene/components/MediaElementComponent'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { XRUIComponent } from '../../xrui/components/XRUIComponent'
 import { createTransitionState } from '../../xrui/functions/createTransitionState'
@@ -36,7 +38,10 @@ const onUpdate = (world: World) => (entity: Entity, mediaControls: ReturnType<ty
 }
 
 export default async function MediaControlSystem(world: World) {
-  const mediaQuery = defineQuery([MediaComponent])
+  /** @todo, remove this when we have better system pipeline injection */
+  if (Engine.instance.isEditor) return () => {}
+
+  const mediaQuery = defineQuery([MediaComponent, MediaElementComponent])
 
   const update = onUpdate(world)
 
@@ -51,8 +56,8 @@ export default async function MediaControlSystem(world: World) {
 
     for (const entity of mediaQuery.exit(world)) {
       if (MediaFadeTransitions.has(entity)) MediaFadeTransitions.delete(entity)
-      const mediaComponent = getComponent(entity, MediaComponent, true)
-      mediaComponent.el?.remove()
+      const mediaComponent = getComponent(entity, MediaElementComponent, true)
+      mediaComponent?.remove()
     }
   }
 }

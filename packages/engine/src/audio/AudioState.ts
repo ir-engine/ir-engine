@@ -1,56 +1,55 @@
+import { MathUtils } from 'three'
+
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
 import { ClientStorage } from '../common/classes/ClientStorage'
+import { Engine } from '../ecs/classes/Engine'
 import { AudioSettingKeys } from './AudioSettingConstants'
 
-type AudioStateType = {
-  audio: number
-  microphone: number
-  mediaStreamVolume: number
-  notificationVolume: number
-  soundEffectsVolume: number
-  backgroundMusicVolume: number
-}
-
-const AudioState = defineState({
+/**
+ * All values ranged from 0 to 1
+ */
+export const AudioState = defineState({
   name: 'AudioState',
   initial: () => ({
-    audio: 10,
-    microphone: 50,
-    mediaStreamVolume: 50,
-    notificationVolume: 50,
-    soundEffectsVolume: 50,
-    backgroundMusicVolume: 50
+    masterVolume: 0.5,
+    microphoneGain: 0.5,
+    usePositionalAudio: false, // only for avatars
+    mediaStreamVolume: 0.5,
+    notificationVolume: 0.5,
+    soundEffectsVolume: 0.5,
+    backgroundMusicVolume: 0.5
   })
 })
 
-export async function restoreAudioSettings(): Promise<void> {
-  if (typeof window !== 'undefined') {
-    const s = {} as AudioStateType
-    const promises = [
-      ClientStorage.get(AudioSettingKeys.AUDIO).then((v) => {
-        if (typeof v !== 'undefined') s.audio = v as number
-      }),
-      ClientStorage.get(AudioSettingKeys.MICROPHONE).then((v) => {
-        if (typeof v !== 'undefined') s.microphone = v as number
-      }),
-      ClientStorage.get(AudioSettingKeys.MEDIA_STREAM_VOLUME).then((v) => {
-        if (typeof v !== 'undefined') s.mediaStreamVolume = v as number
-      }),
-      ClientStorage.get(AudioSettingKeys.NOTIFICATION_VOLUME).then((v) => {
-        if (typeof v !== 'undefined') s.notificationVolume = v as number
-      }),
-      ClientStorage.get(AudioSettingKeys.SOUND_EFFECT_VOLUME).then((v) => {
-        if (typeof v !== 'undefined') s.soundEffectsVolume = v as number
-      }),
-      ClientStorage.get(AudioSettingKeys.BACKGROUND_MUSIC_VOLUME).then((v) => {
-        if (typeof v !== 'undefined') s.backgroundMusicVolume = v as number
-      })
-    ]
-    await Promise.all(promises)
-    dispatchAction(AudioSettingAction.restoreStorageData({ state: s }))
-  }
+export function restoreAudioSettings() {
+  ClientStorage.get(AudioSettingKeys.AUDIO).then((v: number) => {
+    if (typeof v !== 'undefined')
+      dispatchAction(AudioSettingAction.setMasterVolume({ value: MathUtils.clamp(v, 0, 1) }))
+  })
+  ClientStorage.get(AudioSettingKeys.MICROPHONE).then((v: number) => {
+    if (typeof v !== 'undefined')
+      dispatchAction(AudioSettingAction.setMicrophoneVolume({ value: MathUtils.clamp(v, 0, 1) }))
+  })
+  ClientStorage.get(AudioSettingKeys.USE_POSITIONAL_AUDIO).then((v: boolean) => {
+    if (typeof v !== 'undefined') dispatchAction(AudioSettingAction.setUsePositionalAudio({ value: Boolean(v) }))
+  })
+  ClientStorage.get(AudioSettingKeys.MEDIA_STREAM_VOLUME).then((v: number) => {
+    if (typeof v !== 'undefined')
+      dispatchAction(AudioSettingAction.setMediaStreamVolume({ value: MathUtils.clamp(v, 0, 1) }))
+  })
+  ClientStorage.get(AudioSettingKeys.NOTIFICATION_VOLUME).then((v: number) => {
+    if (typeof v !== 'undefined')
+      dispatchAction(AudioSettingAction.setNotificationVolume({ value: MathUtils.clamp(v, 0, 1) }))
+  })
+  ClientStorage.get(AudioSettingKeys.SOUND_EFFECT_VOLUME).then((v: number) => {
+    if (typeof v !== 'undefined')
+      dispatchAction(AudioSettingAction.setSoundEffectsVolume({ value: MathUtils.clamp(v, 0, 1) }))
+  })
+  ClientStorage.get(AudioSettingKeys.BACKGROUND_MUSIC_VOLUME).then((v: number) => {
+    if (typeof v !== 'undefined') dispatchAction(AudioSettingAction.setMusicVolume({ value: MathUtils.clamp(v, 0, 1) }))
+  })
 }
 
 export const accessAudioState = () => getState(AudioState)
@@ -59,64 +58,84 @@ export const useAudioState = () => useState(accessAudioState())
 export function AudioSettingReceptor(action) {
   const s = getState(AudioState)
   matches(action)
-    .when(AudioSettingAction.setAudio.matches, (action) => {
-      s.merge({ audio: action.audio })
-      ClientStorage.set(AudioSettingKeys.AUDIO, action.audio)
+    .when(AudioSettingAction.setMasterVolume.matches, (action) => {
+      s.merge({ masterVolume: action.value })
+      ClientStorage.set(AudioSettingKeys.AUDIO, action.value)
+      Engine.instance.cameraGainNode.gain.setTargetAtTime(action.value, Engine.instance.audioContext.currentTime, 0.01)
     })
-    .when(AudioSettingAction.setMicrophone.matches, (action) => {
-      s.merge({ microphone: action.microphone })
-      ClientStorage.set(AudioSettingKeys.MICROPHONE, action.microphone)
+    .when(AudioSettingAction.setMicrophoneVolume.matches, (action) => {
+      s.merge({ microphoneGain: action.value })
+      ClientStorage.set(AudioSettingKeys.MICROPHONE, action.value)
+    })
+    .when(AudioSettingAction.setUsePositionalAudio.matches, (action) => {
+      s.merge({ usePositionalAudio: action.value })
+      ClientStorage.set(AudioSettingKeys.USE_POSITIONAL_AUDIO, action.value)
     })
     .when(AudioSettingAction.setMediaStreamVolume.matches, (action) => {
-      s.merge({ mediaStreamVolume: action.mediastreamVolume })
-      ClientStorage.set(AudioSettingKeys.MEDIA_STREAM_VOLUME, action.mediastreamVolume)
+      s.merge({ mediaStreamVolume: action.value })
+      ClientStorage.set(AudioSettingKeys.MEDIA_STREAM_VOLUME, action.value)
+      Engine.instance.gainNodeMixBuses.mediaStreams.gain.setTargetAtTime(
+        action.value,
+        Engine.instance.audioContext.currentTime,
+        0.01
+      )
     })
-    .when(AudioSettingAction.setNotification.matches, (action) => {
-      s.merge({ notificationVolume: action.notificationVolume })
-      ClientStorage.set(AudioSettingKeys.NOTIFICATION_VOLUME, action.notificationVolume)
+    .when(AudioSettingAction.setNotificationVolume.matches, (action) => {
+      s.merge({ notificationVolume: action.value })
+      ClientStorage.set(AudioSettingKeys.NOTIFICATION_VOLUME, action.value)
+      Engine.instance.gainNodeMixBuses.notifications.gain.setTargetAtTime(
+        action.value,
+        Engine.instance.audioContext.currentTime,
+        0.01
+      )
     })
     .when(AudioSettingAction.setSoundEffectsVolume.matches, (action) => {
-      s.merge({ soundEffectsVolume: action.soundEffectsVolume })
-      ClientStorage.set(AudioSettingKeys.SOUND_EFFECT_VOLUME, action.soundEffectsVolume)
+      s.merge({ soundEffectsVolume: action.value })
+      ClientStorage.set(AudioSettingKeys.SOUND_EFFECT_VOLUME, action.value)
+      Engine.instance.gainNodeMixBuses.soundEffects.gain.setTargetAtTime(
+        action.value,
+        Engine.instance.audioContext.currentTime,
+        0.01
+      )
     })
-    .when(AudioSettingAction.setBackgroundMusicVolume.matches, (action) => {
-      s.merge({ backgroundMusicVolume: action.backgroundMusicVolume })
-      ClientStorage.set(AudioSettingKeys.BACKGROUND_MUSIC_VOLUME, action.backgroundMusicVolume)
-    })
-    .when(AudioSettingAction.restoreStorageData.matches, (action) => {
-      s.merge(action.state)
+    .when(AudioSettingAction.setMusicVolume.matches, (action) => {
+      s.merge({ backgroundMusicVolume: action.value })
+      ClientStorage.set(AudioSettingKeys.BACKGROUND_MUSIC_VOLUME, action.value)
+      Engine.instance.gainNodeMixBuses.music.gain.setTargetAtTime(
+        action.value,
+        Engine.instance.audioContext.currentTime,
+        0.01
+      )
     })
 }
 
 export class AudioSettingAction {
-  static setAudio = defineAction({
-    type: 'AUDIO_VOLUME' as const,
-    audio: matches.number
+  static setMasterVolume = defineAction({
+    type: 'core.audio.MASTER_VOLUME' as const,
+    value: matches.number
   })
-
-  static setMicrophone = defineAction({
-    type: 'MICROPHONE_VOLUME' as const,
-    microphone: matches.number
+  static setMicrophoneVolume = defineAction({
+    type: 'core.audio.MICROPHONE_VOLUME' as const,
+    value: matches.number
+  })
+  static setUsePositionalAudio = defineAction({
+    type: 'core.audio.POSITIONAL_AUDIO' as const,
+    value: matches.boolean
   })
   static setMediaStreamVolume = defineAction({
-    type: 'MEDIA_STREAM_VOLUME' as const,
-    mediastreamVolume: matches.number
+    type: 'core.audio.MEDIA_STREAM_VOLUME' as const,
+    value: matches.number
   })
-  static setNotification = defineAction({
-    type: 'NOTIFICATION_VOLUME' as const,
-    notificationVolume: matches.number
+  static setNotificationVolume = defineAction({
+    type: 'core.audio.NOTIFICATION_VOLUME' as const,
+    value: matches.number
   })
   static setSoundEffectsVolume = defineAction({
-    type: 'SOUND_EFFECT_VOLUME' as const,
-    soundEffectsVolume: matches.number
+    type: 'core.audio.SOUND_EFFECT_VOLUME' as const,
+    value: matches.number
   })
-  static setBackgroundMusicVolume = defineAction({
-    type: 'BACKGROUND_MUSIC_VOLUME' as const,
-    backgroundMusicVolume: matches.number
-  })
-
-  static restoreStorageData = defineAction({
-    type: 'RESTORE_AUDIO_STORAGE_DATA' as const,
-    state: matches.object as Validator<unknown, AudioStateType>
+  static setMusicVolume = defineAction({
+    type: 'core.audio.BACKGROUND_MUSIC_VOLUME' as const,
+    value: matches.number
   })
 }

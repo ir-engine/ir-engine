@@ -1,11 +1,8 @@
-import { AnimationMixer, BufferGeometry, Mesh, Object3D, Quaternion, Vector3 } from 'three'
+import { AnimationMixer, BufferGeometry, Mesh, Object3D } from 'three'
 import { NavMesh, Polygon } from 'yuka'
-
-import { dispatchAction } from '@xrengine/hyperflux'
 
 import { AnimationComponent } from '../../avatar/components/AnimationComponent'
 import { parseGeometry } from '../../common/functions/parseGeometry'
-import { createQuaternionProxy, createVector3Proxy } from '../../common/proxies/three'
 import { DebugNavMeshComponent } from '../../debug/DebugNavMeshComponent'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions, getEngineState } from '../../ecs/classes/EngineState'
@@ -37,7 +34,11 @@ export const createObjectEntityFromGLTF = (entity: Entity, obj3d: Object3D): voi
         const componentExists = ComponentMap.has(parts[1])
         const _toLoad = componentExists ? components : prefabs
         if (typeof _toLoad[parts[1]] === 'undefined') {
-          _toLoad[parts[1]] = {}
+          _toLoad[parts[1]] = {
+            [parts[2]]: value,
+            ...obj3d.userData
+          }
+          obj3d.userData[parts[2]] = value
         }
         if (parts.length > 2) {
           _toLoad[parts[1]][parts[2]] = value

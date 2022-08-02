@@ -150,11 +150,9 @@ const Setting = () => {
   return (
     <div ref={rootRef}>
       <div className={styles.invisible}>
-        <div style={{ position: 'fixed', zIndex: 1 }}>
-          <Button size="small" onClick={() => setMenuVisible(!menuVisible)} className={styles.menuBtn}>
-            <MenuIcon />
-          </Button>
-        </div>
+        <Button size="small" onClick={() => setMenuVisible(!menuVisible)} className={styles.menuBtn}>
+          <MenuIcon />
+        </Button>
         {menuVisible && (
           <div className={styles.hoverSettings}>
             <Grid display="flex" flexDirection="row" alignItems="center" marginBottom="10px">

@@ -7,6 +7,7 @@ import { dispatchAction } from '@xrengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { delay } from '../../common/functions/delay'
+import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions, getEngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
@@ -16,6 +17,7 @@ import { unloadScene } from '../../ecs/functions/EngineFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { addEntityNodeInTree, createEntityNode } from '../../ecs/functions/EntityTreeFunctions'
 import { initSystems, SystemModuleType } from '../../ecs/functions/SystemFunctions'
+import { configureEffectComposer } from '../../renderer/functions/configureEffectComposer'
 import { DisableTransformTagComponent } from '../../transform/components/DisableTransformTagComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { EntityNodeComponent } from '../components/EntityNodeComponent'
@@ -185,6 +187,7 @@ export const loadSceneFromJSON = async (sceneData: SceneJson, sceneSystems: Syst
   // TODO: Have to wait because scene is not being fully loaded at this moment
   await delay(200)
   dispatchAction(EngineActions.sceneLoaded({}))
+  if (isClient) configureEffectComposer()
 }
 
 /**

@@ -20,6 +20,7 @@ import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
 import { dispatchAction, getState, useHookstate } from '@xrengine/hyperflux'
 
 import { BlurLinear, Mic, VolumeUp } from '@mui/icons-material'
+import SurroundSoundIcon from '@mui/icons-material/SurroundSound'
 
 import { AuthService, useAuthState } from '../../../user/services/AuthService'
 import XRCheckboxButton from '../../components/XRCheckboxButton'
@@ -144,15 +145,12 @@ const SettingDetailView = () => {
               <VolumeUp />
               <XRSlider
                 labelContent={t('user:usermenu.setting.lbl-volume')}
-                min="1"
-                max="100"
-                value={userSettings?.volume == null ? 100 : userSettings?.volume}
+                min="0"
+                max="1"
+                step="0.01"
+                value={audioState.masterVolume.value}
                 onChange={(event: any) => {
-                  setUserSettings({ volume: parseInt(event.target.value) })
-                  const mediaElements = document.querySelectorAll<HTMLMediaElement>('video, audio')
-                  for (let i = 0; i < mediaElements.length; i++) {
-                    mediaElements[i].volume = parseInt(event.target.value) / 100
-                  }
+                  dispatchAction(AudioSettingAction.setMasterVolume({ value: parseInt(event.target.value) }))
                 }}
               />
             </div>
@@ -160,11 +158,12 @@ const SettingDetailView = () => {
               <Mic />
               <XRSlider
                 labelContent={t('user:usermenu.setting.lbl-microphone')}
-                min="1"
-                max="100"
-                value={userSettings?.microphone == null ? 100 : userSettings?.microphone}
+                min="0"
+                max="1"
+                step="0.01"
+                value={audioState.microphoneGain.value}
                 onChange={(event: any) => {
-                  setUserSettings({ microphone: parseInt(event.target.value) })
+                  dispatchAction(AudioSettingAction.setMicrophoneVolume({ value: parseInt(event.target.value) }))
                 }}
               />
             </div>
@@ -177,16 +176,25 @@ const SettingDetailView = () => {
             {showAudioDetails && (
               <>
                 <div className="sectionRow">
+                  <SurroundSoundIcon />
+                  <XRCheckboxButton
+                    labelContent={t('user:usermenu.setting.use-positional-audio')}
+                    checked={audioState.usePositionalAudio.value}
+                    onChange={(_, value: boolean) => {
+                      dispatchAction(AudioSettingAction.setUsePositionalAudio({ value }))
+                    }}
+                  />
+                </div>
+                <div className="sectionRow">
                   <VolumeUp />
                   <XRSlider
                     labelContent={t('user:usermenu.setting.lbl-media-instance')}
-                    min="1"
-                    max="100"
-                    value={audioState.mediaStreamVolume.value == null ? 100 : audioState.mediaStreamVolume.value}
+                    min="0"
+                    max="1"
+                    step="0.01"
+                    value={audioState.mediaStreamVolume.value}
                     onChange={(event: any) => {
-                      dispatchAction(
-                        AudioSettingAction.setMediaStreamVolume({ mediastreamVolume: parseInt(event.target.value) })
-                      )
+                      dispatchAction(AudioSettingAction.setMediaStreamVolume({ value: parseInt(event.target.value) }))
                     }}
                   />
                 </div>
@@ -194,13 +202,12 @@ const SettingDetailView = () => {
                   <VolumeUp />
                   <XRSlider
                     labelContent={t('user:usermenu.setting.lbl-notification')}
-                    min="1"
-                    max="100"
-                    value={audioState.notificationVolume.value == null ? 100 : audioState.notificationVolume.value}
+                    min="0"
+                    max="1"
+                    step="0.01"
+                    value={audioState.notificationVolume.value}
                     onChange={(event: any) => {
-                      dispatchAction(
-                        AudioSettingAction.setNotification({ notificationVolume: parseInt(event.target.value) })
-                      )
+                      dispatchAction(AudioSettingAction.setNotificationVolume({ value: parseInt(event.target.value) }))
                     }}
                   />
                 </div>
@@ -208,13 +215,12 @@ const SettingDetailView = () => {
                   <VolumeUp />
                   <XRSlider
                     labelContent={t('user:usermenu.setting.lbl-sound-effect')}
-                    min="1"
-                    max="100"
-                    value={audioState.soundEffectsVolume.value == null ? 100 : audioState.soundEffectsVolume.value}
+                    min="0"
+                    max="1"
+                    step="0.01"
+                    value={audioState.soundEffectsVolume.value}
                     onChange={(event: any) => {
-                      dispatchAction(
-                        AudioSettingAction.setSoundEffectsVolume({ soundEffectsVolume: parseInt(event.target.value) })
-                      )
+                      dispatchAction(AudioSettingAction.setSoundEffectsVolume({ value: parseInt(event.target.value) }))
                     }}
                   />
                 </div>
@@ -222,15 +228,14 @@ const SettingDetailView = () => {
                   <VolumeUp />
                   <XRSlider
                     labelContent={t('user:usermenu.setting.lbl-background-music-volume')}
-                    min="1"
-                    max="100"
-                    value={
-                      audioState.backgroundMusicVolume.value == null ? 100 : audioState.backgroundMusicVolume.value
-                    }
+                    min="0"
+                    max="1"
+                    step="0.01"
+                    value={audioState.backgroundMusicVolume.value}
                     onChange={(event: any) => {
                       dispatchAction(
-                        AudioSettingAction.setBackgroundMusicVolume({
-                          backgroundMusicVolume: parseInt(event.target.value)
+                        AudioSettingAction.setMusicVolume({
+                          value: parseInt(event.target.value)
                         })
                       )
                     }}

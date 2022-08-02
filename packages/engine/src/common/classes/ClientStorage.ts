@@ -21,10 +21,8 @@ if (isBrowser && !isJsDom() && !isNode) {
   store = idbstorage
 }
 
-type StorageDatatypes = string | object | boolean | number
-
 export class ClientStorage {
-  static async get(key: string | number): Promise<StorageDatatypes> {
+  static async get(key: string | number): Promise<any> {
     const value = await store.get(String(key))
     try {
       return JSON.parse(value)
@@ -32,7 +30,7 @@ export class ClientStorage {
       return value
     }
   }
-  static async set(key: string | number, value: StorageDatatypes): Promise<void> {
+  static async set(key: string | number, value: any): Promise<void> {
     if (typeof value !== 'string') {
       value = JSON.stringify(value)
     }

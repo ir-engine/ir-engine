@@ -1,6 +1,6 @@
 import { EventQueue } from '@dimforge/rapier3d-compat'
 import * as bitecs from 'bitecs'
-import { AudioListener, Object3D, OrthographicCamera, PerspectiveCamera, Raycaster, Scene } from 'three'
+import { Object3D, OrthographicCamera, PerspectiveCamera, Raycaster, Scene } from 'three'
 
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
@@ -24,7 +24,7 @@ import { PortalComponent } from '../../scene/components/PortalComponent'
 import { SimpleMaterialTagComponent } from '../../scene/components/SimpleMaterialTagComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
-import { addTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
+import { addTransformComponent } from '../../transform/components/TransformComponent'
 import { addTransformOffsetComponent } from '../../transform/components/TransformOffsetComponent'
 import { Widget } from '../../xrui/Widgets'
 import {
@@ -40,7 +40,6 @@ import { initializeEntityTree } from '../functions/EntityTreeFunctions'
 import { SystemInstanceType } from '../functions/SystemFunctions'
 import { SystemUpdateType } from '../functions/SystemUpdateType'
 import { Engine } from './Engine'
-import { EngineState } from './EngineState'
 import { Entity } from './Entity'
 import EntityTree from './EntityTree'
 
@@ -178,12 +177,6 @@ export class World {
   get localClientEntity() {
     return this.getOwnedNetworkObjectWithComponent(Engine.instance.userId, LocalAvatarTagComponent) || (NaN as Entity)
   }
-
-  /**
-   * Reference to the audioListener.
-   * This is a virtual listner for all positional and non-positional audio.
-   */
-  audioListener: AudioListener = null!
 
   inputState = new Map<any, InputValue>()
   prevInputState = new Map<any, InputValue>()

@@ -13,17 +13,19 @@ import { isClient } from '../../../common/functions/isClient'
 import { Engine } from '../../../ecs/classes/Engine'
 import { EngineActions, getEngineState } from '../../../ecs/classes/EngineState'
 import { Entity } from '../../../ecs/classes/Entity'
-import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
+import { addComponent, getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
 import { matchActionOnce } from '../../../networking/functions/matchActionOnce'
 import { ImageProjection } from '../../classes/ImageUtils'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { ImageComponent } from '../../components/ImageComponent'
 import { MediaComponent } from '../../components/MediaComponent'
+import { MediaElementComponent } from '../../components/MediaElementComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 import { VideoComponent, VideoComponentType } from '../../components/VideoComponent'
 import { PlayMode } from '../../constants/PlayMode'
 import { addError, removeError } from '../ErrorFunctions'
 import isHLS from '../isHLS'
+import { createAudioNode } from './AudioFunctions'
 import { resizeImageMesh } from './ImageFunctions'
 import { getNextPlaylistItem, updateAutoStartTimeForMedia } from './MediaFunctions'
 
@@ -52,7 +54,7 @@ export const updateVideo: ComponentUpdateFunction = (entity: Entity, properties:
 
   const currentPath = mediaComponent.paths.length ? mediaComponent.paths[mediaComponent.currentSource] : ''
 
-  if (!mediaComponent.el) {
+  if (!hasComponent(entity, MediaElementComponent)) {
     const el = document.createElement('video')
     el.setAttribute('crossOrigin', 'anonymous')
     if (
@@ -88,10 +90,21 @@ export const updateVideo: ComponentUpdateFunction = (entity: Entity, properties:
       el.src = mediaComponent.paths[mediaComponent.currentSource]
       el.play()
     })
-    mediaComponent.el = el
+
+    addComponent(entity, MediaElementComponent, el)
+
+    // mute and set volume to 0, as we use the audio api gain nodes to connect the source
+    el.muted = true
+    el.volume = 0
+
+    createAudioNode(
+      el,
+      Engine.instance.audioContext.createMediaElementSource(el),
+      Engine.instance.gainNodeMixBuses.soundEffects
+    )
   }
 
-  const el = getComponent(entity, MediaComponent).el! as HTMLVideoElement
+  const el = getComponent(entity, MediaElementComponent) as HTMLVideoElement
   const mesh = obj3d.userData.mesh as Mesh<any, any>
 
   if (currentPath !== el.src) {
@@ -121,6 +134,8 @@ export const updateVideo: ComponentUpdateFunction = (entity: Entity, properties:
       texture.encoding = sRGBEncoding
       texture.minFilter = LinearFilter
 
+      mesh.name = VIDEO_MESH_NAME
+
       if (mesh.material.map) mesh.material.map?.dispose()
       mesh.material.map = texture
 
@@ -132,11 +147,6 @@ export const updateVideo: ComponentUpdateFunction = (entity: Entity, properties:
           if (el.autoplay) {
             if (getEngineState().userHasInteracted.value) {
               el.play()
-            } else {
-              matchActionOnce(EngineActions.setUserHasInteracted.matches, () => {
-                el.play()
-                return true
-              })
             }
           }
 

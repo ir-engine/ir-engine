@@ -112,14 +112,13 @@ function applyDescToCollider(
 
 function createColliderDesc(mesh: Mesh, colliderDescOptions: ColliderDescOptions): ColliderDesc {
   // Type is required
-  const shapeOptions = colliderDescOptions
+  if (typeof colliderDescOptions.type === 'undefined') return undefined!
 
-  if (typeof shapeOptions.type === 'undefined') return undefined!
-
-  let shapeType = typeof shapeOptions.type === 'string' ? ShapeType[shapeOptions.type] : shapeOptions.type
+  let shapeType =
+    typeof colliderDescOptions.type === 'string' ? ShapeType[colliderDescOptions.type] : colliderDescOptions.type
   //check for old collider types to allow backwards compatibility
   if (typeof shapeType === 'undefined') {
-    switch (shapeOptions.type as unknown as string) {
+    switch (colliderDescOptions.type as unknown as string) {
       case 'box':
         shapeType = ShapeType['Cuboid']
         break
@@ -127,18 +126,24 @@ function createColliderDesc(mesh: Mesh, colliderDescOptions: ColliderDescOptions
         shapeType = ShapeType['TriMesh']
         break
       default:
-        console.error('unrecognized collider shape type: ' + shapeOptions.type)
+        console.error('unrecognized collider shape type: ' + colliderDescOptions.type)
     }
   }
 
   // If custom size has been provided use that else use mesh scale
-  const colliderSize = shapeOptions.size ? shapeOptions.size : mesh.scale
+  const colliderSize = colliderDescOptions.size ? colliderDescOptions.size : mesh.scale
 
   // Check for case mismatch
-  if (typeof shapeOptions.collisionLayer === 'undefined' && typeof (shapeOptions as any).collisionlayer !== 'undefined')
-    shapeOptions.collisionLayer = (shapeOptions as any).collisionlayer
-  if (typeof shapeOptions.collisionMask === 'undefined' && typeof (shapeOptions as any).collisionmask !== 'undefined')
-    shapeOptions.collisionMask = (shapeOptions as any).collisionmask
+  if (
+    typeof colliderDescOptions.collisionLayer === 'undefined' &&
+    typeof (colliderDescOptions as any).collisionlayer !== 'undefined'
+  )
+    colliderDescOptions.collisionLayer = (colliderDescOptions as any).collisionlayer
+  if (
+    typeof colliderDescOptions.collisionMask === 'undefined' &&
+    typeof (colliderDescOptions as any).collisionmask !== 'undefined'
+  )
+    colliderDescOptions.collisionMask = (colliderDescOptions as any).collisionmask
 
   let colliderDesc: ColliderDesc
   switch (shapeType as ShapeType) {
@@ -161,8 +166,11 @@ function createColliderDesc(mesh: Mesh, colliderDescOptions: ColliderDescOptions
     case ShapeType.ConvexPolyhedron: {
       if (!mesh.geometry)
         return console.warn('[Physics]: Tried to load convex mesh but did not find a geometry', mesh) as any
-      const vertices = new Float32Array(mesh.geometry.attributes.position.array)
-      const indices = new Uint32Array(mesh.geometry.index!.array)
+      const _buff = mesh.geometry
+        .clone()
+        .scale(Math.abs(colliderSize.x), Math.abs(colliderSize.y), Math.abs(colliderSize.z))
+      const vertices = new Float32Array(_buff.attributes.position.array)
+      const indices = new Uint32Array(_buff.index!.array)
       colliderDesc = ColliderDesc.convexMesh(vertices, indices) as ColliderDesc
       break
     }
@@ -170,18 +178,21 @@ function createColliderDesc(mesh: Mesh, colliderDescOptions: ColliderDescOptions
     case ShapeType.TriMesh: {
       if (!mesh.geometry)
         return console.warn('[Physics]: Tried to load tri mesh but did not find a geometry', mesh) as any
-      const vertices = new Float32Array(mesh.geometry.attributes.position.array)
-      const indices = new Uint32Array(mesh.geometry.index!.array)
+      const _buff = mesh.geometry
+        .clone()
+        .scale(Math.abs(colliderSize.x), Math.abs(colliderSize.y), Math.abs(colliderSize.z))
+      const vertices = new Float32Array(_buff.attributes.position.array)
+      const indices = new Uint32Array(_buff.index!.array)
       colliderDesc = ColliderDesc.trimesh(vertices, indices)
       break
     }
 
     default:
-      console.error('unknown shape', shapeOptions)
+      console.error('unknown shape', colliderDescOptions)
       return undefined!
   }
 
-  applyDescToCollider(colliderDesc, shapeOptions, mesh.position, mesh.quaternion)
+  applyDescToCollider(colliderDesc, colliderDescOptions, mesh.position, mesh.quaternion)
 
   return colliderDesc
 }

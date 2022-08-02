@@ -9,6 +9,7 @@ import { receiveJoinWorld } from '@xrengine/engine/src/networking/functions/rece
 import { WorldNetworkAction } from '@xrengine/engine/src/networking/functions/WorldNetworkAction'
 import { WorldNetworkActionReceptor } from '@xrengine/engine/src/networking/functions/WorldNetworkActionReceptor'
 import { useHookEffect, useState } from '@xrengine/hyperflux'
+import ActionFunctions from '@xrengine/hyperflux/functions/ActionFunctions'
 
 import InstanceServerWarnings from './InstanceServerWarnings'
 
@@ -24,6 +25,7 @@ export const OfflineLocation = () => {
 
       world._worldHostId = userId
       world.networks.set(userId, new Network(userId, NetworkTopics.world))
+      ActionFunctions.addOutgoingTopicIfNecessary(NetworkTopics.world)
 
       const index = 1
       NetworkPeerFunctions.createPeer(world.worldNetwork, userId, index, authState.user.name.value, world)
