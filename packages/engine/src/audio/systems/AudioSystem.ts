@@ -9,6 +9,7 @@ import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { matchActionOnce } from '../../networking/functions/matchActionOnce'
 import { MediaComponent } from '../../scene/components/MediaComponent'
+import { MediaElementComponent } from '../../scene/components/MediaElementComponent'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { VideoComponent } from '../../scene/components/VideoComponent'
 import { VolumetricComponent } from '../../scene/components/VolumetricComponent'
@@ -99,7 +100,7 @@ export default async function AudioSystem(world: World) {
       AudioEffectPlayer.instance._init()
       if (!Engine.instance.isEditor) {
         for (const entity of mediaEntities) {
-          const audio = getComponent(entity, MediaComponent).el
+          const audio = getComponent(entity, MediaElementComponent)
           if (audio.autoplay) audio.play()
         }
       }

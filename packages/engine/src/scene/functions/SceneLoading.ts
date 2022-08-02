@@ -7,6 +7,7 @@ import { dispatchAction } from '@xrengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { delay } from '../../common/functions/delay'
+import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions, getEngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
@@ -186,7 +187,7 @@ export const loadSceneFromJSON = async (sceneData: SceneJson, sceneSystems: Syst
   // TODO: Have to wait because scene is not being fully loaded at this moment
   await delay(200)
   dispatchAction(EngineActions.sceneLoaded({}))
-  configureEffectComposer()
+  if (isClient) configureEffectComposer()
 }
 
 /**

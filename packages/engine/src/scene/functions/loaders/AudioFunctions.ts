@@ -17,9 +17,10 @@ import { isClient } from '../../../common/functions/isClient'
 import { Engine } from '../../../ecs/classes/Engine'
 import { getEngineState } from '../../../ecs/classes/EngineState'
 import { Entity } from '../../../ecs/classes/Entity'
-import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
+import { addComponent, getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { MediaComponent } from '../../components/MediaComponent'
+import { MediaElementComponent } from '../../components/MediaElementComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 import { ObjectLayers } from '../../constants/ObjectLayers'
 import { PlayMode } from '../../constants/PlayMode'
@@ -88,7 +89,7 @@ export const updateAudio = (entity: Entity) => {
     AudioElementObjects.set(obj3d, textureMesh)
   }
 
-  if (!mediaComponent.el) {
+  if (!hasComponent(entity, MediaElementComponent)) {
     const el = document.createElement('audio')
     el.setAttribute('crossOrigin', 'anonymous')
     if (
@@ -123,7 +124,8 @@ export const updateAudio = (entity: Entity) => {
       el.src = mediaComponent.paths[mediaComponent.currentSource]
       el.play()
     })
-    mediaComponent.el = el
+
+    addComponent(entity, MediaElementComponent, el)
 
     // mute and set volume to 0, as we use the audio api gain nodes to connect the source
     el.muted = true
@@ -139,7 +141,7 @@ export const updateAudio = (entity: Entity) => {
     gain.gain.setTargetAtTime(audioState.mediaStreamVolume.value, Engine.instance.audioContext.currentTime, 0.01)
   }
 
-  const el = getComponent(entity, MediaComponent).el!
+  const el = getComponent(entity, MediaElementComponent)
   if (currentPath !== el.src) {
     const onloadeddata = () => {
       el.removeEventListener('loadeddata', onloadeddata)

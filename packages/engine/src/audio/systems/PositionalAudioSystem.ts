@@ -19,6 +19,7 @@ import {
 import { LocalAvatarTagComponent } from '../../input/components/LocalAvatarTagComponent'
 import { NetworkObjectComponent, NetworkObjectComponentType } from '../../networking/components/NetworkObjectComponent'
 import { MediaComponent } from '../../scene/components/MediaComponent'
+import { MediaElementComponent } from '../../scene/components/MediaElementComponent'
 import { createAudioNode } from '../../scene/functions/loaders/AudioFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { AudioSettingAction, AudioState } from '../AudioState'
@@ -122,13 +123,13 @@ export default async function PositionalAudioSystem(world: World) {
     }
 
     for (const entity of positionalAudioSceneObjectQuery.enter()) {
-      const el = getComponent(entity, MediaComponent).el
+      const el = getComponent(entity, MediaElementComponent)
       const audioObject = AudioElementNodes.get(el)!
       addPannerNode(audioObject)
     }
 
     for (const entity of positionalAudioSceneObjectQuery.exit()) {
-      const el = getComponent(entity, MediaComponent, true).el
+      const el = getComponent(entity, MediaElementComponent, true)
       const audioObject = AudioElementNodes.get(el)!
       removePannerNode(audioObject)
     }
@@ -215,10 +216,11 @@ export default async function PositionalAudioSystem(world: World) {
      */
     for (const entity of positionalAudioSceneObjectQuery()) {
       const mediaComponent = getComponent(entity, MediaComponent)
+      const mediaElementComponent = getComponent(entity, MediaElementComponent)
       if (mediaComponent && !mediaComponent.playing) continue
 
       const { position, rotation } = getComponent(entity, TransformComponent)
-      const audioObject = AudioElementNodes.get(mediaComponent.el)!
+      const audioObject = AudioElementNodes.get(mediaElementComponent)!
 
       updateAudioPanner(audioObject.panner!, position, rotation, endTime)
     }

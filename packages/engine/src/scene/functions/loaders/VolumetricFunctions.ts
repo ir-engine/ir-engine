@@ -21,6 +21,7 @@ import { EngineRenderer } from '../../../renderer/WebGLRendererSystem'
 import UpdateableObject3D from '../../classes/UpdateableObject3D'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { MediaComponent } from '../../components/MediaComponent'
+import { MediaElementComponent } from '../../components/MediaElementComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 import { VolumetricComponent, VolumetricComponentType } from '../../components/VolumetricComponent'
 import { PlayMode } from '../../constants/PlayMode'
@@ -157,7 +158,7 @@ export const addVolumetricComponent = (entity: Entity, props: VolumetricComponen
   el.muted = true
   el.volume = 0
 
-  mediaComponent.el = el
+  addComponent(entity, MediaElementComponent, el)
 
   createAudioNode(
     el,
