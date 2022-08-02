@@ -110,14 +110,14 @@ export default async function PhysicsSystem(world: World) {
 
     for (const entity of dirtyNetworkedDynamicRigidBodyQuery()) updateDirtyDynamicBodiesFromNetwork(world, entity)
 
-    // step physics world
-    world.physicsWorld.timestep = getState(EngineState).fixedDeltaSeconds.value
-    world.physicsWorld.step(world.physicsCollisionEventQueue)
-
-    for (const entity of raycastQuery()) processRaycasts(world, entity)
-    processCollisions(world)
-
     if (!Engine.instance.isEditor) {
+      // step physics world
+      world.physicsWorld.timestep = getState(EngineState).fixedDeltaSeconds.value
+      world.physicsWorld.step(world.physicsCollisionEventQueue)
+
+      for (const entity of raycastQuery()) processRaycasts(world, entity)
+      processCollisions(world)
+
       for (const entity of nonNetworkedDynamicRigidBodyQuery()) updateTransformFromBody(world, entity)
     }
   }
