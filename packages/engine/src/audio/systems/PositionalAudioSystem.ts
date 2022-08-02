@@ -29,7 +29,6 @@ import { AudioType } from '../constants/AudioConstants'
 import { AudioElementNode, AudioElementNodes } from './AudioSystem'
 
 export const addPannerNode = (audioObject: AudioElementNode, opts = Engine.instance.spatialAudioSettings) => {
-  console.log('addPannerNode')
   const panner = Engine.instance.audioContext.createPanner()
   audioObject.source.disconnect(audioObject.gain)
   audioObject.source.connect(panner)
@@ -49,7 +48,6 @@ export const addPannerNode = (audioObject: AudioElementNode, opts = Engine.insta
 }
 
 export const removePannerNode = (audioObject: AudioElementNode) => {
-  console.log('removePannerNode')
   audioObject.source.connect(audioObject.gain)
   audioObject.source.disconnect(audioObject.panner!)
   audioObject.panner!.disconnect(audioObject.gain)

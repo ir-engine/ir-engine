@@ -134,6 +134,8 @@ export const updateVideo: ComponentUpdateFunction = (entity: Entity, properties:
       texture.encoding = sRGBEncoding
       texture.minFilter = LinearFilter
 
+      mesh.name = VIDEO_MESH_NAME
+
       if (mesh.material.map) mesh.material.map?.dispose()
       mesh.material.map = texture
 

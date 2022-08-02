@@ -155,8 +155,8 @@ export const addVolumetricComponent = (entity: Entity, props: VolumetricComponen
   const el = player.video
 
   // mute and set volume to 0, as we use the audio api gain nodes to connect the source
-  el.muted = true
-  el.volume = 0
+  // el.muted = true
+  // el.volume = 0
 
   addComponent(entity, MediaElementComponent, el)
 
