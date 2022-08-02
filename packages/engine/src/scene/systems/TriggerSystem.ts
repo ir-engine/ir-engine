@@ -1,8 +1,6 @@
-import { dispatchAction } from '@xrengine/hyperflux'
+import { dispatchAction, getState } from '@xrengine/hyperflux'
 
-import { isClient } from '../../common/functions/isClient'
-import { Engine } from '../../ecs/classes/Engine'
-import { EngineActions } from '../../ecs/classes/EngineState'
+import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
 import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { Object3DComponent } from '../components/Object3DComponent'
@@ -18,23 +16,8 @@ export default async function TriggerSystem(world: World) {
     for (const entity of triggerCollidedQuery.enter(world)) {
       const { triggerEntity } = getComponent(entity, TriggerDetectedComponent)
 
-      if (getComponent(triggerEntity, PortalComponent)) {
+      if (!getState(EngineState).isTeleporting.value && getComponent(triggerEntity, PortalComponent)) {
         const portalComponent = getComponent(triggerEntity, PortalComponent)
-
-        // TODO: support same-scene portals
-        // if (currentScene === portalComponent.location) {
-        //   teleportAvatar(
-        //     world.localClientEntity,
-        //     portalComponent.remoteSpawnPosition,
-        //     portalComponent.remoteSpawnRotation
-        //   )
-        //   continue
-        // }
-
-        if (isClient && portalComponent.redirect) {
-          window.location.href = Engine.instance.publicPath + '/location/' + portalComponent.location
-          continue
-        }
         world.activePortal = portalComponent
         dispatchAction(EngineActions.setTeleporting({ isTeleporting: true }))
         continue

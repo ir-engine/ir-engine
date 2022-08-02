@@ -13,6 +13,7 @@ import {
 import multiLogger from '@xrengine/common/src/logger'
 import { getSearchParamFromURL } from '@xrengine/common/src/utils/getSearchParamFromURL'
 import { SpawnPoints } from '@xrengine/engine/src/avatar/AvatarSpawnSystem'
+import { teleportAvatar } from '@xrengine/engine/src/avatar/functions/moveAvatar'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineActions, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { addComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
@@ -21,6 +22,7 @@ import { HyperspaceTagComponent } from '@xrengine/engine/src/scene/components/Hy
 import { addActionReceptor, dispatchAction, removeActionReceptor, useHookEffect } from '@xrengine/hyperflux'
 
 import { AppAction, GeneralStateList } from '../../common/services/AppService'
+import { useLocationState } from '../../social/services/LocationService'
 import { SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientNetwork'
 import { initClient, loadScene } from './LocationLoadHelper'
 
@@ -30,6 +32,7 @@ export const LoadEngineWithScene = () => {
   const history = useHistory()
   const engineState = useEngineState()
   const sceneState = useSceneState()
+  const locationState = useLocationState()
   const authState = useAuthState()
   const [clientReady, setClientReady] = useState(false)
 
@@ -99,6 +102,24 @@ export const LoadEngineWithScene = () => {
     if (engineState.isTeleporting.value) {
       logger.info('Resetting connection for portal teleport.')
       const world = Engine.instance.currentWorld
+      const activePortal = world.activePortal!
+
+      const currentLocation = locationState.locationName.value.split('/')[1]
+      if (currentLocation === activePortal.location || world.entityTree.uuidNodeMap.get(activePortal.linkedPortalId)) {
+        teleportAvatar(
+          world.localClientEntity,
+          activePortal.remoteSpawnPosition
+          // activePortal.remoteSpawnRotation // todo, add rotation to teleport, need to factor camera in
+        )
+        world.activePortal = null
+        dispatchAction(EngineActions.setTeleporting({ isTeleporting: false }))
+        return
+      }
+
+      if (activePortal.redirect) {
+        window.location.href = Engine.instance.publicPath + '/location/' + activePortal.location
+        return
+      }
 
       dispatchAction(SceneActions.unloadCurrentScene({}))
       history.push('/location/' + world.activePortal!.location)

@@ -7,6 +7,7 @@ import { useTranslation } from 'react-i18next'
 import { useHistory } from 'react-router-dom'
 import styled from 'styled-components'
 
+import Debug from '@xrengine/client-core/src/components/Debug'
 import { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import multiLogger from '@xrengine/common/src/logger'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
@@ -600,39 +601,44 @@ const EditorContainer = () => {
     }
   }
   return (
-    <div
-      id="editor-container"
-      className={styles.editorContainer}
-      style={sceneLoaded.value ? { background: 'transparent' } : {}}
-    >
-      <DialogContext.Provider value={[DialogComponent, setDialogComponent]}>
-        <DndWrapper id="editor-container">
-          <DragLayer />
-          <ToolBar editorReady={editorReady} menu={toolbarMenu} />
-          <ElementList />
-          <ControlText />
-          <div className={styles.workspaceContainer}>
-            <AssetDropZone />
-            <AppContext.Provider value={{ searchElement, searchHierarchy }}>
-              <DockContainer>
-                <DockLayout
-                  ref={dockPanelRef}
-                  defaultLayout={defaultLayout}
-                  style={{ position: 'absolute', left: 5, top: 55, right: 115, bottom: 35 }}
-                />
-              </DockContainer>
-            </AppContext.Provider>
-          </div>
-          <Dialog
-            open={!!DialogComponent}
-            onClose={() => setDialogComponent(null)}
-            classes={{ root: styles.dialogRoot, paper: styles.dialogPaper }}
-          >
-            {DialogComponent}
-          </Dialog>
-        </DndWrapper>
-      </DialogContext.Provider>
-    </div>
+    <>
+      <div style={{ pointerEvents: 'auto' }}>
+        <Debug />
+      </div>
+      <div
+        id="editor-container"
+        className={styles.editorContainer}
+        style={sceneLoaded.value ? { background: 'transparent' } : {}}
+      >
+        <DialogContext.Provider value={[DialogComponent, setDialogComponent]}>
+          <DndWrapper id="editor-container">
+            <DragLayer />
+            <ToolBar editorReady={editorReady} menu={toolbarMenu} />
+            <ElementList />
+            <ControlText />
+            <div className={styles.workspaceContainer}>
+              <AssetDropZone />
+              <AppContext.Provider value={{ searchElement, searchHierarchy }}>
+                <DockContainer>
+                  <DockLayout
+                    ref={dockPanelRef}
+                    defaultLayout={defaultLayout}
+                    style={{ position: 'absolute', left: 5, top: 55, right: 115, bottom: 35 }}
+                  />
+                </DockContainer>
+              </AppContext.Provider>
+            </div>
+            <Dialog
+              open={!!DialogComponent}
+              onClose={() => setDialogComponent(null)}
+              classes={{ root: styles.dialogRoot, paper: styles.dialogPaper }}
+            >
+              {DialogComponent}
+            </Dialog>
+          </DndWrapper>
+        </DialogContext.Provider>
+      </div>
+    </>
   )
 }
 

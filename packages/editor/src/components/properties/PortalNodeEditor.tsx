@@ -53,8 +53,8 @@ export const PortalNodeEditor: EditorComponentType = (props) => {
     setPortals(
       portalsDetail
         .filter((portal) => portal.portalEntityId !== props.node.uuid)
-        .map(({ portalEntityId, sceneName }) => {
-          return { value: portalEntityId, label: sceneName }
+        .map(({ portalEntityId, portalEntityName, sceneName }) => {
+          return { value: portalEntityId, label: sceneName + ': ' + portalEntityName }
         })
     )
   }
