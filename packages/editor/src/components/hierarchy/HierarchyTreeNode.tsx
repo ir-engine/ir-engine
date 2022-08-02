@@ -5,7 +5,7 @@ import { getEmptyImage } from 'react-dnd-html5-backend'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
-import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { getEntityNodeArrayFromEntities } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { ErrorComponent, ErrorComponentType } from '@xrengine/engine/src/scene/components/ErrorComponent'
@@ -68,7 +68,9 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
 
   const nodeName = node.obj3d
     ? node.obj3d.name ?? node.obj3d.uuid
-    : getComponent(node.entityNode.entity, NameComponent).name
+    : hasComponent(node.entityNode.entity, NameComponent)
+    ? getComponent(node.entityNode.entity, NameComponent).name
+    : ''
   const errorComponent: ErrorComponentType = node.entityNode && getComponent(node.entityNode.entity, ErrorComponent)
 
   const onClickToggle = useCallback(
