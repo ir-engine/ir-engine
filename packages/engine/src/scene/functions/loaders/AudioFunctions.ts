@@ -38,8 +38,8 @@ export const SCENE_COMPONENT_AUDIO_DEFAULT_VALUES = {
   refDistance: 20,
   maxDistance: 1000,
   coneInnerAngle: 360,
-  coneOuterAngle: 360,
-  coneOuterGain: 1
+  coneOuterAngle: 0,
+  coneOuterGain: 0
 } as AudioComponentType
 
 export const AudioElementObjects = new WeakMap<Object3D, Mesh>()
