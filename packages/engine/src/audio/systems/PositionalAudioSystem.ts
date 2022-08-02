@@ -128,7 +128,7 @@ export default async function PositionalAudioSystem(world: World) {
     }
 
     for (const entity of positionalAudioSceneObjectQuery.exit()) {
-      const el = getComponent(entity, MediaComponent).el
+      const el = getComponent(entity, MediaComponent, true).el
       const audioObject = AudioElementNodes.get(el)!
       removePannerNode(audioObject)
     }
