@@ -34,7 +34,8 @@
     "simpleMaterials": "Simple Materials",
     "tick": "Tick",
     "state": "State",
-    "namedEntities": "Named Entities",
+    "systems": "Systems",
+    "entities": "Entities",
     "networks": "Networks"
   },
   "recording": {

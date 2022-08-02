@@ -29,19 +29,13 @@ describe('AudioSettingFunctions', () => {
   })
 
   const sceneComponentData = {
-    avatarDistanceModel: 'avatar distance model',
-    avatarMaxDistance: Math.random(),
-    avatarRefDistance: Math.random(),
-    avatarRolloffFactor: Math.random(),
-    mediaConeInnerAngle: Math.random(),
-    mediaConeOuterAngle: Math.random(),
-    mediaConeOuterGain: Math.random(),
-    mediaDistanceModel: 'distance model',
-    mediaMaxDistance: Math.random(),
-    mediaRefDistance: Math.random(),
-    mediaRolloffFactor: Math.random(),
-    mediaVolume: Math.random(),
-    usePositionalAudio: true
+    coneInnerAngle: Math.random(),
+    coneOuterAngle: Math.random(),
+    coneOuterGain: Math.random(),
+    distanceModel: 'distance model',
+    maxDistance: Math.random(),
+    refDistance: Math.random(),
+    rolloffFactor: Math.random()
   }
 
   const sceneComponent: ComponentJson = {
@@ -67,6 +61,14 @@ describe('AudioSettingFunctions', () => {
 
       const entityNodeComponent = getComponent(entity, EntityNodeComponent)
       assert(entityNodeComponent.components.includes(SCENE_COMPONENT_AUDIO_SETTINGS))
+
+      assert(Engine.instance.spatialAudioSettings.distanceModel === sceneComponentData.distanceModel)
+      assert(Engine.instance.spatialAudioSettings.rolloffFactor === sceneComponentData.rolloffFactor)
+      assert(Engine.instance.spatialAudioSettings.refDistance === sceneComponentData.refDistance)
+      assert(Engine.instance.spatialAudioSettings.maxDistance === sceneComponentData.maxDistance)
+      assert(Engine.instance.spatialAudioSettings.coneInnerAngle === sceneComponentData.coneInnerAngle)
+      assert(Engine.instance.spatialAudioSettings.coneOuterAngle === sceneComponentData.coneOuterAngle)
+      assert(Engine.instance.spatialAudioSettings.coneOuterGain === sceneComponentData.coneOuterGain)
     })
   })
 
@@ -84,52 +86,34 @@ describe('AudioSettingFunctions', () => {
   describe('parseAudioProperties()', () => {
     it('should use default component values', () => {
       const componentData = parseAudioSettingProperties({})
-      assert(componentData.usePositionalAudio === SCENE_COMPONENT_AUDIO_SETTINGS_DEFAULT_VALUES.usePositionalAudio)
-      assert(componentData.avatarDistanceModel === SCENE_COMPONENT_AUDIO_SETTINGS_DEFAULT_VALUES.avatarDistanceModel)
-      assert(componentData.avatarRolloffFactor === SCENE_COMPONENT_AUDIO_SETTINGS_DEFAULT_VALUES.avatarRolloffFactor)
-      assert(componentData.avatarRefDistance === SCENE_COMPONENT_AUDIO_SETTINGS_DEFAULT_VALUES.avatarRefDistance)
-      assert(componentData.avatarMaxDistance === SCENE_COMPONENT_AUDIO_SETTINGS_DEFAULT_VALUES.avatarMaxDistance)
-      assert(componentData.mediaVolume === SCENE_COMPONENT_AUDIO_SETTINGS_DEFAULT_VALUES.mediaVolume)
-      assert(componentData.mediaDistanceModel === SCENE_COMPONENT_AUDIO_SETTINGS_DEFAULT_VALUES.mediaDistanceModel)
-      assert(componentData.mediaRolloffFactor === SCENE_COMPONENT_AUDIO_SETTINGS_DEFAULT_VALUES.mediaRolloffFactor)
-      assert(componentData.mediaRefDistance === SCENE_COMPONENT_AUDIO_SETTINGS_DEFAULT_VALUES.mediaRefDistance)
-      assert(componentData.mediaMaxDistance === SCENE_COMPONENT_AUDIO_SETTINGS_DEFAULT_VALUES.mediaMaxDistance)
-      assert(componentData.mediaConeInnerAngle === SCENE_COMPONENT_AUDIO_SETTINGS_DEFAULT_VALUES.mediaConeInnerAngle)
-      assert(componentData.mediaConeOuterAngle === SCENE_COMPONENT_AUDIO_SETTINGS_DEFAULT_VALUES.mediaConeOuterAngle)
-      assert(componentData.mediaConeOuterGain === SCENE_COMPONENT_AUDIO_SETTINGS_DEFAULT_VALUES.mediaConeOuterGain)
+      assert(componentData.distanceModel === SCENE_COMPONENT_AUDIO_SETTINGS_DEFAULT_VALUES.distanceModel)
+      assert(componentData.rolloffFactor === SCENE_COMPONENT_AUDIO_SETTINGS_DEFAULT_VALUES.rolloffFactor)
+      assert(componentData.refDistance === SCENE_COMPONENT_AUDIO_SETTINGS_DEFAULT_VALUES.refDistance)
+      assert(componentData.maxDistance === SCENE_COMPONENT_AUDIO_SETTINGS_DEFAULT_VALUES.maxDistance)
+      assert(componentData.coneInnerAngle === SCENE_COMPONENT_AUDIO_SETTINGS_DEFAULT_VALUES.coneInnerAngle)
+      assert(componentData.coneOuterAngle === SCENE_COMPONENT_AUDIO_SETTINGS_DEFAULT_VALUES.coneOuterAngle)
+      assert(componentData.coneOuterGain === SCENE_COMPONENT_AUDIO_SETTINGS_DEFAULT_VALUES.coneOuterGain)
     })
 
     it('should use passed values', () => {
       const props = {
-        avatarDistanceModel: 'avatar distance model',
-        avatarMaxDistance: Math.random(),
-        avatarRefDistance: Math.random(),
-        avatarRolloffFactor: Math.random(),
-        mediaConeInnerAngle: Math.random(),
-        mediaConeOuterAngle: Math.random(),
-        mediaConeOuterGain: Math.random(),
-        mediaDistanceModel: 'distance model',
-        mediaMaxDistance: Math.random(),
-        mediaRefDistance: Math.random(),
-        mediaRolloffFactor: Math.random(),
-        mediaVolume: Math.random(),
-        usePositionalAudio: true
+        distanceModel: 'distance model',
+        rolloffFactor: Math.random(),
+        refDistance: Math.random(),
+        maxDistance: Math.random(),
+        coneInnerAngle: Math.random(),
+        coneOuterAngle: Math.random(),
+        coneOuterGain: Math.random()
       }
       const componentData = parseAudioSettingProperties(props)
 
-      assert(componentData.usePositionalAudio === props.usePositionalAudio)
-      assert(componentData.avatarDistanceModel === props.avatarDistanceModel)
-      assert(componentData.avatarRolloffFactor === props.avatarRolloffFactor)
-      assert(componentData.avatarRefDistance === props.avatarRefDistance)
-      assert(componentData.avatarMaxDistance === props.avatarMaxDistance)
-      assert(componentData.mediaVolume === props.mediaVolume)
-      assert(componentData.mediaDistanceModel === props.mediaDistanceModel)
-      assert(componentData.mediaRolloffFactor === props.mediaRolloffFactor)
-      assert(componentData.mediaRefDistance === props.mediaRefDistance)
-      assert(componentData.mediaMaxDistance === props.mediaMaxDistance)
-      assert(componentData.mediaConeInnerAngle === props.mediaConeInnerAngle)
-      assert(componentData.mediaConeOuterAngle === props.mediaConeOuterAngle)
-      assert(componentData.mediaConeOuterGain === props.mediaConeOuterGain)
+      assert(componentData.distanceModel === props.distanceModel)
+      assert(componentData.rolloffFactor === props.rolloffFactor)
+      assert(componentData.refDistance === props.refDistance)
+      assert(componentData.maxDistance === props.maxDistance)
+      assert(componentData.coneInnerAngle === props.coneInnerAngle)
+      assert(componentData.coneOuterAngle === props.coneOuterAngle)
+      assert(componentData.coneOuterGain === props.coneOuterGain)
     })
   })
 })

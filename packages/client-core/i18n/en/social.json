@@ -23,6 +23,10 @@
   "flames": "Flames",
   "continue": "Continue",
   "partyInvitationSent": "Party invitation sent",
+  "selfLeftParty": "You have left the party",
+  "otherLeftParty": " has left the party",
+  "selfJoinedParty": "You have joined a party",
+  "otherJoinedParty": " has joined the party",
   "arMedia": {
     "back": "Back",
     "clip": "Clip",

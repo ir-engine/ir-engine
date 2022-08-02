@@ -1,4 +1,4 @@
-import { createState } from '@speigg/hookstate'
+import { createState } from '@hookstate/core'
 import React, { useEffect, useState } from 'react'
 
 import { changeAvatarAnimationState } from '@xrengine/engine/src/avatar/animation/AvatarAnimationGraph'

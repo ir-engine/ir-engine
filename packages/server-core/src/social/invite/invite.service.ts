@@ -17,7 +17,8 @@ declare module '@xrengine/common/declarations' {
 export default (app: Application) => {
   const options = {
     Model: createModel(app),
-    paginate: app.get('paginate')
+    paginate: app.get('paginate'),
+    multi: true
   }
 
   /**

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { RouteComponentProps } from 'react-router-dom'
 
+import { API } from '@xrengine/client-core/src/API'
 import { ProjectAction, useProjectState } from '@xrengine/client-core/src/common/services/ProjectService'
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
@@ -93,10 +94,10 @@ export const EditorPage = (props: RouteComponentProps<{ sceneName: string; proje
     const world = Engine.instance.currentWorld
     initializeCoreSystems().then(async () => {
       initSystems(world, systems)
+      const projects = API.instance.client.service('projects').find()
       await initializeRealtimeSystems(false)
       await initializeSceneSystems()
-      const projects = projectState.projects.value.map((project) => project.name)
-      await loadEngineInjection(world, projects)
+      await loadEngineInjection(world, await projects)
       setEngineReady(true)
     })
   }, [projectState.projects.value])

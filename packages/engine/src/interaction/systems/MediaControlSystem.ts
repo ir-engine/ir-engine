@@ -1,9 +1,11 @@
 import { WebLayer3D } from '@etherealjs/web-layer/three'
 
+import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { MediaComponent } from '../../scene/components/MediaComponent'
+import { MediaElementComponent } from '../../scene/components/MediaElementComponent'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { XRUIComponent } from '../../xrui/components/XRUIComponent'
 import { createTransitionState } from '../../xrui/functions/createTransitionState'
@@ -14,7 +16,6 @@ export const MediaFadeTransitions = new Map<Entity, ReturnType<typeof createTran
 
 const onUpdate = (world: World) => (entity: Entity, mediaControls: ReturnType<typeof createMediaControlsUI>) => {
   const xrui = getComponent(mediaControls.entity, XRUIComponent)
-  if (!xrui?.container) return
   const transition = MediaFadeTransitions.get(entity)!
   const buttonLayer = xrui.container.rootLayer.querySelector('button')!
   const model = getComponent(entity, Object3DComponent).value
@@ -37,12 +38,16 @@ const onUpdate = (world: World) => (entity: Entity, mediaControls: ReturnType<ty
 }
 
 export default async function MediaControlSystem(world: World) {
-  const mediaQuery = defineQuery([MediaComponent])
+  /** @todo, remove this when we have better system pipeline injection */
+  if (Engine.instance.isEditor) return () => {}
+
+  const mediaQuery = defineQuery([MediaComponent, MediaElementComponent])
 
   const update = onUpdate(world)
 
   return () => {
     for (const entity of mediaQuery.enter(world)) {
+      if (!getComponent(entity, MediaComponent).controls) return
       addInteractableUI(entity, createMediaControlsUI(entity), update)
       const transition = createTransitionState(0.25)
       transition.setState('OUT')
@@ -50,7 +55,9 @@ export default async function MediaControlSystem(world: World) {
     }
 
     for (const entity of mediaQuery.exit(world)) {
-      MediaFadeTransitions.delete(entity)
+      if (MediaFadeTransitions.has(entity)) MediaFadeTransitions.delete(entity)
+      const mediaComponent = getComponent(entity, MediaElementComponent, true)
+      mediaComponent?.remove()
     }
   }
 }

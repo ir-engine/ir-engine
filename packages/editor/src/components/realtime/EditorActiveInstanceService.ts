@@ -1,23 +1,12 @@
-import { Paginated } from '@feathersjs/feathers'
 import { useEffect } from 'react'
 
 import { API } from '@xrengine/client-core/src/API'
 import { LocationInstanceConnectionAction } from '@xrengine/client-core/src/common/services/LocationInstanceConnectionService'
 import { accessAuthState } from '@xrengine/client-core/src/user/services/AuthService'
-import { InstanceInterface } from '@xrengine/common/src/dbmodels/Instance'
-import { Instance } from '@xrengine/common/src/interfaces/Instance'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import logger from '@xrengine/common/src/logger'
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import {
-  addActionReceptor,
-  defineAction,
-  defineState,
-  dispatchAction,
-  getState,
-  registerState,
-  useState
-} from '@xrengine/hyperflux'
+import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
 import { accessEditorState } from '../../services/EditorServices'
 
@@ -36,15 +25,14 @@ const EditorActiveInstanceState = defineState({
 })
 
 export const EditorActiveInstanceServiceReceptor = (action): any => {
-  getState(EditorActiveInstanceState).batch((s) => {
-    matches(action)
-      .when(EditorActiveInstanceAction.fetchingActiveInstances.matches, (action) => {
-        return s.merge({ fetching: true })
-      })
-      .when(EditorActiveInstanceAction.fetchedActiveInstances.matches, (action) => {
-        return s.merge({ activeInstances: action.activeInstances, fetching: false })
-      })
-  })
+  const state = getState(EditorActiveInstanceState)
+  matches(action)
+    .when(EditorActiveInstanceAction.fetchingActiveInstances.matches, (action) => {
+      return state.merge({ fetching: true })
+    })
+    .when(EditorActiveInstanceAction.fetchedActiveInstances.matches, (action) => {
+      return state.merge({ activeInstances: action.activeInstances, fetching: false })
+    })
 }
 
 export const accessEditorActiveInstanceState = () => getState(EditorActiveInstanceState)

@@ -1,8 +1,6 @@
 import { Collider, ColliderDesc, RigidBody, RigidBodyDesc } from '@dimforge/rapier3d-compat'
 import { AnimationClip, AnimationMixer, Group, PerspectiveCamera, Quaternion, Vector3 } from 'three'
 
-import { AudioTagComponent } from '../../audio/components/AudioTagComponent'
-import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
@@ -79,6 +77,7 @@ export const createAvatar = (spawnAction: typeof WorldNetworkAction.spawnAvatar.
       stateChanged: null!
     },
     rig: {} as BoneStructure,
+    bindRig: {} as BoneStructure,
     rootYRatio: 1
   })
 
@@ -92,6 +91,7 @@ export const createAvatar = (spawnAction: typeof WorldNetworkAction.spawnAvatar.
 
   if (userId === Engine.instance.userId) {
     createAvatarController(entity)
+    addComponent(entity, PersistTagComponent, true)
     addComponent(entity, LocalAvatarTagComponent, true)
     addComponent(entity, LocalInputTagComponent, true)
   } else {
@@ -99,12 +99,7 @@ export const createAvatar = (spawnAction: typeof WorldNetworkAction.spawnAvatar.
     createAvatarCollider(entity)
   }
 
-  if (isClient) {
-    addComponent(entity, AudioTagComponent, {})
-    addComponent(entity, ShadowComponent, { receiveShadow: true, castShadow: true })
-  }
-
-  addComponent(entity, PersistTagComponent, true)
+  addComponent(entity, ShadowComponent, { receiveShadow: true, castShadow: true })
 
   return entity
 }

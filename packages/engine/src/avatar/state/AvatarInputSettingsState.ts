@@ -2,8 +2,10 @@ import { matches, Validator } from '@xrengine/engine/src/common/functions/Matche
 import { XR_FOLLOW_MODE, XR_ROTATION_MODE } from '@xrengine/engine/src/xr/types/XRUserSettings'
 import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
+import { AvatarControllerType } from '../../input/enums/InputEnums'
+
 type AvatarInputSettingsStateType = {
-  controlType: 'None' | 'XR Hands' | 'Oculus Quest'
+  controlType: AvatarControllerType
   invertRotationAndMoveSticks: boolean
   moving: number
   rotation: number
@@ -16,7 +18,7 @@ type AvatarInputSettingsStateType = {
 const AvatarInputSettingsState = defineState({
   name: 'AvatarInputSettingsState',
   initial: () => ({
-    controlType: 'None',
+    controlType: 'AvatarControllerType_None',
     invertRotationAndMoveSticks: true,
     // TODO: implement the following
     moving: XR_FOLLOW_MODE.CONTROLLER,
@@ -32,18 +34,17 @@ const AvatarInputSettingsState = defineState({
 })
 
 export function AvatarInputSettingsReceptor(action) {
-  getState(AvatarInputSettingsState).batch((s) => {
-    matches(action)
-      .when(AvatarInputSettingsAction.setControlType.matches, (action) => {
-        return s.merge({ controlType: action.controlType })
-      })
-      .when(AvatarInputSettingsAction.setInvertRotationAndMoveSticks.matches, (action) => {
-        return s.merge({ invertRotationAndMoveSticks: action.invertRotationAndMoveSticks })
-      })
-      .when(AvatarInputSettingsAction.setShowAvatar.matches, (action) => {
-        return s.merge({ showAvatar: action.showAvatar })
-      })
-  })
+  const s = getState(AvatarInputSettingsState)
+  matches(action)
+    .when(AvatarInputSettingsAction.setControlType.matches, (action) => {
+      return s.merge({ controlType: action.controlType })
+    })
+    .when(AvatarInputSettingsAction.setInvertRotationAndMoveSticks.matches, (action) => {
+      return s.merge({ invertRotationAndMoveSticks: action.invertRotationAndMoveSticks })
+    })
+    .when(AvatarInputSettingsAction.setShowAvatar.matches, (action) => {
+      return s.merge({ showAvatar: action.showAvatar })
+    })
 }
 
 export const accessAvatarInputSettingsState = () => getState(AvatarInputSettingsState)

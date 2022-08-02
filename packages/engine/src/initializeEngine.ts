@@ -1,9 +1,8 @@
 import { detect, detectOS } from 'detect-browser'
 import _ from 'lodash'
-import { AudioListener, PerspectiveCamera } from 'three'
 
 import { BotUserAgent } from '@xrengine/common/src/constants/BotUserAgent'
-import { addActionReceptor, dispatchAction, registerState } from '@xrengine/hyperflux'
+import { addActionReceptor, dispatchAction, getState } from '@xrengine/hyperflux'
 
 import { getGLTFLoader } from './assets/classes/AssetLoader'
 import { initializeKTX2Loader } from './assets/functions/createGLTFLoader'
@@ -32,9 +31,8 @@ export const createEngine = async () => {
     destroyWorld(Engine.instance.currentWorld)
   }
   Engine.instance = new Engine()
-  Engine.instance.currentWorld = createWorld()
+  createWorld()
   EngineRenderer.instance = new EngineRenderer()
-  registerState(EngineState)
   addActionReceptor(EngineEventReceptor)
   Engine.instance.engineTimer = Timer(executeWorlds, Engine.instance.tickRate)
 }
@@ -43,8 +41,7 @@ export const setupEngineActionSystems = () => {
   const world = Engine.instance.currentWorld
   initSystemSync(world, {
     type: SystemUpdateType.UPDATE,
-    systemFunction: FixedPipelineSystem,
-    args: { tickRate: 60 }
+    systemFunction: FixedPipelineSystem
   })
   initSystemSync(world, {
     type: SystemUpdateType.FIXED_EARLY,
@@ -62,11 +59,13 @@ export const setupEngineActionSystems = () => {
  * initializes everything for the browser context
  */
 export const initializeBrowser = () => {
+  const audioContext = new (globalThis.AudioContext || globalThis.webkitAudioContext)()
+  audioContext.resume()
+  Engine.instance.audioContext = audioContext
   Engine.instance.publicPath = location.origin
+  Engine.instance.cameraGainNode = audioContext.createGain()
+  Engine.instance.cameraGainNode.connect(audioContext.destination)
   const world = Engine.instance.currentWorld
-  world.audioListener = new AudioListener()
-  world.audioListener.context.resume()
-  world.camera.add(world.audioListener)
   world.camera.layers.disableAll()
   world.camera.layers.enable(ObjectLayers.Scene)
   world.camera.layers.enable(ObjectLayers.Avatar)
@@ -118,7 +117,8 @@ export const initializeNode = () => {
 }
 
 const executeWorlds = (elapsedTime) => {
-  Engine.instance.frameTime = elapsedTime
+  const engineState = getState(EngineState)
+  engineState.frameTime.set(elapsedTime)
   for (const world of Engine.instance.worlds) {
     world.execute(elapsedTime)
   }
@@ -132,7 +132,7 @@ export const initializeCoreSystems = async () => {
   const systemsToLoad: SystemModuleType<any>[] = []
   systemsToLoad.push(
     {
-      type: SystemUpdateType.FIXED_LATE,
+      type: SystemUpdateType.UPDATE_LATE,
       systemModulePromise: import('./transform/systems/TransformSystem')
     },
     {
@@ -148,15 +148,15 @@ export const initializeCoreSystems = async () => {
   if (isClient) {
     systemsToLoad.push(
       {
-        type: SystemUpdateType.POST_RENDER,
-        systemModulePromise: import('./renderer/WebGLRendererSystem')
+        type: SystemUpdateType.UPDATE,
+        systemModulePromise: import('./camera/systems/CameraSystem')
       },
       {
-        type: SystemUpdateType.UPDATE,
+        type: SystemUpdateType.UPDATE_EARLY,
         systemModulePromise: import('./xr/systems/XRSystem')
       },
       {
-        type: SystemUpdateType.UPDATE,
+        type: SystemUpdateType.UPDATE_EARLY,
         systemModulePromise: import('./input/systems/ClientInputSystem')
       },
       {
@@ -170,6 +170,10 @@ export const initializeCoreSystems = async () => {
       {
         type: SystemUpdateType.FIXED_LATE,
         systemModulePromise: import('./scene/systems/InstancingSystem')
+      },
+      {
+        type: SystemUpdateType.RENDER,
+        systemModulePromise: import('./renderer/WebGLRendererSystem')
       }
     )
   }
@@ -225,10 +229,6 @@ export const initializeSceneSystems = async () => {
         systemModulePromise: import('./scene/systems/HyperspacePortalSystem')
       },
       {
-        type: SystemUpdateType.UPDATE,
-        systemModulePromise: import('./camera/systems/CameraSystem')
-      },
-      {
         type: SystemUpdateType.FIXED,
         systemModulePromise: import('./avatar/AvatarTeleportSystem')
       },
@@ -246,15 +246,15 @@ export const initializeSceneSystems = async () => {
       },
       {
         type: SystemUpdateType.PRE_RENDER,
-        systemModulePromise: import('./interaction/systems/MediaControlSystem')
-      },
-      {
-        type: SystemUpdateType.PRE_RENDER,
         systemModulePromise: import('./audio/systems/AudioSystem')
       },
       {
         type: SystemUpdateType.PRE_RENDER,
         systemModulePromise: import('./audio/systems/PositionalAudioSystem')
+      },
+      {
+        type: SystemUpdateType.PRE_RENDER,
+        systemModulePromise: import('./interaction/systems/MediaControlSystem')
       },
       {
         type: SystemUpdateType.PRE_RENDER,

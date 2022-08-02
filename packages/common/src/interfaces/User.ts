@@ -10,10 +10,6 @@ import { RelationshipType } from './UserRelationship'
 
 export interface UserSetting {
   id: string
-  spatialAudioEnabled: boolean
-  volume?: number
-  audio: number
-  microphone: number
   themeModes: ThemeMode
 }
 

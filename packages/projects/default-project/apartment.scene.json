@@ -361,7 +361,7 @@
                 "xRay": true
               },
               "SSAOEffect": {
-                "isActive": true,
+                "isActive": false,
                 "blendFunction": 10,
                 "distanceScaling": true,
                 "depthAwareUpsampling": true,

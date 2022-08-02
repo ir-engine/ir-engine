@@ -14,7 +14,7 @@
   transform: translate(-50%, -50%);
   box-shadow: 16px 16px 32px 0 #11111159;
   color: black;
-  max-height: calc(100vh - 100px);
+  max-height: calc(100vh - 150px);
   overflow: auto;
   touch-action: auto;
 
@@ -82,7 +82,7 @@
           color: var(--blueHover);
           display: block;
           text-align: center;
-          width: 50px;
+          width: 100px;
         }
 
         .kick {

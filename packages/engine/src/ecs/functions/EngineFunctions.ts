@@ -91,6 +91,7 @@ export const unloadScene = (world: World, removePersisted = false) => {
   unloadAllEntities(world, removePersisted)
   unloadSystems(world, true)
   EngineRenderer.instance.resetScene()
+  dispatchAction(EngineActions.sceneUnloaded({}))
 
   // we then need to ensure all ECS queries are cleaned up properly, this can take a few frames
   world.execute(world.fixedTick)

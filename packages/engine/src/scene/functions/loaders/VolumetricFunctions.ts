@@ -13,23 +13,28 @@ import {
   ComponentUpdateFunction
 } from '../../../common/constants/PrefabFunctionType'
 import { isClient } from '../../../common/functions/isClient'
+import { Engine } from '../../../ecs/classes/Engine'
 import { getEngineState } from '../../../ecs/classes/EngineState'
 import { Entity } from '../../../ecs/classes/Entity'
-import { addComponent, getComponent, removeComponent } from '../../../ecs/functions/ComponentFunctions'
+import { addComponent, getComponent, hasComponent, removeComponent } from '../../../ecs/functions/ComponentFunctions'
 import { EngineRenderer } from '../../../renderer/WebGLRendererSystem'
 import UpdateableObject3D from '../../classes/UpdateableObject3D'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
+import { MediaComponent } from '../../components/MediaComponent'
+import { MediaElementComponent } from '../../components/MediaElementComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
-import { VolumetricComponent, VolumetricVideoComponentType } from '../../components/VolumetricComponent'
-import { VolumetricPlayMode } from '../../constants/VolumetricPlayMode'
+import { VolumetricComponent, VolumetricComponentType } from '../../components/VolumetricComponent'
+import { PlayMode } from '../../constants/PlayMode'
 import { addError, removeError } from '../ErrorFunctions'
+import { createAudioNode } from './AudioFunctions'
 
 type VolumetricObject3D = UpdateableObject3D & {
   userData: {
-    player: typeof import('@xrfoundation/volumetric/player').default.prototype
     isEffect: boolean
     time: number
   }
+  autoplay: boolean
+  controls: boolean
   play()
   pause()
   seek()
@@ -54,130 +59,136 @@ export const VolumetricCallbacks = [
 export const VolumetricsExtensions = ['drcs', 'uvol']
 export const SCENE_COMPONENT_VOLUMETRIC = 'volumetric'
 export const SCENE_COMPONENT_VOLUMETRIC_DEFAULT_VALUES = {
-  paths: [],
-  playMode: VolumetricPlayMode.Single
+  useLoadingEffect: true
 }
 
 export const deserializeVolumetric: ComponentDeserializeFunction = (
   entity: Entity,
-  json: ComponentJson<VolumetricVideoComponentType>
+  json: ComponentJson<VolumetricComponentType>
 ) => {
   if (!isClient) return
-
-  const props = parseVolumetricProperties(json.props)
-  addComponent(entity, VolumetricComponent, props)
-
+  try {
+    removeError(entity, 'error')
+    addVolumetricComponent(entity, json.props)
+  } catch (error) {
+    console.error(error)
+    addError(entity, 'error', error.message)
+  }
   getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_VOLUMETRIC)
-
-  updateVolumetric(entity, props)
 }
 
-function checkUserInput() {
-  return getEngineState().userHasInteracted.value
-}
-
-export const updateVolumetric: ComponentUpdateFunction = (entity: Entity, properties: VolumetricVideoComponentType) => {
+export const addVolumetricComponent = (entity: Entity, props: VolumetricComponentType) => {
   const obj3d = getComponent(entity, Object3DComponent).value as VolumetricObject3D
-  const component = getComponent(entity, VolumetricComponent)
-  const paths = component.paths.filter((p) => p)
+  const mediaComponent = getComponent(entity, MediaComponent)
+
   let height = 0
   let step = 0.001
 
-  if (typeof properties.paths !== 'undefined' && paths.length) {
-    try {
-      if (obj3d.userData.player) {
-        obj3d.userData.player.mesh.removeFromParent()
-        obj3d.userData.player.dispose()
-      }
+  const properties = parseVolumetricProperties(props)
 
-      obj3d.userData.player = new DracosisPlayer({
-        scene: obj3d,
-        renderer: EngineRenderer.instance.renderer,
-        paths,
-        isLoadingEffect: isClient,
-        isVideoTexture: false,
-        playMode: component.playMode as any,
-        onMeshBuffering: (_progress) => {},
-        onHandleEvent: (type, data) => {
-          if (checkUserInput() && type == 'videostatus' && data.status == 'initplay') {
-            const video = obj3d.userData.player.video
-            height = calculateHeight(obj3d)
-            height = height * obj3d.scale.y + 1
-            step = height / 150
-            setupLoadingEffect(entity, obj3d)
-            obj3d.userData.isEffect = true
-            obj3d.userData.time = 0
+  const player = new DracosisPlayer({
+    scene: obj3d,
+    renderer: EngineRenderer.instance.renderer,
+    // https://github.com/XRFoundation/Universal-Volumetric/issues/117
+    paths: mediaComponent.paths.length ? mediaComponent.paths : ['fake-path'],
+    isLoadingEffect: properties.useLoadingEffect,
+    isVideoTexture: false,
+    playMode: mediaComponent.playMode as any,
+    onMeshBuffering: (_progress) => {},
+    onHandleEvent: (type, data) => {
+      if (getEngineState().userHasInteracted.value && type == 'videostatus' && data.status == 'initplay') {
+        height = calculateHeight(obj3d)
+        height = height * obj3d.scale.y + 1
+        step = height / 150
+        setupLoadingEffect(entity, obj3d)
+        obj3d.userData.isEffect = true
+        obj3d.userData.time = 0
+      }
+    }
+  })
+
+  addComponent(entity, VolumetricComponent, {
+    player,
+    ...properties
+  })
+
+  obj3d.update = () => {
+    if (!getEngineState().userHasInteracted.value) return
+    if (player.hasPlayed) {
+      player?.handleRender(() => {})
+    }
+    if (obj3d.userData.isEffect) {
+      if (obj3d.userData.time <= height) {
+        obj3d.traverse((child: any) => {
+          if (child['material']) {
+            if (child.material.uniforms) child.material.uniforms.time.value = obj3d.userData.time
           }
-        }
-      })
+        })
 
-      removeError(entity, 'error')
-
-      obj3d.update = () => {
-        if (!checkUserInput()) return
-        if (obj3d.userData.player.hasPlayed) {
-          obj3d.userData.player?.handleRender(() => {})
-        }
-        if (obj3d.userData.isEffect) {
-          if (obj3d.userData.time <= height) {
-            obj3d.traverse((child: any) => {
-              if (child['material']) {
-                if (child.material.uniforms) child.material.uniforms.time.value = obj3d.userData.time
-              }
-            })
-
-            obj3d.userData.time += step
-          } else {
-            obj3d.userData.isEffect = false
-            endLoadingEffect(entity, obj3d)
-            obj3d.userData.player.updateStatus('ready')
-            obj3d.userData.player.play()
-          }
-        }
+        obj3d.userData.time += step
+      } else {
+        obj3d.userData.isEffect = false
+        endLoadingEffect(entity, obj3d)
+        player.updateStatus('ready')
+        player.play()
       }
-
-      //setup callbacks
-      obj3d.play = () => {
-        if (checkUserInput()) {
-          obj3d.userData.player.play()
-        }
-      }
-
-      obj3d.pause = () => {
-        if (checkUserInput()) obj3d.userData.player.pause()
-      }
-
-      obj3d.seek = () => {
-        if (checkUserInput()) {
-          obj3d.userData.player.playOneFrame()
-        }
-      }
-
-      obj3d.callbacks = () => {
-        return VolumetricCallbacks
-      }
-      //TODO: it is breaking the video play. need to check later
-      // const audioSource = Engine.instance.currentWorld.audioListener.context.createMediaElementSource(obj3d.userData.player.video)
-      // obj3d.userData.audioEl.setNodeSource(audioSource)
-    } catch (error) {
-      addError(entity, 'error', error.message)
     }
   }
 
-  if (typeof properties.playMode !== 'undefined' && obj3d.userData.player) {
-    obj3d.userData.player.playMode = component.playMode as any
+  //setup callbacks
+  obj3d.play = () => {
+    player.play()
   }
+
+  obj3d.pause = () => {
+    player.pause()
+  }
+
+  obj3d.seek = () => {
+    player.playOneFrame()
+  }
+
+  obj3d.callbacks = () => {
+    return VolumetricCallbacks
+  }
+
+  const el = player.video
+
+  // mute and set volume to 0, as we use the audio api gain nodes to connect the source
+  // el.muted = true
+  // el.volume = 0
+
+  addComponent(entity, MediaElementComponent, el)
+
+  createAudioNode(
+    el,
+    Engine.instance.audioContext.createMediaElementSource(el),
+    Engine.instance.gainNodeMixBuses.soundEffects
+  )
+}
+
+export const updateVolumetric: ComponentUpdateFunction = (entity: Entity) => {
+  const obj3d = getComponent(entity, Object3DComponent).value as VolumetricObject3D
+  const { player } = getComponent(entity, VolumetricComponent)
+  const mediaComponent = getComponent(entity, MediaComponent)
+
+  const paths = mediaComponent.paths.filter((p) => p)
+
+  if (paths.length && JSON.stringify(player.paths) !== JSON.stringify(paths)) {
+    player.paths = paths
+  }
+
+  obj3d.autoplay = mediaComponent.autoplay
+  obj3d.controls = mediaComponent.controls
 }
 
 export const serializeVolumetric: ComponentSerializeFunction = (entity) => {
-  const component = getComponent(entity, VolumetricComponent) as VolumetricVideoComponentType
-  if (!component) return
-
+  const vol = getComponent(entity, VolumetricComponent)
+  if (!vol) return
   return {
     name: SCENE_COMPONENT_VOLUMETRIC,
     props: {
-      paths: component.paths,
-      playMode: component.playMode
+      useLoadingEffect: vol.useLoadingEffect
     }
   }
 }
@@ -190,21 +201,27 @@ export const prepareVolumetricForGLTFExport: ComponentPrepareForGLTFExportFuncti
 }
 
 export const toggleVolumetric = (entity: Entity): boolean => {
-  if (!checkUserInput()) return false
+  if (!getEngineState().userHasInteracted.value) return false
   const obj3d = getComponent(entity, Object3DComponent)?.value as VolumetricObject3D
-  const component = getComponent(entity, VolumetricComponent)
+  const { player } = getComponent(entity, VolumetricComponent)
   if (!obj3d) return false
 
-  if (obj3d.userData.player.hasPlayed && !obj3d.userData.player.paused) {
-    obj3d.userData.player.pause()
+  if (player.hasPlayed && !player.paused) {
+    player.pause()
     return false
   } else {
-    if (obj3d.userData.player.paused) {
-      obj3d.userData.player.paused = false
+    if (player.paused) {
+      player.paused = false
     } else {
-      obj3d.userData.player.play()
+      player.play()
     }
     return true
+  }
+}
+
+const parseVolumetricProperties = (props: Partial<VolumetricComponentType>) => {
+  return {
+    useLoadingEffect: props.useLoadingEffect ?? SCENE_COMPONENT_VOLUMETRIC_DEFAULT_VALUES.useLoadingEffect
   }
 }
 
@@ -278,8 +295,4 @@ const calculateHeight = (obj3d) => {
     height = bbox.max.y - bbox.min.y
   }
   return height
-}
-
-const parseVolumetricProperties = (props): VolumetricVideoComponentType => {
-  return { ...SCENE_COMPONENT_VOLUMETRIC_DEFAULT_VALUES, ...props }
 }

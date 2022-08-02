@@ -1,7 +1,7 @@
-import { useState } from '@speigg/hookstate'
+import { useState } from '@hookstate/core'
 
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { addActionReceptor, defineAction, defineState, getState, registerState } from '@xrengine/hyperflux'
+import { defineAction, defineState, getState } from '@xrengine/hyperflux'
 
 type EditorErrorServiceStateType = {
   error: any
@@ -16,10 +16,9 @@ const EditorErrorState = defineState({
 })
 
 export const EditorErrorServiceReceptor = (action): any => {
-  getState(EditorErrorState).batch((s) => {
-    matches(action).when(EditorErrorAction.throwError.matches, (action) => {
-      return s.merge({ error: action.error })
-    })
+  const s = getState(EditorErrorState)
+  matches(action).when(EditorErrorAction.throwError.matches, (action) => {
+    return s.merge({ error: action.error })
   })
 }
 

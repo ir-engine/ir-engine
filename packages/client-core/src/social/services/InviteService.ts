@@ -46,66 +46,65 @@ const InviteState = defineState({
 })
 
 export const InviteServiceReceptor = (action) => {
-  getState(InviteState).batch((s) => {
-    matches(action)
-      .when(InviteAction.sentInvite.matches, () => {
-        return s.sentUpdateNeeded.set(true)
+  const s = getState(InviteState)
+  matches(action)
+    .when(InviteAction.sentInvite.matches, () => {
+      return s.sentUpdateNeeded.set(true)
+    })
+    .when(InviteAction.retrievedSentInvites.matches, (action) => {
+      return s.merge({
+        sentInvites: {
+          invites: action.invites,
+          skip: action.skip,
+          limit: action.limit,
+          total: action.total
+        },
+        sentUpdateNeeded: false,
+        getSentInvitesInProgress: false
       })
-      .when(InviteAction.retrievedSentInvites.matches, (action) => {
-        return s.merge({
-          sentInvites: {
-            invites: action.invites,
-            skip: action.skip,
-            limit: action.limit,
-            total: action.total
-          },
-          sentUpdateNeeded: false,
-          getSentInvitesInProgress: false
-        })
+    })
+    .when(InviteAction.retrievedReceivedInvites.matches, (action) => {
+      return s.merge({
+        receivedInvites: {
+          invites: action.invites,
+          skip: action.skip,
+          limit: action.limit,
+          total: action.total
+        },
+        receivedUpdateNeeded: false,
+        getReceivedInvitesInProgress: false
       })
-      .when(InviteAction.retrievedReceivedInvites.matches, (action) => {
-        return s.merge({
-          receivedInvites: {
-            invites: action.invites,
-            skip: action.skip,
-            limit: action.limit,
-            total: action.total
-          },
-          receivedUpdateNeeded: false,
-          getReceivedInvitesInProgress: false
-        })
+    })
+    .when(InviteAction.createdReceivedInvite.matches, () => {
+      return s.receivedUpdateNeeded.set(true)
+    })
+    .when(InviteAction.createdSentInvite.matches, () => {
+      return s.receivedUpdateNeeded.set(true)
+    })
+    .when(InviteAction.removedReceivedInvite.matches, () => {
+      return s.receivedUpdateNeeded.set(true)
+    })
+    .when(InviteAction.removedSentInvite.matches, () => {
+      return s.sentUpdateNeeded.set(true)
+    })
+    .when(InviteAction.acceptedInvite.matches, () => {
+      return s.receivedUpdateNeeded.set(true)
+    })
+    .when(InviteAction.declinedInvite.matches, () => {
+      return s.receivedUpdateNeeded.set(true)
+    })
+    .when(InviteAction.setInviteTarget.matches, (action) => {
+      return s.merge({
+        targetObjectId: action.targetObjectId || '',
+        targetObjectType: action.targetObjectType || ''
       })
-      .when(InviteAction.createdReceivedInvite.matches, () => {
-        return s.receivedUpdateNeeded.set(true)
-      })
-      .when(InviteAction.createdSentInvite.matches, () => {
-        return s.receivedUpdateNeeded.set(true)
-      })
-      .when(InviteAction.removedReceivedInvite.matches, () => {
-        return s.receivedUpdateNeeded.set(true)
-      })
-      .when(InviteAction.removedSentInvite.matches, () => {
-        return s.sentUpdateNeeded.set(true)
-      })
-      .when(InviteAction.acceptedInvite.matches, () => {
-        return s.receivedUpdateNeeded.set(true)
-      })
-      .when(InviteAction.declinedInvite.matches, () => {
-        return s.receivedUpdateNeeded.set(true)
-      })
-      .when(InviteAction.setInviteTarget.matches, (action) => {
-        return s.merge({
-          targetObjectId: action.targetObjectId || '',
-          targetObjectType: action.targetObjectType || ''
-        })
-      })
-      .when(InviteAction.fetchingSentInvites.matches, () => {
-        return s.getSentInvitesInProgress.set(true)
-      })
-      .when(InviteAction.fetchingReceivedInvites.matches, () => {
-        return s.getReceivedInvitesInProgress.set(true)
-      })
-  })
+    })
+    .when(InviteAction.fetchingSentInvites.matches, () => {
+      return s.getSentInvitesInProgress.set(true)
+    })
+    .when(InviteAction.fetchingReceivedInvites.matches, () => {
+      return s.getReceivedInvitesInProgress.set(true)
+    })
 }
 
 export const accessInviteState = () => getState(InviteState)
@@ -302,7 +301,7 @@ export const InviteService = {
   acceptInvite: async (invite: Invite) => {
     try {
       if (invite.inviteType === 'party') {
-        dispatchAction(MediaInstanceConnectionAction.acceptingPartyInvite({}))
+        dispatchAction(MediaInstanceConnectionAction.joiningNonInstanceMediaChannel({}))
       }
       await API.instance.client.service('a-i').get(invite.id, {
         query: {

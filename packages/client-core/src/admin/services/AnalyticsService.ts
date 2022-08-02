@@ -96,7 +96,7 @@ export const accessAdminAnalyticsState = () => getState(AdminAnalyticsState)
 export const useAdminAnalyticsState = () => useState(accessAdminAnalyticsState())
 
 //Service
-export const ADminAnalyticsService = {
+export const AdminAnalyticsService = {
   fetchActiveParties: async (startDate?: Date, endDate?: Date) => {
     try {
       const query = {

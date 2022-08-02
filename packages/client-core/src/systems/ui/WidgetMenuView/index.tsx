@@ -1,4 +1,4 @@
-import { createState } from '@speigg/hookstate'
+import { createState } from '@hookstate/core'
 import React, { useState } from 'react'
 
 import { Channel } from '@xrengine/common/src/interfaces/Channel'

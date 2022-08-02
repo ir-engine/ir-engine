@@ -1,14 +1,17 @@
 import { Paginated } from '@feathersjs/feathers'
-import { none } from '@speigg/hookstate'
+import { none } from '@hookstate/core'
 
 import { Relationship } from '@xrengine/common/src/interfaces/Relationship'
 import { RelationshipSeed } from '@xrengine/common/src/interfaces/Relationship'
 import { UserInterface } from '@xrengine/common/src/interfaces/User'
 import multiLogger from '@xrengine/common/src/logger'
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
 import { API } from '../../API'
+import { accessChatState } from '../../social/services/ChatService'
+import { accessAuthState } from './AuthService'
 
 const logger = multiLogger.child({ component: 'client-core:UserService' })
 
@@ -27,71 +30,70 @@ const UserState = defineState({
 })
 
 export const UserServiceReceptor = (action) => {
-  getState(UserState).batch((s) => {
-    matches(action)
-      .when(UserAction.loadedUserRelationshipAction.matches, (action) => {
-        return s.merge({ relationship: action.relationship, updateNeeded: false })
+  const s = getState(UserState)
+  matches(action)
+    .when(UserAction.loadedUserRelationshipAction.matches, (action) => {
+      return s.merge({ relationship: action.relationship, updateNeeded: false })
+    })
+    .when(UserAction.loadedUsersAction.matches, (action) => {
+      s.merge({ users: action.users, updateNeeded: false })
+    })
+    .when(UserAction.changedRelationAction.matches, () => {
+      return s.updateNeeded.set(true)
+    })
+    .when(UserAction.clearLayerUsersAction.matches, () => {
+      return s.merge({ layerUsers: [], layerUsersUpdateNeeded: true })
+    })
+    .when(UserAction.loadedLayerUsersAction.matches, (action) => {
+      return s.merge({ layerUsers: action.users, layerUsersUpdateNeeded: false })
+    })
+    .when(UserAction.addedLayerUserAction.matches, (action) => {
+      const index = s.layerUsers.findIndex((layerUser) => {
+        return layerUser != null && layerUser.id.value === action.user.id
       })
-      .when(UserAction.loadedUsersAction.matches, (action) => {
-        s.merge({ users: action.users, updateNeeded: false })
+      if (index === -1) {
+        return s.layerUsers.merge([action.user])
+      } else {
+        return s.layerUsers[index].set(action.user)
+      }
+    })
+    .when(UserAction.removedLayerUserAction.matches, (action) => {
+      const layerUsers = s.layerUsers
+      const index = layerUsers.findIndex((layerUser) => {
+        return layerUser != null && layerUser.value.id === action.user.id
       })
-      .when(UserAction.changedRelationAction.matches, () => {
-        return s.updateNeeded.set(true)
+      return s.layerUsers[index].set(none)
+    })
+    .when(UserAction.clearChannelLayerUsersAction.matches, () => {
+      return s.merge({
+        channelLayerUsers: [],
+        channelLayerUsersUpdateNeeded: true
       })
-      .when(UserAction.clearLayerUsersAction.matches, () => {
-        return s.merge({ layerUsers: [], layerUsersUpdateNeeded: true })
+    })
+    .when(UserAction.loadedChannelLayerUsersAction.matches, (action) => {
+      return s.merge({
+        channelLayerUsers: action.users,
+        channelLayerUsersUpdateNeeded: false
       })
-      .when(UserAction.loadedLayerUsersAction.matches, (action) => {
-        return s.merge({ layerUsers: action.users, layerUsersUpdateNeeded: false })
+    })
+    .when(UserAction.addedChannelLayerUserAction.matches, (action) => {
+      const index = s.channelLayerUsers.findIndex((layerUser) => {
+        return layerUser != null && layerUser.value.id === action.user.id
       })
-      .when(UserAction.addedLayerUserAction.matches, (action) => {
-        const index = s.layerUsers.findIndex((layerUser) => {
-          return layerUser != null && layerUser.id.value === action.user.id
-        })
-        if (index === -1) {
-          return s.layerUsers.merge([action.user])
-        } else {
-          return s.layerUsers[index].set(action.user)
-        }
-      })
-      .when(UserAction.removedLayerUserAction.matches, (action) => {
-        const layerUsers = s.layerUsers
-        const index = layerUsers.findIndex((layerUser) => {
-          return layerUser != null && layerUser.value.id === action.user.id
-        })
-        return s.layerUsers[index].set(none)
-      })
-      .when(UserAction.clearChannelLayerUsersAction.matches, () => {
-        return s.merge({
-          channelLayerUsers: [],
-          channelLayerUsersUpdateNeeded: true
-        })
-      })
-      .when(UserAction.loadedChannelLayerUsersAction.matches, (action) => {
-        return s.merge({
-          channelLayerUsers: action.users,
-          channelLayerUsersUpdateNeeded: false
-        })
-      })
-      .when(UserAction.addedChannelLayerUserAction.matches, (action) => {
+      if (index === -1) {
+        return s.channelLayerUsers.merge([action.user])
+      } else {
+        return s.channelLayerUsers[index].set(action.user)
+      }
+    })
+    .when(UserAction.removedChannelLayerUserAction.matches, (action) => {
+      if (action.user) {
         const index = s.channelLayerUsers.findIndex((layerUser) => {
           return layerUser != null && layerUser.value.id === action.user.id
         })
-        if (index === -1) {
-          return s.channelLayerUsers.merge([action.user])
-        } else {
-          return s.channelLayerUsers[index].set(action.user)
-        }
-      })
-      .when(UserAction.removedChannelLayerUserAction.matches, (action) => {
-        if (action.user) {
-          const index = s.channelLayerUsers.findIndex((layerUser) => {
-            return layerUser != null && layerUser.value.id === action.user.id
-          })
-          return s.channelLayerUsers[index].set(none)
-        } else return s
-      })
-  })
+        return s.channelLayerUsers[index].set(none)
+      } else return s
+    })
 }
 
 export const accessUserState = () => getState(UserState)
@@ -116,17 +118,14 @@ export const UserService = {
   },
 
   getLayerUsers: async (instance: boolean) => {
-    const search = window.location.search
-    let instanceId
-    if (search != null) {
-      instanceId = new URL(window.location.href).searchParams.get('instanceId')
-    }
+    let query = {
+      $limit: 1000,
+      action: instance ? 'layer-users' : 'channel-users'
+    } as any
+    if (!instance) query.channelInstanceId = Engine.instance.currentWorld._mediaHostId
+    else query.instanceId = Engine.instance.currentWorld._worldHostId
     const layerUsers = (await API.instance.client.service('user').find({
-      query: {
-        $limit: 1000,
-        action: instance ? 'layer-users' : 'channel-users',
-        instanceId
-      }
+      query: query
     })) as Paginated<UserInterface>
 
     const state = getState(UserState)

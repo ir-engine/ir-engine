@@ -125,7 +125,7 @@ export class Project extends Service {
     ).data as Array<{ name }>
     await Promise.all(
       projects.map(async ({ name }) => {
-        if (!fs.existsSync(path.join(projectsRootFolder, name))) return
+        if (!fs.existsSync(path.join(projectsRootFolder, name, 'xrengine.config.ts'))) return
         const config = await getProjectConfig(name)
         if (config?.onEvent) return onProjectEvent(this.app, name, config.onEvent, 'onLoad')
       })

@@ -1,3 +1,4 @@
+import * as chapiWalletPolyfill from 'credential-handler-polyfill'
 import { SnackbarProvider } from 'notistack'
 import React, { createRef, useCallback, useEffect, useState } from 'react'
 import { Helmet } from 'react-helmet'
@@ -23,8 +24,10 @@ import RouterComp from '../route/public'
 
 import './styles.scss'
 
+import { API } from '@xrengine/client-core/src/API'
 import { NotificationAction, NotificationActions } from '@xrengine/client-core/src/common/services/NotificationService'
 import { getCurrentTheme } from '@xrengine/common/src/constants/DefaultThemeSettings'
+import { AudioEffectPlayer } from '@xrengine/engine/src/audio/systems/AudioSystem'
 import { addActionReceptor, removeActionReceptor } from '@xrengine/hyperflux'
 
 declare module '@mui/styles/defaultTheme' {
@@ -65,6 +68,7 @@ const App = (): any => {
   useEffect(() => {
     const receptor = (action): any => {
       matches(action).when(NotificationAction.notify.matches, (action) => {
+        AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.alert, 0.5)
         notistackRef.current?.enqueueSnackbar(action.message, {
           variant: action.options.variant,
           action: NotificationActions[action.options.actionType ?? 'default']
@@ -91,24 +95,32 @@ const App = (): any => {
   useEffect(initApp, [])
 
   useEffect(() => {
-    if (selfUser?.id.value && projectState.updateNeeded.value) ProjectService.fetchProjects()
+    chapiWalletPolyfill
+      .loadOnce()
+      .then(() => console.log('CHAPI wallet polyfill loaded.'))
+      .catch((e) => console.error('Error loading polyfill:', e))
+  }, [])
+
+  useEffect(() => {
+    if (selfUser?.id.value && projectState.updateNeeded.value) {
+      ProjectService.fetchProjects()
+      if (!fetchedProjectComponents) {
+        setFetchedProjectComponents(true)
+        API.instance.client
+          .service('projects')
+          .find()
+          .then((projects) => {
+            loadWebappInjection(projects).then((result) => {
+              setProjectComponents(result)
+            })
+          })
+      }
+    }
   }, [selfUser, projectState.updateNeeded.value])
 
   useEffect(() => {
     Engine.instance.userId = selfUser.id.value
   }, [selfUser.id])
-
-  useEffect(() => {
-    if (projectState.projects.value.length > 0 && !fetchedProjectComponents) {
-      setFetchedProjectComponents(true)
-      loadWebappInjection(
-        {},
-        projectState.projects.value.map((project) => project.name)
-      ).then((result) => {
-        setProjectComponents(result)
-      })
-    }
-  }, [projectState.projects.value])
 
   useEffect(() => {
     if (clientSetting) {

@@ -129,193 +129,111 @@ export const SceneNodeEditor: EditorComponentType = (props) => {
         <StringInput value={metadata.meta_data} onChange={updateProperty(MetaDataComponent, 'meta_data')} />
       </InputGroup>
       <EnvMapEditor node={props.node} />
-      <InputGroup name="Override Audio Settings" label={t('editor:properties.scene.lbl-audioSettings')}>
-        <BooleanInput
-          value={audioComponent.usePositionalAudio}
-          onChange={updateProperty(PositionalAudioSettingsComponent, 'usePositionalAudio')}
+      <InputGroup
+        name="Media Distance Model"
+        label={t('editor:properties.scene.lbl-mediaDistanceModel')}
+        info={t('editor:properties.scene.info-mediaDistanceModel')}
+      >
+        <SelectInput
+          key={props.node.entity}
+          options={DistanceModelOptions}
+          value={audioComponent.distanceModel}
+          onChange={updateProperty(PositionalAudioSettingsComponent, 'distanceModel')}
         />
       </InputGroup>
-      {audioComponent.usePositionalAudio && (
-        <>
-          <InputGroup
-            name="Avatar Distance Model"
-            label={t('editor:properties.scene.lbl-avatarDistanceModel')}
-            info={t('editor:properties.scene.info-avatarDistanceModel')}
-          >
-            <SelectInput
-              key={props.node.entity}
-              options={DistanceModelOptions}
-              value={audioComponent.avatarDistanceModel}
-              onChange={updateProperty(PositionalAudioSettingsComponent, 'avatarDistanceModel')}
-            />
-          </InputGroup>
 
-          {audioComponent.avatarDistanceModel === DistanceModel.Linear ? (
-            <InputGroup
-              name="Avatar Rolloff Factor"
-              label={t('editor:properties.scene.lbl-avatarRolloffFactor')}
-              info={t('editor:properties.scene.info-avatarRolloffFactor')}
-            >
-              <CompoundNumericInput
-                min={0}
-                max={1}
-                smallStep={0.001}
-                mediumStep={0.01}
-                largeStep={0.1}
-                value={audioComponent.avatarRolloffFactor}
-                onChange={updateProperty(PositionalAudioSettingsComponent, 'avatarRolloffFactor')}
-              />
-            </InputGroup>
-          ) : (
-            <NumericInputGroup
-              name="Avatar Rolloff Factor"
-              label={t('editor:properties.scene.lbl-avatarRolloffFactor')}
-              info={t('editor:properties.scene.info-avatarRolloffFactorInifinity')}
-              min={0}
-              smallStep={0.1}
-              mediumStep={1}
-              largeStep={10}
-              value={audioComponent.avatarRolloffFactor}
-              onChange={updateProperty(PositionalAudioSettingsComponent, 'avatarRolloffFactor')}
-            />
-          )}
-          <NumericInputGroup
-            name="Avatar Ref Distance"
-            label={t('editor:properties.scene.lbl-avatarRefDistance')}
-            info={t('editor:properties.scene.info-avatarRefDistance')}
+      {audioComponent.distanceModel === DistanceModel.Linear ? (
+        <InputGroup
+          name="Media Rolloff Factor"
+          label={t('editor:properties.scene.lbl-mediaRolloffFactor')}
+          info={t('editor:properties.scene.info-mediaRolloffFactor')}
+        >
+          <CompoundNumericInput
             min={0}
-            smallStep={0.1}
-            mediumStep={1}
-            largeStep={10}
-            value={audioComponent.avatarRefDistance}
-            onChange={updateProperty(PositionalAudioSettingsComponent, 'avatarRefDistance')}
-            unit="m"
+            max={1}
+            smallStep={0.001}
+            mediumStep={0.01}
+            largeStep={0.1}
+            value={audioComponent.rolloffFactor}
+            onChange={updateProperty(PositionalAudioSettingsComponent, 'rolloffFactor')}
           />
-          <NumericInputGroup
-            name="Avatar Max Distance"
-            label={t('editor:properties.scene.lbl-avatarMaxDistance')}
-            info={t('editor:properties.scene.info-avatarMaxDistance')}
-            min={0}
-            smallStep={0.1}
-            mediumStep={1}
-            largeStep={10}
-            value={audioComponent.avatarMaxDistance}
-            onChange={updateProperty(PositionalAudioSettingsComponent, 'avatarMaxDistance')}
-            unit="m"
-          />
-          <InputGroup name="Media Volume" label={t('editor:properties.scene.lbl-mediaVolume')}>
-            <CompoundNumericInput
-              value={audioComponent.mediaVolume}
-              onChange={updateProperty(PositionalAudioSettingsComponent, 'mediaVolume')}
-            />
-          </InputGroup>
-          <InputGroup
-            name="Media Distance Model"
-            label={t('editor:properties.scene.lbl-mediaDistanceModel')}
-            info={t('editor:properties.scene.info-mediaDistanceModel')}
-          >
-            <SelectInput
-              key={props.node.entity}
-              options={DistanceModelOptions}
-              value={audioComponent.mediaDistanceModel}
-              onChange={updateProperty(PositionalAudioSettingsComponent, 'mediaDistanceModel')}
-            />
-          </InputGroup>
-
-          {audioComponent.mediaDistanceModel === DistanceModel.Linear ? (
-            <InputGroup
-              name="Media Rolloff Factor"
-              label={t('editor:properties.scene.lbl-mediaRolloffFactor')}
-              info={t('editor:properties.scene.info-mediaRolloffFactor')}
-            >
-              <CompoundNumericInput
-                min={0}
-                max={1}
-                smallStep={0.001}
-                mediumStep={0.01}
-                largeStep={0.1}
-                value={audioComponent.mediaRolloffFactor}
-                onChange={updateProperty(PositionalAudioSettingsComponent, 'mediaRolloffFactor')}
-              />
-            </InputGroup>
-          ) : (
-            <NumericInputGroup
-              name="Media Rolloff Factor"
-              label={t('editor:properties.scene.lbl-mediaRolloffFactor')}
-              info={t('editor:properties.scene.info-mediaRolloffFactorInfinity')}
-              min={0}
-              smallStep={0.1}
-              mediumStep={1}
-              largeStep={10}
-              value={audioComponent.mediaRolloffFactor}
-              onChange={updateProperty(PositionalAudioSettingsComponent, 'mediaRolloffFactor')}
-            />
-          )}
-          <NumericInputGroup
-            name="Media Ref Distance"
-            label={t('editor:properties.scene.lbl-mediaRefDistance')}
-            info={t('editor:properties.scene.info-mediaRefDistance')}
-            min={0}
-            smallStep={0.1}
-            mediumStep={1}
-            largeStep={10}
-            value={audioComponent.mediaRefDistance}
-            onChange={updateProperty(PositionalAudioSettingsComponent, 'mediaRefDistance')}
-            unit="m"
-          />
-          <NumericInputGroup
-            name="Media Max Distance"
-            label={t('editor:properties.scene.lbl-mediaMaxDistance')}
-            info={t('editor:properties.scene.info-mediaMaxDistance')}
-            min={0}
-            smallStep={0.1}
-            mediumStep={1}
-            largeStep={10}
-            value={audioComponent.mediaMaxDistance}
-            onChange={updateProperty(PositionalAudioSettingsComponent, 'mediaMaxDistance')}
-            unit="m"
-          />
-          <NumericInputGroup
-            name="Media Cone Inner Angle"
-            label={t('editor:properties.scene.lbl-mediaConeInnerAngle')}
-            info={t('editor:properties.scene.info-mediaConeInnerAngle')}
-            min={0}
-            max={360}
-            smallStep={0.1}
-            mediumStep={1}
-            largeStep={10}
-            value={audioComponent.mediaConeInnerAngle}
-            onChange={updateProperty(PositionalAudioSettingsComponent, 'mediaConeInnerAngle')}
-            unit="°"
-          />
-          <NumericInputGroup
-            name="Media Cone Outer Angle"
-            label={t('editor:properties.scene.lbl-mediaConeOuterAngle')}
-            info={t('editor:properties.scene.info-mediaConeOuterAngle')}
-            min={0}
-            max={360}
-            smallStep={0.1}
-            mediumStep={1}
-            largeStep={10}
-            value={audioComponent.mediaConeOuterAngle}
-            onChange={updateProperty(PositionalAudioSettingsComponent, 'mediaConeOuterAngle')}
-            unit="°"
-          />
-          <InputGroup
-            name="Media Cone Outer Gain"
-            label={t('editor:properties.scene.lbl-mediaConeOuterGain')}
-            info={t('editor:properties.scene.info-mediaConeOuterGain')}
-          >
-            <CompoundNumericInput
-              min={0}
-              max={1}
-              step={0.01}
-              value={audioComponent.mediaConeOuterGain}
-              onChange={updateProperty(PositionalAudioSettingsComponent, 'mediaConeOuterGain')}
-            />
-          </InputGroup>
-        </>
+        </InputGroup>
+      ) : (
+        <NumericInputGroup
+          name="Media Rolloff Factor"
+          label={t('editor:properties.scene.lbl-mediaRolloffFactor')}
+          info={t('editor:properties.scene.info-mediaRolloffFactorInfinity')}
+          min={0}
+          smallStep={0.1}
+          mediumStep={1}
+          largeStep={10}
+          value={audioComponent.rolloffFactor}
+          onChange={updateProperty(PositionalAudioSettingsComponent, 'rolloffFactor')}
+        />
       )}
+      <NumericInputGroup
+        name="Media Ref Distance"
+        label={t('editor:properties.scene.lbl-mediaRefDistance')}
+        info={t('editor:properties.scene.info-mediaRefDistance')}
+        min={0}
+        smallStep={0.1}
+        mediumStep={1}
+        largeStep={10}
+        value={audioComponent.refDistance}
+        onChange={updateProperty(PositionalAudioSettingsComponent, 'refDistance')}
+        unit="m"
+      />
+      <NumericInputGroup
+        name="Media Max Distance"
+        label={t('editor:properties.scene.lbl-mediaMaxDistance')}
+        info={t('editor:properties.scene.info-mediaMaxDistance')}
+        min={0}
+        smallStep={0.1}
+        mediumStep={1}
+        largeStep={10}
+        value={audioComponent.maxDistance}
+        onChange={updateProperty(PositionalAudioSettingsComponent, 'maxDistance')}
+        unit="m"
+      />
+      <NumericInputGroup
+        name="Media Cone Inner Angle"
+        label={t('editor:properties.scene.lbl-mediaConeInnerAngle')}
+        info={t('editor:properties.scene.info-mediaConeInnerAngle')}
+        min={0}
+        max={360}
+        smallStep={0.1}
+        mediumStep={1}
+        largeStep={10}
+        value={audioComponent.coneInnerAngle}
+        onChange={updateProperty(PositionalAudioSettingsComponent, 'coneInnerAngle')}
+        unit="°"
+      />
+      <NumericInputGroup
+        name="Media Cone Outer Angle"
+        label={t('editor:properties.scene.lbl-mediaConeOuterAngle')}
+        info={t('editor:properties.scene.info-mediaConeOuterAngle')}
+        min={0}
+        max={360}
+        smallStep={0.1}
+        mediumStep={1}
+        largeStep={10}
+        value={audioComponent.coneOuterAngle}
+        onChange={updateProperty(PositionalAudioSettingsComponent, 'coneOuterAngle')}
+        unit="°"
+      />
+      <InputGroup
+        name="Media Cone Outer Gain"
+        label={t('editor:properties.scene.lbl-mediaConeOuterGain')}
+        info={t('editor:properties.scene.info-mediaConeOuterGain')}
+      >
+        <CompoundNumericInput
+          min={0}
+          max={1}
+          step={0.01}
+          value={audioComponent.coneOuterGain}
+          onChange={updateProperty(PositionalAudioSettingsComponent, 'coneOuterGain')}
+        />
+      </InputGroup>
       <InputGroup
         name="Use Simple Materials"
         label={t('editor:properties.scene.lbl-simpleMaterials')}

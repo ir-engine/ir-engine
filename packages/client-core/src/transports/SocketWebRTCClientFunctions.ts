@@ -15,14 +15,17 @@ import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { defineQuery, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { NetworkTopics } from '@xrengine/engine/src/networking/classes/Network'
 import { PUBLIC_STUN_SERVERS } from '@xrengine/engine/src/networking/constants/STUNServers'
-import { CAM_VIDEO_SIMULCAST_ENCODINGS } from '@xrengine/engine/src/networking/constants/VideoConstants'
+import {
+  CAM_VIDEO_SIMULCAST_ENCODINGS,
+  SCREEN_SHARE_SIMULCAST_ENCODINGS
+} from '@xrengine/engine/src/networking/constants/VideoConstants'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
 import { NetworkPeerFunctions } from '@xrengine/engine/src/networking/functions/NetworkPeerFunctions'
 import { JoinWorldRequestData, receiveJoinWorld } from '@xrengine/engine/src/networking/functions/receiveJoinWorld'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 import { ScreenshareTargetComponent } from '@xrengine/engine/src/scene/components/ScreenshareTargetComponent'
 import { fitTexture } from '@xrengine/engine/src/scene/functions/fitTexture'
-import { addActionReceptor, dispatchAction, removeActionReceptor, removeTopic } from '@xrengine/hyperflux'
+import { addActionReceptor, dispatchAction, removeActionReceptor, removeActionsForTopic } from '@xrengine/hyperflux'
 import { Action } from '@xrengine/hyperflux/functions/ActionFunctions'
 
 import { LocationInstanceConnectionAction } from '../common/services/LocationInstanceConnectionService'
@@ -157,7 +160,6 @@ export async function onConnectToWorldInstance(network: SocketWebRTCClientNetwor
   }
 
   function kickHandler(message) {
-    // console.log("TODO: SNACKBAR HERE");
     leaveNetwork(network, true)
     dispatchAction(NetworkConnectionService.actions.worldInstanceKicked({ message }))
     logger.info('Client has been kicked from the world')
@@ -174,11 +176,10 @@ export async function onConnectToWorldInstance(network: SocketWebRTCClientNetwor
   async function disconnectHandler() {
     dispatchAction(NetworkConnectionService.actions.worldInstanceDisconnected({}))
     dispatchAction(EngineActions.connectToWorld({ connectedWorld: false }))
-    network.reconnecting = true
-
-    // Get information for how to consume data from server and init a data consumer
+    dispatchAction(NetworkConnectionService.actions.worldInstanceDisconnected({}))
     network.socket.off(MessageTypes.WebRTCConsumeData.toString(), consumeDataHandler)
     network.socket.off(MessageTypes.Kick.toString(), kickHandler)
+    removeActionReceptor(consumeDataHandler)
   }
 
   network.socket.on('disconnect', disconnectHandler)
@@ -303,7 +304,6 @@ export async function onConnectToMediaInstance(network: SocketWebRTCClientNetwor
     network.consumers.forEach((consumer) => closeConsumer(network, consumer))
     network.socket.off(MessageTypes.WebRTCCreateProducer.toString(), webRTCCreateProducerHandler)
     dispatchAction(NetworkConnectionService.actions.mediaInstanceDisconnected({}))
-    network.reconnecting = true
     network.socket.off(MessageTypes.WebRTCPauseConsumer.toString(), webRTCPauseConsumerHandler)
     network.socket.off(MessageTypes.WebRTCResumeConsumer.toString(), webRTCResumeConsumerHandler)
     network.socket.off(MessageTypes.WebRTCCloseConsumer.toString(), webRTCCloseConsumerHandler)
@@ -364,8 +364,6 @@ export async function createTransport(network: SocketWebRTCClientNetwork, direct
   // us back the info we need to create a client-side transport
   let transport: MediaSoupTransport
 
-  // console.log('Requesting transport creation', direction, channelType, channelId)
-
   const { transportOptions } = await network.request(MessageTypes.WebRTCTransportCreate.toString(), {
     direction,
     sctpCapabilities: network.mediasoupDevice.sctpCapabilities,
@@ -382,7 +380,6 @@ export async function createTransport(network: SocketWebRTCClientNetwork, direct
   // start flowing for the first time. send dtlsParameters to the
   // server, then call callback() on success or errback() on failure.
   transport.on('connect', async ({ dtlsParameters }: any, callback: () => void, errback: () => void) => {
-    // console.log('\n\n\n\nWebRTCTransportConnect', direction, dtlsParameters, transportOptions, '\n\n\n')
     const connectResult = await network.request(MessageTypes.WebRTCTransportConnect.toString(), {
       transportId: transportOptions.id,
       dtlsParameters
@@ -470,10 +467,10 @@ export async function createTransport(network: SocketWebRTCClientNetwork, direct
           : NetworkConnectionService.actions.mediaInstanceDisconnected({})
       )
       logger.error(new Error(`Transport ${transport} transitioned to state ${state}.`))
-      console.error(
+      logger.error(
         'If this occurred unexpectedly shortly after joining a world, check that the instanceserver nodegroup has public IP addresses.'
       )
-      console.log('Waiting 5 seconds to make a new transport')
+      logger.info('Waiting 5 seconds to make a new transport')
       setTimeout(async () => {
         logger.info('Re-creating transport after unexpected closing/fail/disconnect %o', {
           direction,
@@ -488,15 +485,7 @@ export async function createTransport(network: SocketWebRTCClientNetwork, direct
             : NetworkConnectionService.actions.mediaInstanceReconnected({})
         )
       }, 5000)
-      // await request(MessageTypes.WebRTCTransportClose.toString(), {transportId: transport.id});
     }
-    // if (state === 'connected' && transport.direction === 'recv') {
-    //   console.log('requesting current producers for', channelType, channelId)
-    //   await request(MessageTypes.WebRTCRequestCurrentProducers.toString(), {
-    //     channelType: channelType,
-    //     channelId: channelId
-    //   })
-    // }
   })
   ;(transport as any).channelType = channelType
   ;(transport as any).channelId = channelId
@@ -623,7 +612,7 @@ export async function createCamAudioProducer(network: SocketWebRTCClientNetwork)
     const gainNode = ctx.createGain()
     gainNode.gain.value = 1
     ;[src, gainNode, dst].reduce((a, b) => a && (a.connect(b) as any))
-    MediaStreams.instance.audioGainNode = gainNode
+    MediaStreams.instance.microphoneGainNode = gainNode
     MediaStreams.instance.audioStream.removeTrack(audioTrack)
     MediaStreams.instance.audioStream.addTrack(dst.stream.getAudioTracks()[0])
     // same thing for audio, but we can use our already-created
@@ -781,6 +770,8 @@ export async function subscribeToTrack(network: SocketWebRTCClientNetwork, peerI
     paused: true
   })
 
+  ;(consumer as any).producerPaused = consumerParameters.producerPaused
+
   // if we do already have a consumer, we shouldn't have called this method
   const existingConsumer = network.consumers?.find(
     (c) => c?.appData?.peerId === peerId && c?.appData?.mediaTag === mediaTag
@@ -788,12 +779,14 @@ export async function subscribeToTrack(network: SocketWebRTCClientNetwork, peerI
   if (existingConsumer == null) {
     network.consumers.push(consumer)
     // okay, we're ready. let's ask the peer to send us media
-    await resumeConsumer(network, consumer)
+    if (!(consumer as any).producerPaused) await resumeConsumer(network, consumer)
+    else await pauseConsumer(network, consumer)
   } else if (existingConsumer?.track?.muted) {
     await closeConsumer(network, existingConsumer)
     network.consumers.push(consumer)
     // okay, we're ready. let's ask the peer to send us media
-    await resumeConsumer(network, consumer)
+    if (!(consumer as any).producerPaused) await resumeConsumer(network, consumer)
+    else await pauseConsumer(network, consumer)
   } else await closeConsumer(network, consumer)
 
   dispatchAction(MediaStreams.actions.triggerUpdateConsumers({}))
@@ -931,7 +924,7 @@ export function leaveNetwork(network: SocketWebRTCClientNetwork, kicked?: boolea
         }
       }
     }
-    removeTopic(network.hostId)
+    removeActionsForTopic(network.hostId)
   } catch (err) {
     logger.error(err, 'Error with leave()')
   }
@@ -955,12 +948,12 @@ export const startScreenshare = async (network: SocketWebRTCClientNetwork) => {
   const channelId = currentChannelInstanceConnection.channelId.value
 
   // create a producer for video
+  MediaStreams.instance.setScreenShareVideoPaused(false)
   MediaStreams.instance.screenVideoProducer = await network.sendTransport.produce({
     track: MediaStreams.instance.localScreen.getVideoTracks()[0],
-    encodings: [], // TODO: Add me
+    encodings: SCREEN_SHARE_SIMULCAST_ENCODINGS,
     appData: { mediaTag: 'screen-video', channelType: channelType, channelId: channelId }
   })
-  MediaStreams.instance.setScreenShareVideoPaused(false)
 
   // create a producer for audio, if we have it
   if (MediaStreams.instance.localScreen.getAudioTracks().length) {
@@ -984,6 +977,7 @@ export const startScreenshare = async (network: SocketWebRTCClientNetwork) => {
 export const stopScreenshare = async (network: SocketWebRTCClientNetwork) => {
   logger.info('Screen share stopped')
   await MediaStreams.instance.screenVideoProducer.pause()
+  MediaStreams.instance.setScreenShareVideoPaused(true)
 
   const { error } = await network.request(MessageTypes.WebRTCCloseProducer.toString(), {
     producerId: MediaStreams.instance.screenVideoProducer.id
@@ -993,7 +987,6 @@ export const stopScreenshare = async (network: SocketWebRTCClientNetwork) => {
 
   await MediaStreams.instance.screenVideoProducer.close()
   MediaStreams.instance.screenVideoProducer = null
-  MediaStreams.instance.setScreenShareVideoPaused(true)
 
   if (MediaStreams.instance.screenAudioProducer) {
     const { error: screenAudioProducerError } = await network.request(MessageTypes.WebRTCCloseProducer.toString(), {

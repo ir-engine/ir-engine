@@ -1,5 +1,5 @@
 import { Paginated } from '@feathersjs/feathers'
-import { useState } from '@speigg/hookstate'
+import { useState } from '@hookstate/core'
 import { useEffect } from 'react'
 
 import { Instance } from '@xrengine/common/src/interfaces/Instance'

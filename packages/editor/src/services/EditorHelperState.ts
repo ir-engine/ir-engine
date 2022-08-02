@@ -1,4 +1,4 @@
-import { useState } from '@speigg/hookstate'
+import { useState } from '@hookstate/core'
 
 import { ClientStorage } from '@xrengine/engine/src/common/classes/ClientStorage'
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
@@ -12,14 +12,7 @@ import {
   TransformPivotType,
   TransformSpace
 } from '@xrengine/engine/src/scene/constants/transformConstants'
-import {
-  addActionReceptor,
-  defineAction,
-  defineState,
-  dispatchAction,
-  getState,
-  registerState
-} from '@xrengine/hyperflux'
+import { defineAction, defineState, dispatchAction, getState } from '@xrengine/hyperflux'
 
 import { EditorHelperKeys } from '../constants/EditorHelperKeys'
 import { SceneState } from '../functions/sceneRenderFunctions'
@@ -93,58 +86,57 @@ function updateHelpers(): void {
 }
 
 export const EditorHelperServiceReceptor = (action): any => {
-  getState(EditorHelperState).batch((s) => {
-    matches(action)
-      .when(EditorHelperAction.changedPlayMode.matches, (action) => {
-        return s.merge({ isPlayModeEnabled: action.isPlayModeEnabled })
-      })
-      .when(EditorHelperAction.changedFlyMode.matches, (action) => {
-        return s.merge({ isFlyModeEnabled: action.isFlyModeEnabled })
-      })
-      .when(EditorHelperAction.changedTransformMode.matches, (action) => {
-        s.merge({ transformMode: action.mode })
-        ClientStorage.set(EditorHelperKeys.TRANSFORM_MODE, action.mode)
-        return s
-      })
-      .when(EditorHelperAction.changeTransformModeOnCancel.matches, (action) => {
-        return s.merge({ transformModeOnCancel: action.mode })
-      })
-      .when(EditorHelperAction.changedTransformSpaceMode.matches, (action) => {
-        s.merge({ transformSpace: action.transformSpace })
-        ClientStorage.set(EditorHelperKeys.TRANSFORM_SPACE, action.transformSpace)
-        return s
-      })
-      .when(EditorHelperAction.changedTransformPivotMode.matches, (action) => {
-        s.merge({ transformPivot: action.transformPivot })
-        ClientStorage.set(EditorHelperKeys.TRANSFORM_PIVOT, action.transformPivot)
-        return s
-      })
-      .when(EditorHelperAction.changedSnapMode.matches, (action) => {
-        s.merge({ snapMode: action.snapMode })
-        ClientStorage.set(EditorHelperKeys.SNAP_MODE, action.snapMode)
-        return s
-      })
-      .when(EditorHelperAction.changeTranslationSnap.matches, (action) => {
-        s.merge({ translationSnap: action.translationSnap })
-        ClientStorage.set(EditorHelperKeys.TRANSLATION_SNAP, action.translationSnap)
-        return s
-      })
-      .when(EditorHelperAction.changeRotationSnap.matches, (action) => {
-        s.merge({ rotationSnap: action.rotationSnap })
-        ClientStorage.set(EditorHelperKeys.ROTATION_SNAP, action.rotationSnap)
-        return s
-      })
-      .when(EditorHelperAction.changeScaleSnap.matches, (action) => {
-        s.merge({ scaleSnap: action.scaleSnap })
-        ClientStorage.set(EditorHelperKeys.SCALE_SNAP, action.scaleSnap)
-        return s
-      })
-      .when(EditorHelperAction.restoreStorageData.matches, (action) => {
-        s.merge(action.state)
-        updateHelpers()
-        return s
-      })
-  })
+  const s = getState(EditorHelperState)
+  matches(action)
+    .when(EditorHelperAction.changedPlayMode.matches, (action) => {
+      return s.merge({ isPlayModeEnabled: action.isPlayModeEnabled })
+    })
+    .when(EditorHelperAction.changedFlyMode.matches, (action) => {
+      return s.merge({ isFlyModeEnabled: action.isFlyModeEnabled })
+    })
+    .when(EditorHelperAction.changedTransformMode.matches, (action) => {
+      s.merge({ transformMode: action.mode })
+      ClientStorage.set(EditorHelperKeys.TRANSFORM_MODE, action.mode)
+      return s
+    })
+    .when(EditorHelperAction.changeTransformModeOnCancel.matches, (action) => {
+      return s.merge({ transformModeOnCancel: action.mode })
+    })
+    .when(EditorHelperAction.changedTransformSpaceMode.matches, (action) => {
+      s.merge({ transformSpace: action.transformSpace })
+      ClientStorage.set(EditorHelperKeys.TRANSFORM_SPACE, action.transformSpace)
+      return s
+    })
+    .when(EditorHelperAction.changedTransformPivotMode.matches, (action) => {
+      s.merge({ transformPivot: action.transformPivot })
+      ClientStorage.set(EditorHelperKeys.TRANSFORM_PIVOT, action.transformPivot)
+      return s
+    })
+    .when(EditorHelperAction.changedSnapMode.matches, (action) => {
+      s.merge({ snapMode: action.snapMode })
+      ClientStorage.set(EditorHelperKeys.SNAP_MODE, action.snapMode)
+      return s
+    })
+    .when(EditorHelperAction.changeTranslationSnap.matches, (action) => {
+      s.merge({ translationSnap: action.translationSnap })
+      ClientStorage.set(EditorHelperKeys.TRANSLATION_SNAP, action.translationSnap)
+      return s
+    })
+    .when(EditorHelperAction.changeRotationSnap.matches, (action) => {
+      s.merge({ rotationSnap: action.rotationSnap })
+      ClientStorage.set(EditorHelperKeys.ROTATION_SNAP, action.rotationSnap)
+      return s
+    })
+    .when(EditorHelperAction.changeScaleSnap.matches, (action) => {
+      s.merge({ scaleSnap: action.scaleSnap })
+      ClientStorage.set(EditorHelperKeys.SCALE_SNAP, action.scaleSnap)
+      return s
+    })
+    .when(EditorHelperAction.restoreStorageData.matches, (action) => {
+      s.merge(action.state)
+      updateHelpers()
+      return s
+    })
 }
 
 export const accessEditorHelperState = () => getState(EditorHelperState)

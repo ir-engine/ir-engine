@@ -1,4 +1,4 @@
-import { createState } from '@speigg/hookstate'
+import { createState } from '@hookstate/core'
 import React, { useEffect, useState } from 'react'
 
 import { useXRUIState } from '@xrengine/engine/src/xrui/functions/useXRUIState'
@@ -7,15 +7,19 @@ import { Pause, PlayArrow } from '@mui/icons-material'
 
 import { Entity } from '../../ecs/classes/Entity'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
-import { MediaComponent, MediaComponentType } from '../../scene/components/MediaComponent'
+import { MediaElementComponent } from '../../scene/components/MediaElementComponent'
 import { createXRUI } from '../../xrui/functions/createXRUI'
 
-export function createMediaControlsView(data: MediaComponentType, entity: Entity) {
+type Props = {
+  playing: boolean
+}
+
+export function createMediaControlsView(data: Props, entity: Entity) {
   const MediaControls = () => <MediaControlsView entity={entity} />
   return createXRUI(MediaControls, createMediaControlsState(data))
 }
 
-function createMediaControlsState(data: MediaComponentType) {
+function createMediaControlsState(data: Props) {
   return createState({
     playing: data.playing,
     mouseOver: false
@@ -30,19 +34,19 @@ type MediaControlsProps = {
 
 const MediaControlsView = (props: MediaControlsProps) => {
   const detailState = useXRUIState() as MediaControlsState
-  const mediaComponent = getComponent(props.entity, MediaComponent)
+  const mediaComponent = getComponent(props.entity, MediaElementComponent)
 
   useEffect(() => {
-    mediaComponent.el?.addEventListener('playing', () => {
+    mediaComponent.addEventListener('playing', () => {
       detailState.merge({ playing: true })
     })
-    mediaComponent.el?.addEventListener('pause', () => {
+    mediaComponent.addEventListener('pause', () => {
       detailState.merge({ playing: false })
     })
   }, [])
 
   const buttonClick = () => {
-    detailState.playing.value ? mediaComponent.el?.pause() : mediaComponent.el?.play()
+    detailState.playing.value ? mediaComponent?.pause() : mediaComponent?.play()
   }
 
   return (

@@ -23,8 +23,9 @@ export const FileBrowserState = defineState({
 })
 
 export const FileBrowserServiceReceptor = (action) => {
-  getState(FileBrowserState).batch((s) => {
-    matches(action).when(FileBrowserAction.filesFetched.matches, (action) => {
+  const s = getState(FileBrowserState)
+  matches(action)
+    .when(FileBrowserAction.filesFetched.matches, (action) => {
       return s.merge({
         files: action.files.data,
         skip: action.files.skip,
@@ -35,13 +36,12 @@ export const FileBrowserServiceReceptor = (action) => {
         updateNeeded: false,
         lastFetched: Date.now()
       })
-    }),
-      matches(action).when(FileBrowserAction.filesFetching.matches, () => {
-        return s.merge({
-          retrieving: true
-        })
+    })
+    .when(FileBrowserAction.filesFetching.matches, () => {
+      return s.merge({
+        retrieving: true
       })
-  })
+    })
 }
 
 export const accessFileBrowserState = () => getState(FileBrowserState)
