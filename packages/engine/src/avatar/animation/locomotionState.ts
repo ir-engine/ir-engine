@@ -4,8 +4,6 @@ import { AnimationState, fadeOutAnimationStateActions } from './AnimationState'
 import { BlendSpace1D, updateBlendSpace1D } from './BlendSpace1D'
 import { DistanceMatchingAction, updateDistanceMatchingAction, updateFollowerAction } from './DistanceMatchingAction'
 
-const frameSpeed = 1 / 60
-
 export type LocomotionState = AnimationState & {
   type: 'LocomotionState'
   yAxisBlendSpace: BlendSpace1D
@@ -75,7 +73,7 @@ function updateNodes(state: LocomotionState, xNodes: any[], yNodes: any[]): void
 
 export function updateLocomotionStateBlendValues(state: LocomotionState, delta: number) {
   const velocity = state.locomotion
-  state.blendValue.set(velocity.x, velocity.z).divideScalar(frameSpeed)
+  state.blendValue.set(velocity.x, velocity.z)
   state.frameBlendValue.copy(state.blendValue).multiplyScalar(delta)
 }
 

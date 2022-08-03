@@ -16,11 +16,7 @@ import { addComponent, getComponent, hasComponent } from '../../ecs/functions/Co
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { XRInputSourceComponent } from '../../xr/XRComponents'
-import {
-  AvatarSettings,
-  rotateBodyTowardsCameraDirection,
-  rotateBodyTowardsVelocityVector
-} from '../AvatarControllerSystem'
+import { AvatarSettings, rotateBodyTowardsCameraDirection, rotateBodyTowardsVector } from '../AvatarControllerSystem'
 import { AvatarAnimationComponent } from '../components/AvatarAnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
@@ -46,7 +42,6 @@ const degrees60 = (60 * Math.PI) / 180
 export const moveLocalAvatar = (entity: Entity) => {
   const camera = Engine.instance.currentWorld.camera
   const timeStep = getState(EngineState).fixedDeltaSeconds.value
-  const velocity = getComponent(entity, VelocityComponent)
   const controller = getComponent(entity, AvatarControllerComponent)
 
   let onGround = false
@@ -79,7 +74,7 @@ export const moveLocalAvatar = (entity: Entity) => {
   const moveSpeed = controller.isWalking ? AvatarSettings.instance.walkSpeed : AvatarSettings.instance.runSpeed
   controller.currentSpeed = smoothDamp(controller.currentSpeed, moveSpeed, controller.speedVelocity, 0.1, timeStep)
 
-  const prevVelocity = velocity.linear
+  const prevVelocity = controller.body.linvel()
   const currentVelocity = tempVec1
     .copy(velocityScale)
     .multiplyScalar(controller.currentSpeed)
@@ -100,21 +95,13 @@ export const moveLocalAvatar = (entity: Entity) => {
     currentVelocity.y = prevVelocity.y - 9.8 * timeStep
   }
 
-  velocity.linear.copy(currentVelocity)
-  controller.body.setLinvel(velocity.linear, true)
+  controller.body.setLinvel(currentVelocity, true)
 
   if (hasComponent(entity, AvatarHeadDecapComponent)) rotateBodyTowardsCameraDirection(entity)
-  else rotateBodyTowardsVelocityVector(entity)
+  else rotateBodyTowardsVector(entity, currentVelocity)
 
   // TODO: implement scene lower bounds parameter
   if (controller.body.translation().y < -10) respawnAvatar(entity)
-
-  // this only affects animation blending
-  // TODO: move this to avatar animation system
-  const animation = getComponent(entity, AvatarAnimationComponent)
-  animation.locomotion.x = 0
-  animation.locomotion.y = currentVelocity.y
-  animation.locomotion.z = tempVec1.copy(currentVelocity).setComponent(1, 0).length() * timeStep
 
   // const cameraPosition = camera.position
   // const avatarPosition = tempVec1

@@ -8,6 +8,7 @@ import { World } from '../ecs/classes/World'
 import { defineQuery, getComponent, hasComponent } from '../ecs/functions/ComponentFunctions'
 import { NetworkObjectComponent } from '../networking/components/NetworkObjectComponent'
 import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
+import { VelocityComponent } from '../physics/components/VelocityComponent'
 import { DesiredTransformComponent } from '../transform/components/DesiredTransformComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { TweenComponent } from '../transform/components/TweenComponent'
@@ -29,6 +30,7 @@ const euler1YXZ = new Euler()
 euler1YXZ.order = 'YXZ'
 const euler2YXZ = new Euler()
 euler2YXZ.order = 'YXZ'
+const _vector3 = new Vector3()
 
 export function animationActionReceptor(
   action: ReturnType<typeof WorldNetworkAction.avatarAnimation>,
@@ -103,6 +105,13 @@ export default async function AnimationSystem(world: World) {
       const animationComponent = getComponent(entity, AnimationComponent)
       const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
       const deltaTime = delta * animationComponent.animationSpeed
+      const velocity = getComponent(entity, VelocityComponent)
+
+      // TODO: use x for side-stepping when full 2D blending spaces are implemented
+      avatarAnimationComponent.locomotion.x = 0
+      avatarAnimationComponent.locomotion.y = velocity.linear.y
+      avatarAnimationComponent.locomotion.z = _vector3.copy(velocity.linear).setComponent(1, 0).length()
+
       updateAnimationGraph(avatarAnimationComponent.animationGraph, deltaTime)
 
       const rootBone = animationComponent.mixer.getRoot() as Bone
