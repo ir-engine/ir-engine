@@ -270,7 +270,7 @@ export const initializeSceneSystems = async () => {
       },
       {
         type: SystemUpdateType.PRE_RENDER,
-        systemModulePromise: import('./particles/systems/ParticleSystem')
+        systemModulePromise: import('./scene/systems/ParticleSystem')
       },
       {
         type: SystemUpdateType.PRE_RENDER,

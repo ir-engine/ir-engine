@@ -4,8 +4,8 @@ import { useTranslation } from 'react-i18next'
 import * as EasingFunctions from '@xrengine/engine/src/common/functions/EasingFunctions'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { ParticleEmitterComponent } from '@xrengine/engine/src/particles/components/ParticleEmitter'
 import { ErrorComponent } from '@xrengine/engine/src/scene/components/ErrorComponent'
+import { ParticleEmitterComponent } from '@xrengine/engine/src/scene/components/ParticleEmitterComponent'
 
 import GrainIcon from '@mui/icons-material/Grain'
 

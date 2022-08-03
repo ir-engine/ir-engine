@@ -1,4 +1,28 @@
-import { Color, ShaderMaterial, Vector3 } from 'three'
+import * as THREE from 'three'
+import { AdditiveBlending, Object3D, Sprite, SpriteMaterial } from 'three'
+import System, {
+  Alpha,
+  Body,
+  Color,
+  ease,
+  Emitter,
+  Gravity,
+  Life,
+  Mass,
+  PointZone,
+  Position,
+  RadialVelocity,
+  Radius,
+  RandomDrift,
+  Rate,
+  Rotate,
+  Scale,
+  Span,
+  SphereZone,
+  SpriteRenderer,
+  Vector3D,
+  Velocity
+} from 'three-nebula'
 
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
@@ -8,14 +32,13 @@ import {
   ComponentSerializeFunction,
   ComponentUpdateFunction
 } from '../../../common/constants/PrefabFunctionType'
-import { isClient } from '../../../common/functions/isClient'
+import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
-import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
-import { ParticleEmitterComponent } from '../../../particles/components/ParticleEmitter'
-import { ParticleEmitterMesh } from '../../../particles/functions/ParticleEmitterMesh'
-import { EntityNodeComponent } from '../../components/EntityNodeComponent'
-import { Object3DComponent } from '../../components/Object3DComponent'
-import { RenderedComponent } from '../../components/RenderedComponent'
+import { addComponent, getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
+import UpdateableObject3D from '../../classes/UpdateableObject3D'
+import { Object3DComponent, Object3DWithEntity } from '../../components/Object3DComponent'
+import { ParticleEmitterComponentType } from '../../components/ParticleEmitterComponent'
+import { UpdatableComponent } from '../../components/UpdatableComponent'
 
 export const SCENE_COMPONENT_PARTICLE_EMITTER = 'particle-emitter'
 export const SCENE_COMPONENT_PARTICLE_EMITTER_DEFAULT_VALUES = {
@@ -41,96 +64,81 @@ export const SCENE_COMPONENT_PARTICLE_EMITTER_DEFAULT_VALUES = {
   sizeCurve: 'linear'
 }
 
-// todo: add a directional plane helper via another component
+const initializeParticleSystem = async (entity: Entity) => {
+  const map = await AssetLoader.loadAsync('/static/editor/dot.png')
+  const createSprite = () => {
+    const material = new SpriteMaterial({
+      map,
+      color: 0xf00,
+      blending: AdditiveBlending,
+      fog: true
+    })
+    return new Sprite(material)
+  }
+
+  const createEmitter = () => {
+    const emitter = new Emitter()
+    return emitter
+      .setRate(new Rate(new Span(10, 15), new Span(0.05, 0.1)))
+      .addInitializers([
+        new Body(createSprite()),
+        new Mass(1),
+        new Life(1, 3),
+        new Position(new SphereZone(20)),
+        new RadialVelocity(new Span(500, 800), new Vector3D(0, 1, 0), 30)
+      ])
+      .addBehaviours([
+        new RandomDrift(10, 10, 10, 0.05),
+        new Scale(new Span(2, 3.5), 0),
+        new Gravity(6),
+        new Color('#FF0026', ['#ffff00', '#ffff11'], Infinity, ease.easeOutSine)
+      ])
+      .setPosition({ x: 0, y: -150 })
+      .emit()
+  }
+  const world = Engine.instance.currentWorld
+  const system = new System()
+  system.addEmitter(createEmitter()).addRenderer(new SpriteRenderer(world.scene, THREE))
+
+  let obj3d = getComponent(entity, Object3DComponent)
+  if (!obj3d) {
+    const val = new Object3D() as Object3DWithEntity
+    val.entity = entity
+    world.scene.add(val)
+    obj3d = addComponent(entity, Object3DComponent, { value: val })
+  }
+  const val = obj3d.value as UpdateableObject3D
+
+  val.update = (dt) => system.update()
+  if (!hasComponent(entity, UpdatableComponent)) {
+    addComponent(entity, UpdatableComponent, {})
+  }
+}
 
 export const deserializeParticleEmitter: ComponentDeserializeFunction = (
   entity: Entity,
-  json: ComponentJson<typeof SCENE_COMPONENT_PARTICLE_EMITTER_DEFAULT_VALUES>
+  json: ComponentJson<ParticleEmitterComponentType>
 ) => {
-  if (!isClient) return
-
-  const props = parseParticleEmitterProperties(json.props)
-
-  const texture = AssetLoader.getFromCache(props.src)
-  const mesh = new ParticleEmitterMesh(props, texture)
-  addComponent(entity, ParticleEmitterComponent, mesh)
-  addComponent(entity, Object3DComponent, { value: mesh })
-  addComponent(entity, RenderedComponent, {})
-
-  getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_PARTICLE_EMITTER)
+  updateParticleEmitter(entity, {})
 }
 
-export const updateParticleEmitter: ComponentUpdateFunction = (entity: Entity, props: any): void => {
-  if (props.src) {
-    const texture = AssetLoader.getFromCache(props.src)
-    const component = getComponent(entity, ParticleEmitterComponent)
-    ;(component.material as ShaderMaterial).uniforms.map.value = texture
-    component.updateParticles()
-    // removeError(entity, 'error')
-    // },
-    //   undefined,
-    //   (error) => {
-    //     addError(entity, 'error', error.message)
-    //   }
-  }
+export const updateParticleEmitter: ComponentUpdateFunction = (
+  entity: Entity,
+  properties: ParticleEmitterComponentType
+) => {
+  initializeParticleSystem(entity)
 }
 
-export const serializeParticleEmitter: ComponentSerializeFunction = (entity) => {
-  const particleEmitterComponent = getComponent(entity, ParticleEmitterComponent)
+export const serializeParticleEmitter: ComponentSerializeFunction = (entity: Entity) => {
   return {
     name: SCENE_COMPONENT_PARTICLE_EMITTER,
-    props: {
-      src: particleEmitterComponent.src,
-      startColor: particleEmitterComponent.startColor.getHex(),
-      middleColor: particleEmitterComponent.middleColor.getHex(),
-      endColor: particleEmitterComponent.endColor.getHex(),
-      startOpacity: particleEmitterComponent.startOpacity,
-      middleOpacity: particleEmitterComponent.middleOpacity,
-      endOpacity: particleEmitterComponent.endOpacity,
-      colorCurve: particleEmitterComponent.colorCurve,
-      sizeCurve: particleEmitterComponent.sizeCurve,
-      startSize: particleEmitterComponent.startSize,
-      endSize: particleEmitterComponent.endSize,
-      sizeRandomness: particleEmitterComponent.sizeRandomness,
-      ageRandomness: particleEmitterComponent.ageRandomness,
-      lifetime: particleEmitterComponent.lifetime,
-      lifetimeRandomness: particleEmitterComponent.lifetimeRandomness,
-      particleCount: particleEmitterComponent.particleCount,
-      startVelocity: particleEmitterComponent.startVelocity,
-      endVelocity: particleEmitterComponent.endVelocity,
-      velocityCurve: particleEmitterComponent.velocityCurve,
-      angularVelocity: particleEmitterComponent.angularVelocity
-    }
+    props: {}
   }
 }
 
-const parseParticleEmitterProperties = (props): any => {
-  const result = {
-    src: props.src ?? SCENE_COMPONENT_PARTICLE_EMITTER_DEFAULT_VALUES.src,
-    startSize: props.startSize ?? SCENE_COMPONENT_PARTICLE_EMITTER_DEFAULT_VALUES.startSize,
-    endSize: props.endSize ?? SCENE_COMPONENT_PARTICLE_EMITTER_DEFAULT_VALUES.endSize,
-    sizeRandomness: props.sizeRandomness ?? SCENE_COMPONENT_PARTICLE_EMITTER_DEFAULT_VALUES.sizeRandomness,
-    angularVelocity: props.angularVelocity ?? SCENE_COMPONENT_PARTICLE_EMITTER_DEFAULT_VALUES.angularVelocity,
-    particleCount: props.particleCount ?? SCENE_COMPONENT_PARTICLE_EMITTER_DEFAULT_VALUES.particleCount,
-    lifetime: props.lifetime ?? SCENE_COMPONENT_PARTICLE_EMITTER_DEFAULT_VALUES.lifetime,
-    lifetimeRandomness: props.lifetimeRandomness ?? SCENE_COMPONENT_PARTICLE_EMITTER_DEFAULT_VALUES.lifetimeRandomness,
-    ageRandomness: props.ageRandomness ?? SCENE_COMPONENT_PARTICLE_EMITTER_DEFAULT_VALUES.ageRandomness,
-    startOpacity: props.startOpacity ?? SCENE_COMPONENT_PARTICLE_EMITTER_DEFAULT_VALUES.startOpacity,
-    middleOpacity: props.middleOpacity ?? SCENE_COMPONENT_PARTICLE_EMITTER_DEFAULT_VALUES.middleOpacity,
-    endOpacity: props.endOpacity ?? SCENE_COMPONENT_PARTICLE_EMITTER_DEFAULT_VALUES.endOpacity,
-    colorCurve: props.colorCurve ?? SCENE_COMPONENT_PARTICLE_EMITTER_DEFAULT_VALUES.colorCurve,
-    velocityCurve: props.velocityCurve ?? SCENE_COMPONENT_PARTICLE_EMITTER_DEFAULT_VALUES.velocityCurve,
-    sizeCurve: props.sizeCurve ?? SCENE_COMPONENT_PARTICLE_EMITTER_DEFAULT_VALUES.sizeCurve,
-    endColor: new Color(props.endColor ?? SCENE_COMPONENT_PARTICLE_EMITTER_DEFAULT_VALUES.endColor),
-    middleColor: new Color(props.middleColor ?? SCENE_COMPONENT_PARTICLE_EMITTER_DEFAULT_VALUES.middleColor),
-    startColor: new Color(props.startColor ?? SCENE_COMPONENT_PARTICLE_EMITTER_DEFAULT_VALUES.startColor)
-  } as any
-
-  let tempV3 = props.startVelocity ?? SCENE_COMPONENT_PARTICLE_EMITTER_DEFAULT_VALUES.startVelocity
-  result.startVelocity = new Vector3(tempV3.x, tempV3.y, tempV3.z)
-
-  tempV3 = props.endVelocity ?? SCENE_COMPONENT_PARTICLE_EMITTER_DEFAULT_VALUES.endVelocity
-  result.endVelocity = new Vector3(tempV3.x, tempV3.y, tempV3.z)
-
-  return result
+const parseParticleEmitterProperties = (props): ParticleEmitterComponentType => {
+  return {
+    ...SCENE_COMPONENT_PARTICLE_EMITTER_DEFAULT_VALUES,
+    ...props
+  }
 }
