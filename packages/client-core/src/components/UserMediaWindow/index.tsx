@@ -145,10 +145,16 @@ export const useUserMediaWindowHook = ({ peerId }) => {
     } else {
       const network = Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork
       const videoConsumer = network.consumers?.find(
-        (c) => c.appData.peerId === userId && c.appData.mediaTag === (isScreen ? 'screen-video' : 'cam-video')
+        (c) =>
+          c.appData.peerId === userId &&
+          c.producerId === producerId &&
+          c.appData.mediaTag === (isScreen ? 'screen-video' : 'cam-video')
       )
       const audioConsumer = network.consumers?.find(
-        (c) => c.appData.peerId === userId && c.appData.mediaTag === (isScreen ? 'screen-audio' : 'cam-audio')
+        (c) =>
+          c.appData.peerId === userId &&
+          c.producerId === producerId &&
+          c.appData.mediaTag === (isScreen ? 'screen-audio' : 'cam-audio')
       )
       if (videoConsumer) {
         ;(videoConsumer as any).producerPaused = true
@@ -634,7 +640,15 @@ const UserMediaWindow = ({ peerId }: Props): JSX.Element => {
             <div className={styles['mute-controls']}>
               {videoStream && !videoProducerPaused ? (
                 <Tooltip title={!videoProducerPaused && !videoStreamPaused ? 'Pause Video' : 'Resume Video'}>
-                  <IconButton size="small" className={styles['icon-button']} onClick={toggleVideo}>
+                  <IconButton
+                    size="small"
+                    className={classNames({
+                      [styles['icon-button']]: true,
+                      [styles.mediaOff]: videoStreamPaused,
+                      [styles.mediaOn]: !videoStreamPaused
+                    })}
+                    onClick={toggleVideo}
+                  >
                     {videoStreamPaused ? <VideocamOff /> : <Videocam />}
                   </IconButton>
                 </Tooltip>
@@ -647,7 +661,15 @@ const UserMediaWindow = ({ peerId }: Props): JSX.Element => {
                       : (t('user:person.unmuteForEveryone') as string)
                   }
                 >
-                  <IconButton size="small" className={styles['icon-button']} onClick={toggleGlobalMute}>
+                  <IconButton
+                    size="small"
+                    className={classNames({
+                      [styles['icon-button']]: true,
+                      [styles.mediaOff]: audioProducerGlobalMute,
+                      [styles.mediaOn]: !audioProducerGlobalMute
+                    })}
+                    onClick={toggleGlobalMute}
+                  >
                     {audioProducerGlobalMute ? <VoiceOverOff /> : <RecordVoiceOver />}
                   </IconButton>
                 </Tooltip>
@@ -664,7 +686,15 @@ const UserMediaWindow = ({ peerId }: Props): JSX.Element => {
                       : t('user:person.unmuteThisPerson')) as string
                   }
                 >
-                  <IconButton size="small" className={styles['icon-button']} onClick={toggleAudio}>
+                  <IconButton
+                    size="small"
+                    className={classNames({
+                      [styles['icon-button']]: true,
+                      [styles.mediaOff]: audioStreamPaused,
+                      [styles.mediaOn]: !audioStreamPaused
+                    })}
+                    onClick={toggleAudio}
+                  >
                     {isSelfUser ? (
                       audioStreamPaused ? (
                         <MicOff />
