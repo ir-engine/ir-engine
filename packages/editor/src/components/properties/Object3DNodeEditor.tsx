@@ -5,7 +5,12 @@ import { Euler, InstancedMesh, Material, Matrix4, Mesh, Object3D, Quaternion, Ve
 
 import { AxisIcon } from '@xrengine/client-core/src/util/AxisIcon'
 import { Deg2Rad, Rad2Deg } from '@xrengine/common/src/utils/mathUtils'
+import { dispatchAction, useHookstate } from '@xrengine/hyperflux'
 
+import EditorCommands from '../../constants/EditorCommands'
+import { EditorAction } from '../../services/EditorServices'
+import { SelectionAction } from '../../services/SelectionServices'
+import BooleanInput from '../inputs/BooleanInput'
 import InputGroup from '../inputs/InputGroup'
 import Vector3Input from '../inputs/Vector3Input'
 import CollapsibleBlock from '../layout/CollapsibleBlock'
@@ -33,6 +38,20 @@ export const Object3DNodeEditor: EditorComponentType = (props) => {
   const instancedMesh = mesh as InstancedMesh
   const isInstancedMesh = instancedMesh.isInstancedMesh
 
+  const updateObj3d = (varName: 'frustrumCulled' | 'visible' | 'castShadow' | 'receiveShadow', label) => {
+    const varVal = useHookstate(() => obj3d[varName])
+    return (
+      <InputGroup name={label} label={label}>
+        <BooleanInput
+          value={varVal['value']}
+          onChange={(val) => {
+            obj3d[varName] = val
+            varVal.set(val)
+          }}
+        />
+      </InputGroup>
+    )
+  }
   // initializing iconComponent icon name
   return (
     <NodeEditor
@@ -45,7 +64,16 @@ export const Object3DNodeEditor: EditorComponentType = (props) => {
         {hasError && <div style={{ marginTop: 2, color: '#FF8C00' }}>{t('editor:properties.interior.error-url')}</div>}
       </InputGroup> */}
       {/* <StringInput value={name} onChange={setName} onFocus={onFocus} onBlur={onBlurName} onKeyUp={onKeyUpName} /> */}
-
+      {/* frustrum culling */ updateObj3d('frustrumCulled', 'Frustrum Culled')}
+      {/* visibility */ updateObj3d('visible', 'Visible')}
+      {
+        /* cast / receive shadows */
+        <Well>
+          {updateObj3d('castShadow', 'Cast Shadow')}
+          {updateObj3d('receiveShadow', 'Receive Shadow')}
+        </Well>
+      }
+      {/* animations */}
       {isMesh && (
         <CollapsibleBlock label={'Mesh Properties'}>
           <CollapsibleBlock label={'Materials'}>
