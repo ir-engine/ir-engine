@@ -78,7 +78,8 @@ export const createAvatar = (spawnAction: typeof WorldNetworkAction.spawnAvatar.
     },
     rig: {} as BoneStructure,
     bindRig: {} as BoneStructure,
-    rootYRatio: 1
+    rootYRatio: 1,
+    locomotion: new Vector3()
   })
 
   addComponent(entity, Object3DComponent, { value: tiltContainer })
@@ -107,7 +108,7 @@ export const createAvatar = (spawnAction: typeof WorldNetworkAction.spawnAvatar.
 export const createAvatarCollider = (entity: Entity): Collider => {
   const interactionGroups = getInteractionGroups(CollisionGroups.Avatars, AvatarCollisionMask)
   const avatarComponent = getComponent(entity, AvatarComponent)
-  const rigidBody = getComponent(entity, RigidBodyComponent)
+  const rigidBody = getComponent(entity, RigidBodyComponent).body
 
   const bodyColliderDesc = ColliderDesc.capsule(
     avatarComponent.avatarHalfHeight - avatarRadius,

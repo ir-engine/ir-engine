@@ -42,7 +42,7 @@ describe('ColliderFunctions', () => {
 
       deserializeCollider(entity, sceneComponent)
 
-      const body = getComponent(entity, RigidBodyComponent)
+      const body = getComponent(entity, RigidBodyComponent).body
 
       assert(body, 'ColliderComponent is not created')
     })

@@ -1,12 +1,9 @@
 import { Group, Object3D, Quaternion, Vector3 } from 'three'
 
-import { createHookableFunction } from '@xrengine/common/src/utils/createMutableFunction'
 import { dispatchAction } from '@xrengine/hyperflux'
 
 import { BoneNames } from '../avatar/AvatarBoneMatching'
 import { AvatarAnimationComponent } from '../avatar/components/AvatarAnimationComponent'
-import { AvatarHeadDecapComponent } from '../avatar/components/AvatarHeadDecapComponent'
-import { accessAvatarInputSettingsState } from '../avatar/state/AvatarInputSettingsState'
 import { ParityValue } from '../common/enums/ParityValue'
 import { proxifyQuaternion, proxifyVector3 } from '../common/proxies/three'
 import { Engine } from '../ecs/classes/Engine'

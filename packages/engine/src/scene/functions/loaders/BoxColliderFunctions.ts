@@ -59,7 +59,7 @@ export const updateBoxCollider: ComponentUpdateFunction = (entity: Entity) => {
   const data = serializeBoxCollider(entity) as any
   const boxColliderProps = parseBoxColliderProperties(data.props)
 
-  const rigidbody = getComponent(entity, RigidBodyComponent)
+  const rigidbody = getComponent(entity, RigidBodyComponent).body
   const transform = getComponent(entity, TransformComponent)
 
   const colliderDesc = ColliderDesc.cuboid(
@@ -73,7 +73,7 @@ export const updateBoxCollider: ComponentUpdateFunction = (entity: Entity) => {
 }
 
 export const serializeBoxCollider: ComponentSerializeFunction = (entity) => {
-  const rigidbodyComponent = getComponent(entity, RigidBodyComponent)
+  const rigidbodyComponent = getComponent(entity, RigidBodyComponent).body
   if (!rigidbodyComponent) return
   const isTrigger = rigidbodyComponent.collider(0).isSensor()
 

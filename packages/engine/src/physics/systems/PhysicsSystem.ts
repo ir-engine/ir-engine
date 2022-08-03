@@ -25,7 +25,7 @@ export function teleportObjectReceptor(
   world = Engine.instance.currentWorld
 ) {
   const entity = world.getNetworkObject(action.object.ownerId, action.object.networkId)!
-  const body = getComponent(entity, RigidBodyComponent)
+  const body = getComponent(entity, RigidBodyComponent).body
   if (body) {
     body.setTranslation(action.position, true)
     body.setRotation(action.rotation, true)
@@ -49,7 +49,7 @@ const updateDirtyDynamicBodiesFromNetwork = (world: World, entity: Entity) => {
     return
   }
 
-  const body = getComponent(entity, RigidBodyComponent)
+  const { body } = getComponent(entity, RigidBodyComponent)
   const { position, rotation } = getComponent(entity, TransformComponent)
   const { linear, angular } = getComponent(entity, VelocityComponent)
 
@@ -62,9 +62,11 @@ const updateDirtyDynamicBodiesFromNetwork = (world: World, entity: Entity) => {
 }
 
 const updateTransformFromBody = (world: World, entity: Entity) => {
-  const body = getComponent(entity, RigidBodyComponent)
+  const { body, previousPosition } = getComponent(entity, RigidBodyComponent)
   const { position, rotation } = getComponent(entity, TransformComponent)
   const { linear, angular } = getComponent(entity, VelocityComponent)
+
+  previousPosition.copy(position)
 
   position.copy(body.translation() as Vector3)
   rotation.copy(body.rotation() as Quaternion)
@@ -88,11 +90,8 @@ export default async function PhysicsSystem(world: World) {
     RigidBodyDynamicTagComponent
   ])
 
-  const nonNetworkedDynamicRigidBodyQuery = defineQuery([
-    Not(NetworkObjectComponent),
-    RigidBodyComponent,
-    RigidBodyDynamicTagComponent
-  ])
+  const dynamicRigidBodyQuery = defineQuery([RigidBodyComponent, RigidBodyDynamicTagComponent])
+
   const rigidBodyQuery = defineQuery([RigidBodyComponent])
 
   const teleportObjectQueue = createActionQueue(WorldNetworkAction.teleportObject.matches)
@@ -116,9 +115,10 @@ export default async function PhysicsSystem(world: World) {
       world.physicsWorld.step(world.physicsCollisionEventQueue)
 
       for (const entity of raycastQuery()) processRaycasts(world, entity)
+
       processCollisions(world)
 
-      for (const entity of nonNetworkedDynamicRigidBodyQuery()) updateTransformFromBody(world, entity)
+      for (const entity of dynamicRigidBodyQuery()) updateTransformFromBody(world, entity)
     }
   }
 }

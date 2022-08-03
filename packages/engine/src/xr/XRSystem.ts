@@ -1,7 +1,6 @@
 import { createHookableFunction } from '@xrengine/common/src/utils/createMutableFunction'
 import { createActionQueue, dispatchAction, getState } from '@xrengine/hyperflux'
 
-import { AvatarHeadDecapComponent } from '../avatar/components/AvatarHeadDecapComponent'
 import { SkyboxComponent } from '../scene/components/SkyboxComponent'
 import { updateSkybox } from '../scene/functions/loaders/SkyboxFunctions'
 import { AssetLoader } from './../assets/classes/AssetLoader'
@@ -15,7 +14,6 @@ import { hasComponent, removeComponent } from './../ecs/functions/ComponentFunct
 import { InputType } from './../input/enums/InputType'
 import { gamepadMapping } from './../input/functions/GamepadInput'
 import { EngineRenderer } from './../renderer/WebGLRendererSystem'
-import { ObjectLayers } from './../scene/constants/ObjectLayers'
 import { XRAction } from './XRAction'
 import { XRHandsInputComponent, XRInputSourceComponent } from './XRComponents'
 import { cleanXRInputs, updateXRControllerAnimations } from './XRControllerFunctions'
@@ -62,7 +60,6 @@ export const requestXRSession = createHookableFunction(
         const world = Engine.instance.currentWorld
         cleanXRInputs(world.localClientEntity)
         removeComponent(world.localClientEntity, XRInputSourceComponent)
-        removeComponent(world.localClientEntity, AvatarHeadDecapComponent)
         removeComponent(world.localClientEntity, XRHandsInputComponent)
         const skybox = skyboxQuery()[0]
         if (skybox) updateSkybox(skybox)

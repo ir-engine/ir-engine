@@ -12,7 +12,7 @@ import { createEngine } from '../initializeEngine'
 import { Physics } from '../physics/classes/Physics'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import {
-  avatarControllerExit,
+  removeAvatarControllerRigidBody,
   rotateTowardsDisplacementVector,
   updateAvatarTransformPosition
 } from './AvatarControllerSystem'
@@ -37,7 +37,7 @@ describe('AvatarControllerSystem', async () => {
 
     sinon.spy(physicsWorld, 'removeRigidBody')
 
-    avatarControllerExit(entity, worldMock)
+    removeAvatarControllerRigidBody(entity, worldMock)
     assert(physicsWorld.removeRigidBody.calledOnce)
     const removeRigidBodyCallArg = physicsWorld.removeRigidBody.getCall(0).args[0]
     assert(removeRigidBodyCallArg === controller.controller)

@@ -67,7 +67,7 @@ function createRigidBody(entity: Entity, world: World, rigidBodyDesc: RigidBodyD
   const rigidBody = world.createRigidBody(rigidBodyDesc)
   colliderDesc.forEach((desc) => world.createCollider(desc, rigidBody))
 
-  addComponent(entity, RigidBodyComponent, rigidBody)
+  addComponent(entity, RigidBodyComponent, { body: rigidBody, previousPosition: new Vector3() })
 
   const RigidBodyTypeTagComponent = getTagComponentForRigidBody(rigidBody)
   addComponent(entity, RigidBodyTypeTagComponent, true)
@@ -248,7 +248,7 @@ function createColliderAndAttachToRigidBody(world: World, colliderDesc: Collider
 }
 
 function removeCollidersFromRigidBody(entity: Entity, world: World) {
-  const rigidBody = getComponent(entity, RigidBodyComponent)
+  const rigidBody = getComponent(entity, RigidBodyComponent).body
   const numColliders = rigidBody.numColliders()
   for (let index = 0; index < numColliders; index++) {
     const collider = rigidBody.collider(0)
@@ -257,7 +257,7 @@ function removeCollidersFromRigidBody(entity: Entity, world: World) {
 }
 
 function removeRigidBody(entity: Entity, world: World, hasBeenRemoved = false) {
-  const rigidBody = getComponent(entity, RigidBodyComponent, hasBeenRemoved)
+  const rigidBody = getComponent(entity, RigidBodyComponent, hasBeenRemoved)?.body
   if (rigidBody && world.bodies.contains(rigidBody.handle)) {
     if (!hasBeenRemoved) {
       const RigidBodyTypeTagComponent = getTagComponentForRigidBody(rigidBody)
@@ -270,7 +270,7 @@ function removeRigidBody(entity: Entity, world: World, hasBeenRemoved = false) {
 }
 
 function changeRigidbodyType(entity: Entity, newType: RigidBodyType) {
-  const rigidBody = getComponent(entity, RigidBodyComponent)
+  const rigidBody = getComponent(entity, RigidBodyComponent).body
   const currentRigidBodyTypeTagComponent = getTagComponentForRigidBody(rigidBody)
 
   removeComponent(entity, currentRigidBodyTypeTagComponent)

@@ -165,7 +165,6 @@ export const rigAvatarModel = (entity: Entity) => (model: Object3D) => {
 export const animateAvatarModel = (entity: Entity) => (model: Object3D) => {
   const animationComponent = getComponent(entity, AnimationComponent)
   const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
-  const velocityComponent = getComponent(entity, VelocityComponent)
   const controllerComponent = getComponent(entity, AvatarControllerComponent)
 
   animationComponent.mixer?.stopAllAction()
@@ -178,7 +177,7 @@ export const animateAvatarModel = (entity: Entity) => (model: Object3D) => {
     avatarAnimationComponent.animationGraph = createAvatarAnimationGraph(
       entity,
       animationComponent.mixer,
-      velocityComponent.linear,
+      avatarAnimationComponent.locomotion,
       controllerComponent ?? {}
     )
 
