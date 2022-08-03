@@ -2132,6 +2132,8 @@
 
 .avatarSelectContainer {
   position: absolute;
+  display: flex;
+  flex-direction: column;
   padding: 15px;
   border-radius: 5px;
   left: 50%;
@@ -2146,6 +2148,31 @@
   box-shadow: 0 4px 30px rgb(0 0 0 / 10%);
   backdrop-filter: blur(4.9px);
   -webkit-backdrop-filter: blur(4.9px);
+
+  .avatarHeaderBlock {
+    margin: 20px 0;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+
+    .iconBlock {
+      @include icon-block-styling;
+
+      display: inline-block;
+      cursor: pointer;
+      color: var(--textColor);
+      background: transparent;
+    }
+
+    h2 {
+      font-size: 18px;
+      color: var(--textColor);
+      font-weight: bold;
+      display: inline-block;
+      vertical-align: middle;
+      margin-left: 10px;
+    }
+  }
 }
 
 .paperAvatar {
@@ -2470,4 +2497,13 @@
 
 .iconBtn {
   color: var(--sidebarSelectedBackground) !important;
+}
+
+.gradientBtn {
+  background: linear-gradient(90deg, var(--buttonGradientStart), var(--buttonGradientEnd));
+  color: var(--textColor);
+
+  &:hover {
+    opacity: 0.8;
+  }
 }
