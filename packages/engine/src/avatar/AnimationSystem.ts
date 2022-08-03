@@ -1,4 +1,4 @@
-import { Bone, Euler, Vector3 } from 'three'
+import { Bone, Euler, MathUtils, Vector3 } from 'three'
 
 import { createActionQueue } from '@xrengine/hyperflux'
 
@@ -107,10 +107,15 @@ export default async function AnimationSystem(world: World) {
       const deltaTime = delta * animationComponent.animationSpeed
       const velocity = getComponent(entity, VelocityComponent)
 
-      // TODO: use x for side-stepping when full 2D blending spaces are implemented
+      // TODO: use x locomotion for side-stepping when full 2D blending spaces are implemented
       avatarAnimationComponent.locomotion.x = 0
       avatarAnimationComponent.locomotion.y = velocity.linear.y
-      avatarAnimationComponent.locomotion.z = _vector3.copy(velocity.linear).setComponent(1, 0).length()
+      // lerp animated forward animation to smoothly animate to a stop
+      avatarAnimationComponent.locomotion.z = MathUtils.lerp(
+        avatarAnimationComponent.locomotion.z,
+        _vector3.copy(velocity.linear).setComponent(1, 0).length(),
+        10 * deltaTime
+      )
 
       updateAnimationGraph(avatarAnimationComponent.animationGraph, deltaTime)
 
