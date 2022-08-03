@@ -74,8 +74,8 @@ export default async function HyperspacePortalSystem(world: World) {
       controller.movementEnabled = true
 
       // teleport player to where the portal spawn position is
-      controller.controller.setTranslation(world.activePortal!.remoteSpawnPosition, true)
-      controller.controller.setRotation(
+      controller.body.setTranslation(world.activePortal!.remoteSpawnPosition, true)
+      controller.body.setRotation(
         new Quaternion().setFromEuler(new Euler(0, world.activePortal!.remoteSpawnEuler.y, 0, 'XYZ')),
         true
       )

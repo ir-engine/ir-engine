@@ -5,7 +5,7 @@ import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
 import { VectorSpringSimulator } from '../../physics/classes/springs/VectorSpringSimulator'
 
 export type AvatarControllerComponentType = {
-  controller: RigidBody
+  body: RigidBody
   bodyCollider: Collider
   collisions: [boolean, boolean, boolean]
   movementEnabled: boolean

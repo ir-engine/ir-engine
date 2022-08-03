@@ -1,9 +1,10 @@
 import { ArrowHelper, Matrix4, Quaternion, Vector3 } from 'three'
 
-import { addActionReceptor } from '@xrengine/hyperflux'
+import { addActionReceptor, getState } from '@xrengine/hyperflux'
 
 import { V_000, V_001, V_010 } from '../common/constants/MathConstants'
 import { Engine } from '../ecs/classes/Engine'
+import { EngineState } from '../ecs/classes/EngineState'
 import { Entity } from '../ecs/classes/Entity'
 import { World } from '../ecs/classes/World'
 import { defineQuery, getComponent, hasComponent } from '../ecs/functions/ComponentFunctions'
@@ -12,6 +13,7 @@ import { BaseInput } from '../input/enums/BaseInput'
 import { AvatarMovementScheme } from '../input/enums/InputEnums'
 import { XRAxes } from '../input/enums/InputEnums'
 import { RapierCollisionComponent } from '../physics/components/RapierCollisionComponent'
+import { VelocityComponent } from '../physics/components/VelocityComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { XRInputSourceComponent } from '../xr/XRComponents'
 import { AvatarInputSchema } from './AvatarInputSchema'
@@ -112,32 +114,43 @@ const alignXRInputContainerYawWithAvatar = (entity: Entity) => {
 const _cameraDirection = new Vector3()
 const _mat = new Matrix4()
 const _desiredRotation = new Quaternion()
-export const rotateTowardsCameraDirection = (entity: Entity) => {
-  const world = Engine.instance.currentWorld
-  const avatarTransform = getComponent(entity, TransformComponent)
+export const rotateBodyTowardsCameraDirection = (entity: Entity) => {
+  const fixedDeltaSeconds = getState(EngineState).fixedDeltaSeconds.value
+  const controller = getComponent(entity, AvatarControllerComponent)
+
   const cameraRotation = getComponent(Engine.instance.currentWorld.cameraEntity, TransformComponent).rotation
   const direction = _cameraDirection.set(0, 0, 1).applyQuaternion(cameraRotation)
   direction.y = 0
   _desiredRotation.setFromRotationMatrix(_mat.lookAt(V_000, direction, V_010))
-  avatarTransform.rotation.slerp(_desiredRotation, Math.max(world.deltaSeconds * 2, 3 / 60))
+
+  const rot = _desiredRotation.copy(controller.body.rotation() as Quaternion)
+  rot.slerp(_desiredRotation, Math.max(Engine.instance.currentWorld.deltaSeconds * 2, 3 * fixedDeltaSeconds))
+
+  controller.body.setRotation(rot, true)
 }
 
-export const rotateTowardsDisplacementVector = (entity: Entity, displacement: Vector3) => {
-  const transform = getComponent(entity, TransformComponent)
+const _velXZ = new Vector3()
+export const rotateBodyTowardsVelocityVector = (entity: Entity) => {
+  const fixedDeltaSeconds = getState(EngineState).fixedDeltaSeconds.value
+  const controller = getComponent(entity, AvatarControllerComponent)
+  const velocity = getComponent(entity, VelocityComponent)
 
-  displacementXZ.set(displacement.x, 0, displacement.z)
-  displacementXZ.applyQuaternion(invOrientation.copy(transform.rotation).invert())
+  _velXZ.set(velocity.linear.x, 0, velocity.linear.z)
 
-  if (displacementXZ.lengthSq() <= 0.001) return
+  if (_velXZ.lengthSq() <= 0.001) return
 
-  rotMatrix.lookAt(displacementXZ, V_000, V_010)
+  rotMatrix.lookAt(_velXZ, V_000, V_010)
   targetOrientation.setFromRotationMatrix(rotMatrix)
-  transform.rotation.slerp(targetOrientation, Math.max(Engine.instance.currentWorld.deltaSeconds * 2, 3 / 60))
+
+  const rot = _desiredRotation.copy(controller.body.rotation() as Quaternion)
+  rot.slerp(targetOrientation, Math.max(Engine.instance.currentWorld.deltaSeconds * 2, 3 * fixedDeltaSeconds))
+
+  controller.body.setRotation(rot, true)
 }
 
 export const removeAvatarControllerRigidBody = (entity: Entity, world: World = Engine.instance.currentWorld) => {
   const controller = getComponent(entity, AvatarControllerComponent, true)
-  if (controller?.controller) world.physicsWorld.removeRigidBody(controller.controller)
+  if (controller?.body) world.physicsWorld.removeRigidBody(controller.body)
 }
 
 export const updateMap = () => {

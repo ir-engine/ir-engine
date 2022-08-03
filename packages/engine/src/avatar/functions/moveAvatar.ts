@@ -18,8 +18,8 @@ import { TransformComponent } from '../../transform/components/TransformComponen
 import { XRInputSourceComponent } from '../../xr/XRComponents'
 import {
   AvatarSettings,
-  rotateTowardsCameraDirection,
-  rotateTowardsDisplacementVector
+  rotateBodyTowardsCameraDirection,
+  rotateBodyTowardsVelocityVector
 } from '../AvatarControllerSystem'
 import { AvatarAnimationComponent } from '../components/AvatarAnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
@@ -101,20 +101,20 @@ export const moveLocalAvatar = (entity: Entity) => {
   }
 
   velocity.linear.copy(currentVelocity)
-  controller.controller.setLinvel(velocity.linear, true)
+  controller.body.setLinvel(velocity.linear, true)
 
-  if (hasComponent(entity, AvatarHeadDecapComponent)) rotateTowardsCameraDirection(entity)
-  else rotateTowardsDisplacementVector(entity, currentVelocity)
+  if (hasComponent(entity, AvatarHeadDecapComponent)) rotateBodyTowardsCameraDirection(entity)
+  else rotateBodyTowardsVelocityVector(entity)
 
   // TODO: implement scene lower bounds parameter
-  if (controller.controller.translation().y < -10) respawnAvatar(entity)
+  if (controller.body.translation().y < -10) respawnAvatar(entity)
 
   // this only affects animation blending
   // TODO: move this to avatar animation system
   const animation = getComponent(entity, AvatarAnimationComponent)
   animation.locomotion.x = 0
   animation.locomotion.y = currentVelocity.y
-  animation.locomotion.z = Math.min(Math.max(currentVelocity.length(), -1), 1)
+  animation.locomotion.z = tempVec1.copy(currentVelocity).setComponent(1, 0).length() * timeStep
 
   // const cameraPosition = camera.position
   // const avatarPosition = tempVec1
@@ -241,7 +241,7 @@ export const alignXRCameraRotationWithAvatar = (entity: Entity, camera: Perspect
  */
 const moveAvatarController = (entity: Entity, displacement: Vector3) => {
   const controller = getComponent(entity, AvatarControllerComponent)
-  const rigidBody = controller.controller
+  const rigidBody = controller.body
 
   // multiply by reciprocal of delta seconds to move 1 unit per second
   const fixedDelta = getState(EngineState).fixedDeltaSeconds.value
@@ -329,7 +329,7 @@ export const teleportAvatar = (entity: Entity, newPosition: Vector3): void => {
     const avatar = getComponent(entity, AvatarComponent)
     const controllerComponent = getComponent(entity, AvatarControllerComponent)
     newPosition.y = newPosition.y + avatar.avatarHalfHeight
-    controllerComponent.controller.setTranslation(newPosition, true)
+    controllerComponent.body.setTranslation(newPosition, true)
   } else {
     console.log('invalid position', newPosition)
   }
