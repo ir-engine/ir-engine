@@ -90,7 +90,7 @@ const ThemePlayground = () => {
   const rows = [
     {
       name: 'Josh',
-      userRole: 'Admin',
+      userRole: 'user',
       location: 'test',
       inviteCode: 'NULL',
       instanceId: 'koqwndpkqwndpkqwndpqkwndm',
@@ -107,7 +107,7 @@ const ThemePlayground = () => {
     },
     {
       name: 'Liam',
-      userRole: 'User',
+      userRole: 'user',
       location: 'apartment',
       inviteCode: 'NULL',
       instanceId: 'alksdnvoakewndawepdnpqwdew',
@@ -124,7 +124,7 @@ const ThemePlayground = () => {
     },
     {
       name: 'Gheric',
-      userRole: 'Moderator',
+      userRole: 'user',
       location: 'test',
       inviteCode: 'NULL',
       instanceId: 'qkpwejdpqwdmpqlcmnpqwmndqow',

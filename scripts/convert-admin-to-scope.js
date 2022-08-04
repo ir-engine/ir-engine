@@ -23,9 +23,7 @@ db.url = process.env.MYSQL_URL ??
 
 cli.enable('status');
 
-const options = cli.parse({
-    id: [false, 'ID of user to make admin', 'string']
-});
+const options = cli.parse({});
 
 cli.main(async () => {
     try {
@@ -73,26 +71,34 @@ cli.main(async () => {
             }
         })
 
-        const userMatch = await User.findOne({
+        const admins = await User.findAll({
             where: {
-                id: options.id
+                userRole: 'admin'
             }
         });
+        console.log('admins', admins)
 
-        if (userMatch != null) {
-            await userMatch.save();
-            for(const { type } of scopeTypeSeed.templates) {
-              try {
-                const existingScope = await Scope.findOne({ where: { userId: options.id, type }})
-                if (existingScope == null)
-                  await Scope.create({ userId: options.id, type })
-              } catch (e) { console.log(e) }
+        await Promise.all(admins.map(admin => new Promise(async resolve => {
+            await User.update({
+                userRole: 'user'
+            }, {
+                where: {
+                    id: admin.id
+                }
+            })
+            const existingAdminScope = await Scope.findOne({ where: { userId: admin.id, type: 'admin:admin'}})
+            console.log('existingAdminScope', existingAdminScope)
+            if (!existingAdminScope) {
+                const scopeCreate = await Scope.create({
+                    userId: admin.id,
+                    type: 'admin:admin'
+                })
+                console.log('new admin scope', scopeCreate)
             }
+            resolve(null)
+        })))
 
-            cli.ok(`User with id ${options.id} made an admin` );
-        } else {
-            cli.ok(`User with id ${options.id} does not exist`)
-        }
+        cli.ok(`Existing users with userRole admin converted to users with admin scope` );
 
         process.exit(0);
     }

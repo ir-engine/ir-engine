@@ -6,14 +6,14 @@ import addAssociations from '@xrengine/server-core/src/hooks/add-associations'
 
 import addScopeToUser from '../../hooks/add-scope-to-user'
 import authenticate from '../../hooks/authenticate'
-import restrictUserRole from '../../hooks/restrict-user-role'
+import verifyScope from '../../hooks/verify-scope'
 
 const restrictUserPatch = (context: HookContext) => {
   if (context.params.isInternal) return context
 
   // allow admins for all patch actions
   const loggedInUser = context.params.user as UserInterface
-  if (loggedInUser.userRole === 'admin') return context
+  if (loggedInUser.scopes && loggedInUser.scopes.find((scope) => scope.type === 'admin:admin')) return context
 
   // only allow a user to patch it's own data
   if (loggedInUser.id !== context.id) throw new Error('Must be an admin to patch another users data')
@@ -32,7 +32,7 @@ const restrictUserRemove = (context: HookContext) => {
 
   // allow admins for all patch actions
   const loggedInUser = context.params.user as UserInterface
-  if (loggedInUser.userRole === 'admin') return context
+  if (loggedInUser.scopes && loggedInUser.scopes.find((scope) => scope.type === 'admin:admin')) return context
 
   // only allow a user to patch it's own data
   if (loggedInUser.id !== context.id) throw new Error('Must be an admin to delete another user')
@@ -145,8 +145,8 @@ export default {
         ]
       })
     ],
-    create: [iff(isProvider('external'), restrictUserRole('admin') as any)],
-    update: [iff(isProvider('external'), restrictUserRole('admin') as any)],
+    create: [iff(isProvider('external'), verifyScope('admin', 'admin') as any)],
+    update: [iff(isProvider('external'), verifyScope('admin', 'admin') as any)],
     patch: [
       iff(isProvider('external'), restrictUserPatch as any),
       addAssociations({

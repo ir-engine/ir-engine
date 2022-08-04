@@ -69,7 +69,8 @@ const ProfileDetailView = () => {
   const clientSettingState = useClientSettingState()
   const [clientSetting] = clientSettingState?.client?.value || []
 
-  const hasAdminAccess = selfUser?.id?.value?.length > 0 && selfUser?.userRole?.value === 'admin'
+  const hasAdminAccess =
+    selfUser?.id?.value?.length > 0 && selfUser?.scopes?.value?.find((scope) => scope.type === 'admin:admin')
   const hasEditorAccess = userHasAccess('editor:write')
 
   const themeModes = { ...defaultThemeModes, ...userSettings?.themeModes }
@@ -78,7 +79,7 @@ const ProfileDetailView = () => {
   const accessibleThemeModes = Object.keys(themeModes).filter((mode) => {
     if (mode === 'admin' && hasAdminAccess === false) {
       return false
-    } else if (mode === 'editor' && hasEditorAccess === false) {
+    } else if (mode === 'editor' && !hasEditorAccess) {
       return false
     }
     return true
@@ -312,7 +313,9 @@ const ProfileDetailView = () => {
               />
               <div className="detailsContainer">
                 <h2>
-                  {userRole === 'admin' ? t('user:usermenu.profile.youAreAn') : t('user:usermenu.profile.youAreA')}
+                  {userRole && userRole[0] && userRole !== 'user' && ['a', 'e', 'i', 'o', 'u'].indexOf(userRole[0]) > -1
+                    ? t('user:usermenu.profile.youAreAn')
+                    : t('user:usermenu.profile.youAreA')}
                   <span id="user-role">{` ${userRole}`}</span>.
                 </h2>
                 <h2 className="showUserId" id="show-user-id" onClick={() => setShowUserId(!showUserId)}>

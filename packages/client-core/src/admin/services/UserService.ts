@@ -132,7 +132,7 @@ export const AdminUserService = {
     const skipGuests = userState.skipGuests.value
     const userRole = userState.userRole.value
     try {
-      if (user.userRole.value === 'admin') {
+      if (user.scopes?.value?.find((scope) => scope.type === 'admin:admin')) {
         let sortData = {}
 
         if (sortField.length > 0) {

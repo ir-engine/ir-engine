@@ -118,7 +118,7 @@ export class User extends Service<UserInterface> {
     } else if (action === 'admin') {
       delete params.query.action
       delete params.query.search
-      if (!params.isInternal && loggedInUser.userRole !== 'admin')
+      if (!params.isInternal && !loggedInUser.scopes.find((scope) => scope.type === 'admin:admin'))
         throw new Forbidden('Must be system admin to execute this action')
 
       const searchedUser = await this.app.service('user').Model.findAll({
@@ -168,7 +168,11 @@ export class User extends Service<UserInterface> {
       delete params.query.action
       return super.find(params)
     } else {
-      if (loggedInUser?.userRole !== 'admin' && !params.isInternal)
+      if (
+        loggedInUser.scopes &&
+        !loggedInUser?.scopes.find((scope) => scope.type === 'admin:admin') &&
+        !params.isInternal
+      )
         throw new Forbidden('Must be system admin to execute this action')
       return await super.find(params)
     }

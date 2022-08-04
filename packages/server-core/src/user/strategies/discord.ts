@@ -7,6 +7,7 @@ import { UserInterface } from '@xrengine/common/src/interfaces/User'
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import getFreeInviteCode from '../../util/get-free-invite-code'
+import makeInitialAdmin from '../../util/make-initial-admin'
 import CustomOAuthStrategy from './custom-oauth'
 
 export class DiscordStrategy extends CustomOAuthStrategy {
@@ -52,14 +53,11 @@ export class DiscordStrategy extends CustomOAuthStrategy {
     }
     const identityProvider = authResult['identity-provider']
     const user = await this.app.service('user').get(entity.userId)
-    const adminCount = await this.app.service('user').Model.count({
-      where: {
-        userRole: 'admin'
-      }
-    })
-    await this.app.service('user').patch(entity.userId, {
-      userRole: user?.userRole === 'admin' || adminCount === 0 ? 'admin' : 'user'
-    })
+    await makeInitialAdmin(this.app, user.id)
+    if (user.userRole !== 'user')
+      await this.app.service('user').patch(entity.userId, {
+        userRole: 'user'
+      })
     const apiKey = await this.app.service('user-api-key').find({
       query: {
         userId: entity.userId

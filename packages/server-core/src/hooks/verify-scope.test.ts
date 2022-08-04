@@ -97,7 +97,7 @@ describe('verify-scope', () => {
   it('should verify admin', async () => {
     const name = `Test #${Math.random()}`
     const avatarId = `CyberbotGreen #${Math.random()}`
-    const userRole = 'admin'
+    const userRole = 'user'
 
     const user = (await app.service('user').create({
       name,
@@ -107,6 +107,11 @@ describe('verify-scope', () => {
 
     await app.service('scope').create({
       type: 'location:read',
+      userId: user.id
+    })
+
+    await app.service('scope').create({
+      type: 'admin:admin',
       userId: user.id
     })
 

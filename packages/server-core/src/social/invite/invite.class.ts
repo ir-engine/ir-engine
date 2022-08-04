@@ -145,7 +145,7 @@ export const inviteSent = async (inviteService: Invite, query: Query) => {
 }
 
 export const inviteAll = async (inviteService: Invite, query: Query, user: UserInterface) => {
-  if ((!user || user.userRole !== 'admin') && !query.existenceCheck)
+  if ((!user || !user.scopes || !user.scopes.find((scope) => scope.type === 'admin:admin')) && !query.existenceCheck)
     throw new Forbidden('Must be admin to search invites in this way')
 
   const { $sort, search } = query
@@ -207,7 +207,7 @@ export class Invite extends Service<InviteDataType> {
 
   async create(data: any, params?: Params): Promise<InviteDataType | InviteDataType[]> {
     const user = params!.user
-    if (user.userRole !== 'admin') delete data.makeAdmin
+    if (!user.scopes.find((scope) => scope.type === 'admin:admin')) delete data.makeAdmin
     data.passcode = crypto.randomBytes(8).toString('hex')
     const result = (await super.create(data)) as InviteDataType
     await sendInvite(this.app, result, params!)

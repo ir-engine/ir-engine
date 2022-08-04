@@ -59,7 +59,7 @@ describe('party.test', () => {
     user4 = (await app.service('user').create({
       name: `Test #${Math.random()}`,
       avatarId,
-      userRole: 'admin'
+      userRole: 'user'
     })) as UserInterface
     user1.apiKey = await app.service('user-api-key').Model.findOne({
       where: {
@@ -80,6 +80,10 @@ describe('party.test', () => {
       where: {
         userId: user4.id
       }
+    })
+    await app.service('scope').create({
+      type: 'admin:admin',
+      userId: user4.id
     })
   })
 
