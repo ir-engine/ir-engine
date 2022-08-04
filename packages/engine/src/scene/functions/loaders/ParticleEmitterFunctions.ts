@@ -57,7 +57,13 @@ export const initializeParticleSystem = async (entity: Entity) => {
       system = await ParticleLibrary[ptcComp.src](args)
       break
     case 'JSON':
-      system = await System.fromJSONAsync(ptcComp.src.particleSystemState, THREE)
+      if (typeof ptcComp.src === 'string') {
+        ptcComp.src = JSON.parse(ptcComp.src)
+      }
+      if (ptcComp.src.particleSystemState) {
+        ptcComp.src = ptcComp.src.particleSystemState
+      }
+      system = await System.fromJSONAsync(ptcComp.src, THREE)
       system.addRenderer(new SpriteRenderer(world.scene, THREE))
       break
   }
