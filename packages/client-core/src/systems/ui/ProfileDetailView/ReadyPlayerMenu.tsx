@@ -183,7 +183,7 @@ const ReadyPlayerMenu = () => {
             height: THUMBNAIL_HEIGHT + 'px',
             margin: 'auto',
             display: !avatarUrl ? 'none' : 'block',
-            boxShadow: !avatarUrl ? 'none' : '0 0 10px var(--buttonOutlined)',
+            boxShadow: !avatarUrl || showLoading ? 'none' : '0 0 10px var(--buttonOutlined)',
             borderRadius: '8px'
           }}
         ></div>
