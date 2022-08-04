@@ -278,7 +278,7 @@ export const AvatarUploadModal = ({ avatarData, isPublicAvatar, changeActiveMenu
         <h2>{t('user:avatar.title')}</h2>
       </div>
 
-      <Button onClick={() => changeActiveMenu(Views.ReadyPlayer)} className={styles.gradientBtn}>
+      <Button onClick={() => changeActiveMenu(Views.ReadyPlayer)} className={styles.useReadyMeBtn}>
         {t('user:usermenu.profile.useReadyPlayerMe')}
       </Button>
 

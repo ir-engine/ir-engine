@@ -80,7 +80,7 @@ const ReadyPlayerMenu = ({ isPublicAvatar, changeActiveMenu }: Props) => {
             setObj(obj)
           })
           setShowLoading(false)
-          fetch(avatarUrl)
+          fetch(url)
             .then((res) => res.blob())
             .then((data) => setSelectedFile(data))
             .catch((err) => {

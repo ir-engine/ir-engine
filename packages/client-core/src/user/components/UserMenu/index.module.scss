@@ -1565,6 +1565,16 @@
     }
   }
 
+  .useReadyMeBtn {
+    background: linear-gradient(90deg, var(--buttonGradientStart), var(--buttonGradientEnd));
+    color: var(--textColor);
+    display: block;
+
+    &:hover {
+      opacity: 0.8;
+    }
+  }
+
   .controlContainer {
     display: flex;
     flex-direction: column;
@@ -2497,13 +2507,4 @@
 
 .iconBtn {
   color: var(--sidebarSelectedBackground) !important;
-}
-
-.gradientBtn {
-  background: linear-gradient(90deg, var(--buttonGradientStart), var(--buttonGradientEnd));
-  color: var(--textColor);
-
-  &:hover {
-    opacity: 0.8;
-  }
 }
