@@ -68,8 +68,14 @@ const updateSimpleMaterials = (sceneObjectEntities: Entity[]) => {
 
     const simpleMaterials =
       hasComponent(entity, SimpleMaterialTagComponent) || getEngineState().useSimpleMaterials.value
+
+    let abort = false
+
     obj3d.value.traverse((obj: any) => {
-      if (obj.entity && hasComponent(entity, XRUIComponent)) return
+      if (abort || (obj.entity && hasComponent(entity, XRUIComponent))) {
+        abort = true
+        return
+      }
       if (simpleMaterials) {
         useSimpleMaterial(obj)
       } else {
