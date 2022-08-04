@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react'
+import React from 'react'
 import { useTranslation } from 'react-i18next'
 import {
   ACESFilmicToneMapping,
@@ -13,18 +13,13 @@ import {
 } from 'three'
 
 import { DistanceModel, DistanceModelOptions } from '@xrengine/engine/src/audio/constants/AudioConstants'
-import { getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { PositionalAudioSettingsComponent } from '@xrengine/engine/src/scene/components/AudioSettingsComponent'
 import { MetaDataComponent } from '@xrengine/engine/src/scene/components/MetaDataComponent'
 import { RenderSettingComponent } from '@xrengine/engine/src/scene/components/RenderSettingComponent'
-import { SimpleMaterialTagComponent } from '@xrengine/engine/src/scene/components/SimpleMaterialTagComponent'
-import { SCENE_COMPONENT_SIMPLE_MATERIALS } from '@xrengine/engine/src/scene/functions/loaders/SimpleMaterialFunctions'
 
 import LanguageIcon from '@mui/icons-material/Language'
 
-import { executeCommandWithHistoryOnSelection } from '../../classes/History'
-import { TagComponentOperation } from '../../commands/TagComponentCommand'
-import EditorCommands from '../../constants/EditorCommands'
 import BooleanInput from '../inputs/BooleanInput'
 import CompoundNumericInput from '../inputs/CompoundNumericInput'
 import InputGroup from '../inputs/InputGroup'
@@ -101,19 +96,6 @@ const ShadowTypeOptions = [
 export const SceneNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
   const entity = props.node.entity
-
-  const onChangeUseSimpleMaterials = useCallback((value) => {
-    executeCommandWithHistoryOnSelection({
-      type: EditorCommands.TAG_COMPONENT,
-      operations: [
-        {
-          component: SimpleMaterialTagComponent,
-          sceneComponentName: SCENE_COMPONENT_SIMPLE_MATERIALS,
-          type: value ? TagComponentOperation.ADD : TagComponentOperation.REMOVE
-        }
-      ]
-    })
-  }, [])
 
   const metadata = getComponent(entity, MetaDataComponent)
   const audioComponent = getComponent(entity, PositionalAudioSettingsComponent)
@@ -232,16 +214,6 @@ export const SceneNodeEditor: EditorComponentType = (props) => {
           step={0.01}
           value={audioComponent.coneOuterGain}
           onChange={updateProperty(PositionalAudioSettingsComponent, 'coneOuterGain')}
-        />
-      </InputGroup>
-      <InputGroup
-        name="Use Simple Materials"
-        label={t('editor:properties.scene.lbl-simpleMaterials')}
-        info={t('editor:properties.scene.info-simpleMaterials')}
-      >
-        <BooleanInput
-          value={hasComponent(props.node.entity, SimpleMaterialTagComponent)}
-          onChange={onChangeUseSimpleMaterials}
         />
       </InputGroup>
       <InputGroup

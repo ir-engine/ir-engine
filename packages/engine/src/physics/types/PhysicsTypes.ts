@@ -38,13 +38,6 @@ export interface RaycastHit {
   collider?: RAPIER.Collider
 }
 
-// TODO: Remove this
-export enum ControllerEvents {
-  CONTROLLER_SHAPE_HIT = 'CONTROLLER_SHAPE_HIT',
-  CONTROLLER_CONTROLLER_HIT = 'CONTROLLER_CONTROLLER_HIT',
-  CONTROLLER_OBSTACLE_HIT = 'CONTROLLER_OBSTACLE_HIT'
-}
-
 export enum CollisionEvents {
   COLLISION_START = 'COLLISION_START',
   COLLISION_PERSIST = 'COLLISION_PERSIST',
@@ -54,19 +47,17 @@ export enum CollisionEvents {
   TRIGGER_END = 'TRIGGER_END'
 }
 
-type ContactData = {
-  points: Vec3
-  normal: Vec3
-  impulse: number
-}
-
 export type ColliderHitEvent = {
-  type: CollisionEvents // TODO: Do we need this anymore if we the CollisionComponent is only going to be present during the lifespan of collision. Should only be used to differentiate between collsion & trigger. remove start,end states.
+  type: CollisionEvents
   bodySelf: RAPIER.RigidBody
   bodyOther: RAPIER.RigidBody
   shapeSelf: RAPIER.Collider
   shapeOther: RAPIER.Collider
-  contacts: ContactData[] | undefined // TODO: Figure out how to populate this using Rapier
+  /**
+   * @todo: populate this using Rapier contact queue drain
+   * https://rapier.rs/docs/user_guides/javascript/advanced_collision_detection_js
+   */
+  // contacts: any
 }
 
 export type ColliderDescOptions = {

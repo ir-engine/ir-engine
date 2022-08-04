@@ -23,7 +23,7 @@ import {
   removeComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { RapierCollisionComponent } from '../components/RapierCollisionComponent'
+import { CollisionComponent } from '../components/CollisionComponent'
 import { RaycastComponent } from '../components/RaycastComponent'
 import { RigidBodyComponent } from '../components/RigidBodyComponent'
 import { ShapecastComponent } from '../components/ShapeCastComponent'
@@ -31,7 +31,7 @@ import { VelocityComponent } from '../components/VelocityComponent'
 import { CollisionGroups, DefaultCollisionMask } from '../enums/CollisionGroups'
 import { getInteractionGroups } from '../functions/getInteractionGroups'
 import { getTagComponentForRigidBody } from '../functions/getTagComponentForRigidBody'
-import { ColliderDescOptions, ColliderHitEvent, CollisionEvents } from '../types/PhysicsTypes'
+import { ColliderDescOptions, CollisionEvents } from '../types/PhysicsTypes'
 
 export type PhysicsWorld = World
 
@@ -327,82 +327,39 @@ function castShape(world: World, shapecastQuery: ComponentType<typeof ShapecastC
   }
 }
 
-function drainCollisionEventQueue(world: World, collisionEventQueue: EventQueue) {
-  collisionEventQueue.drainCollisionEvents(function (handle1: number, handle2: number, started: boolean) {
-    const isTriggerEvent = world.getCollider(handle1).isSensor() || world.getCollider(handle2).isSensor()
-    let collisionEventType: CollisionEvents
-    if (started) {
-      if (isTriggerEvent) collisionEventType = CollisionEvents.TRIGGER_START
-      else collisionEventType = CollisionEvents.COLLISION_START
-    } else {
-      if (isTriggerEvent) collisionEventType = CollisionEvents.TRIGGER_END
-      else collisionEventType = CollisionEvents.COLLISION_END
-    }
+const drainCollisionEventQueue = (physicsWorld: World) => (handle1: number, handle2: number, started: boolean) => {
+  const collider1 = physicsWorld.getCollider(handle1)
+  const collider2 = physicsWorld.getCollider(handle2)
+  const isTriggerEvent = collider1.isSensor() || collider2.isSensor()
+  const rigidBody1 = collider1.parent()
+  const rigidBody2 = collider2.parent()
+  const entity1 = (rigidBody1?.userData as any)['entity']
+  const entity2 = (rigidBody2?.userData as any)['entity']
 
-    const collider1 = world.getCollider(handle1)
-    const collider2 = world.getCollider(handle2)
-    const rigidBody1 = collider1.parent()
-    const rigidBody2 = collider2.parent()
-    const entity1 = (rigidBody1?.userData as any)['entity']
-    const entity2 = (rigidBody2?.userData as any)['entity']
+  const collisionComponent1 = getComponent(entity1, CollisionComponent)
+  const collisionComponent2 = getComponent(entity2, CollisionComponent)
 
-    const collisionComponent1 = getComponent(entity1, RapierCollisionComponent)
-    const collisionComponent2 = getComponent(entity2, RapierCollisionComponent)
-
-    let collisionMap1: Map<Entity, ColliderHitEvent>
-    let collisionMap2: Map<Entity, ColliderHitEvent>
-    if (started) {
-      // If component already exists on entity, add the new collision event to it
-      if (collisionComponent1) {
-        collisionMap1 = collisionComponent1.collisions
-      }
-      // else add the component to entity & then add the new collision event to it
-      else {
-        collisionMap1 = new Map<Entity, ColliderHitEvent>()
-        addComponent(entity1, RapierCollisionComponent, { collisions: collisionMap1 })
-      }
-
-      collisionMap1.set(entity2, {
-        type: collisionEventType,
-        bodySelf: rigidBody1 as RigidBody,
-        bodyOther: rigidBody2 as RigidBody,
-        shapeSelf: collider1 as Collider,
-        shapeOther: collider2 as Collider,
-        contacts: undefined
-      })
-
-      // If component already exists on entity, add the new collision event to it
-      if (collisionComponent2) {
-        collisionMap2 = collisionComponent2.collisions
-      }
-      // else add the component to entity & then add the new collision event to it
-      else {
-        collisionMap2 = new Map<Entity, ColliderHitEvent>()
-        addComponent(entity2, RapierCollisionComponent, { collisions: collisionMap2 })
-      }
-
-      collisionMap2.set(entity1, {
-        type: collisionEventType,
-        bodySelf: rigidBody2 as RigidBody,
-        bodyOther: rigidBody1 as RigidBody,
-        shapeSelf: collider2 as Collider,
-        shapeOther: collider1 as Collider,
-        contacts: undefined
-      })
-    } else {
-      if (collisionComponent1) {
-        collisionMap1 = collisionComponent1.collisions
-        collisionMap1.delete(entity2)
-        if (collisionMap1.size === 0) removeComponent(entity1, RapierCollisionComponent)
-      }
-
-      if (collisionComponent2) {
-        collisionMap2 = collisionComponent2.collisions
-        collisionMap2.delete(entity1)
-        if (collisionMap2.size === 0) removeComponent(entity2, RapierCollisionComponent)
-      }
-    }
-  })
+  if (started) {
+    const type = isTriggerEvent ? CollisionEvents.TRIGGER_START : CollisionEvents.COLLISION_START
+    collisionComponent1?.set(entity2, {
+      type,
+      bodySelf: rigidBody1 as RigidBody,
+      bodyOther: rigidBody2 as RigidBody,
+      shapeSelf: collider1 as Collider,
+      shapeOther: collider2 as Collider
+    })
+    collisionComponent2?.set(entity1, {
+      type,
+      bodySelf: rigidBody2 as RigidBody,
+      bodyOther: rigidBody1 as RigidBody,
+      shapeSelf: collider2 as Collider,
+      shapeOther: collider1 as Collider
+    })
+  } else {
+    const type = isTriggerEvent ? CollisionEvents.TRIGGER_END : CollisionEvents.COLLISION_END
+    if (collisionComponent1?.has(entity2)) collisionComponent1.get(entity2)!.type = type
+    if (collisionComponent2?.has(entity1)) collisionComponent2.get(entity1)!.type = type
+  }
 }
 
 export const Physics = {

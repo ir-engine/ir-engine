@@ -32,7 +32,8 @@ export const EngineState = defineState({
      */
     shareLink: '',
     shareTitle: '',
-    transformOffsetsNeedSorting: true
+    transformOffsetsNeedSorting: true,
+    useSimpleMaterials: false
   }
 })
 
@@ -71,6 +72,9 @@ export function EngineEventReceptor(a) {
     .when(EngineActions.shareInteractableLink.matches, (action) => {
       s.shareLink.set(action.shareLink)
       s.shareTitle.set(action.shareTitle)
+    })
+    .when(EngineActions.useSimpleMaterials.matches, (action) => {
+      s.useSimpleMaterials.set(action.useSimpleMaterials)
     })
 }
 
@@ -195,5 +199,10 @@ export class EngineActions {
   static sceneObjectUpdate = defineAction({
     type: 'xre.engine.SCENE_OBJECT_UPDATE' as const,
     entities: matches.array as Validator<unknown, Entity[]>
+  })
+
+  static useSimpleMaterials = defineAction({
+    type: 'xre.engine.SIMPLE_MATERIALS' as const,
+    useSimpleMaterials: matches.boolean
   })
 }

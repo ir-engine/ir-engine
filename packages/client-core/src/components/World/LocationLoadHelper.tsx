@@ -1,9 +1,5 @@
 import { useHistory } from 'react-router-dom'
-import matches from 'ts-matches'
 
-import { AppAction, GeneralStateList } from '@xrengine/client-core/src/common/services/AppService'
-import { accessProjectState } from '@xrengine/client-core/src/common/services/ProjectService'
-import { MediaStreamService } from '@xrengine/client-core/src/media/services/MediaStreamService'
 import { LocationService } from '@xrengine/client-core/src/social/services/LocationService'
 import { getPortalDetails } from '@xrengine/client-core/src/world/functions/getPortalDetails'
 import { SceneData } from '@xrengine/common/src/interfaces/SceneInterface'
