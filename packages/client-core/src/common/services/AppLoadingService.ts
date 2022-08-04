@@ -5,8 +5,7 @@ export const AppLoadingStates = {
   START_STATE: 'START_STATE' as const,
   SCENE_LOADING: 'SCENE_LOADING' as const,
   SCENE_LOADED: 'SCENE_LOADED' as const,
-  SUCCESS: 'SUCCESS' as const,
-  FAILED: 'FAILED' as const
+  SUCCESS: 'SUCCESS' as const
 }
 
 type AppLoadingStatesType = typeof AppLoadingStates[keyof typeof AppLoadingStates]

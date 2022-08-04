@@ -164,7 +164,6 @@ export const createAvatarController = (entity: Entity) => {
     addComponent(entity, AvatarControllerComponent, {
       controller: rigidBody,
       bodyCollider: undefined!,
-      collisions: [false, false, false],
       movementEnabled: true,
       isJumping: false,
       isWalking: false,

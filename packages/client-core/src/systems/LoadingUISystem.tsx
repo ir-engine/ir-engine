@@ -65,7 +65,7 @@ export default async function LoadingUISystem(world: World) {
 
     const scale = ObjectFitFunctions.computeContentFitScaleForCamera(distance, contentWidth, contentHeight, 'cover')
     ObjectFitFunctions.attachObjectInFrontOfCamera(xrui.container, scale, distance)
-    transition.update(world, (opacity) => {
+    transition.update(world.deltaSeconds, (opacity) => {
       if (opacity !== LoadingSystemState.loadingScreenOpacity.value)
         LoadingSystemState.loadingScreenOpacity.set(opacity)
       mesh.material.opacity = opacity

@@ -25,7 +25,7 @@ import {
 } from '@xrengine/engine/src/scene/functions/loaders/PortalFunctions'
 import { addActionReceptor, dispatchAction, removeActionReceptor, useHookEffect } from '@xrengine/hyperflux'
 
-import { AppLoadingAction, AppLoadingStates } from '../../common/services/AppLoadingService'
+import { AppLoadingAction, AppLoadingStates, useLoadingState } from '../../common/services/AppLoadingService'
 import { useLocationState } from '../../social/services/LocationService'
 import { SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientNetwork'
 import { initClient, loadScene } from './LocationLoadHelper'
@@ -36,6 +36,7 @@ export const LoadEngineWithScene = () => {
   const history = useHistory()
   const engineState = useEngineState()
   const sceneState = useSceneState()
+  const loadingState = useLoadingState()
   const locationState = useLocationState()
   const authState = useAuthState()
   const [clientReady, setClientReady] = useState(false)
@@ -64,9 +65,11 @@ export const LoadEngineWithScene = () => {
     const sceneData = sceneState.currentScene.value
     if (clientReady && sceneData) {
       AuthService.fetchAvatarList()
-      dispatchAction(AppLoadingAction.setLoadingState({ state: AppLoadingStates.SCENE_LOADING }))
+      if (loadingState.state.value !== AppLoadingStates.SUCCESS)
+        dispatchAction(AppLoadingAction.setLoadingState({ state: AppLoadingStates.SCENE_LOADING }))
       loadScene(sceneData).then(() => {
-        dispatchAction(AppLoadingAction.setLoadingState({ state: AppLoadingStates.SCENE_LOADED }))
+        if (loadingState.state.value !== AppLoadingStates.SUCCESS)
+          dispatchAction(AppLoadingAction.setLoadingState({ state: AppLoadingStates.SCENE_LOADED }))
       })
     }
   }, [clientReady, sceneState.currentScene])
@@ -97,7 +100,8 @@ export const LoadEngineWithScene = () => {
 
   useHookEffect(() => {
     if (engineState.sceneLoaded.value) {
-      dispatchAction(AppLoadingAction.setLoadingState({ state: AppLoadingStates.SUCCESS }))
+      if (loadingState.state.value !== AppLoadingStates.SUCCESS)
+        dispatchAction(AppLoadingAction.setLoadingState({ state: AppLoadingStates.SUCCESS }))
       if (engineState.isTeleporting.value) {
         revertAvatarToMovingStateFromTeleport(Engine.instance.currentWorld)
       }
@@ -139,7 +143,7 @@ export const LoadEngineWithScene = () => {
 
       setAvatarToLocationTeleportingState(world)
 
-      if (activePortal.effectType) {
+      if (activePortal.effectType !== 'None') {
         addComponent(world.sceneEntity, PortalEffects.get(activePortal.effectType), true)
       } else {
         dispatchAction(AppLoadingAction.setLoadingState({ state: AppLoadingStates.START_STATE }))

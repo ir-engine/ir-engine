@@ -38,12 +38,13 @@ export const PortalPreviewTypes = new Set<string>()
 PortalPreviewTypes.add(PortalPreviewTypeSimple)
 PortalPreviewTypes.add(PortalPreviewTypeSpherical)
 export const PortalEffects = new Map<string, ComponentType<any>>()
+PortalEffects.set('None', null!)
 
 export const SCENE_COMPONENT_PORTAL = 'portal'
 export const SCENE_COMPONENT_PORTAL_DEFAULT_VALUES = {
   linkedPortalId: '',
   location: '',
-  effectType: null,
+  effectType: 'None',
   previewType: PortalPreviewTypeSimple,
   previewImageURL: '',
   helper: null!,
@@ -113,6 +114,7 @@ export const serializePortal: ComponentSerializeFunction = (entity) => {
       location: portalComponent.location,
       linkedPortalId: portalComponent.linkedPortalId,
       redirect: portalComponent.redirect,
+      effectType: portalComponent.effectType,
       previewType: portalComponent.previewType,
       previewImageURL: portalComponent.previewImageURL,
       spawnPosition: helperTransform.position,
@@ -127,7 +129,7 @@ const parsePortalProperties = (props): PortalComponentType => {
     linkedPortalId: props.linkedPortalId ?? SCENE_COMPONENT_PORTAL_DEFAULT_VALUES.linkedPortalId,
     helper: null!,
     redirect: props.redirect ?? false,
-    effectType: props.effectType ?? null,
+    effectType: props.effectType ?? 'None',
     previewType: props.previewType ?? PortalPreviewTypeSimple,
     previewImageURL: props.previewImageURL ?? '',
     spawnPosition: new Vector3().copy(props.spawnPosition),

@@ -45,7 +45,6 @@ const rotation = new Quaternion()
  */
 export const PortalNodeEditor: EditorComponentType = (props) => {
   const [portals, setPortals] = useState<Array<{ value: string; label: string }>>([])
-  const [entityId, setEntityId] = useState('')
   const { t } = useTranslation()
   const portalName = getComponent(props.node.entity, NameComponent).name
   const transformComponent = getComponent(props.node.entity, TransformComponent)
@@ -67,21 +66,10 @@ export const PortalNodeEditor: EditorComponentType = (props) => {
     )
   }
 
-  useEffect(() => {
-    if (props.node.uuid !== entityId) {
-      setEntityId(props.node.uuid)
-      loadPortals()
-    }
-  }, [props.node.uuid, entityId])
-
-  useEffect(() => {
-    setEntityId(props.node.uuid)
-    loadPortals()
-  }, [])
-
   const bakeCubemap = async () => {
     const url = await uploadCubemapBakeToServer(portalName, transformComponent.position)
     getPortalDetails()
+    loadPortals()
     executeModifyPropertyCommand({
       component: PortalComponent,
       properties: [{ previewImageURL: url }],
@@ -104,6 +92,7 @@ export const PortalNodeEditor: EditorComponentType = (props) => {
       properties: [{ previewType: val }]
     })
     getPortalDetails()
+    loadPortals()
   }
 
   const portalComponent = getComponent(props.node.entity, PortalComponent)
@@ -128,7 +117,7 @@ export const PortalNodeEditor: EditorComponentType = (props) => {
       <InputGroup name="Portal" label={t('editor:properties.portal.lbl-redirect')}>
         <BooleanInput onChange={updateProperty(PortalComponent, 'redirect')} value={portalComponent.redirect} />
       </InputGroup>
-      <InputGroup name="Effect Type" label={t('editor:properties.portal.lbl-previewType')}>
+      <InputGroup name="Effect Type" label={t('editor:properties.portal.lbl-effectType')}>
         <SelectInput
           key={props.node.entity}
           options={Array.from(PortalEffects.keys()).map((val) => {

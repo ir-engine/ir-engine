@@ -92,10 +92,6 @@ export const NetworkInstanceProvisioning = () => {
           currentLocation.sceneId.value
         )
       }
-    } else {
-      if (!locationState.currentLocationUpdateNeeded.value && !locationState.fetchingCurrentLocation.value) {
-        dispatchAction(AppLoadingAction.setLoadingState({ state: AppLoadingStates.FAILED }))
-      }
     }
   }, [locationState.currentLocation.location])
 

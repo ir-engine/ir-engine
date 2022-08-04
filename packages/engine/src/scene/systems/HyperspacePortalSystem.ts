@@ -1,4 +1,4 @@
-import { AmbientLight } from 'three'
+import { AmbientLight, Color } from 'three'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { Engine } from '../../ecs/classes/Engine'
@@ -23,7 +23,7 @@ export default async function HyperspacePortalSystem(world: World) {
   const hyperspaceTagComponent = defineQuery([HyperspaceTagComponent])
   const texture = await AssetLoader.loadAsync('/hdr/galaxyTexture.jpg')
 
-  const transition = createTransitionState(1, 'IN')
+  const transition = createTransitionState(0.25, 'IN')
 
   const hyperspaceEffect = new PortalEffect(texture)
   hyperspaceEffect.scale.set(10, 10, 10)
@@ -31,6 +31,8 @@ export default async function HyperspacePortalSystem(world: World) {
 
   const light = new AmbientLight('#aaa')
   light.layers.enable(ObjectLayers.Portal)
+
+  let sceneVisible = true
 
   return () => {
     const playerObj = getComponent(world.localClientEntity, Object3DComponent)
@@ -44,11 +46,6 @@ export default async function HyperspacePortalSystem(world: World) {
       hyperspaceEffect.quaternion.copy(playerObj.value.quaternion)
       Engine.instance.currentWorld.camera.zoom = 1.5
 
-      // set scene to render just the hyperspace effect and avatar
-      Engine.instance.currentWorld.scene.background = null
-      Engine.instance.currentWorld.camera.layers.enable(ObjectLayers.Portal)
-      Engine.instance.currentWorld.camera.layers.disable(ObjectLayers.Scene)
-
       Engine.instance.currentWorld.scene.add(light)
       Engine.instance.currentWorld.scene.add(hyperspaceEffect)
 
@@ -59,26 +56,29 @@ export default async function HyperspacePortalSystem(world: World) {
       })
     }
 
-    // the hyperspace exit runs once the fadeout transition has finished
-    for (const entity of hyperspaceTagComponent.exit()) {
-      hyperspaceEffect.removeFromParent()
-
-      Engine.instance.currentWorld.camera.layers.enable(ObjectLayers.Scene)
-
-      light.removeFromParent()
-      light.dispose()
-
-      Engine.instance.currentWorld.camera.layers.disable(ObjectLayers.Portal)
-    }
-
     // run the logic for
     for (const entity of hyperspaceTagComponent()) {
-      transition.update(world, (opacity) => {
+      transition.update(world.fixedTick, (opacity) => {
         hyperspaceEffect.update(world.deltaSeconds)
         hyperspaceEffect.tubeMaterial.opacity = opacity
 
+        if (opacity === 1 && sceneVisible) {
+          /**
+           * hide scene, render just the hyperspace effect and avatar
+           */
+          Engine.instance.currentWorld.scene.background = new Color('black')
+          Engine.instance.currentWorld.camera.layers.enable(ObjectLayers.Portal)
+          Engine.instance.currentWorld.camera.layers.disable(ObjectLayers.Scene)
+          sceneVisible = false
+        }
+
         if (opacity === 0) {
+          sceneVisible = true
           removeComponent(world.sceneEntity, HyperspaceTagComponent)
+          hyperspaceEffect.removeFromParent()
+          light.removeFromParent()
+          light.dispose()
+          Engine.instance.currentWorld.camera.layers.disable(ObjectLayers.Portal)
         }
       })
 

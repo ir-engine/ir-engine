@@ -8,7 +8,7 @@ export type PortalComponentType = {
   linkedPortalId: string
   helper: Entity
   redirect: boolean
-  effectType: string | null
+  effectType: string
   previewType: string
   previewImageURL: string
   // todo: refactor these
