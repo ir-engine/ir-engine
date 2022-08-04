@@ -9,7 +9,10 @@ export const EngineState = defineState({
   name: 'EngineState',
   initial: {
     frameTime: 0,
+    deltaSeconds: 0,
+    elapsedSeconds: 0,
     fixedDeltaSeconds: 1 / 60,
+    fixedElapsedSeconds: 0,
     fixedTick: 0,
     isEngineInitialized: false,
     sceneLoaded: false,
@@ -30,7 +33,7 @@ export const EngineState = defineState({
      */
     shareLink: '',
     shareTitle: '',
-    transformOffsetsNeedSorting: true
+    transformsNeedSorting: true
   }
 })
 

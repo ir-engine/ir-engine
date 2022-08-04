@@ -120,12 +120,21 @@ export default async function XRSystem(world: World) {
   AssetLoader.loadAsync('/default_assets/controllers/hands/left_controller.glb')
   AssetLoader.loadAsync('/default_assets/controllers/hands/right_controller.glb')
 
+  // const joinedWorldActionQueue = createActionQueue(EngineActions.joinedWorld.matches)
+
   const xrControllerQuery = defineQuery([XRInputSourceComponent])
   const xrRequestSessionQueue = createActionQueue(XRAction.requestSession.matches)
   const xrEndSessionQueue = createActionQueue(XRAction.endSession.matches)
   const xrSessionChangedQueue = createActionQueue(XRAction.sessionChanged.matches)
 
   return () => {
+    // const joinedWorldAction = joinedWorldActionQueue().pop()
+    // if (joinedWorldAction) {
+    //   if (!hasComponent(world.localOriginEntity, PositionOffsetComponent)) {
+    //     addPositionOffsetComponent(world.localOriginEntity, world.localClientEntity)
+    //   }
+    // }
+
     const xrRequestSessionAction = xrRequestSessionQueue().pop()
     const xrEndSessionAction = xrEndSessionQueue().pop()
     if (xrRequestSessionAction) requestXRSession(xrRequestSessionAction)

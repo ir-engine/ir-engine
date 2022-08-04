@@ -65,3 +65,19 @@ export const parseTransformProperties = (props: any): TransformComponentType => 
 
   return result
 }
+
+export const applyTransformPositionOffset = (
+  transform: TransformComponentType,
+  referenceTransform: TransformComponentType,
+  offsetPosition: Vector3
+): void => {
+  transform.position.copy(offsetPosition).applyQuaternion(referenceTransform.rotation).add(referenceTransform.position)
+}
+
+export const applyTransformRotationOffset = (
+  transform: TransformComponentType,
+  referenceTransform: TransformComponentType,
+  offsetRotation: Quaternion
+): void => {
+  transform.rotation.copy(referenceTransform.rotation).multiply(offsetRotation)
+}

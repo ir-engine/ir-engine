@@ -1,5 +1,5 @@
 import { Collider } from '@dimforge/rapier3d-compat'
-import { Matrix4, OrthographicCamera, PerspectiveCamera, Quaternion, Vector3 } from 'three'
+import { OrthographicCamera, PerspectiveCamera, Quaternion, Vector3 } from 'three'
 
 import { rotate } from '@xrengine/common/src/utils/mathUtils'
 import { getState } from '@xrengine/hyperflux'
@@ -12,30 +12,23 @@ import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
-import { addComponent, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
-import { VelocityComponent } from '../../physics/components/VelocityComponent'
+import { getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { XRInputSourceComponent } from '../../xr/XRComponents'
 import { AvatarSettings, rotateBodyTowardsCameraDirection, rotateBodyTowardsVector } from '../AvatarControllerSystem'
-import { AvatarAnimationComponent } from '../components/AvatarAnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
 import { AvatarHeadDecapComponent } from '../components/AvatarHeadDecapComponent'
-import { XRCameraUpdatePendingTagComponent } from '../components/XRCameraUpdatePendingTagComponent'
 import { getAvatarBoneWorldPosition } from './avatarFunctions'
 import { respawnAvatar } from './respawnAvatar'
 
 const forward = new Vector3(0, 0, 1)
 
 const quat = new Quaternion()
-const mat4 = new Matrix4()
 const tempVec1 = new Vector3()
 const tempVec2 = new Vector3()
 const tempVec3 = new Vector3()
 
-const displacement = new Vector3()
 export const avatarCameraOffset = new Vector3(0, 0.14, 0.1)
-const velocityToSet = new Vector3()
 
 const degrees60 = (60 * Math.PI) / 180
 
@@ -60,6 +53,7 @@ export const moveLocalAvatar = (entity: Entity) => {
         if (angle < degrees60) onGround = true
       }
     })
+    if (onGround) break
   }
 
   controller.isInAir = !onGround
@@ -69,14 +63,13 @@ export const moveLocalAvatar = (entity: Entity) => {
 
   controller.velocitySimulator.target.copy(controller.localMovementDirection)
   controller.velocitySimulator.simulate(timeStep * (onGround ? 1 : 0.2))
-  const velocityScale = controller.velocitySimulator.position
+  const velocitySpringDirection = controller.velocitySimulator.position
 
-  const moveSpeed = controller.isWalking ? AvatarSettings.instance.walkSpeed : AvatarSettings.instance.runSpeed
-  controller.currentSpeed = smoothDamp(controller.currentSpeed, moveSpeed, controller.speedVelocity, 0.1, timeStep)
+  controller.currentSpeed = controller.isWalking ? AvatarSettings.instance.walkSpeed : AvatarSettings.instance.runSpeed
 
   const prevVelocity = controller.body.linvel()
   const currentVelocity = tempVec1
-    .copy(velocityScale)
+    .copy(velocitySpringDirection)
     .multiplyScalar(controller.currentSpeed)
     .applyQuaternion(forwardOrientation)
     .setComponent(1, prevVelocity.y)
@@ -84,15 +77,15 @@ export const moveLocalAvatar = (entity: Entity) => {
   if (onGround) {
     currentVelocity.y = 0
     if (controller.localMovementDirection.y > 0 && !controller.isJumping) {
-      // takeoffVelocity = sqrt(2 * jumpHeight * gravity)
-      currentVelocity.y = Math.sqrt(2 * AvatarSettings.instance.jumpHeight * 9.8)
+      // Formula: takeoffVelocity = sqrt(2 * jumpHeight * gravity)
+      currentVelocity.y = Math.sqrt(2 * AvatarSettings.instance.jumpHeight * 9.81)
       controller.isJumping = true
     } else if (controller.isJumping) {
       controller.isJumping = false
     }
   } else {
     // apply gravity to avatar velocity
-    currentVelocity.y = prevVelocity.y - 9.8 * timeStep
+    currentVelocity.y = prevVelocity.y - 9.81 * timeStep
   }
 
   controller.body.setLinvel(currentVelocity, true)
@@ -102,21 +95,6 @@ export const moveLocalAvatar = (entity: Entity) => {
 
   // TODO: implement scene lower bounds parameter
   if (controller.body.translation().y < -10) respawnAvatar(entity)
-
-  // const cameraPosition = camera.position
-  // const avatarPosition = tempVec1
-  // getAvatarNeckOffsetPosition(entity, avatarCameraOffset, avatarPosition)
-
-  // avatarPosition.subVectors(cameraPosition, lastCameraPos)
-  // lastCameraPos.copy(cameraPosition)
-
-  // const displacement = new Vector3(avatarPosition.x, 0, avatarPosition.z)
-  // const dl = displacement.lengthSq()
-  // // Limit the distance traveled in a frame
-  // if (displacement.lengthSq() > 1.0 || dl <= Number.EPSILON) return
-
-  // const transform = getComponent(entity, TransformComponent)
-  // transform.position.copy(controller.controller.translation() as Vector3)
 }
 
 /**
@@ -221,31 +199,6 @@ export const alignXRCameraRotationWithAvatar = (entity: Entity, camera: Perspect
   camParentRot.setFromUnitVectors(tempVec2.set(0, 0, 1), tempVec1).multiply(quat)
 }
 
-/**
- *
- * @param entity The avatar
- * @param displacement The displacement to apply to the avatar; this value is modified to reflect the actual displacement applied
- */
-const moveAvatarController = (entity: Entity, displacement: Vector3) => {
-  const controller = getComponent(entity, AvatarControllerComponent)
-  const rigidBody = controller.body
-
-  // multiply by reciprocal of delta seconds to move 1 unit per second
-  const fixedDelta = getState(EngineState).fixedDeltaSeconds.value
-  velocityToSet.copy(displacement).multiplyScalar(1 / fixedDelta)
-
-  // Displacement is calculated using last position because the updated position of rigidbody will show up in next frame
-  // since we apply velocity to body and position is updated after physics engine step
-  // const currentPosition = rigidBody.translation() as Vector3
-  // displacement.copy(currentPosition as Vector3).sub(controller.lastPosition as Vector3)
-
-  // const transform = getComponent(entity, TransformComponent)
-  // displacement.applyQuaternion(transform.rotation)
-
-  // controller.lastPosition.copy(currentPosition)
-  rigidBody.setLinvel(velocityToSet, true)
-}
-
 export const xrCameraNeedsAlignment = (
   entity: Entity,
   camera: PerspectiveCamera | OrthographicCamera,
@@ -298,7 +251,7 @@ export const moveXRAvatar = (
   // Limit the distance traveled in a frame
   if (displacement.lengthSq() > 1.0 || dl <= Number.EPSILON) return
 
-  moveAvatarController(entity, displacement)
+  // moveAvatarController(entity, displacement)
 }
 
 /**

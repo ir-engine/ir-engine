@@ -22,6 +22,7 @@ import {
   hasComponent,
   removeComponent
 } from '../../ecs/functions/ComponentFunctions'
+import { Vec3Arg } from '../../renderer/materials/constants/DefaultArgs'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { RapierCollisionComponent } from '../components/RapierCollisionComponent'
 import { RaycastComponent } from '../components/RaycastComponent'
@@ -67,7 +68,13 @@ function createRigidBody(entity: Entity, world: World, rigidBodyDesc: RigidBodyD
   const rigidBody = world.createRigidBody(rigidBodyDesc)
   colliderDesc.forEach((desc) => world.createCollider(desc, rigidBody))
 
-  addComponent(entity, RigidBodyComponent, { body: rigidBody, previousPosition: new Vector3() })
+  addComponent(entity, RigidBodyComponent, {
+    body: rigidBody,
+    previousPosition: new Vector3(),
+    previousRotation: new Quaternion(),
+    previousLinearVelocity: new Vector3(),
+    previousAngularVelocity: new Vector3()
+  })
 
   const RigidBodyTypeTagComponent = getTagComponentForRigidBody(rigidBody)
   addComponent(entity, RigidBodyTypeTagComponent, true)

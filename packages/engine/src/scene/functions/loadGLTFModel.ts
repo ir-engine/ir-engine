@@ -12,13 +12,14 @@ import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { NavMeshComponent } from '../../navigation/component/NavMeshComponent'
 import { matchActionOnce } from '../../networking/functions/matchActionOnce'
 import { applyTransformToMeshWorld } from '../../physics/functions/parseModelColliders'
-import { addTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
-import { addTransformOffsetComponent } from '../../transform/components/TransformOffsetComponent'
+import { setComputedTransformComponent } from '../../transform/components/ComputedTransformComponent'
+import { setTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
 import { ModelComponent, ModelComponentType } from '../components/ModelComponent'
 import { NameComponent } from '../components/NameComponent'
 import { Object3DComponent } from '../components/Object3DComponent'
 import { ObjectLayers } from '../constants/ObjectLayers'
 import { loadComponent } from '../functions/SceneLoading'
+import { applyTransformPositionOffset, applyTransformRotationOffset } from './loaders/TransformFunctions'
 import { VIDEO_MESH_NAME } from './loaders/VideoFunctions'
 import { setObjectLayers } from './setObjectLayers'
 
@@ -92,7 +93,7 @@ export const parseObjectComponentsFromGLTF = (entity: Entity, object3d?: Object3
     // apply root mesh's world transform to this mesh locally
     applyTransformToMeshWorld(entity, mesh)
 
-    const transform = addTransformComponent(e)
+    const transform = setTransformComponent(e)
     mesh.getWorldPosition(transform.position)
     mesh.getWorldQuaternion(transform.rotation)
     mesh.getWorldScale(transform.scale)
@@ -102,9 +103,12 @@ export const parseObjectComponentsFromGLTF = (entity: Entity, object3d?: Object3
 
     // to ensure colliders and other entities from gltf metadata move with models in the editor, we need to add a child transform component
     if (Engine.instance.isEditor) {
-      const offset = addTransformOffsetComponent(e, entity)
-      offset.offsetPosition.copy(mesh.position)
-      offset.offsetRotation.copy(mesh.quaternion)
+      setComputedTransformComponent(e, entity, () => {
+        const transform = getComponent(e, TransformComponent)
+        const parentTransform = getComponent(entity, TransformComponent)
+        applyTransformPositionOffset(transform, parentTransform, mesh.position)
+        applyTransformRotationOffset(transform, parentTransform, mesh.quaternion)
+      })
     }
 
     createObjectEntityFromGLTF(e, mesh)

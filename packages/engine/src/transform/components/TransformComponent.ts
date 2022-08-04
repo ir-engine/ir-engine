@@ -2,10 +2,8 @@ import { Types } from 'bitecs'
 import { Quaternion, Vector3 } from 'three'
 
 import { createQuaternionProxy, createVector3Proxy } from '../../common/proxies/three'
-import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
-import { World } from '../../ecs/classes/World'
-import { addComponent, createMappedComponent } from '../../ecs/functions/ComponentFunctions'
+import { createMappedComponent, setComponent } from '../../ecs/functions/ComponentFunctions'
 
 export type TransformComponentType = {
   position: Vector3
@@ -30,8 +28,8 @@ export const TransformComponent = createMappedComponent<TransformComponentType, 
 
 globalThis.TransformComponent = TransformComponent
 
-export function addTransformComponent(entity: Entity) {
-  return addComponent(entity, TransformComponent, {
+export function setTransformComponent(entity: Entity) {
+  return setComponent(entity, TransformComponent, {
     position: createVector3Proxy(TransformComponent.position, entity),
     rotation: createQuaternionProxy(TransformComponent.rotation, entity),
     scale: createVector3Proxy(TransformComponent.scale, entity).setScalar(1)

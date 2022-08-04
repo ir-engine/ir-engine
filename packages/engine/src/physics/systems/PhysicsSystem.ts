@@ -1,4 +1,3 @@
-import { Not } from 'bitecs'
 import { Quaternion, Vector3 } from 'three'
 
 import { createActionQueue, getState } from '@xrengine/hyperflux'
@@ -8,7 +7,6 @@ import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
-import { LocalAvatarTagComponent } from '../../input/components/LocalAvatarTagComponent'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { NetworkObjectDirtyTag } from '../../networking/components/NetworkObjectDirtyTag'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
@@ -61,20 +59,6 @@ const updateDirtyDynamicBodiesFromNetwork = (world: World, entity: Entity) => {
   removeComponent(entity, NetworkObjectDirtyTag)
 }
 
-const updateTransformFromBody = (world: World, entity: Entity) => {
-  const { body, previousPosition } = getComponent(entity, RigidBodyComponent)
-  const { position, rotation } = getComponent(entity, TransformComponent)
-  const { linear, angular } = getComponent(entity, VelocityComponent)
-
-  previousPosition.copy(position)
-
-  position.copy(body.translation() as Vector3)
-  rotation.copy(body.rotation() as Quaternion)
-
-  linear.copy(body.linvel() as Vector3)
-  angular.copy(body.angvel() as Vector3)
-}
-
 const processCollisions = (world: World) => {
   Physics.drainCollisionEventQueue(world.physicsWorld, world.physicsCollisionEventQueue)
   return world
@@ -89,8 +73,6 @@ export default async function PhysicsSystem(world: World) {
     NetworkObjectDirtyTag,
     RigidBodyDynamicTagComponent
   ])
-
-  const dynamicRigidBodyQuery = defineQuery([RigidBodyComponent, RigidBodyDynamicTagComponent])
 
   const rigidBodyQuery = defineQuery([RigidBodyComponent])
 
@@ -110,6 +92,14 @@ export default async function PhysicsSystem(world: World) {
     for (const entity of dirtyNetworkedDynamicRigidBodyQuery()) updateDirtyDynamicBodiesFromNetwork(world, entity)
 
     if (!Engine.instance.isEditor) {
+      for (const entity of rigidBodyQuery()) {
+        const rigidBody = getComponent(entity, RigidBodyComponent)
+        rigidBody.previousPosition.copy(rigidBody.body.translation() as Vector3)
+        rigidBody.previousRotation.copy(rigidBody.body.rotation() as Quaternion)
+        rigidBody.previousLinearVelocity.copy(rigidBody.body.linvel() as Vector3)
+        rigidBody.previousAngularVelocity.copy(rigidBody.body.linvel() as Vector3)
+      }
+
       // step physics world
       world.physicsWorld.timestep = getState(EngineState).fixedDeltaSeconds.value
       world.physicsWorld.step(world.physicsCollisionEventQueue)
@@ -117,8 +107,6 @@ export default async function PhysicsSystem(world: World) {
       for (const entity of raycastQuery()) processRaycasts(world, entity)
 
       processCollisions(world)
-
-      for (const entity of dynamicRigidBodyQuery()) updateTransformFromBody(world, entity)
     }
   }
 }

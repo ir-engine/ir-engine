@@ -33,9 +33,8 @@ export default function FixedPipelineSystem(world: World) {
     let updatesLimitReached = updatesCount > updatesLimit
 
     while (!accumulatorDepleted && !timeout && !updatesLimitReached) {
-      world.fixedElapsedSeconds += timestep
-      world.fixedTick = Math.floor(world.fixedElapsedSeconds / timestep)
-      getEngineState().fixedTick.set(world.fixedTick)
+      engineState.fixedTick.set(Math.floor(engineState.elapsedSeconds.value / timestep))
+      engineState.fixedElapsedSeconds.set(engineState.fixedTick.value * timestep)
 
       for (const s of world.pipelines[SystemUpdateType.FIXED_EARLY]) s.enabled && s.execute()
       for (const s of world.pipelines[SystemUpdateType.FIXED]) s.enabled && s.execute()
@@ -54,8 +53,8 @@ export default function FixedPipelineSystem(world: World) {
       logger.warn(
         'FixedPipelineSystem: update limit reached, skipping world.fixedElapsedTime ahead to catch up with world.elapsedTime'
       )
-      world.fixedElapsedSeconds = world.elapsedSeconds
-      world.fixedTick = Math.floor(world.fixedElapsedSeconds / timestep)
+      engineState.fixedTick.set(Math.floor(engineState.elapsedSeconds.value / timestep))
+      engineState.fixedElapsedSeconds.set(engineState.fixedTick.value * timestep)
     }
   }
 }
