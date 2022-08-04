@@ -327,6 +327,7 @@
   "avatar": {
     "title": "Upload Avatar",
     "titleSelectAvatar": "Select Avatar",
+    "titleSelectThumbnail": "Select Thumbnail",
     "lbl-browse": "Browse",
     "lbl-thumbnail": "Thumbnail",
     "lbl-upload": "Upload",

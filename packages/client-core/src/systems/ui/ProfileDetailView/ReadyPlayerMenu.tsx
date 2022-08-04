@@ -81,8 +81,8 @@ const ReadyPlayerMenu = () => {
 
   const handleMessageEvent = async (event, entity) => {
     const url = event.data
-    setShowLoading(false)
-    if (url != null && url.toString().toLowerCase().startsWith('http')) {
+
+    if (url && url.toString().toLowerCase().startsWith('http')) {
       setShowLoading(true)
       setAvatarUrl(url)
       try {
@@ -95,7 +95,6 @@ const ReadyPlayerMenu = () => {
             setError(error)
             setObj(obj)
           })
-          setShowLoading(false)
           fetch(url)
             .then((res) => res.blob())
             .then((data) => setSelectedFile(data))
@@ -103,11 +102,14 @@ const ReadyPlayerMenu = () => {
               setError(err.message)
               logger.error(err)
             })
+            .finally(() => setShowLoading(false))
         }
       } catch (error) {
         logger.error(error)
         setError(t('user:usermenu.avatar.selectValidFile'))
       }
+    } else {
+      setShowLoading(false)
     }
   }
 
@@ -129,7 +131,7 @@ const ReadyPlayerMenu = () => {
     ;(canvas.width = THUMBNAIL_WIDTH), (canvas.height = THUMBNAIL_HEIGHT)
 
     const newContext = canvas.getContext('2d')
-    newContext?.drawImage(renderer.domElement, THUMBNAIL_WIDTH / 2 - THUMBNAIL_WIDTH, 0)
+    newContext?.drawImage(renderer.domElement, 0, 0)
 
     var thumbnailName = avatarUrl.substring(0, avatarUrl.lastIndexOf('.')) + '.png'
 
@@ -145,7 +147,7 @@ const ReadyPlayerMenu = () => {
       <div
         ref={panelRef}
         className="ReadyPlayerPanel"
-        style={{ width: selectedFile ? '400px' : '600px', padding: selectedFile ? '100px 0' : '0' }}
+        style={{ width: selectedFile ? '400px' : '600px', padding: selectedFile ? '15px' : '0' }}
       >
         {selectedFile && (
           <section className="controlContainer">
@@ -180,7 +182,9 @@ const ReadyPlayerMenu = () => {
             width: THUMBNAIL_WIDTH + 'px',
             height: THUMBNAIL_HEIGHT + 'px',
             margin: 'auto',
-            display: !avatarUrl ? 'none' : 'block'
+            display: !avatarUrl ? 'none' : 'block',
+            boxShadow: !avatarUrl ? 'none' : '0 0 10px var(--buttonOutlined)',
+            borderRadius: '8px'
           }}
         ></div>
         {selectedFile && (
@@ -191,8 +195,7 @@ const ReadyPlayerMenu = () => {
             className="iconBlock"
             style={{
               color: hover ? '#fff' : '#5f5ff1',
-              position: 'absolute',
-              top: '90%',
+              marginTop: '10px',
               left: '45%',
               border: 'none',
               borderRadius: '50%',
