@@ -25,7 +25,7 @@ import { disposeProject, loadProjectScene, runPreprojectLoadTasks } from '../fun
 import { createNewScene, getScene, saveScene } from '../functions/sceneFunctions'
 import { initializeRenderer } from '../functions/sceneRenderFunctions'
 import { takeScreenshot } from '../functions/takeScreenshot'
-import { uploadBakeToServer } from '../functions/uploadEnvMapBake'
+import { uploadBPCEMBakeToServer } from '../functions/uploadEnvMapBake'
 import { cmdOrCtrlString } from '../functions/utils'
 import { useEditorErrorState } from '../services/EditorErrorServices'
 import { EditorAction, useEditorState } from '../services/EditorServices'
@@ -265,7 +265,7 @@ const EditorContainer = () => {
           )
         })) as any
         if (result && projectName.value) {
-          await uploadBakeToServer(Engine.instance.currentWorld.entityTree.rootNode.entity)
+          await uploadBPCEMBakeToServer(Engine.instance.currentWorld.entityTree.rootNode.entity)
           await saveScene(projectName.value, result.name, blob, abortController.signal)
           dispatchAction(EditorAction.sceneModified({ modified: false }))
         }
@@ -386,7 +386,7 @@ const EditorContainer = () => {
 
     try {
       if (projectName.value) {
-        await uploadBakeToServer(Engine.instance.currentWorld.entityTree.rootNode.entity)
+        await uploadBPCEMBakeToServer(Engine.instance.currentWorld.entityTree.rootNode.entity)
         await saveScene(projectName.value, sceneName.value, blob, abortController.signal)
       }
 

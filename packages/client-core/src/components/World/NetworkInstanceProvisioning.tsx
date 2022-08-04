@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react'
 import { useHistory } from 'react-router'
 
-import { AppAction, GeneralStateList, useAppState } from '@xrengine/client-core/src/common/services/AppService'
+import { AppLoadingAction, AppLoadingStates } from '@xrengine/client-core/src/common/services/AppLoadingService'
 import {
   LocationInstanceConnectionService,
   useLocationInstanceConnectionState
@@ -94,9 +94,7 @@ export const NetworkInstanceProvisioning = () => {
       }
     } else {
       if (!locationState.currentLocationUpdateNeeded.value && !locationState.fetchingCurrentLocation.value) {
-        dispatchAction(
-          AppAction.setAppSpecificOnBoardingStep({ onBoardingStep: GeneralStateList.FAILED, isTutorial: false })
-        )
+        dispatchAction(AppLoadingAction.setLoadingState({ state: AppLoadingStates.FAILED }))
       }
     }
   }, [locationState.currentLocation.location])

@@ -15,7 +15,7 @@ import { addComponent, getComponent, hasComponent } from '../../ecs/functions/Co
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { createEngine } from '../../initializeEngine'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { RapierCollisionComponent } from '../components/RapierCollisionComponent'
+import { CollisionComponent } from '../components/CollisionComponent'
 import { RigidBodyComponent } from '../components/RigidBodyComponent'
 import { RigidBodyDynamicTagComponent } from '../components/RigidBodyDynamicTagComponent'
 import { RigidBodyFixedTagComponent } from '../components/RigidBodyFixedTagComponent'
@@ -272,28 +272,19 @@ describe('Physics', () => {
     physicsWorld.step(collisionEventQueue)
     Physics.drainCollisionEventQueue(physicsWorld, collisionEventQueue)
 
-    assert.equal(hasComponent(entity1, RapierCollisionComponent), true)
-    assert.equal(getComponent(entity1, RapierCollisionComponent).collisions.get(entity2)?.bodySelf, rigidBody1)
-    assert.equal(getComponent(entity1, RapierCollisionComponent).collisions.get(entity2)?.bodyOther, rigidBody2)
-    assert.equal(
-      getComponent(entity1, RapierCollisionComponent).collisions.get(entity2)?.shapeSelf,
-      rigidBody1.collider(0)
-    )
-    assert.equal(
-      getComponent(entity1, RapierCollisionComponent).collisions.get(entity2)?.shapeOther,
-      rigidBody2.collider(0)
-    )
-    assert.equal(
-      getComponent(entity1, RapierCollisionComponent).collisions.get(entity2)?.type,
-      CollisionEvents.COLLISION_START
-    )
+    assert.equal(hasComponent(entity1, CollisionComponent), true)
+    assert.equal(getComponent(entity1, CollisionComponent).get(entity2)?.bodySelf, rigidBody1)
+    assert.equal(getComponent(entity1, CollisionComponent).get(entity2)?.bodyOther, rigidBody2)
+    assert.equal(getComponent(entity1, CollisionComponent).get(entity2)?.shapeSelf, rigidBody1.collider(0))
+    assert.equal(getComponent(entity1, CollisionComponent).get(entity2)?.shapeOther, rigidBody2.collider(0))
+    assert.equal(getComponent(entity1, CollisionComponent).get(entity2)?.type, CollisionEvents.COLLISION_START)
 
     rigidBody2.setTranslation({ x: 0, y: 0, z: 15 }, true)
 
     physicsWorld.step(collisionEventQueue)
     Physics.drainCollisionEventQueue(physicsWorld, collisionEventQueue)
 
-    assert.equal(hasComponent(entity1, RapierCollisionComponent), false)
+    assert.equal(hasComponent(entity1, CollisionComponent), false)
   })
 
   it('should generate a trigger event', async () => {
@@ -328,27 +319,18 @@ describe('Physics', () => {
     physicsWorld.step(collisionEventQueue)
     Physics.drainCollisionEventQueue(physicsWorld, collisionEventQueue)
 
-    assert.equal(hasComponent(entity1, RapierCollisionComponent), true)
-    assert.equal(getComponent(entity1, RapierCollisionComponent).collisions.get(entity2)?.bodySelf, rigidBody1)
-    assert.equal(getComponent(entity1, RapierCollisionComponent).collisions.get(entity2)?.bodyOther, rigidBody2)
-    assert.equal(
-      getComponent(entity1, RapierCollisionComponent).collisions.get(entity2)?.shapeSelf,
-      rigidBody1.collider(0)
-    )
-    assert.equal(
-      getComponent(entity1, RapierCollisionComponent).collisions.get(entity2)?.shapeOther,
-      rigidBody2.collider(0)
-    )
-    assert.equal(
-      getComponent(entity1, RapierCollisionComponent).collisions.get(entity2)?.type,
-      CollisionEvents.TRIGGER_START
-    )
+    assert.equal(hasComponent(entity1, CollisionComponent), true)
+    assert.equal(getComponent(entity1, CollisionComponent).get(entity2)?.bodySelf, rigidBody1)
+    assert.equal(getComponent(entity1, CollisionComponent).get(entity2)?.bodyOther, rigidBody2)
+    assert.equal(getComponent(entity1, CollisionComponent).get(entity2)?.shapeSelf, rigidBody1.collider(0))
+    assert.equal(getComponent(entity1, CollisionComponent).get(entity2)?.shapeOther, rigidBody2.collider(0))
+    assert.equal(getComponent(entity1, CollisionComponent).get(entity2)?.type, CollisionEvents.TRIGGER_START)
 
     rigidBody2.setTranslation({ x: 0, y: 0, z: 15 }, true)
 
     physicsWorld.step(collisionEventQueue)
     Physics.drainCollisionEventQueue(physicsWorld, collisionEventQueue)
 
-    assert.equal(hasComponent(entity1, RapierCollisionComponent), false)
+    assert.equal(hasComponent(entity1, CollisionComponent), false)
   })
 })

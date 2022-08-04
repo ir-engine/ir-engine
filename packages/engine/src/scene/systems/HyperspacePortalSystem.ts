@@ -1,25 +1,23 @@
-import { AmbientLight, Euler, Quaternion } from 'three'
-
-import { dispatchAction } from '@xrengine/hyperflux'
+import { AmbientLight } from 'three'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
-import { AvatarStates } from '../../avatar/animation/Util'
-import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
-import { switchCameraMode } from '../../avatar/functions/switchCameraMode'
-import { CameraMode } from '../../camera/types/CameraMode'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions } from '../../ecs/classes/EngineState'
 import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { matchActionOnce } from '../../networking/functions/matchActionOnce'
-import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
-import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { createTransitionState } from '../../xrui/functions/createTransitionState'
 import { PortalEffect } from '../classes/PortalEffect'
 import { HyperspaceTagComponent } from '../components/HyperspaceTagComponent'
 import { Object3DComponent } from '../components/Object3DComponent'
 import { ObjectLayers } from '../constants/ObjectLayers'
+import { PortalEffects } from '../functions/loaders/PortalFunctions'
 import { setObjectLayers } from '../functions/setObjectLayers'
+
+/** @todo namespace this somehow */
+export const HyperspacePortalEffect = 'Hyperspace'
+
+PortalEffects.set(HyperspacePortalEffect, HyperspaceTagComponent)
 
 export default async function HyperspacePortalSystem(world: World) {
   const hyperspaceTagComponent = defineQuery([HyperspaceTagComponent])
@@ -39,13 +37,6 @@ export default async function HyperspacePortalSystem(world: World) {
 
     // to trigger the hyperspace effect, add the hyperspace tag to the world entity
     for (const entity of hyperspaceTagComponent.enter()) {
-      if (!EngineRenderer.instance.xrSession)
-        switchCameraMode(Engine.instance.currentWorld.cameraEntity, { cameraMode: CameraMode.ShoulderCam }, true)
-
-      getComponent(world.localClientEntity, AvatarControllerComponent).movementEnabled = false
-
-      dispatchAction(WorldNetworkAction.avatarAnimation({ newStateName: AvatarStates.FALL_IDLE, params: {} }))
-
       // TODO: add BPCEM of old and new scenes and fade them in and out too
       transition.setState('IN')
 
@@ -70,19 +61,6 @@ export default async function HyperspacePortalSystem(world: World) {
 
     // the hyperspace exit runs once the fadeout transition has finished
     for (const entity of hyperspaceTagComponent.exit()) {
-      const controller = getComponent(world.localClientEntity, AvatarControllerComponent)
-      controller.movementEnabled = true
-
-      // teleport player to where the portal spawn position is
-      controller.controller.setTranslation(world.activePortal!.remoteSpawnPosition, true)
-      controller.controller.setRotation(
-        new Quaternion().setFromEuler(new Euler(0, world.activePortal!.remoteSpawnEuler.y, 0, 'XYZ')),
-        true
-      )
-
-      world.activePortal = null
-      dispatchAction(EngineActions.setTeleporting({ isTeleporting: false }))
-
       hyperspaceEffect.removeFromParent()
 
       Engine.instance.currentWorld.camera.layers.enable(ObjectLayers.Scene)

@@ -18,10 +18,14 @@ import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineActions, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { addComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { spawnLocalAvatarInWorld } from '@xrengine/engine/src/networking/functions/receiveJoinWorld'
-import { HyperspaceTagComponent } from '@xrengine/engine/src/scene/components/HyperspaceTagComponent'
+import {
+  PortalEffects,
+  revertAvatarToMovingStateFromTeleport,
+  setAvatarToLocationTeleportingState
+} from '@xrengine/engine/src/scene/functions/loaders/PortalFunctions'
 import { addActionReceptor, dispatchAction, removeActionReceptor, useHookEffect } from '@xrengine/hyperflux'
 
-import { AppAction, GeneralStateList } from '../../common/services/AppService'
+import { AppLoadingAction, AppLoadingStates } from '../../common/services/AppLoadingService'
 import { useLocationState } from '../../social/services/LocationService'
 import { SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientNetwork'
 import { initClient, loadScene } from './LocationLoadHelper'
@@ -60,9 +64,9 @@ export const LoadEngineWithScene = () => {
     const sceneData = sceneState.currentScene.value
     if (clientReady && sceneData) {
       AuthService.fetchAvatarList()
-      dispatchAction(AppAction.setAppOnBoardingStep({ onBoardingStep: GeneralStateList.SCENE_LOADING }))
+      dispatchAction(AppLoadingAction.setLoadingState({ state: AppLoadingStates.SCENE_LOADING }))
       loadScene(sceneData).then(() => {
-        dispatchAction(AppAction.setAppOnBoardingStep({ onBoardingStep: GeneralStateList.SCENE_LOADED }))
+        dispatchAction(AppLoadingAction.setLoadingState({ state: AppLoadingStates.SCENE_LOADED }))
       })
     }
   }, [clientReady, sceneState.currentScene])
@@ -92,27 +96,31 @@ export const LoadEngineWithScene = () => {
   }, [engineState.sceneLoaded, authState.user, engineState.joinedWorld])
 
   useHookEffect(() => {
-    if (engineState.joinedWorld.value && !engineState.isTeleporting.value) {
-      dispatchAction(AppAction.setAppOnBoardingStep({ onBoardingStep: GeneralStateList.SUCCESS }))
-      dispatchAction(AppAction.setAppLoaded({ loaded: true }))
+    if (engineState.sceneLoaded.value) {
+      dispatchAction(AppLoadingAction.setLoadingState({ state: AppLoadingStates.SUCCESS }))
+      if (engineState.isTeleporting.value) {
+        revertAvatarToMovingStateFromTeleport(Engine.instance.currentWorld)
+      }
     }
-  }, [engineState.joinedWorld])
+  }, [engineState.sceneLoaded])
 
   useHookEffect(() => {
     if (engineState.isTeleporting.value) {
       logger.info('Resetting connection for portal teleport.')
       const world = Engine.instance.currentWorld
-      const activePortal = world.activePortal!
+      const activePortal = world.activePortal
+
+      if (!activePortal) return
 
       const currentLocation = locationState.locationName.value.split('/')[1]
       if (currentLocation === activePortal.location || world.entityTree.uuidNodeMap.get(activePortal.linkedPortalId)) {
         teleportAvatar(
           world.localClientEntity,
           activePortal.remoteSpawnPosition
-          // activePortal.remoteSpawnRotation // todo, add rotation to teleport, need to factor camera in
+          // activePortal.remoteSpawnRotation
         )
         world.activePortal = null
-        dispatchAction(EngineActions.setTeleporting({ isTeleporting: false }))
+        dispatchAction(EngineActions.setTeleporting({ isTeleporting: false, $time: Date.now() + 500 }))
         return
       }
 
@@ -129,8 +137,13 @@ export const LoadEngineWithScene = () => {
       // leaving a world instance server will check if we are in a location media instance and shut that down too
       leaveNetwork(world.worldNetwork as SocketWebRTCClientNetwork)
 
-      // the HyperspaceTagComponent is what trigges the portal logic to begin
-      addComponent(world.sceneEntity, HyperspaceTagComponent, true)
+      setAvatarToLocationTeleportingState(world)
+
+      if (activePortal.effectType) {
+        addComponent(world.sceneEntity, PortalEffects.get(activePortal.effectType), true)
+      } else {
+        dispatchAction(AppLoadingAction.setLoadingState({ state: AppLoadingStates.START_STATE }))
+      }
     }
   }, [engineState.isTeleporting])
 

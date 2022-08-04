@@ -53,6 +53,7 @@ export const parseScenePortals = (scene: SceneData) => {
           sceneName: scene.name,
           portalEntityId: entityId,
           portalEntityName: entity.name,
+          previewImageURL: component.props.previewImageURL,
           spawnPosition: component.props.spawnPosition,
           spawnRotation: component.props.spawnRotation
         })

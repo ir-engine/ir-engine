@@ -6,20 +6,20 @@ import { PortalDetail } from '@xrengine/common/src/interfaces/PortalInterface'
 import { Application } from '../../../declarations'
 import { parseScenePortals } from './scene-parser'
 
-export const getAllPortals = (app: Application): any => {
-  return async (params: Params) => {
-    params.metadataOnly = false
-    const scenes = await (await app.service('scene-data').find(params)).data
+export const getAllPortals = (app: Application) => {
+  return async (params?: Params) => {
+    params!.metadataOnly = false
+    const scenes = (await app.service('scene-data').find(params!)).data
     return {
       data: scenes.map((scene) => parseScenePortals(scene)).flat()
     }
   }
 }
 
-export const getPortal = (app: any): any => {
-  return async (id: string, params: Params) => {
-    params.metadataOnly = false
-    const scenes = await (await app.service('scene-data').find(params)).data
+export const getPortal = (app: any) => {
+  return async (id: string, params?: Params) => {
+    params!.metadataOnly = false
+    const scenes = await (await app.service('scene-data').find(params!)).data
     const portals = scenes.map((scene) => parseScenePortals(scene)).flat() as PortalDetail[]
     return {
       data: portals.find((portal) => portal.portalEntityId === id)
@@ -27,7 +27,7 @@ export const getPortal = (app: any): any => {
   }
 }
 
-export const getEnvMapBake = (app: any): any => {
+export const getEnvMapBake = (app: any) => {
   return async (req: express.Request, res: express.Response) => {
     const envMapBake = await getEnvMapBakeById(app, req.params.entityId)
 
