@@ -215,10 +215,10 @@ export async function checkForDuplicatedAssignments(
       setTimeout(() => {
         logger.warn(`Instanceserver at ${ipAddress} too long to respond, assuming it is unresponsive and killing`)
         resolve(false)
-      }, 2 * 1000) // timeout after 2 seconds
+      }, config.server.instanceserverUnreachableTimeoutSeconds * 1000) // timeout after 2 seconds
     }),
     new Promise<boolean>((resolve) => {
-      let options = {}
+      let options = {} as any
       let protocol = 'http://'
       if (!config.kubernetes.enabled) {
         protocol = 'https://'
@@ -240,7 +240,7 @@ export async function checkForDuplicatedAssignments(
   if (!responsivenessCheck) {
     await app.service('instance').remove(assignResult.id)
     if (config.kubernetes.enabled) app.k8DefaultClient.deleteNamespacedPod(assignResult.podName, 'default')
-    else await new Promise((resolve) => setTimeout(() => resolve(), 500))
+    else await new Promise((resolve) => setTimeout(() => resolve(null), 500))
     return getFreeInstanceserver(app, iteration + 1, locationId, channelId)
   }
 
