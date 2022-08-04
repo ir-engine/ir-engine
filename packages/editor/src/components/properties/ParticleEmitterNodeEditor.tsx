@@ -5,6 +5,7 @@ import ReactJson from 'react-json-view'
 import * as EasingFunctions from '@xrengine/engine/src/common/functions/EasingFunctions'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { formatMaterialArgs } from '@xrengine/engine/src/renderer/materials/Utilities'
 import { ErrorComponent } from '@xrengine/engine/src/scene/components/ErrorComponent'
 import { ParticleEmitterComponent } from '@xrengine/engine/src/scene/components/ParticleEmitterComponent'
 import {
@@ -44,10 +45,14 @@ export const ParticleEmitterNodeEditor: EditorComponentType = (props) => {
     _onChangeArgs(value)
   }
   function getArguments(particleID) {
+    if (!Object.keys(DefaultArguments).includes(particleID)) return <></>
     const defaultArguments = DefaultArguments[particleID]
     const defaultValues = Object.fromEntries(Object.entries(defaultArguments).map(([k, v]) => [k, (v as any).default]))
     if (!defaultArguments) return
-    const args = particleComponent.args ? { ...defaultValues, ...particleComponent.args } : defaultValues
+    const args = formatMaterialArgs(
+      particleComponent.args ? { ...defaultValues, ...particleComponent.args } : defaultValues,
+      defaultArguments
+    )
 
     function setArgsProp(prop) {
       return (value) => {
@@ -121,7 +126,12 @@ export const ParticleEmitterNodeEditor: EditorComponentType = (props) => {
       <Button onClick={() => dispatchAction(ParticleSystemActions.createParticleSystem({ entity }))}>Refresh</Button>
       {particleComponent.mode === 'JSON' && (
         <InputGroup name="JSON" label="JSON">
-          <StringInput value={particleComponent.src} onChange={updateProperty(ParticleEmitterComponent, 'src')} />
+          <StringInput
+            value={
+              typeof particleComponent.src === 'string' ? particleComponent.src : JSON.stringify(particleComponent.src)
+            }
+            onChange={updateProperty(ParticleEmitterComponent, 'src')}
+          />
         </InputGroup>
       )}
       {particleComponent.mode === 'LIBRARY' && (
