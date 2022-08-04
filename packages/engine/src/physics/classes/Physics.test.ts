@@ -269,10 +269,11 @@ describe('Physics', () => {
     const rigidBody1 = Physics.createRigidBody(entity1, physicsWorld, rigidBodyDesc, [colliderDesc])
     const rigidBody2 = Physics.createRigidBody(entity2, physicsWorld, rigidBodyDesc, [colliderDesc])
 
-    physicsWorld.step(collisionEventQueue)
-    Physics.drainCollisionEventQueue(physicsWorld, collisionEventQueue)
+    const drainCollisions = Physics.drainCollisionEventQueue(world.physicsWorld)
 
-    assert.equal(hasComponent(entity1, CollisionComponent), true)
+    physicsWorld.step(collisionEventQueue)
+    world.physicsCollisionEventQueue.drainCollisionEvents(drainCollisions)
+
     assert.equal(getComponent(entity1, CollisionComponent).get(entity2)?.bodySelf, rigidBody1)
     assert.equal(getComponent(entity1, CollisionComponent).get(entity2)?.bodyOther, rigidBody2)
     assert.equal(getComponent(entity1, CollisionComponent).get(entity2)?.shapeSelf, rigidBody1.collider(0))
@@ -282,9 +283,13 @@ describe('Physics', () => {
     rigidBody2.setTranslation({ x: 0, y: 0, z: 15 }, true)
 
     physicsWorld.step(collisionEventQueue)
-    Physics.drainCollisionEventQueue(physicsWorld, collisionEventQueue)
+    world.physicsCollisionEventQueue.drainCollisionEvents(drainCollisions)
 
-    assert.equal(hasComponent(entity1, CollisionComponent), false)
+    assert.equal(getComponent(entity1, CollisionComponent).get(entity2)?.bodySelf, rigidBody1)
+    assert.equal(getComponent(entity1, CollisionComponent).get(entity2)?.bodyOther, rigidBody2)
+    assert.equal(getComponent(entity1, CollisionComponent).get(entity2)?.shapeSelf, rigidBody1.collider(0))
+    assert.equal(getComponent(entity1, CollisionComponent).get(entity2)?.shapeOther, rigidBody2.collider(0))
+    assert.equal(getComponent(entity1, CollisionComponent).get(entity2)?.type, CollisionEvents.COLLISION_END)
   })
 
   it('should generate a trigger event', async () => {
@@ -316,10 +321,11 @@ describe('Physics', () => {
     const rigidBody1 = Physics.createRigidBody(entity1, physicsWorld, rigidBodyDesc, [colliderDesc])
     const rigidBody2 = Physics.createRigidBody(entity2, physicsWorld, rigidBodyDesc, [colliderDesc])
 
-    physicsWorld.step(collisionEventQueue)
-    Physics.drainCollisionEventQueue(physicsWorld, collisionEventQueue)
+    const drainCollisions = Physics.drainCollisionEventQueue(world.physicsWorld)
 
-    assert.equal(hasComponent(entity1, CollisionComponent), true)
+    physicsWorld.step(collisionEventQueue)
+    world.physicsCollisionEventQueue.drainCollisionEvents(drainCollisions)
+
     assert.equal(getComponent(entity1, CollisionComponent).get(entity2)?.bodySelf, rigidBody1)
     assert.equal(getComponent(entity1, CollisionComponent).get(entity2)?.bodyOther, rigidBody2)
     assert.equal(getComponent(entity1, CollisionComponent).get(entity2)?.shapeSelf, rigidBody1.collider(0))
@@ -329,8 +335,12 @@ describe('Physics', () => {
     rigidBody2.setTranslation({ x: 0, y: 0, z: 15 }, true)
 
     physicsWorld.step(collisionEventQueue)
-    Physics.drainCollisionEventQueue(physicsWorld, collisionEventQueue)
+    world.physicsCollisionEventQueue.drainCollisionEvents(drainCollisions)
 
-    assert.equal(hasComponent(entity1, CollisionComponent), false)
+    assert.equal(getComponent(entity1, CollisionComponent).get(entity2)?.bodySelf, rigidBody1)
+    assert.equal(getComponent(entity1, CollisionComponent).get(entity2)?.bodyOther, rigidBody2)
+    assert.equal(getComponent(entity1, CollisionComponent).get(entity2)?.shapeSelf, rigidBody1.collider(0))
+    assert.equal(getComponent(entity1, CollisionComponent).get(entity2)?.shapeOther, rigidBody2.collider(0))
+    assert.equal(getComponent(entity1, CollisionComponent).get(entity2)?.type, CollisionEvents.TRIGGER_END)
   })
 })

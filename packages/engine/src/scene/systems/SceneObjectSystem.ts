@@ -64,15 +64,16 @@ const processObject3d = (entity: Entity) => {
 const updateSimpleMaterials = (sceneObjectEntities: Entity[]) => {
   for (const entity of sceneObjectEntities) {
     const obj3d = getComponent(entity, Object3DComponent)
-    if (hasComponent(entity, XRUIComponent)) return console.error('ignore xrui', entity)
+    if (hasComponent(entity, XRUIComponent)) return
 
     const simpleMaterials =
       hasComponent(entity, SimpleMaterialTagComponent) || getEngineState().useSimpleMaterials.value
-    obj3d.value.traverse((obj: Mesh<any, Material>) => {
+    obj3d.value.traverse((obj: any) => {
+      if (obj.entity && hasComponent(entity, XRUIComponent)) return
       if (simpleMaterials) {
-        useSimpleMaterial(obj as any)
+        useSimpleMaterial(obj)
       } else {
-        useStandardMaterial(obj as any)
+        useStandardMaterial(obj)
       }
     })
   }
