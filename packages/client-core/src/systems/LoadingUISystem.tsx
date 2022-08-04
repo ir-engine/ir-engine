@@ -6,6 +6,7 @@ import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
 import { addComponent, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { matchActionOnce } from '@xrengine/engine/src/networking/functions/matchActionOnce'
+import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
 import { PersistTagComponent } from '@xrengine/engine/src/scene/components/PersistTagComponent'
 import { ObjectLayers } from '@xrengine/engine/src/scene/constants/ObjectLayers'
 import { textureLoader } from '@xrengine/engine/src/scene/constants/Util'
@@ -31,6 +32,7 @@ export default async function LoadingUISystem(world: World) {
   ])
 
   addComponent(ui.entity, PersistTagComponent, true)
+  addComponent(ui.entity, NameComponent, { name: 'Loading XRUI' })
 
   const mesh = new Mesh(
     new SphereGeometry(10),

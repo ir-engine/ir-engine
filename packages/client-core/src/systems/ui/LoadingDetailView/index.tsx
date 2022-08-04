@@ -52,7 +52,6 @@ const LoadingDetailView = (props: {
   transition: ReturnType<typeof createTransitionState>
   onStateChange: (state: { hasSceneColors: boolean }) => void
 }) => {
-  const [img] = useState(new Image())
   const loadingState = useLoadingState()
   const uiState = useXRUIState<LoadingUIState>()
   const sceneState = useSceneState()
@@ -66,7 +65,7 @@ const LoadingDetailView = (props: {
 
   useEffect(() => {
     const thumbnailUrl = sceneState.currentScene.ornull?.thumbnailUrl.value
-    console.log('thumbnailUrl', thumbnailUrl)
+    const img = new Image()
 
     if (thumbnailUrl) {
       colors.main.set('')
@@ -112,7 +111,6 @@ const LoadingDetailView = (props: {
     }
     if (loadingState.state.value === AppLoadingStates.SCENE_LOADING) {
       props.transition.setState('IN')
-      img.src = null!
     }
   }, [loadingState.state])
 

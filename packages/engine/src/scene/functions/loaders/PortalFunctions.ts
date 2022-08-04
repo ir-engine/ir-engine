@@ -139,7 +139,7 @@ const parsePortalProperties = (props): PortalComponentType => {
 
 export const setAvatarToLocationTeleportingState = (world: World) => {
   if (!EngineRenderer.instance.xrSession)
-    switchCameraMode(Engine.instance.currentWorld.cameraEntity, { cameraMode: CameraMode.ShoulderCam }, true)
+    switchCameraMode(Engine.instance.currentWorld.cameraEntity, { cameraMode: CameraMode.ShoulderCam })
   getComponent(world.localClientEntity, AvatarControllerComponent).movementEnabled = false
   dispatchAction(WorldNetworkAction.avatarAnimation({ newStateName: AvatarStates.FALL_IDLE, params: {} }))
 }
