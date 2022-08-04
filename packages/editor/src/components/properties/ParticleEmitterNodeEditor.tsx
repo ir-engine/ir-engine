@@ -7,15 +7,23 @@ import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { ErrorComponent } from '@xrengine/engine/src/scene/components/ErrorComponent'
 import { ParticleEmitterComponent } from '@xrengine/engine/src/scene/components/ParticleEmitterComponent'
+import {
+  disposeParticleSystem,
+  initializeParticleSystem
+} from '@xrengine/engine/src/scene/functions/loaders/ParticleEmitterFunctions'
 import { DefaultArguments, ParticleLibrary } from '@xrengine/engine/src/scene/functions/particles/ParticleLibrary'
+import { ParticleSystemActions } from '@xrengine/engine/src/scene/systems/ParticleSystem'
+import { dispatchAction } from '@xrengine/hyperflux'
 
 import GrainIcon from '@mui/icons-material/Grain'
 
 import { camelPad } from '../../functions/utils'
+import { Button } from '../inputs/Button'
 import ColorInput from '../inputs/ColorInput'
 import CompoundNumericInput from '../inputs/CompoundNumericInput'
 import ImageInput from '../inputs/ImageInput'
 import InputGroup from '../inputs/InputGroup'
+import NumericInput from '../inputs/NumericInput'
 import NumericInputGroup from '../inputs/NumericInputGroup'
 import SelectInput from '../inputs/SelectInput'
 import StringInput from '../inputs/StringInput'
@@ -31,8 +39,10 @@ export const ParticleEmitterNodeEditor: EditorComponentType = (props) => {
   const particleComponent = getComponent(entity, ParticleEmitterComponent)
   const hasError = engineState.errorEntities[entity].get() || hasComponent(entity, ErrorComponent)
 
-  const onChangeArgs = updateProperty(ParticleEmitterComponent, 'args')
-
+  const _onChangeArgs = updateProperty(ParticleEmitterComponent, 'args')
+  const onChangeArgs = (value) => {
+    _onChangeArgs(value)
+  }
   function getArguments(particleID) {
     const defaultArguments = DefaultArguments[particleID]
     const defaultValues = Object.fromEntries(Object.entries(defaultArguments).map(([k, v]) => [k, (v as any).default]))
@@ -57,27 +67,32 @@ export const ParticleEmitterNodeEditor: EditorComponentType = (props) => {
     return (
       <Fragment>
         {Object.entries(defaultArguments).map(([k, v]: [string, any]) => {
+          const compKey = `${entity}-${k}`
           switch (v.type) {
             case 'float':
               return (
-                <InputGroup name={k} label={k}>
+                <InputGroup key={compKey} name={k} label={k}>
                   <CompoundNumericInput value={args[k]} onChange={setArgsProp(k)} />
                 </InputGroup>
               )
             case 'color':
               return (
-                <InputGroup name={k} label={k}>
+                <InputGroup key={compKey} name={k} label={k}>
                   <ColorInput value={args[k]} onChange={setArgsProp(k)} />
                 </InputGroup>
               )
             case 'texture':
-              return <TexturePreviewInputGroup name={k} label={k} value={args[k]} onChange={setArgsProp(k)} />
+              return (
+                <TexturePreviewInputGroup key={compKey} name={k} label={k} value={args[k]} onChange={setArgsProp(k)} />
+              )
             case 'vec2':
             case 'vec3':
               return (
-                <InputGroup name={k} label={k}>
+                <InputGroup key={compKey} name={k} label={k}>
                   {(args[k] as number[]).map((arrayVal, idx) => {
-                    ;<CompoundNumericInput key={`${k}-${idx}`} value={arrayVal} onChange={setArgsArrayProp(k, idx)} />
+                    return (
+                      <NumericInput key={`${compKey}-${idx}`} value={arrayVal} onChange={setArgsArrayProp(k, idx)} />
+                    )
                   })}
                 </InputGroup>
               )
@@ -103,6 +118,7 @@ export const ParticleEmitterNodeEditor: EditorComponentType = (props) => {
           onChange={updateProperty(ParticleEmitterComponent, 'mode')}
         />
       </InputGroup>
+      <Button onClick={() => dispatchAction(ParticleSystemActions.createParticleSystem({ entity }))}>Refresh</Button>
       {particleComponent.mode === 'JSON' && (
         <InputGroup name="JSON" label="JSON">
           <StringInput value={particleComponent.src} onChange={updateProperty(ParticleEmitterComponent, 'src')} />
