@@ -27,12 +27,12 @@ describe('verify-scope', () => {
   it('should fail if user does not have scope', async () => {
     const name = `Test #${Math.random()}`
     const avatarId = `CyberbotGreen #${Math.random()}`
-    const userRole = 'guest'
+    const isGuest = true
 
     const user = (await app.service('user').create({
       name,
       avatarId,
-      userRole
+      isGuest
     })) as UserInterface
 
     const verifyLocationReadScope = verifyScope('location', 'read')
@@ -47,12 +47,12 @@ describe('verify-scope', () => {
   it('should verify guest has scope', async () => {
     const name = `Test #${Math.random()}`
     const avatarId = `CyberbotGreen #${Math.random()}`
-    const userRole = 'guest'
+    const isGuest = true
 
     const user = (await app.service('user').create({
       name,
       avatarId,
-      userRole
+      isGuest
     })) as UserInterface
 
     await app.service('scope').create({
@@ -72,12 +72,12 @@ describe('verify-scope', () => {
   it('should verify user has scope', async () => {
     const name = `Test #${Math.random()}`
     const avatarId = `CyberbotGreen #${Math.random()}`
-    const userRole = 'user'
+    const isGuest = false
 
     const user = (await app.service('user').create({
       name,
       avatarId,
-      userRole
+      isGuest
     })) as UserInterface
 
     await app.service('scope').create({
@@ -97,12 +97,12 @@ describe('verify-scope', () => {
   it('should verify admin', async () => {
     const name = `Test #${Math.random()}`
     const avatarId = `CyberbotGreen #${Math.random()}`
-    const userRole = 'user'
+    const isGuest = false
 
     const user = (await app.service('user').create({
       name,
       avatarId,
-      userRole
+      isGuest
     })) as UserInterface
 
     await app.service('scope').create({

@@ -56,7 +56,7 @@ const ThemePlayground = () => {
   const columns = [
     { id: 'name', label: 'Name', minWidth: 65, align: 'left' },
     {
-      id: 'userRole',
+      id: 'isGuest',
       label: 'Status',
       minWidth: 65,
       align: 'right'
@@ -90,7 +90,7 @@ const ThemePlayground = () => {
   const rows = [
     {
       name: 'Josh',
-      userRole: 'user',
+      isGuest: false,
       location: 'test',
       inviteCode: 'NULL',
       instanceId: 'koqwndpkqwndpkqwndpqkwndm',
@@ -107,7 +107,7 @@ const ThemePlayground = () => {
     },
     {
       name: 'Liam',
-      userRole: 'user',
+      isGuest: false,
       location: 'apartment',
       inviteCode: 'NULL',
       instanceId: 'alksdnvoakewndawepdnpqwdew',
@@ -124,7 +124,7 @@ const ThemePlayground = () => {
     },
     {
       name: 'Gheric',
-      userRole: 'user',
+      isGuest: false,
       location: 'test',
       inviteCode: 'NULL',
       instanceId: 'qkpwejdpqwdmpqlcmnpqwmndqow',

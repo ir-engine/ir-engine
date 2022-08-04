@@ -3,7 +3,6 @@ const dotenv = require('dotenv-flow');
 const cli = require('cli');
 const Sequelize = require('sequelize');
 import appRootPath from 'app-root-path'
-const { scopeTypeSeed } = require('../packages/server-core/src/scope/scope-type/scope-type.seed')
 
 dotenv.config({
     path: appRootPath.path,
@@ -22,8 +21,6 @@ db.url = process.env.MYSQL_URL ??
     `mysql://${db.username}:${db.password}@${db.host}:${db.port}/${db.database}`;
 
 cli.enable('status');
-
-const options = cli.parse({});
 
 cli.main(async () => {
     try {
@@ -51,6 +48,11 @@ cli.main(async () => {
             userRole: {
                 type: Sequelize.DataTypes.STRING,
                 allowNull: true
+            },
+            isGuest: {
+                type: Sequelize.DataTypes.BOOLEAN,
+                defaultValue: true,
+                allowNull: false
             }
         });
 
@@ -72,28 +74,35 @@ cli.main(async () => {
         })
 
         const admins = await User.findAll({
+            limit: 1000,
             where: {
                 userRole: 'admin'
             }
         });
-        console.log('admins', admins)
 
-        await Promise.all(admins.map(admin => new Promise(async resolve => {
-            await User.update({
-                userRole: 'user'
-            }, {
-                where: {
-                    id: admin.id
+        await User.update({
+            isGuest: true
+        }, {
+            where: {
+                userRole: 'guest'
+            }
+        })
+        await User.update({
+            isGuest: false
+        }, {
+            where: {
+                userRole: {
+                    [Sequelize.Op.ne]: 'guest'
                 }
-            })
+            }
+        })
+        await Promise.all(admins.map(admin => new Promise(async resolve => {
             const existingAdminScope = await Scope.findOne({ where: { userId: admin.id, type: 'admin:admin'}})
-            console.log('existingAdminScope', existingAdminScope)
             if (!existingAdminScope) {
                 const scopeCreate = await Scope.create({
                     userId: admin.id,
                     type: 'admin:admin'
                 })
-                console.log('new admin scope', scopeCreate)
             }
             resolve(null)
         })))

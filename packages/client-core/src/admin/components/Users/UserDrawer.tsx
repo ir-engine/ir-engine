@@ -18,7 +18,6 @@ import InputText from '../../common/InputText'
 import { validateForm } from '../../common/validation/formValidation'
 import { AdminScopeTypeService, useScopeTypeState } from '../../services/ScopeTypeService'
 import { AdminStaticResourceService, useStaticResourceState } from '../../services/StaticResourceService'
-import { AdminUserRoleService, useAdminUserRoleState } from '../../services/UserRoleService'
 import { AdminUserService } from '../../services/UserService'
 import styles from '../../styles/admin.module.scss'
 
@@ -37,12 +36,11 @@ interface Props {
 const defaultState = {
   name: '',
   avatar: '',
-  userRole: '',
+  isGuest: true,
   scopes: [] as Array<AdminScopeType>,
   formErrors: {
     name: '',
     avatar: '',
-    userRole: '',
     scopes: ''
   }
 }
@@ -53,7 +51,6 @@ const UserDrawer = ({ open, mode, selectedUser, onClose }: Props) => {
   const [state, setState] = useState({ ...defaultState })
 
   const { user } = useAuthState().value
-  const { userRole } = useAdminUserRoleState().value
   const { staticResource } = useStaticResourceState().value
   const { scopeTypes } = useScopeTypeState().value
 
@@ -70,13 +67,6 @@ const UserDrawer = ({ open, mode, selectedUser, onClose }: Props) => {
     return {
       label: el.name,
       value: el.name
-    }
-  })
-
-  const userRoleMenu: InputMenuItem[] = userRole.map((el) => {
-    return {
-      value: el.role,
-      label: el.role
     }
   })
 
@@ -97,20 +87,11 @@ const UserDrawer = ({ open, mode, selectedUser, onClose }: Props) => {
         label: selectedUser.avatarId!
       })
     }
-
-    const userRoleExists = userRoleMenu.find((item) => item.value === selectedUser.userRole)
-    if (!userRoleExists) {
-      userRoleMenu.push({
-        value: selectedUser.userRole!,
-        label: selectedUser.userRole!
-      })
-    }
   }
 
   useEffect(() => {
     AdminStaticResourceService.fetchStaticResource()
     AdminScopeTypeService.getScopeTypeService()
-    AdminUserRoleService.fetchUserRole()
   }, [])
 
   useEffect(() => {
@@ -123,7 +104,7 @@ const UserDrawer = ({ open, mode, selectedUser, onClose }: Props) => {
         ...defaultState,
         name: selectedUser.name || '',
         avatar: selectedUser.avatarId || '',
-        userRole: selectedUser.userRole || '',
+        isGuest: selectedUser.isGuest || true,
         scopes: selectedUser.scopes?.map((el) => ({ type: el.type })) || []
       })
     }
@@ -162,9 +143,6 @@ const UserDrawer = ({ open, mode, selectedUser, onClose }: Props) => {
       case 'avatar':
         tempErrors.avatar = value.length < 2 ? t('admin:components.user.avatarRequired') : ''
         break
-      case 'userRole':
-        tempErrors.userRole = value.length < 2 ? t('admin:components.user.userRoleRequired') : ''
-        break
       default:
         break
     }
@@ -176,7 +154,7 @@ const UserDrawer = ({ open, mode, selectedUser, onClose }: Props) => {
     const data: CreateEditUser = {
       name: state.name,
       avatarId: state.avatar,
-      userRole: state.userRole,
+      isGuest: state.isGuest,
       scopes: state.scopes as any
     }
 
@@ -184,7 +162,6 @@ const UserDrawer = ({ open, mode, selectedUser, onClose }: Props) => {
       ...state.formErrors,
       name: state.name ? '' : t('admin:components.user.nameCantEmpty'),
       avatar: state.avatar ? '' : t('admin:components.user.avatarCantEmpty'),
-      userRole: state.userRole ? '' : t('admin:components.user.userRoleCantEmpty'),
       scopes: state.scopes.length > 0 ? '' : t('admin:components.user.scopeTypeCantEmpty')
     }
 
@@ -234,15 +211,15 @@ const UserDrawer = ({ open, mode, selectedUser, onClose }: Props) => {
           onChange={handleChange}
         />
 
-        <InputSelect
-          name="userRole"
-          label={t('admin:components.user.userRole')}
-          value={state.userRole}
-          error={state.formErrors.userRole}
-          menu={userRoleMenu}
-          disabled={viewMode}
-          onChange={handleChange}
-        />
+        {viewMode && (
+          <>
+            <InputText
+              label={t('admin:components.user.isGuest')}
+              value={selectedUser?.isGuest?.toString() || true}
+              disabled
+            />
+          </>
+        )}
 
         {viewMode && (
           <>
@@ -263,7 +240,7 @@ const UserDrawer = ({ open, mode, selectedUser, onClose }: Props) => {
           />
         )}
 
-        {viewMode === false && (
+        {!viewMode && (
           <AutoComplete
             data={scopeMenu}
             label={t('admin:components.user.grantScope')}
@@ -281,12 +258,8 @@ const UserDrawer = ({ open, mode, selectedUser, onClose }: Props) => {
               {t('admin:components.common.submit')}
             </Button>
           )}
-          {mode === UserDrawerMode.ViewEdit && editMode === false && (
-            <Button
-              className={styles.gradientButton}
-              disabled={hasWriteAccess ? false : true}
-              onClick={() => setEditMode(true)}
-            >
+          {mode === UserDrawerMode.ViewEdit && !editMode && (
+            <Button className={styles.gradientButton} disabled={!hasWriteAccess} onClick={() => setEditMode(true)}>
               {t('admin:components.common.edit')}
             </Button>
           )}

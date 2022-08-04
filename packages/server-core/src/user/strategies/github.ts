@@ -44,7 +44,7 @@ export class GithubStrategy extends CustomOAuthStrategy {
       const avatars = await this.app.service('avatar').find({ isInternal: true })
       const code = await getFreeInviteCode(this.app)
       const newUser = (await this.app.service('user').create({
-        userRole: 'user',
+        isGuest: false,
         inviteCode: code,
         avatarId: avatars[random(avatars.length - 1)].avatarId
       })) as UserInterface
@@ -56,9 +56,9 @@ export class GithubStrategy extends CustomOAuthStrategy {
     const identityProvider = authResult['identity-provider']
     const user = await this.app.service('user').get(entity.userId)
     await makeInitialAdmin(this.app, user.id)
-    if (user.userRole !== 'user')
+    if (user.isGuest)
       await this.app.service('user').patch(entity.userId, {
-        userRole: 'user'
+        isGuest: false
       })
     const apiKey = await this.app.service('user-api-key').find({
       query: {

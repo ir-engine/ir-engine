@@ -35,7 +35,6 @@ export class IdentityProvider<T = IdentityProviderInterface> extends Service<T> 
    * @returns accessToken
    */
   async create(data: any, params: Params = {}): Promise<T & { accessToken?: string }> {
-    console.log('IP create')
     let { token, type, password } = data
     let user
     let authResult
@@ -172,12 +171,12 @@ export class IdentityProvider<T = IdentityProviderInterface> extends Service<T> 
     })
     const avatars = await this.app.service('avatar').find({ isInternal: true })
 
-    let role = type === 'guest' ? 'guest' : 'user'
+    let isGuest = type === 'guest'
 
     if (adminCount === 0) {
       // in dev mode make the first guest an admin
       // otherwise make the first logged in user an admin
-      if (isDev || role === 'user') {
+      if (isDev || !isGuest) {
         type = 'admin'
       }
     }
@@ -190,7 +189,7 @@ export class IdentityProvider<T = IdentityProviderInterface> extends Service<T> 
           ...identityProvider,
           user: {
             id: userId,
-            userRole: role,
+            isGuest,
             inviteCode: type === 'guest' ? null : code,
             avatarId: avatars[random(avatars.length - 1)].avatarId
           }
@@ -228,7 +227,6 @@ export class IdentityProvider<T = IdentityProviderInterface> extends Service<T> 
         .service('authentication')
         .createAccessToken({}, { subject: result.id.toString() })
     }
-    console.log('Finsihed IP create')
     return result
   }
 

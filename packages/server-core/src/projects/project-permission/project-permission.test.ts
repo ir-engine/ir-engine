@@ -45,22 +45,22 @@ describe('project-permission.test', () => {
     user1 = (await app.service('user').create({
       name: `Test #${Math.random()}`,
       avatarId,
-      userRole: 'user'
+      isGuest: false
     })) as UserInterface
     user2 = (await app.service('user').create({
       name: `Test #${Math.random()}`,
       avatarId,
-      userRole: 'user'
+      isGuest: false
     })) as UserInterface
     user3 = (await app.service('user').create({
       name: `Test #${Math.random()}`,
       avatarId,
-      userRole: 'user'
+      isGuest: false
     })) as UserInterface
     user4 = (await app.service('user').create({
       name: `Test #${Math.random()}`,
       avatarId,
-      userRole: 'user'
+      isGuest: false
     })) as UserInterface
     user1.apiKey = await app.service('user-api-key').Model.findOne({
       where: {

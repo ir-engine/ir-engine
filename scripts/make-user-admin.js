@@ -50,9 +50,10 @@ cli.main(async () => {
                 type: Sequelize.DataTypes.STRING,
                 allowNull: false
             },
-            userRole: {
-                type: Sequelize.DataTypes.STRING,
-                allowNull: true
+            isGuest: {
+                type: Sequelize.DataTypes.BOOLEAN,
+                defaultValue: true,
+                allowNull: false
             }
         });
 

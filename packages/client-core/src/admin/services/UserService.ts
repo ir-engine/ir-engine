@@ -22,7 +22,6 @@ const AdminUserState = defineState({
     fetched: false,
     updateNeeded: true,
     skipGuests: false,
-    userRole: null! as string,
     lastFetched: 0
   })
 })
@@ -83,18 +82,9 @@ const setSkipGuestsReceptor = (action: typeof AdminUserActions.setSkipGuests.mat
   })
 }
 
-const setUserRoleReceptor = (action: typeof AdminUserActions.setUserRole.matches._TYPE) => {
-  const state = getState(AdminUserState)
-  return state.merge({
-    userRole: action.userRole,
-    updateNeeded: true
-  })
-}
-
 const resetFilterReceptor = (action: typeof AdminUserActions.resetFilter.matches._TYPE) => {
   const state = getState(AdminUserState)
   return state.merge({
-    userRole: null!,
     skipGuests: false,
     updateNeeded: true
   })
@@ -108,7 +98,6 @@ export const AdminUserReceptors = {
   userPatchedReceptor,
   searchedUserReceptor,
   setSkipGuestsReceptor,
-  setUserRoleReceptor,
   resetFilterReceptor
 }
 
@@ -130,7 +119,6 @@ export const AdminUserService = {
     const userState = accessUserState()
     const user = accessAuthState().user
     const skipGuests = userState.skipGuests.value
-    const userRole = userState.userRole.value
     try {
       if (user.scopes?.value?.find((scope) => scope.type === 'admin:admin')) {
         let sortData = {}
@@ -151,14 +139,7 @@ export const AdminUserService = {
           }
         }
         if (skipGuests) {
-          ;(params.query as any).userRole = {
-            $ne: 'guest'
-          }
-        }
-        if (userRole) {
-          ;(params.query as any).userRole = {
-            $eq: userRole
-          }
+          ;(params.query as any).isGuest = false
         }
         const userResult = (await API.instance.client.service('user').find(params)) as Paginated<UserInterface>
         dispatchAction(AdminUserActions.loadedUsers({ userResult }))
@@ -212,9 +193,6 @@ export const AdminUserService = {
   setSkipGuests: async (skipGuests: boolean) => {
     dispatchAction(AdminUserActions.setSkipGuests({ skipGuests }))
   },
-  setUserRole: async (userRole: string) => {
-    dispatchAction(AdminUserActions.setUserRole({ userRole }))
-  },
   resetFilter: () => {
     dispatchAction(AdminUserActions.resetFilter({}))
   }
@@ -255,11 +233,6 @@ export class AdminUserActions {
   static setSkipGuests = defineAction({
     type: 'SET_SKIP_GUESTS' as const,
     skipGuests: matches.boolean
-  })
-
-  static setUserRole = defineAction({
-    type: 'SET_USER_ROLE' as const,
-    userRole: matches.string
   })
 
   static resetFilter = defineAction({

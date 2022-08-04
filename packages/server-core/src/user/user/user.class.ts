@@ -26,11 +26,11 @@ export const afterCreate = async (app: Application, result: UserInterface, scope
   }
 
   if (Array.isArray(result)) result = result[0]
-  if (result?.userRole !== 'guest')
+  if (!result?.isGuest)
     await app.service('user-api-key').create({
       userId: result.id
     })
-  if (result?.userRole !== 'guest' && result?.inviteCode == null) {
+  if (!result?.isGuest && result?.inviteCode == null) {
     const code = await getFreeInviteCode(app)
     await app.service('user').patch(result.id, {
       inviteCode: code
@@ -41,7 +41,7 @@ export const afterCreate = async (app: Application, result: UserInterface, scope
 export const afterPatch = async (app: Application, result: UserInterface) => {
   try {
     if (Array.isArray(result)) result = result[0]
-    if (result && result.userRole !== 'guest' && result.inviteCode == null) {
+    if (result && !result.isGuest && result.inviteCode == null) {
       const code = await getFreeInviteCode(app)
       await app.service('user').patch(result.id, {
         inviteCode: code
