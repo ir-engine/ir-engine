@@ -153,7 +153,7 @@ export function FileBrowserItem({
   const [_dragProps, drag, preview] = disableDnD
     ? [undefined, undefined, undefined]
     : useDrag(() => ({
-        type: item.type,
+        type: item.type.toLowerCase(),
         item,
         multiple: false
       }))

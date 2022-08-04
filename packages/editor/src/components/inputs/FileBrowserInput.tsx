@@ -23,7 +23,7 @@ export function FileBrowserInput({ onChange, acceptFileTypes, acceptDropItems, .
   const [{ canDrop, isOver }, dropRef] = useDrop({
     accept: [...acceptDropItems, ItemTypes.File],
     async drop(item: any, monitor) {
-      const isDropType = acceptDropItems.find((element) => element === item.type)
+      const isDropType = acceptDropItems.find((element) => element === item.type.toLowerCase())
       if (isDropType) {
         // Below url fix is applied when item is folder
         let url = item.url

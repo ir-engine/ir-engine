@@ -131,7 +131,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
       props.onSelectionChanged({
         resourceUrl: params.url,
         name: params.name,
-        contentType: params.type
+        contentType: params.type.toLowerCase()
       })
     } else {
       const newPath = `${selectedDirectory}${params.name}/`
@@ -146,7 +146,7 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
   useEffect(() => {
     setFiles(
       fileState.files.value.map((file) => {
-        const prefabType = PrefabFileType[file.type]
+        const prefabType = PrefabFileType[file.type.toLowerCase()]
         const isFolder = file.type === 'folder'
         const fullName = isFolder ? file.name : file.name + '.' + file.type
 

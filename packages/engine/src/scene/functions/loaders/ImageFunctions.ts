@@ -70,7 +70,7 @@ export const updateImage: ComponentUpdateFunction = (entity: Entity, properties:
     try {
       const assetType = AssetLoader.getAssetClass(component.imageSource)
       if (assetType !== AssetClass.Image) {
-        addError(entity, 'error', `Image format ${component.imageSource.split('.').pop()}not supported`)
+        addError(entity, 'error', `Image format ${component.imageSource.split('.').pop()} not supported`)
         return
       }
       const texture = AssetLoader.getFromCache(component.imageSource)
