@@ -713,18 +713,23 @@ export const AuthService = {
     dispatchAction(AuthAction.avatarUpdatedAction({ url: result.url }))
   },
   uploadAvatarModel: async (avatar: Blob, thumbnail: Blob, avatarName: string, isPublicAvatar?: boolean) => {
-    await uploadToFeathersService('upload-asset', [avatar, thumbnail], {
+    const avatarDetail: AvatarProps = await uploadToFeathersService('upload-asset', [avatar, thumbnail], {
       type: 'user-avatar-upload',
       args: {
         avatarName,
         isPublicAvatar: !!isPublicAvatar
       }
     })
-    const avatarDetail = (await API.instance.client.service('avatar').get(avatarName)) as AvatarProps
+
     if (!isPublicAvatar) {
       const selfUser = accessAuthState().user
       const userId = selfUser.id.value!
-      AuthService.updateUserAvatarId(userId, avatarName, avatarDetail.avatarURL, avatarDetail.thumbnailURL!)
+      let name = avatarName
+      if (!name) {
+        // Get filename without extension from URL.
+        name = avatarDetail.avatarURL.split('/').slice(-1)[0].split('?')[0].split('.').slice(0, -1).join('.')
+      }
+      AuthService.updateUserAvatarId(userId, name, avatarDetail.avatarURL, avatarDetail.thumbnailURL!)
     }
   },
   removeAvatar: async (keys: string) => {

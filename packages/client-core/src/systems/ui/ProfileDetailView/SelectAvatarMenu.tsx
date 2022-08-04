@@ -1,5 +1,6 @@
 import { createState } from '@hookstate/core'
 import React, { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import { UserAvatar } from '@xrengine/common/src/interfaces/UserAvatar'
 import { AvatarEffectComponent } from '@xrengine/engine/src/avatar/components/AvatarEffectComponent'
@@ -9,7 +10,7 @@ import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
 import { WidgetAppService } from '@xrengine/engine/src/xrui/WidgetAppService'
 import { WidgetName } from '@xrengine/engine/src/xrui/Widgets'
 
-import { ArrowBackIos, ArrowForwardIos, Check, PersonAdd } from '@mui/icons-material'
+import { ArrowBack, ArrowBackIos, ArrowForwardIos, Check, PersonAdd } from '@mui/icons-material'
 
 import { AuthService, useAuthState } from '../../../user/services/AuthService'
 import XRIconButton from '../../components/XRIconButton'
@@ -24,6 +25,8 @@ function createSelectAvatarMenuState() {
 }
 
 const SelectAvatarMenu = () => {
+  const { t } = useTranslation()
+
   const MAX_AVATARS_PER_PAGE = window.innerWidth >= 1024 ? 9 : 12
   const MIN_AVATARS_PER_PAGE = 6
   const getAvatarPerPage = () => (window.innerWidth > 768 ? MAX_AVATARS_PER_PAGE : MIN_AVATARS_PER_PAGE)
@@ -84,6 +87,10 @@ const SelectAvatarMenu = () => {
     WidgetAppService.setWidgetVisibility(WidgetName.UPLOAD_AVATAR, true)
   }
 
+  const openProfileMenu = (e) => {
+    WidgetAppService.setWidgetVisibility(WidgetName.PROFILE, true)
+  }
+
   const renderAvatarList = () => {
     const avatarElementList = [] as JSX.Element[]
     const startIndex = page * imgPerPage
@@ -125,6 +132,17 @@ const SelectAvatarMenu = () => {
     <>
       <style>{styleString}</style>
       <div className="avatarSelectContainer">
+        <div className="avatarHeaderBlock">
+          <XRIconButton
+            size="large"
+            xr-layer="true"
+            className="iconBlock"
+            variant="iconOnly"
+            onClick={openProfileMenu}
+            content={<ArrowBack />}
+          />
+          <h2>{t('user:avatar.title')}</h2>
+        </div>
         <div className="avatarContainer">
           <div className="gridContainer" style={{ margin: 0 }}>
             {renderAvatarList()}

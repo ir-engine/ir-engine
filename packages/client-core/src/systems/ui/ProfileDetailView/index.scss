@@ -150,35 +150,6 @@
       }
     }
 
-    .walletSection {
-      text-align: center;
-
-      .textBlock {
-        color: var(--textColor);
-        font-size: 14px;
-        font-weight: normal;
-        text-align: center;
-        display: block;
-        cursor: initial;
-      }
-
-      .walletBtn {
-        height: 35px;
-        font-size: 14px;
-        width: 250px;
-        max-width: 100%;
-        background: linear-gradient(90deg, var(--buttonGradientStart), var(--buttonGradientEnd));
-        color: var(--textColor);
-        border-radius: 20px;
-        margin: 15px 0 20px;
-        border: none;
-
-        &:hover {
-          opacity: 0.8;
-        }
-      }
-    }
-
     .socialBlock {
       .socialContainer {
         display: flex;
@@ -329,6 +300,35 @@
       font-weight: bold;
       display: inline-block;
       vertical-align: middle;
+    }
+  }
+
+  .walletSection {
+    text-align: center;
+
+    .textBlock {
+      color: var(--textColor);
+      font-size: 14px;
+      font-weight: normal;
+      text-align: center;
+      display: block;
+      cursor: initial;
+    }
+
+    .walletBtn {
+      height: 35px;
+      font-size: 14px;
+      width: 250px;
+      max-width: 100%;
+      background: linear-gradient(90deg, var(--buttonGradientStart), var(--buttonGradientEnd));
+      color: var(--textColor);
+      border-radius: 20px;
+      margin: 15px 0 20px;
+      border: none;
+
+      &:hover {
+        opacity: 0.8;
+      }
     }
   }
 
@@ -507,6 +507,27 @@
   max-height: calc(100vh - 100px);
   background-color: var(--popupBackground);
 
+  .avatarHeaderBlock {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+
+    .iconBlock {
+      display: inline-block;
+      cursor: pointer;
+      color: var(--textColor);
+      background: transparent;
+    }
+
+    h2 {
+      font-size: 18px;
+      color: var(--textColor);
+      font-weight: bold;
+      display: inline-block;
+      vertical-align: middle;
+    }
+  }
+
   .avatarContainer {
     height: 90%;
     margin-bottom: 20px;
@@ -551,5 +572,9 @@
   .activeAvatar {
     background: rgb(81 81 255 / 60%);
     cursor: not-allowed;
+  }
+
+  .iconBlock {
+    @include icon-block-styling;
   }
 }

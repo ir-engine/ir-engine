@@ -223,7 +223,7 @@
       "phoneEmailError": "Invalid phone # or email address",
       "phoneError": "Invalid phone #",
       "emailError": "Invalid email address",
-      "loginWithReadyPlayerMe": "Login with Ready Player Me",
+      "useReadyPlayerMe": "Use Ready Player Me",
       "loginWithXRWallet": "Login with XR Wallet",
       "connectSocial": "Connect with social accounts",
       "addSocial": "Add additional social accounts",
@@ -326,6 +326,8 @@
   },
   "avatar": {
     "title": "Upload Avatar",
+    "titleSelectAvatar": "Select Avatar",
+    "titleSelectThumbnail": "Select Thumbnail",
     "lbl-browse": "Browse",
     "lbl-thumbnail": "Thumbnail",
     "lbl-upload": "Upload",

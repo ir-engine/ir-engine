@@ -266,10 +266,6 @@ const ProfileDetailView = () => {
     WidgetAppService.setWidgetVisibility(WidgetName.SELECT_AVATAR, true)
   }
 
-  const handleOpenReadyPlayerWidget = () => {
-    WidgetAppService.setWidgetVisibility(WidgetName.READY_PLAYER, true)
-  }
-
   const enableSocial =
     authState?.discord ||
     authState?.facebook ||
@@ -397,19 +393,6 @@ const ProfileDetailView = () => {
                   <CircularProgress size={30} />
                 </div>
               )}
-            </section>
-          )}
-          {userRole === 'guest' && (
-            <section className="walletSection">
-              <h3 className="textBlock">{t('user:usermenu.profile.or')}</h3>
-              <XRTextButton
-                variant="gradient"
-                xr-layer="true"
-                onClick={handleOpenReadyPlayerWidget}
-                className="walletBtn"
-              >
-                {t('user:usermenu.profile.loginWithReadyPlayerMe')}
-              </XRTextButton>
             </section>
           )}
 

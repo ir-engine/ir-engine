@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import { UserAvatar } from '@xrengine/common/src/interfaces/UserAvatar'
 import { AvatarEffectComponent } from '@xrengine/engine/src/avatar/components/AvatarEffectComponent'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 
-import { ArrowBackIos, ArrowForwardIos, Check, PersonAdd } from '@mui/icons-material'
+import { ArrowBack, ArrowBackIos, ArrowForwardIos, Check, PersonAdd } from '@mui/icons-material'
 import Grid from '@mui/material/Grid'
 import Paper from '@mui/material/Paper'
 
@@ -19,6 +19,8 @@ interface Props {
 }
 
 const selectAvatarMenu = (props: Props) => {
+  const { t } = useTranslation()
+
   const MAX_AVATARS_PER_PAGE = window.innerWidth >= 1024 ? 9 : 12
   const MIN_AVATARS_PER_PAGE = 6
   const getAvatarPerPage = () => (window.innerWidth > 768 ? MAX_AVATARS_PER_PAGE : MIN_AVATARS_PER_PAGE)
@@ -80,6 +82,11 @@ const selectAvatarMenu = (props: Props) => {
     props.changeActiveMenu(Views.AvatarUpload)
   }
 
+  const openProfileMenu = (e) => {
+    e.preventDefault()
+    props.changeActiveMenu(Views.Profile)
+  }
+
   const renderAvatarList = () => {
     const avatarElementList = [] as JSX.Element[]
     const startIndex = page * imgPerPage
@@ -121,11 +128,19 @@ const selectAvatarMenu = (props: Props) => {
 
   return (
     <div className={styles.avatarSelectContainer}>
+      <div className={styles.avatarHeaderBlock}>
+        <button type="button" className={styles.iconBlock} onClick={openProfileMenu}>
+          <ArrowBack />
+        </button>
+        <h2>{t('user:avatar.titleSelectAvatar')}</h2>
+      </div>
+
       <div className={styles.avatarContainer}>
         <Grid container spacing={1} style={{ margin: 0 }}>
           {renderAvatarList()}
         </Grid>
       </div>
+
       <div className={styles.menuContainer}>
         <button type="button" className={`${styles.btnBack} ${styles.btnArrow} ${page === 0 ? styles.disabled : ''}`}>
           <ArrowBackIos className={styles.size} onClick={loadPreviousAvatars} />
