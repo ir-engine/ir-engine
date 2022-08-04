@@ -18,9 +18,9 @@ export const clientSeed = {
       icon192px: '/android-chrome-192x192.png',
       icon512px: '/android-chrome-512x512.png',
       appBackground: 'static/main-background.png',
-      appTitle: 'static/overlay_mark.svg',
-      appSubtitle: 'by XR Foundation',
-      appDescription: 'Realtime 3D social application for everyone to enjoy.',
+      appTitle: 'static/ethereal_mark.png',
+      appSubtitle: 'EtherealEngine.org',
+      appDescription: 'FREE, OPEN, & INTEROPERABLE IMMERSIVE WEB TECHNOLOGY',
       appSocialLinks: JSON.stringify([
         { icon: 'static/discord.svg', link: 'https://discord.gg/xrf' },
         { icon: 'static/github.svg', link: 'https://github.com/XRFoundation' }
