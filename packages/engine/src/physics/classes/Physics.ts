@@ -327,11 +327,10 @@ function castShape(world: World, shapecastQuery: ComponentType<typeof ShapecastC
   }
 }
 
-const drainCollisionEventQueue = (world: World) => (handle1: number, handle2: number, started: boolean) => {
-  const isTriggerEvent = world.getCollider(handle1).isSensor() || world.getCollider(handle2).isSensor()
-
-  const collider1 = world.getCollider(handle1)
-  const collider2 = world.getCollider(handle2)
+const drainCollisionEventQueue = (physicsWorld: World) => (handle1: number, handle2: number, started: boolean) => {
+  const collider1 = physicsWorld.getCollider(handle1)
+  const collider2 = physicsWorld.getCollider(handle2)
+  const isTriggerEvent = collider1.isSensor() || collider2.isSensor()
   const rigidBody1 = collider1.parent()
   const rigidBody2 = collider2.parent()
   const entity1 = (rigidBody1?.userData as any)['entity']
