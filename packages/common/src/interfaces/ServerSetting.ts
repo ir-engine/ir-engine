@@ -19,6 +19,7 @@ export interface ServerSetting {
   gitPem?: string
   local?: boolean
   releaseName?: string
+  instanceserverUnreachableTimeoutSeconds?: number
 }
 
 export interface HubInfo {
@@ -28,4 +29,5 @@ export interface HubInfo {
 export interface PatchServerSetting {
   gaTrackingId?: string
   gitPem?: string
+  instanceserverUnreachableTimeoutSeconds?: number
 }
