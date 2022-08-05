@@ -156,7 +156,7 @@ describe('Physics', () => {
 
     const collider = rigidBody.collider(0)
     assert.deepEqual(hasComponent(entity, RigidBodyComponent), true)
-    assert.deepEqual(getComponent(entity, RigidBodyComponent), rigidBody)
+    assert.deepEqual(getComponent(entity, RigidBodyComponent).body, rigidBody)
     assert.deepEqual(hasComponent(entity, RigidBodyFixedTagComponent), true)
     assert.deepEqual(hasComponent(entity, RigidBodyDynamicTagComponent), false)
     assert.deepEqual(rigidBody.bodyType(), boxDynamicConfig.bodyType)
