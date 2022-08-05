@@ -445,13 +445,13 @@ const ProfileMenu = ({ className, hideLogin, isPopover, changeActiveMenu, onClos
 
   const enableWalletLogin = !!globalThis.process.env['VITE_LOGIN_WITH_WALLET']
 
-  const enableSocial = false
-  // authState?.discord ||
-  // authState?.facebook ||
-  // authState?.github ||
-  // authState?.google ||
-  // authState?.linkedin ||
-  // authState?.twitter
+  const enableSocial =
+    authState?.discord ||
+    authState?.facebook ||
+    authState?.github ||
+    authState?.google ||
+    authState?.linkedin ||
+    authState?.twitter
 
   const enableConnect = authState?.emailMagicLink || authState?.smsMagicLink
 
