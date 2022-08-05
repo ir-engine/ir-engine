@@ -98,13 +98,17 @@ const ProfileDetailView = () => {
     }
   }, [authSettingState?.updateNeeded?.value])
 
+  /**
+   * Note: If you're editing lines 75-191, be sure to make the same changes to
+   * the non-XRUI version over at packages/client-core/src/user/components/UserMenu/menus/ProfileMenu.tsx
+   * @param name
+   * @param value
+   */
   const handleChangeUserThemeMode = (name, value) => {
     const settings = { ...userSettings, themeModes: { ...themeModes, [name]: value } }
     userSettings && AuthService.updateUserSettings(userSettings.id as string, settings)
   }
 
-  // If you're editing lines 75-191, be sure to make the same changes to the non-XRUI version over at
-  // packages/client-core/src/user/components/UserMenu/menus/ProfileMenu.tsx#114-230
   let type = ''
   const addMoreSocial =
     (authState?.discord && !oauthConnectedState.discord) ||

@@ -304,7 +304,16 @@ export const AuthService = {
    * {
    *   "type": "web",
    *   "dataType": "VerifiablePresentation",
-   *   "data": { "presentation": vp }
+   *   "data": {
+   *     "presentation": {
+   *       "holder": "did:web:example.com",
+   *       "verifiableCredential": [
+   *       ]
+   *     }
+   *   },
+   *   "options": {
+   *     "recommendedHandlerOrigins: ["https://uniwallet.cloud"]
+   *   }
    * }
    * Where `vp` is a VerifiablePresentation containing multiple VCs
    * (LoginDisplayCredential, UserPreferencesCredential).
