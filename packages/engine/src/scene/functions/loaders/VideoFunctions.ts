@@ -33,8 +33,7 @@ import { getNextPlaylistItem, updateAutoStartTimeForMedia } from './MediaFunctio
 export const SCENE_COMPONENT_VIDEO = 'video'
 export const VIDEO_MESH_NAME = 'VideoMesh'
 export const SCENE_COMPONENT_VIDEO_DEFAULT_VALUES = {
-  elementId: 'video-' + Date.now(),
-  maintainAspectRatio: true
+  elementId: 'video-' + Date.now()
 } as VideoComponentType
 
 export const deserializeVideo: ComponentDeserializeFunction = (
@@ -160,10 +159,8 @@ export const updateVideo: ComponentUpdateFunction = (entity: Entity, properties:
             }
           }
 
-          if (videoComponent.maintainAspectRatio) {
-            mesh.material.map.image.height = mesh.material.map.image.videoHeight
-            mesh.material.map.image.width = mesh.material.map.image.videoWidth
-          }
+          mesh.material.map.image.height = mesh.material.map.image.videoHeight
+          mesh.material.map.image.width = mesh.material.map.image.videoWidth
 
           if (getComponent(entity, ImageComponent)?.projection === ImageProjection.Flat) resizeImageMesh(mesh)
 
@@ -185,8 +182,7 @@ export const serializeVideo: ComponentSerializeFunction = (entity) => {
   return {
     name: SCENE_COMPONENT_VIDEO,
     props: {
-      elementId: component.elementId,
-      maintainAspectRatio: component.maintainAspectRatio
+      elementId: component.elementId
     }
   }
 }
@@ -244,7 +240,6 @@ export const toggleVideo = (entity: Entity) => {
 
 export const parseVideoProperties = (props): Partial<VideoComponentType> => {
   return {
-    elementId: props.elementId ?? SCENE_COMPONENT_VIDEO_DEFAULT_VALUES.elementId,
-    maintainAspectRatio: props.maintainAspectRatio ?? SCENE_COMPONENT_VIDEO_DEFAULT_VALUES.maintainAspectRatio
+    elementId: props.elementId ?? SCENE_COMPONENT_VIDEO_DEFAULT_VALUES.elementId
   }
 }
