@@ -120,6 +120,8 @@ describe('moveAvatar function tests', () => {
   })
 
   it('should not allow velocity to breach a full unit through multiple frames', () => {
+    Engine.instance.userId = 'user' as UserId
+
     const world = Engine.instance.currentWorld
     const engineState = getState(EngineState)
     engineState.fixedDeltaSeconds.set(1000 / 60)
