@@ -29,8 +29,6 @@ describe('AvatarControllerSystem', async () => {
 
     const testRotation = new Quaternion().copy(transform.rotation)
 
-    addComponent(entity, TransformComponent, transform)
-
     const displace = new Vector3(1, 3, 1)
     const displaceXZ = new Vector3(displace.x, 0, displace.z)
     displaceXZ.applyQuaternion(new Quaternion().copy(testRotation).invert())
