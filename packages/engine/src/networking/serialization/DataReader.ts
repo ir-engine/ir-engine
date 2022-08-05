@@ -189,7 +189,7 @@ export const readTransform = (v: ViewCursor, entity: Entity) => {
 export const readVelocity = (v: ViewCursor, entity: Entity) => {
   const changeMask = readUint8(v)
   let b = 0
-  if (checkBitflag(changeMask, 1 << b++)) readCompressedVector3(VelocityComponent.linear)(v, entity)
+  if (checkBitflag(changeMask, 1 << b++)) readLinearVelocity(v, entity)
   if (checkBitflag(changeMask, 1 << b++)) readAngularVelocity(v, entity)
 }
 

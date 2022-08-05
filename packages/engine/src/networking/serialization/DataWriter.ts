@@ -244,7 +244,7 @@ export const writeVelocity = (v: ViewCursor, entity: Entity) => {
   let changeMask = 0
   let b = 0
 
-  changeMask |= writeCompressedVector3(VelocityComponent.linear)(v, entity) ? 1 << b++ : b++ && 0
+  changeMask |= writeLinearVelocity(v, entity) ? 1 << b++ : b++ && 0
   changeMask |= writeAngularVelocity(v, entity) ? 1 << b++ : b++ && 0
 
   return (changeMask > 0 && writeChangeMask(changeMask)) || rewind()
