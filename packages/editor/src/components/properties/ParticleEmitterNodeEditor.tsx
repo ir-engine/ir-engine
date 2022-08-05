@@ -101,6 +101,12 @@ export const ParticleEmitterNodeEditor: EditorComponentType = (props) => {
                   })}
                 </InputGroup>
               )
+            case 'select':
+              return (
+                <InputGroup key={compKey} name={k} label={k}>
+                  <SelectInput value={args[k]} options={v.options} onChange={setArgsProp(k)} />
+                </InputGroup>
+              )
           }
         })}
       </Fragment>
