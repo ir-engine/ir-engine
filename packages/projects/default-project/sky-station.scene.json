@@ -560,6 +560,7 @@
           "props": {
             "volume": 0.5,
             "audioType": "Positional",
+            "isMusic": false,
             "distanceModel": "linear",
             "rolloffFactor": 1,
             "refDistance": 20,
@@ -862,6 +863,7 @@
           "props": {
             "volume": 0.19,
             "audioType": "Positional",
+            "isMusic": true,
             "distanceModel": "linear",
             "rolloffFactor": 1,
             "refDistance": 20,

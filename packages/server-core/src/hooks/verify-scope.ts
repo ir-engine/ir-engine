@@ -23,8 +23,10 @@ export default (currentType: string, scopeToVerify: string) => {
       if (sc.type.split(':')[0] === currentType) result.push(sc.type.split(':')[1])
       return result
     }, [])
-    if (!currentScopes.includes(scopeToVerify))
-      throw new UnauthorizedException(`Unauthorised ${scopeToVerify} action on ${currentType}`)
+    if (!currentScopes.includes(scopeToVerify)) {
+      if (scopeToVerify === 'admin') throw new UnauthorizedException('Must be admin to perform this action')
+      else throw new UnauthorizedException(`Unauthorised ${scopeToVerify} action on ${currentType}`)
+    }
     return context
   }
 }

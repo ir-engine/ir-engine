@@ -41,7 +41,7 @@ export const AdminActiveRouteService = {
   setRouteActive: async (project: string, route: string, activate: boolean) => {
     const user = accessAuthState().user
     try {
-      if (user.userRole.value === 'admin') {
+      if (user.scopes?.value?.find((scope) => scope.type === 'admin:admin')) {
         await API.instance.client.service('route-activate').create({ project, route, activate })
         AdminActiveRouteService.fetchActiveRoutes()
       }
@@ -52,7 +52,7 @@ export const AdminActiveRouteService = {
   fetchActiveRoutes: async (incDec?: 'increment' | 'decrement') => {
     const user = accessAuthState().user
     try {
-      if (user.userRole.value === 'admin') {
+      if (user.scopes?.value?.find((scope) => scope.type === 'admin:admin')) {
         const routes = await API.instance.client.service('route').find({ paginate: false })
         dispatchAction(
           AdminActiveRouteActions.activeRoutesRetrieved({ data: routes.data as Array<ActiveRoutesInterface> })

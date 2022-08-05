@@ -3,6 +3,7 @@ import { LinearFilter, Mesh, MeshStandardMaterial, Object3D, sRGBEncoding, Video
 
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
+import { AudioComponent } from '../../../audio/components/AudioComponent'
 import {
   ComponentDeserializeFunction,
   ComponentPrepareForGLTFExportFunction,
@@ -50,6 +51,7 @@ export const updateVideo: ComponentUpdateFunction = (entity: Entity, properties:
   const obj3d = getComponent(entity, Object3DComponent).value as Mesh<any, MeshStandardMaterial>
 
   const videoComponent = getComponent(entity, VideoComponent)
+  const audioComponent = getComponent(entity, AudioComponent)
   const mediaComponent = getComponent(entity, MediaComponent)
 
   const currentPath = mediaComponent.paths.length ? mediaComponent.paths[mediaComponent.currentSource] : ''
@@ -100,7 +102,7 @@ export const updateVideo: ComponentUpdateFunction = (entity: Entity, properties:
     createAudioNode(
       el,
       Engine.instance.audioContext.createMediaElementSource(el),
-      Engine.instance.gainNodeMixBuses.soundEffects
+      audioComponent.isMusic ? Engine.instance.gainNodeMixBuses.music : Engine.instance.gainNodeMixBuses.soundEffects
     )
   }
 

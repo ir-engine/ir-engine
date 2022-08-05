@@ -4,6 +4,7 @@ import { AudioTypeType } from '../constants/AudioConstants'
 export type AudioComponentType = {
   volume: number
   audioType: AudioTypeType
+  isMusic: boolean
   distanceModel: DistanceModelType
   rolloffFactor: number
   refDistance: number

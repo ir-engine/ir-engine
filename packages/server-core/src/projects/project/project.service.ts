@@ -7,7 +7,6 @@ import path from 'path'
 
 import { UserInterface } from '@xrengine/common/src/dbmodels/UserInterface'
 import logger from '@xrengine/common/src/logger'
-import restrictUserRole from '@xrengine/server-core/src/hooks/restrict-user-role'
 
 import { Application } from '../../../declarations'
 import authenticate from '../../hooks/authenticate'
@@ -88,13 +87,13 @@ export default (app: Application): void => {
 
   app.service('project-build').hooks({
     before: {
-      patch: [authenticate(), restrictUserRole('admin')]
+      patch: [authenticate(), verifyScope('admin', 'admin')]
     }
   })
 
   app.service('project-invalidate').hooks({
     before: {
-      patch: [authenticate(), restrictUserRole('admin')]
+      patch: [authenticate(), verifyScope('admin', 'admin')]
     }
   })
 
@@ -133,9 +132,14 @@ export default (app: Application): void => {
       })
       targetIds = targetIds.concat(projectOwners.map((permission) => permission.userId))
       const admins = await app.service('user').Model.findAll({
-        where: {
-          userRole: 'admin'
-        }
+        include: [
+          {
+            model: app.service('scope').Model,
+            where: {
+              type: 'admin:admin'
+            }
+          }
+        ]
       })
       targetIds = targetIds.concat(admins.map((admin) => admin.id))
       targetIds = _.uniq(targetIds)
