@@ -91,7 +91,7 @@ export const moveLocalAvatar = (entity: Entity) => {
   controller.body.setLinvel(currentVelocity, true)
 
   if (hasComponent(entity, AvatarHeadDecapComponent)) rotateBodyTowardsCameraDirection(entity)
-  else rotateBodyTowardsVector(entity, currentVelocity)
+  else rotateBodyTowardsVector(entity, prevVelocity as Vector3)
 
   // TODO: implement scene lower bounds parameter
   if (controller.body.translation().y < -10) respawnAvatar(entity)

@@ -10,12 +10,8 @@ import { addComponent } from '../ecs/functions/ComponentFunctions'
 import { createEntity } from '../ecs/functions/EntityFunctions'
 import { createEngine } from '../initializeEngine'
 import { Physics } from '../physics/classes/Physics'
-import { TransformComponent } from '../transform/components/TransformComponent'
-import {
-  removeAvatarControllerRigidBody,
-  rotateTowardsDisplacementVector,
-  updateAvatarTransformPosition
-} from './AvatarControllerSystem'
+import { setTransformComponent, TransformComponent } from '../transform/components/TransformComponent'
+import { removeAvatarControllerRigidBody, rotateBodyTowardsVector } from './AvatarControllerSystem'
 import { AvatarComponent } from './components/AvatarComponent'
 import { AvatarControllerComponent } from './components/AvatarControllerComponent'
 
@@ -43,44 +39,10 @@ describe('AvatarControllerSystem', async () => {
     assert(removeRigidBodyCallArg === controller.controller)
   })
 
-  it('check updateAvatarTransformPosition', async () => {
-    const world = Engine.instance.currentWorld
-    const entity = createEntity(world)
-    const controllerPos = new Vector3(1, 2, 3)
-    const controller = {
-      controller: {
-        translation: () => controllerPos
-      }
-    } as any
-
-    const position = createVector3Proxy(TransformComponent.position, entity)
-    const rotation = createQuaternionProxy(TransformComponent.rotation, entity)
-    const scale = createVector3Proxy(TransformComponent.scale, entity)
-    const transform = { position, rotation, scale }
-
-    const avatar = {
-      avatarHalfHeight: 1
-    } as any
-
-    addComponent(entity, AvatarControllerComponent, controller)
-    addComponent(entity, TransformComponent, transform)
-    addComponent(entity, AvatarComponent, avatar)
-
-    updateAvatarTransformPosition(entity)
-
-    assert(transform.position.x === 1)
-    assert(transform.position.y === 2)
-    assert(transform.position.z === 3)
-  })
-
   it('check rotateTowardsDisplacementVector', async () => {
     const world = Engine.instance.currentWorld
     const entity = createEntity(world)
-
-    const position = createVector3Proxy(TransformComponent.position, entity)
-    const rotation = createQuaternionProxy(TransformComponent.rotation, entity)
-    const scale = createVector3Proxy(TransformComponent.scale, entity)
-    const transform = { position, rotation, scale }
+    const transform = setTransformComponent(entity)
 
     const testRotation = new Quaternion().copy(transform.rotation)
 
@@ -93,7 +55,7 @@ describe('AvatarControllerSystem', async () => {
     const targetOrientation = new Quaternion().setFromRotationMatrix(rotMatrix)
     testRotation.slerp(targetOrientation, Math.max(world.deltaSeconds * 2, 3 / 60))
 
-    rotateTowardsDisplacementVector(entity, displace, world)
+    rotateBodyTowardsVector(entity, displace)
 
     assert(quatNearEqual(testRotation, transform.rotation))
   })
