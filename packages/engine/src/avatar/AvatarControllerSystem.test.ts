@@ -11,7 +11,7 @@ import { createEntity } from '../ecs/functions/EntityFunctions'
 import { createEngine } from '../initializeEngine'
 import { Physics } from '../physics/classes/Physics'
 import { setTransformComponent, TransformComponent } from '../transform/components/TransformComponent'
-import { removeAvatarControllerRigidBody, rotateBodyTowardsVector } from './AvatarControllerSystem'
+import { rotateBodyTowardsVector } from './AvatarControllerSystem'
 import { AvatarComponent } from './components/AvatarComponent'
 import { AvatarControllerComponent } from './components/AvatarControllerComponent'
 

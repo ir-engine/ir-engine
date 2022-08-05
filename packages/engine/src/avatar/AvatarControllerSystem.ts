@@ -98,10 +98,6 @@ export default async function AvatarControllerSystem(world: World) {
       dispatchAction(WorldNetworkAction.spawnCamera({}))
     }
 
-    for (const entity of controllerQuery.exit()) {
-      removeAvatarControllerRigidBody(entity, world)
-    }
-
     for (const entity of controllerQuery()) {
       const controller = getComponent(entity, AvatarControllerComponent)
       const followCamera = getComponent(controller.cameraEntity, FollowCameraComponent)
