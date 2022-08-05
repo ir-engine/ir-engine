@@ -5,9 +5,11 @@ import { AdminScopeType } from '@xrengine/common/src/interfaces/AdminScopeType'
 import { CreateEditUser, UserInterface } from '@xrengine/common/src/interfaces/User'
 
 import Button from '@mui/material/Button'
+import Checkbox from '@mui/material/Checkbox'
 import Container from '@mui/material/Container'
 import DialogActions from '@mui/material/DialogActions'
 import DialogTitle from '@mui/material/DialogTitle'
+import FormControlLabel from '@mui/material/FormControlLabel'
 
 import { NotificationService } from '../../../common/services/NotificationService'
 import { useAuthState } from '../../../user/services/AuthService'
@@ -214,21 +216,19 @@ const UserDrawer = ({ open, mode, selectedUser, onClose }: Props) => {
         {viewMode && (
           <>
             <InputText
-              label={t('admin:components.user.isGuest')}
-              value={selectedUser?.isGuest?.toString() || true}
+              label={t('admin:components.user.inviteCode')}
+              value={selectedUser?.inviteCode || t('admin:components.common.none')}
               disabled
             />
           </>
         )}
 
         {viewMode && (
-          <>
-            <InputText
-              label={t('admin:components.user.inviteCode')}
-              value={selectedUser?.inviteCode || t('admin:components.common.none')}
-              disabled
-            />
-          </>
+          <FormControlLabel
+            className={styles.checkbox}
+            control={<Checkbox className={styles.checkedCheckbox} checked={selectedUser?.isGuest} disabled />}
+            label={t('admin:components.user.isGuest')}
+          />
         )}
 
         {viewMode && (

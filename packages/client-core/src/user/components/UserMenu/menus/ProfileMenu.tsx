@@ -505,8 +505,8 @@ const ProfileMenu = ({ className, hideLogin, isPopover, changeActiveMenu, onClos
             <Grid container justifyContent="right" className={styles.justify}>
               <Grid item xs={isGuest ? 6 : 4}>
                 <h2>
-                  {t('user:usermenu.profile.youAreA')}
-                  <span id="user-role">{isGuest ? ' Guest' : ' User'}</span>.
+                  {hasAdminAccess ? t('user:usermenu.profile.youAreAn') : t('user:usermenu.profile.youAreA')}
+                  <span id="user-role">{hasAdminAccess ? ' Admin' : isGuest ? ' Guest' : ' User'}</span>.
                 </h2>
               </Grid>
               <Grid item container xs={isGuest ? 6 : 4} alignItems="flex-start" direction="column">

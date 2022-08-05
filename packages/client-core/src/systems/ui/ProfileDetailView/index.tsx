@@ -61,6 +61,7 @@ const ProfileDetailView = () => {
   const userId = selfUser.id.value
   const apiKey = selfUser.apiKey?.token?.value
   const isGuest = selfUser.isGuest.value
+  const isAdmin = selfUser.scopes?.value?.find((scope) => scope.type === 'admin')
   const [deleteControlsOpen, setDeleteControlsOpen] = useState(false)
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false)
   const [oauthConnectedState, setOauthConnectedState] = useState(initialOAuthConnectedState)
@@ -313,8 +314,8 @@ const ProfileDetailView = () => {
               />
               <div className="detailsContainer">
                 <h2>
-                  {t('user:usermenu.profile.youAreA')}
-                  <span id="user-role">{isGuest ? 'Guest' : 'User'}</span>.
+                  {isAdmin ? t('user:usermenu.profile.youAreAn') : t('user:usermenu.profile.youAreA')}
+                  <span id="user-role">{isAdmin ? ' Admin' : isGuest ? ' Guest' : ' User'}</span>.
                 </h2>
                 <h2 className="showUserId" id="show-user-id" onClick={() => setShowUserId(!showUserId)}>
                   {showUserId ? t('user:usermenu.profile.hideUserId') : t('user:usermenu.profile.showUserId')}
