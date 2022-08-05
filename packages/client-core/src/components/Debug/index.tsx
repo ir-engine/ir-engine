@@ -6,7 +6,7 @@ import JSONTree from 'react-json-tree'
 
 import { mapToObject } from '@xrengine/common/src/utils/mapToObject'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { EngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
+import { EngineActions, EngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import {
   addComponent,
   getComponent,
@@ -42,6 +42,7 @@ export const Debug = () => {
   const [isShowing, setShowing] = useState(false)
   const showingStateRef = useRef(isShowing)
   const engineRendererState = useEngineRendererState()
+  const engineState = getState(EngineState)
   const { t } = useTranslation()
 
   const networks = mapToObject(Engine.instance.currentWorld.networks)
@@ -177,13 +178,12 @@ export const Debug = () => {
               </button>
               <button
                 type="button"
-                onClick={simpleMaterials}
-                className={
-                  styles.flagBtn +
-                  (hasComponent(Engine.instance.currentWorld.sceneEntity, SimpleMaterialTagComponent)
-                    ? ' ' + styles.active
-                    : '')
+                onClick={() =>
+                  dispatchAction(
+                    EngineActions.useSimpleMaterials({ useSimpleMaterials: !engineState.useSimpleMaterials.value })
+                  )
                 }
+                className={styles.flagBtn + (engineState.useSimpleMaterials.value ? ' ' + styles.active : '')}
                 title={t('common:debug.simpleMaterials')}
               >
                 <BlurOffIcon fontSize="small" />

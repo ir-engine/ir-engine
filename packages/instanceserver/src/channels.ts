@@ -273,14 +273,7 @@ const loadEngine = async (app: Application, sceneId: string) => {
 
     logger.info('Scene loaded!')
 
-    // const portals = getAllComponentsOfType(PortalComponent)
-    // await Promise.all(
-    //   portals.map(async (portal: ReturnType<typeof PortalComponent.get>): Promise<void> => {
-    //     return getPortalByEntityId(app, portal.linkedPortalId).then((res) => {
-    //       if (res) setRemoteLocationDetail(portal, res.data.spawnPosition, res.data.spawnRotation)
-    //     })
-    //   })
-    // )
+    // getPortalDetails()
   }
   await initPromise
 

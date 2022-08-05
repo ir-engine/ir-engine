@@ -1,27 +1,7 @@
-import { Material, SkinnedMesh } from 'three'
-
 import { FollowCameraComponent } from '../../camera/components/FollowCameraComponent'
 import { CameraMode } from '../../camera/types/CameraMode'
 import { Entity } from '../../ecs/classes/Entity'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
-import { Object3DComponent } from '../../scene/components/Object3DComponent'
-
-const setVisible = (entity: Entity, visible: boolean): void => {
-  const object3DComponent = getComponent(entity, Object3DComponent)
-  object3DComponent.value.traverse((obj) => {
-    const mat = (obj as SkinnedMesh).material
-    if (mat) {
-      if (visible) {
-        ;(mat as Material).opacity = 1
-        ;(mat as Material).transparent = false
-      } else {
-        ;(mat as Material).opacity = 0
-        ;(mat as Material).transparent = true
-      }
-      ;(mat as Material).needsUpdate = true
-    }
-  })
-}
 
 type SwitchCameraModeProps = {
   cameraMode: CameraMode // TODO
@@ -45,36 +25,8 @@ export const switchCameraMode = (
   const cameraFollow = getComponent(cameraEntity, FollowCameraComponent)
   cameraFollow.mode = args.cameraMode
 
-  switch (args.cameraMode) {
-    case CameraMode.FirstPerson:
-      {
-        cameraFollow.phi = 0
-        cameraFollow.locked = true
-        setVisible(cameraEntity, false)
-      }
-      break
-
-    case CameraMode.ShoulderCam:
-      {
-        setVisible(cameraEntity, true)
-      }
-      break
-    default:
-    case CameraMode.ThirdPerson:
-      {
-        setVisible(cameraEntity, true)
-      }
-      break
-
-    case CameraMode.TopDown:
-      {
-        setVisible(cameraEntity, true)
-      }
-      break
-    case CameraMode.Strategic:
-      {
-        setVisible(cameraEntity, true)
-      }
-      break
+  if (cameraFollow.mode === CameraMode.FirstPerson) {
+    cameraFollow.phi = 0
+    cameraFollow.locked = true
   }
 }

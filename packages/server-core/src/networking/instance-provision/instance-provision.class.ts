@@ -1,6 +1,8 @@
 import { BadRequest, NotAuthenticated } from '@feathersjs/errors'
 import { Id, NullableId, Params, ServiceMethods } from '@feathersjs/feathers'
+import https from 'https'
 import _ from 'lodash'
+import fetch from 'node-fetch'
 import Sequelize, { Op } from 'sequelize'
 
 import { InstanceServerProvisionResult } from '@xrengine/common/src/interfaces/InstanceServerProvisionResult'
@@ -200,6 +202,46 @@ export async function checkForDuplicatedAssignments(
       await app.service('instance').remove(assignResult.id)
       return earlierInstance
     }
+  }
+
+  // This is here to handle odd cases with externally unresponsive instanceserver pods.
+  // It tries to make a GET request to the pod. If there's an error, or the response takes more than 2 seconds,
+  // it assumes the pod is unresponsive. Locally, it just waits half a second and tries again - if the local
+  // instanceservers are rebooting after the last person left, we just need to wait a bit for them to start.
+  // In production, it attempts to delete that pod via the K8s API client and tries again.
+  let responsivenessCheck: boolean
+  responsivenessCheck = await Promise.race([
+    new Promise<boolean>((resolve) => {
+      setTimeout(() => {
+        logger.warn(`Instanceserver at ${ipAddress} too long to respond, assuming it is unresponsive and killing`)
+        resolve(false)
+      }, config.server.instanceserverUnreachableTimeoutSeconds * 1000) // timeout after 2 seconds
+    }),
+    new Promise<boolean>((resolve) => {
+      let options = {} as any
+      let protocol = 'http://'
+      if (!config.kubernetes.enabled) {
+        protocol = 'https://'
+        options.agent = new https.Agent({
+          rejectUnauthorized: false
+        })
+      }
+
+      fetch(protocol + ipAddress, options)
+        .then((result) => {
+          resolve(true)
+        })
+        .catch((err) => {
+          logger.error(err)
+          resolve(false)
+        })
+    })
+  ])
+  if (!responsivenessCheck) {
+    await app.service('instance').remove(assignResult.id)
+    if (config.kubernetes.enabled) app.k8DefaultClient.deleteNamespacedPod(assignResult.podName, 'default')
+    else await new Promise((resolve) => setTimeout(() => resolve(null), 500))
+    return getFreeInstanceserver(app, iteration + 1, locationId, channelId)
   }
 
   const split = ipAddress.split(':')

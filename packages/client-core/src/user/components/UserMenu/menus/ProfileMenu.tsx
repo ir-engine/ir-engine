@@ -575,21 +575,15 @@ const ProfileMenu = ({ className, hideLogin, isPopover, changeActiveMenu, onClos
                 </form>
               </section>
             )}
-            {userRole === 'guest' && changeActiveMenu && (
+            {userRole === 'guest' && changeActiveMenu && enableWalletLogin && (
               <section className={styles.walletSection}>
                 <Typography variant="h3" className={styles.textBlock}>
                   {t('user:usermenu.profile.or')}
                 </Typography>
 
-                {enableWalletLogin ? (
-                  <Button onClick={() => handleWalletLoginClick()} className={styles.walletBtn}>
-                    {t('user:usermenu.profile.loginWithXRWallet')}
-                  </Button>
-                ) : (
-                  <Button onClick={() => changeActiveMenu(Views.ReadyPlayer)} className={styles.walletBtn}>
-                    {t('user:usermenu.profile.loginWithReadyPlayerMe')}
-                  </Button>
-                )}
+                <Button onClick={() => handleWalletLoginClick()} className={styles.walletBtn}>
+                  {t('user:usermenu.profile.loginWithXRWallet')}
+                </Button>
               </section>
             )}
 

@@ -255,6 +255,7 @@
       "certPath": "CertPath",
       "keyPath": "KeyPath",
       "githubPrivateKey": "Github Private Key",
+      "instanceserverUnreachableTimeoutSeconds": "Seconds for instanceserver to be considered unreachable",
       "project": "Project",
       "patchInstanceserver": "Patch Instanceserver",
       "hub": "Hub",

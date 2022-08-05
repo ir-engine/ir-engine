@@ -11,6 +11,7 @@ import { InteractorComponent } from '../../interaction/components/InteractorComp
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { Physics } from '../../physics/classes/Physics'
 import { VectorSpringSimulator } from '../../physics/classes/springs/VectorSpringSimulator'
+import { CollisionComponent } from '../../physics/components/CollisionComponent'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { AvatarCollisionMask, CollisionGroups } from '../../physics/enums/CollisionGroups'
 import { getInteractionGroups } from '../../physics/functions/getInteractionGroups'
@@ -163,7 +164,6 @@ export const createAvatarController = (entity: Entity) => {
     addComponent(entity, AvatarControllerComponent, {
       controller: rigidBody,
       bodyCollider: undefined!,
-      collisions: [false, false, false],
       movementEnabled: true,
       isJumping: false,
       isWalking: false,
@@ -178,4 +178,6 @@ export const createAvatarController = (entity: Entity) => {
 
   const avatarControllerComponent = getComponent(entity, AvatarControllerComponent)
   avatarControllerComponent.bodyCollider = createAvatarCollider(entity)
+
+  addComponent(entity, CollisionComponent, new Map())
 }
