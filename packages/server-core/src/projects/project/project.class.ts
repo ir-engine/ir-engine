@@ -9,6 +9,7 @@ import { Op } from 'sequelize'
 import { GITHUB_URL_REGEX } from '@xrengine/common/src/constants/GitHubConstants'
 import { ProjectInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
 import { isDev } from '@xrengine/common/src/utils/isDev'
+import { processFileName } from '@xrengine/common/src/utils/processFileName'
 import templateProjectJson from '@xrengine/projects/template-project/package.json'
 
 import { Application } from '../../../declarations'
@@ -85,7 +86,7 @@ export const uploadLocalProjectToProvider = async (projectName, remove = true) =
         return new Promise(async (resolve) => {
           try {
             const fileResult = fs.readFileSync(file)
-            const filePathRelative = file.slice(projectPath.length)
+            const filePathRelative = processFileName(file.slice(projectPath.length))
             await storageProvider.putObject(
               {
                 Body: fileResult,
