@@ -690,7 +690,7 @@ const ProfileMenu = ({ className, hideLogin, isPopover, changeActiveMenu, onClos
                 </form>
               </section>
             )}
-            {userRole === 'guest' && changeActiveMenu && enableWalletLogin && (
+            {userRole === 'guest' && enableWalletLogin && (
               <section className={styles.walletSection}>
                 <Typography variant="h3" className={styles.textBlock}>
                   {t('user:usermenu.profile.or')}
