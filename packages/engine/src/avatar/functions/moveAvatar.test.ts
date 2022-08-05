@@ -1,6 +1,7 @@
 import assert, { strictEqual } from 'assert'
 import { PerspectiveCamera, Quaternion, Vector3 } from 'three'
 
+import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { getState } from '@xrengine/hyperflux'
 
 import { Engine } from '../../ecs/classes/Engine'
@@ -85,6 +86,8 @@ describe('moveAvatar function tests', () => {
   })
 
   it('should take world.physics.timeScale into account when moving avatars, consistent with physics simulation', () => {
+    Engine.instance.userId = 'user' as UserId
+
     const world = Engine.instance.currentWorld
     const engineState = getState(EngineState)
     engineState.fixedDeltaSeconds.set(1000 / 60)
