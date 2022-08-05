@@ -30,46 +30,4 @@ describe('WebXRFunctions Unit', async () => {
     assert(inputSource)
     assert(hasComponent(entity, XRInputSourceComponent))
   })
-
-  it('check endXR', async () => {
-    createMockNetwork()
-
-    const world = Engine.instance.currentWorld
-
-    const action = WorldNetworkAction.spawnAvatar({})
-    WorldNetworkActionReceptor.receiveSpawnObject(action)
-    createAvatar(action)
-
-    const entity = world.localClientEntity
-
-    const xrManagerMock = { setSession() {} } as any
-    EngineRenderer.instance.xrSession = true as any
-    EngineRenderer.instance.xrManager = xrManagerMock
-    Engine.instance.currentWorld.camera = new PerspectiveCamera()
-    sinon.spy(xrManagerMock, 'setSession')
-
-    setupXRInputSourceComponent(entity)
-
-    const hyperfluxStub = {} as any
-    const { endXR } = proxyquire('./WebXRFunctions', {
-      '@xrengine/hyperflux': hyperfluxStub
-    })
-
-    sinon.spy(hyperfluxStub, 'dispatchAction')
-
-    endXR()
-
-    assert(xrManagerMock.setSession.calledOnce)
-    const setSessionCallArg = xrManagerMock.setSession.getCall(0).args[0]
-    assert(setSessionCallArg === null)
-    assert(Engine.instance.currentWorld.camera.parent === Engine.instance.currentWorld.scene)
-    assert(!hasComponent(entity, XRInputSourceComponent))
-    assert(!hasComponent(entity, XRHandsInputComponent))
-
-    assert(hyperfluxStub.dispatchAction.calledOnce)
-    const dispatchActionCallArg = hyperfluxStub.dispatchAction.getCall(0).args[0]
-    assert(dispatchActionCallArg.type === WorldNetworkAction.setXRMode.type)
-    assert(dispatchActionCallArg.enabled === false)
-    assert(dispatchActionCallArg.avatarInputControllerType === '')
-  })
 })
