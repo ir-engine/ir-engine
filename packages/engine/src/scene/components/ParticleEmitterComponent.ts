@@ -9,7 +9,7 @@ export type ParticleGenerationMode = 'LIBRARY' | 'JSON'
 export type ParticleEmitterComponentType = {
   mode: ParticleGenerationMode
   src: any
-  args?: any
+  args: any
 }
 
 export const ParticleEmitterComponent = createMappedComponent<ParticleEmitterComponentType>('ParticleEmitterComponent')
