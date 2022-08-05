@@ -14,7 +14,7 @@ describe('identity', () => {
     assert.equal(keyPair.type, 'Ed25519VerificationKey2020')
     assert.equal(keyPair.controller, 'did:key:z6Mkfeco2NSEPeFV3DkjNSabaCza1EoS3CmqLb1eJ5BriiaR')
 
-    const signingKey = methodFor({ purpose: 'assertionMethod' })
+    const signingKey = methodFor({ purpose: 'assertionMethod' }) as any
     assert.equal(
       signingKey.privateKeyMultibase,
       'zrv1WyGTYHqjHHHD8FuYbnMBsReXBXTbrqZrpfTHNFpeCKS1MDcGUodNfBmihrCiSwY7fxPnsGjCoVZ3e9pGLYHWREM'
