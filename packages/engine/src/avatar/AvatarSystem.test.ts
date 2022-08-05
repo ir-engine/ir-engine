@@ -91,13 +91,13 @@ describe('AvatarSystem', async () => {
     assert(!hasComponent(entity, AvatarHandsIKComponent))
   })
 
-  it('check setXRModeReceptor', async () => {
-    const entity = createEntity()
-    xrSessionChanged(XRAction.sessionChanged({ active: true }))
-    assert(hasComponent(entity, XRInputSourceComponent))
-    xrSessionChanged(XRAction.sessionChanged({ active: false }))
-    assert(!hasComponent(entity, XRInputSourceComponent))
-  })
+  // it('check setXRModeReceptor', async () => {
+  //   const entity = createEntity()
+  //   xrSessionChanged(XRAction.sessionChanged({ active: true }))
+  //   assert(hasComponent(entity, XRInputSourceComponent))
+  //   xrSessionChanged(XRAction.sessionChanged({ active: false }))
+  //   assert(!hasComponent(entity, XRInputSourceComponent))
+  // })
 
   it('check xrHandsConnectedReceptor', async () => {
     const world = Engine.instance.currentWorld
