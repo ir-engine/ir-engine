@@ -56,7 +56,7 @@ export const updateModel: ComponentUpdateFunction = (entity: Entity, properties:
   if (properties.src) {
     try {
       hasComponent(entity, Object3DComponent) && removeComponent(entity, Object3DComponent)
-      switch (/\.[\d\s\w]+$/.exec(properties.src)![0]) {
+      switch (/\.[\d\s\w]+$/.exec(properties.src.toLowerCase())![0]) {
         case '.glb':
         case '.gltf':
           const gltf = AssetLoader.getFromCache(properties.src) as GLTF
