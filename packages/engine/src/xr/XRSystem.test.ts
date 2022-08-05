@@ -26,7 +26,7 @@ describe('XRSystem Tests', async () => {
     } as any
 
     const { default: XRSystem } = proxyquire('./XRSystem', {
-      '../../assets/classes/AssetLoader': assetLoaderStub
+      '../assets/classes/AssetLoader': assetLoaderStub
     })
 
     xrSystem = await XRSystem(Engine.instance.currentWorld)
