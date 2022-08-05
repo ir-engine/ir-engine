@@ -9,7 +9,8 @@ import { createEntity } from '../../../ecs/functions/EntityFunctions'
 import { createEngine } from '../../../initializeEngine'
 import { Physics } from '../../../physics/classes/Physics'
 import { TransformComponent } from '../../../transform/components/TransformComponent'
-import { PortalComponent } from '../../components/PortalComponent'
+import { NameComponent } from '../../components/NameComponent'
+import { PortalComponent, PortalComponentType } from '../../components/PortalComponent'
 import { deserializePortal } from './PortalFunctions'
 
 describe('PortalFunctions', () => {
@@ -26,6 +27,9 @@ describe('PortalFunctions', () => {
     const triggerRotation = new Euler().setFromQuaternion(quat, 'XYZ')
 
     const randomVector3 = new Vector3().random()
+
+    addComponent(entity, NameComponent, { name: 'test-portal' })
+
     addComponent(entity, TransformComponent, {
       position: randomVector3.clone(),
       rotation: new Quaternion(),
@@ -35,14 +39,22 @@ describe('PortalFunctions', () => {
     const linkedPortalId = MathUtils.generateUUID()
 
     const sceneComponentData = {
+      helper: null!,
+      redirect: false,
       location: 'test',
+      effectType: '',
+      previewType: '',
+      previewImageURL: '',
       linkedPortalId,
-      triggerPosition: { x: 1, y: 1, z: 1 },
+      triggerPosition: new Vector3(1, 1, 1),
       triggerRotation,
-      triggerScale: { x: 1, y: 1, z: 1 },
-      spawnPosition: { x: 2, y: 3, z: 4 },
-      spawnRotation: { x: 2, y: 3, z: 4, w: 5 }
-    }
+      triggerScale: new Vector3(1, 1, 1),
+      spawnPosition: new Vector3(2, 3, 4),
+      spawnRotation: new Quaternion(),
+      remoteSpawnPosition: new Vector3(),
+      remoteSpawnRotation: new Quaternion()
+    } as PortalComponentType
+
     const sceneComponent: ComponentJson = {
       name: 'portal',
       props: sceneComponentData

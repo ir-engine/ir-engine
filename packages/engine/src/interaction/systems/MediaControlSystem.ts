@@ -28,7 +28,7 @@ const onUpdate = (world: World) => (entity: Entity, mediaControls: ReturnType<ty
     transition.setState('OUT')
     mediaControls.state.mouseOver.set(false)
   }
-  transition.update(world, (opacity) => {
+  transition.update(world.deltaSeconds, (opacity) => {
     buttonLayer.scale.setScalar(0.9 + 0.1 * opacity * opacity)
     xrui.container.rootLayer.traverseLayersPreOrder((layer: WebLayer3D) => {
       const mat = layer.contentMesh.material as THREE.MeshBasicMaterial

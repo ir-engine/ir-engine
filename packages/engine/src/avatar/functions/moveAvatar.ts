@@ -328,17 +328,19 @@ export const moveXRAvatar = (
  * @param entity
  * @param newPosition
  */
-export const teleportAvatar = (entity: Entity, newPosition: Vector3): void => {
+export const teleportAvatar = (entity: Entity, targetPosition: Vector3): void => {
   if (!hasComponent(entity, AvatarComponent)) {
     console.warn('Teleport avatar called on non-avatar entity')
     return
   }
 
+  const newPosition = targetPosition.clone()
+
   if (checkPositionIsValid(newPosition, false)) {
     const avatar = getComponent(entity, AvatarComponent)
-    const controllerComponent = getComponent(entity, AvatarControllerComponent)
+    const controller = getComponent(entity, AvatarControllerComponent)
     newPosition.y = newPosition.y + avatar.avatarHalfHeight
-    controllerComponent.controller.setTranslation(newPosition, true)
+    controller.controller.setTranslation(newPosition, true)
   } else {
     console.log('invalid position', newPosition)
   }

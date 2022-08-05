@@ -1539,7 +1539,7 @@
   color: black;
   max-height: calc(100vh - 150px);
   overflow: auto;
-  width: 360px;
+  width: 375px;
   z-index: 1400;
 
   .avatarHeaderBlock {
@@ -1562,6 +1562,16 @@
       display: inline-block;
       vertical-align: middle;
       margin-left: 10px;
+    }
+  }
+
+  .useReadyMeBtn {
+    background: linear-gradient(90deg, var(--buttonGradientStart), var(--buttonGradientEnd));
+    color: var(--textColor);
+    display: block;
+
+    &:hover {
+      opacity: 0.8;
     }
   }
 
@@ -1626,9 +1636,12 @@
   }
 
   .stage {
-    border-radius: 5px;
     overflow: hidden;
     position: relative;
+    margin: auto;
+    margin-bottom: 10px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px var(--buttonOutlined);
 
     .legendContainer {
       position: absolute;
@@ -1773,28 +1786,34 @@
 .ReadyPlayerPanel {
   @include panel-popup-container-styling;
 
+  display: flex;
+  flex-direction: column;
   border-radius: 20px;
   background-color: var(--popupBackground);
   padding: 0;
 
-  .controlContainer {
+  .avatarHeaderBlock {
+    margin: 20px 0;
     display: flex;
-    justify-content: space-between;
+    flex-direction: row;
+    align-items: center;
 
-    .actionBlock {
-      position: absolute;
-      width: 100%;
-      display: flex;
-      justify-content: space-between;
-      left: 0;
-      padding: 0 20px;
-      top: 10px;
+    h2 {
+      font-size: 18px;
+      color: var(--textColor);
+      font-weight: bold;
+      display: inline-block;
+      vertical-align: middle;
+      margin-left: 10px;
     }
   }
 
   .iconBlock {
     @include icon-block-styling;
 
+    display: inline-block;
+    cursor: pointer;
+    color: var(--textColor);
     background: transparent;
   }
 
@@ -2132,6 +2151,8 @@
 
 .avatarSelectContainer {
   position: absolute;
+  display: flex;
+  flex-direction: column;
   padding: 15px;
   border-radius: 5px;
   left: 50%;
@@ -2146,6 +2167,31 @@
   box-shadow: 0 4px 30px rgb(0 0 0 / 10%);
   backdrop-filter: blur(4.9px);
   -webkit-backdrop-filter: blur(4.9px);
+
+  .avatarHeaderBlock {
+    margin: 20px 0;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+
+    .iconBlock {
+      @include icon-block-styling;
+
+      display: inline-block;
+      cursor: pointer;
+      color: var(--textColor);
+      background: transparent;
+    }
+
+    h2 {
+      font-size: 18px;
+      color: var(--textColor);
+      font-weight: bold;
+      display: inline-block;
+      vertical-align: middle;
+      margin-left: 10px;
+    }
+  }
 }
 
 .paperAvatar {

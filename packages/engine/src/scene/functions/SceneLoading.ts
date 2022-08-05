@@ -153,9 +153,6 @@ export const loadSceneFromJSON = async (sceneData: SceneJson, sceneSystems: Syst
   promises.forEach((promise) => promise.then(onComplete))
   await Promise.allSettled(promises)
 
-  // todo: move these layer enable & disable to loading screen thing or something so they work with portals properly
-  if (!getEngineState().isTeleporting.value) world.camera?.layers.disable(ObjectLayers.Scene)
-
   // this needs to occur after the asset promises
   if (getEngineState().sceneLoaded.value) await unloadScene(world)
 
@@ -182,7 +179,7 @@ export const loadSceneFromJSON = async (sceneData: SceneJson, sceneSystems: Syst
   addComponent(tree.rootNode.entity, VisibleComponent, true)
   getComponent(tree.rootNode.entity, EntityNodeComponent).components.push(SCENE_COMPONENT_SCENE_TAG)
 
-  if (!getEngineState().isTeleporting.value) Engine.instance.currentWorld.camera?.layers.enable(ObjectLayers.Scene)
+  Engine.instance.currentWorld.camera?.layers.enable(ObjectLayers.Scene)
 
   // TODO: Have to wait because scene is not being fully loaded at this moment
   await delay(200)
