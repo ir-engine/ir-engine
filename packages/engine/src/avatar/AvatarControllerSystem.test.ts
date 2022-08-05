@@ -22,23 +22,6 @@ describe('AvatarControllerSystem', async () => {
     Engine.instance.currentWorld.physicsWorld = Physics.createWorld()
   })
 
-  it('check avatarControllerExit', async () => {
-    const world = Engine.instance.currentWorld
-    const entity = createEntity(world)
-    const physicsWorld = { removeRigidBody: () => {} } as any
-    const worldMock = { physicsWorld } as any
-    const controller = { controller: {} } as any
-
-    ;(AvatarControllerComponent as any)._setPrevious(entity, controller)
-
-    sinon.spy(physicsWorld, 'removeRigidBody')
-
-    removeAvatarControllerRigidBody(entity, worldMock)
-    assert(physicsWorld.removeRigidBody.calledOnce)
-    const removeRigidBodyCallArg = physicsWorld.removeRigidBody.getCall(0).args[0]
-    assert(removeRigidBodyCallArg === controller.controller)
-  })
-
   it('check rotateTowardsDisplacementVector', async () => {
     const world = Engine.instance.currentWorld
     const entity = createEntity(world)

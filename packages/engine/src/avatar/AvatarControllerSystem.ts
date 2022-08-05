@@ -186,11 +186,6 @@ export const rotateBodyTowardsVector = (entity: Entity, vector: Vector3) => {
   controller.body.setRotation(finalOrientation, true)
 }
 
-export const removeAvatarControllerRigidBody = (entity: Entity, world: World = Engine.instance.currentWorld) => {
-  const controller = getComponent(entity, AvatarControllerComponent, true)
-  if (controller?.body) world.physicsWorld.removeRigidBody(controller.body)
-}
-
 export const updateMap = () => {
   const avatarInputState = accessAvatarInputSettingsState()
   const inputMap = AvatarInputSchema.inputMap
