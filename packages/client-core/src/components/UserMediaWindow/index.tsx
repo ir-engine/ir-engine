@@ -7,7 +7,6 @@ import { MediaStreamService, useMediaStreamState } from '@xrengine/client-core/s
 import { useLocationState } from '@xrengine/client-core/src/social/services/LocationService'
 import { MediaStreams } from '@xrengine/client-core/src/transports/MediaStreams'
 import {
-  applyScreenshareToTexture,
   configureMediaTransports,
   createCamAudioProducer,
   createCamVideoProducer,
@@ -28,6 +27,7 @@ import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
 import { WorldState } from '@xrengine/engine/src/networking/interfaces/WorldState'
+import { applyScreenshareToTexture } from '@xrengine/engine/src/scene/functions/applyScreenshareToTexture'
 import { dispatchAction, getState } from '@xrengine/hyperflux'
 
 import {
