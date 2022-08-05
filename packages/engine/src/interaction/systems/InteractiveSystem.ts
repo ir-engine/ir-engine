@@ -58,7 +58,7 @@ const onUpdate = (entity: Entity, mountPoint: ReturnType<typeof createInteractUI
   if (transition.state === 'IN' && !inRange) {
     transition.setState('OUT')
   }
-  transition.update(world, (opacity) => {
+  transition.update(world.deltaSeconds, (opacity) => {
     xrui.container.rootLayer.traverseLayersPreOrder((layer: WebLayer3D) => {
       const mat = layer.contentMesh.material as THREE.MeshBasicMaterial
       mat.opacity = opacity

@@ -100,8 +100,8 @@ export default async function AudioSystem(world: World) {
       AudioEffectPlayer.instance._init()
       if (!Engine.instance.isEditor) {
         for (const entity of mediaEntities) {
-          const audio = getComponent(entity, MediaElementComponent)
-          if (audio.autoplay) audio.play()
+          const media = getComponent(entity, MediaElementComponent)
+          if (media.autoplay) media.play()
         }
       }
     }

@@ -1,6 +1,8 @@
-import { BadRequest } from '@feathersjs/errors'
+import { BadRequest, NotAuthenticated } from '@feathersjs/errors'
 import { Id, NullableId, Params, ServiceMethods } from '@feathersjs/feathers'
+import https from 'https'
 import _ from 'lodash'
+import fetch from 'node-fetch'
 import Sequelize, { Op } from 'sequelize'
 
 import { InstanceServerProvisionResult } from '@xrengine/common/src/interfaces/InstanceServerProvisionResult'
@@ -101,13 +103,15 @@ export async function checkForDuplicatedAssignments(
     }
   })
 
+  const duplicateLocationQuery = {
+    assigned: true,
+    ended: false
+  } as any
+
+  if (locationId) duplicateLocationQuery.locationId = locationId
+  if (channelId) duplicateLocationQuery.channelId = channelId
   const duplicateLocationAssignment: any = await app.service('instance').find({
-    query: {
-      locationId: locationId,
-      channelId: channelId,
-      assigned: true,
-      ended: false
-    }
+    query: duplicateLocationQuery
   })
 
   //If there's more than one instance assigned to this IP, then one of them was made in error, possibly because
@@ -198,6 +202,46 @@ export async function checkForDuplicatedAssignments(
       await app.service('instance').remove(assignResult.id)
       return earlierInstance
     }
+  }
+
+  // This is here to handle odd cases with externally unresponsive instanceserver pods.
+  // It tries to make a GET request to the pod. If there's an error, or the response takes more than 2 seconds,
+  // it assumes the pod is unresponsive. Locally, it just waits half a second and tries again - if the local
+  // instanceservers are rebooting after the last person left, we just need to wait a bit for them to start.
+  // In production, it attempts to delete that pod via the K8s API client and tries again.
+  let responsivenessCheck: boolean
+  responsivenessCheck = await Promise.race([
+    new Promise<boolean>((resolve) => {
+      setTimeout(() => {
+        logger.warn(`Instanceserver at ${ipAddress} too long to respond, assuming it is unresponsive and killing`)
+        resolve(false)
+      }, config.server.instanceserverUnreachableTimeoutSeconds * 1000) // timeout after 2 seconds
+    }),
+    new Promise<boolean>((resolve) => {
+      let options = {} as any
+      let protocol = 'http://'
+      if (!config.kubernetes.enabled) {
+        protocol = 'https://'
+        options.agent = new https.Agent({
+          rejectUnauthorized: false
+        })
+      }
+
+      fetch(protocol + ipAddress, options)
+        .then((result) => {
+          resolve(true)
+        })
+        .catch((err) => {
+          logger.error(err)
+          resolve(false)
+        })
+    })
+  ])
+  if (!responsivenessCheck) {
+    await app.service('instance').remove(assignResult.id)
+    if (config.kubernetes.enabled) app.k8DefaultClient.deleteNamespacedPod(assignResult.podName, 'default')
+    else await new Promise((resolve) => setTimeout(() => resolve(null), 500))
+    return getFreeInstanceserver(app, iteration + 1, locationId, channelId)
   }
 
   const split = ipAddress.split(':')
@@ -344,19 +388,22 @@ export class InstanceProvision implements ServiceMethods<any> {
       const instanceId = params?.query?.instanceId
       const channelId = params?.query?.channelId
       const token = params?.query?.token
+      logger.info('instance-provision find', locationId, instanceId, channelId)
+      if (!token) throw new NotAuthenticated('No token provided')
+      // Check if JWT resolves to a user
+      const authResult = await (this.app.service('authentication') as any).strategies.jwt.authenticate(
+        { accessToken: token },
+        {}
+      )
+      const identityProvider = authResult['identity-provider']
+      if (identityProvider != null) userId = identityProvider.userId
+      else throw new BadRequest('Invalid user credentials')
+
       if (channelId != null) {
-        // Check if JWT resolves to a user
-        if (token != null) {
-          const authResult = await (this.app.service('authentication') as any).strategies.jwt.authenticate(
-            { accessToken: token },
-            {}
-          )
-          const identityProvider = authResult['identity-provider']
-          if (identityProvider != null) {
-            userId = identityProvider.userId
-          } else {
-            throw new BadRequest('Invalid user credentials')
-          }
+        try {
+          await this.app.service('channel').get(channelId)
+        } catch (err) {
+          throw new BadRequest('Invalid channel ID')
         }
         const channelInstance = await this.app.service('instance').Model.findOne({
           where: {
@@ -378,26 +425,9 @@ export class InstanceProvision implements ServiceMethods<any> {
           }
         }
       } else {
-        // Check if JWT resolves to a user
-        if (token != null) {
-          const authResult = await (this.app.service('authentication') as any).strategies.jwt.authenticate(
-            { accessToken: token },
-            {}
-          )
-          const identityProvider = authResult['identity-provider']
-          if (identityProvider != null) {
-            userId = identityProvider.userId
-          } else {
-            throw new BadRequest('Invalid user credentials')
-          }
-        }
-        if (locationId == null) {
-          throw new BadRequest('Missing location ID')
-        }
+        if (locationId == null) throw new BadRequest('Missing location ID')
         const location = await this.app.service('location').get(locationId)
-        if (location == null) {
-          throw new BadRequest('Invalid location ID')
-        }
+        if (location == null) throw new BadRequest('Invalid location ID')
         if (instanceId != null) {
           const instance: any = await this.app.service('instance').get(instanceId)
           if (instance == null || instance.ended === true) return getFreeInstanceserver(this.app, 0, locationId, null!)

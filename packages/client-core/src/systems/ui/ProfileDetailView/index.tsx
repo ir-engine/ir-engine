@@ -98,13 +98,17 @@ const ProfileDetailView = () => {
     }
   }, [authSettingState?.updateNeeded?.value])
 
+  /**
+   * Note: If you're editing lines 75-191, be sure to make the same changes to
+   * the non-XRUI version over at packages/client-core/src/user/components/UserMenu/menus/ProfileMenu.tsx
+   * @param name
+   * @param value
+   */
   const handleChangeUserThemeMode = (name, value) => {
     const settings = { ...userSettings, themeModes: { ...themeModes, [name]: value } }
     userSettings && AuthService.updateUserSettings(userSettings.id as string, settings)
   }
 
-  // If you're editing lines 75-191, be sure to make the same changes to the non-XRUI version over at
-  // packages/client-core/src/user/components/UserMenu/menus/ProfileMenu.tsx#114-230
   let type = ''
   const addMoreSocial =
     (authState?.discord && !oauthConnectedState.discord) ||
@@ -266,10 +270,6 @@ const ProfileDetailView = () => {
     WidgetAppService.setWidgetVisibility(WidgetName.SELECT_AVATAR, true)
   }
 
-  const handleOpenReadyPlayerWidget = () => {
-    WidgetAppService.setWidgetVisibility(WidgetName.READY_PLAYER, true)
-  }
-
   const enableSocial =
     authState?.discord ||
     authState?.facebook ||
@@ -397,19 +397,6 @@ const ProfileDetailView = () => {
                   <CircularProgress size={30} />
                 </div>
               )}
-            </section>
-          )}
-          {userRole === 'guest' && (
-            <section className="walletSection">
-              <h3 className="textBlock">{t('user:usermenu.profile.or')}</h3>
-              <XRTextButton
-                variant="gradient"
-                xr-layer="true"
-                onClick={handleOpenReadyPlayerWidget}
-                className="walletBtn"
-              >
-                {t('user:usermenu.profile.loginWithReadyPlayerMe')}
-              </XRTextButton>
             </section>
           )}
 

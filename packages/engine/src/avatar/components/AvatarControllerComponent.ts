@@ -11,7 +11,6 @@ export type AvatarControllerComponentType = {
 
   body: RigidBody
   bodyCollider: Collider
-  collisions: [boolean, boolean, boolean]
   movementEnabled: boolean
   isJumping: boolean
   isWalking: boolean

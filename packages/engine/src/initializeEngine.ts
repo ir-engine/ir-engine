@@ -211,11 +211,11 @@ export const initializeSceneSystems = async () => {
     },
     {
       type: SystemUpdateType.FIXED_LATE,
-      systemModulePromise: import('./scene/systems/TriggerSystem')
+      systemModulePromise: import('./physics/systems/PhysicsSystem')
     },
     {
       type: SystemUpdateType.FIXED_LATE,
-      systemModulePromise: import('./physics/systems/PhysicsSystem')
+      systemModulePromise: import('./scene/systems/TriggerSystem')
     }
   )
   if (isClient) {

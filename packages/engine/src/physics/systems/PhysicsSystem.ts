@@ -12,10 +12,12 @@ import { NetworkObjectDirtyTag } from '../../networking/components/NetworkObject
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { Physics } from '../classes/Physics'
+import { CollisionComponent } from '../components/CollisionComponent'
 import { RaycastComponent } from '../components/RaycastComponent'
 import { RigidBodyComponent } from '../components/RigidBodyComponent'
 import { RigidBodyDynamicTagComponent } from '../components/RigidBodyDynamicTagComponent'
 import { VelocityComponent } from '../components/VelocityComponent'
+import { ColliderHitEvent, CollisionEvents } from '../types/PhysicsTypes'
 
 // Receptor
 export function teleportObjectReceptor(
@@ -59,9 +61,38 @@ const updateDirtyDynamicBodiesFromNetwork = (world: World, entity: Entity) => {
   removeComponent(entity, NetworkObjectDirtyTag)
 }
 
-const processCollisions = (world: World) => {
-  Physics.drainCollisionEventQueue(world.physicsWorld, world.physicsCollisionEventQueue)
-  return world
+const processCollisions = (world: World, drainCollisions, collisionEntities: Entity[]) => {
+  const existingColliderHits = [] as Array<{ entity: Entity; collisionEntity: Entity; hit: ColliderHitEvent }>
+
+  for (const collisionEntity of collisionEntities) {
+    const collisionComponent = getComponent(collisionEntity, CollisionComponent)
+    for (const [entity, hit] of collisionComponent) {
+      if (hit.type !== CollisionEvents.COLLISION_PERSIST && hit.type !== CollisionEvents.TRIGGER_PERSIST) {
+        existingColliderHits.push({ entity, collisionEntity, hit })
+      }
+    }
+  }
+
+  world.physicsCollisionEventQueue.drainCollisionEvents(drainCollisions)
+
+  for (const { entity, collisionEntity, hit } of existingColliderHits) {
+    const collisionComponent = getComponent(collisionEntity, CollisionComponent)
+    if (!collisionComponent) continue
+    const newHit = collisionComponent.get(entity)!
+    if (!newHit) continue
+    if (hit.type === CollisionEvents.COLLISION_START && newHit.type === CollisionEvents.COLLISION_START) {
+      newHit.type = CollisionEvents.COLLISION_PERSIST
+    }
+    if (hit.type === CollisionEvents.TRIGGER_START && newHit.type === CollisionEvents.TRIGGER_START) {
+      newHit.type = CollisionEvents.TRIGGER_PERSIST
+    }
+    if (hit.type === CollisionEvents.COLLISION_END && newHit.type === CollisionEvents.COLLISION_END) {
+      collisionComponent.delete(entity)
+    }
+    if (hit.type === CollisionEvents.TRIGGER_END && newHit.type === CollisionEvents.TRIGGER_END) {
+      collisionComponent.delete(entity)
+    }
+  }
 }
 
 export default async function PhysicsSystem(world: World) {
@@ -81,6 +112,9 @@ export default async function PhysicsSystem(world: World) {
   await Physics.load()
   world.physicsWorld = Physics.createWorld()
   world.physicsCollisionEventQueue = Physics.createCollisionEventQueue()
+  const drainCollisions = Physics.drainCollisionEventQueue(world.physicsWorld)
+
+  const collisionQuery = defineQuery([CollisionComponent])
 
   return () => {
     for (const action of teleportObjectQueue()) teleportObjectReceptor(action)
@@ -104,9 +138,11 @@ export default async function PhysicsSystem(world: World) {
       world.physicsWorld.timestep = getState(EngineState).fixedDeltaSeconds.value
       world.physicsWorld.step(world.physicsCollisionEventQueue)
 
-      for (const entity of raycastQuery()) processRaycasts(world, entity)
+      const collisionEntities = collisionQuery()
 
-      processCollisions(world)
+      processCollisions(world, drainCollisions, collisionEntities)
+
+      for (const entity of raycastQuery()) processRaycasts(world, entity)
     }
   }
 }
