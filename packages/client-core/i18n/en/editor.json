@@ -182,6 +182,7 @@
       "lbl-coreOuterGain": "Cone Outer Gain",
       "info-coreOuterGain": "A double value describing the amount of volume reduction outside the cone defined by the coneOuterAngle attribute. Its default value is 0, meaning that no sound can be heard.",
       "lbl-volume": "Volume",
+      "lbl-isMusic": "Is Music",
       "lbl-play": "Play",
       "lbl-pause": "Pause",
       "error-url": "Error Loading From URL"
