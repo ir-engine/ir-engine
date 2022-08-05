@@ -192,7 +192,16 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
           if (!file.type) {
             await FileBrowserService.addNewFolder(`${path}${file.name}`)
           } else {
-            await FileBrowserService.putContent(file.name, path, file as any, file.type)
+            // Change file extension to lowercase
+            const nameSplit = file.name.split('.')
+            const extension = nameSplit.pop()
+
+            if (extension) {
+              nameSplit.push(extension.toLowerCase())
+              const name = nameSplit.join('.')
+
+              await FileBrowserService.putContent(name, path, file as any, file.type)
+            }
           }
         })
       )

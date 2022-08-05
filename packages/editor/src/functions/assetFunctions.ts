@@ -103,7 +103,17 @@ const processEntry = async (item, projectName: string, directory: string, promis
   if (item.isFile) {
     const file = await getFile(item)
     const path = `projects/${projectName}/assets${directory}`
-    promises.push(fileBrowserUpload(file, { fileName: file.name, path, contentType: '' }, onProgress))
+
+    // Change file extension to lowercase
+    const nameSplit = file.name.split('.')
+    const extension = nameSplit.pop()
+
+    if (extension) {
+      nameSplit.push(extension.toLowerCase())
+      const name = nameSplit.join('.')
+
+      promises.push(fileBrowserUpload(file, { fileName: name, path, contentType: '' }, onProgress))
+    }
   }
 }
 
