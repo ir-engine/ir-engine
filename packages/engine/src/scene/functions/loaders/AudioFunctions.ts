@@ -33,6 +33,7 @@ export const SCENE_COMPONENT_AUDIO = 'audio'
 export const SCENE_COMPONENT_AUDIO_DEFAULT_VALUES = {
   volume: 1,
   audioType: AudioType.Stereo as AudioTypeType,
+  isMusic: false,
   distanceModel: 'linear' as DistanceModelType,
   rolloffFactor: 1,
   refDistance: 20,
@@ -136,7 +137,7 @@ export const updateAudio = (entity: Entity) => {
     const { gain } = createAudioNode(
       el,
       Engine.instance.audioContext.createMediaElementSource(el),
-      Engine.instance.gainNodeMixBuses.soundEffects
+      audioComponent.isMusic ? Engine.instance.gainNodeMixBuses.music : Engine.instance.gainNodeMixBuses.soundEffects
     )
     gain.gain.setTargetAtTime(audioState.mediaStreamVolume.value, Engine.instance.audioContext.currentTime, 0.01)
   }
@@ -170,6 +171,7 @@ export const serializeAudio: ComponentSerializeFunction = (entity) => {
     props: {
       volume: component.volume,
       audioType: component.audioType,
+      isMusic: component.isMusic,
       distanceModel: component.distanceModel,
       rolloffFactor: component.rolloffFactor,
       refDistance: component.refDistance,
@@ -189,6 +191,7 @@ export const parseAudioProperties = (props): AudioComponentType => {
   return {
     volume: props.volume ?? SCENE_COMPONENT_AUDIO_DEFAULT_VALUES.volume,
     audioType: props.audioType ?? SCENE_COMPONENT_AUDIO_DEFAULT_VALUES.audioType,
+    isMusic: props.isMusic ?? SCENE_COMPONENT_AUDIO_DEFAULT_VALUES.isMusic,
     distanceModel: props.distanceModel ?? SCENE_COMPONENT_AUDIO_DEFAULT_VALUES.distanceModel,
     rolloffFactor: props.rolloffFactor ?? SCENE_COMPONENT_AUDIO_DEFAULT_VALUES.rolloffFactor,
     refDistance: props.refDistance ?? SCENE_COMPONENT_AUDIO_DEFAULT_VALUES.refDistance,
