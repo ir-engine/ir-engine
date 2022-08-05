@@ -23,7 +23,9 @@ export class PartyUser<T = PartyUserDataType> extends Service<T> {
   async find(params?: Params): Promise<any> {
     try {
       const loggedInUser = params!.user as UserInterface
-      const isInternalOrAdmin = (params && params.isInternalRequest) || loggedInUser?.userRole === 'admin'
+      const isInternalOrAdmin =
+        (params && params.isInternalRequest) ||
+        (loggedInUser.scopes && loggedInUser?.scopes.find((scope) => scope.type === 'admin:admin'))
 
       if (!isInternalOrAdmin && !loggedInUser) return null!
 

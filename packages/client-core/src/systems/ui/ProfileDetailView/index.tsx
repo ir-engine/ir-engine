@@ -60,7 +60,8 @@ const ProfileDetailView = () => {
   const userSettings = selfUser.user_setting.value
   const userId = selfUser.id.value
   const apiKey = selfUser.apiKey?.token?.value
-  const userRole = selfUser.userRole.value
+  const isGuest = selfUser.isGuest.value
+  const isAdmin = selfUser.scopes?.value?.find((scope) => scope.type === 'admin')
   const [deleteControlsOpen, setDeleteControlsOpen] = useState(false)
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false)
   const [oauthConnectedState, setOauthConnectedState] = useState(initialOAuthConnectedState)
@@ -69,7 +70,8 @@ const ProfileDetailView = () => {
   const clientSettingState = useClientSettingState()
   const [clientSetting] = clientSettingState?.client?.value || []
 
-  const hasAdminAccess = selfUser?.id?.value?.length > 0 && selfUser?.userRole?.value === 'admin'
+  const hasAdminAccess =
+    selfUser?.id?.value?.length > 0 && selfUser?.scopes?.value?.find((scope) => scope.type === 'admin:admin')
   const hasEditorAccess = userHasAccess('editor:write')
 
   const themeModes = { ...defaultThemeModes, ...userSettings?.themeModes }
@@ -78,7 +80,7 @@ const ProfileDetailView = () => {
   const accessibleThemeModes = Object.keys(themeModes).filter((mode) => {
     if (mode === 'admin' && hasAdminAccess === false) {
       return false
-    } else if (mode === 'editor' && hasEditorAccess === false) {
+    } else if (mode === 'editor' && !hasEditorAccess) {
       return false
     }
     return true
@@ -312,8 +314,8 @@ const ProfileDetailView = () => {
               />
               <div className="detailsContainer">
                 <h2>
-                  {userRole === 'admin' ? t('user:usermenu.profile.youAreAn') : t('user:usermenu.profile.youAreA')}
-                  <span id="user-role">{` ${userRole}`}</span>.
+                  {isAdmin ? t('user:usermenu.profile.youAreAn') : t('user:usermenu.profile.youAreA')}
+                  <span id="user-role">{isAdmin ? ' Admin' : isGuest ? ' Guest' : ' User'}</span>.
                 </h2>
                 <h2 className="showUserId" id="show-user-id" onClick={() => setShowUserId(!showUserId)}>
                   {showUserId ? t('user:usermenu.profile.hideUserId') : t('user:usermenu.profile.showUserId')}
@@ -325,7 +327,7 @@ const ProfileDetailView = () => {
                 )}
               </div>
               <h4>
-                {userRole !== 'guest' && (
+                {!isGuest && (
                   <div className="logout" onClick={handleLogout}>
                     {t('user:usermenu.profile.logout')}
                   </div>
@@ -379,7 +381,7 @@ const ProfileDetailView = () => {
             </section>
           )}
 
-          {userRole === 'guest' && enableConnect && (
+          {isGuest && enableConnect && (
             <section className="emailPhoneSection">
               <h1 className="panelHeader">{getConnectText()}</h1>
               <XRInput
@@ -402,10 +404,8 @@ const ProfileDetailView = () => {
 
           {enableSocial && (
             <section className="socialBlock">
-              {selfUser?.userRole.value === 'guest' && (
-                <h3 className="textBlock">{t('user:usermenu.profile.connectSocial')}</h3>
-              )}
-              {selfUser?.userRole.value !== 'guest' && addMoreSocial && (
+              {selfUser?.isGuest.value && <h3 className="textBlock">{t('user:usermenu.profile.connectSocial')}</h3>}
+              {!selfUser?.isGuest.value && addMoreSocial && (
                 <h3 className="textBlock">{t('user:usermenu.profile.addSocial')}</h3>
               )}
               <div className="socialContainer">
@@ -440,10 +440,10 @@ const ProfileDetailView = () => {
                   </a>
                 )}
               </div>
-              {selfUser?.userRole.value !== 'guest' && removeSocial && (
+              {!selfUser?.isGuest.value && removeSocial && (
                 <h3 className="textBlock">{t('user:usermenu.profile.removeSocial')}</h3>
               )}
-              {selfUser?.userRole.value !== 'guest' && removeSocial && (
+              {!selfUser?.isGuest.value && removeSocial && (
                 <div className="socialContainer">
                   {authState?.discord && oauthConnectedState.discord && (
                     <a href="#" id="discord" onClick={handleRemoveOAuthServiceClick}>
@@ -477,14 +477,12 @@ const ProfileDetailView = () => {
                   )}
                 </div>
               )}
-              {selfUser?.userRole.value === 'guest' && (
-                <h4 className="smallTextBlock">{t('user:usermenu.profile.createOne')}</h4>
-              )}
+              {selfUser?.isGuest.value && <h4 className="smallTextBlock">{t('user:usermenu.profile.createOne')}</h4>}
             </section>
           )}
         </section>
         <section className="deletePanel">
-          {userRole !== 'guest' && (
+          {!isGuest && (
             <div>
               <h2
                 className="deleteAccount"

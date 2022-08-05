@@ -43,7 +43,7 @@ export const RouteService = {
   fetchInstalledRoutes: async (incDec?: 'increment' | 'decrement') => {
     const user = accessAuthState().user
     try {
-      if (user.userRole.value === 'admin') {
+      if (user.scopes?.value?.find((scope) => scope.type === 'admin:admin')) {
         const routes = (await API.instance.client
           .service('routes-installed')
           .find()) as Paginated<InstalledRoutesInterface>

@@ -198,7 +198,7 @@ export class Location<T = LocationDataType> extends Service<T> {
         }
       ]
 
-      if (loggedInUser.userRole !== 'admin') {
+      if (!loggedInUser.scopes || !loggedInUser.scopes.find((scope) => scope.type === 'admin:admin')) {
         ;(include as any).push({
           model: this.app.service('location-admin').Model,
           where: {
@@ -393,7 +393,8 @@ export class Location<T = LocationDataType> extends Service<T> {
   async makeLobby(t, params?: Params): Promise<void> {
     const selfUser = params!.user as UserInterface
 
-    if (!selfUser || selfUser.userRole !== 'admin') throw new Error('Only Admin can set Lobby')
+    if (!selfUser || !selfUser.scopes || !selfUser.scopes.find((scope) => scope.type === 'admin:admin'))
+      throw new Error('Only Admin can set Lobby')
 
     await this.Model.update({ isLobby: false }, { where: { isLobby: true }, transaction: t })
   }

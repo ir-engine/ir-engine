@@ -73,12 +73,13 @@ const ProfileMenu = ({ className, hideLogin, isPopover, changeActiveMenu, onClos
   const userSettings = selfUser.user_setting.value
   const userId = selfUser.id.value
   const apiKey = selfUser.apiKey?.token?.value
-  const userRole = selfUser.userRole.value
+  const isGuest = selfUser.isGuest.value
 
   const clientSettingState = useClientSettingState()
   const [clientSetting] = clientSettingState?.client?.value || []
 
-  const hasAdminAccess = selfUser?.id?.value?.length > 0 && selfUser?.userRole?.value === 'admin'
+  const hasAdminAccess =
+    selfUser?.id?.value?.length > 0 && selfUser?.scopes?.value?.find((scope) => scope.type === 'admin:admin')
   const hasEditorAccess = userHasAccess('editor:write')
 
   const userAvatarDetails = useHookstate(getState(WorldState).userAvatarDetails)
@@ -87,9 +88,9 @@ const ProfileMenu = ({ className, hideLogin, isPopover, changeActiveMenu, onClos
   const themeSettings = { ...defaultThemeSettings, ...clientSetting.themeSettings }
 
   const accessibleThemeModes = Object.keys(themeModes).filter((mode) => {
-    if (mode === 'admin' && hasAdminAccess === false) {
+    if (mode === 'admin' && !hasAdminAccess) {
       return false
-    } else if (mode === 'editor' && hasEditorAccess === false) {
+    } else if (mode === 'editor' && !hasEditorAccess) {
       return false
     }
     return true
@@ -502,13 +503,13 @@ const ProfileMenu = ({ className, hideLogin, isPopover, changeActiveMenu, onClos
             </span>
 
             <Grid container justifyContent="right" className={styles.justify}>
-              <Grid item xs={userRole === 'guest' ? 6 : 4}>
+              <Grid item xs={isGuest ? 6 : 4}>
                 <h2>
-                  {userRole === 'admin' ? t('user:usermenu.profile.youAreAn') : t('user:usermenu.profile.youAreA')}
-                  <span id="user-role">{` ${userRole}`}</span>.
+                  {hasAdminAccess ? t('user:usermenu.profile.youAreAn') : t('user:usermenu.profile.youAreA')}
+                  <span id="user-role">{hasAdminAccess ? ' Admin' : isGuest ? ' Guest' : ' User'}</span>.
                 </h2>
               </Grid>
-              <Grid item container xs={userRole === 'guest' ? 6 : 4} alignItems="flex-start" direction="column">
+              <Grid item container xs={isGuest ? 6 : 4} alignItems="flex-start" direction="column">
                 <Tooltip
                   title={showUserId ? t('user:usermenu.profile.hideUserId') : t('user:usermenu.profile.showUserId')}
                   placement="right"
@@ -531,7 +532,7 @@ const ProfileMenu = ({ className, hideLogin, isPopover, changeActiveMenu, onClos
                 </Grid>
               )}
             </Grid>
-            {userRole !== 'guest' && (
+            {!isGuest && (
               <Grid
                 display="grid"
                 gridTemplateColumns="1fr 1.5fr"
@@ -562,7 +563,7 @@ const ProfileMenu = ({ className, hideLogin, isPopover, changeActiveMenu, onClos
               />
             )}
             <h4>
-              {userRole !== 'guest' && (
+              {!isGuest && (
                 <div className={styles.logout} onClick={handleLogout}>
                   {t('user:usermenu.profile.logout')}
                 </div>
@@ -656,7 +657,7 @@ const ProfileMenu = ({ className, hideLogin, isPopover, changeActiveMenu, onClos
 
         {!hideLogin && (
           <>
-            {userRole === 'guest' && enableConnect && (
+            {isGuest && enableConnect && (
               <section className={styles.emailPhoneSection}>
                 <Typography variant="h1" className={styles.panelHeader}>
                   {getConnectText()}
@@ -690,7 +691,7 @@ const ProfileMenu = ({ className, hideLogin, isPopover, changeActiveMenu, onClos
                 </form>
               </section>
             )}
-            {userRole === 'guest' && enableWalletLogin && (
+            {isGuest && enableWalletLogin && (
               <section className={styles.walletSection}>
                 <Typography variant="h3" className={styles.textBlock}>
                   {t('user:usermenu.profile.or')}
@@ -716,12 +717,12 @@ const ProfileMenu = ({ className, hideLogin, isPopover, changeActiveMenu, onClos
 
             {enableSocial && (
               <section className={styles.socialBlock}>
-                {selfUser?.userRole.value === 'guest' && (
+                {selfUser?.isGuest.value && (
                   <Typography variant="h3" className={styles.textBlock}>
                     {t('user:usermenu.profile.connectSocial')}
                   </Typography>
                 )}
-                {selfUser?.userRole.value !== 'guest' && addMoreSocial && (
+                {!selfUser?.isGuest.value && addMoreSocial && (
                   <Typography variant="h3" className={styles.textBlock}>
                     {t('user:usermenu.profile.addSocial')}
                   </Typography>
@@ -758,7 +759,7 @@ const ProfileMenu = ({ className, hideLogin, isPopover, changeActiveMenu, onClos
                     </a>
                   )}
                 </div>
-                {selfUser?.userRole.value !== 'guest' && removeSocial && (
+                {!selfUser?.isGuest.value && removeSocial && (
                   <Typography variant="h3" className={styles.textBlock}>
                     {t('user:usermenu.profile.removeSocial')}
                   </Typography>
@@ -795,7 +796,7 @@ const ProfileMenu = ({ className, hideLogin, isPopover, changeActiveMenu, onClos
                     </a>
                   )}
                 </div>
-                {selfUser?.userRole.value === 'guest' && (
+                {selfUser?.isGuest && (
                   <Typography variant="h4" className={styles.smallTextBlock}>
                     {t('user:usermenu.profile.createOne')}
                   </Typography>
@@ -803,7 +804,7 @@ const ProfileMenu = ({ className, hideLogin, isPopover, changeActiveMenu, onClos
               </section>
             )}
             <section className={styles.deletePanel}>
-              {userRole !== 'guest' && (
+              {!isGuest && (
                 <div>
                   <h2
                     className={styles.deleteAccount}

@@ -4,6 +4,7 @@ import moment from 'moment'
 import { Application } from '../../../declarations'
 import logger from '../../logger'
 import Paginated from '../../types/PageObject'
+import makeInitialAdmin from '../../util/make-initial-admin'
 
 interface Data {}
 
@@ -58,15 +59,7 @@ export class Login implements ServiceMethods<Data> {
         return { error: 'Login link has expired' }
       }
       const identityProvider = await this.app.service('identity-provider').get(result.identityProviderId)
-      const adminCount = await this.app.service('user').Model.count({
-        where: {
-          userRole: 'admin'
-        }
-      })
-      if (adminCount === 0)
-        await this.app.service('user').patch(identityProvider.userId, {
-          userRole: 'admin'
-        })
+      await makeInitialAdmin(this.app, identityProvider.userId)
       const apiKey = await this.app.service('user-api-key').find({
         query: {
           userId: identityProvider.userId

@@ -59,7 +59,8 @@ export class FileBrowserService implements ServiceMethods<any> {
     const limit = $limit ? $limit : 100
 
     const storageProvider = getStorageProvider()
-    const isAdmin = params.user && params.user.userRole === 'admin'
+    console.log('params.user', params.user)
+    const isAdmin = params.user && params.user?.scopes?.find((scope) => scope.type === 'admin:admin')
     if (directory[0] === '/') directory = directory.slice(1) // remove leading slash
     if (params.provider && !isAdmin && directory !== '' && !/^projects/.test(directory))
       throw new Forbidden('Not allowed to access that directory')

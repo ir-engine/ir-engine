@@ -23,7 +23,13 @@ export class UserApiKey<T = UserApiKeyDataType> extends Service<T> {
 
   async patch(id: NullableId, data: any, params: Params = {}): Promise<T | T[]> {
     const loggedInUser = params.user as UserInterface
-    if (loggedInUser.userRole === 'admin' && id != null && params) return super.patch(id, { ...data })
+    if (
+      loggedInUser.scopes &&
+      loggedInUser.scopes.find((scope) => scope.type === 'admin:admin') &&
+      id != null &&
+      params
+    )
+      return super.patch(id, { ...data })
     const userApiKey = await this.app.service('user-api-key').Model.findOne({
       where: {
         userId: loggedInUser.id
