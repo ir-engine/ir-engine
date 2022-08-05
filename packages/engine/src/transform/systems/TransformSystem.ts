@@ -10,6 +10,7 @@ import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
+import { NetworkObjectOwnedTag } from '../../networking/components/NetworkObjectOwnedTag'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { RigidBodyDynamicTagComponent } from '../../physics/components/RigidBodyDynamicTagComponent'
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
@@ -21,9 +22,10 @@ import { TransformComponent } from '../components/TransformComponent'
 const scratchVector3 = new Vector3()
 const scratchQuaternion = new Quaternion()
 
-const dynamicRigidBodyQuery = defineQuery([
+const ownedDynamicRigidBodyQuery = defineQuery([
   RigidBodyComponent,
   RigidBodyDynamicTagComponent,
+  NetworkObjectOwnedTag,
   TransformComponent,
   VelocityComponent
 ])
@@ -102,8 +104,9 @@ export default async function TransformSystem(world: World) {
 
     // update transform components from rigid body components,
     // interpolating the remaining time after the fixed pipeline is complete.
+    // we only update the transform for objects that we have authority over.
 
-    for (const entity of dynamicRigidBodyQuery()) updateTransformFromBody(world, entity)
+    for (const entity of ownedDynamicRigidBodyQuery()) updateTransformFromBody(world, entity)
 
     // if transform order is dirty, sort by reference depth
 

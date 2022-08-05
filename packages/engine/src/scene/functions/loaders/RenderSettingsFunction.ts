@@ -62,11 +62,12 @@ export const updateRenderSetting: ComponentUpdateFunction = (
 
       updateShadowMap(component.shadowMapType > -1, component.shadowMapType)
 
-      if (component.csm) enableCSM()
-      else disposeCSM()
+      // TODO: may need to update to the CSM maintained in threejs
+      // if (component.csm) enableCSM()
+      // else disposeCSM()
     } else {
       resetEngineRenderer(false, false)
-      enableCSM()
+      // enableCSM()
     }
 
     return
@@ -81,10 +82,10 @@ export const updateRenderSetting: ComponentUpdateFunction = (
     if (typeof properties.shadowMapType !== 'undefined')
       updateShadowMap(component.shadowMapType > -1, component.shadowMapType)
 
-    if (typeof properties.csm !== 'undefined') {
-      if (component.csm) enableCSM()
-      else disposeCSM()
-    }
+    // if (typeof properties.csm !== 'undefined') {
+    //   if (component.csm) enableCSM()
+    //   else disposeCSM()
+    // }
   }
 }
 
