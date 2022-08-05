@@ -74,15 +74,15 @@ export const Debug = () => {
     )
   }
 
-  // todo: display all entities?
-  const renderNamedEntities = () => {
+  const renderAllEntities = () => {
     return {
       ...Object.fromEntries(
-        [...Engine.instance.currentWorld.namedEntities.entries()]
+        [...Engine.instance.currentWorld.entityQuery().entries()]
           .map(([key, eid]) => {
+            const name = getComponent(eid, NameComponent)?.name
             try {
               return [
-                '(eid:' + eid + ') ' + key,
+                '(eid:' + eid + ') ' + (name ?? ''),
                 Object.fromEntries(
                   getEntityComponents(Engine.instance.currentWorld, eid).reduce<[string, any][]>(
                     (components, C: MappedComponent<any, any>) => {
@@ -132,7 +132,7 @@ export const Debug = () => {
 
   const namedEntities = useHookstate({})
 
-  namedEntities.set(renderNamedEntities())
+  namedEntities.set(renderAllEntities())
 
   const pipelines = Engine.instance.currentWorld.pipelines
 

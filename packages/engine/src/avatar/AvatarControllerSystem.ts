@@ -1,20 +1,24 @@
 import { ArrowHelper, Matrix4, Quaternion, Vector3 } from 'three'
 
-import { addActionReceptor, getState } from '@xrengine/hyperflux'
+import { addActionReceptor, dispatchAction, getState } from '@xrengine/hyperflux'
 
+import { FollowCameraComponent, FollowCameraDefaultValues } from '../camera/components/FollowCameraComponent'
 import { V_000, V_001, V_010 } from '../common/constants/MathConstants'
 import { Engine } from '../ecs/classes/Engine'
 import { EngineState } from '../ecs/classes/EngineState'
 import { Entity } from '../ecs/classes/Entity'
 import { World } from '../ecs/classes/World'
-import { defineQuery, getComponent, hasComponent } from '../ecs/functions/ComponentFunctions'
+import { defineQuery, getComponent, hasComponent, setComponent } from '../ecs/functions/ComponentFunctions'
+import { createEntity } from '../ecs/functions/EntityFunctions'
 import { LocalInputTagComponent } from '../input/components/LocalInputTagComponent'
 import { BaseInput } from '../input/enums/BaseInput'
 import { AvatarMovementScheme } from '../input/enums/InputEnums'
 import { XRAxes } from '../input/enums/InputEnums'
+import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
 import { RapierCollisionComponent } from '../physics/components/RapierCollisionComponent'
 import { VelocityComponent } from '../physics/components/VelocityComponent'
-import { TransformComponent } from '../transform/components/TransformComponent'
+import { setComputedTransformComponent } from '../transform/components/ComputedTransformComponent'
+import { setTransformComponent, TransformComponent } from '../transform/components/TransformComponent'
 import { XRInputSourceComponent } from '../xr/XRComponents'
 import { AvatarInputSchema } from './AvatarInputSchema'
 import { AvatarComponent } from './components/AvatarComponent'
@@ -49,28 +53,53 @@ const finalOrientation = new Quaternion()
 
 export default async function AvatarControllerSystem(world: World) {
   const controllerQuery = defineQuery([AvatarControllerComponent])
-  const localXRInputQuery = defineQuery([
-    LocalInputTagComponent,
-    XRInputSourceComponent,
-    AvatarControllerComponent,
-    TransformComponent
-  ])
+
+  const localInputQuery = defineQuery([LocalInputTagComponent])
+
+  // const localXRInputQuery = defineQuery([
+  //   LocalInputTagComponent,
+  //   XRInputSourceComponent,
+  //   AvatarControllerComponent,
+  //   TransformComponent
+  // ])
   const collisionQuery = defineQuery([AvatarControllerComponent, RapierCollisionComponent])
 
   addActionReceptor(AvatarInputSettingsReceptor)
 
   // const lastCamPos = new Vector3(),
   //   displacement = new Vector3()
-  let isLocalXRCameraReady = false
+  // let isLocalXRCameraReady = false
 
   return () => {
+    for (const entity of localInputQuery.enter()) {
+      let targetEntity = entity
+
+      if (hasComponent(entity, AvatarComponent)) {
+        const avatarComponent = getComponent(entity, AvatarComponent)
+        targetEntity = createEntity()
+        setTransformComponent(targetEntity)
+        setComputedTransformComponent(targetEntity, entity, () => {
+          const avatarTransform = getComponent(entity, TransformComponent)
+          const targetTransform = getComponent(targetEntity, TransformComponent)
+          targetTransform.position.copy(avatarTransform.position).y += avatarComponent.avatarHeight * 0.95
+        })
+      }
+
+      setComponent(world.cameraEntity, FollowCameraComponent, {
+        ...FollowCameraDefaultValues,
+        targetEntity
+      })
+
+      dispatchAction(WorldNetworkAction.spawnCamera({}))
+    }
+
     for (const entity of controllerQuery.exit(world)) {
       removeAvatarControllerRigidBody(entity, world)
     }
 
-    for (const entity of localXRInputQuery.enter(world)) {
-      isLocalXRCameraReady = false
-    }
+    // for (const entity of localXRInputQuery.enter(world)) {
+    //   isLocalXRCameraReady = false
+    // }
 
     // for (const entity of localXRInputQuery(world)) {
     //   const { camera } = Engine.instance.currentWorld

@@ -1,10 +1,14 @@
 import { Collider, RigidBody } from '@dimforge/rapier3d-compat'
 import { Vector3 } from 'three'
 
+import { Entity } from '../../ecs/classes/Entity'
 import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
 import { VectorSpringSimulator } from '../../physics/classes/springs/VectorSpringSimulator'
 
 export type AvatarControllerComponentType = {
+  /** The camera entity that should be updated by this controller */
+  cameraEntity: Entity
+
   body: RigidBody
   bodyCollider: Collider
   collisions: [boolean, boolean, boolean]

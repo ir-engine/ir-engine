@@ -21,9 +21,9 @@ const AvatarInputSettingsState = defineState({
     controlType: 'AvatarControllerType_None',
     invertRotationAndMoveSticks: true,
     // TODO: implement the following
-    moving: XR_FOLLOW_MODE.CONTROLLER,
+    moving: XR_FOLLOW_MODE.CONTROLLER as XR_FOLLOW_MODE,
     // rotation mode
-    rotation: XR_ROTATION_MODE.ANGLED,
+    rotation: XR_ROTATION_MODE.ANGLED as XR_ROTATION_MODE,
     // 0.1, 0.3, 0.5, 0.8, 1
     rotationSmoothSpeed: 0.1,
     // 15, 30, 45, 60

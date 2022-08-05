@@ -99,6 +99,7 @@ describe('avatarInputSchema', () => {
 
     const velocitySimulator = new VectorSpringSimulator(60, 50, 0.8)
     const c = addComponent(entity, AvatarControllerComponent, {
+      cameraEntity: null!,
       body: null!,
       bodyCollider: null!,
       currentSpeed: 0,

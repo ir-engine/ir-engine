@@ -162,6 +162,7 @@ export const createAvatarController = (entity: Entity) => {
     getComponent(entity, TransformComponent).position.y += avatarComponent.avatarHalfHeight
     const rigidBody = createAvatarRigidBody(entity)
     addComponent(entity, AvatarControllerComponent, {
+      cameraEntity: Engine.instance.currentWorld.cameraEntity,
       body: rigidBody,
       bodyCollider: undefined!,
       collisions: [false, false, false],

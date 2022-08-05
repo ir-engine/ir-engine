@@ -66,7 +66,7 @@ export const LoadEngineWithScene = () => {
 
   useHookEffect(async () => {
     if (
-      engineState.joinedWorld.value ||
+      Engine.instance.currentWorld.localClientEntity ||
       !engineState.sceneLoaded.value ||
       !authState.user.value ||
       getSearchParamFromURL('spectate')
