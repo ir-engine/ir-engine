@@ -41,8 +41,13 @@ describe('XRSystem Tests', async () => {
       mapping: 'xr-standard',
       handedness: 'left'
     }
-    EngineRenderer.instance.xrManager = { isPresenting: true } as any
     Engine.instance.xrFrame = { session: { inputSources: [inputSource] } } as any
+    EngineRenderer.instance.xrManager = {
+      isPresenting: true,
+      getSession() {
+        return Engine.instance.xrFrame.session
+      }
+    } as any
 
     xrSystem()
 
