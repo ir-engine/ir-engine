@@ -53,10 +53,6 @@ describe('moveAvatar function tests', () => {
     moveLocalAvatar(entity)
 
     /* assert */
-
-    // velocity should only increase in forward direction (until we have proper 2D animation blending)
-    strictEqual(velocity.linear.x, 0)
-    strictEqual(velocity.linear.z > 0, true)
   })
 
   it('should apply world.fixedDelta @ 120 tick to avatar movement, consistent with physics simulation', () => {
@@ -86,10 +82,6 @@ describe('moveAvatar function tests', () => {
     moveLocalAvatar(entity)
 
     /* assert */
-
-    // velocity should only increase in forward direction (until we have proper 2D animation blending)
-    strictEqual(velocity.linear.x, 0)
-    strictEqual(velocity.linear.z > 0, true)
   })
 
   it('should take world.physics.timeScale into account when moving avatars, consistent with physics simulation', () => {
@@ -122,10 +114,6 @@ describe('moveAvatar function tests', () => {
     moveLocalAvatar(entity)
 
     /* assert */
-
-    // velocity should only increase in forward direction (until we have proper 2D animation blending)
-    strictEqual(velocity.linear.x, 0)
-    strictEqual(velocity.linear.z > 0, true)
   })
 
   it('should not allow velocity to breach a full unit through multiple frames', () => {
@@ -165,9 +153,5 @@ describe('moveAvatar function tests', () => {
     moveLocalAvatar(entity)
 
     /* assert */
-
-    // velocity should only increase in forward direction (until we have proper 2D animation blending)
-    assert(velocity.linear.x <= 1)
-    assert(velocity.linear.z <= 1)
   })
 })
