@@ -4,11 +4,13 @@ import { Group, Quaternion, Vector3 } from 'three'
 
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
+import { getState } from '@xrengine/hyperflux'
 
 import { createMockNetwork } from '../../../tests/util/createMockNetwork'
 import { roundNumberToPlaces } from '../../common/functions/roundVector'
 import { createQuaternionProxy, createVector3Proxy } from '../../common/proxies/three'
 import { Engine } from '../../ecs/classes/Engine'
+import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
@@ -784,7 +786,8 @@ describe('DataReader', () => {
     const network = Engine.instance.currentWorld.worldNetwork
     network.userIndexToUserId = new Map()
     network.userIdToUserIndex = new Map()
-    Engine.instance.currentWorld.fixedTick = 1
+    const engineState = getState(EngineState)
+    engineState.fixedTick.set(1)
 
     const n = 10
     const entities: Entity[] = Array(n)
@@ -827,7 +830,8 @@ describe('DataReader', () => {
 
     network.userIndexToUserId = new Map()
     network.userIdToUserIndex = new Map()
-    Engine.instance.currentWorld.fixedTick = 60
+    const engineState = getState(EngineState)
+    engineState.fixedTick.set(60)
 
     const n = 10
     const entities: Entity[] = Array(n)
@@ -864,7 +868,8 @@ describe('DataReader', () => {
     const network = Engine.instance.currentWorld.worldNetwork
     network.userIndexToUserId = new Map()
     network.userIdToUserIndex = new Map()
-    Engine.instance.currentWorld.fixedTick = 1
+    const engineState = getState(EngineState)
+    engineState.fixedTick.set(1)
 
     const n = 10
     const entities: Entity[] = Array(n)

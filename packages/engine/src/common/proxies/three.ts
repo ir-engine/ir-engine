@@ -45,7 +45,7 @@ export const proxifyVector3 = (store: Vector3Store, entity: Entity, dirty: Set<E
   })
 }
 
-export const createVector3Proxy = (store: Vector3Store, entity: Entity, dirty: Set<Entity>) =>
+export const createVector3Proxy = (store: Vector3Store, entity: Entity, dirty: Set<Entity> = new Set()) =>
   proxifyVector3(store, entity, dirty, new Vector3())
 
 export const proxifyQuaternion = (
@@ -101,5 +101,8 @@ export const proxifyQuaternion = (
   })
 }
 
-export const createQuaternionProxy = (store: QuaternionStore, entity: Entity, dirty: Set<Entity>): Quaternion =>
-  proxifyQuaternion(store, entity, dirty, new Quaternion())
+export const createQuaternionProxy = (
+  store: QuaternionStore,
+  entity: Entity,
+  dirty: Set<Entity> = new Set()
+): Quaternion => proxifyQuaternion(store, entity, dirty, new Quaternion())

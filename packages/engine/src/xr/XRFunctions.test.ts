@@ -14,28 +14,13 @@ import { WorldNetworkActionReceptor } from '../networking/functions/WorldNetwork
 import { Physics } from '../physics/classes/Physics'
 import { EngineRenderer } from '../renderer/WebGLRendererSystem'
 import { XRHandsInputComponent, XRInputSourceComponent } from './XRComponents'
-import { setupXRCameraForLocalEntity, setupXRInputSourceComponent } from './XRFunctions'
+import { setupXRInputSourceComponent } from './XRFunctions'
 
 describe('WebXRFunctions Unit', async () => {
   beforeEach(async () => {
     createEngine()
     await Physics.load()
     Engine.instance.currentWorld.physicsWorld = Physics.createWorld()
-  })
-
-  it('check setupXRCamera', async () => {
-    const world = Engine.instance.currentWorld
-
-    const action = WorldNetworkAction.spawnAvatar({})
-    WorldNetworkActionReceptor.receiveSpawnObject(action)
-    createAvatar(action)
-
-    const entity = world.localClientEntity
-
-    setupXRInputSourceComponent(entity)
-    setupXRCameraForLocalEntity()
-
-    assert(Engine.instance.currentWorld.camera.parent)
   })
 
   it('check setupXRInputSourceComponent', async () => {

@@ -72,8 +72,8 @@ function updateNodes(state: LocomotionState, xNodes: any[], yNodes: any[]): void
 }
 
 export function updateLocomotionStateBlendValues(state: LocomotionState, delta: number) {
-  const velocity = state.locomotion
-  state.blendValue.set(velocity.x, velocity.z)
+  const locomotion = state.locomotion
+  state.blendValue.set(locomotion.x, locomotion.z)
   state.frameBlendValue.copy(state.blendValue).multiplyScalar(delta)
 }
 

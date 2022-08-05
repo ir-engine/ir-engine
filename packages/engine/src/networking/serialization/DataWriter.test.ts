@@ -3,11 +3,13 @@ import { Group, Quaternion, Vector3 } from 'three'
 
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
+import { getState } from '@xrengine/hyperflux'
 
 import { createMockNetwork } from '../../../tests/util/createMockNetwork'
 import { roundNumberToPlaces } from '../../common/functions/roundVector'
 import { createQuaternionProxy, createVector3Proxy } from '../../common/proxies/three'
 import { Engine } from '../../ecs/classes/Engine'
+import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
@@ -41,7 +43,8 @@ describe('DataWriter', () => {
   it('should writeComponent', () => {
     const writeView = createViewCursor()
     const entity = 42 as Entity
-    Engine.instance.currentWorld.fixedTick = 1
+    const engineState = getState(EngineState)
+    engineState.fixedTick.set(1)
 
     const [x, y, z] = [1.5, 2.5, 3.5]
     TransformComponent.position.x[entity] = x
