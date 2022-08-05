@@ -112,7 +112,7 @@ export default async function AnimationSystem(world: World) {
       avatarAnimationComponent.locomotion.y = velocity.linear.y
       // lerp animated forward animation to smoothly animate to a stop
       avatarAnimationComponent.locomotion.z = MathUtils.lerp(
-        avatarAnimationComponent.locomotion.z,
+        avatarAnimationComponent.locomotion.z || 0,
         _vector3.copy(velocity.linear).setComponent(1, 0).length(),
         10 * deltaTime
       )

@@ -239,12 +239,14 @@ export const getComponent = <T, S extends bitECS.ISchema>(
 
 /**
  * Set a component on an entity. If the component already exists, it will be overwritten.
+ * Unlike calling removeComponent followed by addComponent, entry queue will not be rerun.
  *
  * @param entity
  * @param component
  * @param args
  * @param world
- * @returns
+ *
+ * @returns the component
  */
 export const setComponent = <T, S extends bitECS.ISchema>(
   entity: Entity,

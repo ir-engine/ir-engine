@@ -9,7 +9,6 @@ import { createEntity } from '../ecs/functions/EntityFunctions'
 import { createEngine } from '../initializeEngine'
 import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
 import { WorldState } from '../networking/interfaces/WorldState'
-import { VelocityComponent } from '../physics/components/VelocityComponent'
 import { XRAction } from '../xr/XRAction'
 import { XRHandsInputComponent, XRInputSourceComponent } from '../xr/XRComponents'
 import { setupXRInputSourceComponent } from '../xr/XRFunctions'
@@ -19,6 +18,7 @@ import {
   setupHandIK,
   setupHeadIK,
   setupXRInputSourceContainer,
+  xrHandsConnectedReceptor,
   xrInputQueryExit
 } from './AvatarSystem'
 import { AvatarHandsIKComponent } from './components/AvatarHandsIKComponent'

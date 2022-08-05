@@ -35,6 +35,7 @@ export function createConeOfVectors(inputVec: Vector3, outputs: Vector3[], angle
     const vec = outputs[i]
 
     vec
+      .set(0, 0, 0)
       .addScaledVector(tempVec1, Math.cos(rayDelta * i))
       .addScaledVector(tempVec2, Math.sin(rayDelta * i))
       .multiplyScalar(coneRadius)

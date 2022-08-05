@@ -37,8 +37,18 @@ export class XRHandMeshModel extends Object3D {
       if (bone) {
         ;(bone as any).jointName = jointName
 
-        proxifyVector3(XRHandsInputComponent[handedness][jointName].position, entity, bone.position)
-        proxifyQuaternion(XRHandsInputComponent[handedness][jointName].quaternion, entity, bone.quaternion)
+        proxifyVector3(
+          XRHandsInputComponent[handedness][jointName].position,
+          entity,
+          world.dirtyTransforms,
+          bone.position
+        )
+        proxifyQuaternion(
+          XRHandsInputComponent[handedness][jointName].quaternion,
+          entity,
+          world.dirtyTransforms,
+          bone.quaternion
+        )
 
         this.bones.push(bone)
       } else {

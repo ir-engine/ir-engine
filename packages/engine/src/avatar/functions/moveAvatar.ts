@@ -1,5 +1,5 @@
 import { Collider } from '@dimforge/rapier3d-compat'
-import { OrthographicCamera, PerspectiveCamera, Quaternion, Vector3 } from 'three'
+import { OrthographicCamera, PerspectiveCamera, Quaternion, Vector, Vector3 } from 'three'
 
 import { rotate } from '@xrengine/common/src/utils/mathUtils'
 import { getState } from '@xrengine/hyperflux'
@@ -13,6 +13,7 @@ import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
 import { getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
+import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { AvatarSettings, rotateBodyTowardsCameraDirection, rotateBodyTowardsVector } from '../AvatarControllerSystem'
 import { AvatarComponent } from '../components/AvatarComponent'
@@ -36,6 +37,8 @@ export const moveLocalAvatar = (entity: Entity) => {
   const camera = Engine.instance.currentWorld.camera
   const timeStep = getState(EngineState).fixedDeltaSeconds.value
   const controller = getComponent(entity, AvatarControllerComponent)
+  const rigidBody = getComponent(entity, RigidBodyComponent)
+  const transform = getComponent(entity, TransformComponent)
 
   let onGround = false
 
@@ -90,8 +93,15 @@ export const moveLocalAvatar = (entity: Entity) => {
 
   controller.body.setLinvel(currentVelocity, true)
 
-  if (hasComponent(entity, AvatarHeadDecapComponent)) rotateBodyTowardsCameraDirection(entity)
-  else rotateBodyTowardsVector(entity, prevVelocity as Vector3)
+  if (hasComponent(entity, AvatarHeadDecapComponent)) {
+    rotateBodyTowardsCameraDirection(entity)
+  } else {
+    const displacement = tempVec1
+      .subVectors(transform.position, rigidBody.previousPosition)
+      .setComponent(1, 0)
+      .normalize()
+    rotateBodyTowardsVector(entity, displacement)
+  }
 
   // TODO: implement scene lower bounds parameter
   if (controller.body.translation().y < -10) respawnAvatar(entity)

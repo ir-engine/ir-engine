@@ -90,12 +90,13 @@ export default async function TransformSystem(world: World) {
       const transform = getComponent(entity, TransformComponent)
       const object3D = getComponent(entity, Object3DComponent).value
       if (transform && object3D) {
+        object3D.matrixAutoUpdate = false
         object3D.position.copy(transform.position)
         object3D.quaternion.copy(transform.rotation)
         object3D.scale.copy(transform.scale)
-        proxifyVector3(TransformComponent.position, entity, object3D.position)
-        proxifyQuaternion(TransformComponent.rotation, entity, object3D.quaternion)
-        proxifyVector3(TransformComponent.scale, entity, object3D.scale)
+        proxifyVector3(TransformComponent.position, entity, world.dirtyTransforms, object3D.position)
+        proxifyQuaternion(TransformComponent.rotation, entity, world.dirtyTransforms, object3D.quaternion)
+        proxifyVector3(TransformComponent.scale, entity, world.dirtyTransforms, object3D.scale)
       }
     }
 
@@ -125,19 +126,17 @@ export default async function TransformSystem(world: World) {
 
       computedTransform?.computeFunction(entity, computedTransform.referenceEntity)
 
-      // replace scale 0 with epsilon to prevent NaN errors
-      if (transform.scale.x === 0) transform.scale.x = 1e-10
-      if (transform.scale.y === 0) transform.scale.y = 1e-10
-      if (transform.scale.z === 0) transform.scale.z = 1e-10
-
       if (object3D) {
-        object3D.position.copy(transform.position)
-        object3D.quaternion.copy(transform.rotation)
-        object3D.scale.copy(transform.scale)
+        if (world.dirtyTransforms.has(entity)) {
+          // replace scale 0 with epsilon to prevent NaN errors
+          if (transform.scale.x === 0) transform.scale.x = 1e-10
+          if (transform.scale.y === 0) transform.scale.y = 1e-10
+          if (transform.scale.z === 0) transform.scale.z = 1e-10
+          object3D.updateMatrix()
+          world.dirtyTransforms.delete(entity)
+        }
 
-        object3D.matrixAutoUpdate = false
-        object3D.updateMatrix()
-        object3D.matrixWorld.copy(object3D.matrix)
+        object3D.updateMatrixWorld(true)
 
         if (Engine.instance.isEditor) {
           // is this really necessary?

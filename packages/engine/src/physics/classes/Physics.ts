@@ -84,8 +84,8 @@ function createRigidBody(entity: Entity, world: World, rigidBodyDesc: RigidBodyD
   rigidBody.userData = rigidBodyUserdata
 
   // TODO: Add only when dynamic or kinematic?
-  const linearVelocity = createVector3Proxy(VelocityComponent.linear, entity)
-  const angularVelocity = createVector3Proxy(VelocityComponent.angular, entity)
+  const linearVelocity = createVector3Proxy(VelocityComponent.linear, entity, new Set())
+  const angularVelocity = createVector3Proxy(VelocityComponent.angular, entity, new Set())
   addComponent(entity, VelocityComponent, { linear: linearVelocity, angular: angularVelocity })
 
   return rigidBody

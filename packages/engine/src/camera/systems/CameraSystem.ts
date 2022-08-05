@@ -93,17 +93,6 @@ export const getAvatarBonePosition = (entity: Entity, name: BoneNames, position:
   position.set(el[12], el[13], el[14])
 }
 
-export const updateCameraTargetHeadDecap = (cameraEntity: Entity) => {
-  const followCamera = getComponent(cameraEntity, FollowCameraComponent)
-  if (!followCamera.targetEntity) return
-  // todo calculate head size and use that as the bound
-  if (hasComponent(followCamera.targetEntity, AvatarHeadDecapComponent)) {
-    if (followCamera.distance > 0.6) removeComponent(followCamera.targetEntity, AvatarHeadDecapComponent)
-  } else {
-    if (followCamera.distance < 0.6) addComponent(followCamera.targetEntity, AvatarHeadDecapComponent, true)
-  }
-}
-
 export const updateCameraTargetRotation = (cameraEntity: Entity) => {
   if (!cameraEntity) return
   const followCamera = getComponent(cameraEntity, FollowCameraComponent)
@@ -205,6 +194,8 @@ const computeCameraFollow = (cameraEntity: Entity, referenceEntity: Entity) => {
   const cameraTransform = getComponent(cameraEntity, TransformComponent)
   const targetTransform = getComponent(referenceEntity, TransformComponent)
 
+  if (!targetTransform) return
+
   // Limit the pitch
   followCamera.phi = Math.min(followCamera.maxPhi, Math.max(followCamera.minPhi, followCamera.phi))
 
@@ -246,7 +237,6 @@ const computeCameraFollow = (cameraEntity: Entity, referenceEntity: Entity) => {
   mx.lookAt(direction, empty, upVector)
   cameraTransform.rotation.setFromRotationMatrix(mx)
 
-  updateCameraTargetHeadDecap(cameraEntity)
   updateCameraTargetRotation(cameraEntity)
 }
 

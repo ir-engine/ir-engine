@@ -133,11 +133,10 @@ export const Debug = () => {
 
   const namedEntities = useHookstate({})
 
-  namedEntities.set(renderAllEntities())
-
   const pipelines = Engine.instance.currentWorld.pipelines
 
-  if (isShowing)
+  if (isShowing) {
+    namedEntities.set(renderAllEntities())
     return (
       <div className={styles.debugContainer}>
         <div className={styles.debugOptionContainer}>
@@ -232,7 +231,7 @@ export const Debug = () => {
         </div>
       </div>
     )
-  else return null
+  } else return null
 }
 
 export default Debug

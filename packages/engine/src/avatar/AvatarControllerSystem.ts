@@ -8,7 +8,13 @@ import { Engine } from '../ecs/classes/Engine'
 import { EngineState } from '../ecs/classes/EngineState'
 import { Entity } from '../ecs/classes/Entity'
 import { World } from '../ecs/classes/World'
-import { defineQuery, getComponent, hasComponent, setComponent } from '../ecs/functions/ComponentFunctions'
+import {
+  defineQuery,
+  getComponent,
+  hasComponent,
+  removeComponent,
+  setComponent
+} from '../ecs/functions/ComponentFunctions'
 import { createEntity } from '../ecs/functions/EntityFunctions'
 import { LocalInputTagComponent } from '../input/components/LocalInputTagComponent'
 import { BaseInput } from '../input/enums/BaseInput'
@@ -16,6 +22,7 @@ import { AvatarMovementScheme } from '../input/enums/InputEnums'
 import { XRAxes } from '../input/enums/InputEnums'
 import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
 import { VelocityComponent } from '../physics/components/VelocityComponent'
+import { PersistTagComponent } from '../scene/components/PersistTagComponent'
 import { setComputedTransformComponent } from '../transform/components/ComputedTransformComponent'
 import { setTransformComponent, TransformComponent } from '../transform/components/TransformComponent'
 import { XRInputSourceComponent } from '../xr/XRComponents'
@@ -50,9 +57,8 @@ const targetOrientation = new Quaternion()
 const finalOrientation = new Quaternion()
 
 export default async function AvatarControllerSystem(world: World) {
+  const localControllerQuery = defineQuery([AvatarControllerComponent, LocalInputTagComponent])
   const controllerQuery = defineQuery([AvatarControllerComponent])
-
-  const localInputQuery = defineQuery([LocalInputTagComponent])
 
   // const localXRInputQuery = defineQuery([
   //   LocalInputTagComponent,
@@ -68,12 +74,14 @@ export default async function AvatarControllerSystem(world: World) {
   // let isLocalXRCameraReady = false
 
   return () => {
-    for (const entity of localInputQuery.enter()) {
-      let targetEntity = entity
+    for (const entity of localControllerQuery.enter()) {
+      const controller = getComponent(entity, AvatarControllerComponent)
 
+      let targetEntity = entity
       if (hasComponent(entity, AvatarComponent)) {
         const avatarComponent = getComponent(entity, AvatarComponent)
         targetEntity = createEntity()
+        setComponent(targetEntity, PersistTagComponent, true)
         setTransformComponent(targetEntity)
         setComputedTransformComponent(targetEntity, entity, () => {
           const avatarTransform = getComponent(entity, TransformComponent)
@@ -82,7 +90,7 @@ export default async function AvatarControllerSystem(world: World) {
         })
       }
 
-      setComponent(world.cameraEntity, FollowCameraComponent, {
+      setComponent(controller.cameraEntity, FollowCameraComponent, {
         ...FollowCameraDefaultValues,
         targetEntity
       })
@@ -90,8 +98,16 @@ export default async function AvatarControllerSystem(world: World) {
       dispatchAction(WorldNetworkAction.spawnCamera({}))
     }
 
-    for (const entity of controllerQuery.exit(world)) {
+    for (const entity of controllerQuery.exit()) {
       removeAvatarControllerRigidBody(entity, world)
+    }
+
+    for (const entity of controllerQuery()) {
+      const controller = getComponent(entity, AvatarControllerComponent)
+      const followCamera = getComponent(controller.cameraEntity, FollowCameraComponent)
+      // todo calculate head size and use that as the bound
+      if (followCamera.distance < 0.6) setComponent(entity, AvatarHeadDecapComponent, true)
+      else removeComponent(entity, AvatarHeadDecapComponent)
     }
 
     // for (const entity of localXRInputQuery.enter(world)) {
