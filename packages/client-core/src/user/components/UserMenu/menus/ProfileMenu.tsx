@@ -696,7 +696,7 @@ const ProfileMenu = ({ className, hideLogin, isPopover, changeActiveMenu, onClos
                   {t('user:usermenu.profile.or')}
                 </Typography>
 
-                {enableWalletLogin ? (
+                {enableWalletLogin && (
                   <div>
                     <Button onClick={() => handleWalletLoginClick()} className={styles.walletBtn}>
                       {t('user:usermenu.profile.loginWithXRWallet')}
@@ -710,10 +710,6 @@ const ProfileMenu = ({ className, hideLogin, isPopover, changeActiveMenu, onClos
                       Request a VC
                     </Button>
                   </div>
-                ) : (
-                  <Button onClick={() => changeActiveMenu(Views.ReadyPlayer)} className={styles.walletBtn}>
-                    {t('user:usermenu.profile.loginWithReadyPlayerMe')}
-                  </Button>
                 )}
               </section>
             )}
