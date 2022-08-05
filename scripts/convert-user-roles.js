@@ -3,7 +3,6 @@ const dotenv = require('dotenv-flow');
 const cli = require('cli');
 const Sequelize = require('sequelize');
 import appRootPath from 'app-root-path'
-const { scopeTypeSeed } = require('../packages/server-core/src/scope/scope-type/scope-type.seed')
 
 dotenv.config({
     path: appRootPath.path,
@@ -22,10 +21,6 @@ db.url = process.env.MYSQL_URL ??
     `mysql://${db.username}:${db.password}@${db.host}:${db.port}/${db.database}`;
 
 cli.enable('status');
-
-const options = cli.parse({
-    id: [false, 'ID of user to make admin', 'string']
-});
 
 cli.main(async () => {
     try {
@@ -49,6 +44,10 @@ cli.main(async () => {
             name: {
                 type: Sequelize.DataTypes.STRING,
                 allowNull: false
+            },
+            userRole: {
+                type: Sequelize.DataTypes.STRING,
+                allowNull: true
             },
             isGuest: {
                 type: Sequelize.DataTypes.BOOLEAN,
@@ -74,26 +73,41 @@ cli.main(async () => {
             }
         })
 
-        const userMatch = await User.findOne({
+        const admins = await User.findAll({
+            limit: 1000,
             where: {
-                id: options.id
+                userRole: 'admin'
             }
         });
 
-        if (userMatch != null) {
-            await userMatch.save();
-            for(const { type } of scopeTypeSeed.templates) {
-              try {
-                const existingScope = await Scope.findOne({ where: { userId: options.id, type }})
-                if (existingScope == null)
-                  await Scope.create({ userId: options.id, type })
-              } catch (e) { console.log(e) }
+        await User.update({
+            isGuest: true
+        }, {
+            where: {
+                userRole: 'guest'
             }
+        })
+        await User.update({
+            isGuest: false
+        }, {
+            where: {
+                userRole: {
+                    [Sequelize.Op.ne]: 'guest'
+                }
+            }
+        })
+        await Promise.all(admins.map(admin => new Promise(async resolve => {
+            const existingAdminScope = await Scope.findOne({ where: { userId: admin.id, type: 'admin:admin'}})
+            if (!existingAdminScope) {
+                const scopeCreate = await Scope.create({
+                    userId: admin.id,
+                    type: 'admin:admin'
+                })
+            }
+            resolve(null)
+        })))
 
-            cli.ok(`User with id ${options.id} made an admin` );
-        } else {
-            cli.ok(`User with id ${options.id} does not exist`)
-        }
+        cli.ok(`Existing users with userRole admin converted to users with admin scope` );
 
         process.exit(0);
     }

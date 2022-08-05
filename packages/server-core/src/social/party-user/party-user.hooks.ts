@@ -4,15 +4,15 @@ import { disallow, iff, isProvider } from 'feathers-hooks-common'
 import authenticate from '../../hooks/authenticate'
 import isInternalRequest from '../../hooks/isInternalRequest'
 import partyUserPermissionAuthenticate from '../../hooks/party-user-permission-authenticate'
-import restrictUserRole from '../../hooks/restrict-user-role'
+import verifyScope from '../../hooks/verify-scope'
 
 // Don't remove this comment. It's needed to format import lines nicely.
 
 export default {
   before: {
     all: [authenticate(), isInternalRequest()],
-    find: [iff(isProvider('external'), restrictUserRole('admin') as any)],
-    get: [iff(isProvider('external'), restrictUserRole('admin') as any)],
+    find: [iff(isProvider('external'), verifyScope('admin', 'admin') as any)],
+    get: [iff(isProvider('external'), verifyScope('admin', 'admin') as any)],
     create: [iff(isProvider('external'), disallow())],
     update: [disallow()],
     patch: [iff(isProvider('external'), partyUserPermissionAuthenticate() as any)],

@@ -23,36 +23,36 @@ describe('user service', () => {
   it('should create a user with guest role', async () => {
     const name = `Test #${Math.random()}`
     const avatarId = 'CyberbotGreen'
-    const userRole = 'guest'
+    const isGuest = true
 
     const item = (await app.service('user').create({
       name,
       avatarId,
-      userRole
+      isGuest
     })) as UserInterface
     users.push(item)
 
     assert.equal(item.name, name)
     assert.equal(item.avatarId, avatarId)
-    assert.equal(item.userRole, userRole)
+    assert.equal(item.isGuest, isGuest)
     assert.ok(item.id)
   })
 
   it('should create a user with user role', async () => {
     const name = `Test #${Math.random()}`
     const avatarId = 'CyberbotGreen'
-    const userRole = 'user'
+    const isGuest = false
 
     const item = (await app.service('user').create({
       name,
       avatarId,
-      userRole
+      isGuest
     })) as UserInterface
     users.push(item)
 
     assert.equal(item.name, name)
     assert.equal(item.avatarId, avatarId)
-    assert.equal(item.userRole, userRole)
+    assert.equal(item.isGuest, isGuest)
     assert.ok(item.id)
   })
 

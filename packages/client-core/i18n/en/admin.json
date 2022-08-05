@@ -304,22 +304,20 @@
     "user": {
       "nameCantEmpty": "Name can't be empty",
       "avatarCantEmpty": "Avatar can't be empty",
-      "userRoleCantEmpty": "User role can't be empty",
       "scopeTypeCantEmpty": "Scope type can't be empty",
       "createUser": "Create User",
       "nameRequired": "Name is required",
       "avatarRequired": "Avatar is required",
-      "userRoleRequired": "User role is required",
       "scopeTypeRequired": "Scope type is required",
       "hideGuests": "Hide guests",
       "name": "Name",
       "avatar": "Avatar",
-      "userRole": "User Role",
       "grantScope": "Grant Scope",
       "location": "Location",
       "inviteCode": "Invite Code",
       "instance": "Instance",
-      "confirmUserDelete": "Do you want to delete user"
+      "confirmUserDelete": "Do you want to delete user",
+      "isGuest": "Is guest"
     }
   }
 }
