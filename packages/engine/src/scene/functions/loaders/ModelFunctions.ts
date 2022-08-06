@@ -119,11 +119,7 @@ export const serializeModel: ComponentSerializeFunction = (entity) => {
 
 const parseModelProperties = (props): ModelComponentType => {
   return {
-    src: props.src ?? SCENE_COMPONENT_MODEL_DEFAULT_VALUE.src,
-    materialOverrides: props.materialOverrides ?? SCENE_COMPONENT_MODEL_DEFAULT_VALUE.materialOverrides,
-    matrixAutoUpdate: props.matrixAutoUpdate ?? SCENE_COMPONENT_MODEL_DEFAULT_VALUE.matrixAutoUpdate,
-    useBasicMaterial: props.useBasicMaterial ?? SCENE_COMPONENT_MODEL_DEFAULT_VALUE.useBasicMaterial,
-    isUsingGPUInstancing: props.isUsingGPUInstancing ?? SCENE_COMPONENT_MODEL_DEFAULT_VALUE.isUsingGPUInstancing,
-    isDynamicObject: props.isDynamicObject ?? SCENE_COMPONENT_MODEL_DEFAULT_VALUE.isDynamicObject
+    ...SCENE_COMPONENT_MODEL_DEFAULT_VALUE,
+    ...props
   }
 }
