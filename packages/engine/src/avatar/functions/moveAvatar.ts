@@ -52,6 +52,7 @@ export const moveLocalAvatar = (entity: Entity) => {
     physicsWorld.contactPair(controller.bodyCollider, otherCollider, (manifold, flipped) => {
       if (manifold.numContacts() > 0) {
         tempVec1.copy(manifold.normal() as Vector3)
+        if (!flipped) tempVec1.normalize().negate()
         const angle = tempVec1.angleTo(V_010)
         if (angle < degrees60) onGround = true
       }
