@@ -35,6 +35,8 @@ export const addPannerNode = (audioObject: AudioElementNode, opts = Engine.insta
   panner.connect(audioObject.gain)
   audioObject.panner = panner
 
+  console.log(opts)
+
   panner.refDistance = opts.refDistance
   panner.rolloffFactor = opts.rolloffFactor
   panner.maxDistance = opts.maxDistance
@@ -123,7 +125,7 @@ export default async function PositionalAudioSystem(world: World) {
     for (const entity of positionalAudioSceneObjectQuery.enter()) {
       const el = getComponent(entity, MediaElementComponent)
       const audioObject = AudioElementNodes.get(el)!
-      addPannerNode(audioObject)
+      addPannerNode(audioObject, getComponent(entity, AudioComponent))
     }
 
     for (const entity of positionalAudioSceneObjectQuery.exit()) {

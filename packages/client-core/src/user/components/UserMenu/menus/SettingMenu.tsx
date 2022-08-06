@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import { AudioSettingAction, useAudioState } from '@xrengine/engine/src/audio/AudioState'
+import { AudioEffectPlayer } from '@xrengine/engine/src/audio/systems/AudioSystem'
 import { AvatarSettings, updateMap } from '@xrengine/engine/src/avatar/AvatarControllerSystem'
 import { AvatarComponent } from '@xrengine/engine/src/avatar/components/AvatarComponent'
 import {
@@ -125,6 +126,8 @@ const SettingMenu = (): JSX.Element => {
               onChange={(_, value: number) => {
                 dispatchAction(AudioSettingAction.setMasterVolume({ value }))
               }}
+              onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+              onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
               className={styles.slider}
               max={1}
               step={0.01}
@@ -149,6 +152,8 @@ const SettingMenu = (): JSX.Element => {
               max={1}
               step={0.01}
               min={0}
+              onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+              onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
             />
           </div>
           <section className={styles.settingSection}>
@@ -159,6 +164,8 @@ const SettingMenu = (): JSX.Element => {
                 aria-label="expand"
                 size="small"
                 onClick={() => setOpenOtherAudioSettings(!openOtherAudioSettings)}
+                onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
               >
                 {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
               </IconButton>
@@ -176,6 +183,8 @@ const SettingMenu = (): JSX.Element => {
                     onChange={(_, value: boolean) => {
                       dispatchAction(AudioSettingAction.setUsePositionalAudio({ value }))
                     }}
+                    onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                    onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
                     size="small"
                   />
                 </div>
@@ -193,6 +202,8 @@ const SettingMenu = (): JSX.Element => {
                     onChange={(_, value: number) => {
                       dispatchAction(AudioSettingAction.setMediaStreamVolume({ value }))
                     }}
+                    onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                    onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
                     className={styles.slider}
                     max={1}
                     step={0.01}
@@ -213,6 +224,8 @@ const SettingMenu = (): JSX.Element => {
                     onChange={(_, value: number) => {
                       dispatchAction(AudioSettingAction.setNotificationVolume({ value }))
                     }}
+                    onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                    onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
                     className={styles.slider}
                     max={1}
                     step={0.01}
@@ -233,6 +246,8 @@ const SettingMenu = (): JSX.Element => {
                     onChange={(_, value: number) => {
                       dispatchAction(AudioSettingAction.setSoundEffectsVolume({ value }))
                     }}
+                    onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                    onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
                     className={styles.slider}
                     max={1}
                     step={0.01}
@@ -253,6 +268,8 @@ const SettingMenu = (): JSX.Element => {
                     onChange={(_, value: number) => {
                       dispatchAction(AudioSettingAction.setMusicVolume({ value }))
                     }}
+                    onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                    onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
                     className={styles.slider}
                     max={1}
                     step={0.01}
@@ -278,6 +295,8 @@ const SettingMenu = (): JSX.Element => {
                 dispatchAction(EngineRendererAction.setQualityLevel({ qualityLevel: value }))
                 dispatchAction(EngineRendererAction.setAutomatic({ automatic: false }))
               }}
+              onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+              onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
               className={styles.slider}
               min={1}
               max={5}
@@ -293,6 +312,8 @@ const SettingMenu = (): JSX.Element => {
                 dispatchAction(EngineRendererAction.setPostProcessing({ usePostProcessing: value }))
                 dispatchAction(EngineRendererAction.setAutomatic({ automatic: false }))
               }}
+              onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+              onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
             />
             {/* <FormControlLabel
               className={styles.checkboxBlock}
@@ -312,6 +333,8 @@ const SettingMenu = (): JSX.Element => {
                 dispatchAction(EngineRendererAction.setShadows({ useShadows: value }))
                 dispatchAction(EngineRendererAction.setAutomatic({ automatic: false }))
               }}
+              onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+              onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
             />
           </div>
           <div className={`${styles.row} ${styles.automatic}`}>
@@ -323,6 +346,8 @@ const SettingMenu = (): JSX.Element => {
               onChange={(_, value) => {
                 dispatchAction(EngineRendererAction.setAutomatic({ automatic: value }))
               }}
+              onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+              onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
             />
           </div>
         </section>
@@ -333,7 +358,15 @@ const SettingMenu = (): JSX.Element => {
           <FormControlLabel
             label={t('user:usermenu.setting.show-avatar')}
             labelPlacement="start"
-            control={<Switch checked={showAvatar} onChange={handleChangeShowAvatar} className={styles.iconBtn} />}
+            control={
+              <Switch
+                checked={showAvatar}
+                onChange={handleChangeShowAvatar}
+                onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                className={styles.iconBtn}
+              />
+            }
           />
         </section>
         {engineState.xrSupported.value && (
@@ -348,6 +381,8 @@ const SettingMenu = (): JSX.Element => {
                   aria-label="expand"
                   size="small"
                   onClick={() => setOpen(!open)}
+                  onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                  onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
                 >
                   {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
                 </IconButton>
@@ -356,6 +391,8 @@ const SettingMenu = (): JSX.Element => {
                     <Switch
                       checked={invertRotationAndMoveSticks}
                       onChange={handleChangeInvertRotationAndMoveSticks}
+                      onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                      onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
                       className={styles.iconBtn}
                     />
                   }
@@ -410,6 +447,8 @@ const SettingMenu = (): JSX.Element => {
                     <Select
                       value={controlSchemeSelected}
                       onChange={handleChangeControlScheme}
+                      onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                      onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
                       size="small"
                       classes={{
                         select: styles.select
@@ -430,6 +469,8 @@ const SettingMenu = (): JSX.Element => {
                     <Select
                       value={controlTypeSelected}
                       onChange={handleChangeControlType}
+                      onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                      onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
                       size="small"
                       classes={{
                         select: styles.select

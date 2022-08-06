@@ -11,6 +11,7 @@ import { validateEmail, validatePhoneNumber } from '@xrengine/common/src/config'
 import { defaultThemeModes, defaultThemeSettings } from '@xrengine/common/src/constants/DefaultThemeSettings'
 import { generateDid, IKeyPairDescription, issueCredential } from '@xrengine/common/src/identity'
 import multiLogger from '@xrengine/common/src/logger'
+import { AudioEffectPlayer } from '@xrengine/engine/src/audio/systems/AudioSystem'
 import { WorldState } from '@xrengine/engine/src/networking/interfaces/WorldState'
 import { getState } from '@xrengine/hyperflux'
 
@@ -467,6 +468,8 @@ const ProfileMenu = ({ className, hideLogin, isPopover, changeActiveMenu, onClos
                 className={styles.avatarBtn}
                 id="select-avatar"
                 onClick={() => changeActiveMenu(Views.AvatarSelect)}
+                onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
                 disableRipple
               >
                 <Create />
@@ -493,7 +496,13 @@ const ProfileMenu = ({ className, hideLogin, isPopover, changeActiveMenu, onClos
                 InputProps={{
                   endAdornment: (
                     <InputAdornment position="end">
-                      <a href="#" className={styles.materialIconBlock} onClick={updateUserName}>
+                      <a
+                        href="#"
+                        className={styles.materialIconBlock}
+                        onClick={updateUserName}
+                        onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                        onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                      >
                         <Check className={styles.primaryForeground} />
                       </a>
                     </InputAdornment>
@@ -514,7 +523,13 @@ const ProfileMenu = ({ className, hideLogin, isPopover, changeActiveMenu, onClos
                   title={showUserId ? t('user:usermenu.profile.hideUserId') : t('user:usermenu.profile.showUserId')}
                   placement="right"
                 >
-                  <h2 className={styles.showUserId} id="show-user-id" onClick={() => setShowUserId(!showUserId)}>
+                  <h2
+                    className={styles.showUserId}
+                    id="show-user-id"
+                    onClick={() => setShowUserId(!showUserId)}
+                    onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                    onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                  >
                     {showUserId ? t('user:usermenu.profile.hideUserId') : t('user:usermenu.profile.showUserId')}
                   </h2>
                 </Tooltip>
@@ -525,7 +540,12 @@ const ProfileMenu = ({ className, hideLogin, isPopover, changeActiveMenu, onClos
                     title={showApiKey ? t('user:usermenu.profile.hideApiKey') : t('user:usermenu.profile.showApiKey')}
                     placement="right"
                   >
-                    <h2 className={styles.showUserId} onClick={() => setShowApiKey(!showApiKey)}>
+                    <h2
+                      className={styles.showUserId}
+                      onClick={() => setShowApiKey(!showApiKey)}
+                      onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                      onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                    >
                       {showApiKey ? t('user:usermenu.profile.hideApiKey') : t('user:usermenu.profile.showApiKey')}
                     </h2>
                   </Tooltip>
@@ -564,7 +584,12 @@ const ProfileMenu = ({ className, hideLogin, isPopover, changeActiveMenu, onClos
             )}
             <h4>
               {!isGuest && (
-                <div className={styles.logout} onClick={handleLogout}>
+                <div
+                  className={styles.logout}
+                  onClick={handleLogout}
+                  onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                  onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                >
                   {t('user:usermenu.profile.logout')}
                 </div>
               )}
@@ -630,7 +655,12 @@ const ProfileMenu = ({ className, hideLogin, isPopover, changeActiveMenu, onClos
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
-                      <RefreshIcon className={styles.apiRefresh} onClick={refreshApiKey} />
+                      <RefreshIcon
+                        className={styles.apiRefresh}
+                        onClick={refreshApiKey}
+                        onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                        onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                      />
                     </InputAdornment>
                   ),
                   endAdornment: (
@@ -675,7 +705,12 @@ const ProfileMenu = ({ className, hideLogin, isPopover, changeActiveMenu, onClos
                     helperText={error ? getErrorText() : null}
                     InputProps={{
                       endAdornment: (
-                        <InputAdornment position="end" onClick={handleGuestSubmit}>
+                        <InputAdornment
+                          position="end"
+                          onClick={handleGuestSubmit}
+                          onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                          onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                        >
                           <a href="#" className={styles.materialIconBlock}>
                             <Send className={styles.primaryForeground} />
                           </a>
@@ -699,15 +734,30 @@ const ProfileMenu = ({ className, hideLogin, isPopover, changeActiveMenu, onClos
 
                 {enableWalletLogin && (
                   <div>
-                    <Button onClick={() => handleWalletLoginClick()} className={styles.walletBtn}>
+                    <Button
+                      onClick={() => handleWalletLoginClick()}
+                      className={styles.walletBtn}
+                      onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                      onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                    >
                       {t('user:usermenu.profile.loginWithXRWallet')}
                     </Button>
 
-                    <Button onClick={() => handleIssueCredentialClick()} className={styles.walletBtn}>
+                    <Button
+                      onClick={() => handleIssueCredentialClick()}
+                      className={styles.walletBtn}
+                      onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                      onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                    >
                       Issue a VC
                     </Button>
 
-                    <Button onClick={() => handleRequestCredentialClick()} className={styles.walletBtn}>
+                    <Button
+                      onClick={() => handleRequestCredentialClick()}
+                      className={styles.walletBtn}
+                      onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                      onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                    >
                       Request a VC
                     </Button>
                   </div>
@@ -729,32 +779,68 @@ const ProfileMenu = ({ className, hideLogin, isPopover, changeActiveMenu, onClos
                 )}
                 <div className={styles.socialContainer}>
                   {authState?.discord && !oauthConnectedState.discord && (
-                    <a href="#" id="discord" onClick={handleOAuthServiceClick}>
+                    <a
+                      href="#"
+                      id="discord"
+                      onClick={handleOAuthServiceClick}
+                      onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                      onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                    >
                       <DiscordIcon width="40" height="40" viewBox="0 0 40 40" />
                     </a>
                   )}
                   {authState?.google && !oauthConnectedState.google && (
-                    <a href="#" id="google" onClick={handleOAuthServiceClick}>
+                    <a
+                      href="#"
+                      id="google"
+                      onClick={handleOAuthServiceClick}
+                      onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                      onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                    >
                       <GoogleIcon width="40" height="40" viewBox="0 0 40 40" />
                     </a>
                   )}
                   {authState?.facebook && !oauthConnectedState.facebook && (
-                    <a href="#" id="facebook" onClick={handleOAuthServiceClick}>
+                    <a
+                      href="#"
+                      id="facebook"
+                      onClick={handleOAuthServiceClick}
+                      onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                      onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                    >
                       <FacebookIcon width="40" height="40" viewBox="0 0 40 40" />
                     </a>
                   )}
                   {authState?.linkedin && !oauthConnectedState.linkedin && (
-                    <a href="#" id="linkedin" onClick={handleOAuthServiceClick}>
+                    <a
+                      href="#"
+                      id="linkedin"
+                      onClick={handleOAuthServiceClick}
+                      onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                      onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                    >
                       <LinkedInIcon width="40" height="40" viewBox="0 0 40 40" />
                     </a>
                   )}
                   {authState?.twitter && !oauthConnectedState.twitter && (
-                    <a href="#" id="twitter" onClick={handleOAuthServiceClick}>
+                    <a
+                      href="#"
+                      id="twitter"
+                      onClick={handleOAuthServiceClick}
+                      onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                      onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                    >
                       <TwitterIcon width="40" height="40" viewBox="0 0 40 40" />
                     </a>
                   )}
                   {authState?.github && !oauthConnectedState.github && (
-                    <a href="#" id="github" onClick={handleOAuthServiceClick}>
+                    <a
+                      href="#"
+                      id="github"
+                      onClick={handleOAuthServiceClick}
+                      onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                      onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                    >
                       <GitHub />
                     </a>
                   )}
@@ -766,32 +852,68 @@ const ProfileMenu = ({ className, hideLogin, isPopover, changeActiveMenu, onClos
                 )}
                 <div className={styles.socialContainer}>
                   {authState?.discord && oauthConnectedState.discord && (
-                    <a href="#" id="discord" onClick={handleRemoveOAuthServiceClick}>
+                    <a
+                      href="#"
+                      id="discord"
+                      onClick={handleRemoveOAuthServiceClick}
+                      onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                      onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                    >
                       <DiscordIcon width="40" height="40" viewBox="0 0 40 40" />
                     </a>
                   )}
                   {authState?.google && oauthConnectedState.google && (
-                    <a href="#" id="google" onClick={handleRemoveOAuthServiceClick}>
+                    <a
+                      href="#"
+                      id="google"
+                      onClick={handleRemoveOAuthServiceClick}
+                      onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                      onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                    >
                       <GoogleIcon width="40" height="40" viewBox="0 0 40 40" />
                     </a>
                   )}
                   {authState?.facebook && oauthConnectedState.facebook && (
-                    <a href="#" id="facebook" onClick={handleRemoveOAuthServiceClick}>
+                    <a
+                      href="#"
+                      id="facebook"
+                      onClick={handleRemoveOAuthServiceClick}
+                      onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                      onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                    >
                       <FacebookIcon width="40" height="40" viewBox="0 0 40 40" />
                     </a>
                   )}
                   {authState?.linkedin && oauthConnectedState.linkedin && (
-                    <a href="#" id="linkedin" onClick={handleRemoveOAuthServiceClick}>
+                    <a
+                      href="#"
+                      id="linkedin"
+                      onClick={handleRemoveOAuthServiceClick}
+                      onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                      onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                    >
                       <LinkedInIcon width="40" height="40" viewBox="0 0 40 40" />
                     </a>
                   )}
                   {authState?.twitter && oauthConnectedState.twitter && (
-                    <a href="#" id="twitter" onClick={handleRemoveOAuthServiceClick}>
+                    <a
+                      href="#"
+                      id="twitter"
+                      onClick={handleRemoveOAuthServiceClick}
+                      onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                      onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                    >
                       <TwitterIcon width="40" height="40" viewBox="0 0 40 40" />
                     </a>
                   )}
                   {authState?.github && oauthConnectedState.github && (
-                    <a href="#" id="github" onClick={handleRemoveOAuthServiceClick}>
+                    <a
+                      href="#"
+                      id="github"
+                      onClick={handleRemoveOAuthServiceClick}
+                      onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                      onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                    >
                       <GitHub />
                     </a>
                   )}
@@ -813,13 +935,20 @@ const ProfileMenu = ({ className, hideLogin, isPopover, changeActiveMenu, onClos
                       setDeleteControlsOpen(!deleteControlsOpen)
                       setConfirmDeleteOpen(false)
                     }}
+                    onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                    onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
                   >
                     {t('user:usermenu.profile.delete.deleteAccount')}
                   </h2>
                   {deleteControlsOpen && !confirmDeleteOpen && (
                     <div className={styles.deleteContainer}>
                       <h3 className={styles.deleteText}>{t('user:usermenu.profile.delete.deleteControlsText')}</h3>
-                      <Button className={styles.deleteCancelButton} onClick={() => setDeleteControlsOpen(false)}>
+                      <Button
+                        className={styles.deleteCancelButton}
+                        onClick={() => setDeleteControlsOpen(false)}
+                        onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                        onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                      >
                         {t('user:usermenu.profile.delete.deleteControlsCancel')}
                       </Button>
                       <Button
@@ -828,6 +957,8 @@ const ProfileMenu = ({ className, hideLogin, isPopover, changeActiveMenu, onClos
                           setDeleteControlsOpen(false)
                           setConfirmDeleteOpen(true)
                         }}
+                        onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                        onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
                       >
                         {t('user:usermenu.profile.delete.deleteControlsConfirm')}
                       </Button>
@@ -843,6 +974,8 @@ const ProfileMenu = ({ className, hideLogin, isPopover, changeActiveMenu, onClos
                           AuthService.logoutUser()
                           setConfirmDeleteOpen(false)
                         }}
+                        onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                        onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
                       >
                         {t('user:usermenu.profile.delete.finalDeleteConfirm')}
                       </Button>
@@ -867,6 +1000,8 @@ const ProfileMenu = ({ className, hideLogin, isPopover, changeActiveMenu, onClos
                         value={themeModes[mode]}
                         menu={colorModesMenu}
                         onChange={(e) => handleChangeUserThemeMode(e)}
+                        onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                        onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
                       />
                     </Grid>
                   ))}
