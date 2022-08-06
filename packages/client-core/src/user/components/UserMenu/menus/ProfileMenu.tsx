@@ -1,3 +1,4 @@
+import { Ed25519Signature2020 } from '@digitalcredentials/ed25519-signature-2020'
 import { useHookstate } from '@hookstate/core'
 import * as polyfill from 'credential-handler-polyfill'
 import _ from 'lodash'
@@ -8,6 +9,7 @@ import { useLocation } from 'react-router-dom'
 
 import { validateEmail, validatePhoneNumber } from '@xrengine/common/src/config'
 import { defaultThemeModes, defaultThemeSettings } from '@xrengine/common/src/constants/DefaultThemeSettings'
+import { generateDid, IKeyPairDescription, issueCredential } from '@xrengine/common/src/identity'
 import multiLogger from '@xrengine/common/src/logger'
 import { WorldState } from '@xrengine/engine/src/networking/interfaces/WorldState'
 import { getState } from '@xrengine/hyperflux'
@@ -71,12 +73,13 @@ const ProfileMenu = ({ className, hideLogin, isPopover, changeActiveMenu, onClos
   const userSettings = selfUser.user_setting.value
   const userId = selfUser.id.value
   const apiKey = selfUser.apiKey?.token?.value
-  const userRole = selfUser.userRole.value
+  const isGuest = selfUser.isGuest.value
 
   const clientSettingState = useClientSettingState()
   const [clientSetting] = clientSettingState?.client?.value || []
 
-  const hasAdminAccess = selfUser?.id?.value?.length > 0 && selfUser?.userRole?.value === 'admin'
+  const hasAdminAccess =
+    selfUser?.id?.value?.length > 0 && selfUser?.scopes?.value?.find((scope) => scope.type === 'admin:admin')
   const hasEditorAccess = userHasAccess('editor:write')
 
   const userAvatarDetails = useHookstate(getState(WorldState).userAvatarDetails)
@@ -85,9 +88,9 @@ const ProfileMenu = ({ className, hideLogin, isPopover, changeActiveMenu, onClos
   const themeSettings = { ...defaultThemeSettings, ...clientSetting.themeSettings }
 
   const accessibleThemeModes = Object.keys(themeModes).filter((mode) => {
-    if (mode === 'admin' && hasAdminAccess === false) {
+    if (mode === 'admin' && !hasAdminAccess) {
       return false
-    } else if (mode === 'editor' && hasEditorAccess === false) {
+    } else if (mode === 'editor' && !hasEditorAccess) {
       return false
     }
     return true
@@ -112,14 +115,17 @@ const ProfileMenu = ({ className, hideLogin, isPopover, changeActiveMenu, onClos
     }
   }, [authSettingState?.updateNeeded?.value])
 
+  /**
+   * Note: If you're editing this function, be sure to make the same changes to
+   * the XRUI version over at packages/client-core/src/systems/ui/ProfileDetailView/index.tsx
+   * @param event
+   */
   const handleChangeUserThemeMode = (event) => {
     const { name, value } = event.target
 
     const settings = { ...userSettings, themeModes: { ...themeModes, [name]: value } }
     userSettings && AuthService.updateUserSettings(userSettings.id as string, settings)
   }
-  // If you're editing lines 114-230, be sure to make the same changes to the XRUI version over at
-  // packages/client-core/src/systems/ui/ProfileDetailView/index.tsx#75-191
   let type = ''
   const addMoreSocial =
     (authState?.discord && !oauthConnectedState.discord) ||
@@ -255,6 +261,116 @@ const ProfileMenu = ({ className, hideLogin, isPopover, changeActiveMenu, onClos
     // window.location.reload()
   }
 
+  /**
+   * Example function, issues a Verifiable Credential, and uses the Credential
+   * Handler API (CHAPI) to request to store this VC in the user's wallet.
+   *
+   * This is here in the ProfileMenu just for convenience -- it can be invoked
+   * by the engine whenever appropriate (whenever a user performs some in-engine action,
+   * makes a payment, etc).
+   */
+  async function handleIssueCredentialClick() {
+    // Typically, this would be loaded directly from an env var (or other secret mgmt mechanism)
+    // And used to bootstrap a client into a hardware KMS (Key Management System)
+    // In this example, the secret seed is provided directly (obviously, don't do this)
+    const CREDENTIAL_SIGNING_SECRET_KEY_SEED = 'z1AZK4h5w5YZkKYEgqtcFfvSbWQ3tZ3ZFgmLsXMZsTVoeK7'
+
+    // Generate a DID Document and corresponding key pairs from the seed
+    const { didDocument, methodFor } = await generateDid(CREDENTIAL_SIGNING_SECRET_KEY_SEED)
+
+    // 'methodFor' serves as a wrapper/getter method for public/private key pairs
+    // that were generated as a result of DID Doc creation.
+    // It's a way to fetch keys not by ID (since that's quite opaque/random) but
+    // by their usage purpose -- assertionMethod (for signing VCs), authentication (for DID Auth),
+    // keyAgreement (for encrypting), etc.
+    const key = methodFor({ purpose: 'assertionMethod' }) as IKeyPairDescription
+
+    // This would typically be the Ethereal Engine's own DID, generated and cached at
+    // startup from a secret.
+    const issuer = didDocument.id
+
+    // TODO: Extract from the logged in user's session
+    const userDid = 'did:example:user:1234'
+
+    const suite = new Ed25519Signature2020({ key })
+
+    // Example VC that denotes that a user has entered a door / 3d volume
+    const unsignedCredential = {
+      '@context': [
+        'https://www.w3.org/2018/credentials/v1',
+        // The object below is a temporary (in-line) context, used for an example
+        // Once we settle on what our VC content is (what types we want to issue, etc)
+        // We'll fold them all into the 'https://w3id.org/xr/v1' context
+        {
+          etherealEvent: 'https://w3id.org/xr/v1#etherealEvent',
+          EnteredVolumeEvent: 'https://w3id.org/xr/v1#EnteredVolumeEvent',
+          CheckpointEvent: 'https://w3id.org/xr/v1#CheckpointEvent',
+          checkpointId: 'https://w3id.org/xr/v1#checkpointId'
+        }
+      ],
+      type: ['VerifiableCredential'],
+      issuer,
+      issuanceDate: '2022-01-01T19:23:24Z',
+      credentialSubject: {
+        id: userDid,
+        etherealEvent: [
+          {
+            type: ['EnteredVolumeEvent', 'CheckpointEvent'],
+            checkpointId: '12345'
+          }
+        ]
+      }
+    }
+
+    const signedVc = await issueCredential(unsignedCredential, suite)
+
+    console.log('Issued VC:', JSON.stringify(signedVc, null, 2))
+
+    // Wrap the VC in an unsigned Verifiable Presentation
+    const vp = {
+      '@context': ['https://www.w3.org/2018/credentials/v1'],
+      type: 'VerifiablePresentation',
+      verifiableCredential: [signedVc]
+    }
+
+    const webCredentialType = 'VerifiablePresentation'
+    // @ts-ignore
+    const webCredentialWrapper = new window.WebCredential(webCredentialType, vp, {
+      // recommendedHandlerOrigins: []
+    })
+
+    // Use Credential Handler API to store
+    const result = await navigator.credentials.store(webCredentialWrapper)
+
+    console.log('Result of receiving via store() request:', result)
+  }
+
+  async function handleRequestCredentialClick() {
+    const vcRequestQuery: any = {
+      web: {
+        VerifiablePresentation: {
+          query: [
+            {
+              type: 'QueryByExample',
+              credentialQuery: [
+                {
+                  example: {
+                    '@context': ['https://www.w3.org/2018/credentials/v1', 'https://w3id.org/xr/v1'],
+                    type: 'VerifiableCredential'
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      }
+    }
+
+    const result = await navigator.credentials.get(vcRequestQuery)
+
+    console.log('VC Request query result:', result)
+  }
+
   async function handleWalletLoginClick() {
     const domain = window.location.origin
     const challenge = '99612b24-63d9-11ea-b99f-4f66f3e4f81a' // TODO: generate
@@ -387,13 +503,13 @@ const ProfileMenu = ({ className, hideLogin, isPopover, changeActiveMenu, onClos
             </span>
 
             <Grid container justifyContent="right" className={styles.justify}>
-              <Grid item xs={userRole === 'guest' ? 6 : 4}>
+              <Grid item xs={isGuest ? 6 : 4}>
                 <h2>
-                  {userRole === 'admin' ? t('user:usermenu.profile.youAreAn') : t('user:usermenu.profile.youAreA')}
-                  <span id="user-role">{` ${userRole}`}</span>.
+                  {hasAdminAccess ? t('user:usermenu.profile.youAreAn') : t('user:usermenu.profile.youAreA')}
+                  <span id="user-role">{hasAdminAccess ? ' Admin' : isGuest ? ' Guest' : ' User'}</span>.
                 </h2>
               </Grid>
-              <Grid item container xs={userRole === 'guest' ? 6 : 4} alignItems="flex-start" direction="column">
+              <Grid item container xs={isGuest ? 6 : 4} alignItems="flex-start" direction="column">
                 <Tooltip
                   title={showUserId ? t('user:usermenu.profile.hideUserId') : t('user:usermenu.profile.showUserId')}
                   placement="right"
@@ -416,7 +532,7 @@ const ProfileMenu = ({ className, hideLogin, isPopover, changeActiveMenu, onClos
                 </Grid>
               )}
             </Grid>
-            {userRole !== 'guest' && (
+            {!isGuest && (
               <Grid
                 display="grid"
                 gridTemplateColumns="1fr 1.5fr"
@@ -447,7 +563,7 @@ const ProfileMenu = ({ className, hideLogin, isPopover, changeActiveMenu, onClos
               />
             )}
             <h4>
-              {userRole !== 'guest' && (
+              {!isGuest && (
                 <div className={styles.logout} onClick={handleLogout}>
                   {t('user:usermenu.profile.logout')}
                 </div>
@@ -541,7 +657,7 @@ const ProfileMenu = ({ className, hideLogin, isPopover, changeActiveMenu, onClos
 
         {!hideLogin && (
           <>
-            {userRole === 'guest' && enableConnect && (
+            {isGuest && enableConnect && (
               <section className={styles.emailPhoneSection}>
                 <Typography variant="h1" className={styles.panelHeader}>
                   {getConnectText()}
@@ -575,32 +691,38 @@ const ProfileMenu = ({ className, hideLogin, isPopover, changeActiveMenu, onClos
                 </form>
               </section>
             )}
-            {userRole === 'guest' && changeActiveMenu && (
+            {isGuest && enableWalletLogin && (
               <section className={styles.walletSection}>
                 <Typography variant="h3" className={styles.textBlock}>
                   {t('user:usermenu.profile.or')}
                 </Typography>
 
-                {enableWalletLogin ? (
-                  <Button onClick={() => handleWalletLoginClick()} className={styles.walletBtn}>
-                    {t('user:usermenu.profile.loginWithXRWallet')}
-                  </Button>
-                ) : (
-                  <Button onClick={() => changeActiveMenu(Views.ReadyPlayer)} className={styles.walletBtn}>
-                    {t('user:usermenu.profile.loginWithReadyPlayerMe')}
-                  </Button>
+                {enableWalletLogin && (
+                  <div>
+                    <Button onClick={() => handleWalletLoginClick()} className={styles.walletBtn}>
+                      {t('user:usermenu.profile.loginWithXRWallet')}
+                    </Button>
+
+                    <Button onClick={() => handleIssueCredentialClick()} className={styles.walletBtn}>
+                      Issue a VC
+                    </Button>
+
+                    <Button onClick={() => handleRequestCredentialClick()} className={styles.walletBtn}>
+                      Request a VC
+                    </Button>
+                  </div>
                 )}
               </section>
             )}
 
-            {enableSocial && !enableWalletLogin && (
+            {enableSocial && (
               <section className={styles.socialBlock}>
-                {selfUser?.userRole.value === 'guest' && (
+                {selfUser?.isGuest.value && (
                   <Typography variant="h3" className={styles.textBlock}>
                     {t('user:usermenu.profile.connectSocial')}
                   </Typography>
                 )}
-                {selfUser?.userRole.value !== 'guest' && addMoreSocial && (
+                {!selfUser?.isGuest.value && addMoreSocial && (
                   <Typography variant="h3" className={styles.textBlock}>
                     {t('user:usermenu.profile.addSocial')}
                   </Typography>
@@ -637,7 +759,7 @@ const ProfileMenu = ({ className, hideLogin, isPopover, changeActiveMenu, onClos
                     </a>
                   )}
                 </div>
-                {selfUser?.userRole.value !== 'guest' && removeSocial && (
+                {!selfUser?.isGuest.value && removeSocial && (
                   <Typography variant="h3" className={styles.textBlock}>
                     {t('user:usermenu.profile.removeSocial')}
                   </Typography>
@@ -674,7 +796,7 @@ const ProfileMenu = ({ className, hideLogin, isPopover, changeActiveMenu, onClos
                     </a>
                   )}
                 </div>
-                {selfUser?.userRole.value === 'guest' && (
+                {selfUser?.isGuest && (
                   <Typography variant="h4" className={styles.smallTextBlock}>
                     {t('user:usermenu.profile.createOne')}
                   </Typography>
@@ -682,7 +804,7 @@ const ProfileMenu = ({ className, hideLogin, isPopover, changeActiveMenu, onClos
               </section>
             )}
             <section className={styles.deletePanel}>
-              {userRole !== 'guest' && (
+              {!isGuest && (
                 <div>
                   <h2
                     className={styles.deleteAccount}

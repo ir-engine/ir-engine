@@ -10,10 +10,6 @@ import { RelationshipType } from './UserRelationship'
 
 export interface UserSetting {
   id: string
-  spatialAudioEnabled: boolean
-  volume?: number
-  audio: number
-  microphone: number
   themeModes: ThemeMode
 }
 
@@ -25,7 +21,7 @@ export interface UserScope {
 export interface UserInterface {
   id: UserId
   name: string
-  userRole?: string
+  isGuest: boolean
   avatarId?: string
   identity_providers?: IdentityProvider[]
   identityProviders?: IdentityProvider[]
@@ -48,7 +44,7 @@ export interface UserInterface {
 export const UserSeed: UserInterface = {
   id: '' as UserId,
   name: '',
-  userRole: '',
+  isGuest: true,
   avatarId: '',
   apiKey: {
     id: '',
@@ -63,7 +59,7 @@ export interface CreateEditUser {
   name: string
   avatarId?: string
   inviteCode?: string
-  userRole: string
+  isGuest?: boolean
   scopes?: UserScope[]
 }
 
@@ -100,17 +96,15 @@ export function resolveUser(user: any): UserInterface {
 }
 
 export function resolveWalletUser(credentials: any): UserInterface {
-  let returned = {
+  return {
     id: '' as UserId,
     instanceId: credentials.user.id,
     name: credentials.user.displayName,
-    userRole: 'guest',
+    isGuest: true,
     avatarId: credentials.user.id,
     identityProviders: [],
     locationAdmins: [],
     avatarUrl: credentials.user.icon,
     apiKey: credentials.user.apiKey || { id: '', token: '', userId: '' as UserId }
   }
-
-  return returned
 }

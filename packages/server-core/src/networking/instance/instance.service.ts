@@ -102,9 +102,14 @@ export default (app: Application) => {
   service.publish('removed', async (data): Promise<any> => {
     try {
       const admins = await app.service('user').Model.findAll({
-        where: {
-          userRole: 'admin'
-        }
+        include: [
+          {
+            model: app.service('scope').Model,
+            where: {
+              type: 'admin:admin'
+            }
+          }
+        ]
       })
       const targetIds = admins.map((admin) => admin.id)
       // eslint-disable-next-line @typescript-eslint/restrict-template-expressions

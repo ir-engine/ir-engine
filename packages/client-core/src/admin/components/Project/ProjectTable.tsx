@@ -228,13 +228,15 @@ const ProjectTable = ({ className }: Props) => {
     setPage(0)
   }
 
+  const isAdmin = user.scopes?.value?.find((scope) => scope.type === 'admin:admin')
+
   const createData = (el: ProjectInterface, name: string) => {
     return {
       el,
       name,
       update: (
         <>
-          {user.userRole.value === 'admin' && (
+          {isAdmin && (
             <IconButton
               className={styles.iconButton}
               name="update"
@@ -248,7 +250,7 @@ const ProjectTable = ({ className }: Props) => {
       ),
       push: (
         <>
-          {user.userRole.value === 'admin' && (
+          {isAdmin && (
             <IconButton
               className={styles.iconButton}
               name="update"
@@ -270,7 +272,7 @@ const ProjectTable = ({ className }: Props) => {
       ),
       projectPermissions: (
         <>
-          {user.userRole.value === 'admin' && (
+          {isAdmin && (
             <IconButton
               className={styles.iconButton}
               name="editProjectPermissions"
@@ -283,7 +285,7 @@ const ProjectTable = ({ className }: Props) => {
       ),
       invalidate: (
         <>
-          {user.userRole.value === 'admin' && (
+          {isAdmin && (
             <IconButton className={styles.iconButton} name="invalidate" onClick={() => openInvalidateConfirmation(el)}>
               <CleaningServicesIcon />
             </IconButton>
@@ -292,7 +294,7 @@ const ProjectTable = ({ className }: Props) => {
       ),
       view: (
         <>
-          {user.userRole.value === 'admin' && (
+          {isAdmin && (
             <IconButton className={styles.iconButton} name="view" onClick={() => openViewProject(el)}>
               <VisibilityIcon />
             </IconButton>
@@ -301,7 +303,7 @@ const ProjectTable = ({ className }: Props) => {
       ),
       action: (
         <>
-          {user.userRole.value === 'admin' && (
+          {isAdmin && (
             <IconButton className={styles.iconButton} name="remove" onClick={() => openRemoveConfirmation(el)}>
               <Cross />
             </IconButton>

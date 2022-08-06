@@ -26,11 +26,11 @@ export const afterCreate = async (app: Application, result: UserInterface, scope
   }
 
   if (Array.isArray(result)) result = result[0]
-  if (result?.userRole !== 'guest')
+  if (!result?.isGuest)
     await app.service('user-api-key').create({
       userId: result.id
     })
-  if (result?.userRole !== 'guest' && result?.inviteCode == null) {
+  if (!result?.isGuest && result?.inviteCode == null) {
     const code = await getFreeInviteCode(app)
     await app.service('user').patch(result.id, {
       inviteCode: code
@@ -41,7 +41,7 @@ export const afterCreate = async (app: Application, result: UserInterface, scope
 export const afterPatch = async (app: Application, result: UserInterface) => {
   try {
     if (Array.isArray(result)) result = result[0]
-    if (result && result.userRole !== 'guest' && result.inviteCode == null) {
+    if (result && !result.isGuest && result.inviteCode == null) {
       const code = await getFreeInviteCode(app)
       await app.service('user').patch(result.id, {
         inviteCode: code
@@ -118,7 +118,7 @@ export class User extends Service<UserInterface> {
     } else if (action === 'admin') {
       delete params.query.action
       delete params.query.search
-      if (!params.isInternal && loggedInUser.userRole !== 'admin')
+      if (!params.isInternal && !loggedInUser.scopes.find((scope) => scope.type === 'admin:admin'))
         throw new Forbidden('Must be system admin to execute this action')
 
       const searchedUser = await this.app.service('user').Model.findAll({
@@ -168,7 +168,11 @@ export class User extends Service<UserInterface> {
       delete params.query.action
       return super.find(params)
     } else {
-      if (loggedInUser?.userRole !== 'admin' && !params.isInternal)
+      if (
+        loggedInUser.scopes &&
+        !loggedInUser?.scopes.find((scope) => scope.type === 'admin:admin') &&
+        !params.isInternal
+      )
         throw new Forbidden('Must be system admin to execute this action')
       return await super.find(params)
     }

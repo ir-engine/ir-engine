@@ -7,6 +7,7 @@ import { dispatchAction } from '@xrengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { delay } from '../../common/functions/delay'
+import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions, getEngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
@@ -16,6 +17,7 @@ import { unloadScene } from '../../ecs/functions/EngineFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { addEntityNodeInTree, createEntityNode } from '../../ecs/functions/EntityTreeFunctions'
 import { initSystems, SystemModuleType } from '../../ecs/functions/SystemFunctions'
+import { configureEffectComposer } from '../../renderer/functions/configureEffectComposer'
 import { DisableTransformTagComponent } from '../../transform/components/DisableTransformTagComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { EntityNodeComponent } from '../components/EntityNodeComponent'
@@ -151,9 +153,6 @@ export const loadSceneFromJSON = async (sceneData: SceneJson, sceneSystems: Syst
   promises.forEach((promise) => promise.then(onComplete))
   await Promise.allSettled(promises)
 
-  // todo: move these layer enable & disable to loading screen thing or something so they work with portals properly
-  if (!getEngineState().isTeleporting.value) world.camera?.layers.disable(ObjectLayers.Scene)
-
   // this needs to occur after the asset promises
   if (getEngineState().sceneLoaded.value) await unloadScene(world)
 
@@ -180,11 +179,12 @@ export const loadSceneFromJSON = async (sceneData: SceneJson, sceneSystems: Syst
   addComponent(tree.rootNode.entity, VisibleComponent, true)
   getComponent(tree.rootNode.entity, EntityNodeComponent).components.push(SCENE_COMPONENT_SCENE_TAG)
 
-  if (!getEngineState().isTeleporting.value) Engine.instance.currentWorld.camera?.layers.enable(ObjectLayers.Scene)
+  Engine.instance.currentWorld.camera?.layers.enable(ObjectLayers.Scene)
 
   // TODO: Have to wait because scene is not being fully loaded at this moment
   await delay(200)
   dispatchAction(EngineActions.sceneLoaded({}))
+  if (isClient) configureEffectComposer()
 }
 
 /**

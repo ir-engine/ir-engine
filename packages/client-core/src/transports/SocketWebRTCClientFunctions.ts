@@ -1,5 +1,4 @@
 import { Transport as MediaSoupTransport } from 'mediasoup-client/lib/types'
-import { Mesh, MeshStandardMaterial, PlaneGeometry, sRGBEncoding, Vector3, Vector4, VideoTexture } from 'three'
 
 import { MediaStreams } from '@xrengine/client-core/src/transports/MediaStreams'
 import { ChannelType } from '@xrengine/common/src/interfaces/Channel'
@@ -7,12 +6,9 @@ import { MediaTagType } from '@xrengine/common/src/interfaces/MediaStreamConstan
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import multiLogger from '@xrengine/common/src/logger'
 import { getSearchParamFromURL } from '@xrengine/common/src/utils/getSearchParamFromURL'
-import { OBCType } from '@xrengine/engine/src/common/constants/OBCTypes'
 import { matches } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { addOBCPlugin } from '@xrengine/engine/src/common/functions/OnBeforeCompilePlugin'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineState'
-import { defineQuery, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { NetworkTopics } from '@xrengine/engine/src/networking/classes/Network'
 import { PUBLIC_STUN_SERVERS } from '@xrengine/engine/src/networking/constants/STUNServers'
 import {
@@ -22,9 +18,6 @@ import {
 import { MessageTypes } from '@xrengine/engine/src/networking/enums/MessageTypes'
 import { NetworkPeerFunctions } from '@xrengine/engine/src/networking/functions/NetworkPeerFunctions'
 import { JoinWorldRequestData, receiveJoinWorld } from '@xrengine/engine/src/networking/functions/receiveJoinWorld'
-import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
-import { ScreenshareTargetComponent } from '@xrengine/engine/src/scene/components/ScreenshareTargetComponent'
-import { fitTexture } from '@xrengine/engine/src/scene/functions/fitTexture'
 import { addActionReceptor, dispatchAction, removeActionReceptor, removeActionsForTopic } from '@xrengine/hyperflux'
 import { Action } from '@xrengine/hyperflux/functions/ActionFunctions'
 
@@ -160,7 +153,6 @@ export async function onConnectToWorldInstance(network: SocketWebRTCClientNetwor
   }
 
   function kickHandler(message) {
-    // console.log("TODO: SNACKBAR HERE");
     leaveNetwork(network, true)
     dispatchAction(NetworkConnectionService.actions.worldInstanceKicked({ message }))
     logger.info('Client has been kicked from the world')
@@ -365,8 +357,6 @@ export async function createTransport(network: SocketWebRTCClientNetwork, direct
   // us back the info we need to create a client-side transport
   let transport: MediaSoupTransport
 
-  // console.log('Requesting transport creation', direction, channelType, channelId)
-
   const { transportOptions } = await network.request(MessageTypes.WebRTCTransportCreate.toString(), {
     direction,
     sctpCapabilities: network.mediasoupDevice.sctpCapabilities,
@@ -383,7 +373,6 @@ export async function createTransport(network: SocketWebRTCClientNetwork, direct
   // start flowing for the first time. send dtlsParameters to the
   // server, then call callback() on success or errback() on failure.
   transport.on('connect', async ({ dtlsParameters }: any, callback: () => void, errback: () => void) => {
-    // console.log('\n\n\n\nWebRTCTransportConnect', direction, dtlsParameters, transportOptions, '\n\n\n')
     const connectResult = await network.request(MessageTypes.WebRTCTransportConnect.toString(), {
       transportId: transportOptions.id,
       dtlsParameters
@@ -471,10 +460,10 @@ export async function createTransport(network: SocketWebRTCClientNetwork, direct
           : NetworkConnectionService.actions.mediaInstanceDisconnected({})
       )
       logger.error(new Error(`Transport ${transport} transitioned to state ${state}.`))
-      console.error(
+      logger.error(
         'If this occurred unexpectedly shortly after joining a world, check that the instanceserver nodegroup has public IP addresses.'
       )
-      console.log('Waiting 5 seconds to make a new transport')
+      logger.info('Waiting 5 seconds to make a new transport')
       setTimeout(async () => {
         logger.info('Re-creating transport after unexpected closing/fail/disconnect %o', {
           direction,
@@ -489,15 +478,7 @@ export async function createTransport(network: SocketWebRTCClientNetwork, direct
             : NetworkConnectionService.actions.mediaInstanceReconnected({})
         )
       }, 5000)
-      // await request(MessageTypes.WebRTCTransportClose.toString(), {transportId: transport.id});
     }
-    // if (state === 'connected' && transport.direction === 'recv') {
-    //   console.log('requesting current producers for', channelType, channelId)
-    //   await request(MessageTypes.WebRTCRequestCurrentProducers.toString(), {
-    //     channelType: channelType,
-    //     channelId: channelId
-    //   })
-    // }
   })
   ;(transport as any).channelType = channelType
   ;(transport as any).channelId = channelId
@@ -624,7 +605,7 @@ export async function createCamAudioProducer(network: SocketWebRTCClientNetwork)
     const gainNode = ctx.createGain()
     gainNode.gain.value = 1
     ;[src, gainNode, dst].reduce((a, b) => a && (a.connect(b) as any))
-    MediaStreams.instance.audioGainNode = gainNode
+    MediaStreams.instance.microphoneGainNode = gainNode
     MediaStreams.instance.audioStream.removeTrack(audioTrack)
     MediaStreams.instance.audioStream.addTrack(dst.stream.getAudioTracks()[0])
     // same thing for audio, but we can use our already-created
@@ -751,7 +732,7 @@ export function resetProducer(): void {
     MediaStreams.instance.screenAudioProducer = null
     MediaStreams.instance.audioStream = null!
     MediaStreams.instance.videoStream = null!
-    MediaStreams.instance.localScreen = null
+    MediaStreams.instance.localScreen = null!
     // MediaStreams.instance.instance?.consumers = [];
   }
 }
@@ -782,6 +763,8 @@ export async function subscribeToTrack(network: SocketWebRTCClientNetwork, peerI
     paused: true
   })
 
+  ;(consumer as any).producerPaused = consumerParameters.producerPaused
+
   // if we do already have a consumer, we shouldn't have called this method
   const existingConsumer = network.consumers?.find(
     (c) => c?.appData?.peerId === peerId && c?.appData?.mediaTag === mediaTag
@@ -789,12 +772,14 @@ export async function subscribeToTrack(network: SocketWebRTCClientNetwork, peerI
   if (existingConsumer == null) {
     network.consumers.push(consumer)
     // okay, we're ready. let's ask the peer to send us media
-    await resumeConsumer(network, consumer)
+    if (!(consumer as any).producerPaused) await resumeConsumer(network, consumer)
+    else await pauseConsumer(network, consumer)
   } else if (existingConsumer?.track?.muted) {
     await closeConsumer(network, existingConsumer)
     network.consumers.push(consumer)
     // okay, we're ready. let's ask the peer to send us media
-    await resumeConsumer(network, consumer)
+    if (!(consumer as any).producerPaused) await resumeConsumer(network, consumer)
+    else await pauseConsumer(network, consumer)
   } else await closeConsumer(network, consumer)
 
   dispatchAction(MediaStreams.actions.triggerUpdateConsumers({}))
@@ -913,7 +898,7 @@ export function leaveNetwork(network: SocketWebRTCClientNetwork, kicked?: boolea
       MediaStreams.instance.screenAudioProducer = null
       MediaStreams.instance.videoStream = null!
       MediaStreams.instance.audioStream = null!
-      MediaStreams.instance.localScreen = null
+      MediaStreams.instance.localScreen = null!
       network.consumers = []
       world.networks.delete(network.hostId)
       world._mediaHostId = null!
@@ -945,7 +930,7 @@ export const startScreenshare = async (network: SocketWebRTCClientNetwork) => {
   if (!network.sendTransport) network.sendTransport = await createTransport(network, 'send')
 
   // get a screen share track
-  MediaStreams.instance.localScreen = await (navigator.mediaDevices as any).getDisplayMedia({
+  MediaStreams.instance.localScreen = await navigator.mediaDevices.getDisplayMedia({
     video: true,
     audio: true
   })
@@ -1009,66 +994,4 @@ export const stopScreenshare = async (network: SocketWebRTCClientNetwork) => {
 
   MediaStreamService.updateScreenAudioState()
   MediaStreamService.updateScreenVideoState()
-}
-
-const screenshareTargetQuery = defineQuery([ScreenshareTargetComponent])
-
-export const applyScreenshareToTexture = (video: HTMLVideoElement) => {
-  const applyTexture = () => {
-    if ((video as any).appliedTexture) return
-    ;(video as any).appliedTexture = true
-    if (!video.videoWidth || !video.videoHeight) return
-    for (const entity of screenshareTargetQuery(Engine.instance.currentWorld)) {
-      const obj3d = getComponent(entity, Object3DComponent)?.value
-      obj3d?.traverse((obj: Mesh<any, MeshStandardMaterial>) => {
-        if (obj.material) {
-          const videoTexture = new VideoTexture(video)
-          videoTexture.encoding = sRGBEncoding
-
-          obj.material = new MeshStandardMaterial({ color: 0xffffff, map: videoTexture })
-          const imageAspect = video.videoWidth / video.videoHeight
-          // todo: include goemetry in calculation of
-          const worldScale = obj.getWorldScale(new Vector3())
-          const screenAspect = obj.geometry instanceof PlaneGeometry ? worldScale.x / worldScale.y : 1
-
-          addOBCPlugin(obj.material, {
-            id: OBCType.UVCLIP,
-            compile: (shader) => {
-              shader.fragmentShader = shader.fragmentShader.replace(
-                'void main() {',
-                `uniform vec4 clipColor;\nvoid main() {\n`
-              )
-
-              const mapFragment = `#ifdef USE_MAP
-                vec4 sampledDiffuseColor = texture2D( map, vUv );
-
-                // Newly added clipping Logic /////
-                if (vUv.x < 0.0 || vUv.x > 1.0 || vUv.y < 0.0 || vUv.y > 1.0) sampledDiffuseColor = clipColor;
-                /////////////////////////////
-
-                #ifdef DECODE_VIDEO_TEXTURE
-                  sampledDiffuseColor = vec4( mix( pow( sampledDiffuseColor.rgb * 0.9478672986 + vec3( 0.0521327014 ), vec3( 2.4 ) ), sampledDiffuseColor.rgb * 0.0773993808, vec3( lessThanEqual( sampledDiffuseColor.rgb, vec3( 0.04045 ) ) ) ), sampledDiffuseColor.w );
-                #endif
-                diffuseColor *= sampledDiffuseColor;
-              #endif`
-
-              shader.fragmentShader = shader.fragmentShader.replace('#include <map_fragment>', mapFragment)
-
-              // TODO: Need to find better way to define variables
-              shader.uniforms.clipColor = { value: new Vector4(0, 0, 0, 1) }
-            }
-          })
-
-          fitTexture(videoTexture, imageAspect, screenAspect, 'fit')
-        }
-      })
-    }
-  }
-  if (!video.readyState) {
-    video.onloadeddata = () => {
-      applyTexture()
-    }
-  } else {
-    applyTexture()
-  }
 }

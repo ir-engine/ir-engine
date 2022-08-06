@@ -1,6 +1,6 @@
 import type { ProjectConfigInterface } from './ProjectConfigInterface'
 
-export const loadWebappInjection = async (props: any, projects: string[]) => {
+export const loadWebappInjection = async (projects: string[]) => {
   return (
     await Promise.all(
       projects.map(async (project) => {

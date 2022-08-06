@@ -1,4 +1,4 @@
-import { ArrowHelper, Matrix4, Quaternion, Vector3 } from 'three'
+import { Matrix4, Quaternion, Vector3 } from 'three'
 
 import { addActionReceptor } from '@xrengine/hyperflux'
 
@@ -11,14 +11,11 @@ import { LocalInputTagComponent } from '../input/components/LocalInputTagCompone
 import { BaseInput } from '../input/enums/BaseInput'
 import { AvatarMovementScheme } from '../input/enums/InputEnums'
 import { XRAxes } from '../input/enums/InputEnums'
-import { RapierCollisionComponent } from '../physics/components/RapierCollisionComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { XRInputSourceComponent } from '../xr/components/XRInputSourceComponent'
 import { AvatarInputSchema } from './AvatarInputSchema'
-import { AvatarComponent } from './components/AvatarComponent'
 import { AvatarControllerComponent } from './components/AvatarControllerComponent'
 import { AvatarHeadDecapComponent } from './components/AvatarHeadDecapComponent'
-import { detectUserInCollisions } from './functions/detectUserInCollisions'
 import {
   alignXRCameraWithAvatar,
   moveAvatar,
@@ -51,7 +48,6 @@ export default async function AvatarControllerSystem(world: World) {
     AvatarControllerComponent,
     TransformComponent
   ])
-  const collisionQuery = defineQuery([AvatarControllerComponent, RapierCollisionComponent])
 
   addActionReceptor(AvatarInputSettingsReceptor)
 
@@ -89,10 +85,6 @@ export default async function AvatarControllerSystem(world: World) {
       const controller = getComponent(entity, AvatarControllerComponent)
       if (!controller.movementEnabled) continue
       controllerQueryUpdate(entity, displacement, world)
-    }
-
-    for (const entity of collisionQuery(world)) {
-      detectUserInCollisions(entity)
     }
 
     return world

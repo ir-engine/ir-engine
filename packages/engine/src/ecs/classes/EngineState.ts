@@ -32,7 +32,8 @@ export const EngineState = defineState({
      */
     shareLink: '',
     shareTitle: '',
-    transformOffsetsNeedSorting: true
+    transformOffsetsNeedSorting: true,
+    useSimpleMaterials: false
   }
 })
 
@@ -71,6 +72,9 @@ export function EngineEventReceptor(a) {
     .when(EngineActions.shareInteractableLink.matches, (action) => {
       s.shareLink.set(action.shareLink)
       s.shareTitle.set(action.shareTitle)
+    })
+    .when(EngineActions.useSimpleMaterials.matches, (action) => {
+      s.useSimpleMaterials.set(action.useSimpleMaterials)
     })
 }
 
@@ -147,14 +151,6 @@ export class EngineActions {
     id: matches.string
   })
 
-  static startSuspendedContexts = defineAction({
-    type: 'xre.engine.START_SUSPENDED_CONTEXTS' as const
-  })
-
-  static suspendPositionalAudio = defineAction({
-    type: 'xre.engine.SUSPEND_POSITIONAL_AUDIO' as const
-  })
-
   static browserNotSupported = defineAction({
     type: 'xre.engine.BROWSER_NOT_SUPPORTED' as const,
     msg: matches.string
@@ -203,5 +199,10 @@ export class EngineActions {
   static sceneObjectUpdate = defineAction({
     type: 'xre.engine.SCENE_OBJECT_UPDATE' as const,
     entities: matches.array as Validator<unknown, Entity[]>
+  })
+
+  static useSimpleMaterials = defineAction({
+    type: 'xre.engine.SIMPLE_MATERIALS' as const,
+    useSimpleMaterials: matches.boolean
   })
 }

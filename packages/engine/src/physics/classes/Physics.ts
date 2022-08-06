@@ -23,7 +23,7 @@ import {
   removeComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { RapierCollisionComponent } from '../components/RapierCollisionComponent'
+import { CollisionComponent } from '../components/CollisionComponent'
 import { RaycastComponent } from '../components/RaycastComponent'
 import { RigidBodyComponent } from '../components/RigidBodyComponent'
 import { ShapecastComponent } from '../components/ShapeCastComponent'
@@ -31,7 +31,7 @@ import { VelocityComponent } from '../components/VelocityComponent'
 import { CollisionGroups, DefaultCollisionMask } from '../enums/CollisionGroups'
 import { getInteractionGroups } from '../functions/getInteractionGroups'
 import { getTagComponentForRigidBody } from '../functions/getTagComponentForRigidBody'
-import { ColliderDescOptions, ColliderHitEvent, CollisionEvents } from '../types/PhysicsTypes'
+import { ColliderDescOptions, CollisionEvents } from '../types/PhysicsTypes'
 
 export type PhysicsWorld = World
 
@@ -112,14 +112,13 @@ function applyDescToCollider(
 
 function createColliderDesc(mesh: Mesh, colliderDescOptions: ColliderDescOptions): ColliderDesc {
   // Type is required
-  const shapeOptions = colliderDescOptions
+  if (typeof colliderDescOptions.type === 'undefined') return undefined!
 
-  if (typeof shapeOptions.type === 'undefined') return undefined!
-
-  let shapeType = typeof shapeOptions.type === 'string' ? ShapeType[shapeOptions.type] : shapeOptions.type
+  let shapeType =
+    typeof colliderDescOptions.type === 'string' ? ShapeType[colliderDescOptions.type] : colliderDescOptions.type
   //check for old collider types to allow backwards compatibility
   if (typeof shapeType === 'undefined') {
-    switch (shapeOptions.type as unknown as string) {
+    switch (colliderDescOptions.type as unknown as string) {
       case 'box':
         shapeType = ShapeType['Cuboid']
         break
@@ -127,18 +126,24 @@ function createColliderDesc(mesh: Mesh, colliderDescOptions: ColliderDescOptions
         shapeType = ShapeType['TriMesh']
         break
       default:
-        console.error('unrecognized collider shape type: ' + shapeOptions.type)
+        console.error('unrecognized collider shape type: ' + colliderDescOptions.type)
     }
   }
 
   // If custom size has been provided use that else use mesh scale
-  const colliderSize = shapeOptions.size ? shapeOptions.size : mesh.scale
+  const colliderSize = colliderDescOptions.size ? colliderDescOptions.size : mesh.scale
 
   // Check for case mismatch
-  if (typeof shapeOptions.collisionLayer === 'undefined' && typeof (shapeOptions as any).collisionlayer !== 'undefined')
-    shapeOptions.collisionLayer = (shapeOptions as any).collisionlayer
-  if (typeof shapeOptions.collisionMask === 'undefined' && typeof (shapeOptions as any).collisionmask !== 'undefined')
-    shapeOptions.collisionMask = (shapeOptions as any).collisionmask
+  if (
+    typeof colliderDescOptions.collisionLayer === 'undefined' &&
+    typeof (colliderDescOptions as any).collisionlayer !== 'undefined'
+  )
+    colliderDescOptions.collisionLayer = (colliderDescOptions as any).collisionlayer
+  if (
+    typeof colliderDescOptions.collisionMask === 'undefined' &&
+    typeof (colliderDescOptions as any).collisionmask !== 'undefined'
+  )
+    colliderDescOptions.collisionMask = (colliderDescOptions as any).collisionmask
 
   let colliderDesc: ColliderDesc
   switch (shapeType as ShapeType) {
@@ -161,8 +166,11 @@ function createColliderDesc(mesh: Mesh, colliderDescOptions: ColliderDescOptions
     case ShapeType.ConvexPolyhedron: {
       if (!mesh.geometry)
         return console.warn('[Physics]: Tried to load convex mesh but did not find a geometry', mesh) as any
-      const vertices = new Float32Array(mesh.geometry.attributes.position.array)
-      const indices = new Uint32Array(mesh.geometry.index!.array)
+      const _buff = mesh.geometry
+        .clone()
+        .scale(Math.abs(colliderSize.x), Math.abs(colliderSize.y), Math.abs(colliderSize.z))
+      const vertices = new Float32Array(_buff.attributes.position.array)
+      const indices = new Uint32Array(_buff.index!.array)
       colliderDesc = ColliderDesc.convexMesh(vertices, indices) as ColliderDesc
       break
     }
@@ -170,18 +178,21 @@ function createColliderDesc(mesh: Mesh, colliderDescOptions: ColliderDescOptions
     case ShapeType.TriMesh: {
       if (!mesh.geometry)
         return console.warn('[Physics]: Tried to load tri mesh but did not find a geometry', mesh) as any
-      const vertices = new Float32Array(mesh.geometry.attributes.position.array)
-      const indices = new Uint32Array(mesh.geometry.index!.array)
+      const _buff = mesh.geometry
+        .clone()
+        .scale(Math.abs(colliderSize.x), Math.abs(colliderSize.y), Math.abs(colliderSize.z))
+      const vertices = new Float32Array(_buff.attributes.position.array)
+      const indices = new Uint32Array(_buff.index!.array)
       colliderDesc = ColliderDesc.trimesh(vertices, indices)
       break
     }
 
     default:
-      console.error('unknown shape', shapeOptions)
+      console.error('unknown shape', colliderDescOptions)
       return undefined!
   }
 
-  applyDescToCollider(colliderDesc, shapeOptions, mesh.position, mesh.quaternion)
+  applyDescToCollider(colliderDesc, colliderDescOptions, mesh.position, mesh.quaternion)
 
   return colliderDesc
 }
@@ -316,82 +327,39 @@ function castShape(world: World, shapecastQuery: ComponentType<typeof ShapecastC
   }
 }
 
-function drainCollisionEventQueue(world: World, collisionEventQueue: EventQueue) {
-  collisionEventQueue.drainCollisionEvents(function (handle1: number, handle2: number, started: boolean) {
-    const isTriggerEvent = world.getCollider(handle1).isSensor() || world.getCollider(handle2).isSensor()
-    let collisionEventType: CollisionEvents
-    if (started) {
-      if (isTriggerEvent) collisionEventType = CollisionEvents.TRIGGER_START
-      else collisionEventType = CollisionEvents.COLLISION_START
-    } else {
-      if (isTriggerEvent) collisionEventType = CollisionEvents.TRIGGER_END
-      else collisionEventType = CollisionEvents.COLLISION_END
-    }
+const drainCollisionEventQueue = (physicsWorld: World) => (handle1: number, handle2: number, started: boolean) => {
+  const collider1 = physicsWorld.getCollider(handle1)
+  const collider2 = physicsWorld.getCollider(handle2)
+  const isTriggerEvent = collider1.isSensor() || collider2.isSensor()
+  const rigidBody1 = collider1.parent()
+  const rigidBody2 = collider2.parent()
+  const entity1 = (rigidBody1?.userData as any)['entity']
+  const entity2 = (rigidBody2?.userData as any)['entity']
 
-    const collider1 = world.getCollider(handle1)
-    const collider2 = world.getCollider(handle2)
-    const rigidBody1 = collider1.parent()
-    const rigidBody2 = collider2.parent()
-    const entity1 = (rigidBody1?.userData as any)['entity']
-    const entity2 = (rigidBody2?.userData as any)['entity']
+  const collisionComponent1 = getComponent(entity1, CollisionComponent)
+  const collisionComponent2 = getComponent(entity2, CollisionComponent)
 
-    const collisionComponent1 = getComponent(entity1, RapierCollisionComponent)
-    const collisionComponent2 = getComponent(entity2, RapierCollisionComponent)
-
-    let collisionMap1: Map<Entity, ColliderHitEvent>
-    let collisionMap2: Map<Entity, ColliderHitEvent>
-    if (started) {
-      // If component already exists on entity, add the new collision event to it
-      if (collisionComponent1) {
-        collisionMap1 = collisionComponent1.collisions
-      }
-      // else add the component to entity & then add the new collision event to it
-      else {
-        collisionMap1 = new Map<Entity, ColliderHitEvent>()
-        addComponent(entity1, RapierCollisionComponent, { collisions: collisionMap1 })
-      }
-
-      collisionMap1.set(entity2, {
-        type: collisionEventType,
-        bodySelf: rigidBody1 as RigidBody,
-        bodyOther: rigidBody2 as RigidBody,
-        shapeSelf: collider1 as Collider,
-        shapeOther: collider2 as Collider,
-        contacts: undefined
-      })
-
-      // If component already exists on entity, add the new collision event to it
-      if (collisionComponent2) {
-        collisionMap2 = collisionComponent2.collisions
-      }
-      // else add the component to entity & then add the new collision event to it
-      else {
-        collisionMap2 = new Map<Entity, ColliderHitEvent>()
-        addComponent(entity2, RapierCollisionComponent, { collisions: collisionMap2 })
-      }
-
-      collisionMap2.set(entity1, {
-        type: collisionEventType,
-        bodySelf: rigidBody2 as RigidBody,
-        bodyOther: rigidBody1 as RigidBody,
-        shapeSelf: collider2 as Collider,
-        shapeOther: collider1 as Collider,
-        contacts: undefined
-      })
-    } else {
-      if (collisionComponent1) {
-        collisionMap1 = collisionComponent1.collisions
-        collisionMap1.delete(entity2)
-        if (collisionMap1.size === 0) removeComponent(entity1, RapierCollisionComponent)
-      }
-
-      if (collisionComponent2) {
-        collisionMap2 = collisionComponent2.collisions
-        collisionMap2.delete(entity1)
-        if (collisionMap2.size === 0) removeComponent(entity2, RapierCollisionComponent)
-      }
-    }
-  })
+  if (started) {
+    const type = isTriggerEvent ? CollisionEvents.TRIGGER_START : CollisionEvents.COLLISION_START
+    collisionComponent1?.set(entity2, {
+      type,
+      bodySelf: rigidBody1 as RigidBody,
+      bodyOther: rigidBody2 as RigidBody,
+      shapeSelf: collider1 as Collider,
+      shapeOther: collider2 as Collider
+    })
+    collisionComponent2?.set(entity1, {
+      type,
+      bodySelf: rigidBody2 as RigidBody,
+      bodyOther: rigidBody1 as RigidBody,
+      shapeSelf: collider2 as Collider,
+      shapeOther: collider1 as Collider
+    })
+  } else {
+    const type = isTriggerEvent ? CollisionEvents.TRIGGER_END : CollisionEvents.COLLISION_END
+    if (collisionComponent1?.has(entity2)) collisionComponent1.get(entity2)!.type = type
+    if (collisionComponent2?.has(entity1)) collisionComponent2.get(entity1)!.type = type
+  }
 }
 
 export const Physics = {

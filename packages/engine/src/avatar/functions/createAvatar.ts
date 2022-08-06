@@ -1,8 +1,6 @@
 import { Collider, ColliderDesc, RigidBody, RigidBodyDesc } from '@dimforge/rapier3d-compat'
 import { AnimationClip, AnimationMixer, Group, PerspectiveCamera, Quaternion, Vector3 } from 'three'
 
-import { AudioTagComponent } from '../../audio/components/AudioTagComponent'
-import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
@@ -13,6 +11,7 @@ import { InteractorComponent } from '../../interaction/components/InteractorComp
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { Physics } from '../../physics/classes/Physics'
 import { VectorSpringSimulator } from '../../physics/classes/springs/VectorSpringSimulator'
+import { CollisionComponent } from '../../physics/components/CollisionComponent'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { AvatarCollisionMask, CollisionGroups } from '../../physics/enums/CollisionGroups'
 import { getInteractionGroups } from '../../physics/functions/getInteractionGroups'
@@ -93,6 +92,7 @@ export const createAvatar = (spawnAction: typeof WorldNetworkAction.spawnAvatar.
 
   if (userId === Engine.instance.userId) {
     createAvatarController(entity)
+    addComponent(entity, PersistTagComponent, true)
     addComponent(entity, LocalAvatarTagComponent, true)
     addComponent(entity, LocalInputTagComponent, true)
   } else {
@@ -100,12 +100,7 @@ export const createAvatar = (spawnAction: typeof WorldNetworkAction.spawnAvatar.
     createAvatarCollider(entity)
   }
 
-  if (isClient) {
-    addComponent(entity, AudioTagComponent, true)
-    addComponent(entity, ShadowComponent, { receiveShadow: true, castShadow: true })
-  }
-
-  addComponent(entity, PersistTagComponent, true)
+  addComponent(entity, ShadowComponent, { receiveShadow: true, castShadow: true })
 
   return entity
 }
@@ -169,7 +164,6 @@ export const createAvatarController = (entity: Entity) => {
     addComponent(entity, AvatarControllerComponent, {
       controller: rigidBody,
       bodyCollider: undefined!,
-      collisions: [false, false, false],
       movementEnabled: true,
       isJumping: false,
       isWalking: false,
@@ -184,4 +178,6 @@ export const createAvatarController = (entity: Entity) => {
 
   const avatarControllerComponent = getComponent(entity, AvatarControllerComponent)
   avatarControllerComponent.bodyCollider = createAvatarCollider(entity)
+
+  addComponent(entity, CollisionComponent, new Map())
 }

@@ -5,7 +5,6 @@
   left: 0;
   bottom: 0;
   width: 100vw;
-  height: 100vh;
   background: #00000091;
   pointer-events: all;
 
@@ -33,7 +32,6 @@
       bottom: 0;
       position: fixed;
       width: 100vw;
-      height: 100vh;
       z-index: 10;
       flex: none;
     }

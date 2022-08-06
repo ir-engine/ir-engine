@@ -1,16 +1,17 @@
 import { Not } from 'bitecs'
 import { Material, Mesh, Vector3 } from 'three'
 
-import { getState } from '@xrengine/hyperflux'
+import { createActionQueue, getState } from '@xrengine/hyperflux'
 
 import { loadDRACODecoder } from '../../assets/loaders/gltf/NodeDracoLoader'
 import { isNode } from '../../common/functions/getEnvironment'
 import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
-import { EngineState } from '../../ecs/classes/EngineState'
+import { EngineActions, EngineState, getEngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
+import { XRUIComponent } from '../../xrui/components/XRUIComponent'
 import { NameComponent } from '../components/NameComponent'
 import { Object3DComponent, Object3DWithEntity } from '../components/Object3DComponent'
 import { PersistTagComponent } from '../components/PersistTagComponent'
@@ -56,15 +57,33 @@ const processObject3d = (entity: Entity) => {
       obj.castShadow = shadowComponent.castShadow
     }
   })
+
+  updateSimpleMaterials([entity])
 }
 
-const sceneObjectQuery = defineQuery([Object3DComponent])
-const simpleMaterialsQuery = defineQuery([Object3DComponent, SimpleMaterialTagComponent])
-const standardMaterialsQuery = defineQuery([Object3DComponent, Not(SimpleMaterialTagComponent)])
-const persistQuery = defineQuery([Object3DComponent, PersistTagComponent])
-const visibleQuery = defineQuery([Object3DComponent, VisibleComponent])
-const notVisibleQuery = defineQuery([Object3DComponent, Not(VisibleComponent)])
-const updatableQuery = defineQuery([Object3DComponent, UpdatableComponent])
+const updateSimpleMaterials = (sceneObjectEntities: Entity[]) => {
+  for (const entity of sceneObjectEntities) {
+    const obj3d = getComponent(entity, Object3DComponent)
+    if (hasComponent(entity, XRUIComponent)) return
+
+    const simpleMaterials =
+      hasComponent(entity, SimpleMaterialTagComponent) || getEngineState().useSimpleMaterials.value
+
+    let abort = false
+
+    obj3d.value.traverse((obj: any) => {
+      if (abort || (obj.entity && hasComponent(entity, XRUIComponent))) {
+        abort = true
+        return
+      }
+      if (simpleMaterials) {
+        useSimpleMaterial(obj)
+      } else {
+        useStandardMaterial(obj)
+      }
+    })
+  }
+}
 
 export default async function SceneObjectSystem(world: World) {
   SceneOptions.instance = new SceneOptions()
@@ -75,6 +94,14 @@ export default async function SceneObjectSystem(world: World) {
   if (isNode) {
     await loadDRACODecoder()
   }
+
+  const sceneObjectQuery = defineQuery([Object3DComponent])
+  const persistQuery = defineQuery([Object3DComponent, PersistTagComponent])
+  const visibleQuery = defineQuery([Object3DComponent, VisibleComponent])
+  const notVisibleQuery = defineQuery([Object3DComponent, Not(VisibleComponent)])
+  const updatableQuery = defineQuery([Object3DComponent, UpdatableComponent])
+
+  const useSimpleMaterialsActionQueue = createActionQueue(EngineActions.useSimpleMaterials.matches)
 
   return () => {
     for (const entity of sceneObjectQuery.exit()) {
@@ -111,6 +138,11 @@ export default async function SceneObjectSystem(world: World) {
       processObject3d(entity)
     }
 
+    for (const action of useSimpleMaterialsActionQueue()) {
+      const sceneObjectEntities = sceneObjectQuery()
+      updateSimpleMaterials(sceneObjectEntities)
+    }
+
     // Enable second camera layer for persistant entities for fun portal effects
     for (const entity of persistQuery.enter()) {
       const object3DComponent = getComponent(entity, Object3DComponent)
@@ -138,49 +170,6 @@ export default async function SceneObjectSystem(world: World) {
     for (const entity of updatableQuery()) {
       const obj = getComponent(entity, Object3DComponent)?.value as unknown as Updatable
       obj?.update(fixedDelta)
-    }
-
-    /**
-     * If a SimpleMaterialTagComponent is attached to the root node, this acts as a global to override all materials
-     * It can also be used to selectively convert individual objects to use simple materials
-     */
-    for (const entity of simpleMaterialsQuery.enter()) {
-      const object3DComponent = getComponent(entity, Object3DComponent)
-      if (object3DComponent.value === world.scene) {
-        Engine.instance.simpleMaterials = true
-      }
-      object3DComponent.value.traverse((obj) => {
-        useSimpleMaterial(obj as any)
-      })
-    }
-
-    /**
-     * As we iterative down the scene hierarchy, we don't want to override entities that have a SimpleMaterialTagComponent
-     */
-    for (const entity of simpleMaterialsQuery.exit()) {
-      const object3DComponent = getComponent(entity, Object3DComponent)
-      if (object3DComponent.value === world.scene) {
-        Engine.instance.simpleMaterials = false
-      }
-      if (!Engine.instance.simpleMaterials) {
-        object3DComponent.value.traverse((obj: Object3DWithEntity) => {
-          if (typeof obj.entity === 'number' && hasComponent(obj as any, SimpleMaterialTagComponent)) return
-          useStandardMaterial(obj as any)
-        })
-      }
-    }
-
-    /**
-     * This is needed as the inverse case of the previous query to ensure objects that are created without a simple material still have the standard material logic applied
-     */
-    for (const entity of standardMaterialsQuery.enter()) {
-      //check for materials that have had simple material tag added this frame
-      if (hasComponent(entity, SimpleMaterialTagComponent)) continue
-      const object3DComponent = getComponent(entity, Object3DComponent)
-      if (object3DComponent.value === world.scene) continue
-      object3DComponent.value.traverse((obj: Object3DWithEntity) => {
-        Engine.instance.simpleMaterials ? useSimpleMaterial(obj as any) : useStandardMaterial(obj as any)
-      })
     }
   }
 }

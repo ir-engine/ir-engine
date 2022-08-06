@@ -1,20 +1,14 @@
 import React, { useEffect, useState } from 'react'
 
 import { VrIcon } from '@xrengine/client-core/src/common/components/Icons/Vricon'
-import {
-  MediaInstanceConnectionService,
-  useMediaInstanceConnectionState
-} from '@xrengine/client-core/src/common/services/MediaInstanceConnectionService'
+import { useMediaInstanceConnectionState } from '@xrengine/client-core/src/common/services/MediaInstanceConnectionService'
 import { MediaStreamService, useMediaStreamState } from '@xrengine/client-core/src/media/services/MediaStreamService'
-import { useChatState } from '@xrengine/client-core/src/social/services/ChatService'
 import { useLocationState } from '@xrengine/client-core/src/social/services/LocationService'
 import { MediaStreams } from '@xrengine/client-core/src/transports/MediaStreams'
 import {
   configureMediaTransports,
   createCamAudioProducer,
   createCamVideoProducer,
-  endVideoChat,
-  leaveNetwork,
   pauseProducer,
   resumeProducer,
   startScreenshare,
@@ -48,13 +42,6 @@ const MediaIconsBox = (props: Props) => {
   const [hasVideoDevice, setHasVideoDevice] = useState(false)
 
   const user = useAuthState().user
-  const chatState = useChatState()
-  const channelState = chatState.channels
-  const channels = channelState.channels.value
-  const channelEntries = Object.values(channels).filter((channel) => !!channel) as any
-  const instanceChannel = channelEntries.find(
-    (entry) => entry.instanceId === Engine.instance.currentWorld.worldNetwork?.hostId
-  )
   const currentLocation = useLocationState().currentLocation.location
   const channelConnectionState = useMediaInstanceConnectionState()
   const mediaHostId = Engine.instance.currentWorld.mediaNetwork?.hostId

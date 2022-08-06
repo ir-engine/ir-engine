@@ -1,6 +1,5 @@
 import { detect, detectOS } from 'detect-browser'
 import _ from 'lodash'
-import { AudioListener } from 'three'
 
 import { BotUserAgent } from '@xrengine/common/src/constants/BotUserAgent'
 import { addActionReceptor, dispatchAction, getState } from '@xrengine/hyperflux'
@@ -60,11 +59,13 @@ export const setupEngineActionSystems = () => {
  * initializes everything for the browser context
  */
 export const initializeBrowser = () => {
+  const audioContext = new (globalThis.AudioContext || globalThis.webkitAudioContext)()
+  audioContext.resume()
+  Engine.instance.audioContext = audioContext
   Engine.instance.publicPath = location.origin
+  Engine.instance.cameraGainNode = audioContext.createGain()
+  Engine.instance.cameraGainNode.connect(audioContext.destination)
   const world = Engine.instance.currentWorld
-  world.audioListener = new AudioListener()
-  world.audioListener.context.resume()
-  world.camera.add(world.audioListener)
   world.camera.layers.disableAll()
   world.camera.layers.enable(ObjectLayers.Scene)
   world.camera.layers.enable(ObjectLayers.Avatar)
@@ -210,11 +211,11 @@ export const initializeSceneSystems = async () => {
     },
     {
       type: SystemUpdateType.FIXED_LATE,
-      systemModulePromise: import('./scene/systems/TriggerSystem')
+      systemModulePromise: import('./physics/systems/PhysicsSystem')
     },
     {
       type: SystemUpdateType.FIXED_LATE,
-      systemModulePromise: import('./physics/systems/PhysicsSystem')
+      systemModulePromise: import('./scene/systems/TriggerSystem')
     }
   )
   if (isClient) {
@@ -245,15 +246,15 @@ export const initializeSceneSystems = async () => {
       },
       {
         type: SystemUpdateType.PRE_RENDER,
-        systemModulePromise: import('./interaction/systems/MediaControlSystem')
-      },
-      {
-        type: SystemUpdateType.PRE_RENDER,
         systemModulePromise: import('./audio/systems/AudioSystem')
       },
       {
         type: SystemUpdateType.PRE_RENDER,
         systemModulePromise: import('./audio/systems/PositionalAudioSystem')
+      },
+      {
+        type: SystemUpdateType.PRE_RENDER,
+        systemModulePromise: import('./interaction/systems/MediaControlSystem')
       },
       {
         type: SystemUpdateType.PRE_RENDER,
@@ -269,7 +270,7 @@ export const initializeSceneSystems = async () => {
       },
       {
         type: SystemUpdateType.PRE_RENDER,
-        systemModulePromise: import('./particles/systems/ParticleSystem')
+        systemModulePromise: import('./scene/systems/ParticleSystem')
       },
       {
         type: SystemUpdateType.PRE_RENDER,

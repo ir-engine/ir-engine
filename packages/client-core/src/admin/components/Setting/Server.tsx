@@ -21,6 +21,9 @@ const Server = () => {
 
   const [gaTrackingId, setGaTrackingId] = useState(serverSetting?.gaTrackingId)
   const [gitPem, setGitPem] = useState(serverSetting?.gitPem)
+  const [instanceserverUnreachableTimeoutSeconds, setInstanceserverUnreachableTimeoutSeconds] = useState(
+    serverSetting?.instanceserverUnreachableTimeoutSeconds
+  )
   const [dryRun, setDryRun] = useState(true)
   const [local, setLocal] = useState(true)
 
@@ -28,11 +31,19 @@ const Server = () => {
     if (serverSetting) {
       setGaTrackingId(serverSetting?.gaTrackingId)
       setGitPem(serverSetting?.gitPem)
+      setInstanceserverUnreachableTimeoutSeconds(serverSetting?.instanceserverUnreachableTimeoutSeconds)
     }
   }, [serverSettingState?.updateNeeded?.value])
 
   const handleSubmit = (event) => {
-    ServerSettingService.patchServerSetting({ gaTrackingId: gaTrackingId, gitPem: gitPem }, id)
+    ServerSettingService.patchServerSetting(
+      {
+        gaTrackingId: gaTrackingId,
+        gitPem: gitPem,
+        instanceserverUnreachableTimeoutSeconds: instanceserverUnreachableTimeoutSeconds
+      },
+      id
+    )
   }
 
   const handleCancel = () => {
@@ -177,6 +188,13 @@ const Server = () => {
             label={t('admin:components.setting.releaseName')}
             value={serverSetting?.releaseName || ''}
             disabled
+          />
+
+          <InputText
+            name="releaseName"
+            label={t('admin:components.setting.instanceserverUnreachableTimeoutSeconds')}
+            value={instanceserverUnreachableTimeoutSeconds}
+            onChange={(e) => setInstanceserverUnreachableTimeoutSeconds(e.target.value)}
           />
 
           <InputSwitch

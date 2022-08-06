@@ -8,7 +8,6 @@ import VideocamIcon from '@mui/icons-material/Videocam'
 
 import BooleanInput from '../inputs/BooleanInput'
 import InputGroup from '../inputs/InputGroup'
-// import AudioSourceProperties from './AudioSourceProperties'
 import NodeEditor from './NodeEditor'
 import { EditorComponentType, updateProperty } from './Util'
 

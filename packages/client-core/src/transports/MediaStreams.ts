@@ -26,13 +26,13 @@ export class MediaStreams {
   faceTracking = false
   /** Video stream for streaming data. */
   videoStream: MediaStream = null!
-  /** Video stream for streaming data. */
+  /** Audio stream for streaming data. */
   audioStream: MediaStream = null!
   /** Audio Gain to be applied on media stream. */
-  audioGainNode: GainNode = null!
+  microphoneGainNode: GainNode = null!
 
   /** Local screen container. */
-  localScreen = null as any
+  localScreen = null! as MediaStream
   /** Producer using camera to get Video. */
   camVideoProducer = null as any
   /** Producer using camera to get Audio. */
@@ -45,8 +45,6 @@ export class MediaStreams {
   screenShareVideoPaused = false
   /** Indication of whether the audio while screen sharing is paused or not. */
   screenShareAudioPaused = false
-  /** Whether the component is initialized or not. */
-  initialized = false
 
   /**
    * Set face tracking state.
