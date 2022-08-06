@@ -36,8 +36,6 @@ export const addPannerNode = (audioObject: AudioElementNode, opts = Engine.insta
   panner.connect(audioObject.gain)
   audioObject.panner = panner
 
-  console.log(opts)
-
   panner.refDistance = opts.refDistance
   panner.rolloffFactor = opts.rolloffFactor
   panner.maxDistance = opts.maxDistance
