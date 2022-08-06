@@ -231,26 +231,26 @@ export function createAvatarAnimationGraph(
 
   // Mount Point
 
-  const mountEnterState: SingleAnimationState = {
+  const sitEnterState: SingleAnimationState = {
     name: AvatarStates.SIT_ENTER,
     type: 'SingleAnimationState',
-    action: null!,
+    action: getAnimationAction(AvatarAnimations.IDLE, mixer),
     loop: false,
     clamp: true
   }
 
-  const mountLeaveState: SingleAnimationState = {
+  const sitLeaveState: SingleAnimationState = {
     name: AvatarStates.SIT_LEAVE,
     type: 'SingleAnimationState',
-    action: null!,
+    action: getAnimationAction(AvatarAnimations.IDLE, mixer),
     loop: false,
     clamp: true
   }
 
-  const mountActiveState: SingleAnimationState = {
+  const sitIdleState: SingleAnimationState = {
     name: AvatarStates.SIT_IDLE,
     type: 'SingleAnimationState',
-    action: null!,
+    action: getAnimationAction(AvatarAnimations.IDLE, mixer),
     loop: true,
     clamp: false
   }
@@ -270,9 +270,9 @@ export function createAvatarAnimationGraph(
   graph.states[AvatarStates.DANCE2] = dance2State
   graph.states[AvatarStates.DANCE3] = dance3State
   graph.states[AvatarStates.DANCE4] = dance4State
-  graph.states[AvatarStates.SIT_ENTER] = mountEnterState
-  graph.states[AvatarStates.SIT_LEAVE] = mountLeaveState
-  graph.states[AvatarStates.SIT_IDLE] = mountActiveState
+  graph.states[AvatarStates.SIT_ENTER] = sitEnterState
+  graph.states[AvatarStates.SIT_LEAVE] = sitLeaveState
+  graph.states[AvatarStates.SIT_IDLE] = sitIdleState
 
   // Transition rules
 
@@ -372,7 +372,7 @@ export function createAvatarAnimationGraph(
 
   graph.transitionRules[AvatarStates.SIT_ENTER] = [
     {
-      rule: animationTimeTransitionRule(mountEnterState.action, 0.95),
+      rule: animationTimeTransitionRule(sitEnterState.action, 0.95),
       nextState: AvatarStates.SIT_IDLE
     }
   ]
