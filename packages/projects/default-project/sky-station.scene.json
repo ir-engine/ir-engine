@@ -954,6 +954,64 @@
       "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
       "index": 12,
       "name": "Portal - Sky Station Exterior"
+    },
+    "61912c25-8a83-4f28-bc42-7e132599cea9": {
+      "components": [
+        {
+          "name": "transform",
+          "props": {
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "rotation": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "scale": {
+              "x": 1,
+              "y": 1,
+              "z": 1
+            }
+          }
+        },
+        {
+          "name": "visible",
+          "props": {}
+        },
+        {
+          "name": "media",
+          "props": {
+            "paths": [
+              "__$project$__/default-project/assets/sky-station-ambience-loop.mp3"
+            ],
+            "playMode": 3,
+            "controls": false,
+            "autoplay": true,
+            "autoStartTime": 0
+          }
+        },
+        {
+          "name": "audio",
+          "props": {
+            "volume": 1,
+            "audioType": "Positional",
+            "isMusic": true,
+            "distanceModel": "inverse",
+            "rolloffFactor": 4,
+            "refDistance": 5,
+            "maxDistance": 10000,
+            "coneInnerAngle": 360,
+            "coneOuterAngle": 0,
+            "coneOuterGain": 0
+          }
+        }
+      ],
+      "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
+      "index": 13,
+      "name": "Audio - Ambience"
     }
   },
   "root": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC"
