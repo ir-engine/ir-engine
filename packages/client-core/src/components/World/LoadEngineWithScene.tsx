@@ -1,5 +1,7 @@
+import { useHookstate } from '@hookstate/core'
 import React, { useState } from 'react'
 import { useHistory } from 'react-router'
+import { useParams } from 'react-router-dom'
 
 import { LocationInstanceConnectionServiceReceptor } from '@xrengine/client-core/src/common/services/LocationInstanceConnectionService'
 import { LocationService } from '@xrengine/client-core/src/social/services/LocationService'
@@ -10,6 +12,7 @@ import {
   SceneServiceReceptor,
   useSceneState
 } from '@xrengine/client-core/src/world/services/SceneService'
+import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import multiLogger from '@xrengine/common/src/logger'
 import { getSearchParamFromURL } from '@xrengine/common/src/utils/getSearchParamFromURL'
 import { SpawnPoints } from '@xrengine/engine/src/avatar/AvatarSpawnSystem'
@@ -74,20 +77,30 @@ export const LoadEngineWithScene = () => {
     }
   }, [clientReady, sceneState.currentScene])
 
+  const didSpawn = useHookstate(false)
+
+  const spectateParam = useParams<{ spectate: UserId }>().spectate
+
   useHookEffect(async () => {
     if (
+      didSpawn.value === true ||
       Engine.instance.currentWorld.localClientEntity ||
       !engineState.sceneLoaded.value ||
       !authState.user.value ||
-      getSearchParamFromURL('spectate')
+      spectateParam
     )
       return
+
+    // the avatar should only be spawned once, after user auth and scene load
+
     const user = authState.user.value
     const avatarDetails = authState.avatarList.value.find((avatar) => avatar.avatar?.name === user.avatarId)!
     const spawnPoint = getSearchParamFromURL('spawnPoint')
-    let avatarSpawnPose
-    if (spawnPoint) avatarSpawnPose = SpawnPoints.instance.getSpawnPoint(spawnPoint)
-    else avatarSpawnPose = SpawnPoints.instance.getRandomSpawnPoint()
+
+    const avatarSpawnPose = spawnPoint
+      ? SpawnPoints.instance.getSpawnPoint(spawnPoint)
+      : SpawnPoints.instance.getRandomSpawnPoint()
+
     spawnLocalAvatarInWorld({
       avatarSpawnPose,
       avatarDetail: {
@@ -96,7 +109,7 @@ export const LoadEngineWithScene = () => {
       },
       name: user.name
     })
-  }, [engineState.sceneLoaded, authState.user, engineState.joinedWorld])
+  }, [engineState.sceneLoaded, authState.user, spectateParam])
 
   useHookEffect(() => {
     if (engineState.sceneLoaded.value) {

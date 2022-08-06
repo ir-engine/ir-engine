@@ -74,17 +74,17 @@ export default async function AvatarControllerSystem(world: World) {
   // let isLocalXRCameraReady = false
 
   return () => {
-    for (const entity of localControllerQuery.enter()) {
-      const controller = getComponent(entity, AvatarControllerComponent)
+    for (const avatarEntity of localControllerQuery.enter()) {
+      const controller = getComponent(avatarEntity, AvatarControllerComponent)
 
-      let targetEntity = entity
-      if (hasComponent(entity, AvatarComponent)) {
-        const avatarComponent = getComponent(entity, AvatarComponent)
+      let targetEntity = avatarEntity
+      if (hasComponent(avatarEntity, AvatarComponent)) {
+        const avatarComponent = getComponent(avatarEntity, AvatarComponent)
         targetEntity = createEntity()
         setComponent(targetEntity, PersistTagComponent, true)
         setTransformComponent(targetEntity)
-        setComputedTransformComponent(targetEntity, entity, () => {
-          const avatarTransform = getComponent(entity, TransformComponent)
+        setComputedTransformComponent(targetEntity, avatarEntity, () => {
+          const avatarTransform = getComponent(avatarEntity, TransformComponent)
           const targetTransform = getComponent(targetEntity, TransformComponent)
           targetTransform.position.copy(avatarTransform.position).y += avatarComponent.avatarHeight * 0.95
         })
