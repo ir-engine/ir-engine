@@ -143,35 +143,10 @@ export const loadNavmesh = (entity: Entity, object3d?: Object3D): void => {
   }
 }
 
-export const overrideTexture = (entity: Entity, object3d?: Object3D, world = Engine.instance.currentWorld): void => {
-  const state = getEngineState()
+export const parseGLTFModel = (entity: Entity) => {
+  const props = getComponent(entity, ModelComponent)
+  const obj3d = getComponent(entity, Object3DComponent).value
 
-  if (state.sceneLoaded.value) {
-    const modelComponent = getComponent(entity, ModelComponent)
-    const node = world.entityTree.uuidNodeMap.get(modelComponent.textureOverride)
-
-    if (node) {
-      const obj3d = object3d ?? getComponent(entity, Object3DComponent).value
-      const textureObj3d = getComponent(node.entity, Object3DComponent).value
-
-      textureObj3d.traverse((mesh: Mesh) => {
-        if (mesh.name === VIDEO_MESH_NAME) {
-          obj3d.traverse((obj: Mesh) => {
-            if (obj.material) obj.material = mesh.material
-          })
-        }
-      })
-    }
-
-    return
-  } else {
-    matchActionOnce(EngineActions.sceneLoaded.matches, () => {
-      overrideTexture(entity, object3d, world)
-    })
-  }
-}
-
-export const parseGLTFModel = (entity: Entity, props: ModelComponentType, obj3d: Object3D) => {
   // always parse components first
   parseObjectComponentsFromGLTF(entity, obj3d)
 
@@ -194,13 +169,6 @@ export const parseGLTFModel = (entity: Entity, props: ModelComponentType, obj3d:
   }
 
   const world = Engine.instance.currentWorld
-
-  if (props.textureOverride) {
-    // TODO: we should push this to ECS, something like a SceneObjectLoadComponent,
-    // or add engine events for specific objects being added to the scene,
-    // the scene load event + delay 1 second delay works for now.
-    overrideTexture(entity, obj3d, world)
-  }
 
   if (!Engine.instance.isEditor && world.worldNetwork?.isHosting && props.isDynamicObject) {
     const node = world.entityTree.entityNodeMap.get(entity)
