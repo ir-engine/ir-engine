@@ -9,7 +9,7 @@ import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
-import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineQuery, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { NetworkObjectOwnedTag } from '../../networking/components/NetworkObjectOwnedTag'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { RigidBodyDynamicTagComponent } from '../../physics/components/RigidBodyDynamicTagComponent'
@@ -127,7 +127,9 @@ export default async function TransformSystem(world: World) {
       const computedTransform = getComponent(entity, ComputedTransformComponent)
       const object3D = getComponent(entity, Object3DComponent)?.value
 
-      computedTransform?.computeFunction(entity, computedTransform.referenceEntity)
+      if (computedTransform && hasComponent(computedTransform.referenceEntity, TransformComponent)) {
+        computedTransform?.computeFunction(entity, computedTransform.referenceEntity)
+      }
 
       if (object3D) {
         if (world.dirtyTransforms.has(entity)) {
