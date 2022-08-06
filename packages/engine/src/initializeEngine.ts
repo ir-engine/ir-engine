@@ -153,7 +153,7 @@ export const initializeCoreSystems = async () => {
       },
       {
         type: SystemUpdateType.UPDATE_EARLY,
-        systemModulePromise: import('./xr/systems/XRSystem')
+        systemModulePromise: import('./xr/XRSystem')
       },
       {
         type: SystemUpdateType.UPDATE_EARLY,

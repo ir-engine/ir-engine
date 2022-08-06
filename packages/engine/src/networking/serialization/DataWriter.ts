@@ -9,9 +9,8 @@ import { World } from '../../ecs/classes/World'
 import { getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { XRHandsInputComponent } from '../../xr/components/XRHandsInputComponent'
-import { XRInputSourceComponent } from '../../xr/components/XRInputSourceComponent'
-import { XRHandBones } from '../../xr/types/XRHandBones'
+import { XRHandsInputComponent, XRInputSourceComponent } from '../../xr/XRComponents'
+import { XRHandBones } from '../../xr/XRHandBones'
 import { Network } from '../classes/Network'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
 import { compress, QUAT_MAX_RANGE, QUAT_PRECISION_MULT, VEC3_MAX_RANGE, VEC3_PRECISION_MULT } from './Utils'
@@ -245,7 +244,7 @@ export const writeVelocity = (v: ViewCursor, entity: Entity) => {
   let changeMask = 0
   let b = 0
 
-  changeMask |= writeCompressedVector3(VelocityComponent.linear)(v, entity) ? 1 << b++ : b++ && 0
+  changeMask |= writeLinearVelocity(v, entity) ? 1 << b++ : b++ && 0
   changeMask |= writeAngularVelocity(v, entity) ? 1 << b++ : b++ && 0
 
   return (changeMask > 0 && writeChangeMask(changeMask)) || rewind()

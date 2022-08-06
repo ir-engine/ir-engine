@@ -17,7 +17,7 @@ export const BoxColliderNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
   const selectionState = useSelectionState()
 
-  const rigidbodyComponent = getComponent(props.node.entity, RigidBodyComponent)
+  const rigidbodyComponent = getComponent(props.node.entity, RigidBodyComponent).body
   const [isTrigger, setIsTrigger] = useState(rigidbodyComponent.collider(0).isSensor())
 
   const onUpdateTrigger = (value) => {

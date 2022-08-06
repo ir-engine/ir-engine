@@ -4,7 +4,8 @@ import { DoubleSide, Mesh, MeshBasicMaterial, SphereGeometry, Texture } from 'th
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
-import { addComponent, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { addComponent, defineQuery, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { LocalInputTagComponent } from '@xrengine/engine/src/input/components/LocalInputTagComponent'
 import { matchActionOnce } from '@xrengine/engine/src/networking/functions/matchActionOnce'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
 import { PersistTagComponent } from '@xrengine/engine/src/scene/components/PersistTagComponent'
@@ -18,6 +19,8 @@ import { ObjectFitFunctions } from '@xrengine/engine/src/xrui/functions/ObjectFi
 import { accessSceneState } from '../world/services/SceneService'
 import { LoadingSystemState } from './state/LoadingState'
 import { createLoaderDetailView } from './ui/LoadingDetailView'
+
+const localInputQuery = defineQuery([LocalInputTagComponent])
 
 export default async function LoadingUISystem(world: World) {
   const transitionPeriodSeconds = 1
@@ -47,6 +50,14 @@ export default async function LoadingUISystem(world: World) {
   setObjectLayers(mesh, ObjectLayers.UI)
 
   return () => {
+    // const
+    for (const entity of localInputQuery.enter()) {
+      setTimeout(() => {
+        mesh.visible = false
+        transition.setState('OUT')
+      }, 250)
+    }
+
     mesh.quaternion.copy(Engine.instance.currentWorld.camera.quaternion).invert()
 
     // add a slow rotation to animate on desktop, otherwise just keep it static for VR

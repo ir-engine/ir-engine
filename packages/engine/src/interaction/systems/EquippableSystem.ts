@@ -14,7 +14,7 @@ import { NetworkObjectOwnedTag } from '../../networking/components/NetworkObject
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { RigidBodyDynamicTagComponent } from '../../physics/components/RigidBodyDynamicTagComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { getHandTransform } from '../../xr/functions/WebXRFunctions'
+import { getHandTransform } from '../../xr/XRFunctions'
 import { EquippedComponent } from '../components/EquippedComponent'
 import { EquipperComponent } from '../components/EquipperComponent'
 import { getParity } from '../functions/equippableFunctions'

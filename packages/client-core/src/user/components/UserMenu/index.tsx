@@ -3,7 +3,8 @@ import React, { useEffect, useState } from 'react'
 import { AudioEffectPlayer } from '@xrengine/engine/src/audio/systems/AudioSystem'
 import { matches } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { EngineActions, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
-import { addActionReceptor, removeActionReceptor } from '@xrengine/hyperflux'
+import { XRState } from '@xrengine/engine/src/xr/XRState'
+import { addActionReceptor, getState, removeActionReceptor, useHookstate } from '@xrengine/hyperflux'
 
 import GroupsIcon from '@mui/icons-material/Groups'
 import LinkIcon from '@mui/icons-material/Link'
@@ -70,7 +71,7 @@ interface Props {
 const UserMenu = (props: Props): any => {
   const [currentActiveMenu, setCurrentActiveMenu] = useState<typeof Views[keyof typeof Views]>()
   const Panel = UserMenuPanels.get(currentActiveMenu!)!
-  const engineState = useEngineState()
+  const xrSessionActive = useHookstate(getState(XRState).sessionActive)
 
   useEffect(() => {
     function shareLinkReceptor(a) {
@@ -90,7 +91,7 @@ const UserMenu = (props: Props): any => {
         <section
           className={`${styles.settingContainer} ${props.animate} ${currentActiveMenu ? props.fadeOutBottom : ''}`}
         >
-          {!engineState.xrSessionStarted.value && (
+          {!xrSessionActive.value && (
             <div className={styles.iconContainer}>
               {Array.from(HotbarMenu.keys()).map((id, index) => {
                 const IconNode = HotbarMenu.get(id)

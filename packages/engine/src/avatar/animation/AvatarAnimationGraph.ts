@@ -42,7 +42,7 @@ const getDistanceAction = (animationName: string, mixer: AnimationMixer): Distan
 export function createAvatarAnimationGraph(
   entity: Entity,
   mixer: AnimationMixer,
-  velocity: Vector3,
+  locomotion: Vector3,
   jumpValue: {} | null
 ): AnimationGraph {
   if (!mixer) return null!
@@ -85,7 +85,7 @@ export function createAvatarAnimationGraph(
     type: 'LocomotionState',
     yAxisBlendSpace: verticalBlendSpace,
     xAxisBlendSpace: horizontalBlendSpace,
-    movementParams: { velocity },
+    locomotion,
     forwardMovementActions: [walkForwardAction, runForwardAction, walkBackwardAction, runBackwardAction],
     sideMovementActions: [walkLeftAction, runLeftAction, walkRightAction, runRightAction],
     idleAction: getAnimationAction(AvatarAnimations.IDLE, mixer),
@@ -276,7 +276,7 @@ export function createAvatarAnimationGraph(
 
   // Transition rules
 
-  const movementTransitionRule = vectorLengthTransitionRule(velocity, 0.001)
+  const movementTransitionRule = vectorLengthTransitionRule(locomotion, 0.001)
 
   if (isOwnedEntity) {
     graph.transitionRules[AvatarStates.LOCOMOTION] = [
@@ -288,7 +288,7 @@ export function createAvatarAnimationGraph(
       // Fall - threshold rule is to prevent fall_idle when going down ramps or over gaps
       {
         rule: compositeTransitionRule(
-          [booleanTransitionRule(jumpValue, 'isInAir'), thresholdTransitionRule(velocity, 'y', -0.05, false)],
+          [booleanTransitionRule(jumpValue, 'isInAir'), thresholdTransitionRule(locomotion, 'y', -0.05, false)],
           'and'
         ),
         nextState: AvatarStates.FALL_IDLE

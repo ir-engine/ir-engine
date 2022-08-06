@@ -84,7 +84,7 @@ export async function initializeScene(projectFile: SceneJson): Promise<Error[] |
   SceneState.gizmoEntity = createGizmoEntity(SceneState.transformGizmo)
   SceneState.editorEntity = createEditorEntity()
 
-  Engine.instance.currentWorld.scene.add(Engine.instance.currentWorld.camera)
+  // Engine.instance.currentWorld.scene.add(Engine.instance.currentWorld.camera)
   Engine.instance.currentWorld.scene.add(SceneState.transformGizmo)
 
   // Require when changing scene

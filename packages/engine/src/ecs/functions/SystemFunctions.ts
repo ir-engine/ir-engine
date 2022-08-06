@@ -2,6 +2,7 @@
 import multiLogger from '@xrengine/common/src/logger'
 
 import { nowMilliseconds } from '../../common/functions/nowMilliseconds'
+import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { World } from '../classes/World'
 import { SystemUpdateType } from '../functions/SystemUpdateType'
 
@@ -57,7 +58,7 @@ export const initSystems = async (world: World, systemModulesToLoad: SystemModul
           try {
             system()
           } catch (e) {
-            logger.error(e)
+            logger.error(e.stack)
           }
           const end = nowMilliseconds()
           const duration = end - start
@@ -67,7 +68,7 @@ export const initSystems = async (world: World, systemModulesToLoad: SystemModul
         }
       } as SystemInstanceType
     } catch (e) {
-      logger.error(new Error(`System ${name} failed to initialize!`, { cause: e }))
+      logger.error(new Error(`System ${name} failed to initialize!`, { cause: e.stack }))
       return null
     }
   }

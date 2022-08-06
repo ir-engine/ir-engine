@@ -1,4 +1,4 @@
-import { useState } from '@hookstate/core'
+import { useHookstate } from '@hookstate/core'
 
 import { ClientStorage } from '@xrengine/engine/src/common/classes/ClientStorage'
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
@@ -141,7 +141,7 @@ export const EditorHelperServiceReceptor = (action): any => {
 
 export const accessEditorHelperState = () => getState(EditorHelperState)
 
-export const useEditorHelperState = () => useState(accessEditorHelperState())
+export const useEditorHelperState = (() => useHookstate(getState(EditorHelperState))) as typeof accessEditorHelperState
 
 //Action
 export class EditorHelperAction {
