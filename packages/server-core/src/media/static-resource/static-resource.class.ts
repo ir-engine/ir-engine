@@ -1,13 +1,11 @@
-import { Params } from '@feathersjs/feathers'
+import { Paginated, Params } from '@feathersjs/feathers'
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
-import _ from 'lodash'
 import { Op } from 'sequelize'
 
 import { StaticResourceInterface } from '@xrengine/common/src/interfaces/StaticResourceInterface'
 
 import { Application } from '../../../declarations'
-
-export type AvatarDataType = StaticResourceInterface
+import { getStorageProvider } from '../storageprovider/storageprovider'
 
 export type CreateStaticResourceType = {
   name?: string
@@ -18,7 +16,7 @@ export type CreateStaticResourceType = {
   userId?: string
 }
 
-export class StaticResource<T = AvatarDataType> extends Service<T> {
+export class StaticResource extends Service<StaticResourceInterface> {
   public docs: any
 
   constructor(options: Partial<SequelizeServiceOptions>, app: Application) {
@@ -26,7 +24,8 @@ export class StaticResource<T = AvatarDataType> extends Service<T> {
   }
 
   // @ts-ignore
-  async create(data: CreateStaticResourceType, params?: Params): Promise<T> {
+  async create(data: CreateStaticResourceType, params?: Params): Promise<StaticResourceInterface> {
+    const self = this
     const oldResource = await this.find({
       query: {
         $select: ['id'],
@@ -37,13 +36,13 @@ export class StaticResource<T = AvatarDataType> extends Service<T> {
     if ((oldResource as any).total > 0) {
       return this.Model.update(data, {
         where: { url: data.url }
-      })
+      }).then(() => self.Model.findOne({ where: { url: data.url } }))
     } else {
       return this.Model.create(data)
     }
   }
 
-  async find(params?: Params): Promise<any> {
+  async find(params?: Params): Promise<StaticResourceInterface[] | Paginated<StaticResourceInterface>> {
     if (params?.query?.getAvatarThumbnails === true) {
       delete params.query.getAvatarThumbnails
       const search = params?.query?.search ?? ''
@@ -89,7 +88,12 @@ export class StaticResource<T = AvatarDataType> extends Service<T> {
     } else return super.find(params)
   }
 
-  async remove(id: string): Promise<T> {
-    return (await super.remove(id)) as T
+  async remove(id: string): Promise<StaticResourceInterface> {
+    const resource = await super.get(id)
+    if (resource.key) {
+      const storageProvider = getStorageProvider()
+      await storageProvider.deleteResources([resource.key])
+    }
+    return (await super.remove(id)) as StaticResourceInterface
   }
 }

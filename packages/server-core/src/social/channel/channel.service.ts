@@ -44,27 +44,6 @@ export default (app: Application) => {
       if (data.channelType === 'user') {
         data.user1 = await app.service('user').get(data.userId1)
         data.user2 = await app.service('user').get(data.userId2)
-        // const user1AvatarResult = await app.service('static-resource').find({
-        //   query: {
-        //     staticResourceType: 'user-thumbnail',
-        //     userId: data.userId1
-        //   }
-        // }) as any;
-        //
-        // const user2AvatarResult = await app.service('static-resource').find({
-        //   query: {
-        //     staticResourceType: 'user-thumbnail',
-        //     userId: data.userId2
-        //   }
-        // }) as any;
-        //
-        // if (user1AvatarResult.total > 0) {
-        //   data.user1.dataValues.avatarUrl = user1AvatarResult.data[0].url;
-        // }
-        //
-        // if (user2AvatarResult.total > 0) {
-        //   data.user2.dataValues.avatarUrl = user2AvatarResult.data[0].url;
-        // }
         targetIds = []
       } else if (data.channelType === 'group') {
         if (data.group == null) {
@@ -84,20 +63,6 @@ export default (app: Application) => {
             }
           ]
         })
-        // await Promise.all(groupUsers.map(async (groupUser) => {
-        //   const avatarResult = await app.service('static-resource').find({
-        //     query: {
-        //       staticResourceType: 'user-thumbnail',
-        //       userId: groupUser.userId
-        //     }
-        //   }) as any;
-        //
-        //   if (avatarResult.total > 0) {
-        //     groupUser.dataValues.user.dataValues.avatarUrl = avatarResult.data[0].url;
-        //   }
-        //
-        //   return await Promise.resolve();
-        // }));
 
         if (data.group?.dataValues) {
           data.group.dataValues.groupUsers = groupUsers
@@ -127,20 +92,6 @@ export default (app: Application) => {
             instanceId: data.instanceId
           }
         })
-        // await Promise.all(instanceUsers.map(async (instanceUser) => {
-        //   const avatarResult = await app.service('static-resource').find({
-        //     query: {
-        //       staticResourceType: 'user-thumbnail',
-        //       userId: instanceUser.id
-        //     }
-        //   }) as any;
-        //
-        //   if (avatarResult.total > 0) {
-        //     instanceUser.dataValues.avatarUrl = avatarResult.data[0].url;
-        //   }
-        //
-        //   return await Promise.resolve();
-        // }));
         if (data.instance?.dataValues) {
           data.instance.dataValues.instanceUsers = instanceUsers
         } else if (data.instance) {
@@ -174,27 +125,6 @@ export default (app: Application) => {
       if (data.channelType === 'user') {
         data.user1 = await app.service('user').get(data.userId1)
         data.user2 = await app.service('user').get(data.userId2)
-        // const user1AvatarResult = await app.service('static-resource').find({
-        //   query: {
-        //     staticResourceType: 'user-thumbnail',
-        //     userId: data.userId1
-        //   }
-        // }) as any;
-        //
-        // const user2AvatarResult = await app.service('static-resource').find({
-        //   query: {
-        //     staticResourceType: 'user-thumbnail',
-        //     userId: data.userId2
-        //   }
-        // }) as any;
-        //
-        // if (user1AvatarResult.total > 0) {
-        //   data.user1.dataValues.avatarUrl = user1AvatarResult.data[0].url;
-        // }
-        //
-        // if (user2AvatarResult.total > 0) {
-        //   data.user2.dataValues.avatarUrl = user2AvatarResult.data[0].url;
-        // }
         targetIds = [data.userId1, data.userId2]
       } else if (data.channelType === 'group') {
         if (data.group == null) {
@@ -214,20 +144,6 @@ export default (app: Application) => {
             }
           ]
         })
-        // await Promise.all(groupUsers.map(async (groupUser) => {
-        //   const avatarResult = await app.service('static-resource').find({
-        //     query: {
-        //       staticResourceType: 'user-thumbnail',
-        //       userId: groupUser.userId
-        //     }
-        //   }) as any;
-        //
-        //   if (avatarResult.total > 0) {
-        //     groupUser.dataValues.user.dataValues.avatarUrl = avatarResult.data[0].url;
-        //   }
-        //
-        //   return await Promise.resolve();
-        // }));
 
         if (data.group?.dataValues) {
           data.group.dataValues.groupUsers = groupUsers
@@ -257,20 +173,6 @@ export default (app: Application) => {
             instanceId: data.instanceId
           }
         })
-        // await Promise.all(instanceUsers.map(async (instanceUser) => {
-        //   const avatarResult = await app.service('static-resource').find({
-        //     query: {
-        //       staticResourceType: 'user-thumbnail',
-        //       userId: instanceUser.id
-        //     }
-        //   }) as any;
-        //
-        //   if (avatarResult.total > 0) {
-        //     instanceUser.dataValues.avatarUrl = avatarResult.data[0].url;
-        //   }
-        //
-        //   return await Promise.resolve();
-        // }));
         if (data.instance?.dataValues) {
           data.instance.dataValues.instanceUsers = instanceUsers
         } else if (data.instance) {

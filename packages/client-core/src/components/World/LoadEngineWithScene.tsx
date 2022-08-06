@@ -98,7 +98,7 @@ export const LoadEngineWithScene = () => {
     // the avatar should only be spawned once, after user auth and scene load
 
     const user = authState.user.value
-    const avatarDetails = authState.avatarList.value.find((avatar) => avatar.avatar?.name === user.avatarId)!
+    const avatarDetails = authState.avatarList.value.find((avatar) => avatar?.id === user.avatarId)!
     const spawnPoint = getSearchParamFromURL('spawnPoint')
 
     const avatarSpawnPose = spawnPoint
@@ -108,8 +108,8 @@ export const LoadEngineWithScene = () => {
     spawnLocalAvatarInWorld({
       avatarSpawnPose,
       avatarDetail: {
-        avatarURL: avatarDetails.avatar?.url!,
-        thumbnailURL: avatarDetails['user-thumbnail']?.url!
+        avatarURL: avatarDetails.modelResource?.url!,
+        thumbnailURL: avatarDetails.thumbnailResource?.url!
       },
       name: user.name
     })

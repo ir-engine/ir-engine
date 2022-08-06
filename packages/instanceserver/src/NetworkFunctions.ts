@@ -225,7 +225,7 @@ export function getUserIdFromSocketId(network: SocketWebRTCServerNetwork, socket
 
 export const handleConnectingPeer = async (network: SocketWebRTCServerNetwork, socket: Socket, user: UserInterface) => {
   const userId = user.id
-  const avatarDetail = (await network.app.service('avatar').get(user.avatarId!)) as AvatarProps
+  const avatarDetail = await network.app.service('avatar').get(user.avatarId!)
 
   // Create a new client object
   // and add to the dictionary
@@ -246,7 +246,10 @@ export const handleConnectingPeer = async (network: SocketWebRTCServerNetwork, s
 
   const worldState = getState(WorldState)
   worldState.userNames[userId].set(user.name)
-  worldState.userAvatarDetails[userId].set(avatarDetail)
+  worldState.userAvatarDetails[userId].set({
+    avatarURL: avatarDetail.modelResource?.url || '',
+    thumbnailURL: avatarDetail.thumbnailResource?.url || ''
+  })
 
   network.userIdToUserIndex.set(userId, userIndex)
   network.userIndexToUserId.set(userIndex, userId)

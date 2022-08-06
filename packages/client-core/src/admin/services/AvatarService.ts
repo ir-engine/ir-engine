@@ -1,3 +1,6 @@
+import { Paginated } from '@feathersjs/feathers'
+
+import { AvatarInterface } from '@xrengine/common/src/interfaces/AvatarInterface'
 import { AvatarResult } from '@xrengine/common/src/interfaces/AvatarResult'
 import { StaticResourceInterface } from '@xrengine/common/src/interfaces/StaticResourceInterface'
 import multiLogger from '@xrengine/common/src/logger'
@@ -14,7 +17,7 @@ export const AVATAR_PAGE_LIMIT = 100
 const AdminAvatarState = defineState({
   name: 'AdminAvatarState',
   initial: () => ({
-    avatars: [] as Array<StaticResourceInterface>,
+    avatars: [] as Array<AvatarInterface>,
     thumbnail: undefined as StaticResourceInterface | undefined,
     skip: 0,
     limit: AVATAR_PAGE_LIMIT,
@@ -55,17 +58,11 @@ const avatarUpdatedReceptor = (action: typeof AdminAvatarActions.avatarUpdated.m
   return state.merge({ updateNeeded: true })
 }
 
-const thumbnailFetchedReceptor = (action: typeof AdminAvatarActions.thumbnailFetched.matches._TYPE) => {
-  const state = getState(AdminAvatarState)
-  return state.merge({ thumbnail: action.thumbnail.data.length > 0 ? action.thumbnail.data[0] : undefined })
-}
-
 export const AdminAvatarReceptors = {
   avatarsFetchedReceptor,
   avatarCreatedReceptor,
   avatarRemovedReceptor,
-  avatarUpdatedReceptor,
-  thumbnailFetchedReceptor
+  avatarUpdatedReceptor
 }
 
 export const accessAdminAvatarState = () => getState(AdminAvatarState)
@@ -81,44 +78,21 @@ export const AdminAvatarService = {
     }
     const adminAvatarState = accessAdminAvatarState()
     const limit = adminAvatarState.limit.value
-    const avatars = await API.instance.client.service('static-resource').find({
+    const avatars = (await API.instance.client.service('avatar').find({
       query: {
         $sort: {
           ...sortData
         },
-        $select: ['id', 'sid', 'key', 'name', 'url', 'staticResourceType', 'userId'],
-        staticResourceType: 'avatar',
-        userId: null,
         $limit: limit,
         $skip: skip * AVATAR_PAGE_LIMIT,
-        getAvatarThumbnails: true,
         search: search
       }
-    })
+    })) as Paginated<AvatarInterface>
     dispatchAction(AdminAvatarActions.avatarsFetched({ avatars }))
   },
-  fetchAdminThumbnail: async (name: string) => {
-    const thumbnail = await API.instance.client.service('static-resource').find({
-      query: {
-        name: name,
-        staticResourceType: 'user-thumbnail',
-        $limit: 1
-      }
-    })
-    dispatchAction(AdminAvatarActions.thumbnailFetched({ thumbnail }))
-  },
-  removeAdminAvatar: async (id: string, name: string) => {
+  removeAdminAvatar: async (id: string) => {
     try {
-      await API.instance.client.service('static-resource').remove(id)
-      const avatarThumbnail = await API.instance.client.service('static-resource').find({
-        query: {
-          name: name,
-          staticResourceType: 'user-thumbnail',
-          $limit: 1
-        }
-      })
-      avatarThumbnail?.data?.length > 0 &&
-        (await API.instance.client.service('static-resource').remove(avatarThumbnail?.data[0]?.id))
+      await API.instance.client.service('avatar').remove(id)
       dispatchAction(AdminAvatarActions.avatarRemoved({}))
     } catch (err) {
       logger.error(err)
@@ -143,10 +117,5 @@ export class AdminAvatarActions {
 
   static avatarUpdated = defineAction({
     type: 'AVATAR_UPDATED' as const
-  })
-
-  static thumbnailFetched = defineAction({
-    type: 'THUMBNAIL_RETRIEVED' as const,
-    thumbnail: matches.object as Validator<unknown, AvatarResult>
   })
 }

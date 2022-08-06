@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { AvatarInterface } from '@xrengine/common/src/interfaces/AvatarInterface'
 import { UserAvatar } from '@xrengine/common/src/interfaces/UserAvatar'
 import { AudioEffectPlayer } from '@xrengine/engine/src/audio/systems/AudioSystem'
 import { AvatarEffectComponent } from '@xrengine/engine/src/avatar/components/AvatarEffectComponent'
@@ -37,7 +38,7 @@ const AvatarMenu = (props: Props) => {
   const [imgPerPage, setImgPerPage] = useState(getAvatarPerPage())
   const [selectedAvatarId, setSelectedAvatarId] = useState('')
   const [isAvatarLoaded, setAvatarLoaded] = useState(false)
-  const [avatarTobeDeleted, setAvatarTobeDeleted] = useState<UserAvatar | null>()
+  const [avatarTobeDeleted, setAvatarTobeDeleted] = useState<AvatarInterface | null>()
 
   let [menuRadius, setMenuRadius] = useState(window.innerWidth > 360 ? 182 : 150)
 
@@ -104,11 +105,10 @@ const AvatarMenu = (props: Props) => {
     setPage(page - 1)
   }
 
-  const selectAvatar = (avatarResources: UserAvatar) => {
-    const avatar = avatarResources.avatar
-    setSelectedAvatarId(avatar?.name || '')
-    if (avatarId !== avatar?.name) {
-      setAvatar(avatar?.name || '', avatar?.url || '', avatarResources?.userThumbnail?.url || '')
+  const selectAvatar = (avatar: AvatarInterface) => {
+    setSelectedAvatarId(avatar?.id || '')
+    if (avatarId !== avatar?.id) {
+      setAvatar(avatar?.id || '', avatar?.modelResource?.url || '', avatar?.thumbnailResource?.url || '')
     }
   }
 
@@ -127,10 +127,14 @@ const AvatarMenu = (props: Props) => {
     setAvatarTobeDeleted(avatarResource)
   }
 
-  const removeAvatar = (e, confirmation) => {
+  const removeAvatar = async (e, confirmation) => {
     e.stopPropagation()
-    if (confirmation && avatarTobeDeleted?.avatar?.key) {
-      AuthService.removeAvatar(avatarTobeDeleted.avatar.key)
+    if (confirmation && avatarTobeDeleted?.id) {
+      await Promise.all([
+        AuthService.removeStaticResource(avatarTobeDeleted.modelResourceId),
+        AuthService.removeStaticResource(avatarTobeDeleted.thumbnailResourceId)
+      ])
+      await AuthService.removeAvatar(avatarTobeDeleted.id)
     }
 
     setAvatarTobeDeleted(null)
@@ -184,15 +188,13 @@ const AvatarMenu = (props: Props) => {
       x = effectiveRadius * Math.cos((itemAngle * Math.PI) / 280)
       y = effectiveRadius * Math.sin((itemAngle * Math.PI) / 280)
 
-      const avatar = characterAvatar.avatar!
-
       avatarElementList.push(
         <Card
-          key={avatar.id}
+          key={characterAvatar.id}
           className={`
             ${styles.menuItem}
-						${avatar.name === selectedAvatarId ? styles.selectedAvatar : ''}
-						${avatar.name === avatarId ? styles.activeAvatar : ''}
+						${characterAvatar.name === selectedAvatarId ? styles.selectedAvatar : ''}
+						${characterAvatar.name === avatarId ? styles.activeAvatar : ''}
 					`}
           style={{
             width: menuItemWidth,
@@ -205,9 +207,13 @@ const AvatarMenu = (props: Props) => {
             onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
             onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
           >
-            <LazyImage key={avatar.id} src={characterAvatar?.userThumbnail?.url || ''} alt={avatar.name} />
-            {avatar.userId ? (
-              avatarTobeDeleted && avatarTobeDeleted?.avatar?.url === avatar.url ? (
+            <LazyImage
+              key={characterAvatar.id}
+              src={characterAvatar?.thumbnailResource?.url || ''}
+              alt={characterAvatar.name}
+            />
+            {characterAvatar.id ? (
+              avatarTobeDeleted && avatarTobeDeleted?.id === characterAvatar.id ? (
                 <div className={styles.confirmationBlock}>
                   <p>{t('user:usermenu.avatar.confirmation')}</p>
                   <button
@@ -240,9 +246,9 @@ const AvatarMenu = (props: Props) => {
                   onClick={(e) => setRemovingAvatar(e, characterAvatar)}
                   onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
                   onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
-                  disabled={avatar.name === avatarId}
+                  disabled={characterAvatar.id === avatarId}
                   title={
-                    avatar.name === avatarId
+                    characterAvatar.id === avatarId
                       ? t('user:usermenu.avatar.canNotBeRemoved')
                       : t('user:usermenu.avatar.remove')
                   }
