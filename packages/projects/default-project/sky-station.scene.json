@@ -368,7 +368,6 @@
           "name": "gltf-model",
           "props": {
             "src": "__$project$__/default-project/assets/Skybase.glb",
-            "textureOverride": "",
             "materialOverrides": [],
             "matrixAutoUpdate": true,
             "useBasicMaterial": false,
@@ -466,13 +465,13 @@
           "props": {
             "position": {
               "x": 0,
-              "y": 0,
-              "z": 0
+              "y": 0.25466039776802063,
+              "z": 0.022886894643306732
             },
             "rotation": {
-              "x": 0,
-              "y": 0,
-              "z": 0
+              "x": 1.2198940237785605,
+              "y": 0.6160040469183723,
+              "z": -1.0060722514406593
             },
             "scale": {
               "x": 1,
@@ -583,7 +582,8 @@
         {
           "name": "video",
           "props": {
-            "elementId": "earth video"
+            "elementId": "earth video",
+            "maintainAspectRatio": true
           }
         }
       ],
@@ -627,6 +627,7 @@
         {
           "name": "particle-emitter",
           "props": {
+            "mode": "LIBRARY",
             "src": "/static/editor/dot.png",
             "startColor": 11860735,
             "middleColor": 7785939,
@@ -699,7 +700,6 @@
           "name": "gltf-model",
           "props": {
             "src": "__$project$__/default-project/assets/test-equippable.glb",
-            "textureOverride": "",
             "materialOverrides": [],
             "matrixAutoUpdate": true,
             "useBasicMaterial": false,
@@ -797,7 +797,7 @@
             "redirect": false,
             "effectType": "Hyperspace",
             "previewType": "Spherical",
-            "previewImageURL": "__$project$__/default-project/sky-station-Portal.png",
+            "previewImageURL": "__$project$__/default-project/sky-station-Portal--%20to%20Apartment.png",
             "spawnPosition": {
               "x": 49.5,
               "y": 2,
@@ -805,9 +805,9 @@
             },
             "spawnRotation": {
               "x": 0,
-              "y": -0.00004889268375588634,
+              "y": -0.00001222317093744974,
               "z": 0,
-              "w": 0.9999999988047528
+              "w": 0.9999999999252971
             }
           }
         },
@@ -919,7 +919,7 @@
             "redirect": false,
             "effectType": "None",
             "previewType": "Spherical",
-            "previewImageURL": "__$project$__/default-project/sky-station-Portal-2.png",
+            "previewImageURL": "__$project$__/default-project/sky-station-Portal--%20Sky%20Station%20Interior.png",
             "spawnPosition": {
               "x": 15,
               "y": 8,
@@ -983,7 +983,7 @@
             "redirect": false,
             "effectType": "None",
             "previewType": "Spherical",
-            "previewImageURL": "__$project$__/default-project/sky-station-Portal-3.png",
+            "previewImageURL": "__$project$__/default-project/sky-station-Portal--%20Sky%20Station%20Exterior.png",
             "spawnPosition": {
               "x": -60,
               "y": 2,

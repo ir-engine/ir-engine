@@ -163,7 +163,7 @@ export const generatePhysicsObject = (
   obj3d.scale.copy(scale)
   addComponent(entity, Object3DComponent, { value: obj3d })
 
-  parseGLTFModel(entity, getComponent(entity, ModelComponent), obj3d)
+  parseGLTFModel(entity)
 
   const world = Engine.instance.currentWorld
   addEntityNodeInTree(entityTreeNode, world.entityTree.rootNode)
