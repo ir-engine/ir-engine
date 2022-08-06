@@ -17,7 +17,7 @@ export class CoilSetting<T = CoilSettingDataType> extends Service<T> {
   async get(id: Id, params?: Params): Promise<T> {
     const loggedInUser = params!.user as UserInterface
     const settings = (await super.get(id, params)) as any
-    if (loggedInUser.userRole !== 'admin') {
+    if (!loggedInUser.scopes || !loggedInUser.scopes.find((scope) => scope.type === 'admin:admin')) {
       delete settings.clientId
       delete settings.clientSecret
     }
@@ -27,7 +27,7 @@ export class CoilSetting<T = CoilSettingDataType> extends Service<T> {
   async find(params?: Params): Promise<T[] | Paginated<T>> {
     const loggedInUser = params!.user as UserInterface
     const settings = (await super.find(params)) as any
-    if (loggedInUser.userRole !== 'admin')
+    if (!loggedInUser.scopes || !loggedInUser.scopes.find((scope) => scope.type === 'admin:admin'))
       settings.data.forEach((setting) => {
         delete setting.clientId
         delete setting.clientSecret

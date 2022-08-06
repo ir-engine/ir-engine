@@ -2,6 +2,9 @@ export const scopeTypeSeed = {
   path: 'scope-type',
   templates: [
     {
+      type: 'admin:admin'
+    },
+    {
       type: 'routes:read'
     },
     {

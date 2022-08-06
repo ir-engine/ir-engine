@@ -84,7 +84,7 @@ describe.skip('matchmaking match-instance service', () => {
       for (let i = 0; i < ticketsNumber; i++) {
         const userPromise = app.service('user').create({
           name: 'Test #' + Math.random(),
-          userRole: 'guest'
+          isGuest: true
         })
         usersPromises.push(userPromise)
 

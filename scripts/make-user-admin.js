@@ -50,9 +50,10 @@ cli.main(async () => {
                 type: Sequelize.DataTypes.STRING,
                 allowNull: false
             },
-            userRole: {
-                type: Sequelize.DataTypes.STRING,
-                allowNull: true
+            isGuest: {
+                type: Sequelize.DataTypes.BOOLEAN,
+                defaultValue: true,
+                allowNull: false
             }
         });
 
@@ -80,7 +81,6 @@ cli.main(async () => {
         });
 
         if (userMatch != null) {
-            userMatch.userRole = 'admin';
             await userMatch.save();
             for(const { type } of scopeTypeSeed.templates) {
               try {

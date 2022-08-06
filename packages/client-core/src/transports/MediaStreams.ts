@@ -32,7 +32,7 @@ export class MediaStreams {
   microphoneGainNode: GainNode = null!
 
   /** Local screen container. */
-  localScreen = null as any
+  localScreen = null! as MediaStream
   /** Producer using camera to get Video. */
   camVideoProducer = null as any
   /** Producer using camera to get Audio. */

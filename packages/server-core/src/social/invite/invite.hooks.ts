@@ -7,7 +7,7 @@ import attachOwnerIdInQuery from '@xrengine/server-core/src/hooks/set-loggedin-u
 
 import addAssociations from '../../hooks/add-associations'
 import authenticate from '../../hooks/authenticate'
-import restrictUserRole from '../../hooks/restrict-user-role'
+import verifyScope from '../../hooks/verify-scope'
 
 export default {
   before: {
@@ -36,8 +36,8 @@ export default {
       })
     ],
     create: [authenticate(), attachOwnerIdInBody('userId')],
-    update: [iff(isProvider('external'), authenticate() as any, restrictUserRole('admin') as any)],
-    patch: [iff(isProvider('external'), authenticate() as any, restrictUserRole('admin') as any)],
+    update: [iff(isProvider('external'), authenticate() as any, verifyScope('admin', 'admin') as any)],
+    patch: [iff(isProvider('external'), authenticate() as any, verifyScope('admin', 'admin') as any)],
     remove: [authenticate(), iff(isProvider('external'), inviteRemoveAuthenticate() as any)]
   },
 

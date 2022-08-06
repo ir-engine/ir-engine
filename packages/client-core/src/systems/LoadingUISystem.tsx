@@ -6,6 +6,7 @@ import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
 import { addComponent, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { matchActionOnce } from '@xrengine/engine/src/networking/functions/matchActionOnce'
+import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
 import { PersistTagComponent } from '@xrengine/engine/src/scene/components/PersistTagComponent'
 import { ObjectLayers } from '@xrengine/engine/src/scene/constants/ObjectLayers'
 import { textureLoader } from '@xrengine/engine/src/scene/constants/Util'
@@ -22,23 +23,16 @@ export default async function LoadingUISystem(world: World) {
   const transitionPeriodSeconds = 1
   const transition = createTransitionState(transitionPeriodSeconds, 'IN')
 
-  // todo: push timeout to accumulator
-  matchActionOnce(EngineActions.joinedWorld.matches, () => {
-    setTimeout(() => {
-      mesh.visible = false
-      transition.setState('OUT')
-    }, 250)
-  })
-
   const sceneState = accessSceneState()
   const thumbnailUrl = sceneState.currentScene.ornull?.thumbnailUrl.value.replace('thumbnail.jpeg', 'envmap.png')!
 
   const [ui, texture] = await Promise.all([
-    createLoaderDetailView(),
+    createLoaderDetailView(transition),
     new Promise<Texture | null>((resolve) => textureLoader.load(thumbnailUrl, resolve, null!, () => resolve(null)))
   ])
 
   addComponent(ui.entity, PersistTagComponent, true)
+  addComponent(ui.entity, NameComponent, { name: 'Loading XRUI' })
 
   const mesh = new Mesh(
     new SphereGeometry(10),
@@ -71,8 +65,7 @@ export default async function LoadingUISystem(world: World) {
 
     const scale = ObjectFitFunctions.computeContentFitScaleForCamera(distance, contentWidth, contentHeight, 'cover')
     ObjectFitFunctions.attachObjectInFrontOfCamera(xrui.container, scale, distance)
-
-    transition.update(world, (opacity) => {
+    transition.update(world.deltaSeconds, (opacity) => {
       if (opacity !== LoadingSystemState.loadingScreenOpacity.value)
         LoadingSystemState.loadingScreenOpacity.set(opacity)
       mesh.material.opacity = opacity

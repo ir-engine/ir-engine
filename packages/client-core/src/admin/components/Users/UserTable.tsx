@@ -60,7 +60,7 @@ const UserTable = ({ className, search }: UserProps) => {
     el: UserInterface,
     name: string,
     avatarId: string | JSX.Element,
-    userRole: string | JSX.Element,
+    isGuest: string,
     location: string | JSX.Element,
     inviteCode: string | JSX.Element,
     instanceId: string | JSX.Element
@@ -70,7 +70,7 @@ const UserTable = ({ className, search }: UserProps) => {
       el,
       name,
       avatarId,
-      userRole,
+      isGuest,
       location,
       inviteCode,
       instanceId,
@@ -123,7 +123,7 @@ const UserTable = ({ className, search }: UserProps) => {
       el,
       el.name,
       el.avatarId || <span className={styles.spanNone}>{t('admin:components.common.none')}</span>,
-      el.userRole || <span className={styles.spanNone}>{t('admin:components.common.none')}</span>,
+      el.isGuest.toString(),
       loca,
       el.inviteCode || <span className={styles.spanNone}>{t('admin:components.common.none')}</span>,
       inst

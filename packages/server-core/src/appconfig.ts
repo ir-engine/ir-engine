@@ -124,7 +124,10 @@ const server = {
   gitPem: '',
   local: process.env.LOCAL === 'true',
   releaseName: process.env.RELEASE_NAME!,
-  matchmakerEmulationMode: process.env.MATCHMAKER_EMULATION_MODE === 'true'
+  matchmakerEmulationMode: process.env.MATCHMAKER_EMULATION_MODE === 'true',
+  instanceserverUnreachableTimeoutSeconds: process.env.INSTANCESERVER_UNREACHABLE_TIMEOUT_SECONDS
+    ? parseInt(process.env.INSTANCESERVER_UNREACHABLE_TIMEOUT_SECONDS)
+    : 2
 }
 const obj = kubernetesEnabled ? { protocol: 'https', hostname: server.hostname } : { protocol: 'https', ...server }
 server.url = process.env.SERVER_URL || url.format(obj)

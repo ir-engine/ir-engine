@@ -35,7 +35,7 @@ export class Authentication<T = AdminAuthSettingDataType> extends Service<T> {
       if (typeof bearerToken === 'string') bearerToken = JSON.parse(bearerToken)
       if (typeof callback === 'string') callback = JSON.parse(callback)
 
-      if (loggedInUser.userRole !== 'admin')
+      if (!loggedInUser.scopes || !loggedInUser.scopes.find((scope) => scope.type === 'admin:admin'))
         return {
           id: el.id,
           entity: el.entity,

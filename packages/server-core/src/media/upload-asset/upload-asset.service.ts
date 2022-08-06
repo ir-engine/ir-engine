@@ -5,7 +5,7 @@ import multer from 'multer'
 import { AdminAssetUploadArgumentsType, AssetUploadType } from '@xrengine/common/src/interfaces/UploadAssetInterface'
 
 import { Application } from '../../../declarations'
-import restrictUserRole from '../../hooks/restrict-user-role'
+import verifyScope from '../../hooks/verify-scope'
 import logger from '../../logger'
 import { AvatarUploadArguments } from '../../user/avatar/avatar-helper'
 import { getCachedURL } from '../storageprovider/getCachedURL'
@@ -123,7 +123,7 @@ export default (app: Application): void => {
             null!
           )
         } else if (data.type === 'admin-file-upload') {
-          if (!(await restrictUserRole('admin')({ app, params } as any))) return
+          if (!(await verifyScope('admin', 'admin')({ app, params } as any))) return
           const argsData = typeof data.args === 'string' ? JSON.parse(data.args) : data.args
           if (files && files.length > 0) {
             return Promise.all(

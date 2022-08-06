@@ -30,7 +30,7 @@ const LocationMenuView = () => {
   const { t } = useTranslation()
   const engineState = useEngineState()
 
-  const isAdmin = useAuthState().user?.userRole?.value === 'admin'
+  const isAdmin = useAuthState().user?.scopes?.value?.find((scope) => scope.type === 'admin:admin')
 
   const handleStartXRSession = () => {
     if (!engineState.xrSessionStarted.value) {

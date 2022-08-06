@@ -1,6 +1,7 @@
 import { t } from 'i18next'
 
 import { resolveUser } from '@xrengine/common/src/interfaces/User'
+import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import multiLogger from '@xrengine/common/src/logger'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { WorldState } from '@xrengine/engine/src/networking/interfaces/WorldState'
@@ -35,8 +36,11 @@ export const userPatched = (params) => {
     if (patchedUser.instanceId !== selfUser.instanceId.value) {
       const parsed = new URL(window.location.href)
       let query = parsed.searchParams
-      query.set('instanceId', patchedUser?.instanceId || '')
+      query.set('instanceId', patchedUser.instanceId || '')
       parsed.search = query.toString()
+      if (patchedUser.instanceId && Engine.instance.currentWorld._worldHostId !== patchedUser.instanceId)
+        Engine.instance.currentWorld._worldHostId = Engine.instance.currentWorld.worldNetwork.hostId =
+          patchedUser.instanceId as UserId
 
       if (typeof history.pushState !== 'undefined') {
         window.history.replaceState({}, '', parsed.toString())

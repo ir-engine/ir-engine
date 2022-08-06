@@ -12,19 +12,13 @@
         {
           "name": "audio-settings",
           "props": {
-            "usePositionalAudio": true,
-            "avatarDistanceModel": "inverse",
-            "avatarRolloffFactor": 2,
-            "avatarRefDistance": 1,
-            "avatarMaxDistance": 10000,
-            "mediaVolume": 1,
-            "mediaDistanceModel": "inverse",
-            "mediaRolloffFactor": 1,
-            "mediaRefDistance": 20,
-            "mediaMaxDistance": 10000,
-            "mediaConeInnerAngle": 360,
-            "mediaConeOuterAngle": 0,
-            "mediaConeOuterGain": 0
+            "refDistance": 20,
+            "rolloffFactor": 1,
+            "maxDistance": 10000,
+            "distanceModel": "linear",
+            "coneInnerAngle": 360,
+            "coneOuterAngle": 0,
+            "coneOuterGain": 0
           }
         },
         {
@@ -116,9 +110,9 @@
               "z": 18.400897979736328
             },
             "rotation": {
-              "x": -0.9238422617867781,
-              "y": 1.120849191534366,
-              "z": 0.8727785283333842
+              "x": -0.9238422251836271,
+              "y": 1.120849206026624,
+              "z": 0.87277845965938
             },
             "scale": {
               "x": 1,
@@ -374,7 +368,6 @@
           "name": "gltf-model",
           "props": {
             "src": "__$project$__/default-project/assets/Skybase.glb",
-            "textureOverride": "",
             "materialOverrides": [],
             "matrixAutoUpdate": true,
             "useBasicMaterial": false,
@@ -472,13 +465,13 @@
           "props": {
             "position": {
               "x": 0,
-              "y": 0,
-              "z": 0
+              "y": 0.25466039776802063,
+              "z": 0.022886894643306732
             },
             "rotation": {
-              "x": 0,
-              "y": 0,
-              "z": 0
+              "x": 1.2198940237785605,
+              "y": 0.6160040469183723,
+              "z": -1.0060722514406593
             },
             "scale": {
               "x": 1,
@@ -566,6 +559,7 @@
           "props": {
             "volume": 0.5,
             "audioType": "Positional",
+            "isMusic": false,
             "distanceModel": "linear",
             "rolloffFactor": 1,
             "refDistance": 20,
@@ -588,7 +582,8 @@
         {
           "name": "video",
           "props": {
-            "elementId": "earth video"
+            "elementId": "earth video",
+            "maintainAspectRatio": true
           }
         }
       ],
@@ -632,6 +627,7 @@
         {
           "name": "particle-emitter",
           "props": {
+            "mode": "LIBRARY",
             "src": "/static/editor/dot.png",
             "startColor": 11860735,
             "middleColor": 7785939,
@@ -704,7 +700,6 @@
           "name": "gltf-model",
           "props": {
             "src": "__$project$__/default-project/assets/test-equippable.glb",
-            "textureOverride": "",
             "materialOverrides": [],
             "matrixAutoUpdate": true,
             "useBasicMaterial": false,
@@ -768,18 +763,18 @@
           "props": {
             "position": {
               "x": 49.5,
-              "y": 2.5,
+              "y": 3.5,
               "z": 0
             },
             "rotation": {
               "x": 0,
-              "y": 1.5704380627536063,
+              "y": 1.5704263768429216,
               "z": 0
             },
             "scale": {
-              "x": 1,
-              "y": 1,
-              "z": 0.10000000149011612
+              "x": 0.5,
+              "y": 0.5,
+              "z": 0.5
             }
           }
         },
@@ -800,15 +795,19 @@
             "location": "apartment",
             "linkedPortalId": "5BF21A35-BECE-4C15-A261-DAF1BA2FEB39",
             "redirect": false,
+            "effectType": "Hyperspace",
+            "previewType": "Spherical",
+            "previewImageURL": "__$project$__/default-project/sky-station-Portal--%20to%20Apartment.png",
             "spawnPosition": {
-              "x": 48,
-              "y": 2.5,
+              "x": 49.5,
+              "y": 2,
               "z": 0
             },
             "spawnRotation": {
               "x": 0,
-              "y": -0.012516635979854984,
-              "z": 0
+              "y": -0.00001222317093744974,
+              "z": 0,
+              "w": 0.9999999999252971
             }
           }
         },
@@ -819,97 +818,7 @@
       ],
       "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
       "index": 10,
-      "name": "Portal"
-    },
-    "2971A548-08E8-41CD-9467-A42FE84DB516": {
-      "components": [
-        {
-          "name": "transform",
-          "props": {
-            "position": {
-              "x": 49.5,
-              "y": 1,
-              "z": 0
-            },
-            "rotation": {
-              "x": 0,
-              "y": 1.5704380627536063,
-              "z": 0
-            },
-            "scale": {
-              "x": 1,
-              "y": 1,
-              "z": 1
-            }
-          }
-        },
-        {
-          "name": "visible",
-          "props": {}
-        },
-        {
-          "name": "shadow",
-          "props": {
-            "cast": true,
-            "receive": true
-          }
-        },
-        {
-          "name": "gltf-model",
-          "props": {
-            "src": "__$project$__/default-project/assets/portal_frame.glb",
-            "textureOverride": "",
-            "materialOverrides": [],
-            "matrixAutoUpdate": true,
-            "useBasicMaterial": false,
-            "isUsingGPUInstancing": false,
-            "isDynamicObject": false
-          }
-        },
-        {
-          "name": "loop-animation",
-          "props": {
-            "activeClipIndex": -1,
-            "hasAvatarAnimations": false
-          }
-        },
-        {
-          "name": "envmap",
-          "props": {
-            "type": "None",
-            "envMapTextureType": "Cubemap",
-            "envMapSourceColor": 1193046,
-            "envMapSourceURL": "/hdr/cubemap/skyboxsun25deg/",
-            "envMapIntensity": 1,
-            "envMapBake": {
-              "bakeType": "Baked",
-              "resolution": 2048,
-              "refreshMode": "OnAwake",
-              "envMapOrigin": "",
-              "boxProjection": true,
-              "bakePosition": {
-                "x": 0,
-                "y": 0,
-                "z": 0
-              },
-              "bakePositionOffset": {
-                "x": 0,
-                "y": 0,
-                "z": 0
-              },
-              "bakeScale": {
-                "x": 1,
-                "y": 1,
-                "z": 1
-              }
-            },
-            "forModel": true
-          }
-        }
-      ],
-      "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
-      "index": 11,
-      "name": "Model 2"
+      "name": "Portal - to Apartment"
     },
     "65f5428e-6548-49aa-be22-bd5b65674743": {
       "components": [
@@ -954,6 +863,7 @@
           "props": {
             "volume": 0.19,
             "audioType": "Positional",
+            "isMusic": true,
             "distanceModel": "linear",
             "rolloffFactor": 1,
             "refDistance": 20,
@@ -965,8 +875,136 @@
         }
       ],
       "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
-      "index": 12,
+      "index": 11,
       "name": "Audio"
+    },
+    "a0658472-0a3f-426f-9e52-7a5294c64077": {
+      "components": [
+        {
+          "name": "transform",
+          "props": {
+            "position": {
+              "x": 15,
+              "y": 9.5,
+              "z": -5
+            },
+            "rotation": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "scale": {
+              "x": 1,
+              "y": 1,
+              "z": 1
+            }
+          }
+        },
+        {
+          "name": "visible",
+          "props": {}
+        },
+        {
+          "name": "shadow",
+          "props": {
+            "cast": true,
+            "receive": true
+          }
+        },
+        {
+          "name": "portal",
+          "props": {
+            "location": "",
+            "linkedPortalId": "e2e5f8c7-26f2-44bb-8c74-5a7a828d9400",
+            "redirect": false,
+            "effectType": "None",
+            "previewType": "Spherical",
+            "previewImageURL": "__$project$__/default-project/sky-station-Portal--%20Sky%20Station%20Interior.png",
+            "spawnPosition": {
+              "x": 15,
+              "y": 8,
+              "z": -5
+            },
+            "spawnRotation": {
+              "x": 0,
+              "y": 0,
+              "z": 0,
+              "w": 1
+            }
+          }
+        },
+        {
+          "name": "trigger-volume",
+          "props": {}
+        }
+      ],
+      "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
+      "index": 12,
+      "name": "Portal - Sky Station Interior"
+    },
+    "e2e5f8c7-26f2-44bb-8c74-5a7a828d9400": {
+      "components": [
+        {
+          "name": "transform",
+          "props": {
+            "position": {
+              "x": -60,
+              "y": 3.5,
+              "z": 0
+            },
+            "rotation": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "scale": {
+              "x": 1,
+              "y": 1,
+              "z": 1
+            }
+          }
+        },
+        {
+          "name": "visible",
+          "props": {}
+        },
+        {
+          "name": "shadow",
+          "props": {
+            "cast": true,
+            "receive": true
+          }
+        },
+        {
+          "name": "portal",
+          "props": {
+            "location": "",
+            "linkedPortalId": "a0658472-0a3f-426f-9e52-7a5294c64077",
+            "redirect": false,
+            "effectType": "None",
+            "previewType": "Spherical",
+            "previewImageURL": "__$project$__/default-project/sky-station-Portal--%20Sky%20Station%20Exterior.png",
+            "spawnPosition": {
+              "x": -60,
+              "y": 2,
+              "z": 0
+            },
+            "spawnRotation": {
+              "x": 0,
+              "y": 0,
+              "z": 0,
+              "w": 1
+            }
+          }
+        },
+        {
+          "name": "trigger-volume",
+          "props": {}
+        }
+      ],
+      "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
+      "index": 13,
+      "name": "Portal - Sky Station Exterior"
     }
   },
   "root": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC"

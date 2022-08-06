@@ -40,6 +40,11 @@
   background: linear-gradient(90deg, var(--buttonGradientStart), var(--buttonGradientEnd));
   color: var(--buttonTextColor) !important;
 
+  @media (max-width: 588px) {
+    margin-left: 0;
+    margin-right: 8px;
+  }
+
   &:hover {
     opacity: 0.8;
   }

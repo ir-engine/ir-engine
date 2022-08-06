@@ -42,7 +42,7 @@ export class ProjectPermission<T = ProjectPermissionsDataType> extends Service {
 
   async find(params?: Params): Promise<T[] | Paginated<T>> {
     const loggedInUser = params!.user
-    if (loggedInUser?.userRole === 'admin') return super.find(params)
+    if (loggedInUser?.scopes.find((scope) => scope.type === 'admin:admin')) return super.find(params)
     if (params?.query?.projectId) {
       const permissionStatus = await super.Model.findOne({
         where: {
@@ -61,7 +61,7 @@ export class ProjectPermission<T = ProjectPermissionsDataType> extends Service {
   async get(id: string, params?: Params): Promise<T> {
     const loggedInUser = params!.user
     const projectPermission = await super.get(id, params)
-    if (loggedInUser?.userRole === 'admin') return projectPermission
+    if (loggedInUser?.scopes.find((scope) => scope.type === 'admin:admin')) return projectPermission
     if (projectPermission.userId !== loggedInUser.id) throw new Forbidden('You do not own this project-permission')
     return projectPermission
   }
@@ -105,7 +105,7 @@ export class ProjectPermission<T = ProjectPermissionsDataType> extends Service {
         type:
           data.type === 'owner' ||
           existingPermissionsCount === 0 ||
-          (selfUser.userRole === 'admin' && selfUser.id === user.id)
+          (selfUser.scopes.find((scope) => scope.type === 'admin:admin') && selfUser.id === user.id)
             ? 'owner'
             : 'user'
       })
