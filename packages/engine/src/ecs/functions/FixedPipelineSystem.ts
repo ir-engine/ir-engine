@@ -50,9 +50,6 @@ export default function FixedPipelineSystem(world: World) {
     }
 
     if (updatesLimitReached || accumulator > maxTimeDifference) {
-      logger.warn(
-        'FixedPipelineSystem: update limit reached, skipping world.fixedElapsedTime ahead to catch up with world.elapsedTime'
-      )
       engineState.fixedTick.set(Math.floor(engineState.elapsedSeconds.value / timestep))
       engineState.fixedElapsedSeconds.set(engineState.fixedTick.value * timestep)
     }
