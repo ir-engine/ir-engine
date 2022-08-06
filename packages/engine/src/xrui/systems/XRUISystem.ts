@@ -151,7 +151,7 @@ export default async function XRUISystem(world: World) {
     }
 
     for (const entity of xruiQuery.exit()) {
-      const layer = getComponent(entity, XRUIComponent).container
+      const layer = getComponent(entity, XRUIComponent, true).container
       layer.destroy()
     }
 
