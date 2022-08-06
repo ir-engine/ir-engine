@@ -16,6 +16,9 @@ export type AvatarAnimationComponentType = {
 
   /** ratio between original and target skeleton's root.position.y */
   rootYRatio: number
+
+  /** The input vector for 2D locomotion blending space */
+  locomotion: Vector3
 }
 
 export const AvatarAnimationComponent = createMappedComponent<AvatarAnimationComponentType>('AvatarAnimationComponent')

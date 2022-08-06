@@ -1,24 +1,38 @@
 import { Matrix4, Quaternion, Vector3 } from 'three'
 
-import { addActionReceptor } from '@xrengine/hyperflux'
+import { addActionReceptor, dispatchAction, getState } from '@xrengine/hyperflux'
 
+import { FollowCameraComponent, FollowCameraDefaultValues } from '../camera/components/FollowCameraComponent'
 import { V_000, V_001, V_010 } from '../common/constants/MathConstants'
 import { Engine } from '../ecs/classes/Engine'
+import { EngineState } from '../ecs/classes/EngineState'
 import { Entity } from '../ecs/classes/Entity'
 import { World } from '../ecs/classes/World'
-import { defineQuery, getComponent, hasComponent } from '../ecs/functions/ComponentFunctions'
+import {
+  defineQuery,
+  getComponent,
+  hasComponent,
+  removeComponent,
+  setComponent
+} from '../ecs/functions/ComponentFunctions'
+import { createEntity } from '../ecs/functions/EntityFunctions'
 import { LocalInputTagComponent } from '../input/components/LocalInputTagComponent'
 import { BaseInput } from '../input/enums/BaseInput'
 import { AvatarMovementScheme } from '../input/enums/InputEnums'
 import { XRAxes } from '../input/enums/InputEnums'
-import { TransformComponent } from '../transform/components/TransformComponent'
-import { XRInputSourceComponent } from '../xr/components/XRInputSourceComponent'
+import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
+import { VelocityComponent } from '../physics/components/VelocityComponent'
+import { PersistTagComponent } from '../scene/components/PersistTagComponent'
+import { setComputedTransformComponent } from '../transform/components/ComputedTransformComponent'
+import { setTransformComponent, TransformComponent } from '../transform/components/TransformComponent'
+import { XRInputSourceComponent } from '../xr/XRComponents'
 import { AvatarInputSchema } from './AvatarInputSchema'
+import { AvatarComponent } from './components/AvatarComponent'
 import { AvatarControllerComponent } from './components/AvatarControllerComponent'
 import { AvatarHeadDecapComponent } from './components/AvatarHeadDecapComponent'
 import {
   alignXRCameraWithAvatar,
-  moveAvatar,
+  moveLocalAvatar,
   moveXRAvatar,
   rotateXRAvatar,
   xrCameraNeedsAlignment
@@ -26,6 +40,9 @@ import {
 import { respawnAvatar } from './functions/respawnAvatar'
 import { accessAvatarInputSettingsState, AvatarInputSettingsReceptor } from './state/AvatarInputSettingsState'
 
+/**
+ * TODO: convert this to hyperflux state
+ */
 export class AvatarSettings {
   static instance: AvatarSettings = new AvatarSettings()
   // Speeds are same as animation's root motion
@@ -35,56 +52,84 @@ export class AvatarSettings {
   movementScheme = AvatarMovementScheme.Linear
 }
 
-const displacementXZ = new Vector3(),
-  invOrientation = new Quaternion(),
-  rotMatrix = new Matrix4(),
-  targetOrientation = new Quaternion()
+const rotMatrix = new Matrix4()
+const targetOrientation = new Quaternion()
+const finalOrientation = new Quaternion()
 
 export default async function AvatarControllerSystem(world: World) {
+  const localControllerQuery = defineQuery([AvatarControllerComponent, LocalInputTagComponent])
   const controllerQuery = defineQuery([AvatarControllerComponent])
-  const localXRInputQuery = defineQuery([
-    LocalInputTagComponent,
-    XRInputSourceComponent,
-    AvatarControllerComponent,
-    TransformComponent
-  ])
+
+  // const localXRInputQuery = defineQuery([
+  //   LocalInputTagComponent,
+  //   XRInputSourceComponent,
+  //   AvatarControllerComponent,
+  //   TransformComponent
+  // ])
 
   addActionReceptor(AvatarInputSettingsReceptor)
 
-  const lastCamPos = new Vector3(),
-    displacement = new Vector3()
-  let isLocalXRCameraReady = false
+  // const lastCamPos = new Vector3(),
+  //   displacement = new Vector3()
+  // let isLocalXRCameraReady = false
 
   return () => {
-    for (const entity of controllerQuery.exit(world)) {
-      avatarControllerExit(entity, world)
-    }
+    for (const avatarEntity of localControllerQuery.enter()) {
+      const controller = getComponent(avatarEntity, AvatarControllerComponent)
 
-    for (const entity of localXRInputQuery.enter(world)) {
-      isLocalXRCameraReady = false
-    }
-
-    for (const entity of localXRInputQuery(world)) {
-      const { camera } = Engine.instance.currentWorld
-
-      if (displacement.lengthSq() > 0 || xrCameraNeedsAlignment(entity, camera)) {
-        alignXRCameraWithAvatar(entity, camera, lastCamPos)
-        continue
+      let targetEntity = avatarEntity
+      if (hasComponent(avatarEntity, AvatarComponent)) {
+        const avatarComponent = getComponent(avatarEntity, AvatarComponent)
+        targetEntity = createEntity()
+        setComponent(targetEntity, PersistTagComponent, true)
+        setTransformComponent(targetEntity)
+        setComputedTransformComponent(targetEntity, avatarEntity, () => {
+          const avatarTransform = getComponent(avatarEntity, TransformComponent)
+          const targetTransform = getComponent(targetEntity, TransformComponent)
+          targetTransform.position.copy(avatarTransform.position).y += avatarComponent.avatarHeight * 0.95
+        })
       }
 
-      if (!isLocalXRCameraReady) {
-        alignXRInputContainerYawWithAvatar(entity)
-        isLocalXRCameraReady = true
-      }
+      setComponent(controller.cameraEntity, FollowCameraComponent, {
+        ...FollowCameraDefaultValues,
+        targetEntity
+      })
 
-      moveXRAvatar(world, entity, Engine.instance.currentWorld.camera, lastCamPos)
-      rotateXRAvatar(world, entity, Engine.instance.currentWorld.camera)
+      dispatchAction(WorldNetworkAction.spawnCamera({}))
     }
 
-    for (const entity of controllerQuery(world)) {
+    for (const entity of controllerQuery()) {
       const controller = getComponent(entity, AvatarControllerComponent)
-      if (!controller.movementEnabled) continue
-      controllerQueryUpdate(entity, displacement, world)
+      const followCamera = getComponent(controller.cameraEntity, FollowCameraComponent)
+      // todo calculate head size and use that as the bound
+      if (followCamera.distance < 0.6) setComponent(entity, AvatarHeadDecapComponent, true)
+      else removeComponent(entity, AvatarHeadDecapComponent)
+    }
+
+    // for (const entity of localXRInputQuery.enter(world)) {
+    //   isLocalXRCameraReady = false
+    // }
+
+    // for (const entity of localXRInputQuery(world)) {
+    //   const { camera } = Engine.instance.currentWorld
+
+    //   if (displacement.lengthSq() > 0 || xrCameraNeedsAlignment(entity, camera)) {
+    //     alignXRCameraWithAvatar(entity, camera, lastCamPos)
+    //     continue
+    //   }
+
+    //   if (!isLocalXRCameraReady) {
+    //     alignXRInputContainerYawWithAvatar(entity)
+    //     isLocalXRCameraReady = true
+    //   }
+
+    //   moveXRAvatar(world, entity, Engine.instance.currentWorld.camera, lastCamPos)
+    //   rotateXRAvatar(world, entity, Engine.instance.currentWorld.camera)
+    // }
+
+    const controller = getComponent(Engine.instance.currentWorld.localClientEntity, AvatarControllerComponent)
+    if (controller?.movementEnabled) {
+      moveLocalAvatar(Engine.instance.currentWorld.localClientEntity)
     }
 
     return world
@@ -99,60 +144,42 @@ const alignXRInputContainerYawWithAvatar = (entity: Entity) => {
   inputSource.container.quaternion.setFromUnitVectors(V_001, dir)
 }
 
-export const updateAvatarTransformPosition = (entity: Entity) => {
-  const transform = getComponent(entity, TransformComponent)
-  const controller = getComponent(entity, AvatarControllerComponent)
-  const pose = controller.controller.translation()
-  transform.position.set(pose.x, pose.y, pose.z)
-}
-
 const _cameraDirection = new Vector3()
 const _mat = new Matrix4()
-const _desiredRotation = new Quaternion()
-export const rotateTowardsCameraDirection = (entity: Entity) => {
-  const world = Engine.instance.currentWorld
-  const avatarTransform = getComponent(entity, TransformComponent)
+
+export const rotateBodyTowardsCameraDirection = (entity: Entity) => {
+  const fixedDeltaSeconds = getState(EngineState).fixedDeltaSeconds.value
+  const controller = getComponent(entity, AvatarControllerComponent)
+
   const cameraRotation = getComponent(Engine.instance.currentWorld.cameraEntity, TransformComponent).rotation
-  const direction = _cameraDirection.set(0, 0, 1).applyQuaternion(cameraRotation)
-  direction.y = 0
-  _desiredRotation.setFromRotationMatrix(_mat.lookAt(V_000, direction, V_010))
-  avatarTransform.rotation.slerp(_desiredRotation, Math.max(world.deltaSeconds * 2, 3 / 60))
+  const direction = _cameraDirection.set(0, 0, 1).applyQuaternion(cameraRotation).setComponent(1, 0)
+  targetOrientation.setFromRotationMatrix(_mat.lookAt(V_000, direction, V_010))
+
+  finalOrientation.copy(controller.body.rotation() as Quaternion)
+  finalOrientation.slerp(
+    targetOrientation,
+    Math.max(Engine.instance.currentWorld.deltaSeconds * 2, 3 * fixedDeltaSeconds)
+  )
+  controller.body.setRotation(finalOrientation, true)
 }
 
-export const rotateTowardsDisplacementVector = (entity: Entity, displacement: Vector3, world: World) => {
-  const transform = getComponent(entity, TransformComponent)
+const _velXZ = new Vector3()
+export const rotateBodyTowardsVector = (entity: Entity, vector: Vector3) => {
+  const fixedDeltaSeconds = getState(EngineState).fixedDeltaSeconds.value
+  const controller = getComponent(entity, AvatarControllerComponent)
 
-  displacementXZ.set(displacement.x, 0, displacement.z)
-  displacementXZ.applyQuaternion(invOrientation.copy(transform.rotation).invert())
+  _velXZ.set(vector.x, 0, vector.z)
+  if (_velXZ.lengthSq() <= 0.01) return
 
-  if (displacementXZ.lengthSq() <= 0) return
-
-  rotMatrix.lookAt(displacementXZ, V_000, V_010)
+  rotMatrix.lookAt(_velXZ, V_000, V_010)
   targetOrientation.setFromRotationMatrix(rotMatrix)
-  transform.rotation.slerp(targetOrientation, Math.max(world.deltaSeconds * 2, 3 / 60))
-}
 
-export const controllerQueryUpdate = (
-  entity: Entity,
-  displacement: Vector3,
-  world: World = Engine.instance.currentWorld
-) => {
-  if (hasComponent(entity, AvatarHeadDecapComponent)) rotateTowardsCameraDirection(entity)
-  else rotateTowardsDisplacementVector(entity, displacement, world)
-
-  const displace = moveAvatar(world, entity, Engine.instance.currentWorld.camera)
-  displacement.set(displace.x, displace.y, displace.z)
-
-  updateAvatarTransformPosition(entity)
-
-  const transform = getComponent(entity, TransformComponent)
-  // TODO: implement scene lower bounds parameter
-  if (transform.position.y < -10) respawnAvatar(entity)
-}
-
-export const avatarControllerExit = (entity: Entity, world: World = Engine.instance.currentWorld) => {
-  const controller = getComponent(entity, AvatarControllerComponent, true)
-  if (controller?.controller) world.physicsWorld.removeRigidBody(controller.controller)
+  finalOrientation.copy(controller.body.rotation() as Quaternion)
+  finalOrientation.slerp(
+    targetOrientation,
+    Math.max(Engine.instance.currentWorld.deltaSeconds * 2, 3 * fixedDeltaSeconds)
+  )
+  controller.body.setRotation(finalOrientation, true)
 }
 
 export const updateMap = () => {

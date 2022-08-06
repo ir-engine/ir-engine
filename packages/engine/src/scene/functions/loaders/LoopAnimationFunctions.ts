@@ -79,7 +79,8 @@ export const updateLoopAnimation: ComponentUpdateFunction = (entity: Entity): vo
           },
           rig: {} as BoneStructure,
           bindRig: {} as BoneStructure,
-          rootYRatio: 1
+          rootYRatio: 1,
+          locomotion: new Vector3()
         })
         addComponent(entity, VelocityComponent, { linear: new Vector3(), angular: new Vector3() })
       }

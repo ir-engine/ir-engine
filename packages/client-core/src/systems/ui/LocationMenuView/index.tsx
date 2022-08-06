@@ -1,4 +1,4 @@
-import { createState } from '@hookstate/core'
+import { createState, useState } from '@hookstate/core'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -6,10 +6,12 @@ import { VrIcon } from '@xrengine/client-core/src/common/components/Icons/Vricon
 import { respawnAvatar } from '@xrengine/engine/src/avatar/functions/respawnAvatar'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineActions, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
+import { XRAction } from '@xrengine/engine/src/xr/XRAction'
+import { XRState } from '@xrengine/engine/src/xr/XRState'
 import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
 import { WidgetAppService } from '@xrengine/engine/src/xrui/WidgetAppService'
 import { WidgetName } from '@xrengine/engine/src/xrui/Widgets'
-import { dispatchAction } from '@xrengine/hyperflux'
+import { dispatchAction, getState } from '@xrengine/hyperflux'
 
 import { AdminPanelSettings, Help, Refresh, Report, ScreenshotMonitor } from '@mui/icons-material'
 
@@ -28,13 +30,13 @@ function createLocationMenuState() {
 
 const LocationMenuView = () => {
   const { t } = useTranslation()
-  const engineState = useEngineState()
+  const xrState = useState(getState(XRState))
 
   const isAdmin = useAuthState().user?.scopes?.value?.find((scope) => scope.type === 'admin:admin')
 
   const handleStartXRSession = () => {
-    if (!engineState.xrSessionStarted.value) {
-      dispatchAction(EngineActions.xrStart({}))
+    if (!xrState.sessionActive.value) {
+      dispatchAction(XRAction.requestSession({}))
     }
   }
 
@@ -67,7 +69,7 @@ const LocationMenuView = () => {
       <style>{styleString}</style>
       <div className="container" xr-layer="true">
         <h3 className="heading">{t('user:usermenu.location.containerHeading')}</h3>
-        {!engineState.xrSessionStarted.value && (
+        {!xrState.sessionActive.value && (
           <XRTextButton onClick={handleStartXRSession}>
             <VrIcon />
             {t('user:usermenu.location.btn-immersive')}

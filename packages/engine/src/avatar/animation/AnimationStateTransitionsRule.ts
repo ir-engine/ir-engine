@@ -1,4 +1,4 @@
-import { AnimationAction, Vector3 } from 'three'
+import { AnimationAction, Vector2, Vector3 } from 'three'
 
 export type AnimationStateTransitionRule = () => boolean
 
@@ -21,7 +21,7 @@ export function animationTimeTransitionRule(
 }
 
 export function vectorLengthTransitionRule(
-  value: Vector3,
+  value: Vector3 | Vector2,
   threshold: number,
   lowerThan: boolean = false,
   exact: boolean = false

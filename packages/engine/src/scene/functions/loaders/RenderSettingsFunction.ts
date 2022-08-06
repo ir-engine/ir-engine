@@ -62,6 +62,7 @@ export const updateRenderSetting: ComponentUpdateFunction = (
 
       updateShadowMap(component.shadowMapType > -1, component.shadowMapType)
 
+      // TODO: may need to update to the CSM maintained in threejs
       if (component.csm) enableCSM()
       else disposeCSM()
     } else {

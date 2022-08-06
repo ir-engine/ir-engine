@@ -80,7 +80,7 @@ describe('BoxColliderFunctions', () => {
       deserializeBoxCollider(entity, sceneComponent)
       updateBoxCollider(entity, { isTrigger: true })
 
-      const body = getComponent(entity, RigidBodyComponent)
+      const body = getComponent(entity, RigidBodyComponent).body
       const transform = getComponent(entity, TransformComponent)
       assert(vector3EqualsEpsilon(body.translation() as Vector3, transform.position))
       assert(quaternionEqualsEpsilon(body.rotation() as Quaternion, transform.rotation))
