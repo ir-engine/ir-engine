@@ -4,6 +4,7 @@ import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
 
 export type VideoComponentType = {
   elementId: string
+  maintainAspectRatio: boolean
   hls?: Hls
 }
 
