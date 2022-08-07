@@ -169,7 +169,7 @@ export const rotateBodyTowardsVector = (entity: Entity, vector: Vector3) => {
   const controller = getComponent(entity, AvatarControllerComponent)
 
   _velXZ.set(vector.x, 0, vector.z)
-  if (_velXZ.lengthSq() <= 0.01) return
+  if (_velXZ.length() <= 0.001) return
 
   rotMatrix.lookAt(_velXZ, V_000, V_010)
   targetOrientation.setFromRotationMatrix(rotMatrix)

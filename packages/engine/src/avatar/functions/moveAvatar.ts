@@ -98,9 +98,8 @@ export const moveLocalAvatar = (entity: Entity) => {
     rotateBodyTowardsCameraDirection(entity)
   } else {
     const displacement = tempVec1
-      .subVectors(transform.position, rigidBody.previousPosition)
+      .subVectors(rigidBody.body.translation() as Vector3, rigidBody.previousPosition)
       .setComponent(1, 0)
-      .normalize()
     rotateBodyTowardsVector(entity, displacement)
   }
 
