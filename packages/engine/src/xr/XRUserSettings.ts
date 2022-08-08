@@ -1,11 +1,11 @@
 export enum XR_FOLLOW_MODE {
-  HEAD,
-  CONTROLLER
+  HEAD = 'HEAD',
+  CONTROLLER = 'CONTROLLER'
 }
 
 export enum XR_ROTATION_MODE {
-  ANGLED,
-  SMOOTH
+  ANGLED = 'ANGLED',
+  SMOOTH = 'SMOOTH'
 }
 
 export const XRUserSettings = {

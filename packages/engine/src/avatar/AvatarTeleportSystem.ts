@@ -20,7 +20,7 @@ import { World } from '../ecs/classes/World'
 import { addComponent, defineQuery, getComponent } from '../ecs/functions/ComponentFunctions'
 import { createEntity } from '../ecs/functions/EntityFunctions'
 import { Object3DComponent } from '../scene/components/Object3DComponent'
-import { XRInputSourceComponent } from '../xr/components/XRInputSourceComponent'
+import { XRInputSourceComponent } from '../xr/XRComponents'
 import { AvatarTeleportTagComponent } from './components/AvatarTeleportTagComponent'
 import { teleportAvatar } from './functions/moveAvatar'
 

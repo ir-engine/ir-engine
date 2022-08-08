@@ -1,24 +1,27 @@
 import {
   AdditiveBlending,
+  AnimationMixer,
   BoxGeometry,
   BufferAttribute,
+  Group,
+  LoopOnce,
   Mesh,
   MeshBasicMaterial,
   RingGeometry,
   SphereGeometry
 } from 'three'
 
-import { AssetLoader } from '../../assets/classes/AssetLoader'
-import { SkeletonUtils } from '../../avatar/SkeletonUtils'
-import { accessAvatarInputSettingsState } from '../../avatar/state/AvatarInputSettingsState'
-import { Entity } from '../../ecs/classes/Entity'
-import { getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
-import { AvatarControllerType } from '../../input/enums/InputEnums'
-import { NetworkObjectOwnedTag } from '../../networking/components/NetworkObjectOwnedTag'
-import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
-import { ControllerGroup, XRInputSourceComponent } from '../../xr/components/XRInputSourceComponent'
-import { XRHandMeshModel } from '../classes/XRHandMeshModel'
-import { initializeXRControllerAnimations } from './controllerAnimation'
+import { Engine } from '../ecs/classes/Engine'
+import { AssetLoader } from './../assets/classes/AssetLoader'
+import { SkeletonUtils } from './../avatar/SkeletonUtils'
+import { accessAvatarInputSettingsState } from './../avatar/state/AvatarInputSettingsState'
+import { Entity } from './../ecs/classes/Entity'
+import { getComponent, hasComponent } from './../ecs/functions/ComponentFunctions'
+import { AvatarControllerType } from './../input/enums/InputEnums'
+import { NetworkObjectOwnedTag } from './../networking/components/NetworkObjectOwnedTag'
+import { EngineRenderer } from './../renderer/WebGLRendererSystem'
+import { ControllerGroup, XRInputSourceComponent, XRInputSourceComponentType } from './XRComponents'
+import { XRHandMeshModel } from './XRHandMeshModel'
 
 const createUICursor = () => {
   const geometry = new SphereGeometry(0.01, 16, 16)
@@ -181,4 +184,53 @@ const createController = (inputSource: XRInputSource) => {
       material = new MeshBasicMaterial({ opacity: 0.5, transparent: true })
       return new Mesh(geometry, material)
   }
+}
+
+export const updateXRControllerAnimations = (inputSource: XRInputSourceComponentType) => {
+  const world = Engine.instance.currentWorld
+  const mixers = [inputSource.controllerGripLeft.userData.mixer, inputSource.controllerGripRight.userData.mixer]
+
+  for (const mixer of mixers) {
+    if (!mixer) continue
+    mixer.update(world.deltaSeconds)
+  }
+}
+
+export const initializeXRControllerAnimations = (controller: Group) => {
+  if (!controller.userData?.animations) return
+  const animations = controller.userData.animations
+  const mixer = new AnimationMixer(controller.userData.mesh)
+  const fistAction = mixer.clipAction(animations[0])
+  fistAction.loop = LoopOnce
+  fistAction.clampWhenFinished = true
+  controller.userData.mixer = mixer
+  controller.userData.actions = [fistAction]
+}
+
+const playTriggerAction = (action, timeScale) => {
+  const time = action.time
+  action.reset()
+  action.time = time
+  action.timeScale = timeScale
+  action.play()
+}
+
+/**
+ * Make a fist on controller's trigger button press
+ * @param controller XR controller grip
+ */
+export const playTriggerPressAnimation = (controller: Group): void => {
+  if (!controller.userData.actions) return
+  const fistAction = controller.userData.actions[0]
+  playTriggerAction(fistAction, 1)
+}
+
+/**
+ * Go back to normal pose on controllers trigger button release
+ * @param controller XR controller grip
+ */
+export const playTriggerReleaseAnimation = (controller: Group) => {
+  if (!controller.userData.actions) return
+  const fistAction = controller.userData.actions[0]
+  playTriggerAction(fistAction, -1)
 }

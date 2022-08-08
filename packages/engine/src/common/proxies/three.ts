@@ -4,7 +4,10 @@ import { Entity } from '../../ecs/classes/Entity'
 
 const { defineProperties } = Object
 
-export const proxifyVector3 = (store, entity: Entity, vector3): Vector3 => {
+type Vector3Store = { x: Float32Array; y: Float32Array; z: Float32Array }
+type QuaternionStore = { x: Float32Array; y: Float32Array; z: Float32Array; w: Float32Array }
+
+export const proxifyVector3 = (store: Vector3Store, entity: Entity, dirty: Set<Entity>, vector3: Vector3): Vector3 => {
   // Set the initial values
   store.x[entity] = vector3.x
   store.y[entity] = vector3.y
@@ -17,6 +20,7 @@ export const proxifyVector3 = (store, entity: Entity, vector3): Vector3 => {
         return this._store.x[this._eid]
       },
       set(n) {
+        dirty.add(this._eid)
         return (this._store.x[this._eid] = n)
       }
     },
@@ -25,6 +29,7 @@ export const proxifyVector3 = (store, entity: Entity, vector3): Vector3 => {
         return this._store.y[this._eid]
       },
       set(n) {
+        dirty.add(this._eid)
         return (this._store.y[this._eid] = n)
       }
     },
@@ -33,15 +38,22 @@ export const proxifyVector3 = (store, entity: Entity, vector3): Vector3 => {
         return this._store.z[this._eid]
       },
       set(n) {
+        dirty.add(this._eid)
         return (this._store.z[this._eid] = n)
       }
     }
   })
 }
 
-export const createVector3Proxy = (store, entity: Entity) => proxifyVector3(store, entity, new Vector3())
+export const createVector3Proxy = (store: Vector3Store, entity: Entity, dirty: Set<Entity> = new Set()) =>
+  proxifyVector3(store, entity, dirty, new Vector3())
 
-export const proxifyQuaternion = (store, entity: Entity, quaternion: Quaternion): Quaternion => {
+export const proxifyQuaternion = (
+  store: QuaternionStore,
+  entity: Entity,
+  dirty: Set<Entity>,
+  quaternion: Quaternion
+): Quaternion => {
   // Set the initial values
   store.x[entity] = quaternion.x
   store.y[entity] = quaternion.y
@@ -55,6 +67,7 @@ export const proxifyQuaternion = (store, entity: Entity, quaternion: Quaternion)
         return this._store.x[this._eid]
       },
       set(n) {
+        dirty.add(this._eid)
         return (this._store.x[this._eid] = n)
       }
     },
@@ -63,6 +76,7 @@ export const proxifyQuaternion = (store, entity: Entity, quaternion: Quaternion)
         return this._store.y[this._eid]
       },
       set(n) {
+        dirty.add(this._eid)
         return (this._store.y[this._eid] = n)
       }
     },
@@ -71,6 +85,7 @@ export const proxifyQuaternion = (store, entity: Entity, quaternion: Quaternion)
         return this._store.z[this._eid]
       },
       set(n) {
+        dirty.add(this._eid)
         return (this._store.z[this._eid] = n)
       }
     },
@@ -79,11 +94,15 @@ export const proxifyQuaternion = (store, entity: Entity, quaternion: Quaternion)
         return this._store.w[this._eid]
       },
       set(n) {
+        dirty.add(this._eid)
         return (this._store.w[this._eid] = n)
       }
     }
   })
 }
 
-export const createQuaternionProxy = (store, entity: Entity): Quaternion =>
-  proxifyQuaternion(store, entity, new Quaternion())
+export const createQuaternionProxy = (
+  store: QuaternionStore,
+  entity: Entity,
+  dirty: Set<Entity> = new Set()
+): Quaternion => proxifyQuaternion(store, entity, dirty, new Quaternion())

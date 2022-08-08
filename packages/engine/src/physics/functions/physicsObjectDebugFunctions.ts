@@ -171,7 +171,7 @@ export const generatePhysicsObject = (
   const transform = getComponent(entity, TransformComponent)
   transform.position.copy(spawnPosition)
 
-  const body = getComponent(entity, RigidBodyComponent)
+  const body = getComponent(entity, RigidBodyComponent).body
   body.setTranslation(transform.position, true)
 
   if (isNetworkObject && world.worldNetwork.isHosting) {

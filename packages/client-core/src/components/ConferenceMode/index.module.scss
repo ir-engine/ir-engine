@@ -58,6 +58,7 @@
     video {
       width: 100%;
       height: 100%;
+      object-fit: cover;
     }
 
     &:hover {
@@ -96,6 +97,11 @@
     @media (max-width: 568px) {
       height: 60px;
       width: 60px;
+    }
+
+    @media (max-width: 768px) {
+      height: 100px;
+      width: auto;
     }
   }
 
@@ -171,13 +177,14 @@
     .mute-controls {
       display: flex;
       margin: auto;
-      justify-content: space-between;
+      justify-content: center;
     }
 
     .right-controls {
       display: flex;
       flex-direction: column;
       justify-content: space-between;
+      align-items: center;
       margin: 0 5px;
 
       & > .spacer {
@@ -197,6 +204,7 @@
 
       @media (max-width: 768px) {
         margin: 0;
+        padding: 8px;
         border-radius: 50px;
         display: flex;
         justify-content: center;
@@ -262,11 +270,10 @@
     flex-direction: column;
 
     .user-controls {
-      display: flex;
+      display: none;
       width: 100%;
       margin: -10px auto 0;
       z-index: 1500;
-      height: 0;
     }
 
     &:focus,
@@ -274,32 +281,31 @@
       .video-wrapper {
         width: 150px;
         height: 150px;
+        border-radius: 0;
       }
 
       .user-controls {
+        display: flex;
         padding: 20px 10px 10px;
-        height: auto;
       }
     }
   }
 
   &.pip {
     display: flex;
+    flex-direction: column;
     width: 100%;
     height: 100%;
 
     .video-wrapper {
+      flex: 1;
       width: 100%;
-      height: 100%;
       border-radius: 0;
     }
 
     .user-controls {
       display: flex;
-      position: absolute;
       width: 100% !important;
-      bottom: 0;
-      left: 0;
       margin: 0;
       z-index: 1500 !important;
       border-radius: 0;
@@ -310,6 +316,7 @@
         display: flex;
         flex-direction: row;
         justify-content: space-between;
+        align-items: center;
         margin-left: 5px;
 
         .audio-slider {

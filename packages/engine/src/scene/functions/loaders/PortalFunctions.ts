@@ -20,7 +20,7 @@ import { addComponent, ComponentType, getComponent } from '../../../ecs/function
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
 import { WorldNetworkAction } from '../../../networking/functions/WorldNetworkAction'
 import { EngineRenderer } from '../../../renderer/WebGLRendererSystem'
-import { TransformComponent } from '../../../transform/components/TransformComponent'
+import { setTransformComponent, TransformComponent } from '../../../transform/components/TransformComponent'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { NameComponent } from '../../components/NameComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
@@ -66,11 +66,9 @@ export const deserializePortal: ComponentDeserializeFunction = (
   const spawnHelperEntity = createEntity()
   portalComponent.helper = spawnHelperEntity
 
-  addComponent(spawnHelperEntity, TransformComponent, {
-    position: props.spawnPosition,
-    rotation: props.spawnRotation,
-    scale: new Vector3(1, 1, 1)
-  })
+  const transform = setTransformComponent(spawnHelperEntity)
+  transform.position.copy(props.spawnPosition)
+  transform.rotation.copy(props.spawnRotation)
   const spawnHelperMesh = new Mesh(
     new CylinderGeometry(0.25, 0.25, 0.1, 6, 1, false, (30 * Math.PI) / 180),
     new MeshBasicMaterial({ color: 0x2b59c3 })
@@ -151,8 +149,8 @@ export const revertAvatarToMovingStateFromTeleport = (world: World) => {
   controller.movementEnabled = true
 
   // teleport player to where the portal spawn position is
-  controller.controller.setTranslation(world.activePortal!.remoteSpawnPosition, true)
-  controller.controller.setRotation(world.activePortal!.remoteSpawnRotation, true)
+  controller.body.setTranslation(world.activePortal!.remoteSpawnPosition, true)
+  controller.body.setRotation(world.activePortal!.remoteSpawnRotation, true)
 
   world.activePortal = null
   dispatchAction(EngineActions.setTeleporting({ isTeleporting: false, $time: Date.now() + 500 }))

@@ -137,9 +137,9 @@ const App = (): any => {
     updateTheme()
   }, [clientThemeSettings])
 
-  const updateTheme = () => {
-    const currentTheme = getCurrentTheme(selfUser?.user_setting?.value?.themeModes)
+  const currentTheme = getCurrentTheme(selfUser?.user_setting?.value?.themeModes)
 
+  const updateTheme = () => {
     if (clientThemeSettings) {
       if (clientThemeSettings?.[currentTheme]) {
         for (let variable of Object.keys(clientThemeSettings[currentTheme])) {
@@ -160,6 +160,7 @@ const App = (): any => {
           name="viewport"
           content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no"
         />
+        <meta name="theme-color" content={clientThemeSettings?.[currentTheme]?.mainBackground || '#FFFFFF'} />
         {description && <meta name="description" content={description}></meta>}
         {favicon16 && <link rel="icon" type="image/png" sizes="16x16" href={favicon16} />}
         {favicon32 && <link rel="icon" type="image/png" sizes="32x32" href={favicon32} />}

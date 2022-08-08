@@ -3,7 +3,7 @@ import { Box3, Object3D } from 'three'
 
 import { AssetLoader } from '../assets/classes/AssetLoader'
 import { World } from '../ecs/classes/World'
-import { addComponent, defineQuery, getComponent, removeComponent } from '../ecs/functions/ComponentFunctions'
+import { defineQuery, getComponent, removeComponent, setComponent } from '../ecs/functions/ComponentFunctions'
 import { Object3DComponent } from '../scene/components/Object3DComponent'
 import { TweenComponent } from '../transform/components/TweenComponent'
 import { AvatarComponent } from './components/AvatarComponent'
@@ -64,7 +64,7 @@ export default async function AvatarLoadingSystem(world: World) {
       object.add(pt)
       pt.rotation.x = -0.5 * Math.PI
 
-      addComponent(entity, TweenComponent, {
+      setComponent(entity, TweenComponent, {
         tween: new Tween<any>(plateComponent)
           .to(
             {
@@ -83,7 +83,7 @@ export default async function AvatarLoadingSystem(world: World) {
             if (object.userData?.scale) {
               scale = object.userData.scale
             }
-            addComponent(entity, AvatarDissolveComponent, {
+            setComponent(entity, AvatarDissolveComponent, {
               effect: new DissolveEffect(object, bbox.min.y / scale, bbox.max.y / scale)
             })
           })
@@ -156,7 +156,7 @@ export default async function AvatarLoadingSystem(world: World) {
           })
         })
 
-        addComponent(entity, TweenComponent, {
+        setComponent(entity, TweenComponent, {
           tween: new Tween<any>(plateComponent)
             .to(
               {

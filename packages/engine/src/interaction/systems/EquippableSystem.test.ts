@@ -12,7 +12,7 @@ import { NetworkObjectComponent } from '../../networking/components/NetworkObjec
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { Physics } from '../../physics/classes/Physics'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { getHandTransform } from '../../xr/functions/WebXRFunctions'
+import { getHandTransform } from '../../xr/XRFunctions'
 import { EquippedComponent } from '../components/EquippedComponent'
 import { EquipperComponent } from '../components/EquipperComponent'
 import { EquippableAttachmentPoint } from '../enums/EquippedEnums'

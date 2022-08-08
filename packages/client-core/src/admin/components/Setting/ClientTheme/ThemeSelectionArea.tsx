@@ -1,8 +1,8 @@
-import _ from 'lodash'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { ThemeMode } from '@xrengine/common/src/interfaces/ClientSetting'
+import capitalizeFirstLetter from '@xrengine/common/src/utils/capitalizeFirstLetter'
 
 import { Grid, Typography } from '@mui/material'
 
@@ -20,7 +20,7 @@ const ThemeSelectionArea = ({ themeModes, colorModes, onChangeThemeMode }: Theme
 
   const colorModesMenu: InputMenuItem[] = colorModes.map((el) => {
     return {
-      label: _.upperFirst(el),
+      label: capitalizeFirstLetter(el),
       value: el
     }
   })

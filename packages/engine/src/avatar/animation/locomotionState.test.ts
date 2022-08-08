@@ -60,19 +60,20 @@ describe('enterLocomotionState', () => {
 
 describe('updateLocomotionStateBlendValues', () => {
   it('Will test blend values', () => {
-    const velocity = new Vector3(1, 1, 1)
+    const locomotion = new Vector3(1, 1, 1)
 
     const state = {
-      movementParams: { velocity },
       blendValue: new Vector2(),
-      frameBlendValue: new Vector2()
+      frameBlendValue: new Vector2(),
+      locomotion
     }
 
-    updateLocomotionStateBlendValues(state as any, 2)
+    const delta = 0.6
+    updateLocomotionStateBlendValues(state as any, delta)
 
-    assert(Math.abs(60 - state.blendValue.x) < 0.001)
-    assert(Math.abs(60 - state.blendValue.y) < 0.001)
-    assert(Math.abs(120 - state.frameBlendValue.x) < 0.001)
-    assert(Math.abs(120 - state.frameBlendValue.y) < 0.001)
+    assert.equal(state.blendValue.x, locomotion.x)
+    assert.equal(state.blendValue.y, locomotion.z)
+    assert.equal(state.frameBlendValue.x, locomotion.x * delta)
+    assert.equal(state.frameBlendValue.y, locomotion.y * delta)
   })
 })

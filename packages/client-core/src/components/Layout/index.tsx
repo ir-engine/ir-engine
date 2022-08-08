@@ -14,6 +14,9 @@ import { respawnAvatar } from '@xrengine/engine/src/avatar/functions/respawnAvat
 import { isTouchAvailable } from '@xrengine/engine/src/common/functions/DetectFeatures'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
+import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
+import { XRState } from '@xrengine/engine/src/xr/XRState'
+import { getState, useHookstate } from '@xrengine/hyperflux'
 
 import { Close, FullscreenExit, Refresh, ZoomOutMap } from '@mui/icons-material'
 import GridViewIcon from '@mui/icons-material/GridView'
@@ -57,6 +60,8 @@ const Layout = ({ useLoadingScreenOpacity, pageTitle, children, hideVideo, hideF
   const loadingSystemState = useLoadingSystemState()
   const [showTouchPad, setShowTouchPad] = useState(true)
   const [conferenceMode, setConferenceMode] = useState(false)
+
+  const xrSessionActive = useHookstate(getState(XRState).sessionActive)
 
   const engineState = useEngineState()
 
@@ -247,13 +252,11 @@ const Layout = ({ useLoadingScreenOpacity, pageTitle, children, hideVideo, hideF
                   {!hideVideo && <UserMediaWindows className={styles.userMediaWindows} />}
                 </div>
 
-                {!engineState.xrSessionStarted.value && (
-                  <InstanceChat
-                    animate={styles.animateBottom}
-                    hideOtherMenus={hideOtherMenus}
-                    setShowTouchPad={setShowTouchPad}
-                  />
-                )}
+                <InstanceChat
+                  animate={styles.animateBottom}
+                  hideOtherMenus={hideOtherMenus}
+                  setShowTouchPad={setShowTouchPad}
+                />
               </div>
             </div>
           </>

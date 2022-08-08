@@ -1,13 +1,13 @@
 import assert from 'assert'
 import proxyquire from 'proxyquire'
 
-import { BinaryValue } from '../../common/enums/BinaryValue'
-import { LifecycleValue } from '../../common/enums/LifecycleValue'
-import { Engine } from '../../ecs/classes/Engine'
-import { createEngine } from '../../initializeEngine'
-import { GamepadButtons, XRAxes } from '../../input/enums/InputEnums'
-import { InputType } from '../../input/enums/InputType'
-import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
+import { BinaryValue } from '../common/enums/BinaryValue'
+import { LifecycleValue } from '../common/enums/LifecycleValue'
+import { Engine } from '../ecs/classes/Engine'
+import { createEngine } from '../initializeEngine'
+import { GamepadButtons, XRAxes } from '../input/enums/InputEnums'
+import { InputType } from '../input/enums/InputType'
+import { EngineRenderer } from '../renderer/WebGLRendererSystem'
 
 describe('XRSystem Tests', async () => {
   let xrSystem
@@ -26,7 +26,7 @@ describe('XRSystem Tests', async () => {
     } as any
 
     const { default: XRSystem } = proxyquire('./XRSystem', {
-      '../../assets/classes/AssetLoader': assetLoaderStub
+      '../assets/classes/AssetLoader': assetLoaderStub
     })
 
     xrSystem = await XRSystem(Engine.instance.currentWorld)
@@ -41,8 +41,13 @@ describe('XRSystem Tests', async () => {
       mapping: 'xr-standard',
       handedness: 'left'
     }
-    EngineRenderer.instance.xrManager = { isPresenting: true } as any
     Engine.instance.xrFrame = { session: { inputSources: [inputSource] } } as any
+    EngineRenderer.instance.xrManager = {
+      isPresenting: true,
+      getSession() {
+        return Engine.instance.xrFrame.session
+      }
+    } as any
 
     xrSystem()
 

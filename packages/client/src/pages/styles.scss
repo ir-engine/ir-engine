@@ -278,6 +278,7 @@ body {
   overflow: auto;
   color: var(--textColor);
   overscroll-behavior-y: contain;
+  background-color: var(--mainBackground);
 }
 
 .lander {
@@ -427,7 +428,7 @@ body {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: 40px;
+    padding: 5px;
     max-width: 1024px;
     margin: auto;
 

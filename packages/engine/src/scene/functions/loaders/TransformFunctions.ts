@@ -6,7 +6,11 @@ import { ComponentDeserializeFunction, ComponentSerializeFunction } from '../../
 import { createQuaternionProxy, createVector3Proxy } from '../../../common/proxies/three'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
-import { TransformComponent, TransformComponentType } from '../../../transform/components/TransformComponent'
+import {
+  setTransformComponent,
+  TransformComponent,
+  TransformComponentType
+} from '../../../transform/components/TransformComponent'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 
 export const SCENE_COMPONENT_TRANSFORM = 'transform'
@@ -25,11 +29,7 @@ export const deserializeTransform: ComponentDeserializeFunction = (
 ) => {
   const props = parseTransformProperties(json.props)
 
-  const position = createVector3Proxy(TransformComponent.position, entity)
-  const rotation = createQuaternionProxy(TransformComponent.rotation, entity)
-  const scale = createVector3Proxy(TransformComponent.scale, entity)
-
-  const transform = addComponent(entity, TransformComponent, { position, rotation, scale })
+  const transform = setTransformComponent(entity)
   transform.position.copy(props.position)
   transform.rotation.copy(props.rotation)
   transform.scale.copy(props.scale)
@@ -64,4 +64,20 @@ export const parseTransformProperties = (props: any): TransformComponentType => 
   result.rotation = new Quaternion().setFromEuler(euler.setFromVector3(v3.set(tempV3.x, tempV3.y, tempV3.z), 'XYZ'))
 
   return result
+}
+
+export const applyTransformPositionOffset = (
+  transform: TransformComponentType,
+  referenceTransform: TransformComponentType,
+  offsetPosition: Vector3
+): void => {
+  transform.position.copy(offsetPosition).applyQuaternion(referenceTransform.rotation).add(referenceTransform.position)
+}
+
+export const applyTransformRotationOffset = (
+  transform: TransformComponentType,
+  referenceTransform: TransformComponentType,
+  offsetRotation: Quaternion
+): void => {
+  transform.rotation.copy(referenceTransform.rotation).multiply(offsetRotation)
 }

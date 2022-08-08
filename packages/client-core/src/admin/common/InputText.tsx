@@ -1,6 +1,7 @@
-import _ from 'lodash'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
+
+import capitalizeFirstLetter from '@xrengine/common/src/utils/capitalizeFirstLetter'
 
 import { InputLabel, OutlinedInput } from '@mui/material'
 import Box from '@mui/material/Box'
@@ -55,13 +56,13 @@ const InputText = ({
         disabled={disabled}
         size="small"
       >
-        <InputLabel sx={{ zIndex: 999 }}>{_.upperFirst(label)}</InputLabel>
+        <InputLabel sx={{ zIndex: 999 }}>{capitalizeFirstLetter(label)}</InputLabel>
 
         <OutlinedInput
           name={name}
           type={type}
           placeholder={placeholder}
-          label={_.upperFirst(label)}
+          label={capitalizeFirstLetter(label)}
           value={value}
           error={error ? true : false}
           disabled={disabled}
