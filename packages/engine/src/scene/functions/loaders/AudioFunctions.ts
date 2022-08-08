@@ -162,7 +162,6 @@ export const updateAudioParameters = (entity: Entity) => {
   el.volume = audioComponent.volume
 
   const audioNode = AudioElementNodes.get(el)
-  console.log({ entity, audioNode })
 
   if (audioNode) {
     if (audioNode.panner) {

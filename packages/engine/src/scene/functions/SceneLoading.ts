@@ -163,13 +163,13 @@ export const loadSceneFromJSON = async (sceneData: SceneJson, sceneSystems: Syst
   // reset renderer settings for if we are teleporting and the new scene does not have an override
   resetEngineRenderer(true)
 
-  Object.keys(sceneData.entities).forEach((key) => {
+  for (const key of Object.keys(sceneData.entities)) {
     entityMap[key] = createEntityNode(createEntity(), key)
     const sceneEntity = sceneData.entities[key]
     const node = entityMap[key]
     addEntityNodeInTree(node, sceneEntity.parent ? entityMap[sceneEntity.parent] : undefined)
     loadSceneEntity(entityMap[key], sceneData.entities[key])
-  })
+  }
 
   dispatchAction(EngineActions.sceneObjectUpdate({ entities: Object.values(entityMap).map((node) => node.entity) }))
 
@@ -182,7 +182,7 @@ export const loadSceneFromJSON = async (sceneData: SceneJson, sceneSystems: Syst
   Engine.instance.currentWorld.camera?.layers.enable(ObjectLayers.Scene)
 
   // TODO: Have to wait because scene is not being fully loaded at this moment
-  await delay(200)
+  // await delay(200)
   dispatchAction(EngineActions.sceneLoaded({}))
   if (isClient) configureEffectComposer()
 }

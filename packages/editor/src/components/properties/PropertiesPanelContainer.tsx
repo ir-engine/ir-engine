@@ -2,10 +2,11 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 import styled from 'styled-components'
 
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { PersistTagComponent } from '@xrengine/engine/src/scene/components/PersistTagComponent'
 import { PreventBakeTagComponent } from '@xrengine/engine/src/scene/components/PreventBakeTagComponent'
+import { SceneDynamicLoadTagComponent } from '@xrengine/engine/src/scene/components/SceneDynamicLoadTagComponent'
 import { SceneTagComponent } from '@xrengine/engine/src/scene/components/SceneTagComponent'
 import { VisibleComponent } from '@xrengine/engine/src/scene/components/VisibleComponent'
 import { SCENE_COMPONENT_PERSIST } from '@xrengine/engine/src/scene/functions/loaders/PersistFunctions'
@@ -95,6 +96,19 @@ export const PropertiesPanelContainer = () => {
   // access state to detect the change
   selectionState.objectChangeCounter.value
 
+  const onChangeDynamicLoad = (value) => {
+    executeCommandWithHistoryOnSelection({
+      type: EditorCommands.TAG_COMPONENT,
+      operations: [
+        {
+          component: SceneDynamicLoadTagComponent,
+          sceneComponentName: SCENE_COMPONENT_VISIBLE,
+          type: value ? TagComponentOperation.ADD : TagComponentOperation.REMOVE
+        }
+      ]
+    })
+  }
+
   const onChangeVisible = (value) => {
     executeCommandWithHistoryOnSelection({
       type: EditorCommands.TAG_COMPONENT,
@@ -138,7 +152,7 @@ export const PropertiesPanelContainer = () => {
   let content
   const multiEdit = selectedEntities.length > 1
   const nodeEntity = selectedEntities[selectedEntities.length - 1]
-  const node = useWorld().entityTree.entityNodeMap.get(nodeEntity)
+  const node = Engine.instance.currentWorld.entityTree.entityNodeMap.get(nodeEntity)
 
   if (!nodeEntity || !node) {
     content = <NoNodeSelectedMessage>{t('editor:properties.noNodeSelected')}</NoNodeSelectedMessage>
@@ -156,6 +170,12 @@ export const PropertiesPanelContainer = () => {
             <NameInputGroup node={node} key={nodeEntity} />
             {!hasComponent(nodeEntity, SceneTagComponent) && (
               <>
+                <VisibleInputGroup name="Dynamic Load" label={t('editor:properties.lbl-dynamicLoad')}>
+                  <BooleanInput
+                    value={hasComponent(nodeEntity, SceneDynamicLoadTagComponent)}
+                    onChange={onChangeDynamicLoad}
+                  />
+                </VisibleInputGroup>
                 <VisibleInputGroup name="Visible" label={t('editor:properties.lbl-visible')}>
                   <BooleanInput value={hasComponent(nodeEntity, VisibleComponent)} onChange={onChangeVisible} />
                 </VisibleInputGroup>
