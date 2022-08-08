@@ -10,6 +10,7 @@ import {
   FILES_PAGE_LIMIT,
   useFileBrowserState
 } from '@xrengine/client-core/src/common/services/FileBrowserService'
+import { processFileName } from '@xrengine/common/src/utils/processFileName'
 import { ScenePrefabs } from '@xrengine/engine/src/scene/functions/registerPrefabs'
 import { addActionReceptor, removeActionReceptor } from '@xrengine/hyperflux'
 
@@ -192,7 +193,8 @@ const FileBrowserContentPanel: React.FC<FileBrowserContentPanelProps> = (props) 
           if (!file.type) {
             await FileBrowserService.addNewFolder(`${path}${file.name}`)
           } else {
-            await FileBrowserService.putContent(file.name, path, file as any, file.type)
+            const name = processFileName(file.name)
+            await FileBrowserService.putContent(name, path, file as any, file.type)
           }
         })
       )

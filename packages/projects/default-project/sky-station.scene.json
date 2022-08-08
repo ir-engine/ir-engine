@@ -998,7 +998,7 @@
           "props": {
             "volume": 1,
             "audioType": "Positional",
-            "isMusic": true,
+            "isMusic": false,
             "distanceModel": "inverse",
             "rolloffFactor": 2,
             "refDistance": 20,

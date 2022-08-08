@@ -2,6 +2,7 @@ import { Object3D } from 'three'
 
 import { API } from '@xrengine/client-core/src/API'
 import { uploadToFeathersService } from '@xrengine/client-core/src/util/upload'
+import { processFileName } from '@xrengine/common/src/utils/processFileName'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import {
@@ -103,7 +104,9 @@ const processEntry = async (item, projectName: string, directory: string, promis
   if (item.isFile) {
     const file = await getFile(item)
     const path = `projects/${projectName}/assets${directory}`
-    promises.push(fileBrowserUpload(file, { fileName: file.name, path, contentType: '' }, onProgress))
+    const name = processFileName(file.name)
+
+    promises.push(fileBrowserUpload(file, { fileName: name, path, contentType: '' }, onProgress))
   }
 }
 
