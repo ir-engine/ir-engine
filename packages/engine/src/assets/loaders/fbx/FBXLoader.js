@@ -89,10 +89,6 @@ class FBXLoader extends Loader {
 			try {
 
 				onLoad( scope.parse( buffer, path ) );
-				// cleanup memory
-				fbxTree = undefined
-				connections = undefined
-				sceneGraph = undefined
 
 			} catch ( e ) {
 
