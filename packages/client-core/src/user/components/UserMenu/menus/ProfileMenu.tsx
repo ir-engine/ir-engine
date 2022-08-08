@@ -476,6 +476,102 @@ const ProfileMenu = ({ className, hideLogin, isPopover, changeActiveMenu, onClos
               </Button>
             )}
           </div>
+
+          <div className={styles.headerBlock}>
+            <Grid container justifyContent="left" direction="row" className={styles.justify}>
+              <Grid item xs={12}>
+                <h2>
+                  {hasAdminAccess ? t('user:usermenu.profile.youAreAn') : t('user:usermenu.profile.youAreA')}
+                  <span id="user-role">{hasAdminAccess ? ' Admin' : isGuest ? ' Guest' : ' User'}</span>.
+                </h2>
+              </Grid>
+              <Grid item xs={12} alignItems="flex-start">
+                <Tooltip
+                  title={showUserId ? t('user:usermenu.profile.hideUserId') : t('user:usermenu.profile.showUserId')}
+                  placement="left"
+                >
+                  <h2
+                    className={styles.showUserId}
+                    id="show-user-id"
+                    onClick={() => setShowUserId(!showUserId)}
+                    onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                    onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                  >
+                    {showUserId ? t('user:usermenu.profile.hideUserId') : t('user:usermenu.profile.showUserId')}
+                  </h2>
+                </Tooltip>
+              </Grid>
+              {selfUser?.apiKey?.id && (
+                <Grid item xs={12} alignItems="flex-start">
+                  <Tooltip
+                    title={showApiKey ? t('user:usermenu.profile.hideApiKey') : t('user:usermenu.profile.showApiKey')}
+                    placement="left"
+                  >
+                    <h2
+                      className={styles.showUserId}
+                      onClick={() => setShowApiKey(!showApiKey)}
+                      onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                      onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                    >
+                      {showApiKey ? t('user:usermenu.profile.hideApiKey') : t('user:usermenu.profile.showApiKey')}
+                    </h2>
+                  </Tooltip>
+                </Grid>
+              )}
+            </Grid>
+
+            {!isGuest && (
+              <Grid
+                display="grid"
+                gridTemplateColumns="1fr 1.5fr"
+                xs={12}
+                sx={{
+                  display: 'grid',
+                  gridTemplateColumns: '1fr 1.5fr',
+
+                  '@media(max-width: 600px)': {
+                    gridTemplateColumns: '1fr'
+                  },
+
+                  button: {
+                    margin: '0px',
+                    width: '100%',
+                    height: '100%',
+                    color: 'white',
+                    display: 'grid',
+                    fontSize: '14px',
+                    textAlign: 'left',
+                    justifyContent: 'flex-start',
+                    gridTemplateColumns: 'max-content auto',
+
+                    svg: {
+                      marginRight: '10px'
+                    }
+                  }
+                }}
+              />
+            )}
+            <h4>
+              {
+                <div
+                  className={styles.logout}
+                  onClick={handleLogout}
+                  onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                  onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                >
+                  {t('user:usermenu.profile.logout')}
+                </div>
+              }
+            </h4>
+            {selfUser?.inviteCode.value != null && (
+              <h2>
+                {t('user:usermenu.profile.inviteCode')}: {selfUser.inviteCode.value}
+              </h2>
+            )}
+          </div>
+        </section>
+
+        <section className={styles.profileBlock}>
           <div className={styles.headerBlock}>
             <Typography variant="h1" className={styles.panelHeader}>
               {t('user:usermenu.profile.lbl-username')}
@@ -510,178 +606,93 @@ const ProfileMenu = ({ className, hideLogin, isPopover, changeActiveMenu, onClos
                 }}
               />
             </span>
-
-            <Grid container justifyContent="right" className={styles.justify}>
-              <Grid item xs={isGuest ? 6 : 4}>
-                <h2>
-                  {hasAdminAccess ? t('user:usermenu.profile.youAreAn') : t('user:usermenu.profile.youAreA')}
-                  <span id="user-role">{hasAdminAccess ? ' Admin' : isGuest ? ' Guest' : ' User'}</span>.
-                </h2>
-              </Grid>
-              <Grid item container xs={isGuest ? 6 : 4} alignItems="flex-start" direction="column">
-                <Tooltip
-                  title={showUserId ? t('user:usermenu.profile.hideUserId') : t('user:usermenu.profile.showUserId')}
-                  placement="right"
-                >
-                  <h2
-                    className={styles.showUserId}
-                    id="show-user-id"
-                    onClick={() => setShowUserId(!showUserId)}
-                    onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
-                    onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
-                  >
-                    {showUserId ? t('user:usermenu.profile.hideUserId') : t('user:usermenu.profile.showUserId')}
-                  </h2>
-                </Tooltip>
-              </Grid>
-              {selfUser?.apiKey?.id && (
-                <Grid item container xs={4} alignItems="flex-start" direction="column">
-                  <Tooltip
-                    title={showApiKey ? t('user:usermenu.profile.hideApiKey') : t('user:usermenu.profile.showApiKey')}
-                    placement="right"
-                  >
-                    <h2
-                      className={styles.showUserId}
-                      onClick={() => setShowApiKey(!showApiKey)}
-                      onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
-                      onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
-                    >
-                      {showApiKey ? t('user:usermenu.profile.hideApiKey') : t('user:usermenu.profile.showApiKey')}
-                    </h2>
-                  </Tooltip>
-                </Grid>
-              )}
-            </Grid>
-            {!isGuest && (
-              <Grid
-                display="grid"
-                gridTemplateColumns="1fr 1.5fr"
-                sx={{
-                  display: 'grid',
-                  gridTemplateColumns: '1fr 1.5fr',
-
-                  '@media(max-width: 600px)': {
-                    gridTemplateColumns: '1fr'
-                  },
-
-                  button: {
-                    margin: '0px',
-                    width: '100%',
-                    height: '100%',
-                    color: 'white',
-                    display: 'grid',
-                    fontSize: '14px',
-                    textAlign: 'left',
-                    justifyContent: 'flex-start',
-                    gridTemplateColumns: 'max-content auto',
-
-                    svg: {
-                      marginRight: '10px'
-                    }
-                  }
-                }}
-              />
-            )}
-            <h4>
-              {!isGuest && (
-                <div
-                  className={styles.logout}
-                  onClick={handleLogout}
-                  onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
-                  onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
-                >
-                  {t('user:usermenu.profile.logout')}
-                </div>
-              )}
-            </h4>
-            {selfUser?.inviteCode.value != null && (
-              <h2>
-                {t('user:usermenu.profile.inviteCode')}: {selfUser.inviteCode.value}
-              </h2>
-            )}
           </div>
         </section>
 
         {showUserId && (
           <section className={styles.emailPhoneSection}>
-            <Typography variant="h1" className={styles.panelHeader}>
-              {t('user:usermenu.profile.userIcon.userId')}
-            </Typography>
+            <div className={styles.headerBlock}>
+              <Typography variant="h1" className={styles.panelHeader}>
+                {t('user:usermenu.profile.userIcon.userId')}
+              </Typography>
 
-            <form>
-              <TextField
-                id="user-id"
-                className={styles.emailField}
-                size="small"
-                placeholder={'user id'}
-                variant="outlined"
-                value={userId}
-                InputProps={{
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <CopyToClipboard
-                        text={userId}
-                        onCopy={() => {
-                          NotificationService.dispatchNotify('User ID copied', {
-                            variant: 'success'
-                          })
-                        }}
-                      >
-                        <a href="#" className={styles.materialIconBlock}>
-                          <ContentCopyIcon className={styles.primaryForeground} />
-                        </a>
-                      </CopyToClipboard>
-                    </InputAdornment>
-                  )
-                }}
-              />
-            </form>
+              <form>
+                <TextField
+                  id="user-id"
+                  className={styles.emailField}
+                  size="small"
+                  placeholder={'user id'}
+                  variant="outlined"
+                  value={userId}
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <CopyToClipboard
+                          text={userId}
+                          onCopy={() => {
+                            NotificationService.dispatchNotify('User ID copied', {
+                              variant: 'success'
+                            })
+                          }}
+                        >
+                          <a href="#" className={styles.materialIconBlock}>
+                            <ContentCopyIcon className={styles.primaryForeground} />
+                          </a>
+                        </CopyToClipboard>
+                      </InputAdornment>
+                    )
+                  }}
+                />
+              </form>
+            </div>
           </section>
         )}
 
         {showApiKey && (
           <section className={styles.emailPhoneSection}>
-            <Typography variant="h1" className={styles.panelHeader}>
-              {t('user:usermenu.profile.apiKey')}
-            </Typography>
+            <div className={styles.headerBlock}>
+              <Typography variant="h1" className={styles.panelHeader}>
+                {t('user:usermenu.profile.apiKey')}
+              </Typography>
 
-            <form>
-              <TextField
-                className={styles.emailField}
-                size="small"
-                placeholder={'API key'}
-                variant="outlined"
-                value={apiKey}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <RefreshIcon
-                        className={styles.apiRefresh}
-                        onClick={refreshApiKey}
-                        onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
-                        onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
-                      />
-                    </InputAdornment>
-                  ),
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <CopyToClipboard
-                        text={apiKey}
-                        onCopy={() => {
-                          NotificationService.dispatchNotify('API Key copied', {
-                            variant: 'success'
-                          })
-                        }}
-                      >
-                        <a href="#" className={styles.materialIconBlock}>
-                          <ContentCopyIcon className={styles.primaryForeground} />
-                        </a>
-                      </CopyToClipboard>
-                    </InputAdornment>
-                  )
-                }}
-              />
-            </form>
+              <form>
+                <TextField
+                  className={styles.emailField}
+                  size="small"
+                  placeholder={'API key'}
+                  variant="outlined"
+                  value={apiKey}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <RefreshIcon
+                          className={styles.apiRefresh}
+                          onClick={refreshApiKey}
+                          onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                          onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                        />
+                      </InputAdornment>
+                    ),
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <CopyToClipboard
+                          text={apiKey}
+                          onCopy={() => {
+                            NotificationService.dispatchNotify('API Key copied', {
+                              variant: 'success'
+                            })
+                          }}
+                        >
+                          <a href="#" className={styles.materialIconBlock}>
+                            <ContentCopyIcon className={styles.primaryForeground} />
+                          </a>
+                        </CopyToClipboard>
+                      </InputAdornment>
+                    )
+                  }}
+                />
+              </form>
+            </div>
           </section>
         )}
 
@@ -728,7 +739,7 @@ const ProfileMenu = ({ className, hideLogin, isPopover, changeActiveMenu, onClos
             )}
             {isGuest && enableWalletLogin && (
               <section className={styles.walletSection}>
-                <Typography variant="h3" className={styles.textBlock}>
+                <Typography variant="h1" className={styles.textBlock}>
                   {t('user:usermenu.profile.or')}
                 </Typography>
 
@@ -768,12 +779,7 @@ const ProfileMenu = ({ className, hideLogin, isPopover, changeActiveMenu, onClos
             {enableSocial && (
               <section className={styles.socialBlock}>
                 {selfUser?.isGuest.value && (
-                  <Typography variant="h3" className={styles.textBlock}>
-                    {t('user:usermenu.profile.connectSocial')}
-                  </Typography>
-                )}
-                {!selfUser?.isGuest.value && addMoreSocial && (
-                  <Typography variant="h3" className={styles.textBlock}>
+                  <Typography variant="h1" className={styles.panelHeader}>
                     {t('user:usermenu.profile.addSocial')}
                   </Typography>
                 )}
@@ -918,15 +924,31 @@ const ProfileMenu = ({ className, hideLogin, isPopover, changeActiveMenu, onClos
                     </a>
                   )}
                 </div>
-                {selfUser?.isGuest && (
-                  <Typography variant="h4" className={styles.smallTextBlock}>
-                    {t('user:usermenu.profile.createOne')}
-                  </Typography>
-                )}
               </section>
             )}
+
+            {selfUser && (
+              <div className={styles.themeSettingContainer}>
+                <Grid container spacing={{ xs: 0, sm: 2 }} sx={{ mt: 2 }}>
+                  {accessibleThemeModes.map((mode, index) => (
+                    <Grid key={index} item xs={12} md={4}>
+                      <InputSelect
+                        name={mode}
+                        label={`${t(`user:usermenu.setting.${mode}`)} ${t('user:usermenu.setting.theme')}`}
+                        value={themeModes[mode]}
+                        menu={colorModesMenu}
+                        onChange={(e) => handleChangeUserThemeMode(e)}
+                        onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                        onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                      />
+                    </Grid>
+                  ))}
+                </Grid>
+              </div>
+            )}
+
             <section className={styles.deletePanel}>
-              {!isGuest && (
+              {
                 <div>
                   <h2
                     className={styles.deleteAccount}
@@ -985,29 +1007,8 @@ const ProfileMenu = ({ className, hideLogin, isPopover, changeActiveMenu, onClos
                     </div>
                   )}
                 </div>
-              )}
+              }
             </section>
-
-            {selfUser && (
-              <div className={styles.themeSettingContainer}>
-                <h2 className={styles.themesHeading}>{t('user:usermenu.setting.themes')}</h2>
-                <Grid container spacing={2} sx={{ mt: 2 }}>
-                  {accessibleThemeModes.map((mode, index) => (
-                    <Grid key={index} item xs={12} sm={6} md={4}>
-                      <InputSelect
-                        name={mode}
-                        label={`${t(`user:usermenu.setting.${mode}`)} ${t('user:usermenu.setting.theme')}`}
-                        value={themeModes[mode]}
-                        menu={colorModesMenu}
-                        onChange={(e) => handleChangeUserThemeMode(e)}
-                        onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
-                        onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
-                      />
-                    </Grid>
-                  ))}
-                </Grid>
-              </div>
-            )}
           </>
         )}
       </section>

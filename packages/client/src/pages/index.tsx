@@ -73,7 +73,6 @@ export const HomePage = (): any => {
                     left: 0px;
                     width: 100%;
                     transform: none;
-                    margin: 40px 0px;
                     pointer-events: auto;
                 }
               `}
