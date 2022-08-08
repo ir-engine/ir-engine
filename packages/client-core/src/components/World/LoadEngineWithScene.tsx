@@ -81,13 +81,16 @@ export const LoadEngineWithScene = () => {
 
   const spectateParam = useParams<{ spectate: UserId }>().spectate
 
+  const numSpawnPoints = useHookstate(SpawnPoints.instance.spawnPoints).length
+
   useHookEffect(async () => {
     if (
       didSpawn.value === true ||
       Engine.instance.currentWorld.localClientEntity ||
       !engineState.sceneLoaded.value ||
       !authState.user.value ||
-      spectateParam
+      spectateParam ||
+      numSpawnPoints === 0
     )
       return
 
@@ -109,7 +112,7 @@ export const LoadEngineWithScene = () => {
       },
       name: user.name
     })
-  }, [engineState.sceneLoaded, authState.user, spectateParam])
+  }, [engineState.sceneLoaded, authState.user, spectateParam, numSpawnPoints])
 
   useHookEffect(() => {
     if (engineState.sceneLoaded.value) {
