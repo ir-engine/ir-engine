@@ -13,7 +13,8 @@ import { MeshoptDecoder } from '../loaders/gltf/meshopt_decoder.module'
 import { NodeDRACOLoader } from '../loaders/gltf/NodeDracoLoader'
 
 export const initializeKTX2Loader = (loader: GLTFLoader) => {
-  const ktxLoader: any = new KTX2Loader()
+  const ktxLoader = new KTX2Loader()
+  ktxLoader.workerPool.setWorkerLimit(1)
   ktxLoader.setTranscoderPath(`/loader_decoders/basis/`)
   ktxLoader.detectSupport(EngineRenderer.instance.renderer)
   loader.setKTX2Loader(ktxLoader)
@@ -33,13 +34,18 @@ export const createGLTFLoader = (keepMaterials = false) => {
 
   loader.setMeshoptDecoder(MeshoptDecoder)
 
-  const dracoLoader: any = isClient ? new DRACOLoader() : new NodeDRACOLoader()
-
   if (isClient) {
+    const dracoLoader = new DRACOLoader()
     dracoLoader.setDecoderPath('/loader_decoders/')
+    dracoLoader.setWorkerLimit(1)
+    loader.setDRACOLoader(dracoLoader)
   } else {
-    ;(dracoLoader as any).preload = () => {}
+    const dracoLoader = new NodeDRACOLoader()
+    /* @ts-ignore */
+    dracoLoader.preload = () => {}
+    /* @ts-ignore */
+    loader.setDRACOLoader(dracoLoader)
   }
-  ;(loader as any).setDRACOLoader(dracoLoader)
+
   return loader
 }
