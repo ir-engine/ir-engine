@@ -1,9 +1,6 @@
 import { VideoTexture } from 'three'
 
 import { isClient } from '../../common/functions/isClient'
-import { EngineActions, getEngineState } from '../../ecs/classes/EngineState'
-import { createEntity } from '../../ecs/functions/EntityFunctions'
-import { matchActionOnce } from '../../networking/functions/matchActionOnce'
 import { EngineRenderer } from '../WebGLRendererSystem'
 
 export default function loadVideoTexture(src, onLoad = (result) => {}) {
