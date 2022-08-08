@@ -184,6 +184,7 @@
       display: flex;
       flex-direction: column;
       justify-content: space-between;
+      align-items: center;
       margin: 0 5px;
 
       & > .spacer {
@@ -269,11 +270,10 @@
     flex-direction: column;
 
     .user-controls {
-      display: flex;
+      display: none;
       width: 100%;
       margin: -10px auto 0;
       z-index: 1500;
-      height: 0;
     }
 
     &:focus,
@@ -285,8 +285,8 @@
       }
 
       .user-controls {
+        display: flex;
         padding: 20px 10px 10px;
-        height: auto;
       }
     }
   }
@@ -316,6 +316,7 @@
         display: flex;
         flex-direction: row;
         justify-content: space-between;
+        align-items: center;
         margin-left: 5px;
 
         .audio-slider {
