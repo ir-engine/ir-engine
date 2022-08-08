@@ -66,9 +66,6 @@ export const updatePositionalAudioTag = (entity: Entity) => {
 /** System class which provides methods for Positional Audio system. */
 
 export default async function PositionalAudioSystem(world: World) {
-  /** @todo, remove this when we have better system pipeline injection */
-  if (Engine.instance.isEditor) return () => {}
-
   const _rot = new Vector3()
   const updateAudioPanner = (panner: PannerNode, position: Vector3, rotation: Quaternion, endTime: number) => {
     _rot.set(0, 0, 1).applyQuaternion(rotation)
