@@ -524,6 +524,7 @@
   color: black;
   max-height: calc(100vh - 150px);
   touch-action: auto;
+  overflow-y: auto;
 
   * {
     touch-action: auto;
@@ -775,6 +776,11 @@
       & + .settingSection {
         margin-top: 25px;
       }
+    }
+
+    .tutorialImage {
+      background-color: #1b1b1b;
+      border-radius: 4px;
     }
 
     .row {
