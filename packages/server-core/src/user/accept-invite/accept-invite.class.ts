@@ -124,10 +124,19 @@ export class AcceptInvite implements ServiceMethods<Data> {
 
       if (params['identity-provider'] == null) params['identity-provider'] = inviteeIdentityProvider
 
-      if (invite.makeAdmin)
-        await this.app.service('user').patch(inviteeIdentityProvider.userId, {
-          userRole: 'admin'
+      if (invite.makeAdmin) {
+        const existingAdminScope = await this.app.service('scope').find({
+          query: {
+            userId: inviteeIdentityProvider.userId,
+            type: 'admin:admin'
+          }
         })
+        if (existingAdminScope.total === 0)
+          await this.app.service('scope').create({
+            userId: inviteeIdentityProvider.userId,
+            type: 'admin:admin'
+          })
+      }
 
       if (invite.inviteType === 'friend') {
         const inviter = await this.app.service('user').Model.findOne({ where: { id: invite.userId } })

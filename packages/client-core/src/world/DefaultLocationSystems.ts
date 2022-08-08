@@ -9,10 +9,11 @@ export const DefaultLocationSystems: SystemModuleType<any>[] = [
     type: 'PRE_RENDER',
     systemModulePromise: import('../systems/AvatarUISystem')
   },
-  {
-    type: 'PRE_RENDER',
-    systemModulePromise: import('../systems/WidgetUISystem')
-  },
+  // TODO: optimize this system; it crashes mobile/iOS
+  // {
+  //   type: 'PRE_RENDER',
+  //   systemModulePromise: import('../systems/WidgetUISystem')
+  // },
   {
     type: 'PRE_RENDER',
     systemModulePromise: import('../systems/state/PartySystem')

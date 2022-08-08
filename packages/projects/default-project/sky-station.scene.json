@@ -29,8 +29,8 @@
               "y": 15,
               "z": 30
             },
-            "overrideRendererSettings": false,
-            "csm": true,
+            "overrideRendererSettings": true,
+            "csm": false,
             "toneMapping": 1,
             "toneMappingExposure": 0.8,
             "shadowMapType": 2
@@ -221,11 +221,11 @@
           "props": {
             "position": {
               "x": 0,
-              "y": 0,
-              "z": 0
+              "y": 0.012871688231825829,
+              "z": 0.10603704303503036
             },
             "rotation": {
-              "x": 0,
+              "x": -0.42085796773320694,
               "y": 0,
               "z": 0
             },
@@ -246,8 +246,8 @@
             "options": {
               "SMAAEffect": {
                 "isActive": true,
-                "blendFunction": 23,
-                "preset": 1,
+                "blendFunction": 13,
+                "preset": 2,
                 "edgeDetectionMode": 2,
                 "predicationMode": 0
               },
@@ -290,11 +290,11 @@
               },
               "BloomEffect": {
                 "isActive": true,
-                "blendFunction": 16,
+                "blendFunction": 18,
                 "kernelSize": 2,
-                "luminanceThreshold": 1,
-                "luminanceSmoothing": 0.1,
-                "intensity": 0.2
+                "luminanceThreshold": 0.68,
+                "luminanceSmoothing": 1,
+                "intensity": 0.84
               },
               "ToneMappingEffect": {
                 "isActive": false,
@@ -368,7 +368,6 @@
           "name": "gltf-model",
           "props": {
             "src": "__$project$__/default-project/assets/Skybase.glb",
-            "textureOverride": "",
             "materialOverrides": [],
             "matrixAutoUpdate": true,
             "useBasicMaterial": false,
@@ -450,7 +449,7 @@
         {
           "name": "ambient-light",
           "props": {
-            "color": 15335423,
+            "color": 13686783,
             "intensity": 1.6
           }
         }
@@ -458,57 +457,6 @@
       "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
       "index": 5,
       "name": "Ambient Light"
-    },
-    "0944C740-261D-4A88-8CA1-556E4F493041": {
-      "components": [
-        {
-          "name": "transform",
-          "props": {
-            "position": {
-              "x": 0,
-              "y": 0,
-              "z": 0
-            },
-            "rotation": {
-              "x": 0,
-              "y": 0,
-              "z": 0
-            },
-            "scale": {
-              "x": 1,
-              "y": 1,
-              "z": 1
-            }
-          }
-        },
-        {
-          "name": "shadow",
-          "props": {
-            "cast": true,
-            "receive": true
-          }
-        },
-        {
-          "name": "directional-light",
-          "props": {
-            "color": 12700897,
-            "intensity": 3,
-            "castShadow": true,
-            "shadowMapResolution": [
-              512,
-              512
-            ],
-            "shadowBias": -0.0009999999999998899,
-            "shadowRadius": 1,
-            "cameraFar": 500,
-            "showCameraHelper": false,
-            "useInCSM": true
-          }
-        }
-      ],
-      "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
-      "index": 6,
-      "name": "Directional Light"
     },
     "A7187B08-8E63-498D-9878-58A99D39C6EB": {
       "components": [
@@ -583,12 +531,13 @@
         {
           "name": "video",
           "props": {
-            "elementId": "earth video"
+            "elementId": "earth video",
+            "maintainAspectRatio": true
           }
         }
       ],
       "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
-      "index": 7,
+      "index": 6,
       "name": "Video"
     },
     "3CCDC88B-250C-4F26-9BE0-4AC39440EDAF": {
@@ -627,6 +576,7 @@
         {
           "name": "particle-emitter",
           "props": {
+            "mode": "LIBRARY",
             "src": "/static/editor/dot.png",
             "startColor": 11860735,
             "middleColor": 7785939,
@@ -659,7 +609,7 @@
         }
       ],
       "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
-      "index": 8,
+      "index": 7,
       "name": "Particle Emitter"
     },
     "DC8DE746-6160-45EE-BF32-D828022E0FC7": {
@@ -699,7 +649,6 @@
           "name": "gltf-model",
           "props": {
             "src": "__$project$__/default-project/assets/test-equippable.glb",
-            "textureOverride": "",
             "materialOverrides": [],
             "matrixAutoUpdate": true,
             "useBasicMaterial": false,
@@ -753,7 +702,7 @@
         }
       ],
       "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
-      "index": 9,
+      "index": 8,
       "name": "Equippable"
     },
     "2803BAE7-F4F7-42FC-A95E-BC0F028492F2": {
@@ -797,7 +746,7 @@
             "redirect": false,
             "effectType": "Hyperspace",
             "previewType": "Spherical",
-            "previewImageURL": "__$project$__/default-project/sky-station-Portal.png",
+            "previewImageURL": "__$project$__/default-project/sky-station-Portal--%20to%20Apartment.png",
             "spawnPosition": {
               "x": 49.5,
               "y": 2,
@@ -805,9 +754,9 @@
             },
             "spawnRotation": {
               "x": 0,
-              "y": -0.00004889268375588634,
+              "y": -0.000003055792734338656,
               "z": 0,
-              "w": 0.9999999988047528
+              "w": 0.9999999999953311
             }
           }
         },
@@ -817,7 +766,7 @@
         }
       ],
       "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
-      "index": 10,
+      "index": 9,
       "name": "Portal - to Apartment"
     },
     "65f5428e-6548-49aa-be22-bd5b65674743": {
@@ -875,7 +824,7 @@
         }
       ],
       "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
-      "index": 11,
+      "index": 10,
       "name": "Audio"
     },
     "a0658472-0a3f-426f-9e52-7a5294c64077": {
@@ -919,7 +868,7 @@
             "redirect": false,
             "effectType": "None",
             "previewType": "Spherical",
-            "previewImageURL": "__$project$__/default-project/sky-station-Portal-2.png",
+            "previewImageURL": "__$project$__/default-project/sky-station-Portal--%20Sky%20Station%20Interior.png",
             "spawnPosition": {
               "x": 15,
               "y": 8,
@@ -939,7 +888,7 @@
         }
       ],
       "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
-      "index": 12,
+      "index": 11,
       "name": "Portal - Sky Station Interior"
     },
     "e2e5f8c7-26f2-44bb-8c74-5a7a828d9400": {
@@ -983,7 +932,7 @@
             "redirect": false,
             "effectType": "None",
             "previewType": "Spherical",
-            "previewImageURL": "__$project$__/default-project/sky-station-Portal-3.png",
+            "previewImageURL": "__$project$__/default-project/sky-station-Portal--%20Sky%20Station%20Exterior.png",
             "spawnPosition": {
               "x": -60,
               "y": 2,
@@ -1003,8 +952,66 @@
         }
       ],
       "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
-      "index": 13,
+      "index": 12,
       "name": "Portal - Sky Station Exterior"
+    },
+    "61912c25-8a83-4f28-bc42-7e132599cea9": {
+      "components": [
+        {
+          "name": "transform",
+          "props": {
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "rotation": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "scale": {
+              "x": 1,
+              "y": 1,
+              "z": 1
+            }
+          }
+        },
+        {
+          "name": "visible",
+          "props": {}
+        },
+        {
+          "name": "media",
+          "props": {
+            "paths": [
+              "__$project$__/default-project/assets/sky-station-ambience-loop.mp3"
+            ],
+            "playMode": 3,
+            "controls": false,
+            "autoplay": true,
+            "autoStartTime": 0
+          }
+        },
+        {
+          "name": "audio",
+          "props": {
+            "volume": 1,
+            "audioType": "Positional",
+            "isMusic": true,
+            "distanceModel": "inverse",
+            "rolloffFactor": 2,
+            "refDistance": 20,
+            "maxDistance": 10000,
+            "coneInnerAngle": 360,
+            "coneOuterAngle": 0,
+            "coneOuterGain": 0
+          }
+        }
+      ],
+      "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
+      "index": 13,
+      "name": "Audio - Ambience"
     }
   },
   "root": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC"

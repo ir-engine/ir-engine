@@ -42,7 +42,7 @@ const getDistanceAction = (animationName: string, mixer: AnimationMixer): Distan
 export function createAvatarAnimationGraph(
   entity: Entity,
   mixer: AnimationMixer,
-  velocity: Vector3,
+  locomotion: Vector3,
   jumpValue: {} | null
 ): AnimationGraph {
   if (!mixer) return null!
@@ -85,7 +85,7 @@ export function createAvatarAnimationGraph(
     type: 'LocomotionState',
     yAxisBlendSpace: verticalBlendSpace,
     xAxisBlendSpace: horizontalBlendSpace,
-    movementParams: { velocity },
+    locomotion,
     forwardMovementActions: [walkForwardAction, runForwardAction, walkBackwardAction, runBackwardAction],
     sideMovementActions: [walkLeftAction, runLeftAction, walkRightAction, runRightAction],
     idleAction: getAnimationAction(AvatarAnimations.IDLE, mixer),
@@ -231,26 +231,26 @@ export function createAvatarAnimationGraph(
 
   // Mount Point
 
-  const mountEnterState: SingleAnimationState = {
+  const sitEnterState: SingleAnimationState = {
     name: AvatarStates.SIT_ENTER,
     type: 'SingleAnimationState',
-    action: null!,
+    action: getAnimationAction(AvatarAnimations.IDLE, mixer),
     loop: false,
     clamp: true
   }
 
-  const mountLeaveState: SingleAnimationState = {
+  const sitLeaveState: SingleAnimationState = {
     name: AvatarStates.SIT_LEAVE,
     type: 'SingleAnimationState',
-    action: null!,
+    action: getAnimationAction(AvatarAnimations.IDLE, mixer),
     loop: false,
     clamp: true
   }
 
-  const mountActiveState: SingleAnimationState = {
+  const sitIdleState: SingleAnimationState = {
     name: AvatarStates.SIT_IDLE,
     type: 'SingleAnimationState',
-    action: null!,
+    action: getAnimationAction(AvatarAnimations.IDLE, mixer),
     loop: true,
     clamp: false
   }
@@ -270,13 +270,13 @@ export function createAvatarAnimationGraph(
   graph.states[AvatarStates.DANCE2] = dance2State
   graph.states[AvatarStates.DANCE3] = dance3State
   graph.states[AvatarStates.DANCE4] = dance4State
-  graph.states[AvatarStates.SIT_ENTER] = mountEnterState
-  graph.states[AvatarStates.SIT_LEAVE] = mountLeaveState
-  graph.states[AvatarStates.SIT_IDLE] = mountActiveState
+  graph.states[AvatarStates.SIT_ENTER] = sitEnterState
+  graph.states[AvatarStates.SIT_LEAVE] = sitLeaveState
+  graph.states[AvatarStates.SIT_IDLE] = sitIdleState
 
   // Transition rules
 
-  const movementTransitionRule = vectorLengthTransitionRule(velocity, 0.001)
+  const movementTransitionRule = vectorLengthTransitionRule(locomotion, 0.001)
 
   if (isOwnedEntity) {
     graph.transitionRules[AvatarStates.LOCOMOTION] = [
@@ -288,7 +288,7 @@ export function createAvatarAnimationGraph(
       // Fall - threshold rule is to prevent fall_idle when going down ramps or over gaps
       {
         rule: compositeTransitionRule(
-          [booleanTransitionRule(jumpValue, 'isInAir'), thresholdTransitionRule(velocity, 'y', -0.05, false)],
+          [booleanTransitionRule(jumpValue, 'isInAir'), thresholdTransitionRule(locomotion, 'y', -0.05, false)],
           'and'
         ),
         nextState: AvatarStates.FALL_IDLE
@@ -372,7 +372,7 @@ export function createAvatarAnimationGraph(
 
   graph.transitionRules[AvatarStates.SIT_ENTER] = [
     {
-      rule: animationTimeTransitionRule(mountEnterState.action, 0.95),
+      rule: animationTimeTransitionRule(sitEnterState.action, 0.95),
       nextState: AvatarStates.SIT_IDLE
     }
   ]

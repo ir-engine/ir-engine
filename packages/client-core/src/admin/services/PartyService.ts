@@ -78,7 +78,7 @@ export const AdminPartyService = {
     const user = accessAuthState().user
 
     try {
-      if (user.userRole.value === 'admin') {
+      if (user.scopes?.value?.find((scope) => scope.type === 'admin:admin')) {
         let sortData = {}
         if (sortField.length > 0) {
           sortData[sortField] = orderBy === 'desc' ? 0 : 1

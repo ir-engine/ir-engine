@@ -1,17 +1,17 @@
 import { disallow, iff, isProvider } from 'feathers-hooks-common'
 
 import authenticate from '../../hooks/authenticate'
-import restrictUserRole from '../../hooks/restrict-user-role'
+import verifyScope from '../../hooks/verify-scope'
 
 export default {
   before: {
     all: [authenticate()],
     find: [],
-    get: [disallow() /*iff(isProvider('external'), restrictUserRole('admin') as any)*/],
-    create: [disallow() /*iff(isProvider('external'), restrictUserRole('admin') as any)*/],
-    update: [disallow() /*iff(isProvider('external'), restrictUserRole('admin') as any)*/],
-    patch: [disallow() /*iff(isProvider('external'), restrictUserRole('admin') as any)*/],
-    remove: [disallow() /*iff(isProvider('external'), restrictUserRole('admin') as any)*/]
+    get: [disallow() /*iff(isProvider('external'), verifyScope('admin', 'admin') as any)*/],
+    create: [disallow() /*iff(isProvider('external'), verifyScope('admin', 'admin') as any)*/],
+    update: [disallow() /*iff(isProvider('external'), verifyScope('admin', 'admin') as any)*/],
+    patch: [disallow() /*iff(isProvider('external'), verifyScope('admin', 'admin') as any)*/],
+    remove: [disallow() /*iff(isProvider('external'), verifyScope('admin', 'admin') as any)*/]
   },
 
   after: {

@@ -36,7 +36,7 @@ const UserPermissionDrawer = ({ open, project, onClose }: Props) => {
   const selfUser = useAuthState().user
   const selfUserPermission =
     project?.project_permissions?.find((permission) => permission.userId === selfUser.id.value)?.type === 'owner' ||
-    selfUser.userRole.value === 'admin'
+    selfUser.scopes?.value?.find((scope) => scope.type === 'admin:admin')
       ? 'owner'
       : 'user'
 

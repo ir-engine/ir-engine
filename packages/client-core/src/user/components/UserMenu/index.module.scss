@@ -15,7 +15,7 @@
 
 .themeSettingContainer {
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   align-items: center;
 
   label {
@@ -25,6 +25,14 @@
 
 .themeHeading {
   font-size: 12px;
+  color: var(--textColor);
+}
+
+.panelHeader {
+  padding-top: 10px;
+  font-size: 14px;
+  font-weight: bold;
+  margin: 0;
   color: var(--textColor);
 }
 
@@ -240,6 +248,8 @@
       flex-wrap: wrap;
 
       .avatarBlock {
+        margin-right: 20px;
+        margin-bottom: 20px;
         width: 80px;
         height: 80px;
         box-shadow: 0 2px 18px 0 #11111159;
@@ -293,13 +303,6 @@
         width: calc(100% - 110px);
         align-content: center;
 
-        .panelHeader {
-          font-size: 14px;
-          font-weight: bold;
-          margin: 0;
-          color: var(--textColor);
-        }
-
         .inputBlock {
           display: flex;
           width: 100%;
@@ -321,10 +324,6 @@
 
             :global(.MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline) {
               border-color: white !important;
-            }
-
-            @media (max-width: 560px) {
-              width: 200px;
             }
           }
 
@@ -367,7 +366,6 @@
           color: var(--textColor);
 
           .logout {
-            max-width: 50px;
             font-size: 14px;
 
             &:hover {
@@ -381,18 +379,7 @@
     }
 
     .emailPhoneSection {
-      margin-top: 20px;
-
-      .panelHeader {
-        font-size: 14px;
-        font-weight: bold;
-        margin: 0;
-        color: var(--textColor);
-      }
-
       .emailField {
-        margin-top: 10px;
-        margin-bottom: 20px;
         width: 100%;
         color: var(--textColor);
         background: transparent;
@@ -444,7 +431,7 @@
       .socialContainer {
         display: flex;
         justify-content: space-evenly;
-        margin: 20px 0;
+        margin: 10px 0;
 
         a {
           color: #000;
@@ -488,7 +475,7 @@
 
   .deletePanel {
     .deleteAccount {
-      color: white;
+      color: var(--textColor);
 
       &:hover {
         cursor: pointer;
@@ -497,7 +484,7 @@
     }
 
     .deleteText {
-      color: white;
+      color: var(--textColor);
       margin-top: 10px;
       font-size: 16px;
     }
@@ -526,30 +513,20 @@
 
 .menuPanel {
   position: absolute;
-  padding: 0 30px;
+  padding: 20px;
   z-index: 6;
   border-radius: 20px;
   background-color: var(--popupBackground);
-  width: calc(100% - 20px);
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
   box-shadow: 16px 16px 32px 0 #11111159;
   color: black;
   max-height: calc(100vh - 150px);
-  overflow: auto;
   touch-action: auto;
 
   * {
     touch-action: auto;
-  }
-
-  & > .profilePanel,
-  & > .accountPanel,
-  & > .settingPanel,
-  & > .sharePanel,
-  & > .locationPanel {
-    margin: 30px 0;
   }
 
   .profilePanel {
@@ -560,9 +537,13 @@
     .profileBlock {
       display: flex;
       justify-content: space-between;
-      flex-wrap: wrap;
+
+      // margin-bottom: 20px;
+      // flex-wrap: wrap;
 
       .avatarBlock {
+        margin-right: 20px;
+        margin-bottom: 20px;
         width: 80px;
         height: 80px;
         box-shadow: 0 2px 18px 0 #11111159;
@@ -613,15 +594,8 @@
       .headerBlock {
         display: flex;
         flex-flow: column wrap;
-        width: calc(100% - 110px);
         align-content: center;
-
-        .panelHeader {
-          font-size: 14px;
-          font-weight: bold;
-          margin: 0;
-          color: var(--textColor);
-        }
+        width: 100%;
 
         .inputBlock {
           display: flex;
@@ -644,10 +618,6 @@
 
             :global(.MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline) {
               border-color: white !important;
-            }
-
-            @media (max-width: 560px) {
-              width: 200px;
             }
           }
 
@@ -690,7 +660,6 @@
           color: var(--textColor);
 
           .logout {
-            max-width: 50px;
             font-size: 14px;
 
             &:hover {
@@ -704,18 +673,7 @@
     }
 
     .emailPhoneSection {
-      margin-top: 20px;
-
-      .panelHeader {
-        font-size: 14px;
-        font-weight: bold;
-        margin: 0;
-        color: var(--textColor);
-      }
-
       .emailField {
-        margin-top: 10px;
-        margin-bottom: 20px;
         width: 100%;
         color: var(--textColor);
         background: transparent;
@@ -767,7 +725,7 @@
       .socialContainer {
         display: flex;
         justify-content: space-evenly;
-        margin: 20px 0;
+        margin: 10px 0;
 
         a {
           color: #000;
@@ -823,12 +781,13 @@
       display: flex;
       align-items: center;
 
-      & + .flexWrap {
-        flex-wrap: wrap;
-      }
-
       & + .row {
         margin-top: 5px;
+      }
+
+      > div {
+        flex: 1;
+        margin: 10px;
       }
 
       .checkboxBlock {
@@ -909,12 +868,6 @@
 
   .sharePanel {
     position: relative;
-
-    .panelHeader {
-      font-size: 18px;
-      color: var(--textColor);
-      font-weight: bold;
-    }
 
     .shareLink {
       font-size: 16px;
@@ -1295,7 +1248,7 @@
 
   .deletePanel {
     .deleteAccount {
-      color: white;
+      color: var(--textColor);
 
       &:hover {
         cursor: pointer;
@@ -1304,7 +1257,7 @@
     }
 
     .deleteText {
-      color: white;
+      color: var(--textColor);
       margin-top: 10px;
       font-size: 16px;
     }
@@ -1344,7 +1297,6 @@
   @media screen and (max-width: 500px) {
     .headerBlock {
       width: 100% !important;
-      margin-top: 30px;
     }
   }
 
@@ -2213,7 +2165,6 @@
 
 .avatarContainer {
   height: 90%;
-  margin-bottom: 20px;
   overflow-y: auto;
   overflow-x: hidden;
 }
@@ -2440,6 +2391,7 @@
   display: flex;
   justify-content: space-between;
   align-items: end;
+  flex: 1;
 }
 
 .selectSize {

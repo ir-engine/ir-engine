@@ -153,7 +153,7 @@ export const initializeCoreSystems = async () => {
       },
       {
         type: SystemUpdateType.UPDATE_EARLY,
-        systemModulePromise: import('./xr/systems/XRSystem')
+        systemModulePromise: import('./xr/XRSystem')
       },
       {
         type: SystemUpdateType.UPDATE_EARLY,
@@ -270,7 +270,7 @@ export const initializeSceneSystems = async () => {
       },
       {
         type: SystemUpdateType.PRE_RENDER,
-        systemModulePromise: import('./particles/systems/ParticleSystem')
+        systemModulePromise: import('./scene/systems/ParticleSystem')
       },
       {
         type: SystemUpdateType.PRE_RENDER,

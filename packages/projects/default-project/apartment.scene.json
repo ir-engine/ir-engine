@@ -493,7 +493,6 @@
           "name": "gltf-model",
           "props": {
             "src": "__$project$__/default-project/assets/apartment.glb",
-            "textureOverride": "",
             "materialOverrides": [],
             "matrixAutoUpdate": true,
             "useBasicMaterial": false,
@@ -783,9 +782,9 @@
               "z": 3
             },
             "rotation": {
-              "x": -5.8365035188994236e-18,
+              "x": -5.8365031047939326e-18,
               "y": 0.05759586483318637,
-              "z": 2.7795421042831256e-16
+              "z": 2.779542104163839e-16
             },
             "scale": {
               "x": 0.5,

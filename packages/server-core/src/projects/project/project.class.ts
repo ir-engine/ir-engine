@@ -405,7 +405,8 @@ export class Project extends Service {
         projectPushIds = projectPushIds.concat(matchingAllowedRepos.map((repo) => repo.id))
       }
 
-      if (params.user.userRole !== 'admin') params.query.id = { $in: [...new Set(projectPushIds)] }
+      if (!params.user.scopes.find((scope) => scope.type === 'admin:admin'))
+        params.query.id = { $in: [...new Set(projectPushIds)] }
       delete params.query.allowed
       if (!params.sequelize) params.sequelize = { raw: false }
       if (!params.sequelize.include) params.sequelize.include = []

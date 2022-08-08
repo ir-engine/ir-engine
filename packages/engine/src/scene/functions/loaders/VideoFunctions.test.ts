@@ -193,7 +193,6 @@ describe.skip('VideoFunctions', () => {
   describe('parseVideoProperties()', () => {
     it('should use default component values', () => {
       const componentData = videoFunctions.parseVideoProperties({})
-      assert(componentData.videoSource === SCENE_COMPONENT_VIDEO_DEFAULT_VALUES.videoSource)
       assert(componentData.elementId.includes('video-'))
     })
 
