@@ -258,7 +258,7 @@ const InstanceChat = ({
         messageRef.current.scrollTop = messageRef.current.scrollHeight
         clearInterval(messageRefCurrentRenderedInterval)
       }
-    }, 5)
+    }, 5000)
   }, [chatState.messageCreated, sortedMessages])
 
   const toggleChatWindow = () => {
@@ -271,7 +271,7 @@ const InstanceChat = ({
           setMessageContainerVisible(true)
           clearInterval(messageRefCurrentRenderedInterval)
         }
-      }, 5)
+      }, 5000)
     }
     setChatWindowOpen(!chatWindowOpen)
     chatWindowOpen && setUnreadMessages(false)

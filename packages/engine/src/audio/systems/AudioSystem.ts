@@ -35,20 +35,24 @@ export class AudioEffectPlayer {
     ui: '/sfx/ui.mp3'
   }
 
-  #el: HTMLAudioElement
+  // pool of elements
+  #els: HTMLAudioElement[] = []
 
   _init() {
-    const audioElement = document.createElement('audio')
-    audioElement.loop = false
-    this.#el = audioElement
+    for (let i = 0; i < 4; i++) {
+      const audioElement = document.createElement('audio')
+      audioElement.loop = false
+      this.#els.push(audioElement)
+    }
   }
 
   play(sound: string, volumeMultiplier = getState(AudioState).notificationVolume.value) {
-    if (!this.#el) return
-    this.#el.volume = accessAudioState().masterVolume.value * volumeMultiplier
-    if (this.#el.src !== sound) this.#el.src = sound
-    this.#el.currentTime = 0
-    this.#el.play()
+    if (!this.#els.length) return
+    const el = this.#els.find((el) => el.paused) ?? this.#els[0]
+    el.volume = accessAudioState().masterVolume.value * volumeMultiplier
+    if (el.src !== sound) el.src = sound
+    el.currentTime = 0
+    el.play()
   }
 }
 
@@ -100,8 +104,8 @@ export default async function AudioSystem(world: World) {
       AudioEffectPlayer.instance._init()
       if (!Engine.instance.isEditor) {
         for (const entity of mediaEntities) {
-          const audio = getComponent(entity, MediaElementComponent)
-          if (audio.autoplay) audio.play()
+          const media = getComponent(entity, MediaElementComponent)
+          if (media.autoplay) media.play()
         }
       }
     }

@@ -22,6 +22,7 @@ import { MediaComponent } from '../../scene/components/MediaComponent'
 import { MediaElementComponent } from '../../scene/components/MediaElementComponent'
 import { createAudioNode } from '../../scene/functions/loaders/AudioFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
+import { XRState } from '../../xr/XRState'
 import { AudioSettingAction, AudioState } from '../AudioState'
 import { AudioComponent } from '../components/AudioComponent'
 import { PositionalAudioTagComponent } from '../components/PositionalAudioTagComponent'
@@ -106,9 +107,9 @@ export default async function PositionalAudioSystem(world: World) {
   return () => {
     const audioContext = Engine.instance.audioContext
     const network = Engine.instance.currentWorld.mediaNetwork
-    const xrSessionStarted = getState(EngineState).xrSessionStarted.value
+    const xrSessionActive = getState(XRState).sessionActive.value
     const audioState = getState(AudioState)
-    const useAvatarPositionalAudio = audioState.usePositionalAudio.value && !xrSessionStarted
+    const useAvatarPositionalAudio = audioState.usePositionalAudio.value && !xrSessionActive
 
     /**
      * Scene Objects
@@ -123,7 +124,7 @@ export default async function PositionalAudioSystem(world: World) {
     for (const entity of positionalAudioSceneObjectQuery.enter()) {
       const el = getComponent(entity, MediaElementComponent)
       const audioObject = AudioElementNodes.get(el)!
-      addPannerNode(audioObject)
+      addPannerNode(audioObject, getComponent(entity, AudioComponent))
     }
 
     for (const entity of positionalAudioSceneObjectQuery.exit()) {

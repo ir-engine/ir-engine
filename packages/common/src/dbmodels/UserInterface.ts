@@ -3,4 +3,5 @@ export interface UserInterface {
   name: string
   avatarId: string
   inviteCode: string
+  isGuest: boolean
 }

@@ -98,14 +98,6 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
           onChangeModel={updateProperty(ModelComponent, 'src')}
         />
       )}
-      <InputGroup name="Texture Override" label={t('editor:properties.model.lbl-textureOverride')}>
-        <SelectInput
-          key={props.node.entity}
-          options={textureOverrideEntities}
-          value={modelComponent.textureOverride}
-          onChange={updateProperty(ModelComponent, 'textureOverride')}
-        />
-      </InputGroup>
       <MaterialAssignment
         entity={entity}
         node={props.node}

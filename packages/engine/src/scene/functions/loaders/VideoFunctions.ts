@@ -3,6 +3,7 @@ import { LinearFilter, Mesh, MeshStandardMaterial, Object3D, sRGBEncoding, Video
 
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
+import { AudioComponent } from '../../../audio/components/AudioComponent'
 import {
   ComponentDeserializeFunction,
   ComponentPrepareForGLTFExportFunction,
@@ -32,9 +33,9 @@ import { getNextPlaylistItem, updateAutoStartTimeForMedia } from './MediaFunctio
 export const SCENE_COMPONENT_VIDEO = 'video'
 export const VIDEO_MESH_NAME = 'VideoMesh'
 export const SCENE_COMPONENT_VIDEO_DEFAULT_VALUES = {
-  videoSource: '',
-  elementId: 'video-' + Date.now()
-}
+  elementId: 'video-' + Date.now(),
+  maintainAspectRatio: true
+} as VideoComponentType
 
 export const deserializeVideo: ComponentDeserializeFunction = (
   entity: Entity,
@@ -50,64 +51,83 @@ export const updateVideo: ComponentUpdateFunction = (entity: Entity, properties:
   const obj3d = getComponent(entity, Object3DComponent).value as Mesh<any, MeshStandardMaterial>
 
   const videoComponent = getComponent(entity, VideoComponent)
+  const audioComponent = getComponent(entity, AudioComponent)
   const mediaComponent = getComponent(entity, MediaComponent)
 
   const currentPath = mediaComponent.paths.length ? mediaComponent.paths[mediaComponent.currentSource] : ''
 
+  const videoElementExists = document.getElementById(videoComponent.elementId)
+
   if (!hasComponent(entity, MediaElementComponent)) {
-    const el = document.createElement('video')
-    el.setAttribute('crossOrigin', 'anonymous')
-    if (
-      mediaComponent.playMode === PlayMode.SingleLoop ||
-      (mediaComponent.playMode === PlayMode.Loop && mediaComponent.paths.length === 1)
-    )
-      el.setAttribute('loop', 'true')
-    el.setAttribute('preload', 'metadata')
+    if (videoElementExists) {
+      addComponent(entity, MediaElementComponent, videoElementExists)
+    } else {
+      const el = document.createElement('video')
+      el.setAttribute('crossOrigin', 'anonymous')
+      if (
+        mediaComponent.playMode === PlayMode.SingleLoop ||
+        (mediaComponent.playMode === PlayMode.Loop && mediaComponent.paths.length === 1)
+      )
+        el.setAttribute('loop', 'true')
+      el.setAttribute('preload', 'metadata')
 
-    // Setting autoplay to false will not work
-    // see https://developer.mozilla.org/en-US/docs/Web/HTML/Element/video#attr-autoplay
-    if (mediaComponent.autoplay) el.setAttribute('autoplay', 'true')
+      // Setting autoplay to false will not work
+      // see https://developer.mozilla.org/en-US/docs/Web/HTML/Element/video#attr-autoplay
+      if (mediaComponent.autoplay) el.setAttribute('autoplay', 'true')
 
-    el.setAttribute('playsInline', 'true')
-    el.setAttribute('playsinline', 'true')
-    el.setAttribute('webkit-playsInline', 'true')
-    el.setAttribute('webkit-playsinline', 'true')
-    el.setAttribute('muted', 'true')
-    el.muted = true // Needed for some browsers to load videos
-    el.hidden = true
-    document.body.appendChild(el)
+      el.setAttribute('playsInline', 'true')
+      el.setAttribute('playsinline', 'true')
+      el.setAttribute('webkit-playsInline', 'true')
+      el.setAttribute('webkit-playsinline', 'true')
+      el.setAttribute('muted', 'true')
+      el.muted = true // Needed for some browsers to load videos
+      el.hidden = true
+      document.body.appendChild(el)
 
-    el.addEventListener('playing', () => {
-      mediaComponent.playing = true
-    })
-    el.addEventListener('pause', () => {
-      mediaComponent.playing = false
-    })
-    el.addEventListener('ended', () => {
-      if (mediaComponent.stopOnNextTrack) return
-      const nextItem = getNextPlaylistItem(entity)
-      mediaComponent.currentSource = nextItem
-      el.src = mediaComponent.paths[mediaComponent.currentSource]
-      el.play()
-    })
+      el.addEventListener('playing', () => {
+        mediaComponent.playing = true
+      })
+      el.addEventListener('pause', () => {
+        mediaComponent.playing = false
+      })
+      el.addEventListener('ended', () => {
+        if (mediaComponent.stopOnNextTrack) return
+        const nextItem = getNextPlaylistItem(entity)
+        mediaComponent.currentSource = nextItem
+        el.src = mediaComponent.paths[mediaComponent.currentSource]
+        el.play()
+      })
 
-    addComponent(entity, MediaElementComponent, el)
+      addComponent(entity, MediaElementComponent, el)
 
-    // mute and set volume to 0, as we use the audio api gain nodes to connect the source
-    el.muted = true
-    el.volume = 0
+      // mute and set volume to 0, as we use the audio api gain nodes to connect the source
+      el.muted = true
+      el.volume = 0
 
-    createAudioNode(
-      el,
-      Engine.instance.audioContext.createMediaElementSource(el),
-      Engine.instance.gainNodeMixBuses.soundEffects
-    )
+      el.id = videoComponent.elementId
+
+      createAudioNode(
+        el,
+        Engine.instance.audioContext.createMediaElementSource(el),
+        audioComponent.isMusic ? Engine.instance.gainNodeMixBuses.music : Engine.instance.gainNodeMixBuses.soundEffects
+      )
+    }
   }
 
   const el = getComponent(entity, MediaElementComponent) as HTMLVideoElement
   const mesh = obj3d.userData.mesh as Mesh<any, any>
 
-  if (currentPath !== el.src) {
+  if (!mesh.material.map?.isVideoTexture) {
+    const texture = new VideoTexture(el)
+
+    texture.encoding = sRGBEncoding
+    texture.minFilter = LinearFilter
+
+    if (mesh.material.map) mesh.material.map?.dispose()
+    mesh.material.map = texture
+  }
+
+  if (el.src === '' || currentPath !== el.src) {
     try {
       if (isHLS(currentPath)) {
         if (videoComponent.hls) videoComponent.hls.destroy()
@@ -121,23 +141,13 @@ export const updateVideo: ComponentUpdateFunction = (entity: Entity, properties:
       //   component.dash.on('ERROR', (e) => console.error('ERROR', e)
       // }
       else {
-        el.addEventListener('error', () => addError(entity, 'error', 'Error Loading video'))
+        el.addEventListener('error', (err) => {
+          console.error(err)
+          addError(entity, 'error', 'Error Loading video')
+        })
         el.addEventListener('loadeddata', () => removeError(entity, 'error'))
         el.src = currentPath
       }
-
-      const texture = new VideoTexture(el)
-      el.currentTime = 1
-
-      if (!texture) return
-
-      texture.encoding = sRGBEncoding
-      texture.minFilter = LinearFilter
-
-      mesh.name = VIDEO_MESH_NAME
-
-      if (mesh.material.map) mesh.material.map?.dispose()
-      mesh.material.map = texture
 
       el.addEventListener(
         'loadeddata',
@@ -150,8 +160,11 @@ export const updateVideo: ComponentUpdateFunction = (entity: Entity, properties:
             }
           }
 
-          mesh.material.map.image.height = mesh.material.map.image.videoHeight
-          mesh.material.map.image.width = mesh.material.map.image.videoWidth
+          if (videoComponent.maintainAspectRatio) {
+            mesh.material.map.image.height = mesh.material.map.image.videoHeight
+            mesh.material.map.image.width = mesh.material.map.image.videoWidth
+          }
+
           if (getComponent(entity, ImageComponent)?.projection === ImageProjection.Flat) resizeImageMesh(mesh)
 
           if (!Engine.instance.isEditor) updateAutoStartTimeForMedia(entity)
@@ -162,7 +175,6 @@ export const updateVideo: ComponentUpdateFunction = (entity: Entity, properties:
       console.error(error)
     }
   }
-
   if (videoComponent.elementId !== el.id) el.id = videoComponent.elementId
 }
 
@@ -173,7 +185,8 @@ export const serializeVideo: ComponentSerializeFunction = (entity) => {
   return {
     name: SCENE_COMPONENT_VIDEO,
     props: {
-      elementId: component.elementId
+      elementId: component.elementId,
+      maintainAspectRatio: component.maintainAspectRatio
     }
   }
 }
@@ -231,6 +244,7 @@ export const toggleVideo = (entity: Entity) => {
 
 export const parseVideoProperties = (props): Partial<VideoComponentType> => {
   return {
-    elementId: props.elementId ?? SCENE_COMPONENT_VIDEO_DEFAULT_VALUES.elementId
+    elementId: props.elementId ?? SCENE_COMPONENT_VIDEO_DEFAULT_VALUES.elementId,
+    maintainAspectRatio: props.maintainAspectRatio ?? SCENE_COMPONENT_VIDEO_DEFAULT_VALUES.maintainAspectRatio
   }
 }

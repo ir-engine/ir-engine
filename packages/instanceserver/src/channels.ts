@@ -273,14 +273,7 @@ const loadEngine = async (app: Application, sceneId: string) => {
 
     logger.info('Scene loaded!')
 
-    // const portals = getAllComponentsOfType(PortalComponent)
-    // await Promise.all(
-    //   portals.map(async (portal: ReturnType<typeof PortalComponent.get>): Promise<void> => {
-    //     return getPortalByEntityId(app, portal.linkedPortalId).then((res) => {
-    //       if (res) setRemoteLocationDetail(portal, res.data.spawnPosition, res.data.spawnRotation)
-    //     })
-    //   })
-    // )
+    // getPortalDetails()
   }
   await initPromise
 
@@ -480,7 +473,7 @@ const handleUserDisconnect = async (
     .catch((err) => {
       logger.warn(err, "Failed to patch user, probably because they don't have an ID yet.")
     })
-  logger.info('Patched disconnecting user to', userPatchResult)
+  logger.info('Patched disconnecting user to %o', userPatchResult)
   await app.service('instance-attendance').patch(
     null,
     {
@@ -499,8 +492,9 @@ const handleUserDisconnect = async (
 
   await new Promise((resolve) => setTimeout(resolve, config.instanceserver.shutdownDelayMs))
 
-  // check if there are no peers connected (1 being the server)
-  if (app.transport.peers.size === 1) await shutdownServer(app, instanceId)
+  // check if there are no peers connected (1 being the server,
+  // 0 if the serer was just starting when someone connected and disconnected)
+  if (app.transport.peers.size <= 1) await shutdownServer(app, instanceId)
 }
 
 const onConnection = (app: Application) => async (connection: SocketIOConnectionType) => {
@@ -562,13 +556,16 @@ const onConnection = (app: Application) => async (connection: SocketIOConnection
    */
   await createOrUpdateInstance(app, status, locationId, channelId, sceneId, userId)
 
-  connection.instanceId = app.instance.id
-  app.channel(`instanceIds/${app.instance.id as string}`).join(connection)
+  if (app.instance) {
+    connection.instanceId = app.instance.id
+    app.channel(`instanceIds/${app.instance.id as string}`).join(connection)
+  }
 
   await handleUserAttendance(app, userId)
 }
 
 const onDisconnection = (app: Application) => async (connection: SocketIOConnectionType) => {
+  logger.info('Disconnection: %o', connection)
   const token = connection.socketQuery?.token
   if (!token) return
 
@@ -590,14 +587,23 @@ const onDisconnection = (app: Application) => async (connection: SocketIOConnect
     const user = await app.service('user').get(userId)
     const instanceId = !config.kubernetes.enabled ? connection.instanceId : app.instance?.id
     let instance
+    logger.info('On disconnect, instanceId: ' + instanceId)
+    logger.info('Disconnecting user instanceId %s channelInstanceId %s: ', user.instanceId, user.channelInstanceId)
+
+    if (!instanceId) {
+      logger.info('No instanceId on user disconnect, waiting one second to see if initial user was connecting')
+      await new Promise((resolve) =>
+        setTimeout(() => {
+          resolve(null)
+        }, 1000)
+      )
+    }
     try {
       instance = app.instance && instanceId != null ? await app.service('instance').get(instanceId) : {}
     } catch (err) {
       logger.warn('Could not get instance, likely because it is a local one that no longer exists.')
     }
-    logger.info('instanceId: ' + instanceId)
-    logger.info('user instanceId: ' + user.instanceId)
-
+    logger.info('instanceId %s instance %o', instanceId, instance)
     if (instanceId != null && instance != null) {
       await handleUserDisconnect(app, connection, user, instanceId)
     }

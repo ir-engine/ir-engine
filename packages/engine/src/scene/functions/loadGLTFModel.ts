@@ -1,11 +1,8 @@
-import { AnimationMixer, BufferGeometry, Mesh, Object3D, Quaternion, Vector3 } from 'three'
+import { AnimationMixer, BufferGeometry, Mesh, Object3D } from 'three'
 import { NavMesh, Polygon } from 'yuka'
-
-import { dispatchAction } from '@xrengine/hyperflux'
 
 import { AnimationComponent } from '../../avatar/components/AnimationComponent'
 import { parseGeometry } from '../../common/functions/parseGeometry'
-import { createQuaternionProxy, createVector3Proxy } from '../../common/proxies/three'
 import { DebugNavMeshComponent } from '../../debug/DebugNavMeshComponent'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions, getEngineState } from '../../ecs/classes/EngineState'
@@ -14,18 +11,15 @@ import { addComponent, ComponentMap, getComponent, removeComponent } from '../..
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { NavMeshComponent } from '../../navigation/component/NavMeshComponent'
 import { matchActionOnce } from '../../networking/functions/matchActionOnce'
-import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { applyTransformToMeshWorld } from '../../physics/functions/parseModelColliders'
-import { addTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
-import {
-  addTransformOffsetComponent,
-  TransformOffsetComponent
-} from '../../transform/components/TransformOffsetComponent'
+import { setComputedTransformComponent } from '../../transform/components/ComputedTransformComponent'
+import { setTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
 import { ModelComponent, ModelComponentType } from '../components/ModelComponent'
 import { NameComponent } from '../components/NameComponent'
 import { Object3DComponent } from '../components/Object3DComponent'
 import { ObjectLayers } from '../constants/ObjectLayers'
 import { loadComponent } from '../functions/SceneLoading'
+import { applyTransformPositionOffset, applyTransformRotationOffset } from './loaders/TransformFunctions'
 import { VIDEO_MESH_NAME } from './loaders/VideoFunctions'
 import { setObjectLayers } from './setObjectLayers'
 
@@ -41,7 +35,11 @@ export const createObjectEntityFromGLTF = (entity: Entity, obj3d: Object3D): voi
         const componentExists = ComponentMap.has(parts[1])
         const _toLoad = componentExists ? components : prefabs
         if (typeof _toLoad[parts[1]] === 'undefined') {
-          _toLoad[parts[1]] = {}
+          _toLoad[parts[1]] = {
+            [parts[2]]: value,
+            ...obj3d.userData
+          }
+          obj3d.userData[parts[2]] = value
         }
         if (parts.length > 2) {
           _toLoad[parts[1]][parts[2]] = value
@@ -95,7 +93,7 @@ export const parseObjectComponentsFromGLTF = (entity: Entity, object3d?: Object3
     // apply root mesh's world transform to this mesh locally
     applyTransformToMeshWorld(entity, mesh)
 
-    const transform = addTransformComponent(e)
+    const transform = setTransformComponent(e)
     mesh.getWorldPosition(transform.position)
     mesh.getWorldQuaternion(transform.rotation)
     mesh.getWorldScale(transform.scale)
@@ -105,9 +103,12 @@ export const parseObjectComponentsFromGLTF = (entity: Entity, object3d?: Object3
 
     // to ensure colliders and other entities from gltf metadata move with models in the editor, we need to add a child transform component
     if (Engine.instance.isEditor) {
-      const offset = addTransformOffsetComponent(e, entity)
-      offset.offsetPosition.copy(mesh.position)
-      offset.offsetRotation.copy(mesh.quaternion)
+      setComputedTransformComponent(e, entity, () => {
+        const transform = getComponent(e, TransformComponent)
+        const parentTransform = getComponent(entity, TransformComponent)
+        applyTransformPositionOffset(transform, parentTransform, mesh.position)
+        applyTransformRotationOffset(transform, parentTransform, mesh.quaternion)
+      })
     }
 
     createObjectEntityFromGLTF(e, mesh)
@@ -146,35 +147,10 @@ export const loadNavmesh = (entity: Entity, object3d?: Object3D): void => {
   }
 }
 
-export const overrideTexture = (entity: Entity, object3d?: Object3D, world = Engine.instance.currentWorld): void => {
-  const state = getEngineState()
+export const parseGLTFModel = (entity: Entity) => {
+  const props = getComponent(entity, ModelComponent)
+  const obj3d = getComponent(entity, Object3DComponent).value
 
-  if (state.sceneLoaded.value) {
-    const modelComponent = getComponent(entity, ModelComponent)
-    const node = world.entityTree.uuidNodeMap.get(modelComponent.textureOverride)
-
-    if (node) {
-      const obj3d = object3d ?? getComponent(entity, Object3DComponent).value
-      const textureObj3d = getComponent(node.entity, Object3DComponent).value
-
-      textureObj3d.traverse((mesh: Mesh) => {
-        if (mesh.name === VIDEO_MESH_NAME) {
-          obj3d.traverse((obj: Mesh) => {
-            if (obj.material) obj.material = mesh.material
-          })
-        }
-      })
-    }
-
-    return
-  } else {
-    matchActionOnce(EngineActions.sceneLoaded.matches, () => {
-      overrideTexture(entity, object3d, world)
-    })
-  }
-}
-
-export const parseGLTFModel = (entity: Entity, props: ModelComponentType, obj3d: Object3D) => {
   // always parse components first
   parseObjectComponentsFromGLTF(entity, obj3d)
 
@@ -197,13 +173,6 @@ export const parseGLTFModel = (entity: Entity, props: ModelComponentType, obj3d:
   }
 
   const world = Engine.instance.currentWorld
-
-  if (props.textureOverride) {
-    // TODO: we should push this to ECS, something like a SceneObjectLoadComponent,
-    // or add engine events for specific objects being added to the scene,
-    // the scene load event + delay 1 second delay works for now.
-    overrideTexture(entity, obj3d, world)
-  }
 
   if (!Engine.instance.isEditor && world.worldNetwork?.isHosting && props.isDynamicObject) {
     const node = world.entityTree.entityNodeMap.get(entity)

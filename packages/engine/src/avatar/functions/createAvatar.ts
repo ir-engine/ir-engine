@@ -11,6 +11,7 @@ import { InteractorComponent } from '../../interaction/components/InteractorComp
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { Physics } from '../../physics/classes/Physics'
 import { VectorSpringSimulator } from '../../physics/classes/springs/VectorSpringSimulator'
+import { CollisionComponent } from '../../physics/components/CollisionComponent'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { AvatarCollisionMask, CollisionGroups } from '../../physics/enums/CollisionGroups'
 import { getInteractionGroups } from '../../physics/functions/getInteractionGroups'
@@ -78,7 +79,8 @@ export const createAvatar = (spawnAction: typeof WorldNetworkAction.spawnAvatar.
     },
     rig: {} as BoneStructure,
     bindRig: {} as BoneStructure,
-    rootYRatio: 1
+    rootYRatio: 1,
+    locomotion: new Vector3()
   })
 
   addComponent(entity, Object3DComponent, { value: tiltContainer })
@@ -107,7 +109,7 @@ export const createAvatar = (spawnAction: typeof WorldNetworkAction.spawnAvatar.
 export const createAvatarCollider = (entity: Entity): Collider => {
   const interactionGroups = getInteractionGroups(CollisionGroups.Avatars, AvatarCollisionMask)
   const avatarComponent = getComponent(entity, AvatarComponent)
-  const rigidBody = getComponent(entity, RigidBodyComponent)
+  const rigidBody = getComponent(entity, RigidBodyComponent).body
 
   const bodyColliderDesc = ColliderDesc.capsule(
     avatarComponent.avatarHalfHeight - avatarRadius,
@@ -161,9 +163,9 @@ export const createAvatarController = (entity: Entity) => {
     getComponent(entity, TransformComponent).position.y += avatarComponent.avatarHalfHeight
     const rigidBody = createAvatarRigidBody(entity)
     addComponent(entity, AvatarControllerComponent, {
-      controller: rigidBody,
+      cameraEntity: Engine.instance.currentWorld.cameraEntity,
+      body: rigidBody,
       bodyCollider: undefined!,
-      collisions: [false, false, false],
       movementEnabled: true,
       isJumping: false,
       isWalking: false,
@@ -178,4 +180,6 @@ export const createAvatarController = (entity: Entity) => {
 
   const avatarControllerComponent = getComponent(entity, AvatarControllerComponent)
   avatarControllerComponent.bodyCollider = createAvatarCollider(entity)
+
+  addComponent(entity, CollisionComponent, new Map())
 }

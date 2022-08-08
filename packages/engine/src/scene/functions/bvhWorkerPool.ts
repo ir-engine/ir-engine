@@ -3,7 +3,7 @@ import { Mesh } from 'three'
 import { GenerateMeshBVHWorker } from '../../common/classes/GenerateMeshBVHWorker'
 import { isClient } from '../../common/functions/isClient'
 
-let poolSize = isClient ? 2 : 1
+let poolSize = isClient ? 1 : 1
 
 //TODO: Find number of cores on server side
 // if (isClient) {

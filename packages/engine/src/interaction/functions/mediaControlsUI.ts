@@ -27,12 +27,8 @@ export const createMediaControlsUI = (entity: Entity) => {
   })
 
   const transform = getComponent(entity, TransformComponent)
-
-  addComponent(ui.entity, TransformComponent, {
-    position: new Vector3().copy(transform.position),
-    rotation: new Quaternion(),
-    scale: new Vector3(1, 1, 1)
-  })
+  const uiTransform = getComponent(ui.entity, TransformComponent)
+  uiTransform.position.copy(transform.position)
 
   return ui
 }

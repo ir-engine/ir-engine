@@ -1,7 +1,5 @@
 import { iff, isProvider } from 'feathers-hooks-common'
 
-import restrictUserRole from '@xrengine/server-core/src/hooks/restrict-user-role'
-
 import authenticate from '../../hooks/authenticate'
 import verifyScope from '../../hooks/verify-scope'
 
@@ -10,10 +8,14 @@ export default {
     all: [authenticate()],
     find: [],
     get: [],
-    create: [iff(isProvider('external'), restrictUserRole('admin') as any, verifyScope('settings', 'write') as any)],
-    update: [iff(isProvider('external'), restrictUserRole('admin') as any, verifyScope('settings', 'write') as any)],
-    patch: [iff(isProvider('external'), restrictUserRole('admin') as any, verifyScope('settings', 'write') as any)],
-    remove: [iff(isProvider('external'), restrictUserRole('admin') as any, verifyScope('settings', 'write') as any)]
+    create: [
+      iff(isProvider('external'), verifyScope('admin', 'admin') as any, verifyScope('settings', 'write') as any)
+    ],
+    update: [
+      iff(isProvider('external'), verifyScope('admin', 'admin') as any, verifyScope('settings', 'write') as any)
+    ],
+    patch: [iff(isProvider('external'), verifyScope('admin', 'admin') as any, verifyScope('settings', 'write') as any)],
+    remove: [iff(isProvider('external'), verifyScope('admin', 'admin') as any, verifyScope('settings', 'write') as any)]
   },
 
   after: {

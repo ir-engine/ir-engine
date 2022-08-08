@@ -90,7 +90,7 @@ export default async function MountPointSystem(world: World) {
       const desiredTransform = getComponent(entity, DesiredTransformComponent)
       const sitting = getComponent(entity, SittingComponent)
 
-      controllerComponent.controller.setTranslation(
+      controllerComponent.body.setTranslation(
         {
           x: transform.position.x,
           y: transform.position.y + avatar.avatarHalfHeight,

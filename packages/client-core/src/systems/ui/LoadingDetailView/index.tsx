@@ -1,13 +1,16 @@
 import { createState, State, useHookstate } from '@hookstate/core'
 import getImagePalette from 'image-palette-core'
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Color } from 'three'
 
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
+import { createTransitionState } from '@xrengine/engine/src/xrui/functions/createTransitionState'
 import { createXRUI, XRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
 import { useXRUIState } from '@xrengine/engine/src/xrui/functions/useXRUIState'
+import { useHookEffect } from '@xrengine/hyperflux'
 
+import { AppLoadingStates, useLoadingState } from '../../../common/services/AppLoadingService'
 import { useSceneState } from '../../../world/services/SceneService'
 import ProgressBar from './SimpleProgressBar'
 import LoadingDetailViewStyle from './style'
@@ -17,7 +20,7 @@ interface LoadingUIState {
   imageHeight: number
 }
 
-export async function createLoaderDetailView() {
+export async function createLoaderDetailView(transition: ReturnType<typeof createTransitionState>) {
   let hasSceneColors = false
   const xrui = await new Promise<XRUI<State<LoadingUIState>>>((resolve) => {
     const xrui = createXRUI(function Loading() {
@@ -26,6 +29,7 @@ export async function createLoaderDetailView() {
           onStateChange={(state) => {
             hasSceneColors = state.hasSceneColors
           }}
+          transition={transition}
           colorsLoadedCallback={() => resolve(xrui)}
         />
       )
@@ -45,8 +49,10 @@ function setDefaultPalette(colors) {
 
 const LoadingDetailView = (props: {
   colorsLoadedCallback
+  transition: ReturnType<typeof createTransitionState>
   onStateChange: (state: { hasSceneColors: boolean }) => void
 }) => {
+  const loadingState = useLoadingState()
   const uiState = useXRUIState<LoadingUIState>()
   const sceneState = useSceneState()
   const engineState = useEngineState()
@@ -98,6 +104,15 @@ const LoadingDetailView = (props: {
       hasSceneColors: (hasScene && hasThumbnail && hasColors) || (hasScene && !hasThumbnail && hasColors)
     })
   }, [colors, sceneState])
+
+  useHookEffect(() => {
+    if (loadingState.state.value === AppLoadingStates.SUCCESS) {
+      props.transition.setState('OUT')
+    }
+    if (loadingState.state.value === AppLoadingStates.SCENE_LOADING) {
+      props.transition.setState('IN')
+    }
+  }, [loadingState.state])
 
   const sceneLoaded = engineState.sceneLoaded.value
   const joinedWorld = engineState.joinedWorld.value

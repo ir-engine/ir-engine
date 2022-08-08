@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import { UserAvatar } from '@xrengine/common/src/interfaces/UserAvatar'
+import { AudioEffectPlayer } from '@xrengine/engine/src/audio/systems/AudioSystem'
 import { AvatarEffectComponent } from '@xrengine/engine/src/avatar/components/AvatarEffectComponent'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 
-import { ArrowBackIos, ArrowForwardIos, Check, PersonAdd } from '@mui/icons-material'
+import { ArrowBack, ArrowBackIos, ArrowForwardIos, Check, PersonAdd } from '@mui/icons-material'
 import Grid from '@mui/material/Grid'
 import Paper from '@mui/material/Paper'
 
@@ -19,6 +20,8 @@ interface Props {
 }
 
 const selectAvatarMenu = (props: Props) => {
+  const { t } = useTranslation()
+
   const MAX_AVATARS_PER_PAGE = window.innerWidth >= 1024 ? 9 : 12
   const MIN_AVATARS_PER_PAGE = 6
   const getAvatarPerPage = () => (window.innerWidth > 768 ? MAX_AVATARS_PER_PAGE : MIN_AVATARS_PER_PAGE)
@@ -80,6 +83,11 @@ const selectAvatarMenu = (props: Props) => {
     props.changeActiveMenu(Views.AvatarUpload)
   }
 
+  const openProfileMenu = (e) => {
+    e.preventDefault()
+    props.changeActiveMenu(Views.Profile)
+  }
+
   const renderAvatarList = () => {
     const avatarElementList = [] as JSX.Element[]
     const startIndex = page * imgPerPage
@@ -93,6 +101,8 @@ const selectAvatarMenu = (props: Props) => {
         <Grid key={avatar.id} item>
           <Paper
             onClick={() => selectAvatar(characterAvatar)}
+            onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+            onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
             style={{ pointerEvents: avatar.name == avatarId ? 'none' : 'auto' }}
             className={`${styles.paperAvatar} ${
               avatar.name == selectedAvatar?.avatar?.name ? styles.selectedAvatar : ''
@@ -121,11 +131,19 @@ const selectAvatarMenu = (props: Props) => {
 
   return (
     <div className={styles.avatarSelectContainer}>
+      <div className={styles.avatarHeaderBlock}>
+        <button type="button" className={styles.iconBlock} onClick={openProfileMenu}>
+          <ArrowBack />
+        </button>
+        <h2>{t('user:avatar.titleSelectAvatar')}</h2>
+      </div>
+
       <div className={styles.avatarContainer}>
         <Grid container spacing={1} style={{ margin: 0 }}>
           {renderAvatarList()}
         </Grid>
       </div>
+
       <div className={styles.menuContainer}>
         <button type="button" className={`${styles.btnBack} ${styles.btnArrow} ${page === 0 ? styles.disabled : ''}`}>
           <ArrowBackIos className={styles.size} onClick={loadPreviousAvatars} />
@@ -144,6 +162,8 @@ const selectAvatarMenu = (props: Props) => {
             onClick={() => {
               setSelectedAvatar('')
             }}
+            onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+            onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
           >
             <span style={{ fontSize: '15px', fontWeight: 'bold' }}>X</span>
           </button>
@@ -158,10 +178,18 @@ const selectAvatarMenu = (props: Props) => {
             }`}
             disabled={selectedAvatar?.avatar?.name == avatarId}
             onClick={confirmAvatar}
+            onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+            onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
           >
             <Check />
           </button>
-          <button type="button" className={`${styles.btn} ${styles.btnPerson}`} onClick={openAvatarSelectMenu}>
+          <button
+            type="button"
+            className={`${styles.btn} ${styles.btnPerson}`}
+            onClick={openAvatarSelectMenu}
+            onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+            onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+          >
             <PersonAdd className={styles.size} />
           </button>
         </div>
@@ -171,6 +199,8 @@ const selectAvatarMenu = (props: Props) => {
             (page + 1) * imgPerPage >= avatarList.length ? styles.disabled : ''
           }`}
           onClick={loadNextAvatars}
+          onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+          onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
         >
           <ArrowForwardIos className={styles.size} />
         </button>

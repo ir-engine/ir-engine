@@ -6,6 +6,7 @@ import { AvatarEffectComponent, MaterialMap } from '@xrengine/engine/src/avatar/
 import { DissolveEffect } from '@xrengine/engine/src/avatar/DissolveEffect'
 import { loadGrowingEffectObject } from '@xrengine/engine/src/avatar/functions/avatarFunctions'
 
+import { AudioComponent } from '../../../audio/components/AudioComponent'
 import {
   ComponentDeserializeFunction,
   ComponentPrepareForGLTFExportFunction,
@@ -80,6 +81,7 @@ export const deserializeVolumetric: ComponentDeserializeFunction = (
 export const addVolumetricComponent = (entity: Entity, props: VolumetricComponentType) => {
   const obj3d = getComponent(entity, Object3DComponent).value as VolumetricObject3D
   const mediaComponent = getComponent(entity, MediaComponent)
+  const audioComponent = getComponent(entity, AudioComponent)
 
   let height = 0
   let step = 0.001
@@ -163,7 +165,7 @@ export const addVolumetricComponent = (entity: Entity, props: VolumetricComponen
   createAudioNode(
     el,
     Engine.instance.audioContext.createMediaElementSource(el),
-    Engine.instance.gainNodeMixBuses.soundEffects
+    audioComponent.isMusic ? Engine.instance.gainNodeMixBuses.music : Engine.instance.gainNodeMixBuses.soundEffects
   )
 }
 

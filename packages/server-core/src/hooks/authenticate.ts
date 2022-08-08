@@ -25,6 +25,11 @@ export default () => {
       })
       if (key != null)
         user = await context.app.service('user').Model.findOne({
+          include: [
+            {
+              model: context.app.service('scope').Model
+            }
+          ],
           where: {
             id: key.userId
           }
@@ -39,6 +44,11 @@ export default () => {
     context.params.user =
       context.params[config.authentication.entity] && context.params[config.authentication.entity].userId
         ? await context.app.service('user').Model.findOne({
+            include: [
+              {
+                model: context.app.service('scope').Model
+              }
+            ],
             where: {
               id: context.params[config.authentication.entity].userId
             }

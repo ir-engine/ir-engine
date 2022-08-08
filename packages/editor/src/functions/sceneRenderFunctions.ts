@@ -1,5 +1,6 @@
 import { Group, Object3D, Scene, Vector3, WebGLInfo } from 'three'
 
+import { getPortalDetails } from '@xrengine/client-core/src/world/functions/getPortalDetails'
 import { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
@@ -59,6 +60,7 @@ export async function initializeScene(projectFile: SceneJson): Promise<Error[] |
 
   // getting scene data
   await loadSceneFromJSON(projectFile, [])
+  getPortalDetails()
 
   Engine.instance.currentWorld.camera.position.set(0, 5, 10)
   Engine.instance.currentWorld.camera.lookAt(new Vector3())
@@ -82,7 +84,7 @@ export async function initializeScene(projectFile: SceneJson): Promise<Error[] |
   SceneState.gizmoEntity = createGizmoEntity(SceneState.transformGizmo)
   SceneState.editorEntity = createEditorEntity()
 
-  Engine.instance.currentWorld.scene.add(Engine.instance.currentWorld.camera)
+  // Engine.instance.currentWorld.scene.add(Engine.instance.currentWorld.camera)
   Engine.instance.currentWorld.scene.add(SceneState.transformGizmo)
 
   // Require when changing scene

@@ -6,7 +6,7 @@ import JSONTree from 'react-json-tree'
 
 import { mapToObject } from '@xrengine/common/src/utils/mapToObject'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { EngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
+import { EngineActions, EngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import {
   addComponent,
   getComponent,
@@ -42,6 +42,7 @@ export const Debug = () => {
   const [isShowing, setShowing] = useState(false)
   const showingStateRef = useRef(isShowing)
   const engineRendererState = useEngineRendererState()
+  const engineState = getState(EngineState)
   const { t } = useTranslation()
 
   const networks = mapToObject(Engine.instance.currentWorld.networks)
@@ -74,15 +75,15 @@ export const Debug = () => {
     )
   }
 
-  // todo: display all entities?
-  const renderNamedEntities = () => {
+  const renderAllEntities = () => {
     return {
       ...Object.fromEntries(
-        [...Engine.instance.currentWorld.namedEntities.entries()]
+        [...Engine.instance.currentWorld.entityQuery().entries()]
           .map(([key, eid]) => {
+            const name = getComponent(eid, NameComponent)?.name
             try {
               return [
-                '(eid:' + eid + ') ' + key,
+                '(eid:' + eid + ') ' + (name ?? ''),
                 Object.fromEntries(
                   getEntityComponents(Engine.instance.currentWorld, eid).reduce<[string, any][]>(
                     (components, C: MappedComponent<any, any>) => {
@@ -132,11 +133,10 @@ export const Debug = () => {
 
   const namedEntities = useHookstate({})
 
-  namedEntities.set(renderNamedEntities())
-
   const pipelines = Engine.instance.currentWorld.pipelines
 
-  if (isShowing)
+  if (isShowing) {
+    namedEntities.set(renderAllEntities())
     return (
       <div className={styles.debugContainer}>
         <div className={styles.debugOptionContainer}>
@@ -177,13 +177,12 @@ export const Debug = () => {
               </button>
               <button
                 type="button"
-                onClick={simpleMaterials}
-                className={
-                  styles.flagBtn +
-                  (hasComponent(Engine.instance.currentWorld.sceneEntity, SimpleMaterialTagComponent)
-                    ? ' ' + styles.active
-                    : '')
+                onClick={() =>
+                  dispatchAction(
+                    EngineActions.useSimpleMaterials({ useSimpleMaterials: !engineState.useSimpleMaterials.value })
+                  )
                 }
+                className={styles.flagBtn + (engineState.useSimpleMaterials.value ? ' ' + styles.active : '')}
                 title={t('common:debug.simpleMaterials')}
               >
                 <BlurOffIcon fontSize="small" />
@@ -232,7 +231,7 @@ export const Debug = () => {
         </div>
       </div>
     )
-  else return null
+  } else return null
 }
 
 export default Debug

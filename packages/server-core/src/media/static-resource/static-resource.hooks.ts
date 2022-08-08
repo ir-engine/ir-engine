@@ -5,19 +5,19 @@ import replaceThumbnailLink from '@xrengine/server-core/src/hooks/replace-thumbn
 import attachOwnerIdInQuery from '@xrengine/server-core/src/hooks/set-loggedin-user-in-query'
 
 import authenticate from '../../hooks/authenticate'
-import restrictUserRole from '../../hooks/restrict-user-role'
+import verifyScope from '../../hooks/verify-scope'
 
 export default {
   before: {
     all: [],
     find: [collectAnalytics()],
     get: [disallow('external')],
-    create: [authenticate(), restrictUserRole('admin')],
-    update: [authenticate(), restrictUserRole('admin')],
-    patch: [authenticate(), restrictUserRole('admin'), replaceThumbnailLink()],
+    create: [authenticate(), verifyScope('admin', 'admin')],
+    update: [authenticate(), verifyScope('admin', 'admin')],
+    patch: [authenticate(), verifyScope('admin', 'admin'), replaceThumbnailLink()],
     remove: [
       authenticate(),
-      iff(isProvider('external'), restrictUserRole('admin') as any),
+      iff(isProvider('external'), verifyScope('admin', 'admin') as any),
       attachOwnerIdInQuery('userId')
     ]
   },

@@ -28,7 +28,7 @@ describe('ColliderFunctions', () => {
   }
 
   describe('deserializeCollider()', () => {
-    it('does not create ColliderComponent and CollisionComponent if there is no Object3d Component', () => {
+    it('does not create RigidBodyComponent if there is no Object3d Component', () => {
       const entity = createEntity()
 
       deserializeCollider(entity, sceneComponent)
@@ -36,15 +36,15 @@ describe('ColliderFunctions', () => {
       assert(!hasComponent(entity, RigidBodyComponent))
     })
 
-    it('creates ColliderComponent and CollisionComponent', () => {
+    it('creates  RigidBodyComponent', () => {
       const entity = createEntity()
       addComponent(entity, Object3DComponent, { value: new Object3D() })
 
       deserializeCollider(entity, sceneComponent)
 
-      const body = getComponent(entity, RigidBodyComponent)
+      const body = getComponent(entity, RigidBodyComponent).body
 
-      assert(body, 'ColliderComponent is not created')
+      assert(body, 'RigidBodyComponent is not created')
     })
 
     it('will include this component into EntityNodeComponent', () => {

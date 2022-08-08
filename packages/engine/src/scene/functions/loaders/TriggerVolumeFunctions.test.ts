@@ -88,7 +88,7 @@ describe('TriggerVolumeFunctions', () => {
       deserializeTriggerVolume(entity, sceneComponent)
       updateTriggerVolume(entity)
 
-      const body = getComponent(entity, RigidBodyComponent)
+      const body = getComponent(entity, RigidBodyComponent).body
       assert(vector3EqualsEpsilon(body.translation() as Vector3, transform.position))
       assert(quaternionEqualsEpsilon(body.rotation() as Quaternion, transform.rotation))
     })

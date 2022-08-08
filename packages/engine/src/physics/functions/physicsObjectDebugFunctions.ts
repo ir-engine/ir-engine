@@ -163,7 +163,7 @@ export const generatePhysicsObject = (
   obj3d.scale.copy(scale)
   addComponent(entity, Object3DComponent, { value: obj3d })
 
-  parseGLTFModel(entity, getComponent(entity, ModelComponent), obj3d)
+  parseGLTFModel(entity)
 
   const world = Engine.instance.currentWorld
   addEntityNodeInTree(entityTreeNode, world.entityTree.rootNode)
@@ -171,7 +171,7 @@ export const generatePhysicsObject = (
   const transform = getComponent(entity, TransformComponent)
   transform.position.copy(spawnPosition)
 
-  const body = getComponent(entity, RigidBodyComponent)
+  const body = getComponent(entity, RigidBodyComponent).body
   body.setTranslation(transform.position, true)
 
   if (isNetworkObject && world.worldNetwork.isHosting) {

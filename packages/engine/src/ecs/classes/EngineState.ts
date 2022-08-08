@@ -9,7 +9,10 @@ export const EngineState = defineState({
   name: 'EngineState',
   initial: {
     frameTime: 0,
+    deltaSeconds: 0,
+    elapsedSeconds: 0,
     fixedDeltaSeconds: 1 / 60,
+    fixedElapsedSeconds: 0,
     fixedTick: 0,
     isEngineInitialized: false,
     sceneLoaded: false,
@@ -21,8 +24,6 @@ export const EngineState = defineState({
     socketInstance: false,
     avatarTappedId: '' as UserId,
     userHasInteracted: false,
-    xrSupported: false,
-    xrSessionStarted: false,
     spectating: false,
     errorEntities: {} as { [key: Entity]: boolean },
     availableInteractable: null! as Entity,
@@ -32,7 +33,8 @@ export const EngineState = defineState({
      */
     shareLink: '',
     shareTitle: '',
-    transformOffsetsNeedSorting: true
+    transformsNeedSorting: true,
+    useSimpleMaterials: false
   }
 })
 
@@ -60,10 +62,6 @@ export function EngineEventReceptor(a) {
     .when(EngineActions.setTeleporting.matches, (action) => s.merge({ isTeleporting: action.isTeleporting }))
     .when(EngineActions.setUserHasInteracted.matches, (action) => s.merge({ userHasInteracted: true }))
     .when(EngineActions.updateEntityError.matches, (action) => s.errorEntities[action.entity].set(!action.isResolved))
-    .when(EngineActions.xrSupported.matches, (action) => s.xrSupported.set(action.xrSupported))
-    .when(EngineActions.xrStart.matches, (action) => s.xrSessionStarted.set(true))
-    .when(EngineActions.xrSession.matches, (action) => s.xrSessionStarted.set(true))
-    .when(EngineActions.xrEnd.matches, (action) => s.xrSessionStarted.set(false))
     .when(EngineActions.availableInteractable.matches, (action) =>
       s.availableInteractable.set(action.availableInteractable)
     )
@@ -71,6 +69,9 @@ export function EngineEventReceptor(a) {
     .when(EngineActions.shareInteractableLink.matches, (action) => {
       s.shareLink.set(action.shareLink)
       s.shareTitle.set(action.shareTitle)
+    })
+    .when(EngineActions.useSimpleMaterials.matches, (action) => {
+      s.useSimpleMaterials.set(action.useSimpleMaterials)
     })
 }
 
@@ -130,18 +131,6 @@ export class EngineActions {
     availableInteractable: matches.any
   })
 
-  static xrStart = defineAction({
-    type: 'xre.engine.XR_START' as const
-  })
-
-  static xrSession = defineAction({
-    type: 'xre.engine.XR_SESSION' as const
-  })
-
-  static xrEnd = defineAction({
-    type: 'xre.engine.XR_END' as const
-  })
-
   static connect = defineAction({
     type: 'xre.engine.CONNECT' as const,
     id: matches.string
@@ -160,11 +149,6 @@ export class EngineActions {
     type: 'xre.engine.ENTITY_ERROR_UPDATE' as const,
     entity: matches.number as Validator<unknown, Entity>,
     isResolved: matches.boolean.optional()
-  })
-
-  static xrSupported = defineAction({
-    type: 'xre.engine.XR_SUPPORTED' as const,
-    xrSupported: matches.boolean
   })
 
   static setupAnimation = defineAction({
@@ -195,5 +179,10 @@ export class EngineActions {
   static sceneObjectUpdate = defineAction({
     type: 'xre.engine.SCENE_OBJECT_UPDATE' as const,
     entities: matches.array as Validator<unknown, Entity[]>
+  })
+
+  static useSimpleMaterials = defineAction({
+    type: 'xre.engine.SIMPLE_MATERIALS' as const,
+    useSimpleMaterials: matches.boolean
   })
 }
