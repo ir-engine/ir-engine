@@ -10,6 +10,7 @@ import {
   AvatarInputSettingsAction,
   useAvatarInputSettingsState
 } from '@xrengine/engine/src/avatar/state/AvatarInputSettingsState'
+import { isMobile } from '@xrengine/engine/src/common/functions/isMobile'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
@@ -59,6 +60,7 @@ const SettingMenu = (): JSX.Element => {
   const firstRender = useRef(true)
   const xrSupportedModes = useHookstate(getState(XRState).supportedSessionModes)
   const xrSupported = xrSupportedModes['immersive-ar'].value || xrSupportedModes['immersive-vr'].value
+  const windowsPerformanceHelp = navigator.platform?.startsWith('Win')
   const controllerTypes = Object.values(AvatarControllerType).filter((value) => typeof value === 'string')
   const controlSchemes = Object.values(AvatarMovementScheme).filter((value) => typeof value === 'string')
   // const [open, setOpen] = useState(false)
@@ -112,7 +114,7 @@ const SettingMenu = (): JSX.Element => {
     <div className={styles.menuPanel}>
       <div className={styles.settingPanel}>
         <section className={styles.settingSection}>
-          <Typography variant="h6" className={styles.settingHeader}>
+          <Typography variant="h5" className={styles.settingHeader}>
             {t('user:usermenu.setting.audio')}
           </Typography>
           <div className={styles.row}>
@@ -283,8 +285,10 @@ const SettingMenu = (): JSX.Element => {
             </Collapse>
           </section>
         </section>
+
+        {/* Graphics Settings */}
         <section className={styles.settingSection}>
-          <Typography variant="h6" className={styles.settingHeader}>
+          <Typography variant="h5" className={styles.settingHeader}>
             {t('user:usermenu.setting.graphics')}
           </Typography>
           <div className={styles.row}>
@@ -306,7 +310,7 @@ const SettingMenu = (): JSX.Element => {
               step={1}
             />
           </div>
-          <div className={`${styles.row}`}>
+          <div className={styles.row}>
             <FormControlLabel
               className={styles.checkboxBlock}
               control={<Checkbox checked={rendererState.usePostProcessing.value} size="small" />}
@@ -355,14 +359,14 @@ const SettingMenu = (): JSX.Element => {
           </div>
         </section>
         {/* <section className={styles.settingSection}>
-          <Typography variant="h6" className={styles.settingHeader}>
+          <Typography variant="h5" className={styles.settingHeader}>
             {t('user:usermenu.setting.user-avatar')}
           </Typography>
           <FormControlLabel
             label={t('user:usermenu.setting.show-avatar')}
             labelPlacement="start"
             control={
-              <Switch 
+              <Switch
               checked={showAvatar}
               onChange={handleChangeShowAvatar}
               onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
@@ -374,7 +378,7 @@ const SettingMenu = (): JSX.Element => {
         </section> */}
         {xrSupported && (
           <section className={styles.settingSection}>
-            <Typography variant="h6" className={styles.settingHeader}>
+            <Typography variant="h5" className={styles.settingHeader}>
               {t('user:usermenu.setting.xrusersetting')}
             </Typography>
             {/*
@@ -434,6 +438,60 @@ const SettingMenu = (): JSX.Element => {
                 </Table>
               </Box>
             </Collapse> */}
+          </section>
+        )}
+
+        {/* Controls Helptext */}
+        <section className={styles.settingSection}>
+          <Typography variant="h5" className={styles.settingHeader}>
+            {t('user:usermenu.setting.controls')}
+          </Typography>
+          {!isMobile && !xrSupported && (
+            <>
+              <div className={`${styles.row} ${styles.tutorialImage}`}>
+                <img src="/static/Desktop_Tutorial.png" alt="Desktop Controls" />
+              </div>
+              <div className={`${styles.row} ${styles.tutorialImage}`}>
+                <img src="/static/Controller_Tutorial.png" alt="Controller Controls" />
+              </div>
+            </>
+          )}
+          {isMobile && (
+            <div className={`${styles.row} ${styles.tutorialImage}`}>
+              <img src="/static/Mobile_Tutorial.png" alt="Mobile Controls" />
+            </div>
+          )}
+          {xrSupported && (
+            <div className={`${styles.row} ${styles.tutorialImage}`}>
+              <img src="/static/XR_Tutorial.png" alt="XR Controls" />
+            </div>
+          )}
+        </section>
+
+        {/* Windows-specific Graphics/Performance Optimization Helptext */}
+        {windowsPerformanceHelp && (
+          <section className={styles.settingSection}>
+            <Typography variant="h5" className={styles.settingHeader}>
+              {t('user:usermenu.setting.windowsPerformanceHelp')}
+            </Typography>
+            <div className={styles.row}>
+              <p>
+                If you're experiencing performance issues, and you're running on a machine with Nvidia graphics, try the
+                following.
+              </p>
+            </div>
+            <div className={styles.row}>
+              <p>Open the Nvidia Control Panel, select Chrome, make sure "High Performance" is selected.</p>
+            </div>
+            <div className={styles.row}>
+              <img src="/static/Nvidia_control_panel1.png" alt="Nvidia Control Panel" />
+            </div>
+            <div className={styles.row}>
+              <p>In settings for Windows 10/11, search for the 'Graphics' preference on AMD/Nvidia for Chrome.</p>
+            </div>
+            <div className={styles.row}>
+              <img src="/static/Nvidia_windows_prefs.png" alt="Nvidia Windows Preferences" />
+            </div>
           </section>
         )}
       </div>
