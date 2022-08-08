@@ -51,7 +51,6 @@
     width: 4em;
 
     svg {
-      width: auto;
       height: auto;
     }
 
@@ -65,6 +64,7 @@
   .iconContainer {
     display: inline-flex;
     margin: auto;
+    gap: 10px;
 
     .materialIconBlock {
       padding: 1em;
@@ -204,7 +204,7 @@
 
   @media (max-width: 560px) {
     height: 200px;
-    bottom: 100px;
+    bottom: 90px;
     width: auto;
   }
 }
