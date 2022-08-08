@@ -1,6 +1,7 @@
-import _ from 'lodash'
 import React from 'react'
 import { useTranslation } from 'react-i18next'
+
+import capitalizeFirstLetter from '@xrengine/common/src/utils/capitalizeFirstLetter'
 
 import Box from '@mui/material/Box'
 import FormControl from '@mui/material/FormControl'
@@ -63,12 +64,12 @@ const InputSelect = ({
           size="small"
           sx={{ flexGrow: 1 }}
         >
-          <InputLabel sx={{ zIndex: 999 }}>{_.upperFirst(label)}</InputLabel>
+          <InputLabel sx={{ zIndex: 999 }}>{capitalizeFirstLetter(label)}</InputLabel>
 
           <Select
             name={name}
             value={value}
-            label={_.upperFirst(label)}
+            label={capitalizeFirstLetter(label)}
             disabled={disabled}
             size={'small'}
             sx={{ opacity: disabled ? 0.38 : 1 }}

@@ -1,7 +1,6 @@
 import { Ed25519Signature2020 } from '@digitalcredentials/ed25519-signature-2020'
 import { useHookstate } from '@hookstate/core'
 import * as polyfill from 'credential-handler-polyfill'
-import _ from 'lodash'
 import React, { useEffect, useState } from 'react'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
 import { useTranslation } from 'react-i18next'
@@ -11,6 +10,7 @@ import { validateEmail, validatePhoneNumber } from '@xrengine/common/src/config'
 import { defaultThemeModes, defaultThemeSettings } from '@xrengine/common/src/constants/DefaultThemeSettings'
 import { generateDid, IKeyPairDescription, issueCredential } from '@xrengine/common/src/identity'
 import multiLogger from '@xrengine/common/src/logger'
+import capitalizeFirstLetter from '@xrengine/common/src/utils/capitalizeFirstLetter'
 import { AudioEffectPlayer } from '@xrengine/engine/src/audio/systems/AudioSystem'
 import { WorldState } from '@xrengine/engine/src/networking/interfaces/WorldState'
 import { getState } from '@xrengine/hyperflux'
@@ -99,7 +99,7 @@ const ProfileMenu = ({ className, hideLogin, isPopover, changeActiveMenu, onClos
 
   const colorModesMenu: InputMenuItem[] = Object.keys(themeSettings).map((el) => {
     return {
-      label: _.upperFirst(el),
+      label: capitalizeFirstLetter(el),
       value: el
     }
   })

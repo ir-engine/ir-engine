@@ -1,5 +1,6 @@
-import _ from 'lodash'
 import * as React from 'react'
+
+import capitalizeFirstLetter from '@xrengine/common/src/utils/capitalizeFirstLetter'
 
 import { AutocompleteGetTagProps, useAutocomplete } from '@mui/base/AutocompleteUnstyled'
 import CheckIcon from '@mui/icons-material/Check'
@@ -70,7 +71,7 @@ const AutoComplete = ({ data, label, disabled, onChange, defaultValue = [] }: Pr
               }`}
             >
               <legend>
-                <span>{_.upperFirst(label)}</span>
+                <span>{capitalizeFirstLetter(label)}</span>
               </legend>
             </fieldset>
             {value.map((option: AutoCompleteData, index: number) => (

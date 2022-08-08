@@ -1,6 +1,6 @@
 import assert from 'assert'
 
-import { guessContentType } from './guessContentType'
+import { guessContentType } from '../../src/utils/guessContentType'
 
 describe('guessContentType', () => {
   it('guessContentType', () => {
