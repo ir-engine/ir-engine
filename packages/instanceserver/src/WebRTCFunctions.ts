@@ -676,23 +676,6 @@ export async function handleWebRtcReceiveTrack(
         logger.info(`Consumer's producer closed, consumer.id: "${consumer.id}".`)
         closeConsumer(network, consumer)
       })
-      consumer.on('producerpause', () => {
-        if (consumer && typeof consumer.pause === 'function') {
-          network.mediasoupOperationQueue.add({
-            object: consumer,
-            action: 'pause'
-          })
-        }
-        socket.emit(MessageTypes.WebRTCPauseConsumer.toString(), consumer.id)
-      })
-      consumer.on('producerresume', () => {
-        if (consumer && typeof consumer.resume === 'function')
-          network.mediasoupOperationQueue.add({
-            object: consumer,
-            action: 'resume'
-          })
-        socket.emit(MessageTypes.WebRTCResumeConsumer.toString(), consumer.id)
-      })
 
       // stick this consumer in our list of consumers to keep track of
       network.consumers.push(consumer)
