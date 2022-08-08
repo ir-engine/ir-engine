@@ -113,7 +113,6 @@ export const updateAudioPrefab = (entity: Entity) => {
     document.body.appendChild(el)
 
     el.addEventListener('playing', () => {
-      console.log(el, entity, 'playing')
       mediaComponent.playing = true
     })
     el.addEventListener('pause', () => {
