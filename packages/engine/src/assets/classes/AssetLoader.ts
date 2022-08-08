@@ -136,6 +136,8 @@ const handleLODs = (asset: Object3D): Object3D => {
  * @returns Asset type of the file.
  */
 const getAssetType = (assetFileName: string): AssetType => {
+  assetFileName = assetFileName.toLowerCase()
+
   if (/\.xre\.gltf$/.test(assetFileName)) return AssetType.XRE
   else if (/\.(?:gltf)$/.test(assetFileName)) return AssetType.glTF
   else if (/\.(?:glb)$/.test(assetFileName)) return AssetType.glB
@@ -159,6 +161,8 @@ const getAssetType = (assetFileName: string): AssetType => {
  * @returns Asset class of the file.
  */
 const getAssetClass = (assetFileName: string): AssetClass => {
+  assetFileName = assetFileName.toLowerCase()
+
   if (/\.xre\.gltf$/.test(assetFileName)) {
     return AssetClass.Asset
   } else if (/\.(?:gltf|glb|vrm|fbx|obj)$/.test(assetFileName)) {
