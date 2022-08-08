@@ -86,12 +86,10 @@
   ],
   "lint-staged": {
     "*.{ts,tsx}": [
-      "prettier --write",
-      "git add"
+      "prettier --write"
     ],
     "*.scss": [
-      "stylelint --fix",
-      "git add"
+      "stylelint --fix"
     ]
   },
   "devDependencies": {
