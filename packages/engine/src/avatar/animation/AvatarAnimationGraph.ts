@@ -1,11 +1,10 @@
 import { AnimationClip, AnimationMixer, Vector2, Vector3 } from 'three'
 
-import { dispatchAction } from '@xrengine/hyperflux'
+import { dispatchAction, getState } from '@xrengine/hyperflux'
 
-import { Engine } from '../../ecs/classes/Engine'
+import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
-import { NetworkTopics } from '../../networking/classes/Network'
 import { NetworkObjectOwnedTag } from '../../networking/components/NetworkObjectOwnedTag'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { AnimationManager } from '../AnimationManager'
@@ -288,7 +287,10 @@ export function createAvatarAnimationGraph(
       // Fall - threshold rule is to prevent fall_idle when going down ramps or over gaps
       {
         rule: compositeTransitionRule(
-          [booleanTransitionRule(jumpValue, 'isInAir'), thresholdTransitionRule(locomotion, 'y', -0.05, false)],
+          [
+            booleanTransitionRule(jumpValue, 'isInAir'),
+            thresholdTransitionRule(locomotion, 'y', -0.1 / getState(EngineState).fixedDeltaSeconds.value, false)
+          ],
           'and'
         ),
         nextState: AvatarStates.FALL_IDLE
