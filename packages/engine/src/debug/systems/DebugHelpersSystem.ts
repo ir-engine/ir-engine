@@ -12,9 +12,11 @@ import {
   Vector3
 } from 'three'
 
-import { matches } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { addActionReceptor, createActionQueue, removeActionReceptor } from '@xrengine/hyperflux'
+import { createActionQueue } from '@xrengine/hyperflux'
 
+import { AudioComponent } from '../../audio/components/AudioComponent'
+import { PositionalAudioTagComponent } from '../../audio/components/PositionalAudioTagComponent'
+import { AudioElementNodes } from '../../audio/systems/AudioSystem'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
@@ -27,10 +29,15 @@ import { createConvexRegionHelper } from '../../navigation/NavMeshHelper'
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
 import { accessEngineRendererState, EngineRendererAction } from '../../renderer/EngineRendererState'
 import InfiniteGridHelper from '../../scene/classes/InfiniteGridHelper'
+import { MediaComponent } from '../../scene/components/MediaComponent'
+import { MediaElementComponent } from '../../scene/components/MediaElementComponent'
+import { Object3DComponent } from '../../scene/components/Object3DComponent'
+import { addIsHelperFlag } from '../../scene/functions/addIsHelperFlag'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { XRInputSourceComponent } from '../../xr/XRComponents'
 import { DebugArrowComponent } from '../DebugArrowComponent'
 import { DebugNavMeshComponent } from '../DebugNavMeshComponent'
+import { PositionalAudioHelper } from '../PositionalAudioHelper'
 import { DebugRenderer } from './DebugRenderer'
 
 const vector3 = new Vector3()
@@ -52,7 +59,8 @@ export default async function DebugHelpersSystem(world: World) {
     helperArrow: new Map(),
     velocityArrow: new Map(),
     navmesh: new Map(),
-    navpath: new Map()
+    navpath: new Map(),
+    positionalAudioHelper: new Map()
   }
 
   const avatarDebugQuery = defineQuery([AvatarComponent, VelocityComponent, TransformComponent])
@@ -61,6 +69,7 @@ export default async function DebugHelpersSystem(world: World) {
   const ikAvatarQuery = defineQuery([XRInputSourceComponent])
   const navmeshQuery = defineQuery([DebugNavMeshComponent, NavMeshComponent])
   // const navpathQuery = defineQuery([AutoPilotComponent])
+  const audioHelper = defineQuery([AudioComponent])
   // const navpathAddQuery = enterQuery(navpathQuery)
   // const navpathRemoveQuery = exitQuery(navpathQuery)
 
@@ -226,6 +235,34 @@ export default async function DebugHelpersSystem(world: World) {
     }
     // ===== Autopilot Helper ===== //
     // TODO add createPathHelper for navpathQuery
+
+    // todo refactor this
+    if (Engine.instance.isEditor) {
+      for (const entity of audioHelper.exit()) {
+        const obj3d = getComponent(entity, Object3DComponent, true)
+        const helper = helpersByEntity.positionalAudioHelper.get(entity)
+        helper.dispose()
+        obj3d.value.remove(helper)
+        helpersByEntity.positionalAudioHelper.delete(entity)
+      }
+
+      for (const entity of audioHelper()) {
+        const obj3d = getComponent(entity, Object3DComponent)
+        const mediaComponent = getComponent(entity, MediaElementComponent)
+        const audioEl = AudioElementNodes.get(mediaComponent)!
+
+        if (!helpersByEntity.positionalAudioHelper.has(entity)) {
+          const helper = new PositionalAudioHelper(audioEl)
+          // helper.visible = false
+          helpersByEntity.positionalAudioHelper.set(entity, helper)
+          obj3d.value.add(helper)
+          helper.userData.isHelper = true
+        }
+
+        const helper = helpersByEntity.positionalAudioHelper.get(entity)
+        audioEl.panner && helper?.update()
+      }
+    }
 
     physicsDebugRenderer(world, accessEngineRendererState().physicsDebugEnable.value)
   }

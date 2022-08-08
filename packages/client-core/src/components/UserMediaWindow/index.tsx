@@ -641,7 +641,7 @@ const UserMediaWindow = ({ peerId }: Props): JSX.Element => {
               {videoStream && !videoProducerPaused ? (
                 <Tooltip title={!videoProducerPaused && !videoStreamPaused ? 'Pause Video' : 'Resume Video'}>
                   <IconButton
-                    size="small"
+                    size="large"
                     className={classNames({
                       [styles['icon-button']]: true,
                       [styles.mediaOff]: videoStreamPaused,
@@ -662,7 +662,7 @@ const UserMediaWindow = ({ peerId }: Props): JSX.Element => {
                   }
                 >
                   <IconButton
-                    size="small"
+                    size="large"
                     className={classNames({
                       [styles['icon-button']]: true,
                       [styles.mediaOff]: audioProducerGlobalMute,
@@ -687,7 +687,7 @@ const UserMediaWindow = ({ peerId }: Props): JSX.Element => {
                   }
                 >
                   <IconButton
-                    size="small"
+                    size="large"
                     className={classNames({
                       [styles['icon-button']]: true,
                       [styles.mediaOff]: audioStreamPaused,
@@ -711,7 +711,7 @@ const UserMediaWindow = ({ peerId }: Props): JSX.Element => {
               ) : null}
               <Tooltip title={t('user:person.openPictureInPicture') as string}>
                 <IconButton
-                  size="small"
+                  size="large"
                   className={styles['icon-button']}
                   onClick={(e) => {
                     e.preventDefault()

@@ -3,6 +3,7 @@ import express from 'express'
 import multer from 'multer'
 
 import { AdminAssetUploadArgumentsType, AssetUploadType } from '@xrengine/common/src/interfaces/UploadAssetInterface'
+import { processFileName } from '@xrengine/common/src/utils/processFileName'
 
 import { Application } from '../../../declarations'
 import verifyScope from '../../hooks/verify-scope'
@@ -28,7 +29,7 @@ export const addGenericAssetToS3AndStaticResources = async (
   const provider = getStorageProvider()
   // make userId optional and safe for feathers create
   const userIdQuery = args.userId ? { userId: args.userId } : {}
-  const key = args.key
+  const key = processFileName(args.key)
   const existingAsset = await app.service('static-resource').Model.findAndCountAll({
     where: {
       staticResourceType: args.staticResourceType || 'avatar',
@@ -47,6 +48,7 @@ export const addGenericAssetToS3AndStaticResources = async (
       } catch (e) {
         logger.info(`[ERROR addGenericAssetToS3AndStaticResources while invalidating ${key}]:`, e)
       }
+
       await provider.putObject(
         {
           Key: key,
