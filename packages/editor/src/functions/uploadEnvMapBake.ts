@@ -75,7 +75,7 @@ export const uploadBPCEMBakeToServer = async (entity: Entity) => {
 
   // inject bpcem logic into material
   Engine.instance.currentWorld.scene.traverse((child: Mesh<any, MeshBasicMaterial>) => {
-    if (!child.material) return
+    if (!child.material?.userData) return
     child.material.userData.BPCEMPlugin = beforeMaterialCompile(
       bakeComponent.options.bakeScale,
       bakeComponent.options.bakePositionOffset
@@ -92,7 +92,7 @@ export const uploadBPCEMBakeToServer = async (entity: Entity) => {
 
   // remove injected bpcem logic from material
   Engine.instance.currentWorld.scene.traverse((child: Mesh<any, MeshBasicMaterial>) => {
-    if (child.material && typeof child.material.userData.BPCEMPlugin === 'function') {
+    if (typeof child.material?.userData?.BPCEMPlugin === 'function') {
       removeOBCPlugin(child.material, child.material.userData.BPCEMPlugin)
       delete child.material.userData.BPCEMPlugin
     }
