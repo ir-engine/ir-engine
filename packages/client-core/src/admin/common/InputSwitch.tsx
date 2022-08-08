@@ -1,5 +1,6 @@
-import _ from 'lodash'
 import React from 'react'
+
+import capitalizeFirstLetter from '@xrengine/common/src/utils/capitalizeFirstLetter'
 
 import Box from '@mui/material/Box'
 import FormControlLabel from '@mui/material/FormControlLabel'
@@ -23,7 +24,7 @@ const InputSwitch = ({ className, name, label, checked, disabled, sx, onChange }
     <Box sx={sx}>
       <FormControlLabel
         className={className ?? styles.switchField}
-        label={_.upperFirst(label)}
+        label={capitalizeFirstLetter(label)}
         control={<Switch name={name} checked={checked} disabled={disabled} onChange={onChange} />}
       />
     </Box>
