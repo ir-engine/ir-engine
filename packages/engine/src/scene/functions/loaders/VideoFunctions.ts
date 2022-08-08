@@ -100,10 +100,6 @@ export const updateVideo: ComponentUpdateFunction = (entity: Entity, properties:
 
       addComponent(entity, MediaElementComponent, el)
 
-      // mute and set volume to 0, as we use the audio api gain nodes to connect the source
-      el.muted = true
-      el.volume = 0
-
       el.id = videoComponent.elementId
 
       createAudioNode(

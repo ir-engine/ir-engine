@@ -113,6 +113,7 @@ export const updateAudioPrefab = (entity: Entity) => {
     document.body.appendChild(el)
 
     el.addEventListener('playing', () => {
+      console.log(el, entity, 'playing')
       mediaComponent.playing = true
     })
     el.addEventListener('pause', () => {
@@ -127,10 +128,6 @@ export const updateAudioPrefab = (entity: Entity) => {
     })
 
     addComponent(entity, MediaElementComponent, el)
-
-    // mute and set volume to 0, as we use the audio api gain nodes to connect the source
-    el.muted = true
-    el.volume = 0
 
     const audioState = getState(AudioState)
     // todo: music / sfx option
@@ -166,6 +163,7 @@ export const updateAudioParameters = (entity: Entity) => {
   el.volume = audioComponent.volume
 
   const audioNode = AudioElementNodes.get(el)
+  console.log({ entity, audioNode })
 
   if (audioNode) {
     if (audioNode.panner) {

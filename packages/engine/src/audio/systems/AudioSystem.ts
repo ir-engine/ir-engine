@@ -110,7 +110,10 @@ export default async function AudioSystem(world: World) {
       if (!Engine.instance.isEditor) {
         for (const entity of mediaEntities) {
           const media = getComponent(entity, MediaElementComponent)
-          if (media.autoplay) media.play()
+          if (media.autoplay) {
+            media.muted = false
+            media.play()
+          }
         }
       }
     }
