@@ -23,6 +23,8 @@ interface Props {
   endControl?: React.ReactNode
   sx?: SxProps<Theme>
   onChange?: (e: any) => void
+  onPointerEnter?: (e: any) => void
+  onPointerUp?: (e: any) => void
 }
 
 export interface InputMenuItem {
@@ -30,7 +32,20 @@ export interface InputMenuItem {
   label: string
 }
 
-const InputSelect = ({ className, name, label, value, menu, error, disabled, endControl, sx, onChange }: Props) => {
+const InputSelect = ({
+  className,
+  name,
+  label,
+  value,
+  menu,
+  error,
+  disabled,
+  endControl,
+  sx,
+  onChange,
+  onPointerEnter,
+  onPointerUp
+}: Props) => {
   const { t } = useTranslation()
 
   if (!disabled) {
@@ -61,6 +76,8 @@ const InputSelect = ({ className, name, label, value, menu, error, disabled, end
             displayEmpty
             MenuProps={{ classes: { paper: styles.selectPaper } }}
             onChange={onChange}
+            onPointerEnter={onPointerEnter}
+            onPointerUp={onPointerUp}
           >
             {!disabled && (
               <MenuItem
@@ -69,6 +86,8 @@ const InputSelect = ({ className, name, label, value, menu, error, disabled, end
                 classes={{
                   root: styles.menuItem
                 }}
+                onPointerEnter={onPointerEnter}
+                onPointerUp={onPointerUp}
               >
                 <em>
                   {t('admin:components.common.select')} {label}
@@ -82,6 +101,8 @@ const InputSelect = ({ className, name, label, value, menu, error, disabled, end
                 classes={{
                   root: styles.menuItem
                 }}
+                onPointerEnter={onPointerEnter}
+                onPointerUp={onPointerUp}
               >
                 {el.label}
               </MenuItem>

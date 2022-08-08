@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 
 import { SendInvite } from '@xrengine/common/src/interfaces/Invite'
 import multiLogger from '@xrengine/common/src/logger'
+import { AudioEffectPlayer } from '@xrengine/engine/src/audio/systems/AudioSystem'
 import { isShareAvailable } from '@xrengine/engine/src/common/functions/DetectFeatures'
 import { EngineActions, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { dispatchAction } from '@xrengine/hyperflux'
@@ -166,6 +167,8 @@ const ShareMenu = (props: Props): JSX.Element => {
                   name="checked"
                   color="primary"
                   onChange={toggleSpectatorMode}
+                  onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                  onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
                 />
               }
               label={t('user:usermenu.share.lbl-spectator-mode')}
@@ -184,7 +187,12 @@ const ShareMenu = (props: Props): JSX.Element => {
           inputRef={refLink}
           InputProps={{
             endAdornment: (
-              <InputAdornment position="end" onClick={copyLinkToClipboard}>
+              <InputAdornment
+                position="end"
+                onClick={copyLinkToClipboard}
+                onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+              >
                 <FileCopy />
               </InputAdornment>
             )
@@ -199,7 +207,12 @@ const ShareMenu = (props: Props): JSX.Element => {
           onChange={(e) => handleChangeToken(e)}
           InputProps={{
             endAdornment: (
-              <InputAdornment position="end" onClick={packageInvite}>
+              <InputAdornment
+                position="end"
+                onClick={packageInvite}
+                onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+              >
                 <Send />
               </InputAdornment>
             )
@@ -207,7 +220,13 @@ const ShareMenu = (props: Props): JSX.Element => {
         />
         {isShareAvailable && (
           <div className={styles.shareBtnContainer}>
-            <Button className={styles.shareBtn} onClick={shareOnApps} endIcon={<IosShare />}>
+            <Button
+              className={styles.shareBtn}
+              onClick={shareOnApps}
+              onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+              onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+              endIcon={<IosShare />}
+            >
               {t('user:usermenu.share.lbl-share')}
             </Button>
           </div>

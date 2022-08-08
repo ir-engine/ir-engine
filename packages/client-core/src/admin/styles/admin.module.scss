@@ -357,7 +357,7 @@
     color: var(--iconButtonColor);
   }
 
-  [class*='Mui-disabled'] {
+  [class*="Mui-disabled"] {
     opacity: 0.38;
     color: var(--textColor) !important;
   }

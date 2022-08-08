@@ -1,3 +1,4 @@
+import { createState, none } from '@hookstate/core'
 import { Quaternion, Vector3 } from 'three'
 
 import { createActionQueue } from '@xrengine/hyperflux'
@@ -18,12 +19,13 @@ const randomPositionCentered = (area: Vector3) => {
 export class SpawnPoints {
   static instance = new SpawnPoints()
 
-  spawnPoints: Entity[] = []
+  spawnPoints = createState([] as Entity[])
   lastSpawnIndex = 0
 
   getRandomSpawnPoint(): { position: Vector3; rotation: Quaternion } {
-    if (typeof this.spawnPoints[this.lastSpawnIndex] !== 'undefined') {
-      const spawnTransform = getComponent(this.spawnPoints[this.lastSpawnIndex], TransformComponent)
+    const lastSpawnPoint = this.spawnPoints[this.lastSpawnIndex].ornull
+    if (lastSpawnPoint) {
+      const spawnTransform = getComponent(lastSpawnPoint.value, TransformComponent)
       if (spawnTransform && this.spawnPoints.length > 0) {
         // Get new spawn point (round robin)
         this.lastSpawnIndex = (this.lastSpawnIndex + 1) % this.spawnPoints.length
@@ -76,13 +78,13 @@ export default async function AvatarSpawnSystem(world: World) {
         console.warn("Can't add spawn point, no transform component on entity")
         continue
       }
-      SpawnPoints.instance.spawnPoints.push(entity)
+      SpawnPoints.instance.spawnPoints.merge([entity])
     }
     for (const entity of spawnPointQuery.exit(world)) {
-      const index = SpawnPoints.instance.spawnPoints.indexOf(entity)
+      const index = SpawnPoints.instance.spawnPoints.value.indexOf(entity)
 
       if (index > -1) {
-        SpawnPoints.instance.spawnPoints.splice(index)
+        SpawnPoints.instance.spawnPoints[index].set(none)
       }
     }
   }

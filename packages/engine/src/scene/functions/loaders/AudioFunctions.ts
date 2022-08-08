@@ -70,7 +70,7 @@ export const createAudioNode = (
   return audioObject
 }
 
-export const updateAudio = (entity: Entity) => {
+export const updateAudioPrefab = (entity: Entity) => {
   const audioComponent = getComponent(entity, AudioComponent)
   const mediaComponent = getComponent(entity, MediaComponent)
   const obj3d = getComponent(entity, Object3DComponent).value
@@ -128,10 +128,6 @@ export const updateAudio = (entity: Entity) => {
 
     addComponent(entity, MediaElementComponent, el)
 
-    // mute and set volume to 0, as we use the audio api gain nodes to connect the source
-    el.muted = true
-    el.volume = 0
-
     const audioState = getState(AudioState)
     // todo: music / sfx option
     const { gain } = createAudioNode(
@@ -158,8 +154,27 @@ export const updateAudio = (entity: Entity) => {
     el.addEventListener('loadeddata', onloadeddata, { once: true })
     el.src = currentPath
   }
+}
 
-  if (el.volume !== audioComponent.volume) el.volume = audioComponent.volume
+export const updateAudioParameters = (entity: Entity) => {
+  const audioComponent = getComponent(entity, AudioComponent)
+  const el = getComponent(entity, MediaElementComponent)
+  el.volume = audioComponent.volume
+
+  const audioNode = AudioElementNodes.get(el)
+  console.log({ entity, audioNode })
+
+  if (audioNode) {
+    if (audioNode.panner) {
+      audioNode.panner.distanceModel = audioComponent.distanceModel
+      audioNode.panner.rolloffFactor = audioComponent.rolloffFactor
+      audioNode.panner.refDistance = audioComponent.refDistance
+      audioNode.panner.maxDistance = audioComponent.maxDistance
+      audioNode.panner.coneInnerAngle = audioComponent.coneInnerAngle
+      audioNode.panner.coneOuterAngle = audioComponent.coneOuterAngle
+      audioNode.panner.coneOuterGain = audioComponent.coneOuterGain
+    }
+  }
 }
 
 export const serializeAudio: ComponentSerializeFunction = (entity) => {

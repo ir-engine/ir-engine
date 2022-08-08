@@ -61,7 +61,7 @@ export const deserializeTriggerVolume: ComponentDeserializeFunction = (
 
 export const updateTriggerVolume: ComponentUpdateFunction = (entity: Entity, prop: any) => {
   const transform = getComponent(entity, TransformComponent)
-  const rigidBody = getComponent(entity, RigidBodyComponent)
+  const rigidBody = getComponent(entity, RigidBodyComponent).body
   rigidBody.setTranslation(transform.position, true)
   rigidBody.setRotation(transform.rotation, true)
 }

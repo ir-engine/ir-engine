@@ -50,8 +50,8 @@ import { boxDynamicConfig } from '../physics/functions/physicsObjectDebugFunctio
 import { accessEngineRendererState, EngineRendererAction } from '../renderer/EngineRendererState'
 import { Object3DComponent } from '../scene/components/Object3DComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
-import { XRLGripButtonComponent, XRRGripButtonComponent } from '../xr/components/XRGripButtonComponent'
-import { XR_ROTATION_MODE } from '../xr/types/XRUserSettings'
+import { XRLGripButtonComponent, XRRGripButtonComponent } from '../xr/XRComponents'
+import { XR_ROTATION_MODE } from '../xr/XRUserSettings'
 import { AvatarSettings } from './AvatarControllerSystem'
 import { AvatarControllerComponent } from './components/AvatarControllerComponent'
 import { AvatarTeleportTagComponent } from './components/AvatarTeleportTagComponent'
@@ -248,7 +248,8 @@ export const changeCameraDistanceByDelta: InputBehaviorType = (
     return
   }
 
-  const cameraEntity = Engine.instance.currentWorld.cameraEntity
+  const avatarController = getComponent(entity, AvatarControllerComponent)
+  const cameraEntity = avatarController.cameraEntity
   const followComponent = getComponent(cameraEntity, FollowCameraComponent)
 
   if (!followComponent) {
@@ -267,13 +268,13 @@ export const changeCameraDistanceByDelta: InputBehaviorType = (
   // Move to first person mode
   if (nextZoomLevel < followComponent.minDistance) {
     followComponent.zoomLevel = epsilon
-    setTargetCameraRotation(entity, 0, followComponent.theta)
+    setTargetCameraRotation(cameraEntity, 0, followComponent.theta)
     return
   }
 
   // Rotate camera to the top but let the player rotate if he/she desires
   if (Math.abs(followComponent.maxDistance - nextZoomLevel) <= 1.0 && scrollDelta > 0) {
-    setTargetCameraRotation(entity, 85, followComponent.theta)
+    setTargetCameraRotation(cameraEntity, 85, followComponent.theta)
   }
 
   // Rotate from top
@@ -282,7 +283,7 @@ export const changeCameraDistanceByDelta: InputBehaviorType = (
     scrollDelta < 0 &&
     followComponent.phi >= 80
   ) {
-    setTargetCameraRotation(entity, 45, followComponent.theta)
+    setTargetCameraRotation(cameraEntity, 45, followComponent.theta)
   }
 
   followComponent.zoomLevel = nextZoomLevel
@@ -470,12 +471,13 @@ const lookFromXRInputs: InputBehaviorType = (entity: Entity, inputKey: InputAlia
 const axisLookSensitivity = 320
 
 const lookByInputAxis: InputBehaviorType = (entity: Entity, inputKey: InputAlias, inputValue: InputValue): void => {
-  const cameraEntity = Engine.instance.currentWorld.cameraEntity
+  const avatarController = getComponent(entity, AvatarControllerComponent)
+  const cameraEntity = avatarController.cameraEntity
   const target =
-    getComponent(entity, TargetCameraRotationComponent) || getComponent(cameraEntity, FollowCameraComponent)
+    getComponent(cameraEntity, TargetCameraRotationComponent) || getComponent(cameraEntity, FollowCameraComponent)
   if (target)
     setTargetCameraRotation(
-      entity,
+      cameraEntity,
       target.phi - inputValue.value[1] * axisLookSensitivity,
       target.theta - inputValue.value[0] * axisLookSensitivity,
       0.1

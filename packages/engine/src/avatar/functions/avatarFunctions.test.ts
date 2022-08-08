@@ -85,7 +85,8 @@ describe('avatarFunctions Unit', async () => {
         },
         rig: {} as BoneStructure,
         bindRig: {} as BoneStructure,
-        rootYRatio: 1
+        rootYRatio: 1,
+        locomotion: new Vector3()
       })
 
       const animationGLTF = await loadGLTFAssetNode(animGLB)

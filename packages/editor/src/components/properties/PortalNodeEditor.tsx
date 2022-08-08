@@ -49,6 +49,11 @@ export const PortalNodeEditor: EditorComponentType = (props) => {
   const portalName = getComponent(props.node.entity, NameComponent).name
   const transformComponent = getComponent(props.node.entity, TransformComponent)
 
+  useEffect(() => {
+    getPortalDetails()
+    loadPortals()
+  }, [])
+
   const loadPortals = async () => {
     const portalsDetail: PortalDetail[] = []
     try {

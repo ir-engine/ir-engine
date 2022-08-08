@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 
+import { AudioEffectPlayer } from '@xrengine/engine/src/audio/systems/AudioSystem'
 import { changeAvatarAnimationState } from '@xrengine/engine/src/avatar/animation/AvatarAnimationGraph'
 import { AvatarStates } from '@xrengine/engine/src/avatar/animation/Util'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
@@ -148,6 +149,8 @@ export const useEmoteMenuHooks = ({ changeActiveMenu }: EmoteMenuHooksProps) => 
           <Button
             className={styles.menuItem}
             {...emoticon.containerProps}
+            onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+            onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
             style={{
               width: menuItemWidth,
               height: menuItemWidth,
@@ -221,6 +224,8 @@ const EmoteMenu = ({ changeActiveMenu }: Props): JSX.Element => {
               type="button"
               className={`${styles.iconBlock} ${page === 0 ? styles.disabled : ''}`}
               onClick={loadPreviousEmotes}
+              onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+              onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
             >
               <NavigateBefore />
             </button>
@@ -239,6 +244,8 @@ const EmoteMenu = ({ changeActiveMenu }: Props): JSX.Element => {
               type="button"
               className={`${styles.iconBlock} ${(page + 1) * imgPerPage >= items.length ? styles.disabled : ''}`}
               onClick={loadNextEmotes}
+              onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+              onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
             >
               <NavigateNext />
             </button>

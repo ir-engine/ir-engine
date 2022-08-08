@@ -2,6 +2,7 @@
 import multiLogger from '@xrengine/common/src/logger'
 
 import { nowMilliseconds } from '../../common/functions/nowMilliseconds'
+import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { World } from '../classes/World'
 import { SystemUpdateType } from '../functions/SystemUpdateType'
 
@@ -47,27 +48,30 @@ export const initSystems = async (world: World, systemModulesToLoad: SystemModul
       logger.info(`${name} initializing on ${s.type} pipeline`)
       const system = await s.systemModule.default(world, s.args)
       logger.info(`${name} ready`)
+      let lastWarningTime = 0
+      const warningCooldownDuration = 1000 * 10 // 10 seconds
       return {
         name,
         type: s.type,
         sceneSystem: s.sceneSystem,
         enabled: true,
         execute: () => {
-          const start = nowMilliseconds()
+          const startTime = nowMilliseconds()
           try {
             system()
           } catch (e) {
-            logger.error(e)
+            logger.error(e.stack)
           }
-          const end = nowMilliseconds()
-          const duration = end - start
-          if (duration > 50) {
-            logger.warn(`Long system execution detected. System: ${name} \n Duration: ${duration}`)
+          const endTime = nowMilliseconds()
+          const systemDuration = endTime - startTime
+          if (systemDuration > 50 && lastWarningTime < endTime - warningCooldownDuration) {
+            lastWarningTime = endTime
+            logger.warn(`Long system execution detected. System: ${name} \n Duration: ${systemDuration}`)
           }
         }
       } as SystemInstanceType
     } catch (e) {
-      logger.error(new Error(`System ${name} failed to initialize!`, { cause: e }))
+      logger.error(new Error(`System ${name} failed to initialize!`, { cause: e.stack }))
       return null
     }
   }
@@ -94,22 +98,25 @@ export const initSystemSync = (world: World, systemArgs: SystemSyncFunctionType<
   logger.info(`${name} initializing on ${systemArgs.type} pipeline`)
   const system = systemArgs.systemFunction(world, systemArgs.args)
   logger.info(`${name} ready`)
+  let lastWarningTime = 0
+  const warningCooldownDuration = 1000 * 10 // 10 seconds
   const systemData = {
     name,
     type: systemArgs.type,
     sceneSystem: false,
     enabled: true,
     execute: () => {
-      const start = nowMilliseconds()
+      const startTime = nowMilliseconds()
       try {
         system()
       } catch (e) {
         logger.error(e)
       }
-      const end = nowMilliseconds()
-      const duration = end - start
-      if (duration > 10) {
-        logger.warn(`Long system execution detected. System: ${name} \n Duration: ${duration}`)
+      const endTime = nowMilliseconds()
+      const systemDuration = endTime - startTime
+      if (systemDuration > 50 && lastWarningTime < endTime - warningCooldownDuration) {
+        lastWarningTime = endTime
+        logger.warn(`Long system execution detected. System: ${name} \n Duration: ${systemDuration}`)
       }
     }
   } as SystemInstanceType

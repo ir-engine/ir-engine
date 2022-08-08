@@ -8,7 +8,7 @@ import { getEngineState } from '../../ecs/classes/EngineState'
 import { addComponent, getComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity, removeEntity } from '../../ecs/functions/EntityFunctions'
 import { generatePhysicsObject } from '../../physics/functions/physicsObjectDebugFunctions'
-import { addTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
+import { setTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
 import { Network, NetworkTopics } from '../classes/Network'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
 import { NetworkObjectOwnedTag } from '../components/NetworkObjectOwnedTag'
@@ -28,7 +28,7 @@ const receiveSpawnObject = (
   const isOwnedByMe = action.$from === Engine.instance.userId
   if (isOwnedByMe) addComponent(entity, NetworkObjectOwnedTag, {})
 
-  const transform = addTransformComponent(entity)
+  const transform = setTransformComponent(entity)
   action.position && transform.position.copy(action.position)
   action.rotation && transform.rotation.copy(action.rotation)
   transform.scale.setScalar(1)

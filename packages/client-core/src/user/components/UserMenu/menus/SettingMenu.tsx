@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import { AudioSettingAction, useAudioState } from '@xrengine/engine/src/audio/AudioState'
+import { AudioEffectPlayer } from '@xrengine/engine/src/audio/systems/AudioSystem'
 import { AvatarSettings, updateMap } from '@xrengine/engine/src/avatar/AvatarControllerSystem'
 import { AvatarComponent } from '@xrengine/engine/src/avatar/components/AvatarComponent'
 import {
@@ -14,9 +15,10 @@ import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { AvatarControllerType, AvatarMovementScheme } from '@xrengine/engine/src/input/enums/InputEnums'
 import { EngineRendererAction, useEngineRendererState } from '@xrengine/engine/src/renderer/EngineRendererState'
-import { dispatchAction } from '@xrengine/hyperflux'
+import { XRState } from '@xrengine/engine/src/xr/XRState'
+import { dispatchAction, getState, useHookstate } from '@xrengine/hyperflux'
 
-import { BlurLinear, Mic, MicOff, VolumeOff, VolumeUp } from '@mui/icons-material'
+import { BlurLinear, Gamepad, Mic, MicOff, VolumeOff, VolumeUp } from '@mui/icons-material'
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp'
 import SurroundSoundIcon from '@mui/icons-material/SurroundSound'
@@ -38,6 +40,7 @@ import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
 import Typography from '@mui/material/Typography'
 
+import InputSelect from '../../../../admin/common/InputSelect'
 import styles from '../index.module.scss'
 
 const SettingMenu = (): JSX.Element => {
@@ -54,10 +57,11 @@ const SettingMenu = (): JSX.Element => {
   const invertRotationAndMoveSticks = avatarInputState.invertRotationAndMoveSticks.value
   const showAvatar = avatarInputState.showAvatar.value
   const firstRender = useRef(true)
-  const engineState = useEngineState()
+  const xrSupportedModes = useHookstate(getState(XRState).supportedSessionModes)
+  const xrSupported = xrSupportedModes['immersive-ar'].value || xrSupportedModes['immersive-vr'].value
   const controllerTypes = Object.values(AvatarControllerType).filter((value) => typeof value === 'string')
   const controlSchemes = Object.values(AvatarMovementScheme).filter((value) => typeof value === 'string')
-  const [open, setOpen] = useState(false)
+  // const [open, setOpen] = useState(false)
   const [openOtherAudioSettings, setOpenOtherAudioSettings] = useState(false)
 
   const handleChangeInvertRotationAndMoveSticks = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -125,6 +129,8 @@ const SettingMenu = (): JSX.Element => {
               onChange={(_, value: number) => {
                 dispatchAction(AudioSettingAction.setMasterVolume({ value }))
               }}
+              onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+              onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
               className={styles.slider}
               max={1}
               step={0.01}
@@ -149,6 +155,8 @@ const SettingMenu = (): JSX.Element => {
               max={1}
               step={0.01}
               min={0}
+              onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+              onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
             />
           </div>
           <section className={styles.settingSection}>
@@ -159,8 +167,10 @@ const SettingMenu = (): JSX.Element => {
                 aria-label="expand"
                 size="small"
                 onClick={() => setOpenOtherAudioSettings(!openOtherAudioSettings)}
+                onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
               >
-                {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+                {openOtherAudioSettings ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
               </IconButton>
             </div>
             <Collapse in={openOtherAudioSettings} timeout="auto" unmountOnExit>
@@ -176,6 +186,8 @@ const SettingMenu = (): JSX.Element => {
                     onChange={(_, value: boolean) => {
                       dispatchAction(AudioSettingAction.setUsePositionalAudio({ value }))
                     }}
+                    onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                    onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
                     size="small"
                   />
                 </div>
@@ -193,6 +205,8 @@ const SettingMenu = (): JSX.Element => {
                     onChange={(_, value: number) => {
                       dispatchAction(AudioSettingAction.setMediaStreamVolume({ value }))
                     }}
+                    onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                    onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
                     className={styles.slider}
                     max={1}
                     step={0.01}
@@ -213,6 +227,8 @@ const SettingMenu = (): JSX.Element => {
                     onChange={(_, value: number) => {
                       dispatchAction(AudioSettingAction.setNotificationVolume({ value }))
                     }}
+                    onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                    onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
                     className={styles.slider}
                     max={1}
                     step={0.01}
@@ -233,6 +249,8 @@ const SettingMenu = (): JSX.Element => {
                     onChange={(_, value: number) => {
                       dispatchAction(AudioSettingAction.setSoundEffectsVolume({ value }))
                     }}
+                    onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                    onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
                     className={styles.slider}
                     max={1}
                     step={0.01}
@@ -253,6 +271,8 @@ const SettingMenu = (): JSX.Element => {
                     onChange={(_, value: number) => {
                       dispatchAction(AudioSettingAction.setMusicVolume({ value }))
                     }}
+                    onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                    onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
                     className={styles.slider}
                     max={1}
                     step={0.01}
@@ -278,13 +298,15 @@ const SettingMenu = (): JSX.Element => {
                 dispatchAction(EngineRendererAction.setQualityLevel({ qualityLevel: value }))
                 dispatchAction(EngineRendererAction.setAutomatic({ automatic: false }))
               }}
+              onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+              onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
               className={styles.slider}
               min={1}
               max={5}
               step={1}
             />
           </div>
-          <div className={`${styles.row} ${styles.FlexWrap}`}>
+          <div className={`${styles.row}`}>
             <FormControlLabel
               className={styles.checkboxBlock}
               control={<Checkbox checked={rendererState.usePostProcessing.value} size="small" />}
@@ -293,6 +315,8 @@ const SettingMenu = (): JSX.Element => {
                 dispatchAction(EngineRendererAction.setPostProcessing({ usePostProcessing: value }))
                 dispatchAction(EngineRendererAction.setAutomatic({ automatic: false }))
               }}
+              onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+              onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
             />
             {/* <FormControlLabel
               className={styles.checkboxBlock}
@@ -312,6 +336,8 @@ const SettingMenu = (): JSX.Element => {
                 dispatchAction(EngineRendererAction.setShadows({ useShadows: value }))
                 dispatchAction(EngineRendererAction.setAutomatic({ automatic: false }))
               }}
+              onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+              onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
             />
           </div>
           <div className={`${styles.row} ${styles.automatic}`}>
@@ -323,130 +349,92 @@ const SettingMenu = (): JSX.Element => {
               onChange={(_, value) => {
                 dispatchAction(EngineRendererAction.setAutomatic({ automatic: value }))
               }}
+              onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+              onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
             />
           </div>
         </section>
-        <section className={styles.settingSection}>
+        {/* <section className={styles.settingSection}>
           <Typography variant="h6" className={styles.settingHeader}>
             {t('user:usermenu.setting.user-avatar')}
           </Typography>
           <FormControlLabel
             label={t('user:usermenu.setting.show-avatar')}
             labelPlacement="start"
-            control={<Switch checked={showAvatar} onChange={handleChangeShowAvatar} className={styles.iconBtn} />}
+            control={
+              <Switch 
+              checked={showAvatar}
+              onChange={handleChangeShowAvatar}
+              onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+              onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+              className={styles.iconBtn}
+              />
+            }
           />
-        </section>
-        {engineState.xrSupported.value && (
-          <>
-            <section className={styles.settingSection}>
+        </section> */}
+        {xrSupported && (
+          <section className={styles.settingSection}>
+            <Typography variant="h6" className={styles.settingHeader}>
+              {t('user:usermenu.setting.xrusersetting')}
+            </Typography>
+            {/*
               <div className={styles.sectionBar}>
-                <Typography variant="h6" className={styles.settingHeader}>
-                  {t('user:usermenu.setting.xrusersetting')}
-                </Typography>
-                <IconButton
-                  className={styles.collapseBtn}
-                  aria-label="expand"
-                  size="small"
-                  onClick={() => setOpen(!open)}
-                >
-                  {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
-                </IconButton>
-                <FormControlLabel
-                  control={
-                    <Switch
-                      checked={invertRotationAndMoveSticks}
-                      onChange={handleChangeInvertRotationAndMoveSticks}
-                      className={styles.iconBtn}
-                    />
-                  }
-                  label={t('user:usermenu.setting.invert-rotation')}
+              <IconButton
+                className={styles.collapseBtn}
+                aria-label="expand"
+                size="small"
+                onClick={() => setOpen(!open)}
+              >
+                {open ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon />}
+              </IconButton>
+            </div> */}
+            <FormControlLabel
+              control={
+                <Switch
+                  checked={invertRotationAndMoveSticks}
+                  onChange={handleChangeInvertRotationAndMoveSticks}
+                  className={styles.iconBtn}
                 />
-              </div>
-              <Collapse in={open} timeout="auto" unmountOnExit>
-                <Box margin={1}>
-                  <Table size="small">
-                    <TableHead>
-                      <TableRow>
-                        <TableCell classes={{ root: styles.tableRow }}>{t('user:usermenu.setting.rotation')}</TableCell>
-                        <TableCell classes={{ root: styles.tableRow }}>
-                          {t('user:usermenu.setting.rotation-angle')}
-                        </TableCell>
-                        <TableCell align="right" classes={{ root: styles.tableRow }}>
-                          {t('user:usermenu.setting.rotation-smooth-speed')}
-                        </TableCell>
-                        <TableCell align="right" classes={{ root: styles.tableRow }}>
-                          {t('user:usermenu.setting.moving')}
-                        </TableCell>
-                      </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      <TableRow>
-                        <TableCell align="center" classes={{ root: styles.tableRow }} component="th" scope="row">
-                          {avatarInputState.rotation.value}
-                        </TableCell>
-                        <TableCell align="center" classes={{ root: styles.tableRow }}>
-                          {avatarInputState.rotationAngle.value}
-                        </TableCell>
-                        <TableCell align="center" classes={{ root: styles.tableRow }}>
-                          {avatarInputState.rotationSmoothSpeed.value}
-                        </TableCell>
-                        <TableCell align="center" classes={{ root: styles.tableRow }}>
-                          {avatarInputState.moving.value}
-                        </TableCell>
-                      </TableRow>
-                    </TableBody>
-                  </Table>
-                </Box>
-              </Collapse>
-            </section>
-            <section className={styles.settingSection}>
-              <div className={styles.controlsContainer}>
-                <Typography variant="h6" className={styles.settingHeader}>
-                  {t('user:usermenu.setting.controls')}
-                </Typography>
-                <div className={styles.selectSize}>
-                  <FormControl fullWidth>
-                    <InputLabel>{t('user:usermenu.setting.lbl-control-scheme')}</InputLabel>
-                    <Select
-                      value={controlSchemeSelected}
-                      onChange={handleChangeControlScheme}
-                      size="small"
-                      classes={{
-                        select: styles.select
-                      }}
-                      MenuProps={{ classes: { paper: styles.paper } }}
-                    >
-                      {controlSchemes.map((el) => (
-                        <MenuItem value={el} key={el} classes={{ root: styles.menuItem }}>
-                          {el}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-                </div>
-                <div className={styles.selectSize}>
-                  <FormControl fullWidth>
-                    <InputLabel>{t('user:usermenu.setting.lbl-control-type')}</InputLabel>
-                    <Select
-                      value={controlTypeSelected}
-                      onChange={handleChangeControlType}
-                      size="small"
-                      classes={{
-                        select: styles.select
-                      }}
-                      MenuProps={{ classes: { paper: styles.paper } }}
-                    >
-                      {controllerTypes.map((el, index) => (
-                        <MenuItem value={el} key={el + index} classes={{ root: styles.menuItem }}>
-                          {el}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-                </div>
-              </div>
-            </section>
-          </>
+              }
+              label={t('user:usermenu.setting.invert-rotation')}
+            />
+            {/* <Collapse in={open} timeout="auto" unmountOnExit>
+              <Box margin={1}>
+                <Table size="small">
+                  <TableHead>
+                    <TableRow>
+                      <TableCell classes={{ root: styles.tableRow }}>{t('user:usermenu.setting.rotation')}</TableCell>
+                      <TableCell classes={{ root: styles.tableRow }}>
+                        {t('user:usermenu.setting.rotation-angle')}
+                      </TableCell>
+                      <TableCell align="right" classes={{ root: styles.tableRow }}>
+                        {t('user:usermenu.setting.rotation-smooth-speed')}
+                      </TableCell>
+                      <TableCell align="right" classes={{ root: styles.tableRow }}>
+                        {t('user:usermenu.setting.moving')}
+                      </TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    <TableRow>
+                      <TableCell align="center" classes={{ root: styles.tableRow }} component="th" scope="row">
+                        {avatarInputState.rotation.value}
+                      </TableCell>
+                      <TableCell align="center" classes={{ root: styles.tableRow }}>
+                        {avatarInputState.rotationAngle.value}
+                      </TableCell>
+                      <TableCell align="center" classes={{ root: styles.tableRow }}>
+                        {avatarInputState.rotationSmoothSpeed.value}
+                      </TableCell>
+                      <TableCell align="center" classes={{ root: styles.tableRow }}>
+                        {avatarInputState.moving.value}
+                      </TableCell>
+                    </TableRow>
+                  </TableBody>
+                </Table>
+              </Box>
+            </Collapse> */}
+          </section>
         )}
       </div>
     </div>

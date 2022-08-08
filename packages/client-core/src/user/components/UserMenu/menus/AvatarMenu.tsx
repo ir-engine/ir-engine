@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { UserAvatar } from '@xrengine/common/src/interfaces/UserAvatar'
+import { AudioEffectPlayer } from '@xrengine/engine/src/audio/systems/AudioSystem'
 import { AvatarEffectComponent } from '@xrengine/engine/src/avatar/components/AvatarEffectComponent'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
@@ -162,7 +163,13 @@ const AvatarMenu = (props: Props) => {
             transform: `translate(${x}px , ${y}px)`
           }}
         >
-          <button type="button" className={styles.iconBlock} onClick={openAvatarSelectMenu}>
+          <button
+            type="button"
+            className={styles.iconBlock}
+            onClick={openAvatarSelectMenu}
+            onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+            onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+          >
             <PersonAdd />
           </button>
         </div>
@@ -193,7 +200,11 @@ const AvatarMenu = (props: Props) => {
             transform: `translate(${x}px , ${y}px)`
           }}
         >
-          <CardContent onClick={() => selectAvatar(characterAvatar)}>
+          <CardContent
+            onClick={() => selectAvatar(characterAvatar)}
+            onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+            onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+          >
             <LazyImage key={avatar.id} src={characterAvatar?.userThumbnail?.url || ''} alt={avatar.name} />
             {avatar.userId ? (
               avatarTobeDeleted && avatarTobeDeleted?.avatar?.url === avatar.url ? (
@@ -204,6 +215,8 @@ const AvatarMenu = (props: Props) => {
                     onClick={(e) => {
                       removeAvatar(e, true)
                     }}
+                    onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                    onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
                     className={styles.yesBtn}
                   >
                     <Check />
@@ -213,6 +226,8 @@ const AvatarMenu = (props: Props) => {
                     onClick={(e) => {
                       removeAvatar(e, false)
                     }}
+                    onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                    onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
                     className={styles.noBtn}
                   >
                     <Close />
@@ -223,6 +238,8 @@ const AvatarMenu = (props: Props) => {
                   type="button"
                   className={styles.deleteBlock}
                   onClick={(e) => setRemovingAvatar(e, characterAvatar)}
+                  onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                  onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
                   disabled={avatar.name === avatarId}
                   title={
                     avatar.name === avatarId

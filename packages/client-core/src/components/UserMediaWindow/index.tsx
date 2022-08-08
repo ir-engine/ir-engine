@@ -68,6 +68,9 @@ export const useUserMediaWindowHook = ({ peerId }) => {
   const [audioProducerGlobalMute, setAudioProducerGlobalMute] = useState(false)
   const [audioTrackClones, setAudioTrackClones] = useState<any[]>([])
   const [videoTrackClones, setVideoTrackClones] = useState<any[]>([])
+  const [videoTrackId, setVideoTrackId] = useState('')
+  const [audioTrackId, setAudioTrackId] = useState('')
+  const [videoDisplayReady, setVideoDisplayReady] = useState<boolean>(false)
   const userState = useUserState()
   const videoRef = useRef<any>()
   const audioRef = useRef<any>()
@@ -106,11 +109,13 @@ export const useUserMediaWindowHook = ({ peerId }) => {
   const currentChannelInstanceConnection = mediaHostID && channelConnectionState.instances[mediaHostID].ornull
 
   const setVideoStream = (value) => {
+    if (value?.track) setVideoTrackId(value.track.id)
     videoStreamRef.current = value
     _setVideoStream(value)
   }
 
   const setAudioStream = (value) => {
+    if (value?.track) setAudioTrackId(value.track.id)
     audioStreamRef.current = value
     _setAudioStream(value)
   }
@@ -299,7 +304,7 @@ export const useUserMediaWindowHook = ({ peerId }) => {
     return () => {
       audioTrackClones.forEach((track) => track.stop())
     }
-  }, [audioStream])
+  }, [audioTrackId])
 
   useEffect(() => {
     if (videoRef.current != null) {
@@ -308,6 +313,7 @@ export const useUserMediaWindowHook = ({ peerId }) => {
       videoRef.current.muted = true
       videoRef.current.setAttribute('playsinline', 'true')
       if (videoStream != null) {
+        setVideoDisplayReady(false)
         if (peerId === 'cam_me' || peerId === 'screen_me') setVideoProducerPaused(false)
         const originalTrackEnabledInterval = setInterval(() => {
           if (videoStream.track.enabled) {
@@ -321,6 +327,7 @@ export const useUserMediaWindowHook = ({ peerId }) => {
               if (isScreen) {
                 applyScreenshareToTexture(videoRef.current)
               }
+              setVideoDisplayReady(true)
             }
           }
         }, 100)
@@ -330,7 +337,7 @@ export const useUserMediaWindowHook = ({ peerId }) => {
     return () => {
       videoTrackClones.forEach((track) => track.stop())
     }
-  }, [videoStream?.track?.id])
+  }, [videoTrackId])
 
   useEffect(() => {
     if (peerId === 'cam_me' || peerId === 'screen_me') {
@@ -560,6 +567,7 @@ export const useUserMediaWindowHook = ({ peerId }) => {
     audioProducerPaused,
     videoProducerGlobalMute,
     audioProducerGlobalMute,
+    videoDisplayReady,
     t,
     togglePiP,
     toggleAudio,
@@ -590,6 +598,7 @@ const UserMediaWindow = ({ peerId }: Props): JSX.Element => {
     audioProducerPaused,
     videoProducerGlobalMute,
     audioProducerGlobalMute,
+    videoDisplayReady,
     t,
     togglePiP,
     toggleAudio,
@@ -609,7 +618,7 @@ const UserMediaWindow = ({ peerId }: Props): JSX.Element => {
           [styles['party-chat-user']]: true,
           [styles['self-user']]: peerId === 'cam_me',
           [styles['no-video']]: videoStream == null,
-          [styles['video-paused']]: videoStream && (videoProducerPaused || videoStreamPaused),
+          [styles['video-paused']]: (videoStream && (videoProducerPaused || videoStreamPaused)) || !videoDisplayReady,
           [styles.pip]: isPiP && !isScreen,
           [styles.screenpip]: isPiP && isScreen
         })}
@@ -623,7 +632,11 @@ const UserMediaWindow = ({ peerId }: Props): JSX.Element => {
             [styles['screen-video-wrapper']]: isScreen
           })}
         >
-          {(videoStream == null || videoStreamPaused || videoProducerPaused || videoProducerGlobalMute) && (
+          {(videoStream == null ||
+            videoStreamPaused ||
+            videoProducerPaused ||
+            videoProducerGlobalMute ||
+            !videoDisplayReady) && (
             <img
               src={getAvatarURLForUser(userAvatarDetails, isSelfUser ? selfUser?.id : user?.id)}
               alt=""
@@ -641,7 +654,7 @@ const UserMediaWindow = ({ peerId }: Props): JSX.Element => {
               {videoStream && !videoProducerPaused ? (
                 <Tooltip title={!videoProducerPaused && !videoStreamPaused ? 'Pause Video' : 'Resume Video'}>
                   <IconButton
-                    size="small"
+                    size="large"
                     className={classNames({
                       [styles['icon-button']]: true,
                       [styles.mediaOff]: videoStreamPaused,
@@ -662,7 +675,7 @@ const UserMediaWindow = ({ peerId }: Props): JSX.Element => {
                   }
                 >
                   <IconButton
-                    size="small"
+                    size="large"
                     className={classNames({
                       [styles['icon-button']]: true,
                       [styles.mediaOff]: audioProducerGlobalMute,
@@ -687,7 +700,7 @@ const UserMediaWindow = ({ peerId }: Props): JSX.Element => {
                   }
                 >
                   <IconButton
-                    size="small"
+                    size="large"
                     className={classNames({
                       [styles['icon-button']]: true,
                       [styles.mediaOff]: audioStreamPaused,
@@ -711,7 +724,7 @@ const UserMediaWindow = ({ peerId }: Props): JSX.Element => {
               ) : null}
               <Tooltip title={t('user:person.openPictureInPicture') as string}>
                 <IconButton
-                  size="small"
+                  size="large"
                   className={styles['icon-button']}
                   onClick={(e) => {
                     e.preventDefault()

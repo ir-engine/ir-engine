@@ -4,7 +4,7 @@ import { ParityValue } from '../../common/enums/ParityValue'
 import { Entity } from '../../ecs/classes/Entity'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { getHandPosition, isInXR } from '../../xr/functions/WebXRFunctions'
+import { getHandPosition, isInXR } from '../../xr/XRFunctions'
 
 export const interactiveReachDistance = 2
 export const interactiveReachDistanceVR = 2

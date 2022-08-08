@@ -9,15 +9,15 @@ import { createEntity } from '../ecs/functions/EntityFunctions'
 import { createEngine } from '../initializeEngine'
 import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
 import { WorldState } from '../networking/interfaces/WorldState'
-import { XRHandsInputComponent } from '../xr/components/XRHandsInputComponent'
-import { XRInputSourceComponent } from '../xr/components/XRInputSourceComponent'
-import { setupXRInputSourceComponent } from '../xr/functions/WebXRFunctions'
+import { XRAction } from '../xr/XRAction'
+import { XRHandsInputComponent, XRInputSourceComponent } from '../xr/XRComponents'
+import { setupXRInputSourceComponent } from '../xr/XRFunctions'
+import { xrSessionChanged } from '../xr/XRSystem'
 import {
   avatarDetailsReceptor,
   setupHandIK,
   setupHeadIK,
   setupXRInputSourceContainer,
-  setXRModeReceptor,
   xrHandsConnectedReceptor,
   xrInputQueryExit
 } from './AvatarSystem'
@@ -91,22 +91,13 @@ describe('AvatarSystem', async () => {
     assert(!hasComponent(entity, AvatarHandsIKComponent))
   })
 
-  it('check setXRModeReceptor', async () => {
-    const world = Engine.instance.currentWorld
-    const entity = createEntity(world)
-    const actionStub = { enabled: true } as any
-    const worldStub = {
-      getUserAvatarEntity() {
-        return entity
-      }
-    } as any
-
-    setXRModeReceptor(actionStub, worldStub)
-    assert(hasComponent(entity, XRInputSourceComponent))
-    actionStub.enabled = false
-    setXRModeReceptor(actionStub, worldStub)
-    assert(!hasComponent(entity, XRInputSourceComponent))
-  })
+  // it('check setXRModeReceptor', async () => {
+  //   const entity = createEntity()
+  //   xrSessionChanged(XRAction.sessionChanged({ active: true }))
+  //   assert(hasComponent(entity, XRInputSourceComponent))
+  //   xrSessionChanged(XRAction.sessionChanged({ active: false }))
+  //   assert(!hasComponent(entity, XRInputSourceComponent))
+  // })
 
   it('check xrHandsConnectedReceptor', async () => {
     const world = Engine.instance.currentWorld
