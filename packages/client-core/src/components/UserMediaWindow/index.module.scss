@@ -141,7 +141,7 @@
     .mute-controls {
       display: flex;
       width: 100%;
-      justify-content: space-between;
+      justify-content: center;
     }
 
     .right-controls {
@@ -157,11 +157,11 @@
 
     button {
       z-index: 200;
-      width: 24px;
+      width: 40px;
       margin: 0 5px;
 
       &.mediaOn {
-        color: rgb(122 255 100 / 100%) !important;
+        color: lightseagreen !important;
       }
 
       &.mediaOff {
@@ -400,4 +400,9 @@
 
 .icon-button {
   color: var(--iconButtonColor);
+  background: rgb(0 0 0 / 8%);
+
+  &:hover {
+    background: rgb(0 0 0 / 15%);
+  }
 }
