@@ -102,6 +102,7 @@ export default async function SceneObjectSystem(world: World) {
   const visibleQuery = defineQuery([Object3DComponent, VisibleComponent])
   const notVisibleQuery = defineQuery([Object3DComponent, Not(VisibleComponent)])
   const updatableQuery = defineQuery([Object3DComponent, UpdatableComponent])
+  const envmapQuery = defineQuery([Object3DComponent, EnvmapComponent])
 
   const useSimpleMaterialsActionQueue = createActionQueue(EngineActions.useSimpleMaterials.matches)
   const modifyPropertyActionQueue = createActionQueue(EngineActions.sceneObjectUpdate.matches)
@@ -175,10 +176,8 @@ export default async function SceneObjectSystem(world: World) {
       obj?.update(fixedDelta)
     }
 
-    for (const action of modifyPropertyActionQueue()) {
-      for (const entity of action.entities) {
-        if (hasComponent(entity, EnvmapComponent)) updateEnvMap(entity)
-      }
+    for (const entity of envmapQuery.enter()) {
+      updateEnvMap(entity)
     }
   }
 }
