@@ -157,7 +157,7 @@ export const createAvatarController = (entity: Entity) => {
 
   addComponent(frustumCameraEntity, Object3DComponent, { value: frustumCamera })
   setTransformComponent(frustumCameraEntity)
-  setComputedTransformComponent(frustumCameraEntity, entity, () => {
+  setComputedTransformComponent(frustumCameraEntity, Engine.instance.currentWorld.cameraEntity, () => {
     const avatarTransform = getComponent(entity, TransformComponent)
     const targetTransform = getComponent(frustumCameraEntity, TransformComponent)
 
