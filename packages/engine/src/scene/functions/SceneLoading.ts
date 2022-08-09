@@ -179,6 +179,7 @@ export const loadSceneFromJSON = async (sceneData: SceneJson, sceneSystems: Syst
   }
 
   await Promise.allSettled(world.sceneLoadingPendingAssets)
+  world.sceneLoadingPendingAssets.clear()
 
   dispatchAction(EngineActions.sceneObjectUpdate({ entities: Object.values(entityMap).map((node) => node.entity) }))
 
