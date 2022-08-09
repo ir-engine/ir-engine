@@ -106,7 +106,7 @@ const UserDrawer = ({ open, mode, selectedUser, onClose }: Props) => {
         ...defaultState,
         name: selectedUser.name || '',
         avatar: selectedUser.avatarId || '',
-        isGuest: selectedUser.isGuest || true,
+        isGuest: selectedUser.isGuest,
         scopes: selectedUser.scopes?.map((el) => ({ type: el.type })) || []
       })
     }

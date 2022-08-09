@@ -1,6 +1,8 @@
 import {
   AnimationClip,
   AudioLoader,
+  BufferAttribute,
+  BufferGeometry,
   FileLoader,
   Group,
   Loader,
@@ -8,9 +10,11 @@ import {
   LOD,
   Material,
   Mesh,
+  MeshBasicMaterial,
   MeshPhysicalMaterial,
   Object3D,
   SkinnedMesh,
+  Texture,
   TextureLoader
 } from 'three'
 
@@ -64,6 +68,15 @@ const processModelAsset = (asset: Mesh): void => {
   const replacedMaterials = new Map()
   const loddables = new Array<Object3D>()
 
+  const onUploadDropBuffer = function (this: BufferAttribute) {
+    // @ts-ignore
+    this.array = new this.array.constructor(1)
+  }
+
+  const onTextureUploadDropSource = function (this: Texture) {
+    this.source.data = null
+  }
+
   asset.traverse((child: Mesh<any, Material>) => {
     //test for LODs within this traversal
     if (haveAnyLODs(child)) loddables.push(child)
@@ -85,6 +98,18 @@ const processModelAsset = (asset: Mesh): void => {
         child.material = newMaterial
       }
     }
+
+    const geo = child.geometry as BufferGeometry
+    const mat = child.material as MeshBasicMaterial
+    const attributes = geo.attributes
+
+    for (var name in attributes) (attributes[name] as BufferAttribute).onUploadCallback = onUploadDropBuffer
+    if (geo.index) geo.index.onUploadCallback = onUploadDropBuffer
+    if (mat.map) mat.map.onUpdate = onTextureUploadDropSource
+    if (mat.alphaMap) mat.alphaMap.onUpdate = onTextureUploadDropSource
+    if (mat.envMap) mat.envMap.onUpdate = onTextureUploadDropSource
+    if (mat.lightMap) mat.lightMap.onUpdate = onTextureUploadDropSource
+    if (mat.specularMap) mat.specularMap.onUpdate = onTextureUploadDropSource
   })
   replacedMaterials.clear()
 
@@ -247,15 +272,12 @@ const assetLoadCallback = (url: string, assetType: AssetType, onLoad: (response:
     AssetLoader.processModelAsset(asset.scene)
   }
 
-  if (assetClass !== AssetClass.Asset) {
-    AssetLoader.Cache.set(url, asset)
-  }
   onLoad(asset)
 }
 
 const getAbsolutePath = (url) => (isAbsolutePath(url) ? url : Engine.instance.publicPath + url)
 
-const load = async (
+const load = (
   _url: string,
   onLoad = (response: any) => {},
   onProgress = (request: ProgressEvent) => {},
@@ -267,10 +289,6 @@ const load = async (
   }
   const url = getAbsolutePath(_url)
 
-  if (AssetLoader.Cache.has(url)) {
-    onLoad(AssetLoader.Cache.get(url))
-  }
-
   const assetType = AssetLoader.getAssetType(url)
   const loader = getLoader(assetType)
   const callback = assetLoadCallback(url, assetType, onLoad)
@@ -280,7 +298,7 @@ const load = async (
     // if (instanced) {
     //   ;(loader as GLTFLoader).parse(await instanceGLTF(url), null!, callback, onError)
     // } else {
-    loader.load(url, callback, onProgress, onError)
+    return loader.load(url, callback, onProgress, onError)
     // }
   } catch (error) {
     onError(error)
@@ -293,13 +311,7 @@ const loadAsync = async (url: string, onProgress = (request: ProgressEvent) => {
   })
 }
 
-// TODO: we are replciating code here, we should refactor AssetLoader to be entirely functional
-const getFromCache = (url: string) => {
-  return AssetLoader.Cache.get(getAbsolutePath(url))
-}
-
 export const AssetLoader = {
-  Cache: new Map<string, any>(),
   loaders: new Map<number, any>(),
   processModelAsset,
   handleLODs,
@@ -310,6 +322,5 @@ export const AssetLoader = {
   getLoader,
   assetLoadCallback,
   load,
-  loadAsync,
-  getFromCache
+  loadAsync
 }

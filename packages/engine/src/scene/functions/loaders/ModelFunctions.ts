@@ -49,7 +49,7 @@ export const deserializeModel: ComponentDeserializeFunction = (
   updateModel(entity, props)
 }
 
-export const updateModel: ComponentUpdateFunction = (entity: Entity, properties: ModelComponentType) => {
+export const updateModel: ComponentUpdateFunction = async (entity: Entity, properties: ModelComponentType) => {
   let scene: Object3DWithEntity
   if (properties.src) {
     try {
@@ -57,11 +57,11 @@ export const updateModel: ComponentUpdateFunction = (entity: Entity, properties:
       switch (/\.[\d\s\w]+$/.exec(properties.src)![0]) {
         case '.glb':
         case '.gltf':
-          const gltf = AssetLoader.getFromCache(properties.src) as GLTF
+          const gltf = (await AssetLoader.loadAsync(properties.src)) as GLTF
           scene = gltf.scene as any
           break
         case '.fbx':
-          scene = AssetLoader.getFromCache(properties.src).scene
+          scene = (await AssetLoader.loadAsync(properties.src)).scene
           break
         default:
           scene = new Object3D() as Object3DWithEntity

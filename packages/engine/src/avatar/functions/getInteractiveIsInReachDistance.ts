@@ -6,7 +6,7 @@ import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { getHandPosition, isInXR } from '../../xr/XRFunctions'
 
-export const interactiveReachDistance = 2
+export const interactiveReachDistance = 3
 export const interactiveReachDistanceVR = 2
 
 export const getInteractiveIsInReachDistance = (

@@ -1,9 +1,11 @@
 import { Collider, ColliderDesc, RigidBody, RigidBodyDesc } from '@dimforge/rapier3d-compat'
-import { AnimationClip, AnimationMixer, Group, PerspectiveCamera, Quaternion, Vector3 } from 'three'
+import { AnimationClip, AnimationMixer, Group, Matrix4, PerspectiveCamera, Quaternion, Vector3 } from 'three'
 
+import { V_000, V_010 } from '../../common/constants/MathConstants'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
+import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { InputComponent } from '../../input/components/InputComponent'
 import { LocalAvatarTagComponent } from '../../input/components/LocalAvatarTagComponent'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
@@ -22,7 +24,8 @@ import { ShadowComponent } from '../../scene/components/ShadowComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
-import { TransformComponent } from '../../transform/components/TransformComponent'
+import { setComputedTransformComponent } from '../../transform/components/ComputedTransformComponent'
+import { setTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
 import { BoneStructure } from '../AvatarBoneMatching'
 import { AvatarInputSchema } from '../AvatarInputSchema'
 import { AnimationComponent } from '../components/AnimationComponent'
@@ -134,7 +137,6 @@ const createAvatarRigidBody = (entity: Entity): RigidBody => {
 }
 
 export const createAvatarController = (entity: Entity) => {
-  const { value } = getComponent(entity, Object3DComponent)
   const avatarComponent = getComponent(entity, AvatarComponent)
 
   if (!hasComponent(entity, InputComponent)) {
@@ -144,15 +146,41 @@ export const createAvatarController = (entity: Entity) => {
     })
   }
 
-  const frustumCamera = new PerspectiveCamera(60, 4, 0.1, 3)
-  frustumCamera.position.setY(defaultAvatarHalfHeight)
+  const frustumCameraEntity = createEntity()
+
+  const frustumCamera = new PerspectiveCamera(45, 2, 0.1, 2)
   frustumCamera.rotateY(Math.PI)
 
-  value.add(frustumCamera)
+  const _vec3 = new Vector3()
+  const _cameraDirection = new Vector3()
+  const _mat = new Matrix4()
+
+  addComponent(frustumCameraEntity, Object3DComponent, { value: frustumCamera })
+  setTransformComponent(frustumCameraEntity)
+  setComputedTransformComponent(frustumCameraEntity, entity, () => {
+    const avatarTransform = getComponent(entity, TransformComponent)
+    const targetTransform = getComponent(frustumCameraEntity, TransformComponent)
+
+    const cameraRotation = getComponent(Engine.instance.currentWorld.cameraEntity, TransformComponent).rotation
+    const direction = _cameraDirection.set(0, 0, -1).applyQuaternion(cameraRotation).setComponent(1, 0)
+    targetTransform.rotation.setFromRotationMatrix(_mat.lookAt(V_000, direction, V_010))
+    frustumCamera.quaternion.copy(targetTransform.rotation)
+    frustumCamera.updateWorldMatrix(false, false)
+
+    _vec3.copy(avatarTransform.position)
+    _vec3.y += avatarComponent.avatarHeight * 0.95
+    frustumCamera.worldToLocal(_vec3)
+    _vec3.z += 1
+    frustumCamera.localToWorld(_vec3)
+
+    targetTransform.position.copy(_vec3)
+  })
+
+  Engine.instance.currentWorld.scene.add(frustumCamera)
   if (!hasComponent(entity, InteractorComponent)) {
     addComponent(entity, InteractorComponent, {
       focusedInteractive: null!,
-      frustumCamera,
+      frustumCameraEntity,
       subFocusedArray: []
     })
   }
