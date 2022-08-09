@@ -55,13 +55,6 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
   const hasError = engineState.errorEntities[entity].get()
   const errorComponent = getComponent(entity, ErrorComponent)
 
-  const updateSrc = async (src: string) => {
-    // if(src !== modelComponent.src)
-    AssetLoader.Cache.delete(src)
-    await AssetLoader.loadAsync(src)
-    updateProperty(ModelComponent, 'src')(src)
-  }
-
   const loopAnimationComponent = getComponent(entity, LoopAnimationComponent)
   const onPlayAnimation = () => {
     if (!animationPlaying) playAnimationClip(animationComponent, loopAnimationComponent)
@@ -87,7 +80,7 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
   return (
     <NodeEditor description={t('editor:properties.model.description')} {...props}>
       <InputGroup name="Model Url" label={t('editor:properties.model.lbl-modelurl')}>
-        <ModelInput value={modelComponent.src} onChange={updateSrc} />
+        <ModelInput value={modelComponent.src} onChange={updateProperty(ModelComponent, 'src')} />
         {hasError && errorComponent?.srcError && (
           <div style={{ marginTop: 2, color: '#FF8C00' }}>{t('editor:properties.model.error-url')}</div>
         )}

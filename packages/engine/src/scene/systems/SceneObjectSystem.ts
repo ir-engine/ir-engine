@@ -12,6 +12,7 @@ import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { XRUIComponent } from '../../xrui/components/XRUIComponent'
+import { EnvmapComponent } from '../components/EnvmapComponent'
 import { NameComponent } from '../components/NameComponent'
 import { Object3DComponent, Object3DWithEntity } from '../components/Object3DComponent'
 import { PersistTagComponent } from '../components/PersistTagComponent'
@@ -20,6 +21,7 @@ import { SimpleMaterialTagComponent } from '../components/SimpleMaterialTagCompo
 import { UpdatableComponent } from '../components/UpdatableComponent'
 import { VisibleComponent } from '../components/VisibleComponent'
 import { ObjectLayers } from '../constants/ObjectLayers'
+import { updateEnvMap } from '../functions/loaders/EnvMapFunctions'
 import { useSimpleMaterial, useStandardMaterial } from '../functions/loaders/SimpleMaterialFunctions'
 import { registerPrefabs } from '../functions/registerPrefabs'
 import { registerDefaultSceneFunctions } from '../functions/registerSceneFunctions'
@@ -102,6 +104,7 @@ export default async function SceneObjectSystem(world: World) {
   const updatableQuery = defineQuery([Object3DComponent, UpdatableComponent])
 
   const useSimpleMaterialsActionQueue = createActionQueue(EngineActions.useSimpleMaterials.matches)
+  const modifyPropertyActionQueue = createActionQueue(EngineActions.sceneObjectUpdate.matches)
 
   return () => {
     for (const entity of sceneObjectQuery.exit()) {
@@ -170,6 +173,12 @@ export default async function SceneObjectSystem(world: World) {
     for (const entity of updatableQuery()) {
       const obj = getComponent(entity, Object3DComponent)?.value as unknown as Updatable
       obj?.update(fixedDelta)
+    }
+
+    for (const action of modifyPropertyActionQueue()) {
+      for (const entity of action.entities) {
+        if (hasComponent(entity, EnvmapComponent)) updateEnvMap(entity)
+      }
     }
   }
 }

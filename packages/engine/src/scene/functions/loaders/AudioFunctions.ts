@@ -85,9 +85,11 @@ export const updateAudioPrefab = (entity: Entity) => {
     obj3d.add(textureMesh)
     textureMesh.userData.disableOutline = true
     textureMesh.userData.isHelper = true
-    textureMesh.material.map = AssetLoader.getFromCache(AUDIO_TEXTURE_PATH)
     setObjectLayers(textureMesh, ObjectLayers.NodeHelper)
     AudioElementObjects.set(obj3d, textureMesh)
+    AssetLoader.loadAsync(AUDIO_TEXTURE_PATH).then((texture) => {
+      textureMesh.material.map = texture
+    })
   }
 
   if (!hasComponent(entity, MediaElementComponent)) {

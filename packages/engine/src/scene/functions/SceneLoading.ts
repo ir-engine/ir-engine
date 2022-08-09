@@ -135,25 +135,28 @@ export const loadSceneFromJSON = async (sceneData: SceneJson, sceneSystems: Syst
 
   EngineActions.sceneLoadingProgress({ progress: 0 })
 
+  // TODO: get more granular progress data based on percentage of each asset
+  // we probably need to query for metadata to get the size of each request if we can
+  const onProgress = () => {}
+
   let promisesCompleted = 0
-  const onProgress = () => {
-    // TODO: get more granular progress data based on percentage of each asset
-    // we probably need to query for metadata to get the size of each request if we can
-  }
   const onComplete = () => {
     promisesCompleted++
     dispatchAction(
       EngineActions.sceneLoadingProgress({
-        progress: promisesCompleted > promises.length ? 100 : Math.round((100 * promisesCompleted) / promises.length)
+        progress:
+          promisesCompleted > world.sceneLoadingPendingAssets.size
+            ? 100
+            : Math.round((100 * promisesCompleted) / world.sceneLoadingPendingAssets.size)
       })
     )
   }
-  const promises = preCacheAssets(sceneData, onProgress)
 
-  promises.forEach((promise) => promise.then(onComplete))
-  await Promise.allSettled(promises)
-
-  // this needs to occur after the asset promises
+  /**
+   * @todo make references to all the entities etc from the current scene,
+   *   then do the unloading after new scene has loaded and before dispatching sceneLoaded.
+   *   will need to do a more precise cleanup (rather than just resetting things harshly).
+   */
   if (getEngineState().sceneLoaded.value) await unloadScene(world)
 
   await initSystems(world, sceneSystems)
@@ -170,6 +173,12 @@ export const loadSceneFromJSON = async (sceneData: SceneJson, sceneSystems: Syst
     addEntityNodeInTree(node, sceneEntity.parent ? entityMap[sceneEntity.parent] : undefined)
     loadSceneEntity(entityMap[key], sceneData.entities[key])
   }
+
+  for (const promise of world.sceneLoadingPendingAssets) {
+    promise.then(onComplete)
+  }
+
+  await Promise.allSettled(world.sceneLoadingPendingAssets)
 
   dispatchAction(EngineActions.sceneObjectUpdate({ entities: Object.values(entityMap).map((node) => node.entity) }))
 
@@ -196,14 +205,14 @@ export const loadSceneEntity = (entityNode: EntityTreeNode, sceneEntity: EntityJ
   addComponent(entityNode.entity, NameComponent, { name: sceneEntity.name })
   addComponent(entityNode.entity, EntityNodeComponent, { components: [] })
 
-  sceneEntity.components.forEach((component) => {
+  for (const component of sceneEntity.components) {
     try {
       loadComponent(entityNode.entity, component)
     } catch (e) {
       console.error(`Error loading scene entity: `, JSON.stringify(sceneEntity, null, '\t'))
       console.error(e)
     }
-  })
+  }
 
   if (!hasComponent(entityNode.entity, TransformComponent))
     addComponent(entityNode.entity, DisableTransformTagComponent, {})

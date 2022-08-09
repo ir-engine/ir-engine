@@ -93,8 +93,9 @@ export const initializeXRInputs = (entity: Entity) => {
     controller.userData.initialized = true
 
     const handedness = controller === xrInputSourceComponent.controllerGripLeft ? 'left' : 'right'
-    initializeHandModel(entity, controller, handedness, true)
-    initializeXRControllerAnimations(controller)
+    initializeHandModel(entity, controller, handedness, true).then(() => {
+      initializeXRControllerAnimations(controller)
+    })
   })
 }
 

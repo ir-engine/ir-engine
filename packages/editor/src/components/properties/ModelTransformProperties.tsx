@@ -117,7 +117,6 @@ export default function ModelTransformProperties({ modelComponent, onChangeModel
     setTransformHistory([modelComponent.src, ...transformHistory])
     const [_, directoryToRefresh, fileName] = /.*\/(projects\/.*)\/([\w\d\s\-_\.]*)$/.exec(nuPath)!
     await FileBrowserService.fetchFiles(directoryToRefresh)
-    await AssetLoader.loadAsync(nuPath)
     onChangeModel(nuPath)
     setTransforming(false)
   }

@@ -44,7 +44,7 @@ import {
   serializeEnvMapBake,
   updateEnvMapBake
 } from './loaders/EnvMapBakeFunctions'
-import { deserializeEnvMap, SCENE_COMPONENT_ENVMAP, serializeEnvMap, updateEnvMap } from './loaders/EnvMapFunctions'
+import { deserializeEnvMap, SCENE_COMPONENT_ENVMAP, serializeEnvMap } from './loaders/EnvMapFunctions'
 import {
   deserializeFog,
   SCENE_COMPONENT_FOG,
@@ -240,8 +240,7 @@ export const registerDefaultSceneFunctions = (world: World) => {
 
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_ENVMAP, {
     deserialize: deserializeEnvMap,
-    serialize: serializeEnvMap,
-    update: updateEnvMap
+    serialize: serializeEnvMap
   })
 
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_FOG, {

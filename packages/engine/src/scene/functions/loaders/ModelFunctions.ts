@@ -10,6 +10,7 @@ import {
   ComponentUpdateFunction
 } from '../../../common/constants/PrefabFunctionType'
 import { isClient } from '../../../common/functions/isClient'
+import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent, removeComponent } from '../../../ecs/functions/ComponentFunctions'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
@@ -46,10 +47,10 @@ export const deserializeModel: ComponentDeserializeFunction = (
       (overrides) => (model.materialOverrides = overrides)
     )
   }
-  updateModel(entity, props)
+  Engine.instance.currentWorld.sceneLoadingPendingAssets.add(updateModel(entity, props))
 }
 
-export const updateModel: ComponentUpdateFunction = async (entity: Entity, properties: ModelComponentType) => {
+export const updateModel = async (entity: Entity, properties: ModelComponentType) => {
   let scene: Object3DWithEntity
   if (properties.src) {
     try {

@@ -61,134 +61,123 @@ export const deserializeEnvMap: ComponentDeserializeFunction = (
   addComponent(entity, EnvmapComponent, props)
 
   getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_ENVMAP)
-
-  updateEnvMap(entity, props)
 }
 
-export const updateEnvMap: ComponentUpdateFunction = (entity: Entity, properties: EnvmapComponentType) => {
+export const updateEnvMap = (entity: Entity) => {
   const component = getComponent(entity, EnvmapComponent)
-  const obj3d = component.forModel ? getComponent(entity, Object3DComponent)?.value : Engine.instance.currentWorld.scene
+  const obj3d = component.forModel ? getComponent(entity, Object3DComponent).value : Engine.instance.currentWorld.scene
 
-  if (
-    typeof properties.type !== 'undefined' ||
-    typeof properties.envMapSourceColor !== 'undefined' ||
-    typeof properties.envMapTextureType !== 'undefined' ||
-    typeof properties.envMapBake !== 'undefined' ||
-    typeof properties.envMapSourceURL !== 'undefined'
-  ) {
-    switch (component.type) {
-      case EnvMapSourceType.Color:
-        const col = component.envMapSourceColor ?? tempColor
-        const resolution = 64 // Min value required
-        const size = resolution * resolution
-        const data = new Uint8Array(4 * size)
+  switch (component.type) {
+    case EnvMapSourceType.Color:
+      const col = component.envMapSourceColor ?? tempColor
+      const resolution = 64 // Min value required
+      const size = resolution * resolution
+      const data = new Uint8Array(4 * size)
 
-        for (let i = 0; i < size; i++) {
-          const stride = i * 4
-          data[stride] = Math.floor(col.r * 255)
-          data[stride + 1] = Math.floor(col.g * 255)
-          data[stride + 2] = Math.floor(col.b * 255)
-          data[stride + 3] = 255
-        }
+      for (let i = 0; i < size; i++) {
+        const stride = i * 4
+        data[stride] = Math.floor(col.r * 255)
+        data[stride + 1] = Math.floor(col.g * 255)
+        data[stride + 2] = Math.floor(col.b * 255)
+        data[stride + 3] = 255
+      }
 
-        const texture = new DataTexture(data, resolution, resolution, RGBAFormat)
-        texture.needsUpdate = true
-        texture.encoding = sRGBEncoding
+      const texture = new DataTexture(data, resolution, resolution, RGBAFormat)
+      texture.needsUpdate = true
+      texture.encoding = sRGBEncoding
 
-        applyEnvMap(obj3d, getPmremGenerator().fromEquirectangular(texture).texture)
-        break
+      applyEnvMap(obj3d, getPmremGenerator().fromEquirectangular(texture).texture)
+      break
 
-      case EnvMapSourceType.Texture:
-        switch (component.envMapTextureType) {
-          case EnvMapTextureType.Cubemap:
-            loadCubeMapTexture(
-              component.envMapSourceURL,
-              (texture) => {
-                const EnvMap = getPmremGenerator().fromCubemap(texture).texture
-                EnvMap.encoding = sRGBEncoding
-                applyEnvMap(obj3d, EnvMap)
-                removeError(entity, 'envmapError')
-              },
-              undefined,
-              (_) => addError(entity, 'envmapError', 'Skybox texture could not be found!')
-            )
-            break
+    case EnvMapSourceType.Texture:
+      switch (component.envMapTextureType) {
+        case EnvMapTextureType.Cubemap:
+          loadCubeMapTexture(
+            component.envMapSourceURL,
+            (texture) => {
+              const EnvMap = getPmremGenerator().fromCubemap(texture).texture
+              EnvMap.encoding = sRGBEncoding
+              applyEnvMap(obj3d, EnvMap)
+              removeError(entity, 'envmapError')
+            },
+            undefined,
+            (_) => addError(entity, 'envmapError', 'Skybox texture could not be found!')
+          )
+          break
 
-          case EnvMapTextureType.Equirectangular:
-            AssetLoader.load(
-              component.envMapSourceURL,
-              (texture) => {
-                const EnvMap = getPmremGenerator().fromEquirectangular(texture).texture
-                EnvMap.encoding = sRGBEncoding
-                applyEnvMap(obj3d, EnvMap)
-                removeError(entity, 'envmapError')
-                texture.dispose()
-              },
-              (_res) => {
-                /* console.log(_res) */
-              },
-              (_) => {
-                addError(entity, 'envmapError', 'Skybox texture could not be found!')
-              }
-            )
-            break
-        }
-        break
+        case EnvMapTextureType.Equirectangular:
+          AssetLoader.load(
+            component.envMapSourceURL,
+            (texture) => {
+              const EnvMap = getPmremGenerator().fromEquirectangular(texture).texture
+              EnvMap.encoding = sRGBEncoding
+              applyEnvMap(obj3d, EnvMap)
+              removeError(entity, 'envmapError')
+              texture.dispose()
+            },
+            (_res) => {
+              /* console.log(_res) */
+            },
+            (_) => {
+              addError(entity, 'envmapError', 'Skybox texture could not be found!')
+            }
+          )
+          break
+      }
+      break
 
-      case EnvMapSourceType.Default:
-        const options = component.envMapBake
-        if (!options) return
+    case EnvMapSourceType.Default:
+      const options = component.envMapBake
+      if (!options) return
 
-        if (!component.forModel) {
-          SceneOptions.instance.bpcemOptions.bakeScale = options.bakeScale!
-          SceneOptions.instance.bpcemOptions.bakePositionOffset = options.bakePositionOffset!
-        }
+      if (!component.forModel) {
+        SceneOptions.instance.bpcemOptions.bakeScale = options.bakeScale!
+        SceneOptions.instance.bpcemOptions.bakePositionOffset = options.bakePositionOffset!
+      }
 
-        matchActionOnce(EngineActions.sceneLoaded.matches, () => {
-          switch (options.bakeType) {
-            case EnvMapBakeTypes.Baked:
-              const texture = AssetLoader.Cache.get(options.envMapOrigin)
-              texture.mapping = EquirectangularRefractionMapping
-              applyEnvMap(obj3d, texture)
+      switch (options.bakeType) {
+        case EnvMapBakeTypes.Baked:
+          AssetLoader.load(options.envMapOrigin, (texture) => {
+            texture.mapping = EquirectangularRefractionMapping
+            applyEnvMap(obj3d, texture)
+          })
 
-              break
-            case EnvMapBakeTypes.Realtime:
-              // const map = new CubemapCapturer(EngineRenderer.instance.renderer, Engine.scene, options.resolution)
-              // const EnvMap = (await map.update(options.bakePosition)).cubeRenderTarget.texture
-              // applyEnvMap(obj3d, EnvMap)
-              break
-          }
-        })
+          break
+        case EnvMapBakeTypes.Realtime:
+          // const map = new CubemapCapturer(EngineRenderer.instance.renderer, Engine.scene, options.resolution)
+          // const EnvMap = (await map.update(options.bakePosition)).cubeRenderTarget.texture
+          // applyEnvMap(obj3d, EnvMap)
+          break
+      }
 
-        if (!component.forModel) {
-          const offset = options.bakePositionOffset!
-          tempVector.set(offset.x, offset.y, offset.z)
+      if (!component.forModel) {
+        const offset = options.bakePositionOffset!
+        tempVector.set(offset.x, offset.y, offset.z)
 
-          SceneOptions.instance.boxProjection = options.boxProjection!
-          SceneOptions.instance.bpcemOptions.bakePositionOffset = tempVector
-          SceneOptions.instance.bpcemOptions.bakeScale = options.bakeScale!
-        }
-        break
+        SceneOptions.instance.boxProjection = options.boxProjection!
+        SceneOptions.instance.bpcemOptions.bakePositionOffset = tempVector
+        SceneOptions.instance.bpcemOptions.bakeScale = options.bakeScale!
+      }
+      break
 
-      default:
-        applyEnvMap(obj3d, null)
-        break
-    }
+    default:
+      applyEnvMap(obj3d, null)
+      break
   }
 
-  if (typeof properties.envMapIntensity !== 'undefined') {
-    if (SceneOptions.instance.envMapIntensity !== component.envMapIntensity) {
-      if (!component.forModel) SceneOptions.instance.envMapIntensity = component.envMapIntensity
-      obj3d.traverse((obj: Mesh) => {
-        if (!obj.material) return
+  if (!component.forModel) {
+    SceneOptions.instance.envMapIntensity = component.envMapIntensity
+  }
+  if (SceneOptions.instance.envMapIntensity !== component.envMapIntensity) {
+    obj3d.traverse((obj: Mesh) => {
+      if (!obj.material) return
 
-        if (Array.isArray(obj.material)) {
-          obj.material.forEach((m: MeshStandardMaterial) => (m.envMapIntensity = component.envMapIntensity))
-        } else {
-          ;(obj.material as MeshStandardMaterial).envMapIntensity = component.envMapIntensity
-        }
-      })
-    }
+      if (Array.isArray(obj.material)) {
+        obj.material.forEach((m: MeshStandardMaterial) => (m.envMapIntensity = component.envMapIntensity))
+      } else {
+        ;(obj.material as MeshStandardMaterial).envMapIntensity = component.envMapIntensity
+      }
+    })
   }
 }
 

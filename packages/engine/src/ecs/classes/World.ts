@@ -159,6 +159,8 @@ export class World {
    */
   scene = new Scene()
 
+  sceneLoadingPendingAssets = new Set<Promise<void>>()
+
   /**
    * Reference to the three.js perspective camera object.
    */

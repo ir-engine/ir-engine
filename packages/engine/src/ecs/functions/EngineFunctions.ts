@@ -80,8 +80,6 @@ export function reset() {
     EngineRenderer.instance.renderer = null!
   }
 
-  AssetLoader.Cache.clear()
-
   dispatchAction(EngineActions.initializeEngine({ initialised: false }))
   Engine.instance.currentWorld.inputState.clear()
   Engine.instance.currentWorld.prevInputState.clear()
