@@ -1,4 +1,4 @@
-import { Group, Object3D, Vector3 } from 'three'
+import { Group, Object3D, Quaternion, Vector3 } from 'three'
 
 import { createActionQueue, getState } from '@xrengine/hyperflux'
 
