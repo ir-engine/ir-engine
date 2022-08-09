@@ -272,15 +272,12 @@ const assetLoadCallback = (url: string, assetType: AssetType, onLoad: (response:
     AssetLoader.processModelAsset(asset.scene)
   }
 
-  if (assetClass !== AssetClass.Asset) {
-    AssetLoader.Cache.set(url, asset)
-  }
   onLoad(asset)
 }
 
 const getAbsolutePath = (url) => (isAbsolutePath(url) ? url : Engine.instance.publicPath + url)
 
-const load = async (
+const load = (
   _url: string,
   onLoad = (response: any) => {},
   onProgress = (request: ProgressEvent) => {},
@@ -292,10 +289,6 @@ const load = async (
   }
   const url = getAbsolutePath(_url)
 
-  if (AssetLoader.Cache.has(url)) {
-    onLoad(AssetLoader.Cache.get(url))
-  }
-
   const assetType = AssetLoader.getAssetType(url)
   const loader = getLoader(assetType)
   const callback = assetLoadCallback(url, assetType, onLoad)
@@ -305,7 +298,7 @@ const load = async (
     // if (instanced) {
     //   ;(loader as GLTFLoader).parse(await instanceGLTF(url), null!, callback, onError)
     // } else {
-    loader.load(url, callback, onProgress, onError)
+    return loader.load(url, callback, onProgress, onError)
     // }
   } catch (error) {
     onError(error)
@@ -318,13 +311,7 @@ const loadAsync = async (url: string, onProgress = (request: ProgressEvent) => {
   })
 }
 
-// TODO: we are replciating code here, we should refactor AssetLoader to be entirely functional
-const getFromCache = (url: string) => {
-  return AssetLoader.Cache.get(getAbsolutePath(url))
-}
-
 export const AssetLoader = {
-  Cache: new Map<string, any>(),
   loaders: new Map<number, any>(),
   processModelAsset,
   handleLODs,
@@ -335,6 +322,5 @@ export const AssetLoader = {
   getLoader,
   assetLoadCallback,
   load,
-  loadAsync,
-  getFromCache
+  loadAsync
 }
