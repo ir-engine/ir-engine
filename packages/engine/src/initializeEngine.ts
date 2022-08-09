@@ -283,6 +283,10 @@ export const initializeSceneSystems = async () => {
       {
         type: SystemUpdateType.PRE_RENDER,
         systemModulePromise: import('./scene/systems/EntityNodeEventSystem')
+      },
+      {
+        type: SystemUpdateType.PRE_RENDER,
+        systemModulePromise: import('./navigation/systems/NavigationSystem')
       }
     )
 

@@ -260,6 +260,20 @@ export const addComponent = <T, S extends bitECS.ISchema>(
   return component.get(entity)
 }
 
+export const updateComponent = <T, S extends bitECS.ISchema>(
+  entity: Entity,
+  component: MappedComponent<T, S>,
+  args: T,
+  updateRemoved = false,
+  world = Engine.instance.currentWorld
+) => {
+  const c = getComponent(entity, component, updateRemoved, world)
+  for (let key in args) {
+    ;(c as any)[key] = args[key]
+  }
+  return c
+}
+
 export const hasComponent = <T, S extends bitECS.ISchema>(
   entity: Entity,
   component: MappedComponent<T, S>,

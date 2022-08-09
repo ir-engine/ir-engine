@@ -6,13 +6,14 @@ import { NavMesh } from 'yuka'
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
 import { Entity } from '../../../ecs/classes/Entity'
-import { getComponent } from '../../../ecs/functions/ComponentFunctions'
-import { addComponent } from '../../../ecs/functions/ComponentFunctions'
+import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
 import { createEngine } from '../../../initializeEngine'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
+import { ModelComponent } from '../../components/ModelComponent'
 import { NavMeshComponent } from '../../components/NavMeshComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
+import { SCENE_COMPONENT_MODEL, SCENE_COMPONENT_MODEL_DEFAULT_VALUE } from './ModelFunctions'
 import { SCENE_COMPONENT_NAV_MESH } from './NavMeshFunctions'
 
 class Fake {
@@ -69,12 +70,34 @@ describe('NavMeshFunctions', () => {
       assert(obj3d.userData.disableOutline, 'outline is not disabled')
     })
 
-    it('will include this component into EntityNodeComponent', () => {
+    it('ensures a Model Component with default component data', () => {
+      fns.deserializeNavMesh(entity, sceneComponent)
+
+      const c = getComponent(entity, ModelComponent)
+      assert(c, 'not created')
+      for (let key in SCENE_COMPONENT_MODEL_DEFAULT_VALUE) {
+        assert(c[key] === SCENE_COMPONENT_MODEL_DEFAULT_VALUE[key], key + ' not set')
+      }
+    })
+
+    it('does not overwrite an exising Model Component', () => {
+      addComponent(entity, ModelComponent, { src: '://model' } as any)
+      fns.deserializeNavMesh(entity, sceneComponent)
+
+      const c = getComponent(entity, ModelComponent)
+
+      c.src = '://model'
+
+      assert(c.src === '://model')
+    })
+
+    it('will include these component into EntityNodeComponent', () => {
       addComponent(entity, EntityNodeComponent, { components: [] })
 
       fns.deserializeNavMesh(entity, sceneComponent)
 
       const entityNodeComponent = getComponent(entity, EntityNodeComponent)
+      assert(entityNodeComponent.components.includes(SCENE_COMPONENT_MODEL))
       assert(entityNodeComponent.components.includes(SCENE_COMPONENT_NAV_MESH))
     })
   })

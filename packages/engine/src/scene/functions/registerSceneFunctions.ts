@@ -102,6 +102,12 @@ import {
 } from './loaders/MetaDataFunctions'
 import { deserializeModel, SCENE_COMPONENT_MODEL, serializeModel, updateModel } from './loaders/ModelFunctions'
 import { deserializeMountPoint, SCENE_COMPONENT_MOUNT_POINT, serializeMountPoint } from './loaders/MountPointFunctions'
+import {
+  deserializeNavMesh,
+  SCENE_COMPONENT_NAV_MESH,
+  serializeNavMesh,
+  updateNavMesh
+} from './loaders/NavMeshFunctions'
 import { deserializeOcean, SCENE_COMPONENT_OCEAN, serializeOcean, updateOcean } from './loaders/OceanFunctions'
 import {
   deserializeParticleEmitter,
@@ -487,5 +493,10 @@ export const registerDefaultSceneFunctions = (world: World) => {
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_MOUNT_POINT, {
     deserialize: deserializeMountPoint,
     serialize: serializeMountPoint
+  })
+
+  world.sceneLoadingRegistry.set(SCENE_COMPONENT_NAV_MESH, {
+    deserialize: deserializeNavMesh,
+    serialize: serializeNavMesh
   })
 }

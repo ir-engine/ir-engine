@@ -47,6 +47,7 @@ import {
 import { SCENE_COMPONENT_MEDIA, SCENE_COMPONENT_MEDIA_DEFAULT_VALUES } from './loaders/MediaFunctions'
 import { SCENE_COMPONENT_MODEL, SCENE_COMPONENT_MODEL_DEFAULT_VALUE } from './loaders/ModelFunctions'
 import { SCENE_COMPONENT_MOUNT_POINT, SCENE_COMPONENT_MOUNT_POINT_DEFAULT_VALUES } from './loaders/MountPointFunctions'
+import { SCENE_COMPONENT_NAV_MESH, SCENE_COMPONENT_NAV_MESH_DEFAULT_VALUES } from './loaders/NavMeshFunctions'
 import { SCENE_COMPONENT_OCEAN, SCENE_COMPONENT_OCEAN_DEFAULT_VALUES } from './loaders/OceanFunctions'
 import {
   SCENE_COMPONENT_PARTICLE_EMITTER,
@@ -115,7 +116,8 @@ export const ScenePrefabs = {
   spline: 'Spline' as const,
   envMapbake: 'EnvMap Bake' as const,
   instancing: 'Instancing' as const,
-  fog: 'Fog' as const
+  fog: 'Fog' as const,
+  navMesh: 'NavMesh' as const
 }
 
 export type ScenePrefabTypes = typeof ScenePrefabs[keyof typeof ScenePrefabs]
@@ -311,5 +313,11 @@ export const registerPrefabs = (world: World) => {
     { name: SCENE_COMPONENT_TRANSFORM, props: SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES },
     { name: SCENE_COMPONENT_VISIBLE, props: SCENE_COMPONENT_VISIBLE_DEFAULT_VALUES },
     { name: SCENE_COMPONENT_MOUNT_POINT, props: SCENE_COMPONENT_MOUNT_POINT_DEFAULT_VALUES }
+  ])
+
+  world.scenePrefabRegistry.set(ScenePrefabs.navMesh, [
+    ...defaultSpatialComponents,
+    { name: SCENE_COMPONENT_NAV_MESH, props: SCENE_COMPONENT_NAV_MESH_DEFAULT_VALUES },
+    { name: SCENE_COMPONENT_MODEL, props: SCENE_COMPONENT_MODEL_DEFAULT_VALUE }
   ])
 }

@@ -11,7 +11,13 @@ import {
 } from '../../../common/constants/PrefabFunctionType'
 import { isClient } from '../../../common/functions/isClient'
 import { Entity } from '../../../ecs/classes/Entity'
-import { addComponent, getComponent, hasComponent, removeComponent } from '../../../ecs/functions/ComponentFunctions'
+import {
+  addComponent,
+  getComponent,
+  hasComponent,
+  removeComponent,
+  updateComponent
+} from '../../../ecs/functions/ComponentFunctions'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { MaterialOverrideComponentType } from '../../components/MaterialOverrideComponent'
 import { ModelComponent, ModelComponentType } from '../../components/ModelComponent'
@@ -38,7 +44,9 @@ export const deserializeModel: ComponentDeserializeFunction = (
   component: ComponentJson<ModelComponentType>
 ) => {
   const props = parseModelProperties(component.props)
-  const model = addComponent(entity, ModelComponent, props)
+  const model = hasComponent(entity, ModelComponent)
+    ? updateComponent(entity, ModelComponent, props)
+    : addComponent(entity, ModelComponent, props)
 
   getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_MODEL)
   //add material override components

@@ -11,11 +11,13 @@ import {
 import { isClient } from '../../../common/functions/isClient'
 import { Object3DUtils } from '../../../common/functions/Object3DUtils'
 import { Entity } from '../../../ecs/classes/Entity'
-import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
+import { addComponent, getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
 import { NavMesh } from '../../classes/NavMesh'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
+import { ModelComponent } from '../../components/ModelComponent'
 import { NavMeshComponent, NavMeshComponentType } from '../../components/NavMeshComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
+import { SCENE_COMPONENT_MODEL, SCENE_COMPONENT_MODEL_DEFAULT_VALUE } from './ModelFunctions'
 
 export const SCENE_COMPONENT_NAV_MESH = 'navMesh'
 export const SCENE_COMPONENT_NAV_MESH_DEFAULT_VALUES = {}
@@ -30,13 +32,18 @@ export const deserializeNavMesh: ComponentDeserializeFunction = (
   const obj3d = new Object3D()
 
   obj3d.userData.disableOutline = true
+
+  if (!hasComponent(entity, ModelComponent)) {
+    addComponent(entity, ModelComponent, SCENE_COMPONENT_MODEL_DEFAULT_VALUE)
+  }
+
   addComponent(entity, Object3DComponent, { value: obj3d })
 
   addComponent(entity, NavMeshComponent, props)
 
-  getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_NAV_MESH)
+  getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_NAV_MESH, SCENE_COMPONENT_MODEL)
 
-  updateNavMesh(entity, json.props)
+  updateNavMesh(entity, props)
 }
 
 function parseGeometry(position: ArrayLike<number>, index?: ArrayLike<number>) {

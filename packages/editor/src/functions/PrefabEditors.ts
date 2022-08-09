@@ -20,6 +20,7 @@ import { SCENE_COMPONENT_INTERIOR } from '@xrengine/engine/src/scene/functions/l
 import { SCENE_COMPONENT_MEDIA } from '@xrengine/engine/src/scene/functions/loaders/MediaFunctions'
 import { SCENE_COMPONENT_MODEL } from '@xrengine/engine/src/scene/functions/loaders/ModelFunctions'
 import { SCENE_COMPONENT_MOUNT_POINT } from '@xrengine/engine/src/scene/functions/loaders/MountPointFunctions'
+import { SCENE_COMPONENT_NAV_MESH } from '@xrengine/engine/src/scene/functions/loaders/NavMeshFunctions'
 import { SCENE_COMPONENT_OCEAN } from '@xrengine/engine/src/scene/functions/loaders/OceanFunctions'
 import { SCENE_COMPONENT_PARTICLE_EMITTER } from '@xrengine/engine/src/scene/functions/loaders/ParticleEmitterFunctions'
 import { SCENE_COMPONENT_POINT_LIGHT } from '@xrengine/engine/src/scene/functions/loaders/PointLightFunctions'
@@ -58,6 +59,7 @@ import InteriorNodeEditor from '../components/properties/InteriorNodeEditor'
 import MediaNodeEditor from '../components/properties/MediaNodeEditor'
 import ModelNodeEditor from '../components/properties/ModelNodeEditor'
 import MountPointNodeEditor from '../components/properties/MountPointNodeEditor'
+import NavMeshNodeEditor from '../components/properties/NavMeshNodeEditor'
 import OceanNodeEditor from '../components/properties/OceanNodeEditor'
 import ParticleEmitterNodeEditor from '../components/properties/ParticleEmitterNodeEditor'
 import PointLightNodeEditor from '../components/properties/PointLightNodeEditor'
@@ -123,7 +125,8 @@ export const EntityNodeEditor = {
   [SCENE_COMPONENT_SPLINE]: SplineNodeEditor,
   [SCENE_COMPONENT_ENVMAP_BAKE]: EnvMapBakeNodeEditor,
   [SCENE_COMPONENT_INSTANCING]: InstancingNodeEditor,
-  [SCENE_COMPONENT_FOG]: FogNodeEditor
+  [SCENE_COMPONENT_FOG]: FogNodeEditor,
+  [SCENE_COMPONENT_NAV_MESH]: NavMeshNodeEditor
 }
 
 export const prefabIcons = {
@@ -159,5 +162,6 @@ export const prefabIcons = {
   [ScenePrefabs.spline]: SplineNodeEditor.iconComponent,
   [ScenePrefabs.fog]: FogNodeEditor.iconComponent,
   [ScenePrefabs.instancing]: InstancingNodeEditor.iconComponent,
-  [ScenePrefabs.envMapbake]: EnvMapBakeNodeEditor.iconComponent
+  [ScenePrefabs.envMapbake]: EnvMapBakeNodeEditor.iconComponent,
+  [ScenePrefabs.navMesh]: NavMeshNodeEditor.iconComponent
 }
