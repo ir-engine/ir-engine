@@ -28,7 +28,7 @@ type EngineRendererStateType = {
   gridHeight: number
 }
 
-const EngineRendererState = defineState({
+export const EngineRendererState = defineState({
   name: 'EngineRendererState',
   initial: () => ({
     qualityLevel: 5, // range from 0 to 5
