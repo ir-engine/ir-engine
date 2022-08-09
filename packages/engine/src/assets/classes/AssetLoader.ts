@@ -1,6 +1,8 @@
 import {
   AnimationClip,
   AudioLoader,
+  BufferAttribute,
+  BufferGeometry,
   FileLoader,
   Group,
   Loader,
@@ -8,9 +10,11 @@ import {
   LOD,
   Material,
   Mesh,
+  MeshBasicMaterial,
   MeshPhysicalMaterial,
   Object3D,
   SkinnedMesh,
+  Texture,
   TextureLoader
 } from 'three'
 
@@ -64,6 +68,15 @@ const processModelAsset = (asset: Mesh): void => {
   const replacedMaterials = new Map()
   const loddables = new Array<Object3D>()
 
+  const onUploadDropBuffer = function (this: BufferAttribute) {
+    // @ts-ignore
+    this.array = new this.array.constructor(1)
+  }
+
+  const onTextureUploadDropSource = function (this: Texture) {
+    this.source.data = null
+  }
+
   asset.traverse((child: Mesh<any, Material>) => {
     //test for LODs within this traversal
     if (haveAnyLODs(child)) loddables.push(child)
@@ -85,6 +98,18 @@ const processModelAsset = (asset: Mesh): void => {
         child.material = newMaterial
       }
     }
+
+    const geo = child.geometry as BufferGeometry
+    const mat = child.material as MeshBasicMaterial
+    const attributes = geo.attributes
+
+    for (var name in attributes) (attributes[name] as BufferAttribute).onUploadCallback = onUploadDropBuffer
+    if (geo.index) geo.index.onUploadCallback = onUploadDropBuffer
+    if (mat.map) mat.map.onUpdate = onTextureUploadDropSource
+    if (mat.alphaMap) mat.alphaMap.onUpdate = onTextureUploadDropSource
+    if (mat.envMap) mat.envMap.onUpdate = onTextureUploadDropSource
+    if (mat.lightMap) mat.lightMap.onUpdate = onTextureUploadDropSource
+    if (mat.specularMap) mat.specularMap.onUpdate = onTextureUploadDropSource
   })
   replacedMaterials.clear()
 
