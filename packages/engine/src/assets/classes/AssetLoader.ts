@@ -54,17 +54,7 @@ export function disposeDracoLoaderWorkers(): void {
   gltfLoader.dracoLoader?.dispose()
 }
 
-export const loadExtensions = async (gltf: GLTF) => {
-  if (isClient) {
-    const bvhTraverse: Promise<void>[] = []
-    gltf.scene.traverse((mesh) => {
-      bvhTraverse.push(generateMeshBVH(mesh))
-    })
-    await Promise.all(bvhTraverse)
-  }
-}
-
-const processModelAsset = (asset: Mesh): void => {
+const processModelAsset = (asset: Mesh, args: LoadingArgs): void => {
   const replacedMaterials = new Map()
   const loddables = new Array<Object3D>()
 
@@ -103,8 +93,11 @@ const processModelAsset = (asset: Mesh): void => {
     const mat = child.material as MeshBasicMaterial
     const attributes = geo.attributes
 
-    for (var name in attributes) (attributes[name] as BufferAttribute).onUploadCallback = onUploadDropBuffer
-    if (geo.index) geo.index.onUploadCallback = onUploadDropBuffer
+    if (!args.ignoreDisposeGeometry) {
+      for (var name in attributes) (attributes[name] as BufferAttribute).onUploadCallback = onUploadDropBuffer
+      if (geo.index) geo.index.onUploadCallback = onUploadDropBuffer
+    }
+
     if (mat.map) mat.map.onUpdate = onTextureUploadDropSource
     if (mat.alphaMap) mat.alphaMap.onUpdate = onTextureUploadDropSource
     if (mat.envMap) mat.envMap.onUpdate = onTextureUploadDropSource
@@ -113,7 +106,7 @@ const processModelAsset = (asset: Mesh): void => {
   })
   replacedMaterials.clear()
 
-  loddables.forEach((loddable) => handleLODs(loddable))
+  for (const loddable of loddables) handleLODs(loddable)
 }
 
 const haveAnyLODs = (asset) => !!asset.children?.find((c) => String(c.name).match(LODS_REGEXP))
@@ -252,33 +245,35 @@ export const getLoader = (assetType: AssetType) => {
   }
 }
 
-const assetLoadCallback = (url: string, assetType: AssetType, onLoad: (response: any) => void) => async (asset) => {
-  const assetClass = AssetLoader.getAssetClass(url)
-  if (assetClass === AssetClass.Model) {
-    if (assetType === AssetType.glB || assetType === AssetType.VRM) {
-      await loadExtensions(asset)
+const assetLoadCallback =
+  (url: string, args: LoadingArgs, assetType: AssetType, onLoad: (response: any) => void) => async (asset) => {
+    const assetClass = AssetLoader.getAssetClass(url)
+    if (assetClass === AssetClass.Model) {
+      if (assetType === AssetType.FBX) {
+        asset = { scene: asset }
+      } else if (assetType === AssetType.VRM) {
+        asset = asset.userData.vrm
+      }
+
+      if (asset.scene && !asset.scene.userData) asset.scene.userData = {}
+      if (asset.scene.userData) asset.scene.userData.type = assetType
+      if (asset.userData) asset.userData.type = assetType
+
+      AssetLoader.processModelAsset(asset.scene, args)
     }
 
-    if (assetType === AssetType.FBX) {
-      asset = { scene: asset }
-    } else if (assetType === AssetType.VRM) {
-      asset = asset.userData.vrm
-    }
-
-    if (asset.scene && !asset.scene.userData) asset.scene.userData = {}
-    if (asset.scene.userData) asset.scene.userData.type = assetType
-    if (asset.userData) asset.userData.type = assetType
-
-    AssetLoader.processModelAsset(asset.scene)
+    onLoad(asset)
   }
-
-  onLoad(asset)
-}
 
 const getAbsolutePath = (url) => (isAbsolutePath(url) ? url : Engine.instance.publicPath + url)
 
+type LoadingArgs = {
+  ignoreDisposeGeometry?: boolean
+}
+
 const load = (
   _url: string,
+  args: LoadingArgs,
   onLoad = (response: any) => {},
   onProgress = (request: ProgressEvent) => {},
   onError = (event: ErrorEvent | Error) => {}
@@ -291,7 +286,7 @@ const load = (
 
   const assetType = AssetLoader.getAssetType(url)
   const loader = getLoader(assetType)
-  const callback = assetLoadCallback(url, assetType, onLoad)
+  const callback = assetLoadCallback(url, args, assetType, onLoad)
 
   try {
     // TODO: fix instancing for GLTFs - move this to the gltf loader
@@ -305,9 +300,9 @@ const load = (
   }
 }
 
-const loadAsync = async (url: string, onProgress = (request: ProgressEvent) => {}) => {
+const loadAsync = async (url: string, args: LoadingArgs = {}, onProgress = (request: ProgressEvent) => {}) => {
   return new Promise<any>((resolve, reject) => {
-    load(url, resolve, onProgress, reject)
+    load(url, args, resolve, onProgress, reject)
   })
 }
 

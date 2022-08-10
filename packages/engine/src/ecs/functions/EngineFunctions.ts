@@ -90,18 +90,6 @@ export const unloadScene = (world: World, removePersisted = false) => {
   unloadSystems(world, true)
   EngineRenderer.instance.resetScene()
   dispatchAction(EngineActions.sceneUnloaded({}))
-
-  // we then need to ensure all ECS queries are cleaned up properly, this can take a few frames
-  world.execute(world.fixedTick)
-  world.execute(world.fixedTick)
-  world.execute(world.fixedTick)
-  world.execute(world.fixedTick)
-  world.execute(world.fixedTick)
-
-  // this is needed to delay it at least 1 frame, ideally this should be pushed out into an a receptor
-  return new Promise((resolve) => {
-    setTimeout(resolve, 1)
-  })
 }
 
 export const unloadAllEntities = (world: World, removePersisted = false) => {

@@ -325,7 +325,7 @@ export class World {
     const worldElapsedSeconds = (frameTime - this.startTime) / 1000
     const engineState = getState(EngineState)
     engineState.deltaSeconds.set(
-      Math.max(0, Math.min(TimerConfig.MAX_DELTA_SECONDS, worldElapsedSeconds - this.elapsedSeconds))
+      Math.max(0.001, Math.min(TimerConfig.MAX_DELTA_SECONDS, worldElapsedSeconds - this.elapsedSeconds))
     )
     engineState.elapsedSeconds.set(worldElapsedSeconds)
 

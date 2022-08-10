@@ -18,15 +18,19 @@ import { MaterialOverrideComponentType } from '../../components/MaterialOverride
 import { ModelComponent, ModelComponentType } from '../../components/ModelComponent'
 import { Object3DComponent, Object3DWithEntity } from '../../components/Object3DComponent'
 import { SimpleMaterialTagComponent } from '../../components/SimpleMaterialTagComponent'
+import { ObjectLayers } from '../../constants/ObjectLayers'
+import { generateMeshBVH } from '../bvhWorkerPool'
 import cloneObject3D from '../cloneObject3D'
 import { addError, removeError } from '../ErrorFunctions'
 import { parseGLTFModel } from '../loadGLTFModel'
+import { enableObjectLayer, setObjectLayers } from '../setObjectLayers'
 import { initializeOverride } from './MaterialOverrideFunctions'
 
 export const SCENE_COMPONENT_MODEL = 'gltf-model'
 export const SCENE_COMPONENT_MODEL_DEFAULT_VALUE = {
   src: '',
   materialOverrides: [] as MaterialOverrideComponentType[],
+  generateBVH: false,
   matrixAutoUpdate: true,
   useBasicMaterial: false,
   isUsingGPUInstancing: false,
@@ -58,23 +62,34 @@ export const updateModel = async (entity: Entity, properties: ModelComponentType
       switch (/\.[\d\s\w]+$/.exec(properties.src)![0]) {
         case '.glb':
         case '.gltf':
-          const gltf = (await AssetLoader.loadAsync(properties.src)) as GLTF
+          const gltf = (await AssetLoader.loadAsync(properties.src, {
+            ignoreDisposeGeometry: properties.generateBVH
+          })) as GLTF
           scene = gltf.scene as any
           break
         case '.fbx':
-          scene = (await AssetLoader.loadAsync(properties.src)).scene
+          scene = (await AssetLoader.loadAsync(properties.src, { ignoreDisposeGeometry: properties.generateBVH })).scene
           break
         default:
           scene = new Object3D() as Object3DWithEntity
           break
       }
-      scene = cloneObject3D(scene)
       addComponent(entity, Object3DComponent, { value: scene })
       parseGLTFModel(entity)
+      if (properties.generateBVH) {
+        scene.traverse(generateMeshBVH)
+      }
       removeError(entity, 'srcError')
     } catch (err) {
       console.error(err)
       addError(entity, 'srcError', err.message)
+    }
+  }
+
+  const obj3d = getComponent(entity, Object3DComponent)?.value
+  if (obj3d) {
+    if (typeof properties.generateBVH === 'boolean') {
+      enableObjectLayer(obj3d, ObjectLayers.Camera, properties.generateBVH)
     }
   }
 
@@ -110,6 +125,7 @@ export const serializeModel: ComponentSerializeFunction = (entity) => {
     props: {
       src: component.src,
       materialOverrides: overrides,
+      generateBVH: component.generateBVH,
       matrixAutoUpdate: component.matrixAutoUpdate,
       useBasicMaterial: component.useBasicMaterial,
       isUsingGPUInstancing: component.isUsingGPUInstancing,
@@ -122,6 +138,7 @@ const parseModelProperties = (props): ModelComponentType => {
   return {
     src: props.src ?? SCENE_COMPONENT_MODEL_DEFAULT_VALUE.src,
     materialOverrides: props.materialOverrides ?? SCENE_COMPONENT_MODEL_DEFAULT_VALUE.materialOverrides,
+    generateBVH: props.generateBVH ?? SCENE_COMPONENT_MODEL_DEFAULT_VALUE.generateBVH,
     matrixAutoUpdate: props.matrixAutoUpdate ?? SCENE_COMPONENT_MODEL_DEFAULT_VALUE.matrixAutoUpdate,
     useBasicMaterial: props.useBasicMaterial ?? SCENE_COMPONENT_MODEL_DEFAULT_VALUE.useBasicMaterial,
     isUsingGPUInstancing: props.isUsingGPUInstancing ?? SCENE_COMPONENT_MODEL_DEFAULT_VALUE.isUsingGPUInstancing,

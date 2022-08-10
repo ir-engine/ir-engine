@@ -36,26 +36,26 @@ export const createNewEditorNode = (entityNode: EntityTreeNode, prefabType: Scen
 
   loadSceneEntity(entityNode, { name: prefabType, components })
 }
-
-export const preCacheAssets = (sceneData: any, onProgress) => {
-  const promises: any[] = []
-  for (const [key, val] of Object.entries(sceneData)) {
-    if (val && typeof val === 'object') {
-      promises.push(...preCacheAssets(val, onProgress))
-    } else if (typeof val === 'string') {
-      if (AssetLoader.isSupported(val)) {
-        if (!precacheSupport[AssetLoader.getAssetType(val)]) continue
-        try {
-          const promise = AssetLoader.loadAsync(val, onProgress)
-          promises.push(promise)
-        } catch (e) {
-          console.log(e)
-        }
-      }
-    }
-  }
-  return promises
-}
+/**@todo this will be used for dynamic scene loading */
+// export const preCacheAssets = (sceneData: any, onProgress) => {
+//   const promises: any[] = []
+//   for (const [key, val] of Object.entries(sceneData)) {
+//     if (val && typeof val === 'object') {
+//       promises.push(...preCacheAssets(val, onProgress))
+//     } else if (typeof val === 'string') {
+//       if (AssetLoader.isSupported(val)) {
+//         if (!precacheSupport[AssetLoader.getAssetType(val)]) continue
+//         try {
+//           const promise = AssetLoader.loadAsync(val, onProgress)
+//           promises.push(promise)
+//         } catch (e) {
+//           console.log(e)
+//         }
+//       }
+//     }
+//   }
+//   return promises
+// }
 
 const iterateReplaceID = (data: any, idMap: Map<string, string>) => {
   const frontier = [data]
@@ -80,7 +80,6 @@ const iterateReplaceID = (data: any, idMap: Map<string, string>) => {
 export const loadECSData = async (sceneData: SceneJson, assetRoot = undefined): Promise<EntityTreeNode[]> => {
   const entityMap = {} as { [key: string]: EntityTreeNode }
   const entities = Object.entries(sceneData.entities).filter(([uuid]) => uuid !== sceneData.root)
-  await Promise.all(preCacheAssets(sceneData, () => {}))
   const idMap = new Map<string, string>()
   const loadedEntities = Engine.instance.currentWorld.entityTree.uuidNodeMap
 
@@ -152,12 +151,7 @@ export const loadSceneFromJSON = async (sceneData: SceneJson, sceneSystems: Syst
     )
   }
 
-  /**
-   * @todo make references to all the entities etc from the current scene,
-   *   then do the unloading after new scene has loaded and before dispatching sceneLoaded.
-   *   will need to do a more precise cleanup (rather than just resetting things harshly).
-   */
-  if (getEngineState().sceneLoaded.value) await unloadScene(world)
+  unloadScene(world)
 
   await initSystems(world, sceneSystems)
 

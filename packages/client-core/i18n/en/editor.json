@@ -249,6 +249,7 @@
       "lbl-castShadow": "Cast Shadow",
       "lbl-receiveShadow": "Receive Shadow",
       "lbl-interactable": "Interactable",
+      "lbl-generateBVH": "Generate BVH",
       "lbl-matrixAutoUpdate": "MatrixAutoUpdate",
       "lbl-name": "Name",
       "lbl-url": "Model Url",

@@ -98,6 +98,9 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
         values={modelComponent.materialOverrides}
         onChange={updateProperty(ModelComponent, 'materialOverrides')}
       />
+      <InputGroup name="Generate BVH" label={t('editor:properties.model.lbl-generateBVH')}>
+        <BooleanInput value={modelComponent.generateBVH} onChange={updateProperty(ModelComponent, 'generateBVH')} />
+      </InputGroup>
       <InputGroup name="MatrixAutoUpdate" label={t('editor:properties.model.lbl-matrixAutoUpdate')}>
         <BooleanInput
           value={modelComponent.matrixAutoUpdate}

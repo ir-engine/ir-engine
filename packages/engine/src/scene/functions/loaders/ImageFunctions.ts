@@ -73,7 +73,7 @@ export const updateImage: ComponentUpdateFunction = (entity: Entity, properties:
         addError(entity, 'error', `Image format ${component.imageSource.split('.').pop()}not supported`)
         return
       }
-      AssetLoader.load(component.imageSource, (texture) => {
+      AssetLoader.load(component.imageSource, {}, (texture) => {
         texture.encoding = sRGBEncoding
         texture.minFilter = LinearFilter
 

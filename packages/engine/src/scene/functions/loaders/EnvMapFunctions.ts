@@ -137,7 +137,7 @@ export const updateEnvMap = (entity: Entity) => {
 
       switch (options.bakeType) {
         case EnvMapBakeTypes.Baked:
-          AssetLoader.load(options.envMapOrigin, (texture) => {
+          AssetLoader.load(options.envMapOrigin, {}, (texture) => {
             texture.mapping = EquirectangularRefractionMapping
             applyEnvMap(obj3d, texture)
           })

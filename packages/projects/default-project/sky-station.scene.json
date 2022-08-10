@@ -369,6 +369,7 @@
           "props": {
             "src": "__$project$__/default-project/assets/Skybase.glb",
             "materialOverrides": [],
+            "generateBVH": true,
             "matrixAutoUpdate": true,
             "useBasicMaterial": false,
             "isUsingGPUInstancing": false,
@@ -650,6 +651,7 @@
           "props": {
             "src": "__$project$__/default-project/assets/test-equippable.glb",
             "materialOverrides": [],
+            "generateBVH": false,
             "matrixAutoUpdate": true,
             "useBasicMaterial": false,
             "isUsingGPUInstancing": false,
