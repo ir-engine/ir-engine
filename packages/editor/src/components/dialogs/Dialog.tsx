@@ -6,7 +6,6 @@ import { Button, SecondaryButton } from '../inputs/Button'
 /**
  * DialogContainer used as container element for DialogHeader, DialogContent and DialogBottomNav.
  *
- * @author Robert Long
  * @type {Styled component}
  */
 const DialogContainer = (styled as any).form`
@@ -23,7 +22,6 @@ const DialogContainer = (styled as any).form`
 /**
  * DialogHeader used for providing styles to header text.
  *
- * @author Robert Long
  * @type {Styled component}
  */
 const DialogHeader = (styled as any).div`
@@ -48,7 +46,6 @@ const DialogHeader = (styled as any).div`
 /**
  * DialogContent used to provide styles for dialog body content.
  *
- * @author Robert Long
  * @type {Styled component}
  */
 export const DialogContent = (styled as any).div`
@@ -76,7 +73,6 @@ export const DialogContent = (styled as any).div`
 /**
  * DialogBottomNav used to provide styles for bottom nav of Dialog component.
  *
- * @author Robert Long
  * @type {Styled component}
  */
 const DialogBottomNav = (styled as any).div`
@@ -106,31 +102,26 @@ const DialogBottomNav = (styled as any).div`
 /**
  * declaring props for Dialog component.
  *
- * @author Robert Long
  * @type {Props}
  */
 interface Props {
   tag?
   title?
-  onCancel?
-  cancelLabel?
-  onConfirm?
-  confirmLabel?
   bottomNav?
   children?
+  cancelLabel?
+  confirmLabel?
+  onCancel?
+  onConfirm?
 }
 
 /**
  * Dialog used to render view for Dialog which contains form.
  *
- * @author Robert Long
  * @param  {Props}
  * @constructor
  */
-export function Dialog(props: Props) {
-  // initializing component properties using props.
-  const { tag, title, onCancel, cancelLabel, onConfirm, confirmLabel, bottomNav, children, ...rest } = props
-
+const Dialog = ({ tag, title, bottomNav, children, cancelLabel, confirmLabel, onCancel, onConfirm }: Props) => {
   // callback function used to handle form submit
   const onSubmitForm = useCallback(
     (e) => {
@@ -150,7 +141,7 @@ export function Dialog(props: Props) {
 
   // returning view for Dialog component
   return (
-    <DialogContainer as={tag} onSubmit={onSubmitForm} {...rest}>
+    <DialogContainer as={tag} onSubmit={onSubmitForm}>
       <DialogHeader>
         <span>{title}</span>
       </DialogHeader>

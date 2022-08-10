@@ -20,8 +20,6 @@ export default (app: Application) => {
 
   /**
    * Initialize our service with any options it requires and docs
-   *
-   * @author Vyacheslav Solovjov
    */
   const event = new Message(options, app)
   event.docs = messageDocs
@@ -29,8 +27,6 @@ export default (app: Application) => {
 
   /**
    * Get our initialized service so that we can register hooks
-   *
-   * @author Vyacheslav Solovjov
    */
   const service = app.service('message')
 
@@ -41,23 +37,16 @@ export default (app: Application) => {
    *
    * @param data of new message
    * @returns {@Object} created message
-   * @author Vyacheslav Solovjov
    */
   service.publish('created', async (data: MessageInterface): Promise<any> => {
     data.sender = await app.service('user').get(data.senderId)
     const channel = await app.service('channel').get(data.channelId)
     let targetIds: any[] = []
     if (channel.channelType === 'party') {
-      const partyUsers = await app.service('party-user').find({
-        query: {
-          $limit: 1000,
-          partyId: channel.partyId
-        }
-      })
-
-      targetIds = (partyUsers as any).data.map((partyUser) => {
-        return partyUser.userId
-      })
+      const partyUsers = await app
+        .service('party-user')
+        .Model.findAll({ where: { partyId: channel.partyId }, limit: 1000 })
+      targetIds = partyUsers.map((partyUser) => partyUser.userId)
     } else if (channel.channelType === 'group') {
       const groupUsers = await app.service('group-user').find({
         query: {
@@ -99,23 +88,16 @@ export default (app: Application) => {
    *
    * @param data contains sender
    * @returns removed data
-   * @author Vyacheslav Solovjov
    */
   service.publish('removed', async (data: MessageInterface): Promise<any> => {
     data.sender = await app.service('user').get(data.senderId)
     const channel = await app.service('channel').get(data.channelId)
     let targetIds: any[] = []
     if (channel.channelType === 'party') {
-      const partyUsers = await app.service('party-user').find({
-        query: {
-          $limit: 1000,
-          partyId: channel.partyId
-        }
-      })
-
-      targetIds = (partyUsers as any).data.map((partyUser) => {
-        return partyUser.userId
-      })
+      const partyUsers = await app
+        .service('party-user')
+        .Model.findAll({ where: { partyId: channel.partyId }, limit: 1000 })
+      targetIds = partyUsers.map((partyUser) => partyUser.userId)
     } else if (channel.channelType === 'group') {
       const groupUsers = await app.service('group-user').find({
         query: {
@@ -157,23 +139,16 @@ export default (app: Application) => {
    *
    * @param data of updated message
    * @returns {@Object} updated message
-   * @author Vyacheslav Solovjov
    */
   service.publish('patched', async (data: MessageInterface): Promise<any> => {
     data.sender = await app.service('user').get(data.senderId)
     const channel = await app.service('channel').get(data.channelId)
     let targetIds: any[] = []
     if (channel.channelType === 'party') {
-      const partyUsers = await app.service('party-user').find({
-        query: {
-          $limit: 1000,
-          partyId: channel.partyId
-        }
-      })
-
-      targetIds = (partyUsers as any).data.map((partyUser) => {
-        return partyUser.userId
-      })
+      const partyUsers = await app
+        .service('party-user')
+        .Model.findAll({ where: { partyId: channel.partyId }, limit: 1000 })
+      targetIds = partyUsers.map((partyUser) => partyUser.userId)
     } else if (channel.channelType === 'group') {
       const groupUsers = await app.service('group-user').find({
         query: {

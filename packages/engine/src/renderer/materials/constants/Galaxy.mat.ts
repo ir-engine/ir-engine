@@ -1,8 +1,8 @@
 import { ShaderMaterial, Texture } from 'three'
 
-import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
-
 import { MaterialParms } from '../MaterialParms'
+import { extractDefaults as format } from '../Utilities'
+import { Vec3Arg } from './DefaultArgs'
 
 export const vertexShader = `
     varying vec2 vUv;
@@ -55,12 +55,17 @@ void main()
 	gl_FragColor=vec4(min(pow(abs(col), vec3(1.2)), 1.0), 1.0);
 }`
 
-export default async function Galaxy(args?: { iTime?: number; iResolution?: number[] }): Promise<MaterialParms> {
-  const img = new Texture()
+export const DefaultArgs = {
+  iTime: { hide: true, default: 0.0 },
+  iResolution: Vec3Arg
+}
+
+export default function Galaxy(args?: { iTime?: number; iResolution?: number[] }): MaterialParms {
+  const defaultArgs = format(DefaultArgs)
   const mat = new ShaderMaterial({
     uniforms: {
-      iTime: { value: args?.iTime ?? 0.0 },
-      iResolution: { value: args?.iResolution ?? [window.innerWidth * 2, window.innerHeight * 2, 1] }
+      iTime: { value: args?.iTime ?? defaultArgs.iTime },
+      iResolution: { value: args?.iResolution ?? defaultArgs.iResolution }
     },
     vertexShader: vertexShader,
     fragmentShader: fragmentShader

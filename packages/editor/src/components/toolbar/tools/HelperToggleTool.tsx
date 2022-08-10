@@ -16,19 +16,23 @@ import { InfoTooltip } from '../../layout/Tooltip'
 import * as styles from '../styles.module.scss'
 
 export const HelperToggleTool = () => {
-  const engineRenderState = accessEngineRendererState()
+  const engineRenderState = useEngineRendererState()
   const [, updateState] = useState<any>()
   const forceUpdate = useCallback(() => updateState({}), [])
   const engineRendererState = useEngineRendererState()
 
   const togglePhysicsDebug = () => {
     forceUpdate()
-    dispatchAction(EngineRendererAction.setPhysicsDebug(!engineRenderState.physicsDebugEnable.value))
+    dispatchAction(
+      EngineRendererAction.setPhysicsDebug({ physicsDebugEnable: !engineRenderState.physicsDebugEnable.value })
+    )
   }
 
   const toggleNodeHelpers = () => {
     Engine.instance.currentWorld.camera.layers.toggle(ObjectLayers.NodeHelper)
-    dispatchAction(EngineRendererAction.changeNodeHelperVisibility(!engineRenderState.nodeHelperVisibility.value))
+    dispatchAction(
+      EngineRendererAction.changeNodeHelperVisibility({ visibility: !engineRenderState.nodeHelperVisibility.value })
+    )
   }
 
   return (

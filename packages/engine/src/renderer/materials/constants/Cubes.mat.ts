@@ -1,6 +1,7 @@
 import { ShaderMaterial } from 'three'
 
 import { MaterialParms } from '../MaterialParms'
+import { Vec3Arg } from './DefaultArgs'
 
 const vertexShader = `
 varying vec2 vUv;
@@ -194,11 +195,16 @@ col += 0.013*ac;
 
 }`
 
-export default async function Cubes(args?: { iTime?: number; iResolution?: number[] }): Promise<MaterialParms> {
+export const DefaultArgs = {
+  iTime: { hide: true, default: 0.0 },
+  iResolution: Vec3Arg
+}
+
+export default function Cubes(args?: { iTime?: number; iResolution?: number[] }): MaterialParms {
   const mat = new ShaderMaterial({
     uniforms: {
-      iTime: { value: args?.iTime ?? 0.0 },
-      iResolution: { value: args?.iResolution ?? [window.innerWidth * 2, window.innerHeight * 2, 1] }
+      iTime: { value: args?.iTime ?? DefaultArgs.iTime },
+      iResolution: { value: args?.iResolution ?? DefaultArgs.iResolution }
     },
     vertexShader: vertexShader,
     fragmentShader: fragmentShader

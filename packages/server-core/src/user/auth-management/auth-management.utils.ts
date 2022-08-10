@@ -8,12 +8,11 @@ import logger from '../../logger'
  * @param type
  * @param hash hashed link
  * @returns login url
- * @author Vyacheslav Solovjov
  */
 export function getLink(type: string, hash: string, subscriptionId?: string): string {
   return subscriptionId != null && subscriptionId.length > 0
-    ? `${config.client.url}/auth/magiclink/${hash}?subId=${subscriptionId}`
-    : `${config.client.url}/auth/magiclink/?token=${hash}&type=${type}`
+    ? `${config.server.url}/login/${hash}?subId=${subscriptionId}`
+    : `${config.server.url}/login/${hash}`
 }
 
 /**
@@ -23,7 +22,6 @@ export function getLink(type: string, hash: string, subscriptionId?: string): st
  * @param id of accept invite
  * @param passcode
  * @returns invite link
- * @author Vyacheslav Solovjov
  */
 export function getInviteLink(type: string, id: string, passcode: string): string {
   return `${config.server.url}/a-i/${id}?t=${passcode}`
@@ -35,7 +33,6 @@ export function getInviteLink(type: string, id: string, passcode: string): strin
  * @param app
  * @param email which is going to recieve message
  * Text message links can't have HTML escaped ampersands.
- * @author Vyacheslav Solovjov
  */
 export async function sendEmail(app: Application, email: any): Promise<void> {
   if (email.to) {
@@ -56,7 +53,6 @@ export async function sendEmail(app: Application, email: any): Promise<void> {
  *
  * @param app
  * @param sms text which is going to be sent
- * @author Vyacheslav Solovjov
  */
 export const sendSms = async (app: Application, sms: any): Promise<void> => {
   logger.info(`sendSMS() to "${sms}."`)

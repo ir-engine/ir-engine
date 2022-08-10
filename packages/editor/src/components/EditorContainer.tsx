@@ -7,13 +7,13 @@ import { useTranslation } from 'react-i18next'
 import { useHistory } from 'react-router-dom'
 import styled from 'styled-components'
 
-import { useDispatch } from '@xrengine/client-core/src/store'
+import Debug from '@xrengine/client-core/src/components/Debug'
 import { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
+import multiLogger from '@xrengine/common/src/logger'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { getEngineState, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
-import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { gltfToSceneJson, sceneToGLTF } from '@xrengine/engine/src/scene/functions/GLTFConversion'
-import { useHookEffect } from '@xrengine/hyperflux'
+import { dispatchAction, useHookEffect } from '@xrengine/hyperflux'
 
 import AccountTreeIcon from '@mui/icons-material/AccountTree'
 import Inventory2Icon from '@mui/icons-material/Inventory2'
@@ -25,7 +25,7 @@ import { disposeProject, loadProjectScene, runPreprojectLoadTasks } from '../fun
 import { createNewScene, getScene, saveScene } from '../functions/sceneFunctions'
 import { initializeRenderer } from '../functions/sceneRenderFunctions'
 import { takeScreenshot } from '../functions/takeScreenshot'
-import { uploadBakeToServer } from '../functions/uploadCubemapBake'
+import { uploadBPCEMBakeToServer } from '../functions/uploadEnvMapBake'
 import { cmdOrCtrlString } from '../functions/utils'
 import { useEditorErrorState } from '../services/EditorErrorServices'
 import { EditorAction, useEditorState } from '../services/EditorServices'
@@ -49,11 +49,11 @@ import Search from './Search/Search'
 import * as styles from './styles.module.scss'
 import ToolBar from './toolbar/ToolBar'
 
+const logger = multiLogger.child({ component: 'editor:EditorContainer' })
+
 /**
  *Styled component used as dock container.
  *
- * @author Hanzla Mateen
- * @author Abhishek Pathak
  * @type {type}
  */
 export const DockContainer = (styled as any).div`
@@ -103,9 +103,7 @@ export const DockContainer = (styled as any).div`
     border-color: var(--iconButtonColor);
   }
 `
-/**
- * @author Abhishek Pathak
- */
+
 DockContainer.defaultProps = {
   dividerAlpha: 0
 }
@@ -113,7 +111,6 @@ DockContainer.defaultProps = {
 /**
  * EditorContainer class used for creating container for Editor
  *
- *  @author Robert Long
  */
 const EditorContainer = () => {
   const editorState = useEditorState()
@@ -132,7 +129,6 @@ const EditorContainer = () => {
   const [editorReady, setEditorReady] = useState(false)
   const [DialogComponent, setDialogComponent] = useState<JSX.Element | null>(null)
   const [toggleRefetchScenes, setToggleRefetchScenes] = useState(false)
-  const dispatch = useDispatch()
   const history = useHistory()
   const dockPanelRef = useRef<DockLayout>(null)
 
@@ -140,10 +136,10 @@ const EditorContainer = () => {
     setDialogComponent(<ProgressDialog title={t('editor:loading')} message={t('editor:loadingMsg')} />)
     try {
       await loadProjectScene(sceneFile)
-      dispatch(EditorAction.sceneModified(true))
+      dispatchAction(EditorAction.sceneModified({ modified: true }))
       setDialogComponent(null)
     } catch (error) {
-      console.error(error)
+      logger.error(error)
       setDialogComponent(
         <ErrorDialog
           title={t('editor:loadingError')}
@@ -163,7 +159,7 @@ const EditorContainer = () => {
 
   useHookEffect(() => {
     if (sceneName.value && editorReady) {
-      console.log(`Loading scene ${sceneName.value} via given url`)
+      logger.info(`Loading scene ${sceneName.value} via given url`)
       loadScene(sceneName.value)
     }
   }, [editorReady, sceneName])
@@ -185,7 +181,7 @@ const EditorContainer = () => {
 
       setDialogComponent(null)
     } catch (error) {
-      console.error(error)
+      logger.error(error)
 
       setDialogComponent(
         <ErrorDialog
@@ -209,7 +205,7 @@ const EditorContainer = () => {
       reRouteToLoadScene(sceneData.sceneName)
       setDialogComponent(null)
     } catch (error) {
-      console.error(error)
+      logger.error(error)
 
       setDialogComponent(
         <ErrorDialog
@@ -226,13 +222,11 @@ const EditorContainer = () => {
    */
 
   const onEditorError = (error) => {
-    console.log(error)
+    logger.error(error)
     if (error['aborted']) {
       setDialogComponent(null)
       return
     }
-
-    console.error(error)
 
     setDialogComponent(
       <ErrorDialog
@@ -271,14 +265,14 @@ const EditorContainer = () => {
           )
         })) as any
         if (result && projectName.value) {
-          await uploadBakeToServer(useWorld().entityTree.rootNode.entity)
+          await uploadBPCEMBakeToServer(Engine.instance.currentWorld.entityTree.rootNode.entity)
           await saveScene(projectName.value, result.name, blob, abortController.signal)
-          dispatch(EditorAction.sceneModified(false))
+          dispatchAction(EditorAction.sceneModified({ modified: false }))
         }
       }
       setDialogComponent(null)
     } catch (error) {
-      console.error(error)
+      logger.error(error)
       setDialogComponent(
         <ErrorDialog title={t('editor:savingError')} message={error.message || t('editor:savingErrorMsg')} />
       )
@@ -290,7 +284,7 @@ const EditorContainer = () => {
     const el = document.createElement('input')
     el.type = 'file'
     el.multiple = true
-    el.accept = '.gltf,.glb,.fbx,.vrm,.tga,.png,.jpg,.jpeg,.mp3,.aac,.ogg,.m4a,.zip'
+    el.accept = '.gltf,.glb,.fbx,.vrm,.tga,.png,.jpg,.jpeg,.mp3,.aac,.ogg,.m4a,.zip,.mp4,.mkv'
     el.style.display = 'none'
     el.onchange = async () => {
       const pName = projectName.value
@@ -303,7 +297,7 @@ const EditorContainer = () => {
         const zipFiles = nuUrl.filter((url) => /\.zip$/.test(url))
         const extractPromises = [...zipFiles.map((zipped) => extractZip(zipped))]
         Promise.all(extractPromises).then(() => {
-          console.log('extraction complete')
+          logger.info('extraction complete')
         })
       }
     }
@@ -392,15 +386,15 @@ const EditorContainer = () => {
 
     try {
       if (projectName.value) {
-        await uploadBakeToServer(useWorld().entityTree.rootNode.entity)
+        await uploadBPCEMBakeToServer(Engine.instance.currentWorld.entityTree.rootNode.entity)
         await saveScene(projectName.value, sceneName.value, blob, abortController.signal)
       }
 
-      dispatch(EditorAction.sceneModified(false))
+      dispatchAction(EditorAction.sceneModified({ modified: false }))
 
       setDialogComponent(null)
     } catch (error) {
-      console.error(error)
+      logger.error(error)
 
       setDialogComponent(
         <ErrorDialog title={t('editor:savingError')} message={error.message || t('editor:savingErrorMsg')} />
@@ -607,39 +601,44 @@ const EditorContainer = () => {
     }
   }
   return (
-    <div
-      id="editor-container"
-      className={styles.editorContainer}
-      style={sceneLoaded.value ? { background: 'transparent' } : {}}
-    >
-      <DialogContext.Provider value={[DialogComponent, setDialogComponent]}>
-        <DndWrapper id="editor-container">
-          <DragLayer />
-          <ToolBar editorReady={editorReady} menu={toolbarMenu} />
-          <ElementList />
-          <ControlText />
-          <div className={styles.workspaceContainer}>
-            <AssetDropZone />
-            <AppContext.Provider value={{ searchElement, searchHierarchy }}>
-              <DockContainer>
-                <DockLayout
-                  ref={dockPanelRef}
-                  defaultLayout={defaultLayout}
-                  style={{ position: 'absolute', left: 5, top: 55, right: 115, bottom: 35 }}
-                />
-              </DockContainer>
-            </AppContext.Provider>
-          </div>
-          <Dialog
-            open={!!DialogComponent}
-            onClose={() => setDialogComponent(null)}
-            classes={{ root: styles.dialogRoot, paper: styles.dialogPaper }}
-          >
-            {DialogComponent}
-          </Dialog>
-        </DndWrapper>
-      </DialogContext.Provider>
-    </div>
+    <>
+      <div style={{ pointerEvents: 'auto' }}>
+        <Debug />
+      </div>
+      <div
+        id="editor-container"
+        className={styles.editorContainer}
+        style={sceneLoaded.value ? { background: 'transparent' } : {}}
+      >
+        <DialogContext.Provider value={[DialogComponent, setDialogComponent]}>
+          <DndWrapper id="editor-container">
+            <DragLayer />
+            <ToolBar editorReady={editorReady} menu={toolbarMenu} />
+            <ElementList />
+            <ControlText />
+            <div className={styles.workspaceContainer}>
+              <AssetDropZone />
+              <AppContext.Provider value={{ searchElement, searchHierarchy }}>
+                <DockContainer>
+                  <DockLayout
+                    ref={dockPanelRef}
+                    defaultLayout={defaultLayout}
+                    style={{ position: 'absolute', left: 5, top: 55, right: 115, bottom: 35 }}
+                  />
+                </DockContainer>
+              </AppContext.Provider>
+            </div>
+            <Dialog
+              open={!!DialogComponent}
+              onClose={() => setDialogComponent(null)}
+              classes={{ root: styles.dialogRoot, paper: styles.dialogPaper }}
+            >
+              {DialogComponent}
+            </Dialog>
+          </DndWrapper>
+        </DialogContext.Provider>
+      </div>
+    </>
   )
 }
 

@@ -1,12 +1,11 @@
 import clsx from 'clsx'
 import React, { useState } from 'react'
-import { useTranslation } from 'react-i18next'
 
 import ProfileMenu from '@xrengine/client-core/src/user/components/UserMenu/menus/ProfileMenu'
 
 import { ChevronLeft, ChevronRight, Menu } from '@mui/icons-material'
 import { Person } from '@mui/icons-material'
-import { ClickAwayListener } from '@mui/material'
+import { Popover } from '@mui/material'
 import AppBar from '@mui/material/AppBar'
 import CssBaseline from '@mui/material/CssBaseline'
 import Drawer from '@mui/material/Drawer'
@@ -27,16 +26,25 @@ interface Props {
  *
  * @param param0 children props
  * @returns @ReactDomElements
- * @author Kevin KIMENYI <kimenyikevin@gmail.com>
  */
 
 const Dashboard = ({ children }: Props) => {
   const authState = useAuthState()
   const theme = useTheme()
+  const [anchorEl, setAnchorEl] = useState<HTMLElement | undefined>()
   const [open, setOpen] = React.useState(false)
   const [profileMenuOpen, setProfileMenuOpen] = useState(false)
   const user = authState.user
-  const { t } = useTranslation()
+
+  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setAnchorEl(event.currentTarget)
+    setProfileMenuOpen(true)
+  }
+
+  const handleClose = () => {
+    setProfileMenuOpen(false)
+    setAnchorEl(undefined)
+  }
 
   const handleDrawerOpen = (open: boolean) => (event: React.KeyboardEvent | React.MouseEvent) => {
     if (
@@ -69,18 +77,25 @@ const Dashboard = ({ children }: Props) => {
             <div className={styles.appBarHeadingContainer}>
               <Typography variant="h6">Dashboard</Typography>
 
-              <IconButton onClick={() => setProfileMenuOpen(true)} className={styles.profileButton} disableRipple>
+              <IconButton onClick={handleClick} className={styles.profileButton} disableRipple>
                 <span>{user.name.value}</span>
                 <Person />
               </IconButton>
               {profileMenuOpen && (
                 <>
                   <div className={styles.backdrop}></div>
-                  <ClickAwayListener onClickAway={() => setProfileMenuOpen(false)}>
-                    <div className={styles.profileMenuBlock}>
-                      <ProfileMenu setProfileMenuOpen={setProfileMenuOpen} className={styles.profileMenuContainer} />
-                    </div>
-                  </ClickAwayListener>
+                  <Popover
+                    open
+                    anchorEl={anchorEl}
+                    anchorOrigin={{
+                      vertical: 'bottom',
+                      horizontal: 'left'
+                    }}
+                    classes={{ paper: styles.profilePaper }}
+                    onClose={handleClose}
+                  >
+                    <ProfileMenu isPopover onClose={handleClose} />
+                  </Popover>
                 </>
               )}
             </div>

@@ -9,9 +9,6 @@ import { clamp } from '@xrengine/engine/src/common/functions/MathLerpFunctions'
 import { getStepSize, toPrecision } from '../../functions/utils'
 
 /**
- *
- *
- * @author Robert Long
  * @param value
  * @param precision
  * @returns
@@ -32,9 +29,6 @@ function toPrecisionString(value, precision) {
   }
 }
 
-/**
- * @author Robert Long
- */
 const NumericInputContainer = (styled as any).div`
   position: relative;
   display: flex;
@@ -59,9 +53,6 @@ const NumericInputContainer = (styled as any).div`
   }
 `
 
-/**
- * @author Robert Long
- */
 const StyledNumericInput = (styled as any).input`
   color: var(--textColor);
   background-color: var(--inputBackground);
@@ -80,9 +71,6 @@ const StyledNumericInput = (styled as any).input`
   }
 `
 
-/**
- * @author Robert Long
- */
 const NumericInputUnit = (styled as any).div`
   color: var(--textColor);
   background-color: var(--inputBackground);
@@ -94,7 +82,7 @@ const NumericInputUnit = (styled as any).div`
 `
 
 interface NumericInputProp {
-  className?: any
+  className?: string
   unit?: any
   prefix?: any
   displayPrecision?: any
@@ -111,17 +99,29 @@ interface NumericInputProp {
   convertTo?: any
 }
 
-/**
- * @author Robert Long
- */
-const NumericInput = (props: NumericInputProp) => {
+const NumericInput = ({
+  className,
+  unit,
+  prefix,
+  displayPrecision,
+  value,
+  convertFrom,
+  precision,
+  mediumStep,
+  onChange,
+  onCommit,
+  smallStep,
+  largeStep,
+  min,
+  max,
+  convertTo,
+  ...rest
+}: NumericInputProp) => {
   const [tempValue, setTempValue] = useState<string | null>(null)
   const [focused, setFocused] = useState(false)
   const inputEl = useRef<HTMLInputElement>(null)
 
   const handleStep = (event, direction, focus = true) => {
-    const { smallStep, mediumStep, largeStep, min, max, precision, convertTo, onChange, onCommit } = props
-
     const stepSize = event ? getStepSize(event, smallStep, mediumStep, largeStep) : mediumStep
 
     const nextValue = parseFloat(inputEl?.current?.value ?? '0') + stepSize * direction
@@ -176,8 +176,6 @@ const NumericInput = (props: NumericInputProp) => {
   }
 
   const handleChange = (event) => {
-    const { min, max, precision, convertTo, onChange } = props
-
     const tempValue = event.target.value
 
     setTempValue(tempValue)
@@ -194,8 +192,6 @@ const NumericInput = (props: NumericInputProp) => {
   }
 
   const handleFocus = () => {
-    const { value, convertFrom, precision } = props
-
     setTempValue(
       convertFrom(value).toLocaleString('fullwide', {
         useGrouping: false,
@@ -211,8 +207,6 @@ const NumericInput = (props: NumericInputProp) => {
   }, [focused])
 
   const handleBlur = () => {
-    const { value, onCommit, onChange } = props
-
     setTempValue(null)
     setFocused(false)
 
@@ -222,24 +216,6 @@ const NumericInput = (props: NumericInputProp) => {
       onChange?.(value)
     }
   }
-
-  const {
-    className,
-    unit,
-    smallStep,
-    mediumStep,
-    largeStep,
-    min,
-    max,
-    displayPrecision,
-    value,
-    convertTo,
-    convertFrom,
-    onChange,
-    onCommit,
-    prefix,
-    ...rest
-  } = props
 
   return (
     <NumericInputContainer>

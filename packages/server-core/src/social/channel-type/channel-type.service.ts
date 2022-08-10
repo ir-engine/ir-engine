@@ -19,8 +19,6 @@ export default (app: Application) => {
 
   /**
    * Initialize our service with any options it requires and docs
-   *
-   * @author Vyacheslav Solovjov
    */
   const event = new ChannelType(options, app)
   event.docs = channelTypeDocs

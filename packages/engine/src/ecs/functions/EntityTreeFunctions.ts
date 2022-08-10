@@ -1,8 +1,13 @@
 import { MathUtils } from 'three'
 
+import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
+import { UserId } from '@xrengine/common/src/interfaces/UserId'
+
+import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
+import { Engine } from '../classes/Engine'
 import { Entity } from '../classes/Entity'
 import EntityTree, { EntityTreeNode } from '../classes/EntityTree'
-import { useWorld } from './SystemHooks'
+import { addComponent, removeAllComponents } from './ComponentFunctions'
 
 // ========== Entity Tree Functions ========== //
 /**
@@ -10,7 +15,7 @@ import { useWorld } from './SystemHooks'
  * @param node Node to be added to the maps
  * @param tree Entity Tree
  */
-export function addToEntityTreeMaps(node: EntityTreeNode, tree = useWorld().entityTree) {
+export function addToEntityTreeMaps(node: EntityTreeNode, tree = Engine.instance.currentWorld.entityTree) {
   tree.entityNodeMap.set(node.entity, node)
   tree.uuidNodeMap.set(node.uuid, node)
 }
@@ -20,7 +25,7 @@ export function addToEntityTreeMaps(node: EntityTreeNode, tree = useWorld().enti
  * @param node Node to be removed from the maps
  * @param tree Entity tree
  */
-export function removeFromEntityTreeMaps(node: EntityTreeNode, tree = useWorld().entityTree) {
+export function removeFromEntityTreeMaps(node: EntityTreeNode, tree = Engine.instance.currentWorld.entityTree) {
   tree.entityNodeMap.delete(node.entity)
   tree.uuidNodeMap.delete(node.uuid)
 }
@@ -29,9 +34,9 @@ export function removeFromEntityTreeMaps(node: EntityTreeNode, tree = useWorld()
  * Initialize the world with enity tree
  * @param world World
  */
-export function initializeEntityTree(world = useWorld()): void {
+export function initializeEntityTree(world = Engine.instance.currentWorld): void {
   world.entityTree = {
-    rootNode: createEntityNode(-1 as Entity),
+    rootNode: createEntityNode(world.sceneEntity),
     entityNodeMap: new Map(),
     uuidNodeMap: new Map()
   } as EntityTree
@@ -51,7 +56,7 @@ export function addEntityNodeInTree(
   parentNode?: EntityTreeNode,
   index?: number,
   skipRootUpdate = false,
-  tree = useWorld().entityTree
+  tree = Engine.instance.currentWorld.entityTree
 ): EntityTreeNode {
   if (parentNode == null) {
     if (!skipRootUpdate) {
@@ -84,7 +89,7 @@ export function addEntityNodeInTree(
  * Empties the the tree and removes its element from memory
  * @param tree Entity tree
  */
-export function emptyEntityTree(tree = useWorld().entityTree): void {
+export function emptyEntityTree(tree = Engine.instance.currentWorld.entityTree): void {
   const arr = [] as EntityTreeNode[]
   tree.entityNodeMap.forEach((node) => arr.push(node))
 
@@ -93,6 +98,9 @@ export function emptyEntityTree(tree = useWorld().entityTree): void {
   }
 
   tree.rootNode = createEntityNode(-1 as Entity)
+
+  tree.entityNodeMap.clear()
+  tree.uuidNodeMap.clear()
 }
 // ========== Entity Tree Functions ========== //
 
@@ -104,11 +112,19 @@ export function emptyEntityTree(tree = useWorld().entityTree): void {
  * @returns Newly created Entity node
  */
 export function createEntityNode(entity: Entity, uuid?: string): EntityTreeNode {
-  return {
+  const node = {
     type: 'EntityNode',
     entity,
     uuid: uuid || MathUtils.generateUUID()
-  }
+  } as const
+
+  // addComponent(entity, NetworkObjectComponent, {
+  //   ownerId: Engine.instance.currentWorld._worldHostId,
+  //   networkId: //node.uuid as NetworkId,
+  //   prefab: 'entity_node',
+  //   parameters: null
+  // })
+  return node
 }
 
 /**
@@ -140,7 +156,7 @@ export function addEntityNodeChild(node: EntityTreeNode, child: EntityTreeNode, 
 export function removeEntityNodeChild(
   node: EntityTreeNode,
   child: EntityTreeNode,
-  tree = useWorld().entityTree
+  tree = Engine.instance.currentWorld.entityTree
 ): EntityTreeNode | undefined {
   if (!node.children) return
 
@@ -167,9 +183,9 @@ export function removeEntityNodeChild(
  */
 export function removeEntityNodeFromParent(
   node: EntityTreeNode,
-  tree = useWorld().entityTree
+  tree = Engine.instance.currentWorld.entityTree
 ): EntityTreeNode | undefined {
-  if (node.parentEntity) {
+  if (typeof node.parentEntity !== 'undefined') {
     const parent = tree.entityNodeMap.get(node.parentEntity)
     if (parent) return removeEntityNodeChild(parent, node, tree)
   }
@@ -206,7 +222,7 @@ export function traverseEntityNode(
   node: EntityTreeNode,
   cb: (node: EntityTreeNode, index: number) => void,
   index = 0,
-  tree = useWorld().entityTree
+  tree = Engine.instance.currentWorld.entityTree
 ): void {
   cb(node, index)
 
@@ -229,7 +245,8 @@ export function iterateEntityNode(
   node: EntityTreeNode,
   cb: (node: EntityTreeNode, index: number) => void,
   pred: (node: EntityTreeNode) => boolean = (x) => true,
-  tree = useWorld().entityTree
+  tree = Engine.instance.currentWorld.entityTree,
+  snubChildren: boolean = false
 ): void {
   const frontier = [[node]]
   while (frontier.length > 0) {
@@ -240,10 +257,15 @@ export function iterateEntityNode(
       if (pred(item)) {
         cb(item, idx)
         idx += 1
-        const children = item.children
-        if (children && children.length > 0) {
-          frontier.push(children.filter((x) => tree.entityNodeMap.has(x)).map((x) => tree.entityNodeMap.get(x)!))
-        }
+        if (snubChildren)
+          frontier.push(
+            item.children?.filter((x) => tree.entityNodeMap.has(x)).map((x) => tree.entityNodeMap.get(x)!) ?? []
+          )
+      }
+      if (!snubChildren) {
+        frontier.push(
+          item.children?.filter((x) => tree.entityNodeMap.has(x)).map((x) => tree.entityNodeMap.get(x)!) ?? []
+        )
       }
     }
   }
@@ -258,9 +280,9 @@ export function iterateEntityNode(
 export function traverseEntityNodeParent(
   node: EntityTreeNode,
   cb: (parent: EntityTreeNode) => void,
-  tree = useWorld().entityTree
+  tree = Engine.instance.currentWorld.entityTree
 ): void {
-  if (node.parentEntity) {
+  if (typeof node.parentEntity !== 'undefined') {
     const parent = tree.entityNodeMap.get(node.parentEntity)
 
     if (parent) {
@@ -285,7 +307,10 @@ export function isEntityNode(node: any): node is EntityTreeNode {
  * @param tree Entity Tree object
  * @returns Entity Tree node array obtained from passed Entities.
  */
-export function getEntityNodeArrayFromEntities(entities: Entity[], tree = useWorld().entityTree): EntityTreeNode[] {
+export function getEntityNodeArrayFromEntities(
+  entities: Entity[],
+  tree = Engine.instance.currentWorld.entityTree
+): EntityTreeNode[] {
   const arr = [] as EntityTreeNode[]
 
   for (const entity of entities) {

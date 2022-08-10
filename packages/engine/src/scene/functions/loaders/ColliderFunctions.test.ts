@@ -1,53 +1,23 @@
 import assert from 'assert'
-import proxyquire from 'proxyquire'
-import { Object3D, Quaternion, Vector3 } from 'three'
+import { Object3D } from 'three'
 
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
 import { Engine } from '../../../ecs/classes/Engine'
-import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
 import { createEngine } from '../../../initializeEngine'
-import { ColliderComponent } from '../../../physics/components/ColliderComponent'
-import { CollisionComponent } from '../../../physics/components/CollisionComponent'
+import { Physics } from '../../../physics/classes/Physics'
+import { RigidBodyComponent } from '../../../physics/components/RigidBodyComponent'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
-import { SCENE_COMPONENT_COLLIDER } from './ColliderFunctions'
-
-let transform2 = {
-  translation: new Vector3(Math.random(), Math.random(), Math.random()),
-  rotation: new Quaternion(Math.random(), Math.random(), Math.random(), Math.random())
-}
+import { deserializeCollider, SCENE_COMPONENT_COLLIDER, serializeCollider } from './ColliderFunctions'
 
 describe('ColliderFunctions', () => {
-  let entity: Entity
-  let body: any
-  let colliderFunctions = proxyquire('./ColliderFunctions', {
-    '../../../physics/functions/createCollider': {
-      createColliderForObject3D: (entity) => {
-        if (hasComponent(entity, Object3DComponent)) {
-          addComponent(entity, ColliderComponent, { body })
-          addComponent(entity, CollisionComponent, { collisions: [] })
-        }
-      }
-    }
-  })
-
   beforeEach(async () => {
     createEngine()
-    entity = createEntity()
-    await Engine.instance.currentWorld.physics.createScene({ verbose: true })
-
-    body = {
-      getGlobalPose: () => transform2,
-      setGlobalPose: (t: any) => (transform2 = t),
-      _debugNeedsUpdate: false
-    }
-  })
-
-  afterEach(() => {
-    delete (globalThis as any).PhysX
+    await Physics.load()
+    Engine.instance.currentWorld.physicsWorld = Physics.createWorld()
   })
 
   const sceneComponentData = {}
@@ -58,28 +28,30 @@ describe('ColliderFunctions', () => {
   }
 
   describe('deserializeCollider()', () => {
-    it('does not create ColliderComponent and CollisionComponent if there is no Object3d Component', () => {
-      colliderFunctions.deserializeCollider(entity, sceneComponent)
+    it('does not create RigidBodyComponent if there is no Object3d Component', () => {
+      const entity = createEntity()
 
-      assert(!hasComponent(entity, ColliderComponent))
-      assert(!hasComponent(entity, CollisionComponent))
+      deserializeCollider(entity, sceneComponent)
+
+      assert(!hasComponent(entity, RigidBodyComponent))
     })
 
-    it('creates ColliderComponent and CollisionComponent', () => {
+    it('creates  RigidBodyComponent', () => {
+      const entity = createEntity()
       addComponent(entity, Object3DComponent, { value: new Object3D() })
-      colliderFunctions.deserializeCollider(entity, sceneComponent)
 
-      const collider = getComponent(entity, ColliderComponent)
-      const collision = getComponent(entity, CollisionComponent)
+      deserializeCollider(entity, sceneComponent)
 
-      assert(collider && collider.body === body, 'ColliderComponent is not created')
-      assert(collision && collision.collisions.length <= 0, 'CollisionComponent is not created')
+      const body = getComponent(entity, RigidBodyComponent).body
+
+      assert(body, 'RigidBodyComponent is not created')
     })
 
     it('will include this component into EntityNodeComponent', () => {
+      const entity = createEntity()
       addComponent(entity, EntityNodeComponent, { components: [] })
 
-      colliderFunctions.deserializeCollider(entity, sceneComponent)
+      deserializeCollider(entity, sceneComponent)
 
       const entityNodeComponent = getComponent(entity, EntityNodeComponent)
       assert(entityNodeComponent.components.includes(SCENE_COMPONENT_COLLIDER))
@@ -88,13 +60,15 @@ describe('ColliderFunctions', () => {
 
   describe('serializeCollider()', () => {
     it('should properly serialize collider', () => {
+      const entity = createEntity()
       addComponent(entity, Object3DComponent, { value: new Object3D() })
-      colliderFunctions.deserializeCollider(entity, sceneComponent)
-      assert.deepEqual(colliderFunctions.serializeCollider(entity), { ...sceneComponent, props: {} })
+      deserializeCollider(entity, sceneComponent)
+      assert(serializeCollider(entity) === undefined)
     })
 
     it('should return undefine if there is no collider component', () => {
-      assert(colliderFunctions.serializeCollider(entity) === undefined)
+      const entity = createEntity()
+      assert(serializeCollider(entity) === undefined)
     })
   })
 })

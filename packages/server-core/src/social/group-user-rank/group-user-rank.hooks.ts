@@ -7,10 +7,10 @@ export default {
     all: [authenticate()],
     find: [],
     get: [],
-    create: [],
+    create: [disallow('external')],
     update: [disallow()],
     patch: [disallow()],
-    remove: []
+    remove: [disallow('external')]
   },
 
   after: {

@@ -18,15 +18,28 @@ import {
   StorageProviderInterface
 } from './storageprovider.interface'
 
+/**
+ * Storage provide class to communicate with Local http file server.
+ */
 export class LocalStorage implements StorageProviderInterface {
-  STORAGE_DIR = 'server/upload'
+  private _storageDir = 'server/upload'
+  private _store: typeof fsStore
+
+  /**
+   * Path prefix for local storage. This is the physical path on local drive where file resides.
+   */
   PATH_PREFIX: string
 
+  /**
+   * Domain address of local storage cache.
+   */
   cacheDomain = config.server.localStorageProvider
-  _store: typeof fsStore
 
+  /**
+   * Constructor of LocalStorage class.
+   */
   constructor() {
-    this.PATH_PREFIX = path.join(appRootPath.path.replaceAll('\\', path.sep), 'packages', this.STORAGE_DIR)
+    this.PATH_PREFIX = path.join(appRootPath.path.replaceAll('\\', path.sep), 'packages', this._storageDir)
 
     // make upload folder if it doesnt already exist
     if (!fs.existsSync(this.PATH_PREFIX)) fs.mkdirSync(this.PATH_PREFIX)
@@ -36,6 +49,10 @@ export class LocalStorage implements StorageProviderInterface {
     this._store = fsStore(this.PATH_PREFIX)
   }
 
+  /**
+   * Get the local storage object.
+   * @param key Key of object.
+   */
   getObject = async (key: string): Promise<StorageObjectInterface> => {
     const filePath = path.join(this.PATH_PREFIX, key)
     const result = await fs.promises.readFile(filePath)
@@ -45,10 +62,20 @@ export class LocalStorage implements StorageProviderInterface {
     }
   }
 
+  /**
+   * Get the object from cache, otherwise returns getObject.
+   * @param key Key of object.
+   */
   getCachedObject = async (key: string): Promise<StorageObjectInterface> => {
     return this.getObject(key)
   }
 
+  /**
+   * Get a list of keys under a path.
+   * @param prefix Path relative to root in order to list objects.
+   * @param recursive If true it will list content from sub folders as well. Not used in local storage provider.
+   * @param continuationToken It indicates that the list is being continued with a token. Not used in local storage provider.
+   */
   listObjects = async (
     prefix: string,
     recursive = false,
@@ -65,6 +92,11 @@ export class LocalStorage implements StorageProviderInterface {
     }
   }
 
+  /**
+   * Adds an object into the local storage.
+   * @param data Storage object to be added.
+   * @param params Parameters of the add request.
+   */
   putObject = async (data: StorageObjectInterface, params: PutObjectParams = {}): Promise<any> => {
     const filePath = path.join(this.PATH_PREFIX, data.Key!)
 
@@ -85,11 +117,27 @@ export class LocalStorage implements StorageProviderInterface {
     return true
   }
 
+  /**
+   * Invalidate items in the local storage.
+   * @param invalidationItems List of keys.
+   */
   createInvalidation = async (): Promise<any> => Promise.resolve()
 
+  /**
+   * Get the instance of local storage provider.
+   */
   getProvider = (): StorageProviderInterface => this
+
+  /**
+   * Get the BlobStore object for local storage.
+   */
   getStorage = (): BlobStore => this._store
 
+  /**
+   * Check if an object exists in the local storage.
+   * @param fileName Name of file in the storage.
+   * @param directoryPath Directory of file in the storage.
+   */
   doesExist(fileName: string, directoryPath: string): Promise<boolean> {
     return fs.promises
       .access(path.join(this.PATH_PREFIX, directoryPath, fileName))
@@ -97,6 +145,11 @@ export class LocalStorage implements StorageProviderInterface {
       .catch(() => false)
   }
 
+  /**
+   * Check if an object is directory or not.
+   * @param fileName Name of file in the storage.
+   * @param directoryPath Directory of file in the storage.
+   */
   isDirectory(fileName: string, directoryPath: string): Promise<boolean> {
     return fs.promises
       .lstat(path.join(this.PATH_PREFIX, directoryPath, fileName))
@@ -104,6 +157,12 @@ export class LocalStorage implements StorageProviderInterface {
       .catch(() => false)
   }
 
+  /**
+   * Get the signed url response of the storage object.
+   * @param key Key of object.
+   * @param expiresAfter The number of seconds for which signed policy should be valid. Defaults to 3600 (one hour). Not used in local provider.
+   * @param conditions An array of conditions that must be met for certain providers. Not used in local provider.
+   */
   getSignedUrl = (key: string, _expiresAfter: number, _conditions): any => {
     return {
       fields: { Key: key },
@@ -113,6 +172,10 @@ export class LocalStorage implements StorageProviderInterface {
     }
   }
 
+  /**
+   * Delete resources in the local storage.
+   * @param keys List of keys.
+   */
   deleteResources(keys: string[]) {
     const blobs = this.getStorage()
 
@@ -151,7 +214,7 @@ export class LocalStorage implements StorageProviderInterface {
     )
   }
 
-  formatBytes = (bytes, decimals = 2) => {
+  private _formatBytes = (bytes, decimals = 2) => {
     if (bytes === 0) return '0 Bytes'
 
     const k = 1024
@@ -163,7 +226,7 @@ export class LocalStorage implements StorageProviderInterface {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i]
   }
 
-  processContent = (dirPath: string, pathString: string, isDir = false): FileContentType => {
+  private _processContent = (dirPath: string, pathString: string, isDir = false): FileContentType => {
     const res = { key: pathString.replace(this.PATH_PREFIX, '') } as FileContentType
     const signedUrl = this.getSignedUrl(res.key, 3600, null)
 
@@ -181,11 +244,11 @@ export class LocalStorage implements StorageProviderInterface {
       res.name = res.key.replace(`${dirPath}`, '').split(path.sep)[0]
       res.type = 'folder'
       res.url = this.getSignedUrl(res.key, 3600, null).url
-      res.size = this.formatBytes(totalSize)
+      res.size = this._formatBytes(totalSize)
     } else {
       res.type = path.extname(res.key).substring(1) // remove '.' from extension
       res.name = path.basename(res.key, '.' + res.type)
-      res.size = this.formatBytes(fs.lstatSync(pathString).size)
+      res.size = this._formatBytes(fs.lstatSync(pathString).size)
       res.url = signedUrl.url + path.sep + signedUrl.fields.Key
     }
 
@@ -193,28 +256,28 @@ export class LocalStorage implements StorageProviderInterface {
   }
 
   /**
-   * @author Abhishek Pathak
-   * @param relativeDirPath
-   * @returns
+   * List all the files/folders in the directory.
+   * @param relativeDirPath Name of folder in the storage.
    */
   listFolderContent = async (relativeDirPath: string): Promise<FileContentType[]> => {
     const absoluteDirPath = path.join(this.PATH_PREFIX, relativeDirPath)
 
-    const folder = glob.sync(path.join(absoluteDirPath, '*/')).map((p) => this.processContent(relativeDirPath, p, true))
-    const files = glob.sync(path.join(absoluteDirPath, '*.*')).map((p) => this.processContent(relativeDirPath, p))
+    const folder = glob
+      .sync(path.join(absoluteDirPath, '*/'))
+      .map((p) => this._processContent(relativeDirPath, p, true))
+    const files = glob.sync(path.join(absoluteDirPath, '*.*')).map((p) => this._processContent(relativeDirPath, p))
 
     folder.push(...files)
     return folder
   }
 
   /**
-   * @author Nayankumar Patel
-   * @param oldName
-   * @param oldPath
-   * @param newName
-   * @param newPath
-   * @param isCopy
-   * @returns
+   * Move or copy object from one place to another in the local storage.
+   * @param oldName Name of the old object.
+   * @param newName Name of the new object.
+   * @param oldPath Path of the old object.
+   * @param newPath Path of the new object.
+   * @param isCopy If true it will create a copy of object.
    */
   moveObject = async (
     oldName: string,
@@ -235,4 +298,5 @@ export class LocalStorage implements StorageProviderInterface {
     return true
   }
 }
+
 export default LocalStorage

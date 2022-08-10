@@ -22,11 +22,12 @@ import {
 } from 'three'
 
 import { isDev } from '@xrengine/common/src/utils/isDev'
-import { addActionReceptor, dispatchAction } from '@xrengine/hyperflux'
+import { createActionQueue, dispatchAction } from '@xrengine/hyperflux'
 
 import { CSM } from '../assets/csm/CSM'
 import { ExponentialMovingAverage } from '../common/classes/ExponentialAverageCurve'
 import { nowMilliseconds } from '../common/functions/nowMilliseconds'
+import { overrideOnBeforeCompile } from '../common/functions/OnBeforeCompilePlugin'
 import { Engine } from '../ecs/classes/Engine'
 import { EngineActions, getEngineState } from '../ecs/classes/EngineState'
 import { Entity } from '../ecs/classes/Entity'
@@ -39,6 +40,7 @@ import {
   EngineRendererReceptor,
   restoreEngineRendererData
 } from './EngineRendererState'
+import { configureEffectComposer } from './functions/configureEffectComposer'
 import WebGL from './THREE.WebGL'
 
 export interface EffectComposerWithSchema extends EffectComposer {
@@ -96,9 +98,13 @@ export class EngineRenderer {
   isCSMEnabled = false
   directionalLightEntities: Entity[] = []
   activeCSMLightEntity: Entity | null = null
+  webGLLostContext: any = null
 
   initialize() {
+    overrideOnBeforeCompile()
     this.onResize = this.onResize.bind(this)
+    this.handleWebGLConextLost = this.handleWebGLConextLost.bind(this)
+    this.handleWebGLConextRestore = this.handleWebGLConextRestore.bind(this)
 
     this.supportWebGL2 = WebGL.isWebGL2Available()
 
@@ -130,6 +136,7 @@ export class EngineRenderer {
     }
 
     this.canvas = canvas
+    canvas.focus()
 
     canvas.ondragstart = (e) => {
       e.preventDefault()
@@ -142,7 +149,7 @@ export class EngineRenderer {
     this.renderer.outputEncoding = sRGBEncoding
 
     // DISABLE THIS IF YOU ARE SEEING SHADER MISBEHAVING - UNCHECK THIS WHEN TESTING UPDATING THREEJS
-    this.renderer.debug.checkShaderErrors = isDev
+    this.renderer.debug.checkShaderErrors = false //isDev
 
     this.xrManager = renderer.xr
     //@ts-ignore
@@ -154,6 +161,41 @@ export class EngineRenderer {
 
     this.renderer.autoClear = true
     this.effectComposer = new EffectComposer(this.renderer) as any
+
+    //Todo: WebGL restore context
+    this.webGLLostContext = context.getExtension('WEBGL_lose_context')
+
+    // TODO: for test purpose, need to remove when PR is merging
+    // webGLLostContext.loseContext() in inspect can simulate the conext lost
+    //@ts-ignore
+    window.webGLLostContext = this.webGLLostContext
+
+    if (this.webGLLostContext) {
+      canvas.addEventListener('webglcontextlost', this.handleWebGLConextLost)
+      canvas.addEventListener('webglcontextrestored', this.handleWebGLConextRestore)
+    } else {
+      console.log('Browser does not support `WEBGL_lose_context` extension')
+    }
+
+    configureEffectComposer()
+  }
+
+  handleWebGLConextLost(e) {
+    console.log('Browser lost the context.', e)
+    e.preventDefault()
+    this.needsResize = false
+    setTimeout(() => {
+      this.effectComposer.setSize(0, 0, true)
+      if (this.webGLLostContext) this.webGLLostContext.restoreContext()
+    }, 1000)
+  }
+
+  handleWebGLConextRestore(e) {
+    console.log("Browser's context is restored.", e)
+    this.canvas.removeEventListener('webglcontextlost', this.handleWebGLConextLost)
+    this.canvas.removeEventListener('webglcontextrestored', this.handleWebGLConextRestore)
+    this.initialize()
+    this.needsResize = true
   }
 
   resetScene() {
@@ -201,7 +243,12 @@ export class EngineRenderer {
         }
 
         state.qualityLevel.value > 0 && this.csm?.update()
-        if (state.usePostProcessing.value) {
+
+        /**
+         * Editor should always use post processing, even if no postprocessing schema is in the scene,
+         *   it still uses post processing for effects such as outline.
+         */
+        if (state.usePostProcessing.value || Engine.instance.isEditor) {
           this.effectComposer.render(delta)
         } else {
           this.renderer.autoClear = true
@@ -232,19 +279,39 @@ export class EngineRenderer {
     }
 
     if (qualityLevel !== state.qualityLevel.value) {
-      dispatchAction(EngineRendererAction.setQualityLevel(qualityLevel))
+      dispatchAction(EngineRendererAction.setQualityLevel({ qualityLevel }))
     }
   }
 }
 
 export default async function WebGLRendererSystem(world: World) {
-  matchActionOnce(EngineActions.joinedWorld.matches, () => {
-    restoreEngineRendererData()
-  })
+  restoreEngineRendererData()
 
-  addActionReceptor(EngineRendererReceptor)
+  const setQualityLevelActions = createActionQueue(EngineRendererAction.setQualityLevel.matches)
+  const setAutomaticActions = createActionQueue(EngineRendererAction.setAutomatic.matches)
+  const setPostProcessingActions = createActionQueue(EngineRendererAction.setPostProcessing.matches)
+  const setShadowsActions = createActionQueue(EngineRendererAction.setShadows.matches)
+  const setPhysicsDebugActions = createActionQueue(EngineRendererAction.setPhysicsDebug.matches)
+  const setAvatarDebugActions = createActionQueue(EngineRendererAction.setAvatarDebug.matches)
+  const changedRenderModeActions = createActionQueue(EngineRendererAction.changedRenderMode.matches)
+  const changeNodeHelperVisibilityActions = createActionQueue(EngineRendererAction.changeNodeHelperVisibility.matches)
+  const changeGridToolHeightActions = createActionQueue(EngineRendererAction.changeGridToolHeight.matches)
+  const changeGridToolVisibilityActions = createActionQueue(EngineRendererAction.changeGridToolVisibility.matches)
+  const restoreStorageDataActions = createActionQueue(EngineRendererAction.restoreStorageData.matches)
 
   return () => {
+    for (const action of setQualityLevelActions()) EngineRendererReceptor.setQualityLevel(action)
+    for (const action of setAutomaticActions()) EngineRendererReceptor.setAutomatic(action)
+    for (const action of setPostProcessingActions()) EngineRendererReceptor.setPostProcessing(action)
+    for (const action of setShadowsActions()) EngineRendererReceptor.setShadows(action)
+    for (const action of setPhysicsDebugActions()) EngineRendererReceptor.setPhysicsDebug(action)
+    for (const action of setAvatarDebugActions()) EngineRendererReceptor.setAvatarDebug(action)
+    for (const action of changedRenderModeActions()) EngineRendererReceptor.changedRenderMode(action)
+    for (const action of changeNodeHelperVisibilityActions()) EngineRendererReceptor.changeNodeHelperVisibility(action)
+    for (const action of changeGridToolHeightActions()) EngineRendererReceptor.changeGridToolHeight(action)
+    for (const action of changeGridToolVisibilityActions()) EngineRendererReceptor.changeGridToolVisibility(action)
+    for (const action of restoreStorageDataActions()) EngineRendererReceptor.restoreStorageData(action)
+
     EngineRenderer.instance.execute(world.deltaSeconds)
   }
 }

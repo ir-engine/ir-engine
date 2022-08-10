@@ -3,13 +3,7 @@ import { createActionQueue } from '@xrengine/hyperflux'
 import { WorldNetworkAction } from '../functions/WorldNetworkAction'
 import { WorldNetworkActionReceptor } from '../functions/WorldNetworkActionReceptor'
 
-/**
- * @author Gheric Speiginer <github.com/speigg>
- * @author Josh Field <github.com/HexaField>
- */
 export default async function WorldNetworkActionSystem() {
-  const createClientQueue = createActionQueue(WorldNetworkAction.createClient.matches)
-  const destroyClientQueue = createActionQueue(WorldNetworkAction.destroyClient.matches)
   const spawnObjectQueue = createActionQueue(WorldNetworkAction.spawnObject.matches)
   const spawnDebugPhysicsObjectQueue = createActionQueue(WorldNetworkAction.spawnDebugPhysicsObject.matches)
   const destroyObjectQueue = createActionQueue(WorldNetworkAction.destroyObject.matches)
@@ -19,8 +13,6 @@ export default async function WorldNetworkActionSystem() {
   const setUserTypingQueue = createActionQueue(WorldNetworkAction.setUserTyping.matches)
 
   return () => {
-    for (const action of createClientQueue()) WorldNetworkActionReceptor.receiveCreateClient(action)
-    for (const action of destroyClientQueue()) WorldNetworkActionReceptor.receiveDestroyClient(action)
     for (const action of spawnDebugPhysicsObjectQueue())
       WorldNetworkActionReceptor.receiveSpawnDebugPhysicsObject(action)
     for (const action of spawnObjectQueue()) WorldNetworkActionReceptor.receiveSpawnObject(action)

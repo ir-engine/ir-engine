@@ -2,9 +2,8 @@ import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useHistory } from 'react-router-dom'
 
-import { useDispatch } from '@xrengine/client-core/src/store'
 import { SceneData } from '@xrengine/common/src/interfaces/SceneInterface'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import multiLogger from '@xrengine/common/src/logger'
 import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { dispatchAction } from '@xrengine/hyperflux'
 
@@ -13,7 +12,7 @@ import { ClickAwayListener } from '@mui/material'
 import { IconButton, InputBase, Menu, MenuItem, Paper } from '@mui/material'
 
 import { disposeProject } from '../../functions/projectFunctions'
-import { deleteScene, getScenes, renameScene, saveScene } from '../../functions/sceneFunctions'
+import { deleteScene, getScenes, renameScene } from '../../functions/sceneFunctions'
 import { EditorAction, useEditorState } from '../../services/EditorServices'
 import ErrorDialog from '../dialogs/ErrorDialog'
 import { useDialog } from '../hooks/useDialog'
@@ -22,9 +21,10 @@ import { InfoTooltip } from '../layout/Tooltip'
 import { DeleteDialog } from '../projects/DeleteDialog'
 import styles from './styles.module.scss'
 
+const logger = multiLogger.child({ component: 'editor:ScenesPanel' })
+
 /**
  * Displays the scenes that exist in the current project.
- * @author Josh Field
  */
 export default function ScenesPanel({ loadScene, newScene, toggleRefetchScenes }) {
   const { t } = useTranslation()
@@ -36,7 +36,6 @@ export default function ScenesPanel({ loadScene, newScene, toggleRefetchScenes }
   const [newName, setNewName] = useState('')
   const [isRenaming, setRenaming] = useState(false)
   const [activeScene, setActiveScene] = useState<SceneData | null>(null)
-  const dispatch = useDispatch()
   const history = useHistory()
   const editorState = useEditorState()
   const [DialogComponent, setDialogComponent] = useDialog()
@@ -46,7 +45,7 @@ export default function ScenesPanel({ loadScene, newScene, toggleRefetchScenes }
       const data = await getScenes(editorState.projectName.value!)
       setScenes(data ?? [])
     } catch (error) {
-      console.error(error)
+      logger.error(error, 'Error fetching scenes')
     }
   }
 
@@ -80,8 +79,8 @@ export default function ScenesPanel({ loadScene, newScene, toggleRefetchScenes }
     if (activeScene) {
       await deleteScene(editorState.projectName.value, activeScene.name)
       if (editorState.sceneName.value === activeScene.name) {
-        dispatch(EditorAction.sceneChanged(null))
-        dispatchAction(EngineActions.sceneUnloaded())
+        dispatchAction(EditorAction.sceneChanged({ sceneName: null }))
+        dispatchAction(EngineActions.sceneUnloaded({}))
         disposeProject()
         history.push(`/editor/${editorState.projectName.value}`)
       }
@@ -121,7 +120,7 @@ export default function ScenesPanel({ loadScene, newScene, toggleRefetchScenes }
   const finishRenaming = async () => {
     setRenaming(false)
     await renameScene(editorState.projectName.value as string, newName, activeScene!.name)
-    dispatch(EditorAction.sceneChanged(newName))
+    dispatchAction(EditorAction.sceneChanged({ sceneName: newName }))
     history.push(`/editor/${editorState.projectName.value}/${newName}`)
     setNewName('')
     fetchItems()
@@ -145,7 +144,7 @@ export default function ScenesPanel({ loadScene, newScene, toggleRefetchScenes }
               <div className={styles.sceneContainer} key={i}>
                 <a onClick={(e) => onClickExisting(e, scene)}>
                   <div className={styles.thumbnailContainer}>
-                    <img src={scene.thumbnailUrl} alt="" />
+                    <img src={scene.thumbnailUrl} alt="" crossOrigin="anonymous" />
                   </div>
                   <div className={styles.detailBlock}>
                     {activeScene === scene && isRenaming ? (

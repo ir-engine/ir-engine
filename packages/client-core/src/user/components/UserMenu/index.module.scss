@@ -15,7 +15,7 @@
 
 .themeSettingContainer {
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   align-items: center;
 
   label {
@@ -25,6 +25,14 @@
 
 .themeHeading {
   font-size: 12px;
+  color: var(--textColor);
+}
+
+.panelHeader {
+  padding-top: 10px;
+  font-size: 14px;
+  font-weight: bold;
+  margin: 0;
   color: var(--textColor);
 }
 
@@ -43,8 +51,7 @@
     width: 4em;
 
     svg {
-      width: 100%;
-      height: 100%;
+      height: auto;
     }
 
     @media (max-width: 500px) {
@@ -57,6 +64,7 @@
   .iconContainer {
     display: inline-flex;
     margin: auto;
+    gap: 10px;
 
     .materialIconBlock {
       padding: 1em;
@@ -196,37 +204,37 @@
 
   @media (max-width: 560px) {
     height: 200px;
-    bottom: 100px;
+    bottom: 90px;
     width: auto;
   }
 }
 
-.menuPanel {
-  position: absolute;
-  padding: 0 30px;
+.profilePanelRoot {
+  padding: 30px;
   z-index: 6;
-  border-radius: 20px;
+  border-radius: 10px;
   background-color: var(--popupBackground);
-  width: calc(100% - 20px);
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
   box-shadow: 16px 16px 32px 0 #11111159;
   color: black;
-  max-height: calc(100vh - 100px);
-  overflow: auto;
-  touch-action: auto;
+
+  @media screen and (max-width: 500px) {
+    .profileBlock {
+      justify-content: center !important;
+    }
+
+    .headerBlock {
+      width: 100% !important;
+      margin-top: 30px;
+    }
+  }
+
+  @media screen and (min-width: 768px) {
+    width: 600px;
+    min-height: 208px;
+  }
 
   * {
     touch-action: auto;
-  }
-
-  & > .profilePanel,
-  & > .accountPanel,
-  & > .settingPanel,
-  & > .sharePanel,
-  & > .locationPanel {
-    margin: 30px 0;
   }
 
   .profilePanel {
@@ -234,23 +242,14 @@
     flex-direction: column;
     position: relative;
 
-    .closeButton {
-      position: fixed;
-      right: 8px;
-      top: 8px;
-
-      &:hover {
-        cursor: pointer;
-        color: red;
-      }
-    }
-
     .profileBlock {
       display: flex;
       justify-content: space-between;
       flex-wrap: wrap;
 
       .avatarBlock {
+        margin-right: 20px;
+        margin-bottom: 20px;
         width: 80px;
         height: 80px;
         box-shadow: 0 2px 18px 0 #11111159;
@@ -304,13 +303,6 @@
         width: calc(100% - 110px);
         align-content: center;
 
-        .panelHeader {
-          font-size: 14px;
-          font-weight: bold;
-          margin: 0;
-          color: var(--textColor);
-        }
-
         .inputBlock {
           display: flex;
           width: 100%;
@@ -332,10 +324,6 @@
 
             :global(.MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline) {
               border-color: white !important;
-            }
-
-            @media (max-width: 560px) {
-              width: 200px;
             }
           }
 
@@ -363,7 +351,8 @@
             font-weight: 700;
           }
 
-          &.showUserId {
+          &.showUserId,
+          &.deleteAccount {
             &:hover {
               color: black;
               cursor: pointer;
@@ -377,7 +366,6 @@
           color: var(--textColor);
 
           .logout {
-            max-width: 50px;
             font-size: 14px;
 
             &:hover {
@@ -391,18 +379,7 @@
     }
 
     .emailPhoneSection {
-      margin-top: 20px;
-
-      .panelHeader {
-        font-size: 14px;
-        font-weight: bold;
-        margin: 0;
-        color: var(--textColor);
-      }
-
       .emailField {
-        margin-top: 10px;
-        margin-bottom: 20px;
         width: 100%;
         color: var(--textColor);
         background: transparent;
@@ -454,7 +431,302 @@
       .socialContainer {
         display: flex;
         justify-content: space-evenly;
-        margin: 20px 0;
+        margin: 10px 0;
+
+        a {
+          color: #000;
+          outline: none !important;
+        }
+
+        & > a:hover svg,
+        & > a:focus svg {
+          opacity: 0.8;
+        }
+
+        svg {
+          height: 30px;
+          width: 30px;
+          flex-shrink: 0.9;
+          margin: 0 5px;
+          cursor: pointer;
+          opacity: 1;
+        }
+      }
+
+      .textBlock {
+        font-size: 14px;
+        color: var(--textColor);
+        font-weight: normal;
+        text-align: center;
+        display: block;
+        cursor: initial;
+      }
+
+      .smallTextBlock {
+        font-size: 12px;
+        color: var(--textColor);
+        font-weight: normal;
+        text-align: center;
+        display: block;
+        cursor: initial;
+      }
+    }
+  }
+
+  .deletePanel {
+    .deleteAccount {
+      color: var(--textColor);
+
+      &:hover {
+        cursor: pointer;
+        color: mintcream;
+      }
+    }
+
+    .deleteText {
+      color: var(--textColor);
+      margin-top: 10px;
+      font-size: 16px;
+    }
+
+    .deleteConfirmButton {
+      background: var(--lightRed);
+      margin-right: 10px;
+
+      &:hover {
+        cursor: pointer;
+        background: var(--red);
+      }
+    }
+
+    .deleteCancelButton {
+      background: var(--deemphasized);
+      margin-right: 10px;
+
+      &:hover {
+        cursor: pointer;
+        background: var(--green);
+      }
+    }
+  }
+}
+
+.menuPanel {
+  position: absolute;
+  padding: 20px;
+  z-index: 6;
+  border-radius: 20px;
+  background-color: var(--popupBackground);
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  box-shadow: 16px 16px 32px 0 #11111159;
+  color: black;
+  max-height: calc(100vh - 150px);
+  touch-action: auto;
+  overflow-y: auto;
+
+  * {
+    touch-action: auto;
+  }
+
+  .profilePanel {
+    display: flex;
+    flex-direction: column;
+    position: relative;
+
+    .profileBlock {
+      display: flex;
+      justify-content: space-between;
+
+      // margin-bottom: 20px;
+      // flex-wrap: wrap;
+
+      .avatarBlock {
+        margin-right: 20px;
+        margin-bottom: 20px;
+        width: 80px;
+        height: 80px;
+        box-shadow: 0 2px 18px 0 #11111159;
+        border-radius: 50%;
+        background: white;
+        position: relative;
+        flex-shrink: 0;
+        flex-grow: 0;
+
+        img {
+          width: 100%;
+          height: 100%;
+          display: block;
+          border-radius: 10px;
+          border-radius: 50%;
+        }
+
+        .avatarBtn {
+          position: absolute;
+          width: 30px;
+          height: 30px;
+          bottom: -10px;
+          right: -10px;
+          margin: 0;
+          min-width: 30px;
+          border-radius: 50%;
+          color: var(--textColor);
+          background-color: var(--iconButtonBackground);
+          box-shadow: 2px 2px 10px gray;
+          transition: all 0.15s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+
+          &:hover,
+          &:focus {
+            width: 40px;
+            height: 40px;
+            bottom: -15px;
+            right: -15px;
+            background-color: var(--iconButtonSelectedBackground);
+          }
+
+          svg {
+            width: 20px;
+            height: 20px;
+          }
+        }
+      }
+
+      .headerBlock {
+        display: flex;
+        flex-flow: column wrap;
+        align-content: center;
+        width: 100%;
+
+        .inputBlock {
+          display: flex;
+          width: 100%;
+          align-items: flex-end;
+
+          .usernameInput {
+            width: 100%;
+            background: transparent;
+
+            input {
+              font-size: 18px;
+              color: var(--textColor);
+              border-color: var(--inputOutline);
+            }
+
+            :global(.MuiFormLabel-root) {
+              color: var(--textColor);
+            }
+
+            :global(.MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline) {
+              border-color: white !important;
+            }
+          }
+
+          .materialIconBlock {
+            @include material-icon-block-styling;
+          }
+        }
+
+        .justify {
+          @media (max-width: 560px) {
+            justify-content: space-between !important;
+          }
+        }
+
+        h2 {
+          font-family: Roboto;
+          font-size: 14px;
+          text-align: left;
+          opacity: 0.8;
+          color: var(--textColor);
+          margin: 5px 0 !important;
+
+          span {
+            text-transform: capitalize;
+            font-weight: 700;
+          }
+
+          &.showUserId,
+          &.deleteAccount {
+            &:hover {
+              color: black;
+              cursor: pointer;
+            }
+          }
+        }
+
+        h4 {
+          margin-top: 4px;
+          text-align: left;
+          color: var(--textColor);
+
+          .logout {
+            font-size: 14px;
+
+            &:hover {
+              opacity: 0.8;
+              cursor: pointer;
+              color: black;
+            }
+          }
+        }
+      }
+    }
+
+    .emailPhoneSection {
+      .emailField {
+        width: 100%;
+        color: var(--textColor);
+        background: transparent;
+
+        input {
+          color: var(--textColor);
+          border-color: var(--inputOutline);
+        }
+
+        :global(.MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline) {
+          border-color: var(--inputOutline);
+        }
+
+        .materialIconBlock {
+          @include material-icon-block-styling;
+        }
+      }
+    }
+
+    .walletSection {
+      text-align: center;
+
+      .textBlock {
+        color: var(--textColor);
+        font-size: 14px;
+        font-weight: normal;
+        text-align: center;
+        display: block;
+        cursor: initial;
+      }
+
+      .walletBtn {
+        height: 35px;
+        font-size: 14px;
+        width: 250px;
+        max-width: 100%;
+        background: linear-gradient(90deg, var(--buttonGradientStart), var(--buttonGradientEnd));
+        color: var(--textColor);
+        border-radius: 20px;
+        margin: 15px 0 20px;
+
+        &:hover {
+          opacity: 0.8;
+        }
+      }
+    }
+
+    .socialBlock {
+      .socialContainer {
+        display: flex;
+        justify-content: space-evenly;
+        margin: 10px 0;
 
         a {
           color: #000;
@@ -506,16 +778,22 @@
       }
     }
 
+    .tutorialImage {
+      background-color: #1b1b1b;
+      border-radius: 4px;
+    }
+
     .row {
       display: flex;
       align-items: center;
 
-      & + .flexWrap {
-        flex-wrap: wrap;
-      }
-
       & + .row {
         margin-top: 5px;
+      }
+
+      > div {
+        flex: 1;
+        margin: 10px;
       }
 
       .checkboxBlock {
@@ -523,7 +801,7 @@
 
         :global(.MuiCheckbox-root) {
           padding: 0;
-          color: var(--buttonOutlined);
+          color: var(--sidebarSelectedBackground);
           margin-right: 10px;
 
           svg {
@@ -555,10 +833,12 @@
       .settingLabel {
         margin-left: 10px;
         font-size: 14px;
-        width: 100px;
+
+        // width: 100px;
         display: inline-block;
         flex-shrink: 0;
         font-family: Roboto;
+        width: 28%;
       }
 
       :global(.MuiSlider-root) {
@@ -594,12 +874,6 @@
 
   .sharePanel {
     position: relative;
-
-    .panelHeader {
-      font-size: 18px;
-      color: var(--textColor);
-      font-weight: bold;
-    }
 
     .shareLink {
       font-size: 16px;
@@ -654,7 +928,6 @@
     }
 
     .copyField {
-      margin-top: 10px;
       width: 100%;
       color: var(--textColor);
 
@@ -677,10 +950,6 @@
         &:hover {
           opacity: 0.8;
         }
-      }
-
-      @media (max-width: 560px) {
-        width: 200px;
       }
     }
 
@@ -715,10 +984,11 @@
       text-align: center;
 
       .shareBtn {
-        width: 100px;
+        width: 100%;
         height: 35px;
         background: var(--purpleButtonColor);
-        color: "#fff";
+        color: #fff;
+        text-transform: capitalize;
 
         &:hover {
           opacity: 0.8;
@@ -933,18 +1203,6 @@
       }
     }
 
-    .savebtn {
-      color: var(--textColor);
-      background: var(--purpleButtonColor);
-      height: 35px;
-      width: 150px;
-      margin-top: 25px;
-
-      &:hover {
-        opacity: 0.8;
-      }
-    }
-
     .deleteDialogContainer {
       position: absolute;
       width: 100%;
@@ -994,6 +1252,43 @@
     }
   }
 
+  .deletePanel {
+    .deleteAccount {
+      color: var(--textColor);
+
+      &:hover {
+        cursor: pointer;
+        color: mintcream;
+      }
+    }
+
+    .deleteText {
+      color: var(--textColor);
+      margin-top: 10px;
+      font-size: 16px;
+    }
+
+    .deleteConfirmButton {
+      background: var(--lightRed);
+      margin-right: 10px;
+
+      &:hover {
+        cursor: pointer;
+        background: var(--red);
+      }
+    }
+
+    .deleteCancelButton {
+      background: var(--deemphasized);
+      margin-right: 10px;
+
+      &:hover {
+        cursor: pointer;
+        background: var(--green);
+      }
+    }
+  }
+
   // @media (max-width: 560px) {
   //   left: 100%;
   //   width: auto;
@@ -1006,13 +1301,8 @@
   // }
 
   @media screen and (max-width: 500px) {
-    .profileBlock {
-      justify-content: center !important;
-    }
-
     .headerBlock {
       width: 100% !important;
-      margin-top: 30px;
     }
   }
 
@@ -1205,9 +1495,9 @@
   transform: translateX(-50%);
   box-shadow: 16px 16px 32px 0 #11111159;
   color: black;
-  max-height: calc(100vh - 100px);
+  max-height: calc(100vh - 150px);
   overflow: auto;
-  width: 360px;
+  width: 375px;
   z-index: 1400;
 
   .avatarHeaderBlock {
@@ -1230,6 +1520,16 @@
       display: inline-block;
       vertical-align: middle;
       margin-left: 10px;
+    }
+  }
+
+  .useReadyMeBtn {
+    background: linear-gradient(90deg, var(--buttonGradientStart), var(--buttonGradientEnd));
+    color: var(--textColor);
+    display: block;
+
+    &:hover {
+      opacity: 0.8;
     }
   }
 
@@ -1294,9 +1594,12 @@
   }
 
   .stage {
-    border-radius: 5px;
     overflow: hidden;
     position: relative;
+    margin: auto;
+    margin-bottom: 10px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px var(--buttonOutlined);
 
     .legendContainer {
       position: absolute;
@@ -1441,28 +1744,34 @@
 .ReadyPlayerPanel {
   @include panel-popup-container-styling;
 
+  display: flex;
+  flex-direction: column;
   border-radius: 20px;
   background-color: var(--popupBackground);
   padding: 0;
 
-  .controlContainer {
+  .avatarHeaderBlock {
+    margin: 20px 0;
     display: flex;
-    justify-content: space-between;
+    flex-direction: row;
+    align-items: center;
 
-    .actionBlock {
-      position: absolute;
-      width: 100%;
-      display: flex;
-      justify-content: space-between;
-      left: 0;
-      padding: 0 20px;
-      top: 10px;
+    h2 {
+      font-size: 18px;
+      color: var(--textColor);
+      font-weight: bold;
+      display: inline-block;
+      vertical-align: middle;
+      margin-left: 10px;
     }
   }
 
   .iconBlock {
     @include icon-block-styling;
 
+    display: inline-block;
+    cursor: pointer;
+    color: var(--textColor);
     background: transparent;
   }
 
@@ -1800,6 +2109,8 @@
 
 .avatarSelectContainer {
   position: absolute;
+  display: flex;
+  flex-direction: column;
   padding: 15px;
   border-radius: 5px;
   left: 50%;
@@ -1814,6 +2125,31 @@
   box-shadow: 0 4px 30px rgb(0 0 0 / 10%);
   backdrop-filter: blur(4.9px);
   -webkit-backdrop-filter: blur(4.9px);
+
+  .avatarHeaderBlock {
+    margin: 20px 0;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+
+    .iconBlock {
+      @include icon-block-styling;
+
+      display: inline-block;
+      cursor: pointer;
+      color: var(--textColor);
+      background: transparent;
+    }
+
+    h2 {
+      font-size: 18px;
+      color: var(--textColor);
+      font-weight: bold;
+      display: inline-block;
+      vertical-align: middle;
+      margin-left: 10px;
+    }
+  }
 }
 
 .paperAvatar {
@@ -1835,7 +2171,6 @@
 
 .avatarContainer {
   height: 90%;
-  margin-bottom: 20px;
   overflow-y: auto;
   overflow-x: hidden;
 }
@@ -2062,6 +2397,7 @@
   display: flex;
   justify-content: space-between;
   align-items: end;
+  flex: 1;
 }
 
 .selectSize {
@@ -2091,10 +2427,51 @@
 
 .collapseBtn {
   background-color: transparent !important;
-  color: var(--buttonOutlined);
+  color: var(--textColor);
 }
 
 .tableRow {
   border: none;
   color: #fff;
+}
+
+.label {
+  color: var(--textColor);
+  font-weight: 100;
+  font-size: 15px;
+}
+
+.checkboxMode {
+  color: var(--textColor);
+}
+
+.formRoot {
+  padding: 15px 10px;
+}
+
+.QRContainer {
+  background: #fff;
+  padding: 25px 0;
+  margin: 0 auto 20px;
+  border-radius: 10px;
+  width: 250px;
+  text-align: center;
+}
+
+.title {
+  font-size: 14px;
+  font-weight: bold;
+  color: var(--textColor);
+  margin-bottom: 20px;
+}
+
+.themesHeading {
+  color: var(--textColor);
+  font-size: 14px;
+  margin-right: 7px;
+  margin-top: 7px;
+}
+
+.iconBtn {
+  color: var(--sidebarSelectedBackground) !important;
 }

@@ -1,21 +1,19 @@
 import { HookContext } from '@feathersjs/feathers'
 import { iff, isProvider } from 'feathers-hooks-common'
 
+import { UserInterface } from '@xrengine/common/src/interfaces/User'
 import addAssociations from '@xrengine/server-core/src/hooks/add-associations'
 
 import addScopeToUser from '../../hooks/add-scope-to-user'
 import authenticate from '../../hooks/authenticate'
-import restrictUserRole from '../../hooks/restrict-user-role'
-import logger from '../../logger'
-import getFreeInviteCode from '../../util/get-free-invite-code'
-import { UserDataType } from './user.class'
+import verifyScope from '../../hooks/verify-scope'
 
 const restrictUserPatch = (context: HookContext) => {
   if (context.params.isInternal) return context
 
   // allow admins for all patch actions
-  const loggedInUser = context.params.user as UserDataType
-  if (loggedInUser.userRole === 'admin') return context
+  const loggedInUser = context.params.user as UserInterface
+  if (loggedInUser.scopes && loggedInUser.scopes.find((scope) => scope.type === 'admin:admin')) return context
 
   // only allow a user to patch it's own data
   if (loggedInUser.id !== context.id) throw new Error('Must be an admin to patch another users data')
@@ -27,6 +25,53 @@ const restrictUserPatch = (context: HookContext) => {
   if (typeof context.data.name !== 'undefined') data.name = context.data.name
   context.data = data
   return context
+}
+
+const restrictUserRemove = (context: HookContext) => {
+  if (context.params.isInternal) return context
+
+  // allow admins for all patch actions
+  const loggedInUser = context.params.user as UserInterface
+  if (loggedInUser.scopes && loggedInUser.scopes.find((scope) => scope.type === 'admin:admin')) return context
+
+  // only allow a user to patch it's own data
+  if (loggedInUser.id !== context.id) throw new Error('Must be an admin to delete another user')
+
+  return context
+}
+
+const parseAllUserSettings = () => {
+  return async (context: HookContext): Promise<HookContext> => {
+    const { result } = context
+
+    for (const index in result.data) {
+      if (result.data[index].user_setting && result.data[index].user_setting.themeModes) {
+        let themeModes = JSON.parse(result.data[index].user_setting.themeModes)
+
+        if (typeof themeModes === 'string') themeModes = JSON.parse(themeModes)
+
+        result.data[index].user_setting.themeModes = themeModes
+      }
+    }
+
+    return context
+  }
+}
+
+const parseUserSettings = () => {
+  return async (context: HookContext): Promise<HookContext> => {
+    const { result } = context
+
+    if (result.user_setting && result.user_setting.themeModes) {
+      let themeModes = JSON.parse(result.user_setting.themeModes)
+
+      if (typeof themeModes === 'string') themeModes = JSON.parse(themeModes)
+
+      result.user_setting.themeModes = themeModes
+    }
+
+    return context
+  }
 }
 
 /**
@@ -65,12 +110,7 @@ export default {
             model: 'scope'
           },
           {
-            model: 'party',
-            include: [
-              {
-                model: 'location'
-              }
-            ]
+            model: 'party'
           }
         ]
       })
@@ -100,18 +140,13 @@ export default {
             model: 'scope'
           },
           {
-            model: 'party',
-            include: [
-              {
-                model: 'location'
-              }
-            ]
+            model: 'party'
           }
         ]
       })
     ],
-    create: [iff(isProvider('external'), restrictUserRole('admin') as any)],
-    update: [iff(isProvider('external'), restrictUserRole('admin') as any)],
+    create: [iff(isProvider('external'), verifyScope('admin', 'admin') as any)],
+    update: [iff(isProvider('external'), verifyScope('admin', 'admin') as any)],
     patch: [
       iff(isProvider('external'), restrictUserPatch as any),
       addAssociations({
@@ -141,27 +176,13 @@ export default {
       }),
       addScopeToUser()
     ],
-    remove: [
-      iff(isProvider('external'), restrictUserRole('admin') as any),
-      async (context: HookContext): Promise<HookContext> => {
-        try {
-          const userId = context.id
-          await context.app.service('user-api-key').remove(null, {
-            query: {
-              userId: userId
-            }
-          })
-          return context
-        } catch (err) {
-          throw new Error(err)
-        }
-      }
-    ]
+    remove: [iff(isProvider('external'), restrictUserRemove as any)]
   },
 
   after: {
     all: [],
     find: [
+      parseAllUserSettings()
       // async (context: HookContext): Promise<HookContext> => {
       //   try {
       //     const { app, result } = context
@@ -196,6 +217,7 @@ export default {
       // }
     ],
     get: [
+      parseUserSettings()
       // async (context: HookContext): Promise<HookContext> => {
       //   try {
       //     if (context.result.subscriptions && context.result.subscriptions.length > 0) {
@@ -227,59 +249,9 @@ export default {
       //   }
       // }
     ],
-    create: [
-      async (context: HookContext): Promise<HookContext> => {
-        try {
-          await context.app.service('user-settings').create({
-            userId: context.result.id
-          })
-
-          context.arguments[0]?.scopes?.forEach((el) => {
-            context.app.service('scope').create({
-              type: el.type,
-              userId: context.result.id
-            })
-          })
-
-          const app = context.app
-          let result = context.result
-          if (Array.isArray(result)) result = result[0]
-          if (result?.userRole !== 'guest')
-            await context.app.service('user-api-key').create({
-              userId: context.result.id
-            })
-          if (result?.userRole !== 'guest' && result?.inviteCode == null) {
-            const code = await getFreeInviteCode(app)
-            await app.service('user').patch(result.id, {
-              inviteCode: code
-            })
-          }
-          return context
-        } catch (err) {
-          logger.error(err, `USER AFTER CREATE ERROR: ${err.message}`)
-        }
-        return null!
-      }
-    ],
+    create: [],
     update: [],
-    patch: [
-      async (context: HookContext): Promise<HookContext> => {
-        try {
-          const app = context.app
-          let result = context.result
-          if (Array.isArray(result)) result = result[0]
-          if (result && result.userRole !== 'guest' && result.inviteCode == null) {
-            const code = await getFreeInviteCode(app)
-            await app.service('user').patch(result.id, {
-              inviteCode: code
-            })
-          }
-        } catch (err) {
-          logger.error(err, `USER AFTER PATCH ERROR: ${err.message}`)
-        }
-        return context
-      }
-    ],
+    patch: [parseUserSettings()],
     remove: []
   },
 

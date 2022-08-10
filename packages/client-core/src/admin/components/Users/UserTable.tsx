@@ -1,44 +1,47 @@
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { User } from '@xrengine/common/src/interfaces/User'
+import { UserInterface } from '@xrengine/common/src/interfaces/User'
+
+import Box from '@mui/material/Box'
 
 import { useAuthState } from '../../../user/services/AuthService'
-import ConfirmModal from '../../common/ConfirmModal'
-import { useFetchUsersAsAdmin } from '../../common/hooks/User.hooks'
+import ConfirmDialog from '../../common/ConfirmDialog'
 import TableComponent from '../../common/Table'
 import { userColumns, UserData, UserProps } from '../../common/variables/user'
-import { USER_PAGE_LIMIT, UserService, useUserState } from '../../services/UserService'
+import { AdminUserService, USER_PAGE_LIMIT, useUserState } from '../../services/UserService'
 import styles from '../../styles/admin.module.scss'
-import ViewUser from './ViewUser'
+import UserDrawer, { UserDrawerMode } from './UserDrawer'
 
-const UserTable = (props: UserProps) => {
-  const { search } = props
+const UserTable = ({ className, search }: UserProps) => {
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(USER_PAGE_LIMIT)
-  const [popConfirmOpen, setPopConfirmOpen] = useState(false)
+  const [openConfirm, setOpenConfirm] = useState(false)
   const [userId, setUserId] = useState('')
   const [userName, setUserName] = useState('')
   const [fieldOrder, setFieldOrder] = useState('asc')
   const [sortField, setSortField] = useState('name')
-  const [viewModal, setViewModal] = useState(false)
-  const [userAdmin, setUserAdmin] = useState<User | null>(null)
+  const [openUserDrawer, setOpenUserDrawer] = useState(false)
+  const [userAdmin, setUserAdmin] = useState<UserInterface | null>(null)
   const authState = useAuthState()
   const user = authState.user
   const adminUserState = useUserState()
   const adminUsers = adminUserState.users.value
   const adminUserCount = adminUserState.total
   const { t } = useTranslation()
-  useFetchUsersAsAdmin(user, adminUserState, UserService, search, sortField, fieldOrder)
+
+  useEffect(() => {
+    AdminUserService.fetchUsersAsAdmin(search, 0, sortField, fieldOrder)
+  }, [search, user?.id?.value, adminUserState.updateNeeded.value])
 
   const handlePageChange = (event: unknown, newPage: number) => {
-    UserService.fetchUsersAsAdmin(search, newPage, sortField, fieldOrder)
+    AdminUserService.fetchUsersAsAdmin(search, newPage, sortField, fieldOrder)
     setPage(newPage)
   }
 
   useEffect(() => {
     if (adminUserState.fetched.value) {
-      UserService.fetchUsersAsAdmin(search, page, sortField, fieldOrder)
+      AdminUserService.fetchUsersAsAdmin(search, page, sortField, fieldOrder)
     }
   }, [fieldOrder])
 
@@ -47,25 +50,17 @@ const UserTable = (props: UserProps) => {
     setPage(0)
   }
 
-  const closeViewModal = (open) => {
-    setViewModal(open)
-  }
-
-  const handleCloseModal = () => {
-    setPopConfirmOpen(false)
-  }
-
   const submitDeleteUser = async () => {
-    await UserService.removeUserAdmin(userId)
-    setPopConfirmOpen(false)
+    await AdminUserService.removeUserAdmin(userId)
+    setOpenConfirm(false)
   }
 
   const createData = (
     id: string,
-    el: User,
+    el: UserInterface,
     name: string,
     avatarId: string | JSX.Element,
-    userRole: string | JSX.Element,
+    isGuest: string,
     location: string | JSX.Element,
     inviteCode: string | JSX.Element,
     instanceId: string | JSX.Element
@@ -75,33 +70,33 @@ const UserTable = (props: UserProps) => {
       el,
       name,
       avatarId,
-      userRole,
+      isGuest,
       location,
       inviteCode,
       instanceId,
       action: (
         <>
           <a
-            href="#h"
+            href="#"
             className={styles.actionStyle}
             onClick={() => {
               setUserAdmin(el)
-              setViewModal(true)
+              setOpenUserDrawer(true)
             }}
           >
-            <span className={styles.spanWhite}>{t('admin:components.index.view')}</span>
+            <span className={styles.spanWhite}>{t('admin:components.common.view')}</span>
           </a>
           {user.id.value !== id && (
             <a
-              href="#h"
+              href="#"
               className={styles.actionStyle}
               onClick={() => {
                 setUserId(id)
                 setUserName(name)
-                setPopConfirmOpen(true)
+                setOpenConfirm(true)
               }}
             >
-              <span className={styles.spanDange}>{t('admin:components.index.delete')}</span>
+              <span className={styles.spanDange}>{t('admin:components.common.delete')}</span>
             </a>
           )}
         </>
@@ -110,33 +105,33 @@ const UserTable = (props: UserProps) => {
   }
 
   const rows = adminUsers.map((el) => {
-    const loc = el.party?.id ? el.party.location : null
+    const loc: any = null
     const loca = loc ? (
-      loc.name || <span className={styles.spanNone}>{t('admin:components.index.none')}</span>
+      loc.name || <span className={styles.spanNone}>{t('admin:components.common.none')}</span>
     ) : (
-      <span className={styles.spanNone}>{t('admin:components.index.none')}</span>
+      <span className={styles.spanNone}>{t('admin:components.common.none')}</span>
     )
-    const ins = el.party?.id ? el.party.instance : null
+    const ins: any = null
     const inst = ins ? (
-      ins.ipAddress || <span className={styles.spanNone}>{t('admin:components.index.none')}</span>
+      ins.ipAddress || <span className={styles.spanNone}>{t('admin:components.common.none')}</span>
     ) : (
-      <span className={styles.spanNone}>{t('admin:components.index.none')}</span>
+      <span className={styles.spanNone}>{t('admin:components.common.none')}</span>
     )
 
     return createData(
       el.id || '',
       el,
       el.name,
-      el.avatarId || <span className={styles.spanNone}>{t('admin:components.index.none')}</span>,
-      el.userRole || <span className={styles.spanNone}>{t('admin:components.index.none')}</span>,
+      el.avatarId || <span className={styles.spanNone}>{t('admin:components.common.none')}</span>,
+      el.isGuest.toString(),
       loca,
-      el.inviteCode || <span className={styles.spanNone}>{t('admin:components.index.none')}</span>,
+      el.inviteCode || <span className={styles.spanNone}>{t('admin:components.common.none')}</span>,
       inst
     )
   })
 
   return (
-    <React.Fragment>
+    <Box className={className}>
       <TableComponent
         allowSort={false}
         fieldOrder={fieldOrder}
@@ -150,17 +145,21 @@ const UserTable = (props: UserProps) => {
         handlePageChange={handlePageChange}
         handleRowsPerPageChange={handleRowsPerPageChange}
       />
-      <ConfirmModal
-        popConfirmOpen={popConfirmOpen}
-        handleCloseModal={handleCloseModal}
-        submit={submitDeleteUser}
-        name={userName}
-        label={'user'}
+      <ConfirmDialog
+        open={openConfirm}
+        description={`${t('admin:components.user.confirmUserDelete')} '${userName}'?`}
+        onClose={() => setOpenConfirm(false)}
+        onSubmit={submitDeleteUser}
       />
-      {userAdmin && viewModal && (
-        <ViewUser openView={viewModal} userAdmin={userAdmin} closeViewModal={closeViewModal} />
+      {userAdmin && openUserDrawer && (
+        <UserDrawer
+          open
+          mode={UserDrawerMode.ViewEdit}
+          selectedUser={userAdmin}
+          onClose={() => setOpenUserDrawer(false)}
+        />
       )}
-    </React.Fragment>
+    </Box>
   )
 }
 

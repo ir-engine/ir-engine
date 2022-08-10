@@ -9,10 +9,6 @@
   width: 400;
 }
 
-.iconButton {
-  padding: 10;
-}
-
 .select {
   color: var(--textColor) !important;
 }
@@ -36,15 +32,40 @@
   font-size: 3rem;
   background: var(--iconButtonBackground);
   position: fixed;
+  width: auto;
+  min-width: auto;
 }
 
-.saveBtn {
-  color: var(--textColor);
+.gradientButton {
   background: linear-gradient(90deg, var(--buttonGradientStart), var(--buttonGradientEnd));
+  color: var(--buttonTextColor) !important;
+
+  @media (max-width: 588px) {
+    margin-left: 0;
+    margin-right: 8px;
+  }
+
+  &:hover {
+    opacity: 0.8;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+  }
 }
 
-.cancelButton {
-  color: var(--textColor);
+.outlinedButton {
+  background: transparent;
+  border: solid 1px var(--buttonOutlined);
+  color: var(--textColor) !important;
+
+  &:hover {
+    opacity: 0.7;
+  }
+
+  &:disabled {
+    opacity: 0.5;
+  }
 }
 
 .filledButton {
@@ -53,7 +74,6 @@
 
 .hoverSettings {
   display: flex;
-  z-index: 3;
   flex-direction: column;
   text-align: center;
   background: var(--sidebarBackground);
@@ -61,6 +81,7 @@
   max-width: 310px;
   position: absolute;
   padding: 2px 18px;
+  margin: 5px -5px;
   left: 0;
   top: 0;
 }
@@ -74,12 +95,12 @@
   font-size: 20px;
 }
 
-.hoverSettingsHeading {
+.settingsSubHeading {
   color: var(--textColor);
   text-align: center;
+  margin-bottom: 10px;
   font-weight: 300;
-  line-height: 1.7;
-  font-size: 20px;
+  font-size: 18px;
 }
 
 .settingContainer {
@@ -112,18 +133,6 @@
   color: var(--textColor) !important;
 }
 
-.createInput {
-  width: 100%;
-  padding: 2px 4px;
-  display: flex;
-  align-items: center;
-  margin-top: 10px;
-  margin-bottom: 15px;
-  background: var(--inputBackground);
-  border: 1px solid var(--inputOutline);
-  color: var(--textColor) !important;
-}
-
 .container {
   padding: 3px;
   display: flex;
@@ -132,14 +141,6 @@
 
 .nested {
   padding-left: 32px;
-}
-
-.clientSettingsContainer {
-  padding: 50px;
-
-  @media (max-width: 1200px) {
-    padding: 5px;
-  }
 }
 
 .Paper {
@@ -194,13 +195,19 @@
   position: fixed;
 }
 
+.spanDange:hover {
+  opacity: 0.8;
+}
+
 .invisible {
+  z-index: 1000;
   display: none;
   color: var(--textColor);
 
   @media (max-width: 1200px) {
     display: inline-block;
-    margin-bottom: 3rem;
+    position: absolute;
+    margin: 20px 5px;
   }
 }
 
@@ -232,4 +239,8 @@
   width: 100%;
   border-color: rgb(255 255 255 / 80%);
   margin: 10px 0;
+}
+
+.iconButton {
+  color: var(--iconButtonColor);
 }

@@ -14,8 +14,6 @@ import { EditorComponentType, updateProperty } from './Util'
 
 /**
  * HemisphereLightNodeEditor used to provide property customization view for Hemisphere Light.
- *
- * @author Robert Long
  */
 export const HemisphereLightNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()

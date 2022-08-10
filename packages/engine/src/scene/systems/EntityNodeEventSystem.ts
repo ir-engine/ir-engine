@@ -13,21 +13,15 @@ import { PostprocessingComponent } from '../components/PostprocessingComponent'
 import { ScenePreviewCameraTagComponent } from '../components/ScenePreviewCamera'
 import { SelectTagComponent } from '../components/SelectTagComponent'
 import { SkyboxComponent } from '../components/SkyboxComponent'
-import { VideoComponent } from '../components/VideoComponent'
-import { VolumetricComponent } from '../components/VolumetricComponent'
+import { FogType } from '../constants/FogType'
+import { createFogFromSceneNode } from '../functions/loaders/FogFunctions'
 import { SCENE_PREVIEW_CAMERA_HELPER } from '../functions/loaders/ScenePreviewCameraFunctions'
 
-/**
- * @author Nayankumar Patel <github.com/NPatel10>
- */
 export default async function EntityNodeEventSystem(_: World) {
   const skyboxQuery = defineQuery([SkyboxComponent])
   const fogQuery = defineQuery([FogComponent])
   const postProcessingQuery = defineQuery([PostprocessingComponent])
   const scenePreviewCameraQuery = defineQuery([ScenePreviewCameraTagComponent])
-  const videoQuery = defineQuery([VideoComponent])
-  const videoAudioQuery = defineQuery([VideoComponent, AudioComponent])
-  const volumetricAudioQuery = defineQuery([VolumetricComponent, AudioComponent])
 
   const directionalLightQuery = defineQuery([DirectionalLightComponent])
   const directionalLightSelectQuery = defineQuery([DirectionalLightComponent, SelectTagComponent])
@@ -69,8 +63,16 @@ export default async function EntityNodeEventSystem(_: World) {
       Engine.instance.currentWorld.scene.background = new Color('black')
     }
 
-    for (const _ of fogQuery.exit()) {
-      Engine.instance.currentWorld.scene.fog = null
+    for (const entity of fogQuery.enter()) {
+      if (entity === Engine.instance.currentWorld.entityTree.rootNode.entity) {
+        createFogFromSceneNode(entity)
+      }
+    }
+
+    for (const entity of fogQuery.exit()) {
+      if (entity !== Engine.instance.currentWorld.entityTree.rootNode.entity) {
+        Engine.instance.currentWorld.scene.fog = null
+      }
     }
 
     if (Engine.instance.isEditor) {
@@ -88,28 +90,21 @@ export default async function EntityNodeEventSystem(_: World) {
       if (obj3d) Engine.instance.currentWorld.scene.remove(obj3d)
     }
 
-    for (const entity of videoQuery.exit()) {
-      const videoComponent = getComponent(entity, VideoComponent, true)
-      document.getElementById(videoComponent.elementId)?.remove()
-    }
-
-    /* Misc */
-    for (const entity of videoAudioQuery.enter()) {
-      const obj3d = getComponent(entity, Object3DComponent).value
-      obj3d.userData.textureMesh?.removeFromParent()
-    }
-
-    for (const entity of volumetricAudioQuery.enter()) {
-      const obj3d = getComponent(entity, Object3DComponent).value
-      obj3d.userData.textureMesh?.removeFromParent()
-    }
-
     for (const entity of directionalLightQuery.enter()) {
       const lightComponent = getComponent(entity, DirectionalLightComponent)
 
       if (lightComponent.useInCSM && EngineRenderer.instance.csm) {
         const obj3d = getComponent(entity, Object3DComponent).value
         if (obj3d) obj3d.getWorldDirection(EngineRenderer.instance.csm.lightDirection)
+      }
+    }
+
+    for (const entity of fogQuery()) {
+      const fog = getComponent(entity, FogComponent)
+      if (fog.type === FogType.Brownian) {
+        fog.shaders?.forEach(
+          (shader) => (shader.uniforms.fogTime.value = Engine.instance.currentWorld.fixedElapsedSeconds)
+        )
       }
     }
   }

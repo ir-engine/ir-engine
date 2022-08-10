@@ -1,19 +1,13 @@
 import React, { useEffect, useState } from 'react'
 
-import { VrIcon } from '@xrengine/client-core/src/common/components/Icons/Vricon'
-import {
-  MediaInstanceConnectionService,
-  useMediaInstanceConnectionState
-} from '@xrengine/client-core/src/common/services/MediaInstanceConnectionService'
+import { useMediaInstanceConnectionState } from '@xrengine/client-core/src/common/services/MediaInstanceConnectionService'
 import { MediaStreamService, useMediaStreamState } from '@xrengine/client-core/src/media/services/MediaStreamService'
-import { useChatState } from '@xrengine/client-core/src/social/services/ChatService'
 import { useLocationState } from '@xrengine/client-core/src/social/services/LocationService'
+import { MediaStreams } from '@xrengine/client-core/src/transports/MediaStreams'
 import {
   configureMediaTransports,
   createCamAudioProducer,
   createCamVideoProducer,
-  endVideoChat,
-  leaveNetwork,
   pauseProducer,
   resumeProducer,
   startScreenshare,
@@ -21,21 +15,25 @@ import {
 } from '@xrengine/client-core/src/transports/SocketWebRTCClientFunctions'
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import logger from '@xrengine/common/src/logger'
+import { AudioEffectPlayer } from '@xrengine/engine/src/audio/systems/AudioSystem'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineActions, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
+import { XRAction } from '@xrengine/engine/src/xr/XRAction'
+import { XRState } from '@xrengine/engine/src/xr/XRState'
+import { dispatchAction, getState, useHookstate } from '@xrengine/hyperflux'
+
+import { Mic, MicOff, Videocam, VideocamOff } from '@mui/icons-material'
+import FaceIcon from '@mui/icons-material/Face'
+import ScreenShareIcon from '@mui/icons-material/ScreenShare'
+import ViewInArIcon from '@mui/icons-material/ViewInAr'
+
+import { VrIcon } from '../../common/components/Icons/Vricon'
 import {
   startFaceTracking,
   startLipsyncTracking,
   stopFaceTracking,
   stopLipsyncTracking
-} from '@xrengine/engine/src/input/functions/WebcamInput'
-import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
-import { dispatchAction } from '@xrengine/hyperflux'
-
-import { Mic, MicOff, Videocam, VideocamOff } from '@mui/icons-material'
-import FaceIcon from '@mui/icons-material/Face'
-import ScreenShareIcon from '@mui/icons-material/ScreenShare'
-
+} from '../../media/webcam/WebcamInput'
 import { SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientNetwork'
 import styles from './index.module.scss'
 
@@ -47,17 +45,10 @@ const MediaIconsBox = (props: Props) => {
   const [hasVideoDevice, setHasVideoDevice] = useState(false)
 
   const user = useAuthState().user
-  const chatState = useChatState()
-  const channelState = chatState.channels
-  const channels = channelState.channels.value
-  const channelEntries = Object.values(channels).filter((channel) => !!channel) as any
-  const instanceChannel = channelEntries.find(
-    (entry) => entry.instanceId === Engine.instance.currentWorld.worldNetwork?.hostId
-  )
   const currentLocation = useLocationState().currentLocation.location
   const channelConnectionState = useMediaInstanceConnectionState()
-  const currentChannelInstanceConnection =
-    channelConnectionState.instances[Engine.instance.currentWorld.mediaNetwork?.hostId].ornull
+  const mediaHostId = Engine.instance.currentWorld.mediaNetwork?.hostId
+  const currentChannelInstanceConnection = mediaHostId && channelConnectionState.instances[mediaHostId].ornull
   const mediastream = useMediaStreamState()
   const videoEnabled = currentLocation?.locationSetting?.value
     ? currentLocation?.locationSetting?.videoEnabled?.value
@@ -72,6 +63,9 @@ const MediaIconsBox = (props: Props) => {
   const isScreenVideoEnabled = mediastream.isScreenVideoEnabled
 
   const engineState = useEngineState()
+  const xrState = useHookstate(getState(XRState))
+  const supportsXR =
+    xrState.supportedSessionModes['immersive-ar'].value || xrState.supportedSessionModes['immersive-vr'].value
 
   useEffect(() => {
     navigator.mediaDevices
@@ -106,20 +100,6 @@ const MediaIconsBox = (props: Props) => {
     }
   }
 
-  const checkEndVideoChat = async () => {
-    const mediaNetwork = Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork
-    if (
-      (MediaStreams.instance.audioPaused || MediaStreams.instance.camAudioProducer == null) &&
-      (MediaStreams.instance.videoPaused || MediaStreams.instance.camVideoProducer == null) &&
-      instanceChannel.channelType !== 'instance'
-    ) {
-      await endVideoChat(mediaNetwork, {})
-      if (mediaNetwork.socket?.connected === true) {
-        await leaveNetwork(mediaNetwork, false)
-        await MediaInstanceConnectionService.provisionServer(instanceChannel.id)
-      }
-    }
-  }
   const handleMicClick = async () => {
     const mediaNetwork = Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork
     if (await configureMediaTransports(mediaNetwork, ['audio'])) {
@@ -128,7 +108,6 @@ const MediaIconsBox = (props: Props) => {
         const audioPaused = MediaStreams.instance.toggleAudioPaused()
         if (audioPaused) await pauseProducer(mediaNetwork, MediaStreams.instance.camAudioProducer)
         else await resumeProducer(mediaNetwork, MediaStreams.instance.camAudioProducer)
-        checkEndVideoChat()
       }
       MediaStreamService.updateCamAudioState()
     }
@@ -142,7 +121,6 @@ const MediaIconsBox = (props: Props) => {
         const videoPaused = MediaStreams.instance.toggleVideoPaused()
         if (videoPaused) await pauseProducer(mediaNetwork, MediaStreams.instance.camVideoProducer)
         else await resumeProducer(mediaNetwork, MediaStreams.instance.camVideoProducer)
-        checkEndVideoChat()
       }
 
       MediaStreamService.updateCamVideoState()
@@ -155,7 +133,15 @@ const MediaIconsBox = (props: Props) => {
     else await stopScreenshare(mediaNetwork)
   }
 
-  const handleVRClick = () => dispatchAction(EngineActions.xrStart())
+  const xrMode = xrState.supportedSessionModes['immersive-ar'].value
+    ? 'immersive-ar'
+    : xrState.supportedSessionModes['immersive-vr'].value
+    ? 'immersive-vr'
+    : null
+  const xrSessionActive = xrState.sessionActive.value
+  const handleXRClick = () =>
+    dispatchAction(xrSessionActive ? XRAction.endSession({}) : XRAction.requestSession({ mode: xrMode }))
+  const handleExitSpectatorClick = () => dispatchAction(EngineActions.spectateUser({}))
 
   const VideocamIcon = isCamVideoEnabled.value ? Videocam : VideocamOff
   const MicIcon = isCamAudioEnabled.value ? Mic : MicOff
@@ -165,12 +151,14 @@ const MediaIconsBox = (props: Props) => {
       {instanceMediaChatEnabled &&
       hasAudioDevice &&
       Engine.instance.currentWorld.mediaNetwork &&
-      currentChannelInstanceConnection.connected.value ? (
+      currentChannelInstanceConnection?.connected.value ? (
         <button
           type="button"
           id="UserAudio"
           className={styles.iconContainer + ' ' + (isCamAudioEnabled.value ? styles.on : '')}
           onClick={handleMicClick}
+          onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+          onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
         >
           <MicIcon />
         </button>
@@ -178,13 +166,15 @@ const MediaIconsBox = (props: Props) => {
       {videoEnabled &&
       hasVideoDevice &&
       Engine.instance.currentWorld.mediaNetwork &&
-      currentChannelInstanceConnection.connected.value ? (
+      currentChannelInstanceConnection?.connected.value ? (
         <>
           <button
             type="button"
             id="UserVideo"
             className={styles.iconContainer + ' ' + (isCamVideoEnabled.value ? styles.on : '')}
             onClick={handleCamClick}
+            onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+            onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
           >
             <VideocamIcon />
           </button>
@@ -193,6 +183,8 @@ const MediaIconsBox = (props: Props) => {
             id="UserFaceTracking"
             className={styles.iconContainer + ' ' + (isFaceTrackingEnabled.value ? styles.on : '')}
             onClick={handleFaceClick}
+            onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+            onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
           >
             <FaceIcon />
           </button>
@@ -201,16 +193,37 @@ const MediaIconsBox = (props: Props) => {
             id="UserScreenSharing"
             className={styles.iconContainer + ' ' + (isScreenVideoEnabled.value ? styles.on : '')}
             onClick={handleScreenShare}
+            onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+            onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
           >
             <ScreenShareIcon />
           </button>
         </>
       ) : null}
-      {engineState.xrSupported.value ? (
-        <button type="button" id="UserXR" className={styles.iconContainer} onClick={handleVRClick}>
-          <VrIcon />
+      {supportsXR && (
+        <button
+          type="button"
+          id="UserXR"
+          className={styles.iconContainer + ' ' + (xrSessionActive ? styles.on : '')}
+          onClick={handleXRClick}
+          onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+          onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+        >
+          {xrState.supportedSessionModes['immersive-ar'].value ? <ViewInArIcon /> : <VrIcon />}
         </button>
-      ) : null}
+      )}
+      {engineState.spectating.value && (
+        <button
+          type="button"
+          id="ExitSpectator"
+          className={styles.iconContainer}
+          onClick={handleExitSpectatorClick}
+          onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+          onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+        >
+          Exit Spectate
+        </button>
+      )}
     </section>
   )
 }

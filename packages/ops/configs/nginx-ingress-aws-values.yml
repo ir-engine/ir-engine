@@ -1,20 +1,30 @@
-# values for nginx-ingress on EKS using Classic ALP
+# values for nginx-ingress on EKS using Network Load Balancer
 
 rbac:
   create: true
 
 controller:
   config:
-    use-forwarded-headers: "true" # Redirect Insecure traffic to Https
+    ssl-redirect: "false"
+    server-snippet: |
+      listen 8000;
+      if ( $server_port = 80 ) {
+         return 308 https://$host$request_uri;
+      }
+  containerPort:
+    http: 80
+    https: 443
+    special: 8000
   service:
     targetPorts:
       http: http
-      https: http # SSL termination at the load balancer
+      https: special # SSL termination at the load balancer
     annotations:
       meta.helm.sh/release-name: nginx
       meta.helm.sh/release-namespace: default
-      service.beta.kubernetes.io/aws-load-balancer-backend-protocol: "http"
-      service.beta.kubernetes.io/aws-load-balancer-ssl-ports: "443"
-      service.beta.kubernetes.io/aws-load-balancer-type: "alb"
+      service.beta.kubernetes.io/aws-load-balancer-additional-resource-tags: "Name=theoverlay"
+      service.beta.kubernetes.io/aws-load-balancer-backend-protocol: "tcp"
+      service.beta.kubernetes.io/aws-load-balancer-ssl-ports: "https"
+      service.beta.kubernetes.io/aws-load-balancer-type: "nlb"
       service.beta.kubernetes.io/aws-load-balancer-ssl-cert: "<ACM Certificate ARN for SSL>"
 

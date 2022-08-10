@@ -2,11 +2,14 @@ import assert, { strictEqual } from 'assert'
 import matches from 'ts-matches'
 
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
+import { getState } from '@xrengine/hyperflux'
 import ActionFunctions, { ActionRecipients } from '@xrengine/hyperflux/functions/ActionFunctions'
 
 import { createMockNetwork } from '../../../tests/util/createMockNetwork'
 import { Engine } from '../../ecs/classes/Engine'
+import { EngineState } from '../../ecs/classes/EngineState'
 import { createEngine } from '../../initializeEngine'
+import { NetworkTopics } from '../classes/Network'
 import { WorldNetworkAction } from '../functions/WorldNetworkAction'
 
 describe('IncomingActionSystem Unit Tests', async () => {
@@ -24,18 +27,18 @@ describe('IncomingActionSystem Unit Tests', async () => {
       const world = Engine.instance.currentWorld
 
       // fixed tick in past
-      world.fixedTick = 0
+      const engineState = getState(EngineState)
+      engineState.fixedTick.set(0)
 
       /* mock */
       const action = WorldNetworkAction.spawnObject({
         $from: '0' as UserId,
         prefab: '',
-        parameters: {},
         // incoming action from future
         $time: 2,
         $to: '0' as ActionRecipients
       })
-      action.$topic = [world.worldNetwork.hostId]
+      action.$topic = NetworkTopics.world
 
       Engine.instance.store.actions.incoming.push(action)
 
@@ -51,7 +54,7 @@ describe('IncomingActionSystem Unit Tests', async () => {
       strictEqual(recepted.length, 0)
 
       // fixed tick update
-      world.fixedTick = 2
+      engineState.fixedTick.set(2)
       ActionFunctions.applyIncomingActions()
 
       /* assert */
@@ -65,12 +68,11 @@ describe('IncomingActionSystem Unit Tests', async () => {
       const action = WorldNetworkAction.spawnObject({
         $from: '0' as UserId,
         prefab: '',
-        parameters: {},
         // incoming action from past
         $time: -1,
         $to: '0' as ActionRecipients
       })
-      action.$topic = [world.worldNetwork.hostId]
+      action.$topic = NetworkTopics.world
 
       Engine.instance.store.actions.incoming.push(action)
 
@@ -90,19 +92,17 @@ describe('IncomingActionSystem Unit Tests', async () => {
   describe('applyAndArchiveIncomingAction', () => {
     it('should cache actions where $cache = true', () => {
       const world = Engine.instance.currentWorld
-      world.fixedTick = 1
 
       /* mock */
       const action = WorldNetworkAction.spawnObject({
         $from: '0' as UserId,
         prefab: '',
-        parameters: {},
         // incoming action from past
         $time: 0,
         $to: '0' as ActionRecipients,
         $cache: true
       })
-      action.$topic = [world.worldNetwork.hostId]
+      action.$topic = NetworkTopics.world
 
       Engine.instance.store.actions.incoming.push(action)
 
@@ -116,7 +116,7 @@ describe('IncomingActionSystem Unit Tests', async () => {
 
       /* assert */
       strictEqual(recepted.length, 1)
-      assert(Engine.instance.store.actions.cached[world.worldNetwork.hostId].indexOf(action) !== -1)
+      assert(Engine.instance.store.actions.cached.indexOf(action) !== -1)
     })
   })
 })

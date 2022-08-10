@@ -3,8 +3,6 @@ import { useDrag, useDrop } from 'react-dnd'
 import { getEmptyImage } from 'react-dnd-html5-backend'
 import { useTranslation } from 'react-i18next'
 
-import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
-import { AssetType } from '@xrengine/engine/src/assets/enum/AssetType'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 
@@ -73,27 +71,28 @@ export const FileListItem: React.FC<FileListItemProps> = (props) => {
 type FileBrowserItemType = {
   contextMenuId: string
   item: FileDataType
+  disableDnD?: boolean
   currentContent: MutableRefObject<{ item: FileDataType; isCopy: boolean }>
-  deleteContent: (contentPath: string, type: string) => void
-  onClick: (params: FileDataType) => void
   setFileProperties: any
   setOpenPropertiesModal: any
+  deleteContent: (contentPath: string, type: string) => void
+  onClick: (params: FileDataType) => void
   dropItemsOnPanel: (data: any, dropOn?: FileDataType) => void
   moveContent: (oldName: string, newName: string, oldPath: string, newPath: string, isCopy?: boolean) => Promise<void>
 }
 
-export function FileBrowserItem(props: FileBrowserItemType) {
-  const {
-    contextMenuId,
-    item,
-    currentContent,
-    deleteContent,
-    onClick,
-    moveContent,
-    setOpenPropertiesModal,
-    setFileProperties,
-    dropItemsOnPanel
-  } = props
+export function FileBrowserItem({
+  contextMenuId,
+  item,
+  disableDnD,
+  currentContent,
+  setOpenPropertiesModal,
+  setFileProperties,
+  deleteContent,
+  onClick,
+  dropItemsOnPanel,
+  moveContent
+}: FileBrowserItemType) {
   const { t } = useTranslation()
   const [renamingAsset, setRenamingAsset] = useState(false)
 
@@ -151,25 +150,29 @@ export function FileBrowserItem(props: FileBrowserItemType) {
 
   const rename = () => setRenamingAsset(true)
 
-  const [_dragProps, drag, preview] = useDrag(() => ({
-    type: item.type,
-    item,
-    multiple: false
-  }))
+  const [_dragProps, drag, preview] = disableDnD
+    ? [undefined, undefined, undefined]
+    : useDrag(() => ({
+        type: item.type,
+        item,
+        multiple: false
+      }))
 
-  const [{ isOver }, drop] = useDrop({
-    accept: [...SupportedFileTypes],
-    drop: (dropItem) => dropItemsOnPanel(dropItem, item),
-    collect: (monitor) => ({
-      isOver: monitor.isOver(),
-      canDrop: !!monitor.canDrop(),
-      moni: monitor.getItemType()
-    })
-  })
+  const [{ isOver }, drop] = disableDnD
+    ? [{ isOver: false }, undefined]
+    : useDrop({
+        accept: [...SupportedFileTypes],
+        drop: (dropItem) => dropItemsOnPanel(dropItem, item),
+        collect: (monitor) => ({
+          isOver: monitor.isOver(),
+          canDrop: !!monitor.canDrop(),
+          moni: monitor.getItemType()
+        })
+      })
 
   //showing the object in viewport once it drag and droped
   useEffect(() => {
-    preview(getEmptyImage(), { captureDraggingState: true })
+    if (preview) preview(getEmptyImage(), { captureDraggingState: true })
   }, [preview])
 
   const collectMenuProps = () => {

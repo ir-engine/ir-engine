@@ -12,15 +12,10 @@ import { PreviewUnavailable } from './AssetPreviewPanels/PreviewUnavailable'
 import { TxtPreviewPanel } from './AssetPreviewPanels/TxtPreviewPanel'
 import { VedioPreviewPanel } from './AssetPreviewPanels/VedioPreviewPanel'
 
-/**
- *
- * @author Abhishek Pathak
- */
-
 const AssetHeading = styled.div`
   text-align: center;
-  font-size: 150%;
-  padding-bottom: 20px;
+  font-size: 0.9rem;
+  padding-bottom: 10px;
   color: #f1f1f1;
 `
 
@@ -32,8 +27,6 @@ export type AssetSelectionChangePropsType = {
 
 /**
  * Used to see the Preview of the Asset in the FileBrowser Panel
- *
- * @author Abhishek Pathak <abhi.pathak401@gmail.com>
  */
 
 export const AssetsPreviewPanel = React.forwardRef((props, ref) => {
@@ -122,9 +115,8 @@ export const AssetsPreviewPanel = React.forwardRef((props, ref) => {
 
   return (
     <>
-      <div>
-        <AssetHeading>{previewPanel.resourceProps.name}</AssetHeading>
-      </div>
+      <AssetHeading>{previewPanel.resourceProps.name}</AssetHeading>
+
       {previewPanel.PreviewSource && <previewPanel.PreviewSource resourceProps={previewPanel.resourceProps} />}
     </>
   )

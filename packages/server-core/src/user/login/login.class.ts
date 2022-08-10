@@ -4,14 +4,13 @@ import moment from 'moment'
 import { Application } from '../../../declarations'
 import logger from '../../logger'
 import Paginated from '../../types/PageObject'
+import makeInitialAdmin from '../../util/make-initial-admin'
 
 interface Data {}
 
 interface ServiceOptions {}
 /**
  * A class for Login service
- *
- * @author Vyacheslav Solovjov
  */
 export class Login implements ServiceMethods<Data> {
   app: Application
@@ -30,7 +29,6 @@ export class Login implements ServiceMethods<Data> {
    *
    * @param params
    * @returns {@Array} all login details
-   * @author Vyacheslav Solovjov
    */
   async find(params?: Params): Promise<Data[] | Paginated<Data>> {
     return []
@@ -42,7 +40,6 @@ export class Login implements ServiceMethods<Data> {
    * @param id of specific login detail
    * @param params
    * @returns {@token}
-   * @author Vyacheslav Solovjov
    */
   async get(id: Id, params?: Params): Promise<any> {
     try {
@@ -62,15 +59,7 @@ export class Login implements ServiceMethods<Data> {
         return { error: 'Login link has expired' }
       }
       const identityProvider = await this.app.service('identity-provider').get(result.identityProviderId)
-      const adminCount = await this.app.service('user').Model.count({
-        where: {
-          userRole: 'admin'
-        }
-      })
-      if (adminCount === 0)
-        await this.app.service('user').patch(identityProvider.userId, {
-          userRole: 'admin'
-        })
+      await makeInitialAdmin(this.app, identityProvider.userId)
       const apiKey = await this.app.service('user-api-key').find({
         query: {
           userId: identityProvider.userId
@@ -99,7 +88,6 @@ export class Login implements ServiceMethods<Data> {
    * @param data of new login details
    * @param params contain user info
    * @returns created data
-   * @author Vyacheslav Solovjov
    */
   async create(data: Data, params?: Params): Promise<Data> {
     if (Array.isArray(data)) {
@@ -116,7 +104,6 @@ export class Login implements ServiceMethods<Data> {
    * @param data which will be used for updating login
    * @param params
    * @returns updated data
-   * @author Vyacheslav Solovjov
    */
   async update(id: NullableId, data: Data, params?: Params): Promise<Data> {
     return data

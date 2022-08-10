@@ -6,6 +6,7 @@ import { Sequelize } from 'sequelize'
 import { v1 as uuidv1 } from 'uuid'
 
 import { IdentityProviderInterface } from '@xrengine/common/src/dbmodels/IdentityProvider'
+import { UserInterface } from '@xrengine/common/src/interfaces/User'
 import { isDev } from '@xrengine/common/src/utils/isDev'
 
 import { Application } from '../../../declarations'
@@ -13,12 +14,9 @@ import config from '../../appconfig'
 import { scopeTypeSeed } from '../../scope/scope-type/scope-type.seed'
 import Paginated from '../../types/PageObject'
 import getFreeInviteCode from '../../util/get-free-invite-code'
-import { UserDataType } from '../user/user.class'
 
 /**
  * A class for identity-provider service
- *
- * @author Vyacheslav Solovjov
  */
 export class IdentityProvider<T = IdentityProviderInterface> extends Service<T> {
   public app: Application
@@ -39,9 +37,10 @@ export class IdentityProvider<T = IdentityProviderInterface> extends Service<T> 
   async create(data: any, params: Params = {}): Promise<T & { accessToken?: string }> {
     let { token, type, password } = data
     let user
+    let authResult
 
     if (params.authentication) {
-      const authResult = await (this.app.service('authentication') as any).strategies.jwt.authenticate(
+      authResult = await (this.app.service('authentication') as any).strategies.jwt.authenticate(
         { accessToken: params.authentication.accessToken },
         {}
       )
@@ -50,14 +49,14 @@ export class IdentityProvider<T = IdentityProviderInterface> extends Service<T> 
       }
     }
     if (
-      (!user || user.userRole !== 'admin') &&
+      (!user || !user.scopes || !user.scopes.find((scope) => scope.type === 'admin:admin')) &&
       params.provider &&
       type !== 'password' &&
       type !== 'email' &&
       type !== 'sms'
     )
       type = 'guest' //Non-password/magiclink create requests must always be for guests
-    let userId = data.userId
+    let userId = data.userId || (authResult ? authResult[config.authentication.entity]?.userId : null)
     let identityProvider: any
 
     switch (type) {
@@ -161,20 +160,24 @@ export class IdentityProvider<T = IdentityProviderInterface> extends Service<T> 
     const code = await getFreeInviteCode(this.app)
     // if there is no user with userId, then we create a user and a identity provider.
     const adminCount = await this.app.service('user').Model.count({
-      where: {
-        userRole: 'admin'
-      }
+      include: [
+        {
+          model: this.app.service('scope').Model,
+          where: {
+            type: 'admin:admin'
+          }
+        }
+      ]
     })
     const avatars = await this.app.service('avatar').find({ isInternal: true })
 
-    let role = type === 'guest' ? 'guest' : type === 'admin' || adminCount === 0 ? 'admin' : 'user'
+    let isGuest = type === 'guest'
 
     if (adminCount === 0) {
       // in dev mode make the first guest an admin
       // otherwise make the first logged in user an admin
-      if (isDev || role === 'user') {
+      if (isDev || !isGuest) {
         type = 'admin'
-        role = 'admin'
       }
     }
 
@@ -186,7 +189,7 @@ export class IdentityProvider<T = IdentityProviderInterface> extends Service<T> 
           ...identityProvider,
           user: {
             id: userId,
-            userRole: role,
+            isGuest,
             inviteCode: type === 'guest' ? null : code,
             avatarId: avatars[random(avatars.length - 1)].avatarId
           }
@@ -199,44 +202,36 @@ export class IdentityProvider<T = IdentityProviderInterface> extends Service<T> 
     }
     // DRC
 
-    if (config.scopes.guest.length) {
-      config.scopes.guest.forEach(async (el) => {
-        await this.app.service('scope').create({
-          type: el,
-          userId: userId
-        })
-      })
-    }
-
     if (type === 'guest') {
       if (config.scopes.guest.length) {
-        config.scopes.guest.forEach(async (el) => {
-          await this.app.service('scope').create({
+        const data = config.scopes.guest.map((el) => {
+          return {
             type: el,
-            userId: userId
-          })
+            userId
+          }
         })
+        await this.app.service('scope').create(data)
       }
 
-      const authService = new AuthenticationService(this.app, 'authentication')
-      // this.app.service('authentication')
-      result.accessToken = await authService.createAccessToken({}, { subject: result.id.toString() })
+      result.accessToken = await this.app
+        .service('authentication')
+        .createAccessToken({}, { subject: result.id.toString() })
     } else if (isDev && type === 'admin') {
       // in dev mode, add all scopes to the first user made an admin
+      const data = scopeTypeSeed.templates.map(({ type }) => {
+        return { userId, type }
+      })
+      await this.app.service('scope').create(data)
 
-      for (const { type } of scopeTypeSeed.templates) {
-        await this.app.service('scope').create({ userId: userId, type })
-      }
-
-      const authService = new AuthenticationService(this.app, 'authentication')
-      // this.app.service('authentication')
-      result.accessToken = await authService.createAccessToken({}, { subject: result.id.toString() })
+      result.accessToken = await this.app
+        .service('authentication')
+        .createAccessToken({}, { subject: result.id.toString() })
     }
     return result
   }
 
   async find(params?: Params): Promise<T[] | Paginated<T>> {
-    const loggedInUser = params!.user as UserDataType
+    const loggedInUser = params!.user as UserInterface
     if (params!.provider) params!.query!.userId = loggedInUser.id
     return super.find(params)
   }

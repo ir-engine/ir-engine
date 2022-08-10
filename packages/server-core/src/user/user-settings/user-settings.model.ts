@@ -21,22 +21,9 @@ export default (app: Application) => {
         allowNull: false,
         primaryKey: true
       },
-      microphone: {
-        type: DataTypes.INTEGER,
-        defaultValue: 50
-      },
-      audio: {
-        type: DataTypes.INTEGER,
-        defaultValue: 50
-      },
-      spatialAudioEnabled: {
-        type: DataTypes.BOOLEAN,
-        defaultValue: true
-      },
-      themeMode: {
-        type: DataTypes.STRING,
-        allowNull: false,
-        defaultValue: (): string => 'dark'
+      themeModes: {
+        type: DataTypes.JSON,
+        allowNull: true
       }
     },
     {

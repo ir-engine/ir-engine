@@ -1,4 +1,7 @@
+import { disallow, iff, isProvider } from 'feathers-hooks-common'
+
 import authenticate from '../../hooks/authenticate'
+import verifyScope from '../../hooks/verify-scope'
 
 export default {
   before: {
@@ -6,9 +9,9 @@ export default {
     find: [],
     get: [],
     create: [],
-    update: [],
-    patch: [],
-    remove: []
+    update: [disallow()],
+    patch: [disallow()],
+    remove: [iff(isProvider('external'), verifyScope('admin', 'admin') as any)]
   },
   after: {
     all: [],

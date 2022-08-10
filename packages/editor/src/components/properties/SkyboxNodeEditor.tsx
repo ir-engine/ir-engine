@@ -32,7 +32,6 @@ const radiansToHours = (rads: number) => rads * 24
 /**
  * Types of skyboxes
  *
- * @author Robert Long
  * @type {Array}
  */
 const SkyOption = [
@@ -57,7 +56,6 @@ const SkyOption = [
 /**
  * SkyboxNodeEditor component class used to render editor view to customize component property.
  *
- * @author Robert Long
  * @type {class component}
  */
 export const SkyboxNodeEditor: EditorComponentType = (props) => {

@@ -1,11 +1,14 @@
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { AvatarProps, WorldState } from '@xrengine/engine/src/networking/interfaces/WorldState'
+import { getState, useState } from '@xrengine/hyperflux'
+import { State } from '@xrengine/hyperflux/functions/StateFunctions'
 
 export const Views = {
   Closed: '',
   Profile: 'Profile',
   Settings: 'Settings',
   Share: 'Share',
+  Party: 'Party',
   DeleteAccount: 'accountDelete',
   Login: 'Login',
   AvatarUpload: 'AvatarUpload',
@@ -22,9 +25,6 @@ export interface SettingMenuProps {
 
 export const DEFAULT_PROFILE_IMG_PLACEHOLDER = '/placeholders/default-silhouette.svg'
 
-export function getAvatarURLForUser(userId?: UserId) {
-  const world = Engine.instance.currentWorld
-  if (!world || !userId) return DEFAULT_PROFILE_IMG_PLACEHOLDER
-  if (!world.clients.has(userId)) return DEFAULT_PROFILE_IMG_PLACEHOLDER
-  return world.clients.get(userId)!.avatarDetail?.thumbnailURL || DEFAULT_PROFILE_IMG_PLACEHOLDER
+export function getAvatarURLForUser(userAvatarDetails: State<Record<UserId, AvatarProps>>, userId?: UserId) {
+  return (userId && userAvatarDetails[userId].thumbnailURL?.value) || DEFAULT_PROFILE_IMG_PLACEHOLDER
 }

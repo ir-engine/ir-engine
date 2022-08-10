@@ -28,24 +28,23 @@ import ViewInArIcon from '@mui/icons-material/ViewInAr'
 import BooleanInput from '../inputs/BooleanInput'
 import { PropertiesPanelButton } from '../inputs/Button'
 import InputGroup from '../inputs/InputGroup'
-import InteractableGroup from '../inputs/InteractableGroup'
 import MaterialAssignment from '../inputs/MaterialAssignment'
 import ModelInput from '../inputs/ModelInput'
 import SelectInput from '../inputs/SelectInput'
 import EnvMapEditor from './EnvMapEditor'
+import ModelTransformProperties from './ModelTransformProperties'
 import NodeEditor from './NodeEditor'
+import ScreenshareTargetNodeEditor from './ScreenshareTargetNodeEditor'
 import ShadowProperties from './ShadowProperties'
 import { EditorComponentType, updateProperty } from './Util'
 
 /**
  * ModelNodeEditor used to create editor view for the properties of ModelNode.
  *
- * @author Robert Long
  * @type {class component}
  */
 export const ModelNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
-  const [isInteractable, setInteractable] = useState(false)
   const [animationPlaying, setAnimationPlaying] = useState(false)
   const engineState = useEngineState()
   const entity = props.node.entity
@@ -55,10 +54,6 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
   const obj3d = getComponent(entity, Object3DComponent)?.value ?? new Object3D() // quick hack to not crash
   const hasError = engineState.errorEntities[entity].get()
   const errorComponent = getComponent(entity, ErrorComponent)
-
-  useEffect(() => {
-    setInteractable(hasComponent(entity, InteractableComponent))
-  }, [])
 
   const updateSrc = async (src: string) => {
     // if(src !== modelComponent.src)
@@ -73,23 +68,12 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
     setAnimationPlaying(!animationPlaying)
   }
 
-  const onChangeInteractable = (interact) => {
-    setInteractable(interact)
-    if (interact) {
-      deserializeInteractable(entity, { name: '', props: SCENE_COMPONENT_INTERACTABLE_DEFAULT_VALUES })
-    } else {
-      const editorComponent = getComponent(entity, EntityNodeComponent).components
-      editorComponent.splice(editorComponent.indexOf(SCENE_COMPONENT_INTERACTABLE), 1)
-      removeComponent(entity, InteractableComponent)
-    }
-  }
-
   const textureOverrideEntities = [] as { label: string; value: string }[]
   traverseEntityNode(useWorld().entityTree.rootNode, (node) => {
     if (node.entity === entity) return
 
     textureOverrideEntities.push({
-      label: getComponent(node.entity, NameComponent).name,
+      label: hasComponent(node.entity, NameComponent) ? getComponent(node.entity, NameComponent).name : node.uuid,
       value: node.uuid
     })
   })
@@ -108,27 +92,29 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
           <div style={{ marginTop: 2, color: '#FF8C00' }}>{t('editor:properties.model.error-url')}</div>
         )}
       </InputGroup>
-      <InputGroup name="Texture Override" label={t('editor:properties.model.lbl-textureOverride')}>
-        <SelectInput
-          key={props.node.entity}
-          options={textureOverrideEntities}
-          value={modelComponent.textureOverride}
-          onChange={updateProperty(ModelComponent, 'textureOverride')}
-        />
-      </InputGroup>
-      <InputGroup name="Material Override" label={t('editor:properties.model.lbl-materialOverride')}>
-        <MaterialAssignment
-          entity={entity}
-          node={props.node}
+      {modelComponent.parsed && (
+        <ModelTransformProperties
           modelComponent={modelComponent}
-          values={modelComponent.materialOverrides}
-          onChange={updateProperty(ModelComponent, 'materialOverrides')}
+          onChangeModel={updateProperty(ModelComponent, 'src')}
         />
-      </InputGroup>
+      )}
+      <MaterialAssignment
+        entity={entity}
+        node={props.node}
+        modelComponent={modelComponent}
+        values={modelComponent.materialOverrides}
+        onChange={updateProperty(ModelComponent, 'materialOverrides')}
+      />
       <InputGroup name="MatrixAutoUpdate" label={t('editor:properties.model.lbl-matrixAutoUpdate')}>
         <BooleanInput
           value={modelComponent.matrixAutoUpdate}
           onChange={updateProperty(ModelComponent, 'matrixAutoUpdate')}
+        />
+      </InputGroup>
+      <InputGroup name="Use Basic Materials" label={t('editor:properties.model.lbl-useBasicMaterials')}>
+        <BooleanInput
+          value={modelComponent.useBasicMaterial}
+          onChange={updateProperty(ModelComponent, 'useBasicMaterial')}
         />
       </InputGroup>
       <InputGroup name="Is Using GPU Instancing" label={t('editor:properties.model.lbl-isGPUInstancing')}>
@@ -161,10 +147,7 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
       <PropertiesPanelButton onClick={onPlayAnimation}>
         {t(animationPlaying ? 'editor:properties.video.lbl-pause' : 'editor:properties.video.lbl-play')}
       </PropertiesPanelButton>
-      <InputGroup name="Interactable" label={t('editor:properties.model.lbl-interactable')}>
-        <BooleanInput value={isInteractable} onChange={onChangeInteractable} />
-      </InputGroup>
-      {isInteractable && <InteractableGroup node={props.node}></InteractableGroup>}
+      <ScreenshareTargetNodeEditor node={props.node} multiEdit={props.multiEdit} />
       <EnvMapEditor node={props.node} />
       <ShadowProperties node={props.node} />
     </NodeEditor>

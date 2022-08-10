@@ -7,6 +7,7 @@ import {
   ClientSettingService,
   useClientSettingState
 } from '@xrengine/client-core/src/admin/services/Setting/ClientSettingService'
+import { NotificationService } from '@xrengine/client-core/src/common/services/NotificationService'
 import ProfileMenu from '@xrengine/client-core/src/user/components/UserMenu/menus/ProfileMenu'
 
 const ROOT_REDIRECT: any = globalThis.process.env['VITE_ROOT_REDIRECT']
@@ -17,7 +18,8 @@ export const HomePage = (): any => {
   const [clientSetting] = clientSettingState?.client?.value || []
 
   useEffect(() => {
-    !clientSetting && ClientSettingService.fetchClientSettings()
+    const error = new URL(window.location.href).searchParams.get('error')
+    if (error) NotificationService.dispatchNotify(error, { variant: 'error' })
   }, [])
 
   if (ROOT_REDIRECT && ROOT_REDIRECT.length > 0 && ROOT_REDIRECT !== 'false') {
@@ -42,7 +44,7 @@ export const HomePage = (): any => {
         </Helmet>
         <div className="main-background">
           <div className="img-container">
-            {clientSetting?.appBackground && <img src={clientSetting.appBackground} alt="" />}
+            {clientSetting?.appBackground && <img src={clientSetting.appBackground} alt="" crossOrigin="anonymous" />}
           </div>
         </div>
         <nav className="navbar">
@@ -71,7 +73,6 @@ export const HomePage = (): any => {
                     left: 0px;
                     width: 100%;
                     transform: none;
-                    margin: 40px 0px;
                     pointer-events: auto;
                 }
               `}

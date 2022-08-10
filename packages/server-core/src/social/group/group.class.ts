@@ -3,15 +3,13 @@ import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 import { Op } from 'sequelize'
 
 import { Group as GroupInterface } from '@xrengine/common/src/interfaces/Group'
+import { UserInterface } from '@xrengine/common/src/interfaces/User'
 
 import { Application } from '../../../declarations'
-import { UserDataType } from '../../user/user/user.class'
 
 export type GroupDataType = GroupInterface
 /**
  * A class for Croup service
- *
- * @author Vyacheslav Solovjov
  */
 export class Group<T = GroupDataType> extends Service<T> {
   app: Application
@@ -26,11 +24,10 @@ export class Group<T = GroupDataType> extends Service<T> {
    *
    * @param params of query which contains group limit and number skip
    * @returns {@Object} of group
-   * @author Vyacheslav Solovjov
    */
 
   async find(params?: Params): Promise<Paginated<T>> {
-    const loggedInUser = params!.user as UserDataType
+    const loggedInUser = params!.user as UserInterface
     const skip = params?.query?.$skip ? params.query.$skip : 0
     const limit = params?.query?.$limit ? params.query.$limit : 10
     const search = params?.query?.search

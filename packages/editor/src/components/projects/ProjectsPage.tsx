@@ -2,10 +2,11 @@ import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useHistory } from 'react-router-dom'
 
-import { ProjectService } from '@xrengine/client-core/src/common/services/ProjectService'
-import { useDispatch } from '@xrengine/client-core/src/store'
+import { ProjectService, useProjectState } from '@xrengine/client-core/src/common/services/ProjectService'
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import { ProjectInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
+import multiLogger from '@xrengine/common/src/logger'
+import { dispatchAction } from '@xrengine/hyperflux'
 
 import {
   ArrowRightRounded,
@@ -15,8 +16,12 @@ import {
   Download,
   DownloadDone,
   FilterList,
+  Group,
+  Link,
+  LinkOff,
   Search,
-  Settings
+  Settings,
+  Upload
 } from '@mui/icons-material'
 import {
   Accordion,
@@ -35,8 +40,12 @@ import { EditorAction } from '../../services/EditorServices'
 import { Button, MediumButton } from '../inputs/Button'
 import { CreateProjectDialog } from './CreateProjectDialog'
 import { DeleteDialog } from './DeleteDialog'
+import { EditPermissionsDialog } from './EditPermissionsDialog'
+import { GithubRepoDialog } from './GithubRepoDialog'
 import { InstallProjectDialog } from './InstallProjectDialog'
 import styles from './styles.module.scss'
+
+const logger = multiLogger.child({ component: 'editor:ProjectsPage' })
 
 function sortAlphabetical(a, b) {
   if (a > b) return -1
@@ -136,13 +145,18 @@ const ProjectsPage = () => {
   const [isInstallDialogOpen, setInstallDialogOpen] = useState(false)
   const [isDeleteDialogOpen, setDeleteDialogOpen] = useState(false)
   const [updatingProject, setUpdatingProject] = useState(false)
+  const [uploadingProject, setUploadingProject] = useState(false)
+  const [downloadingProject, setDownloadingProject] = useState(false)
+  const [repoLinkDialogOpen, setRepoLinkDialogOpen] = useState(false)
+  const [editPermissionsDialogOpen, setPermissionsDialogOpen] = useState(false)
 
   const authState = useAuthState()
   const authUser = authState.authUser
   const user = authState.user
+  const projectState = useProjectState()
+  const projects = projectState.projects
 
   const { t } = useTranslation()
-  const dispatch = useDispatch()
   const history = useHistory()
 
   const fetchInstalledProjects = async () => {
@@ -150,8 +164,9 @@ const ProjectsPage = () => {
     try {
       const data = await getProjects()
       setInstalledProjects(data.sort(sortAlphabetical) ?? [])
+      if (activeProject) setActiveProject(data.find((item) => item.id === activeProject.id) as ProjectInterface | null)
     } catch (error) {
-      console.error(error)
+      logger.error(error)
       setError(error)
     }
     setLoading(false)
@@ -164,9 +179,9 @@ const ProjectsPage = () => {
         ? OfficialProjectData.filter((p) => p.name.includes(query) || p.description.includes(query))
         : OfficialProjectData)
 
-      setOfficialProjects(data.sort(sortAlphabetical) ?? [])
+      setOfficialProjects((data.sort(sortAlphabetical) as ProjectInterface[]) ?? [])
     } catch (error) {
-      console.error(error)
+      logger.error(error)
       setError(error)
     }
     setLoading(false)
@@ -181,7 +196,7 @@ const ProjectsPage = () => {
 
       setCommunityProjects(data.sort(sortAlphabetical) ?? [])
     } catch (error) {
-      console.error(error)
+      logger.error(error)
       setError(error)
     }
     setLoading(false)
@@ -198,21 +213,36 @@ const ProjectsPage = () => {
 
   // TODO: Implement tutorial
   const openTutorial = () => {
-    console.log('Implement Tutorial...')
+    logger.info('Implement Tutorial...')
   }
 
   const onClickExisting = (event, project) => {
     event.preventDefault()
     if (!isInstalled(project)) return
 
-    dispatch(EditorAction.sceneChanged(null))
-    dispatch(EditorAction.projectChanged(project.name))
+    dispatchAction(EditorAction.sceneChanged({ sceneName: null }))
+    dispatchAction(EditorAction.projectChanged({ projectName: project.name }))
     history.push(`/editor/${project.name}`)
   }
 
   const onCreateProject = async (name) => {
     await ProjectService.createProject(name)
-    fetchInstalledProjects()
+    await fetchInstalledProjects()
+  }
+
+  const onCreatePermission = async (userInviteCode: string, projectId: string) => {
+    await ProjectService.createPermission(userInviteCode, projectId)
+    await fetchInstalledProjects()
+  }
+
+  const onPatchPermission = async (id: string, type: string) => {
+    await ProjectService.patchPermission(id, type)
+    await fetchInstalledProjects()
+  }
+
+  const onRemovePermission = async (id: string) => {
+    await ProjectService.removePermission(id)
+    await fetchInstalledProjects()
   }
 
   const openDeleteConfirm = () => setDeleteDialogOpen(true)
@@ -221,6 +251,10 @@ const ProjectsPage = () => {
   const closeCreateDialog = () => setCreateDialogOpen(false)
   const openInstallDialog = () => setInstallDialogOpen(true)
   const closeInstallDialog = () => setInstallDialogOpen(false)
+  const openRepoLinkDialog = () => setRepoLinkDialogOpen(true)
+  const closeRepoLinkDialog = () => setRepoLinkDialogOpen(false)
+  const openEditPermissionsDialog = () => setPermissionsDialogOpen(true)
+  const closeEditPermissionsDialog = () => setPermissionsDialogOpen(false)
 
   const deleteProject = async () => {
     closeDeleteConfirm()
@@ -231,9 +265,9 @@ const ProjectsPage = () => {
         // TODO: using repo path as IDs & names are not properly implemented for official projects
         const proj = installedProjects.find((proj) => proj.id === activeProject.id)!
         await ProjectService.removeProject(proj.id)
-        fetchInstalledProjects()
+        await fetchInstalledProjects()
       } catch (err) {
-        console.error(err)
+        logger.error(err)
       }
     }
 
@@ -243,8 +277,21 @@ const ProjectsPage = () => {
 
   const installProject = async () => {
     if (updatingProject || !activeProject?.repositoryPath) return
-    installProjectFromURL(activeProject?.repositoryPath)
+    installProjectFromURL(activeProject.repositoryPath)
     closeProjectContextMenu()
+  }
+
+  const setProjectRemoteURL = async (url: string) => {
+    if (updatingProject) return
+    try {
+      if (activeProject?.id) await ProjectService.setRepositoryPath(activeProject.id, url)
+      closeProjectContextMenu()
+      setActiveProject(null)
+      await fetchInstalledProjects()
+    } catch (err) {
+      logger.error(err)
+      throw err
+    }
   }
 
   const installProjectFromURL = async (url: string) => {
@@ -253,12 +300,36 @@ const ProjectsPage = () => {
     setUpdatingProject(true)
     try {
       await ProjectService.uploadProject(url)
-      fetchInstalledProjects()
+      await fetchInstalledProjects()
     } catch (err) {
-      console.error(err)
+      logger.error(err)
     }
 
     setUpdatingProject(false)
+  }
+
+  const updateProject = async (project: ProjectInterface | null) => {
+    if (project) {
+      setDownloadingProject(true)
+      try {
+        await ProjectService.uploadProject(project.repositoryPath, project.name)
+        setDownloadingProject(false)
+      } catch (err) {
+        setDownloadingProject(false)
+        throw err
+      }
+    }
+  }
+
+  const pushProject = async (id: string) => {
+    setUploadingProject(true)
+    try {
+      await ProjectService.pushProject(id)
+      await fetchInstalledProjects()
+    } catch (err) {
+      logger.error(err)
+    }
+    setUploadingProject(false)
   }
 
   const isInstalled = (project: ProjectInterface | null) => {
@@ -269,6 +340,12 @@ const ProjectsPage = () => {
     }
 
     return false
+  }
+
+  const hasRepo = (project: ProjectInterface | null) => {
+    if (!project) return false
+
+    return project.repositoryPath && project.repositoryPath.length > 0
   }
 
   const handleSearch = (e) => {
@@ -302,29 +379,41 @@ const ProjectsPage = () => {
 
     return (
       <ul className={styles.listContainer}>
-        {projects.map((project, index) => (
+        {projects.map((project: ProjectInterface, index) => (
           <li className={styles.itemContainer} key={index}>
             <a
               onClick={(e) => {
-                areInstalledProjects && onClickExisting(e, project)
+                areInstalledProjects ? onClickExisting(e, project) : window.open(project.repositoryPath)
               }}
             >
-              <div className={styles.thumbnailContainer} style={{ backgroundImage: `url(${project.thumbnail})` }} />
-              <div className={styles.headerContainer}>
-                <h3 className={styles.header}>{project.name.replaceAll('-', ' ')}</h3>
-                {project.name !== 'default-project' && (
-                  <IconButton disableRipple onClick={(e: any) => openProjectContextMenu(e, project)}>
-                    <Settings />
-                  </IconButton>
-                )}
-              </div>
-              {!areInstalledProjects && isInstalled(project) && (
-                <span className={styles.installedIcon}>
-                  <DownloadDone />
-                </span>
-              )}
-              {project.description && <p className={styles.description}>{project.description}</p>}
+              <div
+                className={styles.thumbnailContainer}
+                style={{ backgroundImage: `url(${project.thumbnail})` }}
+                id={'open-' + project.name}
+              />
             </a>
+            <div className={styles.headerContainer} id={'headerContainer-' + project.name}>
+              <h3 className={styles.header}>{project.name.replace(/-/g, ' ')}</h3>
+              {project.name !== 'default-project' && (
+                <IconButton
+                  className={styles.iconButton}
+                  disableRipple
+                  onClick={(e: any) => openProjectContextMenu(e, project)}
+                >
+                  <Settings />
+                </IconButton>
+              )}
+            </div>
+            {!areInstalledProjects && isInstalled(project) && (
+              <span className={styles.installedIcon}>
+                <DownloadDone />
+              </span>
+            )}
+            {project.description && (
+              <p className={styles.description} id={'description-' + project.name}>
+                {project.description}
+              </p>
+            )}
           </li>
         ))}
       </ul>
@@ -438,6 +527,36 @@ const ProjectsPage = () => {
           TransitionProps={{ onExited: () => setActiveProject(null) }}
           classes={{ paper: styles.filterMenu }}
         >
+          {activeProject && isInstalled(activeProject) && (
+            <MenuItem classes={{ root: styles.filterMenuItem }} onClick={openEditPermissionsDialog}>
+              <Group />
+              {t(`editor.projects.permissions`)}
+            </MenuItem>
+          )}
+          {activeProject && isInstalled(activeProject) && !hasRepo(activeProject) && (
+            <MenuItem classes={{ root: styles.filterMenuItem }} onClick={openRepoLinkDialog}>
+              <Link />
+              {t(`editor.projects.link`)}
+            </MenuItem>
+          )}
+          {activeProject && isInstalled(activeProject) && hasRepo(activeProject) && (
+            <MenuItem classes={{ root: styles.filterMenuItem }} onClick={openRepoLinkDialog}>
+              <LinkOff />
+              {t(`editor.projects.unlink`)}
+            </MenuItem>
+          )}
+          {activeProject && isInstalled(activeProject) && hasRepo(activeProject) && (
+            <MenuItem classes={{ root: styles.filterMenuItem }} onClick={() => updateProject(activeProject)}>
+              {downloadingProject ? <CircularProgress size={15} className={styles.progressbar} /> : <Download />}
+              {t(`editor.projects.updateFromGithub`)}
+            </MenuItem>
+          )}
+          {activeProject?.hasWriteAccess && hasRepo(activeProject) && (
+            <MenuItem classes={{ root: styles.filterMenuItem }} onClick={() => pushProject(activeProject.id)}>
+              {uploadingProject ? <CircularProgress size={15} className={styles.progressbar} /> : <Upload />}
+              {t(`editor.projects.pushToGithub`)}
+            </MenuItem>
+          )}
           {isInstalled(activeProject) ? (
             <MenuItem classes={{ root: styles.filterMenuItem }} onClick={openDeleteConfirm}>
               {updatingProject ? <CircularProgress size={15} className={styles.progressbar} /> : <Delete />}
@@ -451,12 +570,22 @@ const ProjectsPage = () => {
           )}
         </Menu>
       )}
-      <CreateProjectDialog createProject={onCreateProject} open={isCreateDialogOpen} handleClose={closeCreateDialog} />
-      <InstallProjectDialog
-        installProject={installProjectFromURL}
-        open={isInstallDialogOpen}
-        handleClose={closeInstallDialog}
-      />
+      <CreateProjectDialog open={isCreateDialogOpen} onSuccess={onCreateProject} onClose={closeCreateDialog} />
+      <InstallProjectDialog open={isInstallDialogOpen} onSuccess={installProjectFromURL} onClose={closeInstallDialog} />
+      {activeProject && (
+        <GithubRepoDialog open={repoLinkDialogOpen} onClose={closeRepoLinkDialog} project={activeProject} />
+      )}
+      {activeProject && activeProject.project_permissions && (
+        <EditPermissionsDialog
+          open={editPermissionsDialogOpen}
+          onClose={closeEditPermissionsDialog}
+          project={activeProject}
+          projectPermissions={activeProject.project_permissions}
+          addPermission={onCreatePermission}
+          patchPermission={onPatchPermission}
+          removePermission={onRemovePermission}
+        />
+      )}
       <DeleteDialog
         open={isDeleteDialogOpen}
         isProjectMenu

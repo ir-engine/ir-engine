@@ -10,23 +10,11 @@ import Grid from '@mui/material/Grid'
 import TextField from '@mui/material/TextField'
 import Typography from '@mui/material/Typography'
 
-import { AuthSettingService } from '../../../admin/services/Setting/AuthSettingService'
-import { useAdminAuthSettingState } from '../../../admin/services/Setting/AuthSettingService'
+import { useAuthSettingState } from '../../../admin/services/Setting/AuthSettingService'
+import { initialAuthState } from '../../../common/initialAuthState'
 import { AuthService } from '../../services/AuthService'
 import { useAuthState } from '../../services/AuthService'
 import styles from './index.module.scss'
-
-const initialState = {
-  jwt: true,
-  local: false,
-  facebook: false,
-  github: false,
-  google: false,
-  linkedin: false,
-  twitter: false,
-  smsMagicLink: false,
-  emailMagicLink: false
-}
 
 interface Props {
   type?: 'email' | 'sms' | undefined
@@ -43,23 +31,17 @@ const defaultState = {
 
 const termsOfService = globalThis.process.env['VITE_TERMS_OF_SERVICE_ADDRESS'] ?? '/terms-of-service'
 
-const MagicLinkEmail = (props: Props): JSX.Element => {
-  const { type, isAddConnection } = props
-
+const MagicLinkEmail = ({ type, isAddConnection }: Props): JSX.Element => {
   const auth = useAuthState()
   const [state, setState] = useState(defaultState)
   const { t } = useTranslation()
-  const authSettingState = useAdminAuthSettingState()
+  const authSettingState = useAuthSettingState()
   const [authSetting] = authSettingState?.authSettings?.value || []
-  const [authState, setAuthState] = useState(initialState)
-
-  useEffect(() => {
-    !authSetting && AuthSettingService.fetchAuthSetting()
-  }, [])
+  const [authState, setAuthState] = useState(initialAuthState)
 
   useEffect(() => {
     if (authSetting) {
-      let temp = { ...initialState }
+      let temp = { ...initialAuthState }
       authSetting?.authStrategies?.forEach((el) => {
         Object.entries(el).forEach(([strategyName, strategy]) => {
           temp[strategyName] = strategy
@@ -190,6 +172,4 @@ const MagicLinkEmail = (props: Props): JSX.Element => {
   )
 }
 
-const MagicLinkEmailWrapper = (props: Props): JSX.Element => <MagicLinkEmail {...props} />
-
-export default MagicLinkEmailWrapper
+export default MagicLinkEmail

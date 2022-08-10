@@ -1,10 +1,11 @@
 import assert from 'assert'
 
-import { defineState, getState, registerState } from '@xrengine/hyperflux'
+import { defineState, getState } from '@xrengine/hyperflux'
 
-import { createEngine, initializeCoreSystems } from '../../initializeEngine'
+import { createEngine, setupEngineActionSystems } from '../../initializeEngine'
 import { Engine } from '../classes/Engine'
 import { World } from '../classes/World'
+import { initSystems } from './SystemFunctions'
 import { SystemUpdateType } from './SystemUpdateType'
 
 const MockState = defineState({
@@ -15,7 +16,6 @@ const MockState = defineState({
 const MockSystemModulePromise = async () => {
   return {
     default: async (world: World) => {
-      registerState(MockState)
       return () => {
         getState(MockState).count.set((c) => c + 1)
       }
@@ -26,6 +26,8 @@ const MockSystemModulePromise = async () => {
 describe('FixedPipelineSystem', () => {
   it('can run multiple fixed ticks to catch up to elapsed time', async () => {
     createEngine()
+    setupEngineActionSystems()
+    const world = Engine.instance.currentWorld
 
     Engine.instance.injectedSystems = [
       {
@@ -33,10 +35,8 @@ describe('FixedPipelineSystem', () => {
         type: SystemUpdateType.FIXED
       }
     ]
+    await initSystems(world, Engine.instance.injectedSystems)
 
-    await initializeCoreSystems()
-
-    const world = Engine.instance.currentWorld
     const mockState = getState(MockState)
 
     assert.equal(world.elapsedSeconds, 0)
@@ -50,12 +50,13 @@ describe('FixedPipelineSystem', () => {
     assert.equal(world.elapsedSeconds, deltaSeconds)
     assert.equal(world.fixedElapsedSeconds, deltaSeconds)
     assert.equal(world.fixedTick, ticks)
-    assert.equal(world.fixedDeltaSeconds, 1 / 60)
     assert.equal(mockState.count.value, ticks)
   })
 
   it('can skip fixed ticks to catch up to elapsed time', async () => {
     createEngine()
+    setupEngineActionSystems()
+    const world = Engine.instance.currentWorld
 
     Engine.instance.injectedSystems = [
       {
@@ -63,10 +64,8 @@ describe('FixedPipelineSystem', () => {
         type: SystemUpdateType.FIXED
       }
     ]
+    await initSystems(world, Engine.instance.injectedSystems)
 
-    await initializeCoreSystems()
-
-    const world = Engine.instance.currentWorld
     const mockState = getState(MockState)
 
     world.startTime = 0

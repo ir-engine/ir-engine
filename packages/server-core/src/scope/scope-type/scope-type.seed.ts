@@ -2,6 +2,9 @@ export const scopeTypeSeed = {
   path: 'scope-type',
   templates: [
     {
+      type: 'admin:admin'
+    },
+    {
       type: 'routes:read'
     },
     {
@@ -78,6 +81,12 @@ export const scopeTypeSeed = {
     },
     {
       type: 'projects:write'
+    },
+    {
+      type: 'settings:read'
+    },
+    {
+      type: 'settings:write'
     }
   ]
 }

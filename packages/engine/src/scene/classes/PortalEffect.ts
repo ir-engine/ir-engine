@@ -29,8 +29,6 @@ export class PortalEffect extends Object3D {
   tubeGeometry: TubeGeometry
   tubeMesh: Mesh
   texture: Texture
-  fadingIn = false
-  fadingOut = false
   numPoints = 200
 
   constructor(texture: Texture) {
@@ -93,34 +91,6 @@ export class PortalEffect extends Object3D {
     this.tubeMesh.position.set(-0.5, 0, -15)
   }
 
-  fadeIn(delta: number): Promise<void> {
-    this.fadingIn = true
-
-    return new Promise<void>((resolve) => {
-      const portalFadeInInterval = setInterval(() => {
-        if (!this.fadingIn) {
-          clearInterval(portalFadeInInterval)
-          resolve()
-        }
-      }, delta * 1000)
-    })
-  }
-
-  fadeOut(delta: number): Promise<void> {
-    console.log('fading out')
-    this.fadingOut = true
-
-    return new Promise<void>((resolve) => {
-      const portalFadeOutInterval = setInterval(() => {
-        // this.tubeMesh.position.z = lerp(-5, -200, 1 - this.tubeMaterial.opacity)
-        if (!this.fadingOut) {
-          clearInterval(portalFadeOutInterval)
-          resolve()
-        }
-      }, delta * 1000)
-    })
-  }
-
   deleteMesh() {
     this.remove(this.tubeMesh)
   }
@@ -131,21 +101,5 @@ export class PortalEffect extends Object3D {
 
   update(delta: number) {
     this.updateMaterialOffset(delta)
-    if (this.fadingIn) {
-      if (this.tubeMaterial.opacity >= 1) {
-        this.tubeMaterial.opacity = 1
-        this.fadingIn = false
-      } else {
-        this.tubeMaterial.opacity += delta
-      }
-    }
-    if (this.fadingOut) {
-      if (this.tubeMaterial.opacity <= 0) {
-        this.tubeMaterial.opacity = 0
-        this.fadingOut = false
-      } else {
-        this.tubeMaterial.opacity -= delta
-      }
-    }
   }
 }

@@ -86,6 +86,10 @@ export default (app: Application) => {
       releaseName: {
         type: DataTypes.STRING,
         allowNull: true
+      },
+      instanceserverUnreachableTimeoutSeconds: {
+        type: DataTypes.INTEGER,
+        defaultValue: 2
       }
     },
     {

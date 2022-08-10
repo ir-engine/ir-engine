@@ -1,73 +1,85 @@
 import { Paginated } from '@feathersjs/feathers'
-import { createState, useState } from '@speigg/hookstate'
 
 import { ClientSetting, PatchClientSetting } from '@xrengine/common/src/interfaces/ClientSetting'
+import multiLogger from '@xrengine/common/src/logger'
+import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
+import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
+import { API } from '../../../API'
 import { NotificationService } from '../../../common/services/NotificationService'
-import { client } from '../../../feathers'
-import { store, useDispatch } from '../../../store'
 import waitForClientAuthenticated from '../../../util/wait-for-client-authenticated'
 
-//State
-const state = createState({
-  client: [] as Array<ClientSetting>,
-  updateNeeded: true
+const logger = multiLogger.child({ component: 'client-core:ClientSettingService' })
+
+const AdminClientSettingsState = defineState({
+  name: 'AdminClientSettingsState',
+  initial: () => ({
+    client: [] as Array<ClientSetting>,
+    updateNeeded: true
+  })
 })
 
-store.receptors.push((action: ClientSettingActionType): any => {
-  state.batch((s) => {
-    switch (action.type) {
-      case 'CLIENT_SETTING_DISPLAY':
-        return s.merge({ client: action.clientSettingResult.data, updateNeeded: false })
-      case 'CLIENT_SETTING_PATCHED':
-        return s.updateNeeded.set(true)
-    }
-  }, action.type)
-})
+export const ClientSettingsServiceReceptor = (action) => {
+  const s = getState(AdminClientSettingsState)
+  matches(action)
+    .when(ClientSettingActions.fetchedClient.matches, (action) => {
+      return s.merge({ client: action.clientSettings.data, updateNeeded: false })
+    })
+    .when(ClientSettingActions.clientSettingPatched.matches, (action) => {
+      return s.updateNeeded.set(true)
+    })
+}
 
-export const accessClientSettingState = () => state
+// const fetchedClientReceptor = (action: typeof ClientSettingActions.fetchedClient.matches._TYPE) => {
+//   const state = getState(AdminClientSettingsState)
+//   return state.merge({ client: action.clientSettings.data, updateNeeded: false })
+// }
 
-export const useClientSettingState = () => useState(state) as any as typeof state
+// const clientSettingPatchedReceptor = (action: typeof ClientSettingActions.clientSettingPatched.matches._TYPE) => {
+//   const state = getState(AdminClientSettingsState)
+//   return state.updateNeeded.set(true)
+// }
 
-//Service
+// export const ClientSettingReceptors = {
+//   fetchedClientReceptor,
+//   clientSettingPatchedReceptor
+// }
+
+export const accessClientSettingState = () => getState(AdminClientSettingsState)
+
+export const useClientSettingState = () => useState(accessClientSettingState())
+
 export const ClientSettingService = {
   fetchClientSettings: async (inDec?: 'increment' | 'decrement') => {
-    const dispatch = useDispatch()
     try {
+      logger.info('waitingForClientAuthenticated')
       await waitForClientAuthenticated()
-      const clientSettings = (await client.service('client-setting').find()) as Paginated<ClientSetting>
-      dispatch(ClientSettingAction.fetchedClient(clientSettings))
+      logger.info('CLIENT AUTHENTICATED!')
+      const clientSettings = (await API.instance.client.service('client-setting').find()) as Paginated<ClientSetting>
+      logger.info('Dispatching fetchedClient')
+      dispatchAction(ClientSettingActions.fetchedClient({ clientSettings }))
     } catch (err) {
-      console.log(err.message)
+      logger.error(err)
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   },
   patchClientSetting: async (data: PatchClientSetting, id: string) => {
-    const dispatch = useDispatch()
-
     try {
-      await client.service('client-setting').patch(id, data)
-      dispatch(ClientSettingAction.clientSettingPatched())
+      await API.instance.client.service('client-setting').patch(id, data)
+      dispatchAction(ClientSettingActions.clientSettingPatched({}))
     } catch (err) {
-      console.log(err)
+      logger.error(err)
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   }
 }
 
-//Action
-export const ClientSettingAction = {
-  fetchedClient: (clientSettingResult: Paginated<ClientSetting>) => {
-    return {
-      type: 'CLIENT_SETTING_DISPLAY' as const,
-      clientSettingResult: clientSettingResult
-    }
-  },
-  clientSettingPatched: () => {
-    return {
-      type: 'CLIENT_SETTING_PATCHED' as const
-    }
-  }
+export class ClientSettingActions {
+  static fetchedClient = defineAction({
+    type: 'CLIENT_SETTING_DISPLAY' as const,
+    clientSettings: matches.object as Validator<unknown, Paginated<ClientSetting>>
+  })
+  static clientSettingPatched = defineAction({
+    type: 'CLIENT_SETTING_PATCHED' as const
+  })
 }
-
-export type ClientSettingActionType = ReturnType<typeof ClientSettingAction[keyof typeof ClientSettingAction]>

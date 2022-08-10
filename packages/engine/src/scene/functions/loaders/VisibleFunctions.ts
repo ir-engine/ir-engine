@@ -11,7 +11,7 @@ export const SCENE_COMPONENT_VISIBLE = 'visible'
 export const SCENE_COMPONENT_VISIBLE_DEFAULT_VALUES = {}
 
 export const deserializeVisible: ComponentDeserializeFunction = (entity: Entity, _: ComponentJson<{}>) => {
-  if (isClient) addComponent(entity, VisibleComponent, {})
+  if (isClient) addComponent(entity, VisibleComponent, true)
   getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_VISIBLE)
 }
 

@@ -4,10 +4,10 @@ import Sequelize, { Op } from 'sequelize'
 import slugify from 'slugify'
 
 import { Location as LocationType } from '@xrengine/common/src/interfaces/Location'
+import { UserInterface } from '@xrengine/common/src/interfaces/User'
 
 import { Application } from '../../../declarations'
 import logger from '../../logger'
-import { UserDataType } from '../../user/user/user.class'
 
 export type LocationDataType = LocationType
 
@@ -47,7 +47,6 @@ export class Location<T = LocationDataType> extends Service<T> {
    * A method which is used to create new location
    *
    * @param param0 data of new location
-   * @author Vyacheslav Solovjov
    */
 
   async createNewLocation({ data, params }: { data: any; params: Params }): Promise<any> {
@@ -68,7 +67,6 @@ export class Location<T = LocationDataType> extends Service<T> {
    * A function which is used to create new instance
    *
    * @param param0 data of instance
-   * @author Vyacheslav Solovjov
    */
   async createInstances({ id, instance }: { id: any; instance: any }): Promise<void> {
     if (instance) {
@@ -122,7 +120,6 @@ export class Location<T = LocationDataType> extends Service<T> {
    *
    * @param params of query with limit number and skip number
    * @returns {@Array} of all locations
-   * @author Vyacheslav Solovjov
    */
   async find(params?: Params): Promise<T[] | Paginated<T>> {
     let { $skip, $limit, $sort, joinableLocations, adminnedLocations, search, ...strippedQuery } = params?.query ?? {}
@@ -171,6 +168,10 @@ export class Location<T = LocationDataType> extends Service<T> {
           {
             model: this.app.service('location-ban').Model,
             required: false
+          },
+          {
+            model: this.app.service('location-authorized-user').Model,
+            required: false
           }
         ]
       })
@@ -181,7 +182,7 @@ export class Location<T = LocationDataType> extends Service<T> {
         data: locationResult.rows
       }
     } else if (adminnedLocations) {
-      const loggedInUser = params!.user as UserDataType
+      const loggedInUser = params!.user as UserInterface
       const include = [
         {
           model: this.app.service('location-settings').Model,
@@ -190,10 +191,14 @@ export class Location<T = LocationDataType> extends Service<T> {
         {
           model: this.app.service('location-ban').Model,
           required: false
+        },
+        {
+          model: this.app.service('location-authorized-user').Model,
+          require: false
         }
       ]
 
-      if (loggedInUser.userRole !== 'admin') {
+      if (!loggedInUser.scopes || !loggedInUser.scopes.find((scope) => scope.type === 'admin:admin')) {
         ;(include as any).push({
           model: this.app.service('location-admin').Model,
           where: {
@@ -240,7 +245,6 @@ export class Location<T = LocationDataType> extends Service<T> {
    * @param data of location
    * @param params
    * @returns new location object
-   * @author Vyacheslav Solovjov
    */
   async create(data: any, params?: Params): Promise<T> {
     const t = await this.app.get('sequelizeClient').transaction()
@@ -248,7 +252,7 @@ export class Location<T = LocationDataType> extends Service<T> {
     try {
       // @ts-ignore
       let { location_settings, ...locationData } = data
-      const loggedInUser = params!.user as UserDataType
+      const loggedInUser = params!.user as UserInterface
       locationData.slugifiedName = slugify(locationData.name, { lower: true })
 
       if (locationData.isLobby) await this.makeLobby(t, params)
@@ -297,7 +301,6 @@ export class Location<T = LocationDataType> extends Service<T> {
    * @param id of location to update
    * @param data of location going to be updated
    * @returns updated location
-   * @author Vyacheslav Solovjov
    */
   async patch(id: string, data: any, params?: Params): Promise<T> {
     const t = await this.app.get('sequelizeClient').transaction()
@@ -353,12 +356,23 @@ export class Location<T = LocationDataType> extends Service<T> {
    * @param id of location which is going to be removed
    * @param params which contain user information
    * @returns {@function} of remove data
-   * @author Vyacheslav Solovjov
    */
 
   async remove(id: string, params?: Params): Promise<T> {
+    const location = await this.app.service('location').Model.findOne({
+      where: {
+        isLobby: true,
+        id: id
+      },
+      attributes: ['id', 'isLobby']
+    })
+
+    if (location) {
+      throw new Error("Lobby can't be deleted")
+    }
+
     if (id != null) {
-      const selfUser = params!.user as UserDataType
+      const selfUser = params!.user as UserInterface
       const location = await this.app.service('location').get(id)
       if (location.locationSettingsId != null)
         await this.app.service('location-settings').remove(location.locationSettingsId)
@@ -377,9 +391,10 @@ export class Location<T = LocationDataType> extends Service<T> {
   }
 
   async makeLobby(t, params?: Params): Promise<void> {
-    const selfUser = params!.user as UserDataType
+    const selfUser = params!.user as UserInterface
 
-    if (!selfUser || selfUser.userRole !== 'admin') throw new Error('Only Admin can set Lobby')
+    if (!selfUser || !selfUser.scopes || !selfUser.scopes.find((scope) => scope.type === 'admin:admin'))
+      throw new Error('Only Admin can set Lobby')
 
     await this.Model.update({ isLobby: false }, { where: { isLobby: true }, transaction: t })
   }

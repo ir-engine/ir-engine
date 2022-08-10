@@ -17,6 +17,10 @@ npm run check-db-exists
 npm run install-projects
 npm run prepare-database
 cd packages/client && npm run buildenv
+if [ -n "$TWA_LINK" ]
+then
+  npm run populate-assetlinks
+fi
 cd ../..
 bash ./scripts/cleanup_builder.sh $DOCKER_LABEL
 
@@ -36,13 +40,17 @@ DOCKER_BUILDKIT=1 docker build -t root-builder -f dockerfiles/package-root/Docke
 
 npm install -g cli aws-sdk
 
-bash ./scripts/build_and_publish_package.sh $RELEASE_NAME $DOCKER_LABEL analytics $START_TIME $PRIVATE_ECR $AWS_REGION &
-bash ./scripts/build_and_publish_package.sh $RELEASE_NAME $DOCKER_LABEL api $START_TIME $PRIVATE_ECR $AWS_REGION &
-bash ./scripts/build_and_publish_package.sh $RELEASE_NAME $DOCKER_LABEL client $START_TIME $PRIVATE_ECR $AWS_REGION &
-bash ./scripts/build_and_publish_package.sh $RELEASE_NAME $DOCKER_LABEL instanceserver $START_TIME $PRIVATE_ECR $AWS_REGION &
-bash ./scripts/build_and_publish_package.sh $RELEASE_NAME $DOCKER_LABEL testbot $START_TIME $PRIVATE_ECR $AWS_REGION &
+[ -e builder_failed.txt ] && rm builder_failed.txt
 
-wait
+bash ./scripts/build_and_publish_package.sh $RELEASE_NAME $DOCKER_LABEL analytics $START_TIME $PRIVATE_ECR $AWS_REGION $NODE_ENV || touch builder_failed.txt &
+bash ./scripts/build_and_publish_package.sh $RELEASE_NAME $DOCKER_LABEL api $START_TIME $PRIVATE_ECR $AWS_REGION $NODE_ENV || touch builder_failed.txt &
+bash ./scripts/build_and_publish_package.sh $RELEASE_NAME $DOCKER_LABEL client $START_TIME $PRIVATE_ECR $AWS_REGION $NODE_ENV || touch builder_failed.txt &
+bash ./scripts/build_and_publish_package.sh $RELEASE_NAME $DOCKER_LABEL instanceserver $START_TIME $PRIVATE_ECR $AWS_REGION $NODE_ENV || touch builder_failed.txt &
+bash ./scripts/build_and_publish_package.sh $RELEASE_NAME $DOCKER_LABEL testbot $START_TIME $PRIVATE_ECR $AWS_REGION $NODE_ENV || touch builder_failed.txt &
+
+wait < <(jobs -p)
+
+test -f builder_failed.txt && echo "One of the builds failed" && exit 1
 
 bash ./scripts/deploy.sh $RELEASE_NAME ${TAG}__${START_TIME}
 

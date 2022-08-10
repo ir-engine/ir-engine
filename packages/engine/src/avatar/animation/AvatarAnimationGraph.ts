@@ -1,11 +1,11 @@
 import { AnimationClip, AnimationMixer, Vector2, Vector3 } from 'three'
 
-import { dispatchAction } from '@xrengine/hyperflux'
+import { dispatchAction, getState } from '@xrengine/hyperflux'
 
-import { Engine } from '../../ecs/classes/Engine'
+import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
-import { getComponent } from '../../ecs/functions/ComponentFunctions'
-import { isEntityLocalClient } from '../../networking/functions/isEntityLocalClient'
+import { getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
+import { NetworkObjectOwnedTag } from '../../networking/components/NetworkObjectOwnedTag'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { AnimationManager } from '../AnimationManager'
 import { AvatarSettings } from '../AvatarControllerSystem'
@@ -25,8 +25,8 @@ import { LocomotionState } from './locomotionState'
 import { SingleAnimationState } from './singleAnimationState'
 import { AvatarAnimations, AvatarStates } from './Util'
 
-const getAnimationAction = (name: string, mixer: AnimationMixer) => {
-  const clip = AnimationClip.findByName(AnimationManager.instance._animations, name)
+export const getAnimationAction = (name: string, mixer: AnimationMixer, animations?: AnimationClip[]) => {
+  const clip = AnimationClip.findByName(animations ?? AnimationManager.instance._animations, name)
   return mixer.clipAction(clip)
 }
 
@@ -39,16 +39,20 @@ const getDistanceAction = (animationName: string, mixer: AnimationMixer): Distan
 }
 
 export function createAvatarAnimationGraph(
+  entity: Entity,
   mixer: AnimationMixer,
-  velocity: Vector3,
+  locomotion: Vector3,
   jumpValue: {} | null
 ): AnimationGraph {
   if (!mixer) return null!
 
+  const isOwnedEntity = hasComponent(entity, NetworkObjectOwnedTag)
+
   const graph: AnimationGraph = {
     states: {},
     transitionRules: {},
-    currentState: null!
+    currentState: null!,
+    stateChanged: isOwnedEntity ? dispatchStateChange : null!
   }
 
   // Initialize all the states
@@ -80,7 +84,7 @@ export function createAvatarAnimationGraph(
     type: 'LocomotionState',
     yAxisBlendSpace: verticalBlendSpace,
     xAxisBlendSpace: horizontalBlendSpace,
-    movementParams: { velocity },
+    locomotion,
     forwardMovementActions: [walkForwardAction, runForwardAction, walkBackwardAction, runBackwardAction],
     sideMovementActions: [walkLeftAction, runLeftAction, walkRightAction, runRightAction],
     idleAction: getAnimationAction(AvatarAnimations.IDLE, mixer),
@@ -224,6 +228,32 @@ export function createAvatarAnimationGraph(
     clamp: false
   }
 
+  // Mount Point
+
+  const sitEnterState: SingleAnimationState = {
+    name: AvatarStates.SIT_ENTER,
+    type: 'SingleAnimationState',
+    action: getAnimationAction(AvatarAnimations.IDLE, mixer),
+    loop: false,
+    clamp: true
+  }
+
+  const sitLeaveState: SingleAnimationState = {
+    name: AvatarStates.SIT_LEAVE,
+    type: 'SingleAnimationState',
+    action: getAnimationAction(AvatarAnimations.IDLE, mixer),
+    loop: false,
+    clamp: true
+  }
+
+  const sitIdleState: SingleAnimationState = {
+    name: AvatarStates.SIT_IDLE,
+    type: 'SingleAnimationState',
+    action: getAnimationAction(AvatarAnimations.IDLE, mixer),
+    loop: true,
+    clamp: false
+  }
+
   // Add states to the graph
   graph.states[AvatarStates.LOCOMOTION] = locomotionState
   graph.states[AvatarStates.JUMP_UP] = jumpUpState
@@ -239,47 +269,55 @@ export function createAvatarAnimationGraph(
   graph.states[AvatarStates.DANCE2] = dance2State
   graph.states[AvatarStates.DANCE3] = dance3State
   graph.states[AvatarStates.DANCE4] = dance4State
+  graph.states[AvatarStates.SIT_ENTER] = sitEnterState
+  graph.states[AvatarStates.SIT_LEAVE] = sitLeaveState
+  graph.states[AvatarStates.SIT_IDLE] = sitIdleState
 
   // Transition rules
 
-  const movementTransitionRule = vectorLengthTransitionRule(velocity, 0.001)
+  const movementTransitionRule = vectorLengthTransitionRule(locomotion, 0.001)
 
-  graph.transitionRules[AvatarStates.LOCOMOTION] = [
-    // Jump
-    {
-      rule: booleanTransitionRule(jumpValue, 'isJumping'),
-      nextState: AvatarStates.JUMP_UP
-    },
-    // Fall - threshold rule is to prevent fall_idle when going down ramps or over gaps
-    {
-      rule: compositeTransitionRule(
-        [booleanTransitionRule(jumpValue, 'isInAir'), thresholdTransitionRule(velocity, 'y', -0.05, false)],
-        'and'
-      ),
-      nextState: AvatarStates.FALL_IDLE
-    }
-  ]
+  if (isOwnedEntity) {
+    graph.transitionRules[AvatarStates.LOCOMOTION] = [
+      // Jump
+      {
+        rule: booleanTransitionRule(jumpValue, 'isJumping'),
+        nextState: AvatarStates.JUMP_UP
+      },
+      // Fall - threshold rule is to prevent fall_idle when going down ramps or over gaps
+      {
+        rule: compositeTransitionRule(
+          [
+            booleanTransitionRule(jumpValue, 'isInAir'),
+            thresholdTransitionRule(locomotion, 'y', -0.1 / getState(EngineState).fixedDeltaSeconds.value, false)
+          ],
+          'and'
+        ),
+        nextState: AvatarStates.FALL_IDLE
+      }
+    ]
 
-  graph.transitionRules[AvatarStates.JUMP_UP] = [
-    {
-      rule: animationTimeTransitionRule(jumpUpState.action, 0.9),
-      nextState: AvatarStates.FALL_IDLE
-    }
-  ]
+    graph.transitionRules[AvatarStates.JUMP_UP] = [
+      {
+        rule: animationTimeTransitionRule(jumpUpState.action, 0.9),
+        nextState: AvatarStates.FALL_IDLE
+      }
+    ]
 
-  graph.transitionRules[AvatarStates.FALL_IDLE] = [
-    {
-      rule: booleanTransitionRule(jumpValue, 'isInAir', true),
-      nextState: AvatarStates.JUMP_DOWN
-    }
-  ]
+    graph.transitionRules[AvatarStates.FALL_IDLE] = [
+      {
+        rule: booleanTransitionRule(jumpValue, 'isInAir', true),
+        nextState: AvatarStates.JUMP_DOWN
+      }
+    ]
 
-  graph.transitionRules[AvatarStates.JUMP_DOWN] = [
-    {
-      rule: animationTimeTransitionRule(jumpDownState.action, 0.65),
-      nextState: AvatarStates.LOCOMOTION
-    }
-  ]
+    graph.transitionRules[AvatarStates.JUMP_DOWN] = [
+      {
+        rule: animationTimeTransitionRule(jumpDownState.action, 0.65),
+        nextState: AvatarStates.LOCOMOTION
+      }
+    ]
+  }
 
   graph.transitionRules[AvatarStates.CLAP] = [
     {
@@ -334,19 +372,25 @@ export function createAvatarAnimationGraph(
   graph.transitionRules[AvatarStates.DANCE3] = [{ rule: movementTransitionRule, nextState: AvatarStates.LOCOMOTION }]
   graph.transitionRules[AvatarStates.DANCE4] = [{ rule: movementTransitionRule, nextState: AvatarStates.LOCOMOTION }]
 
+  graph.transitionRules[AvatarStates.SIT_ENTER] = [
+    {
+      rule: animationTimeTransitionRule(sitEnterState.action, 0.95),
+      nextState: AvatarStates.SIT_IDLE
+    }
+  ]
+
   graph.currentState = locomotionState
   enterAnimationState(graph.currentState)
 
   return graph
 }
 
+function dispatchStateChange(name: string, graph: AnimationGraph): void {
+  const params = {}
+  dispatchAction(WorldNetworkAction.avatarAnimation({ newStateName: name, params }))
+}
+
 export function changeAvatarAnimationState(entity: Entity, newStateName: string): void {
   const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
   changeState(avatarAnimationComponent.animationGraph, newStateName)
-  if (isEntityLocalClient(entity)) {
-    const params = {}
-    dispatchAction(WorldNetworkAction.avatarAnimation({ newStateName, params }), [
-      Engine.instance.currentWorld.worldNetwork.hostId
-    ])
-  }
 }

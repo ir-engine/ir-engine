@@ -1,3 +1,23 @@
+/**
+ * An isomorphic logger with a built-in transport, meant to make
+ * error aggregation easier on the client side.
+ *
+ * All log events (info, warn, error, etc) are:
+ *  1. Printed to the console (likely browser console), and (optionally)
+ *  2. Sent to the server-side /api/log endpoint, where the pino logger
+ *     instance (see packages/server-core/src/logger.ts) sends them to Elastic etc.
+ *     Note: The sending/aggregation to Elastic only happens when APP_ENV !== 'development'.
+ *
+ */
+import fetch from 'cross-fetch'
+
+const hostDefined = !!globalThis.process.env['VITE_SERVER_HOST']
+// TODO: Hate to dupe the two config vars below, would prefer to load them from @xrengine/client-core/src/utils/config
+export const localBuildOrDev = process.env.APP_ENV === 'development' || process.env['VITE_LOCAL_BUILD'] === 'true'
+export const serverHost = localBuildOrDev
+  ? `https://${globalThis.process.env['VITE_SERVER_HOST']}:${globalThis.process.env['VITE_SERVER_PORT']}`
+  : `https://${globalThis.process.env['VITE_SERVER_HOST']}`
+
 const baseComponent = 'client-core'
 /**
  * A logger class (similar to the one provided by Pino.js) to replace
@@ -20,17 +40,143 @@ const multiLogger = {
    * // will result in:
    * // [client-core:authentication] Logging in...
    *
-   * @param childConfig
+   * @param opts {object}
+   * @param opts.component {string}
    */
   child: (opts: any) => {
-    return {
-      debug: console.debug.bind(console, `[${opts.component}]`),
-      info: console.log.bind(console, `[${opts.component}]`),
-      warn: console.warn.bind(console, `[${opts.component}]`),
-      error: console.error.bind(console, `[${opts.component}]`),
-      fatal: console.error.bind(console, `[${opts.component}]`)
+    if (localBuildOrDev && !process.env.VITE_FORCE_CLIENT_LOG_AGGREGATE) {
+      // Locally, this will provide correct file & line numbers in browser console
+      return {
+        debug: console.debug.bind(console, `[${opts.component}]`),
+        info: console.log.bind(console, `[${opts.component}]`),
+        warn: console.warn.bind(console, `[${opts.component}]`),
+        error: console.error.bind(console, `[${opts.component}]`),
+        fatal: console.error.bind(console, `[${opts.component}]`)
+      }
+    } else {
+      // For non-local builds, this send() is used
+      const send = (level) => {
+        const url = new URL('/api/log', serverHost)
+
+        return (...args) => {
+          const consoleMethods = {
+            debug: console.debug.bind(console, `[${opts.component}]`),
+            info: console.log.bind(console, `[${opts.component}]`),
+            warn: console.warn.bind(console, `[${opts.component}]`),
+            error: console.error.bind(console, `[${opts.component}]`),
+            fatal: console.error.bind(console, `[${opts.component}]`)
+          }
+
+          // @ts-ignore
+          const logParams = encodeLogParams(...args)
+
+          // In addition to sending to logging endpoint,  output to console
+          consoleMethods[level](...args)
+
+          // Send to backend /api/log endpoint for aggregation
+          if (hostDefined) {
+            fetch(url, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                level,
+                component: opts.component,
+                ...logParams
+              })
+            })
+          }
+        }
+      }
+
+      return {
+        debug: send('debug'),
+        info: send('info'),
+        warn: send('warn'),
+        error: send('error'),
+        fatal: send('fatal')
+      }
     }
   }
+}
+
+/**
+ * Support a limited subset of Pino's log parameters
+ * @see https://getpino.io/#/docs/api?id=logging-method-parameters
+ *
+ * Limitations:
+ * - Pino supports multiple interpolation values, but we're only going to use one in our code.
+ * - Only supports %o interpolation (for %s or %d, just use native `${}`).
+ *
+ * Usage:
+ * encodeLogParams(new TypeError('Error message'))
+ * -> { msg: '{"error": "TypeError"", "message": "Error message", stack, cause }' }
+ *
+ * encodeLogParams(new Error('Error message'), 'Error while loading user')
+ * -> { msg: '{"error": "Error"", "message": "Error while loading user: Error message", stack, cause }' }
+ *
+ * encodeLogParams('Message') -> { msg: 'Message' }
+ *
+ * encodeLogParams({ merge: 'object' }) -> { merge: 'object' }
+ *
+ * encodeLogParams({ merge: 'object' }, 'Message') -> { merge: 'object', msg: 'Message' }
+ *
+ * encodeLogParms('Message %o', { interpolation: 'value' })
+ * -> { msg: 'Message {"interpolation": "value"}' }
+ *
+ * encodeLogParms({ merge: 'object' }, 'Message %o', { interpolation: 'value' })
+ * -> { merge: 'object', msg: 'Message {"interpolation": "value"}' }
+ *
+ */
+function encodeLogParams(first, second, third) {
+  if (Array.isArray(first)) {
+    first = first[0]
+  }
+  let mergeObject: any = {}
+  let message: string
+
+  if (first instanceof Error) {
+    message = stringifyError(first, second)
+  } else if (typeof first === 'string') {
+    message = interpolate(first, second)
+  } else {
+    mergeObject = first
+    message = interpolate(second, third)
+  }
+
+  return { ...mergeObject, msg: message }
+}
+
+/**
+ * Note: Only supports %o interpolation (for %s or %d, just use native `${}`).
+ * @param message {string}
+ * @param interpolationObject {object}
+ */
+function interpolate(message, interpolationObject): string {
+  if (!interpolationObject || !message?.includes('%o')) {
+    return message
+  }
+
+  return message?.replace('%o', JSON.stringify(interpolationObject))
+}
+
+function stringifyError(error, errorContextMessage?) {
+  let cause, stack
+
+  const trace = { stack: '' }
+  Error.captureStackTrace?.(trace) // In Firefox captureStackTrace is undefined
+  stack = trace.stack
+
+  if (error.cause) {
+    cause = stringifyError(error)
+  }
+
+  let message = error.message
+
+  if (errorContextMessage) {
+    message = `${errorContextMessage}: ${message}`
+  }
+
+  return JSON.stringify({ error: error.name, message, stack, cause })
 }
 
 export default multiLogger

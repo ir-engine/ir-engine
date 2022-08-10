@@ -1,32 +1,33 @@
 import assert from 'assert'
-import proxyquire from 'proxyquire'
 import { Mesh, MeshBasicMaterial } from 'three'
 import { Quaternion, Vector3 } from 'three'
 
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
+import { quaternionEqualsEpsilon, vector3EqualsEpsilon } from '@xrengine/common/src/utils/mathUtils'
 
 import { Engine } from '../../../ecs/classes/Engine'
-import { Entity } from '../../../ecs/classes/Entity'
 import { getComponent } from '../../../ecs/functions/ComponentFunctions'
 import { addComponent } from '../../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
 import { createEngine } from '../../../initializeEngine'
-import { ColliderComponent } from '../../../physics/components/ColliderComponent'
-import { TransformComponent, TransformComponentType } from '../../../transform/components/TransformComponent'
+import { Physics } from '../../../physics/classes/Physics'
+import { RigidBodyComponent } from '../../../physics/components/RigidBodyComponent'
+import { TransformComponent } from '../../../transform/components/TransformComponent'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 import { TriggerVolumeComponent } from '../../components/TriggerVolumeComponent'
-import { SCENE_COMPONENT_TRIGGER_VOLUME } from './TriggerVolumeFunctions'
+import {
+  deserializeTriggerVolume,
+  SCENE_COMPONENT_TRIGGER_VOLUME,
+  serializeTriggerVolume,
+  updateTriggerVolume
+} from './TriggerVolumeFunctions'
 
 describe('TriggerVolumeFunctions', () => {
-  let entity: Entity
-  let triggervolumeFunctions = proxyquire('./TriggerVolumeFunctions', {
-    '../../../physics/functions/createCollider': { createCollider: () => {} }
-  })
-
-  beforeEach(() => {
+  beforeEach(async () => {
     createEngine()
-    entity = createEntity()
+    await Physics.load()
+    Engine.instance.currentWorld.physicsWorld = Physics.createWorld()
   })
 
   const sceneComponentData = {
@@ -42,7 +43,13 @@ describe('TriggerVolumeFunctions', () => {
 
   describe('deserializeTriggerVolume()', () => {
     it('creates TriggerVolume Component with provided component data', () => {
-      triggervolumeFunctions.deserializeTriggerVolume(entity, sceneComponent)
+      const entity = createEntity()
+      addComponent(entity, TransformComponent, {
+        position: new Vector3(),
+        rotation: new Quaternion(),
+        scale: new Vector3(1.5, 2.5, 6)
+      })
+      deserializeTriggerVolume(entity, sceneComponent)
 
       const triggervolumeComponent = getComponent(entity, TriggerVolumeComponent)
       assert.deepEqual(triggervolumeComponent, { ...sceneComponentData, active: true })
@@ -53,9 +60,15 @@ describe('TriggerVolumeFunctions', () => {
     })
 
     it('will include this component into EntityNodeComponent', () => {
+      const entity = createEntity()
       addComponent(entity, EntityNodeComponent, { components: [] })
 
-      triggervolumeFunctions.deserializeTriggerVolume(entity, sceneComponent)
+      addComponent(entity, TransformComponent, {
+        position: new Vector3(),
+        rotation: new Quaternion(),
+        scale: new Vector3(1.5, 2.5, 6)
+      })
+      deserializeTriggerVolume(entity, sceneComponent)
 
       const entityNodeComponent = getComponent(entity, EntityNodeComponent)
       assert(entityNodeComponent.components.includes(SCENE_COMPONENT_TRIGGER_VOLUME))
@@ -63,53 +76,39 @@ describe('TriggerVolumeFunctions', () => {
   })
 
   describe('updateTriggerVolume()', () => {
-    let transform1: TransformComponentType
-    let transform2: any
-    beforeEach(() => {
-      transform1 = {
-        position: new Vector3(Math.random(), Math.random(), Math.random()),
-        rotation: new Quaternion(Math.random(), Math.random(), Math.random(), Math.random()),
-        scale: new Vector3(Math.random(), Math.random(), Math.random())
-      }
-
-      transform2 = {
-        translation: new Vector3(Math.random(), Math.random(), Math.random()),
-        rotation: new Quaternion(Math.random(), Math.random(), Math.random(), Math.random())
-      }
-
-      addComponent(entity, TransformComponent, transform1)
-      addComponent(entity, ColliderComponent, {
-        // @ts-ignore
-        body: {
-          getGlobalPose: () => transform2,
-          setGlobalPose: (t) => (transform2 = t),
-          _debugNeedsUpdate: false
-        }
-      })
-    })
-
     it('should not update collider body', () => {
-      Engine.instance.isEditor = true
-      triggervolumeFunctions.deserializeTriggerVolume(entity, sceneComponent)
-      triggervolumeFunctions.updateTriggerVolume(entity)
-
-      const collider = getComponent(entity, ColliderComponent)
-      assert.deepEqual(collider.body.getGlobalPose(), {
-        translation: transform1.position,
-        rotation: transform1.rotation
+      const entity = createEntity()
+      const transform = addComponent(entity, TransformComponent, {
+        position: new Vector3(1, 2, 3),
+        rotation: new Quaternion(),
+        scale: new Vector3(1, 2.2, 9)
       })
-      assert(collider.body._debugNeedsUpdate)
+
+      Engine.instance.isEditor = true
+      deserializeTriggerVolume(entity, sceneComponent)
+      updateTriggerVolume(entity)
+
+      const body = getComponent(entity, RigidBodyComponent).body
+      assert(vector3EqualsEpsilon(body.translation() as Vector3, transform.position))
+      assert(quaternionEqualsEpsilon(body.rotation() as Quaternion, transform.rotation))
     })
   })
 
   describe('serializeTriggerVolume()', () => {
     it('should properly serialize triggervolume', () => {
-      triggervolumeFunctions.deserializeTriggerVolume(entity, sceneComponent)
-      assert.deepEqual(triggervolumeFunctions.serializeTriggerVolume(entity), sceneComponent)
+      const entity = createEntity()
+      addComponent(entity, TransformComponent, {
+        position: new Vector3(),
+        rotation: new Quaternion(),
+        scale: new Vector3(1.5, 2.5, 6)
+      })
+      deserializeTriggerVolume(entity, sceneComponent)
+      assert.deepEqual(serializeTriggerVolume(entity), sceneComponent)
     })
 
     it('should return undefine if there is no triggervolume component', () => {
-      assert(triggervolumeFunctions.serializeTriggerVolume(entity) === undefined)
+      const entity = createEntity()
+      assert(serializeTriggerVolume(entity) === undefined)
     })
   })
 })

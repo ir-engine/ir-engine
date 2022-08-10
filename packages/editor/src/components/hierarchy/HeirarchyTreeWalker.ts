@@ -18,7 +18,6 @@ export type HeirarchyTreeCollapsedNodeType = { [key: number]: boolean }
 /**
  * treeWalker function used to handle tree.
  *
- * @author Robert Long
  * @param  {entityNode}    collapsedNodes
  */
 export function* heirarchyTreeWalker(

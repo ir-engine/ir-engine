@@ -1,13 +1,21 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 
+import { AudioEffectPlayer } from '@xrengine/engine/src/audio/systems/AudioSystem'
+import { matches } from '@xrengine/engine/src/common/functions/MatchesUtils'
+import { EngineActions, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
+import { XRState } from '@xrengine/engine/src/xr/XRState'
+import { addActionReceptor, getState, removeActionReceptor, useHookstate } from '@xrengine/hyperflux'
+
+import GroupsIcon from '@mui/icons-material/Groups'
 import LinkIcon from '@mui/icons-material/Link'
 import PersonIcon from '@mui/icons-material/Person'
 import SettingsIcon from '@mui/icons-material/Settings'
 import ClickAwayListener from '@mui/material/ClickAwayListener'
 
 import styles from './index.module.scss'
-import EmoteMenu from './menus//EmoteMenu'
 import AvatarUploadModal from './menus/AvatarSelectMenu'
+import EmoteMenu from './menus/EmoteMenu'
+import PartyMenu from './menus/PartyMenu'
 import ProfileMenu from './menus/ProfileMenu'
 import ReadyPlayerMenu from './menus/ReadyPlayerMenu'
 import SelectAvatarMenu from './menus/SelectAvatar'
@@ -22,9 +30,10 @@ export interface UserMenuProps {
 type UserMenuPanelType = (...props: any & { setActiveMenu: (menu: string) => {} }) => JSX.Element
 
 // panels that can be open
+/**  @todo  Replace these top level consts with hyperflux state once new hookstate version is brought in */
 export const UserMenuPanels = new Map<string, UserMenuPanelType>()
 
-const EmoteIcon = () => (
+export const EmoteIcon = () => (
   <svg width="35px" height="35px" viewBox="0 0 184 184" version="1.1">
     <path
       fill="var(--iconButtonColor)"
@@ -40,6 +49,7 @@ const EmoteIcon = () => (
 UserMenuPanels.set(Views.Profile, ProfileMenu)
 UserMenuPanels.set(Views.Settings, SettingMenu)
 UserMenuPanels.set(Views.Share, ShareMenu)
+UserMenuPanels.set(Views.Party, PartyMenu)
 UserMenuPanels.set(Views.AvatarSelect, SelectAvatarMenu)
 UserMenuPanels.set(Views.AvatarUpload, AvatarUploadModal)
 UserMenuPanels.set(Views.ReadyPlayer, ReadyPlayerMenu)
@@ -50,7 +60,8 @@ export const HotbarMenu = new Map<string, any>()
 HotbarMenu.set(Views.Profile, PersonIcon)
 HotbarMenu.set(Views.Settings, SettingsIcon)
 HotbarMenu.set(Views.Share, LinkIcon)
-HotbarMenu.set(Views.Emote, 'EmoteIcon')
+HotbarMenu.set(Views.Party, GroupsIcon)
+HotbarMenu.set(Views.Emote, EmoteIcon)
 
 interface Props {
   animate?: any
@@ -60,14 +71,27 @@ interface Props {
 const UserMenu = (props: Props): any => {
   const [currentActiveMenu, setCurrentActiveMenu] = useState<typeof Views[keyof typeof Views]>()
   const Panel = UserMenuPanels.get(currentActiveMenu!)!
+  const xrSessionActive = useHookstate(getState(XRState).sessionActive)
+
+  useEffect(() => {
+    function shareLinkReceptor(a) {
+      matches(a).when(EngineActions.shareInteractableLink.matches, (action) => {
+        if (action.shareLink !== '') {
+          setCurrentActiveMenu(Views.Share)
+        }
+      })
+    }
+    addActionReceptor(shareLinkReceptor)
+    return () => removeActionReceptor(shareLinkReceptor)
+  }, [])
 
   return (
-    <>
-      <ClickAwayListener onClickAway={() => setCurrentActiveMenu(null!)} mouseEvent="onMouseDown">
-        <div>
-          <section
-            className={`${styles.settingContainer} ${props.animate} ${currentActiveMenu ? props.fadeOutBottom : ''}`}
-          >
+    <ClickAwayListener onClickAway={() => setCurrentActiveMenu(null!)} mouseEvent="onMouseDown">
+      <div>
+        <section
+          className={`${styles.settingContainer} ${props.animate} ${currentActiveMenu ? props.fadeOutBottom : ''}`}
+        >
+          {!xrSessionActive.value && (
             <div className={styles.iconContainer}>
               {Array.from(HotbarMenu.keys()).map((id, index) => {
                 const IconNode = HotbarMenu.get(id)
@@ -80,16 +104,20 @@ const UserMenu = (props: Props): any => {
                       currentActiveMenu && currentActiveMenu === id ? styles.activeMenu : null
                     }`}
                   >
-                    {typeof IconNode === 'string' ? <EmoteIcon /> : <IconNode className={styles.icon} />}
+                    <IconNode
+                      className={styles.icon}
+                      onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                      onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                    />
                   </span>
                 )
               })}
             </div>
-          </section>
-          {currentActiveMenu && <Panel changeActiveMenu={setCurrentActiveMenu} />}
-        </div>
-      </ClickAwayListener>
-    </>
+          )}
+        </section>
+        {currentActiveMenu && <Panel changeActiveMenu={setCurrentActiveMenu} />}
+      </div>
+    </ClickAwayListener>
   )
 }
 

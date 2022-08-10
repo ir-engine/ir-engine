@@ -1,172 +1,204 @@
 import { Paginated } from '@feathersjs/feathers'
-import { createState, useState } from '@speigg/hookstate'
+import { useEffect } from 'react'
 
 import { Invite, SendInvite } from '@xrengine/common/src/interfaces/Invite'
-import { InviteResult } from '@xrengine/common/src/interfaces/InviteResult'
-import { User } from '@xrengine/common/src/interfaces/User'
+import { UserInterface } from '@xrengine/common/src/interfaces/User'
+import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
+import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
+import { API } from '../../API'
+import { MediaInstanceConnectionAction } from '../../common/services/MediaInstanceConnectionService'
 import { NotificationService } from '../../common/services/NotificationService'
-import { client } from '../../feathers'
-import { store, useDispatch } from '../../store'
 import { accessAuthState } from '../../user/services/AuthService'
+import { PartyService } from './PartyService'
 
-const emailRegex =
+export const emailRegex =
   /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/
-const phoneRegex = /^[0-9]{10}$/
-const userIdRegex = /^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$/
-const inviteCodeRegex = /^[0-9a-fA-F]{8}$/
+export const phoneRegex = /^[0-9]{10}$/
+export const userIdRegex = /^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$/
+export const inviteCodeRegex = /^[0-9a-fA-F]{8}$/
 
 //State
 export const INVITE_PAGE_LIMIT = 100
 
-const state = createState({
-  receivedInvites: {
-    invites: [] as Array<Invite>,
-    skip: 0,
-    limit: 100,
-    total: 0
-  },
-  sentInvites: {
-    invites: [] as Array<Invite>,
-    skip: 0,
-    limit: 100,
-    total: 0
-  },
-  sentUpdateNeeded: true,
-  receivedUpdateNeeded: true,
-  getSentInvitesInProgress: false,
-  getReceivedInvitesInProgress: false,
-  targetObjectId: '',
-  targetObjectType: ''
+const InviteState = defineState({
+  name: 'InviteState',
+  initial: () => ({
+    receivedInvites: {
+      invites: [] as Array<Invite>,
+      skip: 0,
+      limit: 100,
+      total: 0
+    },
+    sentInvites: {
+      invites: [] as Array<Invite>,
+      skip: 0,
+      limit: 100,
+      total: 0
+    },
+    sentUpdateNeeded: true,
+    receivedUpdateNeeded: true,
+    getSentInvitesInProgress: false,
+    getReceivedInvitesInProgress: false,
+    targetObjectId: '',
+    targetObjectType: ''
+  })
 })
 
-store.receptors.push((action: InviteActionType): any => {
-  state.batch((s) => {
-    switch (action.type) {
-      case 'INVITE_SENT':
-        return s.sentUpdateNeeded.set(true)
-      case 'SENT_INVITES_RETRIEVED':
-        return s.merge({
-          sentInvites: {
-            invites: action.invites,
-            skip: action.skip,
-            limit: action.limit,
-            total: action.total
-          },
-          sentUpdateNeeded: false,
-          getSentInvitesInProgress: false
-        })
-      case 'RECEIVED_INVITES_RETRIEVED':
-        return s.merge({
-          receivedInvites: {
-            invites: action.invites,
-            skip: action.skip,
-            limit: action.limit,
-            total: action.total
-          },
-          receivedUpdateNeeded: false,
-          getReceivedInvitesInProgress: false
-        })
-      case 'CREATED_RECEIVED_INVITE':
-        return s.receivedUpdateNeeded.set(true)
-      case 'CREATED_SENT_INVITE':
-        return s.sentUpdateNeeded.set(true)
-      case 'REMOVED_RECEIVED_INVITE':
-        return s.receivedUpdateNeeded.set(true)
-      case 'REMOVED_SENT_INVITE':
-        return s.sentUpdateNeeded.set(true)
-      case 'ACCEPTED_INVITE':
-        return s.receivedUpdateNeeded.set(true)
-      case 'DECLINED_INVITE':
-        return s.receivedUpdateNeeded.set(true)
-      case 'INVITE_TARGET_SET':
-        return state.merge({
-          targetObjectId: action.targetObjectId || '',
-          targetObjectType: action.targetObjectType || ''
-        })
-      case 'FETCHING_SENT_INVITES':
-        return s.getSentInvitesInProgress.set(true)
-      case 'FETCHING_RECEIVED_INVITES':
-        return s.getReceivedInvitesInProgress.set(true)
-    }
-  }, action.type)
-})
+export const InviteServiceReceptor = (action) => {
+  const s = getState(InviteState)
+  matches(action)
+    .when(InviteAction.sentInvite.matches, () => {
+      return s.sentUpdateNeeded.set(true)
+    })
+    .when(InviteAction.retrievedSentInvites.matches, (action) => {
+      return s.merge({
+        sentInvites: {
+          invites: action.invites,
+          skip: action.skip,
+          limit: action.limit,
+          total: action.total
+        },
+        sentUpdateNeeded: false,
+        getSentInvitesInProgress: false
+      })
+    })
+    .when(InviteAction.retrievedReceivedInvites.matches, (action) => {
+      return s.merge({
+        receivedInvites: {
+          invites: action.invites,
+          skip: action.skip,
+          limit: action.limit,
+          total: action.total
+        },
+        receivedUpdateNeeded: false,
+        getReceivedInvitesInProgress: false
+      })
+    })
+    .when(InviteAction.createdReceivedInvite.matches, () => {
+      return s.receivedUpdateNeeded.set(true)
+    })
+    .when(InviteAction.createdSentInvite.matches, () => {
+      return s.receivedUpdateNeeded.set(true)
+    })
+    .when(InviteAction.removedReceivedInvite.matches, () => {
+      return s.receivedUpdateNeeded.set(true)
+    })
+    .when(InviteAction.removedSentInvite.matches, () => {
+      return s.sentUpdateNeeded.set(true)
+    })
+    .when(InviteAction.acceptedInvite.matches, () => {
+      return s.receivedUpdateNeeded.set(true)
+    })
+    .when(InviteAction.declinedInvite.matches, () => {
+      return s.receivedUpdateNeeded.set(true)
+    })
+    .when(InviteAction.setInviteTarget.matches, (action) => {
+      return s.merge({
+        targetObjectId: action.targetObjectId || '',
+        targetObjectType: action.targetObjectType || ''
+      })
+    })
+    .when(InviteAction.fetchingSentInvites.matches, () => {
+      return s.getSentInvitesInProgress.set(true)
+    })
+    .when(InviteAction.fetchingReceivedInvites.matches, () => {
+      return s.getReceivedInvitesInProgress.set(true)
+    })
+}
 
-export const accessInviteState = () => state
+export const accessInviteState = () => getState(InviteState)
 
-export const useInviteState = () => useState(state) as any as typeof state
+export const useInviteState = () => useState(accessInviteState())
 
 //Service
 export const InviteService = {
   sendInvite: async (data: SendInvite) => {
-    const dispatch = useDispatch()
-
     if (data.identityProviderType === 'email') {
-      if (emailRegex.test(data.token) !== true) {
-        NotificationService.dispatchNotify('Invalid email address', { variant: 'error' })
+      if (!data.token || !emailRegex.test(data.token)) {
+        NotificationService.dispatchNotify(`Invalid email address: ${data.token}`, { variant: 'error' })
         return
       }
     }
+
     if (data.identityProviderType === 'sms') {
-      if (phoneRegex.test(data.token) !== true) {
-        NotificationService.dispatchNotify('Invalid 10-digit US phone number', { variant: 'error' })
+      if (!data.token || !phoneRegex.test(data.token)) {
+        NotificationService.dispatchNotify(`Invalid 10-digit US phone number: ${data.token}`, { variant: 'error' })
         return
       }
+    }
+
+    if (data.token && !data.identityProviderType) {
+      NotificationService.dispatchNotify(`Invalid value: ${data.token}`, { variant: 'error' })
+      return
     }
 
     if (data.inviteCode != null) {
       if (!inviteCodeRegex.test(data.inviteCode)) {
-        NotificationService.dispatchNotify('Invalid Invite Code', { variant: 'error' })
+        NotificationService.dispatchNotify(`Invalid Invite Code: ${data.inviteCode}`, { variant: 'error' })
         return
       } else {
         try {
-          const userResult = (await client.service('user').find({
+          const userResult = (await API.instance.client.service('user').find({
             query: {
               action: 'invite-code-lookup',
               inviteCode: data.inviteCode
             }
-          })) as Paginated<User>
+          })) as Paginated<UserInterface>
 
           if (userResult.total === 0) {
-            NotificationService.dispatchNotify('No user has that invite code', { variant: 'error' })
+            NotificationService.dispatchNotify(`No user has the invite code ${data.inviteCode}`, { variant: 'error' })
             return
           }
+          data.inviteeId = userResult.data[0].id
         } catch (err) {
           NotificationService.dispatchNotify(err.message, { variant: 'error' })
         }
       }
     }
 
-    if (data.invitee != null) {
-      if (userIdRegex.test(data.invitee) !== true) {
+    if (data.inviteeId != null) {
+      if (!userIdRegex.test(data.inviteeId)) {
         NotificationService.dispatchNotify('Invalid user ID', { variant: 'error' })
         return
       }
     }
 
-    if ((data.token == null || data.token.length === 0) && (data.invitee == null || data.invitee.length === 0)) {
+    if ((data.token == null || data.token.length === 0) && (data.inviteeId == null || data.inviteeId.length === 0)) {
       NotificationService.dispatchNotify('Not a valid recipient', { variant: 'error' })
       return
     }
 
     try {
       const params = {
-        inviteType: data.type,
+        inviteType: data.inviteType,
         token: data.token,
         targetObjectId: data.targetObjectId,
         identityProviderType: data.identityProviderType,
-        inviteeId: data.invitee
+        inviteeId: data.inviteeId,
+        makeAdmin: data.makeAdmin,
+        deleteOnUse: data.deleteOnUse,
+        spawnType: data.spawnType,
+        spawnDetails: data.spawnDetails,
+        timed: data.timed,
+        startTime: data.startTime,
+        endTime: data.endTime,
+        existenceCheck: true
       }
 
-      const existingInviteResult = (await client.service('invite').find({
+      const existingInviteResult = (await API.instance.client.service('invite').find({
         query: params
       })) as Paginated<Invite>
 
       let inviteResult
-      if (existingInviteResult.total === 0) inviteResult = await client.service('invite').create(params)
+      if (existingInviteResult.total === 0) inviteResult = await API.instance.client.service('invite').create(params)
 
       NotificationService.dispatchNotify('Invite Sent', { variant: 'success' })
-      dispatch(InviteAction.sentInvite(inviteResult))
+      dispatchAction(
+        InviteAction.sentInvite({
+          id: existingInviteResult.total > 0 ? existingInviteResult.data[0].id : inviteResult.id
+        })
+      )
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
@@ -177,9 +209,7 @@ export const InviteService = {
     sortField = 'id',
     orderBy = 'asc'
   ) => {
-    const dispatch = useDispatch()
-
-    dispatch(InviteAction.fetchingReceivedInvites())
+    dispatchAction(InviteAction.fetchingReceivedInvites({}))
     const inviteState = accessInviteState().value
     const skip = inviteState.receivedInvites.skip
     const limit = inviteState.receivedInvites.limit
@@ -196,7 +226,7 @@ export const InviteService = {
     }
 
     try {
-      const inviteResult = (await client.service('invite').find({
+      const inviteResult = (await API.instance.client.service('invite').find({
         query: {
           $sort: sortData,
           type: 'received',
@@ -205,7 +235,14 @@ export const InviteService = {
           search: search
         }
       })) as Paginated<Invite>
-      dispatch(InviteAction.retrievedReceivedInvites(inviteResult))
+      dispatchAction(
+        InviteAction.retrievedReceivedInvites({
+          invites: inviteResult.data,
+          total: inviteResult.total,
+          skip: inviteResult.skip,
+          limit: inviteResult.limit
+        })
+      )
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
@@ -216,9 +253,7 @@ export const InviteService = {
     sortField = 'id',
     orderBy = 'asc'
   ) => {
-    const dispatch = useDispatch()
-
-    dispatch(InviteAction.fetchingSentInvites())
+    dispatchAction(InviteAction.fetchingSentInvites({}))
     const inviteState = accessInviteState().value
     const skip = inviteState.sentInvites.skip
     const limit = inviteState.sentInvites.limit
@@ -234,7 +269,7 @@ export const InviteService = {
       }
     }
     try {
-      const inviteResult = (await client.service('invite').find({
+      const inviteResult = (await API.instance.client.service('invite').find({
         query: {
           $sort: sortData,
           type: 'sent',
@@ -243,147 +278,144 @@ export const InviteService = {
           search: search
         }
       })) as Paginated<Invite>
-      dispatch(InviteAction.retrievedSentInvites(inviteResult))
+      dispatchAction(
+        InviteAction.retrievedSentInvites({
+          invites: inviteResult.data,
+          total: inviteResult.total,
+          skip: inviteResult.skip,
+          limit: inviteResult.limit
+        })
+      )
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   },
   removeInvite: async (inviteId: string) => {
-    const dispatch = useDispatch()
-
     try {
-      await client.service('invite').remove(inviteId)
-      dispatch(InviteAction.removedSentInvite())
+      await API.instance.client.service('invite').remove(inviteId)
+      dispatchAction(InviteAction.removedSentInvite({}))
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   },
-  acceptInvite: async (inviteId: string, passcode: string) => {
-    const dispatch = useDispatch()
-
+  acceptInvite: async (invite: Invite) => {
     try {
-      await client.service('a-i').get(inviteId, {
+      if (invite.inviteType === 'party') {
+        dispatchAction(MediaInstanceConnectionAction.joiningNonInstanceMediaChannel({}))
+      }
+      await API.instance.client.service('a-i').get(invite.id, {
         query: {
-          passcode: passcode
+          passcode: invite.passcode
         }
       })
-      dispatch(InviteAction.acceptedInvite())
+      if (invite.inviteType === 'party') PartyService.leaveNetwork(false)
+      dispatchAction(InviteAction.acceptedInvite({}))
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   },
   declineInvite: async (invite: Invite) => {
-    const dispatch = useDispatch()
-
     try {
-      await client.service('invite').remove(invite.id)
-      dispatch(InviteAction.declinedInvite())
+      await API.instance.client.service('invite').remove(invite.id)
+      dispatchAction(InviteAction.declinedInvite({}))
     } catch (err) {
       NotificationService.dispatchNotify(err.message, { variant: 'error' })
     }
   },
-  updateInviteTarget: async (targetObjectType?: string, targetObjectId?: string) => {
-    const dispatch = useDispatch()
+  updateInviteTarget: async (targetObjectType: string, targetObjectId: string) => {
+    dispatchAction(InviteAction.setInviteTarget({ targetObjectType, targetObjectId }))
+  },
+  useAPIListeners: () => {
+    useEffect(() => {
+      const inviteCreatedListener = (params) => {
+        const invite = params.invite
+        const selfUser = accessAuthState().user
+        if (invite.userId === selfUser.id.value) {
+          dispatchAction(InviteAction.createdSentInvite({}))
+        } else {
+          dispatchAction(InviteAction.createdReceivedInvite({}))
+        }
+      }
 
-    dispatch(InviteAction.setInviteTarget(targetObjectType, targetObjectId))
+      const inviteRemovedListener = (params) => {
+        const invite = params.invite
+        const selfUser = accessAuthState().user
+        if (invite.userId === selfUser.id.value) {
+          dispatchAction(InviteAction.removedSentInvite({}))
+        } else {
+          dispatchAction(InviteAction.removedReceivedInvite({}))
+        }
+      }
+
+      API.instance.client.service('invite').on('created', inviteCreatedListener)
+      API.instance.client.service('invite').on('removed', inviteRemovedListener)
+
+      return () => {
+        API.instance.client.service('invite').off('created', inviteCreatedListener)
+        API.instance.client.service('invite').off('removed', inviteRemovedListener)
+      }
+    }, [])
   }
-}
-
-if (globalThis.process.env['VITE_OFFLINE_MODE'] !== 'true') {
-  client.service('invite').on('created', (params) => {
-    const invite = params.invite
-    const selfUser = accessAuthState().user
-    if (invite.userId === selfUser.id.value) {
-      store.dispatch(InviteAction.createdSentInvite())
-    } else {
-      store.dispatch(InviteAction.createdReceivedInvite())
-    }
-  })
-
-  client.service('invite').on('removed', (params) => {
-    const invite = params.invite
-    const selfUser = accessAuthState().user
-    if (invite.userId === selfUser.id.value) {
-      store.dispatch(InviteAction.removedSentInvite())
-    } else {
-      store.dispatch(InviteAction.removedReceivedInvite())
-    }
-  })
 }
 
 //Action
-export const InviteAction = {
-  sentInvite: (id: string) => {
-    return {
-      type: 'INVITE_SENT' as const,
-      id
-    }
-  },
-  retrievedSentInvites: (inviteResult: InviteResult) => {
-    return {
-      type: 'SENT_INVITES_RETRIEVED' as const,
-      invites: inviteResult.data,
-      total: inviteResult.total,
-      limit: inviteResult.limit,
-      skip: inviteResult.skip
-    }
-  },
-  retrievedReceivedInvites: (inviteResult: Paginated<Invite>) => {
-    return {
-      type: 'RECEIVED_INVITES_RETRIEVED' as const,
-      invites: inviteResult.data,
-      total: inviteResult.total,
-      limit: inviteResult.limit,
-      skip: inviteResult.skip
-    }
-  },
-  createdReceivedInvite: () => {
-    return {
-      type: 'CREATED_RECEIVED_INVITE' as const
-    }
-  },
-  removedReceivedInvite: () => {
-    return {
-      type: 'REMOVED_RECEIVED_INVITE' as const
-    }
-  },
-  createdSentInvite: () => {
-    return {
-      type: 'CREATED_SENT_INVITE' as const
-    }
-  },
-  removedSentInvite: () => {
-    return {
-      type: 'REMOVED_SENT_INVITE' as const
-    }
-  },
-  acceptedInvite: () => {
-    return {
-      type: 'ACCEPTED_INVITE' as const
-    }
-  },
-  declinedInvite: () => {
-    return {
-      type: 'DECLINED_INVITE' as const
-    }
-  },
-  setInviteTarget: (targetObjectType?: string, targetObjectId?: string) => {
-    return {
-      type: 'INVITE_TARGET_SET' as const,
-      targetObjectId: targetObjectId,
-      targetObjectType: targetObjectType
-    }
-  },
-  fetchingSentInvites: () => {
-    return {
-      type: 'FETCHING_SENT_INVITES' as const
-    }
-  },
-  fetchingReceivedInvites: () => {
-    return {
-      type: 'FETCHING_RECEIVED_INVITES' as const
-    }
-  }
-}
+export class InviteAction {
+  static sentInvite = defineAction({
+    type: 'INVITE_SENT' as const,
+    id: matches.string
+  })
 
-export type InviteActionType = ReturnType<typeof InviteAction[keyof typeof InviteAction]>
+  static retrievedSentInvites = defineAction({
+    type: 'SENT_INVITES_RETRIEVED' as const,
+    invites: matches.array as Validator<unknown, Invite[]>,
+    total: matches.number,
+    limit: matches.number,
+    skip: matches.number
+  })
+
+  static retrievedReceivedInvites = defineAction({
+    type: 'RECEIVED_INVITES_RETRIEVED' as const,
+    invites: matches.array as Validator<unknown, Invite[]>,
+    total: matches.number,
+    limit: matches.number,
+    skip: matches.number
+  })
+
+  static createdReceivedInvite = defineAction({
+    type: 'CREATED_RECEIVED_INVITE' as const
+  })
+
+  static removedReceivedInvite = defineAction({
+    type: 'REMOVED_RECEIVED_INVITE' as const
+  })
+
+  static createdSentInvite = defineAction({
+    type: 'CREATED_SENT_INVITE' as const
+  })
+
+  static removedSentInvite = defineAction({
+    type: 'REMOVED_SENT_INVITE' as const
+  })
+
+  static acceptedInvite = defineAction({
+    type: 'ACCEPTED_INVITE' as const
+  })
+
+  static declinedInvite = defineAction({
+    type: 'DECLINED_INVITE' as const
+  })
+
+  static setInviteTarget = defineAction({
+    type: 'INVITE_TARGET_SET' as const,
+    targetObjectId: matches.string,
+    targetObjectType: matches.string
+  })
+
+  static fetchingSentInvites = defineAction({
+    type: 'FETCHING_SENT_INVITES' as const
+  })
+
+  static fetchingReceivedInvites = defineAction({
+    type: 'FETCHING_RECEIVED_INVITES' as const
+  })
+}

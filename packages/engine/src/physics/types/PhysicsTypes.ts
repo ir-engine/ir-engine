@@ -1,26 +1,4 @@
-export type ColliderTypes = 'box' | 'ground' | 'sphere' | 'capsule' | 'cylinder' | 'convex' | 'trimesh'
-
-export interface PhysXConfig {
-  stepTime?: number
-  lengthScale?: number
-  start?: boolean
-  bounceThresholdVelocity?: number
-  verbose?: boolean
-  substeps?: number
-  gravity?: Vec3
-}
-
-export interface Vec3Fragment {
-  x?: number
-  y?: number
-  z?: number
-}
-export interface QuatFragment {
-  x?: number
-  y?: number
-  z?: number
-  w?: number
-}
+import RAPIER, { ActiveCollisionTypes, ColliderHandle, RigidBodyType, ShapeType } from '@dimforge/rapier3d-compat'
 
 export interface Vec3 {
   x: number
@@ -33,81 +11,6 @@ export interface Quat {
   y: number
   z: number
   w: number
-}
-
-export enum BodyType {
-  STATIC,
-  DYNAMIC,
-  KINEMATIC,
-  CONTROLLER
-}
-
-export interface ShapeOptions {
-  userData?: any
-  restOffset?: number
-  contactOffset?: number
-  isTrigger?: boolean
-  collisionLayer?: number
-  collisionMask?: number
-}
-
-export interface BodyConfig {
-  type?: BodyType
-  mass?: number
-  useCCD?: boolean
-  linearDamping?: number
-  angularDamping?: number
-  linearVelocity?: Vec3
-  angularVelocity?: Vec3
-}
-
-export interface RigidBody extends BodyConfig {
-  transform: PhysX.PxTransformLike
-  shapes: PhysX.PxShape[]
-  userData?: any
-}
-
-export interface ControllerRigidBody extends RigidBody {
-  _debugNeedsUpdate?: any
-  _shape: ControllerConfig
-  collisions: { down: boolean; sides: boolean; up: boolean }
-  delta: { x: number; y: number; z: number }
-  velocity: { x: number; y: number; z: number }
-}
-
-export interface ControllerConfig {
-  isCapsule: boolean
-  position: Vec3Fragment
-  material: PhysX.PxMaterial
-  userData?: any
-  stepOffset?: number
-  contactOffset?: number
-  slopeLimit?: number
-  maxJumpHeight?: number
-  invisibleWallHeight?: number
-}
-
-export interface CapsuleControllerConfig extends ControllerConfig {
-  height: number
-  radius: number
-  climbingMode?: PhysX.PxCapsuleClimbingMode
-}
-
-export interface BoxControllerConfig extends ControllerConfig {
-  halfForwardExtent: number
-  halfHeight: number
-  halfSideExtent: number
-}
-
-export interface ObstacleConfig {
-  isCapsule: boolean
-  halfExtents: Vec3
-  halfHeight: number
-  radius: number
-}
-
-export interface ObstacleType {
-  isCapsule?: boolean
 }
 
 export enum SceneQueryType {
@@ -131,14 +34,8 @@ export interface RaycastHit {
   distance: number
   position: Vec3
   normal: Vec3
-  body?: RigidBody
-  _bodyID: number // internal
-}
-
-export enum ControllerEvents {
-  CONTROLLER_SHAPE_HIT = 'CONTROLLER_SHAPE_HIT',
-  CONTROLLER_CONTROLLER_HIT = 'CONTROLLER_CONTROLLER_HIT',
-  CONTROLLER_OBSTACLE_HIT = 'CONTROLLER_OBSTACLE_HIT'
+  body?: RAPIER.RigidBody
+  collider?: RAPIER.Collider
 }
 
 export enum CollisionEvents {
@@ -150,34 +47,27 @@ export enum CollisionEvents {
   TRIGGER_END = 'TRIGGER_END'
 }
 
-export type ControllerHitEvent = {
-  type: ControllerEvents
-  shape: PhysX.PxShape
-  body: RigidBody
-  position: Vec3
-  normal: Vec3
-  length: number
-}
-
-export type ControllerObstacleHitEvent = {
-  type: ControllerEvents
-  obstacle: ObstacleType
-  position: Vec3
-  normal: Vec3
-  length: number
-}
-
-type ContactData = {
-  points: Vec3
-  normal: Vec3
-  impulse: number
-}
-
 export type ColliderHitEvent = {
   type: CollisionEvents
-  bodySelf: PhysX.PxRigidActor
-  bodyOther: PhysX.PxRigidActor
-  shapeSelf: PhysX.PxShape
-  shapeOther: PhysX.PxShape
-  contacts: ContactData[]
+  bodySelf: RAPIER.RigidBody
+  bodyOther: RAPIER.RigidBody
+  shapeSelf: RAPIER.Collider
+  shapeOther: RAPIER.Collider
+  /**
+   * @todo: populate this using Rapier contact queue drain
+   * https://rapier.rs/docs/user_guides/javascript/advanced_collision_detection_js
+   */
+  // contacts: any
+}
+
+export type ColliderDescOptions = {
+  type: ShapeType
+  bodyType?: RigidBodyType // TODO: This is only required at the root node, should be removed from here?
+  size?: Vec3 // For cases where mesh.scale can't provide the actual size of collider.
+  isTrigger?: boolean
+  friction?: number
+  restitution?: number
+  collisionLayer?: number
+  collisionMask?: number
+  activeCollisionTypes?: ActiveCollisionTypes
 }

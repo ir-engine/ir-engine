@@ -7,7 +7,7 @@ import { CommonKnownContentTypes } from '@xrengine/common/src/utils/CommonKnownC
 
 import { Application } from '../../../declarations'
 import logger from '../../logger'
-import { addGenericAssetToS3AndStaticResources } from '../../media/upload-media/upload-asset.service'
+import { addGenericAssetToS3AndStaticResources } from '../../media/upload-asset/upload-asset.service'
 
 export type AvatarUploadArguments = {
   avatar: Buffer
@@ -47,13 +47,13 @@ export const installAvatarsFromProject = async (app: Application, avatarsFolder:
 }
 
 export const uploadAvatarStaticResource = async (app: Application, data: AvatarUploadArguments, params?: Params) => {
-  const key = `avatars/${data.userId ?? 'public'}/${data.avatarName}`
+  const name = data.avatarName ? data.avatarName : 'Avatar-' + Math.round(Math.random() * 100000)
+
+  const key = `avatars/${data.userId ?? 'public'}/${name}`
   logger.info('uploadAvatarStaticResource', key)
 
   // const thumbnail = await generateAvatarThumbnail(data.avatar as Buffer)
   // if (!thumbnail) throw new Error('Thumbnail generation failed - check the model')
-
-  const name = data.avatarName ?? 'Avatar-' + Math.round(Math.random() * 10000)
 
   const modelPromise = addGenericAssetToS3AndStaticResources(app, data.avatar, {
     userId: data.userId!,

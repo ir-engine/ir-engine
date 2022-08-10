@@ -3,7 +3,7 @@ import { LinearFilter, Mesh, MeshStandardMaterial, Object3D, sRGBEncoding, Video
 
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
-import { AssetLoader } from '../../../assets/classes/AssetLoader'
+import { AudioComponent } from '../../../audio/components/AudioComponent'
 import {
   ComponentDeserializeFunction,
   ComponentPrepareForGLTFExportFunction,
@@ -14,142 +14,156 @@ import { isClient } from '../../../common/functions/isClient'
 import { Engine } from '../../../ecs/classes/Engine'
 import { EngineActions, getEngineState } from '../../../ecs/classes/EngineState'
 import { Entity } from '../../../ecs/classes/Entity'
-import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
+import { addComponent, getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
 import { matchActionOnce } from '../../../networking/functions/matchActionOnce'
 import { ImageProjection } from '../../classes/ImageUtils'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { ImageComponent } from '../../components/ImageComponent'
 import { MediaComponent } from '../../components/MediaComponent'
+import { MediaElementComponent } from '../../components/MediaElementComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 import { VideoComponent, VideoComponentType } from '../../components/VideoComponent'
+import { PlayMode } from '../../constants/PlayMode'
 import { addError, removeError } from '../ErrorFunctions'
 import isHLS from '../isHLS'
+import { createAudioNode } from './AudioFunctions'
 import { resizeImageMesh } from './ImageFunctions'
-import { updateAutoStartTimeForMedia } from './MediaFunctions'
+import { getNextPlaylistItem, updateAutoStartTimeForMedia } from './MediaFunctions'
 
 export const SCENE_COMPONENT_VIDEO = 'video'
 export const VIDEO_MESH_NAME = 'VideoMesh'
 export const SCENE_COMPONENT_VIDEO_DEFAULT_VALUES = {
-  videoSource: '',
-  elementId: 'video-' + Date.now()
-}
+  elementId: 'video-' + Date.now(),
+  maintainAspectRatio: true
+} as VideoComponentType
 
 export const deserializeVideo: ComponentDeserializeFunction = (
   entity: Entity,
   json: ComponentJson<VideoComponentType>
 ) => {
-  if (!isClient) {
-    return
-  }
-
-  const mediaComponent = getComponent(entity, MediaComponent)
-  let obj3d = getComponent(entity, Object3DComponent)?.value
-
-  if (!obj3d) {
-    obj3d = addComponent(entity, Object3DComponent, { value: new Object3D() }).value
-    obj3d.userData.mesh = new Mesh()
-  }
-
-  if (!obj3d.userData.mesh) obj3d.userData.mesh = { name: VIDEO_MESH_NAME }
-  else obj3d.userData.mesh.name = VIDEO_MESH_NAME
-
-  const el = document.createElement('video')
-  el.setAttribute('crossOrigin', 'anonymous')
-  el.setAttribute('loop', 'true')
-  el.setAttribute('preload', 'metadata')
-
-  // Setting autoplay to false will not work
-  // see https://developer.mozilla.org/en-US/docs/Web/HTML/Element/video#attr-autoplay
-  if (mediaComponent.autoplay) el.setAttribute('autoplay', 'true')
-
-  el.setAttribute('playsInline', 'true')
-  el.setAttribute('playsinline', 'true')
-  el.setAttribute('webkit-playsInline', 'true')
-  el.setAttribute('webkit-playsinline', 'true')
-  el.setAttribute('muted', 'true')
-  el.muted = true // Needed for some browsers to load videos
-  el.hidden = true
-  document.body.appendChild(el)
-  obj3d.userData.videoEl = el
-
-  el.addEventListener('playing', () => {
-    mediaComponent.playing = true
-  })
-  el.addEventListener('pause', () => {
-    mediaComponent.playing = false
-  })
-  mediaComponent.el = el
-
+  if (!isClient) return
   const props = parseVideoProperties(json.props) as VideoComponentType
-
   addComponent(entity, VideoComponent, props)
-
   getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_VIDEO)
-
-  updateVideo(entity, props)
 }
 
 export const updateVideo: ComponentUpdateFunction = (entity: Entity, properties: VideoComponentType) => {
   const obj3d = getComponent(entity, Object3DComponent).value as Mesh<any, MeshStandardMaterial>
-  const mesh = obj3d.userData.mesh
-  const component = getComponent(entity, VideoComponent)
 
-  if (properties.videoSource) {
+  const videoComponent = getComponent(entity, VideoComponent)
+  const audioComponent = getComponent(entity, AudioComponent)
+  const mediaComponent = getComponent(entity, MediaComponent)
+
+  const currentPath = mediaComponent.paths.length ? mediaComponent.paths[mediaComponent.currentSource] : ''
+
+  const videoElementExists = document.getElementById(videoComponent.elementId)
+
+  if (!hasComponent(entity, MediaElementComponent)) {
+    if (videoElementExists) {
+      addComponent(entity, MediaElementComponent, videoElementExists)
+    } else {
+      const el = document.createElement('video')
+      el.setAttribute('crossOrigin', 'anonymous')
+      if (
+        mediaComponent.playMode === PlayMode.SingleLoop ||
+        (mediaComponent.playMode === PlayMode.Loop && mediaComponent.paths.length === 1)
+      )
+        el.setAttribute('loop', 'true')
+      el.setAttribute('preload', 'metadata')
+
+      // Setting autoplay to false will not work
+      // see https://developer.mozilla.org/en-US/docs/Web/HTML/Element/video#attr-autoplay
+      if (mediaComponent.autoplay) el.setAttribute('autoplay', 'true')
+
+      el.setAttribute('playsInline', 'true')
+      el.setAttribute('playsinline', 'true')
+      el.setAttribute('webkit-playsInline', 'true')
+      el.setAttribute('webkit-playsinline', 'true')
+      el.setAttribute('muted', 'true')
+      el.muted = true // Needed for some browsers to load videos
+      el.hidden = true
+      document.body.appendChild(el)
+
+      el.addEventListener('playing', () => {
+        mediaComponent.playing = true
+      })
+      el.addEventListener('pause', () => {
+        mediaComponent.playing = false
+      })
+      el.addEventListener('ended', () => {
+        if (mediaComponent.stopOnNextTrack) return
+        const nextItem = getNextPlaylistItem(entity)
+        mediaComponent.currentSource = nextItem
+        el.src = mediaComponent.paths[mediaComponent.currentSource]
+        el.play()
+      })
+
+      addComponent(entity, MediaElementComponent, el)
+
+      el.id = videoComponent.elementId
+
+      createAudioNode(
+        el,
+        Engine.instance.audioContext.createMediaElementSource(el),
+        audioComponent.isMusic ? Engine.instance.gainNodeMixBuses.music : Engine.instance.gainNodeMixBuses.soundEffects
+      )
+    }
+  }
+
+  const el = getComponent(entity, MediaElementComponent) as HTMLVideoElement
+  const mesh = obj3d.userData.mesh as Mesh<any, any>
+
+  if (!mesh.material.map?.isVideoTexture) {
+    const texture = new VideoTexture(el)
+
+    texture.encoding = sRGBEncoding
+    texture.minFilter = LinearFilter
+
+    if (mesh.material.map) mesh.material.map?.dispose()
+    mesh.material.map = texture
+  }
+
+  if (el.src === '' || currentPath !== el.src) {
     try {
-      if (isHLS(component.videoSource)) {
-        if (component.hls) component.hls.destroy()
-        component.hls = setupHLS(entity, component.videoSource)
-        component.hls?.attachMedia(obj3d.userData.videoEl)
+      if (isHLS(currentPath)) {
+        if (videoComponent.hls) videoComponent.hls.destroy()
+        videoComponent.hls = setupHLS(entity, currentPath)
+        videoComponent.hls?.attachMedia(el)
       }
       // else if (isDash(url)) {
       //   const { MediaPlayer } = await import('dashjs')
       //   component.dash = MediaPlayer().create();
-      //   component.dash.initialize(obj3d.userData.videoEl, src, component.autoPlay)
+      //   component.dash.initialize(el, src, component.autoPlay)
       //   component.dash.on('ERROR', (e) => console.error('ERROR', e)
       // }
       else {
-        obj3d.userData.videoEl.addEventListener('error', () => addError(entity, 'error', 'Error Loading video'))
-        obj3d.userData.videoEl.addEventListener('loadeddata', () => removeError(entity, 'error'))
-        obj3d.userData.videoEl.src = component.videoSource
+        el.addEventListener('error', (err) => {
+          console.error(err)
+          addError(entity, 'error', 'Error Loading video')
+        })
+        el.addEventListener('loadeddata', () => removeError(entity, 'error'))
+        el.src = currentPath
       }
 
-      const texture = new VideoTexture(obj3d.userData.videoEl)
-      obj3d.userData.videoEl.currentTime = 1
-
-      if (!texture) return
-
-      texture.encoding = sRGBEncoding
-      texture.minFilter = LinearFilter
-
-      if (mesh.material.map) mesh.material.map?.dispose()
-      mesh.material.map = texture
-
-      obj3d.userData.videoEl.addEventListener(
+      el.addEventListener(
         'loadeddata',
         () => {
-          obj3d.userData.videoEl.muted = false
+          el.muted = false
 
-          if (obj3d.userData.videoEl.autoplay) {
+          if (el.autoplay) {
             if (getEngineState().userHasInteracted.value) {
-              obj3d.userData.videoEl.play()
-            } else {
-              matchActionOnce(EngineActions.setUserHasInteracted.matches, () => {
-                obj3d.userData.videoEl.play()
-                return true
-              })
+              el.play()
             }
           }
 
-          mesh.material.map.image.height = mesh.material.map.image.videoHeight
-          mesh.material.map.image.width = mesh.material.map.image.videoWidth
+          if (videoComponent.maintainAspectRatio) {
+            mesh.material.map.image.height = mesh.material.map.image.videoHeight
+            mesh.material.map.image.width = mesh.material.map.image.videoWidth
+          }
+
           if (getComponent(entity, ImageComponent)?.projection === ImageProjection.Flat) resizeImageMesh(mesh)
 
-          const audioSource = Engine.instance.currentWorld.audioListener.context.createMediaElementSource(
-            obj3d.userData.videoEl
-          )
-          obj3d.userData.audioEl.setNodeSource(audioSource)
-
-          updateAutoStartTimeForMedia(entity)
+          if (!Engine.instance.isEditor) updateAutoStartTimeForMedia(entity)
         },
         { once: true }
       )
@@ -157,8 +171,7 @@ export const updateVideo: ComponentUpdateFunction = (entity: Entity, properties:
       console.error(error)
     }
   }
-
-  if (typeof properties.elementId !== 'undefined') obj3d.userData.videoEl.id = component.elementId
+  if (videoComponent.elementId !== el.id) el.id = videoComponent.elementId
 }
 
 export const serializeVideo: ComponentSerializeFunction = (entity) => {
@@ -168,23 +181,13 @@ export const serializeVideo: ComponentSerializeFunction = (entity) => {
   return {
     name: SCENE_COMPONENT_VIDEO,
     props: {
-      videoSource: component.videoSource,
-      elementId: component.elementId
+      elementId: component.elementId,
+      maintainAspectRatio: component.maintainAspectRatio
     }
   }
 }
 
-export const prepareVideoForGLTFExport: ComponentPrepareForGLTFExportFunction = (video) => {
-  if (video.userData.videoEl) {
-    if (video.userData.videoEl.parent) video.userData.videoEl.removeFromParent()
-    delete video.userData.videoEl
-  }
-
-  if (video.userData.mesh) {
-    if (video.userData.mesh.parent) video.userData.mesh.removeFromParent()
-    delete video.userData.mesh
-  }
-}
+export const prepareVideoForGLTFExport: ComponentPrepareForGLTFExportFunction = (video) => {}
 
 export const setupHLS = (entity: Entity, url: string): Hls => {
   const hls = new Hls()
@@ -237,7 +240,7 @@ export const toggleVideo = (entity: Entity) => {
 
 export const parseVideoProperties = (props): Partial<VideoComponentType> => {
   return {
-    videoSource: props.videoSource ?? SCENE_COMPONENT_VIDEO_DEFAULT_VALUES.videoSource,
-    elementId: props.elementId ?? SCENE_COMPONENT_VIDEO_DEFAULT_VALUES.elementId
+    elementId: props.elementId ?? SCENE_COMPONENT_VIDEO_DEFAULT_VALUES.elementId,
+    maintainAspectRatio: props.maintainAspectRatio ?? SCENE_COMPONENT_VIDEO_DEFAULT_VALUES.maintainAspectRatio
   }
 }

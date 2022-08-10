@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { useTranslation } from 'react-i18next'
 
 import MenuIcon from '@mui/icons-material/Menu'
 import SettingIcon from '@mui/icons-material/Settings'
@@ -7,7 +8,6 @@ import {
   Button,
   Dialog,
   Divider,
-  Drawer,
   IconButton,
   InputBase,
   List,
@@ -22,10 +22,19 @@ import {
   TableContainer,
   TableHead,
   TablePagination,
-  TableRow
+  TableRow,
+  Typography
 } from '@mui/material'
 
+import DrawerView from '../../../common/DrawerView'
+import { InputMenuItem } from '../../../common/InputSelect'
 import styles from '../../../styles/settings.module.scss'
+
+/*
+  Don't replace basic components from ThemePlayground with custom made or any library components
+  since basic components are here styled according to the temporary selected theme for playground,
+  not the main theme used everywhere in app.
+*/
 
 const ThemePlayground = () => {
   const [dock, setDock] = useState(false)
@@ -33,6 +42,8 @@ const ThemePlayground = () => {
   const [drawerValue, setDrawerValue] = useState(false)
   const [selectValue, setSelectValue] = useState('')
   const [anchorEl, setAnchorEl] = useState<any>(null)
+
+  const { t } = useTranslation()
 
   const openMenu = (e) => {
     setAnchorEl(e.target)
@@ -45,7 +56,7 @@ const ThemePlayground = () => {
   const columns = [
     { id: 'name', label: 'Name', minWidth: 65, align: 'left' },
     {
-      id: 'userRole',
+      id: 'isGuest',
       label: 'Status',
       minWidth: 65,
       align: 'right'
@@ -79,16 +90,16 @@ const ThemePlayground = () => {
   const rows = [
     {
       name: 'Josh',
-      userRole: 'Admin',
+      isGuest: false,
       location: 'test',
       inviteCode: 'NULL',
       instanceId: 'koqwndpkqwndpkqwndpqkwndm',
       action: (
         <>
-          <a href="#h" className="actionStyle" onClick={() => {}}>
+          <a href="#" className="actionStyle" onClick={() => {}}>
             <span className="spanWhite">View</span>
           </a>
-          <a href="#h" className="actionStyle" onClick={() => {}}>
+          <a href="#" className="actionStyle" onClick={() => {}}>
             <span className="spanDange">Delete</span>
           </a>
         </>
@@ -96,16 +107,16 @@ const ThemePlayground = () => {
     },
     {
       name: 'Liam',
-      userRole: 'User',
+      isGuest: false,
       location: 'apartment',
       inviteCode: 'NULL',
       instanceId: 'alksdnvoakewndawepdnpqwdew',
       action: (
         <>
-          <a href="#h" className="actionStyle" onClick={() => {}}>
+          <a href="#" className="actionStyle" onClick={() => {}}>
             <span className="spanWhite">View</span>
           </a>
-          <a href="#h" className="actionStyle" onClick={() => {}}>
+          <a href="#" className="actionStyle" onClick={() => {}}>
             <span className="spanDange">Delete</span>
           </a>
         </>
@@ -113,16 +124,16 @@ const ThemePlayground = () => {
     },
     {
       name: 'Gheric',
-      userRole: 'Moderator',
+      isGuest: false,
       location: 'test',
       inviteCode: 'NULL',
       instanceId: 'qkpwejdpqwdmpqlcmnpqwmndqow',
       action: (
         <>
-          <a href="#h" className="actionStyle" onClick={() => {}}>
+          <a href="#" className="actionStyle" onClick={() => {}}>
             <span className="spanWhite">View</span>
           </a>
-          <a href="#h" className="actionStyle" onClick={() => {}}>
+          <a href="#" className="actionStyle" onClick={() => {}}>
             <span className="spanDange">Delete</span>
           </a>
         </>
@@ -130,14 +141,19 @@ const ThemePlayground = () => {
     }
   ]
 
+  const selectMenu: InputMenuItem[] = ['Option 1', 'Option 2', 'Option 3', 'Option 4'].map((el) => {
+    return {
+      value: el,
+      label: el
+    }
+  })
+
   return (
     <>
-      <label>Theme Playground:</label>
-      <br />
-      <br />
+      <Typography className={styles.settingsSubHeading}>{t('admin:components.setting.themePlayground')}</Typography>
       <Box className="themeDemoArea">
         <nav className="navbar">
-          <div className="logoSection">XR-Engine</div>
+          <div className="logoSection">XREngine</div>
         </nav>
         <div className="mainSection">
           <div className="sidebar">
@@ -313,18 +329,17 @@ const ThemePlayground = () => {
               </div>
               <Divider variant="inset" component="div" className={styles.colorGridDivider} />
               <div className="textHeading">Input</div>
-              <InputBase className="input" placeholder="this is the input placeholder" />
+              <InputBase className="input" placeholder={t('admin:components.setting.placeholderText')} />
               <Divider variant="inset" component="div" className={styles.colorGridDivider} />
               <div className="textHeading">Drawer</div>
               <Button variant="contained" className="filledButton" onClick={() => setDrawerValue(true)}>
                 Open Drawer
               </Button>
-              <Drawer
+              <DrawerView
                 open={drawerValue}
-                anchor="right"
                 classes={{ paper: 'drawer' }}
                 onClose={() => setDrawerValue(false)}
-              ></Drawer>
+              ></DrawerView>
               <div className="textHeading">Popup</div>
               <Button variant="contained" className="filledButton" onClick={() => setDialog(true)}>
                 Open Popup

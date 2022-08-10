@@ -1,10 +1,11 @@
 import { Matrix4, Vector3 } from 'three'
 
-import { store } from '@xrengine/client-core/src/store'
+import multiLogger from '@xrengine/common/src/logger'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 import { TransformSpace } from '@xrengine/engine/src/scene/constants/transformConstants'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
+import { dispatchAction } from '@xrengine/hyperflux'
 
 import { CommandFuncType, CommandParams, TransformCommands } from '../constants/EditorCommands'
 import arrayShallowEqual from '../functions/arrayShallowEqual'
@@ -12,6 +13,8 @@ import { serializeObject3DArray, serializeVector3 } from '../functions/debug'
 import { getSpaceMatrix } from '../functions/getSpaceMatrix'
 import { EditorAction } from '../services/EditorServices'
 import { SelectionAction } from '../services/SelectionServices'
+
+const logger = multiLogger.child({ component: 'editor:ScaleCommand' })
 
 export type ScaleCommandUndoParams = {
   scales: Vector3[]
@@ -75,8 +78,8 @@ function undo(command: ScaleCommandParams) {
 function emitEventAfter(command: ScaleCommandParams) {
   if (command.preventEvents) return
 
-  store.dispatch(EditorAction.sceneModified(true))
-  store.dispatch(SelectionAction.changedObject(command.affectedNodes, 'scale'))
+  dispatchAction(EditorAction.sceneModified({ modified: true }))
+  dispatchAction(SelectionAction.changedObject({ objects: command.affectedNodes, propertyName: 'scale' }))
 }
 
 function updateScale(command: ScaleCommandParams, isUndo: boolean): void {
@@ -96,7 +99,7 @@ function updateScale(command: ScaleCommandParams, isUndo: boolean): void {
       const scale = scales[i] ?? scales[0]
 
       if (space === TransformSpace.World && (scale.x !== scale.y || scale.x !== scale.z || scale.y !== scale.z)) {
-        console.warn('Scaling an object in world space with a non-uniform scale is not supported')
+        logger.warn('Scaling an object in world space with a non-uniform scale is not supported')
       }
 
       getComponent(node.entity, TransformComponent).scale.multiply(scale)

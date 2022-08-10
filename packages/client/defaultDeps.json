@@ -1,7 +1,7 @@
 {
   "dependencies": [
     "@feathersjs/client",
-    "@speigg/hookstate",
+    "@hookstate/core",
     "@iconify/react",
     "@mui/icons-material",
     "@mui/icons-material/AccountCircle",
@@ -212,7 +212,6 @@
     "react-helmet",
     "react-hot-keys",
     "react-i18next",
-    "react-infinite-scroller",
     "react-json-tree",
     "react-material-ui-form-validator",
     "react-router",

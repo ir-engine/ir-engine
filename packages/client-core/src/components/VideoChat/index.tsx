@@ -1,5 +1,6 @@
 import * as React from 'react'
 
+import { MediaStreams } from '@xrengine/client-core/src/transports/MediaStreams'
 import {
   configureMediaTransports,
   endVideoChat
@@ -7,16 +8,13 @@ import {
 import { SocketWebRTCClientNetwork } from '@xrengine/client-core/src/transports/SocketWebRTCClientNetwork'
 import multiLogger from '@xrengine/common/src/logger'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { MediaStreams } from '@xrengine/engine/src/networking/systems/MediaStreamSystem'
 
 import { CallEnd, VideoCall } from '@mui/icons-material'
 import Fab from '@mui/material/Fab'
 
 const logger = multiLogger.child({ component: 'client-core:videochat' })
 
-interface Props {}
-
-const VideoChat = (props: Props) => {
+const VideoChat = () => {
   const gsProvision = async () => {
     if (MediaStreams.instance.videoStream == null) {
       const mediaTransport = Engine.instance.currentWorld.mediaNetwork as SocketWebRTCClientNetwork

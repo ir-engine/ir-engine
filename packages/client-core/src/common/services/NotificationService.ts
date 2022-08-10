@@ -1,7 +1,12 @@
 import { VariantType } from 'notistack'
 
-import { useDispatch } from '../../store'
+import multiLogger from '@xrengine/common/src/logger'
+import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
+import { defineAction, dispatchAction } from '@xrengine/hyperflux'
+
 import { defaultAction } from '../components/NotificationActions'
+
+const logger = multiLogger.child({ component: 'client-core:Notification' })
 
 export type NotificationOptions = {
   variant: VariantType
@@ -14,19 +19,17 @@ export const NotificationActions = {
 
 export const NotificationService = {
   dispatchNotify(message: string, options: NotificationOptions) {
-    const dispatch = useDispatch()
-    dispatch(NotificationAction.notify(message, options))
-  }
-}
-
-export const NotificationAction = {
-  notify: (message: string, options: NotificationOptions) => {
-    return {
-      type: 'ENQUEUE_NOTIFICATION' as const,
-      message,
-      options
+    if (options?.variant === 'error') {
+      logger.error(new Error(message))
     }
+    dispatchAction(NotificationAction.notify({ message, options }))
   }
 }
 
-export type NotificationActionType = ReturnType<typeof NotificationAction[keyof typeof NotificationAction]>
+export class NotificationAction {
+  static notify = defineAction({
+    type: 'ENQUEUE_NOTIFICATION' as const,
+    message: matches.string,
+    options: matches.object as Validator<unknown, NotificationOptions>
+  })
+}

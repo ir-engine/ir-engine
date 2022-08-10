@@ -24,7 +24,7 @@ describe('EngineFunctions', () => {
       addComponent(createEntity(), Object3DComponent, { value: new Object3D() })
       const persistedEntity = createEntity()
       addComponent(persistedEntity, Object3DComponent, { value: new Object3D() })
-      addComponent(persistedEntity, PersistTagComponent, {})
+      addComponent(persistedEntity, PersistTagComponent, true)
 
       const objectEntities = object3dQuery(world)
 
@@ -32,14 +32,14 @@ describe('EngineFunctions', () => {
       for (const entity of objectEntities)
         Engine.instance.currentWorld.scene.add(getComponent(entity, Object3DComponent).value)
 
-      assert.equal(objectEntities.length, 5)
+      assert.equal(objectEntities.length, 6)
 
       unloadAllEntities(world, true)
 
       assert.equal(object3dQuery(world).length, 0)
 
       // should clean up world entity too
-      assert.equal(hasComponent(world.worldEntity, PersistTagComponent), false)
+      assert.equal(hasComponent(world.sceneEntity, PersistTagComponent), false)
       const persistedEntites = persistQuery(world)
       assert.equal(persistedEntites.length, 0)
     })
@@ -57,7 +57,7 @@ describe('EngineFunctions', () => {
       addComponent(createEntity(), Object3DComponent, { value: new Object3D() })
       const persistedEntity = createEntity()
       addComponent(persistedEntity, Object3DComponent, { value: new Object3D() })
-      addComponent(persistedEntity, PersistTagComponent, {})
+      addComponent(persistedEntity, PersistTagComponent, true)
 
       const objectEntities = getEntities(world)
 
@@ -65,19 +65,19 @@ describe('EngineFunctions', () => {
       for (const entity of objectEntities)
         Engine.instance.currentWorld.scene.add(getComponent(entity, Object3DComponent).value)
 
-      assert.equal(objectEntities.length, 5)
+      assert.equal(objectEntities.length, 6)
 
       unloadAllEntities(world, false)
 
       const persistedObjectEntites = getEntities(world)
       // should keep persisted entity
-      assert.equal(persistedObjectEntites.length, 1)
+      assert.equal(persistedObjectEntites.length, 2)
       assert(hasComponent(persistedObjectEntites[0], Object3DComponent))
       assert(hasComponent(persistedObjectEntites[0], PersistTagComponent))
-      assert(hasComponent(world.worldEntity, PersistTagComponent))
+      assert(hasComponent(world.sceneEntity, PersistTagComponent))
 
       const persistedEntites = persistQuery(world)
-      assert.equal(persistedEntites.length, 2)
+      assert.equal(persistedEntites.length, 4)
     })
   })
 

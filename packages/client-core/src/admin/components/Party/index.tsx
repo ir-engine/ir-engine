@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import Button from '@mui/material/Button'
@@ -6,20 +6,14 @@ import Grid from '@mui/material/Grid'
 
 import Search from '../../common/Search'
 import styles from '../../styles/admin.module.scss'
-import CreateParty from './CreateParty'
+import PartyDrawer, { PartyDrawerMode } from './PartyDrawer'
 import PartyTable from './PartyTable'
 
 const Party = () => {
-  const [partyModalOpen, setPartyModalOpen] = React.useState(false)
-  const [search, setSearch] = React.useState('')
+  const [openPartyDrawer, setOpenPartyDrawer] = useState(false)
+  const [search, setSearch] = useState('')
   const { t } = useTranslation()
-  const openModalCreate = () => {
-    setPartyModalOpen(true)
-  }
 
-  const handleCreatePartyClose = () => {
-    setPartyModalOpen(false)
-  }
   const handleChange = (e: any) => {
     setSearch(e.target.value)
   }
@@ -31,15 +25,20 @@ const Party = () => {
           <Search text="party" handleChange={handleChange} />
         </Grid>
         <Grid item xs={12} sm={4}>
-          <Button className={styles.openModalBtn} type="submit" variant="contained" onClick={() => openModalCreate()}>
-            {t('admin:components.party.createNewParty')}
+          <Button
+            className={styles.openModalBtn}
+            type="submit"
+            variant="contained"
+            onClick={() => setOpenPartyDrawer(true)}
+          >
+            {t('admin:components.party.createParty')}
           </Button>
         </Grid>
       </Grid>
-      <div className={styles.rootTableWithSearch}>
-        <PartyTable search={search} />
-      </div>
-      <CreateParty open={partyModalOpen} handleClose={handleCreatePartyClose} />
+
+      <PartyTable className={styles.rootTableWithSearch} search={search} />
+
+      <PartyDrawer open={openPartyDrawer} mode={PartyDrawerMode.Create} onClose={() => setOpenPartyDrawer(false)} />
     </div>
   )
 }

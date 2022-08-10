@@ -1,15 +1,28 @@
 import React from 'react'
 import styled from 'styled-components'
 
+import { InfoOutlined } from '@mui/icons-material'
 import HelpOutlineIcon from '@mui/icons-material/HelpOutline'
+import { createStyles } from '@mui/material'
 import Grid from '@mui/material/Grid'
+import makeStyles from '@mui/styles/makeStyles'
 
 import { InfoTooltip } from '../layout/Tooltip'
+
+const useStyles = makeStyles<any, {}, any>((theme: any) => {
+  return createStyles({
+    info: {
+      color: 'var(--textColor)',
+      height: '16px',
+      width: 'auto',
+      marginLeft: '5px'
+    }
+  })
+})
 
 /**
  * Used to provide styles for InputGroupContainer div.
  *
- * @author Robert Long
  * @type {Styled component}
  */
 export const InputGroupContainer = (styled as any).div`
@@ -38,12 +51,12 @@ export const InputGroupContainer = (styled as any).div`
 /**
  * Used to provide styles for InputGroupContent div.
  *
- * @author Robert Long
  * @type {Styled component}
  */
 export const InputGroupContent = (styled as any).div`
   display: flex;
-  justify-content: space-between; 
+  justify-content: space-between;
+  margin-left: 5px;
 
   &>*:first-child {
     max-width: calc(100% - 23px)
@@ -104,7 +117,6 @@ export const InputGroupVerticalContent = (styled as any).div`
 /**
  * Used to provide styles for InputGroupInfoIcon div.
  *
- *  @author Robert Long
  *  @type {styled component}
  */
 export const InputGroupInfoIcon = (styled as any)(HelpOutlineIcon)`
@@ -123,7 +135,6 @@ interface InputGroupInfoProp {
 /**
  * Used to render InfoTooltip component.
  *
- * @author Robert Long
  * @param  {string} info
  * @constructor
  */
@@ -138,7 +149,6 @@ export function InputGroupInfo({ info }: InputGroupInfoProp) {
 /**
  * Declaring proptypes for InputGroupInfo Component.
  *
- * @author Robert Long
  * @type {Object}
  */
 type InputGroupPropType = React.PropsWithChildren<
@@ -153,7 +163,6 @@ type InputGroupPropType = React.PropsWithChildren<
 /**
  * InputGroup used to render the view of component.
  *
- * @author Robert Long
  * @param       {string} name
  * @param       {any} children
  * @param       {boolean} disabled
@@ -163,25 +172,24 @@ type InputGroupPropType = React.PropsWithChildren<
  * @constructor
  */
 export function InputGroup({ name, children, disabled, info, label, ...rest }: InputGroupPropType) {
+  const styles = useStyles()
+
   return (
     <InputGroupContainer disabled={disabled} {...rest}>
-      <Grid container spacing="10px">
+      <Grid container>
         <Grid item xs={3} display="flex" alignItems="center" justifyContent="end">
-          <InfoTooltip
-            className="tooltip"
-            title={label ?? name}
-            disableInteractive
-            placement="right-start"
-            followCursor
-          >
+          <InfoTooltip className="tooltip" title={label ?? name}>
             <label>{label}</label>
           </InfoTooltip>
+
+          {info && (
+            <InfoTooltip title={info}>
+              <InfoOutlined className={styles.info} />
+            </InfoTooltip>
+          )}
         </Grid>
         <Grid item xs={9}>
-          <InputGroupContent>
-            {children}
-            {info && <InputGroupInfo info={info} />}
-          </InputGroupContent>
+          <InputGroupContent>{children}</InputGroupContent>
         </Grid>
       </Grid>
     </InputGroupContainer>

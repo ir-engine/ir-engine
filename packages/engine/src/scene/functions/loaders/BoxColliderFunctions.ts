@@ -1,4 +1,5 @@
-import { Mesh, Object3D } from 'three'
+import { ColliderDesc, RigidBodyDesc } from '@dimforge/rapier3d-compat'
+import { Mesh, Object3D, Quaternion, Vector3 } from 'three'
 
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
@@ -9,13 +10,10 @@ import {
 } from '../../../common/constants/PrefabFunctionType'
 import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
-import { addComponent, getComponent, hasComponent, removeComponent } from '../../../ecs/functions/ComponentFunctions'
-import { useWorld } from '../../../ecs/functions/SystemHooks'
-import { isTriggerShape, setTriggerShape } from '../../../physics/classes/Physics'
-import { ColliderComponent } from '../../../physics/components/ColliderComponent'
-import { CollisionComponent } from '../../../physics/components/CollisionComponent'
+import { addComponent, getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
+import { Physics } from '../../../physics/classes/Physics'
+import { RigidBodyComponent } from '../../../physics/components/RigidBodyComponent'
 import { CollisionGroups, DefaultCollisionMask } from '../../../physics/enums/CollisionGroups'
-import { createBody } from '../../../physics/functions/createCollider'
 import { TransformComponent } from '../../../transform/components/TransformComponent'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
@@ -25,27 +23,25 @@ export const SCENE_COMPONENT_BOX_COLLIDER = 'box-collider'
 export const SCENE_COMPONENT_BOX_COLLIDER_DEFAULT_VALUES = {
   isTrigger: false,
   removeMesh: false,
-  collisionLayer: DefaultCollisionMask,
-  collisionMask: CollisionGroups.Default
+  collisionLayer: CollisionGroups.Default,
+  collisionMask: DefaultCollisionMask
 }
 
 export const deserializeBoxCollider: ComponentDeserializeFunction = (
   entity: Entity,
   json: ComponentJson<BoxColliderProps>
 ): void => {
-  const world = useWorld()
   const boxColliderProps = parseBoxColliderProperties(json.props)
   const transform = getComponent(entity, TransformComponent)
-
-  const shape = world.physics.createShape(
-    new PhysX.PxBoxGeometry(Math.abs(transform.scale.x), Math.abs(transform.scale.y), Math.abs(transform.scale.z)),
-    undefined,
-    boxColliderProps as any
+  const colliderDesc = ColliderDesc.cuboid(
+    Math.abs(transform.scale.x),
+    Math.abs(transform.scale.y),
+    Math.abs(transform.scale.z)
   )
+  Physics.applyDescToCollider(colliderDesc, { type: 0, ...boxColliderProps }, new Vector3(), new Quaternion())
 
-  const body = createBody(entity, { bodyType: 0 }, [shape])
-  addComponent(entity, ColliderComponent, { body })
-  addComponent(entity, CollisionComponent, { collisions: [] })
+  const bodyDesc = RigidBodyDesc.fixed()
+  Physics.createRigidBody(entity, Engine.instance.currentWorld.physicsWorld, bodyDesc, [colliderDesc])
 
   getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_BOX_COLLIDER)
 
@@ -59,46 +55,27 @@ export const deserializeBoxCollider: ComponentDeserializeFunction = (
   meshObjs.forEach((mesh) => mesh.removeFromParent())
 }
 
-export const updateScaleTransform = function (entity: Entity) {
-  //Todo: getting box collider props
+export const updateBoxCollider: ComponentUpdateFunction = (entity: Entity) => {
   const data = serializeBoxCollider(entity) as any
   const boxColliderProps = parseBoxColliderProperties(data.props)
 
-  const component = getComponent(entity, ColliderComponent)
+  const rigidbody = getComponent(entity, RigidBodyComponent).body
   const transform = getComponent(entity, TransformComponent)
-  const shape = Engine.instance.currentWorld.physics.createShape(
-    new PhysX.PxBoxGeometry(Math.abs(transform.scale.x), Math.abs(transform.scale.y), Math.abs(transform.scale.z)),
-    undefined,
-    boxColliderProps as any
+
+  const colliderDesc = ColliderDesc.cuboid(
+    Math.abs(transform.scale.x),
+    Math.abs(transform.scale.y),
+    Math.abs(transform.scale.z)
   )
-
-  Engine.instance.currentWorld.physics.removeBody(component.body)
-  component.body = createBody(entity, { bodyType: 0 }, [shape])
-}
-
-export const updateBoxCollider: ComponentUpdateFunction = (entity: Entity, props: BoxColliderProps) => {
-  const component = getComponent(entity, ColliderComponent)
-  const transform = getComponent(entity, TransformComponent)
-
-  const pose = component.body.getGlobalPose()
-  pose.translation = transform.position
-  pose.rotation = transform.rotation
-  component.body.setGlobalPose(pose, false)
-  component.body._debugNeedsUpdate = true
-
-  const world = useWorld()
-  const boxShape = world.physics.getRigidbodyShapes(component.body)[0]
-  setTriggerShape(boxShape, props.isTrigger)
-  boxShape._debugNeedsUpdate = true
+  Physics.applyDescToCollider(colliderDesc, { type: 0, ...boxColliderProps }, transform.position, transform.rotation)
+  Engine.instance.currentWorld.physicsWorld.removeCollider(rigidbody.collider(0), true)
+  Engine.instance.currentWorld.physicsWorld.createCollider(colliderDesc, rigidbody)
 }
 
 export const serializeBoxCollider: ComponentSerializeFunction = (entity) => {
-  const component = getComponent(entity, ColliderComponent)
-  if (!component) return
-  const world = useWorld()
-
-  const boxShape = world.physics.getRigidbodyShapes(component.body)[0]
-  const isTrigger = isTriggerShape(boxShape)
+  const rigidbodyComponent = getComponent(entity, RigidBodyComponent)?.body
+  if (!rigidbodyComponent) return
+  const isTrigger = rigidbodyComponent.collider(0).isSensor()
 
   return {
     name: SCENE_COMPONENT_BOX_COLLIDER,

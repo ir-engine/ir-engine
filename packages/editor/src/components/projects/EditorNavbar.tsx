@@ -4,7 +4,7 @@ import ProfileMenu from '@xrengine/client-core/src/user/components/UserMenu/menu
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 
 import { Person } from '@mui/icons-material'
-import { ClickAwayListener, IconButton } from '@mui/material'
+import { IconButton, Popover } from '@mui/material'
 
 import styles from './styles.module.scss'
 
@@ -12,6 +12,17 @@ export const EditorNavbar = () => {
   const authState = useAuthState()
   const user = authState.user
   const [profileMenuOpen, setProfileMenuOpen] = useState(false)
+  const [anchorEl, setAnchorEl] = useState<HTMLElement | undefined>()
+
+  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setAnchorEl(event.currentTarget)
+    setProfileMenuOpen(true)
+  }
+
+  const handleClose = () => {
+    setProfileMenuOpen(false)
+    setAnchorEl(undefined)
+  }
 
   return (
     <nav className={styles.navbar}>
@@ -20,18 +31,25 @@ export const EditorNavbar = () => {
           className={styles.logoBlock}
           style={{ backgroundImage: 'url(/static/xrengine.png)', filter: 'invert()' }}
         ></div>
-        <IconButton onClick={() => setProfileMenuOpen(true)} className={styles.profileButton} disableRipple>
+        <IconButton onClick={handleClick} className={styles.profileButton} disableRipple>
           <span>{user.name.value}</span>
           <Person />
         </IconButton>
         {profileMenuOpen && (
           <>
             <div className={styles.backdrop}></div>
-            <ClickAwayListener onClickAway={() => setProfileMenuOpen(false)}>
-              <div className={styles.profileMenuBlock}>
-                <ProfileMenu setProfileMenuOpen={setProfileMenuOpen} className={styles.profileMenuContainer} />
-              </div>
-            </ClickAwayListener>
+            <Popover
+              open
+              anchorEl={anchorEl}
+              anchorOrigin={{
+                vertical: 'bottom',
+                horizontal: 'left'
+              }}
+              classes={{ paper: styles.profilePaper }}
+              onClose={handleClose}
+            >
+              <ProfileMenu isPopover onClose={handleClose} />
+            </Popover>
           </>
         )}
       </div>

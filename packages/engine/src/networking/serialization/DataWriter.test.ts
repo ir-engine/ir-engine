@@ -3,22 +3,27 @@ import { Group, Quaternion, Vector3 } from 'three'
 
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
+import { getState } from '@xrengine/hyperflux'
 
+import { createMockNetwork } from '../../../tests/util/createMockNetwork'
 import { roundNumberToPlaces } from '../../common/functions/roundVector'
 import { createQuaternionProxy, createVector3Proxy } from '../../common/proxies/three'
 import { Engine } from '../../ecs/classes/Engine'
+import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { createEngine } from '../../initializeEngine'
+import { VelocityComponent } from '../../physics/components/VelocityComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { XRHandsInputComponent } from '../../xr/components/XRHandsInputComponent'
-import { XRHandBones } from '../../xr/types/XRHandBones'
+import { XRHandsInputComponent } from '../../xr/XRComponents'
+import { XRHandBones } from '../../xr/XRHandBones'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
-import { readRotation } from './DataReader'
+import { readCompressedVector3, readRotation } from './DataReader'
 import {
   createDataWriter,
   writeComponent,
+  writeCompressedVector3,
   writeEntities,
   writeEntity,
   writePosition,
@@ -32,12 +37,14 @@ import { createViewCursor, readFloat32, readUint8, readUint16, readUint32, slice
 describe('DataWriter', () => {
   before(() => {
     createEngine()
+    createMockNetwork()
   })
 
   it('should writeComponent', () => {
     const writeView = createViewCursor()
     const entity = 42 as Entity
-    Engine.instance.currentWorld.fixedTick = 1
+    const engineState = getState(EngineState)
+    engineState.fixedTick.set(1)
 
     const [x, y, z] = [1.5, 2.5, 3.5]
     TransformComponent.position.x[entity] = x
@@ -156,6 +163,28 @@ describe('DataWriter', () => {
     strictEqual(roundNumberToPlaces(TransformComponent.rotation.y[entity], 3), roundNumberToPlaces(y, 3))
     strictEqual(roundNumberToPlaces(TransformComponent.rotation.z[entity], 3), roundNumberToPlaces(z, 3))
     strictEqual(roundNumberToPlaces(TransformComponent.rotation.w[entity], 3), roundNumberToPlaces(w, 3))
+  })
+
+  it('should writeCompressedVector3', () => {
+    const writeView = createViewCursor()
+    const entity = 42 as Entity
+
+    const [x, y, z] = [1.333, 2.333, 3.333]
+    VelocityComponent.linear.x[entity] = x
+    VelocityComponent.linear.y[entity] = y
+    VelocityComponent.linear.z[entity] = z
+
+    writeCompressedVector3(VelocityComponent.linear)(writeView, entity)
+
+    const readView = createViewCursor(writeView.buffer)
+    readCompressedVector3(VelocityComponent.linear)(readView, entity)
+
+    strictEqual(readView.cursor, Uint8Array.BYTES_PER_ELEMENT + Float32Array.BYTES_PER_ELEMENT)
+
+    // Round values and compare
+    strictEqual(roundNumberToPlaces(VelocityComponent.linear.x[entity], 1), roundNumberToPlaces(x, 1))
+    strictEqual(roundNumberToPlaces(VelocityComponent.linear.y[entity], 1), roundNumberToPlaces(y, 1))
+    strictEqual(roundNumberToPlaces(VelocityComponent.linear.z[entity], 1), roundNumberToPlaces(z, 1))
   })
 
   it('should writeTransform', () => {
@@ -318,9 +347,7 @@ describe('DataWriter', () => {
 
     addComponent(entity, NetworkObjectComponent, {
       networkId,
-      ownerId: userId,
-      prefab: '',
-      parameters: {}
+      ownerId: userId
     })
 
     NetworkObjectComponent.networkId[entity] = networkId
@@ -388,9 +415,7 @@ describe('DataWriter', () => {
       })
       addComponent(entity, NetworkObjectComponent, {
         networkId,
-        ownerId: userId,
-        prefab: '',
-        parameters: {}
+        ownerId: userId
       })
     })
 
@@ -467,13 +492,12 @@ describe('DataWriter', () => {
       })
       addComponent(entity, NetworkObjectComponent, {
         networkId,
-        ownerId: userId,
-        prefab: '',
-        parameters: {}
+        ownerId: userId
       })
     })
 
-    const packet = write(world, entities)
+    const network = Engine.instance.currentWorld.worldNetwork
+    const packet = write(world, network, entities)
 
     const expectedBytes =
       3 * Uint32Array.BYTES_PER_ELEMENT +

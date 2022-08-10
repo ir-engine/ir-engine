@@ -16,15 +16,20 @@ const testEnabled = process.env.TEST === 'true'
 
 // ensure process fails properly
 process.on('exit', async (code) => {
-  if (code !== 0) logger.fatal(`Server EXIT(${code}).`)
+  const message = `Server EXIT(${code}).`
+  if (code === 0) {
+    logger.info(message)
+  } else {
+    logger.fatal(message)
+  }
 })
 
 process.on('SIGTERM', async (err) => {
-  logger.fatal(err, 'Server SIGTERM.')
+  logger.warn(err, 'Server SIGTERM.')
   process.exit(1)
 })
 process.on('SIGINT', () => {
-  logger.fatal('RECEIVED SIGINT.')
+  logger.warn('RECEIVED SIGINT.')
   process.exit(1)
 })
 
@@ -119,7 +124,10 @@ const server = {
   gitPem: '',
   local: process.env.LOCAL === 'true',
   releaseName: process.env.RELEASE_NAME!,
-  matchmakerEmulationMode: process.env.MATCHMAKER_EMULATION_MODE === 'true'
+  matchmakerEmulationMode: process.env.MATCHMAKER_EMULATION_MODE === 'true',
+  instanceserverUnreachableTimeoutSeconds: process.env.INSTANCESERVER_UNREACHABLE_TIMEOUT_SECONDS
+    ? parseInt(process.env.INSTANCESERVER_UNREACHABLE_TIMEOUT_SECONDS)
+    : 2
 }
 const obj = kubernetesEnabled ? { protocol: 'https', hostname: server.hostname } : { protocol: 'https', ...server }
 server.url = process.env.SERVER_URL || url.format(obj)
@@ -179,10 +187,13 @@ const email = {
   from: `${process.env.SMTP_FROM_NAME}` + ` <${process.env.SMTP_FROM_EMAIL}>`,
   subject: {
     // Subject of the Login Link email
-    login: 'XREngine login link',
-    friend: 'XREngine friend request',
-    group: 'XREngine group invitation',
-    party: 'XREngine party invitation'
+    'new-user': 'Signup',
+    location: 'Location invitation',
+    instance: 'Location invitation',
+    login: 'Login link',
+    friend: 'Friend request',
+    group: 'Group invitation',
+    party: 'Party invitation'
   },
   smsNameCharacterLimit: 20
 }
@@ -194,7 +205,7 @@ const authentication = {
   service: 'identity-provider',
   entity: 'identity-provider',
   secret: process.env.AUTH_SECRET!,
-  authStrategies: ['jwt', 'local', 'discord', 'facebook', 'github', 'google', 'linkedin', 'twitter'],
+  authStrategies: ['jwt', 'local', 'discord', 'facebook', 'github', 'google', 'linkedin', 'twitter', 'did-auth'],
   local: {
     usernameField: 'email',
     passwordField: 'password'
@@ -212,6 +223,7 @@ const authentication = {
     google: process.env.GOOGLE_CALLBACK_URL || `${client.url}/auth/oauth/google`,
     linkedin: process.env.LINKEDIN_CALLBACK_URL || `${client.url}/auth/oauth/linkedin`,
     twitter: process.env.TWITTER_CALLBACK_URL || `${client.url}/auth/oauth/twitter`
+    // did-auth does not have a callback endpoint
   },
   oauth: {
     defaults: {
@@ -236,7 +248,8 @@ const authentication = {
     github: {
       appid: process.env.GITHUB_APP_ID!,
       key: process.env.GITHUB_CLIENT_ID!,
-      secret: process.env.GITHUB_CLIENT_SECRET!
+      secret: process.env.GITHUB_CLIENT_SECRET!,
+      scope: ['repo', 'user']
     },
     google: {
       key: process.env.GOOGLE_CLIENT_ID!,

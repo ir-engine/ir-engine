@@ -6,9 +6,7 @@ interface DemoStyleProps {
   theme: ThemeOptions
 }
 
-const DemoStyle = (props: DemoStyleProps) => {
-  const theme = props.theme
-
+const DemoStyle = ({ theme }: DemoStyleProps) => {
   return (
     <style>
       {`
@@ -181,14 +179,13 @@ const DemoStyle = (props: DemoStyleProps) => {
       }
 
       .outlinedButton {
-        margin: 0px;
         color: ${theme.buttonOutlined};
         background: transparent;
         border: solid 1px ${theme.buttonOutlined};
       }
 
       .outlinedButton:hover {
-        opacity: 0.8;
+        opacity: 0.7;
       }
 
       .filledButton {
@@ -202,9 +199,8 @@ const DemoStyle = (props: DemoStyleProps) => {
       }
 
       .gradientButton {
-        margin: 0px;
         color: ${theme.buttonTextColor};
-        background: linear-gradient(92.22deg, ${theme.buttonGradientStart}, ${theme.buttonGradientEnd});
+        background: linear-gradient(90deg, ${theme.buttonGradientStart}, ${theme.buttonGradientEnd});
       }
 
       .gradientButton:hover {
@@ -296,6 +292,10 @@ const DemoStyle = (props: DemoStyleProps) => {
 
       .spanDange {
         color: var(--orange) !important;
+      }
+
+      .spanWhite:hover, .spanDange:hover {
+        opacity: 0.7;
       }
 
       .popupMainBackground {

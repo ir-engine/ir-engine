@@ -31,7 +31,20 @@
       "installProject": "Install Project",
       "processing": "Processing",
       "projectName": "Project Name",
-      "projectURL": "Project URL"
+      "projectURL": "Project URL",
+      "link": "Link to GitHub repo",
+      "unlink": "Edit/Remove GitHub link",
+      "updateFromGithub": "Update project from GitHub",
+      "pushToGithub": "Push to GitHub",
+      "githubURL": "GitHub repo URL",
+      "linkRepo": "Link to GitHub repo",
+      "linkButton": "Link",
+      "changeLinkButton": "Change Link",
+      "unLinkButton": "Unlink",
+      "userInviteCode": "User's Invite Code",
+      "editProjectPermissions": "Manage User Permissions on Project",
+      "addUser": "Add User",
+      "permissions": "Project Permissions"
     }
   },
   "error": {
@@ -61,7 +74,7 @@
     "by": "BY",
     "xr": "XR",
     "foundation": "Foundation",
-    "description": "Realtime 3D social applications for everyone to enjoy."
+    "description": "FREE, OPEN, & INTEROPERABLE IMMERSIVE WEB TECHNOLOGY"
   },
   "xrengineContact": {
     "header": "Get In Touch!",

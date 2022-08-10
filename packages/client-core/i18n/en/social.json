@@ -23,6 +23,10 @@
   "flames": "Flames",
   "continue": "Continue",
   "partyInvitationSent": "Party invitation sent",
+  "selfLeftParty": "You have left the party",
+  "otherLeftParty": " has left the party",
+  "selfJoinedParty": "You have joined a party",
+  "otherJoinedParty": " has joined the party",
   "arMedia": {
     "back": "Back",
     "clip": "Clip",
@@ -198,5 +202,9 @@
     "logIn": "Log in",
     "LogInTo": "Log in to",
     "continueAsGuest": "Continue as guest"
+  },
+  "invite": {
+    "accept": "Accept",
+    "decline": "Decline"
   }
 }

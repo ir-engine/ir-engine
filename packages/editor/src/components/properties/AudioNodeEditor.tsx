@@ -1,55 +1,34 @@
-import React, { useState } from 'react'
+import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
 import { AudioComponent } from '@xrengine/engine/src/audio/components/AudioComponent'
-import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
-import { getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { ErrorComponent } from '@xrengine/engine/src/scene/components/ErrorComponent'
-import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
-import { VideoComponent } from '@xrengine/engine/src/scene/components/VideoComponent'
-import { VolumetricComponent } from '@xrengine/engine/src/scene/components/VolumetricComponent'
-import { toggleAudio } from '@xrengine/engine/src/scene/functions/loaders/AudioFunctions'
+import { AudioType, DistanceModel, DistanceModelOptions } from '@xrengine/engine/src/audio/constants/AudioConstants'
+import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 
 import VolumeUpIcon from '@mui/icons-material/VolumeUp'
 
-import AudioInput from '../inputs/AudioInput'
-import { PropertiesPanelButton } from '../inputs/Button'
+import BooleanInput from '../inputs/BooleanInput'
+import CompoundNumericInput from '../inputs/CompoundNumericInput'
 import InputGroup from '../inputs/InputGroup'
-import AudioSourceProperties from './AudioSourceProperties'
-import MediaSourceProperties from './MediaSourceProperties'
+import NumericInputGroup from '../inputs/NumericInputGroup'
+import SelectInput from '../inputs/SelectInput'
 import NodeEditor from './NodeEditor'
 import { EditorComponentType, updateProperty } from './Util'
+
+const AudioTypeOptions = [
+  { label: AudioType.Stereo, value: AudioType.Stereo },
+  { label: AudioType.Positional, value: AudioType.Positional }
+]
 
 /**
  * AudioNodeEditor used to customize audio element on the scene.
  *
- * @author Robert Long
  * @param       {Object} props
  * @constructor
  */
 export const AudioNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
-  const [_, setState] = useState(0)
-  const engineState = useEngineState()
-  const entity = props.node.entity
-
-  const audioComponent = getComponent(entity, AudioComponent)
-  const isVideo = hasComponent(entity, VideoComponent)
-  const isVolumetric = hasComponent(entity, VolumetricComponent)
-  const hasError = engineState.errorEntities[entity].get() || hasComponent(entity, ErrorComponent)
-  const obj3d = getComponent(entity, Object3DComponent)?.value
-
-  const updateSrc = async (src: string) => {
-    AssetLoader.Cache.delete(src)
-    await AssetLoader.loadAsync(src)
-    updateProperty(AudioComponent, 'audioSource')(src)
-  }
-
-  const onToggleAudio = () => {
-    toggleAudio(entity)
-    setState(_ + 1)
-  }
+  const audioComponent = getComponent(props.node.entity, AudioComponent)
 
   return (
     <NodeEditor
@@ -57,21 +36,127 @@ export const AudioNodeEditor: EditorComponentType = (props) => {
       name={t('editor:properties.audio.name')}
       description={t('editor:properties.audio.description')}
     >
-      {!isVideo && !isVolumetric && (
-        <InputGroup name="Audio Url" label={t('editor:properties.audio.lbl-audiourl')}>
-          <AudioInput value={audioComponent.audioSource} onChange={updateSrc} />
-          {hasError && <div style={{ marginTop: 2, color: '#FF8C00' }}>{t('editor:properties.audio.error-url')}</div>}
-        </InputGroup>
-      )}
-      <AudioSourceProperties node={props.node} multiEdit={props.multiEdit} />
-      {!isVideo && !isVolumetric && (
+      <InputGroup name="Audio Type" label={t('editor:properties.audio.lbl-audioType')}>
+        <SelectInput
+          key={props.node.entity}
+          options={AudioTypeOptions}
+          value={audioComponent.audioType}
+          onChange={updateProperty(AudioComponent, 'audioType')}
+        />
+      </InputGroup>
+      <InputGroup name="Volume" label={t('editor:properties.audio.lbl-volume')}>
+        <CompoundNumericInput value={audioComponent.volume} onChange={updateProperty(AudioComponent, 'volume')} />
+      </InputGroup>
+      <InputGroup name="Is Music" label={t('editor:properties.audio.lbl-isMusic')}>
+        <BooleanInput value={audioComponent.isMusic} onChange={updateProperty(AudioComponent, 'isMusic')} />
+      </InputGroup>
+      {!props.multiEdit && audioComponent.audioType === AudioType.Positional && (
         <>
-          <MediaSourceProperties node={props.node} multiEdit={props.multiEdit} />
-          <PropertiesPanelButton onClick={onToggleAudio}>
-            {obj3d && obj3d.userData.audioEl?.isPlaying
-              ? t('editor:properties.audio.lbl-pause')
-              : t('editor:properties.audio.lbl-play')}
-          </PropertiesPanelButton>
+          <InputGroup
+            name="Distance Model"
+            label={t('editor:properties.audio.lbl-distanceModel')}
+            info={t('editor:properties.audio.info-distanceModel')}
+          >
+            <SelectInput
+              key={props.node.entity}
+              options={DistanceModelOptions}
+              value={audioComponent.distanceModel}
+              onChange={updateProperty(AudioComponent, 'distanceModel')}
+            />
+          </InputGroup>
+
+          {audioComponent.distanceModel === DistanceModel.Linear ? (
+            <InputGroup
+              name="Rolloff Factor"
+              label={t('editor:properties.audio.lbl-rolloffFactor')}
+              info={t('editor:properties.audio.info-rolloffFactor')}
+            >
+              <CompoundNumericInput
+                min={0}
+                max={1}
+                smallStep={0.001}
+                mediumStep={0.01}
+                largeStep={0.1}
+                value={audioComponent.rolloffFactor}
+                onChange={updateProperty(AudioComponent, 'rolloffFactor')}
+              />
+            </InputGroup>
+          ) : (
+            <NumericInputGroup
+              name="Rolloff Factor"
+              label={t('editor:properties.audio.lbl-rolloffFactor')}
+              info={t('editor:properties.audio.info-rfInfinity')}
+              min={0}
+              smallStep={0.1}
+              mediumStep={1}
+              largeStep={10}
+              value={audioComponent.rolloffFactor}
+              onChange={updateProperty(AudioComponent, 'rolloffFactor')}
+            />
+          )}
+          <NumericInputGroup
+            name="Ref Distance"
+            label={t('editor:properties.audio.lbl-refDistance')}
+            info={t('editor:properties.audio.info-refDistance')}
+            min={0}
+            smallStep={0.1}
+            mediumStep={1}
+            largeStep={10}
+            value={audioComponent.refDistance}
+            onChange={updateProperty(AudioComponent, 'refDistance')}
+            unit="m"
+          />
+          <NumericInputGroup
+            name="Max Distance"
+            label={t('editor:properties.audio.lbl-maxDistance')}
+            info={t('editor:properties.audio.info-maxDistance')}
+            min={0.00001}
+            smallStep={0.1}
+            mediumStep={1}
+            largeStep={10}
+            value={audioComponent.maxDistance}
+            onChange={updateProperty(AudioComponent, 'maxDistance')}
+            unit="m"
+          />
+          <NumericInputGroup
+            name="Cone Inner Angle"
+            label={t('editor:properties.audio.lbl-coneInnerAngle')}
+            info={t('editor:properties.audio.info-coneInnerAngle')}
+            min={0}
+            max={360}
+            smallStep={0.1}
+            mediumStep={1}
+            largeStep={10}
+            value={audioComponent.coneInnerAngle}
+            onChange={updateProperty(AudioComponent, 'coneInnerAngle')}
+            unit="°"
+          />
+          <NumericInputGroup
+            name="Cone Outer Angle"
+            label={t('editor:properties.audio.lbl-coneOuterAngle')}
+            info={t('editor:properties.audio.info-coneOuterAngle')}
+            min={0}
+            max={360}
+            smallStep={0.1}
+            mediumStep={1}
+            largeStep={10}
+            value={audioComponent.coneOuterAngle}
+            onChange={updateProperty(AudioComponent, 'coneOuterAngle')}
+            unit="°"
+          />
+          <InputGroup
+            name="Cone Outer Gain"
+            label={t('editor:properties.audio.lbl-coreOuterGain')}
+            info={t('editor:properties.audio.info-coreOuterGain')}
+          >
+            <CompoundNumericInput
+              min={0}
+              max={1}
+              step={0.01}
+              value={audioComponent.coneOuterGain}
+              onChange={updateProperty(AudioComponent, 'coneOuterGain')}
+            />
+          </InputGroup>
         </>
       )}
     </NodeEditor>

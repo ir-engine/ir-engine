@@ -1,0 +1,35 @@
+.rootContainer {
+  width: 500px;
+  padding-top: 75px;
+  font-family: Roboto, sans-serif;
+}
+
+.ownerImage {
+  position: absolute;
+  width: 150px;
+  height: 150px;
+  top: 75px;
+  left: 0;
+  right: 0;
+  margin: auto;
+  border-radius: 75px;
+  filter: drop-shadow(0 4px 4px rgb(0 0 0 / 25%));
+  background: var(--popupBackground);
+  z-index: 1000;
+}
+
+.buttonContainer {
+  background: var(--popupBackground);
+  backdrop-filter: blur(41.8478px);
+  border-radius: 8.36957px;
+  box-shadow: 16px 16px 32px 0 #11111159;
+  color: black;
+  filter: drop-shadow(0 3.34783px 3.34783px rgb(0 0 0 / 25%));
+  padding: 26px 0 5px;
+  margin-top: 75px;
+}
+
+.buttonSection {
+  margin: 70px 40px 20px;
+  justify-content: space-between;
+}

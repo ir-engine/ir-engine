@@ -3,7 +3,7 @@ import StateFunctions from './functions/StateFunctions'
 import StoreFunctions, { HyperStore } from './functions/StoreFunctions'
 
 export * from './utils/useHookEffect'
-export { useState } from '@speigg/hookstate'
+export { useState, useHookstate } from '@hookstate/core'
 
 function dynamicFunctionReference<M extends { [name: string]: Function }, K extends keyof M>(
   functionMap: M,
@@ -20,14 +20,12 @@ export const defineAction = dynamicFunctionReference(ActionFunctions, 'defineAct
 export const dispatchAction = dynamicFunctionReference(ActionFunctions, 'dispatchAction')
 export const addActionReceptor = dynamicFunctionReference(ActionFunctions, 'addActionReceptor')
 export const createActionQueue = dynamicFunctionReference(ActionFunctions, 'createActionQueue')
-export const addTopic = dynamicFunctionReference(ActionFunctions, 'addTopic')
-export const removeTopic = dynamicFunctionReference(ActionFunctions, 'removeTopic')
+export const removeActionsForTopic = dynamicFunctionReference(ActionFunctions, 'removeActionsForTopic')
 export const removeActionReceptor = dynamicFunctionReference(ActionFunctions, 'removeActionReceptor')
 export const applyIncomingActions = dynamicFunctionReference(ActionFunctions, 'applyIncomingActions')
 export const clearOutgoingActions = dynamicFunctionReference(ActionFunctions, 'clearOutgoingActions')
 
 export const defineState = dynamicFunctionReference(StateFunctions, 'defineState')
-export const registerState = dynamicFunctionReference(StateFunctions, 'registerState')
 export const getState = dynamicFunctionReference(StateFunctions, 'getState')
 export const addStateReactor = dynamicFunctionReference(StateFunctions, 'addStateReactor')
 export const removeStateReactor = dynamicFunctionReference(StateFunctions, 'removeStateReactor')

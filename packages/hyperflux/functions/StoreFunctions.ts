@@ -1,21 +1,21 @@
-import { State } from '@speigg/hookstate'
+import { Downgraded, State } from '@hookstate/core'
+import { merge } from 'lodash'
 import { Validator } from 'ts-matches'
 
-import { addTopic } from '..'
-import { Action, ActionReceptor } from './ActionFunctions'
+import ActionFunctions from './ActionFunctions'
+import { ActionReceptor, ResolvedActionType, Topic } from './ActionFunctions'
 
 export type StringLiteral<T> = T extends string ? (string extends T ? never : T) : never
 export interface HyperStore {
   /**
    * The topic to dispatch to when none are supplied
    */
-  defaultTopic: string
+  defaultTopic: Topic
   /**
-   *  If the store mode is `local`, actions are dispatched on the incoming queue.
-   *  If the store mode is `host`, actions are dispatched on the incoming queue and then forwarded to the outgoing queue.
-   *  If the store mode is `peer`, actions are dispatched on the outgoing queue.
+   *  If false, actions are dispatched on the incoming queue.
+   *  If true, actions are dispatched on the incoming queue and then forwarded to the outgoing queue.
    */
-  getDispatchMode: (topic: string) => 'local' | 'host' | 'peer'
+  forwardIncomingActions: (action: Required<ResolvedActionType>) => boolean
   /**
    * A function which returns the dispatch id assigned to actions
    * */
@@ -34,23 +34,23 @@ export interface HyperStore {
   state: { [type: string]: State<any> }
   actions: {
     /** */
-    queues: Map<Validator<any, any>, Array<Array<Action>>>
+    queues: Map<Validator<any, any>, Array<Array<ResolvedActionType>>>
     /** Cached actions */
-    cached: Record<string, Array<Required<Action>>>
+    cached: Array<Required<ResolvedActionType>>
     /** Incoming actions */
-    incoming: Array<Required<Action>>
-    /** All incoming actions that have been proccessed */
-    incomingHistory: Array<Required<Action>>
-    /** All incoming action UUIDs that have been processed */
-    incomingHistoryUUIDs: Set<string>
+    incoming: Array<Required<ResolvedActionType>>
+    /** All actions that have been applied, in the order they were processed */
+    history: Array<Required<ResolvedActionType>>
+    /** All action UUIDs that have been processed and should not be processed again */
+    knownUUIDs: Set<string>
     /** Outgoing actions */
     outgoing: Record<
       string,
       {
         /** All actions that are waiting to be sent */
-        queue: Array<Required<Action>>
+        queue: Array<Required<ResolvedActionType>>
         /** All actions that have been sent */
-        history: Array<Required<Action>>
+        history: Array<Required<ResolvedActionType>>
         /** All incoming action UUIDs that have been processed */
         historyUUIDs: Set<string>
       }
@@ -67,31 +67,40 @@ export class HyperFlux {
 }
 
 function createHyperStore(options: {
-  getDispatchMode?: (topic: string) => 'local' | 'host' | 'peer'
+  forwardIncomingActions?: (action: Required<ResolvedActionType>) => boolean
   getDispatchId: () => string
   getDispatchTime: () => number
   defaultDispatchDelay?: number
 }) {
   const store = {
-    defaultTopic: 'default',
-    getDispatchMode: options.getDispatchMode ?? (() => 'local'),
+    defaultTopic: 'default' as Topic,
+    forwardIncomingActions: options.forwardIncomingActions ?? (() => false),
     getDispatchId: options.getDispatchId,
     getDispatchTime: options.getDispatchTime,
     defaultDispatchDelay: options.defaultDispatchDelay ?? 0,
     state: {},
     actions: {
       queues: new Map(),
-      cached: {},
+      cached: [],
       incoming: [],
-      incomingHistory: [],
-      incomingHistoryUUIDs: new Set(),
+      history: new Array(),
+      knownUUIDs: new Set(),
       outgoing: {}
     },
     receptors: [],
-    reactors: new WeakMap()
+    reactors: new WeakMap(),
+    toJSON: () => {
+      const state = Object.entries(store.state).reduce((obj, [name, state]) => {
+        return merge(obj, { [name]: state.attach(Downgraded).value })
+      }, {})
+      return {
+        ...store,
+        state
+      }
+    }
   } as HyperStore
-  addTopic(store.defaultTopic, store)
   HyperFlux.store = store
+  ActionFunctions.addOutgoingTopicIfNecessary(store.defaultTopic)
   return store
 }
 

@@ -9,10 +9,6 @@ import TextField from '@mui/material/TextField'
 
 import styles from './selectInput.module.scss'
 
-/**
- * @author Robert Long
- */
-
 interface SelectInputProp {
   value: any
   options: Array<{ label: string; value: any }>
@@ -32,7 +28,6 @@ interface SelectInputProp {
 
 /**
  *
- * @author Robert Long
  * @param {any} value
  * @param {any} options
  * @param {function} onChange
@@ -103,31 +98,37 @@ export function SelectInput({
       )}
     />
   ) : (
-    <React.Fragment>
-      <FormControl fullWidth>
-        <Select
-          labelId="select-label"
-          id="select"
-          value={valueSelected}
-          onChange={handleChange}
-          placeholder={placeholder}
-          size="small"
-          classes={{
-            select: styles.select,
-            icon: styles.icon
-          }}
-          disabled={disabled}
-          MenuProps={{ classes: { paper: styles.paper } }}
-          IconComponent={ExpandMoreIcon}
-        >
-          {options.map((el, index) => (
-            <MenuItem value={el.value} key={el.value + index} classes={{ root: styles.menuItem }}>
-              {el.label}
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
-    </React.Fragment>
+    <FormControl fullWidth>
+      <Select
+        labelId="select-label"
+        id="select"
+        value={valueSelected}
+        onChange={handleChange}
+        placeholder={placeholder}
+        size="small"
+        classes={{
+          select: styles.select,
+          icon: styles.icon
+        }}
+        disabled={disabled}
+        MenuProps={{
+          classes: { paper: styles.paper },
+          sx: {
+            // https://stackoverflow.com/a/69403132/2077741
+            '&& .Mui-selected': {
+              backgroundColor: 'var(--dropdownMenuSelectedBackground)'
+            }
+          }
+        }}
+        IconComponent={ExpandMoreIcon}
+      >
+        {options.map((el, index) => (
+          <MenuItem value={el.value} key={el.value + index} classes={{ root: styles.menuItem }}>
+            {el.label}
+          </MenuItem>
+        ))}
+      </Select>
+    </FormControl>
   )
 
   return <>{Component}</>

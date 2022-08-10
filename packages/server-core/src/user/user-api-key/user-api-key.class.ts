@@ -3,9 +3,9 @@ import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 import { v1 } from 'uuid'
 
 import { UserApiKeyInterface } from '@xrengine/common/src/dbmodels/UserApiKey'
+import { UserInterface } from '@xrengine/common/src/interfaces/User'
 
 import { Application } from '../../../declarations'
-import { UserDataType } from '../user/user.class'
 
 export type UserApiKeyDataType = UserApiKeyInterface & { userId: string }
 /**
@@ -22,8 +22,14 @@ export class UserApiKey<T = UserApiKeyDataType> extends Service<T> {
   }
 
   async patch(id: NullableId, data: any, params: Params = {}): Promise<T | T[]> {
-    const loggedInUser = params.user as UserDataType
-    if (loggedInUser.userRole === 'admin' && id != null && params) return super.patch(id, { ...data })
+    const loggedInUser = params.user as UserInterface
+    if (
+      loggedInUser.scopes &&
+      loggedInUser.scopes.find((scope) => scope.type === 'admin:admin') &&
+      id != null &&
+      params
+    )
+      return super.patch(id, { ...data })
     const userApiKey = await this.app.service('user-api-key').Model.findOne({
       where: {
         userId: loggedInUser.id

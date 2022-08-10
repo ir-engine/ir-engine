@@ -34,7 +34,7 @@ export const AddCorsProxyButton = (props: Props) => {
   }
 
   return props.value?.includes(corsProxyPath) ? null : (
-    <InfoTooltip title={t('editor:corsProxyButton:tooltip')!} disableInteractive>
+    <InfoTooltip title={t('editor:corsProxyButton:tooltip')!}>
       <DnsInfoIcon onClick={onClick} />
     </InfoTooltip>
   )

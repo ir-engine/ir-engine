@@ -1,17 +1,22 @@
+import {
+  ActiveCollisionTypes,
+  ActiveEvents,
+  ColliderDesc,
+  RigidBodyDesc,
+  RigidBodyType,
+  ShapeType
+} from '@dimforge/rapier3d-compat'
 import { BoxGeometry, Mesh, MeshBasicMaterial, Object3D, SphereGeometry, Vector3 } from 'three'
 
-import { getColorForBodyType } from '@xrengine/engine/src/debug/systems/DebugRenderer'
+// import { getColorForBodyType } from '@xrengine/engine/src/debug/systems/DebugRenderer'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
 import { addComponent, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { addEntityNodeInTree, createEntityNode } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
 import { WorldNetworkAction } from '@xrengine/engine/src/networking/functions/WorldNetworkAction'
-import { ColliderComponent } from '@xrengine/engine/src/physics/components/ColliderComponent'
 import { CollisionGroups } from '@xrengine/engine/src/physics/enums/CollisionGroups'
-import { ShapeOptions } from '@xrengine/engine/src/physics/functions/createCollider'
-import { teleportRigidbody } from '@xrengine/engine/src/physics/functions/teleportRigidbody'
-import { BodyType, ColliderTypes } from '@xrengine/engine/src/physics/types/PhysicsTypes'
+import { ColliderDescOptions } from '@xrengine/engine/src/physics/types/PhysicsTypes'
 import { ModelComponent } from '@xrengine/engine/src/scene/components/ModelComponent'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
@@ -21,7 +26,13 @@ import { createNewEditorNode } from '@xrengine/engine/src/scene/functions/SceneL
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 import { dispatchAction } from '@xrengine/hyperflux'
 
+import { createVector3Proxy } from '../../common/proxies/three'
 import { getEngineState } from '../../ecs/classes/EngineState'
+import { NetworkTopics } from '../../networking/classes/Network'
+import { Physics } from '../classes/Physics'
+import { RigidBodyComponent } from '../components/RigidBodyComponent'
+import { VelocityComponent } from '../components/VelocityComponent'
+import { getInteractionGroups } from './getInteractionGroups'
 
 /**
  * Returns a random number between min (inclusive) and max (exclusive)
@@ -54,55 +65,52 @@ let simulationObjectsGenerated = false
 export default async function PhysicsSimulationTestSystem(world: World) {
   return () => {
     const isInitialized = getEngineState().isEngineInitialized.value
-    if (!isInitialized || !world.physics.physics || simulationObjectsGenerated) return
+    if (!isInitialized || !world.physicsWorld || simulationObjectsGenerated) return
     simulationObjectsGenerated = true
     generateSimulationData(0)
   }
 }
 
 export const boxDynamicConfig = {
-  type: 'box' as ColliderTypes,
-  bodyType: BodyType.DYNAMIC,
+  type: ShapeType.Cuboid,
+  bodyType: RigidBodyType.Fixed,
   collisionLayer: CollisionGroups.Default,
-  collisionMask: CollisionGroups.Default | CollisionGroups.Avatars,
-  staticFriction: 1,
-  dynamicFriction: 1,
-  restitution: 0.1,
-  spawnPosition: new Vector3(0, 15, 5),
-  spawnScale: new Vector3(0.5, 0.5, 0.5)
-}
+  collisionMask: CollisionGroups.Default | CollisionGroups.Avatars | CollisionGroups.Ground,
+  friction: 1,
+  restitution: 0,
+  isTrigger: false,
+  spawnPosition: new Vector3(0, 0.25, 5),
+  spawnScale: new Vector3(0.5, 0.25, 0.5)
+} as ColliderDescOptions
 
 export const generateSimulationData = (numOfObjectsToGenerate) => {
   // Auto generate objects
-  for (let index = 0; index < numOfObjectsToGenerate; index++) {
-    let config = {} as ShapeOptions
-    config.type = getRandomInt(0, 1) ? 'box' : 'sphere'
-    config.bodyType = getRandomInt(0, 2)
-    config.collisionLayer = CollisionGroups.Default
-    config.collisionMask = CollisionGroups.Default | CollisionGroups.Avatars
-    config.staticFriction = 1
-    config.dynamicFriction = 1
-    config.restitution = 1
-
-    console.log('generating object with config:', config)
-    generatePhysicsObject(config)
-  }
-
-  // Define and generate any objects with manual configs
-  let config = {
-    type: 'sphere' as ColliderTypes,
-    bodyType: BodyType.DYNAMIC,
-    collisionLayer: CollisionGroups.Default,
-    collisionMask: CollisionGroups.Default | CollisionGroups.Avatars,
-    staticFriction: 1,
-    dynamicFriction: 1,
-    restitution: 0.1
-  }
-
-  // TODO: Generating the object as a network object here may result in an error sometimes,
-  // the reason being the spawn object network action from server is received before the object has been added to the scene locally.
-  // In order to test network functionality, call the generateSimulationData directly from scene loading logic in code for now.
-  generatePhysicsObject(config, new Vector3(0, 15, 0), true)
+  // for (let index = 0; index < numOfObjectsToGenerate; index++) {
+  //   let config = {} as ShapeOptions
+  //   config.type = getRandomInt(0, 1) ? 'box' : 'sphere'
+  //   config.bodyType = getRandomInt(0, 2)
+  //   config.collisionLayer = CollisionGroups.Default
+  //   config.collisionMask = CollisionGroups.Default | CollisionGroups.Avatars
+  //   config.staticFriction = 1
+  //   config.dynamicFriction = 1
+  //   config.restitution = 1
+  //   console.log('generating object with config:', config)
+  //   generatePhysicsObject(config)
+  // }
+  // // Define and generate any objects with manual configs
+  // let config = {
+  //   type: 'sphere' as ColliderTypes,
+  //   bodyType: BodyType.DYNAMIC,
+  //   collisionLayer: CollisionGroups.Default,
+  //   collisionMask: CollisionGroups.Default | CollisionGroups.Avatars,
+  //   staticFriction: 1,
+  //   dynamicFriction: 1,
+  //   restitution: 0.1
+  // }
+  // // TODO: Generating the object as a network object here may result in an error sometimes,
+  // // the reason being the spawn object network action from server is received before the object has been added to the scene locally.
+  // // In order to test network functionality, call the generateSimulationData directly from scene loading logic in code for now.
+  // generatePhysicsObject(config, new Vector3(0, 15, 0), true)
 }
 
 const defaultSpawnPosition = new Vector3()
@@ -110,7 +118,7 @@ const defaultScale = new Vector3(1, 1, 1)
 const defaultTorqueForce = new Vector3(0, 0, -500)
 
 export const generatePhysicsObject = (
-  config: ShapeOptions,
+  config: ColliderDescOptions,
   spawnPosition = defaultSpawnPosition,
   isNetworkObject = false,
   scale = defaultScale
@@ -119,66 +127,65 @@ export const generatePhysicsObject = (
 
   let geometry
   switch (type) {
-    case 'box':
-      geometry = new BoxGeometry(1, 1, 1)
+    case ShapeType.Cuboid:
+      geometry = new BoxGeometry(1, 0.5, 1)
       break
 
-    case 'sphere':
-      geometry = new SphereGeometry(0.5, 32, 16)
-      break
+    // case 'sphere':
+    //   geometry = new SphereGeometry(0.5, 32, 16)
+    //   break
 
     default:
       console.warn('Unspported type passed to test script!.')
   }
 
-  const color = getColorForBodyType(config.bodyType ? config.bodyType : 0)
+  const color = 0x00ff00 //getColorForBodyType(config.bodyType ? config.bodyType : 0)
   const material = new MeshBasicMaterial({ color: color })
   const mesh = new Mesh(geometry, material)
-  mesh.scale.set(2, 2, 2)
 
   mesh.userData['xrengine.collider.type'] = config.type
   mesh.userData['xrengine.collider.bodyType'] = config.bodyType
   mesh.userData['xrengine.collider.collisionLayer'] = config.collisionLayer
   mesh.userData['xrengine.collider.collisionMask'] = config.collisionMask
-  mesh.userData['xrengine.collider.staticFriction'] = config.staticFriction
-  mesh.userData['xrengine.collider.dynamicFriction'] = config.dynamicFriction
+  mesh.userData['xrengine.collider.friction'] = config.friction
   mesh.userData['xrengine.collider.restitution'] = config.restitution
 
   // Add empty model node
   const entity = createEntity()
   const uuid = getUUID()
   let entityTreeNode = createEntityNode(entity, uuid)
-  createNewEditorNode(entityTreeNode.entity, ScenePrefabs.model)
+  createNewEditorNode(entityTreeNode, ScenePrefabs.model)
 
   const nameComponent = getComponent(entity, NameComponent)
-  nameComponent.name = uuid
+  nameComponent.name = 'physics_debug_' + uuid
 
   const obj3d = mesh
   obj3d.scale.copy(scale)
   addComponent(entity, Object3DComponent, { value: obj3d })
-  parseGLTFModel(entity, getComponent(entity, ModelComponent), obj3d)
+
+  parseGLTFModel(entity)
 
   const world = Engine.instance.currentWorld
   addEntityNodeInTree(entityTreeNode, world.entityTree.rootNode)
 
   const transform = getComponent(entity, TransformComponent)
   transform.position.copy(spawnPosition)
-  const collider = getComponent(entity, ColliderComponent)
-  const body = collider.body as PhysX.PxRigidDynamic
-  teleportRigidbody(body, transform.position, transform.rotation)
+
+  const body = getComponent(entity, RigidBodyComponent).body
+  body.setTranslation(transform.position, true)
 
   if (isNetworkObject && world.worldNetwork.isHosting) {
-    body.addTorque(defaultTorqueForce)
+    // body.addTorque(defaultTorqueForce, true)
     console.info('spawning at:', transform.position.x, transform.position.y, transform.position.z)
 
     const node = world.entityTree.entityNodeMap.get(entity)
     if (node) {
       dispatchAction(
         WorldNetworkAction.spawnObject({
-          prefab: '',
-          parameters: { sceneEntityId: node.uuid, position: transform.position }
-        }),
-        [Engine.instance.currentWorld.worldNetwork.hostId]
+          prefab: 'physics_debug',
+          position: transform.position,
+          rotation: transform.rotation
+        })
       )
     }
   }

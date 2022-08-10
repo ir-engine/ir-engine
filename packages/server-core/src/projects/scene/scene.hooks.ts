@@ -1,4 +1,5 @@
 import authenticate from '../../hooks/authenticate'
+import projectPermissionAuthenticate from '../../hooks/project-permission-authenticate'
 import setResponseStatusCode from '../../hooks/set-response-status-code'
 import verifyScope from '../../hooks/verify-scope'
 
@@ -7,10 +8,10 @@ export default {
     all: [authenticate()],
     find: [],
     get: [],
-    create: [authenticate(), verifyScope('editor', 'write')],
-    update: [authenticate(), verifyScope('editor', 'write')],
-    patch: [authenticate(), verifyScope('editor', 'write')],
-    remove: [authenticate(), verifyScope('editor', 'write')]
+    create: [verifyScope('editor', 'write'), projectPermissionAuthenticate(false)],
+    update: [verifyScope('editor', 'write'), projectPermissionAuthenticate(false)],
+    patch: [verifyScope('editor', 'write'), projectPermissionAuthenticate(false)],
+    remove: [verifyScope('editor', 'write'), projectPermissionAuthenticate(false)]
   },
 
   after: {

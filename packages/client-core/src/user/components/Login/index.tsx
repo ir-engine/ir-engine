@@ -10,25 +10,14 @@ import CardMedia from '@mui/material/CardMedia'
 import Fab from '@mui/material/Fab'
 import Typography from '@mui/material/Typography'
 
-import { AuthSettingService, useAdminAuthSettingState } from '../../../admin/services/Setting/AuthSettingService'
+import { AuthSettingsService, useAuthSettingState } from '../../../admin/services/Setting/AuthSettingService'
+import { initialAuthState } from '../../../common/initialAuthState'
 import ForgotPassword from '../../../user/components/Auth/ForgotPassword'
 import PasswordLoginApp from '../../../user/components/Auth/PasswordLoginApp'
 import RegisterApp from '../../../user/components/Auth/RegisterApp'
 import ResetPassword from '../../../user/components/Auth/ResetPassword'
 import { AuthService } from '../../services/AuthService'
 import styles from './index.module.scss'
-
-const initialState = {
-  jwt: true,
-  local: false,
-  facebook: false,
-  github: false,
-  google: false,
-  linkedin: false,
-  twitter: false,
-  smsMagicLink: false,
-  emailMagicLink: false
-}
 
 interface Props {
   //auth?: any
@@ -38,15 +27,16 @@ interface Props {
   logo: string
   isAddConnection?: boolean
 }
+
 const FlatSignIn = (props: Props) => {
   const [view, setView] = useState('login')
 
   const { t } = useTranslation()
   const location = useLocation()
 
-  const authSettingState = useAdminAuthSettingState()
+  const authSettingState = useAuthSettingState()
   const [authSetting] = authSettingState?.authSettings?.value || []
-  const [authState, setAuthState] = useState(initialState)
+  const [authState, setAuthState] = useState(initialAuthState)
 
   const enableUserPassword = authState?.local
   const enableGoogleSocial = authState?.google
@@ -59,12 +49,8 @@ const FlatSignIn = (props: Props) => {
   const userTabPanel = enableUserPassword && <PasswordLoginApp />
 
   useEffect(() => {
-    !authSetting && AuthSettingService.fetchAuthSetting()
-  }, [])
-
-  useEffect(() => {
     if (authSetting) {
-      let temp = { ...initialState }
+      let temp = { ...initialAuthState }
       authSetting?.authStrategies?.forEach((el) => {
         Object.entries(el).forEach(([strategyName, strategy]) => {
           temp[strategyName] = strategy
@@ -127,7 +113,7 @@ const FlatSignIn = (props: Props) => {
     case 'reset-password':
       component = (
         <>
-          <ResetPassword resetPassword={handleResetPassword} token={''} />
+          <ResetPassword resetPassword={handleResetPassword} />
           <span className={styles.placeholder} />
         </>
       )

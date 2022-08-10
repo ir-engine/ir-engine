@@ -37,7 +37,7 @@ export const shutdownEngine = async () => {
 /** Reset the engine and remove everything from memory. */
 export function reset() {
   console.log('RESETTING ENGINE')
-  dispatchAction(EngineActions.sceneUnloaded())
+  dispatchAction(EngineActions.sceneUnloaded({}))
 
   disposeDracoLoaderWorkers()
 
@@ -90,19 +90,20 @@ export function reset() {
 export const unloadScene = (world: World, removePersisted = false) => {
   unloadAllEntities(world, removePersisted)
   unloadSystems(world, true)
-
-  dispatchAction(EngineActions.sceneUnloaded())
-
-  Engine.instance.currentWorld.scene.background = new Color('black')
-  Engine.instance.currentWorld.scene.environment = null
-
   EngineRenderer.instance.resetScene()
+  dispatchAction(EngineActions.sceneUnloaded({}))
 
-  isClient && configureEffectComposer()
+  // we then need to ensure all ECS queries are cleaned up properly, this can take a few frames
+  world.execute(world.fixedTick)
+  world.execute(world.fixedTick)
+  world.execute(world.fixedTick)
+  world.execute(world.fixedTick)
+  world.execute(world.fixedTick)
 
-  for (const world of Engine.instance.worlds) {
-    world.execute(50)
-  }
+  // this is needed to delay it at least 1 frame, ideally this should be pushed out into an a receptor
+  return new Promise((resolve) => {
+    setTimeout(resolve, 1)
+  })
 }
 
 export const unloadAllEntities = (world: World, removePersisted = false) => {

@@ -2,10 +2,10 @@ import { Paginated, Params } from '@feathersjs/feathers'
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 
 import { AdminAuthSetting as AdminAuthSettingInterface } from '@xrengine/common/src/interfaces/AdminAuthSetting'
+import { UserInterface } from '@xrengine/common/src/interfaces/User'
 
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
-import { UserDataType } from '../../user/user/user.class'
 
 export type AdminAuthSettingDataType = AdminAuthSettingInterface
 
@@ -19,7 +19,7 @@ export class Authentication<T = AdminAuthSettingDataType> extends Service<T> {
 
   async find(params?: Params): Promise<T[] | Paginated<T>> {
     const auth = (await super.find()) as any
-    const loggedInUser = params!.user as UserDataType
+    const loggedInUser = params!.user as UserInterface
     const data = auth.data.map((el) => {
       let oauth = JSON.parse(el.oauth)
       let authStrategies = JSON.parse(el.authStrategies)
@@ -35,7 +35,7 @@ export class Authentication<T = AdminAuthSettingDataType> extends Service<T> {
       if (typeof bearerToken === 'string') bearerToken = JSON.parse(bearerToken)
       if (typeof callback === 'string') callback = JSON.parse(callback)
 
-      if (loggedInUser.userRole !== 'admin')
+      if (!loggedInUser.scopes || !loggedInUser.scopes.find((scope) => scope.type === 'admin:admin'))
         return {
           id: el.id,
           entity: el.entity,

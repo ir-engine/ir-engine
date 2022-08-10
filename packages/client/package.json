@@ -21,7 +21,8 @@
     "local": "npm run localbuild && npm run localstart",
     "localbuild": "cross-env APP_ENV=production VITE_LOCAL_BUILD=true npm run build",
     "localstart": "cross-env APP_ENV=production VITE_LOCAL_BUILD=true npm run start",
-    "buildenv": "cross-env APP_ENV=production ts-node --transpile-only scripts/create-env-production.ts"
+    "buildenv": "cross-env APP_ENV=production ts-node --swc scripts/create-env-production.ts",
+    "populate-assetlinks": "cross-env APP_ENV=production ts-node --swc scripts/populate-assetlinks.ts"
   },
   "resolutions": {
     "@types/react": "17.0.44",
@@ -37,8 +38,8 @@
     "@mui/styled-engine-sc": "5.6.1",
     "@mui/styles": "5.6.1",
     "@rollup/plugin-inject": "4.0.4",
-    "@speigg/hookstate": "3.0.13-stable-state",
-    "@types/react": "17.0.44",
+    "@hookstate/core": "4.0.0-rc13",
+    "@swc/core": "^1.2.210",
     "@xrengine/client-core": "^0.5.7",
     "@xrengine/common": "^0.5.7",
     "@xrengine/editor": "^0.5.7",
@@ -48,6 +49,7 @@
     "@xrengine/projects": "^0.5.7",
     "app-root-path": "3.0.0",
     "classnames": "2.3.1",
+    "credential-handler-polyfill": "^2.3.0",
     "cli": "1.0.1",
     "cross-env": "7.0.3",
     "file-regex": "3.1.0",
@@ -62,13 +64,16 @@
     "react-full-screen": "1.1.0",
     "react-helmet": "6.1.0",
     "react-i18next": "11.16.6",
-    "react-infinite-scroller": "1.2.6",
     "react-json-tree": "0.15.2",
     "react-responsive": "9.0.0-beta.6",
     "react-router-dom": "5.3.0",
     "sass": "1.50.0",
     "socket.io-client": "4.4.1",
-    "ts-node": "10.7.0",
+    "ts-node": "10.8.2",
+    "vite": "2.9.4",
+    "vite-plugin-html": "2.1.2",
+    "vite-plugin-optimize-persist": "0.1.2",
+    "vite-plugin-package-config": "0.1.1",
     "yuka": "0.7.7"
   },
   "devDependencies": {
@@ -76,12 +81,11 @@
     "@types/react": "17.0.44",
     "@types/react-dom": "18.0.0",
     "@types/yuka": "0.7.1",
+    "app-root-path": "3.0.0",
+    "cli": "1.0.1",
     "config": "3.3.7",
     "trace-unhandled": "2.0.1",
-    "vite": "2.9.4",
-    "vite-plugin-html": "2.1.2",
-    "vite-plugin-optimize-persist": "0.1.2",
-    "vite-plugin-package-config": "0.1.1"
+    "node-fetch": "2.6.7"
   },
   "license": "ISC"
 }

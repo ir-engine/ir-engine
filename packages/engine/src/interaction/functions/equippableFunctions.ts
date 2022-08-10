@@ -4,6 +4,7 @@ import { ParityValue } from '../../common/enums/ParityValue'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
+import { NetworkTopics } from '../../networking/classes/Network'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { EquippedComponent } from '../components/EquippedComponent'
@@ -48,8 +49,7 @@ const dispatchEquipEntity = (equippedEntity: Entity, equip: boolean): void => {
       },
       attachmentPoint: attachmentPoint,
       equip: equip
-    }),
-    [Engine.instance.currentWorld.worldNetwork.hostId]
+    })
   )
 }
 

@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 
+import { AudioEffectPlayer } from '@xrengine/engine/src/audio/systems/AudioSystem'
 import { changeAvatarAnimationState } from '@xrengine/engine/src/avatar/animation/AvatarAnimationGraph'
 import { AvatarStates } from '@xrengine/engine/src/avatar/animation/Util'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
@@ -8,16 +9,15 @@ import { NavigateBefore, NavigateNext } from '@mui/icons-material'
 import Button from '@mui/material/Button'
 import ClickAwayListener from '@mui/material/ClickAwayListener'
 
-// @ts-ignore
 import styles from '../index.module.scss'
 
-type Props = { changeActiveMenu: (menu: any) => {} }
+const MAX_EMOTE_PER_PAGE = 6
+const MIN_EMOTE_PER_PAGE = 5
+const getEmotePerPage = () => (window.innerWidth > 768 ? MAX_EMOTE_PER_PAGE : MIN_EMOTE_PER_PAGE)
 
-const EmoteMenu = (props: Props): JSX.Element => {
-  const MAX_EMOTE_PER_PAGE = 6
-  const MIN_EMOTE_PER_PAGE = 5
+type EmoteMenuHooksProps = { changeActiveMenu: (menu: any) => {} }
 
-  const getEmotePerPage = () => (window.innerWidth > 768 ? MAX_EMOTE_PER_PAGE : MIN_EMOTE_PER_PAGE)
+export const useEmoteMenuHooks = ({ changeActiveMenu }: EmoteMenuHooksProps) => {
   const [page, setPage] = useState(0)
   const [imgPerPage, setImgPerPage] = useState(getEmotePerPage())
 
@@ -111,7 +111,7 @@ const EmoteMenu = (props: Props): JSX.Element => {
 
   const closeMenu = (e) => {
     e.preventDefault()
-    props.changeActiveMenu(null)
+    changeActiveMenu(null)
   }
 
   const calculateOtherValues = (): void => {
@@ -125,7 +125,7 @@ const EmoteMenu = (props: Props): JSX.Element => {
     const entity = Engine.instance.currentWorld.localClientEntity
     changeAvatarAnimationState(entity, stateName)
     // close Menu after playing animation
-    props.changeActiveMenu(null)
+    changeActiveMenu(null)
   }
 
   const renderEmoteList = () => {
@@ -149,6 +149,8 @@ const EmoteMenu = (props: Props): JSX.Element => {
           <Button
             className={styles.menuItem}
             {...emoticon.containerProps}
+            onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+            onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
             style={{
               width: menuItemWidth,
               height: menuItemWidth,
@@ -175,6 +177,37 @@ const EmoteMenu = (props: Props): JSX.Element => {
     setPage(page - 1)
   }
 
+  return {
+    closeMenu,
+    menuRadius,
+    menuThickness,
+    loadPreviousEmotes,
+    menuItemRadius,
+    renderEmoteList,
+    page,
+    imgPerPage,
+    items,
+    loadNextEmotes
+  }
+}
+type Props = { changeActiveMenu: (menu: any) => {} }
+
+const EmoteMenu = ({ changeActiveMenu }: Props): JSX.Element => {
+  const {
+    closeMenu,
+    menuRadius,
+    menuThickness,
+    loadPreviousEmotes,
+    menuItemRadius,
+    renderEmoteList,
+    page,
+    imgPerPage,
+    items,
+    loadNextEmotes
+  } = useEmoteMenuHooks({
+    changeActiveMenu
+  })
+
   return (
     <section className={styles.emoteMenu}>
       <ClickAwayListener onClickAway={closeMenu} mouseEvent="onMouseDown">
@@ -191,6 +224,8 @@ const EmoteMenu = (props: Props): JSX.Element => {
               type="button"
               className={`${styles.iconBlock} ${page === 0 ? styles.disabled : ''}`}
               onClick={loadPreviousEmotes}
+              onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+              onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
             >
               <NavigateBefore />
             </button>
@@ -209,6 +244,8 @@ const EmoteMenu = (props: Props): JSX.Element => {
               type="button"
               className={`${styles.iconBlock} ${(page + 1) * imgPerPage >= items.length ? styles.disabled : ''}`}
               onClick={loadNextEmotes}
+              onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+              onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
             >
               <NavigateNext />
             </button>

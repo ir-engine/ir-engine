@@ -80,10 +80,13 @@ describe('avatarFunctions Unit', async () => {
         animationGraph: {
           states: {},
           transitionRules: {},
-          currentState: null!
+          currentState: null!,
+          stateChanged: null!
         },
         rig: {} as BoneStructure,
-        rootYRatio: 1
+        bindRig: {} as BoneStructure,
+        rootYRatio: 1,
+        locomotion: new Vector3()
       })
 
       const animationGLTF = await loadGLTFAssetNode(animGLB)

@@ -1,8 +1,11 @@
 import i18n from 'i18next'
 
-import { client } from '@xrengine/client-core/src/feathers'
+import { API } from '@xrengine/client-core/src/API'
 import { SceneData } from '@xrengine/common/src/interfaces/SceneInterface'
+import multiLogger from '@xrengine/common/src/logger'
 import { serializeWorld } from '@xrengine/engine/src/scene/functions/serializeWorld'
+
+const logger = multiLogger.child({ component: 'editor:sceneFunctions' })
 
 /**
  * getScenes used to get list projects created by user.
@@ -11,11 +14,11 @@ import { serializeWorld } from '@xrengine/engine/src/scene/functions/serializeWo
  */
 export const getScenes = async (projectName: string): Promise<SceneData[]> => {
   try {
-    const result = await client.service('scene-data').get({ projectName, metadataOnly: true })
+    const result = await API.instance.client.service('scene-data').get({ projectName, metadataOnly: true })
     return result?.data
   } catch (error) {
-    console.log('Error in Getting Project:' + error)
-    throw new Error(error)
+    logger.error(error, 'Error in getting project getScenes()')
+    throw error
   }
 }
 
@@ -27,37 +30,36 @@ export const getScenes = async (projectName: string): Promise<SceneData[]> => {
  */
 export const getScene = async (projectName: string, sceneName: string, metadataOnly = true): Promise<SceneData> => {
   try {
-    const { data } = await client.service('scene').get({ projectName, sceneName, metadataOnly })
+    const { data } = await API.instance.client.service('scene').get({ projectName, sceneName, metadataOnly })
     return data
   } catch (error) {
-    console.log('Error in Getting Project:' + error)
-    throw new Error(error)
+    logger.error(error, 'Error in getting project getScene()')
+    throw error
   }
 }
 
 /**
  * deleteScene used to delete project using projectId.
  *
- * @author Robert Long
  * @param  {any}  sceneId
  * @return {Promise}
  */
 export const deleteScene = async (projectName, sceneName): Promise<any> => {
   try {
-    await client.service('scene').remove({ projectName, sceneName })
+    await API.instance.client.service('scene').remove({ projectName, sceneName })
   } catch (error) {
-    console.log('Error in deleting Project:' + error)
-    throw new Error(error)
+    logger.error(error, 'Error in deleting project')
+    throw error
   }
   return true
 }
 
 export const renameScene = async (projectName: string, newSceneName: string, oldSceneName: string): Promise<any> => {
   try {
-    await client.service('scene').patch(null, { newSceneName, oldSceneName, projectName })
+    await API.instance.client.service('scene').patch(null, { newSceneName, oldSceneName, projectName })
   } catch (error) {
-    console.log('Error in renaming Project:' + error)
-    throw new Error(error)
+    logger.error(error, 'Error in renaming project')
+    throw error
   }
   return true
 }
@@ -65,8 +67,6 @@ export const renameScene = async (projectName: string, newSceneName: string, old
 /**
  * saveScene used to save changes in existing project.
  *
- * @author Robert Long
- * @author Abhishek Pathak
  * @param  {any}  sceneName
  * @param  {any}  signal
  * @return {Promise}
@@ -86,18 +86,18 @@ export const saveScene = async (
   const sceneData = serializeWorld()
 
   try {
-    return await client.service('scene').update(projectName, { sceneName, sceneData, thumbnailBuffer })
+    return await API.instance.client.service('scene').update(projectName, { sceneName, sceneData, thumbnailBuffer })
   } catch (error) {
-    console.error('Error in Getting Project:' + error)
-    throw new Error(error)
+    logger.error(error, 'Error in saving project')
+    throw error
   }
 }
 
 export const createNewScene = async (projectName: string): Promise<{ projectName: string; sceneName: string }> => {
   try {
-    return client.service('scene').create({ projectName })
+    return API.instance.client.service('scene').create({ projectName })
   } catch (error) {
-    console.error('Error in Getting Project:' + error)
-    throw new Error(error)
+    logger.error(error, 'Error in creating project')
+    throw error
   }
 }

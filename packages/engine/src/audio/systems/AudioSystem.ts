@@ -1,125 +1,135 @@
-import { addActionReceptor, dispatchAction } from '@xrengine/hyperflux'
+import { Not } from 'bitecs'
 
+import { addActionReceptor, createActionQueue, getState } from '@xrengine/hyperflux'
+
+import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions } from '../../ecs/classes/EngineState'
 import { World } from '../../ecs/classes/World'
-import { defineQuery, getComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineQuery, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { matchActionOnce } from '../../networking/functions/matchActionOnce'
-import { AudioSettingReceptor, restoreAudioSettings } from '../AudioState'
-import { BackgroundMusic } from '../components/BackgroundMusic'
-import { PlaySoundEffect } from '../components/PlaySoundEffect'
-import { SoundEffect } from '../components/SoundEffect'
+import { MediaComponent } from '../../scene/components/MediaComponent'
+import { MediaElementComponent } from '../../scene/components/MediaElementComponent'
+import { Object3DComponent } from '../../scene/components/Object3DComponent'
+import { VideoComponent } from '../../scene/components/VideoComponent'
+import { VolumetricComponent } from '../../scene/components/VolumetricComponent'
+import {
+  AUDIO_TEXTURE_PATH,
+  AudioElementObjects,
+  updateAudioParameters,
+  updateAudioPrefab
+} from '../../scene/functions/loaders/AudioFunctions'
+import { updateVideo } from '../../scene/functions/loaders/VideoFunctions'
+import { updateVolumetric } from '../../scene/functions/loaders/VolumetricFunctions'
+import {
+  accessAudioState,
+  AudioSettingAction,
+  AudioSettingReceptor,
+  AudioState,
+  restoreAudioSettings
+} from '../AudioState'
+import { AudioComponent } from '../components/AudioComponent'
+
+export class AudioEffectPlayer {
+  static instance = new AudioEffectPlayer()
+
+  static SOUNDS = {
+    notification: '/sfx/notification.mp3',
+    message: '/sfx/message.mp3',
+    alert: '/sfx/alert.mp3',
+    ui: '/sfx/ui.mp3'
+  }
+
+  // pool of elements
+  #els: HTMLAudioElement[] = []
+
+  _init() {
+    for (let i = 0; i < 4; i++) {
+      const audioElement = document.createElement('audio')
+      audioElement.loop = false
+      this.#els.push(audioElement)
+    }
+  }
+
+  play(sound: string, volumeMultiplier = getState(AudioState).notificationVolume.value) {
+    if (!this.#els.length) return
+    const el = this.#els.find((el) => el.paused) ?? this.#els[0]
+    el.volume = accessAudioState().masterVolume.value * volumeMultiplier
+    if (el.src !== sound) el.src = sound
+    el.currentTime = 0
+    el.play()
+  }
+}
+
+globalThis.AudioEffectPlayer = AudioEffectPlayer
+
+export type AudioElementNode = {
+  gain: GainNode
+  source: MediaElementAudioSourceNode | MediaStreamAudioSourceNode
+  panner?: PannerNode
+}
+
+export const AudioElementNodes = new WeakMap<HTMLMediaElement | MediaStream, AudioElementNode>()
 
 export default async function AudioSystem(world: World) {
-  const soundEffectQuery = defineQuery([SoundEffect])
-  const musicQuery = defineQuery([BackgroundMusic])
-  const playQuery = defineQuery([SoundEffect, PlaySoundEffect])
+  await AssetLoader.loadAsync(AUDIO_TEXTURE_PATH)
 
-  /** Indicates whether the system is ready or not. */
-  let audioReady = false
-  /** Callbacks to be called after system is ready. */
-  let callbacks: any[] = []
-  /** Audio Element. */
-  let audio: any
+  /** create gain nodes for mix buses */
+  Engine.instance.gainNodeMixBuses.mediaStreams = Engine.instance.audioContext.createGain()
+  Engine.instance.gainNodeMixBuses.mediaStreams.connect(Engine.instance.cameraGainNode)
+  Engine.instance.gainNodeMixBuses.notifications = Engine.instance.audioContext.createGain()
+  Engine.instance.gainNodeMixBuses.notifications.connect(Engine.instance.cameraGainNode)
+  Engine.instance.gainNodeMixBuses.music = Engine.instance.audioContext.createGain()
+  Engine.instance.gainNodeMixBuses.music.connect(Engine.instance.cameraGainNode)
+  Engine.instance.gainNodeMixBuses.soundEffects = Engine.instance.audioContext.createGain()
+  Engine.instance.gainNodeMixBuses.soundEffects.connect(Engine.instance.cameraGainNode)
 
-  /**
-   * Call the callbacks when system is ready or push callbacks in array otherwise.
-   * @param cb Callback to be called when system is ready.
-   */
-  const whenReady = (cb): void => {
-    if (audioReady) {
-      cb()
-    } else {
-      callbacks.push(cb)
-    }
-  }
-
-  /** Enable and start audio system. */
-  const startAudio = (e) => {
-    window.removeEventListener('pointerdown', startAudio, true)
-    console.log('starting audio')
-    audioReady = true
-    Engine.instance.currentWorld.audioListener.context.resume()
-    dispatchAction(EngineActions.startSuspendedContexts())
-
-    callbacks.forEach((cb) => cb())
-    callbacks = null!
-  }
-  window.addEventListener('pointerdown', startAudio, true)
-
-  /**
-   * Start Background music if available.
-   * @param ent Entity to get the {@link audio/components/BackgroundMusic.BackgroundMusic | BackgroundMusic} Component.
-   */
-  const startBackgroundMusic = (ent): void => {
-    const music = ent.getComponent(BackgroundMusic)
-    if (music.src && !audio) {
-      music.audio = new Audio()
-      music.audio.loop = true
-      music.audio.volume = music.volume
-      music.audio.addEventListener('loadeddata', () => {
-        music.audio.play()
-      })
-      music.audio.src = music.src
-    }
-  }
-
-  /**
-   * Stop Background Music.
-   * @param ent Entity to get the {@link audio/components/BackgroundMusic.BackgroundMusic | BackgroundMusic} Component.
-   */
-  const stopBackgroundMusic = (ent): void => {
-    const music = ent.getComponent(BackgroundMusic)
-    if (music && music.audio) {
-      music.audio.pause()
-    }
-  }
-
-  /**
-   * Play sound effect.
-   * @param ent Entity to get the {@link audio/components/PlaySoundEffect.PlaySoundEffect | PlaySoundEffect} Component.
-   */
-  const playSoundEffect = (ent): void => {
-    const sound = getComponent(ent, SoundEffect)
-    const playTag = getComponent(ent, PlaySoundEffect)
-    const audio = sound.audio[playTag.index]
-    audio.volume = Math.min(Math.max(playTag.volume, 0), 1)
-    audio.play()
-    removeComponent(ent, PlaySoundEffect)
-  }
-
-  matchActionOnce(EngineActions.joinedWorld.matches, () => {
-    restoreAudioSettings()
-  })
+  restoreAudioSettings()
 
   addActionReceptor(AudioSettingReceptor)
 
-  return () => {
-    for (const entity of soundEffectQuery.enter(world)) {
-      const effect = getComponent(entity, SoundEffect)
-      if (!audio) {
-        effect.src.forEach((src, i) => {
-          if (!src) {
-            return
-          }
+  const modifyPropertyActionQueue = createActionQueue(EngineActions.sceneObjectUpdate.matches)
+  const userInteractActionQueue = createActionQueue(EngineActions.setUserHasInteracted.matches)
 
-          const audio = new Audio()
-          effect.audio[i] = audio
-          audio.src = src
-        })
+  const audioQuery = defineQuery([Object3DComponent, AudioComponent, Not(VideoComponent), Not(VolumetricComponent)])
+  const videoQuery = defineQuery([Object3DComponent, AudioComponent, VideoComponent, Not(VolumetricComponent)])
+  const volQuery = defineQuery([Object3DComponent, AudioComponent, Not(VideoComponent), VolumetricComponent])
+  const mediaQuery = defineQuery([MediaComponent])
+
+  return () => {
+    const audioContext = Engine.instance.audioContext
+
+    const audioEntities = audioQuery()
+    const videoEntities = videoQuery()
+    const volEntities = volQuery()
+    const mediaEntities = mediaQuery()
+
+    if (userInteractActionQueue().length) {
+      if (audioContext.state === 'suspended') audioContext.resume()
+      AudioEffectPlayer.instance._init()
+      if (!Engine.instance.isEditor) {
+        for (const entity of mediaEntities) {
+          const media = getComponent(entity, MediaElementComponent)
+          if (media.autoplay) {
+            media.muted = false
+            media.play()
+          }
+        }
       }
     }
 
-    for (const entity of musicQuery.enter(world)) {
-      whenReady(() => startBackgroundMusic(entity))
+    for (const entity of audioQuery.exit()) {
+      const obj3d = getComponent(entity, Object3DComponent, true)?.value
+      AudioElementObjects.get(obj3d)?.removeFromParent()
     }
 
-    for (const entity of musicQuery.exit(world)) {
-      stopBackgroundMusic(entity)
-    }
-
-    for (const entity of playQuery.enter(world)) {
-      whenReady(() => playSoundEffect(entity))
+    for (const action of modifyPropertyActionQueue()) {
+      for (const entity of action.entities) {
+        if (audioEntities.includes(entity)) updateAudioPrefab(entity)
+        if (videoEntities.includes(entity)) updateVideo(entity)
+        if (volEntities.includes(entity)) updateVolumetric(entity)
+        if (hasComponent(entity, AudioComponent)) updateAudioParameters(entity)
+      }
     }
   }
 }

@@ -1,4 +1,4 @@
-import { NullableId, Paginated, Params } from '@feathersjs/feathers'
+import { Id, NullableId, Paginated, Params } from '@feathersjs/feathers'
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 
 import { ClientSetting as ClientSettingInterface } from '@xrengine/common/src/interfaces/ClientSetting'
@@ -20,16 +20,18 @@ export class ClientSetting<T = ClientSettingDataType> extends Service<T> {
     const data = clientSettings.data.map((el) => {
       let appSocialLinks = JSON.parse(el.appSocialLinks)
       let themeSettings = JSON.parse(el.themeSettings)
+      let themeModes = JSON.parse(el.themeModes)
 
       if (typeof appSocialLinks === 'string') appSocialLinks = JSON.parse(appSocialLinks)
       if (typeof themeSettings === 'string') themeSettings = JSON.parse(themeSettings)
+      if (typeof themeModes === 'string') themeModes = JSON.parse(themeModes)
 
-      const returned = {
+      return {
         ...el,
         appSocialLinks: appSocialLinks,
-        themeSettings: themeSettings
+        themeSettings: themeSettings,
+        themeModes: themeModes
       }
-      return returned
     })
 
     return {
@@ -37,6 +39,24 @@ export class ClientSetting<T = ClientSettingDataType> extends Service<T> {
       limit: clientSettings.limit,
       skip: clientSettings.skip,
       data
+    }
+  }
+
+  async get(id: Id, params?: Params): Promise<T> {
+    const clientSettings = (await super.get(id, params)) as any
+    let appSocialLinks = JSON.parse(clientSettings.appSocialLinks)
+    let themeSettings = JSON.parse(clientSettings.themeSettings)
+    let themeModes = JSON.parse(clientSettings.themeModes)
+
+    if (typeof appSocialLinks === 'string') appSocialLinks = JSON.parse(appSocialLinks)
+    if (typeof themeSettings === 'string') themeSettings = JSON.parse(themeSettings)
+    if (typeof themeModes === 'string') themeModes = JSON.parse(themeModes)
+
+    return {
+      ...clientSettings,
+      appSocialLinks: appSocialLinks,
+      themeSettings: themeSettings,
+      themeModes: themeModes
     }
   }
 

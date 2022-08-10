@@ -1,4 +1,4 @@
-import { useHookstate } from '@speigg/hookstate'
+import { useHookstate } from '@hookstate/core'
 import React, { ReactNode, useEffect, useRef } from 'react'
 import styled from 'styled-components'
 
@@ -10,19 +10,11 @@ import { getStepSize, toPrecision } from '../../functions/utils'
 import Overlay from '../layout/Overlay'
 import Portal from '../layout/Portal'
 
-/**
- *
- * @author Robert Long
- */
 const ScrubberContainer = (styled as any).div`
   cursor: ew-resize;
   user-select: none;
 `
 
-/**
- *
- * @author Robert Long
- */
 const Cursor = (styled as any)(MultipleStopIcon).attrs(({ x, y }) => ({
   style: {
     transform: `translate(${x}px,${y}px)`
@@ -55,11 +47,23 @@ type ScrubberProp = {
   onCommit?: Function
 }
 
-/**
- *
- * @author Robert Long
- */
-const Scrubber = (props: ScrubberProp) => {
+const Scrubber = ({
+  tag,
+  children,
+  smallStep,
+  mediumStep,
+  largeStep,
+  sensitivity,
+  min,
+  max,
+  precision,
+  convertFrom,
+  convertTo,
+  value,
+  onChange,
+  onCommit,
+  ...rest
+}: ScrubberProp) => {
   const state = useHookstate({
     isDragging: false,
     startValue: null as number | null,
@@ -71,8 +75,6 @@ const Scrubber = (props: ScrubberProp) => {
   const scrubberEl = useRef<HTMLElement>(null)
 
   const handleMouseMove = (event) => {
-    const { smallStep, mediumStep, largeStep, sensitivity, min, max, precision, convertTo, onChange } = props
-
     if (state.isDragging.value) {
       const mX = state.mouseX.value + event.movementX
       const mY = state.mouseY.value + event.movementY
@@ -91,8 +93,6 @@ const Scrubber = (props: ScrubberProp) => {
   }
 
   const handleMouseUp = () => {
-    const { onCommit, value } = props
-
     if (state.isDragging.value) {
       state.isDragging.set(false)
       state.startValue.set(null)
@@ -117,8 +117,6 @@ const Scrubber = (props: ScrubberProp) => {
   }, [])
 
   const handleMouseDown = (event) => {
-    const { convertFrom, value } = props
-
     state.isDragging.set(true)
     state.startValue.set(convertFrom(value))
     state.delta.set(0)
@@ -130,24 +128,6 @@ const Scrubber = (props: ScrubberProp) => {
     window.addEventListener('mousemove', handleMouseMove)
     window.addEventListener('mouseup', handleMouseUp)
   }
-
-  const {
-    tag,
-    children,
-    smallStep,
-    mediumStep,
-    largeStep,
-    sensitivity,
-    min,
-    max,
-    precision,
-    convertFrom,
-    convertTo,
-    value,
-    onChange,
-    onCommit,
-    ...rest
-  } = props
 
   return (
     <ScrubberContainer as={tag} ref={scrubberEl} onMouseDown={handleMouseDown} {...rest}>
@@ -176,8 +156,4 @@ Scrubber.defaultProps = {
   convertTo: (value) => value
 }
 
-/**
- *
- * @author Robert Long
- */
 export default React.memo(Scrubber)

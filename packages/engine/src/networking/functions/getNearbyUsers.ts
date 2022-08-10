@@ -1,37 +1,42 @@
+import { Not } from 'bitecs'
+
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 
+import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { Engine } from '../../ecs/classes/Engine'
-import { getComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
+import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
+import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
 
-export type NearbyUser = { id: UserId; distance: number }
+type NearbyUser = { id: UserId; distance: number }
 
 const compareDistance = (a: NearbyUser, b: NearbyUser) => a.distance - b.distance
 
-export function getNearbyUsers(userId: UserId): Array<NearbyUser> {
-  const userAvatar = Engine.instance.currentWorld.getUserAvatarEntity(userId)
-  const otherUsers = [] as UserId[]
-  for (const [otherUserId] of Engine.instance.currentWorld.clients) {
-    if (userId === otherUserId) continue
-    otherUsers.push(otherUserId)
+const remoteAvatars = defineQuery([
+  NetworkObjectComponent,
+  AvatarComponent,
+  TransformComponent,
+  Not(LocalInputTagComponent)
+])
+
+export function getNearbyUsers(userId: UserId, nonPartyUserIds: UserId[]): Array<UserId> {
+  const userAvatarEntity = Engine.instance.currentWorld.getUserAvatarEntity(userId)
+  if (!userAvatarEntity) return []
+  const userPosition = getComponent(userAvatarEntity, TransformComponent).position
+  if (!userPosition) return []
+  const userDistances = [] as Array<{ id: UserId; distance: number }>
+  for (const avatarEntity of remoteAvatars()) {
+    if (userAvatarEntity === avatarEntity) continue
+    const position = getComponent(avatarEntity, TransformComponent).position
+    const ownerId = getComponent(avatarEntity, NetworkObjectComponent).ownerId
+    userDistances.push({
+      id: ownerId,
+      distance: position.distanceTo(userPosition)
+    })
   }
-  if (typeof userAvatar === 'number') {
-    const userPosition = getComponent(userAvatar, TransformComponent).position
-    if (userPosition) {
-      const userDistances = [] as Array<{ id: UserId; distance: number }>
-      for (const id of otherUsers) {
-        const avatar = Engine.instance.currentWorld.getUserAvatarEntity(id)
-        if (typeof avatar === 'number') {
-          const position = getComponent(avatar, TransformComponent).position
-          if (position) {
-            userDistances.push({
-              id,
-              distance: position.distanceTo(userPosition)
-            })
-          }
-        }
-      }
-      return userDistances.sort(compareDistance)
-    } else return []
-  } else return []
+  return userDistances
+    .filter((u) => nonPartyUserIds.indexOf(u.id) > -1)
+    .sort(compareDistance)
+    .map((u) => u.id)
 }

@@ -1,7 +1,12 @@
 import { Params } from '@feathersjs/feathers'
+import { random } from 'lodash'
+
+import { UserInterface } from '@xrengine/common/src/interfaces/User'
 
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
+import getFreeInviteCode from '../../util/get-free-invite-code'
+import makeInitialAdmin from '../../util/make-initial-admin'
 import CustomOAuthStrategy from './custom-oauth'
 
 export class FacebookStrategy extends CustomOAuthStrategy {
@@ -12,7 +17,13 @@ export class FacebookStrategy extends CustomOAuthStrategy {
 
   async getEntityData(profile: any, entity: any, params: Params): Promise<any> {
     const baseData = await super.getEntityData(profile, null, {})
-    const userId = params?.query ? params.query.userId : undefined
+    const authResult = await (this.app.service('authentication') as any).strategies.jwt.authenticate(
+      { accessToken: params?.authentication?.accessToken },
+      {}
+    )
+    const identityProvider = authResult['identity-provider']
+    const userId = identityProvider ? identityProvider.userId : params?.query ? params.query.userId : undefined
+
     return {
       ...baseData,
       email: profile.email,
@@ -26,16 +37,26 @@ export class FacebookStrategy extends CustomOAuthStrategy {
       { accessToken: params?.authentication?.accessToken },
       {}
     )
+    if (!entity.userId) {
+      const avatars = await this.app.service('avatar').find({ isInternal: true })
+      const code = await getFreeInviteCode(this.app)
+      const newUser = (await this.app.service('user').create({
+        isGuest: false,
+        inviteCode: code,
+        avatarId: avatars[random(avatars.length - 1)].avatarId
+      })) as UserInterface
+      entity.userId = newUser.id
+      await this.app.service('identity-provider').patch(entity.id, {
+        userId: newUser.id
+      })
+    }
     const identityProvider = authResult['identity-provider']
     const user = await this.app.service('user').get(entity.userId)
-    const adminCount = await this.app.service('user').Model.count({
-      where: {
-        userRole: 'admin'
-      }
-    })
-    await this.app.service('user').patch(entity.userId, {
-      userRole: user?.userRole === 'admin' || adminCount === 0 ? 'admin' : 'user'
-    })
+    await makeInitialAdmin(this.app, user.id)
+    if (user.isGuest)
+      await this.app.service('user').patch(entity.userId, {
+        isGuest: false
+      })
     const apiKey = await this.app.service('user-api-key').find({
       query: {
         userId: entity.userId
@@ -45,16 +66,25 @@ export class FacebookStrategy extends CustomOAuthStrategy {
       await this.app.service('user-api-key').create({
         userId: entity.userId
       })
-    if (entity.type !== 'guest') {
+    if (entity.type !== 'guest' && identityProvider.type === 'guest') {
       await this.app.service('identity-provider').remove(identityProvider.id)
       await this.app.service('user').remove(identityProvider.userId)
+      return super.updateEntity(entity, profile, params)
     }
-    return super.updateEntity(entity, profile, params)
+    const existingEntity = await super.findEntity(profile, params)
+    if (!existingEntity) {
+      profile.userId = user.id
+      const newIP = await super.createEntity(profile, params)
+      if (entity.type === 'guest') await this.app.service('identity-provider').remove(entity.id)
+      return newIP
+    } else if (existingEntity.userId === identityProvider.userId) return existingEntity
+    else {
+      throw new Error('Another user is linked to this account')
+    }
   }
 
   async getRedirect(data: any, params: Params): Promise<string> {
     const redirectHost = config.authentication.callback.facebook
-
     const type = params?.query?.userId ? 'connection' : 'login'
     if (Object.getPrototypeOf(data) === Error.prototype) {
       const err = data.message as string

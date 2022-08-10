@@ -1,10 +1,10 @@
 import { Euler, Quaternion } from 'three'
 
-import { store } from '@xrengine/client-core/src/store'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 import { TransformSpace } from '@xrengine/engine/src/scene/constants/transformConstants'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
+import { dispatchAction } from '@xrengine/hyperflux'
 
 import { CommandFuncType, CommandParams, TransformCommands } from '../constants/EditorCommands'
 import arrayShallowEqual from '../functions/arrayShallowEqual'
@@ -66,8 +66,8 @@ function undo(command: RotationCommandParams) {
 function emitEventAfter(command: RotationCommandParams) {
   if (command.preventEvents) return
 
-  store.dispatch(EditorAction.sceneModified(true))
-  store.dispatch(SelectionAction.changedObject(command.affectedNodes, 'rotation'))
+  dispatchAction(EditorAction.sceneModified({ modified: true }))
+  dispatchAction(SelectionAction.changedObject({ objects: command.affectedNodes, propertyName: 'rotation' }))
 }
 
 function updateRotation(command: RotationCommandParams, isUndo: boolean): void {

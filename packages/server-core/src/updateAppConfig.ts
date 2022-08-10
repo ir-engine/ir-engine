@@ -613,6 +613,10 @@ export const updateAppConfig = async (): Promise<void> => {
     releaseName: {
       type: DataTypes.STRING,
       allowNull: true
+    },
+    instanceserverUnreachableTimeoutSeconds: {
+      type: DataTypes.INTEGER,
+      defaultValue: 2
     }
   })
   const serverSettingPromise = serverSetting
@@ -640,6 +644,7 @@ export const updateAppConfig = async (): Promise<void> => {
         gitPem: dbServer.gitPem,
         local: dbServer.local,
         releaseName: dbServer.releaseName,
+        instanceserverUnreachableTimeoutSeconds: dbServer.instanceserverUnreachableTimeoutSeconds,
         hub: hub
       }
       appConfig.server = {

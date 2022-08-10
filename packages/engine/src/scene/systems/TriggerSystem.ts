@@ -1,107 +1,67 @@
-import { dispatchAction } from '@xrengine/hyperflux'
+import { dispatchAction, getState } from '@xrengine/hyperflux'
 
-import { isClient } from '../../common/functions/isClient'
-import { Engine } from '../../ecs/classes/Engine'
-import { EngineActions } from '../../ecs/classes/EngineState'
+import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
+import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
+import { CollisionComponent } from '../../physics/components/CollisionComponent'
+import { CollisionEvents } from '../../physics/types/PhysicsTypes'
 import { Object3DComponent } from '../components/Object3DComponent'
 import { PortalComponent } from '../components/PortalComponent'
-import { TriggerDetectedComponent } from '../components/TriggerDetectedComponent'
 import { TriggerVolumeComponent } from '../components/TriggerVolumeComponent'
 
-/**
- * @author Hamza Mushtaq <github.com/hamzzam>
- */
+export const triggerEnter = (world: World, entity: Entity, triggerEntity: Entity) => {
+  if (!getState(EngineState).isTeleporting.value && getComponent(triggerEntity, PortalComponent)) {
+    const portalComponent = getComponent(triggerEntity, PortalComponent)
+    world.activePortal = portalComponent
+    dispatchAction(EngineActions.setTeleporting({ isTeleporting: true }))
+    return
+  }
+
+  const triggerComponent = getComponent(triggerEntity, TriggerVolumeComponent)
+  if (!triggerComponent) return
+
+  const onEnter = triggerComponent.onEnter
+  if (!onEnter) return
+
+  const targetObj = world.entityTree.uuidNodeMap.get(triggerComponent.target)!
+
+  if (targetObj) {
+    const obj3d = getComponent(targetObj.entity, Object3DComponent).value
+    if (obj3d[onEnter]) {
+      obj3d[onEnter]()
+    }
+  }
+}
+
+export const triggerExit = (world: World, entity: Entity, triggerEntity: Entity) => {
+  const triggerComponent = getComponent(triggerEntity, TriggerVolumeComponent)
+  if (!triggerComponent) return
+
+  const onExit = triggerComponent.onExit
+  const targetObj = world.entityTree.uuidNodeMap.get(triggerComponent.target)
+
+  if (targetObj) {
+    const obj3d = getComponent(targetObj.entity, Object3DComponent).value
+    if (obj3d[onExit]) {
+      obj3d[onExit]()
+    }
+  }
+}
 
 export default async function TriggerSystem(world: World) {
-  const triggerCollidedQuery = defineQuery([TriggerDetectedComponent])
-  const sceneEntityCaches: any = []
+  const collisionQuery = defineQuery([CollisionComponent])
 
   return () => {
-    for (const entity of triggerCollidedQuery.enter(world)) {
-      const { triggerEntity } = getComponent(entity, TriggerDetectedComponent)
-
-      if (getComponent(triggerEntity, PortalComponent)) {
-        const portalComponent = getComponent(triggerEntity, PortalComponent)
-        if (isClient && portalComponent.redirect) {
-          window.location.href = Engine.instance.publicPath + '/location/' + portalComponent.location
-          continue
+    for (const entity of collisionQuery()) {
+      for (const [e, hit] of getComponent(entity, CollisionComponent)) {
+        if (hit.type === CollisionEvents.TRIGGER_START) {
+          triggerEnter(world, entity, e)
         }
-        world.activePortal = portalComponent
-        dispatchAction(EngineActions.setTeleporting({ isTeleporting: true }))
-        continue
-      }
-
-      const triggerComponent = getComponent(triggerEntity, TriggerVolumeComponent)
-      const onEnter = triggerComponent.onEnter
-      if (!onEnter) continue
-
-      const filtered = sceneEntityCaches.filter((cache: any) => cache.target == triggerComponent.target)
-      let targetObj: any
-
-      if (filtered.length > 0) {
-        const filtedData: any = filtered[0]
-        targetObj = filtedData.object
-      } else {
-        targetObj = world.entityTree.uuidNodeMap.get(triggerComponent.target)
-        if (targetObj) {
-          sceneEntityCaches.push({
-            target: triggerComponent.target,
-            object: targetObj
-          })
-        }
-      }
-      if (targetObj) {
-        // if (targetObj[onEnter]) {
-        //   targetObj[onEnter]()
-        // } else if (targetObj.execute) {
-        //   targetObj.execute(onEnter)
-        // }
-        const obj3d = getComponent(targetObj.entity, Object3DComponent).value as any
-        if (obj3d[onEnter]) {
-          obj3d[onEnter]()
-        } else if (obj3d.execute) {
-          obj3d.execute(onEnter)
+        if (hit.type === CollisionEvents.TRIGGER_END) {
+          triggerExit(world, entity, e)
         }
       }
     }
-
-    for (const entity of triggerCollidedQuery.exit(world)) {
-      const { triggerEntity } = getComponent(entity, TriggerDetectedComponent, true)
-      const triggerComponent = getComponent(triggerEntity, TriggerVolumeComponent)
-
-      if (!triggerCollidedQuery) continue
-      const onExit = triggerComponent.onExit
-
-      const filtered = sceneEntityCaches.filter((cache: any) => cache.target == triggerComponent.target)
-      let targetObj: any
-      if (filtered.length > 0) {
-        const filtedData: any = filtered[0]
-        targetObj = filtedData.object
-      } else {
-        targetObj = world.entityTree.uuidNodeMap.get(triggerComponent.target)
-        if (targetObj) {
-          sceneEntityCaches.push({
-            target: triggerComponent.target,
-            object: targetObj
-          })
-        }
-      }
-      if (targetObj) {
-        // if (targetObj[onExit]) {
-        //   targetObj[onExit]()
-        // } else if (targetObj.execute) {
-        //   targetObj.execute(onExit)
-        // }
-        const obj3d = getComponent(targetObj.entity, Object3DComponent).value as any
-        if (obj3d[onExit]) {
-          obj3d[onExit]()
-        } else if (obj3d.execute) {
-          obj3d.execute(onExit)
-        }
-      }
-    }
-    return world
   }
 }

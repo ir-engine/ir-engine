@@ -2,7 +2,7 @@ import internalIp from 'internal-ip'
 
 import configFile from '../appconfig'
 
-interface ServerAddress {
+export interface ServerAddress {
   ipAddress: string
   port: string
 }

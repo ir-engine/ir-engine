@@ -1,11 +1,12 @@
-import { store } from '@xrengine/client-core/src/store'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineState'
 import {
   ComponentConstructor,
   ComponentType,
   getComponent
 } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { EntityNodeComponent } from '@xrengine/engine/src/scene/components/EntityNodeComponent'
+import { dispatchAction } from '@xrengine/hyperflux'
 
 import { CommandFuncType, CommandParams, ObjectCommands } from '../constants/EditorCommands'
 import arrayShallowEqual from '../functions/arrayShallowEqual'
@@ -37,7 +38,7 @@ function prepare<C extends ComponentConstructor<any, any>>(command: ModifyProper
 
         for (const propertyName of propertyNames) {
           const { result, finalProp } = getNestedObject(comp, propertyName)
-          const oldValue = result[finalProp]
+          const oldValue = result ? result[finalProp] : {}
           oldProps[propertyName] = oldValue && oldValue.clone ? oldValue.clone() : oldValue
         }
 
@@ -104,9 +105,8 @@ function updateProperty<C extends ComponentConstructor<any, any>>(
           if (!result[finalProp]) result[finalProp] = new value.constructor()
           result[finalProp].copy(value)
         } else if (
-          value &&
+          typeof value !== 'undefined' &&
           typeof result[finalProp] === 'object' &&
-          'set' in result[finalProp] &&
           typeof result[finalProp].set === 'function'
         ) {
           result[finalProp].set(value)
@@ -114,17 +114,19 @@ function updateProperty<C extends ComponentConstructor<any, any>>(
           result[finalProp] = value
         }
 
-        store.dispatch(SelectionAction.changedObject(command.affectedNodes[i], propertyName))
+        dispatchAction(SelectionAction.changedObject({ objects: [command.affectedNodes[i]], propertyName }))
       }
     }
 
+    /** @todo deprecate in favour of 'EngineActions.sceneObjectUpdate' action */
     const nodeComponent = getComponent(entity, EntityNodeComponent)
     for (const component of nodeComponent.components) {
       Engine.instance.currentWorld.sceneLoadingRegistry.get(component)?.update?.(entity, props)
     }
   }
 
-  store.dispatch(EditorAction.sceneModified(true))
+  dispatchAction(EngineActions.sceneObjectUpdate({ entities: command.affectedNodes.map((node) => node.entity) }))
+  dispatchAction(EditorAction.sceneModified({ modified: true }))
 }
 
 function toString<C extends ComponentConstructor<any, any>>(command: ModifyPropertyCommandParams<C>) {
@@ -147,6 +149,7 @@ export function getNestedObject(object: any, propertyName: string): { result: an
   let result = object
 
   for (let i = 0; i < props.length - 1; i++) {
+    if (typeof result[props[i]] === 'undefined') result[props[i]] = {}
     result = result[props[i]]
   }
 

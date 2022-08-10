@@ -4,7 +4,7 @@ import Stats from 'stats.js'
 
 import styles from './styles.module.scss'
 
-export const StatsPanel = (props: { show: boolean; resetCounter: number }) => {
+export const StatsPanel = (props: { show: boolean }) => {
   const { t } = useTranslation()
   const [statsArray, setStatsArray] = useState<Stats[]>([])
   const statsRef = useRef<HTMLDivElement>(null)
@@ -18,7 +18,7 @@ export const StatsPanel = (props: { show: boolean; resetCounter: number }) => {
     setupStatsArray()
     if (props.show) animateId = requestAnimationFrame(animate)
     else cancelAnimationFrame(animateId)
-  }, [props.show, props.resetCounter])
+  }, [props.show])
 
   const setupStatsArray = () => {
     if (!statsRef.current) return

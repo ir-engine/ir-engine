@@ -1,26 +1,35 @@
+import { useHookstate } from '@hookstate/core'
 import React, { useState } from 'react'
 import { useHistory } from 'react-router'
+import { useParams } from 'react-router-dom'
 
-import {
-  LocationInstanceConnectionAction,
-  useLocationInstanceConnectionState
-} from '@xrengine/client-core/src/common/services/LocationInstanceConnectionService'
+import { LocationInstanceConnectionServiceReceptor } from '@xrengine/client-core/src/common/services/LocationInstanceConnectionService'
 import { LocationService } from '@xrengine/client-core/src/social/services/LocationService'
-import { useDispatch } from '@xrengine/client-core/src/store'
 import { leaveNetwork } from '@xrengine/client-core/src/transports/SocketWebRTCClientFunctions'
-import { SceneAction, useSceneState } from '@xrengine/client-core/src/world/services/SceneService'
+import { AuthService, useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
+import {
+  SceneActions,
+  SceneServiceReceptor,
+  useSceneState
+} from '@xrengine/client-core/src/world/services/SceneService'
+import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import multiLogger from '@xrengine/common/src/logger'
+import { getSearchParamFromURL } from '@xrengine/common/src/utils/getSearchParamFromURL'
+import { SpawnPoints } from '@xrengine/engine/src/avatar/AvatarSpawnSystem'
+import { teleportAvatar } from '@xrengine/engine/src/avatar/functions/moveAvatar'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineActions, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
-import { WorldNetworkActionReceptor } from '@xrengine/engine/src/networking/functions/WorldNetworkActionReceptor'
-import { teleportToScene } from '@xrengine/engine/src/scene/functions/teleportToScene'
-import { dispatchAction, useHookEffect } from '@xrengine/hyperflux'
-
-import { AppAction, GeneralStateList } from '../../common/services/AppService'
+import { addComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { spawnLocalAvatarInWorld } from '@xrengine/engine/src/networking/functions/receiveJoinWorld'
 import {
-  accessMediaInstanceConnectionState,
-  MediaInstanceConnectionAction
-} from '../../common/services/MediaInstanceConnectionService'
+  PortalEffects,
+  revertAvatarToMovingStateFromTeleport,
+  setAvatarToLocationTeleportingState
+} from '@xrengine/engine/src/scene/functions/loaders/PortalFunctions'
+import { addActionReceptor, dispatchAction, removeActionReceptor, useHookEffect } from '@xrengine/hyperflux'
+
+import { AppLoadingAction, AppLoadingStates, useLoadingState } from '../../common/services/AppLoadingService'
+import { useLocationState } from '../../social/services/LocationService'
 import { SocketWebRTCClientNetwork } from '../../transports/SocketWebRTCClientNetwork'
 import { initClient, loadScene } from './LocationLoadHelper'
 
@@ -28,11 +37,12 @@ const logger = multiLogger.child({ component: 'client-core:world' })
 
 export const LoadEngineWithScene = () => {
   const history = useHistory()
-  const dispatch = useDispatch()
   const engineState = useEngineState()
   const sceneState = useSceneState()
+  const loadingState = useLoadingState()
+  const locationState = useLocationState()
+  const authState = useAuthState()
   const [clientReady, setClientReady] = useState(false)
-  const instanceConnectionState = useLocationInstanceConnectionState()
 
   /**
    * initialise the client
@@ -41,6 +51,14 @@ export const LoadEngineWithScene = () => {
     initClient().then(() => {
       setClientReady(true)
     })
+
+    addActionReceptor(SceneServiceReceptor)
+    addActionReceptor(LocationInstanceConnectionServiceReceptor)
+
+    return () => {
+      removeActionReceptor(SceneServiceReceptor)
+      removeActionReceptor(LocationInstanceConnectionServiceReceptor)
+    }
   }, [])
 
   /**
@@ -49,58 +67,103 @@ export const LoadEngineWithScene = () => {
   useHookEffect(() => {
     const sceneData = sceneState.currentScene.value
     if (clientReady && sceneData) {
-      loadScene(sceneData)
+      AuthService.fetchAvatarList()
+      if (loadingState.state.value !== AppLoadingStates.SUCCESS)
+        dispatchAction(AppLoadingAction.setLoadingState({ state: AppLoadingStates.SCENE_LOADING }))
+      loadScene(sceneData).then(() => {
+        if (loadingState.state.value !== AppLoadingStates.SUCCESS)
+          dispatchAction(AppLoadingAction.setLoadingState({ state: AppLoadingStates.SCENE_LOADED }))
+      })
     }
   }, [clientReady, sceneState.currentScene])
 
-  useHookEffect(() => {
-    if (engineState.joinedWorld.value) {
-      if (engineState.isTeleporting.value) {
-        // if we are coming from another scene, reset our teleporting status
-        dispatchAction(EngineActions.setTeleporting({ isTeleporting: false }))
-      } else {
-        dispatch(AppAction.setAppOnBoardingStep(GeneralStateList.SUCCESS))
-        dispatch(AppAction.setAppLoaded(true))
-      }
-    }
-  }, [engineState.joinedWorld])
+  const didSpawn = useHookstate(false)
+
+  const spectateParam = useParams<{ spectate: UserId }>().spectate
+
+  const numSpawnPoints = useHookstate(SpawnPoints.instance.spawnPoints).length
 
   useHookEffect(async () => {
+    if (
+      didSpawn.value === true ||
+      Engine.instance.currentWorld.localClientEntity ||
+      !engineState.sceneLoaded.value ||
+      !authState.user.value ||
+      spectateParam ||
+      numSpawnPoints === 0
+    )
+      return
+
+    // the avatar should only be spawned once, after user auth and scene load
+
+    const user = authState.user.value
+    const avatarDetails = authState.avatarList.value.find((avatar) => avatar.avatar?.name === user.avatarId)!
+    const spawnPoint = getSearchParamFromURL('spawnPoint')
+
+    const avatarSpawnPose = spawnPoint
+      ? SpawnPoints.instance.getSpawnPoint(spawnPoint)
+      : SpawnPoints.instance.getRandomSpawnPoint()
+
+    spawnLocalAvatarInWorld({
+      avatarSpawnPose,
+      avatarDetail: {
+        avatarURL: avatarDetails.avatar?.url!,
+        thumbnailURL: avatarDetails['user-thumbnail']?.url!
+      },
+      name: user.name
+    })
+  }, [engineState.sceneLoaded, authState.user, spectateParam, numSpawnPoints])
+
+  useHookEffect(() => {
+    if (engineState.sceneLoaded.value) {
+      if (loadingState.state.value !== AppLoadingStates.SUCCESS)
+        dispatchAction(AppLoadingAction.setLoadingState({ state: AppLoadingStates.SUCCESS }))
+      if (engineState.isTeleporting.value) {
+        revertAvatarToMovingStateFromTeleport(Engine.instance.currentWorld)
+      }
+    }
+  }, [engineState.sceneLoaded])
+
+  useHookEffect(() => {
     if (engineState.isTeleporting.value) {
-      // TODO: this needs to be implemented on the server too
-      // Use teleportAvatar function from moveAvatar.ts when required
-      // if (slugifiedNameOfCurrentLocation === portalComponent.location) {
-      //   teleportAvatar(
-      //     useWorld().localClientEntity,
-      //     portalComponent.remoteSpawnPosition,
-      //     portalComponent.remoteSpawnRotation
-      //   )
-      //   return
-      // }
-
       logger.info('Resetting connection for portal teleport.')
-
       const world = Engine.instance.currentWorld
+      const activePortal = world.activePortal
 
-      dispatch(SceneAction.currentSceneChanged(null))
-      history.push('/location/' + world.activePortal.location)
-      LocationService.getLocationByName(world.activePortal.location)
+      if (!activePortal) return
 
-      // shut down connection with existing IS
-      await leaveNetwork(world.worldNetwork as SocketWebRTCClientNetwork)
-
-      if (world.mediaNetwork) {
-        const isInstanceMediaConnection =
-          accessMediaInstanceConnectionState().instances[world.mediaNetwork.hostId].channelType.value === 'instance'
-        if (isInstanceMediaConnection) {
-          await leaveNetwork(world.mediaNetwork as SocketWebRTCClientNetwork)
-        }
+      const currentLocation = locationState.locationName.value.split('/')[1]
+      if (currentLocation === activePortal.location || world.entityTree.uuidNodeMap.get(activePortal.linkedPortalId)) {
+        teleportAvatar(
+          world.localClientEntity,
+          activePortal.remoteSpawnPosition
+          // activePortal.remoteSpawnRotation
+        )
+        world.activePortal = null
+        dispatchAction(EngineActions.setTeleporting({ isTeleporting: false, $time: Date.now() + 500 }))
+        return
       }
 
-      // remove all network clients but own (will be updated when new connection is established)
-      WorldNetworkActionReceptor.removeAllNetworkClients(false, world)
+      if (activePortal.redirect) {
+        window.location.href = Engine.instance.publicPath + '/location/' + activePortal.location
+        return
+      }
 
-      teleportToScene()
+      dispatchAction(SceneActions.unloadCurrentScene({}))
+      history.push('/location/' + world.activePortal!.location)
+      LocationService.getLocationByName(world.activePortal!.location, authState.user.id.value)
+
+      // shut down connection with existing world instance server
+      // leaving a world instance server will check if we are in a location media instance and shut that down too
+      leaveNetwork(world.worldNetwork as SocketWebRTCClientNetwork)
+
+      setAvatarToLocationTeleportingState(world)
+
+      if (activePortal.effectType !== 'None') {
+        addComponent(world.sceneEntity, PortalEffects.get(activePortal.effectType), true)
+      } else {
+        dispatchAction(AppLoadingAction.setLoadingState({ state: AppLoadingStates.START_STATE }))
+      }
     }
   }, [engineState.isTeleporting])
 

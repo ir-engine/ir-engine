@@ -17,6 +17,7 @@ import {
 import { isAbsolutePath } from '../../common/functions/isAbsolutePath'
 import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
+import loadVideoTexture from '../../renderer/materials/LoadVideoTexture'
 import { generateMeshBVH } from '../../scene/functions/bvhWorkerPool'
 import { LODS_REGEXP } from '../constants/LoaderConstants'
 import { AssetClass } from '../enum/AssetClass'
@@ -135,6 +136,8 @@ const handleLODs = (asset: Object3D): Object3D => {
  * @returns Asset type of the file.
  */
 const getAssetType = (assetFileName: string): AssetType => {
+  assetFileName = assetFileName.toLowerCase()
+
   if (/\.xre\.gltf$/.test(assetFileName)) return AssetType.XRE
   else if (/\.(?:gltf)$/.test(assetFileName)) return AssetType.glTF
   else if (/\.(?:glb)$/.test(assetFileName)) return AssetType.glB
@@ -147,7 +150,8 @@ const getAssetType = (assetFileName: string): AssetType => {
   else if (/\.(?:aac)$/.test(assetFileName)) return AssetType.AAC
   else if (/\.(?:ogg)$/.test(assetFileName)) return AssetType.OGG
   else if (/\.(?:m4a)$/.test(assetFileName)) return AssetType.M4A
-
+  else if (/\.(?:mp4)$/.test(assetFileName)) return AssetType.MP4
+  else if (/\.(?:mkv)$/.test(assetFileName)) return AssetType.MKV
   return null!
 }
 
@@ -157,6 +161,8 @@ const getAssetType = (assetFileName: string): AssetType => {
  * @returns Asset class of the file.
  */
 const getAssetClass = (assetFileName: string): AssetClass => {
+  assetFileName = assetFileName.toLowerCase()
+
   if (/\.xre\.gltf$/.test(assetFileName)) {
     return AssetClass.Asset
   } else if (/\.(?:gltf|glb|vrm|fbx|obj)$/.test(assetFileName)) {
@@ -191,6 +197,7 @@ const fileLoader = new FileLoader()
 const audioLoader = new AudioLoader()
 const tgaLoader = new TGALoader()
 const xreLoader = new XRELoader(fileLoader)
+const videoLoader = { load: loadVideoTexture }
 
 export const getLoader = (assetType: AssetType) => {
   switch (assetType) {
@@ -212,6 +219,9 @@ export const getLoader = (assetType: AssetType) => {
     case AssetType.OGG:
     case AssetType.M4A:
       return audioLoader
+    case AssetType.MP4:
+    case AssetType.MKV:
+      return videoLoader
     default:
       return fileLoader
   }

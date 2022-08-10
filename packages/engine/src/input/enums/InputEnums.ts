@@ -1,87 +1,87 @@
 export enum MouseInput {
-  LeftButton = 0,
-  MiddleButton = 1,
-  RightButton = 2,
-  MousePosition = 3,
-  MouseClickDownPosition = 4,
-  MouseClickDownTransformRotation = 5,
-  MouseMovement = 6,
-  MouseScroll = 7,
-  MouseClickDownMovement = 8
+  LeftButton = 'MouseInput_LeftButton',
+  MiddleButton = 'MouseInput_MiddleButton',
+  RightButton = 'MouseInput_RightButton',
+  MousePosition = 'MouseInput_MousePosition',
+  MouseClickDownPosition = 'MouseInput_MouseClickDownPosition',
+  MouseClickDownTransformRotation = 'MouseInput_MouseClickDownTransformRotation',
+  MouseMovement = 'MouseInput_MouseMovement',
+  MouseScroll = 'MouseInput_MouseScroll',
+  MouseClickDownMovement = 'MouseInput_MouseClickDownMovement'
 }
 
 export enum TouchInputs {
-  Touch = 10,
-  DoubleTouch = 11,
-  LongTouch = 12,
-  Touch1Position = 13,
-  Touch2Position = 14,
-  Touch1Movement = 15,
-  Touch2Movement = 16,
-  SwipeLeft = 17,
-  SwipeRight = 18,
-  SwipeUp = 19,
-  SwipeDown = 20,
-  Scale = 21
+  Touch = 'TouchInputs_Touch',
+  DoubleTouch = 'TouchInputs_DoubleTouch',
+  LongTouch = 'TouchInputs_LongTouch',
+  Touch1Position = 'TouchInputs_Touch1Position',
+  Touch2Position = 'TouchInputs_Touch2Position',
+  Touch1Movement = 'TouchInputs_Touch1Movement',
+  Touch2Movement = 'TouchInputs_Touch2Movement',
+  SwipeLeft = 'TouchInputs_SwipeLeft',
+  SwipeRight = 'TouchInputs_SwipeRight',
+  SwipeUp = 'TouchInputs_SwipeUp',
+  SwipeDown = 'TouchInputs_SwipeDown',
+  Scale = 'TouchInputs_Scale'
 }
 
 export enum XRAxes {
-  Left = 22,
-  Right = 23
+  Left = 'XRAxes_Left',
+  Right = 'XRAxes_Right'
 }
 
 export enum XR6DOF {
-  HMD = 24,
-  LeftHand = 25,
-  RightHand = 26
+  HMD = 'XR6DOF_HMD',
+  LeftHand = 'XR6DOF_LeftHand',
+  RightHand = 'XR6DOF_RightHand'
 }
 
 export enum GamepadAxis {
-  Left = 28,
-  Right = 29
+  Left = 'GamepadAxis_Left',
+  Right = 'GamepadAxis_Right'
 }
 
 export enum GamepadButtons {
-  A = 30,
-  B = 31,
-  X = 32,
-  Y = 33,
-  LBumper = 34,
-  RBumper = 35,
-  LTrigger = 36,
-  RTrigger = 37,
-  Back = 38,
-  Start = 39,
-  LPad = 40,
-  RPad = 41,
-  LStick = 42,
-  RStick = 43,
-  DPad1 = 44,
-  DPad2 = 45,
-  DPad3 = 46,
-  DPad4 = 47
+  A = 'GamepadButtons_A',
+  B = 'GamepadButtons_B',
+  X = 'GamepadButtons_X',
+  Y = 'GamepadButtons_Y',
+  LBumper = 'GamepadButtons_LBumper',
+  RBumper = 'GamepadButtons_RBumper',
+  LTrigger = 'GamepadButtons_LTrigger',
+  RTrigger = 'GamepadButtons_RTrigger',
+  Back = 'GamepadButtons_Back',
+  Start = 'GamepadButtons_Start',
+  LPad = 'GamepadButtons_LPad',
+  RPad = 'GamepadButtons_RPad',
+  LStick = 'GamepadButtons_LStick',
+  RStick = 'GamepadButtons_RStick',
+  DPad1 = 'GamepadButtons_DPad1',
+  DPad2 = 'GamepadButtons_DPad2',
+  DPad3 = 'GamepadButtons_DPad3',
+  DPad4 = 'GamepadButtons_DPad4'
 }
 
 export enum CameraInput {
-  Neutral = 100,
-  Angry = 101,
-  Disgusted = 102,
-  Fearful = 103,
-  Happy = 104,
-  Surprised = 105,
-  Sad = 106,
-  Pucker = 107,
-  Widen = 108,
-  Open = 109
+  Neutral = 'CameraInput_Neutral',
+  Angry = 'CameraInput_Angry',
+  Disgusted = 'CameraInput_Disgusted',
+  Fearful = 'CameraInput_Fearful',
+  Happy = 'CameraInput_Happy',
+  Surprised = 'CameraInput_Surprised',
+  Sad = 'CameraInput_Sad',
+  Pucker = 'CameraInput_Pucker',
+  Widen = 'CameraInput_Widen',
+  Open = 'CameraInput_Open'
 }
 
 export enum AvatarMovementScheme {
-  Linear = 150,
-  Teleport = 151
+  Linear = 'AvatarMovementScheme_Linear',
+  Teleport = 'AvatarMovementScheme_Teleport'
 }
 
 export enum AvatarControllerType {
-  None = 'None',
-  XRHands = 'XR Hands',
-  OculusQuest = 'Oculus Quest'
+  None = 'AvatarControllerType_None',
+  XRHands = 'AvatarControllerType_XRHands',
+  OculusQuest = 'AvatarControllerType_OculusQuest'
 }

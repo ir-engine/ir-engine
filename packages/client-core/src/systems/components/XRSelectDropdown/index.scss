@@ -1,0 +1,56 @@
+.selectContainer {
+  height: 24px;
+  padding: 5px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  border: solid 1px var(--inputOutline);
+  background-color: var(--inputBackground);
+}
+
+.selectValue {
+  font-size: 14px;
+  font-family: Roboto;
+  color: var(--textColor);
+}
+
+.selectIcon {
+  svg {
+    width: 20px;
+    height: 20px;
+    color: var(--iconButtonColor);
+
+    path {
+      fill: var(--iconButtonColor);
+    }
+  }
+}
+
+.selectOptions {
+  top: 30px;
+  left: 0;
+  width: 100%;
+  display: none;
+  overflow: auto;
+  max-height: 400px;
+  position: absolute;
+  flex-direction: column;
+  color: var(--textColor);
+  background-color: var(--dropdownMenuBackground);
+
+  &.visible {
+    display: flex;
+  }
+
+  .selectOption {
+    width: 100%;
+    cursor: pointer;
+    font-size: 14px;
+    font-family: Roboto;
+
+    &:hover {
+      background-color: var(--dropdownMenuHoverBackground);
+    }
+  }
+}

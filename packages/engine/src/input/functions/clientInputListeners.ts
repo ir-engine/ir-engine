@@ -34,7 +34,16 @@ export const addClientInputListeners = () => {
   const canvas = EngineRenderer.instance.canvas
 
   window.addEventListener('DOMMouseScroll', preventDefault, false)
-  window.addEventListener('touchmove', preventDefault, { capture: true, passive: false })
+  window.addEventListener(
+    'keydown',
+    (evt) => {
+      if (evt.code === 'Tab') evt.preventDefault()
+      if (document.activeElement?.tagName === 'INPUT' || document.activeElement?.tagName === 'TEXTAREA') return
+      // prevent DOM tab selection and spacebar/enter button toggling (since it interferes with avatar controls)
+      if (evt.code === 'Space' || evt.code === 'Enter') evt.preventDefault()
+    },
+    false
+  )
 
   const addListener = (
     domElement: HTMLElement | Document | Window,
@@ -94,7 +103,6 @@ export const removeClientInputListeners = () => {
   if (!boundListeners.length) return
 
   window.removeEventListener('DOMMouseScroll', preventDefault, false)
-  window.removeEventListener('touchmove', preventDefault, { capture: true })
 
   boundListeners.forEach(({ domElement, eventName, callback }) => {
     domElement.removeEventListener(eventName, callback)

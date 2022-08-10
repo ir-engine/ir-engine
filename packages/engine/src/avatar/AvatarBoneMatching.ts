@@ -18,6 +18,7 @@ export type BoneNames =
   | 'LeftShoulder'
   | 'LeftArm'
   | 'LeftForeArm'
+  | 'LeftForeArmTwist'
   | 'LeftHand'
   | 'LeftUpLeg'
   | 'LeftLeg'
@@ -25,6 +26,7 @@ export type BoneNames =
   | 'RightShoulder'
   | 'RightArm'
   | 'RightForeArm'
+  | 'RightForeArmTwist'
   | 'RightHand'
   | 'RightUpLeg'
   | 'RightLeg'
@@ -555,6 +557,11 @@ function findRootBone(bone: Bone): Bone {
   return node
 }
 
+function findFirstTwistChildBone(parent: Object3D): Bone | Object3D | undefined {
+  if (!parent || !parent.children || !parent.children.length) return
+  return parent.children.find((child) => /twist/i.test(child.name))
+}
+
 export default function avatarBoneMatching(model: Object3D): BoneStructure {
   try {
     let Root = findRootBone(model.getObjectByProperty('type', 'Bone') as Bone)
@@ -569,12 +576,14 @@ export default function avatarBoneMatching(model: Object3D): BoneStructure {
     const Spine = _findSpine(Spine2, Hips)
     const LeftShoulder = _findShoulder(tailBones, true)
     const LeftHand = _findHand(LeftShoulder)
-    const Left_elbow = LeftHand.parent
-    const LeftArm = Left_elbow.parent
+    const LeftForeArm = LeftHand.parent
+    const LeftForeArmTwist = findFirstTwistChildBone(LeftForeArm)
+    const LeftArm = LeftForeArm.parent
     const RightShoulder = _findShoulder(tailBones, false)
     const RightHand = _findHand(RightShoulder)
-    const Right_elbow = RightHand.parent
-    const RightArm = Right_elbow.parent
+    const RightForeArm = RightHand.parent
+    const RightForeArmTwist = findFirstTwistChildBone(RightForeArm)
+    const RightArm = RightForeArm.parent
     const Left_ankle = _findFoot(tailBones, true)
     const Left_knee = Left_ankle.parent
     const Left_leg = Left_knee.parent
@@ -601,7 +610,8 @@ export default function avatarBoneMatching(model: Object3D): BoneStructure {
 
       LeftShoulder,
       LeftArm,
-      LeftForeArm: Left_elbow,
+      LeftForeArm,
+      LeftForeArmTwist,
       LeftHand,
       LeftUpLeg: Left_leg,
       LeftLeg: Left_knee,
@@ -625,7 +635,8 @@ export default function avatarBoneMatching(model: Object3D): BoneStructure {
 
       RightShoulder,
       RightArm,
-      RightForeArm: Right_elbow,
+      RightForeArm,
+      RightForeArmTwist,
       RightHand,
       RightUpLeg: Right_leg,
       RightLeg: Right_knee,
@@ -649,10 +660,9 @@ export default function avatarBoneMatching(model: Object3D): BoneStructure {
     }
 
     Object.keys(targetModelBones).forEach((key) => {
-      if (targetModelBones[key]) {
-        targetModelBones[key].userData.name = targetModelBones[key].name
-        targetModelBones[key].name = key
-      }
+      if (!targetModelBones[key]) return
+      targetModelBones[key].userData.name = targetModelBones[key].name
+      targetModelBones[key].name = key
     })
 
     return targetModelBones as any

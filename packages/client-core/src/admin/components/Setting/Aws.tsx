@@ -1,14 +1,12 @@
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { Button, Grid, Paper, Typography } from '@mui/material'
-import InputBase from '@mui/material/InputBase'
+import { Box, Button, Grid, Typography } from '@mui/material'
 
 import { useAuthState } from '../../../user/services/AuthService'
+import InputText from '../../common/InputText'
 import { AwsSettingService, useAdminAwsSettingState } from '../../services/Setting/AwsSettingService'
 import styles from '../../styles/settings.module.scss'
-
-interface Props {}
 
 const SMS_PROPERTIES = {
   ACCESS_KEY_ID: 'accessKeyId',
@@ -18,13 +16,13 @@ const SMS_PROPERTIES = {
   SECRET_ACCESS_KEY: 'secretAccessKey'
 }
 
-const Aws = (props: Props) => {
+const Aws = () => {
+  const { t } = useTranslation()
   const awsSettingState = useAdminAwsSettingState()
   const [awsSetting] = awsSettingState?.awsSettings?.value
   const id = awsSetting?.id
   const authState = useAuthState()
   const user = authState.user
-  const { t } = useTranslation()
 
   const [sms, setSms] = useState(awsSetting?.sms)
 
@@ -60,202 +58,150 @@ const Aws = (props: Props) => {
   }, [authState?.user?.id?.value, awsSettingState?.updateNeeded?.value])
 
   return (
-    <div>
+    <Box>
       <Typography component="h1" className={styles.settingsHeading}>
         {t('admin:components.setting.aws')}
       </Typography>
-      <form>
-        <div className={styles.root}>
-          <Grid container spacing={3}>
-            <Grid item xs={12}>
-              <Paper className={styles.Paper} elevation={0}>
-                <label>{t('admin:components.setting.keys')}</label>
-                <Paper component="div" className={styles.createInput}>
-                  <label>{t('admin:components.setting.accessKeyId')}:</label>
-                  <InputBase
-                    name="accessKeyId"
-                    value={awsSetting?.keys?.accessKeyId || ''}
-                    className={styles.input}
-                    disabled
-                  />
-                </Paper>
-                <Paper component="div" className={styles.createInput}>
-                  <label>{t('admin:components.setting.secretAccessKey')}:</label>
-                  <InputBase
-                    name="secretAccessKey"
-                    value={awsSetting?.keys?.secretAccessKey || ''}
-                    className={styles.input}
-                    disabled
-                  />
-                </Paper>
-              </Paper>
-            </Grid>
-            <Grid item xs={12}>
-              <Paper className={styles.Paper} elevation={0}>
-                <label>{t('admin:components.setting.route53')}</label>
-                <Paper component="div" className={styles.createInput}>
-                  <label> {t('admin:components.setting.hostedZoneId')}:</label>
-                  <InputBase
-                    name="hostedZoneId"
-                    value={awsSetting?.route53?.hostedZoneId || ''}
-                    className={styles.input}
-                    disabled
-                  />
-                </Paper>
+      <Grid container spacing={3}>
+        <Grid item xs={12} sm={6} md={6}>
+          <Typography className={styles.settingsSubHeading}>{t('admin:components.setting.keys')}</Typography>
 
-                <Paper className={styles.Paper} elevation={0}>
-                  <label>{t('admin:components.setting.keys')}</label>
-                  <Paper component="div" className={styles.createInput}>
-                    <label>{t('admin:components.setting.accessKeyId')}:</label>
-                    <InputBase
-                      name="accessKeyId"
-                      value={awsSetting?.route53?.keys?.accessKeyId || ''}
-                      className={styles.input}
-                      disabled
-                    />
-                  </Paper>
-                  <Paper component="div" className={styles.createInput}>
-                    <label>{t('admin:components.setting.secretAccessKey')}:</label>
-                    <InputBase
-                      name="secretAccessKey"
-                      value={awsSetting?.route53?.keys?.secretAccessKey || ''}
-                      className={styles.input}
-                      disabled
-                    />
-                  </Paper>
-                </Paper>
-              </Paper>
-            </Grid>
-            <Grid item xs={12}>
-              <Paper className={styles.Paper} elevation={0}>
-                <label>{t('admin:components.setting.s3')}</label>
-                <Paper component="div" className={styles.createInput}>
-                  <label>{t('admin:components.setting.baseUrl')}:</label>
-                  <InputBase disabled name="baseUrl" value={awsSetting?.s3?.baseUrl || ''} className={styles.input} />
-                </Paper>
-                <Paper component="div" className={styles.createInput}>
-                  <label>{t('admin:components.setting.staticResourceBucket')}:</label>
-                  <InputBase
-                    name="staticResourceBucket"
-                    value={awsSetting?.s3?.staticResourceBucket || ''}
-                    className={styles.input}
-                    disabled
-                  />
-                </Paper>
-                <Paper component="div" className={styles.createInput}>
-                  <label>{t('admin:components.setting.region')}:</label>
-                  <InputBase name="region" value={awsSetting?.s3?.region || ''} className={styles.input} disabled />
-                </Paper>
-                <Paper component="div" className={styles.createInput}>
-                  <label>{t('admin:components.setting.avatarDir')}:</label>
-                  <InputBase
-                    name="avatarDir"
-                    value={awsSetting?.s3?.avatarDir || ''}
-                    className={styles.input}
-                    disabled
-                  />
-                </Paper>
-                <Paper component="div" className={styles.createInput}>
-                  <label>{t('admin:components.setting.s3DevMode')}:</label>
-                  <InputBase
-                    name="s3DevMode"
-                    value={awsSetting?.s3?.s3DevMode || ''}
-                    className={styles.input}
-                    disabled
-                  />
-                </Paper>
-              </Paper>
-            </Grid>
-            <Grid item xs={12}>
-              <Paper className={styles.Paper} elevation={0}>
-                <label>{t('admin:components.setting.cloudFront')}</label>
-                <Paper component="div" className={styles.createInput}>
-                  <label> {t('admin:components.setting.domain')}:</label>
-                  <InputBase
-                    name="domain"
-                    value={awsSetting?.cloudfront?.domain || ''}
-                    className={styles.input}
-                    disabled
-                  />
-                </Paper>
-                <Paper component="div" className={styles.createInput}>
-                  <label> {t('admin:components.setting.distributionId')}:</label>
-                  <InputBase
-                    name="distributionId"
-                    value={awsSetting?.cloudfront?.distributionId || ''}
-                    className={styles.input}
-                    disabled
-                  />
-                </Paper>
-              </Paper>
-            </Grid>
-            <Grid item xs={12}>
-              <Paper className={styles.Paper} elevation={0}>
-                <label>{t('admin:components.setting.sms')}</label>
-                <Paper component="div" className={styles.createInput}>
-                  <label> {t('admin:components.setting.accessKeyId')}:</label>
-                  <InputBase
-                    value={sms?.accessKeyId || ''}
-                    name="accessKeyId"
-                    className={styles.input}
-                    onChange={(e) => handleUpdateSms(e, SMS_PROPERTIES.ACCESS_KEY_ID)}
-                  />
-                </Paper>
-                <Paper component="div" className={styles.createInput}>
-                  <label> {t('admin:components.setting.applicationId')} :</label>
-                  <InputBase
-                    name="applicationId"
-                    value={sms?.applicationId || ''}
-                    className={styles.input}
-                    onChange={(e) => handleUpdateSms(e, SMS_PROPERTIES.APPLICATION_ID)}
-                  />
-                </Paper>
-                <Paper component="div" className={styles.createInput}>
-                  <label> {t('admin:components.setting.region')}:</label>
-                  <InputBase
-                    name="region"
-                    value={sms?.region || ''}
-                    className={styles.input}
-                    onChange={(e) => handleUpdateSms(e, SMS_PROPERTIES.REGION)}
-                  />
-                </Paper>
-                <Paper component="div" className={styles.createInput}>
-                  <label> {t('admin:components.setting.senderId')}:</label>
-                  <InputBase
-                    name="senderId"
-                    value={sms?.senderId || ''}
-                    className={styles.input}
-                    onChange={(e) => handleUpdateSms(e, SMS_PROPERTIES.SENDER_ID)}
-                  />
-                </Paper>
-                <Paper component="div" className={styles.createInput}>
-                  <label> {t('admin:components.setting.secretAccessKey')}:</label>
-                  <InputBase
-                    name="secretAccessKey"
-                    value={sms?.secretAccessKey || ''}
-                    className={styles.input}
-                    onChange={(e) => handleUpdateSms(e, SMS_PROPERTIES.SECRET_ACCESS_KEY)}
-                  />
-                </Paper>
-              </Paper>
-            </Grid>
-          </Grid>
-        </div>
-        <Button sx={{ maxWidth: '100%' }} variant="outlined" className={styles.cancelButton} onClick={handleCancel}>
-          {t('admin:components.setting.cancel')}
-        </Button>
-        &nbsp;&nbsp;
-        <Button
-          sx={{ maxWidth: '100%' }}
-          variant="contained"
-          className={styles.saveBtn}
-          type="submit"
-          onClick={handleSubmit}
-        >
-          {t('admin:components.setting.save')}
-        </Button>
-      </form>
-    </div>
+          <InputText
+            name="accessKeyId"
+            label={t('admin:components.setting.accessKeyId')}
+            value={awsSetting?.keys?.accessKeyId || ''}
+            disabled
+          />
+
+          <InputText
+            name="secretAccessKey"
+            label={t('admin:components.setting.secretAccessKey')}
+            value={awsSetting?.keys?.secretAccessKey || ''}
+            disabled
+          />
+
+          <Typography className={styles.settingsSubHeading}>{t('admin:components.setting.s3')}</Typography>
+
+          <InputText
+            name="baseUrl"
+            label={t('admin:components.setting.baseUrl')}
+            value={awsSetting?.s3?.baseUrl || ''}
+            disabled
+          />
+
+          <InputText
+            name="staticResourceBucket"
+            label={t('admin:components.setting.staticResourceBucket')}
+            value={awsSetting?.s3?.staticResourceBucket || ''}
+            disabled
+          />
+
+          <InputText
+            name="region"
+            label={t('admin:components.setting.region')}
+            value={awsSetting?.s3?.region || ''}
+            disabled
+          />
+
+          <InputText
+            name="avatarDir"
+            label={t('admin:components.setting.avatarDir')}
+            value={awsSetting?.s3?.avatarDir || ''}
+            disabled
+          />
+
+          <InputText
+            name="s3DevMode"
+            label={t('admin:components.setting.s3DevMode')}
+            value={awsSetting?.s3?.s3DevMode || ''}
+            disabled
+          />
+
+          <Typography className={styles.settingsSubHeading}>{t('admin:components.setting.route53')}</Typography>
+
+          <InputText
+            name="hostedZoneId"
+            label={t('admin:components.setting.hostedZoneId')}
+            value={awsSetting?.route53?.hostedZoneId || ''}
+            disabled
+          />
+
+          <InputText
+            name="accessKeyId"
+            label={t('admin:components.setting.keys')}
+            value={awsSetting?.route53?.keys?.accessKeyId || ''}
+            disabled
+          />
+
+          <InputText
+            name="secretAccessKey"
+            label={t('admin:components.setting.secretAccessKey')}
+            value={awsSetting?.route53?.keys?.secretAccessKey || ''}
+            disabled
+          />
+        </Grid>
+        <Grid item xs={12} sm={6} md={6}>
+          <Typography className={styles.settingsSubHeading}>{t('admin:components.setting.cloudFront')}</Typography>
+
+          <InputText
+            name="domain"
+            label={t('admin:components.setting.domain')}
+            value={awsSetting?.cloudfront?.domain || ''}
+            disabled
+          />
+
+          <InputText
+            name="distributionId"
+            label={t('admin:components.setting.distributionId')}
+            value={awsSetting?.cloudfront?.distributionId || ''}
+            disabled
+          />
+
+          <Typography className={styles.settingsSubHeading}>{t('admin:components.setting.sms')}</Typography>
+
+          <InputText
+            name="accessKeyId"
+            label={t('admin:components.setting.accessKeyId')}
+            value={sms?.accessKeyId || ''}
+            onChange={(e) => handleUpdateSms(e, SMS_PROPERTIES.ACCESS_KEY_ID)}
+          />
+
+          <InputText
+            name="applicationId"
+            label={t('admin:components.setting.applicationId')}
+            value={sms?.applicationId || ''}
+            onChange={(e) => handleUpdateSms(e, SMS_PROPERTIES.APPLICATION_ID)}
+          />
+
+          <InputText
+            name="region"
+            label={t('admin:components.setting.region')}
+            value={sms?.region || ''}
+            onChange={(e) => handleUpdateSms(e, SMS_PROPERTIES.REGION)}
+          />
+
+          <InputText
+            name="senderId"
+            label={t('admin:components.setting.senderId')}
+            value={sms?.senderId || ''}
+            onChange={(e) => handleUpdateSms(e, SMS_PROPERTIES.SENDER_ID)}
+          />
+
+          <InputText
+            name="secretAccessKey"
+            label={t('admin:components.setting.secretAccessKey')}
+            value={sms?.secretAccessKey || ''}
+            onChange={(e) => handleUpdateSms(e, SMS_PROPERTIES.SECRET_ACCESS_KEY)}
+          />
+        </Grid>
+      </Grid>
+      <Button sx={{ maxWidth: '100%' }} className={styles.outlinedButton} onClick={handleCancel}>
+        {t('admin:components.common.cancel')}
+      </Button>
+      <Button sx={{ maxWidth: '100%', ml: 1 }} className={styles.gradientButton} onClick={handleSubmit}>
+        {t('admin:components.common.save')}
+      </Button>
+    </Box>
   )
 }
 

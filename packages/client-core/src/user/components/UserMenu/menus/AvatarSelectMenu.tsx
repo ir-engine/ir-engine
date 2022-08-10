@@ -11,8 +11,10 @@ import {
   THUMBNAIL_HEIGHT,
   THUMBNAIL_WIDTH
 } from '@xrengine/common/src/constants/AvatarConstants'
-import { AvatarInterface } from '@xrengine/common/src/interfaces/AvatarInterface'
+import { StaticResourceInterface } from '@xrengine/common/src/interfaces/StaticResourceInterface'
+import multiLogger from '@xrengine/common/src/logger'
 import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
+import { AudioEffectPlayer } from '@xrengine/engine/src/audio/systems/AudioSystem'
 import { loadAvatarForPreview } from '@xrengine/engine/src/avatar/functions/avatarFunctions'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { createEntity, removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
@@ -33,13 +35,13 @@ import styles from '../index.module.scss'
 import { Views } from '../util'
 import { addAnimationLogic, initialize3D, onWindowResize, validate } from './helperFunctions'
 
+const logger = multiLogger.child({ component: 'client-core:AvatarSelectMenu' })
+
 interface Props {
+  avatarData?: StaticResourceInterface
+  isPublicAvatar?: boolean
   changeActiveMenu: Function
   onAvatarUpload?: () => void
-  avatarData?: AvatarInterface
-  uploadAvatarModel?: Function
-  isPublicAvatar?: boolean
-  adminStyles?: any
 }
 
 let camera: PerspectiveCamera
@@ -64,23 +66,20 @@ interface TabPanelProps {
   value: number
 }
 
-function TabPanel(props: TabPanelProps) {
-  const { children, value, index, ...other } = props
-
+function TabPanel({ children, value, index }: TabPanelProps) {
   return (
     <div
       role="tabpanel"
       hidden={value !== index}
       id={`simple-tabpanel-${index}`}
       aria-labelledby={`simple-tab-${index}`}
-      {...other}
     >
       {value === index && children}
     </div>
   )
 }
 
-export const AvatarUploadModal = (props: Props) => {
+export const AvatarUploadModal = ({ avatarData, isPublicAvatar, changeActiveMenu, onAvatarUpload }: Props) => {
   const [selectedFile, setSelectedFile] = useState<any>(null)
   const [selectedThumbnail, setSelectedThumbnail] = useState<any>(null)
   const [avatarName, setAvatarName] = useState('')
@@ -110,7 +109,7 @@ export const AvatarUploadModal = (props: Props) => {
         obj.name = 'avatar'
       }
     } catch (err) {
-      console.error(err)
+      logger.error(err)
       setError(err)
     }
   }
@@ -148,8 +147,6 @@ export const AvatarUploadModal = (props: Props) => {
       setValidAvatarUrl(false)
     }
   }
-
-  const { isPublicAvatar, changeActiveMenu, avatarData, onAvatarUpload } = props
 
   const [fileSelected, setFileSelected] = useState(false)
 
@@ -204,7 +201,7 @@ export const AvatarUploadModal = (props: Props) => {
           loadAvatarByURL(objectURL)
         }
       } catch (error) {
-        console.error(error)
+        logger.error(error)
         setError(t('user:avatar.selectValidFile'))
       }
     }
@@ -214,7 +211,7 @@ export const AvatarUploadModal = (props: Props) => {
       setFileSelected(true)
       setSelectedFile(e.target.files[0])
     } catch (error) {
-      console.error(e)
+      logger.error(error)
       setError(t('user:avatar.selectValidFile'))
     }
   }
@@ -261,7 +258,7 @@ export const AvatarUploadModal = (props: Props) => {
     try {
       setSelectedThumbnail(e.target.files[0])
     } catch (error) {
-      console.error(e)
+      logger.error(error)
       setError(t('user:avatar.selectValidThumbnail'))
     }
   }
@@ -273,60 +270,70 @@ export const AvatarUploadModal = (props: Props) => {
 
   const uploadButtonEnabled = !!fileSelected && !error && avatarName.length > 3
 
-  const styling = props.adminStyles || styles
-
   return (
-    <div ref={panelRef} className={styling.avatarUploadPanel}>
-      <div className={styling.avatarHeaderBlock}>
-        <button type="button" className={styling.iconBlock} onClick={openAvatarMenu}>
+    <div ref={panelRef} className={styles.avatarUploadPanel}>
+      <div className={styles.avatarHeaderBlock}>
+        <button type="button" className={styles.iconBlock} onClick={openAvatarMenu}>
           <ArrowBack />
         </button>
         <h2>{t('user:avatar.title')}</h2>
       </div>
+
+      <Button
+        onClick={() => changeActiveMenu(Views.ReadyPlayer)}
+        className={styles.useReadyMeBtn}
+        onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+        onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+      >
+        {t('user:usermenu.profile.useReadyPlayerMe')}
+      </Button>
+
       <div
         id="stage"
-        className={styling.stage}
+        className={styles.stage}
         style={{ width: THUMBNAIL_WIDTH + 'px', height: THUMBNAIL_HEIGHT + 'px' }}
       >
-        <div className={styling.legendContainer}>
+        <div className={styles.legendContainer}>
           <Help />
-          <div className={styling.legend}>
+          <div className={styles.legend}>
             <div>
               <IconLeftClick />
               <br />- <span>{t('user:avatar.rotate')}</span>
             </div>
             <div>
-              <span className={styling.shiftKey}>Shift</span> + <IconLeftClick />
+              <span className={styles.shiftKey}>Shift</span> + <IconLeftClick />
               <br />- <span>{t('user:avatar.pan')}</span>
             </div>
           </div>
         </div>
       </div>
       {selectedThumbnail != null && (
-        <div className={styling.thumbnailContainer}>
+        <div className={styles.thumbnailContainer}>
           <img
             src={URL.createObjectURL(selectedThumbnail)}
             alt={selectedThumbnail?.name}
-            className={styling.thumbnailPreview}
+            className={styles.thumbnailPreview}
           />
         </div>
       )}
       {thumbnailUrl.length > 0 && (
-        <div className={styling.thumbnailContainer}>
-          <img src={thumbnailUrl} alt="Avatar" className={styling.thumbnailPreview} />
+        <div className={styles.thumbnailContainer}>
+          <img src={thumbnailUrl} crossOrigin="anonymous" alt="Avatar" className={styles.thumbnailPreview} />
         </div>
       )}
-      <Paper className={styling.paper2}>
+      <Paper className={styles.paper2}>
         <InputBase
           sx={{ ml: 1, flex: 1, color: '#fff', fontWeight: '700', fontSize: '16px' }}
           inputProps={{ 'aria-label': 'avatar url' }}
-          classes={{ input: styling.input }}
+          classes={{ input: styles.input }}
           value={avatarData?.name ?? avatarName}
           disabled={!!avatarData?.name}
           id="avatarName"
           size="small"
           name="avatarname"
           onChange={handleAvatarNameChange}
+          onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+          onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
           placeholder="Avatar Name"
         />
       </Paper>
@@ -336,50 +343,58 @@ export const AvatarUploadModal = (props: Props) => {
             <Tabs
               value={activeSourceType}
               onChange={handleChangeSourceType}
+              onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+              onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
               aria-label="basic tabs example"
-              classes={{ root: styling.tabRoot, indicator: styling.selected }}
+              classes={{ root: styles.tabRoot, indicator: styles.selected }}
             >
               <Tab
-                className={activeSourceType == 0 ? styling.selectedTab : styling.unselectedTab}
+                className={activeSourceType == 0 ? styles.selectedTab : styles.unselectedTab}
                 label="Use URL"
                 {...a11yProps(0)}
-                classes={{ root: styling.tabRoot }}
+                classes={{ root: styles.tabRoot }}
               />
               <Tab
-                className={activeSourceType == 1 ? styling.selectedTab : styling.unselectedTab}
+                className={activeSourceType == 1 ? styles.selectedTab : styles.unselectedTab}
                 label="Upload Files"
                 {...a11yProps(1)}
               />
             </Tabs>
           </div>
           <TabPanel value={activeSourceType} index={0}>
-            <div className={styling.controlContainer}>
-              <div className={styling.selectBtns} style={{ margin: '14px 0' }}>
-                <Paper className={styling.paper} style={{ marginRight: '8px', padding: '4px 0' }}>
+            <div className={styles.controlContainer}>
+              <div className={styles.selectBtns} style={{ margin: '14px 0' }}>
+                <Paper className={styles.paper} style={{ marginRight: '8px', padding: '4px 0' }}>
                   <InputBase
                     sx={{ ml: 1, flex: 1, fontWeight: '700', fontSize: '16px' }}
                     placeholder="Paste Avatar Url..."
                     inputProps={{ 'aria-label': 'avatar url' }}
-                    classes={{ input: styling.input }}
+                    classes={{ input: styles.input }}
                     value={avatarUrl}
                     onChange={handleAvatarUrlChange}
+                    onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                    onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
                   />
                 </Paper>
-                <Paper className={styling.paper} style={{ padding: '4px 0' }}>
+                <Paper className={styles.paper} style={{ padding: '4px 0' }}>
                   <InputBase
                     sx={{ ml: 1, flex: 1, fontWeight: '700', fontSize: '16px' }}
                     placeholder="Paste Thumbnail Url..."
                     inputProps={{ 'aria-label': 'thumbnail url' }}
-                    classes={{ input: styling.input }}
+                    classes={{ input: styles.input }}
                     value={thumbnailUrl}
                     onChange={handleThumbnailUrlChange}
+                    onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                    onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
                   />
                 </Paper>
               </div>
               <button
                 type="button"
-                className={styling.uploadBtn}
+                className={styles.uploadBtn}
                 onClick={uploadAvatar}
+                onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
                 disabled={!validAvatarUrl}
                 style={{ cursor: !validAvatarUrl ? 'not-allowed' : 'pointer' }}
               >
@@ -390,23 +405,25 @@ export const AvatarUploadModal = (props: Props) => {
           </TabPanel>
           <TabPanel value={activeSourceType} index={1}>
             {error.length > 0 && (
-              <div className={styling.selectLabelContainer}>
-                <div className={styling.avatarSelectError}>{error}</div>
+              <div className={styles.selectLabelContainer}>
+                <div className={styles.avatarSelectError}>{error}</div>
               </div>
             )}
-            <div className={styling.controlContainer}>
-              <div className={styling.selectBtns}>
+            <div className={styles.controlContainer}>
+              <div className={styles.selectBtns}>
                 <label htmlFor="contained-button-file" style={{ marginRight: '8px' }}>
                   <Input
                     accept={AVATAR_FILE_ALLOWED_EXTENSIONS}
                     id="contained-button-file"
                     type="file"
                     onChange={handleAvatarChange}
+                    onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                    onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
                   />
                   <Button
                     variant="contained"
                     component="span"
-                    classes={{ root: styling.rootBtn }}
+                    classes={{ root: styles.rootBtn }}
                     endIcon={<SystemUpdateAlt />}
                   >
                     {t('user:avatar.avatar')}
@@ -418,11 +435,13 @@ export const AvatarUploadModal = (props: Props) => {
                     id="contained-button-file-t"
                     type="file"
                     onChange={handleThumbnailChange}
+                    onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                    onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
                   />
                   <Button
                     variant="contained"
                     component="span"
-                    classes={{ root: styling.rootBtn }}
+                    classes={{ root: styles.rootBtn }}
                     endIcon={<AccountCircle />}
                   >
                     {t('user:avatar.lbl-thumbnail')}
@@ -431,8 +450,10 @@ export const AvatarUploadModal = (props: Props) => {
               </div>
               <button
                 type="button"
-                className={styling.uploadBtn}
+                className={styles.uploadBtn}
                 onClick={uploadAvatar}
+                onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
                 style={{ cursor: uploadButtonEnabled ? 'pointer' : 'not-allowed' }}
                 disabled={!uploadButtonEnabled}
               >

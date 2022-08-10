@@ -3,9 +3,6 @@ import styled from 'styled-components'
 
 import Input from './Input'
 
-/**
- * @author Robert Long
- */
 const StyledStringInput = (styled as any)(Input)`
   display: flex;
   width: 100%;
@@ -28,9 +25,6 @@ interface StringInputProp {
   disabled?: boolean
 }
 
-/**
- * @author Robert Long
- */
 const StringInput = React.forwardRef<{}, StringInputProp>(({ onChange, ...rest }, ref) => (
   <StyledStringInput onChange={(e) => onChange?.(e.target.value, e)} {...rest} ref={ref} />
 ))
@@ -51,9 +45,6 @@ const DropContainer = (styled as any).div`
   width: 100%;
 `
 
-/**
- * @author Robert Long
- */
 export const ControlledStringInput = React.forwardRef<{}, StringInputProp>((values, ref) => {
   const { onChange, value, ...rest } = values
   const inputRef = useRef<HTMLInputElement>()

@@ -7,8 +7,6 @@ import {
   Box3,
   DoubleSide,
   Group,
-  Material,
-  Matrix4,
   Mesh,
   MeshBasicMaterial,
   Object3D,
@@ -19,19 +17,15 @@ import {
   Vector3
 } from 'three'
 
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { AssetType } from '../../assets/enum/AssetType'
 import { AnimationManager } from '../../avatar/AnimationManager'
 import { LoopAnimationComponent } from '../../avatar/components/LoopAnimationComponent'
 import { isClient } from '../../common/functions/isClient'
-import { insertAfterString, insertBeforeString } from '../../common/functions/string'
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
 import UpdateableObject3D from '../../scene/classes/UpdateableObject3D'
-import { NameComponent } from '../../scene/components/NameComponent'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { UpdatableComponent } from '../../scene/components/UpdatableComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
@@ -40,7 +34,7 @@ import { Updatable } from '../../scene/interfaces/Updatable'
 import { createAvatarAnimationGraph } from '../animation/AvatarAnimationGraph'
 import { applySkeletonPose, isSkeletonInTPose, makeTPose } from '../animation/avatarPose'
 import { retargetSkeleton, syncModelSkeletons } from '../animation/retargetSkeleton'
-import avatarBoneMatching, { BoneStructure, createSkeletonFromBone, findSkinnedMeshes } from '../AvatarBoneMatching'
+import avatarBoneMatching, { BoneNames, createSkeletonFromBone, findSkinnedMeshes } from '../AvatarBoneMatching'
 import { AnimationComponent } from '../components/AnimationComponent'
 import { AvatarAnimationComponent } from '../components/AvatarAnimationComponent'
 import { AvatarComponent } from '../components/AvatarComponent'
@@ -52,7 +46,8 @@ import { DissolveEffect } from '../DissolveEffect'
 import { SkeletonUtils } from '../SkeletonUtils'
 import { resizeAvatar } from './resizeAvatar'
 
-const vec3 = new Vector3()
+const tempVec3ForHeight = new Vector3()
+const tempVec3ForCenter = new Vector3()
 
 export const loadAvatarModelAsset = async (avatarURL: string) => {
   const model = await AssetLoader.loadAsync(avatarURL)
@@ -69,7 +64,11 @@ export const loadAvatarModelAsset = async (avatarURL: string) => {
     if (obj.material && obj.material.clone) {
       obj.material = obj.material.clone()
       //TODO: to fix alphablend issue of some models (mostly fbx converted models)
-      obj.material.depthWrite = true
+      if (obj.material.opacity != 0) {
+        obj.material.depthWrite = true
+      } else {
+        obj.material.depthWrite = false
+      }
       obj.material.depthTest = true
     }
     // Enable shadow for avatars
@@ -154,6 +153,8 @@ export const rigAvatarModel = (entity: Entity) => (model: Object3D) => {
   retargetSkeleton(targetSkeleton, sourceSkeleton)
   syncModelSkeletons(model, targetSkeleton)
 
+  avatarAnimationComponent.bindRig = avatarBoneMatching(SkeletonUtils.clone(rootBone))
+
   const targetHips = avatarAnimationComponent.rig.Hips
   const sourceHips = sourceSkeleton.bones[0]
   avatarAnimationComponent.rootYRatio = targetHips.position.y / sourceHips.position.y
@@ -164,7 +165,6 @@ export const rigAvatarModel = (entity: Entity) => (model: Object3D) => {
 export const animateAvatarModel = (entity: Entity) => (model: Object3D) => {
   const animationComponent = getComponent(entity, AnimationComponent)
   const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
-  const velocityComponent = getComponent(entity, VelocityComponent)
   const controllerComponent = getComponent(entity, AvatarControllerComponent)
 
   animationComponent.mixer?.stopAllAction()
@@ -175,8 +175,9 @@ export const animateAvatarModel = (entity: Entity) => (model: Object3D) => {
 
   if (avatarAnimationComponent)
     avatarAnimationComponent.animationGraph = createAvatarAnimationGraph(
+      entity,
       animationComponent.mixer,
-      velocityComponent.linear,
+      avatarAnimationComponent.locomotion,
       controllerComponent ?? {}
     )
 
@@ -197,16 +198,12 @@ export const animateModel = (entity: Entity) => {
 
 export const setupAvatarMaterials = (entity, root) => {
   const materialList: Array<MaterialMap> = []
-
   setObjectLayers(root, ObjectLayers.Avatar)
+
   root.traverse((object) => {
     if (object.isBone) object.visible = false
     if (object.material && object.material.clone) {
       const material = object.material.clone()
-      // If local player's avatar
-      if (entity === Engine.instance.currentWorld.localClientEntity) {
-        setupHeadDecap(root, material)
-      }
       materialList.push({
         id: object.uuid,
         material: material
@@ -220,8 +217,9 @@ export const setupAvatarMaterials = (entity, root) => {
 
 export const setupAvatarHeight = (entity: Entity, model: Object3D) => {
   const box = new Box3()
-  box.expandByObject(model).getSize(vec3)
-  resizeAvatar(entity, Math.max(vec3.x, vec3.y, vec3.z))
+  box.expandByObject(model).getSize(tempVec3ForHeight)
+  box.getCenter(tempVec3ForCenter)
+  resizeAvatar(entity, tempVec3ForHeight.y, tempVec3ForCenter)
 }
 
 export const loadGrowingEffectObject = (entity: Entity, originalMatList: Array<MaterialMap>) => {
@@ -315,143 +313,7 @@ export function makeSkinnedMeshFromBoneData(bonesData): SkinnedMesh {
   return skinnedMesh
 }
 
-/**
- * Adds required parameters to mesh's material
- * to enable avatar's head decapitation (opacity fade)
- * @param model
- * @param material
- */
-function setupHeadDecap(model: Object3D, material: Material) {
-  const mesh = model.getObjectByProperty('type', 'SkinnedMesh') as SkinnedMesh
-
-  if (!mesh) {
-    console.warn("Could not find object's SkinnedMesh", model)
-    return
-  }
-
-  const bones = mesh.skeleton.bones
-  const headBone = bones.find((bone) => /head/i.test(bone.name))
-
-  if (!headBone) {
-    console.warn("Could not find SkinnedMesh's head bone", mesh)
-    return
-  }
-
-  // Create a copy of the mesh to hide 'internal' polygons when opacity is below 1
-  const skinnedMeshMask = SkeletonUtils.clone(model).getObjectByProperty('type', 'SkinnedMesh') as SkinnedMesh
-  mesh.parent?.add(skinnedMeshMask)
-  skinnedMeshMask.skeleton = mesh.skeleton
-  skinnedMeshMask.bindMatrix = mesh.bindMatrix
-  skinnedMeshMask.bindMatrixInverse = mesh.bindMatrixInverse
-  skinnedMeshMask.material = new MeshBasicMaterial({ skinning: true, colorWrite: false } as any)
-  skinnedMeshMask.name = skinnedMeshMask.name + '_Mask'
-  skinnedMeshMask.renderOrder = 1
-  ;(mesh.material as any).depthWrite = false
-
-  const bonesIndexes = getBoneChildrenIndexes(bones, headBone)
-  const bonesToFade = new Matrix4()
-  bonesToFade.elements.fill(-1)
-  const loopLength = Math.min(bonesToFade.elements.length, bonesIndexes.length)
-
-  for (let i = 0; i < loopLength; i++) {
-    bonesToFade.elements[i] = bonesIndexes[i]
-  }
-
-  addBoneOpacityParamsToMaterial(material, bonesToFade)
-}
-
-/**
- * Returns list of a bone's child indexes in bones list
- * including the starting bone
- * @param bones list of bones to search
- * @param startingBone bone to find childrend index from
- * @returns
- */
-function getBoneChildrenIndexes(bones: Object3D[], startingBone: Object3D): number[] {
-  const indexes: number[] = []
-
-  startingBone.traverse((c) => {
-    indexes.push(bones.findIndex((b) => c.name === b.name))
-  })
-
-  return indexes
-}
-
-/**
- * Adds opacity setting to a material based on single bone
- *
- * @param material
- * @param boneIndexes
- */
-export function addBoneOpacityParamsToMaterial(material, boneIndexes: Matrix4) {
-  material.transparent = true
-  material.needsUpdate = true
-  material.onBeforeCompile = (shader, renderer) => {
-    shader.uniforms.boneIndexToFade = { value: boneIndexes }
-    shader.uniforms.boneOpacity = { value: 1.0 }
-
-    // Vertex Uniforms
-    const vertexUniforms = `uniform mat4 boneIndexToFade;
-      varying float vSelectedBone;`
-
-    shader.vertexShader = insertBeforeString(shader.vertexShader, 'varying vec3 vViewPosition;', vertexUniforms)
-
-    shader.vertexShader = insertAfterString(
-      shader.vertexShader,
-      '#include <skinning_vertex>',
-      `
-      vSelectedBone = 0.0;
-
-      for(float i=0.0; i<16.0 && vSelectedBone == 0.0; i++){
-          int x = int(i/4.0);
-          int y = int(mod(i,4.0));
-          float boneIndex = boneIndexToFade[x][y];
-          if(boneIndex < 0.0) continue;
-
-          for(int j=0; j<4; j++){
-              if(skinIndex[j] == boneIndex){
-                  vSelectedBone = 1.0;
-                  break;
-              }
-          }
-      }
-      `
-    )
-
-    // Fragment Uniforms
-    const fragUniforms = `varying float vSelectedBone;
-      uniform float boneOpacity;
-      `
-
-    shader.fragmentShader = insertBeforeString(shader.fragmentShader, 'uniform vec3 diffuse;', fragUniforms)
-
-    shader.fragmentShader = insertAfterString(
-      shader.fragmentShader,
-      'vec4 diffuseColor = vec4( diffuse, opacity );',
-      `if(vSelectedBone > 0.0){
-          diffuseColor.a = opacity * boneOpacity;
-      }
-      `
-    )
-
-    material.userData.shader = shader
-  }
-}
-
-export const setAvatarHeadOpacity = (entity: Entity, opacity: number): void => {
-  const object3DComponent = getComponent(entity, Object3DComponent)
-  object3DComponent?.value.traverse((obj) => {
-    if (!(obj as SkinnedMesh).isSkinnedMesh) return
-    const material = (obj as SkinnedMesh).material as Material
-    if (!material.userData?.shader) return
-    const shader = material.userData.shader
-    if (shader?.uniforms) {
-      shader.uniforms.boneOpacity.value = opacity
-    }
-  })
-}
-
-export const getAvatarBoneWorldPosition = (entity: Entity, boneName: string, position: Vector3): boolean => {
+export const getAvatarBoneWorldPosition = (entity: Entity, boneName: BoneNames, position: Vector3): boolean => {
   const animationComponent = getComponent(entity, AvatarAnimationComponent)
   if (!animationComponent) return false
   const bone = animationComponent.rig[boneName]

@@ -58,9 +58,6 @@ import { accessSelectionState } from '../services/SelectionServices'
 
 const SELECT_SENSITIVITY = 0.001
 
-/**
- * @author Nayankumar Patel <github.com/NPatel10>
- */
 export default async function EditorControlSystem(_: World) {
   const editorControlQuery = defineQuery([EditorControlComponent])
   const selectionState = accessSelectionState()
@@ -419,7 +416,7 @@ export default async function EditorControlSystem(_: World) {
       }
 
       selectionCounter = selectionState.selectionCounter.value
-      cameraComponent = getComponent(Engine.instance.currentWorld.activeCameraEntity, EditorCameraComponent)
+      cameraComponent = getComponent(Engine.instance.currentWorld.cameraEntity, EditorCameraComponent)
       const shift = getInput(EditorActionSet.shift)
 
       if (selectEnd) {

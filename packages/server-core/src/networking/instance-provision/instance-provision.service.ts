@@ -19,8 +19,6 @@ export default (app: Application) => {
 
   /**
    * Initialize our service with any options it requires and docs
-   *
-   * @author Vyacheslav Solovjov
    */
   const event = new InstanceProvision(options, app)
   event.docs = instanceProvisionDocs
@@ -38,7 +36,6 @@ export default (app: Application) => {
    *
    * @param data which is parsed to create instance provinsion
    * @returns created instance provinsion
-   * @author Vyacheslav Solovjov
    */
   service.publish('created', async (data): Promise<any> => {
     try {
@@ -47,7 +44,9 @@ export default (app: Application) => {
         port: data.port,
         locationId: data.locationId,
         sceneId: data.sceneId,
-        channelId: data.channelId
+        channelId: data.channelId,
+        channelType: data.channelType,
+        instanceId: data.instanceId
       })
     } catch (err) {
       logger.error(err)

@@ -1,0 +1,72 @@
+.iconButtonContainer {
+  border: none;
+  border-radius: 50%;
+  height: 30px;
+  width: 30px;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  transition: all 0.2s;
+  cursor: pointer;
+  color: var(--iconButtonColor);
+
+  svg {
+    height: 15px;
+    color: var(--iconButtonColor);
+
+    path {
+      fill: var(--iconButtonColor);
+    }
+  }
+
+  &.filled {
+    background-color: var(--iconButtonBackground);
+
+    &:hover,
+    &:focus {
+      background-color: var(--iconButtonHoverColor);
+    }
+  }
+
+  &.iconOnly {
+    background-color: transparent;
+
+    &:hover,
+    &:focus {
+      opacity: 0.9;
+    }
+  }
+
+  &.small {
+    height: 30px;
+    width: 30px;
+
+    svg {
+      height: 15px;
+    }
+  }
+
+  &.medium {
+    height: 35px;
+    width: 35px;
+
+    svg {
+      height: 20px;
+    }
+  }
+
+  &.large {
+    height: 40px;
+    width: 40px;
+
+    svg {
+      height: 25px;
+    }
+  }
+}
+
+button[disabled] {
+  opacity: 0.8;
+  cursor: not-allowed;
+}

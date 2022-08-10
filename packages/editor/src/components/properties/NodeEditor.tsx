@@ -12,12 +12,9 @@ type NodeEditorProps = EditorPropType & {
 /**
  * NodeEditor component used to render editor view.
  *
- * @author Robert Long
  * @type {class component}
  */
-export const NodeEditor: React.FC<NodeEditorProps> = (props) => {
-  const { description, children, name } = props
-
+export const NodeEditor: React.FC<NodeEditorProps> = ({ description, children, name }) => {
   return (
     <PropertyGroup name={name} description={description}>
       {children}

@@ -4,9 +4,10 @@ import './env-config';
 import React, { Suspense, useEffect } from 'react'
 import ReactDOM from 'react-dom'
 
+import { API } from '@xrengine/client-core/src/API'
 import { FullscreenContainer } from '@xrengine/client-core/src/components/FullscreenContainer'
 import { LoadingCircle } from '@xrengine/client-core/src/components/LoadingCircle'
-import { createEngine, initializeBrowser } from '@xrengine/engine/src/initializeEngine'
+import { createEngine, initializeBrowser, setupEngineActionSystems } from '@xrengine/engine/src/initializeEngine'
 
 import { initializei18n } from './util'
 
@@ -42,7 +43,9 @@ const engineRendererCanvasId = 'engine-renderer-canvas'
 const Main = () => {
   useEffect(() => {
     createEngine()
+    setupEngineActionSystems()
     initializeBrowser()
+    API.createAPI()
   }, [])
 
   return (

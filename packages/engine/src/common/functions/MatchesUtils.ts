@@ -4,7 +4,7 @@ import { matches, Validator } from 'ts-matches'
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 
-import { Engine } from '../../ecs/classes/Engine'
+import { Entity } from '../../ecs/classes/Entity'
 
 export * from 'ts-matches'
 
@@ -33,10 +33,7 @@ const matchesVector3 = matches.guard((v): v is Vector3 => matchesVec3Shape.test(
 const matchesQuaternion = matches.guard((v): v is Quaternion => matchesQuatShape.test(v))
 const matchesUserId = matches.string as Validator<unknown, UserId>
 const matchesNetworkId = matches.number as Validator<unknown, NetworkId>
-
-const matchesHost = matches.guard<unknown, UserId | undefined>(($from): $from is UserId => {
-  return $from === Engine.instance.currentWorld.worldNetwork.hostId
-})
+const matchesEntity = matches.number as Validator<unknown, Entity>
 
 const matchesActionFromUser = (userId: UserId) => {
   return matches.shape({ $from: matches.literal(userId) })
@@ -51,7 +48,7 @@ const matchesWithDefault = <A>(matches: Validator<unknown, A>, defaultValue: () 
 export {
   matchesUserId,
   matchesNetworkId,
-  matchesHost,
+  matchesEntity,
   matchesVector3,
   matchesQuaternion,
   matchesActionFromUser,

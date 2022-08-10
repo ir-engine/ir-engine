@@ -1,0 +1,14 @@
+.container {
+  display: grid;
+  grid-gap: 10px;
+  grid-template-columns: 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
+}
+
+.svgIcon {
+  width: 1.5em;
+  height: 1.5em;
+}
+
+.svgIcon path {
+  fill: var(--iconButtonColor) !important;
+}

@@ -15,6 +15,7 @@ import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { XRUIComponent } from '@xrengine/engine/src/xrui/components/XRUIComponent'
 
 import { ComponentDeserializeFunction, ComponentSerializeFunction } from '../../../common/constants/PrefabFunctionType'
+import { addOBCPlugin } from '../../../common/functions/OnBeforeCompilePlugin'
 import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
@@ -33,8 +34,7 @@ export const deserializeSimpleMaterial: ComponentDeserializeFunction = (
 ) => {
   if (!json.props.simpleMaterials) return
 
-  addComponent(entity, SimpleMaterialTagComponent, {})
-  Engine.instance.simpleMaterials = json.props.simpleMaterials
+  addComponent(entity, SimpleMaterialTagComponent, true)
 
   getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_SIMPLE_MATERIALS)
 }
@@ -56,6 +56,7 @@ export const useSimpleMaterial = (obj: Object3DWithEntity & Mesh<any, any>): voi
 
   if (!obj.material || !obj.material.color || isBasicMaterial) return
   if (obj.entity && hasComponent(obj.entity, XRUIComponent)) return
+  if (obj.userData.prevMaterial) return
 
   try {
     obj.userData.prevMaterial = obj.material
@@ -386,12 +387,16 @@ export const useStandardMaterial = (obj: Mesh<any, Material>): void => {
   const material = obj.userData.prevMaterial ?? obj.material
 
   if (typeof material === 'undefined') return
-
+  //avoid materials without shadow receiving capabilities
+  if (['MeshBasicMaterial', 'ShaderMaterial', 'RawShaderMaterial'].includes(material.type)) return
   // BPCEM
   if (SceneOptions.instance.boxProjection) {
-    material.onBeforeCompile = beforeMaterialCompile(
-      SceneOptions.instance.bpcemOptions.bakeScale,
-      SceneOptions.instance.bpcemOptions.bakePositionOffset
+    addOBCPlugin(
+      material,
+      beforeMaterialCompile(
+        SceneOptions.instance.bpcemOptions.bakeScale,
+        SceneOptions.instance.bpcemOptions.bakePositionOffset
+      )
     )
   }
 

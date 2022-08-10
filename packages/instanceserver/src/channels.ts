@@ -7,20 +7,24 @@ import { decode } from 'jsonwebtoken'
 import { IdentityProviderInterface } from '@xrengine/common/src/dbmodels/IdentityProvider'
 import { Channel } from '@xrengine/common/src/interfaces/Channel'
 import { Instance } from '@xrengine/common/src/interfaces/Instance'
+import { UserInterface } from '@xrengine/common/src/interfaces/User'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineActions, getEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
+import { initSystems } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
+import { SystemUpdateType } from '@xrengine/engine/src/ecs/functions/SystemUpdateType'
 import {
   createEngine,
   initializeCoreSystems,
   initializeMediaServerSystems,
   initializeNode,
   initializeRealtimeSystems,
-  initializeSceneSystems
+  initializeSceneSystems,
+  setupEngineActionSystems
 } from '@xrengine/engine/src/initializeEngine'
-import { Network } from '@xrengine/engine/src/networking/classes/Network'
+import { Network, NetworkTopics } from '@xrengine/engine/src/networking/classes/Network'
 import { matchActionOnce } from '@xrengine/engine/src/networking/functions/matchActionOnce'
-import { WorldNetworkAction } from '@xrengine/engine/src/networking/functions/WorldNetworkAction'
+import { NetworkPeerFunctions } from '@xrengine/engine/src/networking/functions/NetworkPeerFunctions'
 import { loadSceneFromJSON } from '@xrengine/engine/src/scene/functions/SceneLoading'
 import { dispatchAction } from '@xrengine/hyperflux'
 import { loadEngineInjection } from '@xrengine/projects/loadEngineInjection'
@@ -30,8 +34,10 @@ import { getSystemsFromSceneData } from '@xrengine/projects/loadSystemInjection'
 import { Application } from '@xrengine/server-core/declarations'
 import config from '@xrengine/server-core/src/appconfig'
 import multiLogger from '@xrengine/server-core/src/logger'
+import { getProjectsList } from '@xrengine/server-core/src/projects/project/project.service'
 import getLocalServerIp from '@xrengine/server-core/src/util/get-local-server-ip'
 
+import { authorizeUserToJoinServer } from './NetworkFunctions'
 import { SocketWebRTCServerNetwork } from './SocketWebRTCServerNetwork'
 
 const logger = multiLogger.child({ component: 'instanceserver:channels' })
@@ -76,10 +82,10 @@ type InstanceMetadata = {
 const createNewInstance = async (app: Application, newInstance: InstanceMetadata) => {
   const { locationId, channelId } = newInstance
 
-  logger.info('Creating new instance: %o', newInstance, locationId, channelId)
+  logger.info('Creating new instance: %o %s, %s', newInstance, locationId, channelId)
   const instanceResult = (await app.service('instance').create(newInstance)) as Instance
   if (!channelId) {
-    await app.service('channel').create({
+    const channelResult = await app.service('channel').create({
       channelType: 'instance',
       instanceId: instanceResult.id
     })
@@ -111,7 +117,12 @@ const createNewInstance = async (app: Application, newInstance: InstanceMetadata
  * @param locationId
  */
 
-const assignExistingInstance = async (app: Application, existingInstance, channelId: string, locationId: string) => {
+const assignExistingInstance = async (
+  app: Application,
+  existingInstance: Instance,
+  channelId: string,
+  locationId: string
+) => {
   await app.agonesSDK.allocate()
   app.instance = existingInstance
   await app.service('instance').patch(existingInstance.id, {
@@ -199,7 +210,7 @@ const initializeInstance = async (
           channelType: 'instance',
           instanceId: instance.id
         },
-        'identity-provider': user['identity_providers'][0]
+        'identity-provider': user['identity_providers']![0]
       })) as Channel[]
       if (existingChannel.length === 0) {
         await app.service('channel').create({
@@ -208,8 +219,8 @@ const initializeInstance = async (
         })
       }
     }
-    if (!authorizeUserToJoinServer(app, instance, userId)) return
-    await assignExistingInstance(app, existingInstanceResult.data[0], channelId, locationId)
+    if (!(await authorizeUserToJoinServer(app, instance, userId))) return
+    await assignExistingInstance(app, instance, channelId, locationId)
   }
 }
 
@@ -220,162 +231,60 @@ const initializeInstance = async (
  */
 
 const loadEngine = async (app: Application, sceneId: string) => {
-  const hostId = app.instance.id
+  const hostId = app.instance.id as UserId
   Engine.instance.publicPath = config.client.url
   Engine.instance.userId = hostId
   const world = Engine.instance.currentWorld
+  const topic = app.isChannelInstance ? NetworkTopics.media : NetworkTopics.world
 
-  app.transport = new SocketWebRTCServerNetwork(hostId, app)
-  const initPromise = app.transport.initialize()
+  const network = new SocketWebRTCServerNetwork(hostId, topic, app)
+  app.transport = network
+  const initPromise = network.initialize()
 
-  world.networks.set(hostId, app.transport)
-
-  dispatchAction(
-    WorldNetworkAction.createClient({
-      name: 'server-' + hostId,
-      index: world.userIndexCount++
-    }),
-    [hostId]
-  )
+  world.networks.set(hostId, network)
+  const projects = await getProjectsList()
 
   if (app.isChannelInstance) {
     world._mediaHostId = hostId as UserId
     await initializeMediaServerSystems()
     await initializeRealtimeSystems(true, false)
-    const projects = (await app.service('project').find(null!)).data.map((project) => project.name)
     await loadEngineInjection(world, projects)
-    dispatchAction(EngineActions.sceneLoaded())
+    dispatchAction(EngineActions.sceneLoaded({}))
   } else {
     world._worldHostId = hostId as UserId
 
     const [projectName, sceneName] = sceneId.split('/')
 
     const sceneResultPromise = app.service('scene').get({ projectName, sceneName, metadataOnly: false }, null!)
-    const projectsPromise = app.service('project').find(null!)
 
     await initializeCoreSystems()
     await initializeRealtimeSystems(false, true)
     await initializeSceneSystems()
 
-    const projects = (await projectsPromise).data.map((project) => project.name)
     await loadEngineInjection(world, projects)
 
-    const sceneData = (await sceneResultPromise).data.scene as any // SceneData
-    const sceneSystems = getSystemsFromSceneData(projectName, sceneData, false)
-    await loadSceneFromJSON(sceneData, sceneSystems)
+    const sceneUpdatedListener = async () => {
+      const sceneData = (await sceneResultPromise).data.scene
+      const sceneSystems = getSystemsFromSceneData(projectName, sceneData, false)
+      await loadSceneFromJSON(sceneData, sceneSystems)
+    }
+    app.service('scene').on('updated', sceneUpdatedListener)
+    await sceneUpdatedListener()
 
     logger.info('Scene loaded!')
 
-    // const portals = getAllComponentsOfType(PortalComponent)
-    // await Promise.all(
-    //   portals.map(async (portal: ReturnType<typeof PortalComponent.get>): Promise<void> => {
-    //     return getPortalByEntityId(app, portal.linkedPortalId).then((res) => {
-    //       if (res) setRemoteLocationDetail(portal, res.data.spawnPosition, res.data.spawnRotation)
-    //     })
-    //   })
-    // )
+    // getPortalDetails()
   }
   await initPromise
-  dispatchAction(EngineActions.joinedWorld())
-}
 
-/**
- * Returns true if a user has permission to access a specific instance
- * @param app
- * @param instance
- * @param userId
- * @returns
- */
-const authorizeUserToJoinServer = async (app: Application, instance: Instance, userId: UserId) => {
-  const authorizedUsers = (await app.service('instance-authorized-user').find({
-    query: {
-      instanceId: instance.id,
-      $limit: 0
-    }
-  })) as any
-  if (authorizedUsers.total > 0) {
-    const thisUserAuthorized = (await app.service('instance-authorized-user').find({
-      query: {
-        instanceId: instance.id,
-        userId,
-        $limit: 0
-      }
-    })) as any
-    if (thisUserAuthorized.total === 0) {
-      logger.info(`User "${userId}" not authorized to be on this server.`)
-      return false
-    }
-  }
-  return true
-}
-
-/**
- * Puts a message into the message channel that the connecting user has joined the layer.
- * If the user is in a party and the party instance id has changed, notify the other users
- * @param app
- * @param userId
- * @param status
- * @param locationId
- * @param channelId
- * @param sceneId
- */
-
-const notifyWorldAndPartiesUserHasJoined = async (
-  app: Application,
-  userId: string,
-  status: InstanceserverStatus,
-  locationId: string,
-  channelId: string,
-  sceneId: string
-) => {
-  const user = await app.service('user').get(userId)
-  await app.service('message').create(
-    {
-      targetObjectId: app.instance.id,
-      targetObjectType: 'instance',
-      text: `${user.name} joined the layer`,
-      isNotification: true
-    },
-    {
-      'identity-provider': {
-        userId: userId
-      }
-    }
+  NetworkPeerFunctions.createPeer(
+    network,
+    hostId,
+    network.userIndexCount++,
+    'server-' + hostId,
+    Engine.instance.currentWorld
   )
-  if (user.partyId != null) {
-    const partyUserResult = await app.service('party-user').find({
-      query: {
-        partyId: user.partyId
-      }
-    })
-    const party = await app.service('party').get(user.partyId, null!)
-    const partyUsers = (partyUserResult as any).data
-    const partyOwner = partyUsers.find((partyUser) => partyUser.isOwner === 1)
-    if (partyOwner?.userId === userId && party.instanceId !== app.instance.id) {
-      await app.service('party').patch(user.partyId, {
-        instanceId: app.instance.id
-      })
-      const nonOwners = partyUsers.filter((partyUser) => partyUser.isOwner !== 1 && partyUser.isOwner !== true)
-      const emittedIp = !config.kubernetes.enabled
-        ? await getLocalServerIp(app.isChannelInstance)
-        : {
-            ipAddress: status.address,
-            port: status.portsList[0].port
-          }
-      await Promise.all(
-        nonOwners.map(async (partyUser) => {
-          await app.service('instance-provision').emit('created', {
-            userId: partyUser.userId,
-            ipAddress: emittedIp.ipAddress,
-            port: emittedIp.port,
-            locationId: locationId,
-            channelId: channelId,
-            sceneId: sceneId
-          })
-        })
-      )
-    }
-  }
+  dispatchAction(EngineActions.joinedWorld({}))
 }
 
 /**
@@ -388,9 +297,10 @@ const handleUserAttendance = async (app: Application, userId: UserId) => {
   const instanceIdKey = app.isChannelInstance ? 'channelInstanceId' : 'instanceId'
   logger.info(`Patching user ${userId} ${instanceIdKey} to ${app.instance.id}`)
 
-  await app.service('user').patch(userId, {
+  const instanceIdPatchResult = await app.service('user').patch(userId, {
     [instanceIdKey]: app.instance.id
   })
+  logger.info('Patched new user instanceId to', instanceIdPatchResult)
   await app.service('instance-attendance').patch(
     null,
     {
@@ -502,17 +412,20 @@ const shutdownServer = async (app: Application, instanceId: string) => {
 }
 
 // todo: this could be more elegant
-const getActiveUsersCount = (userToIgnore) => {
-  const activeClients = Engine.instance.currentWorld.clients
-  const activeUsers = [...activeClients].filter(
-    ([, v]) => v.userId !== Engine.instance.userId && v.userId !== userToIgnore.id
-  )
+const getActiveUsersCount = (app: Application, userToIgnore: UserInterface) => {
+  const activeClients = app.transport.peers
+  const activeUsers = [...activeClients].filter(([id]) => id !== Engine.instance.userId && id !== userToIgnore.id)
   return activeUsers.length
 }
 
-const handleUserDisconnect = async (app: Application, connection, user, instanceId) => {
+const handleUserDisconnect = async (
+  app: Application,
+  connection: SocketIOConnectionType,
+  user: UserInterface,
+  instanceId: string
+) => {
   try {
-    const activeUsersCount = getActiveUsersCount(user)
+    const activeUsersCount = getActiveUsersCount(app, user)
     await app.service('instance').patch(instanceId, {
       currentUsers: activeUsersCount
     })
@@ -521,25 +434,46 @@ const handleUserDisconnect = async (app: Application, connection, user, instance
   }
 
   const instanceIdKey = app.isChannelInstance ? 'channelInstanceId' : 'instanceId'
+
+  const userPatch = {
+    [instanceIdKey]: null
+  }
+
+  if (user?.partyId && app.isChannelInstance) {
+    const partyChannel = await app.service('channel').Model.findOne({
+      where: {
+        partyId: user.partyId
+      }
+    })
+    if (partyChannel?.id === app.instance.channelId) {
+      userPatch.partyId = null
+      const partyUser = await app.service('party-user').find({
+        query: {
+          userId: user.id,
+          partyId: user.partyId
+        }
+      })
+      if (partyUser.total > 0) {
+        try {
+          await app.service('party-user').remove(partyUser.data[0].id)
+        } catch (err) {}
+      }
+    }
+  }
   // Patch the user's (channel)instanceId to null if they're leaving this instance.
   // But, don't change their (channel)instanceId if it's already something else.
-  await app
+  const userPatchResult = await app
     .service('user')
-    .patch(
-      null,
-      {
-        [instanceIdKey]: null
-      },
-      {
-        query: {
-          id: user.id,
-          [instanceIdKey]: instanceId
-        }
+    .patch(null, userPatch, {
+      query: {
+        id: user.id,
+        [instanceIdKey]: instanceId
       }
-    )
+    })
     .catch((err) => {
       logger.warn(err, "Failed to patch user, probably because they don't have an ID yet.")
     })
+  logger.info('Patched disconnecting user to %o', userPatchResult)
   await app.service('instance-attendance').patch(
     null,
     {
@@ -558,9 +492,9 @@ const handleUserDisconnect = async (app: Application, connection, user, instance
 
   await new Promise((resolve) => setTimeout(resolve, config.instanceserver.shutdownDelayMs))
 
-  // count again here, as it may have changed
-  const activeUsersCount = getActiveUsersCount(user)
-  if (activeUsersCount < 1) await shutdownServer(app, instanceId)
+  // check if there are no peers connected (1 being the server,
+  // 0 if the serer was just starting when someone connected and disconnected)
+  if (app.transport.peers.size <= 1) await shutdownServer(app, instanceId)
 }
 
 const onConnection = (app: Application) => async (connection: SocketIOConnectionType) => {
@@ -578,11 +512,6 @@ const onConnection = (app: Application) => async (connection: SocketIOConnection
   const userId = identityProvider.userId
   let locationId = connection.socketQuery.locationId!
   let channelId = connection.socketQuery.channelId!
-  const sceneId: string = connection.socketQuery.sceneId
-
-  if (!sceneId) {
-    return logger.warn("Scene ID is empty, can't init.")
-  }
 
   if (locationId === '') {
     locationId = undefined!
@@ -620,21 +549,23 @@ const onConnection = (app: Application) => async (connection: SocketIOConnection
       return logger.warn('got a connection to the wrong channel id', app.instance.channelId, channelId)
   }
 
+  const sceneId = locationId ? (await app.service('location').get(locationId)).sceneId : ''
+
   /**
    * Now that we have verified the connecting user and that they are connecting to the correct instance, load the instance
    */
   await createOrUpdateInstance(app, status, locationId, channelId, sceneId, userId)
 
-  connection.instanceId = app.instance.id
-  app.channel(`instanceIds/${app.instance.id as string}`).join(connection)
+  if (app.instance) {
+    connection.instanceId = app.instance.id
+    app.channel(`instanceIds/${app.instance.id as string}`).join(connection)
+  }
 
   await handleUserAttendance(app, userId)
-  if (!app.isChannelInstance) {
-    await notifyWorldAndPartiesUserHasJoined(app, userId, status, locationId, channelId, sceneId)
-  }
 }
 
 const onDisconnection = (app: Application) => async (connection: SocketIOConnectionType) => {
+  logger.info('Disconnection: %o', connection)
   const token = connection.socketQuery?.token
   if (!token) return
 
@@ -654,30 +585,25 @@ const onDisconnection = (app: Application) => async (connection: SocketIOConnect
   if (identityProvider != null && identityProvider.id != null) {
     const userId = identityProvider.userId
     const user = await app.service('user').get(userId)
-    if (!app.isChannelInstance)
-      await app.service('message').create(
-        {
-          targetObjectId: app.instance.id,
-          targetObjectType: 'instance',
-          text: `${user.name} left the layer`,
-          isNotification: true
-        },
-        {
-          'identity-provider': {
-            userId: userId
-          }
-        }
-      )
     const instanceId = !config.kubernetes.enabled ? connection.instanceId : app.instance?.id
     let instance
+    logger.info('On disconnect, instanceId: ' + instanceId)
+    logger.info('Disconnecting user instanceId %s channelInstanceId %s: ', user.instanceId, user.channelInstanceId)
+
+    if (!instanceId) {
+      logger.info('No instanceId on user disconnect, waiting one second to see if initial user was connecting')
+      await new Promise((resolve) =>
+        setTimeout(() => {
+          resolve(null)
+        }, 1000)
+      )
+    }
     try {
       instance = app.instance && instanceId != null ? await app.service('instance').get(instanceId) : {}
     } catch (err) {
       logger.warn('Could not get instance, likely because it is a local one that no longer exists.')
     }
-    logger.info('instanceId: ' + instanceId)
-    logger.info('user instanceId: ' + user.instanceId)
-
+    logger.info('instanceId %s instance %o', instanceId, instance)
     if (instanceId != null && instance != null) {
       await handleUserDisconnect(app, connection, user, instanceId)
     }
@@ -691,6 +617,7 @@ export default (app: Application): void => {
   }
 
   createEngine()
+  setupEngineActionSystems()
   initializeNode()
 
   app.service('instanceserver-load').on('patched', async (params) => {

@@ -8,7 +8,7 @@ export default {
     create: [disallow('external')],
     update: [disallow()],
     patch: [disallow()],
-    remove: []
+    remove: [disallow('external')]
   },
 
   after: {

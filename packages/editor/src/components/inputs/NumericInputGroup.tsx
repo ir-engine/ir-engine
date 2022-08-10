@@ -27,39 +27,43 @@ export interface NumericInputGroupProp {
   default?: any
 }
 
-/**
- *
- * @author Robert Long
- * @param {any} name
- * @param {any} className
- * @param {any} rest
- * @returns
- */
-export function NumericInputGroup({ name, className, info, label, ...rest }: NumericInputGroupProp) {
+function BaseNumericInputGroup({ name, className, label, ...rest }: NumericInputGroupProp) {
   const { displayPrecision, ...scrubberProps } = rest
   return (
     <InputGroupContainer>
       <Grid container spacing="10px">
         <Grid item xs={3} display="flex" alignItems="center" justifyContent="end">
-          <InfoTooltip
-            className="tooltip"
-            title={label ?? name}
-            disableInteractive
-            placement="right-start"
-            followCursor
-          >
+          <InfoTooltip className="tooltip" title={label ?? name}>
             <Scrubber {...scrubberProps}>{label}</Scrubber>
           </InfoTooltip>
         </Grid>
         <Grid item xs={9}>
           <InputGroupContent>
             <NumericInput {...rest} />
-            {info && <InputGroupInfo info={info} />}
           </InputGroupContent>
         </Grid>
       </Grid>
     </InputGroupContainer>
   )
+}
+
+/**
+ *
+ * @param {any} name
+ * @param {any} className
+ * @param {any} rest
+ * @returns
+ */
+export function NumericInputGroup({ name, className, info, label, ...rest }: NumericInputGroupProp) {
+  if (!info) {
+    return <BaseNumericInputGroup name={name} className={className} label={label} {...rest} />
+  } else {
+    return (
+      <InfoTooltip title={info}>
+        <BaseNumericInputGroup name={name} className={className} label={label} {...rest} />
+      </InfoTooltip>
+    )
+  }
 }
 
 export default NumericInputGroup

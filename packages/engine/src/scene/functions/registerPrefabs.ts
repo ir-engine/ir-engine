@@ -16,16 +16,14 @@ import {
   SCENE_COMPONENT_CAMERA_PROPERTIES_DEFAULT_VALUES
 } from './loaders/CameraPropertiesFunctions'
 import { SCENE_COMPONENT_CLOUD, SCENE_COMPONENT_CLOUD_DEFAULT_VALUES } from './loaders/CloudFunctions'
-// import { SCENE_COMPONENT_SPLINE, SCENE_COMPONENT_SPLINE_DEFAULT_VALUES } from './loaders/SplineFunctions'
-import {
-  SCENE_COMPONENT_CUBEMAP_BAKE,
-  SCENE_COMPONENT_CUBEMAP_BAKE_DEFAULT_VALUES
-} from './loaders/CubemapBakeFunctions'
 import {
   SCENE_COMPONENT_DIRECTIONAL_LIGHT,
   SCENE_COMPONENT_DIRECTIONAL_LIGHT_DEFAULT_VALUES
 } from './loaders/DirectionalLightFunctions'
+// import { SCENE_COMPONENT_SPLINE, SCENE_COMPONENT_SPLINE_DEFAULT_VALUES } from './loaders/SplineFunctions'
+import { SCENE_COMPONENT_ENVMAP_BAKE, SCENE_COMPONENT_ENVMAP_BAKE_DEFAULT_VALUES } from './loaders/EnvMapBakeFunctions'
 import { SCENE_COMPONENT_ENVMAP, SCENE_COMPONENT_ENVMAP_DEFAULT_VALUES } from './loaders/EnvMapFunctions'
+import { SCENE_COMPONENT_FOG, SCENE_COMPONENT_FOG_DEFAULT_VALUES } from './loaders/FogFunctions'
 import {
   SCENE_COMPONENT_GROUND_PLANE,
   SCENE_COMPONENT_GROUND_PLANE_DEFAULT_VALUES
@@ -36,6 +34,11 @@ import {
   SCENE_COMPONENT_HEMISPHEREL_LIGHT_DEFAULT_VALUES
 } from './loaders/HemisphereLightFunctions'
 import { SCENE_COMPONENT_IMAGE, SCENE_COMPONENT_IMAGE_DEFAULT_VALUES } from './loaders/ImageFunctions'
+import { SCENE_COMPONENT_INSTANCING, SCENE_COMPONENT_INSTANCING_DEFAULT_VALUES } from './loaders/InstancingFunctions'
+import {
+  SCENE_COMPONENT_INTERACTABLE,
+  SCENE_COMPONENT_INTERACTABLE_DEFAULT_VALUES
+} from './loaders/InteractableFunctions'
 import { SCENE_COMPONENT_INTERIOR, SCENE_COMPONENT_INTERIOR_DEFAULT_VALUES } from './loaders/InteriorFunctions'
 import {
   SCENE_COMPONENT_LOOP_ANIMATION,
@@ -43,6 +46,7 @@ import {
 } from './loaders/LoopAnimationFunctions'
 import { SCENE_COMPONENT_MEDIA, SCENE_COMPONENT_MEDIA_DEFAULT_VALUES } from './loaders/MediaFunctions'
 import { SCENE_COMPONENT_MODEL, SCENE_COMPONENT_MODEL_DEFAULT_VALUE } from './loaders/ModelFunctions'
+import { SCENE_COMPONENT_MOUNT_POINT, SCENE_COMPONENT_MOUNT_POINT_DEFAULT_VALUES } from './loaders/MountPointFunctions'
 import { SCENE_COMPONENT_OCEAN, SCENE_COMPONENT_OCEAN_DEFAULT_VALUES } from './loaders/OceanFunctions'
 import {
   SCENE_COMPONENT_PARTICLE_EMITTER,
@@ -91,6 +95,7 @@ export const ScenePrefabs = {
   particleEmitter: 'Particle Emitter' as const,
   portal: 'Portal' as const,
   triggerVolume: 'Trigger Volume' as const,
+  chair: 'Chair' as const,
   boxCollider: 'Box Collider' as const,
   postProcessing: 'Post Processing' as const,
   previewCamera: 'Preview Camera' as const,
@@ -108,7 +113,9 @@ export const ScenePrefabs = {
   interior: 'Interior' as const,
   system: 'System' as const,
   spline: 'Spline' as const,
-  cubemapbake: 'CubemapBake' as const
+  envMapbake: 'EnvMap Bake' as const,
+  instancing: 'Instancing' as const,
+  fog: 'Fog' as const
 }
 
 export type ScenePrefabTypes = typeof ScenePrefabs[keyof typeof ScenePrefabs]
@@ -282,9 +289,27 @@ export const registerPrefabs = (world: World) => {
   //   { name: SCENE_COMPONENT_SPLINE, props: SCENE_COMPONENT_SPLINE_DEFAULT_VALUES }
   // ])
 
-  world.scenePrefabRegistry.set(ScenePrefabs.cubemapbake, [
+  world.scenePrefabRegistry.set(ScenePrefabs.envMapbake, [
     { name: SCENE_COMPONENT_TRANSFORM, props: SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES },
     { name: SCENE_COMPONENT_VISIBLE, props: SCENE_COMPONENT_VISIBLE_DEFAULT_VALUES },
-    { name: SCENE_COMPONENT_CUBEMAP_BAKE, props: SCENE_COMPONENT_CUBEMAP_BAKE_DEFAULT_VALUES }
+    { name: SCENE_COMPONENT_ENVMAP_BAKE, props: SCENE_COMPONENT_ENVMAP_BAKE_DEFAULT_VALUES }
+  ])
+
+  world.scenePrefabRegistry.set(ScenePrefabs.fog, [
+    { name: SCENE_COMPONENT_TRANSFORM, props: SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES },
+    { name: SCENE_COMPONENT_VISIBLE, props: SCENE_COMPONENT_VISIBLE_DEFAULT_VALUES },
+    { name: SCENE_COMPONENT_FOG, props: SCENE_COMPONENT_FOG_DEFAULT_VALUES }
+  ])
+
+  world.scenePrefabRegistry.set(ScenePrefabs.instancing, [
+    { name: SCENE_COMPONENT_TRANSFORM, props: SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES },
+    { name: SCENE_COMPONENT_VISIBLE, props: SCENE_COMPONENT_VISIBLE_DEFAULT_VALUES },
+    { name: SCENE_COMPONENT_INSTANCING, props: SCENE_COMPONENT_INSTANCING_DEFAULT_VALUES }
+  ])
+
+  world.scenePrefabRegistry.set(ScenePrefabs.chair, [
+    { name: SCENE_COMPONENT_TRANSFORM, props: SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES },
+    { name: SCENE_COMPONENT_VISIBLE, props: SCENE_COMPONENT_VISIBLE_DEFAULT_VALUES },
+    { name: SCENE_COMPONENT_MOUNT_POINT, props: SCENE_COMPONENT_MOUNT_POINT_DEFAULT_VALUES }
   ])
 }

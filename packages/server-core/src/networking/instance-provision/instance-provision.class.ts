@@ -1,6 +1,8 @@
-import { BadRequest } from '@feathersjs/errors'
+import { BadRequest, NotAuthenticated } from '@feathersjs/errors'
 import { Id, NullableId, Params, ServiceMethods } from '@feathersjs/feathers'
+import https from 'https'
 import _ from 'lodash'
+import fetch from 'node-fetch'
 import Sequelize, { Op } from 'sequelize'
 
 import { InstanceServerProvisionResult } from '@xrengine/common/src/interfaces/InstanceServerProvisionResult'
@@ -17,7 +19,6 @@ const pressureThresholdPercent = 0.8
 
 /**
  * An method which start server for instance
- * @author Vyacheslav Solovjov
  */
 export async function getFreeInstanceserver(
   app: Application,
@@ -94,7 +95,7 @@ export async function checkForDuplicatedAssignments(
     assignedAt: new Date()
   })
   //Check to see if there are any other non-ended instances assigned to this IP
-  const duplicateAssignment: any = await app.service('instance').find({
+  const duplicateIPAssignment: any = await app.service('instance').find({
     query: {
       ipAddress: ipAddress,
       assigned: true,
@@ -102,16 +103,39 @@ export async function checkForDuplicatedAssignments(
     }
   })
 
+  const duplicateLocationQuery = {
+    assigned: true,
+    ended: false
+  } as any
+
+  if (locationId) duplicateLocationQuery.locationId = locationId
+  if (channelId) duplicateLocationQuery.channelId = channelId
+  const duplicateLocationAssignment: any = await app.service('instance').find({
+    query: duplicateLocationQuery
+  })
+
   //If there's more than one instance assigned to this IP, then one of them was made in error, possibly because
   //there were two instance-provision calls at almost the same time.
-  if (duplicateAssignment.total > 1) {
+  if (duplicateIPAssignment.total > 1) {
     let isFirstAssignment = true
     //Iterate through all of the assignments to this IP address. If this one is later than any other one,
     //then this one needs to find a different IS
-    for (let instance of duplicateAssignment.data) {
+    for (let instance of duplicateIPAssignment.data) {
       if (instance.id !== assignResult.id && instance.assignedAt < assignResult.assignedAt) {
         isFirstAssignment = false
         break
+      }
+
+      //If this instance was made at the exact same time as another, then randomly decide which one is removed
+      //by converting their IDs to integers via base 16 and pick the 'larger' one. This is arbitrary, but
+      //otherwise this process can get stuck if two provisions are occurring in lockstep.
+      if (instance.id !== assignResult.id && instance.assignedAt.getTime() === assignResult.assignedAt.getTime()) {
+        const integerizedInstanceId = parseInt(instance.id.replace(/-/g, ''), 16)
+        const integerizedAssignResultId = parseInt(instance.id.replace(/-/g, ''), 16)
+        if (integerizedAssignResultId < integerizedInstanceId) {
+          isFirstAssignment = false
+          break
+        }
       }
     }
     if (!isFirstAssignment) {
@@ -133,6 +157,93 @@ export async function checkForDuplicatedAssignments(
     }
   }
 
+  //If there's more than one instance created for a location/channel, then we need to only return one of them
+  //and remove the others, lest two different instanceservers be handling the same 'instance' of a location
+  //or the same 'channel'.
+  if (duplicateLocationAssignment.total > 1) {
+    let earlierInstance
+    let isFirstAssignment = true
+    //Iterate through all of the assignments for this location/channel. If this one is later than any other one,
+    //then this one needs to find a different IS
+    for (let instance of duplicateLocationAssignment.data) {
+      if (instance.id !== assignResult.id && instance.assignedAt < assignResult.assignedAt) {
+        isFirstAssignment = false
+        const ipSplit = instance.ipAddress.split(':')
+        earlierInstance = {
+          id: instance.id,
+          ipAddress: ipSplit[0],
+          port: ipSplit[1],
+          podName: instance.podName
+        }
+        break
+      }
+
+      //If this instance was made at the exact same time as another, then randomly decide which one is removed
+      //by converting their IDs to integers via base 16 and pick the 'larger' one. This is arbitrary, but
+      //otherwise this process can get stuck if two provisions are occurring in lockstep.
+      if (instance.id !== assignResult.id && instance.assignedAt.getTime() === assignResult.assignedAt.getTime()) {
+        const integerizedInstanceId = parseInt(instance.id.replace(/-/g, ''), 16)
+        const integerizedAssignResultId = parseInt(instance.id.replace(/-/g, ''), 16)
+        if (integerizedAssignResultId < integerizedInstanceId) {
+          isFirstAssignment = false
+          const ipSplit = instance.ipAddress.split(':')
+          earlierInstance = {
+            id: instance.id,
+            ipAddress: ipSplit[0],
+            port: ipSplit[1],
+            podName: instance.podName
+          }
+          break
+        }
+      }
+    }
+    if (!isFirstAssignment) {
+      //If this is not the first assignment to this IP, remove the assigned instance row
+      await app.service('instance').remove(assignResult.id)
+      return earlierInstance
+    }
+  }
+
+  // This is here to handle odd cases with externally unresponsive instanceserver pods.
+  // It tries to make a GET request to the pod. If there's an error, or the response takes more than 2 seconds,
+  // it assumes the pod is unresponsive. Locally, it just waits half a second and tries again - if the local
+  // instanceservers are rebooting after the last person left, we just need to wait a bit for them to start.
+  // In production, it attempts to delete that pod via the K8s API client and tries again.
+  let responsivenessCheck: boolean
+  responsivenessCheck = await Promise.race([
+    new Promise<boolean>((resolve) => {
+      setTimeout(() => {
+        logger.warn(`Instanceserver at ${ipAddress} too long to respond, assuming it is unresponsive and killing`)
+        resolve(false)
+      }, config.server.instanceserverUnreachableTimeoutSeconds * 1000) // timeout after 2 seconds
+    }),
+    new Promise<boolean>((resolve) => {
+      let options = {} as any
+      let protocol = 'http://'
+      if (!config.kubernetes.enabled) {
+        protocol = 'https://'
+        options.agent = new https.Agent({
+          rejectUnauthorized: false
+        })
+      }
+
+      fetch(protocol + ipAddress, options)
+        .then((result) => {
+          resolve(true)
+        })
+        .catch((err) => {
+          logger.error(err)
+          resolve(false)
+        })
+    })
+  ])
+  if (!responsivenessCheck) {
+    await app.service('instance').remove(assignResult.id)
+    if (config.kubernetes.enabled) app.k8DefaultClient.deleteNamespacedPod(assignResult.podName, 'default')
+    else await new Promise((resolve) => setTimeout(() => resolve(null), 500))
+    return getFreeInstanceserver(app, iteration + 1, locationId, channelId)
+  }
+
   const split = ipAddress.split(':')
   return {
     id: assignResult.id,
@@ -144,8 +255,6 @@ export async function checkForDuplicatedAssignments(
 
 /**
  * @class for InstanceProvision service
- *
- * @author Vyacheslav Solovjov
  */
 export class InstanceProvision implements ServiceMethods<any> {
   app: Application
@@ -164,7 +273,6 @@ export class InstanceProvision implements ServiceMethods<any> {
    * @param locationId
    * @param channelId
    * @returns id, ipAddress and port
-   * @author Vyacheslav Solovjov
    */
 
   async getISInService(availableLocationInstances, locationId: string, channelId: string): Promise<any> {
@@ -216,7 +324,6 @@ export class InstanceProvision implements ServiceMethods<any> {
    *
    * @param instance of ipaddress and port
    * @returns {@Boolean}
-   * @author Vyacheslav Solovjov
    */
 
   async isCleanup(instance): Promise<boolean> {
@@ -272,7 +379,6 @@ export class InstanceProvision implements ServiceMethods<any> {
    *
    * @param params of query of locationId and instanceId
    * @returns {@function} getFreeInstanceserver and getISInService
-   * @author Vyacheslav Solovjov
    */
 
   async find(params?: Params): Promise<InstanceServerProvisionResult> {
@@ -282,19 +388,22 @@ export class InstanceProvision implements ServiceMethods<any> {
       const instanceId = params?.query?.instanceId
       const channelId = params?.query?.channelId
       const token = params?.query?.token
+      logger.info('instance-provision find', locationId, instanceId, channelId)
+      if (!token) throw new NotAuthenticated('No token provided')
+      // Check if JWT resolves to a user
+      const authResult = await (this.app.service('authentication') as any).strategies.jwt.authenticate(
+        { accessToken: token },
+        {}
+      )
+      const identityProvider = authResult['identity-provider']
+      if (identityProvider != null) userId = identityProvider.userId
+      else throw new BadRequest('Invalid user credentials')
+
       if (channelId != null) {
-        // Check if JWT resolves to a user
-        if (token != null) {
-          const authResult = await (this.app.service('authentication') as any).strategies.jwt.authenticate(
-            { accessToken: token },
-            {}
-          )
-          const identityProvider = authResult['identity-provider']
-          if (identityProvider != null) {
-            userId = identityProvider.userId
-          } else {
-            throw new BadRequest('Invalid user credentials')
-          }
+        try {
+          await this.app.service('channel').get(channelId)
+        } catch (err) {
+          throw new BadRequest('Invalid channel ID')
         }
         const channelInstance = await this.app.service('instance').Model.findOne({
           where: {
@@ -316,26 +425,9 @@ export class InstanceProvision implements ServiceMethods<any> {
           }
         }
       } else {
-        // Check if JWT resolves to a user
-        if (token != null) {
-          const authResult = await (this.app.service('authentication') as any).strategies.jwt.authenticate(
-            { accessToken: token },
-            {}
-          )
-          const identityProvider = authResult['identity-provider']
-          if (identityProvider != null) {
-            userId = identityProvider.userId
-          } else {
-            throw new BadRequest('Invalid user credentials')
-          }
-        }
-        if (locationId == null) {
-          throw new BadRequest('Missing location ID')
-        }
+        if (locationId == null) throw new BadRequest('Missing location ID')
         const location = await this.app.service('location').get(locationId)
-        if (location == null) {
-          throw new BadRequest('Invalid location ID')
-        }
+        if (location == null) throw new BadRequest('Invalid location ID')
         if (instanceId != null) {
           const instance: any = await this.app.service('instance').get(instanceId)
           if (instance == null || instance.ended === true) return getFreeInstanceserver(this.app, 0, locationId, null!)

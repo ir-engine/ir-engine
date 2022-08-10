@@ -2,7 +2,6 @@ import { Color, DoubleSide, Mesh, Plane, PlaneBufferGeometry, ShaderMaterial, Ve
 
 import { dispatchAction } from '@xrengine/hyperflux'
 
-import { Engine } from '../../ecs/classes/Engine'
 import { EngineRendererAction } from '../../renderer/EngineRendererState'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { addIsHelperFlag } from '../../scene/functions/addIsHelperFlag'
@@ -26,6 +25,7 @@ void main() {
 
       gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
 
+      // this is necessary to avoid z fighting
       gl_Position.z -= 0.01;
 }
 `
@@ -140,11 +140,11 @@ export default class InfiniteGridHelper extends Mesh {
 
   setGridHeight(value) {
     this.position.y = value
-    dispatchAction(EngineRendererAction.changeGridToolHeight(value))
+    dispatchAction(EngineRendererAction.changeGridToolHeight({ gridHeight: value }))
   }
 
   toggleGridVisible() {
     this.visible = !this.visible
-    dispatchAction(EngineRendererAction.changeGridToolVisibility(this.visible))
+    dispatchAction(EngineRendererAction.changeGridToolVisibility({ visibility: this.visible }))
   }
 }

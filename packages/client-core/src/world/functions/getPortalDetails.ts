@@ -1,36 +1,39 @@
+import { BackSide, Euler, Mesh, MeshBasicMaterial, SphereGeometry, Texture } from 'three'
+
+import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { PortalComponent } from '@xrengine/engine/src/scene/components/PortalComponent'
-import { setRemoteLocationDetail } from '@xrengine/engine/src/scene/functions/createPortal'
+import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
+import { PortalComponent, PortalPreviewTypeSpherical } from '@xrengine/engine/src/scene/components/PortalComponent'
 
-import { client } from '../../feathers'
+import { API } from '../../API'
+
+export const updatePortalDetails = async (entity: Entity) => {
+  const portalComponent = getComponent(entity, PortalComponent)
+  const portalDetails = (await API.instance.client.service('portal').get(portalComponent.linkedPortalId)).data!
+  if (portalDetails) {
+    portalComponent.remoteSpawnPosition.copy(portalDetails.spawnPosition)
+    portalComponent.remoteSpawnRotation.setFromEuler(new Euler().copy(portalDetails.spawnRotation))
+
+    if (typeof portalComponent.previewImageURL !== 'undefined' && portalComponent.previewImageURL !== '') {
+      if (portalComponent.previewType === PortalPreviewTypeSpherical) {
+        const texture = (await AssetLoader.loadAsync(portalDetails.previewImageURL)) as Texture
+        const portalMesh = new Mesh(
+          new SphereGeometry(1.5, 32, 32),
+          new MeshBasicMaterial({ map: texture, side: BackSide })
+        )
+        portalMesh.scale.x = -1
+        const portalObject = getComponent(entity, Object3DComponent)
+        portalMesh.scale.x *= 1 / portalObject.value.scale.x
+        portalMesh.scale.y *= 1 / portalObject.value.scale.y
+        portalMesh.scale.z *= 1 / portalObject.value.scale.z
+        portalObject.value.add(portalMesh)
+      }
+    }
+  }
+}
 
 export const getPortalDetails = () => {
-  Engine.instance.currentWorld.portalQuery().map(async (entity: Entity): Promise<void> => {
-    const portalComponent = getComponent(entity, PortalComponent)
-    try {
-      const portalDetails = await client.service('portal').get(portalComponent.linkedPortalId)
-      if (portalDetails) {
-        setRemoteLocationDetail(portalComponent, portalDetails.data.spawnPosition, portalDetails.data.spawnRotation)
-        // const cubemapBakeDetails = await (
-        //   await fetch(`${SERVER_URL}/cubemap/${portalDetails.data.cubemapBakeId}`, options)
-        // ).json()
-        // // console.log('cubemapBakeDetails', cubemapBakeDetails)
-        // if (cubemapBakeDetails) {
-        //   const textureLoader = new TextureLoader()
-        //   const texture = textureLoader.load(cubemapBakeDetails.data.options.envMapOrigin)
-        //   texture.mapping = EquirectangularRefractionMapping
-
-        //   const portalMaterial = new MeshLambertMaterial({ envMap: texture, side: DoubleSide })
-
-        //   portal.previewMesh.material = portalMaterial
-
-        //   // texture.dispose()
-        // }
-      }
-    } catch (e) {
-      console.log(e)
-    }
-  })
+  Engine.instance.currentWorld.portalQuery().map((entity: Entity) => updatePortalDetails(entity))
 }

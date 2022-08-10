@@ -147,16 +147,22 @@
       "lbl-unload": "Unload",
       "lbl-reload": "Reload"
     },
-    "audio": {
-      "name": "Audio",
-      "description": "Dynamically loads audio.",
-      "lbl-audiourl": "Audio Url",
+    "media": {
+      "name": "Media",
+      "paths": "Source Paths",
+      "playmode": "Play Mode",
+      "playtitle": "Play",
+      "pausetitle": "Pause",
       "lbl-controls": "controls",
       "info-controls": "Toggle the visibility of the media controls.",
       "lbl-autoplay": "Auto Play",
       "info-autoplay": "If true, the media will play when first entering the scene.",
       "lbl-synchronize": "Synchronize",
-      "info-synchronize": "If true, the media will be Synchronized on all the connected clients.",
+      "info-synchronize": "If true, the media will be Synchronized on all the connected clients."
+    },
+    "audio": {
+      "name": "Audio",
+      "description": "Dynamically loads audio.",
       "lbl-loop": "Loop",
       "info-loop": "If true the media will loop indefinitely.",
       "lbl-audioType": "Audio Type",
@@ -176,6 +182,7 @@
       "lbl-coreOuterGain": "Cone Outer Gain",
       "info-coreOuterGain": "A double value describing the amount of volume reduction outside the cone defined by the coneOuterAngle attribute. Its default value is 0, meaning that no sound can be heard.",
       "lbl-volume": "Volume",
+      "lbl-isMusic": "Is Music",
       "lbl-play": "Play",
       "lbl-pause": "Pause",
       "error-url": "Error Loading From URL"
@@ -236,6 +243,7 @@
       "error-url": "Error Loading From URL",
       "lbl-loopAnimation": "Loop Animation",
       "lbl-isAvatar": "Is Avatar",
+      "lbl-useBasicMaterials": "Use Basic Materials",
       "lbl-isGPUInstancing": "Is Using GPU Instancing",
       "lbl-isDynamic": "Is Dynamic",
       "lbl-castShadow": "Cast Shadow",
@@ -248,7 +256,13 @@
       "lbl-learnMore": "Learn More Url",
       "lbl-htmlContent": "Html Content",
       "lbl-interactionText": "Interaction Text",
-      "lbl-interactionType": "Interaction Type"
+      "lbl-interactionType": "Interaction Type",
+      "transform": {
+        "useDraco": "Use DRACO Mesh Compression",
+        "useMeshopt": "Use Meshoptimizer",
+        "useQuantization": "Use Mesh Quantization",
+        "textureFormat": "Image Format"
+      }
     },
     "materialAssignment": {
       "lbl-materialID": "Material",
@@ -296,6 +310,10 @@
       "info-mask": "'mask' = Use a specified cutoff value for on/off transparency (more performant)",
       "info-alphaCutoff": "Pixels with alpha values lower than this will be transparent",
       "error-url": "Invalid URL"
+    },
+    "screenshare": {
+      "name": "Screenshare Target",
+      "description": "Allows this object to be a target for screeshare projection."
     },
     "name": {
       "lbl-name": "Name"
@@ -386,15 +404,50 @@
       "lbl-range": "Range",
       "lbl-decay": "Decay"
     },
+    "instancing": {
+      "name": "Instancing",
+      "description": "Generates instanced geometry according to input",
+      "count": "Instance Count",
+      "lbl-surface": "Target Surface",
+      "error-surface": "Error occurred finding target surface",
+      "placeholder-surface": "No Target Selected",
+      "lbl-mode": "Instancing Mode",
+      "lbl-load": "Stage",
+      "lbl-unload": "Unstage",
+      "lbl-reload": "Restage",
+      "lbl-options": "Options",
+      "samplingMode": "Sampling Mode",
+      "sampling": { 
+        "properties": "Sampling Properties",
+        "heightMap": "Height Map",
+        "heightMapStrength": "Height Map Strength",
+        "densityMap": "Density Map",
+        "densityMapStrength": "Density Map Strength",
+        "root": "Root Node"
+      },
+      "grass": {
+        "properties": "Grass Properties",
+        "bladeHeight": "Blade Height",
+        "bladeWidth": "Blade Width",
+        "joints": "Blade Joint Count",
+        "alphaMap": "Alpha Map",
+        "texture": "Grass Texture",
+        "ambientStrength": "Ambient Strength",
+        "diffuseStrength": "Diffuse Strength",
+        "shininess": "Shininess",
+        "sunColor": "Sun Color"
+      },
+      "mesh": {
+        "properties": "Mesh Instancing Properties",
+        "instancedMesh": "Instanced Mesh",
+        "error-instancedMesh": "Error loading instanced mesh",
+        "placeholder-instancedMesh": "Select Mesh to Instance"
+      }
+    },
     "scene": {
       "name": "Scene",
       "description": "The root object of the scene.",
       "lbl-bgcolor": "Background Color",
-      "lbl-fogType": "Fog Type",
-      "lbl-fogColor": "Fog Color",
-      "lbl-forNearDistance": "Fog Near Distance",
-      "lbl-fogFarDistance": "Fog Far Distance",
-      "lbl-fogDensity": "Fog Density",
       "lbl-audioSettings": "Use Positional Audio",
       "lbl-avatarDistanceModel": "Avatar Distance Model",
       "lbl-avatarRolloffFactor": "Avatar Rolloff Factor",
@@ -499,10 +552,7 @@
     "volumetric": {
       "name": "Volumetric",
       "description": "Dynamically loads a volumetric video.",
-      "uvolPaths": "UVOL Paths",
-      "playmode": "Play Mode",
-      "playtitle": "Play",
-      "pausetitle": "Pause"
+      "lbl-useLoadingEffect": "Use Loading Effect"
     },
     "spline": {
       "description": "Dynamically create and customize curves.",
@@ -524,7 +574,10 @@
       "lbl-locationName": "Location",
       "lbl-modelUrl": "Model URL",
       "lbl-displayText": "Display Text",
-      "lbl-cubemapBake": "Cubemap bake",
+      "lbl-effectType": "Loading Effect",
+      "lbl-previewType": "Preview Type",
+      "lbl-previewImageURL": "Preview Image URL",
+      "lbl-createPreviewImage": "Create Preview Image",
       "lbl-spawnPosition": "Spawn Position",
       "lbl-spawnRotation": "Spawn Rotation",
       "lbl-triggerPosition": "Trigger Position",
@@ -534,6 +587,22 @@
     "postprocessing": {
       "name": "Post Processing",
       "description": "For applying Post Processing effects to you scene."
+    },
+    "fog": {
+      "name": "Fog",
+      "description": "A universal fog",
+      "lbl-fogType": "Fog Type",
+      "lbl-fogColor": "Fog Color",
+      "lbl-fogHeight": "Fog Height",
+      "lbl-fogTimeScale": "Fog Time Scale",
+      "lbl-forNearDistance": "Fog Near Distance",
+      "lbl-fogFarDistance": "Fog Far Distance",
+      "lbl-fogDensity": "Fog Density"
+    },
+    "mountPoint": {
+      "name": "Mount point",
+      "description": "An object with a pose to define interactable behaviors.",
+      "lbl-type": "Type"
     }
   },
   "projects": {
@@ -571,7 +640,10 @@
       "copyAsset": "Copy",
       "pasteAsset": "Paste",
       "renameAsset": "Rename",
-      "viewAssetProperties": "View Properties"
+      "viewAssetProperties": "View Properties",
+      "refresh": "Refresh",
+      "back": "Back",
+      "loadingFiles": "Loading files"
     }
   },
   "hierarchy": {
@@ -647,7 +719,10 @@
       "header": "Need to report a problem?",
       "msg": "You can file a <1>GitHub Issue</1> or e-mail us for support at <3>{{mail}}</3>",
       "discord": "You can also find us on <1>Discord</1>"
-    }
+    },
+    "confirmContentDelete": "Do you want to delete this",
+    "file": "file",
+    "folder": "folder"
   },
   "sources": {
     "bingImage": {

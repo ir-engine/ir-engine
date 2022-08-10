@@ -74,10 +74,13 @@ export const updateLoopAnimation: ComponentUpdateFunction = (entity: Entity): vo
           animationGraph: {
             states: {},
             transitionRules: {},
-            currentState: null!
+            currentState: null!,
+            stateChanged: null!
           },
           rig: {} as BoneStructure,
-          rootYRatio: 1
+          bindRig: {} as BoneStructure,
+          rootYRatio: 1,
+          locomotion: new Vector3()
         })
         addComponent(entity, VelocityComponent, { linear: new Vector3(), angular: new Vector3() })
       }

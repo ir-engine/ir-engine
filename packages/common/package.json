@@ -11,16 +11,28 @@
   "scripts": {
     "check-errors": "tsc --noemit",
     "build-publish": "rimraf lib && cti entrypoint ./src -o index.ts && cross-env NODE_OPTIONS=--max_old_space_size=4096 APP_ENV=production vite build --config vite.build.js",
+    "test": "mocha --jobs 1",
     "update-name-gh-package": "node scripts/update-name-gh-package.js"
   },
   "repository": "http://github.com/XRFoundation/XREngine",
   "author": "XREngine",
   "license": "MIT",
+  "dependencies": {
+    "@digitalbazaar/did-method-key": "^3.0.0",
+    "@digitalbazaar/security-document-loader": "^2.0.0",
+    "@digitalcredentials/bnid": "^2.1.2",
+    "@digitalcredentials/did-method-key": "^2.0.3",
+    "@digitalcredentials/vc": "^4.1.1",
+    "@interop/did-web-resolver": "^2.2.1",
+    "cross-fetch": "^3.1.5",
+    "crypto-ld": "^6.0.0"
+  },
   "devDependencies": {
     "@rollup/plugin-alias": "3.1.9",
     "@rollup/plugin-json": "4.1.0",
     "@rollup/plugin-node-resolve": "13.2.0",
     "@rollup/plugin-replace": "4.0.0",
+    "@types/mocha": "^9.1.1",
     "create-ts-index": "1.14.0",
     "cross-env": "7.0.3",
     "lodash.camelcase": "4.3.0",

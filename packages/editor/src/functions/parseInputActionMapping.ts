@@ -2,7 +2,7 @@ import * as Mousetrap from 'mousetrap'
 
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 
-import { InputComponent } from '../classes/InputComponent'
+import { EditorInputComponent } from '../classes/InputComponent'
 import { ActionKey, ActionSets, ActionState, InputActionMapping, InputMapping } from '../controls/input-mappings'
 import { SceneState } from './sceneRenderFunctions'
 
@@ -73,20 +73,20 @@ function mergeMappings(mappings: Map<ActionSets, InputActionMapping>): InputActi
   for (const mapping of mappings.values()) {
     const { keyboard, mouse, computed } = mapping
     if (keyboard) {
-      if (keyboard.pressed) Object.assign(output.keyboard.pressed, keyboard.pressed)
-      if (keyboard.keyup) Object.assign(output.keyboard.keyup, keyboard.keyup)
-      if (keyboard.keydown) Object.assign(output.keyboard.keydown, keyboard.keydown)
-      if (keyboard.hotkeys) Object.assign(output.keyboard.hotkeys, keyboard.hotkeys)
-      if (keyboard.globalHotkeys) Object.assign(output.keyboard.globalHotkeys, keyboard.globalHotkeys)
+      if (keyboard.pressed) Object.assign(output.keyboard.pressed!, keyboard.pressed)
+      if (keyboard.keyup) Object.assign(output.keyboard.keyup!, keyboard.keyup)
+      if (keyboard.keydown) Object.assign(output.keyboard.keydown!, keyboard.keydown)
+      if (keyboard.hotkeys) Object.assign(output.keyboard.hotkeys!, keyboard.hotkeys)
+      if (keyboard.globalHotkeys) Object.assign(output.keyboard.globalHotkeys!, keyboard.globalHotkeys)
     }
     if (mouse) {
-      if (mouse.click) Object.assign(output.mouse.click, mouse.click)
-      if (mouse.dblclick) Object.assign(output.mouse.dblclick, mouse.dblclick)
-      if (mouse.move) Object.assign(output.mouse.move, mouse.move)
-      if (mouse.wheel) Object.assign(output.mouse.wheel, mouse.wheel)
-      if (mouse.pressed) Object.assign(output.mouse.pressed, mouse.pressed)
-      if (mouse.mouseup) Object.assign(output.mouse.mouseup, mouse.mouseup)
-      if (mouse.mousedown) Object.assign(output.mouse.mousedown, mouse.mousedown)
+      if (mouse.click) Object.assign(output.mouse.click!, mouse.click)
+      if (mouse.dblclick) Object.assign(output.mouse.dblclick!, mouse.dblclick)
+      if (mouse.move) Object.assign(output.mouse.move!, mouse.move)
+      if (mouse.wheel) Object.assign(output.mouse.wheel!, mouse.wheel)
+      if (mouse.pressed) Object.assign(output.mouse.pressed!, mouse.pressed)
+      if (mouse.mouseup) Object.assign(output.mouse.mouseup!, mouse.mouseup)
+      if (mouse.mousedown) Object.assign(output.mouse.mousedown!, mouse.mousedown)
     }
     if (computed) {
       for (const obj of computed) {
@@ -178,7 +178,7 @@ export const parseInputActionMapping = (inputMapping: InputActionMapping) => {
 }
 
 export const updateInputActionMapping = () => {
-  const inputComponent = getComponent(SceneState.editorEntity, InputComponent)
+  const inputComponent = getComponent(SceneState.editorEntity, EditorInputComponent)
   const mappings = mergeMappings(inputComponent.mappings)
 
   const parsedMapping = parseInputActionMapping(mappings)
@@ -190,13 +190,13 @@ export const updateInputActionMapping = () => {
 }
 
 export const addInputActionMapping = (inputSet: ActionSets, mapping: InputActionMapping): void => {
-  const inputComponent = getComponent(SceneState.editorEntity, InputComponent)
+  const inputComponent = getComponent(SceneState.editorEntity, EditorInputComponent)
   inputComponent.mappings.set(inputSet, mapping)
   updateInputActionMapping()
 }
 
 export const removeInputActionMapping = (inputSet: ActionSets): void => {
-  const inputComponent = getComponent(SceneState.editorEntity, InputComponent)
+  const inputComponent = getComponent(SceneState.editorEntity, EditorInputComponent)
 
   const mapping = inputComponent.mappings.get(inputSet)
   if (!mapping) return
@@ -248,6 +248,7 @@ export const removeInputActionMapping = (inputSet: ActionSets): void => {
 }
 
 export const getInput = (key: ActionKey) => {
-  const inputComponent = getComponent(SceneState.editorEntity, InputComponent)
+  const inputComponent = getComponent(SceneState.editorEntity, EditorInputComponent)
+  if (!inputComponent?.actionState) return
   return inputComponent.actionState[key] ?? 0
 }

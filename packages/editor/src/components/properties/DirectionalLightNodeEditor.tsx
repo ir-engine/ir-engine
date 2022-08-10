@@ -21,7 +21,6 @@ import { EditorComponentType, updateProperty } from './Util'
 /**
  * DirectionalLightNodeEditor is used provides  properties to customize DirectionaLight element.
  *
- *  @author Robert Long
  *  @type {Component class}
  */
 export const DirectionalLightNodeEditor: EditorComponentType = (props) => {

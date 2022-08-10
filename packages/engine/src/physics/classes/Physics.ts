@@ -1,612 +1,387 @@
-import { Quaternion, Vector3 } from 'three'
-
-import { ComponentType } from '../../ecs/functions/ComponentFunctions'
-import { RaycastComponent } from '../components/RaycastComponent'
-import { putIntoPhysXHeap } from '../functions/physxHelpers'
-import { loadPhysX } from '../physx/loadPhysX'
-import {
-  BodyType,
-  BoxControllerConfig,
-  CapsuleControllerConfig,
-  CollisionEvents,
-  ControllerEvents,
-  ObstacleConfig,
-  PhysXConfig,
+import RAPIER, {
+  ActiveCollisionTypes,
+  ActiveEvents,
+  Collider,
+  ColliderDesc,
+  EventQueue,
+  Ray,
   RigidBody,
-  SceneQueryType,
-  ShapeOptions
-} from '../types/PhysicsTypes'
+  RigidBodyDesc,
+  RigidBodyType,
+  ShapeType,
+  World
+} from '@dimforge/rapier3d-compat'
+import { Mesh, Object3D, Quaternion, Vector3 } from 'three'
 
-const defaultMask = 0
+import { createVector3Proxy } from '../../common/proxies/three'
+import { Entity } from '../../ecs/classes/Entity'
+import {
+  addComponent,
+  ComponentType,
+  getComponent,
+  hasComponent,
+  removeComponent
+} from '../../ecs/functions/ComponentFunctions'
+import { Vec3Arg } from '../../renderer/materials/constants/DefaultArgs'
+import { TransformComponent } from '../../transform/components/TransformComponent'
+import { CollisionComponent } from '../components/CollisionComponent'
+import { RaycastComponent } from '../components/RaycastComponent'
+import { RigidBodyComponent } from '../components/RigidBodyComponent'
+import { ShapecastComponent } from '../components/ShapeCastComponent'
+import { VelocityComponent } from '../components/VelocityComponent'
+import { CollisionGroups, DefaultCollisionMask } from '../enums/CollisionGroups'
+import { getInteractionGroups } from '../functions/getInteractionGroups'
+import { getTagComponentForRigidBody } from '../functions/getTagComponentForRigidBody'
+import { ColliderDescOptions, CollisionEvents } from '../types/PhysicsTypes'
 
-let nextAvailableBodyIndex = 0
-let nextAvailableShapeID = 0
-let nextAvailableObstacleID = 0
+export type PhysicsWorld = World
 
-export class Physics {
-  physxVersion: number
-  defaultErrorCallback: PhysX.PxDefaultErrorCallback
-  allocator: PhysX.PxDefaultAllocator
-  foundation: PhysX.PxFoundation
-  cookingParamas: PhysX.PxCookingParams
-  cooking: PhysX.PxCooking
-  physics: PhysX.PxPhysics
-  sceneDesc: PhysX.PxSceneDesc
-  scene: PhysX.PxScene
-  controllerManager: PhysX.PxControllerManager
-  obstacleContext: PhysX.PxObstacleContext
-  defaultCCTQueryCallback: PhysX.PxQueryFilterCallback
+function load() {
+  // eslint-disable-next-line import/no-named-as-default-member
+  return RAPIER.init()
+}
 
-  timeScale: number = 1
-  substeps: number = 1
-  collisionEventQueue = [] as any[]
+function createWorld(gravity = { x: 0.0, y: -9.81, z: 0.0 }) {
+  const world = new World(gravity)
+  return world
+}
 
-  bodies = new Map<number, PhysX.PxRigidActor>()
-  shapes = new Map<number, PhysX.PxShape>()
-  shapeIDByPointer = new Map<number, number>()
-  controllerIDByPointer = new Map<number, number>()
-  bodyIDByShapeID = new Map<number, number>()
-  controllers = new Map<number, PhysX.PxController>()
-  obstacles = new Map<number, PhysX.PxObstacle>()
+function createCollisionEventQueue() {
+  const collisionEventQueue = new EventQueue(true)
+  return collisionEventQueue
+}
 
-  /**
-   * Destroys the physics world
-   */
-  dispose() {
-    throw new Error('Function not implemented')
+function createRigidBody(entity: Entity, world: World, rigidBodyDesc: RigidBodyDesc, colliderDesc: ColliderDesc[]) {
+  // apply the initial transform if there is one
+  if (hasComponent(entity, TransformComponent)) {
+    const { position, rotation } = getComponent(entity, TransformComponent)
+    rigidBodyDesc.setTranslation(
+      position.x + rigidBodyDesc.translation.x,
+      position.y + rigidBodyDesc.translation.y,
+      position.z + rigidBodyDesc.translation.z
+    )
+    rigidBodyDesc.setRotation(
+      new Quaternion().copy(rotation).multiply(new Quaternion().copy(rigidBodyDesc.rotation as Quaternion))
+    )
   }
 
-  /**
-   * Clears all the actors in a scene, but does not destroy the world
-   */
-  clear() {
-    this.bodies.forEach((body) => {
-      this.scene.removeActor(body, true)
+  const rigidBody = world.createRigidBody(rigidBodyDesc)
+  colliderDesc.forEach((desc) => world.createCollider(desc, rigidBody))
+
+  addComponent(entity, RigidBodyComponent, {
+    body: rigidBody,
+    previousPosition: new Vector3(),
+    previousRotation: new Quaternion(),
+    previousLinearVelocity: new Vector3(),
+    previousAngularVelocity: new Vector3()
+  })
+
+  const RigidBodyTypeTagComponent = getTagComponentForRigidBody(rigidBody)
+  addComponent(entity, RigidBodyTypeTagComponent, true)
+
+  // set entity in userdata for fast look up when required.
+  const rigidBodyUserdata = { entity: entity }
+  rigidBody.userData = rigidBodyUserdata
+
+  // TODO: Add only when dynamic or kinematic?
+  const linearVelocity = createVector3Proxy(VelocityComponent.linear, entity, new Set())
+  const angularVelocity = createVector3Proxy(VelocityComponent.angular, entity, new Set())
+  addComponent(entity, VelocityComponent, { linear: linearVelocity, angular: angularVelocity })
+
+  return rigidBody
+}
+
+function applyDescToCollider(
+  colliderDesc: ColliderDesc,
+  shapeOptions: ColliderDescOptions,
+  position: Vector3,
+  quaternion: Quaternion
+) {
+  if (typeof shapeOptions.friction !== 'undefined') colliderDesc.setFriction(shapeOptions.friction)
+  if (typeof shapeOptions.restitution !== 'undefined') colliderDesc.setRestitution(shapeOptions.restitution)
+
+  const collisionLayer =
+    typeof shapeOptions.collisionLayer !== 'undefined' ? Number(shapeOptions.collisionLayer) : CollisionGroups.Default
+  const collisionMask =
+    typeof shapeOptions.collisionMask !== 'undefined' ? Number(shapeOptions.collisionMask) : DefaultCollisionMask
+  colliderDesc.setCollisionGroups(getInteractionGroups(collisionLayer, collisionMask))
+
+  colliderDesc.setTranslation(position.x, position.y, position.z)
+  colliderDesc.setRotation(quaternion)
+
+  if (typeof shapeOptions.isTrigger !== 'undefined') colliderDesc.setSensor(shapeOptions.isTrigger)
+
+  shapeOptions.activeCollisionTypes
+    ? colliderDesc.setActiveCollisionTypes(shapeOptions.activeCollisionTypes)
+    : colliderDesc.setActiveCollisionTypes(ActiveCollisionTypes.ALL)
+  colliderDesc.setActiveEvents(ActiveEvents.COLLISION_EVENTS)
+}
+
+function createColliderDesc(mesh: Mesh, colliderDescOptions: ColliderDescOptions): ColliderDesc {
+  // Type is required
+  if (typeof colliderDescOptions.type === 'undefined') return undefined!
+
+  let shapeType =
+    typeof colliderDescOptions.type === 'string' ? ShapeType[colliderDescOptions.type] : colliderDescOptions.type
+  //check for old collider types to allow backwards compatibility
+  if (typeof shapeType === 'undefined') {
+    switch (colliderDescOptions.type as unknown as string) {
+      case 'box':
+        shapeType = ShapeType['Cuboid']
+        break
+      case 'trimesh':
+        shapeType = ShapeType['TriMesh']
+        break
+      default:
+        console.error('unrecognized collider shape type: ' + colliderDescOptions.type)
+    }
+  }
+
+  // If custom size has been provided use that else use mesh scale
+  const colliderSize = colliderDescOptions.size ? colliderDescOptions.size : mesh.scale
+
+  // Check for case mismatch
+  if (
+    typeof colliderDescOptions.collisionLayer === 'undefined' &&
+    typeof (colliderDescOptions as any).collisionlayer !== 'undefined'
+  )
+    colliderDescOptions.collisionLayer = (colliderDescOptions as any).collisionlayer
+  if (
+    typeof colliderDescOptions.collisionMask === 'undefined' &&
+    typeof (colliderDescOptions as any).collisionmask !== 'undefined'
+  )
+    colliderDescOptions.collisionMask = (colliderDescOptions as any).collisionmask
+
+  let colliderDesc: ColliderDesc
+  switch (shapeType as ShapeType) {
+    case ShapeType.Cuboid:
+      colliderDesc = ColliderDesc.cuboid(Math.abs(colliderSize.x), Math.abs(colliderSize.y), Math.abs(colliderSize.z))
+      break
+
+    case ShapeType.Ball:
+      colliderDesc = ColliderDesc.ball(Math.abs(colliderSize.x))
+      break
+
+    case ShapeType.Capsule:
+      colliderDesc = ColliderDesc.capsule(Math.abs(colliderSize.y), Math.abs(colliderSize.x))
+      break
+
+    case ShapeType.Cylinder:
+      colliderDesc = ColliderDesc.cylinder(Math.abs(colliderSize.y), Math.abs(colliderSize.x))
+      break
+
+    case ShapeType.ConvexPolyhedron: {
+      if (!mesh.geometry)
+        return console.warn('[Physics]: Tried to load convex mesh but did not find a geometry', mesh) as any
+      const _buff = mesh.geometry
+        .clone()
+        .scale(Math.abs(colliderSize.x), Math.abs(colliderSize.y), Math.abs(colliderSize.z))
+      const vertices = new Float32Array(_buff.attributes.position.array)
+      const indices = new Uint32Array(_buff.index!.array)
+      colliderDesc = ColliderDesc.convexMesh(vertices, indices) as ColliderDesc
+      break
+    }
+
+    case ShapeType.TriMesh: {
+      if (!mesh.geometry)
+        return console.warn('[Physics]: Tried to load tri mesh but did not find a geometry', mesh) as any
+      const _buff = mesh.geometry
+        .clone()
+        .scale(Math.abs(colliderSize.x), Math.abs(colliderSize.y), Math.abs(colliderSize.z))
+      const vertices = new Float32Array(_buff.attributes.position.array)
+      const indices = new Uint32Array(_buff.index!.array)
+      colliderDesc = ColliderDesc.trimesh(vertices, indices)
+      break
+    }
+
+    default:
+      console.error('unknown shape', colliderDescOptions)
+      return undefined!
+  }
+
+  applyDescToCollider(colliderDesc, colliderDescOptions, mesh.position, mesh.quaternion)
+
+  return colliderDesc
+}
+
+function createRigidBodyForObject(
+  entity: Entity,
+  world: World,
+  object: Object3D,
+  colliderDescOptionsForRoot: ColliderDescOptions
+): RigidBody {
+  if (!object) return undefined!
+  const colliderDescs = [] as ColliderDesc[]
+
+  // create collider desc using userdata of each child mesh
+  object.traverse((mesh: Mesh) => {
+    const colliderDesc = createColliderDesc(
+      mesh,
+      mesh === object ? { ...colliderDescOptionsForRoot, ...mesh.userData } : (mesh.userData as ColliderDescOptions)
+    )
+    if (colliderDesc) colliderDescs.push(colliderDesc)
+  })
+
+  const rigidBodyType =
+    typeof colliderDescOptionsForRoot['bodyType'] === 'string'
+      ? RigidBodyType[colliderDescOptionsForRoot['bodyType']]
+      : colliderDescOptionsForRoot['bodyType']
+
+  let rigidBodyDesc: RigidBodyDesc = undefined!
+  switch (rigidBodyType) {
+    case RigidBodyType.Dynamic:
+    default:
+      rigidBodyDesc = RigidBodyDesc.dynamic()
+      break
+
+    case RigidBodyType.Fixed:
+      rigidBodyDesc = RigidBodyDesc.fixed()
+      break
+
+    case RigidBodyType.KinematicPositionBased:
+      rigidBodyDesc = RigidBodyDesc.kinematicPositionBased()
+      break
+
+    case RigidBodyType.KinematicVelocityBased:
+      rigidBodyDesc = RigidBodyDesc.kinematicVelocityBased()
+      break
+  }
+
+  return createRigidBody(entity, world, rigidBodyDesc, colliderDescs)
+}
+
+function createColliderAndAttachToRigidBody(world: World, colliderDesc: ColliderDesc, rigidBody: RigidBody): Collider {
+  return world.createCollider(colliderDesc, rigidBody)
+}
+
+function removeCollidersFromRigidBody(entity: Entity, world: World) {
+  const rigidBody = getComponent(entity, RigidBodyComponent).body
+  const numColliders = rigidBody.numColliders()
+  for (let index = 0; index < numColliders; index++) {
+    const collider = rigidBody.collider(0)
+    world.removeCollider(collider, true)
+  }
+}
+
+function removeRigidBody(entity: Entity, world: World, hasBeenRemoved = false) {
+  const rigidBody = getComponent(entity, RigidBodyComponent, hasBeenRemoved)?.body
+  if (rigidBody && world.bodies.contains(rigidBody.handle)) {
+    if (!hasBeenRemoved) {
+      const RigidBodyTypeTagComponent = getTagComponentForRigidBody(rigidBody)
+      removeComponent(entity, RigidBodyTypeTagComponent)
+      removeComponent(entity, RigidBodyComponent)
+    }
+
+    world.removeRigidBody(rigidBody)
+  }
+}
+
+function changeRigidbodyType(entity: Entity, newType: RigidBodyType) {
+  const rigidBody = getComponent(entity, RigidBodyComponent).body
+  const currentRigidBodyTypeTagComponent = getTagComponentForRigidBody(rigidBody)
+
+  removeComponent(entity, currentRigidBodyTypeTagComponent)
+
+  rigidBody.setBodyType(newType)
+
+  const newRigidBodyComponent = getTagComponentForRigidBody(rigidBody)
+  addComponent(entity, newRigidBodyComponent, true)
+}
+
+function castRay(world: World, raycastQuery: ComponentType<typeof RaycastComponent>) {
+  const ray = new Ray(
+    { x: raycastQuery.origin.x, y: raycastQuery.origin.y, z: raycastQuery.origin.z },
+    { x: raycastQuery.direction.x, y: raycastQuery.direction.y, z: raycastQuery.direction.z }
+  )
+  const maxToi = raycastQuery.maxDistance
+  const solid = true // TODO: Add option for this in RaycastComponent?
+  const groups = raycastQuery.flags
+
+  raycastQuery.hits = []
+  let hitWithNormal = world.castRayAndGetNormal(ray, maxToi, solid, groups)
+  if (hitWithNormal != null) {
+    raycastQuery.hits.push({
+      distance: hitWithNormal.toi,
+      position: ray.pointAt(hitWithNormal.toi),
+      normal: hitWithNormal.normal,
+      body: hitWithNormal.collider.parent() as RigidBody
     })
   }
+}
 
-  onEvent(ev) {
-    this.collisionEventQueue.push(ev)
-  }
+function castShape(world: World, shapecastQuery: ComponentType<typeof ShapecastComponent>) {
+  const maxToi = shapecastQuery.maxDistance
+  const groups = shapecastQuery.collisionGroups
+  const collider = shapecastQuery.collider
 
-  getOriginalShapeObject(shapes: PhysX.PxShape | PhysX.PxShape[]) {
-    const shape: PhysX.PxShape = (shapes as any).length ? shapes[0] : shapes
-    return this.shapes.get(this.shapeIDByPointer.get(shape.$$.ptr)!)
-  }
-
-  async createScene(config: PhysXConfig = {}) {
-    await loadPhysX()
-
-    this.physxVersion = PhysX.PX_PHYSICS_VERSION
-    this.defaultErrorCallback = new PhysX.PxDefaultErrorCallback()
-    this.allocator = new PhysX.PxDefaultAllocator()
-    const tolerance = new PhysX.PxTolerancesScale()
-    tolerance.length = config.lengthScale ?? 1
-    this.foundation = PhysX.PxCreateFoundation(this.physxVersion, this.allocator, this.defaultErrorCallback)
-    this.cookingParamas = new PhysX.PxCookingParams(tolerance)
-    this.cooking = PhysX.PxCreateCooking(this.physxVersion, this.foundation, this.cookingParamas)
-    this.physics = PhysX.PxCreatePhysics(this.physxVersion, this.foundation, tolerance, false, null!)
-
-    const triggerCallback = {
-      onContactBegin: (
-        shapeA: PhysX.PxShape,
-        shapeB: PhysX.PxShape,
-        contactPoints: PhysX.PxVec3Vector,
-        contactNormals: PhysX.PxVec3Vector,
-        impulses: PhysX.PxRealVector
-      ) => {
-        const contacts = [] as any
-        for (let i = 0; i < contactPoints.size(); i++) {
-          if (impulses.get(i) > 0) {
-            contacts.push({
-              point: contactPoints.get(i),
-              normal: contactNormals.get(i),
-              impulse: impulses.get(i)
-            })
-          }
-        }
-        this.collisionEventQueue.push({
-          type: CollisionEvents.COLLISION_START,
-          // we have to get our original object ref
-          shapeA: this.getOriginalShapeObject(shapeA),
-          shapeB: this.getOriginalShapeObject(shapeB),
-          contacts
-        })
-      },
-      onContactEnd: (shapeA: PhysX.PxShape, shapeB: PhysX.PxShape) => {
-        this.collisionEventQueue.push({
-          type: CollisionEvents.COLLISION_END,
-          shapeA: this.getOriginalShapeObject(shapeA),
-          shapeB: this.getOriginalShapeObject(shapeB)
-        })
-      },
-      onContactPersist: (shapeA: PhysX.PxShape, shapeB: PhysX.PxShape) => {
-        this.collisionEventQueue.push({
-          type: CollisionEvents.COLLISION_PERSIST,
-          shapeA: this.getOriginalShapeObject(shapeA),
-          shapeB: this.getOriginalShapeObject(shapeB)
-        })
-      },
-      onTriggerBegin: (shapeA: PhysX.PxShape, shapeB: PhysX.PxShape) => {
-        // console.log('onTriggerBegin', shapeA, shapeB)
-        this.collisionEventQueue.push({
-          type: CollisionEvents.TRIGGER_START,
-          shapeA: this.getOriginalShapeObject(shapeA),
-          shapeB: this.getOriginalShapeObject(shapeB)
-        })
-      },
-      // onTriggerPersist: (shapeA: PhysX.PxShape, shapeB: PhysX.PxShape) => {
-      //   this.collisionEventQueue.push({
-      //     event: CollisionEvents.TRIGGER_PERSIST,
-      // bodyA,
-      // bodyB,
-      // shapeA,
-      // shapeB,
-      //   });
-      // },
-      onTriggerEnd: (shapeA: PhysX.PxShape, shapeB: PhysX.PxShape) => {
-        // console.log('onTriggerEnd', shapeA, shapeB)
-        this.collisionEventQueue.push({
-          event: CollisionEvents.TRIGGER_END,
-          shapeA: this.getOriginalShapeObject(shapeA),
-          shapeB: this.getOriginalShapeObject(shapeB)
-        })
-      }
-    }
-
-    this.sceneDesc = PhysX.getDefaultSceneDesc(
-      tolerance,
-      0,
-      PhysX.PxSimulationEventCallback.implement(triggerCallback as any)
-    )
-
-    this.scene = this.physics.createScene(this.sceneDesc)
-    this.scene.setBounceThresholdVelocity(config.bounceThresholdVelocity ?? 0.001)
-
-    this.controllerManager = PhysX.PxCreateControllerManager(this.scene, false)
-    this.obstacleContext = this.controllerManager.createObstacleContext()
-
-    this.defaultCCTQueryCallback = PhysX.getDefaultCCTQueryFilter()
-
-    // TODO: expose functions here as an API
-    // PhysX.PxQueryFilterCallback.implement({
-    //   preFilter: (filterData, shape, actor) => {
-    //     if (!(filterData.word0 & shape.getQueryFilterData().word1) && !(shape.getQueryFilterData().word0 & filterData.word1))
-    //     {
-    //       return PhysX.PxQueryHitType.eNONE;
-    //     }
-    //     return PhysX.PxQueryHitType.eBLOCK;
-    //   },
-    //   postFilter: (filterData, hit) => {
-    //     // console.log('postFilter', filterData, hit);
-    //     return PhysX.PxQueryHitType.eBLOCK;
-    //   }
-    // });
-
-    if (config.gravity) {
-      this.scene.setGravity(config.gravity)
-    }
-  }
-
-  addBody(config: RigidBody) {
-    const { transform, shapes, type } = config
-    const id = this._getNextAvailableBodyID()
-
-    const rigidBody =
-      type === BodyType.STATIC
-        ? this.physics.createRigidStatic(transform)
-        : (this.physics.createRigidDynamic(transform) as PhysX.PxRigidStatic | PhysX.PxRigidDynamic)
-
-    ;(rigidBody as any)._type = type
-    ;(rigidBody as any)._id = id
-    ;(rigidBody as any)._shapes = shapes
-
-    for (const shape of shapes as PhysX.PxShape[]) {
-      rigidBody.attachShape(shape)
-      this.bodyIDByShapeID.set(shape._id, id)
-    }
-
-    this.bodies.set(id, rigidBody)
-    this.scene.addActor(rigidBody, null)
-
-    if (!isStaticBody(rigidBody)) {
-      if (typeof config.useCCD !== 'undefined') {
-        ;(rigidBody as PhysX.PxRigidDynamic).setRigidBodyFlag(PhysX.PxRigidBodyFlag.eENABLE_CCD, config.useCCD)
-      }
-      if (typeof config.type !== 'undefined') {
-        const transform = rigidBody.getGlobalPose()
-        if (config.type === BodyType.KINEMATIC) {
-          ;(rigidBody as PhysX.PxRigidDynamic).setRigidBodyFlag(PhysX.PxRigidBodyFlag.eKINEMATIC, true)
-          ;(rigidBody as any)._type = BodyType.KINEMATIC
-        } else {
-          ;(rigidBody as PhysX.PxRigidDynamic).setRigidBodyFlag(PhysX.PxRigidBodyFlag.eKINEMATIC, false)
-          ;(rigidBody as any)._type = BodyType.DYNAMIC
-        }
-        rigidBody.setGlobalPose(transform, true)
-      }
-      if (config.mass) {
-        ;(rigidBody as PhysX.PxRigidDynamic).setMass(config.mass)
-      }
-      if (config.linearDamping) {
-        ;(rigidBody as PhysX.PxRigidDynamic).setLinearDamping(config.linearDamping)
-      }
-      if (config.angularDamping) {
-        ;(rigidBody as PhysX.PxRigidDynamic).setAngularDamping(config.angularDamping)
-      }
-    }
-    ;(rigidBody as any).userData = config.userData
-    return rigidBody
-  }
-
-  createMaterial(staticFriction: number = 0, dynamicFriction: number = 0, restitution: number = 0) {
-    return this.physics.createMaterial(staticFriction, dynamicFriction, restitution)
-  }
-
-  createShape(geometry: PhysX.PxGeometry, material = this.createMaterial(), options: ShapeOptions = {}): PhysX.PxShape {
-    if (!geometry) throw new Error('Expcted geometry')
-
-    const id = this._getNextAvailableShapeID()
-
-    const flags = new PhysX.PxShapeFlags(
-      PhysX.PxShapeFlag.eSCENE_QUERY_SHAPE.value |
-        (options?.isTrigger ? PhysX.PxShapeFlag.eTRIGGER_SHAPE.value : PhysX.PxShapeFlag.eSIMULATION_SHAPE.value)
-    )
-    const shape = this.physics.createShape(geometry, material, false, flags)
-
-    let collisionLayer = options.collisionLayer ?? defaultMask
-    let collisionMask = options.collisionMask ?? defaultMask
-
-    shape._collisionLayer = collisionLayer
-    shape._collisionMask = collisionMask
-
-    shape.setSimulationFilterData(new PhysX.PxFilterData(collisionLayer, collisionMask, 0, 0))
-    shape.setQueryFilterData(new PhysX.PxFilterData(collisionLayer, collisionMask, 0, 0))
-    shape._id = id
-
-    this.shapeIDByPointer.set(shape.$$.ptr, id)
-    this.shapes.set(id, shape)
-
-    if (typeof options.contactOffset !== 'undefined') {
-      shape.setContactOffset(options.contactOffset)
-    }
-    if (typeof options.restOffset !== 'undefined') {
-      shape.setRestOffset(options.restOffset)
-    }
-
-    shape._debugNeedsUpdate = true
-    return shape
-  }
-
-  createTrimesh(scale: Vector3, vertices: ArrayLike<number>, indices: ArrayLike<number>): PhysX.PxTriangleMeshGeometry {
-    const verticesPtr = putIntoPhysXHeap(PhysX.HEAPF32, vertices)
-    const indicesPtr = putIntoPhysXHeap(PhysX.HEAPF32, indices)
-    const trimesh = this.cooking.createTriMesh(
-      verticesPtr,
-      vertices.length,
-      indicesPtr,
-      indices.length / 3,
-      false,
-      this.physics
-    )
-
-    if (trimesh === null) throw new Error('Unable to create trimesh')
-
-    const meshScale = new PhysX.PxMeshScale(scale, new Quaternion())
-    const geometry = new PhysX.PxTriangleMeshGeometry(
-      trimesh,
-      meshScale,
-      new PhysX.PxMeshGeometryFlags(PhysX.PxMeshGeometryFlag.eDOUBLE_SIDED.value)
-    )
-
-    PhysX._free(verticesPtr)
-    PhysX._free(indicesPtr)
-
-    return geometry
-  }
-
-  createConvexMesh(scale: Vector3, vertices: ArrayLike<number>): PhysX.PxConvexMeshGeometry {
-    const verticesPtr = putIntoPhysXHeap(PhysX.HEAPF32, vertices)
-
-    const convexMesh = this.cooking.createConvexMesh(verticesPtr, vertices.length, this.physics)
-
-    const meshScale = new PhysX.PxMeshScale(scale, new Quaternion())
-    const geometry = new PhysX.PxConvexMeshGeometry(convexMesh, meshScale, new PhysX.PxConvexMeshGeometryFlags(0))
-
-    PhysX._free(verticesPtr)
-
-    return geometry
-  }
-
-  removeBody(body) {
-    const id = body._id
-    const shapes = body.getShapes()
-    const shapesArray = ((shapes as PhysX.PxShape[]).length ? shapes : [shapes]) as PhysX.PxShape[]
-    shapesArray.forEach((shape) => {
-      const shapeID = this.shapeIDByPointer.get(shape.$$.ptr)!
-      this.shapes.delete(shapeID)
-      this.shapeIDByPointer.delete(shape.$$.ptr)
-      // TODO: properly clean up shape
+  shapecastQuery.hits = []
+  let hitWithNormal = world.castShape(
+    collider.translation(),
+    collider.rotation(),
+    shapecastQuery.direction,
+    collider.shape,
+    maxToi,
+    groups
+  )
+  if (hitWithNormal != null) {
+    shapecastQuery.hits.push({
+      distance: hitWithNormal.toi,
+      position: hitWithNormal.witness1,
+      normal: hitWithNormal.normal1,
+      collider: hitWithNormal.collider,
+      body: hitWithNormal.collider.parent() as RigidBody
     })
-
-    if (!body) return
-    try {
-      this.scene.removeActor(body, false)
-      this.bodies.delete(id)
-      return true
-    } catch (e) {
-      console.log(e, id, body)
-    }
-  }
-
-  changeRigidbodyType(body: PhysX.PxRigidBody, type: BodyType) {
-    ;(body as any)._type = type
-    if (type === BodyType.KINEMATIC) {
-      body.setRigidBodyFlag(PhysX.PxRigidBodyFlag.eKINEMATIC, true)
-    } else if (type === BodyType.DYNAMIC) {
-      body.setRigidBodyFlag(PhysX.PxRigidBodyFlag.eKINEMATIC, false)
-    }
-  }
-
-  createController(config: CapsuleControllerConfig | BoxControllerConfig) {
-    const id = this._getNextAvailableBodyID()
-    const controllerDesc = config.isCapsule ? new PhysX.PxCapsuleControllerDesc() : new PhysX.PxBoxControllerDesc()
-    controllerDesc.setMaterial(config.material)
-    controllerDesc.position = { x: config.position?.x ?? 0, y: config.position?.y ?? 0, z: config.position?.z ?? 0 }
-    if (config.isCapsule) {
-      ;(controllerDesc as PhysX.PxCapsuleControllerDesc).height = (config as CapsuleControllerConfig).height
-      ;(controllerDesc as PhysX.PxCapsuleControllerDesc).radius = (config as CapsuleControllerConfig).radius
-      ;(controllerDesc as PhysX.PxCapsuleControllerDesc).climbingMode =
-        (config as CapsuleControllerConfig).climbingMode ?? PhysX.PxCapsuleClimbingMode.eEASY
-    } else {
-      ;(controllerDesc as PhysX.PxBoxControllerDesc).halfForwardExtent = (
-        config as BoxControllerConfig
-      ).halfForwardExtent
-      ;(controllerDesc as PhysX.PxBoxControllerDesc).halfHeight = (config as BoxControllerConfig).halfHeight
-      ;(controllerDesc as PhysX.PxBoxControllerDesc).halfSideExtent = (config as BoxControllerConfig).halfSideExtent
-    }
-    controllerDesc.stepOffset = config.stepOffset ?? 0.1
-    controllerDesc.maxJumpHeight = config.maxJumpHeight ?? 0.1
-    controllerDesc.contactOffset = config.contactOffset ?? 0.01
-    controllerDesc.invisibleWallHeight = config.invisibleWallHeight ?? 0.25
-    controllerDesc.slopeLimit = config.slopeLimit ?? Math.cos((45 * Math.PI) / 180)
-    controllerDesc.setReportCallback(
-      PhysX.PxUserControllerHitReport.implement({
-        onShapeHit: (event: PhysX.PxControllerShapeHit) => {
-          const shape = event.getShape()
-          const shapeID = this.shapeIDByPointer.get(shape.$$.ptr)!
-          const bodyID = this.bodyIDByShapeID.get(shapeID)
-          const position = event.getWorldPos()
-          const normal = event.getWorldNormal()
-          const length = event.getLength()
-          this.collisionEventQueue.push({
-            type: ControllerEvents.CONTROLLER_SHAPE_HIT,
-            controller,
-            bodyID,
-            shapeID,
-            position,
-            normal,
-            length
-          })
-        },
-        onControllerHit: (event: PhysX.PxControllersHit) => {
-          const other = event.getOther()
-          const bodyID = this.controllerIDByPointer.get(other.$$.ptr)
-          const shapeID = this.shapeIDByPointer.get((other.getActor().getShapes() as PhysX.PxShape).$$.ptr)
-          const position = event.getWorldPos()
-          const normal = event.getWorldNormal()
-          const length = event.getLength()
-          this.collisionEventQueue.push({
-            type: ControllerEvents.CONTROLLER_CONTROLLER_HIT,
-            controller,
-            bodyID,
-            shapeID,
-            position,
-            normal,
-            length
-          })
-        },
-        onObstacleHit: (event: PhysX.PxControllerObstacleHit) => {
-          const obstacleID = event.getUserData()
-          // TODO
-          // const data = getFromPhysXHeap(PhysX.HEAPU32, ptr, 1);
-          const position = event.getWorldPos()
-          const normal = event.getWorldNormal()
-          const length = event.getLength()
-          this.collisionEventQueue.push({
-            type: ControllerEvents.CONTROLLER_OBSTACLE_HIT,
-            controller,
-            obstacleID,
-            position,
-            normal,
-            length
-          })
-        }
-      })
-    )
-    if (!controllerDesc.isValid()) {
-      console.warn('[WARN] Controller Description invalid!')
-    }
-    const controller = config.isCapsule
-      ? this.controllerManager.createCapsuleController(controllerDesc)
-      : this.controllerManager.createBoxController(controllerDesc)
-    this.controllers.set(id, controller)
-    this.controllerIDByPointer.set(controller.$$.ptr, id)
-    const actor = controller.getActor()
-    this.bodies.set(id, actor)
-    const shapes = actor.getShapes() as PhysX.PxShape
-    const shapeid = this._getNextAvailableShapeID()
-    ;(actor as any)._shapes = [shapes]
-    this.shapeIDByPointer.set(shapes.$$.ptr, id)
-    this.shapes.set(shapeid, shapes)
-    ;(shapes as any)._id = shapeid
-    ;(actor as any)._type = BodyType.CONTROLLER
-    ;(actor as any)._debugNeedsUpdate = true
-    ;(controller as any)._id = id
-    return controller
-  }
-
-  removeController(controller: PhysX.PxController) {
-    const id = (controller as any)._id
-    console.log('controller id: ' + id)
-    const actor = controller.getActor()
-    const shapes = actor.getShapes() as PhysX.PxShape
-    this.controllerIDByPointer.delete(controller.$$.ptr)
-    this.shapeIDByPointer.delete(shapes.$$.ptr)
-    this.controllers.delete(id)
-    this.bodies.delete(id)
-    controller.release()
-    // todo
-  }
-
-  createObstacle(position: Vector3, rotation: Quaternion, config: ObstacleConfig) {
-    const { isCapsule, halfExtents, halfHeight, radius } = config
-    const id = this._getNextAvailableObstacleID()
-    const obstacle = new (isCapsule ? PhysX.PxCapsuleObstacle : PhysX.PxBoxObstacle)()
-    ;(obstacle as any)._id = id
-    ;(obstacle as any)._isCapsule = isCapsule
-    // todo: allow for more than a single int in memory for userData
-    obstacle.setUserData(putIntoPhysXHeap(PhysX.HEAPU32, [id]))
-    obstacle.setPosition(position)
-    obstacle.setRotation(rotation)
-    if (isCapsule) {
-      ;(obstacle as PhysX.PxCapsuleObstacle).setHalfHeight(halfHeight)
-      ;(obstacle as PhysX.PxCapsuleObstacle).setRadius(radius)
-    } else {
-      ;(obstacle as PhysX.PxBoxObstacle).setHalfExtents(halfExtents)
-    }
-    const handle = this.obstacleContext.addObstacle(obstacle)
-    ;(obstacle as any)._handle = handle
-    this.obstacles.set(id, obstacle)
-    return obstacle
-  }
-
-  removeObstacle(obstacle: PhysX.PxObstacle) {
-    const handle = (obstacle as any)._handle
-    const id = (obstacle as any)._id
-    this.obstacleContext.removeObstacle(handle)
-    this.obstacles.delete(id)
-  }
-
-  getRigidbodyShapes(body: PhysX.PxRigidActor) {
-    const shapesResult = body.getShapes()
-    const shapes = ((shapesResult as PhysX.PxShape[]).length ? shapesResult : [shapesResult]) as PhysX.PxShape[]
-    return shapes.map((shape) => this.shapes.get(this.shapeIDByPointer.get(shape.$$.ptr)!)!) // get original ref
-  }
-
-  doRaycast(raycastQuery: ComponentType<typeof RaycastComponent>) {
-    raycastQuery.hits = []
-    if (raycastQuery.type === SceneQueryType.Closest) {
-      const buffer = new PhysX.PxRaycastHit()
-      // todo - implement query filter bindings
-      // const queryCallback = PhysX.PxQueryFilterCallback.implement({
-      //   preFilter: (filterData, shape, actor) => { return PhysX.PxQueryHitType.eBLOCK },
-      //   postFilter: (filterData, hit) => { return PhysX.PxQueryHitType.eBLOCK  }
-      // });
-      const hasHit = this.scene.raycastSingle(
-        raycastQuery.origin,
-        raycastQuery.direction,
-        raycastQuery.maxDistance,
-        raycastQuery.flags,
-        buffer,
-        raycastQuery.filterData
-      )
-      if (hasHit) {
-        const shape = buffer.getShape()
-        if (shape) {
-          raycastQuery.hits.push({
-            distance: buffer.distance,
-            normal: buffer.normal,
-            position: buffer.position,
-            _bodyID: this.bodyIDByShapeID.get(this.shapeIDByPointer.get(shape.$$.ptr)!)!
-          })
-        }
-      }
-    }
-    // const buffer: PhysX.PxRaycastBuffer = PhysX.allocateRaycastHitBuffers(raycastQuery.maxHits);
-    // const hasHit = this.scene.raycast(raycastQuery.origin, raycastQuery.direction, raycastQuery.maxDistance, buffer);
-    // if (hasHit) {
-
-    // if(raycastQuery.flags) {
-    //   for (let index = 0; index < buffer.getNbTouches(); index++) {
-
-    //   }
-    // } else {
-    //   for (let index = 0; index < buffer.getNbAnyHits(); index++) {
-    //     const touch = buffer.getAnyHit(index);
-    //     const shape = this.shapeIDByPointer.get(touch.getShape().$$.ptr);
-    //     hits.push({
-    //       shape,
-    //     });
-    //   }
-    // }
-    // }
-  }
-  private _getNextAvailableBodyID() {
-    // todo, make this smart
-    return nextAvailableBodyIndex++
-  }
-
-  private _getNextAvailableShapeID() {
-    // todo, make this smart
-    return nextAvailableShapeID++
-  }
-
-  private _getNextAvailableObstacleID() {
-    // todo, make this smart
-    return nextAvailableObstacleID++
   }
 }
 
-export const isTriggerShape = (shape: PhysX.PxShape) => {
-  return shape.getFlags().isSet(PhysX.PxShapeFlag.eTRIGGER_SHAPE)
-}
+const drainCollisionEventQueue = (physicsWorld: World) => (handle1: number, handle2: number, started: boolean) => {
+  const collider1 = physicsWorld.getCollider(handle1)
+  const collider2 = physicsWorld.getCollider(handle2)
+  const isTriggerEvent = collider1.isSensor() || collider2.isSensor()
+  const rigidBody1 = collider1.parent()
+  const rigidBody2 = collider2.parent()
+  const entity1 = (rigidBody1?.userData as any)['entity']
+  const entity2 = (rigidBody2?.userData as any)['entity']
 
-export const setTriggerShape = (shape: PhysX.PxShape, value: boolean) => {
-  // must be done this way as flags are order dependent, these two flags cannot be raised at the same time
-  if (value) {
-    shape.setFlag(PhysX.PxShapeFlag.eSIMULATION_SHAPE, false)
-    shape.setFlag(PhysX.PxShapeFlag.eTRIGGER_SHAPE, true)
+  const collisionComponent1 = getComponent(entity1, CollisionComponent)
+  const collisionComponent2 = getComponent(entity2, CollisionComponent)
+
+  if (started) {
+    const type = isTriggerEvent ? CollisionEvents.TRIGGER_START : CollisionEvents.COLLISION_START
+    collisionComponent1?.set(entity2, {
+      type,
+      bodySelf: rigidBody1 as RigidBody,
+      bodyOther: rigidBody2 as RigidBody,
+      shapeSelf: collider1 as Collider,
+      shapeOther: collider2 as Collider
+    })
+    collisionComponent2?.set(entity1, {
+      type,
+      bodySelf: rigidBody2 as RigidBody,
+      bodyOther: rigidBody1 as RigidBody,
+      shapeSelf: collider2 as Collider,
+      shapeOther: collider1 as Collider
+    })
   } else {
-    shape.setFlag(PhysX.PxShapeFlag.eTRIGGER_SHAPE, false)
-    shape.setFlag(PhysX.PxShapeFlag.eSIMULATION_SHAPE, true)
-  }
-  shape._debugNeedsUpdate = true
-}
-
-export const getGeometryType = (shape: PhysX.PxShape) => {
-  return (shape.getGeometry().getType() as any).value
-}
-
-export const getGeometryScale = (shape: PhysX.PxShape) => {
-  let geometryType = getGeometryType(shape)
-  if (geometryType === PhysX.PxGeometryType.eTRIANGLEMESH.value) {
-    let geometry = new PhysX.PxTriangleMeshGeometry()
-    shape.getTriangleMeshGeometry(geometry as PhysX.PxTriangleMeshGeometry)
-    const meshScale = (geometry as any).getScale() as any
-    return meshScale.getScale()
-  } else if (geometryType === PhysX.PxGeometryType.eBOX.value) {
-    let geometry = new PhysX.PxBoxGeometry(0, 0, 0)
-    shape.getBoxGeometry(geometry as PhysX.PxBoxGeometry)
-    let meshScale = geometry.halfExtents
-    return meshScale
-  } else {
-    console.warn('getGeometryScale does not work currently for the geometry type', geometryType)
-    return new PhysX.PxMeshScale(0, 0)
+    const type = isTriggerEvent ? CollisionEvents.TRIGGER_END : CollisionEvents.COLLISION_END
+    if (collisionComponent1?.has(entity2)) collisionComponent1.get(entity2)!.type = type
+    if (collisionComponent2?.has(entity1)) collisionComponent2.get(entity1)!.type = type
   }
 }
 
-export const isKinematicBody = (body: PhysX.PxRigidActor) => {
-  return body._type === BodyType.KINEMATIC
-}
-
-export const isControllerBody = (body: PhysX.PxRigidActor) => {
-  return body._type === BodyType.CONTROLLER
-}
-
-export const isDynamicBody = (body: PhysX.PxRigidActor) => {
-  return body._type === BodyType.DYNAMIC
-}
-
-export const isStaticBody = (body: PhysX.PxRigidActor) => {
-  return body._type === BodyType.STATIC
+export const Physics = {
+  load,
+  createWorld,
+  createRigidBody,
+  createColliderDesc,
+  applyDescToCollider,
+  createRigidBodyForObject,
+  createColliderAndAttachToRigidBody,
+  removeCollidersFromRigidBody,
+  removeRigidBody,
+  changeRigidbodyType,
+  castRay,
+  castShape,
+  createCollisionEventQueue,
+  drainCollisionEventQueue
 }

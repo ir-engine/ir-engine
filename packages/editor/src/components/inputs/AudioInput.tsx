@@ -8,8 +8,6 @@ import FileBrowserInput from './FileBrowserInput'
 /**
  * AudioInput used to render component view for audio inputs.
  *
- * @author Robert Long
- * @author Hanzla Mateen
  * @param       {function} onChange
  * @param       {any} rest
  * @constructor

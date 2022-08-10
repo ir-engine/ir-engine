@@ -1,27 +1,24 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import Button from '@mui/material/Button'
 import Container from '@mui/material/Container'
 import DialogActions from '@mui/material/DialogActions'
 import DialogTitle from '@mui/material/DialogTitle'
-import Drawer from '@mui/material/Drawer'
 
 import { useAuthState } from '../../../user/services/AuthService'
-import { useFetchAdminLocations } from '../../common/hooks/Location.hooks'
-import InputSelect, { InputSelectProps } from '../../common/InputSelect'
+import DrawerView from '../../common/DrawerView'
+import InputSelect, { InputMenuItem } from '../../common/InputSelect'
 import { InstanceserverService } from '../../services/InstanceserverService'
-import { LocationService, useLocationState } from '../../services/LocationService'
+import { AdminLocationService, useAdminLocationState } from '../../services/LocationService'
 import styles from '../../styles/admin.module.scss'
 
 interface Props {
   open: boolean
-  handleClose: any
-  closeViewModal?: any
+  onClose: () => void
 }
 
-const PatchInstanceserver = (props: Props) => {
-  const { open, handleClose, closeViewModal } = props
+const PatchInstanceserver = ({ open, onClose }: Props) => {
   const [state, setState] = React.useState({
     location: '',
     locationError: ''
@@ -30,22 +27,26 @@ const PatchInstanceserver = (props: Props) => {
   const { t } = useTranslation()
   const authState = useAuthState()
   const user = authState.user
-  const adminLocationState = useLocationState()
+  const adminLocationState = useAdminLocationState()
   const location = adminLocationState
   const adminLocations = adminLocationState.locations
 
-  useFetchAdminLocations(user, adminLocationState, LocationService)
+  useEffect(() => {
+    if (user?.id.value && adminLocationState.updateNeeded.value) {
+      AdminLocationService.fetchAdminLocations()
+    }
+  }, [user?.id?.value, adminLocationState.updateNeeded.value])
 
-  const locationsMenu: InputSelectProps[] = adminLocations.value.map((el) => {
+  const locationsMenu: InputMenuItem[] = adminLocations.value.map((el) => {
     return {
       label: el.name,
       value: el.id
     }
   })
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (location.created.value) {
-      closeViewModal(false)
+      onClose()
       setState({
         ...state,
         location: ''
@@ -65,38 +66,34 @@ const PatchInstanceserver = (props: Props) => {
       setState({ ...state, locationError })
     } else {
       InstanceserverService.patchInstanceserver(state.location)
-      closeViewModal(false)
+      onClose()
     }
   }
 
   return (
-    <React.Fragment>
-      <Drawer anchor="right" classes={{ paper: styles.paperDrawer }} open={open} onClose={handleClose(false)}>
-        <Container maxWidth="sm" className={styles.mt20}>
-          <DialogTitle id="form-dialog-title" className={styles.textAlign}>
-            {t('admin:components.setting.patchInstanceserver')}
-          </DialogTitle>
+    <DrawerView open={open} onClose={onClose}>
+      <Container maxWidth="sm" className={styles.mt20}>
+        <DialogTitle className={styles.textAlign}>{t('admin:components.setting.patchInstanceserver')}</DialogTitle>
 
-          <InputSelect
-            name="location"
-            label={t('admin:components.bot.location')}
-            value={state.location}
-            error={state.locationError}
-            menu={locationsMenu}
-            handleInputChange={handleChange}
-          />
+        <InputSelect
+          name="location"
+          label={t('admin:components.bot.location')}
+          value={state.location}
+          error={state.locationError}
+          menu={locationsMenu}
+          onChange={handleChange}
+        />
 
-          <DialogActions>
-            <Button className={styles.submitButton} onClick={handleSubmit}>
-              {t('admin:components.setting.save')}
-            </Button>
-            <Button onClick={handleClose(false)} className={styles.cancelButton}>
-              {t('admin:components.setting.cancel')}
-            </Button>
-          </DialogActions>
-        </Container>
-      </Drawer>
-    </React.Fragment>
+        <DialogActions>
+          <Button onClick={onClose} className={styles.outlinedButton}>
+            {t('admin:components.common.cancel')}
+          </Button>
+          <Button className={styles.gradientButton} onClick={handleSubmit}>
+            {t('admin:components.common.submit')}
+          </Button>
+        </DialogActions>
+      </Container>
+    </DrawerView>
   )
 }
 

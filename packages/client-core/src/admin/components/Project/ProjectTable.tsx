@@ -1,129 +1,225 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { ProjectInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
+import multiLogger from '@xrengine/common/src/logger'
 
 import Cached from '@mui/icons-material/Cached'
 import Cross from '@mui/icons-material/Cancel'
 import CleaningServicesIcon from '@mui/icons-material/CleaningServices'
+import Group from '@mui/icons-material/Group'
+import LinkIcon from '@mui/icons-material/Link'
+import LinkOffIcon from '@mui/icons-material/LinkOff'
+import Upload from '@mui/icons-material/Upload'
 import VisibilityIcon from '@mui/icons-material/Visibility'
-import Button from '@mui/material/Button'
+import Box from '@mui/material/Box'
+import IconButton from '@mui/material/IconButton'
 
 import { PROJECT_PAGE_LIMIT, ProjectService, useProjectState } from '../../../common/services/ProjectService'
 import { useAuthState } from '../../../user/services/AuthService'
-import ConfirmModal from '../../common/ConfirmModal'
+import ConfirmDialog from '../../common/ConfirmDialog'
 import TableComponent from '../../common/Table'
 import { projectsColumns } from '../../common/variables/projects'
 import styles from '../../styles/admin.module.scss'
-import ViewProjectFiles from './ViewProjectFiles'
+import GithubRepoDrawer from './GithubRepoDrawer'
+import ProjectFilesDrawer from './ProjectFilesDrawer'
+import UserPermissionDrawer from './UserPermissionDrawer'
 
-export default function ProjectTable() {
+const logger = multiLogger.child({ component: 'client-core:ProjectTable' })
+
+interface Props {
+  className?: string
+}
+
+interface ConfirmData {
+  open: boolean
+  processing: boolean
+  description: string
+  onSubmit: () => void
+}
+
+const defaultConfirm: ConfirmData = {
+  open: false,
+  processing: false,
+  description: '',
+  onSubmit: () => {}
+}
+
+const ProjectTable = ({ className }: Props) => {
   const { t } = useTranslation()
   const [processing, setProcessing] = useState(false)
-  const [popupReuploadConfirmOpen, setPopupReuploadConfirmOpen] = useState(false)
-  const [popupInvalidateConfirmOpen, setPopupInvalidateConfirmOpen] = useState(false)
-  const [popupRemoveConfirmOpen, setPopupRemoveConfirmOpen] = useState(false)
-  const [project, setProject] = useState<ProjectInterface>(null!)
+  const [confirm, setConfirm] = useState({ ...defaultConfirm })
+  const [project, _setProject] = useState<ProjectInterface | undefined>()
+  const [showProjectFiles, setShowProjectFiles] = useState(false)
+  const [openGithubRepoDrawer, setOpenGithubRepoDrawer] = useState(false)
+  const [openUserPermissionDrawer, setOpenUserPermissionDrawer] = useState(false)
+  const [page, setPage] = useState(0)
+  const [rowsPerPage, setRowsPerPage] = useState(PROJECT_PAGE_LIMIT)
+
   const adminProjectState = useProjectState()
   const adminProjects = adminProjectState.projects
   const adminProjectCount = adminProjects.value.length
   const authState = useAuthState()
   const user = authState.user
-  const [projectName, setProjectName] = useState('')
-  const [showProjectFiles, setShowProjectFiles] = useState(false)
 
-  const onRemoveProject = async () => {
+  const projectRef = useRef(project)
+
+  const setProject = (project: ProjectInterface | undefined) => {
+    projectRef.current = project
+    _setProject(project)
+  }
+
+  ProjectService.useAPIListeners()
+
+  useEffect(() => {
+    if (project) setProject(adminProjects.value.find((proj) => proj.name === project.name)!)
+  }, [adminProjects])
+
+  const handleRemoveProject = async () => {
     try {
-      if (project) {
-        const projectToRemove = adminProjects.value.find((p) => p.name === project?.name)!
+      if (projectRef.current) {
+        const projectToRemove = adminProjects.value.find((p) => p.name === projectRef.current?.name)!
         if (projectToRemove) {
           await ProjectService.removeProject(projectToRemove.id)
-          handleCloseRemoveModal()
+          handleCloseConfirmation()
         } else {
-          throw Error('Failed to find the project')
+          throw new Error('Failed to find the project')
         }
       }
     } catch (err) {
-      console.log(err)
+      logger.error(err)
     }
   }
 
-  const tryReuploadProjects = async () => {
+  const handleReuploadProjects = async () => {
     try {
-      if (project) {
-        if (!project.repositoryPath && project.name !== 'default-project') return
-        const existingProjects = adminProjects.value.find((p) => p.name === project.name)!
+      if (projectRef.current) {
+        if (!projectRef.current.repositoryPath && projectRef.current.name !== 'default-project') return
+
+        const existingProjects = adminProjects.value.find((p) => p.name === projectRef.current!.name)!
         setProcessing(true)
         await ProjectService.uploadProject(
-          project.name === 'default-project' ? 'default-project' : existingProjects.repositoryPath
+          projectRef.current.name === 'default-project' ? 'default-project' : existingProjects.repositoryPath,
+          projectRef.current.name
         )
         setProcessing(false)
-        setProject(null!)
-        setPopupReuploadConfirmOpen(false)
+
+        handleCloseConfirmation()
       }
     } catch (err) {
       setProcessing(false)
-      console.log(err)
+      logger.error(err)
     }
   }
-  const handleInvalidateCache = async () => {
+
+  const handlePushProjectToGithub = async () => {
     try {
-      setPopupInvalidateConfirmOpen(false)
-      setProcessing(true)
-      await ProjectService.invalidateProjectCache(project.name)
-      setProcessing(false)
-      setProject(null!)
-      setPopupInvalidateConfirmOpen(false)
+      if (projectRef.current) {
+        if (!projectRef.current.repositoryPath && projectRef.current.name !== 'default-project') return
+
+        setProcessing(true)
+        await ProjectService.pushProject(projectRef.current.id)
+        setProcessing(false)
+
+        handleCloseConfirmation()
+      }
     } catch (err) {
       setProcessing(false)
-      console.log(err)
+      logger.error(err)
     }
   }
 
-  useEffect(() => {
-    if (user?.id.value != null && adminProjectState.updateNeeded.value === true) {
-      ProjectService.fetchProjects()
+  const handleInvalidateCache = async () => {
+    try {
+      setProcessing(true)
+      await ProjectService.invalidateProjectCache(projectRef.current!.name)
+      setProcessing(false)
+
+      handleCloseConfirmation()
+    } catch (err) {
+      setProcessing(false)
+      logger.error(err)
     }
-  }, [adminProjectState.updateNeeded.value])
+  }
 
-  const handleOpenReuploadConfirmation = (row) => {
+  const openReuploadConfirmation = (row) => {
     setProject(row)
-    setPopupReuploadConfirmOpen(true)
+
+    setConfirm({
+      open: true,
+      processing: processing,
+      description: `${t('admin:components.project.confirmProjectRebuild')} '${row.name}'?`,
+      onSubmit: handleReuploadProjects
+    })
   }
 
-  const handleOpenInvaliateConfirmation = (row) => {
+  const openPushConfirmation = (row) => {
     setProject(row)
-    setPopupInvalidateConfirmOpen(true)
+
+    setConfirm({
+      open: true,
+      processing: processing,
+      description: `${t('admin:components.project.confirmPushProjectToGithub')}? ${row.name} - ${
+        project?.repositoryPath
+      }`,
+      onSubmit: handlePushProjectToGithub
+    })
   }
 
-  const handleOpenRemoveConfirmation = (row) => {
+  const openInvalidateConfirmation = (row) => {
     setProject(row)
-    setPopupRemoveConfirmOpen(true)
-  }
-  const [page, setPage] = useState(0)
-  const [rowsPerPage, setRowsPerPage] = useState(PROJECT_PAGE_LIMIT)
 
-  const handleCloseReuploadModal = () => {
-    setProject(null!)
-    setPopupReuploadConfirmOpen(false)
-  }
-
-  const handleCloseInvalidateModal = () => {
-    setProject(null!)
-    setPopupInvalidateConfirmOpen(false)
+    setConfirm({
+      open: true,
+      processing: processing,
+      description: `${t('admin:components.project.confirmProjectInvalidate')} '${row.name}'?`,
+      onSubmit: handleInvalidateCache
+    })
   }
 
-  const handleCloseRemoveModal = () => {
-    setProject(null!)
-    setPopupRemoveConfirmOpen(false)
+  const openRemoveConfirmation = (row) => {
+    setProject(row)
+
+    setConfirm({
+      open: true,
+      processing: false,
+      description: `${t('admin:components.project.confirmProjectDelete')} '${row.name}'?`,
+      onSubmit: handleRemoveProject
+    })
   }
-  const handleViewProject = (name: string) => {
-    setProjectName(name)
+
+  const openViewProject = (row) => {
+    setProject(row)
     setShowProjectFiles(true)
   }
 
+  const handleOpenGithubRepoDrawer = (row) => {
+    setProject(row)
+    setOpenGithubRepoDrawer(true)
+  }
+
+  const handleOpenUserPermissionDrawer = (row) => {
+    setProject(row)
+    setOpenUserPermissionDrawer(true)
+  }
+
+  const handleCloseGithubRepoDrawer = () => {
+    setOpenGithubRepoDrawer(false)
+    setProject(undefined)
+  }
+
+  const handleCloseUserPermissionDrawer = () => {
+    setOpenUserPermissionDrawer(false)
+    setProject(undefined)
+  }
+
+  const handleCloseConfirmation = () => {
+    setConfirm({ ...confirm, open: false })
+    setConfirm({ ...defaultConfirm })
+    setProject(undefined)
+  }
+
   const handlePageChange = (event: unknown, newPage: number) => {
-    const incDec = page < newPage ? 'increment' : 'decrement'
     setPage(newPage)
   }
 
@@ -132,64 +228,85 @@ export default function ProjectTable() {
     setPage(0)
   }
 
-  const createData = (el: any, name: string) => {
+  const isAdmin = user.scopes?.value?.find((scope) => scope.type === 'admin:admin')
+
+  const createData = (el: ProjectInterface, name: string) => {
     return {
       el,
       name,
       update: (
         <>
-          {user.userRole.value === 'admin' && (
-            <Button
-              className={styles.checkboxButton}
+          {isAdmin && (
+            <IconButton
+              className={styles.iconButton}
+              name="update"
               disabled={el.repositoryPath === null && name !== 'default-project'}
-              onClick={() => handleOpenReuploadConfirmation(el)}
-              name="stereoscopic"
-              color="primary"
+              onClick={() => openReuploadConfirmation(el)}
             >
               <Cached />
-            </Button>
+            </IconButton>
+          )}
+        </>
+      ),
+      push: (
+        <>
+          {isAdmin && (
+            <IconButton
+              className={styles.iconButton}
+              name="update"
+              disabled={!el.hasWriteAccess || !el.repositoryPath}
+              onClick={() => openPushConfirmation(el)}
+            >
+              <Upload />
+            </IconButton>
+          )}
+        </>
+      ),
+      link: (
+        <>
+          <IconButton className={styles.iconButton} name="update" onClick={() => handleOpenGithubRepoDrawer(el)}>
+            {el.repositoryPath && <LinkOffIcon />}
+            {!el.repositoryPath && <LinkIcon />}
+          </IconButton>
+        </>
+      ),
+      projectPermissions: (
+        <>
+          {isAdmin && (
+            <IconButton
+              className={styles.iconButton}
+              name="editProjectPermissions"
+              onClick={() => handleOpenUserPermissionDrawer(el)}
+            >
+              <Group />
+            </IconButton>
           )}
         </>
       ),
       invalidate: (
         <>
-          {user.userRole.value === 'admin' && (
-            <Button
-              className={styles.checkboxButton}
-              onClick={() => handleOpenInvaliateConfirmation(el)}
-              name="stereoscopic"
-              color="primary"
-            >
+          {isAdmin && (
+            <IconButton className={styles.iconButton} name="invalidate" onClick={() => openInvalidateConfirmation(el)}>
               <CleaningServicesIcon />
-            </Button>
+            </IconButton>
           )}
         </>
       ),
       view: (
         <>
-          {user.userRole.value === 'admin' && (
-            <Button
-              className={styles.checkboxButton}
-              onClick={() => handleViewProject(name)}
-              name="stereoscopic"
-              color="primary"
-            >
+          {isAdmin && (
+            <IconButton className={styles.iconButton} name="view" onClick={() => openViewProject(el)}>
               <VisibilityIcon />
-            </Button>
+            </IconButton>
           )}
         </>
       ),
       action: (
         <>
-          {user.userRole.value === 'admin' && (
-            <Button
-              className={styles.checkboxButton}
-              onClick={() => handleOpenRemoveConfirmation(el)}
-              name="stereoscopic"
-              color="primary"
-            >
+          {isAdmin && (
+            <IconButton className={styles.iconButton} name="remove" onClick={() => openRemoveConfirmation(el)}>
               <Cross />
-            </Button>
+            </IconButton>
           )}
         </>
       )
@@ -201,7 +318,7 @@ export default function ProjectTable() {
   })
 
   return (
-    <div>
+    <Box className={className}>
       <TableComponent
         allowSort={true}
         rows={rows}
@@ -212,35 +329,31 @@ export default function ProjectTable() {
         handlePageChange={handlePageChange}
         handleRowsPerPageChange={handleRowsPerPageChange}
       />
-      <ConfirmModal
-        popConfirmOpen={popupReuploadConfirmOpen}
-        handleCloseModal={handleCloseReuploadModal}
-        submit={tryReuploadProjects}
-        name={project?.name}
-        label={t('admin:components.project.project')}
-        type="rebuild"
-        processing={processing}
-      />
-      <ConfirmModal
-        popConfirmOpen={popupInvalidateConfirmOpen}
-        handleCloseModal={handleCloseInvalidateModal}
-        submit={handleInvalidateCache}
-        name={project?.name}
-        label={t('admin:components.project.storageProvidersCacheOf')}
-        type="invalidates"
-        processing={processing}
-      />
-      <ConfirmModal
-        popConfirmOpen={popupRemoveConfirmOpen}
-        handleCloseModal={handleCloseRemoveModal}
-        submit={onRemoveProject}
-        name={project?.name}
-        label={t('admin:components.project.project')}
-      />
 
-      {showProjectFiles && projectName && (
-        <ViewProjectFiles name={projectName} open={showProjectFiles} setShowProjectFiles={setShowProjectFiles} />
+      {openGithubRepoDrawer && project && (
+        <GithubRepoDrawer open project={project} onClose={handleCloseGithubRepoDrawer} />
       )}
-    </div>
+
+      {project && (
+        <UserPermissionDrawer
+          open={openUserPermissionDrawer}
+          project={project}
+          onClose={handleCloseUserPermissionDrawer}
+        />
+      )}
+
+      {showProjectFiles && project && (
+        <ProjectFilesDrawer open selectedProject={project} onClose={() => setShowProjectFiles(false)} />
+      )}
+
+      <ConfirmDialog
+        open={confirm.open}
+        description={confirm.description}
+        onClose={handleCloseConfirmation}
+        onSubmit={confirm.onSubmit}
+      />
+    </Box>
   )
 }
+
+export default ProjectTable

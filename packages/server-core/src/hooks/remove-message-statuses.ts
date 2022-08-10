@@ -1,6 +1,6 @@
 import { Hook, HookContext } from '@feathersjs/feathers'
 
-import { Application } from './../../declarations.d'
+import { Application } from './../../declarations'
 
 export default (): Hook => {
   return async (context: HookContext<Application>): Promise<HookContext> => {

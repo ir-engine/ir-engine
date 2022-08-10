@@ -1,9 +1,8 @@
 import { detect, detectOS } from 'detect-browser'
 import _ from 'lodash'
-import { AudioListener, PerspectiveCamera } from 'three'
 
 import { BotUserAgent } from '@xrengine/common/src/constants/BotUserAgent'
-import { addActionReceptor, dispatchAction, registerState } from '@xrengine/hyperflux'
+import { addActionReceptor, dispatchAction, getState } from '@xrengine/hyperflux'
 
 import { getGLTFLoader } from './assets/classes/AssetLoader'
 import { initializeKTX2Loader } from './assets/functions/createGLTFLoader'
@@ -12,9 +11,12 @@ import { Timer } from './common/functions/Timer'
 import { Engine } from './ecs/classes/Engine'
 import { EngineActions, EngineEventReceptor, EngineState } from './ecs/classes/EngineState'
 import { createWorld, destroyWorld } from './ecs/classes/World'
-import { initSystems, SystemModuleType } from './ecs/functions/SystemFunctions'
+import FixedPipelineSystem from './ecs/functions/FixedPipelineSystem'
+import { initSystems, initSystemSync, SystemModuleType } from './ecs/functions/SystemFunctions'
 import { SystemUpdateType } from './ecs/functions/SystemUpdateType'
 import { matchActionOnce } from './networking/functions/matchActionOnce'
+import IncomingActionSystem from './networking/systems/IncomingActionSystem'
+import OutgoingActionSystem from './networking/systems/OutgoingActionSystem'
 import { EngineRenderer } from './renderer/WebGLRendererSystem'
 import { ObjectLayers } from './scene/constants/ObjectLayers'
 import { FontManager } from './xrui/classes/FontManager'
@@ -24,15 +26,31 @@ import { FontManager } from './xrui/classes/FontManager'
  * adds action receptors and creates a new world.
  * @returns {Engine}
  */
-export const createEngine = () => {
+export const createEngine = async () => {
   if (Engine.instance?.currentWorld) {
     destroyWorld(Engine.instance.currentWorld)
   }
   Engine.instance = new Engine()
-  Engine.instance.currentWorld = createWorld()
+  createWorld()
   EngineRenderer.instance = new EngineRenderer()
-  registerState(EngineState)
   addActionReceptor(EngineEventReceptor)
+  Engine.instance.engineTimer = Timer(executeWorlds, Engine.instance.tickRate)
+}
+
+export const setupEngineActionSystems = () => {
+  const world = Engine.instance.currentWorld
+  initSystemSync(world, {
+    type: SystemUpdateType.UPDATE,
+    systemFunction: FixedPipelineSystem
+  })
+  initSystemSync(world, {
+    type: SystemUpdateType.FIXED_EARLY,
+    systemFunction: IncomingActionSystem
+  })
+  initSystemSync(world, {
+    type: SystemUpdateType.FIXED_LATE,
+    systemFunction: OutgoingActionSystem
+  })
 }
 
 /**
@@ -41,13 +59,13 @@ export const createEngine = () => {
  * initializes everything for the browser context
  */
 export const initializeBrowser = () => {
-  EngineRenderer.instance.initialize()
+  const audioContext = new (globalThis.AudioContext || globalThis.webkitAudioContext)()
+  audioContext.resume()
+  Engine.instance.audioContext = audioContext
   Engine.instance.publicPath = location.origin
+  Engine.instance.cameraGainNode = audioContext.createGain()
+  Engine.instance.cameraGainNode.connect(audioContext.destination)
   const world = Engine.instance.currentWorld
-  world.audioListener = new AudioListener()
-  world.audioListener.context.resume()
-  world.camera = new PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 10000)
-  world.camera.add(world.audioListener)
   world.camera.layers.disableAll()
   world.camera.layers.enable(ObjectLayers.Scene)
   world.camera.layers.enable(ObjectLayers.Avatar)
@@ -75,11 +93,13 @@ export const initializeBrowser = () => {
   matchActionOnce(EngineActions.connect.matches, (action: any) => {
     Engine.instance.userId = action.id
   })
+  EngineRenderer.instance.initialize()
+  Engine.instance.engineTimer.start()
 }
 
 const setupInitialClickListener = () => {
   const initialClickListener = () => {
-    dispatchAction(EngineActions.setUserHasInteracted())
+    dispatchAction(EngineActions.setUserHasInteracted({}))
     window.removeEventListener('click', initialClickListener)
     window.removeEventListener('touchend', initialClickListener)
   }
@@ -93,41 +113,18 @@ const setupInitialClickListener = () => {
  * initializes everything for the node context
  */
 export const initializeNode = () => {
-  // node currently does not need to initialize anything
+  Engine.instance.engineTimer.start()
 }
 
 const executeWorlds = (elapsedTime) => {
-  Engine.instance.frameTime = elapsedTime
+  const engineState = getState(EngineState)
+  engineState.frameTime.set(elapsedTime)
   for (const world of Engine.instance.worlds) {
     world.execute(elapsedTime)
   }
 }
 
 export const initializeMediaServerSystems = async () => {
-  const coreSystems: SystemModuleType<any>[] = []
-  coreSystems.push(
-    {
-      type: SystemUpdateType.UPDATE,
-      systemModulePromise: import('./ecs/functions/FixedPipelineSystem'),
-      args: { tickRate: 60 }
-    },
-    {
-      type: SystemUpdateType.FIXED_EARLY,
-      systemModulePromise: import('./networking/systems/IncomingActionSystem')
-    },
-    {
-      type: SystemUpdateType.FIXED_LATE,
-      systemModulePromise: import('./networking/systems/OutgoingActionSystem')
-    }
-  )
-
-  const world = Engine.instance.currentWorld
-
-  await initSystems(world, coreSystems)
-
-  Engine.instance.engineTimer = Timer(executeWorlds, Engine.instance.tickRate)
-  Engine.instance.engineTimer.start()
-
   dispatchAction(EngineActions.initializeEngine({ initialised: true }))
 }
 
@@ -135,19 +132,9 @@ export const initializeCoreSystems = async () => {
   const systemsToLoad: SystemModuleType<any>[] = []
   systemsToLoad.push(
     {
-      type: SystemUpdateType.UPDATE,
-      systemModulePromise: import('./ecs/functions/FixedPipelineSystem'),
-      args: { tickRate: 60 }
-    },
-    {
-      type: SystemUpdateType.FIXED_EARLY,
-      systemModulePromise: import('./networking/systems/IncomingActionSystem')
-    },
-    {
-      type: SystemUpdateType.FIXED_LATE,
+      type: SystemUpdateType.UPDATE_LATE,
       systemModulePromise: import('./transform/systems/TransformSystem')
     },
-
     {
       type: SystemUpdateType.FIXED_LATE,
       systemModulePromise: import('./scene/systems/SceneObjectSystem')
@@ -155,25 +142,21 @@ export const initializeCoreSystems = async () => {
     {
       type: SystemUpdateType.FIXED_LATE,
       systemModulePromise: import('./scene/systems/AssetSystem')
-    },
-    {
-      type: SystemUpdateType.FIXED_LATE,
-      systemModulePromise: import('./networking/systems/OutgoingActionSystem')
     }
   )
 
   if (isClient) {
     systemsToLoad.push(
       {
-        type: SystemUpdateType.POST_RENDER,
-        systemModulePromise: import('./renderer/WebGLRendererSystem')
+        type: SystemUpdateType.UPDATE,
+        systemModulePromise: import('./camera/systems/CameraSystem')
       },
       {
-        type: SystemUpdateType.UPDATE,
-        systemModulePromise: import('./xr/systems/XRSystem')
+        type: SystemUpdateType.UPDATE_EARLY,
+        systemModulePromise: import('./xr/XRSystem')
       },
       {
-        type: SystemUpdateType.UPDATE,
+        type: SystemUpdateType.UPDATE_EARLY,
         systemModulePromise: import('./input/systems/ClientInputSystem')
       },
       {
@@ -183,6 +166,14 @@ export const initializeCoreSystems = async () => {
       {
         type: SystemUpdateType.FIXED_LATE,
         systemModulePromise: import('./scene/systems/MaterialOverrideSystem')
+      },
+      {
+        type: SystemUpdateType.FIXED_LATE,
+        systemModulePromise: import('./scene/systems/InstancingSystem')
+      },
+      {
+        type: SystemUpdateType.RENDER,
+        systemModulePromise: import('./renderer/WebGLRendererSystem')
       }
     )
   }
@@ -192,9 +183,6 @@ export const initializeCoreSystems = async () => {
 
   // load injected systems which may rely on core systems
   await initSystems(world, Engine.instance.injectedSystems)
-
-  Engine.instance.engineTimer = Timer(executeWorlds, Engine.instance.tickRate)
-  Engine.instance.engineTimer.start()
 
   dispatchAction(EngineActions.initializeEngine({ initialised: true }))
 }
@@ -223,11 +211,11 @@ export const initializeSceneSystems = async () => {
     },
     {
       type: SystemUpdateType.FIXED_LATE,
-      systemModulePromise: import('./scene/systems/TriggerSystem')
+      systemModulePromise: import('./physics/systems/PhysicsSystem')
     },
     {
       type: SystemUpdateType.FIXED_LATE,
-      systemModulePromise: import('./physics/systems/PhysicsSystem')
+      systemModulePromise: import('./scene/systems/TriggerSystem')
     }
   )
   if (isClient) {
@@ -239,10 +227,6 @@ export const initializeSceneSystems = async () => {
       {
         type: SystemUpdateType.UPDATE,
         systemModulePromise: import('./scene/systems/HyperspacePortalSystem')
-      },
-      {
-        type: SystemUpdateType.UPDATE,
-        systemModulePromise: import('./camera/systems/CameraSystem')
       },
       {
         type: SystemUpdateType.FIXED,
@@ -258,7 +242,7 @@ export const initializeSceneSystems = async () => {
       },
       {
         type: SystemUpdateType.PRE_RENDER,
-        systemModulePromise: import('./interaction/systems/MediaControlSystem')
+        systemModulePromise: import('./interaction/systems/MountPointSystem')
       },
       {
         type: SystemUpdateType.PRE_RENDER,
@@ -267,6 +251,10 @@ export const initializeSceneSystems = async () => {
       {
         type: SystemUpdateType.PRE_RENDER,
         systemModulePromise: import('./audio/systems/PositionalAudioSystem')
+      },
+      {
+        type: SystemUpdateType.PRE_RENDER,
+        systemModulePromise: import('./interaction/systems/MediaControlSystem')
       },
       {
         type: SystemUpdateType.PRE_RENDER,
@@ -282,7 +270,7 @@ export const initializeSceneSystems = async () => {
       },
       {
         type: SystemUpdateType.PRE_RENDER,
-        systemModulePromise: import('./particles/systems/ParticleSystem')
+        systemModulePromise: import('./scene/systems/ParticleSystem')
       },
       {
         type: SystemUpdateType.PRE_RENDER,
@@ -293,8 +281,8 @@ export const initializeSceneSystems = async () => {
         systemModulePromise: import('./renderer/HighlightSystem')
       },
       {
-        systemModulePromise: import('./scene/systems/EntityNodeEventSystem'),
-        type: SystemUpdateType.PRE_RENDER
+        type: SystemUpdateType.PRE_RENDER,
+        systemModulePromise: import('./scene/systems/EntityNodeEventSystem')
       }
     )
 

@@ -1,0 +1,56 @@
+.checkboxContainer {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.label {
+  font-size: 14px;
+  display: inline-block;
+  flex-shrink: 0;
+  font-family: Roboto;
+  color: var(--textColor);
+
+  &.left {
+    margin-right: 10px;
+  }
+
+  &.right {
+    margin-left: 10px;
+  }
+}
+
+.checkbox {
+  width: 20px;
+  height: 20px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  border: solid 1px var(--iconButtonColor);
+
+  input {
+    display: none;
+  }
+}
+
+.checkboxIcon {
+  width: 20px;
+  height: 20px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--iconButtonColor);
+
+  svg {
+    width: 15px;
+    height: 15px;
+    font-weight: bold;
+    color: var(--iconButtonBackground);
+
+    path {
+      fill: var(--iconButtonBackground);
+    }
+  }
+}

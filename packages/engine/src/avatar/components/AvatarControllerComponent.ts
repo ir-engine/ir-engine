@@ -1,12 +1,16 @@
+import { Collider, RigidBody } from '@dimforge/rapier3d-compat'
 import { Vector3 } from 'three'
 
+import { Entity } from '../../ecs/classes/Entity'
 import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
 import { VectorSpringSimulator } from '../../physics/classes/springs/VectorSpringSimulator'
 
 export type AvatarControllerComponentType = {
-  controller: PhysX.PxCapsuleController
-  filterData: PhysX.PxFilterData
-  collisions: [boolean, boolean, boolean]
+  /** The camera entity that should be updated by this controller */
+  cameraEntity: Entity
+
+  body: RigidBody
+  bodyCollider: Collider
   movementEnabled: boolean
   isJumping: boolean
   isWalking: boolean
@@ -17,6 +21,7 @@ export type AvatarControllerComponentType = {
   // walk and run speeds
   currentSpeed: number
   speedVelocity: { value: number }
+  lastPosition: Vector3
 }
 
 export const AvatarControllerComponent =

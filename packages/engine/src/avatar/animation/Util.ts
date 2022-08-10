@@ -14,21 +14,26 @@ import { matches, matchesVector3 } from '../../common/functions/MatchesUtils'
 /** State of the avatar animation */
 
 export const AvatarStates = {
-  LOCOMOTION: 'LOCOMOTION',
-  JUMP_UP: 'JUMP_UP',
-  JUMP_DOWN: 'JUMP_DOWN',
-  FALL_IDLE: 'FALL_IDLE',
+  LOCOMOTION: 'LOCOMOTION' as const,
+  JUMP_UP: 'JUMP_UP' as const,
+  JUMP_DOWN: 'JUMP_DOWN' as const,
+  FALL_IDLE: 'FALL_IDLE' as const,
   //Emotes
-  CLAP: 'CLAP',
-  CRY: 'CRY',
-  KISS: 'KISS',
-  WAVE: 'WAVE',
-  LAUGH: 'LAUGH',
-  DEFEAT: 'DEFEAT',
-  DANCE1: 'DANCE1',
-  DANCE2: 'DANCE2',
-  DANCE3: 'DANCE3',
-  DANCE4: 'DANCE4'
+  CLAP: 'CLAP' as const,
+  CRY: 'CRY' as const,
+  KISS: 'KISS' as const,
+  WAVE: 'WAVE' as const,
+  LAUGH: 'LAUGH' as const,
+  DEFEAT: 'DEFEAT' as const,
+  DANCE1: 'DANCE1' as const,
+  DANCE2: 'DANCE2' as const,
+  DANCE3: 'DANCE3' as const,
+  DANCE4: 'DANCE4' as const,
+
+  // Mount Point
+  SIT_ENTER: 'SIT_ENTER' as const,
+  SIT_LEAVE: 'SIT_LEAVE' as const,
+  SIT_IDLE: 'SIT_IDLE' as const
 }
 
 export const matchesAvatarState = matches.some(

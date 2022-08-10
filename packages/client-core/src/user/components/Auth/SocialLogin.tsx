@@ -15,7 +15,6 @@ import { AuthService } from '../../services/AuthService'
 import styles from './index.module.scss'
 
 interface Props {
-  //auth?: any
   enableFacebookSocial?: boolean
   enableGithubSocial?: boolean
   enableGoogleSocial?: boolean
@@ -24,15 +23,14 @@ interface Props {
   enableDiscordSocial?: boolean
 }
 
-const SocialLogin = (props: Props): JSX.Element => {
-  const {
-    enableDiscordSocial,
-    enableFacebookSocial,
-    enableGithubSocial,
-    enableGoogleSocial,
-    enableLinkedInSocial,
-    enableTwitterSocial
-  } = props
+const SocialLogin = ({
+  enableDiscordSocial,
+  enableFacebookSocial,
+  enableGithubSocial,
+  enableGoogleSocial,
+  enableLinkedInSocial,
+  enableTwitterSocial
+}: Props): JSX.Element => {
   const { t } = useTranslation()
   const location = useLocation()
 
@@ -170,6 +168,4 @@ const SocialLogin = (props: Props): JSX.Element => {
   )
 }
 
-const SocialLoginWrapper = (props: Props): JSX.Element => <SocialLogin {...props} />
-
-export default SocialLoginWrapper
+export default SocialLogin

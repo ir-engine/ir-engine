@@ -31,7 +31,6 @@ export class AcceptInvite implements ServiceMethods<Data> {
    * @param params number of limit and skip for pagination
    * Number should be passed as query parmas
    * @returns {@Array} all listed invite
-   * @author Vyacheslav Solovjov
    */
   async find(params?: Params): Promise<Data[] | Paginated<Data>> {
     return []
@@ -43,10 +42,11 @@ export class AcceptInvite implements ServiceMethods<Data> {
    * @param id of specific accept invite
    * @param params query which contain passcode
    * @returns {@Object} contains single invite
-   * @author Vyacheslav Solovjov
    */
 
   async get(id: Id, params?: Params): Promise<Data> {
+    let inviteeIdentityProvider
+    let returned = {} as any
     if (!params) params = {}
     if (params.query?.t) {
       params.query.passcode = params.query.t
@@ -56,7 +56,11 @@ export class AcceptInvite implements ServiceMethods<Data> {
       params.provider = null!
       let invite
       try {
-        invite = await this.app.service('invite').get(id, params)
+        invite = await this.app.service('invite').Model.findOne({
+          where: {
+            id: id
+          }
+        })
       } catch (err) {}
 
       if (invite == null) {
@@ -73,8 +77,23 @@ export class AcceptInvite implements ServiceMethods<Data> {
         }
       }
 
+      const dateNow = new Date()
+
+      if (invite.timed && invite.startTime && dateNow < invite.startTime) {
+        logger.info(`Invite ${invite.id} accessed before start time ${dateNow}`)
+        return {
+          error: 'Invite accessed too early'
+        }
+      }
+
+      if (invite.timed && invite.endTime && dateNow > invite.endTime) {
+        logger.info(`Invite ${invite.id} accessed after end time ${dateNow}`)
+        return {
+          error: 'Invite has expired'
+        }
+      }
+
       if (invite.identityProviderType != null) {
-        let inviteeIdentityProvider
         const inviteeIdentityProviderResult = await this.app.service('identity-provider').find({
           query: {
             type: invite.identityProviderType,
@@ -93,267 +112,227 @@ export class AcceptInvite implements ServiceMethods<Data> {
         } else {
           inviteeIdentityProvider = (inviteeIdentityProviderResult as any).data[0]
         }
-        if (params['identity-provider'] == null) params['identity-provider'] = inviteeIdentityProvider
-
-        if (invite.inviteType === 'friend') {
-          const existingRelationshipResult = (await this.app.service('user-relationship').find({
-            query: {
-              $or: [
-                {
-                  userRelationshipType: 'requested'
-                },
-                {
-                  userRelationshipType: 'friend'
-                }
-              ],
-              userId: invite.userId,
-              relatedUserId: inviteeIdentityProvider.userId
-            }
-          })) as any
-
-          if ((existingRelationshipResult as any).total === 0) {
-            await this.app.service('user-relationship').create(
-              {
-                userRelationshipType: 'friend',
-                userId: invite.userId,
-                relatedUserId: inviteeIdentityProvider.userId
-              },
-              params
-            )
-          } else {
-            await this.app.service('user-relationship').patch(
-              existingRelationshipResult.data[0].id,
-              {
-                userRelationshipType: 'friend'
-              },
-              params
-            )
-          }
-
-          const relationshipToPatch = (await this.app.service('user-relationship').find({
-            query: {
-              $or: [
-                {
-                  userRelationshipType: 'requested'
-                },
-                {
-                  userRelationshipType: 'friend'
-                }
-              ],
-              userId: inviteeIdentityProvider.userId,
-              relatedUserId: invite.userId
-            }
-          })) as any
-
-          if (relationshipToPatch.data.length > 0)
-            await this.app.service('user-relationship').patch(
-              relationshipToPatch.data[0].id,
-              {
-                userRelationshipType: 'friend'
-              },
-              params
-            )
-        } else if (invite.inviteType === 'group') {
-          const group = await this.app.service('group').get(invite.targetObjectId)
-
-          if (group == null) {
-            return new BadRequest('Invalid group ID')
-          }
-
-          const { query, ...paramsCopy } = params
-
-          const existingGroupUser = (await this.app.service('group-user').find({
-            query: {
-              userId: inviteeIdentityProvider.userId,
-              groupId: invite.targetObjectId,
-              groupUserRank: 'user'
-            }
-          })) as any
-
-          if (existingGroupUser.total === 0) {
-            paramsCopy.skipAuth = true
-            await this.app.service('group-user').create(
-              {
-                userId: inviteeIdentityProvider.userId,
-                groupId: invite.targetObjectId
-              },
-              paramsCopy
-            )
-          }
-        } else if (invite.inviteType === 'party') {
-          const party = await this.app.service('party').get(invite.targetObjectId, params)
-
-          if (party == null) {
-            return new BadRequest('Invalid party ID')
-          }
-
-          const patchUser: any = { partyId: invite.targetObjectId }
-          await this.app.service('user').patch(inviteeIdentityProvider.userId, {
-            ...patchUser
-          })
-
-          const { query, ...paramsCopy } = params
-
-          const existingPartyUser = (await this.app.service('party-user').find({
-            query: {
-              userId: inviteeIdentityProvider.userId,
-              partyId: invite.targetObjectId,
-              isOwner: false
-            }
-          })) as any
-
-          if (existingPartyUser.total === 0) {
-            paramsCopy.skipAuth = true
-            await this.app.service('party-user').create(
-              {
-                userId: inviteeIdentityProvider.userId,
-                partyId: invite.targetObjectId,
-                isOwner: false
-              },
-              paramsCopy
-            )
-          }
-        }
       } else if (invite.inviteeId != null) {
         const invitee = await this.app.service('user').get(invite.inviteeId)
 
-        if (invitee == null) {
-          return new BadRequest('Invalid invitee ID')
+        if (invitee == null || invitee.identity_providers == null || invitee.identity_providers.length === 0) {
+          throw new BadRequest('Invalid invitee ID')
         }
 
-        if (params['identity-provider'] == null) params['identity-provider'] = invitee.identityProviders
+        inviteeIdentityProvider = invitee.identity_providers[0]
+      }
 
-        if (invite.inviteType === 'friend') {
-          const existingRelationshipResult = (await this.app.service('user-relationship').find({
-            query: {
-              $or: [
-                {
-                  userRelationshipType: 'requested'
-                },
-                {
-                  userRelationshipType: 'friend'
-                }
-              ],
+      if (params['identity-provider'] == null) params['identity-provider'] = inviteeIdentityProvider
+
+      if (invite.makeAdmin) {
+        const existingAdminScope = await this.app.service('scope').find({
+          query: {
+            userId: inviteeIdentityProvider.userId,
+            type: 'admin:admin'
+          }
+        })
+        if (existingAdminScope.total === 0)
+          await this.app.service('scope').create({
+            userId: inviteeIdentityProvider.userId,
+            type: 'admin:admin'
+          })
+      }
+
+      if (invite.inviteType === 'friend') {
+        const inviter = await this.app.service('user').Model.findOne({ where: { id: invite.userId } })
+
+        if (inviter == null) {
+          await this.app.service('invite').remove(invite.id)
+          throw new BadRequest('Invalid user ID')
+        }
+
+        const existingRelationshipResult = (await this.app.service('user-relationship').find({
+          query: {
+            $or: [
+              {
+                userRelationshipType: 'requested'
+              },
+              {
+                userRelationshipType: 'friend'
+              }
+            ],
+            userId: invite.userId,
+            relatedUserId: inviteeIdentityProvider.userId
+          }
+        })) as any
+
+        if ((existingRelationshipResult as any).total === 0) {
+          await this.app.service('user-relationship').create(
+            {
+              userRelationshipType: 'friend',
               userId: invite.userId,
-              relatedUserId: invite.inviteeId
-            }
-          })) as any
+              relatedUserId: inviteeIdentityProvider.userId
+            },
+            params
+          )
+        } else {
+          await this.app.service('user-relationship').patch(
+            existingRelationshipResult.data[0].id,
+            {
+              userRelationshipType: 'friend'
+            },
+            params
+          )
+        }
 
-          if ((existingRelationshipResult as any).total === 0) {
-            await this.app.service('user-relationship').create(
+        const relationshipToPatch = (await this.app.service('user-relationship').find({
+          query: {
+            $or: [
               {
-                userRelationshipType: 'friend',
-                userId: invite.userId,
-                relatedUserId: invite.inviteeId
+                userRelationshipType: 'requested'
               },
-              params
-            )
-          } else {
-            await this.app.service('user-relationship').patch(
-              existingRelationshipResult.data[0].id,
-              {
-                userRelationshipType: 'friend'
-              },
-              params
-            )
-          }
-
-          const relationshipToPatch = (await this.app.service('user-relationship').find({
-            query: {
-              $or: [
-                {
-                  userRelationshipType: 'requested'
-                },
-                {
-                  userRelationshipType: 'friend'
-                }
-              ],
-              userId: invite.inviteeId,
-              relatedUserId: invite.userId
-            }
-          })) as any
-
-          if (relationshipToPatch.data.length > 0)
-            await this.app.service('user-relationship').patch(
-              relationshipToPatch.data[0].id,
               {
                 userRelationshipType: 'friend'
-              },
-              params
-            )
-        } else if (invite.inviteType === 'group') {
-          const group = await this.app.service('group').get(invite.targetObjectId)
-
-          if (group == null) {
-            return new BadRequest('Invalid group ID')
+              }
+            ],
+            userId: inviteeIdentityProvider.userId,
+            relatedUserId: invite.userId
           }
+        })) as any
 
-          const { query, ...paramsCopy } = params
+        if (relationshipToPatch.data.length > 0)
+          await this.app.service('user-relationship').patch(
+            relationshipToPatch.data[0].id,
+            {
+              userRelationshipType: 'friend'
+            },
+            params
+          )
+      } else if (invite.inviteType === 'group') {
+        const group = await this.app.service('group').Model.findOne({ where: { id: invite.targetObjectId } })
 
-          const existingGroupUser = (await this.app.service('group-user').find({
-            query: {
-              userId: invite.inviteeId,
-              groupId: invite.targetObjectId
-            }
-          })) as any
+        if (group == null) {
+          await this.app.service('invite').remove(invite.id)
+          throw new BadRequest('Invalid group ID')
+        }
 
-          if (existingGroupUser.total === 0) {
-            paramsCopy.skipAuth = true
-            await this.app.service('group-user').create(
-              {
-                userId: invite.inviteeId,
-                groupId: invite.targetObjectId,
-                groupUserRank: 'user'
-              },
-              paramsCopy
-            )
+        const { query, ...paramsCopy } = params
+
+        const existingGroupUser = (await this.app.service('group-user').find({
+          query: {
+            userId: inviteeIdentityProvider.userId,
+            groupId: invite.targetObjectId
           }
-        } else if (invite.inviteType === 'party') {
-          const party = await this.app.service('party').get(invite.targetObjectId, params)
+        })) as any
 
-          if (party == null) {
-            return new BadRequest('Invalid party ID')
+        if (existingGroupUser.total === 0) {
+          paramsCopy.skipAuth = true
+          await this.app.service('group-user').create(
+            {
+              userId: inviteeIdentityProvider.userId,
+              groupId: invite.targetObjectId,
+              groupUserRank: 'owner'
+            },
+            paramsCopy
+          )
+        }
+      } else if (invite.inviteType === 'party') {
+        const party = await this.app.service('party').Model.findOne({ where: { id: invite.targetObjectId } })
+
+        if (party == null) {
+          await this.app.service('invite').remove(invite.id)
+          return new BadRequest('Invalid party ID')
+        }
+
+        const patchUser: any = { partyId: invite.targetObjectId }
+        await this.app.service('user').patch(inviteeIdentityProvider.userId, {
+          ...patchUser
+        })
+
+        const { query, ...paramsCopy } = params
+
+        const existingPartyUser = await this.app.service('party-user').Model.count({
+          where: {
+            userId: inviteeIdentityProvider.userId,
+            partyId: invite.targetObjectId,
+            isOwner: false
           }
+        })
 
-          const patchUser: any = { partyId: invite.targetObjectId }
-          await this.app.service('user').patch(invite.inviteeId, { ...patchUser })
-
-          const { query, ...paramsCopy } = params
-
-          const existingPartyUser = (await this.app.service('party-user').find({
-            query: {
-              userId: invite.inviteeId,
+        if (existingPartyUser === 0) {
+          paramsCopy.skipAuth = true
+          await this.app.service('party-user').create(
+            {
+              userId: inviteeIdentityProvider.userId,
               partyId: invite.targetObjectId,
               isOwner: false
-            }
-          })) as any
+            },
+            paramsCopy
+          )
+        }
 
-          if (existingPartyUser.total === 0) {
-            paramsCopy.skipAuth = true
-            await this.app.service('party-user').create(
+        const ownerResult = await this.app.service('party-user').find({
+          query: {
+            partyId: invite.targetObjectId,
+            isOwner: true
+          },
+          sequelize: {
+            include: [
               {
-                userId: invite.inviteeId,
-                partyId: invite.targetObjectId,
-                isOwner: false
-              },
-              paramsCopy
-            )
+                model: this.app.service('user').Model
+              }
+            ]
           }
+        })
+
+        const owner = ownerResult.data[0]
+
+        if (owner && owner.user?.instanceId) {
+          const instance = await this.app.service('instance').get(owner.user.instanceId, {
+            sequelize: {
+              include: [
+                {
+                  model: this.app.service('location').Model
+                }
+              ]
+            }
+          })
+          returned.locationName = instance.location.slugifiedName
+          returned.instanceId = owner.user.instanceId
+          returned.inviteCode = owner.user.inviteCode
         }
       }
 
       params.preventUserRelationshipRemoval = true
-      await this.app.service('invite').remove(invite.id, params)
-      const token = await (this.app.service('authentication') as any).createAccessToken(
-        {},
-        { subject: params['identity-provider'].id.toString() }
-      )
-      return {
-        token: token
+      if (invite.deleteOnUse) await this.app.service('invite').remove(invite.id, params)
+
+      returned.token = await this.app
+        .service('authentication')
+        .createAccessToken({}, { subject: params['identity-provider'].id.toString() })
+
+      if (invite.inviteType === 'location' || invite.inviteType === 'instance') {
+        let instance =
+          invite.inviteType === 'instance' ? await this.app.service('instance').get(invite.targetObjectId) : null
+        const locationId = instance ? instance.locationId : invite.targetObjectId
+        const location = await this.app.service('location').get(locationId)
+        returned.locationName = location.slugifiedName
+        if (instance) returned.instanceId = instance.id
+
+        if (location.location_setting?.locationType === 'private') {
+          const userId = inviteeIdentityProvider.userId
+          if (!location.location_authorized_users?.find((authUser) => authUser.userId === userId))
+            await this.app.service('location-authorized-user').create({
+              locationId: location.id,
+              userId: userId
+            })
+        }
+        if (invite.spawnDetails) {
+          const spawnDetails = JSON.parse(invite.spawnDetails)
+          if (invite.spawnType === 'inviteCode') returned.inviteCode = spawnDetails.inviteCode
+          if (invite.spawnType === 'spawnPoint') returned.spawnPoint = spawnDetails.spawnPoint
+          if (invite.spawnType === 'spectate') returned.spectate = spawnDetails.spectate
+        }
       }
+
+      return returned
     } catch (err) {
       logger.error(err)
-      return null!
+      throw err
     }
   }
 
@@ -362,7 +341,6 @@ export class AcceptInvite implements ServiceMethods<Data> {
    *
    * @param data which will be used for creating new accept invite
    * @param params
-   * @author Vyacheslav Solovjov
    */
   async create(data: Data, params?: Params): Promise<Data> {
     if (Array.isArray(data)) {
@@ -379,7 +357,6 @@ export class AcceptInvite implements ServiceMethods<Data> {
    * @param data for updating accept invite
    * @param params
    * @returns Data
-   * @author Vyacheslav Solovjov
    */
   async update(id: NullableId, data: Data, params?: Params): Promise<Data> {
     return data
@@ -392,7 +369,6 @@ export class AcceptInvite implements ServiceMethods<Data> {
    * @param data for updaing accept invite
    * @param params
    * @returns Data
-   * @author Vyacheslav Solovjov
    */
   async patch(id: NullableId, data: Data, params?: Params): Promise<Data> {
     return data
@@ -403,7 +379,6 @@ export class AcceptInvite implements ServiceMethods<Data> {
    * @param id of specific accept invite
    * @param params
    * @returns id
-   * @author Vyacheslav Solovjov
    */
   async remove(id: NullableId, params?: Params): Promise<Data> {
     return { id }

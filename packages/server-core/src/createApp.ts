@@ -1,4 +1,4 @@
-import express, { static as _static, errorHandler, json, rest, urlencoded } from '@feathersjs/express'
+import express, { errorHandler, json, rest, urlencoded } from '@feathersjs/express'
 import { feathers } from '@feathersjs/feathers'
 import socketio from '@feathersjs/socketio'
 import * as k8s from '@kubernetes/client-node'
@@ -9,17 +9,38 @@ import swagger from 'feathers-swagger'
 import sync from 'feathers-sync'
 import helmet from 'helmet'
 import path from 'path'
+import pinoHttp from 'pino-http'
 import { Socket } from 'socket.io'
 
 import { pipe } from '@xrengine/common/src/utils/pipe'
-import { Application } from '@xrengine/server-core/declarations'
-import config from '@xrengine/server-core/src/appconfig'
-import logger from '@xrengine/server-core/src/logger'
-import sequelize from '@xrengine/server-core/src/sequelize'
-import services from '@xrengine/server-core/src/services'
-import authentication from '@xrengine/server-core/src/user/authentication'
 
+import { Application, ServerTypeMode } from '../declarations'
+import config from './appconfig'
+import logger from './logger'
 import { createDefaultStorageProvider, createIPFSStorageProvider } from './media/storageprovider/storageprovider'
+import sequelize from './sequelize'
+import services from './services'
+import authentication from './user/authentication'
+
+/**
+ * Logs all Express API calls (except for the ones marked as 'silent').
+ */
+const requestLogger = pinoHttp({
+  logger: logger.child({ component: 'api' }),
+
+  customLogLevel(req, res, err) {
+    if (res.req.url === '/api/log' || res.req.url === '/healthcheck') {
+      return 'silent'
+    } else if (res.statusCode === 404) {
+      return 'info'
+    } else if (res.statusCode >= 400 || err) {
+      return 'error'
+    } else if (res.statusCode >= 300 && res.statusCode < 400) {
+      return 'silent'
+    }
+    return 'info'
+  }
+})
 
 export const configureOpenAPI = () => (app: Application) => {
   app.configure(
@@ -117,7 +138,10 @@ export const serverPipe = pipe(configureOpenAPI(), configureSocketIO(), configur
   app: Application
 ) => Application
 
-export const createFeathersExpressApp = (configurationPipe = serverPipe): Application => {
+export const createFeathersExpressApp = (
+  serverMode: ServerTypeMode = 'API',
+  configurationPipe = serverPipe
+): Application => {
   createDefaultStorageProvider()
 
   if (config.ipfs.enabled) {
@@ -125,6 +149,7 @@ export const createFeathersExpressApp = (configurationPipe = serverPipe): Applic
   }
 
   const app = express(feathers()) as Application
+  app.serverMode = serverMode
   app.set('nextReadyEmitter', new EventEmitter())
 
   // Feathers authentication-oauth will only append the port in production, but then it will also
@@ -149,13 +174,23 @@ export const createFeathersExpressApp = (configurationPipe = serverPipe): Applic
     cors({
       origin: true,
       credentials: true
-    })
+    }) as any
   )
+
+  // TODO: Investigate why this is letting healthcheck requests through
+  // Disabling for the moment
+  // app.use(requestLogger)
+
   app.use(compress())
   app.use(json())
   app.use(urlencoded({ extended: true }))
 
   app.configure(rest())
+  // app.use(function (req, res, next) {
+  //   ;(req as any).feathers.req = req
+  //   ;(req as any).feathers.res = res
+  //   next()
+  // })
 
   // Configure other middleware (see `middleware/index.js`)
   app.configure(authentication)
@@ -165,6 +200,13 @@ export const createFeathersExpressApp = (configurationPipe = serverPipe): Applic
 
   app.use('/healthcheck', (req, res) => {
     res.sendStatus(200)
+  })
+
+  // Receive client-side log events (only active when APP_ENV != 'development')
+  app.post('/api/log', (req, res) => {
+    const { msg, ...mergeObject } = req.body
+    logger.info({ user: req.params?.user, ...mergeObject }, msg)
+    return res.status(204).send()
   })
 
   app.use(errorHandler({ logger }))

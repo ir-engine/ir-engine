@@ -1,10 +1,6 @@
 import { useEffect } from 'react'
 import { createPortal } from 'react-dom'
 
-/**
- *
- * @author Robert Long
- */
 export const Portal = (props) => {
   let el = document.createElement('div')
 

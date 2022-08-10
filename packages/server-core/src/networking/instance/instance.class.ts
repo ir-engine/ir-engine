@@ -10,8 +10,6 @@ export type InstanceDataType = InstanceInterface
 
 /**
  * A class for Intance service
- *
- * @author Vyacheslav Solovjov
  */
 export class Instance<T = InstanceDataType> extends Service<T> {
   app: Application
@@ -34,7 +32,7 @@ export class Instance<T = InstanceDataType> extends Service<T> {
     const sort = params?.query?.$sort
     if (action === 'admin') {
       //TODO: uncomment here
-      // const loggedInUser = params.user as UserDataType
+      // const loggedInUser = params.user as UserInterface
       // const user = await super.get(loggedInUser.userId);
       // console.log(user);
       // if (user.userRole !== 'admin') throw new Forbidden ('Must be system admin to execute this action');

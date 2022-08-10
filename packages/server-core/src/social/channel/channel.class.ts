@@ -4,10 +4,10 @@ import _ from 'lodash'
 import { Op } from 'sequelize'
 
 import { Channel as ChannelInterface } from '@xrengine/common/src/interfaces/Channel'
+import { UserInterface } from '@xrengine/common/src/interfaces/User'
 
 import { Application } from '../../../declarations'
 import logger from '../../logger'
-import { UserDataType } from '../../user/user/user.class'
 
 export type ChannelDataType = ChannelInterface
 
@@ -24,7 +24,6 @@ export class Channel<T = ChannelDataType> extends Service<T> {
    *
    * @param params of query which contains items limit and numberr skip
    * @returns {@Array} which contains list of channel
-   * @author Vyacheslav Solovjov
    */
 
   async find(params?: Params): Promise<T[] | Paginated<T>> {
@@ -32,7 +31,7 @@ export class Channel<T = ChannelDataType> extends Service<T> {
     const query = params.query!
     const skip = query?.skip || 0
     const limit = query?.limit || 10
-    const loggedInUser = params!.user as UserDataType
+    const loggedInUser = params!.user as UserInterface
     const userId = loggedInUser.id
     try {
       const subParams = {
@@ -134,9 +133,45 @@ export class Channel<T = ChannelDataType> extends Service<T> {
           limit: limit
         }
       } else {
-        return this.app
-          .service('channel')
-          .Model.findAll({ where: { channelType: query.channelType, instanceId: query.instanceId } })
+        let where
+
+        if (query.instanceId)
+          where = {
+            channelType: query.channelType,
+            instanceId: query.instanceId
+          }
+        else if (query.partyId)
+          where = {
+            channelType: query.channelType,
+            partyId: query.partyId
+          }
+        else if (query.groupId)
+          where = {
+            channelType: query.channelType,
+            groupId: query.groupId
+          }
+        else if (query.friendId)
+          where = {
+            channelType: query.channelType,
+            [Op.or]: [
+              {
+                userId1: userId,
+                userId2: query.friendId
+              },
+              {
+                userId2: userId,
+                userId1: query.friendId
+              }
+            ]
+          }
+        else
+          where = {
+            channelType: 'intentionallyBadType'
+          }
+        return this.app.service('channel').Model.findAll({
+          include: params.sequelize.include,
+          where: where
+        })
       }
     } catch (err) {
       logger.error(err, `Channel find failed: ${err.message}`)

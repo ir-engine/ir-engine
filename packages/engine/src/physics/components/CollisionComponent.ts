@@ -1,8 +1,5 @@
+import { Entity } from '../../ecs/classes/Entity'
 import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
-import { ColliderHitEvent, ControllerHitEvent, ControllerObstacleHitEvent } from '../../physics/types/PhysicsTypes'
+import { ColliderHitEvent } from '../types/PhysicsTypes'
 
-export type CollisionComponentType = {
-  collisions: (ColliderHitEvent | ControllerHitEvent | ControllerObstacleHitEvent)[]
-}
-
-export const CollisionComponent = createMappedComponent<CollisionComponentType>('CollisionComponent')
+export const CollisionComponent = createMappedComponent<Map<Entity, ColliderHitEvent>>('CollisionComponent')

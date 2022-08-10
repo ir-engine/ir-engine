@@ -72,7 +72,7 @@ export const SidebarItems = (allowedRoutes) => [
     path: '/admin/benchmarking',
     icon: <Timeline style={{ color: 'white' }} />
   },
-  {
+  allowedRoutes.settings && {
     name: 'user:dashboard.setting',
     path: '/admin/settings',
     icon: <Settings style={{ color: 'white' }} />

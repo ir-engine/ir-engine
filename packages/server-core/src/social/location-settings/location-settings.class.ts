@@ -7,8 +7,6 @@ import { Application } from '../../../declarations'
 export type LocationSettingsDataType = LocationSettingsInterface
 /**
  * A class for Location Setting service
- *
- * @author Vyacheslav Solovjov
  */
 export class LocationSettings<T = LocationSettingsDataType> extends Service<T> {
   public docs: any

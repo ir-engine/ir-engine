@@ -25,7 +25,7 @@ export default (app: Application) => {
         type: DataTypes.STRING
       },
       settings: {
-        type: DataTypes.STRING
+        type: DataTypes.TEXT
       }
     },
     {
@@ -37,7 +37,13 @@ export default (app: Application) => {
     }
   )
 
-  ;(Project as any).associate = (models: any): void => {}
+  ;(Project as any).associate = (models: any): void => {
+    ;(Project as any).hasMany(models.project_permission, {
+      foreignKey: 'projectId',
+      allowNull: false,
+      onDelete: 'cascade'
+    })
+  }
 
   return Project
 }

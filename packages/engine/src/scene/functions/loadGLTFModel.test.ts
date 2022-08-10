@@ -7,9 +7,11 @@ import { addComponent, createMappedComponent, defineQuery, getComponent } from '
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { createEngine } from '../../initializeEngine'
 import { TransformComponent } from '../../transform/components/TransformComponent'
+import { ModelComponent } from '../components/ModelComponent'
 import { NameComponent } from '../components/NameComponent'
 import { Object3DComponent } from '../components/Object3DComponent'
 import { ObjectLayers } from '../constants/ObjectLayers'
+import { SCENE_COMPONENT_MODEL_DEFAULT_VALUE } from './loaders/ModelFunctions'
 import { parseGLTFModel } from './loadGLTFModel'
 
 describe('loadGLTFModel', () => {
@@ -31,16 +33,19 @@ describe('loadGLTFModel', () => {
       rotation: new Quaternion(),
       scale: new Vector3(1, 1, 1)
     })
+    addComponent(entity, ModelComponent, {
+      ...SCENE_COMPONENT_MODEL_DEFAULT_VALUE,
+      ...mockComponentData
+    })
     const entityName = 'entity name'
     const number = Math.random()
-    const scene = new Scene()
     const mesh = new Mesh()
     mesh.userData = {
       'xrengine.entity': entityName,
       // 'xrengine.spawn-point': '',
       'xrengine.CustomComponent.value': number
     }
-    scene.add(mesh)
+    addComponent(entity, Object3DComponent, { value: mesh })
     const modelQuery = defineQuery([TransformComponent, Object3DComponent])
     const childQuery = defineQuery([
       NameComponent,
@@ -49,7 +54,7 @@ describe('loadGLTFModel', () => {
       CustomComponent /*, SpawnPointComponent*/
     ])
 
-    parseGLTFModel(entity, mockComponentData, scene)
+    parseGLTFModel(entity)
 
     const expectedLayer = new Layers()
     expectedLayer.set(ObjectLayers.Scene)

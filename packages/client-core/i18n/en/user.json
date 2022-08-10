@@ -109,14 +109,61 @@
       "lbl-yes": "Yes",
       "lbl-no": "No"
     },
+    "socials": {
+      "containerHeading": "Socials",
+      "btn-friend": "Friends",
+      "btn-party-group": "Party / Group",
+      "btn-mediaSession": "Media Session",
+      "btn-share-invite": "Share Link / Invite Code"
+    },
+    "location": {
+      "containerHeading": "Current Location",
+      "btn-immersive": "Immersive Mode",
+      "btn-respawn": "Respawn",
+      "btn-emote": "Emote",
+      "btn-help": "Help",
+      "btn-reportIssue": "Report Issue",
+      "btn-screenRecord": "Screen Record",
+      "btn-adminControls": "Admin Controls"
+    },
+    "adminControls": {
+      "containerHeading": "Admin Controls",
+      "btn-userList": "User List",
+      "btn-banList": "Ban List",
+      "btn-help": "Help",
+      "btn-requestSystemAdmin": "Request System Admin"
+    },
+    "mediaSession": {
+      "containerHeading": "Media Session",
+      "btn-audio": "Toggle Audio",
+      "btn-video": "Toggle Video",
+      "btn-faceTracking": "Face Tracking",
+      "btn-screenShare": "Share Screen",
+      "btn-chat": "World Chat"
+    },
     "share": {
       "lbl-share": "Share",
       "ph-phoneEmail": "Invite by email or phone number",
       "lbl-phoneEmail": "Send to email or phone number",
       "lbl-copy": "Copy",
       "lbl-send-invite": "Send Invite",
-      "title": "Share your Location URL with your team",
+      "lbl-spectator-mode": "Spectator Mode",
+      "title": "Share this Location",
+      "mobileTitle": "View this Item in AR on your Mobile Device",
       "linkCopied": "Link copied to clipboard."
+    },
+    "party": {
+      "title": "Party",
+      "create": "Create",
+      "createPartyText": "Create a Party for private conversations",
+      "invite": "Invite",
+      "leave": "Leave",
+      "kick": "Kick",
+      "admin": "Admin",
+      "you": "You",
+      "initDelete": "Delete",
+      "confirmDelete": "Confirm",
+      "cancelDelete": "Cancel"
     },
     "setting": {
       "audio": "Audio",
@@ -131,14 +178,26 @@
       "lbl-pp": "Post Processing",
       "lbl-pbr": "Full PBR",
       "lbl-automatic": "Automatic",
-      "xrusersetting": "XR User Settings",
+      "xrusersetting": "XR",
+      "other-audio-setting": "Other Audio Settings",
+      "use-positional-audio": "Spatial User Audio",
       "rotation": "Rotation",
       "rotation-smooth-speed": "Rotation Smooth Speed",
       "rotation-angle": "Rotation Angle",
       "moving": "Moving",
-      "user-avatar": "Avatar Setting",
+      "user-avatar": "Avatar",
       "invert-rotation": "Invert Rotation And Move Sticks",
-      "show-avatar": "Show Avatar"
+      "show-avatar": "Show Avatar",
+      "lbl-media-instance": "User Volume",
+      "lbl-notification": "Notification Volume",
+      "lbl-sound-effect": "Scene Volume",
+      "lbl-background-music-volume": "Music Volume",
+      "themes": "Themes",
+      "theme": "Theme",
+      "client": "Client",
+      "editor": "Editor",
+      "admin": "Admin",
+      "windowsPerformanceHelp": "Windows OS Performance"
     },
     "profile": {
       "lbl-profile": "Profile",
@@ -165,9 +224,10 @@
       "phoneEmailError": "Invalid phone # or email address",
       "phoneError": "Invalid phone #",
       "emailError": "Invalid email address",
-      "loginWithReadyPlayerMe": "Login with Ready Player Me",
-      "connectSocial": "Connect with social accounts",
-      "createOne": "If you don't have an account, a new one will be created for you",
+      "useReadyPlayerMe": "Use Ready Player Me",
+      "loginWithXRWallet": "Login with XR Wallet",
+      "addSocial": "Connect your social logins",
+      "removeSocial": "Remove Social",
       "connections": {
         "title": "Connections",
         "ipError": "Can not remove active Identity Provider",
@@ -196,6 +256,15 @@
         "low": "Low",
         "spatialAudio": "Use Spatial Audio",
         "enterMuted": "Enter Room Muted"
+      },
+      "delete": {
+        "deleteAccount": "Delete your account",
+        "deleteControlsText": "Are you sure you want to delete your account?",
+        "deleteControlsCancel": "Cancel",
+        "deleteControlsConfirm": "Delete my account",
+        "finalDeleteText": "Deleting your account cannot be undone!",
+        "finalDeleteCancel": "Cancel",
+        "finalDeleteConfirm": "Delete my account"
       }
     },
     "oauth": {
@@ -227,7 +296,8 @@
   },
   "oauth": {
     "authenticating": "Authenticating...",
-    "authFailed": "{{service}} authentication failed."
+    "authFailed": "{{service}} authentication failed.",
+    "redirectToRoot": "Return to Home"
   },
   "magikLink": {
     "wait": "Please wait a moment while processing..."
@@ -255,6 +325,8 @@
   },
   "avatar": {
     "title": "Upload Avatar",
+    "titleSelectAvatar": "Select Avatar",
+    "titleSelectThumbnail": "Select Thumbnail",
     "lbl-browse": "Browse",
     "lbl-thumbnail": "Thumbnail",
     "lbl-upload": "Upload",
@@ -308,6 +380,8 @@
     "unmuteMe": "Unmute me",
     "muteThisPerson": "Mute this person",
     "unmuteThisPerson": "Unmute this person",
-    "openPictureInPicture": "Open Picture in Picture"
+    "openPictureInPicture": "Open Picture in Picture",
+    "openConferenceMode": "Open Conference Mode",
+    "closeConferenceMode": "Close Conference Mode"
   }
 }

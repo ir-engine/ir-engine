@@ -2,7 +2,6 @@ import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { LocationAction, useLocationState } from '@xrengine/client-core/src/social/services/LocationService'
-import { useDispatch } from '@xrengine/client-core/src/store'
 import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { dispatchAction, useHookEffect } from '@xrengine/hyperflux'
@@ -14,7 +13,7 @@ export const LoadLocationScene = () => {
   const authState = useAuthState()
   const locationState = useLocationState()
   const isUserBanned = locationState.currentLocation.selfUserBanned.value
-  const dispatch = useDispatch()
+  const userNotAuthorized = locationState.currentLocation.selfNotAuthorized.value
 
   /**
    * Once we have logged in, retrieve the location data
@@ -25,7 +24,7 @@ export const LoadLocationScene = () => {
 
     const isUserBanned =
       selfUser?.locationBans?.value?.find((ban) => ban.locationId === currentLocation.id.value) != null
-    dispatch(LocationAction.socialSelfUserBanned(isUserBanned))
+    dispatchAction(LocationAction.socialSelfUserBanned({ banned: isUserBanned }))
 
     if (
       !isUserBanned &&
@@ -33,15 +32,16 @@ export const LoadLocationScene = () => {
       locationState.locationName.value &&
       authState.isLoggedIn.value
     ) {
-      retrieveLocationByName(locationState.locationName.value)
+      retrieveLocationByName(locationState.locationName.value, selfUser.id.value)
     }
-  }, [authState.isLoggedIn, locationState.locationName])
+  }, [authState.isLoggedIn.value, locationState.locationName.value])
 
   useHookEffect(() => {
     if (authState.user.id.value) dispatchAction(EngineActions.connect({ id: authState.user.id.value }))
   }, [authState.user])
 
   if (isUserBanned) return <div className="banned">{t('location.youHaveBeenBannedMsg')}</div>
+  if (userNotAuthorized) return <div className="not-authorized">{t('location.notAuthorizedAtLocation')}</div>
 
   return <> </>
 }

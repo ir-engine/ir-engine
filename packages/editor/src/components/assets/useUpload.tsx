@@ -1,6 +1,7 @@
 import React, { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import multiLogger from '@xrengine/common/src/logger'
 import { AllFileTypes } from '@xrengine/engine/src/assets/constants/fileTypes'
 
 import { getEntries, uploadProjectAssetsFromUpload } from '../../functions/assetFunctions'
@@ -8,6 +9,8 @@ import { accessEditorState } from '../../services/EditorServices'
 import ErrorDialog from '../dialogs/ErrorDialog'
 import { ProgressDialog } from '../dialogs/ProgressDialog'
 import { useDialog } from '../hooks/useDialog'
+
+const logger = multiLogger.child({ component: 'editor:useUpload' })
 
 type Props = {
   multiple?: boolean
@@ -34,7 +37,7 @@ export default function useUpload(options: Props = {}) {
     if (item.isFile) {
       let accepted = false
       for (const pattern of accepts) {
-        if (item.name.endsWith(pattern)) {
+        if (item.name.toLowerCase().endsWith(pattern)) {
           accepted = true
           break
         }
@@ -94,7 +97,7 @@ export default function useUpload(options: Props = {}) {
         })
         setDialogComponent(null)
       } catch (error) {
-        console.error(error)
+        logger.error(error, 'Error on upload')
         setDialogComponent(
           <ErrorDialog
             title={t('editor:asset.useUpload.uploadError')}
