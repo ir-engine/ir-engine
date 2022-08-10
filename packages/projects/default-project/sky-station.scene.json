@@ -43,7 +43,7 @@
             "envMapTextureType": "Cubemap",
             "envMapSourceColor": 16777215,
             "envMapSourceURL": "/hdr/cubemap/MilkyWay/",
-            "envMapIntensity": 3.5,
+            "envMapIntensity": 1,
             "envMapBake": {
               "bakeType": "Baked",
               "resolution": 2048,
@@ -386,11 +386,11 @@
         {
           "name": "envmap",
           "props": {
-            "type": "None",
+            "type": "Default",
             "envMapTextureType": "Cubemap",
             "envMapSourceColor": 1193046,
             "envMapSourceURL": "/hdr/cubemap/skyboxsun25deg/",
-            "envMapIntensity": 1,
+            "envMapIntensity": 20,
             "envMapBake": {
               "bakeType": "Baked",
               "resolution": 2048,
