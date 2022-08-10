@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import styled from 'styled-components'
 
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { PersistTagComponent } from '@xrengine/engine/src/scene/components/PersistTagComponent'
 import { PreventBakeTagComponent } from '@xrengine/engine/src/scene/components/PreventBakeTagComponent'
 import { SceneDynamicLoadTagComponent } from '@xrengine/engine/src/scene/components/SceneDynamicLoadTagComponent'
@@ -22,9 +22,11 @@ import EditorCommands from '../../constants/EditorCommands'
 import { getNodeEditorsForEntity } from '../../functions/PrefabEditors'
 import { useSelectionState } from '../../services/SelectionServices'
 import BooleanInput from '../inputs/BooleanInput'
+import CompoundNumericInput from '../inputs/CompoundNumericInput'
 import InputGroup from '../inputs/InputGroup'
 import NameInputGroup from './NameInputGroup'
 import TransformPropertyGroup from './TransformPropertyGroup'
+import { updateProperty } from './Util'
 
 const StyledNodeEditor = (styled as any).div`
 `
@@ -154,7 +156,16 @@ export const PropertiesPanelContainer = () => {
                     value={hasComponent(nodeEntity, SceneDynamicLoadTagComponent)}
                     onChange={onChangeDynamicLoad}
                   />
-                  {/** @todo add a slider for distance */}
+                  {hasComponent(nodeEntity, SceneDynamicLoadTagComponent) && (
+                    <CompoundNumericInput
+                      style={{ paddingLeft: `8px`, paddingRight: `8px` }}
+                      min={1}
+                      max={100}
+                      step={1}
+                      value={getComponent(nodeEntity, SceneDynamicLoadTagComponent).distance}
+                      onChange={updateProperty(SceneDynamicLoadTagComponent, 'distance')}
+                    />
+                  )}
                 </VisibleInputGroup>
                 <VisibleInputGroup name="Visible" label={t('editor:properties.lbl-visible')}>
                   <BooleanInput value={hasComponent(nodeEntity, VisibleComponent)} onChange={onChangeVisible} />
