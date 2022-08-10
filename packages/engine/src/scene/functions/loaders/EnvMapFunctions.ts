@@ -25,7 +25,7 @@ import { isClient } from '../../../common/functions/isClient'
 import { Engine } from '../../../ecs/classes/Engine'
 import { EngineActions } from '../../../ecs/classes/EngineState'
 import { Entity } from '../../../ecs/classes/Entity'
-import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
+import { addComponent, getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
 import { matchActionOnce } from '../../../networking/functions/matchActionOnce'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { EnvmapComponent, EnvmapComponentType } from '../../components/EnvmapComponent'
@@ -44,8 +44,7 @@ export const SCENE_COMPONENT_ENVMAP_DEFAULT_VALUES = {
   envMapSourceColor: 0x123456,
   envMapSourceURL: '/hdr/cubemap/skyboxsun25deg/',
   envMapIntensity: 1,
-  envMapBake: {},
-  forModel: true
+  envMapBake: {}
 }
 
 const tempVector = new Vector3()
@@ -65,7 +64,8 @@ export const deserializeEnvMap: ComponentDeserializeFunction = (
 
 export const updateEnvMap = (entity: Entity) => {
   const component = getComponent(entity, EnvmapComponent)
-  const obj3d = component.forModel ? getComponent(entity, Object3DComponent).value : Engine.instance.currentWorld.scene
+  const hasObj3d = hasComponent(entity, Object3DComponent)
+  const obj3d = hasObj3d ? getComponent(entity, Object3DComponent).value : Engine.instance.currentWorld.scene
 
   switch (component.type) {
     case EnvMapSourceType.Color:
@@ -108,6 +108,7 @@ export const updateEnvMap = (entity: Entity) => {
         case EnvMapTextureType.Equirectangular:
           AssetLoader.load(
             component.envMapSourceURL,
+            {},
             (texture) => {
               const EnvMap = getPmremGenerator().fromEquirectangular(texture).texture
               EnvMap.encoding = sRGBEncoding
@@ -130,7 +131,7 @@ export const updateEnvMap = (entity: Entity) => {
       const options = component.envMapBake
       if (!options) return
 
-      if (!component.forModel) {
+      if (!hasObj3d) {
         SceneOptions.instance.bpcemOptions.bakeScale = options.bakeScale!
         SceneOptions.instance.bpcemOptions.bakePositionOffset = options.bakePositionOffset!
       }
@@ -150,7 +151,7 @@ export const updateEnvMap = (entity: Entity) => {
           break
       }
 
-      if (!component.forModel) {
+      if (!hasObj3d) {
         const offset = options.bakePositionOffset!
         tempVector.set(offset.x, offset.y, offset.z)
 
@@ -165,7 +166,7 @@ export const updateEnvMap = (entity: Entity) => {
       break
   }
 
-  if (!component.forModel) {
+  if (!hasObj3d) {
     SceneOptions.instance.envMapIntensity = component.envMapIntensity
   }
   if (SceneOptions.instance.envMapIntensity !== component.envMapIntensity) {
@@ -193,8 +194,7 @@ export const serializeEnvMap: ComponentSerializeFunction = (entity) => {
       envMapSourceColor: component.envMapSourceColor.getHex(),
       envMapSourceURL: component.envMapSourceURL,
       envMapIntensity: component.envMapIntensity,
-      envMapBake: component.envMapBake,
-      forModel: component.forModel
+      envMapBake: component.envMapBake
     }
   }
 }
@@ -208,8 +208,7 @@ const parseEnvMapProperties = (props): EnvmapComponentType => {
     envMapIntensity: props.envMapIntensity ?? SCENE_COMPONENT_ENVMAP_DEFAULT_VALUES.envMapIntensity,
     envMapBake: parseEnvMapBakeProperties({
       options: props.envMapBake ?? SCENE_COMPONENT_ENVMAP_DEFAULT_VALUES.envMapBake
-    }).options,
-    forModel: Boolean(props.forModel)
+    }).options
   }
 }
 

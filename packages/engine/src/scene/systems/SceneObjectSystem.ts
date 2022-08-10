@@ -16,6 +16,7 @@ import { EnvmapComponent } from '../components/EnvmapComponent'
 import { NameComponent } from '../components/NameComponent'
 import { Object3DComponent, Object3DWithEntity } from '../components/Object3DComponent'
 import { PersistTagComponent } from '../components/PersistTagComponent'
+import { SceneTagComponent } from '../components/SceneTagComponent'
 import { ShadowComponent } from '../components/ShadowComponent'
 import { SimpleMaterialTagComponent } from '../components/SimpleMaterialTagComponent'
 import { UpdatableComponent } from '../components/UpdatableComponent'
@@ -103,9 +104,9 @@ export default async function SceneObjectSystem(world: World) {
   const notVisibleQuery = defineQuery([Object3DComponent, Not(VisibleComponent)])
   const updatableQuery = defineQuery([Object3DComponent, UpdatableComponent])
   const envmapQuery = defineQuery([Object3DComponent, EnvmapComponent])
+  const sceneEnvmapQuery = defineQuery([SceneTagComponent, EnvmapComponent])
 
   const useSimpleMaterialsActionQueue = createActionQueue(EngineActions.useSimpleMaterials.matches)
-  const modifyPropertyActionQueue = createActionQueue(EngineActions.sceneObjectUpdate.matches)
 
   return () => {
     for (const entity of sceneObjectQuery.exit()) {
@@ -176,8 +177,7 @@ export default async function SceneObjectSystem(world: World) {
       obj?.update(fixedDelta)
     }
 
-    for (const entity of envmapQuery.enter()) {
-      updateEnvMap(entity)
-    }
+    for (const entity of envmapQuery.enter()) updateEnvMap(entity)
+    for (const entity of sceneEnvmapQuery.enter()) updateEnvMap(entity)
   }
 }

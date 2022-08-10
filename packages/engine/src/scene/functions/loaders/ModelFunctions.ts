@@ -1,14 +1,10 @@
-import { Mesh, Object3D, Texture } from 'three'
+import { Object3D, Texture } from 'three'
 
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
 import { AssetLoader } from '../../../assets/classes/AssetLoader'
 import { GLTF } from '../../../assets/loaders/gltf/GLTFLoader'
-import {
-  ComponentDeserializeFunction,
-  ComponentSerializeFunction,
-  ComponentUpdateFunction
-} from '../../../common/constants/PrefabFunctionType'
+import { ComponentDeserializeFunction, ComponentSerializeFunction } from '../../../common/constants/PrefabFunctionType'
 import { isClient } from '../../../common/functions/isClient'
 import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
@@ -20,10 +16,9 @@ import { Object3DComponent, Object3DWithEntity } from '../../components/Object3D
 import { SimpleMaterialTagComponent } from '../../components/SimpleMaterialTagComponent'
 import { ObjectLayers } from '../../constants/ObjectLayers'
 import { generateMeshBVH } from '../bvhWorkerPool'
-import cloneObject3D from '../cloneObject3D'
 import { addError, removeError } from '../ErrorFunctions'
 import { parseGLTFModel } from '../loadGLTFModel'
-import { enableObjectLayer, setObjectLayers } from '../setObjectLayers'
+import { enableObjectLayer } from '../setObjectLayers'
 import { initializeOverride } from './MaterialOverrideFunctions'
 
 export const SCENE_COMPONENT_MODEL = 'gltf-model'
