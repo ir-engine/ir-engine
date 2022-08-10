@@ -11,7 +11,9 @@ import {
   Material,
   Mesh,
   MeshBasicMaterial,
+  MeshMatcapMaterial,
   MeshPhysicalMaterial,
+  MeshStandardMaterial,
   Object3D,
   SkinnedMesh,
   Texture,
@@ -65,6 +67,8 @@ const processModelAsset = (asset: Mesh, args: LoadingArgs): void => {
 
   const onTextureUploadDropSource = function (this: Texture) {
     this.source.data = null
+    this.mipmaps.map((b) => delete b.data)
+    this.mipmaps = []
   }
 
   asset.traverse((child: Mesh<any, Material>) => {
@@ -90,19 +94,16 @@ const processModelAsset = (asset: Mesh, args: LoadingArgs): void => {
     }
 
     const geo = child.geometry as BufferGeometry
-    const mat = child.material as MeshBasicMaterial
+    const mat = child.material as MeshStandardMaterial & MeshBasicMaterial & MeshMatcapMaterial
     const attributes = geo.attributes
 
     if (!args.ignoreDisposeGeometry) {
       for (var name in attributes) (attributes[name] as BufferAttribute).onUploadCallback = onUploadDropBuffer
       if (geo.index) geo.index.onUploadCallback = onUploadDropBuffer
     }
-
-    if (mat.map) mat.map.onUpdate = onTextureUploadDropSource
-    if (mat.alphaMap) mat.alphaMap.onUpdate = onTextureUploadDropSource
-    if (mat.envMap) mat.envMap.onUpdate = onTextureUploadDropSource
-    if (mat.lightMap) mat.lightMap.onUpdate = onTextureUploadDropSource
-    if (mat.specularMap) mat.specularMap.onUpdate = onTextureUploadDropSource
+    Object.entries(mat)
+      .filter(([k, v]: [keyof typeof mat, Texture]) => v?.isTexture)
+      .map(([_, v]) => (v.onUpdate = onTextureUploadDropSource)) //*/
   })
   replacedMaterials.clear()
 
