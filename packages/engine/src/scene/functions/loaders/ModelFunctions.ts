@@ -19,18 +19,18 @@ import { Object3DComponent, Object3DWithEntity } from '../../components/Object3D
 import { SimpleMaterialTagComponent } from '../../components/SimpleMaterialTagComponent'
 import cloneObject3D from '../cloneObject3D'
 import { addError, removeError } from '../ErrorFunctions'
-import { overrideTexture, parseGLTFModel } from '../loadGLTFModel'
+import { parseGLTFModel } from '../loadGLTFModel'
 import { initializeOverride } from './MaterialOverrideFunctions'
 
 export const SCENE_COMPONENT_MODEL = 'gltf-model'
 export const SCENE_COMPONENT_MODEL_DEFAULT_VALUE = {
   src: '',
-  textureOverride: '',
   materialOverrides: [] as MaterialOverrideComponentType[],
   matrixAutoUpdate: true,
   useBasicMaterial: false,
-  isUsingGPUInstancing: false
-}
+  isUsingGPUInstancing: false,
+  isDynamicObject: false
+} as ModelComponentType
 
 export const deserializeModel: ComponentDeserializeFunction = (
   entity: Entity,
@@ -50,7 +50,6 @@ export const deserializeModel: ComponentDeserializeFunction = (
 }
 
 export const updateModel: ComponentUpdateFunction = (entity: Entity, properties: ModelComponentType) => {
-  const component = getComponent(entity, ModelComponent)
   let scene: Object3DWithEntity
   if (properties.src) {
     try {
@@ -70,16 +69,12 @@ export const updateModel: ComponentUpdateFunction = (entity: Entity, properties:
       }
       scene = cloneObject3D(scene)
       addComponent(entity, Object3DComponent, { value: scene })
-      parseGLTFModel(entity, component, scene)
+      parseGLTFModel(entity)
       removeError(entity, 'srcError')
     } catch (err) {
       console.error(err)
       addError(entity, 'srcError', err.message)
     }
-  }
-
-  if (typeof properties.textureOverride !== 'undefined') {
-    overrideTexture(entity)
   }
 
   if (typeof properties.useBasicMaterial === 'boolean') {
@@ -113,7 +108,6 @@ export const serializeModel: ComponentSerializeFunction = (entity) => {
     name: SCENE_COMPONENT_MODEL,
     props: {
       src: component.src,
-      textureOverride: component.textureOverride,
       materialOverrides: overrides,
       matrixAutoUpdate: component.matrixAutoUpdate,
       useBasicMaterial: component.useBasicMaterial,
@@ -125,7 +119,6 @@ export const serializeModel: ComponentSerializeFunction = (entity) => {
 const parseModelProperties = (props): ModelComponentType => {
   return {
     src: props.src ?? SCENE_COMPONENT_MODEL_DEFAULT_VALUE.src,
-    textureOverride: props.textureOverride ?? SCENE_COMPONENT_MODEL_DEFAULT_VALUE.textureOverride,
     materialOverrides: props.materialOverrides ?? SCENE_COMPONENT_MODEL_DEFAULT_VALUE.materialOverrides,
     matrixAutoUpdate: props.matrixAutoUpdate ?? SCENE_COMPONENT_MODEL_DEFAULT_VALUE.matrixAutoUpdate,
     useBasicMaterial: props.useBasicMaterial ?? SCENE_COMPONENT_MODEL_DEFAULT_VALUE.useBasicMaterial,

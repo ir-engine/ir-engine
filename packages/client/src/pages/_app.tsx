@@ -24,6 +24,7 @@ import RouterComp from '../route/public'
 
 import './styles.scss'
 
+import { API } from '@xrengine/client-core/src/API'
 import { NotificationAction, NotificationActions } from '@xrengine/client-core/src/common/services/NotificationService'
 import { getCurrentTheme } from '@xrengine/common/src/constants/DefaultThemeSettings'
 import { AudioEffectPlayer } from '@xrengine/engine/src/audio/systems/AudioSystem'
@@ -101,24 +102,25 @@ const App = (): any => {
   }, [])
 
   useEffect(() => {
-    if (selfUser?.id.value && projectState.updateNeeded.value) ProjectService.fetchProjects()
+    if (selfUser?.id.value && projectState.updateNeeded.value) {
+      ProjectService.fetchProjects()
+      if (!fetchedProjectComponents) {
+        setFetchedProjectComponents(true)
+        API.instance.client
+          .service('projects')
+          .find()
+          .then((projects) => {
+            loadWebappInjection(projects).then((result) => {
+              setProjectComponents(result)
+            })
+          })
+      }
+    }
   }, [selfUser, projectState.updateNeeded.value])
 
   useEffect(() => {
     Engine.instance.userId = selfUser.id.value
   }, [selfUser.id])
-
-  useEffect(() => {
-    if (projectState.projects.value.length > 0 && !fetchedProjectComponents) {
-      setFetchedProjectComponents(true)
-      loadWebappInjection(
-        {},
-        projectState.projects.value.map((project) => project.name)
-      ).then((result) => {
-        setProjectComponents(result)
-      })
-    }
-  }, [projectState.projects.value])
 
   useEffect(() => {
     if (clientSetting) {
@@ -135,9 +137,9 @@ const App = (): any => {
     updateTheme()
   }, [clientThemeSettings])
 
-  const updateTheme = () => {
-    const currentTheme = getCurrentTheme(selfUser?.user_setting?.value?.themeModes)
+  const currentTheme = getCurrentTheme(selfUser?.user_setting?.value?.themeModes)
 
+  const updateTheme = () => {
     if (clientThemeSettings) {
       if (clientThemeSettings?.[currentTheme]) {
         for (let variable of Object.keys(clientThemeSettings[currentTheme])) {
@@ -158,6 +160,7 @@ const App = (): any => {
           name="viewport"
           content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no"
         />
+        <meta name="theme-color" content={clientThemeSettings?.[currentTheme]?.mainBackground || '#FFFFFF'} />
         {description && <meta name="description" content={description}></meta>}
         {favicon16 && <link rel="icon" type="image/png" sizes="16x16" href={favicon16} />}
         {favicon32 && <link rel="icon" type="image/png" sizes="32x32" href={favicon32} />}

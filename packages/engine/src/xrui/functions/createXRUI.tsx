@@ -10,6 +10,7 @@ import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
+import { setTransformComponent } from '../../transform/components/TransformComponent'
 import { XRUIComponent } from '../components/XRUIComponent'
 import { XRUIStateContext } from '../XRUIStateContext'
 
@@ -42,6 +43,7 @@ export function createXRUI<S extends State<any> | null>(UIFunc: React.FC, state 
   container.raycaster.layers.enableAll()
 
   addComponent(entity, Object3DComponent, { value: container })
+  setTransformComponent(entity)
   setObjectLayers(container, ObjectLayers.UI)
   addComponent(entity, XRUIComponent, { container: container })
   addComponent(entity, VisibleComponent, true)

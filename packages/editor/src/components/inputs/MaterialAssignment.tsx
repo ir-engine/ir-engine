@@ -77,16 +77,6 @@ export default function MaterialAssignment({ entity, node, modelComponent, value
     new Map(values.map((_, index) => [texKey(index, 'expanded'), false]))
   )
 
-  function handleExpandClick(index) {
-    return () => {
-      const _expanded = new Map(expanded.entries())
-      const key = texKey(index, 'expanded')
-      const val = expanded.get(key)!
-      _expanded.set(key, !val)
-      setExpanded(_expanded)
-    }
-  }
-
   const { t } = useTranslation()
 
   function onChangeSize(text) {

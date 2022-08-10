@@ -16,7 +16,10 @@ declare module '@xrengine/common/declarations' {
     scene: Scene
   }
   interface ServiceTypes {
-    portal: any
+    portal: {
+      get: ReturnType<typeof getPortal>
+      find: ReturnType<typeof getAllPortals>
+    }
   }
   interface ServiceTypes {
     'scene-data': {

@@ -38,7 +38,6 @@ import { AdminProjectSettingsActions, ProjectSettingReceptors } from '../admin/s
 import { AdminServerSettingActions, ServerSettingReceptors } from '../admin/services/Setting/ServerSettingService'
 import { AdminStaticResourceActions, AdminStaticResourceReceptors } from '../admin/services/StaticResourceService'
 import { AdminTestBotActions, AdminTestBotReceptors } from '../admin/services/TestBotService'
-import { AdminUserRoleActions, AdminUserRoleReceptors } from '../admin/services/UserRoleService'
 import { AdminUserActions, AdminUserReceptors } from '../admin/services/UserService'
 
 export default async function AdminSystem(world: World) {
@@ -106,10 +105,7 @@ export default async function AdminSystem(world: World) {
   const userPatchedQueue = createActionQueue(AdminUserActions.userPatched.matches)
   const searchedUserQueue = createActionQueue(AdminUserActions.searchedUser.matches)
   const setSkipGuestsQueue = createActionQueue(AdminUserActions.setSkipGuests.matches)
-  const setUserRoleQueue = createActionQueue(AdminUserActions.setUserRole.matches)
   const resetFilterQueue = createActionQueue(AdminUserActions.resetFilter.matches)
-  const userRoleRetrievedQueue = createActionQueue(AdminUserRoleActions.userRoleRetrieved.matches)
-  const userRoleUpdatedQueue = createActionQueue(AdminUserRoleActions.userRoleUpdated.matches)
   const fetchedInstanceServerQueue = createActionQueue(InstanceServerSettingActions.fetchedInstanceServer.matches)
   const chargebeeSettingRetrievedQueue = createActionQueue(
     AdminChargebeeSettingActions.chargebeeSettingRetrieved.matches
@@ -316,17 +312,8 @@ export default async function AdminSystem(world: World) {
     for (const action of setSkipGuestsQueue()) {
       AdminUserReceptors.setSkipGuestsReceptor(action)
     }
-    for (const action of setUserRoleQueue()) {
-      AdminUserReceptors.setUserRoleReceptor(action)
-    }
     for (const action of resetFilterQueue()) {
       AdminUserReceptors.resetFilterReceptor(action)
-    }
-    for (const action of userRoleRetrievedQueue()) {
-      AdminUserRoleReceptors.userRoleRetrievedReceptor(action)
-    }
-    for (const action of userRoleUpdatedQueue()) {
-      AdminUserRoleReceptors.userRoleUpdatedReceptor(action)
     }
     for (const action of fetchedInstanceServerQueue()) {
       AdminInstanceServerReceptors.fetchedInstanceServerReceptor(action)

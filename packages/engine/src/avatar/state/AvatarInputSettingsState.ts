@@ -1,9 +1,11 @@
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { XR_FOLLOW_MODE, XR_ROTATION_MODE } from '@xrengine/engine/src/xr/types/XRUserSettings'
+import { XR_FOLLOW_MODE, XR_ROTATION_MODE } from '@xrengine/engine/src/xr/XRUserSettings'
 import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
+import { AvatarControllerType } from '../../input/enums/InputEnums'
+
 type AvatarInputSettingsStateType = {
-  controlType: 'None' | 'XR Hands' | 'Oculus Quest'
+  controlType: AvatarControllerType
   invertRotationAndMoveSticks: boolean
   moving: number
   rotation: number
@@ -16,12 +18,12 @@ type AvatarInputSettingsStateType = {
 const AvatarInputSettingsState = defineState({
   name: 'AvatarInputSettingsState',
   initial: () => ({
-    controlType: 'None',
+    controlType: 'AvatarControllerType_None',
     invertRotationAndMoveSticks: true,
     // TODO: implement the following
-    moving: XR_FOLLOW_MODE.CONTROLLER,
+    moving: XR_FOLLOW_MODE.CONTROLLER as XR_FOLLOW_MODE,
     // rotation mode
-    rotation: XR_ROTATION_MODE.ANGLED,
+    rotation: XR_ROTATION_MODE.ANGLED as XR_ROTATION_MODE,
     // 0.1, 0.3, 0.5, 0.8, 1
     rotationSmoothSpeed: 0.1,
     // 15, 30, 45, 60

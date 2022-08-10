@@ -26,13 +26,13 @@ export class MediaStreams {
   faceTracking = false
   /** Video stream for streaming data. */
   videoStream: MediaStream = null!
-  /** Video stream for streaming data. */
+  /** Audio stream for streaming data. */
   audioStream: MediaStream = null!
   /** Audio Gain to be applied on media stream. */
-  audioGainNode: GainNode = null!
+  microphoneGainNode: GainNode = null!
 
   /** Local screen container. */
-  localScreen = null as any
+  localScreen = null! as MediaStream
   /** Producer using camera to get Video. */
   camVideoProducer = null as any
   /** Producer using camera to get Audio. */
@@ -45,8 +45,6 @@ export class MediaStreams {
   screenShareVideoPaused = false
   /** Indication of whether the audio while screen sharing is paused or not. */
   screenShareAudioPaused = false
-  /** Whether the component is initialized or not. */
-  initialized = false
 
   /**
    * Set face tracking state.
@@ -252,7 +250,7 @@ export class MediaStreams {
     try {
       logger.info('Getting video stream %o', localVideoConstraints)
       this.videoStream = await navigator.mediaDevices.getUserMedia(localVideoConstraints)
-      if (this.camVideoProducer) {
+      if (this.camVideoProducer && !this.camVideoProducer.closed) {
         await this.camVideoProducer.replaceTrack({
           track: this.videoStream.getVideoTracks()[0]
         })
@@ -277,7 +275,7 @@ export class MediaStreams {
     try {
       logger.info('Getting audio stream %o', localAudioConstraints)
       this.audioStream = await navigator.mediaDevices.getUserMedia(localAudioConstraints)
-      if (this.camAudioProducer)
+      if (this.camAudioProducer && !this.camAudioProducer.closed)
         await this.camAudioProducer.replaceTrack({
           track: this.audioStream.getAudioTracks()[0]
         })

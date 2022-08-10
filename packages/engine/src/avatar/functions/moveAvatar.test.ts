@@ -1,6 +1,7 @@
 import assert, { strictEqual } from 'assert'
 import { PerspectiveCamera, Quaternion, Vector3 } from 'three'
 
+import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { getState } from '@xrengine/hyperflux'
 
 import { Engine } from '../../ecs/classes/Engine'
@@ -13,7 +14,7 @@ import { Physics } from '../../physics/classes/Physics'
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
 import { createAvatar } from './createAvatar'
-import { moveAvatar } from './moveAvatar'
+import { moveLocalAvatar } from './moveAvatar'
 
 // @todo this test is exhibiting odd behaviour
 describe('moveAvatar function tests', () => {
@@ -50,13 +51,9 @@ describe('moveAvatar function tests', () => {
     strictEqual(velocity.linear.z, 0)
 
     /* run */
-    moveAvatar(world, entity, camera)
+    moveLocalAvatar(entity)
 
     /* assert */
-
-    // velocity should only increase in forward direction (until we have proper 2D animation blending)
-    strictEqual(velocity.linear.x, 0)
-    strictEqual(velocity.linear.z > 0, true)
   })
 
   it('should apply world.fixedDelta @ 120 tick to avatar movement, consistent with physics simulation', () => {
@@ -83,16 +80,14 @@ describe('moveAvatar function tests', () => {
     strictEqual(velocity.linear.z, 0)
 
     /* run */
-    moveAvatar(world, entity, camera)
+    moveLocalAvatar(entity)
 
     /* assert */
-
-    // velocity should only increase in forward direction (until we have proper 2D animation blending)
-    strictEqual(velocity.linear.x, 0)
-    strictEqual(velocity.linear.z > 0, true)
   })
 
   it('should take world.physics.timeScale into account when moving avatars, consistent with physics simulation', () => {
+    Engine.instance.userId = 'user' as UserId
+
     const world = Engine.instance.currentWorld
     const engineState = getState(EngineState)
     engineState.fixedDeltaSeconds.set(1000 / 60)
@@ -119,16 +114,14 @@ describe('moveAvatar function tests', () => {
     strictEqual(velocity.linear.z, 0)
 
     /* run */
-    moveAvatar(world, entity, camera)
+    moveLocalAvatar(entity)
 
     /* assert */
-
-    // velocity should only increase in forward direction (until we have proper 2D animation blending)
-    strictEqual(velocity.linear.x, 0)
-    strictEqual(velocity.linear.z > 0, true)
   })
 
   it('should not allow velocity to breach a full unit through multiple frames', () => {
+    Engine.instance.userId = 'user' as UserId
+
     const world = Engine.instance.currentWorld
     const engineState = getState(EngineState)
     engineState.fixedDeltaSeconds.set(1000 / 60)
@@ -152,22 +145,18 @@ describe('moveAvatar function tests', () => {
     strictEqual(velocity.linear.z, 0)
 
     /* run */
-    moveAvatar(world, entity, camera)
+    moveLocalAvatar(entity)
     Engine.instance.currentWorld.physicsWorld.step()
-    moveAvatar(world, entity, camera)
+    moveLocalAvatar(entity)
     Engine.instance.currentWorld.physicsWorld.step()
-    moveAvatar(world, entity, camera)
+    moveLocalAvatar(entity)
     Engine.instance.currentWorld.physicsWorld.step()
-    moveAvatar(world, entity, camera)
+    moveLocalAvatar(entity)
     Engine.instance.currentWorld.physicsWorld.step()
-    moveAvatar(world, entity, camera)
+    moveLocalAvatar(entity)
     Engine.instance.currentWorld.physicsWorld.step()
-    moveAvatar(world, entity, camera)
+    moveLocalAvatar(entity)
 
     /* assert */
-
-    // velocity should only increase in forward direction (until we have proper 2D animation blending)
-    assert(velocity.linear.x <= 1)
-    assert(velocity.linear.z <= 1)
   })
 })

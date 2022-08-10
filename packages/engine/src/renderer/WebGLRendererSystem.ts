@@ -149,7 +149,7 @@ export class EngineRenderer {
     this.renderer.outputEncoding = sRGBEncoding
 
     // DISABLE THIS IF YOU ARE SEEING SHADER MISBEHAVING - UNCHECK THIS WHEN TESTING UPDATING THREEJS
-    this.renderer.debug.checkShaderErrors = isDev
+    this.renderer.debug.checkShaderErrors = false //isDev
 
     this.xrManager = renderer.xr
     //@ts-ignore
@@ -243,7 +243,12 @@ export class EngineRenderer {
         }
 
         state.qualityLevel.value > 0 && this.csm?.update()
-        if (state.usePostProcessing.value) {
+
+        /**
+         * Editor should always use post processing, even if no postprocessing schema is in the scene,
+         *   it still uses post processing for effects such as outline.
+         */
+        if (state.usePostProcessing.value || Engine.instance.isEditor) {
           this.effectComposer.render(delta)
         } else {
           this.renderer.autoClear = true
@@ -280,9 +285,7 @@ export class EngineRenderer {
 }
 
 export default async function WebGLRendererSystem(world: World) {
-  matchActionOnce(EngineActions.joinedWorld.matches, () => {
-    restoreEngineRendererData()
-  })
+  restoreEngineRendererData()
 
   const setQualityLevelActions = createActionQueue(EngineRendererAction.setQualityLevel.matches)
   const setAutomaticActions = createActionQueue(EngineRendererAction.setAutomatic.matches)

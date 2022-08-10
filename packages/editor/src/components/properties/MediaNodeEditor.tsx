@@ -6,6 +6,7 @@ import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { ErrorComponent } from '@xrengine/engine/src/scene/components/ErrorComponent'
 import { MediaComponent } from '@xrengine/engine/src/scene/components/MediaComponent'
+import { MediaElementComponent } from '@xrengine/engine/src/scene/components/MediaElementComponent'
 import { PlayMode } from '@xrengine/engine/src/scene/constants/PlayMode'
 
 import { SupportedFileTypes } from '../../constants/AssetTypes'
@@ -42,10 +43,11 @@ export const MediaNodeEditor: EditorComponentType = (props) => {
   const engineState = useEngineState()
 
   const mediaComponent = getComponent(props.node.entity, MediaComponent)
+  const mediaElement = getComponent(props.node.entity, MediaElementComponent)
   const hasError = engineState.errorEntities[props.node.entity].get() || hasComponent(props.node.entity, ErrorComponent)
 
   const toggle = () => {
-    isPlaying ? mediaComponent.el?.pause() : mediaComponent.el?.play()
+    isPlaying ? mediaElement?.pause() : mediaElement?.play()
     setPlaying(!isPlaying)
   }
 

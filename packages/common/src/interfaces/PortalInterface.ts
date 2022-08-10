@@ -1,6 +1,10 @@
+import type { Euler, Vector3 } from 'three'
+
 export type PortalDetail = {
   sceneName: string
   portalEntityId: string
-  spawnPosition: { x: number; y: number; z: number }
-  spawnRotation: { x: number; y: number; z: number }
+  portalEntityName: string
+  previewImageURL: string
+  spawnPosition: Vector3
+  spawnRotation: Euler
 }

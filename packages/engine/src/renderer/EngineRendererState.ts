@@ -1,3 +1,5 @@
+import { MathUtils } from 'three'
+
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
@@ -26,10 +28,10 @@ type EngineRendererStateType = {
   gridHeight: number
 }
 
-const EngineRendererState = defineState({
+export const EngineRendererState = defineState({
   name: 'EngineRendererState',
   initial: () => ({
-    qualityLevel: 5,
+    qualityLevel: 5, // range from 0 to 5
     automatic: true,
     // usePBR: true,
     usePostProcessing: false,
@@ -43,54 +45,52 @@ const EngineRendererState = defineState({
   })
 })
 
-export async function restoreEngineRendererData(): Promise<void> {
-  if (typeof window !== 'undefined') {
-    const s = {} as EngineRendererStateType
+export function restoreEngineRendererData() {
+  const promises = [
+    ClientStorage.get(RenderSettingKeys.QUALITY_LEVEL).then((v: number) => {
+      if (typeof v !== 'undefined')
+        dispatchAction(EngineRendererAction.setQualityLevel({ qualityLevel: MathUtils.clamp(v, 0, 5) }))
+    }),
+    ClientStorage.get(RenderSettingKeys.AUTOMATIC).then((v: boolean) => {
+      if (typeof v !== 'undefined') dispatchAction(EngineRendererAction.setAutomatic({ automatic: Boolean(v) }))
+    })
+  ]
 
-    const promises = [
-      ClientStorage.get(RenderSettingKeys.QUALITY_LEVEL).then((v) => {
-        if (typeof v !== 'undefined') s.qualityLevel = v as number
+  if (Engine.instance.isEditor) {
+    promises.push(
+      ClientStorage.get(RenderSettingKeys.PHYSICS_DEBUG_ENABLE).then((v: boolean) => {
+        if (typeof v !== 'undefined')
+          dispatchAction(EngineRendererAction.setPhysicsDebug({ physicsDebugEnable: Boolean(v) }))
       }),
-      ClientStorage.get(RenderSettingKeys.AUTOMATIC).then((v) => {
-        if (typeof v !== 'undefined') s.automatic = v as boolean
+      ClientStorage.get(RenderSettingKeys.AVATAR_DEBUG_ENABLE).then((v: boolean) => {
+        if (typeof v !== 'undefined')
+          dispatchAction(EngineRendererAction.setAvatarDebug({ avatarDebugEnable: Boolean(v) }))
+      }),
+      ClientStorage.get(RenderSettingKeys.RENDER_MODE).then((v: RenderModesType) => {
+        if (typeof v !== 'undefined') dispatchAction(EngineRendererAction.changedRenderMode({ renderMode: v }))
+      }),
+      ClientStorage.get(RenderSettingKeys.NODE_HELPER_ENABLE).then((v: boolean) => {
+        if (typeof v !== 'undefined')
+          dispatchAction(EngineRendererAction.changeNodeHelperVisibility({ visibility: Boolean(v) }))
+      }),
+      ClientStorage.get(RenderSettingKeys.GRID_VISIBLE).then((v: boolean) => {
+        if (typeof v !== 'undefined')
+          dispatchAction(EngineRendererAction.changeGridToolVisibility({ visibility: Boolean(v) }))
+      }),
+      ClientStorage.get(RenderSettingKeys.GRID_HEIGHT).then((v: number) => {
+        if (typeof v !== 'undefined') dispatchAction(EngineRendererAction.changeGridToolHeight({ gridHeight: v }))
       })
-    ]
-
-    if (Engine.instance.isEditor) {
-      promises.push(
-        ClientStorage.get(RenderSettingKeys.PHYSICS_DEBUG_ENABLE).then((v) => {
-          if (typeof v !== 'undefined') s.physicsDebugEnable = v as boolean
-        }),
-        ClientStorage.get(RenderSettingKeys.AVATAR_DEBUG_ENABLE).then((v) => {
-          if (typeof v !== 'undefined') s.avatarDebugEnable = v as boolean
-        }),
-        ClientStorage.get(RenderSettingKeys.RENDER_MODE).then((v) => {
-          if (typeof v !== 'undefined') s.renderMode = v as RenderModesType
-        }),
-        ClientStorage.get(RenderSettingKeys.NODE_HELPER_ENABLE).then((v) => {
-          if (typeof v !== 'undefined') s.nodeHelperVisibility = v as boolean
-        }),
-        ClientStorage.get(RenderSettingKeys.GRID_VISIBLE).then((v) => {
-          if (typeof v !== 'undefined') s.gridVisibility = v as boolean
-        }),
-        ClientStorage.get(RenderSettingKeys.GRID_HEIGHT).then((v) => {
-          if (typeof v !== 'undefined') s.gridHeight = v as number
-        })
-      )
-    } else {
-      promises.push(
-        ClientStorage.get(RenderSettingKeys.POST_PROCESSING).then((v) => {
-          if (typeof v !== 'undefined') s.usePostProcessing = v as boolean
-        }),
-        ClientStorage.get(RenderSettingKeys.USE_SHADOWS).then((v) => {
-          if (typeof v !== 'undefined') s.useShadows = v as boolean
-        })
-      )
-    }
-
-    await Promise.all(promises)
-
-    dispatchAction(EngineRendererAction.restoreStorageData({ state: s }))
+    )
+  } else {
+    promises.push(
+      ClientStorage.get(RenderSettingKeys.POST_PROCESSING).then((v: boolean) => {
+        if (typeof v !== 'undefined')
+          dispatchAction(EngineRendererAction.setPostProcessing({ usePostProcessing: Boolean(v) }))
+      }),
+      ClientStorage.get(RenderSettingKeys.USE_SHADOWS).then((v: boolean) => {
+        if (typeof v !== 'undefined') dispatchAction(EngineRendererAction.setShadows({ useShadows: Boolean(v) }))
+      })
+    )
   }
 }
 
@@ -208,73 +208,63 @@ export class EngineRendererReceptor {
   }
 }
 
-export const EngineRendererAction = {
-  restoreStorageData: defineAction({
+export class EngineRendererAction {
+  static restoreStorageData = defineAction({
     type: 'xre.renderer.RESTORE_ENGINE_RENDERER_STORAGE_DATA' as const,
     state: matches.object as Validator<unknown, EngineRendererStateType>
-  }),
+  })
 
-  setQualityLevel: defineAction({
+  static setQualityLevel = defineAction({
     type: 'xre.renderer.WEBGL_RENDERER_QUALITY_LEVEL' as const,
     qualityLevel: matches.number
-  }),
+  })
 
-  setAudio: defineAction({
-    type: 'xre.renderer.AUDIO_VOLUME' as const,
-    audio: matches.number
-  }),
-
-  setMicrophone: defineAction({
-    type: 'xre.renderer.MICROPHONE_VOLUME' as const,
-    microphone: matches.number
-  }),
-
-  setAutomatic: defineAction({
+  static setAutomatic = defineAction({
     type: 'xre.renderer.WEBGL_RENDERER_AUTO' as const,
     automatic: matches.boolean
-  }),
+  })
 
-  setPBR: defineAction({
+  static setPBR = defineAction({
     type: 'xre.renderer.WEBGL_RENDERER_PBR' as const,
     usePBR: matches.boolean
-  }),
+  })
 
-  setPostProcessing: defineAction({
+  static setPostProcessing = defineAction({
     type: 'xre.renderer.WEBGL_RENDERER_POSTPROCESSING' as const,
     usePostProcessing: matches.boolean
-  }),
+  })
 
-  setShadows: defineAction({
+  static setShadows = defineAction({
     type: 'xre.renderer.WEBGL_RENDERER_SHADOWS' as const,
     useShadows: matches.boolean
-  }),
+  })
 
-  setPhysicsDebug: defineAction({
+  static setPhysicsDebug = defineAction({
     type: 'xre.renderer.PHYSICS_DEBUG_CHANGED' as const,
     physicsDebugEnable: matches.boolean
-  }),
+  })
 
-  setAvatarDebug: defineAction({
+  static setAvatarDebug = defineAction({
     type: 'xre.renderer.AVATAR_DEBUG_CHANGED' as const,
     avatarDebugEnable: matches.boolean
-  }),
+  })
 
-  changedRenderMode: defineAction({
+  static changedRenderMode = defineAction({
     type: 'xre.renderer.RENDER_MODE_CHANGED' as const,
     renderMode: matches.string as Validator<unknown, RenderModesType>
-  }),
+  })
 
-  changeNodeHelperVisibility: defineAction({
+  static changeNodeHelperVisibility = defineAction({
     type: 'xre.renderer.NODE_HELPER_VISIBILITY_CHANGED' as const,
     visibility: matches.boolean
-  }),
+  })
 
-  changeGridToolHeight: defineAction({
+  static changeGridToolHeight = defineAction({
     type: 'xre.renderer.GRID_TOOL_HEIGHT_CHANGED' as const,
     gridHeight: matches.number
-  }),
+  })
 
-  changeGridToolVisibility: defineAction({
+  static changeGridToolVisibility = defineAction({
     type: 'xre.renderer.GRID_TOOL_VISIBILITY_CHANGED' as const,
     visibility: matches.boolean
   })

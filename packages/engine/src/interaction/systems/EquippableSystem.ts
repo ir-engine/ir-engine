@@ -22,7 +22,7 @@ import { RigidBodyDynamicTagComponent } from '../../physics/components/RigidBody
 import { RigidBodyKinematicPositionBasedTagComponent } from '../../physics/components/RigidBodyKinematicPositionBasedTagComponent'
 import { CollisionGroups } from '../../physics/enums/CollisionGroups'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { getHandTransform } from '../../xr/functions/WebXRFunctions'
+import { getHandTransform } from '../../xr/XRFunctions'
 import { EquippableComponent } from '../components/EquippableComponent'
 import { EquippedComponent } from '../components/EquippedComponent'
 import { EquipperComponent } from '../components/EquipperComponent'
@@ -41,7 +41,7 @@ export function setEquippedObjectReceptor(
     addComponent(equipperEntity, EquipperComponent, { equippedEntity })
     addComponent(equippedEntity, EquippedComponent, { equipperEntity, attachmentPoint: action.attachmentPoint })
   }
-  const body = getComponent(equippedEntity, RigidBodyComponent)
+  const body = getComponent(equippedEntity, RigidBodyComponent)?.body
   if (body) {
     if (action.equip) {
       addComponent(equippedEntity, RigidBodyKinematicPositionBasedTagComponent, true)
@@ -93,7 +93,7 @@ export function equipperQueryAll(equipperEntity: Entity, world = Engine.instance
   const { position, rotation } = getHandTransform(equipperEntity, getParity(attachmentPoint))
 
   if (hasComponent(equippedEntity, RigidBodyComponent)) {
-    const body = getComponent(equippedEntity, RigidBodyComponent)
+    const body = getComponent(equippedEntity, RigidBodyComponent).body
     body.setTranslation(position, true)
     body.setRotation(rotation, true)
   } else {
@@ -111,39 +111,39 @@ export function equipperQueryExit(entity: Entity, world = Engine.instance.curren
 
 const vec3 = new Vector3()
 
-export const onEquippableInteractUpdate = (entity: Entity, xrui: ReturnType<typeof createInteractUI>) => {
-  const world = Engine.instance.currentWorld
+// export const onEquippableInteractUpdate = (entity: Entity, xrui: ReturnType<typeof createInteractUI>) => {
+//   const world = Engine.instance.currentWorld
 
-  const transform = getComponent(xrui.entity, TransformComponent)
-  if (!transform || !hasComponent(world.localClientEntity, TransformComponent)) return
-  transform.position.copy(getComponent(entity, TransformComponent).position)
-  transform.rotation.copy(getComponent(entity, TransformComponent).rotation)
-  transform.position.y += 1
+//   const transform = getComponent(xrui.entity, TransformComponent)
+//   if (!transform || !hasComponent(world.localClientEntity, TransformComponent)) return
+//   transform.position.copy(getComponent(entity, TransformComponent).position)
+//   transform.rotation.copy(getComponent(entity, TransformComponent).rotation)
+//   transform.position.y += 1
 
-  const transition = InteractableTransitions.get(entity)!
-  const isEquipped = hasComponent(entity, EquippedComponent)
-  if (isEquipped) {
-    if (transition.state === 'IN') {
-      transition.setState('OUT')
-    }
-  } else {
-    getAvatarBoneWorldPosition(world.localClientEntity, 'Hips', vec3)
-    const distance = vec3.distanceToSquared(transform.position)
-    const inRange = distance < 5
-    if (transition.state === 'OUT' && inRange) {
-      transition.setState('IN')
-    }
-    if (transition.state === 'IN' && !inRange) {
-      transition.setState('OUT')
-    }
-  }
-  transition.update(world, (opacity) => {
-    xrui.container.rootLayer.traverseLayersPreOrder((layer) => {
-      const mat = layer.contentMesh.material as MeshBasicMaterial
-      mat.opacity = opacity
-    })
-  })
-}
+//   const transition = InteractableTransitions.get(entity)!
+//   const isEquipped = hasComponent(entity, EquippedComponent)
+//   if (isEquipped) {
+//     if (transition.state === 'IN') {
+//       transition.setState('OUT')
+//     }
+//   } else {
+//     getAvatarBoneWorldPosition(world.localClientEntity, 'Hips', vec3)
+//     const distance = vec3.distanceToSquared(transform.position)
+//     const inRange = distance < 5
+//     if (transition.state === 'OUT' && inRange) {
+//       transition.setState('IN')
+//     }
+//     if (transition.state === 'IN' && !inRange) {
+//       transition.setState('OUT')
+//     }
+//   }
+//   transition.update(world, (opacity) => {
+//     xrui.container.rootLayer.traverseLayersPreOrder((layer) => {
+//       const mat = layer.contentMesh.material as MeshBasicMaterial
+//       mat.opacity = opacity
+//     })
+//   })
+// }
 
 /**
  * @todo refactor this into i18n and configurable

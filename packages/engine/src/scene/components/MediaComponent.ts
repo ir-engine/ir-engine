@@ -14,7 +14,6 @@ export type MediaComponentType = {
   currentSource: number
   // TODO replace startTimer with accumulator
   startTimer: any
-  el: HTMLMediaElement
   stopOnNextTrack: boolean
 }
 

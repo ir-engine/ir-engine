@@ -5,6 +5,7 @@ import fs from 'fs'
 import path from 'path/posix'
 
 import { FileContentType } from '@xrengine/common/src/interfaces/FileContentType'
+import { processFileName } from '@xrengine/common/src/utils/processFileName'
 
 import { Application } from '../../../declarations'
 import { copyRecursiveSync, getIncrementalName } from '../FileUtil'
@@ -59,7 +60,8 @@ export class FileBrowserService implements ServiceMethods<any> {
     const limit = $limit ? $limit : 100
 
     const storageProvider = getStorageProvider()
-    const isAdmin = params.user && params.user.userRole === 'admin'
+    console.log('params.user', params.user)
+    const isAdmin = params.user && params.user?.scopes?.find((scope) => scope.type === 'admin:admin')
     if (directory[0] === '/') directory = directory.slice(1) // remove leading slash
     if (params.provider && !isAdmin && directory !== '' && !/^projects/.test(directory))
       throw new Forbidden('Not allowed to access that directory')
@@ -152,7 +154,9 @@ export class FileBrowserService implements ServiceMethods<any> {
    */
   async patch(id: NullableId, data: PatchParams, params?: Params) {
     const storageProvider = getStorageProvider()
-    const key = path.join(data.path[0] === '/' ? data.path.substring(1) : data.path, data.fileName)
+    const name = processFileName(data.fileName)
+
+    const key = path.join(data.path[0] === '/' ? data.path.substring(1) : data.path, name)
 
     await storageProvider.putObject(
       {

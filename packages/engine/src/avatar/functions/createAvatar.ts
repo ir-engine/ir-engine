@@ -1,11 +1,11 @@
 import { Collider, ColliderDesc, RigidBody, RigidBodyDesc } from '@dimforge/rapier3d-compat'
-import { AnimationClip, AnimationMixer, Group, PerspectiveCamera, Quaternion, Vector3 } from 'three'
+import { AnimationClip, AnimationMixer, Group, Matrix4, PerspectiveCamera, Quaternion, Vector3 } from 'three'
 
-import { AudioTagComponent } from '../../audio/components/AudioTagComponent'
-import { isClient } from '../../common/functions/isClient'
+import { V_000, V_010 } from '../../common/constants/MathConstants'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
+import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { InputComponent } from '../../input/components/InputComponent'
 import { LocalAvatarTagComponent } from '../../input/components/LocalAvatarTagComponent'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
@@ -13,6 +13,7 @@ import { InteractorComponent } from '../../interaction/components/InteractorComp
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { Physics } from '../../physics/classes/Physics'
 import { VectorSpringSimulator } from '../../physics/classes/springs/VectorSpringSimulator'
+import { CollisionComponent } from '../../physics/components/CollisionComponent'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { AvatarCollisionMask, CollisionGroups } from '../../physics/enums/CollisionGroups'
 import { getInteractionGroups } from '../../physics/functions/getInteractionGroups'
@@ -23,7 +24,8 @@ import { ShadowComponent } from '../../scene/components/ShadowComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
-import { TransformComponent } from '../../transform/components/TransformComponent'
+import { setComputedTransformComponent } from '../../transform/components/ComputedTransformComponent'
+import { setTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
 import { BoneStructure } from '../AvatarBoneMatching'
 import { AvatarInputSchema } from '../AvatarInputSchema'
 import { AnimationComponent } from '../components/AnimationComponent'
@@ -80,7 +82,8 @@ export const createAvatar = (spawnAction: typeof WorldNetworkAction.spawnAvatar.
     },
     rig: {} as BoneStructure,
     bindRig: {} as BoneStructure,
-    rootYRatio: 1
+    rootYRatio: 1,
+    locomotion: new Vector3()
   })
 
   addComponent(entity, Object3DComponent, { value: tiltContainer })
@@ -93,6 +96,7 @@ export const createAvatar = (spawnAction: typeof WorldNetworkAction.spawnAvatar.
 
   if (userId === Engine.instance.userId) {
     createAvatarController(entity)
+    addComponent(entity, PersistTagComponent, true)
     addComponent(entity, LocalAvatarTagComponent, true)
     addComponent(entity, LocalInputTagComponent, true)
   } else {
@@ -100,12 +104,7 @@ export const createAvatar = (spawnAction: typeof WorldNetworkAction.spawnAvatar.
     createAvatarCollider(entity)
   }
 
-  if (isClient) {
-    addComponent(entity, AudioTagComponent, true)
-    addComponent(entity, ShadowComponent, { receiveShadow: true, castShadow: true })
-  }
-
-  addComponent(entity, PersistTagComponent, true)
+  addComponent(entity, ShadowComponent, { receiveShadow: true, castShadow: true })
 
   return entity
 }
@@ -113,7 +112,7 @@ export const createAvatar = (spawnAction: typeof WorldNetworkAction.spawnAvatar.
 export const createAvatarCollider = (entity: Entity): Collider => {
   const interactionGroups = getInteractionGroups(CollisionGroups.Avatars, AvatarCollisionMask)
   const avatarComponent = getComponent(entity, AvatarComponent)
-  const rigidBody = getComponent(entity, RigidBodyComponent)
+  const rigidBody = getComponent(entity, RigidBodyComponent).body
 
   const bodyColliderDesc = ColliderDesc.capsule(
     avatarComponent.avatarHalfHeight - avatarRadius,
@@ -138,7 +137,6 @@ const createAvatarRigidBody = (entity: Entity): RigidBody => {
 }
 
 export const createAvatarController = (entity: Entity) => {
-  const { value } = getComponent(entity, Object3DComponent)
   const avatarComponent = getComponent(entity, AvatarComponent)
 
   if (!hasComponent(entity, InputComponent)) {
@@ -148,15 +146,42 @@ export const createAvatarController = (entity: Entity) => {
     })
   }
 
-  const frustumCamera = new PerspectiveCamera(60, 4, 0.1, 3)
-  frustumCamera.position.setY(defaultAvatarHalfHeight)
+  const frustumCameraEntity = createEntity()
+
+  const frustumCamera = new PerspectiveCamera(45, 2, 0.1, 2)
   frustumCamera.rotateY(Math.PI)
 
-  value.add(frustumCamera)
+  const _vec3 = new Vector3()
+  const _cameraDirection = new Vector3()
+  const _mat = new Matrix4()
+
+  addComponent(frustumCameraEntity, Object3DComponent, { value: frustumCamera })
+  addComponent(frustumCameraEntity, PersistTagComponent, true)
+  setTransformComponent(frustumCameraEntity)
+  setComputedTransformComponent(frustumCameraEntity, Engine.instance.currentWorld.cameraEntity, () => {
+    const avatarTransform = getComponent(entity, TransformComponent)
+    const targetTransform = getComponent(frustumCameraEntity, TransformComponent)
+
+    const cameraRotation = getComponent(Engine.instance.currentWorld.cameraEntity, TransformComponent).rotation
+    const direction = _cameraDirection.set(0, 0, -1).applyQuaternion(cameraRotation).setComponent(1, 0)
+    targetTransform.rotation.setFromRotationMatrix(_mat.lookAt(V_000, direction, V_010))
+    frustumCamera.quaternion.copy(targetTransform.rotation)
+    frustumCamera.updateWorldMatrix(false, false)
+
+    _vec3.copy(avatarTransform.position)
+    _vec3.y += avatarComponent.avatarHeight * 0.95
+    frustumCamera.worldToLocal(_vec3)
+    _vec3.z += 1
+    frustumCamera.localToWorld(_vec3)
+
+    targetTransform.position.copy(_vec3)
+  })
+
+  Engine.instance.currentWorld.scene.add(frustumCamera)
   if (!hasComponent(entity, InteractorComponent)) {
     addComponent(entity, InteractorComponent, {
       focusedInteractive: null!,
-      frustumCamera,
+      frustumCameraEntity,
       subFocusedArray: []
     })
   }
@@ -167,9 +192,9 @@ export const createAvatarController = (entity: Entity) => {
     getComponent(entity, TransformComponent).position.y += avatarComponent.avatarHalfHeight
     const rigidBody = createAvatarRigidBody(entity)
     addComponent(entity, AvatarControllerComponent, {
-      controller: rigidBody,
+      cameraEntity: Engine.instance.currentWorld.cameraEntity,
+      body: rigidBody,
       bodyCollider: undefined!,
-      collisions: [false, false, false],
       movementEnabled: true,
       isJumping: false,
       isWalking: false,
@@ -184,4 +209,6 @@ export const createAvatarController = (entity: Entity) => {
 
   const avatarControllerComponent = getComponent(entity, AvatarControllerComponent)
   avatarControllerComponent.bodyCollider = createAvatarCollider(entity)
+
+  addComponent(entity, CollisionComponent, new Map())
 }

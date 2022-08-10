@@ -231,6 +231,10 @@ export const UploadAvatarMenu = () => {
     WidgetAppService.setWidgetVisibility(WidgetName.SELECT_AVATAR, true)
   }
 
+  const handleOpenReadyPlayerWidget = () => {
+    WidgetAppService.setWidgetVisibility(WidgetName.READY_PLAYER, true)
+  }
+
   const uploadButtonEnabled = !!fileSelected && !error && avatarName.length > 3
 
   return (
@@ -248,6 +252,13 @@ export const UploadAvatarMenu = () => {
           />
           <h2>{t('user:avatar.title')}</h2>
         </div>
+
+        <section className="walletSection">
+          <XRTextButton variant="gradient" xr-layer="true" onClick={handleOpenReadyPlayerWidget} className="walletBtn">
+            {t('user:usermenu.profile.useReadyPlayerMe')}
+          </XRTextButton>
+        </section>
+
         <div className="stageContainer">
           <div
             id="stage"

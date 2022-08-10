@@ -6,6 +6,7 @@ import { AvatarEffectComponent, MaterialMap } from '@xrengine/engine/src/avatar/
 import { DissolveEffect } from '@xrengine/engine/src/avatar/DissolveEffect'
 import { loadGrowingEffectObject } from '@xrengine/engine/src/avatar/functions/avatarFunctions'
 
+import { AudioComponent } from '../../../audio/components/AudioComponent'
 import {
   ComponentDeserializeFunction,
   ComponentPrepareForGLTFExportFunction,
@@ -13,6 +14,7 @@ import {
   ComponentUpdateFunction
 } from '../../../common/constants/PrefabFunctionType'
 import { isClient } from '../../../common/functions/isClient'
+import { Engine } from '../../../ecs/classes/Engine'
 import { getEngineState } from '../../../ecs/classes/EngineState'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent, removeComponent } from '../../../ecs/functions/ComponentFunctions'
@@ -20,16 +22,20 @@ import { EngineRenderer } from '../../../renderer/WebGLRendererSystem'
 import UpdateableObject3D from '../../classes/UpdateableObject3D'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { MediaComponent } from '../../components/MediaComponent'
+import { MediaElementComponent } from '../../components/MediaElementComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 import { VolumetricComponent, VolumetricComponentType } from '../../components/VolumetricComponent'
 import { PlayMode } from '../../constants/PlayMode'
 import { addError, removeError } from '../ErrorFunctions'
+import { createAudioNode } from './AudioFunctions'
 
 type VolumetricObject3D = UpdateableObject3D & {
   userData: {
     isEffect: boolean
     time: number
   }
+  autoplay: boolean
+  controls: boolean
   play()
   pause()
   seek()
@@ -75,6 +81,7 @@ export const deserializeVolumetric: ComponentDeserializeFunction = (
 export const addVolumetricComponent = (entity: Entity, props: VolumetricComponentType) => {
   const obj3d = getComponent(entity, Object3DComponent).value as VolumetricObject3D
   const mediaComponent = getComponent(entity, MediaComponent)
+  const audioComponent = getComponent(entity, AudioComponent)
 
   let height = 0
   let step = 0.001
@@ -84,7 +91,8 @@ export const addVolumetricComponent = (entity: Entity, props: VolumetricComponen
   const player = new DracosisPlayer({
     scene: obj3d,
     renderer: EngineRenderer.instance.renderer,
-    paths: mediaComponent.paths,
+    // https://github.com/XRFoundation/Universal-Volumetric/issues/117
+    paths: mediaComponent.paths.length ? mediaComponent.paths : ['fake-path'],
     isLoadingEffect: properties.useLoadingEffect,
     isVideoTexture: false,
     playMode: mediaComponent.playMode as any,
@@ -131,24 +139,37 @@ export const addVolumetricComponent = (entity: Entity, props: VolumetricComponen
 
   //setup callbacks
   obj3d.play = () => {
-    if (getEngineState().userHasInteracted.value) {
-      player.play()
-    }
+    player.play()
   }
 
   obj3d.pause = () => {
-    if (getEngineState().userHasInteracted.value) player.pause()
+    player.pause()
   }
 
   obj3d.seek = () => {
-    if (getEngineState().userHasInteracted.value) {
-      player.playOneFrame()
-    }
+    player.playOneFrame()
   }
 
   obj3d.callbacks = () => {
     return VolumetricCallbacks
   }
+
+  const el = player.video
+
+  el.addEventListener('playing', () => {
+    mediaComponent.playing = true
+  })
+  el.addEventListener('pause', () => {
+    mediaComponent.playing = false
+  })
+
+  addComponent(entity, MediaElementComponent, el)
+
+  createAudioNode(
+    el,
+    Engine.instance.audioContext.createMediaElementSource(el),
+    audioComponent.isMusic ? Engine.instance.gainNodeMixBuses.music : Engine.instance.gainNodeMixBuses.soundEffects
+  )
 }
 
 export const updateVolumetric: ComponentUpdateFunction = (entity: Entity) => {
@@ -161,6 +182,9 @@ export const updateVolumetric: ComponentUpdateFunction = (entity: Entity) => {
   if (paths.length && JSON.stringify(player.paths) !== JSON.stringify(paths)) {
     player.paths = paths
   }
+
+  obj3d.autoplay = mediaComponent.autoplay
+  obj3d.controls = mediaComponent.controls
 }
 
 export const serializeVolumetric: ComponentSerializeFunction = (entity) => {

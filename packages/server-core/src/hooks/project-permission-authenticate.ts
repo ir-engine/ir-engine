@@ -10,7 +10,11 @@ export default (writeAccess) => {
   return async (context: HookContext): Promise<HookContext> => {
     const { params, app } = context
     const loggedInUser = params.user as UserInterface
-    if ((!writeAccess && loggedInUser.userRole === 'admin') || context.provider == null) return context
+    if (
+      (!writeAccess && loggedInUser.scopes && loggedInUser.scopes.find((scope) => scope.type === 'admin:admin')) ||
+      context.provider == null
+    )
+      return context
     let projectId, projectRepoPath
     const projectName = context.arguments[0]?.projectName || params.query?.projectName
     if (projectName) {

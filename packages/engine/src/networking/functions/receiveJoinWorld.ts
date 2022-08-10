@@ -37,7 +37,6 @@ export const spawnLocalAvatarInWorld = (props: SpawnInWorldProps) => {
   worldState.userAvatarDetails[Engine.instance.userId].set(avatarDetail)
   dispatchAction(WorldNetworkAction.spawnAvatar(avatarSpawnPose))
   dispatchAction(WorldNetworkAction.avatarDetails({ avatarDetail }))
-  dispatchAction(EngineActions.joinedWorld({}))
 }
 
 export const receiveJoinWorld = (props: JoinWorldProps) => {
@@ -50,8 +49,9 @@ export const receiveJoinWorld = (props: JoinWorldProps) => {
   const spectateUserId = getSearchParamFromURL('spectate')
   if (spectateUserId) {
     dispatchAction(EngineActions.spectateUser({ user: spectateUserId }))
-    dispatchAction(EngineActions.joinedWorld({}))
   }
+
+  dispatchAction(EngineActions.joinedWorld({}))
 
   Engine.instance.store.actions.outgoing[NetworkTopics.world].queue.push(
     ...Engine.instance.store.actions.outgoing[NetworkTopics.world].history

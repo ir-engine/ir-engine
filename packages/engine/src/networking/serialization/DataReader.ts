@@ -10,9 +10,8 @@ import { addComponent, getComponent, hasComponent } from '../../ecs/functions/Co
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
 import { NameComponent } from '../../scene/components/NameComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { XRHandsInputComponent } from '../../xr/components/XRHandsInputComponent'
-import { XRInputSourceComponent } from '../../xr/components/XRInputSourceComponent'
-import { XRHandBones } from '../../xr/types/XRHandBones'
+import { XRHandsInputComponent, XRInputSourceComponent } from '../../xr/XRComponents'
+import { XRHandBones } from '../../xr/XRHandBones'
 import { Network } from '../classes/Network'
 import { NetworkObjectAuthorityTag } from '../components/NetworkObjectAuthorityTag'
 import { NetworkObjectDirtyTag } from '../components/NetworkObjectDirtyTag'
@@ -190,7 +189,7 @@ export const readTransform = (v: ViewCursor, entity: Entity) => {
 export const readVelocity = (v: ViewCursor, entity: Entity) => {
   const changeMask = readUint8(v)
   let b = 0
-  if (checkBitflag(changeMask, 1 << b++)) readCompressedVector3(VelocityComponent.linear)(v, entity)
+  if (checkBitflag(changeMask, 1 << b++)) readLinearVelocity(v, entity)
   if (checkBitflag(changeMask, 1 << b++)) readAngularVelocity(v, entity)
 }
 

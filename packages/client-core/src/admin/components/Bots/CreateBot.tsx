@@ -1,10 +1,10 @@
-import _ from 'lodash'
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { v4 as uuidv4 } from 'uuid'
 
 import { BotCommands, CreateBotAsAdmin } from '@xrengine/common/src/interfaces/AdminBot'
 import { Instance } from '@xrengine/common/src/interfaces/Instance'
+import capitalizeFirstLetter from '@xrengine/common/src/utils/capitalizeFirstLetter'
 
 import { Autorenew, Face, Save } from '@mui/icons-material'
 import Button from '@mui/material/Button'
@@ -146,7 +146,7 @@ const CreateBot = () => {
     const { name, value } = e.target
 
     let temp = { ...formErrors }
-    temp[name] = value.length < 2 ? `${_.upperFirst(name)} is required` : ''
+    temp[name] = value.length < 2 ? `${capitalizeFirstLetter(name)} is required` : ''
     setFormErrors(temp)
     setState({ ...state, [name]: value })
   }

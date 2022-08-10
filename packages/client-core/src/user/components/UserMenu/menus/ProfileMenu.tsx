@@ -1,6 +1,6 @@
+import { Ed25519Signature2020 } from '@digitalcredentials/ed25519-signature-2020'
 import { useHookstate } from '@hookstate/core'
 import * as polyfill from 'credential-handler-polyfill'
-import _ from 'lodash'
 import React, { useEffect, useState } from 'react'
 import { CopyToClipboard } from 'react-copy-to-clipboard'
 import { useTranslation } from 'react-i18next'
@@ -8,7 +8,10 @@ import { useLocation } from 'react-router-dom'
 
 import { validateEmail, validatePhoneNumber } from '@xrengine/common/src/config'
 import { defaultThemeModes, defaultThemeSettings } from '@xrengine/common/src/constants/DefaultThemeSettings'
+import { generateDid, IKeyPairDescription, issueCredential } from '@xrengine/common/src/identity'
 import multiLogger from '@xrengine/common/src/logger'
+import capitalizeFirstLetter from '@xrengine/common/src/utils/capitalizeFirstLetter'
+import { AudioEffectPlayer } from '@xrengine/engine/src/audio/systems/AudioSystem'
 import { WorldState } from '@xrengine/engine/src/networking/interfaces/WorldState'
 import { getState } from '@xrengine/hyperflux'
 
@@ -71,12 +74,13 @@ const ProfileMenu = ({ className, hideLogin, isPopover, changeActiveMenu, onClos
   const userSettings = selfUser.user_setting.value
   const userId = selfUser.id.value
   const apiKey = selfUser.apiKey?.token?.value
-  const userRole = selfUser.userRole.value
+  const isGuest = selfUser.isGuest.value
 
   const clientSettingState = useClientSettingState()
   const [clientSetting] = clientSettingState?.client?.value || []
 
-  const hasAdminAccess = selfUser?.id?.value?.length > 0 && selfUser?.userRole?.value === 'admin'
+  const hasAdminAccess =
+    selfUser?.id?.value?.length > 0 && selfUser?.scopes?.value?.find((scope) => scope.type === 'admin:admin')
   const hasEditorAccess = userHasAccess('editor:write')
 
   const userAvatarDetails = useHookstate(getState(WorldState).userAvatarDetails)
@@ -85,9 +89,9 @@ const ProfileMenu = ({ className, hideLogin, isPopover, changeActiveMenu, onClos
   const themeSettings = { ...defaultThemeSettings, ...clientSetting.themeSettings }
 
   const accessibleThemeModes = Object.keys(themeModes).filter((mode) => {
-    if (mode === 'admin' && hasAdminAccess === false) {
+    if (mode === 'admin' && !hasAdminAccess) {
       return false
-    } else if (mode === 'editor' && hasEditorAccess === false) {
+    } else if (mode === 'editor' && !hasEditorAccess) {
       return false
     }
     return true
@@ -95,7 +99,7 @@ const ProfileMenu = ({ className, hideLogin, isPopover, changeActiveMenu, onClos
 
   const colorModesMenu: InputMenuItem[] = Object.keys(themeSettings).map((el) => {
     return {
-      label: _.upperFirst(el),
+      label: capitalizeFirstLetter(el),
       value: el
     }
   })
@@ -112,14 +116,17 @@ const ProfileMenu = ({ className, hideLogin, isPopover, changeActiveMenu, onClos
     }
   }, [authSettingState?.updateNeeded?.value])
 
+  /**
+   * Note: If you're editing this function, be sure to make the same changes to
+   * the XRUI version over at packages/client-core/src/systems/ui/ProfileDetailView/index.tsx
+   * @param event
+   */
   const handleChangeUserThemeMode = (event) => {
     const { name, value } = event.target
 
     const settings = { ...userSettings, themeModes: { ...themeModes, [name]: value } }
     userSettings && AuthService.updateUserSettings(userSettings.id as string, settings)
   }
-  // If you're editing lines 114-230, be sure to make the same changes to the XRUI version over at
-  // packages/client-core/src/systems/ui/ProfileDetailView/index.tsx#75-191
   let type = ''
   const addMoreSocial =
     (authState?.discord && !oauthConnectedState.discord) ||
@@ -255,6 +262,116 @@ const ProfileMenu = ({ className, hideLogin, isPopover, changeActiveMenu, onClos
     // window.location.reload()
   }
 
+  /**
+   * Example function, issues a Verifiable Credential, and uses the Credential
+   * Handler API (CHAPI) to request to store this VC in the user's wallet.
+   *
+   * This is here in the ProfileMenu just for convenience -- it can be invoked
+   * by the engine whenever appropriate (whenever a user performs some in-engine action,
+   * makes a payment, etc).
+   */
+  async function handleIssueCredentialClick() {
+    // Typically, this would be loaded directly from an env var (or other secret mgmt mechanism)
+    // And used to bootstrap a client into a hardware KMS (Key Management System)
+    // In this example, the secret seed is provided directly (obviously, don't do this)
+    const CREDENTIAL_SIGNING_SECRET_KEY_SEED = 'z1AZK4h5w5YZkKYEgqtcFfvSbWQ3tZ3ZFgmLsXMZsTVoeK7'
+
+    // Generate a DID Document and corresponding key pairs from the seed
+    const { didDocument, methodFor } = await generateDid(CREDENTIAL_SIGNING_SECRET_KEY_SEED)
+
+    // 'methodFor' serves as a wrapper/getter method for public/private key pairs
+    // that were generated as a result of DID Doc creation.
+    // It's a way to fetch keys not by ID (since that's quite opaque/random) but
+    // by their usage purpose -- assertionMethod (for signing VCs), authentication (for DID Auth),
+    // keyAgreement (for encrypting), etc.
+    const key = methodFor({ purpose: 'assertionMethod' }) as IKeyPairDescription
+
+    // This would typically be the Ethereal Engine's own DID, generated and cached at
+    // startup from a secret.
+    const issuer = didDocument.id
+
+    // TODO: Extract from the logged in user's session
+    const userDid = 'did:example:user:1234'
+
+    const suite = new Ed25519Signature2020({ key })
+
+    // Example VC that denotes that a user has entered a door / 3d volume
+    const unsignedCredential = {
+      '@context': [
+        'https://www.w3.org/2018/credentials/v1',
+        // The object below is a temporary (in-line) context, used for an example
+        // Once we settle on what our VC content is (what types we want to issue, etc)
+        // We'll fold them all into the 'https://w3id.org/xr/v1' context
+        {
+          etherealEvent: 'https://w3id.org/xr/v1#etherealEvent',
+          EnteredVolumeEvent: 'https://w3id.org/xr/v1#EnteredVolumeEvent',
+          CheckpointEvent: 'https://w3id.org/xr/v1#CheckpointEvent',
+          checkpointId: 'https://w3id.org/xr/v1#checkpointId'
+        }
+      ],
+      type: ['VerifiableCredential'],
+      issuer,
+      issuanceDate: '2022-01-01T19:23:24Z',
+      credentialSubject: {
+        id: userDid,
+        etherealEvent: [
+          {
+            type: ['EnteredVolumeEvent', 'CheckpointEvent'],
+            checkpointId: '12345'
+          }
+        ]
+      }
+    }
+
+    const signedVc = await issueCredential(unsignedCredential, suite)
+
+    console.log('Issued VC:', JSON.stringify(signedVc, null, 2))
+
+    // Wrap the VC in an unsigned Verifiable Presentation
+    const vp = {
+      '@context': ['https://www.w3.org/2018/credentials/v1'],
+      type: 'VerifiablePresentation',
+      verifiableCredential: [signedVc]
+    }
+
+    const webCredentialType = 'VerifiablePresentation'
+    // @ts-ignore
+    const webCredentialWrapper = new window.WebCredential(webCredentialType, vp, {
+      // recommendedHandlerOrigins: []
+    })
+
+    // Use Credential Handler API to store
+    const result = await navigator.credentials.store(webCredentialWrapper)
+
+    console.log('Result of receiving via store() request:', result)
+  }
+
+  async function handleRequestCredentialClick() {
+    const vcRequestQuery: any = {
+      web: {
+        VerifiablePresentation: {
+          query: [
+            {
+              type: 'QueryByExample',
+              credentialQuery: [
+                {
+                  example: {
+                    '@context': ['https://www.w3.org/2018/credentials/v1', 'https://w3id.org/xr/v1'],
+                    type: 'VerifiableCredential'
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      }
+    }
+
+    const result = await navigator.credentials.get(vcRequestQuery)
+
+    console.log('VC Request query result:', result)
+  }
+
   async function handleWalletLoginClick() {
     const domain = window.location.origin
     const challenge = '99612b24-63d9-11ea-b99f-4f66f3e4f81a' // TODO: generate
@@ -351,75 +468,63 @@ const ProfileMenu = ({ className, hideLogin, isPopover, changeActiveMenu, onClos
                 className={styles.avatarBtn}
                 id="select-avatar"
                 onClick={() => changeActiveMenu(Views.AvatarSelect)}
+                onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
                 disableRipple
               >
                 <Create />
               </Button>
             )}
           </div>
-          <div className={styles.headerBlock}>
-            <Typography variant="h1" className={styles.panelHeader}>
-              {t('user:usermenu.profile.lbl-username')}
-            </Typography>
-            <span className={styles.inputBlock}>
-              <TextField
-                margin="none"
-                size="small"
-                name="username"
-                variant="outlined"
-                value={username || ''}
-                onChange={handleUsernameChange}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter') updateUserName(e)
-                }}
-                className={styles.usernameInput}
-                error={errorUsername}
-                InputProps={{
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <a href="#" className={styles.materialIconBlock} onClick={updateUserName}>
-                        <Check className={styles.primaryForeground} />
-                      </a>
-                    </InputAdornment>
-                  )
-                }}
-              />
-            </span>
 
-            <Grid container justifyContent="right" className={styles.justify}>
-              <Grid item xs={userRole === 'guest' ? 6 : 4}>
+          <div className={styles.headerBlock}>
+            <Grid container justifyContent="left" direction="row" className={styles.justify}>
+              <Grid item xs={12}>
                 <h2>
-                  {userRole === 'admin' ? t('user:usermenu.profile.youAreAn') : t('user:usermenu.profile.youAreA')}
-                  <span id="user-role">{` ${userRole}`}</span>.
+                  {hasAdminAccess ? t('user:usermenu.profile.youAreAn') : t('user:usermenu.profile.youAreA')}
+                  <span id="user-role">{hasAdminAccess ? ' Admin' : isGuest ? ' Guest' : ' User'}</span>.
                 </h2>
               </Grid>
-              <Grid item container xs={userRole === 'guest' ? 6 : 4} alignItems="flex-start" direction="column">
+              <Grid item xs={12} alignItems="flex-start">
                 <Tooltip
                   title={showUserId ? t('user:usermenu.profile.hideUserId') : t('user:usermenu.profile.showUserId')}
-                  placement="right"
+                  placement="left"
                 >
-                  <h2 className={styles.showUserId} id="show-user-id" onClick={() => setShowUserId(!showUserId)}>
+                  <h2
+                    className={styles.showUserId}
+                    id="show-user-id"
+                    onClick={() => setShowUserId(!showUserId)}
+                    onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                    onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                  >
                     {showUserId ? t('user:usermenu.profile.hideUserId') : t('user:usermenu.profile.showUserId')}
                   </h2>
                 </Tooltip>
               </Grid>
               {selfUser?.apiKey?.id && (
-                <Grid item container xs={4} alignItems="flex-start" direction="column">
+                <Grid item xs={12} alignItems="flex-start">
                   <Tooltip
                     title={showApiKey ? t('user:usermenu.profile.hideApiKey') : t('user:usermenu.profile.showApiKey')}
-                    placement="right"
+                    placement="left"
                   >
-                    <h2 className={styles.showUserId} onClick={() => setShowApiKey(!showApiKey)}>
+                    <h2
+                      className={styles.showUserId}
+                      onClick={() => setShowApiKey(!showApiKey)}
+                      onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                      onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                    >
                       {showApiKey ? t('user:usermenu.profile.hideApiKey') : t('user:usermenu.profile.showApiKey')}
                     </h2>
                   </Tooltip>
                 </Grid>
               )}
             </Grid>
-            {userRole !== 'guest' && (
+
+            {!isGuest && (
               <Grid
                 display="grid"
                 gridTemplateColumns="1fr 1.5fr"
+                xs={12}
                 sx={{
                   display: 'grid',
                   gridTemplateColumns: '1fr 1.5fr',
@@ -447,11 +552,16 @@ const ProfileMenu = ({ className, hideLogin, isPopover, changeActiveMenu, onClos
               />
             )}
             <h4>
-              {userRole !== 'guest' && (
-                <div className={styles.logout} onClick={handleLogout}>
+              {
+                <div
+                  className={styles.logout}
+                  onClick={handleLogout}
+                  onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                  onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                >
                   {t('user:usermenu.profile.logout')}
                 </div>
-              )}
+              }
             </h4>
             {selfUser?.inviteCode.value != null && (
               <h2>
@@ -461,87 +571,134 @@ const ProfileMenu = ({ className, hideLogin, isPopover, changeActiveMenu, onClos
           </div>
         </section>
 
-        {showUserId && (
-          <section className={styles.emailPhoneSection}>
+        <section className={styles.profileBlock}>
+          <div className={styles.headerBlock}>
             <Typography variant="h1" className={styles.panelHeader}>
-              {t('user:usermenu.profile.userIcon.userId')}
+              {t('user:usermenu.profile.lbl-username')}
             </Typography>
-
-            <form>
+            <span className={styles.inputBlock}>
               <TextField
-                id="user-id"
-                className={styles.emailField}
+                margin="none"
                 size="small"
-                placeholder={'user id'}
+                name="username"
                 variant="outlined"
-                value={userId}
+                value={username || ''}
+                onChange={handleUsernameChange}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') updateUserName(e)
+                }}
+                className={styles.usernameInput}
+                error={errorUsername}
                 InputProps={{
                   endAdornment: (
                     <InputAdornment position="end">
-                      <CopyToClipboard
-                        text={userId}
-                        onCopy={() => {
-                          NotificationService.dispatchNotify('User ID copied', {
-                            variant: 'success'
-                          })
-                        }}
+                      <a
+                        href="#"
+                        className={styles.materialIconBlock}
+                        onClick={updateUserName}
+                        onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                        onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
                       >
-                        <a href="#" className={styles.materialIconBlock}>
-                          <ContentCopyIcon className={styles.primaryForeground} />
-                        </a>
-                      </CopyToClipboard>
+                        <Check className={styles.primaryForeground} />
+                      </a>
                     </InputAdornment>
                   )
                 }}
               />
-            </form>
+            </span>
+          </div>
+        </section>
+
+        {showUserId && (
+          <section className={styles.emailPhoneSection}>
+            <div className={styles.headerBlock}>
+              <Typography variant="h1" className={styles.panelHeader}>
+                {t('user:usermenu.profile.userIcon.userId')}
+              </Typography>
+
+              <form>
+                <TextField
+                  id="user-id"
+                  className={styles.emailField}
+                  size="small"
+                  placeholder={'user id'}
+                  variant="outlined"
+                  value={userId}
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <CopyToClipboard
+                          text={userId}
+                          onCopy={() => {
+                            NotificationService.dispatchNotify('User ID copied', {
+                              variant: 'success'
+                            })
+                          }}
+                        >
+                          <a href="#" className={styles.materialIconBlock}>
+                            <ContentCopyIcon className={styles.primaryForeground} />
+                          </a>
+                        </CopyToClipboard>
+                      </InputAdornment>
+                    )
+                  }}
+                />
+              </form>
+            </div>
           </section>
         )}
 
         {showApiKey && (
           <section className={styles.emailPhoneSection}>
-            <Typography variant="h1" className={styles.panelHeader}>
-              {t('user:usermenu.profile.apiKey')}
-            </Typography>
+            <div className={styles.headerBlock}>
+              <Typography variant="h1" className={styles.panelHeader}>
+                {t('user:usermenu.profile.apiKey')}
+              </Typography>
 
-            <form>
-              <TextField
-                className={styles.emailField}
-                size="small"
-                placeholder={'API key'}
-                variant="outlined"
-                value={apiKey}
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <RefreshIcon className={styles.apiRefresh} onClick={refreshApiKey} />
-                    </InputAdornment>
-                  ),
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <CopyToClipboard
-                        text={apiKey}
-                        onCopy={() => {
-                          NotificationService.dispatchNotify('API Key copied', {
-                            variant: 'success'
-                          })
-                        }}
-                      >
-                        <a href="#" className={styles.materialIconBlock}>
-                          <ContentCopyIcon className={styles.primaryForeground} />
-                        </a>
-                      </CopyToClipboard>
-                    </InputAdornment>
-                  )
-                }}
-              />
-            </form>
+              <form>
+                <TextField
+                  className={styles.emailField}
+                  size="small"
+                  placeholder={'API key'}
+                  variant="outlined"
+                  value={apiKey}
+                  InputProps={{
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <RefreshIcon
+                          className={styles.apiRefresh}
+                          onClick={refreshApiKey}
+                          onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                          onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                        />
+                      </InputAdornment>
+                    ),
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <CopyToClipboard
+                          text={apiKey}
+                          onCopy={() => {
+                            NotificationService.dispatchNotify('API Key copied', {
+                              variant: 'success'
+                            })
+                          }}
+                        >
+                          <a href="#" className={styles.materialIconBlock}>
+                            <ContentCopyIcon className={styles.primaryForeground} />
+                          </a>
+                        </CopyToClipboard>
+                      </InputAdornment>
+                    )
+                  }}
+                />
+              </form>
+            </div>
           </section>
         )}
 
         {!hideLogin && (
           <>
-            {userRole === 'guest' && enableConnect && (
+            {isGuest && enableConnect && (
               <section className={styles.emailPhoneSection}>
                 <Typography variant="h1" className={styles.panelHeader}>
                   {getConnectText()}
@@ -559,7 +716,12 @@ const ProfileMenu = ({ className, hideLogin, isPopover, changeActiveMenu, onClos
                     helperText={error ? getErrorText() : null}
                     InputProps={{
                       endAdornment: (
-                        <InputAdornment position="end" onClick={handleGuestSubmit}>
+                        <InputAdornment
+                          position="end"
+                          onClick={handleGuestSubmit}
+                          onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                          onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                        >
                           <a href="#" className={styles.materialIconBlock}>
                             <Send className={styles.primaryForeground} />
                           </a>
@@ -575,114 +737,218 @@ const ProfileMenu = ({ className, hideLogin, isPopover, changeActiveMenu, onClos
                 </form>
               </section>
             )}
-            {userRole === 'guest' && changeActiveMenu && (
+            {isGuest && enableWalletLogin && (
               <section className={styles.walletSection}>
-                <Typography variant="h3" className={styles.textBlock}>
+                <Typography variant="h1" className={styles.textBlock}>
                   {t('user:usermenu.profile.or')}
                 </Typography>
 
-                {enableWalletLogin ? (
-                  <Button onClick={() => handleWalletLoginClick()} className={styles.walletBtn}>
-                    {t('user:usermenu.profile.loginWithXRWallet')}
-                  </Button>
-                ) : (
-                  <Button onClick={() => changeActiveMenu(Views.ReadyPlayer)} className={styles.walletBtn}>
-                    {t('user:usermenu.profile.loginWithReadyPlayerMe')}
-                  </Button>
+                {enableWalletLogin && (
+                  <div>
+                    <Button
+                      onClick={() => handleWalletLoginClick()}
+                      className={styles.walletBtn}
+                      onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                      onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                    >
+                      {t('user:usermenu.profile.loginWithXRWallet')}
+                    </Button>
+
+                    <Button
+                      onClick={() => handleIssueCredentialClick()}
+                      className={styles.walletBtn}
+                      onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                      onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                    >
+                      Issue a VC
+                    </Button>
+
+                    <Button
+                      onClick={() => handleRequestCredentialClick()}
+                      className={styles.walletBtn}
+                      onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                      onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                    >
+                      Request a VC
+                    </Button>
+                  </div>
                 )}
               </section>
             )}
 
-            {enableSocial && !enableWalletLogin && (
+            {enableSocial && (
               <section className={styles.socialBlock}>
-                {selfUser?.userRole.value === 'guest' && (
-                  <Typography variant="h3" className={styles.textBlock}>
-                    {t('user:usermenu.profile.connectSocial')}
-                  </Typography>
-                )}
-                {selfUser?.userRole.value !== 'guest' && addMoreSocial && (
-                  <Typography variant="h3" className={styles.textBlock}>
+                {selfUser?.isGuest.value && (
+                  <Typography variant="h1" className={styles.panelHeader}>
                     {t('user:usermenu.profile.addSocial')}
                   </Typography>
                 )}
                 <div className={styles.socialContainer}>
                   {authState?.discord && !oauthConnectedState.discord && (
-                    <a href="#" id="discord" onClick={handleOAuthServiceClick}>
+                    <a
+                      href="#"
+                      id="discord"
+                      onClick={handleOAuthServiceClick}
+                      onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                      onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                    >
                       <DiscordIcon width="40" height="40" viewBox="0 0 40 40" />
                     </a>
                   )}
                   {authState?.google && !oauthConnectedState.google && (
-                    <a href="#" id="google" onClick={handleOAuthServiceClick}>
+                    <a
+                      href="#"
+                      id="google"
+                      onClick={handleOAuthServiceClick}
+                      onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                      onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                    >
                       <GoogleIcon width="40" height="40" viewBox="0 0 40 40" />
                     </a>
                   )}
                   {authState?.facebook && !oauthConnectedState.facebook && (
-                    <a href="#" id="facebook" onClick={handleOAuthServiceClick}>
+                    <a
+                      href="#"
+                      id="facebook"
+                      onClick={handleOAuthServiceClick}
+                      onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                      onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                    >
                       <FacebookIcon width="40" height="40" viewBox="0 0 40 40" />
                     </a>
                   )}
                   {authState?.linkedin && !oauthConnectedState.linkedin && (
-                    <a href="#" id="linkedin" onClick={handleOAuthServiceClick}>
+                    <a
+                      href="#"
+                      id="linkedin"
+                      onClick={handleOAuthServiceClick}
+                      onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                      onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                    >
                       <LinkedInIcon width="40" height="40" viewBox="0 0 40 40" />
                     </a>
                   )}
                   {authState?.twitter && !oauthConnectedState.twitter && (
-                    <a href="#" id="twitter" onClick={handleOAuthServiceClick}>
+                    <a
+                      href="#"
+                      id="twitter"
+                      onClick={handleOAuthServiceClick}
+                      onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                      onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                    >
                       <TwitterIcon width="40" height="40" viewBox="0 0 40 40" />
                     </a>
                   )}
                   {authState?.github && !oauthConnectedState.github && (
-                    <a href="#" id="github" onClick={handleOAuthServiceClick}>
+                    <a
+                      href="#"
+                      id="github"
+                      onClick={handleOAuthServiceClick}
+                      onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                      onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                    >
                       <GitHub />
                     </a>
                   )}
                 </div>
-                {selfUser?.userRole.value !== 'guest' && removeSocial && (
+                {!selfUser?.isGuest.value && removeSocial && (
                   <Typography variant="h3" className={styles.textBlock}>
                     {t('user:usermenu.profile.removeSocial')}
                   </Typography>
                 )}
                 <div className={styles.socialContainer}>
                   {authState?.discord && oauthConnectedState.discord && (
-                    <a href="#" id="discord" onClick={handleRemoveOAuthServiceClick}>
+                    <a
+                      href="#"
+                      id="discord"
+                      onClick={handleRemoveOAuthServiceClick}
+                      onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                      onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                    >
                       <DiscordIcon width="40" height="40" viewBox="0 0 40 40" />
                     </a>
                   )}
                   {authState?.google && oauthConnectedState.google && (
-                    <a href="#" id="google" onClick={handleRemoveOAuthServiceClick}>
+                    <a
+                      href="#"
+                      id="google"
+                      onClick={handleRemoveOAuthServiceClick}
+                      onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                      onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                    >
                       <GoogleIcon width="40" height="40" viewBox="0 0 40 40" />
                     </a>
                   )}
                   {authState?.facebook && oauthConnectedState.facebook && (
-                    <a href="#" id="facebook" onClick={handleRemoveOAuthServiceClick}>
+                    <a
+                      href="#"
+                      id="facebook"
+                      onClick={handleRemoveOAuthServiceClick}
+                      onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                      onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                    >
                       <FacebookIcon width="40" height="40" viewBox="0 0 40 40" />
                     </a>
                   )}
                   {authState?.linkedin && oauthConnectedState.linkedin && (
-                    <a href="#" id="linkedin" onClick={handleRemoveOAuthServiceClick}>
+                    <a
+                      href="#"
+                      id="linkedin"
+                      onClick={handleRemoveOAuthServiceClick}
+                      onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                      onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                    >
                       <LinkedInIcon width="40" height="40" viewBox="0 0 40 40" />
                     </a>
                   )}
                   {authState?.twitter && oauthConnectedState.twitter && (
-                    <a href="#" id="twitter" onClick={handleRemoveOAuthServiceClick}>
+                    <a
+                      href="#"
+                      id="twitter"
+                      onClick={handleRemoveOAuthServiceClick}
+                      onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                      onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                    >
                       <TwitterIcon width="40" height="40" viewBox="0 0 40 40" />
                     </a>
                   )}
                   {authState?.github && oauthConnectedState.github && (
-                    <a href="#" id="github" onClick={handleRemoveOAuthServiceClick}>
+                    <a
+                      href="#"
+                      id="github"
+                      onClick={handleRemoveOAuthServiceClick}
+                      onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                      onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                    >
                       <GitHub />
                     </a>
                   )}
                 </div>
-                {selfUser?.userRole.value === 'guest' && (
-                  <Typography variant="h4" className={styles.smallTextBlock}>
-                    {t('user:usermenu.profile.createOne')}
-                  </Typography>
-                )}
               </section>
             )}
+
+            {selfUser && (
+              <div className={styles.themeSettingContainer}>
+                <Grid container spacing={{ xs: 0, sm: 2 }} sx={{ mt: 2 }}>
+                  {accessibleThemeModes.map((mode, index) => (
+                    <Grid key={index} item xs={12} md={4}>
+                      <InputSelect
+                        name={mode}
+                        label={`${t(`user:usermenu.setting.${mode}`)} ${t('user:usermenu.setting.theme')}`}
+                        value={themeModes[mode]}
+                        menu={colorModesMenu}
+                        onChange={(e) => handleChangeUserThemeMode(e)}
+                        onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                        onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                      />
+                    </Grid>
+                  ))}
+                </Grid>
+              </div>
+            )}
+
             <section className={styles.deletePanel}>
-              {userRole !== 'guest' && (
+              {
                 <div>
                   <h2
                     className={styles.deleteAccount}
@@ -691,13 +957,20 @@ const ProfileMenu = ({ className, hideLogin, isPopover, changeActiveMenu, onClos
                       setDeleteControlsOpen(!deleteControlsOpen)
                       setConfirmDeleteOpen(false)
                     }}
+                    onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                    onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
                   >
                     {t('user:usermenu.profile.delete.deleteAccount')}
                   </h2>
                   {deleteControlsOpen && !confirmDeleteOpen && (
                     <div className={styles.deleteContainer}>
                       <h3 className={styles.deleteText}>{t('user:usermenu.profile.delete.deleteControlsText')}</h3>
-                      <Button className={styles.deleteCancelButton} onClick={() => setDeleteControlsOpen(false)}>
+                      <Button
+                        className={styles.deleteCancelButton}
+                        onClick={() => setDeleteControlsOpen(false)}
+                        onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                        onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                      >
                         {t('user:usermenu.profile.delete.deleteControlsCancel')}
                       </Button>
                       <Button
@@ -706,6 +979,8 @@ const ProfileMenu = ({ className, hideLogin, isPopover, changeActiveMenu, onClos
                           setDeleteControlsOpen(false)
                           setConfirmDeleteOpen(true)
                         }}
+                        onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                        onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
                       >
                         {t('user:usermenu.profile.delete.deleteControlsConfirm')}
                       </Button>
@@ -721,6 +996,8 @@ const ProfileMenu = ({ className, hideLogin, isPopover, changeActiveMenu, onClos
                           AuthService.logoutUser()
                           setConfirmDeleteOpen(false)
                         }}
+                        onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                        onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
                       >
                         {t('user:usermenu.profile.delete.finalDeleteConfirm')}
                       </Button>
@@ -730,27 +1007,8 @@ const ProfileMenu = ({ className, hideLogin, isPopover, changeActiveMenu, onClos
                     </div>
                   )}
                 </div>
-              )}
+              }
             </section>
-
-            {selfUser && (
-              <div className={styles.themeSettingContainer}>
-                <h2 className={styles.themesHeading}>{t('user:usermenu.setting.themes')}</h2>
-                <Grid container spacing={2} sx={{ mt: 2 }}>
-                  {accessibleThemeModes.map((mode, index) => (
-                    <Grid key={index} item xs={12} sm={6} md={4}>
-                      <InputSelect
-                        name={mode}
-                        label={`${t(`user:usermenu.setting.${mode}`)} ${t('user:usermenu.setting.theme')}`}
-                        value={themeModes[mode]}
-                        menu={colorModesMenu}
-                        onChange={(e) => handleChangeUserThemeMode(e)}
-                      />
-                    </Grid>
-                  ))}
-                </Grid>
-              </div>
-            )}
           </>
         )}
       </section>

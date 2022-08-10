@@ -2,8 +2,8 @@ import type { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { createHyperStore, getState } from '@xrengine/hyperflux'
 import { HyperStore } from '@xrengine/hyperflux/functions/StoreFunctions'
 
-import { nowMilliseconds } from '../../common/functions/nowMilliseconds'
 import { NetworkTopics } from '../../networking/classes/Network'
+import { SCENE_COMPONENT_AUDIO_SETTINGS_DEFAULT_VALUES } from '../../scene/functions/loaders/AudioSettingFunctions'
 import type { World } from '../classes/World'
 import type { SystemModuleType } from '../functions/SystemFunctions'
 
@@ -34,6 +34,20 @@ export class Engine {
     getDispatchTime: () => Date.now(),
     defaultDispatchDelay: 1 / this.tickRate
   }) as HyperStore
+
+  audioContext: AudioContext
+  cameraGainNode: GainNode
+
+  gainNodeMixBuses = {
+    mediaStreams: null! as GainNode,
+    notifications: null! as GainNode,
+    music: null! as GainNode,
+    soundEffects: null! as GainNode
+  }
+
+  spatialAudioSettings = {
+    ...SCENE_COMPONENT_AUDIO_SETTINGS_DEFAULT_VALUES
+  }
 
   /**
    * Current frame timestamp, relative to performance.timeOrigin

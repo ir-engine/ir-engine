@@ -4,6 +4,7 @@ import { Quaternion, Vector3 } from 'three'
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { MediaComponent } from '../../scene/components/MediaComponent'
+import { MediaElementComponent } from '../../scene/components/MediaElementComponent'
 import { NameComponent } from '../../scene/components/NameComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { XRUIComponent } from '../../xrui/components/XRUIComponent'
@@ -11,11 +12,12 @@ import { createMediaControlsView } from '../ui/MediaControlsUI'
 
 export const createMediaControlsUI = (entity: Entity) => {
   const mediaComponent = getComponent(entity, MediaComponent)
+  const mediaElementComponent = getComponent(entity, MediaElementComponent)
 
-  const ui = createMediaControlsView(mediaComponent, entity)
+  const ui = createMediaControlsView({ playing: mediaComponent.playing }, entity)
 
   addComponent(ui.entity, NameComponent, {
-    name: 'mediacontrols-ui-' + (mediaComponent.el ? mediaComponent.el.src : entity)
+    name: 'mediacontrols-ui-' + mediaElementComponent.src
   })
 
   const xrui = getComponent(ui.entity, XRUIComponent)
@@ -25,12 +27,8 @@ export const createMediaControlsUI = (entity: Entity) => {
   })
 
   const transform = getComponent(entity, TransformComponent)
-
-  addComponent(ui.entity, TransformComponent, {
-    position: new Vector3().copy(transform.position),
-    rotation: new Quaternion(),
-    scale: new Vector3(1, 1, 1)
-  })
+  const uiTransform = getComponent(ui.entity, TransformComponent)
+  uiTransform.position.copy(transform.position)
 
   return ui
 }

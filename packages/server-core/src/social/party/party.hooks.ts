@@ -5,7 +5,7 @@ import addAssociations from '../../hooks/add-associations'
 import authenticate from '../../hooks/authenticate'
 import isInternalRequest from '../../hooks/isInternalRequest'
 import partyPermissionAuthenticate from '../../hooks/party-permission-authenticate'
-import restrictUserRole from '../../hooks/restrict-user-role'
+import verifyScope from '../../hooks/verify-scope'
 
 // Don't remove this comment. It's needed to format import lines nicely.
 
@@ -13,7 +13,7 @@ export default {
   before: {
     all: [authenticate(), isInternalRequest()],
     find: [
-      iff(isProvider('external'), restrictUserRole('admin') as any),
+      iff(isProvider('external'), verifyScope('admin', 'admin') as any),
       addAssociations({
         models: [
           {

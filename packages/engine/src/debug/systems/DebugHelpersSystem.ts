@@ -1,6 +1,7 @@
 import {
   ArrowHelper,
   Box3Helper,
+  CameraHelper,
   Color,
   ConeBufferGeometry,
   DoubleSide,
@@ -8,29 +9,39 @@ import {
   Mesh,
   MeshBasicMaterial,
   Object3D,
+  PerspectiveCamera,
   Quaternion,
   Vector3
 } from 'three'
 
-import { matches } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { addActionReceptor, createActionQueue, removeActionReceptor } from '@xrengine/hyperflux'
+import { createActionQueue, getState } from '@xrengine/hyperflux'
 
+import { AudioComponent } from '../../audio/components/AudioComponent'
+import { AudioElementNodes } from '../../audio/systems/AudioSystem'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { BoundingBoxComponent } from '../../interaction/components/BoundingBoxComponent'
+import { InteractorComponent } from '../../interaction/components/InteractorComponent'
 import { NavMeshComponent } from '../../navigation/component/NavMeshComponent'
 import { createGraphHelper } from '../../navigation/GraphHelper'
 import { createConvexRegionHelper } from '../../navigation/NavMeshHelper'
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
-import { accessEngineRendererState, EngineRendererAction } from '../../renderer/EngineRendererState'
+import {
+  accessEngineRendererState,
+  EngineRendererAction,
+  EngineRendererState
+} from '../../renderer/EngineRendererState'
 import InfiniteGridHelper from '../../scene/classes/InfiniteGridHelper'
+import { MediaElementComponent } from '../../scene/components/MediaElementComponent'
+import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { XRInputSourceComponent } from '../../xr/components/XRInputSourceComponent'
+import { XRInputSourceComponent } from '../../xr/XRComponents'
 import { DebugArrowComponent } from '../DebugArrowComponent'
 import { DebugNavMeshComponent } from '../DebugNavMeshComponent'
+import { PositionalAudioHelper } from '../PositionalAudioHelper'
 import { DebugRenderer } from './DebugRenderer'
 
 const vector3 = new Vector3()
@@ -52,7 +63,9 @@ export default async function DebugHelpersSystem(world: World) {
     helperArrow: new Map(),
     velocityArrow: new Map(),
     navmesh: new Map(),
-    navpath: new Map()
+    navpath: new Map(),
+    positionalAudioHelper: new Map(),
+    interactorFrustum: new Map()
   }
 
   const avatarDebugQuery = defineQuery([AvatarComponent, VelocityComponent, TransformComponent])
@@ -61,6 +74,8 @@ export default async function DebugHelpersSystem(world: World) {
   const ikAvatarQuery = defineQuery([XRInputSourceComponent])
   const navmeshQuery = defineQuery([DebugNavMeshComponent, NavMeshComponent])
   // const navpathQuery = defineQuery([AutoPilotComponent])
+  const audioHelper = defineQuery([AudioComponent])
+  const interactorQuery = defineQuery([InteractorComponent])
   // const navpathAddQuery = enterQuery(navpathQuery)
   // const navpathRemoveQuery = exitQuery(navpathQuery)
 
@@ -69,6 +84,9 @@ export default async function DebugHelpersSystem(world: World) {
       obj.visible = avatarDebugEnable
     })
     helpersByEntity.velocityArrow.forEach((obj: Object3D) => {
+      obj.visible = avatarDebugEnable
+    })
+    helpersByEntity.interactorFrustum.forEach((obj: Object3D) => {
       obj.visible = avatarDebugEnable
     })
     helpersByEntity.ikExtents.forEach((entry: Object3D[]) => {
@@ -92,6 +110,7 @@ export default async function DebugHelpersSystem(world: World) {
   return () => {
     for (const action of physicsDebugActionQueue()) physicsDebugUpdate(action.physicsDebugEnable)
     for (const action of avatarDebugActionQueue()) avatarDebugUpdate(action.avatarDebugEnable)
+    const debugEnabled = getState(EngineRendererState).avatarDebugEnable.value
 
     // ===== AVATAR ===== //
 
@@ -111,19 +130,20 @@ export default async function DebugHelpersSystem(world: World) {
       helpersByEntity.velocityArrow.delete(entity)
     }
 
-    for (const entity of avatarDebugQuery()) {
-      const avatar = getComponent(entity, AvatarComponent)
-      const velocity = getComponent(entity, VelocityComponent)
-      const transform = getComponent(entity, TransformComponent)
+    if (debugEnabled)
+      for (const entity of avatarDebugQuery()) {
+        const avatar = getComponent(entity, AvatarComponent)
+        const velocity = getComponent(entity, VelocityComponent)
+        const transform = getComponent(entity, TransformComponent)
 
-      // velocity
-      const velocityArrowHelper = helpersByEntity.velocityArrow.get(entity) as ArrowHelper
-      if (velocityArrowHelper != null) {
-        velocityArrowHelper.setDirection(vector3.copy(velocity.linear).normalize())
-        velocityArrowHelper.setLength(velocity.linear.length() * 20)
-        velocityArrowHelper.position.copy(transform.position).y += avatar.avatarHalfHeight
+        // velocity
+        const velocityArrowHelper = helpersByEntity.velocityArrow.get(entity) as ArrowHelper
+        if (velocityArrowHelper != null) {
+          velocityArrowHelper.setDirection(vector3.copy(velocity.linear).normalize())
+          velocityArrowHelper.setLength(velocity.linear.length() * 20)
+          velocityArrowHelper.position.copy(transform.position).y += avatar.avatarHalfHeight
+        }
       }
-    }
 
     for (const entity of ikAvatarQuery.enter()) {
       const engineRendererState = accessEngineRendererState()
@@ -139,16 +159,17 @@ export default async function DebugHelpersSystem(world: World) {
       helpersByEntity.ikExtents.set(entity, [debugHead, debugLeft, debugRight])
     }
 
-    for (const entity of ikAvatarQuery()) {
-      const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
-      const [debugHead, debugLeft, debugRight] = helpersByEntity.ikExtents.get(entity) as Object3D[]
-      debugHead.position.copy(xrInputSourceComponent.head.getWorldPosition(vector3))
-      debugHead.quaternion.copy(xrInputSourceComponent.head.getWorldQuaternion(quat))
-      debugLeft.position.copy(xrInputSourceComponent.controllerLeft.getWorldPosition(vector3))
-      debugLeft.quaternion.copy(xrInputSourceComponent.controllerLeft.getWorldQuaternion(quat))
-      debugRight.position.copy(xrInputSourceComponent.controllerRight.getWorldPosition(vector3))
-      debugRight.quaternion.copy(xrInputSourceComponent.controllerRight.getWorldQuaternion(quat))
-    }
+    if (debugEnabled)
+      for (const entity of ikAvatarQuery()) {
+        const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
+        const [debugHead, debugLeft, debugRight] = helpersByEntity.ikExtents.get(entity) as Object3D[]
+        debugHead.position.copy(xrInputSourceComponent.head.getWorldPosition(vector3))
+        debugHead.quaternion.copy(xrInputSourceComponent.head.getWorldQuaternion(quat))
+        debugLeft.position.copy(xrInputSourceComponent.controllerLeft.getWorldPosition(vector3))
+        debugLeft.quaternion.copy(xrInputSourceComponent.controllerLeft.getWorldQuaternion(quat))
+        debugRight.position.copy(xrInputSourceComponent.controllerRight.getWorldPosition(vector3))
+        debugRight.quaternion.copy(xrInputSourceComponent.controllerRight.getWorldQuaternion(quat))
+      }
 
     for (const entity of ikAvatarQuery.exit()) {
       ;(helpersByEntity.ikExtents.get(entity) as Object3D[]).forEach((obj: Object3D) => {
@@ -174,29 +195,29 @@ export default async function DebugHelpersSystem(world: World) {
 
     // ===== CUSTOM ===== //
 
-    for (const entity of arrowHelperQuery.enter()) {
-      const arrow = getComponent(entity, DebugArrowComponent)
-      const arrowHelper = new ArrowHelper(new Vector3(), new Vector3(0, 0, 0), 0.5, arrow.color)
-      arrowHelper.visible = accessEngineRendererState().physicsDebugEnable.value
-      Engine.instance.currentWorld.scene.add(arrowHelper)
-      helpersByEntity.helperArrow.set(entity, arrowHelper)
-    }
+    // for (const entity of arrowHelperQuery.enter()) {
+    //   const arrow = getComponent(entity, DebugArrowComponent)
+    //   const arrowHelper = new ArrowHelper(new Vector3(), new Vector3(0, 0, 0), 0.5, arrow.color)
+    //   arrowHelper.visible = accessEngineRendererState().physicsDebugEnable.value
+    //   Engine.instance.currentWorld.scene.add(arrowHelper)
+    //   helpersByEntity.helperArrow.set(entity, arrowHelper)
+    // }
 
-    for (const entity of arrowHelperQuery.exit()) {
-      const arrowHelper = helpersByEntity.helperArrow.get(entity) as Object3D
-      Engine.instance.currentWorld.scene.remove(arrowHelper)
-      helpersByEntity.helperArrow.delete(entity)
-    }
+    // for (const entity of arrowHelperQuery.exit()) {
+    //   const arrowHelper = helpersByEntity.helperArrow.get(entity) as Object3D
+    //   Engine.instance.currentWorld.scene.remove(arrowHelper)
+    //   helpersByEntity.helperArrow.delete(entity)
+    // }
 
-    for (const entity of arrowHelperQuery()) {
-      const arrow = getComponent(entity, DebugArrowComponent)
-      const arrowHelper = helpersByEntity.helperArrow.get(entity) as ArrowHelper
-      if (arrowHelper != null) {
-        arrowHelper.setDirection(arrow.direction.clone().normalize())
-        arrowHelper.setLength(arrow.direction.length())
-        arrowHelper.position.copy(arrow.position)
-      }
-    }
+    // if(debugEnabled)
+    //   for (const entity of arrowHelperQuery()) {
+    //     const arrow = getComponent(entity, DebugArrowComponent)
+    //     const arrowHelper = helpersByEntity.helperArrow.get(entity) as ArrowHelper
+    //     if (arrowHelper != null) {
+    //       arrowHelper.setDirection(arrow.direction.clone().normalize())
+    //       arrowHelper.position.copy(arrow.position)
+    //     }
+    //   }
 
     // ===== NAVMESH Helper ===== //
     for (const entity of navmeshQuery.enter()) {
@@ -211,20 +232,78 @@ export default async function DebugHelpersSystem(world: World) {
       Engine.instance.currentWorld.scene.add(helper)
       helpersByEntity.navmesh.set(entity, helper)
     }
-    for (const entity of navmeshQuery()) {
-      // update
-      const helper = helpersByEntity.navmesh.get(entity) as Object3D
-      const transform = getComponent(entity, TransformComponent)
-      helper.position.copy(transform.position)
-      // helper.quaternion.copy(transform.rotation)
-    }
+
     for (const entity of navmeshQuery.exit()) {
       const helper = helpersByEntity.navmesh.get(entity) as Object3D
       Engine.instance.currentWorld.scene.remove(helper)
       helpersByEntity.navmesh.delete(entity)
     }
+
+    if (debugEnabled)
+      for (const entity of navmeshQuery()) {
+        // update
+        const helper = helpersByEntity.navmesh.get(entity) as Object3D
+        const transform = getComponent(entity, TransformComponent)
+        helper.position.copy(transform.position)
+        // helper.quaternion.copy(transform.rotation)
+      }
     // ===== Autopilot Helper ===== //
     // TODO add createPathHelper for navpathQuery
+
+    for (const entity of interactorQuery.enter()) {
+      const interactor = getComponent(entity, InteractorComponent)
+      const helper = new CameraHelper(
+        getComponent(interactor.frustumCameraEntity, Object3DComponent).value as PerspectiveCamera
+      )
+      helpersByEntity.interactorFrustum.set(entity, helper)
+      Engine.instance.currentWorld.scene.add(helper)
+      helper.userData.isHelper = true
+      helper.visible = false
+    }
+
+    for (const entity of interactorQuery.exit()) {
+      const helper = helpersByEntity.interactorFrustum.get(entity)
+      Engine.instance.currentWorld.scene.remove(helper)
+      helpersByEntity.interactorFrustum.delete(entity)
+    }
+
+    if (debugEnabled)
+      for (const entity of interactorQuery()) {
+        const interactor = getComponent(entity, InteractorComponent)
+        const helper = helpersByEntity.interactorFrustum.get(entity) as CameraHelper
+        helper.matrix.copy(
+          (getComponent(interactor.frustumCameraEntity, Object3DComponent).value as PerspectiveCamera).matrix
+        )
+      }
+
+    // todo refactor this
+    if (Engine.instance.isEditor) {
+      for (const entity of audioHelper.exit()) {
+        const obj3d = getComponent(entity, Object3DComponent, true)
+        const helper = helpersByEntity.positionalAudioHelper.get(entity)
+        helper.dispose()
+        obj3d.value.remove(helper)
+        helpersByEntity.positionalAudioHelper.delete(entity)
+      }
+
+      if (debugEnabled)
+        for (const entity of audioHelper()) {
+          const obj3d = getComponent(entity, Object3DComponent)
+          const mediaComponent = getComponent(entity, MediaElementComponent)
+          const audioEl = AudioElementNodes.get(mediaComponent)!
+
+          if (!helpersByEntity.positionalAudioHelper.has(entity)) {
+            const helper = new PositionalAudioHelper(audioEl)
+            // helper.visible = false
+            helpersByEntity.positionalAudioHelper.set(entity, helper)
+            obj3d.value.add(helper)
+            helper.userData.isHelper = true
+          }
+
+          const helper = helpersByEntity.positionalAudioHelper.get(entity)
+          audioEl.panner && helper?.update()
+        }
+    }
 
     physicsDebugRenderer(world, accessEngineRendererState().physicsDebugEnable.value)
   }

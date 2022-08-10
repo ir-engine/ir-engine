@@ -1,11 +1,7 @@
-import { Texture, TextureLoader, Wrapping } from 'three'
-
 import { AssetLoader } from '../../../assets/classes/AssetLoader'
-import { AssetClass } from '../../../assets/enum/AssetClass'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent, removeComponent } from '../../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
-import loadVideoTexture from '../../../renderer/materials/LoadVideoTexture'
 import { DefaultArguments } from '../../../renderer/materials/MaterialLibrary'
 import { formatMaterialArgs } from '../../../renderer/materials/Utilities'
 import { MaterialOverrideComponent, MaterialOverrideComponentType } from '../../components/MaterialOverrideComponent'

@@ -69,7 +69,7 @@ const ProtectedRoutes = () => {
     }
   })
 
-  if (admin?.id?.value?.length! > 0 && admin?.userRole?.value !== 'admin') {
+  if (admin?.id?.value?.length! > 0 && !admin?.scopes?.value?.find((scope) => scope.type === 'admin:admin')) {
     return <Redirect to={{ pathname: '/', state: { from: '/admin' } }} />
   }
 

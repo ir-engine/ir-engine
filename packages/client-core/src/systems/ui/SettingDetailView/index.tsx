@@ -15,10 +15,12 @@ import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { AvatarControllerType, AvatarMovementScheme } from '@xrengine/engine/src/input/enums/InputEnums'
 import { EngineRendererAction, useEngineRendererState } from '@xrengine/engine/src/renderer/EngineRendererState'
+import { XRState } from '@xrengine/engine/src/xr/XRState'
 import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
-import { dispatchAction } from '@xrengine/hyperflux'
+import { dispatchAction, getState, useHookstate } from '@xrengine/hyperflux'
 
 import { BlurLinear, Mic, VolumeUp } from '@mui/icons-material'
+import SurroundSoundIcon from '@mui/icons-material/SurroundSound'
 
 import { AuthService, useAuthState } from '../../../user/services/AuthService'
 import XRCheckboxButton from '../../components/XRCheckboxButton'
@@ -40,9 +42,8 @@ const SettingDetailView = () => {
   const { t } = useTranslation()
   const rendererState = useEngineRendererState()
   const audioState = useAudioState()
-  const engineState = useEngineState()
+  const xrSessionActive = useHookstate(getState(XRState).sessionActive)
   const avatarInputState = useAvatarInputSettingsState()
-  const [controlTypeSelected, setControlType] = useState(avatarInputState.controlType.value)
   const [controlSchemeSelected, setControlScheme] = useState(
     AvatarMovementScheme[AvatarSettings.instance.movementScheme]
   )
@@ -99,7 +100,6 @@ const SettingDetailView = () => {
   }
 
   const handleChangeControlType = (value) => {
-    setControlType(value as any)
     dispatchAction(AvatarInputSettingsAction.setControlType(value as any))
   }
 
@@ -145,15 +145,12 @@ const SettingDetailView = () => {
               <VolumeUp />
               <XRSlider
                 labelContent={t('user:usermenu.setting.lbl-volume')}
-                min="1"
-                max="100"
-                value={userSettings?.volume == null ? 100 : userSettings?.volume}
+                min="0"
+                max="1"
+                step="0.01"
+                value={audioState.masterVolume.value}
                 onChange={(event: any) => {
-                  setUserSettings({ volume: parseInt(event.target.value) })
-                  const mediaElements = document.querySelectorAll<HTMLMediaElement>('video, audio')
-                  for (let i = 0; i < mediaElements.length; i++) {
-                    mediaElements[i].volume = parseInt(event.target.value) / 100
-                  }
+                  dispatchAction(AudioSettingAction.setMasterVolume({ value: parseInt(event.target.value) }))
                 }}
               />
             </div>
@@ -161,11 +158,12 @@ const SettingDetailView = () => {
               <Mic />
               <XRSlider
                 labelContent={t('user:usermenu.setting.lbl-microphone')}
-                min="1"
-                max="100"
-                value={userSettings?.microphone == null ? 100 : userSettings?.microphone}
+                min="0"
+                max="1"
+                step="0.01"
+                value={audioState.microphoneGain.value}
                 onChange={(event: any) => {
-                  setUserSettings({ microphone: parseInt(event.target.value) })
+                  dispatchAction(AudioSettingAction.setMicrophoneVolume({ value: parseInt(event.target.value) }))
                 }}
               />
             </div>
@@ -178,16 +176,25 @@ const SettingDetailView = () => {
             {showAudioDetails && (
               <>
                 <div className="sectionRow">
+                  <SurroundSoundIcon />
+                  <XRCheckboxButton
+                    labelContent={t('user:usermenu.setting.use-positional-audio')}
+                    checked={audioState.usePositionalAudio.value}
+                    onChange={(_, value: boolean) => {
+                      dispatchAction(AudioSettingAction.setUsePositionalAudio({ value }))
+                    }}
+                  />
+                </div>
+                <div className="sectionRow">
                   <VolumeUp />
                   <XRSlider
                     labelContent={t('user:usermenu.setting.lbl-media-instance')}
-                    min="1"
-                    max="100"
-                    value={audioState.mediaStreamVolume.value == null ? 100 : audioState.mediaStreamVolume.value}
+                    min="0"
+                    max="1"
+                    step="0.01"
+                    value={audioState.mediaStreamVolume.value}
                     onChange={(event: any) => {
-                      dispatchAction(
-                        AudioSettingAction.setMediaStreamVolume({ mediastreamVolume: parseInt(event.target.value) })
-                      )
+                      dispatchAction(AudioSettingAction.setMediaStreamVolume({ value: parseInt(event.target.value) }))
                     }}
                   />
                 </div>
@@ -195,13 +202,12 @@ const SettingDetailView = () => {
                   <VolumeUp />
                   <XRSlider
                     labelContent={t('user:usermenu.setting.lbl-notification')}
-                    min="1"
-                    max="100"
-                    value={audioState.notificationVolume.value == null ? 100 : audioState.notificationVolume.value}
+                    min="0"
+                    max="1"
+                    step="0.01"
+                    value={audioState.notificationVolume.value}
                     onChange={(event: any) => {
-                      dispatchAction(
-                        AudioSettingAction.setNotification({ notificationVolume: parseInt(event.target.value) })
-                      )
+                      dispatchAction(AudioSettingAction.setNotificationVolume({ value: parseInt(event.target.value) }))
                     }}
                   />
                 </div>
@@ -209,13 +215,12 @@ const SettingDetailView = () => {
                   <VolumeUp />
                   <XRSlider
                     labelContent={t('user:usermenu.setting.lbl-sound-effect')}
-                    min="1"
-                    max="100"
-                    value={audioState.soundEffectsVolume.value == null ? 100 : audioState.soundEffectsVolume.value}
+                    min="0"
+                    max="1"
+                    step="0.01"
+                    value={audioState.soundEffectsVolume.value}
                     onChange={(event: any) => {
-                      dispatchAction(
-                        AudioSettingAction.setSoundEffectsVolume({ soundEffectsVolume: parseInt(event.target.value) })
-                      )
+                      dispatchAction(AudioSettingAction.setSoundEffectsVolume({ value: parseInt(event.target.value) }))
                     }}
                   />
                 </div>
@@ -223,15 +228,14 @@ const SettingDetailView = () => {
                   <VolumeUp />
                   <XRSlider
                     labelContent={t('user:usermenu.setting.lbl-background-music-volume')}
-                    min="1"
-                    max="100"
-                    value={
-                      audioState.backgroundMusicVolume.value == null ? 100 : audioState.backgroundMusicVolume.value
-                    }
+                    min="0"
+                    max="1"
+                    step="0.01"
+                    value={audioState.backgroundMusicVolume.value}
                     onChange={(event: any) => {
                       dispatchAction(
-                        AudioSettingAction.setBackgroundMusicVolume({
-                          backgroundMusicVolume: parseInt(event.target.value)
+                        AudioSettingAction.setMusicVolume({
+                          value: parseInt(event.target.value)
                         })
                       )
                     }}
@@ -288,7 +292,7 @@ const SettingDetailView = () => {
             />
           </div>
         </section>
-        {engineState.xrSupported.value && (
+        {xrSessionActive.value && (
           <>
             <section className="settingView">
               <h4 className="title">{t('user:usermenu.setting.xrusersetting')}</h4>
@@ -339,7 +343,7 @@ const SettingDetailView = () => {
                 <div className="selectSize">
                   <span className="checkBoxLabel">{t('user:usermenu.setting.lbl-control-type')}</span>
                   <XRSelectDropdown
-                    value={controlTypeSelected}
+                    value={avatarInputState.controlType.value}
                     onChange={handleChangeControlType}
                     options={controllerTypes}
                   />

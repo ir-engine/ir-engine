@@ -49,7 +49,7 @@ export class IdentityProvider<T = IdentityProviderInterface> extends Service<T> 
       }
     }
     if (
-      (!user || user.userRole !== 'admin') &&
+      (!user || !user.scopes || !user.scopes.find((scope) => scope.type === 'admin:admin')) &&
       params.provider &&
       type !== 'password' &&
       type !== 'email' &&
@@ -160,20 +160,24 @@ export class IdentityProvider<T = IdentityProviderInterface> extends Service<T> 
     const code = await getFreeInviteCode(this.app)
     // if there is no user with userId, then we create a user and a identity provider.
     const adminCount = await this.app.service('user').Model.count({
-      where: {
-        userRole: 'admin'
-      }
+      include: [
+        {
+          model: this.app.service('scope').Model,
+          where: {
+            type: 'admin:admin'
+          }
+        }
+      ]
     })
     const avatars = await this.app.service('avatar').find({ isInternal: true })
 
-    let role = type === 'guest' ? 'guest' : type === 'admin' || adminCount === 0 ? 'admin' : 'user'
+    let isGuest = type === 'guest'
 
     if (adminCount === 0) {
       // in dev mode make the first guest an admin
       // otherwise make the first logged in user an admin
-      if (isDev || role === 'user') {
+      if (isDev || !isGuest) {
         type = 'admin'
-        role = 'admin'
       }
     }
 
@@ -185,7 +189,7 @@ export class IdentityProvider<T = IdentityProviderInterface> extends Service<T> 
           ...identityProvider,
           user: {
             id: userId,
-            userRole: role,
+            isGuest,
             inviteCode: type === 'guest' ? null : code,
             avatarId: avatars[random(avatars.length - 1)].avatarId
           }

@@ -79,7 +79,7 @@ export const AdminBotService = {
       const user = accessAuthState().user
       const skip = accessAdminBotState().skip.value
       const limit = accessAdminBotState().limit.value
-      if (user.userRole.value === 'admin') {
+      if (user.scopes?.value?.find((scope) => scope.type === 'admin:admin')) {
         const bots = (await API.instance.client.service('bot').find({
           query: {
             $sort: {

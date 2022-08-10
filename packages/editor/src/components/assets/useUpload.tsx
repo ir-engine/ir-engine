@@ -37,7 +37,7 @@ export default function useUpload(options: Props = {}) {
     if (item.isFile) {
       let accepted = false
       for (const pattern of accepts) {
-        if (item.name.endsWith(pattern)) {
+        if (item.name.toLowerCase().endsWith(pattern)) {
           accepted = true
           break
         }

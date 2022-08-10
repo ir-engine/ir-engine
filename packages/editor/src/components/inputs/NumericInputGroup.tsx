@@ -33,13 +33,7 @@ function BaseNumericInputGroup({ name, className, label, ...rest }: NumericInput
     <InputGroupContainer>
       <Grid container spacing="10px">
         <Grid item xs={3} display="flex" alignItems="center" justifyContent="end">
-          <InfoTooltip
-            className="tooltip"
-            title={label ?? name}
-            disableInteractive
-            placement="right-start"
-            followCursor
-          >
+          <InfoTooltip className="tooltip" title={label ?? name}>
             <Scrubber {...scrubberProps}>{label}</Scrubber>
           </InfoTooltip>
         </Grid>
