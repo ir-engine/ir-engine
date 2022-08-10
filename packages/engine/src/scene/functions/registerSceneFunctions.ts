@@ -39,6 +39,11 @@ import {
   updateDirectionalLight
 } from './loaders/DirectionalLightFunctions'
 import {
+  deserializeDynamicLoad,
+  SCENE_COMPONENT_DYNAMIC_LOAD,
+  serializeDynamicLoad
+} from './loaders/DynamicLoadFunctions'
+import {
   deserializeEnvMapBake,
   SCENE_COMPONENT_ENVMAP_BAKE,
   serializeEnvMapBake,
@@ -208,6 +213,11 @@ export const registerDefaultSceneFunctions = (world: World) => {
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_TRANSFORM, {
     deserialize: deserializeTransform,
     serialize: serializeTransform
+  })
+
+  world.sceneLoadingRegistry.set(SCENE_COMPONENT_DYNAMIC_LOAD, {
+    deserialize: deserializeDynamicLoad,
+    serialize: serializeDynamicLoad
   })
 
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_VISIBLE, {

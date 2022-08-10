@@ -9,29 +9,22 @@ import {
   RGBAFormat,
   Scene,
   sRGBEncoding,
-  Vector3,
-  VideoTexture
+  Vector3
 } from 'three'
 
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
 import { AssetLoader } from '../../../assets/classes/AssetLoader'
-import {
-  ComponentDeserializeFunction,
-  ComponentSerializeFunction,
-  ComponentUpdateFunction
-} from '../../../common/constants/PrefabFunctionType'
+import { ComponentDeserializeFunction, ComponentSerializeFunction } from '../../../common/constants/PrefabFunctionType'
 import { isClient } from '../../../common/functions/isClient'
 import { Engine } from '../../../ecs/classes/Engine'
-import { EngineActions } from '../../../ecs/classes/EngineState'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
-import { matchActionOnce } from '../../../networking/functions/matchActionOnce'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { EnvmapComponent, EnvmapComponentType } from '../../components/EnvmapComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 import { EnvMapSourceType, EnvMapTextureType } from '../../constants/EnvMapEnum'
-import { getPmremGenerator, loadCubeMapTexture, textureLoader } from '../../constants/Util'
+import { getPmremGenerator, loadCubeMapTexture } from '../../constants/Util'
 import { SceneOptions } from '../../systems/SceneObjectSystem'
 import { EnvMapBakeTypes } from '../../types/EnvMapBakeTypes'
 import { addError, removeError } from '../ErrorFunctions'

@@ -1,7 +1,7 @@
 import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
 
 export type SceneDynamicLoadTagComponentType = {
-  distance: 20
+  distance: number
 }
 
 export const SceneDynamicLoadTagComponent =

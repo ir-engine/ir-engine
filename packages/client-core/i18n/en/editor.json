@@ -122,7 +122,8 @@
     "title": "Properties",
     "lbl-visible": "Visible",
     "lbl-preventBake": "Prevent Bake",
-    "lbl-persist": "Persist",
+    "lbl-dynamicLoad": "Load Dynamically",
+    "lbl-dynamicLoadDistance": "Distance",
     "multipleNodeSelected": "Multiple Nodes of different types selected",
     "noNodeSelected": "No node selected",
     "ambientLight": {

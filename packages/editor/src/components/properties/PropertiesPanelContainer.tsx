@@ -9,6 +9,7 @@ import { PreventBakeTagComponent } from '@xrengine/engine/src/scene/components/P
 import { SceneDynamicLoadTagComponent } from '@xrengine/engine/src/scene/components/SceneDynamicLoadTagComponent'
 import { SceneTagComponent } from '@xrengine/engine/src/scene/components/SceneTagComponent'
 import { VisibleComponent } from '@xrengine/engine/src/scene/components/VisibleComponent'
+import { SCENE_COMPONENT_DYNAMIC_LOAD } from '@xrengine/engine/src/scene/functions/loaders/DynamicLoadFunctions'
 import { SCENE_COMPONENT_PERSIST } from '@xrengine/engine/src/scene/functions/loaders/PersistFunctions'
 import { SCENE_COMPONENT_PREVENT_BAKE } from '@xrengine/engine/src/scene/functions/loaders/PreventBakeFunctions'
 import { SCENE_COMPONENT_VISIBLE } from '@xrengine/engine/src/scene/functions/loaders/VisibleFunctions'
@@ -53,15 +54,6 @@ const VisibleInputGroup = (styled as any)(InputGroup)`
 `
 
 /**
- * Styled component used to provide styles for visiblity checkbox.
- */
-const PersistInputGroup = (styled as any)(InputGroup)`
- & > label {
-   width: auto !important;
- }
-`
-
-/**
  * PropertiesPanelContent used as container element contains content of editor view.
  * @type {Styled Component}
  */
@@ -102,7 +94,7 @@ export const PropertiesPanelContainer = () => {
       operations: [
         {
           component: SceneDynamicLoadTagComponent,
-          sceneComponentName: SCENE_COMPONENT_VISIBLE,
+          sceneComponentName: SCENE_COMPONENT_DYNAMIC_LOAD,
           type: value ? TagComponentOperation.ADD : TagComponentOperation.REMOVE
         }
       ]
@@ -129,19 +121,6 @@ export const PropertiesPanelContainer = () => {
         {
           component: PreventBakeTagComponent,
           sceneComponentName: SCENE_COMPONENT_PREVENT_BAKE,
-          type: value ? TagComponentOperation.ADD : TagComponentOperation.REMOVE
-        }
-      ]
-    })
-  }
-
-  const onChangePersist = (value) => {
-    executeCommandWithHistoryOnSelection({
-      type: EditorCommands.TAG_COMPONENT,
-      operations: [
-        {
-          component: PersistTagComponent,
-          sceneComponentName: SCENE_COMPONENT_PERSIST,
           type: value ? TagComponentOperation.ADD : TagComponentOperation.REMOVE
         }
       ]
@@ -175,6 +154,7 @@ export const PropertiesPanelContainer = () => {
                     value={hasComponent(nodeEntity, SceneDynamicLoadTagComponent)}
                     onChange={onChangeDynamicLoad}
                   />
+                  {/** @todo add a slider for distance */}
                 </VisibleInputGroup>
                 <VisibleInputGroup name="Visible" label={t('editor:properties.lbl-visible')}>
                   <BooleanInput value={hasComponent(nodeEntity, VisibleComponent)} onChange={onChangeVisible} />
@@ -188,9 +168,6 @@ export const PropertiesPanelContainer = () => {
               </>
             )}
           </NameInputGroupContainer>
-          <PersistInputGroup name="Persist" label={t('editor:properties.lbl-persist')}>
-            <BooleanInput value={hasComponent(nodeEntity, PersistTagComponent)} onChange={onChangePersist} />
-          </PersistInputGroup>
           {transform && <TransformPropertyGroup node={node} />}
         </PropertiesHeader>
         {editors.map((Editor, i) => (

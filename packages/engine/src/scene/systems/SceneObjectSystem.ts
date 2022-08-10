@@ -1,5 +1,5 @@
 import { Not } from 'bitecs'
-import { Material, Mesh, Vector3 } from 'three'
+import { BufferGeometry, Material, Mesh, Vector3 } from 'three'
 
 import { createActionQueue, getState } from '@xrengine/hyperflux'
 
@@ -110,7 +110,7 @@ export default async function SceneObjectSystem(world: World) {
 
   return () => {
     for (const entity of sceneObjectQuery.exit()) {
-      const obj3d = getComponent(entity, Object3DComponent, true).value
+      const obj3d = getComponent(entity, Object3DComponent, true).value as Mesh
 
       if (!obj3d.parent) console.warn('[Object3DComponent]: Scene object has been removed manually.')
       else obj3d.removeFromParent()
@@ -119,6 +119,11 @@ export default async function SceneObjectSystem(world: World) {
       for (const layer of layers) {
         if (layer.has(obj3d)) layer.delete(obj3d)
       }
+
+      obj3d.traverse((mesh: Mesh) => {
+        ;(mesh.material as Material)?.dispose()
+        ;(mesh.geometry as BufferGeometry)?.dispose()
+      })
     }
 
     for (const entity of sceneObjectQuery.enter()) {

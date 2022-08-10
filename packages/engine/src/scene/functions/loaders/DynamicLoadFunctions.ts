@@ -23,13 +23,12 @@ export const deserializeDynamicLoad: ComponentDeserializeFunction = (
   getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_DYNAMIC_LOAD)
 }
 
-export const serializeVisible: ComponentSerializeFunction = (entity) => {
-  if (hasComponent(entity, SceneDynamicLoadTagComponent)) {
-    return {
-      name: SCENE_COMPONENT_DYNAMIC_LOAD,
-      props: {
-        distance: 20
-      }
+export const serializeDynamicLoad: ComponentSerializeFunction = (entity) => {
+  const dynamicLoad = getComponent(entity, SceneDynamicLoadTagComponent)
+  return {
+    name: SCENE_COMPONENT_DYNAMIC_LOAD,
+    props: {
+      distance: dynamicLoad.distance
     }
   }
 }
@@ -38,7 +37,6 @@ export const parseDynamicLoadProperties = (
   props: SceneDynamicLoadTagComponentType
 ): SceneDynamicLoadTagComponentType => {
   return {
-    ...SCENE_COMPONENT_DYNAMIC_LOAD_DEFAULT_VALUES,
-    distance: props.distance
+    distance: props.distance ?? SCENE_COMPONENT_DYNAMIC_LOAD_DEFAULT_VALUES.distance
   }
 }
