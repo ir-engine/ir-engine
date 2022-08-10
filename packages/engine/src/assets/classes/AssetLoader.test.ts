@@ -14,7 +14,7 @@ describe('AssetLoader', async () => {
   describe('processModelAsset', () => {
     it('should work for gltf asset', async () => {
       const asset = new Mesh()
-      assert.doesNotThrow(() => AssetLoader.processModelAsset(asset))
+      assert.doesNotThrow(() => AssetLoader.processModelAsset(asset, {}))
     })
   })
 
