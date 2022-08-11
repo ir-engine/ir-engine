@@ -1,4 +1,3 @@
-import { Ed25519Signature2020 } from '@digitalcredentials/ed25519-signature-2020'
 import { useHookstate } from '@hookstate/core'
 import * as polyfill from 'credential-handler-polyfill'
 import React, { useEffect, useState } from 'react'
@@ -8,7 +7,7 @@ import { useLocation } from 'react-router-dom'
 
 import { validateEmail, validatePhoneNumber } from '@xrengine/common/src/config'
 import { defaultThemeModes, defaultThemeSettings } from '@xrengine/common/src/constants/DefaultThemeSettings'
-import { generateDid, IKeyPairDescription, issueCredential } from '@xrengine/common/src/identity'
+import { requestVcForEvent } from '@xrengine/common/src/credentials/credentials'
 import multiLogger from '@xrengine/common/src/logger'
 import capitalizeFirstLetter from '@xrengine/common/src/utils/capitalizeFirstLetter'
 import { AudioEffectPlayer } from '@xrengine/engine/src/audio/systems/AudioSystem'
@@ -57,6 +56,7 @@ const ProfileMenu = ({ className, hideLogin, isPopover, changeActiveMenu, onClos
   const location = useLocation()
 
   const selfUser = useAuthState().user
+  console.log('USER:', selfUser)
 
   const [username, setUsername] = useState(selfUser?.name.value)
   const [emailPhone, setEmailPhone] = useState('')
@@ -128,6 +128,7 @@ const ProfileMenu = ({ className, hideLogin, isPopover, changeActiveMenu, onClos
     const settings = { ...userSettings, themeModes: { ...themeModes, [name]: value } }
     userSettings && AuthService.updateUserSettings(userSettings.id as string, settings)
   }
+
   let type = ''
   const addMoreSocial =
     (authState?.discord && !oauthConnectedState.discord) ||
@@ -255,8 +256,8 @@ const ProfileMenu = ({ className, hideLogin, isPopover, changeActiveMenu, onClos
   }
 
   const handleLogout = async (e) => {
-    if (changeActiveMenu != null) changeActiveMenu(null)
-    else if (onClose != null) onClose()
+    if (changeActiveMenu) changeActiveMenu(null)
+    else if (onClose) onClose()
     setShowUserId(false)
     setShowApiKey(false)
     await AuthService.logoutUser()
@@ -268,87 +269,29 @@ const ProfileMenu = ({ className, hideLogin, isPopover, changeActiveMenu, onClos
    * Handler API (CHAPI) to request to store this VC in the user's wallet.
    *
    * This is here in the ProfileMenu just for convenience -- it can be invoked
-   * by the engine whenever appropriate (whenever a user performs some in-engine action,
-   * makes a payment, etc).
+   * by the client (browser) whenever appropriate (whenever a user performs
+   * some in-engine action, makes a payment, etc).
    */
   async function handleIssueCredentialClick() {
-    // Typically, this would be loaded directly from an env var (or other secret mgmt mechanism)
-    // And used to bootstrap a client into a hardware KMS (Key Management System)
-    // In this example, the secret seed is provided directly (obviously, don't do this)
-    const CREDENTIAL_SIGNING_SECRET_KEY_SEED = 'z1AZK4h5w5YZkKYEgqtcFfvSbWQ3tZ3ZFgmLsXMZsTVoeK7'
-
-    // Generate a DID Document and corresponding key pairs from the seed
-    const { didDocument, methodFor } = await generateDid(CREDENTIAL_SIGNING_SECRET_KEY_SEED)
-
-    // 'methodFor' serves as a wrapper/getter method for public/private key pairs
-    // that were generated as a result of DID Doc creation.
-    // It's a way to fetch keys not by ID (since that's quite opaque/random) but
-    // by their usage purpose -- assertionMethod (for signing VCs), authentication (for DID Auth),
-    // keyAgreement (for encrypting), etc.
-    const key = methodFor({ purpose: 'assertionMethod' }) as IKeyPairDescription
-
-    // This would typically be the Ethereal Engine's own DID, generated and cached at
-    // startup from a secret.
-    const issuer = didDocument.id
-
-    // TODO: Extract from the logged in user's session
-    const userDid = 'did:example:user:1234'
-
-    const suite = new Ed25519Signature2020({ key })
-
-    // Example VC that denotes that a user has entered a door / 3d volume
-    const unsignedCredential = {
-      '@context': [
-        'https://www.w3.org/2018/credentials/v1',
-        // The object below is a temporary (in-line) context, used for an example
-        // Once we settle on what our VC content is (what types we want to issue, etc)
-        // We'll fold them all into the 'https://w3id.org/xr/v1' context
-        {
-          etherealEvent: 'https://w3id.org/xr/v1#etherealEvent',
-          EnteredVolumeEvent: 'https://w3id.org/xr/v1#EnteredVolumeEvent',
-          CheckpointEvent: 'https://w3id.org/xr/v1#CheckpointEvent',
-          checkpointId: 'https://w3id.org/xr/v1#checkpointId'
-        }
-      ],
-      type: ['VerifiableCredential'],
-      issuer,
-      issuanceDate: '2022-01-01T19:23:24Z',
-      credentialSubject: {
-        id: userDid,
-        etherealEvent: [
-          {
-            type: ['EnteredVolumeEvent', 'CheckpointEvent'],
-            checkpointId: '12345'
-          }
-        ]
-      }
-    }
-
-    const signedVc = await issueCredential(unsignedCredential, suite)
-
-    console.log('Issued VC:', JSON.stringify(signedVc, null, 2))
-
-    // Wrap the VC in an unsigned Verifiable Presentation
-    const vp = {
-      '@context': ['https://www.w3.org/2018/credentials/v1'],
-      type: 'VerifiablePresentation',
-      verifiableCredential: [signedVc]
-    }
+    const signedVp = await requestVcForEvent('EnteredVolumeEvent')
+    console.log('Issued VC:', JSON.stringify(signedVp, null, 2))
 
     const webCredentialType = 'VerifiablePresentation'
     // @ts-ignore
-    const webCredentialWrapper = new window.WebCredential(webCredentialType, vp, {
-      // recommendedHandlerOrigins: []
+    const webCredentialWrapper = new window.WebCredential(webCredentialType, signedVp, {
+      recommendedHandlerOrigins: ['https://uniwallet.cloud']
     })
 
     // Use Credential Handler API to store
     const result = await navigator.credentials.store(webCredentialWrapper)
-
     console.log('Result of receiving via store() request:', result)
   }
 
+  /**
+   * Example function, requests a Verifiable Credential from the user's wallet.
+   */
   async function handleRequestCredentialClick() {
-    const vcRequestQuery: any = {
+    const vpRequestQuery: any = {
       web: {
         VerifiablePresentation: {
           query: [
@@ -368,7 +311,7 @@ const ProfileMenu = ({ className, hideLogin, isPopover, changeActiveMenu, onClos
       }
     }
 
-    const result = await navigator.credentials.get(vcRequestQuery)
+    const result = await navigator.credentials.get(vpRequestQuery)
 
     console.log('VC Request query result:', result)
   }
@@ -384,7 +327,26 @@ const ProfileMenu = ({ className, hideLogin, isPopover, changeActiveMenu, onClos
         VerifiablePresentation: {
           query: [
             {
-              type: 'DIDAuth'
+              type: 'DIDAuth' // request the controller's DID
+            },
+            {
+              type: 'QueryByExample',
+              credentialQuery: [
+                {
+                  example: {
+                    '@context': ['https://www.w3.org/2018/credentials/v1', 'https://w3id.org/xr/v1'],
+                    // contains username and avatar icon
+                    type: 'LoginDisplayCredential'
+                  }
+                },
+                {
+                  example: {
+                    '@context': ['https://www.w3.org/2018/credentials/v1', 'https://w3id.org/xr/v1'],
+                    // various Ethereal Engine user preferences
+                    type: 'UserPreferencesCredential'
+                  }
+                }
+              ]
             }
           ],
           challenge,
@@ -464,7 +426,7 @@ const ProfileMenu = ({ className, hideLogin, isPopover, changeActiveMenu, onClos
         <section className={styles.profileBlock}>
           <div className={styles.avatarBlock}>
             <img src={getAvatarURLForUser(userAvatarDetails, userId)} alt="" crossOrigin="anonymous" />
-            {changeActiveMenu != null && (
+            {changeActiveMenu && (
               <Button
                 className={styles.avatarBtn}
                 id="select-avatar"
@@ -564,7 +526,7 @@ const ProfileMenu = ({ className, hideLogin, isPopover, changeActiveMenu, onClos
                 </div>
               }
             </h4>
-            {selfUser?.inviteCode.value != null && (
+            {selfUser?.inviteCode.value && (
               <h2>
                 {t('user:usermenu.profile.inviteCode')}: {selfUser.inviteCode.value}
               </h2>

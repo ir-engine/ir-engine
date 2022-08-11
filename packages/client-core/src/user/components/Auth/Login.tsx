@@ -23,6 +23,10 @@ const TabPanel = ({ children, value, index }: Props): JSX.Element => {
   return <Fragment>{value === index && children}</Fragment>
 }
 
+/**
+ * Used for Editor's SignInPage.tsx only.
+ * @constructor
+ */
 const SignIn = (): JSX.Element => {
   const authSettingState = useAuthSettingState()
   const [authSetting] = authSettingState?.authSettings?.value || []
