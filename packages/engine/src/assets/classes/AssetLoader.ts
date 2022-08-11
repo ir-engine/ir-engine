@@ -59,8 +59,8 @@ export function disposeDracoLoaderWorkers(): void {
 export const loadExtensions = async (gltf: GLTF) => {
   if (isClient) {
     const bvhTraverse: Promise<void>[] = []
-    gltf.scene.traverse((mesh) => {
-      bvhTraverse.push(generateMeshBVH(mesh))
+    gltf.scene.traverse((mesh: Mesh) => {
+      mesh?.isMesh && bvhTraverse.push(generateMeshBVH(mesh))
     })
     await Promise.all(bvhTraverse)
   }
