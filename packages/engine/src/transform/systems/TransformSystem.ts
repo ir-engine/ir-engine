@@ -1,4 +1,4 @@
-import { Box3, Quaternion, Vector3 } from 'three'
+import { Box3, Mesh, Quaternion, Vector3 } from 'three'
 
 import logger from '@xrengine/common/src/logger'
 import { insertionSort } from '@xrengine/common/src/utils/insertionSort'
@@ -10,6 +10,7 @@ import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
+import { BoundingBoxComponent, BoundingBoxDynamicTag } from '../../interaction/components/BoundingBoxComponents'
 import { NetworkObjectOwnedTag } from '../../networking/components/NetworkObjectOwnedTag'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { RigidBodyDynamicTagComponent } from '../../physics/components/RigidBodyDynamicTagComponent'
@@ -21,7 +22,6 @@ import { TransformComponent } from '../components/TransformComponent'
 
 const scratchVector3 = new Vector3()
 const scratchQuaternion = new Quaternion()
-const aabb = new Box3()
 
 const ownedDynamicRigidBodyQuery = defineQuery([
   RigidBodyComponent,
@@ -33,6 +33,9 @@ const ownedDynamicRigidBodyQuery = defineQuery([
 const transformObjectQuery = defineQuery([TransformComponent, Object3DComponent])
 const transformQuery = defineQuery([TransformComponent])
 const spawnPointQuery = defineQuery([SpawnPointComponent])
+
+const staticBoundingBoxQuery = defineQuery([Object3DComponent, BoundingBoxComponent])
+const dynamicBoundingBoxQuery = defineQuery([Object3DComponent, BoundingBoxComponent, BoundingBoxDynamicTag])
 
 const updateTransformFromBody = (world: World, entity: Entity) => {
   const { body, previousPosition, previousRotation, previousLinearVelocity, previousAngularVelocity } = getComponent(
@@ -84,6 +87,24 @@ export default async function TransformSystem(world: World) {
     const aDepth = computedReferenceDepths.get(a)!
     const bDepth = computedReferenceDepths.get(b)!
     return aDepth - bDepth
+  }
+
+  const computeBoundingBox = (entity: Entity) => {
+    const box = getComponent(entity, BoundingBoxComponent).box
+    const obj = getComponent(entity, Object3DComponent).value
+    obj.traverse((child) => {
+      const mesh = child as Mesh
+      if (mesh.isMesh) {
+        mesh.geometry.computeBoundingBox()
+      }
+    })
+    box.setFromObject(obj)
+  }
+
+  const updateBoundingBox = (entity: Entity) => {
+    const box = getComponent(entity, BoundingBoxComponent).box
+    const obj = getComponent(entity, Object3DComponent).value
+    box.setFromObject(obj)
   }
 
   return () => {
@@ -153,5 +174,8 @@ export default async function TransformSystem(world: World) {
         }
       }
     }
+
+    for (const entity of staticBoundingBoxQuery.enter()) computeBoundingBox(entity)
+    for (const entity of dynamicBoundingBoxQuery()) updateBoundingBox(entity)
   }
 }

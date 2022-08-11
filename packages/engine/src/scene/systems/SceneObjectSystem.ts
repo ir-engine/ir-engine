@@ -11,7 +11,6 @@ import { EngineActions, EngineState, getEngineState } from '../../ecs/classes/En
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
-import { BoundingBoxComponent, BoundingBoxDynamicTag } from '../../interaction/components/BoundingBoxComponents'
 import { XRUIComponent } from '../../xrui/components/XRUIComponent'
 import { NameComponent } from '../components/NameComponent'
 import { Object3DComponent } from '../components/Object3DComponent'
@@ -86,12 +85,6 @@ const updateSimpleMaterials = (sceneObjectEntities: Entity[]) => {
   }
 }
 
-const computeBoundingBox = (entity: Entity) => {
-  const box = getComponent(entity, BoundingBoxComponent).box
-  const obj = getComponent(entity, Object3DComponent).value
-  box.setFromObject(obj)
-}
-
 export default async function SceneObjectSystem(world: World) {
   SceneOptions.instance = new SceneOptions()
 
@@ -107,9 +100,6 @@ export default async function SceneObjectSystem(world: World) {
   const visibleQuery = defineQuery([Object3DComponent, VisibleComponent])
   const notVisibleQuery = defineQuery([Object3DComponent, Not(VisibleComponent)])
   const updatableQuery = defineQuery([Object3DComponent, UpdatableComponent])
-
-  const staticBoundingBoxQuery = defineQuery([Object3DComponent, BoundingBoxComponent])
-  const dynamicBoundingBoxQuery = defineQuery([Object3DComponent, BoundingBoxComponent, BoundingBoxDynamicTag])
 
   const useSimpleMaterialsActionQueue = createActionQueue(EngineActions.useSimpleMaterials.matches)
 
@@ -182,8 +172,5 @@ export default async function SceneObjectSystem(world: World) {
       const obj = getComponent(entity, Object3DComponent)?.value as unknown as Updatable
       obj?.update(fixedDelta)
     }
-
-    for (const entity of staticBoundingBoxQuery.enter()) computeBoundingBox(entity)
-    for (const entity of dynamicBoundingBoxQuery()) computeBoundingBox(entity)
   }
 }

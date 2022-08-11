@@ -187,11 +187,10 @@ export default async function DebugHelpersSystem(world: World) {
     }
 
     for (const entity of boundingBoxQuery.enter()) {
-      const obj = getComponent(entity, Object3DComponent).value
       const boundingBox = getComponent(entity, BoundingBoxComponent)
       const helper = new Box3Helper(boundingBox.box)
       helpersByEntity.box.set(entity, helper)
-      obj.add(helper)
+      Engine.instance.currentWorld.scene.add(helper)
     }
 
     // ===== CUSTOM ===== //

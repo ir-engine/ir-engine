@@ -13,14 +13,14 @@ import { BoundingBoxComponent } from '../components/BoundingBoxComponents'
 import { InteractorComponent } from '../components/InteractorComponent'
 
 const mat4 = new Matrix4()
-const projectionMatrix = new Matrix4().makePerspective(
-  -0.1, // x1
-  0.1, // x2
-  -0.1, // y1
-  0.1, // y2
-  0.1, // near
-  2 // far
-)
+// const projectionMatrix = new Matrix4().makePerspective(
+//   -0.1, // x1
+//   0.1, // x2
+//   -0.1, // y1
+//   0.1, // y2
+//   0.1, // near
+//   2 // far
+// )
 const frustum = new Frustum()
 
 const distanceSort = (a: any, b: any) => a[1] - b[1]
@@ -44,7 +44,7 @@ export const interactBoxRaycast = (entity: Entity, raycastList: Entity[]) => {
   frustumCamera.updateMatrixWorld()
   frustumCamera.matrixWorldInverse.copy(frustumCamera.matrixWorld).invert()
 
-  mat4.multiplyMatrices(projectionMatrix, frustumCamera.matrixWorldInverse)
+  mat4.multiplyMatrices(frustumCamera.projectionMatrix, frustumCamera.matrixWorldInverse)
   frustum.setFromProjectionMatrix(mat4)
 
   const subFocusedArray = [] as [Entity, number][]
