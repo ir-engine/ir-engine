@@ -72,7 +72,7 @@ export class Engine {
    */
   worlds: World[] = []
 
-  publicPath: string = null!
+  publicPath = ''
 
   simpleMaterials = false
   xrFrame: XRFrame
