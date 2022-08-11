@@ -21,10 +21,9 @@ import { TransformComponent } from '../../transform/components/TransformComponen
 import { createTransitionState } from '../../xrui/functions/createTransitionState'
 import { createXRUI } from '../../xrui/functions/createXRUI'
 import { ObjectFitFunctions } from '../../xrui/functions/ObjectFitFunctions'
-import { BoundingBoxComponent } from '../components/BoundingBoxComponent'
+import { BoundingBoxComponent, setBoundingBoxComponent } from '../components/BoundingBoxComponents'
 import { InteractableComponent } from '../components/InteractableComponent'
 import { InteractorComponent } from '../components/InteractorComponent'
-import { createBoxComponent } from '../functions/createBoxComponent'
 import { interactBoxRaycast } from '../functions/interactBoxRaycast'
 import { createInteractUI } from '../functions/interactUI'
 
@@ -73,7 +72,7 @@ export const addInteractableUI = (
   update?: (entity: Entity, xrui: ReturnType<typeof createXRUI>) => void
 ) => {
   if (!hasComponent(entity, BoundingBoxComponent)) {
-    createBoxComponent(entity)
+    setBoundingBoxComponent(entity)
   }
   if (!hasComponent(entity, InteractableComponent)) {
     addComponent(entity, InteractableComponent, SCENE_COMPONENT_INTERACTABLE_DEFAULT_VALUES)

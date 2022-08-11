@@ -1,4 +1,4 @@
-import { Box3, Mesh, Quaternion, Vector3 } from 'three'
+import { Box3, Quaternion, Vector3 } from 'three'
 
 import logger from '@xrengine/common/src/logger'
 import { insertionSort } from '@xrengine/common/src/utils/insertionSort'
@@ -10,8 +10,6 @@ import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
-import { BoundingBoxComponent } from '../../interaction/components/BoundingBoxComponent'
-import { BoundingBoxDynamicTagComponent } from '../../interaction/components/BoundingBoxDynamicTagComponent'
 import { NetworkObjectOwnedTag } from '../../networking/components/NetworkObjectOwnedTag'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { RigidBodyDynamicTagComponent } from '../../physics/components/RigidBodyDynamicTagComponent'
@@ -35,12 +33,6 @@ const ownedDynamicRigidBodyQuery = defineQuery([
 const transformObjectQuery = defineQuery([TransformComponent, Object3DComponent])
 const transformQuery = defineQuery([TransformComponent])
 const spawnPointQuery = defineQuery([SpawnPointComponent])
-const boundingBoxQuery = defineQuery([
-  TransformComponent,
-  BoundingBoxComponent,
-  BoundingBoxDynamicTagComponent,
-  Object3DComponent
-])
 
 const updateTransformFromBody = (world: World, entity: Entity) => {
   const { body, previousPosition, previousRotation, previousLinearVelocity, previousAngularVelocity } = getComponent(
@@ -160,28 +152,6 @@ export default async function TransformSystem(world: World) {
           }
         }
       }
-    }
-
-    for (const entity of boundingBoxQuery()) {
-      const boundingBox = getComponent(entity, BoundingBoxComponent)
-
-      let hasBoxExpanded = false
-      const object3D = getComponent(entity, Object3DComponent).value
-
-      // expand bounding box
-      object3D.traverse((obj3d) => {
-        const mesh = obj3d as Mesh
-        if (mesh.isMesh) {
-          aabb.copy(mesh.geometry.boundingBox!)
-          aabb.applyMatrix4(mesh.matrixWorld)
-          if (hasBoxExpanded) {
-            boundingBox.box.union(aabb)
-          } else {
-            boundingBox.box.copy(aabb)
-            hasBoxExpanded = true
-          }
-        }
-      })
     }
   }
 }

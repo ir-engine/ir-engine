@@ -9,7 +9,7 @@ import { Entity } from '../../ecs/classes/Entity'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { BoundingBoxComponent } from '../components/BoundingBoxComponent'
+import { BoundingBoxComponent } from '../components/BoundingBoxComponents'
 import { InteractorComponent } from '../components/InteractorComponent'
 
 const mat4 = new Matrix4()
@@ -50,9 +50,9 @@ export const interactBoxRaycast = (entity: Entity, raycastList: Entity[]) => {
   const subFocusedArray = [] as [Entity, number][]
 
   for (const entityIn of raycastList) {
-    const boundingBox = getComponent(entityIn, BoundingBoxComponent)
-    if (boundingBox?.box && frustum.intersectsBox(boundingBox.box)) {
-      subFocusedArray.push([entityIn, boundingBox.box.distanceToPoint(transform.position)])
+    const box = getComponent(entityIn, BoundingBoxComponent).box
+    if (!box.isEmpty() && frustum.intersectsBox(box)) {
+      subFocusedArray.push([entityIn, box.distanceToPoint(transform.position)])
     }
   }
 
