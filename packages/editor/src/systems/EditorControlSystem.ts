@@ -20,6 +20,7 @@ import { getEntityNodeArrayFromEntities } from '@xrengine/engine/src/ecs/functio
 import InfiniteGridHelper from '@xrengine/engine/src/scene/classes/InfiniteGridHelper'
 import TransformGizmo from '@xrengine/engine/src/scene/classes/TransformGizmo'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
+import { ObjectLayers } from '@xrengine/engine/src/scene/constants/ObjectLayers'
 import {
   SnapMode,
   TransformAxis,
@@ -123,7 +124,7 @@ export default async function EditorControlSystem(_: World) {
   const getRaycastPosition = (coords: Vector2, target: Vector3, snapAmount: number = 0): void => {
     raycaster.setFromCamera(coords, Engine.instance.currentWorld.camera)
     raycasterResults.length = 0
-    raycastIgnoreLayers.set(1)
+    raycastIgnoreLayers.set(ObjectLayers.Gizmos)
     const os = selectionState.selectedParentEntities.value.map(
       (entity) => getComponent(entity, Object3DComponent).value
     )

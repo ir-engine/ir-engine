@@ -124,7 +124,7 @@ export const getMaxCamDistance = (cameraEntity: Entity, target: Vector3) => {
 
   camRayCastClock.start()
 
-  const sceneObjects = Array.from(Engine.instance.currentWorld.objectLayerList[ObjectLayers.Scene] || [])
+  const sceneObjects = Array.from(Engine.instance.currentWorld.objectLayerList[ObjectLayers.Camera] || [])
 
   // Raycast to keep the line of sight with avatar
   const cameraTransform = getComponent(Engine.instance.currentWorld.cameraEntity, TransformComponent)
@@ -136,7 +136,7 @@ export const getMaxCamDistance = (cameraEntity: Entity, target: Vector3) => {
   let maxDistance = Math.min(followCamera.maxDistance, raycastProps.rayLength)
 
   // Check hit with mid ray
-  raycaster.layers.set(ObjectLayers.Scene) // Ignore avatars
+  raycaster.layers.set(ObjectLayers.Camera) // Ignore avatars
   raycaster.firstHitOnly = true // three-mesh-bvh setting
   raycaster.far = followCamera.maxDistance
   raycaster.set(target, targetToCamVec.normalize())

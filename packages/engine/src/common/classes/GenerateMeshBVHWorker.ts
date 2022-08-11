@@ -34,7 +34,7 @@ export class GenerateMeshBVHWorker {
     const { worker } = this
     this.running = true
 
-    return new Promise((resolve, reject) => {
+    return new Promise<MeshBVH>((resolve, reject) => {
       worker.onmessage = (e) => {
         this.running = false
         worker.onmessage = null

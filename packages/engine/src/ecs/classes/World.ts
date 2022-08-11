@@ -1,9 +1,9 @@
 import { EventQueue } from '@dimforge/rapier3d-compat'
 import * as bitecs from 'bitecs'
-import { Object3D, OrthographicCamera, PerspectiveCamera, Raycaster, Scene } from 'three'
+import { Object3D, OrthographicCamera, PerspectiveCamera, Raycaster, Scene, Vector3 } from 'three'
 
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
-import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
+import { ComponentJson, EntityJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import multiLogger from '@xrengine/common/src/logger'
 import { getState } from '@xrengine/hyperflux'
@@ -158,6 +158,30 @@ export class World {
    * Reference to the three.js scene object.
    */
   scene = new Scene()
+
+  /**
+   * A set of promises for assets that are being fetched for scene loading
+   */
+  sceneLoadingPendingAssets = new Set<Promise<void>>()
+
+  sceneDynamicallyUnloadedEntities = new Map<
+    string,
+    {
+      json: EntityJson
+      position: Vector3
+      distance: number
+    }
+  >()
+
+  sceneDynamicallyLoadedEntities = new Map<
+    Entity,
+    {
+      json: EntityJson
+      position: Vector3
+      distance: number
+      uuid: string
+    }
+  >()
 
   /**
    * Reference to the three.js perspective camera object.
