@@ -334,6 +334,8 @@ function castShape(world: World, shapecastQuery: ComponentType<typeof ShapecastC
 const drainCollisionEventQueue = (physicsWorld: World) => (handle1: number, handle2: number, started: boolean) => {
   const collider1 = physicsWorld.getCollider(handle1)
   const collider2 = physicsWorld.getCollider(handle2)
+  if (!collider1 || !collider2) return
+
   const isTriggerEvent = collider1.isSensor() || collider2.isSensor()
   const rigidBody1 = collider1.parent()
   const rigidBody2 = collider2.parent()

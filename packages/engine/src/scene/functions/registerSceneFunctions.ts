@@ -50,6 +50,7 @@ import {
   updateEnvMapBake
 } from './loaders/EnvMapBakeFunctions'
 import { deserializeEnvMap, SCENE_COMPONENT_ENVMAP, serializeEnvMap } from './loaders/EnvMapFunctions'
+import { deserializeEquippable, SCENE_COMPONENT_EQUIPPABLE, serializeEquippable } from './loaders/EquippableFunctions'
 import {
   deserializeFog,
   SCENE_COMPONENT_FOG,
@@ -496,5 +497,10 @@ export const registerDefaultSceneFunctions = (world: World) => {
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_MOUNT_POINT, {
     deserialize: deserializeMountPoint,
     serialize: serializeMountPoint
+  })
+
+  world.sceneLoadingRegistry.set(SCENE_COMPONENT_EQUIPPABLE, {
+    deserialize: deserializeEquippable,
+    serialize: serializeEquippable
   })
 }

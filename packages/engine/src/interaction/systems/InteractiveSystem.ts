@@ -2,8 +2,6 @@ import { WebLayer3D } from '@etherealjs/web-layer/three'
 import { Not } from 'bitecs'
 import { Vector3 } from 'three'
 
-import { createState } from '@xrengine/hyperflux/functions/StateFunctions'
-
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { getAvatarBoneWorldPosition } from '../../avatar/functions/avatarFunctions'
 import { Engine } from '../../ecs/classes/Engine'
@@ -20,35 +18,32 @@ import { HighlightComponent } from '../../renderer/components/HighlightComponent
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { SCENE_COMPONENT_INTERACTABLE_DEFAULT_VALUES } from '../../scene/functions/loaders/InteractableFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { XRUIComponent } from '../../xrui/components/XRUIComponent'
 import { createTransitionState } from '../../xrui/functions/createTransitionState'
 import { createXRUI } from '../../xrui/functions/createXRUI'
-import { BoundingBoxComponent } from '../components/BoundingBoxComponent'
+import { ObjectFitFunctions } from '../../xrui/functions/ObjectFitFunctions'
 import { InteractableComponent } from '../components/InteractableComponent'
 import { InteractorComponent } from '../components/InteractorComponent'
-import { createBoxComponent } from '../functions/createBoxComponent'
-import { interactBoxRaycast } from '../functions/interactBoxRaycast'
+import { gatherFocussedInteractives } from '../functions/gatherFocussedInteractives'
 import { createInteractUI } from '../functions/interactUI'
 
-type InteractiveType = {
+export type InteractiveType = {
   xrui: ReturnType<typeof createXRUI>
   update: (entity: Entity, xrui: ReturnType<typeof createXRUI>) => void
 }
 
-const InteractiveUI = new Map<Entity, InteractiveType>()
-const Transitions = new Map<Entity, ReturnType<typeof createTransitionState>>()
+export const InteractiveUI = new Map<Entity, InteractiveType>()
+export const InteractableTransitions = new Map<Entity, ReturnType<typeof createTransitionState>>()
 
 const vec3 = new Vector3()
 
-const onUpdate = (entity: Entity, mountPoint: ReturnType<typeof createInteractUI>) => {
+export const onInteractableUpdate = (entity: Entity, xrui: ReturnType<typeof createInteractUI>) => {
   const world = Engine.instance.currentWorld
-  const xrui = getComponent(mountPoint.entity, XRUIComponent)
-  const transform = getComponent(mountPoint.entity, TransformComponent)
+  const transform = getComponent(xrui.entity, TransformComponent)
   if (!transform || !getComponent(world.localClientEntity, TransformComponent)) return
   transform.position.copy(getComponent(entity, TransformComponent).position)
   transform.rotation.copy(getComponent(entity, TransformComponent).rotation)
   transform.position.y += 1
-  const transition = Transitions.get(entity)!
+  const transition = InteractableTransitions.get(entity)!
   getAvatarBoneWorldPosition(world.localClientEntity, 'Hips', vec3)
   const distance = vec3.distanceToSquared(transform.position)
   const inRange = distance < 5
@@ -64,28 +59,26 @@ const onUpdate = (entity: Entity, mountPoint: ReturnType<typeof createInteractUI
       mat.opacity = opacity
     })
   })
+  ObjectFitFunctions.lookAtCameraFromPosition(xrui.container, transform.position)
 }
 
-export const getInteractiveUI = (entity) => InteractiveUI.get(entity)
-export const removeInteractiveUI = (entity) => InteractiveUI.delete(entity)
+export const getInteractiveUI = (entity: Entity) => InteractiveUI.get(entity)
+export const removeInteractiveUI = (entity: Entity) => InteractiveUI.delete(entity)
 
 export const addInteractableUI = (
   entity: Entity,
   xrui: ReturnType<typeof createXRUI>,
   update?: (entity: Entity, xrui: ReturnType<typeof createXRUI>) => void
 ) => {
-  if (!hasComponent(entity, BoundingBoxComponent)) {
-    createBoxComponent(entity)
-  }
   if (!hasComponent(entity, InteractableComponent)) {
     addComponent(entity, InteractableComponent, SCENE_COMPONENT_INTERACTABLE_DEFAULT_VALUES)
   }
 
   if (!update) {
-    update = onUpdate
+    update = onInteractableUpdate
     const transition = createTransitionState(0.25)
     transition.setState('OUT')
-    Transitions.set(entity, transition)
+    InteractableTransitions.set(entity, transition)
   }
 
   InteractiveUI.set(entity, { xrui, update })
@@ -99,7 +92,7 @@ export default async function InteractiveSystem(world: World) {
 
   return () => {
     for (const entity of interactableQuery.exit()) {
-      if (Transitions.has(entity)) Transitions.delete(entity)
+      if (InteractableTransitions.has(entity)) InteractableTransitions.delete(entity)
       if (InteractiveUI.has(entity)) InteractiveUI.delete(entity)
       if (hasComponent(entity, HighlightComponent)) removeComponent(entity, HighlightComponent)
     }
@@ -111,11 +104,10 @@ export default async function InteractiveSystem(world: World) {
         const { update, xrui } = InteractiveUI.get(entity)!
         update(entity, xrui)
       }
-      if (hasComponent(entity, HighlightComponent)) removeComponent(entity, HighlightComponent)
     }
 
     for (const entity of interactorsQuery()) {
-      interactBoxRaycast(entity, interactives)
+      gatherFocussedInteractives(entity, interactives)
       const interactor = getComponent(entity, InteractorComponent)
       if (interactor.focusedInteractive) {
         if (!hasComponent(interactor.focusedInteractive, HighlightComponent)) {

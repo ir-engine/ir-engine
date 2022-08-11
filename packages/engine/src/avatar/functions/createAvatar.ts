@@ -148,10 +148,9 @@ export const createAvatarController = (entity: Entity) => {
 
   const frustumCameraEntity = createEntity()
 
-  const frustumCamera = new PerspectiveCamera(45, 2, 0.1, 2)
+  const frustumCamera = new PerspectiveCamera(45, 2, 0.1, 5)
   frustumCamera.rotateY(Math.PI)
 
-  const _vec3 = new Vector3()
   const _cameraDirection = new Vector3()
   const _mat = new Matrix4()
 
@@ -168,13 +167,11 @@ export const createAvatarController = (entity: Entity) => {
     frustumCamera.quaternion.copy(targetTransform.rotation)
     frustumCamera.updateWorldMatrix(false, false)
 
-    _vec3.copy(avatarTransform.position)
-    _vec3.y += avatarComponent.avatarHeight * 0.95
-    frustumCamera.worldToLocal(_vec3)
-    _vec3.z += 1
-    frustumCamera.localToWorld(_vec3)
-
-    targetTransform.position.copy(_vec3)
+    targetTransform.position.copy(avatarTransform.position)
+    targetTransform.position.y += avatarComponent.avatarHeight * 0.95
+    frustumCamera.worldToLocal(targetTransform.position)
+    targetTransform.position.z += 1
+    frustumCamera.localToWorld(targetTransform.position)
   })
 
   Engine.instance.currentWorld.scene.add(frustumCamera)

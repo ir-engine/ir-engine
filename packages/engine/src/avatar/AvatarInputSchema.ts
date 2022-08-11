@@ -98,45 +98,16 @@ const grip = (entity: Entity, inputKey: InputAlias, inputValue: InputValue): voi
  */
 
 const interact = (entity: Entity, inputKey: InputAlias, inputValue: InputValue): void => {
-  /** @todo refactor this into new interactable implementation */
-
   if (inputValue.lifecycleState !== LifecycleValue.Started) return
-  // const parityValue = getParityFromInputValue(inputKey)
-
-  // const equipperComponent = getComponent(entity, EquipperComponent)
-  // if (equipperComponent?.equippedEntity) {
-  //   const equippedComponent = getComponent(equipperComponent.equippedEntity, EquippedComponent)
-  //   const attachmentPoint = equippedComponent.attachmentPoint
-  //   const currentParity = getParity(attachmentPoint)
-  //   if (currentParity !== parityValue) {
-  //     changeHand(entity, getAttachmentPoint(parityValue))
-  //   } else {
-  //     drop(entity, inputKey, inputValue)
-  //   }
-  //   return
-  // }
+  const parityValue = getParityFromInputValue(inputKey)
 
   const interactor = getComponent(entity, InteractorComponent)
   if (!interactor?.focusedInteractive) return
 
-  // const interactiveComponent = getComponent(interactor.focusedInteractive, InteractableComponent).value
-  // // TODO: Define interaction types in some enum?
-  // if (interactiveComponent.interactionType === 'equippable') {
-  //   if (
-  //     !interactiveComponent.validUserId ||
-  //     (interactiveComponent.validUserId && interactiveComponent.validUserId === Engine.instance.userId)
-  //   ) {
-  //     const attachmentPoint = getAttachmentPoint(parityValue)
-  //     equipEntity(entity, interactor.focusedInteractive, attachmentPoint)
-  //   } else {
-  //     console.warn('Invalid user is trying to equip.')
-  //   }
-  // } else {
-  //   addComponent(interactor.focusedInteractive, InteractedComponent, { interactor: entity, parity: parityValue })
-  // }
   dispatchAction(
     EngineActions.interactedWithObject({
-      targetEntity: interactor.focusedInteractive
+      targetEntity: interactor.focusedInteractive,
+      parityValue
     })
   )
 }

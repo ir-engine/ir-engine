@@ -5,7 +5,6 @@ import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
 import { getComponent } from '../../../ecs/functions/ComponentFunctions'
 import { Physics } from '../../../physics/classes/Physics'
-import { RigidBodyComponent } from '../../../physics/components/RigidBodyComponent'
 import { ColliderDescOptions } from '../../../physics/types/PhysicsTypes'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
@@ -29,6 +28,9 @@ export const deserializeCollider: ComponentDeserializeFunction = (
   getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_COLLIDER)
 }
 
+/**
+ * since this is only ever used from gltf metadata, we dont yet need to support serialisation
+ */
 export const serializeCollider: ComponentSerializeFunction = (entity) => {
   return undefined!
 }

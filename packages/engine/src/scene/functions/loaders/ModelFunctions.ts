@@ -9,6 +9,7 @@ import { isClient } from '../../../common/functions/isClient'
 import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent, removeComponent } from '../../../ecs/functions/ComponentFunctions'
+import { setBoundingBoxComponent } from '../../../interaction/components/BoundingBoxComponents'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { MaterialOverrideComponentType } from '../../components/MaterialOverrideComponent'
 import { ModelComponent, ModelComponentType } from '../../components/ModelComponent'
@@ -28,8 +29,7 @@ export const SCENE_COMPONENT_MODEL_DEFAULT_VALUE = {
   generateBVH: false,
   matrixAutoUpdate: true,
   useBasicMaterial: false,
-  isUsingGPUInstancing: false,
-  isDynamicObject: false
+  isUsingGPUInstancing: false
 } as ModelComponentType
 
 export const deserializeModel: ComponentDeserializeFunction = (
@@ -38,6 +38,7 @@ export const deserializeModel: ComponentDeserializeFunction = (
 ) => {
   const props = parseModelProperties(component.props)
   const model = addComponent(entity, ModelComponent, props)
+  setBoundingBoxComponent(entity)
 
   getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_MODEL)
   //add material override components
@@ -123,8 +124,7 @@ export const serializeModel: ComponentSerializeFunction = (entity) => {
       generateBVH: component.generateBVH,
       matrixAutoUpdate: component.matrixAutoUpdate,
       useBasicMaterial: component.useBasicMaterial,
-      isUsingGPUInstancing: component.isUsingGPUInstancing,
-      isDynamicObject: component.isDynamicObject
+      isUsingGPUInstancing: component.isUsingGPUInstancing
     }
   }
 }
@@ -136,7 +136,6 @@ const parseModelProperties = (props): ModelComponentType => {
     generateBVH: props.generateBVH ?? SCENE_COMPONENT_MODEL_DEFAULT_VALUE.generateBVH,
     matrixAutoUpdate: props.matrixAutoUpdate ?? SCENE_COMPONENT_MODEL_DEFAULT_VALUE.matrixAutoUpdate,
     useBasicMaterial: props.useBasicMaterial ?? SCENE_COMPONENT_MODEL_DEFAULT_VALUE.useBasicMaterial,
-    isUsingGPUInstancing: props.isUsingGPUInstancing ?? SCENE_COMPONENT_MODEL_DEFAULT_VALUE.isUsingGPUInstancing,
-    isDynamicObject: props.isDynamicObject ?? SCENE_COMPONENT_MODEL_DEFAULT_VALUE.isDynamicObject
+    isUsingGPUInstancing: props.isUsingGPUInstancing ?? SCENE_COMPONENT_MODEL_DEFAULT_VALUE.isUsingGPUInstancing
   }
 }

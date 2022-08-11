@@ -496,8 +496,7 @@
             "generateBVH": true,
             "matrixAutoUpdate": true,
             "useBasicMaterial": false,
-            "isUsingGPUInstancing": false,
-            "isDynamicObject": false
+            "isUsingGPUInstancing": false
           }
         },
         {

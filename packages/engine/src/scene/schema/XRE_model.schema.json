@@ -10,8 +10,7 @@
     "envMapOverride": { "type": "string" },
     "textureOverride": { "type": "string" },
     "matrixAutoUpdate": { "type": "boolean" },
-    "isUsingGPUInstancing": { "type": "boolean" },
-    "isDynamicObject": { "type": "boolean" }
+    "isUsingGPUInstancing": { "type": "boolean" }
   },
   "extensions": {},
   "extras": {}

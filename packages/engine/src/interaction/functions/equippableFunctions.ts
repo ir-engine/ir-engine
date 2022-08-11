@@ -3,9 +3,9 @@ import { dispatchAction } from '@xrengine/hyperflux'
 import { ParityValue } from '../../common/enums/ParityValue'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
-import { addComponent, getComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
-import { NetworkTopics } from '../../networking/classes/Network'
+import { getComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
+import { NetworkObjectOwnedTag } from '../../networking/components/NetworkObjectOwnedTag'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { EquippedComponent } from '../components/EquippedComponent'
 import { EquipperComponent } from '../components/EquipperComponent'
@@ -17,40 +17,57 @@ export const equipEntity = (
   attachmentPoint: EquippableAttachmentPoint = EquippableAttachmentPoint.RIGHT_HAND
 ): void => {
   if (!hasComponent(equipperEntity, EquipperComponent) && !hasComponent(equippedEntity, EquippedComponent)) {
-    addComponent(equipperEntity, EquipperComponent, { equippedEntity, data: {} as any })
-    addComponent(equippedEntity, EquippedComponent, { equipperEntity, attachmentPoint })
-    dispatchEquipEntity(equippedEntity, true)
+    const networkComponent = getComponent(equippedEntity, NetworkObjectComponent)
+    if (networkComponent.authorityUserId === Engine.instance.userId) {
+      dispatchAction(
+        WorldNetworkAction.setEquippedObject({
+          object: {
+            networkId: networkComponent.networkId,
+            ownerId: networkComponent.ownerId
+          },
+          equip: true,
+          attachmentPoint
+        })
+      )
+    } else {
+      dispatchAction(
+        WorldNetworkAction.requestAuthorityOverObject({
+          networkId: networkComponent.networkId,
+          ownerId: networkComponent.ownerId,
+          newAuthority: Engine.instance.userId,
+          $to: networkComponent.authorityUserId
+        })
+      )
+    }
   }
 }
 
 export const unequipEntity = (equipperEntity: Entity): void => {
-  console.log('unequip')
   const equipperComponent = getComponent(equipperEntity, EquipperComponent)
   if (!equipperComponent) return
-
-  console.log(equipperComponent)
   removeComponent(equipperEntity, EquipperComponent)
-  dispatchEquipEntity(equipperComponent.equippedEntity, false)
-}
-
-const dispatchEquipEntity = (equippedEntity: Entity, equip: boolean): void => {
-  const world = Engine.instance.currentWorld
-  if (Engine.instance.userId === world.worldNetwork.hostId) return
-
-  const equippedComponent = getComponent(equippedEntity, EquippedComponent)
-  const attachmentPoint = equippedComponent.attachmentPoint
-  const networkComponet = getComponent(equippedEntity, NetworkObjectComponent)
-
-  dispatchAction(
-    WorldNetworkAction.setEquippedObject({
-      object: {
-        ownerId: networkComponet.ownerId,
-        networkId: networkComponet.networkId
-      },
-      attachmentPoint: attachmentPoint,
-      equip: equip
-    })
-  )
+  const networkComponent = getComponent(equipperComponent.equippedEntity, NetworkObjectComponent)
+  const networkOwnerComponent = getComponent(equipperComponent.equippedEntity, NetworkObjectOwnedTag)
+  if (networkComponent.authorityUserId === Engine.instance.userId) {
+    dispatchAction(
+      WorldNetworkAction.setEquippedObject({
+        object: {
+          networkId: networkComponent.networkId,
+          ownerId: networkComponent.ownerId
+        },
+        equip: false,
+        attachmentPoint: null!
+      })
+    )
+  } else {
+    dispatchAction(
+      WorldNetworkAction.transferAuthorityOfObject({
+        networkId: networkComponent.networkId,
+        ownerId: networkComponent.ownerId,
+        newAuthority: networkComponent.authorityUserId
+      })
+    )
+  }
 }
 
 export const changeHand = (equipperEntity: Entity, attachmentPoint: EquippableAttachmentPoint): void => {

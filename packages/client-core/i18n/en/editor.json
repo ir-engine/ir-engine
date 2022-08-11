@@ -246,7 +246,7 @@
       "lbl-isAvatar": "Is Avatar",
       "lbl-useBasicMaterials": "Use Basic Materials",
       "lbl-isGPUInstancing": "Is Using GPU Instancing",
-      "lbl-isDynamic": "Is Dynamic",
+      "lbl-isEquippable": "Is Equippable",
       "lbl-castShadow": "Cast Shadow",
       "lbl-receiveShadow": "Receive Shadow",
       "lbl-interactable": "Interactable",

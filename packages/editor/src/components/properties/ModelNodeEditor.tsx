@@ -6,21 +6,22 @@ import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
 import { AnimationManager } from '@xrengine/engine/src/avatar/AnimationManager'
 import { AnimationComponent } from '@xrengine/engine/src/avatar/components/AnimationComponent'
 import { LoopAnimationComponent } from '@xrengine/engine/src/avatar/components/LoopAnimationComponent'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
-import { getComponent, hasComponent, removeComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import {
+  addComponent,
+  getComponent,
+  hasComponent,
+  removeComponent
+} from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { traverseEntityNode } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
-import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
-import { InteractableComponent } from '@xrengine/engine/src/interaction/components/InteractableComponent'
+import { EquippableComponent } from '@xrengine/engine/src/interaction/components/EquippableComponent'
 import { EntityNodeComponent } from '@xrengine/engine/src/scene/components/EntityNodeComponent'
 import { ErrorComponent } from '@xrengine/engine/src/scene/components/ErrorComponent'
 import { ModelComponent } from '@xrengine/engine/src/scene/components/ModelComponent'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
-import {
-  deserializeInteractable,
-  SCENE_COMPONENT_INTERACTABLE,
-  SCENE_COMPONENT_INTERACTABLE_DEFAULT_VALUES
-} from '@xrengine/engine/src/scene/functions/loaders/InteractableFunctions'
+import { SCENE_COMPONENT_EQUIPPABLE } from '@xrengine/engine/src/scene/functions/loaders/EquippableFunctions'
 import { playAnimationClip } from '@xrengine/engine/src/scene/functions/loaders/LoopAnimationFunctions'
 
 import ViewInArIcon from '@mui/icons-material/ViewInAr'
@@ -46,6 +47,7 @@ import { EditorComponentType, updateProperty } from './Util'
 export const ModelNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
   const [animationPlaying, setAnimationPlaying] = useState(false)
+  const [isEquippable, setEquippable] = useState(hasComponent(props.node.entity, EquippableComponent))
   const engineState = useEngineState()
   const entity = props.node.entity
 
@@ -62,7 +64,7 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
   }
 
   const textureOverrideEntities = [] as { label: string; value: string }[]
-  traverseEntityNode(useWorld().entityTree.rootNode, (node) => {
+  traverseEntityNode(Engine.instance.currentWorld.entityTree.rootNode, (node) => {
     if (node.entity === entity) return
 
     textureOverrideEntities.push({
@@ -70,6 +72,19 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
       value: node.uuid
     })
   })
+
+  const onChangeEquippable = () => {
+    if (isEquippable) {
+      const editorComponent = getComponent(entity, EntityNodeComponent).components
+      editorComponent.splice(editorComponent.indexOf(SCENE_COMPONENT_EQUIPPABLE), 1)
+      removeComponent(props.node.entity, EquippableComponent)
+      setEquippable(false)
+    } else {
+      addComponent(props.node.entity, EquippableComponent, true)
+      getComponent(entity, EntityNodeComponent).components.push(SCENE_COMPONENT_EQUIPPABLE)
+      setEquippable(true)
+    }
+  }
 
   const animations = loopAnimationComponent?.hasAvatarAnimations
     ? AnimationManager.instance._animations
@@ -119,13 +134,9 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
           onChange={updateProperty(ModelComponent, 'isUsingGPUInstancing')}
         />
       </InputGroup>
-      <InputGroup name="Is Dynamic" label={t('editor:properties.model.lbl-isDynamic')}>
-        <BooleanInput
-          value={modelComponent.isDynamicObject}
-          onChange={updateProperty(ModelComponent, 'isDynamicObject')}
-        />
+      <InputGroup name="Is Equippable" label={t('editor:properties.model.lbl-isEquippable')}>
+        <BooleanInput value={isEquippable} onChange={onChangeEquippable} />
       </InputGroup>
-
       <InputGroup name="Loop Animation" label={t('editor:properties.model.lbl-loopAnimation')}>
         <SelectInput
           key={props.node.entity}

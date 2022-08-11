@@ -14,7 +14,7 @@ import { defineQuery, getComponent, hasComponent } from '../../ecs/functions/Com
 import { XRUIComponent } from '../../xrui/components/XRUIComponent'
 import { EnvmapComponent } from '../components/EnvmapComponent'
 import { NameComponent } from '../components/NameComponent'
-import { Object3DComponent, Object3DWithEntity } from '../components/Object3DComponent'
+import { Object3DComponent } from '../components/Object3DComponent'
 import { PersistTagComponent } from '../components/PersistTagComponent'
 import { SceneTagComponent } from '../components/SceneTagComponent'
 import { ShadowComponent } from '../components/ShadowComponent'
@@ -128,8 +128,9 @@ export default async function SceneObjectSystem(world: World) {
 
     for (const entity of sceneObjectQuery.enter()) {
       if (!hasComponent(entity, Object3DComponent)) return // may have been since removed
-      const obj3d = getComponent(entity, Object3DComponent).value as Object3DWithEntity
-      obj3d.entity = entity
+      const { value } = getComponent(entity, Object3DComponent)
+      // @ts-ignore
+      value.entity = entity
 
       const node = world.entityTree.entityNodeMap.get(entity)
       if (node) {
@@ -137,12 +138,12 @@ export default async function SceneObjectSystem(world: World) {
       } else {
         const scene = Engine.instance.currentWorld.scene
         let isInScene = false
-        obj3d.traverseAncestors((ancestor) => {
+        value.traverseAncestors((ancestor) => {
           if (ancestor === scene) {
             isInScene = true
           }
         })
-        if (!isInScene) scene.add(obj3d)
+        if (!isInScene) scene.add(value)
       }
 
       processObject3d(entity)
