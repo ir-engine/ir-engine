@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { Object3D } from 'three'
 
 import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
+import exportModelGLTF from '@xrengine/engine/src/assets/functions/exportModelGLTF'
 import { AnimationManager } from '@xrengine/engine/src/avatar/AnimationManager'
 import { AnimationComponent } from '@xrengine/engine/src/avatar/components/AnimationComponent'
 import { LoopAnimationComponent } from '@xrengine/engine/src/avatar/components/LoopAnimationComponent'
@@ -25,6 +26,7 @@ import { playAnimationClip } from '@xrengine/engine/src/scene/functions/loaders/
 
 import ViewInArIcon from '@mui/icons-material/ViewInAr'
 
+import exportGLTF from '../../functions/exportGLTF'
 import BooleanInput from '../inputs/BooleanInput'
 import { PropertiesPanelButton } from '../inputs/Button'
 import InputGroup from '../inputs/InputGroup'
@@ -84,6 +86,18 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
 
   const animationOptions = [{ label: 'None', value: -1 }]
   if (animations?.length) animations.forEach((clip, i) => animationOptions.push({ label: clip.name, value: i }))
+
+  const [exporting, setExporting] = useState(false)
+  const onExportModel = async () => {
+    if (exporting) {
+      console.warn('already exporting')
+      return
+    }
+    setExporting(true)
+    await exportGLTF(entity)
+    setExporting(false)
+  }
+
   return (
     <NodeEditor description={t('editor:properties.model.description')} {...props}>
       <InputGroup name="Model Url" label={t('editor:properties.model.lbl-modelurl')}>
@@ -150,6 +164,10 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
       <ScreenshareTargetNodeEditor node={props.node} multiEdit={props.multiEdit} />
       <EnvMapEditor node={props.node} />
       <ShadowProperties node={props.node} />
+      {!exporting && modelComponent.src && (
+        <PropertiesPanelButton onClick={onExportModel}>Save Changes</PropertiesPanelButton>
+      )}
+      {exporting && <p>Exporting...</p>}
     </NodeEditor>
   )
 }

@@ -1,6 +1,11 @@
 import { ExporterExtension } from './ExporterExtension'
 
 export class LightmapExporterExtension extends ExporterExtension {
+  constructor(writer) {
+    super(writer, {})
+    this.name = 'MOZ_lightmap'
+  }
+
   writeMaterial(material, materialDef) {
     if (material.lightMap) {
       materialDef.extensions.MOZ_lightmap = {
