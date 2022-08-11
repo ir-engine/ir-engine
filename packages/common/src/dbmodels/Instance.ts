@@ -1,3 +1,5 @@
+import { LocationInterface } from './Location'
+
 export interface InstanceInterface {
   id: string
   ipAddress: string
@@ -7,4 +9,6 @@ export interface InstanceInterface {
   podName: string
   assigned: boolean
   assignedAt: Date
+  locationId?: string
+  location?: LocationInterface
 }
