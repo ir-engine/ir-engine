@@ -25,8 +25,8 @@ const StyledCompoundNumericInput = (styled as any).div`
  * @param       {any} extras
  * @constructor
  */
-export function CompoundNumericInput({ value, onChange, style, ...extras }) {
-  const { min, max, step } = extras
+export function CompoundNumericInput({ value, onChange, ...extras }) {
+  const { min, max, step, style } = extras
   return (
     <StyledCompoundNumericInput style={style}>
       <Slider min={min} max={max} value={value} step={step} onChange={onChange} />
