@@ -60,7 +60,7 @@ export const loadExtensions = async (gltf: GLTF) => {
   if (isClient) {
     const bvhTraverse: Promise<void>[] = []
     gltf.scene.traverse((mesh) => {
-      ;(mesh as Mesh).isMesh && bvhTraverse.push(generateMeshBVH(mesh))
+      ;(mesh as Mesh).isMesh && bvhTraverse.push(generateMeshBVH(mesh as Mesh))
     })
     await Promise.all(bvhTraverse)
   }
