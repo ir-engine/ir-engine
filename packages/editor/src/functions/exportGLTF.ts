@@ -9,9 +9,11 @@ import { accessEditorState } from '../services/EditorServices'
 import { uploadProjectFile } from './assetFunctions'
 
 export default async function exportGLTF(entity: Entity, path: string) {
-  const gltf = await exportModelGLTF(entity)
+  const isGLTF = /\.gltf$/.test(path)
+  const gltf = await exportModelGLTF(entity, { binary: !isGLTF, embedImages: !isGLTF, includeCustomExtensions: true }) //, {binary: false, embedImages: false, includeCustomExtensions: true})
   const pName = accessEditorState().projectName.value!
-  const file = new File([gltf], /[^\/]+$/.exec(path)![0])
+  const blob = isGLTF ? [JSON.stringify(gltf)] : [gltf]
+  const file = new File(blob, /[^\/]+$/.exec(path)![0])
   const urls = await uploadProjectFile(pName, [file], true)
   console.log('exported model data to ', ...urls)
 }

@@ -1121,34 +1121,31 @@ class GLTFWriter {
 		}
 
 		if ( image.data !== undefined ) { // THREE.DataTexture
-
+			let data
 			if ( format !== RGBAFormat ) {
 
-				console.error( 'GLTFExporter: Only RGBAFormat is supported.' );
 
 			}
+			else
+			{
+				if ( image.width > options.maxTextureSize || image.height > options.maxTextureSize ) {
 
-			if ( image.width > options.maxTextureSize || image.height > options.maxTextureSize ) {
-
-				console.warn( 'GLTFExporter: Image size is bigger than maxTextureSize', image );
-
+					console.warn( 'GLTFExporter: Image size is bigger than maxTextureSize', image );
+	
+				}
+	
+				data = new Uint8ClampedArray( image.height * image.width * 4 );
+	
+				for ( let i = 0; i < data.length; i += 4 ) {
+	
+					data[ i + 0 ] = image.data[ i + 0 ];
+					data[ i + 1 ] = image.data[ i + 1 ];
+					data[ i + 2 ] = image.data[ i + 2 ];
+					data[ i + 3 ] = image.data[ i + 3 ];
+	
+				}
+				ctx.putImageData( new ImageData( data, image.width, image.height ), 0, 0 );
 			}
-
-			const data = new Uint8ClampedArray( image.height * image.width * 4 );
-
-			for ( let i = 0; i < data.length; i += 4 ) {
-
-				data[ i + 0 ] = image.data[ i + 0 ];
-				data[ i + 1 ] = image.data[ i + 1 ];
-				data[ i + 2 ] = image.data[ i + 2 ];
-				data[ i + 3 ] = image.data[ i + 3 ];
-
-			}
-
-			ctx.putImageData( new ImageData( data, image.width, image.height ), 0, 0 );
-
-		} else if (mimeType === 'image/ktx2') {
-			ctx.putImageData( new ImageData( ))
 		} else {
 
 			ctx.drawImage( image, 0, 0, canvas.width, canvas.height );
@@ -1247,7 +1244,7 @@ class GLTFWriter {
 		}
 
 		if ( mimeType === 'image/ktx2' ) {
-			textureDef.source = this.processImage( map.mipmaps[0], map.format, map.flipY, mimeType )
+			//textureDef.source = this.processImage( map.mipmaps[0], map.format, map.flipY, mimeType )
 		} else {
 			textureDef.source = this.processImage( map.image, map.format, map.flipY, mimeType )
 		}
