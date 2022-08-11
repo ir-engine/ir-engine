@@ -349,6 +349,29 @@ export class Project extends Service {
 
     logger.info(`[Projects]: removing project id "${id}", name: "${name}".`)
     await deleteProjectFilesInStorageProvider(name)
+
+    const locationItems = await (this.app.service('location') as any).Model.findAll({
+      where: {
+        sceneId: {
+          [Op.like]: `${name}/%`
+        }
+      }
+    })
+    locationItems.length &&
+      locationItems.forEach(async (location) => {
+        await this.app.service('location').remove(location.dataValues.id)
+      })
+
+    const routeItems = await (this.app.service('route') as any).Model.findAll({
+      where: {
+        project: name
+      }
+    })
+    routeItems.length &&
+      routeItems.forEach(async (route) => {
+        await this.app.service('route').remove(route.dataValues.id)
+      })
+
     return super.remove(id, params)
   }
 
