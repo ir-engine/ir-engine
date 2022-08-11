@@ -33,6 +33,7 @@ import InputGroup from '../inputs/InputGroup'
 import MaterialAssignment from '../inputs/MaterialAssignment'
 import ModelInput from '../inputs/ModelInput'
 import SelectInput from '../inputs/SelectInput'
+import Well from '../layout/Well'
 import EnvMapEditor from './EnvMapEditor'
 import ModelTransformProperties from './ModelTransformProperties'
 import NodeEditor from './NodeEditor'
@@ -88,13 +89,14 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
   if (animations?.length) animations.forEach((clip, i) => animationOptions.push({ label: clip.name, value: i }))
 
   const [exporting, setExporting] = useState(false)
+  const [exportPath, setExportPath] = useState(modelComponent.src)
   const onExportModel = async () => {
     if (exporting) {
       console.warn('already exporting')
       return
     }
     setExporting(true)
-    await exportGLTF(entity)
+    await exportGLTF(entity, exportPath)
     setExporting(false)
   }
 
@@ -165,7 +167,10 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
       <EnvMapEditor node={props.node} />
       <ShadowProperties node={props.node} />
       {!exporting && modelComponent.src && (
-        <PropertiesPanelButton onClick={onExportModel}>Save Changes</PropertiesPanelButton>
+        <Well>
+          <ModelInput value={exportPath} onChange={setExportPath} />
+          <PropertiesPanelButton onClick={onExportModel}>Save Changes</PropertiesPanelButton>
+        </Well>
       )}
       {exporting && <p>Exporting...</p>}
     </NodeEditor>

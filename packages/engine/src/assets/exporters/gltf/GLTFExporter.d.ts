@@ -91,6 +91,9 @@ export class GLTFExporter {
 
 export class GLTFWriter {
     constructor();
+    json: any
+    cache: any
+    pending: Promise<any>[]
     extensionsUsed : {[key:string] : any}
 
     applyTextureTransform(mapDef: Object, texture: Texture)

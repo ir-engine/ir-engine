@@ -1106,7 +1106,7 @@ class GLTFWriter {
 
 		const imageDef = { mimeType: mimeType };
 
-		const canvas = getCanvas();
+			const canvas = getCanvas();
 
 		canvas.width = Math.min( image.width, options.maxTextureSize );
 		canvas.height = Math.min( image.height, options.maxTextureSize );
@@ -1147,11 +1147,16 @@ class GLTFWriter {
 
 			ctx.putImageData( new ImageData( data, image.width, image.height ), 0, 0 );
 
+		} else if (mimeType === 'image/ktx2') {
+			ctx.putImageData( new ImageData( ))
 		} else {
 
 			ctx.drawImage( image, 0, 0, canvas.width, canvas.height );
 
 		}
+
+		
+		
 
 		if ( options.binary === true ) {
 
@@ -1238,9 +1243,14 @@ class GLTFWriter {
 		if ( mimeType === 'image/webp' ) mimeType = 'image/png';
 
 		const textureDef = {
-			sampler: this.processSampler( map ),
-			source: this.processImage( map.image, map.format, map.flipY, mimeType )
-		};
+			sampler: this.processSampler( map )
+		}
+
+		if ( mimeType === 'image/ktx2' ) {
+			textureDef.source = this.processImage( map.mipmaps[0], map.format, map.flipY, mimeType )
+		} else {
+			textureDef.source = this.processImage( map.image, map.format, map.flipY, mimeType )
+		}
 
 		if ( map.name ) textureDef.name = map.name;
 
