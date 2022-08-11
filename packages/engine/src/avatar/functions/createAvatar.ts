@@ -156,6 +156,7 @@ export const createAvatarController = (entity: Entity) => {
   const _mat = new Matrix4()
 
   addComponent(frustumCameraEntity, Object3DComponent, { value: frustumCamera })
+  addComponent(frustumCameraEntity, PersistTagComponent, true)
   setTransformComponent(frustumCameraEntity)
   setComputedTransformComponent(frustumCameraEntity, Engine.instance.currentWorld.cameraEntity, () => {
     const avatarTransform = getComponent(entity, TransformComponent)
