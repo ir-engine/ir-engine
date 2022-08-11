@@ -1,9 +1,7 @@
 import appRootPath from 'app-root-path'
 import fs from 'fs'
 import path from 'path'
-
-import { createGLTFLoader } from '../../src/assets/functions/createGLTFLoader'
-import { GLTF } from '../../src/assets/loaders/gltf/GLTFLoader'
+import { FileLoader } from 'three'
 
 import '../../src/patchEngineNode'
 
@@ -16,9 +14,23 @@ const toArrayBuffer = (buf) => {
   return arrayBuffer
 }
 
-export const loadGLTFAssetNode = async (assetPath: string, includeMaterials = false): Promise<GLTF> => {
-  const assetPathAbsolute = path.join(appRootPath.path, assetPath)
-  const loader = createGLTFLoader(includeMaterials)
-  const modelBuffer = toArrayBuffer(await fs.promises.readFile(assetPathAbsolute))
-  return new Promise((resolve, reject) => loader.parse(modelBuffer, './', resolve, reject))
+export function overrideFileLoaderLoad() {
+  FileLoader.prototype.load = overrideLoad
+
+  function overrideLoad(url, onLoad, onProgress, onError) {
+    try {
+      const assetPathAbsolute = path.join(appRootPath.path, url)
+      const buffer = toArrayBuffer(fs.readFileSync(assetPathAbsolute))
+      onLoad(buffer)
+    } catch (e) {
+      onError(e)
+    }
+  }
 }
+
+// export const loadGLTFAssetNode = async (assetPath: string, includeMaterials = false): Promise<GLTF> => {
+//   const assetPathAbsolute = path.join(appRootPath.path, assetPath)
+//   const loader = createGLTFLoader(includeMaterials)
+//   const modelBuffer = toArrayBuffer(await fs.promises.readFile(assetPathAbsolute))
+//   return new Promise((resolve, reject) => loader.parse(modelBuffer, appRootPath.path, resolve, reject))
+// }
