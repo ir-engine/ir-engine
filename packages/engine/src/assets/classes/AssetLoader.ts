@@ -1,6 +1,8 @@
 import {
   AnimationClip,
   AudioLoader,
+  BufferAttribute,
+  BufferGeometry,
   FileLoader,
   Group,
   Loader,
@@ -8,9 +10,13 @@ import {
   LOD,
   Material,
   Mesh,
+  MeshBasicMaterial,
+  MeshMatcapMaterial,
   MeshPhysicalMaterial,
+  MeshStandardMaterial,
   Object3D,
   SkinnedMesh,
+  Texture,
   TextureLoader
 } from 'three'
 
@@ -50,19 +56,20 @@ export function disposeDracoLoaderWorkers(): void {
   gltfLoader.dracoLoader?.dispose()
 }
 
-export const loadExtensions = async (gltf: GLTF) => {
-  if (isClient) {
-    const bvhTraverse: Promise<void>[] = []
-    gltf.scene.traverse((mesh) => {
-      bvhTraverse.push(generateMeshBVH(mesh))
-    })
-    await Promise.all(bvhTraverse)
-  }
-}
-
-const processModelAsset = (asset: Mesh): void => {
+const processModelAsset = (asset: Mesh, args: LoadingArgs): void => {
   const replacedMaterials = new Map()
   const loddables = new Array<Object3D>()
+
+  const onUploadDropBuffer = function (this: BufferAttribute) {
+    // @ts-ignore
+    this.array = new this.array.constructor(1)
+  }
+
+  const onTextureUploadDropSource = function (this: Texture) {
+    this.source.data = null
+    this.mipmaps.map((b) => delete b.data)
+    this.mipmaps = []
+  }
 
   asset.traverse((child: Mesh<any, Material>) => {
     //test for LODs within this traversal
@@ -85,10 +92,22 @@ const processModelAsset = (asset: Mesh): void => {
         child.material = newMaterial
       }
     }
+
+    const geo = child.geometry as BufferGeometry
+    const mat = child.material as MeshStandardMaterial & MeshBasicMaterial & MeshMatcapMaterial
+    const attributes = geo.attributes
+
+    if (!args.ignoreDisposeGeometry) {
+      for (var name in attributes) (attributes[name] as BufferAttribute).onUploadCallback = onUploadDropBuffer
+      if (geo.index) geo.index.onUploadCallback = onUploadDropBuffer
+    }
+    Object.entries(mat)
+      .filter(([k, v]: [keyof typeof mat, Texture]) => v?.isTexture)
+      .map(([_, v]) => (v.onUpdate = onTextureUploadDropSource)) //*/
   })
   replacedMaterials.clear()
 
-  loddables.forEach((loddable) => handleLODs(loddable))
+  for (const loddable of loddables) handleLODs(loddable)
 }
 
 const haveAnyLODs = (asset) => !!asset.children?.find((c) => String(c.name).match(LODS_REGEXP))
@@ -227,36 +246,35 @@ export const getLoader = (assetType: AssetType) => {
   }
 }
 
-const assetLoadCallback = (url: string, assetType: AssetType, onLoad: (response: any) => void) => async (asset) => {
-  const assetClass = AssetLoader.getAssetClass(url)
-  if (assetClass === AssetClass.Model) {
-    if (assetType === AssetType.glB || assetType === AssetType.VRM) {
-      await loadExtensions(asset)
+const assetLoadCallback =
+  (url: string, args: LoadingArgs, assetType: AssetType, onLoad: (response: any) => void) => async (asset) => {
+    const assetClass = AssetLoader.getAssetClass(url)
+    if (assetClass === AssetClass.Model) {
+      if (assetType === AssetType.FBX) {
+        asset = { scene: asset }
+      } else if (assetType === AssetType.VRM) {
+        asset = asset.userData.vrm
+      }
+
+      if (asset.scene && !asset.scene.userData) asset.scene.userData = {}
+      if (asset.scene.userData) asset.scene.userData.type = assetType
+      if (asset.userData) asset.userData.type = assetType
+
+      AssetLoader.processModelAsset(asset.scene, args)
     }
 
-    if (assetType === AssetType.FBX) {
-      asset = { scene: asset }
-    } else if (assetType === AssetType.VRM) {
-      asset = asset.userData.vrm
-    }
-
-    if (asset.scene && !asset.scene.userData) asset.scene.userData = {}
-    if (asset.scene.userData) asset.scene.userData.type = assetType
-    if (asset.userData) asset.userData.type = assetType
-
-    AssetLoader.processModelAsset(asset.scene)
+    onLoad(asset)
   }
-
-  if (assetClass !== AssetClass.Asset) {
-    AssetLoader.Cache.set(url, asset)
-  }
-  onLoad(asset)
-}
 
 const getAbsolutePath = (url) => (isAbsolutePath(url) ? url : Engine.instance.publicPath + url)
 
-const load = async (
+type LoadingArgs = {
+  ignoreDisposeGeometry?: boolean
+}
+
+const load = (
   _url: string,
+  args: LoadingArgs,
   onLoad = (response: any) => {},
   onProgress = (request: ProgressEvent) => {},
   onError = (event: ErrorEvent | Error) => {}
@@ -267,39 +285,29 @@ const load = async (
   }
   const url = getAbsolutePath(_url)
 
-  if (AssetLoader.Cache.has(url)) {
-    onLoad(AssetLoader.Cache.get(url))
-  }
-
   const assetType = AssetLoader.getAssetType(url)
   const loader = getLoader(assetType)
-  const callback = assetLoadCallback(url, assetType, onLoad)
+  const callback = assetLoadCallback(url, args, assetType, onLoad)
 
   try {
     // TODO: fix instancing for GLTFs - move this to the gltf loader
     // if (instanced) {
     //   ;(loader as GLTFLoader).parse(await instanceGLTF(url), null!, callback, onError)
     // } else {
-    loader.load(url, callback, onProgress, onError)
+    return loader.load(url, callback, onProgress, onError)
     // }
   } catch (error) {
     onError(error)
   }
 }
 
-const loadAsync = async (url: string, onProgress = (request: ProgressEvent) => {}) => {
+const loadAsync = async (url: string, args: LoadingArgs = {}, onProgress = (request: ProgressEvent) => {}) => {
   return new Promise<any>((resolve, reject) => {
-    load(url, resolve, onProgress, reject)
+    load(url, args, resolve, onProgress, reject)
   })
 }
 
-// TODO: we are replciating code here, we should refactor AssetLoader to be entirely functional
-const getFromCache = (url: string) => {
-  return AssetLoader.Cache.get(getAbsolutePath(url))
-}
-
 export const AssetLoader = {
-  Cache: new Map<string, any>(),
   loaders: new Map<number, any>(),
   processModelAsset,
   handleLODs,
@@ -310,6 +318,5 @@ export const AssetLoader = {
   getLoader,
   assetLoadCallback,
   load,
-  loadAsync,
-  getFromCache
+  loadAsync
 }

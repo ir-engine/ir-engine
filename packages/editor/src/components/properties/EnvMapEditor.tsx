@@ -79,7 +79,7 @@ export const EnvMapEditor: EditorComponentType = (props) => {
 
   // if component is not there for previously saved model entities then create one
   if (!envmapComponent) {
-    deserializeEnvMap(props.node.entity, { name: SCENE_COMPONENT_ENVMAP, props: { forModel: true } })
+    deserializeEnvMap(props.node.entity, { name: SCENE_COMPONENT_ENVMAP, props: {} })
     envmapComponent = getComponent(entity, EnvmapComponent)
   }
 

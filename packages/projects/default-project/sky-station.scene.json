@@ -43,7 +43,7 @@
             "envMapTextureType": "Cubemap",
             "envMapSourceColor": 16777215,
             "envMapSourceURL": "/hdr/cubemap/MilkyWay/",
-            "envMapIntensity": 3.5,
+            "envMapIntensity": 1,
             "envMapBake": {
               "bakeType": "Baked",
               "resolution": 2048,
@@ -65,8 +65,7 @@
                 "y": 1,
                 "z": 1
               }
-            },
-            "forModel": false
+            }
           }
         },
         {
@@ -369,6 +368,7 @@
           "props": {
             "src": "__$project$__/default-project/assets/Skybase.glb",
             "materialOverrides": [],
+            "generateBVH": true,
             "matrixAutoUpdate": true,
             "useBasicMaterial": false,
             "isUsingGPUInstancing": false
@@ -384,11 +384,11 @@
         {
           "name": "envmap",
           "props": {
-            "type": "None",
+            "type": "Default",
             "envMapTextureType": "Cubemap",
             "envMapSourceColor": 1193046,
             "envMapSourceURL": "/hdr/cubemap/skyboxsun25deg/",
-            "envMapIntensity": 1,
+            "envMapIntensity": 20,
             "envMapBake": {
               "bakeType": "Baked",
               "resolution": 2048,
@@ -410,8 +410,7 @@
                 "y": 1,
                 "z": 1
               }
-            },
-            "forModel": true
+            }
           }
         }
       ],
@@ -649,6 +648,7 @@
           "props": {
             "src": "__$project$__/default-project/assets/test-equippable.glb",
             "materialOverrides": [],
+            "generateBVH": false,
             "matrixAutoUpdate": true,
             "useBasicMaterial": false,
             "isUsingGPUInstancing": false
@@ -694,8 +694,7 @@
                 "y": 1,
                 "z": 1
               }
-            },
-            "forModel": true
+            }
           }
         },
         {

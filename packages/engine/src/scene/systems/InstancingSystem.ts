@@ -10,22 +10,23 @@ import {
   InstancingUnstagingComponent,
   ScatterState
 } from '../components/InstancingComponent'
+import { Object3DComponent } from '../components/Object3DComponent'
 import { stageInstancing, unstageInstancing } from '../functions/loaders/InstancingFunctions'
 
 export default async function ScatterSystem(world: World) {
   const scatterQuery = defineQuery([InstancingComponent])
-  const stagingQuery = defineQuery([InstancingComponent, InstancingStagingComponent])
-  const unstagingQuery = defineQuery([InstancingComponent, InstancingUnstagingComponent])
+  const stagingQuery = defineQuery([Object3DComponent, InstancingComponent, InstancingStagingComponent])
+  const unstagingQuery = defineQuery([Object3DComponent, InstancingComponent, InstancingUnstagingComponent])
   return () => {
-    stagingQuery.enter().forEach((entity) => {
+    for (const entity of stagingQuery.enter()) {
       stageInstancing(entity).then(() => {
         removeComponent(entity, InstancingStagingComponent, world)
       })
-    })
+    }
 
-    unstagingQuery.enter().forEach((entity) => {
+    for (const entity of unstagingQuery.enter()) {
       unstageInstancing(entity)
       removeComponent(entity, InstancingUnstagingComponent, world)
-    })
+    }
   }
 }

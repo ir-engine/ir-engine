@@ -28,6 +28,9 @@ import { TransformComponent } from '../../../transform/components/TransformCompo
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { GroundPlaneComponent, GroundPlaneComponentType } from '../../components/GroundPlaneComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
+import { ObjectLayers } from '../../constants/ObjectLayers'
+import { generateMeshBVH } from '../bvhWorkerPool'
+import { enableObjectLayer } from '../setObjectLayers'
 
 export const SCENE_COMPONENT_GROUND_PLANE = 'ground-plane'
 export const SCENE_COMPONENT_GROUND_PLANE_DEFAULT_VALUES = {
@@ -72,6 +75,9 @@ export const deserializeGround: ComponentDeserializeFunction = async function (
     )
 
   mesh.rotation.x = -Math.PI / 2
+
+  groundPlane.traverse(generateMeshBVH)
+  enableObjectLayer(groundPlane, ObjectLayers.Camera, true)
 
   updateGroundPlane(entity, props)
 }
