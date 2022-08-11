@@ -71,9 +71,6 @@ export const addInteractableUI = (
   xrui: ReturnType<typeof createXRUI>,
   update?: (entity: Entity, xrui: ReturnType<typeof createXRUI>) => void
 ) => {
-  if (!hasComponent(entity, BoundingBoxComponent)) {
-    setBoundingBoxComponent(entity)
-  }
   if (!hasComponent(entity, InteractableComponent)) {
     addComponent(entity, InteractableComponent, SCENE_COMPONENT_INTERACTABLE_DEFAULT_VALUES)
   }

@@ -1,4 +1,4 @@
-import { Mesh, Object3D, Texture } from 'three'
+import { Object3D, Texture } from 'three'
 
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
@@ -12,6 +12,7 @@ import {
 import { isClient } from '../../../common/functions/isClient'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent, removeComponent } from '../../../ecs/functions/ComponentFunctions'
+import { setBoundingBoxComponent } from '../../../interaction/components/BoundingBoxComponents'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { MaterialOverrideComponentType } from '../../components/MaterialOverrideComponent'
 import { ModelComponent, ModelComponentType } from '../../components/ModelComponent'
@@ -28,8 +29,7 @@ export const SCENE_COMPONENT_MODEL_DEFAULT_VALUE = {
   materialOverrides: [] as MaterialOverrideComponentType[],
   matrixAutoUpdate: true,
   useBasicMaterial: false,
-  isUsingGPUInstancing: false,
-  isDynamicObject: false
+  isUsingGPUInstancing: false
 } as ModelComponentType
 
 export const deserializeModel: ComponentDeserializeFunction = (
@@ -38,6 +38,7 @@ export const deserializeModel: ComponentDeserializeFunction = (
 ) => {
   const props = parseModelProperties(component.props)
   const model = addComponent(entity, ModelComponent, props)
+  setBoundingBoxComponent(entity)
 
   getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_MODEL)
   //add material override components
