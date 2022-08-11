@@ -65,8 +65,7 @@
                 "y": 1,
                 "z": 1
               }
-            },
-            "forModel": false
+            }
           }
         },
         {
@@ -494,10 +493,10 @@
           "props": {
             "src": "__$project$__/default-project/assets/apartment.glb",
             "materialOverrides": [],
+            "generateBVH": true,
             "matrixAutoUpdate": true,
             "useBasicMaterial": false,
-            "isUsingGPUInstancing": false,
-            "isDynamicObject": false
+            "isUsingGPUInstancing": false
           }
         },
         {
@@ -540,8 +539,7 @@
                 "y": 1,
                 "z": 1
               }
-            },
-            "forModel": true
+            }
           }
         }
       ],
@@ -1102,7 +1100,7 @@
         }
       ],
       "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
-      "index": 13,
+      "index": 20,
       "name": "Audio - Ambience"
     }
   },

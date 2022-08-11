@@ -25,7 +25,6 @@ export const nodeToEntityJson = (node: any): EntityJson => {
           return { name: k, props: v }
         })
       : [],
-    uuid: uuid,
     ...parentId
   }
 }

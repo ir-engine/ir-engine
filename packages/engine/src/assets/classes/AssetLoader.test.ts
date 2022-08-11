@@ -14,7 +14,7 @@ describe('AssetLoader', async () => {
   describe('processModelAsset', () => {
     it('should work for gltf asset', async () => {
       const asset = new Mesh()
-      assert.doesNotThrow(() => AssetLoader.processModelAsset(asset))
+      assert.doesNotThrow(() => AssetLoader.processModelAsset(asset, {}))
     })
   })
 
@@ -82,54 +82,9 @@ describe('AssetLoader', async () => {
     })
 
     it('should give error for empty url', async () => {
-      AssetLoader.load('', undefined, undefined, (err) => {
+      AssetLoader.load('', {}, undefined, undefined, (err) => {
         assert.notEqual(err, null)
       })
     })
-
-    it('should work for cached asset', async () => {
-      // Mock
-      const assetContent = 'I am an asset'
-      sandbox.stub(AssetLoader.Cache, 'has').returns(true)
-      sandbox.stub(AssetLoader.Cache, 'get').returns(assetContent)
-
-      const url = 'www.test.com/file.gltf'
-
-      // Run & Assert
-      AssetLoader.load(url, (res) => {
-        assert.equal(res, assetContent)
-      })
-    })
-
-    // it('should work for non cached asset', async () => {
-    //     // Mock
-    //     const assetLoaded = "I am an loaded";
-    //     sandbox.stub(AssetLoader.Cache, "has").returns(false);
-    //     const assetLoader = rewire('../../../src/assets/classes/AssetLoader')
-    //     assetLoader.__set__({
-    //         'getLoader': {
-    //             load: function (
-    //                 params,
-    //                 onLoad = (response) => { },
-    //                 onProgress = (request) => { },
-    //                 onError = (event) => { },
-    //                 isInstanced = false
-    //             ) {
-    //                 onLoad(assetLoaded);
-    //              }
-    //         }
-    //     });
-
-    //     const params = {
-    //         url: "www.test.com/file.gltf",
-    //         castShadow: true,
-    //         receiveShadow: true
-    //     };
-
-    //     // Run & Assert
-    //     AssetLoader.load(params, (res) => {
-    //         assert.equal(res, assetLoaded)
-    //     });
-    // })
   })
 })

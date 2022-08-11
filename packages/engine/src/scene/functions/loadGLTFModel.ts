@@ -174,7 +174,7 @@ export const parseGLTFModel = (entity: Entity) => {
 
   const world = Engine.instance.currentWorld
 
-  if (!Engine.instance.isEditor && world.worldNetwork?.isHosting && props.isDynamicObject) {
+  if (!Engine.instance.isEditor && world.worldNetwork?.isHosting /**&& props.isDynamicObject*/) {
     const node = world.entityTree.entityNodeMap.get(entity)
     if (node) {
       // dispatchAction(

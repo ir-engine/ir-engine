@@ -1,17 +1,15 @@
 import { cloneDeep } from 'lodash'
-import { MathUtils } from 'three'
+import { MathUtils, Vector3 } from 'three'
 
 import { ComponentJson, EntityJson, SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
-import { precacheSupport } from '@xrengine/engine/src/assets/enum/AssetType'
 import { dispatchAction } from '@xrengine/hyperflux'
 
-import { AssetLoader } from '../../assets/classes/AssetLoader'
-import { delay } from '../../common/functions/delay'
 import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
-import { EngineActions, getEngineState } from '../../ecs/classes/EngineState'
+import { EngineActions } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { EntityTreeNode } from '../../ecs/classes/EntityTree'
+import { World } from '../../ecs/classes/World'
 import { addComponent, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { unloadScene } from '../../ecs/functions/EngineFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
@@ -26,7 +24,9 @@ import { Object3DComponent } from '../components/Object3DComponent'
 import { SCENE_COMPONENT_SCENE_TAG, SceneTagComponent } from '../components/SceneTagComponent'
 import { VisibleComponent } from '../components/VisibleComponent'
 import { ObjectLayers } from '../constants/ObjectLayers'
+import { SCENE_COMPONENT_DYNAMIC_LOAD } from './loaders/DynamicLoadFunctions'
 import { resetEngineRenderer } from './loaders/RenderSettingsFunction'
+import { SCENE_COMPONENT_TRANSFORM } from './loaders/TransformFunctions'
 import { ScenePrefabTypes } from './registerPrefabs'
 
 export const createNewEditorNode = (entityNode: EntityTreeNode, prefabType: ScenePrefabTypes): void => {
@@ -37,24 +37,17 @@ export const createNewEditorNode = (entityNode: EntityTreeNode, prefabType: Scen
   loadSceneEntity(entityNode, { name: prefabType, components })
 }
 
-export const preCacheAssets = (sceneData: any, onProgress) => {
-  const promises: any[] = []
-  for (const [key, val] of Object.entries(sceneData)) {
-    if (val && typeof val === 'object') {
-      promises.push(...preCacheAssets(val, onProgress))
-    } else if (typeof val === 'string') {
-      if (AssetLoader.isSupported(val)) {
-        if (!precacheSupport[AssetLoader.getAssetType(val)]) continue
-        try {
-          const promise = AssetLoader.loadAsync(val, onProgress)
-          promises.push(promise)
-        } catch (e) {
-          console.log(e)
-        }
-      }
-    }
+export const splitLazyLoadedSceneEntities = (json: SceneJson) => {
+  const entityLoadQueue = {} as { [uuid: string]: EntityJson }
+  const entityDynamicQueue = {} as { [uuid: string]: EntityJson }
+  for (const [uuid, entity] of Object.entries(json.entities)) {
+    if (entity.components.find((comp) => comp.name === SCENE_COMPONENT_DYNAMIC_LOAD)) entityDynamicQueue[uuid] = entity
+    else entityLoadQueue[uuid] = entity
   }
-  return promises
+  return {
+    entityLoadQueue,
+    entityDynamicQueue
+  }
 }
 
 const iterateReplaceID = (data: any, idMap: Map<string, string>) => {
@@ -80,7 +73,6 @@ const iterateReplaceID = (data: any, idMap: Map<string, string>) => {
 export const loadECSData = async (sceneData: SceneJson, assetRoot = undefined): Promise<EntityTreeNode[]> => {
   const entityMap = {} as { [key: string]: EntityTreeNode }
   const entities = Object.entries(sceneData.entities).filter(([uuid]) => uuid !== sceneData.root)
-  await Promise.all(preCacheAssets(sceneData, () => {}))
   const idMap = new Map<string, string>()
   const loadedEntities = Engine.instance.currentWorld.entityTree.uuidNodeMap
 
@@ -135,56 +127,84 @@ export const loadSceneFromJSON = async (sceneData: SceneJson, sceneSystems: Syst
 
   EngineActions.sceneLoadingProgress({ progress: 0 })
 
+  // TODO: get more granular progress data based on percentage of each asset
+  // we probably need to query for metadata to get the size of each request if we can
+  const onProgress = () => {}
+
   let promisesCompleted = 0
-  const onProgress = () => {
-    // TODO: get more granular progress data based on percentage of each asset
-    // we probably need to query for metadata to get the size of each request if we can
-  }
   const onComplete = () => {
     promisesCompleted++
     dispatchAction(
       EngineActions.sceneLoadingProgress({
-        progress: promisesCompleted > promises.length ? 100 : Math.round((100 * promisesCompleted) / promises.length)
+        progress:
+          promisesCompleted > world.sceneLoadingPendingAssets.size
+            ? 100
+            : Math.round((100 * promisesCompleted) / world.sceneLoadingPendingAssets.size)
       })
     )
   }
-  const promises = preCacheAssets(sceneData, onProgress)
 
-  promises.forEach((promise) => promise.then(onComplete))
-  await Promise.allSettled(promises)
-
-  // this needs to occur after the asset promises
-  if (getEngineState().sceneLoaded.value) await unloadScene(world)
+  unloadScene(world)
 
   await initSystems(world, sceneSystems)
 
-  const entityMap = {} as { [key: string]: EntityTreeNode }
+  const loadedEntities = [] as Array<Entity>
 
   // reset renderer settings for if we are teleporting and the new scene does not have an override
   resetEngineRenderer(true)
 
-  Object.keys(sceneData.entities).forEach((key) => {
-    entityMap[key] = createEntityNode(createEntity(), key)
-    const sceneEntity = sceneData.entities[key]
-    const node = entityMap[key]
-    addEntityNodeInTree(node, sceneEntity.parent ? entityMap[sceneEntity.parent] : undefined)
-    loadSceneEntity(entityMap[key], sceneData.entities[key])
-  })
+  const { entityLoadQueue, entityDynamicQueue } = splitLazyLoadedSceneEntities(sceneData)
 
-  dispatchAction(EngineActions.sceneObjectUpdate({ entities: Object.values(entityMap).map((node) => node.entity) }))
+  const entitiesToLoad = Engine.instance.isEditor ? sceneData.entities : entityLoadQueue
+
+  for (const [key, val] of Object.entries(entitiesToLoad)) {
+    loadedEntities.push(createSceneEntity(world, key, val))
+  }
+
+  if (!Engine.instance.isEditor) {
+    for (const key of Object.keys(entityDynamicQueue)) {
+      const entity = entityDynamicQueue[key]
+      const transform = entity.components.find((comp) => comp.name === SCENE_COMPONENT_TRANSFORM)
+      const dynamicLoad = entity.components.find((comp) => comp.name === SCENE_COMPONENT_DYNAMIC_LOAD)!
+      if (transform) {
+        world.sceneDynamicallyUnloadedEntities.set(key, {
+          json: entity,
+          position: new Vector3().copy(transform.props.position),
+          distance: dynamicLoad.props.distance * dynamicLoad.props.distance
+        })
+      } else {
+        console.error('[SceneLoading]: Tried to lazily load scene object without a transform')
+      }
+    }
+  }
+
+  for (const promise of world.sceneLoadingPendingAssets) {
+    promise.then(onComplete)
+  }
+
+  await Promise.allSettled(world.sceneLoadingPendingAssets)
+  world.sceneLoadingPendingAssets.clear()
+
+  dispatchAction(EngineActions.sceneObjectUpdate({ entities: loadedEntities }))
 
   const tree = world.entityTree
-  addComponent(tree.rootNode.entity, Object3DComponent, { value: world.scene })
   addComponent(tree.rootNode.entity, SceneTagComponent, {})
-  addComponent(tree.rootNode.entity, VisibleComponent, true)
   getComponent(tree.rootNode.entity, EntityNodeComponent).components.push(SCENE_COMPONENT_SCENE_TAG)
 
   Engine.instance.currentWorld.camera?.layers.enable(ObjectLayers.Scene)
 
-  // TODO: Have to wait because scene is not being fully loaded at this moment
-  await delay(200)
   dispatchAction(EngineActions.sceneLoaded({}))
   if (isClient) configureEffectComposer()
+}
+
+/**
+ * Creates a scene entity and loads the data for it
+ */
+export const createSceneEntity = (world: World, uuid: string, json: EntityJson) => {
+  const node = createEntityNode(createEntity(), uuid)
+  addEntityNodeInTree(node, json.parent ? world.entityTree.uuidNodeMap.get(json.parent) : undefined)
+  loadSceneEntity(node, json)
+  return node.entity
 }
 
 /**
@@ -196,14 +216,14 @@ export const loadSceneEntity = (entityNode: EntityTreeNode, sceneEntity: EntityJ
   addComponent(entityNode.entity, NameComponent, { name: sceneEntity.name })
   addComponent(entityNode.entity, EntityNodeComponent, { components: [] })
 
-  sceneEntity.components.forEach((component) => {
+  for (const component of sceneEntity.components) {
     try {
       loadComponent(entityNode.entity, component)
     } catch (e) {
       console.error(`Error loading scene entity: `, JSON.stringify(sceneEntity, null, '\t'))
       console.error(e)
     }
-  })
+  }
 
   if (!hasComponent(entityNode.entity, TransformComponent))
     addComponent(entityNode.entity, DisableTransformTagComponent, {})

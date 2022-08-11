@@ -93,12 +93,18 @@ export const initializeXRInputs = (entity: Entity) => {
     controller.userData.initialized = true
 
     const handedness = controller === xrInputSourceComponent.controllerGripLeft ? 'left' : 'right'
-    initializeHandModel(entity, controller, handedness, true)
-    initializeXRControllerAnimations(controller)
+    initializeHandModel(entity, controller, handedness, true).then(() => {
+      initializeXRControllerAnimations(controller)
+    })
   })
 }
 
-export const initializeHandModel = (entity: Entity, controller: any, handedness: string, isGrip: boolean = false) => {
+export const initializeHandModel = async (
+  entity: Entity,
+  controller: any,
+  handedness: string,
+  isGrip: boolean = false
+) => {
   const avatarInputState = accessAvatarInputSettingsState()
 
   let avatarInputControllerType = avatarInputState.controlType.value
@@ -115,7 +121,7 @@ export const initializeHandModel = (entity: Entity, controller: any, handedness:
    */
 
   const fileName = isGrip ? `${handedness}_controller.glb` : `${handedness}.glb`
-  const gltf = AssetLoader.getFromCache(`/default_assets/controllers/hands/${fileName}`)
+  const gltf = await AssetLoader.loadAsync(`/default_assets/controllers/hands/${fileName}`)
   let handMesh = gltf?.scene?.children[0]
 
   if (!handMesh) {

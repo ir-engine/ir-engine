@@ -374,12 +374,16 @@ export class Location<T = LocationDataType> extends Service<T> {
       if (location.locationSettingsId != null)
         await this.app.service('location-settings').remove(location.locationSettingsId)
       try {
-        await this.app.service('location-admin').remove(null, {
-          query: {
+        const locationAdminItems = await (this.app.service('location-admin') as any).Model.findAll({
+          where: {
             locationId: id,
-            userId: selfUser.id
+            userId: selfUser.id ?? null
           }
         })
+        locationAdminItems.length &&
+          locationAdminItems.forEach(async (route) => {
+            await this.app.service('location-admin').remove(route.dataValues.id)
+          })
       } catch (err) {
         logger.error(err, `Could not remove location-admin: ${err.message}`)
       }

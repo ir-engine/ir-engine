@@ -6,7 +6,6 @@ export interface ComponentJson<T extends any = any> {
 export interface EntityJson {
   name: string
   components: Array<ComponentJson>
-  uuid?: string
   parent?: string
   index?: number
 }
