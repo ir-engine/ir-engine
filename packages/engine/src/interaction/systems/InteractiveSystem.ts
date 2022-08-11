@@ -21,10 +21,9 @@ import { TransformComponent } from '../../transform/components/TransformComponen
 import { createTransitionState } from '../../xrui/functions/createTransitionState'
 import { createXRUI } from '../../xrui/functions/createXRUI'
 import { ObjectFitFunctions } from '../../xrui/functions/ObjectFitFunctions'
-import { BoundingBoxComponent, setBoundingBoxComponent } from '../components/BoundingBoxComponents'
 import { InteractableComponent } from '../components/InteractableComponent'
 import { InteractorComponent } from '../components/InteractorComponent'
-import { interactBoxRaycast } from '../functions/interactBoxRaycast'
+import { gatherFocussedInteractives } from '../functions/gatherFocussedInteractives'
 import { createInteractUI } from '../functions/interactUI'
 
 export type InteractiveType = {
@@ -108,7 +107,7 @@ export default async function InteractiveSystem(world: World) {
     }
 
     for (const entity of interactorsQuery()) {
-      interactBoxRaycast(entity, interactives)
+      gatherFocussedInteractives(entity, interactives)
       const interactor = getComponent(entity, InteractorComponent)
       if (interactor.focusedInteractive) {
         if (!hasComponent(interactor.focusedInteractive, HighlightComponent)) {

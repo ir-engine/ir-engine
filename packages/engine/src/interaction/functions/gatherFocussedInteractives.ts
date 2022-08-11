@@ -9,7 +9,6 @@ import { Entity } from '../../ecs/classes/Entity'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { BoundingBoxComponent } from '../components/BoundingBoxComponents'
 import { InteractorComponent } from '../components/InteractorComponent'
 
 const mat4 = new Matrix4()
@@ -31,7 +30,7 @@ const distanceSort = (a: any, b: any) => a[1] - b[1]
  * @param {Entity[]} raycastList
  */
 
-export const interactBoxRaycast = (entity: Entity, raycastList: Entity[]) => {
+export const gatherFocussedInteractives = (entity: Entity, raycastList: Entity[]) => {
   const interactor = getComponent(entity, InteractorComponent)
   const transform = getComponent(entity, TransformComponent)
   const controller = getComponent(entity, AvatarControllerComponent)
@@ -50,10 +49,9 @@ export const interactBoxRaycast = (entity: Entity, raycastList: Entity[]) => {
   const subFocusedArray = [] as [Entity, number][]
 
   for (const entityIn of raycastList) {
-    const box = getComponent(entityIn, BoundingBoxComponent).box
-    if (!box.isEmpty() && frustum.intersectsBox(box)) {
-      subFocusedArray.push([entityIn, box.distanceToPoint(transform.position)])
-    }
+    const targetTransform = getComponent(entityIn, TransformComponent)
+    frustum.containsPoint(targetTransform.position)
+    subFocusedArray.push([entityIn, transform.position.distanceTo(targetTransform.position)])
   }
 
   interactor.subFocusedArray = subFocusedArray.map((v) => v[0])
