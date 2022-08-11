@@ -247,6 +247,7 @@ const InstanceChat = ({
   useEffect(() => {
     if (
       sortedMessages &&
+      sortedMessages.length &&
       sortedMessages[sortedMessages.length - 1]?.senderId !== user?.id.value &&
       chatState.messageCreated.value
     ) {

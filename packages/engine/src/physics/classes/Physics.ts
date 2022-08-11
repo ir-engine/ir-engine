@@ -289,10 +289,7 @@ function changeRigidbodyType(entity: Entity, newType: RigidBodyType) {
 }
 
 function castRay(world: World, raycastQuery: ComponentType<typeof RaycastComponent>) {
-  const ray = new Ray(
-    { x: raycastQuery.origin.x, y: raycastQuery.origin.y, z: raycastQuery.origin.z },
-    { x: raycastQuery.direction.x, y: raycastQuery.direction.y, z: raycastQuery.direction.z }
-  )
+  const ray = new Ray(raycastQuery.origin, raycastQuery.direction)
   const maxToi = raycastQuery.maxDistance
   const solid = true // TODO: Add option for this in RaycastComponent?
   const groups = raycastQuery.flags

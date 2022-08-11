@@ -39,12 +39,17 @@ import {
   updateDirectionalLight
 } from './loaders/DirectionalLightFunctions'
 import {
+  deserializeDynamicLoad,
+  SCENE_COMPONENT_DYNAMIC_LOAD,
+  serializeDynamicLoad
+} from './loaders/DynamicLoadFunctions'
+import {
   deserializeEnvMapBake,
   SCENE_COMPONENT_ENVMAP_BAKE,
   serializeEnvMapBake,
   updateEnvMapBake
 } from './loaders/EnvMapBakeFunctions'
-import { deserializeEnvMap, SCENE_COMPONENT_ENVMAP, serializeEnvMap, updateEnvMap } from './loaders/EnvMapFunctions'
+import { deserializeEnvMap, SCENE_COMPONENT_ENVMAP, serializeEnvMap } from './loaders/EnvMapFunctions'
 import {
   deserializeFog,
   SCENE_COMPONENT_FOG,
@@ -210,6 +215,11 @@ export const registerDefaultSceneFunctions = (world: World) => {
     serialize: serializeTransform
   })
 
+  world.sceneLoadingRegistry.set(SCENE_COMPONENT_DYNAMIC_LOAD, {
+    deserialize: deserializeDynamicLoad,
+    serialize: serializeDynamicLoad
+  })
+
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_VISIBLE, {
     deserialize: deserializeVisible,
     serialize: serializeVisible
@@ -240,8 +250,7 @@ export const registerDefaultSceneFunctions = (world: World) => {
 
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_ENVMAP, {
     deserialize: deserializeEnvMap,
-    serialize: serializeEnvMap,
-    update: updateEnvMap
+    serialize: serializeEnvMap
   })
 
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_FOG, {
