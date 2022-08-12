@@ -1,8 +1,8 @@
 import assert from 'assert'
 import { Matrix4, Quaternion, Vector3 } from 'three'
 
+import { quaternionEqualsEpsilon } from '../../tests/util/MathTestUtils'
 import { V_000, V_010 } from '../common/constants/MathConstants'
-import { quatNearEqual } from '../common/functions/QuaternionUtils'
 import { Engine } from '../ecs/classes/Engine'
 import { getComponent } from '../ecs/functions/ComponentFunctions'
 import { createEntity } from '../ecs/functions/EntityFunctions'
@@ -41,6 +41,6 @@ describe('AvatarControllerSystem', async () => {
 
     rotateBodyTowardsVector(avatarEntity, displace)
 
-    assert(quatNearEqual(testRotation, controller.body.rotation() as Quaternion))
+    assert(quaternionEqualsEpsilon(testRotation, controller.body.rotation() as Quaternion))
   })
 })
