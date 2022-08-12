@@ -12,6 +12,7 @@ import path from 'path'
 import pinoHttp from 'pino-http'
 import { Socket } from 'socket.io'
 
+import { isDev } from '@xrengine/common/src/utils/isDev'
 import { pipe } from '@xrengine/common/src/utils/pipe'
 
 import { Application, ServerTypeMode } from '../declarations'
@@ -205,7 +206,7 @@ export const createFeathersExpressApp = (
   // Receive client-side log events (only active when APP_ENV != 'development')
   app.post('/api/log', (req, res) => {
     const { msg, ...mergeObject } = req.body
-    logger.info({ user: req.params?.user, ...mergeObject }, msg)
+    if (!isDev) logger.info({ user: req.params?.user, ...mergeObject }, msg)
     return res.status(204).send()
   })
 
