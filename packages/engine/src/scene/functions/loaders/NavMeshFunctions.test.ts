@@ -1,6 +1,6 @@
 import assert from 'assert'
 import proxyquire from 'proxyquire'
-import { BoxGeometry, Mesh, Object3D } from 'three'
+import { BoxGeometry, Mesh } from 'three'
 import { NavMesh } from 'yuka'
 
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
@@ -10,10 +10,9 @@ import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunc
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
 import { createEngine } from '../../../initializeEngine'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
-import { ModelComponent } from '../../components/ModelComponent'
 import { NavMeshComponent } from '../../components/NavMeshComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
-import { SCENE_COMPONENT_MODEL, SCENE_COMPONENT_MODEL_DEFAULT_VALUE } from './ModelFunctions'
+import { SCENE_COMPONENT_MODEL } from './ModelFunctions'
 import { SCENE_COMPONENT_NAV_MESH } from './NavMeshFunctions'
 
 class Fake {
@@ -60,35 +59,6 @@ describe('NavMeshFunctions', () => {
       assert(component)
       assert(Object.keys(component).length <= 1, 'too many keys')
       assert(component.value instanceof Fake, 'not created')
-    })
-
-    it('creates an Object3D Component with provided component data', () => {
-      fns.deserializeNavMesh(entity, sceneComponent)
-
-      const obj3d = getComponent(entity, Object3DComponent)?.value
-      assert(obj3d && obj3d instanceof Object3D, 'not created')
-      assert(obj3d.userData.disableOutline, 'outline is not disabled')
-    })
-
-    it('ensures a Model Component with default component data', () => {
-      fns.deserializeNavMesh(entity, sceneComponent)
-
-      const c = getComponent(entity, ModelComponent)
-      assert(c, 'not created')
-      for (let key in SCENE_COMPONENT_MODEL_DEFAULT_VALUE) {
-        assert(c[key] === SCENE_COMPONENT_MODEL_DEFAULT_VALUE[key], key + ' not set')
-      }
-    })
-
-    it('does not overwrite an exising Model Component', () => {
-      addComponent(entity, ModelComponent, { src: '://model' } as any)
-      fns.deserializeNavMesh(entity, sceneComponent)
-
-      const c = getComponent(entity, ModelComponent)
-
-      c.src = '://model'
-
-      assert(c.src === '://model')
     })
 
     it('will include these component into EntityNodeComponent', () => {

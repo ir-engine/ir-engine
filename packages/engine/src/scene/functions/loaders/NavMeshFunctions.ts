@@ -1,4 +1,4 @@
-import { BufferAttribute, Mesh, Object3D } from 'three'
+import { Mesh, Object3D } from 'three'
 import { Polygon, Vector3 } from 'yuka'
 
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
@@ -14,10 +14,9 @@ import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
 import { NavMesh } from '../../classes/NavMesh'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
-import { ModelComponent } from '../../components/ModelComponent'
 import { NavMeshComponent, NavMeshComponentType } from '../../components/NavMeshComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
-import { SCENE_COMPONENT_MODEL, SCENE_COMPONENT_MODEL_DEFAULT_VALUE } from './ModelFunctions'
+import { SCENE_COMPONENT_MODEL } from './ModelFunctions'
 
 export const SCENE_COMPONENT_NAV_MESH = 'navMesh'
 export const SCENE_COMPONENT_NAV_MESH_DEFAULT_VALUES = {}
@@ -29,15 +28,6 @@ export const deserializeNavMesh: ComponentDeserializeFunction = (
   if (!isClient) return
 
   const props = parseNavMeshProperties(json.props) as NavMeshComponentType
-  const obj3d = new Object3D()
-
-  obj3d.userData.disableOutline = true
-
-  if (!hasComponent(entity, ModelComponent)) {
-    addComponent(entity, ModelComponent, SCENE_COMPONENT_MODEL_DEFAULT_VALUE)
-  }
-
-  addComponent(entity, Object3DComponent, { value: obj3d })
 
   addComponent(entity, NavMeshComponent, props)
 
@@ -106,16 +96,19 @@ function findMesh(root: Object3D): Mesh | null {
 
 export const updateNavMesh: ComponentUpdateFunction = (entity: Entity, _properties: NavMeshComponentType) => {
   const navMesh = getComponent(entity, NavMeshComponent).value
-  const obj3d = getComponent(entity, Object3DComponent).value
 
-  // Is it possible to use code from YUKA's NavMeshLoader to load from a THREE BufferGeometry?
-  const mesh = findMesh(obj3d)
-  if (mesh !== null) {
-    const geometry = mesh.geometry
-    const position = geometry.getAttribute('position').array
-    const index = geometry.getIndex()?.array
-    const polygons = parseGeometry(position, index)
-    navMesh.fromPolygons(polygons)
+  if (hasComponent(entity, Object3DComponent)) {
+    const obj3d = getComponent(entity, Object3DComponent).value
+
+    // Is it possible to use code from YUKA's NavMeshLoader to load from a THREE BufferGeometry?
+    const mesh = findMesh(obj3d)
+    if (mesh !== null) {
+      const geometry = mesh.geometry
+      const position = geometry.getAttribute('position').array
+      const index = geometry.getIndex()?.array
+      const polygons = parseGeometry(position, index)
+      navMesh.fromPolygons(polygons)
+    }
   }
 }
 
