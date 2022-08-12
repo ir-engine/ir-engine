@@ -1,9 +1,11 @@
+import { GLTFWriter } from '../GLTFExporter'
+
 export class ExporterExtension {
-  exporter: any
+  name: string
+  writer: GLTFWriter
   options: any
   constructor(exporter, options) {
-    this.exporter = exporter
+    this.writer = exporter
     this.options = options
   }
-  onRegister() {}
 }

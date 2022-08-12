@@ -26,13 +26,15 @@ export const InteractiveModalView = () => {
       <div className="hint" xr-layer="true" xr-pixel-ratio="1">
         <div>{modalState.interactMessage.value}</div>
       </div>
+      <link href="https://fonts.googleapis.com/css?family=Lato:400" rel="stylesheet" type="text/css" />
       <style>
-        {`        
+        {`
         .modal {
           font-size: 60px;
           background-color: #000d;
           color: white;
-          font-family: Roboto, sans-serif;
+          font-family: 'Lato', sans-serif;
+          font-weight: 400;
           border: 10px solid white;
           border-radius: 50px;
           padding: 20px;

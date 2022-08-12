@@ -21,6 +21,7 @@ import { getEntityNodeArrayFromEntities } from '@xrengine/engine/src/ecs/functio
 import InfiniteGridHelper from '@xrengine/engine/src/scene/classes/InfiniteGridHelper'
 import TransformGizmo from '@xrengine/engine/src/scene/classes/TransformGizmo'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
+import { ObjectLayers } from '@xrengine/engine/src/scene/constants/ObjectLayers'
 import {
   SnapMode,
   TransformAxis,

@@ -11,7 +11,6 @@ import {
   matchesWithDefault
 } from '../../common/functions/MatchesUtils'
 import { Engine } from '../../ecs/classes/Engine'
-import { matchPose } from '../../transform/TransformInterfaces'
 import { NetworkTopics } from '../classes/Network'
 import { matchesAvatarProps } from '../interfaces/WorldState'
 
@@ -33,6 +32,14 @@ export class WorldNetworkAction {
   static spawnDebugPhysicsObject = defineAction({
     type: 'xre.world.SPAWN_DEBUG_PHYSICS_OBJECT',
     config: matches.any.optional(),
+    $topic: NetworkTopics.world
+  })
+
+  static registerSceneObject = defineAction({
+    type: 'xre.world.REGISTER_SCENE_OBJECT',
+    networkId: matchesWithDefault(matchesNetworkId, () => Engine.instance.currentWorld.createNetworkId()),
+    objectUuid: matches.string,
+    $cache: true,
     $topic: NetworkTopics.world
   })
 
@@ -115,21 +122,17 @@ export class WorldNetworkAction {
 
   static requestAuthorityOverObject = defineAction({
     type: 'xre.world.REQUEST_AUTHORITY_OVER_OBJECT',
-    object: matches.shape({
-      ownerId: matchesUserId,
-      networkId: matchesNetworkId
-    }),
-    requester: matches.string,
+    ownerId: matchesUserId,
+    networkId: matchesNetworkId,
+    newAuthority: matchesUserId,
     $topic: NetworkTopics.world
   })
 
   static transferAuthorityOfObject = defineAction({
     type: 'xre.world.TRANSFER_AUTHORITY_OF_OBJECT',
-    object: matches.shape({
-      ownerId: matchesUserId,
-      networkId: matchesNetworkId
-    }),
-    newAuthor: matches.string,
+    ownerId: matchesUserId,
+    networkId: matchesNetworkId,
+    newAuthority: matchesUserId,
     $topic: NetworkTopics.world
   })
 

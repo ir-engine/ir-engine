@@ -8,8 +8,10 @@ import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import { hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { PersistTagComponent } from '@xrengine/engine/src/scene/components/PersistTagComponent'
 import { PreventBakeTagComponent } from '@xrengine/engine/src/scene/components/PreventBakeTagComponent'
+import { SceneDynamicLoadTagComponent } from '@xrengine/engine/src/scene/components/SceneDynamicLoadTagComponent'
 import { SceneTagComponent } from '@xrengine/engine/src/scene/components/SceneTagComponent'
 import { VisibleComponent } from '@xrengine/engine/src/scene/components/VisibleComponent'
+import { SCENE_COMPONENT_DYNAMIC_LOAD } from '@xrengine/engine/src/scene/functions/loaders/DynamicLoadFunctions'
 import { SCENE_COMPONENT_PERSIST } from '@xrengine/engine/src/scene/functions/loaders/PersistFunctions'
 import { SCENE_COMPONENT_PREVENT_BAKE } from '@xrengine/engine/src/scene/functions/loaders/PreventBakeFunctions'
 import { SCENE_COMPONENT_VISIBLE } from '@xrengine/engine/src/scene/functions/loaders/VisibleFunctions'
@@ -22,10 +24,12 @@ import EditorCommands from '../../constants/EditorCommands'
 import { getNodeEditorsForEntity } from '../../functions/PrefabEditors'
 import { useSelectionState } from '../../services/SelectionServices'
 import BooleanInput from '../inputs/BooleanInput'
+import CompoundNumericInput from '../inputs/CompoundNumericInput'
 import InputGroup from '../inputs/InputGroup'
 import NameInputGroup from './NameInputGroup'
 import Object3DNodeEditor from './Object3DNodeEditor'
 import TransformPropertyGroup from './TransformPropertyGroup'
+import { updateProperty } from './Util'
 
 const StyledNodeEditor = (styled as any).div`
 `
@@ -98,6 +102,19 @@ export const PropertiesPanelContainer = () => {
   // access state to detect the change
   selectionState.objectChangeCounter.value
 
+  const onChangeDynamicLoad = (value) => {
+    executeCommandWithHistoryOnSelection({
+      type: EditorCommands.TAG_COMPONENT,
+      operations: [
+        {
+          component: SceneDynamicLoadTagComponent,
+          sceneComponentName: SCENE_COMPONENT_DYNAMIC_LOAD,
+          type: value ? TagComponentOperation.ADD : TagComponentOperation.REMOVE
+        }
+      ]
+    })
+  }
+
   const onChangeVisible = (value) => {
     executeCommandWithHistoryOnSelection({
       type: EditorCommands.TAG_COMPONENT,
@@ -136,7 +153,6 @@ export const PropertiesPanelContainer = () => {
       ]
     })
   }
-
   //rendering editor views for customization of element properties
   let content
   const multiEdit = selectedEntities.length > 1

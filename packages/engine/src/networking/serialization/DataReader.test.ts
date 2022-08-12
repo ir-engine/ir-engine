@@ -7,7 +7,7 @@ import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { getState } from '@xrengine/hyperflux'
 
 import { createMockNetwork } from '../../../tests/util/createMockNetwork'
-import { roundNumberToPlaces } from '../../common/functions/roundVector'
+import { roundNumberToPlaces } from '../../../tests/util/MathTestUtils'
 import { createQuaternionProxy, createVector3Proxy } from '../../common/proxies/three'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
@@ -19,8 +19,8 @@ import { VelocityComponent } from '../../physics/components/VelocityComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { XRHandsInputComponent } from '../../xr/XRComponents'
 import { XRHandBones } from '../../xr/XRHandBones'
+import { NetworkObjectAuthorityTag } from '../components/NetworkObjectAuthorityTag'
 import { NetworkObjectComponent } from '../components/NetworkObjectComponent'
-import { NetworkObjectOwnedTag } from '../components/NetworkObjectOwnedTag'
 import {
   checkBitflag,
   createDataReader,
@@ -465,6 +465,7 @@ describe('DataReader', () => {
 
     addComponent(entity, NetworkObjectComponent, {
       networkId,
+      authorityUserId: userId,
       ownerId: userId
     })
 
@@ -532,10 +533,11 @@ describe('DataReader', () => {
 
     addComponent(entity, NetworkObjectComponent, {
       networkId,
+      authorityUserId: userId,
       ownerId: userId
     })
 
-    addComponent(entity, NetworkObjectOwnedTag, {})
+    addComponent(entity, NetworkObjectAuthorityTag, true)
 
     writeEntity(view, networkId, entity)
 
@@ -638,6 +640,7 @@ describe('DataReader', () => {
       })
       addComponent(entity, NetworkObjectComponent, {
         networkId,
+        authorityUserId: userId,
         ownerId: userId
       })
       network.userIndexToUserId.set(userIndex, userId)
@@ -711,6 +714,7 @@ describe('DataReader', () => {
       })
       addComponent(entity, NetworkObjectComponent, {
         networkId,
+        authorityUserId: userId,
         ownerId: userId
       })
     })
@@ -807,6 +811,7 @@ describe('DataReader', () => {
       })
       addComponent(entity, NetworkObjectComponent, {
         networkId,
+        authorityUserId: userId,
         ownerId: userId
       })
       network.userIndexToUserId.set(userIndex, userId)
@@ -851,6 +856,7 @@ describe('DataReader', () => {
       })
       addComponent(entity, NetworkObjectComponent, {
         networkId,
+        authorityUserId: userId,
         ownerId: userId
       })
       network.userIndexToUserId.set(userIndex, userId)
@@ -889,6 +895,7 @@ describe('DataReader', () => {
       })
       addComponent(entity, NetworkObjectComponent, {
         networkId,
+        authorityUserId: userId,
         ownerId: userId
       })
       network.userIndexToUserId.set(userIndex, userId)

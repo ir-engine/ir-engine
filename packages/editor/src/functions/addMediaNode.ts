@@ -111,9 +111,6 @@ export async function addMediaNode(
       )
   }
 
-  AssetLoader.Cache.delete(url)
-  await AssetLoader.loadAsync(url)
-
   if (prefabType) {
     executeCommandWithHistory({
       type: EditorCommands.ADD_OBJECTS,

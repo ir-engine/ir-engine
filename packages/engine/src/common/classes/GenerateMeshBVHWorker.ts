@@ -20,9 +20,9 @@ export class GenerateMeshBVHWorker {
     }
   }
 
-  async _serverWorker() {
-    const path = await require('path')
-    const workerPath = path.resolve(__dirname, './generateBVHAsync.worker.js')
+  _serverWorker() {
+    const path = require('path')
+    const workerPath = path.resolve(__dirname, './generateBVHAsync.register.js')
     this.worker = new Worker(workerPath, { type: 'module' })
   }
 
@@ -34,7 +34,7 @@ export class GenerateMeshBVHWorker {
     const { worker } = this
     this.running = true
 
-    return new Promise((resolve, reject) => {
+    return new Promise<MeshBVH>((resolve, reject) => {
       worker.onmessage = (e) => {
         this.running = false
         worker.onmessage = null

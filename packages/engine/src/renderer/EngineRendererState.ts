@@ -4,6 +4,7 @@ import { matches, Validator } from '@xrengine/engine/src/common/functions/Matche
 import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
 import { ClientStorage } from '../common/classes/ClientStorage'
+import { isMobile } from '../common/functions/isMobile'
 import { Engine } from '../ecs/classes/Engine'
 import InfiniteGridHelper from '../scene/classes/InfiniteGridHelper'
 import { ObjectLayers } from '../scene/constants/ObjectLayers'
@@ -31,7 +32,7 @@ type EngineRendererStateType = {
 export const EngineRendererState = defineState({
   name: 'EngineRendererState',
   initial: () => ({
-    qualityLevel: 5, // range from 0 to 5
+    qualityLevel: isMobile ? 1 : 5, // range from 0 to 5
     automatic: true,
     // usePBR: true,
     usePostProcessing: false,

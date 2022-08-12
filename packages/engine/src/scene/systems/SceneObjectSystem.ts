@@ -1,5 +1,5 @@
 import { Not } from 'bitecs'
-import { Material, Mesh, Vector3 } from 'three'
+import { BufferGeometry, Material, Mesh, Vector3 } from 'three'
 
 import { createActionQueue, getState } from '@xrengine/hyperflux'
 
@@ -12,14 +12,17 @@ import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { XRUIComponent } from '../../xrui/components/XRUIComponent'
+import { EnvmapComponent } from '../components/EnvmapComponent'
 import { NameComponent } from '../components/NameComponent'
-import { Object3DComponent, Object3DWithEntity } from '../components/Object3DComponent'
+import { Object3DComponent } from '../components/Object3DComponent'
 import { PersistTagComponent } from '../components/PersistTagComponent'
+import { SceneTagComponent } from '../components/SceneTagComponent'
 import { ShadowComponent } from '../components/ShadowComponent'
 import { SimpleMaterialTagComponent } from '../components/SimpleMaterialTagComponent'
 import { UpdatableComponent } from '../components/UpdatableComponent'
 import { VisibleComponent } from '../components/VisibleComponent'
 import { ObjectLayers } from '../constants/ObjectLayers'
+import { updateEnvMap } from '../functions/loaders/EnvMapFunctions'
 import { useSimpleMaterial, useStandardMaterial } from '../functions/loaders/SimpleMaterialFunctions'
 import { registerPrefabs } from '../functions/registerPrefabs'
 import { registerDefaultSceneFunctions } from '../functions/registerSceneFunctions'
@@ -100,12 +103,14 @@ export default async function SceneObjectSystem(world: World) {
   const visibleQuery = defineQuery([Object3DComponent, VisibleComponent])
   const notVisibleQuery = defineQuery([Object3DComponent, Not(VisibleComponent)])
   const updatableQuery = defineQuery([Object3DComponent, UpdatableComponent])
+  const envmapQuery = defineQuery([Object3DComponent, EnvmapComponent])
+  const sceneEnvmapQuery = defineQuery([SceneTagComponent, EnvmapComponent])
 
   const useSimpleMaterialsActionQueue = createActionQueue(EngineActions.useSimpleMaterials.matches)
 
   return () => {
     for (const entity of sceneObjectQuery.exit()) {
-      const obj3d = getComponent(entity, Object3DComponent, true).value
+      const obj3d = getComponent(entity, Object3DComponent, true).value as Mesh
 
       if (!obj3d.parent) console.warn('[Object3DComponent]: Scene object has been removed manually.')
       else obj3d.removeFromParent()
@@ -114,12 +119,18 @@ export default async function SceneObjectSystem(world: World) {
       for (const layer of layers) {
         if (layer.has(obj3d)) layer.delete(obj3d)
       }
+
+      obj3d.traverse((mesh: Mesh) => {
+        ;(mesh.material as Material)?.dispose()
+        ;(mesh.geometry as BufferGeometry)?.dispose()
+      })
     }
 
     for (const entity of sceneObjectQuery.enter()) {
       if (!hasComponent(entity, Object3DComponent)) return // may have been since removed
-      const obj3d = getComponent(entity, Object3DComponent).value as Object3DWithEntity
-      obj3d.entity = entity
+      const { value } = getComponent(entity, Object3DComponent)
+      // @ts-ignore
+      value.entity = entity
 
       const node = world.entityTree.entityNodeMap.get(entity)
       if (node) {
@@ -127,12 +138,12 @@ export default async function SceneObjectSystem(world: World) {
       } else {
         const scene = Engine.instance.currentWorld.scene
         let isInScene = false
-        obj3d.traverseAncestors((ancestor) => {
+        value.traverseAncestors((ancestor) => {
           if (ancestor === scene) {
             isInScene = true
           }
         })
-        if (!isInScene) scene.add(obj3d)
+        if (!isInScene) scene.add(value)
       }
 
       processObject3d(entity)
@@ -171,5 +182,8 @@ export default async function SceneObjectSystem(world: World) {
       const obj = getComponent(entity, Object3DComponent)?.value as unknown as Updatable
       obj?.update(fixedDelta)
     }
+
+    for (const entity of envmapQuery.enter()) updateEnvMap(entity)
+    for (const entity of sceneEnvmapQuery.enter()) updateEnvMap(entity)
   }
 }

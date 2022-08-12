@@ -53,7 +53,7 @@ export const deserializeCameraProperties: ComponentDeserializeFunction = (
 
   getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_CAMERA_PROPERTIES)
 
-  if (isClient) {
+  if (isClient && !Engine.instance.isEditor) {
     setCameraProperties(Engine.instance.currentWorld.cameraEntity, json.props)
   }
 }

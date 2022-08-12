@@ -1,3 +1,4 @@
+import { InstanceInterface } from '../dbmodels/Instance'
 import { ThemeMode } from './ClientSetting'
 import { IdentityProvider } from './IdentityProvider'
 import { LocationAdmin } from './LocationAdmin'
@@ -30,7 +31,9 @@ export interface UserInterface {
   inverseRelationType?: RelationshipType
   avatarUrl?: string
   instanceId?: string
+  instance?: InstanceInterface
   channelInstanceId?: string
+  channelInstance?: InstanceInterface
   partyId?: string
   locationBans?: LocationBan[]
   user_setting?: UserSetting

@@ -105,28 +105,19 @@ const UserTable = ({ className, search }: UserProps) => {
   }
 
   const rows = adminUsers.map((el) => {
-    const loc: any = null
-    const loca = loc ? (
-      loc.name || <span className={styles.spanNone}>{t('admin:components.common.none')}</span>
-    ) : (
-      <span className={styles.spanNone}>{t('admin:components.common.none')}</span>
-    )
-    const ins: any = null
-    const inst = ins ? (
-      ins.ipAddress || <span className={styles.spanNone}>{t('admin:components.common.none')}</span>
-    ) : (
-      <span className={styles.spanNone}>{t('admin:components.common.none')}</span>
-    )
-
     return createData(
       el.id || '',
       el,
       el.name,
       el.avatarId || <span className={styles.spanNone}>{t('admin:components.common.none')}</span>,
       el.isGuest.toString(),
-      loca,
+      el.instance && el.instance.location ? (
+        el.instance.location.name
+      ) : (
+        <span className={styles.spanNone}>{t('admin:components.common.none')}</span>
+      ),
       el.inviteCode || <span className={styles.spanNone}>{t('admin:components.common.none')}</span>,
-      inst
+      el.instance ? el.instance.ipAddress : <span className={styles.spanNone}>{t('admin:components.common.none')}</span>
     )
   })
 

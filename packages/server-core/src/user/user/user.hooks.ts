@@ -104,7 +104,18 @@ export default {
             model: 'user-settings'
           },
           {
-            model: 'instance'
+            model: 'instance',
+            as: 'instance',
+            include: [
+              {
+                model: 'location',
+                as: 'location'
+              }
+            ]
+          },
+          {
+            model: 'instance',
+            as: 'channelInstance'
           },
           {
             model: 'scope'

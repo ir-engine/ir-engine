@@ -222,9 +222,9 @@ export const setupAvatarHeight = (entity: Entity, model: Object3D) => {
   resizeAvatar(entity, tempVec3ForHeight.y, tempVec3ForCenter)
 }
 
-export const loadGrowingEffectObject = (entity: Entity, originalMatList: Array<MaterialMap>) => {
-  const textureLight = AssetLoader.getFromCache('/itemLight.png')
-  const texturePlate = AssetLoader.getFromCache('/itemPlate.png')
+export const loadGrowingEffectObject = async (entity: Entity, originalMatList: Array<MaterialMap>) => {
+  const textureLight = await AssetLoader.loadAsync('/itemLight.png')
+  const texturePlate = await AssetLoader.loadAsync('/itemPlate.png')
 
   const lightMesh = new Mesh(
     new PlaneGeometry(0.04, 3.2),

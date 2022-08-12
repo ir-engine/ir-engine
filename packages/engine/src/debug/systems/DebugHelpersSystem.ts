@@ -23,7 +23,7 @@ import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
-import { BoundingBoxComponent } from '../../interaction/components/BoundingBoxComponent'
+import { BoundingBoxComponent } from '../../interaction/components/BoundingBoxComponents'
 import { InteractorComponent } from '../../interaction/components/InteractorComponent'
 import { NavMeshComponent } from '../../navigation/component/NavMeshComponent'
 import { createGraphHelper } from '../../navigation/GraphHelper'
@@ -69,7 +69,7 @@ export default async function DebugHelpersSystem(world: World) {
   }
 
   const avatarDebugQuery = defineQuery([AvatarComponent, VelocityComponent, TransformComponent])
-  const boundingBoxQuery = defineQuery([BoundingBoxComponent])
+  const boundingBoxQuery = defineQuery([Object3DComponent, BoundingBoxComponent])
   const arrowHelperQuery = defineQuery([DebugArrowComponent])
   const ikAvatarQuery = defineQuery([XRInputSourceComponent])
   const navmeshQuery = defineQuery([DebugNavMeshComponent, NavMeshComponent])
@@ -182,14 +182,13 @@ export default async function DebugHelpersSystem(world: World) {
 
     for (const entity of boundingBoxQuery.exit()) {
       const boxHelper = helpersByEntity.box.get(entity) as Box3Helper
-      Engine.instance.currentWorld.scene.remove(boxHelper)
+      boxHelper.removeFromParent()
       helpersByEntity.box.delete(entity)
     }
 
     for (const entity of boundingBoxQuery.enter()) {
       const boundingBox = getComponent(entity, BoundingBoxComponent)
       const helper = new Box3Helper(boundingBox.box)
-      helper.visible = false
       helpersByEntity.box.set(entity, helper)
       Engine.instance.currentWorld.scene.add(helper)
     }

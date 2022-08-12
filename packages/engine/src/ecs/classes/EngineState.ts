@@ -1,6 +1,7 @@
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { defineAction, defineState, getState, useState } from '@xrengine/hyperflux'
 
+import { ParityValue } from '../../common/enums/ParityValue'
 import { matches, matchesEntity, matchesUserId, Validator } from '../../common/functions/MatchesUtils'
 import { Entity } from './Entity'
 
@@ -169,7 +170,8 @@ export class EngineActions {
 
   static interactedWithObject = defineAction({
     type: 'xre.engine.INTERACTED_WITH_OBJECT' as const,
-    targetEntity: matchesEntity
+    targetEntity: matchesEntity,
+    parityValue: matches.string as Validator<unknown, typeof ParityValue[keyof typeof ParityValue]>
   })
 
   /**

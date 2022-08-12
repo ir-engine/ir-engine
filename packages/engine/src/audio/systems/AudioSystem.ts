@@ -72,8 +72,6 @@ export type AudioElementNode = {
 export const AudioElementNodes = new WeakMap<HTMLMediaElement | MediaStream, AudioElementNode>()
 
 export default async function AudioSystem(world: World) {
-  await AssetLoader.loadAsync(AUDIO_TEXTURE_PATH)
-
   /** create gain nodes for mix buses */
   Engine.instance.gainNodeMixBuses.mediaStreams = Engine.instance.audioContext.createGain()
   Engine.instance.gainNodeMixBuses.mediaStreams.connect(Engine.instance.cameraGainNode)

@@ -166,6 +166,7 @@
       "cancelDelete": "Cancel"
     },
     "setting": {
+      "chromeAEC": "If you experience echo, please enable echo cancellation by going to ",
       "audio": "Audio",
       "lbl-volume": "Volume",
       "lbl-microphone": "Microphone",
