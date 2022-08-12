@@ -50,8 +50,8 @@ export const gatherFocussedInteractives = (entity: Entity, raycastList: Entity[]
 
   for (const entityIn of raycastList) {
     const targetTransform = getComponent(entityIn, TransformComponent)
-    frustum.containsPoint(targetTransform.position)
-    subFocusedArray.push([entityIn, transform.position.distanceTo(targetTransform.position)])
+    if (frustum.containsPoint(targetTransform.position))
+      subFocusedArray.push([entityIn, transform.position.distanceTo(targetTransform.position)])
   }
 
   interactor.subFocusedArray = subFocusedArray.map((v) => v[0])
