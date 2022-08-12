@@ -44,6 +44,8 @@ import Typography from '@mui/material/Typography'
 import InputSelect from '../../../../admin/common/InputSelect'
 import styles from '../index.module.scss'
 
+const chromeDesktop = !isMobile && /chrome/i.test(navigator.userAgent)
+
 const SettingMenu = (): JSX.Element => {
   const { t } = useTranslation()
   const rendererState = useEngineRendererState()
@@ -114,6 +116,15 @@ const SettingMenu = (): JSX.Element => {
     <div className={styles.menuPanel}>
       <div className={styles.settingPanel}>
         <section className={styles.settingSection}>
+          {chromeDesktop && (
+            <p style={{ textAlign: 'center' }}>
+              {t('user:usermenu.setting.chromeAEC')}
+              <br />
+              <b>
+                <u>chrome://flags/#chrome-wide-echo-cancellation</u>
+              </b>
+            </p>
+          )}
           <Typography variant="h5" className={styles.settingHeader}>
             {t('user:usermenu.setting.audio')}
           </Typography>
