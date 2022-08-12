@@ -1,21 +1,15 @@
-import { KTX2Encoder } from '@etherealjs/web-layer/core/textures/KTX2Encoder'
 import {
   CompressedTexture,
-  DataTexture,
   Mesh,
   PerspectiveCamera,
-  PixelFormat,
   PlaneBufferGeometry,
   Scene,
   ShaderMaterial,
   Texture,
   Uniform,
-  Vector2,
-  WebGLRenderer,
-  WebGLRenderTarget
+  WebGLRenderer
 } from 'three'
 
-import { EngineRenderer } from '../../../../renderer/WebGLRendererSystem'
 import { GLTFWriter } from '../GLTFExporter'
 import { ExporterExtension } from './ExporterExtension'
 
@@ -60,9 +54,6 @@ export default class BasisuExporterExtension extends ExporterExtension {
     temporaryRenderer.setSize(map.image.width, map.image.height)
     temporaryRenderer.clear()
     temporaryRenderer.render(temporaryScene, temporaryCam)
-    //const imgData = temporaryRenderer.domElement.getContext("2d")!.createImageData(map.image.width, map.image.height)
-    //const imgData = temporaryRenderer.domElement.getContext("webgl2")?.
-    //if (!imgData) throw new Error("Failed to create image data for texture: " + map)
     return new Texture(temporaryRenderer.domElement)
   }
 
