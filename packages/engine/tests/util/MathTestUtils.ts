@@ -13,6 +13,14 @@ export const compareArrays = (arr1, arr2, tolerance) => {
   }
 }
 
+const tempQuat = new Quaternion()
+export function quatNearEqual(a: Quaternion, b: Quaternion, epsilon: number = Number.EPSILON): boolean {
+  return (
+    tempQuat.set(a.x - b.x, a.y - b.y, a.z - b.z, a.w - b.w).lengthSq() < epsilon ||
+    tempQuat.set(a.x + b.x, a.y + b.y, a.z + b.z, a.w + b.w).lengthSq() < epsilon
+  )
+}
+
 export const equalsEpsilon = (v1: number, v2: number, epsilon = 0.001) => {
   return Math.abs(v1 - v2) < epsilon
 }
@@ -23,10 +31,10 @@ export const vector3EqualsEpsilon = (v1: Vector3, v2: Vector3, epsilon = 0.001) 
 
 export const quaternionEqualsEpsilon = (q1: Quaternion, q2: Quaternion, epsilon = 0.001) => {
   return (
-    equalsEpsilon(q1.x, q2.x, epsilon) &&
-    equalsEpsilon(q1.y, q2.y, epsilon) &&
-    equalsEpsilon(q1.z, q2.z, epsilon) &&
-    equalsEpsilon(q1.w, q2.w, epsilon)
+    equalsEpsilon(Math.abs(q1.x), Math.abs(q2.x), epsilon) &&
+    equalsEpsilon(Math.abs(q1.y), Math.abs(q2.y), epsilon) &&
+    equalsEpsilon(Math.abs(q1.z), Math.abs(q2.z), epsilon) &&
+    equalsEpsilon(Math.abs(q1.w), Math.abs(q2.w), epsilon)
   )
 }
 

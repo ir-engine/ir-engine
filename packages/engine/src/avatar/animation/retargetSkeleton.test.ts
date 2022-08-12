@@ -1,7 +1,7 @@
 import assert from 'assert'
 import { Bone, Group, Matrix4, Quaternion, Vector3 } from 'three'
 
-import { quaternionEqualsEpsilon } from '../../../tests/util/MathTestUtils'
+import { quaternionEqualsEpsilon, quatNearEqual } from '../../../tests/util/MathTestUtils'
 import avatarBoneMatching from '../AvatarBoneMatching'
 import { makeDefaultSkinnedMesh, makeSkinnedMeshFromBoneData } from '../functions/avatarFunctions'
 import { retargetSkeleton } from './retargetSkeleton'
@@ -53,7 +53,7 @@ describe('retargetSkeleton', () => {
         formatQuat(bone.quaternion) +
         ' / Target: ' +
         formatQuat(targetBone.quaternion)
-      assert(quaternionEqualsEpsilon(bone.quaternion, targetBone.quaternion, QUAT_EPSILON), message)
+      assert(quatNearEqual(bone.quaternion, targetBone.quaternion, QUAT_EPSILON), message)
     })
   })
 
