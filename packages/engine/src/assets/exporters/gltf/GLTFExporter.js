@@ -147,6 +147,7 @@ const WEBGL_CONSTANTS = {
 	TRIANGLE_STRIP: 0x0005,
 	TRIANGLE_FAN: 0x0006,
 
+	BYTE: 0x1400,
 	UNSIGNED_BYTE: 0x1401,
 	UNSIGNED_SHORT: 0x1403,
 	FLOAT: 0x1406,
@@ -846,7 +847,7 @@ class GLTFWriter {
 
 		let componentSize;
 
-		if ( componentType === WEBGL_CONSTANTS.UNSIGNED_BYTE ) {
+		if ( componentType === WEBGL_CONSTANTS.UNSIGNED_BYTE || componentType === WEBGL_CONSTANTS.BYTE ) {
 
 			componentSize = 1;
 
@@ -900,6 +901,10 @@ class GLTFWriter {
 				} else if ( componentType === WEBGL_CONSTANTS.UNSIGNED_BYTE ) {
 
 					dataView.setUint8( offset, value );
+
+				} else if ( componentType === WEBGL_CONSTANTS.BYTE ) {
+
+					dataView.setInt8( offset, value );
 
 				}
 
@@ -1019,7 +1024,11 @@ class GLTFWriter {
 
 			componentType = WEBGL_CONSTANTS.UNSIGNED_BYTE;
 
-		} else {
+		} else if ( attribute.array.constructor === Int8Array ) {
+
+			componentType = WEBGL_CONSTANTS.BYTE;
+		  
+		}  else {
 
 			throw new Error( 'THREE.GLTFExporter: Unsupported bufferAttribute component type.' );
 
