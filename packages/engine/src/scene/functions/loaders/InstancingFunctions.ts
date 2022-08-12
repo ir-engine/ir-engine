@@ -788,6 +788,7 @@ export async function stageInstancing(entity: Entity, world = Engine.instance.cu
     world.scene.add(val)
     obj3d = addComponent(entity, Object3DComponent, { value: val })
   }
+  obj3d.value.frustumCulled = false
   const val = obj3d.value as UpdateableObject3D
   val.name = `${result.name} Base`
   const updates: ((dt: number) => void)[] = []

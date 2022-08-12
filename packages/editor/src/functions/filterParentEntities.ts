@@ -14,12 +14,12 @@ import { DisableTransformTagComponent } from '@xrengine/engine/src/transform/com
  * @returns List of parent entities
  */
 export const filterParentEntities = (
-  entityList: Entity[],
-  parentEntityList: Entity[] = [],
+  entityList: (Entity | string)[],
+  parentEntityList: (Entity | string)[] = [],
   filterUnremovable = true,
   filterUntransformable = true,
   tree = useWorld().entityTree
-): Entity[] => {
+): (Entity | string)[] => {
   parentEntityList.length = 0
 
   // Recursively find the nodes in the tree with the lowest depth

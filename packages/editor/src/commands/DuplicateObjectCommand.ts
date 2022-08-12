@@ -35,7 +35,9 @@ function prepare(command: DuplicateObjectCommandParams) {
   command.affectedNodes = command.affectedNodes.filter((o) => shouldNodeDeserialize(o))
 
   if (command.keepHistory) {
-    command.undo = { selection: accessSelectionState().selectedEntities.value.slice(0) }
+    command.undo = {
+      selection: accessSelectionState().selectedEntities.value.filter((ent) => typeof ent !== 'string') as Entity[]
+    }
   }
 }
 

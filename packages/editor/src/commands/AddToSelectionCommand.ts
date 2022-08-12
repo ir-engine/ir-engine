@@ -12,7 +12,7 @@ import { updateOutlinePassSelection } from '../functions/updateOutlinePassSelect
 import { accessSelectionState, SelectionAction } from '../services/SelectionServices'
 
 export type AddToSelectionCommandUndoParams = {
-  selection: Entity[]
+  selection: (Entity | string)[]
 }
 
 export type AddToSelectionCommandParams = CommandParams & {
@@ -23,7 +23,7 @@ export type AddToSelectionCommandParams = CommandParams & {
 
 function prepare(command: AddToSelectionCommandParams) {
   if (command.keepHistory) {
-    command.undo = { selection: accessSelectionState().selectedEntities.value.slice(0) }
+    command.undo = { selection: accessSelectionState().selectedEntities.value.slice() }
   }
 }
 

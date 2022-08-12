@@ -1,3 +1,5 @@
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { EngineRenderer } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
@@ -11,7 +13,11 @@ export const updateOutlinePassSelection = (): void => {
   const meshes = [] as any[]
   const parentEntities = accessSelectionState().selectedParentEntities.value
   for (let i = 0; i < parentEntities.length; i++) {
-    const obj3d = getComponent(parentEntities[i], Object3DComponent)?.value
+    const parentEnt = parentEntities[i]
+    const isUuid = typeof parentEnt === 'string'
+    const obj3d = isUuid
+      ? Engine.instance.currentWorld.scene.getObjectByProperty('uuid', parentEnt)
+      : getComponent(parentEntities[i] as Entity, Object3DComponent)?.value
     obj3d?.traverse((child: any) => {
       if (
         !child.userData.disableOutline &&
