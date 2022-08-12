@@ -40,7 +40,7 @@ function prepare(command: GroupCommandParams) {
     command.undo = {
       parents: [],
       befores: [],
-      selection: accessSelectionState().selectedEntities.value.slice(0)
+      selection: accessSelectionState().selectedEntities.value.filter((obj) => typeof obj !== 'string') as Entity[]
     }
 
     const tree = Engine.instance.currentWorld.entityTree

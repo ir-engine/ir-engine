@@ -50,6 +50,7 @@
     "dev-agones-silent": "npm run dev-agones &> /dev/null",
     "dev-client": "cd packages/client && npm run dev",
     "dev-docker": "cd scripts && docker-compose up -d",
+    "dev-tabs": "cd scripts && ./dev-tabs.sh",
     "fetch-projects": "lerna exec 'git fetch -p && git rebase' --parallel --ignore @xrengine/*",
     "dev-nginx": "",
     "dev-reinit": "cd packages/server && npm run dev-reinit-db",
@@ -112,7 +113,8 @@
     "stylelint-config-standard-scss": "^3.0.0",
     "stylelint-scss": "^4.2.0",
     "supertest": "6.2.2",
-    "trace-unhandled": "2.0.1"
+    "trace-unhandled": "2.0.1",
+    "ttab": "^0.7.3"
   },
   "dependencies": {
     "@feathersjs/commons": "5.0.0-pre.10",

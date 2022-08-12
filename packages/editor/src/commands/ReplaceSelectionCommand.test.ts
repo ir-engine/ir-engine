@@ -1,6 +1,7 @@
 import assert from 'assert'
 
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import { addComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
@@ -156,8 +157,9 @@ describe('ReplaceSelectionCommand', () => {
       const selection = accessSelectionState().selectedEntities.value
       assert.equal(selection.length, command.undo?.selection.length)
       command.undo?.selection.forEach((entity, i) => {
+        if (typeof entity === 'string') return
         assert.equal(selection[i], entity)
-        assert(hasComponent(entity, SelectTagComponent))
+        assert(hasComponent(entity as Entity, SelectTagComponent))
       })
     })
   })

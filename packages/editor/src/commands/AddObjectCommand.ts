@@ -24,7 +24,7 @@ import { EditorAction } from '../services/EditorServices'
 import { accessSelectionState, SelectionAction } from '../services/SelectionServices'
 
 export type AddObjectCommandUndoParams = {
-  selection: Entity[]
+  selection: (Entity | string)[]
 }
 
 export type AddObjectCommandParams = CommandParams & {
@@ -50,7 +50,8 @@ function prepare(command: AddObjectCommandParams) {
   if (typeof command.useUniqueName === 'undefined') command.useUniqueName = true
 
   if (command.keepHistory) {
-    command.undo = { selection: accessSelectionState().selectedEntities.value.slice(0) }
+    const validEntities = accessSelectionState().selectedEntities.value.slice()
+    command.undo = { selection: validEntities }
   }
 }
 
