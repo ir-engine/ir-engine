@@ -3,8 +3,8 @@ import { Mesh, MeshBasicMaterial } from 'three'
 import { Quaternion, Vector3 } from 'three'
 
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
-import { quaternionEqualsEpsilon, vector3EqualsEpsilon } from '@xrengine/common/src/utils/mathUtils'
 
+import { quaternionEqualsEpsilon, vector3EqualsEpsilon } from '../../../../tests/util/MathTestUtils'
 import { Engine } from '../../../ecs/classes/Engine'
 import { getComponent } from '../../../ecs/functions/ComponentFunctions'
 import { addComponent } from '../../../ecs/functions/ComponentFunctions'

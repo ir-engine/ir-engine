@@ -7,7 +7,7 @@ import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { getState } from '@xrengine/hyperflux'
 
 import { createMockNetwork } from '../../../tests/util/createMockNetwork'
-import { roundNumberToPlaces } from '../../common/functions/roundVector'
+import { roundNumberToPlaces } from '../../../tests/util/MathTestUtils'
 import { createQuaternionProxy, createVector3Proxy } from '../../common/proxies/three'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
