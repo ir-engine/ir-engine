@@ -1,7 +1,6 @@
 import { Not } from 'bitecs'
 import { Vector3 } from 'three'
 
-import { Deg2Rad } from '@xrengine/common/src/utils/mathUtils'
 import { createActionQueue } from '@xrengine/hyperflux'
 
 import { changeState } from '../../avatar/animation/AnimationGraph'
@@ -10,6 +9,7 @@ import { AvatarAnimationComponent } from '../../avatar/components/AvatarAnimatio
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
 import checkPositionIsValid from '../../common/functions/checkPositionIsValid'
+import { Deg2Rad } from '../../common/functions/MathFunctions'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions } from '../../ecs/classes/EngineState'
 import { World } from '../../ecs/classes/World'
@@ -48,7 +48,7 @@ export default async function MountPointSystem(world: World) {
 
   const diffPos = new Vector3()
   const PositionEpsilon = 0.1
-  const RotationEpsilon = 1 * Deg2Rad()
+  const RotationEpsilon = 1 * Deg2Rad
 
   return () => {
     for (const entity of mountPointQuery.enter()) {
