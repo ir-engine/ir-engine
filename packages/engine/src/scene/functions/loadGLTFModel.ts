@@ -5,22 +5,18 @@ import { AnimationComponent } from '../../avatar/components/AnimationComponent'
 import { parseGeometry } from '../../common/functions/parseGeometry'
 import { DebugNavMeshComponent } from '../../debug/DebugNavMeshComponent'
 import { Engine } from '../../ecs/classes/Engine'
-import { EngineActions, getEngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, ComponentMap, getComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
+import { addEntityNodeInTree, createEntityNode } from '../../ecs/functions/EntityTreeFunctions'
 import { NavMeshComponent } from '../../navigation/component/NavMeshComponent'
-import { matchActionOnce } from '../../networking/functions/matchActionOnce'
 import { applyTransformToMeshWorld } from '../../physics/functions/parseModelColliders'
-import { setComputedTransformComponent } from '../../transform/components/ComputedTransformComponent'
 import { setTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
-import { ModelComponent, ModelComponentType } from '../components/ModelComponent'
+import { ModelComponent } from '../components/ModelComponent'
 import { NameComponent } from '../components/NameComponent'
 import { Object3DComponent } from '../components/Object3DComponent'
 import { ObjectLayers } from '../constants/ObjectLayers'
 import { loadComponent } from '../functions/SceneLoading'
-import { applyTransformPositionOffset, applyTransformRotationOffset } from './loaders/TransformFunctions'
-import { VIDEO_MESH_NAME } from './loaders/VideoFunctions'
 import { setObjectLayers } from './setObjectLayers'
 
 export const createObjectEntityFromGLTF = (entity: Entity, obj3d: Object3D): void => {
@@ -83,6 +79,10 @@ export const parseObjectComponentsFromGLTF = (entity: Entity, object3d?: Object3
 
   for (const mesh of meshesToProcess) {
     const e = createEntity()
+
+    const node = createEntityNode(e, mesh.uuid)
+    addEntityNodeInTree(node, Engine.instance.currentWorld.entityTree.entityNodeMap.get(entity))
+
     addComponent(e, NameComponent, {
       name: mesh.userData['xrengine.entity'] ?? mesh.uuid
     })
@@ -100,16 +100,6 @@ export const parseObjectComponentsFromGLTF = (entity: Entity, object3d?: Object3
 
     mesh.removeFromParent()
     addComponent(e, Object3DComponent, { value: mesh })
-
-    // to ensure colliders and other entities from gltf metadata move with models in the editor, we need to add a child transform component
-    if (Engine.instance.isEditor) {
-      setComputedTransformComponent(e, entity, () => {
-        const transform = getComponent(e, TransformComponent)
-        const parentTransform = getComponent(entity, TransformComponent)
-        applyTransformPositionOffset(transform, parentTransform, mesh.position)
-        applyTransformRotationOffset(transform, parentTransform, mesh.quaternion)
-      })
-    }
 
     createObjectEntityFromGLTF(e, mesh)
   }
