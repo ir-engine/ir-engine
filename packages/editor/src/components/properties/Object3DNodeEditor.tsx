@@ -4,7 +4,7 @@ import ReactJson from 'react-json-view'
 import { Euler, InstancedMesh, Material, Matrix4, Mesh, Object3D, Quaternion, Vector3 } from 'three'
 
 import { AxisIcon } from '@xrengine/client-core/src/util/AxisIcon'
-import { Deg2Rad, Rad2Deg } from '@xrengine/common/src/utils/mathUtils'
+import { Deg2Rad, Rad2Deg } from '@xrengine/engine/src/common/functions/MathFunctions'
 import { dispatchAction, useHookstate } from '@xrengine/hyperflux'
 
 import EditorCommands from '../../constants/EditorCommands'
@@ -119,7 +119,7 @@ export const Object3DNodeEditor: EditorComponentType = (props) => {
                     <Vector3Input value={position} />
                   </InputGroup>
                   <InputGroup name="Rotation" label="Rotation">
-                    <Vector3Input value={new Vector3(euler.x, euler.y, euler.z).multiplyScalar(Rad2Deg())} />
+                    <Vector3Input value={new Vector3(euler.x, euler.y, euler.z).multiplyScalar(Rad2Deg)} />
                   </InputGroup>
                   <InputGroup name="Scale" label="Scale">
                     <Vector3Input value={scale} />
