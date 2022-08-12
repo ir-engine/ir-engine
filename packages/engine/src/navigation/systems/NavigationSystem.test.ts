@@ -4,6 +4,7 @@ import sinon from 'sinon'
 import { Object3D } from 'three'
 
 import { Engine } from '../../ecs/classes/Engine'
+import { EngineActions } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
@@ -15,7 +16,8 @@ import { Object3DComponent } from '../../scene/components/Object3DComponent'
 describe('NavigationSystem', async () => {
   let updateNavMesh = sinon.spy()
   let sceneObjectUpdateAction: { entities: Entity[] }
-  const createActionQueue = () => () => [sceneObjectUpdateAction]
+  const createActionQueue = (matches: any) => () =>
+    matches === EngineActions.sceneObjectUpdate.matches ? [sceneObjectUpdateAction] : []
 
   let navigationSystem: () => void
   const { default: NavigationSystem } = proxyquire('./NavigationSystem', {
