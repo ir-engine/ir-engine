@@ -132,6 +132,12 @@ function createColliderDesc(mesh: Mesh, colliderDescOptions: ColliderDescOptions
       case 'trimesh':
         shapeType = ShapeType['TriMesh']
         break
+      case 'capsule':
+        shapeType = ShapeType['Capsule']
+        break
+      case 'cylinder':
+        shapeType = ShapeType['Cylinder']
+        break
       default:
         console.error('unrecognized collider shape type: ' + colliderDescOptions.type)
     }

@@ -1,12 +1,12 @@
 import { Collider } from '@dimforge/rapier3d-compat'
 import { OrthographicCamera, PerspectiveCamera, Quaternion, Vector, Vector3 } from 'three'
 
-import { rotate } from '@xrengine/common/src/utils/mathUtils'
 import { getState } from '@xrengine/hyperflux'
 
 import { Direction } from '../../common/constants/Axis3D'
 import { V_010 } from '../../common/constants/MathConstants'
 import checkPositionIsValid from '../../common/functions/checkPositionIsValid'
+import { rotate } from '../../common/functions/MathFunctions'
 import { smoothDamp } from '../../common/functions/MathLerpFunctions'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'

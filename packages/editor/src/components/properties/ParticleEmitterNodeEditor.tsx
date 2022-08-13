@@ -77,7 +77,7 @@ export const ParticleEmitterNodeEditor: EditorComponentType = (props) => {
             case 'float':
               return (
                 <InputGroup key={compKey} name={k} label={k}>
-                  <CompoundNumericInput value={args[k]} onChange={setArgsProp(k)} />
+                  <CompoundNumericInput value={args[k]} onChange={setArgsProp(k)} min={v.min} max={v.max} />
                 </InputGroup>
               )
             case 'color':
@@ -96,7 +96,13 @@ export const ParticleEmitterNodeEditor: EditorComponentType = (props) => {
                 <InputGroup key={compKey} name={k} label={k}>
                   {(args[k] as number[]).map((arrayVal, idx) => {
                     return (
-                      <NumericInput key={`${compKey}-${idx}`} value={arrayVal} onChange={setArgsArrayProp(k, idx)} />
+                      <NumericInput
+                        key={`${compKey}-${idx}`}
+                        value={arrayVal}
+                        onChange={setArgsArrayProp(k, idx)}
+                        min={v.min}
+                        max={v.max}
+                      />
                     )
                   })}
                 </InputGroup>

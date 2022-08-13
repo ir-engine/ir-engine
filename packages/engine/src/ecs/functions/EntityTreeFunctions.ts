@@ -113,10 +113,11 @@ export function emptyEntityTree(tree = Engine.instance.currentWorld.entityTree):
  */
 export function createEntityNode(entity: Entity, uuid?: string): EntityTreeNode {
   const node = {
-    type: 'EntityNode',
+    type: 'EntityNode' as const,
     entity,
-    uuid: uuid || MathUtils.generateUUID()
-  } as const
+    uuid: uuid || MathUtils.generateUUID(),
+    children: []
+  }
 
   // addComponent(entity, NetworkObjectComponent, {
   //   ownerId: Engine.instance.currentWorld._worldHostId,
@@ -308,12 +309,13 @@ export function isEntityNode(node: any): node is EntityTreeNode {
  * @returns Entity Tree node array obtained from passed Entities.
  */
 export function getEntityNodeArrayFromEntities(
-  entities: Entity[],
+  entities: (Entity | string)[],
   tree = Engine.instance.currentWorld.entityTree
 ): EntityTreeNode[] {
   const arr = [] as EntityTreeNode[]
 
   for (const entity of entities) {
+    if (typeof entity === 'string') continue
     const node = tree.entityNodeMap.get(entity)
     if (node) arr.push(node)
   }

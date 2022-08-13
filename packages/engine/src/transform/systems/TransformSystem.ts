@@ -17,7 +17,12 @@ import { RigidBodyDynamicTagComponent } from '../../physics/components/RigidBody
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { SpawnPointComponent } from '../../scene/components/SpawnPointComponent'
-import { ComputedTransformComponent } from '../components/ComputedTransformComponent'
+import {
+  applyTransformPositionOffset,
+  applyTransformRotationOffset
+} from '../../scene/functions/loaders/TransformFunctions'
+import { ComputedTransformComponent, setComputedTransformComponent } from '../components/ComputedTransformComponent'
+import { LocalTransformComponent } from '../components/LocalTransformComponent'
 import { TransformComponent } from '../components/TransformComponent'
 
 const scratchVector3 = new Vector3()
@@ -31,6 +36,7 @@ const ownedDynamicRigidBodyQuery = defineQuery([
   VelocityComponent
 ])
 const transformObjectQuery = defineQuery([TransformComponent, Object3DComponent])
+const localTransformQuery = defineQuery([LocalTransformComponent])
 const transformQuery = defineQuery([TransformComponent])
 const spawnPointQuery = defineQuery([SpawnPointComponent])
 
@@ -108,6 +114,17 @@ export default async function TransformSystem(world: World) {
   }
 
   return () => {
+    for (const entity of localTransformQuery.enter()) {
+      const parentEntity = world.entityTree.entityNodeMap.get(entity)?.parentEntity!
+      setComputedTransformComponent(entity, parentEntity, (childEntity, parentEntity) => {
+        const transform = getComponent(childEntity, TransformComponent)
+        const localTransform = getComponent(childEntity, LocalTransformComponent)
+        const parentTransform = getComponent(parentEntity, TransformComponent)
+        applyTransformPositionOffset(transform, parentTransform, localTransform.position)
+        applyTransformRotationOffset(transform, parentTransform, localTransform.rotation)
+      })
+    }
+
     // proxify all object3D components w/ a transform component
 
     for (const entity of transformObjectQuery.enter()) {

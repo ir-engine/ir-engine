@@ -2,7 +2,11 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
+import { LocalTransformComponent } from '@xrengine/engine/src/transform/components/LocalTransformComponent'
+import {
+  TransformComponent,
+  TransformComponentType
+} from '@xrengine/engine/src/transform/components/TransformComponent'
 
 import { executeCommandWithHistoryOnSelection } from '../../classes/History'
 import EditorCommands from '../../constants/EditorCommands'
@@ -11,7 +15,7 @@ import EulerInput from '../inputs/EulerInput'
 import InputGroup from '../inputs/InputGroup'
 import Vector3Input from '../inputs/Vector3Input'
 import PropertyGroup from './PropertyGroup'
-import { EditorComponentType } from './Util'
+import { EditorComponentType, updateProperty } from './Util'
 
 /**
  * TransformPropertyGroup component is used to render editor view to customize properties.
@@ -27,12 +31,18 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
 
   //function to handle the position properties
   const onChangePosition = (value) => {
-    executeCommandWithHistoryOnSelection({ type: EditorCommands.POSITION, positions: [value] })
+    executeCommandWithHistoryOnSelection({
+      type: EditorCommands.POSITION,
+      positions: [value]
+    })
   }
 
   //function to handle changes rotation properties
   const onChangeRotation = (value) => {
-    executeCommandWithHistoryOnSelection({ type: EditorCommands.ROTATION, rotations: [value] })
+    executeCommandWithHistoryOnSelection({
+      type: EditorCommands.ROTATION,
+      rotations: [value]
+    })
   }
 
   //function to handle changes in scale properties
@@ -46,20 +56,26 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
 
   //rendering editor view for Transform properties
   const transfromComponent = getComponent(props.node.entity, TransformComponent)
+  const localTransfromComponent = getComponent(props.node.entity, LocalTransformComponent)
+  const transform = localTransfromComponent ?? transfromComponent
 
   return (
     <PropertyGroup name={t('editor:properties.transform.title')}>
       <InputGroup name="Position" label={t('editor:properties.transform.lbl-postition')}>
         <Vector3Input
-          value={transfromComponent.position}
+          value={transform.position}
           smallStep={0.01}
           mediumStep={0.1}
           largeStep={1}
-          onChange={onChangePosition}
+          onChange={localTransfromComponent ? updateProperty(LocalTransformComponent, 'position') : onChangePosition}
         />
       </InputGroup>
       <InputGroup name="Rotation" label={t('editor:properties.transform.lbl-rotation')}>
-        <EulerInput quaternion={transfromComponent.rotation} onChange={onChangeRotation} unit="°" />
+        <EulerInput
+          quaternion={transform.rotation}
+          onChange={localTransfromComponent ? updateProperty(LocalTransformComponent, 'rotation') : onChangeRotation}
+          unit="°"
+        />
       </InputGroup>
       <InputGroup name="Scale" label={t('editor:properties.transform.lbl-scale')}>
         <Vector3Input
@@ -67,8 +83,8 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
           smallStep={0.01}
           mediumStep={0.1}
           largeStep={1}
-          value={transfromComponent.scale}
-          onChange={onChangeScale}
+          value={transform.scale}
+          onChange={localTransfromComponent ? updateProperty(LocalTransformComponent, 'scale') : onChangeScale}
         />
       </InputGroup>
     </PropertyGroup>

@@ -5,10 +5,10 @@ import { getEmptyImage } from 'react-dnd-html5-backend'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
-import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { getEntityNodeArrayFromEntities } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
-import { ErrorComponent } from '@xrengine/engine/src/scene/components/ErrorComponent'
+import { ErrorComponent, ErrorComponentType } from '@xrengine/engine/src/scene/components/ErrorComponent'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
 
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown'
@@ -34,7 +34,7 @@ import styles from './styles.module.scss'
  * @return {string}
  */
 export const getNodeElId = (node: HeirarchyTreeNodeType) => {
-  return 'hierarchy-node-' + node.entityNode.entity
+  return 'hierarchy-node-' + (node.obj3d ? node.obj3d.uuid : node.entityNode.entity)
 }
 
 export type RenameNodeData = {
@@ -66,8 +66,12 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
   const engineState = useEngineState()
   const selectionState = useSelectionState()
 
-  const nameComponent = getComponent(node.entityNode.entity, NameComponent)
-  const errorComponent = getComponent(node.entityNode.entity, ErrorComponent)
+  const nodeName = node.obj3d
+    ? node.obj3d.name ?? node.obj3d.uuid
+    : hasComponent(node.entityNode.entity, NameComponent)
+    ? getComponent(node.entityNode.entity, NameComponent).name
+    : ''
+  const errorComponent: ErrorComponentType = node.entityNode && getComponent(node.entityNode.entity, ErrorComponent)
 
   const onClickToggle = useCallback(
     (e: MouseEvent) => {
@@ -109,12 +113,16 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
       return {
         type: ItemTypes.Node,
         multiple,
-        value: multiple ? getEntityNodeArrayFromEntities(selectedEntities) : tree.entityNodeMap.get(selectedEntities[0])
+        value: multiple
+          ? getEntityNodeArrayFromEntities(selectedEntities as Entity[])
+          : tree.entityNodeMap.get(selectedEntities[0] as Entity)
       }
     },
     canDrag() {
       const tree = useWorld().entityTree
-      return !selectionState.selectedEntities.value.some((entity) => !tree.entityNodeMap.get(entity)?.parentEntity)
+      return !selectionState.selectedEntities.value.some(
+        (entity) => !tree.entityNodeMap.get(entity as Entity)?.parentEntity
+      )
     },
     collect: (monitor) => ({
       isDragging: !!monitor.isDragging()
@@ -123,6 +131,8 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
 
   const dropItem = (node: HeirarchyTreeNodeType, place: 'On' | 'Before' | 'After') => {
     const tree = useWorld().entityTree
+
+    if (!node.entityNode) return () => {}
 
     let parentNode: EntityTreeNode | undefined = undefined
     let beforeNode: EntityTreeNode | undefined = undefined
@@ -234,7 +244,7 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
   }, [preview])
 
   const collectNodeMenuProps = useCallback(() => node, [node])
-  const editors = getNodeEditorsForEntity(node.entityNode.entity)
+  const editors = node.entityNode ? getNodeEditorsForEntity(node.entityNode.entity) : []
   const IconComponent = editors.length && editors[editors.length - 1].iconComponent
   const renaming = data.renamingNode && data.renamingNode.entity === node.entityNode.entity
   const marginLeft = node.depth > 0 ? node.depth * 8 + 20 : 0
@@ -251,6 +261,7 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
           onKeyDown={onNodeKeyDown}
           className={
             styles.treeNodeContainer +
+            (node.obj3d ? ' ' + styles.obj3d : '') +
             (node.depth === 0 ? ' ' + styles.rootNode : '') +
             (node.selected ? ' ' + styles.selected : '') +
             (node.active ? ' ' + styles.active : '')
@@ -292,11 +303,11 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
                   </div>
                 ) : (
                   <div className={styles.nodelabel + (isOverOn && canDropOn ? ' ' + styles.dropTarget : '')}>
-                    {nameComponent?.name}
+                    {nodeName}
                   </div>
                 )}
               </div>
-              {engineState.errorEntities[node.entityNode.entity].get() && (
+              {node.entityNode && engineState.errorEntities[node.entityNode.entity].get() && (
                 <NodeIssuesIcon node={[{ severity: 'error', message: errorComponent?.error }]} />
               )}
             </div>

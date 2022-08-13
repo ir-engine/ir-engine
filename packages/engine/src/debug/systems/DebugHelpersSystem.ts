@@ -262,7 +262,8 @@ export default async function DebugHelpersSystem(world: World) {
         for (const entity of audioHelper()) {
           const obj3d = getComponent(entity, Object3DComponent)
           const mediaComponent = getComponent(entity, MediaElementComponent)
-          const audioEl = AudioElementNodes.get(mediaComponent)!
+          const audioEl = AudioElementNodes.get(mediaComponent)
+          if (!audioEl) continue
 
           if (!helpersByEntity.positionalAudioHelper.has(entity)) {
             const helper = new PositionalAudioHelper(audioEl)

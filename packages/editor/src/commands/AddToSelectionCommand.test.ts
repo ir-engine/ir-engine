@@ -1,6 +1,7 @@
 import assert from 'assert'
 
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import { addComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
@@ -144,10 +145,12 @@ describe('AddToSelectionCommand', () => {
       AddToSelectionCommand.undo(command)
       applyIncomingActions()
 
-      command.undo?.selection.forEach((entity) => {
-        assert(accessSelectionState().selectedEntities.value.includes(entity))
-        assert(hasComponent(entity, SelectTagComponent))
-      })
+      command.undo?.selection
+        .filter((ent) => typeof ent !== 'string')
+        .forEach((entity: Entity) => {
+          assert(accessSelectionState().selectedEntities.value.includes(entity))
+          assert(hasComponent(entity, SelectTagComponent))
+        })
     })
   })
 

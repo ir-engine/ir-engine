@@ -5,7 +5,7 @@ import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import { hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { IgnoreRaycastTagComponent } from '@xrengine/engine/src/scene/components/IgnoreRaycastTagComponent'
-import { Object3DWithEntity } from '@xrengine/engine/src/scene/components/Object3DComponent'
+import { Object3DComponent, Object3DWithEntity } from '@xrengine/engine/src/scene/components/Object3DComponent'
 import { ObjectLayers } from '@xrengine/engine/src/scene/constants/ObjectLayers'
 
 type RaycastIntersectionNode = Intersection<Object3DWithEntity> & {
@@ -32,7 +32,10 @@ export function getIntersectingNode(results: Intersection<Object3DWithEntity>[])
 
     if (obj && (obj as Object3D) !== Engine.instance.currentWorld.scene) {
       result.obj3d = obj
-      result.node = useWorld().entityTree.entityNodeMap.get(obj.entity)
+      result.node = Engine.instance.currentWorld.entityTree.entityNodeMap.get(obj.entity)
+      //if(result.node && hasComponent(result.node.entity, Object3DComponent))
+      //result.obj3d = result.object
+      //result.node = result.object.uuid
       return result
     }
   }
