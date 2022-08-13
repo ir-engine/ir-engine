@@ -214,7 +214,7 @@
       "lbl-cameraRight": "Camera Right",
       "lbl-useInCSM": "Use in CSM",
       "lbl-castShadow": "Cast Shadow",
-      "lbl-disableForCSM": "Disabled because Cascade shadow map is enabled.",
+      "lbl-disableForCSM": "Disabled when CSM is enabled",
       "lbl-shadowmapResolution": "Shadow Map Resolution",
       "lbl-shadowBias": "Shadow Bias",
       "lbl-shadowRadius": "Shadow Radius",

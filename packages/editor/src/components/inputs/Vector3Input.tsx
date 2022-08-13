@@ -27,8 +27,6 @@ export const Vector3Scrubber = (styled as any)(Scrubber)`
 `
 
 export const UniformButtonContainer = (styled as any).div`
-  position: absolute;
-  right: -24px;
   top: 0;
   display: flex;
   align-items: center;
@@ -108,6 +106,16 @@ export const Vector3Input = ({
 
   return (
     <Vector3InputContainer>
+      <UniformButtonContainer>
+        {uniformScaling && (
+          <>
+            <Hidden as="input" id={checkboxId} type="checkbox" checked={uniformEnabled} onChange={onToggleUniform} />
+            <label title="Uniform Scale" htmlFor={checkboxId}>
+              {uniformEnabled ? <LinkIcon /> : <LinkOffIcon />}
+            </label>
+          </>
+        )}
+      </UniformButtonContainer>
       <NumericInput
         {...rest}
         value={vx}
@@ -144,14 +152,6 @@ export const Vector3Input = ({
           )
         }
       />
-      {uniformScaling && (
-        <UniformButtonContainer>
-          <Hidden as="input" id={checkboxId} type="checkbox" checked={uniformEnabled} onChange={onToggleUniform} />
-          <label title="Uniform Scale" htmlFor={checkboxId}>
-            {uniformEnabled ? <LinkIcon /> : <LinkOffIcon />}
-          </label>
-        </UniformButtonContainer>
-      )}
     </Vector3InputContainer>
   )
 }

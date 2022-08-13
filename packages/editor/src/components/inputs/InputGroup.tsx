@@ -59,12 +59,12 @@ export const InputGroupContent = (styled as any).div`
   margin-left: 5px;
 
   &>*:first-child {
-    max-width: calc(100% - 23px)
+    max-width: calc(100% - 2px)
   }
 
   & > label {
     display: block;
-    width: 25%;
+    width: 35%;
     color: var(--textColor);
     padding-bottom: 2px;
     padding-top: 4px;
@@ -82,7 +82,7 @@ export const InputGroupVerticalContainer = (styled as any).div`
 
   & > label {
     display: block;
-    width: 25%;
+    width: 35%;
     color: var(--textColor);
     padding-bottom: 2px;
     padding-top: 4px;
