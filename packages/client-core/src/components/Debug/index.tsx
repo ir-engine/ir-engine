@@ -220,10 +220,7 @@ export const Debug = () => {
         </div>
         <div className={styles.jsonPanel}>
           <h1>{t('common:debug.entities')}</h1>
-          <JSONTree
-            data={namedEntities.value}
-            postprocessValue={(v) => (v?.attach && v?.get && v?.set ? v.attach(Downgraded).value : v)}
-          />
+          <JSONTree data={namedEntities.value} postprocessValue={(v) => v?.value ?? v} />
         </div>
         <div className={styles.jsonPanel}>
           <h1>{t('common:debug.networks')}</h1>

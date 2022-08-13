@@ -52,7 +52,7 @@ export const useChatHooks = ({ chatWindowOpen, setUnreadMessages, messageRefInpu
    * Message display logic
    */
 
-  const chatState = useChatState().attach(Downgraded).value
+  const chatState = useChatState().value
   const channels = chatState.channels.channels
   const activeChannelMatch = Object.values(channels).find((channel) => channel.channelType === 'instance')
   const activeChannel = activeChannelMatch?.messages ? activeChannelMatch.messages : []

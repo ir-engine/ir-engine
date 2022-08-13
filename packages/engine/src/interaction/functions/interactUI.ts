@@ -1,6 +1,5 @@
 import { WebLayer3D } from '@etherealjs/web-layer/three'
 
-import { createQuaternionProxy, createVector3Proxy } from '../../common/proxies/three'
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { NameComponent } from '../../scene/components/NameComponent'
