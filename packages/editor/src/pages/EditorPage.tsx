@@ -42,6 +42,11 @@ const systems = [
     args: { enabled: true }
   },
   {
+    systemModulePromise: import('../systems/EditorLocalTransformUpdateSystem'),
+    type: SystemUpdateType.PRE_RENDER,
+    args: { enabled: true }
+  },
+  {
     systemModulePromise: import('../systems/EditorCameraSystem'),
     type: SystemUpdateType.PRE_RENDER,
     args: { enabled: true }

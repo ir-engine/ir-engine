@@ -93,35 +93,35 @@ export default async function PhysicsSystem(world: World) {
       Physics.removeRigidBody(entity, world.physicsWorld, true)
     }
 
+    for (const entity of ownedRigidBodyQuery()) {
+      const rigidBody = getComponent(entity, RigidBodyComponent)
+      rigidBody.previousPosition.copy(rigidBody.body.translation() as Vector3)
+      rigidBody.previousRotation.copy(rigidBody.body.rotation() as Quaternion)
+      rigidBody.previousLinearVelocity.copy(rigidBody.body.linvel() as Vector3)
+      rigidBody.previousAngularVelocity.copy(rigidBody.body.linvel() as Vector3)
+    }
+
+    // reset position and velocity for network objects every frame
+    // (this needs to be updated each frame, because remote objects are not locally constrained)
+    // e.g., applying physics simulation to remote avatars is tricky, because avatar colliders should always be upright.
+    // TODO: it should be safe to skip this for objects unconstrained remote physics objects,
+    // we just need a way to identify them (Not(AvatarComponenent) may be enough for now...)
+    for (const entity of notOwnedRigidBodyQuery()) {
+      const { body } = getComponent(entity, RigidBodyComponent)
+      const { position, rotation } = getComponent(entity, TransformComponent)
+      const { linear, angular } = getComponent(entity, VelocityComponent)
+      body.setTranslation(position, true)
+      body.setRotation(rotation, true)
+      body.setLinvel(linear, true)
+      body.setAngvel(angular, true)
+      world.dirtyTransforms.add(entity)
+    }
+
+    // step physics world
+    world.physicsWorld.timestep = getState(EngineState).fixedDeltaSeconds.value
+    world.physicsWorld.step(world.physicsCollisionEventQueue)
+
     if (!Engine.instance.isEditor) {
-      for (const entity of ownedRigidBodyQuery()) {
-        const rigidBody = getComponent(entity, RigidBodyComponent)
-        rigidBody.previousPosition.copy(rigidBody.body.translation() as Vector3)
-        rigidBody.previousRotation.copy(rigidBody.body.rotation() as Quaternion)
-        rigidBody.previousLinearVelocity.copy(rigidBody.body.linvel() as Vector3)
-        rigidBody.previousAngularVelocity.copy(rigidBody.body.linvel() as Vector3)
-      }
-
-      // reset position and velocity for network objects every frame
-      // (this needs to be updated each frame, because remote objects are not locally constrained)
-      // e.g., applying physics simulation to remote avatars is tricky, because avatar colliders should always be upright.
-      // TODO: it should be safe to skip this for objects unconstrained remote physics objects,
-      // we just need a way to identify them (Not(AvatarComponenent) may be enough for now...)
-      for (const entity of notOwnedRigidBodyQuery()) {
-        const { body } = getComponent(entity, RigidBodyComponent)
-        const { position, rotation } = getComponent(entity, TransformComponent)
-        const { linear, angular } = getComponent(entity, VelocityComponent)
-        body.setTranslation(position, true)
-        body.setRotation(rotation, true)
-        body.setLinvel(linear, true)
-        body.setAngvel(angular, true)
-        world.dirtyTransforms.add(entity)
-      }
-
-      // step physics world
-      world.physicsWorld.timestep = getState(EngineState).fixedDeltaSeconds.value
-      world.physicsWorld.step(world.physicsCollisionEventQueue)
-
       const collisionEntities = collisionQuery()
 
       processCollisions(world, drainCollisions, collisionEntities)
