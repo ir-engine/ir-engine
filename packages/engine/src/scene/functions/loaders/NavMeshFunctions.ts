@@ -1,8 +1,9 @@
-import { Mesh, Object3D } from 'three'
+import { Object3D } from 'three'
 import { Polygon, Vector3 } from 'yuka'
 
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
+import { AssetLoader } from '../../../assets/classes/AssetLoader'
 import {
   ComponentDeserializeFunction,
   ComponentSerializeFunction,
@@ -11,15 +12,17 @@ import {
 import { isClient } from '../../../common/functions/isClient'
 import { Object3DUtils } from '../../../common/functions/Object3DUtils'
 import { Entity } from '../../../ecs/classes/Entity'
-import { addComponent, getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
+import { addComponent, getComponent, hasComponent, removeComponent } from '../../../ecs/functions/ComponentFunctions'
+import { createConvexRegionHelper } from '../../../navigation/functions/createConvexRegionHelper'
 import { NavMesh } from '../../classes/NavMesh'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
+import { ModelComponent } from '../../components/ModelComponent'
 import { NavMeshComponent, NavMeshComponentType } from '../../components/NavMeshComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 import { SCENE_COMPONENT_MODEL } from './ModelFunctions'
 
 export const SCENE_COMPONENT_NAV_MESH = 'navMesh'
-export const SCENE_COMPONENT_NAV_MESH_DEFAULT_VALUES = {}
+export const SCENE_COMPONENT_NAV_MESH_DEFAULT_VALUES: Partial<NavMeshComponentType> = { debugMode: false }
 
 export const deserializeNavMesh: ComponentDeserializeFunction = (
   entity: Entity,
@@ -83,31 +86,44 @@ function parseGeometry(position: ArrayLike<number>, index?: ArrayLike<number>) {
   return polygons
 }
 
-function findMesh(root: Object3D): Mesh | null {
-  let result: Object3D | null = null
-  Object3DUtils.traverse(root, (child: Object3D) => {
-    if ((child as any).isMesh) {
-      result = child
-      return true
-    }
-  })
-  return result
+/** Is it possible to use code from YUKA's NavMeshLoader to load from a THREE BufferGeometry? */
+function setNavMeshPolygons(navMesh: NavMesh, obj3d: Object3D) {
+  const mesh = Object3DUtils.findMesh(obj3d)
+  if (mesh !== null) {
+    const geometry = mesh.geometry
+    const position = geometry.getAttribute('position').array
+    const index = geometry.getIndex()?.array
+    const polygons = parseGeometry(position, index)
+    // This will also clear any existing polygons
+    navMesh.fromPolygons(polygons)
+  }
 }
 
-export const updateNavMesh: ComponentUpdateFunction = (entity: Entity, _properties: NavMeshComponentType) => {
+export const updateNavMesh: ComponentUpdateFunction = (entity: Entity, properties: NavMeshComponentType) => {
   const navMesh = getComponent(entity, NavMeshComponent).value
 
   if (hasComponent(entity, Object3DComponent)) {
-    const obj3d = getComponent(entity, Object3DComponent).value
+    if (properties.debugMode) {
+      // Make sure we process any existing Object3D before disposing of it
+      const obj3d = getComponent(entity, Object3DComponent).value
+      setNavMeshPolygons(navMesh, obj3d)
+      removeComponent(entity, Object3DComponent)
 
-    // Is it possible to use code from YUKA's NavMeshLoader to load from a THREE BufferGeometry?
-    const mesh = findMesh(obj3d)
-    if (mesh !== null) {
-      const geometry = mesh.geometry
-      const position = geometry.getAttribute('position').array
-      const index = geometry.getIndex()?.array
-      const polygons = parseGeometry(position, index)
-      navMesh.fromPolygons(polygons)
+      // Add the visual aid
+      addComponent(entity, Object3DComponent, { value: createConvexRegionHelper(navMesh) })
+    } else {
+      // Replace Object3D derived from the model
+      if (hasComponent(entity, ModelComponent)) {
+        const model = getComponent(entity, ModelComponent)
+        if (AssetLoader.Cache.has(model.src)) {
+          const obj3d = AssetLoader.Cache.get(model.src)
+          removeComponent(entity, Object3DComponent)
+          addComponent(entity, Object3DComponent, { value: obj3d })
+        }
+      }
+
+      const obj3d = getComponent(entity, Object3DComponent).value
+      setNavMeshPolygons(navMesh, obj3d)
     }
   }
 }
@@ -122,7 +138,7 @@ export const serializeNavMesh: ComponentSerializeFunction = (entity) => {
   }
 }
 
-export const parseNavMeshProperties = (_: NavMeshComponentType): NavMeshComponentType => {
+export const parseNavMeshProperties = (type: NavMeshComponentType): NavMeshComponentType => {
   const value = new NavMesh()
-  return { value }
+  return { ...type, value }
 }
