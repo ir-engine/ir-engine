@@ -40,7 +40,7 @@ export const download = async (projectName: string) => {
 
     logger.info(`[ProjectLoader]: Successfully downloaded and mounted project "${projectName}".`)
     if (projectName !== 'default-project') {
-      const npmInstallPromise = new Promise((resolve) => {
+      const npmInstallPromise = new Promise<void>((resolve) => {
         const npmInstallProcess = spawn('npm', ['install', '--legacy-peer-deps'], { cwd: localProjectDirectory })
         npmInstallProcess.once('exit', () => {
           logger.info('Finished npm installing %s', projectName)
