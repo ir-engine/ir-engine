@@ -5,7 +5,7 @@ import styled from 'styled-components'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
-import { hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { PersistTagComponent } from '@xrengine/engine/src/scene/components/PersistTagComponent'
 import { PreventBakeTagComponent } from '@xrengine/engine/src/scene/components/PreventBakeTagComponent'
 import { SceneDynamicLoadTagComponent } from '@xrengine/engine/src/scene/components/SceneDynamicLoadTagComponent'
@@ -56,15 +56,6 @@ const VisibleInputGroup = (styled as any)(InputGroup)`
   & > label {
     width: auto !important;
   }
-`
-
-/**
- * Styled component used to provide styles for visiblity checkbox.
- */
-const PersistInputGroup = (styled as any)(InputGroup)`
- & > label {
-   width: auto !important;
- }
 `
 
 /**
@@ -141,18 +132,6 @@ export const PropertiesPanelContainer = () => {
     })
   }
 
-  const onChangePersist = (value) => {
-    executeCommandWithHistoryOnSelection({
-      type: EditorCommands.TAG_COMPONENT,
-      operations: [
-        {
-          component: PersistTagComponent,
-          sceneComponentName: SCENE_COMPONENT_PERSIST,
-          type: value ? TagComponentOperation.ADD : TagComponentOperation.REMOVE
-        }
-      ]
-    })
-  }
   //rendering editor views for customization of element properties
   let content
   const multiEdit = selectedEntities.length > 1
@@ -180,6 +159,22 @@ export const PropertiesPanelContainer = () => {
               <NameInputGroup node={node as EntityTreeNode} key={nodeEntity} />
               {!hasComponent(nodeEntity, SceneTagComponent) && (
                 <>
+                  <VisibleInputGroup name="Dynamic Load" label={t('editor:properties.lbl-dynamicLoad')}>
+                    <BooleanInput
+                      value={hasComponent(nodeEntity, SceneDynamicLoadTagComponent)}
+                      onChange={onChangeDynamicLoad}
+                    />
+                    {hasComponent(nodeEntity, SceneDynamicLoadTagComponent) && (
+                      <CompoundNumericInput
+                        style={{ paddingLeft: `8px`, paddingRight: `8px` }}
+                        min={1}
+                        max={100}
+                        step={1}
+                        value={getComponent(nodeEntity, SceneDynamicLoadTagComponent).distance}
+                        onChange={updateProperty(SceneDynamicLoadTagComponent, 'distance')}
+                      />
+                    )}
+                  </VisibleInputGroup>
                   <VisibleInputGroup name="Visible" label={t('editor:properties.lbl-visible')}>
                     <BooleanInput value={hasComponent(nodeEntity, VisibleComponent)} onChange={onChangeVisible} />
                   </VisibleInputGroup>
@@ -192,9 +187,6 @@ export const PropertiesPanelContainer = () => {
                 </>
               )}
             </NameInputGroupContainer>
-            <PersistInputGroup name="Persist" label={t('editor:properties.lbl-persist')}>
-              <BooleanInput value={hasComponent(nodeEntity, PersistTagComponent)} onChange={onChangePersist} />
-            </PersistInputGroup>
             {transform && <TransformPropertyGroup node={node as EntityTreeNode} />}
           </PropertiesHeader>
         )}
