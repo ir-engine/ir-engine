@@ -100,7 +100,12 @@ export const addInteractableUI = (
 
 export default async function InteractiveSystem(world: World) {
   // Included Object3DComponent in query because Object3DComponent might be added with delay for network spawned objects
-  const interactableQuery = defineQuery([InteractableComponent, Object3DComponent, Not(AvatarComponent)])
+  const interactableQuery = defineQuery([
+    InteractableComponent,
+    Object3DComponent,
+    Not(AvatarComponent),
+    BoundingBoxComponent
+  ])
 
   return () => {
     for (const entity of interactableQuery.exit()) {
