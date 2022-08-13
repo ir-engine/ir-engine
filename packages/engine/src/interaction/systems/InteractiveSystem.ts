@@ -121,6 +121,7 @@ export default async function InteractiveSystem(world: World) {
       const boundingBoxComponent = getComponent(entity, BoundingBoxComponent)
 
       // center the model within it's bounding box
+      boundingBoxComponent.box.setFromObject(obj)
       const offset = boundingBoxComponent.box.getCenter(obj.children[0].position).sub(transform.position).negate()
       obj.position.sub(offset)
 
@@ -130,10 +131,8 @@ export default async function InteractiveSystem(world: World) {
       interactable.anchorPosition.copy(transform.position)
       interactable.anchorRotation.copy(transform.rotation)
 
-      const helper = new AxesHelper(1)
-      helper.position.copy(transform.position)
-      helper.quaternion.copy(transform.rotation)
-      Engine.instance.currentWorld.scene.add(helper)
+      // const helper = new AxesHelper(1)
+      // obj.add(helper)
     }
 
     if (Engine.instance.currentWorld.localClientEntity) {
