@@ -14,12 +14,14 @@ import {
 
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
+import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
 import { defineQuery, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { getEntityNodeArrayFromEntities } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
 import InfiniteGridHelper from '@xrengine/engine/src/scene/classes/InfiniteGridHelper'
 import TransformGizmo from '@xrengine/engine/src/scene/classes/TransformGizmo'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
+import { ObjectLayers } from '@xrengine/engine/src/scene/constants/ObjectLayers'
 import {
   SnapMode,
   TransformAxis,
@@ -92,8 +94,8 @@ export default async function EditorControlSystem(_: World) {
   let prevRotationAngle = 0
 
   let cameraComponent: EditorCameraComponentType
-  let selectedEntities: Entity[]
-  let selectedParentEntities: Entity[]
+  let selectedEntities: (Entity | string)[]
+  let selectedParentEntities: (Entity | string)[]
   let selectionCounter: number = 0
   let gizmoObj: TransformGizmo
   let transformMode: TransformModeType
@@ -124,8 +126,11 @@ export default async function EditorControlSystem(_: World) {
     raycaster.setFromCamera(coords, Engine.instance.currentWorld.camera)
     raycasterResults.length = 0
     raycastIgnoreLayers.set(1)
-    const os = selectionState.selectedParentEntities.value.map(
-      (entity) => getComponent(entity, Object3DComponent).value
+    const scene = Engine.instance.currentWorld.scene
+    const os = selectionState.selectedParentEntities.value.map((entity) =>
+      typeof entity === 'string'
+        ? scene.getObjectByProperty('uuid', entity as string)!
+        : getComponent(entity, Object3DComponent).value
     )
 
     findIntersectObjects(Engine.instance.currentWorld.scene, os, raycastIgnoreLayers)
@@ -166,7 +171,11 @@ export default async function EditorControlSystem(_: World) {
       if (selectedParentEntities.length === 0 || transformMode === TransformMode.Disabled) {
         gizmoObj.visible = false
       } else {
-        const lastSelectedObj3d = getComponent(selectedEntities[selectedEntities.length - 1], Object3DComponent)?.value
+        const lastSelection = selectedEntities[selectedEntities.length - 1]
+        const isUuid = typeof lastSelection === 'string'
+        const lastSelectedObj3d = isUuid
+          ? Engine.instance.currentWorld.scene.getObjectByProperty('uuid', lastSelection)!
+          : getComponent(lastSelection as Entity, Object3DComponent)?.value
         if (lastSelectedObj3d) {
           const isChanged =
             selectionCounter !== selectionState.selectionCounter.value ||
@@ -180,7 +189,13 @@ export default async function EditorControlSystem(_: World) {
               box.makeEmpty()
 
               for (let i = 0; i < selectedParentEntities.length; i++) {
-                box.expandByObject(getComponent(selectedParentEntities[i], Object3DComponent).value)
+                const parentEnt = selectedParentEntities[i]
+                const isUuid = typeof parentEnt === 'string'
+                box.expandByObject(
+                  isUuid
+                    ? Engine.instance.currentWorld.scene.getObjectByProperty('uuid', parentEnt)!
+                    : getComponent(parentEnt, Object3DComponent).value
+                )
               }
 
               box.getCenter(gizmoObj.position)
@@ -305,7 +320,7 @@ export default async function EditorControlSystem(_: World) {
           })
 
           if (isGrabbing && transformMode === TransformMode.Grab) {
-            EditorHistory.grabCheckPoint = selectedEntities ? selectedEntities[0] : (0 as Entity)
+            EditorHistory.grabCheckPoint = (selectedEntities?.find((ent) => typeof ent !== 'string') ?? 0) as Entity
           }
         } else if (transformMode === TransformMode.Rotate) {
           if (selectStartAndNoGrabbing) {
@@ -512,7 +527,7 @@ export default async function EditorControlSystem(_: World) {
       } else if (focusPosition) {
         raycasterResults.length = 0
         const result = getIntersectingNodeOnScreen(raycaster, focusPosition, raycasterResults)
-        if (result && result.node) {
+        if (result?.node) {
           cameraComponent.focusedObjects = [result.node]
           cameraComponent.refocus = true
         }

@@ -12,7 +12,7 @@ import { updateOutlinePassSelection } from '../functions/updateOutlinePassSelect
 import { accessSelectionState, SelectionAction } from '../services/SelectionServices'
 
 export type ToggleSelectionCommandUndoParams = {
-  selection: Entity[]
+  selection: (Entity | string)[]
 }
 
 export type ToggleSelectionCommandParams = CommandParams & {
@@ -38,9 +38,9 @@ function execute(command: ToggleSelectionCommandParams) {
 
     if (index > -1) {
       selectedEntities.splice(index, 1)
-      removeComponent(node.entity, SelectTagComponent)
+      typeof node.entity === 'number' && removeComponent(node.entity, SelectTagComponent)
     } else {
-      addComponent(node.entity, SelectTagComponent, {})
+      typeof node.entity === 'number' && addComponent(node.entity, SelectTagComponent, {})
       selectedEntities.push(node.entity)
     }
   }

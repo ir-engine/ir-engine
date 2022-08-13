@@ -73,16 +73,16 @@ export const updateImage: ComponentUpdateFunction = (entity: Entity, properties:
         addError(entity, 'error', `Image format ${component.imageSource.split('.').pop()}not supported`)
         return
       }
-      const texture = AssetLoader.getFromCache(component.imageSource)
+      AssetLoader.load(component.imageSource, {}, (texture) => {
+        texture.encoding = sRGBEncoding
+        texture.minFilter = LinearFilter
 
-      texture.encoding = sRGBEncoding
-      texture.minFilter = LinearFilter
+        if (mesh.material.map) mesh.material.map?.dispose()
+        mesh.material.map = texture
 
-      if (mesh.material.map) mesh.material.map?.dispose()
-      mesh.material.map = texture
-
-      if (component.projection === ImageProjection.Flat) resizeImageMesh(mesh)
-      removeError(entity, 'error')
+        if (component.projection === ImageProjection.Flat) resizeImageMesh(mesh)
+        removeError(entity, 'error')
+      })
     } catch (error) {
       addError(entity, 'error', 'Error Loading image')
     }

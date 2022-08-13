@@ -132,6 +132,12 @@ function createColliderDesc(mesh: Mesh, colliderDescOptions: ColliderDescOptions
       case 'trimesh':
         shapeType = ShapeType['TriMesh']
         break
+      case 'capsule':
+        shapeType = ShapeType['Capsule']
+        break
+      case 'cylinder':
+        shapeType = ShapeType['Cylinder']
+        break
       default:
         console.error('unrecognized collider shape type: ' + colliderDescOptions.type)
     }
@@ -289,10 +295,7 @@ function changeRigidbodyType(entity: Entity, newType: RigidBodyType) {
 }
 
 function castRay(world: World, raycastQuery: ComponentType<typeof RaycastComponent>) {
-  const ray = new Ray(
-    { x: raycastQuery.origin.x, y: raycastQuery.origin.y, z: raycastQuery.origin.z },
-    { x: raycastQuery.direction.x, y: raycastQuery.direction.y, z: raycastQuery.direction.z }
-  )
+  const ray = new Ray(raycastQuery.origin, raycastQuery.direction)
   const maxToi = raycastQuery.maxDistance
   const solid = true // TODO: Add option for this in RaycastComponent?
   const groups = raycastQuery.flags
@@ -337,6 +340,8 @@ function castShape(world: World, shapecastQuery: ComponentType<typeof ShapecastC
 const drainCollisionEventQueue = (physicsWorld: World) => (handle1: number, handle2: number, started: boolean) => {
   const collider1 = physicsWorld.getCollider(handle1)
   const collider2 = physicsWorld.getCollider(handle2)
+  if (!collider1 || !collider2) return
+
   const isTriggerEvent = collider1.isSensor() || collider2.isSensor()
   const rigidBody1 = collider1.parent()
   const rigidBody2 = collider2.parent()

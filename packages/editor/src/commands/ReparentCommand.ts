@@ -45,7 +45,7 @@ function prepare(command: ReparentCommandParams) {
       parents: [],
       befores: [],
       positions: [],
-      selection: accessSelectionState().selectedEntities.value.slice(0)
+      selection: accessSelectionState().selectedEntities.value.filter((ent) => typeof ent !== 'string') as Entity[]
     }
 
     const tree = Engine.instance.currentWorld.entityTree

@@ -34,6 +34,7 @@ export const EulerInput = (props: EulerInputProps) => {
 
   return (
     <Vector3InputContainer>
+      <UniformButtonContainer />
       <NumericInput
         value={vx}
         onChange={(x) => onChange(x, vy, vz)}
@@ -64,7 +65,6 @@ export const EulerInput = (props: EulerInputProps) => {
           </Vector3Scrubber>
         }
       />
-      <UniformButtonContainer />
     </Vector3InputContainer>
   )
 }

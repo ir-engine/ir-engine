@@ -1,4 +1,5 @@
 import { Not } from 'bitecs'
+import { Vector3 } from 'three'
 
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import multiLogger from '@xrengine/common/src/logger'
@@ -12,6 +13,7 @@ import { NetworkObjectComponent } from '@xrengine/engine/src/networking/componen
 import { NetworkObjectOwnedTag } from '@xrengine/engine/src/networking/components/NetworkObjectOwnedTag'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 import { XRUIComponent } from '@xrengine/engine/src/xrui/components/XRUIComponent'
+import { ObjectFitFunctions } from '@xrengine/engine/src/xrui/functions/ObjectFitFunctions'
 
 import { createAvatarDetailView } from './ui/AvatarDetailView'
 import { createAvatarContextMenuView } from './ui/UserMenuView'
@@ -49,6 +51,9 @@ export default async function AvatarUISystem(world: World) {
     Not(NetworkObjectOwnedTag)
   ])
   const AvatarContextMenuUI = createAvatarContextMenuView()
+
+  const vector3 = new Vector3()
+
   return () => {
     for (const userEntity of userQuery.enter()) {
       if (AvatarUI.has(userEntity)) {
@@ -65,13 +70,8 @@ export default async function AvatarUISystem(world: World) {
       const { avatarHeight } = getComponent(userEntity, AvatarComponent)
       const userTransform = getComponent(userEntity, TransformComponent)
       const xrui = getComponent(ui.entity, XRUIComponent)
-      if (!xrui) continue
-      xrui.container.scale.setScalar(
-        Math.max(1, Engine.instance.currentWorld.camera.position.distanceTo(userTransform.position) / 3)
-      )
-      xrui.container.position.copy(userTransform.position)
-      xrui.container.position.y += avatarHeight + 0.3
-      xrui.container.rotation.setFromRotationMatrix(Engine.instance.currentWorld.camera.matrix)
+      vector3.copy(userTransform.position).y += avatarHeight + 0.3
+      ObjectFitFunctions.lookAtCameraFromPosition(xrui.container, vector3)
     }
 
     for (const userEntity of userQuery.exit()) {

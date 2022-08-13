@@ -10,8 +10,8 @@ import { filterParentEntities } from '../functions/filterParentEntities'
 const transformProps = ['position', 'rotation', 'scale', 'matrix']
 
 type SelectionServiceStateType = {
-  selectedEntities: Entity[]
-  selectedParentEntities: Entity[]
+  selectedEntities: (Entity | string)[]
+  selectedParentEntities: (Entity | string)[]
   beforeSelectionChangeCounter: number
   selectionCounter: number
   objectChangeCounter: number
@@ -88,6 +88,6 @@ export class SelectionAction {
 
   static updateSelection = defineAction({
     type: 'editorSelection.SELECTION_CHANGED',
-    selectedEntities: matches.array as Validator<unknown, Entity[]>
+    selectedEntities: matches.array as Validator<unknown, (Entity | string)[]>
   })
 }

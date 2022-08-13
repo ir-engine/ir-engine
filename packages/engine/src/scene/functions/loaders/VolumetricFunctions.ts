@@ -17,15 +17,15 @@ import { isClient } from '../../../common/functions/isClient'
 import { Engine } from '../../../ecs/classes/Engine'
 import { getEngineState } from '../../../ecs/classes/EngineState'
 import { Entity } from '../../../ecs/classes/Entity'
-import { addComponent, getComponent, hasComponent, removeComponent } from '../../../ecs/functions/ComponentFunctions'
+import { addComponent, getComponent, removeComponent } from '../../../ecs/functions/ComponentFunctions'
 import { EngineRenderer } from '../../../renderer/WebGLRendererSystem'
 import UpdateableObject3D from '../../classes/UpdateableObject3D'
+import { CallbackComponent } from '../../components/CallbackComponent'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { MediaComponent } from '../../components/MediaComponent'
 import { MediaElementComponent } from '../../components/MediaElementComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 import { VolumetricComponent, VolumetricComponentType } from '../../components/VolumetricComponent'
-import { PlayMode } from '../../constants/PlayMode'
 import { addError, removeError } from '../ErrorFunctions'
 import { createAudioNode } from './AudioFunctions'
 
@@ -36,10 +36,6 @@ type VolumetricObject3D = UpdateableObject3D & {
   }
   autoplay: boolean
   controls: boolean
-  play()
-  pause()
-  seek()
-  callbacks()
 }
 
 let DracosisPlayer = null! as typeof import('@xrfoundation/volumetric/player').default
@@ -49,13 +45,6 @@ if (isClient) {
     DracosisPlayer = module1.default
   })
 }
-
-export const VolumetricCallbacks = [
-  { label: 'None', value: 'none' },
-  { label: 'Play', value: 'play' },
-  { label: 'Pause', value: 'pause' },
-  { label: 'Seek', value: 'seek' }
-]
 
 export const VolumetricsExtensions = ['drcs', 'uvol']
 export const SCENE_COMPONENT_VOLUMETRIC = 'volumetric'
@@ -137,22 +126,11 @@ export const addVolumetricComponent = (entity: Entity, props: VolumetricComponen
     }
   }
 
-  //setup callbacks
-  obj3d.play = () => {
-    player.play()
-  }
-
-  obj3d.pause = () => {
-    player.pause()
-  }
-
-  obj3d.seek = () => {
-    player.playOneFrame()
-  }
-
-  obj3d.callbacks = () => {
-    return VolumetricCallbacks
-  }
+  addComponent(entity, CallbackComponent, {
+    play: () => player.play(),
+    pause: () => player.pause(),
+    seek: () => player.playOneFrame()
+  })
 
   const el = player.video
 

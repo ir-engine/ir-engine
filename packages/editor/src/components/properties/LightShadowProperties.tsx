@@ -13,6 +13,7 @@ import BooleanInput from '../inputs/BooleanInput'
 import InputGroup from '../inputs/InputGroup'
 import NumericInputGroup from '../inputs/NumericInputGroup'
 import SelectInput from '../inputs/SelectInput'
+import { InfoTooltip } from '../layout/Tooltip'
 import { updateProperty } from './Util'
 
 /**
@@ -70,10 +71,8 @@ export const LightShadowProperties = (props: LightShadowPropertiesProps) => {
     <Fragment>
       <InputGroup
         name="Cast Shadow"
-        label={
-          t('editor:properties.directionalLight.lbl-castShadow') +
-          (csmEnabled ? '. ' + t('editor:properties.directionalLight.lbl-disableForCSM') : '')
-        }
+        label={t('editor:properties.directionalLight.lbl-castShadow')}
+        info={csmEnabled ? t('editor:properties.directionalLight.lbl-disableForCSM') : ''}
       >
         <BooleanInput
           value={lightComponent.castShadow}

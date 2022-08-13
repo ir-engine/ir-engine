@@ -1,4 +1,3 @@
-import { Transform } from '@gltf-transform/extensions'
 import { Not } from 'bitecs'
 import { Quaternion, Vector3 } from 'three'
 
@@ -9,8 +8,6 @@ import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
-import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
-import { NetworkObjectDirtyTag } from '../../networking/components/NetworkObjectDirtyTag'
 import { NetworkObjectOwnedTag } from '../../networking/components/NetworkObjectOwnedTag'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { TransformComponent } from '../../transform/components/TransformComponent'
@@ -18,7 +15,7 @@ import { Physics } from '../classes/Physics'
 import { CollisionComponent } from '../components/CollisionComponent'
 import { RaycastComponent } from '../components/RaycastComponent'
 import { RigidBodyComponent } from '../components/RigidBodyComponent'
-import { RigidBodyDynamicTagComponent } from '../components/RigidBodyDynamicTagComponent'
+import { RigidBodyFixedTagComponent } from '../components/RigidBodyFixedTagComponent'
 import { VelocityComponent } from '../components/VelocityComponent'
 import { ColliderHitEvent, CollisionEvents } from '../types/PhysicsTypes'
 
@@ -77,19 +74,9 @@ const processCollisions = (world: World, drainCollisions, collisionEntities: Ent
 
 export default async function PhysicsSystem(world: World) {
   const raycastQuery = defineQuery([RaycastComponent])
-
-  const dirtyNetworkedDynamicRigidBodyQuery = defineQuery([
-    NetworkObjectComponent,
-    RigidBodyComponent,
-    NetworkObjectDirtyTag,
-    RigidBodyDynamicTagComponent
-  ])
-
   const rigidBodyQuery = defineQuery([RigidBodyComponent])
-
   const ownedRigidBodyQuery = defineQuery([RigidBodyComponent, NetworkObjectOwnedTag])
   const notOwnedRigidBodyQuery = defineQuery([RigidBodyComponent, Not(NetworkObjectOwnedTag)])
-
   const teleportObjectQueue = createActionQueue(WorldNetworkAction.teleportObject.matches)
 
   await Physics.load()
@@ -106,33 +93,35 @@ export default async function PhysicsSystem(world: World) {
       Physics.removeRigidBody(entity, world.physicsWorld, true)
     }
 
+    for (const entity of ownedRigidBodyQuery()) {
+      const rigidBody = getComponent(entity, RigidBodyComponent)
+      rigidBody.previousPosition.copy(rigidBody.body.translation() as Vector3)
+      rigidBody.previousRotation.copy(rigidBody.body.rotation() as Quaternion)
+      rigidBody.previousLinearVelocity.copy(rigidBody.body.linvel() as Vector3)
+      rigidBody.previousAngularVelocity.copy(rigidBody.body.linvel() as Vector3)
+    }
+
+    // reset position and velocity for network objects every frame
+    // (this needs to be updated each frame, because remote objects are not locally constrained)
+    // e.g., applying physics simulation to remote avatars is tricky, because avatar colliders should always be upright.
+    // TODO: it should be safe to skip this for objects unconstrained remote physics objects,
+    // we just need a way to identify them (Not(AvatarComponenent) may be enough for now...)
+    for (const entity of notOwnedRigidBodyQuery()) {
+      const { body } = getComponent(entity, RigidBodyComponent)
+      const { position, rotation } = getComponent(entity, TransformComponent)
+      const { linear, angular } = getComponent(entity, VelocityComponent)
+      body.setTranslation(position, true)
+      body.setRotation(rotation, true)
+      body.setLinvel(linear, true)
+      body.setAngvel(angular, true)
+      world.dirtyTransforms.add(entity)
+    }
+
+    // step physics world
+    world.physicsWorld.timestep = getState(EngineState).fixedDeltaSeconds.value
+    world.physicsWorld.step(world.physicsCollisionEventQueue)
+
     if (!Engine.instance.isEditor) {
-      // applying physics to remote objects is still buggy, particularly due to lack of constraints on avatar physics
-      for (const entity of ownedRigidBodyQuery()) {
-        const rigidBody = getComponent(entity, RigidBodyComponent)
-        rigidBody.previousPosition.copy(rigidBody.body.translation() as Vector3)
-        rigidBody.previousRotation.copy(rigidBody.body.rotation() as Quaternion)
-        rigidBody.previousLinearVelocity.copy(rigidBody.body.linvel() as Vector3)
-        rigidBody.previousAngularVelocity.copy(rigidBody.body.linvel() as Vector3)
-      }
-
-      // update position and velocity for network objects
-      // (this needs to be updated each frame, because remote avatars are not locally constrained)
-      for (const entity of notOwnedRigidBodyQuery()) {
-        const { body } = getComponent(entity, RigidBodyComponent)
-        const { position, rotation } = getComponent(entity, TransformComponent)
-        const { linear, angular } = getComponent(entity, VelocityComponent)
-        body.setTranslation(position, true)
-        body.setRotation(rotation, true)
-        body.setLinvel(linear, true)
-        body.setAngvel(angular, true)
-        world.dirtyTransforms.add(entity)
-      }
-
-      // step physics world
-      world.physicsWorld.timestep = getState(EngineState).fixedDeltaSeconds.value
-      world.physicsWorld.step(world.physicsCollisionEventQueue)
-
       const collisionEntities = collisionQuery()
 
       processCollisions(world, drainCollisions, collisionEntities)

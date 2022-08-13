@@ -1,4 +1,4 @@
-import { Quaternion, Vector3 } from 'three'
+import { Box3, Mesh, Quaternion, Vector3 } from 'three'
 
 import logger from '@xrengine/common/src/logger'
 import { insertionSort } from '@xrengine/common/src/utils/insertionSort'
@@ -10,13 +10,19 @@ import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
+import { BoundingBoxComponent, BoundingBoxDynamicTag } from '../../interaction/components/BoundingBoxComponents'
 import { NetworkObjectOwnedTag } from '../../networking/components/NetworkObjectOwnedTag'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { RigidBodyDynamicTagComponent } from '../../physics/components/RigidBodyDynamicTagComponent'
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { SpawnPointComponent } from '../../scene/components/SpawnPointComponent'
-import { ComputedTransformComponent } from '../components/ComputedTransformComponent'
+import {
+  applyTransformPositionOffset,
+  applyTransformRotationOffset
+} from '../../scene/functions/loaders/TransformFunctions'
+import { ComputedTransformComponent, setComputedTransformComponent } from '../components/ComputedTransformComponent'
+import { LocalTransformComponent } from '../components/LocalTransformComponent'
 import { TransformComponent } from '../components/TransformComponent'
 
 const scratchVector3 = new Vector3()
@@ -30,8 +36,12 @@ const ownedDynamicRigidBodyQuery = defineQuery([
   VelocityComponent
 ])
 const transformObjectQuery = defineQuery([TransformComponent, Object3DComponent])
+const localTransformQuery = defineQuery([LocalTransformComponent])
 const transformQuery = defineQuery([TransformComponent])
 const spawnPointQuery = defineQuery([SpawnPointComponent])
+
+const staticBoundingBoxQuery = defineQuery([Object3DComponent, BoundingBoxComponent])
+const dynamicBoundingBoxQuery = defineQuery([Object3DComponent, BoundingBoxComponent, BoundingBoxDynamicTag])
 
 const updateTransformFromBody = (world: World, entity: Entity) => {
   const { body, previousPosition, previousRotation, previousLinearVelocity, previousAngularVelocity } = getComponent(
@@ -85,7 +95,36 @@ export default async function TransformSystem(world: World) {
     return aDepth - bDepth
   }
 
+  const computeBoundingBox = (entity: Entity) => {
+    const box = getComponent(entity, BoundingBoxComponent).box
+    const obj = getComponent(entity, Object3DComponent).value
+    obj.traverse((child) => {
+      const mesh = child as Mesh
+      if (mesh.isMesh) {
+        mesh.geometry.computeBoundingBox()
+      }
+    })
+    box.setFromObject(obj)
+  }
+
+  const updateBoundingBox = (entity: Entity) => {
+    const box = getComponent(entity, BoundingBoxComponent).box
+    const obj = getComponent(entity, Object3DComponent).value
+    box.setFromObject(obj)
+  }
+
   return () => {
+    for (const entity of localTransformQuery.enter()) {
+      const parentEntity = world.entityTree.entityNodeMap.get(entity)?.parentEntity!
+      setComputedTransformComponent(entity, parentEntity, (childEntity, parentEntity) => {
+        const transform = getComponent(childEntity, TransformComponent)
+        const localTransform = getComponent(childEntity, LocalTransformComponent)
+        const parentTransform = getComponent(parentEntity, TransformComponent)
+        applyTransformPositionOffset(transform, parentTransform, localTransform.position)
+        applyTransformRotationOffset(transform, parentTransform, localTransform.rotation)
+      })
+    }
+
     // proxify all object3D components w/ a transform component
 
     for (const entity of transformObjectQuery.enter()) {
@@ -152,5 +191,8 @@ export default async function TransformSystem(world: World) {
         }
       }
     }
+
+    for (const entity of staticBoundingBoxQuery.enter()) computeBoundingBox(entity)
+    for (const entity of dynamicBoundingBoxQuery()) updateBoundingBox(entity)
   }
 }

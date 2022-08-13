@@ -1,3 +1,21 @@
+.profileButton {
+  display: flex;
+  align-items: center;
+  color: var(--textColor);
+  background: transparent;
+  margin-left: auto;
+
+  span {
+    margin-right: 5px;
+    font-size: 14px;
+  }
+
+  &:hover,
+  &:focus-visible {
+    color: var(--green);
+  }
+}
+
 .navbar {
   width: 100%;
   display: flex;
@@ -17,23 +35,6 @@
       background-size: contain;
       background-repeat: no-repeat;
       background-position-y: 50%;
-    }
-
-    .profileButton {
-      display: flex;
-      align-items: center;
-      color: var(--textColor);
-      background: transparent;
-
-      span {
-        margin-right: 5px;
-        font-size: 14px;
-      }
-
-      &:hover,
-      &:focus-visible {
-        color: var(--green);
-      }
     }
 
     .backdrop {
