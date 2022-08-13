@@ -1,6 +1,7 @@
 import React from 'react'
 
 import MainMenu from '../mainMenu'
+import { EditorNavbarProfile } from '../projects/EditorNavbarProfile'
 import { WorldInstanceConnection } from '../realtime/WorldInstanceConnection'
 import * as styles from './styles.module.scss'
 import GridTool from './tools/GridTool'
@@ -36,6 +37,7 @@ export const ToolBar = (props: ToolBarProps) => {
       <PlayModeTool />
       <StatsTool />
       <HelperToggleTool />
+      <EditorNavbarProfile />
     </div>
   )
 }
