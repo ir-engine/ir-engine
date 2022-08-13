@@ -18,7 +18,20 @@ export const serverHost = localBuildOrDev
   ? `https://${globalThis.process.env['VITE_SERVER_HOST']}:${globalThis.process.env['VITE_SERVER_PORT']}`
   : `https://${globalThis.process.env['VITE_SERVER_HOST']}`
 
+const disableLog = process.env.APP_ENV === 'test' || process.env.TEST || process.env.DISABLE_LOG
+
 const baseComponent = 'client-core'
+/**
+ * No-op logger, used for unit testing (or other disabling of logger)
+ */
+const nullLogger = {
+  debug: () => {},
+  info: () => {},
+  warn: () => {},
+  error: () => {},
+  fatal: () => {}
+}
+
 /**
  * A logger class (similar to the one provided by Pino.js) to replace
  * console.log() usage on the client side.
@@ -88,13 +101,15 @@ const multiLogger = {
         }
       }
 
-      return {
-        debug: send('debug'),
-        info: send('info'),
-        warn: send('warn'),
-        error: send('error'),
-        fatal: send('fatal')
-      }
+      return disableLog
+        ? nullLogger
+        : {
+            debug: send('debug'),
+            info: send('info'),
+            warn: send('warn'),
+            error: send('error'),
+            fatal: send('fatal')
+          }
     }
   }
 }
