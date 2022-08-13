@@ -189,6 +189,7 @@ export default async function DebugHelpersSystem(world: World) {
       const helper = new Box3Helper(boundingBox.box)
       helpersByEntity.box.set(entity, helper)
       Engine.instance.currentWorld.scene.add(helper)
+      helper.visible = accessEngineRendererState().physicsDebugEnable.value
     }
 
     // ===== CUSTOM ===== //
