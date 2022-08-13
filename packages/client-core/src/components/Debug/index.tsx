@@ -222,7 +222,7 @@ export const Debug = () => {
           <h1>{t('common:debug.entities')}</h1>
           <JSONTree
             data={namedEntities.value}
-            postprocessValue={(v) => (v?.attach && v?.get && v?.set ? v.attach(Downgraded).value : v)}
+            // postprocessValue={(v) => (v?.attach && v?.get && v?.set ? v.attach(Downgraded).value : v)}
           />
         </div>
         <div className={styles.jsonPanel}>

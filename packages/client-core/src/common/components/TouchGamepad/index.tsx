@@ -1,4 +1,4 @@
-import { useState } from '@hookstate/core'
+import { useHookstate, useState } from '@hookstate/core'
 import React, { FunctionComponent, useEffect } from 'react'
 import { Joystick } from 'react-joystick-component'
 
@@ -6,6 +6,8 @@ import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { GamepadAxis, GamepadButtons } from '@xrengine/engine/src/input/enums/InputEnums'
 import { InteractableComponent } from '@xrengine/engine/src/interaction/components/InteractableComponent'
+import { InteractState } from '@xrengine/engine/src/interaction/systems/InteractiveSystem'
+import { getState } from '@xrengine/hyperflux'
 
 import TouchAppIcon from '@mui/icons-material/TouchApp'
 
@@ -19,8 +21,8 @@ export const TouchGamepad: FunctionComponent<TouchGamepadProps> = () => {
     document.dispatchEvent(event)
   }
 
-  const availableInteractable = useEngineState().availableInteractable.value
-  const interactableComponent = availableInteractable && getComponent(availableInteractable, InteractableComponent)
+  const interactState = useHookstate(getState(InteractState))
+  const availableInteractable = interactState.available.value?.[0]
 
   const buttonsConfig: Array<{ button: GamepadButtons; label: string }> = [
     {
@@ -86,7 +88,7 @@ export const TouchGamepad: FunctionComponent<TouchGamepadProps> = () => {
           stickColor="rgba(255, 255, 255, 0.8)"
         />
       </div>
-      {interactableComponent && <div className={styles.controlButtonContainer}>{buttons}</div>}
+      {availableInteractable && <div className={styles.controlButtonContainer}>{buttons}</div>}
     </>
   )
 }

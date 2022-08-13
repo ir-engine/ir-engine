@@ -1,7 +1,7 @@
 import { Quaternion, SkinnedMesh, Vector2, Vector3 } from 'three'
 
 import { isDev } from '@xrengine/common/src/utils/isDev'
-import { dispatchAction } from '@xrengine/hyperflux'
+import { dispatchAction, getState } from '@xrengine/hyperflux'
 
 import { FollowCameraComponent } from '../camera/components/FollowCameraComponent'
 import { TargetCameraRotationComponent } from '../camera/components/TargetCameraRotationComponent'
@@ -35,7 +35,6 @@ import { InputAlias } from '../input/types/InputAlias'
 import { EquippedComponent } from '../interaction/components/EquippedComponent'
 import { EquipperComponent } from '../interaction/components/EquipperComponent'
 import { InteractableComponent } from '../interaction/components/InteractableComponent'
-import { InteractorComponent } from '../interaction/components/InteractorComponent'
 import {
   changeHand,
   equipEntity,
@@ -43,6 +42,7 @@ import {
   getParity,
   unequipEntity
 } from '../interaction/functions/equippableFunctions'
+import { InteractState } from '../interaction/systems/InteractiveSystem'
 import { AutoPilotClickRequestComponent } from '../navigation/component/AutoPilotClickRequestComponent'
 import { NetworkTopics } from '../networking/classes/Network'
 import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
@@ -101,15 +101,15 @@ const interact = (entity: Entity, inputKey: InputAlias, inputValue: InputValue):
   if (inputValue.lifecycleState !== LifecycleValue.Started) return
   const parityValue = getParityFromInputValue(inputKey)
 
-  const interactor = getComponent(entity, InteractorComponent)
-  if (!interactor?.focusedInteractive) return
+  const interactState = getState(InteractState)
 
-  dispatchAction(
-    EngineActions.interactedWithObject({
-      targetEntity: interactor.focusedInteractive,
-      parityValue
-    })
-  )
+  interactState.available[0].value &&
+    dispatchAction(
+      EngineActions.interactedWithObject({
+        targetEntity: interactState.available[0].value,
+        parityValue
+      })
+    )
 }
 
 /**

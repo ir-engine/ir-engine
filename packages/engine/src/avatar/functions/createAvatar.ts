@@ -9,7 +9,6 @@ import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { InputComponent } from '../../input/components/InputComponent'
 import { LocalAvatarTagComponent } from '../../input/components/LocalAvatarTagComponent'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
-import { InteractorComponent } from '../../interaction/components/InteractorComponent'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { Physics } from '../../physics/classes/Physics'
 import { VectorSpringSimulator } from '../../physics/classes/springs/VectorSpringSimulator'
@@ -143,43 +142,6 @@ export const createAvatarController = (entity: Entity) => {
     addComponent(entity, InputComponent, {
       schema: AvatarInputSchema,
       data: new Map()
-    })
-  }
-
-  const frustumCameraEntity = createEntity()
-
-  const frustumCamera = new PerspectiveCamera(45, 2, 0.1, 5)
-  frustumCamera.rotateY(Math.PI)
-
-  const _cameraDirection = new Vector3()
-  const _mat = new Matrix4()
-
-  addComponent(frustumCameraEntity, Object3DComponent, { value: frustumCamera })
-  addComponent(frustumCameraEntity, PersistTagComponent, true)
-  setTransformComponent(frustumCameraEntity)
-  setComputedTransformComponent(frustumCameraEntity, Engine.instance.currentWorld.cameraEntity, () => {
-    const avatarTransform = getComponent(entity, TransformComponent)
-    const targetTransform = getComponent(frustumCameraEntity, TransformComponent)
-
-    const cameraRotation = getComponent(Engine.instance.currentWorld.cameraEntity, TransformComponent).rotation
-    const direction = _cameraDirection.set(0, 0, -1).applyQuaternion(cameraRotation).setComponent(1, 0)
-    targetTransform.rotation.setFromRotationMatrix(_mat.lookAt(V_000, direction, V_010))
-    frustumCamera.quaternion.copy(targetTransform.rotation)
-    frustumCamera.updateWorldMatrix(false, false)
-
-    targetTransform.position.copy(avatarTransform.position)
-    targetTransform.position.y += avatarComponent.avatarHeight * 0.95
-    frustumCamera.worldToLocal(targetTransform.position)
-    targetTransform.position.z += 1
-    frustumCamera.localToWorld(targetTransform.position)
-  })
-
-  Engine.instance.currentWorld.scene.add(frustumCamera)
-  if (!hasComponent(entity, InteractorComponent)) {
-    addComponent(entity, InteractorComponent, {
-      focusedInteractive: null!,
-      frustumCameraEntity,
-      subFocusedArray: []
     })
   }
 
