@@ -2,8 +2,9 @@ import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { defineQuery, getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { traverseEntityNode } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
+import { CallbackComponent, CallbackComponentType } from '@xrengine/engine/src/scene/components/CallbackComponent'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 import { TriggerVolumeComponent } from '@xrengine/engine/src/scene/components/TriggerVolumeComponent'
@@ -17,23 +18,40 @@ import StringInput from '../inputs/StringInput'
 import NodeEditor from './NodeEditor'
 import { EditorComponentType, updateProperty } from './Util'
 
+type OptionsType = Array<{
+  callbacks: Array<{
+    label: string
+    value: string
+  }>
+  label: string
+  value: string
+}>
+
+const callbackQuery = defineQuery([CallbackComponent])
+
 export const TriggerVolumeNodeEditor: EditorComponentType = (props) => {
   //initializing props and state
-  let [options, setOptions] = useState<any[]>([])
+  const [options, setOptions] = useState<OptionsType>([{ label: 'Self', value: 'Self', callbacks: [] }])
   const { t } = useTranslation()
 
   useEffect(() => {
-    const options: any[] = []
-    const entityTree = Engine.instance.currentWorld.entityTree
-
-    traverseEntityNode(entityTree.rootNode, (o) => {
-      if (o === entityTree.rootNode) return
-      if (hasComponent(o.entity, Object3DComponent)) {
-        const obj3d = getComponent(o.entity, Object3DComponent).value as any
-        const callbacks = obj3d.callbacks ? obj3d.callbacks() : []
-        options.push({ label: getComponent(o.entity, NameComponent)?.name, value: o.uuid, callbacks })
-      }
+    const options = [] as OptionsType
+    options.push({
+      label: 'Self',
+      value: 'Self',
+      callbacks: []
     })
+    for (const entity of callbackQuery()) {
+      if (entity === props.node.entity) continue
+      const callbacks = getComponent(entity, CallbackComponent)
+      options.push({
+        label: getComponent(entity, NameComponent)?.name,
+        value: Engine.instance.currentWorld.entityTree.entityNodeMap.get(entity)!.uuid,
+        callbacks: Object.keys(callbacks).map((cb) => {
+          return { label: cb, value: cb }
+        })
+      })
+    }
     setOptions(options)
   }, [])
 
@@ -43,7 +61,7 @@ export const TriggerVolumeNodeEditor: EditorComponentType = (props) => {
       component: TriggerVolumeComponent,
       properties: [
         {
-          target,
+          target: target === 'Self' ? '' : target,
           onEnter: '',
           onExit: ''
         }
@@ -53,21 +71,14 @@ export const TriggerVolumeNodeEditor: EditorComponentType = (props) => {
 
   const triggerVolumeComponent = getComponent(props.node.entity, TriggerVolumeComponent)
   const targetOption = options.find((o) => o.value === triggerVolumeComponent.target)
-  const target = targetOption ? targetOption.value : null
-  const targetNotFound = triggerVolumeComponent.target && target === null
+  const target = targetOption ? targetOption.value : ''
 
   return (
     <NodeEditor description={t('editor:properties.triggereVolume.description')} {...props}>
       <InputGroup name="Target" label={t('editor:properties.triggereVolume.lbl-target')}>
         <SelectInput
           key={props.node.entity}
-          error={targetNotFound}
-          placeholder={
-            targetNotFound
-              ? t('editor:properties.triggereVolume.ph-errorNode')
-              : t('editor:properties.triggereVolume.ph-selectNode')
-          }
-          value={triggerVolumeComponent.target}
+          value={triggerVolumeComponent.target === '' ? 'Self' : triggerVolumeComponent.target}
           onChange={onChangeTarget}
           options={options}
           disabled={props.multiEdit}

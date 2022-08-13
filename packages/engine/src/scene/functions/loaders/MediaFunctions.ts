@@ -6,6 +6,7 @@ import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunc
 import UpdateableObject3D from '../../classes/UpdateableObject3D'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { MediaComponent, MediaComponentType } from '../../components/MediaComponent'
+import { MediaElementComponent } from '../../components/MediaElementComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 import { UpdatableComponent } from '../../components/UpdatableComponent'
 import { PlayMode } from '../../constants/PlayMode'
@@ -72,11 +73,13 @@ export function getNextPlaylistItem(entity: Entity) {
   return nextTrack
 }
 
+/** @todo refactor this into delayed action */
 export const updateAutoStartTimeForMedia = (entity: Entity) => {
   const component = getComponent(entity, MediaComponent)
   if (!component) return
 
   const obj3d = getComponent(entity, Object3DComponent).value
+  const el = getComponent(entity, MediaElementComponent)
 
   if (component.startTimer) clearTimeout(component.startTimer)
   if (!component.autoStartTime) return
@@ -86,7 +89,7 @@ export const updateAutoStartTimeForMedia = (entity: Entity) => {
   // If media will play in future then wait.
   if (timeDiff > 0) {
     component.startTimer = setTimeout(() => {
-      if (obj3d?.userData.videoEl) obj3d.userData.videoEl.play()
+      el.play()
     }, timeDiff)
 
     return
@@ -94,25 +97,14 @@ export const updateAutoStartTimeForMedia = (entity: Entity) => {
 
   const loop = component.playMode === PlayMode.Loop || component.playMode === PlayMode.SingleLoop
 
-  if (obj3d.userData.videoEl) {
-    if (!obj3d.userData.videoEl.src) return
+  if (!el.src) return
 
-    // If loop is not enable and media is played once for its full duration then don't start it again
-    if (!loop && -timeDiff > obj3d.userData.videoEl.duration) return
+  // If loop is not enable and media is played once for its full duration then don't start it again
+  if (!loop && -timeDiff > el.duration) return
 
-    const offset = (-timeDiff / 1000) % obj3d.userData.videoEl.duration
-    obj3d.userData.videoEl.currentTime = offset
-    obj3d.userData.videoEl.play()
-  } else {
-    if (!obj3d.userData.audioEl.buffer) return
-
-    // If loop is not enable and media is played once for its full duration then don't start it again
-    if (!loop && -timeDiff > obj3d.userData.audioEl.buffer.duration) return
-
-    const offset = (-timeDiff / 1000) % obj3d.userData.audioEl.buffer.duration
-    obj3d.userData.audioEl.offset = offset
-    obj3d.userData.audioEl.play()
-  }
+  const offset = (-timeDiff / 1000) % el.duration
+  el.currentTime = offset
+  el.play()
 }
 
 const parseMediaProperties = (props: Partial<MediaComponentType>): Partial<MediaComponentType> => {

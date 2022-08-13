@@ -1,7 +1,7 @@
 import { ConeGeometry, CylinderGeometry, Euler, Mesh, MeshBasicMaterial, Quaternion, Vector3 } from 'three'
 
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
-import { dispatchAction } from '@xrengine/hyperflux'
+import { dispatchAction, getState } from '@xrengine/hyperflux'
 
 import { AvatarStates } from '../../../avatar/animation/Util'
 import { AvatarControllerComponent } from '../../../avatar/components/AvatarControllerComponent'
@@ -13,7 +13,7 @@ import {
   ComponentUpdateFunction
 } from '../../../common/constants/PrefabFunctionType'
 import { Engine } from '../../../ecs/classes/Engine'
-import { EngineActions } from '../../../ecs/classes/EngineState'
+import { EngineActions, EngineState } from '../../../ecs/classes/EngineState'
 import { Entity } from '../../../ecs/classes/Entity'
 import { World } from '../../../ecs/classes/World'
 import { addComponent, ComponentType, getComponent } from '../../../ecs/functions/ComponentFunctions'
@@ -21,6 +21,7 @@ import { createEntity } from '../../../ecs/functions/EntityFunctions'
 import { WorldNetworkAction } from '../../../networking/functions/WorldNetworkAction'
 import { EngineRenderer } from '../../../renderer/WebGLRendererSystem'
 import { setTransformComponent, TransformComponent } from '../../../transform/components/TransformComponent'
+import { CallbackComponent } from '../../components/CallbackComponent'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { NameComponent } from '../../components/NameComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
@@ -90,6 +91,9 @@ export const deserializePortal: ComponentDeserializeFunction = (
   })
 
   getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_PORTAL)
+  addComponent(entity, CallbackComponent, {
+    teleport: portalTriggerEnter
+  })
 
   updatePortal(entity)
 }
@@ -154,4 +158,13 @@ export const revertAvatarToMovingStateFromTeleport = (world: World) => {
 
   world.activePortal = null
   dispatchAction(EngineActions.setTeleporting({ isTeleporting: false, $time: Date.now() + 500 }))
+}
+
+export const portalTriggerEnter = (triggerEntity: Entity) => {
+  if (!getState(EngineState).isTeleporting.value && getComponent(triggerEntity, PortalComponent)) {
+    const portalComponent = getComponent(triggerEntity, PortalComponent)
+    Engine.instance.currentWorld.activePortal = portalComponent
+    dispatchAction(EngineActions.setTeleporting({ isTeleporting: true }))
+    return
+  }
 }

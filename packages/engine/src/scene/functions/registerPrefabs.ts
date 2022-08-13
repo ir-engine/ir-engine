@@ -218,7 +218,7 @@ export const registerPrefabs = (world: World) => {
   world.scenePrefabRegistry.set(ScenePrefabs.portal, [
     ...defaultSpatialComponents,
     { name: SCENE_COMPONENT_PORTAL, props: SCENE_COMPONENT_PORTAL_DEFAULT_VALUES },
-    { name: SCENE_COMPONENT_TRIGGER_VOLUME, props: SCENE_COMPONENT_TRIGGER_VOLUME_DEFAULT_VALUES }
+    { name: SCENE_COMPONENT_TRIGGER_VOLUME, props: { target: '', onEnter: 'teleport' } }
   ])
 
   world.scenePrefabRegistry.set(ScenePrefabs.triggerVolume, [
