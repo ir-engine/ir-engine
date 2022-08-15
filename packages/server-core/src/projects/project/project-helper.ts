@@ -93,7 +93,7 @@ export const checkBuilderService = async (app: Application): Promise<boolean> =>
           undefined
         )
 
-        const isCompleted = builderLogs.body.trim().endsWith('sleep infinity')
+        const isCompleted = builderLogs.body.includes('sleep infinity')
         if (isCompleted) {
           logger.info(podName, 'podName')
           isRebuilding = false
