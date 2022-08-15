@@ -24,7 +24,6 @@ import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { BoundingBoxComponent } from '../../interaction/components/BoundingBoxComponents'
-import { InteractorComponent } from '../../interaction/components/InteractorComponent'
 import { NavMeshComponent } from '../../navigation/component/NavMeshComponent'
 import { createGraphHelper } from '../../navigation/GraphHelper'
 import { createConvexRegionHelper } from '../../navigation/NavMeshHelper'
@@ -75,7 +74,6 @@ export default async function DebugHelpersSystem(world: World) {
   const navmeshQuery = defineQuery([DebugNavMeshComponent, NavMeshComponent])
   // const navpathQuery = defineQuery([AutoPilotComponent])
   const audioHelper = defineQuery([AudioComponent])
-  const interactorQuery = defineQuery([InteractorComponent])
   // const navpathAddQuery = enterQuery(navpathQuery)
   // const navpathRemoveQuery = exitQuery(navpathQuery)
 
@@ -191,6 +189,7 @@ export default async function DebugHelpersSystem(world: World) {
       const helper = new Box3Helper(boundingBox.box)
       helpersByEntity.box.set(entity, helper)
       Engine.instance.currentWorld.scene.add(helper)
+      helper.visible = accessEngineRendererState().physicsDebugEnable.value
     }
 
     // ===== CUSTOM ===== //
@@ -249,32 +248,6 @@ export default async function DebugHelpersSystem(world: World) {
       }
     // ===== Autopilot Helper ===== //
     // TODO add createPathHelper for navpathQuery
-
-    for (const entity of interactorQuery.enter()) {
-      const interactor = getComponent(entity, InteractorComponent)
-      const helper = new CameraHelper(
-        getComponent(interactor.frustumCameraEntity, Object3DComponent).value as PerspectiveCamera
-      )
-      helpersByEntity.interactorFrustum.set(entity, helper)
-      Engine.instance.currentWorld.scene.add(helper)
-      helper.userData.isHelper = true
-      helper.visible = false
-    }
-
-    for (const entity of interactorQuery.exit()) {
-      const helper = helpersByEntity.interactorFrustum.get(entity)
-      Engine.instance.currentWorld.scene.remove(helper)
-      helpersByEntity.interactorFrustum.delete(entity)
-    }
-
-    if (debugEnabled)
-      for (const entity of interactorQuery()) {
-        const interactor = getComponent(entity, InteractorComponent)
-        const helper = helpersByEntity.interactorFrustum.get(entity) as CameraHelper
-        helper.matrix.copy(
-          (getComponent(interactor.frustumCameraEntity, Object3DComponent).value as PerspectiveCamera).matrix
-        )
-      }
 
     // todo refactor this
     if (Engine.instance.isEditor) {

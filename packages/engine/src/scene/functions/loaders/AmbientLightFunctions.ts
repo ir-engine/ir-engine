@@ -10,7 +10,6 @@ import {
 } from '../../../common/constants/PrefabFunctionType'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent, getComponentCountOfType } from '../../../ecs/functions/ComponentFunctions'
-import { DisableTransformTagComponent } from '../../../transform/components/DisableTransformTagComponent'
 import { AmbientLightComponent, AmbientLightComponentType } from '../../components/AmbientLightComponent'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
@@ -29,7 +28,6 @@ export const deserializeAmbientLight: ComponentDeserializeFunction = (
   const props = parseAmbientLightProperties(json.props)
 
   addComponent(entity, Object3DComponent, { value: light })
-  addComponent(entity, DisableTransformTagComponent, {})
   addComponent(entity, AmbientLightComponent, props)
 
   getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_AMBIENT_LIGHT)

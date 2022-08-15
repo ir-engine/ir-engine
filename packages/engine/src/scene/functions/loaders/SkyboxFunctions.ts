@@ -19,7 +19,6 @@ import {
   hasComponent
 } from '../../../ecs/functions/ComponentFunctions'
 import { EngineRenderer } from '../../../renderer/WebGLRendererSystem'
-import { DisableTransformTagComponent } from '../../../transform/components/DisableTransformTagComponent'
 import { Sky } from '../../classes/Sky'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { IgnoreRaycastTagComponent } from '../../components/IgnoreRaycastTagComponent'
@@ -56,7 +55,6 @@ export const deserializeSkybox: ComponentDeserializeFunction = (
       addComponent(entity, Object3DComponent, { value: new Object3D() })
     }
     addComponent(entity, SkyboxComponent, props)
-    addComponent(entity, DisableTransformTagComponent, {})
     addComponent(entity, IgnoreRaycastTagComponent, {})
     getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_SKYBOX)
     updateSkybox(entity)

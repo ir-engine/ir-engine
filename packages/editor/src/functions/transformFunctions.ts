@@ -11,7 +11,7 @@ import {
   TransformPivotType,
   TransformSpace
 } from '@xrengine/engine/src/scene/constants/transformConstants'
-import { DisableTransformTagComponent } from '@xrengine/engine/src/transform/components/DisableTransformTagComponent'
+import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 import { dispatchAction } from '@xrengine/hyperflux'
 
 import { EditorHistory } from '../classes/History'
@@ -34,7 +34,7 @@ export const setTransformMode = (mode: TransformModeType): void => {
 
       if (!isUuid && node) {
         traverseEntityNode(node as EntityTreeNode, (node) => {
-          if (hasComponent(node.entity, DisableTransformTagComponent)) stop = true
+          if (!hasComponent(node.entity, TransformComponent)) stop = true
         })
       }
 

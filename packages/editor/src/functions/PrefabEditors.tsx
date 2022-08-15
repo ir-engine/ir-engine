@@ -1,3 +1,5 @@
+import React from 'react'
+
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { EntityNodeComponent } from '@xrengine/engine/src/scene/components/EntityNodeComponent'
@@ -31,6 +33,7 @@ import { SCENE_COMPONENT_SPAWN_POINT } from '@xrengine/engine/src/scene/function
 import { SCENE_COMPONENT_SPLINE } from '@xrengine/engine/src/scene/functions/loaders/SplineFunctions'
 import { SCENE_COMPONENT_SPOT_LIGHT } from '@xrengine/engine/src/scene/functions/loaders/SpotLightFunctions'
 import { SCENE_COMPONENT_SYSTEM } from '@xrengine/engine/src/scene/functions/loaders/SystemFunctions'
+import { SCENE_COMPONENT_TRANSFORM } from '@xrengine/engine/src/scene/functions/loaders/TransformFunctions'
 import { SCENE_COMPONENT_TRIGGER_VOLUME } from '@xrengine/engine/src/scene/functions/loaders/TriggerVolumeFunctions'
 import { SCENE_COMPONENT_VIDEO } from '@xrengine/engine/src/scene/functions/loaders/VideoFunctions'
 import { SCENE_COMPONENT_VOLUMETRIC } from '@xrengine/engine/src/scene/functions/loaders/VolumetricFunctions'
@@ -58,6 +61,7 @@ import InteriorNodeEditor from '../components/properties/InteriorNodeEditor'
 import MediaNodeEditor from '../components/properties/MediaNodeEditor'
 import ModelNodeEditor from '../components/properties/ModelNodeEditor'
 import MountPointNodeEditor from '../components/properties/MountPointNodeEditor'
+import NodeEditor from '../components/properties/NodeEditor'
 import OceanNodeEditor from '../components/properties/OceanNodeEditor'
 import ParticleEmitterNodeEditor from '../components/properties/ParticleEmitterNodeEditor'
 import PointLightNodeEditor from '../components/properties/PointLightNodeEditor'
@@ -70,6 +74,7 @@ import SpawnPointNodeEditor from '../components/properties/SpawnPointNodeEditor'
 import SplineNodeEditor from '../components/properties/SplineNodeEditor'
 import SpotLightNodeEditor from '../components/properties/SpotLightNodeEditor'
 import SystemNodeEditor from '../components/properties/SystemNodeEditor'
+import TransformPropertyGroup from '../components/properties/TransformPropertyGroup'
 import TriggerVolumeNodeEditor from '../components/properties/TriggerVolumeNodeEditor'
 import { EditorComponentType } from '../components/properties/Util'
 import VideoNodeEditor from '../components/properties/VideoNodeEditor'
@@ -83,13 +88,21 @@ export const getNodeEditorsForEntity = (entity: Entity): EditorComponentType[] =
   const editors = [] as EditorComponentType[]
 
   for (let i = 0; i < entityNode.components.length; i++) {
-    if (EntityNodeEditor[entityNode.components[i]]) editors.push(EntityNodeEditor[entityNode.components[i]])
+    if (EntityNodeEditor[entityNode.components[i]]) {
+      editors.push(EntityNodeEditor[entityNode.components[i]])
+    } else {
+      /** @todo */
+      // editors.push((props) => {
+      //   return <NodeEditor {...props} name={entityNode.components[i]}/>
+      // })
+    }
   }
 
   return editors.length ? editors : [DefaultNodeEditor]
 }
 
 export const EntityNodeEditor = {
+  [SCENE_COMPONENT_TRANSFORM]: TransformPropertyGroup,
   [SCENE_COMPONENT_DIRECTIONAL_LIGHT]: DirectionalLightNodeEditor,
   [SCENE_COMPONENT_HEMISPHERE_LIGHT]: HemisphereLightNodeEditor,
   [SCENE_COMPONENT_AMBIENT_LIGHT]: AmbientLightNodeEditor,

@@ -9,7 +9,10 @@ import { isClient } from '../../../common/functions/isClient'
 import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent, removeComponent } from '../../../ecs/functions/ComponentFunctions'
-import { setBoundingBoxComponent } from '../../../interaction/components/BoundingBoxComponents'
+import {
+  setBoundingBoxComponent,
+  setBoundingBoxDynamicTag
+} from '../../../interaction/components/BoundingBoxComponents'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { MaterialOverrideComponentType } from '../../components/MaterialOverrideComponent'
 import { ModelComponent, ModelComponentType } from '../../components/ModelComponent'
@@ -38,7 +41,6 @@ export const deserializeModel: ComponentDeserializeFunction = (
 ) => {
   const props = parseModelProperties(component.props)
   const model = addComponent(entity, ModelComponent, props)
-  setBoundingBoxComponent(entity)
 
   getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_MODEL)
   //add material override components
@@ -71,6 +73,7 @@ export const updateModel = async (entity: Entity, properties: ModelComponentType
           break
       }
       addComponent(entity, Object3DComponent, { value: scene })
+      setBoundingBoxComponent(entity)
       parseGLTFModel(entity)
       if (properties.generateBVH) {
         scene.traverse(generateMeshBVH)

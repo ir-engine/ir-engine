@@ -12,7 +12,6 @@ import {
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent, getComponentCountOfType } from '../../../ecs/functions/ComponentFunctions'
 import { configureEffectComposer } from '../../../renderer/functions/configureEffectComposer'
-import { DisableTransformTagComponent } from '../../../transform/components/DisableTransformTagComponent'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { IgnoreRaycastTagComponent } from '../../components/IgnoreRaycastTagComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
@@ -31,7 +30,6 @@ export const deserializePostprocessing: ComponentDeserializeFunction = async fun
   if (!isClient) return
 
   addComponent(entity, PostprocessingComponent, parsePostprocessingProperties(json.props))
-  addComponent(entity, DisableTransformTagComponent, {})
   addComponent(entity, IgnoreRaycastTagComponent, {})
   addComponent(entity, Object3DComponent, { value: new Object3D() })
   getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_POSTPROCESSING)

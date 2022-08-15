@@ -1,7 +1,7 @@
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
-import { DisableTransformTagComponent } from '@xrengine/engine/src/transform/components/DisableTransformTagComponent'
+import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 
 /**
  * Filters the parent entities from the given entity list.
@@ -30,7 +30,7 @@ export const filterParentEntities = (
     if (
       entityList.includes(entity) &&
       !(filterUnremovable && !node.parentEntity) &&
-      !(filterUntransformable && hasComponent(entity, DisableTransformTagComponent))
+      !(filterUntransformable && !hasComponent(entity, TransformComponent))
     ) {
       parentEntityList.push(entity)
       return
