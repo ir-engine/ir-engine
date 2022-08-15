@@ -17,6 +17,14 @@ export const retriggerBuilderService = async (app: Application) => {
     logger.error(e, `[Project Rebuild]: Failed to invalidate cache with error: ${e.message}`)
   }
 
+  // TEMP START
+  const kc = new k8s.KubeConfig()
+  kc.loadFromDefault()
+
+  app.k8AppsClient = kc.makeApiClient(k8s.AppsV1Api)
+  config.server.releaseName = 'dev'
+  // TEMP END
+
   // trigger k8s to re-run the builder service
   if (app.k8AppsClient) {
     try {
@@ -55,6 +63,13 @@ export const retriggerBuilderService = async (app: Application) => {
 }
 
 export const checkBuilderService = async (app: Application): Promise<boolean> => {
+  // TEMP START
+  const kc = new k8s.KubeConfig()
+  kc.loadFromDefault()
+
+  app.k8DefaultClient = kc.makeApiClient(k8s.CoreV1Api)
+  config.server.releaseName = 'dev'
+  // TEMP END
   let isRebuilding = true
 
   // check k8s to find the status of builder service

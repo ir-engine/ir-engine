@@ -90,12 +90,10 @@ const Projects = () => {
             {adminProjectState.rebuilding.value ? (
               <Box sx={{ display: 'flex', alignItems: 'center' }}>
                 <CircularProgress color="inherit" size={24} sx={{ marginRight: 1 }} />
-                {runCount > 2
-                  ? t('admin:components.project.rebuildingClient')
-                  : t('admin:components.project.checkingClient')}
+                {runCount > 2 ? t('admin:components.project.rebuilding') : t('admin:components.project.checking')}
               </Box>
             ) : (
-              t('admin:components.project.rebuildClient')
+              t('admin:components.project.rebuild')
             )}
           </Button>
         </Grid>
