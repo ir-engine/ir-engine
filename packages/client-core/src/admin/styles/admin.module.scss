@@ -363,6 +363,10 @@
   }
 }
 
+.scopeButtons {
+  display: flex;
+}
+
 .menuItem {
   &:hover {
     background: var(--dropdownMenuHoverBackground);
