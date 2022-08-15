@@ -131,7 +131,9 @@
     },
     "project": {
       "addProject": "Add Project",
-      "rebuild": "Rebuild",
+      "rebuildClient": "Rebuild Client",
+      "rebuildingClient": "Rebuilding Client",
+      "checkingClient": "Checking Client",
       "project": "Project",
       "githubPublicUrl": "Github Public Url",
       "urlRequired": "URL is required",

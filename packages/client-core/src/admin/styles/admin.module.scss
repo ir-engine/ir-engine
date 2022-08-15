@@ -11,6 +11,11 @@
     opacity: 0.8;
   }
 
+  &:disabled {
+    background: var(--buttonFilled);
+    opacity: 0.8;
+  }
+
   @media (max-width: 900px) {
     font-size: 0.7rem;
   }

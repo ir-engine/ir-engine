@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { Box, CircularProgress } from '@mui/material'
 import Button from '@mui/material/Button'
 import Grid from '@mui/material/Grid'
 
@@ -21,16 +22,41 @@ const Projects = () => {
   const { t } = useTranslation()
   const [openProjectDrawer, setOpenPartyDrawer] = useState(false)
   const [rebuildModalOpen, setRebuildModalOpen] = useState(false)
+  const [runCount, setRunCount] = useState(0)
 
   const handleOpenProjectDrawer = () => {
     GithubAppService.fetchGithubAppRepos()
     setOpenPartyDrawer(true)
   }
 
-  const handleSubmitRebuild = () => {
+  const handleSubmitRebuild = async () => {
     setRebuildModalOpen(false)
-    ProjectService.triggerReload()
+
+    await ProjectService.triggerReload()
+
+    // This sleep is to ensure previous pod is terminated and new one is started.
+    await sleep(20000)
+
+    await ProjectService.checkReloadStatus()
   }
+
+  useEffect(() => {
+    ProjectService.checkReloadStatus()
+  }, [])
+
+  useEffect(() => {
+    let interval
+
+    setRunCount(runCount + 1)
+
+    if (adminProjectState.rebuilding.value) {
+      interval = setInterval(ProjectService.checkReloadStatus, 10000)
+    } else {
+      clearInterval(interval)
+    }
+
+    return () => clearInterval(interval)
+  }, [adminProjectState.rebuilding.value])
 
   useEffect(() => {
     if (user?.id.value != null && adminProjectState.updateNeeded.value === true) {
@@ -58,9 +84,19 @@ const Projects = () => {
             type="button"
             variant="contained"
             color="primary"
+            disabled={adminProjectState.rebuilding.value}
             onClick={() => setRebuildModalOpen(true)}
           >
-            {t('admin:components.project.rebuild')}
+            {adminProjectState.rebuilding.value ? (
+              <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                <CircularProgress color="inherit" size={24} sx={{ marginRight: 1 }} />
+                {runCount > 2
+                  ? t('admin:components.project.rebuildingClient')
+                  : t('admin:components.project.checkingClient')}
+              </Box>
+            ) : (
+              t('admin:components.project.rebuildClient')
+            )}
           </Button>
         </Grid>
       </Grid>
@@ -78,5 +114,7 @@ const Projects = () => {
     </div>
   )
 }
+
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
 
 export default Projects
