@@ -142,26 +142,6 @@
     "ED0888E7-4032-4DD9-9B43-59B02ECCCB7E": {
       "components": [
         {
-          "name": "transform",
-          "props": {
-            "position": {
-              "x": 0,
-              "y": 0,
-              "z": 0
-            },
-            "rotation": {
-              "x": 0,
-              "y": 0,
-              "z": 0
-            },
-            "scale": {
-              "x": 1,
-              "y": 1,
-              "z": 1
-            }
-          }
-        },
-        {
           "name": "visible",
           "props": {}
         },
@@ -271,26 +251,6 @@
     "1B698484-C15A-4CEC-9247-03873520DF70": {
       "components": [
         {
-          "name": "transform",
-          "props": {
-            "position": {
-              "x": 0,
-              "y": 0,
-              "z": 0
-            },
-            "rotation": {
-              "x": 0,
-              "y": 0,
-              "z": 0
-            },
-            "scale": {
-              "x": 1,
-              "y": 1,
-              "z": 1
-            }
-          }
-        },
-        {
           "name": "visible",
           "props": {}
         },
@@ -387,26 +347,6 @@
     },
     "1B698484-C15A-4CEC-9247-03873520DF71": {
       "components": [
-        {
-          "name": "transform",
-          "props": {
-            "position": {
-              "x": 0,
-              "y": 10,
-              "z": 0
-            },
-            "rotation": {
-              "x": 0,
-              "y": 0,
-              "z": 0
-            },
-            "scale": {
-              "x": 1,
-              "y": 1,
-              "z": 1
-            }
-          }
-        },
         {
           "name": "visible",
           "props": {}
