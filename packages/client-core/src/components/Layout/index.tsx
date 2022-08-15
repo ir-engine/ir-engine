@@ -10,16 +10,12 @@ import {
 import UIDialog from '@xrengine/client-core/src/common/components/Dialog'
 import UserMenu from '@xrengine/client-core/src/user/components/UserMenu'
 import { AudioEffectPlayer } from '@xrengine/engine/src/audio/systems/AudioSystem'
-import { respawnAvatar } from '@xrengine/engine/src/avatar/functions/respawnAvatar'
 import { isTouchAvailable } from '@xrengine/engine/src/common/functions/DetectFeatures'
-import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
-import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { XRState } from '@xrengine/engine/src/xr/XRState'
 import { getState, useHookstate } from '@xrengine/hyperflux'
 
-import { Close, FullscreenExit, Refresh, ZoomOutMap } from '@mui/icons-material'
-import GridViewIcon from '@mui/icons-material/GridView'
+import { Close, FullscreenExit, ZoomOutMap } from '@mui/icons-material'
 import KeyboardDoubleArrowDownIcon from '@mui/icons-material/KeyboardDoubleArrowDown'
 import KeyboardDoubleArrowUpIcon from '@mui/icons-material/KeyboardDoubleArrowUp'
 import { Tooltip } from '@mui/material'
@@ -103,10 +99,6 @@ const Layout = ({ useLoadingScreenOpacity, pageTitle, children, hideVideo, hideF
     )
   }
 
-  const respawnCallback = (): void => {
-    respawnAvatar(Engine.instance.currentWorld.localClientEntity)
-  }
-
   const hideOtherMenus = (): void => {
     setShowMediaIcons(false)
     setShowBottomIcons(false)
@@ -187,7 +179,7 @@ const Layout = ({ useLoadingScreenOpacity, pageTitle, children, hideVideo, hideF
                   showBottomIcons ? styles.rotate : styles.rotateBack
                 } ${styles.showIcon} `}
                 onClick={handleShowBottomIcons}
-                onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                onPointerDown={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
                 onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
               >
                 <BottomIconHider />
@@ -230,19 +222,6 @@ const Layout = ({ useLoadingScreenOpacity, pageTitle, children, hideVideo, hideF
                   )}
                 </>
               )}
-              <button
-                type="button"
-                className={`${styles.btn} ${styles.respawn} ${
-                  showBottomIcons ? styles.animateBottom : styles.fadeOutBottom
-                } ${!iOS() ? '' : styles.refreshBtn}`}
-                id="respawn"
-                onClick={respawnCallback}
-                onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
-                onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
-              >
-                <Refresh />
-              </button>
-
               <div className={styles.rightSidebar}>
                 <div
                   className={`${styles.userMediaWindowsContainer} ${
