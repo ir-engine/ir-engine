@@ -12,11 +12,18 @@ export const PanelTitle = (styled as any).div`
   position: relative;
 `
 
+export const PanelCheckbox = (styled as any).div`
+  color: var(--textColor);
+  position: relative;
+  padding: 0px;
+`
+
 export const PanelDragContainer = (styled as any).div`
   display: flex;
   flex: 1;
   flex-direction: row;
   align-items: center;
+  padding: 0px;
 
   &.dock-tab-active {
 

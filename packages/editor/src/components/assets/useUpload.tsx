@@ -51,8 +51,6 @@ export default function useUpload(options: Props = {}) {
   const onUpload = useCallback(
     //initailizing files by using assets files after upload.
     async (entries: FileSystemEntry[]) => {
-      // initializing assets as an empty array
-      let assets = [] as { url: string }[]
       try {
         //check if not multiple and files contains length greator
         if (!multiple && entries.length > 1) {
@@ -68,7 +66,6 @@ export default function useUpload(options: Props = {}) {
         const abortController = new AbortController()
         setDialogComponent(
           <ProgressDialog
-            title={t('editor:asset.useUpload.progressTitle')}
             message={t('editor:asset.useUpload.progressMsg', { uploaded: 0, total: entries.length, percentage: 0 })}
             cancelable={true}
             onCancel={() => {
@@ -78,10 +75,9 @@ export default function useUpload(options: Props = {}) {
           />
         )
         const { projectName } = accessEditorState().value
-        assets = await uploadProjectAssetsFromUpload(projectName!, entries, (item, total, progress) => {
+        const assets = uploadProjectAssetsFromUpload(projectName!, entries, (item, total, progress) => {
           setDialogComponent(
             <ProgressDialog
-              title={t('editor:asset.useUpload.progressTitle')}
               message={t('editor:asset.useUpload.progressMsg', {
                 uploaded: item,
                 total,
@@ -89,13 +85,16 @@ export default function useUpload(options: Props = {}) {
               })}
               cancelable={true}
               onCancel={() => {
+                assets.cancel()
                 abortController.abort()
                 setDialogComponent(null)
               }}
             />
           )
         })
+        const result = await Promise.all(assets.promises)
         setDialogComponent(null)
+        return result
       } catch (error) {
         logger.error(error, 'Error on upload')
         setDialogComponent(
@@ -109,7 +108,6 @@ export default function useUpload(options: Props = {}) {
         )
         return null
       }
-      return assets
     },
     [multiple, accepts]
   )
