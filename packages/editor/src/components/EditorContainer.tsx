@@ -134,7 +134,7 @@ const EditorContainer = () => {
   const dockPanelRef = useRef<DockLayout>(null)
 
   const importScene = async (sceneFile: SceneJson) => {
-    setDialogComponent(<ProgressDialog title={t('editor:loading')} message={t('editor:loadingMsg')} />)
+    setDialogComponent(<ProgressDialog message={t('editor:loading')} />)
     try {
       await loadProjectScene(sceneFile)
       dispatchAction(EditorAction.sceneModified({ modified: true }))
@@ -172,7 +172,7 @@ const EditorContainer = () => {
   }
 
   const loadScene = async (sceneName: string) => {
-    setDialogComponent(<ProgressDialog title={t('editor:loading')} message={t('editor:loadingMsg')} />)
+    setDialogComponent(<ProgressDialog message={t('editor:loading')} />)
     try {
       if (!projectName.value) return
       const project = await getScene(projectName.value, sceneName, false)
@@ -180,7 +180,7 @@ const EditorContainer = () => {
       if (!project.scene) return
       await loadProjectScene(project.scene)
 
-      setDialogComponent(null)
+      // setDialogComponent(null)
     } catch (error) {
       logger.error(error)
 
@@ -197,7 +197,7 @@ const EditorContainer = () => {
   const onNewScene = async () => {
     if (!projectName.value) return
 
-    setDialogComponent(<ProgressDialog title={t('editor:loading')} message={t('editor:loadingMsg')} />)
+    setDialogComponent(<ProgressDialog title={t('editor:loading')} />)
 
     try {
       const sceneData = await createNewScene(projectName.value)
@@ -370,8 +370,7 @@ const EditorContainer = () => {
 
     setDialogComponent(
       <ProgressDialog
-        title={t('editor:saving')}
-        message={t('editor:savingMsg')}
+        message={t('editor:saving')}
         cancelable={true}
         onCancel={() => {
           abortController.abort()

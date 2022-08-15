@@ -121,7 +121,7 @@ interface Props {
  * @param  {Props}
  * @constructor
  */
-const Dialog = ({ tag, title, bottomNav, children, cancelLabel, confirmLabel, onCancel, onConfirm }: Props) => {
+const Dialog = ({ tag, bottomNav, children, cancelLabel, confirmLabel, onCancel, onConfirm }: Props) => {
   // callback function used to handle form submit
   const onSubmitForm = useCallback(
     (e) => {
@@ -142,9 +142,6 @@ const Dialog = ({ tag, title, bottomNav, children, cancelLabel, confirmLabel, on
   // returning view for Dialog component
   return (
     <DialogContainer as={tag} onSubmit={onSubmitForm}>
-      <DialogHeader>
-        <span>{title}</span>
-      </DialogHeader>
       <DialogContent>{children}</DialogContent>
       {(onConfirm || onCancel || bottomNav) && (
         <DialogBottomNav>

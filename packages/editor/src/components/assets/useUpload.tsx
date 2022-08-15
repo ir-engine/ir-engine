@@ -68,8 +68,7 @@ export default function useUpload(options: Props = {}) {
         const abortController = new AbortController()
         setDialogComponent(
           <ProgressDialog
-            title={t('editor:asset.useUpload.progressTitle')}
-            message={t('editor:asset.useUpload.progressMsg', { uploaded: 0, total: entries.length, percentage: 0 })}
+            message={t('editor:asset.useUpload.progressTitle', { uploaded: 0, total: entries.length, percentage: 0 })}
             cancelable={true}
             onCancel={() => {
               abortController.abort()
@@ -81,8 +80,7 @@ export default function useUpload(options: Props = {}) {
         assets = await uploadProjectAssetsFromUpload(projectName!, entries, (item, total, progress) => {
           setDialogComponent(
             <ProgressDialog
-              title={t('editor:asset.useUpload.progressTitle')}
-              message={t('editor:asset.useUpload.progressMsg', {
+              message={t('editor:asset.useUpload.progressTitle', {
                 uploaded: item,
                 total,
                 percentage: Math.round(progress * 100)
