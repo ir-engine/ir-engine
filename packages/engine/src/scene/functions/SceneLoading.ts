@@ -16,7 +16,6 @@ import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { addEntityNodeInTree, createEntityNode } from '../../ecs/functions/EntityTreeFunctions'
 import { initSystems, SystemModuleType } from '../../ecs/functions/SystemFunctions'
 import { configureEffectComposer } from '../../renderer/functions/configureEffectComposer'
-import { DisableTransformTagComponent } from '../../transform/components/DisableTransformTagComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { EntityNodeComponent } from '../components/EntityNodeComponent'
 import { NameComponent } from '../components/NameComponent'
@@ -224,9 +223,6 @@ export const loadSceneEntity = (entityNode: EntityTreeNode, sceneEntity: EntityJ
       console.error(e)
     }
   }
-
-  if (!hasComponent(entityNode.entity, TransformComponent))
-    addComponent(entityNode.entity, DisableTransformTagComponent, {})
 
   if (!hasComponent(entityNode.entity, VisibleComponent)) {
     const obj = getComponent(entityNode.entity, Object3DComponent)?.value

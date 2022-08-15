@@ -1,12 +1,9 @@
 import React from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { LocalTransformComponent } from '@xrengine/engine/src/transform/components/LocalTransformComponent'
-import {
-  TransformComponent,
-  TransformComponentType
-} from '@xrengine/engine/src/transform/components/TransformComponent'
+import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 
 import { executeCommandWithHistoryOnSelection } from '../../classes/History'
 import EditorCommands from '../../constants/EditorCommands'
@@ -14,7 +11,7 @@ import { useSelectionState } from '../../services/SelectionServices'
 import EulerInput from '../inputs/EulerInput'
 import InputGroup from '../inputs/InputGroup'
 import Vector3Input from '../inputs/Vector3Input'
-import PropertyGroup from './PropertyGroup'
+import NodeEditor from './NodeEditor'
 import { EditorComponentType, updateProperty } from './Util'
 
 /**
@@ -60,7 +57,7 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
   const transform = localTransfromComponent ?? transfromComponent
 
   return (
-    <PropertyGroup name={t('editor:properties.transform.title')}>
+    <NodeEditor {...props} name={t('editor:properties.transform.title')}>
       <InputGroup name="Position" label={t('editor:properties.transform.lbl-postition')}>
         <Vector3Input
           value={transform.position}
@@ -87,8 +84,8 @@ export const TransformPropertyGroup: EditorComponentType = (props) => {
           onChange={localTransfromComponent ? updateProperty(LocalTransformComponent, 'scale') : onChangeScale}
         />
       </InputGroup>
-    </PropertyGroup>
+    </NodeEditor>
   )
 }
 
-export default React.memo(TransformPropertyGroup, (prevProps, nextProps) => prevProps.node === nextProps.node)
+export default TransformPropertyGroup

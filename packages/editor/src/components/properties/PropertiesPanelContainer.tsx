@@ -3,20 +3,15 @@ import { useTranslation } from 'react-i18next'
 import styled from 'styled-components'
 
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import { getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { PersistTagComponent } from '@xrengine/engine/src/scene/components/PersistTagComponent'
 import { PreventBakeTagComponent } from '@xrengine/engine/src/scene/components/PreventBakeTagComponent'
 import { SceneDynamicLoadTagComponent } from '@xrengine/engine/src/scene/components/SceneDynamicLoadTagComponent'
 import { SceneTagComponent } from '@xrengine/engine/src/scene/components/SceneTagComponent'
 import { VisibleComponent } from '@xrengine/engine/src/scene/components/VisibleComponent'
 import { SCENE_COMPONENT_DYNAMIC_LOAD } from '@xrengine/engine/src/scene/functions/loaders/DynamicLoadFunctions'
-import { SCENE_COMPONENT_PERSIST } from '@xrengine/engine/src/scene/functions/loaders/PersistFunctions'
 import { SCENE_COMPONENT_PREVENT_BAKE } from '@xrengine/engine/src/scene/functions/loaders/PreventBakeFunctions'
 import { SCENE_COMPONENT_VISIBLE } from '@xrengine/engine/src/scene/functions/loaders/VisibleFunctions'
-import { DisableTransformTagComponent } from '@xrengine/engine/src/transform/components/DisableTransformTagComponent'
-import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 
 import { executeCommandWithHistoryOnSelection } from '../../classes/History'
 import { TagComponentOperation } from '../../commands/TagComponentCommand'
@@ -28,7 +23,6 @@ import CompoundNumericInput from '../inputs/CompoundNumericInput'
 import InputGroup from '../inputs/InputGroup'
 import NameInputGroup from './NameInputGroup'
 import Object3DNodeEditor from './Object3DNodeEditor'
-import TransformPropertyGroup from './TransformPropertyGroup'
 import { updateProperty } from './Util'
 
 const StyledNodeEditor = (styled as any).div`
@@ -146,10 +140,6 @@ export const PropertiesPanelContainer = () => {
   } else {
     // get all editors that this entity has a component for
     const editors = isObject3D ? [Object3DNodeEditor] : getNodeEditorsForEntity(nodeEntity)
-    const transform = isObject3D
-      ? null
-      : hasComponent(nodeEntity, TransformComponent) &&
-        !selectedEntities.some((entity: Entity) => hasComponent(entity, DisableTransformTagComponent))
 
     content = (
       <StyledNodeEditor>
@@ -187,7 +177,6 @@ export const PropertiesPanelContainer = () => {
                 </>
               )}
             </NameInputGroupContainer>
-            {transform && <TransformPropertyGroup node={node as EntityTreeNode} />}
           </PropertiesHeader>
         )}
         {editors.map((Editor, i) => (
