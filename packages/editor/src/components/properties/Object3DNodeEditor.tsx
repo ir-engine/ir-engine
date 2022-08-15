@@ -1,7 +1,21 @@
 import React, { Fragment } from 'react'
 import { useTranslation } from 'react-i18next'
 import ReactJson from 'react-json-view'
-import { Euler, InstancedMesh, Material, Matrix4, Mesh, Object3D, Quaternion, Vector3 } from 'three'
+import {
+  Color,
+  Euler,
+  InstancedMesh,
+  Material,
+  Matrix4,
+  Mesh,
+  MeshBasicMaterial,
+  MeshMatcapMaterial,
+  MeshStandardMaterial,
+  Object3D,
+  Quaternion,
+  Texture,
+  Vector3
+} from 'three'
 
 import { AxisIcon } from '@xrengine/client-core/src/util/AxisIcon'
 import { Deg2Rad, Rad2Deg } from '@xrengine/engine/src/common/functions/MathFunctions'
@@ -12,6 +26,7 @@ import { EditorAction } from '../../services/EditorServices'
 import { SelectionAction } from '../../services/SelectionServices'
 import BooleanInput from '../inputs/BooleanInput'
 import InputGroup from '../inputs/InputGroup'
+import ParameterInput from '../inputs/ParameterInput'
 import Vector3Input from '../inputs/Vector3Input'
 import CollapsibleBlock from '../layout/CollapsibleBlock'
 import { List } from '../layout/List'
@@ -85,12 +100,28 @@ export const Object3DNodeEditor: EditorComponentType = (props) => {
                 } else {
                   result.push(mesh.material as Material)
                 }
-                return result.map((material) => {
+                return result.map((material: MeshBasicMaterial & MeshMatcapMaterial & MeshStandardMaterial) => {
+                  const defaults: any = {}
+                  Object.entries(material).map(([k, v]) => {
+                    if ((v as Texture)?.isTexture) {
+                      //defaults[k] = {type: 'texture'}
+                    } else if ((v as Color)?.isColor) {
+                      defaults[k] = { type: 'color' }
+                    } else if (typeof v === 'number') {
+                      defaults[k] = { type: 'float' }
+                    }
+                  })
                   return (
                     <div>
                       <p>Name: {material.name}</p>
                       <br />
                       <p>Parameters:</p>
+                      <ParameterInput
+                        entity={obj3d.uuid}
+                        values={material}
+                        onChange={(k) => (val) => (material.needsUpdate = true)}
+                        defaults={defaults}
+                      />
                     </div>
                   )
                 })
