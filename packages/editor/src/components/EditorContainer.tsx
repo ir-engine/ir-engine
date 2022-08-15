@@ -18,6 +18,7 @@ import { dispatchAction, useHookEffect } from '@xrengine/hyperflux'
 import AccountTreeIcon from '@mui/icons-material/AccountTree'
 import Inventory2Icon from '@mui/icons-material/Inventory2'
 import TuneIcon from '@mui/icons-material/Tune'
+import { Checkbox } from '@mui/material'
 import Dialog from '@mui/material/Dialog'
 
 import { extractZip, uploadProjectFile } from '../functions/assetFunctions'
@@ -42,7 +43,7 @@ import DragLayer from './dnd/DragLayer'
 import ElementList from './element/ElementList'
 import HierarchyPanelContainer from './hierarchy/HierarchyPanelContainer'
 import { DialogContext } from './hooks/useDialog'
-import { PanelDragContainer, PanelIcon, PanelTitle } from './layout/Panel'
+import { PanelCheckbox, PanelDragContainer, PanelIcon, PanelTitle } from './layout/Panel'
 import PropertiesPanelContainer from './properties/PropertiesPanelContainer'
 import { AppContext } from './Search/context'
 import Search from './Search/Search'
@@ -574,6 +575,19 @@ const EditorContainer = () => {
                     <PanelDragContainer>
                       <PanelIcon as={AccountTreeIcon} size={12} />
                       <PanelTitle>Hierarchy</PanelTitle>
+                      {/* <PanelCheckbox> */}
+                      <PanelTitle>
+                        Explode Objects{' '}
+                        <Checkbox
+                          style={{ padding: '0px' }}
+                          value={editorState.showObject3DInHierarchy.value}
+                          onChange={(e, value) =>
+                            dispatchAction(EditorAction.showObject3DInHierarchy({ showObject3DInHierarchy: value }))
+                          }
+                        />
+                      </PanelTitle>
+
+                      {/* </PanelCheckbox> */}
                       <Search elementsName="hierarchy" handleInputChange={handleInputChangeHierarchy} />
                     </PanelDragContainer>
                   ),
