@@ -111,7 +111,6 @@ describe('NavMeshFunctions', () => {
         addComponent(entity, NavMeshComponent, { value: new NavMesh(), debugMode: false })
         addComponent(entity, Object3DComponent, { value: o3d })
 
-        // fns.updateNavMesh(entity, { debugMode: false }) // Poplu
         fns.updateNavMesh(entity, { debugMode: true })
 
         const visualAid = getComponent(entity, Object3DComponent).value
@@ -129,7 +128,7 @@ describe('NavMeshFunctions', () => {
         const visualAid = new Object3D()
         const src = 'foo://bar.gltf'
         addComponent(entity, ModelComponent, { src } as any)
-        AssetLoader.Cache.set(src, fromModel)
+        AssetLoader.Cache.set(src, { scene: fromModel })
         addComponent(entity, NavMeshComponent, { value: new Fake() as unknown as NavMesh, debugMode: true })
         addComponent(entity, Object3DComponent, { value: visualAid })
 

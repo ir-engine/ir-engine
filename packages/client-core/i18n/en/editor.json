@@ -606,7 +606,8 @@
     },
     "navMesh": {
       "name": "NavMesh",
-      "description": "For AI pathfinding"
+      "description": "Enables AI pathfinding",
+      "lbl-showDebugVisual": "debug mode"
     }
   },
   "projects": {

@@ -14,6 +14,8 @@ import { Object3DUtils } from '../../../common/functions/Object3DUtils'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent, removeComponent } from '../../../ecs/functions/ComponentFunctions'
 import { createConvexRegionHelper } from '../../../navigation/functions/createConvexRegionHelper'
+// TODO
+// import { createGraphHelper } from '../../navigation/GraphHelper'
 import { NavMesh } from '../../classes/NavMesh'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { ModelComponent } from '../../components/ModelComponent'
@@ -110,13 +112,14 @@ export const updateNavMesh: ComponentUpdateFunction = (entity: Entity, propertie
       removeComponent(entity, Object3DComponent)
 
       // Add the visual aid
-      addComponent(entity, Object3DComponent, { value: createConvexRegionHelper(navMesh) })
+      const visualAid = createConvexRegionHelper(navMesh)
+      addComponent(entity, Object3DComponent, { value: visualAid })
     } else {
       // Replace Object3D derived from the model
       if (hasComponent(entity, ModelComponent)) {
         const model = getComponent(entity, ModelComponent)
         if (AssetLoader.Cache.has(model.src)) {
-          const obj3d = AssetLoader.Cache.get(model.src)
+          const obj3d = AssetLoader.Cache.get(model.src).scene
           removeComponent(entity, Object3DComponent)
           addComponent(entity, Object3DComponent, { value: obj3d })
         }

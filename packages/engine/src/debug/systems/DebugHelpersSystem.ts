@@ -23,7 +23,6 @@ import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunction
 import { BoundingBoxComponent } from '../../interaction/components/BoundingBoxComponent'
 import { NavMeshComponent } from '../../navigation/component/NavMeshComponent'
 import { createGraphHelper } from '../../navigation/GraphHelper'
-import { createConvexRegionHelper } from '../../navigation/NavMeshHelper'
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
 import { accessEngineRendererState, EngineRendererAction } from '../../renderer/EngineRendererState'
 import InfiniteGridHelper from '../../scene/classes/InfiniteGridHelper'
@@ -200,13 +199,12 @@ export default async function DebugHelpersSystem(world: World) {
     }
 
     // ===== NAVMESH Helper ===== //
+    // TODO decide what to do with this system
     for (const entity of navmeshQuery.enter()) {
       console.log('add navmesh helper!')
       const navMesh = getComponent(entity, NavMeshComponent)?.yukaNavMesh
-      const convexHelper = createConvexRegionHelper(navMesh)
       const graphHelper = createGraphHelper(navMesh!.graph, 0.2)
       const helper = new Group()
-      helper.add(convexHelper)
       helper.add(graphHelper)
       console.log('navhelper', helper)
       Engine.instance.currentWorld.scene.add(helper)

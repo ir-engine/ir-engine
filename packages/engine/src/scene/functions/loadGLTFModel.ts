@@ -111,6 +111,7 @@ export const parseObjectComponentsFromGLTF = (entity: Entity, object3d?: Object3
   }
 }
 
+// TODO
 export const loadNavmesh = (entity: Entity, object3d?: Object3D): void => {
   const obj3d = object3d ?? getComponent(entity, Object3DComponent).value
   let polygons = [] as Polygon[]
@@ -178,6 +179,7 @@ export const parseGLTFModel = (entity: Entity, props: ModelComponentType, obj3d:
   setObjectLayers(obj3d, ObjectLayers.Scene)
 
   // DIRTY HACK TO LOAD NAVMESH
+  // TODO
   if (props.src.match(/navmesh/)) {
     loadNavmesh(entity, obj3d)
   }

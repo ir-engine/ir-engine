@@ -1,4 +1,4 @@
-import { Object3D, Quaternion, Vector3 } from 'three'
+import { Mesh, Object3D, Quaternion, Vector3 } from 'three'
 
 const _pos = new Vector3()
 const _scale = new Vector3()
@@ -102,5 +102,16 @@ export class Object3DUtils {
       node = node.parent
     }
     return node
+  }
+
+  static findMesh(root: Object3D): Mesh | null {
+    let result: Object3D | null = null
+    Object3DUtils.traverse(root, (child: Object3D) => {
+      if ((child as any).isMesh) {
+        result = child
+        return true
+      }
+    })
+    return result
   }
 }
