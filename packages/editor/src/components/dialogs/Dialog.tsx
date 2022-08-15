@@ -14,7 +14,7 @@ const DialogContainer = (styled as any).form`
   border-radius: 4px;
   background-color: #282c31;
   max-width: 800px;
-  min-width: 400px;
+  min-width: 250px;
   min-height: 150px;
   max-height: 80vh;
 `
@@ -76,15 +76,8 @@ export const DialogContent = (styled as any).div`
  * @type {Styled component}
  */
 const DialogBottomNav = (styled as any).div`
-  display: flex;
-  height: 64px;
-  flex-direction: row;
-  justify-content: flex-end;
-  align-items: center;
-  background-color: black;
-  border-bottom-left-radius: inherit;
-  border-bottom-right-radius: inherit;
   padding: 8px;
+  margin: auto;
 
   a {
     color: var(--textColor);

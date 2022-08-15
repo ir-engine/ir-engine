@@ -769,7 +769,6 @@
     "useUpload": {
       "multipleFileError": "Input does not accept multiple files.",
       "mineTypeError": "\"{{name}}\" does not match the following mime types or extensions: {{types}}",
-      "progressTitle": "Uploading Files",
       "progressMsg": "Uploading files {{uploaded}} of {{total}}: {{percentage}}%",
       "uploadError": "Upload Error",
       "uploadErrorMsg": "Error uploading file: {{message}}",

@@ -29,7 +29,6 @@ const ProgressContainer = (styled as any).div`
  */
 const ProgressMessage = (styled as any).div`
   margin: auto;
-  padding-bottom: 24px;
   white-space: pre;
 `
 

@@ -180,7 +180,7 @@ const EditorContainer = () => {
       if (!project.scene) return
       await loadProjectScene(project.scene)
 
-      // setDialogComponent(null)
+      setDialogComponent(null)
     } catch (error) {
       logger.error(error)
 
@@ -292,7 +292,7 @@ const EditorContainer = () => {
       if (el.files && el.files.length > 0 && pName) {
         const fList = el.files
         const files = [...Array(el.files.length).keys()].map((i) => fList[i])
-        const nuUrl = (await uploadProjectFile(pName, files, true)).map((url) => url.url)
+        const nuUrl = (await Promise.all(uploadProjectFile(pName, files, true).promises)).map((url) => url.url)
 
         //process zipped files
         const zipFiles = nuUrl.filter((url) => /\.zip$/.test(url))
