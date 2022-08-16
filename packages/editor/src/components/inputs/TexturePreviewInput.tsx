@@ -36,14 +36,16 @@ export default function TexturePreviewInput({ value, onChange, ...rest }) {
     width: 'auto',
     height: 'auto'
   }
+  const { preview } = rest
+  const src = preview ?? value
   return (
     <ImageContainer>
       <Stack>
-        <TextureInput value={value} onChange={onChange} />
-        {AssetLoader.getAssetClass(value) === AssetClass.Image && (
-          <img src={value} style={previewStyle} alt="" crossOrigin="anonymous" />
+        <TextureInput value={src} onChange={onChange} />
+        {(preview || AssetLoader.getAssetClass(value) === AssetClass.Image) && (
+          <img src={src} style={previewStyle} alt="" crossOrigin="anonymous" />
         )}
-        {AssetLoader.getAssetClass(value) === AssetClass.Video && <video src={value} style={previewStyle} />}
+        {(preview || AssetLoader.getAssetClass(value) === AssetClass.Video) && <video src={src} style={previewStyle} />}
       </Stack>
     </ImageContainer>
   )

@@ -1,8 +1,10 @@
-import React, { Fragment } from 'react'
+import { suspendHookstate } from '@hookstate/core'
+import React, { Fragment, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import ReactJson from 'react-json-view'
 import {
   Color,
+  CompressedTexture,
   Euler,
   InstancedMesh,
   Material,
@@ -18,8 +20,9 @@ import {
 } from 'three'
 
 import { AxisIcon } from '@xrengine/client-core/src/util/AxisIcon'
+import createReadableTexture from '@xrengine/engine/src/assets/functions/createReadableTexture'
 import { Deg2Rad, Rad2Deg } from '@xrengine/engine/src/common/functions/MathFunctions'
-import { dispatchAction, useHookstate } from '@xrengine/hyperflux'
+import { dispatchAction, useHookEffect, useHookstate } from '@xrengine/hyperflux'
 
 import EditorCommands from '../../constants/EditorCommands'
 import { EditorAction } from '../../services/EditorServices'
@@ -47,7 +50,14 @@ export const Object3DNodeEditor: EditorComponentType = (props) => {
     console.log(edit)
   }
 
+  const thumbnails = useHookstate(new Map<Object, string>())
   const obj3d: Object3D = props.node as any
+  const objId = useHookstate(obj3d.uuid)
+  useEffect(() => {
+    if (obj3d && obj3d.uuid !== objId.value) {
+      objId.set(obj3d.uuid)
+    }
+  })
   const mesh: Mesh = obj3d as Mesh
   const isMesh = mesh.isMesh
   const instancedMesh = mesh as InstancedMesh
@@ -67,7 +77,32 @@ export const Object3DNodeEditor: EditorComponentType = (props) => {
       </InputGroup>
     )
   }
-  // initializing iconComponent icon name
+  const clearThumbs = () => {
+    ;[...thumbnails.value.values()].map(URL.revokeObjectURL)
+    thumbnails.set(new Map())
+  }
+  //cleanup
+  useHookEffect(() => {
+    if (isMesh) {
+      const mats: Material[] = []
+      if ((mesh.material as Material[]).length !== undefined) {
+        ;(mesh.material as Material[]).map((material) => mats.push(material))
+      } else {
+        mats.push(mesh.material as Material)
+      }
+      mats.map((mat) =>
+        Object.values(mat).map((field: Texture) => {
+          if (field?.isTexture) {
+            const txr = createReadableTexture(field as CompressedTexture, { width: 256, height: 256 })
+            const dataUrl = txr.source.data.getContext('webgl2').canvas.toDataURL()
+            thumbnails.set(thumbnails.value.set(field, dataUrl))
+          }
+        })
+      )
+    }
+    return clearThumbs
+  }, [objId])
+
   return (
     <NodeEditor
       {...props}
@@ -104,7 +139,7 @@ export const Object3DNodeEditor: EditorComponentType = (props) => {
                   const defaults: any = {}
                   Object.entries(material).map(([k, v]) => {
                     if ((v as Texture)?.isTexture) {
-                      //defaults[k] = {type: 'texture'}
+                      defaults[k] = { type: 'texture', preview: thumbnails.value.get(v)! }
                     } else if ((v as Color)?.isColor) {
                       defaults[k] = { type: 'color' }
                     } else if (typeof v === 'number') {

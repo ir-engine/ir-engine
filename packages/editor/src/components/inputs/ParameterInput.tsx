@@ -34,7 +34,9 @@ export default function ParameterInput({ entity, values, defaults, onChange }) {
                 case 'color':
                   return <ColorInput value={values[k]} onChange={setArgsProp(k)} />
                 case 'texture':
-                  return <TexturePreviewInput value={values[k]} onChange={setArgsProp(k)} />
+                  if (parms.preview)
+                    return <TexturePreviewInput preview={parms.preview} value={values[k]} onChange={setArgsProp(k)} />
+                  else return <TexturePreviewInput value={values[k]} onChange={setArgsProp(k)} />
                 case 'vec2':
                 case 'vec3':
                   return (
