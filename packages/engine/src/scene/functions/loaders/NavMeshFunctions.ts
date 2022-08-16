@@ -1,4 +1,4 @@
-import { Object3D } from 'three'
+import { Group, Object3D } from 'three'
 import { Polygon, Vector3 } from 'yuka'
 
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
@@ -14,8 +14,7 @@ import { Object3DUtils } from '../../../common/functions/Object3DUtils'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent, removeComponent } from '../../../ecs/functions/ComponentFunctions'
 import { createConvexRegionHelper } from '../../../navigation/functions/createConvexRegionHelper'
-// TODO
-// import { createGraphHelper } from '../../navigation/GraphHelper'
+import { createGraphHelper } from '../../../navigation/GraphHelper'
 import { NavMesh } from '../../classes/NavMesh'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { ModelComponent } from '../../components/ModelComponent'
@@ -112,7 +111,10 @@ export const updateNavMesh: ComponentUpdateFunction = (entity: Entity, propertie
       removeComponent(entity, Object3DComponent)
 
       // Add the visual aid
-      const visualAid = createConvexRegionHelper(navMesh)
+      const convexRegionHelper = createConvexRegionHelper(navMesh)
+      const graphHelper = createGraphHelper(navMesh.graph, 0.2)
+      const visualAid = new Group()
+      visualAid.add(convexRegionHelper, graphHelper)
       addComponent(entity, Object3DComponent, { value: visualAid })
     } else {
       // Replace Object3D derived from the model
