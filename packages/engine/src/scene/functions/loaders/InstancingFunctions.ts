@@ -26,9 +26,11 @@ import { AssetLoader } from '../../../assets/classes/AssetLoader'
 import { AssetClass } from '../../../assets/enum/AssetClass'
 import { ComponentDeserializeFunction, ComponentSerializeFunction } from '../../../common/constants/PrefabFunctionType'
 import { Engine } from '../../../ecs/classes/Engine'
+import { EngineActions, getEngineState } from '../../../ecs/classes/EngineState'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent, removeComponent } from '../../../ecs/functions/ComponentFunctions'
 import { iterateEntityNode } from '../../../ecs/functions/EntityTreeFunctions'
+import { matchActionOnce } from '../../../networking/functions/matchActionOnce'
 import { formatMaterialArgs } from '../../../renderer/materials/Utilities'
 import UpdateableObject3D from '../../classes/UpdateableObject3D'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
@@ -286,8 +288,17 @@ export const deserializeInstancing: ComponentDeserializeFunction = (
   json: ComponentJson<InstancingComponentType>
 ) => {
   const scatterProps = parseInstancingProperties(json.props)
+  if (scatterProps.state === ScatterState.STAGING) {
+    scatterProps.state = ScatterState.UNSTAGED
+  }
   addComponent(entity, InstancingComponent, scatterProps)
-  if (scatterProps.state === ScatterState.STAGED) addComponent(entity, InstancingStagingComponent, {})
+  if (scatterProps.state === ScatterState.STAGED) {
+    const executeStaging = () => {
+      addComponent(entity, InstancingStagingComponent, {})
+    }
+    if (!getEngineState().sceneLoaded.value) matchActionOnce(EngineActions.sceneLoaded.matches, executeStaging)
+    else executeStaging()
+  }
   getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_INSTANCING)
 }
 
@@ -345,6 +356,7 @@ export const serializeInstancing: ComponentSerializeFunction = (entity) => {
   const comp = getComponent(entity, InstancingComponent) as InstancingComponentType
   if (!comp) return
   const toSave = { ...comp }
+  if (comp.state === ScatterState.STAGING) toSave.state = ScatterState.UNSTAGED
   const formatData = (props) => {
     for (const [k, v] of Object.entries(props)) {
       if ((v as Texture)?.isTexture) {
@@ -788,7 +800,6 @@ export async function stageInstancing(entity: Entity, world = Engine.instance.cu
     world.scene.add(val)
     obj3d = addComponent(entity, Object3DComponent, { value: val })
   }
-  obj3d.value.frustumCulled = false
   const val = obj3d.value as UpdateableObject3D
   val.name = `${result.name} Base`
   const updates: ((dt: number) => void)[] = []
@@ -829,6 +840,7 @@ export async function stageInstancing(entity: Entity, world = Engine.instance.cu
     }
     val.update = (dt) => updates.forEach((update) => update(dt))
   }
+  result.frustumCulled = false
   val.add(result)
   scatter.state = ScatterState.STAGED
 }

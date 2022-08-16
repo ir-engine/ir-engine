@@ -44,12 +44,16 @@ export const deserializeModel: ComponentDeserializeFunction = (
 
   getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_MODEL)
   //add material override components
-  if (isClient && model.materialOverrides.length > 0) {
-    Promise.all(model.materialOverrides.map((override, i) => initializeOverride(entity, override)())).then(
-      (overrides) => (model.materialOverrides = overrides)
-    )
-  }
-  Engine.instance.currentWorld.sceneLoadingPendingAssets.add(updateModel(entity, props))
+  const modelInitProm = updateModel(entity, props)
+  Engine.instance.currentWorld.sceneLoadingPendingAssets.add(modelInitProm)
+  modelInitProm.then(async () => {
+    if (isClient && model.materialOverrides.length > 0) {
+      const overrides = await Promise.all(
+        model.materialOverrides.map((override, i) => initializeOverride(entity, override)())
+      )
+      model.materialOverrides = overrides
+    }
+  })
 }
 
 export const updateModel = async (entity: Entity, properties: ModelComponentType) => {
