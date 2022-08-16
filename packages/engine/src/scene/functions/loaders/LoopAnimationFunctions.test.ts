@@ -255,20 +255,20 @@ describe('LoopAnimationFunctions', () => {
 
     it('will play active index clip action', () => {
       const cb = getComponent(entity, CallbackComponent)
-      cb.play(null!, null!)
+      cb.play(null!)
       assert.equal(loopAnimation.action?.paused, false)
       assert.equal((loopAnimation.action as any)?.currentState, 'playing')
     })
 
     it('will pause active index clip action', () => {
       const cb = getComponent(entity, CallbackComponent)
-      cb.pause(null!, null!)
+      cb.pause(null!)
       assert.equal(loopAnimation.action?.paused, true)
     })
 
     it('will stop active index clip action', () => {
       const cb = getComponent(entity, CallbackComponent)
-      cb.stop(null!, null!)
+      cb.stop(null!)
       assert.equal((loopAnimation.action as any)?.currentState, 'stopped')
     })
   })
