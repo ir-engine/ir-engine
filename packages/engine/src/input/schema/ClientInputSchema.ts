@@ -439,10 +439,18 @@ export const handleMouseButton = (event: MouseEvent): void => {
   mousePosition[0] = (event.clientX / window.innerWidth) * 2 - 1
   mousePosition[1] = (event.clientY / window.innerHeight) * -2 + 1
 
+  let button = MouseInput.LeftButton
+  switch (event.button) {
+    case 1:
+      button = MouseInput.MiddleButton
+    case 2:
+      button = MouseInput.RightButton
+  }
+
   // Set type to BUTTON (up/down discrete state) and value to up or down, as called by the DOM mouse events
   if (mousedown) {
     // Set type to BUTTON and value to up or down
-    Engine.instance.currentWorld.inputState.set(event.button, {
+    Engine.instance.currentWorld.inputState.set(button, {
       type: InputType.BUTTON,
       value: [BinaryValue.ON],
       lifecycleState: LifecycleValue.Started
@@ -457,7 +465,7 @@ export const handleMouseButton = (event: MouseEvent): void => {
     })
   } else {
     // Removed mouse Engine.instance.currentWorld.inputState data
-    Engine.instance.currentWorld.inputState.set(event.button, {
+    Engine.instance.currentWorld.inputState.set(button, {
       type: InputType.BUTTON,
       value: [BinaryValue.OFF],
       lifecycleState: LifecycleValue.Ended

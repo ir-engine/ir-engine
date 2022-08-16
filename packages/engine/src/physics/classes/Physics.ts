@@ -11,9 +11,21 @@ import RAPIER, {
   ShapeType,
   World
 } from '@dimforge/rapier3d-compat'
-import { Mesh, Object3D, Quaternion, Vector3 } from 'three'
+import {
+  BufferGeometry,
+  LineSegments,
+  Mesh,
+  MeshBasicMaterial,
+  Object3D,
+  OrthographicCamera,
+  PerspectiveCamera,
+  Quaternion,
+  Vector2,
+  Vector3
+} from 'three'
 
 import { createVector3Proxy } from '../../common/proxies/three'
+import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import {
   addComponent,
@@ -312,6 +324,24 @@ function castRay(world: World, raycastQuery: ComponentType<typeof RaycastCompone
   }
 }
 
+function castRayFromCamera(
+  camera: PerspectiveCamera | OrthographicCamera,
+  coords: Vector2,
+  world: World,
+  raycastQuery: ComponentType<typeof RaycastComponent>
+) {
+  if ((camera as PerspectiveCamera).isPerspectiveCamera) {
+    raycastQuery.origin.setFromMatrixPosition(camera.matrixWorld)
+    raycastQuery.direction.set(coords.x, coords.y, 0.5).unproject(camera).sub(raycastQuery.origin).normalize()
+  } else if ((camera as OrthographicCamera).isOrthographicCamera) {
+    raycastQuery.origin
+      .set(coords.x, coords.y, (camera.near + camera.far) / (camera.near - camera.far))
+      .unproject(camera)
+    raycastQuery.direction.set(0, 0, -1).transformDirection(camera.matrixWorld)
+  }
+  return Physics.castRay(world, raycastQuery)
+}
+
 function castShape(world: World, shapecastQuery: ComponentType<typeof ShapecastComponent>) {
   const maxToi = shapecastQuery.maxDistance
   const groups = shapecastQuery.collisionGroups
@@ -386,6 +416,7 @@ export const Physics = {
   removeRigidBody,
   changeRigidbodyType,
   castRay,
+  castRayFromCamera,
   castShape,
   createCollisionEventQueue,
   drainCollisionEventQueue
