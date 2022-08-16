@@ -20,6 +20,7 @@ import {
 } from 'three'
 
 import { AxisIcon } from '@xrengine/client-core/src/util/AxisIcon'
+import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
 import createReadableTexture from '@xrengine/engine/src/assets/functions/createReadableTexture'
 import { Deg2Rad, Rad2Deg } from '@xrengine/engine/src/common/functions/MathFunctions'
 import { dispatchAction, useHookEffect, useHookstate } from '@xrengine/hyperflux'
@@ -79,6 +80,7 @@ export const Object3DNodeEditor: EditorComponentType = (props) => {
   }
   const clearThumbs = () => {
     ;[...thumbnails.value.values()].map(URL.revokeObjectURL)
+    thumbnails.value.clear()
     thumbnails.set(new Map())
   }
   //cleanup
@@ -154,7 +156,14 @@ export const Object3DNodeEditor: EditorComponentType = (props) => {
                       <ParameterInput
                         entity={obj3d.uuid}
                         values={material}
-                        onChange={(k) => (val) => (material.needsUpdate = true)}
+                        onChange={(k) => async (val) => {
+                          if (defaults[k].type === 'texture' && typeof val === 'string') {
+                            const nuTxr: Texture = await AssetLoader.loadAsync(val)
+                            material[k] = nuTxr
+                            delete defaults[k].preview
+                          }
+                          material.needsUpdate = true
+                        }}
                         defaults={defaults}
                       />
                     </div>
