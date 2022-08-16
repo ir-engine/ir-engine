@@ -161,7 +161,7 @@ export class EngineActions {
 
   static interactedWithObject = defineAction({
     type: 'xre.engine.INTERACTED_WITH_OBJECT' as const,
-    targetEntity: matchesEntity,
+    targetEntity: matchesEntity.optional(),
     parityValue: matches.string as Validator<unknown, typeof ParityValue[keyof typeof ParityValue]>
   })
 
