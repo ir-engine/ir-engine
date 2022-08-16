@@ -103,13 +103,12 @@ const interact = (entity: Entity, inputKey: InputAlias, inputValue: InputValue):
 
   const interactState = getState(InteractState)
 
-  interactState.available[0].value &&
-    dispatchAction(
-      EngineActions.interactedWithObject({
-        targetEntity: interactState.available[0].value,
-        parityValue
-      })
-    )
+  dispatchAction(
+    EngineActions.interactedWithObject({
+      targetEntity: interactState.available[0].value,
+      parityValue
+    })
+  )
 }
 
 /**

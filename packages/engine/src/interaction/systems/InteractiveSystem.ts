@@ -21,6 +21,10 @@ import {
 import { HighlightComponent } from '../../renderer/components/HighlightComponent'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
+import {
+  DistanceFromLocalClientComponent,
+  setDistanceFromLocalClientComponent
+} from '../../transform/components/DistanceComponents'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { createTransitionState } from '../../xrui/functions/createTransitionState'
 import { createXRUI } from '../../xrui/functions/createXRUI'
@@ -99,50 +103,58 @@ export const addInteractableUI = (
 }
 
 export default async function InteractiveSystem(world: World) {
+  const allInteractablesQuery = defineQuery([InteractableComponent])
+
   // Included Object3DComponent in query because Object3DComponent might be added with delay for network spawned objects
   const interactableQuery = defineQuery([
     InteractableComponent,
     Object3DComponent,
     Not(AvatarComponent),
-    BoundingBoxComponent
+    DistanceFromLocalClientComponent
   ])
 
   return () => {
+    // ensure distance component is set on all interactables
+    for (const entity of allInteractablesQuery.enter()) {
+      setDistanceFromLocalClientComponent(entity)
+    }
+
+    // TODO: refactor InteractiveUI to be ui-centric rather than interactable-centeric
     for (const entity of interactableQuery.exit()) {
       if (InteractableTransitions.has(entity)) InteractableTransitions.delete(entity)
       if (InteractiveUI.has(entity)) InteractiveUI.delete(entity)
       if (hasComponent(entity, HighlightComponent)) removeComponent(entity, HighlightComponent)
     }
 
-    for (const entity of interactableQuery.enter()) {
-      const interactable = getComponent(entity, InteractableComponent)
-      const transform = getComponent(entity, TransformComponent)
-      const obj = getComponent(entity, Object3DComponent).value
-      const boundingBoxComponent = getComponent(entity, BoundingBoxComponent)
+    // for (const entity of interactableQuery.enter()) {
+    //   const interactable = getComponent(entity, InteractableComponent)
+    //   const transform = getComponent(entity, TransformComponent)
+    //   const obj = getComponent(entity, Object3DComponent).value
+    //   const boundingBoxComponent = getComponent(entity, BoundingBoxComponent)
 
-      // center the model within it's bounding box
-      boundingBoxComponent.box.setFromObject(obj)
-      const offset = boundingBoxComponent.box.getCenter(obj.children[0].position).sub(transform.position).negate()
-      obj.position.sub(offset)
+    //   // center the model within it's bounding box
+    //   boundingBoxComponent.box.setFromObject(obj)
+    //   const offset = boundingBoxComponent.box.getCenter(obj.children[0].position).sub(transform.position).negate()
+    //   obj.position.sub(offset)
 
-      // put the model on the UI layer
-      setObjectLayers(obj, ObjectLayers.UI)
+    //   // put the model on the UI layer
+    //   setObjectLayers(obj, ObjectLayers.UI)
 
-      interactable.anchorPosition.copy(transform.position)
-      interactable.anchorRotation.copy(transform.rotation)
+    //   interactable.anchorPosition.copy(transform.position)
+    //   interactable.anchorRotation.copy(transform.rotation)
 
-      // const helper = new AxesHelper(1)
-      // obj.add(helper)
-    }
+    //   // const helper = new AxesHelper(1)
+    //   // obj.add(helper)
+    // }
 
     if (Engine.instance.currentWorld.localClientEntity) {
       const interactables = interactableQuery()
 
       for (const entity of interactables) {
-        const interactable = getComponent(entity, InteractableComponent)
-        interactable.distance = interactable.anchorPosition.distanceTo(
-          getComponent(world.localClientEntity, TransformComponent).position
-        )
+        // const interactable = getComponent(entity, InteractableComponent)
+        // interactable.distance = interactable.anchorPosition.distanceTo(
+        //   getComponent(world.localClientEntity, TransformComponent).position
+        // )
         if (InteractiveUI.has(entity)) {
           const { update, xrui } = InteractiveUI.get(entity)!
           update(entity, xrui)
