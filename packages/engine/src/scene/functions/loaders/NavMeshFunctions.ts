@@ -17,7 +17,6 @@ import { NavMesh } from '../../classes/NavMesh'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { NavMeshComponent, NavMeshComponentType } from '../../components/NavMeshComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
-import { SCENE_COMPONENT_MODEL } from './ModelFunctions'
 
 export const SCENE_COMPONENT_NAV_MESH = 'navMesh'
 export const SCENE_COMPONENT_NAV_MESH_DEFAULT_VALUES: Partial<NavMeshComponentType> = { debugMode: false }
@@ -32,7 +31,7 @@ export const deserializeNavMesh: ComponentDeserializeFunction = (
 
   addComponent(entity, NavMeshComponent, props)
 
-  getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_NAV_MESH, SCENE_COMPONENT_MODEL)
+  getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_NAV_MESH)
 
   updateNavMesh(entity, props)
 }

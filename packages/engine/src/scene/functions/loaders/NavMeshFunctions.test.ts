@@ -13,7 +13,6 @@ import { createEngine } from '../../../initializeEngine'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { NavMeshComponent } from '../../components/NavMeshComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
-import { SCENE_COMPONENT_MODEL } from './ModelFunctions'
 import { SCENE_COMPONENT_NAV_MESH, updateNavMesh } from './NavMeshFunctions'
 
 class Fake {
@@ -68,8 +67,6 @@ describe('NavMeshFunctions', () => {
       fns.deserializeNavMesh(entity, sceneComponent)
 
       const entityNodeComponent = getComponent(entity, EntityNodeComponent)
-      // TODO is this correct/necessary?
-      assert(entityNodeComponent.components.includes(SCENE_COMPONENT_MODEL))
       assert(entityNodeComponent.components.includes(SCENE_COMPONENT_NAV_MESH))
     })
   })
