@@ -11,9 +11,6 @@ import UIDialog from '@xrengine/client-core/src/common/components/Dialog'
 import UserMenu from '@xrengine/client-core/src/user/components/UserMenu'
 import { AudioEffectPlayer } from '@xrengine/engine/src/audio/systems/AudioSystem'
 import { isTouchAvailable } from '@xrengine/engine/src/common/functions/DetectFeatures'
-import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
-import { XRState } from '@xrengine/engine/src/xr/XRState'
-import { getState, useHookstate } from '@xrengine/hyperflux'
 
 import { Close, FullscreenExit, ZoomOutMap } from '@mui/icons-material'
 import KeyboardDoubleArrowDownIcon from '@mui/icons-material/KeyboardDoubleArrowDown'
@@ -56,10 +53,6 @@ const Layout = ({ useLoadingScreenOpacity, pageTitle, children, hideVideo, hideF
   const loadingSystemState = useLoadingSystemState()
   const [showTouchPad, setShowTouchPad] = useState(true)
   const [conferenceMode, setConferenceMode] = useState(false)
-
-  const xrSessionActive = useHookstate(getState(XRState).sessionActive)
-
-  const engineState = useEngineState()
 
   const { t } = useTranslation()
 
