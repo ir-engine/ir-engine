@@ -38,7 +38,6 @@ describe('party.test', () => {
   before(async () => {
     app = createFeathersExpressApp()
     await app.setup()
-    await cleanup(app)
     const avatarName = 'CyberbotGreen'
 
     const avatar = await app.service('avatar').create({
