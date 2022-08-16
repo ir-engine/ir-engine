@@ -22,7 +22,7 @@ const Projects = () => {
   const { t } = useTranslation()
   const [openProjectDrawer, setOpenPartyDrawer] = useState(false)
   const [rebuildModalOpen, setRebuildModalOpen] = useState(false)
-  const [runCount, setRunCount] = useState(0)
+  const [isFirstRun, setIsFirstRun] = useState(true)
 
   const handleOpenProjectDrawer = () => {
     GithubAppService.fetchGithubAppRepos()
@@ -47,7 +47,7 @@ const Projects = () => {
   useEffect(() => {
     let interval
 
-    setRunCount(runCount + 1)
+    setIsFirstRun(false)
 
     if (adminProjectState.rebuilding.value) {
       interval = setInterval(ProjectService.checkReloadStatus, 10000)
@@ -90,7 +90,7 @@ const Projects = () => {
             {adminProjectState.rebuilding.value ? (
               <Box sx={{ display: 'flex', alignItems: 'center' }}>
                 <CircularProgress color="inherit" size={24} sx={{ marginRight: 1 }} />
-                {runCount > 2 ? t('admin:components.project.rebuilding') : t('admin:components.project.checking')}
+                {isFirstRun ? t('admin:components.project.checking') : t('admin:components.project.rebuilding')}
               </Box>
             ) : (
               t('admin:components.project.rebuild')
