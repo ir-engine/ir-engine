@@ -130,9 +130,14 @@ export class Scene implements ServiceMethods<any> {
         )
       )
     )
-    await storageProvider.createInvalidation(
-      sceneAssetFiles.map((asset) => `projects/${projectName}/${newSceneName}${asset}`)
-    )
+    try {
+      await storageProvider.createInvalidation(
+        sceneAssetFiles.map((asset) => `projects/${projectName}/${newSceneName}${asset}`)
+      )
+    } catch (e) {
+      logger.error(e)
+      logger.info(sceneAssetFiles)
+    }
 
     if (isDev) {
       const projectPathLocal = path.resolve(appRootPath.path, 'packages/projects/projects/' + projectName) + '/'
@@ -163,7 +168,12 @@ export class Scene implements ServiceMethods<any> {
 
       if (await storageProvider.doesExist(oldSceneJsonName, projectPath)) {
         await storageProvider.moveObject(oldSceneJsonName, newSceneJsonName, projectPath, projectPath)
-        await storageProvider.createInvalidation([projectPath + oldSceneJsonName, projectPath + newSceneJsonName])
+        try {
+          await storageProvider.createInvalidation([projectPath + oldSceneJsonName, projectPath + newSceneJsonName])
+        } catch (e) {
+          logger.error(e)
+          logger.info(projectPath + oldSceneJsonName, projectPath + newSceneJsonName)
+        }
       }
     }
 
@@ -213,9 +223,14 @@ export class Scene implements ServiceMethods<any> {
       })
     }
 
-    await storageProvider.createInvalidation(
-      sceneAssetFiles.map((asset) => `projects/${projectName}/${sceneName}${asset}`)
-    )
+    try {
+      await storageProvider.createInvalidation(
+        sceneAssetFiles.map((asset) => `projects/${projectName}/${sceneName}${asset}`)
+      )
+    } catch (e) {
+      logger.error(e)
+      logger.info(sceneAssetFiles)
+    }
 
     if (isDev) {
       const newSceneJsonPathLocal = path.resolve(
@@ -260,8 +275,14 @@ export class Scene implements ServiceMethods<any> {
     }
 
     await storageProvider.deleteResources(sceneAssetFiles.map((ext) => `projects/${projectName}/${name}${ext}`))
-    await storageProvider.createInvalidation(
-      sceneAssetFiles.map((asset) => `projects/${projectName}/${sceneName}${asset}`)
-    )
+
+    try {
+      await storageProvider.createInvalidation(
+        sceneAssetFiles.map((asset) => `projects/${projectName}/${sceneName}${asset}`)
+      )
+    } catch (e) {
+      logger.error(e)
+      logger.info(sceneAssetFiles)
+    }
   }
 }

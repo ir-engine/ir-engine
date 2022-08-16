@@ -18,8 +18,8 @@ export const AudioState = defineState({
     usePositionalAudio: false, // only for avatars
     mediaStreamVolume: 0.5,
     notificationVolume: 0.5,
-    soundEffectsVolume: 0.5,
-    backgroundMusicVolume: 0.5
+    soundEffectsVolume: 0.2,
+    backgroundMusicVolume: 0.2
   })
 })
 

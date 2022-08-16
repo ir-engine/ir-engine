@@ -120,8 +120,9 @@ export default async function SceneObjectSystem(world: World) {
       }
 
       obj3d.traverse((mesh: Mesh) => {
-        ;(mesh.material as Material)?.dispose()
-        ;(mesh.geometry as BufferGeometry)?.dispose()
+        if (typeof (mesh.material as Material)?.dispose === 'function') (mesh.material as Material)?.dispose()
+        if (typeof (mesh.geometry as BufferGeometry)?.dispose === 'function')
+          (mesh.geometry as BufferGeometry)?.dispose()
       })
     }
 

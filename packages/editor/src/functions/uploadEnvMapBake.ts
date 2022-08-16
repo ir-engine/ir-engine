@@ -117,7 +117,7 @@ export const uploadBPCEMBakeToServer = async (entity: Entity) => {
     ? `${sceneName}.envmap.png`
     : `${sceneName}-${nameComponent.name.replace(' ', '-')}.png`
 
-  const value = await uploadProjectFile(projectName, [new File([blob], filename)])
+  const value = await Promise.all(uploadProjectFile(projectName, [new File([blob], filename)]).promises)
 
   bakeComponent.options.envMapOrigin = value[0].url
 

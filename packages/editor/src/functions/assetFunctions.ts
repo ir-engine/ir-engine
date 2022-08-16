@@ -1,7 +1,11 @@
 import { Object3D } from 'three'
 
 import { API } from '@xrengine/client-core/src/API'
-import { uploadToFeathersService } from '@xrengine/client-core/src/util/upload'
+import {
+  CancelableUploadPromiseArrayReturnType,
+  CancelableUploadPromiseReturnType,
+  uploadToFeathersService
+} from '@xrengine/client-core/src/util/upload'
 import { processFileName } from '@xrengine/common/src/utils/processFileName'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
@@ -47,57 +51,64 @@ export const exportAsset = async (node: EntityTreeNode) => {
     removeComponent(entity, Object3DComponent)
   }
   dudObjs = []
-  return await uploadProjectFile(projectName, [uploadable], true)
+  return Promise.all(uploadProjectFile(projectName, [uploadable], true).promises)
 }
 
-async function fileBrowserUpload(
+function fileBrowserUpload(
   file: Blob,
   params: { fileName: string; path: string; contentType: string },
   onProgress: (progress: number) => any
-): Promise<{ url: string }> {
-  const response = await uploadToFeathersService('file-browser/upload', file as any, params, onProgress)
-  return { url: response[0] }
+): CancelableUploadPromiseReturnType {
+  return uploadToFeathersService('file-browser/upload', file as any, params, onProgress)
 }
 
-export const uploadProjectFile = async (
-  projectName: string,
-  files: File[],
-  isAsset = false,
-  onProgress?
-): Promise<{ url: string }[]> => {
-  const promises: Promise<{ url: string }>[] = []
+export const uploadProjectFile = (projectName: string, files: File[], isAsset = false, onProgress?) => {
+  const promises: CancelableUploadPromiseReturnType[] = []
 
   for (const file of files) {
     const path = `projects/${projectName}${isAsset ? '/assets' : ''}`
     promises.push(fileBrowserUpload(file, { fileName: file.name, path, contentType: '' }, onProgress))
   }
 
-  return await Promise.all(promises)
+  return {
+    cancel: () => promises.forEach((promise) => promise.cancel()),
+    promises: promises.map((promise) => promise.promise)
+  }
 }
 
-export const uploadProjectAssetsFromUpload = async (
+export const uploadProjectAssetsFromUpload = (
   projectName: string,
   entries: FileSystemEntry[],
   onProgress?
-): Promise<{ url: string }[]> => {
-  const promises = []
+): CancelableUploadPromiseArrayReturnType => {
+  const promises: CancelableUploadPromiseReturnType[] = []
+
   for (let i = 0; i < entries.length; i++) {
-    await processEntry(entries[i], projectName, '', promises, (progress) => onProgress(i + 1, entries.length, progress))
+    processEntry(entries[i], projectName, '', promises, (progress) => onProgress(i + 1, entries.length, progress))
   }
 
-  return await Promise.all(promises)
+  return {
+    cancel: () => promises.forEach((promise) => promise.cancel()),
+    promises: promises.map((promise) => promise.promise)
+  }
 }
 
 /**
  * https://developer.mozilla.org/en-US/docs/Web/API/DataTransferItem/webkitGetAsEntry
  * @param item
  */
-const processEntry = async (item, projectName: string, directory: string, promises, onProgress) => {
+const processEntry = async (
+  item,
+  projectName: string,
+  directory: string,
+  promises: CancelableUploadPromiseReturnType[],
+  onProgress
+) => {
   if (item.isDirectory) {
     let directoryReader = item.createReader()
     const entries = await getEntries(directoryReader)
     for (let index = 0; index < entries.length; index++) {
-      await processEntry(entries[index], projectName, item.fullPath, promises, onProgress)
+      processEntry(entries[index], projectName, item.fullPath, promises, onProgress)
     }
   }
 
