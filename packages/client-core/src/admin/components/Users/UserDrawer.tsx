@@ -126,12 +126,20 @@ const UserDrawer = ({ open, mode, selectedUser, onClose }: Props) => {
 
   const handleChangeScopeType = (scope) => {
     let tempErrors = {
-      ...state.formErrors,
-      scopes: scope.length < 1 ? t('admin:components.user.scopeTypeRequired') : ''
+      ...state.formErrors
     }
 
     setState({ ...state, scopes: scope, formErrors: tempErrors })
   }
+
+  const handleSelectAllScopes = () =>
+    handleChangeScopeType(
+      scopeTypes.map((el) => {
+        return { type: el.type }
+      })
+    )
+
+  const handleClearAllScopes = () => handleChangeScopeType([])
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -163,8 +171,7 @@ const UserDrawer = ({ open, mode, selectedUser, onClose }: Props) => {
     let tempErrors = {
       ...state.formErrors,
       name: state.name ? '' : t('admin:components.user.nameCantEmpty'),
-      avatar: state.avatar ? '' : t('admin:components.user.avatarCantEmpty'),
-      scopes: state.scopes.length > 0 ? '' : t('admin:components.user.scopeTypeCantEmpty')
+      avatar: state.avatar ? '' : t('admin:components.user.avatarCantEmpty')
     }
 
     setState({ ...state, formErrors: tempErrors })
@@ -232,21 +239,26 @@ const UserDrawer = ({ open, mode, selectedUser, onClose }: Props) => {
         )}
 
         {viewMode && (
-          <AutoComplete
-            data={scopeMenu}
-            label={t('admin:components.user.grantScope')}
-            defaultValue={state.scopes}
-            disabled
-          />
+          <AutoComplete data={scopeMenu} label={t('admin:components.user.grantScope')} value={state.scopes} disabled />
         )}
 
         {!viewMode && (
-          <AutoComplete
-            data={scopeMenu}
-            label={t('admin:components.user.grantScope')}
-            defaultValue={state.scopes}
-            onChange={handleChangeScopeType}
-          />
+          <div>
+            <AutoComplete
+              data={scopeMenu}
+              label={t('admin:components.user.grantScope')}
+              value={state.scopes}
+              onChange={handleChangeScopeType}
+            />
+            <div className={styles.scopeButtons}>
+              <Button className={styles.outlinedButton} onClick={handleSelectAllScopes}>
+                {t('admin:components.user.selectAllScopes')}
+              </Button>
+              <Button className={styles.outlinedButton} onClick={handleClearAllScopes}>
+                {t('admin:components.user.clearAllScopes')}
+              </Button>
+            </div>
+          </div>
         )}
 
         <DialogActions>

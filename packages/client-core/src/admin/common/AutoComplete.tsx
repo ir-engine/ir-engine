@@ -30,34 +30,26 @@ export interface AutoCompleteData {
 interface Props {
   data: AutoCompleteData[]
   label: string
-  defaultValue?: AutoCompleteData[]
+  value?: AutoCompleteData[]
   disabled?: boolean
   onChange?: (value: any) => void
 }
 
-const AutoComplete = ({ data, label, disabled, onChange, defaultValue = [] }: Props) => {
-  const {
-    getRootProps,
-    getInputProps,
-    getTagProps,
-    getListboxProps,
-    getOptionProps,
-    groupedOptions,
-    value,
-    setAnchorEl
-  } = useAutocomplete({
-    id: 'autocomplete',
-    defaultValue: defaultValue,
-    multiple: true,
-    options: data,
-    disableCloseOnSelect: true,
-    getOptionLabel: (option) => option.type,
-    onChange: (event: React.ChangeEvent<{}>, value: any) => {
-      onChange && onChange(value)
-    },
-    getOptionDisabled: (option) => !!option.disabled,
-    isOptionEqualToValue: (option, value) => option.type === value.type
-  })
+const AutoComplete = ({ data, label, disabled, onChange, value = [] }: Props) => {
+  const { getRootProps, getInputProps, getTagProps, getListboxProps, getOptionProps, groupedOptions, setAnchorEl } =
+    useAutocomplete({
+      id: 'autocomplete',
+      value: value,
+      multiple: true,
+      options: data,
+      disableCloseOnSelect: true,
+      getOptionLabel: (option) => option.type,
+      onChange: (event: React.ChangeEvent<{}>, value: any) => {
+        onChange && onChange(value)
+      },
+      getOptionDisabled: (option) => !!option.disabled,
+      isOptionEqualToValue: (option, value) => option.type === value.type
+    })
 
   return (
     <React.Fragment>
