@@ -22,6 +22,7 @@ import {
   applyTransformRotationOffset
 } from '../../scene/functions/loaders/TransformFunctions'
 import { ComputedTransformComponent, setComputedTransformComponent } from '../components/ComputedTransformComponent'
+import { DistanceFromCameraComponent, DistanceFromLocalClientComponent } from '../components/DistanceComponents'
 import { LocalTransformComponent } from '../components/LocalTransformComponent'
 import { TransformComponent } from '../components/TransformComponent'
 
@@ -43,6 +44,9 @@ const spawnPointQuery = defineQuery([SpawnPointComponent])
 const staticBoundingBoxQuery = defineQuery([Object3DComponent, BoundingBoxComponent])
 const dynamicBoundingBoxQuery = defineQuery([Object3DComponent, BoundingBoxComponent, BoundingBoxDynamicTag])
 
+const distanceFromLocalClientQuery = defineQuery([TransformComponent, DistanceFromLocalClientComponent])
+const distanceFromCameraQuery = defineQuery([TransformComponent, DistanceFromCameraComponent])
+
 const updateTransformFromBody = (world: World, entity: Entity) => {
   const { body, previousPosition, previousRotation, previousLinearVelocity, previousAngularVelocity } = getComponent(
     entity,
@@ -60,6 +64,10 @@ const updateTransformFromBody = (world: World, entity: Entity) => {
   rotation.copy(previousRotation).slerp(scratchQuaternion.copy(body.rotation() as Quaternion), alpha)
   linear.copy(previousLinearVelocity).lerp(scratchVector3.copy(body.linvel() as Vector3), alpha)
   angular.copy(previousAngularVelocity).lerp(scratchVector3.copy(body.angvel() as Vector3), alpha)
+}
+
+const getDistanceSquaredFromTarget = (entity: Entity, targetPosition: Vector3) => {
+  return getComponent(entity, TransformComponent).position.distanceToSquared(targetPosition)
 }
 
 export default async function TransformSystem(world: World) {
@@ -194,5 +202,18 @@ export default async function TransformSystem(world: World) {
 
     for (const entity of staticBoundingBoxQuery.enter()) computeBoundingBox(entity)
     for (const entity of dynamicBoundingBoxQuery()) updateBoundingBox(entity)
+
+    const localClientPosition = getComponent(world.localClientEntity, TransformComponent)?.position
+    if (localClientPosition) {
+      for (const entity of distanceFromLocalClientQuery())
+        DistanceFromLocalClientComponent.squaredDistance[entity] = getDistanceSquaredFromTarget(
+          entity,
+          localClientPosition
+        )
+    }
+
+    const cameraPosition = getComponent(world.cameraEntity, TransformComponent).position
+    for (const entity of distanceFromCameraQuery())
+      DistanceFromCameraComponent.squaredDistance[entity] = getDistanceSquaredFromTarget(entity, cameraPosition)
   }
 }

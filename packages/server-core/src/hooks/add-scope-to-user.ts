@@ -4,7 +4,7 @@ import { Application } from './../../declarations'
 
 export default () => {
   return async (context: HookContext<Application>): Promise<HookContext> => {
-    if (context.arguments[1]?.scopes?.length > 0) {
+    if (context.arguments[1]?.scopes || Array.isArray(context.arguments[1].scope)) {
       const foundItem = await context.app.service('scope').Model.findAll({
         where: {
           userId: context.arguments[0]
@@ -25,7 +25,7 @@ export default () => {
           userId: context.arguments[0]
         }
       })
-      await context.app.service('scope').create(data)
+      if (data.length > 0) await context.app.service('scope').create(data)
     }
 
     return context

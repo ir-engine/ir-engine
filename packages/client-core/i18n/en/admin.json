@@ -94,7 +94,9 @@
       "scopeTypeRequired": "Scope is required",
       "grantScope": "Grant Scope",
       "groupUsers": "Group Users",
-      "confirmGroupDelete": "Do you want to delete group"
+      "confirmGroupDelete": "Do you want to delete group",
+      "selectAllScopes": "Select All Scopes",
+      "clearAllScopes": "Clear All Scopes"
     },
     "invite": {
       "sendInvite": "Send Invite",
@@ -317,7 +319,9 @@
       "inviteCode": "Invite Code",
       "instance": "Instance",
       "confirmUserDelete": "Do you want to delete user",
-      "isGuest": "Is guest"
+      "isGuest": "Is guest",
+      "selectAllScopes": "Select All Scopes",
+      "clearAllScopes": "Clear All Scopes"
     }
   }
 }
