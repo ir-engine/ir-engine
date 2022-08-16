@@ -53,6 +53,7 @@ const Projects = () => {
       interval = setInterval(ProjectService.checkReloadStatus, 10000)
     } else {
       clearInterval(interval)
+      ProjectService.fetchProjects()
     }
 
     return () => clearInterval(interval)
