@@ -1,9 +1,8 @@
-import { Group, Object3D } from 'three'
+import { Object3D } from 'three'
 import { Polygon, Vector3 } from 'yuka'
 
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
-import { AssetLoader } from '../../../assets/classes/AssetLoader'
 import {
   ComponentDeserializeFunction,
   ComponentSerializeFunction,
@@ -14,11 +13,8 @@ import { Object3DUtils } from '../../../common/functions/Object3DUtils'
 import { DebugNavMeshComponent } from '../../../debug/DebugNavMeshComponent'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent, removeComponent } from '../../../ecs/functions/ComponentFunctions'
-import { createConvexRegionHelper } from '../../../navigation/functions/createConvexRegionHelper'
-import { createGraphHelper } from '../../../navigation/GraphHelper'
 import { NavMesh } from '../../classes/NavMesh'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
-import { ModelComponent } from '../../components/ModelComponent'
 import { NavMeshComponent, NavMeshComponentType } from '../../components/NavMeshComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 import { SCENE_COMPONENT_MODEL } from './ModelFunctions'
