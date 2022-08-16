@@ -44,7 +44,7 @@ export const download = async (projectName: string) => {
         const npmInstallProcess = spawn('npm', ['install', '--legacy-peer-deps'], { cwd: localProjectDirectory })
         npmInstallProcess.once('exit', () => {
           logger.info('Finished npm installing %s', projectName)
-          resolve(0)
+          resolve()
         })
         npmInstallProcess.once('error', resolve)
         npmInstallProcess.once('disconnect', resolve)

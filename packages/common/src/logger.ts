@@ -18,7 +18,7 @@ export const serverHost = localBuildOrDev
   ? `https://${globalThis.process.env['VITE_SERVER_HOST']}:${globalThis.process.env['VITE_SERVER_PORT']}`
   : `https://${globalThis.process.env['VITE_SERVER_HOST']}`
 
-const disableLog = process.env.APP_ENV === 'test' || process.env.TEST || process.env.DISABLE_LOG
+const disableLog = process.env.DISABLE_LOG
 
 const baseComponent = 'client-core'
 /**
