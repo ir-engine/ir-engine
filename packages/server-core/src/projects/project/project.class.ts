@@ -291,7 +291,7 @@ export class Project extends Service {
         )
       : existingProjectResult
 
-    returned.needsRebuild = data.needsRebuild ? data.needsRebuild : true
+    returned.needsRebuild = typeof data.needsRebuild === 'boolean' ? data.needsRebuild : true
 
     if (!existingProjectResult) {
       await this.app.service('project-permission').create({

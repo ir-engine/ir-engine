@@ -85,7 +85,6 @@ const Projects = () => {
             type="button"
             variant="contained"
             color="primary"
-            disabled={adminProjectState.rebuilding.value}
             onClick={() => setRebuildModalOpen(true)}
           >
             {adminProjectState.rebuilding.value ? (
