@@ -21,11 +21,12 @@ import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { BoundingBoxComponent } from '../../interaction/components/BoundingBoxComponent'
-import { NavMeshComponent } from '../../navigation/component/NavMeshComponent'
+import { createConvexRegionHelper } from '../../navigation/functions/createConvexRegionHelper'
 import { createGraphHelper } from '../../navigation/GraphHelper'
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
 import { accessEngineRendererState, EngineRendererAction } from '../../renderer/EngineRendererState'
 import InfiniteGridHelper from '../../scene/classes/InfiniteGridHelper'
+import { NavMeshComponent } from '../../scene/components/NavMeshComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { XRInputSourceComponent } from '../../xr/components/XRInputSourceComponent'
 import { DebugArrowComponent } from '../DebugArrowComponent'
@@ -201,12 +202,11 @@ export default async function DebugHelpersSystem(world: World) {
     // ===== NAVMESH Helper ===== //
     // TODO decide what to do with this system
     for (const entity of navmeshQuery.enter()) {
-      console.log('add navmesh helper!')
-      const navMesh = getComponent(entity, NavMeshComponent)?.yukaNavMesh
-      const graphHelper = createGraphHelper(navMesh!.graph, 0.2)
+      const navMesh = getComponent(entity, NavMeshComponent).value
+      const convexRegionHelper = createConvexRegionHelper(navMesh)
+      const graphHelper = createGraphHelper(navMesh.graph, 0.2)
       const helper = new Group()
-      helper.add(graphHelper)
-      console.log('navhelper', helper)
+      helper.add(convexRegionHelper, graphHelper)
       Engine.instance.currentWorld.scene.add(helper)
       helpersByEntity.navmesh.set(entity, helper)
     }
@@ -215,7 +215,7 @@ export default async function DebugHelpersSystem(world: World) {
       const helper = helpersByEntity.navmesh.get(entity) as Object3D
       const transform = getComponent(entity, TransformComponent)
       helper.position.copy(transform.position)
-      // helper.quaternion.copy(transform.rotation)
+      helper.quaternion.copy(transform.rotation)
     }
     for (const entity of navmeshQuery.exit()) {
       const helper = helpersByEntity.navmesh.get(entity) as Object3D

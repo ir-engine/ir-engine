@@ -26,14 +26,7 @@ export default async function NavigationSystem(_: World) {
     }
 
     for (const entity of entsWithNavMeshAndObject3DEnter) {
-      const o3d = getComponent(entity, Object3DComponent).value
-      console.log('userData', o3d.userData)
-
-      // Ignore visual aid added by updateNavMesh
-      if (!o3d.userData.seenByNavigationSystem) {
-        updateNavMesh(entity, getComponent(entity, NavMeshComponent))
-        getComponent(entity, Object3DComponent).value.userData.seenByNavigationSystem = true
-      }
+      updateNavMesh(entity, getComponent(entity, NavMeshComponent))
     }
   }
 }

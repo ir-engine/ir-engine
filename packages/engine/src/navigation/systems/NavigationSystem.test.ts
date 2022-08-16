@@ -65,42 +65,4 @@ describe('NavigationSystem', async () => {
 
     assert(updateNavMesh.calledOnce)
   })
-
-  it('ignores Object3Ds that have been seen by NavigationSystem', () => {
-    const world = Engine.instance.currentWorld
-    const entity = createEntity(world)
-    const o3d = new Object3D()
-
-    addComponent(entity, NavMeshComponent, { value: new NavMesh(), debugMode: false })
-    addComponent(entity, Object3DComponent, { value: o3d })
-
-    navigationSystem()
-
-    assert(updateNavMesh.calledOnce)
-    assert(o3d.userData.seenByNavigationSystem)
-
-    navigationSystem()
-
-    assert(updateNavMesh.calledOnce)
-  })
-
-  it.only('ignores Object3Ds that have been created by NavigationSystem', () => {
-    const world = Engine.instance.currentWorld
-    const entity = createEntity(world)
-    const o3d = new Object3D()
-
-    shouldCreateObject3D = true
-
-    addComponent(entity, NavMeshComponent, { value: new NavMesh(), debugMode: false })
-    addComponent(entity, Object3DComponent, { value: o3d })
-
-    navigationSystem()
-
-    assert(updateNavMesh.calledOnce)
-    assert(getComponent(entity, Object3DComponent).value.userData.seenByNavigationSystem)
-
-    navigationSystem()
-
-    assert(updateNavMesh.calledOnce)
-  })
 })

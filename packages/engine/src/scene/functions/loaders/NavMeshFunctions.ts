@@ -11,6 +11,7 @@ import {
 } from '../../../common/constants/PrefabFunctionType'
 import { isClient } from '../../../common/functions/isClient'
 import { Object3DUtils } from '../../../common/functions/Object3DUtils'
+import { DebugNavMeshComponent } from '../../../debug/DebugNavMeshComponent'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent, removeComponent } from '../../../ecs/functions/ComponentFunctions'
 import { createConvexRegionHelper } from '../../../navigation/functions/createConvexRegionHelper'
@@ -104,31 +105,12 @@ export const updateNavMesh: ComponentUpdateFunction = (entity: Entity, propertie
   const navMesh = getComponent(entity, NavMeshComponent).value
 
   if (hasComponent(entity, Object3DComponent)) {
+    const obj3d = getComponent(entity, Object3DComponent).value
+    setNavMeshPolygons(navMesh, obj3d)
     if (properties.debugMode) {
-      // Make sure we process any existing Object3D before disposing of it
-      const obj3d = getComponent(entity, Object3DComponent).value
-      setNavMeshPolygons(navMesh, obj3d)
-      removeComponent(entity, Object3DComponent)
-
-      // Add the visual aid
-      const convexRegionHelper = createConvexRegionHelper(navMesh)
-      const graphHelper = createGraphHelper(navMesh.graph, 0.2)
-      const visualAid = new Group()
-      visualAid.add(convexRegionHelper, graphHelper)
-      addComponent(entity, Object3DComponent, { value: visualAid })
+      addComponent(entity, DebugNavMeshComponent, {})
     } else {
-      // Replace Object3D derived from the model
-      if (hasComponent(entity, ModelComponent)) {
-        const model = getComponent(entity, ModelComponent)
-        if (AssetLoader.Cache.has(model.src)) {
-          const obj3d = AssetLoader.Cache.get(model.src).scene
-          removeComponent(entity, Object3DComponent)
-          addComponent(entity, Object3DComponent, { value: obj3d })
-        }
-      }
-
-      const obj3d = getComponent(entity, Object3DComponent).value
-      setNavMeshPolygons(navMesh, obj3d)
+      removeComponent(entity, DebugNavMeshComponent)
     }
   }
 }
