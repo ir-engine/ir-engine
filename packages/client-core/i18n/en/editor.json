@@ -238,6 +238,7 @@
       "lbl-materialOverride": "Material Overrides",
       "error-url": "Error Loading From URL",
       "lbl-loopAnimation": "Loop Animation",
+      "lbl-animationSpeed": "Animation Speed",
       "lbl-isAvatar": "Is Avatar",
       "lbl-useBasicMaterials": "Use Basic Materials",
       "lbl-isGPUInstancing": "Is Using GPU Instancing",

@@ -4,6 +4,7 @@ import { BufferGeometry, Material, Mesh, Vector3 } from 'three'
 import { createActionQueue, getState } from '@xrengine/hyperflux'
 
 import { loadDRACODecoder } from '../../assets/loaders/gltf/NodeDracoLoader'
+import { LoopAnimationComponent } from '../../avatar/components/LoopAnimationComponent'
 import { isNode } from '../../common/functions/getEnvironment'
 import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
@@ -23,6 +24,7 @@ import { UpdatableComponent } from '../components/UpdatableComponent'
 import { VisibleComponent } from '../components/VisibleComponent'
 import { ObjectLayers } from '../constants/ObjectLayers'
 import { updateEnvMap } from '../functions/loaders/EnvMapFunctions'
+import { updateLoopAnimation } from '../functions/loaders/LoopAnimationFunctions'
 import { useSimpleMaterial, useStandardMaterial } from '../functions/loaders/SimpleMaterialFunctions'
 import { registerPrefabs } from '../functions/registerPrefabs'
 import { registerDefaultSceneFunctions } from '../functions/registerSceneFunctions'
@@ -105,6 +107,7 @@ export default async function SceneObjectSystem(world: World) {
   const updatableQuery = defineQuery([Object3DComponent, UpdatableComponent])
   const envmapQuery = defineQuery([Object3DComponent, EnvmapComponent])
   const sceneEnvmapQuery = defineQuery([SceneTagComponent, EnvmapComponent])
+  const loopableAnimationQuery = defineQuery([Object3DComponent, LoopAnimationComponent])
 
   const useSimpleMaterialsActionQueue = createActionQueue(EngineActions.useSimpleMaterials.matches)
 
@@ -185,5 +188,8 @@ export default async function SceneObjectSystem(world: World) {
 
     for (const entity of envmapQuery.enter()) updateEnvMap(entity)
     for (const entity of sceneEnvmapQuery.enter()) updateEnvMap(entity)
+
+    /** scene loading */
+    for (const entity of loopableAnimationQuery.enter()) updateLoopAnimation(entity)
   }
 }

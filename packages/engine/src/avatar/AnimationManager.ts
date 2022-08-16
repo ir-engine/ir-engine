@@ -2,7 +2,6 @@ import { AnimationClip, Bone, SkinnedMesh } from 'three'
 
 import { AssetLoader } from '../assets/classes/AssetLoader'
 import { GLTF } from '../assets/loaders/gltf/GLTFLoader'
-import { Engine } from '../ecs/classes/Engine'
 import { findRootBone, processRootAnimation } from './animation/Util'
 import { makeDefaultSkinnedMesh } from './functions/avatarFunctions'
 

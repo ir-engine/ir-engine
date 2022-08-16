@@ -172,6 +172,7 @@ export const animateAvatarModel = (entity: Entity) => (model: Object3D) => {
   // We have to bind the mixer with original skeleton and copy resulting bone transforms after update
   const sourceSkeleton = makeDefaultSkinnedMesh().skeleton
   animationComponent.mixer = new AnimationMixer(sourceSkeleton.bones[0])
+  animationComponent.animations = AnimationManager.instance._animations
 
   if (avatarAnimationComponent)
     avatarAnimationComponent.animationGraph = createAvatarAnimationGraph(
@@ -188,7 +189,6 @@ export const animateAvatarModel = (entity: Entity) => (model: Object3D) => {
 export const animateModel = (entity: Entity) => {
   const component = getComponent(entity, LoopAnimationComponent)
   const animationComponent = getComponent(entity, AnimationComponent)
-  animationComponent.animations = AnimationManager.instance._animations
 
   if (component.action) component.action.stop()
   component.action = animationComponent.mixer
