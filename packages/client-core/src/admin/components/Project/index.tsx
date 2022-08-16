@@ -35,7 +35,7 @@ const Projects = () => {
     await ProjectService.triggerReload()
 
     // This sleep is to ensure previous pod is terminated and new one is started.
-    await sleep(20000)
+    await sleep(60000)
 
     await ProjectService.checkReloadStatus()
   }

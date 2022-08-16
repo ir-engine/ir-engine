@@ -54,9 +54,7 @@ test -f builder_failed.txt && echo "One of the builds failed" && exit 1
 
 bash ./scripts/deploy.sh $RELEASE_NAME ${TAG}__${START_TIME}
 
-echo "Starting clear-rebuild"
 npm run clear-projects-rebuild
-echo "Ended clear-rebuild"
 
 DEPLOY_TIME=`date +"%d-%m-%yT%H-%M-%S"`
 

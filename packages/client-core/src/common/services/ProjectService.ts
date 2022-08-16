@@ -77,15 +77,20 @@ export const ProjectService = {
   // restricted to admin scope
   checkReloadStatus: async () => {
     const result = await API.instance.client.service('project-build').find()
-    logger.info({ result }, 'Check reload project result')
+    logger.info({ result }, 'Check reload projects result')
     dispatchAction(ProjectAction.reloadStatusFetched({ status: result }))
   },
 
   // restricted to admin scope
   triggerReload: async () => {
-    const result = await API.instance.client.service('project-build').patch({ rebuild: true })
-    logger.info({ result }, 'Reload project result')
-    dispatchAction(ProjectAction.reloadStatusFetched({ status: true }))
+    try {
+      dispatchAction(ProjectAction.reloadStatusFetched({ status: true }))
+      const result = await API.instance.client.service('project-build').patch({ rebuild: true })
+      logger.info({ result }, 'Reload projects result')
+    } catch (err) {
+      logger.error(err, 'Error reload projects result.')
+      dispatchAction(ProjectAction.reloadStatusFetched({ status: false }))
+    }
   },
 
   // restricted to admin scope
