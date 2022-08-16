@@ -101,7 +101,8 @@ export const ProjectService = {
   setRepositoryPath: async (id: string, url: string) => {
     try {
       await API.instance.client.service('project').patch(id, {
-        repositoryPath: url
+        repositoryPath: url,
+        needsRebuild: true
       })
     } catch (err) {
       logger.error(err, 'Error setting project repository path')

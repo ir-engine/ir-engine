@@ -4,4 +4,5 @@ export interface ProjectInterface {
   thumbnail: string
   repositoryPath: string
   settings: string
+  needsRebuild: boolean
 }

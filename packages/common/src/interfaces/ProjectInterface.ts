@@ -7,6 +7,7 @@ export interface ProjectInterface {
   repositoryPath: string
   description?: string
   settings?: string
+  needsRebuild: boolean
   hasWriteAccess?: boolean
   project_permissions?: ProjectPermissionInterface[]
 }

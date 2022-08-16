@@ -7,6 +7,7 @@ import multiLogger from '@xrengine/common/src/logger'
 import Cached from '@mui/icons-material/Cached'
 import Cross from '@mui/icons-material/Cancel'
 import CleaningServicesIcon from '@mui/icons-material/CleaningServices'
+import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline'
 import Group from '@mui/icons-material/Group'
 import LinkIcon from '@mui/icons-material/Link'
 import LinkOffIcon from '@mui/icons-material/LinkOff'
@@ -14,6 +15,7 @@ import Upload from '@mui/icons-material/Upload'
 import VisibilityIcon from '@mui/icons-material/Visibility'
 import Box from '@mui/material/Box'
 import IconButton from '@mui/material/IconButton'
+import Tooltip from '@mui/material/Tooltip'
 
 import { PROJECT_PAGE_LIMIT, ProjectService, useProjectState } from '../../../common/services/ProjectService'
 import { useAuthState } from '../../../user/services/AuthService'
@@ -233,7 +235,16 @@ const ProjectTable = ({ className }: Props) => {
   const createData = (el: ProjectInterface, name: string) => {
     return {
       el,
-      name,
+      name: (
+        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+          <span className={`${el.needsRebuild ? styles.orangeColor : ''}`}>{name}</span>
+          {el.needsRebuild && (
+            <Tooltip title={t('admin:components.project.outdatedBuild')} arrow>
+              <ErrorOutlineIcon sx={{ marginLeft: 1 }} className={styles.orangeColor} />
+            </Tooltip>
+          )}
+        </Box>
+      ),
       update: (
         <>
           {isAdmin && (

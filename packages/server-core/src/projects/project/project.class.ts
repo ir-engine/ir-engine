@@ -139,7 +139,8 @@ export class Project extends Service {
     await super.create({
       thumbnail: projectConfig.thumbnail,
       name: projectName,
-      repositoryPath: getRemoteURLFromGitData(projectName)
+      repositoryPath: getRemoteURLFromGitData(projectName),
+      needsRebuild: true
     })
     // run project install script
     if (projectConfig.onEvent) {
@@ -223,7 +224,8 @@ export class Project extends Service {
       {
         thumbnail: packageData.thumbnail,
         name: projectName,
-        repositoryPath: null
+        repositoryPath: null,
+        needsRebuild: true
       },
       params
     )
@@ -239,7 +241,7 @@ export class Project extends Service {
    * @returns
    */
   // @ts-ignore
-  async update(data: { url: string; name?: string }, placeholder?: null, params?: Params) {
+  async update(data: { url: string; name?: string; needsRebuild?: boolean }, placeholder?: null, params?: Params) {
     if (data.url === 'default-project') {
       copyDefaultProject()
       await uploadLocalProjectToProvider('default-project')
@@ -282,11 +284,14 @@ export class Project extends Service {
           {
             thumbnail: projectConfig.thumbnail,
             name: projectName,
-            repositoryPath: data.url
+            repositoryPath: data.url,
+            needsRebuild: data.needsRebuild ? data.needsRebuild : true
           },
           params || {}
         )
       : existingProjectResult
+
+    returned.needsRebuild = data.needsRebuild ? data.needsRebuild : true
 
     if (!existingProjectResult) {
       await this.app.service('project-permission').create({
@@ -443,7 +448,7 @@ export class Project extends Service {
       query: {
         ...params?.query,
         $limit: params?.query?.$limit || 1000,
-        $select: params?.query?.$select || ['id', 'name', 'thumbnail', 'repositoryPath']
+        $select: params?.query?.$select || ['id', 'name', 'thumbnail', 'repositoryPath', 'needsRebuild']
       }
     }
 
