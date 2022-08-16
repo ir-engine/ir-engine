@@ -9,15 +9,15 @@ Model userData properties
 {
   [xrengine.entity]: name
   [xrengine.prefab-type.property]: value
-  [xrengine.component-type.property]: value
+  [xrengine.ComponentName.property]: value
 }
 ```
 
-Golf holes example
+Example
 
 ```ts
 {
-  "xrengine.entity": “GolfHole-0"
+  "xrengine.entity": "MyTrigger"
   "xrengine.box-collider.isTrigger": true
   "xrengine.CustomComponent.value": 12345
 }
@@ -25,8 +25,8 @@ Golf holes example
 
 would result in an entity with components
 
-NameComponent { name: "GolfHole-0" }
+NameComponent { name: "MyTrigger" }
 TransformComponent { position, rotation, scale } (from mesh relative to world origin)
 Object3DComponent { value: (the mesh this was loaded from) }
-ColliderComponent { body: (a physics trigger box body) }
+RigidBodyComponent { body: (a physics trigger box body) }
 CustomComponent: { value: 12345 }

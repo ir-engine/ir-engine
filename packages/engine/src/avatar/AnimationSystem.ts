@@ -55,6 +55,7 @@ export default async function AnimationSystem(world: World) {
   const tweenQuery = defineQuery([TweenComponent])
   const animationQuery = defineQuery([AnimationComponent])
   const forward = new Vector3()
+  const movingAvatarAnimationQuery = defineQuery([AnimationComponent, AvatarAnimationComponent, VelocityComponent])
   const avatarAnimationQuery = defineQuery([AnimationComponent, AvatarAnimationComponent])
   const armsTwistCorrectionQuery = defineQuery([AvatarArmsTwistCorrectionComponent, AvatarAnimationComponent])
   const avatarAnimationQueue = createActionQueue(WorldNetworkAction.avatarAnimation.matches)
@@ -101,7 +102,9 @@ export default async function AnimationSystem(world: World) {
       animationComponent.mixer.update(modifiedDelta)
     }
 
-    for (const entity of avatarAnimationQuery(world)) {
+    /** Apply motion to velocity controlled animations */
+
+    for (const entity of movingAvatarAnimationQuery(world)) {
       const animationComponent = getComponent(entity, AnimationComponent)
       const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
       const deltaTime = delta * animationComponent.animationSpeed
@@ -118,7 +121,15 @@ export default async function AnimationSystem(world: World) {
       )
 
       updateAnimationGraph(avatarAnimationComponent.animationGraph, deltaTime)
+    }
 
+    /**
+     * Apply retargeting
+     */
+
+    for (const entity of avatarAnimationQuery(world)) {
+      const animationComponent = getComponent(entity, AnimationComponent)
+      const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
       const rootBone = animationComponent.mixer.getRoot() as Bone
       const rig = avatarAnimationComponent.rig
 

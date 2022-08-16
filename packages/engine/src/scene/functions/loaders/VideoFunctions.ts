@@ -17,6 +17,7 @@ import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
 import { matchActionOnce } from '../../../networking/functions/matchActionOnce'
 import { ImageProjection } from '../../classes/ImageUtils'
+import { CallbackComponent } from '../../components/CallbackComponent'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { ImageComponent } from '../../components/ImageComponent'
 import { MediaComponent } from '../../components/MediaComponent'
@@ -96,6 +97,12 @@ export const updateVideo: ComponentUpdateFunction = (entity: Entity, properties:
         mediaComponent.currentSource = nextItem
         el.src = mediaComponent.paths[mediaComponent.currentSource]
         el.play()
+      })
+
+      addComponent(entity, CallbackComponent, {
+        play: () => el.play(),
+        pause: () => el.pause()
+        /** todo, add next/previous */
       })
 
       addComponent(entity, MediaElementComponent, el)

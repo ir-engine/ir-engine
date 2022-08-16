@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { AllFileTypes } from '@xrengine/engine/src/assets/constants/fileTypes'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { CallbackComponent } from '@xrengine/engine/src/scene/components/CallbackComponent'
 import { ErrorComponent } from '@xrengine/engine/src/scene/components/ErrorComponent'
 import { MediaComponent } from '@xrengine/engine/src/scene/components/MediaComponent'
 import { MediaElementComponent } from '@xrengine/engine/src/scene/components/MediaElementComponent'
@@ -47,7 +48,8 @@ export const MediaNodeEditor: EditorComponentType = (props) => {
   const hasError = engineState.errorEntities[props.node.entity].get() || hasComponent(props.node.entity, ErrorComponent)
 
   const toggle = () => {
-    isPlaying ? mediaElement?.pause() : mediaElement?.play()
+    const callback = getComponent(props.node.entity, CallbackComponent) as any
+    isPlaying ? callback?.pause() : callback?.play()
     setPlaying(!isPlaying)
   }
 

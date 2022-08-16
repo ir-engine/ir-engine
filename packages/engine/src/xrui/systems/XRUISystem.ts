@@ -1,23 +1,15 @@
 import { WebContainer3D } from '@etherealjs/web-layer/three'
-import { Color, Mesh, MeshBasicMaterial, Raycaster } from 'three'
+import { Color } from 'three'
 
-import { UserId } from '@xrengine/common/src/interfaces/UserId'
-import { dispatchAction } from '@xrengine/hyperflux'
-
-import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { LifecycleValue } from '../../common/enums/LifecycleValue'
-import { Engine } from '../../ecs/classes/Engine'
-import { EngineActions } from '../../ecs/classes/EngineState'
 import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { InputComponent } from '../../input/components/InputComponent'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
 import { BaseInput } from '../../input/enums/BaseInput'
 import { InputValue } from '../../input/interfaces/InputValue'
-import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
-import { Object3DComponent } from '../../scene/components/Object3DComponent'
-import { ControllerGroup, XRInputSourceComponent, XRInputSourceComponentType } from '../../xr/XRComponents'
+import { ControllerGroup, XRInputSourceComponent } from '../../xr/XRComponents'
 import { XRUIManager } from '../classes/XRUIManager'
 import { XRUIComponent } from '../components/XRUIComponent'
 import { loadXRUIDeps } from '../functions/createXRUI'
@@ -31,11 +23,7 @@ export default async function XRUISystem(world: World) {
   const hitColor = new Color(0x00e6e6)
   const normalColor = new Color(0xffffff)
   const xruiQuery = defineQuery([XRUIComponent])
-  const avatar = defineQuery([AvatarComponent, NetworkObjectComponent])
   const localXRInputQuery = defineQuery([LocalInputTagComponent, XRInputSourceComponent])
-  const hoverSfxPath = Engine.instance.publicPath + '/default_assets/audio/ui-hover.mp3'
-  const hoverAudio = new Audio()
-  hoverAudio.src = hoverSfxPath
 
   const xrui = (XRUIManager.instance = new XRUIManager(await import('@etherealjs/web-layer/three')))
   xrui.WebLayerModule.WebLayerManager.initialize(renderer)
@@ -67,17 +55,6 @@ export default async function XRUISystem(world: World) {
         return
       }
     }
-
-    for (const entity of avatar(world)) {
-      const model = getComponent(entity, Object3DComponent).value
-      const intersectObjects = world.pointerScreenRaycaster.intersectObject(model, true)
-      if (intersectObjects.length > 0) {
-        const userId = getComponent(entity, NetworkObjectComponent).ownerId
-        dispatchAction(EngineActions.userAvatarTapped({ userId }))
-        return
-      }
-    }
-    dispatchAction(EngineActions.userAvatarTapped({ userId: '' as UserId }))
   }
 
   const updateControllerRayInteraction = (controller: ControllerGroup) => {
@@ -106,14 +83,6 @@ export default async function XRUISystem(world: World) {
           cursor.material.color = hitColor
         } else {
           cursor.material.color = normalColor
-        }
-      }
-
-      if (interactable) {
-        if (controller.lastHit?.target !== hit.target) {
-          hoverAudio.pause()
-          hoverAudio.currentTime = 0
-          hoverAudio.play()
         }
       }
 

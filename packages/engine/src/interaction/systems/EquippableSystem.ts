@@ -161,7 +161,7 @@ export default async function EquippableSystem(world: World) {
   return () => {
     for (const action of interactedActionQueue()) {
       if (action.$from !== Engine.instance.userId) continue
-      if (!hasComponent(action.targetEntity, EquippableComponent)) continue
+      if (!hasComponent(action.targetEntity!, EquippableComponent)) continue
 
       const avatarEntity = Engine.instance.currentWorld.localClientEntity
 
@@ -176,7 +176,7 @@ export default async function EquippableSystem(world: World) {
           // drop(entity, inputKey, inputValue)
         }
       } else {
-        equipEntity(avatarEntity, action.targetEntity)
+        equipEntity(avatarEntity, action.targetEntity!)
       }
     }
 

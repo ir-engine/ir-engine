@@ -18,6 +18,7 @@ import { dispatchAction, useHookEffect } from '@xrengine/hyperflux'
 import AccountTreeIcon from '@mui/icons-material/AccountTree'
 import Inventory2Icon from '@mui/icons-material/Inventory2'
 import TuneIcon from '@mui/icons-material/Tune'
+import { Checkbox } from '@mui/material'
 import Dialog from '@mui/material/Dialog'
 
 import { extractZip, uploadProjectFile } from '../functions/assetFunctions'
@@ -42,7 +43,7 @@ import DragLayer from './dnd/DragLayer'
 import ElementList from './element/ElementList'
 import HierarchyPanelContainer from './hierarchy/HierarchyPanelContainer'
 import { DialogContext } from './hooks/useDialog'
-import { PanelDragContainer, PanelIcon, PanelTitle } from './layout/Panel'
+import { PanelCheckbox, PanelDragContainer, PanelIcon, PanelTitle } from './layout/Panel'
 import PropertiesPanelContainer from './properties/PropertiesPanelContainer'
 import { AppContext } from './Search/context'
 import Search from './Search/Search'
@@ -133,7 +134,7 @@ const EditorContainer = () => {
   const dockPanelRef = useRef<DockLayout>(null)
 
   const importScene = async (sceneFile: SceneJson) => {
-    setDialogComponent(<ProgressDialog title={t('editor:loading')} message={t('editor:loadingMsg')} />)
+    setDialogComponent(<ProgressDialog message={t('editor:loading')} />)
     try {
       await loadProjectScene(sceneFile)
       dispatchAction(EditorAction.sceneModified({ modified: true }))
@@ -171,7 +172,7 @@ const EditorContainer = () => {
   }
 
   const loadScene = async (sceneName: string) => {
-    setDialogComponent(<ProgressDialog title={t('editor:loading')} message={t('editor:loadingMsg')} />)
+    setDialogComponent(<ProgressDialog message={t('editor:loading')} />)
     try {
       if (!projectName.value) return
       const project = await getScene(projectName.value, sceneName, false)
@@ -196,7 +197,7 @@ const EditorContainer = () => {
   const onNewScene = async () => {
     if (!projectName.value) return
 
-    setDialogComponent(<ProgressDialog title={t('editor:loading')} message={t('editor:loadingMsg')} />)
+    setDialogComponent(<ProgressDialog title={t('editor:loading')} />)
 
     try {
       const sceneData = await createNewScene(projectName.value)
@@ -291,7 +292,7 @@ const EditorContainer = () => {
       if (el.files && el.files.length > 0 && pName) {
         const fList = el.files
         const files = [...Array(el.files.length).keys()].map((i) => fList[i])
-        const nuUrl = (await uploadProjectFile(pName, files, true)).map((url) => url.url)
+        const nuUrl = (await Promise.all(uploadProjectFile(pName, files, true).promises)).map((url) => url.url)
 
         //process zipped files
         const zipFiles = nuUrl.filter((url) => /\.zip$/.test(url))
@@ -369,8 +370,7 @@ const EditorContainer = () => {
 
     setDialogComponent(
       <ProgressDialog
-        title={t('editor:saving')}
-        message={t('editor:savingMsg')}
+        message={t('editor:saving')}
         cancelable={true}
         onCancel={() => {
           abortController.abort()
@@ -574,6 +574,19 @@ const EditorContainer = () => {
                     <PanelDragContainer>
                       <PanelIcon as={AccountTreeIcon} size={12} />
                       <PanelTitle>Hierarchy</PanelTitle>
+                      {/* <PanelCheckbox> */}
+                      <PanelTitle>
+                        Explode Objects{' '}
+                        <Checkbox
+                          style={{ padding: '0px' }}
+                          value={editorState.showObject3DInHierarchy.value}
+                          onChange={(e, value) =>
+                            dispatchAction(EditorAction.showObject3DInHierarchy({ showObject3DInHierarchy: value }))
+                          }
+                        />
+                      </PanelTitle>
+
+                      {/* </PanelCheckbox> */}
                       <Search elementsName="hierarchy" handleInputChange={handleInputChangeHierarchy} />
                     </PanelDragContainer>
                   ),

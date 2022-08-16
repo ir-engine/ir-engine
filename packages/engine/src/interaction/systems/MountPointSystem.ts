@@ -58,16 +58,16 @@ export default async function MountPointSystem(world: World) {
 
     for (const action of mountPointActionQueue()) {
       if (action.$from !== Engine.instance.userId) continue
-      if (!hasComponent(action.targetEntity, MountPointComponent)) continue
+      if (!hasComponent(action.targetEntity!, MountPointComponent)) continue
 
-      const mountPoint = getComponent(action.targetEntity, MountPointComponent)
+      const mountPoint = getComponent(action.targetEntity!, MountPointComponent)
       if (mountPoint.type === MountPoint.seat) {
         const avatarEntity = Engine.instance.currentWorld.localClientEntity
 
         if (hasComponent(avatarEntity, SittingComponent)) continue
 
         // Add desired transform component to move the avatar to mounting point
-        const transform = getComponent(action.targetEntity, TransformComponent)
+        const transform = getComponent(action.targetEntity!, TransformComponent)
         const desiredTransform = addComponent(avatarEntity, DesiredTransformComponent, {
           position: transform.position.clone(),
           rotation: transform.rotation.clone(),
@@ -80,7 +80,7 @@ export default async function MountPointSystem(world: World) {
         desiredTransform.position.y = transform.position.y
 
         addComponent(avatarEntity, SittingComponent, {
-          mountPointEntity: action.targetEntity,
+          mountPointEntity: action.targetEntity!,
           state: AvatarStates.SIT_ENTER
         })
         getComponent(avatarEntity, AvatarControllerComponent).movementEnabled = false

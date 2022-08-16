@@ -728,7 +728,7 @@ export const AuthService = {
         avatarName,
         isPublicAvatar: !!isPublicAvatar
       }
-    })
+    }).promise
 
     if (!isPublicAvatar) {
       const selfUser = accessAuthState().user

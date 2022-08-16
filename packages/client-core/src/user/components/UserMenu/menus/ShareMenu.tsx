@@ -22,6 +22,7 @@ import { emailRegex, InviteService, phoneRegex } from '../../../../social/servic
 import { useInviteState } from '../../../../social/services/InviteService'
 import { useAuthState } from '../../../services/AuthService'
 import styles from '../index.module.scss'
+import { Views } from '../util'
 
 const logger = multiLogger.child({ component: 'client-core:ShareMenu' })
 
@@ -127,7 +128,9 @@ export const useShareMenuHooks = ({ refLink }) => {
   }
 }
 
-interface Props {}
+interface Props {
+  changeActiveMenu: (str: string) => void
+}
 
 const ShareMenu = (props: Props): JSX.Element => {
   const { t } = useTranslation()
@@ -231,6 +234,16 @@ const ShareMenu = (props: Props): JSX.Element => {
             </Button>
           </div>
         )}
+        <div className={styles.shareBtnContainer}>
+          <Button
+            className={styles.friendsBtn}
+            onClick={() => props.changeActiveMenu(Views.Party)}
+            onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+            onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+          >
+            {t('user:usermenu.share.lbl-findFriends')}
+          </Button>
+        </div>
       </div>
     </div>
   )
