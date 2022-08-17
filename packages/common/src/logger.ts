@@ -79,7 +79,8 @@ const multiLogger = {
           consoleMethods[level](...args)
 
           // Send an async rate-limited request to backend /api/log endpoint for aggregation
-          if (hostDefined) {
+          // Also suppress logger.info() levels (the equivalent to console.log())
+          if (hostDefined && level !== 'info') {
             logRequestCache.memoize({
               key: logParams.msg,
               fn: () =>
