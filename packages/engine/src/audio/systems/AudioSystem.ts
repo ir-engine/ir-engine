@@ -108,13 +108,7 @@ export default async function AudioSystem(world: World) {
   }
 
   if (safari) {
-    const initialClickListener = () => {
-      playmedia()
-      window.removeEventListener('click', initialClickListener)
-      window.removeEventListener('touchend', initialClickListener)
-    }
-    window.addEventListener('click', initialClickListener)
-    window.addEventListener('touchend', initialClickListener)
+    window.addEventListener('pointerdown', playmedia)
   }
 
   return () => {
