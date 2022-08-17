@@ -13,7 +13,6 @@ import { createEngine } from '../../../initializeEngine'
 import { Physics } from '../../../physics/classes/Physics'
 import { RigidBodyComponent } from '../../../physics/components/RigidBodyComponent'
 import { TransformComponent } from '../../../transform/components/TransformComponent'
-import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 import { TriggerVolumeComponent } from '../../components/TriggerVolumeComponent'
 import {
@@ -57,21 +56,6 @@ describe('TriggerVolumeFunctions', () => {
       const obj3d = getComponent(entity, Object3DComponent)?.value as Mesh<any, MeshBasicMaterial>
       assert(obj3d && obj3d.material.visible === false, 'TriggerVolume outline is not disabled')
       assert(obj3d && obj3d.userData.isHelper, 'TriggerVolume outline is not disabled')
-    })
-
-    it('will include this component into EntityNodeComponent', () => {
-      const entity = createEntity()
-      addComponent(entity, EntityNodeComponent, { components: [] })
-
-      addComponent(entity, TransformComponent, {
-        position: new Vector3(),
-        rotation: new Quaternion(),
-        scale: new Vector3(1.5, 2.5, 6)
-      })
-      deserializeTriggerVolume(entity, sceneComponent)
-
-      const entityNodeComponent = getComponent(entity, EntityNodeComponent)
-      assert(entityNodeComponent.components.includes(SCENE_COMPONENT_TRIGGER_VOLUME))
     })
   })
 

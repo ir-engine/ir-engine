@@ -3,13 +3,10 @@ import proxyquire from 'proxyquire'
 
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
-import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
 import { getComponent } from '../../../ecs/functions/ComponentFunctions'
-import { addComponent } from '../../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
 import { createEngine } from '../../../initializeEngine'
-import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 import { VisibleComponent } from '../../components/VisibleComponent'
 import { SCENE_COMPONENT_VISIBLE } from './VisibleFunctions'
@@ -33,16 +30,6 @@ describe('VisibleFunctions', () => {
   }
 
   describe('deserializeVisible', () => {
-    it('does not create Visible Component while not on client side', () => {
-      const _visibleFunctions = proxyquire('./VisibleFunctions', {
-        '../../../common/functions/isClient': { isClient: false }
-      })
-      _visibleFunctions.deserializeVisible(entity, sceneComponent)
-
-      const visibleComponent = getComponent(entity, VisibleComponent)
-      assert(!visibleComponent)
-    })
-
     it('creates Visible Component with provided component data', () => {
       visibleFunctions.deserializeVisible(entity, sceneComponent)
 
@@ -54,15 +41,6 @@ describe('VisibleFunctions', () => {
     it('does not create/change Object3D', () => {
       visibleFunctions.deserializeVisible(entity, sceneComponent)
       assert(!getComponent(entity, Object3DComponent)?.value)
-    })
-
-    it('will include this component into EntityNodeComponent', () => {
-      addComponent(entity, EntityNodeComponent, { components: [] })
-
-      visibleFunctions.deserializeVisible(entity, sceneComponent)
-
-      const entityNodeComponent = getComponent(entity, EntityNodeComponent)
-      assert(entityNodeComponent.components.includes(SCENE_COMPONENT_VISIBLE))
     })
   })
 

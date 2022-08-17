@@ -4,17 +4,12 @@ import { Object3D } from 'three'
 
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
-import { AnimationComponent } from '../../../avatar/components/AnimationComponent'
-import { AvatarAnimationComponent } from '../../../avatar/components/AvatarAnimationComponent'
 import { LoopAnimationComponent, LoopAnimationComponentType } from '../../../avatar/components/LoopAnimationComponent'
 import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
 import { createEngine } from '../../../initializeEngine'
-import { VelocityComponent } from '../../../physics/components/VelocityComponent'
-import { CallbackComponent } from '../../components/CallbackComponent'
-import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 import { SCENE_COMPONENT_LOOP_ANIMATION, SCENE_COMPONENT_LOOP_ANIMATION_DEFAULT_VALUE } from './LoopAnimationFunctions'
 
@@ -114,7 +109,6 @@ describe('LoopAnimationFunctions', () => {
 
     it('will add LoopAnimationComponent with provide data', () => {
       addComponent(entity, Object3DComponent, { value: new Object3D() })
-      addComponent(entity, EntityNodeComponent, { components: [] })
 
       loopAnimationFunctions.deserializeLoopAnimation(entity, sceneComponent)
 
@@ -123,12 +117,9 @@ describe('LoopAnimationFunctions', () => {
       assert.equal(loopAnimation.activeClipIndex, sceneComponentData.activeClipIndex)
       assert.equal(loopAnimation.hasAvatarAnimations, sceneComponentData.hasAvatarAnimations)
 
-      //AnimationComponent is now added asynchronously in the UpdateAnimation function which is not called during deserialization
-      /*const animation = getComponent(entity, AnimationComponent)
-      assert(animation)*/
-
-      const entityNode = getComponent(entity, EntityNodeComponent)
-      assert(entityNode && entityNode.components.includes(SCENE_COMPONENT_LOOP_ANIMATION))
+      // AnimationComponent is now added asynchronously in the UpdateAnimation function which is not called during deserialization
+      // const animation = getComponent(entity, AnimationComponent)
+      // assert(animation)
     })
   })
 
@@ -147,32 +138,32 @@ describe('LoopAnimationFunctions', () => {
     it('will not throw any error if Object 3d is not defined', () => {
       assert.doesNotThrow(() => loopAnimationFunctions.updateLoopAnimation(entity))
     })
-    //causing errors
-    /*describe('Property tests for "hasAvatarAnimations"', () => {
-      
-      it('Will add other components if value is true', () => {
-        loopAnimation.hasAvatarAnimations = true
-        loopAnimationFunctions.updateLoopAnimation(entity)
+    // causing errors
+    // describe('Property tests for "hasAvatarAnimations"', () => {
 
-        const animationComponent = getComponent(entity, AnimationComponent)
+    //   it('Will add other components if value is true', () => {
+    //     loopAnimation.hasAvatarAnimations = true
+    //     loopAnimationFunctions.updateLoopAnimation(entity)
 
-        assert(hasComponent(entity, AvatarAnimationComponent))
-        //assert(hasComponent(entity, VelocityComponent)) velocity component no longer present by default
-        assert.equal(animationComponent.animations, AnimationManager.instance._animations)
-      })
+    //     const animationComponent = getComponent(entity, AnimationComponent)
 
-      it('Will remove other components if value is false', () => {
-        addComponent(entity, AvatarAnimationComponent, {} as any)
-        loopAnimation.hasAvatarAnimations = false
-        loopAnimationFunctions.updateLoopAnimation(entity)
+    //     assert(hasComponent(entity, AvatarAnimationComponent))
+    //     //assert(hasComponent(entity, VelocityComponent)) velocity component no longer present by default
+    //     assert.equal(animationComponent.animations, AnimationManager.instance._animations)
+    //   })
 
-        const animationComponent = getComponent(entity, AnimationComponent)
+    //   it('Will remove other components if value is false', () => {
+    //     addComponent(entity, AvatarAnimationComponent, {} as any)
+    //     loopAnimation.hasAvatarAnimations = false
+    //     loopAnimationFunctions.updateLoopAnimation(entity)
 
-        assert(!hasComponent(entity, AvatarAnimationComponent))
-        //assert(!hasComponent(entity, VelocityComponent))
-        assert.equal(animationComponent.animations, obj3d.animations)
-      })
-    })*/
+    //     const animationComponent = getComponent(entity, AnimationComponent)
+
+    //     assert(!hasComponent(entity, AvatarAnimationComponent))
+    //     //assert(!hasComponent(entity, VelocityComponent))
+    //     assert.equal(animationComponent.animations, obj3d.animations)
+    //   })
+    // })
 
     describe('for location only', () => {
       before(() => {

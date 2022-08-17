@@ -11,7 +11,6 @@ import { addComponent } from '../../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
 import { createEngine } from '../../../initializeEngine'
 import { TransformComponent } from '../../../transform/components/TransformComponent'
-import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 import { ScenePreviewCameraTagComponent } from '../../components/ScenePreviewCamera'
 import { SCENE_COMPONENT_SCENE_PREVIEW_CAMERA, SCENE_PREVIEW_CAMERA_HELPER } from './ScenePreviewCameraFunctions'
@@ -59,15 +58,6 @@ describe('ScenePreviewCameraFunctions', () => {
       const scenePreviewCameraComponent = getComponent(entity, ScenePreviewCameraTagComponent)
       assert(scenePreviewCameraComponent)
       assert(Object.keys(scenePreviewCameraComponent).length === 0)
-    })
-
-    it('will include this component into EntityNodeComponent', () => {
-      addComponent(entity, EntityNodeComponent, { components: [] })
-
-      scenePreviewCameraFunctions.deserializeScenePreviewCamera(entity, sceneComponent)
-
-      const entityNodeComponent = getComponent(entity, EntityNodeComponent)
-      assert(entityNodeComponent.components.includes(SCENE_COMPONENT_SCENE_PREVIEW_CAMERA))
     })
 
     describe('Editor vs Location', () => {

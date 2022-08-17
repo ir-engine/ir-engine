@@ -4,13 +4,11 @@ import { Object3D } from 'three'
 
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
-import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
 import { getComponent } from '../../../ecs/functions/ComponentFunctions'
 import { addComponent } from '../../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
 import { createEngine } from '../../../initializeEngine'
-import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 import { SpawnPointComponent } from '../../components/SpawnPointComponent'
 import { ObjectLayers } from '../../constants/ObjectLayers'
@@ -67,15 +65,6 @@ describe('SpawnPointFunctions', () => {
 
       spawnPointFunctions.deserializeSpawnPoint(entity, sceneComponent)
       assert(getComponent(entity, Object3DComponent)?.value === obj3d)
-    })
-
-    it('will include this component into EntityNodeComponent', async () => {
-      addComponent(entity, EntityNodeComponent, { components: [] })
-
-      await spawnPointFunctions.deserializeSpawnPoint(entity, sceneComponent)
-
-      const entityNodeComponent = getComponent(entity, EntityNodeComponent)
-      assert(entityNodeComponent.components.includes(SCENE_COMPONENT_SPAWN_POINT))
     })
   })
 

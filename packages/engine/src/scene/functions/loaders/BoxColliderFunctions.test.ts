@@ -14,7 +14,6 @@ import { RigidBodyComponent } from '../../../physics/components/RigidBodyCompone
 import { RigidBodyFixedTagComponent } from '../../../physics/components/RigidBodyFixedTagComponent'
 import { CollisionGroups, DefaultCollisionMask } from '../../../physics/enums/CollisionGroups'
 import { TransformComponent } from '../../../transform/components/TransformComponent'
-import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 import {
   deserializeBoxCollider,
@@ -58,15 +57,6 @@ describe('BoxColliderFunctions', () => {
 
       assert(hasComponent(entity, RigidBodyComponent))
       assert(hasComponent(entity, RigidBodyFixedTagComponent))
-    })
-
-    it('will include this component into EntityNodeComponent', () => {
-      addComponent(entity, EntityNodeComponent, { components: [] })
-
-      deserializeBoxCollider(entity, sceneComponent)
-
-      const entityNodeComponent = getComponent(entity, EntityNodeComponent)
-      assert(entityNodeComponent.components.includes(SCENE_COMPONENT_BOX_COLLIDER))
     })
 
     it('creates Object3d Component', () => {

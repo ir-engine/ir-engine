@@ -5,18 +5,16 @@ import { LinearFilter, Mesh, Object3D, sRGBEncoding } from 'three'
 
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
-import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
 import { getComponent } from '../../../ecs/functions/ComponentFunctions'
 import { addComponent } from '../../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
 import { createEngine } from '../../../initializeEngine'
-import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { MediaComponent } from '../../components/MediaComponent'
 import { MediaElementComponent } from '../../components/MediaElementComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 import { VideoComponent, VideoComponentType } from '../../components/VideoComponent'
-import { SCENE_COMPONENT_VIDEO, SCENE_COMPONENT_VIDEO_DEFAULT_VALUES } from './VideoFunctions'
+import { SCENE_COMPONENT_VIDEO } from './VideoFunctions'
 
 class Media {
   paused: boolean = false
@@ -115,15 +113,6 @@ describe.skip('VideoFunctions', () => {
       const obj3d = getComponent(entity, Object3DComponent)?.value
       assert(obj3d, 'Video is not created')
       assert(obj3d.userData.videoEl)
-    })
-
-    it('will include this component into EntityNodeComponent', () => {
-      addComponent(entity, EntityNodeComponent, { components: [] })
-
-      videoFunctions.deserializeVideo(entity, sceneComponent)
-
-      const entityNodeComponent = getComponent(entity, EntityNodeComponent)
-      assert(entityNodeComponent.components.includes(SCENE_COMPONENT_VIDEO))
     })
   })
 

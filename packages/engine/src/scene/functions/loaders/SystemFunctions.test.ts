@@ -1,17 +1,12 @@
 import assert from 'assert'
-import { Object3D } from 'three'
 
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
-import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
 import { getComponent } from '../../../ecs/functions/ComponentFunctions'
-import { addComponent } from '../../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
 import { SystemUpdateType } from '../../../ecs/functions/SystemUpdateType'
 import { createEngine } from '../../../initializeEngine'
-import { EntityNodeComponent } from '../../components/EntityNodeComponent'
-import { Object3DComponent } from '../../components/Object3DComponent'
 import { PreventBakeTagComponent } from '../../components/PreventBakeTagComponent'
 import { SystemComponent } from '../../components/SystemComponent'
 import {
@@ -51,15 +46,6 @@ describe('SystemFunctions', () => {
       assert(systemComponent)
       assert.deepEqual(systemComponent, sceneComponentData)
       assert(getComponent(entity, PreventBakeTagComponent))
-    })
-
-    it('will include this component into EntityNodeComponent', () => {
-      addComponent(entity, EntityNodeComponent, { components: [] })
-
-      deserializeSystem(entity, sceneComponent)
-
-      const entityNodeComponent = getComponent(entity, EntityNodeComponent)
-      assert(entityNodeComponent.components.includes(SCENE_COMPONENT_SYSTEM))
     })
   })
 

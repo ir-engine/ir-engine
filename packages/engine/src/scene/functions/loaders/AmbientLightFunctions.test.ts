@@ -5,11 +5,9 @@ import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
 import { Entity } from '../../../ecs/classes/Entity'
 import { getComponent } from '../../../ecs/functions/ComponentFunctions'
-import { addComponent } from '../../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
 import { createEngine } from '../../../initializeEngine'
 import { AmbientLightComponent, AmbientLightComponentType } from '../../components/AmbientLightComponent'
-import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 import {
   deserializeAmbientLight,
@@ -59,15 +57,6 @@ describe('AmbientLightFunctions', () => {
       assert(obj3d && obj3d instanceof AmbientLight, 'Ambient Light is not created')
       assert(obj3d.color instanceof Color && obj3d.color.getHex() === sceneComponentData.color)
       assert(obj3d.intensity === sceneComponentData.intensity)
-    })
-
-    it('will include this component into EntityNodeComponent', () => {
-      addComponent(entity, EntityNodeComponent, { components: [] })
-
-      deserializeAmbientLight(entity, sceneComponent)
-
-      const entityNodeComponent = getComponent(entity, EntityNodeComponent)
-      assert(entityNodeComponent.components.includes(SCENE_COMPONENT_AMBIENT_LIGHT))
     })
   })
 

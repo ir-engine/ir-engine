@@ -1,25 +1,13 @@
 import assert from 'assert'
-import {
-  BoxGeometry,
-  Material,
-  Mesh,
-  MeshLambertMaterial,
-  MeshPhongMaterial,
-  MeshStandardMaterial,
-  Object3D,
-  ShaderMaterial
-} from 'three'
+import { BoxGeometry, Material, Mesh, MeshPhongMaterial, MeshStandardMaterial, Object3D, ShaderMaterial } from 'three'
 
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
-import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
 import { getComponent } from '../../../ecs/functions/ComponentFunctions'
-import { addComponent } from '../../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
 import { createEngine } from '../../../initializeEngine'
 import { EngineRenderer } from '../../../renderer/WebGLRendererSystem'
-import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { SimpleMaterialTagComponent } from '../../components/SimpleMaterialTagComponent'
 import { SceneOptions } from '../../systems/SceneObjectSystem'
 import {
@@ -64,15 +52,6 @@ describe('SimpleMaterialFunctions', () => {
       const simplematerialComponent = getComponent(entity, SimpleMaterialTagComponent)
       assert(simplematerialComponent)
       assert(Object.keys(simplematerialComponent).length === 0)
-    })
-
-    it('will include this component into EntityNodeComponent', () => {
-      addComponent(entity, EntityNodeComponent, { components: [] })
-
-      deserializeSimpleMaterial(entity, sceneComponent)
-
-      const entityNodeComponent = getComponent(entity, EntityNodeComponent)
-      assert(entityNodeComponent.components.includes(SCENE_COMPONENT_SIMPLE_MATERIALS))
     })
   })
 

@@ -3,14 +3,11 @@ import { Euler, Quaternion, Vector3 } from 'three'
 
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
-import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
 import { getComponent } from '../../../ecs/functions/ComponentFunctions'
-import { addComponent } from '../../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
 import { createEngine } from '../../../initializeEngine'
 import { TransformComponent } from '../../../transform/components/TransformComponent'
-import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import {
   deserializeTransform,
   parseTransformProperties,
@@ -59,15 +56,6 @@ describe('TransformFunctions', () => {
       assert(Math.abs(transformComponent.scale.x - sceneComponentData.scale.x) < EPSILON)
       assert(Math.abs(transformComponent.scale.y - sceneComponentData.scale.y) < EPSILON)
       assert(Math.abs(transformComponent.scale.z - sceneComponentData.scale.z) < EPSILON)
-    })
-
-    it('will include this component into EntityNodeComponent', () => {
-      addComponent(entity, EntityNodeComponent, { components: [] })
-
-      deserializeTransform(entity, sceneComponent)
-
-      const entityNodeComponent = getComponent(entity, EntityNodeComponent)
-      assert(entityNodeComponent.components.includes(SCENE_COMPONENT_TRANSFORM))
     })
   })
 
