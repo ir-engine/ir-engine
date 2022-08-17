@@ -18,7 +18,6 @@ import {
   hasComponent
 } from '../../../ecs/functions/ComponentFunctions'
 import { TransformComponent } from '../../../transform/components/TransformComponent'
-import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 import { ScenePreviewCameraTagComponent } from '../../components/ScenePreviewCamera'
 import { ObjectLayers } from '../../constants/ObjectLayers'
@@ -32,7 +31,6 @@ export const deserializeScenePreviewCamera: ComponentDeserializeFunction = (enti
   if (!isClient) return
 
   addComponent(entity, ScenePreviewCameraTagComponent, {})
-  getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_SCENE_PREVIEW_CAMERA)
 
   if (Engine.instance.isEditor) {
     const camera = new PerspectiveCamera(80, 16 / 9, 0.2, 8000)

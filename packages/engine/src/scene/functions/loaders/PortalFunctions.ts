@@ -22,7 +22,6 @@ import { WorldNetworkAction } from '../../../networking/functions/WorldNetworkAc
 import { EngineRenderer } from '../../../renderer/WebGLRendererSystem'
 import { setTransformComponent, TransformComponent } from '../../../transform/components/TransformComponent'
 import { CallbackComponent } from '../../components/CallbackComponent'
-import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { NameComponent } from '../../components/NameComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 import {
@@ -90,7 +89,6 @@ export const deserializePortal: ComponentDeserializeFunction = (
     name: 'portal helper - ' + getComponent(entity, NameComponent).name
   })
 
-  getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_PORTAL)
   addComponent(entity, CallbackComponent, {
     teleport: portalTriggerEnter
   })

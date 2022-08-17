@@ -1,10 +1,9 @@
 import assert from 'assert'
 import proxyquire from 'proxyquire'
-import { Object3D, Texture } from 'three'
+import { Object3D } from 'three'
 
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
-import { AssetLoader } from '../../../assets/classes/AssetLoader'
 import { AudioComponent, AudioComponentType } from '../../../audio/components/AudioComponent'
 import { AudioType, AudioTypeType } from '../../../audio/constants/AudioConstants'
 import { Engine } from '../../../ecs/classes/Engine'
@@ -12,9 +11,6 @@ import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
 import { createEngine } from '../../../initializeEngine'
-import { EntityNodeComponent } from '../../components/EntityNodeComponent'
-import { ErrorComponent } from '../../components/ErrorComponent'
-import { MediaComponent, MediaComponentType } from '../../components/MediaComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 import { ObjectLayers } from '../../constants/ObjectLayers'
 import { deserializeAudio, SCENE_COMPONENT_AUDIO, SCENE_COMPONENT_AUDIO_DEFAULT_VALUES } from './AudioFunctions'
@@ -133,15 +129,6 @@ describe.skip('AudioFunctions', () => {
         _audioFunctions.deserializeAudio(entity, sceneComponent)
         assert(!hasComponent(entity, AudioComponent))
       })
-    })
-
-    it('will include this component into EntityNodeComponent', () => {
-      addComponent(entity, EntityNodeComponent, { components: [] })
-
-      audioFunctions.deserializeAudio(entity, sceneComponent)
-
-      const entityNodeComponent = getComponent(entity, EntityNodeComponent)
-      assert(entityNodeComponent.components.includes(SCENE_COMPONENT_AUDIO))
     })
 
     describe('Texture mesh Tests', () => {

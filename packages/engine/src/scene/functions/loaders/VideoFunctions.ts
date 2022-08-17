@@ -18,7 +18,6 @@ import { addComponent, getComponent, hasComponent } from '../../../ecs/functions
 import { matchActionOnce } from '../../../networking/functions/matchActionOnce'
 import { ImageProjection } from '../../classes/ImageUtils'
 import { CallbackComponent } from '../../components/CallbackComponent'
-import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { ImageComponent } from '../../components/ImageComponent'
 import { MediaComponent } from '../../components/MediaComponent'
 import { MediaElementComponent } from '../../components/MediaElementComponent'
@@ -45,7 +44,6 @@ export const deserializeVideo: ComponentDeserializeFunction = (
   if (!isClient) return
   const props = parseVideoProperties(json.props) as VideoComponentType
   addComponent(entity, VideoComponent, props)
-  getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_VIDEO)
 }
 
 export const updateVideo: ComponentUpdateFunction = (entity: Entity, properties: VideoComponentType) => {

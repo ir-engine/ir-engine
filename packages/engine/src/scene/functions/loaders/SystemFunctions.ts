@@ -8,7 +8,6 @@ import {
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
 import { SystemUpdateType } from '../../../ecs/functions/SystemUpdateType'
-import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { PreventBakeTagComponent } from '../../components/PreventBakeTagComponent'
 import { SystemComponent, SystemComponentType } from '../../components/SystemComponent'
 
@@ -28,8 +27,6 @@ export const deserializeSystem: ComponentDeserializeFunction = (
   const props = parseSystemProperties(json.props)
   addComponent(entity, SystemComponent, props)
   addComponent(entity, PreventBakeTagComponent, {})
-
-  getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_SYSTEM)
 
   updateSystem(entity)
 }

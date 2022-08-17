@@ -15,7 +15,6 @@ import { Physics } from '../../../physics/classes/Physics'
 import { RigidBodyComponent } from '../../../physics/components/RigidBodyComponent'
 import { CollisionGroups, DefaultCollisionMask } from '../../../physics/enums/CollisionGroups'
 import { TransformComponent } from '../../../transform/components/TransformComponent'
-import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 import { BoxColliderProps } from '../../interfaces/BoxColliderProps'
 
@@ -42,8 +41,6 @@ export const deserializeBoxCollider: ComponentDeserializeFunction = (
 
   const bodyDesc = RigidBodyDesc.fixed()
   Physics.createRigidBody(entity, Engine.instance.currentWorld.physicsWorld, bodyDesc, [colliderDesc])
-
-  getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_BOX_COLLIDER)
 
   if (!hasComponent(entity, Object3DComponent)) addComponent(entity, Object3DComponent, { value: new Object3D() })
   const obj3d = getComponent(entity, Object3DComponent).value

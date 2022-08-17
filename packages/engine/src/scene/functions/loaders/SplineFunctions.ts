@@ -10,7 +10,6 @@ import {
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
 import Spline from '../../classes/Spline'
-import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 import { SplineComponent, SplineComponentType } from '../../components/SplineComponent'
 import { ObjectLayers } from '../../constants/ObjectLayers'
@@ -30,8 +29,6 @@ export const deserializeSpline: ComponentDeserializeFunction = (
 
   addComponent(entity, Object3DComponent, { value: obj3d })
   addComponent(entity, SplineComponent, props)
-
-  getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_SPLINE)
 
   const helper = new Spline()
   helper.userData.isHelper = true

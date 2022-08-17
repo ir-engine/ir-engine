@@ -3,14 +3,10 @@ import proxyquire from 'proxyquire'
 
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
-import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
-import { World } from '../../../ecs/classes/World'
 import { getComponent } from '../../../ecs/functions/ComponentFunctions'
-import { addComponent } from '../../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
 import { createEngine } from '../../../initializeEngine'
-import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { IgnoreRaycastTagComponent } from '../../components/IgnoreRaycastTagComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 import { PostprocessingComponent } from '../../components/PostprocessingComponent'
@@ -62,15 +58,6 @@ describe('PostprocessingFunctions', () => {
 
       assert(getComponent(entity, Object3DComponent)?.value, 'Postprocessing is not created')
       assert(getComponent(entity, IgnoreRaycastTagComponent))
-    })
-
-    it('will include this component into EntityNodeComponent', () => {
-      addComponent(entity, EntityNodeComponent, { components: [] })
-
-      postprocessingFunctions.deserializePostprocessing(entity, sceneComponent)
-
-      const entityNodeComponent = getComponent(entity, EntityNodeComponent)
-      assert(entityNodeComponent.components.includes(SCENE_COMPONENT_POSTPROCESSING))
     })
   })
 

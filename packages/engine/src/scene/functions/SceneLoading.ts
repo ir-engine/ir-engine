@@ -17,7 +17,6 @@ import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { addEntityNodeInTree, createEntityNode } from '../../ecs/functions/EntityTreeFunctions'
 import { initSystems, SystemModuleType } from '../../ecs/functions/SystemFunctions'
 import { configureEffectComposer } from '../../renderer/functions/configureEffectComposer'
-import { TransformComponent } from '../../transform/components/TransformComponent'
 import { EntityNodeComponent } from '../components/EntityNodeComponent'
 import { NameComponent } from '../components/NameComponent'
 import { Object3DComponent } from '../components/Object3DComponent'
@@ -243,5 +242,6 @@ export const loadComponent = (entity: Entity, component: ComponentJson): void =>
 
   if (deserializer) {
     deserializer(entity, component)
+    getComponent(entity, EntityNodeComponent).components.push(name)
   }
 }

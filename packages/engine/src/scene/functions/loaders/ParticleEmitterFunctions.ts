@@ -15,7 +15,6 @@ import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent, removeComponent } from '../../../ecs/functions/ComponentFunctions'
 import { formatMaterialArgs } from '../../../renderer/materials/Utilities'
 import UpdateableObject3D from '../../classes/UpdateableObject3D'
-import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { Object3DComponent, Object3DWithEntity } from '../../components/Object3DComponent'
 import { ParticleEmitterComponent, ParticleEmitterComponentType } from '../../components/ParticleEmitterComponent'
 import { UpdatableComponent } from '../../components/UpdatableComponent'
@@ -83,7 +82,6 @@ export const deserializeParticleEmitter: ComponentDeserializeFunction = (
 ) => {
   const comp = parseParticleEmitterProperties(json.props)
   addComponent(entity, ParticleEmitterComponent, comp)
-  getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_PARTICLE_EMITTER)
   dispatchAction(ParticleSystemActions.createParticleSystem({ entity }))
   //initializeParticleSystem(entity)
   //updateParticleEmitter(entity, comp)

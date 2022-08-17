@@ -22,6 +22,7 @@
     "@digitalbazaar/security-document-loader": "^2.0.0",
     "@digitalcredentials/bnid": "^2.1.2",
     "@digitalcredentials/did-method-key": "^2.0.3",
+    "@digitalcredentials/lru-memoize": "^2.1.4",
     "@digitalcredentials/vc": "^4.1.1",
     "@interop/did-web-resolver": "^2.2.1",
     "cross-fetch": "^3.1.5",

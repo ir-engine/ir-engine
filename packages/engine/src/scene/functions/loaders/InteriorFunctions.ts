@@ -11,7 +11,6 @@ import { isClient } from '../../../common/functions/isClient'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
 import { Interior } from '../../classes/Interior'
-import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { InteriorComponent, InteriorComponentType } from '../../components/InteriorComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 import { addError, removeError } from '../ErrorFunctions'
@@ -35,8 +34,6 @@ export const deserializeInterior: ComponentDeserializeFunction = (
 
   addComponent(entity, Object3DComponent, { value: obj3d })
   addComponent(entity, InteriorComponent, props)
-
-  getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_INTERIOR)
 
   updateInterior(entity, props)
 }

@@ -4,7 +4,6 @@ import { ComponentDeserializeFunction, ComponentSerializeFunction } from '../../
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
 import UpdateableObject3D from '../../classes/UpdateableObject3D'
-import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { MediaComponent, MediaComponentType } from '../../components/MediaComponent'
 import { MediaElementComponent } from '../../components/MediaElementComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
@@ -34,7 +33,6 @@ export const deserializeMedia: ComponentDeserializeFunction = (
   getNextPlaylistItem(entity)
   addComponent(entity, Object3DComponent, { value: new UpdateableObject3D() })
   addComponent(entity, UpdatableComponent, {})
-  getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_MEDIA)
 }
 
 export const serializeMedia: ComponentSerializeFunction = (entity) => {

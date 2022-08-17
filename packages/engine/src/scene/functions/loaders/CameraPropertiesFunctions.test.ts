@@ -12,7 +12,6 @@ import { addComponent } from '../../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
 import { createEngine } from '../../../initializeEngine'
 import { CameraPropertiesComponent } from '../../components/CameraPropertiesComponent'
-import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import {
   SCENE_COMPONENT_CAMERA_PROPERTIES,
   SCENE_COMPONENT_CAMERA_PROPERTIES_DEFAULT_VALUES
@@ -71,15 +70,6 @@ describe('CameraPropertiesFunctions', () => {
       const camerapropertiesComponent = getComponent(entity, CameraPropertiesComponent)
       assert(camerapropertiesComponent)
       assert.deepEqual(camerapropertiesComponent, sceneComponentData)
-    })
-
-    it('will include this component into EntityNodeComponent', () => {
-      addComponent(entity, EntityNodeComponent, { components: [] })
-
-      camerapropertiesFunctions.deserializeCameraProperties(entity, sceneComponent)
-
-      const entityNodeComponent = getComponent(entity, EntityNodeComponent)
-      assert(entityNodeComponent.components.includes(SCENE_COMPONENT_CAMERA_PROPERTIES))
     })
   })
 

@@ -7,10 +7,8 @@ import {
   ComponentSerializeFunction
 } from '../../../common/constants/PrefabFunctionType'
 import { isClient } from '../../../common/functions/isClient'
-import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
-import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 import { SpawnPointComponent } from '../../components/SpawnPointComponent'
 import { ObjectLayers } from '../../constants/ObjectLayers'
@@ -33,8 +31,6 @@ export const deserializeSpawnPoint: ComponentDeserializeFunction = async (entity
     obj3d = new Object3D()
     addComponent(entity, Object3DComponent, { value: obj3d })
   }
-
-  getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_SPAWN_POINT)
 
   /**@todo refactor helper */
 

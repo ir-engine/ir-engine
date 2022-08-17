@@ -15,7 +15,6 @@ import { EngineRenderer } from '../../../renderer/WebGLRendererSystem'
 import { VisibleComponent } from '../../../scene/components/VisibleComponent'
 import EditorDirectionalLightHelper from '../../classes/EditorDirectionalLightHelper'
 import { DirectionalLightComponent, DirectionalLightComponentType } from '../../components/DirectionalLightComponent'
-import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 import { ObjectLayers } from '../../constants/ObjectLayers'
 import { setObjectLayers } from '../setObjectLayers'
@@ -62,8 +61,6 @@ export const deserializeDirectionalLight: ComponentDeserializeFunction = (
   EngineRenderer.instance.directionalLightEntities.push(entity)
   addComponent(entity, Object3DComponent, { value: light })
   addComponent(entity, DirectionalLightComponent, props)
-
-  getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_DIRECTIONAL_LIGHT)
 
   updateDirectionalLight(entity, props)
 }

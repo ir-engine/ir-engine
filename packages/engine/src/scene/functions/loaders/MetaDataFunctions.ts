@@ -9,7 +9,6 @@ import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
 import { useWorld } from '../../../ecs/functions/SystemHooks'
-import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { MetaDataComponent, MetaDataComponentType } from '../../components/MetaDataComponent'
 
 export const SCENE_COMPONENT_METADATA = 'mtdata'
@@ -19,9 +18,6 @@ export const deserializeMetaData: ComponentDeserializeFunction = (
   json: ComponentJson<MetaDataComponentType>
 ) => {
   addComponent(entity, MetaDataComponent, { meta_data: json.props.meta_data ?? '' })
-
-  getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_METADATA)
-
   updateMetaData(entity)
 }
 

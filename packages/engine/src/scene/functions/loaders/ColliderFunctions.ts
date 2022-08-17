@@ -6,7 +6,6 @@ import { Entity } from '../../../ecs/classes/Entity'
 import { getComponent } from '../../../ecs/functions/ComponentFunctions'
 import { Physics } from '../../../physics/classes/Physics'
 import { ColliderDescOptions } from '../../../physics/types/PhysicsTypes'
-import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 
 export const SCENE_COMPONENT_COLLIDER = 'collider'
@@ -24,8 +23,6 @@ export const deserializeCollider: ComponentDeserializeFunction = (
       object3d.value,
       json.props as ColliderDescOptions
     )
-
-  getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_COLLIDER)
 }
 
 /**

@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { EntityNodeComponent } from '@xrengine/engine/src/scene/components/EntityNodeComponent'
 import { EnvmapComponent } from '@xrengine/engine/src/scene/components/EnvmapComponent'
 import { ErrorComponent } from '@xrengine/engine/src/scene/components/ErrorComponent'
 import { EnvMapSourceType, EnvMapTextureType } from '@xrengine/engine/src/scene/constants/EnvMapEnum'
@@ -21,38 +22,16 @@ import { EditorComponentType, updateProperty } from './Util'
 /**
  * EnvMapSourceOptions array containing SourceOptions for Envmap
  */
-const EnvMapSourceOptions = [
-  {
-    label: 'Default',
-    value: EnvMapSourceType.Default
-  },
-  {
-    label: 'Texture',
-    value: EnvMapSourceType.Texture
-  },
-  {
-    label: 'Color',
-    value: EnvMapSourceType.Color
-  },
-  {
-    label: 'None',
-    value: EnvMapSourceType.None
-  }
-]
+const EnvMapSourceOptions = Object.values(EnvMapSourceType).map((value) => {
+  return { label: value, value }
+})
 
 /**
  * EnvMapSourceOptions array containing SourceOptions for Envmap
  */
-const EnvMapTextureOptions = [
-  {
-    label: 'Cubemap',
-    value: EnvMapTextureType.Cubemap
-  },
-  {
-    label: 'Equirectangular',
-    value: EnvMapTextureType.Equirectangular
-  }
-]
+const EnvMapTextureOptions = Object.values(EnvMapTextureType).map((value) => {
+  return { label: value, value }
+})
 
 /**
  * EnvMapEditor provides the editor view for environment map property customization.
@@ -79,6 +58,7 @@ export const EnvMapEditor: EditorComponentType = (props) => {
 
   // if component is not there for previously saved model entities then create one
   if (!envmapComponent) {
+    getComponent(entity, EntityNodeComponent).components.push(SCENE_COMPONENT_ENVMAP)
     deserializeEnvMap(props.node.entity, { name: SCENE_COMPONENT_ENVMAP, props: {} })
     envmapComponent = getComponent(entity, EnvmapComponent)
   }

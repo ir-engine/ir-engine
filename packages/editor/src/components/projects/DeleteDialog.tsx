@@ -20,7 +20,7 @@ export const DeleteDialog = (props: Props): any => {
   const str =
     props.isProjectMenu && isDev
       ? `To prevent accidental loss of data, projects cannot be deleted from this menu in a local dev environment. Use the file system instead.`
-      : `Are you Sure`
+      : `Are you sure`
 
   return (
     <Dialog

@@ -3,13 +3,11 @@ import { Mesh, MeshBasicMaterial } from 'three'
 
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
-import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
 import { getComponent } from '../../../ecs/functions/ComponentFunctions'
 import { addComponent } from '../../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
 import { createEngine } from '../../../initializeEngine'
-import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 import { ShadowComponent, ShadowComponentType } from '../../components/ShadowComponent'
 import { deserializeShadow, SCENE_COMPONENT_SHADOW, serializeShadow, updateShadow } from './ShadowFunctions'
@@ -53,15 +51,6 @@ describe('ShadowFunctions', () => {
         shadowComponent.castShadow === sceneComponentData.cast &&
           shadowComponent.receiveShadow === sceneComponentData.receive
       )
-    })
-
-    it('will include this component into EntityNodeComponent', () => {
-      addComponent(entity, EntityNodeComponent, { components: [] })
-
-      deserializeShadow(entity, sceneComponent)
-
-      const entityNodeComponent = getComponent(entity, EntityNodeComponent)
-      assert(entityNodeComponent.components.includes(SCENE_COMPONENT_SHADOW))
     })
   })
 

@@ -9,7 +9,6 @@ import { createEntity } from '../../../ecs/functions/EntityFunctions'
 import { createEngine } from '../../../initializeEngine'
 import { Physics } from '../../../physics/classes/Physics'
 import { RigidBodyComponent } from '../../../physics/components/RigidBodyComponent'
-import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 import { deserializeCollider, SCENE_COMPONENT_COLLIDER, serializeCollider } from './ColliderFunctions'
 
@@ -45,16 +44,6 @@ describe('ColliderFunctions', () => {
       const body = getComponent(entity, RigidBodyComponent).body
 
       assert(body, 'RigidBodyComponent is not created')
-    })
-
-    it('will include this component into EntityNodeComponent', () => {
-      const entity = createEntity()
-      addComponent(entity, EntityNodeComponent, { components: [] })
-
-      deserializeCollider(entity, sceneComponent)
-
-      const entityNodeComponent = getComponent(entity, EntityNodeComponent)
-      assert(entityNodeComponent.components.includes(SCENE_COMPONENT_COLLIDER))
     })
   })
 

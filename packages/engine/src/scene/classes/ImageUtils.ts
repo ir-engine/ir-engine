@@ -109,13 +109,13 @@ export const downloadImage = (imageData: ImageData, imageName = 'Image', width: 
 }
 
 //convert Cubemap To Equirectangular map
-export const convertCubemapToEquiImageData = async (
+export const convertCubemapToEquiImageData = (
   renderer: WebGLRenderer,
   source: CubeTexture,
   width: number,
   height: number,
   returnAsBlob = false
-): Promise<{ imageData?: ImageData; blob?: Blob }> => {
+): Promise<Blob | null> | ImageData => {
   const scene = new Scene()
   const material = new RawShaderMaterial({
     uniforms: {
@@ -159,10 +159,9 @@ export const convertCubemapToEquiImageData = async (
     canvas.width = width
     canvas.height = height
     ctx.putImageData(imageData, 0, 0)
-    const blob = (await new Promise((resolve) => canvas.toBlob(resolve as any))) as Blob
-    return { blob }
+    return new Promise<Blob | null>((resolve) => canvas.toBlob(resolve))
   }
-  return { imageData }
+  return imageData
 }
 
 //convert Equirectangular map to WebGlCubeRenderTarget

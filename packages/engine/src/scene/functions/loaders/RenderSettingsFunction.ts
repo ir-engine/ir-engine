@@ -19,7 +19,6 @@ import { EngineRenderer } from '../../../renderer/WebGLRendererSystem'
 import { DirectionalLightComponent } from '../../../scene/components/DirectionalLightComponent'
 import { Object3DComponent } from '../../../scene/components/Object3DComponent'
 import { VisibleComponent } from '../../../scene/components/VisibleComponent'
-import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { RenderSettingComponent, RenderSettingComponentType } from '../../components/RenderSettingComponent'
 
 export const SCENE_COMPONENT_RENDERER_SETTINGS = 'renderer-settings'
@@ -38,8 +37,6 @@ export const deserializeRenderSetting: ComponentDeserializeFunction = (
 ) => {
   const props = parseRenderSettingsProperties(json.props)
   addComponent(entity, RenderSettingComponent, props)
-
-  getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_RENDERER_SETTINGS)
 
   updateRenderSetting(entity, props)
 }

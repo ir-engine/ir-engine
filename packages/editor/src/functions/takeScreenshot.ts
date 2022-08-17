@@ -6,10 +6,14 @@ import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions
 import { accessEngineRendererState } from '@xrengine/engine/src/renderer/EngineRendererState'
 import { configureEffectComposer } from '@xrengine/engine/src/renderer/functions/configureEffectComposer'
 import { EngineRenderer } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
+import { EntityNodeComponent } from '@xrengine/engine/src/scene/components/EntityNodeComponent'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 import { ScenePreviewCameraTagComponent } from '@xrengine/engine/src/scene/components/ScenePreviewCamera'
 import { ObjectLayers } from '@xrengine/engine/src/scene/constants/ObjectLayers'
-import { deserializeScenePreviewCamera } from '@xrengine/engine/src/scene/functions/loaders/ScenePreviewCameraFunctions'
+import {
+  deserializeScenePreviewCamera,
+  SCENE_COMPONENT_SCENE_PREVIEW_CAMERA
+} from '@xrengine/engine/src/scene/functions/loaders/ScenePreviewCameraFunctions'
 
 import { getCanvasBlob } from './thumbnails'
 
@@ -40,6 +44,7 @@ export async function takeScreenshot(width: number, height: number): Promise<Blo
 
   if (!scenePreviewCamera) {
     const entity = createEntity()
+    getComponent(entity, EntityNodeComponent).components.push(SCENE_COMPONENT_SCENE_PREVIEW_CAMERA)
     deserializeScenePreviewCamera(entity, null!)
 
     scenePreviewCamera = getComponent(entity, Object3DComponent).value as PerspectiveCamera

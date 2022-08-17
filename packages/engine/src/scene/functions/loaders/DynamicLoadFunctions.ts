@@ -3,7 +3,6 @@ import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { ComponentDeserializeFunction, ComponentSerializeFunction } from '../../../common/constants/PrefabFunctionType'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
-import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import {
   SceneDynamicLoadTagComponent,
   SceneDynamicLoadTagComponentType
@@ -20,7 +19,6 @@ export const deserializeDynamicLoad: ComponentDeserializeFunction = (
 ) => {
   const props = parseDynamicLoadProperties(json.props)
   addComponent(entity, SceneDynamicLoadTagComponent, props)
-  getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_DYNAMIC_LOAD)
 }
 
 export const serializeDynamicLoad: ComponentSerializeFunction = (entity) => {

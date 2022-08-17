@@ -31,7 +31,7 @@
   "version": "0.5.8",
   "dependencies": {
     "@dimforge/rapier3d-compat": "^0.8.1",
-    "@etherealjs/web-layer": "^3.5.3",
+    "@etherealjs/web-layer": "^3.5.5",
     "@gltf-transform/core": "2.1.4",
     "@gltf-transform/extensions": "2.1.4",
     "@gltf-transform/functions": "2.1.4",

@@ -115,7 +115,6 @@ import {
   serializeParticleEmitter,
   updateParticleEmitter
 } from './loaders/ParticleEmitterFunctions'
-import { deserializePersist, SCENE_COMPONENT_PERSIST, serializePersist } from './loaders/PersistFunctions'
 import {
   deserializePointLight,
   preparePointLightForGLTFExport,
@@ -224,11 +223,6 @@ export const registerDefaultSceneFunctions = (world: World) => {
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_VISIBLE, {
     deserialize: deserializeVisible,
     serialize: serializeVisible
-  })
-
-  world.sceneLoadingRegistry.set(SCENE_COMPONENT_PERSIST, {
-    deserialize: deserializePersist,
-    serialize: serializePersist
   })
 
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_SHADOW, {

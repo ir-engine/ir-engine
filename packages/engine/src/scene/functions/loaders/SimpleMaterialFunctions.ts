@@ -21,7 +21,6 @@ import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
 import { EngineRenderer } from '../../../renderer/WebGLRendererSystem'
 import { beforeMaterialCompile } from '../../classes/BPCEMShader'
-import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { Object3DWithEntity } from '../../components/Object3DComponent'
 import { SimpleMaterialTagComponent } from '../../components/SimpleMaterialTagComponent'
 import { SceneOptions } from '../../systems/SceneObjectSystem'
@@ -35,8 +34,6 @@ export const deserializeSimpleMaterial: ComponentDeserializeFunction = (
   if (!json.props.simpleMaterials) return
 
   addComponent(entity, SimpleMaterialTagComponent, true)
-
-  getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_SIMPLE_MATERIALS)
 }
 
 export const serializeSimpleMaterial: ComponentSerializeFunction = (entity) => {

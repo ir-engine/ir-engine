@@ -4,13 +4,11 @@ import { ComponentDeserializeFunction, ComponentSerializeFunction } from '../../
 import { Entity } from '../../../ecs/classes/Entity'
 import { getComponent } from '../../../ecs/functions/ComponentFunctions'
 import { InteractableComponent, setInteractableComponent } from '../../../interaction/components/InteractableComponent'
-import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 
 export const SCENE_COMPONENT_INTERACTABLE = 'interactable'
 
 export const deserializeInteractable: ComponentDeserializeFunction = (entity: Entity, json: ComponentJson) => {
   setInteractableComponent(entity)
-  getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_INTERACTABLE)
 }
 
 export const serializeInteractable: ComponentSerializeFunction = (entity) => {

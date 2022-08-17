@@ -11,7 +11,6 @@ import {
 import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
-import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 import { PointLightComponent, PointLightComponentType } from '../../components/PointLightComponent'
 import { ObjectLayers } from '../../constants/ObjectLayers'
@@ -53,8 +52,6 @@ export const deserializePointLight: ComponentDeserializeFunction = (
 
   addComponent(entity, Object3DComponent, { value: light })
   addComponent(entity, PointLightComponent, props)
-
-  getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_POINT_LIGHT)
 
   updatePointLight(entity, props)
 }

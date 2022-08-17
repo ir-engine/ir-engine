@@ -6,7 +6,6 @@ import { ComponentDeserializeFunction, ComponentSerializeFunction } from '../../
 import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
-import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { MountPointComponent, MountPointComponentType } from '../../components/MountPointComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 import { ObjectLayers } from '../../constants/ObjectLayers'
@@ -34,7 +33,6 @@ export const deserializeMountPoint: ComponentDeserializeFunction = (
     setObjectLayers(arrowHelper, ObjectLayers.NodeHelper)
   }
   addComponent(entity, MountPointComponent, props)
-  getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_MOUNT_POINT)
 }
 
 export const serializeMountPoint: ComponentSerializeFunction = (entity) => {

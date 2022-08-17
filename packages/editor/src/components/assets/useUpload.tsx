@@ -75,7 +75,7 @@ export default function useUpload(options: Props = {}) {
           />
         )
         const { projectName } = accessEditorState().value
-        const assets = uploadProjectAssetsFromUpload(projectName!, entries, (item, total, progress) => {
+        const assets = await uploadProjectAssetsFromUpload(projectName!, entries, (item, total, progress) => {
           setDialogComponent(
             <ProgressDialog
               message={t('editor:asset.useUpload.progressMsg', {

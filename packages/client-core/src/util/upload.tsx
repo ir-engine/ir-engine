@@ -23,7 +23,7 @@ export const uploadToFeathersService = (
   files: Blob | Array<Blob>,
   params: any = {},
   onUploadProgress?: (progress: number) => any
-) => {
+): CancelableUploadPromiseReturnType => {
   const token = accessAuthState().authUser.accessToken.value
   const request = new XMLHttpRequest()
   request.timeout = 10 * 60 * 1000 // 10 minutes - need to support big files on slow connections
@@ -34,7 +34,7 @@ export const uploadToFeathersService = (
       aborted = true
       request.abort()
     },
-    promise: new Promise<any>((resolve, reject) => {
+    promise: new Promise<{ url: string }>((resolve, reject) => {
       request.upload.addEventListener('progress', (e) => {
         if (aborted) return
         if (onUploadProgress) onUploadProgress(e.loaded / e.total)

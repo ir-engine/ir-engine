@@ -10,7 +10,6 @@ import {
 } from '../../../common/constants/PrefabFunctionType'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
-import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 import { SpotLightComponent, SpotLightComponentType } from '../../components/SpotLightComponent'
 import { ObjectLayers } from '../../constants/ObjectLayers'
@@ -61,8 +60,6 @@ export const deserializeSpotLight: ComponentDeserializeFunction = (
 
   addComponent(entity, Object3DComponent, { value: light })
   addComponent(entity, SpotLightComponent, props)
-
-  getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_SPOT_LIGHT)
 
   updateSpotLight(entity, props)
 }

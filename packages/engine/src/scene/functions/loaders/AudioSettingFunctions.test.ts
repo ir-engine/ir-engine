@@ -11,7 +11,6 @@ import {
   PositionalAudioSettingsComponent,
   PositionalAudioSettingsComponentType
 } from '../../components/AudioSettingsComponent'
-import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import {
   deserializeAudioSetting,
   parseAudioSettingProperties,
@@ -54,13 +53,8 @@ describe('AudioSettingFunctions', () => {
       assert.deepEqual(ambientLightComponent, sceneComponentData)
     })
 
-    it('will include this component into EntityNodeComponent', () => {
-      addComponent(entity, EntityNodeComponent, { components: [] })
-
+    it('should deserialize spatial audio settings', () => {
       deserializeAudioSetting(entity, sceneComponent)
-
-      const entityNodeComponent = getComponent(entity, EntityNodeComponent)
-      assert(entityNodeComponent.components.includes(SCENE_COMPONENT_AUDIO_SETTINGS))
 
       assert(Engine.instance.spatialAudioSettings.distanceModel === sceneComponentData.distanceModel)
       assert(Engine.instance.spatialAudioSettings.rolloffFactor === sceneComponentData.rolloffFactor)

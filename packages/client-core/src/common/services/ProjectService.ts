@@ -16,7 +16,8 @@ export const ProjectState = defineState({
   name: 'ProjectState',
   initial: () => ({
     projects: [] as Array<ProjectInterface>,
-    updateNeeded: true
+    updateNeeded: true,
+    rebuilding: true
   })
 })
 
@@ -27,6 +28,11 @@ export const ProjectServiceReceptor = (action) => {
       return s.merge({
         projects: action.projectResult,
         updateNeeded: false
+      })
+    })
+    .when(ProjectAction.reloadStatusFetched.matches, (action) => {
+      return s.merge({
+        rebuilding: action.status
       })
     })
     .when(ProjectAction.patchedProject.matches, (action) => {
@@ -69,9 +75,22 @@ export const ProjectService = {
   },
 
   // restricted to admin scope
+  checkReloadStatus: async () => {
+    const result = await API.instance.client.service('project-build').find()
+    logger.info({ result }, 'Check reload projects result')
+    dispatchAction(ProjectAction.reloadStatusFetched({ status: result }))
+  },
+
+  // restricted to admin scope
   triggerReload: async () => {
-    const result = await API.instance.client.service('project-build').patch({ rebuild: true })
-    logger.info({ result }, 'Reload project result')
+    try {
+      dispatchAction(ProjectAction.reloadStatusFetched({ status: true }))
+      const result = await API.instance.client.service('project-build').patch({ rebuild: true })
+      logger.info({ result }, 'Reload projects result')
+    } catch (err) {
+      logger.error(err, 'Error reload projects result.')
+      dispatchAction(ProjectAction.reloadStatusFetched({ status: false }))
+    }
   },
 
   // restricted to admin scope
@@ -87,7 +106,8 @@ export const ProjectService = {
   setRepositoryPath: async (id: string, url: string) => {
     try {
       await API.instance.client.service('project').patch(id, {
-        repositoryPath: url
+        repositoryPath: url,
+        needsRebuild: true
       })
     } catch (err) {
       logger.error(err, 'Error setting project repository path')
@@ -160,6 +180,11 @@ export class ProjectAction {
   static projectsFetched = defineAction({
     type: 'PROJECTS_RETRIEVED' as const,
     projectResult: matches.array as Validator<unknown, ProjectInterface[]>
+  })
+
+  static reloadStatusFetched = defineAction({
+    type: 'RELOAD_STATUS_RETRIEVED' as const,
+    status: matches.boolean
   })
 
   static postProject = defineAction({

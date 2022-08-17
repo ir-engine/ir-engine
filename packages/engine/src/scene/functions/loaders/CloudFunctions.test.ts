@@ -4,15 +4,12 @@ import { Color, Vector2, Vector3 } from 'three'
 
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
-import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
 import { getComponent, hasComponent, removeComponent } from '../../../ecs/functions/ComponentFunctions'
-import { addComponent } from '../../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
 import { createEngine } from '../../../initializeEngine'
 import { Clouds } from '../../classes/Clouds'
 import { CloudComponent, CloudComponentType } from '../../components/CloudComponent'
-import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { ErrorComponent } from '../../components/ErrorComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 import { UpdatableComponent } from '../../components/UpdatableComponent'
@@ -102,15 +99,6 @@ describe('CloudFunctions', () => {
       const obj3d = getComponent(entity, Object3DComponent)?.value
       assert(obj3d && obj3d instanceof Clouds, 'Cloud is not created')
       assert(obj3d.userData.disableOutline, 'Cloud outline is not disabled')
-    })
-
-    it('will include this component into EntityNodeComponent', () => {
-      addComponent(entity, EntityNodeComponent, { components: [] })
-
-      cloudFunctions.deserializeCloud(entity, sceneComponent)
-
-      const entityNodeComponent = getComponent(entity, EntityNodeComponent)
-      assert(entityNodeComponent.components.includes(SCENE_COMPONENT_CLOUD))
     })
   })
 

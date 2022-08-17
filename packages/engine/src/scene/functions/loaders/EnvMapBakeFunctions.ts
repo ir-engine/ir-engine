@@ -23,7 +23,6 @@ import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
 import { traverseEntityNode } from '../../../ecs/functions/EntityTreeFunctions'
 import { useWorld } from '../../../ecs/functions/SystemHooks'
-import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { EnvMapBakeComponent, EnvMapBakeComponentType } from '../../components/EnvMapBakeComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 import { PreventBakeTagComponent } from '../../components/PreventBakeTagComponent'
@@ -53,7 +52,6 @@ export const deserializeEnvMapBake: ComponentDeserializeFunction = (
 ) => {
   const props = parseEnvMapBakeProperties(json.props)
   addComponent(entity, EnvMapBakeComponent, props)
-  getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_ENVMAP_BAKE)
 
   if (!Engine.instance.isEditor || entity === Engine.instance.currentWorld.entityTree.rootNode.entity) return
 
@@ -77,7 +75,8 @@ export const deserializeEnvMapBake: ComponentDeserializeFunction = (
 }
 
 export const updateEnvMapBake: ComponentUpdateFunction = (entity: Entity) => {
-  const obj3d = getComponent(entity, Object3DComponent).value
+  const hasObj3d = hasComponent(entity, Object3DComponent)
+  const obj3d = hasObj3d ? getComponent(entity, Object3DComponent).value : Engine.instance.currentWorld.scene
   const bakeComponent = getComponent(entity, EnvMapBakeComponent)
   if (obj3d.userData.gizmo)
     obj3d.userData.gizmo.matrix.compose(bakeComponent.options.bakePositionOffset, quat, bakeComponent.options.bakeScale)

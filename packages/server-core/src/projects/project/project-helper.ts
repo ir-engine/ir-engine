@@ -1,3 +1,4 @@
+import * as k8s from '@kubernetes/client-node'
 import appRootPath from 'app-root-path'
 import path from 'path'
 
@@ -51,6 +52,62 @@ export const retriggerBuilderService = async (app: Application) => {
       return e
     }
   }
+}
+
+export const checkBuilderService = async (app: Application): Promise<boolean> => {
+  let isRebuilding = true
+
+  // check k8s to find the status of builder service
+  if (app.k8DefaultClient) {
+    try {
+      logger.info('Attempting to check k8s rebuild status')
+
+      const builderLabelSelector = `app.kubernetes.io/instance=${config.server.releaseName}-builder`
+      const containerName = 'xrengine-builder'
+
+      const builderPods = await app.k8DefaultClient.listNamespacedPod(
+        'default',
+        undefined,
+        false,
+        undefined,
+        undefined,
+        builderLabelSelector
+      )
+      const runningBuilderPods = builderPods.body.items.filter((item) => item.status && item.status.phase === 'Running')
+
+      if (runningBuilderPods.length > 0) {
+        const podName = runningBuilderPods[0].metadata?.name
+
+        const builderLogs = await app.k8DefaultClient.readNamespacedPodLog(
+          podName!,
+          'default',
+          containerName,
+          undefined,
+          false,
+          undefined,
+          undefined,
+          undefined,
+          undefined,
+          undefined,
+          undefined,
+          undefined
+        )
+
+        const isCompleted = builderLogs.body.includes('sleep infinity')
+        if (isCompleted) {
+          logger.info(podName, 'podName')
+          isRebuilding = false
+        }
+      }
+    } catch (e) {
+      logger.error(e)
+      return e
+    }
+  } else {
+    isRebuilding = false
+  }
+
+  return isRebuilding
 }
 
 const projectsRootFolder = path.join(appRootPath.path, 'packages/projects/projects/')

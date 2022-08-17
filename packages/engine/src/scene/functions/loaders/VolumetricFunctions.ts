@@ -21,7 +21,6 @@ import { addComponent, getComponent, removeComponent } from '../../../ecs/functi
 import { EngineRenderer } from '../../../renderer/WebGLRendererSystem'
 import UpdateableObject3D from '../../classes/UpdateableObject3D'
 import { CallbackComponent } from '../../components/CallbackComponent'
-import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { MediaComponent } from '../../components/MediaComponent'
 import { MediaElementComponent } from '../../components/MediaElementComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
@@ -64,7 +63,6 @@ export const deserializeVolumetric: ComponentDeserializeFunction = (
     console.error(error)
     addError(entity, 'error', error.message)
   }
-  getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_VOLUMETRIC)
 }
 
 export const addVolumetricComponent = (entity: Entity, props: VolumetricComponentType) => {

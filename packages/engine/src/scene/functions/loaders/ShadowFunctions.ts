@@ -9,7 +9,6 @@ import {
 } from '../../../common/constants/PrefabFunctionType'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
-import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 import { ShadowComponent, ShadowComponentType } from '../../components/ShadowComponent'
 
@@ -27,8 +26,6 @@ export const deserializeShadow: ComponentDeserializeFunction = (
     castShadow: json.props.cast ?? SCENE_COMPONENT_SHADOW_DEFAULT_VALUES.cast,
     receiveShadow: json.props.receive ?? SCENE_COMPONENT_SHADOW_DEFAULT_VALUES.receive
   })
-
-  getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_SHADOW)
 
   updateShadow(entity)
 }
