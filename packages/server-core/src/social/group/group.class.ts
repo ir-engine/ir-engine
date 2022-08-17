@@ -97,20 +97,6 @@ export class Group<T = GroupDataType> extends Service<T> {
               }
             ]
           })
-          // await Promise.all(groupUsers.map(async (groupUser) => {
-          //   const avatarResult = await this.app.service('static-resource').find({
-          //     query: {
-          //       staticResourceType: 'user-thumbnail',
-          //       userId: groupUser.userId
-          //     }
-          //   }) as any;
-          //
-          //   if (avatarResult.total > 0) {
-          //     groupUser.dataValues.user.dataValues.avatarUrl = avatarResult.data[0].url;
-          //   }
-          //
-          //   return await Promise.resolve();
-          // }));
 
           group.dataValues.groupUsers = groupUsers
           resolve(true)

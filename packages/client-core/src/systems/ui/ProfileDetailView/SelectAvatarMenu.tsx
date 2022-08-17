@@ -2,7 +2,7 @@ import { createState } from '@hookstate/core'
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { UserAvatar } from '@xrengine/common/src/interfaces/UserAvatar'
+import { AvatarInterface } from '@xrengine/common/src/interfaces/AvatarInterface'
 import { AvatarEffectComponent } from '@xrengine/engine/src/avatar/components/AvatarEffectComponent'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
@@ -34,7 +34,6 @@ const SelectAvatarMenu = () => {
   const avatarId = authState.user?.avatarId?.value
   const avatarList = authState.avatarList.value
 
-  const userSettings = authState.user.user_setting.value
   const [page, setPage] = useState(0)
   const [imgPerPage, setImgPerPage] = useState(getAvatarPerPage())
   const [selectedAvatar, setSelectedAvatar] = useState<any>('')
@@ -52,9 +51,8 @@ const SelectAvatarMenu = () => {
 
   const setAvatar = (avatarId: string, avatarURL: string, thumbnailURL: string) => {
     if (hasComponent(Engine.instance.currentWorld.localClientEntity, AvatarEffectComponent)) return
-    if (authState.user?.value) {
+    if (authState.user?.value)
       AuthService.updateUserAvatarId(authState.user.id.value!, avatarId, avatarURL, thumbnailURL)
-    }
   }
 
   const loadNextAvatars = () => {
@@ -70,16 +68,16 @@ const SelectAvatarMenu = () => {
   const confirmAvatar = () => {
     if (selectedAvatar && avatarId != selectedAvatar?.avatar?.name) {
       setAvatar(
-        selectedAvatar?.avatar?.name || '',
-        selectedAvatar?.avatar?.url || '',
-        selectedAvatar['user-thumbnail']?.url || ''
+        selectedAvatar?.id || '',
+        selectedAvatar?.modelResource?.url || '',
+        selectedAvatar?.thumbnailResource?.url || ''
       )
       WidgetAppService.setWidgetVisibility(WidgetName.PROFILE, false)
     }
     setSelectedAvatar('')
   }
 
-  const selectAvatar = (avatarResources: UserAvatar) => {
+  const selectAvatar = (avatarResources: AvatarInterface) => {
     setSelectedAvatar(avatarResources)
   }
 
@@ -97,14 +95,13 @@ const SelectAvatarMenu = () => {
     const endIndex = Math.min(startIndex + imgPerPage, avatarList.length)
     let index = 0
     for (let i = startIndex; i < endIndex; i++, index++) {
-      const characterAvatar = avatarList[i]!
-      const avatar = characterAvatar.avatar!
+      const avatar = avatarList[i]!
 
       avatarElementList.push(
         <div
           key={avatar.id}
           xr-layer="true"
-          onClick={() => selectAvatar(characterAvatar)}
+          onClick={() => selectAvatar(avatar)}
           className={`paperAvatar ${avatar.name == selectedAvatar?.avatar?.name ? 'selectedAvatar' : ''}
               ${avatar.name == avatarId ? 'activeAvatar' : ''}`}
           style={{
@@ -115,12 +112,7 @@ const SelectAvatarMenu = () => {
             backgroundColor: 'var(--mainBackground)'
           }}
         >
-          <img
-            className="avatar"
-            crossOrigin="anonymous"
-            src={characterAvatar['user-thumbnail']?.url || ''}
-            alt={avatar.name}
-          />
+          <img className="avatar" crossOrigin="anonymous" src={avatar.thumbnailResource?.url || ''} alt={avatar.name} />
         </div>
       )
     }

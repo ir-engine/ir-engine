@@ -74,6 +74,37 @@ const parseUserSettings = () => {
   }
 }
 
+const addAvatarResources = () => {
+  return async (context: HookContext): Promise<HookContext> => {
+    const { app, result } = context
+
+    if (result.avatar) {
+      if (result.avatar.modelResourceId)
+        try {
+          result.avatar.modelResource = await app.service('static-resource').get(result.avatar.modelResourceId)
+        } catch (err) {}
+      if (result.avatar.dataValues.modelResourceId)
+        try {
+          result.avatar.dataValues.modelResource = await app
+            .service('static-resource')
+            .get(result.avatar.dataValues.modelResourceId)
+        } catch (err) {}
+      if (result.avatar.thumbnailResourceId)
+        try {
+          result.avatar.thumbnailResource = await app.service('static-resource').get(result.avatar.thumbnailResourceId)
+        } catch (err) {}
+      if (result.avatar.dataValues.thumbnailResourceId)
+        try {
+          result.avatar.dataValues.thumbnailResource = await app
+            .service('static-resource')
+            .get(result.avatar.dataValues.thumbnailResourceId)
+        } catch (err) {}
+    }
+
+    return context
+  }
+}
+
 /**
  * This module used to declare and identify database relation
  * which will be used later in user service
@@ -122,6 +153,9 @@ export default {
           },
           {
             model: 'party'
+          },
+          {
+            model: 'avatar'
           }
         ]
       })
@@ -152,6 +186,9 @@ export default {
           },
           {
             model: 'party'
+          },
+          {
+            model: 'avatar'
           }
         ]
       })
@@ -182,6 +219,9 @@ export default {
           },
           {
             model: 'scope'
+          },
+          {
+            model: 'avatar'
           }
         ]
       }),
@@ -192,74 +232,8 @@ export default {
 
   after: {
     all: [],
-    find: [
-      parseAllUserSettings()
-      // async (context: HookContext): Promise<HookContext> => {
-      //   try {
-      //     const { app, result } = context
-      //
-      //     result.data.forEach(async (item) => {
-      //       if (item.subscriptions && item.subscriptions.length > 0) {
-      //         await Promise.all(
-      //           item.subscriptions.map(async (subscription: any) => {
-      //             subscription.dataValues.subscriptionType = await context.app
-      //               .service('subscription-type')
-      //               .get(subscription.plan)
-      //           })
-      //         )
-      //       }
-      //
-      //       // const userAvatarResult = await app.service('static-resource').find({
-      //       //   query: {
-      //       //     staticResourceType: 'user-thumbnail',
-      //       //     userId: item.id
-      //       //   }
-      //       // });
-      //       //
-      //       // if (userAvatarResult.total > 0 && item.dataValues) {
-      //       //   item.dataValues.avatarUrl = userAvatarResult.data[0].url;
-      //       // }
-      //     })
-      //     return context
-      //   } catch (err) {
-      //     logger.error('USER AFTER FIND ERROR')
-      //     logger.error(err)
-      //   }
-      // }
-    ],
-    get: [
-      parseUserSettings()
-      // async (context: HookContext): Promise<HookContext> => {
-      //   try {
-      //     if (context.result.subscriptions && context.result.subscriptions.length > 0) {
-      //       await Promise.all(
-      //         context.result.subscriptions.map(async (subscription: any) => {
-      //           subscription.dataValues.subscriptionType = await context.app
-      //             .service('subscription-type')
-      //             .get(subscription.plan)
-      //         })
-      //       )
-      //     }
-      //
-      //     // const { id, app, result } = context;
-      //     //
-      //     // const userAvatarResult = await app.service('static-resource').find({
-      //     //   query: {
-      //     //     staticResourceType: 'user-thumbnail',
-      //     //     userId: id
-      //     //   }
-      //     // });
-      //     // if (userAvatarResult.total > 0) {
-      //     //   result.dataValues.avatarUrl = userAvatarResult.data[0].url;
-      //     // }
-      //
-      //     return context
-      //   } catch (err) {
-      //     logger.error('USER AFTER GET ERROR')
-      //     logger.error(err)
-      //   }
-      // }
-    ],
+    find: [parseAllUserSettings(), addAvatarResources()],
+    get: [parseUserSettings(), addAvatarResources()],
     create: [],
     update: [],
     patch: [parseUserSettings()],

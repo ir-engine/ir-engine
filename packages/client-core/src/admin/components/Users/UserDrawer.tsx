@@ -18,8 +18,8 @@ import DrawerView from '../../common/DrawerView'
 import InputSelect, { InputMenuItem } from '../../common/InputSelect'
 import InputText from '../../common/InputText'
 import { validateForm } from '../../common/validation/formValidation'
+import { AdminAvatarService, useAdminAvatarState } from '../../services/AvatarService'
 import { AdminScopeTypeService, useScopeTypeState } from '../../services/ScopeTypeService'
-import { AdminStaticResourceService, useStaticResourceState } from '../../services/StaticResourceService'
 import { AdminUserService } from '../../services/UserService'
 import styles from '../../styles/admin.module.scss'
 
@@ -53,11 +53,11 @@ const UserDrawer = ({ open, mode, selectedUser, onClose }: Props) => {
   const [state, setState] = useState({ ...defaultState })
 
   const { user } = useAuthState().value
-  const { staticResource } = useStaticResourceState().value
+  const { avatars } = useAdminAvatarState().value
   const { scopeTypes } = useScopeTypeState().value
 
   const hasWriteAccess = user.scopes && user.scopes.find((item) => item.type === 'user:write')
-  const viewMode = mode === UserDrawerMode.ViewEdit && editMode === false
+  const viewMode = mode === UserDrawerMode.ViewEdit && !editMode
 
   const scopeMenu: AutoCompleteData[] = scopeTypes.map((el) => {
     return {
@@ -65,10 +65,10 @@ const UserDrawer = ({ open, mode, selectedUser, onClose }: Props) => {
     }
   })
 
-  const staticResourceMenu: InputMenuItem[] = staticResource.map((el) => {
+  const avatarMenu: InputMenuItem[] = avatars.map((el) => {
     return {
       label: el.name,
-      value: el.name
+      value: el.id
     }
   })
 
@@ -82,9 +82,9 @@ const UserDrawer = ({ open, mode, selectedUser, onClose }: Props) => {
       }
     }
 
-    const staticResourceExists = staticResourceMenu.find((item) => item.value === selectedUser.avatarId)
-    if (!staticResourceExists) {
-      staticResourceMenu.push({
+    const avatarExists = avatars.find((item) => item.id === selectedUser.avatarId)
+    if (!avatarExists) {
+      avatarMenu.push({
         value: selectedUser.avatarId!,
         label: selectedUser.avatarId!
       })
@@ -92,7 +92,7 @@ const UserDrawer = ({ open, mode, selectedUser, onClose }: Props) => {
   }
 
   useEffect(() => {
-    AdminStaticResourceService.fetchStaticResource()
+    AdminAvatarService.fetchAdminAvatars()
     AdminScopeTypeService.getScopeTypeService()
   }, [])
 
@@ -215,7 +215,7 @@ const UserDrawer = ({ open, mode, selectedUser, onClose }: Props) => {
           label={t('admin:components.user.avatar')}
           value={state.avatar}
           error={state.formErrors.avatar}
-          menu={staticResourceMenu}
+          menu={avatarMenu}
           disabled={viewMode}
           onChange={handleChange}
         />

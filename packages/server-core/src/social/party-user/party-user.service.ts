@@ -40,16 +40,9 @@ export default (app: Application): void => {
       const targetIds = partyUsers.data.map((partyUser) => partyUser.userId)
 
       data.user = await app.service('user').Model.findOne({
-        where: { id: data.userId },
-        include: [
-          {
-            model: app.service('static-resource').Model,
-            on: Sequelize.literal(
-              '`avatarId` = `static_resources`.`name` AND `static_resources`.`staticResourceType` = "user-thumbnail"'
-            )
-          }
-        ]
+        where: { id: data.userId }
       })
+      data.user.avatar = await app.service('avatar').get(data.user.avatarId)
       return Promise.all(
         targetIds.map((userId: string) => {
           return app.channel(`userIds/${userId}`).send({ partyUser: data })
@@ -70,16 +63,9 @@ export default (app: Application): void => {
       const targetIds = partyUsers.map((partyUser) => partyUser.userId)
 
       data.user = await app.service('user').Model.findOne({
-        where: { id: data.userId },
-        include: [
-          {
-            model: app.service('static-resource').Model,
-            on: Sequelize.literal(
-              '`avatarId` = `static_resources`.`name` AND `static_resources`.`staticResourceType` = "user-thumbnail"'
-            )
-          }
-        ]
+        where: { id: data.userId }
       })
+      data.user.avatar = await app.service('avatar').get(data.user.avatarId)
       return Promise.all(
         targetIds.map((userId: string) => {
           return app.channel(`userIds/${userId}`).send({ partyUser: data })

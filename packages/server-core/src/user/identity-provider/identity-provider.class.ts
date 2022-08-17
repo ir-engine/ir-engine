@@ -1,18 +1,17 @@
-import { AuthenticationService } from '@feathersjs/authentication'
-import { Params } from '@feathersjs/feathers'
+import { Paginated, Params } from '@feathersjs/feathers'
 import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
 import { random } from 'lodash'
 import { Sequelize } from 'sequelize'
 import { v1 as uuidv1 } from 'uuid'
 
 import { IdentityProviderInterface } from '@xrengine/common/src/dbmodels/IdentityProvider'
+import { AvatarInterface } from '@xrengine/common/src/interfaces/AvatarInterface'
 import { UserInterface } from '@xrengine/common/src/interfaces/User'
 import { isDev } from '@xrengine/common/src/utils/isDev'
 
 import { Application } from '../../../declarations'
 import config from '../../appconfig'
 import { scopeTypeSeed } from '../../scope/scope-type/scope-type.seed'
-import Paginated from '../../types/PageObject'
 import getFreeInviteCode from '../../util/get-free-invite-code'
 
 /**
@@ -169,7 +168,9 @@ export class IdentityProvider<T = IdentityProviderInterface> extends Service<T> 
         }
       ]
     })
-    const avatars = await this.app.service('avatar').find({ isInternal: true })
+    const avatars = (await this.app
+      .service('avatar')
+      .find({ isInternal: true, query: { $limit: 1000 } })) as Paginated<AvatarInterface>
 
     let isGuest = type === 'guest'
 
@@ -191,12 +192,13 @@ export class IdentityProvider<T = IdentityProviderInterface> extends Service<T> 
             id: userId,
             isGuest,
             inviteCode: type === 'guest' ? null : code,
-            avatarId: avatars[random(avatars.length - 1)].avatarId
+            avatarId: avatars.data[random(avatars.data.length - 1)].id
           }
         },
         params
       )
     } catch (err) {
+      console.error(err)
       await this.app.service('user').remove(userId)
       throw err
     }

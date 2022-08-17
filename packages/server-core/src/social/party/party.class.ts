@@ -117,7 +117,6 @@ export class Party<T = PartyDataType> extends Service<T> {
         }
       })
 
-      console.log('existingPartyUsers', existingPartyUsers.data)
       await Promise.all(
         existingPartyUsers.data.map(
           (partyUser) =>
