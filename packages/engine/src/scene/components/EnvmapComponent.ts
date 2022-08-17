@@ -5,8 +5,8 @@ import { EnvMapSourceType, EnvMapTextureType } from '../constants/EnvMapEnum'
 import { EnvMapBakeSettings } from '../types/EnvMapBakeSettings'
 
 export type EnvmapComponentType = {
-  type: EnvMapSourceType
-  envMapTextureType: EnvMapTextureType
+  type: typeof EnvMapSourceType[keyof typeof EnvMapSourceType]
+  envMapTextureType: typeof EnvMapTextureType[keyof typeof EnvMapTextureType]
   envMapSourceColor: Color
   envMapSourceURL: string
   envMapIntensity: number

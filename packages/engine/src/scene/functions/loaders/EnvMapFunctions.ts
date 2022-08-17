@@ -127,7 +127,6 @@ export const updateEnvMap = (entity: Entity) => {
 
     case EnvMapSourceType.Default:
       const options = component.envMapBake
-      if (!options) return
 
       if (!hasObj3d) {
         SceneOptions.instance.bpcemOptions.bakeScale = options.bakeScale!
