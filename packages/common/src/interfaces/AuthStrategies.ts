@@ -8,4 +8,5 @@ export interface AuthStrategies {
   twitter?: boolean
   emailMagicLink: boolean
   smsMagicLink: boolean
+  didWallet: boolean
 }

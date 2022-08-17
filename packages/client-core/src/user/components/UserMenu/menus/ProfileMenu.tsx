@@ -408,7 +408,7 @@ const ProfileMenu = ({ className, hideLogin, isPopover, changeActiveMenu, onClos
       window.open(`${globalThis.process.env['VITE_ETH_MARKETPLACE']}?data=${userId}&token=${token}`, '_blank')
   }
 
-  const enableWalletLogin = !!globalThis.process.env['VITE_LOGIN_WITH_WALLET']
+  const enableWalletLogin = authState?.didWallet
 
   const enableSocial =
     authState?.discord ||

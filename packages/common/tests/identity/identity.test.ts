@@ -1,6 +1,6 @@
 import assert from 'assert'
 
-import { generateDid } from '../../src/credentials'
+import { generateDid } from '../../src/credentials/credentials'
 
 const CREDENTIAL_SIGNING_SECRET_KEY_SEED = 'z1AZK4h5w5YZkKYEgqtcFfvSbWQ3tZ3ZFgmLsXMZsTVoeK7'
 
