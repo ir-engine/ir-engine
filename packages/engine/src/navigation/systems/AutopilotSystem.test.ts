@@ -14,7 +14,13 @@ import { NavMeshComponent } from '../../scene/components/NavMeshComponent'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 
 describe('NavigationSystem', async () => {
-  let updateNavMesh = sinon.spy()
+  let shouldCreateObject3D = false
+  let updateNavMesh = sinon.spy((entity) => {
+    if (shouldCreateObject3D) {
+      removeComponent(entity, Object3DComponent)
+      addComponent(entity, Object3DComponent, { value: new Object3D() })
+    }
+  })
   let sceneObjectUpdateAction: { entities: Entity[] }
   const createActionQueue = (matches: any) => () =>
     matches === EngineActions.sceneObjectUpdate.matches ? [sceneObjectUpdateAction] : []
