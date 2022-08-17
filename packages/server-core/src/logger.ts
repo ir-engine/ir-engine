@@ -10,6 +10,7 @@ import pinoElastic from 'pino-elasticsearch'
 import pretty from 'pino-pretty'
 
 const node = process.env.ELASTIC_HOST || 'http://localhost:9200'
+const useLogger = !process.env.DISABLE_LOG
 
 const streamToPretty = pretty({
   colorize: true
@@ -28,6 +29,7 @@ const streams = [streamToPretty, streamToElastic]
 const logger = pino(
   {
     level: 'debug',
+    enable: useLogger,
     base: {
       hostname: os.hostname,
       component: 'server-core'

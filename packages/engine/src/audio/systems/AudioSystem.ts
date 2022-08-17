@@ -109,7 +109,7 @@ export default async function AudioSystem(world: World) {
   /**
    * Safari only allows playing video programatically directly from a code path spawned from a click event
    */
-  if (isSafari) {
+  if (!Engine.instance.isEditor && isSafari) {
     window.addEventListener('pointerdown', playmedia)
   }
 

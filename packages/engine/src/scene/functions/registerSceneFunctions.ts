@@ -100,12 +100,6 @@ import {
   updateLoopAnimation
 } from './loaders/LoopAnimationFunctions'
 import { deserializeMedia, SCENE_COMPONENT_MEDIA, serializeMedia } from './loaders/MediaFunctions'
-import {
-  deserializeMetaData,
-  SCENE_COMPONENT_METADATA,
-  serializeMetaData,
-  updateMetaData
-} from './loaders/MetaDataFunctions'
 import { deserializeModel, SCENE_COMPONENT_MODEL, serializeModel, updateModel } from './loaders/ModelFunctions'
 import { deserializeMountPoint, SCENE_COMPONENT_MOUNT_POINT, serializeMountPoint } from './loaders/MountPointFunctions'
 import { deserializeOcean, SCENE_COMPONENT_OCEAN, serializeOcean, updateOcean } from './loaders/OceanFunctions'
@@ -309,12 +303,6 @@ export const registerDefaultSceneFunctions = (world: World) => {
     serialize: serializeSpotLight,
     update: updateSpotLight,
     prepareForGLTFExport: prepareSpotLightForGLTFExport
-  })
-
-  world.sceneLoadingRegistry.set(SCENE_COMPONENT_METADATA, {
-    deserialize: deserializeMetaData,
-    serialize: serializeMetaData,
-    update: updateMetaData
   })
 
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_POSTPROCESSING, {

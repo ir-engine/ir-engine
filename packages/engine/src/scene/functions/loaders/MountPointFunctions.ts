@@ -26,6 +26,7 @@ export const deserializeMountPoint: ComponentDeserializeFunction = (
   if (!obj3d) {
     obj3d = addComponent(entity, Object3DComponent, { value: new Object3D() }).value
   }
+  /** @todo refactor into helper entity */
   if (Engine.instance.isEditor) {
     const arrowHelper = new ArrowHelper(new Vector3(0, 0, 1), new Vector3(0, 0, 0), 0.5, 0xffffff)
     obj3d.add(arrowHelper)
