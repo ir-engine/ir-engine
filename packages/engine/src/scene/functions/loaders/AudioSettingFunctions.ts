@@ -8,7 +8,6 @@ import {
   PositionalAudioSettingsComponent,
   PositionalAudioSettingsComponentType
 } from '../../components/AudioSettingsComponent'
-import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 
 export const SCENE_COMPONENT_AUDIO_SETTINGS = 'audio-settings'
 export const SCENE_COMPONENT_AUDIO_SETTINGS_DEFAULT_VALUES = {
@@ -28,7 +27,6 @@ export const deserializeAudioSetting: ComponentDeserializeFunction = (
   const props = parseAudioSettingProperties(json.props)
 
   addComponent(entity, PositionalAudioSettingsComponent, props)
-  getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_AUDIO_SETTINGS)
 
   Engine.instance.spatialAudioSettings = { ...props }
 }

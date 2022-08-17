@@ -24,7 +24,6 @@ import { isClient } from '../../../common/functions/isClient'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
 import { ImageAlphaMode, ImageProjection } from '../../classes/ImageUtils'
-import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { ImageComponent, ImageComponentType } from '../../components/ImageComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 import { addError, removeError } from '../ErrorFunctions'
@@ -54,8 +53,6 @@ export const deserializeImage: ComponentDeserializeFunction = (
 
   const props = parseImageProperties(json.props)
   addComponent(entity, ImageComponent, props)
-
-  getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_IMAGE)
 
   updateImage(entity, props)
 }

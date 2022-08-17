@@ -19,7 +19,6 @@ import { getEngineState } from '../../../ecs/classes/EngineState'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
 import { CallbackComponent } from '../../components/CallbackComponent'
-import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { MediaComponent } from '../../components/MediaComponent'
 import { MediaElementComponent } from '../../components/MediaElementComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
@@ -55,7 +54,6 @@ export const deserializeAudio: ComponentDeserializeFunction = async (
   if (!isClient) return
   const props = parseAudioProperties(json.props)
   addComponent(entity, AudioComponent, props)
-  getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_AUDIO)
 }
 
 export const createAudioNode = (

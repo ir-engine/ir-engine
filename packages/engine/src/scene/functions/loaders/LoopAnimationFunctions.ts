@@ -14,12 +14,9 @@ import {
   ComponentUpdateFunction
 } from '../../../common/constants/PrefabFunctionType'
 import { isClient } from '../../../common/functions/isClient'
-import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent, removeComponent } from '../../../ecs/functions/ComponentFunctions'
-import { VelocityComponent } from '../../../physics/components/VelocityComponent'
 import { CallbackComponent } from '../../components/CallbackComponent'
-import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 
 export const SCENE_COMPONENT_LOOP_ANIMATION = 'loop-animation'
@@ -36,8 +33,6 @@ export const deserializeLoopAnimation: ComponentDeserializeFunction = (
 
   const props = parseLoopAnimationProperties(component.props)
   addComponent(entity, LoopAnimationComponent, props)
-
-  getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_LOOP_ANIMATION)
 }
 
 export const updateLoopAnimation: ComponentUpdateFunction = (entity: Entity): void => {

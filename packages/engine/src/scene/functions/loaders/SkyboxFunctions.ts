@@ -20,7 +20,6 @@ import {
 } from '../../../ecs/functions/ComponentFunctions'
 import { EngineRenderer } from '../../../renderer/WebGLRendererSystem'
 import { Sky } from '../../classes/Sky'
-import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { IgnoreRaycastTagComponent } from '../../components/IgnoreRaycastTagComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 import { SkyboxComponent, SkyboxComponentType } from '../../components/SkyboxComponent'
@@ -56,7 +55,6 @@ export const deserializeSkybox: ComponentDeserializeFunction = (
     }
     addComponent(entity, SkyboxComponent, props)
     addComponent(entity, IgnoreRaycastTagComponent, {})
-    getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_SKYBOX)
     updateSkybox(entity)
   }
 }

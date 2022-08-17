@@ -11,7 +11,6 @@ import { isClient } from '../../../common/functions/isClient'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
 import { Ocean } from '../../classes/Ocean'
-import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 import { OceanComponent, OceanComponentType } from '../../components/OceanComponent'
 import { UpdatableComponent } from '../../components/UpdatableComponent'
@@ -55,8 +54,6 @@ export const deserializeOcean: ComponentDeserializeFunction = (
   addComponent(entity, Object3DComponent, { value: obj3d })
   addComponent(entity, OceanComponent, props)
   addComponent(entity, UpdatableComponent, {})
-
-  getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_OCEAN)
 
   updateOcean(entity, props)
 }

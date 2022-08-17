@@ -7,7 +7,6 @@ import {
 } from '../../../common/constants/PrefabFunctionType'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
-import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { ScreenshareTargetComponent, ScreenshareTargetComponentType } from '../../components/ScreenshareTargetComponent'
 
 export const SCENE_COMPONENT_SCREENSHARETARGET = 'screensharetarget'
@@ -19,8 +18,6 @@ export const deserializeScreenshareTarget: ComponentDeserializeFunction = (
 ) => {
   const props = parseScreenshareTargetProperties(json.props)
   addComponent(entity, ScreenshareTargetComponent, props)
-
-  getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_SCREENSHARETARGET)
 
   updateScreenshareTarget(entity, props)
 }

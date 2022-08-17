@@ -9,11 +9,7 @@ import { isClient } from '../../../common/functions/isClient'
 import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent, removeComponent } from '../../../ecs/functions/ComponentFunctions'
-import {
-  setBoundingBoxComponent,
-  setBoundingBoxDynamicTag
-} from '../../../interaction/components/BoundingBoxComponents'
-import { EntityNodeComponent } from '../../components/EntityNodeComponent'
+import { setBoundingBoxComponent } from '../../../interaction/components/BoundingBoxComponents'
 import { MaterialOverrideComponentType } from '../../components/MaterialOverrideComponent'
 import { ModelComponent, ModelComponentType } from '../../components/ModelComponent'
 import { Object3DComponent, Object3DWithEntity } from '../../components/Object3DComponent'
@@ -42,7 +38,6 @@ export const deserializeModel: ComponentDeserializeFunction = (
   const props = parseModelProperties(component.props)
   const model = addComponent(entity, ModelComponent, props)
 
-  getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_MODEL)
   //add material override components
   const modelInitProm = updateModel(entity, props)
   Engine.instance.currentWorld.sceneLoadingPendingAssets.add(modelInitProm)

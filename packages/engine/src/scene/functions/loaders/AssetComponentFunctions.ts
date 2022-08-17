@@ -21,10 +21,7 @@ import {
   AssetLoadedComponent,
   LoadState
 } from '@xrengine/engine/src/scene/components/AssetComponent'
-import { EntityNodeComponent } from '@xrengine/engine/src/scene/components/EntityNodeComponent'
-import { Object3DComponent, Object3DWithEntity } from '@xrengine/engine/src/scene/components/Object3DComponent'
-
-import { sceneToGLTF } from '../GLTFConversion'
+import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 
 export const SCENE_COMPONENT_ASSET = 'asset'
 export const SCENE_COMPONENT_ASSET_DEFAULT_VALUES = {
@@ -80,7 +77,6 @@ export const deserializeAsset: ComponentDeserializeFunction = async (
   }
   const props = parseAssetProperties(json.props)
   addComponent(entity, AssetComponent, props)
-  getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_ASSET)
 }
 
 export const serializeAsset: ComponentSerializeFunction = (entity) => {

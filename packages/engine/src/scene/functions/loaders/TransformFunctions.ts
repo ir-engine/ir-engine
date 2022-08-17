@@ -11,7 +11,6 @@ import {
   TransformComponent,
   TransformComponentType
 } from '../../../transform/components/TransformComponent'
-import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 
 export const SCENE_COMPONENT_TRANSFORM = 'transform'
 export const SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES = {
@@ -33,8 +32,6 @@ export const deserializeTransform: ComponentDeserializeFunction = (
   transform.position.copy(props.position)
   transform.rotation.copy(props.rotation)
   transform.scale.copy(props.scale)
-
-  getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_TRANSFORM)
 }
 
 export const serializeTransform: ComponentSerializeFunction = (entity) => {

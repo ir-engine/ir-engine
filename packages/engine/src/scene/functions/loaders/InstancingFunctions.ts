@@ -33,7 +33,6 @@ import { iterateEntityNode } from '../../../ecs/functions/EntityTreeFunctions'
 import { matchActionOnce } from '../../../networking/functions/matchActionOnce'
 import { formatMaterialArgs } from '../../../renderer/materials/Utilities'
 import UpdateableObject3D from '../../classes/UpdateableObject3D'
-import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import {
   GrassProperties,
   InstancingComponent,
@@ -299,7 +298,6 @@ export const deserializeInstancing: ComponentDeserializeFunction = (
     if (!getEngineState().sceneLoaded.value) matchActionOnce(EngineActions.sceneLoaded.matches, executeStaging)
     else executeStaging()
   }
-  getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_INSTANCING)
 }
 
 function parseInstancingProperties(props): InstancingComponentType {

@@ -8,15 +8,12 @@ import {
   ComponentUpdateFunction
 } from '../../../common/constants/PrefabFunctionType'
 import { isClient } from '../../../common/functions/isClient'
-import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
 import { Clouds } from '../../classes/Clouds'
 import { CloudComponent, CloudComponentType } from '../../components/CloudComponent'
-import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 import { UpdatableComponent } from '../../components/UpdatableComponent'
-import { addError, removeError } from '../ErrorFunctions'
 
 export const SCENE_COMPONENT_CLOUD = 'cloud'
 export const SCENE_COMPONENT_CLOUD_DEFAULT_VALUES = {
@@ -43,8 +40,6 @@ export const deserializeCloud: ComponentDeserializeFunction = (
   addComponent(entity, Object3DComponent, { value: obj3d })
   addComponent(entity, CloudComponent, props)
   addComponent(entity, UpdatableComponent, {})
-
-  getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_CLOUD)
 
   updateCloud(entity, props)
 }

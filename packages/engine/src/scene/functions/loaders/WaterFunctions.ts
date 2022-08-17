@@ -9,7 +9,6 @@ import { isClient } from '../../../common/functions/isClient'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
 import { Water } from '../../classes/Water'
-import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 import { UpdatableComponent } from '../../components/UpdatableComponent'
 import { WaterComponent, WaterComponentType } from '../../components/WaterComponent'
@@ -29,8 +28,6 @@ export const deserializeWater: ComponentDeserializeFunction = (
   addComponent(entity, Object3DComponent, { value: obj3d })
   addComponent(entity, WaterComponent, { ...json.props })
   addComponent(entity, UpdatableComponent, {})
-
-  getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_WATER)
 
   updateWater(entity, json.props)
 }

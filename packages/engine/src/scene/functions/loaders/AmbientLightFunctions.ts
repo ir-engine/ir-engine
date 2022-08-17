@@ -11,7 +11,6 @@ import {
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent, getComponentCountOfType } from '../../../ecs/functions/ComponentFunctions'
 import { AmbientLightComponent, AmbientLightComponentType } from '../../components/AmbientLightComponent'
-import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 
 export const SCENE_COMPONENT_AMBIENT_LIGHT = 'ambient-light'
@@ -29,8 +28,6 @@ export const deserializeAmbientLight: ComponentDeserializeFunction = (
 
   addComponent(entity, Object3DComponent, { value: light })
   addComponent(entity, AmbientLightComponent, props)
-
-  getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_AMBIENT_LIGHT)
 
   updateAmbientLight(entity, props)
 }
