@@ -1,8 +1,10 @@
 import { dispatchAction } from '@xrengine/hyperflux'
 
 import { Engine } from '../../ecs/classes/Engine'
+import { EngineActions, EngineState, getEngineState, useEngineState } from '../../ecs/classes/EngineState'
 import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
+import { matchActionOnce } from '../../networking/functions/matchActionOnce'
 import {
   InstancingComponent,
   InstancingComponentType,
@@ -10,18 +12,23 @@ import {
   InstancingUnstagingComponent,
   ScatterState
 } from '../components/InstancingComponent'
-import { Object3DComponent } from '../components/Object3DComponent'
 import { stageInstancing, unstageInstancing } from '../functions/loaders/InstancingFunctions'
 
 export default async function ScatterSystem(world: World) {
-  const scatterQuery = defineQuery([InstancingComponent])
-  const stagingQuery = defineQuery([Object3DComponent, InstancingComponent, InstancingStagingComponent])
-  const unstagingQuery = defineQuery([Object3DComponent, InstancingComponent, InstancingUnstagingComponent])
+  const stagingQuery = defineQuery([InstancingComponent, InstancingStagingComponent])
+  const unstagingQuery = defineQuery([InstancingComponent, InstancingUnstagingComponent])
+  const engineState = getEngineState()
   return () => {
     for (const entity of stagingQuery.enter()) {
-      stageInstancing(entity).then(() => {
-        removeComponent(entity, InstancingStagingComponent, world)
-      })
+      const executeStaging = () =>
+        stageInstancing(entity).then(() => {
+          removeComponent(entity, InstancingStagingComponent, world)
+        })
+      if (engineState.sceneLoaded) executeStaging()
+      else
+        matchActionOnce(EngineActions.sceneLoaded.matches, () => {
+          executeStaging()
+        })
     }
 
     for (const entity of unstagingQuery.enter()) {

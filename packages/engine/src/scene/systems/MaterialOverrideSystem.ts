@@ -30,7 +30,7 @@ type EntityEntry = Map<MaterialOverrideComponentType, OverrideEntry>
  * @returns
  */
 export default async function MaterialOverrideSystem(world: World) {
-  const overrideQuery = defineQuery([MaterialOverrideComponent, Object3DComponent])
+  const overrideQuery = defineQuery([MaterialOverrideComponent]) //, Object3DComponent])
 
   const overrideTable: Map<Entity, EntityEntry> = new Map()
 

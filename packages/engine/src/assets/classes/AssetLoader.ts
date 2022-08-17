@@ -106,14 +106,15 @@ const processModelAsset = (asset: Mesh, args: LoadingArgs): void => {
     const geo = child.geometry as BufferGeometry
     const mat = child.material as MeshStandardMaterial & MeshBasicMaterial & MeshMatcapMaterial
     const attributes = geo.attributes
-
-    if (!args.ignoreDisposeGeometry) {
-      for (var name in attributes) (attributes[name] as BufferAttribute).onUploadCallback = onUploadDropBuffer
-      if (geo.index) geo.index.onUploadCallback = onUploadDropBuffer
+    if (!Engine.instance.isEditor) {
+      if (!args.ignoreDisposeGeometry) {
+        for (var name in attributes) (attributes[name] as BufferAttribute).onUploadCallback = onUploadDropBuffer
+        if (geo.index) geo.index.onUploadCallback = onUploadDropBuffer
+      }
+      Object.entries(mat)
+        .filter(([k, v]: [keyof typeof mat, Texture]) => v?.isTexture)
+        .map(([_, v]) => (v.onUpdate = onTextureUploadDropSource)) //*/
     }
-    Object.entries(mat)
-      .filter(([k, v]: [keyof typeof mat, Texture]) => v?.isTexture)
-      .map(([_, v]) => (v.onUpdate = onTextureUploadDropSource)) //*/
   })
   replacedMaterials.clear()
 
