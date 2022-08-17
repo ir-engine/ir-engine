@@ -1,7 +1,7 @@
-import { StaticResourceInterface } from './StaticResourceInterface'
+import { AvatarInterface } from './AvatarInterface'
 
 export type AvatarResult = {
-  data: StaticResourceInterface[]
+  data: AvatarInterface[]
   total: number
   limit: number
   skip: number

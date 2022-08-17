@@ -4,6 +4,9 @@ import { accessAuthState } from '../user/services/AuthService'
 import { serverHost } from './config'
 import { RethrownError } from './errors'
 
+export type CancelableUploadPromiseReturnType = { cancel: () => void; promise: Promise<{ url: string }> }
+export type CancelableUploadPromiseArrayReturnType = { cancel: () => void; promises: Array<Promise<{ url: string }>> }
+
 /**
  * upload used to upload image as blob data.
  *
@@ -20,54 +23,63 @@ export const uploadToFeathersService = (
   files: Blob | Array<Blob>,
   params: any = {},
   onUploadProgress?: (progress: number) => any
-): Promise<any> => {
+): CancelableUploadPromiseReturnType => {
   const token = accessAuthState().authUser.accessToken.value
+  const request = new XMLHttpRequest()
+  request.timeout = 10 * 60 * 1000 // 10 minutes - need to support big files on slow connections
+  let aborted = false
 
-  return new Promise<void>((resolve, reject) => {
-    const request = new XMLHttpRequest()
-    request.timeout = 10 * 60 * 1000 // 10 minutes - need to support big files on slow connections
-
-    request.upload.addEventListener('progress', (e) => {
-      if (onUploadProgress) onUploadProgress(e.loaded / e.total)
-    })
-
-    request.upload.addEventListener('error', (error) => {
-      reject(new RethrownError(i18n.t('editor:errors.uploadFailed'), error))
-    })
-
-    // request.upload.addEventListener('load', console.log)
-    // request.upload.addEventListener('loadend', console.log)
-
-    request.addEventListener('readystatechange', (e) => {
-      if (request.readyState === XMLHttpRequest.DONE) {
-        const status = request.status
-
-        if (status === 0 || (status >= 200 && status < 400)) {
-          resolve(JSON.parse(request.responseText))
-        } else {
-          console.error('Oh no! There has been an error with the request!', request, e)
-          reject()
-        }
-      }
-    })
-
-    const formData = new FormData()
-    Object.entries(params).forEach(([key, val]: any) => {
-      formData.set(key, typeof val === 'object' ? JSON.stringify(val) : val)
-    })
-
-    if (Array.isArray(files)) {
-      files.forEach((file) => {
-        formData.append('media[]', file)
+  return {
+    cancel: () => {
+      aborted = true
+      request.abort()
+    },
+    promise: new Promise<{ url: string }>((resolve, reject) => {
+      request.upload.addEventListener('progress', (e) => {
+        if (aborted) return
+        if (onUploadProgress) onUploadProgress(e.loaded / e.total)
       })
-    } else {
-      formData.set('media', files)
-    }
 
-    request.open('post', `${serverHost}/${service}`, true)
-    request.setRequestHeader('Authorization', `Bearer ${token}`)
-    request.send(formData)
-  })
+      request.upload.addEventListener('error', (error) => {
+        if (aborted) return
+        reject(new RethrownError(i18n.t('editor:errors.uploadFailed'), error))
+      })
+
+      // request.upload.addEventListener('load', console.log)
+      // request.upload.addEventListener('loadend', console.log)
+
+      request.addEventListener('readystatechange', (e) => {
+        if (request.readyState === XMLHttpRequest.DONE) {
+          const status = request.status
+
+          if (status === 0 || (status >= 200 && status < 400)) {
+            resolve(JSON.parse(request.responseText))
+          } else {
+            if (aborted) return
+            console.error('Oh no! There has been an error with the request!', request, e)
+            reject()
+          }
+        }
+      })
+
+      const formData = new FormData()
+      Object.entries(params).forEach(([key, val]: any) => {
+        formData.set(key, typeof val === 'object' ? JSON.stringify(val) : val)
+      })
+
+      if (Array.isArray(files)) {
+        files.forEach((file) => {
+          formData.append('media[]', file)
+        })
+      } else {
+        formData.set('media', files)
+      }
+
+      request.open('post', `${serverHost}/${service}`, true)
+      request.setRequestHeader('Authorization', `Bearer ${token}`)
+      request.send(formData)
+    })
+  }
 }
 
 /**

@@ -1,35 +1,101 @@
-import { Params, ServiceMethods, ServiceOptions } from '@feathersjs/feathers'
+import { Paginated, Params } from '@feathersjs/feathers'
+import { SequelizeServiceOptions, Service } from 'feathers-sequelize'
+import { Op } from 'sequelize'
 
-import { AvatarProps } from '@xrengine/common/src/interfaces/AvatarInterface'
+import { AvatarInterface } from '@xrengine/common/src/interfaces/AvatarInterface'
 
 import { Application } from '../../../declarations'
-import { AvatarUploadArguments, getAvatarFromStaticResources, uploadAvatarStaticResource } from './avatar-helper'
+import logger from '../../logger'
+import { AvatarCreateArguments, AvatarPatchArguments } from './avatar-helper'
 
-export class Avatar implements ServiceMethods<any> {
+export class Avatar extends Service<AvatarInterface> {
   app: Application
-  options: ServiceOptions
+  docs: any
 
-  constructor(options = {}, app: Application) {
-    this.options = options
+  constructor(options: Partial<SequelizeServiceOptions>, app: Application) {
+    super(options)
     this.app = app
   }
-  async setup() {}
 
-  async get(name: string, params?: Params): Promise<AvatarProps> {
-    return (await getAvatarFromStaticResources(this.app, name))[0]
+  async get(id: string, params?: Params): Promise<AvatarInterface> {
+    const avatar = await super.get(id, params)
+    if (avatar.modelResourceId)
+      try {
+        avatar.modelResource = await this.app.service('static-resource').get(avatar.modelResourceId)
+      } catch (err) {
+        logger.error(err)
+      }
+    if (avatar.thumbnailResourceId)
+      try {
+        avatar.thumbnailResource = await this.app.service('static-resource').get(avatar.thumbnailResourceId)
+      } catch (err) {
+        logger.error(err)
+      }
+    return avatar
   }
 
-  async find(params?: Params): Promise<AvatarProps[]> {
-    return await getAvatarFromStaticResources(this.app)
+  async find(params?: Params): Promise<AvatarInterface[] | Paginated<AvatarInterface>> {
+    const self = this
+    if (params?.query?.search != null) {
+      if (params.query.search.length > 0)
+        params.query.name = {
+          [Op.like]: `%${params.query.search}%`
+        }
+      delete params.query.search
+    }
+    const avatars = (await super.find(params)) as Paginated<AvatarInterface>
+    await Promise.all(
+      avatars.data.map(async (avatar) => {
+        if (avatar.modelResourceId)
+          try {
+            avatar.modelResource = await this.app.service('static-resource').get(avatar.modelResourceId)
+          } catch (err) {}
+        if (avatar.thumbnailResourceId)
+          try {
+            avatar.thumbnailResource = await this.app.service('static-resource').get(avatar.thumbnailResourceId)
+          } catch (err) {}
+        return avatar
+      })
+    )
+    return avatars
   }
 
-  async create(data: AvatarUploadArguments, params?: Params) {
-    return uploadAvatarStaticResource(this.app, data, params)
+  async create(data: AvatarCreateArguments, params?: Params): Promise<AvatarInterface> {
+    let avatar = (await super.create({
+      name: data.name,
+      modelResourceId: data.modelResourceId,
+      thumbnailResourceId: data.thumbnailResourceId
+    })) as AvatarInterface
+    avatar = await this.patch(avatar.id, {
+      identifierName: avatar.name + '_' + avatar.id
+    })
+    return avatar
   }
 
-  async update(id: string, data: any, params?: Params): Promise<void> {}
-  async patch(id: string, data: any, params?: Params): Promise<void> {}
-  async remove(id: string, params?: Params): Promise<void> {
-    // TODO: implement avatar removal
+  async patch(id: string, data: AvatarPatchArguments, params?: Params): Promise<AvatarInterface> {
+    let avatar = (await super.patch(id, data, params)) as AvatarInterface
+    avatar = (await super.patch(avatar.id, {
+      identifierName: avatar.name + '_' + avatar.id
+    })) as AvatarInterface
+    if (avatar.modelResourceId)
+      try {
+        avatar.modelResource = await this.app.service('static-resource').get(avatar.modelResourceId)
+      } catch (err) {}
+    if (avatar.thumbnailResourceId)
+      try {
+        avatar.thumbnailResource = await this.app.service('static-resource').get(avatar.thumbnailResourceId)
+      } catch (err) {}
+    return avatar
+  }
+
+  async remove(id: string, params?: Params): Promise<AvatarInterface> {
+    const avatar = await this.get(id, params)
+    try {
+      await this.app.service('static-resource').remove(avatar.modelResourceId)
+    } catch (err) {}
+    try {
+      await this.app.service('static-resource').remove(avatar.thumbnailResourceId)
+    } catch (err) {}
+    return super.remove(id, params) as Promise<AvatarInterface>
   }
 }

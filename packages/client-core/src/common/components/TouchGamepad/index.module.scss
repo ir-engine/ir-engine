@@ -12,14 +12,15 @@ $MobileControllButtonsSize: 3em;
 
   @media (max-width: 478px) {
     left: 25px;
+    bottom: 30px;
   }
 }
 
 .controlButtonContainer {
   position: fixed;
   border-radius: 50%;
-  right: 75px;
-  bottom: 100px;
+  right: 150px;
+  bottom: 10px;
   line-height: ($MobileControllButtonsSize + 1em);
 
   .controllButton {

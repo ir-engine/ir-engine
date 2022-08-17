@@ -18,8 +18,8 @@ import DrawerView from '../../common/DrawerView'
 import InputSelect, { InputMenuItem } from '../../common/InputSelect'
 import InputText from '../../common/InputText'
 import { validateForm } from '../../common/validation/formValidation'
+import { AdminAvatarService, useAdminAvatarState } from '../../services/AvatarService'
 import { AdminScopeTypeService, useScopeTypeState } from '../../services/ScopeTypeService'
-import { AdminStaticResourceService, useStaticResourceState } from '../../services/StaticResourceService'
 import { AdminUserService } from '../../services/UserService'
 import styles from '../../styles/admin.module.scss'
 
@@ -53,11 +53,11 @@ const UserDrawer = ({ open, mode, selectedUser, onClose }: Props) => {
   const [state, setState] = useState({ ...defaultState })
 
   const { user } = useAuthState().value
-  const { staticResource } = useStaticResourceState().value
+  const { avatars } = useAdminAvatarState().value
   const { scopeTypes } = useScopeTypeState().value
 
   const hasWriteAccess = user.scopes && user.scopes.find((item) => item.type === 'user:write')
-  const viewMode = mode === UserDrawerMode.ViewEdit && editMode === false
+  const viewMode = mode === UserDrawerMode.ViewEdit && !editMode
 
   const scopeMenu: AutoCompleteData[] = scopeTypes.map((el) => {
     return {
@@ -65,10 +65,10 @@ const UserDrawer = ({ open, mode, selectedUser, onClose }: Props) => {
     }
   })
 
-  const staticResourceMenu: InputMenuItem[] = staticResource.map((el) => {
+  const avatarMenu: InputMenuItem[] = avatars.map((el) => {
     return {
       label: el.name,
-      value: el.name
+      value: el.id
     }
   })
 
@@ -82,9 +82,9 @@ const UserDrawer = ({ open, mode, selectedUser, onClose }: Props) => {
       }
     }
 
-    const staticResourceExists = staticResourceMenu.find((item) => item.value === selectedUser.avatarId)
-    if (!staticResourceExists) {
-      staticResourceMenu.push({
+    const avatarExists = avatars.find((item) => item.id === selectedUser.avatarId)
+    if (!avatarExists) {
+      avatarMenu.push({
         value: selectedUser.avatarId!,
         label: selectedUser.avatarId!
       })
@@ -92,7 +92,7 @@ const UserDrawer = ({ open, mode, selectedUser, onClose }: Props) => {
   }
 
   useEffect(() => {
-    AdminStaticResourceService.fetchStaticResource()
+    AdminAvatarService.fetchAdminAvatars()
     AdminScopeTypeService.getScopeTypeService()
   }, [])
 
@@ -126,12 +126,20 @@ const UserDrawer = ({ open, mode, selectedUser, onClose }: Props) => {
 
   const handleChangeScopeType = (scope) => {
     let tempErrors = {
-      ...state.formErrors,
-      scopes: scope.length < 1 ? t('admin:components.user.scopeTypeRequired') : ''
+      ...state.formErrors
     }
 
     setState({ ...state, scopes: scope, formErrors: tempErrors })
   }
+
+  const handleSelectAllScopes = () =>
+    handleChangeScopeType(
+      scopeTypes.map((el) => {
+        return { type: el.type }
+      })
+    )
+
+  const handleClearAllScopes = () => handleChangeScopeType([])
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -163,8 +171,7 @@ const UserDrawer = ({ open, mode, selectedUser, onClose }: Props) => {
     let tempErrors = {
       ...state.formErrors,
       name: state.name ? '' : t('admin:components.user.nameCantEmpty'),
-      avatar: state.avatar ? '' : t('admin:components.user.avatarCantEmpty'),
-      scopes: state.scopes.length > 0 ? '' : t('admin:components.user.scopeTypeCantEmpty')
+      avatar: state.avatar ? '' : t('admin:components.user.avatarCantEmpty')
     }
 
     setState({ ...state, formErrors: tempErrors })
@@ -208,7 +215,7 @@ const UserDrawer = ({ open, mode, selectedUser, onClose }: Props) => {
           label={t('admin:components.user.avatar')}
           value={state.avatar}
           error={state.formErrors.avatar}
-          menu={staticResourceMenu}
+          menu={avatarMenu}
           disabled={viewMode}
           onChange={handleChange}
         />
@@ -232,21 +239,26 @@ const UserDrawer = ({ open, mode, selectedUser, onClose }: Props) => {
         )}
 
         {viewMode && (
-          <AutoComplete
-            data={scopeMenu}
-            label={t('admin:components.user.grantScope')}
-            defaultValue={state.scopes}
-            disabled
-          />
+          <AutoComplete data={scopeMenu} label={t('admin:components.user.grantScope')} value={state.scopes} disabled />
         )}
 
         {!viewMode && (
-          <AutoComplete
-            data={scopeMenu}
-            label={t('admin:components.user.grantScope')}
-            defaultValue={state.scopes}
-            onChange={handleChangeScopeType}
-          />
+          <div>
+            <AutoComplete
+              data={scopeMenu}
+              label={t('admin:components.user.grantScope')}
+              value={state.scopes}
+              onChange={handleChangeScopeType}
+            />
+            <div className={styles.scopeButtons}>
+              <Button className={styles.outlinedButton} onClick={handleSelectAllScopes}>
+                {t('admin:components.user.selectAllScopes')}
+              </Button>
+              <Button className={styles.outlinedButton} onClick={handleClearAllScopes}>
+                {t('admin:components.user.clearAllScopes')}
+              </Button>
+            </div>
+          </div>
         )}
 
         <DialogActions>

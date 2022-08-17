@@ -11,6 +11,11 @@
     opacity: 0.8;
   }
 
+  &:disabled {
+    background: var(--buttonFilled);
+    opacity: 0.8;
+  }
+
   @media (max-width: 900px) {
     font-size: 0.7rem;
   }
@@ -50,6 +55,11 @@
 .gradientButton {
   background: linear-gradient(90deg, var(--buttonGradientStart), var(--buttonGradientEnd));
   color: var(--buttonTextColor) !important;
+
+  &.forceVaporwave {
+    background: linear-gradient(90deg, #5236ff, #c20560);
+    color: #FFF !important;
+  }
 
   &:hover {
     opacity: 0.8;
@@ -363,6 +373,10 @@
   }
 }
 
+.scopeButtons {
+  display: flex;
+}
+
 .menuItem {
   &:hover {
     background: var(--dropdownMenuHoverBackground);
@@ -597,6 +611,10 @@
 
 .iconButton {
   color: var(--iconButtonColor);
+}
+
+.orangeColor {
+  color: orange;
 }
 
 .dialog {

@@ -49,7 +49,6 @@ import { EditorComponentType, updateProperty } from './Util'
  */
 export const ModelNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
-  const [animationPlaying, setAnimationPlaying] = useState(false)
   const [isEquippable, setEquippable] = useState(hasComponent(props.node.entity, EquippableComponent))
   const engineState = useEngineState()
   const entity = props.node.entity
@@ -61,10 +60,6 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
   const errorComponent = getComponent(entity, ErrorComponent)
 
   const loopAnimationComponent = getComponent(entity, LoopAnimationComponent)
-  const onPlayAnimation = () => {
-    if (!animationPlaying) playAnimationClip(animationComponent, loopAnimationComponent)
-    setAnimationPlaying(!animationPlaying)
-  }
 
   const textureOverrideEntities = [] as { label: string; value: string }[]
   traverseEntityNode(Engine.instance.currentWorld.entityTree.rootNode, (node) => {
@@ -167,9 +162,6 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
           onChange={updateProperty(LoopAnimationComponent, 'hasAvatarAnimations')}
         />
       </InputGroup>
-      <PropertiesPanelButton onClick={onPlayAnimation}>
-        {t(animationPlaying ? 'editor:properties.video.lbl-pause' : 'editor:properties.video.lbl-play')}
-      </PropertiesPanelButton>
       <ScreenshareTargetNodeEditor node={props.node} multiEdit={props.multiEdit} />
       <EnvMapEditor node={props.node} />
       <ShadowProperties node={props.node} />

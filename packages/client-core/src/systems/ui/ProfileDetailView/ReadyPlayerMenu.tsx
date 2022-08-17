@@ -136,7 +136,13 @@ const ReadyPlayerMenu = () => {
     var thumbnailName = avatarUrl.substring(0, avatarUrl.lastIndexOf('.')) + '.png'
 
     canvas.toBlob(async (blob) => {
-      await AuthService.uploadAvatarModel(selectedFile, new File([blob!], thumbnailName), avatarName, undefined)
+      const uploadResponse = await AuthService.uploadAvatarModel(
+        selectedFile,
+        new File([blob!], thumbnailName),
+        avatarName,
+        undefined
+      )
+      await AuthService.createAvatar(uploadResponse[0], uploadResponse[1], avatarName)
       WidgetAppService.setWidgetVisibility(WidgetName.PROFILE, true)
     })
   }

@@ -94,7 +94,9 @@
       "scopeTypeRequired": "Scope is required",
       "grantScope": "Grant Scope",
       "groupUsers": "Group Users",
-      "confirmGroupDelete": "Do you want to delete group"
+      "confirmGroupDelete": "Do you want to delete group",
+      "selectAllScopes": "Select All Scopes",
+      "clearAllScopes": "Clear All Scopes"
     },
     "invite": {
       "sendInvite": "Send Invite",
@@ -130,6 +132,8 @@
     "project": {
       "addProject": "Add Project",
       "rebuild": "Rebuild",
+      "rebuilding": "Rebuilding",
+      "checking": "Checking Rebuild",
       "project": "Project",
       "githubPublicUrl": "Github Public Url",
       "urlRequired": "URL is required",
@@ -141,7 +145,8 @@
       "selectFromList": "Select From List",
       "processing": "Processing",
       "confirmProjectsRebuild": "Do you want to rebuild projects?",
-      "confirmProjectRebuild": "Do you want to rebuild project",
+      "confirmProjectRebuild": "Do you want to fetch the latest version of project",
+      "outdatedBuild": "The current build has an outdated version of this project. Please rebuild.",
       "confirmProjectInvalidate": "Do you want to invalidate storage provider's cache of",
       "confirmProjectDelete": "Do you want to delete project",
       "confirmPushProjectToGithub": "Do you want to push this project to its associated GitHub repository",
@@ -317,7 +322,9 @@
       "inviteCode": "Invite Code",
       "instance": "Instance",
       "confirmUserDelete": "Do you want to delete user",
-      "isGuest": "Is guest"
+      "isGuest": "Is guest",
+      "selectAllScopes": "Select All Scopes",
+      "clearAllScopes": "Clear All Scopes"
     }
   }
 }

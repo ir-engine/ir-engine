@@ -1,7 +1,5 @@
 import { Paginated } from '@feathersjs/feathers'
 import { Downgraded } from '@hookstate/core'
-// TODO: Decouple this
-// import { endVideoChat, leave } from '@xrengine/engine/src/networking/functions/SocketWebRTCClientFunctions';
 import axios from 'axios'
 import i18n from 'i18next'
 import querystring from 'querystring'
@@ -11,9 +9,8 @@ import { v1 } from 'uuid'
 import { validateEmail, validatePhoneNumber } from '@xrengine/common/src/config'
 import { AuthStrategies } from '@xrengine/common/src/interfaces/AuthStrategies'
 import { AuthUser, AuthUserSeed, resolveAuthUser } from '@xrengine/common/src/interfaces/AuthUser'
-import { AvatarProps } from '@xrengine/common/src/interfaces/AvatarInterface'
+import { AvatarInterface } from '@xrengine/common/src/interfaces/AvatarInterface'
 import { IdentityProvider, IdentityProviderSeed } from '@xrengine/common/src/interfaces/IdentityProvider'
-import { StaticResourceInterface } from '@xrengine/common/src/interfaces/StaticResourceInterface'
 import {
   resolveUser,
   resolveWalletUser,
@@ -22,17 +19,14 @@ import {
   UserSetting
 } from '@xrengine/common/src/interfaces/User'
 import { UserApiKey } from '@xrengine/common/src/interfaces/UserApiKey'
-import { UserAvatar } from '@xrengine/common/src/interfaces/UserAvatar'
 import multiLogger from '@xrengine/common/src/logger'
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { NetworkTopics } from '@xrengine/engine/src/networking/classes/Network'
 import { WorldNetworkAction } from '@xrengine/engine/src/networking/functions/WorldNetworkAction'
 import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
 import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
 import { accessLocationState } from '../../social/services/LocationService'
-import { PartyService } from '../../social/services/PartyService'
 import { serverHost } from '../../util/config'
 import { accessStoredLocalState, StoredLocalAction } from '../../util/StoredLocalState'
 import { uploadToFeathersService } from '../../util/upload'
@@ -52,7 +46,7 @@ const AuthState = defineState({
     authUser: AuthUserSeed,
     user: UserSeed,
     identityProvider: IdentityProviderSeed,
-    avatarList: [] as Array<UserAvatar>
+    avatarList: [] as Array<AvatarInterface>
   }),
   onCreate: (store, s) => {
     s.attach(() => ({
@@ -76,20 +70,7 @@ const AuthState = defineState({
 })
 
 export const avatarFetchedReceptor = (s: any, action: any) => {
-  const resources = action.avatarList
-  const avatarData = {}
-  for (let resource of resources) {
-    const r = avatarData[(resource as any).name] || {}
-    if (!r) {
-      logger.warn('Avatar resource is empty, have you synced avatars to your static file storage?')
-      console.warn(i18n.t('user:avatar.warning-msg'))
-      return
-    }
-    r[(resource as any).staticResourceType] = resource
-    avatarData[(resource as any).name] = r
-  }
-
-  return s.avatarList.set(Object.keys(avatarData).map((key) => avatarData[key]))
+  return s.avatarList.set(action.avatarList)
 }
 
 export const AuthServiceReceptor = (action) => {
@@ -722,23 +703,48 @@ export const AuthService = {
     dispatchAction(AuthAction.avatarUpdatedAction({ url: result.url }))
   },
   uploadAvatarModel: async (avatar: Blob, thumbnail: Blob, avatarName: string, isPublicAvatar?: boolean) => {
-    const avatarDetail: AvatarProps = await uploadToFeathersService('upload-asset', [avatar, thumbnail], {
+    return uploadToFeathersService('upload-asset', [avatar, thumbnail], {
       type: 'user-avatar-upload',
       args: {
         avatarName,
         isPublicAvatar: !!isPublicAvatar
       }
+    }).promise
+  },
+  removeStaticResource: async (id: string) => {
+    return API.instance.client.service('static-resource').remove(id)
+  },
+  patchAvatar: async (avatarId: string, modelResourceId: string, thumbnailResourceId: string, avatarName: string) => {
+    return API.instance.client.service('avatar').patch(avatarId, {
+      modelResourceId: modelResourceId,
+      thumbnailResourceId: thumbnailResourceId,
+      name: avatarName
     })
+  },
+  createAvatar: async (model: Blob, thumbnail: Blob, avatarName: string, isPublicAvatar?: boolean) => {
+    const newAvatar = await API.instance.client.service('avatar').create({
+      name: avatarName,
+      isPublicAvatar: isPublicAvatar
+    })
+
+    const uploadResponse = await AuthService.uploadAvatarModel(model, thumbnail, newAvatar.identifierName)
+
+    const patchedAvatar = (await AuthService.patchAvatar(
+      newAvatar.id,
+      uploadResponse[0].id,
+      uploadResponse[1].id,
+      newAvatar.name
+    )) as AvatarInterface
 
     if (!isPublicAvatar) {
       const selfUser = accessAuthState().user
       const userId = selfUser.id.value!
-      let name = avatarName
-      if (!name) {
-        // Get filename without extension from URL.
-        name = avatarDetail.avatarURL.split('/').slice(-1)[0].split('?')[0].split('.').slice(0, -1).join('.')
-      }
-      AuthService.updateUserAvatarId(userId, name, avatarDetail.avatarURL, avatarDetail.thumbnailURL!)
+      await AuthService.updateUserAvatarId(
+        userId,
+        newAvatar.id,
+        patchedAvatar.modelResource?.url || '',
+        patchedAvatar.thumbnailResource?.url || ''
+      )
     }
   },
   removeAvatar: async (keys: string) => {
@@ -753,18 +759,11 @@ export const AuthService = {
       })
   },
   fetchAvatarList: async () => {
-    const selfUser = accessAuthState().user
-
-    const result = await API.instance.client.service('static-resource').find({
+    const result = (await API.instance.client.service('avatar').find({
       query: {
-        $select: ['id', 'key', 'name', 'url', 'staticResourceType', 'userId'],
-        staticResourceType: {
-          $in: ['avatar', 'user-thumbnail']
-        },
-        $or: [{ userId: selfUser.id.value }, { userId: null }],
         $limit: 1000
       }
-    })
+    })) as Paginated<AvatarInterface>
     dispatchAction(AuthAction.updateAvatarListAction({ avatarList: result.data }))
   },
   updateUsername: async (userId: string, name: string) => {
@@ -994,7 +993,7 @@ export class AuthAction {
 
   static updateAvatarListAction = defineAction({
     type: 'AVATAR_FETCHED' as const,
-    avatarList: matches.array as Validator<unknown, StaticResourceInterface[]>
+    avatarList: matches.array as Validator<unknown, AvatarInterface[]>
   })
 
   static apiKeyUpdatedAction = defineAction({

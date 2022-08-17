@@ -1,4 +1,4 @@
-import { Mesh, MeshBasicMaterial, Vector3 } from 'three'
+import { Mesh, MeshBasicMaterial, Scene, Vector3 } from 'three'
 
 import { addOBCPlugin, removeOBCPlugin } from '@xrengine/engine/src/common/functions/OnBeforeCompilePlugin'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
@@ -100,13 +100,13 @@ export const uploadBPCEMBakeToServer = async (entity: Entity) => {
 
   if (isSceneEntity) Engine.instance.currentWorld.scene.environment = renderTarget.texture
 
-  const { blob } = await convertCubemapToEquiImageData(
+  const blob = (await convertCubemapToEquiImageData(
     EngineRenderer.instance.renderer,
     renderTarget.texture,
     bakeComponent.options.resolution,
     bakeComponent.options.resolution,
     true
-  )
+  )) as Blob
 
   if (!blob) return null!
 
@@ -117,7 +117,7 @@ export const uploadBPCEMBakeToServer = async (entity: Entity) => {
     ? `${sceneName}.envmap.png`
     : `${sceneName}-${nameComponent.name.replace(' ', '-')}.png`
 
-  const value = await uploadProjectFile(projectName, [new File([blob], filename)])
+  const value = await Promise.all(uploadProjectFile(projectName, [new File([blob], filename)]).promises)
 
   bakeComponent.options.envMapOrigin = value[0].url
 
@@ -141,13 +141,13 @@ export const uploadCubemapBakeToServer = async (name: string, position: Vector3)
   )
   const renderTarget = cubemapCapturer.update(position)
 
-  const { blob } = await convertCubemapToEquiImageData(
+  const blob = (await convertCubemapToEquiImageData(
     EngineRenderer.instance.renderer,
     renderTarget.texture,
     resolution,
     resolution,
     true
-  )
+  )) as Blob
 
   if (!blob) return null!
 

@@ -1,6 +1,10 @@
 import { WebLayer3D } from '@etherealjs/web-layer/three'
 import { Not } from 'bitecs'
-import { Vector3 } from 'three'
+import { AxesHelper, Vector3 } from 'three'
+import { Quaternion } from 'yuka'
+
+import { setObjectLayers } from '@xrengine/engine/src/scene/functions/setObjectLayers'
+import { defineState, getState } from '@xrengine/hyperflux'
 
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { getAvatarBoneWorldPosition } from '../../avatar/functions/avatarFunctions'
@@ -16,15 +20,31 @@ import {
 } from '../../ecs/functions/ComponentFunctions'
 import { HighlightComponent } from '../../renderer/components/HighlightComponent'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
-import { SCENE_COMPONENT_INTERACTABLE_DEFAULT_VALUES } from '../../scene/functions/loaders/InteractableFunctions'
+import { ObjectLayers } from '../../scene/constants/ObjectLayers'
+import {
+  DistanceFromLocalClientComponent,
+  setDistanceFromLocalClientComponent
+} from '../../transform/components/DistanceComponents'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { createTransitionState } from '../../xrui/functions/createTransitionState'
 import { createXRUI } from '../../xrui/functions/createXRUI'
 import { ObjectFitFunctions } from '../../xrui/functions/ObjectFitFunctions'
-import { InteractableComponent } from '../components/InteractableComponent'
-import { InteractorComponent } from '../components/InteractorComponent'
-import { gatherFocussedInteractives } from '../functions/gatherFocussedInteractives'
+import { BoundingBoxComponent } from '../components/BoundingBoxComponents'
+import { InteractableComponent, setInteractableComponent } from '../components/InteractableComponent'
+import { gatherAvailableInteractables } from '../functions/gatherAvailableInteractables'
 import { createInteractUI } from '../functions/interactUI'
+
+export const InteractState = defineState({
+  name: 'InteractState',
+  initial: () => {
+    return {
+      /**
+       * closest interactable to the player, in view of the camera, sorted by distance
+       */
+      available: [] as Entity[]
+    }
+  }
+})
 
 export type InteractiveType = {
   xrui: ReturnType<typeof createXRUI>
@@ -70,9 +90,7 @@ export const addInteractableUI = (
   xrui: ReturnType<typeof createXRUI>,
   update?: (entity: Entity, xrui: ReturnType<typeof createXRUI>) => void
 ) => {
-  if (!hasComponent(entity, InteractableComponent)) {
-    addComponent(entity, InteractableComponent, SCENE_COMPONENT_INTERACTABLE_DEFAULT_VALUES)
-  }
+  setInteractableComponent(entity)
 
   if (!update) {
     update = onInteractableUpdate
@@ -85,33 +103,75 @@ export const addInteractableUI = (
 }
 
 export default async function InteractiveSystem(world: World) {
-  const interactorsQuery = defineQuery([InteractorComponent])
+  const allInteractablesQuery = defineQuery([InteractableComponent])
 
   // Included Object3DComponent in query because Object3DComponent might be added with delay for network spawned objects
-  const interactableQuery = defineQuery([InteractableComponent, Object3DComponent, Not(AvatarComponent)])
+  const interactableQuery = defineQuery([
+    InteractableComponent,
+    Object3DComponent,
+    Not(AvatarComponent),
+    DistanceFromLocalClientComponent
+  ])
 
   return () => {
+    // ensure distance component is set on all interactables
+    for (const entity of allInteractablesQuery.enter()) {
+      setDistanceFromLocalClientComponent(entity)
+    }
+
+    // TODO: refactor InteractiveUI to be ui-centric rather than interactable-centeric
     for (const entity of interactableQuery.exit()) {
       if (InteractableTransitions.has(entity)) InteractableTransitions.delete(entity)
       if (InteractiveUI.has(entity)) InteractiveUI.delete(entity)
       if (hasComponent(entity, HighlightComponent)) removeComponent(entity, HighlightComponent)
     }
 
-    const interactives = interactableQuery()
+    // for (const entity of interactableQuery.enter()) {
+    //   const interactable = getComponent(entity, InteractableComponent)
+    //   const transform = getComponent(entity, TransformComponent)
+    //   const obj = getComponent(entity, Object3DComponent).value
+    //   const boundingBoxComponent = getComponent(entity, BoundingBoxComponent)
 
-    for (const entity of interactives) {
-      if (InteractiveUI.has(entity)) {
-        const { update, xrui } = InteractiveUI.get(entity)!
-        update(entity, xrui)
+    //   // center the model within it's bounding box
+    //   boundingBoxComponent.box.setFromObject(obj)
+    //   const offset = boundingBoxComponent.box.getCenter(obj.children[0].position).sub(transform.position).negate()
+    //   obj.position.sub(offset)
+
+    //   // put the model on the UI layer
+    //   setObjectLayers(obj, ObjectLayers.UI)
+
+    //   interactable.anchorPosition.copy(transform.position)
+    //   interactable.anchorRotation.copy(transform.rotation)
+
+    //   // const helper = new AxesHelper(1)
+    //   // obj.add(helper)
+    // }
+
+    if (Engine.instance.currentWorld.localClientEntity) {
+      const interactables = interactableQuery()
+
+      for (const entity of interactables) {
+        // const interactable = getComponent(entity, InteractableComponent)
+        // interactable.distance = interactable.anchorPosition.distanceTo(
+        //   getComponent(world.localClientEntity, TransformComponent).position
+        // )
+        if (InteractiveUI.has(entity)) {
+          const { update, xrui } = InteractiveUI.get(entity)!
+          update(entity, xrui)
+        }
       }
-    }
 
-    for (const entity of interactorsQuery()) {
-      gatherFocussedInteractives(entity, interactives)
-      const interactor = getComponent(entity, InteractorComponent)
-      if (interactor.focusedInteractive) {
-        if (!hasComponent(interactor.focusedInteractive, HighlightComponent)) {
-          addComponent(interactor.focusedInteractive, HighlightComponent, {})
+      gatherAvailableInteractables(interactables)
+      const closestInteractable = getState(InteractState).available.value[0]
+      for (const interactiveEntity of interactables) {
+        if (interactiveEntity === closestInteractable) {
+          if (!hasComponent(interactiveEntity, HighlightComponent)) {
+            addComponent(interactiveEntity, HighlightComponent, {})
+          }
+        } else {
+          if (hasComponent(interactiveEntity, HighlightComponent)) {
+            removeComponent(interactiveEntity, HighlightComponent)
+          }
         }
       }
     }

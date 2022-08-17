@@ -21,14 +21,6 @@ export default (app: Application) => {
         defaultValue: (): string => generateShortId(8),
         allowNull: false
       },
-      name: {
-        type: DataTypes.STRING,
-        allowNull: true
-      },
-      description: {
-        type: DataTypes.STRING(1023),
-        allowNull: true
-      },
       url: {
         type: DataTypes.STRING,
         allowNull: true,

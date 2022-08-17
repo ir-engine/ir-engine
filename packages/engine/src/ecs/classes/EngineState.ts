@@ -27,7 +27,6 @@ export const EngineState = defineState({
     userHasInteracted: false,
     spectating: false,
     errorEntities: {} as { [key: Entity]: boolean },
-    availableInteractable: null! as Entity,
     usersTyping: {} as { [key: string]: true },
     /**
      * An empty share link will default to the current URL, plus any modifiers (such as spectate mode)
@@ -63,9 +62,6 @@ export function EngineEventReceptor(a) {
     .when(EngineActions.setTeleporting.matches, (action) => s.merge({ isTeleporting: action.isTeleporting }))
     .when(EngineActions.setUserHasInteracted.matches, (action) => s.merge({ userHasInteracted: true }))
     .when(EngineActions.updateEntityError.matches, (action) => s.errorEntities[action.entity].set(!action.isResolved))
-    .when(EngineActions.availableInteractable.matches, (action) =>
-      s.availableInteractable.set(action.availableInteractable)
-    )
     .when(EngineActions.spectateUser.matches, (action) => s.spectating.set(!!action.user))
     .when(EngineActions.shareInteractableLink.matches, (action) => {
       s.shareLink.set(action.shareLink)
@@ -127,11 +123,6 @@ export class EngineActions {
     progress: matches.number
   })
 
-  static availableInteractable = defineAction({
-    type: 'xre.engine.AVAILABLE_INTERACTABLE' as const,
-    availableInteractable: matches.any
-  })
-
   static connect = defineAction({
     type: 'xre.engine.CONNECT' as const,
     id: matches.string
@@ -170,7 +161,7 @@ export class EngineActions {
 
   static interactedWithObject = defineAction({
     type: 'xre.engine.INTERACTED_WITH_OBJECT' as const,
-    targetEntity: matchesEntity,
+    targetEntity: matchesEntity.optional(),
     parityValue: matches.string as Validator<unknown, typeof ParityValue[keyof typeof ParityValue]>
   })
 

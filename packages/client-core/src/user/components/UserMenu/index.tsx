@@ -58,9 +58,9 @@ UserMenuPanels.set(Views.Emote, EmoteMenu)
 // menus to be shown as icons at bottom of screen
 export const HotbarMenu = new Map<string, any>()
 HotbarMenu.set(Views.Profile, PersonIcon)
-HotbarMenu.set(Views.Settings, SettingsIcon)
-HotbarMenu.set(Views.Share, LinkIcon)
-HotbarMenu.set(Views.Party, GroupsIcon)
+// HotbarMenu.set(Views.Settings, SettingsIcon)
+HotbarMenu.set(Views.Share, GroupsIcon)
+// HotbarMenu.set(Views.Party, GroupsIcon)
 HotbarMenu.set(Views.Emote, EmoteIcon)
 
 interface Props {

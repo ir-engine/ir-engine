@@ -143,6 +143,7 @@
     },
     "share": {
       "lbl-share": "Share",
+      "lbl-findFriends": "Find Friends",
       "ph-phoneEmail": "Invite by email or phone number",
       "lbl-phoneEmail": "Send to email or phone number",
       "lbl-copy": "Copy",

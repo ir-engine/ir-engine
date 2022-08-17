@@ -9,7 +9,10 @@ import { isClient } from '../../../common/functions/isClient'
 import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent, removeComponent } from '../../../ecs/functions/ComponentFunctions'
-import { setBoundingBoxComponent } from '../../../interaction/components/BoundingBoxComponents'
+import {
+  setBoundingBoxComponent,
+  setBoundingBoxDynamicTag
+} from '../../../interaction/components/BoundingBoxComponents'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { MaterialOverrideComponentType } from '../../components/MaterialOverrideComponent'
 import { ModelComponent, ModelComponentType } from '../../components/ModelComponent'
@@ -38,16 +41,19 @@ export const deserializeModel: ComponentDeserializeFunction = (
 ) => {
   const props = parseModelProperties(component.props)
   const model = addComponent(entity, ModelComponent, props)
-  setBoundingBoxComponent(entity)
 
   getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_MODEL)
   //add material override components
-  if (isClient && model.materialOverrides.length > 0) {
-    Promise.all(model.materialOverrides.map((override, i) => initializeOverride(entity, override)())).then(
-      (overrides) => (model.materialOverrides = overrides)
-    )
-  }
-  Engine.instance.currentWorld.sceneLoadingPendingAssets.add(updateModel(entity, props))
+  const modelInitProm = updateModel(entity, props)
+  Engine.instance.currentWorld.sceneLoadingPendingAssets.add(modelInitProm)
+  modelInitProm.then(async () => {
+    if (isClient && model.materialOverrides.length > 0) {
+      const overrides = await Promise.all(
+        model.materialOverrides.map((override, i) => initializeOverride(entity, override)())
+      )
+      model.materialOverrides = overrides
+    }
+  })
 }
 
 export const updateModel = async (entity: Entity, properties: ModelComponentType) => {
@@ -71,6 +77,7 @@ export const updateModel = async (entity: Entity, properties: ModelComponentType
           break
       }
       addComponent(entity, Object3DComponent, { value: scene })
+      setBoundingBoxComponent(entity)
       parseGLTFModel(entity)
       if (properties.generateBVH) {
         scene.traverse(generateMeshBVH)

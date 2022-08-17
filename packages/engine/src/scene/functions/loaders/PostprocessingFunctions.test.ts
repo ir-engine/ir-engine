@@ -10,7 +10,6 @@ import { getComponent } from '../../../ecs/functions/ComponentFunctions'
 import { addComponent } from '../../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
 import { createEngine } from '../../../initializeEngine'
-import { DisableTransformTagComponent } from '../../../transform/components/DisableTransformTagComponent'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { IgnoreRaycastTagComponent } from '../../components/IgnoreRaycastTagComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
@@ -62,7 +61,6 @@ describe('PostprocessingFunctions', () => {
       postprocessingFunctions.deserializePostprocessing(entity, sceneComponent)
 
       assert(getComponent(entity, Object3DComponent)?.value, 'Postprocessing is not created')
-      assert(getComponent(entity, DisableTransformTagComponent))
       assert(getComponent(entity, IgnoreRaycastTagComponent))
     })
 

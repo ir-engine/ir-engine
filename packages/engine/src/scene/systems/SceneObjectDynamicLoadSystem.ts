@@ -1,5 +1,6 @@
 import { dispatchAction, getState } from '@xrengine/hyperflux'
 
+import { isMobile } from '../../common/functions/isMobile'
 import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
 import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
@@ -14,6 +15,8 @@ export default async function SceneObjectDynamicLoadSystem(world: World) {
 
   let accumulator = 0
 
+  const distanceMultiplier = isMobile ? 0.5 : 1
+
   return () => {
     accumulator += getState(EngineState).fixedDeltaSeconds.value
 
@@ -26,7 +29,7 @@ export default async function SceneObjectDynamicLoadSystem(world: World) {
       /** Load unloaded entities */
 
       for (const [uuid, data] of world.sceneDynamicallyUnloadedEntities) {
-        if (data.position.distanceToSquared(avatarPosition) < data.distance) {
+        if (data.position.distanceToSquared(avatarPosition) < data.distance * distanceMultiplier) {
           const entity = createSceneEntity(world, uuid, data.json)
           world.sceneDynamicallyLoadedEntities.set(entity, {
             json: data.json,
@@ -47,7 +50,7 @@ export default async function SceneObjectDynamicLoadSystem(world: World) {
       for (const entity of sceneObjectQuery()) {
         const position = getComponent(entity, TransformComponent).position
         const data = world.sceneDynamicallyLoadedEntities.get(entity)!
-        if (position.distanceToSquared(avatarPosition) > data.distance) {
+        if (position.distanceToSquared(avatarPosition) > data.distance * distanceMultiplier) {
           world.sceneDynamicallyLoadedEntities.delete(entity)
           world.sceneDynamicallyUnloadedEntities.set(data.uuid, {
             json: data.json,

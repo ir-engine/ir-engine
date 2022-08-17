@@ -10,7 +10,6 @@ import {
 } from '../../../common/constants/PrefabFunctionType'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent, getComponentCountOfType } from '../../../ecs/functions/ComponentFunctions'
-import { DisableTransformTagComponent } from '../../../transform/components/DisableTransformTagComponent'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { HemisphereLightComponent, HemisphereLightComponentType } from '../../components/HemisphereLightComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
@@ -30,7 +29,6 @@ export const deserializeHemisphereLight: ComponentDeserializeFunction = (
   const props = parseHemisphereLightProperties(json.props)
 
   addComponent(entity, Object3DComponent, { value: light })
-  addComponent(entity, DisableTransformTagComponent, {})
   addComponent(entity, HemisphereLightComponent, props)
   getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_HEMISPHERE_LIGHT)
 

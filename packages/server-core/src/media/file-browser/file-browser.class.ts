@@ -5,6 +5,7 @@ import fs from 'fs'
 import path from 'path/posix'
 
 import { FileContentType } from '@xrengine/common/src/interfaces/FileContentType'
+import { StaticResourceInterface } from '@xrengine/common/src/interfaces/StaticResourceInterface'
 import { processFileName } from '@xrengine/common/src/utils/processFileName'
 
 import { Application } from '../../../declarations'
@@ -60,7 +61,6 @@ export class FileBrowserService implements ServiceMethods<any> {
     const limit = $limit ? $limit : 100
 
     const storageProvider = getStorageProvider()
-    console.log('params.user', params.user)
     const isAdmin = params.user && params.user?.scopes?.find((scope) => scope.type === 'admin:admin')
     if (directory[0] === '/') directory = directory.slice(1) // remove leading slash
     if (params.provider && !isAdmin && directory !== '' && !/^projects/.test(directory))
@@ -197,12 +197,12 @@ export class FileBrowserService implements ServiceMethods<any> {
       fs.unlinkSync(filePath)
     }
 
-    const staticResource = await this.app.service('static-resource').find({
+    const staticResource = (await this.app.service('static-resource').find({
       where: {
         key: key,
         $limit: 1
       }
-    })
+    })) as Paginated<StaticResourceInterface>
     staticResource?.data?.length > 0 && (await this.app.service('static-resource').remove(staticResource?.data[0]?.id))
 
     return result

@@ -197,12 +197,14 @@ export const UploadAvatarMenu = () => {
         ;(canvas.width = THUMBNAIL_WIDTH), (canvas.height = THUMBNAIL_HEIGHT)
         const newContext = canvas.getContext('2d')
         newContext?.drawImage(renderer.domElement, 0, 0)
-        canvas.toBlob((blob) => {
-          AuthService.uploadAvatarModel(avatarBlob, blob!, avatarName, false).then(resolve)
+        canvas.toBlob(async (blob) => {
+          const uploadResponse = await AuthService.uploadAvatarModel(avatarBlob, blob!, avatarName, false).then(resolve)
+          await AuthService.createAvatar(uploadResponse[0], uploadResponse[1], avatarName)
         })
       })
     } else {
-      await AuthService.uploadAvatarModel(avatarBlob, thumbnailBlob, avatarName, false)
+      const uploadResponse = await AuthService.uploadAvatarModel(avatarBlob, thumbnailBlob, avatarName, false)
+      await AuthService.createAvatar(uploadResponse[0], uploadResponse[1], avatarName)
     }
 
     WidgetAppService.setWidgetVisibility(WidgetName.PROFILE, true)

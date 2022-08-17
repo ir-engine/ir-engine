@@ -26,6 +26,7 @@ import EditorCommands from '../../constants/EditorCommands'
 import { addMediaNode } from '../../functions/addMediaNode'
 import { isAncestor } from '../../functions/getDetachedObjectsRoots'
 import { cmdOrCtrlString } from '../../functions/utils'
+import { useEditorState } from '../../services/EditorServices'
 import { useSelectionState } from '../../services/SelectionServices'
 import useUpload from '../assets/useUpload'
 import { addPrefabElement } from '../element/ElementList'
@@ -65,13 +66,14 @@ function traverseWithDepth(obj3d: Object3D, depth: number, cb: Function) {
 
 function getModelNodesFromTreeWalker(
   inputNodes: HeirarchyTreeNodeType[],
-  collapsedNodes: HeirarchyTreeCollapsedNodeType
+  collapsedNodes: HeirarchyTreeCollapsedNodeType,
+  showObject3Ds: boolean
 ): HeirarchyTreeNodeType[] {
   const outputNodes = [] as HeirarchyTreeNodeType[]
   for (const node of inputNodes) {
     outputNodes.push(node)
     const isCollapsed = collapsedNodes[node.entityNode.entity]
-    if (hasComponent(node.entityNode.entity, ModelComponent)) {
+    if (showObject3Ds && hasComponent(node.entityNode.entity, ModelComponent)) {
       const obj3d = getComponent(node.entityNode.entity, Object3DComponent)?.value
       if (!obj3d || obj3d === Engine.instance.currentWorld.scene) continue
       node.isLeaf = false
@@ -116,6 +118,7 @@ export default function HierarchyPanel() {
   const nodeSearch: HeirarchyTreeNodeType[] = []
   const [selectedNode, setSelectedNode] = useState<HeirarchyTreeNodeType | null>(null)
   const { searchHierarchy } = useContext(AppContext)
+  const showObject3DInHierarchy = useEditorState().showObject3DInHierarchy
 
   if (searchHierarchy.length > 0) {
     const condition = new RegExp(searchHierarchy.toLowerCase())
@@ -138,7 +141,8 @@ export default function HierarchyPanel() {
               world.entityTree
             )
           ),
-          collapsedNodes
+          collapsedNodes,
+          showObject3DInHierarchy.value
         )
       )
     },
@@ -146,7 +150,11 @@ export default function HierarchyPanel() {
   )
 
   useEffect(updateNodeHierarchy, [collapsedNodes])
-  useHookEffect(updateNodeHierarchy, [selectionState.selectedEntities, selectionState.sceneGraphChangeCounter])
+  useHookEffect(updateNodeHierarchy, [
+    showObject3DInHierarchy,
+    selectionState.selectedEntities,
+    selectionState.sceneGraphChangeCounter
+  ])
 
   /* Expand & Collapse Functions */
   const expandNode = useCallback(

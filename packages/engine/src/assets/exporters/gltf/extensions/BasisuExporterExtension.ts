@@ -10,6 +10,7 @@ import {
   WebGLRenderer
 } from 'three'
 
+import createReadableTexture from '../../../functions/createReadableTexture'
 import { GLTFWriter } from '../GLTFExporter'
 import { ExporterExtension } from './ExporterExtension'
 
@@ -24,43 +25,10 @@ export default class BasisuExporterExtension extends ExporterExtension {
   imgCache: Map<any, number>
   sampler: any
 
-  buildReadableTexture(map: CompressedTexture): Texture {
-    const fullscreenQuadGeometry = new PlaneBufferGeometry(2, 2, 1, 1)
-    const fullscreenQuadMaterial = new ShaderMaterial({
-      uniforms: { blitTexture: new Uniform(map) },
-      vertexShader: `
-            varying vec2 vUv;
-            void main(){
-                vUv = uv;
-                gl_Position = vec4(position.xy * 1.0,0.,.999999);
-            }`,
-      fragmentShader: `
-            uniform sampler2D blitTexture; 
-            varying vec2 vUv;
-            void main(){ 
-                gl_FragColor = vec4(vUv.xy, 0, 1);
-                gl_FragColor = texture2D( blitTexture, vUv);
-            }`
-    })
-
-    const fullscreenQuad = new Mesh(fullscreenQuadGeometry, fullscreenQuadMaterial)
-    fullscreenQuad.frustumCulled = false
-
-    const temporaryCam = new PerspectiveCamera()
-    const temporaryScene = new Scene()
-    temporaryScene.add(fullscreenQuad)
-
-    const temporaryRenderer = new WebGLRenderer({ antialias: false })
-    temporaryRenderer.setSize(map.image.width, map.image.height)
-    temporaryRenderer.clear()
-    temporaryRenderer.render(temporaryScene, temporaryCam)
-    return new Texture(temporaryRenderer.domElement)
-  }
-
   writeTexture(_texture: CompressedTexture, textureDef) {
     if (!_texture.isCompressedTexture) return
     const writer = this.writer
-    const texture = this.buildReadableTexture(_texture)
+    const texture = createReadableTexture(_texture)
     textureDef.source = writer.processImage(texture.image, texture.format, texture.flipY)
     textureDef.sampler = this.sampler
     /*const image: HTMLCanvasElement = texture.image

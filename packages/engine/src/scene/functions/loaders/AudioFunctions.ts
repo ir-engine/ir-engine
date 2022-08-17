@@ -18,6 +18,7 @@ import { Engine } from '../../../ecs/classes/Engine'
 import { getEngineState } from '../../../ecs/classes/EngineState'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
+import { CallbackComponent } from '../../components/CallbackComponent'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { MediaComponent } from '../../components/MediaComponent'
 import { MediaElementComponent } from '../../components/MediaElementComponent'
@@ -126,6 +127,12 @@ export const updateAudioPrefab = (entity: Entity) => {
       mediaComponent.currentSource = nextItem
       el.src = mediaComponent.paths[mediaComponent.currentSource]
       el.play()
+    })
+
+    addComponent(entity, CallbackComponent, {
+      play: () => el.play(),
+      pause: () => el.pause()
+      /** todo, add next/previous */
     })
 
     addComponent(entity, MediaElementComponent, el)

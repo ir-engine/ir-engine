@@ -32,8 +32,8 @@ type EngineRendererStateType = {
 export const EngineRendererState = defineState({
   name: 'EngineRendererState',
   initial: () => ({
-    qualityLevel: isMobile ? 1 : 5, // range from 0 to 5
-    automatic: true,
+    qualityLevel: isMobile ? 2 : 5, // range from 0 to 5
+    automatic: isMobile ? false : true,
     // usePBR: true,
     usePostProcessing: false,
     useShadows: false,

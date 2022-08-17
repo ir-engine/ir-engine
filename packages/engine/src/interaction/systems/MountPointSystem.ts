@@ -1,4 +1,3 @@
-import { Not } from 'bitecs'
 import { Vector3 } from 'three'
 
 import { createActionQueue } from '@xrengine/hyperflux'
@@ -8,8 +7,6 @@ import { AvatarStates } from '../../avatar/animation/Util'
 import { AvatarAnimationComponent } from '../../avatar/components/AvatarAnimationComponent'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
-import checkPositionIsValid from '../../common/functions/checkPositionIsValid'
-import { Deg2Rad } from '../../common/functions/MathFunctions'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions } from '../../ecs/classes/EngineState'
 import { World } from '../../ecs/classes/World'
@@ -26,7 +23,6 @@ import { getInteractionGroups } from '../../physics/functions/getInteractionGrou
 import { RaycastHit, SceneQueryType } from '../../physics/types/PhysicsTypes'
 import { MountPoint, MountPointComponent } from '../../scene/components/MountPointComponent'
 import { SittingComponent } from '../../scene/components/SittingComponent'
-import { DesiredTransformComponent } from '../../transform/components/DesiredTransformComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { createInteractUI } from '../functions/interactUI'
 import { addInteractableUI } from './InteractiveSystem'
@@ -43,12 +39,7 @@ export default async function MountPointSystem(world: World) {
 
   const mountPointActionQueue = createActionQueue(EngineActions.interactedWithObject.matches)
   const mountPointQuery = defineQuery([MountPointComponent])
-  const sittingTransitionQuery = defineQuery([SittingComponent, DesiredTransformComponent])
-  const sittingIdleQuery = defineQuery([SittingComponent, Not(DesiredTransformComponent)])
-
-  const diffPos = new Vector3()
-  const PositionEpsilon = 0.1
-  const RotationEpsilon = 1 * Deg2Rad
+  const sittingIdleQuery = defineQuery([SittingComponent])
 
   return () => {
     for (const entity of mountPointQuery.enter()) {
@@ -58,67 +49,35 @@ export default async function MountPointSystem(world: World) {
 
     for (const action of mountPointActionQueue()) {
       if (action.$from !== Engine.instance.userId) continue
-      if (!hasComponent(action.targetEntity, MountPointComponent)) continue
+      if (!hasComponent(action.targetEntity!, MountPointComponent)) continue
+      const avatarEntity = world.getUserAvatarEntity(action.$from)
 
-      const mountPoint = getComponent(action.targetEntity, MountPointComponent)
+      const mountPoint = getComponent(action.targetEntity!, MountPointComponent)
       if (mountPoint.type === MountPoint.seat) {
-        const avatarEntity = Engine.instance.currentWorld.localClientEntity
+        const avatar = getComponent(avatarEntity, AvatarComponent)
 
         if (hasComponent(avatarEntity, SittingComponent)) continue
 
-        // Add desired transform component to move the avatar to mounting point
-        const transform = getComponent(action.targetEntity, TransformComponent)
-        const desiredTransform = addComponent(avatarEntity, DesiredTransformComponent, {
-          position: transform.position.clone(),
-          rotation: transform.rotation.clone(),
-          positionRate: 2,
-          rotationRate: 2,
-          lockRotationAxis: [false, false, false],
-          positionDelta: 0,
-          rotationDelta: 0
-        }) // set the desired transform at the same height as avatar.
-        desiredTransform.position.y = transform.position.y
-
-        addComponent(avatarEntity, SittingComponent, {
-          mountPointEntity: action.targetEntity,
+        const transform = getComponent(action.targetEntity!, TransformComponent)
+        const controllerComponent = getComponent(avatarEntity, AvatarControllerComponent)
+        controllerComponent.body.setTranslation(
+          {
+            x: transform.position.x,
+            y: transform.position.y + avatar.avatarHalfHeight,
+            z: transform.position.z
+          },
+          true
+        )
+        const sitting = addComponent(avatarEntity, SittingComponent, {
+          mountPointEntity: action.targetEntity!,
           state: AvatarStates.SIT_ENTER
         })
         getComponent(avatarEntity, AvatarControllerComponent).movementEnabled = false
-      }
-    }
 
-    for (const entity of sittingTransitionQuery(world)) {
-      const controllerComponent = getComponent(entity, AvatarControllerComponent)
-      const transform = getComponent(entity, TransformComponent)
-      const avatar = getComponent(entity, AvatarComponent)
-      const desiredTransform = getComponent(entity, DesiredTransformComponent)
-      const sitting = getComponent(entity, SittingComponent)
+        const avatarAnimationComponent = getComponent(avatarEntity, AvatarAnimationComponent)
 
-      controllerComponent.body.setTranslation(
-        {
-          x: transform.position.x,
-          y: transform.position.y + avatar.avatarHalfHeight,
-          z: transform.position.z
-        },
-        true
-      )
-
-      diffPos.subVectors(transform.position, desiredTransform.position)
-      const angle = transform.rotation.angleTo(desiredTransform.rotation)
-
-      // Once avatar reaches desired transform change animation state to mount enter or mount active
-      if (diffPos.length() < PositionEpsilon && Math.abs(angle) < RotationEpsilon) {
-        removeComponent(entity, DesiredTransformComponent)
-        const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
-
-        if (sitting.state === 'SIT_ENTER') {
-          changeState(avatarAnimationComponent.animationGraph, AvatarStates.SIT_IDLE)
-          sitting.state = AvatarStates.SIT_IDLE
-        } else if (sitting.state === 'SIT_LEAVE') {
-          changeState(avatarAnimationComponent.animationGraph, AvatarStates.LOCOMOTION)
-          removeComponent(entity, SittingComponent)
-          getComponent(Engine.instance.currentWorld.localClientEntity, AvatarControllerComponent).movementEnabled = true
-        }
+        changeState(avatarAnimationComponent.animationGraph, AvatarStates.SIT_IDLE)
+        sitting.state = AvatarStates.SIT_IDLE
       }
     }
 
@@ -132,10 +91,11 @@ export default async function MountPointSystem(world: World) {
         sitting.state = AvatarStates.SIT_LEAVE
 
         changeState(avatarAnimationComponent.animationGraph, AvatarStates.SIT_LEAVE)
-        const avatarEntity = Engine.instance.currentWorld.localClientEntity
 
-        const transform = getComponent(avatarEntity, TransformComponent)
-        const newPos = transform.position.clone().add(new Vector3(0, 0, 1).applyQuaternion(transform.rotation))
+        const avatarTransform = getComponent(entity, TransformComponent)
+        const newPos = avatarTransform.position
+          .clone()
+          .add(new Vector3(0, 0, 1).applyQuaternion(avatarTransform.rotation))
 
         const interactionGroups = getInteractionGroups(CollisionGroups.Avatars, CollisionGroups.Ground)
         const raycastComponentData = {
@@ -154,19 +114,16 @@ export default async function MountPointSystem(world: World) {
             newPos.y -= raycastHit.distance
           }
         } else {
-          newPos.copy(transform.position)
+          newPos.copy(avatarTransform.position)
           newPos.y += avatarComponent.avatarHalfHeight
         }
 
-        addComponent(avatarEntity, DesiredTransformComponent, {
-          position: newPos,
-          rotation: transform.rotation.clone(),
-          positionRate: 2,
-          rotationRate: 2,
-          lockRotationAxis: [false, false, false],
-          positionDelta: 0,
-          rotationDelta: 0
-        })
+        const controllerComponent = getComponent(entity, AvatarControllerComponent)
+        controllerComponent.body.setTranslation(newPos, true)
+
+        changeState(avatarAnimationComponent.animationGraph, AvatarStates.LOCOMOTION)
+        removeComponent(entity, SittingComponent)
+        getComponent(Engine.instance.currentWorld.localClientEntity, AvatarControllerComponent).movementEnabled = true
       }
     }
   }

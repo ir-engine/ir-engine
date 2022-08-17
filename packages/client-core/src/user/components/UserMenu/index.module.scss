@@ -289,11 +289,6 @@
             right: -15px;
             background-color: var(--iconButtonSelectedBackground);
           }
-
-          svg {
-            width: 20px;
-            height: 20px;
-          }
         }
       }
 
@@ -989,6 +984,21 @@
         background: var(--purpleButtonColor);
         color: #fff;
         text-transform: capitalize;
+
+        &:hover {
+          opacity: 0.8;
+        }
+      }
+
+      .friendsBtn {
+        height: 35px;
+        font-size: 14px;
+        width: 250px;
+        max-width: 100%;
+        background: linear-gradient(90deg, var(--buttonGradientStart), var(--buttonGradientEnd));
+        color: var(--textColor);
+        border-radius: 20px;
+        margin: 15px 0 20px;
 
         &:hover {
           opacity: 0.8;

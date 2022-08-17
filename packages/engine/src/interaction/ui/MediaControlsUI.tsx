@@ -7,6 +7,7 @@ import { Pause, PlayArrow } from '@mui/icons-material'
 
 import { Entity } from '../../ecs/classes/Entity'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
+import { CallbackComponent } from '../../scene/components/CallbackComponent'
 import { MediaElementComponent } from '../../scene/components/MediaElementComponent'
 import { createXRUI } from '../../xrui/functions/createXRUI'
 
@@ -46,7 +47,8 @@ const MediaControlsView = (props: MediaControlsProps) => {
   }, [])
 
   const buttonClick = () => {
-    detailState.playing.value ? mediaComponent?.pause() : mediaComponent?.play()
+    const callback = getComponent(props.entity, CallbackComponent) as any
+    detailState.playing.value ? callback?.pause() : callback?.play()
   }
 
   return (

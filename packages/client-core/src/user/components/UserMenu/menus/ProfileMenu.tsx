@@ -18,6 +18,7 @@ import { getState } from '@xrengine/hyperflux'
 import { Check, Create, GitHub, Send } from '@mui/icons-material'
 import ContentCopyIcon from '@mui/icons-material/ContentCopy'
 import RefreshIcon from '@mui/icons-material/Refresh'
+import SettingsIcon from '@mui/icons-material/Settings'
 import Button from '@mui/material/Button'
 import CircularProgress from '@mui/material/CircularProgress'
 import Grid from '@mui/material/Grid'
@@ -569,6 +570,23 @@ const ProfileMenu = ({ className, hideLogin, isPopover, changeActiveMenu, onClos
               </h2>
             )}
           </div>
+          {changeActiveMenu && (
+            <Button className={styles.avatarBlock} style={{ marginRight: '0px', background: 'var(--textColor)' }}>
+              <SettingsIcon
+                style={{
+                  display: 'block',
+                  width: '100%',
+                  height: '100%',
+                  margin: 'auto',
+                  color: 'var(--inputBackground)'
+                }}
+                id="settings"
+                onClick={() => changeActiveMenu(Views.Settings)}
+                onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+              />
+            </Button>
+          )}
         </section>
 
         <section className={styles.profileBlock}>

@@ -1,7 +1,9 @@
+import { Not } from 'bitecs'
 import { Quaternion, SkinnedMesh, Vector2, Vector3 } from 'three'
 
+import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { isDev } from '@xrengine/common/src/utils/isDev'
-import { dispatchAction } from '@xrengine/hyperflux'
+import { dispatchAction, getState } from '@xrengine/hyperflux'
 
 import { FollowCameraComponent } from '../camera/components/FollowCameraComponent'
 import { TargetCameraRotationComponent } from '../camera/components/TargetCameraRotationComponent'
@@ -13,7 +15,14 @@ import { clamp } from '../common/functions/MathLerpFunctions'
 import { Engine } from '../ecs/classes/Engine'
 import { EngineActions } from '../ecs/classes/EngineState'
 import { Entity } from '../ecs/classes/Entity'
-import { addComponent, getComponent, hasComponent, removeComponent } from '../ecs/functions/ComponentFunctions'
+import {
+  addComponent,
+  ComponentType,
+  defineQuery,
+  getComponent,
+  hasComponent,
+  removeComponent
+} from '../ecs/functions/ComponentFunctions'
 import { useWorld } from '../ecs/functions/SystemHooks'
 import { InputComponent } from '../input/components/InputComponent'
 import { BaseInput } from '../input/enums/BaseInput'
@@ -35,7 +44,6 @@ import { InputAlias } from '../input/types/InputAlias'
 import { EquippedComponent } from '../interaction/components/EquippedComponent'
 import { EquipperComponent } from '../interaction/components/EquipperComponent'
 import { InteractableComponent } from '../interaction/components/InteractableComponent'
-import { InteractorComponent } from '../interaction/components/InteractorComponent'
 import {
   changeHand,
   equipEntity,
@@ -43,16 +51,24 @@ import {
   getParity,
   unequipEntity
 } from '../interaction/functions/equippableFunctions'
+import { InteractState } from '../interaction/systems/InteractiveSystem'
 import { AutoPilotClickRequestComponent } from '../navigation/component/AutoPilotClickRequestComponent'
 import { NetworkTopics } from '../networking/classes/Network'
+import { NetworkObjectComponent } from '../networking/components/NetworkObjectComponent'
 import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
+import { Physics } from '../physics/classes/Physics'
+import { RaycastComponent } from '../physics/components/RaycastComponent'
+import { AvatarCollisionMask, CollisionGroups, DefaultCollisionMask } from '../physics/enums/CollisionGroups'
+import { getInteractionGroups } from '../physics/functions/getInteractionGroups'
 import { boxDynamicConfig } from '../physics/functions/physicsObjectDebugFunctions'
+import { SceneQueryType } from '../physics/types/PhysicsTypes'
 import { accessEngineRendererState, EngineRendererAction } from '../renderer/EngineRendererState'
 import { Object3DComponent } from '../scene/components/Object3DComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { XRLGripButtonComponent, XRRGripButtonComponent } from '../xr/XRComponents'
 import { XR_ROTATION_MODE } from '../xr/XRUserSettings'
 import { AvatarSettings } from './AvatarControllerSystem'
+import { AvatarComponent } from './components/AvatarComponent'
 import { AvatarControllerComponent } from './components/AvatarControllerComponent'
 import { AvatarTeleportTagComponent } from './components/AvatarTeleportTagComponent'
 import { rotateXRCamera } from './functions/moveAvatar'
@@ -101,12 +117,11 @@ const interact = (entity: Entity, inputKey: InputAlias, inputValue: InputValue):
   if (inputValue.lifecycleState !== LifecycleValue.Started) return
   const parityValue = getParityFromInputValue(inputKey)
 
-  const interactor = getComponent(entity, InteractorComponent)
-  if (!interactor?.focusedInteractive) return
+  const interactState = getState(InteractState)
 
   dispatchAction(
     EngineActions.interactedWithObject({
-      targetEntity: interactor.focusedInteractive,
+      targetEntity: interactState.available[0].value,
       parityValue
     })
   )
@@ -491,6 +506,46 @@ export const handlePrimaryButton: InputBehaviorType = (entity, inputKey, inputVa
   }
 }
 
+export const handleSecondaryButton: InputBehaviorType = (entity, inputKey, inputValue) => {
+  if (inputValue.lifecycleState !== LifecycleValue.Ended) {
+    return
+  }
+
+  const interactionGroups = getInteractionGroups(CollisionGroups.Default, CollisionGroups.Avatars)
+  const raycastComponentData = {
+    type: SceneQueryType.Closest,
+    hits: [],
+    origin: new Vector3(),
+    direction: new Vector3(),
+    maxDistance: 20,
+    flags: interactionGroups
+  } as ComponentType<typeof RaycastComponent>
+
+  const input = getComponent(entity, InputComponent)
+  const screenXY = input?.data?.get(BaseInput.SCREENXY)?.value!
+
+  const coords = new Vector2(screenXY[0], screenXY[1])
+
+  Physics.castRayFromCamera(
+    Engine.instance.currentWorld.camera,
+    coords,
+    Engine.instance.currentWorld.physicsWorld,
+    raycastComponentData
+  )
+
+  if (raycastComponentData.hits.length) {
+    const hit = raycastComponentData.hits[0]
+    const hitEntity = (hit.body?.userData as any)?.entity as Entity
+    if (typeof hitEntity !== 'undefined' && hitEntity !== Engine.instance.currentWorld.localClientEntity) {
+      const userId = getComponent(hitEntity, NetworkObjectComponent).ownerId
+      dispatchAction(EngineActions.userAvatarTapped({ userId }))
+      return
+    }
+  }
+  dispatchAction(EngineActions.userAvatarTapped({ userId: '' as UserId }))
+  return
+}
+
 export const handlePhysicsDebugEvent = (entity: Entity, inputKey: InputAlias, inputValue: InputValue): void => {
   if (inputValue.lifecycleState !== LifecycleValue.Ended) return
   if (inputKey === PhysicsDebugInput.GENERATE_DYNAMIC_DEBUG_CUBE) {
@@ -521,7 +576,7 @@ export const createAvatarInput = () => {
   map.set(MouseInput.MouseClickDownMovement, BaseInput.LOOKTURN_PLAYERONE)
   map.set(MouseInput.MouseScroll, BaseInput.CAMERA_SCROLL)
 
-  map.set(TouchInputs.Touch, BaseInput.INTERACT)
+  // map.set(TouchInputs.Touch, BaseInput.INTERACT)
   // map.set(TouchInputs.DoubleTouch, BaseInput.JUMP)
   map.set(TouchInputs.Touch1Position, BaseInput.SCREENXY)
   map.set(TouchInputs.Touch1Movement, BaseInput.LOOKTURN_PLAYERONE)
@@ -623,6 +678,7 @@ export const createBehaviorMap = () => {
   map.set(BaseInput.CAMERA_SCROLL, throttle(changeCameraDistanceByDelta, 30, { leading: true, trailing: false }))
 
   map.set(BaseInput.PRIMARY, handlePrimaryButton)
+  map.set(BaseInput.SECONDARY, handleSecondaryButton)
 
   map.set(PhysicsDebugInput.GENERATE_DYNAMIC_DEBUG_CUBE, handlePhysicsDebugEvent)
   map.set(PhysicsDebugInput.TOGGLE_PHYSICS_DEBUG, handlePhysicsDebugEvent)

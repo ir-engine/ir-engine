@@ -6,11 +6,13 @@ import { addActionReceptor, dispatchAction, getState } from '@xrengine/hyperflux
 
 import { getGLTFLoader } from './assets/classes/AssetLoader'
 import { initializeKTX2Loader } from './assets/functions/createGLTFLoader'
+import { AudioEffectPlayer } from './audio/systems/AudioSystem'
 import { isClient } from './common/functions/isClient'
 import { Timer } from './common/functions/Timer'
 import { Engine } from './ecs/classes/Engine'
 import { EngineActions, EngineEventReceptor, EngineState } from './ecs/classes/EngineState'
 import { createWorld, destroyWorld } from './ecs/classes/World'
+import { defineQuery, getComponent } from './ecs/functions/ComponentFunctions'
 import FixedPipelineSystem from './ecs/functions/FixedPipelineSystem'
 import { initSystems, initSystemSync, SystemModuleType } from './ecs/functions/SystemFunctions'
 import { SystemUpdateType } from './ecs/functions/SystemUpdateType'
@@ -18,6 +20,9 @@ import { matchActionOnce } from './networking/functions/matchActionOnce'
 import IncomingActionSystem from './networking/systems/IncomingActionSystem'
 import OutgoingActionSystem from './networking/systems/OutgoingActionSystem'
 import { EngineRenderer } from './renderer/WebGLRendererSystem'
+import { CallbackComponent } from './scene/components/CallbackComponent'
+import { MediaComponent } from './scene/components/MediaComponent'
+import { MediaElementComponent } from './scene/components/MediaElementComponent'
 import { ObjectLayers } from './scene/constants/ObjectLayers'
 import { FontManager } from './xrui/classes/FontManager'
 
@@ -242,7 +247,7 @@ export const initializeSceneSystems = async () => {
         systemModulePromise: import('./avatar/AvatarControllerSystem')
       },
       {
-        type: SystemUpdateType.PRE_RENDER,
+        type: SystemUpdateType.UPDATE_LATE,
         systemModulePromise: import('./interaction/systems/InteractiveSystem')
       },
       {
