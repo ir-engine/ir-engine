@@ -23,11 +23,6 @@ export default (app: Application) => {
         defaultValue: (): string => 'Guest #' + Math.floor(Math.random() * (999 - 100 + 1) + 100),
         allowNull: false
       },
-      avatarId: {
-        type: DataTypes.STRING,
-        defaultValue: (): string => '',
-        allowNull: false
-      },
       isGuest: {
         type: DataTypes.BOOLEAN,
         defaultValue: true,
@@ -75,6 +70,7 @@ export default (app: Application) => {
     ;(User as any).hasMany(models.scope, { foreignKey: 'userId', onDelete: 'cascade' })
     ;(User as any).belongsToMany(models.instance, { through: 'instance_authorized_user' })
     ;(User as any).hasOne(models.user_api_key)
+    ;(User as any).belongsTo(models.avatar)
   }
 
   return User

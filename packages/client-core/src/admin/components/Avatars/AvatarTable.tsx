@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { AvatarInterface } from '@xrengine/common/src/interfaces/AvatarInterface'
 import { StaticResourceInterface } from '@xrengine/common/src/interfaces/StaticResourceInterface'
 
 import Box from '@mui/material/Box'
@@ -35,7 +36,7 @@ const AvatarTable = ({ className, search }: Props) => {
   const [fieldOrder, setFieldOrder] = useState('asc')
   const [sortField, setSortField] = useState('name')
   const [openAvatarDrawer, setOpenAvatarDrawer] = useState(false)
-  const [avatarData, setAvatarData] = useState<StaticResourceInterface | null>(null)
+  const [avatarData, setAvatarData] = useState<AvatarInterface | null>(null)
 
   const handlePageChange = (event: unknown, newPage: number) => {
     AdminAvatarService.fetchAdminAvatars(newPage, search, sortField, fieldOrder)
@@ -57,17 +58,14 @@ const AvatarTable = ({ className, search }: Props) => {
     AdminAvatarService.fetchAdminAvatars(0, search, sortField, fieldOrder)
   }, [user?.id, search, adminAvatarState.updateNeeded.value])
 
-  const createData = (
-    el: StaticResourceInterface,
-    sid: string | undefined,
-    name: string | undefined,
-    key: string | undefined
-  ): AvatarData => {
+  const createData = (el: AvatarInterface): AvatarData => {
     return {
       el,
-      sid,
-      name,
-      key,
+      id: el.id,
+      name: el.name as string,
+      thumbnail: (
+        <img style={{ maxHeight: '50px' }} src={el.thumbnailResource?.url + '?' + new Date().getTime()} alt="" />
+      ),
       action: (
         <>
           <a
@@ -85,7 +83,7 @@ const AvatarTable = ({ className, search }: Props) => {
             className={styles.actionStyle}
             onClick={() => {
               setAvatarId(el.id)
-              setAvatarName(name as any)
+              setAvatarName(el.name)
               setOpenConfirm(true)
             }}
           >
@@ -97,11 +95,11 @@ const AvatarTable = ({ className, search }: Props) => {
   }
 
   const rows = adminAvatars.value.map((el) => {
-    return createData(el, el.sid, el.name, el.key)
+    return createData(el)
   })
 
   const submitRemoveAvatar = async () => {
-    await AdminAvatarService.removeAdminAvatar(avatarId, avatarName)
+    await AdminAvatarService.removeAdminAvatar(avatarId)
     setOpenConfirm(false)
   }
 

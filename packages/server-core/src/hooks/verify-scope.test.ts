@@ -26,12 +26,15 @@ describe('verify-scope', () => {
 
   it('should fail if user does not have scope', async () => {
     const name = `Test #${Math.random()}`
-    const avatarId = `CyberbotGreen #${Math.random()}`
+    const avatarName = `CyberbotGreen #${Math.random()}`
     const isGuest = true
 
+    const avatar = await app.service('avatar').create({
+      name: avatarName
+    })
     const user = (await app.service('user').create({
       name,
-      avatarId,
+      avatarId: avatar.id,
       isGuest
     })) as UserInterface
 
@@ -46,12 +49,16 @@ describe('verify-scope', () => {
 
   it('should verify guest has scope', async () => {
     const name = `Test #${Math.random()}`
-    const avatarId = `CyberbotGreen #${Math.random()}`
+    const avatarName = `CyberbotGreen #${Math.random()}`
     const isGuest = true
+
+    const avatar = await app.service('avatar').create({
+      name: avatarName
+    })
 
     const user = (await app.service('user').create({
       name,
-      avatarId,
+      avatarId: avatar.id,
       isGuest
     })) as UserInterface
 
@@ -71,12 +78,16 @@ describe('verify-scope', () => {
 
   it('should verify user has scope', async () => {
     const name = `Test #${Math.random()}`
-    const avatarId = `CyberbotGreen #${Math.random()}`
+    const avatarName = `CyberbotGreen #${Math.random()}`
     const isGuest = false
+
+    const avatar = await app.service('avatar').create({
+      name: avatarName
+    })
 
     const user = (await app.service('user').create({
       name,
-      avatarId,
+      avatarId: avatar.id,
       isGuest
     })) as UserInterface
 
@@ -96,12 +107,16 @@ describe('verify-scope', () => {
 
   it('should verify admin', async () => {
     const name = `Test #${Math.random()}`
-    const avatarId = `CyberbotGreen #${Math.random()}`
+    const avatarName = `CyberbotGreen #${Math.random()}`
     const isGuest = false
+
+    const avatar = await app.service('avatar').create({
+      name: avatarName
+    })
 
     const user = (await app.service('user').create({
       name,
-      avatarId,
+      avatarId: avatar.id,
       isGuest
     })) as UserInterface
 

@@ -91,6 +91,7 @@ DOCKER_BUILDKIT=1 docker build -t xrengine \
   --build-arg VITE_CLIENT_HOST=$VITE_CLIENT_HOST \
   --build-arg VITE_SERVER_HOST=$VITE_SERVER_HOST \
   --build-arg VITE_MEDIATOR_SERVER=$VITE_MEDIATOR_SERVER \
-  --build-arg VITE_INSTANCESERVER_HOST=$VITE_INSTANCESERVER_HOST .
+  --build-arg VITE_INSTANCESERVER_HOST=$VITE_INSTANCESERVER_HOST \
+  --build-arg VITE_LOGIN_WITH_WALLET=$VITE_LOGIN_WITH_WALLET .
 
 DOCKER_BUILDKIT=1 docker build -t xrengine-testbot -f ./dockerfiles/testbot/Dockerfile-testbot .

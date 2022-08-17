@@ -12,6 +12,7 @@ import {
   THUMBNAIL_HEIGHT,
   THUMBNAIL_WIDTH
 } from '@xrengine/common/src/constants/AvatarConstants'
+import { AvatarInterface } from '@xrengine/common/src/interfaces/AvatarInterface'
 import { StaticResourceInterface } from '@xrengine/common/src/interfaces/StaticResourceInterface'
 import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
 import { loadAvatarForPreview } from '@xrengine/engine/src/avatar/functions/avatarFunctions'
@@ -66,7 +67,7 @@ export enum AvatarDrawerMode {
 interface Props {
   open: boolean
   mode: AvatarDrawerMode
-  selectedAvatar?: StaticResourceInterface
+  selectedAvatar?: AvatarInterface
   onClose: () => void
 }
 
@@ -97,13 +98,13 @@ const AvatarDrawerContent = ({ open, mode, selectedAvatar, onClose }: Props) => 
   const { thumbnail } = useAdminAvatarState().value
 
   const hasWriteAccess = user.scopes && user.scopes.find((item) => item.type === 'static_resource:write')
-  const viewMode = mode === AvatarDrawerMode.ViewEdit && editMode === false
+  const viewMode = mode === AvatarDrawerMode.ViewEdit && !editMode
 
   let thumbnailSrc = ''
   if (state.source === 'file' && state.thumbnailFile) {
     thumbnailSrc = URL.createObjectURL(state.thumbnailFile)
   } else if (state.source === 'url' && state.thumbnailUrl) {
-    thumbnailSrc = state.thumbnailUrl
+    thumbnailSrc = state.thumbnailUrl + '?' + new Date().getTime()
   }
 
   useEffect(() => {
@@ -134,8 +135,7 @@ const AvatarDrawerContent = ({ open, mode, selectedAvatar, onClose }: Props) => 
 
   useEffect(() => {
     const initSelected = async () => {
-      if (selectedAvatar?.name) {
-        await AdminAvatarService.fetchAdminThumbnail(selectedAvatar?.name)
+      if (selectedAvatar?.id) {
         loadSelectedAvatar()
       }
     }
@@ -153,8 +153,8 @@ const AvatarDrawerContent = ({ open, mode, selectedAvatar, onClose }: Props) => 
         ...defaultState,
         name: selectedAvatar.name || '',
         source: 'url',
-        avatarUrl: selectedAvatar.url || '',
-        thumbnailUrl: thumbnail?.url || '',
+        avatarUrl: selectedAvatar.modelResource?.url || '',
+        thumbnailUrl: selectedAvatar.thumbnailResource?.url || '',
         avatarFile: undefined,
         thumbnailFile: undefined
       })
@@ -257,16 +257,18 @@ const AvatarDrawerContent = ({ open, mode, selectedAvatar, onClose }: Props) => 
         const validEndsWith = AVATAR_FILE_ALLOWED_EXTENSIONS.split(',').some((suffix) => {
           return value.endsWith(suffix)
         })
-        tempErrors.avatarUrl =
-          (isValidHttpUrl(value) && validEndsWith) === false ? t('admin:components.avatar.avatarUrlInvalid') : ''
+        tempErrors.avatarUrl = !(isValidHttpUrl(value) && validEndsWith)
+          ? t('admin:components.avatar.avatarUrlInvalid')
+          : ''
         break
       }
       case 'thumbnailUrl': {
         const validEndsWith = THUMBNAIL_FILE_ALLOWED_EXTENSIONS.split(',').some((suffix) => {
           return value.endsWith(suffix)
         })
-        tempErrors.thumbnailUrl =
-          (isValidHttpUrl(value) && validEndsWith) === false ? t('admin:components.avatar.thumbnailUrlInvalid') : ''
+        tempErrors.thumbnailUrl = !(isValidHttpUrl(value) && validEndsWith)
+          ? t('admin:components.avatar.thumbnailUrlInvalid')
+          : ''
         break
       }
       default:
@@ -312,7 +314,20 @@ const AvatarDrawerContent = ({ open, mode, selectedAvatar, onClose }: Props) => 
     }
 
     if (avatarBlob && thumbnailBlob) {
-      await AuthService.uploadAvatarModel(avatarBlob, thumbnailBlob, state.name)
+      if (selectedAvatar?.id) {
+        const uploadResponse = await AuthService.uploadAvatarModel(
+          avatarBlob,
+          thumbnailBlob,
+          state.name + '_' + selectedAvatar.id
+        )
+        const removalPromises = [] as any
+        if (uploadResponse[0].id !== selectedAvatar.modelResourceId)
+          removalPromises.push(AuthService.removeStaticResource(selectedAvatar.modelResourceId))
+        if (uploadResponse[1].id !== selectedAvatar.thumbnailResourceId)
+          removalPromises.push(AuthService.removeStaticResource(selectedAvatar.thumbnailResourceId))
+        await Promise.all(removalPromises)
+        await AuthService.patchAvatar(selectedAvatar.id, uploadResponse[0].id, uploadResponse[1].id, state.name)
+      } else await AuthService.createAvatar(avatarBlob, thumbnailBlob, state.name)
       dispatchAction(AdminAvatarActions.avatarUpdated({}))
 
       onClose()
@@ -338,7 +353,7 @@ const AvatarDrawerContent = ({ open, mode, selectedAvatar, onClose }: Props) => 
         onChange={handleChange}
       />
 
-      {viewMode === false && (
+      {!viewMode && (
         <InputRadio
           name="source"
           label={t('admin:components.avatar.source')}
@@ -524,12 +539,8 @@ const AvatarDrawerContent = ({ open, mode, selectedAvatar, onClose }: Props) => 
             {t('admin:components.common.submit')}
           </Button>
         )}
-        {mode === AvatarDrawerMode.ViewEdit && editMode === false && (
-          <Button
-            className={styles.gradientButton}
-            disabled={hasWriteAccess ? false : true}
-            onClick={() => setEditMode(true)}
-          >
+        {mode === AvatarDrawerMode.ViewEdit && !editMode && (
+          <Button className={styles.gradientButton} disabled={!hasWriteAccess} onClick={() => setEditMode(true)}>
             {t('admin:components.common.edit')}
           </Button>
         )}

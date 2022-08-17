@@ -1,6 +1,7 @@
-import { Params } from '@feathersjs/feathers'
+import { Paginated, Params } from '@feathersjs/feathers'
 import { random } from 'lodash'
 
+import { AvatarInterface } from '@xrengine/common/src/interfaces/AvatarInterface'
 import { UserInterface } from '@xrengine/common/src/interfaces/User'
 
 import { Application } from '../../../declarations'
@@ -38,12 +39,12 @@ export class LinkedInStrategy extends CustomOAuthStrategy {
       {}
     )
     if (!entity.userId) {
-      const avatars = await this.app.service('avatar').find({ isInternal: true })
+      const avatars = (await this.app.service('avatar').find({ isInternal: true })) as Paginated<AvatarInterface>
       const code = await getFreeInviteCode(this.app)
       const newUser = (await this.app.service('user').create({
         isGuest: false,
         inviteCode: code,
-        avatarId: avatars[random(avatars.length - 1)].avatarId
+        avatarId: avatars[random(avatars.total - 1)].id
       })) as UserInterface
       entity.userId = newUser.id
       await this.app.service('identity-provider').patch(entity.id, {

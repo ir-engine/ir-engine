@@ -22,6 +22,7 @@ export class PartyUser<T = PartyUserDataType> extends Service<T> {
 
   async find(params?: Params): Promise<any> {
     try {
+      const self = this
       const loggedInUser = params!.user as UserInterface
       const isInternalOrAdmin =
         (params && params.isInternalRequest) ||
@@ -43,17 +44,14 @@ export class PartyUser<T = PartyUserDataType> extends Service<T> {
         where,
         include: [
           {
-            model: this.app.service('user').Model,
-            include: [
-              {
-                model: this.app.service('static-resource').Model,
-                on: Sequelize.literal(
-                  '`user`.`avatarId` = `user->static_resources`.`name` AND `user->static_resources`.`staticResourceType` = "user-thumbnail"'
-                )
-              }
-            ]
+            model: this.app.service('user').Model
           }
         ]
+      })
+
+      users.forEach(async (partyUser: any) => {
+        partyUser.user.avatar = await self.app.service('avatar').get(partyUser.user.avatarId)
+        return partyUser
       })
 
       return { data: users, total: users.length }

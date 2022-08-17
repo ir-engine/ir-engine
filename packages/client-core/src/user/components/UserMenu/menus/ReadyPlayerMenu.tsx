@@ -123,7 +123,13 @@ const ReadyPlayerMenu = ({ isPublicAvatar, changeActiveMenu }: Props) => {
     var thumbnailName = avatarUrl.substring(0, avatarUrl.lastIndexOf('.')) + '.png'
 
     canvas.toBlob(async (blob) => {
-      await AuthService.uploadAvatarModel(selectedFile, new File([blob!], thumbnailName), avatarName, isPublicAvatar)
+      const uploadResponse = await AuthService.uploadAvatarModel(
+        selectedFile,
+        new File([blob!], thumbnailName),
+        avatarName,
+        isPublicAvatar
+      )
+      await AuthService.createAvatar(uploadResponse[0], uploadResponse[1], avatarName, isPublicAvatar)
       changeActiveMenu(Views.Profile)
     })
   }

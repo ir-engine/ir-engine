@@ -39,26 +39,30 @@ describe('party.test', () => {
     app = createFeathersExpressApp()
     await app.setup()
     await cleanup(app)
-    const avatarId = 'CyberbotGreen'
+    const avatarName = 'CyberbotGreen'
+
+    const avatar = await app.service('avatar').create({
+      name: avatarName
+    })
 
     user1 = (await app.service('user').create({
       name: `Test #${Math.random()}`,
-      avatarId,
+      avatarId: avatar.id,
       isGuest: false
     })) as UserInterface
     user2 = (await app.service('user').create({
       name: `Test #${Math.random()}`,
-      avatarId,
+      avatarId: avatar.id,
       isGuest: false
     })) as UserInterface
     user3 = (await app.service('user').create({
       name: `Test #${Math.random()}`,
-      avatarId,
+      avatarId: avatar.id,
       isGuest: false
     })) as UserInterface
     user4 = (await app.service('user').create({
       name: `Test #${Math.random()}`,
-      avatarId,
+      avatarId: avatar.id,
       isGuest: false
     })) as UserInterface
     user1.apiKey = await app.service('user-api-key').Model.findOne({

@@ -36,7 +36,6 @@ import {
 } from '../admin/services/Setting/InstanceServerSettingService'
 import { AdminProjectSettingsActions, ProjectSettingReceptors } from '../admin/services/Setting/ProjectSettingService'
 import { AdminServerSettingActions, ServerSettingReceptors } from '../admin/services/Setting/ServerSettingService'
-import { AdminStaticResourceActions, AdminStaticResourceReceptors } from '../admin/services/StaticResourceService'
 import { AdminTestBotActions, AdminTestBotReceptors } from '../admin/services/TestBotService'
 import { AdminUserActions, AdminUserReceptors } from '../admin/services/UserService'
 
@@ -60,7 +59,6 @@ export default async function AdminSystem(world: World) {
   const avatarCreatedQueue = createActionQueue(AdminAvatarActions.avatarCreated.matches)
   const avatarRemovedQueue = createActionQueue(AdminAvatarActions.avatarRemoved.matches)
   const avatarUpdatedQueue = createActionQueue(AdminAvatarActions.avatarUpdated.matches)
-  const thumbnailFetchedQueue = createActionQueue(AdminAvatarActions.thumbnailFetched.matches)
   const scenesFetchedQueue = createActionQueue(AdminSceneActions.scenesFetched.matches)
   const sceneFetchedQueue = createActionQueue(AdminSceneActions.sceneFetched.matches)
   const locationsRetrievedQueue = createActionQueue(AdminLocationActions.locationsRetrieved.matches)
@@ -97,7 +95,6 @@ export default async function AdminSystem(world: World) {
   const githubAppFetchedQueue = createActionQueue(GithubAppActions.githubAppFetched.matches)
   const installedRoutesRetrievedQueue = createActionQueue(AdminRouteActions.installedRoutesRetrieved.matches)
   const activeRoutesRetrievedQueue = createActionQueue(AdminActiveRouteActions.activeRoutesRetrieved.matches)
-  const fetchedStaticResourceQueue = createActionQueue(AdminStaticResourceActions.fetchedStaticResource.matches)
   const fetchedSingleUserQueue = createActionQueue(AdminUserActions.fetchedSingleUser.matches)
   const loadedUsersQueue = createActionQueue(AdminUserActions.loadedUsers.matches)
   const userAdminRemovedQueue = createActionQueue(AdminUserActions.userAdminRemoved.matches)
@@ -176,9 +173,6 @@ export default async function AdminSystem(world: World) {
     }
     for (const action of avatarUpdatedQueue()) {
       AdminAvatarReceptors.avatarUpdatedReceptor(action)
-    }
-    for (const action of thumbnailFetchedQueue()) {
-      AdminAvatarReceptors.thumbnailFetchedReceptor(action)
     }
     for (const action of scenesFetchedQueue()) {
       AdminSceneReceptors.scenesFetchedReceptor(action)
@@ -287,9 +281,6 @@ export default async function AdminSystem(world: World) {
     }
     for (const action of activeRoutesRetrievedQueue()) {
       AdminActiveRouteReceptors.activeRoutesRetrievedReceptor(action)
-    }
-    for (const action of fetchedStaticResourceQueue()) {
-      AdminStaticResourceReceptors.fetchedStaticResourceReceptor(action)
     }
     for (const action of fetchedSingleUserQueue()) {
       AdminUserReceptors.fetchedSingleUserReceptor(action)
