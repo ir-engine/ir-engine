@@ -8,6 +8,7 @@ import { EngineActions } from '../../ecs/classes/EngineState'
 import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { matchActionOnce } from '../../networking/functions/matchActionOnce'
+import { CallbackComponent } from '../../scene/components/CallbackComponent'
 import { MediaComponent } from '../../scene/components/MediaComponent'
 import { MediaElementComponent } from '../../scene/components/MediaElementComponent'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
@@ -21,13 +22,7 @@ import {
 } from '../../scene/functions/loaders/AudioFunctions'
 import { updateVideo } from '../../scene/functions/loaders/VideoFunctions'
 import { updateVolumetric } from '../../scene/functions/loaders/VolumetricFunctions'
-import {
-  accessAudioState,
-  AudioSettingAction,
-  AudioSettingReceptor,
-  AudioState,
-  restoreAudioSettings
-} from '../AudioState'
+import { accessAudioState, AudioSettingReceptor, AudioState, restoreAudioSettings } from '../AudioState'
 import { AudioComponent } from '../components/AudioComponent'
 
 export class AudioEffectPlayer {
@@ -69,6 +64,8 @@ export type AudioElementNode = {
   panner?: PannerNode
 }
 
+const safari = /safari/.test(navigator.userAgent.toLowerCase())
+
 export const AudioElementNodes = new WeakMap<HTMLMediaElement | MediaStream, AudioElementNode>()
 
 export default async function AudioSystem(world: World) {
@@ -94,26 +91,33 @@ export default async function AudioSystem(world: World) {
   const volQuery = defineQuery([Object3DComponent, AudioComponent, Not(VideoComponent), VolumetricComponent])
   const mediaQuery = defineQuery([MediaComponent])
 
-  return () => {
-    const audioContext = Engine.instance.audioContext
+  const playmedia = () => {
+    for (const entity of mediaQuery()) {
+      const media = getComponent(entity, MediaElementComponent)
+      if (media.autoplay) {
+        media.muted = false
+        getComponent(entity, CallbackComponent).play(null!)
+      }
+    }
+  }
 
+  const enableAudioContext = () => {
+    if (Engine.instance.audioContext.state === 'suspended') Engine.instance.audioContext.resume()
+    AudioEffectPlayer.instance._init()
+    if (!Engine.instance.isEditor) playmedia()
+  }
+
+  if (safari) {
+    window.addEventListener('pointerdown', playmedia)
+  }
+
+  return () => {
     const audioEntities = audioQuery()
     const videoEntities = videoQuery()
     const volEntities = volQuery()
-    const mediaEntities = mediaQuery()
 
     if (userInteractActionQueue().length) {
-      if (audioContext.state === 'suspended') audioContext.resume()
-      AudioEffectPlayer.instance._init()
-      if (!Engine.instance.isEditor) {
-        for (const entity of mediaEntities) {
-          const media = getComponent(entity, MediaElementComponent)
-          if (media.autoplay) {
-            media.muted = false
-            media.play()
-          }
-        }
-      }
+      enableAudioContext()
     }
 
     for (const entity of audioQuery.exit()) {
