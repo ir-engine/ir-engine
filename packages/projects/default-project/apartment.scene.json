@@ -75,7 +75,6 @@
               "bakeType": "Baked",
               "resolution": 2048,
               "refreshMode": "OnAwake",
-              "envMapOrigin": "__$project$__/default-project/apartment.envmap.png",
               "boxProjection": true,
               "bakePosition": {
                 "x": 0,
@@ -449,7 +448,7 @@
         {
           "name": "envmap",
           "props": {
-            "type": "None",
+            "type": "Skybox",
             "envMapTextureType": "Cubemap",
             "envMapSourceColor": 1193046,
             "envMapSourceURL": "/hdr/cubemap/skyboxsun25deg/",

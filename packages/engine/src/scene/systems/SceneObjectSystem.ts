@@ -110,6 +110,7 @@ export default async function SceneObjectSystem(world: World) {
   const loopableAnimationQuery = defineQuery([Object3DComponent, LoopAnimationComponent])
 
   const useSimpleMaterialsActionQueue = createActionQueue(EngineActions.useSimpleMaterials.matches)
+  const modifyPropertyActionQueue = createActionQueue(EngineActions.sceneObjectUpdate.matches)
 
   return () => {
     for (const entity of sceneObjectQuery.exit()) {
@@ -186,6 +187,11 @@ export default async function SceneObjectSystem(world: World) {
       obj?.update(fixedDelta)
     }
 
+    for (const action of modifyPropertyActionQueue()) {
+      for (const entity of action.entities) {
+        if (hasComponent(entity, EnvmapComponent) && hasComponent(entity, Object3DComponent)) updateEnvMap(entity)
+      }
+    }
     for (const entity of envmapQuery.enter()) updateEnvMap(entity)
     for (const entity of sceneEnvmapQuery.enter()) updateEnvMap(entity)
 

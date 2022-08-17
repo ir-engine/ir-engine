@@ -9,6 +9,7 @@ import {
   RGBAFormat,
   Scene,
   sRGBEncoding,
+  Texture,
   Vector3
 } from 'three'
 
@@ -32,7 +33,7 @@ import { parseEnvMapBakeProperties } from './EnvMapBakeFunctions'
 
 export const SCENE_COMPONENT_ENVMAP = 'envmap'
 export const SCENE_COMPONENT_ENVMAP_DEFAULT_VALUES = {
-  type: EnvMapSourceType.None,
+  type: EnvMapSourceType.Skybox,
   envMapTextureType: EnvMapTextureType.Cubemap,
   envMapSourceColor: 0x123456,
   envMapSourceURL: '/hdr/cubemap/skyboxsun25deg/',
@@ -61,6 +62,10 @@ export const updateEnvMap = (entity: Entity) => {
   const obj3d = hasObj3d ? getComponent(entity, Object3DComponent).value : Engine.instance.currentWorld.scene
 
   switch (component.type) {
+    case EnvMapSourceType.Skybox:
+      applyEnvMap(obj3d, Engine.instance.currentWorld.scene.background as Texture | null)
+      break
+
     case EnvMapSourceType.Color:
       const col = component.envMapSourceColor ?? tempColor
       const resolution = 64 // Min value required
@@ -205,7 +210,7 @@ const parseEnvMapProperties = (props): EnvmapComponentType => {
   }
 }
 
-function applyEnvMap(obj3d: Object3D, envmap) {
+function applyEnvMap(obj3d: Object3D, envmap: Texture | null) {
   if (!obj3d) return
 
   if (obj3d instanceof Scene) {

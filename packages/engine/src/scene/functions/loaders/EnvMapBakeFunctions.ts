@@ -77,7 +77,8 @@ export const deserializeEnvMapBake: ComponentDeserializeFunction = (
 }
 
 export const updateEnvMapBake: ComponentUpdateFunction = (entity: Entity) => {
-  const obj3d = getComponent(entity, Object3DComponent).value
+  const hasObj3d = hasComponent(entity, Object3DComponent)
+  const obj3d = hasObj3d ? getComponent(entity, Object3DComponent).value : Engine.instance.currentWorld.scene
   const bakeComponent = getComponent(entity, EnvMapBakeComponent)
   if (obj3d.userData.gizmo)
     obj3d.userData.gizmo.matrix.compose(bakeComponent.options.bakePositionOffset, quat, bakeComponent.options.bakeScale)
