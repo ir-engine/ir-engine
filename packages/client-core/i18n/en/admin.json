@@ -132,6 +132,8 @@
     "project": {
       "addProject": "Add Project",
       "rebuild": "Rebuild",
+      "rebuilding": "Rebuilding",
+      "checking": "Checking Rebuild",
       "project": "Project",
       "githubPublicUrl": "Github Public Url",
       "urlRequired": "URL is required",
@@ -143,7 +145,8 @@
       "selectFromList": "Select From List",
       "processing": "Processing",
       "confirmProjectsRebuild": "Do you want to rebuild projects?",
-      "confirmProjectRebuild": "Do you want to rebuild project",
+      "confirmProjectRebuild": "Do you want to fetch the latest version of project",
+      "outdatedBuild": "The current build has an outdated version of this project. Please rebuild.",
       "confirmProjectInvalidate": "Do you want to invalidate storage provider's cache of",
       "confirmProjectDelete": "Do you want to delete project",
       "confirmPushProjectToGithub": "Do you want to push this project to its associated GitHub repository",

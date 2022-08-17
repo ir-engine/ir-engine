@@ -44,6 +44,7 @@
     "check-errors": "lerna run check-errors --parallel",
     "clean-node-modules": "npx rimraf node_modules && npx rimraf package-lock.json && npx lerna exec npx rimraf node_modules && npx lerna exec npx rimraf package-lock.json",
     "cleanup-tests": "node tests/cleanup-tests.js",
+    "clear-projects-rebuild": "cross-env ts-node --swc scripts/clear-projects-rebuild",
     "depcheck": "lerna exec --no-bail --stream -- depcheck",
     "dev": "npm run dev-docker && concurrently -n agones,server,client npm:dev-agones-silent npm:dev-server npm:dev-client",
     "dev-agones": "cd scripts && ./start-agones.sh",
