@@ -96,6 +96,7 @@ export default function ModelTransformProperties({ modelComponent, onChangeModel
   const [transformParms, setTransformParms] = useState<ModelTransformParameters>({
     useMeshopt: true,
     useMeshQuantization: false,
+    useDraco: true,
     textureFormat: 'ktx2',
     maxTextureSize: 1024
   })
@@ -120,94 +121,16 @@ export default function ModelTransformProperties({ modelComponent, onChangeModel
     onChangeModel(nuPath)
     setTransforming(false)
   }
-  const [internalFilter, setInternalFilter] = useState<string[]>(() => [])
 
-  const transformer = ModelTransformLoader()
   async function onUndoTransform() {
     const prev = transformHistory[0]
     onChangeModel(prev)
     setTransformHistory([...transformHistory].slice(1))
   }
 
-  async function getModelResources(filter) {
-    const document = await transformer.load(modelComponent.src, true)
-    const root = document.getRoot()
-    const listTable = (element) => {
-      switch (element) {
-        case 'meshes':
-          return root.listMeshes()
-        case 'textures':
-          return root.listTextures()
-        case 'materials':
-          return root.listMaterials()
-        case 'nodes':
-          return root.listNodes()
-        default:
-          return []
-      }
-    }
-    const entries = listTable(filter).map((resource, idx): [string, Property] => [
-      `${resource.propertyType}-${idx}`,
-      resource
-    ])
-    return new Map(entries)
-  }
-  const [resources, setResources] = useState<Map<any, any>>(() => new Map())
-
-  const [selected, setSelected] = useState<string>(() => '')
-
-  const selectedResource: Property = resources.has(selected) ? resources.get(selected)! : null
-
-  async function onChangeFilter(event, nuFilter) {
-    setInternalFilter(nuFilter)
-    setResources(await getModelResources(nuFilter))
-  }
-
-  function onChangeSelected(key) {
-    return () => setSelected(key)
-  }
-
   return (
     <CollapsibleBlock label="Model Transform Properties">
       <TransformContainer>
-        <ElementsContainer>
-          <Typography variant="h6" sx={{ textAlign: 'center', paddingTop: '16px', paddingBottom: '12px' }}></Typography>
-          <ToggleButtonGroup value={internalFilter} onChange={onChangeFilter} exclusive>
-            <FilterToggle value="meshes" aria-label="meshes" color="primary">
-              Mesh
-            </FilterToggle>
-            <FilterToggle value="textures" aria-label="textures" color="primary">
-              Texture
-            </FilterToggle>
-            <FilterToggle value="materials" aria-label="materials" color="primary">
-              Material
-            </FilterToggle>
-            <FilterToggle value="nodes" aria-label="nodes" color="primary">
-              Node
-            </FilterToggle>
-          </ToggleButtonGroup>
-          <List sx={{ maxHeight: '128px', overflowX: 'clip', overflowY: 'scroll' }}>
-            {[...resources.entries()].map(([key, resource]: [string, Property], index) => {
-              const resourceIcons = {
-                Mesh: () => <MeshIcon />,
-                Texture: () => <ImageIcon />,
-                Material: () => <MaterialIcon />,
-                Node: () => <NodeIcon />
-              }
-              return (
-                <ListItem key={key}>
-                  <ListItemButton selected={selected === key} onClick={onChangeSelected(key)}>
-                    {resourceIcons[resource.propertyType]()}
-                    <ListItemText id={`model-resource-name-${key}`} primary={resource.getName()} />
-                  </ListItemButton>
-                </ListItem>
-              )
-            })}
-          </List>
-          <ElementsContainer>
-            {!!selectedResource && <ModelResourceProperties prop={selectedResource} />}
-          </ElementsContainer>
-        </ElementsContainer>
         <ElementsContainer>
           <InputGroup name="Use Meshopt" label={t('editor:properties.model.transform.useMeshopt')}>
             <BooleanInput value={transformParms.useMeshopt} onChange={onChangeTransformParm('useMeshopt')} />
@@ -217,6 +140,9 @@ export default function ModelTransformProperties({ modelComponent, onChangeModel
               value={transformParms.useMeshQuantization}
               onChange={onChangeTransformParm('useMeshQuantization')}
             />
+          </InputGroup>
+          <InputGroup name="Use DRACO Compression" label={t('editor:properties.model.transform.useDraco')}>
+            <BooleanInput value={transformParms.useDraco} onChange={onChangeTransformParm('useDraco')} />
           </InputGroup>
           <InputGroup name="Texture Format" label={t('editor:properties.model.transform.textureFormat')}>
             <SelectInput
