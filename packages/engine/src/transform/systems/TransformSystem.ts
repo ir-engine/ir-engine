@@ -191,7 +191,7 @@ export default async function TransformSystem(world: World) {
         object3D.updateMatrixWorld(true)
 
         if (Engine.instance.isEditor) {
-          // is this really necessary?
+          /** @todo refactor helpers */
           for (let entity of spawnPointQuery()) {
             const obj3d = getComponent(entity, Object3DComponent)?.value
             if (obj3d) obj3d.userData.helperModel?.scale.set(1 / obj3d.scale.x, 1 / obj3d.scale.y, 1 / obj3d.scale.z)
