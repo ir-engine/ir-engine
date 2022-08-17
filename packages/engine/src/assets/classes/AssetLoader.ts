@@ -15,6 +15,7 @@ import {
   MeshPhysicalMaterial,
   MeshStandardMaterial,
   Object3D,
+  ShaderMaterial,
   SkinnedMesh,
   Texture,
   TextureLoader
@@ -23,6 +24,7 @@ import {
 import { isAbsolutePath } from '../../common/functions/isAbsolutePath'
 import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
+import { matchActionOnce } from '../../networking/functions/matchActionOnce'
 import loadVideoTexture from '../../renderer/materials/LoadVideoTexture'
 import { generateMeshBVH } from '../../scene/functions/bvhWorkerPool'
 import { LODS_REGEXP } from '../constants/LoaderConstants'
@@ -32,6 +34,7 @@ import { createGLTFLoader } from '../functions/createGLTFLoader'
 import { FBXLoader } from '../loaders/fbx/FBXLoader'
 import type { GLTF, GLTFLoader } from '../loaders/gltf/GLTFLoader'
 import { TGALoader } from '../loaders/tga/TGALoader'
+import { DependencyTreeActions } from './DependencyTree'
 import { XRELoader } from './XRELoader'
 
 // import { instanceGLTF } from '../functions/transformGLTF'
@@ -70,16 +73,36 @@ const processModelAsset = (asset: Mesh, args: LoadingArgs): void => {
   const replacedMaterials = new Map()
   const loddables = new Array<Object3D>()
 
-  const onUploadDropBuffer = function (this: BufferAttribute) {
-    // @ts-ignore
-    this.array = new this.array.constructor(1)
-  }
+  const onUploadDropBuffer = (uuid?: string) =>
+    function (this: BufferAttribute) {
+      const dropBuffer = () => {
+        console.log('dropping buffer', this, 'from uuid ' + uuid)
+        // @ts-ignore
+        this.array = new this.array.constructor(1)
+      }
+      if (uuid)
+        matchActionOnce(
+          DependencyTreeActions.dependencyFulfilled.matches.validate((action) => action.uuid === uuid, ''),
+          dropBuffer
+        )
+      else dropBuffer()
+    }
 
-  const onTextureUploadDropSource = function (this: Texture) {
-    this.source.data = null
-    this.mipmaps.map((b) => delete b.data)
-    this.mipmaps = []
-  }
+  const onTextureUploadDropSource = (uuid?: string) =>
+    function (this: Texture) {
+      const dropTexture = () => {
+        console.log('dropping texture', this, 'from uuid ' + uuid)
+        this.source.data = null
+        this.mipmaps.map((b) => delete b.data)
+        this.mipmaps = []
+      }
+      if (uuid)
+        matchActionOnce(
+          DependencyTreeActions.dependencyFulfilled.matches.validate((action) => action.uuid === uuid, ''),
+          dropTexture
+        )
+      else dropTexture()
+    }
 
   asset.traverse((child: Mesh<any, Material>) => {
     //test for LODs within this traversal
@@ -104,16 +127,17 @@ const processModelAsset = (asset: Mesh, args: LoadingArgs): void => {
     }
 
     const geo = child.geometry as BufferGeometry
-    const mat = child.material as MeshStandardMaterial & MeshBasicMaterial & MeshMatcapMaterial
+    const mat = child.material as MeshStandardMaterial & MeshBasicMaterial & MeshMatcapMaterial & ShaderMaterial
     const attributes = geo.attributes
     if (!Engine.instance.isEditor) {
       if (!args.ignoreDisposeGeometry) {
-        for (var name in attributes) (attributes[name] as BufferAttribute).onUploadCallback = onUploadDropBuffer
-        if (geo.index) geo.index.onUploadCallback = onUploadDropBuffer
+        for (var name in attributes)
+          (attributes[name] as BufferAttribute).onUploadCallback = onUploadDropBuffer(args.uuid)
+        if (geo.index) geo.index.onUploadCallback = onUploadDropBuffer(args.uuid)
       }
       Object.entries(mat)
         .filter(([k, v]: [keyof typeof mat, Texture]) => v?.isTexture)
-        .map(([_, v]) => (v.onUpdate = onTextureUploadDropSource)) //*/
+        .map(([_, v]) => (v.onUpdate = onTextureUploadDropSource(args.uuid)))
     }
   })
   replacedMaterials.clear()
@@ -281,6 +305,7 @@ const getAbsolutePath = (url) => (isAbsolutePath(url) ? url : Engine.instance.pu
 
 type LoadingArgs = {
   ignoreDisposeGeometry?: boolean
+  uuid?: string
 }
 
 const load = (

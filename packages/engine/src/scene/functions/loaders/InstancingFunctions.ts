@@ -19,10 +19,13 @@ import {
   Vector2,
   Vector3
 } from 'three'
+import matches from 'ts-matches'
 
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
+import { defineAction, dispatchAction } from '@xrengine/hyperflux'
 
 import { AssetLoader } from '../../../assets/classes/AssetLoader'
+import { DependencyTree } from '../../../assets/classes/DependencyTree'
 import { AssetClass } from '../../../assets/enum/AssetClass'
 import { ComponentDeserializeFunction, ComponentSerializeFunction } from '../../../common/constants/PrefabFunctionType'
 import { Engine } from '../../../ecs/classes/Engine'
@@ -284,6 +287,13 @@ float sky = max(dot(normal, vec3(0, 1, 0)), 0.8);
     return;
 }`
 
+export class InstancingActions {
+  static instancingStaged = defineAction({
+    type: 'INSTANCING_STAGED' as const,
+    uuid: matches.string
+  })
+}
+
 export const deserializeInstancing: ComponentDeserializeFunction = (
   entity: Entity,
   json: ComponentJson<InstancingComponentType>
@@ -291,6 +301,18 @@ export const deserializeInstancing: ComponentDeserializeFunction = (
   const scatterProps = parseInstancingProperties(json.props)
   if (scatterProps.state === ScatterState.STAGING) {
     scatterProps.state = ScatterState.UNSTAGED
+  }
+  if (scatterProps.surface) {
+    const eNode = Engine.instance.currentWorld.entityTree.entityNodeMap.get(entity)!
+    DependencyTree.add(
+      scatterProps.surface,
+      new Promise<void>((resolve) => {
+        matchActionOnce(
+          InstancingActions.instancingStaged.matches.validate((action) => action.uuid === eNode.uuid, ''),
+          () => resolve()
+        )
+      })
+    )
   }
   addComponent(entity, InstancingComponent, scatterProps)
   if (scatterProps.state === ScatterState.STAGED) {
@@ -854,6 +876,8 @@ export async function stageInstancing(entity: Entity, world = Engine.instance.cu
   result.frustumCulled = false
   val.add(result)
   scatter.state = ScatterState.STAGED
+  const eNode = world.entityTree.entityNodeMap.get(entity)!
+  dispatchAction(InstancingActions.instancingStaged({ uuid: eNode.uuid }))
 }
 
 export function unstageInstancing(entity: Entity, world = Engine.instance.currentWorld) {

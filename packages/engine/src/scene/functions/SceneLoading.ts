@@ -4,6 +4,7 @@ import { MathUtils, Vector3 } from 'three'
 import { ComponentJson, EntityJson, SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { dispatchAction } from '@xrengine/hyperflux'
 
+import { DependencyTree } from '../../assets/classes/DependencyTree'
 import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions } from '../../ecs/classes/EngineState'
@@ -193,6 +194,7 @@ export const loadSceneFromJSON = async (sceneData: SceneJson, sceneSystems: Syst
   Engine.instance.currentWorld.camera?.layers.enable(ObjectLayers.Scene)
 
   dispatchAction(EngineActions.sceneLoaded({}))
+  DependencyTree.activate()
   if (isClient) configureEffectComposer()
 }
 
