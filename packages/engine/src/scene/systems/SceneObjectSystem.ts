@@ -121,12 +121,12 @@ export default async function SceneObjectSystem(world: World) {
       for (const layer of layers) {
         if (layer.has(obj3d)) layer.delete(obj3d)
       }
-
-      obj3d.traverse((mesh: Mesh) => {
-        if (typeof (mesh.material as Material)?.dispose === 'function') (mesh.material as Material)?.dispose()
-        if (typeof (mesh.geometry as BufferGeometry)?.dispose === 'function')
-          (mesh.geometry as BufferGeometry)?.dispose()
-      })
+      if (Engine.instance.isEditor)
+        obj3d.traverse((mesh: Mesh) => {
+          if (typeof (mesh.material as Material)?.dispose === 'function') (mesh.material as Material)?.dispose()
+          if (typeof (mesh.geometry as BufferGeometry)?.dispose === 'function')
+            (mesh.geometry as BufferGeometry)?.dispose()
+        })
     }
 
     for (const entity of sceneObjectQuery.enter()) {

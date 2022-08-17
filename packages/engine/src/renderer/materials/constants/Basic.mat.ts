@@ -5,7 +5,7 @@ import { extractDefaults as format } from '../Utilities'
 import { ColorArg, FloatArg, NormalizedFloatArg, TextureArg } from './DefaultArgs'
 
 export const BasicArgs = {
-  alphaTest: TextureArg,
+  alphaTest: NormalizedFloatArg,
   alphaMap: TextureArg,
   aoMap: TextureArg,
   aoMapIntensity: NormalizedFloatArg,

@@ -1,4 +1,14 @@
-import { Color, Texture } from 'three'
+import {
+  Color,
+  Material,
+  MeshBasicMaterial,
+  MeshLambertMaterial,
+  MeshMatcapMaterial,
+  MeshStandardMaterial,
+  Texture
+} from 'three'
+
+import { DefaultArguments } from './MaterialLibrary'
 
 export function extractDefaults(defaultArgs) {
   return formatMaterialArgs(
@@ -14,7 +24,7 @@ export function formatMaterialArgs(args, defaultArgs: any = undefined) {
       if (!!defaultArgs && defaultArgs[k]) {
         switch (defaultArgs[k].type) {
           case 'color':
-            return [k, (v as Color).isColor ? v : new Color(v)]
+            return [k, v ? ((v as Color).isColor ? v : new Color(v)) : undefined]
         }
       }
       const tex = v as Texture
@@ -28,4 +38,21 @@ export function formatMaterialArgs(args, defaultArgs: any = undefined) {
       return [k, v]
     })
   )
+}
+
+export function materialToDefaultArgs(material: Material): Object {
+  switch (material.type) {
+    case 'MeshMatcapMaterial':
+      return DefaultArguments['Matcap']
+    case 'MeshStandardMaterial':
+      return DefaultArguments['Standard']
+    case 'MeshBasicMaterial':
+      return DefaultArguments['Basic']
+    case 'MeshLambertMaterial':
+      return DefaultArguments['Lambert']
+    case 'MeshPhongMaterial':
+      return DefaultArguments['Phong']
+    default:
+      return {}
+  }
 }

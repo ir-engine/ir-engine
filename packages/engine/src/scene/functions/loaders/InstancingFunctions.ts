@@ -32,6 +32,7 @@ import { addComponent, getComponent, hasComponent, removeComponent } from '../..
 import { iterateEntityNode } from '../../../ecs/functions/EntityTreeFunctions'
 import { matchActionOnce } from '../../../networking/functions/matchActionOnce'
 import { formatMaterialArgs } from '../../../renderer/materials/Utilities'
+import { TransformComponent } from '../../../transform/components/TransformComponent'
 import UpdateableObject3D from '../../classes/UpdateableObject3D'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import {
@@ -797,7 +798,17 @@ export async function stageInstancing(entity: Entity, world = Engine.instance.cu
   if (!obj3d) {
     const val = new Object3D() as Object3DWithEntity
     val.entity = entity
-    world.scene.add(val)
+    let parentEntity = world.entityTree.entityNodeMap.get(entity)?.parentEntity
+    let parent: Object3D = world.scene
+    while (parentEntity !== undefined) {
+      if (hasComponent(parentEntity, Object3DComponent)) {
+        parent = getComponent(parentEntity, Object3DComponent).value
+        break
+      } else {
+        parentEntity = world.entityTree.entityNodeMap.get(parentEntity)?.parentEntity
+      }
+    }
+    parent.add(val)
     obj3d = addComponent(entity, Object3DComponent, { value: val })
   }
   const val = obj3d.value as UpdateableObject3D
@@ -847,6 +858,8 @@ export async function stageInstancing(entity: Entity, world = Engine.instance.cu
 
 export function unstageInstancing(entity: Entity, world = Engine.instance.currentWorld) {
   const comp = getComponent(entity, InstancingComponent) as InstancingComponentType
+  const obj3d = getComponent(entity, Object3DComponent)?.value
+  obj3d?.removeFromParent()
   removeComponent(entity, Object3DComponent, world)
   comp.state = ScatterState.UNSTAGED
 }
