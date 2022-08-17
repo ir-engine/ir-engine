@@ -14,7 +14,7 @@ import projectPermissionAuthenticate from '../../hooks/project-permission-authen
 import verifyScope from '../../hooks/verify-scope'
 import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 import { pushProjectToGithub } from '../githubapp/githubapp-helper'
-import { retriggerBuilderService } from './project-helper'
+import { checkBuilderService, retriggerBuilderService } from './project-helper'
 import { Project } from './project.class'
 import projectDocs from './project.docs'
 import hooks from './project.hooks'
@@ -70,6 +70,9 @@ export default (app: Application): void => {
   })
 
   app.use('project-build', {
+    find: async (data, params) => {
+      return await checkBuilderService(app)
+    },
     patch: async ({ rebuild }, params) => {
       if (rebuild) {
         return await retriggerBuilderService(app)
@@ -87,6 +90,7 @@ export default (app: Application): void => {
 
   app.service('project-build').hooks({
     before: {
+      find: [authenticate(), verifyScope('admin', 'admin')],
       patch: [authenticate(), verifyScope('admin', 'admin')]
     }
   })

@@ -59,28 +59,32 @@ const OfficialProjectData = [
     name: 'Development Test Suite',
     repositoryPath: 'https://github.com/XRFoundation/XREngine-development-test-suite',
     thumbnail: '/static/xrengine_thumbnail.jpg',
-    description: 'Assets and tests for xrengine core development'
+    description: 'Assets and tests for xrengine core development',
+    needsRebuild: true
   },
   {
     id: '1570ae01-889a-11ec-886e-b126f7590685',
     name: 'Translations',
     repositoryPath: 'https://github.com/XRFoundation/XREngine-i18n',
     thumbnail: '/static/xrengine_thumbnail.jpg',
-    description: 'Complete language translations in over 100 languages.'
+    description: 'Complete language translations in over 100 languages.',
+    needsRebuild: true
   },
   {
     id: '1570ae02-889a-11ec-886e-b126f7590685',
     name: 'Test Bot',
     repositoryPath: 'https://github.com/XRFoundation/XREngine-bot',
     thumbnail: '/static/xrengine_thumbnail.jpg',
-    description: 'A test bot using puppeteer'
+    description: 'A test bot using puppeteer',
+    needsRebuild: true
   },
   {
     id: '1570ae11-889a-11ec-886e-b126f7590685',
     name: 'Maps',
     repositoryPath: 'https://github.com/XRFoundation/XREngine-Project-Maps',
     thumbnail: '/static/xrengine_thumbnail.jpg',
-    description: 'Procedurally generated map tiles using geojson data with mapbox and turf.js'
+    description: 'Procedurally generated map tiles using geojson data with mapbox and turf.js',
+    needsRebuild: true
   },
   {
     id: '1570ae12-889a-11ec-886e-b126f7590685',
@@ -88,14 +92,16 @@ const OfficialProjectData = [
     repositoryPath: 'https://github.com/XRFoundation/XREngine-Project-Inventory',
     thumbnail: '/static/xrengine_thumbnail.jpg',
     description:
-      'Item inventory, trade & virtual currency. Allow your users to use a database, IPFS, DID or blockchain backed item storage for equippables, wearables and tradable items.'
+      'Item inventory, trade & virtual currency. Allow your users to use a database, IPFS, DID or blockchain backed item storage for equippables, wearables and tradable items.',
+    needsRebuild: true
   },
   {
     id: '1570ae14-889a-11ec-886e-b126f7590685',
     name: 'Digital Beings',
     repositoryPath: 'https://github.com/XRFoundation/XREngine-Project-Digital-Beings',
     thumbnail: '/static/xrengine_thumbnail.jpg',
-    description: 'Enchance your virtual worlds with GPT-3 backed AI agents!'
+    description: 'Enchance your virtual worlds with GPT-3 backed AI agents!',
+    needsRebuild: true
   },
   {
     id: '1570ae15-889a-11ec-886e-b126f7590685',
@@ -103,7 +109,8 @@ const OfficialProjectData = [
     repositoryPath: 'https://github.com/XRFoundation/Harmony-Chat',
     thumbnail: '/static/xrengine_thumbnail.jpg',
     description:
-      'An elegant and minimalist messenger client with group text, audio, video and screensharing capabilities.'
+      'An elegant and minimalist messenger client with group text, audio, video and screensharing capabilities.',
+    needsRebuild: true
   }
 ]
 

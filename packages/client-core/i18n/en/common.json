@@ -75,5 +75,6 @@
     "loading-error": "Failed to load user data",
     "validation-error": "Please input valid {{type}}",
     "login-error": "Failed to login"
-  }
+  },
+  "exploreRedirect": "Explore Worlds"
 }

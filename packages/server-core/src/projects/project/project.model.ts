@@ -26,6 +26,9 @@ export default (app: Application) => {
       },
       settings: {
         type: DataTypes.TEXT
+      },
+      needsRebuild: {
+        type: DataTypes.BOOLEAN
       }
     },
     {

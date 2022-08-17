@@ -54,6 +54,8 @@ test -f builder_failed.txt && echo "One of the builds failed" && exit 1
 
 bash ./scripts/deploy.sh $RELEASE_NAME ${TAG}__${START_TIME}
 
+npm run clear-projects-rebuild
+
 DEPLOY_TIME=`date +"%d-%m-%yT%H-%M-%S"`
 
 if [ $PUBLISH_DOCKERHUB == 'true' ]
