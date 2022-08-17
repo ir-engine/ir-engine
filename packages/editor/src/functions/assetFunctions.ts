@@ -73,24 +73,20 @@ export const uploadProjectFile = (projectName: string, files: File[], isAsset = 
   return {
     cancel: () => promises.forEach((promise) => promise.cancel()),
     promises: promises.map((promise) => promise.promise)
-  }
+  } as CancelableUploadPromiseArrayReturnType
 }
 
-export const uploadProjectAssetsFromUpload = (
-  projectName: string,
-  entries: FileSystemEntry[],
-  onProgress?
-): CancelableUploadPromiseArrayReturnType => {
+export const uploadProjectAssetsFromUpload = async (projectName: string, entries: FileSystemEntry[], onProgress?) => {
   const promises: CancelableUploadPromiseReturnType[] = []
 
   for (let i = 0; i < entries.length; i++) {
-    processEntry(entries[i], projectName, '', promises, (progress) => onProgress(i + 1, entries.length, progress))
+    await processEntry(entries[i], projectName, '', promises, (progress) => onProgress(i + 1, entries.length, progress))
   }
 
   return {
     cancel: () => promises.forEach((promise) => promise.cancel()),
     promises: promises.map((promise) => promise.promise)
-  }
+  } as CancelableUploadPromiseArrayReturnType
 }
 
 /**
@@ -108,7 +104,7 @@ const processEntry = async (
     let directoryReader = item.createReader()
     const entries = await getEntries(directoryReader)
     for (let index = 0; index < entries.length; index++) {
-      processEntry(entries[index], projectName, item.fullPath, promises, onProgress)
+      await processEntry(entries[index], projectName, item.fullPath, promises, onProgress)
     }
   }
 

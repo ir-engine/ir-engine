@@ -44,7 +44,7 @@ export default (app: Application): any => {
         // Clear params otherwise all the files and auth details send back to client as  response
         for (const prop of Object.getOwnPropertyNames(params)) delete params[prop]
 
-        return result
+        return { url: result }
       }
     }
   )
