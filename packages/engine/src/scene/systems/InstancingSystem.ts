@@ -24,7 +24,7 @@ export default async function ScatterSystem(world: World) {
         stageInstancing(entity).then(() => {
           removeComponent(entity, InstancingStagingComponent, world)
         })
-      if (engineState.sceneLoaded) executeStaging()
+      if (engineState.sceneLoaded.value) executeStaging()
       else
         matchActionOnce(EngineActions.sceneLoaded.matches, () => {
           executeStaging()

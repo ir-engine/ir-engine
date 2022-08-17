@@ -1,5 +1,4 @@
 import {
-  CompressedTexture,
   Mesh,
   PerspectiveCamera,
   PlaneBufferGeometry,
@@ -11,9 +10,12 @@ import {
 } from 'three'
 
 export default function createReadableTexture(
-  map: CompressedTexture,
+  map: Texture,
   maxDimensions?: { width: number; height: number }
 ): Texture {
+  if (map.source?.data?.src !== undefined) {
+    return map
+  }
   const fullscreenQuadGeometry = new PlaneBufferGeometry(2, 2, 1, 1)
   const fullscreenQuadMaterial = new ShaderMaterial({
     uniforms: { blitTexture: new Uniform(map) },
