@@ -3,6 +3,7 @@ import { Not } from 'bitecs'
 import { addActionReceptor, createActionQueue, getState } from '@xrengine/hyperflux'
 
 import { AssetLoader } from '../../assets/classes/AssetLoader'
+import { isSafari } from '../../common/functions/isMobile'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions } from '../../ecs/classes/EngineState'
 import { World } from '../../ecs/classes/World'
@@ -64,8 +65,6 @@ export type AudioElementNode = {
   panner?: PannerNode
 }
 
-const safari = /safari/.test(navigator.userAgent.toLowerCase())
-
 export const AudioElementNodes = new WeakMap<HTMLMediaElement | MediaStream, AudioElementNode>()
 
 export default async function AudioSystem(world: World) {
@@ -107,7 +106,10 @@ export default async function AudioSystem(world: World) {
     if (!Engine.instance.isEditor) playmedia()
   }
 
-  if (safari) {
+  /**
+   * Safari only allows playing video programatically directly from a code path spawned from a click event
+   */
+  if (isSafari) {
     window.addEventListener('pointerdown', playmedia)
   }
 
