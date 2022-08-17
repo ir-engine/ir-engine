@@ -121,6 +121,7 @@ export default function ScenesPanel({ loadScene, newScene, toggleRefetchScenes }
     setRenaming(false)
     await renameScene(editorState.projectName.value as string, newName, activeScene!.name)
     dispatchAction(EditorAction.sceneChanged({ sceneName: newName }))
+    await sleep(1000)
     history.push(`/editor/${editorState.projectName.value}/${newName}`)
     setNewName('')
     fetchItems()
@@ -203,3 +204,5 @@ export default function ScenesPanel({ loadScene, newScene, toggleRefetchScenes }
     </>
   )
 }
+
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
