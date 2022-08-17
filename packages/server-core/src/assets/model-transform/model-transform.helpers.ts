@@ -1,7 +1,7 @@
 import { Application } from '@feathersjs/express/lib'
-import { NodeIO, Texture } from '@gltf-transform/core'
+import { NodeIO, Property, Texture } from '@gltf-transform/core'
 import { DracoMeshCompression, MeshoptCompression, MeshQuantization, TextureBasisu } from '@gltf-transform/extensions'
-import { dedup, prune, quantize, reorder } from '@gltf-transform/functions'
+import { dedup, draco, meshopt, prune, quantize, reorder } from '@gltf-transform/functions'
 import appRootPath from 'app-root-path'
 import { exec } from 'child_process'
 import draco3d from 'draco3dgltf'
@@ -22,6 +22,36 @@ export type ModelTransformArguments = {
   src: string
   dst: string
   parms: ModelTransformParameters
+}
+
+export type ModelResourcesArguments = {
+  src: string
+  filter: string
+}
+
+export async function getModelResources(app: Application, args: ModelResourcesArguments) {
+  const { io } = await ModelTransformLoader()
+  const document = await io.read(args.src)
+  const root = document.getRoot()
+  const listTable = (element) => {
+    switch (element) {
+      case 'meshes':
+        return root.listMeshes()
+      case 'textures':
+        return root.listTextures()
+      case 'materials':
+        return root.listMaterials()
+      case 'nodes':
+        return root.listNodes()
+      default:
+        return []
+    }
+  }
+  const entries = listTable(args.filter).map((resource, idx): [string, Property] => [
+    `${resource.propertyType}-${idx}`,
+    resource
+  ])
+  return Object.fromEntries(entries)
 }
 
 export async function transformModel(app: Application, args: ModelTransformArguments) {
@@ -94,7 +124,15 @@ export async function transformModel(app: Application, args: ModelTransformArgum
     document.createExtension(MeshQuantization).setRequired(true)
     await document.transform(quantize())
   }
-
+  if (args.parms.useDraco) {
+    await document.transform(
+      draco({
+        method: 'sequential',
+        encodeSpeed: 0,
+        decodeSpeed: 0
+      })
+    )
+  }
   /* /PROCESS MESHES */
 
   /* PROCESS TEXTURES */
