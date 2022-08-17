@@ -13,7 +13,6 @@ import { WorldNetworkAction } from '../../networking/functions/WorldNetworkActio
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { Physics } from '../classes/Physics'
 import { CollisionComponent } from '../components/CollisionComponent'
-import { RaycastComponent } from '../components/RaycastComponent'
 import { RigidBodyComponent } from '../components/RigidBodyComponent'
 import { VelocityComponent } from '../components/VelocityComponent'
 import { ColliderHitEvent, CollisionEvents } from '../types/PhysicsTypes'
@@ -31,10 +30,6 @@ export function teleportObjectReceptor(
     body.setLinvel({ x: 0, y: 0, z: 0 }, true)
     body.setAngvel({ x: 0, y: 0, z: 0 }, true)
   }
-}
-
-const processRaycasts = (world: World, entity: Entity) => {
-  Physics.castRay(world.physicsWorld, getComponent(entity, RaycastComponent))
 }
 
 const processCollisions = (world: World, drainCollisions, collisionEntities: Entity[]) => {
@@ -72,7 +67,6 @@ const processCollisions = (world: World, drainCollisions, collisionEntities: Ent
 }
 
 export default async function PhysicsSystem(world: World) {
-  const raycastQuery = defineQuery([RaycastComponent])
   const rigidBodyQuery = defineQuery([RigidBodyComponent])
   const ownedRigidBodyQuery = defineQuery([RigidBodyComponent, NetworkObjectOwnedTag])
   const notOwnedRigidBodyQuery = defineQuery([RigidBodyComponent, Not(NetworkObjectOwnedTag)])
@@ -120,12 +114,6 @@ export default async function PhysicsSystem(world: World) {
     world.physicsWorld.timestep = getState(EngineState).fixedDeltaSeconds.value
     world.physicsWorld.step(world.physicsCollisionEventQueue)
 
-    if (!Engine.instance.isEditor) {
-      const collisionEntities = collisionQuery()
-
-      processCollisions(world, drainCollisions, collisionEntities)
-
-      for (const entity of raycastQuery()) processRaycasts(world, entity)
-    }
+    processCollisions(world, drainCollisions, collisionQuery())
   }
 }

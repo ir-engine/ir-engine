@@ -172,23 +172,8 @@ export const parseGLTFModel = (entity: Entity) => {
     })
   }
 
-  const world = Engine.instance.currentWorld
-
-  if (!Engine.instance.isEditor && world.worldNetwork?.isHosting /**&& props.isDynamicObject*/) {
-    const node = world.entityTree.entityNodeMap.get(entity)
-    if (node) {
-      // dispatchAction(
-      //   WorldNetworkAction.spawnObject({
-      //     prefab: 'scene_object',
-      //     parameters: { sceneEntityId: node.uuid }
-      //   }),
-      //   Engine.instance.currentWorld.worldNetwork.hostId
-      // )
-    }
-  }
-
   // ignore disabling matrix auto update in the editor as we need to be able move things around with the transform tools
-  if (!Engine.instance.isEditor && props.matrixAutoUpdate === false) {
+  if (props.matrixAutoUpdate === false) {
     const transform = getComponent(entity, TransformComponent)
     obj3d.position.copy(transform.position)
     obj3d.quaternion.copy(transform.rotation)
