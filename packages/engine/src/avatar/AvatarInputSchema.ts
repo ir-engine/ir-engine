@@ -56,8 +56,7 @@ import { AutoPilotClickRequestComponent } from '../navigation/component/AutoPilo
 import { NetworkTopics } from '../networking/classes/Network'
 import { NetworkObjectComponent } from '../networking/components/NetworkObjectComponent'
 import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
-import { Physics } from '../physics/classes/Physics'
-import { RaycastComponent } from '../physics/components/RaycastComponent'
+import { Physics, RaycastArgs } from '../physics/classes/Physics'
 import { AvatarCollisionMask, CollisionGroups, DefaultCollisionMask } from '../physics/enums/CollisionGroups'
 import { getInteractionGroups } from '../physics/functions/getInteractionGroups'
 import { boxDynamicConfig } from '../physics/functions/physicsObjectDebugFunctions'
@@ -519,7 +518,7 @@ export const handleSecondaryButton: InputBehaviorType = (entity, inputKey, input
     direction: new Vector3(),
     maxDistance: 20,
     flags: interactionGroups
-  } as ComponentType<typeof RaycastComponent>
+  } as RaycastArgs
 
   const input = getComponent(entity, InputComponent)
   const screenXY = input?.data?.get(BaseInput.SCREENXY)?.value!

@@ -112,12 +112,11 @@ export default async function PositionalAudioSystem(world: World) {
      * Scene Objects
      */
     const audioEntities = audioQuery()
-    if (!Engine.instance.isEditor)
-      for (const action of modifyPropertyActionQueue()) {
-        for (const entity of action.entities) {
-          if (audioEntities.includes(entity)) updatePositionalAudioTag(entity)
-        }
+    for (const action of modifyPropertyActionQueue()) {
+      for (const entity of action.entities) {
+        if (audioEntities.includes(entity)) updatePositionalAudioTag(entity)
       }
+    }
 
     for (const entity of positionalAudioSceneObjectQuery.enter()) {
       const el = getComponent(entity, MediaElementComponent)

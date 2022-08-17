@@ -46,12 +46,13 @@ export const deserializeGround: ComponentDeserializeFunction = async function (
   mesh.name = 'GroundPlaneMesh'
   mesh.position.y = -0.05
 
-  const colliderDescOptions = {} as ColliderDescOptions
-  colliderDescOptions.bodyType = RigidBodyType.Fixed
-  colliderDescOptions.type = ShapeType.Cuboid
-  colliderDescOptions.size = planeSize
-  colliderDescOptions.collisionLayer = CollisionGroups.Ground
-  colliderDescOptions.collisionMask = CollisionGroups.Default | CollisionGroups.Avatars
+  const colliderDescOptions = {
+    bodyType: RigidBodyType.Fixed,
+    type: ShapeType.Cuboid,
+    size: planeSize,
+    collisionLayer: CollisionGroups.Ground,
+    collisionMask: CollisionGroups.Default | CollisionGroups.Avatars
+  } as ColliderDescOptions
 
   const groundPlane = new Object3D()
   groundPlane.userData.mesh = mesh
@@ -62,14 +63,12 @@ export const deserializeGround: ComponentDeserializeFunction = async function (
   const props = parseGroundPlaneProperties(json.props)
   addComponent(entity, GroundPlaneComponent, props)
 
-  // @TODO: make this isomorphic with editor
-  if (!Engine.instance.isEditor)
-    Physics.createRigidBodyForObject(
-      entity,
-      Engine.instance.currentWorld.physicsWorld,
-      groundPlane.userData.mesh,
-      colliderDescOptions
-    )
+  Physics.createRigidBodyForObject(
+    entity,
+    Engine.instance.currentWorld.physicsWorld,
+    groundPlane.userData.mesh,
+    colliderDescOptions
+  )
 
   mesh.rotation.x = -Math.PI / 2
 

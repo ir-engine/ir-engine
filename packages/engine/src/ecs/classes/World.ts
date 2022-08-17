@@ -107,9 +107,6 @@ export class World {
 
   networks = new Map<string, Network>()
 
-  sceneMetadata = undefined as string | undefined
-  worldMetadata = {} as { [key: string]: string }
-
   widgets = new Map<string, Widget>()
 
   /**

@@ -4,6 +4,7 @@ import RAPIER, {
   Collider,
   ColliderDesc,
   EventQueue,
+  InteractionGroups,
   Ray,
   RigidBody,
   RigidBodyDesc,
@@ -37,14 +38,12 @@ import {
 import { Vec3Arg } from '../../renderer/materials/constants/DefaultArgs'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { CollisionComponent } from '../components/CollisionComponent'
-import { RaycastComponent } from '../components/RaycastComponent'
 import { RigidBodyComponent } from '../components/RigidBodyComponent'
-import { ShapecastComponent } from '../components/ShapeCastComponent'
 import { VelocityComponent } from '../components/VelocityComponent'
 import { CollisionGroups, DefaultCollisionMask } from '../enums/CollisionGroups'
 import { getInteractionGroups } from '../functions/getInteractionGroups'
 import { getTagComponentForRigidBody } from '../functions/getTagComponentForRigidBody'
-import { ColliderDescOptions, CollisionEvents } from '../types/PhysicsTypes'
+import { ColliderDescOptions, CollisionEvents, RaycastHit, SceneQueryType } from '../types/PhysicsTypes'
 
 export type PhysicsWorld = World
 
@@ -306,10 +305,19 @@ function changeRigidbodyType(entity: Entity, newType: RigidBodyType) {
   addComponent(entity, newRigidBodyComponent, true)
 }
 
-function castRay(world: World, raycastQuery: ComponentType<typeof RaycastComponent>) {
+export type RaycastArgs = {
+  type: SceneQueryType
+  hits: RaycastHit[]
+  origin: Vector3
+  direction: Vector3
+  maxDistance: number
+  flags: number // TODO: rename to collision groups & type should be RAPIER.InteractionGroups
+}
+
+function castRay(world: World, raycastQuery: RaycastArgs) {
   const ray = new Ray(raycastQuery.origin, raycastQuery.direction)
   const maxToi = raycastQuery.maxDistance
-  const solid = true // TODO: Add option for this in RaycastComponent?
+  const solid = true // TODO: Add option for this in args
   const groups = raycastQuery.flags
 
   raycastQuery.hits = []
@@ -328,7 +336,7 @@ function castRayFromCamera(
   camera: PerspectiveCamera | OrthographicCamera,
   coords: Vector2,
   world: World,
-  raycastQuery: ComponentType<typeof RaycastComponent>
+  raycastQuery: RaycastArgs
 ) {
   if ((camera as PerspectiveCamera).isPerspectiveCamera) {
     raycastQuery.origin.setFromMatrixPosition(camera.matrixWorld)
@@ -342,7 +350,16 @@ function castRayFromCamera(
   return Physics.castRay(world, raycastQuery)
 }
 
-function castShape(world: World, shapecastQuery: ComponentType<typeof ShapecastComponent>) {
+export type ShapecastArgs = {
+  type: SceneQueryType
+  hits: RaycastHit[]
+  collider: Collider
+  direction: Vector3
+  maxDistance: number
+  collisionGroups: InteractionGroups
+}
+
+function castShape(world: World, shapecastQuery: ShapecastArgs) {
   const maxToi = shapecastQuery.maxDistance
   const groups = shapecastQuery.collisionGroups
   const collider = shapecastQuery.collider
