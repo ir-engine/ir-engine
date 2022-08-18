@@ -48,6 +48,8 @@ ENV VITE_LOCAL_BUILD=$VITE_LOCAL_BUILD
 
 RUN npm run build-client
 
+RUN rm -r packages/client/public
+
 ENV APP_ENV=production
 
 FROM node:16-buster-slim as runner
