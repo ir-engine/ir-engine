@@ -5,7 +5,6 @@ import {
   ComponentType,
   getComponent
 } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { EntityNodeComponent } from '@xrengine/engine/src/scene/components/EntityNodeComponent'
 import { dispatchAction } from '@xrengine/hyperflux'
 
 import { CommandFuncType, CommandParams, ObjectCommands } from '../constants/EditorCommands'
@@ -116,12 +115,6 @@ function updateProperty<C extends ComponentConstructor<any, any>>(
 
         dispatchAction(SelectionAction.changedObject({ objects: [command.affectedNodes[i]], propertyName }))
       }
-    }
-
-    /** @todo deprecate in favour of 'EngineActions.sceneObjectUpdate' action */
-    const nodeComponent = getComponent(entity, EntityNodeComponent)
-    for (const component of nodeComponent.components) {
-      Engine.instance.currentWorld.sceneLoadingRegistry.get(component)?.update?.(entity, props)
     }
   }
 

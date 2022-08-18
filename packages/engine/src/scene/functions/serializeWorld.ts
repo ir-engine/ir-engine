@@ -3,11 +3,10 @@ import { MathUtils } from 'three'
 import { ComponentJson, EntityJson, SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
 import { EntityTreeNode } from '../../ecs/classes/EntityTree'
-import { getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
+import { getAllComponents, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { iterateEntityNode, traverseEntityNode } from '../../ecs/functions/EntityTreeFunctions'
 import { useWorld } from '../../ecs/functions/SystemHooks'
 import { AssetComponent, AssetLoadedComponent, LoadState } from '../components/AssetComponent'
-import { EntityNodeComponent } from '../components/EntityNodeComponent'
 import { NameComponent } from '../components/NameComponent'
 
 export const serializeWorld = (entityTreeNode?: EntityTreeNode, generateNewUUID = false, world = useWorld()) => {
@@ -34,11 +33,12 @@ export const serializeWorld = (entityTreeNode?: EntityTreeNode, generateNewUUID 
       entityUuid[node.entity] = node.uuid
       entityJson.name = getComponent(node.entity, NameComponent)?.name
 
-      const entityNode = getComponent(node.entity, EntityNodeComponent)
+      const components = getAllComponents(node.entity)
 
-      if (entityNode?.components) {
-        for (const comp of entityNode.components) {
-          const data = world.sceneLoadingRegistry.get(comp)?.serialize(node.entity)
+      for (const component of components) {
+        const sceneComponentID = world.sceneComponentRegistry.get(component._name)!
+        if (sceneComponentID) {
+          const data = world.sceneLoadingRegistry.get(sceneComponentID)?.serialize(node.entity)
           if (data) entityJson.components.push(JSON.parse(JSON.stringify(data)))
         }
       }

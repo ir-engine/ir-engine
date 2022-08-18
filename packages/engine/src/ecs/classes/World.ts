@@ -29,6 +29,7 @@ import { setTransformComponent } from '../../transform/components/TransformCompo
 import { Widget } from '../../xrui/Widgets'
 import {
   addComponent,
+  ComponentType,
   defineQuery,
   EntityRemovedComponent,
   getComponent,
@@ -271,6 +272,9 @@ export class World {
 
   /** Registry map of scene loader components  */
   sceneLoadingRegistry = new Map<string, SceneLoaderType>()
+
+  /** Scene component of scene loader components  */
+  sceneComponentRegistry = new Map<ComponentType<any>, string>()
 
   /** Registry map of prefabs  */
   scenePrefabRegistry = new Map<string, ComponentJson[]>()

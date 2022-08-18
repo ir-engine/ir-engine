@@ -15,7 +15,6 @@ import {
   emptyEntityTree
 } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
 import { createEngine } from '@xrengine/engine/src/initializeEngine'
-import { EntityNodeComponent } from '@xrengine/engine/src/scene/components/EntityNodeComponent'
 import { RenderSettingComponent } from '@xrengine/engine/src/scene/components/RenderSettingComponent'
 import { registerPrefabs } from '@xrengine/engine/src/scene/functions/registerPrefabs'
 import { applyIncomingActions } from '@xrengine/hyperflux'
@@ -69,7 +68,6 @@ describe('ModifyPropertyCommand', () => {
     for (let i = 0; i < 2; i++) {
       addEntityNodeInTree(nodes[i], rootNode)
       addComponent(nodes[i].entity, TestComponent, getRandomValues())
-      addComponent(nodes[i].entity, EntityNodeComponent, { components: [testComponentName] })
     }
 
     command = {

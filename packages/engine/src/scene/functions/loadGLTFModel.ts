@@ -11,16 +11,13 @@ import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { addEntityNodeInTree, createEntityNode } from '../../ecs/functions/EntityTreeFunctions'
 import { NavMeshComponent } from '../../navigation/component/NavMeshComponent'
 import { applyTransformToMeshWorld } from '../../physics/functions/parseModelColliders'
-import { setComputedTransformComponent } from '../../transform/components/ComputedTransformComponent'
 import { setLocalTransformComponent } from '../../transform/components/LocalTransformComponent'
 import { setTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
-import { EntityNodeComponent } from '../components/EntityNodeComponent'
 import { ModelComponent } from '../components/ModelComponent'
 import { NameComponent } from '../components/NameComponent'
 import { Object3DComponent } from '../components/Object3DComponent'
 import { ObjectLayers } from '../constants/ObjectLayers'
 import { loadComponent } from '../functions/SceneLoading'
-import { applyTransformPositionOffset, applyTransformRotationOffset } from './loaders/TransformFunctions'
 import { setObjectLayers } from './setObjectLayers'
 
 export const createObjectEntityFromGLTF = (entity: Entity, obj3d: Object3D): void => {
@@ -93,8 +90,6 @@ export const parseObjectComponentsFromGLTF = (entity: Entity, object3d?: Object3
 
     delete mesh.userData['xrengine.entity']
     delete mesh.userData.name
-
-    addComponent(e, EntityNodeComponent, { components: [] })
 
     if (Engine.instance.isEditor)
       // store local transform in local transform component
