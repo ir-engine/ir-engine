@@ -3,6 +3,7 @@ import { Object3D, Texture } from 'three'
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
 import { AssetLoader } from '../../../assets/classes/AssetLoader'
+import { DependencyTree } from '../../../assets/classes/DependencyTree'
 import { GLTF } from '../../../assets/loaders/gltf/GLTFLoader'
 import { ComponentDeserializeFunction, ComponentSerializeFunction } from '../../../common/constants/PrefabFunctionType'
 import { isClient } from '../../../common/functions/isClient'
@@ -55,17 +56,21 @@ export const updateModel = async (entity: Entity, properties: ModelComponentType
   let scene: Object3DWithEntity
   if (properties.src) {
     try {
+      const uuid = Engine.instance.currentWorld.entityTree.entityNodeMap.get(entity)!.uuid
+      DependencyTree.add(uuid)
       hasComponent(entity, Object3DComponent) && removeComponent(entity, Object3DComponent)
       switch (/\.[\d\s\w]+$/.exec(properties.src)![0]) {
         case '.glb':
         case '.gltf':
           const gltf = (await AssetLoader.loadAsync(properties.src, {
-            ignoreDisposeGeometry: properties.generateBVH
+            ignoreDisposeGeometry: properties.generateBVH,
+            uuid
           })) as GLTF
           scene = gltf.scene as any
           break
         case '.fbx':
-          scene = (await AssetLoader.loadAsync(properties.src, { ignoreDisposeGeometry: properties.generateBVH })).scene
+          scene = (await AssetLoader.loadAsync(properties.src, { ignoreDisposeGeometry: properties.generateBVH, uuid }))
+            .scene
           break
         default:
           scene = new Object3D() as Object3DWithEntity

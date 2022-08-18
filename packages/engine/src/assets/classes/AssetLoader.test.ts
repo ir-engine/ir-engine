@@ -2,6 +2,8 @@ import assert from 'assert'
 import Sinon from 'sinon'
 import { Mesh } from 'three'
 
+import { createEngine, setupEngineActionSystems } from '@xrengine/engine/src/initializeEngine'
+
 import { AssetClass } from '../enum/AssetClass'
 import { AssetType } from '../enum/AssetType'
 // import rewire from 'rewire'
@@ -11,6 +13,11 @@ import { AssetLoader } from './AssetLoader'
  * tests
  */
 describe('AssetLoader', async () => {
+  beforeEach(async () => {
+    createEngine()
+    setupEngineActionSystems()
+  })
+
   describe('processModelAsset', () => {
     it('should work for gltf asset', async () => {
       const asset = new Mesh()
