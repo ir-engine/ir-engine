@@ -67,6 +67,8 @@ ARG CACHE_DATE
 RUN npm run check-db-exists
 RUN npm run build-client
 
+RUN rm -r packages/client/public
+
 ENV APP_ENV=production
 
 CMD ["scripts/start-server.sh"]
