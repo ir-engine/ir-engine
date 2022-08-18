@@ -5,12 +5,9 @@ import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
 import { Entity } from '../../../ecs/classes/Entity'
 import { getComponent } from '../../../ecs/functions/ComponentFunctions'
-import { addComponent } from '../../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
 import { createEngine } from '../../../initializeEngine'
-import { Object3DComponent } from '../../components/Object3DComponent'
 import { SplineComponent } from '../../components/SplineComponent'
-import { ObjectLayers } from '../../constants/ObjectLayers'
 import { deserializeSpline, parseSplineProperties, SCENE_COMPONENT_SPLINE, serializeSpline } from './SplineFunctions'
 
 describe('SplineFunctions', () => {
@@ -41,15 +38,6 @@ describe('SplineFunctions', () => {
       const splineComponent = getComponent(entity, SplineComponent)
       assert(splineComponent)
       assert.deepEqual(splineComponent, sceneComponentData)
-    })
-
-    it('creates Spline Object3D with provided component data', () => {
-      deserializeSpline(entity, sceneComponent)
-      const obj3d = getComponent(entity, Object3DComponent)?.value
-
-      assert(obj3d, 'Spline is not created')
-      assert(obj3d.children.length > 0 && obj3d.userData.helper && obj3d.userData.helper.userData.isHelper)
-      assert(obj3d.userData.helper.layers.isEnabled(ObjectLayers.NodeHelper))
     })
   })
 

@@ -9,7 +9,7 @@ export const SCENE_COMPONENT_PREVENT_BAKE = 'prevent-bake'
 export const SCENE_COMPONENT_PREVENT_BAKE_DEFAULT_VALUES = {}
 
 export const deserializePreventBake: ComponentDeserializeFunction = (entity: Entity, _: ComponentJson<{}>) => {
-  addComponent(entity, PreventBakeTagComponent, {})
+  addComponent(entity, PreventBakeTagComponent, true)
 }
 
 export const serializePreventBake: ComponentSerializeFunction = (entity) => {

@@ -21,8 +21,7 @@ import { ScenePreviewCameraTagComponent } from '@xrengine/engine/src/scene/compo
 import {
   parseEnvMapBakeProperties,
   SCENE_COMPONENT_ENVMAP_BAKE,
-  SCENE_COMPONENT_ENVMAP_BAKE_DEFAULT_VALUES,
-  updateEnvMapBake
+  SCENE_COMPONENT_ENVMAP_BAKE_DEFAULT_VALUES
 } from '@xrengine/engine/src/scene/functions/loaders/EnvMapBakeFunctions'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 
@@ -66,7 +65,6 @@ export const uploadBPCEMBakeToServer = async (entity: Entity) => {
     if (!hasComponent(entity, EnvMapBakeComponent)) {
       addComponent(entity, EnvMapBakeComponent, parseEnvMapBakeProperties(SCENE_COMPONENT_ENVMAP_BAKE_DEFAULT_VALUES))
       getComponent(entity, EntityNodeComponent).components.push(SCENE_COMPONENT_ENVMAP_BAKE)
-      updateEnvMapBake(entity)
     }
   }
 

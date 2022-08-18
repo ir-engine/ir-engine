@@ -4,7 +4,6 @@ import { dispatchAction } from '@xrengine/hyperflux'
 
 import { EngineRendererAction } from '../../renderer/EngineRendererState'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
-import { addIsHelperFlag } from '../../scene/functions/addIsHelperFlag'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 
 /**
@@ -102,7 +101,6 @@ export default class InfiniteGridHelper extends Mesh {
     this.visible = true
     this.name = 'InfiniteGridHelper'
     setObjectLayers(this, ObjectLayers.Gizmos)
-    addIsHelperFlag(this)
     this.frustumCulled = false
     this.plane = new Plane(this.up)
     this.intersectionPointWorld = new Vector3()

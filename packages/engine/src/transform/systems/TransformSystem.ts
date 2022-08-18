@@ -2,11 +2,11 @@ import { Box3, Mesh, Quaternion, Vector3 } from 'three'
 
 import logger from '@xrengine/common/src/logger'
 import { insertionSort } from '@xrengine/common/src/utils/insertionSort'
-import { getState } from '@xrengine/hyperflux'
+import { createActionQueue, getState } from '@xrengine/hyperflux'
 
 import { proxifyQuaternion, proxifyVector3 } from '../../common/proxies/three'
 import { Engine } from '../../ecs/classes/Engine'
-import { EngineState } from '../../ecs/classes/EngineState'
+import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
@@ -71,6 +71,8 @@ const getDistanceSquaredFromTarget = (entity: Entity, targetPosition: Vector3) =
 }
 
 export default async function TransformSystem(world: World) {
+  const modifyPropertyActionQueue = createActionQueue(EngineActions.sceneObjectUpdate.matches)
+
   const computedReferenceDepths = new Map<Entity, number>()
 
   const visitedReferenceEntities = new Set<Entity>()
@@ -202,6 +204,17 @@ export default async function TransformSystem(world: World) {
 
     for (const entity of staticBoundingBoxQuery.enter()) computeBoundingBox(entity)
     for (const entity of dynamicBoundingBoxQuery()) updateBoundingBox(entity)
+
+    for (const action of modifyPropertyActionQueue()) {
+      for (const entity of action.entities) {
+        if (
+          hasComponent(entity, BoundingBoxComponent) &&
+          hasComponent(entity, TransformComponent) &&
+          hasComponent(entity, Object3DComponent)
+        )
+          updateBoundingBox(entity)
+      }
+    }
 
     const localClientPosition = getComponent(world.localClientEntity, TransformComponent)?.position
     if (localClientPosition) {

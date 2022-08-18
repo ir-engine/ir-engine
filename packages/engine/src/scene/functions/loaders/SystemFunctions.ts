@@ -8,7 +8,6 @@ import {
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
 import { SystemUpdateType } from '../../../ecs/functions/SystemUpdateType'
-import { PreventBakeTagComponent } from '../../components/PreventBakeTagComponent'
 import { SystemComponent, SystemComponentType } from '../../components/SystemComponent'
 
 export const SCENE_COMPONENT_SYSTEM = 'system'
@@ -26,9 +25,6 @@ export const deserializeSystem: ComponentDeserializeFunction = (
 ) => {
   const props = parseSystemProperties(json.props)
   addComponent(entity, SystemComponent, props)
-  addComponent(entity, PreventBakeTagComponent, {})
-
-  updateSystem(entity)
 }
 
 export const updateSystem: ComponentUpdateFunction = (_: Entity) => {}

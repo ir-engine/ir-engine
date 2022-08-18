@@ -131,34 +131,6 @@ describe.skip('AudioFunctions', () => {
       })
     })
 
-    describe('Texture mesh Tests', () => {
-      it('creates texture mesh for audio', () => {
-        Engine.instance.isEditor = true
-        audioFunctions.deserializeAudio(entity, sceneComponent)
-
-        const obj3d = getComponent(entity, Object3DComponent).value
-
-        assert(obj3d.userData.textureMesh && obj3d.children.includes(obj3d.userData.textureMesh))
-        assert(obj3d.userData.textureMesh.userData.disableOutline, 'Outline is not disabled for helper mesh')
-        assert(obj3d.userData.textureMesh.userData.isHelper, 'Outline is not disabled for helper mesh')
-      })
-
-      it('caches audio texture', () => {
-        Engine.instance.isEditor = true
-        const entity2 = createEntity()
-
-        audioFunctions.deserializeAudio(entity, sceneComponent)
-        audioFunctions.deserializeAudio(entity2, sceneComponent)
-
-        const obj3d = getComponent(entity, Object3DComponent).value
-        const obj3d2 = getComponent(entity2, Object3DComponent).value
-
-        // assert(obj3d.userData.textureMesh.material.map === obj3d2.userData.textureMesh.material.map)
-        assert(obj3d.userData.textureMesh.layers.isEnabled(ObjectLayers.NodeHelper))
-        assert(obj3d2.userData.textureMesh.layers.isEnabled(ObjectLayers.NodeHelper))
-      })
-    })
-
     it('sets loop and autoplay', () => {
       // addComponent(entity, MediaComponent, { autoplay: true, loop: true } as MediaComponentType)
       audioFunctions.deserializeAudio(entity, sceneComponent)

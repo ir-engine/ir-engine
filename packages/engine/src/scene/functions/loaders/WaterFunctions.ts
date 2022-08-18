@@ -23,7 +23,6 @@ export const deserializeWater: ComponentDeserializeFunction = (
   if (!isClient) return
 
   const obj3d = new Water()
-  obj3d.userData.disableOutline = true
 
   addComponent(entity, Object3DComponent, { value: obj3d })
   addComponent(entity, WaterComponent, { ...json.props })
