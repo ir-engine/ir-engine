@@ -34,7 +34,6 @@ export const deserializeCloud: ComponentDeserializeFunction = (
   if (!isClient) return
 
   const obj3d = new Clouds(entity)
-  obj3d.userData.disableOutline = true
   const props = parseCloudProperties(json.props)
 
   addComponent(entity, Object3DComponent, { value: obj3d })

@@ -34,7 +34,6 @@ export const deserializeTriggerVolume: ComponentDeserializeFunction = (
     type: 'Cuboid',
     bodyType: RigidBodyType.Fixed,
     isTrigger: true,
-    isHelper: true,
     collisionLayer: CollisionGroups.Trigger,
     collisionMask: DefaultCollisionMask
   }

@@ -35,10 +35,6 @@ import {
 } from './loaders/HemisphereLightFunctions'
 import { SCENE_COMPONENT_IMAGE, SCENE_COMPONENT_IMAGE_DEFAULT_VALUES } from './loaders/ImageFunctions'
 import { SCENE_COMPONENT_INSTANCING, SCENE_COMPONENT_INSTANCING_DEFAULT_VALUES } from './loaders/InstancingFunctions'
-// import {
-//   SCENE_COMPONENT_INTERACTABLE,
-//   SCENE_COMPONENT_INTERACTABLE_DEFAULT_VALUES
-// } from './loaders/InteractableFunctions'
 import { SCENE_COMPONENT_INTERIOR, SCENE_COMPONENT_INTERIOR_DEFAULT_VALUES } from './loaders/InteriorFunctions'
 import {
   SCENE_COMPONENT_LOOP_ANIMATION,

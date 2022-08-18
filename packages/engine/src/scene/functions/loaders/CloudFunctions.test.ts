@@ -98,7 +98,6 @@ describe('CloudFunctions', () => {
 
       const obj3d = getComponent(entity, Object3DComponent)?.value
       assert(obj3d && obj3d instanceof Clouds, 'Cloud is not created')
-      assert(obj3d.userData.disableOutline, 'Cloud outline is not disabled')
     })
   })
 

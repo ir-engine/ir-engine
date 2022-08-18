@@ -6,7 +6,6 @@ import {
   hasComponent,
   removeComponent
 } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { EntityNodeComponent } from '@xrengine/engine/src/scene/components/EntityNodeComponent'
 import { dispatchAction } from '@xrengine/hyperflux'
 
 import { CommandFuncType, CommandParams, MiscCommands } from '../constants/EditorCommands'
@@ -99,15 +98,10 @@ function update(command: TagComponentCommandParams, isUndo?: boolean) {
 
 function addTagComponent(object: EntityTreeNode, operation: TagComponentOperationType) {
   addComponent(object.entity, operation.component, {})
-  getComponent(object.entity, EntityNodeComponent)?.components.push(operation.sceneComponentName)
 }
 
 function removeTagComponent(object: EntityTreeNode, operation: TagComponentOperationType) {
   removeComponent(object.entity, operation.component)
-  const comps = getComponent(object.entity, EntityNodeComponent)?.components
-  const index = comps.indexOf(operation.sceneComponentName)
-
-  if (index !== -1) comps.splice(index, 1)
 }
 
 function toString(command: TagComponentCommandParams) {

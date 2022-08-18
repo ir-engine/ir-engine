@@ -20,11 +20,7 @@ export const updateOutlinePassSelection = (): void => {
       ? obj3dFromUuid(parentEnt)
       : getComponent(parentEntities[i] as Entity, Object3DComponent)?.value
     obj3d?.traverse((child: any) => {
-      if (
-        !child.userData.disableOutline &&
-        !child.userData.isHelper &&
-        (child.isMesh || child.isLine || child.isSprite || child.isPoints)
-      ) {
+      if (child.isMesh || child.isLine || child.isSprite || child.isPoints) {
         meshes.push(child)
       }
     })

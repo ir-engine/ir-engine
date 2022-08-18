@@ -14,7 +14,6 @@ import {
   emptyEntityTree
 } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
 import { createEngine } from '@xrengine/engine/src/initializeEngine'
-import { EntityNodeComponent } from '@xrengine/engine/src/scene/components/EntityNodeComponent'
 import { registerPrefabs } from '@xrengine/engine/src/scene/functions/registerPrefabs'
 import { applyIncomingActions } from '@xrengine/hyperflux'
 
@@ -47,8 +46,6 @@ describe('TagComponentCommand', () => {
 
     accessSelectionState().merge({ selectedEntities: [nodes[0].entity] })
     addComponent(nodes[0].entity, TestComponent, {})
-    addComponent(nodes[0].entity, EntityNodeComponent, { components: [testComponentName] })
-    addComponent(nodes[1].entity, EntityNodeComponent, { components: [testComponentName] })
 
     command = {
       type: EditorCommands.TAG_COMPONENT,

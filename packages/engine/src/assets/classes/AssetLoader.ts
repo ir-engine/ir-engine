@@ -76,7 +76,6 @@ const processModelAsset = (asset: Mesh, args: LoadingArgs): void => {
   const onUploadDropBuffer = (uuid?: string) =>
     function (this: BufferAttribute) {
       const dropBuffer = () => {
-        console.log('dropping buffer', this, 'from uuid ' + uuid)
         // @ts-ignore
         this.array = new this.array.constructor(1)
       }
@@ -91,7 +90,6 @@ const processModelAsset = (asset: Mesh, args: LoadingArgs): void => {
   const onTextureUploadDropSource = (uuid?: string) =>
     function (this: Texture) {
       const dropTexture = () => {
-        console.log('dropping texture', this, 'from uuid ' + uuid)
         this.source.data = null
         this.mipmaps.map((b) => delete b.data)
         this.mipmaps = []

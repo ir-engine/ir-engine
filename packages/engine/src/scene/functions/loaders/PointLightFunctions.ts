@@ -1,20 +1,16 @@
-import { Color, IcosahedronGeometry, Mesh, MeshBasicMaterial, PointLight, Vector2 } from 'three'
+import { Color, PointLight, Vector2 } from 'three'
 
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
 import {
   ComponentDeserializeFunction,
-  ComponentPrepareForGLTFExportFunction,
   ComponentSerializeFunction,
   ComponentUpdateFunction
 } from '../../../common/constants/PrefabFunctionType'
-import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
 import { Object3DComponent } from '../../components/Object3DComponent'
 import { PointLightComponent, PointLightComponentType } from '../../components/PointLightComponent'
-import { ObjectLayers } from '../../constants/ObjectLayers'
-import { setObjectLayers } from '../setObjectLayers'
 
 export const SCENE_COMPONENT_POINT_LIGHT = 'point-light'
 export const SCENE_COMPONENT_POINT_LIGHT_DEFAULT_VALUES = {
@@ -34,21 +30,6 @@ export const deserializePointLight: ComponentDeserializeFunction = (
 ) => {
   const light = new PointLight()
   const props = parsePointLightProperties(json.props)
-
-  const ball = new Mesh(new IcosahedronGeometry(0.15), new MeshBasicMaterial({ fog: false }))
-  const rangeBall = new Mesh(
-    new IcosahedronGeometry(0.25),
-    new MeshBasicMaterial({ fog: false, transparent: true, opacity: 0.5 })
-  )
-  light.add(ball)
-  light.add(rangeBall)
-  rangeBall.userData.isHelper = true
-  ball.userData.isHelper = true
-  light.userData.rangeBall = rangeBall
-  light.userData.ball = ball
-
-  setObjectLayers(ball, ObjectLayers.NodeHelper)
-  setObjectLayers(rangeBall, ObjectLayers.NodeHelper)
 
   addComponent(entity, Object3DComponent, { value: light })
   addComponent(entity, PointLightComponent, props)
@@ -76,9 +57,6 @@ export const updatePointLight: ComponentUpdateFunction = (entity: Entity, proper
     light.shadow.camera.updateProjectionMatrix()
     light.shadow.needsUpdate = true
   }
-
-  light.userData.ball.material.color = component.color
-  light.userData.rangeBall.material.color = component.color
 }
 
 export const serializePointLight: ComponentSerializeFunction = (entity) => {
@@ -97,18 +75,6 @@ export const serializePointLight: ComponentSerializeFunction = (entity) => {
       shadowBias: component.shadowBias,
       shadowRadius: component.shadowRadius
     }
-  }
-}
-
-export const preparePointLightForGLTFExport: ComponentPrepareForGLTFExportFunction = (light) => {
-  if (light.userData.ball) {
-    if (light.userData.ball.parent) light.userData.ball.removeFromParent()
-    delete light.userData.ball
-  }
-
-  if (light.userData.rangeBall) {
-    if (light.userData.rangeBall.parent) light.userData.rangeBall.removeFromParent()
-    delete light.userData.rangeBall
   }
 }
 

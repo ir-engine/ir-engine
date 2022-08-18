@@ -2,25 +2,18 @@ import { Not } from 'bitecs'
 
 import { addActionReceptor, createActionQueue, getState } from '@xrengine/hyperflux'
 
-import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { isSafari } from '../../common/functions/isMobile'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions } from '../../ecs/classes/EngineState'
 import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
-import { matchActionOnce } from '../../networking/functions/matchActionOnce'
 import { CallbackComponent } from '../../scene/components/CallbackComponent'
 import { MediaComponent } from '../../scene/components/MediaComponent'
 import { MediaElementComponent } from '../../scene/components/MediaElementComponent'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { VideoComponent } from '../../scene/components/VideoComponent'
 import { VolumetricComponent } from '../../scene/components/VolumetricComponent'
-import {
-  AUDIO_TEXTURE_PATH,
-  AudioElementObjects,
-  updateAudioParameters,
-  updateAudioPrefab
-} from '../../scene/functions/loaders/AudioFunctions'
+import { updateAudioParameters, updateAudioPrefab } from '../../scene/functions/loaders/AudioFunctions'
 import { updateVideo } from '../../scene/functions/loaders/VideoFunctions'
 import { updateVolumetric } from '../../scene/functions/loaders/VolumetricFunctions'
 import { accessAudioState, AudioSettingReceptor, AudioState, restoreAudioSettings } from '../AudioState'
@@ -120,11 +113,6 @@ export default async function AudioSystem(world: World) {
 
     if (userInteractActionQueue().length) {
       enableAudioContext()
-    }
-
-    for (const entity of audioQuery.exit()) {
-      const obj3d = getComponent(entity, Object3DComponent, true)?.value
-      AudioElementObjects.get(obj3d)?.removeFromParent()
     }
 
     for (const action of modifyPropertyActionQueue()) {

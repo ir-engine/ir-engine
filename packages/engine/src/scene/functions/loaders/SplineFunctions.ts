@@ -2,18 +2,11 @@ import { Object3D, Vector3 } from 'three'
 
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
-import {
-  ComponentDeserializeFunction,
-  ComponentSerializeFunction,
-  ComponentUpdateFunction
-} from '../../../common/constants/PrefabFunctionType'
+import { ComponentDeserializeFunction, ComponentSerializeFunction } from '../../../common/constants/PrefabFunctionType'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
-import Spline from '../../classes/Spline'
 import { Object3DComponent } from '../../components/Object3DComponent'
 import { SplineComponent, SplineComponentType } from '../../components/SplineComponent'
-import { ObjectLayers } from '../../constants/ObjectLayers'
-import { setObjectLayers } from '../setObjectLayers'
 
 export const SCENE_COMPONENT_SPLINE = 'spline'
 export const SCENE_COMPONENT_SPLINE_DEFAULT_VALUES = {
@@ -29,20 +22,7 @@ export const deserializeSpline: ComponentDeserializeFunction = (
 
   addComponent(entity, Object3DComponent, { value: obj3d })
   addComponent(entity, SplineComponent, props)
-
-  const helper = new Spline()
-  helper.userData.isHelper = true
-  setObjectLayers(helper, ObjectLayers.NodeHelper)
-
-  obj3d.add(helper)
-  obj3d.userData.helper = helper
-
-  helper.init(props.splinePositions)
-
-  updateSpline(entity, props)
 }
-
-export const updateSpline: ComponentUpdateFunction = (_: Entity, _properties: SplineComponentType) => {}
 
 export const serializeSpline: ComponentSerializeFunction = (entity) => {
   const component = getComponent(entity, SplineComponent) as SplineComponentType

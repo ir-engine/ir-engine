@@ -11,6 +11,7 @@ import { AuthStrategies } from '@xrengine/common/src/interfaces/AuthStrategies'
 import { AuthUser, AuthUserSeed, resolveAuthUser } from '@xrengine/common/src/interfaces/AuthUser'
 import { AvatarInterface } from '@xrengine/common/src/interfaces/AvatarInterface'
 import { IdentityProvider, IdentityProviderSeed } from '@xrengine/common/src/interfaces/IdentityProvider'
+import { StaticResourceInterface } from '@xrengine/common/src/interfaces/StaticResourceInterface'
 import {
   resolveUser,
   resolveWalletUser,
@@ -36,7 +37,7 @@ const logger = multiLogger.child({ component: 'client-core:AuthService' })
 
 const TIMEOUT_INTERVAL = 50 //ms per interval of waiting for authToken to be updated
 
-//State
+// State
 const AuthState = defineState({
   name: 'AuthState',
   initial: () => ({
@@ -709,7 +710,7 @@ export const AuthService = {
         avatarName,
         isPublicAvatar: !!isPublicAvatar
       }
-    }).promise
+    }).promise as Promise<StaticResourceInterface[]>
   },
   removeStaticResource: async (id: string) => {
     return API.instance.client.service('static-resource').remove(id)
@@ -844,20 +845,35 @@ function parseUserWalletCredentials(vprResult: any) {
   } = vprResult
   const credentials = Array.isArray(vp.verifiableCredential) ? vp.verifiableCredential : [vp.verifiableCredential]
 
-  const displayName = parseDisplayName(credentials)
+  const { displayName, displayIcon } = parseLoginDisplayCredential(credentials)
 
   return {
     user: {
-      id: vp.holder || 'did:web:example.com',
+      id: vp.holder,
       displayName,
-      icon: 'https://material-ui.com/static/images/avatar/1.jpg'
+      icon: displayIcon
       // session // this will contain the access token and helper methods
     }
   }
 }
 
-function parseDisplayName(credentials) {
-  return 'Wallet User'
+/**
+ * Parses the user's preferred display name (username) and avatar icon from the
+ * login credentials.
+ *
+ * @param credentials {VerifiableCredential[]} List of VCs requested by the
+ *   login request. One of those credentials needs to be of type
+ *   'LoginDisplayCredential'.
+ *
+ * @returns {{displayName: string, displayIcon: string}}
+ */
+function parseLoginDisplayCredential(credentials) {
+  const loginDisplayVc = credentials.find((vc) => vc.type.includes('LoginDisplayCredential'))
+  const DEFAULT_ICON = 'https://material-ui.com/static/images/avatar/1.jpg'
+  const displayName = loginDisplayVc.credentialSubject.displayName || 'Wallet User'
+  const displayIcon = loginDisplayVc.credentialSubject.displayIcon || DEFAULT_ICON
+
+  return { displayName, displayIcon }
 }
 
 // Action

@@ -57,7 +57,6 @@ describe('WaterFunctions', () => {
 
       const obj3d = getComponent(entity, Object3DComponent)?.value
       assert(obj3d && obj3d instanceof FakeWater, 'Water is not created')
-      assert(obj3d.userData.disableOutline, 'Water outline is not disabled')
     })
   })
 

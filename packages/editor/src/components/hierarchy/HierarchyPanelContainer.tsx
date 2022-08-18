@@ -386,7 +386,7 @@ export default function HierarchyPanel() {
         //uploading files then adding to editor media
         onUpload(entries).then((assets) => {
           if (!assets) return
-          for (const asset of assets) addMediaNode(asset.url)
+          for (const asset of assets) addMediaNode(asset)
         })
 
         return

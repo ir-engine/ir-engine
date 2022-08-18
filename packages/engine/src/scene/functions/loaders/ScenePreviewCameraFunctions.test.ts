@@ -13,7 +13,7 @@ import { createEngine } from '../../../initializeEngine'
 import { TransformComponent } from '../../../transform/components/TransformComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 import { ScenePreviewCameraTagComponent } from '../../components/ScenePreviewCamera'
-import { SCENE_COMPONENT_SCENE_PREVIEW_CAMERA, SCENE_PREVIEW_CAMERA_HELPER } from './ScenePreviewCameraFunctions'
+import { SCENE_COMPONENT_SCENE_PREVIEW_CAMERA } from './ScenePreviewCameraFunctions'
 
 const EPSILON = 10e-8
 
@@ -42,44 +42,12 @@ describe('ScenePreviewCameraFunctions', () => {
   }
 
   describe('deserializeScenePreviewCamera()', () => {
-    it('does not create ScenePreviewCamera Component while not on client side', () => {
-      const _scenePreviewCameraFunctions = proxyquire('./ScenePreviewCameraFunctions', {
-        '../../../common/functions/isClient': { isClient: false }
-      })
-      _scenePreviewCameraFunctions.deserializeScenePreviewCamera(entity, sceneComponent)
-
-      const scenePreviewCameraComponent = getComponent(entity, ScenePreviewCameraTagComponent)
-      assert(!scenePreviewCameraComponent)
-    })
-
     it('creates ScenePreviewCamera Component with provided component data', () => {
       scenePreviewCameraFunctions.deserializeScenePreviewCamera(entity, sceneComponent)
 
       const scenePreviewCameraComponent = getComponent(entity, ScenePreviewCameraTagComponent)
       assert(scenePreviewCameraComponent)
       assert(Object.keys(scenePreviewCameraComponent).length === 0)
-    })
-
-    describe('Editor vs Location', () => {
-      it('creates ScenePreviewCamera in Location', () => {
-        Engine.instance.currentWorld.cameraEntity = createEntity()
-        Engine.instance.currentWorld.camera = new PerspectiveCamera()
-
-        scenePreviewCameraFunctions.deserializeScenePreviewCamera(entity, sceneComponent)
-
-        assert(Engine.instance.currentWorld.camera.position.equals(getComponent(entity, TransformComponent).position))
-      })
-
-      it('creates ScenePreviewCamera in Editor', () => {
-        Engine.instance.isEditor = true
-
-        scenePreviewCameraFunctions.deserializeScenePreviewCamera(entity, sceneComponent)
-
-        const obj3d = getComponent(entity, Object3DComponent)?.value
-        assert(obj3d && obj3d instanceof PerspectiveCamera)
-        assert(obj3d.userData.helper && obj3d.userData.helper.name === SCENE_PREVIEW_CAMERA_HELPER)
-        Engine.instance.isEditor = false
-      })
     })
   })
 

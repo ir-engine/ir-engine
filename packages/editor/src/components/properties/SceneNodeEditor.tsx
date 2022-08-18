@@ -15,7 +15,6 @@ import {
 import { DistanceModel, DistanceModelOptions } from '@xrengine/engine/src/audio/constants/AudioConstants'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { PositionalAudioSettingsComponent } from '@xrengine/engine/src/scene/components/AudioSettingsComponent'
-import { MetaDataComponent } from '@xrengine/engine/src/scene/components/MetaDataComponent'
 import { RenderSettingComponent } from '@xrengine/engine/src/scene/components/RenderSettingComponent'
 
 import LanguageIcon from '@mui/icons-material/Language'
@@ -25,7 +24,6 @@ import CompoundNumericInput from '../inputs/CompoundNumericInput'
 import InputGroup from '../inputs/InputGroup'
 import NumericInputGroup from '../inputs/NumericInputGroup'
 import SelectInput from '../inputs/SelectInput'
-import StringInput from '../inputs/StringInput'
 import Vector3Input from '../inputs/Vector3Input'
 import EnvMapEditor from './EnvMapEditor'
 import NodeEditor from './NodeEditor'
@@ -97,7 +95,6 @@ export const SceneNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
   const entity = props.node.entity
 
-  const metadata = getComponent(entity, MetaDataComponent)
   const audioComponent = getComponent(entity, PositionalAudioSettingsComponent)
   const renderSettingComponent = getComponent(entity, RenderSettingComponent)
 

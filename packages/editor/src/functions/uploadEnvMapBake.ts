@@ -14,20 +14,17 @@ import { EngineRenderer } from '@xrengine/engine/src/renderer/WebGLRendererSyste
 import { beforeMaterialCompile } from '@xrengine/engine/src/scene/classes/BPCEMShader'
 import CubemapCapturer from '@xrengine/engine/src/scene/classes/CubemapCapturer'
 import { convertCubemapToEquiImageData } from '@xrengine/engine/src/scene/classes/ImageUtils'
-import { EntityNodeComponent } from '@xrengine/engine/src/scene/components/EntityNodeComponent'
 import { EnvMapBakeComponent } from '@xrengine/engine/src/scene/components/EnvMapBakeComponent'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
 import { ScenePreviewCameraTagComponent } from '@xrengine/engine/src/scene/components/ScenePreviewCamera'
 import {
   parseEnvMapBakeProperties,
-  SCENE_COMPONENT_ENVMAP_BAKE,
-  SCENE_COMPONENT_ENVMAP_BAKE_DEFAULT_VALUES,
-  updateEnvMapBake
+  SCENE_COMPONENT_ENVMAP_BAKE_DEFAULT_VALUES
 } from '@xrengine/engine/src/scene/functions/loaders/EnvMapBakeFunctions'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 
 import { accessEditorState } from '../services/EditorServices'
-import { uploadProjectFile } from './assetFunctions'
+import { uploadProjectFiles } from './assetFunctions'
 
 const query = defineQuery([ScenePreviewCameraTagComponent, TransformComponent])
 
@@ -65,8 +62,6 @@ export const uploadBPCEMBakeToServer = async (entity: Entity) => {
   if (isSceneEntity) {
     if (!hasComponent(entity, EnvMapBakeComponent)) {
       addComponent(entity, EnvMapBakeComponent, parseEnvMapBakeProperties(SCENE_COMPONENT_ENVMAP_BAKE_DEFAULT_VALUES))
-      getComponent(entity, EntityNodeComponent).components.push(SCENE_COMPONENT_ENVMAP_BAKE)
-      updateEnvMapBake(entity)
     }
   }
 
@@ -117,11 +112,11 @@ export const uploadBPCEMBakeToServer = async (entity: Entity) => {
     ? `${sceneName}.envmap.png`
     : `${sceneName}-${nameComponent.name.replace(' ', '-')}.png`
 
-  const value = await Promise.all(uploadProjectFile(projectName, [new File([blob], filename)]).promises)
+  const url = (await uploadProjectFiles(projectName, [new File([blob], filename)]).promises[0])[0]
 
-  bakeComponent.options.envMapOrigin = value[0].url
+  bakeComponent.options.envMapOrigin = url
 
-  return value[0].url
+  return url
 }
 
 const resolution = 2048
@@ -155,7 +150,7 @@ export const uploadCubemapBakeToServer = async (name: string, position: Vector3)
   const projectName = accessEditorState().projectName.value!
   const filename = `${sceneName}-${name.replace(' ', '-')}.png`
 
-  const value = await uploadProjectFile(projectName, [new File([blob], filename)])
+  const url = (await uploadProjectFiles(projectName, [new File([blob], filename)])[0])[0]
 
-  return value[0].url
+  return url
 }

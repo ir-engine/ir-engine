@@ -17,10 +17,9 @@ import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { addEntityNodeInTree, createEntityNode } from '../../ecs/functions/EntityTreeFunctions'
 import { initSystems, SystemModuleType } from '../../ecs/functions/SystemFunctions'
 import { configureEffectComposer } from '../../renderer/functions/configureEffectComposer'
-import { EntityNodeComponent } from '../components/EntityNodeComponent'
 import { NameComponent } from '../components/NameComponent'
 import { Object3DComponent } from '../components/Object3DComponent'
-import { SCENE_COMPONENT_SCENE_TAG, SceneTagComponent } from '../components/SceneTagComponent'
+import { SceneTagComponent } from '../components/SceneTagComponent'
 import { VisibleComponent } from '../components/VisibleComponent'
 import { ObjectLayers } from '../constants/ObjectLayers'
 import { SCENE_COMPONENT_DYNAMIC_LOAD } from './loaders/DynamicLoadFunctions'
@@ -188,7 +187,6 @@ export const loadSceneFromJSON = async (sceneData: SceneJson, sceneSystems: Syst
 
   const tree = world.entityTree
   addComponent(tree.rootNode.entity, SceneTagComponent, {})
-  getComponent(tree.rootNode.entity, EntityNodeComponent).components.push(SCENE_COMPONENT_SCENE_TAG)
 
   Engine.instance.currentWorld.camera?.layers.enable(ObjectLayers.Scene)
 
@@ -214,7 +212,6 @@ export const createSceneEntity = (world: World, uuid: string, json: EntityJson) 
  */
 export const loadSceneEntity = (entityNode: EntityTreeNode, sceneEntity: EntityJson): Entity => {
   addComponent(entityNode.entity, NameComponent, { name: sceneEntity.name })
-  addComponent(entityNode.entity, EntityNodeComponent, { components: [] })
 
   for (const component of sceneEntity.components) {
     try {
@@ -242,6 +239,5 @@ export const loadComponent = (entity: Entity, component: ComponentJson): void =>
 
   if (deserializer) {
     deserializer(entity, component)
-    getComponent(entity, EntityNodeComponent).components.push(name)
   }
 }
