@@ -1,23 +1,8 @@
-import {
-  BoxBufferGeometry,
-  BoxHelper,
-  Mesh,
-  MeshPhysicalMaterial,
-  MeshStandardMaterial,
-  Object3D,
-  Quaternion,
-  Scene,
-  SphereGeometry,
-  Vector3
-} from 'three'
+import { Mesh, MeshStandardMaterial, Object3D, Quaternion, Scene, Vector3 } from 'three'
 
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
-import {
-  ComponentDeserializeFunction,
-  ComponentSerializeFunction,
-  ComponentUpdateFunction
-} from '../../../common/constants/PrefabFunctionType'
+import { ComponentDeserializeFunction, ComponentSerializeFunction } from '../../../common/constants/PrefabFunctionType'
 import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
@@ -26,12 +11,9 @@ import { useWorld } from '../../../ecs/functions/SystemHooks'
 import { EnvMapBakeComponent, EnvMapBakeComponentType } from '../../components/EnvMapBakeComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 import { PreventBakeTagComponent } from '../../components/PreventBakeTagComponent'
-import { ObjectLayers } from '../../constants/ObjectLayers'
 import { EnvMapBakeRefreshTypes } from '../../types/EnvMapBakeRefreshTypes'
 import { EnvMapBakeTypes } from '../../types/EnvMapBakeTypes'
-import { setObjectLayers } from '../setObjectLayers'
 
-const quat = new Quaternion(0)
 export const SCENE_COMPONENT_ENVMAP_BAKE = 'envmapbake'
 export const SCENE_COMPONENT_ENVMAP_BAKE_DEFAULT_VALUES = {
   options: {
@@ -52,34 +34,7 @@ export const deserializeEnvMapBake: ComponentDeserializeFunction = (
 ) => {
   const props = parseEnvMapBakeProperties(json.props)
   addComponent(entity, EnvMapBakeComponent, props)
-
-  if (!Engine.instance.isEditor || entity === Engine.instance.currentWorld.entityTree.rootNode.entity) return
-
-  const obj3d = new Object3D()
-  addComponent(entity, Object3DComponent, { value: obj3d })
-  addComponent(entity, PreventBakeTagComponent, {})
-
-  obj3d.userData.centerBall = new Mesh(
-    new SphereGeometry(0.75),
-    new MeshPhysicalMaterial({ roughness: 0, metalness: 1 })
-  )
-  obj3d.userData.centerBall.userData.disableOutline = true
-  obj3d.add(obj3d.userData.centerBall)
-
-  obj3d.userData.gizmo = new BoxHelper(new Mesh(new BoxBufferGeometry()), 0xff0000)
-  obj3d.userData.gizmo.userData.disableOutline = true
-  obj3d.add(obj3d.userData.gizmo)
-
-  setObjectLayers(obj3d, ObjectLayers.NodeHelper)
-  updateEnvMapBake(entity)
-}
-
-export const updateEnvMapBake: ComponentUpdateFunction = (entity: Entity) => {
-  const hasObj3d = hasComponent(entity, Object3DComponent)
-  const obj3d = hasObj3d ? getComponent(entity, Object3DComponent).value : Engine.instance.currentWorld.scene
-  const bakeComponent = getComponent(entity, EnvMapBakeComponent)
-  if (obj3d.userData.gizmo)
-    obj3d.userData.gizmo.matrix.compose(bakeComponent.options.bakePositionOffset, quat, bakeComponent.options.bakeScale)
+  addComponent(entity, PreventBakeTagComponent, true)
 }
 
 export const serializeEnvMapBake: ComponentSerializeFunction = (entity) => {

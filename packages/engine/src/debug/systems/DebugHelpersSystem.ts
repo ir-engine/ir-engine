@@ -1,21 +1,30 @@
 import {
   ArrowHelper,
   Box3Helper,
+  BoxBufferGeometry,
+  BoxHelper,
+  Camera,
   CameraHelper,
   Color,
   ConeBufferGeometry,
+  DirectionalLight,
   DoubleSide,
   Group,
+  IcosahedronGeometry,
   Mesh,
   MeshBasicMaterial,
+  MeshPhysicalMaterial,
   Object3D,
   PerspectiveCamera,
+  PlaneBufferGeometry,
   Quaternion,
+  SphereGeometry,
   Vector3
 } from 'three'
 
 import { createActionQueue, getState } from '@xrengine/hyperflux'
 
+import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { AudioComponent } from '../../audio/components/AudioComponent'
 import { AudioElementNodes } from '../../audio/systems/AudioSystem'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
@@ -33,9 +42,19 @@ import {
   EngineRendererAction,
   EngineRendererState
 } from '../../renderer/EngineRendererState'
+import EditorDirectionalLightHelper from '../../scene/classes/EditorDirectionalLightHelper'
 import InfiniteGridHelper from '../../scene/classes/InfiniteGridHelper'
+import { DirectionalLightComponent } from '../../scene/components/DirectionalLightComponent'
+import { EnvMapBakeComponent } from '../../scene/components/EnvMapBakeComponent'
 import { MediaElementComponent } from '../../scene/components/MediaElementComponent'
+import { MountPointComponent } from '../../scene/components/MountPointComponent'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
+import { PointLightComponent } from '../../scene/components/PointLightComponent'
+import { ScenePreviewCameraTagComponent } from '../../scene/components/ScenePreviewCamera'
+import { SelectTagComponent } from '../../scene/components/SelectTagComponent'
+import { ObjectLayers } from '../../scene/constants/ObjectLayers'
+import { AUDIO_TEXTURE_PATH } from '../../scene/functions/loaders/AudioFunctions'
+import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { XRInputSourceComponent } from '../../xr/XRComponents'
 import { DebugArrowComponent } from '../DebugArrowComponent'
@@ -53,7 +72,11 @@ export default async function DebugHelpersSystem(world: World) {
   InfiniteGridHelper.instance = new InfiniteGridHelper()
   Engine.instance.currentWorld.scene.add(InfiniteGridHelper.instance)
 
-  let physicsDebugRenderer = DebugRenderer()
+  const AUDIO_HELPER_TEXTURE = await AssetLoader.loadAsync(AUDIO_TEXTURE_PATH)
+
+  const physicsDebugRenderer = DebugRenderer()
+
+  const editorHelpers = new Map<Entity, Object3D>()
 
   const helpersByEntity = {
     viewVector: new Map(),
@@ -66,14 +89,18 @@ export default async function DebugHelpersSystem(world: World) {
     positionalAudioHelper: new Map(),
     interactorFrustum: new Map()
   }
+  const directionalLightQuery = defineQuery([DirectionalLightComponent])
+  const pointLightQuery = defineQuery([PointLightComponent])
+  const mountPointQuery = defineQuery([MountPointComponent])
+  const envMapBakeQuery = defineQuery([EnvMapBakeComponent])
+  const directionalLightSelectQuery = defineQuery([DirectionalLightComponent, SelectTagComponent])
+  const scenePreviewCameraSelectQuery = defineQuery([ScenePreviewCameraTagComponent, SelectTagComponent])
 
-  const avatarDebugQuery = defineQuery([AvatarComponent, VelocityComponent, TransformComponent])
   const boundingBoxQuery = defineQuery([Object3DComponent, BoundingBoxComponent])
-  const arrowHelperQuery = defineQuery([DebugArrowComponent])
   const ikAvatarQuery = defineQuery([XRInputSourceComponent])
   const navmeshQuery = defineQuery([DebugNavMeshComponent, NavMeshComponent])
-  // const navpathQuery = defineQuery([AutoPilotComponent])
   const audioHelper = defineQuery([AudioComponent])
+  // const navpathQuery = defineQuery([AutoPilotComponent])
   // const navpathAddQuery = enterQuery(navpathQuery)
   // const navpathRemoveQuery = exitQuery(navpathQuery)
 
@@ -110,38 +137,192 @@ export default async function DebugHelpersSystem(world: World) {
     for (const action of avatarDebugActionQueue()) avatarDebugUpdate(action.avatarDebugEnable)
     const debugEnabled = getState(EngineRendererState).avatarDebugEnable.value
 
-    // ===== AVATAR ===== //
+    /**
+     * EDITOR GIZMOS
+     * @todo refactor this modularly (these queries should be in the system that loads the associated component)
+     */
+    if (Engine.instance.isEditor) {
+      /**
+       * Directional Light
+       */
+      for (const entity of directionalLightQuery.enter()) {
+        const helper = new EditorDirectionalLightHelper(
+          getComponent(entity, Object3DComponent).value as DirectionalLight
+        )
+        helper.matrixAutoUpdate = false
+        helper.visible = true
+        helper.userData.isHelper = true
+        setObjectLayers(helper, ObjectLayers.NodeHelper)
+        Engine.instance.currentWorld.scene.add(helper)
+        editorHelpers.set(entity, helper)
 
-    for (const entity of avatarDebugQuery.enter()) {
-      // velocity
-      const velocityColor = 0x0000ff
-      const velocityArrowHelper = new ArrowHelper(new Vector3(), new Vector3(0, 0, 0), 0.5, velocityColor)
-      velocityArrowHelper.visible = accessEngineRendererState().avatarDebugEnable.value
-      Engine.instance.currentWorld.scene.add(velocityArrowHelper)
-      helpersByEntity.velocityArrow.set(entity, velocityArrowHelper)
-    }
-
-    for (const entity of avatarDebugQuery.exit()) {
-      // velocity
-      const velocityArrowHelper = helpersByEntity.velocityArrow.get(entity) as Object3D
-      Engine.instance.currentWorld.scene.remove(velocityArrowHelper)
-      helpersByEntity.velocityArrow.delete(entity)
-    }
-
-    if (debugEnabled)
-      for (const entity of avatarDebugQuery()) {
-        const avatar = getComponent(entity, AvatarComponent)
-        const velocity = getComponent(entity, VelocityComponent)
-        const transform = getComponent(entity, TransformComponent)
-
-        // velocity
-        const velocityArrowHelper = helpersByEntity.velocityArrow.get(entity) as ArrowHelper
-        if (velocityArrowHelper != null) {
-          velocityArrowHelper.setDirection(vector3.copy(velocity.linear).normalize())
-          velocityArrowHelper.setLength(velocity.linear.length() * 20)
-          velocityArrowHelper.position.copy(transform.position).y += avatar.avatarHalfHeight
-        }
+        // const cameraHelper = new CameraHelper(light.shadow.camera)
+        // cameraHelper.visible = false
+        // light.userData.cameraHelper = cameraHelper
+        // cameraHelper.userData.isHelper = true
+        // setObjectLayers(cameraHelper, ObjectLayers.NodeHelper)
       }
+
+      for (const entity of directionalLightQuery.exit()) {
+        const helper = editorHelpers.get(entity)!
+        Engine.instance.currentWorld.scene.remove(helper)
+        editorHelpers.delete(entity)
+      }
+
+      for (const entity of directionalLightSelectQuery.exit()) {
+        const light = getComponent(entity, Object3DComponent)?.value as DirectionalLight
+        if (light) light.userData.cameraHelper.visible = false
+      }
+
+      for (const entity of directionalLightSelectQuery()) {
+        const helper = editorHelpers.get(entity)! as EditorDirectionalLightHelper
+        helper.update()
+        // light.userData.cameraHelper.update()
+      }
+
+      /**
+       * Point Light
+       */
+      for (const entity of pointLightQuery.enter()) {
+        const helper = new Object3D()
+        helper.matrixAutoUpdate = false
+
+        const ball = new Mesh(new IcosahedronGeometry(0.15), new MeshBasicMaterial({ fog: false }))
+        const rangeBall = new Mesh(
+          new IcosahedronGeometry(0.25),
+          new MeshBasicMaterial({ fog: false, transparent: true, opacity: 0.5 })
+        )
+        helper.add(rangeBall, ball)
+        rangeBall.userData.isHelper = true
+        ball.userData.isHelper = true
+
+        setObjectLayers(helper, ObjectLayers.NodeHelper)
+
+        editorHelpers.set(entity, helper)
+        Engine.instance.currentWorld.scene.add(helper)
+      }
+
+      for (const entity of pointLightQuery.exit()) {
+        const helper = editorHelpers.get(entity)!
+        Engine.instance.currentWorld.scene.remove(helper)
+        editorHelpers.delete(entity)
+      }
+
+      /**
+       * Scene Preview Camera
+       */
+
+      for (const entity of scenePreviewCameraSelectQuery.enter()) {
+        const camera = getComponent(entity, Object3DComponent)?.value as Camera
+        const helper = new CameraHelper(camera)
+        helper.matrixAutoUpdate = false
+        setObjectLayers(helper, ObjectLayers.NodeHelper)
+        editorHelpers.set(entity, helper)
+        Engine.instance.currentWorld.scene.add(helper)
+      }
+
+      for (const entity of scenePreviewCameraSelectQuery.exit()) {
+        const helper = editorHelpers.get(entity)!
+        Engine.instance.currentWorld.scene.remove(helper)
+        editorHelpers.delete(entity)
+      }
+
+      /**
+       * Audio Helper
+       */
+
+      for (const entity of audioHelper.enter()) {
+        const helper = new Mesh(
+          new PlaneBufferGeometry(),
+          new MeshBasicMaterial({ transparent: true, side: DoubleSide })
+        )
+        helper.matrixAutoUpdate = false
+        helper.userData.disableOutline = true
+        helper.userData.isHelper = true
+        helper.material.map = AUDIO_HELPER_TEXTURE
+        setObjectLayers(helper, ObjectLayers.NodeHelper)
+        Engine.instance.currentWorld.scene.add(helper)
+        editorHelpers.set(entity, helper)
+      }
+
+      for (const entity of audioHelper.exit()) {
+        const helper = editorHelpers.get(entity)!
+        Engine.instance.currentWorld.scene.remove(helper)
+        editorHelpers.delete(entity)
+      }
+
+      /**
+       * Env Map Bake
+       */
+
+      for (const entity of envMapBakeQuery.enter()) {
+        const helper = new Object3D()
+        helper.matrixAutoUpdate = false
+
+        helper.userData.centerBall = new Mesh(
+          new SphereGeometry(0.75),
+          new MeshPhysicalMaterial({ roughness: 0, metalness: 1 })
+        )
+        helper.userData.centerBall.userData.disableOutline = true
+        helper.add(helper.userData.centerBall)
+
+        helper.userData.gizmo = new BoxHelper(new Mesh(new BoxBufferGeometry()), 0xff0000)
+        helper.userData.gizmo.userData.disableOutline = true
+        helper.add(helper.userData.gizmo)
+
+        setObjectLayers(helper, ObjectLayers.NodeHelper)
+
+        Engine.instance.currentWorld.scene.add(helper)
+        editorHelpers.set(entity, helper)
+      }
+
+      for (const entity of envMapBakeQuery()) {
+        const helper = editorHelpers.get(entity)!
+        const bakeComponent = getComponent(entity, EnvMapBakeComponent)
+        if (helper.userData.gizmo)
+          helper.userData.gizmo.matrix.compose(
+            bakeComponent.options.bakePositionOffset,
+            quat,
+            bakeComponent.options.bakeScale
+          )
+      }
+
+      for (const entity of envMapBakeQuery.exit()) {
+        const helper = editorHelpers.get(entity)!
+        Engine.instance.currentWorld.scene.remove(helper)
+        editorHelpers.delete(entity)
+      }
+
+      for (const entity of mountPointQuery.enter()) {
+        const helper = new ArrowHelper(new Vector3(0, 0, 1), new Vector3(0, 0, 0), 0.5, 0xffffff)
+        helper.matrixAutoUpdate = false
+        helper.userData.isHelper = true
+        setObjectLayers(helper, ObjectLayers.NodeHelper)
+        Engine.instance.currentWorld.scene.add(helper)
+        editorHelpers.set(entity, helper)
+      }
+
+      for (const entity of mountPointQuery.exit()) {
+        const helper = editorHelpers.get(entity)!
+        Engine.instance.currentWorld.scene.remove(helper)
+        editorHelpers.delete(entity)
+      }
+
+      /**
+       * Update helper positions
+       */
+      for (const [entity, helper] of editorHelpers) {
+        const transform = getComponent(entity, TransformComponent)
+        if (!transform) continue
+        helper.position.copy(transform.position)
+        helper.quaternion.copy(transform.rotation)
+        helper.updateMatrixWorld()
+      }
+    }
+
+    /**
+     * AVATAR HELPERS
+     */
 
     for (const entity of ikAvatarQuery.enter()) {
       const engineRendererState = accessEngineRendererState()
@@ -176,7 +357,9 @@ export default async function DebugHelpersSystem(world: World) {
       helpersByEntity.ikExtents.delete(entity)
     }
 
-    // ===== BOUNDING BOX ===== //
+    /**
+     * DEBUG HELPERS
+     */
 
     for (const entity of boundingBoxQuery.exit()) {
       const boxHelper = helpersByEntity.box.get(entity) as Box3Helper

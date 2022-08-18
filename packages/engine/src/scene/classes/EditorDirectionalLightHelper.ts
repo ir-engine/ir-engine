@@ -17,9 +17,11 @@ export default class EditorDirectionalLightHelper extends Object3D {
   lightPlane: LineSegments<BufferGeometry, LineBasicMaterial>
   targetLine: LineSegments<BufferGeometry, LineBasicMaterial>
   name: string
+  directionalLight: DirectionalLight
 
-  constructor(size?: number, color?: ColorRepresentation) {
+  constructor(directionalLight: DirectionalLight, size?: number, color?: ColorRepresentation) {
     super()
+    this.directionalLight = directionalLight
     this.name = 'directional-light-helper'
     if (color) this.color = color
 
@@ -95,8 +97,8 @@ export default class EditorDirectionalLightHelper extends Object3D {
       this.lightPlane.material.color.set(this.color)
       this.targetLine.material.color.set(this.color)
     } else {
-      this.lightPlane.material.color.copy((this.parent as DirectionalLight)!.color)
-      this.targetLine.material.color.copy((this.parent as DirectionalLight)!.color)
+      this.lightPlane.material.color.copy(this.directionalLight!.color)
+      this.targetLine.material.color.copy(this.directionalLight!.color)
     }
   }
 

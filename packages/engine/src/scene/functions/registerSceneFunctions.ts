@@ -7,12 +7,7 @@ import {
   updateAmbientLight
 } from './loaders/AmbientLightFunctions'
 import { deserializeAsset, SCENE_COMPONENT_ASSET, serializeAsset } from './loaders/AssetComponentFunctions'
-import {
-  deserializeAudio,
-  prepareAudioForGLTFExport,
-  SCENE_COMPONENT_AUDIO,
-  serializeAudio
-} from './loaders/AudioFunctions'
+import { deserializeAudio, SCENE_COMPONENT_AUDIO, serializeAudio } from './loaders/AudioFunctions'
 import {
   deserializeAudioSetting,
   SCENE_COMPONENT_AUDIO_SETTINGS,
@@ -33,7 +28,6 @@ import { deserializeCloud, SCENE_COMPONENT_CLOUD, serializeCloud, updateCloud } 
 import { deserializeCollider, SCENE_COMPONENT_COLLIDER, serializeCollider } from './loaders/ColliderFunctions'
 import {
   deserializeDirectionalLight,
-  prepareDirectionalLightForGLTFExport,
   SCENE_COMPONENT_DIRECTIONAL_LIGHT,
   serializeDirectionalLight,
   updateDirectionalLight
@@ -43,12 +37,7 @@ import {
   SCENE_COMPONENT_DYNAMIC_LOAD,
   serializeDynamicLoad
 } from './loaders/DynamicLoadFunctions'
-import {
-  deserializeEnvMapBake,
-  SCENE_COMPONENT_ENVMAP_BAKE,
-  serializeEnvMapBake,
-  updateEnvMapBake
-} from './loaders/EnvMapBakeFunctions'
+import { deserializeEnvMapBake, SCENE_COMPONENT_ENVMAP_BAKE, serializeEnvMapBake } from './loaders/EnvMapBakeFunctions'
 import { deserializeEnvMap, SCENE_COMPONENT_ENVMAP, serializeEnvMap } from './loaders/EnvMapFunctions'
 import { deserializeEquippable, SCENE_COMPONENT_EQUIPPABLE, serializeEquippable } from './loaders/EquippableFunctions'
 import {
@@ -111,7 +100,6 @@ import {
 } from './loaders/ParticleEmitterFunctions'
 import {
   deserializePointLight,
-  preparePointLightForGLTFExport,
   SCENE_COMPONENT_POINT_LIGHT,
   serializePointLight,
   updatePointLight
@@ -265,8 +253,7 @@ export const registerDefaultSceneFunctions = (world: World) => {
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_DIRECTIONAL_LIGHT, {
     deserialize: deserializeDirectionalLight,
     serialize: serializeDirectionalLight,
-    update: updateDirectionalLight,
-    prepareForGLTFExport: prepareDirectionalLightForGLTFExport
+    update: updateDirectionalLight
   })
 
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_GROUND_PLANE, {
@@ -294,8 +281,7 @@ export const registerDefaultSceneFunctions = (world: World) => {
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_POINT_LIGHT, {
     deserialize: deserializePointLight,
     serialize: serializePointLight,
-    update: updatePointLight,
-    prepareForGLTFExport: preparePointLightForGLTFExport
+    update: updatePointLight
   })
 
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_SPOT_LIGHT, {
@@ -397,8 +383,7 @@ export const registerDefaultSceneFunctions = (world: World) => {
 
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_AUDIO, {
     deserialize: deserializeAudio,
-    serialize: serializeAudio,
-    prepareForGLTFExport: prepareAudioForGLTFExport
+    serialize: serializeAudio
   })
 
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_VIDEO, {
@@ -462,8 +447,7 @@ export const registerDefaultSceneFunctions = (world: World) => {
 
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_ENVMAP_BAKE, {
     deserialize: deserializeEnvMapBake,
-    serialize: serializeEnvMapBake,
-    update: updateEnvMapBake
+    serialize: serializeEnvMapBake
   })
 
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_INSTANCING, {
