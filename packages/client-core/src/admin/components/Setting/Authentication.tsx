@@ -81,7 +81,7 @@ const Account = () => {
   const user = authState.user
 
   useEffect(() => {
-    if (user?.id?.value != null && authSettingState?.updateNeeded?.value) {
+    if (user?.id?.value && authSettingState?.updateNeeded?.value) {
       AuthSettingsService.fetchAuthSetting()
     }
   }, [authState?.user?.id?.value, authSettingState?.updateNeeded?.value])

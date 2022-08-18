@@ -205,7 +205,7 @@ const authentication = {
   service: 'identity-provider',
   entity: 'identity-provider',
   secret: process.env.AUTH_SECRET!,
-  authStrategies: ['jwt', 'local', 'discord', 'facebook', 'github', 'google', 'linkedin', 'twitter', 'did-auth'],
+  authStrategies: ['jwt', 'local', 'discord', 'facebook', 'github', 'google', 'linkedin', 'twitter', 'didWallet'],
   local: {
     usernameField: 'email',
     passwordField: 'password'
@@ -223,7 +223,7 @@ const authentication = {
     google: process.env.GOOGLE_CALLBACK_URL || `${client.url}/auth/oauth/google`,
     linkedin: process.env.LINKEDIN_CALLBACK_URL || `${client.url}/auth/oauth/linkedin`,
     twitter: process.env.TWITTER_CALLBACK_URL || `${client.url}/auth/oauth/twitter`
-    // did-auth does not have a callback endpoint
+    // didWallet does not have a callback endpoint
   },
   oauth: {
     defaults: {

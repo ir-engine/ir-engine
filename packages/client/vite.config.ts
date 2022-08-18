@@ -5,6 +5,7 @@ import fsExtra from 'fs-extra'
 import { isArray, mergeWith } from 'lodash'
 import path from 'path'
 import { defineConfig, loadEnv, UserConfig, UserConfigExport } from 'vite'
+import viteCompression from 'vite-plugin-compression'
 import { injectHtml } from 'vite-plugin-html'
 import PkgConfig from 'vite-plugin-package-config'
 
@@ -118,6 +119,10 @@ export default defineConfig(async () => {
           webmanifestLink: clientSetting.webmanifestLink || '/site.webmanifest',
           paymentPointer: clientSetting.paymentPointer || ''
         }
+      }),
+      viteCompression({
+        filter: /\.(js|mjs|json|css)$/i,
+        deleteOriginFile: true
       })
     ],
     server: {

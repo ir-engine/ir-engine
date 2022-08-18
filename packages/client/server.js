@@ -1,6 +1,7 @@
 const path = require('path');
 const fs = require('fs');
 const express = require('express');
+const expressStaticGzip = require('express-static-gzip');
 const packageRoot = require('app-root-path').path;
 const https = require('https');
 const http = require('http');
@@ -10,8 +11,7 @@ const app = express();
 const PORT = process.env.HOST_PORT || 3000;
 const HTTPS = process.env.VITE_LOCAL_BUILD ?? false
 
-app.use(express.static(path.join(packageRoot, 'packages', 'client', 'dist')));
-
+app.use(expressStaticGzip(path.join(packageRoot, 'packages', 'client', 'dist')));
 app.use('*', (req, res) => res.sendFile(path.join(packageRoot, 'packages', 'client', 'dist', 'index.html')));
 
 app.listen = function () {
