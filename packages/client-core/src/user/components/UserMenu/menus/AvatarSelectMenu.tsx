@@ -232,19 +232,12 @@ export const AvatarUploadModal = ({ avatarData, isPublicAvatar, changeActiveMenu
         ;(canvas.width = THUMBNAIL_WIDTH), (canvas.height = THUMBNAIL_HEIGHT)
         const newContext = canvas.getContext('2d')
         newContext?.drawImage(renderer.domElement, 0, 0)
-        canvas.toBlob(async (blob) => {
-          const uploadResponse = await AuthService.uploadAvatarModel(
-            avatarBlob,
-            blob!,
-            avatarName,
-            isPublicAvatar
-          ).then(resolve)
-          await AuthService.createAvatar(uploadResponse[0], uploadResponse[1], avatarName)
+        canvas.toBlob((blob) => {
+          AuthService.createAvatar(avatarBlob, blob!, avatarName, isPublicAvatar)
         })
       })
     } else {
-      const uploadResponse = await AuthService.uploadAvatarModel(avatarBlob, thumbnailBlob, avatarName, isPublicAvatar)
-      await AuthService.createAvatar(uploadResponse[0], uploadResponse[1], avatarName)
+      await AuthService.createAvatar(avatarBlob, thumbnailBlob, avatarName, isPublicAvatar)
     }
 
     onAvatarUpload && onAvatarUpload()
