@@ -114,7 +114,7 @@ export const parseObjectComponentsFromGLTF = (entity: Entity, object3d?: Object3
     mesh.removeFromParent()
     addComponent(e, Object3DComponent, { value: mesh })
 
-    addComponent(entity, GLTFLoadedComponent, [])
+    addComponent(e, GLTFLoadedComponent, ['entity', TransformComponent._name])
     createObjectEntityFromGLTF(e, mesh)
   }
 }

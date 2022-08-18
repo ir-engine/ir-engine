@@ -19,6 +19,10 @@ export const serializeWorld = (entityTreeNode?: EntityTreeNode, generateNewUUID 
   iterateEntityNode(
     traverseNode,
     (node, index) => {
+      const ignoreComponents = getComponent(node.entity, GLTFLoadedComponent)
+
+      if (ignoreComponents?.includes('entity')) return
+
       if (generateNewUUID) node.uuid = MathUtils.generateUUID()
       const entityJson = (sceneJson.entities[node.uuid] = { components: [] as ComponentJson[] } as EntityJson)
 
@@ -35,7 +39,6 @@ export const serializeWorld = (entityTreeNode?: EntityTreeNode, generateNewUUID 
       entityJson.name = getComponent(node.entity, NameComponent)?.name
 
       const components = getAllComponents(node.entity)
-      const ignoreComponents = getComponent(node.entity, GLTFLoadedComponent)
 
       for (const component of components) {
         const sceneComponentID = world.sceneComponentRegistry.get(component._name)!
