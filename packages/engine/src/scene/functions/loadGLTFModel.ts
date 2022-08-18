@@ -146,8 +146,9 @@ export const parseGLTFModel = (entity: Entity) => {
   const props = getComponent(entity, ModelComponent)
   const obj3d = getComponent(entity, Object3DComponent).value
 
-  // always parse components first
-  parseObjectComponentsFromGLTF(entity, obj3d)
+  if (!Engine.instance.isEditor)
+    // always parse components first
+    parseObjectComponentsFromGLTF(entity, obj3d)
 
   setObjectLayers(obj3d, ObjectLayers.Scene)
 

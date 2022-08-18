@@ -178,11 +178,6 @@ import {
 } from './loaders/ScreenshareTargetFunctions'
 import { deserializeShadow, SCENE_COMPONENT_SHADOW, serializeShadow, updateShadow } from './loaders/ShadowFunctions'
 import {
-  deserializeSimpleMaterial,
-  SCENE_COMPONENT_SIMPLE_MATERIALS,
-  serializeSimpleMaterial
-} from './loaders/SimpleMaterialFunctions'
-import {
   deserializeSkybox,
   SCENE_COMPONENT_SKYBOX,
   serializeSkybox,
@@ -282,12 +277,6 @@ export const registerDefaultSceneFunctions = (world: World) => {
     deserialize: deserializeRenderSetting,
     serialize: serializeRenderSettings,
     update: updateRenderSetting
-  })
-
-  world.sceneComponentRegistry.set(SimpleMaterialTagComponent._name, SCENE_COMPONENT_SIMPLE_MATERIALS)
-  world.sceneLoadingRegistry.set(SCENE_COMPONENT_SIMPLE_MATERIALS, {
-    deserialize: deserializeSimpleMaterial,
-    serialize: serializeSimpleMaterial
   })
 
   world.sceneComponentRegistry.set(DirectionalLightComponent._name, SCENE_COMPONENT_DIRECTIONAL_LIGHT)

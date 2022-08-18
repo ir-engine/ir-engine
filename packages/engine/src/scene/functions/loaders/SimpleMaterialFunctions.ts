@@ -11,41 +11,15 @@ import {
   UniformsUtils
 } from 'three'
 
-import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { XRUIComponent } from '@xrengine/engine/src/xrui/components/XRUIComponent'
 
-import { ComponentDeserializeFunction, ComponentSerializeFunction } from '../../../common/constants/PrefabFunctionType'
 import { addOBCPlugin } from '../../../common/functions/OnBeforeCompilePlugin'
 import { Engine } from '../../../ecs/classes/Engine'
-import { Entity } from '../../../ecs/classes/Entity'
-import { addComponent, getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
+import { hasComponent } from '../../../ecs/functions/ComponentFunctions'
 import { EngineRenderer } from '../../../renderer/WebGLRendererSystem'
 import { beforeMaterialCompile } from '../../classes/BPCEMShader'
 import { Object3DWithEntity } from '../../components/Object3DComponent'
-import { SimpleMaterialTagComponent } from '../../components/SimpleMaterialTagComponent'
 import { SceneOptions } from '../../systems/SceneObjectSystem'
-
-export const SCENE_COMPONENT_SIMPLE_MATERIALS = 'simple-materials'
-
-export const deserializeSimpleMaterial: ComponentDeserializeFunction = (
-  entity: Entity,
-  json: ComponentJson<{ simpleMaterials: boolean }>
-) => {
-  if (!json.props.simpleMaterials) return
-
-  addComponent(entity, SimpleMaterialTagComponent, true)
-}
-
-export const serializeSimpleMaterial: ComponentSerializeFunction = (entity) => {
-  if (hasComponent(entity, SimpleMaterialTagComponent)) {
-    return {
-      name: SCENE_COMPONENT_SIMPLE_MATERIALS,
-      props: {
-        simpleMaterials: {}
-      }
-    }
-  }
-}
 
 export const useSimpleMaterial = (obj: Object3DWithEntity & Mesh<any, any>): void => {
   const isStandardMaterial = obj.material instanceof MeshStandardMaterial

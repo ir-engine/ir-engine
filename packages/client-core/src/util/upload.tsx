@@ -4,8 +4,8 @@ import { accessAuthState } from '../user/services/AuthService'
 import { serverHost } from './config'
 import { RethrownError } from './errors'
 
-export type CancelableUploadPromiseReturnType = { cancel: () => void; promise: Promise<{ url: string }> }
-export type CancelableUploadPromiseArrayReturnType = { cancel: () => void; promises: Array<Promise<{ url: string }>> }
+export type CancelableUploadPromiseReturnType = { cancel: () => void; promise: Promise<string[]> }
+export type CancelableUploadPromiseArrayReturnType = { cancel: () => void; promises: Array<Promise<string[]>> }
 
 /**
  * upload used to upload image as blob data.
@@ -20,7 +20,7 @@ export type CancelableUploadPromiseArrayReturnType = { cancel: () => void; promi
 
 export const uploadToFeathersService = (
   service = 'upload-asset',
-  files: Blob | Array<Blob>,
+  files: Array<Blob>,
   params: any = {},
   onUploadProgress?: (progress: number) => any
 ): CancelableUploadPromiseReturnType => {
@@ -34,7 +34,7 @@ export const uploadToFeathersService = (
       aborted = true
       request.abort()
     },
-    promise: new Promise<{ url: string }>((resolve, reject) => {
+    promise: new Promise<string[]>((resolve, reject) => {
       request.upload.addEventListener('progress', (e) => {
         if (aborted) return
         if (onUploadProgress) onUploadProgress(e.loaded / e.total)
