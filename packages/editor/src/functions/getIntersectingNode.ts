@@ -10,7 +10,7 @@ import { ObjectLayers } from '@xrengine/engine/src/scene/constants/ObjectLayers'
 
 type RaycastIntersectionNode = Intersection<Object3DWithEntity> & {
   obj3d: Object3DWithEntity
-  node?: EntityTreeNode
+  node?: EntityTreeNode | string
 }
 
 function getParentEntity(obj: Object3DWithEntity): Object3DWithEntity {
@@ -28,11 +28,11 @@ export function getIntersectingNode(results: Intersection<Object3DWithEntity>[])
   if (results.length <= 0) return
 
   for (const result of results as RaycastIntersectionNode[]) {
-    const obj = getParentEntity(result.object)
+    const obj = result.object //getParentEntity(result.object)
 
     if (obj && (obj as Object3D) !== Engine.instance.currentWorld.scene) {
       result.obj3d = obj
-      result.node = Engine.instance.currentWorld.entityTree.entityNodeMap.get(obj.entity)
+      result.node = obj.entity ? Engine.instance.currentWorld.entityTree.entityNodeMap.get(obj.entity) : obj.uuid
       //if(result.node && hasComponent(result.node.entity, Object3DComponent))
       //result.obj3d = result.object
       //result.node = result.object.uuid

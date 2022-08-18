@@ -4,6 +4,7 @@ import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFuncti
 import { EngineRenderer } from '@xrengine/engine/src/renderer/WebGLRendererSystem'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 import { Effects } from '@xrengine/engine/src/scene/constants/PostProcessing'
+import obj3dFromUuid from '@xrengine/engine/src/scene/util/obj3dFromUuid'
 
 import { accessSelectionState } from '../services/SelectionServices'
 
@@ -16,7 +17,7 @@ export const updateOutlinePassSelection = (): void => {
     const parentEnt = parentEntities[i]
     const isUuid = typeof parentEnt === 'string'
     const obj3d = isUuid
-      ? Engine.instance.currentWorld.scene.getObjectByProperty('uuid', parentEnt)
+      ? obj3dFromUuid(parentEnt)
       : getComponent(parentEntities[i] as Entity, Object3DComponent)?.value
     obj3d?.traverse((child: any) => {
       if (

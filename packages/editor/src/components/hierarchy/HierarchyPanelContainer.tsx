@@ -209,13 +209,13 @@ export default function HierarchyPanel() {
       if (e.shiftKey) {
         executeCommandWithHistory({
           type: EditorCommands.TOGGLE_SELECTION,
-          affectedNodes: [node.entityNode ?? node.obj3d]
+          affectedNodes: [node.entityNode ?? node.obj3d!.uuid]
         })
         setSelectedNode(null)
       } else if (!node.selected) {
         executeCommandWithHistory({
           type: EditorCommands.REPLACE_SELECTION,
-          affectedNodes: [node.entityNode ?? node.obj3d]
+          affectedNodes: [node.entityNode ?? node.obj3d!.uuid]
         })
         setSelectedNode(node)
       }
@@ -254,7 +254,7 @@ export default function HierarchyPanel() {
           if (e.shiftKey) {
             executeCommandWithHistory({
               type: EditorCommands.ADD_TO_SELECTION,
-              affectedNodes: [nextNode.entityNode ?? nextNode.obj3d]
+              affectedNodes: [nextNode.entityNode ?? nextNode.obj3d!.uuid]
             })
           }
 
@@ -271,7 +271,7 @@ export default function HierarchyPanel() {
           if (e.shiftKey) {
             executeCommandWithHistory({
               type: EditorCommands.ADD_TO_SELECTION,
-              affectedNodes: [prevNode.entityNode ?? prevNode.obj3d]
+              affectedNodes: [prevNode.entityNode ?? prevNode.obj3d!.uuid]
             })
           }
 
@@ -299,13 +299,13 @@ export default function HierarchyPanel() {
           if (e.shiftKey) {
             executeCommandWithHistory({
               type: EditorCommands.TOGGLE_SELECTION,
-              affectedNodes: [node.entityNode ?? node.obj3d]
+              affectedNodes: [node.entityNode ?? node.obj3d!.uuid]
             })
             setSelectedNode(null)
           } else {
             executeCommandWithHistory({
               type: EditorCommands.REPLACE_SELECTION,
-              affectedNodes: [node.entityNode ?? node.obj3d]
+              affectedNodes: [node.entityNode ?? node.obj3d!.uuid]
             })
             setSelectedNode(node)
           }
@@ -323,21 +323,21 @@ export default function HierarchyPanel() {
   const onDeleteNode = useCallback((_, node: HeirarchyTreeNodeType) => {
     let objs = node.selected
       ? getEntityNodeArrayFromEntities(selectionState.selectedEntities.value)
-      : [node.entityNode ?? node.obj3d]
+      : [node.entityNode ?? node.obj3d!.uuid]
     executeCommandWithHistory({ type: EditorCommands.REMOVE_OBJECTS, affectedNodes: objs })
   }, [])
 
   const onDuplicateNode = useCallback((_, node: HeirarchyTreeNodeType) => {
     let objs = node.selected
       ? getEntityNodeArrayFromEntities(selectionState.selectedEntities.value)
-      : [node.entityNode ?? node.obj3d]
+      : [node.entityNode ?? node.obj3d!.uuid]
     executeCommandWithHistory({ type: EditorCommands.DUPLICATE_OBJECTS, affectedNodes: objs })
   }, [])
 
   const onGroupNodes = useCallback((_, node: HeirarchyTreeNodeType) => {
     const objs = node.selected
       ? getEntityNodeArrayFromEntities(selectionState.selectedEntities.value)
-      : [node.entityNode ?? node.obj3d]
+      : [node.entityNode ?? node.obj3d!.uuid]
     executeCommandWithHistory({ type: EditorCommands.GROUP, affectedNodes: objs })
   }, [])
   /* Event handlers */

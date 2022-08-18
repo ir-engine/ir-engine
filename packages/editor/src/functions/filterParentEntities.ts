@@ -1,4 +1,5 @@
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
+import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import { hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
@@ -14,8 +15,8 @@ import { TransformComponent } from '@xrengine/engine/src/transform/components/Tr
  * @returns List of parent entities
  */
 export const filterParentEntities = (
-  entityList: (Entity | string)[],
-  parentEntityList: (Entity | string)[] = [],
+  entityList: (EntityTreeNode | string)[],
+  parentEntityList: (EntityTreeNode | string)[] = [],
   filterUnremovable = true,
   filterUntransformable = true,
   tree = useWorld().entityTree

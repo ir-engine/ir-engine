@@ -43,7 +43,7 @@ describe('ScaleCommand', () => {
 
     accessSelectionState().merge({ selectedEntities: [nodes[0].entity] })
 
-    nodes.forEach((node) => {
+    nodes.forEach((node: EntityTreeNode) => {
       const obj3d = new Object3D()
       const transform = getRandomTransform()
       obj3d.scale.copy(transform.scale)
@@ -81,7 +81,10 @@ describe('ScaleCommand', () => {
       command.undo.scales.forEach((scale, i) => {
         assert.equal(command.undo?.space, TransformSpace.Local)
         assert.equal(command.undo?.overrideScale, true)
-        assert.deepEqual(scale, getComponent(command.affectedNodes[i].entity, TransformComponent).scale)
+        assert.deepEqual(
+          scale,
+          getComponent((command.affectedNodes[i] as EntityTreeNode).entity, TransformComponent).scale
+        )
       })
     })
 
@@ -189,13 +192,13 @@ describe('ScaleCommand', () => {
       command.scales = [getRandomTransform().scale]
       command.overrideScale = false
 
-      const newScales = command.affectedNodes.map((node, i) => {
+      const newScales = command.affectedNodes.map((node: EntityTreeNode, i) => {
         return new Vector3().copy(getComponent(node.entity, TransformComponent).scale).multiply(command.scales[i])
       })
 
       ScaleCommand.execute(command)
       applyIncomingActions()
-      command.affectedNodes.forEach((node, i) => {
+      command.affectedNodes.forEach((node: EntityTreeNode, i) => {
         assert.deepEqual(getComponent(node.entity, TransformComponent).scale, newScales[i])
       })
     })
@@ -207,7 +210,7 @@ describe('ScaleCommand', () => {
 
       ScaleCommand.execute(command)
       applyIncomingActions()
-      command.affectedNodes.forEach((node, i) => {
+      command.affectedNodes.forEach((node: EntityTreeNode, i) => {
         assert.deepEqual(getComponent(node.entity, TransformComponent).scale, command.scales[i])
       })
     })
@@ -219,7 +222,7 @@ describe('ScaleCommand', () => {
 
       ScaleCommand.execute(command)
       applyIncomingActions()
-      command.affectedNodes.forEach((node, i) => {
+      command.affectedNodes.forEach((node: EntityTreeNode, i) => {
         const scale = getComponent(node.entity, TransformComponent).scale
         assert.equal(scale.x, Number.EPSILON)
         assert.equal(scale.y, Number.EPSILON)
@@ -234,7 +237,7 @@ describe('ScaleCommand', () => {
 
       ScaleCommand.execute(command)
       applyIncomingActions()
-      command.affectedNodes.forEach((node, i) => {
+      command.affectedNodes.forEach((node: EntityTreeNode, i) => {
         assert.deepEqual(getComponent(node.entity, TransformComponent).scale, command.scales[i])
       })
     })
@@ -246,7 +249,7 @@ describe('ScaleCommand', () => {
 
       ScaleCommand.execute(command)
       applyIncomingActions()
-      command.affectedNodes.forEach((node, i) => {
+      command.affectedNodes.forEach((node: EntityTreeNode, i) => {
         const scale = getComponent(node.entity, TransformComponent).scale
         assert.equal(scale.x, Number.EPSILON)
         assert.equal(scale.y, Number.EPSILON)
@@ -261,7 +264,7 @@ describe('ScaleCommand', () => {
 
       ScaleCommand.execute(command)
       applyIncomingActions()
-      command.affectedNodes.forEach((node, i) => {
+      command.affectedNodes.forEach((node: EntityTreeNode, i) => {
         assert.deepEqual(getComponent(node.entity, TransformComponent).scale, command.scales[i])
       })
     })
@@ -278,7 +281,7 @@ describe('ScaleCommand', () => {
       applyIncomingActions()
       ScaleCommand.undo(command)
       applyIncomingActions()
-      command.affectedNodes.forEach((node, i) => {
+      command.affectedNodes.forEach((node: EntityTreeNode, i) => {
         assert.deepEqual(getComponent(node.entity, TransformComponent).scale, command.scales[i])
       })
     })
@@ -294,7 +297,7 @@ describe('ScaleCommand', () => {
       applyIncomingActions()
       ScaleCommand.undo(command)
       applyIncomingActions()
-      command.affectedNodes.forEach((node, i) => {
+      command.affectedNodes.forEach((node: EntityTreeNode, i) => {
         assert.deepEqual(getComponent(node.entity, TransformComponent).scale, command.undo?.scales[i])
       })
     })
