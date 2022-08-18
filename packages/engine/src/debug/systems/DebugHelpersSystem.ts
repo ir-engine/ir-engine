@@ -7,6 +7,8 @@ import {
   CameraHelper,
   Color,
   ConeBufferGeometry,
+  ConeGeometry,
+  CylinderGeometry,
   DirectionalLight,
   DoubleSide,
   Group,
@@ -19,6 +21,7 @@ import {
   PlaneBufferGeometry,
   Quaternion,
   SphereGeometry,
+  TorusGeometry,
   Vector3
 } from 'three'
 
@@ -44,20 +47,23 @@ import {
 } from '../../renderer/EngineRendererState'
 import EditorDirectionalLightHelper from '../../scene/classes/EditorDirectionalLightHelper'
 import InfiniteGridHelper from '../../scene/classes/InfiniteGridHelper'
+import Spline from '../../scene/classes/Spline'
 import { DirectionalLightComponent } from '../../scene/components/DirectionalLightComponent'
 import { EnvMapBakeComponent } from '../../scene/components/EnvMapBakeComponent'
 import { MediaElementComponent } from '../../scene/components/MediaElementComponent'
 import { MountPointComponent } from '../../scene/components/MountPointComponent'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { PointLightComponent } from '../../scene/components/PointLightComponent'
+import { PortalComponent } from '../../scene/components/PortalComponent'
 import { ScenePreviewCameraTagComponent } from '../../scene/components/ScenePreviewCamera'
 import { SelectTagComponent } from '../../scene/components/SelectTagComponent'
+import { SpawnPointComponent } from '../../scene/components/SpawnPointComponent'
+import { SplineComponent } from '../../scene/components/SplineComponent'
+import { SpotLightComponent } from '../../scene/components/SpotLightComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
-import { AUDIO_TEXTURE_PATH } from '../../scene/functions/loaders/AudioFunctions'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { XRInputSourceComponent } from '../../xr/XRComponents'
-import { DebugArrowComponent } from '../DebugArrowComponent'
 import { DebugNavMeshComponent } from '../DebugNavMeshComponent'
 import { PositionalAudioHelper } from '../PositionalAudioHelper'
 import { DebugRenderer } from './DebugRenderer'
@@ -68,15 +74,24 @@ const quat = new Quaternion()
 const cubeGeometry = new ConeBufferGeometry(0.05, 0.25, 4)
 cubeGeometry.rotateX(-Math.PI * 0.5)
 
+const AUDIO_TEXTURE_PATH = '/static/editor/audio-icon.png'
+const GLTF_PATH = '/static/editor/spawn-point.glb'
+
 export default async function DebugHelpersSystem(world: World) {
   InfiniteGridHelper.instance = new InfiniteGridHelper()
   Engine.instance.currentWorld.scene.add(InfiniteGridHelper.instance)
 
-  const AUDIO_HELPER_TEXTURE = await AssetLoader.loadAsync(AUDIO_TEXTURE_PATH)
+  const [AUDIO_HELPER_TEXTURE, { scene: spawnPointHelperModel }] = await Promise.all([
+    AssetLoader.loadAsync(AUDIO_TEXTURE_PATH),
+    AssetLoader.loadAsync(GLTF_PATH)
+  ])
+
+  spawnPointHelperModel.traverse((obj) => (obj.castShadow = true))
 
   const physicsDebugRenderer = DebugRenderer()
 
   const editorHelpers = new Map<Entity, Object3D>()
+  const editorStaticHelpers = new Map<Entity, Object3D>()
 
   const helpersByEntity = {
     viewVector: new Map(),
@@ -91,6 +106,10 @@ export default async function DebugHelpersSystem(world: World) {
   }
   const directionalLightQuery = defineQuery([DirectionalLightComponent])
   const pointLightQuery = defineQuery([PointLightComponent])
+  const spotLightQuery = defineQuery([SpotLightComponent])
+  const portalQuery = defineQuery([PortalComponent])
+  const splineQuery = defineQuery([SplineComponent])
+  const spawnPointQuery = defineQuery([SpawnPointComponent])
   const mountPointQuery = defineQuery([MountPointComponent])
   const envMapBakeQuery = defineQuery([EnvMapBakeComponent])
   const directionalLightSelectQuery = defineQuery([DirectionalLightComponent, SelectTagComponent])
@@ -149,9 +168,7 @@ export default async function DebugHelpersSystem(world: World) {
         const helper = new EditorDirectionalLightHelper(
           getComponent(entity, Object3DComponent).value as DirectionalLight
         )
-        helper.matrixAutoUpdate = false
         helper.visible = true
-        helper.userData.isHelper = true
         setObjectLayers(helper, ObjectLayers.NodeHelper)
         Engine.instance.currentWorld.scene.add(helper)
         editorHelpers.set(entity, helper)
@@ -159,7 +176,6 @@ export default async function DebugHelpersSystem(world: World) {
         // const cameraHelper = new CameraHelper(light.shadow.camera)
         // cameraHelper.visible = false
         // light.userData.cameraHelper = cameraHelper
-        // cameraHelper.userData.isHelper = true
         // setObjectLayers(cameraHelper, ObjectLayers.NodeHelper)
       }
 
@@ -185,7 +201,6 @@ export default async function DebugHelpersSystem(world: World) {
        */
       for (const entity of pointLightQuery.enter()) {
         const helper = new Object3D()
-        helper.matrixAutoUpdate = false
 
         const ball = new Mesh(new IcosahedronGeometry(0.15), new MeshBasicMaterial({ fog: false }))
         const rangeBall = new Mesh(
@@ -193,8 +208,6 @@ export default async function DebugHelpersSystem(world: World) {
           new MeshBasicMaterial({ fog: false, transparent: true, opacity: 0.5 })
         )
         helper.add(rangeBall, ball)
-        rangeBall.userData.isHelper = true
-        ball.userData.isHelper = true
 
         setObjectLayers(helper, ObjectLayers.NodeHelper)
 
@@ -209,13 +222,48 @@ export default async function DebugHelpersSystem(world: World) {
       }
 
       /**
+       * Spot Light
+       */
+
+      for (const entity of spotLightQuery.enter()) {
+        const helper = new Object3D()
+
+        const ring = new Mesh(new TorusGeometry(0.1, 0.025, 8, 12), new MeshBasicMaterial({ fog: false }))
+        const cone = new Mesh(
+          new ConeGeometry(0.25, 0.5, 8, 1, true),
+          new MeshBasicMaterial({ fog: false, transparent: true, opacity: 0.5, side: DoubleSide })
+        )
+        helper.add(ring, cone)
+
+        ring.rotateX(Math.PI / 2)
+        cone.position.setY(-0.25)
+
+        setObjectLayers(helper, ObjectLayers.NodeHelper)
+
+        editorHelpers.set(entity, helper)
+        Engine.instance.currentWorld.scene.add(helper)
+      }
+
+      for (const entity of spotLightQuery.exit()) {
+        const helper = editorHelpers.get(entity)!
+        Engine.instance.currentWorld.scene.remove(helper)
+        editorHelpers.delete(entity)
+      }
+
+      for (const entity of spotLightQuery()) {
+        const component = getComponent(entity, SpotLightComponent)
+        const helper = editorHelpers.get(entity)! as any
+        helper.children[0].material.color = component.color
+        helper.children[0].material.color = component.color
+      }
+
+      /**
        * Scene Preview Camera
        */
 
       for (const entity of scenePreviewCameraSelectQuery.enter()) {
         const camera = getComponent(entity, Object3DComponent)?.value as Camera
         const helper = new CameraHelper(camera)
-        helper.matrixAutoUpdate = false
         setObjectLayers(helper, ObjectLayers.NodeHelper)
         editorHelpers.set(entity, helper)
         Engine.instance.currentWorld.scene.add(helper)
@@ -236,9 +284,6 @@ export default async function DebugHelpersSystem(world: World) {
           new PlaneBufferGeometry(),
           new MeshBasicMaterial({ transparent: true, side: DoubleSide })
         )
-        helper.matrixAutoUpdate = false
-        helper.userData.disableOutline = true
-        helper.userData.isHelper = true
         helper.material.map = AUDIO_HELPER_TEXTURE
         setObjectLayers(helper, ObjectLayers.NodeHelper)
         Engine.instance.currentWorld.scene.add(helper)
@@ -257,17 +302,14 @@ export default async function DebugHelpersSystem(world: World) {
 
       for (const entity of envMapBakeQuery.enter()) {
         const helper = new Object3D()
-        helper.matrixAutoUpdate = false
 
         helper.userData.centerBall = new Mesh(
           new SphereGeometry(0.75),
           new MeshPhysicalMaterial({ roughness: 0, metalness: 1 })
         )
-        helper.userData.centerBall.userData.disableOutline = true
         helper.add(helper.userData.centerBall)
 
         helper.userData.gizmo = new BoxHelper(new Mesh(new BoxBufferGeometry()), 0xff0000)
-        helper.userData.gizmo.userData.disableOutline = true
         helper.add(helper.userData.gizmo)
 
         setObjectLayers(helper, ObjectLayers.NodeHelper)
@@ -293,10 +335,12 @@ export default async function DebugHelpersSystem(world: World) {
         editorHelpers.delete(entity)
       }
 
+      /**
+       * Mount Point
+       */
+
       for (const entity of mountPointQuery.enter()) {
         const helper = new ArrowHelper(new Vector3(0, 0, 1), new Vector3(0, 0, 0), 0.5, 0xffffff)
-        helper.matrixAutoUpdate = false
-        helper.userData.isHelper = true
         setObjectLayers(helper, ObjectLayers.NodeHelper)
         Engine.instance.currentWorld.scene.add(helper)
         editorHelpers.set(entity, helper)
@@ -309,14 +353,97 @@ export default async function DebugHelpersSystem(world: World) {
       }
 
       /**
+       * Portals
+       */
+
+      for (const entity of portalQuery.enter()) {
+        const helper = new Mesh(
+          new CylinderGeometry(0.25, 0.25, 0.1, 6, 1, false, (30 * Math.PI) / 180),
+          new MeshBasicMaterial({ color: 0x2b59c3 })
+        )
+
+        const spawnDirection = new Mesh(
+          new ConeGeometry(0.05, 0.5, 4, 1, false, Math.PI / 4),
+          new MeshBasicMaterial({ color: 0xd36582 })
+        )
+        spawnDirection.position.set(0, 0, 1.25)
+        spawnDirection.rotateX(Math.PI / 2)
+        helper.add(spawnDirection)
+
+        setObjectLayers(helper, ObjectLayers.NodeHelper)
+
+        Engine.instance.currentWorld.scene.add(helper)
+        editorStaticHelpers.set(entity, helper)
+      }
+
+      for (const entity of portalQuery.exit()) {
+        const helper = editorStaticHelpers.get(entity)!
+        Engine.instance.currentWorld.scene.remove(helper)
+        editorStaticHelpers.delete(entity)
+      }
+
+      for (const entity of portalQuery()) {
+        const portalComponent = getComponent(entity, PortalComponent)
+        const helper = editorStaticHelpers.get(entity)!
+        helper.position.copy(portalComponent.spawnPosition)
+        helper.quaternion.copy(portalComponent.spawnRotation)
+      }
+
+      /**
+       * Spawn Point
+       */
+
+      for (const entity of spawnPointQuery.enter()) {
+        const helper = spawnPointHelperModel.clone()
+        const helperBox = new BoxHelper(new Mesh(new BoxBufferGeometry(1, 0, 1)), 0xffffff)
+        helper.userData.helperBox = helperBox
+        helper.add(helperBox)
+        setObjectLayers(helper, ObjectLayers.NodeHelper)
+        Engine.instance.currentWorld.scene.add(helper)
+        editorHelpers.set(entity, helper)
+      }
+
+      for (const entity of spawnPointQuery.exit()) {
+        const helper = editorHelpers.get(entity)!
+        Engine.instance.currentWorld.scene.remove(helper)
+        editorHelpers.delete(entity)
+      }
+
+      for (const entity of spawnPointQuery()) {
+        const helper = editorHelpers.get(entity)!
+        const transform = getComponent(entity, TransformComponent)
+        helper.userData.helperBox.object.scale.copy(transform.scale)
+        helper.userData.helperBox.update()
+      }
+
+      /**
+       * Spline
+       */
+
+      for (const entity of splineQuery.enter()) {
+        const spline = getComponent(entity, SplineComponent)
+        const helper = new Spline()
+        helper.init(spline.splinePositions)
+        setObjectLayers(helper, ObjectLayers.NodeHelper)
+        Engine.instance.currentWorld.scene.add(helper)
+        editorHelpers.set(entity, helper)
+      }
+
+      for (const entity of splineQuery.exit()) {
+        const helper = editorHelpers.get(entity)!
+        Engine.instance.currentWorld.scene.remove(helper)
+        editorHelpers.delete(entity)
+      }
+
+      /**
        * Update helper positions
        */
+
       for (const [entity, helper] of editorHelpers) {
         const transform = getComponent(entity, TransformComponent)
         if (!transform) continue
         helper.position.copy(transform.position)
         helper.quaternion.copy(transform.rotation)
-        helper.updateMatrixWorld()
       }
     }
 
@@ -454,7 +581,6 @@ export default async function DebugHelpersSystem(world: World) {
             // helper.visible = false
             helpersByEntity.positionalAudioHelper.set(entity, helper)
             obj3d.value.add(helper)
-            helper.userData.isHelper = true
           }
 
           const helper = helpersByEntity.positionalAudioHelper.get(entity)

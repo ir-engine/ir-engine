@@ -12,8 +12,6 @@ import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
 import { Object3DComponent } from '../../components/Object3DComponent'
 import { SpotLightComponent, SpotLightComponentType } from '../../components/SpotLightComponent'
-import { ObjectLayers } from '../../constants/ObjectLayers'
-import { setObjectLayers } from '../setObjectLayers'
 
 export const SCENE_COMPONENT_SPOT_LIGHT = 'spot-light'
 export const SCENE_COMPONENT_SPOT_LIGHT_DEFAULT_VALUES = {
@@ -39,24 +37,6 @@ export const deserializeSpotLight: ComponentDeserializeFunction = (
   light.target.position.set(0, -1, 0)
   light.target.name = 'light-target'
   light.add(light.target)
-
-  const ring = new Mesh(new TorusGeometry(0.1, 0.025, 8, 12), new MeshBasicMaterial({ fog: false }))
-  const cone = new Mesh(
-    new ConeGeometry(0.25, 0.5, 8, 1, true),
-    new MeshBasicMaterial({ fog: false, transparent: true, opacity: 0.5, side: DoubleSide })
-  )
-  light.add(ring)
-  light.add(cone)
-  cone.userData.isHelper = true
-  ring.userData.isHelper = true
-  light.userData.ring = ring
-  light.userData.cone = cone
-
-  ring.rotateX(Math.PI / 2)
-  cone.position.setY(-0.25)
-
-  setObjectLayers(ring, ObjectLayers.NodeHelper)
-  setObjectLayers(cone, ObjectLayers.NodeHelper)
 
   addComponent(entity, Object3DComponent, { value: light })
   addComponent(entity, SpotLightComponent, props)
@@ -86,9 +66,6 @@ export const updateSpotLight: ComponentUpdateFunction = (entity: Entity, propert
     light.shadow.camera.updateProjectionMatrix()
     light.shadow.needsUpdate = true
   }
-
-  light.userData.ring.material.color = component.color
-  light.userData.cone.material.color = component.color
 }
 
 export const serializeSpotLight: ComponentSerializeFunction = (entity) => {
@@ -109,18 +86,6 @@ export const serializeSpotLight: ComponentSerializeFunction = (entity) => {
       shadowBias: component.shadowBias,
       shadowRadius: component.shadowRadius
     }
-  }
-}
-
-export const prepareSpotLightForGLTFExport: ComponentPrepareForGLTFExportFunction = (light) => {
-  if (light.userData.ring) {
-    if (light.userData.ring.parent) light.userData.ring.removeFromParent()
-    delete light.userData.ring
-  }
-
-  if (light.userData.cone) {
-    if (light.userData.cone.parent) light.userData.cone.removeFromParent()
-    delete light.userData.cone
   }
 }
 

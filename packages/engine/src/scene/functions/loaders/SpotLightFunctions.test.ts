@@ -74,11 +74,6 @@ describe('SpotLightFunctions', () => {
       assert(obj3d && obj3d instanceof SpotLight, 'SpotLight is not created')
       assert(obj3d.target.position.x === 0 && obj3d.target.position.y === -1 && obj3d.target.position.z === 0)
       assert(obj3d.children.includes(obj3d.target))
-
-      assert(obj3d.children.includes(obj3d.userData.ring) && obj3d.userData.ring.userData.isHelper)
-      assert(obj3d.children.includes(obj3d.userData.cone) && obj3d.userData.cone.userData.isHelper)
-      assert(obj3d.userData.ring.layers.isEnabled(ObjectLayers.NodeHelper))
-      assert(obj3d.userData.cone.layers.isEnabled(ObjectLayers.NodeHelper))
     })
   })
 

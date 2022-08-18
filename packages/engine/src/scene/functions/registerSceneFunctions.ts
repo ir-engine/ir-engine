@@ -104,7 +104,7 @@ import {
   serializePointLight,
   updatePointLight
 } from './loaders/PointLightFunctions'
-import { deserializePortal, SCENE_COMPONENT_PORTAL, serializePortal, updatePortal } from './loaders/PortalFunctions'
+import { deserializePortal, SCENE_COMPONENT_PORTAL, serializePortal } from './loaders/PortalFunctions'
 import {
   deserializePostprocessing,
   SCENE_COMPONENT_POSTPROCESSING,
@@ -148,16 +148,10 @@ import {
   shouldDeserializeSkybox,
   updateSkybox
 } from './loaders/SkyboxFunctions'
-import {
-  deserializeSpawnPoint,
-  prepareSpawnPointForGLTFExport,
-  SCENE_COMPONENT_SPAWN_POINT,
-  serializeSpawnPoint
-} from './loaders/SpawnPointFunctions'
-import { deserializeSpline, SCENE_COMPONENT_SPLINE, serializeSpline, updateSpline } from './loaders/SplineFunctions'
+import { deserializeSpawnPoint, SCENE_COMPONENT_SPAWN_POINT, serializeSpawnPoint } from './loaders/SpawnPointFunctions'
+import { deserializeSpline, SCENE_COMPONENT_SPLINE, serializeSpline } from './loaders/SplineFunctions'
 import {
   deserializeSpotLight,
-  prepareSpotLightForGLTFExport,
   SCENE_COMPONENT_SPOT_LIGHT,
   serializeSpotLight,
   updateSpotLight
@@ -287,8 +281,7 @@ export const registerDefaultSceneFunctions = (world: World) => {
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_SPOT_LIGHT, {
     deserialize: deserializeSpotLight,
     serialize: serializeSpotLight,
-    update: updateSpotLight,
-    prepareForGLTFExport: prepareSpotLightForGLTFExport
+    update: updateSpotLight
   })
 
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_POSTPROCESSING, {
@@ -314,8 +307,7 @@ export const registerDefaultSceneFunctions = (world: World) => {
 
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_SPAWN_POINT, {
     deserialize: deserializeSpawnPoint,
-    serialize: serializeSpawnPoint,
-    prepareForGLTFExport: prepareSpawnPointForGLTFExport
+    serialize: serializeSpawnPoint
   })
 
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_MODEL, {
@@ -353,8 +345,7 @@ export const registerDefaultSceneFunctions = (world: World) => {
 
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_PORTAL, {
     deserialize: deserializePortal,
-    serialize: serializePortal,
-    update: updatePortal
+    serialize: serializePortal
   })
 
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_TRIGGER_VOLUME, {
@@ -441,8 +432,7 @@ export const registerDefaultSceneFunctions = (world: World) => {
 
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_SPLINE, {
     deserialize: deserializeSpline,
-    serialize: serializeSpline,
-    update: updateSpline
+    serialize: serializeSpline
   })
 
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_ENVMAP_BAKE, {

@@ -39,7 +39,6 @@ describe('PortalFunctions', () => {
     const linkedPortalId = MathUtils.generateUUID()
 
     const sceneComponentData = {
-      helper: null!,
       redirect: false,
       location: 'test',
       effectType: '',

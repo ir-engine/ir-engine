@@ -48,7 +48,6 @@ export const deserializeOcean: ComponentDeserializeFunction = (
   if (!isClient) return
 
   const obj3d = new Ocean(entity)
-  obj3d.userData.disableOutline = true
   const props = parseOceanProperties(json.props)
 
   addComponent(entity, Object3DComponent, { value: obj3d })

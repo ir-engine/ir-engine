@@ -9,7 +9,6 @@ import {
 } from 'three'
 
 import { ObjectLayers } from '../constants/ObjectLayers'
-import { addIsHelperFlag } from '../functions/addIsHelperFlag'
 import { setObjectLayers } from '../functions/setObjectLayers'
 
 export default class EditorDirectionalLightHelper extends Object3D {
@@ -89,7 +88,6 @@ export default class EditorDirectionalLightHelper extends Object3D {
     this.add(this.targetLine)
 
     setObjectLayers(this, ObjectLayers.NodeHelper)
-    addIsHelperFlag(this)
   }
 
   update() {

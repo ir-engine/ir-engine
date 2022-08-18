@@ -29,7 +29,6 @@ export const deserializeInterior: ComponentDeserializeFunction = (
   if (!isClient) return
 
   const obj3d = new Interior(entity)
-  obj3d.userData.disableOutline = true
   const props = parseInteriorProperties(json.props)
 
   addComponent(entity, Object3DComponent, { value: obj3d })

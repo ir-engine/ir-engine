@@ -55,7 +55,6 @@ describe('TriggerVolumeFunctions', () => {
 
       const obj3d = getComponent(entity, Object3DComponent)?.value as Mesh<any, MeshBasicMaterial>
       assert(obj3d && obj3d.material.visible === false, 'TriggerVolume outline is not disabled')
-      assert(obj3d && obj3d.userData.isHelper, 'TriggerVolume outline is not disabled')
     })
   })
 

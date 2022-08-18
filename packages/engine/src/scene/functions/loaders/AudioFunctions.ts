@@ -20,8 +20,6 @@ import { Object3DComponent } from '../../components/Object3DComponent'
 import { PlayMode } from '../../constants/PlayMode'
 import { getNextPlaylistItem, updateAutoStartTimeForMedia } from './MediaFunctions'
 
-export const AUDIO_TEXTURE_PATH = '/static/editor/audio-icon.png' // Static
-
 export const SCENE_COMPONENT_AUDIO = 'audio'
 export const SCENE_COMPONENT_AUDIO_DEFAULT_VALUES = {
   volume: 1,
