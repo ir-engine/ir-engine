@@ -6,7 +6,6 @@ import { InteractableComponent } from '../../interaction/components/Interactable
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { AmbientLightComponent } from '../components/AmbientLightComponent'
 import { AssetComponent } from '../components/AssetComponent'
-import { PositionalAudioSettingsComponent } from '../components/AudioSettingsComponent'
 import { BoxColliderComponent } from '../components/BoxColliderComponent'
 import { CameraPropertiesComponent } from '../components/CameraPropertiesComponent'
 import { CloudComponent } from '../components/CloudComponent'
@@ -54,11 +53,6 @@ import {
 } from './loaders/AmbientLightFunctions'
 import { deserializeAsset, SCENE_COMPONENT_ASSET, serializeAsset } from './loaders/AssetComponentFunctions'
 import { deserializeAudio, SCENE_COMPONENT_AUDIO, serializeAudio } from './loaders/AudioFunctions'
-import {
-  deserializeAudioSetting,
-  SCENE_COMPONENT_AUDIO_SETTINGS,
-  serializeAudioSetting
-} from './loaders/AudioSettingFunctions'
 import {
   deserializeBoxCollider,
   SCENE_COMPONENT_BOX_COLLIDER,
@@ -250,12 +244,6 @@ export const registerDefaultSceneFunctions = (world: World) => {
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_PREVENT_BAKE, {
     deserialize: deserializePreventBake,
     serialize: serializePreventBake
-  })
-
-  world.sceneComponentRegistry.set(PositionalAudioSettingsComponent._name, SCENE_COMPONENT_AUDIO_SETTINGS)
-  world.sceneLoadingRegistry.set(SCENE_COMPONENT_AUDIO_SETTINGS, {
-    deserialize: deserializeAudioSetting,
-    serialize: serializeAudioSetting
   })
 
   world.sceneComponentRegistry.set(EnvmapComponent._name, SCENE_COMPONENT_ENVMAP)

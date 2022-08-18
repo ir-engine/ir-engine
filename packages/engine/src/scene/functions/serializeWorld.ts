@@ -42,9 +42,18 @@ export const serializeWorld = (entityTreeNode?: EntityTreeNode, generateNewUUID 
 
       for (const component of components) {
         const sceneComponentID = world.sceneComponentRegistry.get(component._name)!
-        if (sceneComponentID && !ignoreComponents?.includes(component)) {
-          const data = world.sceneLoadingRegistry.get(sceneComponentID)?.serialize(node.entity)
-          if (data) entityJson.components.push(JSON.parse(JSON.stringify(data)))
+        if (
+          sceneComponentID &&
+          !ignoreComponents?.includes(component) &&
+          world.sceneLoadingRegistry.has(sceneComponentID)
+        ) {
+          const data =
+            world.sceneLoadingRegistry.get(sceneComponentID)?.serialize(node.entity) ??
+            getComponent(node.entity, component)
+          entityJson.components.push({
+            name: sceneComponentID,
+            props: Object.assign({}, data)
+          })
         }
       }
 

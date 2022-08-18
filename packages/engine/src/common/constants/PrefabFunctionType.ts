@@ -12,8 +12,9 @@ export type ComponentShouldDeserializeFunction = () => boolean
 export type ComponentPrepareForGLTFExportFunction = (object: Object3D) => void
 
 export type SceneLoaderType = {
-  serialize: ComponentSerializeFunction
-  deserialize: ComponentDeserializeFunction
+  defaultData?: any
+  serialize?: ComponentSerializeFunction
+  deserialize?: ComponentDeserializeFunction
   update?: ComponentUpdateFunction
   shouldDeserialize?: ComponentShouldDeserializeFunction
   prepareForGLTFExport?: ComponentPrepareForGLTFExportFunction

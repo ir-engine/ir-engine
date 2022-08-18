@@ -11,7 +11,7 @@ import { EngineActions } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { EntityTreeNode } from '../../ecs/classes/EntityTree'
 import { World } from '../../ecs/classes/World'
-import { addComponent, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
+import { addComponent, ComponentMap, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { unloadScene } from '../../ecs/functions/EngineFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { addEntityNodeInTree, createEntityNode } from '../../ecs/functions/EntityTreeFunctions'
@@ -230,14 +230,26 @@ export const loadSceneEntity = (entityNode: EntityTreeNode, sceneEntity: EntityJ
   return entityNode.entity
 }
 
-export const loadComponent = (entity: Entity, component: ComponentJson): void => {
-  // remove '-1', '-2' etc suffixes
-  const name = component.name.replace(/(-\d+)|(\s)/g, '')
-  const world = Engine.instance.currentWorld
+export const loadComponent = (entity: Entity, component: ComponentJson, world = Engine.instance.currentWorld): void => {
+  const sceneComponent = world.sceneLoadingRegistry.get(component.name)
 
-  const deserializer = world.sceneLoadingRegistry.get(name)?.deserialize
+  if (!sceneComponent) return
+
+  const deserializer = sceneComponent.deserialize
 
   if (deserializer) {
     deserializer(entity, component)
+  } else {
+    const Component = Array.from(Engine.instance.currentWorld.sceneComponentRegistry).find(
+      ([_, prefab]) => prefab === component.name
+    )!
+    if (!Component[0]) return console.warn('[ SceneLoading] could not find component name', Component)
+
+    const isTagComponent = !sceneComponent.defaultData
+    addComponent(
+      entity,
+      ComponentMap.get(Component[0]),
+      isTagComponent ? true : { ...sceneComponent.defaultData, ...component.props }
+    )
   }
 }
