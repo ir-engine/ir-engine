@@ -107,12 +107,6 @@ export const SceneNodeEditor: EditorComponentType = (props) => {
       name={t('editor:properties.scene.name')}
       description={t('editor:properties.scene.description')}
     >
-      {metadata && (
-        <InputGroup name="Metadata" label="Metadata">
-          <StringInput value={metadata.meta_data} onChange={updateProperty(MetaDataComponent, 'meta_data')} />
-        </InputGroup>
-      )}
-
       <EnvMapEditor node={props.node} />
       <InputGroup
         name="Media Distance Model"

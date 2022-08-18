@@ -4,16 +4,19 @@ import ReactJson from 'react-json-view'
 import { Euler, InstancedMesh, Material, Matrix4, Mesh, Object3D, Quaternion, Scene, Vector3 } from 'three'
 
 import { AxisIcon } from '@xrengine/client-core/src/util/AxisIcon'
-import { Rad2Deg } from '@xrengine/engine/src/common/functions/MathFunctions'
+import { Deg2Rad, Rad2Deg } from '@xrengine/engine/src/common/functions/MathFunctions'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Object3DWithEntity } from '@xrengine/engine/src/scene/components/Object3DComponent'
 import { useHookEffect, useHookstate } from '@xrengine/hyperflux'
+
+import { SpaceBar } from '@mui/icons-material'
 
 import { executeCommandWithHistory } from '../../classes/History'
 import EditorCommands from '../../constants/EditorCommands'
 import BooleanInput from '../inputs/BooleanInput'
 import { Button } from '../inputs/Button'
 import InputGroup from '../inputs/InputGroup'
+import StringInput from '../inputs/StringInput'
 import Vector3Input from '../inputs/Vector3Input'
 import CollapsibleBlock from '../layout/CollapsibleBlock'
 import { List } from '../layout/List'
@@ -125,10 +128,35 @@ export const Object3DNodeEditor: EditorComponentType = (props) => {
       {/* frustrum culling */ updateObj3d('frustrumCulled', 'Frustrum Culled')}
       {/* visibility */ updateObj3d('visible', 'Visible')}
       {
-        /* cast / receive shadows */
         <Well>
-          {updateObj3d('castShadow', 'Cast Shadow')}
-          {updateObj3d('receiveShadow', 'Receive Shadow')}
+          <Well>
+            <InputGroup label="Name" name="Name">
+              <StringInput value={obj3d.name} onChange={(name) => (obj3d.name = name)} />
+            </InputGroup>
+            <SpaceBar />
+            <Well>
+              <InputGroup name="Position" label="Translation">
+                <Vector3Input
+                  value={obj3d.position}
+                  onChange={(nuPosition) => obj3d.position.set(nuPosition.x, nuPosition.y, nuPosition.z)}
+                />
+              </InputGroup>
+              <InputGroup name="Rotation" label="Rotation">
+                <Vector3Input
+                  value={new Vector3(obj3d.rotation.x, obj3d.rotation.y, obj3d.rotation.z).multiplyScalar(Rad2Deg)}
+                  onChange={(nuEulers) => obj3d.rotation.setFromVector3(nuEulers.multiplyScalar(Deg2Rad))}
+                />
+              </InputGroup>
+              <InputGroup name="Scale" label="Scale">
+                <Vector3Input value={obj3d.scale} onChange={(nuScale) => obj3d.scale.copy(nuScale)} />
+              </InputGroup>
+            </Well>
+          </Well>
+          /* cast / receive shadows */
+          <Well>
+            {updateObj3d('castShadow', 'Cast Shadow')}
+            {updateObj3d('receiveShadow', 'Receive Shadow')}
+          </Well>
         </Well>
       }
       <Button onClick={selectParentEntityNode}>Parent Node</Button>
