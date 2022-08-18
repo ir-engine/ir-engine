@@ -197,12 +197,7 @@ export default async function EditorControlSystem(_: World) {
                 if (isUuid) {
                   box.expandByObject(Engine.instance.currentWorld.scene.getObjectByProperty('uuid', parentEnt)!)
                 } else {
-                  const objectBB = getComponent(parentEnt, BoundingBoxComponent)
-                  if (objectBB) {
-                    box.union(objectBB.box)
-                  } else if (hasComponent(parentEnt, TransformComponent)) {
-                    box.expandByPoint(getComponent(parentEnt, TransformComponent).position)
-                  }
+                  box.expandByPoint(getComponent(parentEnt, TransformComponent).position)
                 }
               }
 
