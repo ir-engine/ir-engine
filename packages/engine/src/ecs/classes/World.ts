@@ -274,7 +274,7 @@ export class World {
   sceneLoadingRegistry = new Map<string, SceneLoaderType>()
 
   /** Scene component of scene loader components  */
-  sceneComponentRegistry = new Map<ComponentType<any>, string>()
+  sceneComponentRegistry = new Map<string, string>()
 
   /** Registry map of prefabs  */
   scenePrefabRegistry = new Map<string, ComponentJson[]>()

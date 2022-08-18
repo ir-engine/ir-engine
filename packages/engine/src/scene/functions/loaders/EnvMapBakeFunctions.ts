@@ -34,7 +34,6 @@ export const deserializeEnvMapBake: ComponentDeserializeFunction = (
 ) => {
   const props = parseEnvMapBakeProperties(json.props)
   addComponent(entity, EnvMapBakeComponent, props)
-  addComponent(entity, PreventBakeTagComponent, true)
 }
 
 export const serializeEnvMapBake: ComponentSerializeFunction = (entity) => {

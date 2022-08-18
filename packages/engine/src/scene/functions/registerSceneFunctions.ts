@@ -118,11 +118,6 @@ import {
 } from './loaders/ImageFunctions'
 import { deserializeInstancing, SCENE_COMPONENT_INSTANCING, serializeInstancing } from './loaders/InstancingFunctions'
 import {
-  deserializeInteractable,
-  SCENE_COMPONENT_INTERACTABLE,
-  serializeInteractable
-} from './loaders/InteractableFunctions'
-import {
   deserializeInterior,
   SCENE_COMPONENT_INTERIOR,
   serializeInterior,
@@ -229,56 +224,52 @@ import { deserializeWater, SCENE_COMPONENT_WATER, serializeWater, updateWater } 
 // TODO: split this into respective modules when we modularise the engine content
 
 export const registerDefaultSceneFunctions = (world: World) => {
-  /** BASE NODE INTERNALS */
-
   /** @todo: merge sceneComponentRegistry and sceneLoadingRegistry when scene loader IDs use XRE_ extension names*/
 
-  world.sceneComponentRegistry.set(TransformComponent, SCENE_COMPONENT_TRANSFORM)
+  world.sceneComponentRegistry.set(TransformComponent._name, SCENE_COMPONENT_TRANSFORM)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_TRANSFORM, {
     deserialize: deserializeTransform,
     serialize: serializeTransform
   })
 
-  world.sceneComponentRegistry.set(SceneDynamicLoadTagComponent, SCENE_COMPONENT_DYNAMIC_LOAD)
+  world.sceneComponentRegistry.set(SceneDynamicLoadTagComponent._name, SCENE_COMPONENT_DYNAMIC_LOAD)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_DYNAMIC_LOAD, {
     deserialize: deserializeDynamicLoad,
     serialize: serializeDynamicLoad
   })
 
-  world.sceneComponentRegistry.set(VisibleComponent, SCENE_COMPONENT_VISIBLE)
+  world.sceneComponentRegistry.set(VisibleComponent._name, SCENE_COMPONENT_VISIBLE)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_VISIBLE, {
     deserialize: deserializeVisible,
     serialize: serializeVisible
   })
 
-  world.sceneComponentRegistry.set(ShadowComponent, SCENE_COMPONENT_SHADOW)
+  world.sceneComponentRegistry.set(ShadowComponent._name, SCENE_COMPONENT_SHADOW)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_SHADOW, {
     deserialize: deserializeShadow,
     serialize: serializeShadow,
     update: updateShadow
   })
 
-  world.sceneComponentRegistry.set(PreventBakeTagComponent, SCENE_COMPONENT_PREVENT_BAKE)
+  world.sceneComponentRegistry.set(PreventBakeTagComponent._name, SCENE_COMPONENT_PREVENT_BAKE)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_PREVENT_BAKE, {
     deserialize: deserializePreventBake,
     serialize: serializePreventBake
   })
 
-  /** SCENE NODE INTERNALS */
-
-  world.sceneComponentRegistry.set(PositionalAudioSettingsComponent, SCENE_COMPONENT_AUDIO_SETTINGS)
+  world.sceneComponentRegistry.set(PositionalAudioSettingsComponent._name, SCENE_COMPONENT_AUDIO_SETTINGS)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_AUDIO_SETTINGS, {
     deserialize: deserializeAudioSetting,
     serialize: serializeAudioSetting
   })
 
-  world.sceneComponentRegistry.set(EnvmapComponent, SCENE_COMPONENT_ENVMAP)
+  world.sceneComponentRegistry.set(EnvmapComponent._name, SCENE_COMPONENT_ENVMAP)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_ENVMAP, {
     deserialize: deserializeEnvMap,
     serialize: serializeEnvMap
   })
 
-  world.sceneComponentRegistry.set(FogComponent, SCENE_COMPONENT_FOG)
+  world.sceneComponentRegistry.set(FogComponent._name, SCENE_COMPONENT_FOG)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_FOG, {
     deserialize: deserializeFog,
     serialize: serializeFog,
@@ -286,29 +277,27 @@ export const registerDefaultSceneFunctions = (world: World) => {
     shouldDeserialize: shouldDeserializeFog
   })
 
-  world.sceneComponentRegistry.set(RenderSettingComponent, SCENE_COMPONENT_RENDERER_SETTINGS)
+  world.sceneComponentRegistry.set(RenderSettingComponent._name, SCENE_COMPONENT_RENDERER_SETTINGS)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_RENDERER_SETTINGS, {
     deserialize: deserializeRenderSetting,
     serialize: serializeRenderSettings,
     update: updateRenderSetting
   })
 
-  world.sceneComponentRegistry.set(SimpleMaterialTagComponent, SCENE_COMPONENT_SIMPLE_MATERIALS)
+  world.sceneComponentRegistry.set(SimpleMaterialTagComponent._name, SCENE_COMPONENT_SIMPLE_MATERIALS)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_SIMPLE_MATERIALS, {
     deserialize: deserializeSimpleMaterial,
     serialize: serializeSimpleMaterial
   })
 
-  /** NODES */
-
-  world.sceneComponentRegistry.set(DirectionalLightComponent, SCENE_COMPONENT_DIRECTIONAL_LIGHT)
+  world.sceneComponentRegistry.set(DirectionalLightComponent._name, SCENE_COMPONENT_DIRECTIONAL_LIGHT)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_DIRECTIONAL_LIGHT, {
     deserialize: deserializeDirectionalLight,
     serialize: serializeDirectionalLight,
     update: updateDirectionalLight
   })
 
-  world.sceneComponentRegistry.set(GroundPlaneComponent, SCENE_COMPONENT_GROUND_PLANE)
+  world.sceneComponentRegistry.set(GroundPlaneComponent._name, SCENE_COMPONENT_GROUND_PLANE)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_GROUND_PLANE, {
     deserialize: deserializeGround,
     serialize: serializeGroundPlane,
@@ -317,7 +306,7 @@ export const registerDefaultSceneFunctions = (world: World) => {
     prepareForGLTFExport: prepareGroundPlaneForGLTFExport
   })
 
-  world.sceneComponentRegistry.set(HemisphereLightComponent, SCENE_COMPONENT_HEMISPHERE_LIGHT)
+  world.sceneComponentRegistry.set(HemisphereLightComponent._name, SCENE_COMPONENT_HEMISPHERE_LIGHT)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_HEMISPHERE_LIGHT, {
     deserialize: deserializeHemisphereLight,
     serialize: serializeHemisphereLight,
@@ -325,7 +314,7 @@ export const registerDefaultSceneFunctions = (world: World) => {
     shouldDeserialize: shouldDeserializeHemisphereLight
   })
 
-  world.sceneComponentRegistry.set(AmbientLightComponent, SCENE_COMPONENT_AMBIENT_LIGHT)
+  world.sceneComponentRegistry.set(AmbientLightComponent._name, SCENE_COMPONENT_AMBIENT_LIGHT)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_AMBIENT_LIGHT, {
     deserialize: deserializeAmbientLight,
     serialize: serializeAmbientLight,
@@ -333,21 +322,21 @@ export const registerDefaultSceneFunctions = (world: World) => {
     shouldDeserialize: shouldDeserializeAmbientLight
   })
 
-  world.sceneComponentRegistry.set(PointLightComponent, SCENE_COMPONENT_POINT_LIGHT)
+  world.sceneComponentRegistry.set(PointLightComponent._name, SCENE_COMPONENT_POINT_LIGHT)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_POINT_LIGHT, {
     deserialize: deserializePointLight,
     serialize: serializePointLight,
     update: updatePointLight
   })
 
-  world.sceneComponentRegistry.set(SpotLightComponent, SCENE_COMPONENT_SPOT_LIGHT)
+  world.sceneComponentRegistry.set(SpotLightComponent._name, SCENE_COMPONENT_SPOT_LIGHT)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_SPOT_LIGHT, {
     deserialize: deserializeSpotLight,
     serialize: serializeSpotLight,
     update: updateSpotLight
   })
 
-  world.sceneComponentRegistry.set(PostprocessingComponent, SCENE_COMPONENT_POSTPROCESSING)
+  world.sceneComponentRegistry.set(PostprocessingComponent._name, SCENE_COMPONENT_POSTPROCESSING)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_POSTPROCESSING, {
     deserialize: deserializePostprocessing,
     serialize: serializePostprocessing,
@@ -355,7 +344,7 @@ export const registerDefaultSceneFunctions = (world: World) => {
     shouldDeserialize: shouldDeserializePostprocessing
   })
 
-  world.sceneComponentRegistry.set(ScenePreviewCameraTagComponent, SCENE_COMPONENT_SCENE_PREVIEW_CAMERA)
+  world.sceneComponentRegistry.set(ScenePreviewCameraTagComponent._name, SCENE_COMPONENT_SCENE_PREVIEW_CAMERA)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_SCENE_PREVIEW_CAMERA, {
     deserialize: deserializeScenePreviewCamera,
     serialize: serializeScenePreviewCamera,
@@ -363,7 +352,7 @@ export const registerDefaultSceneFunctions = (world: World) => {
     shouldDeserialize: shouldDeserializeScenePreviewCamera
   })
 
-  world.sceneComponentRegistry.set(SkyboxComponent, SCENE_COMPONENT_SKYBOX)
+  world.sceneComponentRegistry.set(SkyboxComponent._name, SCENE_COMPONENT_SKYBOX)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_SKYBOX, {
     deserialize: deserializeSkybox,
     serialize: serializeSkybox,
@@ -371,58 +360,58 @@ export const registerDefaultSceneFunctions = (world: World) => {
     shouldDeserialize: shouldDeserializeSkybox
   })
 
-  world.sceneComponentRegistry.set(SpawnPointComponent, SCENE_COMPONENT_SPAWN_POINT)
+  world.sceneComponentRegistry.set(SpawnPointComponent._name, SCENE_COMPONENT_SPAWN_POINT)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_SPAWN_POINT, {
     deserialize: deserializeSpawnPoint,
     serialize: serializeSpawnPoint
   })
 
-  world.sceneComponentRegistry.set(ModelComponent, SCENE_COMPONENT_MODEL)
+  world.sceneComponentRegistry.set(ModelComponent._name, SCENE_COMPONENT_MODEL)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_MODEL, {
     deserialize: deserializeModel,
     serialize: serializeModel,
     update: updateModel
   })
 
-  world.sceneComponentRegistry.set(GroupComponent, SCENE_COMPONENT_GROUP)
+  world.sceneComponentRegistry.set(GroupComponent._name, SCENE_COMPONENT_GROUP)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_GROUP, {
     deserialize: deserializeGroup,
     serialize: serializeGroup
   })
 
-  world.sceneComponentRegistry.set(AssetComponent, SCENE_COMPONENT_ASSET)
+  world.sceneComponentRegistry.set(AssetComponent._name, SCENE_COMPONENT_ASSET)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_ASSET, {
     deserialize: deserializeAsset,
     serialize: serializeAsset
   })
 
-  world.sceneComponentRegistry.set(LoopAnimationComponent, SCENE_COMPONENT_LOOP_ANIMATION)
+  world.sceneComponentRegistry.set(LoopAnimationComponent._name, SCENE_COMPONENT_LOOP_ANIMATION)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_LOOP_ANIMATION, {
     deserialize: deserializeLoopAnimation,
     serialize: serializeLoopAnimation,
     update: updateLoopAnimation
   })
 
-  world.sceneComponentRegistry.set(ParticleEmitterComponent, SCENE_COMPONENT_PARTICLE_EMITTER)
+  world.sceneComponentRegistry.set(ParticleEmitterComponent._name, SCENE_COMPONENT_PARTICLE_EMITTER)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_PARTICLE_EMITTER, {
     deserialize: deserializeParticleEmitter,
     serialize: serializeParticleEmitter,
     update: updateParticleEmitter
   })
 
-  world.sceneComponentRegistry.set(CameraPropertiesComponent, SCENE_COMPONENT_CAMERA_PROPERTIES)
+  world.sceneComponentRegistry.set(CameraPropertiesComponent._name, SCENE_COMPONENT_CAMERA_PROPERTIES)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_CAMERA_PROPERTIES, {
     deserialize: deserializeCameraProperties,
     serialize: serializeCameraProperties
   })
 
-  world.sceneComponentRegistry.set(PortalComponent, SCENE_COMPONENT_PORTAL)
+  world.sceneComponentRegistry.set(PortalComponent._name, SCENE_COMPONENT_PORTAL)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_PORTAL, {
     deserialize: deserializePortal,
     serialize: serializePortal
   })
 
-  world.sceneComponentRegistry.set(TriggerVolumeComponent, SCENE_COMPONENT_TRIGGER_VOLUME)
+  world.sceneComponentRegistry.set(TriggerVolumeComponent._name, SCENE_COMPONENT_TRIGGER_VOLUME)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_TRIGGER_VOLUME, {
     deserialize: deserializeTriggerVolume,
     serialize: serializeTriggerVolume,
@@ -430,20 +419,20 @@ export const registerDefaultSceneFunctions = (world: World) => {
   })
 
   // this is only ever loaded by gltf user data, thus does not need a component registry pair
-  // world.sceneComponentRegistry.set(, SCENE_COMPONENT_COLLIDER)
+  // world.sceneComponentRegistry.set(._name, SCENE_COMPONENT_COLLIDER)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_COLLIDER, {
     deserialize: deserializeCollider,
     serialize: serializeCollider
   })
 
-  world.sceneComponentRegistry.set(BoxColliderComponent, SCENE_COMPONENT_BOX_COLLIDER)
+  world.sceneComponentRegistry.set(BoxColliderComponent._name, SCENE_COMPONENT_BOX_COLLIDER)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_BOX_COLLIDER, {
     deserialize: deserializeBoxCollider,
     serialize: serializeBoxCollider,
     update: updateBoxCollider
   })
 
-  world.sceneComponentRegistry.set(ImageComponent, SCENE_COMPONENT_IMAGE)
+  world.sceneComponentRegistry.set(ImageComponent._name, SCENE_COMPONENT_IMAGE)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_IMAGE, {
     deserialize: deserializeImage,
     serialize: serializeImage,
@@ -451,32 +440,26 @@ export const registerDefaultSceneFunctions = (world: World) => {
     prepareForGLTFExport: prepareImageForGLTFExport
   })
 
-  world.sceneComponentRegistry.set(AudioComponent, SCENE_COMPONENT_AUDIO)
+  world.sceneComponentRegistry.set(AudioComponent._name, SCENE_COMPONENT_AUDIO)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_AUDIO, {
     deserialize: deserializeAudio,
     serialize: serializeAudio
   })
 
-  world.sceneComponentRegistry.set(VideoComponent, SCENE_COMPONENT_VIDEO)
+  world.sceneComponentRegistry.set(VideoComponent._name, SCENE_COMPONENT_VIDEO)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_VIDEO, {
     deserialize: deserializeVideo,
     serialize: serializeVideo,
     prepareForGLTFExport: prepareVideoForGLTFExport
   })
 
-  world.sceneComponentRegistry.set(MediaComponent, SCENE_COMPONENT_MEDIA)
+  world.sceneComponentRegistry.set(MediaComponent._name, SCENE_COMPONENT_MEDIA)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_MEDIA, {
     deserialize: deserializeMedia,
     serialize: serializeMedia
   })
 
-  world.sceneComponentRegistry.set(InteractableComponent, SCENE_COMPONENT_INTERACTABLE)
-  world.sceneLoadingRegistry.set(SCENE_COMPONENT_INTERACTABLE, {
-    deserialize: deserializeInteractable,
-    serialize: serializeInteractable
-  })
-
-  world.sceneComponentRegistry.set(VolumetricComponent, SCENE_COMPONENT_VOLUMETRIC)
+  world.sceneComponentRegistry.set(VolumetricComponent._name, SCENE_COMPONENT_VOLUMETRIC)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_VOLUMETRIC, {
     deserialize: deserializeVolumetric,
     serialize: serializeVolumetric,
@@ -484,72 +467,72 @@ export const registerDefaultSceneFunctions = (world: World) => {
     prepareForGLTFExport: prepareVolumetricForGLTFExport
   })
 
-  world.sceneComponentRegistry.set(CloudComponent, SCENE_COMPONENT_CLOUD)
+  world.sceneComponentRegistry.set(CloudComponent._name, SCENE_COMPONENT_CLOUD)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_CLOUD, {
     deserialize: deserializeCloud,
     serialize: serializeCloud,
     update: updateCloud
   })
 
-  world.sceneComponentRegistry.set(OceanComponent, SCENE_COMPONENT_OCEAN)
+  world.sceneComponentRegistry.set(OceanComponent._name, SCENE_COMPONENT_OCEAN)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_OCEAN, {
     deserialize: deserializeOcean,
     serialize: serializeOcean,
     update: updateOcean
   })
 
-  world.sceneComponentRegistry.set(WaterComponent, SCENE_COMPONENT_WATER)
+  world.sceneComponentRegistry.set(WaterComponent._name, SCENE_COMPONENT_WATER)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_WATER, {
     deserialize: deserializeWater,
     serialize: serializeWater,
     update: updateWater
   })
 
-  world.sceneComponentRegistry.set(InteriorComponent, SCENE_COMPONENT_INTERIOR)
+  world.sceneComponentRegistry.set(InteriorComponent._name, SCENE_COMPONENT_INTERIOR)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_INTERIOR, {
     deserialize: deserializeInterior,
     serialize: serializeInterior,
     update: updateInterior
   })
 
-  world.sceneComponentRegistry.set(SystemComponent, SCENE_COMPONENT_SYSTEM)
+  world.sceneComponentRegistry.set(SystemComponent._name, SCENE_COMPONENT_SYSTEM)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_SYSTEM, {
     deserialize: deserializeSystem,
     serialize: serializeSystem,
     update: updateSystem
   })
 
-  world.sceneComponentRegistry.set(SplineComponent, SCENE_COMPONENT_SPLINE)
+  world.sceneComponentRegistry.set(SplineComponent._name, SCENE_COMPONENT_SPLINE)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_SPLINE, {
     deserialize: deserializeSpline,
     serialize: serializeSpline
   })
 
-  world.sceneComponentRegistry.set(EnvMapBakeComponent, SCENE_COMPONENT_ENVMAP_BAKE)
+  world.sceneComponentRegistry.set(EnvMapBakeComponent._name, SCENE_COMPONENT_ENVMAP_BAKE)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_ENVMAP_BAKE, {
     deserialize: deserializeEnvMapBake,
     serialize: serializeEnvMapBake
   })
 
-  world.sceneComponentRegistry.set(InstancingComponent, SCENE_COMPONENT_INSTANCING)
+  world.sceneComponentRegistry.set(InstancingComponent._name, SCENE_COMPONENT_INSTANCING)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_INSTANCING, {
     deserialize: deserializeInstancing,
     serialize: serializeInstancing
   })
 
-  world.sceneComponentRegistry.set(ScreenshareTargetComponent, SCENE_COMPONENT_SCREENSHARETARGET)
+  world.sceneComponentRegistry.set(ScreenshareTargetComponent._name, SCENE_COMPONENT_SCREENSHARETARGET)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_SCREENSHARETARGET, {
     deserialize: deserializeScreenshareTarget,
     serialize: serializeScreenshareTarget
   })
 
-  world.sceneComponentRegistry.set(MountPointComponent, SCENE_COMPONENT_MOUNT_POINT)
+  world.sceneComponentRegistry.set(MountPointComponent._name, SCENE_COMPONENT_MOUNT_POINT)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_MOUNT_POINT, {
     deserialize: deserializeMountPoint,
     serialize: serializeMountPoint
   })
 
-  world.sceneComponentRegistry.set(EquippableComponent, SCENE_COMPONENT_EQUIPPABLE)
+  world.sceneComponentRegistry.set(EquippableComponent._name, SCENE_COMPONENT_EQUIPPABLE)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_EQUIPPABLE, {
     deserialize: deserializeEquippable,
     serialize: serializeEquippable
