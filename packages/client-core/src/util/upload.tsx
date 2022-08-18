@@ -4,8 +4,8 @@ import { accessAuthState } from '../user/services/AuthService'
 import { serverHost } from './config'
 import { RethrownError } from './errors'
 
-export type CancelableUploadPromiseReturnType = { cancel: () => void; promise: Promise<string[]> }
-export type CancelableUploadPromiseArrayReturnType = { cancel: () => void; promises: Array<Promise<string[]>> }
+export type CancelableUploadPromiseReturnType<T = any> = { cancel: () => void; promise: Promise<T[]> }
+export type CancelableUploadPromiseArrayReturnType<T = any> = { cancel: () => void; promises: Array<Promise<T[]>> }
 
 /**
  * upload used to upload image as blob data.

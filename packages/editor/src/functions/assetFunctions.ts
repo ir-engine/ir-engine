@@ -55,7 +55,7 @@ export const exportAsset = async (node: EntityTreeNode) => {
 }
 
 export const uploadProjectFiles = (projectName: string, files: File[], isAsset = false, onProgress?) => {
-  const promises: CancelableUploadPromiseReturnType[] = []
+  const promises: CancelableUploadPromiseReturnType<string>[] = []
 
   for (const file of files) {
     const path = `projects/${projectName}${isAsset ? '/assets' : ''}`
@@ -67,11 +67,11 @@ export const uploadProjectFiles = (projectName: string, files: File[], isAsset =
   return {
     cancel: () => promises.forEach((promise) => promise.cancel()),
     promises: promises.map((promise) => promise.promise)
-  } as CancelableUploadPromiseArrayReturnType
+  } as CancelableUploadPromiseArrayReturnType<string>
 }
 
 export const uploadProjectAssetsFromUpload = async (projectName: string, entries: FileSystemEntry[], onProgress?) => {
-  const promises: CancelableUploadPromiseReturnType[] = []
+  const promises: CancelableUploadPromiseReturnType<string>[] = []
 
   for (let i = 0; i < entries.length; i++) {
     await processEntry(entries[i], projectName, '', promises, (progress) => onProgress(i + 1, entries.length, progress))
@@ -80,7 +80,7 @@ export const uploadProjectAssetsFromUpload = async (projectName: string, entries
   return {
     cancel: () => promises.forEach((promise) => promise.cancel()),
     promises: promises.map((promise) => promise.promise)
-  } as CancelableUploadPromiseArrayReturnType
+  } as CancelableUploadPromiseArrayReturnType<string>
 }
 
 /**
@@ -91,7 +91,7 @@ const processEntry = async (
   item,
   projectName: string,
   directory: string,
-  promises: CancelableUploadPromiseReturnType[],
+  promises: CancelableUploadPromiseReturnType<string>[],
   onProgress
 ) => {
   if (item.isDirectory) {
