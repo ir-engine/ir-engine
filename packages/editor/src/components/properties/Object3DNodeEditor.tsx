@@ -6,9 +6,13 @@ import { Euler, InstancedMesh, Material, Matrix4, Mesh, Object3D, Quaternion, Sc
 import { AxisIcon } from '@xrengine/client-core/src/util/AxisIcon'
 import { Rad2Deg } from '@xrengine/engine/src/common/functions/MathFunctions'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { Object3DWithEntity } from '@xrengine/engine/src/scene/components/Object3DComponent'
 import { useHookEffect, useHookstate } from '@xrengine/hyperflux'
 
+import { executeCommandWithHistory } from '../../classes/History'
+import EditorCommands from '../../constants/EditorCommands'
 import BooleanInput from '../inputs/BooleanInput'
+import { Button } from '../inputs/Button'
 import InputGroup from '../inputs/InputGroup'
 import Vector3Input from '../inputs/Vector3Input'
 import CollapsibleBlock from '../layout/CollapsibleBlock'
@@ -59,6 +63,7 @@ export const Object3DNodeEditor: EditorComponentType = (props) => {
       </InputGroup>
     )
   }
+
   function getMaterials() {
     const result: Material[] = []
     if ((mesh.material as Material[])?.length !== undefined) {
@@ -68,12 +73,14 @@ export const Object3DNodeEditor: EditorComponentType = (props) => {
     }
     return result
   }
+
   function getMaterialIds() {
     return getMaterials().map((material) => material.uuid)
   }
   const materials = getMaterials()
   const materialIds = useHookstate(getMaterialIds())
   const currentId = useHookstate(materialIds.value.length > 0 ? 0 : -1)
+
   useHookEffect(() => {
     materialIds.set(getMaterialIds())
     currentId.set(
@@ -84,6 +91,25 @@ export const Object3DNodeEditor: EditorComponentType = (props) => {
         : -1
     )
   }, [objId])
+
+  function selectParentEntityNode() {
+    let walker = obj3d as Object3DWithEntity
+    const nodeMap = Engine.instance.currentWorld.entityTree.entityNodeMap
+    while (walker) {
+      if (walker.entity && nodeMap.has(walker.entity)) {
+        executeCommandWithHistory({
+          type: EditorCommands.REPLACE_SELECTION,
+          affectedNodes: [nodeMap.get(walker.entity)!],
+          updateSelection: true,
+          undo: {
+            selection: [obj3d.uuid]
+          }
+        })
+        break
+      }
+      walker = walker.parent as Object3DWithEntity
+    }
+  }
 
   return (
     <NodeEditor
@@ -105,6 +131,7 @@ export const Object3DNodeEditor: EditorComponentType = (props) => {
           {updateObj3d('receiveShadow', 'Receive Shadow')}
         </Well>
       }
+      <Button onClick={selectParentEntityNode}>Parent Node</Button>
       {/* animations */}
       {isMesh && (
         <CollapsibleBlock label={'Mesh Properties'}>

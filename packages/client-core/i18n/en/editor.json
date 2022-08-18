@@ -270,6 +270,10 @@
       "lbl-pattern": "Pattern",
       "lbl-isRegex": "Regex"
     },
+    "object3d": {
+      "name": "Object3D",
+      "description": "Scene Object Properties"
+    },
     "interaction": {
       "type": "Interaction Type",
       "text": "Interaction Text",
