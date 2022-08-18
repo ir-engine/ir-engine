@@ -7,6 +7,7 @@ import { getAllComponents, getComponent, hasComponent } from '../../ecs/function
 import { iterateEntityNode, traverseEntityNode } from '../../ecs/functions/EntityTreeFunctions'
 import { useWorld } from '../../ecs/functions/SystemHooks'
 import { AssetComponent, AssetLoadedComponent, LoadState } from '../components/AssetComponent'
+import { GLTFLoadedComponent } from '../components/GLTFLoadedComponent'
 import { NameComponent } from '../components/NameComponent'
 
 export const serializeWorld = (entityTreeNode?: EntityTreeNode, generateNewUUID = false, world = useWorld()) => {
@@ -34,10 +35,11 @@ export const serializeWorld = (entityTreeNode?: EntityTreeNode, generateNewUUID 
       entityJson.name = getComponent(node.entity, NameComponent)?.name
 
       const components = getAllComponents(node.entity)
+      const ignoreComponents = getComponent(node.entity, GLTFLoadedComponent)
 
       for (const component of components) {
         const sceneComponentID = world.sceneComponentRegistry.get(component._name)!
-        if (sceneComponentID) {
+        if (sceneComponentID && !ignoreComponents?.includes(component)) {
           const data = world.sceneLoadingRegistry.get(sceneComponentID)?.serialize(node.entity)
           if (data) entityJson.components.push(JSON.parse(JSON.stringify(data)))
         }

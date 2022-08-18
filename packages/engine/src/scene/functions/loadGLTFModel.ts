@@ -13,6 +13,7 @@ import { NavMeshComponent } from '../../navigation/component/NavMeshComponent'
 import { applyTransformToMeshWorld } from '../../physics/functions/parseModelColliders'
 import { setLocalTransformComponent } from '../../transform/components/LocalTransformComponent'
 import { setTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
+import { GLTFLoadedComponent } from '../components/GLTFLoadedComponent'
 import { ModelComponent } from '../components/ModelComponent'
 import { NameComponent } from '../components/NameComponent'
 import { Object3DComponent } from '../components/Object3DComponent'
@@ -24,6 +25,8 @@ export const createObjectEntityFromGLTF = (entity: Entity, obj3d: Object3D): voi
   const components: { [key: string]: any } = {}
   const prefabs: { [key: string]: any } = {}
   const data = Object.entries(obj3d.userData)
+
+  const gltfLoadedComponent = getComponent(entity, GLTFLoadedComponent)
 
   for (const [key, value] of data) {
     const parts = key.split('.')
@@ -52,10 +55,14 @@ export const createObjectEntityFromGLTF = (entity: Entity, obj3d: Object3D): voi
       console.warn(`Could not load component '${key}'`)
     } else {
       addComponent(entity, component, value, Engine.instance.currentWorld)
+      gltfLoadedComponent.push(component)
     }
   }
 
   for (const [key, value] of Object.entries(prefabs)) {
+    gltfLoadedComponent.push(
+      Array.from(Engine.instance.currentWorld.sceneComponentRegistry).find(([_, prefab]) => prefab === key)
+    )
     loadComponent(entity, {
       name: key,
       props: value
@@ -74,6 +81,7 @@ export const parseObjectComponentsFromGLTF = (entity: Entity, object3d?: Object3
   })
 
   if (meshesToProcess.length === 0) {
+    addComponent(entity, GLTFLoadedComponent, [])
     obj3d.traverse((obj) => createObjectEntityFromGLTF(entity, obj))
     return
   }
@@ -106,6 +114,7 @@ export const parseObjectComponentsFromGLTF = (entity: Entity, object3d?: Object3
     mesh.removeFromParent()
     addComponent(e, Object3DComponent, { value: mesh })
 
+    addComponent(entity, GLTFLoadedComponent, [])
     createObjectEntityFromGLTF(e, mesh)
   }
 }
@@ -146,9 +155,8 @@ export const parseGLTFModel = (entity: Entity) => {
   const props = getComponent(entity, ModelComponent)
   const obj3d = getComponent(entity, Object3DComponent).value
 
-  if (!Engine.instance.isEditor)
-    // always parse components first
-    parseObjectComponentsFromGLTF(entity, obj3d)
+  // always parse components first
+  parseObjectComponentsFromGLTF(entity, obj3d)
 
   setObjectLayers(obj3d, ObjectLayers.Scene)
 
