@@ -92,12 +92,6 @@ export const DirectionalLightNodeEditor: EditorComponentType = (props) => {
         </InputGroup>
       )}
       <LightShadowProperties node={props.node} comp={DirectionalLightComponent} />
-      <InputGroup name="Camera Debugger" label={t('editor:properties.directionalLight.lbl-showCameraHelper')}>
-        <BooleanInput
-          value={lightComponent.showCameraHelper}
-          onChange={updateProperty(DirectionalLightComponent, 'showCameraHelper')}
-        />
-      </InputGroup>
       <NumericInputGroup
         name="CameraFar"
         label={t('editor:properties.directionalLight.lbl-cameraFar')}
