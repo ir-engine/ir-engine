@@ -21,6 +21,7 @@ import { addMediaNode } from '../../functions/addMediaNode'
 import { isAncestor } from '../../functions/getDetachedObjectsRoots'
 import { getNodeEditorsForEntity } from '../../functions/PrefabEditors'
 import { useSelectionState } from '../../services/SelectionServices'
+import useUpload from '../assets/useUpload'
 import { addPrefabElement } from '../element/ElementList'
 import { ContextMenuTrigger } from '../layout/ContextMenu'
 import { HeirarchyTreeNodeType } from './HeirarchyTreeWalker'
@@ -51,7 +52,7 @@ export type HierarchyTreeNodeData = {
   onClick: (e: MouseEvent, node: HeirarchyTreeNodeType) => void
   onChangeName: (node: HeirarchyTreeNodeType, name: string) => void
   onRenameSubmit: (node: HeirarchyTreeNodeType, name: string) => void
-  onUpload: (entries: FileSystemEntry[]) => Promise<{ url: string }[] | null>
+  onUpload: ReturnType<typeof useUpload>
 }
 
 export type HierarchyTreeNodeProps = {
@@ -163,7 +164,7 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
         data.onUpload(entries).then((assets) => {
           if (!assets) return
           for (const asset of assets) {
-            addMediaNode(asset.url, parentNode, beforeNode)
+            addMediaNode(asset, parentNode, beforeNode)
           }
         })
 

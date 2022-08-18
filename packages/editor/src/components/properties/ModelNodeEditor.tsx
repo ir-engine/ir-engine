@@ -17,7 +17,6 @@ import {
 } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { traverseEntityNode } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
 import { EquippableComponent } from '@xrengine/engine/src/interaction/components/EquippableComponent'
-import { EntityNodeComponent } from '@xrengine/engine/src/scene/components/EntityNodeComponent'
 import { ErrorComponent } from '@xrengine/engine/src/scene/components/ErrorComponent'
 import { ModelComponent } from '@xrengine/engine/src/scene/components/ModelComponent'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
@@ -73,13 +72,10 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
 
   const onChangeEquippable = () => {
     if (isEquippable) {
-      const editorComponent = getComponent(entity, EntityNodeComponent).components
-      editorComponent.splice(editorComponent.indexOf(SCENE_COMPONENT_EQUIPPABLE), 1)
       removeComponent(props.node.entity, EquippableComponent)
       setEquippable(false)
     } else {
       addComponent(props.node.entity, EquippableComponent, true)
-      getComponent(entity, EntityNodeComponent).components.push(SCENE_COMPONENT_EQUIPPABLE)
       setEquippable(true)
     }
   }

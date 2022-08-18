@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { getComponent, hasComponent, removeComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { EntityNodeComponent } from '@xrengine/engine/src/scene/components/EntityNodeComponent'
 import { ScreenshareTargetComponent } from '@xrengine/engine/src/scene/components/ScreenshareTargetComponent'
 import {
   deserializeScreenshareTarget,
@@ -30,8 +29,6 @@ export const ScreenshareTargetNodeEditor: EditorComponentType = (props) => {
     if (enable) {
       deserializeScreenshareTarget(entity, { name: '', props: SCENE_COMPONENT_SCREENSHARETARGET_DEFAULT_VALUES })
     } else {
-      const editorComponent = getComponent(entity, EntityNodeComponent).components
-      editorComponent.splice(editorComponent.indexOf(SCENE_COMPONENT_SCREENSHARETARGET), 1)
       removeComponent(entity, ScreenshareTargetComponent)
     }
   }

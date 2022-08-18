@@ -3,9 +3,8 @@ import { Euler, Quaternion, Vector3 } from 'three'
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
 import { ComponentDeserializeFunction, ComponentSerializeFunction } from '../../../common/constants/PrefabFunctionType'
-import { createQuaternionProxy, createVector3Proxy } from '../../../common/proxies/three'
 import { Entity } from '../../../ecs/classes/Entity'
-import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
+import { getComponent } from '../../../ecs/functions/ComponentFunctions'
 import {
   setTransformComponent,
   TransformComponent,

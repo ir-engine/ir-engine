@@ -11,22 +11,22 @@ import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { addEntityNodeInTree, createEntityNode } from '../../ecs/functions/EntityTreeFunctions'
 import { NavMeshComponent } from '../../navigation/component/NavMeshComponent'
 import { applyTransformToMeshWorld } from '../../physics/functions/parseModelColliders'
-import { setComputedTransformComponent } from '../../transform/components/ComputedTransformComponent'
 import { setLocalTransformComponent } from '../../transform/components/LocalTransformComponent'
 import { setTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
-import { EntityNodeComponent } from '../components/EntityNodeComponent'
+import { GLTFLoadedComponent } from '../components/GLTFLoadedComponent'
 import { ModelComponent } from '../components/ModelComponent'
 import { NameComponent } from '../components/NameComponent'
 import { Object3DComponent } from '../components/Object3DComponent'
 import { ObjectLayers } from '../constants/ObjectLayers'
 import { loadComponent } from '../functions/SceneLoading'
-import { applyTransformPositionOffset, applyTransformRotationOffset } from './loaders/TransformFunctions'
 import { setObjectLayers } from './setObjectLayers'
 
 export const createObjectEntityFromGLTF = (entity: Entity, obj3d: Object3D): void => {
   const components: { [key: string]: any } = {}
   const prefabs: { [key: string]: any } = {}
   const data = Object.entries(obj3d.userData)
+
+  const gltfLoadedComponent = getComponent(entity, GLTFLoadedComponent)
 
   for (const [key, value] of data) {
     const parts = key.split('.')
@@ -55,10 +55,14 @@ export const createObjectEntityFromGLTF = (entity: Entity, obj3d: Object3D): voi
       console.warn(`Could not load component '${key}'`)
     } else {
       addComponent(entity, component, value, Engine.instance.currentWorld)
+      gltfLoadedComponent.push(component)
     }
   }
 
   for (const [key, value] of Object.entries(prefabs)) {
+    gltfLoadedComponent.push(
+      Array.from(Engine.instance.currentWorld.sceneComponentRegistry).find(([_, prefab]) => prefab === key)
+    )
     loadComponent(entity, {
       name: key,
       props: value
@@ -77,6 +81,7 @@ export const parseObjectComponentsFromGLTF = (entity: Entity, object3d?: Object3
   })
 
   if (meshesToProcess.length === 0) {
+    addComponent(entity, GLTFLoadedComponent, [])
     obj3d.traverse((obj) => createObjectEntityFromGLTF(entity, obj))
     return
   }
@@ -94,8 +99,6 @@ export const parseObjectComponentsFromGLTF = (entity: Entity, object3d?: Object3
     delete mesh.userData['xrengine.entity']
     delete mesh.userData.name
 
-    addComponent(e, EntityNodeComponent, { components: [] })
-
     if (Engine.instance.isEditor)
       // store local transform in local transform component
       setLocalTransformComponent(e, mesh.position, mesh.quaternion, mesh.scale)
@@ -111,6 +114,7 @@ export const parseObjectComponentsFromGLTF = (entity: Entity, object3d?: Object3
     mesh.removeFromParent()
     addComponent(e, Object3DComponent, { value: mesh })
 
+    addComponent(e, GLTFLoadedComponent, ['entity', TransformComponent._name])
     createObjectEntityFromGLTF(e, mesh)
   }
 }
