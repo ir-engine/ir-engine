@@ -13,7 +13,6 @@ import { ObjectLayers } from '../../constants/ObjectLayers'
 import {
   deserializeSpotLight,
   parseSpotLightProperties,
-  prepareSpotLightForGLTFExport,
   SCENE_COMPONENT_SPOT_LIGHT,
   SCENE_COMPONENT_SPOT_LIGHT_DEFAULT_VALUES,
   serializeSpotLight,
@@ -104,8 +103,6 @@ describe('SpotLightFunctions', () => {
 
         updateSpotLight(entity, { color: new Color('green') })
         assert(obj3d.color.getHex() === newColor.getHex(), 'should not update property to passed value')
-        assert(obj3d.userData.ring.material.color.getHex() === newColor.getHex())
-        assert(obj3d.userData.cone.material.color.getHex() === newColor.getHex())
       })
     })
 
@@ -344,42 +341,6 @@ describe('SpotLightFunctions', () => {
       )
       assert(componentData.shadowBias === sceneComponentData.shadowBias)
       assert(componentData.shadowRadius === sceneComponentData.shadowRadius)
-    })
-  })
-
-  describe('prepareSpotLightForGLTFExport()', () => {
-    let spotlight: SpotLight
-    let ring: Object3D = new Object3D()
-    let cone: Object3D = new Object3D()
-
-    describe('Ring helper', () => {
-      beforeEach(() => {
-        spotlight = new SpotLight()
-        ring = new Object3D()
-        spotlight.userData.ring = ring
-        spotlight.add(ring)
-      })
-
-      it('should remove helper model', () => {
-        prepareSpotLightForGLTFExport(spotlight)
-        assert(!spotlight.children.includes(ring))
-        assert(!spotlight.userData.ring)
-      })
-    })
-
-    describe('Cone Helper', () => {
-      beforeEach(() => {
-        spotlight = new SpotLight()
-        cone = new Object3D()
-        spotlight.userData.cone = cone
-        spotlight.add(cone)
-      })
-
-      it('should remove helper box', () => {
-        prepareSpotLightForGLTFExport(spotlight)
-        assert(!spotlight.children.includes(spotlight.userData.cone))
-        assert(!spotlight.userData.cone)
-      })
     })
   })
 })

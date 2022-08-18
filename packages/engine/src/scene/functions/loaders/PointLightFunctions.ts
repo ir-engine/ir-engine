@@ -57,9 +57,6 @@ export const updatePointLight: ComponentUpdateFunction = (entity: Entity, proper
     light.shadow.camera.updateProjectionMatrix()
     light.shadow.needsUpdate = true
   }
-
-  light.userData.ball.material.color = component.color
-  light.userData.rangeBall.material.color = component.color
 }
 
 export const serializePointLight: ComponentSerializeFunction = (entity) => {

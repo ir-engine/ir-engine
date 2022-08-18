@@ -7,7 +7,6 @@ import { getComponent } from '../../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
 import { SystemUpdateType } from '../../../ecs/functions/SystemUpdateType'
 import { createEngine } from '../../../initializeEngine'
-import { PreventBakeTagComponent } from '../../components/PreventBakeTagComponent'
 import { SystemComponent } from '../../components/SystemComponent'
 import {
   deserializeSystem,
@@ -45,7 +44,6 @@ describe('SystemFunctions', () => {
       const systemComponent = getComponent(entity, SystemComponent)
       assert(systemComponent)
       assert.deepEqual(systemComponent, sceneComponentData)
-      assert(getComponent(entity, PreventBakeTagComponent))
     })
   })
 

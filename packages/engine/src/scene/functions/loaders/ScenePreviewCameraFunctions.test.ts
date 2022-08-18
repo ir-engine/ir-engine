@@ -42,33 +42,12 @@ describe('ScenePreviewCameraFunctions', () => {
   }
 
   describe('deserializeScenePreviewCamera()', () => {
-    it('does not create ScenePreviewCamera Component while not on client side', () => {
-      const _scenePreviewCameraFunctions = proxyquire('./ScenePreviewCameraFunctions', {
-        '../../../common/functions/isClient': { isClient: false }
-      })
-      _scenePreviewCameraFunctions.deserializeScenePreviewCamera(entity, sceneComponent)
-
-      const scenePreviewCameraComponent = getComponent(entity, ScenePreviewCameraTagComponent)
-      assert(!scenePreviewCameraComponent)
-    })
-
     it('creates ScenePreviewCamera Component with provided component data', () => {
       scenePreviewCameraFunctions.deserializeScenePreviewCamera(entity, sceneComponent)
 
       const scenePreviewCameraComponent = getComponent(entity, ScenePreviewCameraTagComponent)
       assert(scenePreviewCameraComponent)
       assert(Object.keys(scenePreviewCameraComponent).length === 0)
-    })
-
-    describe('Editor vs Location', () => {
-      it('creates ScenePreviewCamera in Location', () => {
-        Engine.instance.currentWorld.cameraEntity = createEntity()
-        Engine.instance.currentWorld.camera = new PerspectiveCamera()
-
-        scenePreviewCameraFunctions.deserializeScenePreviewCamera(entity, sceneComponent)
-
-        assert(Engine.instance.currentWorld.camera.position.equals(getComponent(entity, TransformComponent).position))
-      })
     })
   })
 
