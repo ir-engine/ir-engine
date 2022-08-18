@@ -23,6 +23,10 @@ const TabPanel = ({ children, value, index }: Props): JSX.Element => {
   return <Fragment>{value === index && children}</Fragment>
 }
 
+/**
+ * Used for Editor's SignInPage.tsx only.
+ * @constructor
+ */
 const SignIn = (): JSX.Element => {
   const authSettingState = useAuthSettingState()
   const [authSetting] = authSettingState?.authSettings?.value || []
@@ -49,6 +53,7 @@ const SignIn = (): JSX.Element => {
   let enableFacebookSocial = false
   let enableLinkedInSocial = false
   let enableTwitterSocial = false
+  let enableDidWallet = false
 
   const [tabIndex, setTabIndex] = useState(0)
   const { t } = useTranslation()
@@ -67,6 +72,7 @@ const SignIn = (): JSX.Element => {
   enableFacebookSocial = state.facebook
   enableLinkedInSocial = state.linkedin
   enableTwitterSocial = state.twitter
+  enableDidWallet = state.didWallet
 
   const socials = [
     enableDiscordSocial,
@@ -85,7 +91,8 @@ const SignIn = (): JSX.Element => {
     enableGoogleSocial,
     enableFacebookSocial,
     enableLinkedInSocial,
-    enableTwitterSocial
+    enableTwitterSocial,
+    enableDidWallet
   ]
 
   const enabledCount = enabled.filter((v) => v).length
