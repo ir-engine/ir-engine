@@ -203,8 +203,7 @@ export const UploadAvatarMenu = () => {
         })
       })
     } else {
-      const uploadResponse = await AuthService.uploadAvatarModel(avatarBlob, thumbnailBlob, avatarName, false)
-      await AuthService.createAvatar(uploadResponse[0], uploadResponse[1], avatarName)
+      await AuthService.createAvatar(avatarBlob, thumbnailBlob, avatarName)
     }
 
     WidgetAppService.setWidgetVisibility(WidgetName.PROFILE, true)
