@@ -3,6 +3,7 @@ import {
   Intersection,
   Layers,
   MathUtils,
+  Mesh,
   Object3D,
   Plane,
   Quaternion,
@@ -16,8 +17,9 @@ import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
-import { defineQuery, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { defineQuery, getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { getEntityNodeArrayFromEntities } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
+import { BoundingBoxComponent } from '@xrengine/engine/src/interaction/components/BoundingBoxComponents'
 import InfiniteGridHelper from '@xrengine/engine/src/scene/classes/InfiniteGridHelper'
 import TransformGizmo from '@xrengine/engine/src/scene/classes/TransformGizmo'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
@@ -32,6 +34,7 @@ import {
   TransformPivotType
 } from '@xrengine/engine/src/scene/constants/transformConstants'
 import { TransformSpace } from '@xrengine/engine/src/scene/constants/transformConstants'
+import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 
 import { EditorCameraComponent, EditorCameraComponentType } from '../classes/EditorCameraComponent'
 import { EditorControlComponent } from '../classes/EditorControlComponent'
@@ -191,11 +194,16 @@ export default async function EditorControlSystem(_: World) {
               for (let i = 0; i < selectedParentEntities.length; i++) {
                 const parentEnt = selectedParentEntities[i]
                 const isUuid = typeof parentEnt === 'string'
-                box.expandByObject(
-                  isUuid
-                    ? Engine.instance.currentWorld.scene.getObjectByProperty('uuid', parentEnt)!
-                    : getComponent(parentEnt, Object3DComponent).value
-                )
+                if (isUuid) {
+                  box.expandByObject(Engine.instance.currentWorld.scene.getObjectByProperty('uuid', parentEnt)!)
+                } else {
+                  const objectBB = getComponent(parentEnt, BoundingBoxComponent)
+                  if (objectBB) {
+                    box.union(objectBB.box)
+                  } else if (hasComponent(parentEnt, TransformComponent)) {
+                    box.expandByPoint(getComponent(parentEnt, TransformComponent).position)
+                  }
+                }
               }
 
               box.getCenter(gizmoObj.position)
