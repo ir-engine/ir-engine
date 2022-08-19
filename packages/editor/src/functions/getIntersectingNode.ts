@@ -1,12 +1,17 @@
 import { Camera, Intersection, Object3D, Raycaster, Vector2 } from 'three'
 
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
-import { hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { getEntityNodeArrayFromEntities } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
 import { IgnoreRaycastTagComponent } from '@xrengine/engine/src/scene/components/IgnoreRaycastTagComponent'
 import { Object3DComponent, Object3DWithEntity } from '@xrengine/engine/src/scene/components/Object3DComponent'
 import { ObjectLayers } from '@xrengine/engine/src/scene/constants/ObjectLayers'
+
+import { accessEditorState } from '../services/EditorServices'
+import { accessSelectionState } from '../services/SelectionServices'
 
 type RaycastIntersectionNode = Intersection<Object3DWithEntity> & {
   obj3d: Object3DWithEntity
@@ -26,9 +31,17 @@ function getParentEntity(obj: Object3DWithEntity): Object3DWithEntity {
 
 export function getIntersectingNode(results: Intersection<Object3DWithEntity>[]): RaycastIntersectionNode | undefined {
   if (results.length <= 0) return
-
+  const selectionState = accessSelectionState()
+  const selected = new Set<string | Entity>(selectionState.selectedEntities.value)
   for (const result of results as RaycastIntersectionNode[]) {
     const obj = result.object //getParentEntity(result.object)
+    const parentNode = getParentEntity(obj)
+    if (!parentNode) continue //skip obj3ds that are not children of EntityNodes
+    if (!obj.entity && parentNode && !selected.has(parentNode.entity)) {
+      ;[result.node] = getEntityNodeArrayFromEntities([parentNode.entity])
+      result.obj3d = getComponent(parentNode.entity, Object3DComponent).value as Object3DWithEntity
+      return result
+    }
 
     if (obj && (obj as Object3D) !== Engine.instance.currentWorld.scene) {
       result.obj3d = obj

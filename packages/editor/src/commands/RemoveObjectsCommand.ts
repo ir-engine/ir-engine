@@ -1,5 +1,6 @@
 import { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import { removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import {
@@ -104,7 +105,9 @@ function emitEventAfter(command: RemoveObjectCommandParams) {
 function removeObject(command: RemoveObjectCommandParams) {
   const removedParentNodes = getEntityNodeArrayFromEntities(
     filterParentEntities(
-      command.affectedNodes.map((o) => (typeof o === 'string' ? o : o.entity)),
+      command.affectedNodes.map((node: EntityTreeNode | string): Entity | string => {
+        return typeof node === 'string' ? node : node.entity
+      }),
       undefined,
       true,
       false

@@ -10,9 +10,10 @@ import { Object3DWithEntity } from '@xrengine/engine/src/scene/components/Object
 import { useHookEffect, useHookstate } from '@xrengine/hyperflux'
 
 import { SpaceBar } from '@mui/icons-material'
+import { Divider } from '@mui/material'
 
-import { executeCommandWithHistory } from '../../classes/History'
-import EditorCommands from '../../constants/EditorCommands'
+import { executeCommandWithHistory, executeCommandWithHistoryOnSelection } from '../../classes/History'
+import EditorCommands, { TransformCommands } from '../../constants/EditorCommands'
 import BooleanInput from '../inputs/BooleanInput'
 import { Button } from '../inputs/Button'
 import InputGroup from '../inputs/InputGroup'
@@ -113,6 +114,27 @@ export const Object3DNodeEditor: EditorComponentType = (props) => {
       walker = walker.parent as Object3DWithEntity
     }
   }
+  const initEditState = () => {
+    return {
+      objName: obj3d.name,
+      position: obj3d.position.clone(),
+      rotation: new Vector3(...obj3d.rotation.toArray()),
+      scale: obj3d.scale.clone()
+    }
+  }
+  const editState = useHookstate<
+    {
+      ['objName']: string
+      ['position']: Vector3
+      ['rotation']: Vector3
+      ['scale']: Vector3
+    },
+    unknown
+  >(initEditState())
+
+  useHookEffect(() => {
+    editState.set(initEditState())
+  }, [objId])
 
   return (
     <NodeEditor
@@ -131,28 +153,69 @@ export const Object3DNodeEditor: EditorComponentType = (props) => {
         <Well>
           <Well>
             <InputGroup label="Name" name="Name">
-              <StringInput value={obj3d.name} onChange={(name) => (obj3d.name = name)} />
+              <StringInput
+                value={editState.value.objName}
+                onChange={(name) => {
+                  editState.merge({
+                    objName: name
+                  })
+                  obj3d.name = name
+                }}
+              />
             </InputGroup>
-            <SpaceBar />
+            <Divider />
             <Well>
               <InputGroup name="Position" label="Translation">
                 <Vector3Input
-                  value={obj3d.position}
-                  onChange={(nuPosition) => obj3d.position.set(nuPosition.x, nuPosition.y, nuPosition.z)}
+                  value={editState.value.position}
+                  onChange={(nuPosition) => {
+                    editState.merge({
+                      position: nuPosition.clone()
+                    })
+                    executeCommandWithHistory({
+                      affectedNodes: [obj3d.uuid],
+                      type: TransformCommands.POSITION,
+                      positions: [nuPosition]
+                    })
+                    //obj3d.position.set(nuPosition.x, nuPosition.y, nuPosition.z)
+                  }}
                 />
               </InputGroup>
               <InputGroup name="Rotation" label="Rotation">
                 <Vector3Input
-                  value={new Vector3(obj3d.rotation.x, obj3d.rotation.y, obj3d.rotation.z).multiplyScalar(Rad2Deg)}
-                  onChange={(nuEulers) => obj3d.rotation.setFromVector3(nuEulers.multiplyScalar(Deg2Rad))}
+                  value={editState.value.rotation}
+                  onChange={(nuEulers) => {
+                    editState.merge({
+                      rotation: nuEulers.clone()
+                    })
+                    const actualEuler = new Euler(...nuEulers.clone().multiplyScalar(Deg2Rad).toArray())
+                    executeCommandWithHistory({
+                      affectedNodes: [obj3d.uuid],
+                      type: TransformCommands.ROTATION,
+                      rotations: [actualEuler]
+                    })
+                    //obj3d.rotation.setFromVector3(nuEulers.multiplyScalar(Deg2Rad))
+                  }}
                 />
               </InputGroup>
               <InputGroup name="Scale" label="Scale">
-                <Vector3Input value={obj3d.scale} onChange={(nuScale) => obj3d.scale.copy(nuScale)} />
+                <Vector3Input
+                  value={obj3d.scale}
+                  onChange={(nuScale) => {
+                    editState.merge({
+                      scale: nuScale.clone()
+                    })
+                    executeCommandWithHistory({
+                      affectedNodes: [obj3d.uuid],
+                      type: TransformCommands.SCALE,
+                      scales: [nuScale]
+                    })
+                    //obj3d.scale.copy(nuScale)
+                  }}
+                />
               </InputGroup>
             </Well>
           </Well>
-          /* cast / receive shadows */
           <Well>
             {updateObj3d('castShadow', 'Cast Shadow')}
             {updateObj3d('receiveShadow', 'Receive Shadow')}
