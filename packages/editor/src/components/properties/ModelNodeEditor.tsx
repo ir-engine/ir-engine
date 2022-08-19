@@ -1,9 +1,7 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Object3D } from 'three'
 
-import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
-import exportModelGLTF from '@xrengine/engine/src/assets/functions/exportModelGLTF'
 import { AnimationManager } from '@xrengine/engine/src/avatar/AnimationManager'
 import { AnimationComponent } from '@xrengine/engine/src/avatar/components/AnimationComponent'
 import { LoopAnimationComponent } from '@xrengine/engine/src/avatar/components/LoopAnimationComponent'
@@ -21,8 +19,6 @@ import { ErrorComponent } from '@xrengine/engine/src/scene/components/ErrorCompo
 import { ModelComponent } from '@xrengine/engine/src/scene/components/ModelComponent'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
-import { SCENE_COMPONENT_EQUIPPABLE } from '@xrengine/engine/src/scene/functions/loaders/EquippableFunctions'
-import { playAnimationClip } from '@xrengine/engine/src/scene/functions/loaders/LoopAnimationFunctions'
 
 import ViewInArIcon from '@mui/icons-material/ViewInAr'
 
@@ -53,7 +49,6 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
   const entity = props.node.entity
 
   const modelComponent = getComponent(entity, ModelComponent)
-  const animationComponent = getComponent(entity, AnimationComponent)
   const obj3d = getComponent(entity, Object3DComponent)?.value ?? new Object3D() // quick hack to not crash
   const hasError = engineState.errorEntities[entity].get()
   const errorComponent = getComponent(entity, ErrorComponent)

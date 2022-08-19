@@ -117,13 +117,6 @@ function updateProperty<C extends ComponentConstructor<any, any>>(
         dispatchAction(SelectionAction.changedObject({ objects: [command.affectedNodes[i]], propertyName }))
       }
     }
-
-    /** @todo deprecate in favour of 'EngineActions.sceneObjectUpdate' action */
-    const components = getAllComponents(entity)
-    for (const component of components) {
-      const sceneComponentID = Engine.instance.currentWorld.sceneComponentRegistry.get(component._name)!
-      Engine.instance.currentWorld.sceneLoadingRegistry.get(sceneComponentID)?.update?.(entity, props)
-    }
   }
 
   dispatchAction(EngineActions.sceneObjectUpdate({ entities: command.affectedNodes.map((node) => node.entity) }))
