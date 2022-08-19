@@ -1,10 +1,10 @@
+import { Vector3 } from 'three'
 import { Path } from 'yuka'
 
-import { Entity } from '../../ecs/classes/Entity'
 import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
 
 export type AutoPilotComponentType = {
-  navEntity: Entity
+  endPoint: Vector3
   path: Path
 }
 

@@ -1,228 +1,97 @@
-import { Intersection, Quaternion, Raycaster, Vector3 } from 'three'
-import { NavMesh, Path, Vector3 as YukaVector3 } from 'yuka'
+import { identity } from 'lodash'
+import { Vector3 } from 'three'
+import { Path } from 'yuka'
 
 import { LifecycleValue } from '../../common/enums/LifecycleValue'
-import { NumericalType } from '../../common/types/NumericalTypes'
 import { Engine } from '../../ecs/classes/Engine'
-import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
-import {
-  addComponent,
-  defineQuery,
-  getComponent,
-  hasComponent,
-  removeComponent
-} from '../../ecs/functions/ComponentFunctions'
-import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
+import { addComponent, defineQuery, getComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { GamepadAxis } from '../../input/enums/InputEnums'
 import { InputType } from '../../input/enums/InputType'
+import { InputValue } from '../../input/interfaces/InputValue'
+import { NavMeshComponent } from '../../scene/components/NavMeshComponent'
+import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { AutoPilotClickRequestComponent } from '../component/AutoPilotClickRequestComponent'
 import { AutoPilotComponent } from '../component/AutoPilotComponent'
-import { AutoPilotOverrideComponent } from '../component/AutoPilotOverrideComponent'
 import { AutoPilotRequestComponent } from '../component/AutoPilotRequestComponent'
-import { NavMeshComponent } from '../component/NavMeshComponent'
-import createSpeedFunction from '../functions/createSpeedFunction'
-
-export const findPath = (navMesh: NavMesh, from: Vector3, to: Vector3, base: Vector3): Path => {
-  // graph is in local coordinates, we need to convert "from" and "to" to local using "base" and center
-  // TODO: handle scale and rotation of graph object, pass world matrix?
-  const graphBaseCoordinate = new YukaVector3(base.x, base.y, base.z)
-  const localFrom = new YukaVector3(from.x, from.y, from.z).sub(graphBaseCoordinate)
-  const localTo = new YukaVector3(to.x, to.y, to.z).sub(graphBaseCoordinate)
-  const points = navMesh.findPath(localFrom, localTo)
-
-  const path = new Path()
-  for (const point of points) {
-    const worldPoint = point.clone().add(graphBaseCoordinate) // convert point back to world coordinates
-    path.add(worldPoint)
-  }
-  return path
-}
-
-interface ClickResult {
-  distance: number
-  point: Vector3
-  entity: Entity
-}
+import { findClosestProjectedPoint } from '../functions/findProjectedPoint'
+import { getInputVector } from '../functions/inputFunctions'
+import { updatePath } from '../functions/pathFunctions'
 
 export default async function AutopilotSystem(world: World) {
-  const GAMEPAD_STICK = GamepadAxis.Left
-  const raycaster = new Raycaster()
-  const quat = new Quaternion()
-  const forward = new Vector3(0, 0, 1)
-  const targetFlatPosition = new Vector3()
-  const avatarPositionFlat = new Vector3()
-  const direction = new Vector3()
-  const stickValue = new Vector3()
-  const startPoint = new YukaVector3()
-  const endPoint = new YukaVector3()
-  const path = new Path()
-
-  const navmeshesQuery = defineQuery([NavMeshComponent])
+  const navmeshesQuery = defineQuery([NavMeshComponent, Object3DComponent])
   const requestsQuery = defineQuery([AutoPilotRequestComponent])
   const autopilotQuery = defineQuery([AutoPilotComponent])
-  const navClickQuery = defineQuery([LocalInputTagComponent, AutoPilotClickRequestComponent])
 
-  const ARRIVED_DISTANCE = 0.2
-  const getSpeed = createSpeedFunction(3, 1.1, 0.01)
-
-  const vec3 = new Vector3()
-  function getCameraDirection() {
-    Engine.instance.currentWorld.camera.getWorldDirection(vec3)
-
-    vec3.setY(0).normalize()
-    quat.setFromUnitVectors(forward, vec3)
-    return quat
+  const inputState: InputValue = {
+    type: InputType.TWODIM,
+    value: [0, 0, 0],
+    lifecycleState: LifecycleValue.Unchanged
   }
+  // TODO necessary?
+  Engine.instance.currentWorld.inputState.set(GamepadAxis.Left, inputState)
 
   return () => {
-    for (const entity of navClickQuery.enter()) {
-      const { coords } = getComponent(entity, AutoPilotClickRequestComponent)
-      const overrideComponent = getComponent(entity, AutoPilotOverrideComponent)
-      raycaster.setFromCamera(coords, Engine.instance.currentWorld.camera)
+    const entsWithNavMesh = navmeshesQuery()
 
-      const raycasterResults: Intersection[] = []
-      let _entity = -1 as Entity
+    const surfaces = entsWithNavMesh
+      .map((navMeshEntity) => getComponent(navMeshEntity, Object3DComponent).value)
+      .filter(identity)
 
-      const clickResult = navmeshesQuery().reduce(
-        (previousEntry, currentEntity) => {
-          const mesh = getComponent(currentEntity, NavMeshComponent).navTarget
-          raycasterResults.length = 0
-          raycaster.intersectObject(mesh, true, raycasterResults)
-          _entity = currentEntity
-          if (!raycasterResults.length) {
-            return previousEntry
-          }
+    for (const avatarEntity of requestsQuery.enter()) {
+      const { unprojectedPoint } = getComponent(avatarEntity, AutoPilotRequestComponent)
 
-          if (raycasterResults[0].distance < previousEntry.distance) {
-            return {
-              distance: raycasterResults[0].distance,
-              point: raycasterResults[0].point,
-              entity: currentEntity
-            }
-          }
+      const [goalPoint, closestNavMeshIndex] = findClosestProjectedPoint(
+        Engine.instance.currentWorld.camera,
+        surfaces,
+        unprojectedPoint
+      )
 
-          return previousEntry
-        },
-        { distance: Infinity, point: null, entity: null }
-      ) as ClickResult
+      if (goalPoint) {
+        const closestNavMeshEntity = entsWithNavMesh[closestNavMeshIndex]
+        const avatarPosition = getComponent(avatarEntity, TransformComponent).position
 
-      if (clickResult.point) {
-        if (overrideComponent?.overrideCoords) clickResult.point = overrideComponent.overridePosition
-
-        addComponent(entity, AutoPilotRequestComponent, {
-          point: clickResult.point,
-          navEntity: clickResult.entity
+        addComponent(avatarEntity, AutoPilotComponent, {
+          // TODO do we need goalPoint to be a property?
+          endPoint: goalPoint,
+          path: new Path()
         })
-      } else if (!clickResult.point && overrideComponent?.overrideCoords) {
-        clickResult.point = overrideComponent.overridePosition
-        clickResult.entity = _entity
 
-        addComponent(entity, AutoPilotRequestComponent, {
-          point: clickResult.point,
-          navEntity: clickResult.entity
-        })
+        updatePath(
+          getComponent(avatarEntity, AutoPilotComponent).path,
+          getComponent(closestNavMeshEntity, NavMeshComponent).value,
+          avatarPosition,
+          goalPoint
+        )
       }
 
-      removeComponent(entity, AutoPilotClickRequestComponent)
-      if (hasComponent(entity, AutoPilotOverrideComponent)) removeComponent(entity, AutoPilotOverrideComponent)
-    }
-
-    // requests
-    // generate path from target.graph and create new AutoPilotComponent (or reuse existing)
-    for (const entity of requestsQuery.enter()) {
-      const request = getComponent(entity, AutoPilotRequestComponent)
-      const navMeshComponent = getComponent(request.navEntity, NavMeshComponent)
-      const { position } = getComponent(entity, TransformComponent)
-      if (navMeshComponent.yukaNavMesh === undefined || !navMeshComponent.yukaNavMesh) {
-        startPoint.copy(position as any)
-        endPoint.copy(request.point as any)
-        path.clear()
-        path.add(startPoint)
-        path.add(endPoint)
-        addComponent(entity, AutoPilotComponent, {
-          path,
-          navEntity: request.navEntity
-        })
-      } else {
-        const { position: navBaseCoordinate } = getComponent(request.navEntity, TransformComponent)
-
-        addComponent(entity, AutoPilotComponent, {
-          path: findPath(navMeshComponent.yukaNavMesh, position, request.point, navBaseCoordinate),
-          navEntity: request.navEntity
-        })
-      }
-
-      // TODO: "mount" player? disable movement, etc.
-
-      removeComponent(entity, AutoPilotRequestComponent)
+      removeComponent(avatarEntity, AutoPilotRequestComponent)
     }
 
     const allOngoing = autopilotQuery(world)
+    for (const avatarEntity of allOngoing) {
+      const path = getComponent(avatarEntity, AutoPilotComponent).path
+      if (path.finished()) {
+        removeComponent(avatarEntity, AutoPilotComponent)
+        inputState!.value[0] = 0
+        inputState!.value[1] = 0
+        inputState!.value.length = 2
+      } else {
+        const position = getComponent(avatarEntity, TransformComponent).position
+        const inputVec = getInputVector(
+          path.current() as unknown as Vector3,
+          position,
+          Engine.instance.currentWorld.camera
+        )
 
-    // ongoing
-    if (allOngoing.length) {
-      // update our entity transform from vehicle
-      for (const entity of allOngoing) {
-        const autopilot = getComponent(entity, AutoPilotComponent)
-        if (!autopilot.path.current()) {
-          console.error('autopilot.path is invalid or empty')
-          removeComponent(entity, AutoPilotComponent)
-          continue
-        }
+        const inputAngle = Math.atan2(inputVec.z, inputVec.y)
 
-        const { position: avatarPosition, rotation: avatarRotation } = getComponent(entity, TransformComponent)
-        targetFlatPosition.set(autopilot.path.current().x, 0, autopilot.path.current().z)
-        avatarPositionFlat.copy(avatarPosition).setY(0)
-        const targetFlatDistance = targetFlatPosition.distanceTo(avatarPositionFlat)
-        if (targetFlatDistance < ARRIVED_DISTANCE) {
-          if (autopilot.path.finished()) {
-            // Path is finished!
-            Engine.instance.currentWorld.inputState.set(GAMEPAD_STICK, {
-              type: InputType.TWODIM,
-              value: [0, 0, 0],
-              lifecycleState: LifecycleValue.Changed
-            })
-
-            // Path is finished - remove component
-            removeComponent(entity, AutoPilotComponent)
-            continue
-          }
-
-          autopilot.path.advance()
-        } else {
-          const speed = getSpeed(targetFlatDistance)
-          direction.copy(targetFlatPosition).sub(avatarPositionFlat).normalize()
-          const targetAngle = Math.atan2(direction.x, direction.z)
-          stickValue
-            .copy(direction)
-            .multiplyScalar(speed)
-            // Avatar controller system assumes all movement is relative to camera, so cancel that out
-            .applyQuaternion(getCameraDirection().invert())
-
-          const stickPosition: NumericalType = [stickValue.z, stickValue.x, targetAngle]
-          // If position not set, set it with lifecycle started
-          Engine.instance.currentWorld.inputState.set(GAMEPAD_STICK, {
-            type: InputType.TWODIM,
-            value: stickPosition,
-            lifecycleState: Engine.instance.currentWorld.inputState.has(GAMEPAD_STICK)
-              ? LifecycleValue.Started
-              : LifecycleValue.Changed
-          })
-
-          avatarRotation.copy(quat.setFromUnitVectors(forward, direction))
-        }
+        inputState!.value[0] = inputVec.x
+        inputState!.value[1] = inputVec.y
+        inputState!.value[2] = inputAngle
       }
-    }
-
-    if (autopilotQuery.exit(world).length) {
-      // send one relaxed gamepad state to stop movement
-      Engine.instance.currentWorld.inputState.set(GAMEPAD_STICK, {
-        type: InputType.TWODIM,
-        value: [0, 0],
-        lifecycleState: LifecycleValue.Changed
-      })
+      inputState!.lifecycleState = LifecycleValue.Changed
+      path.advance()
     }
   }
 }

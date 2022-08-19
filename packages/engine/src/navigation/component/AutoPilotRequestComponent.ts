@@ -1,11 +1,9 @@
-import { Vector3 } from 'three'
+import { Vector2 } from 'three'
 
-import { Entity } from '../../ecs/classes/Entity'
 import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
 
 export type AutoPilotRequestComponentType = {
-  navEntity: Entity
-  point: Vector3
+  unprojectedPoint: Vector2
 }
 
 export const AutoPilotRequestComponent =
