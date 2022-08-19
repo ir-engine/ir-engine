@@ -13,7 +13,6 @@ import { createEngine } from '../../../initializeEngine'
 import { TransformComponent } from '../../../transform/components/TransformComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 import { ScenePreviewCameraTagComponent } from '../../components/ScenePreviewCamera'
-import { SCENE_COMPONENT_SCENE_PREVIEW_CAMERA } from './ScenePreviewCameraFunctions'
 
 const EPSILON = 10e-8
 
@@ -34,16 +33,9 @@ describe('ScenePreviewCameraFunctions', () => {
     })
   })
 
-  const sceneComponentData = {}
-
-  const sceneComponent: ComponentJson = {
-    name: SCENE_COMPONENT_SCENE_PREVIEW_CAMERA,
-    props: sceneComponentData
-  }
-
   describe('deserializeScenePreviewCamera()', () => {
     it('creates ScenePreviewCamera Component with provided component data', () => {
-      scenePreviewCameraFunctions.deserializeScenePreviewCamera(entity, sceneComponent)
+      scenePreviewCameraFunctions.deserializeScenePreviewCamera(entity, {})
 
       const scenePreviewCameraComponent = getComponent(entity, ScenePreviewCameraTagComponent)
       assert(scenePreviewCameraComponent)
@@ -55,7 +47,7 @@ describe('ScenePreviewCameraFunctions', () => {
     it('should set view port of preview camera to active camera', () => {
       Engine.instance.isEditor = true
 
-      scenePreviewCameraFunctions.deserializeScenePreviewCamera(entity, sceneComponent)
+      scenePreviewCameraFunctions.deserializeScenePreviewCamera(entity, {})
 
       Engine.instance.currentWorld.camera = new PerspectiveCamera()
       Engine.instance.currentWorld.camera.position.set(1, 2, 3)
@@ -97,8 +89,8 @@ describe('ScenePreviewCameraFunctions', () => {
 
   describe('serializeScenePreviewCamera()', () => {
     it('should properly serialize scenePreviewCamera', () => {
-      scenePreviewCameraFunctions.deserializeScenePreviewCamera(entity, sceneComponent)
-      assert.deepEqual(scenePreviewCameraFunctions.serializeScenePreviewCamera(entity), sceneComponent)
+      scenePreviewCameraFunctions.deserializeScenePreviewCamera(entity, {})
+      assert.deepEqual(scenePreviewCameraFunctions.serializeScenePreviewCamera(entity), {})
     })
 
     it('should return undefine if there is no scenePreviewCamera component', () => {
@@ -112,7 +104,7 @@ describe('ScenePreviewCameraFunctions', () => {
     })
 
     it('should return false if there is atleast one scene preview camera component in the world', () => {
-      scenePreviewCameraFunctions.deserializeScenePreviewCamera(entity, sceneComponent)
+      scenePreviewCameraFunctions.deserializeScenePreviewCamera(entity, {})
       assert(!scenePreviewCameraFunctions.shouldDeserializeScenePreviewCamera())
     })
   })

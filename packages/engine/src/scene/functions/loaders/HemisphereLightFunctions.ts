@@ -8,10 +8,10 @@ import {
 } from '../../../common/constants/PrefabFunctionType'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent, getComponentCountOfType } from '../../../ecs/functions/ComponentFunctions'
-import {SCENE_COMPONENT_HEMISPHERE_LIGHT_DEFAULT_VALUES
+import {
   HemisphereLightComponent,
   HemisphereLightComponentType,
-  SCENE_COMPONENT_HEMISPHEREL_LIGHT_DEFAULT_VALUES
+  SCENE_COMPONENT_HEMISPHERE_LIGHT_DEFAULT_VALUES
 } from '../../components/HemisphereLightComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 
@@ -46,12 +46,12 @@ export const serializeHemisphereLight: ComponentSerializeFunction = (entity) => 
 
 export const shouldDeserializeHemisphereLight: ComponentShouldDeserializeFunction = () => {
   return getComponentCountOfType(HemisphereLightComponent) <= 0
-}SCENE_COMPONENT_HEMISPHERE_LIGHT_DEFAULT_VALUES
-SCENE_COMPONENT_HEMISPHERE_LIGHT_DEFAULT_VALUES
-const parseHemisphereLightPropertiSCENE_COMPONENT_HEMISPHERE_LIGHT_DEFAULT_VALUES
+}
+
+const parseHemisphereLightProperties = (props): HemisphereLightComponentType => {
   return {
-    skyColor: new Color(props.skyColor ?? SCENE_COMPONENT_HEMISPHEREL_LIGHT_DEFAULT_VALUES.skyColor),
-    groundColor: new Color(props.groundColor ?? SCENE_COMPONENT_HEMISPHEREL_LIGHT_DEFAULT_VALUES.groundColor),
-    intensity: props.intensity ?? SCENE_COMPONENT_HEMISPHEREL_LIGHT_DEFAULT_VALUES.intensity
+    skyColor: new Color(props.skyColor ?? SCENE_COMPONENT_HEMISPHERE_LIGHT_DEFAULT_VALUES.skyColor),
+    groundColor: new Color(props.groundColor ?? SCENE_COMPONENT_HEMISPHERE_LIGHT_DEFAULT_VALUES.groundColor),
+    intensity: props.intensity ?? SCENE_COMPONENT_HEMISPHERE_LIGHT_DEFAULT_VALUES.intensity
   }
 }

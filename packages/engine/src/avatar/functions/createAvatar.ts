@@ -103,7 +103,7 @@ export const createAvatar = (spawnAction: typeof WorldNetworkAction.spawnAvatar.
     createAvatarCollider(entity)
   }
 
-  addComponent(entity, ShadowComponent, { receiveShadow: true, castShadow: true })
+  addComponent(entity, ShadowComponent, { receive: true, cast: true })
 
   return entity
 }

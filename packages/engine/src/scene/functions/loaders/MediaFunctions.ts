@@ -27,7 +27,7 @@ export const deserializeMedia: ComponentDeserializeFunction = (entity: Entity, d
   })
   getNextPlaylistItem(entity)
   addComponent(entity, Object3DComponent, { value: new UpdateableObject3D() })
-  addComponent(entity, UpdatableComponent, {})
+  addComponent(entity, UpdatableComponent, true)
 }
 
 export const serializeMedia: ComponentSerializeFunction = (entity) => {

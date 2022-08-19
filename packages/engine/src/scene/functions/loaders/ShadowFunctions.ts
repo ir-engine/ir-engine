@@ -12,8 +12,8 @@ export const updateShadow: ComponentUpdateFunction = (entity: Entity) => {
   if (!obj3d) return
 
   obj3d.traverse((mesh: Mesh) => {
-    mesh.castShadow = component.castShadow
-    mesh.receiveShadow = component.receiveShadow
+    mesh.castShadow = component.cast
+    mesh.receiveShadow = component.receive
 
     if (Array.isArray(mesh.material)) {
       for (let i = 0; i < mesh.material.length; i++) {

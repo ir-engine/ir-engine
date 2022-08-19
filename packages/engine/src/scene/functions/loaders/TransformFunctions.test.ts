@@ -1,20 +1,15 @@
 import assert from 'assert'
 import { Euler, Quaternion, Vector3 } from 'three'
 
-import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
-
 import { Entity } from '../../../ecs/classes/Entity'
 import { getComponent } from '../../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
 import { createEngine } from '../../../initializeEngine'
-import { TransformComponent } from '../../../transform/components/TransformComponent'
 import {
-  deserializeTransform,
-  parseTransformProperties,
-  SCENE_COMPONENT_TRANSFORM,
   SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES,
-  serializeTransform
-} from './TransformFunctions'
+  TransformComponent
+} from '../../../transform/components/TransformComponent'
+import { deserializeTransform, parseTransformProperties, serializeTransform } from './TransformFunctions'
 
 const EPSILON = 10e-8
 
@@ -32,14 +27,9 @@ describe('TransformFunctions', () => {
     scale: new Vector3(Math.random(), Math.random(), Math.random())
   }
 
-  const sceneComponent: ComponentJson = {
-    name: SCENE_COMPONENT_TRANSFORM,
-    props: sceneComponentData
-  }
-
   describe('deserializeTransform()', () => {
     it('creates Transform Component with provided component data', () => {
-      deserializeTransform(entity, sceneComponent)
+      deserializeTransform(entity, sceneComponentData)
 
       const transformComponent = getComponent(entity, TransformComponent)
       assert(transformComponent)
@@ -59,11 +49,9 @@ describe('TransformFunctions', () => {
     })
   })
 
-  describe.skip('updateTransform', () => {})
-
   describe('serializeTransform()', () => {
     it('should properly serialize transform', () => {
-      deserializeTransform(entity, sceneComponent)
+      deserializeTransform(entity, sceneComponentData)
       const result = serializeTransform(entity)
 
       assert(Math.abs(result?.props.position.x - sceneComponentData.position.x) < EPSILON)

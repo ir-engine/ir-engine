@@ -1,8 +1,6 @@
 import assert from 'assert'
 import { Color, DirectionalLight, Scene, Vector2 } from 'three'
 
-import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
-
 import { Engine } from '../../../ecs/classes/Engine'
 import { getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'

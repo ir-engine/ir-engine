@@ -1,8 +1,8 @@
 import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
 
 export type ShadowComponentType = {
-  castShadow: boolean
-  receiveShadow: boolean
+  cast: boolean
+  receive: boolean
 }
 
 export const ShadowComponent = createMappedComponent<ShadowComponentType>('ShadowComponent')

@@ -393,10 +393,7 @@ export const serializeInstancing: ComponentSerializeFunction = (entity) => {
   formatData(_sampleProps)
   toSave.sourceProperties = _srcProps
   toSave.sampleProperties = _sampleProps
-  return {
-    name: SCENE_COMPONENT_INSTANCING,
-    props: toSave
-  }
+  return toSave
 }
 
 const loadTex = async <T>(props: T, prop: keyof T) => {
@@ -862,7 +859,7 @@ export async function stageInstancing(entity: Entity, world = Engine.instance.cu
   }
   if (updates.length > 0) {
     if (!hasComponent(entity, UpdatableComponent)) {
-      addComponent(entity, UpdatableComponent, {})
+      addComponent(entity, UpdatableComponent, true)
     }
     val.update = (dt) => updates.forEach((update) => update(dt))
   }

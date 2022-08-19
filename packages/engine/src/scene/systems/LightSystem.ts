@@ -4,6 +4,10 @@ import { EngineActions } from '../../ecs/classes/EngineState'
 import { World } from '../../ecs/classes/World'
 import { defineQuery, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import {
+  SCENE_COMPONENT_TRANSFORM,
+  SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES
+} from '../../transform/components/TransformComponent'
+import {
   AmbientLightComponent,
   SCENE_COMPONENT_AMBIENT_LIGHT,
   SCENE_COMPONENT_AMBIENT_LIGHT_DEFAULT_VALUES
@@ -29,6 +33,7 @@ import {
   SCENE_COMPONENT_SPOT_LIGHT_DEFAULT_VALUES,
   SpotLightComponent
 } from '../components/SpotLightComponent'
+import { SCENE_COMPONENT_VISIBLE } from '../components/VisibleComponent'
 import {
   deserializeAmbientLight,
   serializeAmbientLight,
@@ -48,11 +53,6 @@ import {
 } from '../functions/loaders/HemisphereLightFunctions'
 import { deserializePointLight, serializePointLight, updatePointLight } from '../functions/loaders/PointLightFunctions'
 import { deserializeSpotLight, serializeSpotLight, updateSpotLight } from '../functions/loaders/SpotLightFunctions'
-import {
-  SCENE_COMPONENT_TRANSFORM,
-  SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES
-} from '../functions/loaders/TransformFunctions'
-import { SCENE_COMPONENT_VISIBLE, SCENE_COMPONENT_VISIBLE_DEFAULT_VALUES } from '../functions/loaders/VisibleFunctions'
 
 export const LightPrefabs = {
   directionalLight: 'Directional Light' as const,
@@ -67,8 +67,7 @@ export default async function LightSystem(world: World) {
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_DIRECTIONAL_LIGHT, {
     defaultData: SCENE_COMPONENT_DIRECTIONAL_LIGHT_DEFAULT_VALUES,
     deserialize: deserializeDirectionalLight,
-    serialize: serializeDirectionalLight,
-    update: updateDirectionalLight
+    serialize: serializeDirectionalLight
   })
 
   world.sceneComponentRegistry.set(HemisphereLightComponent._name, SCENE_COMPONENT_HEMISPHERE_LIGHT)
@@ -76,7 +75,6 @@ export default async function LightSystem(world: World) {
     defaultData: SCENE_COMPONENT_HEMISPHERE_LIGHT_DEFAULT_VALUES,
     deserialize: deserializeHemisphereLight,
     serialize: serializeHemisphereLight,
-    update: updateHemisphereLight,
     shouldDeserialize: shouldDeserializeHemisphereLight
   })
 
@@ -85,7 +83,6 @@ export default async function LightSystem(world: World) {
     defaultData: SCENE_COMPONENT_AMBIENT_LIGHT_DEFAULT_VALUES,
     deserialize: deserializeAmbientLight,
     serialize: serializeAmbientLight,
-    update: updateAmbientLight,
     shouldDeserialize: shouldDeserializeAmbientLight
   })
 
@@ -93,42 +90,40 @@ export default async function LightSystem(world: World) {
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_POINT_LIGHT, {
     defaultData: SCENE_COMPONENT_POINT_LIGHT_DEFAULT_VALUES,
     deserialize: deserializePointLight,
-    serialize: serializePointLight,
-    update: updatePointLight
+    serialize: serializePointLight
   })
 
   world.sceneComponentRegistry.set(SpotLightComponent._name, SCENE_COMPONENT_SPOT_LIGHT)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_SPOT_LIGHT, {
     defaultData: SCENE_COMPONENT_SPOT_LIGHT_DEFAULT_VALUES,
     deserialize: deserializeSpotLight,
-    serialize: serializeSpotLight,
-    update: updateSpotLight
+    serialize: serializeSpotLight
   })
 
   world.scenePrefabRegistry.set(LightPrefabs.directionalLight, [
-    { name: SCENE_COMPONENT_VISIBLE, props: SCENE_COMPONENT_VISIBLE_DEFAULT_VALUES },
+    { name: SCENE_COMPONENT_VISIBLE, props: true },
     { name: SCENE_COMPONENT_DIRECTIONAL_LIGHT, props: SCENE_COMPONENT_DIRECTIONAL_LIGHT_DEFAULT_VALUES }
   ])
 
   world.scenePrefabRegistry.set(LightPrefabs.hemisphereLight, [
-    { name: SCENE_COMPONENT_VISIBLE, props: SCENE_COMPONENT_VISIBLE_DEFAULT_VALUES },
+    { name: SCENE_COMPONENT_VISIBLE, props: true },
     { name: SCENE_COMPONENT_HEMISPHERE_LIGHT, props: SCENE_COMPONENT_HEMISPHERE_LIGHT_DEFAULT_VALUES }
   ])
 
   world.scenePrefabRegistry.set(LightPrefabs.ambientLight, [
-    { name: SCENE_COMPONENT_VISIBLE, props: SCENE_COMPONENT_VISIBLE_DEFAULT_VALUES },
+    { name: SCENE_COMPONENT_VISIBLE, props: true },
     { name: SCENE_COMPONENT_AMBIENT_LIGHT, props: SCENE_COMPONENT_AMBIENT_LIGHT_DEFAULT_VALUES }
   ])
 
   world.scenePrefabRegistry.set(LightPrefabs.pointLight, [
     { name: SCENE_COMPONENT_TRANSFORM, props: SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES },
-    { name: SCENE_COMPONENT_VISIBLE, props: SCENE_COMPONENT_VISIBLE_DEFAULT_VALUES },
+    { name: SCENE_COMPONENT_VISIBLE, props: true },
     { name: SCENE_COMPONENT_POINT_LIGHT, props: SCENE_COMPONENT_POINT_LIGHT_DEFAULT_VALUES }
   ])
 
   world.scenePrefabRegistry.set(LightPrefabs.spotLight, [
     { name: SCENE_COMPONENT_TRANSFORM, props: SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES },
-    { name: SCENE_COMPONENT_VISIBLE, props: SCENE_COMPONENT_VISIBLE_DEFAULT_VALUES },
+    { name: SCENE_COMPONENT_VISIBLE, props: true },
     { name: SCENE_COMPONENT_SPOT_LIGHT, props: SCENE_COMPONENT_SPOT_LIGHT_DEFAULT_VALUES }
   ])
 

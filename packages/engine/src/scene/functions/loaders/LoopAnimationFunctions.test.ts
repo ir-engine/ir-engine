@@ -4,14 +4,17 @@ import { Object3D } from 'three'
 
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
-import { LoopAnimationComponent, LoopAnimationComponentType } from '../../../avatar/components/LoopAnimationComponent'
+import {
+  LoopAnimationComponent,
+  LoopAnimationComponentType,
+  SCENE_COMPONENT_LOOP_ANIMATION_DEFAULT_VALUE
+} from '../../../avatar/components/LoopAnimationComponent'
 import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
 import { createEngine } from '../../../initializeEngine'
 import { Object3DComponent } from '../../components/Object3DComponent'
-import { SCENE_COMPONENT_LOOP_ANIMATION, SCENE_COMPONENT_LOOP_ANIMATION_DEFAULT_VALUE } from './LoopAnimationFunctions'
 
 class AnimationManager {
   static instance = {
@@ -91,18 +94,13 @@ describe('LoopAnimationFunctions', () => {
     hasAvatarAnimations: false
   }
 
-  const sceneComponent: ComponentJson = {
-    name: SCENE_COMPONENT_LOOP_ANIMATION,
-    props: sceneComponentData
-  }
-
   describe('deserializeLoopAnimation()', () => {
     it('will not deserialize component if not on client', () => {
       const _loopAnimationFunctions = proxyquire('./LoopAnimationFunctions', {
         '../../../common/functions/isClient': { isClient: false }
       })
 
-      _loopAnimationFunctions.deserializeLoopAnimation(entity, sceneComponent)
+      _loopAnimationFunctions.deserializeLoopAnimation(entity, sceneComponentData)
 
       assert(!hasComponent(entity, LoopAnimationComponent))
     })
@@ -110,7 +108,7 @@ describe('LoopAnimationFunctions', () => {
     it('will add LoopAnimationComponent with provide data', () => {
       addComponent(entity, Object3DComponent, { value: new Object3D() })
 
-      loopAnimationFunctions.deserializeLoopAnimation(entity, sceneComponent)
+      loopAnimationFunctions.deserializeLoopAnimation(entity, sceneComponentData)
 
       const loopAnimation = getComponent(entity, LoopAnimationComponent)
       assert(loopAnimation)
@@ -129,7 +127,7 @@ describe('LoopAnimationFunctions', () => {
 
     beforeEach(() => {
       addComponent(entity, Object3DComponent, { value: new Object3D() })
-      loopAnimationFunctions.deserializeLoopAnimation(entity, sceneComponent)
+      loopAnimationFunctions.deserializeLoopAnimation(entity, sceneComponentData)
       loopAnimation = getComponent(entity, LoopAnimationComponent) as LoopAnimationComponentType
       obj3d = getComponent(entity, Object3DComponent)?.value as Object3D
       obj3d.animations = [{ name: 'animation 1' }, { name: 'animation 2' }, { name: 'animation 3' }] as any
@@ -204,8 +202,8 @@ describe('LoopAnimationFunctions', () => {
 
   describe('serializeLoopAnimation()', () => {
     it('should properly serialize loop animation', () => {
-      loopAnimationFunctions.deserializeLoopAnimation(entity, sceneComponent)
-      assert.deepEqual(loopAnimationFunctions.serializeLoopAnimation(entity), sceneComponent)
+      loopAnimationFunctions.deserializeLoopAnimation(entity, sceneComponentData)
+      assert.deepEqual(loopAnimationFunctions.serializeLoopAnimation(entity), sceneComponentData)
     })
 
     it('should return undefine if there is no loop animation component', () => {
@@ -238,7 +236,7 @@ describe('LoopAnimationFunctions', () => {
 
     beforeEach(() => {
       addComponent(entity, Object3DComponent, { value: new Object3D() })
-      loopAnimationFunctions.deserializeLoopAnimation(entity, sceneComponent)
+      loopAnimationFunctions.deserializeLoopAnimation(entity, sceneComponentData)
       loopAnimation = getComponent(entity, LoopAnimationComponent) as LoopAnimationComponentType
       obj3d = getComponent(entity, Object3DComponent)?.value as Object3D
       obj3d.animations = [{ name: 'animation 1' }, { name: 'animation 2' }, { name: 'animation 3' }] as any

@@ -6,13 +6,11 @@ import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
 import { AudioComponent, AudioComponentType } from '../../../audio/components/AudioComponent'
 import { AudioType, AudioTypeType } from '../../../audio/constants/AudioConstants'
-import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
 import { createEngine } from '../../../initializeEngine'
 import { Object3DComponent } from '../../components/Object3DComponent'
-import { ObjectLayers } from '../../constants/ObjectLayers'
 import { deserializeAudio, SCENE_COMPONENT_AUDIO, SCENE_COMPONENT_AUDIO_DEFAULT_VALUES } from './AudioFunctions'
 
 const testURLs = {

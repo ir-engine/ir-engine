@@ -49,8 +49,8 @@ const processObject3d = (entity: Entity) => {
     if (typeof material !== 'undefined') material.dithering = true
 
     if (shadowComponent) {
-      obj.receiveShadow = shadowComponent.receiveShadow
-      obj.castShadow = shadowComponent.castShadow
+      obj.receiveShadow = shadowComponent.receive
+      obj.castShadow = shadowComponent.cast
     }
   })
 
@@ -152,7 +152,6 @@ export default async function SceneObjectSystem(world: World) {
         obj.layers.disable(ObjectLayers.Portal)
       })
     }
-
 
     const fixedDelta = getState(EngineState).fixedDeltaSeconds.value
     for (const entity of updatableQuery()) {

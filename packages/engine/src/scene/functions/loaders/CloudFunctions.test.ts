@@ -9,11 +9,14 @@ import { getComponent, hasComponent, removeComponent } from '../../../ecs/functi
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
 import { createEngine } from '../../../initializeEngine'
 import { Clouds } from '../../classes/Clouds'
-import { CloudComponent, CloudComponentType } from '../../components/CloudComponent'
+import {
+  CloudComponent,
+  CloudComponentType,
+  SCENE_COMPONENT_CLOUD_DEFAULT_VALUES
+} from '../../components/CloudComponent'
 import { ErrorComponent } from '../../components/ErrorComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 import { UpdatableComponent } from '../../components/UpdatableComponent'
-import { SCENE_COMPONENT_CLOUD, SCENE_COMPONENT_CLOUD_DEFAULT_VALUES } from './CloudFunctions'
 
 describe('CloudFunctions', () => {
   let entity: Entity
@@ -37,24 +40,19 @@ describe('CloudFunctions', () => {
     fogRange: { x: Math.random(), y: Math.random() }
   }
 
-  const sceneComponent: ComponentJson = {
-    name: SCENE_COMPONENT_CLOUD,
-    props: sceneComponentData
-  }
-
   describe('deserializeCloud()', () => {
     it('does not create Cloud Component while not on client side', () => {
       const _cloudFunctions = proxyquire('./CloudFunctions', {
         '../../../common/functions/isClient': { isClient: false }
       })
-      _cloudFunctions.deserializeCloud(entity, sceneComponent)
+      _cloudFunctions.deserializeCloud(entity, sceneComponentData)
 
       const cloudComponent = getComponent(entity, CloudComponent)
       assert(!cloudComponent)
     })
 
     it('creates Cloud Component with provided component data', () => {
-      cloudFunctions.deserializeCloud(entity, sceneComponent)
+      cloudFunctions.deserializeCloud(entity, sceneComponentData)
 
       const cloudComponent = getComponent(entity, CloudComponent)
       assert(cloudComponent)
@@ -94,7 +92,7 @@ describe('CloudFunctions', () => {
     })
 
     it('creates Cloud Object3D with provided component data', () => {
-      cloudFunctions.deserializeCloud(entity, sceneComponent)
+      cloudFunctions.deserializeCloud(entity, sceneComponentData)
 
       const obj3d = getComponent(entity, Object3DComponent)?.value
       assert(obj3d && obj3d instanceof Clouds, 'Cloud is not created')
@@ -106,7 +104,7 @@ describe('CloudFunctions', () => {
     let obj3d: Clouds
 
     beforeEach(() => {
-      cloudFunctions.deserializeCloud(entity, sceneComponent)
+      cloudFunctions.deserializeCloud(entity, sceneComponentData)
       cloudComponent = getComponent(entity, CloudComponent) as CloudComponentType
       obj3d = getComponent(entity, Object3DComponent)?.value as Clouds
     })
@@ -314,8 +312,8 @@ describe('CloudFunctions', () => {
 
   describe('serializeCloud()', () => {
     it('should properly serialize cloud', () => {
-      cloudFunctions.deserializeCloud(entity, sceneComponent)
-      assert.deepEqual(JSON.parse(JSON.stringify(cloudFunctions.serializeCloud(entity))), sceneComponent)
+      cloudFunctions.deserializeCloud(entity, sceneComponentData)
+      assert.deepEqual(JSON.parse(JSON.stringify(cloudFunctions.serializeCloud(entity))), sceneComponentData)
     })
 
     it('should return undefine if there is no cloud component', () => {

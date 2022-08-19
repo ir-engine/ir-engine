@@ -1,62 +1,168 @@
-import { ComponentJson } from "@xrengine/common/src/interfaces/SceneInterface"
-import { createActionQueue } from "@xrengine/hyperflux"
-import { LoopAnimationComponent, SCENE_COMPONENT_LOOP_ANIMATION, SCENE_COMPONENT_LOOP_ANIMATION_DEFAULT_VALUE } from "../../avatar/components/LoopAnimationComponent"
-import { EngineActions } from "../../ecs/classes/EngineState"
-import { World } from "../../ecs/classes/World"
-import { defineQuery, getComponent, hasComponent } from "../../ecs/functions/ComponentFunctions"
-import { SCENE_COMPONENT_TRANSFORM, SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES } from "../../transform/components/TransformComponent"
-import { SCENE_COMPONENT_ASSET, SCENE_COMPONENT_ASSET_DEFAULT_VALUES, AssetComponent } from "../components/AssetComponent"
-import { CameraPropertiesComponent } from "../components/CameraPropertiesComponent"
-import { CloudComponent, SCENE_COMPONENT_CLOUD, SCENE_COMPONENT_CLOUD_DEFAULT_VALUES } from "../components/CloudComponent"
-import { EnvMapBakeComponent, SCENE_COMPONENT_ENVMAP_BAKE, SCENE_COMPONENT_ENVMAP_BAKE_DEFAULT_VALUES } from "../components/EnvMapBakeComponent"
-import { EnvmapComponent } from "../components/EnvmapComponent"
-import { FogComponent, SCENE_COMPONENT_FOG, SCENE_COMPONENT_FOG_DEFAULT_VALUES } from "../components/FogComponent"
-import { GroundPlaneComponent, SCENE_COMPONENT_GROUND_PLANE, SCENE_COMPONENT_GROUND_PLANE_DEFAULT_VALUES } from "../components/GroundPlaneComponent"
-import { GroupComponent, SCENE_COMPONENT_GROUP } from "../components/GroupComponent"
-import { ImageComponent } from "../components/ImageComponent"
-import { InteriorComponent, SCENE_COMPONENT_INTERIOR, SCENE_COMPONENT_INTERIOR_DEFAULT_VALUES } from "../components/InteriorComponent"
-import { ModelComponent, SCENE_COMPONENT_MODEL, SCENE_COMPONENT_MODEL_DEFAULT_VALUE } from "../components/ModelComponent"
-import { Object3DComponent } from "../components/Object3DComponent"
-import { OceanComponent, SCENE_COMPONENT_OCEAN, SCENE_COMPONENT_OCEAN_DEFAULT_VALUES } from "../components/OceanComponent"
-import { SCENE_COMPONENT_PORTAL, SCENE_COMPONENT_PORTAL_DEFAULT_VALUES, PortalComponent } from "../components/PortalComponent"
-import { PreventBakeTagComponent, SCENE_COMPONENT_PREVENT_BAKE } from "../components/PreventBakeTagComponent"
-import { ScenePreviewCameraTagComponent, SCENE_COMPONENT_SCENE_PREVIEW_CAMERA } from "../components/ScenePreviewCamera"
-import { SceneTagComponent } from "../components/SceneTagComponent"
-import { ScreenshareTargetComponent } from "../components/ScreenshareTargetComponent"
-import { ShadowComponent, SCENE_COMPONENT_SHADOW, SCENE_COMPONENT_SHADOW_DEFAULT_VALUES } from "../components/ShadowComponent"
-import { SCENE_COMPONENT_SKYBOX, SCENE_COMPONENT_SKYBOX_DEFAULT_VALUES, SkyboxComponent } from "../components/SkyboxComponent"
-import { SpawnPointComponent } from "../components/SpawnPointComponent"
-import { SplineComponent } from "../components/SplineComponent"
-import { SCENE_COMPONENT_SYSTEM, SCENE_COMPONENT_SYSTEM_DEFAULT_VALUES, SystemComponent } from "../components/SystemComponent"
-import { VisibleComponent, SCENE_COMPONENT_VISIBLE } from "../components/VisibleComponent"
-import { SCENE_COMPONENT_WATER, WaterComponent } from "../components/WaterComponent"
-import { deserializeEnvMap, SCENE_COMPONENT_ENVMAP, SCENE_COMPONENT_ENVMAP_DEFAULT_VALUES, serializeEnvMap, updateEnvMap } from "../functions/loaders/EnvMapFunctions"
-import { deserializeImage, prepareImageForGLTFExport, SCENE_COMPONENT_IMAGE, SCENE_COMPONENT_IMAGE_DEFAULT_VALUES, serializeImage, updateImage } from "../functions/loaders/ImageFunctions"
-import { updateShadow } from "../functions/loaders/ShadowFunctions"
-import { deserializeAsset, serializeAsset } from "../functions/loaders/AssetComponentFunctions"
-import { SCENE_COMPONENT_CAMERA_PROPERTIES, SCENE_COMPONENT_CAMERA_PROPERTIES_DEFAULT_VALUES, deserializeCameraProperties, serializeCameraProperties } from "../functions/loaders/CameraPropertiesFunctions"
-import { deserializeCloud, serializeCloud, updateCloud } from "../functions/loaders/CloudFunctions"
-import { deserializeEnvMapBake, serializeEnvMapBake } from "../functions/loaders/EnvMapBakeFunctions"
-import { deserializeFog, serializeFog, updateFog, shouldDeserializeFog } from "../functions/loaders/FogFunctions"
-import { deserializeGround, serializeGroundPlane, updateGroundPlane, shouldDeserializeGroundPlane } from "../functions/loaders/GroundPlaneFunctions"
-import { deserializeGroup } from "../functions/loaders/GroupFunctions"
-import { deserializeInterior, serializeInterior, updateInterior } from "../functions/loaders/InteriorFunctions"
-import { serializeLoopAnimation, updateLoopAnimation } from "../functions/loaders/LoopAnimationFunctions"
-import { deserializeModel, serializeModel, updateModel } from "../functions/loaders/ModelFunctions"
-import { deserializeOcean, serializeOcean, updateOcean } from "../functions/loaders/OceanFunctions"
-import { deserializePortal, serializePortal } from "../functions/loaders/PortalFunctions"
-import { SCENE_COMPONENT_SCREENSHARETARGET, deserializeScreenshareTarget, serializeScreenshareTarget } from "../functions/loaders/ScreenshareTargetFunctions"
-import { deserializeSkybox, serializeSkybox, updateSkybox, shouldDeserializeSkybox } from "../functions/loaders/SkyboxFunctions"
-import { SCENE_COMPONENT_SPAWN_POINT, SCENE_COMPONENT_SPAWN_POINT_DEFAULT_VALUES, deserializeSpawnPoint, serializeSpawnPoint } from "../functions/loaders/SpawnPointFunctions"
-import { SCENE_COMPONENT_SPLINE, deserializeSpline, serializeSpline, SCENE_COMPONENT_SPLINE_DEFAULT_VALUES } from "../functions/loaders/SplineFunctions"
-import { SCENE_COMPONENT_TRIGGER_VOLUME } from "../functions/loaders/TriggerVolumeFunctions"
-import { deserializeWater } from "../functions/loaders/WaterFunctions"
-import { deserializeScenePreviewCamera, shouldDeserializeScenePreviewCamera } from "../functions/loaders/ScenePreviewCameraFunctions"
-import { PostprocessingComponent, SCENE_COMPONENT_POSTPROCESSING, SCENE_COMPONENT_POSTPROCESSING_DEFAULT_VALUES } from "../components/PostprocessingComponent"
-import { RenderSettingComponent, SCENE_COMPONENT_RENDERER_SETTINGS, SCENE_COMPONENT_RENDERER_SETTINGS_DEFAULT_VALUES } from "../components/RenderSettingComponent"
-import {  deserializePostprocessing, serializePostprocessing,shouldDeserializePostprocessing, } from "../functions/loaders/PostprocessingFunctions"
-import { deserializeRenderSetting, serializeRenderSettings, updateRenderSetting } from "../functions/loaders/RenderSettingsFunction"
-import { configureEffectComposer } from "../../renderer/functions/configureEffectComposer"
+import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
+import { createActionQueue } from '@xrengine/hyperflux'
+
+import {
+  LoopAnimationComponent,
+  SCENE_COMPONENT_LOOP_ANIMATION,
+  SCENE_COMPONENT_LOOP_ANIMATION_DEFAULT_VALUE
+} from '../../avatar/components/LoopAnimationComponent'
+import { EngineActions } from '../../ecs/classes/EngineState'
+import { World } from '../../ecs/classes/World'
+import { defineQuery, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
+import { configureEffectComposer } from '../../renderer/functions/configureEffectComposer'
+import {
+  SCENE_COMPONENT_TRANSFORM,
+  SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES
+} from '../../transform/components/TransformComponent'
+import {
+  AssetComponent,
+  SCENE_COMPONENT_ASSET,
+  SCENE_COMPONENT_ASSET_DEFAULT_VALUES
+} from '../components/AssetComponent'
+import { CameraPropertiesComponent } from '../components/CameraPropertiesComponent'
+import {
+  CloudComponent,
+  SCENE_COMPONENT_CLOUD,
+  SCENE_COMPONENT_CLOUD_DEFAULT_VALUES
+} from '../components/CloudComponent'
+import {
+  EnvMapBakeComponent,
+  SCENE_COMPONENT_ENVMAP_BAKE,
+  SCENE_COMPONENT_ENVMAP_BAKE_DEFAULT_VALUES
+} from '../components/EnvMapBakeComponent'
+import { EnvmapComponent } from '../components/EnvmapComponent'
+import { FogComponent, SCENE_COMPONENT_FOG, SCENE_COMPONENT_FOG_DEFAULT_VALUES } from '../components/FogComponent'
+import {
+  GroundPlaneComponent,
+  SCENE_COMPONENT_GROUND_PLANE,
+  SCENE_COMPONENT_GROUND_PLANE_DEFAULT_VALUES
+} from '../components/GroundPlaneComponent'
+import { GroupComponent, SCENE_COMPONENT_GROUP } from '../components/GroupComponent'
+import { ImageComponent } from '../components/ImageComponent'
+import {
+  InteriorComponent,
+  SCENE_COMPONENT_INTERIOR,
+  SCENE_COMPONENT_INTERIOR_DEFAULT_VALUES
+} from '../components/InteriorComponent'
+import {
+  ModelComponent,
+  SCENE_COMPONENT_MODEL,
+  SCENE_COMPONENT_MODEL_DEFAULT_VALUE
+} from '../components/ModelComponent'
+import { Object3DComponent } from '../components/Object3DComponent'
+import {
+  OceanComponent,
+  SCENE_COMPONENT_OCEAN,
+  SCENE_COMPONENT_OCEAN_DEFAULT_VALUES
+} from '../components/OceanComponent'
+import {
+  PortalComponent,
+  SCENE_COMPONENT_PORTAL,
+  SCENE_COMPONENT_PORTAL_DEFAULT_VALUES
+} from '../components/PortalComponent'
+import {
+  PostprocessingComponent,
+  SCENE_COMPONENT_POSTPROCESSING,
+  SCENE_COMPONENT_POSTPROCESSING_DEFAULT_VALUES
+} from '../components/PostprocessingComponent'
+import { PreventBakeTagComponent, SCENE_COMPONENT_PREVENT_BAKE } from '../components/PreventBakeTagComponent'
+import {
+  RenderSettingComponent,
+  SCENE_COMPONENT_RENDERER_SETTINGS,
+  SCENE_COMPONENT_RENDERER_SETTINGS_DEFAULT_VALUES
+} from '../components/RenderSettingComponent'
+import { SCENE_COMPONENT_SCENE_PREVIEW_CAMERA, ScenePreviewCameraTagComponent } from '../components/ScenePreviewCamera'
+import { SceneTagComponent } from '../components/SceneTagComponent'
+import { ScreenshareTargetComponent } from '../components/ScreenshareTargetComponent'
+import {
+  SCENE_COMPONENT_SHADOW,
+  SCENE_COMPONENT_SHADOW_DEFAULT_VALUES,
+  ShadowComponent
+} from '../components/ShadowComponent'
+import {
+  SCENE_COMPONENT_SKYBOX,
+  SCENE_COMPONENT_SKYBOX_DEFAULT_VALUES,
+  SkyboxComponent
+} from '../components/SkyboxComponent'
+import { SCENE_COMPONENT_SPAWN_POINT, SpawnPointComponent } from '../components/SpawnPointComponent'
+import {
+  SCENE_COMPONENT_SPLINE,
+  SCENE_COMPONENT_SPLINE_DEFAULT_VALUES,
+  SplineComponent
+} from '../components/SplineComponent'
+import {
+  SCENE_COMPONENT_SYSTEM,
+  SCENE_COMPONENT_SYSTEM_DEFAULT_VALUES,
+  SystemComponent
+} from '../components/SystemComponent'
+import { SCENE_COMPONENT_TRIGGER_VOLUME } from '../components/TriggerVolumeComponent'
+import { SCENE_COMPONENT_VISIBLE, VisibleComponent } from '../components/VisibleComponent'
+import { SCENE_COMPONENT_WATER, WaterComponent } from '../components/WaterComponent'
+import { deserializeAsset, serializeAsset } from '../functions/loaders/AssetComponentFunctions'
+import {
+  deserializeCameraProperties,
+  SCENE_COMPONENT_CAMERA_PROPERTIES,
+  SCENE_COMPONENT_CAMERA_PROPERTIES_DEFAULT_VALUES,
+  serializeCameraProperties
+} from '../functions/loaders/CameraPropertiesFunctions'
+import { deserializeCloud, serializeCloud, updateCloud } from '../functions/loaders/CloudFunctions'
+import { deserializeEnvMapBake, serializeEnvMapBake } from '../functions/loaders/EnvMapBakeFunctions'
+import {
+  deserializeEnvMap,
+  SCENE_COMPONENT_ENVMAP,
+  SCENE_COMPONENT_ENVMAP_DEFAULT_VALUES,
+  serializeEnvMap,
+  updateEnvMap
+} from '../functions/loaders/EnvMapFunctions'
+import { deserializeFog, serializeFog, shouldDeserializeFog, updateFog } from '../functions/loaders/FogFunctions'
+import {
+  deserializeGround,
+  serializeGroundPlane,
+  shouldDeserializeGroundPlane,
+  updateGroundPlane
+} from '../functions/loaders/GroundPlaneFunctions'
+import { deserializeGroup } from '../functions/loaders/GroupFunctions'
+import {
+  deserializeImage,
+  prepareImageForGLTFExport,
+  SCENE_COMPONENT_IMAGE,
+  SCENE_COMPONENT_IMAGE_DEFAULT_VALUES,
+  serializeImage,
+  updateImage
+} from '../functions/loaders/ImageFunctions'
+import { deserializeInterior, serializeInterior, updateInterior } from '../functions/loaders/InteriorFunctions'
+import { serializeLoopAnimation, updateLoopAnimation } from '../functions/loaders/LoopAnimationFunctions'
+import { deserializeModel, serializeModel, updateModel } from '../functions/loaders/ModelFunctions'
+import { deserializeOcean, serializeOcean, updateOcean } from '../functions/loaders/OceanFunctions'
+import { deserializePortal, serializePortal } from '../functions/loaders/PortalFunctions'
+import {
+  deserializePostprocessing,
+  serializePostprocessing,
+  shouldDeserializePostprocessing
+} from '../functions/loaders/PostprocessingFunctions'
+import {
+  deserializeRenderSetting,
+  serializeRenderSettings,
+  updateRenderSetting
+} from '../functions/loaders/RenderSettingsFunction'
+import {
+  deserializeScenePreviewCamera,
+  shouldDeserializeScenePreviewCamera
+} from '../functions/loaders/ScenePreviewCameraFunctions'
+import {
+  deserializeScreenshareTarget,
+  SCENE_COMPONENT_SCREENSHARETARGET,
+  serializeScreenshareTarget
+} from '../functions/loaders/ScreenshareTargetFunctions'
+import { updateShadow } from '../functions/loaders/ShadowFunctions'
+import {
+  deserializeSkybox,
+  serializeSkybox,
+  shouldDeserializeSkybox,
+  updateSkybox
+} from '../functions/loaders/SkyboxFunctions'
+import { deserializeSpline, serializeSpline } from '../functions/loaders/SplineFunctions'
+import { deserializeWater } from '../functions/loaders/WaterFunctions'
 
 export const defaultSpatialComponents: ComponentJson[] = [
   { name: SCENE_COMPONENT_TRANSFORM, props: SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES },
@@ -90,7 +196,6 @@ export const ScenePrefabs = {
 }
 
 export const registerBaseSceneComponents = (world: World) => {
-
   /**
    * Tag components
    */
@@ -144,15 +249,11 @@ export const registerBaseSceneComponents = (world: World) => {
   world.scenePrefabRegistry.set(ScenePrefabs.spawnPoint, [
     { name: SCENE_COMPONENT_TRANSFORM, props: SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES },
     { name: SCENE_COMPONENT_VISIBLE, props: true },
-    { name: SCENE_COMPONENT_SPAWN_POINT, props: SCENE_COMPONENT_SPAWN_POINT_DEFAULT_VALUES }
+    { name: SCENE_COMPONENT_SPAWN_POINT, props: true }
   ])
 
   world.sceneComponentRegistry.set(SpawnPointComponent._name, SCENE_COMPONENT_SPAWN_POINT)
-  world.sceneLoadingRegistry.set(SCENE_COMPONENT_SPAWN_POINT, {
-    defaultData: SCENE_COMPONENT_SPAWN_POINT_DEFAULT_VALUES,
-    deserialize: deserializeSpawnPoint,
-    serialize: serializeSpawnPoint
-  })
+  world.sceneLoadingRegistry.set(SCENE_COMPONENT_SPAWN_POINT, {})
 
   world.sceneComponentRegistry.set(RenderSettingComponent._name, SCENE_COMPONENT_RENDERER_SETTINGS)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_RENDERER_SETTINGS, {
@@ -255,8 +356,7 @@ export const registerBaseSceneComponents = (world: World) => {
    * Objects
    */
 
-
-   world.scenePrefabRegistry.set(ScenePrefabs.model, [
+  world.scenePrefabRegistry.set(ScenePrefabs.model, [
     ...defaultSpatialComponents,
     { name: SCENE_COMPONENT_MODEL, props: SCENE_COMPONENT_MODEL_DEFAULT_VALUE },
     { name: SCENE_COMPONENT_ENVMAP, props: SCENE_COMPONENT_ENVMAP_DEFAULT_VALUES },
@@ -334,13 +434,12 @@ export const registerBaseSceneComponents = (world: World) => {
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_CLOUD, {
     defaultData: SCENE_COMPONENT_CLOUD_DEFAULT_VALUES,
     deserialize: deserializeCloud,
-    serialize: serializeCloud,
+    serialize: serializeCloud
   })
   world.scenePrefabRegistry.set(ScenePrefabs.ocean, [
     ...defaultSpatialComponents,
     { name: SCENE_COMPONENT_OCEAN, props: SCENE_COMPONENT_OCEAN_DEFAULT_VALUES }
   ])
-
 
   world.sceneComponentRegistry.set(OceanComponent._name, SCENE_COMPONENT_OCEAN)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_OCEAN, {
@@ -352,7 +451,6 @@ export const registerBaseSceneComponents = (world: World) => {
     ...defaultSpatialComponents,
     { name: SCENE_COMPONENT_WATER, props: true }
   ])
-
 
   world.sceneComponentRegistry.set(WaterComponent._name, SCENE_COMPONENT_WATER)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_WATER, {
@@ -403,7 +501,6 @@ export const registerBaseSceneComponents = (world: World) => {
   const modifyPropertyActionQueue = createActionQueue(EngineActions.sceneObjectUpdate.matches)
 
   return () => {
-
     for (const entity of obj3dQuery())
       getComponent(entity, Object3DComponent).value.visible = hasComponent(entity, VisibleComponent)
 
@@ -423,7 +520,6 @@ export const registerBaseSceneComponents = (world: World) => {
 
         if (hasComponent(entity, RenderSettingComponent)) updateRenderSetting(entity)
         if (hasComponent(entity, PostprocessingComponent)) configureEffectComposer()
-        
       }
     }
 
@@ -442,7 +538,5 @@ export const registerBaseSceneComponents = (world: World) => {
     for (const entity of interiorQuery.enter()) updateInterior(entity)
     for (const entity of renderSettingsQuery.enter()) updateRenderSetting(entity)
     for (const entity of postProcessingQuery.enter()) configureEffectComposer()
-    
-    
   }
 }

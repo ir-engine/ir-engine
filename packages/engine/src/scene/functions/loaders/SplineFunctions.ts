@@ -6,11 +6,6 @@ import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunc
 import { Object3DComponent } from '../../components/Object3DComponent'
 import { SplineComponent, SplineComponentType } from '../../components/SplineComponent'
 
-export const SCENE_COMPONENT_SPLINE = 'spline'
-export const SCENE_COMPONENT_SPLINE_DEFAULT_VALUES = {
-  splinePositions: [] as Vector3[]
-}
-
 export const deserializeSpline: ComponentDeserializeFunction = (entity: Entity, data: SplineComponentType) => {
   const obj3d = new Object3D()
   const props = parseSplineProperties(data)
@@ -24,10 +19,7 @@ export const serializeSpline: ComponentSerializeFunction = (entity) => {
   if (!component) return
 
   return {
-    name: SCENE_COMPONENT_SPLINE,
-    props: {
-      splinePositions: component.splinePositions
-    }
+    splinePositions: component.splinePositions
   }
 }
 

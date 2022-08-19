@@ -1,5 +1,7 @@
 import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
+import { EnvMapBakeRefreshTypes } from '../types/EnvMapBakeRefreshTypes'
 import { EnvMapBakeSettings } from '../types/EnvMapBakeSettings'
+import { EnvMapBakeTypes } from '../types/EnvMapBakeTypes'
 
 export type EnvMapBakeComponentType = {
   options: EnvMapBakeSettings

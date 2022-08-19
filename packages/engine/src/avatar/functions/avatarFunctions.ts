@@ -124,7 +124,7 @@ export const boneMatchAvatarModel = (entity: Entity) => (model: Object3D) => {
     object3DComponent.value!.userData.scale = 0.01
   } else if (assetType == AssetType.VRM) {
     if (model && object3DComponent.value && (model as UpdateableObject3D).update) {
-      addComponent(entity, UpdatableComponent, {})
+      addComponent(entity, UpdatableComponent, true)
       ;(object3DComponent.value as unknown as Updatable).update = (delta: number) => {
         ;(model as UpdateableObject3D).update(delta)
       }

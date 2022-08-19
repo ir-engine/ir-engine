@@ -8,7 +8,6 @@ import { createEngine } from '../../../initializeEngine'
 import {
   AmbientLightComponent,
   AmbientLightComponentType,
-  SCENE_COMPONENT_AMBIENT_LIGHT,
   SCENE_COMPONENT_AMBIENT_LIGHT_DEFAULT_VALUES
 } from '../../components/AmbientLightComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'

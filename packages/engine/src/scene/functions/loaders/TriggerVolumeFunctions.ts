@@ -17,9 +17,6 @@ import { TransformComponent } from '../../../transform/components/TransformCompo
 import { Object3DComponent } from '../../components/Object3DComponent'
 import { TriggerVolumeComponent, TriggerVolumeComponentType } from '../../components/TriggerVolumeComponent'
 
-export const SCENE_COMPONENT_TRIGGER_VOLUME = 'trigger-volume'
-export const SCENE_COMPONENT_TRIGGER_VOLUME_DEFAULT_VALUES = {}
-
 export const deserializeTriggerVolume: ComponentDeserializeFunction = (
   entity: Entity,
   data: TriggerVolumeComponentType
@@ -65,11 +62,8 @@ export const serializeTriggerVolume: ComponentSerializeFunction = (entity) => {
   if (!triggerVolumeComponent) return
 
   return {
-    name: SCENE_COMPONENT_TRIGGER_VOLUME,
-    props: {
-      target: triggerVolumeComponent.target,
-      onEnter: triggerVolumeComponent.onEnter,
-      onExit: triggerVolumeComponent.onExit
-    }
+    target: triggerVolumeComponent.target,
+    onEnter: triggerVolumeComponent.onEnter,
+    onExit: triggerVolumeComponent.onExit
   }
 }

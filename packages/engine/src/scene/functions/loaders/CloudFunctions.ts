@@ -8,7 +8,11 @@ import {
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
 import { Clouds } from '../../classes/Clouds'
-import { CloudComponent, CloudComponentType, SCENE_COMPONENT_CLOUD_DEFAULT_VALUES } from '../../components/CloudComponent'
+import {
+  CloudComponent,
+  CloudComponentType,
+  SCENE_COMPONENT_CLOUD_DEFAULT_VALUES
+} from '../../components/CloudComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 import { UpdatableComponent } from '../../components/UpdatableComponent'
 
@@ -18,7 +22,7 @@ export const deserializeCloud: ComponentDeserializeFunction = (entity: Entity, d
 
   addComponent(entity, Object3DComponent, { value: obj3d })
   addComponent(entity, CloudComponent, props)
-  addComponent(entity, UpdatableComponent, {})
+  addComponent(entity, UpdatableComponent, true)
 
   updateCloud(entity, props)
 }

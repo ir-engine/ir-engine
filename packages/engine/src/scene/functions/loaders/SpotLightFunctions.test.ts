@@ -7,7 +7,6 @@ import { createEntity } from '../../../ecs/functions/EntityFunctions'
 import { createEngine } from '../../../initializeEngine'
 import { Object3DComponent } from '../../components/Object3DComponent'
 import {
-  SCENE_COMPONENT_SPOT_LIGHT,
   SCENE_COMPONENT_SPOT_LIGHT_DEFAULT_VALUES,
   SpotLightComponent,
   SpotLightComponentType
