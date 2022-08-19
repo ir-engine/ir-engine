@@ -60,8 +60,8 @@ export const ProjectService = {
   },
 
   // restricted to admin scope
-  uploadProject: async (url: string, name?: string) => {
-    const result = await API.instance.client.service('project').update({ url, name })
+  uploadProject: async (url: string, name?: string, reset?: boolean) => {
+    const result = await API.instance.client.service('project').update({ url, name, reset })
     logger.info({ result }, 'Upload project result')
     dispatchAction(ProjectAction.postProject({}))
     await ProjectService.fetchProjects()

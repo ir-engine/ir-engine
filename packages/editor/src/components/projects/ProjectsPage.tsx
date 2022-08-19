@@ -10,6 +10,7 @@ import { dispatchAction } from '@xrengine/hyperflux'
 
 import {
   ArrowRightRounded,
+  Cached,
   Check,
   Clear,
   Delete,
@@ -315,11 +316,11 @@ const ProjectsPage = () => {
     setUpdatingProject(false)
   }
 
-  const updateProject = async (project: ProjectInterface | null) => {
+  const updateProject = async (project: ProjectInterface | null, reset?: boolean) => {
     if (project) {
       setDownloadingProject(true)
       try {
-        await ProjectService.uploadProject(project.repositoryPath, project.name)
+        await ProjectService.uploadProject(project.repositoryPath, project.name, reset)
         setDownloadingProject(false)
       } catch (err) {
         setDownloadingProject(false)
@@ -540,6 +541,12 @@ const ProjectsPage = () => {
               {t(`editor.projects.permissions`)}
             </MenuItem>
           )}
+          {activeProject && isInstalled(activeProject) && hasRepo(activeProject) && (
+            <MenuItem classes={{ root: styles.filterMenuItem }} onClick={() => updateProject(activeProject)}>
+              {downloadingProject ? <CircularProgress size={15} className={styles.progressbar} /> : <Download />}
+              {t(`editor.projects.updateFromGithub`)}
+            </MenuItem>
+          )}
           {activeProject && isInstalled(activeProject) && !hasRepo(activeProject) && (
             <MenuItem classes={{ root: styles.filterMenuItem }} onClick={openRepoLinkDialog}>
               <Link />
@@ -552,16 +559,16 @@ const ProjectsPage = () => {
               {t(`editor.projects.unlink`)}
             </MenuItem>
           )}
-          {activeProject && isInstalled(activeProject) && hasRepo(activeProject) && (
-            <MenuItem classes={{ root: styles.filterMenuItem }} onClick={() => updateProject(activeProject)}>
-              {downloadingProject ? <CircularProgress size={15} className={styles.progressbar} /> : <Download />}
-              {t(`editor.projects.updateFromGithub`)}
-            </MenuItem>
-          )}
           {activeProject?.hasWriteAccess && hasRepo(activeProject) && (
             <MenuItem classes={{ root: styles.filterMenuItem }} onClick={() => pushProject(activeProject.id)}>
               {uploadingProject ? <CircularProgress size={15} className={styles.progressbar} /> : <Upload />}
               {t(`editor.projects.pushToGithub`)}
+            </MenuItem>
+          )}
+          {activeProject && isInstalled(activeProject) && hasRepo(activeProject) && (
+            <MenuItem classes={{ root: styles.filterMenuItem }} onClick={() => updateProject(activeProject, true)}>
+              {downloadingProject ? <CircularProgress size={15} className={styles.progressbar} /> : <Cached />}
+              {t(`editor.projects.resetToMain`)}
             </MenuItem>
           )}
           {isInstalled(activeProject) ? (
