@@ -2,7 +2,6 @@ import * as THREE from 'three'
 import { Object3D } from 'three'
 import System, { SpriteRenderer } from 'three-nebula'
 
-import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { dispatchAction } from '@xrengine/hyperflux'
 
 import {
@@ -78,9 +77,9 @@ export const initializeParticleSystem = async (entity: Entity) => {
 
 export const deserializeParticleEmitter: ComponentDeserializeFunction = (
   entity: Entity,
-  json: ComponentJson<ParticleEmitterComponentType>
+  data: ParticleEmitterComponentType
 ) => {
-  const comp = parseParticleEmitterProperties(json.props)
+  const comp = parseParticleEmitterProperties(data)
   addComponent(entity, ParticleEmitterComponent, comp)
   dispatchAction(ParticleSystemActions.createParticleSystem({ entity }))
   //initializeParticleSystem(entity)

@@ -1,7 +1,5 @@
 import { Mesh, MeshStandardMaterial, Object3D, Quaternion, Scene, Vector3 } from 'three'
 
-import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
-
 import { ComponentDeserializeFunction, ComponentSerializeFunction } from '../../../common/constants/PrefabFunctionType'
 import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
@@ -28,11 +26,8 @@ export const SCENE_COMPONENT_ENVMAP_BAKE_DEFAULT_VALUES = {
   }
 }
 
-export const deserializeEnvMapBake: ComponentDeserializeFunction = (
-  entity: Entity,
-  json: ComponentJson<EnvMapBakeComponentType>
-) => {
-  const props = parseEnvMapBakeProperties(json.props)
+export const deserializeEnvMapBake: ComponentDeserializeFunction = (entity: Entity, data: EnvMapBakeComponentType) => {
+  const props = parseEnvMapBakeProperties(data)
   addComponent(entity, EnvMapBakeComponent, props)
 }
 

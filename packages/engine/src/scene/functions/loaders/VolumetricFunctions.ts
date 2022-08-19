@@ -1,6 +1,5 @@
 import { Box3 } from 'three'
 
-import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { AvatarDissolveComponent } from '@xrengine/engine/src/avatar/components/AvatarDissolveComponent'
 import { AvatarEffectComponent, MaterialMap } from '@xrengine/engine/src/avatar/components/AvatarEffectComponent'
 import { DissolveEffect } from '@xrengine/engine/src/avatar/DissolveEffect'
@@ -51,14 +50,11 @@ export const SCENE_COMPONENT_VOLUMETRIC_DEFAULT_VALUES = {
   useLoadingEffect: true
 }
 
-export const deserializeVolumetric: ComponentDeserializeFunction = (
-  entity: Entity,
-  json: ComponentJson<VolumetricComponentType>
-) => {
+export const deserializeVolumetric: ComponentDeserializeFunction = (entity: Entity, data: VolumetricComponentType) => {
   if (!isClient) return
   try {
     removeError(entity, 'error')
-    addVolumetricComponent(entity, json.props)
+    addVolumetricComponent(entity, data)
   } catch (error) {
     console.error(error)
     addError(entity, 'error', error.message)

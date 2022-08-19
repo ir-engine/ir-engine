@@ -1,7 +1,5 @@
 import { Mesh } from 'three'
 
-import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
-
 import {
   ComponentDeserializeFunction,
   ComponentSerializeFunction,
@@ -20,11 +18,11 @@ export const SCENE_COMPONENT_SHADOW_DEFAULT_VALUES = {
 
 export const deserializeShadow: ComponentDeserializeFunction = (
   entity: Entity,
-  json: ComponentJson<typeof SCENE_COMPONENT_SHADOW_DEFAULT_VALUES>
+  data: typeof SCENE_COMPONENT_SHADOW_DEFAULT_VALUES
 ) => {
   addComponent(entity, ShadowComponent, {
-    castShadow: json.props.cast ?? SCENE_COMPONENT_SHADOW_DEFAULT_VALUES.cast,
-    receiveShadow: json.props.receive ?? SCENE_COMPONENT_SHADOW_DEFAULT_VALUES.receive
+    castShadow: data.cast ?? SCENE_COMPONENT_SHADOW_DEFAULT_VALUES.cast,
+    receiveShadow: data.receive ?? SCENE_COMPONENT_SHADOW_DEFAULT_VALUES.receive
   })
 
   updateShadow(entity)

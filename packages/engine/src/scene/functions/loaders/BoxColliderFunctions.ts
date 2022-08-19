@@ -1,8 +1,6 @@
 import { ColliderDesc, RigidBodyDesc } from '@dimforge/rapier3d-compat'
 import { Mesh, Object3D, Quaternion, Vector3 } from 'three'
 
-import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
-
 import {
   ComponentDeserializeFunction,
   ComponentSerializeFunction,
@@ -27,11 +25,8 @@ export const SCENE_COMPONENT_BOX_COLLIDER_DEFAULT_VALUES = {
   collisionMask: DefaultCollisionMask
 }
 
-export const deserializeBoxCollider: ComponentDeserializeFunction = (
-  entity: Entity,
-  json: ComponentJson<BoxColliderProps>
-): void => {
-  const boxColliderProps = parseBoxColliderProperties(json.props)
+export const deserializeBoxCollider: ComponentDeserializeFunction = (entity: Entity, data: BoxColliderProps): void => {
+  const boxColliderProps = parseBoxColliderProperties(data)
   addComponent(entity, BoxColliderComponent, true)
   const transform = getComponent(entity, TransformComponent)
   const colliderDesc = ColliderDesc.cuboid(

@@ -1,7 +1,5 @@
 import { Vector2 } from 'three'
 
-import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
-
 import {
   ComponentDeserializeFunction,
   ComponentSerializeFunction,
@@ -22,14 +20,11 @@ export const SCENE_COMPONENT_INTERIOR_DEFAULT_VALUES = {
   size: { x: 1, y: 1 }
 }
 
-export const deserializeInterior: ComponentDeserializeFunction = (
-  entity: Entity,
-  json: ComponentJson<InteriorComponentType>
-) => {
+export const deserializeInterior: ComponentDeserializeFunction = (entity: Entity, data: InteriorComponentType) => {
   if (!isClient) return
 
   const obj3d = new Interior(entity)
-  const props = parseInteriorProperties(json.props)
+  const props = parseInteriorProperties(data)
 
   addComponent(entity, Object3DComponent, { value: obj3d })
   addComponent(entity, InteriorComponent, props)

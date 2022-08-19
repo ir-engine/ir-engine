@@ -1,5 +1,3 @@
-import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
-
 import {
   ComponentDeserializeFunction,
   ComponentSerializeFunction,
@@ -14,9 +12,9 @@ export const SCENE_COMPONENT_SCREENSHARETARGET_DEFAULT_VALUES = {}
 
 export const deserializeScreenshareTarget: ComponentDeserializeFunction = (
   entity: Entity,
-  json: ComponentJson<ScreenshareTargetComponentType>
+  data: ScreenshareTargetComponentType
 ) => {
-  const props = parseScreenshareTargetProperties(json.props)
+  const props = parseScreenshareTargetProperties(data)
   addComponent(entity, ScreenshareTargetComponent, props)
 
   updateScreenshareTarget(entity, props)

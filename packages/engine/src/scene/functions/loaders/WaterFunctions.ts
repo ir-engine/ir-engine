@@ -1,5 +1,3 @@
-import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
-
 import {
   ComponentDeserializeFunction,
   ComponentSerializeFunction,
@@ -16,19 +14,16 @@ import { WaterComponent, WaterComponentType } from '../../components/WaterCompon
 export const SCENE_COMPONENT_WATER = 'water'
 export const SCENE_COMPONENT_WATER_DEFAULT_VALUES = {}
 
-export const deserializeWater: ComponentDeserializeFunction = (
-  entity: Entity,
-  json: ComponentJson<WaterComponentType>
-) => {
+export const deserializeWater: ComponentDeserializeFunction = (entity: Entity, data: WaterComponentType) => {
   if (!isClient) return
 
   const obj3d = new Water()
 
   addComponent(entity, Object3DComponent, { value: obj3d })
-  addComponent(entity, WaterComponent, { ...json.props })
+  addComponent(entity, WaterComponent, { ...data })
   addComponent(entity, UpdatableComponent, {})
 
-  updateWater(entity, json.props)
+  updateWater(entity, data)
 }
 
 export const updateWater: ComponentUpdateFunction = (_entity: Entity, _properties: WaterComponentType) => {}

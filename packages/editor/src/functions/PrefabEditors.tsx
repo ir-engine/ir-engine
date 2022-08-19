@@ -35,6 +35,7 @@ import { VideoComponent } from '@xrengine/engine/src/scene/components/VideoCompo
 import { VolumetricComponent } from '@xrengine/engine/src/scene/components/VolumetricComponent'
 import { WaterComponent } from '@xrengine/engine/src/scene/components/WaterComponent'
 import { ScenePrefabs } from '@xrengine/engine/src/scene/functions/registerPrefabs'
+import { LightPrefabs } from '@xrengine/engine/src/scene/systems/LightSystem'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 
 import ChairIcon from '@mui/icons-material/Chair'
@@ -136,11 +137,11 @@ export const EntityNodeEditor = {
 }
 
 export const prefabIcons = {
-  [ScenePrefabs.ambientLight]: AmbientLightNodeEditor.iconComponent,
-  [ScenePrefabs.pointLight]: PointLightNodeEditor.iconComponent,
-  [ScenePrefabs.spotLight]: SpotLightNodeEditor.iconComponent,
-  [ScenePrefabs.directionalLight]: DirectionalLightNodeEditor.iconComponent,
-  [ScenePrefabs.hemisphereLight]: HemisphereLightNodeEditor.iconComponent,
+  [LightPrefabs.ambientLight]: AmbientLightNodeEditor.iconComponent,
+  [LightPrefabs.pointLight]: PointLightNodeEditor.iconComponent,
+  [LightPrefabs.spotLight]: SpotLightNodeEditor.iconComponent,
+  [LightPrefabs.directionalLight]: DirectionalLightNodeEditor.iconComponent,
+  [LightPrefabs.hemisphereLight]: HemisphereLightNodeEditor.iconComponent,
   [ScenePrefabs.groundPlane]: GroundPlaneNodeEditor.iconComponent,
   [ScenePrefabs.model]: ModelNodeEditor.iconComponent,
   [ScenePrefabs.cameraProperties]: CameraPropertiesNodeEditor.iconComponent,

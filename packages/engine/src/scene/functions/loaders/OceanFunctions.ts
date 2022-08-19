@@ -1,7 +1,5 @@
 import { Color, Vector2 } from 'three'
 
-import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
-
 import {
   ComponentDeserializeFunction,
   ComponentSerializeFunction,
@@ -41,14 +39,11 @@ export const SCENE_COMPONENT_OCEAN_DEFAULT_VALUES = {
   foamColor: 0xffffff
 }
 
-export const deserializeOcean: ComponentDeserializeFunction = (
-  entity: Entity,
-  json: ComponentJson<OceanComponentType>
-) => {
+export const deserializeOcean: ComponentDeserializeFunction = (entity: Entity, data: OceanComponentType) => {
   if (!isClient) return
 
   const obj3d = new Ocean(entity)
-  const props = parseOceanProperties(json.props)
+  const props = parseOceanProperties(data)
 
   addComponent(entity, Object3DComponent, { value: obj3d })
   addComponent(entity, OceanComponent, props)

@@ -9,7 +9,7 @@ import { createEntity } from '../../../ecs/functions/EntityFunctions'
 import { createEngine } from '../../../initializeEngine'
 import { EngineRenderer } from '../../../renderer/WebGLRendererSystem'
 import { Object3DComponent } from '../../components/Object3DComponent'
-import { deserializeDirectionalLight } from './DirectionalLightFunctions'
+import { deserializeDirectionalLight, updateDirectionalLight } from './DirectionalLightFunctions'
 
 describe('DirectionalLightFunctions', () => {
   describe('deserializeDirectionalLight', async () => {
@@ -31,12 +31,9 @@ describe('DirectionalLightFunctions', () => {
         cameraFar: 123,
         useInCSM: true
       }
-      const sceneComponent: ComponentJson = {
-        name: 'directional-light',
-        props: sceneComponentData
-      }
 
-      deserializeDirectionalLight(entity, sceneComponent)
+      deserializeDirectionalLight(entity, sceneComponentData)
+      updateDirectionalLight(entity)
 
       const activeCSMLightEntity = EngineRenderer.instance.directionalLightEntities[0]
       const light = getComponent(activeCSMLightEntity, Object3DComponent)?.value as DirectionalLight
@@ -69,12 +66,9 @@ describe('DirectionalLightFunctions', () => {
         shadowRadius: 20,
         cameraFar: 256
       }
-      const sceneComponent: ComponentJson = {
-        name: 'directional-light',
-        props: sceneComponentData
-      }
 
-      deserializeDirectionalLight(entity, sceneComponent)
+      deserializeDirectionalLight(entity, sceneComponentData)
+      updateDirectionalLight(entity)
 
       assert(hasComponent(entity, Object3DComponent))
       assert(getComponent(entity, Object3DComponent).value instanceof DirectionalLight)

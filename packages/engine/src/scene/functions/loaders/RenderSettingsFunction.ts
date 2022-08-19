@@ -1,7 +1,5 @@
 import { DirectionalLight, Light, LinearToneMapping, Mesh, PCFSoftShadowMap, PerspectiveCamera, Vector3 } from 'three'
 
-import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
-
 import { DEFAULT_LOD_DISTANCES } from '../../../assets/constants/LoaderConstants'
 import { CSM } from '../../../assets/csm/CSM'
 import {
@@ -33,9 +31,9 @@ export const SCENE_COMPONENT_RENDERER_SETTINGS_DEFAULT_VALUES = {
 
 export const deserializeRenderSetting: ComponentDeserializeFunction = (
   entity: Entity,
-  json: ComponentJson<RenderSettingComponentType>
+  data: RenderSettingComponentType
 ) => {
-  const props = parseRenderSettingsProperties(json.props)
+  const props = parseRenderSettingsProperties(data)
   addComponent(entity, RenderSettingComponent, props)
 
   updateRenderSetting(entity, props)

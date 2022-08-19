@@ -38,7 +38,7 @@ export const SCENE_COMPONENT_GROUND_PLANE_DEFAULT_VALUES = {
 
 export const deserializeGround: ComponentDeserializeFunction = async function (
   entity: Entity,
-  json: ComponentJson<GroundPlaneComponentType>
+  data: GroundPlaneComponentType
 ): Promise<void> {
   const planeSize = new Vector3(1000, 0.1, 1000)
   const mesh = new Mesh(new CircleGeometry(planeSize.x, 32), new MeshStandardMaterial({ roughness: 1, metalness: 0 }))
@@ -60,7 +60,7 @@ export const deserializeGround: ComponentDeserializeFunction = async function (
 
   addComponent(entity, Object3DComponent, { value: groundPlane })
 
-  const props = parseGroundPlaneProperties(json.props)
+  const props = parseGroundPlaneProperties(data)
   addComponent(entity, GroundPlaneComponent, props)
 
   Physics.createRigidBodyForObject(

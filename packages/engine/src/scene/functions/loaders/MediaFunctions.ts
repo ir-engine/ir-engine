@@ -1,5 +1,3 @@
-import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
-
 import { ComponentDeserializeFunction, ComponentSerializeFunction } from '../../../common/constants/PrefabFunctionType'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
@@ -19,11 +17,8 @@ export const SCENE_COMPONENT_MEDIA_DEFAULT_VALUES = {
   playMode: PlayMode.Loop
 } as Partial<MediaComponentType>
 
-export const deserializeMedia: ComponentDeserializeFunction = (
-  entity: Entity,
-  json: ComponentJson<MediaComponentType>
-) => {
-  const props = parseMediaProperties(json.props)
+export const deserializeMedia: ComponentDeserializeFunction = (entity: Entity, data: MediaComponentType) => {
+  const props = parseMediaProperties(data)
   addComponent(entity, MediaComponent, {
     ...props,
     currentSource: 0,

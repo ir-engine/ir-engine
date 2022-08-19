@@ -1,6 +1,5 @@
 import { Euler, Quaternion, Vector3 } from 'three'
 
-import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { dispatchAction, getState } from '@xrengine/hyperflux'
 
 import { AvatarStates } from '../../../avatar/animation/Util'
@@ -43,11 +42,8 @@ export const SCENE_COMPONENT_PORTAL_DEFAULT_VALUES = {
   remoteSpawnRotation: new Quaternion()
 } as PortalComponentType
 
-export const deserializePortal: ComponentDeserializeFunction = (
-  entity: Entity,
-  json: ComponentJson<PortalComponentType>
-): void => {
-  const props = parsePortalProperties(json.props)
+export const deserializePortal: ComponentDeserializeFunction = (entity: Entity, data: PortalComponentType): void => {
+  const props = parsePortalProperties(data)
 
   addComponent(entity, PortalComponent, props)
 

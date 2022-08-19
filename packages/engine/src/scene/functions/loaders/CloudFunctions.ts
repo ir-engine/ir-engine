@@ -1,7 +1,5 @@
 import { Color, Vector2, Vector3 } from 'three'
 
-import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
-
 import {
   ComponentDeserializeFunction,
   ComponentSerializeFunction,
@@ -27,14 +25,11 @@ export const SCENE_COMPONENT_CLOUD_DEFAULT_VALUES = {
   fogRange: { x: -100, y: 3000 }
 }
 
-export const deserializeCloud: ComponentDeserializeFunction = (
-  entity: Entity,
-  json: ComponentJson<CloudComponentType>
-) => {
+export const deserializeCloud: ComponentDeserializeFunction = (entity: Entity, data: CloudComponentType) => {
   if (!isClient) return
 
   const obj3d = new Clouds(entity)
-  const props = parseCloudProperties(json.props)
+  const props = parseCloudProperties(data)
 
   addComponent(entity, Object3DComponent, { value: obj3d })
   addComponent(entity, CloudComponent, props)

@@ -1,14 +1,12 @@
 import { Object3D } from 'three'
 
-import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
-import { isClient } from '@xrengine/engine/src/common/functions/isClient'
-
 import {
   ComponentDeserializeFunction,
   ComponentSerializeFunction,
   ComponentShouldDeserializeFunction,
   ComponentUpdateFunction
 } from '../../../common/constants/PrefabFunctionType'
+import { isClient } from '../../../common/functions/isClient'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent, getComponentCountOfType } from '../../../ecs/functions/ComponentFunctions'
 import { configureEffectComposer } from '../../../renderer/functions/configureEffectComposer'
@@ -24,11 +22,11 @@ export const SCENE_COMPONENT_POSTPROCESSING_DEFAULT_VALUES = {
 
 export const deserializePostprocessing: ComponentDeserializeFunction = async function (
   entity: Entity,
-  json: ComponentJson<PostprocessingComponentType>
+  data: PostprocessingComponentType
 ): Promise<void> {
   if (!isClient) return
 
-  addComponent(entity, PostprocessingComponent, parsePostprocessingProperties(json.props))
+  addComponent(entity, PostprocessingComponent, parsePostprocessingProperties(data))
   addComponent(entity, IgnoreRaycastTagComponent, {})
   addComponent(entity, Object3DComponent, { value: new Object3D() })
 }

@@ -1,5 +1,3 @@
-import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
-
 import { CameraMode } from '../../../camera/types/CameraMode'
 import { ProjectionType } from '../../../camera/types/ProjectionType'
 import { ComponentDeserializeFunction, ComponentSerializeFunction } from '../../../common/constants/PrefabFunctionType'
@@ -7,8 +5,6 @@ import { isClient } from '../../../common/functions/isClient'
 import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
-import { matchActionOnce } from '../../../networking/functions/matchActionOnce'
-import { WorldNetworkAction } from '../../../networking/functions/WorldNetworkAction'
 import { CameraPropertiesComponent, CameraPropertiesComponentType } from '../../components/CameraPropertiesComponent'
 import { setCameraProperties } from '../setCameraProperties'
 
@@ -45,13 +41,13 @@ export const SCENE_COMPONENT_CAMERA_PROPERTIES_DEFAULT_VALUES = {
 
 export const deserializeCameraProperties: ComponentDeserializeFunction = (
   entity: Entity,
-  json: ComponentJson<CameraPropertiesComponentType>
+  data: CameraPropertiesComponentType
 ): void => {
-  const props = parseCameraPropertiesProperties(json.props)
+  const props = parseCameraPropertiesProperties(data)
   addComponent(entity, CameraPropertiesComponent, props)
 
   if (isClient && !Engine.instance.isEditor) {
-    setCameraProperties(Engine.instance.currentWorld.cameraEntity, json.props)
+    setCameraProperties(Engine.instance.currentWorld.cameraEntity, data)
   }
 }
 

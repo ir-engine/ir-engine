@@ -1,8 +1,6 @@
 import { Color, Object3D, sRGBEncoding } from 'three'
 import { Vector3 } from 'three'
 
-import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
-
 import {
   ComponentDeserializeFunction,
   ComponentSerializeFunction,
@@ -44,12 +42,9 @@ export const SCENE_COMPONENT_SKYBOX_DEFAULT_VALUES = {
   }
 }
 
-export const deserializeSkybox: ComponentDeserializeFunction = (
-  entity: Entity,
-  json: ComponentJson<SkyboxComponentType>
-) => {
+export const deserializeSkybox: ComponentDeserializeFunction = (entity: Entity, data: SkyboxComponentType) => {
   if (isClient) {
-    const props = parseSkyboxProperties(json.props)
+    const props = parseSkyboxProperties(data)
     if (!hasComponent(entity, Object3DComponent)) {
       addComponent(entity, Object3DComponent, { value: new Object3D() })
     }

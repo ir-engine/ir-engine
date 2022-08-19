@@ -1,6 +1,5 @@
 import { Object3D } from 'three'
 
-import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
 import { AssetType } from '@xrengine/engine/src/assets/enum/AssetType'
 import {
@@ -66,16 +65,13 @@ export const loadAsset = async (entity: Entity, loader = AssetLoader) => {
   }
 }
 
-export const deserializeAsset: ComponentDeserializeFunction = async (
-  entity: Entity,
-  json: ComponentJson<AssetComponentType>
-) => {
+export const deserializeAsset: ComponentDeserializeFunction = async (entity: Entity, data: AssetComponentType) => {
   let obj3d = getComponent(entity, Object3DComponent)?.value
   if (!obj3d) {
     obj3d = new Object3D()
     addComponent(entity, Object3DComponent, { value: obj3d })
   }
-  const props = parseAssetProperties(json.props)
+  const props = parseAssetProperties(data)
   addComponent(entity, AssetComponent, props)
 }
 

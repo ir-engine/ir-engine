@@ -1,7 +1,5 @@
 import { Object3D, Vector3 } from 'three'
 
-import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
-
 import { ComponentDeserializeFunction, ComponentSerializeFunction } from '../../../common/constants/PrefabFunctionType'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
@@ -13,12 +11,9 @@ export const SCENE_COMPONENT_SPLINE_DEFAULT_VALUES = {
   splinePositions: [] as Vector3[]
 }
 
-export const deserializeSpline: ComponentDeserializeFunction = (
-  entity: Entity,
-  json: ComponentJson<SplineComponentType>
-) => {
+export const deserializeSpline: ComponentDeserializeFunction = (entity: Entity, data: SplineComponentType) => {
   const obj3d = new Object3D()
-  const props = parseSplineProperties(json.props)
+  const props = parseSplineProperties(data)
 
   addComponent(entity, Object3DComponent, { value: obj3d })
   addComponent(entity, SplineComponent, props)

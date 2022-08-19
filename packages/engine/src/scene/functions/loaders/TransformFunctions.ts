@@ -1,7 +1,5 @@
 import { Euler, Quaternion, Vector3 } from 'three'
 
-import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
-
 import { ComponentDeserializeFunction, ComponentSerializeFunction } from '../../../common/constants/PrefabFunctionType'
 import { Entity } from '../../../ecs/classes/Entity'
 import { getComponent } from '../../../ecs/functions/ComponentFunctions'
@@ -21,11 +19,8 @@ export const SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES = {
 const euler = new Euler()
 const v3 = new Vector3()
 
-export const deserializeTransform: ComponentDeserializeFunction = (
-  entity: Entity,
-  json: ComponentJson<TransformComponentType>
-) => {
-  const props = parseTransformProperties(json.props)
+export const deserializeTransform: ComponentDeserializeFunction = (entity: Entity, data: TransformComponentType) => {
+  const props = parseTransformProperties(data)
 
   const transform = setTransformComponent(entity)
   transform.position.copy(props.position)

@@ -1,7 +1,5 @@
 import Hls from 'hls.js'
-import { LinearFilter, Mesh, MeshStandardMaterial, Object3D, sRGBEncoding, VideoTexture } from 'three'
-
-import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
+import { LinearFilter, Mesh, MeshStandardMaterial, sRGBEncoding, VideoTexture } from 'three'
 
 import { AudioComponent } from '../../../audio/components/AudioComponent'
 import {
@@ -12,10 +10,9 @@ import {
 } from '../../../common/constants/PrefabFunctionType'
 import { isClient } from '../../../common/functions/isClient'
 import { Engine } from '../../../ecs/classes/Engine'
-import { EngineActions, getEngineState } from '../../../ecs/classes/EngineState'
+import { getEngineState } from '../../../ecs/classes/EngineState'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
-import { matchActionOnce } from '../../../networking/functions/matchActionOnce'
 import { ImageProjection } from '../../classes/ImageUtils'
 import { CallbackComponent } from '../../components/CallbackComponent'
 import { ImageComponent } from '../../components/ImageComponent'
@@ -37,12 +34,9 @@ export const SCENE_COMPONENT_VIDEO_DEFAULT_VALUES = {
   maintainAspectRatio: true
 } as VideoComponentType
 
-export const deserializeVideo: ComponentDeserializeFunction = (
-  entity: Entity,
-  json: ComponentJson<VideoComponentType>
-) => {
+export const deserializeVideo: ComponentDeserializeFunction = (entity: Entity, data: VideoComponentType) => {
   if (!isClient) return
-  const props = parseVideoProperties(json.props) as VideoComponentType
+  const props = parseVideoProperties(data) as VideoComponentType
   addComponent(entity, VideoComponent, props)
 }
 

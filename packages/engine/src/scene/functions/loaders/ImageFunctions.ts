@@ -10,8 +10,6 @@ import {
   sRGBEncoding
 } from 'three'
 
-import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
-
 import { AssetLoader } from '../../../assets/classes/AssetLoader'
 import { AssetClass } from '../../../assets/enum/AssetClass'
 import {
@@ -37,10 +35,7 @@ export const SCENE_COMPONENT_IMAGE_DEFAULT_VALUES = {
   side: DoubleSide
 }
 
-export const deserializeImage: ComponentDeserializeFunction = (
-  entity: Entity,
-  json: ComponentJson<ImageComponentType>
-) => {
+export const deserializeImage: ComponentDeserializeFunction = (entity: Entity, data: ImageComponentType) => {
   let obj3d = getComponent(entity, Object3DComponent)?.value
 
   if (!obj3d) {
@@ -51,7 +46,7 @@ export const deserializeImage: ComponentDeserializeFunction = (
   obj3d.userData.mesh = new Mesh(new PlaneBufferGeometry(), new MeshBasicMaterial())
   obj3d.add(obj3d.userData.mesh)
 
-  const props = parseImageProperties(json.props)
+  const props = parseImageProperties(data)
   addComponent(entity, ImageComponent, props)
 
   updateImage(entity, props)

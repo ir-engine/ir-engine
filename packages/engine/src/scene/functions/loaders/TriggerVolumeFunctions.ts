@@ -1,8 +1,6 @@
 import { RigidBodyType } from '@dimforge/rapier3d-compat'
 import { BoxBufferGeometry, Mesh, MeshBasicMaterial } from 'three'
 
-import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
-
 import {
   ComponentDeserializeFunction,
   ComponentSerializeFunction,
@@ -24,7 +22,7 @@ export const SCENE_COMPONENT_TRIGGER_VOLUME_DEFAULT_VALUES = {}
 
 export const deserializeTriggerVolume: ComponentDeserializeFunction = (
   entity: Entity,
-  json: ComponentJson<TriggerVolumeComponentType>
+  data: TriggerVolumeComponentType
 ): void => {
   const transform = getComponent(entity, TransformComponent)
 
@@ -46,9 +44,9 @@ export const deserializeTriggerVolume: ComponentDeserializeFunction = (
   )
 
   addComponent(entity, TriggerVolumeComponent, {
-    onEnter: json.props.onEnter,
-    onExit: json.props.onExit,
-    target: json.props.target,
+    onEnter: data.onEnter,
+    onExit: data.onExit,
+    target: data.target,
     active: true
   })
 

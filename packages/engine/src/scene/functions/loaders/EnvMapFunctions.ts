@@ -13,8 +13,6 @@ import {
   Vector3
 } from 'three'
 
-import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
-
 import { AssetLoader } from '../../../assets/classes/AssetLoader'
 import { ComponentDeserializeFunction, ComponentSerializeFunction } from '../../../common/constants/PrefabFunctionType'
 import { isClient } from '../../../common/functions/isClient'
@@ -43,13 +41,10 @@ export const SCENE_COMPONENT_ENVMAP_DEFAULT_VALUES = {
 const tempVector = new Vector3()
 const tempColor = new Color()
 
-export const deserializeEnvMap: ComponentDeserializeFunction = (
-  entity: Entity,
-  json: ComponentJson<EnvmapComponentType>
-) => {
+export const deserializeEnvMap: ComponentDeserializeFunction = (entity: Entity, data: EnvmapComponentType) => {
   if (!isClient) return
 
-  const props = parseEnvMapProperties(json.props)
+  const props = parseEnvMapProperties(data)
   addComponent(entity, EnvmapComponent, props)
 }
 

@@ -1,20 +1,20 @@
 import assert from 'assert'
-import { Color, Object3D, SpotLight, Vector2 } from 'three'
-
-import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
+import { Color, SpotLight, Vector2 } from 'three'
 
 import { Entity } from '../../../ecs/classes/Entity'
 import { getComponent } from '../../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
 import { createEngine } from '../../../initializeEngine'
 import { Object3DComponent } from '../../components/Object3DComponent'
-import { SpotLightComponent, SpotLightComponentType } from '../../components/SpotLightComponent'
-import { ObjectLayers } from '../../constants/ObjectLayers'
+import {
+  SCENE_COMPONENT_SPOT_LIGHT,
+  SCENE_COMPONENT_SPOT_LIGHT_DEFAULT_VALUES,
+  SpotLightComponent,
+  SpotLightComponentType
+} from '../../components/SpotLightComponent'
 import {
   deserializeSpotLight,
   parseSpotLightProperties,
-  SCENE_COMPONENT_SPOT_LIGHT,
-  SCENE_COMPONENT_SPOT_LIGHT_DEFAULT_VALUES,
   serializeSpotLight,
   updateSpotLight
 } from './SpotLightFunctions'
@@ -40,14 +40,10 @@ describe('SpotLightFunctions', () => {
     shadowRadius: Math.random()
   }
 
-  const sceneComponent: ComponentJson = {
-    name: SCENE_COMPONENT_SPOT_LIGHT,
-    props: sceneComponentData
-  }
-
   describe('deserializeSpotLight()', () => {
     it('creates SpotLight Component with provided component data', () => {
-      deserializeSpotLight(entity, sceneComponent)
+      deserializeSpotLight(entity, sceneComponentData)
+      updateSpotLight(entity)
 
       const spotlightComponent = getComponent(entity, SpotLightComponent)
       assert(spotlightComponent)
@@ -67,7 +63,8 @@ describe('SpotLightFunctions', () => {
     })
 
     it('creates SpotLight Object3D with provided component data', () => {
-      deserializeSpotLight(entity, sceneComponent)
+      deserializeSpotLight(entity, sceneComponentData)
+      updateSpotLight(entity)
 
       const obj3d = getComponent(entity, Object3DComponent)?.value
       assert(obj3d && obj3d instanceof SpotLight, 'SpotLight is not created')
@@ -81,7 +78,7 @@ describe('SpotLightFunctions', () => {
     let obj3d: SpotLight
 
     beforeEach(() => {
-      deserializeSpotLight(entity, sceneComponent)
+      deserializeSpotLight(entity, sceneComponentData)
       spotLightComponent = getComponent(entity, SpotLightComponent) as SpotLightComponentType
       obj3d = getComponent(entity, Object3DComponent)?.value as SpotLight
     })
@@ -299,8 +296,9 @@ describe('SpotLightFunctions', () => {
 
   describe('serializeSpotLight()', () => {
     it('should properly serialize spotlight', () => {
-      deserializeSpotLight(entity, sceneComponent)
-      assert.deepEqual(serializeSpotLight(entity), sceneComponent)
+      deserializeSpotLight(entity, sceneComponentData)
+      updateSpotLight(entity)
+      assert.deepEqual(serializeSpotLight(entity), sceneComponentData)
     })
 
     it('should return undefine if there is no spotlight component', () => {

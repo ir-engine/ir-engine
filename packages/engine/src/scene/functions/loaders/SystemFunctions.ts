@@ -1,5 +1,3 @@
-import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
-
 import {
   ComponentDeserializeFunction,
   ComponentSerializeFunction,
@@ -19,11 +17,8 @@ export const SCENE_COMPONENT_SYSTEM_DEFAULT_VALUES = {
   args: {}
 }
 
-export const deserializeSystem: ComponentDeserializeFunction = (
-  entity: Entity,
-  json: ComponentJson<SystemComponentType>
-) => {
-  const props = parseSystemProperties(json.props)
+export const deserializeSystem: ComponentDeserializeFunction = (entity: Entity, data: SystemComponentType) => {
+  const props = parseSystemProperties(data)
   addComponent(entity, SystemComponent, props)
 }
 

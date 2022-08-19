@@ -12,6 +12,7 @@ import {
 import { createEngine } from '@xrengine/engine/src/initializeEngine'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
 import { registerPrefabs, ScenePrefabs } from '@xrengine/engine/src/scene/functions/registerPrefabs'
+import { LightPrefabs } from '@xrengine/engine/src/scene/systems/LightSystem'
 import { applyIncomingActions } from '@xrengine/hyperflux'
 
 import EditorCommands from '../constants/EditorCommands'
@@ -139,7 +140,7 @@ describe('AddObjectCommand', () => {
     })
 
     it('creates prefab of given type and adds as child of passed parent node', () => {
-      command.prefabTypes = [ScenePrefabs.pointLight]
+      command.prefabTypes = [LightPrefabs.pointLight]
       command.parents = parentNodes
       AddObjectCommand.execute(command)
       assert.notEqual(nodes.length, 0)
@@ -153,7 +154,7 @@ describe('AddObjectCommand', () => {
     })
 
     it('places created prefab before passed objects', () => {
-      command.prefabTypes = [ScenePrefabs.pointLight]
+      command.prefabTypes = [LightPrefabs.pointLight]
       command.parents = parentNodes
       command.befores = beforeNodes
 
@@ -170,7 +171,7 @@ describe('AddObjectCommand', () => {
     })
 
     it('creates unique name for each newly created objects', () => {
-      command.prefabTypes = [ScenePrefabs.pointLight]
+      command.prefabTypes = [LightPrefabs.pointLight]
       command.parents = parentNodes
       command.befores = beforeNodes
       command.useUniqueName = true
@@ -181,12 +182,12 @@ describe('AddObjectCommand', () => {
       assert.notEqual(parentNodes.length, 0)
       assert.notEqual(beforeNodes.length, 0)
 
-      assert.equal(getComponent(nodes[0].entity, NameComponent)?.name, ScenePrefabs.pointLight)
-      assert.equal(getComponent(nodes[1].entity, NameComponent)?.name, ScenePrefabs.pointLight + ' 2')
+      assert.equal(getComponent(nodes[0].entity, NameComponent)?.name, LightPrefabs.pointLight)
+      assert.equal(getComponent(nodes[1].entity, NameComponent)?.name, LightPrefabs.pointLight + ' 2')
     })
 
     it('updates selection', () => {
-      command.prefabTypes = [ScenePrefabs.pointLight]
+      command.prefabTypes = [LightPrefabs.pointLight]
       command.useUniqueName = true
       command.updateSelection = true
 
@@ -230,7 +231,7 @@ describe('AddObjectCommand', () => {
   describe('undo function', async () => {
     it('will not undo command if command does not have undo object', () => {
       command.keepHistory = false
-      command.prefabTypes = [ScenePrefabs.pointLight]
+      command.prefabTypes = [LightPrefabs.pointLight]
       AddObjectCommand.prepare(command)
       AddObjectCommand.execute(command)
 
@@ -243,7 +244,7 @@ describe('AddObjectCommand', () => {
 
     it('will undo command', () => {
       command.keepHistory = true
-      command.prefabTypes = [ScenePrefabs.pointLight]
+      command.prefabTypes = [LightPrefabs.pointLight]
       AddObjectCommand.prepare(command)
       AddObjectCommand.execute(command)
 

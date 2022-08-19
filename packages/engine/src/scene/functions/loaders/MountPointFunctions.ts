@@ -1,7 +1,5 @@
 import { Object3D } from 'three'
 
-import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
-
 import { ComponentDeserializeFunction, ComponentSerializeFunction } from '../../../common/constants/PrefabFunctionType'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
@@ -14,11 +12,8 @@ export const SCENE_COMPONENT_MOUNT_POINT_DEFAULT_VALUES = {
   animation: {}
 }
 
-export const deserializeMountPoint: ComponentDeserializeFunction = (
-  entity: Entity,
-  json: ComponentJson<true>
-): void => {
-  const props = parseMountPointProperties(json.props)
+export const deserializeMountPoint: ComponentDeserializeFunction = (entity: Entity, data: true): void => {
+  const props = parseMountPointProperties(data)
   let obj3d = getComponent(entity, Object3DComponent)?.value
   if (!obj3d) {
     obj3d = addComponent(entity, Object3DComponent, { value: new Object3D() }).value

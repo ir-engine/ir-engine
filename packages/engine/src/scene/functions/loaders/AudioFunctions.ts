@@ -1,6 +1,5 @@
 import { Object3D } from 'three'
 
-import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { getState } from '@xrengine/hyperflux'
 
 import { AudioState } from '../../../audio/AudioState'
@@ -34,14 +33,11 @@ export const SCENE_COMPONENT_AUDIO_DEFAULT_VALUES = {
   coneOuterGain: 0
 } as AudioComponentType
 
-export const deserializeAudio: ComponentDeserializeFunction = async (
-  entity: Entity,
-  json: ComponentJson<AudioComponentType>
-) => {
+export const deserializeAudio: ComponentDeserializeFunction = async (entity: Entity, data: AudioComponentType) => {
   let obj3d = getComponent(entity, Object3DComponent)?.value
   if (!obj3d) obj3d = addComponent(entity, Object3DComponent, { value: new Object3D() }).value
   if (!isClient) return
-  const props = parseAudioProperties(json.props)
+  const props = parseAudioProperties(data)
   addComponent(entity, AudioComponent, props)
 }
 

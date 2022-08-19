@@ -25,9 +25,8 @@ import { ObjectLayers } from '../constants/ObjectLayers'
 import { SCENE_COMPONENT_DYNAMIC_LOAD } from './loaders/DynamicLoadFunctions'
 import { resetEngineRenderer } from './loaders/RenderSettingsFunction'
 import { SCENE_COMPONENT_TRANSFORM } from './loaders/TransformFunctions'
-import { ScenePrefabTypes } from './registerPrefabs'
 
-export const createNewEditorNode = (entityNode: EntityTreeNode, prefabType: ScenePrefabTypes): void => {
+export const createNewEditorNode = (entityNode: EntityTreeNode, prefabType: string): void => {
   // Clone the defualt values so that it will not be bound to newly created node
   const components = cloneDeep(Engine.instance.currentWorld.scenePrefabRegistry.get(prefabType))
   if (!components) return console.warn(`[createNewEditorNode]: ${prefabType} is not a prefab`)
@@ -238,7 +237,7 @@ export const loadComponent = (entity: Entity, component: ComponentJson, world = 
   const deserializer = sceneComponent.deserialize
 
   if (deserializer) {
-    deserializer(entity, component)
+    deserializer(entity, component.props)
   } else {
     const Component = Array.from(Engine.instance.currentWorld.sceneComponentRegistry).find(
       ([_, prefab]) => prefab === component.name

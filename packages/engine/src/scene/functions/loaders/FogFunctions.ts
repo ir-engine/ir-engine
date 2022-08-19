@@ -1,7 +1,5 @@
 import { Color, Fog, FogExp2, Mesh, MeshStandardMaterial } from 'three'
 
-import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
-
 import { OBCType } from '../../../common/constants/OBCTypes'
 import {
   ComponentDeserializeFunction,
@@ -39,8 +37,8 @@ export const SCENE_COMPONENT_FOG_DEFAULT_VALUES = {
   height: 0.05
 }
 
-export const deserializeFog: ComponentDeserializeFunction = (entity: Entity, json: ComponentJson<FogComponentType>) => {
-  const props = parseFogProperties(json.props)
+export const deserializeFog: ComponentDeserializeFunction = (entity: Entity, data: FogComponentType) => {
+  const props = parseFogProperties(data)
   addComponent(entity, FogComponent, props)
 
   updateFog(entity, props)
