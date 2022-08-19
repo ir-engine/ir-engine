@@ -1954,7 +1954,12 @@
     z-index: 1000;
   }
 
-  .buttonSection {
+  .userName {
+    color: var(--textColor);
+    text-align: center;
+  }
+
+  .contentSection {
     display: flex;
     flex-direction: column;
     margin-top: 20px;

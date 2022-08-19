@@ -8,6 +8,7 @@ import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { WorldState } from '@xrengine/engine/src/networking/interfaces/WorldState'
 import { getState } from '@xrengine/hyperflux'
 
+import { Typography } from '@mui/material'
 import Button from '@mui/material/Button'
 
 import { InviteService } from '../../../../social/services/InviteService'
@@ -90,7 +91,11 @@ const AvatarContextMenu = (): JSX.Element => {
               alt=""
               crossOrigin="anonymous"
             />
-            <section className={styles.buttonSection}>
+            <section className={styles.contentSection}>
+              <Typography className={styles.userName} variant="h6">
+                {user?.name?.value}
+              </Typography>
+
               {partyState?.party?.id?.value != null &&
                 partyOwner?.userId != null &&
                 partyOwner.userId === authState.user?.id?.value &&
