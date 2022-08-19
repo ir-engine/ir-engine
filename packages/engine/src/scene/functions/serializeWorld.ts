@@ -2,15 +2,44 @@ import { MathUtils } from 'three'
 
 import { ComponentJson, EntityJson, SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
+import { Engine } from '../../ecs/classes/Engine'
+import { Entity } from '../../ecs/classes/Entity'
 import { EntityTreeNode } from '../../ecs/classes/EntityTree'
 import { getAllComponents, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
-import { iterateEntityNode, traverseEntityNode } from '../../ecs/functions/EntityTreeFunctions'
-import { useWorld } from '../../ecs/functions/SystemHooks'
+import { iterateEntityNode } from '../../ecs/functions/EntityTreeFunctions'
 import { AssetComponent, AssetLoadedComponent, LoadState } from '../components/AssetComponent'
 import { GLTFLoadedComponent } from '../components/GLTFLoadedComponent'
 import { NameComponent } from '../components/NameComponent'
 
-export const serializeWorld = (entityTreeNode?: EntityTreeNode, generateNewUUID = false, world = useWorld()) => {
+export const serializeEntity = (entity: Entity, world = Engine.instance.currentWorld) => {
+  const ignoreComponents = getComponent(entity, GLTFLoadedComponent)
+
+  const jsonComponents = [] as ComponentJson[]
+  const components = getAllComponents(entity)
+
+  for (const component of components) {
+    const sceneComponentID = world.sceneComponentRegistry.get(component._name)!
+    if (
+      sceneComponentID &&
+      !ignoreComponents?.includes(component) &&
+      world.sceneLoadingRegistry.has(sceneComponentID)
+    ) {
+      const serialize = world.sceneLoadingRegistry.get(sceneComponentID)?.serialize
+      const data = serialize ? serialize(entity) : getComponent(entity, component)
+      jsonComponents.push({
+        name: sceneComponentID,
+        props: Object.assign({}, data)
+      })
+    }
+  }
+  return jsonComponents
+}
+
+export const serializeWorld = (
+  entityTreeNode?: EntityTreeNode,
+  generateNewUUID = false,
+  world = Engine.instance.currentWorld
+) => {
   const entityUuid = {}
   const sceneJson = { version: 4, entities: {} } as SceneJson
 
@@ -38,24 +67,7 @@ export const serializeWorld = (entityTreeNode?: EntityTreeNode, generateNewUUID 
       entityUuid[node.entity] = node.uuid
       entityJson.name = getComponent(node.entity, NameComponent)?.name
 
-      const components = getAllComponents(node.entity)
-
-      for (const component of components) {
-        const sceneComponentID = world.sceneComponentRegistry.get(component._name)!
-        if (
-          sceneComponentID &&
-          !ignoreComponents?.includes(component) &&
-          world.sceneLoadingRegistry.has(sceneComponentID)
-        ) {
-          const data =
-            world.sceneLoadingRegistry.get(sceneComponentID)?.serialize(node.entity) ??
-            getComponent(node.entity, component)
-          entityJson.components.push({
-            name: sceneComponentID,
-            props: Object.assign({}, data)
-          })
-        }
-      }
+      entityJson.components = serializeEntity(node.entity, world)
 
       if (hasComponent(node.entity, AssetComponent)) {
         const asset = getComponent(node.entity, AssetComponent)

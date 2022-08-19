@@ -23,4 +23,4 @@ export const SCENE_COMPONENT_AUDIO_SETTINGS_DEFAULT_VALUES = {
   coneInnerAngle: 360,
   coneOuterAngle: 0,
   coneOuterGain: 0
-}
+} as PositionalAudioSettingsComponentType

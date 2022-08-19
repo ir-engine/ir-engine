@@ -2,20 +2,16 @@ import { AudioComponent } from '../../audio/components/AudioComponent'
 import { LoopAnimationComponent } from '../../avatar/components/LoopAnimationComponent'
 import { World } from '../../ecs/classes/World'
 import { EquippableComponent } from '../../interaction/components/EquippableComponent'
-import { InteractableComponent } from '../../interaction/components/InteractableComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { AmbientLightComponent } from '../components/AmbientLightComponent'
 import { AssetComponent } from '../components/AssetComponent'
 import { BoxColliderComponent } from '../components/BoxColliderComponent'
 import { CameraPropertiesComponent } from '../components/CameraPropertiesComponent'
 import { CloudComponent } from '../components/CloudComponent'
-import { DirectionalLightComponent } from '../components/DirectionalLightComponent'
 import { EnvMapBakeComponent } from '../components/EnvMapBakeComponent'
 import { EnvmapComponent } from '../components/EnvmapComponent'
 import { FogComponent } from '../components/FogComponent'
 import { GroundPlaneComponent } from '../components/GroundPlaneComponent'
 import { GroupComponent } from '../components/GroupComponent'
-import { HemisphereLightComponent } from '../components/HemisphereLightComponent'
 import { ImageComponent } from '../components/ImageComponent'
 import { InstancingComponent } from '../components/InstancingComponent'
 import { InteriorComponent } from '../components/InteriorComponent'
@@ -24,7 +20,6 @@ import { ModelComponent } from '../components/ModelComponent'
 import { MountPointComponent } from '../components/MountPointComponent'
 import { OceanComponent } from '../components/OceanComponent'
 import { ParticleEmitterComponent } from '../components/ParticleEmitterComponent'
-import { PointLightComponent } from '../components/PointLightComponent'
 import { PortalComponent } from '../components/PortalComponent'
 import { PostprocessingComponent } from '../components/PostprocessingComponent'
 import { PreventBakeTagComponent } from '../components/PreventBakeTagComponent'
@@ -33,24 +28,15 @@ import { SceneDynamicLoadTagComponent } from '../components/SceneDynamicLoadTagC
 import { ScenePreviewCameraTagComponent } from '../components/ScenePreviewCamera'
 import { ScreenshareTargetComponent } from '../components/ScreenshareTargetComponent'
 import { ShadowComponent } from '../components/ShadowComponent'
-import { SimpleMaterialTagComponent } from '../components/SimpleMaterialTagComponent'
 import { SkyboxComponent } from '../components/SkyboxComponent'
 import { SpawnPointComponent } from '../components/SpawnPointComponent'
 import { SplineComponent } from '../components/SplineComponent'
-import { SpotLightComponent } from '../components/SpotLightComponent'
 import { SystemComponent } from '../components/SystemComponent'
 import { TriggerVolumeComponent } from '../components/TriggerVolumeComponent'
 import { VideoComponent } from '../components/VideoComponent'
 import { VisibleComponent } from '../components/VisibleComponent'
 import { VolumetricComponent } from '../components/VolumetricComponent'
 import { WaterComponent } from '../components/WaterComponent'
-import {
-  deserializeAmbientLight,
-  SCENE_COMPONENT_AMBIENT_LIGHT,
-  serializeAmbientLight,
-  shouldDeserializeAmbientLight,
-  updateAmbientLight
-} from './loaders/AmbientLightFunctions'
 import { deserializeAsset, SCENE_COMPONENT_ASSET, serializeAsset } from './loaders/AssetComponentFunctions'
 import { deserializeAudio, SCENE_COMPONENT_AUDIO, serializeAudio } from './loaders/AudioFunctions'
 import {
@@ -66,12 +52,6 @@ import {
 } from './loaders/CameraPropertiesFunctions'
 import { deserializeCloud, SCENE_COMPONENT_CLOUD, serializeCloud, updateCloud } from './loaders/CloudFunctions'
 import { deserializeCollider, SCENE_COMPONENT_COLLIDER, serializeCollider } from './loaders/ColliderFunctions'
-import {
-  deserializeDirectionalLight,
-  SCENE_COMPONENT_DIRECTIONAL_LIGHT,
-  serializeDirectionalLight,
-  updateDirectionalLight
-} from './loaders/DirectionalLightFunctions'
 import {
   deserializeDynamicLoad,
   SCENE_COMPONENT_DYNAMIC_LOAD,
@@ -96,13 +76,6 @@ import {
   updateGroundPlane
 } from './loaders/GroundPlaneFunctions'
 import { deserializeGroup, SCENE_COMPONENT_GROUP, serializeGroup } from './loaders/GroupFunctions'
-import {
-  deserializeHemisphereLight,
-  SCENE_COMPONENT_HEMISPHERE_LIGHT,
-  serializeHemisphereLight,
-  shouldDeserializeHemisphereLight,
-  updateHemisphereLight
-} from './loaders/HemisphereLightFunctions'
 import {
   deserializeImage,
   prepareImageForGLTFExport,
@@ -133,12 +106,6 @@ import {
   serializeParticleEmitter,
   updateParticleEmitter
 } from './loaders/ParticleEmitterFunctions'
-import {
-  deserializePointLight,
-  SCENE_COMPONENT_POINT_LIGHT,
-  serializePointLight,
-  updatePointLight
-} from './loaders/PointLightFunctions'
 import { deserializePortal, SCENE_COMPONENT_PORTAL, serializePortal } from './loaders/PortalFunctions'
 import {
   deserializePostprocessing,
@@ -180,12 +147,6 @@ import {
 } from './loaders/SkyboxFunctions'
 import { deserializeSpawnPoint, SCENE_COMPONENT_SPAWN_POINT, serializeSpawnPoint } from './loaders/SpawnPointFunctions'
 import { deserializeSpline, SCENE_COMPONENT_SPLINE, serializeSpline } from './loaders/SplineFunctions'
-import {
-  deserializeSpotLight,
-  SCENE_COMPONENT_SPOT_LIGHT,
-  serializeSpotLight,
-  updateSpotLight
-} from './loaders/SpotLightFunctions'
 import { deserializeSystem, SCENE_COMPONENT_SYSTEM, serializeSystem, updateSystem } from './loaders/SystemFunctions'
 import { deserializeTransform, SCENE_COMPONENT_TRANSFORM, serializeTransform } from './loaders/TransformFunctions'
 import {
@@ -267,13 +228,6 @@ export const registerDefaultSceneFunctions = (world: World) => {
     update: updateRenderSetting
   })
 
-  world.sceneComponentRegistry.set(DirectionalLightComponent._name, SCENE_COMPONENT_DIRECTIONAL_LIGHT)
-  world.sceneLoadingRegistry.set(SCENE_COMPONENT_DIRECTIONAL_LIGHT, {
-    deserialize: deserializeDirectionalLight,
-    serialize: serializeDirectionalLight,
-    update: updateDirectionalLight
-  })
-
   world.sceneComponentRegistry.set(GroundPlaneComponent._name, SCENE_COMPONENT_GROUND_PLANE)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_GROUND_PLANE, {
     deserialize: deserializeGround,
@@ -281,36 +235,6 @@ export const registerDefaultSceneFunctions = (world: World) => {
     update: updateGroundPlane,
     shouldDeserialize: shouldDeserializeGroundPlane,
     prepareForGLTFExport: prepareGroundPlaneForGLTFExport
-  })
-
-  world.sceneComponentRegistry.set(HemisphereLightComponent._name, SCENE_COMPONENT_HEMISPHERE_LIGHT)
-  world.sceneLoadingRegistry.set(SCENE_COMPONENT_HEMISPHERE_LIGHT, {
-    deserialize: deserializeHemisphereLight,
-    serialize: serializeHemisphereLight,
-    update: updateHemisphereLight,
-    shouldDeserialize: shouldDeserializeHemisphereLight
-  })
-
-  world.sceneComponentRegistry.set(AmbientLightComponent._name, SCENE_COMPONENT_AMBIENT_LIGHT)
-  world.sceneLoadingRegistry.set(SCENE_COMPONENT_AMBIENT_LIGHT, {
-    deserialize: deserializeAmbientLight,
-    serialize: serializeAmbientLight,
-    update: updateAmbientLight,
-    shouldDeserialize: shouldDeserializeAmbientLight
-  })
-
-  world.sceneComponentRegistry.set(PointLightComponent._name, SCENE_COMPONENT_POINT_LIGHT)
-  world.sceneLoadingRegistry.set(SCENE_COMPONENT_POINT_LIGHT, {
-    deserialize: deserializePointLight,
-    serialize: serializePointLight,
-    update: updatePointLight
-  })
-
-  world.sceneComponentRegistry.set(SpotLightComponent._name, SCENE_COMPONENT_SPOT_LIGHT)
-  world.sceneLoadingRegistry.set(SCENE_COMPONENT_SPOT_LIGHT, {
-    deserialize: deserializeSpotLight,
-    serialize: serializeSpotLight,
-    update: updateSpotLight
   })
 
   world.sceneComponentRegistry.set(PostprocessingComponent._name, SCENE_COMPONENT_POSTPROCESSING)

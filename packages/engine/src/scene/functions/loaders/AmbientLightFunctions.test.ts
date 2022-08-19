@@ -1,19 +1,20 @@
 import assert from 'assert'
 import { AmbientLight, Color } from 'three'
 
-import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
-
 import { Entity } from '../../../ecs/classes/Entity'
 import { getComponent } from '../../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
 import { createEngine } from '../../../initializeEngine'
-import { AmbientLightComponent, AmbientLightComponentType } from '../../components/AmbientLightComponent'
+import {
+  AmbientLightComponent,
+  AmbientLightComponentType,
+  SCENE_COMPONENT_AMBIENT_LIGHT,
+  SCENE_COMPONENT_AMBIENT_LIGHT_DEFAULT_VALUES
+} from '../../components/AmbientLightComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 import {
   deserializeAmbientLight,
   parseAmbientLightProperties,
-  SCENE_COMPONENT_AMBIENT_LIGHT,
-  SCENE_COMPONENT_AMBIENT_LIGHT_DEFAULT_VALUES,
   serializeAmbientLight,
   shouldDeserializeAmbientLight,
   updateAmbientLight
@@ -32,31 +33,29 @@ describe('AmbientLightFunctions', () => {
     intensity: 5
   }
 
-  const sceneComponent: ComponentJson = {
-    name: SCENE_COMPONENT_AMBIENT_LIGHT,
-    props: sceneComponentData
-  }
-
   describe('deserializeAmbientLight()', () => {
     it('creates Ambient Light Component with provided component data', () => {
-      deserializeAmbientLight(entity, sceneComponent)
+      deserializeAmbientLight(entity, sceneComponentData)
+      updateAmbientLight(entity)
 
       const ambientLightComponent = getComponent(entity, AmbientLightComponent) as AmbientLightComponentType
       assert(ambientLightComponent)
-      assert(
-        ambientLightComponent.color instanceof Color &&
-          ambientLightComponent.color.getHex() === sceneComponentData.color
+      assert.equal(
+        ambientLightComponent.color instanceof Color && ambientLightComponent.color.getHex(),
+        sceneComponentData.color
       )
-      assert(ambientLightComponent.intensity === sceneComponentData.intensity)
+      assert.equal(ambientLightComponent.intensity, sceneComponentData.intensity)
     })
 
     it('creates Ambient Light Object3D with provided component data', () => {
-      deserializeAmbientLight(entity, sceneComponent)
+      deserializeAmbientLight(entity, sceneComponentData)
+      updateAmbientLight(entity)
 
       const obj3d = getComponent(entity, Object3DComponent)?.value as AmbientLight
       assert(obj3d && obj3d instanceof AmbientLight, 'Ambient Light is not created')
-      assert(obj3d.color instanceof Color && obj3d.color.getHex() === sceneComponentData.color)
-      assert(obj3d.intensity === sceneComponentData.intensity)
+      assert(obj3d.color instanceof Color)
+      assert.equal(obj3d.color.getHex(), sceneComponentData.color)
+      assert.equal(obj3d.intensity, sceneComponentData.intensity)
     })
   })
 
@@ -65,7 +64,7 @@ describe('AmbientLightFunctions', () => {
     let obj3d: AmbientLight
 
     beforeEach(() => {
-      deserializeAmbientLight(entity, sceneComponent)
+      deserializeAmbientLight(entity, sceneComponentData)
       ambientLightComponent = getComponent(entity, AmbientLightComponent) as AmbientLightComponentType
       obj3d = getComponent(entity, Object3DComponent)?.value as AmbientLight
     })
@@ -113,8 +112,8 @@ describe('AmbientLightFunctions', () => {
 
   describe('serializeAmbientLight()', () => {
     it('should properly serialize ambient light', () => {
-      deserializeAmbientLight(entity, sceneComponent)
-      assert.deepEqual(serializeAmbientLight(entity), sceneComponent)
+      deserializeAmbientLight(entity, sceneComponentData)
+      assert.deepEqual(serializeAmbientLight(entity), sceneComponentData)
     })
 
     it('should return undefine if there is no ambient light component', () => {
@@ -125,12 +124,12 @@ describe('AmbientLightFunctions', () => {
   describe('shouldDeserializeAmbientLight()', () => {
     it('should return true if there is no ambient light component in the world', () => {
       assert(shouldDeserializeAmbientLight())
-      deserializeAmbientLight(entity, sceneComponent)
-      assert.deepEqual(serializeAmbientLight(entity), sceneComponent)
+      deserializeAmbientLight(entity, sceneComponentData)
+      assert.deepEqual(serializeAmbientLight(entity), sceneComponentData)
     })
 
     it('should return false if there is atleast one ambient light component in the world', () => {
-      deserializeAmbientLight(entity, sceneComponent)
+      deserializeAmbientLight(entity, sceneComponentData)
       assert(!shouldDeserializeAmbientLight())
     })
   })
