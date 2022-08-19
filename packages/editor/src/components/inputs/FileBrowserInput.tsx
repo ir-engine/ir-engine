@@ -40,7 +40,7 @@ export function FileBrowserInput({ onChange, acceptFileTypes, acceptDropItems, .
         onUpload(entries).then((assets) => {
           if (assets) {
             for (let index = 0; index < assets.length; index++) {
-              onChange(assets[index].url, item)
+              onChange(assets[index], item)
             }
           }
         })

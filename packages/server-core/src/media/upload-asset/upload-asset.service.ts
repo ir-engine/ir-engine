@@ -2,6 +2,7 @@ import { Params } from '@feathersjs/feathers'
 import express from 'express'
 import multer from 'multer'
 
+import { StaticResourceInterface } from '@xrengine/common/src/interfaces/StaticResourceInterface'
 import { AdminAssetUploadArgumentsType, AssetUploadType } from '@xrengine/common/src/interfaces/UploadAssetInterface'
 import { processFileName } from '@xrengine/common/src/utils/processFileName'
 
@@ -38,7 +39,7 @@ export const addGenericAssetToS3AndStaticResources = async (
     }
   })
 
-  let returned
+  let returned: Promise<StaticResourceInterface>
   const promises: Promise<any>[] = []
 
   // upload asset to storage provider

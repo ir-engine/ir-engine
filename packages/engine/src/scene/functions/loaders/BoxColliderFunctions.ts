@@ -15,6 +15,7 @@ import { Physics } from '../../../physics/classes/Physics'
 import { RigidBodyComponent } from '../../../physics/components/RigidBodyComponent'
 import { CollisionGroups, DefaultCollisionMask } from '../../../physics/enums/CollisionGroups'
 import { TransformComponent } from '../../../transform/components/TransformComponent'
+import { BoxColliderComponent } from '../../components/BoxColliderComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 import { BoxColliderProps } from '../../interfaces/BoxColliderProps'
 
@@ -31,6 +32,7 @@ export const deserializeBoxCollider: ComponentDeserializeFunction = (
   json: ComponentJson<BoxColliderProps>
 ): void => {
   const boxColliderProps = parseBoxColliderProperties(json.props)
+  addComponent(entity, BoxColliderComponent, true)
   const transform = getComponent(entity, TransformComponent)
   const colliderDesc = ColliderDesc.cuboid(
     Math.abs(transform.scale.x),

@@ -94,7 +94,7 @@ export default function useUpload(options: Props = {}) {
         })
         const result = await Promise.all(assets.promises)
         setDialogComponent(null)
-        return result
+        return result.flat()
       } catch (error) {
         logger.error(error, 'Error on upload')
         setDialogComponent(

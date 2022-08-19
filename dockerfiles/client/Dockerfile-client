@@ -58,6 +58,6 @@ WORKDIR /app
 COPY --from=builder /app/packages/client ./packages/client
 COPY --from=builder /app/scripts ./scripts
 
-RUN npm install express app-root-path
+RUN npm install express app-root-path express-static-gzip
 
 CMD ["scripts/start-server.sh"]

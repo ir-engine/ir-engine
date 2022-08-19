@@ -3,9 +3,9 @@ import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineState'
 import {
   ComponentConstructor,
   ComponentType,
+  getAllComponents,
   getComponent
 } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { EntityNodeComponent } from '@xrengine/engine/src/scene/components/EntityNodeComponent'
 import { dispatchAction } from '@xrengine/hyperflux'
 
 import { CommandFuncType, CommandParams, ObjectCommands } from '../constants/EditorCommands'
@@ -119,9 +119,10 @@ function updateProperty<C extends ComponentConstructor<any, any>>(
     }
 
     /** @todo deprecate in favour of 'EngineActions.sceneObjectUpdate' action */
-    const nodeComponent = getComponent(entity, EntityNodeComponent)
-    for (const component of nodeComponent.components) {
-      Engine.instance.currentWorld.sceneLoadingRegistry.get(component)?.update?.(entity, props)
+    const components = getAllComponents(entity)
+    for (const component of components) {
+      const sceneComponentID = Engine.instance.currentWorld.sceneComponentRegistry.get(component._name)!
+      Engine.instance.currentWorld.sceneLoadingRegistry.get(sceneComponentID)?.update?.(entity, props)
     }
   }
 

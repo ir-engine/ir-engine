@@ -11,6 +11,7 @@ import { AuthStrategies } from '@xrengine/common/src/interfaces/AuthStrategies'
 import { AuthUser, AuthUserSeed, resolveAuthUser } from '@xrengine/common/src/interfaces/AuthUser'
 import { AvatarInterface } from '@xrengine/common/src/interfaces/AvatarInterface'
 import { IdentityProvider, IdentityProviderSeed } from '@xrengine/common/src/interfaces/IdentityProvider'
+import { StaticResourceInterface } from '@xrengine/common/src/interfaces/StaticResourceInterface'
 import {
   resolveUser,
   resolveWalletUser,
@@ -709,7 +710,7 @@ export const AuthService = {
         avatarName,
         isPublicAvatar: !!isPublicAvatar
       }
-    }).promise
+    }).promise as Promise<StaticResourceInterface[]>
   },
   removeStaticResource: async (id: string) => {
     return API.instance.client.service('static-resource').remove(id)
