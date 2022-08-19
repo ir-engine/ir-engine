@@ -6,7 +6,7 @@ import {
   createEntityNode,
   getEntityNodeArrayFromEntities
 } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
-import { ScenePrefabs } from '@xrengine/engine/src/scene/functions/registerPrefabs'
+import { ScenePrefabs } from '@xrengine/engine/src/scene/systems/SceneObjectUpdateSystem'
 import { dispatchAction } from '@xrengine/hyperflux'
 
 import { executeCommand } from '../classes/History'

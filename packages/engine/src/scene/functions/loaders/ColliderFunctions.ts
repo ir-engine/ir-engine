@@ -1,4 +1,4 @@
-import { ComponentDeserializeFunction, ComponentSerializeFunction } from '../../../common/constants/PrefabFunctionType'
+import { ComponentDeserializeFunction } from '../../../common/constants/PrefabFunctionType'
 import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
 import { getComponent } from '../../../ecs/functions/ComponentFunctions'
@@ -18,11 +18,4 @@ export const deserializeCollider: ComponentDeserializeFunction = (entity: Entity
       object3d.value,
       data as ColliderDescOptions
     )
-}
-
-/**
- * since this is only ever used from gltf metadata, we dont yet need to support serialisation
- */
-export const serializeCollider: ComponentSerializeFunction = (entity) => {
-  return undefined!
 }

@@ -7,11 +7,16 @@ import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunction
 import { removeEntity } from '../../ecs/functions/EntityFunctions'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { Object3DComponent } from '../components/Object3DComponent'
-import { SceneDynamicLoadTagComponent } from '../components/SceneDynamicLoadTagComponent'
+import { SceneDynamicLoadTagComponent, SCENE_COMPONENT_DYNAMIC_LOAD, SCENE_COMPONENT_DYNAMIC_LOAD_DEFAULT_VALUES } from '../components/SceneDynamicLoadTagComponent'
 import { createSceneEntity } from '../functions/SceneLoading'
 
 export default async function SceneObjectDynamicLoadSystem(world: World) {
   const sceneObjectQuery = defineQuery([Object3DComponent, SceneDynamicLoadTagComponent])
+
+  world.sceneComponentRegistry.set(SceneDynamicLoadTagComponent._name, SCENE_COMPONENT_DYNAMIC_LOAD)
+  world.sceneLoadingRegistry.set(SCENE_COMPONENT_DYNAMIC_LOAD, {
+    defaultData: SCENE_COMPONENT_DYNAMIC_LOAD_DEFAULT_VALUES
+  })
 
   let accumulator = 0
 

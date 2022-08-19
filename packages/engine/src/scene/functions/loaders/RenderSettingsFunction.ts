@@ -17,17 +17,7 @@ import { EngineRenderer } from '../../../renderer/WebGLRendererSystem'
 import { DirectionalLightComponent } from '../../../scene/components/DirectionalLightComponent'
 import { Object3DComponent } from '../../../scene/components/Object3DComponent'
 import { VisibleComponent } from '../../../scene/components/VisibleComponent'
-import { RenderSettingComponent, RenderSettingComponentType } from '../../components/RenderSettingComponent'
-
-export const SCENE_COMPONENT_RENDERER_SETTINGS = 'renderer-settings'
-export const SCENE_COMPONENT_RENDERER_SETTINGS_DEFAULT_VALUES = {
-  LODs: { x: 5, y: 15, z: 30 },
-  overrideRendererSettings: false,
-  csm: true,
-  toneMapping: LinearToneMapping,
-  toneMappingExposure: 0.2,
-  shadowMapType: PCFSoftShadowMap
-}
+import { RenderSettingComponent, RenderSettingComponentType, SCENE_COMPONENT_RENDERER_SETTINGS_DEFAULT_VALUES } from '../../components/RenderSettingComponent'
 
 export const deserializeRenderSetting: ComponentDeserializeFunction = (
   entity: Entity,
@@ -35,8 +25,6 @@ export const deserializeRenderSetting: ComponentDeserializeFunction = (
 ) => {
   const props = parseRenderSettingsProperties(data)
   addComponent(entity, RenderSettingComponent, props)
-
-  updateRenderSetting(entity, props)
 }
 
 export const updateRenderSetting: ComponentUpdateFunction = (
@@ -191,15 +179,12 @@ export const serializeRenderSettings: ComponentSerializeFunction = (entity) => {
   if (!component) return
 
   return {
-    name: SCENE_COMPONENT_RENDERER_SETTINGS,
-    props: {
-      LODs: component.LODs,
-      overrideRendererSettings: component.overrideRendererSettings,
-      csm: component.csm,
-      toneMapping: component.toneMapping,
-      toneMappingExposure: component.toneMappingExposure,
-      shadowMapType: component.shadowMapType
-    }
+    LODs: component.LODs,
+    overrideRendererSettings: component.overrideRendererSettings,
+    csm: component.csm,
+    toneMapping: component.toneMapping,
+    toneMappingExposure: component.toneMappingExposure,
+    shadowMapType: component.shadowMapType
   }
 }
 

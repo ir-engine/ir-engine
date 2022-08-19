@@ -6,3 +6,9 @@ export type SceneDynamicLoadTagComponentType = {
 
 export const SceneDynamicLoadTagComponent =
   createMappedComponent<SceneDynamicLoadTagComponentType>('SceneDynamicLoadTagComponent')
+
+export const SCENE_COMPONENT_DYNAMIC_LOAD = 'dynamic-load'
+export const SCENE_COMPONENT_DYNAMIC_LOAD_DEFAULT_VALUES = {
+  distance: 20
+}
+  

@@ -16,7 +16,7 @@ import {
 import {
   HemisphereLightComponent,
   SCENE_COMPONENT_HEMISPHERE_LIGHT,
-  SCENE_COMPONENT_HEMISPHEREL_LIGHT_DEFAULT_VALUES
+  SCENE_COMPONENT_HEMISPHERE_LIGHT_DEFAULT_VALUES
 } from '../components/HemisphereLightComponent'
 import { Object3DComponent } from '../components/Object3DComponent'
 import {
@@ -65,6 +65,7 @@ export const LightPrefabs = {
 export default async function LightSystem(world: World) {
   world.sceneComponentRegistry.set(DirectionalLightComponent._name, SCENE_COMPONENT_DIRECTIONAL_LIGHT)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_DIRECTIONAL_LIGHT, {
+    defaultData: SCENE_COMPONENT_DIRECTIONAL_LIGHT_DEFAULT_VALUES,
     deserialize: deserializeDirectionalLight,
     serialize: serializeDirectionalLight,
     update: updateDirectionalLight
@@ -72,6 +73,7 @@ export default async function LightSystem(world: World) {
 
   world.sceneComponentRegistry.set(HemisphereLightComponent._name, SCENE_COMPONENT_HEMISPHERE_LIGHT)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_HEMISPHERE_LIGHT, {
+    defaultData: SCENE_COMPONENT_HEMISPHERE_LIGHT_DEFAULT_VALUES,
     deserialize: deserializeHemisphereLight,
     serialize: serializeHemisphereLight,
     update: updateHemisphereLight,
@@ -80,6 +82,7 @@ export default async function LightSystem(world: World) {
 
   world.sceneComponentRegistry.set(AmbientLightComponent._name, SCENE_COMPONENT_AMBIENT_LIGHT)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_AMBIENT_LIGHT, {
+    defaultData: SCENE_COMPONENT_AMBIENT_LIGHT_DEFAULT_VALUES,
     deserialize: deserializeAmbientLight,
     serialize: serializeAmbientLight,
     update: updateAmbientLight,
@@ -88,6 +91,7 @@ export default async function LightSystem(world: World) {
 
   world.sceneComponentRegistry.set(PointLightComponent._name, SCENE_COMPONENT_POINT_LIGHT)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_POINT_LIGHT, {
+    defaultData: SCENE_COMPONENT_POINT_LIGHT_DEFAULT_VALUES,
     deserialize: deserializePointLight,
     serialize: serializePointLight,
     update: updatePointLight
@@ -95,6 +99,7 @@ export default async function LightSystem(world: World) {
 
   world.sceneComponentRegistry.set(SpotLightComponent._name, SCENE_COMPONENT_SPOT_LIGHT)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_SPOT_LIGHT, {
+    defaultData: SCENE_COMPONENT_SPOT_LIGHT_DEFAULT_VALUES,
     deserialize: deserializeSpotLight,
     serialize: serializeSpotLight,
     update: updateSpotLight
@@ -107,7 +112,7 @@ export default async function LightSystem(world: World) {
 
   world.scenePrefabRegistry.set(LightPrefabs.hemisphereLight, [
     { name: SCENE_COMPONENT_VISIBLE, props: SCENE_COMPONENT_VISIBLE_DEFAULT_VALUES },
-    { name: SCENE_COMPONENT_HEMISPHERE_LIGHT, props: SCENE_COMPONENT_HEMISPHEREL_LIGHT_DEFAULT_VALUES }
+    { name: SCENE_COMPONENT_HEMISPHERE_LIGHT, props: SCENE_COMPONENT_HEMISPHERE_LIGHT_DEFAULT_VALUES }
   ])
 
   world.scenePrefabRegistry.set(LightPrefabs.ambientLight, [

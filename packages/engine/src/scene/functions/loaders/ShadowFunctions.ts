@@ -1,32 +1,10 @@
 import { Mesh } from 'three'
 
-import {
-  ComponentDeserializeFunction,
-  ComponentSerializeFunction,
-  ComponentUpdateFunction
-} from '../../../common/constants/PrefabFunctionType'
+import { ComponentUpdateFunction } from '../../../common/constants/PrefabFunctionType'
 import { Entity } from '../../../ecs/classes/Entity'
-import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
+import { getComponent } from '../../../ecs/functions/ComponentFunctions'
 import { Object3DComponent } from '../../components/Object3DComponent'
-import { ShadowComponent, ShadowComponentType } from '../../components/ShadowComponent'
-
-export const SCENE_COMPONENT_SHADOW = 'shadow'
-export const SCENE_COMPONENT_SHADOW_DEFAULT_VALUES = {
-  cast: true,
-  receive: true
-}
-
-export const deserializeShadow: ComponentDeserializeFunction = (
-  entity: Entity,
-  data: typeof SCENE_COMPONENT_SHADOW_DEFAULT_VALUES
-) => {
-  addComponent(entity, ShadowComponent, {
-    castShadow: data.cast ?? SCENE_COMPONENT_SHADOW_DEFAULT_VALUES.cast,
-    receiveShadow: data.receive ?? SCENE_COMPONENT_SHADOW_DEFAULT_VALUES.receive
-  })
-
-  updateShadow(entity)
-}
+import { ShadowComponent } from '../../components/ShadowComponent'
 
 export const updateShadow: ComponentUpdateFunction = (entity: Entity) => {
   const component = getComponent(entity, ShadowComponent)
@@ -45,17 +23,4 @@ export const updateShadow: ComponentUpdateFunction = (entity: Entity) => {
       mesh.material.needsUpdate = true
     }
   })
-}
-
-export const serializeShadow: ComponentSerializeFunction = (entity) => {
-  const component = getComponent(entity, ShadowComponent) as ShadowComponentType
-  if (!component) return
-
-  return {
-    name: SCENE_COMPONENT_SHADOW,
-    props: {
-      cast: component.castShadow,
-      receive: component.receiveShadow
-    }
-  }
 }

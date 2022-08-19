@@ -15,16 +15,10 @@ import { addComponent, getComponent, hasComponent, removeComponent } from '../..
 import { formatMaterialArgs } from '../../../renderer/materials/Utilities'
 import UpdateableObject3D from '../../classes/UpdateableObject3D'
 import { Object3DComponent, Object3DWithEntity } from '../../components/Object3DComponent'
-import { ParticleEmitterComponent, ParticleEmitterComponentType } from '../../components/ParticleEmitterComponent'
+import { ParticleEmitterComponent, ParticleEmitterComponentType, SCENE_COMPONENT_PARTICLE_EMITTER_DEFAULT_VALUES } from '../../components/ParticleEmitterComponent'
 import { UpdatableComponent } from '../../components/UpdatableComponent'
 import { ParticleSystemActions } from '../../systems/ParticleSystem'
 import { DefaultArguments, ParticleLibrary } from '../particles/ParticleLibrary'
-
-export const SCENE_COMPONENT_PARTICLE_EMITTER = 'particle-emitter'
-export const SCENE_COMPONENT_PARTICLE_EMITTER_DEFAULT_VALUES = {
-  mode: 'LIBRARY',
-  src: 'Dust'
-}
 
 export const disposeParticleSystem = (entity: Entity) => {
   const obj3d = getComponent(entity, Object3DComponent)?.value
@@ -98,10 +92,7 @@ export const updateParticleEmitter: ComponentUpdateFunction = (
 export const serializeParticleEmitter: ComponentSerializeFunction = (entity: Entity) => {
   const result = { ...getComponent(entity, ParticleEmitterComponent) }
   if (result.mode === 'JSON') result.src = JSON.stringify(result.src)
-  return {
-    name: SCENE_COMPONENT_PARTICLE_EMITTER,
-    props: result
-  }
+  return result
 }
 
 const parseParticleEmitterProperties = (props): ParticleEmitterComponentType => {

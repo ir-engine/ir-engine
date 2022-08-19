@@ -24,17 +24,11 @@ import { Physics } from '../../../physics/classes/Physics'
 import { CollisionGroups } from '../../../physics/enums/CollisionGroups'
 import { ColliderDescOptions } from '../../../physics/types/PhysicsTypes'
 import { TransformComponent } from '../../../transform/components/TransformComponent'
-import { GroundPlaneComponent, GroundPlaneComponentType } from '../../components/GroundPlaneComponent'
+import { GroundPlaneComponent, GroundPlaneComponentType, SCENE_COMPONENT_GROUND_PLANE_DEFAULT_VALUES } from '../../components/GroundPlaneComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 import { ObjectLayers } from '../../constants/ObjectLayers'
 import { generateMeshBVH } from '../bvhWorkerPool'
 import { enableObjectLayer } from '../setObjectLayers'
-
-export const SCENE_COMPONENT_GROUND_PLANE = 'ground-plane'
-export const SCENE_COMPONENT_GROUND_PLANE_DEFAULT_VALUES = {
-  color: '#ffffff',
-  generateNavmesh: false
-}
 
 export const deserializeGround: ComponentDeserializeFunction = async function (
   entity: Entity,
@@ -74,8 +68,6 @@ export const deserializeGround: ComponentDeserializeFunction = async function (
 
   groundPlane.traverse(generateMeshBVH)
   enableObjectLayer(groundPlane, ObjectLayers.Camera, true)
-
-  updateGroundPlane(entity, props)
 }
 
 let navigationRaycastTarget: Group
@@ -111,27 +103,13 @@ export const serializeGroundPlane: ComponentSerializeFunction = (entity) => {
   if (!component) return
 
   return {
-    name: SCENE_COMPONENT_GROUND_PLANE,
-    props: {
-      color: component.color.getHex(),
-      generateNavmesh: component.generateNavmesh
-    }
+    color: component.color.getHex(),
+    generateNavmesh: component.generateNavmesh
   }
 }
 
 export const shouldDeserializeGroundPlane: ComponentShouldDeserializeFunction = () => {
   return getComponentCountOfType(GroundPlaneComponent) <= 0
-}
-
-export const prepareGroundPlaneForGLTFExport: ComponentPrepareForGLTFExportFunction = (groundPlane) => {
-  if (!groundPlane.userData.mesh) return
-  /*
-  const collider = new Object3D()
-  collider.scale.set(groundPlane.userData.mesh.scale.x, 0.1, groundPlane.userData.mesh.scale.z)
-
-  groundPlane.add(collider)
-  groundPlane.userData.mesh.removeFromParent()
-  delete groundPlane.userData.mesh*/
 }
 
 const parseGroundPlaneProperties = (props): GroundPlaneComponentType => {

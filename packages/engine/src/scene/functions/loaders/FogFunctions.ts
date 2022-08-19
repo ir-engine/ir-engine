@@ -20,28 +20,15 @@ import {
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
 import { addEntityNodeInTree, createEntityNode } from '../../../ecs/functions/EntityTreeFunctions'
 import { matchActionOnce } from '../../../networking/functions/matchActionOnce'
-import { FogComponent, FogComponentType } from '../../components/FogComponent'
+import { FogComponent, FogComponentType, SCENE_COMPONENT_FOG_DEFAULT_VALUES } from '../../components/FogComponent'
 import { FogType } from '../../constants/FogType'
+import { ScenePrefabs } from '../../systems/SceneObjectUpdateSystem'
 import { initBrownianMotionFogShader, initHeightFogShader, removeFogShader } from '../FogShaders'
-import { ScenePrefabs } from '../registerPrefabs'
 import { createNewEditorNode } from '../SceneLoading'
-
-export const SCENE_COMPONENT_FOG = 'fog'
-export const SCENE_COMPONENT_FOG_DEFAULT_VALUES = {
-  type: FogType.Linear,
-  color: '#FFFFFF',
-  density: 0.005,
-  near: 1,
-  far: 1000,
-  timeScale: 1,
-  height: 0.05
-}
 
 export const deserializeFog: ComponentDeserializeFunction = (entity: Entity, data: FogComponentType) => {
   const props = parseFogProperties(data)
   addComponent(entity, FogComponent, props)
-
-  updateFog(entity, props)
 }
 
 export const updateFog: ComponentUpdateFunction = (entity: Entity, properties: FogComponentType) => {
@@ -110,19 +97,14 @@ export const updateFog: ComponentUpdateFunction = (entity: Entity, properties: F
 
 export const serializeFog: ComponentSerializeFunction = (entity) => {
   const component = getComponent(entity, FogComponent) as FogComponentType
-  if (!component) return
-
   return {
-    name: SCENE_COMPONENT_FOG,
-    props: {
-      type: component.type,
-      color: component.color.getHex(),
-      near: component.near,
-      far: component.far,
-      density: component.density,
-      height: component.height,
-      timeScale: component.timeScale
-    }
+    type: component.type,
+    color: component.color.getHex(),
+    near: component.near,
+    far: component.far,
+    density: component.density,
+    height: component.height,
+    timeScale: component.timeScale
   }
 }
 

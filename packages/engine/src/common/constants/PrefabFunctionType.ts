@@ -11,9 +11,14 @@ export type ComponentPrepareForGLTFExportFunction = (object: Object3D) => void
 
 export type SceneLoaderType = {
   defaultData?: any
+  /**
+   * an override function to specify custom transformations from ECS to JSON 
+   */
   serialize?: ComponentSerializeFunction
+  /**
+   * an override function to specify custom transformations from JSON to ECS
+   */
   deserialize?: ComponentDeserializeFunction
-  update?: ComponentUpdateFunction
   shouldDeserialize?: ComponentShouldDeserializeFunction
   prepareForGLTFExport?: ComponentPrepareForGLTFExportFunction
 }

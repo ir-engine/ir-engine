@@ -21,7 +21,6 @@ import { ModelComponent } from '@xrengine/engine/src/scene/components/ModelCompo
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 import { parseGLTFModel } from '@xrengine/engine/src/scene/functions/loadGLTFModel'
-import { ScenePrefabs } from '@xrengine/engine/src/scene/functions/registerPrefabs'
 import { createNewEditorNode } from '@xrengine/engine/src/scene/functions/SceneLoading'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 import { dispatchAction } from '@xrengine/hyperflux'
@@ -33,6 +32,7 @@ import { Physics } from '../classes/Physics'
 import { RigidBodyComponent } from '../components/RigidBodyComponent'
 import { VelocityComponent } from '../components/VelocityComponent'
 import { getInteractionGroups } from './getInteractionGroups'
+import { ScenePrefabs } from '../../scene/systems/SceneObjectUpdateSystem'
 
 /**
  * Returns a random number between min (inclusive) and max (exclusive)

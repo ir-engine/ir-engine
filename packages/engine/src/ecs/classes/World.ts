@@ -270,6 +270,8 @@ export class World {
   /** Tree of entity holding parent child relation between entities. */
   entityTree: EntityTree
 
+  /** @todo: merge sceneComponentRegistry and sceneLoadingRegistry when scene loader IDs use XRE_ extension names*/
+
   /** Registry map of scene loader components  */
   sceneLoadingRegistry = new Map<string, SceneLoaderType>()
 

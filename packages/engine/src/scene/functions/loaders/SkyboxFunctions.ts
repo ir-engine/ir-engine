@@ -20,38 +20,18 @@ import { EngineRenderer } from '../../../renderer/WebGLRendererSystem'
 import { Sky } from '../../classes/Sky'
 import { IgnoreRaycastTagComponent } from '../../components/IgnoreRaycastTagComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
-import { SkyboxComponent, SkyboxComponentType } from '../../components/SkyboxComponent'
+import { SCENE_COMPONENT_SKYBOX_DEFAULT_VALUES, SkyboxComponent, SkyboxComponentType } from '../../components/SkyboxComponent'
 import { SkyTypeEnum } from '../../constants/SkyTypeEnum'
 import { getPmremGenerator, loadCubeMapTexture, textureLoader } from '../../constants/Util'
 import { addError, removeError } from '../ErrorFunctions'
 
-export const SCENE_COMPONENT_SKYBOX = 'skybox'
-export const SCENE_COMPONENT_SKYBOX_DEFAULT_VALUES = {
-  backgroundColor: 0x000000,
-  equirectangularPath: '',
-  cubemapPath: '/hdr/cubemap/skyboxsun25deg/',
-  backgroundType: 1,
-  skyboxProps: {
-    turbidity: 10,
-    rayleigh: 1,
-    luminance: 1,
-    mieCoefficient: 0.004999999999999893,
-    mieDirectionalG: 0.99,
-    inclination: 0.10471975511965978,
-    azimuth: 0.16666666666666666
-  }
-}
-
 export const deserializeSkybox: ComponentDeserializeFunction = (entity: Entity, data: SkyboxComponentType) => {
-  if (isClient) {
-    const props = parseSkyboxProperties(data)
-    if (!hasComponent(entity, Object3DComponent)) {
-      addComponent(entity, Object3DComponent, { value: new Object3D() })
-    }
-    addComponent(entity, SkyboxComponent, props)
-    addComponent(entity, IgnoreRaycastTagComponent, {})
-    updateSkybox(entity)
+  const props = parseSkyboxProperties(data)
+  if (!hasComponent(entity, Object3DComponent)) {
+    addComponent(entity, Object3DComponent, { value: new Object3D() })
   }
+  addComponent(entity, SkyboxComponent, props)
+  addComponent(entity, IgnoreRaycastTagComponent, {})
 }
 
 export const updateSkybox: ComponentUpdateFunction = (entity: Entity) => {
@@ -119,18 +99,13 @@ export const updateSkybox: ComponentUpdateFunction = (entity: Entity) => {
 }
 
 export const serializeSkybox: ComponentSerializeFunction = (entity) => {
-  const component = getComponent(entity, SkyboxComponent) as SkyboxComponentType
-  if (!component) return
-
+  const component = getComponent(entity, SkyboxComponent)
   return {
-    name: SCENE_COMPONENT_SKYBOX,
-    props: {
-      backgroundColor: component.backgroundColor.getHex(),
-      equirectangularPath: component.equirectangularPath,
-      cubemapPath: component.cubemapPath,
-      backgroundType: component.backgroundType,
-      skyboxProps: component.skyboxProps
-    }
+    backgroundColor: component.backgroundColor.getHex(),
+    equirectangularPath: component.equirectangularPath,
+    cubemapPath: component.cubemapPath,
+    backgroundType: component.backgroundType,
+    skyboxProps: component.skyboxProps
   }
 }
 

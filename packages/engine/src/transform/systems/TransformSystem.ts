@@ -19,12 +19,14 @@ import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { SpawnPointComponent } from '../../scene/components/SpawnPointComponent'
 import {
   applyTransformPositionOffset,
-  applyTransformRotationOffset
+  applyTransformRotationOffset,
+  deserializeTransform,
+  serializeTransform
 } from '../../scene/functions/loaders/TransformFunctions'
 import { ComputedTransformComponent, setComputedTransformComponent } from '../components/ComputedTransformComponent'
 import { DistanceFromCameraComponent, DistanceFromLocalClientComponent } from '../components/DistanceComponents'
 import { LocalTransformComponent } from '../components/LocalTransformComponent'
-import { TransformComponent } from '../components/TransformComponent'
+import { SCENE_COMPONENT_TRANSFORM, SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES, TransformComponent } from '../components/TransformComponent'
 
 const scratchVector3 = new Vector3()
 const scratchQuaternion = new Quaternion()
@@ -71,6 +73,14 @@ const getDistanceSquaredFromTarget = (entity: Entity, targetPosition: Vector3) =
 }
 
 export default async function TransformSystem(world: World) {
+
+  world.sceneComponentRegistry.set(TransformComponent._name, SCENE_COMPONENT_TRANSFORM)
+  world.sceneLoadingRegistry.set(SCENE_COMPONENT_TRANSFORM, {
+    defaultData: SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES,
+    deserialize: deserializeTransform,
+    serialize: serializeTransform
+  })
+
   const modifyPropertyActionQueue = createActionQueue(EngineActions.sceneObjectUpdate.matches)
 
   const computedReferenceDepths = new Map<Entity, number>()

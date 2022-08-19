@@ -15,3 +15,14 @@ export type FogComponentType = {
 }
 
 export const FogComponent = createMappedComponent<FogComponentType>('FogComponent')
+
+export const SCENE_COMPONENT_FOG = 'fog'
+export const SCENE_COMPONENT_FOG_DEFAULT_VALUES = {
+  type: FogType.Linear,
+  color: '#FFFFFF',
+  density: 0.005,
+  near: 1,
+  far: 1000,
+  timeScale: 1,
+  height: 0.05
+}

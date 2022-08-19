@@ -10,3 +10,12 @@ export type SystemComponentType = {
 }
 
 export const SystemComponent = createMappedComponent<SystemComponentType>('SystemComponent')
+
+export const SCENE_COMPONENT_SYSTEM = 'system'
+export const SCENE_COMPONENT_SYSTEM_DEFAULT_VALUES = {
+  filePath: '',
+  systemUpdateType: SystemUpdateType.UPDATE,
+  enableClient: true,
+  enableServer: true,
+  args: {}
+}

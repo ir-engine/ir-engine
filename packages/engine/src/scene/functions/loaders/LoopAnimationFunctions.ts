@@ -1,6 +1,5 @@
-import { AnimationClip, AnimationMixer, Group, Vector3 } from 'three'
+import { AnimationClip, AnimationMixer, Vector3 } from 'three'
 
-import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
 import { AnimationManager } from '../../../avatar/AnimationManager'
 import { BoneStructure } from '../../../avatar/AvatarBoneMatching'
@@ -9,31 +8,13 @@ import { AvatarAnimationComponent } from '../../../avatar/components/AvatarAnima
 import { LoopAnimationComponent, LoopAnimationComponentType } from '../../../avatar/components/LoopAnimationComponent'
 import { setupAvatarModel } from '../../../avatar/functions/avatarFunctions'
 import {
-  ComponentDeserializeFunction,
   ComponentSerializeFunction,
   ComponentUpdateFunction
 } from '../../../common/constants/PrefabFunctionType'
-import { isClient } from '../../../common/functions/isClient'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent, removeComponent } from '../../../ecs/functions/ComponentFunctions'
 import { CallbackComponent } from '../../components/CallbackComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
-
-export const SCENE_COMPONENT_LOOP_ANIMATION = 'loop-animation'
-export const SCENE_COMPONENT_LOOP_ANIMATION_DEFAULT_VALUE = {
-  activeClipIndex: -1,
-  hasAvatarAnimations: false
-}
-
-export const deserializeLoopAnimation: ComponentDeserializeFunction = (
-  entity: Entity,
-  component: ComponentJson<LoopAnimationComponentType>
-) => {
-  if (!isClient) return
-
-  const props = parseLoopAnimationProperties(component.props)
-  addComponent(entity, LoopAnimationComponent, props)
-}
 
 export const updateLoopAnimation: ComponentUpdateFunction = (entity: Entity): void => {
   /**
@@ -117,20 +98,9 @@ export const updateLoopAnimation: ComponentUpdateFunction = (entity: Entity): vo
 
 export const serializeLoopAnimation: ComponentSerializeFunction = (entity) => {
   const component = getComponent(entity, LoopAnimationComponent)
-  if (!component) return
   return {
-    name: SCENE_COMPONENT_LOOP_ANIMATION,
-    props: {
-      activeClipIndex: component.activeClipIndex,
-      hasAvatarAnimations: component.hasAvatarAnimations
-    }
-  }
-}
-
-export const parseLoopAnimationProperties = (props): LoopAnimationComponentType => {
-  return {
-    activeClipIndex: props.activeClipIndex ?? SCENE_COMPONENT_LOOP_ANIMATION_DEFAULT_VALUE.activeClipIndex,
-    hasAvatarAnimations: props.hasAvatarAnimations ?? SCENE_COMPONENT_LOOP_ANIMATION_DEFAULT_VALUE.hasAvatarAnimations
+    activeClipIndex: component.activeClipIndex,
+    hasAvatarAnimations: component.hasAvatarAnimations
   }
 }
 

@@ -11,19 +11,10 @@ import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
 import { Physics } from '../../../physics/classes/Physics'
 import { RigidBodyComponent } from '../../../physics/components/RigidBodyComponent'
-import { CollisionGroups, DefaultCollisionMask } from '../../../physics/enums/CollisionGroups'
 import { TransformComponent } from '../../../transform/components/TransformComponent'
-import { BoxColliderComponent } from '../../components/BoxColliderComponent'
+import { BoxColliderComponent, SCENE_COMPONENT_BOX_COLLIDER_DEFAULT_VALUES } from '../../components/BoxColliderComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 import { BoxColliderProps } from '../../interfaces/BoxColliderProps'
-
-export const SCENE_COMPONENT_BOX_COLLIDER = 'box-collider'
-export const SCENE_COMPONENT_BOX_COLLIDER_DEFAULT_VALUES = {
-  isTrigger: false,
-  removeMesh: false,
-  collisionLayer: CollisionGroups.Default,
-  collisionMask: DefaultCollisionMask
-}
 
 export const deserializeBoxCollider: ComponentDeserializeFunction = (entity: Entity, data: BoxColliderProps): void => {
   const boxColliderProps = parseBoxColliderProperties(data)
@@ -72,14 +63,11 @@ export const serializeBoxCollider: ComponentSerializeFunction = (entity) => {
   const isTrigger = rigidbodyComponent.collider(0).isSensor()
 
   return {
-    name: SCENE_COMPONENT_BOX_COLLIDER,
-    props: {
-      isTrigger
-      // TODO: these are only used for deserialization for gltf metadata support
-      // removeMesh: boolean | 'true' | 'false'
-      // collisionLayer: string | number
-      // collisionMask: string | number
-    }
+    isTrigger
+    // TODO: these are only used for deserialization for gltf metadata support
+    // removeMesh: boolean | 'true' | 'false'
+    // collisionLayer: string | number
+    // collisionMask: string | number
   }
 }
 

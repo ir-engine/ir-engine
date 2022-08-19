@@ -18,16 +18,11 @@ import {
   AssetComponent,
   AssetComponentType,
   AssetLoadedComponent,
-  LoadState
+  LoadState,
+  SCENE_COMPONENT_ASSET_DEFAULT_VALUES
 } from '@xrengine/engine/src/scene/components/AssetComponent'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 
-export const SCENE_COMPONENT_ASSET = 'asset'
-export const SCENE_COMPONENT_ASSET_DEFAULT_VALUES = {
-  name: '',
-  path: '',
-  loaded: LoadState.UNLOADED
-}
 
 export const unloadAsset = (entity: Entity) => {
   if (!hasComponent(entity, AssetComponent)) {
@@ -77,15 +72,11 @@ export const deserializeAsset: ComponentDeserializeFunction = async (entity: Ent
 
 export const serializeAsset: ComponentSerializeFunction = (entity) => {
   const comp = getComponent(entity, AssetComponent) as AssetComponentType
-  if (!comp) return
   const metadata = comp.metadata ? { metadata: comp.metadata } : {}
   return {
-    name: SCENE_COMPONENT_ASSET,
-    props: {
-      path: comp.path,
-      ...metadata,
-      loaded: comp.loaded
-    }
+    path: comp.path,
+    ...metadata,
+    loaded: comp.loaded
   }
 }
 

@@ -34,7 +34,6 @@ import { TriggerVolumeComponent } from '@xrengine/engine/src/scene/components/Tr
 import { VideoComponent } from '@xrengine/engine/src/scene/components/VideoComponent'
 import { VolumetricComponent } from '@xrengine/engine/src/scene/components/VolumetricComponent'
 import { WaterComponent } from '@xrengine/engine/src/scene/components/WaterComponent'
-import { ScenePrefabs } from '@xrengine/engine/src/scene/functions/registerPrefabs'
 import { LightPrefabs } from '@xrengine/engine/src/scene/systems/LightSystem'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 
@@ -77,6 +76,9 @@ import { EditorComponentType } from '../components/properties/Util'
 import VideoNodeEditor from '../components/properties/VideoNodeEditor'
 import VolumetricNodeEditor from '../components/properties/VolumetricNodeEditor'
 import WaterNodeEditor from '../components/properties/WaterNodeEditor'
+import { MediaPrefabs } from '@xrengine/engine/src/audio/systems/AudioSystem'
+import { ScenePrefabs } from '@xrengine/engine/src/scene/systems/SceneObjectUpdateSystem'
+import { PhysicsPrefabs } from '@xrengine/engine/src/physics/systems/PhysicsSystem'
 
 export const getNodeEditorsForEntity = (entity: Entity): EditorComponentType[] => {
   const components = getAllComponents(entity)
@@ -148,9 +150,9 @@ export const prefabIcons = {
   [ScenePrefabs.previewCamera]: ScenePreviewCameraNodeEditor.iconComponent,
   [ScenePrefabs.particleEmitter]: ParticleEmitterNodeEditor.iconComponent,
   [ScenePrefabs.portal]: PortalNodeEditor.iconComponent,
-  [ScenePrefabs.triggerVolume]: TriggerVolumeNodeEditor.iconComponent,
+  [PhysicsPrefabs.triggerVolume]: TriggerVolumeNodeEditor.iconComponent,
+  [PhysicsPrefabs.boxCollider]: BoxColliderNodeEditor.iconComponent,
   [ScenePrefabs.chair]: ChairIcon,
-  [ScenePrefabs.boxCollider]: BoxColliderNodeEditor.iconComponent,
   [ScenePrefabs.group]: GroupNodeEditor.iconComponent,
   [ScenePrefabs.asset]: InteriorNodeEditor.iconComponent,
   [ScenePrefabs.postProcessing]: PostProcessingNodeEditor.iconComponent,
@@ -158,9 +160,9 @@ export const prefabIcons = {
   [ScenePrefabs.skybox]: SkyboxNodeEditor.iconComponent,
   [ScenePrefabs.spawnPoint]: SpawnPointNodeEditor.iconComponent,
   [ScenePrefabs.image]: ImageNodeEditor.iconComponent,
-  [ScenePrefabs.audio]: AudioNodeEditor.iconComponent,
-  [ScenePrefabs.video]: VideoNodeEditor.iconComponent,
-  [ScenePrefabs.volumetric]: VolumetricNodeEditor.iconComponent,
+  [MediaPrefabs.audio]: AudioNodeEditor.iconComponent,
+  [MediaPrefabs.video]: VideoNodeEditor.iconComponent,
+  [MediaPrefabs.volumetric]: VolumetricNodeEditor.iconComponent,
   [ScenePrefabs.cloud]: CloudsNodeEditor.iconComponent,
   [ScenePrefabs.ocean]: OceanNodeEditor.iconComponent,
   [ScenePrefabs.water]: WaterNodeEditor.iconComponent,

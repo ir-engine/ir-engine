@@ -8,7 +8,7 @@ import {
 } from '../../../common/constants/PrefabFunctionType'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent, getComponentCountOfType } from '../../../ecs/functions/ComponentFunctions'
-import {
+import {SCENE_COMPONENT_HEMISPHERE_LIGHT_DEFAULT_VALUES
   HemisphereLightComponent,
   HemisphereLightComponentType,
   SCENE_COMPONENT_HEMISPHEREL_LIGHT_DEFAULT_VALUES
@@ -46,9 +46,9 @@ export const serializeHemisphereLight: ComponentSerializeFunction = (entity) => 
 
 export const shouldDeserializeHemisphereLight: ComponentShouldDeserializeFunction = () => {
   return getComponentCountOfType(HemisphereLightComponent) <= 0
-}
-
-const parseHemisphereLightProperties = (props): HemisphereLightComponentType => {
+}SCENE_COMPONENT_HEMISPHERE_LIGHT_DEFAULT_VALUES
+SCENE_COMPONENT_HEMISPHERE_LIGHT_DEFAULT_VALUES
+const parseHemisphereLightPropertiSCENE_COMPONENT_HEMISPHERE_LIGHT_DEFAULT_VALUES
   return {
     skyColor: new Color(props.skyColor ?? SCENE_COMPONENT_HEMISPHEREL_LIGHT_DEFAULT_VALUES.skyColor),
     groundColor: new Color(props.groundColor ?? SCENE_COMPONENT_HEMISPHEREL_LIGHT_DEFAULT_VALUES.groundColor),

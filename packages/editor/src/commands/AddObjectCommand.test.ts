@@ -11,7 +11,6 @@ import {
 } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
 import { createEngine } from '@xrengine/engine/src/initializeEngine'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
-import { registerPrefabs, ScenePrefabs } from '@xrengine/engine/src/scene/functions/registerPrefabs'
 import { LightPrefabs } from '@xrengine/engine/src/scene/systems/LightSystem'
 import { applyIncomingActions } from '@xrengine/hyperflux'
 
@@ -20,6 +19,7 @@ import { accessEditorState } from '../services/EditorServices'
 import { deregisterEditorReceptors, registerEditorReceptors } from '../services/EditorServicesReceptor'
 import { accessSelectionState, SelectionAction } from '../services/SelectionServices'
 import { AddObjectCommand, AddObjectCommandParams } from './AddObjectCommand'
+import { ScenePrefabs } from '@xrengine/engine/src/scene/systems/SceneObjectUpdateSystem'
 
 describe('AddObjectCommand', () => {
   let command = {} as AddObjectCommandParams
@@ -32,7 +32,6 @@ describe('AddObjectCommand', () => {
     createEngine()
     registerEditorReceptors()
     Engine.instance.store.defaultDispatchDelay = 0
-    registerPrefabs(Engine.instance.currentWorld)
 
     rootNode = createEntityNode(createEntity())
     nodes = [createEntityNode(createEntity()), createEntityNode(createEntity())]

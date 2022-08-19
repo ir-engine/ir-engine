@@ -1,30 +1,13 @@
-import { Mesh, MeshStandardMaterial, Object3D, Quaternion, Scene, Vector3 } from 'three'
+import { Mesh, MeshStandardMaterial, Object3D, Scene, Vector3 } from 'three'
 
 import { ComponentDeserializeFunction, ComponentSerializeFunction } from '../../../common/constants/PrefabFunctionType'
 import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
 import { traverseEntityNode } from '../../../ecs/functions/EntityTreeFunctions'
-import { useWorld } from '../../../ecs/functions/SystemHooks'
-import { EnvMapBakeComponent, EnvMapBakeComponentType } from '../../components/EnvMapBakeComponent'
+import { EnvMapBakeComponent, EnvMapBakeComponentType, SCENE_COMPONENT_ENVMAP_BAKE_DEFAULT_VALUES } from '../../components/EnvMapBakeComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 import { PreventBakeTagComponent } from '../../components/PreventBakeTagComponent'
-import { EnvMapBakeRefreshTypes } from '../../types/EnvMapBakeRefreshTypes'
-import { EnvMapBakeTypes } from '../../types/EnvMapBakeTypes'
-
-export const SCENE_COMPONENT_ENVMAP_BAKE = 'envmapbake'
-export const SCENE_COMPONENT_ENVMAP_BAKE_DEFAULT_VALUES = {
-  options: {
-    bakePosition: { x: 0, y: 0, z: 0 },
-    bakePositionOffset: { x: 0, y: 0, z: 0 },
-    bakeScale: { x: 1, y: 1, z: 1 },
-    bakeType: EnvMapBakeTypes.Baked,
-    resolution: 2048,
-    refreshMode: EnvMapBakeRefreshTypes.OnAwake,
-    envMapOrigin: '',
-    boxProjection: true
-  }
-}
 
 export const deserializeEnvMapBake: ComponentDeserializeFunction = (entity: Entity, data: EnvMapBakeComponentType) => {
   const props = parseEnvMapBakeProperties(data)
@@ -33,18 +16,13 @@ export const deserializeEnvMapBake: ComponentDeserializeFunction = (entity: Enti
 
 export const serializeEnvMapBake: ComponentSerializeFunction = (entity) => {
   const component = getComponent(entity, EnvMapBakeComponent) as EnvMapBakeComponentType
-  if (!component) return
-
   return {
-    name: SCENE_COMPONENT_ENVMAP_BAKE,
-    props: {
-      options: component.options
-    }
+    options: component.options
   }
 }
 
-export const prepareSceneForBake = (world = useWorld()): Scene => {
-  const scene = Engine.instance.currentWorld.scene.clone(false)
+export const prepareSceneForBake = (world = Engine.instance.currentWorld): Scene => {
+  const scene = world.scene.clone(false)
   const parents = {
     [world.entityTree.rootNode.entity]: scene
   } as { [key: Entity]: Object3D }

@@ -48,8 +48,6 @@ export const deserializeImage: ComponentDeserializeFunction = (entity: Entity, d
 
   const props = parseImageProperties(data)
   addComponent(entity, ImageComponent, props)
-
-  updateImage(entity, props)
 }
 
 export const updateImage: ComponentUpdateFunction = (entity: Entity, properties: ImageComponentType) => {

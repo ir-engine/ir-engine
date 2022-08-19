@@ -4,17 +4,11 @@ import { ComponentDeserializeFunction, ComponentSerializeFunction } from '../../
 import { Entity } from '../../../ecs/classes/Entity'
 import { getComponent } from '../../../ecs/functions/ComponentFunctions'
 import {
+  SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES,
   setTransformComponent,
   TransformComponent,
   TransformComponentType
 } from '../../../transform/components/TransformComponent'
-
-export const SCENE_COMPONENT_TRANSFORM = 'transform'
-export const SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES = {
-  position: { x: 0, y: 0, z: 0 },
-  rotation: { x: 0, y: 0, z: 0 },
-  scale: { x: 1, y: 1, z: 1 }
-}
 
 const euler = new Euler()
 const v3 = new Vector3()
@@ -33,12 +27,9 @@ export const serializeTransform: ComponentSerializeFunction = (entity) => {
   if (!component) return
 
   return {
-    name: SCENE_COMPONENT_TRANSFORM,
-    props: {
-      position: new Vector3().copy(component.position),
-      rotation: new Vector3().setFromEuler(euler.setFromQuaternion(component.rotation)),
-      scale: new Vector3().copy(component.scale)
-    }
+    position: new Vector3().copy(component.position),
+    rotation: new Vector3().setFromEuler(euler.setFromQuaternion(component.rotation)),
+    scale: new Vector3().copy(component.scale)
   }
 }
 

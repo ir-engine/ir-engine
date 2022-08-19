@@ -22,9 +22,9 @@ import { Object3DComponent } from '../components/Object3DComponent'
 import { SceneTagComponent } from '../components/SceneTagComponent'
 import { VisibleComponent } from '../components/VisibleComponent'
 import { ObjectLayers } from '../constants/ObjectLayers'
-import { SCENE_COMPONENT_DYNAMIC_LOAD } from './loaders/DynamicLoadFunctions'
 import { resetEngineRenderer } from './loaders/RenderSettingsFunction'
-import { SCENE_COMPONENT_TRANSFORM } from './loaders/TransformFunctions'
+import { SCENE_COMPONENT_TRANSFORM } from '../../transform/components/TransformComponent'
+import { SCENE_COMPONENT_DYNAMIC_LOAD } from '../components/SceneDynamicLoadTagComponent'
 
 export const createNewEditorNode = (entityNode: EntityTreeNode, prefabType: string): void => {
   // Clone the defualt values so that it will not be bound to newly created node

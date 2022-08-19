@@ -6,3 +6,9 @@ export type ShadowComponentType = {
 }
 
 export const ShadowComponent = createMappedComponent<ShadowComponentType>('ShadowComponent')
+
+export const SCENE_COMPONENT_SHADOW = 'shadow'
+export const SCENE_COMPONENT_SHADOW_DEFAULT_VALUES = {
+  cast: true,
+  receive: true
+}
