@@ -3,10 +3,10 @@ import { useTranslation } from 'react-i18next'
 
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { EnvmapComponent } from '@xrengine/engine/src/scene/components/EnvmapComponent'
+import { EnvmapComponent, SCENE_COMPONENT_ENVMAP } from '@xrengine/engine/src/scene/components/EnvmapComponent'
 import { ErrorComponent } from '@xrengine/engine/src/scene/components/ErrorComponent'
 import { EnvMapSourceType, EnvMapTextureType } from '@xrengine/engine/src/scene/constants/EnvMapEnum'
-import { deserializeEnvMap, SCENE_COMPONENT_ENVMAP } from '@xrengine/engine/src/scene/functions/loaders/EnvMapFunctions'
+import { deserializeEnvMap } from '@xrengine/engine/src/scene/functions/loaders/EnvMapFunctions'
 
 import { setPropertyOnSelectionEntities } from '../../classes/History'
 import ColorInput from '../inputs/ColorInput'

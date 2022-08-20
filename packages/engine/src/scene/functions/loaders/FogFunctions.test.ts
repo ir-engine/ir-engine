@@ -1,7 +1,5 @@
 import assert from 'assert'
-import { Color, Fog, Scene } from 'three'
-
-import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
+import { Color, Fog } from 'three'
 
 import { Engine } from '../../../ecs/classes/Engine'
 import { getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
@@ -9,7 +7,7 @@ import { createEntity } from '../../../ecs/functions/EntityFunctions'
 import { createEngine } from '../../../initializeEngine'
 import { FogComponent } from '../../components/FogComponent'
 import { FogType } from '../../constants/FogType'
-import { deserializeFog } from './FogFunctions'
+import { deserializeFog, updateFog } from './FogFunctions'
 
 describe('FogFunctions', () => {
   it('deserializeFog', () => {
@@ -24,12 +22,9 @@ describe('FogFunctions', () => {
       near: 0.1,
       far: 1000
     }
-    const sceneComponent: ComponentJson = {
-      name: 'fog',
-      props: sceneComponentData
-    }
 
-    deserializeFog(entity, sceneComponent)
+    deserializeFog(entity, sceneComponentData)
+    updateFog(entity)
 
     assert(hasComponent(entity, FogComponent))
     const { type, color, density, near, far } = getComponent(entity, FogComponent)
@@ -38,10 +33,7 @@ describe('FogFunctions', () => {
     assert.equal(density, 2)
     assert.equal(near, 0.1)
     assert.equal(far, 1000)
-
+    console.log(Engine.instance.currentWorld.scene.fog)
     assert(Engine.instance.currentWorld.scene.fog instanceof Fog)
-
-    // TODO: unnecessary once engine global scope is refactored
-    Engine.instance.currentWorld.scene = null!
   })
 })

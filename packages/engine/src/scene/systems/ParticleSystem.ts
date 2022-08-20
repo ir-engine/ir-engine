@@ -1,14 +1,23 @@
-import System from 'three-nebula'
-
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { createActionQueue, defineAction } from '@xrengine/hyperflux'
 
+import { EngineActions } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
-import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineQuery, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { Object3DComponent } from '../components/Object3DComponent'
-import { ParticleEmitterComponent } from '../components/ParticleEmitterComponent'
-import { initializeParticleSystem } from '../functions/loaders/ParticleEmitterFunctions'
+import {
+  ParticleEmitterComponent,
+  SCENE_COMPONENT_PARTICLE_EMITTER,
+  SCENE_COMPONENT_PARTICLE_EMITTER_DEFAULT_VALUES
+} from '../components/ParticleEmitterComponent'
+import {
+  deserializeParticleEmitter,
+  initializeParticleSystem,
+  serializeParticleEmitter,
+  updateParticleEmitter
+} from '../functions/loaders/ParticleEmitterFunctions'
+import { defaultSpatialComponents, ScenePrefabs } from './SceneObjectUpdateSystem'
 
 export class ParticleSystemActions {
   static disposeParticleSystem = defineAction({
@@ -24,7 +33,6 @@ export class ParticleSystemActions {
 export default async function ParticleSystem(world: World) {
   const systemTable = new Map()
   const mutices = new Set<Entity>()
-  const emitterQuery = defineQuery([ParticleEmitterComponent])
   const creatingQueue = createActionQueue(ParticleSystemActions.createParticleSystem.matches)
   const disposingQueue = createActionQueue(ParticleSystemActions.disposeParticleSystem.matches)
 
@@ -49,7 +57,38 @@ export default async function ParticleSystem(world: World) {
     )
   }
 
+  world.scenePrefabRegistry.set(ScenePrefabs.particleEmitter, [
+    ...defaultSpatialComponents,
+    { name: SCENE_COMPONENT_PARTICLE_EMITTER, props: SCENE_COMPONENT_PARTICLE_EMITTER_DEFAULT_VALUES }
+  ])
+
+  world.sceneComponentRegistry.set(ParticleEmitterComponent._name, SCENE_COMPONENT_PARTICLE_EMITTER)
+  world.sceneLoadingRegistry.set(SCENE_COMPONENT_PARTICLE_EMITTER, {
+    defaultData: SCENE_COMPONENT_PARTICLE_EMITTER_DEFAULT_VALUES,
+    deserialize: deserializeParticleEmitter,
+    serialize: serializeParticleEmitter
+  })
+
+  const particleQuery = defineQuery([Object3DComponent, ParticleEmitterComponent])
+  const modifyPropertyActionQueue = createActionQueue(EngineActions.sceneObjectUpdate.matches)
+
   return () => {
+    /**
+     * Scene Loaders
+     */
+
+    for (const action of modifyPropertyActionQueue()) {
+      for (const entity of action.entities) {
+        if (hasComponent(entity, ParticleEmitterComponent)) updateParticleEmitter(entity)
+      }
+    }
+
+    for (const entity of particleQuery.enter()) updateParticleEmitter(entity)
+
+    /**
+     * Effect handler
+     */
+
     for (const action of disposingQueue()) {
       const entity = action.entity
 

@@ -562,16 +562,14 @@ export default async function DebugHelpersSystem(world: World) {
     // todo refactor this
     if (Engine.instance.isEditor) {
       for (const entity of audioHelper.exit()) {
-        const obj3d = getComponent(entity, Object3DComponent, true)
         const helper = helpersByEntity.positionalAudioHelper.get(entity)
         helper.dispose()
-        obj3d.value.remove(helper)
         helpersByEntity.positionalAudioHelper.delete(entity)
+        Engine.instance.currentWorld.scene.remove(helper)
       }
 
       if (debugEnabled)
         for (const entity of audioHelper()) {
-          const obj3d = getComponent(entity, Object3DComponent)
           const mediaComponent = getComponent(entity, MediaElementComponent)
           const audioEl = AudioElementNodes.get(mediaComponent)
           if (!audioEl) continue
@@ -580,11 +578,12 @@ export default async function DebugHelpersSystem(world: World) {
             const helper = new PositionalAudioHelper(audioEl)
             // helper.visible = false
             helpersByEntity.positionalAudioHelper.set(entity, helper)
-            obj3d.value.add(helper)
+            Engine.instance.currentWorld.scene.add(helper)
           }
 
           const helper = helpersByEntity.positionalAudioHelper.get(entity)
           audioEl.panner && helper?.update()
+          helper?.position.copy(getComponent(entity, TransformComponent).position)
         }
     }
 

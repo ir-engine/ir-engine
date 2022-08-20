@@ -12,9 +12,8 @@ import {
   traverseEntityNode
 } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
 import { Object3DComponent, Object3DWithEntity } from '@xrengine/engine/src/scene/components/Object3DComponent'
-import { ScenePrefabTypes } from '@xrengine/engine/src/scene/functions/registerPrefabs'
 import { reparentObject3D } from '@xrengine/engine/src/scene/functions/ReparentFunction'
-import { createNewEditorNode, loadSceneEntity } from '@xrengine/engine/src/scene/functions/SceneLoading'
+import { createNewEditorNode, loadSceneEntity } from '@xrengine/engine/src/scene/systems/SceneLoadingSystem'
 import obj3dFromUuid from '@xrengine/engine/src/scene/util/obj3dFromUuid'
 import { dispatchAction } from '@xrengine/hyperflux'
 
@@ -35,7 +34,7 @@ export type AddObjectCommandUndoParams = {
 export type AddObjectCommandParams = CommandParams & {
   type: ObjectCommands.ADD_OBJECTS
 
-  prefabTypes?: ScenePrefabTypes[]
+  prefabTypes?: string[]
 
   sceneData?: SceneJson[]
 

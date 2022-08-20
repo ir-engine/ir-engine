@@ -1,13 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { getComponent, hasComponent, removeComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { addComponent, hasComponent, removeComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { ScreenshareTargetComponent } from '@xrengine/engine/src/scene/components/ScreenshareTargetComponent'
-import {
-  deserializeScreenshareTarget,
-  SCENE_COMPONENT_SCREENSHARETARGET,
-  SCENE_COMPONENT_SCREENSHARETARGET_DEFAULT_VALUES
-} from '@xrengine/engine/src/scene/functions/loaders/ScreenshareTargetFunctions'
 
 import ScreenShareIcon from '@mui/icons-material/ScreenShare'
 
@@ -27,7 +22,7 @@ export const ScreenshareTargetNodeEditor: EditorComponentType = (props) => {
   const onChange = (enable) => {
     setEnabled(enable)
     if (enable) {
-      deserializeScreenshareTarget(entity, { name: '', props: SCENE_COMPONENT_SCREENSHARETARGET_DEFAULT_VALUES })
+      addComponent(entity, ScreenshareTargetComponent, true)
     } else {
       removeComponent(entity, ScreenshareTargetComponent)
     }

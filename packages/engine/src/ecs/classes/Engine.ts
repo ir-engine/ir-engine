@@ -2,8 +2,8 @@ import type { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { createHyperStore, getState } from '@xrengine/hyperflux'
 import { HyperStore } from '@xrengine/hyperflux/functions/StoreFunctions'
 
+import { SCENE_COMPONENT_AUDIO_SETTINGS_DEFAULT_VALUES } from '../../audio/components/PositionalAudioSettingsComponent'
 import { NetworkTopics } from '../../networking/classes/Network'
-import { SCENE_COMPONENT_AUDIO_SETTINGS_DEFAULT_VALUES } from '../../scene/functions/loaders/AudioSettingFunctions'
 import type { World } from '../classes/World'
 import type { SystemModuleType } from '../functions/SystemFunctions'
 
@@ -45,6 +45,7 @@ export class Engine {
     soundEffects: null! as GainNode
   }
 
+  /** @todo refactor this into hyperflux state */
   spatialAudioSettings = {
     ...SCENE_COMPONENT_AUDIO_SETTINGS_DEFAULT_VALUES
   }

@@ -1,7 +1,5 @@
 import Hls from 'hls.js'
-import { LinearFilter, Mesh, MeshStandardMaterial, Object3D, sRGBEncoding, VideoTexture } from 'three'
-
-import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
+import { LinearFilter, Mesh, MeshStandardMaterial, sRGBEncoding, VideoTexture } from 'three'
 
 import { AudioComponent } from '../../../audio/components/AudioComponent'
 import {
@@ -12,17 +10,20 @@ import {
 } from '../../../common/constants/PrefabFunctionType'
 import { isClient } from '../../../common/functions/isClient'
 import { Engine } from '../../../ecs/classes/Engine'
-import { EngineActions, getEngineState } from '../../../ecs/classes/EngineState'
+import { getEngineState } from '../../../ecs/classes/EngineState'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
-import { matchActionOnce } from '../../../networking/functions/matchActionOnce'
 import { ImageProjection } from '../../classes/ImageUtils'
 import { CallbackComponent } from '../../components/CallbackComponent'
 import { ImageComponent } from '../../components/ImageComponent'
 import { MediaComponent } from '../../components/MediaComponent'
 import { MediaElementComponent } from '../../components/MediaElementComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
-import { VideoComponent, VideoComponentType } from '../../components/VideoComponent'
+import {
+  SCENE_COMPONENT_VIDEO_DEFAULT_VALUES,
+  VideoComponent,
+  VideoComponentType
+} from '../../components/VideoComponent'
 import { PlayMode } from '../../constants/PlayMode'
 import { addError, removeError } from '../ErrorFunctions'
 import isHLS from '../isHLS'
@@ -30,24 +31,15 @@ import { createAudioNode } from './AudioFunctions'
 import { resizeImageMesh } from './ImageFunctions'
 import { getNextPlaylistItem, updateAutoStartTimeForMedia } from './MediaFunctions'
 
-export const SCENE_COMPONENT_VIDEO = 'video'
-export const VIDEO_MESH_NAME = 'VideoMesh'
-export const SCENE_COMPONENT_VIDEO_DEFAULT_VALUES = {
-  elementId: 'video-' + Date.now(),
-  maintainAspectRatio: true
-} as VideoComponentType
-
-export const deserializeVideo: ComponentDeserializeFunction = (
-  entity: Entity,
-  json: ComponentJson<VideoComponentType>
-) => {
+export const deserializeVideo: ComponentDeserializeFunction = (entity: Entity, data: VideoComponentType) => {
   if (!isClient) return
-  const props = parseVideoProperties(json.props) as VideoComponentType
+  const props = parseVideoProperties(data) as VideoComponentType
   addComponent(entity, VideoComponent, props)
 }
 
-export const updateVideo: ComponentUpdateFunction = (entity: Entity, properties: VideoComponentType) => {
-  const obj3d = getComponent(entity, Object3DComponent).value as Mesh<any, MeshStandardMaterial>
+export const updateVideo: ComponentUpdateFunction = (entity: Entity) => {
+  const mesh = getComponent(entity, Object3DComponent).value as Mesh<any, MeshStandardMaterial>
+  console.log('updateVideo', entity, mesh)
 
   const videoComponent = getComponent(entity, VideoComponent)
   const audioComponent = getComponent(entity, AudioComponent)
@@ -116,9 +108,8 @@ export const updateVideo: ComponentUpdateFunction = (entity: Entity, properties:
   }
 
   const el = getComponent(entity, MediaElementComponent) as HTMLVideoElement
-  const mesh = obj3d.userData.mesh as Mesh<any, any>
 
-  if (!mesh.material.map?.isVideoTexture) {
+  if (!(mesh.material.map as VideoTexture)?.isVideoTexture) {
     const texture = new VideoTexture(el)
 
     texture.encoding = sRGBEncoding
@@ -127,6 +118,8 @@ export const updateVideo: ComponentUpdateFunction = (entity: Entity, properties:
     if (mesh.material.map) mesh.material.map?.dispose()
     mesh.material.map = texture
   }
+
+  const videoTexture = mesh.material.map as VideoTexture
 
   if (el.src === '' || currentPath !== el.src) {
     try {
@@ -162,8 +155,8 @@ export const updateVideo: ComponentUpdateFunction = (entity: Entity, properties:
           }
 
           if (videoComponent.maintainAspectRatio) {
-            mesh.material.map.image.height = mesh.material.map.image.videoHeight
-            mesh.material.map.image.width = mesh.material.map.image.videoWidth
+            videoTexture.image.height = videoTexture.image.videoHeight
+            videoTexture.image.width = videoTexture.image.videoWidth
           }
 
           if (getComponent(entity, ImageComponent)?.projection === ImageProjection.Flat) resizeImageMesh(mesh)
@@ -180,15 +173,10 @@ export const updateVideo: ComponentUpdateFunction = (entity: Entity, properties:
 }
 
 export const serializeVideo: ComponentSerializeFunction = (entity) => {
-  const component = getComponent(entity, VideoComponent) as VideoComponentType
-  if (!component) return
-
+  const component = getComponent(entity, VideoComponent)
   return {
-    name: SCENE_COMPONENT_VIDEO,
-    props: {
-      elementId: component.elementId,
-      maintainAspectRatio: component.maintainAspectRatio
-    }
+    elementId: component.elementId,
+    maintainAspectRatio: component.maintainAspectRatio
   }
 }
 
