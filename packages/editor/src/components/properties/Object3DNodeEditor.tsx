@@ -37,9 +37,7 @@ export const Object3DNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
   console.log(props)
   const scene: Scene = Engine.instance.currentWorld.scene
-  const onEdit = (edit) => {
-    console.log(edit)
-  }
+
   const obj3d: Object3D = props.node as any
 
   //objId: used to track current obj3d
@@ -297,9 +295,18 @@ export const Object3DNodeEditor: EditorComponentType = (props) => {
       )}
       <ReactJson
         style={{ height: '100%', overflow: 'auto' }}
-        onEdit={onEdit}
+        onEdit={(edit) => {
+          obj3d.userData = edit.updated_src
+        }}
+        onAdd={(add) => {
+          obj3d.userData = add.updated_src
+        }}
+        onDelete={(_delete) => {
+          obj3d.userData = _delete.updated_src
+        }}
+        onSelect={() => {}}
         theme="monokai"
-        src={(props.node as any as Object3D).userData}
+        src={obj3d.userData}
       />
     </NodeEditor>
   )
