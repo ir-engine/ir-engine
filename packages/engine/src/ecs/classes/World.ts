@@ -157,11 +157,6 @@ export class World {
    */
   scene = new Scene()
 
-  /**
-   * A set of promises for assets that are being fetched for scene loading
-   */
-  sceneLoadingPendingAssets = new Set<Promise<void>>()
-
   sceneDynamicallyUnloadedEntities = new Map<
     string,
     {
@@ -269,6 +264,8 @@ export class World {
 
   /** Tree of entity holding parent child relation between entities. */
   entityTree: EntityTree
+
+  /** @todo: merge sceneComponentRegistry and sceneLoadingRegistry when scene loader IDs use XRE_ extension names*/
 
   /** Registry map of scene loader components  */
   sceneLoadingRegistry = new Map<string, SceneLoaderType>()

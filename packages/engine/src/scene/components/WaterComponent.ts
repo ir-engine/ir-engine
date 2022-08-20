@@ -1,5 +1,5 @@
 import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
 
-export type WaterComponentType = {}
+export const WaterComponent = createMappedComponent<true>('WaterComponent')
 
-export const WaterComponent = createMappedComponent<WaterComponentType>('WaterComponent')
+export const SCENE_COMPONENT_WATER = 'water'

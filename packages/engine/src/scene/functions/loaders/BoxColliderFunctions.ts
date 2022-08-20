@@ -1,8 +1,6 @@
 import { ColliderDesc, RigidBodyDesc } from '@dimforge/rapier3d-compat'
 import { Mesh, Object3D, Quaternion, Vector3 } from 'three'
 
-import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
-
 import {
   ComponentDeserializeFunction,
   ComponentSerializeFunction,
@@ -13,25 +11,16 @@ import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
 import { Physics } from '../../../physics/classes/Physics'
 import { RigidBodyComponent } from '../../../physics/components/RigidBodyComponent'
-import { CollisionGroups, DefaultCollisionMask } from '../../../physics/enums/CollisionGroups'
 import { TransformComponent } from '../../../transform/components/TransformComponent'
-import { BoxColliderComponent } from '../../components/BoxColliderComponent'
+import {
+  BoxColliderComponent,
+  SCENE_COMPONENT_BOX_COLLIDER_DEFAULT_VALUES
+} from '../../components/BoxColliderComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 import { BoxColliderProps } from '../../interfaces/BoxColliderProps'
 
-export const SCENE_COMPONENT_BOX_COLLIDER = 'box-collider'
-export const SCENE_COMPONENT_BOX_COLLIDER_DEFAULT_VALUES = {
-  isTrigger: false,
-  removeMesh: false,
-  collisionLayer: CollisionGroups.Default,
-  collisionMask: DefaultCollisionMask
-}
-
-export const deserializeBoxCollider: ComponentDeserializeFunction = (
-  entity: Entity,
-  json: ComponentJson<BoxColliderProps>
-): void => {
-  const boxColliderProps = parseBoxColliderProperties(json.props)
+export const deserializeBoxCollider: ComponentDeserializeFunction = (entity: Entity, data: BoxColliderProps): void => {
+  const boxColliderProps = parseBoxColliderProperties(data)
   addComponent(entity, BoxColliderComponent, true)
   const transform = getComponent(entity, TransformComponent)
   const colliderDesc = ColliderDesc.cuboid(
@@ -55,9 +44,6 @@ export const deserializeBoxCollider: ComponentDeserializeFunction = (
 }
 
 export const updateBoxCollider: ComponentUpdateFunction = (entity: Entity) => {
-  const data = serializeBoxCollider(entity) as any
-  const boxColliderProps = parseBoxColliderProperties(data.props)
-
   const rigidbody = getComponent(entity, RigidBodyComponent).body
   const transform = getComponent(entity, TransformComponent)
 
@@ -66,7 +52,12 @@ export const updateBoxCollider: ComponentUpdateFunction = (entity: Entity) => {
     Math.abs(transform.scale.y),
     Math.abs(transform.scale.z)
   )
-  Physics.applyDescToCollider(colliderDesc, { type: 0, ...boxColliderProps }, transform.position, transform.rotation)
+  Physics.applyDescToCollider(
+    colliderDesc,
+    { type: 0, isTrigger: rigidbody.collider(0).isSensor() },
+    new Vector3(),
+    new Quaternion()
+  )
   Engine.instance.currentWorld.physicsWorld.removeCollider(rigidbody.collider(0), true)
   Engine.instance.currentWorld.physicsWorld.createCollider(colliderDesc, rigidbody)
 }
@@ -77,14 +68,11 @@ export const serializeBoxCollider: ComponentSerializeFunction = (entity) => {
   const isTrigger = rigidbodyComponent.collider(0).isSensor()
 
   return {
-    name: SCENE_COMPONENT_BOX_COLLIDER,
-    props: {
-      isTrigger
-      // TODO: these are only used for deserialization for gltf metadata support
-      // removeMesh: boolean | 'true' | 'false'
-      // collisionLayer: string | number
-      // collisionMask: string | number
-    }
+    isTrigger
+    // TODO: these are only used for deserialization for gltf metadata support
+    // removeMesh: boolean | 'true' | 'false'
+    // collisionLayer: string | number
+    // collisionMask: string | number
   }
 }
 

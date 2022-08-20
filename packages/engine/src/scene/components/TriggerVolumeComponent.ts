@@ -13,3 +13,6 @@ export type TriggerVolumeComponentType = {
 }
 
 export const TriggerVolumeComponent = createMappedComponent<TriggerVolumeComponentType>('TriggerVolumeComponent')
+
+export const SCENE_COMPONENT_TRIGGER_VOLUME = 'trigger-volume'
+export const SCENE_COMPONENT_TRIGGER_VOLUME_DEFAULT_VALUES = {}

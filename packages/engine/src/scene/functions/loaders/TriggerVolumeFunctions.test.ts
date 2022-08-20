@@ -2,8 +2,6 @@ import assert from 'assert'
 import { Mesh, MeshBasicMaterial } from 'three'
 import { Quaternion, Vector3 } from 'three'
 
-import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
-
 import { quaternionEqualsEpsilon, vector3EqualsEpsilon } from '../../../../tests/util/MathTestUtils'
 import { Engine } from '../../../ecs/classes/Engine'
 import { getComponent } from '../../../ecs/functions/ComponentFunctions'
@@ -15,12 +13,7 @@ import { RigidBodyComponent } from '../../../physics/components/RigidBodyCompone
 import { TransformComponent } from '../../../transform/components/TransformComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 import { TriggerVolumeComponent } from '../../components/TriggerVolumeComponent'
-import {
-  deserializeTriggerVolume,
-  SCENE_COMPONENT_TRIGGER_VOLUME,
-  serializeTriggerVolume,
-  updateTriggerVolume
-} from './TriggerVolumeFunctions'
+import { deserializeTriggerVolume, serializeTriggerVolume, updateTriggerVolume } from './TriggerVolumeFunctions'
 
 describe('TriggerVolumeFunctions', () => {
   beforeEach(async () => {
@@ -30,14 +23,9 @@ describe('TriggerVolumeFunctions', () => {
   })
 
   const sceneComponentData = {
-    onEnter: () => {},
-    onExit: () => {},
-    target: () => {}
-  }
-
-  const sceneComponent: ComponentJson = {
-    name: SCENE_COMPONENT_TRIGGER_VOLUME,
-    props: sceneComponentData
+    onEnter: 'enter',
+    onExit: 'exit',
+    target: 'target'
   }
 
   describe('deserializeTriggerVolume()', () => {
@@ -48,7 +36,7 @@ describe('TriggerVolumeFunctions', () => {
         rotation: new Quaternion(),
         scale: new Vector3(1.5, 2.5, 6)
       })
-      deserializeTriggerVolume(entity, sceneComponent)
+      deserializeTriggerVolume(entity, sceneComponentData)
 
       const triggervolumeComponent = getComponent(entity, TriggerVolumeComponent)
       assert.deepEqual(triggervolumeComponent, { ...sceneComponentData, active: true })
@@ -68,7 +56,7 @@ describe('TriggerVolumeFunctions', () => {
       })
 
       Engine.instance.isEditor = true
-      deserializeTriggerVolume(entity, sceneComponent)
+      deserializeTriggerVolume(entity, sceneComponentData)
       updateTriggerVolume(entity)
 
       const body = getComponent(entity, RigidBodyComponent).body
@@ -85,8 +73,8 @@ describe('TriggerVolumeFunctions', () => {
         rotation: new Quaternion(),
         scale: new Vector3(1.5, 2.5, 6)
       })
-      deserializeTriggerVolume(entity, sceneComponent)
-      assert.deepEqual(serializeTriggerVolume(entity), sceneComponent)
+      deserializeTriggerVolume(entity, sceneComponentData)
+      assert.deepEqual(serializeTriggerVolume(entity), sceneComponentData)
     })
 
     it('should return undefine if there is no triggervolume component', () => {

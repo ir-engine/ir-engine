@@ -1,13 +1,11 @@
 import assert from 'assert'
 import { Color, HemisphereLight } from 'three'
 
-import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
-
 import { getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
 import { createEngine } from '../../../initializeEngine'
 import { Object3DComponent } from '../../components/Object3DComponent'
-import { deserializeHemisphereLight } from './HemisphereLightFunctions'
+import { deserializeHemisphereLight, updateHemisphereLight } from './HemisphereLightFunctions'
 
 describe('HemisphereLightFunctions', () => {
   it('deserializeHemisphereLight', async () => {
@@ -20,12 +18,9 @@ describe('HemisphereLightFunctions', () => {
       skyColor: color.clone(),
       intensity: 5
     }
-    const sceneComponent: ComponentJson = {
-      name: 'hemisphere-light',
-      props: sceneComponentData
-    }
 
-    deserializeHemisphereLight(entity, sceneComponent)
+    deserializeHemisphereLight(entity, sceneComponentData)
+    updateHemisphereLight(entity)
 
     assert(hasComponent(entity, Object3DComponent))
     assert(getComponent(entity, Object3DComponent).value instanceof HemisphereLight)

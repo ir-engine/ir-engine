@@ -27,3 +27,28 @@ export type OceanComponentType = {
 }
 
 export const OceanComponent = createMappedComponent<OceanComponentType>('OceanComponent')
+
+export const SCENE_COMPONENT_OCEAN = 'ocean'
+export const SCENE_COMPONENT_OCEAN_DEFAULT_VALUES = {
+  normalMap: '/ocean/water_normal.tga',
+  distortionMap: '/ocean/water_distortion.tga',
+  envMap: '/hdr/equirectangular/texture222.jpg',
+  color: 0x2876dd,
+  opacityRange: { x: 0.6, y: 0.9 },
+  opacityFadeDistance: 0.12,
+  shallowToDeepDistance: 0.1,
+  shallowWaterColor: 0x30c3dd,
+  waveScale: { x: 0.25, y: 0.25 },
+  waveSpeed: { x: 0.08, y: 0.0 },
+  waveTiling: 12.0,
+  waveDistortionTiling: 7.0,
+  waveDistortionSpeed: { x: 0.08, y: 0.08 },
+  shininess: 40,
+  reflectivity: 0.25,
+  bigWaveHeight: 0.7,
+  bigWaveTiling: { x: 1.5, y: 1.5 },
+  bigWaveSpeed: { x: 0.02, y: 0.0 },
+  foamSpeed: { x: 0.05, y: 0.0 },
+  foamTiling: 2.0,
+  foamColor: 0xffffff
+}

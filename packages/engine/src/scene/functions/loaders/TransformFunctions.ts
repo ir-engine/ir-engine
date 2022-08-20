@@ -1,31 +1,20 @@
 import { Euler, Quaternion, Vector3 } from 'three'
 
-import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
-
 import { ComponentDeserializeFunction, ComponentSerializeFunction } from '../../../common/constants/PrefabFunctionType'
 import { Entity } from '../../../ecs/classes/Entity'
 import { getComponent } from '../../../ecs/functions/ComponentFunctions'
 import {
+  SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES,
   setTransformComponent,
   TransformComponent,
   TransformComponentType
 } from '../../../transform/components/TransformComponent'
 
-export const SCENE_COMPONENT_TRANSFORM = 'transform'
-export const SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES = {
-  position: { x: 0, y: 0, z: 0 },
-  rotation: { x: 0, y: 0, z: 0 },
-  scale: { x: 1, y: 1, z: 1 }
-}
-
 const euler = new Euler()
 const v3 = new Vector3()
 
-export const deserializeTransform: ComponentDeserializeFunction = (
-  entity: Entity,
-  json: ComponentJson<TransformComponentType>
-) => {
-  const props = parseTransformProperties(json.props)
+export const deserializeTransform: ComponentDeserializeFunction = (entity: Entity, data: TransformComponentType) => {
+  const props = parseTransformProperties(data)
 
   const transform = setTransformComponent(entity)
   transform.position.copy(props.position)
@@ -34,16 +23,11 @@ export const deserializeTransform: ComponentDeserializeFunction = (
 }
 
 export const serializeTransform: ComponentSerializeFunction = (entity) => {
-  const component = getComponent(entity, TransformComponent) as TransformComponentType
-  if (!component) return
-
+  const component = getComponent(entity, TransformComponent)
   return {
-    name: SCENE_COMPONENT_TRANSFORM,
-    props: {
-      position: new Vector3().copy(component.position),
-      rotation: new Vector3().setFromEuler(euler.setFromQuaternion(component.rotation)),
-      scale: new Vector3().copy(component.scale)
-    }
+    position: new Vector3().copy(component.position),
+    rotation: new Vector3().setFromEuler(euler.setFromQuaternion(component.rotation)),
+    scale: new Vector3().copy(component.scale)
   }
 }
 

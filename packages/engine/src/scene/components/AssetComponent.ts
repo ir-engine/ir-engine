@@ -24,3 +24,10 @@ export type AssetComponentType = {
 export const AssetComponent = createMappedComponent<AssetComponentType>('AssetComponent')
 
 export const AssetLoadedComponent = createMappedComponent<AssetLoadedComponentType>('AssetLoadedComponent')
+
+export const SCENE_COMPONENT_ASSET = 'asset'
+export const SCENE_COMPONENT_ASSET_DEFAULT_VALUES = {
+  name: '',
+  path: '',
+  loaded: LoadState.UNLOADED
+}

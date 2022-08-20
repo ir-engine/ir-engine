@@ -2,16 +2,17 @@ import assert from 'assert'
 import proxyquire from 'proxyquire'
 import { Object3D } from 'three'
 
-import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
-
-import { LoopAnimationComponent, LoopAnimationComponentType } from '../../../avatar/components/LoopAnimationComponent'
+import {
+  LoopAnimationComponent,
+  LoopAnimationComponentType,
+  SCENE_COMPONENT_LOOP_ANIMATION_DEFAULT_VALUE
+} from '../../../avatar/components/LoopAnimationComponent'
 import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
 import { createEngine } from '../../../initializeEngine'
 import { Object3DComponent } from '../../components/Object3DComponent'
-import { SCENE_COMPONENT_LOOP_ANIMATION, SCENE_COMPONENT_LOOP_ANIMATION_DEFAULT_VALUE } from './LoopAnimationFunctions'
 
 class AnimationManager {
   static instance = {
@@ -91,53 +92,18 @@ describe('LoopAnimationFunctions', () => {
     hasAvatarAnimations: false
   }
 
-  const sceneComponent: ComponentJson = {
-    name: SCENE_COMPONENT_LOOP_ANIMATION,
-    props: sceneComponentData
-  }
-
-  describe('deserializeLoopAnimation()', () => {
-    it('will not deserialize component if not on client', () => {
-      const _loopAnimationFunctions = proxyquire('./LoopAnimationFunctions', {
-        '../../../common/functions/isClient': { isClient: false }
-      })
-
-      _loopAnimationFunctions.deserializeLoopAnimation(entity, sceneComponent)
-
-      assert(!hasComponent(entity, LoopAnimationComponent))
-    })
-
-    it('will add LoopAnimationComponent with provide data', () => {
-      addComponent(entity, Object3DComponent, { value: new Object3D() })
-
-      loopAnimationFunctions.deserializeLoopAnimation(entity, sceneComponent)
-
-      const loopAnimation = getComponent(entity, LoopAnimationComponent)
-      assert(loopAnimation)
-      assert.equal(loopAnimation.activeClipIndex, sceneComponentData.activeClipIndex)
-      assert.equal(loopAnimation.hasAvatarAnimations, sceneComponentData.hasAvatarAnimations)
-
-      // AnimationComponent is now added asynchronously in the UpdateAnimation function which is not called during deserialization
-      // const animation = getComponent(entity, AnimationComponent)
-      // assert(animation)
-    })
-  })
-
   describe('updateLoopAnimation()', () => {
     let loopAnimation: LoopAnimationComponentType
     let obj3d: Object3D
 
     beforeEach(() => {
       addComponent(entity, Object3DComponent, { value: new Object3D() })
-      loopAnimationFunctions.deserializeLoopAnimation(entity, sceneComponent)
+      addComponent(entity, LoopAnimationComponent, sceneComponentData)
       loopAnimation = getComponent(entity, LoopAnimationComponent) as LoopAnimationComponentType
       obj3d = getComponent(entity, Object3DComponent)?.value as Object3D
       obj3d.animations = [{ name: 'animation 1' }, { name: 'animation 2' }, { name: 'animation 3' }] as any
     })
 
-    it('will not throw any error if Object 3d is not defined', () => {
-      assert.doesNotThrow(() => loopAnimationFunctions.updateLoopAnimation(entity))
-    })
     // causing errors
     // describe('Property tests for "hasAvatarAnimations"', () => {
 
@@ -163,73 +129,7 @@ describe('LoopAnimationFunctions', () => {
     //     //assert(!hasComponent(entity, VelocityComponent))
     //     assert.equal(animationComponent.animations, obj3d.animations)
     //   })
-    // })
-
-    describe('for location only', () => {
-      before(() => {
-        Engine.instance.isEditor = false
-      })
-
-      it('will not throw any error if action is undefined in component or activeClipIndex is less than 0', () => {
-        delete loopAnimation.action
-        loopAnimation.activeClipIndex = -1
-        assert.doesNotThrow(() => loopAnimationFunctions.updateLoopAnimation(entity))
-      })
-
-      it('will stop action if it is playing', () => {
-        loopAnimation.action = new Action() as any
-        ;(loopAnimation.action as any).play()
-        loopAnimationFunctions.updateLoopAnimation(entity)
-
-        assert.equal((loopAnimation.action as any).currentState, 'stopped')
-      })
-
-      it('will stop action if it is playing', () => {
-        loopAnimation.action = new Action() as any
-        ;(loopAnimation.action as any).play()
-        loopAnimationFunctions.updateLoopAnimation(entity)
-
-        assert.equal((loopAnimation.action as any).currentState, 'stopped')
-      })
-
-      it('will play action which has active index', () => {
-        loopAnimation.activeClipIndex = 1
-        loopAnimationFunctions.updateLoopAnimation(entity)
-
-        assert.equal((loopAnimation.action as any).name, 'animation 2')
-        assert.equal((loopAnimation.action as any).currentState, 'playing')
-      })
-    })
-  })
-
-  describe('serializeLoopAnimation()', () => {
-    it('should properly serialize loop animation', () => {
-      loopAnimationFunctions.deserializeLoopAnimation(entity, sceneComponent)
-      assert.deepEqual(loopAnimationFunctions.serializeLoopAnimation(entity), sceneComponent)
-    })
-
-    it('should return undefine if there is no loop animation component', () => {
-      assert(loopAnimationFunctions.serializeLoopAnimation(entity) === undefined)
-    })
-  })
-
-  describe('parseLoopAnimationProperties()', () => {
-    it('should use default component values', () => {
-      const componentData = loopAnimationFunctions.parseLoopAnimationProperties({})
-      assert(componentData.activeClipIndex === SCENE_COMPONENT_LOOP_ANIMATION_DEFAULT_VALUE.activeClipIndex)
-      assert(componentData.hasAvatarAnimations === SCENE_COMPONENT_LOOP_ANIMATION_DEFAULT_VALUE.hasAvatarAnimations)
-    })
-
-    it('should use passed values', () => {
-      const props = {
-        hasAvatarAnimations: Math.random(),
-        activeClipIndex: Math.random()
-      }
-      const componentData = loopAnimationFunctions.parseLoopAnimationProperties(props)
-
-      assert(componentData.activeClipIndex === props.activeClipIndex)
-      assert(componentData.hasAvatarAnimations === props.hasAvatarAnimations)
-    })
+    // }
   })
 
   describe('Object 3d animation functions', () => {
@@ -238,7 +138,7 @@ describe('LoopAnimationFunctions', () => {
 
     beforeEach(() => {
       addComponent(entity, Object3DComponent, { value: new Object3D() })
-      loopAnimationFunctions.deserializeLoopAnimation(entity, sceneComponent)
+      addComponent(entity, LoopAnimationComponent, sceneComponentData)
       loopAnimation = getComponent(entity, LoopAnimationComponent) as LoopAnimationComponentType
       obj3d = getComponent(entity, Object3DComponent)?.value as Object3D
       obj3d.animations = [{ name: 'animation 1' }, { name: 'animation 2' }, { name: 'animation 3' }] as any

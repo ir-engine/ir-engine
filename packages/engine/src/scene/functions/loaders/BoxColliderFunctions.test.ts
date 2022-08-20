@@ -1,8 +1,6 @@
 import assert from 'assert'
 import { Quaternion, Vector3 } from 'three'
 
-import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
-
 import { quaternionEqualsEpsilon, vector3EqualsEpsilon } from '../../../../tests/util/MathTestUtils'
 import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
@@ -14,12 +12,11 @@ import { RigidBodyComponent } from '../../../physics/components/RigidBodyCompone
 import { RigidBodyFixedTagComponent } from '../../../physics/components/RigidBodyFixedTagComponent'
 import { CollisionGroups, DefaultCollisionMask } from '../../../physics/enums/CollisionGroups'
 import { TransformComponent } from '../../../transform/components/TransformComponent'
+import { SCENE_COMPONENT_BOX_COLLIDER_DEFAULT_VALUES } from '../../components/BoxColliderComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 import {
   deserializeBoxCollider,
   parseBoxColliderProperties,
-  SCENE_COMPONENT_BOX_COLLIDER,
-  SCENE_COMPONENT_BOX_COLLIDER_DEFAULT_VALUES,
   serializeBoxCollider,
   updateBoxCollider
 } from './BoxColliderFunctions'
@@ -46,44 +43,24 @@ describe('BoxColliderFunctions', () => {
     collisionMask: CollisionGroups.Avatars
   }
 
-  const sceneComponent: ComponentJson = {
-    name: SCENE_COMPONENT_BOX_COLLIDER,
-    props: sceneComponentData
-  }
-
   describe('deserializeBoxCollider()', () => {
     it('creates RigidBodyComponent and RigidBodyFixedTagComponent', () => {
-      deserializeBoxCollider(entity, sceneComponent)
+      deserializeBoxCollider(entity, sceneComponentData)
 
       assert(hasComponent(entity, RigidBodyComponent))
       assert(hasComponent(entity, RigidBodyFixedTagComponent))
     })
 
     it('creates Object3d Component', () => {
-      deserializeBoxCollider(entity, sceneComponent)
+      deserializeBoxCollider(entity, sceneComponentData)
       assert(getComponent(entity, Object3DComponent)?.value)
-    })
-  })
-
-  describe('updateBoxCollider()', () => {
-    it('should not update collider body', () => {
-      deserializeBoxCollider(entity, sceneComponent)
-      updateBoxCollider(entity, { isTrigger: true })
-
-      const body = getComponent(entity, RigidBodyComponent).body
-      const transform = getComponent(entity, TransformComponent)
-      assert(vector3EqualsEpsilon(body.translation() as Vector3, transform.position))
-      assert(quaternionEqualsEpsilon(body.rotation() as Quaternion, transform.rotation))
     })
   })
 
   describe('serializeBoxCollider()', () => {
     it('should properly serialize boxcollider', () => {
-      deserializeBoxCollider(entity, sceneComponent)
-      assert.deepEqual(serializeBoxCollider(entity), {
-        ...sceneComponent,
-        props: { isTrigger: sceneComponentData.isTrigger }
-      })
+      deserializeBoxCollider(entity, sceneComponentData)
+      assert.deepEqual(serializeBoxCollider(entity), { isTrigger: sceneComponentData.isTrigger })
     })
 
     it('should return undefine if there is no boxcollider component', () => {

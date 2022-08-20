@@ -1,5 +1,6 @@
 import { getContentType } from '@xrengine/common/src/utils/getContentType'
 import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
+import { MediaPrefabs } from '@xrengine/engine/src/audio/systems/AudioSystem'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { createEntityNode } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
@@ -8,7 +9,7 @@ import { ImageComponent } from '@xrengine/engine/src/scene/components/ImageCompo
 import { LinkComponent } from '@xrengine/engine/src/scene/components/LinkComponent'
 import { MediaComponent } from '@xrengine/engine/src/scene/components/MediaComponent'
 import { ModelComponent } from '@xrengine/engine/src/scene/components/ModelComponent'
-import { ScenePrefabs, ScenePrefabTypes } from '@xrengine/engine/src/scene/functions/registerPrefabs'
+import { ScenePrefabs } from '@xrengine/engine/src/scene/systems/SceneObjectUpdateSystem'
 
 import { executeCommandWithHistory, setPropertyOnEntityNode } from '../classes/History'
 import EditorCommands from '../constants/EditorCommands'
@@ -29,7 +30,7 @@ export async function addMediaNode(
   const { hostname } = new URL(url)
 
   let node = createEntityNode(createEntity())
-  let prefabType = '' as ScenePrefabTypes
+  let prefabType = ''
   let updateFunc = null! as Function
 
   if (contentType.startsWith('asset/')) {
@@ -55,7 +56,7 @@ export async function addMediaNode(
         false
       )
   } else if (contentType.startsWith('video/') || hostname.includes('twitch.tv') || hostname.includes('youtube.com')) {
-    prefabType = ScenePrefabs.video
+    prefabType = MediaPrefabs.video
     updateFunc = () =>
       setPropertyOnEntityNode(
         {
@@ -77,7 +78,7 @@ export async function addMediaNode(
         false
       )
   } else if (contentType.startsWith('audio/')) {
-    prefabType = ScenePrefabs.audio
+    prefabType = MediaPrefabs.audio
     updateFunc = () =>
       setPropertyOnEntityNode(
         {
@@ -88,24 +89,13 @@ export async function addMediaNode(
         false
       )
   } else if (url.includes('.uvol')) {
-    prefabType = ScenePrefabs.volumetric
+    prefabType = MediaPrefabs.volumetric
     updateFunc = () =>
       setPropertyOnEntityNode(
         {
           affectedNodes: [node],
           component: MediaComponent,
           properties: [{ paths: [url] }]
-        },
-        false
-      )
-  } else {
-    prefabType = ScenePrefabs.link
-    updateFunc = () =>
-      setPropertyOnEntityNode(
-        {
-          affectedNodes: [node],
-          component: LinkComponent,
-          properties: [{ href: url }]
         },
         false
       )
