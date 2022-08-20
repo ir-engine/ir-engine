@@ -9,7 +9,6 @@ export type ModelComponentType = {
   useBasicMaterial: boolean
   isUsingGPUInstancing: boolean
   curScr?: string
-  parsed?: boolean
 }
 
 export const ModelComponent = createMappedComponent<ModelComponentType>('ModelComponent')

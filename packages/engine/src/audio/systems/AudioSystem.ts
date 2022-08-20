@@ -184,7 +184,8 @@ export default async function AudioSystem(world: World) {
       const media = getComponent(entity, MediaElementComponent)
       if (media.autoplay) {
         media.muted = false
-        getComponent(entity, CallbackComponent)?.play(null!)
+        const cb = getComponent(entity, CallbackComponent)
+        if (cb?.player) cb.play()
       }
     }
   }

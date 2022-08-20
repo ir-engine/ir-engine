@@ -38,7 +38,7 @@ export const updateModel = async (entity: Entity) => {
   const model = getComponent(entity, ModelComponent)
   /** @todo replace userData usage with something else */
   const sourceChanged =
-    !hasComponent(entity, Object3DComponent) || getComponent(entity, Object3DComponent).value.userData.src === model.src
+    !hasComponent(entity, Object3DComponent) || getComponent(entity, Object3DComponent).value.userData.src !== model.src
   if (sourceChanged) {
     try {
       const uuid = Engine.instance.currentWorld.entityTree.entityNodeMap.get(entity)!.uuid

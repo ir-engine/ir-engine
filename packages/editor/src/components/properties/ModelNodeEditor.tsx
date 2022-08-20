@@ -102,12 +102,7 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
           <div style={{ marginTop: 2, color: '#FF8C00' }}>{t('editor:properties.model.error-url')}</div>
         )}
       </InputGroup>
-      {modelComponent.parsed && (
-        <ModelTransformProperties
-          modelComponent={modelComponent}
-          onChangeModel={updateProperty(ModelComponent, 'src')}
-        />
-      )}
+      <ModelTransformProperties modelComponent={modelComponent} onChangeModel={updateProperty(ModelComponent, 'src')} />
       <MaterialAssignment
         entity={entity}
         node={props.node}

@@ -23,6 +23,7 @@ import { CallbackComponent } from '../../components/CallbackComponent'
 import { MediaComponent } from '../../components/MediaComponent'
 import { MediaElementComponent } from '../../components/MediaElementComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
+import { UpdatableComponent } from '../../components/UpdatableComponent'
 import {
   SCENE_COMPONENT_VOLUMETRIC_DEFAULT_VALUES,
   VolumetricComponent,
@@ -60,7 +61,9 @@ export const deserializeVolumetric: ComponentDeserializeFunction = (entity: Enti
 }
 
 export const addVolumetricComponent = (entity: Entity, props: VolumetricComponentType) => {
-  const obj3d = getComponent(entity, Object3DComponent).value as VolumetricObject3D
+  const obj3d = new UpdateableObject3D()
+  addComponent(entity, Object3DComponent, { value: obj3d })
+  addComponent(entity, UpdatableComponent, true)
   const mediaComponent = getComponent(entity, MediaComponent)
   const audioComponent = getComponent(entity, AudioComponent)
 
@@ -125,6 +128,7 @@ export const addVolumetricComponent = (entity: Entity, props: VolumetricComponen
   })
 
   const el = player.video
+  el.autoplay = mediaComponent.autoplay
 
   el.addEventListener('playing', () => {
     mediaComponent.playing = true
@@ -132,6 +136,12 @@ export const addVolumetricComponent = (entity: Entity, props: VolumetricComponen
   el.addEventListener('pause', () => {
     mediaComponent.playing = false
   })
+
+  if (el.autoplay) {
+    if (getEngineState().userHasInteracted.value) {
+      player.play()
+    }
+  }
 
   addComponent(entity, MediaElementComponent, el)
 
