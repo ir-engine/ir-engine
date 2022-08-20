@@ -1,6 +1,4 @@
-import {
-  ComponentDeserializeFunction,
-  ComponentSerializeFunction} from '../../../common/constants/PrefabFunctionType'
+import { ComponentDeserializeFunction, ComponentSerializeFunction } from '../../../common/constants/PrefabFunctionType'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent } from '../../../ecs/functions/ComponentFunctions'
 import { Water } from '../../classes/Water'

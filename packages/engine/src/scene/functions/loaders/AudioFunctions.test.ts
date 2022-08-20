@@ -4,14 +4,19 @@ import { Object3D } from 'three'
 
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
-import { AudioComponent, AudioComponentType } from '../../../audio/components/AudioComponent'
+import {
+  AudioComponent,
+  AudioComponentType,
+  SCENE_COMPONENT_AUDIO,
+  SCENE_COMPONENT_AUDIO_DEFAULT_VALUES
+} from '../../../audio/components/AudioComponent'
 import { AudioType, AudioTypeType } from '../../../audio/constants/AudioConstants'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
 import { createEngine } from '../../../initializeEngine'
 import { Object3DComponent } from '../../components/Object3DComponent'
-import { deserializeAudio, SCENE_COMPONENT_AUDIO, SCENE_COMPONENT_AUDIO_DEFAULT_VALUES } from './AudioFunctions'
+import { deserializeAudio } from './AudioFunctions'
 
 const testURLs = {
   noContentType: { url: 'noContentType' },

@@ -38,7 +38,6 @@ export function setTransformComponent(entity: Entity) {
   })
 }
 
-
 export const SCENE_COMPONENT_TRANSFORM = 'transform'
 export const SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES = {
   position: { x: 0, y: 0, z: 0 },

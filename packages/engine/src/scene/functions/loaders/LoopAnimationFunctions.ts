@@ -1,16 +1,12 @@
 import { AnimationClip, AnimationMixer, Vector3 } from 'three'
 
-
 import { AnimationManager } from '../../../avatar/AnimationManager'
 import { BoneStructure } from '../../../avatar/AvatarBoneMatching'
 import { AnimationComponent, AnimationComponentType } from '../../../avatar/components/AnimationComponent'
 import { AvatarAnimationComponent } from '../../../avatar/components/AvatarAnimationComponent'
 import { LoopAnimationComponent, LoopAnimationComponentType } from '../../../avatar/components/LoopAnimationComponent'
 import { setupAvatarModel } from '../../../avatar/functions/avatarFunctions'
-import {
-  ComponentSerializeFunction,
-  ComponentUpdateFunction
-} from '../../../common/constants/PrefabFunctionType'
+import { ComponentSerializeFunction, ComponentUpdateFunction } from '../../../common/constants/PrefabFunctionType'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent, removeComponent } from '../../../ecs/functions/ComponentFunctions'
 import { CallbackComponent } from '../../components/CallbackComponent'

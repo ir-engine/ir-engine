@@ -9,8 +9,13 @@ import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent, removeComponent } from '../../../ecs/functions/ComponentFunctions'
 import { setBoundingBoxComponent } from '../../../interaction/components/BoundingBoxComponents'
-import { ModelComponent, ModelComponentType, SCENE_COMPONENT_MODEL_DEFAULT_VALUE } from '../../components/ModelComponent'
+import {
+  ModelComponent,
+  ModelComponentType,
+  SCENE_COMPONENT_MODEL_DEFAULT_VALUE
+} from '../../components/ModelComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
+import { SceneAssetPendingTagComponent } from '../../components/SceneAssetPendingTagComponent'
 import { SimpleMaterialTagComponent } from '../../components/SimpleMaterialTagComponent'
 import { ObjectLayers } from '../../constants/ObjectLayers'
 import { generateMeshBVH } from '../bvhWorkerPool'
@@ -19,18 +24,21 @@ import { parseGLTFModel } from '../loadGLTFModel'
 import { enableObjectLayer } from '../setObjectLayers'
 import { initializeOverride } from './MaterialOverrideFunctions'
 
-export const deserializeModel: ComponentDeserializeFunction = (
-  entity: Entity,
-  data: ModelComponentType
-) => {
+export const deserializeModel: ComponentDeserializeFunction = (entity: Entity, data: ModelComponentType) => {
   const props = parseModelProperties(data)
   addComponent(entity, ModelComponent, props)
+
+  /**
+   * Add SceneAssetPendingTagComponent to tell scene loading system we should wait for this asset to load
+   */
+  addComponent(entity, SceneAssetPendingTagComponent, true)
 }
 
 export const updateModel = async (entity: Entity) => {
   const model = getComponent(entity, ModelComponent)
   /** @todo replace userData usage with something else */
-  const sourceChanged = !hasComponent(entity, Object3DComponent) || getComponent(entity, Object3DComponent).value.userData.src === model.src
+  const sourceChanged =
+    !hasComponent(entity, Object3DComponent) || getComponent(entity, Object3DComponent).value.userData.src === model.src
   if (sourceChanged) {
     try {
       const uuid = Engine.instance.currentWorld.entityTree.entityNodeMap.get(entity)!.uuid
@@ -40,15 +48,14 @@ export const updateModel = async (entity: Entity) => {
       switch (/\.[\d\s\w]+$/.exec(model.src)![0]) {
         case '.glb':
         case '.gltf':
-          const gltf = await AssetLoader.loadAsync(model.src, {
+          const gltf = (await AssetLoader.loadAsync(model.src, {
             ignoreDisposeGeometry: model.generateBVH,
             uuid
-          }) as GLTF
+          })) as GLTF
           scene = gltf.scene as Scene
           break
         case '.fbx':
-          scene = (await AssetLoader.loadAsync(model.src, { ignoreDisposeGeometry: model.generateBVH, uuid }))
-            .scene
+          scene = (await AssetLoader.loadAsync(model.src, { ignoreDisposeGeometry: model.generateBVH, uuid })).scene
           break
         default:
           scene = new Object3D() as Scene
@@ -75,10 +82,8 @@ export const updateModel = async (entity: Entity) => {
   const notUsingAndHasBasicMaterial = !hasComponent(entity, SimpleMaterialTagComponent) && model.useBasicMaterial
   const usingAndNotHasBasicMaterial = hasComponent(entity, SimpleMaterialTagComponent) && !model.useBasicMaterial
 
-  if (notUsingAndHasBasicMaterial)
-    addComponent(entity, SimpleMaterialTagComponent, true)
-  if (usingAndNotHasBasicMaterial)
-    removeComponent(entity, SimpleMaterialTagComponent)
+  if (notUsingAndHasBasicMaterial) addComponent(entity, SimpleMaterialTagComponent, true)
+  if (usingAndNotHasBasicMaterial) removeComponent(entity, SimpleMaterialTagComponent)
 
   if (isClient && model.materialOverrides.length > 0) {
     const overrides = await Promise.all(
@@ -86,6 +91,11 @@ export const updateModel = async (entity: Entity) => {
     )
     model.materialOverrides = overrides
   }
+
+  /**
+   * Remove SceneAssetPendingTagComponent to tell scene loading system this asset has completed
+   */
+  hasComponent(entity, SceneAssetPendingTagComponent) && removeComponent(entity, SceneAssetPendingTagComponent)
 }
 
 export const serializeModel: ComponentSerializeFunction = (entity) => {

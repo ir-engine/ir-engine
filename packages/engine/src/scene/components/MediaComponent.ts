@@ -18,3 +18,12 @@ export type MediaComponentType = {
 }
 
 export const MediaComponent = createMappedComponent<MediaComponentType>('MediaComponent')
+
+export const SCENE_COMPONENT_MEDIA = 'media'
+export const SCENE_COMPONENT_MEDIA_DEFAULT_VALUES = {
+  controls: false,
+  autoplay: false,
+  autoStartTime: 0,
+  paths: [],
+  playMode: PlayMode.Loop
+} as Partial<MediaComponentType>

@@ -10,7 +10,7 @@ import { EngineRenderer } from '../WebGLRendererSystem'
 import { changeRenderMode } from './changeRenderMode'
 
 export const configureEffectComposer = (remove?: boolean, camera = Engine.instance.currentWorld.camera): void => {
-  if(!EngineRenderer.instance) return
+  if (!EngineRenderer.instance) return
 
   EngineRenderer.instance.effectComposer.removeAllPasses()
 

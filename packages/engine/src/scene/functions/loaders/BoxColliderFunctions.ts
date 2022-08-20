@@ -12,7 +12,10 @@ import { addComponent, getComponent, hasComponent } from '../../../ecs/functions
 import { Physics } from '../../../physics/classes/Physics'
 import { RigidBodyComponent } from '../../../physics/components/RigidBodyComponent'
 import { TransformComponent } from '../../../transform/components/TransformComponent'
-import { BoxColliderComponent, SCENE_COMPONENT_BOX_COLLIDER_DEFAULT_VALUES } from '../../components/BoxColliderComponent'
+import {
+  BoxColliderComponent,
+  SCENE_COMPONENT_BOX_COLLIDER_DEFAULT_VALUES
+} from '../../components/BoxColliderComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 import { BoxColliderProps } from '../../interfaces/BoxColliderProps'
 
@@ -41,9 +44,6 @@ export const deserializeBoxCollider: ComponentDeserializeFunction = (entity: Ent
 }
 
 export const updateBoxCollider: ComponentUpdateFunction = (entity: Entity) => {
-  const data = serializeBoxCollider(entity) as any
-  const boxColliderProps = parseBoxColliderProperties(data.props)
-
   const rigidbody = getComponent(entity, RigidBodyComponent).body
   const transform = getComponent(entity, TransformComponent)
 
@@ -52,7 +52,12 @@ export const updateBoxCollider: ComponentUpdateFunction = (entity: Entity) => {
     Math.abs(transform.scale.y),
     Math.abs(transform.scale.z)
   )
-  Physics.applyDescToCollider(colliderDesc, { type: 0, ...boxColliderProps }, transform.position, transform.rotation)
+  Physics.applyDescToCollider(
+    colliderDesc,
+    { type: 0, isTrigger: rigidbody.collider(0).isSensor() },
+    new Vector3(),
+    new Quaternion()
+  )
   Engine.instance.currentWorld.physicsWorld.removeCollider(rigidbody.collider(0), true)
   Engine.instance.currentWorld.physicsWorld.createCollider(colliderDesc, rigidbody)
 }

@@ -12,6 +12,7 @@ import {
 import { createEngine } from '@xrengine/engine/src/initializeEngine'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
 import { LightPrefabs } from '@xrengine/engine/src/scene/systems/LightSystem'
+import { ScenePrefabs } from '@xrengine/engine/src/scene/systems/SceneObjectUpdateSystem'
 import { applyIncomingActions } from '@xrengine/hyperflux'
 
 import EditorCommands from '../constants/EditorCommands'
@@ -19,7 +20,6 @@ import { accessEditorState } from '../services/EditorServices'
 import { deregisterEditorReceptors, registerEditorReceptors } from '../services/EditorServicesReceptor'
 import { accessSelectionState, SelectionAction } from '../services/SelectionServices'
 import { AddObjectCommand, AddObjectCommandParams } from './AddObjectCommand'
-import { ScenePrefabs } from '@xrengine/engine/src/scene/systems/SceneObjectUpdateSystem'
 
 describe('AddObjectCommand', () => {
   let command = {} as AddObjectCommandParams

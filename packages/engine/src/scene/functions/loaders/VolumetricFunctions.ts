@@ -23,7 +23,11 @@ import { CallbackComponent } from '../../components/CallbackComponent'
 import { MediaComponent } from '../../components/MediaComponent'
 import { MediaElementComponent } from '../../components/MediaElementComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
-import { VolumetricComponent, VolumetricComponentType } from '../../components/VolumetricComponent'
+import {
+  SCENE_COMPONENT_VOLUMETRIC_DEFAULT_VALUES,
+  VolumetricComponent,
+  VolumetricComponentType
+} from '../../components/VolumetricComponent'
 import { addError, removeError } from '../ErrorFunctions'
 import { createAudioNode } from './AudioFunctions'
 
@@ -42,12 +46,6 @@ if (isClient) {
   Promise.all([import('@xrfoundation/volumetric/player')]).then(([module1]) => {
     DracosisPlayer = module1.default
   })
-}
-
-export const VolumetricsExtensions = ['drcs', 'uvol']
-export const SCENE_COMPONENT_VOLUMETRIC = 'volumetric'
-export const SCENE_COMPONENT_VOLUMETRIC_DEFAULT_VALUES = {
-  useLoadingEffect: true
 }
 
 export const deserializeVolumetric: ComponentDeserializeFunction = (entity: Entity, data: VolumetricComponentType) => {
@@ -161,12 +159,8 @@ export const updateVolumetric: ComponentUpdateFunction = (entity: Entity) => {
 
 export const serializeVolumetric: ComponentSerializeFunction = (entity) => {
   const vol = getComponent(entity, VolumetricComponent)
-  if (!vol) return
   return {
-    name: SCENE_COMPONENT_VOLUMETRIC,
-    props: {
-      useLoadingEffect: vol.useLoadingEffect
-    }
+    useLoadingEffect: vol.useLoadingEffect
   }
 }
 

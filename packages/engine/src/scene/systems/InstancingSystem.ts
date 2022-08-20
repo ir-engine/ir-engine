@@ -2,18 +2,27 @@ import { EngineActions, getEngineState } from '../../ecs/classes/EngineState'
 import { World } from '../../ecs/classes/World'
 import { defineQuery, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { matchActionOnce } from '../../networking/functions/matchActionOnce'
-import { SCENE_COMPONENT_TRANSFORM, SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES } from '../../transform/components/TransformComponent'
+import {
+  SCENE_COMPONENT_TRANSFORM,
+  SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES
+} from '../../transform/components/TransformComponent'
 import {
   InstancingComponent,
   InstancingStagingComponent,
   InstancingUnstagingComponent
 } from '../components/InstancingComponent'
 import { SCENE_COMPONENT_VISIBLE } from '../components/VisibleComponent'
-import { deserializeInstancing, SCENE_COMPONENT_INSTANCING, SCENE_COMPONENT_INSTANCING_DEFAULT_VALUES, serializeInstancing, stageInstancing, unstageInstancing } from '../functions/loaders/InstancingFunctions'
+import {
+  deserializeInstancing,
+  SCENE_COMPONENT_INSTANCING,
+  SCENE_COMPONENT_INSTANCING_DEFAULT_VALUES,
+  serializeInstancing,
+  stageInstancing,
+  unstageInstancing
+} from '../functions/loaders/InstancingFunctions'
 import { ScenePrefabs } from './SceneObjectUpdateSystem'
 
 export default async function ScatterSystem(world: World) {
-
   world.sceneComponentRegistry.set(InstancingComponent._name, SCENE_COMPONENT_INSTANCING)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_INSTANCING, {
     deserialize: deserializeInstancing,

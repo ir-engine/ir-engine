@@ -4,14 +4,11 @@ import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
 import {
   ComponentDeserializeFunction,
-  ComponentShouldDeserializeFunction} from '../../../common/constants/PrefabFunctionType'
+  ComponentShouldDeserializeFunction
+} from '../../../common/constants/PrefabFunctionType'
 import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
-import {
-  addComponent,
-  getComponent,
-  getComponentCountOfType
-} from '../../../ecs/functions/ComponentFunctions'
+import { addComponent, getComponent, getComponentCountOfType } from '../../../ecs/functions/ComponentFunctions'
 import { TransformComponent } from '../../../transform/components/TransformComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 import { ScenePreviewCameraTagComponent } from '../../components/ScenePreviewCamera'

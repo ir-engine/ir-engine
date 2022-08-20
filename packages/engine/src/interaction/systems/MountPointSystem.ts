@@ -21,14 +21,23 @@ import { Physics } from '../../physics/classes/Physics'
 import { CollisionGroups } from '../../physics/enums/CollisionGroups'
 import { getInteractionGroups } from '../../physics/functions/getInteractionGroups'
 import { RaycastHit, SceneQueryType } from '../../physics/types/PhysicsTypes'
-import { MountPoint, MountPointComponent, SCENE_COMPONENT_MOUNT_POINT, SCENE_COMPONENT_MOUNT_POINT_DEFAULT_VALUES } from '../../scene/components/MountPointComponent'
+import {
+  MountPoint,
+  MountPointComponent,
+  SCENE_COMPONENT_MOUNT_POINT,
+  SCENE_COMPONENT_MOUNT_POINT_DEFAULT_VALUES
+} from '../../scene/components/MountPointComponent'
 import { SittingComponent } from '../../scene/components/SittingComponent'
-import { SCENE_COMPONENT_TRANSFORM, SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES, TransformComponent } from '../../transform/components/TransformComponent'
-import { createInteractUI } from '../functions/interactUI'
-import { addInteractableUI } from './InteractiveSystem'
 import { SCENE_COMPONENT_VISIBLE } from '../../scene/components/VisibleComponent'
 import { deserializeMountPoint, serializeMountPoint } from '../../scene/functions/loaders/MountPointFunctions'
 import { ScenePrefabs } from '../../scene/systems/SceneObjectUpdateSystem'
+import {
+  SCENE_COMPONENT_TRANSFORM,
+  SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES,
+  TransformComponent
+} from '../../transform/components/TransformComponent'
+import { createInteractUI } from '../functions/interactUI'
+import { addInteractableUI } from './InteractiveSystem'
 
 /**
  * @todo refactor this into i18n and configurable

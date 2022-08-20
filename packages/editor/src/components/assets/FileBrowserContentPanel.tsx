@@ -11,6 +11,8 @@ import {
   useFileBrowserState
 } from '@xrengine/client-core/src/common/services/FileBrowserService'
 import { processFileName } from '@xrengine/common/src/utils/processFileName'
+import { MediaPrefabs } from '@xrengine/engine/src/audio/systems/AudioSystem'
+import { ScenePrefabs } from '@xrengine/engine/src/scene/systems/SceneObjectUpdateSystem'
 import { addActionReceptor, removeActionReceptor } from '@xrengine/hyperflux'
 
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
@@ -30,8 +32,6 @@ import { ToolButton } from '../toolbar/ToolButton'
 import { FileBrowserItem } from './FileBrowserGrid'
 import { FileDataType } from './FileDataType'
 import styles from './styles.module.scss'
-import { MediaPrefabs } from '@xrengine/engine/src/audio/systems/AudioSystem'
-import { ScenePrefabs } from '@xrengine/engine/src/scene/systems/SceneObjectUpdateSystem'
 
 export const PrefabFileType = {
   gltf: ScenePrefabs.model,

@@ -1,13 +1,13 @@
-import { Object3D } from 'three'
-
 import { getState } from '@xrengine/hyperflux'
 
 import { AudioState } from '../../../audio/AudioState'
-import { AudioComponent, AudioComponentType } from '../../../audio/components/AudioComponent'
-import { AudioType, AudioTypeType } from '../../../audio/constants/AudioConstants'
+import {
+  AudioComponent,
+  AudioComponentType,
+  SCENE_COMPONENT_AUDIO_DEFAULT_VALUES
+} from '../../../audio/components/AudioComponent'
 import { AudioElementNode, AudioElementNodes } from '../../../audio/systems/AudioSystem'
-import { ComponentDeserializeFunction, ComponentSerializeFunction } from '../../../common/constants/PrefabFunctionType'
-import { isClient } from '../../../common/functions/isClient'
+import { ComponentDeserializeFunction } from '../../../common/constants/PrefabFunctionType'
 import { Engine } from '../../../ecs/classes/Engine'
 import { getEngineState } from '../../../ecs/classes/EngineState'
 import { Entity } from '../../../ecs/classes/Entity'
@@ -15,28 +15,10 @@ import { addComponent, getComponent, hasComponent } from '../../../ecs/functions
 import { CallbackComponent } from '../../components/CallbackComponent'
 import { MediaComponent } from '../../components/MediaComponent'
 import { MediaElementComponent } from '../../components/MediaElementComponent'
-import { Object3DComponent } from '../../components/Object3DComponent'
 import { PlayMode } from '../../constants/PlayMode'
 import { getNextPlaylistItem, updateAutoStartTimeForMedia } from './MediaFunctions'
 
-export const SCENE_COMPONENT_AUDIO = 'audio'
-export const SCENE_COMPONENT_AUDIO_DEFAULT_VALUES = {
-  volume: 1,
-  audioType: AudioType.Stereo as AudioTypeType,
-  isMusic: false,
-  distanceModel: 'linear' as DistanceModelType,
-  rolloffFactor: 1,
-  refDistance: 20,
-  maxDistance: 1000,
-  coneInnerAngle: 360,
-  coneOuterAngle: 0,
-  coneOuterGain: 0
-} as AudioComponentType
-
 export const deserializeAudio: ComponentDeserializeFunction = async (entity: Entity, data: AudioComponentType) => {
-  let obj3d = getComponent(entity, Object3DComponent)?.value
-  if (!obj3d) obj3d = addComponent(entity, Object3DComponent, { value: new Object3D() }).value
-  if (!isClient) return
   const props = parseAudioProperties(data)
   addComponent(entity, AudioComponent, props)
 }
@@ -148,27 +130,6 @@ export const updateAudioParameters = (entity: Entity) => {
       audioNode.panner.coneInnerAngle = audioComponent.coneInnerAngle
       audioNode.panner.coneOuterAngle = audioComponent.coneOuterAngle
       audioNode.panner.coneOuterGain = audioComponent.coneOuterGain
-    }
-  }
-}
-
-export const serializeAudio: ComponentSerializeFunction = (entity) => {
-  const component = getComponent(entity, AudioComponent) as AudioComponentType
-  if (!component) return
-
-  return {
-    name: SCENE_COMPONENT_AUDIO,
-    props: {
-      volume: component.volume,
-      audioType: component.audioType,
-      isMusic: component.isMusic,
-      distanceModel: component.distanceModel,
-      rolloffFactor: component.rolloffFactor,
-      refDistance: component.refDistance,
-      maxDistance: component.maxDistance,
-      coneInnerAngle: component.coneInnerAngle,
-      coneOuterAngle: component.coneOuterAngle,
-      coneOuterGain: component.coneOuterGain
     }
   }
 }

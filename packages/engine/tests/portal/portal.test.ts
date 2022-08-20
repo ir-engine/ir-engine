@@ -8,7 +8,7 @@ import sceneJson from '../../../projects/default-project/default.scene.json'
 import { Engine } from '../../src/ecs/classes/Engine'
 import { unloadScene } from '../../src/ecs/functions/EngineFunctions'
 import { useWorld } from '../../src/ecs/functions/SystemHooks'
-import { loadSceneFromJSON } from '../../src/scene/functions/SceneLoading'
+import { loadSceneFromJSON } from '../../src/scene/systems/SceneLoadingSystem'
 
 dotenv.config({
   path: appRootPath.path,

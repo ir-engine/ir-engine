@@ -1,6 +1,8 @@
 import { AudioComponent } from '@xrengine/engine/src/audio/components/AudioComponent'
+import { MediaPrefabs } from '@xrengine/engine/src/audio/systems/AudioSystem'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { getAllComponents } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { PhysicsPrefabs } from '@xrengine/engine/src/physics/systems/PhysicsSystem'
 import { AmbientLightComponent } from '@xrengine/engine/src/scene/components/AmbientLightComponent'
 import { AssetComponent } from '@xrengine/engine/src/scene/components/AssetComponent'
 import { BoxColliderComponent } from '@xrengine/engine/src/scene/components/BoxColliderComponent'
@@ -35,6 +37,7 @@ import { VideoComponent } from '@xrengine/engine/src/scene/components/VideoCompo
 import { VolumetricComponent } from '@xrengine/engine/src/scene/components/VolumetricComponent'
 import { WaterComponent } from '@xrengine/engine/src/scene/components/WaterComponent'
 import { LightPrefabs } from '@xrengine/engine/src/scene/systems/LightSystem'
+import { ScenePrefabs } from '@xrengine/engine/src/scene/systems/SceneObjectUpdateSystem'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 
 import ChairIcon from '@mui/icons-material/Chair'
@@ -76,9 +79,6 @@ import { EditorComponentType } from '../components/properties/Util'
 import VideoNodeEditor from '../components/properties/VideoNodeEditor'
 import VolumetricNodeEditor from '../components/properties/VolumetricNodeEditor'
 import WaterNodeEditor from '../components/properties/WaterNodeEditor'
-import { MediaPrefabs } from '@xrengine/engine/src/audio/systems/AudioSystem'
-import { ScenePrefabs } from '@xrengine/engine/src/scene/systems/SceneObjectUpdateSystem'
-import { PhysicsPrefabs } from '@xrengine/engine/src/physics/systems/PhysicsSystem'
 
 export const getNodeEditorsForEntity = (entity: Entity): EditorComponentType[] => {
   const components = getAllComponents(entity)

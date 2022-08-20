@@ -19,20 +19,15 @@ import { UpdatableComponent } from '../../components/UpdatableComponent'
 export const deserializeCloud: ComponentDeserializeFunction = (entity: Entity, data: CloudComponentType) => {
   const obj3d = new Clouds(entity)
   const props = parseCloudProperties(data)
-
   addComponent(entity, Object3DComponent, { value: obj3d })
   addComponent(entity, CloudComponent, props)
   addComponent(entity, UpdatableComponent, true)
-
-  updateCloud(entity, props)
 }
 
-export const updateCloud: ComponentUpdateFunction = (entity: Entity, properties: CloudComponentType) => {
+export const updateCloud: ComponentUpdateFunction = (entity: Entity) => {
   const obj3d = getComponent(entity, Object3DComponent).value as Clouds
   const component = getComponent(entity, CloudComponent)
-
   obj3d.texture = component.texture
-
   obj3d.worldScale = component.worldScale
   obj3d.dimensions = component.dimensions
   obj3d.noiseZoom = component.noiseZoom

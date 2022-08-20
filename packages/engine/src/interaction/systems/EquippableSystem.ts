@@ -150,7 +150,6 @@ const vec3 = new Vector3()
 export const equippableInteractMessage = 'Equip'
 
 export default async function EquippableSystem(world: World) {
-
   world.sceneComponentRegistry.set(EquippableComponent._name, SCENE_COMPONENT_EQUIPPABLE)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_EQUIPPABLE, {})
 

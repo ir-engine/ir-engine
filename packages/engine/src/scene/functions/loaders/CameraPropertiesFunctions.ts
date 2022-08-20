@@ -1,43 +1,14 @@
-import { CameraMode } from '../../../camera/types/CameraMode'
-import { ProjectionType } from '../../../camera/types/ProjectionType'
-import { ComponentDeserializeFunction, ComponentSerializeFunction } from '../../../common/constants/PrefabFunctionType'
+import { ComponentDeserializeFunction } from '../../../common/constants/PrefabFunctionType'
 import { isClient } from '../../../common/functions/isClient'
 import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
-import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
-import { CameraPropertiesComponent, CameraPropertiesComponentType } from '../../components/CameraPropertiesComponent'
+import { addComponent } from '../../../ecs/functions/ComponentFunctions'
+import {
+  CameraPropertiesComponent,
+  CameraPropertiesComponentType,
+  SCENE_COMPONENT_CAMERA_PROPERTIES_DEFAULT_VALUES
+} from '../../components/CameraPropertiesComponent'
 import { setCameraProperties } from '../setCameraProperties'
-
-export const SCENE_COMPONENT_CAMERA_PROPERTIES = 'cameraproperties'
-
-export const RAYCAST_PROPERTIES_DEFAULT_VALUES = {
-  enabled: true,
-  rayCount: 3,
-  rayLength: 15.0,
-  rayFrequency: 0.1
-}
-
-export const SCENE_COMPONENT_CAMERA_PROPERTIES_DEFAULT_VALUES = {
-  fov: 50,
-  cameraNearClip: 0.01,
-  cameraFarClip: 10000,
-  projectionType: ProjectionType.Perspective,
-  minCameraDistance: 1,
-  maxCameraDistance: 50,
-  startCameraDistance: 5,
-  cameraMode: CameraMode.Dynamic,
-  cameraModeDefault: CameraMode.ThirdPerson,
-  startInFreeLook: false,
-  minPhi: -70,
-  maxPhi: 85,
-  startPhi: 10,
-  raycastProps: {
-    enabled: true,
-    rayCount: 3,
-    rayLength: 15.0,
-    rayFrequency: 0.1
-  }
-}
 
 export const deserializeCameraProperties: ComponentDeserializeFunction = (
   entity: Entity,
@@ -48,31 +19,6 @@ export const deserializeCameraProperties: ComponentDeserializeFunction = (
 
   if (isClient && !Engine.instance.isEditor) {
     setCameraProperties(Engine.instance.currentWorld.cameraEntity, data)
-  }
-}
-
-export const serializeCameraProperties: ComponentSerializeFunction = (entity) => {
-  const component = getComponent(entity, CameraPropertiesComponent)
-  if (!component) return
-
-  return {
-    name: SCENE_COMPONENT_CAMERA_PROPERTIES,
-    props: {
-      fov: component.fov,
-      cameraNearClip: component.cameraNearClip,
-      cameraFarClip: component.cameraFarClip,
-      projectionType: component.projectionType,
-      minCameraDistance: component.minCameraDistance,
-      maxCameraDistance: component.maxCameraDistance,
-      startCameraDistance: component.startCameraDistance,
-      cameraMode: component.cameraMode,
-      cameraModeDefault: component.cameraModeDefault,
-      startInFreeLook: component.startInFreeLook,
-      minPhi: component.minPhi,
-      maxPhi: component.maxPhi,
-      startPhi: component.startPhi,
-      raycastProps: component.raycastProps
-    }
   }
 }
 

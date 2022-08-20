@@ -19,7 +19,11 @@ import {
   SCENE_COMPONENT_ASSET,
   SCENE_COMPONENT_ASSET_DEFAULT_VALUES
 } from '../components/AssetComponent'
-import { CameraPropertiesComponent } from '../components/CameraPropertiesComponent'
+import {
+  CameraPropertiesComponent,
+  SCENE_COMPONENT_CAMERA_PROPERTIES,
+  SCENE_COMPONENT_CAMERA_PROPERTIES_DEFAULT_VALUES
+} from '../components/CameraPropertiesComponent'
 import {
   CloudComponent,
   SCENE_COMPONENT_CLOUD,
@@ -30,7 +34,11 @@ import {
   SCENE_COMPONENT_ENVMAP_BAKE,
   SCENE_COMPONENT_ENVMAP_BAKE_DEFAULT_VALUES
 } from '../components/EnvMapBakeComponent'
-import { EnvmapComponent } from '../components/EnvmapComponent'
+import {
+  EnvmapComponent,
+  SCENE_COMPONENT_ENVMAP,
+  SCENE_COMPONENT_ENVMAP_DEFAULT_VALUES
+} from '../components/EnvmapComponent'
 import { FogComponent, SCENE_COMPONENT_FOG, SCENE_COMPONENT_FOG_DEFAULT_VALUES } from '../components/FogComponent'
 import {
   GroundPlaneComponent,
@@ -38,7 +46,11 @@ import {
   SCENE_COMPONENT_GROUND_PLANE_DEFAULT_VALUES
 } from '../components/GroundPlaneComponent'
 import { GroupComponent, SCENE_COMPONENT_GROUP } from '../components/GroupComponent'
-import { ImageComponent } from '../components/ImageComponent'
+import {
+  ImageComponent,
+  SCENE_COMPONENT_IMAGE,
+  SCENE_COMPONENT_IMAGE_DEFAULT_VALUES
+} from '../components/ImageComponent'
 import {
   InteriorComponent,
   SCENE_COMPONENT_INTERIOR,
@@ -73,7 +85,7 @@ import {
 } from '../components/RenderSettingComponent'
 import { SCENE_COMPONENT_SCENE_PREVIEW_CAMERA, ScenePreviewCameraTagComponent } from '../components/ScenePreviewCamera'
 import { SceneTagComponent } from '../components/SceneTagComponent'
-import { ScreenshareTargetComponent } from '../components/ScreenshareTargetComponent'
+import { SCENE_COMPONENT_SCREENSHARETARGET, ScreenshareTargetComponent } from '../components/ScreenshareTargetComponent'
 import {
   SCENE_COMPONENT_SHADOW,
   SCENE_COMPONENT_SHADOW_DEFAULT_VALUES,
@@ -99,21 +111,10 @@ import { SCENE_COMPONENT_TRIGGER_VOLUME } from '../components/TriggerVolumeCompo
 import { SCENE_COMPONENT_VISIBLE, VisibleComponent } from '../components/VisibleComponent'
 import { SCENE_COMPONENT_WATER, WaterComponent } from '../components/WaterComponent'
 import { deserializeAsset, serializeAsset } from '../functions/loaders/AssetComponentFunctions'
-import {
-  deserializeCameraProperties,
-  SCENE_COMPONENT_CAMERA_PROPERTIES,
-  SCENE_COMPONENT_CAMERA_PROPERTIES_DEFAULT_VALUES,
-  serializeCameraProperties
-} from '../functions/loaders/CameraPropertiesFunctions'
+import { deserializeCameraProperties } from '../functions/loaders/CameraPropertiesFunctions'
 import { deserializeCloud, serializeCloud, updateCloud } from '../functions/loaders/CloudFunctions'
 import { deserializeEnvMapBake, serializeEnvMapBake } from '../functions/loaders/EnvMapBakeFunctions'
-import {
-  deserializeEnvMap,
-  SCENE_COMPONENT_ENVMAP,
-  SCENE_COMPONENT_ENVMAP_DEFAULT_VALUES,
-  serializeEnvMap,
-  updateEnvMap
-} from '../functions/loaders/EnvMapFunctions'
+import { deserializeEnvMap, serializeEnvMap, updateEnvMap } from '../functions/loaders/EnvMapFunctions'
 import { deserializeFog, serializeFog, shouldDeserializeFog, updateFog } from '../functions/loaders/FogFunctions'
 import {
   deserializeGround,
@@ -125,8 +126,6 @@ import { deserializeGroup } from '../functions/loaders/GroupFunctions'
 import {
   deserializeImage,
   prepareImageForGLTFExport,
-  SCENE_COMPONENT_IMAGE,
-  SCENE_COMPONENT_IMAGE_DEFAULT_VALUES,
   serializeImage,
   updateImage
 } from '../functions/loaders/ImageFunctions'
@@ -149,11 +148,6 @@ import {
   deserializeScenePreviewCamera,
   shouldDeserializeScenePreviewCamera
 } from '../functions/loaders/ScenePreviewCameraFunctions'
-import {
-  deserializeScreenshareTarget,
-  SCENE_COMPONENT_SCREENSHARETARGET,
-  serializeScreenshareTarget
-} from '../functions/loaders/ScreenshareTargetFunctions'
 import { updateShadow } from '../functions/loaders/ShadowFunctions'
 import {
   deserializeSkybox,
@@ -195,7 +189,7 @@ export const ScenePrefabs = {
   fog: 'Fog' as const
 }
 
-export const registerBaseSceneComponents = (world: World) => {
+export default async function SceneObjectUpdateSystem(world: World) {
   /**
    * Tag components
    */
@@ -221,8 +215,7 @@ export const registerBaseSceneComponents = (world: World) => {
 
   world.sceneComponentRegistry.set(CameraPropertiesComponent._name, SCENE_COMPONENT_CAMERA_PROPERTIES)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_CAMERA_PROPERTIES, {
-    deserialize: deserializeCameraProperties,
-    serialize: serializeCameraProperties
+    deserialize: deserializeCameraProperties
   })
 
   world.scenePrefabRegistry.set(ScenePrefabs.previewCamera, [
@@ -377,10 +370,7 @@ export const registerBaseSceneComponents = (world: World) => {
   })
 
   world.sceneComponentRegistry.set(ScreenshareTargetComponent._name, SCENE_COMPONENT_SCREENSHARETARGET)
-  world.sceneLoadingRegistry.set(SCENE_COMPONENT_SCREENSHARETARGET, {
-    deserialize: deserializeScreenshareTarget,
-    serialize: serializeScreenshareTarget
-  })
+  world.sceneLoadingRegistry.set(SCENE_COMPONENT_SCREENSHARETARGET, {})
 
   world.scenePrefabRegistry.set(ScenePrefabs.group, [
     { name: SCENE_COMPONENT_TRANSFORM, props: SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES },
@@ -491,7 +481,6 @@ export const registerBaseSceneComponents = (world: World) => {
   const skyboxQuery = defineQuery([SkyboxComponent])
   const modelQuery = defineQuery([ModelComponent])
   const groundPlaneQuery = defineQuery([GroundPlaneComponent])
-  const loopAnimationQuery = defineQuery([LoopAnimationComponent])
   const cloudQuery = defineQuery([CloudComponent])
   const oceanQuery = defineQuery([OceanComponent])
   const interiorQuery = defineQuery([InteriorComponent])
@@ -507,7 +496,7 @@ export const registerBaseSceneComponents = (world: World) => {
     for (const action of modifyPropertyActionQueue()) {
       for (const entity of action.entities) {
         if (hasComponent(entity, ShadowComponent) && hasComponent(entity, Object3DComponent)) updateShadow(entity)
-        if (hasComponent(entity, ImageComponent) && hasComponent(entity, Object3DComponent)) updateImage(entity)
+        if (hasComponent(entity, ImageComponent)) updateImage(entity)
         if (hasComponent(entity, EnvmapComponent) && hasComponent(entity, Object3DComponent)) updateEnvMap(entity)
         if (hasComponent(entity, FogComponent)) updateFog(entity)
         if (hasComponent(entity, SkyboxComponent)) updateSkybox(entity)
@@ -517,7 +506,6 @@ export const registerBaseSceneComponents = (world: World) => {
         if (hasComponent(entity, CloudComponent)) updateCloud(entity)
         if (hasComponent(entity, OceanComponent)) updateOcean(entity)
         if (hasComponent(entity, InteriorComponent)) updateInterior(entity)
-
         if (hasComponent(entity, RenderSettingComponent)) updateRenderSetting(entity)
         if (hasComponent(entity, PostprocessingComponent)) configureEffectComposer()
       }
@@ -527,12 +515,11 @@ export const registerBaseSceneComponents = (world: World) => {
     for (const entity of imageQuery.enter()) updateImage(entity)
     for (const entity of envmapQuery.enter()) updateEnvMap(entity)
     for (const entity of sceneEnvmapQuery.enter()) updateEnvMap(entity)
-    for (const entity of loopableAnimationQuery.enter()) updateLoopAnimation(entity)
     for (const entity of fogQuery.enter()) updateFog(entity)
+    for (const entity of loopableAnimationQuery.enter()) updateLoopAnimation(entity)
     for (const entity of skyboxQuery.enter()) updateSkybox(entity)
     for (const entity of modelQuery.enter()) updateModel(entity)
     for (const entity of groundPlaneQuery.enter()) updateGroundPlane(entity)
-    for (const entity of loopAnimationQuery.enter()) updateLoopAnimation(entity)
     for (const entity of cloudQuery.enter()) updateCloud(entity)
     for (const entity of oceanQuery.enter()) updateOcean(entity)
     for (const entity of interiorQuery.enter()) updateInterior(entity)

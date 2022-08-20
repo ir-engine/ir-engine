@@ -23,7 +23,6 @@ import {
 } from '@xrengine/engine/src/scene/components/AssetComponent'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 
-
 export const unloadAsset = (entity: Entity) => {
   if (!hasComponent(entity, AssetComponent)) {
     console.warn('no Asset component')

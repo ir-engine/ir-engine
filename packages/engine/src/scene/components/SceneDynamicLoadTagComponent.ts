@@ -11,4 +11,3 @@ export const SCENE_COMPONENT_DYNAMIC_LOAD = 'dynamic-load'
 export const SCENE_COMPONENT_DYNAMIC_LOAD_DEFAULT_VALUES = {
   distance: 20
 }
-  

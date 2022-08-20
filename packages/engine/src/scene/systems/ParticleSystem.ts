@@ -1,15 +1,23 @@
-
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { createActionQueue, defineAction } from '@xrengine/hyperflux'
 
+import { EngineActions } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
 import { defineQuery, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { Object3DComponent } from '../components/Object3DComponent'
-import { ParticleEmitterComponent, SCENE_COMPONENT_PARTICLE_EMITTER, SCENE_COMPONENT_PARTICLE_EMITTER_DEFAULT_VALUES } from '../components/ParticleEmitterComponent'
-import { deserializeParticleEmitter, initializeParticleSystem, serializeParticleEmitter, updateParticleEmitter } from '../functions/loaders/ParticleEmitterFunctions'
+import {
+  ParticleEmitterComponent,
+  SCENE_COMPONENT_PARTICLE_EMITTER,
+  SCENE_COMPONENT_PARTICLE_EMITTER_DEFAULT_VALUES
+} from '../components/ParticleEmitterComponent'
+import {
+  deserializeParticleEmitter,
+  initializeParticleSystem,
+  serializeParticleEmitter,
+  updateParticleEmitter
+} from '../functions/loaders/ParticleEmitterFunctions'
 import { defaultSpatialComponents, ScenePrefabs } from './SceneObjectUpdateSystem'
-import { EngineActions } from '../../ecs/classes/EngineState'
 
 export class ParticleSystemActions {
   static disposeParticleSystem = defineAction({
@@ -61,12 +69,10 @@ export default async function ParticleSystem(world: World) {
     serialize: serializeParticleEmitter
   })
 
-
   const particleQuery = defineQuery([Object3DComponent, ParticleEmitterComponent])
   const modifyPropertyActionQueue = createActionQueue(EngineActions.sceneObjectUpdate.matches)
 
   return () => {
-
     /**
      * Scene Loaders
      */
@@ -82,7 +88,7 @@ export default async function ParticleSystem(world: World) {
     /**
      * Effect handler
      */
-    
+
     for (const action of disposingQueue()) {
       const entity = action.entity
 

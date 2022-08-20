@@ -101,7 +101,8 @@ export default async function PhysicsSystem(world: World) {
   // this is only ever loaded by gltf user data, thus does not need a component registry pair
   // world.sceneComponentRegistry.set(._name, SCENE_COMPONENT_COLLIDER)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_COLLIDER, {
-    deserialize: deserializeCollider
+    deserialize: deserializeCollider,
+    serialize: () => null // do not serialize
   })
 
   world.sceneComponentRegistry.set(BoxColliderComponent._name, SCENE_COMPONENT_BOX_COLLIDER)

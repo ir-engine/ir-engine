@@ -9,7 +9,11 @@ import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
 import { Ocean } from '../../classes/Ocean'
 import { Object3DComponent } from '../../components/Object3DComponent'
-import { OceanComponent, OceanComponentType, SCENE_COMPONENT_OCEAN_DEFAULT_VALUES } from '../../components/OceanComponent'
+import {
+  OceanComponent,
+  OceanComponentType,
+  SCENE_COMPONENT_OCEAN_DEFAULT_VALUES
+} from '../../components/OceanComponent'
 import { UpdatableComponent } from '../../components/UpdatableComponent'
 import { addError, removeError } from '../ErrorFunctions'
 

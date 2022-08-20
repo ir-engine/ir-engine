@@ -20,7 +20,11 @@ import { EngineRenderer } from '../../../renderer/WebGLRendererSystem'
 import { Sky } from '../../classes/Sky'
 import { IgnoreRaycastTagComponent } from '../../components/IgnoreRaycastTagComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
-import { SCENE_COMPONENT_SKYBOX_DEFAULT_VALUES, SkyboxComponent, SkyboxComponentType } from '../../components/SkyboxComponent'
+import {
+  SCENE_COMPONENT_SKYBOX_DEFAULT_VALUES,
+  SkyboxComponent,
+  SkyboxComponentType
+} from '../../components/SkyboxComponent'
 import { SkyTypeEnum } from '../../constants/SkyTypeEnum'
 import { getPmremGenerator, loadCubeMapTexture, textureLoader } from '../../constants/Util'
 import { addError, removeError } from '../ErrorFunctions'

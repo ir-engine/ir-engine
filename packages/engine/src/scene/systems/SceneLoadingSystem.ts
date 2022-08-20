@@ -11,20 +11,27 @@ import { EngineActions } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { EntityTreeNode } from '../../ecs/classes/EntityTree'
 import { World } from '../../ecs/classes/World'
-import { addComponent, ComponentMap, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
+import {
+  addComponent,
+  ComponentMap,
+  defineQuery,
+  getComponent,
+  hasComponent
+} from '../../ecs/functions/ComponentFunctions'
 import { unloadScene } from '../../ecs/functions/EngineFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { addEntityNodeInTree, createEntityNode } from '../../ecs/functions/EntityTreeFunctions'
 import { initSystems, SystemModuleType } from '../../ecs/functions/SystemFunctions'
 import { configureEffectComposer } from '../../renderer/functions/configureEffectComposer'
+import { SCENE_COMPONENT_TRANSFORM } from '../../transform/components/TransformComponent'
 import { NameComponent } from '../components/NameComponent'
 import { Object3DComponent } from '../components/Object3DComponent'
+import { SceneAssetPendingTagComponent } from '../components/SceneAssetPendingTagComponent'
+import { SCENE_COMPONENT_DYNAMIC_LOAD } from '../components/SceneDynamicLoadTagComponent'
 import { SceneTagComponent } from '../components/SceneTagComponent'
 import { VisibleComponent } from '../components/VisibleComponent'
 import { ObjectLayers } from '../constants/ObjectLayers'
-import { resetEngineRenderer } from './loaders/RenderSettingsFunction'
-import { SCENE_COMPONENT_TRANSFORM } from '../../transform/components/TransformComponent'
-import { SCENE_COMPONENT_DYNAMIC_LOAD } from '../components/SceneDynamicLoadTagComponent'
+import { resetEngineRenderer } from '../functions/loaders/RenderSettingsFunction'
 
 export const createNewEditorNode = (entityNode: EntityTreeNode, prefabType: string): void => {
   // Clone the defualt values so that it will not be bound to newly created node
@@ -124,23 +131,6 @@ export const loadSceneFromJSON = async (sceneData: SceneJson, sceneSystems: Syst
 
   EngineActions.sceneLoadingProgress({ progress: 0 })
 
-  // TODO: get more granular progress data based on percentage of each asset
-  // we probably need to query for metadata to get the size of each request if we can
-  const onProgress = () => {}
-
-  let promisesCompleted = 0
-  const onComplete = () => {
-    promisesCompleted++
-    dispatchAction(
-      EngineActions.sceneLoadingProgress({
-        progress:
-          promisesCompleted > world.sceneLoadingPendingAssets.size
-            ? 100
-            : Math.round((100 * promisesCompleted) / world.sceneLoadingPendingAssets.size)
-      })
-    )
-  }
-
   unloadScene(world)
 
   await initSystems(world, sceneSystems)
@@ -175,23 +165,12 @@ export const loadSceneFromJSON = async (sceneData: SceneJson, sceneSystems: Syst
     }
   }
 
-  for (const promise of world.sceneLoadingPendingAssets) {
-    promise.then(onComplete)
-  }
-
-  await Promise.allSettled(world.sceneLoadingPendingAssets)
-  world.sceneLoadingPendingAssets.clear()
-
-  dispatchAction(EngineActions.sceneObjectUpdate({ entities: loadedEntities }))
-
   const tree = world.entityTree
-  addComponent(tree.rootNode.entity, SceneTagComponent, {})
+  addComponent(tree.rootNode.entity, SceneTagComponent, true)
 
-  Engine.instance.currentWorld.camera?.layers.enable(ObjectLayers.Scene)
-
-  dispatchAction(EngineActions.sceneLoaded({}))
-  DependencyTree.activate()
-  if (isClient) configureEffectComposer()
+  if (!sceneAssetPendingTagQuery().length) {
+    onAllSceneAssetsSettled(world)
+  }
 }
 
 /**
@@ -250,5 +229,42 @@ export const loadComponent = (entity: Entity, component: ComponentJson, world = 
       ComponentMap.get(Component[0]),
       isTagComponent ? true : { ...sceneComponent.defaultData, ...component.props }
     )
+  }
+}
+
+export const onAllSceneAssetsSettled = (world: World) => {
+  world.camera?.layers.enable(ObjectLayers.Scene)
+  dispatchAction(EngineActions.sceneLoaded({}))
+  DependencyTree.activate()
+}
+
+const sceneAssetPendingTagQuery = defineQuery([SceneAssetPendingTagComponent])
+export default async function SceneLoadingSystem(world: World) {
+  let totalPendingAssets = 0
+
+  const onComplete = (pendingAssets: number) => {
+    const promisesCompleted = totalPendingAssets - pendingAssets
+    dispatchAction(
+      EngineActions.sceneLoadingProgress({
+        progress:
+          promisesCompleted > totalPendingAssets ? 100 : Math.round((100 * promisesCompleted) / totalPendingAssets)
+      })
+    )
+  }
+
+  return () => {
+    const pendingAssets = sceneAssetPendingTagQuery().length
+
+    for (const entity of sceneAssetPendingTagQuery.enter()) {
+      totalPendingAssets++
+    }
+
+    for (const entity of sceneAssetPendingTagQuery.exit()) {
+      onComplete(pendingAssets)
+      if (pendingAssets === 0) {
+        totalPendingAssets = 0
+        onAllSceneAssetsSettled(world)
+      }
+    }
   }
 }

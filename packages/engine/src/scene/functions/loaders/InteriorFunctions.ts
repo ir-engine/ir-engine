@@ -8,7 +8,11 @@ import {
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
 import { Interior } from '../../classes/Interior'
-import { InteriorComponent, InteriorComponentType, SCENE_COMPONENT_INTERIOR_DEFAULT_VALUES } from '../../components/InteriorComponent'
+import {
+  InteriorComponent,
+  InteriorComponentType,
+  SCENE_COMPONENT_INTERIOR_DEFAULT_VALUES
+} from '../../components/InteriorComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 import { addError, removeError } from '../ErrorFunctions'
 
@@ -19,7 +23,7 @@ export const deserializeInterior: ComponentDeserializeFunction = (entity: Entity
   addComponent(entity, InteriorComponent, props)
 }
 
-export const updateInterior: ComponentUpdateFunction = (entity: Entity, properties: InteriorComponentType) => {
+export const updateInterior: ComponentUpdateFunction = (entity: Entity) => {
   const obj3d = getComponent(entity, Object3DComponent).value as Interior
   const component = getComponent(entity, InteriorComponent)
 

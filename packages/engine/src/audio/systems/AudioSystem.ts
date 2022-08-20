@@ -8,43 +8,40 @@ import { EngineActions } from '../../ecs/classes/EngineState'
 import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { CallbackComponent } from '../../scene/components/CallbackComponent'
-import { MediaComponent } from '../../scene/components/MediaComponent'
+import { SCENE_COMPONENT_IMAGE, SCENE_COMPONENT_IMAGE_DEFAULT_VALUES } from '../../scene/components/ImageComponent'
+import {
+  MediaComponent,
+  SCENE_COMPONENT_MEDIA,
+  SCENE_COMPONENT_MEDIA_DEFAULT_VALUES
+} from '../../scene/components/MediaComponent'
 import { MediaElementComponent } from '../../scene/components/MediaElementComponent'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
-import { VideoComponent } from '../../scene/components/VideoComponent'
+import {
+  SCENE_COMPONENT_VIDEO,
+  SCENE_COMPONENT_VIDEO_DEFAULT_VALUES,
+  VideoComponent
+} from '../../scene/components/VideoComponent'
 import { SCENE_COMPONENT_VISIBLE } from '../../scene/components/VisibleComponent'
-import { VolumetricComponent } from '../../scene/components/VolumetricComponent'
+import {
+  SCENE_COMPONENT_VOLUMETRIC,
+  SCENE_COMPONENT_VOLUMETRIC_DEFAULT_VALUES,
+  VolumetricComponent
+} from '../../scene/components/VolumetricComponent'
 import {
   deserializeAudio,
-  SCENE_COMPONENT_AUDIO,
-  SCENE_COMPONENT_AUDIO_DEFAULT_VALUES,
-  serializeAudio,
   updateAudioParameters,
   updateAudioPrefab
 } from '../../scene/functions/loaders/AudioFunctions'
-import {
-  SCENE_COMPONENT_IMAGE,
-  SCENE_COMPONENT_IMAGE_DEFAULT_VALUES
-} from '../../scene/functions/loaders/ImageFunctions'
-import {
-  deserializeMedia,
-  SCENE_COMPONENT_MEDIA,
-  SCENE_COMPONENT_MEDIA_DEFAULT_VALUES,
-  serializeMedia
-} from '../../scene/functions/loaders/MediaFunctions'
+import { deserializeMedia, serializeMedia } from '../../scene/functions/loaders/MediaFunctions'
 import {
   deserializeVideo,
   prepareVideoForGLTFExport,
-  SCENE_COMPONENT_VIDEO,
-  SCENE_COMPONENT_VIDEO_DEFAULT_VALUES,
   serializeVideo,
   updateVideo
 } from '../../scene/functions/loaders/VideoFunctions'
 import {
   deserializeVolumetric,
   prepareVolumetricForGLTFExport,
-  SCENE_COMPONENT_VOLUMETRIC,
-  SCENE_COMPONENT_VOLUMETRIC_DEFAULT_VALUES,
   serializeVolumetric,
   updateVolumetric
 } from '../../scene/functions/loaders/VolumetricFunctions'
@@ -54,7 +51,11 @@ import {
   SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES
 } from '../../transform/components/TransformComponent'
 import { accessAudioState, AudioSettingReceptor, AudioState, restoreAudioSettings } from '../AudioState'
-import { AudioComponent } from '../components/AudioComponent'
+import {
+  AudioComponent,
+  SCENE_COMPONENT_AUDIO,
+  SCENE_COMPONENT_AUDIO_DEFAULT_VALUES
+} from '../components/AudioComponent'
 
 export class AudioEffectPlayer {
   static instance = new AudioEffectPlayer()
@@ -129,8 +130,7 @@ export default async function AudioSystem(world: World) {
   world.sceneComponentRegistry.set(AudioComponent._name, SCENE_COMPONENT_AUDIO)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_AUDIO, {
     defaultData: SCENE_COMPONENT_AUDIO_DEFAULT_VALUES,
-    deserialize: deserializeAudio,
-    serialize: serializeAudio
+    deserialize: deserializeAudio
   })
 
   world.sceneComponentRegistry.set(VideoComponent._name, SCENE_COMPONENT_VIDEO)
@@ -173,15 +173,10 @@ export default async function AudioSystem(world: World) {
   const modifyPropertyActionQueue = createActionQueue(EngineActions.sceneObjectUpdate.matches)
   const userInteractActionQueue = createActionQueue(EngineActions.setUserHasInteracted.matches)
 
-  const audioQuery = defineQuery([Object3DComponent, AudioComponent, Not(VideoComponent), Not(VolumetricComponent)])
-  const audioPrefabQuery = defineQuery([
-    Object3DComponent,
-    AudioComponent,
-    Not(VideoComponent),
-    Not(VolumetricComponent)
-  ])
-  const videoQuery = defineQuery([Object3DComponent, AudioComponent, VideoComponent, Not(VolumetricComponent)])
-  const volQuery = defineQuery([Object3DComponent, AudioComponent, Not(VideoComponent), VolumetricComponent])
+  const audioQuery = defineQuery([AudioComponent, Not(VideoComponent), Not(VolumetricComponent)])
+  const audioPrefabQuery = defineQuery([AudioComponent, Not(VideoComponent), Not(VolumetricComponent)])
+  const videoQuery = defineQuery([Object3DComponent, VideoComponent, Not(VolumetricComponent)])
+  const volQuery = defineQuery([Not(VideoComponent), VolumetricComponent])
   const mediaQuery = defineQuery([MediaComponent])
 
   const playmedia = () => {

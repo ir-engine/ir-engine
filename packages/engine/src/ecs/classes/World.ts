@@ -157,11 +157,6 @@ export class World {
    */
   scene = new Scene()
 
-  /**
-   * A set of promises for assets that are being fetched for scene loading
-   */
-  sceneLoadingPendingAssets = new Set<Promise<void>>()
-
   sceneDynamicallyUnloadedEntities = new Map<
     string,
     {

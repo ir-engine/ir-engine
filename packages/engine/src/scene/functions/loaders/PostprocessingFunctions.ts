@@ -9,7 +9,11 @@ import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent, getComponentCountOfType } from '../../../ecs/functions/ComponentFunctions'
 import { IgnoreRaycastTagComponent } from '../../components/IgnoreRaycastTagComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
-import { PostprocessingComponent, PostprocessingComponentType, SCENE_COMPONENT_POSTPROCESSING_DEFAULT_VALUES } from '../../components/PostprocessingComponent'
+import {
+  PostprocessingComponent,
+  PostprocessingComponentType,
+  SCENE_COMPONENT_POSTPROCESSING_DEFAULT_VALUES
+} from '../../components/PostprocessingComponent'
 
 export const deserializePostprocessing: ComponentDeserializeFunction = async function (
   entity: Entity,

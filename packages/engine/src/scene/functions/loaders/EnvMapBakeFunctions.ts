@@ -5,7 +5,11 @@ import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
 import { traverseEntityNode } from '../../../ecs/functions/EntityTreeFunctions'
-import { EnvMapBakeComponent, EnvMapBakeComponentType, SCENE_COMPONENT_ENVMAP_BAKE_DEFAULT_VALUES } from '../../components/EnvMapBakeComponent'
+import {
+  EnvMapBakeComponent,
+  EnvMapBakeComponentType,
+  SCENE_COMPONENT_ENVMAP_BAKE_DEFAULT_VALUES
+} from '../../components/EnvMapBakeComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 import { PreventBakeTagComponent } from '../../components/PreventBakeTagComponent'
 
