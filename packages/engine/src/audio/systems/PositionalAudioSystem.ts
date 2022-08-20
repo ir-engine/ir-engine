@@ -25,6 +25,11 @@ import { TransformComponent } from '../../transform/components/TransformComponen
 import { XRState } from '../../xr/XRState'
 import { AudioSettingAction, AudioState } from '../AudioState'
 import { AudioComponent } from '../components/AudioComponent'
+import {
+  PositionalAudioSettingsComponent,
+  SCENE_COMPONENT_AUDIO_SETTINGS,
+  SCENE_COMPONENT_AUDIO_SETTINGS_DEFAULT_VALUES
+} from '../components/PositionalAudioSettingsComponent'
 import { PositionalAudioTagComponent } from '../components/PositionalAudioTagComponent'
 import { AudioType } from '../constants/AudioConstants'
 import { AudioElementNode, AudioElementNodes } from './AudioSystem'
@@ -63,6 +68,11 @@ export const updatePositionalAudioTag = (entity: Entity) => {
     addComponent(entity, PositionalAudioTagComponent, true)
 }
 
+export const updatePositionalAudioSettings = (entity: Entity) => {
+  const settings = getComponent(entity, PositionalAudioSettingsComponent)
+  Engine.instance.spatialAudioSettings = { ...settings }
+}
+
 /** System class which provides methods for Positional Audio system. */
 
 export default async function PositionalAudioSystem(world: World) {
@@ -78,6 +88,13 @@ export default async function PositionalAudioSystem(world: World) {
   }
 
   const _vec3 = new Vector3()
+
+  const positionalAudioSettingsQuery = defineQuery([PositionalAudioSettingsComponent])
+
+  world.sceneComponentRegistry.set(PositionalAudioSettingsComponent._name, SCENE_COMPONENT_AUDIO_SETTINGS)
+  world.sceneLoadingRegistry.set(SCENE_COMPONENT_AUDIO_SETTINGS, {
+    defaultData: SCENE_COMPONENT_AUDIO_SETTINGS_DEFAULT_VALUES
+  })
 
   /**
    * Scene Objects
@@ -108,6 +125,8 @@ export default async function PositionalAudioSystem(world: World) {
     const audioState = getState(AudioState)
     const useAvatarPositionalAudio = audioState.usePositionalAudio.value && !xrSessionActive
 
+    for (const entity of positionalAudioSettingsQuery.enter()) updatePositionalAudioSettings(entity)
+
     /**
      * Scene Objects
      */
@@ -115,6 +134,7 @@ export default async function PositionalAudioSystem(world: World) {
     for (const action of modifyPropertyActionQueue()) {
       for (const entity of action.entities) {
         if (audioEntities.includes(entity)) updatePositionalAudioTag(entity)
+        if (hasComponent(entity, PositionalAudioSettingsComponent)) updatePositionalAudioSettings(entity)
       }
     }
 

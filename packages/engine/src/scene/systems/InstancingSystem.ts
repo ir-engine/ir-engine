@@ -1,20 +1,40 @@
-import { dispatchAction } from '@xrengine/hyperflux'
-
-import { Engine } from '../../ecs/classes/Engine'
-import { EngineActions, EngineState, getEngineState, useEngineState } from '../../ecs/classes/EngineState'
+import { EngineActions, getEngineState } from '../../ecs/classes/EngineState'
 import { World } from '../../ecs/classes/World'
-import { defineQuery, getComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineQuery, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { matchActionOnce } from '../../networking/functions/matchActionOnce'
 import {
+  SCENE_COMPONENT_TRANSFORM,
+  SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES
+} from '../../transform/components/TransformComponent'
+import {
   InstancingComponent,
-  InstancingComponentType,
   InstancingStagingComponent,
-  InstancingUnstagingComponent,
-  ScatterState
+  InstancingUnstagingComponent
 } from '../components/InstancingComponent'
-import { stageInstancing, unstageInstancing } from '../functions/loaders/InstancingFunctions'
+import { SCENE_COMPONENT_VISIBLE } from '../components/VisibleComponent'
+import {
+  deserializeInstancing,
+  SCENE_COMPONENT_INSTANCING,
+  SCENE_COMPONENT_INSTANCING_DEFAULT_VALUES,
+  serializeInstancing,
+  stageInstancing,
+  unstageInstancing
+} from '../functions/loaders/InstancingFunctions'
+import { ScenePrefabs } from './SceneObjectUpdateSystem'
 
 export default async function ScatterSystem(world: World) {
+  world.sceneComponentRegistry.set(InstancingComponent._name, SCENE_COMPONENT_INSTANCING)
+  world.sceneLoadingRegistry.set(SCENE_COMPONENT_INSTANCING, {
+    deserialize: deserializeInstancing,
+    serialize: serializeInstancing
+  })
+
+  world.scenePrefabRegistry.set(ScenePrefabs.instancing, [
+    { name: SCENE_COMPONENT_TRANSFORM, props: SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES },
+    { name: SCENE_COMPONENT_VISIBLE, props: true },
+    { name: SCENE_COMPONENT_INSTANCING, props: SCENE_COMPONENT_INSTANCING_DEFAULT_VALUES }
+  ])
+
   const stagingQuery = defineQuery([InstancingComponent, InstancingStagingComponent])
   const unstagingQuery = defineQuery([InstancingComponent, InstancingUnstagingComponent])
   const engineState = getEngineState()

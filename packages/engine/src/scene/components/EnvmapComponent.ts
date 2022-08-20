@@ -14,3 +14,13 @@ export type EnvmapComponentType = {
 }
 
 export const EnvmapComponent = createMappedComponent<EnvmapComponentType>('EnvmapComponent')
+
+export const SCENE_COMPONENT_ENVMAP = 'envmap'
+export const SCENE_COMPONENT_ENVMAP_DEFAULT_VALUES = {
+  type: EnvMapSourceType.Skybox,
+  envMapTextureType: EnvMapTextureType.Cubemap,
+  envMapSourceColor: 0x123456,
+  envMapSourceURL: '/hdr/cubemap/skyboxsun25deg/',
+  envMapIntensity: 1,
+  envMapBake: {}
+}

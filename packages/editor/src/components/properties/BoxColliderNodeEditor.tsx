@@ -21,7 +21,8 @@ export const BoxColliderNodeEditor: EditorComponentType = (props) => {
   const [isTrigger, setIsTrigger] = useState(rigidbodyComponent.collider(0).isSensor())
 
   const onUpdateTrigger = (value) => {
-    updateBoxCollider(props.node.entity, { isTrigger: value })
+    rigidbodyComponent.collider(0).setSensor(value)
+    updateBoxCollider(props.node.entity)
     setIsTrigger(value)
   }
 

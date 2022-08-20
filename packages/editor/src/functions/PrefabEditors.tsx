@@ -1,6 +1,8 @@
 import { AudioComponent } from '@xrengine/engine/src/audio/components/AudioComponent'
+import { MediaPrefabs } from '@xrengine/engine/src/audio/systems/AudioSystem'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { getAllComponents } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { PhysicsPrefabs } from '@xrengine/engine/src/physics/systems/PhysicsSystem'
 import { AmbientLightComponent } from '@xrengine/engine/src/scene/components/AmbientLightComponent'
 import { AssetComponent } from '@xrengine/engine/src/scene/components/AssetComponent'
 import { BoxColliderComponent } from '@xrengine/engine/src/scene/components/BoxColliderComponent'
@@ -34,7 +36,8 @@ import { TriggerVolumeComponent } from '@xrengine/engine/src/scene/components/Tr
 import { VideoComponent } from '@xrengine/engine/src/scene/components/VideoComponent'
 import { VolumetricComponent } from '@xrengine/engine/src/scene/components/VolumetricComponent'
 import { WaterComponent } from '@xrengine/engine/src/scene/components/WaterComponent'
-import { ScenePrefabs } from '@xrengine/engine/src/scene/functions/registerPrefabs'
+import { LightPrefabs } from '@xrengine/engine/src/scene/systems/LightSystem'
+import { ScenePrefabs } from '@xrengine/engine/src/scene/systems/SceneObjectUpdateSystem'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 
 import ChairIcon from '@mui/icons-material/Chair'
@@ -136,20 +139,20 @@ export const EntityNodeEditor = {
 }
 
 export const prefabIcons = {
-  [ScenePrefabs.ambientLight]: AmbientLightNodeEditor.iconComponent,
-  [ScenePrefabs.pointLight]: PointLightNodeEditor.iconComponent,
-  [ScenePrefabs.spotLight]: SpotLightNodeEditor.iconComponent,
-  [ScenePrefabs.directionalLight]: DirectionalLightNodeEditor.iconComponent,
-  [ScenePrefabs.hemisphereLight]: HemisphereLightNodeEditor.iconComponent,
+  [LightPrefabs.ambientLight]: AmbientLightNodeEditor.iconComponent,
+  [LightPrefabs.pointLight]: PointLightNodeEditor.iconComponent,
+  [LightPrefabs.spotLight]: SpotLightNodeEditor.iconComponent,
+  [LightPrefabs.directionalLight]: DirectionalLightNodeEditor.iconComponent,
+  [LightPrefabs.hemisphereLight]: HemisphereLightNodeEditor.iconComponent,
   [ScenePrefabs.groundPlane]: GroundPlaneNodeEditor.iconComponent,
   [ScenePrefabs.model]: ModelNodeEditor.iconComponent,
   [ScenePrefabs.cameraProperties]: CameraPropertiesNodeEditor.iconComponent,
   [ScenePrefabs.previewCamera]: ScenePreviewCameraNodeEditor.iconComponent,
   [ScenePrefabs.particleEmitter]: ParticleEmitterNodeEditor.iconComponent,
   [ScenePrefabs.portal]: PortalNodeEditor.iconComponent,
-  [ScenePrefabs.triggerVolume]: TriggerVolumeNodeEditor.iconComponent,
+  [PhysicsPrefabs.triggerVolume]: TriggerVolumeNodeEditor.iconComponent,
+  [PhysicsPrefabs.boxCollider]: BoxColliderNodeEditor.iconComponent,
   [ScenePrefabs.chair]: ChairIcon,
-  [ScenePrefabs.boxCollider]: BoxColliderNodeEditor.iconComponent,
   [ScenePrefabs.group]: GroupNodeEditor.iconComponent,
   [ScenePrefabs.asset]: InteriorNodeEditor.iconComponent,
   [ScenePrefabs.postProcessing]: PostProcessingNodeEditor.iconComponent,
@@ -157,9 +160,9 @@ export const prefabIcons = {
   [ScenePrefabs.skybox]: SkyboxNodeEditor.iconComponent,
   [ScenePrefabs.spawnPoint]: SpawnPointNodeEditor.iconComponent,
   [ScenePrefabs.image]: ImageNodeEditor.iconComponent,
-  [ScenePrefabs.audio]: AudioNodeEditor.iconComponent,
-  [ScenePrefabs.video]: VideoNodeEditor.iconComponent,
-  [ScenePrefabs.volumetric]: VolumetricNodeEditor.iconComponent,
+  [MediaPrefabs.audio]: AudioNodeEditor.iconComponent,
+  [MediaPrefabs.video]: VideoNodeEditor.iconComponent,
+  [MediaPrefabs.volumetric]: VolumetricNodeEditor.iconComponent,
   [ScenePrefabs.cloud]: CloudsNodeEditor.iconComponent,
   [ScenePrefabs.ocean]: OceanNodeEditor.iconComponent,
   [ScenePrefabs.water]: WaterNodeEditor.iconComponent,

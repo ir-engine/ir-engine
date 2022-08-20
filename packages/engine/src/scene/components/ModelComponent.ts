@@ -9,7 +9,16 @@ export type ModelComponentType = {
   useBasicMaterial: boolean
   isUsingGPUInstancing: boolean
   curScr?: string
-  parsed?: boolean
 }
 
 export const ModelComponent = createMappedComponent<ModelComponentType>('ModelComponent')
+
+export const SCENE_COMPONENT_MODEL = 'gltf-model'
+export const SCENE_COMPONENT_MODEL_DEFAULT_VALUE = {
+  src: '',
+  materialOverrides: [] as MaterialOverrideComponentType[],
+  generateBVH: false,
+  matrixAutoUpdate: true,
+  useBasicMaterial: false,
+  isUsingGPUInstancing: false
+} as ModelComponentType

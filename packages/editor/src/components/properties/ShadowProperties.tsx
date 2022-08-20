@@ -21,13 +21,10 @@ export const ShadowProperties: EditorComponentType = (props) => {
   return (
     <NodeEditor description={t('editor:properties.model.description')} {...props}>
       <InputGroup name="Cast Shadow" label={t('editor:properties.model.lbl-castShadow')}>
-        <BooleanInput value={shadowComponent.castShadow} onChange={updateProperty(ShadowComponent, 'castShadow')} />
+        <BooleanInput value={shadowComponent.cast} onChange={updateProperty(ShadowComponent, 'cast')} />
       </InputGroup>
       <InputGroup name="Receive Shadow" label={t('editor:properties.model.lbl-receiveShadow')}>
-        <BooleanInput
-          value={shadowComponent.receiveShadow}
-          onChange={updateProperty(ShadowComponent, 'receiveShadow')}
-        />
+        <BooleanInput value={shadowComponent.receive} onChange={updateProperty(ShadowComponent, 'receive')} />
       </InputGroup>
     </NodeEditor>
   )

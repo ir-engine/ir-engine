@@ -11,7 +11,8 @@ import {
   useFileBrowserState
 } from '@xrengine/client-core/src/common/services/FileBrowserService'
 import { processFileName } from '@xrengine/common/src/utils/processFileName'
-import { ScenePrefabs } from '@xrengine/engine/src/scene/functions/registerPrefabs'
+import { MediaPrefabs } from '@xrengine/engine/src/audio/systems/AudioSystem'
+import { ScenePrefabs } from '@xrengine/engine/src/scene/systems/SceneObjectUpdateSystem'
 import { addActionReceptor, removeActionReceptor } from '@xrengine/hyperflux'
 
 import ArrowBackIcon from '@mui/icons-material/ArrowBack'
@@ -39,9 +40,9 @@ export const PrefabFileType = {
   png: ScenePrefabs.image,
   jpeg: ScenePrefabs.image,
   jpg: ScenePrefabs.image,
-  mp4: ScenePrefabs.video,
-  mpeg: ScenePrefabs.audio,
-  mp3: ScenePrefabs.audio,
+  mp4: MediaPrefabs.video,
+  mpeg: MediaPrefabs.audio,
+  mp3: MediaPrefabs.audio,
   'model/gltf-binary': ScenePrefabs.model,
   'model/gltf': ScenePrefabs.model,
   'model/glb': ScenePrefabs.model,
@@ -49,9 +50,9 @@ export const PrefabFileType = {
   'image/jpeg': ScenePrefabs.image,
   'image/jpg': ScenePrefabs.image,
   'application/pdf': null,
-  'video/mp4': ScenePrefabs.video,
-  'audio/mpeg': ScenePrefabs.audio,
-  'audio/mp3': ScenePrefabs.audio
+  'video/mp4': MediaPrefabs.video,
+  'audio/mpeg': MediaPrefabs.audio,
+  'audio/mp3': MediaPrefabs.audio
 }
 
 const MemoFileGridItem = memo(FileBrowserItem)

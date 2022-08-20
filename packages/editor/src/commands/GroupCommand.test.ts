@@ -9,7 +9,13 @@ import {
   emptyEntityTree
 } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
 import { createEngine } from '@xrengine/engine/src/initializeEngine'
-import { registerPrefabs } from '@xrengine/engine/src/scene/functions/registerPrefabs'
+import { SCENE_COMPONENT_GROUP } from '@xrengine/engine/src/scene/components/GroupComponent'
+import { SCENE_COMPONENT_VISIBLE } from '@xrengine/engine/src/scene/components/VisibleComponent'
+import { ScenePrefabs } from '@xrengine/engine/src/scene/systems/SceneObjectUpdateSystem'
+import {
+  SCENE_COMPONENT_TRANSFORM,
+  SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES
+} from '@xrengine/engine/src/transform/components/TransformComponent'
 import { applyIncomingActions } from '@xrengine/hyperflux'
 
 import EditorCommands from '../constants/EditorCommands'
@@ -28,7 +34,12 @@ describe('GroupCommand', () => {
     createEngine()
     registerEditorReceptors()
     Engine.instance.store.defaultDispatchDelay = 0
-    registerPrefabs(Engine.instance.currentWorld)
+
+    Engine.instance.currentWorld.scenePrefabRegistry.set(ScenePrefabs.group, [
+      { name: SCENE_COMPONENT_TRANSFORM, props: SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES },
+      { name: SCENE_COMPONENT_VISIBLE, props: true },
+      { name: SCENE_COMPONENT_GROUP, props: true }
+    ])
 
     rootNode = createEntityNode(createEntity())
     nodes = [createEntityNode(createEntity()), createEntityNode(createEntity())]

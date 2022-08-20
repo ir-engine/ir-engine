@@ -15,3 +15,9 @@ export type ParticleEmitterComponentType = {
 }
 
 export const ParticleEmitterComponent = createMappedComponent<ParticleEmitterComponentType>('ParticleEmitterComponent')
+
+export const SCENE_COMPONENT_PARTICLE_EMITTER = 'particle-emitter'
+export const SCENE_COMPONENT_PARTICLE_EMITTER_DEFAULT_VALUES = {
+  mode: 'LIBRARY',
+  src: 'Dust'
+}

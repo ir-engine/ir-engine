@@ -1,4 +1,4 @@
-// import { WorldScene } from '@xrengine/engine/src/scene/functions/SceneLoading'
+// import { WorldScene } from '@xrengine/engine/src/scene/systems/SceneLoadingSystem'
 // import { Application } from '@xrengine/server-core/declarations'
 // import config from '@xrengine/server-core/src/appconfig'
 // import getLocalServerIp from '@xrengine/server-core/src/util/get-local-server-ip'

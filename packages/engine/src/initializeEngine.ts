@@ -146,6 +146,18 @@ export const initializeCoreSystems = async () => {
     },
     {
       type: SystemUpdateType.FIXED_LATE,
+      systemModulePromise: import('./scene/systems/SceneLoadingSystem')
+    },
+    {
+      type: SystemUpdateType.FIXED_LATE,
+      systemModulePromise: import('./scene/systems/SceneObjectUpdateSystem')
+    },
+    {
+      type: SystemUpdateType.FIXED_LATE,
+      systemModulePromise: import('./scene/systems/LightSystem')
+    },
+    {
+      type: SystemUpdateType.FIXED_LATE,
       systemModulePromise: import('./scene/systems/AssetSystem')
     }
   )

@@ -1,10 +1,8 @@
-import { Not } from 'bitecs'
 import { BufferGeometry, Material, Mesh, Vector3 } from 'three'
 
 import { createActionQueue, getState } from '@xrengine/hyperflux'
 
 import { loadDRACODecoder } from '../../assets/loaders/gltf/NodeDracoLoader'
-import { LoopAnimationComponent } from '../../avatar/components/LoopAnimationComponent'
 import { isNode } from '../../common/functions/getEnvironment'
 import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
@@ -13,21 +11,14 @@ import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { XRUIComponent } from '../../xrui/components/XRUIComponent'
-import { EnvmapComponent } from '../components/EnvmapComponent'
 import { NameComponent } from '../components/NameComponent'
 import { Object3DComponent } from '../components/Object3DComponent'
 import { PersistTagComponent } from '../components/PersistTagComponent'
-import { SceneTagComponent } from '../components/SceneTagComponent'
 import { ShadowComponent } from '../components/ShadowComponent'
 import { SimpleMaterialTagComponent } from '../components/SimpleMaterialTagComponent'
 import { UpdatableComponent } from '../components/UpdatableComponent'
-import { VisibleComponent } from '../components/VisibleComponent'
 import { ObjectLayers } from '../constants/ObjectLayers'
-import { updateEnvMap } from '../functions/loaders/EnvMapFunctions'
-import { updateLoopAnimation } from '../functions/loaders/LoopAnimationFunctions'
 import { useSimpleMaterial, useStandardMaterial } from '../functions/loaders/SimpleMaterialFunctions'
-import { registerPrefabs } from '../functions/registerPrefabs'
-import { registerDefaultSceneFunctions } from '../functions/registerSceneFunctions'
 import { reparentObject3D } from '../functions/ReparentFunction'
 import { Updatable } from '../interfaces/Updatable'
 
@@ -58,8 +49,8 @@ const processObject3d = (entity: Entity) => {
     if (typeof material !== 'undefined') material.dithering = true
 
     if (shadowComponent) {
-      obj.receiveShadow = shadowComponent.receiveShadow
-      obj.castShadow = shadowComponent.castShadow
+      obj.receiveShadow = shadowComponent.receive
+      obj.castShadow = shadowComponent.cast
     }
   })
 
@@ -92,25 +83,15 @@ const updateSimpleMaterials = (sceneObjectEntities: Entity[]) => {
 
 export default async function SceneObjectSystem(world: World) {
   SceneOptions.instance = new SceneOptions()
-
-  registerDefaultSceneFunctions(world)
-  registerPrefabs(world)
-
   if (isNode) {
     await loadDRACODecoder()
   }
 
   const sceneObjectQuery = defineQuery([Object3DComponent])
   const persistQuery = defineQuery([Object3DComponent, PersistTagComponent])
-  const visibleQuery = defineQuery([Object3DComponent, VisibleComponent])
-  const notVisibleQuery = defineQuery([Object3DComponent, Not(VisibleComponent)])
   const updatableQuery = defineQuery([Object3DComponent, UpdatableComponent])
-  const envmapQuery = defineQuery([Object3DComponent, EnvmapComponent])
-  const sceneEnvmapQuery = defineQuery([SceneTagComponent, EnvmapComponent])
-  const loopableAnimationQuery = defineQuery([Object3DComponent, LoopAnimationComponent])
 
   const useSimpleMaterialsActionQueue = createActionQueue(EngineActions.useSimpleMaterials.matches)
-  const modifyPropertyActionQueue = createActionQueue(EngineActions.sceneObjectUpdate.matches)
 
   return () => {
     for (const entity of sceneObjectQuery.exit()) {
@@ -172,29 +153,10 @@ export default async function SceneObjectSystem(world: World) {
       })
     }
 
-    for (const entity of visibleQuery()) {
-      getComponent(entity, Object3DComponent).value.visible = true
-    }
-
-    for (const entity of notVisibleQuery()) {
-      getComponent(entity, Object3DComponent).value.visible = false
-    }
-
     const fixedDelta = getState(EngineState).fixedDeltaSeconds.value
     for (const entity of updatableQuery()) {
       const obj = getComponent(entity, Object3DComponent)?.value as unknown as Updatable
       obj?.update(fixedDelta)
     }
-
-    for (const action of modifyPropertyActionQueue()) {
-      for (const entity of action.entities) {
-        if (hasComponent(entity, EnvmapComponent) && hasComponent(entity, Object3DComponent)) updateEnvMap(entity)
-      }
-    }
-    for (const entity of envmapQuery.enter()) updateEnvMap(entity)
-    for (const entity of sceneEnvmapQuery.enter()) updateEnvMap(entity)
-
-    /** scene loading */
-    for (const entity of loopableAnimationQuery.enter()) updateLoopAnimation(entity)
   }
 }

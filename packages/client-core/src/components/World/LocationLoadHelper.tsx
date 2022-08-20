@@ -10,7 +10,7 @@ import {
   initializeRealtimeSystems,
   initializeSceneSystems
 } from '@xrengine/engine/src/initializeEngine'
-import { loadSceneFromJSON } from '@xrengine/engine/src/scene/functions/SceneLoading'
+import { loadSceneFromJSON } from '@xrengine/engine/src/scene/systems/SceneLoadingSystem'
 import { loadEngineInjection } from '@xrengine/projects/loadEngineInjection'
 import { getSystemsFromSceneData } from '@xrengine/projects/loadSystemInjection'
 

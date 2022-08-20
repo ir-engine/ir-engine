@@ -1,6 +1,5 @@
 import { Euler, Quaternion, Vector3 } from 'three'
 
-import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { dispatchAction, getState } from '@xrengine/hyperflux'
 
 import { AvatarStates } from '../../../avatar/animation/Util'
@@ -20,7 +19,8 @@ import {
   PortalComponent,
   PortalComponentType,
   PortalPreviewTypeSimple,
-  PortalPreviewTypeSpherical
+  PortalPreviewTypeSpherical,
+  SCENE_COMPONENT_PORTAL_DEFAULT_VALUES
 } from '../../components/PortalComponent'
 
 export const PortalPreviewTypes = new Set<string>()
@@ -29,25 +29,8 @@ PortalPreviewTypes.add(PortalPreviewTypeSpherical)
 export const PortalEffects = new Map<string, ComponentType<any>>()
 PortalEffects.set('None', null!)
 
-export const SCENE_COMPONENT_PORTAL = 'portal'
-export const SCENE_COMPONENT_PORTAL_DEFAULT_VALUES = {
-  linkedPortalId: '',
-  location: '',
-  effectType: 'None',
-  previewType: PortalPreviewTypeSimple,
-  previewImageURL: '',
-  redirect: false,
-  spawnPosition: new Vector3(),
-  spawnRotation: new Quaternion(),
-  remoteSpawnPosition: new Vector3(),
-  remoteSpawnRotation: new Quaternion()
-} as PortalComponentType
-
-export const deserializePortal: ComponentDeserializeFunction = (
-  entity: Entity,
-  json: ComponentJson<PortalComponentType>
-): void => {
-  const props = parsePortalProperties(json.props)
+export const deserializePortal: ComponentDeserializeFunction = (entity: Entity, data: PortalComponentType): void => {
+  const props = parsePortalProperties(data)
 
   addComponent(entity, PortalComponent, props)
 
@@ -61,17 +44,14 @@ export const serializePortal: ComponentSerializeFunction = (entity) => {
   if (!portalComponent) return
 
   return {
-    name: SCENE_COMPONENT_PORTAL,
-    props: {
-      location: portalComponent.location,
-      linkedPortalId: portalComponent.linkedPortalId,
-      redirect: portalComponent.redirect,
-      effectType: portalComponent.effectType,
-      previewType: portalComponent.previewType,
-      previewImageURL: portalComponent.previewImageURL,
-      spawnPosition: portalComponent.spawnPosition,
-      spawnRotation: portalComponent.spawnRotation
-    }
+    location: portalComponent.location,
+    linkedPortalId: portalComponent.linkedPortalId,
+    redirect: portalComponent.redirect,
+    effectType: portalComponent.effectType,
+    previewType: portalComponent.previewType,
+    previewImageURL: portalComponent.previewImageURL,
+    spawnPosition: portalComponent.spawnPosition,
+    spawnRotation: portalComponent.spawnRotation
   }
 }
 

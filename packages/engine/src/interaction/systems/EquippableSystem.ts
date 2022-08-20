@@ -1,9 +1,8 @@
 import { RigidBodyType } from '@dimforge/rapier3d-compat'
-import { MeshBasicMaterial, Vector3 } from 'three'
+import { Vector3 } from 'three'
 
 import { createActionQueue, dispatchAction } from '@xrengine/hyperflux'
 
-import { getAvatarBoneWorldPosition } from '../../avatar/functions/avatarFunctions'
 import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions } from '../../ecs/classes/EngineState'
@@ -23,13 +22,13 @@ import { RigidBodyKinematicPositionBasedTagComponent } from '../../physics/compo
 import { CollisionGroups } from '../../physics/enums/CollisionGroups'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { getHandTransform } from '../../xr/XRFunctions'
-import { EquippableComponent } from '../components/EquippableComponent'
+import { EquippableComponent, SCENE_COMPONENT_EQUIPPABLE } from '../components/EquippableComponent'
 import { EquippedComponent } from '../components/EquippedComponent'
 import { EquipperComponent } from '../components/EquipperComponent'
 import { EquippableAttachmentPoint } from '../enums/EquippedEnums'
 import { changeHand, equipEntity, getAttachmentPoint, getParity } from '../functions/equippableFunctions'
 import { createInteractUI } from '../functions/interactUI'
-import { addInteractableUI, InteractableTransitions, removeInteractiveUI } from './InteractiveSystem'
+import { addInteractableUI, removeInteractiveUI } from './InteractiveSystem'
 
 export function setEquippedObjectReceptor(
   action: ReturnType<typeof WorldNetworkAction.setEquippedObject>,
@@ -151,6 +150,9 @@ const vec3 = new Vector3()
 export const equippableInteractMessage = 'Equip'
 
 export default async function EquippableSystem(world: World) {
+  world.sceneComponentRegistry.set(EquippableComponent._name, SCENE_COMPONENT_EQUIPPABLE)
+  world.sceneLoadingRegistry.set(SCENE_COMPONENT_EQUIPPABLE, {})
+
   const interactedActionQueue = createActionQueue(EngineActions.interactedWithObject.matches)
   const transferAuthorityOfObjectQueue = createActionQueue(WorldNetworkAction.transferAuthorityOfObject.matches)
   const setEquippedObjectQueue = createActionQueue(WorldNetworkAction.setEquippedObject.matches)

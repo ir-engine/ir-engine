@@ -12,9 +12,9 @@ import {
   VSMShadowMap
 } from 'three'
 
+import { PositionalAudioSettingsComponent } from '@xrengine/engine/src/audio/components/PositionalAudioSettingsComponent'
 import { DistanceModel, DistanceModelOptions } from '@xrengine/engine/src/audio/constants/AudioConstants'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { PositionalAudioSettingsComponent } from '@xrengine/engine/src/scene/components/AudioSettingsComponent'
 import { RenderSettingComponent } from '@xrengine/engine/src/scene/components/RenderSettingComponent'
 
 import LanguageIcon from '@mui/icons-material/Language'

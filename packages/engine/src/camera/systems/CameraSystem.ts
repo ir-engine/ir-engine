@@ -1,46 +1,34 @@
-import { ArrowHelper, Clock, Euler, MathUtils, Matrix4, PerspectiveCamera, Raycaster, Vector3 } from 'three'
+import { ArrowHelper, Clock, MathUtils, Matrix4, Raycaster, Vector3 } from 'three'
 
 import { deleteSearchParams } from '@xrengine/common/src/utils/deleteSearchParams'
 import { createActionQueue, dispatchAction } from '@xrengine/hyperflux'
-import { getState } from '@xrengine/hyperflux'
 
 import { BoneNames } from '../../avatar/AvatarBoneMatching'
 import { AvatarAnimationComponent } from '../../avatar/components/AvatarAnimationComponent'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
-import { AvatarHeadDecapComponent } from '../../avatar/components/AvatarHeadDecapComponent'
-import { XRCameraUpdatePendingTagComponent } from '../../avatar/components/XRCameraUpdatePendingTagComponent'
-import { V_010 } from '../../common/constants/MathConstants'
 import { createConeOfVectors } from '../../common/functions/MathFunctions'
 import { smoothDamp } from '../../common/functions/MathLerpFunctions'
-import { createQuaternionProxy, createVector3Proxy } from '../../common/proxies/three'
 import { Engine } from '../../ecs/classes/Engine'
-import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
+import { EngineActions } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
 import {
   addComponent,
   defineQuery,
   getComponent,
-  hasComponent,
   removeComponent,
   setComponent
 } from '../../ecs/functions/ComponentFunctions'
-import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
 import { NetworkObjectOwnedTag } from '../../networking/components/NetworkObjectOwnedTag'
-import { spawnLocalAvatarInWorld } from '../../networking/functions/receiveJoinWorld'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
-import { Object3DComponent } from '../../scene/components/Object3DComponent'
+import { RAYCAST_PROPERTIES_DEFAULT_VALUES } from '../../scene/components/CameraPropertiesComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
-import { RAYCAST_PROPERTIES_DEFAULT_VALUES } from '../../scene/functions/loaders/CameraPropertiesFunctions'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
-import {
-  ComputedTransformComponent,
-  setComputedTransformComponent
-} from '../../transform/components/ComputedTransformComponent'
+import { setComputedTransformComponent } from '../../transform/components/ComputedTransformComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { CameraTagComponent as NetworkCameraComponent } from '../components/CameraTagComponent'
-import { FollowCameraComponent, FollowCameraDefaultValues } from '../components/FollowCameraComponent'
+import { FollowCameraComponent } from '../components/FollowCameraComponent'
 import { SpectatorComponent } from '../components/SpectatorComponent'
 import { TargetCameraRotationComponent } from '../components/TargetCameraRotationComponent'
 

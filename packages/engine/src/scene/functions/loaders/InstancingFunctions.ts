@@ -21,7 +21,6 @@ import {
 } from 'three'
 import matches from 'ts-matches'
 
-import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { defineAction, dispatchAction } from '@xrengine/hyperflux'
 
 import { AssetLoader } from '../../../assets/classes/AssetLoader'
@@ -35,7 +34,6 @@ import { addComponent, getComponent, hasComponent, removeComponent } from '../..
 import { iterateEntityNode } from '../../../ecs/functions/EntityTreeFunctions'
 import { matchActionOnce } from '../../../networking/functions/matchActionOnce'
 import { formatMaterialArgs } from '../../../renderer/materials/Utilities'
-import { TransformComponent } from '../../../transform/components/TransformComponent'
 import UpdateableObject3D from '../../classes/UpdateableObject3D'
 import {
   GrassProperties,
@@ -293,11 +291,8 @@ export class InstancingActions {
   })
 }
 
-export const deserializeInstancing: ComponentDeserializeFunction = (
-  entity: Entity,
-  json: ComponentJson<InstancingComponentType>
-) => {
-  const scatterProps = parseInstancingProperties(json.props)
+export const deserializeInstancing: ComponentDeserializeFunction = (entity: Entity, data: InstancingComponentType) => {
+  const scatterProps = parseInstancingProperties(data)
   if (scatterProps.state === ScatterState.STAGING) {
     scatterProps.state = ScatterState.UNSTAGED
   }
@@ -398,10 +393,7 @@ export const serializeInstancing: ComponentSerializeFunction = (entity) => {
   formatData(_sampleProps)
   toSave.sourceProperties = _srcProps
   toSave.sampleProperties = _sampleProps
-  return {
-    name: SCENE_COMPONENT_INSTANCING,
-    props: toSave
-  }
+  return toSave
 }
 
 const loadTex = async <T>(props: T, prop: keyof T) => {
@@ -867,7 +859,7 @@ export async function stageInstancing(entity: Entity, world = Engine.instance.cu
   }
   if (updates.length > 0) {
     if (!hasComponent(entity, UpdatableComponent)) {
-      addComponent(entity, UpdatableComponent, {})
+      addComponent(entity, UpdatableComponent, true)
     }
     val.update = (dt) => updates.forEach((update) => update(dt))
   }
