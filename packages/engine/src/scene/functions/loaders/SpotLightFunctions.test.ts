@@ -78,10 +78,6 @@ describe('SpotLightFunctions', () => {
       updateSpotLight(entity)
       assert.deepEqual(serializeSpotLight(entity), sceneComponentData)
     })
-
-    it('should return undefine if there is no spotlight component', () => {
-      assert(serializeSpotLight(entity) === undefined)
-    })
   })
 
   describe('parseSpotLightProperties()', () => {

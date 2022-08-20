@@ -54,21 +54,17 @@ describe('TransformFunctions', () => {
       deserializeTransform(entity, sceneComponentData)
       const result = serializeTransform(entity)
 
-      assert(Math.abs(result?.props.position.x - sceneComponentData.position.x) < EPSILON)
-      assert(Math.abs(result?.props.position.y - sceneComponentData.position.y) < EPSILON)
-      assert(Math.abs(result?.props.position.z - sceneComponentData.position.z) < EPSILON)
+      assert(Math.abs(result.position.x - sceneComponentData.position.x) < EPSILON)
+      assert(Math.abs(result.position.y - sceneComponentData.position.y) < EPSILON)
+      assert(Math.abs(result.position.z - sceneComponentData.position.z) < EPSILON)
 
-      assert(Math.abs(result?.props.rotation.x - sceneComponentData.rotation.x) < EPSILON)
-      assert(Math.abs(result?.props.rotation.y - sceneComponentData.rotation.y) < EPSILON)
-      assert(Math.abs(result?.props.rotation.z - sceneComponentData.rotation.z) < EPSILON)
+      assert(Math.abs(result.rotation.x - sceneComponentData.rotation.x) < EPSILON)
+      assert(Math.abs(result.rotation.y - sceneComponentData.rotation.y) < EPSILON)
+      assert(Math.abs(result.rotation.z - sceneComponentData.rotation.z) < EPSILON)
 
-      assert(Math.abs(result?.props.scale.x - sceneComponentData.scale.x) < EPSILON)
-      assert(Math.abs(result?.props.scale.y - sceneComponentData.scale.y) < EPSILON)
-      assert(Math.abs(result?.props.scale.z - sceneComponentData.scale.z) < EPSILON)
-    })
-
-    it('should return undefine if there is no transform component', () => {
-      assert(serializeTransform(entity) === undefined)
+      assert(Math.abs(result.scale.x - sceneComponentData.scale.x) < EPSILON)
+      assert(Math.abs(result.scale.y - sceneComponentData.scale.y) < EPSILON)
+      assert(Math.abs(result.scale.z - sceneComponentData.scale.z) < EPSILON)
     })
   })
 

@@ -34,7 +34,7 @@ export const deserializeFog: ComponentDeserializeFunction = (entity: Entity, dat
 export const updateFog: ComponentUpdateFunction = (entity: Entity) => {
   const fogComponent = getComponent(entity, FogComponent)
   const scene = Engine.instance.currentWorld.scene
-  /** @todo find */
+  /** @todo replace _type with something better */
 
   if (!scene.fog || (scene.fog as any)._type !== fogComponent.type)
     switch (fogComponent.type) {
@@ -42,6 +42,7 @@ export const updateFog: ComponentUpdateFunction = (entity: Entity) => {
         scene.fog = new Fog(fogComponent.color, fogComponent.near, fogComponent.far)
         removeFogShader()
         restoreMaterialForFog(entity)
+        break
 
       case FogType.Exponential:
         scene.fog = new FogExp2(fogComponent.color.getHex(), fogComponent.density)

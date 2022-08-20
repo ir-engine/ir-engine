@@ -23,9 +23,7 @@ export const deserializeTransform: ComponentDeserializeFunction = (entity: Entit
 }
 
 export const serializeTransform: ComponentSerializeFunction = (entity) => {
-  const component = getComponent(entity, TransformComponent) as TransformComponentType
-  if (!component) return
-
+  const component = getComponent(entity, TransformComponent)
   return {
     position: new Vector3().copy(component.position),
     rotation: new Vector3().setFromEuler(euler.setFromQuaternion(component.rotation)),

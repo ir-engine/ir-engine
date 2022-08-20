@@ -67,16 +67,6 @@ describe.skip('VideoFunctions', () => {
   }
 
   describe('deserializeVideo', () => {
-    it('does not create Video Component while not on client side', () => {
-      const _videoFunctions = proxyquire('./VideoFunctions', {
-        '../../../common/functions/isClient': { isClient: false }
-      })
-      _videoFunctions.deserializeVideo(entity, sceneComponentData)
-
-      const videoComponent = getComponent(entity, VideoComponent)
-      assert(!videoComponent)
-    })
-
     it('creates Video Component with provided component data', () => {
       videoFunctions.deserializeVideo(entity, sceneComponentData)
 

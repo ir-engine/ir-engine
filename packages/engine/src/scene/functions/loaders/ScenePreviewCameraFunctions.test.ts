@@ -84,26 +84,4 @@ describe('ScenePreviewCameraFunctions', () => {
       Engine.instance.isEditor = false
     })
   })
-
-  describe('serializeScenePreviewCamera()', () => {
-    it('should properly serialize scenePreviewCamera', () => {
-      scenePreviewCameraFunctions.deserializeScenePreviewCamera(entity, {})
-      assert.deepEqual(scenePreviewCameraFunctions.serializeScenePreviewCamera(entity), {})
-    })
-
-    it('should return undefine if there is no scenePreviewCamera component', () => {
-      assert(scenePreviewCameraFunctions.serializeScenePreviewCamera(entity) === undefined)
-    })
-  })
-
-  describe('shouldDeserializeScenePreviewCamera()', () => {
-    it('should return true if there is no scene preview camera component in the world', () => {
-      assert(scenePreviewCameraFunctions.shouldDeserializeScenePreviewCamera())
-    })
-
-    it('should return false if there is atleast one scene preview camera component in the world', () => {
-      scenePreviewCameraFunctions.deserializeScenePreviewCamera(entity, {})
-      assert(!scenePreviewCameraFunctions.shouldDeserializeScenePreviewCamera())
-    })
-  })
 })

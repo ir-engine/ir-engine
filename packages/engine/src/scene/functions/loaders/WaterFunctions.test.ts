@@ -24,16 +24,6 @@ describe('WaterFunctions', () => {
   })
 
   describe('deserializeWater()', () => {
-    it('does not create Water Component while not on client side', () => {
-      const _waterFunctions = proxyquire('./WaterFunctions', {
-        '../../../common/functions/isClient': { isClient: false }
-      })
-      _waterFunctions.deserializeWater(entity, {})
-
-      const waterComponent = getComponent(entity, WaterComponent)
-      assert(!waterComponent)
-    })
-
     it('creates Water Component with provided component data', () => {
       waterFunctions.deserializeWater(entity, {})
 
@@ -47,19 +37,6 @@ describe('WaterFunctions', () => {
 
       const obj3d = getComponent(entity, Object3DComponent)?.value
       assert(obj3d && obj3d instanceof FakeWater, 'Water is not created')
-    })
-  })
-
-  describe.skip('updateWater()', () => {})
-
-  describe('serializeWater()', () => {
-    it('should properly serialize water', () => {
-      waterFunctions.deserializeWater(entity, {})
-      assert.deepEqual(waterFunctions.serializeWater(entity), {})
-    })
-
-    it('should return undefine if there is no water component', () => {
-      assert(waterFunctions.serializeWater(entity) === undefined)
     })
   })
 })

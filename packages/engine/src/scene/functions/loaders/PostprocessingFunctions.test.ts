@@ -1,8 +1,6 @@
 import assert from 'assert'
 import proxyquire from 'proxyquire'
 
-import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
-
 import { Entity } from '../../../ecs/classes/Entity'
 import { getComponent } from '../../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
@@ -29,16 +27,6 @@ describe('PostprocessingFunctions', () => {
   }
 
   describe('deserializePostprocessing()', () => {
-    it('does not create Postprocessing Component while not on client side', () => {
-      const _postprocessingFunctions = proxyquire('./PostprocessingFunctions', {
-        '@xrengine/engine/src/common/functions/isClient': { isClient: false }
-      })
-      _postprocessingFunctions.deserializePostprocessing(entity, sceneComponentData)
-
-      const postprocessingComponent = getComponent(entity, PostprocessingComponent)
-      assert(!postprocessingComponent)
-    })
-
     it('creates Postprocessing Component with provided component data', () => {
       postprocessingFunctions.deserializePostprocessing(entity, sceneComponentData)
 
@@ -55,21 +43,10 @@ describe('PostprocessingFunctions', () => {
     })
   })
 
-  describe('updatePostprocessing()', () => {
-    it('updates postprocessing stats', () => {
-      postprocessingFunctions.updatePostprocessing()
-      assert(true)
-    })
-  })
-
   describe('serializePostprocessing()', () => {
     it('should properly serialize postprocessing', () => {
       postprocessingFunctions.deserializePostprocessing(entity, sceneComponentData)
       assert.deepEqual(postprocessingFunctions.serializePostprocessing(entity), sceneComponentData)
-    })
-
-    it('should return undefine if there is no postprocessing component', () => {
-      assert(postprocessingFunctions.serializePostprocessing(entity) === undefined)
     })
   })
 

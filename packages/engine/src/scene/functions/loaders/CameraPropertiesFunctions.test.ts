@@ -1,8 +1,6 @@
 import assert from 'assert'
 import proxyquire from 'proxyquire'
 
-import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
-
 import { CameraMode } from '../../../camera/types/CameraMode'
 import { ProjectionType } from '../../../camera/types/ProjectionType'
 import { Engine } from '../../../ecs/classes/Engine'
@@ -64,17 +62,6 @@ describe('CameraPropertiesFunctions', () => {
       const camerapropertiesComponent = getComponent(entity, CameraPropertiesComponent)
       assert(camerapropertiesComponent)
       assert.deepEqual(camerapropertiesComponent, sceneComponentData)
-    })
-  })
-
-  describe('serializeCameraProperties()', () => {
-    it('should properly serialize cameraproperties', () => {
-      camerapropertiesFunctions.deserializeCameraProperties(entity, sceneComponentData)
-      assert.deepEqual(camerapropertiesFunctions.serializeCameraProperties(entity), sceneComponentData)
-    })
-
-    it('should return undefine if there is no cameraproperties component', () => {
-      assert(camerapropertiesFunctions.serializeCameraProperties(entity) === undefined)
     })
   })
 

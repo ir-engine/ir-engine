@@ -1,7 +1,5 @@
 import { Color, SpotLight, Vector2 } from 'three'
 
-import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
-
 import {
   ComponentDeserializeFunction,
   ComponentSerializeFunction,
@@ -52,7 +50,7 @@ export const updateSpotLight: ComponentUpdateFunction = (entity: Entity) => {
 }
 
 export const serializeSpotLight: ComponentSerializeFunction = (entity) => {
-  const component = getComponent(entity, SpotLightComponent) as SpotLightComponentType
+  const component = getComponent(entity, SpotLightComponent)
   return {
     color: component.color.getHex(),
     intensity: component.intensity,
