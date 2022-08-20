@@ -1,6 +1,5 @@
 import { Paginated } from '@feathersjs/feathers'
 import { Downgraded } from '@hookstate/core'
-import axios from 'axios'
 import i18n from 'i18next'
 import querystring from 'querystring'
 import { useEffect } from 'react'
@@ -11,11 +10,9 @@ import { AuthStrategies } from '@xrengine/common/src/interfaces/AuthStrategies'
 import { AuthUserSeed, resolveAuthUser } from '@xrengine/common/src/interfaces/AuthUser'
 import { AvatarInterface } from '@xrengine/common/src/interfaces/AvatarInterface'
 import { IdentityProvider, IdentityProviderSeed } from '@xrengine/common/src/interfaces/IdentityProvider'
-import { StaticResourceInterface } from '@xrengine/common/src/interfaces/StaticResourceInterface'
 import { resolveUser, resolveWalletUser, UserSeed, UserSetting } from '@xrengine/common/src/interfaces/User'
 import { UserApiKey } from '@xrengine/common/src/interfaces/UserApiKey'
 import multiLogger from '@xrengine/common/src/logger'
-import { WorldNetworkAction } from '@xrengine/engine/src/networking/functions/WorldNetworkAction'
 import { defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
 import { API } from '../../API'
@@ -23,7 +20,6 @@ import { NotificationService } from '../../common/services/NotificationService'
 import { accessLocationState } from '../../social/services/LocationService'
 import { serverHost } from '../../util/config'
 import { accessStoredLocalState, StoredLocalAction } from '../../util/StoredLocalState'
-import { uploadToFeathersService } from '../../util/upload'
 import { AuthAction } from './AuthAction'
 
 export const logger = multiLogger.child({ component: 'client-core:AuthService' })
@@ -616,105 +612,6 @@ export const AuthService = {
     dispatchAction(AuthAction.updatedUserSettingsAction({ data: res }))
   },
 
-  async uploadAvatar(data: any) {
-    const token = accessAuthState().authUser.accessToken.value
-    const selfUser = accessAuthState().user
-    const res = await axios.post(`https://${globalThis.process.env['VITE_SERVER_HOST']}/upload`, data, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-        Authorization: 'Bearer ' + token
-      }
-    })
-    const userId = selfUser.id.value ?? null
-    await API.instance.client.service('user').patch(userId, {
-      name: selfUser.name.value
-    })
-    const result = res.data
-    NotificationService.dispatchNotify('Avatar updated', { variant: 'success' })
-    dispatchAction(AuthAction.avatarUpdatedAction({ url: result.url }))
-  },
-
-  async uploadAvatarModel(avatar: Blob, thumbnail: Blob, avatarName: string, isPublicAvatar?: boolean) {
-    return uploadToFeathersService('upload-asset', [avatar, thumbnail], {
-      type: 'user-avatar-upload',
-      args: {
-        avatarName,
-        isPublicAvatar: !!isPublicAvatar
-      }
-    }).promise as Promise<StaticResourceInterface[]>
-  },
-
-  async removeStaticResource(id: string) {
-    return API.instance.client.service('static-resource').remove(id)
-  },
-
-  async patchAvatar(avatarId: string, modelResourceId: string, thumbnailResourceId: string, avatarName: string) {
-    return API.instance.client.service('avatar').patch(avatarId, {
-      modelResourceId: modelResourceId,
-      thumbnailResourceId: thumbnailResourceId,
-      name: avatarName
-    })
-  },
-
-  async createAvatar(model: Blob, thumbnail: Blob, avatarName: string, isPublicAvatar?: boolean) {
-    const newAvatar = await API.instance.client.service('avatar').create({
-      name: avatarName,
-      isPublicAvatar: isPublicAvatar
-    })
-
-    const uploadResponse = await AuthService.uploadAvatarModel(model, thumbnail, newAvatar.identifierName)
-
-    const patchedAvatar = (await AuthService.patchAvatar(
-      newAvatar.id,
-      uploadResponse[0].id,
-      uploadResponse[1].id,
-      newAvatar.name
-    )) as AvatarInterface
-
-    if (!isPublicAvatar) {
-      const selfUser = accessAuthState().user
-      const userId = selfUser.id.value!
-      await AuthService.updateUserAvatarId(
-        userId,
-        newAvatar.id,
-        patchedAvatar.modelResource?.url || '',
-        patchedAvatar.thumbnailResource?.url || ''
-      )
-    }
-  },
-
-  async removeAvatar(keys: string) {
-    await API.instance.client.service('avatar').remove('', { query: { keys } })
-    NotificationService.dispatchNotify(i18n.t('user:avatar.remove-success-msg'), { variant: 'success' })
-    return AuthService.fetchAvatarList()
-  },
-
-  async fetchAvatarList() {
-    const result = (await API.instance.client.service('avatar').find({
-      query: {
-        $limit: 1000
-      }
-    })) as Paginated<AvatarInterface>
-    dispatchAction(AuthAction.updateAvatarListAction({ avatarList: result.data }))
-  },
-
-  async updateUsername(userId: string, name: string) {
-    const { name: updatedName } = await API.instance.client.service('user').patch(userId, { name: name })
-    NotificationService.dispatchNotify(i18n.t('user:usermenu.profile.update-msg'), { variant: 'success' })
-    dispatchAction(AuthAction.usernameUpdatedAction({ name: updatedName }))
-  },
-
-  async updateUserAvatarId(userId: string, avatarId: string, avatarURL: string, thumbnailURL: string) {
-    const res = await API.instance.client.service('user').patch(userId, { avatarId: avatarId })
-    // dispatchAlertSuccess(dispatch, 'User Avatar updated');
-    dispatchAction(AuthAction.userAvatarIdUpdatedAction({ avatarId: res.avatarId! }))
-    dispatchAction(
-      WorldNetworkAction.avatarDetails({
-        avatarDetail: { avatarURL, thumbnailURL }
-      })
-    )
-  },
-
   async removeUser(userId: string) {
     await API.instance.client.service('user').remove(userId)
     AuthService.logoutUser()
@@ -723,6 +620,12 @@ export const AuthService = {
   async updateApiKey() {
     const apiKey = (await API.instance.client.service('user-api-key').patch(null, {})) as UserApiKey
     dispatchAction(AuthAction.apiKeyUpdatedAction({ apiKey }))
+  },
+
+  async updateUsername(userId: string, name: string) {
+    const { name: updatedName } = await API.instance.client.service('user').patch(userId, { name: name })
+    NotificationService.dispatchNotify(i18n.t('user:usermenu.profile.update-msg'), { variant: 'success' })
+    dispatchAction(AuthAction.usernameUpdatedAction({ name: updatedName }))
   },
 
   useAPIListeners: () => {

@@ -12,7 +12,8 @@ import { WidgetName } from '@xrengine/engine/src/xrui/Widgets'
 
 import { ArrowBack, ArrowBackIos, ArrowForwardIos, Check, PersonAdd } from '@mui/icons-material'
 
-import { AuthService, useAuthState } from '../../../user/services/AuthService'
+import { useAuthState } from '../../../user/services/AuthService'
+import { AvatarService } from '../../../user/services/AvatarService'
 import XRIconButton from '../../components/XRIconButton'
 import styleString from './index.scss'
 
@@ -39,7 +40,7 @@ const SelectAvatarMenu = () => {
   const [selectedAvatar, setSelectedAvatar] = useState<any>('')
 
   useEffect(() => {
-    AuthService.fetchAvatarList()
+    AvatarService.fetchAvatarList()
   }, [])
 
   useEffect(() => {
@@ -52,7 +53,7 @@ const SelectAvatarMenu = () => {
   const setAvatar = (avatarId: string, avatarURL: string, thumbnailURL: string) => {
     if (hasComponent(Engine.instance.currentWorld.localClientEntity, AvatarEffectComponent)) return
     if (authState.user?.value)
-      AuthService.updateUserAvatarId(authState.user.id.value!, avatarId, avatarURL, thumbnailURL)
+      AvatarService.updateUserAvatarId(authState.user.id.value!, avatarId, avatarURL, thumbnailURL)
   }
 
   const loadNextAvatars = () => {

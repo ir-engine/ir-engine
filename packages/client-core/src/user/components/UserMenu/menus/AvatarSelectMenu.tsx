@@ -30,7 +30,7 @@ import Tab from '@mui/material/Tab'
 import Tabs from '@mui/material/Tabs'
 
 import IconLeftClick from '../../../../common/components/Icons/IconLeftClick'
-import { AuthService } from '../../../services/AuthService'
+import { AvatarService } from '../../../services/AvatarService'
 import styles from '../index.module.scss'
 import { Views } from '../util'
 import { addAnimationLogic, initialize3D, onWindowResize, validate } from './helperFunctions'
@@ -233,11 +233,11 @@ export const AvatarUploadModal = ({ avatarData, isPublicAvatar, changeActiveMenu
         const newContext = canvas.getContext('2d')
         newContext?.drawImage(renderer.domElement, 0, 0)
         canvas.toBlob((blob) => {
-          AuthService.createAvatar(avatarBlob, blob!, avatarName, isPublicAvatar)
+          AvatarService.createAvatar(avatarBlob, blob!, avatarName, isPublicAvatar)
         })
       })
     } else {
-      await AuthService.createAvatar(avatarBlob, thumbnailBlob, avatarName, isPublicAvatar)
+      await AvatarService.createAvatar(avatarBlob, thumbnailBlob, avatarName, isPublicAvatar)
     }
 
     onAvatarUpload && onAvatarUpload()
