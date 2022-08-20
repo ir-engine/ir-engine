@@ -1,3 +1,4 @@
+import { range } from 'lodash'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import ReactJson from 'react-json-view'
@@ -23,6 +24,7 @@ import StringInput from '../inputs/StringInput'
 import Vector3Input from '../inputs/Vector3Input'
 import CollapsibleBlock from '../layout/CollapsibleBlock'
 import { List } from '../layout/List'
+import PaginatedList from '../layout/PaginatedList'
 import Well from '../layout/Well'
 import MaterialEditor from '../materials/MaterialEditor'
 import NodeEditor from './NodeEditor'
@@ -265,8 +267,9 @@ export const Object3DNodeEditor: EditorComponentType = (props) => {
 
       {isInstancedMesh && (
         <CollapsibleBlock label={'Instance Properties'}>
-          <List>
-            {Array.from({ length: instancedMesh.instanceMatrix.count }, (_, i) => i).map((i) => {
+          <PaginatedList
+            list={range(0, instancedMesh.count - 1)}
+            element={(i) => {
               let transform = new Matrix4()
               instancedMesh.getMatrixAt(i, transform)
               let position = new Vector3()
@@ -289,8 +292,9 @@ export const Object3DNodeEditor: EditorComponentType = (props) => {
                   </InputGroup>
                 </Well>
               )
-            })}
-          </List>
+            }}
+            onChange={(nuVal) => {}}
+          />
         </CollapsibleBlock>
       )}
       <ReactJson
