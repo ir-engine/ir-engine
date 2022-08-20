@@ -462,7 +462,7 @@
       ],
       "parent": "60a390ad-4193-493d-84bf-cfb77b5095c2",
       "index": 7,
-      "name": "model"
+      "name": "VCKey"
     },
     "46add0e6-cbc5-4caa-8845-03defdc40e29": {
       "components": [
@@ -997,12 +997,6 @@
         {
           "name": "visible",
           "props": {}
-        },
-        {
-          "name": "mount-point",
-          "props": {
-            "type": "seat"
-          }
         }
       ],
       "parent": "60a390ad-4193-493d-84bf-cfb77b5095c2",

@@ -17,6 +17,7 @@ import { pipe } from '@xrengine/common/src/utils/pipe'
 
 import { Application, ServerTypeMode } from '../declarations'
 import config from './appconfig'
+import { IssueRequest } from './credential/api/IssueRequest'
 import { elasticOnlyLogger, logger } from './logger'
 import { createDefaultStorageProvider, createIPFSStorageProvider } from './media/storageprovider/storageprovider'
 import sequelize from './sequelize'
@@ -183,6 +184,12 @@ export const createFeathersExpressApp = (
     const { msg, ...mergeObject } = req.body
     if (!isDev) elasticOnlyLogger.info({ user: req.params?.user, ...mergeObject }, msg)
     return res.status(204).send()
+  })
+
+  app.post('/api/credentials/request', IssueRequest.post)
+
+  app.use('/', (req, res) => {
+    res.status(200).send('Ethereal Engine API Server OK')
   })
 
   app.use(errorHandler({ logger }))

@@ -8,6 +8,7 @@ import { getGLTFLoader } from './assets/classes/AssetLoader'
 import { initializeKTX2Loader } from './assets/functions/createGLTFLoader'
 import { isClient } from './common/functions/isClient'
 import { Timer } from './common/functions/Timer'
+import { CredentialSystem } from './credentials/CredentialSystem'
 import { Engine } from './ecs/classes/Engine'
 import { EngineActions, EngineEventReceptor, EngineState } from './ecs/classes/EngineState'
 import { createWorld, destroyWorld } from './ecs/classes/World'
@@ -52,6 +53,10 @@ export const setupEngineActionSystems = () => {
     uuid: 'xre.engine.OutgoingActionSystem',
     type: SystemUpdateType.FIXED_LATE,
     systemFunction: OutgoingActionSystem
+  })
+  initSystemSync(world, {
+    type: SystemUpdateType.UPDATE,
+    systemFunction: CredentialSystem
   })
 }
 

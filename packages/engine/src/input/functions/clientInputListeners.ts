@@ -1,4 +1,7 @@
+import { dispatchAction } from '@xrengine/hyperflux'
+
 import { isClient } from '../../common/functions/isClient'
+import { CredentialAction } from '../../credentials/CredentialAction'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import {
   handleContextMenu,

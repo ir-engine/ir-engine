@@ -12,6 +12,8 @@
 import { LruCache } from '@digitalcredentials/lru-memoize'
 import fetch from 'cross-fetch'
 
+import { hostDefined, localBuildOrDev, serverHost } from './serverHost'
+
 const logRequestCache = new LruCache({
   maxAge: 1000 * 5 // 5 seconds cache expiry
 })
