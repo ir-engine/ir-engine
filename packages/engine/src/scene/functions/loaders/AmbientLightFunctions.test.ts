@@ -58,57 +58,6 @@ describe('AmbientLightFunctions', () => {
     })
   })
 
-  describe('updateAmbientLight()', () => {
-    let ambientLightComponent: AmbientLightComponentType
-    let obj3d: AmbientLight
-
-    beforeEach(() => {
-      deserializeAmbientLight(entity, sceneComponentData)
-      ambientLightComponent = getComponent(entity, AmbientLightComponent) as AmbientLightComponentType
-      obj3d = getComponent(entity, Object3DComponent)?.value as AmbientLight
-    })
-
-    describe('Property tests for "color"', () => {
-      it('should not update property', () => {
-        updateAmbientLight(entity, {})
-
-        assert(ambientLightComponent.color.getHex() === sceneComponentData.color)
-        assert(obj3d.color.getHex() === sceneComponentData.color)
-      })
-
-      it('should update property', () => {
-        const newColor = new Color('blue')
-        ambientLightComponent.color = newColor
-
-        updateAmbientLight(entity, { color: newColor })
-        assert(obj3d.color.getHex() === newColor.getHex())
-
-        updateAmbientLight(entity, { color: new Color('green') })
-        assert(obj3d.color.getHex() === newColor.getHex(), 'should not update property to passed value')
-      })
-    })
-
-    describe('Property tests for "intensity"', () => {
-      it('should not update property', () => {
-        updateAmbientLight(entity, {})
-
-        assert(ambientLightComponent.intensity === sceneComponentData.intensity)
-        assert(obj3d.intensity === sceneComponentData.intensity)
-      })
-
-      it('should update property', () => {
-        const newIntensity = 10
-        ambientLightComponent.intensity = newIntensity
-        updateAmbientLight(entity, { intensity: newIntensity })
-
-        assert(obj3d.intensity === newIntensity)
-
-        updateAmbientLight(entity, { intensity: 20 })
-        assert(obj3d.intensity === newIntensity, 'should not update property to passed value')
-      })
-    })
-  })
-
   describe('serializeAmbientLight()', () => {
     it('should properly serialize ambient light', () => {
       deserializeAmbientLight(entity, sceneComponentData)

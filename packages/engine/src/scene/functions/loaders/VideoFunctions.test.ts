@@ -3,8 +3,6 @@ import Hls from 'hls.js'
 import proxyquire from 'proxyquire'
 import { LinearFilter, Mesh, Object3D, sRGBEncoding } from 'three'
 
-import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
-
 import { Entity } from '../../../ecs/classes/Entity'
 import { getComponent } from '../../../ecs/functions/ComponentFunctions'
 import { addComponent } from '../../../ecs/functions/ComponentFunctions'
@@ -14,7 +12,6 @@ import { MediaComponent } from '../../components/MediaComponent'
 import { MediaElementComponent } from '../../components/MediaElementComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 import { VideoComponent, VideoComponentType } from '../../components/VideoComponent'
-import { SCENE_COMPONENT_VIDEO } from './VideoFunctions'
 
 class Media {
   paused: boolean = false

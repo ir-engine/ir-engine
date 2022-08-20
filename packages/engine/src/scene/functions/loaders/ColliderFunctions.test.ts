@@ -19,18 +19,11 @@ describe('ColliderFunctions', () => {
     Engine.instance.currentWorld.physicsWorld = Physics.createWorld()
   })
 
-  const sceneComponentData = {}
-
-  const sceneComponent: ComponentJson = {
-    name: SCENE_COMPONENT_COLLIDER,
-    props: sceneComponentData
-  }
-
   describe('deserializeCollider()', () => {
     it('does not create RigidBodyComponent if there is no Object3d Component', () => {
       const entity = createEntity()
 
-      deserializeCollider(entity, sceneComponent)
+      deserializeCollider(entity, {})
 
       assert(!hasComponent(entity, RigidBodyComponent))
     })
@@ -39,7 +32,7 @@ describe('ColliderFunctions', () => {
       const entity = createEntity()
       addComponent(entity, Object3DComponent, { value: new Object3D() })
 
-      deserializeCollider(entity, sceneComponent)
+      deserializeCollider(entity, {})
 
       const body = getComponent(entity, RigidBodyComponent).body
 

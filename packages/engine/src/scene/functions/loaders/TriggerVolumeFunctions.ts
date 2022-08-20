@@ -50,7 +50,7 @@ export const deserializeTriggerVolume: ComponentDeserializeFunction = (
   addComponent(entity, Object3DComponent, { value: boxMesh })
 }
 
-export const updateTriggerVolume: ComponentUpdateFunction = (entity: Entity, prop: any) => {
+export const updateTriggerVolume: ComponentUpdateFunction = (entity: Entity) => {
   const transform = getComponent(entity, TransformComponent)
   const rigidBody = getComponent(entity, RigidBodyComponent).body
   rigidBody.setTranslation(transform.position, true)

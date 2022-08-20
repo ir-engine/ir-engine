@@ -1,8 +1,6 @@
 import assert from 'assert'
 import { Mesh, MeshBasicMaterial } from 'three'
 
-import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
-
 import { Entity } from '../../../ecs/classes/Entity'
 import { getComponent } from '../../../ecs/functions/ComponentFunctions'
 import { addComponent } from '../../../ecs/functions/ComponentFunctions'

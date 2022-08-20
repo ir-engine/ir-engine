@@ -24,8 +24,6 @@ export const deserializeOcean: ComponentDeserializeFunction = (entity: Entity, d
   addComponent(entity, Object3DComponent, { value: obj3d })
   addComponent(entity, OceanComponent, props)
   addComponent(entity, UpdatableComponent, true)
-
-  updateOcean(entity, props)
 }
 
 export const updateOcean: ComponentUpdateFunction = (entity: Entity) => {

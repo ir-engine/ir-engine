@@ -2,8 +2,6 @@ import assert from 'assert'
 import proxyquire from 'proxyquire'
 import { Object3D, PerspectiveCamera, Quaternion, Vector3 } from 'three'
 
-import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
-
 import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
 import { getComponent } from '../../../ecs/functions/ComponentFunctions'

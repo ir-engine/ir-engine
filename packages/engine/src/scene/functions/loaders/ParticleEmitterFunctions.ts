@@ -84,10 +84,7 @@ export const deserializeParticleEmitter: ComponentDeserializeFunction = (
   //updateParticleEmitter(entity, comp)
 }
 
-export const updateParticleEmitter: ComponentUpdateFunction = (
-  entity: Entity,
-  properties: ParticleEmitterComponentType
-) => {
+export const updateParticleEmitter: ComponentUpdateFunction = (entity: Entity) => {
   //dispatchAction(ParticleSystemActions.createParticleSystem({entity}))
   //initializeParticleSystem(entity)
   //initializeParticleSystem(entity)
