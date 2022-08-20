@@ -31,11 +31,11 @@ import { ObjectLayers } from '../constants/ObjectLayers'
 import { resetEngineRenderer } from '../functions/loaders/RenderSettingsFunction'
 
 export const createNewEditorNode = (entityNode: EntityTreeNode, prefabType: string): void => {
-  // Clone the defualt values so that it will not be bound to newly created node
-  const components = cloneDeep(Engine.instance.currentWorld.scenePrefabRegistry.get(prefabType))
+  const components = Engine.instance.currentWorld.scenePrefabRegistry.get(prefabType)
   if (!components) return console.warn(`[createNewEditorNode]: ${prefabType} is not a prefab`)
 
-  loadSceneEntity(entityNode, { name: prefabType, components })
+  // Clone the defualt values so that it will not be bound to newly created node
+  loadSceneEntity(entityNode, { name: prefabType, components: cloneDeep(components) })
 }
 
 export const splitLazyLoadedSceneEntities = (json: SceneJson) => {

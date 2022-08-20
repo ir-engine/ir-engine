@@ -184,25 +184,12 @@ describe('ModifyPropertyCommand', () => {
 
   describe('execute function', async () => {
     it('will execute the command', () => {
-      const data = {
-        [nodes[0].entity]: false,
-        [nodes[1].entity]: false
-      }
-      Engine.instance.currentWorld.sceneComponentRegistry.set(TestComponent._name, testComponentName)
-      Engine.instance.currentWorld.sceneLoadingRegistry.set(testComponentName, {
-        update: (entity) => (data[entity] = true)
-      } as any)
-
       ModifyPropertyCommand.execute?.(command)
       applyIncomingActions()
-
       command.affectedNodes.forEach((node, i) => {
         if (typeof node === 'string') return
         const component = getComponent(node.entity, TestComponent)
         assert.deepEqual(component, command.properties[i])
-        command.affectedNodes
-          .filter((node) => typeof node !== 'string')
-          .forEach((node: EntityTreeNode) => assert.equal(data[node.entity], true))
       })
     })
   })
