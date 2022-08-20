@@ -47,7 +47,7 @@ function prepare(command: GroupCommandParams) {
 
     for (let i = command.affectedNodes.length - 1; i >= 0; i--) {
       const node = command.affectedNodes[i]
-
+      if (typeof node === 'string') continue
       if (!node.parentEntity) throw new Error('Parent is not defined')
       const parent = tree.entityNodeMap.get(node.parentEntity)
       if (!parent) throw new Error('Parent is not defined')
@@ -99,7 +99,9 @@ function undo(command: GroupCommandParams) {
 
   const nodes = [] as EntityTreeNode[]
   for (let i = command.affectedNodes.length - 1; i >= 0; i--) {
-    nodes.push(command.affectedNodes[i])
+    const node = command.affectedNodes[i]
+    if (typeof node === 'string') continue
+    nodes.push(node)
   }
 
   executeCommand({

@@ -66,7 +66,7 @@ export type CommandParams = {
   id?: number
 
   /** An Object which is affected by this command */
-  affectedNodes: EntityTreeNode[]
+  affectedNodes: (EntityTreeNode | string)[]
 
   /** Whether the event should be emited of not */
   preventEvents?: boolean

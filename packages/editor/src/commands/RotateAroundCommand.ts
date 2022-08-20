@@ -2,6 +2,7 @@ import { Matrix4, Vector3 } from 'three'
 
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
+import obj3dFromUuid from '@xrengine/engine/src/scene/util/obj3dFromUuid'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 import { dispatchAction } from '@xrengine/hyperflux'
 
@@ -90,16 +91,29 @@ function rotateAround(command: RotateAroundCommandParams, isUndo?: boolean) {
   const rotationMatrix = new Matrix4().makeRotationAxis(axis, angle)
 
   for (let i = 0; i < command.affectedNodes.length; i++) {
-    const obj3d = getComponent(command.affectedNodes[i].entity, Object3DComponent).value
-    const transform = getComponent(command.affectedNodes[i].entity, TransformComponent)
+    const node = command.affectedNodes[i]
+    if (typeof node === 'string') {
+      const obj3d = obj3dFromUuid(node)
+      obj3d.matrixWorld.copy(
+        new Matrix4()
+          .copy(obj3d.matrixWorld)
+          .premultiply(pivotToOriginMatrix)
+          .premultiply(rotationMatrix)
+          .premultiply(originToPivotMatrix)
+          .premultiply(obj3d.parent!.matrixWorld.clone().invert())
+      )
+    } else {
+      const obj3d = getComponent(node.entity, Object3DComponent).value
+      const transform = getComponent(node.entity, TransformComponent)
 
-    new Matrix4()
-      .copy(obj3d.matrixWorld)
-      .premultiply(pivotToOriginMatrix)
-      .premultiply(rotationMatrix)
-      .premultiply(originToPivotMatrix)
-      .premultiply(obj3d.parent!.matrixWorld.clone().invert())
-      .decompose(transform.position, transform.rotation, transform.scale)
+      new Matrix4()
+        .copy(obj3d.matrixWorld)
+        .premultiply(pivotToOriginMatrix)
+        .premultiply(rotationMatrix)
+        .premultiply(originToPivotMatrix)
+        .premultiply(obj3d.parent!.matrixWorld.clone().invert())
+        .decompose(transform.position, transform.rotation, transform.scale)
+    }
   }
 }
 

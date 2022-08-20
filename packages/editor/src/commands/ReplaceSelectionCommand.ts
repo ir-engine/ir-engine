@@ -57,7 +57,7 @@ function replaceSelection(command: ReplaceSelectionCommandParams, isUndo: boolea
   if (
     !isSelectionChanged(
       selectedEntities,
-      nodes.map((n) => n.entity)
+      nodes.map((n) => (typeof n === 'string' ? n : n.entity))
     )
   )
     return
@@ -68,9 +68,16 @@ function replaceSelection(command: ReplaceSelectionCommandParams, isUndo: boolea
     let includes = false
 
     for (const node of nodes) {
-      if (node.entity === entity) {
-        includes = true
-        break
+      if (typeof node === 'string') {
+        if (node === entity) {
+          includes = true
+          break
+        }
+      } else {
+        if (node.entity === entity) {
+          includes = true
+          break
+        }
       }
     }
 
@@ -84,16 +91,19 @@ function replaceSelection(command: ReplaceSelectionCommandParams, isUndo: boolea
   // Replace selection with new objects and fire select event
   for (let i = 0; i < nodes.length; i++) {
     const node = nodes[i]
+    if (typeof node === 'string') {
+      newlySelectedEntities.push(node)
+    } else {
+      // temporary support for Object3Ds being selected
+      if (typeof node.entity === 'undefined') {
+        newlySelectedEntities.push(node.uuid as any)
+        continue
+      }
+      newlySelectedEntities.push(node.entity)
 
-    // temporary support for Object3Ds being selected
-    if (typeof node.entity === 'undefined') {
-      newlySelectedEntities.push(node.uuid as any)
-      continue
-    }
-    newlySelectedEntities.push(node.entity)
-
-    if (!hasComponent(node.entity, SelectTagComponent)) {
-      addComponent(node.entity, SelectTagComponent, {})
+      if (!hasComponent(node.entity, SelectTagComponent)) {
+        addComponent(node.entity, SelectTagComponent, {})
+      }
     }
   }
 

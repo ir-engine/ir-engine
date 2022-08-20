@@ -82,23 +82,26 @@ describe('ReparentCommand', () => {
 
       command.affectedNodes.reverse()
 
-      command.undo.parents.forEach((parent, i) => {
-        assert.equal(parent.entity, command.affectedNodes[i].parentEntity)
+      command.undo.parents.forEach((parent: EntityTreeNode, i) => {
+        assert.equal(parent.entity, (command.affectedNodes[i] as EntityTreeNode).parentEntity)
       })
 
-      command.undo.befores.forEach((before, i) => {
+      command.undo.befores.forEach((before: EntityTreeNode, i) => {
         if (before) {
           assert(before.parentEntity)
           const parent = Engine.instance.currentWorld.entityTree.entityNodeMap.get(before.parentEntity)
           assert.equal(
             parent?.children?.indexOf(before.entity),
-            parent?.children?.indexOf(command.affectedNodes[i].entity)! + 1
+            parent?.children?.indexOf((command.affectedNodes[i] as EntityTreeNode).entity)! + 1
           )
         }
       })
 
       command.undo.positions.forEach((position, i) => {
-        assert.deepEqual(position, getComponent(command.affectedNodes[i].entity, TransformComponent).position)
+        assert.deepEqual(
+          position,
+          getComponent((command.affectedNodes[i] as EntityTreeNode).entity, TransformComponent).position
+        )
       })
     })
 
@@ -161,13 +164,18 @@ describe('ReparentCommand', () => {
       ReparentCommand.execute(command)
       applyIncomingActions()
 
-      command.affectedNodes.forEach((node, i) => {
-        const parent = command.parents[i] ?? command.parents[0]
-        const before = command.befores ? command.befores[i] ?? command.befores[0] : undefined
+      command.affectedNodes.forEach((node: EntityTreeNode, i) => {
+        const parent = (command.parents[i] ?? command.parents[0]) as EntityTreeNode
+        const before = (command.befores ? command.befores[i] ?? command.befores[0] : undefined) as
+          | EntityTreeNode
+          | undefined
 
         assert.equal(node.parentEntity, parent.entity)
         if (before) {
-          assert(parent!.children!.indexOf(before.entity) > parent!.children!.indexOf(command.affectedNodes[i].entity)!)
+          assert(
+            parent!.children!.indexOf(before.entity) >
+              parent!.children!.indexOf((command.affectedNodes[i] as EntityTreeNode).entity)!
+          )
         }
       })
     })
@@ -190,13 +198,13 @@ describe('ReparentCommand', () => {
       const selection = accessSelectionState().selectedEntities.value
 
       assert.equal(selection.length, command.affectedNodes.length)
-      command.affectedNodes.forEach((node) => {
+      command.affectedNodes.forEach((node: EntityTreeNode) => {
         assert(selection.includes(node.entity))
       })
     })
 
     it('will not update position', () => {
-      const positions = command.affectedNodes.map((node) => {
+      const positions = command.affectedNodes.map((node: EntityTreeNode) => {
         getComponent(node.entity, TransformComponent).position
       })
 
@@ -205,7 +213,7 @@ describe('ReparentCommand', () => {
 
       assert.deepEqual(
         positions,
-        command.affectedNodes.map((node) => {
+        command.affectedNodes.map((node: EntityTreeNode) => {
           getComponent(node.entity, TransformComponent).position
         })
       )
@@ -216,7 +224,7 @@ describe('ReparentCommand', () => {
       ReparentCommand.execute(command)
       applyIncomingActions()
 
-      command.affectedNodes.forEach((node) => {
+      command.affectedNodes.forEach((node: EntityTreeNode) => {
         assert.deepEqual(getComponent(node.entity, TransformComponent).position, command.positions![0])
       })
     })
@@ -233,8 +241,8 @@ describe('ReparentCommand', () => {
       ReparentCommand.undo(command)
       applyIncomingActions()
 
-      command.affectedNodes.forEach((node, i) => {
-        assert.equal(node.parentEntity, (command.parents[i] ?? command.parents[0]).entity)
+      command.affectedNodes.forEach((node: EntityTreeNode, i) => {
+        assert.equal(node.parentEntity, ((command.parents[i] ?? command.parents[0]) as EntityTreeNode).entity)
       })
     })
 
@@ -254,15 +262,18 @@ describe('ReparentCommand', () => {
 
       command.affectedNodes.reverse()
 
-      command.undo.parents.forEach((parent, i) => {
-        assert.equal(parent.entity, command.affectedNodes[i].parentEntity)
+      command.undo.parents.forEach((parent: EntityTreeNode, i) => {
+        assert.equal(parent.entity, (command.affectedNodes[i] as EntityTreeNode).parentEntity)
       })
 
-      command.undo.befores.forEach((before, i) => {
+      command.undo.befores.forEach((before: EntityTreeNode, i) => {
         if (before) {
           assert(before.parentEntity)
           const parent = Engine.instance.currentWorld.entityTree.entityNodeMap.get(before.parentEntity)
-          assert(parent!.children!.indexOf(before.entity) > parent?.children?.indexOf(command.affectedNodes[i].entity)!)
+          assert(
+            parent!.children!.indexOf(before.entity) >
+              parent?.children?.indexOf((command.affectedNodes[i] as EntityTreeNode).entity)!
+          )
         }
       })
     })
@@ -275,7 +286,7 @@ describe('ReparentCommand', () => {
       ReparentCommand.execute(command)
       applyIncomingActions()
 
-      const positions = command.affectedNodes.map((node) => {
+      const positions = command.affectedNodes.map((node: EntityTreeNode) => {
         getComponent(node.entity, TransformComponent).position
       })
 
@@ -284,7 +295,7 @@ describe('ReparentCommand', () => {
 
       assert.deepEqual(
         positions,
-        command.affectedNodes.map((node) => {
+        command.affectedNodes.map((node: EntityTreeNode) => {
           getComponent(node.entity, TransformComponent).position
         })
       )
@@ -302,7 +313,7 @@ describe('ReparentCommand', () => {
       ReparentCommand.undo(command)
       applyIncomingActions()
 
-      command.affectedNodes.forEach((node, i) => {
+      command.affectedNodes.forEach((node: EntityTreeNode, i) => {
         const pos = getComponent(node.entity, TransformComponent).position
         assert.equal(pos.x, command.undo?.positions![i].x)
         assert.equal(pos.y, command.undo?.positions![i].y)

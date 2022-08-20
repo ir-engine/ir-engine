@@ -53,7 +53,7 @@ export const EditorSelectionServiceReceptor = (action) => {
     .when(SelectionAction.changedObject.matches, (action) => {
       return s.merge({
         objectChangeCounter: s.objectChangeCounter.value + 1,
-        affectedObjects: action.objects,
+        affectedObjects: action.objects.filter((object) => typeof object !== 'string') as EntityTreeNode[],
         propertyName: action.propertyName,
         transformPropertyChanged: transformProps.includes(action.propertyName)
       })
@@ -78,7 +78,7 @@ export class SelectionAction {
 
   static changedObject = defineAction({
     type: 'editorSelection.OBJECT_CHANGED',
-    objects: matches.array as Validator<unknown, EntityTreeNode[]>,
+    objects: matches.array as Validator<unknown, (EntityTreeNode | string)[]>,
     propertyName: matches.string
   })
 

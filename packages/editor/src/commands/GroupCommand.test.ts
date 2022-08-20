@@ -66,7 +66,7 @@ describe('GroupCommand', () => {
       command.affectedNodes.reverse()
 
       command.undo.parents.forEach((parent, i) => {
-        assert.equal(parent.entity, command.affectedNodes[i].parentEntity)
+        assert.equal(parent.entity, (command.affectedNodes[i] as EntityTreeNode).parentEntity)
       })
 
       command.undo.befores.forEach((before, i) => {
@@ -74,7 +74,7 @@ describe('GroupCommand', () => {
         const parent = Engine.instance.currentWorld.entityTree.entityNodeMap.get(before.parentEntity)
         assert.equal(
           parent?.children?.indexOf(before.entity),
-          parent?.children?.indexOf(command.affectedNodes[i].entity)! + 1
+          parent?.children?.indexOf((command.affectedNodes[i] as EntityTreeNode).entity)! + 1
         )
       })
     })
@@ -138,7 +138,7 @@ describe('GroupCommand', () => {
 
       assert(command.groupNode)
       assert(Engine.instance.currentWorld.entityTree.entityNodeMap.has(command.groupNode.entity))
-      command.affectedNodes.forEach((node) => {
+      command.affectedNodes.forEach((node: EntityTreeNode) => {
         assert(command.groupNode?.children?.includes(node.entity))
       })
 
@@ -167,7 +167,7 @@ describe('GroupCommand', () => {
 
       assert(command.groupNode)
       assert(Engine.instance.currentWorld.entityTree.entityNodeMap.has(command.groupNode.entity))
-      command.affectedNodes.forEach((node) => {
+      command.affectedNodes.forEach((node: EntityTreeNode) => {
         assert(command.groupNode?.children?.includes(node.entity))
       })
     })
@@ -188,7 +188,7 @@ describe('GroupCommand', () => {
       command.affectedNodes.reverse()
 
       command.undo.parents.forEach((parent, i) => {
-        assert.equal(parent.entity, command.affectedNodes[i].parentEntity)
+        assert.equal(parent.entity, (command.affectedNodes[i] as EntityTreeNode).parentEntity)
       })
 
       command.undo.befores.forEach((before, i) => {
@@ -196,7 +196,7 @@ describe('GroupCommand', () => {
         const parent = Engine.instance.currentWorld.entityTree.entityNodeMap.get(before.parentEntity)
         assert.equal(
           parent?.children?.indexOf(before.entity),
-          parent?.children?.indexOf(command.affectedNodes[i].entity)! + 1
+          parent?.children?.indexOf((command.affectedNodes[i] as EntityTreeNode).entity)! + 1
         )
       })
     })

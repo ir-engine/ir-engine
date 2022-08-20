@@ -34,14 +34,14 @@ function execute(command: ToggleSelectionCommandParams) {
 
   for (let i = 0; i < command.affectedNodes.length; i++) {
     const node = command.affectedNodes[i]
-    let index = selectedEntities.indexOf(node.entity)
+    let index = selectedEntities.indexOf(typeof node === 'string' ? node : node.entity)
 
     if (index > -1) {
       selectedEntities.splice(index, 1)
-      typeof node.entity === 'number' && removeComponent(node.entity, SelectTagComponent)
+      typeof node !== 'string' && typeof node.entity === 'number' && removeComponent(node.entity, SelectTagComponent)
     } else {
-      typeof node.entity === 'number' && addComponent(node.entity, SelectTagComponent, {})
-      selectedEntities.push(node.entity)
+      typeof node !== 'string' && typeof node.entity === 'number' && addComponent(node.entity, SelectTagComponent, {})
+      typeof node !== 'string' && selectedEntities.push(node.entity)
     }
   }
 

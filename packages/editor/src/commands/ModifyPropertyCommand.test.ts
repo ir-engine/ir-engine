@@ -89,7 +89,9 @@ describe('ModifyPropertyCommand', () => {
         const propertyNames = Object.keys(prop)
 
         assert(propertyNames.length > 0)
-        const comp = getComponent(command.affectedNodes[i].entity, command.component)
+        const node = command.affectedNodes[i]
+        if (typeof node === 'string') return
+        const comp = getComponent(node.entity, command.component)
 
         for (const propertyName of Object.keys(prop)) {
           assert.deepEqual(comp[propertyName], prop[propertyName])
@@ -197,9 +199,12 @@ describe('ModifyPropertyCommand', () => {
       applyIncomingActions()
 
       command.affectedNodes.forEach((node, i) => {
+        if (typeof node === 'string') return
         const component = getComponent(node.entity, TestComponent)
         assert.deepEqual(component, command.properties[i])
-        command.affectedNodes.forEach((node) => assert.equal(data[node.entity], true))
+        command.affectedNodes
+          .filter((node) => typeof node !== 'string')
+          .forEach((node: EntityTreeNode) => assert.equal(data[node.entity], true))
       })
     })
   })
@@ -215,6 +220,7 @@ describe('ModifyPropertyCommand', () => {
       applyIncomingActions()
 
       command.affectedNodes.forEach((node, i) => {
+        if (typeof node === 'string') return
         const component = getComponent(node.entity, TestComponent)
         assert.deepEqual(component, command.properties[i])
       })
@@ -231,6 +237,7 @@ describe('ModifyPropertyCommand', () => {
 
       assert(command.undo)
       command.affectedNodes.forEach((node, i) => {
+        if (typeof node === 'string') return
         const component = getComponent(node.entity, TestComponent)
         assert.deepEqual(component, command.undo?.properties[i])
       })

@@ -330,9 +330,12 @@ export function getEntityNodeArrayFromEntities(
  * @param node Node to find index of
  * @returns index of the node if found -1 oterhwise.
  */
-export function findIndexOfEntityNode(arr: EntityTreeNode[], node: EntityTreeNode): number {
+export function findIndexOfEntityNode(arr: (EntityTreeNode | string)[], node: string | EntityTreeNode): number {
   for (let i = 0; i < arr.length; i++) {
-    if (arr[i].entity === node.entity) return i
+    const elt = arr[i]
+    if (typeof elt !== typeof node) continue
+    if (typeof node === 'string' && node === elt) return i
+    if (typeof node === 'object' && (elt as EntityTreeNode).entity === node.entity) return i
   }
 
   return -1

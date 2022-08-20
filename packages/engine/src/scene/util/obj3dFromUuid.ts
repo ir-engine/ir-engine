@@ -6,7 +6,9 @@ import { Object3DComponent } from '../components/Object3DComponent'
 export default function obj3dFromUuid(uuid, world: World = Engine.instance.currentWorld) {
   const idMap = world.entityTree.uuidNodeMap
   if (!idMap.has(uuid)) {
-    console.error('Error finding entity node with uuid ' + uuid)
+    const result = world.scene.getObjectByProperty('uuid', uuid)
+    if (result) return result
+    else console.error('Error finding entity node with uuid ' + uuid)
   }
   const node = idMap.get(uuid)!
   if (!hasComponent(node.entity, Object3DComponent)) {

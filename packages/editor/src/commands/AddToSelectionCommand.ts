@@ -34,10 +34,13 @@ function execute(command: AddToSelectionCommandParams) {
 
   for (let i = 0; i < command.affectedNodes.length; i++) {
     const object = command.affectedNodes[i]
-    if (selectedEntities.includes(object.entity)) continue
-
-    addComponent(object.entity, SelectTagComponent, {})
-    selectedEntities.push(object.entity)
+    if (selectedEntities.includes(typeof object === 'string' ? object : object.entity)) continue
+    if (typeof object === 'string') {
+      selectedEntities.push(object)
+    } else {
+      addComponent(object.entity, SelectTagComponent, {})
+      selectedEntities.push(object.entity)
+    }
   }
 
   dispatchAction(SelectionAction.updateSelection({ selectedEntities }))
