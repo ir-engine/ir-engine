@@ -8,8 +8,7 @@ import { WorldState } from '@xrengine/engine/src/networking/interfaces/WorldStat
 import { dispatchAction, getState } from '@xrengine/hyperflux'
 
 import { NotificationService } from '../../common/services/NotificationService'
-import { AuthAction } from '../services/AuthAction'
-import { accessAuthState } from '../services/AuthService'
+import { accessAuthState, AuthAction } from '../services/AuthService'
 import { accessUserState, UserAction } from '../services/UserService'
 
 const logger = multiLogger.child({ component: 'client-core:userPatched' })

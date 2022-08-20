@@ -10,8 +10,7 @@ import { dispatchAction } from '@xrengine/hyperflux'
 import { API } from '../../API'
 import { NotificationService } from '../../common/services/NotificationService'
 import { uploadToFeathersService } from '../../util/upload'
-import { AuthAction } from './AuthAction'
-import { accessAuthState } from './AuthService'
+import { accessAuthState, AuthAction } from './AuthService'
 
 export const AvatarService = {
   async createAvatar(model: Blob, thumbnail: Blob, avatarName: string, isPublicAvatar?: boolean) {
