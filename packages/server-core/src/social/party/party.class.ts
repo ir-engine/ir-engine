@@ -161,7 +161,7 @@ export class Party<T = PartyDataType> extends Service<T> {
     if (!params!.skipPartyUserDelete)
       await Promise.all(
         partyUsers.map(async (partyUser) =>
-          this.app.service('party-user').remove(partyUser.id, { skipPartyDelete: true })
+          this.app.service('party-user').remove(partyUser.id, { deletingParty: true })
         )
       )
     const removedParty = (await super.remove(id)) as T

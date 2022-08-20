@@ -1,15 +1,20 @@
+import { Object3D } from 'three'
+
 import { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
+import { addComponent, getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import {
   addEntityNodeInTree,
   getEntityNodeArrayFromEntities,
   traverseEntityNode
 } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
+import { Object3DComponent, Object3DWithEntity } from '@xrengine/engine/src/scene/components/Object3DComponent'
 import { reparentObject3D } from '@xrengine/engine/src/scene/functions/ReparentFunction'
 import { createNewEditorNode, loadSceneEntity } from '@xrengine/engine/src/scene/systems/SceneLoadingSystem'
+import obj3dFromUuid from '@xrengine/engine/src/scene/util/obj3dFromUuid'
 import { dispatchAction } from '@xrengine/hyperflux'
 
 import { executeCommand } from '../classes/History'
@@ -34,10 +39,10 @@ export type AddObjectCommandParams = CommandParams & {
   sceneData?: SceneJson[]
 
   /** Parent object which will hold objects being added by this command */
-  parents?: EntityTreeNode[]
+  parents?: (string | EntityTreeNode)[]
 
   /** Child object before which all objects will be added */
-  befores?: EntityTreeNode[]
+  befores?: (string | EntityTreeNode)[]
 
   /** Whether to use unique name or not */
   useUniqueName?: boolean
@@ -98,30 +103,52 @@ function addObject(command: AddObjectCommandParams) {
 
   for (let i = 0; i < rootObjects.length; i++) {
     const object = rootObjects[i]
+    if (typeof object !== 'string') {
+      if (command.prefabTypes) {
+        createNewEditorNode(object, command.prefabTypes[i] ?? command.prefabTypes[0])
+      } else if (command.sceneData) {
+        const data = command.sceneData[i] ?? command.sceneData[0]
 
-    if (command.prefabTypes) {
-      createNewEditorNode(object, command.prefabTypes[i] ?? command.prefabTypes[0])
-    } else if (command.sceneData) {
-      const data = command.sceneData[i] ?? command.sceneData[0]
+        traverseEntityNode(object, (node) => {
+          node.entity = createEntity()
+          loadSceneEntity(node, data.entities[node.uuid])
 
-      traverseEntityNode(object, (node) => {
-        node.entity = createEntity()
-        loadSceneEntity(node, data.entities[node.uuid])
-
-        if (node.parentEntity && node.uuid !== data.root)
-          reparentObject3D(node, node.parentEntity, undefined, world.entityTree)
-      })
+          if (node.parentEntity && node.uuid !== data.root)
+            reparentObject3D(node, node.parentEntity, undefined, world.entityTree)
+        })
+      }
     }
 
     let parent = command.parents ? command.parents[i] ?? command.parents[0] : world.entityTree.rootNode
     let before = command.befores ? command.befores[i] ?? command.befores[0] : undefined
 
-    const index = before && parent.children ? parent.children.indexOf(before.entity) : undefined
-    addEntityNodeInTree(object, parent, index, false, world.entityTree)
+    let index
+    if (typeof parent !== 'string') {
+      if (before && typeof before === 'string' && !hasComponent(parent.entity, Object3DComponent)) {
+        const obj3d: Object3DWithEntity = new Object3D() as Object3DWithEntity
+        obj3d.entity = parent.entity
+        addComponent(parent.entity, Object3DComponent, { value: obj3d })
+      }
+      index =
+        before && parent.children
+          ? typeof before === 'string'
+            ? getComponent(parent.entity, Object3DComponent).value.children.indexOf(obj3dFromUuid(before))
+            : parent.children.indexOf(before.entity)
+          : undefined
+    } else {
+      const pObj3d = obj3dFromUuid(parent)
+      index =
+        before && pObj3d.children && typeof before === 'string'
+          ? pObj3d.children.indexOf(obj3dFromUuid(before))
+          : undefined
+    }
+    if (typeof parent !== 'string' && typeof object !== 'string') {
+      addEntityNodeInTree(object, parent, index, false, world.entityTree)
 
-    reparentObject3D(object, parent, before, world.entityTree)
+      reparentObject3D(object, parent, typeof before === 'string' ? undefined : before, world.entityTree)
 
-    if (command.useUniqueName) traverseEntityNode(object, (node) => makeUniqueName(node))
+      if (command.useUniqueName) traverseEntityNode(object, (node) => makeUniqueName(node))
+    }
   }
 
   if (command.updateSelection) {

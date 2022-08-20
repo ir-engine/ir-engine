@@ -1,7 +1,7 @@
 import assert from 'assert'
 
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
+import EntityTree, { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import {
   addComponent,
   createMappedComponent,
@@ -71,7 +71,7 @@ describe('TagComponentCommand', () => {
         assert.equal(operation.sceneComponentName, op.sceneComponentName)
         assert.equal(
           operation.type,
-          hasComponent(command.affectedNodes[i].entity, op.component)
+          hasComponent((command.affectedNodes[i] as EntityTreeNode).entity, op.component)
             ? TagComponentOperation.ADD
             : TagComponentOperation.REMOVE
         )
@@ -119,7 +119,7 @@ describe('TagComponentCommand', () => {
       TagComponentCommand.execute(command)
       applyIncomingActions()
 
-      command.affectedNodes.forEach((node, i) => {
+      command.affectedNodes.forEach((node: EntityTreeNode, i) => {
         assert(hasComponent(node.entity, TestComponent))
       })
     })
@@ -137,7 +137,7 @@ describe('TagComponentCommand', () => {
       TagComponentCommand.execute(command)
       applyIncomingActions()
 
-      command.affectedNodes.forEach((node, i) => {
+      command.affectedNodes.forEach((node: EntityTreeNode, i) => {
         assert(!hasComponent(node.entity, TestComponent))
       })
     })
@@ -155,8 +155,8 @@ describe('TagComponentCommand', () => {
       TagComponentCommand.execute(command)
       applyIncomingActions()
 
-      assert(!hasComponent(command.affectedNodes[0].entity, TestComponent))
-      assert(hasComponent(command.affectedNodes[1].entity, TestComponent))
+      assert(!hasComponent((command.affectedNodes[0] as EntityTreeNode).entity, TestComponent))
+      assert(hasComponent((command.affectedNodes[1] as EntityTreeNode).entity, TestComponent))
     })
   })
 
@@ -177,7 +177,7 @@ describe('TagComponentCommand', () => {
       TagComponentCommand.undo(command)
       applyIncomingActions()
 
-      command.affectedNodes.forEach((node, i) => {
+      command.affectedNodes.forEach((node: EntityTreeNode, i) => {
         assert(hasComponent(node.entity, TestComponent))
       })
     })
@@ -202,7 +202,7 @@ describe('TagComponentCommand', () => {
       command.undo.operations.forEach((operation, i) => {
         assert.equal(
           operation.type === TagComponentOperation.ADD,
-          hasComponent(command.affectedNodes[i].entity, operation.component)
+          hasComponent((command.affectedNodes[i] as EntityTreeNode).entity, operation.component)
         )
       })
     })

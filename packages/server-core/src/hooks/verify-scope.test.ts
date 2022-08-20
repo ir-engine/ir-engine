@@ -32,11 +32,13 @@ describe('verify-scope', () => {
     const avatar = await app.service('avatar').create({
       name: avatarName
     })
-    const user = (await app.service('user').create({
+    let user = (await app.service('user').create({
       name,
       avatarId: avatar.id,
       isGuest
     })) as UserInterface
+
+    user = await app.service('user').get(user.id)
 
     const verifyLocationReadScope = verifyScope('location', 'read')
     const hookContext = mockUserHookContext(user, app)
@@ -56,7 +58,7 @@ describe('verify-scope', () => {
       name: avatarName
     })
 
-    const user = (await app.service('user').create({
+    let user = (await app.service('user').create({
       name,
       avatarId: avatar.id,
       isGuest
@@ -66,6 +68,8 @@ describe('verify-scope', () => {
       type: 'location:read',
       userId: user.id
     })
+
+    user = await app.service('user').get(user.id)
 
     const verifyLocationReadScope = verifyScope('location', 'read')
     const hookContext = mockUserHookContext(user, app)
@@ -85,7 +89,7 @@ describe('verify-scope', () => {
       name: avatarName
     })
 
-    const user = (await app.service('user').create({
+    let user = (await app.service('user').create({
       name,
       avatarId: avatar.id,
       isGuest
@@ -95,6 +99,8 @@ describe('verify-scope', () => {
       type: 'location:read',
       userId: user.id
     })
+
+    user = await app.service('user').get(user.id)
 
     const verifyLocationReadScope = verifyScope('location', 'read')
     const hookContext = mockUserHookContext(user, app)
@@ -114,7 +120,7 @@ describe('verify-scope', () => {
       name: avatarName
     })
 
-    const user = (await app.service('user').create({
+    let user = (await app.service('user').create({
       name,
       avatarId: avatar.id,
       isGuest
@@ -129,6 +135,8 @@ describe('verify-scope', () => {
       type: 'admin:admin',
       userId: user.id
     })
+
+    user = await app.service('user').get(user.id)
 
     const verifyLocationReadScope = verifyScope('location', 'read')
     const hookContext = mockUserHookContext(user, app)

@@ -98,7 +98,7 @@ describe('DuplicateObjectCommand', () => {
       applyIncomingActions()
 
       assert(command.duplicatedObjects)
-      command.duplicatedObjects.forEach((node) => {
+      command.duplicatedObjects.forEach((node: EntityTreeNode) => {
         assert(Engine.instance.currentWorld.entityTree.entityNodeMap.has(node.entity))
       })
     })
@@ -109,7 +109,7 @@ describe('DuplicateObjectCommand', () => {
       applyIncomingActions()
 
       assert(command.duplicatedObjects)
-      command.duplicatedObjects.forEach((node) => {
+      command.duplicatedObjects.forEach((node: EntityTreeNode) => {
         assert(accessSelectionState().selectedEntities.value.includes(node.entity))
       })
     })
@@ -126,7 +126,7 @@ describe('DuplicateObjectCommand', () => {
       applyIncomingActions()
 
       assert(command.duplicatedObjects)
-      command.duplicatedObjects.forEach((node) => {
+      command.duplicatedObjects.forEach((node: EntityTreeNode) => {
         assert(Engine.instance.currentWorld.entityTree.entityNodeMap.has(node.entity))
       })
     })
@@ -141,7 +141,7 @@ describe('DuplicateObjectCommand', () => {
       applyIncomingActions()
 
       assert(command.duplicatedObjects)
-      command.duplicatedObjects.forEach((node) => {
+      command.duplicatedObjects.forEach((node: EntityTreeNode) => {
         assert(!Engine.instance.currentWorld.entityTree.entityNodeMap.has(node.entity))
       })
     })

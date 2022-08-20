@@ -116,7 +116,7 @@ describe('ToggleSelectionCommand', () => {
       applyIncomingActions()
       const newSelection = accessSelectionState().selectedEntities.value
 
-      command.affectedNodes.forEach((node, i) => {
+      command.affectedNodes.forEach((node: EntityTreeNode) => {
         assert.equal(oldSelection.includes(node.entity), !newSelection.includes(node.entity))
         assert.equal(newSelection.includes(node.entity), hasComponent(node.entity, SelectTagComponent))
       })
@@ -135,7 +135,7 @@ describe('ToggleSelectionCommand', () => {
       applyIncomingActions()
       const newSelection = accessSelectionState().selectedEntities.value
 
-      command.affectedNodes.forEach((node, i) => {
+      command.affectedNodes.forEach((node: EntityTreeNode, i) => {
         assert.equal(oldSelection.includes(node.entity), newSelection.includes(node.entity))
         assert.equal(oldSelection.includes(node.entity), hasComponent(node.entity, SelectTagComponent))
       })

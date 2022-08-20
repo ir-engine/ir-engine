@@ -113,7 +113,7 @@ describe('AddToSelectionCommand', () => {
       command.affectedNodes = nodes
       AddToSelectionCommand.execute(command)
       applyIncomingActions()
-      command.affectedNodes.forEach((node) => {
+      command.affectedNodes.forEach((node: EntityTreeNode) => {
         assert(accessSelectionState().selectedEntities.value.includes(node.entity))
         assert(hasComponent(node.entity, SelectTagComponent))
       })
@@ -129,7 +129,7 @@ describe('AddToSelectionCommand', () => {
       AddToSelectionCommand.undo(command)
       applyIncomingActions()
 
-      command.affectedNodes.forEach((node) => {
+      command.affectedNodes.forEach((node: EntityTreeNode) => {
         assert(accessSelectionState().selectedEntities.value.includes(node.entity))
         assert(hasComponent(node.entity, SelectTagComponent))
       })

@@ -2,7 +2,7 @@ import assert from 'assert'
 import { Object3D, Vector3 } from 'three'
 
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
+import EntityTree, { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import { addComponent, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import {
@@ -83,7 +83,11 @@ describe('PositionCommand', () => {
       command.undo.positions.forEach((position, i) => {
         assert.equal(command.undo?.space, TransformSpace.Local)
         assert.equal(command.undo?.addToPosition, false)
-        assert(position.equals(getComponent(command.affectedNodes[i].entity, Object3DComponent).value.position))
+        assert(
+          position.equals(
+            getComponent((command.affectedNodes[i] as EntityTreeNode).entity, Object3DComponent).value.position
+          )
+        )
       })
     })
 
@@ -175,7 +179,7 @@ describe('PositionCommand', () => {
 
       PositionCommand.execute(command)
       applyIncomingActions()
-      command.affectedNodes.forEach((node, i) => {
+      command.affectedNodes.forEach((node: EntityTreeNode, i) => {
         const position = command.positions[i] ?? command.positions[0] ?? new Vector3()
         assert(getComponent(node.entity, TransformComponent).position.equals(position))
       })
@@ -187,7 +191,7 @@ describe('PositionCommand', () => {
 
       PositionCommand.execute(command)
       applyIncomingActions()
-      command.affectedNodes.forEach((node, i) => {
+      command.affectedNodes.forEach((node: EntityTreeNode, i) => {
         const position = new Vector3()
         assert(getComponent(node.entity, TransformComponent).position.equals(position))
       })
@@ -199,7 +203,7 @@ describe('PositionCommand', () => {
 
       PositionCommand.execute(command)
       applyIncomingActions()
-      command.affectedNodes.forEach((node, i) => {
+      command.affectedNodes.forEach((node: EntityTreeNode, i) => {
         const position = new Vector3()
         assert(getComponent(node.entity, TransformComponent).position.equals(position))
       })
@@ -210,14 +214,14 @@ describe('PositionCommand', () => {
       command.addToPosition = true
       command.positions = [getRandomPosition()]
 
-      const newPositions = command.affectedNodes.map((node, i) => {
+      const newPositions = command.affectedNodes.map((node: EntityTreeNode, i) => {
         const position = command.positions[i] ?? command.positions[0] ?? new Vector3()
         return new Vector3().copy(getComponent(node.entity, TransformComponent).position).add(position)
       })
 
       PositionCommand.execute(command)
       applyIncomingActions()
-      command.affectedNodes.forEach((node, i) => {
+      command.affectedNodes.forEach((node: EntityTreeNode, i) => {
         assert(getComponent(node.entity, TransformComponent).position.equals(newPositions[i]))
       })
     })
@@ -227,14 +231,14 @@ describe('PositionCommand', () => {
       command.addToPosition = true
       command.positions = [getRandomPosition()]
 
-      const newPositions = command.affectedNodes.map((node, i) => {
+      const newPositions = command.affectedNodes.map((node: EntityTreeNode, i) => {
         const position = command.positions[i] ?? command.positions[0] ?? new Vector3()
         return new Vector3().copy(getComponent(node.entity, TransformComponent).position).add(position)
       })
 
       PositionCommand.execute(command)
       applyIncomingActions()
-      command.affectedNodes.forEach((node, i) => {
+      command.affectedNodes.forEach((node: EntityTreeNode, i) => {
         assert(getComponent(node.entity, TransformComponent).position.equals(newPositions[i]))
       })
     })
@@ -244,14 +248,14 @@ describe('PositionCommand', () => {
       command.addToPosition = true
       command.positions = [getRandomPosition()]
 
-      const newPositions = command.affectedNodes.map((node, i) => {
+      const newPositions = command.affectedNodes.map((node: EntityTreeNode, i) => {
         const position = command.positions[i] ?? command.positions[0] ?? new Vector3()
         return new Vector3().copy(getComponent(node.entity, TransformComponent).position).add(position)
       })
 
       PositionCommand.execute(command)
       applyIncomingActions()
-      command.affectedNodes.forEach((node, i) => {
+      command.affectedNodes.forEach((node: EntityTreeNode, i) => {
         assert(getComponent(node.entity, TransformComponent).position.equals(newPositions[i]))
       })
     })
@@ -268,7 +272,7 @@ describe('PositionCommand', () => {
       PositionCommand.undo(command)
       applyIncomingActions()
 
-      command.affectedNodes.forEach((node, i) => {
+      command.affectedNodes.forEach((node: EntityTreeNode, i) => {
         assert(
           getComponent(node.entity, TransformComponent).position.equals(command.positions[i] ?? command.positions[0])
         )
@@ -285,7 +289,7 @@ describe('PositionCommand', () => {
       applyIncomingActions()
       PositionCommand.undo(command)
       applyIncomingActions()
-      command.affectedNodes.forEach((node, i) => {
+      command.affectedNodes.forEach((node: EntityTreeNode, i) => {
         assert(getComponent(node.entity, TransformComponent).position.equals(command.undo?.positions[i]!))
       })
     })

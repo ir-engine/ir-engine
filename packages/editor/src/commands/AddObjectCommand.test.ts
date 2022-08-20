@@ -1,7 +1,7 @@
 import assert from 'assert'
 
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
+import EntityTree, { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import {
@@ -135,7 +135,9 @@ describe('AddObjectCommand', () => {
     it('creates prefab of given type', () => {
       command.prefabTypes = [ScenePrefabs.previewCamera]
       AddObjectCommand.execute(command)
-      assert(Engine.instance.currentWorld.entityTree.entityNodeMap.get(command.affectedNodes[0].entity))
+      assert(
+        Engine.instance.currentWorld.entityTree.entityNodeMap.get((command.affectedNodes[0] as EntityTreeNode).entity)
+      )
     })
 
     it('creates prefab of given type and adds as child of passed parent node', () => {
@@ -197,7 +199,7 @@ describe('AddObjectCommand', () => {
       assert.notEqual(parentNodes.length, 0)
       assert.notEqual(beforeNodes.length, 0)
 
-      command.affectedNodes.forEach((node) => {
+      command.affectedNodes.forEach((node: EntityTreeNode) => {
         assert(accessSelectionState().selectedEntities.value.includes(node.entity))
       })
     })
@@ -236,7 +238,7 @@ describe('AddObjectCommand', () => {
 
       AddObjectCommand.undo(command)
 
-      command.affectedNodes.forEach((node) => {
+      command.affectedNodes.forEach((node: EntityTreeNode) => {
         assert(Engine.instance.currentWorld.entityTree.entityNodeMap.has(node.entity))
       })
     })
@@ -249,7 +251,7 @@ describe('AddObjectCommand', () => {
 
       AddObjectCommand.undo(command)
 
-      command.affectedNodes.forEach((node) => {
+      command.affectedNodes.forEach((node: EntityTreeNode) => {
         assert(!Engine.instance.currentWorld.entityTree.entityNodeMap.has(node.entity))
       })
     })

@@ -117,7 +117,7 @@ describe('ReplaceSelectionCommand', () => {
 
       assert.equal(selection.length, command.affectedNodes.length)
 
-      command.affectedNodes.forEach((node, i) => {
+      command.affectedNodes.forEach((node: EntityTreeNode, i) => {
         assert.equal(selection[i], node.entity)
         assert(hasComponent(node.entity, SelectTagComponent))
       })
@@ -137,7 +137,7 @@ describe('ReplaceSelectionCommand', () => {
 
       assert.equal(selection.length, command.affectedNodes.length)
 
-      command.affectedNodes.forEach((node, i) => {
+      command.affectedNodes.forEach((node: EntityTreeNode, i) => {
         assert.equal(selection[i], node.entity)
         assert(hasComponent(node.entity, SelectTagComponent))
       })

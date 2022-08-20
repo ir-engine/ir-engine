@@ -4,12 +4,20 @@ import ReactJson from 'react-json-view'
 import { Euler, InstancedMesh, Material, Matrix4, Mesh, Object3D, Quaternion, Scene, Vector3 } from 'three'
 
 import { AxisIcon } from '@xrengine/client-core/src/util/AxisIcon'
-import { Rad2Deg } from '@xrengine/engine/src/common/functions/MathFunctions'
+import { Deg2Rad, Rad2Deg } from '@xrengine/engine/src/common/functions/MathFunctions'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { Object3DWithEntity } from '@xrengine/engine/src/scene/components/Object3DComponent'
 import { useHookEffect, useHookstate } from '@xrengine/hyperflux'
 
+import { SpaceBar } from '@mui/icons-material'
+import { Divider } from '@mui/material'
+
+import { executeCommandWithHistory, executeCommandWithHistoryOnSelection } from '../../classes/History'
+import EditorCommands, { TransformCommands } from '../../constants/EditorCommands'
 import BooleanInput from '../inputs/BooleanInput'
+import { Button } from '../inputs/Button'
 import InputGroup from '../inputs/InputGroup'
+import StringInput from '../inputs/StringInput'
 import Vector3Input from '../inputs/Vector3Input'
 import CollapsibleBlock from '../layout/CollapsibleBlock'
 import { List } from '../layout/List'
@@ -59,6 +67,7 @@ export const Object3DNodeEditor: EditorComponentType = (props) => {
       </InputGroup>
     )
   }
+
   function getMaterials() {
     const result: Material[] = []
     if ((mesh.material as Material[])?.length !== undefined) {
@@ -68,12 +77,14 @@ export const Object3DNodeEditor: EditorComponentType = (props) => {
     }
     return result
   }
+
   function getMaterialIds() {
     return getMaterials().map((material) => material.uuid)
   }
   const materials = getMaterials()
   const materialIds = useHookstate(getMaterialIds())
   const currentId = useHookstate(materialIds.value.length > 0 ? 0 : -1)
+
   useHookEffect(() => {
     materialIds.set(getMaterialIds())
     currentId.set(
@@ -83,6 +94,46 @@ export const Object3DNodeEditor: EditorComponentType = (props) => {
         ? 0
         : -1
     )
+  }, [objId])
+
+  function selectParentEntityNode() {
+    let walker = obj3d as Object3DWithEntity
+    const nodeMap = Engine.instance.currentWorld.entityTree.entityNodeMap
+    while (walker) {
+      if (walker.entity && nodeMap.has(walker.entity)) {
+        executeCommandWithHistory({
+          type: EditorCommands.REPLACE_SELECTION,
+          affectedNodes: [nodeMap.get(walker.entity)!],
+          updateSelection: true,
+          undo: {
+            selection: [obj3d.uuid]
+          }
+        })
+        break
+      }
+      walker = walker.parent as Object3DWithEntity
+    }
+  }
+  const initEditState = () => {
+    return {
+      objName: obj3d.name,
+      position: obj3d.position.clone(),
+      rotation: new Vector3(...obj3d.rotation.toArray()),
+      scale: obj3d.scale.clone()
+    }
+  }
+  const editState = useHookstate<
+    {
+      ['objName']: string
+      ['position']: Vector3
+      ['rotation']: Vector3
+      ['scale']: Vector3
+    },
+    unknown
+  >(initEditState())
+
+  useHookEffect(() => {
+    editState.set(initEditState())
   }, [objId])
 
   return (
@@ -99,12 +150,79 @@ export const Object3DNodeEditor: EditorComponentType = (props) => {
       {/* frustrum culling */ updateObj3d('frustrumCulled', 'Frustrum Culled')}
       {/* visibility */ updateObj3d('visible', 'Visible')}
       {
-        /* cast / receive shadows */
         <Well>
-          {updateObj3d('castShadow', 'Cast Shadow')}
-          {updateObj3d('receiveShadow', 'Receive Shadow')}
+          <Well>
+            <InputGroup label="Name" name="Name">
+              <StringInput
+                value={editState.value.objName}
+                onChange={(name) => {
+                  editState.merge({
+                    objName: name
+                  })
+                  obj3d.name = name
+                }}
+              />
+            </InputGroup>
+            <Divider />
+            <Well>
+              <InputGroup name="Position" label="Translation">
+                <Vector3Input
+                  value={editState.value.position}
+                  onChange={(nuPosition) => {
+                    editState.merge({
+                      position: nuPosition.clone()
+                    })
+                    executeCommandWithHistory({
+                      affectedNodes: [obj3d.uuid],
+                      type: TransformCommands.POSITION,
+                      positions: [nuPosition]
+                    })
+                    //obj3d.position.set(nuPosition.x, nuPosition.y, nuPosition.z)
+                  }}
+                />
+              </InputGroup>
+              <InputGroup name="Rotation" label="Rotation">
+                <Vector3Input
+                  value={editState.value.rotation}
+                  onChange={(nuEulers) => {
+                    editState.merge({
+                      rotation: nuEulers.clone()
+                    })
+                    const actualEuler = new Euler(...nuEulers.clone().multiplyScalar(Deg2Rad).toArray())
+                    executeCommandWithHistory({
+                      affectedNodes: [obj3d.uuid],
+                      type: TransformCommands.ROTATION,
+                      rotations: [actualEuler]
+                    })
+                    //obj3d.rotation.setFromVector3(nuEulers.multiplyScalar(Deg2Rad))
+                  }}
+                />
+              </InputGroup>
+              <InputGroup name="Scale" label="Scale">
+                <Vector3Input
+                  value={obj3d.scale}
+                  onChange={(nuScale) => {
+                    editState.merge({
+                      scale: nuScale.clone()
+                    })
+                    executeCommandWithHistory({
+                      affectedNodes: [obj3d.uuid],
+                      type: TransformCommands.SCALE,
+                      scales: [nuScale]
+                    })
+                    //obj3d.scale.copy(nuScale)
+                  }}
+                />
+              </InputGroup>
+            </Well>
+          </Well>
+          <Well>
+            {updateObj3d('castShadow', 'Cast Shadow')}
+            {updateObj3d('receiveShadow', 'Receive Shadow')}
+          </Well>
         </Well>
       }
+      <Button onClick={selectParentEntityNode}>Parent Node</Button>
       {/* animations */}
       {isMesh && (
         <CollapsibleBlock label={'Mesh Properties'}>

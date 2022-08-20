@@ -235,7 +235,7 @@ export const loadComponent = (entity: Entity, component: ComponentJson, world = 
 export const onAllSceneAssetsSettled = (world: World) => {
   world.camera?.layers.enable(ObjectLayers.Scene)
   dispatchAction(EngineActions.sceneLoaded({}))
-  DependencyTree.activate()
+  // DependencyTree.activate()
 }
 
 const sceneAssetPendingTagQuery = defineQuery([SceneAssetPendingTagComponent])

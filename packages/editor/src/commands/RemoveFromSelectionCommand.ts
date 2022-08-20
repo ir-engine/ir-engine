@@ -12,7 +12,7 @@ import { updateOutlinePassSelection } from '../functions/updateOutlinePassSelect
 import { accessSelectionState, SelectionAction } from '../services/SelectionServices'
 
 export type RemoveFromSelectionCommandUndoParams = {
-  selection: Entity[]
+  selection: (Entity | string)[]
 }
 
 export type RemoveFromSelectionCommandParams = CommandParams & {
@@ -37,11 +37,11 @@ function execute(command: RemoveFromSelectionCommandParams) {
   for (let i = 0; i < command.affectedNodes.length; i++) {
     const object = command.affectedNodes[i]
 
-    const index = selectedEntities.indexOf(object.entity)
+    const index = selectedEntities.indexOf(typeof object === 'string' ? object : object.entity)
     if (index === -1) continue
 
     selectedEntities.splice(index, 1)
-    removeComponent(object.entity, SelectTagComponent)
+    if (typeof object !== 'string') removeComponent(object.entity, SelectTagComponent)
   }
 
   dispatchAction(SelectionAction.updateSelection({ selectedEntities }))
