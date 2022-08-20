@@ -81,14 +81,14 @@ export const getGitHubAppRepos = async () => {
   }
 }
 
-export const getAuthenticatedRepo = async (repositoryPath) => {
+export const getAuthenticatedRepo = async (repositoryPath: string) => {
   try {
     if (!/.git$/.test(repositoryPath)) repositoryPath = repositoryPath + '.git'
     const repos = await getGitHubAppRepos()
     const filtered = repos.filter((repo) => repo.repositoryPath == repositoryPath)
     if (filtered && filtered[0]) {
       const token = await getAccessTokenByUser(filtered[0].user)
-      if (token == '') return null
+      if (token === '') return null
       return filtered[0].repositoryPath.replace('https://', `https://${filtered[0].user}:${token}@`)
     }
     return null
@@ -226,27 +226,24 @@ export const pushProjectToGithub = async (app: Application, project: ProjectInte
             repos.find((repo) => repo.repositoryPath === repoPath || repo.repositoryPath === repoPath + '.git')
           )
         })()
-    let data
     try {
       const result = await octoKit.rest.repos.get({
         owner,
         repo
       })
-      data = result.data
     } catch (err) {
       if (err.status === 404) {
         let result
         const authUser = await octoKit.rest.users.getAuthenticated()
         if (authUser.data.login === owner)
-          result = await octoKit.repos.createForAuthenticatedUser({
+          await octoKit.repos.createForAuthenticatedUser({
             name: repo,
             auto_init: true
           })
-        else result = await octoKit.repos.createInOrg({ org: owner, name: repo, auto_init: true })
-        data = result.data
+        else await octoKit.repos.createInOrg({ org: owner, name: repo, auto_init: true })
       } else throw err
     }
-    const defaultBranch = data.default_branch
+    const defaultBranch = `${config.server.releaseName}-deployment`
     await uploadToRepo(octoKit, files, owner, repo, defaultBranch, project.name, githubIdentityProvider != null)
     if (!isDev) deleteFolderRecursive(localProjectDirectory)
   } catch (err) {
@@ -256,7 +253,7 @@ export const pushProjectToGithub = async (app: Application, project: ProjectInte
 }
 
 // Credit to https://dev.to/lucis/how-to-push-files-programatically-to-a-repository-using-octokit-with-typescript-1nj0
-// for the much of the following code.
+// for much of the following code.
 const uploadToRepo = async (
   octo: Octokit,
   filePaths: string[],
@@ -314,6 +311,25 @@ const uploadToRepo = async (
   }
 }
 export const getCurrentCommit = async (octo: Octokit, org: string, repo: string, branch: string = 'master') => {
+  try {
+    await octo.repos.getBranch({ owner: org, repo, branch })
+  } catch (err) {
+    // If the branch for this deployment somehow doesn't exist, push the default branch to it so it exists
+    if (err.status === 404 && err.message === 'Branch not found') {
+      const repoResult = await octo.repos.get({ owner: org, repo })
+      const baseBranchRef = await octo.git.getRef({
+        owner: org,
+        repo,
+        ref: `heads/${repoResult.data.default_branch}`
+      })
+      await octo.git.createRef({
+        owner: org,
+        repo,
+        ref: `refs/heads/${branch}`,
+        sha: baseBranchRef.data.object.sha
+      })
+    } else throw err
+  }
   const { data: refData } = await octo.git.getRef({
     owner: org,
     repo,
