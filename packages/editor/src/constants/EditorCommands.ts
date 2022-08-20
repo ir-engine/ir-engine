@@ -4,6 +4,8 @@ import { AddObjectCommand, AddObjectCommandParams } from '../commands/AddObjectC
 import { AddToSelectionCommand, AddToSelectionCommandParams } from '../commands/AddToSelectionCommand'
 import { DuplicateObjectCommand, DuplicateObjectCommandParams } from '../commands/DuplicateObjectCommand'
 import { GroupCommand, GroupCommandParams } from '../commands/GroupCommand'
+import { ModifyObj3DCommandParams } from '../commands/ModifyObject3DCommand'
+import { ModifyObj3DCommand } from '../commands/ModifyObject3DCommand'
 import { ModifyPropertyCommand, ModifyPropertyCommandParams } from '../commands/ModifyPropertyCommand'
 import { PositionCommand, PositionCommandParams } from '../commands/PositionCommand'
 import { RemoveFromSelectionCommand, RemoveFromSelectionCommandParams } from '../commands/RemoveFromSelectionCommand'
@@ -43,7 +45,8 @@ export enum TransformCommands {
 }
 
 export enum MiscCommands {
-  TAG_COMPONENT = 15
+  TAG_COMPONENT = 15,
+  MODIFY_OBJECT3D = 16
 }
 
 export const EditorCommands = {
@@ -121,7 +124,8 @@ export const CommandFuncs: {
   [EditorCommands.ROTATE_AROUND]: RotateAroundCommand,
   [EditorCommands.SCALE]: ScaleCommand,
   [EditorCommands.MODIFY_PROPERTY]: ModifyPropertyCommand,
-  [EditorCommands.TAG_COMPONENT]: TagComponentCommand
+  [EditorCommands.TAG_COMPONENT]: TagComponentCommand,
+  [EditorCommands.MODIFY_OBJECT3D]: ModifyObj3DCommand
 }
 
 export type CommandParamsType =
@@ -140,6 +144,7 @@ export type CommandParamsType =
   | RemoveFromSelectionCommandParams
   | ReplaceSelectionCommandParams
   | ToggleSelectionCommandParams
+  | ModifyObj3DCommandParams
 
 export type CommandParamsOmitAffectedNodes =
   | Omit<AddObjectCommandParams, 'affectedNodes'>
@@ -157,3 +162,4 @@ export type CommandParamsOmitAffectedNodes =
   | Omit<RemoveFromSelectionCommandParams, 'affectedNodes'>
   | Omit<ReplaceSelectionCommandParams, 'affectedNodes'>
   | Omit<ToggleSelectionCommandParams, 'affectedNodes'>
+  | Omit<ModifyObj3DCommandParams, 'affectedNodes'>

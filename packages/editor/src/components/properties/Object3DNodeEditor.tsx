@@ -16,6 +16,7 @@ import { Divider } from '@mui/material'
 
 import { executeCommandWithHistory, executeCommandWithHistoryOnSelection } from '../../classes/History'
 import EditorCommands, { TransformCommands } from '../../constants/EditorCommands'
+import { accessSelectionState } from '../../services/SelectionServices'
 import BooleanInput from '../inputs/BooleanInput'
 import { Button } from '../inputs/Button'
 import InputGroup from '../inputs/InputGroup'
@@ -40,7 +41,7 @@ export const Object3DNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
   console.log(props)
   const scene: Scene = Engine.instance.currentWorld.scene
-
+  const selectionState = accessSelectionState()
   const obj3d: Object3D = props.node as any
 
   //objId: used to track current obj3d
@@ -302,7 +303,12 @@ export const Object3DNodeEditor: EditorComponentType = (props) => {
         <ReactJson
           style={{ height: '100%', overflow: 'auto' }}
           onEdit={(edit) => {
-            obj3d.userData = edit.updated_src
+            executeCommandWithHistory({
+              type: EditorCommands.MODIFY_OBJECT3D,
+              affectedNodes: selectionState.value.selectedEntities.filter((val) => typeof val === 'string') as string[],
+              properties: [{ userData: edit.updated_src }]
+            })
+            //obj3d.userData = edit.updated_src
           }}
           onAdd={(add) => {
             obj3d.userData = add.updated_src
