@@ -27,6 +27,7 @@ import { List } from '../layout/List'
 import PaginatedList from '../layout/PaginatedList'
 import Well from '../layout/Well'
 import MaterialEditor from '../materials/MaterialEditor'
+import styles from '../styles.module.scss'
 import NodeEditor from './NodeEditor'
 import { EditorComponentType } from './Util'
 
@@ -88,7 +89,6 @@ export const Object3DNodeEditor: EditorComponentType = (props) => {
   const materials = getMaterials()
   const materialIds = useHookstate(getMaterialIds())
   const currentMaterialId = useHookstate(materialIds.value.length > 0 ? 0 : -1)
-
   function getGeometries() {
     const result: Geometry[] = []
     Engine.instance.currentWorld.scene.traverse((child: Mesh<Geometry>) => {
@@ -166,8 +166,6 @@ export const Object3DNodeEditor: EditorComponentType = (props) => {
       name={t('editor:properties.object3d.name')}
       description={t('editor:properties.object3d.description')}
     >
-      {/* frustrum culling */ updateObj3d('frustrumCulled', 'Frustrum Culled')}
-      {/* visibility */ updateObj3d('visible', 'Visible')}
       {
         <Well>
           <Well>
@@ -236,6 +234,8 @@ export const Object3DNodeEditor: EditorComponentType = (props) => {
             </Well>
           </Well>
           <Well>
+            {updateObj3d('visible', 'Visible')}
+            {updateObj3d('frustrumCulled', 'Frustrum Culled')}
             {updateObj3d('castShadow', 'Cast Shadow')}
             {updateObj3d('receiveShadow', 'Receive Shadow')}
           </Well>
@@ -297,21 +297,24 @@ export const Object3DNodeEditor: EditorComponentType = (props) => {
           />
         </CollapsibleBlock>
       )}
-      <ReactJson
-        style={{ height: '100%', overflow: 'auto' }}
-        onEdit={(edit) => {
-          obj3d.userData = edit.updated_src
-        }}
-        onAdd={(add) => {
-          obj3d.userData = add.updated_src
-        }}
-        onDelete={(_delete) => {
-          obj3d.userData = _delete.updated_src
-        }}
-        onSelect={() => {}}
-        theme="monokai"
-        src={obj3d.userData}
-      />
+      <div className={styles.propertyContainer}>
+        <h1>userData</h1>
+        <ReactJson
+          style={{ height: '100%', overflow: 'auto' }}
+          onEdit={(edit) => {
+            obj3d.userData = edit.updated_src
+          }}
+          onAdd={(add) => {
+            obj3d.userData = add.updated_src
+          }}
+          onDelete={(_delete) => {
+            obj3d.userData = _delete.updated_src
+          }}
+          onSelect={() => {}}
+          theme="monokai"
+          src={obj3d.userData}
+        />
+      </div>
     </NodeEditor>
   )
 }

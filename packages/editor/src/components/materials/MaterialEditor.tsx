@@ -16,6 +16,7 @@ import {
 import { InputGroup } from '../inputs/InputGroup'
 import ParameterInput from '../inputs/ParameterInput'
 import SelectInput from '../inputs/SelectInput'
+import StringInput from '../inputs/StringInput'
 import Well from '../layout/Well'
 
 export default function MaterialEditor({ material }: { ['material']: Material }) {
@@ -58,6 +59,7 @@ export default function MaterialEditor({ material }: { ['material']: Material })
   }
 
   const matId = useHookstate(material.uuid)
+  const matName = useHookstate(material.name)
 
   useEffect(() => {
     if (matId.value !== material.uuid) {
@@ -69,6 +71,7 @@ export default function MaterialEditor({ material }: { ['material']: Material })
     clearThumbs()
     thumbnails.set(createThumbnails())
     defaults.set(createDefaults())
+    matName.set(material.name)
     return clearThumbs
   }, [matId])
 
@@ -99,6 +102,15 @@ export default function MaterialEditor({ material }: { ['material']: Material })
 
   return (
     <Fragment>
+      <InputGroup name="Name" label="Name">
+        <StringInput
+          value={matName.value}
+          onChange={(nuName) => {
+            matName.set(nuName)
+            material.name = nuName
+          }}
+        />
+      </InputGroup>
       <Well>
         <InputGroup name="Material Type" label="Material Type">
           <SelectInput

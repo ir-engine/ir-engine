@@ -26,27 +26,6 @@ import SelectInput from './SelectInput'
 import StringInput, { ControlledStringInput } from './StringInput'
 import { TexturePreviewInputGroup } from './TexturePreviewInput'
 
-const GroupContainer = (styled as any).label`
-  background-color: transparent;
-  color: var(--textColor);
-  white-space: pre-wrap;
-  padding: 0 8px 8px;
-`
-
-const ArrayInputGroupContent = (styled as any)(InputGroupContent)`
-  margin: 4px 0px;
-  display: -webkit-box;
-  display: -webkit-flex;
-  display: -ms-flexbox;
-  display: flex;
-  -webkit-flex-wrap: wrap;
-  -ms-flex-wrap: wrap;
-  flex-wrap: wrap;
-  -webkit-flex-direction: row;
-  -ms-flex-direction: row;
-  flex-direction: row;
-}`
-
 export default function MaterialAssignment({ entity, node, modelComponent, values, onChange }) {
   let [count, setCount] = useState(values.length)
   let [materialIDs, setMaterialIDs] = useState<any[]>(
@@ -262,7 +241,7 @@ export default function MaterialAssignment({ entity, node, modelComponent, value
     }
 
     return (
-      <Fragment key={`${entity}-${index}-entry`}>
+      <div key={`${entity}-${index}-entry`}>
         <span>
           <InputGroup
             key={`${entity}-${index}-materialID`}
@@ -310,15 +289,12 @@ export default function MaterialAssignment({ entity, node, modelComponent, value
             Delete
           </Button>
         </div>
-      </Fragment>
+      </div>
     )
   }
 
   return (
-    <GroupContainer>
-      <div style={{ textAlign: 'center', marginTop: '16px', marginBottom: '4px' }}>
-        <Typography>Material Overrides</Typography>
-      </div>
+    <CollapsibleBlock label={'Material Overrides'}>
       <InputGroupVerticalContainerWide>
         {values?.length > 0 &&
           (() => {
@@ -331,22 +307,22 @@ export default function MaterialAssignment({ entity, node, modelComponent, value
             )
           })()}
         <InputGroupVerticalContent>
-          <ArrayInputGroupContent>
+          <div>
             <label> Count: </label>
             <ControlledStringInput value={count} onChange={onChangeSize} />
             <Button onClick={onAddEntry}>+</Button>
-          </ArrayInputGroupContent>
+          </div>
           {values &&
             values.map((value, idx) => {
               return (
-                <ArrayInputGroupContent key={`${entity}-${idx}-overrideEntry`} style={{ margin: '4px 2px' }}>
+                <div key={`${entity}-${idx}-overrideEntry`}>
                   <label>{idx + 1}: </label>
                   {MaterialAssignmentEntry(idx)}
-                </ArrayInputGroupContent>
+                </div>
               )
             })}
         </InputGroupVerticalContent>
       </InputGroupVerticalContainerWide>
-    </GroupContainer>
+    </CollapsibleBlock>
   )
 }
