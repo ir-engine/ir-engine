@@ -191,7 +191,7 @@ export const loadSceneFromJSON = async (sceneData: SceneJson, sceneSystems: Syst
   Engine.instance.currentWorld.camera?.layers.enable(ObjectLayers.Scene)
 
   dispatchAction(EngineActions.sceneLoaded({}))
-  DependencyTree.activate()
+  //DependencyTree.activate()
   if (isClient) configureEffectComposer()
 }
 
