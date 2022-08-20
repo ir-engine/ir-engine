@@ -40,19 +40,27 @@ export function formatMaterialArgs(args, defaultArgs: any = undefined) {
   )
 }
 
-export function materialToDefaultArgs(material: Material): Object {
-  switch (material.type) {
+export function materialTypeToLibraryName(type: string): string {
+  switch (type) {
     case 'MeshMatcapMaterial':
-      return DefaultArguments['Matcap']
+      return 'Matcap'
     case 'MeshStandardMaterial':
-      return DefaultArguments['Standard']
+      return 'Standard'
     case 'MeshBasicMaterial':
-      return DefaultArguments['Basic']
+      return 'Basic'
     case 'MeshLambertMaterial':
-      return DefaultArguments['Lambert']
+      return 'Lambert'
     case 'MeshPhongMaterial':
-      return DefaultArguments['Phong']
+      return 'Phong'
     default:
-      return {}
+      return type
   }
+}
+
+export function materialTypeToDefaultArgs(type: string): Object {
+  return DefaultArguments[materialTypeToLibraryName(type)]
+}
+
+export function materialToDefaultArgs(material: Material): Object {
+  return materialTypeToDefaultArgs(material.type)
 }

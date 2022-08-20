@@ -1,9 +1,10 @@
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import ReactJson from 'react-json-view'
-import { Euler, InstancedMesh, Material, Matrix4, Mesh, Object3D, Quaternion, Scene, Vector3 } from 'three'
+import { BoxGeometry, Euler, InstancedMesh, Material, Matrix4, Mesh, Object3D, Quaternion, Scene, Vector3 } from 'three'
 
 import { AxisIcon } from '@xrengine/client-core/src/util/AxisIcon'
+import { Geometry } from '@xrengine/engine/src/assets/constants/Geometry'
 import { Deg2Rad, Rad2Deg } from '@xrengine/engine/src/common/functions/MathFunctions'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Object3DWithEntity } from '@xrengine/engine/src/scene/components/Object3DComponent'
@@ -17,6 +18,7 @@ import EditorCommands, { TransformCommands } from '../../constants/EditorCommand
 import BooleanInput from '../inputs/BooleanInput'
 import { Button } from '../inputs/Button'
 import InputGroup from '../inputs/InputGroup'
+import SelectInput from '../inputs/SelectInput'
 import StringInput from '../inputs/StringInput'
 import Vector3Input from '../inputs/Vector3Input'
 import CollapsibleBlock from '../layout/CollapsibleBlock'
@@ -35,9 +37,7 @@ export const Object3DNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
   console.log(props)
   const scene: Scene = Engine.instance.currentWorld.scene
-  const onEdit = (edit) => {
-    console.log(edit)
-  }
+
   const obj3d: Object3D = props.node as any
 
   //objId: used to track current obj3d
@@ -79,17 +79,39 @@ export const Object3DNodeEditor: EditorComponentType = (props) => {
   }
 
   function getMaterialIds() {
-    return getMaterials().map((material) => material.uuid)
+    return getMaterials().map((material) => {
+      return { label: material.name, value: material.uuid }
+    })
   }
   const materials = getMaterials()
   const materialIds = useHookstate(getMaterialIds())
-  const currentId = useHookstate(materialIds.value.length > 0 ? 0 : -1)
+  const currentMaterialId = useHookstate(materialIds.value.length > 0 ? 0 : -1)
+
+  function getGeometries() {
+    const result: Geometry[] = []
+    Engine.instance.currentWorld.scene.traverse((child: Mesh<Geometry>) => {
+      if (!child?.isMesh) return
+      if (child.geometry) {
+        result.push(child.geometry)
+      }
+    })
+    return result
+  }
+
+  function getGeometryIds() {
+    return getGeometries().map((geometry: Geometry) => {
+      return { label: `${geometry.name}: ${geometry.type}`, value: geometry.uuid }
+    })
+  }
+
+  const geometries = getGeometries()
+  const geometryIds = useHookstate(getGeometryIds())
 
   useHookEffect(() => {
     materialIds.set(getMaterialIds())
-    currentId.set(
-      materialIds.value.length > currentId.value && currentId.value > -1
-        ? currentId.value
+    currentMaterialId.set(
+      materialIds.value.length > currentMaterialId.value && currentMaterialId.value > -1
+        ? currentMaterialId.value
         : materialIds.value.length > 0
         ? 0
         : -1
@@ -142,11 +164,6 @@ export const Object3DNodeEditor: EditorComponentType = (props) => {
       name={t('editor:properties.object3d.name')}
       description={t('editor:properties.object3d.description')}
     >
-      {/* <InputGroup name="Cube Map" label={t('editor:properties.interior.lbl-cubeMap')}>
-        <ImageInput value={interiorComponent.cubeMap} onChange={updateProperty(InteriorComponent, 'cubeMap')} />
-        {hasError && <div style={{ marginTop: 2, color: '#FF8C00' }}>{t('editor:properties.interior.error-url')}</div>}
-      </InputGroup> */}
-      {/* <StringInput value={name} onChange={setName} onFocus={onFocus} onBlur={onBlurName} onKeyUp={onKeyUpName} /> */}
       {/* frustrum culling */ updateObj3d('frustrumCulled', 'Frustrum Culled')}
       {/* visibility */ updateObj3d('visible', 'Visible')}
       {
@@ -225,11 +242,25 @@ export const Object3DNodeEditor: EditorComponentType = (props) => {
       <Button onClick={selectParentEntityNode}>Parent Node</Button>
       {/* animations */}
       {isMesh && (
-        <CollapsibleBlock label={'Mesh Properties'}>
-          <CollapsibleBlock label={'Materials'}>
-            <MaterialEditor material={materials[currentId.value]} />
+        <>
+          <CollapsibleBlock label={'Geometry'}>
+            <InputGroup name="Current Geometry" label="Current Geometry">
+              <SelectInput options={geometryIds.value!} value={mesh.geometry.uuid} />
+            </InputGroup>
           </CollapsibleBlock>
-        </CollapsibleBlock>
+          <CollapsibleBlock label={'Materials'}>
+            <InputGroup name="Current Material" label="Current Material">
+              <SelectInput
+                options={materialIds.value}
+                value={materialIds.value[currentMaterialId.value].value}
+                onChange={(nuVal) => {
+                  currentMaterialId.set(materialIds.value.findIndex(({ value }) => value === nuVal))
+                }}
+              />
+            </InputGroup>
+            <MaterialEditor material={materials[currentMaterialId.value]} />
+          </CollapsibleBlock>
+        </>
       )}
 
       {isInstancedMesh && (
@@ -264,9 +295,18 @@ export const Object3DNodeEditor: EditorComponentType = (props) => {
       )}
       <ReactJson
         style={{ height: '100%', overflow: 'auto' }}
-        onEdit={onEdit}
+        onEdit={(edit) => {
+          obj3d.userData = edit.updated_src
+        }}
+        onAdd={(add) => {
+          obj3d.userData = add.updated_src
+        }}
+        onDelete={(_delete) => {
+          obj3d.userData = _delete.updated_src
+        }}
+        onSelect={() => {}}
         theme="monokai"
-        src={(props.node as any as Object3D).userData}
+        src={obj3d.userData}
       />
     </NodeEditor>
   )
