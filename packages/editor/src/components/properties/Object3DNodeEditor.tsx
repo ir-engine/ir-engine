@@ -166,11 +166,6 @@ export const Object3DNodeEditor: EditorComponentType = (props) => {
       name={t('editor:properties.object3d.name')}
       description={t('editor:properties.object3d.description')}
     >
-      {/* <InputGroup name="Cube Map" label={t('editor:properties.interior.lbl-cubeMap')}>
-        <ImageInput value={interiorComponent.cubeMap} onChange={updateProperty(InteriorComponent, 'cubeMap')} />
-        {hasError && <div style={{ marginTop: 2, color: '#FF8C00' }}>{t('editor:properties.interior.error-url')}</div>}
-      </InputGroup> */}
-      {/* <StringInput value={name} onChange={setName} onFocus={onFocus} onBlur={onBlurName} onKeyUp={onKeyUpName} /> */}
       {/* frustrum culling */ updateObj3d('frustrumCulled', 'Frustrum Culled')}
       {/* visibility */ updateObj3d('visible', 'Visible')}
       {
