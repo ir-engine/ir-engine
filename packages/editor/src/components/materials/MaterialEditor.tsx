@@ -1,12 +1,22 @@
 import { useHookEffect, useHookstate } from '@hookstate/core'
 import React, { Fragment, useEffect } from 'react'
-import { Color, Material, Texture } from 'three'
+import { Color, Material, Mesh, MeshBasicMaterial, MeshMatcapMaterial, MeshStandardMaterial, Texture } from 'three'
 
 import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
 import createReadableTexture from '@xrengine/engine/src/assets/functions/createReadableTexture'
-import { materialToDefaultArgs } from '@xrengine/engine/src/renderer/materials/Utilities'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { MaterialLibrary } from '@xrengine/engine/src/renderer/materials/MaterialLibrary'
+import {
+  extractDefaults,
+  materialToDefaultArgs,
+  materialTypeToDefaultArgs,
+  materialTypeToLibraryName
+} from '@xrengine/engine/src/renderer/materials/Utilities'
 
+import { InputGroup } from '../inputs/InputGroup'
 import ParameterInput from '../inputs/ParameterInput'
+import SelectInput from '../inputs/SelectInput'
+import Well from '../layout/Well'
 
 export default function MaterialEditor({ material }: { ['material']: Material }) {
   if (material === undefined) return <></>
@@ -62,8 +72,55 @@ export default function MaterialEditor({ material }: { ['material']: Material })
     return clearThumbs
   }, [matId])
 
+  function onChangeMaterialType(nuType) {
+    const newDefaultArgs = materialTypeToDefaultArgs(nuType)
+    const oldParmKeys = new Set(Object.keys(materialToDefaultArgs(material)))
+    const newParmKeys = new Set(Object.keys(newDefaultArgs))
+    const allKeys = [...oldParmKeys.values(), ...newParmKeys.values()].filter((x, i, arr) => arr.indexOf(x) === i)
+    const overlap = allKeys.filter((key) => oldParmKeys.has(key) && newParmKeys.has(key))
+    const overlapParms = Object.fromEntries(overlap.map((k) => [k, material[k]]))
+    const newParms = { ...extractDefaults(newDefaultArgs), ...overlapParms }
+    const newMaterial = MaterialLibrary[materialTypeToLibraryName(nuType)](newParms).material
+    const scene = Engine.instance.currentWorld.scene
+    scene.traverse((child: Mesh) => {
+      if (!child?.isMesh) return
+      let childMats = child.material instanceof Material ? [child.material] : child.material
+      childMats.map((childMat, i) => {
+        if (childMat === material) {
+          if (childMats.length > 1) {
+            ;(child.material as Material[])[i] = newMaterial
+          } else {
+            child.material = newMaterial
+          }
+        }
+      })
+    })
+  }
+
   return (
     <Fragment>
+      <Well>
+        <InputGroup name="Material Type" label="Material Type">
+          <SelectInput
+            options={[
+              {
+                label: 'Basic',
+                value: 'MeshBasicMaterial'
+              },
+              {
+                label: 'Standard',
+                value: 'MeshStandardMaterial'
+              },
+              {
+                label: 'Matcap',
+                value: 'MeshMatcapMaterial'
+              }
+            ]}
+            value={material.type}
+            onChange={onChangeMaterialType}
+          />
+        </InputGroup>
+      </Well>
       <ParameterInput
         entity={material.uuid}
         values={material}
