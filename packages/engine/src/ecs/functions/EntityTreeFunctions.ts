@@ -311,11 +311,14 @@ export function isEntityNode(node: any): node is EntityTreeNode {
 export function getEntityNodeArrayFromEntities(
   entities: (Entity | string)[],
   tree = Engine.instance.currentWorld.entityTree
-): EntityTreeNode[] {
-  const arr = [] as EntityTreeNode[]
-
+): (EntityTreeNode | string)[] {
+  const arr = [] as (EntityTreeNode | string)[]
+  const scene = Engine.instance.currentWorld.scene
   for (const entity of entities) {
-    if (typeof entity === 'string') continue
+    if (typeof entity === 'string') {
+      scene.getObjectByProperty('uuid', entity) && arr.push(entity)
+      continue
+    }
     const node = tree.entityNodeMap.get(entity)
     if (node) arr.push(node)
   }

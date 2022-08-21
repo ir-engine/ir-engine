@@ -1,3 +1,4 @@
+import { truncate } from 'fs/promises'
 import { range } from 'lodash'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -16,6 +17,7 @@ import { Divider } from '@mui/material'
 
 import { executeCommandWithHistory, executeCommandWithHistoryOnSelection } from '../../classes/History'
 import EditorCommands, { TransformCommands } from '../../constants/EditorCommands'
+import { accessSelectionState } from '../../services/SelectionServices'
 import BooleanInput from '../inputs/BooleanInput'
 import { Button } from '../inputs/Button'
 import InputGroup from '../inputs/InputGroup'
@@ -27,6 +29,7 @@ import { List } from '../layout/List'
 import PaginatedList from '../layout/PaginatedList'
 import Well from '../layout/Well'
 import MaterialEditor from '../materials/MaterialEditor'
+import styles from '../styles.module.scss'
 import NodeEditor from './NodeEditor'
 import { EditorComponentType } from './Util'
 
@@ -39,21 +42,19 @@ export const Object3DNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
   console.log(props)
   const scene: Scene = Engine.instance.currentWorld.scene
-
+  const selectionState = accessSelectionState()
   const obj3d: Object3D = props.node as any
-
+  const mesh = obj3d as Mesh
+  const instancedMesh = obj3d as InstancedMesh
   //objId: used to track current obj3d
   const objId = useHookstate(obj3d.uuid)
-
+  const isMesh = mesh?.isMesh
+  const isInstancedMesh = instancedMesh?.isInstancedMesh
   useEffect(() => {
     if (obj3d && obj3d.uuid !== objId.value) {
       objId.set(obj3d.uuid)
     }
   })
-  const mesh: Mesh = obj3d as Mesh
-  const isMesh = mesh.isMesh
-  const instancedMesh = mesh as InstancedMesh
-  const isInstancedMesh = instancedMesh.isInstancedMesh
 
   const updateObj3d = (varName: 'frustrumCulled' | 'visible' | 'castShadow' | 'receiveShadow', label) => {
     const varVal = useHookstate(() => obj3d[varName])
@@ -88,7 +89,6 @@ export const Object3DNodeEditor: EditorComponentType = (props) => {
   const materials = getMaterials()
   const materialIds = useHookstate(getMaterialIds())
   const currentMaterialId = useHookstate(materialIds.value.length > 0 ? 0 : -1)
-
   function getGeometries() {
     const result: Geometry[] = []
     Engine.instance.currentWorld.scene.traverse((child: Mesh<Geometry>) => {
@@ -106,8 +106,26 @@ export const Object3DNodeEditor: EditorComponentType = (props) => {
     })
   }
 
+  const initEditState = () => {
+    return {
+      objName: obj3d.name,
+      position: obj3d.position.clone(),
+      rotation: new Vector3(...obj3d.rotation.toArray()),
+      scale: obj3d.scale.clone()
+    }
+  }
+
   const geometries = getGeometries()
   const geometryIds = useHookstate(getGeometryIds())
+  const editState = useHookstate<
+    {
+      ['objName']: string
+      ['position']: Vector3
+      ['rotation']: Vector3
+      ['scale']: Vector3
+    },
+    unknown
+  >(initEditState())
 
   useHookEffect(() => {
     materialIds.set(getMaterialIds())
@@ -118,6 +136,7 @@ export const Object3DNodeEditor: EditorComponentType = (props) => {
         ? 0
         : -1
     )
+    editState.set(initEditState())
   }, [objId])
 
   function selectParentEntityNode() {
@@ -138,27 +157,6 @@ export const Object3DNodeEditor: EditorComponentType = (props) => {
       walker = walker.parent as Object3DWithEntity
     }
   }
-  const initEditState = () => {
-    return {
-      objName: obj3d.name,
-      position: obj3d.position.clone(),
-      rotation: new Vector3(...obj3d.rotation.toArray()),
-      scale: obj3d.scale.clone()
-    }
-  }
-  const editState = useHookstate<
-    {
-      ['objName']: string
-      ['position']: Vector3
-      ['rotation']: Vector3
-      ['scale']: Vector3
-    },
-    unknown
-  >(initEditState())
-
-  useHookEffect(() => {
-    editState.set(initEditState())
-  }, [objId])
 
   return (
     <NodeEditor
@@ -166,8 +164,6 @@ export const Object3DNodeEditor: EditorComponentType = (props) => {
       name={t('editor:properties.object3d.name')}
       description={t('editor:properties.object3d.description')}
     >
-      {/* frustrum culling */ updateObj3d('frustrumCulled', 'Frustrum Culled')}
-      {/* visibility */ updateObj3d('visible', 'Visible')}
       {
         <Well>
           <Well>
@@ -227,7 +223,8 @@ export const Object3DNodeEditor: EditorComponentType = (props) => {
                     executeCommandWithHistory({
                       affectedNodes: [obj3d.uuid],
                       type: TransformCommands.SCALE,
-                      scales: [nuScale]
+                      scales: [nuScale],
+                      overrideScale: true
                     })
                     //obj3d.scale.copy(nuScale)
                   }}
@@ -236,6 +233,8 @@ export const Object3DNodeEditor: EditorComponentType = (props) => {
             </Well>
           </Well>
           <Well>
+            {updateObj3d('visible', 'Visible')}
+            {updateObj3d('frustrumCulled', 'Frustrum Culled')}
             {updateObj3d('castShadow', 'Cast Shadow')}
             {updateObj3d('receiveShadow', 'Receive Shadow')}
           </Well>
@@ -251,67 +250,81 @@ export const Object3DNodeEditor: EditorComponentType = (props) => {
             </InputGroup>
           </CollapsibleBlock>
           <CollapsibleBlock label={'Materials'}>
-            <InputGroup name="Current Material" label="Current Material">
-              <SelectInput
-                options={materialIds.value}
-                value={materialIds.value[currentMaterialId.value].value}
-                onChange={(nuVal) => {
-                  currentMaterialId.set(materialIds.value.findIndex(({ value }) => value === nuVal))
-                }}
-              />
-            </InputGroup>
-            <MaterialEditor material={materials[currentMaterialId.value]} />
+            {materialIds.value?.length > 0 && (
+              <>
+                <InputGroup name="Current Material" label="Current Material">
+                  <SelectInput
+                    options={materialIds.value}
+                    value={materialIds.value[currentMaterialId.value]?.value ?? materialIds.value}
+                    onChange={(nuVal) => {
+                      currentMaterialId.set(materialIds.value.findIndex(({ value }) => value === nuVal))
+                    }}
+                  />
+                </InputGroup>
+                <MaterialEditor material={materials[currentMaterialId.value]} />
+              </>
+            )}
           </CollapsibleBlock>
         </>
       )}
 
       {isInstancedMesh && (
         <CollapsibleBlock label={'Instance Properties'}>
-          <PaginatedList
-            list={range(0, instancedMesh.count - 1)}
-            element={(i) => {
-              let transform = new Matrix4()
-              instancedMesh.getMatrixAt(i, transform)
-              let position = new Vector3()
-              let rotation = new Quaternion()
-              let scale = new Vector3()
-              transform.decompose(position, rotation, scale)
+          {instancedMesh?.count > 0 && (
+            <PaginatedList
+              list={range(0, instancedMesh.count - 1)}
+              element={(i) => {
+                let transform = new Matrix4()
+                instancedMesh.getMatrixAt(i, transform)
+                let position = new Vector3()
+                let rotation = new Quaternion()
+                let scale = new Vector3()
+                transform.decompose(position, rotation, scale)
 
-              const euler = new Euler()
-              euler.setFromQuaternion(rotation)
-              return (
-                <Well>
-                  <InputGroup name="Position" label="Translation">
-                    <Vector3Input value={position} />
-                  </InputGroup>
-                  <InputGroup name="Rotation" label="Rotation">
-                    <Vector3Input value={new Vector3(euler.x, euler.y, euler.z).multiplyScalar(Rad2Deg)} />
-                  </InputGroup>
-                  <InputGroup name="Scale" label="Scale">
-                    <Vector3Input value={scale} />
-                  </InputGroup>
-                </Well>
-              )
-            }}
-            onChange={(nuVal) => {}}
-          />
+                const euler = new Euler()
+                euler.setFromQuaternion(rotation)
+                return (
+                  <Well>
+                    <InputGroup name="Position" label="Translation">
+                      <Vector3Input value={position} />
+                    </InputGroup>
+                    <InputGroup name="Rotation" label="Rotation">
+                      <Vector3Input value={new Vector3(euler.x, euler.y, euler.z).multiplyScalar(Rad2Deg)} />
+                    </InputGroup>
+                    <InputGroup name="Scale" label="Scale">
+                      <Vector3Input value={scale} />
+                    </InputGroup>
+                  </Well>
+                )
+              }}
+              onChange={(nuVal) => {}}
+            />
+          )}
         </CollapsibleBlock>
       )}
-      <ReactJson
-        style={{ height: '100%', overflow: 'auto' }}
-        onEdit={(edit) => {
-          obj3d.userData = edit.updated_src
-        }}
-        onAdd={(add) => {
-          obj3d.userData = add.updated_src
-        }}
-        onDelete={(_delete) => {
-          obj3d.userData = _delete.updated_src
-        }}
-        onSelect={() => {}}
-        theme="monokai"
-        src={obj3d.userData}
-      />
+      <div className={styles.propertyContainer}>
+        <h1>userData</h1>
+        <ReactJson
+          style={{ height: '100%', overflow: 'auto' }}
+          onEdit={(edit) => {
+            executeCommandWithHistory({
+              type: EditorCommands.MODIFY_OBJECT3D,
+              affectedNodes: selectionState.value.selectedEntities.filter((val) => typeof val === 'string') as string[],
+              properties: [{ userData: edit.updated_src }]
+            })
+            //obj3d.userData = edit.updated_src
+          }}
+          onAdd={(add) => {
+            obj3d.userData = add.updated_src
+          }}
+          onDelete={(_delete) => {
+            obj3d.userData = _delete.updated_src
+          }}
+          onSelect={() => {}}
+          theme="monokai"
+          src={obj3d.userData}
+        />
+      </div>
     </NodeEditor>
   )
 }

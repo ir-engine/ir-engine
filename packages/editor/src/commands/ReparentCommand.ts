@@ -70,7 +70,7 @@ function prepare(command: ReparentCommandParams) {
           const parent = obj3d.parent
           command.undo.parents.push(parent.uuid)
           const before = parent.children[parent.children.indexOf(obj3d) + 1]
-          command.undo.befores.push(before.uuid)
+          command.undo.befores.push(before?.uuid)
         }
       }
     }

@@ -145,6 +145,7 @@ function updateScale(command: ScaleCommandParams, isUndo: boolean): void {
 
       transformComponent.scale.copy(tempVector)
     }
+    obj3d.updateMatrix()
   }
 }
 

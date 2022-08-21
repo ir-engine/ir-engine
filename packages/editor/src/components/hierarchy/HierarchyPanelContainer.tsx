@@ -27,7 +27,7 @@ import { addMediaNode } from '../../functions/addMediaNode'
 import { isAncestor } from '../../functions/getDetachedObjectsRoots'
 import { cmdOrCtrlString } from '../../functions/utils'
 import { useEditorState } from '../../services/EditorServices'
-import { useSelectionState } from '../../services/SelectionServices'
+import { accessSelectionState, useSelectionState } from '../../services/SelectionServices'
 import useUpload from '../assets/useUpload'
 import { addPrefabElement } from '../element/ElementList'
 import { ContextMenu, MenuItem } from '../layout/ContextMenu'
@@ -70,6 +70,9 @@ function getModelNodesFromTreeWalker(
   showObject3Ds: boolean
 ): HeirarchyTreeNodeType[] {
   const outputNodes = [] as HeirarchyTreeNodeType[]
+  const selected = new Set(
+    accessSelectionState().value.selectedEntities.filter((ent) => typeof ent === 'string') as string[]
+  )
   for (const node of inputNodes) {
     outputNodes.push(node)
     const isCollapsed = collapsedNodes[node.entityNode.entity]
@@ -89,7 +92,7 @@ function getModelNodesFromTreeWalker(
           lastChild: false,
           isLeaf: true, //!obj.children.length, // todo, store collapsed state on obj3d
           isCollapsed: node.isCollapsed,
-          selected: false,
+          selected: selected.has(obj.uuid),
           active: false
         })
       })

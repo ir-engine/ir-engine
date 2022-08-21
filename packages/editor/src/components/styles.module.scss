@@ -9,6 +9,18 @@
   background: var(--background2);
 }
 
+.propertyContainer {
+  background: var(--background);
+  margin: 1em;
+
+  h1 {
+    text-align: center;
+    font-size: larger;
+    margin: 1em;
+    color: var(--textColor);
+  }
+}
+
 .workspaceContainer {
   display: flex;
   flex: 1;
