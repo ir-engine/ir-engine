@@ -86,8 +86,9 @@ export const updateAutoStartTimeForMedia = (entity: Entity) => {
 }
 
 const parseMediaProperties = (props: Partial<MediaComponentType>): Partial<MediaComponentType> => {
+  const paths = props.paths?.map((p) => p.replace('drcs', 'mp4'))
   return {
-    paths: props.paths ?? SCENE_COMPONENT_MEDIA_DEFAULT_VALUES.paths,
+    paths: paths ?? SCENE_COMPONENT_MEDIA_DEFAULT_VALUES.paths,
     playMode: props.playMode ?? SCENE_COMPONENT_MEDIA_DEFAULT_VALUES.playMode,
     controls: props.controls ?? SCENE_COMPONENT_MEDIA_DEFAULT_VALUES.controls,
     autoplay: props.autoplay ?? SCENE_COMPONENT_MEDIA_DEFAULT_VALUES.autoplay,

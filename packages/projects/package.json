@@ -19,8 +19,5 @@
   "bugs": {
     "url": "https://github.com/XRFoundation/XREngine/issues"
   },
-  "homepage": "https://github.com/XRFoundation/XREngine#readme",
-  "dependencies": {
-    "@xrengine/engine": "^0.5.8"
-  }
+  "homepage": "https://github.com/XRFoundation/XREngine#readme"
 }

@@ -177,15 +177,14 @@ export default async function AudioSystem(world: World) {
   const audioPrefabQuery = defineQuery([AudioComponent, Not(VideoComponent), Not(VolumetricComponent)])
   const videoQuery = defineQuery([Object3DComponent, VideoComponent, Not(VolumetricComponent)])
   const volQuery = defineQuery([Not(VideoComponent), VolumetricComponent])
-  const mediaQuery = defineQuery([MediaComponent])
+  const mediaQuery = defineQuery([MediaElementComponent])
 
   const playmedia = () => {
     for (const entity of mediaQuery()) {
       const media = getComponent(entity, MediaElementComponent)
       if (media.autoplay) {
         media.muted = false
-        const cb = getComponent(entity, CallbackComponent)
-        if (cb?.player) cb.play()
+        media.play()
       }
     }
   }

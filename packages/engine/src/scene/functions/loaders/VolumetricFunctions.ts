@@ -73,36 +73,32 @@ export const addVolumetricComponent = (entity: Entity, props: VolumetricComponen
   const properties = parseVolumetricProperties(props)
 
   const player = new DracosisPlayer({
-    scene: obj3d,
     renderer: EngineRenderer.instance.renderer,
     // https://github.com/XRFoundation/Universal-Volumetric/issues/117
     paths: mediaComponent.paths.length ? mediaComponent.paths : ['fake-path'],
-    isLoadingEffect: properties.useLoadingEffect,
-    isVideoTexture: false,
-    playMode: mediaComponent.playMode as any,
-    onMeshBuffering: (_progress) => {},
-    onHandleEvent: (type, data) => {
-      if (getEngineState().userHasInteracted.value && type == 'videostatus' && data.status == 'initplay') {
-        height = calculateHeight(obj3d)
-        height = height * obj3d.scale.y + 1
-        step = height / 150
-        setupLoadingEffect(entity, obj3d)
-        obj3d.userData.isEffect = true
-        obj3d.userData.time = 0
-      }
-    }
+    playMode: mediaComponent.playMode as any
   })
+
+  player.video.addEventListener('play', () => {
+    height = calculateHeight(obj3d)
+    height = height * obj3d.scale.y + 1
+    step = height / 150
+    setupLoadingEffect(entity, obj3d)
+    obj3d.userData.isEffect = true
+    obj3d.userData.time = 0
+  })
+
+  obj3d.add(player.mesh)
 
   addComponent(entity, VolumetricComponent, {
     player,
     ...properties
   })
 
+  // TODO: move to CallbackComponent
   obj3d.update = () => {
     if (!getEngineState().userHasInteracted.value) return
-    if (player.hasPlayed) {
-      player?.handleRender(() => {})
-    }
+    player?.update()
     if (obj3d.userData.isEffect) {
       if (obj3d.userData.time <= height) {
         obj3d.traverse((child: any) => {
@@ -115,16 +111,14 @@ export const addVolumetricComponent = (entity: Entity, props: VolumetricComponen
       } else {
         obj3d.userData.isEffect = false
         endLoadingEffect(entity, obj3d)
-        player.updateStatus('ready')
-        player.play()
+        player.video.play()
       }
     }
   }
 
   addComponent(entity, CallbackComponent, {
-    play: () => player.play(),
-    pause: () => player.pause(),
-    seek: () => player.playOneFrame()
+    play: () => player.video.play(),
+    pause: () => player.video.pause()
   })
 
   const el = player.video
@@ -133,13 +127,14 @@ export const addVolumetricComponent = (entity: Entity, props: VolumetricComponen
   el.addEventListener('playing', () => {
     mediaComponent.playing = true
   })
+
   el.addEventListener('pause', () => {
     mediaComponent.playing = false
   })
 
   if (el.autoplay) {
     if (getEngineState().userHasInteracted.value) {
-      player.play()
+      player.video.play()
     }
   }
 
@@ -178,25 +173,6 @@ export const prepareVolumetricForGLTFExport: ComponentPrepareForGLTFExportFuncti
   if (video.userData.player) {
     video.userData.player.dispose()
     delete video.userData.player
-  }
-}
-
-export const toggleVolumetric = (entity: Entity): boolean => {
-  if (!getEngineState().userHasInteracted.value) return false
-  const obj3d = getComponent(entity, Object3DComponent)?.value as VolumetricObject3D
-  const { player } = getComponent(entity, VolumetricComponent)
-  if (!obj3d) return false
-
-  if (player.hasPlayed && !player.paused) {
-    player.pause()
-    return false
-  } else {
-    if (player.paused) {
-      player.paused = false
-    } else {
-      player.play()
-    }
-    return true
   }
 }
 
