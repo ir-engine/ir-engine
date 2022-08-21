@@ -17,7 +17,7 @@ export function serializeQuaternion(value) {
   return `Quaternion { x: ${value.x}, y: ${value.y}, z: ${value.z}, w: ${value.w} }`
 }
 export function serializeObject3D(value) {
-  if (!value) return value
+  if (!value?.constructor?.name || !value.name) return value
   return `${value.constructor.name} "${value.name}"`
 }
 export function serializeObject3DArray(value) {

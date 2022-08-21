@@ -42,6 +42,7 @@ function execute(command: ToggleSelectionCommandParams) {
     } else {
       typeof node !== 'string' && typeof node.entity === 'number' && addComponent(node.entity, SelectTagComponent, {})
       typeof node !== 'string' && selectedEntities.push(node.entity)
+      typeof node === 'string' && selectedEntities.push(node)
     }
   }
 
