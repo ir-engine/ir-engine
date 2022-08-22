@@ -116,6 +116,7 @@ function updatePosition(command: PositionCommandParams, isUndo?: boolean) {
         tempVector.applyMatrix4(tempMatrix)
         obj3d.position.copy(tempVector)
       }
+      obj3d.updateMatrix()
     } else {
       const transformComponent = getComponent(node.entity, TransformComponent)
       if (space === TransformSpace.Local) {

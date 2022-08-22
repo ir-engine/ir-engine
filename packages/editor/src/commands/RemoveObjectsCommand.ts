@@ -113,13 +113,17 @@ function removeObject(command: RemoveObjectCommandParams) {
       false
     )
   )
-
+  const scene = Engine.instance.currentWorld.scene
   for (let i = 0; i < removedParentNodes.length; i++) {
     const node = removedParentNodes[i]
-    if (!node.parentEntity) continue
-
-    traverseEntityNode(node, (node) => removeEntity(node.entity))
-    removeEntityNodeFromParent(node)
+    if (typeof node === 'string') {
+      const obj = scene.getObjectByProperty('uuid', node)
+      obj?.removeFromParent()
+    } else {
+      if (!node.parentEntity) continue
+      traverseEntityNode(node, (node) => removeEntity(node.entity))
+      removeEntityNodeFromParent(node)
+    }
   }
 
   if (command.updateSelection) {

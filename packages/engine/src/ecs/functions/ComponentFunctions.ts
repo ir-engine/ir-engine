@@ -330,6 +330,7 @@ export const getAllComponents = (
   entity: Entity,
   world = Engine.instance.currentWorld
 ): ComponentConstructor<any, any>[] => {
+  if (!bitECS.entityExists(Engine.instance.currentWorld, entity)) return []
   return bitECS.getEntityComponents(world, entity) as ComponentConstructor<any, any>[]
 }
 
