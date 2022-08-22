@@ -1939,6 +1939,49 @@
   }
 }
 
+.avatarContextPanel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  .ownerImage {
+    width: 150px;
+    height: 150px;
+    margin: auto;
+    border-radius: 75px;
+    filter: drop-shadow(0 4px 4px rgb(0 0 0 / 25%));
+    background: var(--popupBackground);
+    z-index: 1000;
+  }
+
+  .userName {
+    color: var(--textColor);
+    text-align: center;
+  }
+
+  .contentSection {
+    display: flex;
+    flex-direction: column;
+    margin-top: 20px;
+  }
+
+  .gradientBtn {
+    height: 35px;
+    font-size: 14px;
+    width: 250px;
+    max-width: 100%;
+    background: linear-gradient(90deg, var(--buttonGradientStart), var(--buttonGradientEnd));
+    color: var(--textColor);
+    border-radius: 20px;
+    margin: 15px 0 20px;
+    border: none;
+
+    &:hover {
+      opacity: 0.8;
+    }
+  }
+}
+
 .itemContainerPrev {
   content: "";
   width: 40px;
