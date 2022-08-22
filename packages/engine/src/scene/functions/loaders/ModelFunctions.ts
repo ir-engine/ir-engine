@@ -9,6 +9,7 @@ import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent, removeComponent } from '../../../ecs/functions/ComponentFunctions'
 import { setBoundingBoxComponent } from '../../../interaction/components/BoundingBoxComponents'
+import { GLTFLoadedComponent } from '../../components/GLTFLoadedComponent'
 import {
   ModelComponent,
   ModelComponentType,
@@ -44,6 +45,7 @@ export const updateModel = async (entity: Entity) => {
       const uuid = Engine.instance.currentWorld.entityTree.entityNodeMap.get(entity)!.uuid
       DependencyTree.add(uuid)
       hasComponent(entity, Object3DComponent) && removeComponent(entity, Object3DComponent)
+      hasComponent(entity, GLTFLoadedComponent) && removeComponent(entity, GLTFLoadedComponent)
       let scene: Scene
       switch (/\.[\d\s\w]+$/.exec(model.src)![0]) {
         case '.glb':
