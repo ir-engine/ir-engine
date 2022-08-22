@@ -2571,21 +2571,17 @@
   min-height: auto;
 
   button {
-    background: var(--iconButtonBackground);
     color: var(--textColor);
     opacity: 1;
-    border-radius: 20px;
     min-height: 35px;
-    margin: 0 5px;
   }
 
   :global(.Mui-selected) {
-    background: transparent;
     color: var(--textColor);
     opacity: 1 !important;
   }
 
   :global(.MuiTabs-indicator) {
-    display: none;
+    background-color: var(--iconButtonBackground);
   }
 }
