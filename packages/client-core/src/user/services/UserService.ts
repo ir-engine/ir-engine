@@ -10,8 +10,9 @@ import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
 import { API } from '../../API'
-import { accessChatState } from '../../social/services/ChatService'
-import { accessAuthState } from './AuthService'
+
+// import { accessChatState } from '../../social/services/ChatService'
+// import { accessAuthState } from './AuthService'
 
 const logger = multiLogger.child({ component: 'client-core:UserService' })
 
