@@ -13,15 +13,17 @@ import {
   Vector3
 } from 'three'
 
-import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
-
 import { AssetLoader } from '../../../assets/classes/AssetLoader'
 import { ComponentDeserializeFunction, ComponentSerializeFunction } from '../../../common/constants/PrefabFunctionType'
 import { isClient } from '../../../common/functions/isClient'
 import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
-import { EnvmapComponent, EnvmapComponentType } from '../../components/EnvmapComponent'
+import {
+  EnvmapComponent,
+  EnvmapComponentType,
+  SCENE_COMPONENT_ENVMAP_DEFAULT_VALUES
+} from '../../components/EnvmapComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 import { EnvMapSourceType, EnvMapTextureType } from '../../constants/EnvMapEnum'
 import { getPmremGenerator, loadCubeMapTexture } from '../../constants/Util'
@@ -30,26 +32,13 @@ import { EnvMapBakeTypes } from '../../types/EnvMapBakeTypes'
 import { addError, removeError } from '../ErrorFunctions'
 import { parseEnvMapBakeProperties } from './EnvMapBakeFunctions'
 
-export const SCENE_COMPONENT_ENVMAP = 'envmap'
-export const SCENE_COMPONENT_ENVMAP_DEFAULT_VALUES = {
-  type: EnvMapSourceType.Skybox,
-  envMapTextureType: EnvMapTextureType.Cubemap,
-  envMapSourceColor: 0x123456,
-  envMapSourceURL: '/hdr/cubemap/skyboxsun25deg/',
-  envMapIntensity: 1,
-  envMapBake: {}
-}
-
 const tempVector = new Vector3()
 const tempColor = new Color()
 
-export const deserializeEnvMap: ComponentDeserializeFunction = (
-  entity: Entity,
-  json: ComponentJson<EnvmapComponentType>
-) => {
+export const deserializeEnvMap: ComponentDeserializeFunction = (entity: Entity, data: EnvmapComponentType) => {
   if (!isClient) return
 
-  const props = parseEnvMapProperties(json.props)
+  const props = parseEnvMapProperties(data)
   addComponent(entity, EnvmapComponent, props)
 }
 
@@ -177,19 +166,14 @@ export const updateEnvMap = (entity: Entity) => {
 }
 
 export const serializeEnvMap: ComponentSerializeFunction = (entity) => {
-  const component = getComponent(entity, EnvmapComponent) as EnvmapComponentType
-  if (!component) return
-
+  const component = getComponent(entity, EnvmapComponent)
   return {
-    name: SCENE_COMPONENT_ENVMAP,
-    props: {
-      type: component.type,
-      envMapTextureType: component.envMapTextureType,
-      envMapSourceColor: component.envMapSourceColor.getHex(),
-      envMapSourceURL: component.envMapSourceURL,
-      envMapIntensity: component.envMapIntensity,
-      envMapBake: component.envMapBake
-    }
+    type: component.type,
+    envMapTextureType: component.envMapTextureType,
+    envMapSourceColor: component.envMapSourceColor.getHex(),
+    envMapSourceURL: component.envMapSourceURL,
+    envMapIntensity: component.envMapIntensity,
+    envMapBake: component.envMapBake
   }
 }
 

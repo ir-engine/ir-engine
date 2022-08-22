@@ -21,9 +21,21 @@ import { Physics } from '../../physics/classes/Physics'
 import { CollisionGroups } from '../../physics/enums/CollisionGroups'
 import { getInteractionGroups } from '../../physics/functions/getInteractionGroups'
 import { RaycastHit, SceneQueryType } from '../../physics/types/PhysicsTypes'
-import { MountPoint, MountPointComponent } from '../../scene/components/MountPointComponent'
+import {
+  MountPoint,
+  MountPointComponent,
+  SCENE_COMPONENT_MOUNT_POINT,
+  SCENE_COMPONENT_MOUNT_POINT_DEFAULT_VALUES
+} from '../../scene/components/MountPointComponent'
 import { SittingComponent } from '../../scene/components/SittingComponent'
-import { TransformComponent } from '../../transform/components/TransformComponent'
+import { SCENE_COMPONENT_VISIBLE } from '../../scene/components/VisibleComponent'
+import { deserializeMountPoint, serializeMountPoint } from '../../scene/functions/loaders/MountPointFunctions'
+import { ScenePrefabs } from '../../scene/systems/SceneObjectUpdateSystem'
+import {
+  SCENE_COMPONENT_TRANSFORM,
+  SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES,
+  TransformComponent
+} from '../../transform/components/TransformComponent'
 import { createInteractUI } from '../functions/interactUI'
 import { addInteractableUI } from './InteractiveSystem'
 
@@ -36,6 +48,18 @@ const mountPointInteractMessages = {
 
 export default async function MountPointSystem(world: World) {
   if (Engine.instance.isEditor) return () => {}
+
+  world.scenePrefabRegistry.set(ScenePrefabs.chair, [
+    { name: SCENE_COMPONENT_TRANSFORM, props: SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES },
+    { name: SCENE_COMPONENT_VISIBLE, props: true },
+    { name: SCENE_COMPONENT_MOUNT_POINT, props: SCENE_COMPONENT_MOUNT_POINT_DEFAULT_VALUES }
+  ])
+
+  world.sceneComponentRegistry.set(MountPointComponent._name, SCENE_COMPONENT_MOUNT_POINT)
+  world.sceneLoadingRegistry.set(SCENE_COMPONENT_MOUNT_POINT, {
+    deserialize: deserializeMountPoint,
+    serialize: serializeMountPoint
+  })
 
   const mountPointActionQueue = createActionQueue(EngineActions.interactedWithObject.matches)
   const mountPointQuery = defineQuery([MountPointComponent])

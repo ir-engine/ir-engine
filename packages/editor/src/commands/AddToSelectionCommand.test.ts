@@ -12,7 +12,6 @@ import {
 } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
 import { createEngine } from '@xrengine/engine/src/initializeEngine'
 import { SelectTagComponent } from '@xrengine/engine/src/scene/components/SelectTagComponent'
-import { registerPrefabs } from '@xrengine/engine/src/scene/functions/registerPrefabs'
 import { applyIncomingActions } from '@xrengine/hyperflux'
 
 import EditorCommands from '../constants/EditorCommands'
@@ -29,7 +28,6 @@ describe('AddToSelectionCommand', () => {
     createEngine()
     registerEditorReceptors()
     Engine.instance.store.defaultDispatchDelay = 0
-    registerPrefabs(Engine.instance.currentWorld)
 
     rootNode = createEntityNode(createEntity())
     nodes = [createEntityNode(createEntity()), createEntityNode(createEntity())]
@@ -115,7 +113,7 @@ describe('AddToSelectionCommand', () => {
       command.affectedNodes = nodes
       AddToSelectionCommand.execute(command)
       applyIncomingActions()
-      command.affectedNodes.forEach((node) => {
+      command.affectedNodes.forEach((node: EntityTreeNode) => {
         assert(accessSelectionState().selectedEntities.value.includes(node.entity))
         assert(hasComponent(node.entity, SelectTagComponent))
       })
@@ -131,7 +129,7 @@ describe('AddToSelectionCommand', () => {
       AddToSelectionCommand.undo(command)
       applyIncomingActions()
 
-      command.affectedNodes.forEach((node) => {
+      command.affectedNodes.forEach((node: EntityTreeNode) => {
         assert(accessSelectionState().selectedEntities.value.includes(node.entity))
         assert(hasComponent(node.entity, SelectTagComponent))
       })

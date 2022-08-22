@@ -6,7 +6,7 @@ import { createMappedComponent } from '@xrengine/engine/src/ecs/functions/Compon
 export type EditorCameraComponentType = {
   center: Vector3
   zoomDelta: number
-  focusedObjects: EntityTreeNode[]
+  focusedObjects: (string | EntityTreeNode)[]
   isPanning: boolean
   cursorDeltaX: number
   cursorDeltaY: number

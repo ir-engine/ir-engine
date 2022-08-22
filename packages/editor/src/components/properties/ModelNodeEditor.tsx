@@ -1,9 +1,7 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Object3D } from 'three'
 
-import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
-import exportModelGLTF from '@xrengine/engine/src/assets/functions/exportModelGLTF'
 import { AnimationManager } from '@xrengine/engine/src/avatar/AnimationManager'
 import { AnimationComponent } from '@xrengine/engine/src/avatar/components/AnimationComponent'
 import { LoopAnimationComponent } from '@xrengine/engine/src/avatar/components/LoopAnimationComponent'
@@ -21,8 +19,6 @@ import { ErrorComponent } from '@xrengine/engine/src/scene/components/ErrorCompo
 import { ModelComponent } from '@xrengine/engine/src/scene/components/ModelComponent'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
-import { SCENE_COMPONENT_EQUIPPABLE } from '@xrengine/engine/src/scene/functions/loaders/EquippableFunctions'
-import { playAnimationClip } from '@xrengine/engine/src/scene/functions/loaders/LoopAnimationFunctions'
 
 import ViewInArIcon from '@mui/icons-material/ViewInAr'
 
@@ -53,7 +49,6 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
   const entity = props.node.entity
 
   const modelComponent = getComponent(entity, ModelComponent)
-  const animationComponent = getComponent(entity, AnimationComponent)
   const obj3d = getComponent(entity, Object3DComponent)?.value ?? new Object3D() // quick hack to not crash
   const hasError = engineState.errorEntities[entity].get()
   const errorComponent = getComponent(entity, ErrorComponent)
@@ -107,19 +102,7 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
           <div style={{ marginTop: 2, color: '#FF8C00' }}>{t('editor:properties.model.error-url')}</div>
         )}
       </InputGroup>
-      {modelComponent.parsed && (
-        <ModelTransformProperties
-          modelComponent={modelComponent}
-          onChangeModel={updateProperty(ModelComponent, 'src')}
-        />
-      )}
-      <MaterialAssignment
-        entity={entity}
-        node={props.node}
-        modelComponent={modelComponent}
-        values={modelComponent.materialOverrides}
-        onChange={updateProperty(ModelComponent, 'materialOverrides')}
-      />
+
       <InputGroup name="Generate BVH" label={t('editor:properties.model.lbl-generateBVH')}>
         <BooleanInput value={modelComponent.generateBVH} onChange={updateProperty(ModelComponent, 'generateBVH')} />
       </InputGroup>
@@ -161,6 +144,14 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
       <ScreenshareTargetNodeEditor node={props.node} multiEdit={props.multiEdit} />
       <EnvMapEditor node={props.node} />
       <ShadowProperties node={props.node} />
+      <ModelTransformProperties modelComponent={modelComponent} onChangeModel={updateProperty(ModelComponent, 'src')} />
+      <MaterialAssignment
+        entity={entity}
+        node={props.node}
+        modelComponent={modelComponent}
+        values={modelComponent.materialOverrides}
+        onChange={updateProperty(ModelComponent, 'materialOverrides')}
+      />
       {!exporting && modelComponent.src && (
         <Well>
           <ModelInput value={exportPath} onChange={setExportPath} />

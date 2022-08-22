@@ -188,15 +188,22 @@ export const prepareObjectForGLTFExport = (obj3d: Object3DWithEntity, world = En
     obj3d.name = nameCmp.name
   }
 
-  const components = getAllComponents(obj3d.entity)
+  const { entity } = obj3d
+
+  const components = getAllComponents(entity)
 
   for (const component of components) {
     const sceneComponentID = world.sceneComponentRegistry.get(component._name)!
     if (sceneComponentID) {
       const loadingRegister = world.sceneLoadingRegistry.get(sceneComponentID)
       if (loadingRegister) {
-        const data = loadingRegister.serialize(obj3d.entity)
-        if (data) addComponentDataToGLTFExtension(obj3d, data)
+        const serialize = world.sceneLoadingRegistry.get(sceneComponentID)?.serialize
+        const data = serialize ? serialize(entity) : getComponent(entity, component)
+        if (data)
+          addComponentDataToGLTFExtension(obj3d, {
+            name: sceneComponentID,
+            props: Object.assign({}, data)
+          })
       }
     }
   }

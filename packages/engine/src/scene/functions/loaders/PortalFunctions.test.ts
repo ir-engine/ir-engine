@@ -1,8 +1,6 @@
 import assert from 'assert'
 import { Euler, MathUtils, Quaternion, Vector3 } from 'three'
 
-import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
-
 import { Engine } from '../../../ecs/classes/Engine'
 import { addComponent, getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
@@ -54,12 +52,7 @@ describe('PortalFunctions', () => {
       remoteSpawnRotation: new Quaternion()
     } as PortalComponentType
 
-    const sceneComponent: ComponentJson = {
-      name: 'portal',
-      props: sceneComponentData
-    }
-
-    deserializePortal(entity, sceneComponent)
+    deserializePortal(entity, sceneComponentData)
 
     assert(hasComponent(entity, PortalComponent))
 

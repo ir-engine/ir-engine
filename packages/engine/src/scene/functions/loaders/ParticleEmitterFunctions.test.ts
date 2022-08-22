@@ -56,24 +56,4 @@ describe('ParticleEmitterFunctions', async () => {
   afterEach(async () => {
     sandbox.restore()
   })
-  describe('deserializeParticleEmitter', () => {
-    it('Correctly deserializes empty component', async () => {
-      deserializeParticleEmitter(entity, {
-        name: 'particle-emitter',
-        props: {
-          mode: 'LIBRARY',
-          src: ''
-        }
-      })
-
-      await nextFixedStep
-
-      assert(hasComponent(entity, ParticleEmitterComponent))
-      const component = getComponent(entity, ParticleEmitterComponent)
-      assert.deepEqual(component.mode, 'LIBRARY')
-      assert.deepEqual(component.src, '')
-    })
-    it('Correctly deserializes default library entry', async () => {})
-    it('Correctly deserializes JSON particle system data', async () => {})
-  })
 })

@@ -2,7 +2,7 @@ import { FileLoader } from 'three'
 
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import { gltfToSceneJson } from '@xrengine/engine/src/scene/functions/GLTFConversion'
-import { loadECSData } from '@xrengine/engine/src/scene/functions/SceneLoading'
+import { loadECSData } from '@xrengine/engine/src/scene/systems/SceneLoadingSystem'
 
 import { AssetLoader } from './AssetLoader'
 

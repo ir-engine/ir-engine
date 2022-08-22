@@ -27,7 +27,7 @@ import { addMediaNode } from '../../functions/addMediaNode'
 import { isAncestor } from '../../functions/getDetachedObjectsRoots'
 import { cmdOrCtrlString } from '../../functions/utils'
 import { useEditorState } from '../../services/EditorServices'
-import { useSelectionState } from '../../services/SelectionServices'
+import { accessSelectionState, useSelectionState } from '../../services/SelectionServices'
 import useUpload from '../assets/useUpload'
 import { addPrefabElement } from '../element/ElementList'
 import { ContextMenu, MenuItem } from '../layout/ContextMenu'
@@ -70,6 +70,9 @@ function getModelNodesFromTreeWalker(
   showObject3Ds: boolean
 ): HeirarchyTreeNodeType[] {
   const outputNodes = [] as HeirarchyTreeNodeType[]
+  const selected = new Set(
+    accessSelectionState().value.selectedEntities.filter((ent) => typeof ent === 'string') as string[]
+  )
   for (const node of inputNodes) {
     outputNodes.push(node)
     const isCollapsed = collapsedNodes[node.entityNode.entity]
@@ -89,7 +92,7 @@ function getModelNodesFromTreeWalker(
           lastChild: false,
           isLeaf: true, //!obj.children.length, // todo, store collapsed state on obj3d
           isCollapsed: node.isCollapsed,
-          selected: false,
+          selected: selected.has(obj.uuid),
           active: false
         })
       })
@@ -209,13 +212,13 @@ export default function HierarchyPanel() {
       if (e.shiftKey) {
         executeCommandWithHistory({
           type: EditorCommands.TOGGLE_SELECTION,
-          affectedNodes: [node.entityNode ?? node.obj3d]
+          affectedNodes: [node.entityNode ?? node.obj3d!.uuid]
         })
         setSelectedNode(null)
       } else if (!node.selected) {
         executeCommandWithHistory({
           type: EditorCommands.REPLACE_SELECTION,
-          affectedNodes: [node.entityNode ?? node.obj3d]
+          affectedNodes: [node.entityNode ?? node.obj3d!.uuid]
         })
         setSelectedNode(node)
       }
@@ -254,7 +257,7 @@ export default function HierarchyPanel() {
           if (e.shiftKey) {
             executeCommandWithHistory({
               type: EditorCommands.ADD_TO_SELECTION,
-              affectedNodes: [nextNode.entityNode ?? nextNode.obj3d]
+              affectedNodes: [nextNode.entityNode ?? nextNode.obj3d!.uuid]
             })
           }
 
@@ -271,7 +274,7 @@ export default function HierarchyPanel() {
           if (e.shiftKey) {
             executeCommandWithHistory({
               type: EditorCommands.ADD_TO_SELECTION,
-              affectedNodes: [prevNode.entityNode ?? prevNode.obj3d]
+              affectedNodes: [prevNode.entityNode ?? prevNode.obj3d!.uuid]
             })
           }
 
@@ -299,13 +302,13 @@ export default function HierarchyPanel() {
           if (e.shiftKey) {
             executeCommandWithHistory({
               type: EditorCommands.TOGGLE_SELECTION,
-              affectedNodes: [node.entityNode ?? node.obj3d]
+              affectedNodes: [node.entityNode ?? node.obj3d!.uuid]
             })
             setSelectedNode(null)
           } else {
             executeCommandWithHistory({
               type: EditorCommands.REPLACE_SELECTION,
-              affectedNodes: [node.entityNode ?? node.obj3d]
+              affectedNodes: [node.entityNode ?? node.obj3d!.uuid]
             })
             setSelectedNode(node)
           }
@@ -323,21 +326,21 @@ export default function HierarchyPanel() {
   const onDeleteNode = useCallback((_, node: HeirarchyTreeNodeType) => {
     let objs = node.selected
       ? getEntityNodeArrayFromEntities(selectionState.selectedEntities.value)
-      : [node.entityNode ?? node.obj3d]
+      : [node.entityNode ?? node.obj3d!.uuid]
     executeCommandWithHistory({ type: EditorCommands.REMOVE_OBJECTS, affectedNodes: objs })
   }, [])
 
   const onDuplicateNode = useCallback((_, node: HeirarchyTreeNodeType) => {
     let objs = node.selected
       ? getEntityNodeArrayFromEntities(selectionState.selectedEntities.value)
-      : [node.entityNode ?? node.obj3d]
+      : [node.entityNode ?? node.obj3d!.uuid]
     executeCommandWithHistory({ type: EditorCommands.DUPLICATE_OBJECTS, affectedNodes: objs })
   }, [])
 
   const onGroupNodes = useCallback((_, node: HeirarchyTreeNodeType) => {
     const objs = node.selected
       ? getEntityNodeArrayFromEntities(selectionState.selectedEntities.value)
-      : [node.entityNode ?? node.obj3d]
+      : [node.entityNode ?? node.obj3d!.uuid]
     executeCommandWithHistory({ type: EditorCommands.GROUP, affectedNodes: objs })
   }, [])
   /* Event handlers */

@@ -1,7 +1,5 @@
 import { Color, Fog, FogExp2, Mesh, MeshStandardMaterial } from 'three'
 
-import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
-
 import { OBCType } from '../../../common/constants/OBCTypes'
 import {
   ComponentDeserializeFunction,
@@ -22,109 +20,91 @@ import {
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
 import { addEntityNodeInTree, createEntityNode } from '../../../ecs/functions/EntityTreeFunctions'
 import { matchActionOnce } from '../../../networking/functions/matchActionOnce'
-import { FogComponent, FogComponentType } from '../../components/FogComponent'
+import { FogComponent, FogComponentType, SCENE_COMPONENT_FOG_DEFAULT_VALUES } from '../../components/FogComponent'
 import { FogType } from '../../constants/FogType'
+import { createNewEditorNode } from '../../systems/SceneLoadingSystem'
+import { ScenePrefabs } from '../../systems/SceneObjectUpdateSystem'
 import { initBrownianMotionFogShader, initHeightFogShader, removeFogShader } from '../FogShaders'
-import { ScenePrefabs } from '../registerPrefabs'
-import { createNewEditorNode } from '../SceneLoading'
 
-export const SCENE_COMPONENT_FOG = 'fog'
-export const SCENE_COMPONENT_FOG_DEFAULT_VALUES = {
-  type: FogType.Linear,
-  color: '#FFFFFF',
-  density: 0.005,
-  near: 1,
-  far: 1000,
-  timeScale: 1,
-  height: 0.05
-}
-
-export const deserializeFog: ComponentDeserializeFunction = (entity: Entity, json: ComponentJson<FogComponentType>) => {
-  const props = parseFogProperties(json.props)
+export const deserializeFog: ComponentDeserializeFunction = (entity: Entity, data: FogComponentType) => {
+  const props = parseFogProperties(data)
   addComponent(entity, FogComponent, props)
-
-  updateFog(entity, props)
 }
 
-export const updateFog: ComponentUpdateFunction = (entity: Entity, properties: FogComponentType) => {
-  const component = getComponent(entity, FogComponent)
+export const updateFog: ComponentUpdateFunction = (entity: Entity) => {
+  const fogComponent = getComponent(entity, FogComponent)
   const scene = Engine.instance.currentWorld.scene
+  /** @todo replace _type with something better */
 
-  if (typeof properties.type !== 'undefined') {
-    switch (component.type) {
+  if (!scene.fog || (scene.fog as any)._type !== fogComponent.type)
+    switch (fogComponent.type) {
       case FogType.Linear:
-        scene.fog = new Fog(component.color, component.near, component.far)
+        scene.fog = new Fog(fogComponent.color, fogComponent.near, fogComponent.far)
         removeFogShader()
         restoreMaterialForFog(entity)
         break
 
       case FogType.Exponential:
-        scene.fog = new FogExp2(component.color.getHex(), component.density)
+        scene.fog = new FogExp2(fogComponent.color.getHex(), fogComponent.density)
         removeFogShader()
         restoreMaterialForFog(entity)
         break
 
       case FogType.Brownian:
-        scene.fog = new FogExp2(component.color.getHex(), component.density)
+        scene.fog = new FogExp2(fogComponent.color.getHex(), fogComponent.density)
         initBrownianMotionFogShader()
         if (getEngineState().sceneLoaded.value) setupMaterialForFog(entity)
         else matchActionOnce(EngineActions.sceneLoaded.matches, () => setupMaterialForFog(entity))
         break
 
       case FogType.Height:
-        scene.fog = new FogExp2(component.color.getHex(), component.density)
+        scene.fog = new FogExp2(fogComponent.color.getHex(), fogComponent.density)
         initHeightFogShader()
         if (getEngineState().sceneLoaded.value) setupMaterialForFog(entity)
         else matchActionOnce(EngineActions.sceneLoaded.matches, () => setupMaterialForFog(entity))
         break
 
       default:
-        scene.fog = null
-        removeFogShader()
-        restoreMaterialForFog(entity)
+        if (scene.fog) {
+          scene.fog = null
+          removeFogShader()
+          restoreMaterialForFog(entity)
+        }
         break
     }
-  }
 
-  if (scene.fog) {
-    if (typeof properties.color !== 'undefined') scene.fog.color.set(component.color)
+  if (!scene.fog) return
+  ;(scene.fog as any)._type = fogComponent.type
+  scene.fog!.color.set(fogComponent.color)
 
-    if (component.type === FogType.Linear) {
-      if (typeof properties.near !== 'undefined') (scene.fog as Fog).near = component.near
-      if (typeof properties.far !== 'undefined') (scene.fog as Fog).far = component.far
-    } else {
-      // For Exponential, Brownian and Hieght fog
-      if (typeof properties.density !== 'undefined') (scene.fog as FogExp2).density = component.density
+  if (fogComponent.type === FogType.Linear) {
+    ;(scene.fog as Fog).near = fogComponent.near
+    ;(scene.fog as Fog).far = fogComponent.far
+  } else {
+    // For Exponential, Brownian and Hieght fog
+    ;(scene.fog as FogExp2).density = fogComponent.density
 
-      if (component.type !== FogType.Exponential) {
-        // For Brownian and Hieght fog
-        if (typeof properties.height !== 'undefined') {
-          component.shaders?.forEach((s) => (s.uniforms.heightFactor.value = component.height))
-        }
-      }
+    if (fogComponent.type !== FogType.Exponential) {
+      // For Brownian and Hieght fog
+      fogComponent.shaders?.forEach((s) => (s.uniforms.heightFactor.value = fogComponent.height))
+    }
 
-      if (component.type === FogType.Brownian) {
-        component.shaders?.forEach((s) => (s.uniforms.fogTimeScale.value = component.timeScale))
-      }
+    if (fogComponent.type === FogType.Brownian) {
+      fogComponent.shaders?.forEach((s) => (s.uniforms.fogTimeScale.value = fogComponent.timeScale))
     }
   }
 }
 
 export const serializeFog: ComponentSerializeFunction = (entity) => {
   const component = getComponent(entity, FogComponent) as FogComponentType
-  if (!component) return
-
   return {
-    name: SCENE_COMPONENT_FOG,
-    props: {
-      type: component.type,
-      color: component.color.getHex(),
-      near: component.near,
-      far: component.far,
-      density: component.density,
-      height: component.height,
-      timeScale: component.timeScale
-    }
+    type: component.type,
+    color: component.color.getHex(),
+    near: component.near,
+    far: component.far,
+    density: component.density,
+    height: component.height,
+    timeScale: component.timeScale
   }
 }
 
@@ -204,5 +184,5 @@ export const createFogFromSceneNode = (sceneEntity: Entity) => {
   newFogComponent.timeScale = fogComponent.timeScale
 
   addEntityNodeInTree(fogNode, Engine.instance.currentWorld.entityTree.rootNode)
-  updateFog(fogNode.entity, newFogComponent)
+  updateFog(fogNode.entity)
 }

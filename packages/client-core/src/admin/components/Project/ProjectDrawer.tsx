@@ -34,7 +34,9 @@ const ProjectDrawer = ({ open, repos, onClose }: Props) => {
     try {
       if (projectURL) {
         setProcessing(true)
-        await ProjectService.uploadProject(projectURL)
+        const urlParts = projectURL.split('/')
+        let projectName = urlParts.pop()
+        await ProjectService.uploadProject(projectURL, projectName, false)
         setProcessing(false)
         handleClose()
       } else {

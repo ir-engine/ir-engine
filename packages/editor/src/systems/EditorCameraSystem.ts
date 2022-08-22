@@ -3,6 +3,7 @@ import { Box3, Matrix3, Sphere, Spherical, Vector3 } from 'three'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
 import { defineQuery, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
+import obj3dFromUuid from '@xrengine/engine/src/scene/util/obj3dFromUuid'
 
 import { EditorCameraComponent } from '../classes/EditorCameraComponent'
 
@@ -45,13 +46,16 @@ export default async function EditorCameraSystem(world: World) {
         } else {
           box.makeEmpty()
           for (const object of cameraComponent.focusedObjects) {
-            const obj3d = getComponent(object.entity, Object3DComponent)?.value
+            const obj3d =
+              typeof object === 'string' ? obj3dFromUuid(object) : getComponent(object.entity, Object3DComponent)?.value
             if (obj3d) box.expandByObject(obj3d)
           }
 
           if (box.isEmpty()) {
             // Focusing on an Group, AmbientLight, etc
-            const obj3d = getComponent(cameraComponent.focusedObjects[0].entity, Object3DComponent)?.value
+            const object = cameraComponent.focusedObjects[0]
+            const obj3d =
+              typeof object === 'string' ? obj3dFromUuid(object) : getComponent(object.entity, Object3DComponent)?.value
             if (obj3d) {
               cameraComponent.center.setFromMatrixPosition(obj3d.matrixWorld)
               distance = 0.1

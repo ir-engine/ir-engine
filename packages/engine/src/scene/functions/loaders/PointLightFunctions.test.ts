@@ -1,13 +1,11 @@
 import assert from 'assert'
 import { Color, PointLight } from 'three'
 
-import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
-
 import { getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
 import { createEngine } from '../../../initializeEngine'
 import { Object3DComponent } from '../../components/Object3DComponent'
-import { deserializePointLight } from './PointLightFunctions'
+import { deserializePointLight, updatePointLight } from './PointLightFunctions'
 
 describe('PointLightFunctions', () => {
   it('deserializePointLight', () => {
@@ -19,12 +17,9 @@ describe('PointLightFunctions', () => {
       color: color.clone(),
       intensity: 5
     }
-    const sceneComponent: ComponentJson = {
-      name: 'point-light',
-      props: sceneComponentData
-    }
 
-    deserializePointLight(entity, sceneComponent)
+    deserializePointLight(entity, sceneComponentData)
+    updatePointLight(entity)
 
     assert(hasComponent(entity, Object3DComponent))
     assert(getComponent(entity, Object3DComponent).value instanceof PointLight)

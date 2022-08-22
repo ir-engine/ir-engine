@@ -1,8 +1,10 @@
+import { EntityJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import { cloneEntityNode, getEntityNodeArrayFromEntities } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
 import { serializeWorld } from '@xrengine/engine/src/scene/functions/serializeWorld'
+import obj3dFromUuid from '@xrengine/engine/src/scene/util/obj3dFromUuid'
 import { dispatchAction } from '@xrengine/hyperflux'
 
 import { executeCommand } from '../classes/History'
@@ -14,25 +16,25 @@ import { EditorAction } from '../services/EditorServices'
 import { accessSelectionState, SelectionAction } from '../services/SelectionServices'
 
 export type DuplicateObjectCommandUndoParams = {
-  selection: Entity[]
+  selection: (string | Entity)[]
 }
 
 export type DuplicateObjectCommandParams = CommandParams & {
   type: ObjectCommands.DUPLICATE_OBJECTS
 
   /** Parent object which will hold objects being duplicateed by this command */
-  parents?: EntityTreeNode[]
+  parents?: (string | EntityTreeNode)[]
 
   /** Child object before which all objects will be duplicateed */
-  befores?: EntityTreeNode[]
+  befores?: (string | EntityTreeNode)[]
 
-  duplicatedObjects?: EntityTreeNode[]
+  duplicatedObjects?: (string | EntityTreeNode)[]
 
   undo?: DuplicateObjectCommandUndoParams
 }
 
 function prepare(command: DuplicateObjectCommandParams) {
-  command.affectedNodes = command.affectedNodes.filter((o) => shouldNodeDeserialize(o))
+  command.affectedNodes = command.affectedNodes.filter((o) => typeof o !== 'string' && shouldNodeDeserialize(o))
 
   if (command.keepHistory) {
     command.undo = {
@@ -44,7 +46,9 @@ function prepare(command: DuplicateObjectCommandParams) {
 function execute(command: DuplicateObjectCommandParams) {
   if (!command.duplicatedObjects) {
     const roots = getDetachedObjectsRoots(command.affectedNodes)
-    command.duplicatedObjects = roots.map((object) => cloneEntityNode(object))
+    command.duplicatedObjects = roots.map((object) =>
+      typeof object === 'string' ? obj3dFromUuid(object).clone().uuid : cloneEntityNode(object)
+    )
   }
 
   if (!command.parents) {
@@ -52,15 +56,30 @@ function execute(command: DuplicateObjectCommandParams) {
     const tree = Engine.instance.currentWorld.entityTree
 
     for (let o of command.duplicatedObjects) {
-      if (!o.parentEntity) throw new Error('Parent is not defined')
-      const parent = tree.entityNodeMap.get(o.parentEntity)
+      if (typeof o === 'string') {
+        const obj3d = obj3dFromUuid(o)
+        if (!obj3d.parent) throw new Error('Parent is not defined')
+        const parent = obj3d.parent
+        command.parents.push(parent.uuid)
+      } else {
+        if (!o.parentEntity) throw new Error('Parent is not defined')
+        const parent = tree.entityNodeMap.get(o.parentEntity)
 
-      if (!parent) throw new Error('Parent is not defined')
-      command.parents.push(parent)
+        if (!parent) throw new Error('Parent is not defined')
+        command.parents.push(parent)
+      }
     }
   }
 
-  const sceneData = command.duplicatedObjects.map((obj) => serializeWorld(obj, true))
+  const sceneData = command.duplicatedObjects.map((obj) =>
+    typeof obj === 'string'
+      ? {
+          entities: {} as { [uuid: string]: EntityJson },
+          root: '',
+          version: 0
+        }
+      : serializeWorld(obj, true)
+  )
 
   executeCommand({
     type: EditorCommands.ADD_OBJECTS,

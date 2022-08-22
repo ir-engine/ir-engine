@@ -1,6 +1,5 @@
 import { Box3 } from 'three'
 
-import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { AvatarDissolveComponent } from '@xrengine/engine/src/avatar/components/AvatarDissolveComponent'
 import { AvatarEffectComponent, MaterialMap } from '@xrengine/engine/src/avatar/components/AvatarEffectComponent'
 import { DissolveEffect } from '@xrengine/engine/src/avatar/DissolveEffect'
@@ -24,7 +23,12 @@ import { CallbackComponent } from '../../components/CallbackComponent'
 import { MediaComponent } from '../../components/MediaComponent'
 import { MediaElementComponent } from '../../components/MediaElementComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
-import { VolumetricComponent, VolumetricComponentType } from '../../components/VolumetricComponent'
+import { UpdatableComponent } from '../../components/UpdatableComponent'
+import {
+  SCENE_COMPONENT_VOLUMETRIC_DEFAULT_VALUES,
+  VolumetricComponent,
+  VolumetricComponentType
+} from '../../components/VolumetricComponent'
 import { addError, removeError } from '../ErrorFunctions'
 import { createAudioNode } from './AudioFunctions'
 
@@ -45,20 +49,11 @@ if (isClient) {
   })
 }
 
-export const VolumetricsExtensions = ['drcs', 'uvol']
-export const SCENE_COMPONENT_VOLUMETRIC = 'volumetric'
-export const SCENE_COMPONENT_VOLUMETRIC_DEFAULT_VALUES = {
-  useLoadingEffect: true
-}
-
-export const deserializeVolumetric: ComponentDeserializeFunction = (
-  entity: Entity,
-  json: ComponentJson<VolumetricComponentType>
-) => {
+export const deserializeVolumetric: ComponentDeserializeFunction = (entity: Entity, data: VolumetricComponentType) => {
   if (!isClient) return
   try {
     removeError(entity, 'error')
-    addVolumetricComponent(entity, json.props)
+    addVolumetricComponent(entity, data)
   } catch (error) {
     console.error(error)
     addError(entity, 'error', error.message)
@@ -66,7 +61,9 @@ export const deserializeVolumetric: ComponentDeserializeFunction = (
 }
 
 export const addVolumetricComponent = (entity: Entity, props: VolumetricComponentType) => {
-  const obj3d = getComponent(entity, Object3DComponent).value as VolumetricObject3D
+  const obj3d = new UpdateableObject3D()
+  addComponent(entity, Object3DComponent, { value: obj3d })
+  addComponent(entity, UpdatableComponent, true)
   const mediaComponent = getComponent(entity, MediaComponent)
   const audioComponent = getComponent(entity, AudioComponent)
 
@@ -76,36 +73,32 @@ export const addVolumetricComponent = (entity: Entity, props: VolumetricComponen
   const properties = parseVolumetricProperties(props)
 
   const player = new DracosisPlayer({
-    scene: obj3d,
     renderer: EngineRenderer.instance.renderer,
     // https://github.com/XRFoundation/Universal-Volumetric/issues/117
     paths: mediaComponent.paths.length ? mediaComponent.paths : ['fake-path'],
-    isLoadingEffect: properties.useLoadingEffect,
-    isVideoTexture: false,
-    playMode: mediaComponent.playMode as any,
-    onMeshBuffering: (_progress) => {},
-    onHandleEvent: (type, data) => {
-      if (getEngineState().userHasInteracted.value && type == 'videostatus' && data.status == 'initplay') {
-        height = calculateHeight(obj3d)
-        height = height * obj3d.scale.y + 1
-        step = height / 150
-        setupLoadingEffect(entity, obj3d)
-        obj3d.userData.isEffect = true
-        obj3d.userData.time = 0
-      }
-    }
+    playMode: mediaComponent.playMode as any
   })
+
+  player.video.addEventListener('play', () => {
+    height = calculateHeight(obj3d)
+    height = height * obj3d.scale.y + 1
+    step = height / 150
+    setupLoadingEffect(entity, obj3d)
+    obj3d.userData.isEffect = true
+    obj3d.userData.time = 0
+  })
+
+  obj3d.add(player.mesh)
 
   addComponent(entity, VolumetricComponent, {
     player,
     ...properties
   })
 
+  // TODO: move to CallbackComponent
   obj3d.update = () => {
     if (!getEngineState().userHasInteracted.value) return
-    if (player.hasPlayed) {
-      player?.handleRender(() => {})
-    }
+    player?.update()
     if (obj3d.userData.isEffect) {
       if (obj3d.userData.time <= height) {
         obj3d.traverse((child: any) => {
@@ -118,26 +111,32 @@ export const addVolumetricComponent = (entity: Entity, props: VolumetricComponen
       } else {
         obj3d.userData.isEffect = false
         endLoadingEffect(entity, obj3d)
-        player.updateStatus('ready')
-        player.play()
+        player.video.play()
       }
     }
   }
 
   addComponent(entity, CallbackComponent, {
-    play: () => player.play(),
-    pause: () => player.pause(),
-    seek: () => player.playOneFrame()
+    play: () => player.video.play(),
+    pause: () => player.video.pause()
   })
 
   const el = player.video
+  el.autoplay = mediaComponent.autoplay
 
   el.addEventListener('playing', () => {
     mediaComponent.playing = true
   })
+
   el.addEventListener('pause', () => {
     mediaComponent.playing = false
   })
+
+  if (el.autoplay) {
+    if (getEngineState().userHasInteracted.value) {
+      player.video.play()
+    }
+  }
 
   addComponent(entity, MediaElementComponent, el)
 
@@ -165,12 +164,8 @@ export const updateVolumetric: ComponentUpdateFunction = (entity: Entity) => {
 
 export const serializeVolumetric: ComponentSerializeFunction = (entity) => {
   const vol = getComponent(entity, VolumetricComponent)
-  if (!vol) return
   return {
-    name: SCENE_COMPONENT_VOLUMETRIC,
-    props: {
-      useLoadingEffect: vol.useLoadingEffect
-    }
+    useLoadingEffect: vol.useLoadingEffect
   }
 }
 
@@ -178,25 +173,6 @@ export const prepareVolumetricForGLTFExport: ComponentPrepareForGLTFExportFuncti
   if (video.userData.player) {
     video.userData.player.dispose()
     delete video.userData.player
-  }
-}
-
-export const toggleVolumetric = (entity: Entity): boolean => {
-  if (!getEngineState().userHasInteracted.value) return false
-  const obj3d = getComponent(entity, Object3DComponent)?.value as VolumetricObject3D
-  const { player } = getComponent(entity, VolumetricComponent)
-  if (!obj3d) return false
-
-  if (player.hasPlayed && !player.paused) {
-    player.pause()
-    return false
-  } else {
-    if (player.paused) {
-      player.paused = false
-    } else {
-      player.play()
-    }
-    return true
   }
 }
 

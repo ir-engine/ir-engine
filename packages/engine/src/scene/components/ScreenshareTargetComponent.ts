@@ -1,6 +1,5 @@
 import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
 
-export type ScreenshareTargetComponentType = {}
+export const ScreenshareTargetComponent = createMappedComponent<true>('ScreenshareTargetComponent')
 
-export const ScreenshareTargetComponent =
-  createMappedComponent<ScreenshareTargetComponentType>('ScreenshareTargetComponent')
+export const SCENE_COMPONENT_SCREENSHARETARGET = 'screensharetarget'

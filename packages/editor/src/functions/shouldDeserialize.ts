@@ -1,7 +1,6 @@
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import { getAllComponents } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { ScenePrefabTypes } from '@xrengine/engine/src/scene/functions/registerPrefabs'
 
 export const shouldNodeDeserialize = (node: EntityTreeNode, world = Engine.instance.currentWorld) => {
   const components = getAllComponents(node.entity)
@@ -17,7 +16,7 @@ export const shouldNodeDeserialize = (node: EntityTreeNode, world = Engine.insta
   return true
 }
 
-export const shouldPrefabDeserialize = (prefabType: ScenePrefabTypes, world = Engine.instance.currentWorld) => {
+export const shouldPrefabDeserialize = (prefabType: string, world = Engine.instance.currentWorld) => {
   const prefab = world.scenePrefabRegistry.get(prefabType)
 
   if (!prefab) return false

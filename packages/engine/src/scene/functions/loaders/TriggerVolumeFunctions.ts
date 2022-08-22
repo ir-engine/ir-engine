@@ -1,8 +1,6 @@
 import { RigidBodyType } from '@dimforge/rapier3d-compat'
 import { BoxBufferGeometry, Mesh, MeshBasicMaterial } from 'three'
 
-import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
-
 import {
   ComponentDeserializeFunction,
   ComponentSerializeFunction,
@@ -19,12 +17,9 @@ import { TransformComponent } from '../../../transform/components/TransformCompo
 import { Object3DComponent } from '../../components/Object3DComponent'
 import { TriggerVolumeComponent, TriggerVolumeComponentType } from '../../components/TriggerVolumeComponent'
 
-export const SCENE_COMPONENT_TRIGGER_VOLUME = 'trigger-volume'
-export const SCENE_COMPONENT_TRIGGER_VOLUME_DEFAULT_VALUES = {}
-
 export const deserializeTriggerVolume: ComponentDeserializeFunction = (
   entity: Entity,
-  json: ComponentJson<TriggerVolumeComponentType>
+  data: TriggerVolumeComponentType
 ): void => {
   const transform = getComponent(entity, TransformComponent)
 
@@ -46,16 +41,16 @@ export const deserializeTriggerVolume: ComponentDeserializeFunction = (
   )
 
   addComponent(entity, TriggerVolumeComponent, {
-    onEnter: json.props.onEnter,
-    onExit: json.props.onExit,
-    target: json.props.target,
+    onEnter: data.onEnter,
+    onExit: data.onExit,
+    target: data.target,
     active: true
   })
 
   addComponent(entity, Object3DComponent, { value: boxMesh })
 }
 
-export const updateTriggerVolume: ComponentUpdateFunction = (entity: Entity, prop: any) => {
+export const updateTriggerVolume: ComponentUpdateFunction = (entity: Entity) => {
   const transform = getComponent(entity, TransformComponent)
   const rigidBody = getComponent(entity, RigidBodyComponent).body
   rigidBody.setTranslation(transform.position, true)
@@ -67,11 +62,8 @@ export const serializeTriggerVolume: ComponentSerializeFunction = (entity) => {
   if (!triggerVolumeComponent) return
 
   return {
-    name: SCENE_COMPONENT_TRIGGER_VOLUME,
-    props: {
-      target: triggerVolumeComponent.target,
-      onEnter: triggerVolumeComponent.onEnter,
-      onExit: triggerVolumeComponent.onExit
-    }
+    target: triggerVolumeComponent.target,
+    onEnter: triggerVolumeComponent.onEnter,
+    onExit: triggerVolumeComponent.onExit
   }
 }

@@ -1,14 +1,12 @@
 import assert from 'assert'
 import { Vector3 } from 'three'
 
-import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
-
 import { Entity } from '../../../ecs/classes/Entity'
 import { getComponent } from '../../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
 import { createEngine } from '../../../initializeEngine'
 import { SplineComponent } from '../../components/SplineComponent'
-import { deserializeSpline, parseSplineProperties, SCENE_COMPONENT_SPLINE, serializeSpline } from './SplineFunctions'
+import { deserializeSpline, parseSplineProperties, serializeSpline } from './SplineFunctions'
 
 describe('SplineFunctions', () => {
   let entity: Entity
@@ -26,14 +24,9 @@ describe('SplineFunctions', () => {
     ]
   }
 
-  const sceneComponent: ComponentJson = {
-    name: SCENE_COMPONENT_SPLINE,
-    props: sceneComponentData
-  }
-
   describe('deserializeSpline()', () => {
     it('creates Spline Component with provided component data', () => {
-      deserializeSpline(entity, sceneComponent)
+      deserializeSpline(entity, sceneComponentData)
 
       const splineComponent = getComponent(entity, SplineComponent)
       assert(splineComponent)
@@ -41,12 +34,10 @@ describe('SplineFunctions', () => {
     })
   })
 
-  describe.skip('updateSpline', () => {})
-
   describe('serializeSpline()', () => {
     it('should properly serialize spline', () => {
-      deserializeSpline(entity, sceneComponent)
-      assert.deepEqual(serializeSpline(entity), sceneComponent)
+      deserializeSpline(entity, sceneComponentData)
+      assert.deepEqual(serializeSpline(entity), sceneComponentData)
     })
 
     it('should return undefine if there is no spline component', () => {

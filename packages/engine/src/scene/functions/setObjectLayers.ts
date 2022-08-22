@@ -24,7 +24,7 @@ export function setObjectLayers(object: Object3D, ...layers: number[]) {
   updateWorldObjectLayers(object)
 }
 
-export function enableObjectLayer(object: Object3D, layer: number, enable) {
+export function enableObjectLayer(object: Object3D, layer: number, enable: boolean) {
   object.traverse((obj: Object3D) => {
     enable ? obj.layers.enable(layer) : obj.layers.disable(layer)
   })

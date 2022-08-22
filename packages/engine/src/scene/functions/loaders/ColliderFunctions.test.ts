@@ -10,7 +10,7 @@ import { createEngine } from '../../../initializeEngine'
 import { Physics } from '../../../physics/classes/Physics'
 import { RigidBodyComponent } from '../../../physics/components/RigidBodyComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
-import { deserializeCollider, SCENE_COMPONENT_COLLIDER, serializeCollider } from './ColliderFunctions'
+import { deserializeCollider, SCENE_COMPONENT_COLLIDER } from './ColliderFunctions'
 
 describe('ColliderFunctions', () => {
   beforeEach(async () => {
@@ -19,18 +19,11 @@ describe('ColliderFunctions', () => {
     Engine.instance.currentWorld.physicsWorld = Physics.createWorld()
   })
 
-  const sceneComponentData = {}
-
-  const sceneComponent: ComponentJson = {
-    name: SCENE_COMPONENT_COLLIDER,
-    props: sceneComponentData
-  }
-
   describe('deserializeCollider()', () => {
     it('does not create RigidBodyComponent if there is no Object3d Component', () => {
       const entity = createEntity()
 
-      deserializeCollider(entity, sceneComponent)
+      deserializeCollider(entity, {})
 
       assert(!hasComponent(entity, RigidBodyComponent))
     })
@@ -39,25 +32,11 @@ describe('ColliderFunctions', () => {
       const entity = createEntity()
       addComponent(entity, Object3DComponent, { value: new Object3D() })
 
-      deserializeCollider(entity, sceneComponent)
+      deserializeCollider(entity, {})
 
       const body = getComponent(entity, RigidBodyComponent).body
 
       assert(body, 'RigidBodyComponent is not created')
-    })
-  })
-
-  describe('serializeCollider()', () => {
-    it('should properly serialize collider', () => {
-      const entity = createEntity()
-      addComponent(entity, Object3DComponent, { value: new Object3D() })
-      deserializeCollider(entity, sceneComponent)
-      assert(serializeCollider(entity) === undefined)
-    })
-
-    it('should return undefine if there is no collider component', () => {
-      const entity = createEntity()
-      assert(serializeCollider(entity) === undefined)
     })
   })
 })
