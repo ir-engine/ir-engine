@@ -85,7 +85,6 @@ export default async function AutopilotSystem(world: World) {
 
       const nextPoint = path.current() as unknown as Vector3
       const distanceSquared = avatarPosition.distanceToSquared(nextPoint)
-      if (!avatarPosition || !nextPoint) debugger
       const autoPilot = getComponent(avatarEntity, AutoPilotComponent)
       const movement = getComponent(avatarEntity, AvatarControllerComponent).localMovementDirection
 
