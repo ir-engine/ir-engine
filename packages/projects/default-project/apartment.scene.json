@@ -1033,6 +1033,211 @@
       "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
       "index": 20,
       "name": "Audio - Ambience"
+    },
+    "5e9f498d-0110-43d6-9c18-6435e5cbc211": {
+      "components": [
+        {
+          "name": "transform",
+          "props": {
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "rotation": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "scale": {
+              "x": 1,
+              "y": 1,
+              "z": 1
+            }
+          }
+        },
+        {
+          "name": "visible",
+          "props": {}
+        },
+        {
+          "name": "trigger-volume",
+          "props": {
+            "target": "",
+            "onEnter": "activate",
+            "onExit": ""
+          }
+        }
+      ],
+      "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
+      "index": 21,
+      "name": "Trigger Volume"
+    },
+    "9011f2a2-e4ff-4e52-b22e-61e970853403": {
+      "components": [
+        {
+          "name": "transform",
+          "props": {
+            "position": {
+              "x": -9,
+              "y": 1.5,
+              "z": -8
+            },
+            "rotation": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "scale": {
+              "x": 1,
+              "y": 1,
+              "z": 1
+            }
+          }
+        },
+        {
+          "name": "visible",
+          "props": {}
+        },
+        {
+          "name": "trigger-volume",
+          "props": {
+            "target": "",
+            "onEnter": "activate",
+            "onExit": ""
+          }
+        }
+      ],
+      "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
+      "index": 22,
+      "name": "Door"
+    },
+    "73104642-8eef-4340-a276-a933befe262c": {
+      "components": [
+        {
+          "name": "transform",
+          "props": {
+            "position": {
+              "x": -1,
+              "y": 0.5,
+              "z": 4
+            },
+            "rotation": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "scale": {
+              "x": 0.0010000000474974513,
+              "y": 0.0010000000474974513,
+              "z": 0.0010000000474974513
+            }
+          }
+        },
+        {
+          "name": "visible",
+          "props": {}
+        },
+        {
+          "name": "shadow",
+          "props": {
+            "cast": true,
+            "receive": true
+          }
+        },
+        {
+          "name": "gltf-model",
+          "props": {
+            "src": "__$project$__/default-project/assets/keycard.glb",
+            "materialOverrides": [],
+            "generateBVH": false,
+            "matrixAutoUpdate": true,
+            "useBasicMaterial": false,
+            "isUsingGPUInstancing": false
+          }
+        },
+        {
+          "name": "envmap",
+          "props": {
+            "type": "Skybox",
+            "envMapTextureType": "Cubemap",
+            "envMapSourceColor": 1193046,
+            "envMapSourceURL": "/hdr/cubemap/skyboxsun25deg/",
+            "envMapIntensity": 1,
+            "envMapBake": {
+              "bakeType": "Baked",
+              "resolution": 2048,
+              "refreshMode": "OnAwake",
+              "envMapOrigin": "",
+              "boxProjection": true,
+              "bakePosition": {
+                "x": 0,
+                "y": 0,
+                "z": 0
+              },
+              "bakePositionOffset": {
+                "x": 0,
+                "y": 0,
+                "z": 0
+              },
+              "bakeScale": {
+                "x": 1,
+                "y": 1,
+                "z": 1
+              }
+            }
+          }
+        },
+        {
+          "name": "loop-animation",
+          "props": {
+            "activeClipIndex": -1,
+            "hasAvatarAnimations": false
+          }
+        }
+      ],
+      "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
+      "index": 23,
+      "name": "Model"
+    },
+    "87f0057e-366e-4292-9964-3f817dfec42d": {
+      "components": [
+        {
+          "name": "transform",
+          "props": {
+            "position": {
+              "x": -1,
+              "y": 0,
+              "z": 4
+            },
+            "rotation": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "scale": {
+              "x": 1,
+              "y": 1,
+              "z": 1
+            }
+          }
+        },
+        {
+          "name": "visible",
+          "props": {}
+        },
+        {
+          "name": "trigger-volume",
+          "props": {
+            "target": "",
+            "onEnter": "receiveVC",
+            "onExit": ""
+          }
+        }
+      ],
+      "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
+      "index": 24,
+      "name": "VCKey Trigger Volume"
     }
   },
   "root": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC"
