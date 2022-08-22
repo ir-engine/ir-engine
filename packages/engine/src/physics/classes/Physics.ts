@@ -157,18 +157,6 @@ function createColliderDesc(mesh: Mesh, colliderDescOptions: ColliderDescOptions
   // If custom size has been provided use that else use mesh scale
   const colliderSize = colliderDescOptions.size ? colliderDescOptions.size : mesh.scale
 
-  // Check for case mismatch
-  if (
-    typeof colliderDescOptions.collisionLayer === 'undefined' &&
-    typeof (colliderDescOptions as any).collisionlayer !== 'undefined'
-  )
-    colliderDescOptions.collisionLayer = (colliderDescOptions as any).collisionlayer
-  if (
-    typeof colliderDescOptions.collisionMask === 'undefined' &&
-    typeof (colliderDescOptions as any).collisionmask !== 'undefined'
-  )
-    colliderDescOptions.collisionMask = (colliderDescOptions as any).collisionmask
-
   let colliderDesc: ColliderDesc
   switch (shapeType as ShapeType) {
     case ShapeType.Cuboid:
