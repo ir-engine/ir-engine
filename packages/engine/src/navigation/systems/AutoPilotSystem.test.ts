@@ -1,19 +1,15 @@
 import assert from 'assert'
+import { round } from 'lodash'
 import proxyquire from 'proxyquire'
 import sinon from 'sinon'
 import { Object3D, Quaternion, Vector2, Vector3 } from 'three'
 
-import { LifecycleValue } from '../../common/enums/LifecycleValue'
-import { NumericalType } from '../../common/types/NumericalTypes'
+import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
 import { Engine } from '../../ecs/classes/Engine'
-import { EngineActions } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
-import { addComponent, getComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
+import { addComponent, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { createEngine } from '../../initializeEngine'
-import { GamepadAxis } from '../../input/enums/InputEnums'
-import { InputType } from '../../input/enums/InputType'
-import { InputValue } from '../../input/interfaces/InputValue'
 import { NavMesh } from '../../scene/classes/NavMesh'
 import { NavMeshComponent } from '../../scene/components/NavMeshComponent'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
@@ -27,15 +23,14 @@ const findClosestProjectedPoint = sinon.spy(
   }
 )
 const updatePath = sinon.spy((_path, _1, _2, _3, _4) => {})
-const getInputX = sinon.spy((_path, _pos) => 13)
-const getInputY = sinon.spy((_path, _pos) => 23)
-const getInputAngle = sinon.spy((_path, _pos) => 42)
+const getMovementDirection = sinon.stub()
+let _currentPathPoint: Vector3
 class Path {
   _current: Vector3
   _finished = false
   advance = sinon.spy()
   current() {
-    return this._current
+    return _currentPathPoint
   }
   finished() {
     return this._finished
@@ -45,7 +40,8 @@ class Path {
 describe('AutoPilotSystem', async () => {
   const { default: AutopilotSystem } = proxyquire('./AutopilotSystem', {
     '../functions/findProjectedPoint': { findClosestProjectedPoint },
-    '../functions/pathFunctions': { updatePath, getInputX, getInputY, getInputAngle },
+    '../functions/pathFunctions': { updatePath },
+    '../functions/inputFunctions': { getMovementDirection },
     yuka: { Path }
   })
   let system: () => void
@@ -55,7 +51,6 @@ describe('AutoPilotSystem', async () => {
   let unprojectedPoint: Vector2
   let navMesh: NavMesh
   let avatarPosition: Vector3
-  let leftAxis: InputValue
 
   beforeEach(async () => {
     createEngine()
@@ -76,6 +71,9 @@ describe('AutoPilotSystem', async () => {
       rotation: new Quaternion(),
       scale: new Vector3()
     })
+    addComponent(avatarEntity, AvatarControllerComponent, {
+      localMovementDirection: new Vector3()
+    } as any)
     addComponent(meshEntity, NavMeshComponent, {
       value: navMesh,
       debugMode: false
@@ -84,20 +82,31 @@ describe('AutoPilotSystem', async () => {
       value: surface
     })
 
-    system()
-    leftAxis = Engine.instance.currentWorld.inputState.get(GamepadAxis.Left)!
+    _currentPathPoint = new Vector3(0, 0, 0)
+    getMovementDirection.reset()
+    getMovementDirection.returns(new Vector3())
   })
 
   it('projects requested point onto the nearest nav mesh', () => {
-    assert(findClosestProjectedPoint.calledWith(Engine.instance.currentWorld.camera, [surface], unprojectedPoint))
-    assert.deepStrictEqual(getComponent(avatarEntity, AutoPilotComponent).endPoint.toArray(), [23, 42, 13])
+    system()
+    assert(
+      findClosestProjectedPoint.calledWith(Engine.instance.currentWorld.camera, [surface], unprojectedPoint),
+      'calls function with correct args'
+    )
+    assert.deepStrictEqual(
+      getComponent(avatarEntity, AutoPilotComponent).endPoint.toArray(),
+      [23, 42, 13],
+      'correctly updates the component'
+    )
   })
 
   it('removes the request component', () => {
+    system()
     assert(!hasComponent(avatarEntity, AutoPilotRequestComponent))
   })
 
   it('generates a path from current avatar location to projected point', () => {
+    system()
     assert(
       updatePath.calledWith(
         getComponent(avatarEntity, AutoPilotComponent).path,
@@ -108,29 +117,33 @@ describe('AutoPilotSystem', async () => {
     )
   })
 
-  it('updates the input state to follow generated path', () => {
-    const path = getComponent(avatarEntity, AutoPilotComponent).path
-    const position = getComponent(avatarEntity, TransformComponent).position
-    assert(getInputX.calledWith(path, position))
-    assert(getInputY.calledWith(path, position))
-    assert(getInputAngle.calledWith(path, position))
-    assert.deepStrictEqual(leftAxis.value, [13, 23, 42])
-    assert.strictEqual(leftAxis.lifecycleState, LifecycleValue.Changed)
+  it('updates the avatar movement to follow generated path', () => {
+    const movement = getComponent(avatarEntity, AvatarControllerComponent).localMovementDirection
+    getMovementDirection.returns(new Vector3(13, 23, 42))
+    system()
+    const [x, y, z] = movement.toArray()
+    const roundTo3rd = (x: number) => round(x, 3)
+    assert.deepStrictEqual(
+      [1, roundTo3rd(y / x), roundTo3rd(z / x)],
+      [1, roundTo3rd(23 / 13), roundTo3rd(42 / 13)],
+      'vector components are proportional'
+    )
   })
 
   it('advances the path', () => {
+    system()
     const path = getComponent(avatarEntity, AutoPilotComponent).path
     assert((path as unknown as Path).advance.calledOnce)
   })
 
   it('cleans up when the avatar reaches the end of the path', () => {
+    system()
     const path = getComponent(avatarEntity, AutoPilotComponent).path as unknown as Path
     path._finished = true
+    _currentPathPoint = getComponent(avatarEntity, TransformComponent).position
 
     system()
 
-    assert(!hasComponent(avatarEntity, AutoPilotComponent))
-    assert.deepStrictEqual(leftAxis.value, [0, 0])
-    assert.strictEqual(leftAxis.lifecycleState, LifecycleValue.Changed)
+    assert(!hasComponent(avatarEntity, AutoPilotComponent), 'removes the autoPilot component')
   })
 })

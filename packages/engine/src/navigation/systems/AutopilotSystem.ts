@@ -2,36 +2,40 @@ import { identity } from 'lodash'
 import { Vector3 } from 'three'
 import { Path } from 'yuka'
 
-import { LifecycleValue } from '../../common/enums/LifecycleValue'
+import { AvatarSettings } from '../../avatar/AvatarControllerSystem'
+import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
 import { Engine } from '../../ecs/classes/Engine'
 import { World } from '../../ecs/classes/World'
 import { addComponent, defineQuery, getComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
-import { GamepadAxis } from '../../input/enums/InputEnums'
-import { InputType } from '../../input/enums/InputType'
-import { InputValue } from '../../input/interfaces/InputValue'
 import { NavMeshComponent } from '../../scene/components/NavMeshComponent'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { AutoPilotComponent } from '../component/AutoPilotComponent'
 import { AutoPilotRequestComponent } from '../component/AutoPilotRequestComponent'
 import { findClosestProjectedPoint } from '../functions/findProjectedPoint'
-import { getInputVector } from '../functions/inputFunctions'
+import { getMovementDirection } from '../functions/inputFunctions'
 import { updatePath } from '../functions/pathFunctions'
+
+/** Distance from target point that is close enough to stop, in meters */
+const THRESHOLD_ARRIVE = 0.44
+const THRESHOLD_ARRIVED_SQUARED = THRESHOLD_ARRIVE * THRESHOLD_ARRIVE
+/** Distance from target point that is close enough to start slowing down, in meters */
+const THRESHOLD_ARRIVING = 6
+const THRESHOLD_ARRIVING_SQUARED = THRESHOLD_ARRIVING * THRESHOLD_ARRIVING
+/** m/s/s */
+const ACCELERATION = 0.04
+const INITIAL_SPEED = AvatarSettings.instance.walkSpeed / 4
+const MIN_SPEED = INITIAL_SPEED
+/** Current run speed seems rather Usain Bolt */
+const MAX_SPEED = AvatarSettings.instance.runSpeed / 4
 
 export default async function AutopilotSystem(world: World) {
   const navmeshesQuery = defineQuery([NavMeshComponent, Object3DComponent])
   const requestsQuery = defineQuery([AutoPilotRequestComponent])
   const autopilotQuery = defineQuery([AutoPilotComponent])
 
-  const inputState: InputValue = {
-    type: InputType.TWODIM,
-    value: [0, 0, 0],
-    lifecycleState: LifecycleValue.Unchanged
-  }
-  // TODO necessary?
-  Engine.instance.currentWorld.inputState.set(GamepadAxis.Left, inputState)
-
   return () => {
+    // if(!isClient) return
     const entsWithNavMesh = navmeshesQuery()
 
     const surfaces = entsWithNavMesh
@@ -51,10 +55,14 @@ export default async function AutopilotSystem(world: World) {
         const closestNavMeshEntity = entsWithNavMesh[closestNavMeshIndex]
         const avatarPosition = getComponent(avatarEntity, TransformComponent).position
 
+        removeComponent(avatarEntity, AutoPilotComponent)
         addComponent(avatarEntity, AutoPilotComponent, {
           // TODO do we need goalPoint to be a property?
           endPoint: goalPoint,
-          path: new Path()
+          path: new Path(),
+          speed: INITIAL_SPEED,
+          maxSpeed: MAX_SPEED,
+          minSpeed: MIN_SPEED
         })
 
         updatePath(
@@ -70,28 +78,29 @@ export default async function AutopilotSystem(world: World) {
 
     const allOngoing = autopilotQuery(world)
     for (const avatarEntity of allOngoing) {
+      const avatarPosition = getComponent(avatarEntity, TransformComponent).position
       const path = getComponent(avatarEntity, AutoPilotComponent).path
-      if (path.finished()) {
-        removeComponent(avatarEntity, AutoPilotComponent)
-        inputState!.value[0] = 0
-        inputState!.value[1] = 0
-        inputState!.value.length = 2
-      } else {
-        const position = getComponent(avatarEntity, TransformComponent).position
-        const inputVec = getInputVector(
-          path.current() as unknown as Vector3,
-          position,
-          Engine.instance.currentWorld.camera
-        )
-
-        const inputAngle = Math.atan2(inputVec.z, inputVec.y)
-
-        inputState!.value[0] = inputVec.x
-        inputState!.value[1] = inputVec.y
-        inputState!.value[2] = inputAngle
-      }
-      inputState!.lifecycleState = LifecycleValue.Changed
+      // Assume avatar is already standing at start of path
       path.advance()
+
+      const nextPoint = path.current() as unknown as Vector3
+      const distanceSquared = avatarPosition.distanceToSquared(nextPoint)
+      if (!avatarPosition || !nextPoint) debugger
+      const autoPilot = getComponent(avatarEntity, AutoPilotComponent)
+      const movement = getComponent(avatarEntity, AvatarControllerComponent).localMovementDirection
+
+      if (path.finished() && distanceSquared < THRESHOLD_ARRIVED_SQUARED) {
+        removeComponent(avatarEntity, AutoPilotComponent)
+        movement.multiplyScalar(0)
+        autoPilot.speed = INITIAL_SPEED
+      } else {
+        if (distanceSquared < THRESHOLD_ARRIVING_SQUARED) {
+          autoPilot.speed = Math.max(autoPilot.minSpeed, autoPilot.speed * 0.9)
+        } else {
+          autoPilot.speed = Math.min(autoPilot.maxSpeed, autoPilot.speed + ACCELERATION)
+        }
+        movement.copy(getMovementDirection(nextPoint, avatarPosition)).multiplyScalar(autoPilot.speed)
+      }
     }
   }
 }
