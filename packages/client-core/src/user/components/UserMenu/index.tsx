@@ -15,6 +15,7 @@ import ClickAwayListener from '@mui/material/ClickAwayListener'
 import styles from './index.module.scss'
 import AvatarUploadModal from './menus/AvatarSelectMenu'
 import EmoteMenu from './menus/EmoteMenu'
+import FriendsMenu from './menus/FriendsMenu'
 import PartyMenu from './menus/PartyMenu'
 import ProfileMenu from './menus/ProfileMenu'
 import ReadyPlayerMenu from './menus/ReadyPlayerMenu'
@@ -54,6 +55,7 @@ UserMenuPanels.set(Views.AvatarSelect, SelectAvatarMenu)
 UserMenuPanels.set(Views.AvatarUpload, AvatarUploadModal)
 UserMenuPanels.set(Views.ReadyPlayer, ReadyPlayerMenu)
 UserMenuPanels.set(Views.Emote, EmoteMenu)
+UserMenuPanels.set(Views.Friends, FriendsMenu)
 
 // menus to be shown as icons at bottom of screen
 export const HotbarMenu = new Map<string, any>()

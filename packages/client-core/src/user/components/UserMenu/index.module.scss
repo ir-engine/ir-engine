@@ -998,7 +998,7 @@
         background: linear-gradient(90deg, var(--buttonGradientStart), var(--buttonGradientEnd));
         color: var(--textColor);
         border-radius: 20px;
-        margin: 15px 0 20px;
+        margin: 15px 5px 20px;
 
         &:hover {
           opacity: 0.8;
@@ -2484,4 +2484,65 @@
 
 .iconBtn {
   color: var(--sidebarSelectedBackground) !important;
+}
+
+.friendsPanel {
+  .friendsList {
+    margin: 30px;
+    height: 400px;
+    overflow: auto;
+  }
+
+  .friendItem {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin: 20px 0;
+    color: var(--textColor);
+    font-size: 14px;
+  }
+
+  .friendName {
+    flex: 1;
+    font-size: 16px;
+  }
+
+  .filledBtn {
+    background: var(--iconButtonBackground);
+    color: var(--textColor);
+    opacity: 1;
+    border-radius: 20px;
+    min-height: 35px;
+    margin: 0 5px;
+    font-size: 14px;
+    width: auto;
+
+    &:hover {
+      opacity: 0.8;
+    }
+  }
+}
+
+.tabsPanel {
+  width: 100%;
+  min-height: auto;
+
+  button {
+    background: var(--iconButtonBackground);
+    color: var(--textColor);
+    opacity: 1;
+    border-radius: 20px;
+    min-height: 35px;
+    margin: 0 5px;
+  }
+
+  :global(.Mui-selected) {
+    background: transparent;
+    color: var(--textColor);
+    opacity: 1 !important;
+  }
+
+  :global(.MuiTabs-indicator) {
+    display: none;
+  }
 }

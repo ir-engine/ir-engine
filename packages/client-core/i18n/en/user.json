@@ -143,7 +143,6 @@
     },
     "share": {
       "lbl-share": "Share",
-      "lbl-findFriends": "Find Friends",
       "ph-phoneEmail": "Invite by email or phone number",
       "lbl-phoneEmail": "Send to email or phone number",
       "lbl-copy": "Copy",
@@ -151,7 +150,9 @@
       "lbl-spectator-mode": "Spectator Mode",
       "title": "Share this Location",
       "mobileTitle": "View this Item in AR on your Mobile Device",
-      "linkCopied": "Link copied to clipboard."
+      "linkCopied": "Link copied to clipboard.",
+      "friends": "Friends",
+      "party": "Party"
     },
     "party": {
       "title": "Party",

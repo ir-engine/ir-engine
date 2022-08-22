@@ -1,6 +1,5 @@
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
-import { AvatarProps, WorldState } from '@xrengine/engine/src/networking/interfaces/WorldState'
-import { getState, useState } from '@xrengine/hyperflux'
+import { AvatarProps } from '@xrengine/engine/src/networking/interfaces/WorldState'
 import { State } from '@xrengine/hyperflux/functions/StateFunctions'
 
 export const Views = {
@@ -15,7 +14,8 @@ export const Views = {
   Avatar: 'Avatar',
   Emote: 'Emote',
   ReadyPlayer: 'ReadyPlayer',
-  AvatarSelect: 'AvatarSelect'
+  AvatarSelect: 'AvatarSelect',
+  Friends: 'Friends'
 }
 
 export interface SettingMenuProps {
