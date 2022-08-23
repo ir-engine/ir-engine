@@ -128,11 +128,11 @@ export default async function LightSystem(world: World) {
   ])
 
   const modifyPropertyActionQueue = createActionQueue(EngineActions.sceneObjectUpdate.matches)
-  const ambientLightQuery = defineQuery([AmbientLightComponent, Object3DComponent])
-  const directionalLightQuery = defineQuery([DirectionalLightComponent, Object3DComponent])
-  const hemisphereLightQuery = defineQuery([HemisphereLightComponent, Object3DComponent])
-  const pointLightQuery = defineQuery([PointLightComponent, Object3DComponent])
-  const spotLightQuery = defineQuery([SpotLightComponent, Object3DComponent])
+  const ambientLightQuery = defineQuery([AmbientLightComponent])
+  const directionalLightQuery = defineQuery([DirectionalLightComponent])
+  const hemisphereLightQuery = defineQuery([HemisphereLightComponent])
+  const pointLightQuery = defineQuery([PointLightComponent])
+  const spotLightQuery = defineQuery([SpotLightComponent])
 
   return () => {
     for (const action of modifyPropertyActionQueue()) {
