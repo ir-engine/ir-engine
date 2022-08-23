@@ -1,5 +1,6 @@
 import { Downgraded, useHookstate } from '@hookstate/core'
 import classNames from 'classnames'
+import hark from 'hark'
 import React, { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -70,6 +71,8 @@ export const useUserMediaWindowHook = ({ peerId }) => {
   const [videoTrackClones, setVideoTrackClones] = useState<any[]>([])
   const [videoTrackId, setVideoTrackId] = useState('')
   const [audioTrackId, setAudioTrackId] = useState('')
+  const [harkListener, setHarkListener] = useState(null)
+  const [soundIndicatorOn, setSoundIndicatorOn] = useState(false)
   const [videoDisplayReady, setVideoDisplayReady] = useState<boolean>(false)
   const userState = useUserState()
   const videoRef = useRef<any>()
@@ -253,6 +256,7 @@ export const useUserMediaWindowHook = ({ peerId }) => {
     if (userHasInteracted.value && peerId !== 'cam_me' && peerId !== 'screen_me') {
       videoRef.current?.play()
       audioRef.current?.play()
+      if (harkListener) (harkListener as any).resume()
     }
   }, [userHasInteracted.value])
 
@@ -297,12 +301,21 @@ export const useUserMediaWindowHook = ({ peerId }) => {
         const updateAudioTrackClones = audioTrackClones.concat(newAudioTrack)
         setAudioTrackClones(updateAudioTrackClones)
         audioRef.current.srcObject = new MediaStream([newAudioTrack])
+        const newHark = hark(audioRef.current.srcObject, { play: false })
+        newHark.on('speaking', () => {
+          setSoundIndicatorOn(true)
+        })
+        newHark.on('stopped_speaking', () => {
+          setSoundIndicatorOn(false)
+        })
+        setHarkListener(newHark)
         setAudioProducerPaused(audioStream.paused)
       }
     }
 
     return () => {
       audioTrackClones.forEach((track) => track.stop())
+      if (harkListener) (harkListener as any).stop()
     }
   }, [audioTrackId])
 
@@ -568,6 +581,7 @@ export const useUserMediaWindowHook = ({ peerId }) => {
     videoProducerGlobalMute,
     audioProducerGlobalMute,
     videoDisplayReady,
+    soundIndicatorOn,
     t,
     togglePiP,
     toggleAudio,
@@ -599,6 +613,7 @@ const UserMediaWindow = ({ peerId }: Props): JSX.Element => {
     videoProducerGlobalMute,
     audioProducerGlobalMute,
     videoDisplayReady,
+    soundIndicatorOn,
     t,
     togglePiP,
     toggleAudio,
@@ -629,7 +644,8 @@ const UserMediaWindow = ({ peerId }: Props): JSX.Element => {
         <div
           className={classNames({
             [styles['video-wrapper']]: !isScreen,
-            [styles['screen-video-wrapper']]: isScreen
+            [styles['screen-video-wrapper']]: isScreen,
+            [styles['border-lit']]: soundIndicatorOn
           })}
         >
           {(videoStream == null ||
