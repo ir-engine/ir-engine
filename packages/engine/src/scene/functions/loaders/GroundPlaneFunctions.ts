@@ -14,6 +14,7 @@ import {
   addComponent,
   getComponent,
   getComponentCountOfType,
+  hasComponent,
   removeComponent
 } from '../../../ecs/functions/ComponentFunctions'
 import { NavMeshComponent } from '../../../navigation/component/NavMeshComponent'
@@ -35,47 +36,57 @@ export const deserializeGround: ComponentDeserializeFunction = async function (
   entity: Entity,
   data: GroundPlaneComponentType
 ): Promise<void> {
-  const planeSize = new Vector3(1000, 0.1, 1000)
-  const mesh = new Mesh(new CircleGeometry(planeSize.x, 32), new MeshStandardMaterial({ roughness: 1, metalness: 0 }))
-
-  mesh.name = 'GroundPlaneMesh'
-  mesh.position.y = -0.05
-
-  const colliderDescOptions = {
-    bodyType: RigidBodyType.Fixed,
-    type: ShapeType.Cuboid,
-    size: planeSize,
-    collisionLayer: CollisionGroups.Ground,
-    collisionMask: CollisionGroups.Default | CollisionGroups.Avatars
-  } as ColliderDescOptions
-
-  const groundPlane = new Object3D()
-  groundPlane.userData.mesh = mesh
-  groundPlane.add(mesh)
-
-  addComponent(entity, Object3DComponent, { value: groundPlane })
-
   const props = parseGroundPlaneProperties(data)
   addComponent(entity, GroundPlaneComponent, props)
-
-  Physics.createRigidBodyForObject(
-    entity,
-    Engine.instance.currentWorld.physicsWorld,
-    groundPlane.userData.mesh,
-    colliderDescOptions
-  )
-
-  mesh.rotation.x = -Math.PI / 2
-
-  groundPlane.traverse(generateMeshBVH)
-  enableObjectLayer(groundPlane, ObjectLayers.Camera, true)
 }
 
 let navigationRaycastTarget: Group
 
 export const updateGroundPlane: ComponentUpdateFunction = (entity: Entity) => {
   const component = getComponent(entity, GroundPlaneComponent)
-  const groundPlane = getComponent(entity, Object3DComponent)?.value
+
+  /**
+   * Create mesh & collider if it doesnt exist
+   */
+  if (!hasComponent(entity, Object3DComponent)) {
+    const planeSize = new Vector3(1000, 0.1, 1000)
+    const mesh = new Mesh(new CircleGeometry(planeSize.x, 32), new MeshStandardMaterial({ roughness: 1, metalness: 0 }))
+
+    mesh.name = 'GroundPlaneMesh'
+    mesh.position.y = -0.05
+
+    const colliderDescOptions = {
+      bodyType: RigidBodyType.Fixed,
+      type: ShapeType.Cuboid,
+      size: planeSize,
+      collisionLayer: CollisionGroups.Ground,
+      collisionMask: CollisionGroups.Default | CollisionGroups.Avatars
+    } as ColliderDescOptions
+
+    const groundPlane = new Object3D()
+    groundPlane.userData.mesh = mesh
+    groundPlane.add(mesh)
+
+    addComponent(entity, Object3DComponent, { value: groundPlane })
+
+    Physics.createRigidBodyForObject(
+      entity,
+      Engine.instance.currentWorld.physicsWorld,
+      groundPlane.userData.mesh,
+      colliderDescOptions
+    )
+
+    mesh.rotation.x = -Math.PI / 2
+
+    groundPlane.traverse(generateMeshBVH)
+    enableObjectLayer(groundPlane, ObjectLayers.Camera, true)
+  }
+
+  /**
+   * Update settings
+   */
+
+  const groundPlane = getComponent(entity, Object3DComponent).value
 
   ;(groundPlane.userData.mesh.material as MeshStandardMaterial).color.set(component.color)
 
@@ -98,9 +109,7 @@ export const updateGroundPlane: ComponentUpdateFunction = (entity: Entity) => {
 }
 
 export const serializeGroundPlane: ComponentSerializeFunction = (entity) => {
-  const component = getComponent(entity, GroundPlaneComponent) as GroundPlaneComponentType
-  if (!component) return
-
+  const component = getComponent(entity, GroundPlaneComponent)
   return {
     color: component.color.getHex(),
     generateNavmesh: component.generateNavmesh

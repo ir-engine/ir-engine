@@ -319,11 +319,7 @@ export default async function DebugHelpersSystem(world: World) {
         const helper = editorHelpers.get(entity)!
         const bakeComponent = getComponent(entity, EnvMapBakeComponent)
         if (helper.userData.gizmo)
-          helper.userData.gizmo.matrix.compose(
-            bakeComponent.options.bakePositionOffset,
-            quat,
-            bakeComponent.options.bakeScale
-          )
+          helper.userData.gizmo.matrix.compose(bakeComponent.bakePositionOffset, quat, bakeComponent.bakeScale)
       }
 
       for (const entity of envMapBakeQuery.exit()) {

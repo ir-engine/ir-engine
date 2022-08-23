@@ -1,5 +1,3 @@
-import { Object3D } from 'three'
-
 import {
   ComponentDeserializeFunction,
   ComponentSerializeFunction,
@@ -7,8 +5,6 @@ import {
 } from '../../../common/constants/PrefabFunctionType'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent, getComponentCountOfType } from '../../../ecs/functions/ComponentFunctions'
-import { IgnoreRaycastTagComponent } from '../../components/IgnoreRaycastTagComponent'
-import { Object3DComponent } from '../../components/Object3DComponent'
 import {
   PostprocessingComponent,
   PostprocessingComponentType,
@@ -20,8 +16,6 @@ export const deserializePostprocessing: ComponentDeserializeFunction = async fun
   data: PostprocessingComponentType
 ): Promise<void> {
   addComponent(entity, PostprocessingComponent, parsePostprocessingProperties(data))
-  addComponent(entity, IgnoreRaycastTagComponent, {})
-  addComponent(entity, Object3DComponent, { value: new Object3D() })
 }
 
 export const serializePostprocessing: ComponentSerializeFunction = (entity) => {

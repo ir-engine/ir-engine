@@ -13,7 +13,9 @@ import { ScenePreviewCameraTagComponent } from '../../components/ScenePreviewCam
 
 export const deserializeScenePreviewCamera: ComponentDeserializeFunction = (entity: Entity) => {
   addComponent(entity, ScenePreviewCameraTagComponent, true)
+}
 
+export const updateScenePreviewCamera = (entity: Entity) => {
   if (Engine.instance.isEditor) {
     const camera = new PerspectiveCamera(80, 16 / 9, 0.2, 8000)
     addComponent(entity, Object3DComponent, { value: camera })

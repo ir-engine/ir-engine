@@ -11,7 +11,8 @@ import {
   ComponentMap,
   getComponent,
   hasComponent,
-  removeComponent
+  removeComponent,
+  setComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { addEntityNodeInTree, createEntityNode } from '../../ecs/functions/EntityTreeFunctions'
@@ -59,20 +60,23 @@ export const createObjectEntityFromGLTF = (entity: Entity, obj3d: Object3D): voi
       console.warn(`Could not load component '${key}'`)
     } else {
       addComponent(entity, component, value, Engine.instance.currentWorld)
-      if (!hasComponent(entity, GLTFLoadedComponent)) addComponent(entity, GLTFLoadedComponent, [])
       getComponent(entity, GLTFLoadedComponent).push(component)
     }
   }
 
   for (const [key, value] of Object.entries(prefabs)) {
-    if (!hasComponent(entity, GLTFLoadedComponent)) addComponent(entity, GLTFLoadedComponent, [])
-    getComponent(entity, GLTFLoadedComponent).push(
-      Array.from(Engine.instance.currentWorld.sceneComponentRegistry).find(([_, prefab]) => prefab === key)
-    )
-    loadComponent(entity, {
-      name: key,
-      props: value
-    })
+    const component = Array.from(Engine.instance.currentWorld.sceneComponentRegistry).find(
+      ([_, prefab]) => prefab === key
+    )?.[0]
+    if (typeof component === 'undefined') {
+      console.warn(`Could not load component '${component}'`)
+    } else {
+      getComponent(entity, GLTFLoadedComponent).push(component)
+      loadComponent(entity, {
+        name: key,
+        props: value
+      })
+    }
   }
 }
 
@@ -87,6 +91,7 @@ export const parseObjectComponentsFromGLTF = (entity: Entity, object3d?: Object3
   })
 
   if (meshesToProcess.length === 0) {
+    setComponent(entity, GLTFLoadedComponent, [])
     obj3d.traverse((obj) => createObjectEntityFromGLTF(entity, obj))
     return
   }

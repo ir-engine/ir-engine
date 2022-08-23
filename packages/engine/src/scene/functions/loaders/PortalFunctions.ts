@@ -57,7 +57,8 @@ export const updatePortal = (entity: Entity) => {
     const group = new Group()
     group.scale.setScalar(0.5)
     addComponent(entity, Object3DComponent, { value: group })
-    addComponent(entity, ColliderComponent, { ...SCENE_COMPONENT_PORTAL_COLLIDER_VALUES })
+    if (!hasComponent(entity, ColliderComponent))
+      addComponent(entity, ColliderComponent, { ...SCENE_COMPONENT_PORTAL_COLLIDER_VALUES })
   }
 
   const group = getComponent(entity, Object3DComponent).value

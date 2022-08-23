@@ -594,10 +594,6 @@
           }
         },
         {
-          "name": "interactable",
-          "props": {}
-        },
-        {
           "name": "envmap",
           "props": {
             "type": "None",
@@ -628,10 +624,6 @@
               }
             }
           }
-        },
-        {
-          "name": "equippable",
-          "props": {}
         }
       ],
       "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
@@ -687,10 +679,23 @@
             },
             "spawnRotation": {
               "x": 0,
-              "y": -0.000003055792734338656,
+              "y": -0.0000015278963671687337,
               "z": 0,
-              "w": 0.9999999999953311
+              "w": 0.9999999999988327
             }
+          }
+        },
+        {
+          "name": "collider",
+          "props": {
+            "bodyType": 1,
+            "shapeType": 1,
+            "isTrigger": true,
+            "removeMesh": true,
+            "collisionLayer": 8,
+            "collisionMask": 2,
+            "onEnter": "teleport",
+            "target": ""
           }
         }
       ],
@@ -810,6 +815,19 @@
               "w": 1
             }
           }
+        },
+        {
+          "name": "collider",
+          "props": {
+            "bodyType": 1,
+            "shapeType": 1,
+            "isTrigger": true,
+            "removeMesh": true,
+            "collisionLayer": 8,
+            "collisionMask": 2,
+            "onEnter": "teleport",
+            "target": ""
+          }
         }
       ],
       "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
@@ -869,6 +887,19 @@
               "z": 0,
               "w": 1
             }
+          }
+        },
+        {
+          "name": "collider",
+          "props": {
+            "bodyType": 1,
+            "shapeType": 1,
+            "isTrigger": true,
+            "removeMesh": true,
+            "collisionLayer": 8,
+            "collisionMask": 2,
+            "onEnter": "teleport",
+            "target": ""
           }
         }
       ],

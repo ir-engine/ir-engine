@@ -68,6 +68,7 @@
             "bakeType": "Baked",
             "resolution": 2048,
             "refreshMode": "OnAwake",
+            "envMapOrigin": "__$project$__/default-project/apartment.envmap.png",
             "boxProjection": true,
             "bakePosition": {
               "x": 0,
@@ -384,7 +385,6 @@
             "shadowBias": 0,
             "shadowRadius": 1,
             "cameraFar": 100,
-            "showCameraHelper": false,
             "useInCSM": true
           }
         }
@@ -506,6 +506,7 @@
             "bodyType": 1,
             "shapeType": 1,
             "isTrigger": false,
+            "removeMesh": false,
             "collisionLayer": 1,
             "collisionMask": 7
           }
@@ -547,6 +548,7 @@
             "bodyType": 1,
             "shapeType": 1,
             "isTrigger": false,
+            "removeMesh": false,
             "collisionLayer": 1,
             "collisionMask": 7
           }
@@ -588,6 +590,7 @@
             "bodyType": 1,
             "shapeType": 1,
             "isTrigger": false,
+            "removeMesh": false,
             "collisionLayer": 1,
             "collisionMask": 7
           }
@@ -629,6 +632,7 @@
             "bodyType": 1,
             "shapeType": 1,
             "isTrigger": false,
+            "removeMesh": false,
             "collisionLayer": 1,
             "collisionMask": 7
           }
@@ -670,6 +674,7 @@
             "bodyType": 1,
             "shapeType": 1,
             "isTrigger": false,
+            "removeMesh": false,
             "collisionLayer": 1,
             "collisionMask": 7
           }
@@ -711,6 +716,7 @@
             "bodyType": 1,
             "shapeType": 1,
             "isTrigger": false,
+            "removeMesh": false,
             "collisionLayer": 1,
             "collisionMask": 7
           }
@@ -731,9 +737,9 @@
               "z": 3
             },
             "rotation": {
-              "x": -5.8365031047939326e-18,
+              "x": -5.836502690688442e-18,
               "y": 0.05759586483318637,
-              "z": 2.779542104163839e-16
+              "z": 2.7795421040445524e-16
             },
             "scale": {
               "x": 0.5,
@@ -752,6 +758,7 @@
             "bodyType": 1,
             "shapeType": 1,
             "isTrigger": false,
+            "removeMesh": false,
             "collisionLayer": 1,
             "collisionMask": 7
           }
@@ -793,6 +800,7 @@
             "bodyType": 1,
             "shapeType": 1,
             "isTrigger": false,
+            "removeMesh": false,
             "collisionLayer": 1,
             "collisionMask": 7
           }
@@ -832,9 +840,9 @@
           "name": "envmapbake",
           "props": {
             "bakeType": "Baked",
-            "resolution": 512,
+            "resolution": 2048,
             "refreshMode": "OnAwake",
-            "envMapOrigin": "__$project$__/default-project/assets/apartment-CubemapBake.png",
+            "envMapOrigin": "",
             "boxProjection": true,
             "bakePosition": {
               "x": 0,
@@ -986,12 +994,6 @@
         {
           "name": "visible",
           "props": {}
-        },
-        {
-          "name": "mount-point",
-          "props": {
-            "type": "seat"
-          }
         }
       ],
       "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
