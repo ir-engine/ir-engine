@@ -20,20 +20,22 @@ export const deserializeDirectionalLight: ComponentDeserializeFunction = (
   entity: Entity,
   data: DirectionalLightComponentType
 ) => {
-  const light = new DirectionalLight()
   const props = parseDirectionalLightProperties(data)
-
-  light.target.position.set(0, 0, 1)
-  light.target.name = 'light-target'
-  light.add(light.target)
-
-  EngineRenderer.instance.directionalLightEntities.push(entity)
-  addComponent(entity, Object3DComponent, { value: light })
   addComponent(entity, DirectionalLightComponent, props)
 }
 
 export const updateDirectionalLight: ComponentUpdateFunction = (entity: Entity) => {
   const component = getComponent(entity, DirectionalLightComponent)
+
+  if (!hasComponent(entity, Object3DComponent)) {
+    const light = new DirectionalLight()
+    light.target.position.set(0, 0, 1)
+    light.target.name = 'light-target'
+    light.add(light.target)
+    addComponent(entity, Object3DComponent, { value: light })
+    EngineRenderer.instance.directionalLightEntities.push(entity)
+  }
+
   const light = getComponent(entity, Object3DComponent).value as DirectionalLight
 
   light.color.set(component.color)

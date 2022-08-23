@@ -1,11 +1,8 @@
 import { RigidBodyType, ShapeType } from '@dimforge/rapier3d-compat'
 import { CircleGeometry, Color, Group, Mesh, MeshStandardMaterial, Object3D, Vector3 } from 'three'
 
-import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
-
 import {
   ComponentDeserializeFunction,
-  ComponentPrepareForGLTFExportFunction,
   ComponentSerializeFunction,
   ComponentShouldDeserializeFunction,
   ComponentUpdateFunction

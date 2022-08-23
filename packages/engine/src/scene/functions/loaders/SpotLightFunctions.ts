@@ -6,7 +6,7 @@ import {
   ComponentUpdateFunction
 } from '../../../common/constants/PrefabFunctionType'
 import { Entity } from '../../../ecs/classes/Entity'
-import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
+import { addComponent, getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
 import { Object3DComponent } from '../../components/Object3DComponent'
 import {
   SCENE_COMPONENT_SPOT_LIGHT_DEFAULT_VALUES,
@@ -15,19 +15,21 @@ import {
 } from '../../components/SpotLightComponent'
 
 export const deserializeSpotLight: ComponentDeserializeFunction = (entity: Entity, data: SpotLightComponentType) => {
-  const light = new SpotLight()
   const props = parseSpotLightProperties(data)
-
-  light.target.position.set(0, -1, 0)
-  light.target.name = 'light-target'
-  light.add(light.target)
-
-  addComponent(entity, Object3DComponent, { value: light })
   addComponent(entity, SpotLightComponent, props)
 }
 
 export const updateSpotLight: ComponentUpdateFunction = (entity: Entity) => {
   const component = getComponent(entity, SpotLightComponent)
+
+  if (!hasComponent(entity, Object3DComponent)) {
+    const light = new SpotLight()
+    light.target.position.set(0, -1, 0)
+    light.target.name = 'light-target'
+    light.add(light.target)
+    addComponent(entity, Object3DComponent, { value: light })
+  }
+
   const light = getComponent(entity, Object3DComponent)?.value as SpotLight
 
   light.color.set(component.color)

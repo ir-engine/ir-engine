@@ -1,7 +1,5 @@
 import { Matrix4, PerspectiveCamera } from 'three'
 
-import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
-
 import {
   ComponentDeserializeFunction,
   ComponentShouldDeserializeFunction
@@ -13,7 +11,7 @@ import { TransformComponent } from '../../../transform/components/TransformCompo
 import { Object3DComponent } from '../../components/Object3DComponent'
 import { ScenePreviewCameraTagComponent } from '../../components/ScenePreviewCamera'
 
-export const deserializeScenePreviewCamera: ComponentDeserializeFunction = (entity: Entity, _: ComponentJson<{}>) => {
+export const deserializeScenePreviewCamera: ComponentDeserializeFunction = (entity: Entity) => {
   addComponent(entity, ScenePreviewCameraTagComponent, true)
 
   if (Engine.instance.isEditor) {

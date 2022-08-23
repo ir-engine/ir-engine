@@ -29,7 +29,6 @@ import {
   SCENE_COMPONENT_CLOUD,
   SCENE_COMPONENT_CLOUD_DEFAULT_VALUES
 } from '../components/CloudComponent'
-import { SCENE_COMPONENT_COLLIDER } from '../components/ColliderComponent'
 import {
   EnvMapBakeComponent,
   SCENE_COMPONENT_ENVMAP_BAKE,
