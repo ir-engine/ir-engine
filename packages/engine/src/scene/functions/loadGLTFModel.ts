@@ -117,7 +117,11 @@ export const parseObjectComponentsFromGLTF = (entity: Entity, object3d?: Object3
     mesh.getWorldScale(transform.scale)
 
     mesh.removeFromParent()
-    addComponent(e, Object3DComponent, { value: mesh })
+    if (mesh.userData['xrengine.removeMesh'] === 'true') {
+      delete mesh.userData['xrengine.removeMesh']
+    } else {
+      addComponent(e, Object3DComponent, { value: mesh })
+    }
 
     addComponent(e, GLTFLoadedComponent, ['entity', TransformComponent._name])
     createObjectEntityFromGLTF(e, mesh)

@@ -694,12 +694,6 @@
               "w": 0.9999999999953311
             }
           }
-        },
-        {
-          "name": "trigger-volume",
-          "props": {
-            "onEnter": "teleport"
-          }
         }
       ],
       "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
@@ -818,12 +812,6 @@
               "w": 1
             }
           }
-        },
-        {
-          "name": "trigger-volume",
-          "props": {
-            "onEnter": "teleport"
-          }
         }
       ],
       "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
@@ -883,12 +871,6 @@
               "z": 0,
               "w": 1
             }
-          }
-        },
-        {
-          "name": "trigger-volume",
-          "props": {
-            "onEnter": "teleport"
           }
         }
       ],

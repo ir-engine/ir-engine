@@ -61,7 +61,9 @@ export type ColliderHitEvent = {
 }
 
 export type ColliderDescOptions = {
-  type: ShapeType
+  /**@deprecated */
+  type?: ShapeType
+  shapeType?: ShapeType
   bodyType?: RigidBodyType // TODO: This is only required at the root node, should be removed from here?
   size?: Vec3 // For cases where mesh.scale can't provide the actual size of collider.
   isTrigger?: boolean

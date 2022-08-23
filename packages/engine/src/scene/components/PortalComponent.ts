@@ -1,6 +1,9 @@
+import { RigidBodyType, ShapeType } from '@dimforge/rapier3d-compat'
 import { Quaternion, Vector3 } from 'three'
 
 import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
+import { CollisionGroups } from '../../physics/enums/CollisionGroups'
+import { ColliderComponentType } from './ColliderComponent'
 
 export type PortalComponentType = {
   location: string
@@ -33,3 +36,14 @@ export const SCENE_COMPONENT_PORTAL_DEFAULT_VALUES = {
   remoteSpawnPosition: new Vector3(),
   remoteSpawnRotation: new Quaternion()
 } as PortalComponentType
+
+export const SCENE_COMPONENT_PORTAL_COLLIDER_VALUES = {
+  bodyType: RigidBodyType.Fixed,
+  shapeType: ShapeType.Cuboid,
+  isTrigger: true,
+  removeMesh: true,
+  collisionLayer: CollisionGroups.Trigger,
+  collisionMask: CollisionGroups.Avatars,
+  target: '',
+  onEnter: 'teleport'
+} as ColliderComponentType

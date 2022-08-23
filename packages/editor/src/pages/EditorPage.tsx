@@ -60,6 +60,11 @@ const systems = [
     systemModulePromise: import('../systems/GizmoSystem'),
     type: SystemUpdateType.PRE_RENDER,
     args: { enabled: true }
+  },
+  {
+    systemModulePromise: import('@xrengine/client-core/src/systems/PortalLoadSystem'),
+    type: SystemUpdateType.FIXED,
+    args: { enabled: true }
   }
 ]
 

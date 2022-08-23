@@ -16,12 +16,14 @@ import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { createEngine } from '../../initializeEngine'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { CollisionComponent } from '../components/CollisionComponent'
-import { RigidBodyComponent } from '../components/RigidBodyComponent'
-import { RigidBodyDynamicTagComponent } from '../components/RigidBodyDynamicTagComponent'
-import { RigidBodyFixedTagComponent } from '../components/RigidBodyFixedTagComponent'
+import {
+  getTagComponentForRigidBody,
+  RigidBodyComponent,
+  RigidBodyDynamicTagComponent,
+  RigidBodyFixedTagComponent
+} from '../components/RigidBodyComponent'
 import { CollisionGroups, DefaultCollisionMask } from '../enums/CollisionGroups'
 import { getInteractionGroups } from '../functions/getInteractionGroups'
-import { getTagComponentForRigidBody } from '../functions/getTagComponentForRigidBody'
 import { boxDynamicConfig } from '../functions/physicsObjectDebugFunctions'
 import { CollisionEvents, RaycastHit, SceneQueryType } from '../types/PhysicsTypes'
 import { Physics } from './Physics'
@@ -86,7 +88,7 @@ describe('Physics', () => {
     const colliderDesc = ColliderDesc.ball(1)
 
     const rigidBody = Physics.createRigidBody(entity, physicsWorld, rigidBodyDesc, [colliderDesc])
-    const rigidBodyComponent = getTagComponentForRigidBody(rigidBody)
+    const rigidBodyComponent = getTagComponentForRigidBody(rigidBody.bodyType())
 
     assert.deepEqual(rigidBodyComponent, RigidBodyFixedTagComponent)
   })

@@ -29,6 +29,7 @@ import {
   SCENE_COMPONENT_CLOUD,
   SCENE_COMPONENT_CLOUD_DEFAULT_VALUES
 } from '../components/CloudComponent'
+import { SCENE_COMPONENT_COLLIDER } from '../components/ColliderComponent'
 import {
   EnvMapBakeComponent,
   SCENE_COMPONENT_ENVMAP_BAKE,
@@ -70,6 +71,7 @@ import {
 import {
   PortalComponent,
   SCENE_COMPONENT_PORTAL,
+  SCENE_COMPONENT_PORTAL_COLLIDER_VALUES,
   SCENE_COMPONENT_PORTAL_DEFAULT_VALUES
 } from '../components/PortalComponent'
 import {
@@ -107,7 +109,6 @@ import {
   SCENE_COMPONENT_SYSTEM_DEFAULT_VALUES,
   SystemComponent
 } from '../components/SystemComponent'
-import { SCENE_COMPONENT_TRIGGER_VOLUME } from '../components/TriggerVolumeComponent'
 import { SCENE_COMPONENT_VISIBLE, VisibleComponent } from '../components/VisibleComponent'
 import { SCENE_COMPONENT_WATER, WaterComponent } from '../components/WaterComponent'
 import { deserializeAsset, serializeAsset } from '../functions/loaders/AssetComponentFunctions'
@@ -133,7 +134,7 @@ import { deserializeInterior, serializeInterior, updateInterior } from '../funct
 import { serializeLoopAnimation, updateLoopAnimation } from '../functions/loaders/LoopAnimationFunctions'
 import { deserializeModel, serializeModel, updateModel } from '../functions/loaders/ModelFunctions'
 import { deserializeOcean, serializeOcean, updateOcean } from '../functions/loaders/OceanFunctions'
-import { deserializePortal, serializePortal } from '../functions/loaders/PortalFunctions'
+import { deserializePortal, serializePortal, updatePortal } from '../functions/loaders/PortalFunctions'
 import {
   deserializePostprocessing,
   serializePostprocessing,
@@ -291,8 +292,7 @@ export default async function SceneObjectUpdateSystem(world: World) {
 
   world.scenePrefabRegistry.set(ScenePrefabs.portal, [
     ...defaultSpatialComponents,
-    { name: SCENE_COMPONENT_PORTAL, props: SCENE_COMPONENT_PORTAL_DEFAULT_VALUES },
-    { name: SCENE_COMPONENT_TRIGGER_VOLUME, props: { target: '', onEnter: 'teleport' } }
+    { name: SCENE_COMPONENT_PORTAL, props: SCENE_COMPONENT_PORTAL_DEFAULT_VALUES }
   ])
 
   world.sceneComponentRegistry.set(PortalComponent._name, SCENE_COMPONENT_PORTAL)
@@ -479,6 +479,7 @@ export default async function SceneObjectUpdateSystem(world: World) {
   const sceneEnvmapQuery = defineQuery([SceneTagComponent, EnvmapComponent])
   const loopableAnimationQuery = defineQuery([Object3DComponent, LoopAnimationComponent])
   const skyboxQuery = defineQuery([SkyboxComponent])
+  const portalQuery = defineQuery([PortalComponent])
   const modelQuery = defineQuery([ModelComponent])
   const groundPlaneQuery = defineQuery([GroundPlaneComponent])
   const cloudQuery = defineQuery([CloudComponent])
@@ -500,6 +501,7 @@ export default async function SceneObjectUpdateSystem(world: World) {
         if (hasComponent(entity, EnvmapComponent) && hasComponent(entity, Object3DComponent)) updateEnvMap(entity)
         if (hasComponent(entity, FogComponent)) updateFog(entity)
         if (hasComponent(entity, SkyboxComponent)) updateSkybox(entity)
+        if (hasComponent(entity, PortalComponent)) updatePortal(entity)
         if (hasComponent(entity, ModelComponent)) updateModel(entity)
         if (hasComponent(entity, GroundPlaneComponent)) updateGroundPlane(entity)
         if (hasComponent(entity, LoopAnimationComponent)) updateLoopAnimation(entity)
@@ -518,6 +520,7 @@ export default async function SceneObjectUpdateSystem(world: World) {
     for (const entity of fogQuery.enter()) updateFog(entity)
     for (const entity of loopableAnimationQuery.enter()) updateLoopAnimation(entity)
     for (const entity of skyboxQuery.enter()) updateSkybox(entity)
+    for (const entity of portalQuery.enter()) updatePortal(entity)
     for (const entity of modelQuery.enter()) updateModel(entity)
     for (const entity of groundPlaneQuery.enter()) updateGroundPlane(entity)
     for (const entity of cloudQuery.enter()) updateCloud(entity)

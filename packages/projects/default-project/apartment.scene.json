@@ -503,9 +503,13 @@
           "props": {}
         },
         {
-          "name": "box-collider",
+          "name": "collider",
           "props": {
-            "isTrigger": false
+            "bodyType": 1,
+            "shapeType": 1,
+            "isTrigger": false,
+            "collisionLayer": 1,
+            "collisionMask": 7
           }
         }
       ],
@@ -540,9 +544,13 @@
           "props": {}
         },
         {
-          "name": "box-collider",
+          "name": "collider",
           "props": {
-            "isTrigger": false
+            "bodyType": 1,
+            "shapeType": 1,
+            "isTrigger": false,
+            "collisionLayer": 1,
+            "collisionMask": 7
           }
         }
       ],
@@ -577,9 +585,13 @@
           "props": {}
         },
         {
-          "name": "box-collider",
+          "name": "collider",
           "props": {
-            "isTrigger": false
+            "bodyType": 1,
+            "shapeType": 1,
+            "isTrigger": false,
+            "collisionLayer": 1,
+            "collisionMask": 7
           }
         }
       ],
@@ -614,9 +626,13 @@
           "props": {}
         },
         {
-          "name": "box-collider",
+          "name": "collider",
           "props": {
-            "isTrigger": false
+            "bodyType": 1,
+            "shapeType": 1,
+            "isTrigger": false,
+            "collisionLayer": 1,
+            "collisionMask": 7
           }
         }
       ],
@@ -651,9 +667,13 @@
           "props": {}
         },
         {
-          "name": "box-collider",
+          "name": "collider",
           "props": {
-            "isTrigger": false
+            "bodyType": 1,
+            "shapeType": 1,
+            "isTrigger": false,
+            "collisionLayer": 1,
+            "collisionMask": 7
           }
         }
       ],
@@ -688,9 +708,13 @@
           "props": {}
         },
         {
-          "name": "box-collider",
+          "name": "collider",
           "props": {
-            "isTrigger": false
+            "bodyType": 1,
+            "shapeType": 1,
+            "isTrigger": false,
+            "collisionLayer": 1,
+            "collisionMask": 7
           }
         }
       ],
@@ -725,9 +749,13 @@
           "props": {}
         },
         {
-          "name": "box-collider",
+          "name": "collider",
           "props": {
-            "isTrigger": false
+            "bodyType": 1,
+            "shapeType": 1,
+            "isTrigger": false,
+            "collisionLayer": 1,
+            "collisionMask": 7
           }
         }
       ],
@@ -762,9 +790,13 @@
           "props": {}
         },
         {
-          "name": "box-collider",
+          "name": "collider",
           "props": {
-            "isTrigger": false
+            "bodyType": 1,
+            "shapeType": 1,
+            "isTrigger": false,
+            "collisionLayer": 1,
+            "collisionMask": 7
           }
         }
       ],
@@ -883,12 +915,6 @@
               "z": 0,
               "w": 1
             }
-          }
-        },
-        {
-          "name": "trigger-volume",
-          "props": {
-            "onEnter": "teleport"
           }
         }
       ],
@@ -1061,11 +1087,17 @@
           "props": {}
         },
         {
-          "name": "trigger-volume",
+          "name": "collider",
           "props": {
-            "target": "",
+            "bodyType": 1,
+            "shapeType": 1,
+            "isTrigger": true,
+            "removeMesh": false,
+            "collisionLayer": 1,
+            "collisionMask": 7,
             "onEnter": "activate",
-            "onExit": ""
+            "onExit": "",
+            "target": "Self"
           }
         }
       ],
@@ -1100,11 +1132,17 @@
           "props": {}
         },
         {
-          "name": "trigger-volume",
+          "name": "collider",
           "props": {
-            "target": "",
+            "bodyType": 1,
+            "shapeType": 1,
+            "isTrigger": true,
+            "removeMesh": false,
+            "collisionLayer": 1,
+            "collisionMask": 8,
             "onEnter": "activate",
-            "onExit": ""
+            "onExit": "",
+            "target": "Self"
           }
         }
       ],
@@ -1227,11 +1265,17 @@
           "props": {}
         },
         {
-          "name": "trigger-volume",
+          "name": "collider",
           "props": {
-            "target": "",
-            "onEnter": "receiveVC",
-            "onExit": ""
+            "bodyType": 1,
+            "shapeType": 1,
+            "isTrigger": true,
+            "removeMesh": false,
+            "collisionLayer": 1,
+            "collisionMask": 8,
+            "onEnter": "receiveVc",
+            "onExit": "",
+            "target": "Self"
           }
         }
       ],
