@@ -26,6 +26,7 @@ import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
 import { matchActionOnce } from '../../networking/functions/matchActionOnce'
 import loadVideoTexture from '../../renderer/materials/LoadVideoTexture'
+import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { generateMeshBVH } from '../../scene/functions/bvhWorkerPool'
 import { LODS_REGEXP } from '../constants/LoaderConstants'
 import { AssetClass } from '../enum/AssetClass'
@@ -33,6 +34,7 @@ import { AssetType } from '../enum/AssetType'
 import { createGLTFLoader } from '../functions/createGLTFLoader'
 import { FBXLoader } from '../loaders/fbx/FBXLoader'
 import type { GLTF, GLTFLoader } from '../loaders/gltf/GLTFLoader'
+import { KTX2Loader } from '../loaders/gltf/KTX2Loader'
 import { TGALoader } from '../loaders/tga/TGALoader'
 import { DependencyTreeActions } from './DependencyTree'
 import { XRELoader } from './XRELoader'
@@ -196,6 +198,7 @@ const getAssetType = (assetFileName: string): AssetType => {
   else if (/\.(?:fbx)$/.test(assetFileName)) return AssetType.FBX
   else if (/\.(?:vrm)$/.test(assetFileName)) return AssetType.VRM
   else if (/\.(?:tga)$/.test(assetFileName)) return AssetType.TGA
+  else if (/\.(?:ktx2)$/.test(assetFileName)) return AssetType.KTX2
   else if (/\.(?:png)$/.test(assetFileName)) return AssetType.PNG
   else if (/\.(?:jpg|jpeg|)$/.test(assetFileName)) return AssetType.JPEG
   else if (/\.(?:mp3)$/.test(assetFileName)) return AssetType.MP3
@@ -243,39 +246,42 @@ const isSupported = (assetFileName: string) => {
 }
 
 //@ts-ignore
-const fbxLoader = new FBXLoader()
-const textureLoader = new TextureLoader()
-const fileLoader = new FileLoader()
-const audioLoader = new AudioLoader()
-const tgaLoader = new TGALoader()
-const xreLoader = new XRELoader(fileLoader)
-const videoLoader = { load: loadVideoTexture }
-
+const fbxLoader = () => new FBXLoader()
+const textureLoader = () => new TextureLoader()
+const fileLoader = () => new FileLoader()
+const audioLoader = () => new AudioLoader()
+const tgaLoader = () => new TGALoader()
+const xreLoader = () => new XRELoader(fileLoader())
+const videoLoader = () => ({ load: loadVideoTexture })
+const ktx2Loader = () =>
+  new KTX2Loader().setTranscoderPath('/loaders_decodes/basis/').detectSupport(EngineRenderer.instance)
 export const getLoader = (assetType: AssetType) => {
   switch (assetType) {
     case AssetType.XRE:
-      return xreLoader
+      return xreLoader()
+    case AssetType.KTX2:
+      return ktx2Loader()
     case AssetType.glTF:
     case AssetType.glB:
     case AssetType.VRM:
       return gltfLoader
     case AssetType.FBX:
-      return fbxLoader
+      return fbxLoader()
     case AssetType.TGA:
-      return tgaLoader
+      return tgaLoader()
     case AssetType.PNG:
     case AssetType.JPEG:
-      return textureLoader
+      return textureLoader()
     case AssetType.AAC:
     case AssetType.MP3:
     case AssetType.OGG:
     case AssetType.M4A:
-      return audioLoader
+      return audioLoader()
     case AssetType.MP4:
     case AssetType.MKV:
-      return videoLoader
+      return videoLoader()
     default:
-      return fileLoader
+      return fileLoader()
   }
 }
 

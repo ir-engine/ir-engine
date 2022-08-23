@@ -1,4 +1,5 @@
 import {
+  Document,
   Extension,
   ExtensionProperty,
   IProperty,
@@ -37,6 +38,7 @@ export type ModelTransformParameters = {
   useMeshQuantization: boolean
   textureFormat: 'default' | 'jpg' | 'ktx2' | 'png' | 'webp'
   maxTextureSize: number
+  externalizeTextures: boolean
 }
 
 const EXTENSION_NAME = 'MOZ_lightmap'

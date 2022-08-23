@@ -1,5 +1,5 @@
 import { Application } from '@feathersjs/express/lib'
-import { NodeIO, Property, Texture } from '@gltf-transform/core'
+import { Document, Format, NodeIO, Property, Texture } from '@gltf-transform/core'
 import { DracoMeshCompression, MeshoptCompression, MeshQuantization, TextureBasisu } from '@gltf-transform/extensions'
 import { dedup, draco, meshopt, prune, quantize, reorder } from '@gltf-transform/functions'
 import appRootPath from 'app-root-path'
@@ -54,6 +54,11 @@ export async function getModelResources(app: Application, args: ModelResourcesAr
   return Object.fromEntries(entries)
 }
 
+const fileUploadPath = (fUploadPath: string) => {
+  const [_, savePath, fileName] = /.*\/packages\/projects\/(.*)\/([\w\d\s\-_\.]*)$/.exec(fUploadPath)!
+  return [savePath, fileName]
+}
+
 export async function transformModel(app: Application, args: ModelTransformArguments) {
   const parms = args.parms
   const promiseExec = util.promisify(exec)
@@ -101,8 +106,37 @@ export async function transformModel(app: Application, args: ModelTransformArgum
     return result
   }
 
-  const toPath = (texture: Texture) => {
-    return `${toValidFilename(texture.getName())}.${mimeToFileType(texture.getMimeType())}`
+  const toPath = (texture: Texture, index?: number) => {
+    return `${toValidFilename(texture.getName())}-${index}-${Date.now()}.${mimeToFileType(texture.getMimeType())}`
+  }
+
+  const externalizeImages = async (document: Document) => {
+    const resourceName = path.basename(args.src).slice(0, path.basename(args.src).lastIndexOf('.'))
+    const resourcePath = path.join(path.dirname(args.dst), resourceName)
+    if (fs.existsSync(resourcePath)) {
+      fs.rmSync(resourcePath, { recursive: true, force: true })
+    }
+    fs.mkdirSync(resourcePath)
+    const root = document.getRoot()
+    root.listTextures().map((texture, index) => {
+      externalizeImage(resourcePath, texture, index)
+    })
+  }
+
+  const externalizeImage = async (resourcePath: string, texture: Texture, index?: number) => {
+    if (texture.getURI()) return
+    const data = texture.getImage()
+    const fullResourcePath = path.join(resourcePath, toPath(texture, index))
+    const [savePath, fileName] = fileUploadPath(fullResourcePath)
+    await app.service('file-browser').patch(null, {
+      path: savePath,
+      fileName,
+      body: data,
+      contentType: getContentType(fullResourcePath)
+    })
+    console.log('externalized image to path ' + fullResourcePath)
+    texture.setURI(fullResourcePath)
+    texture.setImage(new Uint8Array())
   }
 
   const { io } = await ModelTransformLoader()
@@ -197,13 +231,29 @@ export async function transformModel(app: Application, args: ModelTransformArgum
     texture.setImage(fs.readFileSync(nuPath))
     texture.setMimeType(fileTypeToMime(parms.textureFormat)!)
   }
+
+  if (parms.externalizeTextures) {
+    await externalizeImages(document)
+  }
+  const basename = path.basename(args.dst).replace(/\.glb$/, '')
+  const json = await io.writeJSON(document, {
+    basename,
+    format: Format.GLTF
+  })
   const data = await io.writeBinary(document)
-  const [_, savePath, fileName] = /.*\/packages\/projects\/(.*)\/([\w\d\s\-_\.]*)$/.exec(args.dst)!
+  const [savePath, fileName] = fileUploadPath(args.dst)
   const result = await app.service('file-browser').patch(null, {
     path: savePath,
     fileName,
     body: data,
     contentType: getContentType(args.dst)
+  })
+  const gltfName = fileName.replace(/\.glb$/, '.gltf')
+  await app.service('file-browser').patch(null, {
+    path: savePath,
+    fileName: gltfName,
+    body: JSON.stringify(json.json),
+    contentTYpe: getContentType('test.gltf')
   })
   if (fs.existsSync(tmpDir)) await promiseExec(`rm -R ${tmpDir}`)
   console.log('Handled glb file')
