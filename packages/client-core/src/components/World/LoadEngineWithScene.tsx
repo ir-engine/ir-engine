@@ -6,7 +6,8 @@ import { useParams } from 'react-router-dom'
 import { LocationInstanceConnectionServiceReceptor } from '@xrengine/client-core/src/common/services/LocationInstanceConnectionService'
 import { LocationService } from '@xrengine/client-core/src/social/services/LocationService'
 import { leaveNetwork } from '@xrengine/client-core/src/transports/SocketWebRTCClientFunctions'
-import { AuthService, useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
+import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
+import { AvatarService } from '@xrengine/client-core/src/user/services/AvatarService'
 import {
   SceneActions,
   SceneServiceReceptor,
@@ -67,7 +68,7 @@ export const LoadEngineWithScene = () => {
   useHookEffect(() => {
     const sceneData = sceneState.currentScene.value
     if (clientReady && sceneData) {
-      AuthService.fetchAvatarList()
+      AvatarService.fetchAvatarList()
       if (loadingState.state.value !== AppLoadingStates.SUCCESS)
         dispatchAction(AppLoadingAction.setLoadingState({ state: AppLoadingStates.SCENE_LOADING }))
       loadScene(sceneData).then(() => {
@@ -85,7 +86,7 @@ export const LoadEngineWithScene = () => {
 
   useHookEffect(async () => {
     if (
-      didSpawn.value === true ||
+      didSpawn.value ||
       Engine.instance.currentWorld.localClientEntity ||
       !engineState.sceneLoaded.value ||
       !authState.user.value ||

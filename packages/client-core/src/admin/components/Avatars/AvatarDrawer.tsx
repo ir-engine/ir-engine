@@ -13,7 +13,6 @@ import {
   THUMBNAIL_WIDTH
 } from '@xrengine/common/src/constants/AvatarConstants'
 import { AvatarInterface } from '@xrengine/common/src/interfaces/AvatarInterface'
-import { StaticResourceInterface } from '@xrengine/common/src/interfaces/StaticResourceInterface'
 import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
 import { loadAvatarForPreview } from '@xrengine/engine/src/avatar/functions/avatarFunctions'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
@@ -42,7 +41,8 @@ import {
   initialize3D,
   onWindowResize
 } from '../../../user/components/UserMenu/menus/helperFunctions'
-import { AuthService, useAuthState } from '../../../user/services/AuthService'
+import { useAuthState } from '../../../user/services/AuthService'
+import { AvatarService } from '../../../user/services/AvatarService'
 import DrawerView from '../../common/DrawerView'
 import InputRadio from '../../common/InputRadio'
 import InputText from '../../common/InputText'
@@ -315,19 +315,19 @@ const AvatarDrawerContent = ({ open, mode, selectedAvatar, onClose }: Props) => 
 
     if (avatarBlob && thumbnailBlob) {
       if (selectedAvatar?.id) {
-        const uploadResponse = await AuthService.uploadAvatarModel(
+        const uploadResponse = await AvatarService.uploadAvatarModel(
           avatarBlob,
           thumbnailBlob,
           state.name + '_' + selectedAvatar.id
         )
         const removalPromises = [] as any
         if (uploadResponse[0].id !== selectedAvatar.modelResourceId)
-          removalPromises.push(AuthService.removeStaticResource(selectedAvatar.modelResourceId))
+          removalPromises.push(AvatarService.removeStaticResource(selectedAvatar.modelResourceId))
         if (uploadResponse[1].id !== selectedAvatar.thumbnailResourceId)
-          removalPromises.push(AuthService.removeStaticResource(selectedAvatar.thumbnailResourceId))
+          removalPromises.push(AvatarService.removeStaticResource(selectedAvatar.thumbnailResourceId))
         await Promise.all(removalPromises)
-        await AuthService.patchAvatar(selectedAvatar.id, uploadResponse[0].id, uploadResponse[1].id, state.name)
-      } else await AuthService.createAvatar(avatarBlob, thumbnailBlob, state.name)
+        await AvatarService.patchAvatar(selectedAvatar.id, uploadResponse[0].id, uploadResponse[1].id, state.name)
+      } else await AvatarService.createAvatar(avatarBlob, thumbnailBlob, state.name)
       dispatchAction(AdminAvatarActions.avatarUpdated({}))
 
       onClose()
