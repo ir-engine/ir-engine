@@ -21,10 +21,10 @@ const tapLength = 200 // 100ms between doubletaps
 
 export const usingThumbstick = () => {
   return Boolean(
-    Engine.instance.currentWorld.inputState.get(GamepadAxis.Left)?.value[0] ||
-      Engine.instance.currentWorld.inputState.get(GamepadAxis.Left)?.value[1] ||
-      Engine.instance.currentWorld.inputState.get(GamepadAxis.Right)?.value[0] ||
-      Engine.instance.currentWorld.inputState.get(GamepadAxis.Right)?.value[1]
+    Engine.instance.currentWorld.inputState.get(GamepadAxis.LThumbstick)?.value[0] ||
+      Engine.instance.currentWorld.inputState.get(GamepadAxis.LThumbstick)?.value[1] ||
+      Engine.instance.currentWorld.inputState.get(GamepadAxis.RThumbstick)?.value[0] ||
+      Engine.instance.currentWorld.inputState.get(GamepadAxis.RThumbstick)?.value[1]
   )
 }
 

@@ -18,8 +18,7 @@ import {
 import { createEntity } from '../ecs/functions/EntityFunctions'
 import { LocalInputTagComponent } from '../input/components/LocalInputTagComponent'
 import { BaseInput } from '../input/enums/BaseInput'
-import { AvatarMovementScheme } from '../input/enums/InputEnums'
-import { XRAxes } from '../input/enums/InputEnums'
+import { AvatarMovementScheme, GamepadAxis } from '../input/enums/InputEnums'
 import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
 import { VelocityComponent } from '../physics/components/VelocityComponent'
 import { PersistTagComponent } from '../scene/components/PersistTagComponent'
@@ -58,7 +57,7 @@ const finalOrientation = new Quaternion()
 
 export default async function AvatarControllerSystem(world: World) {
   const localControllerQuery = defineQuery([AvatarControllerComponent, LocalInputTagComponent])
-  const controllerQuery = defineQuery([AvatarControllerComponent])
+  const controllerQuery = defineQuery([AvatarControllerComponent, FollowCameraComponent])
 
   // const localXRInputQuery = defineQuery([
   //   LocalInputTagComponent,
@@ -186,10 +185,10 @@ export const updateMap = () => {
   const avatarInputState = accessAvatarInputSettingsState()
   const inputMap = AvatarInputSchema.inputMap
   if (avatarInputState.invertRotationAndMoveSticks.value) {
-    inputMap.set(XRAxes.Left, BaseInput.XR_AXIS_LOOK)
-    inputMap.set(XRAxes.Right, BaseInput.XR_AXIS_MOVE)
+    inputMap.set(GamepadAxis.LThumbstick, BaseInput.LOOKTURN)
+    inputMap.set(GamepadAxis.RThumbstick, BaseInput.MOVEMENT)
   } else {
-    inputMap.set(XRAxes.Left, BaseInput.XR_AXIS_MOVE)
-    inputMap.set(XRAxes.Right, BaseInput.XR_AXIS_LOOK)
+    inputMap.set(GamepadAxis.LThumbstick, BaseInput.MOVEMENT)
+    inputMap.set(GamepadAxis.RThumbstick, BaseInput.LOOKTURN)
   }
 }

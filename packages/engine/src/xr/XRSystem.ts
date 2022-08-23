@@ -1,6 +1,8 @@
 import { createHookableFunction } from '@xrengine/common/src/utils/createMutableFunction'
 import { createActionQueue, dispatchAction, getState } from '@xrengine/hyperflux'
 
+import { FollowCameraComponent } from '../camera/components/FollowCameraComponent'
+import { GamepadAxis } from '../input/enums/InputEnums'
 import { SkyboxComponent } from '../scene/components/SkyboxComponent'
 import { updateSkybox } from '../scene/functions/loaders/SkyboxFunctions'
 import { AssetLoader } from './../assets/classes/AssetLoader'
@@ -9,10 +11,10 @@ import { LifecycleValue } from './../common/enums/LifecycleValue'
 import { matches } from './../common/functions/MatchesUtils'
 import { Engine } from './../ecs/classes/Engine'
 import { World } from './../ecs/classes/World'
-import { defineQuery, getComponent } from './../ecs/functions/ComponentFunctions'
+import { addComponent, defineQuery, getComponent } from './../ecs/functions/ComponentFunctions'
 import { hasComponent, removeComponent } from './../ecs/functions/ComponentFunctions'
 import { InputType } from './../input/enums/InputType'
-import { gamepadMapping } from './../input/functions/GamepadInput'
+import { GamepadMapping } from './../input/functions/GamepadInput'
 import { EngineRenderer } from './../renderer/WebGLRendererSystem'
 import { XRAction } from './XRAction'
 import { XRHandsInputComponent, XRInputSourceComponent } from './XRComponents'
@@ -49,6 +51,9 @@ export const requestXRSession = createHookableFunction(
       setupXRInputSourceComponent(world.localClientEntity)
       proxifyXRInputs(world.localClientEntity)
 
+      const prevFollowCamera = getComponent(world.cameraEntity, FollowCameraComponent)
+      removeComponent(world.cameraEntity, FollowCameraComponent)
+
       if (mode === 'immersive-ar') world.scene.background = null
 
       const onSessionEnd = () => {
@@ -58,6 +63,7 @@ export const requestXRSession = createHookableFunction(
         EngineRenderer.instance.xrSession = null!
         EngineRenderer.instance.xrManager.setSession(null!)
         const world = Engine.instance.currentWorld
+        addComponent(world.cameraEntity, FollowCameraComponent, prevFollowCamera)
         cleanXRInputs(world.localClientEntity)
         removeComponent(world.localClientEntity, XRInputSourceComponent)
         removeComponent(world.localClientEntity, XRHandsInputComponent)
@@ -128,13 +134,6 @@ export default async function XRSystem(world: World) {
   const xrSessionChangedQueue = createActionQueue(XRAction.sessionChanged.matches)
 
   return () => {
-    // const joinedWorldAction = joinedWorldActionQueue().pop()
-    // if (joinedWorldAction) {
-    //   if (!hasComponent(world.localOriginEntity, PositionOffsetComponent)) {
-    //     addPositionOffsetComponent(world.localOriginEntity, world.localClientEntity)
-    //   }
-    // }
-
     const xrRequestSessionAction = xrRequestSessionQueue().pop()
     const xrEndSessionAction = xrEndSessionQueue().pop()
     if (xrRequestSessionAction) requestXRSession(xrRequestSessionAction)
@@ -143,13 +142,23 @@ export default async function XRSystem(world: World) {
     for (const action of xrSessionChangedQueue()) xrSessionChanged(action)
 
     if (EngineRenderer.instance.xrManager?.isPresenting) {
-      const session = EngineRenderer.instance.xrManager!.getSession()!
-      for (const source of session.inputSources) copyGamepadState(source)
+      const camera = world.camera as THREE.PerspectiveCamera
+      EngineRenderer.instance.xrManager.updateCamera(camera)
+      // the following is necessary workaround until this PR is merged: https://github.com/mrdoob/three.js/pull/22362
+      camera.matrix.decompose(camera.position, camera.quaternion, camera.scale)
+      camera.updateMatrixWorld(true)
+      // Assume world.camera.layers is source of truth for all xr cameras
+      const xrCamera = EngineRenderer.instance.xrManager.getCamera()
+      xrCamera.layers.mask = camera.layers.mask
+      for (const c of xrCamera.cameras) c.layers.mask = camera.layers.mask
 
-      // const xrInputSourceComponent = getComponent(world.localClientEntity, XRInputSourceComponent)
-      // const head = xrInputSourceComponent.head
-      // head.quaternion.copy(Engine.instance.currentWorld.camera.quaternion)
-      // head.position.copy(Engine.instance.currentWorld.camera.position)
+      const xrInputSourceComponent = getComponent(world.localClientEntity, XRInputSourceComponent)
+      const head = xrInputSourceComponent.head
+      head.quaternion.copy(camera.quaternion)
+      head.position.copy(camera.position)
+
+      const session = EngineRenderer.instance.xrManager!.getSession()!
+      for (const source of session.inputSources) updateGamepadInput(source)
     }
 
     //XR Controller mesh animation update
@@ -157,35 +166,48 @@ export default async function XRSystem(world: World) {
   }
 }
 
-function copyGamepadState({ gamepad, handedness }: XRInputSource) {
-  if (!gamepad) return
+function updateGamepadInput(source: XRInputSource) {
+  if (source.gamepad?.mapping === 'xr-standard') {
+    const mapping = GamepadMapping['xr-standard'][source.handedness]
 
-  const mapping = gamepadMapping[gamepad.mapping || 'xr-standard'][handedness]
-
-  gamepad.buttons.forEach((button, index) => {
-    // TODO : support button.touched and button.value
-    const prev = Engine.instance.currentWorld.prevInputState.get(mapping.buttons[index])
-    if (!prev && button.pressed == false) return
-    const continued = prev?.value && button.pressed
-    Engine.instance.currentWorld.inputState.set(mapping.buttons[index], {
-      type: InputType.BUTTON,
-      value: [button.pressed ? BinaryValue.ON : BinaryValue.OFF],
-      lifecycleState: button.pressed
-        ? continued
-          ? LifecycleValue.Continued
-          : LifecycleValue.Started
-        : LifecycleValue.Ended
+    source.gamepad.buttons.forEach((button, index) => {
+      // TODO : support button.touched and button.value
+      const prev = Engine.instance.currentWorld.prevInputState.get(mapping[index])
+      if (!prev && button.pressed == false) return
+      const continued = prev?.value && button.pressed
+      Engine.instance.currentWorld.inputState.set(mapping[index], {
+        type: InputType.BUTTON,
+        value: [button.pressed ? BinaryValue.ON : BinaryValue.OFF],
+        lifecycleState: button.pressed
+          ? continued
+            ? LifecycleValue.Continued
+            : LifecycleValue.Started
+          : LifecycleValue.Ended
+      })
     })
-  })
 
-  const inputData = [...gamepad.axes]
-  for (let i = 0; i < inputData.length; i++) {
-    if (Math.abs(inputData[i]) < 0.05) inputData[i] = 0
+    // TODO: we shouldn't be modifying input data here, deadzone should be handled elsewhere
+    const inputData = [...source.gamepad.axes]
+    for (let i = 0; i < inputData.length; i++) {
+      if (Math.abs(inputData[i]) < 0.05) inputData[i] = 0
+    }
+
+    if (inputData.length >= 2) {
+      const Touchpad = source.handedness === 'left' ? GamepadAxis.LTouchpad : GamepadAxis.RTouchpad
+      Engine.instance.currentWorld.inputState.set(Touchpad, {
+        type: InputType.TWODIM,
+        value: [inputData[0], inputData[1]],
+        lifecycleState: LifecycleValue.Started // TODO
+      })
+    }
+
+    if (inputData.length >= 4) {
+      const Thumbstick = source.handedness === 'left' ? GamepadAxis.LThumbstick : GamepadAxis.RThumbstick
+      Engine.instance.currentWorld.inputState.set(Thumbstick, {
+        type: InputType.TWODIM,
+        value: [inputData[2], inputData[3]],
+        lifecycleState: LifecycleValue.Started // TODO
+      })
+    }
   }
-
-  Engine.instance.currentWorld.inputState.set(mapping.axes, {
-    type: InputType.TWODIM,
-    value: inputData,
-    lifecycleState: LifecycleValue.Started
-  })
 }

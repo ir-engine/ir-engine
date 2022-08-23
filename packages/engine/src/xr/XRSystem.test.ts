@@ -5,7 +5,7 @@ import { BinaryValue } from '../common/enums/BinaryValue'
 import { LifecycleValue } from '../common/enums/LifecycleValue'
 import { Engine } from '../ecs/classes/Engine'
 import { createEngine } from '../initializeEngine'
-import { GamepadButtons, XRAxes } from '../input/enums/InputEnums'
+import { GamepadAxis, GamepadButtons } from '../input/enums/InputEnums'
 import { InputType } from '../input/enums/InputType'
 import { EngineRenderer } from '../renderer/WebGLRendererSystem'
 
@@ -58,7 +58,7 @@ describe('XRSystem Tests', async () => {
     assert(lBumperState?.value[0] === BinaryValue.ON)
     assert(lBumperState?.lifecycleState === LifecycleValue.Started)
 
-    const lAxisState = Engine.instance.currentWorld.inputState.get(XRAxes.Left)
+    const lAxisState = Engine.instance.currentWorld.inputState.get(GamepadAxis.LThumbstick)
     assert(lAxisState)
     assert(lAxisState.type === InputType.TWODIM)
     assert(lAxisState.value[0] === 1)

@@ -34,8 +34,7 @@ import {
   GamepadButtons,
   MouseInput,
   TouchInputs,
-  XR6DOF,
-  XRAxes
+  XR6DOF
 } from '../input/enums/InputEnums'
 import { InputType } from '../input/enums/InputType'
 import { InputBehaviorType, InputSchema } from '../input/interfaces/InputSchema'
@@ -396,28 +395,28 @@ const setLocalMovementDirection: InputBehaviorType = (
 let switchChangedToZero = true
 const deg2rad = Math.PI / 180
 
-const moveFromXRInputs: InputBehaviorType = (entity: Entity, inputKey: InputAlias, inputValue: InputValue): void => {
-  const controller = getComponent(entity, AvatarControllerComponent)
-  const values = inputValue.value
-  values[0] = values[2]
-  values[1] = values[3]
-  controller.localMovementDirection.x = values[0] ?? controller.localMovementDirection.x
-  controller.localMovementDirection.z = values[1] ?? controller.localMovementDirection.z
-  controller.localMovementDirection.normalize()
+// const moveFromXRInputs: InputBehaviorType = (entity: Entity, inputKey: InputAlias, inputValue: InputValue): void => {
+//   const controller = getComponent(entity, AvatarControllerComponent)
+//   const values = inputValue.value
+//   values[0] = values[2]
+//   values[1] = values[3]
+//   controller.localMovementDirection.x = values[0] ?? controller.localMovementDirection.x
+//   controller.localMovementDirection.z = values[1] ?? controller.localMovementDirection.z
+//   controller.localMovementDirection.normalize()
 
-  const avatarMovementScheme = AvatarSettings.instance.movementScheme
-  if (avatarMovementScheme === AvatarMovementScheme.Teleport) {
-    const controller = getComponent(entity, AvatarControllerComponent)
-    if (controller.localMovementDirection.z < -0.75 && !hasComponent(entity, AvatarTeleportTagComponent)) {
-      addComponent(entity, AvatarTeleportTagComponent, {})
-    } else if (controller.localMovementDirection.z === 0.0) {
-      removeComponent(entity, AvatarTeleportTagComponent)
-    }
+//   const avatarMovementScheme = AvatarSettings.instance.movementScheme
+//   if (avatarMovementScheme === AvatarMovementScheme.Teleport) {
+//     const controller = getComponent(entity, AvatarControllerComponent)
+//     if (controller.localMovementDirection.z < -0.75 && !hasComponent(entity, AvatarTeleportTagComponent)) {
+//       addComponent(entity, AvatarTeleportTagComponent, {})
+//     } else if (controller.localMovementDirection.z === 0.0) {
+//       removeComponent(entity, AvatarTeleportTagComponent)
+//     }
 
-    // This is required because we want to disable any direct movement of avatar as a result of joystick
-    controller.localMovementDirection.setScalar(0)
-  }
-}
+//     // This is required because we want to disable any direct movement of avatar as a result of joystick
+//     controller.localMovementDirection.setScalar(0)
+//   }
+// }
 
 const lookFromXRInputs: InputBehaviorType = (entity: Entity, inputKey: InputAlias, inputValue: InputValue): void => {
   const values = inputValue.value
@@ -458,41 +457,46 @@ const axisLookSensitivity = 320
 const lookByInputAxis: InputBehaviorType = (entity: Entity, inputKey: InputAlias, inputValue: InputValue): void => {
   const avatarController = getComponent(entity, AvatarControllerComponent)
   const cameraEntity = avatarController.cameraEntity
-  const target =
-    getComponent(cameraEntity, TargetCameraRotationComponent) || getComponent(cameraEntity, FollowCameraComponent)
-  if (target)
-    setTargetCameraRotation(
-      cameraEntity,
-      target.phi - inputValue.value[1] * axisLookSensitivity,
-      target.theta - inputValue.value[0] * axisLookSensitivity,
-      0.1
-    )
+  const followCamera = getComponent(cameraEntity, FollowCameraComponent)
+
+  if (followCamera) {
+    const target = getComponent(cameraEntity, TargetCameraRotationComponent) || followCamera
+    if (target)
+      setTargetCameraRotation(
+        cameraEntity,
+        target.phi - inputValue.value[1] * axisLookSensitivity,
+        target.theta - inputValue.value[0] * axisLookSensitivity,
+        0.1
+      )
+  }
+
+  // if vr, rotate the reference space
 }
 
-const gamepadLook: InputBehaviorType = (entity: Entity): void => {
-  const input = getComponent(entity, InputComponent)
-  const data = input.data.get(BaseInput.GAMEPAD_STICK_RIGHT)!
-  if (data.lifecycleState === LifecycleValue.Ended) {
-    input.data.set(BaseInput.LOOKTURN_PLAYERONE, {
-      type: data.type,
-      value: [0, 0],
-      lifecycleState: LifecycleValue.Changed
-    })
-  }
-  if (data.type === InputType.TWODIM) {
-    input.data.set(BaseInput.LOOKTURN_PLAYERONE, {
-      type: data.type,
-      value: [data.value[0], data.value[1]],
-      lifecycleState: LifecycleValue.Changed
-    })
-  } else if (data.type === InputType.THREEDIM) {
-    input.data.set(BaseInput.LOOKTURN_PLAYERONE, {
-      type: data.type,
-      value: [data.value[0], data.value[2]],
-      lifecycleState: LifecycleValue.Changed
-    })
-  }
-}
+// const gamepadLook: InputBehaviorType = (entity: Entity): void => {
+//   const input = getComponent(entity, InputComponent)
+//   const data = input.data.get(BaseInput.GAMEPAD_STICK_RIGHT)!
+//   if (data.lifecycleState === LifecycleValue.Ended) {
+//     input.data.set(BaseInput.LOOKTURN, {
+//       type: data.type,
+//       value: [0, 0],
+//       lifecycleState: LifecycleValue.Changed
+//     })
+//   }
+//   if (data.type === InputType.TWODIM) {
+//     input.data.set(BaseInput.LOOKTURN, {
+//       type: data.type,
+//       value: [data.value[0], data.value[1]],
+//       lifecycleState: LifecycleValue.Changed
+//     })
+//   } else if (data.type === InputType.THREEDIM) {
+//     input.data.set(BaseInput.LOOKTURN, {
+//       type: data.type,
+//       value: [data.value[0], data.value[2]],
+//       lifecycleState: LifecycleValue.Changed
+//     })
+//   }
+// }
 
 export const handlePrimaryButton: InputBehaviorType = (entity, inputKey, inputValue): void => {
   if (inputValue.lifecycleState !== LifecycleValue.Ended) {
@@ -572,13 +576,13 @@ export const createAvatarInput = () => {
   map.set(MouseInput.MousePosition, BaseInput.SCREENXY)
   map.set(MouseInput.MouseClickDownPosition, BaseInput.SCREENXY_START)
   map.set(MouseInput.MouseClickDownTransformRotation, BaseInput.ROTATION_START)
-  map.set(MouseInput.MouseClickDownMovement, BaseInput.LOOKTURN_PLAYERONE)
+  map.set(MouseInput.MouseClickDownMovement, BaseInput.LOOKTURN)
   map.set(MouseInput.MouseScroll, BaseInput.CAMERA_SCROLL)
 
   // map.set(TouchInputs.Touch, BaseInput.INTERACT)
   // map.set(TouchInputs.DoubleTouch, BaseInput.JUMP)
   map.set(TouchInputs.Touch1Position, BaseInput.SCREENXY)
-  map.set(TouchInputs.Touch1Movement, BaseInput.LOOKTURN_PLAYERONE)
+  map.set(TouchInputs.Touch1Movement, BaseInput.MOVEMENT)
   map.set(TouchInputs.Scale, BaseInput.CAMERA_SCROLL)
 
   map.set(GamepadButtons.A, BaseInput.INTERACT)
@@ -595,11 +599,11 @@ export const createAvatarInput = () => {
   map.set(GamepadButtons.DPad3, BaseInput.LEFT)
   map.set(GamepadButtons.DPad4, BaseInput.RIGHT)
 
-  map.set(GamepadAxis.Left, BaseInput.MOVEMENT_PLAYERONE)
-  map.set(GamepadAxis.Right, BaseInput.GAMEPAD_STICK_RIGHT)
+  map.set(GamepadAxis.LThumbstick, BaseInput.MOVEMENT)
+  map.set(GamepadAxis.RThumbstick, BaseInput.LOOKTURN)
 
-  map.set(XRAxes.Left, BaseInput.XR_AXIS_LOOK)
-  map.set(XRAxes.Right, BaseInput.XR_AXIS_MOVE)
+  map.set(GamepadAxis.LTouchpad, BaseInput.MOVEMENT)
+  map.set(GamepadAxis.RTouchpad, BaseInput.LOOKTURN)
 
   map.set(XR6DOF.HMD, BaseInput.XR_HEAD)
   map.set(XR6DOF.LeftHand, BaseInput.XR_CONTROLLER_LEFT_HAND)
@@ -664,12 +668,8 @@ export const createBehaviorMap = () => {
   map.set(CameraInput.Happy, setAvatarExpression)
   map.set(CameraInput.Sad, setAvatarExpression)
 
-  map.set(BaseInput.LOOKTURN_PLAYERONE, lookByInputAxis)
-  map.set(BaseInput.MOVEMENT_PLAYERONE, moveByInputAxis)
-  map.set(BaseInput.GAMEPAD_STICK_LEFT, gamepadLook)
-  map.set(BaseInput.GAMEPAD_STICK_RIGHT, gamepadLook)
-  map.set(BaseInput.XR_AXIS_LOOK, lookFromXRInputs)
-  map.set(BaseInput.XR_AXIS_MOVE, moveFromXRInputs)
+  map.set(BaseInput.MOVEMENT, moveByInputAxis)
+  map.set(BaseInput.LOOKTURN, lookByInputAxis)
 
   map.set(BaseInput.SWITCH_CAMERA, cycleCameraMode)
   map.set(BaseInput.LOCKING_CAMERA, fixedCameraBehindAvatar)

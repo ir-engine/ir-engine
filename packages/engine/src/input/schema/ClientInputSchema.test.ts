@@ -113,7 +113,7 @@ describe('clientInputSchema', () => {
   it('check handleTouchDirectionalPad', () => {
     let touchEvent = {
       detail: {
-        stick: GamepadAxis.Left,
+        stick: GamepadAxis.LThumbstick,
         value: {
           x: 1,
           y: 1,
@@ -122,7 +122,7 @@ describe('clientInputSchema', () => {
       }
     }
 
-    const input = GamepadAxis.Left
+    const input = GamepadAxis.LThumbstick
 
     handleTouchDirectionalPad(touchEvent as unknown as CustomEvent)
     assert(Engine.instance.currentWorld.inputState.get(input)?.lifecycleState === LifecycleValue.Started)
@@ -130,7 +130,7 @@ describe('clientInputSchema', () => {
     assert(Engine.instance.currentWorld.inputState.get(input)?.lifecycleState === LifecycleValue.Started)
     touchEvent = {
       detail: {
-        stick: GamepadAxis.Left,
+        stick: GamepadAxis.LThumbstick,
         value: {
           x: 4,
           y: 4,

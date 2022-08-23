@@ -24,7 +24,7 @@ describe('ClientInputSystem Unit Tests', () => {
 
   describe('processEngineInputState', () => {
     it('add new input - Started state', () => {
-      Engine.instance.currentWorld.inputState.set(GamepadAxis.Left, {
+      Engine.instance.currentWorld.inputState.set(GamepadAxis.LThumbstick, {
         type: InputType.TWODIM,
         value: stickPosition,
         lifecycleState: LifecycleValue.Started
@@ -36,12 +36,12 @@ describe('ClientInputSystem Unit Tests', () => {
     })
 
     it('add new input - Ended state', () => {
-      Engine.instance.currentWorld.inputState.set(GamepadAxis.Right, {
+      Engine.instance.currentWorld.inputState.set(GamepadAxis.RThumbstick, {
         type: InputType.TWODIM,
         value: stickPosition,
         lifecycleState: LifecycleValue.Ended
       })
-      Engine.instance.currentWorld.inputState.set(GamepadAxis.Left, {
+      Engine.instance.currentWorld.inputState.set(GamepadAxis.LThumbstick, {
         type: InputType.TWODIM,
         value: stickPosition,
         lifecycleState: LifecycleValue.Started
@@ -49,17 +49,17 @@ describe('ClientInputSystem Unit Tests', () => {
 
       assert.strictEqual(Engine.instance.currentWorld.inputState.size, 2)
       assert.strictEqual(
-        Engine.instance.currentWorld.inputState.get(GamepadAxis.Left)?.lifecycleState,
+        Engine.instance.currentWorld.inputState.get(GamepadAxis.LThumbstick)?.lifecycleState,
         LifecycleValue.Started
       )
       assert.strictEqual(
-        Engine.instance.currentWorld.inputState.get(GamepadAxis.Right)?.lifecycleState,
+        Engine.instance.currentWorld.inputState.get(GamepadAxis.RThumbstick)?.lifecycleState,
         LifecycleValue.Ended
       )
     })
 
     it('Two similar state becomes unchanged', () => {
-      Engine.instance.currentWorld.inputState.set(GamepadAxis.Left, {
+      Engine.instance.currentWorld.inputState.set(GamepadAxis.LThumbstick, {
         type: InputType.TWODIM,
         value: stickPosition,
         lifecycleState: LifecycleValue.Started
@@ -67,26 +67,26 @@ describe('ClientInputSystem Unit Tests', () => {
 
       processEngineInputState()
       assert.strictEqual(
-        Engine.instance.currentWorld.inputState.get(GamepadAxis.Left)?.lifecycleState,
+        Engine.instance.currentWorld.inputState.get(GamepadAxis.LThumbstick)?.lifecycleState,
         LifecycleValue.Started
       )
       assert.strictEqual(Engine.instance.currentWorld.inputState.size, 1)
 
-      Engine.instance.currentWorld.inputState.set(GamepadAxis.Left, {
+      Engine.instance.currentWorld.inputState.set(GamepadAxis.LThumbstick, {
         type: InputType.TWODIM,
         value: stickPosition,
         lifecycleState: LifecycleValue.Started
       })
       processEngineInputState()
       assert.strictEqual(
-        Engine.instance.currentWorld.inputState.get(GamepadAxis.Left)?.lifecycleState,
+        Engine.instance.currentWorld.inputState.get(GamepadAxis.LThumbstick)?.lifecycleState,
         LifecycleValue.Unchanged
       )
       assert.strictEqual(Engine.instance.currentWorld.inputState.size, 1)
     })
 
     it('set the first input into ended', () => {
-      Engine.instance.currentWorld.inputState.set(GamepadAxis.Left, {
+      Engine.instance.currentWorld.inputState.set(GamepadAxis.LThumbstick, {
         type: InputType.TWODIM,
         value: stickPosition,
         lifecycleState: LifecycleValue.Ended
@@ -94,7 +94,7 @@ describe('ClientInputSystem Unit Tests', () => {
       processEngineInputState()
       assert.strictEqual(Engine.instance.currentWorld.inputState.size, 1)
       assert.strictEqual(
-        Engine.instance.currentWorld.inputState.get(GamepadAxis.Left)?.lifecycleState,
+        Engine.instance.currentWorld.inputState.get(GamepadAxis.LThumbstick)?.lifecycleState,
         LifecycleValue.Ended
       )
       processEngineInputState()
