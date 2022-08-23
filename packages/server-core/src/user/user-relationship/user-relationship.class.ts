@@ -34,7 +34,7 @@ export class UserRelationship<T = UserRelationshipDataType> extends Service<T> {
       const userRelations = await UserRelationshipModel.findAll({
         where: {
           userId,
-          type: userRelationType.type
+          userRelationshipType: userRelationType.type
         },
         attributes: ['relatedUserId'],
         raw: false
@@ -90,16 +90,18 @@ export class UserRelationship<T = UserRelationshipDataType> extends Service<T> {
         }
       )
 
-      result = await UserRelationshipModel.create(
-        {
-          userId: relatedUserId,
-          relatedUserId: userId,
-          userRelationshipType: userRelationshipType === 'blocking' ? 'blocked' : 'requested'
-        },
-        {
-          transaction: trans
-        }
-      )
+      if (userRelationshipType === 'blocking') {
+        result = await UserRelationshipModel.create(
+          {
+            userId: relatedUserId,
+            relatedUserId: userId,
+            userRelationshipType: 'blocked'
+          },
+          {
+            transaction: trans
+          }
+        )
+      }
     })
 
     return result
@@ -116,8 +118,8 @@ export class UserRelationship<T = UserRelationshipDataType> extends Service<T> {
       await this.app.service('user').get(id)
       //The ID resolves to a userId, in which case patch the relation joining that user to the requesting one
       whereParams = {
-        userId: params.user.id,
-        relatedUserId: id
+        userId: id,
+        relatedUserId: params.user.id
       }
     } catch (err) {
       //The ID does not resolve to a user, in which case it's the ID of the user-relationship object, so patch it
@@ -126,14 +128,36 @@ export class UserRelationship<T = UserRelationshipDataType> extends Service<T> {
       }
     }
 
-    await UserRelationshipModel.update(
-      {
-        userRelationshipType: userRelationshipType
-      },
-      {
-        where: whereParams
+    await this.app.get('sequelizeClient').transaction(async (trans: Transaction) => {
+      await UserRelationshipModel.update(
+        {
+          userRelationshipType: userRelationshipType
+        },
+        {
+          where: whereParams
+        },
+        {
+          transaction: trans
+        }
+      )
+
+      if (userRelationshipType === 'friend') {
+        const result = await UserRelationshipModel.findOne({
+          where: whereParams
+        })
+
+        await UserRelationshipModel.create(
+          {
+            userId: result.relatedUserId,
+            relatedUserId: result.userId,
+            userRelationshipType: 'friend'
+          },
+          {
+            transaction: trans
+          }
+        )
       }
-    )
+    })
 
     return UserRelationshipModel.findOne({
       where: whereParams

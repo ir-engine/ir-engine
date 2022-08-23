@@ -15,7 +15,8 @@ export const Views = {
   Emote: 'Emote',
   ReadyPlayer: 'ReadyPlayer',
   AvatarSelect: 'AvatarSelect',
-  Friends: 'Friends'
+  Friends: 'Friends',
+  AvatarContext: 'AvatarContext'
 }
 
 export interface SettingMenuProps {

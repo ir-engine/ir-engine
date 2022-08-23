@@ -84,29 +84,7 @@ export class User extends Service<UserInterface> {
 
     const loggedInUser = params!.user as any
 
-    if (action === 'friends') {
-      delete params.query.action
-      const loggedInUser = params!.user as UserInterface
-      const userResult = await this.app.service('user').Model.findAndCountAll({
-        offset: skip,
-        limit: limit,
-        order: [['name', 'ASC']],
-        include: [
-          {
-            model: this.app.service('user-relationship').Model,
-            where: {
-              relatedUserId: loggedInUser.id,
-              userRelationshipType: 'friend'
-            }
-          }
-        ]
-      })
-
-      params.query.id = {
-        $in: userResult.rows.map((user) => user.id)
-      }
-      return super.find(params)
-    } else if (action === 'layer-users') {
+    if (action === 'layer-users') {
       delete params.query.action
       params.query.instanceId = params.query.instanceId || loggedInUser.instanceId || 'intentionalBadId'
       return super.find(params)

@@ -10,11 +10,12 @@ import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
 import { useXRUIState } from '@xrengine/engine/src/xrui/functions/useXRUIState'
 import { getState } from '@xrengine/hyperflux'
 
+import { FriendService } from '../../../social/services/FriendService'
 import { InviteService } from '../../../social/services/InviteService'
 import { PartyService, usePartyState } from '../../../social/services/PartyService'
 import { getAvatarURLForUser } from '../../../user/components/UserMenu/util'
 import { useAuthState } from '../../../user/services/AuthService'
-import { UserService, useUserState } from '../../../user/services/UserService'
+import { useUserState } from '../../../user/services/UserService'
 import XRTextButton from '../../components/XRTextButton'
 import styleString from './index.scss'
 
@@ -51,18 +52,16 @@ const AvatarContextMenu = () => {
   PartyService.useAPIListeners()
 
   const blockUser = () => {
-    if (authState.user?.id?.value !== null && user) {
-      const selfId = authState.user.id?.value ?? ''
+    if (user) {
       const blockUserId = user.id?.value ?? ''
-      UserService.blockUser(selfId, blockUserId)
+      FriendService.blockUser(blockUserId)
     }
   }
 
   const addAsFriend = () => {
-    if (authState.user?.id?.value !== null && user) {
-      const selfId = authState.user.id?.value ?? ''
+    if (user) {
       const blockUserId = user.id?.value ?? ''
-      UserService.requestFriend(selfId, blockUserId)
+      FriendService.requestFriend(blockUserId)
     }
   }
 

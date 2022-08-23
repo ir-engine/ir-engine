@@ -1,5 +1,5 @@
 import { useHookstate } from '@hookstate/core'
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { UserInterface } from '@xrengine/common/src/interfaces/User'
@@ -15,6 +15,7 @@ import IconButton from '@mui/material/IconButton'
 import Tab from '@mui/material/Tab'
 import Tabs from '@mui/material/Tabs'
 
+import { FriendService, useFriendState } from '../../../../social/services/FriendService'
 import { useAuthState } from '../../../services/AuthService'
 import styles from '../index.module.scss'
 import { getAvatarURLForUser } from '../util'
@@ -23,9 +24,16 @@ const FriendsMenu = (): JSX.Element => {
   const { t } = useTranslation()
   const [selectedTab, setSelectedTab] = React.useState('friends')
 
+  const friendState = useFriendState()
   const selfUser = useAuthState().user
   const userId = selfUser.id.value
   const userAvatarDetails = useHookstate(getState(WorldState).userAvatarDetails)
+
+  FriendService.useAPIListeners()
+
+  useEffect(() => {
+    FriendService.getUserRelationship(userId)
+  }, [])
 
   const handleTabChange = (event: React.SyntheticEvent, newValue: string) => {
     setSelectedTab(newValue)
@@ -74,9 +82,9 @@ const FriendsMenu = (): JSX.Element => {
         </Tabs>
 
         <div className={styles.friendsList}>
-          {displayList.map((value, index) => (
+          {friendState.relationships.friend.value.map((value, index) => (
             <div className={styles.friendItem}>
-              <Avatar alt={value.name} src={getAvatarURLForUser(userAvatarDetails, userId)} />
+              <Avatar alt={value.name} src={getAvatarURLForUser(userAvatarDetails, value.id)} />
 
               <span className={styles.friendName}>{value.name}</span>
 

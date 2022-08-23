@@ -7,11 +7,3 @@ export interface Relationship {
   blocking: UserInterface[]
   blocked: UserInterface[]
 }
-
-export const RelationshipSeed: Relationship = {
-  userId: '',
-  friend: [],
-  requested: [],
-  blocking: [],
-  blocked: []
-}

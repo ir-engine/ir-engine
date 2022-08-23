@@ -4,7 +4,7 @@ import { AudioEffectPlayer } from '@xrengine/engine/src/audio/systems/AudioSyste
 import { matches } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { EngineActions, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { XRState } from '@xrengine/engine/src/xr/XRState'
-import { addActionReceptor, getState, removeActionReceptor, useHookstate } from '@xrengine/hyperflux'
+import { addActionReceptor, getState, removeActionReceptor, useHookEffect, useHookstate } from '@xrengine/hyperflux'
 
 import GroupsIcon from '@mui/icons-material/Groups'
 import LinkIcon from '@mui/icons-material/Link'
@@ -13,6 +13,7 @@ import SettingsIcon from '@mui/icons-material/Settings'
 import ClickAwayListener from '@mui/material/ClickAwayListener'
 
 import styles from './index.module.scss'
+import AvatarContextMenu from './menus/AvatarContextMenu'
 import AvatarUploadModal from './menus/AvatarSelectMenu'
 import EmoteMenu from './menus/EmoteMenu'
 import FriendsMenu from './menus/FriendsMenu'
@@ -56,6 +57,7 @@ UserMenuPanels.set(Views.AvatarUpload, AvatarUploadModal)
 UserMenuPanels.set(Views.ReadyPlayer, ReadyPlayerMenu)
 UserMenuPanels.set(Views.Emote, EmoteMenu)
 UserMenuPanels.set(Views.Friends, FriendsMenu)
+UserMenuPanels.set(Views.AvatarContext, AvatarContextMenu)
 
 // menus to be shown as icons at bottom of screen
 export const HotbarMenu = new Map<string, any>()
@@ -74,6 +76,7 @@ const UserMenu = (props: Props): any => {
   const [currentActiveMenu, setCurrentActiveMenu] = useState<typeof Views[keyof typeof Views]>()
   const Panel = UserMenuPanels.get(currentActiveMenu!)!
   const xrSessionActive = useHookstate(getState(XRState).sessionActive)
+  const engineState = useEngineState()
 
   useEffect(() => {
     function shareLinkReceptor(a) {
@@ -86,6 +89,12 @@ const UserMenu = (props: Props): any => {
     addActionReceptor(shareLinkReceptor)
     return () => removeActionReceptor(shareLinkReceptor)
   }, [])
+
+  useHookEffect(() => {
+    if (engineState.avatarTappedId.value) {
+      setCurrentActiveMenu(Views.AvatarContext)
+    }
+  }, [engineState.avatarTappedId.value])
 
   return (
     <ClickAwayListener onClickAway={() => setCurrentActiveMenu(null!)} mouseEvent="onMouseDown">
