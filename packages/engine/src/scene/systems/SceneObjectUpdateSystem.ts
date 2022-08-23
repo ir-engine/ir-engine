@@ -29,6 +29,7 @@ import {
   SCENE_COMPONENT_CLOUD,
   SCENE_COMPONENT_CLOUD_DEFAULT_VALUES
 } from '../components/CloudComponent'
+import { SCENE_COMPONENT_COLLIDER } from '../components/ColliderComponent'
 import {
   EnvMapBakeComponent,
   SCENE_COMPONENT_ENVMAP_BAKE,
@@ -70,6 +71,7 @@ import {
 import {
   PortalComponent,
   SCENE_COMPONENT_PORTAL,
+  SCENE_COMPONENT_PORTAL_COLLIDER_VALUES,
   SCENE_COMPONENT_PORTAL_DEFAULT_VALUES
 } from '../components/PortalComponent'
 import {
@@ -107,7 +109,6 @@ import {
   SCENE_COMPONENT_SYSTEM_DEFAULT_VALUES,
   SystemComponent
 } from '../components/SystemComponent'
-import { SCENE_COMPONENT_TRIGGER_VOLUME } from '../components/TriggerVolumeComponent'
 import { SCENE_COMPONENT_VISIBLE, VisibleComponent } from '../components/VisibleComponent'
 import { SCENE_COMPONENT_WATER, WaterComponent } from '../components/WaterComponent'
 import { deserializeAsset, serializeAsset } from '../functions/loaders/AssetComponentFunctions'
@@ -292,7 +293,7 @@ export default async function SceneObjectUpdateSystem(world: World) {
   world.scenePrefabRegistry.set(ScenePrefabs.portal, [
     ...defaultSpatialComponents,
     { name: SCENE_COMPONENT_PORTAL, props: SCENE_COMPONENT_PORTAL_DEFAULT_VALUES },
-    { name: SCENE_COMPONENT_TRIGGER_VOLUME, props: { target: '', onEnter: 'teleport' } }
+    { name: SCENE_COMPONENT_COLLIDER, props: SCENE_COMPONENT_PORTAL_COLLIDER_VALUES }
   ])
 
   world.sceneComponentRegistry.set(PortalComponent._name, SCENE_COMPONENT_PORTAL)

@@ -38,11 +38,10 @@ import {
 import { Vec3Arg } from '../../renderer/materials/constants/DefaultArgs'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { CollisionComponent } from '../components/CollisionComponent'
-import { RigidBodyComponent } from '../components/RigidBodyComponent'
+import { getTagComponentForRigidBody, RigidBodyComponent } from '../components/RigidBodyComponent'
 import { VelocityComponent } from '../components/VelocityComponent'
 import { CollisionGroups, DefaultCollisionMask } from '../enums/CollisionGroups'
 import { getInteractionGroups } from '../functions/getInteractionGroups'
-import { getTagComponentForRigidBody } from '../functions/getTagComponentForRigidBody'
 import { ColliderDescOptions, CollisionEvents, RaycastHit, SceneQueryType } from '../types/PhysicsTypes'
 
 export type PhysicsWorld = World
@@ -87,7 +86,7 @@ function createRigidBody(entity: Entity, world: World, rigidBodyDesc: RigidBodyD
     previousAngularVelocity: new Vector3()
   })
 
-  const RigidBodyTypeTagComponent = getTagComponentForRigidBody(rigidBody)
+  const RigidBodyTypeTagComponent = getTagComponentForRigidBody(rigidBody.bodyType())
   addComponent(entity, RigidBodyTypeTagComponent, true)
 
   // set entity in userdata for fast look up when required.
@@ -272,24 +271,24 @@ function removeRigidBody(entity: Entity, world: World, hasBeenRemoved = false) {
   const rigidBody = getComponent(entity, RigidBodyComponent, hasBeenRemoved)?.body
   if (rigidBody && world.bodies.contains(rigidBody.handle)) {
     if (!hasBeenRemoved) {
-      const RigidBodyTypeTagComponent = getTagComponentForRigidBody(rigidBody)
+      const RigidBodyTypeTagComponent = getTagComponentForRigidBody(rigidBody.bodyType())
       removeComponent(entity, RigidBodyTypeTagComponent)
       removeComponent(entity, RigidBodyComponent)
     }
-
     world.removeRigidBody(rigidBody)
   }
 }
 
 function changeRigidbodyType(entity: Entity, newType: RigidBodyType) {
   const rigidBody = getComponent(entity, RigidBodyComponent).body
-  const currentRigidBodyTypeTagComponent = getTagComponentForRigidBody(rigidBody)
+  if (newType === rigidBody.bodyType()) return
+  const currentRigidBodyTypeTagComponent = getTagComponentForRigidBody(rigidBody.bodyType())
 
   removeComponent(entity, currentRigidBodyTypeTagComponent)
 
   rigidBody.setBodyType(newType)
 
-  const newRigidBodyComponent = getTagComponentForRigidBody(rigidBody)
+  const newRigidBodyComponent = getTagComponentForRigidBody(rigidBody.bodyType())
   addComponent(entity, newRigidBodyComponent, true)
 }
 

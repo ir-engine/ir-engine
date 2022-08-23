@@ -5,9 +5,9 @@ import { getAllComponents } from '@xrengine/engine/src/ecs/functions/ComponentFu
 import { PhysicsPrefabs } from '@xrengine/engine/src/physics/systems/PhysicsSystem'
 import { AmbientLightComponent } from '@xrengine/engine/src/scene/components/AmbientLightComponent'
 import { AssetComponent } from '@xrengine/engine/src/scene/components/AssetComponent'
-import { BoxColliderComponent } from '@xrengine/engine/src/scene/components/BoxColliderComponent'
 import { CameraPropertiesComponent } from '@xrengine/engine/src/scene/components/CameraPropertiesComponent'
 import { CloudComponent } from '@xrengine/engine/src/scene/components/CloudComponent'
+import { ColliderComponent } from '@xrengine/engine/src/scene/components/ColliderComponent'
 import { DirectionalLightComponent } from '@xrengine/engine/src/scene/components/DirectionalLightComponent'
 import { EnvMapBakeComponent } from '@xrengine/engine/src/scene/components/EnvMapBakeComponent'
 import { FogComponent } from '@xrengine/engine/src/scene/components/FogComponent'
@@ -32,7 +32,6 @@ import { SpawnPointComponent } from '@xrengine/engine/src/scene/components/Spawn
 import { SplineComponent } from '@xrengine/engine/src/scene/components/SplineComponent'
 import { SpotLightComponent } from '@xrengine/engine/src/scene/components/SpotLightComponent'
 import { SystemComponent } from '@xrengine/engine/src/scene/components/SystemComponent'
-import { TriggerVolumeComponent } from '@xrengine/engine/src/scene/components/TriggerVolumeComponent'
 import { VideoComponent } from '@xrengine/engine/src/scene/components/VideoComponent'
 import { VolumetricComponent } from '@xrengine/engine/src/scene/components/VolumetricComponent'
 import { WaterComponent } from '@xrengine/engine/src/scene/components/WaterComponent'
@@ -45,9 +44,9 @@ import ChairIcon from '@mui/icons-material/Chair'
 import AmbientLightNodeEditor from '../components/properties/AmbientLightNodeEditor'
 import { AssetNodeEditor } from '../components/properties/AssetNodeEditor'
 import AudioNodeEditor from '../components/properties/AudioNodeEditor'
-import BoxColliderNodeEditor from '../components/properties/BoxColliderNodeEditor'
 import CameraPropertiesNodeEditor from '../components/properties/CameraPropertiesNodeEditor'
 import CloudsNodeEditor from '../components/properties/CloudsNodeEditor'
+import ColliderNodeEditor from '../components/properties/ColliderNodeEditor'
 import { DefaultNodeEditor } from '../components/properties/DefaultNodeEditor'
 import DirectionalLightNodeEditor from '../components/properties/DirectionalLightNodeEditor'
 import EnvMapBakeNodeEditor from '../components/properties/EnvMapBakeNodeEditor'
@@ -74,7 +73,6 @@ import SplineNodeEditor from '../components/properties/SplineNodeEditor'
 import SpotLightNodeEditor from '../components/properties/SpotLightNodeEditor'
 import SystemNodeEditor from '../components/properties/SystemNodeEditor'
 import TransformPropertyGroup from '../components/properties/TransformPropertyGroup'
-import TriggerVolumeNodeEditor from '../components/properties/TriggerVolumeNodeEditor'
 import { EditorComponentType } from '../components/properties/Util'
 import VideoNodeEditor from '../components/properties/VideoNodeEditor'
 import VolumetricNodeEditor from '../components/properties/VolumetricNodeEditor'
@@ -112,9 +110,8 @@ export const EntityNodeEditor = {
   [ModelComponent._name]: ModelNodeEditor,
   [ParticleEmitterComponent._name]: ParticleEmitterNodeEditor,
   [PortalComponent._name]: PortalNodeEditor,
-  [TriggerVolumeComponent._name]: TriggerVolumeNodeEditor,
   [MountPointComponent._name]: MountPointNodeEditor,
-  [BoxColliderComponent._name]: BoxColliderNodeEditor,
+  [ColliderComponent._name]: ColliderNodeEditor,
   [GroupComponent._name]: GroupNodeEditor,
   [AssetComponent._name]: AssetNodeEditor,
   [PostprocessingComponent._name]: PostProcessingNodeEditor,
@@ -150,8 +147,7 @@ export const prefabIcons = {
   [ScenePrefabs.previewCamera]: ScenePreviewCameraNodeEditor.iconComponent,
   [ScenePrefabs.particleEmitter]: ParticleEmitterNodeEditor.iconComponent,
   [ScenePrefabs.portal]: PortalNodeEditor.iconComponent,
-  [PhysicsPrefabs.triggerVolume]: TriggerVolumeNodeEditor.iconComponent,
-  [PhysicsPrefabs.boxCollider]: BoxColliderNodeEditor.iconComponent,
+  [PhysicsPrefabs.collider]: ColliderNodeEditor.iconComponent,
   [ScenePrefabs.chair]: ChairIcon,
   [ScenePrefabs.group]: GroupNodeEditor.iconComponent,
   [ScenePrefabs.asset]: InteriorNodeEditor.iconComponent,

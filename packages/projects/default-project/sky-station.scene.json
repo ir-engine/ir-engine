@@ -696,9 +696,17 @@
           }
         },
         {
-          "name": "trigger-volume",
+          "name": "collider",
           "props": {
-            "onEnter": "teleport"
+            "bodyType": 1,
+            "shapeType": 1,
+            "isTrigger": true,
+            "removeMesh": false,
+            "collisionLayer": 1,
+            "collisionMask": 8,
+            "onEnter": "teleport",
+            "onExit": "",
+            "target": "Self"
           }
         }
       ],
@@ -820,9 +828,17 @@
           }
         },
         {
-          "name": "trigger-volume",
+          "name": "collider",
           "props": {
-            "onEnter": "teleport"
+            "bodyType": 1,
+            "shapeType": 1,
+            "isTrigger": true,
+            "removeMesh": false,
+            "collisionLayer": 1,
+            "collisionMask": 8,
+            "onEnter": "teleport",
+            "onExit": "",
+            "target": "Self"
           }
         }
       ],
@@ -886,9 +902,17 @@
           }
         },
         {
-          "name": "trigger-volume",
+          "name": "collider",
           "props": {
-            "onEnter": "teleport"
+            "bodyType": 1,
+            "shapeType": 1,
+            "isTrigger": true,
+            "removeMesh": false,
+            "collisionLayer": 1,
+            "collisionMask": 8,
+            "onEnter": "teleport",
+            "onExit": "",
+            "target": "Self"
           }
         }
       ],
