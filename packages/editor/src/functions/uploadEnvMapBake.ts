@@ -72,8 +72,8 @@ export const uploadBPCEMBakeToServer = async (entity: Entity) => {
   Engine.instance.currentWorld.scene.traverse((child: Mesh<any, MeshBasicMaterial>) => {
     if (!child.material?.userData) return
     child.material.userData.BPCEMPlugin = beforeMaterialCompile(
-      bakeComponent.options.bakeScale,
-      bakeComponent.options.bakePositionOffset
+      bakeComponent.bakeScale,
+      bakeComponent.bakePositionOffset
     )
     addOBCPlugin(child.material, child.material.userData.BPCEMPlugin)
   })
@@ -81,7 +81,7 @@ export const uploadBPCEMBakeToServer = async (entity: Entity) => {
   const cubemapCapturer = new CubemapCapturer(
     EngineRenderer.instance.renderer,
     Engine.instance.currentWorld.scene,
-    bakeComponent.options.resolution
+    bakeComponent.resolution
   )
   const renderTarget = cubemapCapturer.update(position)
 
@@ -98,8 +98,8 @@ export const uploadBPCEMBakeToServer = async (entity: Entity) => {
   const blob = (await convertCubemapToEquiImageData(
     EngineRenderer.instance.renderer,
     renderTarget.texture,
-    bakeComponent.options.resolution,
-    bakeComponent.options.resolution,
+    bakeComponent.resolution,
+    bakeComponent.resolution,
     true
   )) as Blob
 
@@ -114,7 +114,7 @@ export const uploadBPCEMBakeToServer = async (entity: Entity) => {
 
   const url = (await uploadProjectFiles(projectName, [new File([blob], filename)]).promises[0])[0]
 
-  bakeComponent.options.envMapOrigin = url
+  bakeComponent.envMapOrigin = url
 
   return url
 }

@@ -29,7 +29,6 @@ import {
   SCENE_COMPONENT_CLOUD,
   SCENE_COMPONENT_CLOUD_DEFAULT_VALUES
 } from '../components/CloudComponent'
-import { SCENE_COMPONENT_COLLIDER } from '../components/ColliderComponent'
 import {
   EnvMapBakeComponent,
   SCENE_COMPONENT_ENVMAP_BAKE,
@@ -112,7 +111,7 @@ import {
 import { SCENE_COMPONENT_VISIBLE, VisibleComponent } from '../components/VisibleComponent'
 import { SCENE_COMPONENT_WATER, WaterComponent } from '../components/WaterComponent'
 import { deserializeAsset, serializeAsset } from '../functions/loaders/AssetComponentFunctions'
-import { deserializeCameraProperties } from '../functions/loaders/CameraPropertiesFunctions'
+import { deserializeCameraProperties, updateCameraProperties } from '../functions/loaders/CameraPropertiesFunctions'
 import { deserializeCloud, serializeCloud, updateCloud } from '../functions/loaders/CloudFunctions'
 import { deserializeEnvMapBake, serializeEnvMapBake } from '../functions/loaders/EnvMapBakeFunctions'
 import { deserializeEnvMap, serializeEnvMap, updateEnvMap } from '../functions/loaders/EnvMapFunctions'
@@ -145,10 +144,7 @@ import {
   serializeRenderSettings,
   updateRenderSetting
 } from '../functions/loaders/RenderSettingsFunction'
-import {
-  deserializeScenePreviewCamera,
-  shouldDeserializeScenePreviewCamera
-} from '../functions/loaders/ScenePreviewCameraFunctions'
+import { shouldDeserializeScenePreviewCamera } from '../functions/loaders/ScenePreviewCameraFunctions'
 import { updateShadow } from '../functions/loaders/ShadowFunctions'
 import {
   deserializeSkybox,
@@ -227,7 +223,6 @@ export default async function SceneObjectUpdateSystem(world: World) {
 
   world.sceneComponentRegistry.set(ScenePreviewCameraTagComponent._name, SCENE_COMPONENT_SCENE_PREVIEW_CAMERA)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_SCENE_PREVIEW_CAMERA, {
-    deserialize: deserializeScenePreviewCamera,
     shouldDeserialize: shouldDeserializeScenePreviewCamera
   })
 
@@ -487,6 +482,8 @@ export default async function SceneObjectUpdateSystem(world: World) {
   const interiorQuery = defineQuery([InteriorComponent])
   const renderSettingsQuery = defineQuery([RenderSettingComponent])
   const postProcessingQuery = defineQuery([PostprocessingComponent])
+  const cameraPropertiesQuery = defineQuery([CameraPropertiesComponent])
+  const ScenePreviewCameraTagQuery = defineQuery([ScenePreviewCameraTagComponent])
 
   const modifyPropertyActionQueue = createActionQueue(EngineActions.sceneObjectUpdate.matches)
 
@@ -510,6 +507,7 @@ export default async function SceneObjectUpdateSystem(world: World) {
         if (hasComponent(entity, InteriorComponent)) updateInterior(entity)
         if (hasComponent(entity, RenderSettingComponent)) updateRenderSetting(entity)
         if (hasComponent(entity, PostprocessingComponent)) configureEffectComposer()
+        if (hasComponent(entity, CameraPropertiesComponent)) updateCameraProperties(entity)
       }
     }
 
@@ -528,5 +526,6 @@ export default async function SceneObjectUpdateSystem(world: World) {
     for (const entity of interiorQuery.enter()) updateInterior(entity)
     for (const entity of renderSettingsQuery.enter()) updateRenderSetting(entity)
     for (const entity of postProcessingQuery.enter()) configureEffectComposer()
+    for (const entity of cameraPropertiesQuery.enter()) updateCameraProperties(entity)
   }
 }

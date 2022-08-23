@@ -128,24 +128,20 @@ export default async function LightSystem(world: World) {
   ])
 
   const modifyPropertyActionQueue = createActionQueue(EngineActions.sceneObjectUpdate.matches)
-  const ambientLightQuery = defineQuery([AmbientLightComponent, Object3DComponent])
-  const directionalLightQuery = defineQuery([DirectionalLightComponent, Object3DComponent])
-  const hemisphereLightQuery = defineQuery([HemisphereLightComponent, Object3DComponent])
-  const pointLightQuery = defineQuery([PointLightComponent, Object3DComponent])
-  const spotLightQuery = defineQuery([SpotLightComponent, Object3DComponent])
+  const ambientLightQuery = defineQuery([AmbientLightComponent])
+  const directionalLightQuery = defineQuery([DirectionalLightComponent])
+  const hemisphereLightQuery = defineQuery([HemisphereLightComponent])
+  const pointLightQuery = defineQuery([PointLightComponent])
+  const spotLightQuery = defineQuery([SpotLightComponent])
 
   return () => {
     for (const action of modifyPropertyActionQueue()) {
       for (const entity of action.entities) {
-        if (hasComponent(entity, AmbientLightComponent) && hasComponent(entity, Object3DComponent))
-          updateAmbientLight(entity)
-        if (hasComponent(entity, DirectionalLightComponent) && hasComponent(entity, Object3DComponent))
-          updateDirectionalLight(entity)
-        if (hasComponent(entity, HemisphereLightComponent) && hasComponent(entity, Object3DComponent))
-          updateHemisphereLight(entity)
-        if (hasComponent(entity, PointLightComponent) && hasComponent(entity, Object3DComponent))
-          updatePointLight(entity)
-        if (hasComponent(entity, SpotLightComponent) && hasComponent(entity, Object3DComponent)) updateSpotLight(entity)
+        if (hasComponent(entity, AmbientLightComponent)) updateAmbientLight(entity)
+        if (hasComponent(entity, DirectionalLightComponent)) updateDirectionalLight(entity)
+        if (hasComponent(entity, HemisphereLightComponent)) updateHemisphereLight(entity)
+        if (hasComponent(entity, PointLightComponent)) updatePointLight(entity)
+        if (hasComponent(entity, SpotLightComponent)) updateSpotLight(entity)
       }
     }
 

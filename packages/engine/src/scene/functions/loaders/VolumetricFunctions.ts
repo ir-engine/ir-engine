@@ -50,7 +50,6 @@ if (isClient) {
 }
 
 export const deserializeVolumetric: ComponentDeserializeFunction = (entity: Entity, data: VolumetricComponentType) => {
-  if (!isClient) return
   try {
     removeError(entity, 'error')
     addVolumetricComponent(entity, data)
@@ -61,6 +60,8 @@ export const deserializeVolumetric: ComponentDeserializeFunction = (entity: Enti
 }
 
 export const addVolumetricComponent = (entity: Entity, props: VolumetricComponentType) => {
+  if (!isClient) return
+
   const obj3d = new UpdateableObject3D()
   addComponent(entity, Object3DComponent, { value: obj3d })
   addComponent(entity, UpdatableComponent, true)

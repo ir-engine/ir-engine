@@ -7,7 +7,12 @@ import {
   ComponentUpdateFunction
 } from '../../../common/constants/PrefabFunctionType'
 import { Entity } from '../../../ecs/classes/Entity'
-import { addComponent, getComponent, getComponentCountOfType } from '../../../ecs/functions/ComponentFunctions'
+import {
+  addComponent,
+  getComponent,
+  getComponentCountOfType,
+  hasComponent
+} from '../../../ecs/functions/ComponentFunctions'
 import {
   HemisphereLightComponent,
   HemisphereLightComponentType,
@@ -19,15 +24,18 @@ export const deserializeHemisphereLight: ComponentDeserializeFunction = (
   entity: Entity,
   data: HemisphereLightComponentType
 ) => {
-  const light = new HemisphereLight()
   const props = parseHemisphereLightProperties(data)
-
-  addComponent(entity, Object3DComponent, { value: light })
   addComponent(entity, HemisphereLightComponent, props)
 }
 
 export const updateHemisphereLight: ComponentUpdateFunction = (entity: Entity) => {
   const component = getComponent(entity, HemisphereLightComponent)
+
+  if (!hasComponent(entity, Object3DComponent)) {
+    const light = new HemisphereLight()
+    addComponent(entity, Object3DComponent, { value: light })
+  }
+
   const light = getComponent(entity, Object3DComponent)?.value as HemisphereLight
 
   light.groundColor = component.groundColor

@@ -19,10 +19,8 @@ export const deserializeEnvMapBake: ComponentDeserializeFunction = (entity: Enti
 }
 
 export const serializeEnvMapBake: ComponentSerializeFunction = (entity) => {
-  const component = getComponent(entity, EnvMapBakeComponent) as EnvMapBakeComponentType
-  return {
-    options: component.options
-  }
+  const component = getComponent(entity, EnvMapBakeComponent)
+  return { ...component }
 }
 
 export const prepareSceneForBake = (world = Engine.instance.currentWorld): Scene => {
@@ -52,23 +50,21 @@ export const prepareSceneForBake = (world = Engine.instance.currentWorld): Scene
 
 export const parseEnvMapBakeProperties = (props): EnvMapBakeComponentType => {
   const result = {
-    options: {
-      bakeType: props.options.bakeType ?? SCENE_COMPONENT_ENVMAP_BAKE_DEFAULT_VALUES.options.bakeType,
-      resolution: props.options.resolution ?? SCENE_COMPONENT_ENVMAP_BAKE_DEFAULT_VALUES.options.resolution,
-      refreshMode: props.options.refreshMode ?? SCENE_COMPONENT_ENVMAP_BAKE_DEFAULT_VALUES.options.refreshMode,
-      envMapOrigin: props.options.envMapOrigin ?? SCENE_COMPONENT_ENVMAP_BAKE_DEFAULT_VALUES.options.envMapOrigin,
-      boxProjection: props.options.boxProjection ?? SCENE_COMPONENT_ENVMAP_BAKE_DEFAULT_VALUES.options.boxProjection
-    }
+    bakeType: props.bakeType ?? SCENE_COMPONENT_ENVMAP_BAKE_DEFAULT_VALUES.bakeType,
+    resolution: props.resolution ?? SCENE_COMPONENT_ENVMAP_BAKE_DEFAULT_VALUES.resolution,
+    refreshMode: props.refreshMode ?? SCENE_COMPONENT_ENVMAP_BAKE_DEFAULT_VALUES.refreshMode,
+    envMapOrigin: props.envMapOrigin ?? SCENE_COMPONENT_ENVMAP_BAKE_DEFAULT_VALUES.envMapOrigin,
+    boxProjection: props.boxProjection ?? SCENE_COMPONENT_ENVMAP_BAKE_DEFAULT_VALUES.boxProjection
   } as EnvMapBakeComponentType
 
-  let tempV3 = props.options.bakePosition ?? SCENE_COMPONENT_ENVMAP_BAKE_DEFAULT_VALUES.options.bakePosition
-  result.options.bakePosition = new Vector3(tempV3.x, tempV3.y, tempV3.z)
+  let tempV3 = props.bakePosition ?? SCENE_COMPONENT_ENVMAP_BAKE_DEFAULT_VALUES.bakePosition
+  result.bakePosition = new Vector3(tempV3.x, tempV3.y, tempV3.z)
 
-  tempV3 = props.options.bakePositionOffset ?? SCENE_COMPONENT_ENVMAP_BAKE_DEFAULT_VALUES.options.bakePositionOffset
-  result.options.bakePositionOffset = new Vector3(tempV3.x, tempV3.y, tempV3.z)
+  tempV3 = props.bakePositionOffset ?? SCENE_COMPONENT_ENVMAP_BAKE_DEFAULT_VALUES.bakePositionOffset
+  result.bakePositionOffset = new Vector3(tempV3.x, tempV3.y, tempV3.z)
 
-  tempV3 = props.options.bakeScale ?? SCENE_COMPONENT_ENVMAP_BAKE_DEFAULT_VALUES.options.bakeScale
-  result.options.bakeScale = new Vector3(tempV3.x, tempV3.y, tempV3.z)
+  tempV3 = props.bakeScale ?? SCENE_COMPONENT_ENVMAP_BAKE_DEFAULT_VALUES.bakeScale
+  result.bakeScale = new Vector3(tempV3.x, tempV3.y, tempV3.z)
 
   return result
 }

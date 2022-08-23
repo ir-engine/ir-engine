@@ -17,8 +17,7 @@ export default async function EntityNodeEventSystem(_: World) {
   const skyboxQuery = defineQuery([SkyboxComponent])
   const fogQuery = defineQuery([FogComponent])
   const postProcessingQuery = defineQuery([PostprocessingComponent])
-
-  const directionalLightQuery = defineQuery([DirectionalLightComponent])
+  const directionalLightQuery = defineQuery([DirectionalLightComponent, Object3DComponent])
 
   return () => {
     /* Remove Events */

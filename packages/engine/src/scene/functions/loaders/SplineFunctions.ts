@@ -1,23 +1,17 @@
-import { Object3D, Vector3 } from 'three'
+import { Vector3 } from 'three'
 
 import { ComponentDeserializeFunction, ComponentSerializeFunction } from '../../../common/constants/PrefabFunctionType'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
-import { Object3DComponent } from '../../components/Object3DComponent'
 import { SplineComponent, SplineComponentType } from '../../components/SplineComponent'
 
 export const deserializeSpline: ComponentDeserializeFunction = (entity: Entity, data: SplineComponentType) => {
-  const obj3d = new Object3D()
   const props = parseSplineProperties(data)
-
-  addComponent(entity, Object3DComponent, { value: obj3d })
   addComponent(entity, SplineComponent, props)
 }
 
 export const serializeSpline: ComponentSerializeFunction = (entity) => {
-  const component = getComponent(entity, SplineComponent) as SplineComponentType
-  if (!component) return
-
+  const component = getComponent(entity, SplineComponent)
   return {
     splinePositions: component.splinePositions
   }

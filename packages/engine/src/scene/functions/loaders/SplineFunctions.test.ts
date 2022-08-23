@@ -39,10 +39,6 @@ describe('SplineFunctions', () => {
       deserializeSpline(entity, sceneComponentData)
       assert.deepEqual(serializeSpline(entity), sceneComponentData)
     })
-
-    it('should return undefine if there is no spline component', () => {
-      assert(serializeSpline(entity) === undefined)
-    })
   })
 
   describe('parseSplineProperties()', () => {

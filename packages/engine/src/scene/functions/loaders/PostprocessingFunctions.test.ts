@@ -5,8 +5,6 @@ import { Entity } from '../../../ecs/classes/Entity'
 import { getComponent } from '../../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
 import { createEngine } from '../../../initializeEngine'
-import { IgnoreRaycastTagComponent } from '../../components/IgnoreRaycastTagComponent'
-import { Object3DComponent } from '../../components/Object3DComponent'
 import { PostprocessingComponent } from '../../components/PostprocessingComponent'
 import { defaultPostProcessingSchema } from '../../constants/PostProcessing'
 
@@ -33,13 +31,6 @@ describe('PostprocessingFunctions', () => {
       const postprocessingComponent = getComponent(entity, PostprocessingComponent)
       assert(postprocessingComponent)
       assert.deepEqual(postprocessingComponent, sceneComponentData)
-    })
-
-    it('creates Postprocessing Object3D with provided component data', () => {
-      postprocessingFunctions.deserializePostprocessing(entity, sceneComponentData)
-
-      assert(getComponent(entity, Object3DComponent)?.value, 'Postprocessing is not created')
-      assert(getComponent(entity, IgnoreRaycastTagComponent))
     })
   })
 
