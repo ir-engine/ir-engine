@@ -1,7 +1,6 @@
 import assert from 'assert'
 import proxyquire from 'proxyquire'
 import { BoxGeometry, Mesh, Object3D } from 'three'
-import { NavMesh } from 'yuka'
 
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
@@ -10,6 +9,7 @@ import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
 import { createEngine } from '../../../initializeEngine'
+import { NavMesh } from '../../classes/NavMesh'
 import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { NavMeshComponent } from '../../components/NavMeshComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'

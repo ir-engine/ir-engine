@@ -43,7 +43,7 @@ import {
   getParity,
   unequipEntity
 } from '../interaction/functions/equippableFunctions'
-import { AutoPilotClickRequestComponent } from '../navigation/component/AutoPilotClickRequestComponent'
+import { AutoPilotRequestComponent } from '../navigation/component/AutoPilotRequestComponent'
 import { NetworkTopics } from '../networking/classes/Network'
 import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
 import { boxDynamicConfig } from '../physics/functions/physicsObjectDebugFunctions'
@@ -514,7 +514,8 @@ export const handlePrimaryButton: InputBehaviorType = (entity, inputKey, inputVa
   const input = getComponent(entity, InputComponent)
   const coords = input.data.get(BaseInput.SCREENXY)?.value
   if (coords) {
-    addComponent(entity, AutoPilotClickRequestComponent, { coords: new Vector2(coords[0], coords[1]) })
+    removeComponent(entity, AutoPilotRequestComponent)
+    addComponent(entity, AutoPilotRequestComponent, { unprojectedPoint: new Vector2(coords[0], coords[1]) })
   }
 }
 

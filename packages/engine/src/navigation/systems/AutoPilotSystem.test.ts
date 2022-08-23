@@ -41,7 +41,7 @@ describe('AutoPilotSystem', async () => {
   const { default: AutopilotSystem } = proxyquire('./AutopilotSystem', {
     '../functions/findProjectedPoint': { findClosestProjectedPoint },
     '../functions/pathFunctions': { updatePath },
-    '../functions/inputFunctions': { getMovementDirection },
+    '../functions/vectorFunctions': { getMovementDirection },
     yuka: { Path }
   })
   let system: () => void

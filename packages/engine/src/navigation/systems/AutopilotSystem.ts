@@ -13,8 +13,8 @@ import { TransformComponent } from '../../transform/components/TransformComponen
 import { AutoPilotComponent } from '../component/AutoPilotComponent'
 import { AutoPilotRequestComponent } from '../component/AutoPilotRequestComponent'
 import { findClosestProjectedPoint } from '../functions/findProjectedPoint'
-import { getMovementDirection } from '../functions/inputFunctions'
 import { updatePath } from '../functions/pathFunctions'
+import { getMovementDirection } from '../functions/vectorFunctions'
 
 /** Distance from target point that is close enough to stop, in meters */
 const THRESHOLD_ARRIVE = 0.44
@@ -86,12 +86,14 @@ export default async function AutopilotSystem(world: World) {
       const nextPoint = path.current() as unknown as Vector3
       const distanceSquared = avatarPosition.distanceToSquared(nextPoint)
       const autoPilot = getComponent(avatarEntity, AutoPilotComponent)
-      const movement = getComponent(avatarEntity, AvatarControllerComponent).localMovementDirection
+      const controller = getComponent(avatarEntity, AvatarControllerComponent)
+      const movement = controller.localMovementDirection
 
       if (path.finished() && distanceSquared < THRESHOLD_ARRIVED_SQUARED) {
         removeComponent(avatarEntity, AutoPilotComponent)
         movement.multiplyScalar(0)
         autoPilot.speed = INITIAL_SPEED
+        controller.movementMode = 'relative'
       } else {
         if (distanceSquared < THRESHOLD_ARRIVING_SQUARED) {
           autoPilot.speed = Math.max(autoPilot.minSpeed, autoPilot.speed * 0.9)
@@ -99,6 +101,7 @@ export default async function AutopilotSystem(world: World) {
           autoPilot.speed = Math.min(autoPilot.maxSpeed, autoPilot.speed + ACCELERATION)
         }
         movement.copy(getMovementDirection(nextPoint, avatarPosition)).multiplyScalar(autoPilot.speed)
+        controller.movementMode = 'absolute'
       }
     }
   }
