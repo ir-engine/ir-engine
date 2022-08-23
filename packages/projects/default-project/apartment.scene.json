@@ -65,26 +65,24 @@
         {
           "name": "envmapbake",
           "props": {
-            "options": {
-              "bakeType": "Baked",
-              "resolution": 2048,
-              "refreshMode": "OnAwake",
-              "boxProjection": true,
-              "bakePosition": {
-                "x": 0,
-                "y": 0,
-                "z": 0
-              },
-              "bakePositionOffset": {
-                "x": 0,
-                "y": 0,
-                "z": 0
-              },
-              "bakeScale": {
-                "x": 1,
-                "y": 1,
-                "z": 1
-              }
+            "bakeType": "Baked",
+            "resolution": 2048,
+            "refreshMode": "OnAwake",
+            "boxProjection": true,
+            "bakePosition": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "bakePositionOffset": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "bakeScale": {
+              "x": 1,
+              "y": 1,
+              "z": 1
             }
           }
         }
@@ -833,27 +831,25 @@
         {
           "name": "envmapbake",
           "props": {
-            "options": {
-              "bakeType": "Baked",
-              "resolution": 512,
-              "refreshMode": "OnAwake",
-              "envMapOrigin": "__$project$__/default-project/assets/apartment-CubemapBake.png",
-              "boxProjection": true,
-              "bakePosition": {
-                "x": 0,
-                "y": 0,
-                "z": 0
-              },
-              "bakePositionOffset": {
-                "x": 0,
-                "y": 0,
-                "z": 0
-              },
-              "bakeScale": {
-                "x": 1,
-                "y": 1,
-                "z": 1
-              }
+            "bakeType": "Baked",
+            "resolution": 512,
+            "refreshMode": "OnAwake",
+            "envMapOrigin": "__$project$__/default-project/assets/apartment-CubemapBake.png",
+            "boxProjection": true,
+            "bakePosition": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "bakePositionOffset": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "bakeScale": {
+              "x": 1,
+              "y": 1,
+              "z": 1
             }
           }
         }

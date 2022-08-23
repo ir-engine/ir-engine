@@ -186,7 +186,7 @@ const parseEnvMapProperties = (props): EnvmapComponentType => {
     envMapIntensity: props.envMapIntensity ?? SCENE_COMPONENT_ENVMAP_DEFAULT_VALUES.envMapIntensity,
     envMapBake: parseEnvMapBakeProperties({
       options: props.envMapBake ?? SCENE_COMPONENT_ENVMAP_DEFAULT_VALUES.envMapBake
-    }).options
+    })
   }
 }
 

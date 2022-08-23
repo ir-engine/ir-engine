@@ -65,27 +65,25 @@
         {
           "name": "envmapbake",
           "props": {
-            "options": {
-              "bakeType": "Baked",
-              "resolution": 2048,
-              "refreshMode": "OnAwake",
-              "envMapOrigin": "__$project$__/default-project/sky-station.envmap.png",
-              "boxProjection": true,
-              "bakePosition": {
-                "x": 0,
-                "y": 0,
-                "z": 0
-              },
-              "bakePositionOffset": {
-                "x": 0,
-                "y": 0,
-                "z": 0
-              },
-              "bakeScale": {
-                "x": 1,
-                "y": 1,
-                "z": 1
-              }
+            "bakeType": "Baked",
+            "resolution": 2048,
+            "refreshMode": "OnAwake",
+            "envMapOrigin": "__$project$__/default-project/sky-station.envmap.png",
+            "boxProjection": true,
+            "bakePosition": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "bakePositionOffset": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "bakeScale": {
+              "x": 1,
+              "y": 1,
+              "z": 1
             }
           }
         }
