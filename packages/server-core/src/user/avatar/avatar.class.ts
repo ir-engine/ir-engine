@@ -35,7 +35,6 @@ export class Avatar extends Service<AvatarInterface> {
   }
 
   async find(params?: Params): Promise<AvatarInterface[] | Paginated<AvatarInterface>> {
-    const self = this
     if (params?.query?.search != null) {
       if (params.query.search.length > 0)
         params.query.name = {
@@ -96,6 +95,28 @@ export class Avatar extends Service<AvatarInterface> {
     try {
       await this.app.service('static-resource').remove(avatar.thumbnailResourceId)
     } catch (err) {}
+    const avatars = (await super.Model.findAll({
+      where: {
+        id: {
+          [Op.ne]: id
+        }
+      }
+    })) as AvatarInterface[]
+    //Users that have the avatar that's being deleted will have theirs replaced with a random one, if there are other
+    //avatars to use
+    if (id && avatars.length > 0) {
+      const randomReplacementAvatar = avatars[Math.floor(Math.random() * avatars.length)]
+      await this.app.service('user').Model.update(
+        {
+          avatarId: randomReplacementAvatar.id
+        },
+        {
+          where: {
+            avatarId: id
+          }
+        }
+      )
+    }
     return super.remove(id, params) as Promise<AvatarInterface>
   }
 }
