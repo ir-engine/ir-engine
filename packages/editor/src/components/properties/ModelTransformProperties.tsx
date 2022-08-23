@@ -98,7 +98,8 @@ export default function ModelTransformProperties({ modelComponent, onChangeModel
     useMeshQuantization: false,
     useDraco: true,
     textureFormat: 'ktx2',
-    maxTextureSize: 1024
+    maxTextureSize: 1024,
+    externalizeTextures: true
   })
 
   function onChangeTransformParm(k) {
@@ -155,6 +156,12 @@ export default function ModelTransformProperties({ modelComponent, onChangeModel
                 { label: 'PNG', value: 'png' },
                 { label: 'WebP', value: 'webp' }
               ]}
+            />
+          </InputGroup>
+          <InputGroup name="Externalize Textures" label={'Externalize Textures'}>
+            <BooleanInput
+              value={transformParms.externalizeTextures}
+              onChange={onChangeTransformParm('externalizeImages')}
             />
           </InputGroup>
           <NumericInputGroup
