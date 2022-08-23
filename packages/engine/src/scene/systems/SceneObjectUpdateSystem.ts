@@ -144,11 +144,7 @@ import {
   serializeRenderSettings,
   updateRenderSetting
 } from '../functions/loaders/RenderSettingsFunction'
-import {
-  deserializeScenePreviewCamera,
-  shouldDeserializeScenePreviewCamera,
-  updateScenePreviewCamera
-} from '../functions/loaders/ScenePreviewCameraFunctions'
+import { shouldDeserializeScenePreviewCamera } from '../functions/loaders/ScenePreviewCameraFunctions'
 import { updateShadow } from '../functions/loaders/ShadowFunctions'
 import {
   deserializeSkybox,
@@ -227,7 +223,6 @@ export default async function SceneObjectUpdateSystem(world: World) {
 
   world.sceneComponentRegistry.set(ScenePreviewCameraTagComponent._name, SCENE_COMPONENT_SCENE_PREVIEW_CAMERA)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_SCENE_PREVIEW_CAMERA, {
-    deserialize: deserializeScenePreviewCamera,
     shouldDeserialize: shouldDeserializeScenePreviewCamera
   })
 
@@ -513,7 +508,6 @@ export default async function SceneObjectUpdateSystem(world: World) {
         if (hasComponent(entity, RenderSettingComponent)) updateRenderSetting(entity)
         if (hasComponent(entity, PostprocessingComponent)) configureEffectComposer()
         if (hasComponent(entity, CameraPropertiesComponent)) updateCameraProperties(entity)
-        if (hasComponent(entity, ScenePreviewCameraTagComponent)) updateScenePreviewCamera(entity)
       }
     }
 
@@ -533,6 +527,5 @@ export default async function SceneObjectUpdateSystem(world: World) {
     for (const entity of renderSettingsQuery.enter()) updateRenderSetting(entity)
     for (const entity of postProcessingQuery.enter()) configureEffectComposer()
     for (const entity of cameraPropertiesQuery.enter()) updateCameraProperties(entity)
-    for (const entity of ScenePreviewCameraTagQuery.enter()) updateScenePreviewCamera(entity)
   }
 }

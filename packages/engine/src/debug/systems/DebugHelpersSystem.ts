@@ -110,7 +110,11 @@ export default async function DebugHelpersSystem(world: World) {
   const mountPointQuery = defineQuery([MountPointComponent])
   const envMapBakeQuery = defineQuery([EnvMapBakeComponent])
   const directionalLightSelectQuery = defineQuery([DirectionalLightComponent, Object3DComponent, SelectTagComponent])
-  const scenePreviewCameraSelectQuery = defineQuery([ScenePreviewCameraTagComponent, SelectTagComponent])
+  const scenePreviewCameraSelectQuery = defineQuery([
+    ScenePreviewCameraTagComponent,
+    Object3DComponent,
+    SelectTagComponent
+  ])
 
   const boundingBoxQuery = defineQuery([Object3DComponent, BoundingBoxComponent])
   const ikAvatarQuery = defineQuery([XRInputSourceComponent])
