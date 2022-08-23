@@ -15,8 +15,14 @@ import {
   SCENE_COMPONENT_COLLIDER,
   SCENE_COMPONENT_COLLIDER_DEFAULT_VALUES
 } from '../../scene/components/ColliderComponent'
+import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { SCENE_COMPONENT_VISIBLE } from '../../scene/components/VisibleComponent'
-import { deserializeCollider, serializeCollider, updateCollider } from '../../scene/functions/loaders/ColliderFunctions'
+import {
+  deserializeCollider,
+  serializeCollider,
+  updateCollider,
+  updateMeshCollider
+} from '../../scene/functions/loaders/ColliderFunctions'
 import {
   SCENE_COMPONENT_TRANSFORM,
   SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES,
@@ -97,7 +103,8 @@ export default async function PhysicsSystem(world: World) {
   ])
 
   const rigidBodyQuery = defineQuery([RigidBodyComponent])
-  const boxColliderQuery = defineQuery([ColliderComponent])
+  const colliderQuery = defineQuery([ColliderComponent, Not(Object3DComponent)])
+  const meshColliderQuery = defineQuery([ColliderComponent, Object3DComponent])
   const ownedRigidBodyQuery = defineQuery([RigidBodyComponent, NetworkObjectOwnedTag])
   const notOwnedRigidBodyQuery = defineQuery([RigidBodyComponent, Not(NetworkObjectOwnedTag)])
 
@@ -114,10 +121,13 @@ export default async function PhysicsSystem(world: World) {
   return () => {
     for (const action of modifyPropertyActionQueue()) {
       for (const entity of action.entities) {
-        if (hasComponent(entity, ColliderComponent)) updateCollider(entity)
+        if (hasComponent(entity, ColliderComponent) && !hasComponent(entity, Object3DComponent)) updateCollider(entity)
+        /** @todo this updateMeshCollider is only ever used from loaded models, so we don't need to  */
+        // if (hasComponent(entity, ColliderComponent) && hasComponent(entity, Object3DComponent)) updateMeshCollider(entity)
       }
     }
-    for (const action of boxColliderQuery.enter()) updateCollider(action)
+    for (const action of colliderQuery.enter()) updateCollider(action)
+    for (const action of meshColliderQuery.enter()) updateMeshCollider(action)
 
     for (const action of teleportObjectQueue()) teleportObjectReceptor(action)
 

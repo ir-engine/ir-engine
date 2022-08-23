@@ -134,7 +134,7 @@ import { deserializeInterior, serializeInterior, updateInterior } from '../funct
 import { serializeLoopAnimation, updateLoopAnimation } from '../functions/loaders/LoopAnimationFunctions'
 import { deserializeModel, serializeModel, updateModel } from '../functions/loaders/ModelFunctions'
 import { deserializeOcean, serializeOcean, updateOcean } from '../functions/loaders/OceanFunctions'
-import { deserializePortal, serializePortal } from '../functions/loaders/PortalFunctions'
+import { deserializePortal, serializePortal, updatePortal } from '../functions/loaders/PortalFunctions'
 import {
   deserializePostprocessing,
   serializePostprocessing,
@@ -292,8 +292,7 @@ export default async function SceneObjectUpdateSystem(world: World) {
 
   world.scenePrefabRegistry.set(ScenePrefabs.portal, [
     ...defaultSpatialComponents,
-    { name: SCENE_COMPONENT_PORTAL, props: SCENE_COMPONENT_PORTAL_DEFAULT_VALUES },
-    { name: SCENE_COMPONENT_COLLIDER, props: SCENE_COMPONENT_PORTAL_COLLIDER_VALUES }
+    { name: SCENE_COMPONENT_PORTAL, props: SCENE_COMPONENT_PORTAL_DEFAULT_VALUES }
   ])
 
   world.sceneComponentRegistry.set(PortalComponent._name, SCENE_COMPONENT_PORTAL)
@@ -480,6 +479,7 @@ export default async function SceneObjectUpdateSystem(world: World) {
   const sceneEnvmapQuery = defineQuery([SceneTagComponent, EnvmapComponent])
   const loopableAnimationQuery = defineQuery([Object3DComponent, LoopAnimationComponent])
   const skyboxQuery = defineQuery([SkyboxComponent])
+  const portalQuery = defineQuery([PortalComponent])
   const modelQuery = defineQuery([ModelComponent])
   const groundPlaneQuery = defineQuery([GroundPlaneComponent])
   const cloudQuery = defineQuery([CloudComponent])
@@ -501,6 +501,7 @@ export default async function SceneObjectUpdateSystem(world: World) {
         if (hasComponent(entity, EnvmapComponent) && hasComponent(entity, Object3DComponent)) updateEnvMap(entity)
         if (hasComponent(entity, FogComponent)) updateFog(entity)
         if (hasComponent(entity, SkyboxComponent)) updateSkybox(entity)
+        if (hasComponent(entity, PortalComponent)) updatePortal(entity)
         if (hasComponent(entity, ModelComponent)) updateModel(entity)
         if (hasComponent(entity, GroundPlaneComponent)) updateGroundPlane(entity)
         if (hasComponent(entity, LoopAnimationComponent)) updateLoopAnimation(entity)
@@ -519,6 +520,7 @@ export default async function SceneObjectUpdateSystem(world: World) {
     for (const entity of fogQuery.enter()) updateFog(entity)
     for (const entity of loopableAnimationQuery.enter()) updateLoopAnimation(entity)
     for (const entity of skyboxQuery.enter()) updateSkybox(entity)
+    for (const entity of portalQuery.enter()) updatePortal(entity)
     for (const entity of modelQuery.enter()) updateModel(entity)
     for (const entity of groundPlaneQuery.enter()) updateGroundPlane(entity)
     for (const entity of cloudQuery.enter()) updateCloud(entity)

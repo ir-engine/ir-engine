@@ -694,20 +694,6 @@
               "w": 0.9999999999953311
             }
           }
-        },
-        {
-          "name": "collider",
-          "props": {
-            "bodyType": 1,
-            "shapeType": 1,
-            "isTrigger": true,
-            "removeMesh": false,
-            "collisionLayer": 1,
-            "collisionMask": 8,
-            "onEnter": "teleport",
-            "onExit": "",
-            "target": "Self"
-          }
         }
       ],
       "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
@@ -826,20 +812,6 @@
               "w": 1
             }
           }
-        },
-        {
-          "name": "collider",
-          "props": {
-            "bodyType": 1,
-            "shapeType": 1,
-            "isTrigger": true,
-            "removeMesh": false,
-            "collisionLayer": 1,
-            "collisionMask": 8,
-            "onEnter": "teleport",
-            "onExit": "",
-            "target": "Self"
-          }
         }
       ],
       "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
@@ -899,20 +871,6 @@
               "z": 0,
               "w": 1
             }
-          }
-        },
-        {
-          "name": "collider",
-          "props": {
-            "bodyType": 1,
-            "shapeType": 1,
-            "isTrigger": true,
-            "removeMesh": false,
-            "collisionLayer": 1,
-            "collisionMask": 8,
-            "onEnter": "teleport",
-            "onExit": "",
-            "target": "Self"
           }
         }
       ],

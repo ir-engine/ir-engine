@@ -17,6 +17,7 @@ import {
   ColliderComponentType,
   SCENE_COMPONENT_COLLIDER_DEFAULT_VALUES
 } from '../../components/ColliderComponent'
+import { Object3DComponent } from '../../components/Object3DComponent'
 
 export const deserializeCollider: ComponentDeserializeFunction = (
   entity: Entity,
@@ -28,11 +29,19 @@ export const deserializeCollider: ComponentDeserializeFunction = (
 
 export const updateCollider: ComponentUpdateFunction = (entity: Entity) => {
   const transform = getComponent(entity, TransformComponent)
-
   const colliderComponent = getComponent(entity, ColliderComponent)
+  /**
+   * @todo bitecs queues are needed to make this Object3DComponent check redundant
+   *   as currently adding PortalComponent and then Obejct3DComponent synchronously
+   *   will still trigger [PortalComponent, Not(Obejct3DComponent)] queries
+   */
+  if (hasComponent(entity, Object3DComponent)) return
+  if (!colliderComponent) return
+
   const rigidbodyTypeChanged =
     !hasComponent(entity, RigidBodyComponent) ||
     colliderComponent.bodyType !== getComponent(entity, RigidBodyComponent).body.bodyType()
+
   if (rigidbodyTypeChanged) {
     const rigidbody = getComponent(entity, RigidBodyComponent)?.body
     /**
@@ -80,6 +89,29 @@ export const updateCollider: ComponentUpdateFunction = (entity: Entity) => {
     Engine.instance.currentWorld.physicsWorld.createCollider(colliderDesc, rigidbody)
   }
 }
+
+export const updateMeshCollider = (entity: Entity) => {
+  const colliderComponent = getComponent(entity, ColliderComponent)
+  const object3d = getComponent(entity, Object3DComponent)
+
+  /**
+   * @todo remove this - see above
+   */
+  if (!object3d) return
+
+  if (hasComponent(entity, RigidBodyComponent)) {
+    Physics.removeCollidersFromRigidBody(entity, Engine.instance.currentWorld.physicsWorld)
+    Physics.removeRigidBody(entity, Engine.instance.currentWorld.physicsWorld)
+  }
+  Physics.createRigidBodyForObject(entity, Engine.instance.currentWorld.physicsWorld, object3d.value, {
+    bodyType: colliderComponent.bodyType,
+    shapeType: colliderComponent.shapeType,
+    isTrigger: colliderComponent.isTrigger,
+    collisionLayer: colliderComponent.collisionLayer,
+    collisionMask: colliderComponent.collisionMask
+  })
+}
+
 /**
  * A lot of rapier's colliders don't make sense in this context, so create a list of simple primitives to allow
  */

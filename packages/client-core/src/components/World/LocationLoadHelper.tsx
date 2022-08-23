@@ -1,7 +1,6 @@
 import { useHistory } from 'react-router-dom'
 
 import { LocationService } from '@xrengine/client-core/src/social/services/LocationService'
-import { getPortalDetails } from '@xrengine/client-core/src/world/functions/getPortalDetails'
 import { SceneData } from '@xrengine/common/src/interfaces/SceneInterface'
 import multiLogger from '@xrengine/common/src/logger'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
@@ -44,5 +43,4 @@ export const initClient = async () => {
 export const loadScene = async (sceneData: SceneData) => {
   const sceneSystems = getSystemsFromSceneData(sceneData.project, sceneData.scene, true)
   await loadSceneFromJSON(sceneData.scene, sceneSystems)
-  getPortalDetails()
 }

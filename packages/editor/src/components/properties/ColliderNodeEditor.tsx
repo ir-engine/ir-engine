@@ -31,10 +31,7 @@ const shapeTypeOptions = Object.entries(ShapeType)
   .map(([label, value]) => {
     return { label: camelCaseToSpacedString(label as string), value: Number(value) }
   })
-console.log({
-  bodyTypeOptions,
-  shapeTypeOptions
-})
+
 type OptionsType = Array<{
   callbacks: Array<{
     label: string
