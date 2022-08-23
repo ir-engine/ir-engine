@@ -17,7 +17,6 @@ import {
   MeshBasicMaterial,
   MeshPhysicalMaterial,
   Object3D,
-  PerspectiveCamera,
   PlaneBufferGeometry,
   Quaternion,
   SphereGeometry,
@@ -30,7 +29,6 @@ import { createActionQueue, getState } from '@xrengine/hyperflux'
 import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { AudioComponent } from '../../audio/components/AudioComponent'
 import { AudioElementNodes } from '../../audio/systems/AudioSystem'
-import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
@@ -39,7 +37,6 @@ import { BoundingBoxComponent } from '../../interaction/components/BoundingBoxCo
 import { NavMeshComponent } from '../../navigation/component/NavMeshComponent'
 import { createGraphHelper } from '../../navigation/GraphHelper'
 import { createConvexRegionHelper } from '../../navigation/NavMeshHelper'
-import { VelocityComponent } from '../../physics/components/VelocityComponent'
 import {
   accessEngineRendererState,
   EngineRendererAction,
@@ -104,16 +101,20 @@ export default async function DebugHelpersSystem(world: World) {
     positionalAudioHelper: new Map(),
     interactorFrustum: new Map()
   }
-  const directionalLightQuery = defineQuery([DirectionalLightComponent])
-  const pointLightQuery = defineQuery([PointLightComponent])
-  const spotLightQuery = defineQuery([SpotLightComponent])
+  const directionalLightQuery = defineQuery([DirectionalLightComponent, Object3DComponent])
+  const pointLightQuery = defineQuery([PointLightComponent, Object3DComponent])
+  const spotLightQuery = defineQuery([SpotLightComponent, Object3DComponent])
   const portalQuery = defineQuery([PortalComponent])
   const splineQuery = defineQuery([SplineComponent])
   const spawnPointQuery = defineQuery([SpawnPointComponent])
   const mountPointQuery = defineQuery([MountPointComponent])
   const envMapBakeQuery = defineQuery([EnvMapBakeComponent])
-  const directionalLightSelectQuery = defineQuery([DirectionalLightComponent, SelectTagComponent])
-  const scenePreviewCameraSelectQuery = defineQuery([ScenePreviewCameraTagComponent, SelectTagComponent])
+  const directionalLightSelectQuery = defineQuery([DirectionalLightComponent, Object3DComponent, SelectTagComponent])
+  const scenePreviewCameraSelectQuery = defineQuery([
+    ScenePreviewCameraTagComponent,
+    Object3DComponent,
+    SelectTagComponent
+  ])
 
   const boundingBoxQuery = defineQuery([Object3DComponent, BoundingBoxComponent])
   const ikAvatarQuery = defineQuery([XRInputSourceComponent])
@@ -322,11 +323,7 @@ export default async function DebugHelpersSystem(world: World) {
         const helper = editorHelpers.get(entity)!
         const bakeComponent = getComponent(entity, EnvMapBakeComponent)
         if (helper.userData.gizmo)
-          helper.userData.gizmo.matrix.compose(
-            bakeComponent.options.bakePositionOffset,
-            quat,
-            bakeComponent.options.bakeScale
-          )
+          helper.userData.gizmo.matrix.compose(bakeComponent.bakePositionOffset, quat, bakeComponent.bakeScale)
       }
 
       for (const entity of envMapBakeQuery.exit()) {

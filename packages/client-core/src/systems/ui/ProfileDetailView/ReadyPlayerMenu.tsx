@@ -24,7 +24,7 @@ import {
   onWindowResize,
   validate
 } from '../../../user/components/UserMenu/menus/helperFunctions'
-import { AuthService } from '../../../user/services/AuthService'
+import { AvatarService } from '../../../user/services/AvatarService'
 import styleString from './index.scss'
 
 const logger = multiLogger.child({ component: 'client-core:ReadyPlayerMenu' })
@@ -136,7 +136,7 @@ const ReadyPlayerMenu = () => {
     var thumbnailName = avatarUrl.substring(0, avatarUrl.lastIndexOf('.')) + '.png'
 
     canvas.toBlob(async (blob) => {
-      await AuthService.createAvatar(selectedFile, new File([blob!], thumbnailName), avatarName)
+      await AvatarService.createAvatar(selectedFile, new File([blob!], thumbnailName), avatarName)
       WidgetAppService.setWidgetVisibility(WidgetName.PROFILE, true)
     })
   }

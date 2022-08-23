@@ -3,14 +3,11 @@ import { Camera, Intersection, Object3D, Raycaster, Vector2 } from 'three'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
-import { getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { getEntityNodeArrayFromEntities } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
-import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
-import { IgnoreRaycastTagComponent } from '@xrengine/engine/src/scene/components/IgnoreRaycastTagComponent'
 import { Object3DComponent, Object3DWithEntity } from '@xrengine/engine/src/scene/components/Object3DComponent'
 import { ObjectLayers } from '@xrengine/engine/src/scene/constants/ObjectLayers'
 
-import { accessEditorState } from '../services/EditorServices'
 import { accessSelectionState } from '../services/SelectionServices'
 
 type RaycastIntersectionNode = Intersection<Object3DWithEntity> & {
@@ -22,7 +19,7 @@ function getParentEntity(obj: Object3DWithEntity): Object3DWithEntity {
   let curObj = obj
 
   while (curObj) {
-    if (curObj.entity && !hasComponent(curObj.entity, IgnoreRaycastTagComponent)) break
+    if (curObj.entity) break
     curObj = curObj.parent! as Object3DWithEntity
   }
 

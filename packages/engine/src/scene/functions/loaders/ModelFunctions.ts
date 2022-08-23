@@ -9,6 +9,7 @@ import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent, removeComponent } from '../../../ecs/functions/ComponentFunctions'
 import { setBoundingBoxComponent } from '../../../interaction/components/BoundingBoxComponents'
+import { GLTFLoadedComponent } from '../../components/GLTFLoadedComponent'
 import {
   ModelComponent,
   ModelComponentType,

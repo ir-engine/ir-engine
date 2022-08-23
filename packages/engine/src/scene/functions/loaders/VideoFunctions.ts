@@ -32,14 +32,12 @@ import { resizeImageMesh } from './ImageFunctions'
 import { getNextPlaylistItem, updateAutoStartTimeForMedia } from './MediaFunctions'
 
 export const deserializeVideo: ComponentDeserializeFunction = (entity: Entity, data: VideoComponentType) => {
-  if (!isClient) return
   const props = parseVideoProperties(data) as VideoComponentType
   addComponent(entity, VideoComponent, props)
 }
 
 export const updateVideo: ComponentUpdateFunction = (entity: Entity) => {
   const mesh = getComponent(entity, Object3DComponent).value as Mesh<any, MeshStandardMaterial>
-  console.log('updateVideo', entity, mesh)
 
   const videoComponent = getComponent(entity, VideoComponent)
   const audioComponent = getComponent(entity, AudioComponent)

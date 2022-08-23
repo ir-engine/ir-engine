@@ -11,27 +11,18 @@ import { defineQuery, getComponent, hasComponent } from '../../ecs/functions/Com
 import { NetworkObjectOwnedTag } from '../../networking/components/NetworkObjectOwnedTag'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import {
-  BoxColliderComponent,
-  SCENE_COMPONENT_BOX_COLLIDER,
-  SCENE_COMPONENT_BOX_COLLIDER_DEFAULT_VALUES
-} from '../../scene/components/BoxColliderComponent'
-import {
-  SCENE_COMPONENT_TRIGGER_VOLUME,
-  SCENE_COMPONENT_TRIGGER_VOLUME_DEFAULT_VALUES,
-  TriggerVolumeComponent
-} from '../../scene/components/TriggerVolumeComponent'
+  ColliderComponent,
+  SCENE_COMPONENT_COLLIDER,
+  SCENE_COMPONENT_COLLIDER_DEFAULT_VALUES
+} from '../../scene/components/ColliderComponent'
+import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { SCENE_COMPONENT_VISIBLE } from '../../scene/components/VisibleComponent'
 import {
-  deserializeBoxCollider,
-  serializeBoxCollider,
-  updateBoxCollider
-} from '../../scene/functions/loaders/BoxColliderFunctions'
-import { deserializeCollider, SCENE_COMPONENT_COLLIDER } from '../../scene/functions/loaders/ColliderFunctions'
-import {
-  deserializeTriggerVolume,
-  serializeTriggerVolume,
-  updateTriggerVolume
-} from '../../scene/functions/loaders/TriggerVolumeFunctions'
+  deserializeCollider,
+  serializeCollider,
+  updateCollider,
+  updateMeshCollider
+} from '../../scene/functions/loaders/ColliderFunctions'
 import {
   SCENE_COMPONENT_TRANSFORM,
   SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES,
@@ -94,46 +85,26 @@ const processCollisions = (world: World, drainCollisions, collisionEntities: Ent
 
 export const PhysicsPrefabs = {
   triggerVolume: 'Trigger Volume' as const,
-  boxCollider: 'Box Collider' as const
+  collider: 'Collider' as const
 }
 
 export default async function PhysicsSystem(world: World) {
-  // this is only ever loaded by gltf user data, thus does not need a component registry pair
-  // world.sceneComponentRegistry.set(._name, SCENE_COMPONENT_COLLIDER)
+  world.sceneComponentRegistry.set(ColliderComponent._name, SCENE_COMPONENT_COLLIDER)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_COLLIDER, {
+    defaultData: SCENE_COMPONENT_COLLIDER_DEFAULT_VALUES,
     deserialize: deserializeCollider,
-    serialize: () => null // do not serialize
+    serialize: serializeCollider
   })
 
-  world.sceneComponentRegistry.set(BoxColliderComponent._name, SCENE_COMPONENT_BOX_COLLIDER)
-  world.sceneLoadingRegistry.set(SCENE_COMPONENT_BOX_COLLIDER, {
-    defaultData: SCENE_COMPONENT_BOX_COLLIDER_DEFAULT_VALUES,
-    deserialize: deserializeBoxCollider,
-    serialize: serializeBoxCollider
-  })
-
-  world.sceneComponentRegistry.set(TriggerVolumeComponent._name, SCENE_COMPONENT_TRIGGER_VOLUME)
-  world.sceneLoadingRegistry.set(SCENE_COMPONENT_TRIGGER_VOLUME, {
-    defaultData: SCENE_COMPONENT_TRIGGER_VOLUME_DEFAULT_VALUES,
-    deserialize: deserializeTriggerVolume,
-    serialize: serializeTriggerVolume
-  })
-
-  world.scenePrefabRegistry.set(PhysicsPrefabs.triggerVolume, [
+  world.scenePrefabRegistry.set(PhysicsPrefabs.collider, [
     { name: SCENE_COMPONENT_TRANSFORM, props: SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES },
     { name: SCENE_COMPONENT_VISIBLE, props: true },
-    { name: SCENE_COMPONENT_TRIGGER_VOLUME, props: SCENE_COMPONENT_TRIGGER_VOLUME_DEFAULT_VALUES }
-  ])
-
-  world.scenePrefabRegistry.set(PhysicsPrefabs.boxCollider, [
-    { name: SCENE_COMPONENT_TRANSFORM, props: SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES },
-    { name: SCENE_COMPONENT_VISIBLE, props: true },
-    { name: SCENE_COMPONENT_BOX_COLLIDER, props: SCENE_COMPONENT_BOX_COLLIDER_DEFAULT_VALUES }
+    { name: SCENE_COMPONENT_COLLIDER, props: SCENE_COMPONENT_COLLIDER_DEFAULT_VALUES }
   ])
 
   const rigidBodyQuery = defineQuery([RigidBodyComponent])
-  const boxColliderQuery = defineQuery([BoxColliderComponent])
-  const triggerVolumeQuery = defineQuery([TriggerVolumeComponent])
+  const colliderQuery = defineQuery([ColliderComponent, Not(Object3DComponent)])
+  const meshColliderQuery = defineQuery([ColliderComponent, Object3DComponent])
   const ownedRigidBodyQuery = defineQuery([RigidBodyComponent, NetworkObjectOwnedTag])
   const notOwnedRigidBodyQuery = defineQuery([RigidBodyComponent, Not(NetworkObjectOwnedTag)])
 
@@ -150,12 +121,13 @@ export default async function PhysicsSystem(world: World) {
   return () => {
     for (const action of modifyPropertyActionQueue()) {
       for (const entity of action.entities) {
-        if (hasComponent(entity, BoxColliderComponent)) updateBoxCollider(entity)
-        if (hasComponent(entity, TriggerVolumeComponent)) updateTriggerVolume(entity)
+        if (hasComponent(entity, ColliderComponent) && !hasComponent(entity, Object3DComponent)) updateCollider(entity)
+        /** @todo this updateMeshCollider is only ever used from loaded models, so we don't need to  */
+        // if (hasComponent(entity, ColliderComponent) && hasComponent(entity, Object3DComponent)) updateMeshCollider(entity)
       }
     }
-    for (const action of boxColliderQuery.enter()) updateBoxCollider(action)
-    for (const action of triggerVolumeQuery.enter()) updateTriggerVolume(action)
+    for (const action of colliderQuery.enter()) updateCollider(action)
+    for (const action of meshColliderQuery.enter()) updateMeshCollider(action)
 
     for (const action of teleportObjectQueue()) teleportObjectReceptor(action)
 

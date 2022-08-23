@@ -1,7 +1,5 @@
 import { AmbientLight, Color } from 'three'
 
-import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
-
 import {
   ComponentDeserializeFunction,
   ComponentSerializeFunction,
@@ -9,7 +7,12 @@ import {
   ComponentUpdateFunction
 } from '../../../common/constants/PrefabFunctionType'
 import { Entity } from '../../../ecs/classes/Entity'
-import { addComponent, getComponent, getComponentCountOfType } from '../../../ecs/functions/ComponentFunctions'
+import {
+  addComponent,
+  getComponent,
+  getComponentCountOfType,
+  hasComponent
+} from '../../../ecs/functions/ComponentFunctions'
 import {
   AmbientLightComponent,
   AmbientLightComponentType,
@@ -21,17 +24,19 @@ export const deserializeAmbientLight: ComponentDeserializeFunction = (
   entity: Entity,
   data: AmbientLightComponentType
 ) => {
-  const light = new AmbientLight()
   const props = parseAmbientLightProperties(data)
-
-  addComponent(entity, Object3DComponent, { value: light })
   addComponent(entity, AmbientLightComponent, props)
 }
 
 export const updateAmbientLight: ComponentUpdateFunction = (entity: Entity) => {
   const component = getComponent(entity, AmbientLightComponent)
-  const light = getComponent(entity, Object3DComponent)?.value as AmbientLight
 
+  if (!hasComponent(entity, Object3DComponent)) {
+    const light = new AmbientLight()
+    addComponent(entity, Object3DComponent, { value: light })
+  }
+
+  const light = getComponent(entity, Object3DComponent)?.value as AmbientLight
   light.color = component.color
   light.intensity = component.intensity
 }

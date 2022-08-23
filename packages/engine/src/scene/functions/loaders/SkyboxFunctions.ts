@@ -1,4 +1,4 @@
-import { Color, Object3D, sRGBEncoding } from 'three'
+import { Color, sRGBEncoding } from 'three'
 import { Vector3 } from 'three'
 
 import {
@@ -7,19 +7,11 @@ import {
   ComponentShouldDeserializeFunction,
   ComponentUpdateFunction
 } from '../../../common/constants/PrefabFunctionType'
-import { isClient } from '../../../common/functions/isClient'
 import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
-import {
-  addComponent,
-  getComponent,
-  getComponentCountOfType,
-  hasComponent
-} from '../../../ecs/functions/ComponentFunctions'
+import { addComponent, getComponent, getComponentCountOfType } from '../../../ecs/functions/ComponentFunctions'
 import { EngineRenderer } from '../../../renderer/WebGLRendererSystem'
 import { Sky } from '../../classes/Sky'
-import { IgnoreRaycastTagComponent } from '../../components/IgnoreRaycastTagComponent'
-import { Object3DComponent } from '../../components/Object3DComponent'
 import {
   SCENE_COMPONENT_SKYBOX_DEFAULT_VALUES,
   SkyboxComponent,
@@ -31,11 +23,7 @@ import { addError, removeError } from '../ErrorFunctions'
 
 export const deserializeSkybox: ComponentDeserializeFunction = (entity: Entity, data: SkyboxComponentType) => {
   const props = parseSkyboxProperties(data)
-  if (!hasComponent(entity, Object3DComponent)) {
-    addComponent(entity, Object3DComponent, { value: new Object3D() })
-  }
   addComponent(entity, SkyboxComponent, props)
-  addComponent(entity, IgnoreRaycastTagComponent, {})
 }
 
 export const updateSkybox: ComponentUpdateFunction = (entity: Entity) => {

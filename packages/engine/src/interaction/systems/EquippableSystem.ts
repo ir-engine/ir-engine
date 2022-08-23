@@ -16,9 +16,11 @@ import {
   removeComponent
 } from '../../ecs/functions/ComponentFunctions'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
-import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
-import { RigidBodyDynamicTagComponent } from '../../physics/components/RigidBodyDynamicTagComponent'
-import { RigidBodyKinematicPositionBasedTagComponent } from '../../physics/components/RigidBodyKinematicPositionBasedTagComponent'
+import {
+  RigidBodyComponent,
+  RigidBodyDynamicTagComponent,
+  RigidBodyKinematicPositionBasedTagComponent
+} from '../../physics/components/RigidBodyComponent'
 import { CollisionGroups } from '../../physics/enums/CollisionGroups'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { getHandTransform } from '../../xr/XRFunctions'

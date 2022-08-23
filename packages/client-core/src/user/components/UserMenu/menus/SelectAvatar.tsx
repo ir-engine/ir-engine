@@ -11,7 +11,8 @@ import { ArrowBack, ArrowBackIos, ArrowForwardIos, Check, PersonAdd } from '@mui
 import Grid from '@mui/material/Grid'
 import Paper from '@mui/material/Paper'
 
-import { AuthService, useAuthState } from '../../../services/AuthService'
+import { useAuthState } from '../../../services/AuthService'
+import { AvatarService } from '../../../services/AvatarService'
 import styles from '../index.module.scss'
 import { Views } from '../util'
 
@@ -34,7 +35,7 @@ const selectAvatarMenu = (props: Props) => {
   const [selectedAvatar, setSelectedAvatar] = useState<any>('')
 
   useEffect(() => {
-    AuthService.fetchAvatarList()
+    AvatarService.fetchAvatarList()
   }, [])
 
   useEffect(() => {
@@ -47,7 +48,7 @@ const selectAvatarMenu = (props: Props) => {
   const setAvatar = (avatarId: string, avatarURL: string, thumbnailURL: string) => {
     if (hasComponent(Engine.instance.currentWorld.localClientEntity, AvatarEffectComponent)) return
     if (authState.user?.value) {
-      AuthService.updateUserAvatarId(authState.user.id.value!, avatarId, avatarURL, thumbnailURL)
+      AvatarService.updateUserAvatarId(authState.user.id.value!, avatarId, avatarURL, thumbnailURL)
     }
   }
 

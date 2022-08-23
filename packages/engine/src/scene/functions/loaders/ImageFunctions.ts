@@ -25,7 +25,6 @@ export const deserializeImage: ComponentDeserializeFunction = (entity: Entity, d
 }
 
 export const updateImage: ComponentUpdateFunction = async (entity: Entity) => {
-  console.log('updateImage', entity)
   const imageComponent = getComponent(entity, ImageComponent)
 
   if (!hasComponent(entity, Object3DComponent)) {
