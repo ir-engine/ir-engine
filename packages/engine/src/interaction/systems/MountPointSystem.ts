@@ -124,16 +124,15 @@ export default async function MountPointSystem(world: World) {
         const interactionGroups = getInteractionGroups(CollisionGroups.Avatars, CollisionGroups.Ground)
         const raycastComponentData = {
           type: SceneQueryType.Closest,
-          hits: [],
           origin: newPos,
           direction: new Vector3(0, -1, 0),
           maxDistance: 2,
           flags: interactionGroups
         }
-        Physics.castRay(Engine.instance.currentWorld.physicsWorld, raycastComponentData)
+        const hits = Physics.castRay(Engine.instance.currentWorld.physicsWorld, raycastComponentData)
 
-        if (raycastComponentData.hits.length > 0) {
-          const raycastHit = raycastComponentData.hits[0] as RaycastHit
+        if (hits.length > 0) {
+          const raycastHit = hits[0] as RaycastHit
           if (raycastHit.normal.y > 0.9) {
             newPos.y -= raycastHit.distance
           }

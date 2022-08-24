@@ -517,7 +517,6 @@ export const handleSecondaryButton: InputBehaviorType = (entity, inputKey, input
   const interactionGroups = getInteractionGroups(CollisionGroups.Default, CollisionGroups.Avatars)
   const raycastComponentData = {
     type: SceneQueryType.Closest,
-    hits: [],
     origin: new Vector3(),
     direction: new Vector3(),
     maxDistance: 20,
@@ -529,15 +528,15 @@ export const handleSecondaryButton: InputBehaviorType = (entity, inputKey, input
 
   const coords = new Vector2(screenXY[0], screenXY[1])
 
-  Physics.castRayFromCamera(
+  const hits = Physics.castRayFromCamera(
     Engine.instance.currentWorld.camera,
     coords,
     Engine.instance.currentWorld.physicsWorld,
     raycastComponentData
   )
 
-  if (raycastComponentData.hits.length) {
-    const hit = raycastComponentData.hits[0]
+  if (hits.length) {
+    const hit = hits[0]
     const hitEntity = (hit.body?.userData as any)?.entity as Entity
     if (typeof hitEntity !== 'undefined' && hitEntity !== Engine.instance.currentWorld.localClientEntity) {
       const userId = getComponent(hitEntity, NetworkObjectComponent).ownerId
