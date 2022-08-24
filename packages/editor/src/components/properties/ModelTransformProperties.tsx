@@ -94,12 +94,12 @@ export default function ModelTransformProperties({ modelComponent, onChangeModel
   const [transforming, setTransforming] = useState<boolean>(false)
   const [transformHistory, setTransformHistory] = useState<string[]>(() => [])
   const [transformParms, setTransformParms] = useState<ModelTransformParameters>({
+    modelFormat: 'gltf',
     useMeshopt: true,
     useMeshQuantization: false,
     useDraco: true,
     textureFormat: 'ktx2',
-    maxTextureSize: 1024,
-    externalizeTextures: true
+    maxTextureSize: 1024
   })
 
   function onChangeTransformParm(k) {
@@ -133,6 +133,16 @@ export default function ModelTransformProperties({ modelComponent, onChangeModel
     <CollapsibleBlock label="Model Transform Properties">
       <TransformContainer>
         <ElementsContainer>
+          <InputGroup name="Model Format" label={t('editor:properties.model.transform.modelFormat')}>
+            <SelectInput
+              value={transformParms.modelFormat}
+              onChange={onChangeTransformParm('modelFormat')}
+              options={[
+                { label: 'glB', value: 'glb' },
+                { label: 'glTF', value: 'gltf' }
+              ]}
+            />
+          </InputGroup>
           <InputGroup name="Use Meshopt" label={t('editor:properties.model.transform.useMeshopt')}>
             <BooleanInput value={transformParms.useMeshopt} onChange={onChangeTransformParm('useMeshopt')} />
           </InputGroup>
@@ -156,12 +166,6 @@ export default function ModelTransformProperties({ modelComponent, onChangeModel
                 { label: 'PNG', value: 'png' },
                 { label: 'WebP', value: 'webp' }
               ]}
-            />
-          </InputGroup>
-          <InputGroup name="Externalize Textures" label={'Externalize Textures'}>
-            <BooleanInput
-              value={transformParms.externalizeTextures}
-              onChange={onChangeTransformParm('externalizeImages')}
             />
           </InputGroup>
           <NumericInputGroup

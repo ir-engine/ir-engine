@@ -38,7 +38,7 @@ export type ModelTransformParameters = {
   useMeshQuantization: boolean
   textureFormat: 'default' | 'jpg' | 'ktx2' | 'png' | 'webp'
   maxTextureSize: number
-  externalizeTextures: boolean
+  modelFormat: 'glb' | 'gltf'
 }
 
 const EXTENSION_NAME = 'MOZ_lightmap'
