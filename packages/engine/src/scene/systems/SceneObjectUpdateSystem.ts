@@ -144,7 +144,10 @@ import {
   serializeRenderSettings,
   updateRenderSetting
 } from '../functions/loaders/RenderSettingsFunction'
-import { shouldDeserializeScenePreviewCamera } from '../functions/loaders/ScenePreviewCameraFunctions'
+import {
+  shouldDeserializeScenePreviewCamera,
+  updateCameraTransform
+} from '../functions/loaders/ScenePreviewCameraFunctions'
 import { updateShadow } from '../functions/loaders/ShadowFunctions'
 import {
   deserializeSkybox,
@@ -483,7 +486,7 @@ export default async function SceneObjectUpdateSystem(world: World) {
   const renderSettingsQuery = defineQuery([RenderSettingComponent])
   const postProcessingQuery = defineQuery([PostprocessingComponent])
   const cameraPropertiesQuery = defineQuery([CameraPropertiesComponent])
-  const ScenePreviewCameraTagQuery = defineQuery([ScenePreviewCameraTagComponent])
+  const scenePreviewCameraTagQuery = defineQuery([ScenePreviewCameraTagComponent])
 
   const modifyPropertyActionQueue = createActionQueue(EngineActions.sceneObjectUpdate.matches)
 
@@ -508,6 +511,7 @@ export default async function SceneObjectUpdateSystem(world: World) {
         if (hasComponent(entity, RenderSettingComponent)) updateRenderSetting(entity)
         if (hasComponent(entity, PostprocessingComponent)) configureEffectComposer()
         if (hasComponent(entity, CameraPropertiesComponent)) updateCameraProperties(entity)
+        if (hasComponent(entity, ScenePreviewCameraTagComponent)) updateCameraTransform(entity)
       }
     }
 
@@ -527,5 +531,6 @@ export default async function SceneObjectUpdateSystem(world: World) {
     for (const entity of renderSettingsQuery.enter()) updateRenderSetting(entity)
     for (const entity of postProcessingQuery.enter()) configureEffectComposer()
     for (const entity of cameraPropertiesQuery.enter()) updateCameraProperties(entity)
+    for (const entity of scenePreviewCameraTagQuery.enter()) updateCameraTransform(entity)
   }
 }
