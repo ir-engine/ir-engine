@@ -73,6 +73,9 @@ export class Login implements ServiceMethods<Data> {
         .service('authentication')
         .createAccessToken({}, { subject: identityProvider.id.toString() })
       await this.app.service('login-token').remove(result.id)
+      await this.app.service('user').patch(identityProvider.userId, {
+        isGuest: false
+      })
       return {
         token: token
       }

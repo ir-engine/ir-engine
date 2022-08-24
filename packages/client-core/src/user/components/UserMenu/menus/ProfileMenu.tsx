@@ -514,8 +514,8 @@ const ProfileMenu = ({ className, hideLogin, isPopover, changeActiveMenu, onClos
                 }}
               />
             )}
-            <h4>
-              {
+            {!isGuest && (
+              <h4>
                 <div
                   className={styles.logout}
                   onClick={handleLogout}
@@ -524,8 +524,8 @@ const ProfileMenu = ({ className, hideLogin, isPopover, changeActiveMenu, onClos
                 >
                   {t('user:usermenu.profile.logout')}
                 </div>
-              }
-            </h4>
+              </h4>
+            )}
             {selfUser?.inviteCode.value && (
               <h2>
                 {t('user:usermenu.profile.inviteCode')}: {selfUser.inviteCode.value}
@@ -930,18 +930,20 @@ const ProfileMenu = ({ className, hideLogin, isPopover, changeActiveMenu, onClos
             <section className={styles.deletePanel}>
               {
                 <div>
-                  <h2
-                    className={styles.deleteAccount}
-                    id="delete-account"
-                    onClick={() => {
-                      setDeleteControlsOpen(!deleteControlsOpen)
-                      setConfirmDeleteOpen(false)
-                    }}
-                    onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
-                    onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
-                  >
-                    {t('user:usermenu.profile.delete.deleteAccount')}
-                  </h2>
+                  {!isGuest && (
+                    <h2
+                      className={styles.deleteAccount}
+                      id="delete-account"
+                      onClick={() => {
+                        setDeleteControlsOpen(!deleteControlsOpen)
+                        setConfirmDeleteOpen(false)
+                      }}
+                      onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                      onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                    >
+                      {t('user:usermenu.profile.delete.deleteAccount')}
+                    </h2>
+                  )}
                   {deleteControlsOpen && !confirmDeleteOpen && (
                     <div className={styles.deleteContainer}>
                       <h3 className={styles.deleteText}>{t('user:usermenu.profile.delete.deleteControlsText')}</h3>
