@@ -40,6 +40,8 @@ const AvatarContextMenu = () => {
   const partyState = usePartyState()
 
   const authState = useAuthState()
+  const selfId = authState.user.id?.value ?? ''
+
   const user = userState.layerUsers.find((user) => user.id.value === detailState.id.value)
   const { t } = useTranslation()
 
@@ -54,14 +56,14 @@ const AvatarContextMenu = () => {
   const blockUser = () => {
     if (user) {
       const blockUserId = user.id?.value ?? ''
-      FriendService.blockUser(blockUserId)
+      FriendService.blockUser(selfId, blockUserId)
     }
   }
 
   const addAsFriend = () => {
     if (user) {
       const blockUserId = user.id?.value ?? ''
-      FriendService.requestFriend(blockUserId)
+      FriendService.requestFriend(selfId, blockUserId)
     }
   }
 

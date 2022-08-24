@@ -28,6 +28,7 @@ const AvatarContextMenu = ({ user }: Props): JSX.Element => {
   const partyState = usePartyState()
 
   const authState = useAuthState()
+  const selfId = authState.user.id?.value ?? ''
 
   const userAvatarDetails = useHookstate(getState(WorldState).userAvatarDetails)
   const partyOwner = partyState.party?.partyUsers?.value
@@ -40,21 +41,21 @@ const AvatarContextMenu = ({ user }: Props): JSX.Element => {
   const blockUser = () => {
     if (user) {
       const blockUserId = user.id ?? ''
-      FriendService.blockUser(blockUserId)
+      FriendService.blockUser(selfId, blockUserId)
     }
   }
 
   const addAsFriend = () => {
     if (user) {
       const friendUserId = user.id ?? ''
-      FriendService.requestFriend(friendUserId)
+      FriendService.requestFriend(selfId, friendUserId)
     }
   }
 
   const acceptAsFriend = () => {
     if (user) {
       const friendUserId = user.id ?? ''
-      FriendService.acceptFriend(friendUserId)
+      FriendService.acceptFriend(selfId, friendUserId)
     }
   }
 

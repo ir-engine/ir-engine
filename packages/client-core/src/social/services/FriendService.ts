@@ -107,31 +107,28 @@ export const FriendService = {
       logger.error(err)
     }
   },
-  requestFriend: (relatedUserId: string) => {
-    return createRelation(relatedUserId, 'requested')
+  requestFriend: (userId: string, relatedUserId: string) => {
+    return createRelation(userId, relatedUserId, 'requested')
   },
-  blockUser: (relatedUserId: string) => {
-    return createRelation(relatedUserId, 'blocking')
+  blockUser: (userId: string, relatedUserId: string) => {
+    return createRelation(userId, relatedUserId, 'blocking')
   },
-  acceptFriend: (relatedUserId: string) => {
-    API.instance.client
-      .service('user-relationship')
-      .patch(relatedUserId, {
+  acceptFriend: async (userId: string, relatedUserId: string) => {
+    try {
+      await API.instance.client.service('user-relationship').patch(relatedUserId, {
         userRelationshipType: 'friend'
       })
-      .then((res: any) => {
-        console.log(res)
-        // dispatchAction(FriendAction.changedRelationAction({}))
-      })
-      .catch((err: any) => {
-        logger.error(err)
-      })
+
+      FriendService.getUserRelationship(userId)
+    } catch (err) {
+      logger.error(err)
+    }
   },
-  declineFriend: (relatedUserId: string) => {
-    return removeRelation(relatedUserId)
+  declineFriend: (userId: string, relatedUserId: string) => {
+    return removeRelation(userId, relatedUserId)
   },
-  unfriend: (relatedUserId: string) => {
-    return removeRelation(relatedUserId)
+  unfriend: (userId: string, relatedUserId: string) => {
+    return removeRelation(userId, relatedUserId)
   },
   useAPIListeners: () => {
     useEffect(() => {
@@ -188,33 +185,27 @@ export const FriendService = {
   }
 }
 
-function createRelation(relatedUserId: string, type: 'requested' | 'blocking') {
-  API.instance.client
-    .service('user-relationship')
-    .create({
+async function createRelation(userId: string, relatedUserId: string, type: 'requested' | 'blocking') {
+  try {
+    await API.instance.client.service('user-relationship').create({
       relatedUserId,
       userRelationshipType: type
     })
-    .then((res: any) => {
-      console.log(res)
-      // dispatchAction(FriendAction.changedRelationAction({}))
-    })
-    .catch((err: any) => {
-      logger.error(err)
-    })
+
+    FriendService.getUserRelationship(userId)
+  } catch (err) {
+    logger.error(err)
+  }
 }
 
-function removeRelation(relatedUserId: string) {
-  API.instance.client
-    .service('user-relationship')
-    .remove(relatedUserId)
-    .then((res: any) => {
-      console.log(res)
-      // dispatchAction(UserAction.changedRelationAction({}))
-    })
-    .catch((err: any) => {
-      logger.error(err)
-    })
+async function removeRelation(userId: string, relatedUserId: string) {
+  try {
+    await API.instance.client.service('user-relationship').remove(relatedUserId)
+
+    FriendService.getUserRelationship(userId)
+  } catch (err) {
+    logger.error(err)
+  }
 }
 
 //Action
