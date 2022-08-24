@@ -170,7 +170,7 @@ describe('ClientInputSystem Unit Tests', () => {
       assert.strictEqual(resultData.type, InputType.BUTTON)
       assert.strictEqual(resultData.value.length, 1)
       assert.strictEqual(resultData.value[0], BinaryValue.ON)
-      assert.strictEqual(resultData.lifecycleState, LifecycleValue.Continued)
+      assert.strictEqual(resultData.lifecycleState, LifecycleValue.Unchanged)
     })
 
     it('should end combination when previously started', () => {
@@ -214,7 +214,7 @@ describe('ClientInputSystem Unit Tests', () => {
       prevData.set(mapping, {
         type: InputType.BUTTON,
         value: [BinaryValue.ON],
-        lifecycleState: LifecycleValue.Continued
+        lifecycleState: LifecycleValue.Unchanged
       })
 
       processCombinationLifecycle(inputComponent, prevData, mapping, input)
