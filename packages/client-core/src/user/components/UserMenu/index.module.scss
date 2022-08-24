@@ -2539,7 +2539,6 @@
   .friendItem {
     display: flex;
     align-items: center;
-    gap: 15px;
     margin: 20px 0;
     color: var(--textColor);
     font-size: 14px;
@@ -2548,6 +2547,7 @@
   .friendName {
     flex: 1;
     font-size: 16px;
+    margin-left: 15px;
   }
 
   .filledBtn {
@@ -2584,4 +2584,10 @@
   :global(.MuiTabs-indicator) {
     background-color: var(--iconButtonBackground);
   }
+}
+
+.chip {
+  color: var(--textColor);
+  border-color: var(--textColor);
+  margin-right: 10px;
 }

@@ -3,7 +3,7 @@ import React from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { SendInvite } from '@xrengine/common/src/interfaces/Invite'
-import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
+import { UserInterface } from '@xrengine/common/src/interfaces/User'
 import { WorldState } from '@xrengine/engine/src/networking/interfaces/WorldState'
 import { getState } from '@xrengine/hyperflux'
 
@@ -14,19 +14,20 @@ import { FriendService } from '../../../../social/services/FriendService'
 import { InviteService } from '../../../../social/services/InviteService'
 import { PartyService, usePartyState } from '../../../../social/services/PartyService'
 import { useAuthState } from '../../../services/AuthService'
-import { useUserState } from '../../../services/UserService'
 import styles from '../index.module.scss'
 import { getAvatarURLForUser } from '../util'
 
-const AvatarContextMenu = (): JSX.Element => {
+interface Props {
+  changeActiveMenu: Function
+  user: UserInterface
+}
+
+const AvatarContextMenu = ({ user }: Props): JSX.Element => {
   const { t } = useTranslation()
 
-  const engineState = useEngineState()
-  const userState = useUserState()
   const partyState = usePartyState()
 
   const authState = useAuthState()
-  const user = userState.layerUsers.find((user) => user.id.value === engineState.avatarTappedId.value)
 
   const userAvatarDetails = useHookstate(getState(WorldState).userAvatarDetails)
   const partyOwner = partyState.party?.partyUsers?.value
@@ -38,29 +39,29 @@ const AvatarContextMenu = (): JSX.Element => {
 
   const blockUser = () => {
     if (user) {
-      const blockUserId = user.id?.value ?? ''
+      const blockUserId = user.id ?? ''
       FriendService.blockUser(blockUserId)
     }
   }
 
   const addAsFriend = () => {
     if (user) {
-      const friendUserId = user.id?.value ?? ''
+      const friendUserId = user.id ?? ''
       FriendService.requestFriend(friendUserId)
     }
   }
 
   const acceptAsFriend = () => {
     if (user) {
-      const friendUserId = user.id?.value ?? ''
+      const friendUserId = user.id ?? ''
       FriendService.acceptFriend(friendUserId)
     }
   }
 
   const inviteToParty = () => {
-    if (authState.user?.partyId?.value && user?.id?.value) {
+    if (authState.user?.partyId?.value && user?.id) {
       const partyId = authState.user?.partyId?.value ?? ''
-      const userId = user.id?.value
+      const userId = user.id
       const sendData = {
         inviteType: 'party',
         inviteeId: userId,
@@ -78,23 +79,23 @@ const AvatarContextMenu = (): JSX.Element => {
   return (
     <div className={styles.menuPanel}>
       <div className={styles.avatarContextPanel}>
-        {user?.id.value && (
+        {user?.id && (
           <>
             <img
               className={styles.ownerImage}
-              src={getAvatarURLForUser(userAvatarDetails, user?.id?.value)}
+              src={getAvatarURLForUser(userAvatarDetails, user?.id)}
               alt=""
               crossOrigin="anonymous"
             />
             <section className={styles.contentSection}>
               <Typography className={styles.userName} variant="h6">
-                {user?.name?.value}
+                {user?.name}
               </Typography>
 
               {partyState?.party?.id?.value != null &&
                 partyOwner?.userId != null &&
                 partyOwner.userId === authState.user?.id?.value &&
-                user.partyId.value !== partyState.party?.id?.value && (
+                user.partyId !== partyState.party?.id?.value && (
                   <Button className={styles.gradientBtn} onClick={inviteToParty}>
                     {t('user:personMenu.inviteToParty')}
                   </Button>

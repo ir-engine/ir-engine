@@ -386,5 +386,13 @@
     "openPictureInPicture": "Open Picture in Picture",
     "openConferenceMode": "Open Conference Mode",
     "closeConferenceMode": "Close Conference Mode"
+  },
+  "friends": {
+    "message": "Message",
+    "profile": "Profile",
+    "accept": "Accept",
+    "decline": "Decline",
+    "unblock": "Unblock",
+    "pending": "Pending"
   }
 }

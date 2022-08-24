@@ -77,9 +77,6 @@ export class User extends Service<UserInterface> {
     if (!params.query) params.query = {}
     const { action, $skip, $limit, search, ...query } = params.query!
 
-    const skip = $skip ? $skip : 0
-    const limit = $limit ? $limit : 10
-
     delete query.search
 
     const loggedInUser = params!.user as any
@@ -117,7 +114,7 @@ export class User extends Service<UserInterface> {
       const order: any[] = []
       const { $sort } = params?.query ?? {}
       if ($sort != null)
-        Object.keys($sort).forEach((name, val) => {
+        Object.keys($sort).forEach((name) => {
           if (name === 'location') {
             order.push(['instance', 'location', 'name', $sort[name] === 0 ? 'DESC' : 'ASC'])
           } else {
