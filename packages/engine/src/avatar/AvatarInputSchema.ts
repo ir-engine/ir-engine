@@ -517,7 +517,6 @@ export const handleSecondaryButton: InputBehaviorType = (entity, inputKey, input
   const interactionGroups = getInteractionGroups(CollisionGroups.Default, CollisionGroups.Avatars)
   const raycastComponentData = {
     type: SceneQueryType.Closest,
-    hits: [],
     origin: new Vector3(),
     direction: new Vector3(),
     maxDistance: 20,
@@ -529,15 +528,15 @@ export const handleSecondaryButton: InputBehaviorType = (entity, inputKey, input
 
   const coords = new Vector2(screenXY[0], screenXY[1])
 
-  Physics.castRayFromCamera(
+  const hits = Physics.castRayFromCamera(
     Engine.instance.currentWorld.camera,
     coords,
     Engine.instance.currentWorld.physicsWorld,
     raycastComponentData
   )
 
-  if (raycastComponentData.hits.length) {
-    const hit = raycastComponentData.hits[0]
+  if (hits.length) {
+    const hit = hits[0]
     const hitEntity = (hit.body?.userData as any)?.entity as Entity
     if (typeof hitEntity !== 'undefined' && hitEntity !== Engine.instance.currentWorld.localClientEntity) {
       const userId = getComponent(hitEntity, NetworkObjectComponent).ownerId
@@ -572,10 +571,7 @@ export const createAvatarInput = () => {
   map.set(MouseInput.RightButton, BaseInput.SECONDARY)
   map.set(MouseInput.MiddleButton, BaseInput.INTERACT)
 
-  map.set(MouseInput.MouseMovement, BaseInput.MOUSE_MOVEMENT)
   map.set(MouseInput.MousePosition, BaseInput.SCREENXY)
-  map.set(MouseInput.MouseClickDownPosition, BaseInput.SCREENXY_START)
-  map.set(MouseInput.MouseClickDownTransformRotation, BaseInput.ROTATION_START)
   map.set(MouseInput.MouseClickDownMovement, BaseInput.LOOKTURN)
   map.set(MouseInput.MouseScroll, BaseInput.CAMERA_SCROLL)
 
@@ -604,10 +600,6 @@ export const createAvatarInput = () => {
 
   map.set(GamepadAxis.LTouchpad, BaseInput.MOVEMENT)
   map.set(GamepadAxis.RTouchpad, BaseInput.LOOKTURN)
-
-  map.set(XR6DOF.HMD, BaseInput.XR_HEAD)
-  map.set(XR6DOF.LeftHand, BaseInput.XR_CONTROLLER_LEFT_HAND)
-  map.set(XR6DOF.RightHand, BaseInput.XR_CONTROLLER_RIGHT_HAND)
 
   map.set('KeyW', BaseInput.FORWARD)
   map.set('ArrowUp', BaseInput.FORWARD)

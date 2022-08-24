@@ -53,6 +53,8 @@ function load() {
 
 function createWorld(gravity = { x: 0.0, y: -9.81, z: 0.0 }) {
   const world = new World(gravity)
+  /** @todo create a better api for raycast debugger*/
+  ;(world as any).raycastDebugs = []
   return world
 }
 
@@ -299,7 +301,6 @@ function changeRigidbodyType(entity: Entity, newType: RigidBodyType) {
 
 export type RaycastArgs = {
   type: SceneQueryType
-  hits: RaycastHit[]
   origin: Vector3
   direction: Vector3
   maxDistance: number
@@ -312,16 +313,20 @@ function castRay(world: World, raycastQuery: RaycastArgs) {
   const solid = true // TODO: Add option for this in args
   const groups = raycastQuery.flags
 
-  raycastQuery.hits = []
+  const hits = [] as RaycastHit[]
   let hitWithNormal = world.castRayAndGetNormal(ray, maxToi, solid, groups)
   if (hitWithNormal != null) {
-    raycastQuery.hits.push({
+    hits.push({
       distance: hitWithNormal.toi,
       position: ray.pointAt(hitWithNormal.toi),
       normal: hitWithNormal.normal,
       body: hitWithNormal.collider.parent() as RigidBody
     })
   }
+
+  ;(world as any).raycastDebugs.push({ raycastQuery, hits })
+
+  return hits
 }
 
 function castRayFromCamera(

@@ -229,18 +229,17 @@ describe('Physics', () => {
     const raycastComponentData = {
       filterData: null, // TODO
       type: SceneQueryType.Closest,
-      hits: [] as RaycastHit[],
       origin: new Vector3().set(0, 1, 0),
       direction: Direction.Right,
       maxDistance: 20,
       flags: getInteractionGroups(CollisionGroups.Default, DefaultCollisionMask)
     }
-    Physics.castRay(physicsWorld, raycastComponentData)
+    const hits = Physics.castRay(physicsWorld, raycastComponentData)
 
-    assert.deepEqual(raycastComponentData.hits.length, 1)
-    assert.deepEqual(raycastComponentData.hits[0].normal.x, -1)
-    assert.deepEqual(raycastComponentData.hits[0].distance, 5)
-    assert.deepEqual(raycastComponentData.hits[0].body, rigidBody)
+    assert.deepEqual(hits.length, 1)
+    assert.deepEqual(hits[0].normal.x, -1)
+    assert.deepEqual(hits[0].distance, 5)
+    assert.deepEqual(hits[0].body, rigidBody)
   })
 
   it('should generate a collision event', async () => {

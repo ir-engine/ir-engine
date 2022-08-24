@@ -47,7 +47,7 @@ interface ClickResult {
 }
 
 export default async function AutopilotSystem(world: World) {
-  const GAMEPAD_STICK = GamepadAxis.LeftStick
+  const GAMEPAD_STICK = GamepadAxis.LThumbstick
   const raycaster = new Raycaster()
   const quat = new Quaternion()
   const forward = new Vector3(0, 0, 1)
