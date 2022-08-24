@@ -113,8 +113,6 @@ export default async function PhysicsSystem(world: World) {
 
   await Physics.load()
   world.physicsWorld = Physics.createWorld()
-  /** @todo create a better api for raycast debugger*/
-  ;(world.physicsWorld as any).raycastDebugs = []
   world.physicsCollisionEventQueue = Physics.createCollisionEventQueue()
   const drainCollisions = Physics.drainCollisionEventQueue(world.physicsWorld)
 
