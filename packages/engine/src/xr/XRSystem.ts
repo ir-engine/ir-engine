@@ -182,7 +182,7 @@ function updateGamepadInput(source: XRInputSource) {
         value: [button.pressed ? BinaryValue.ON : BinaryValue.OFF],
         lifecycleState: button.pressed
           ? continued
-            ? LifecycleValue.Continued
+            ? LifecycleValue.Unchanged
             : LifecycleValue.Started
           : LifecycleValue.Ended
       })
@@ -196,6 +196,7 @@ function updateGamepadInput(source: XRInputSource) {
 
     if (inputData.length >= 2) {
       const Touchpad = source.handedness === 'left' ? GamepadAxis.LTouchpad : GamepadAxis.RTouchpad
+
       Engine.instance.currentWorld.inputState.set(Touchpad, {
         type: InputType.TWODIM,
         value: [inputData[0], inputData[1]],

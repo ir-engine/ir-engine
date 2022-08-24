@@ -171,7 +171,7 @@ export const handleTouch = (event: TouchEvent): void => {
             type: InputType.BUTTON,
             value: [BinaryValue.ON],
             lifecycleState: Engine.instance.currentWorld.inputState.has(doubleTapInput)
-              ? LifecycleValue.Continued
+              ? LifecycleValue.Unchanged
               : LifecycleValue.Started
           })
         } else if (Engine.instance.currentWorld.inputState.has(doubleTapInput)) {
@@ -189,11 +189,11 @@ export const handleTouch = (event: TouchEvent): void => {
         Engine.instance.currentWorld.inputState.has(mappedInputKey) &&
         Engine.instance.currentWorld.inputState.get(mappedInputKey)?.value[0] === BinaryValue.ON
       ) {
-        if (Engine.instance.currentWorld.inputState.get(mappedInputKey)?.lifecycleState !== LifecycleValue.Continued) {
+        if (Engine.instance.currentWorld.inputState.get(mappedInputKey)?.lifecycleState !== LifecycleValue.Unchanged) {
           Engine.instance.currentWorld.inputState.set(mappedInputKey, {
             type: InputType.BUTTON,
             value: [BinaryValue.ON],
-            lifecycleState: LifecycleValue.Continued
+            lifecycleState: LifecycleValue.Unchanged
           })
         }
         return
@@ -297,11 +297,11 @@ export function handleTouchGamepadButton(event: CustomEvent): any {
       Engine.instance.currentWorld.inputState.has(key) &&
       Engine.instance.currentWorld.inputState.get(key)?.value[0] === BinaryValue.ON
     ) {
-      if (Engine.instance.currentWorld.inputState.get(key)?.lifecycleState !== LifecycleValue.Continued) {
+      if (Engine.instance.currentWorld.inputState.get(key)?.lifecycleState !== LifecycleValue.Unchanged) {
         Engine.instance.currentWorld.inputState.set(key, {
           type: InputType.BUTTON,
           value: [BinaryValue.ON],
-          lifecycleState: LifecycleValue.Continued
+          lifecycleState: LifecycleValue.Unchanged
         })
       }
       return
@@ -511,11 +511,11 @@ export const handleKey = (event: KeyboardEvent): any => {
       Engine.instance.currentWorld.inputState.has(key) &&
       Engine.instance.currentWorld.inputState.get(key)?.value[0] === BinaryValue.ON
     ) {
-      if (Engine.instance.currentWorld.inputState.get(key)?.lifecycleState !== LifecycleValue.Continued) {
+      if (Engine.instance.currentWorld.inputState.get(key)?.lifecycleState !== LifecycleValue.Unchanged) {
         Engine.instance.currentWorld.inputState.set(key, {
           type: InputType.BUTTON,
           value: [BinaryValue.ON],
-          lifecycleState: LifecycleValue.Continued
+          lifecycleState: LifecycleValue.Unchanged
         })
       }
       return

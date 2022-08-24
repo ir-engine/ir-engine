@@ -23,14 +23,22 @@ export const processEngineInputState = () => {
           value.lifecycleState === LifecycleValue.Started &&
           Engine.instance.currentWorld.prevInputState.get(key)?.lifecycleState === LifecycleValue.Started
         ) {
-          value.lifecycleState = LifecycleValue.Continued
+          value.lifecycleState = LifecycleValue.Unchanged
         }
       } else {
         if (value.lifecycleState !== LifecycleValue.Ended) {
-          value.lifecycleState =
+          const isSameValue =
             JSON.stringify(value.value) === JSON.stringify(Engine.instance.currentWorld.prevInputState.get(key)?.value)
-              ? LifecycleValue.Unchanged
-              : LifecycleValue.Changed
+          if (!isSameValue) {
+            value.lifecycleState = LifecycleValue.Changed
+          } else {
+            const isZero = value.value.every((v) => v === 0)
+            if (isZero) {
+              value.lifecycleState = LifecycleValue.Ended
+            } else {
+              value.lifecycleState = LifecycleValue.Unchanged
+            }
+          }
         }
       }
 
@@ -57,7 +65,7 @@ export const processCombinationLifecycle = (
 ) => {
   const prev = prevData.get(mapping)
   const isActive = input.map((c) => Engine.instance.currentWorld.inputState.has(c)).filter((a) => !a).length === 0
-  const wasActive = prev?.lifecycleState === LifecycleValue.Started || prev?.lifecycleState === LifecycleValue.Continued
+  const wasActive = prev?.lifecycleState === LifecycleValue.Started || prev?.lifecycleState === LifecycleValue.Unchanged
 
   if (isActive) {
     if (prev?.lifecycleState === LifecycleValue.Ended)
@@ -72,7 +80,7 @@ export const processCombinationLifecycle = (
       inputComponent.data.set(mapping, {
         type: InputType.BUTTON,
         value: [BinaryValue.ON],
-        lifecycleState: LifecycleValue.Continued
+        lifecycleState: LifecycleValue.Unchanged
       })
     // if this combination was not previously active but now is, start it
     else
