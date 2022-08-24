@@ -164,17 +164,12 @@ export const moveLocalAvatar = (entity: Entity) => {
   if (controller.body.translation().y < -10) respawnAvatar(entity)
 }
 
-const _vec3 = new Vector3()
-
 export const updateReferenceSpace = (entity: Entity) => {
-  const refSpace = EngineRenderer.instance.xrManager.getReferenceSpace()!
+  const refSpace = getState(XRState).originReferenceSpace.value
   if (getControlMode() === 'attached' && refSpace) {
-    const rigidBody = getComponent(entity, RigidBodyComponent)
     const avatarTransform = getComponent(entity, TransformComponent)
-    _vec3.subVectors(rigidBody.previousPosition, avatarTransform.position)
-    _vec3.multiplyScalar(-1)
-    const xrRigidTransform = new XRRigidTransform(_vec3)
-    const offsetRefSpace = refSpace.getOffsetReferenceSpace(xrRigidTransform)!
+    const xrRigidTransform = new XRRigidTransform(avatarTransform.position, avatarTransform.rotation)
+    const offsetRefSpace = refSpace.getOffsetReferenceSpace(xrRigidTransform.inverse)!
     EngineRenderer.instance.xrManager.setReferenceSpace(offsetRefSpace)
   }
 }
