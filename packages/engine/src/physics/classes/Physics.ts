@@ -53,6 +53,8 @@ function load() {
 
 function createWorld(gravity = { x: 0.0, y: -9.81, z: 0.0 }) {
   const world = new World(gravity)
+  /** @todo create a better api for raycast debugger*/
+  ;(world as any).raycastDebugs = []
   return world
 }
 
