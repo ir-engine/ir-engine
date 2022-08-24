@@ -14,7 +14,7 @@ import {
 import { getState } from '@xrengine/hyperflux'
 
 import { Direction } from '../../common/constants/Axis3D'
-import { V_010 } from '../../common/constants/MathConstants'
+import { Q_IDENTITY, V_010 } from '../../common/constants/MathConstants'
 import checkPositionIsValid from '../../common/functions/checkPositionIsValid'
 import { rotate } from '../../common/functions/MathFunctions'
 import { smoothDamp } from '../../common/functions/MathLerpFunctions'
@@ -165,19 +165,16 @@ export const moveLocalAvatar = (entity: Entity) => {
 }
 
 const _vec3 = new Vector3()
-const _quat = new Quaternion()
 
 export const updateReferenceSpace = (entity: Entity) => {
-  const originRefSpace = getState(XRState).referenceSpaceOrigin.value
-  if (getControlMode() === 'attached' && originRefSpace) {
+  const refSpace = EngineRenderer.instance.xrManager.getReferenceSpace()!
+  if (getControlMode() === 'attached' && refSpace) {
+    const rigidBody = getComponent(entity, RigidBodyComponent)
     const avatarTransform = getComponent(entity, TransformComponent)
-    const avatarComponent = getComponent(entity, AvatarComponent)
-    _vec3.copy(avatarTransform.position)
-    _vec3.y += avatarComponent.avatarHeight * 0.95
+    _vec3.subVectors(rigidBody.previousPosition, avatarTransform.position)
     _vec3.multiplyScalar(-1)
-    _quat.copy(avatarTransform.rotation).invert()
-    const xrRigidTransform = new XRRigidTransform(_vec3, _quat)
-    const offsetRefSpace = originRefSpace.getOffsetReferenceSpace(xrRigidTransform)!
+    const xrRigidTransform = new XRRigidTransform(_vec3)
+    const offsetRefSpace = refSpace.getOffsetReferenceSpace(xrRigidTransform)!
     EngineRenderer.instance.xrManager.setReferenceSpace(offsetRefSpace)
   }
 }

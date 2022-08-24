@@ -17,13 +17,15 @@ export const XRState = defineState({
      * When `avatarControlMode` is 'detached' the avatar can move freely via movement controls (e.g., joystick).
      * When `avatarControlMode` is 'auto', the avatar will switch between these modes automtically based on the current XR session mode and other heursitics.
      */
-    avatarControlMode: 'auto' as 'auto' | 'attached' | 'detached',
-    referenceSpaceOrigin: null as XRReferenceSpace | null
+    avatarControlMode: 'auto' as 'auto' | 'attached' | 'detached'
   })
 })
 
 export const getControlMode = () => {
   const controlMode = getState(XRState).avatarControlMode.value
   const sessionMode = getState(XRState).sessionMode.value
-  return controlMode === 'auto' ? sessionMode === 'immersive-vr' || sessionMode === 'inline' : controlMode
+  if (controlMode === 'auto') {
+    return sessionMode === 'immersive-vr' || sessionMode === 'inline' ? 'attached' : 'detatched'
+  }
+  return controlMode
 }

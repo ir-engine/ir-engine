@@ -8,6 +8,7 @@ import { dispatchAction, getState } from '@xrengine/hyperflux'
 import { FollowCameraComponent } from '../camera/components/FollowCameraComponent'
 import { TargetCameraRotationComponent } from '../camera/components/TargetCameraRotationComponent'
 import { CameraMode } from '../camera/types/CameraMode'
+import { V_000, V_010 } from '../common/constants/MathConstants'
 import { LifecycleValue } from '../common/enums/LifecycleValue'
 import { ParityValue } from '../common/enums/ParityValue'
 import { throttle } from '../common/functions/FunctionHelpers'
@@ -61,9 +62,11 @@ import { getInteractionGroups } from '../physics/functions/getInteractionGroups'
 import { boxDynamicConfig } from '../physics/functions/physicsObjectDebugFunctions'
 import { SceneQueryType } from '../physics/types/PhysicsTypes'
 import { accessEngineRendererState, EngineRendererAction } from '../renderer/EngineRendererState'
+import { EngineRenderer } from '../renderer/WebGLRendererSystem'
 import { Object3DComponent } from '../scene/components/Object3DComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { XRLGripButtonComponent, XRRGripButtonComponent } from '../xr/XRComponents'
+import { getControlMode, XRState } from '../xr/XRState'
 import { XR_ROTATION_MODE } from '../xr/XRUserSettings'
 import { AvatarSettings } from './AvatarControllerSystem'
 import { AvatarComponent } from './components/AvatarComponent'
@@ -468,9 +471,20 @@ const lookByInputAxis: InputBehaviorType = (entity: Entity, inputKey: InputAlias
         target.theta - inputValue.value[0] * axisLookSensitivity,
         0.1
       )
+    return
   }
 
+  if (inputValue.lifecycleState !== LifecycleValue.Changed) return
+
   // if vr, rotate the reference space
+  // const refSpace = EngineRenderer.instance.xrManager.getReferenceSpace()!
+  // if (getControlMode() === 'attached' && refSpace) {
+  //   const quat = new Quaternion().setFromAxisAngle(V_010, inputValue.value[0])
+  //   console.log(quat)
+  //   const xrRigidTransform = new XRRigidTransform(V_000, quat)
+  //   const offsetRefSpace = refSpace.getOffsetReferenceSpace(xrRigidTransform)
+  //   EngineRenderer.instance.xrManager.setReferenceSpace(offsetRefSpace)
+  // }
 }
 
 // const gamepadLook: InputBehaviorType = (entity: Entity): void => {
@@ -598,8 +612,8 @@ export const createAvatarInput = () => {
   map.set(GamepadAxis.LThumbstick, BaseInput.MOVEMENT)
   map.set(GamepadAxis.RThumbstick, BaseInput.LOOKTURN)
 
-  map.set(GamepadAxis.LTouchpad, BaseInput.MOVEMENT)
-  map.set(GamepadAxis.RTouchpad, BaseInput.LOOKTURN)
+  // map.set(GamepadAxis.LTouchpad, BaseInput.MOVEMENT)
+  // map.set(GamepadAxis.RTouchpad, BaseInput.LOOKTURN)
 
   map.set('KeyW', BaseInput.FORWARD)
   map.set('ArrowUp', BaseInput.FORWARD)
