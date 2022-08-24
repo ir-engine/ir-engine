@@ -299,7 +299,6 @@ function changeRigidbodyType(entity: Entity, newType: RigidBodyType) {
 
 export type RaycastArgs = {
   type: SceneQueryType
-  hits: RaycastHit[]
   origin: Vector3
   direction: Vector3
   maxDistance: number
@@ -312,16 +311,20 @@ function castRay(world: World, raycastQuery: RaycastArgs) {
   const solid = true // TODO: Add option for this in args
   const groups = raycastQuery.flags
 
-  raycastQuery.hits = []
+  const hits = [] as RaycastHit[]
   let hitWithNormal = world.castRayAndGetNormal(ray, maxToi, solid, groups)
   if (hitWithNormal != null) {
-    raycastQuery.hits.push({
+    hits.push({
       distance: hitWithNormal.toi,
       position: ray.pointAt(hitWithNormal.toi),
       normal: hitWithNormal.normal,
       body: hitWithNormal.collider.parent() as RigidBody
     })
   }
+
+  ;(world as any).raycastDebugs.push({ raycastQuery, hits })
+
+  return hits
 }
 
 function castRayFromCamera(
