@@ -44,8 +44,12 @@ export const requestXRSession = createHookableFunction(
       xrState.sessionActive.set(true)
       if (mode === 'immersive-ar') EngineRenderer.instance.canvas.style.display = 'none'
       EngineRenderer.instance.xrSession = session
-      EngineRenderer.instance.xrManager.setSession(session)
+      EngineRenderer.instance.xrManager.setSession(session).then(() => {
+        const referenceSpaceOrigin = EngineRenderer.instance.xrManager.getReferenceSpace()
+        xrState.referenceSpaceOrigin.set(referenceSpaceOrigin)
+      })
       EngineRenderer.instance.xrManager.setFoveation(1)
+      xrState.sessionMode.set(mode)
 
       const world = Engine.instance.currentWorld
       setupXRInputSourceComponent(world.localClientEntity)
@@ -58,6 +62,7 @@ export const requestXRSession = createHookableFunction(
 
       const onSessionEnd = () => {
         xrState.sessionActive.set(false)
+        xrState.sessionMode.set('none')
         EngineRenderer.instance.canvas.style.display = ''
         EngineRenderer.instance.xrManager.removeEventListener('sessionend', onSessionEnd)
         EngineRenderer.instance.xrSession = null!

@@ -28,7 +28,9 @@ import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { AvatarCollisionMask, CollisionGroups } from '../../physics/enums/CollisionGroups'
 import { getInteractionGroups } from '../../physics/functions/getInteractionGroups'
 import { SceneQueryType } from '../../physics/types/PhysicsTypes'
+import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { TransformComponent } from '../../transform/components/TransformComponent'
+import { getControlMode, XRState } from '../../xr/XRState'
 import { AvatarSettings, rotateBodyTowardsCameraDirection, rotateBodyTowardsVector } from '../AvatarControllerSystem'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
@@ -160,6 +162,24 @@ export const moveLocalAvatar = (entity: Entity) => {
 
   // TODO: implement scene lower bounds parameter
   if (controller.body.translation().y < -10) respawnAvatar(entity)
+}
+
+const _vec3 = new Vector3()
+const _quat = new Quaternion()
+
+export const updateReferenceSpace = (entity: Entity) => {
+  const originRefSpace = getState(XRState).referenceSpaceOrigin.value
+  if (getControlMode() === 'attached' && originRefSpace) {
+    const avatarTransform = getComponent(entity, TransformComponent)
+    const avatarComponent = getComponent(entity, AvatarComponent)
+    _vec3.copy(avatarTransform.position)
+    _vec3.y += avatarComponent.avatarHeight * 0.95
+    _vec3.multiplyScalar(-1)
+    _quat.copy(avatarTransform.rotation).invert()
+    const xrRigidTransform = new XRRigidTransform(_vec3, _quat)
+    const offsetRefSpace = originRefSpace.getOffsetReferenceSpace(xrRigidTransform)!
+    EngineRenderer.instance.xrManager.setReferenceSpace(offsetRefSpace)
+  }
 }
 
 /**

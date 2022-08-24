@@ -34,6 +34,7 @@ import {
   moveLocalAvatar,
   moveXRAvatar,
   rotateXRAvatar,
+  updateReferenceSpace,
   xrCameraNeedsAlignment
 } from './functions/moveAvatar'
 import { respawnAvatar } from './functions/respawnAvatar'
