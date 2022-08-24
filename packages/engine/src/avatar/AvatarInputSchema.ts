@@ -571,10 +571,7 @@ export const createAvatarInput = () => {
   map.set(MouseInput.RightButton, BaseInput.SECONDARY)
   map.set(MouseInput.MiddleButton, BaseInput.INTERACT)
 
-  map.set(MouseInput.MouseMovement, BaseInput.MOUSE_MOVEMENT)
   map.set(MouseInput.MousePosition, BaseInput.SCREENXY)
-  map.set(MouseInput.MouseClickDownPosition, BaseInput.SCREENXY_START)
-  map.set(MouseInput.MouseClickDownTransformRotation, BaseInput.ROTATION_START)
   map.set(MouseInput.MouseClickDownMovement, BaseInput.LOOKTURN)
   map.set(MouseInput.MouseScroll, BaseInput.CAMERA_SCROLL)
 
@@ -603,10 +600,6 @@ export const createAvatarInput = () => {
 
   map.set(GamepadAxis.LTouchpad, BaseInput.MOVEMENT)
   map.set(GamepadAxis.RTouchpad, BaseInput.LOOKTURN)
-
-  map.set(XR6DOF.HMD, BaseInput.XR_HEAD)
-  map.set(XR6DOF.LeftHand, BaseInput.XR_CONTROLLER_LEFT_HAND)
-  map.set(XR6DOF.RightHand, BaseInput.XR_CONTROLLER_RIGHT_HAND)
 
   map.set('KeyW', BaseInput.FORWARD)
   map.set('ArrowUp', BaseInput.FORWARD)
