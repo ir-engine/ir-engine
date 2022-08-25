@@ -151,13 +151,18 @@ export const moveLocalAvatar = (entity: Entity) => {
     }
   }
 
-  if (hasComponent(entity, AvatarHeadDecapComponent) && getControlMode() !== 'attached') {
-    rotateBodyTowardsCameraDirection(entity)
-  } else {
-    const displacement = tempVec1
-      .subVectors(rigidBody.body.translation() as Vector3, rigidBody.previousPosition)
-      .setComponent(1, 0)
-    rotateBodyTowardsVector(entity, displacement)
+  /**
+   * if we are in attached mode, we dont need to do any extra rotation
+   */
+  if (getControlMode() !== 'attached') {
+    if (hasComponent(entity, AvatarHeadDecapComponent)) {
+      rotateBodyTowardsCameraDirection(entity)
+    } else {
+      const displacement = tempVec1
+        .subVectors(rigidBody.body.translation() as Vector3, rigidBody.previousPosition)
+        .setComponent(1, 0)
+      rotateBodyTowardsVector(entity, displacement)
+    }
   }
 
   // TODO: implement scene lower bounds parameter
@@ -172,6 +177,15 @@ export const updateReferenceSpace = (entity: Entity) => {
     const offsetRefSpace = refSpace.getOffsetReferenceSpace(xrRigidTransform.inverse)
     EngineRenderer.instance.xrManager.setReferenceSpace(offsetRefSpace)
   }
+}
+
+const _quat = new Quaternion()
+const _quat2 = new Quaternion()
+export const rotateAvatar = (entity: Entity, angle: number) => {
+  _quat.setFromAxisAngle(V_010, angle)
+  const rigidBody = getComponent(entity, RigidBodyComponent).body
+  _quat2.copy(rigidBody.rotation() as Quaternion).multiply(_quat)
+  rigidBody.setRotation(_quat2, true)
 }
 
 /**

@@ -73,7 +73,7 @@ import { AvatarSettings } from './AvatarControllerSystem'
 import { AvatarComponent } from './components/AvatarComponent'
 import { AvatarControllerComponent } from './components/AvatarControllerComponent'
 import { AvatarTeleportTagComponent } from './components/AvatarTeleportTagComponent'
-import { rotateXRCamera } from './functions/moveAvatar'
+import { rotateAvatar, rotateXRCamera } from './functions/moveAvatar'
 import { switchCameraMode } from './functions/switchCameraMode'
 import { accessAvatarInputSettingsState } from './state/AvatarInputSettingsState'
 
@@ -351,8 +351,8 @@ const changedDirection = (radian: number) => {
 const moveByInputAxis: InputBehaviorType = (entity: Entity, inputKey: InputAlias, inputValue: InputValue): void => {
   const controller = getComponent(entity, AvatarControllerComponent)
   if (inputValue.type === InputType.TWODIM) {
-    controller.localMovementDirection.z = inputValue.value[0]
-    controller.localMovementDirection.x = inputValue.value[1]
+    controller.localMovementDirection.x = -inputValue.value[0]
+    controller.localMovementDirection.z = -inputValue.value[1]
   } else if (inputValue.type === InputType.THREEDIM) {
     // TODO: check if this mapping correct
     controller.localMovementDirection.z = inputValue.value[2]
@@ -474,19 +474,10 @@ const lookByInputAxis: InputBehaviorType = (entity: Entity, inputKey: InputAlias
       )
     return
   }
-  console.log(inputKey, inputValue)
 
   // if vr, rotate the avatar
   if (getControlMode() === 'attached' && inputValue.value[0] !== 0) {
-    const quat = new Quaternion().setFromAxisAngle(V_010, inputValue.value[0] * 0.01)
-    const rigidBody = getComponent(entity, RigidBodyComponent).body
-    const quat2 = new Quaternion().copy(rigidBody.rotation() as Quaternion)
-    quat2.multiply(quat)
-    rigidBody.setRotation(quat2, true)
-    // getComponent(entity, TransformComponent).rotation.multiply(quat)
-    // const xrRigidTransform = new XRRigidTransform(V_000, quat)
-    // const offsetRefSpace = refSpace.getOffsetReferenceSpace(xrRigidTransform)
-    // EngineRenderer.instance.xrManager.setReferenceSpace(offsetRefSpace)
+    rotateAvatar(entity, inputValue.value[0] * 0.1)
   }
 }
 
