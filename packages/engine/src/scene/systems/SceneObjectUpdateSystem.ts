@@ -144,7 +144,10 @@ import {
   serializeRenderSettings,
   updateRenderSetting
 } from '../functions/loaders/RenderSettingsFunction'
-import { shouldDeserializeScenePreviewCamera } from '../functions/loaders/ScenePreviewCameraFunctions'
+import {
+  shouldDeserializeScenePreviewCamera,
+  updateCameraTransform
+} from '../functions/loaders/ScenePreviewCameraFunctions'
 import { updateShadow } from '../functions/loaders/ShadowFunctions'
 import {
   deserializeSkybox,
@@ -527,5 +530,6 @@ export default async function SceneObjectUpdateSystem(world: World) {
     for (const entity of renderSettingsQuery.enter()) updateRenderSetting(entity)
     for (const entity of postProcessingQuery.enter()) configureEffectComposer()
     for (const entity of cameraPropertiesQuery.enter()) updateCameraProperties(entity)
+    for (const entity of ScenePreviewCameraTagQuery.enter()) updateCameraTransform(entity)
   }
 }
