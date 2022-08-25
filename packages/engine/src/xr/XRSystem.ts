@@ -5,11 +5,9 @@ import { createActionQueue, dispatchAction, getState } from '@xrengine/hyperflux
 
 import { AvatarComponent } from '../avatar/components/AvatarComponent'
 import { AvatarHeadDecapComponent } from '../avatar/components/AvatarHeadDecapComponent'
-import { rotateAvatar } from '../avatar/functions/moveAvatar'
 import { FollowCameraComponent } from '../camera/components/FollowCameraComponent'
 import { V_010 } from '../common/constants/MathConstants'
 import { GamepadAxis } from '../input/enums/InputEnums'
-import { Object3DComponent } from '../scene/components/Object3DComponent'
 import { SkyboxComponent } from '../scene/components/SkyboxComponent'
 import { updateSkybox } from '../scene/functions/loaders/SkyboxFunctions'
 import { AssetLoader } from './../assets/classes/AssetLoader'
@@ -71,7 +69,6 @@ export const requestXRSession = createHookableFunction(
        */
       const { modelContainer } = getComponent(world.localClientEntity, AvatarComponent)
       modelContainer.applyQuaternion(rot180Y)
-      rotateAvatar(world.localClientEntity, Math.PI)
 
       if (mode === 'immersive-ar') world.scene.background = null
 
@@ -90,7 +87,6 @@ export const requestXRSession = createHookableFunction(
          */
         const { modelContainer } = getComponent(world.localClientEntity, AvatarComponent)
         modelContainer.applyQuaternion(rot180Y)
-        rotateAvatar(world.localClientEntity, Math.PI)
 
         cleanXRInputs(world.localClientEntity)
         removeComponent(world.localClientEntity, XRInputSourceComponent)

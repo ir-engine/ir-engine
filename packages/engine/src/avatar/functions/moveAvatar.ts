@@ -1,16 +1,14 @@
 import { Collider } from '@dimforge/rapier3d-compat'
-import { OrthographicCamera, PerspectiveCamera, Quaternion, Vector3 } from 'three'
+import { PerspectiveCamera, Quaternion, Vector3 } from 'three'
 
 import { getState } from '@xrengine/hyperflux'
 
 import { Direction } from '../../common/constants/Axis3D'
 import { V_010 } from '../../common/constants/MathConstants'
 import checkPositionIsValid from '../../common/functions/checkPositionIsValid'
-import { rotate } from '../../common/functions/MathFunctions'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
-import { World } from '../../ecs/classes/World'
 import { getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { Physics } from '../../physics/classes/Physics'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
@@ -25,16 +23,12 @@ import { AvatarSettings, rotateBodyTowardsCameraDirection, rotateBodyTowardsVect
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
 import { AvatarHeadDecapComponent } from '../components/AvatarHeadDecapComponent'
-import { getAvatarBoneWorldPosition } from './avatarFunctions'
 import { avatarRadius } from './createAvatar'
 import { respawnAvatar } from './respawnAvatar'
 
-const forward = new Vector3(0, 0, 1)
-
-const quat = new Quaternion()
-const tempVec1 = new Vector3()
-const tempVec2 = new Vector3()
-const tempVec3 = new Vector3()
+const _vec3 = new Vector3()
+const _quat = new Quaternion()
+const _quat2 = new Quaternion()
 
 export const avatarCameraOffset = new Vector3(0, 0.14, 0.1)
 
@@ -58,6 +52,10 @@ const avatarStepRaycast = {
   flags: getInteractionGroups(CollisionGroups.Avatars, AvatarCollisionMask)
 }
 
+/**
+ * moves the avatar according to physics contacts, velocity, gravity and step testing
+ * @param entity
+ */
 export const moveLocalAvatar = (entity: Entity) => {
   const camera = Engine.instance.currentWorld.camera
   const timeStep = getState(EngineState).fixedDeltaSeconds.value
@@ -80,9 +78,9 @@ export const moveLocalAvatar = (entity: Entity) => {
   for (const otherCollider of collidersInContactWithFeet) {
     physicsWorld.contactPair(controller.bodyCollider, otherCollider, (manifold, flipped) => {
       if (manifold.numContacts() > 0) {
-        tempVec1.copy(manifold.normal() as Vector3)
-        if (!flipped) tempVec1.normalize().negate()
-        const angle = tempVec1.angleTo(V_010)
+        _vec3.copy(manifold.normal() as Vector3)
+        if (!flipped) _vec3.normalize().negate()
+        const angle = _vec3.angleTo(V_010)
         if (angle < stepAngle) onGround = true
       }
     })
@@ -94,8 +92,8 @@ export const moveLocalAvatar = (entity: Entity) => {
   /**
    * Do movement via velocity spring and collider velocity
    */
-  const cameraDirection = camera.getWorldDirection(tempVec1).setY(0).normalize()
-  const forwardOrientation = quat.setFromUnitVectors(forward, cameraDirection)
+  const cameraDirection = camera.getWorldDirection(_vec3).setY(0).normalize()
+  const forwardOrientation = _quat.setFromUnitVectors(Direction.Forward, cameraDirection)
 
   controller.velocitySimulator.target.copy(controller.localMovementDirection)
   controller.velocitySimulator.simulate(timeStep * (onGround ? 1 : 0.2))
@@ -106,7 +104,7 @@ export const moveLocalAvatar = (entity: Entity) => {
     controller.isWalking || isInVR ? AvatarSettings.instance.walkSpeed : AvatarSettings.instance.runSpeed
 
   const prevVelocity = controller.body.linvel()
-  const currentVelocity = tempVec1
+  const currentVelocity = _vec3
     .copy(velocitySpringDirection)
     .multiplyScalar(controller.currentSpeed)
     .applyQuaternion(forwardOrientation)
@@ -137,7 +135,7 @@ export const moveLocalAvatar = (entity: Entity) => {
     if (hasComponent(entity, AvatarHeadDecapComponent)) {
       rotateBodyTowardsCameraDirection(entity)
     } else {
-      const displacement = tempVec1
+      const displacement = _vec3
         .subVectors(rigidBody.body.translation() as Vector3, rigidBody.previousPosition)
         .setComponent(1, 0)
       rotateBodyTowardsVector(entity, displacement)
@@ -147,7 +145,7 @@ export const moveLocalAvatar = (entity: Entity) => {
   /**
    * Step over small obstacles
    */
-  const xzVelocity = tempVec1.copy(velocitySpringDirection).setY(0)
+  const xzVelocity = _vec3.copy(velocitySpringDirection).setY(0)
   const xzVelocitySqrMagnitude = xzVelocity.lengthSq()
   if (xzVelocitySqrMagnitude > minimumStepSpeed) {
     // TODO this can be improved by using a shapeCast with a plane instead of a line
@@ -161,8 +159,8 @@ export const moveLocalAvatar = (entity: Entity) => {
     const hits = Physics.castRay(Engine.instance.currentWorld.physicsWorld, avatarStepRaycast)
 
     if (hits.length) {
-      tempVec1.copy(hits[0].normal as Vector3)
-      const angle = tempVec1.angleTo(V_010)
+      _vec3.copy(hits[0].normal as Vector3)
+      const angle = _vec3.angleTo(V_010)
       if (angle < stepAngle) {
         const pos = controller.body.translation()
         pos.y += stepHeight - hits[0].distance
@@ -175,6 +173,10 @@ export const moveLocalAvatar = (entity: Entity) => {
   if (controller.body.translation().y < -10) respawnAvatar(entity)
 }
 
+/**
+ * Updates the WebXR reference space, effectively moving the world to be in alignment with where the viewer should be seeing it.
+ * @param entity
+ */
 export const updateReferenceSpace = (entity: Entity) => {
   const refSpace = getState(XRState).originReferenceSpace.value
   if (getControlMode() === 'attached' && refSpace) {
@@ -187,170 +189,16 @@ export const updateReferenceSpace = (entity: Entity) => {
   }
 }
 
-const _quat = new Quaternion()
-const _quat2 = new Quaternion()
+/**
+ * Rotates the avatar's rigidbody around the Y axis by a given entity
+ * @param entity
+ * @param angle
+ */
 export const rotateAvatar = (entity: Entity, angle: number) => {
   _quat.setFromAxisAngle(V_010, angle)
   const rigidBody = getComponent(entity, RigidBodyComponent).body
   _quat2.copy(rigidBody.rotation() as Quaternion).multiply(_quat)
   rigidBody.setRotation(_quat2, true)
-}
-
-/**
- * Rotates the avatar horizontally using HMD rotation
- *
- * @param world
- * @param entity
- * @param camera
- */
-export const rotateXRAvatar = (world: World, entity: Entity, camera: PerspectiveCamera | OrthographicCamera) => {
-  const avatarTransform = getComponent(entity, TransformComponent)
-
-  const avatarFwd = tempVec1.set(0, 0, 1).applyQuaternion(avatarTransform.rotation).setY(0).normalize()
-  const camFwd = tempVec2.set(0, 0, -1).applyQuaternion(camera.quaternion).setY(0).normalize()
-
-  const angle = Math.acos(avatarFwd.dot(camFwd))
-  const clamp = Math.PI * 0.5
-
-  quat.identity()
-
-  if (angle > clamp) {
-    const deltaTarget = tempVec3.subVectors(camFwd, avatarFwd)
-    // clamp delta target to within the ratio
-    deltaTarget.multiplyScalar(clamp / angle)
-    // set new target
-    deltaTarget.add(avatarFwd).normalize()
-
-    quat.setFromUnitVectors(deltaTarget, camFwd)
-
-    avatarTransform.rotation.premultiply(quat)
-  }
-
-  tempVec1.subVectors(avatarTransform.position, camera.position).applyQuaternion(quat).add(camera.position)
-  tempVec2.subVectors(tempVec1, avatarTransform.position).setY(0)
-
-  // const displacement = new Vector3(tempVec2.x, 0, tempVec2.z)
-
-  // Rotate around camera
-  // moveAvatarController(entity, displacement)
-}
-
-const vec3 = new Vector3()
-
-/**
- * Rotates the camera when in XR mode by a given amount
- * @param {Entity} entity
- * @param {number} amount
- */
-export const rotateXRCamera = (amount: number) => {
-  const cameraParentRotation = Engine.instance.currentWorld.camera.parent?.rotation
-  if (cameraParentRotation) {
-    vec3.copy(Direction.Up).multiplyScalar(amount)
-    const quat = new Quaternion().copy(Engine.instance.currentWorld.camera.parent!.quaternion)
-    rotate(quat, vec3.x, vec3.y, vec3.z)
-    cameraParentRotation.setFromQuaternion(quat)
-  }
-}
-
-/**
- * Returns offset position from avatar neck bone
- *
- * @param entity
- * @param offset In, offset from neck
- * @param position Out, offset position
- */
-export const getAvatarNeckOffsetPosition = (entity: Entity, offset: Vector3, position: Vector3) => {
-  getAvatarBoneWorldPosition(entity, 'Neck', position)
-  const avatarTransform = getComponent(entity, TransformComponent)
-  tempVec2.copy(offset)
-  tempVec2.applyQuaternion(avatarTransform.rotation)
-  position.add(tempVec2)
-}
-
-/**
- * NOTE: Use this function alongwith XRCameraUpdatePendingTagComponent always
- * Aligns the XR camra position with the avatar's neck
- * Note: There is a delay from when the camera parent's position is set and
- * the camera position is updated
- * @param entity
- * @param camera
- */
-export const alignXRCameraPositionWithAvatar = (entity: Entity, camera: PerspectiveCamera | OrthographicCamera) => {
-  const cameraContainerPos = camera.parent!.position
-  tempVec1.subVectors(cameraContainerPos, camera.position)
-  tempVec2.copy(avatarCameraOffset)
-  getAvatarNeckOffsetPosition(entity, tempVec2, cameraContainerPos)
-  cameraContainerPos.add(tempVec1)
-}
-
-/**
- * NOTE: Use this function alongwith XRCameraUpdatePendingTagComponent always
- * Aligns the XR camra rotation with the avatar's forward vector
- * @param entity
- * @param camera
- */
-export const alignXRCameraRotationWithAvatar = (entity: Entity, camera: PerspectiveCamera | OrthographicCamera) => {
-  const avatarTransform = getComponent(entity, TransformComponent)
-  const camParentRot = camera.parent!.quaternion
-  tempVec1.set(0, 0, 1).applyQuaternion(Engine.instance.currentWorld.camera.quaternion).setY(0).normalize()
-  quat.setFromUnitVectors(tempVec2.set(0, 0, 1), tempVec1).invert()
-  tempVec1.set(0, 0, -1).applyQuaternion(avatarTransform.rotation).setY(0).normalize()
-  camParentRot.setFromUnitVectors(tempVec2.set(0, 0, 1), tempVec1).multiply(quat)
-}
-
-export const xrCameraNeedsAlignment = (
-  entity: Entity,
-  camera: PerspectiveCamera | OrthographicCamera,
-  thresholdSq: number = 0.1
-): boolean => {
-  const avatarPosition = tempVec1
-  getAvatarNeckOffsetPosition(entity, avatarCameraOffset, avatarPosition)
-  return avatarPosition.subVectors(avatarPosition, camera.position).lengthSq() > thresholdSq
-}
-
-export const alignXRCameraWithAvatar = (
-  entity: Entity,
-  camera: PerspectiveCamera | OrthographicCamera,
-  lastCameraPos: Vector3
-): void => {
-  lastCameraPos.subVectors(camera.position, camera.parent!.position)
-
-  // if (!hasComponent(entity, XRCameraUpdatePendingTagComponent)) {
-  //   alignXRCameraPositionWithAvatar(entity, camera)
-  //   addComponent(entity, XRCameraUpdatePendingTagComponent, {})
-  // }
-
-  // Calculate new camera world position
-  lastCameraPos.add(camera.parent!.position)
-}
-
-/**
- * Moves the avatar using camera displacement
- * @param world
- * @param entity
- * @param camera
- * @param lastCameraPos Out, last frame camera position
- * @returns
- */
-export const moveXRAvatar = (
-  world: World,
-  entity: Entity,
-  camera: PerspectiveCamera | OrthographicCamera,
-  lastCameraPos: Vector3
-): void => {
-  const cameraPosition = camera.position
-  const avatarPosition = tempVec1
-  getAvatarNeckOffsetPosition(entity, avatarCameraOffset, avatarPosition)
-
-  avatarPosition.subVectors(cameraPosition, lastCameraPos)
-  lastCameraPos.copy(cameraPosition)
-
-  const displacement = new Vector3(avatarPosition.x, 0, avatarPosition.z)
-  const dl = displacement.lengthSq()
-  // Limit the distance traveled in a frame
-  if (displacement.lengthSq() > 1.0 || dl <= Number.EPSILON) return
-
-  // moveAvatarController(entity, displacement)
 }
 
 /**

@@ -20,7 +20,6 @@ import { LocalInputTagComponent } from '../input/components/LocalInputTagCompone
 import { BaseInput } from '../input/enums/BaseInput'
 import { AvatarMovementScheme, GamepadAxis } from '../input/enums/InputEnums'
 import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
-import { VelocityComponent } from '../physics/components/VelocityComponent'
 import { PersistTagComponent } from '../scene/components/PersistTagComponent'
 import { setComputedTransformComponent } from '../transform/components/ComputedTransformComponent'
 import { setTransformComponent, TransformComponent } from '../transform/components/TransformComponent'
@@ -29,15 +28,7 @@ import { AvatarInputSchema } from './AvatarInputSchema'
 import { AvatarComponent } from './components/AvatarComponent'
 import { AvatarControllerComponent } from './components/AvatarControllerComponent'
 import { AvatarHeadDecapComponent } from './components/AvatarHeadDecapComponent'
-import {
-  alignXRCameraWithAvatar,
-  moveLocalAvatar,
-  moveXRAvatar,
-  rotateXRAvatar,
-  updateReferenceSpace,
-  xrCameraNeedsAlignment
-} from './functions/moveAvatar'
-import { respawnAvatar } from './functions/respawnAvatar'
+import { moveLocalAvatar } from './functions/moveAvatar'
 import { accessAvatarInputSettingsState, AvatarInputSettingsReceptor } from './state/AvatarInputSettingsState'
 
 /**
@@ -107,27 +98,6 @@ export default async function AvatarControllerSystem(world: World) {
         else removeComponent(entity, AvatarHeadDecapComponent)
       }
     }
-
-    // for (const entity of localXRInputQuery.enter(world)) {
-    //   isLocalXRCameraReady = false
-    // }
-
-    // for (const entity of localXRInputQuery(world)) {
-    //   const { camera } = Engine.instance.currentWorld
-
-    //   if (displacement.lengthSq() > 0 || xrCameraNeedsAlignment(entity, camera)) {
-    //     alignXRCameraWithAvatar(entity, camera, lastCamPos)
-    //     continue
-    //   }
-
-    //   if (!isLocalXRCameraReady) {
-    //     alignXRInputContainerYawWithAvatar(entity)
-    //     isLocalXRCameraReady = true
-    //   }
-
-    //   moveXRAvatar(world, entity, Engine.instance.currentWorld.camera, lastCamPos)
-    //   rotateXRAvatar(world, entity, Engine.instance.currentWorld.camera)
-    // }
 
     const controller = getComponent(Engine.instance.currentWorld.localClientEntity, AvatarControllerComponent)
     if (controller?.movementEnabled) {
