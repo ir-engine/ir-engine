@@ -55,7 +55,7 @@ Guest Demos
 Host Demos 
 
 - [XRE Admin Console - Demo Cluster - Request Demo Access on our Discord](https://demo.etherealengine.com/admin)
-- [XRE XRModule Asset Editor - Demo Cluster - Request Demo Access on our Discord](https://demo.etherealengine.com/edior)
+- [XRE XRModule Asset Editor - Demo Cluster - Request Demo Access on our Discord](https://demo.etherealengine.com/editor)
 
 ## XRE XRModule
 
