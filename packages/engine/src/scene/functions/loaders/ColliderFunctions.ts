@@ -86,7 +86,17 @@ export const updateCollider: ComponentUpdateFunction = (entity: Entity) => {
       Engine.instance.currentWorld.physicsWorld.removeCollider(rigidbody.collider(0), true)
     const colliderDesc = createColliderDescFromScale(colliderComponent.shapeType, transform.scale)
     colliderDesc.setSensor(colliderComponent.isTrigger)
-    Physics.applyDescToCollider(colliderDesc, { type: colliderComponent.shapeType }, new Vector3(), new Quaternion())
+    Physics.applyDescToCollider(
+      colliderDesc,
+      {
+        type: colliderComponent.shapeType,
+        isTrigger: colliderComponent.isTrigger,
+        collisionLayer: colliderComponent.collisionLayer,
+        collisionMask: colliderComponent.collisionMask
+      },
+      new Vector3(),
+      new Quaternion()
+    )
     Engine.instance.currentWorld.physicsWorld.createCollider(colliderDesc, rigidbody)
   }
 }
