@@ -1,4 +1,5 @@
 import { useHookstate } from '@hookstate/core'
+import { cloneDeep } from 'lodash'
 import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
@@ -11,12 +12,14 @@ import CheckIcon from '@mui/icons-material/Check'
 import CloseIcon from '@mui/icons-material/Close'
 import HowToRegIcon from '@mui/icons-material/HowToReg'
 import MessageIcon from '@mui/icons-material/Message'
+import { Typography } from '@mui/material'
 import Avatar from '@mui/material/Avatar'
 import Chip from '@mui/material/Chip'
 import IconButton from '@mui/material/IconButton'
 import Tab from '@mui/material/Tab'
 import Tabs from '@mui/material/Tabs'
 
+import { NotificationService } from '../../../../common/services/NotificationService'
 import { FriendService, useFriendState } from '../../../../social/services/FriendService'
 import { useAuthState } from '../../../services/AuthService'
 import { UserService, useUserState } from '../../../services/UserService'
@@ -55,7 +58,7 @@ const FriendsMenu = ({ changeActiveMenu }: Props): JSX.Element => {
   const displayList: Array<UserInterface> = []
 
   if (selectedTab === 'friends') {
-    displayList.push(...friendState.relationships.requested.value)
+    displayList.push(...friendState.relationships.pending.value)
     displayList.push(...friendState.relationships.friend.value)
   } else if (selectedTab === 'blocked') {
     displayList.push(...friendState.relationships.blocking.value)
@@ -64,11 +67,17 @@ const FriendsMenu = ({ changeActiveMenu }: Props): JSX.Element => {
       (layerUser) =>
         layerUser.id !== userId &&
         !friendState.relationships.friend.value.find((item) => item.id === layerUser.id) &&
-        !friendState.relationships.requested.value.find((item) => item.id === layerUser.id) &&
+        !friendState.relationships.pending.value.find((item) => item.id === layerUser.id) &&
         !friendState.relationships.blocked.value.find((item) => item.id === layerUser.id) &&
         !friendState.relationships.blocking.value.find((item) => item.id === layerUser.id)
     )
-    displayList.push(...nearbyUsers)
+    displayList.push(...cloneDeep(nearbyUsers))
+
+    displayList.forEach((layerUser) => {
+      if (friendState.relationships.requested.value.find((item) => item.id === layerUser.id)) {
+        layerUser.relationType = 'requested'
+      }
+    })
   }
 
   return (
@@ -88,27 +97,47 @@ const FriendsMenu = ({ changeActiveMenu }: Props): JSX.Element => {
               <span className={styles.friendName}>{value.name}</span>
 
               {value.relationType === 'friend' && (
-                <IconButton className={styles.filledBtn} title={t('user:friends.message')}>
+                <IconButton
+                  className={styles.filledBtn}
+                  title={t('user:friends.message')}
+                  onClick={() => NotificationService.dispatchNotify('Chat Pressed', { variant: 'info' })}
+                >
                   <MessageIcon />
                 </IconButton>
               )}
 
-              {value.relationType === 'requested' && (
+              {value.relationType === 'pending' && (
                 <>
                   <Chip className={styles.chip} label={t('user:friends.pending')} size="small" variant="outlined" />
 
-                  <IconButton className={styles.filledBtn} title={t('user:friends.accept')}>
+                  <IconButton
+                    className={styles.filledBtn}
+                    title={t('user:friends.accept')}
+                    onClick={() => FriendService.acceptFriend(userId, value.id)}
+                  >
                     <CheckIcon />
                   </IconButton>
 
-                  <IconButton className={styles.filledBtn} title={t('user:friends.decline')}>
+                  <IconButton
+                    className={styles.filledBtn}
+                    title={t('user:friends.decline')}
+                    onClick={() => FriendService.declineFriend(userId, value.id)}
+                  >
                     <CloseIcon />
                   </IconButton>
                 </>
               )}
 
+              {value.relationType === 'requested' && (
+                <Chip className={styles.chip} label={t('user:friends.requested')} size="small" variant="outlined" />
+              )}
+
               {value.relationType === 'blocking' && (
-                <IconButton className={styles.filledBtn} title={t('user:friends.unblock')}>
+                <IconButton
+                  className={styles.filledBtn}
+                  title={t('user:friends.unblock')}
+                  onClick={() => FriendService.unblockUser(userId, value.id)}
+                >
                   <HowToRegIcon />
                 </IconButton>
               )}
@@ -122,6 +151,11 @@ const FriendsMenu = ({ changeActiveMenu }: Props): JSX.Element => {
               </IconButton>
             </div>
           ))}
+          {displayList.length === 0 && (
+            <Typography className={styles.noUsers} variant="body2">
+              {t('user:friends.noUsers')}
+            </Typography>
+          )}
         </div>
       </div>
     </div>

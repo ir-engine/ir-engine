@@ -1,18 +1,13 @@
-import { Paginated } from '@feathersjs/feathers'
-import { none } from '@hookstate/core'
 import { useEffect } from 'react'
 
 import { Relationship } from '@xrengine/common/src/interfaces/Relationship'
 import { UserInterface } from '@xrengine/common/src/interfaces/User'
-import { UserRelationship } from '@xrengine/common/src/interfaces/UserRelationship'
 import multiLogger from '@xrengine/common/src/logger'
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
 import { API } from '../../API'
-import { NotificationService } from '../../common/services/NotificationService'
 import { accessAuthState } from '../../user/services/AuthService'
-import { UserAction } from '../../user/services/UserService'
 
 const logger = multiLogger.child({ component: 'client-core:FriendService' })
 
@@ -24,7 +19,8 @@ const FriendState = defineState({
       blocked: [] as Array<UserInterface>,
       blocking: [] as Array<UserInterface>,
       friend: [] as Array<UserInterface>,
-      requested: [] as Array<UserInterface>
+      requested: [] as Array<UserInterface>,
+      pending: [] as Array<UserInterface>
     },
     isFetching: false,
     updateNeeded: true
@@ -42,49 +38,13 @@ export const FriendServiceReceptor = (action) => {
         blocked: action.relationships.blocked,
         blocking: action.relationships.blocking,
         friend: action.relationships.friend,
-        requested: action.relationships.requested
+        requested: action.relationships.requested,
+        pending: action.relationships.pending
       })
       s.updateNeeded.set(false)
       s.isFetching.set(false)
       return
     })
-  // .when(FriendAction.createdFriendAction.matches, (action) => {
-  //   let newValues
-  //   newValues = action
-  //   const createdUserRelationship = newValues.userRelationship
-  //   return s.friends.friends.set([...s.friends.friends.value, createdUserRelationship])
-  // })
-  // .when(FriendAction.patchedFriendAction.matches, (action) => {
-  //   let newValues, selfUser, otherUser
-  //   newValues = action
-  //   const patchedUserRelationship = newValues.userRelationship
-  //   selfUser = newValues.selfUser
-  //   otherUser =
-  //     patchedUserRelationship.userId === selfUser.id
-  //       ? patchedUserRelationship.relatedUser
-  //       : patchedUserRelationship.user
-
-  //   const patchedFriendIndex = s.friends.friends.value.findIndex((friendItem) => {
-  //     return friendItem != null && friendItem.id === otherUser.id
-  //   })
-  //   if (patchedFriendIndex === -1) {
-  //     return s.friends.friends.set([...s.friends.friends.value, otherUser])
-  //   } else {
-  //     return s.friends.friends[patchedFriendIndex].set(otherUser)
-  //   }
-  // })
-  // .when(FriendAction.removedFriendAction.matches, (action) => {
-  //   const otherUserId =
-  //     action.userRelationship.userId === action.selfUser.id
-  //       ? action.userRelationship.relatedUserId
-  //       : action.userRelationship.userId
-
-  //   const friendId = s.friends.friends.value.findIndex((friendItem) => {
-  //     return friendItem != null && friendItem.id === otherUserId
-  //   })
-
-  //   return s.friends.friends[friendId].set(none)
-  // })
 }
 
 export const accessFriendState = () => getState(FriendState)
@@ -110,9 +70,6 @@ export const FriendService = {
   requestFriend: (userId: string, relatedUserId: string) => {
     return createRelation(userId, relatedUserId, 'requested')
   },
-  blockUser: (userId: string, relatedUserId: string) => {
-    return createRelation(userId, relatedUserId, 'blocking')
-  },
   acceptFriend: async (userId: string, relatedUserId: string) => {
     try {
       await API.instance.client.service('user-relationship').patch(relatedUserId, {
@@ -130,56 +87,27 @@ export const FriendService = {
   unfriend: (userId: string, relatedUserId: string) => {
     return removeRelation(userId, relatedUserId)
   },
+  blockUser: (userId: string, relatedUserId: string) => {
+    return createRelation(userId, relatedUserId, 'blocking')
+  },
+  unblockUser: (userId: string, relatedUserId: string) => {
+    return removeRelation(userId, relatedUserId)
+  },
   useAPIListeners: () => {
     useEffect(() => {
-      const userRelationshipCreatedListener = (params) => {
-        if (params.userRelationship.userRelationshipType === 'friend') {
-          dispatchAction(FriendAction.createdFriendAction({ userRelationship: params.userRelationship }))
-        }
-      }
-
-      const userRelationshipPatchedListener = (params) => {
-        const patchedUserRelationship = params.userRelationship
+      const userRelationshipListener = () => {
         const selfUser = accessAuthState().user
-        if (patchedUserRelationship.userRelationshipType === 'friend') {
-          dispatchAction(
-            FriendAction.patchedFriendAction({ userRelationship: patchedUserRelationship, selfUser: selfUser.value })
-          )
-          if (
-            patchedUserRelationship.user.channelInstanceId != null &&
-            patchedUserRelationship.user.channelInstanceId === selfUser.channelInstanceId.value
-          )
-            dispatchAction(UserAction.addedChannelLayerUserAction({ user: patchedUserRelationship.user }))
-          if (patchedUserRelationship.user.channelInstanceId !== selfUser.channelInstanceId.value)
-            dispatchAction(UserAction.removedChannelLayerUserAction({ user: patchedUserRelationship.user }))
-        }
+        FriendService.getUserRelationship(selfUser.id.value)
       }
 
-      const userRelationshipRemovedListener = (params) => {
-        const deletedUserRelationship = params.userRelationship
-        const selfUser = accessAuthState().user
-        if (deletedUserRelationship.userRelationshipType === 'friend') {
-          dispatchAction(
-            FriendAction.removedFriendAction({ userRelationship: deletedUserRelationship, selfUser: selfUser.value })
-          )
-          if (
-            deletedUserRelationship.user.channelInstanceId != null &&
-            deletedUserRelationship.user.channelInstanceId === selfUser.channelInstanceId.value
-          )
-            dispatchAction(UserAction.addedChannelLayerUserAction({ user: deletedUserRelationship.user }))
-          if (deletedUserRelationship.user.channelInstanceId !== selfUser.channelInstanceId.value)
-            dispatchAction(UserAction.removedChannelLayerUserAction({ user: deletedUserRelationship.user }))
-        }
-      }
-
-      API.instance.client.service('user-relationship').on('created', userRelationshipCreatedListener)
-      API.instance.client.service('user-relationship').on('patched', userRelationshipPatchedListener)
-      API.instance.client.service('user-relationship').on('removed', userRelationshipRemovedListener)
+      API.instance.client.service('user-relationship').on('created', userRelationshipListener)
+      API.instance.client.service('user-relationship').on('patched', userRelationshipListener)
+      API.instance.client.service('user-relationship').on('removed', userRelationshipListener)
 
       return () => {
-        API.instance.client.service('user-relationship').off('created', userRelationshipCreatedListener)
-        API.instance.client.service('user-relationship').off('patched', userRelationshipPatchedListener)
-        API.instance.client.service('user-relationship').off('removed', userRelationshipRemovedListener)
+        API.instance.client.service('user-relationship').off('created', userRelationshipListener)
+        API.instance.client.service('user-relationship').off('patched', userRelationshipListener)
+        API.instance.client.service('user-relationship').off('removed', userRelationshipListener)
       }
     }, [])
   }
@@ -217,22 +145,5 @@ export class FriendAction {
   static loadedFriendsAction = defineAction({
     type: 'LOADED_FRIENDS' as const,
     relationships: matches.object as Validator<unknown, Relationship>
-  })
-
-  static createdFriendAction = defineAction({
-    type: 'CREATED_FRIEND' as const,
-    userRelationship: matches.object as Validator<unknown, UserRelationship>
-  })
-
-  static patchedFriendAction = defineAction({
-    type: 'PATCHED_FRIEND' as const,
-    userRelationship: matches.object as Validator<unknown, UserRelationship>,
-    selfUser: matches.object as Validator<unknown, UserInterface>
-  })
-
-  static removedFriendAction = defineAction({
-    type: 'REMOVED_FRIEND' as const,
-    userRelationship: matches.object as Validator<unknown, UserRelationship>,
-    selfUser: matches.object as Validator<unknown, UserInterface>
   })
 }

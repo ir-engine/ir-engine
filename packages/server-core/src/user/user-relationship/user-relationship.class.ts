@@ -90,12 +90,12 @@ export class UserRelationship<T = UserRelationshipDataType> extends Service<T> {
         }
       )
 
-      if (userRelationshipType === 'blocking') {
+      if (userRelationshipType === 'blocking' || userRelationshipType === 'requested') {
         result = await UserRelationshipModel.create(
           {
             userId: relatedUserId,
             relatedUserId: userId,
-            userRelationshipType: 'blocked'
+            userRelationshipType: userRelationshipType === 'blocking' ? 'blocked' : 'pending'
           },
           {
             transaction: trans
@@ -146,11 +146,15 @@ export class UserRelationship<T = UserRelationshipDataType> extends Service<T> {
           where: whereParams
         })
 
-        await UserRelationshipModel.create(
+        await UserRelationshipModel.update(
           {
-            userId: result.relatedUserId,
-            relatedUserId: result.userId,
             userRelationshipType: 'friend'
+          },
+          {
+            where: {
+              userId: result.relatedUserId,
+              relatedUserId: result.userId
+            }
           },
           {
             transaction: trans

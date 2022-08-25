@@ -1979,6 +1979,10 @@
     &:hover {
       opacity: 0.8;
     }
+
+    &:disabled {
+      opacity: 0.7 !important;
+    }
   }
 }
 
@@ -2532,7 +2536,8 @@
 .friendsPanel {
   .friendsList {
     margin: 30px;
-    height: 400px;
+    max-height: 400px;
+    height: 200px;
     overflow: auto;
   }
 
@@ -2563,6 +2568,12 @@
     &:hover {
       opacity: 0.8;
     }
+  }
+
+  .noUsers {
+    text-align: center;
+    margin-top: 20px;
+    color: var(--textColor);
   }
 }
 

@@ -371,8 +371,13 @@
   "personMenu": {
     "inviteToParty": "Invite To Party",
     "addAsFriend": "Add As Friend",
+    "requestSent": "Friend Request Sent",
+    "unFriend": "Unfriend",
+    "acceptRequest": "Accept Request",
+    "declineRequest": "Decline Request",
     "mute": "Mute",
-    "block": "Block"
+    "block": "Block",
+    "unblock": "Unblock"
   },
   "person": {
     "you": "You",
@@ -393,6 +398,8 @@
     "accept": "Accept",
     "decline": "Decline",
     "unblock": "Unblock",
-    "pending": "Pending"
+    "pending": "Pending",
+    "requested": "Requested",
+    "noUsers": "No users to display"
   }
 }

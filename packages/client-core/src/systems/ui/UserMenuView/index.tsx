@@ -10,7 +10,7 @@ import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
 import { useXRUIState } from '@xrengine/engine/src/xrui/functions/useXRUIState'
 import { getState } from '@xrengine/hyperflux'
 
-import { FriendService } from '../../../social/services/FriendService'
+import { FriendService, useFriendState } from '../../../social/services/FriendService'
 import { InviteService } from '../../../social/services/InviteService'
 import { PartyService, usePartyState } from '../../../social/services/PartyService'
 import { getAvatarURLForUser } from '../../../user/components/UserMenu/util'
@@ -38,6 +38,7 @@ const AvatarContextMenu = () => {
   const engineState = useEngineState()
   const userState = useUserState()
   const partyState = usePartyState()
+  const friendState = useFriendState()
 
   const authState = useAuthState()
   const selfId = authState.user.id?.value ?? ''
@@ -50,22 +51,15 @@ const AvatarContextMenu = () => {
     ? partyState.party.partyUsers.value.find((partyUser) => partyUser.isOwner)
     : null
 
+  const isFriend = friendState.relationships.friend.value.find((item) => item.id === user?.id.value)
+  const isRequested = friendState.relationships.requested.value.find((item) => item.id === user?.id.value)
+  const isPending = friendState.relationships.pending.value.find((item) => item.id === user?.id.value)
+  const isBlocked = friendState.relationships.blocked.value.find((item) => item.id === user?.id.value)
+  const isBlocking = friendState.relationships.blocking.value.find((item) => item.id === user?.id.value)
+
   // TODO: move these to widget register
   PartyService.useAPIListeners()
-
-  const blockUser = () => {
-    if (user) {
-      const blockUserId = user.id?.value ?? ''
-      FriendService.blockUser(selfId, blockUserId)
-    }
-  }
-
-  const addAsFriend = () => {
-    if (user) {
-      const blockUserId = user.id?.value ?? ''
-      FriendService.requestFriend(selfId, blockUserId)
-    }
-  }
+  FriendService.useAPIListeners()
 
   const inviteToParty = () => {
     if (authState.user?.partyId?.value && user?.id?.value) {
@@ -109,9 +103,46 @@ const AvatarContextMenu = () => {
                 user.partyId.value !== partyState.party?.id?.value && (
                   <XRTextButton onClick={inviteToParty}>{t('user:personMenu.inviteToParty')}</XRTextButton>
                 )}
-              <XRTextButton onClick={addAsFriend}>{t('user:personMenu.addAsFriend')}</XRTextButton>
+
+              {!isFriend && !isRequested && !isPending && !isBlocked && !isBlocking && (
+                <XRTextButton onClick={() => FriendService.requestFriend(selfId, user?.id.value)}>
+                  {t('user:personMenu.addAsFriend')}
+                </XRTextButton>
+              )}
+
+              {isFriend && !isRequested && !isPending && !isBlocked && !isBlocking && (
+                <XRTextButton onClick={() => FriendService.unfriend(selfId, user?.id.value)}>
+                  {t('user:personMenu.unFriend')}
+                </XRTextButton>
+              )}
+
+              {isPending && (
+                <>
+                  <XRTextButton onClick={() => FriendService.acceptFriend(selfId, user?.id.value)}>
+                    {t('user:personMenu.acceptRequest')}
+                  </XRTextButton>
+
+                  <XRTextButton onClick={() => FriendService.declineFriend(selfId, user?.id.value)}>
+                    {t('user:personMenu.declineRequest')}
+                  </XRTextButton>
+                </>
+              )}
+
+              {isRequested && <XRTextButton disabled>{t('user:personMenu.requestSent')}</XRTextButton>}
+
               <XRTextButton onClick={handleMute}>{t('user:personMenu.mute')}</XRTextButton>
-              <XRTextButton onClick={blockUser}>{t('user:personMenu.block')}</XRTextButton>
+
+              {isFriend && !isBlocked && !isBlocking && (
+                <XRTextButton onClick={() => FriendService.blockUser(selfId, user?.id.value)}>
+                  {t('user:personMenu.block')}
+                </XRTextButton>
+              )}
+
+              {isBlocking && (
+                <XRTextButton onClick={() => FriendService.unblockUser(selfId, user?.id.value)}>
+                  {t('user:personMenu.unblock')}
+                </XRTextButton>
+              )}
             </section>
           </div>
         </div>
