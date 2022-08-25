@@ -10,7 +10,7 @@ export default function ParameterInput({ entity, values, defaults, onChange }) {
   function setArgsProp(k) {
     const thisOnChange = onChange(k)
     return (value) => {
-      values[k] = value
+      //values[k] = value
       thisOnChange(value)
     }
   }
@@ -18,7 +18,7 @@ export default function ParameterInput({ entity, values, defaults, onChange }) {
     const thisOnChange = onChange(k)
     return (value) => {
       values[k][idx] = value
-      thisOnChange(value)
+      thisOnChange(values[k])
     }
   }
   return (

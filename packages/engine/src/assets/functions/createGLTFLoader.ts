@@ -14,7 +14,6 @@ import { NodeDRACOLoader } from '../loaders/gltf/NodeDracoLoader'
 
 export const initializeKTX2Loader = (loader: GLTFLoader) => {
   const ktxLoader = new KTX2Loader()
-  ktxLoader.workerPool.setWorkerLimit(1)
   ktxLoader.setTranscoderPath(`/loader_decoders/basis/`)
   ktxLoader.detectSupport(EngineRenderer.instance.renderer)
   loader.setKTX2Loader(ktxLoader)

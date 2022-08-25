@@ -20,7 +20,8 @@ export enum AssetType {
   PlainText = 'text',
   DOC = 'doc',
   XLS = 'xls',
-  Script = 'script'
+  Script = 'script',
+  KTX2 = 'ktx2'
 }
 
 export const precacheSupport = Object.freeze({

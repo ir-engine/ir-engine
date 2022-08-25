@@ -20,23 +20,25 @@ export function extractDefaults(defaultArgs) {
 export function formatMaterialArgs(args, defaultArgs: any = undefined) {
   if (!args) return args
   return Object.fromEntries(
-    Object.entries(args).map(([k, v]: [string, any]) => {
-      if (!!defaultArgs && defaultArgs[k]) {
-        switch (defaultArgs[k].type) {
-          case 'color':
-            return [k, v ? ((v as Color).isColor ? v : new Color(v)) : undefined]
+    Object.entries(args)
+      .map(([k, v]: [string, any]) => {
+        if (!!defaultArgs && defaultArgs[k]) {
+          switch (defaultArgs[k].type) {
+            case 'color':
+              return [k, v ? ((v as Color).isColor ? v : new Color(v)) : undefined]
+          }
         }
-      }
-      const tex = v as Texture
-      if (tex?.isTexture) {
-        if (tex.source.data != undefined) {
-          return [k, v]
+        const tex = v as Texture
+        if (tex?.isTexture) {
+          if (tex.source.data != undefined) {
+            return [k, v]
+          }
+          return [k, undefined]
         }
-        return [k, undefined]
-      }
-      if (v === '') return [k, undefined]
-      return [k, v]
-    })
+        if (v === '') return [k, undefined]
+        return [k, v]
+      })
+      .filter(([_, v]) => v !== undefined)
   )
 }
 
