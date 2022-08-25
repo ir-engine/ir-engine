@@ -57,7 +57,7 @@ export const updateCollider: ComponentUpdateFunction = (entity: Entity) => {
       let bodyDesc: RigidBodyDesc
       switch (colliderComponent.bodyType) {
         case RigidBodyType.Dynamic:
-          bodyDesc = RigidBodyDesc.fixed()
+          bodyDesc = RigidBodyDesc.dynamic()
           break
         case RigidBodyType.KinematicPositionBased:
           bodyDesc = RigidBodyDesc.kinematicPositionBased()
@@ -67,7 +67,7 @@ export const updateCollider: ComponentUpdateFunction = (entity: Entity) => {
           break
         default:
         case RigidBodyType.Fixed:
-          bodyDesc = RigidBodyDesc.dynamic()
+          bodyDesc = RigidBodyDesc.fixed()
           break
       }
       Physics.createRigidBody(entity, Engine.instance.currentWorld.physicsWorld, bodyDesc, [])
@@ -85,6 +85,9 @@ export const updateCollider: ComponentUpdateFunction = (entity: Entity) => {
     rigidbody.numColliders() > 0 &&
       Engine.instance.currentWorld.physicsWorld.removeCollider(rigidbody.collider(0), true)
     const colliderDesc = createColliderDescFromScale(colliderComponent.shapeType, transform.scale)
+    if (colliderComponent.isTrigger) {
+      colliderDesc.setSensor(true)
+    }
     Physics.applyDescToCollider(colliderDesc, { type: colliderComponent.shapeType }, new Vector3(), new Quaternion())
     Engine.instance.currentWorld.physicsWorld.createCollider(colliderDesc, rigidbody)
   }
