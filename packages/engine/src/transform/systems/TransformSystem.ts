@@ -1,3 +1,4 @@
+import { entityExists } from 'bitecs'
 import { Box3, Mesh, Quaternion, Vector3 } from 'three'
 
 import logger from '@xrengine/common/src/logger'
@@ -222,19 +223,21 @@ export default async function TransformSystem(world: World) {
       }
     }
 
-    const localClientPosition = getComponent(world.localClientEntity, TransformComponent)?.position
-    if (localClientPosition) {
-      for (const entity of distanceFromLocalClientQuery())
-        DistanceFromLocalClientComponent.squaredDistance[entity] = getDistanceSquaredFromTarget(
-          entity,
-          localClientPosition
-        )
-    }
-
     const cameraPosition = getComponent(world.cameraEntity, TransformComponent).position
     for (const entity of distanceFromCameraQuery())
       DistanceFromCameraComponent.squaredDistance[entity] = getDistanceSquaredFromTarget(entity, cameraPosition)
 
-    updateReferenceSpace(world.localClientEntity)
+    if (entityExists(world, world.localClientEntity)) {
+      const localClientPosition = getComponent(world.localClientEntity, TransformComponent)?.position
+      if (localClientPosition) {
+        for (const entity of distanceFromLocalClientQuery())
+          DistanceFromLocalClientComponent.squaredDistance[entity] = getDistanceSquaredFromTarget(
+            entity,
+            localClientPosition
+          )
+      }
+
+      updateReferenceSpace(world.localClientEntity)
+    }
   }
 }

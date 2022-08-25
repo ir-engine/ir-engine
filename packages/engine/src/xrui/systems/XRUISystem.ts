@@ -137,7 +137,7 @@ export default async function XRUISystem(world: World) {
       xrui.interactionRays = [world.pointerScreenRaycaster.ray]
     }
 
-    if (xrFrame) {
+    if (xrFrame && xrInputSourceComponent) {
       for (const [idx, source] of xrFrame.session.inputSources.entries()) {
         if (source.targetRayMode === 'tracked-pointer') {
           const controller =
