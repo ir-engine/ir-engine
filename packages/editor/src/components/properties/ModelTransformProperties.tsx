@@ -94,6 +94,7 @@ export default function ModelTransformProperties({ modelComponent, onChangeModel
   const [transforming, setTransforming] = useState<boolean>(false)
   const [transformHistory, setTransformHistory] = useState<string[]>(() => [])
   const [transformParms, setTransformParms] = useState<ModelTransformParameters>({
+    modelFormat: 'gltf',
     useMeshopt: true,
     useMeshQuantization: false,
     useDraco: true,
@@ -132,6 +133,16 @@ export default function ModelTransformProperties({ modelComponent, onChangeModel
     <CollapsibleBlock label="Model Transform Properties">
       <TransformContainer>
         <ElementsContainer>
+          <InputGroup name="Model Format" label={t('editor:properties.model.transform.modelFormat')}>
+            <SelectInput
+              value={transformParms.modelFormat}
+              onChange={onChangeTransformParm('modelFormat')}
+              options={[
+                { label: 'glB', value: 'glb' },
+                { label: 'glTF', value: 'gltf' }
+              ]}
+            />
+          </InputGroup>
           <InputGroup name="Use Meshopt" label={t('editor:properties.model.transform.useMeshopt')}>
             <BooleanInput value={transformParms.useMeshopt} onChange={onChangeTransformParm('useMeshopt')} />
           </InputGroup>

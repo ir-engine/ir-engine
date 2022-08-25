@@ -2,6 +2,9 @@ import React, { useImperativeHandle, useState } from 'react'
 import styled from 'styled-components'
 
 import { onWindowResize } from '@xrengine/client-core/src/user/components/UserMenu/menus/helperFunctions'
+import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
+import createReadableTexture from '@xrengine/engine/src/assets/functions/createReadableTexture'
+import { useHookstate } from '@xrengine/hyperflux'
 
 import { AudioPreviewPanel } from './AssetPreviewPanels/AudioPreviewPanel'
 import { ImagePreviewPanel } from './AssetPreviewPanels/ImagePreviewPanel'
@@ -36,11 +39,20 @@ export const AssetsPreviewPanel = React.forwardRef((props, ref) => {
     resourceProps: { resourceUrl: '', name: '' }
   })
 
+  const thumbnail = useHookstate('')
+
   const onLayoutChanged = () => {
     if (renderer) onWindowResize({ camera, renderer, scene })
   }
 
-  const onSelectionChanged = (props: AssetSelectionChangePropsType) => {
+  const onSelectionChanged = async (props: AssetSelectionChangePropsType) => {
+    thumbnail.value && URL.revokeObjectURL(thumbnail.value)
+    if (/ktx2$/.test(props.resourceUrl)) {
+      const texture = await AssetLoader.loadAsync(props.resourceUrl)
+      thumbnail.set(createReadableTexture(texture, { url: true }) as string)
+    } else {
+      thumbnail.set('')
+    }
     renderPreview(props)
   }
 
@@ -68,6 +80,14 @@ export const AssetsPreviewPanel = React.forwardRef((props, ref) => {
           resourceProps: { resourceUrl: props.resourceUrl, name: props.name }
         }
         usePreviewPanel(imagePreviewPanel)
+        break
+      case 'ktx2':
+      case 'image/ktx2':
+        const compImgPreviewPanel = {
+          PreviewSource: ImagePreviewPanel,
+          resourceProps: { resourceUrl: thumbnail.value, name: props.name }
+        }
+        usePreviewPanel(compImgPreviewPanel)
         break
 
       case 'video/mp4':

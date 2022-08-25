@@ -21,7 +21,7 @@ export const serializeEntity = (entity: Entity, world = Engine.instance.currentW
     const sceneComponentID = world.sceneComponentRegistry.get(component._name)!
     if (
       sceneComponentID &&
-      !ignoreComponents?.includes(component) &&
+      !ignoreComponents?.includes(component._name) &&
       world.sceneLoadingRegistry.has(sceneComponentID)
     ) {
       const serialize = world.sceneLoadingRegistry.get(sceneComponentID)?.serialize
@@ -29,7 +29,7 @@ export const serializeEntity = (entity: Entity, world = Engine.instance.currentW
       if (data) {
         jsonComponents.push({
           name: sceneComponentID,
-          props: Object.assign({}, data)
+          props: Object.assign({}, JSON.parse(JSON.stringify(data)))
         })
       }
     }

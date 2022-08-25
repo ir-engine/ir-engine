@@ -101,10 +101,10 @@ export const initializeCSM = () => {
         removeComponent(EngineRenderer.instance.activeCSMLightEntity, VisibleComponent)
     }
 
-    EngineRenderer.instance.directionalLightEntities.forEach((entity) => {
+    for (const entity of EngineRenderer.instance.directionalLightEntities) {
       const light = getComponent(entity, Object3DComponent)?.value
       if (light) light.castShadow = false
-    })
+    }
 
     EngineRenderer.instance.csm = new CSM({
       camera: Engine.instance.currentWorld.camera as PerspectiveCamera,

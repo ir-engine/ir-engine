@@ -20,6 +20,10 @@ export const DefaultLocationSystems: SystemModuleType<any>[] = [
   },
   {
     type: 'FIXED',
+    systemModulePromise: import('../systems/PortalLoadSystem')
+  },
+  {
+    type: 'FIXED',
     systemModulePromise: import('../transports/UpdateNearbyUsersSystem')
   }
 ]

@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next'
 import { Euler, Quaternion } from 'three'
 
 import { API } from '@xrengine/client-core/src/API'
-import { getPortalDetails } from '@xrengine/client-core/src/world/functions/getPortalDetails'
 import { PortalDetail } from '@xrengine/common/src/interfaces/PortalInterface'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
@@ -50,7 +49,6 @@ export const PortalNodeEditor: EditorComponentType = (props) => {
   const transformComponent = getComponent(props.node.entity, TransformComponent)
 
   useEffect(() => {
-    getPortalDetails()
     loadPortals()
   }, [])
 
@@ -73,7 +71,6 @@ export const PortalNodeEditor: EditorComponentType = (props) => {
 
   const bakeCubemap = async () => {
     const url = await uploadCubemapBakeToServer(portalName, transformComponent.position)
-    getPortalDetails()
     loadPortals()
     executeModifyPropertyCommand({
       component: PortalComponent,
@@ -96,7 +93,6 @@ export const PortalNodeEditor: EditorComponentType = (props) => {
       component: PortalComponent,
       properties: [{ previewType: val }]
     })
-    getPortalDetails()
     loadPortals()
   }
 

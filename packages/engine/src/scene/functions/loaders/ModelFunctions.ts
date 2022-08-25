@@ -45,7 +45,6 @@ export const updateModel = async (entity: Entity) => {
       const uuid = Engine.instance.currentWorld.entityTree.entityNodeMap.get(entity)!.uuid
       DependencyTree.add(uuid)
       hasComponent(entity, Object3DComponent) && removeComponent(entity, Object3DComponent)
-      hasComponent(entity, GLTFLoadedComponent) && removeComponent(entity, GLTFLoadedComponent)
       let scene: Scene
       switch (/\.[\d\s\w]+$/.exec(model.src)![0]) {
         case '.glb':

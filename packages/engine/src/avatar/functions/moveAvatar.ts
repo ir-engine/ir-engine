@@ -1,5 +1,15 @@
 import { Collider } from '@dimforge/rapier3d-compat'
-import { OrthographicCamera, PerspectiveCamera, Quaternion, Vector, Vector3 } from 'three'
+import {
+  BufferGeometry,
+  Line,
+  LineBasicMaterial,
+  Mesh,
+  OrthographicCamera,
+  PerspectiveCamera,
+  Quaternion,
+  Vector,
+  Vector3
+} from 'three'
 
 import { getState } from '@xrengine/hyperflux'
 
@@ -13,13 +23,18 @@ import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
 import { getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
+import { Physics } from '../../physics/classes/Physics'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
+import { AvatarCollisionMask, CollisionGroups } from '../../physics/enums/CollisionGroups'
+import { getInteractionGroups } from '../../physics/functions/getInteractionGroups'
+import { SceneQueryType } from '../../physics/types/PhysicsTypes'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { AvatarSettings, rotateBodyTowardsCameraDirection, rotateBodyTowardsVector } from '../AvatarControllerSystem'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
 import { AvatarHeadDecapComponent } from '../components/AvatarHeadDecapComponent'
 import { getAvatarBoneWorldPosition } from './avatarFunctions'
+import { avatarRadius } from './createAvatar'
 import { respawnAvatar } from './respawnAvatar'
 
 const forward = new Vector3(0, 0, 1)
@@ -31,7 +46,23 @@ const tempVec3 = new Vector3()
 
 export const avatarCameraOffset = new Vector3(0, 0.14, 0.1)
 
-const degrees60 = (60 * Math.PI) / 180
+/**
+ * configurables
+ */
+const stepHeight = 0.5
+const stepAngle = (60 * Math.PI) / 180 // 60 degrees
+
+/**
+ * raycast internals
+ */
+const expandedAvatarRadius = avatarRadius + 0.025
+const avatarStepRaycast = {
+  type: SceneQueryType.Closest,
+  origin: new Vector3(),
+  direction: Direction.Down,
+  maxDistance: stepHeight,
+  flags: getInteractionGroups(CollisionGroups.Avatars, AvatarCollisionMask)
+}
 
 export const moveLocalAvatar = (entity: Entity) => {
   const camera = Engine.instance.currentWorld.camera
@@ -54,7 +85,7 @@ export const moveLocalAvatar = (entity: Entity) => {
         tempVec1.copy(manifold.normal() as Vector3)
         if (!flipped) tempVec1.normalize().negate()
         const angle = tempVec1.angleTo(V_010)
-        if (angle < degrees60) onGround = true
+        if (angle < stepAngle) onGround = true
       }
     })
     if (onGround) break
@@ -93,6 +124,30 @@ export const moveLocalAvatar = (entity: Entity) => {
   }
 
   controller.body.setLinvel(currentVelocity, true)
+
+  /**
+   * step over small obstacles
+   */
+
+  // set the raycast position to the egde of the bottom of the cylindical portion of the capsule collider in the direction of motion
+  const pos = new Vector3()
+    .copy(transform.position)
+    .add(currentVelocity.normalize().multiplyScalar(expandedAvatarRadius))
+  pos.y += expandedAvatarRadius / 2 + stepHeight
+
+  avatarStepRaycast.origin.copy(pos)
+
+  const hits = Physics.castRay(Engine.instance.currentWorld.physicsWorld, avatarStepRaycast)
+
+  if (hits.length) {
+    tempVec1.copy(hits[0].normal as Vector3)
+    const angle = tempVec1.angleTo(V_010)
+    if (angle < stepAngle) {
+      const pos = controller.body.translation()
+      pos.y += stepHeight - hits[0].distance
+      controller.body.setTranslation(pos, true)
+    }
+  }
 
   if (hasComponent(entity, AvatarHeadDecapComponent)) {
     rotateBodyTowardsCameraDirection(entity)

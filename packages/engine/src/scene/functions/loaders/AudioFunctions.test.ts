@@ -2,12 +2,9 @@ import assert from 'assert'
 import proxyquire from 'proxyquire'
 import { Object3D } from 'three'
 
-import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
-
 import {
   AudioComponent,
   AudioComponentType,
-  SCENE_COMPONENT_AUDIO,
   SCENE_COMPONENT_AUDIO_DEFAULT_VALUES
 } from '../../../audio/components/AudioComponent'
 import { AudioType, AudioTypeType } from '../../../audio/constants/AudioConstants'
@@ -93,15 +90,10 @@ describe.skip('AudioFunctions', () => {
     coneOuterGain: Math.random()
   }
 
-  const sceneComponent: ComponentJson = {
-    name: SCENE_COMPONENT_AUDIO,
-    props: sceneComponentData
-  }
-
   describe('deserializeAudio()', () => {
     describe('Object 3D Tests', () => {
       it('add object 3d component if not present', () => {
-        deserializeAudio(entity, sceneComponent)
+        deserializeAudio(entity, sceneComponentData)
         assert(hasComponent(entity, Object3DComponent))
       })
 
@@ -109,7 +101,7 @@ describe.skip('AudioFunctions', () => {
         const obj3d = new Object3D()
 
         addComponent(entity, Object3DComponent, { value: obj3d })
-        deserializeAudio(entity, sceneComponent)
+        deserializeAudio(entity, sceneComponentData)
 
         const obj3dComp = getComponent(entity, Object3DComponent)
         assert(obj3dComp && obj3dComp.value === obj3d)
@@ -118,7 +110,7 @@ describe.skip('AudioFunctions', () => {
 
     describe('Client vs Server', () => {
       it('will add audio component while running on client', () => {
-        audioFunctions.deserializeAudio(entity, sceneComponent)
+        audioFunctions.deserializeAudio(entity, sceneComponentData)
         assert(hasComponent(entity, AudioComponent))
       })
 
@@ -129,14 +121,14 @@ describe.skip('AudioFunctions', () => {
           }
         })
 
-        _audioFunctions.deserializeAudio(entity, sceneComponent)
+        _audioFunctions.deserializeAudio(entity, sceneComponentData)
         assert(!hasComponent(entity, AudioComponent))
       })
     })
 
     it('sets loop and autoplay', () => {
       // addComponent(entity, MediaComponent, { autoplay: true, loop: true } as MediaComponentType)
-      audioFunctions.deserializeAudio(entity, sceneComponent)
+      audioFunctions.deserializeAudio(entity, sceneComponentData)
 
       const obj3d = getComponent(entity, Object3DComponent).value
       assert(obj3d.userData.audioEl.autoplay === true, 'Autoplay is not being set')
@@ -149,7 +141,7 @@ describe.skip('AudioFunctions', () => {
     let obj3d: Object3D
 
     beforeEach(() => {
-      audioFunctions.deserializeAudio(entity, sceneComponent)
+      audioFunctions.deserializeAudio(entity, sceneComponentData)
       audioComponent = getComponent(entity, AudioComponent) as AudioComponentType
       obj3d = getComponent(entity, Object3DComponent)?.value as Object3D
     })
@@ -401,8 +393,8 @@ describe.skip('AudioFunctions', () => {
 
   describe('serializeAudio()', () => {
     it('should properly serialize audio', () => {
-      audioFunctions.deserializeAudio(entity, sceneComponent)
-      assert.deepEqual(audioFunctions.serializeAudio(entity), sceneComponent)
+      audioFunctions.deserializeAudio(entity, sceneComponentData)
+      assert.deepEqual(audioFunctions.serializeAudio(entity), sceneComponentData)
     })
 
     it('should return undefine if there is no audio component', () => {
@@ -412,7 +404,7 @@ describe.skip('AudioFunctions', () => {
 
   describe('toggleAudio()', () => {
     it('should properly toggle audio', () => {
-      audioFunctions.deserializeAudio(entity, sceneComponent)
+      audioFunctions.deserializeAudio(entity, sceneComponentData)
 
       const audioEl = getComponent(entity, Object3DComponent)?.value.userData.audioEl as Audio
       let prevState = audioEl.isPlaying
