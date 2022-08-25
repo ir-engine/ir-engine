@@ -28,7 +28,7 @@ export default class BasisuExporterExtension extends ExporterExtension {
   writeTexture(_texture: CompressedTexture, textureDef) {
     if (!_texture.isCompressedTexture) return
     const writer = this.writer
-    const texture = createReadableTexture(_texture)
+    const texture = createReadableTexture(_texture) as Texture
     textureDef.source = writer.processImage(texture.image, texture.format, texture.flipY)
     textureDef.sampler = this.sampler
     /*const image: HTMLCanvasElement = texture.image

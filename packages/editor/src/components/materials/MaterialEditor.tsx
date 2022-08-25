@@ -22,16 +22,11 @@ import Well from '../layout/Well'
 export default function MaterialEditor({ material }: { ['material']: Material }) {
   if (material === undefined) return <></>
   const createThumbnails = () => {
-    const result = new Map()
-    Object.values(material).map((field: Texture) => {
+    const result = new Map<string, string>()
+    Object.entries(material).map(([k, field]: [string, Texture]) => {
       if (field?.isTexture) {
-        const txr = createReadableTexture(field, { width: 256, height: 256 })
-        if (txr.source?.data?.src) {
-          result.set(field, txr.source.data.src)
-        } else {
-          const dataUrl = txr.source.data.getContext('webgl2').canvas.toDataURL()
-          result.set(field, dataUrl)
-        }
+        const src = createReadableTexture(field, { maxDimensions: { width: 256, height: 256 }, url: true }) as string
+        result.set(k, src)
       }
     })
     return result
@@ -40,8 +35,8 @@ export default function MaterialEditor({ material }: { ['material']: Material })
     const result = materialToDefaultArgs(material)
     const thumbs = thumbnails.value
     Object.entries(material).map(([k, v]) => {
-      if ((v as Texture)?.isTexture && thumbs.has(v)) {
-        result[k] = { type: 'texture', preview: thumbs.get(v)! }
+      if ((v as Texture)?.isTexture && thumbs.has(k)) {
+        result[k] = { type: 'texture', preview: thumbs.get(k)! }
       } else if ((v as Color)?.isColor) {
         result[k] = { type: 'color' }
       } else if (typeof v === 'number') {
@@ -146,6 +141,7 @@ export default function MaterialEditor({ material }: { ['material']: Material })
             URL.revokeObjectURL(defaults.value[k].preview)
             defaults.merge((_defaults) => {
               delete _defaults[k].preview
+              _defaults[k].preview = createReadableTexture(material[k], { url: true }) as string
               return _defaults
             })
           }
