@@ -1,68 +1,43 @@
 import assert from 'assert'
-import proxyquire from 'proxyquire'
 
 import { BinaryValue } from '../common/enums/BinaryValue'
 import { LifecycleValue } from '../common/enums/LifecycleValue'
 import { Engine } from '../ecs/classes/Engine'
 import { createEngine } from '../initializeEngine'
-import { GamepadButtons, XRAxes } from '../input/enums/InputEnums'
+import { GamepadAxis, GamepadButtons } from '../input/enums/InputEnums'
 import { InputType } from '../input/enums/InputType'
-import { EngineRenderer } from '../renderer/WebGLRendererSystem'
+import { updateGamepadInput } from './XRSystem'
 
-describe('XRSystem Tests', async () => {
-  let xrSystem
-
-  beforeEach(async () => {
+describe('XRSystem', () => {
+  beforeEach(() => {
     createEngine()
-
-    const assetLoaderStub = {
-      AssetLoader: {
-        loadAsync() {
-          return new Promise((resolve, reject) => {
-            resolve(0)
-          })
-        }
-      }
-    } as any
-
-    const { default: XRSystem } = proxyquire('./XRSystem', {
-      '../assets/classes/AssetLoader': assetLoaderStub
-    })
-
-    xrSystem = await XRSystem(Engine.instance.currentWorld)
   })
 
-  it('check gamepad values copied into inputState', async () => {
+  it('check gamepad values copied into inputState', () => {
     const inputSource = {
+      handedness: 'left',
       gamepad: {
+        mapping: 'xr-standard',
         buttons: [{ pressed: false }, { pressed: true }],
         axes: [1, 0.04]
-      },
-      mapping: 'xr-standard',
-      handedness: 'left'
-    }
-    Engine.instance.xrFrame = { session: { inputSources: [inputSource] } } as any
-    EngineRenderer.instance.xrManager = {
-      isPresenting: true,
-      getSession() {
-        return Engine.instance.xrFrame.session
-      }
-    } as any
+      } as any as Gamepad
+    } as XRInputSource
 
-    xrSystem()
+    updateGamepadInput(inputSource)
 
     const lTriggerState = Engine.instance.currentWorld.inputState.get(GamepadButtons.LTrigger)
     assert(!lTriggerState)
-    const lBumperState = Engine.instance.currentWorld.inputState.get(GamepadButtons.LBumper)
-    assert(lBumperState?.type === InputType.BUTTON)
-    assert(lBumperState?.value[0] === BinaryValue.ON)
-    assert(lBumperState?.lifecycleState === LifecycleValue.Started)
 
-    const lAxisState = Engine.instance.currentWorld.inputState.get(XRAxes.Left)
+    const lBumperState = Engine.instance.currentWorld.inputState.get(GamepadButtons.LBumper)!
+    assert.equal(lBumperState.type, InputType.BUTTON)
+    assert.equal(lBumperState.value[0], BinaryValue.ON)
+    assert.equal(lBumperState.lifecycleState, LifecycleValue.Started)
+
+    const lAxisState = Engine.instance.currentWorld.inputState.get(GamepadAxis.LTouchpad)!
     assert(lAxisState)
-    assert(lAxisState.type === InputType.TWODIM)
-    assert(lAxisState.value[0] === 1)
-    assert(lAxisState.value[1] === 0)
-    assert(lAxisState.lifecycleState === LifecycleValue.Started)
+    assert.equal(lAxisState.type, InputType.TWODIM)
+    assert.equal(lAxisState.value[0], -1)
+    assert.equal(lAxisState.value[1], 0)
+    assert.equal(lAxisState.lifecycleState, LifecycleValue.Started)
   })
 })

@@ -1,17 +1,19 @@
 import type { WebContainer3D } from '@etherealjs/web-layer/three'
-import { MathUtils, Object3D, PerspectiveCamera, Quaternion, Vector3 } from 'three'
+import { Object3D, PerspectiveCamera, Quaternion, Vector3 } from 'three'
+import { DEG2RAD } from 'three/src/math/MathUtils'
 
 import { getState } from '@xrengine/hyperflux'
 
 import { AvatarAnimationComponent } from '../../avatar/components/AvatarAnimationComponent'
-import { HALF_PI } from '../../common/constants/MathConstants'
 import { Object3DUtils } from '../../common/functions/Object3DUtils'
 import { Engine } from '../../ecs/classes/Engine'
 import { getComponent } from '../../ecs/functions/ComponentFunctions'
 import { XRState } from '../../xr/XRState'
 
+const _vec = new Vector3()
 const _pos = new Vector3()
 const _quat = new Quaternion()
+const _forward = new Vector3(0, 0, -1)
 
 // yes, multiple by the same direction twice, as the local coordinate changes with each rotation
 const _handRotation = new Quaternion()
@@ -56,7 +58,12 @@ export const ObjectFitFunctions = {
     fit: 'cover' | 'contain' | 'vertical' | 'horizontal' = 'contain',
     camera = Engine.instance.currentWorld.camera as PerspectiveCamera
   ) => {
-    const vFOV = camera.fov * MathUtils.DEG2RAD
+    // const vFOV = camera.fov * DEG2RAD
+    camera.projectionMatrixInverse.copy(camera.projectionMatrix).invert()
+    const inverseProjection = camera.projectionMatrixInverse
+    const topRadians = _vec.set(0, 1, -1).applyMatrix4(inverseProjection).angleTo(_forward)
+    const bottomRadians = _vec.set(0, -1, -1).applyMatrix4(inverseProjection).angleTo(_forward)
+    const vFOV = topRadians + bottomRadians
     const targetHeight = Math.tan(vFOV / 2) * Math.abs(distance) * 2
     const targetWidth = targetHeight * camera.aspect
     return ObjectFitFunctions.computeContentFitScale(contentWidth, contentHeight, targetWidth, targetHeight, fit)

@@ -1,9 +1,11 @@
+import { entityExists } from 'bitecs'
 import { Box3, Mesh, Quaternion, Vector3 } from 'three'
 
 import logger from '@xrengine/common/src/logger'
 import { insertionSort } from '@xrengine/common/src/utils/insertionSort'
 import { createActionQueue, getState } from '@xrengine/hyperflux'
 
+import { updateReferenceSpace } from '../../avatar/functions/moveAvatar'
 import { proxifyQuaternion, proxifyVector3 } from '../../common/proxies/three'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
@@ -221,17 +223,21 @@ export default async function TransformSystem(world: World) {
       }
     }
 
-    const localClientPosition = getComponent(world.localClientEntity, TransformComponent)?.position
-    if (localClientPosition) {
-      for (const entity of distanceFromLocalClientQuery())
-        DistanceFromLocalClientComponent.squaredDistance[entity] = getDistanceSquaredFromTarget(
-          entity,
-          localClientPosition
-        )
-    }
-
     const cameraPosition = getComponent(world.cameraEntity, TransformComponent).position
     for (const entity of distanceFromCameraQuery())
       DistanceFromCameraComponent.squaredDistance[entity] = getDistanceSquaredFromTarget(entity, cameraPosition)
+
+    if (entityExists(world, world.localClientEntity)) {
+      const localClientPosition = getComponent(world.localClientEntity, TransformComponent)?.position
+      if (localClientPosition) {
+        for (const entity of distanceFromLocalClientQuery())
+          DistanceFromLocalClientComponent.squaredDistance[entity] = getDistanceSquaredFromTarget(
+            entity,
+            localClientPosition
+          )
+      }
+
+      updateReferenceSpace(world.localClientEntity)
+    }
   }
 }

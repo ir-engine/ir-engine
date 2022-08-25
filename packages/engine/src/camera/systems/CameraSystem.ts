@@ -16,6 +16,7 @@ import {
   addComponent,
   defineQuery,
   getComponent,
+  hasComponent,
   removeComponent,
   setComponent
 } from '../../ecs/functions/ComponentFunctions'
@@ -25,7 +26,10 @@ import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { RAYCAST_PROPERTIES_DEFAULT_VALUES } from '../../scene/components/CameraPropertiesComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
-import { setComputedTransformComponent } from '../../transform/components/ComputedTransformComponent'
+import {
+  ComputedTransformComponent,
+  setComputedTransformComponent
+} from '../../transform/components/ComputedTransformComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { CameraTagComponent as NetworkCameraComponent } from '../components/CameraTagComponent'
 import { FollowCameraComponent } from '../components/FollowCameraComponent'
@@ -230,19 +234,17 @@ const computeCameraFollow = (cameraEntity: Entity, referenceEntity: Entity) => {
 
 function createCameraRays(entity: Entity) {
   const cameraFollow = getComponent(entity, FollowCameraComponent)
-  //check for initialized raycast properties
   if (!cameraFollow.raycastProps) {
-    cameraFollow.raycastProps = RAYCAST_PROPERTIES_DEFAULT_VALUES
-  }
-  for (let i = 0; i < cameraFollow.raycastProps.rayCount; i++) {
-    cameraRays.push(new Vector3())
-
-    if (debugRays) {
-      const arrow = new ArrowHelper()
-      arrow.setColor('red')
-      coneDebugHelpers.push(arrow)
-      setObjectLayers(arrow, ObjectLayers.Gizmos)
-      Engine.instance.currentWorld.scene.add(arrow)
+    cameraFollow.raycastProps = { ...RAYCAST_PROPERTIES_DEFAULT_VALUES }
+    for (let i = 0; i < cameraFollow.raycastProps.rayCount; i++) {
+      cameraRays.push(new Vector3())
+      if (debugRays) {
+        const arrow = new ArrowHelper()
+        arrow.setColor('red')
+        coneDebugHelpers.push(arrow)
+        setObjectLayers(arrow, ObjectLayers.Gizmos)
+        Engine.instance.currentWorld.scene.add(arrow)
+      }
     }
   }
 }
@@ -279,13 +281,14 @@ export default async function CameraSystem(world: World) {
       }
     }
 
-    for (const cameraEntity of followCameraQuery.enter()) createCameraRays(cameraEntity)
-
-    // since the camera transform depends on it's target,
-    // we need to use a computed transform to ensure that everything is updated in the proper sequence
-    for (const cameraEntity of followCameraQuery()) {
+    for (const cameraEntity of followCameraQuery.enter()) {
       const followCamera = getComponent(cameraEntity, FollowCameraComponent)
       setComputedTransformComponent(cameraEntity, followCamera.targetEntity, computeCameraFollow)
+      createCameraRays(cameraEntity)
+    }
+
+    for (const cameraEntity of followCameraQuery.exit()) {
+      removeComponent(cameraEntity, ComputedTransformComponent)
     }
 
     // as spectator: update local camera from network camera
@@ -308,18 +311,6 @@ export default async function CameraSystem(world: World) {
         networkTransform.position.copy(cameraTransform.position)
         networkTransform.rotation.copy(cameraTransform.rotation)
       })
-    }
-
-    if (EngineRenderer.instance.xrManager?.isPresenting) {
-      const camera = world.camera as THREE.PerspectiveCamera
-      EngineRenderer.instance.xrManager.updateCamera(camera)
-      // the following is necessary workaround until this PR is merged: https://github.com/mrdoob/three.js/pull/22362
-      camera.matrix.decompose(camera.position, camera.quaternion, camera.scale)
-      camera.updateMatrixWorld(true)
-      // Assume world.camera.layers is source of truth for all xr cameras
-      const xrCamera = EngineRenderer.instance.xrManager.getCamera()
-      xrCamera.layers.mask = camera.layers.mask
-      for (const c of xrCamera.cameras) c.layers.mask = camera.layers.mask
     }
   }
 }

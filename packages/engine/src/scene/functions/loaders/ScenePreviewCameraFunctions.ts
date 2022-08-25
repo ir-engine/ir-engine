@@ -19,7 +19,6 @@ export const updateCameraTransform = (entity: Entity) => {
     addComponent(entity, Object3DComponent, { value: camera })
   }
 
-  const obj3d = getComponent(entity, Object3DComponent).value
   const transformComponent = getComponent(entity, TransformComponent)
 
   return new Matrix4()

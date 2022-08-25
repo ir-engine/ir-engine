@@ -84,7 +84,6 @@ const processCollisions = (world: World, drainCollisions, collisionEntities: Ent
 }
 
 export const PhysicsPrefabs = {
-  triggerVolume: 'Trigger Volume' as const,
   collider: 'Collider' as const
 }
 
