@@ -58,6 +58,8 @@ const stepAngle = (60 * Math.PI) / 180 // 60 degrees
  * raycast internals
  */
 const expandedAvatarRadius = avatarRadius + 0.025
+const stepLowerBound = avatarRadius * 0.25
+const minimumStepSpeed = 0.1
 const avatarStepRaycast = {
   type: SceneQueryType.Closest,
   origin: new Vector3(),
@@ -75,6 +77,9 @@ export const moveLocalAvatar = (entity: Entity) => {
 
   let onGround = false
 
+  /**
+   * Use physics contacts to detemine if avatar is grounded
+   */
   const physicsWorld = Engine.instance.currentWorld.physicsWorld
   const collidersInContactWithFeet = [] as Collider[]
   physicsWorld.contactsWith(controller.bodyCollider, (otherCollider) => {
@@ -95,6 +100,9 @@ export const moveLocalAvatar = (entity: Entity) => {
 
   controller.isInAir = !onGround
 
+  /**
+   * Do movement via velocity spring and collider velocity
+   */
   const cameraDirection = camera.getWorldDirection(tempVec1).setY(0).normalize()
   const forwardOrientation = quat.setFromUnitVectors(forward, cameraDirection)
 
@@ -128,31 +136,9 @@ export const moveLocalAvatar = (entity: Entity) => {
   controller.body.setLinvel(currentVelocity, true)
 
   /**
-   * step over small obstacles
-   */
-
-  // set the raycast position to the egde of the bottom of the cylindical portion of the capsule collider in the direction of motion
-  const pos = new Vector3()
-    .copy(transform.position)
-    .add(currentVelocity.normalize().multiplyScalar(expandedAvatarRadius))
-  pos.y += expandedAvatarRadius / 2 + stepHeight
-
-  avatarStepRaycast.origin.copy(pos)
-
-  const hits = Physics.castRay(Engine.instance.currentWorld.physicsWorld, avatarStepRaycast)
-
-  if (hits.length) {
-    tempVec1.copy(hits[0].normal as Vector3)
-    const angle = tempVec1.angleTo(V_010)
-    if (angle < stepAngle) {
-      const pos = controller.body.translation()
-      pos.y += stepHeight - hits[0].distance
-      controller.body.setTranslation(pos, true)
-    }
-  }
-
-  /**
-   * if we are in attached mode, we dont need to do any extra rotation
+   * Do rotation
+   * - if we are in attached mode, we dont need to do any extra rotation
+   *     as this is done via the webxr camera automatically
    */
   if (getControlMode() !== 'attached') {
     if (hasComponent(entity, AvatarHeadDecapComponent)) {
@@ -162,6 +148,33 @@ export const moveLocalAvatar = (entity: Entity) => {
         .subVectors(rigidBody.body.translation() as Vector3, rigidBody.previousPosition)
         .setComponent(1, 0)
       rotateBodyTowardsVector(entity, displacement)
+    }
+  }
+
+  /**
+   * Step over small obstacles
+   */
+  const xzVelocity = tempVec1.copy(velocitySpringDirection).setY(0)
+  const xzVelocitySqrMagnitude = xzVelocity.lengthSq()
+  if (xzVelocitySqrMagnitude > minimumStepSpeed) {
+    // TODO this can be improved by using a shapeCast with a plane instead of a line
+    // set the raycast position to the egde of the bottom of the cylindical portion of the capsule collider in the direction of motion
+    const pos = new Vector3()
+      .copy(transform.position)
+      .add(xzVelocity.normalize().multiplyScalar(expandedAvatarRadius).applyQuaternion(forwardOrientation))
+    pos.y += stepLowerBound + stepHeight
+    avatarStepRaycast.origin.copy(pos)
+
+    const hits = Physics.castRay(Engine.instance.currentWorld.physicsWorld, avatarStepRaycast)
+
+    if (hits.length) {
+      tempVec1.copy(hits[0].normal as Vector3)
+      const angle = tempVec1.angleTo(V_010)
+      if (angle < stepAngle) {
+        const pos = controller.body.translation()
+        pos.y += stepHeight - hits[0].distance
+        controller.body.setTranslation(pos, true)
+      }
     }
   }
 
