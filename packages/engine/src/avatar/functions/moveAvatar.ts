@@ -30,7 +30,9 @@ import { getInteractionGroups } from '../../physics/functions/getInteractionGrou
 import { SceneQueryType } from '../../physics/types/PhysicsTypes'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { TransformComponent } from '../../transform/components/TransformComponent'
+import { XRInputSourceComponent } from '../../xr/XRComponents'
 import { getControlMode, XRState } from '../../xr/XRState'
+import { updateXRCamera } from '../../xr/XRSystem'
 import { AvatarSettings, rotateBodyTowardsCameraDirection, rotateBodyTowardsVector } from '../AvatarControllerSystem'
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
@@ -189,6 +191,8 @@ export const updateReferenceSpace = (entity: Entity) => {
     const xrRigidTransform = new XRRigidTransform(avatarTransform.position, avatarTransform.rotation)
     const offsetRefSpace = refSpace.getOffsetReferenceSpace(xrRigidTransform.inverse)
     EngineRenderer.instance.xrManager.setReferenceSpace(offsetRefSpace)
+    // maybe?
+    updateXRCamera(Engine.instance.currentWorld.camera as PerspectiveCamera)
   }
 }
 

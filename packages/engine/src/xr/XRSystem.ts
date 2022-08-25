@@ -1,4 +1,4 @@
-import { Quaternion } from 'three'
+import { PerspectiveCamera, Quaternion } from 'three'
 
 import { createHookableFunction } from '@xrengine/common/src/utils/createMutableFunction'
 import { createActionQueue, dispatchAction, getState } from '@xrengine/hyperflux'
@@ -130,6 +130,17 @@ export const xrSessionChanged = createHookableFunction((action: typeof XRAction.
   }
 })
 
+export const updateXRCamera = (camera: PerspectiveCamera) => {
+  EngineRenderer.instance.xrManager.updateCamera(camera)
+  // the following is necessary workaround until this PR is merged: https://github.com/mrdoob/three.js/pull/22362
+  camera.matrix.decompose(camera.position, camera.quaternion, camera.scale)
+  camera.updateMatrixWorld(true)
+
+  const xrInputSourceComponent = getComponent(Engine.instance.currentWorld.localClientEntity, XRInputSourceComponent)
+  const head = xrInputSourceComponent.head
+  head.quaternion.copy(camera.quaternion)
+  head.position.copy(camera.position)
+}
 /**
  * System for XR session and input handling
  */
@@ -174,20 +185,13 @@ export default async function XRSystem(world: World) {
     for (const action of xrSessionChangedQueue()) xrSessionChanged(action)
 
     if (EngineRenderer.instance.xrManager?.isPresenting) {
-      const camera = world.camera as THREE.PerspectiveCamera
-      EngineRenderer.instance.xrManager.updateCamera(camera)
-      // the following is necessary workaround until this PR is merged: https://github.com/mrdoob/three.js/pull/22362
-      camera.matrix.decompose(camera.position, camera.quaternion, camera.scale)
-      camera.updateMatrixWorld(true)
+      const camera = Engine.instance.currentWorld.camera as PerspectiveCamera
+      updateXRCamera(camera)
+
       // Assume world.camera.layers is source of truth for all xr cameras
       const xrCamera = EngineRenderer.instance.xrManager.getCamera()
       xrCamera.layers.mask = camera.layers.mask
       for (const c of xrCamera.cameras) c.layers.mask = camera.layers.mask
-
-      const xrInputSourceComponent = getComponent(world.localClientEntity, XRInputSourceComponent)
-      const head = xrInputSourceComponent.head
-      head.quaternion.copy(camera.quaternion)
-      head.position.copy(camera.position)
 
       const session = EngineRenderer.instance.xrManager!.getSession()!
       for (const source of session.inputSources) updateGamepadInput(source)
