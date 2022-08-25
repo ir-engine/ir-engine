@@ -48,7 +48,9 @@ export const processEngineInputState = (world = Engine.instance.currentWorld) =>
             value.lifecycleState = LifecycleValue.Unchanged
           }
         } else {
-          value.lifecycleState = LifecycleValue.Changed
+          if (value.lifecycleState !== LifecycleValue.Started || world.prevInputState.has(key)) {
+            value.lifecycleState = LifecycleValue.Changed
+          }
         }
       }
     }
@@ -58,11 +60,6 @@ export const processEngineInputState = (world = Engine.instance.currentWorld) =>
      */
     if ((!prevLifecycle || prevLifecycle === LifecycleValue.Ended) && value.lifecycleState === LifecycleValue.Ended)
       world.inputState.delete(key)
-  }
-
-  world.prevInputState.clear()
-  for (const [key, value] of world.inputState) {
-    world.prevInputState.set(key, value)
   }
 }
 
@@ -152,6 +149,12 @@ export default async function ClientInputSystem(world: World) {
     // copy client input state to input component
     for (const entity of localClientInputQuery(world)) {
       processInputComponentData(entity)
+    }
+
+    // after running behaviours, update prev input with current input ready to receive new input
+    world.prevInputState.clear()
+    for (const [key, value] of world.inputState) {
+      world.prevInputState.set(key, value)
     }
 
     const input = getComponent(world.localClientEntity, InputComponent)

@@ -73,7 +73,7 @@ export default async function MountPointSystem(world: World) {
 
     for (const action of mountPointActionQueue()) {
       if (action.$from !== Engine.instance.userId) continue
-      if (!hasComponent(action.targetEntity!, MountPointComponent)) continue
+      if (!action.targetEntity || !hasComponent(action.targetEntity!, MountPointComponent)) continue
       const avatarEntity = world.getUserAvatarEntity(action.$from)
 
       const mountPoint = getComponent(action.targetEntity!, MountPointComponent)

@@ -202,23 +202,18 @@ export default async function XRSystem(world: World) {
   }
 }
 
-function updateGamepadInput(source: XRInputSource) {
+export function updateGamepadInput(source: XRInputSource) {
   if (source.gamepad?.mapping === 'xr-standard') {
     const mapping = GamepadMapping['xr-standard'][source.handedness]
 
     source.gamepad.buttons.forEach((button, index) => {
       // TODO : support button.touched and button.value
-      const prev = Engine.instance.currentWorld.prevInputState.get(mapping[index])
-      if (!prev && button.pressed == false) return
-      const continued = prev?.value && button.pressed
+      const prev = Engine.instance.currentWorld.prevInputState.has(mapping[index])
+      if (!prev && !button.pressed) return
       Engine.instance.currentWorld.inputState.set(mapping[index], {
         type: InputType.BUTTON,
         value: [button.pressed ? BinaryValue.ON : BinaryValue.OFF],
-        lifecycleState: button.pressed
-          ? continued
-            ? LifecycleValue.Unchanged
-            : LifecycleValue.Started
-          : LifecycleValue.Ended
+        lifecycleState: button.pressed ? LifecycleValue.Started : LifecycleValue.Ended
       })
     })
 
