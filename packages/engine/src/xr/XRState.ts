@@ -23,10 +23,10 @@ export const XRState = defineState({
 })
 
 export const getControlMode = () => {
-  const controlMode = getState(XRState).avatarControlMode.value
-  const sessionMode = getState(XRState).sessionMode.value
-  if (controlMode === 'auto') {
-    return sessionMode === 'immersive-vr' || sessionMode === 'inline' ? 'attached' : 'detatched'
+  const { avatarControlMode, sessionMode, sessionActive } = getState(XRState).value
+  if (!sessionActive) return 'none'
+  if (avatarControlMode === 'auto') {
+    return sessionMode === 'immersive-vr' || sessionMode === 'inline' ? 'attached' : 'detached'
   }
-  return controlMode
+  return avatarControlMode
 }

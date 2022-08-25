@@ -1,6 +1,7 @@
 import { createHookableFunction } from '@xrengine/common/src/utils/createMutableFunction'
 import { createActionQueue, dispatchAction, getState } from '@xrengine/hyperflux'
 
+import { AvatarHeadDecapComponent } from '../avatar/components/AvatarHeadDecapComponent'
 import { FollowCameraComponent } from '../camera/components/FollowCameraComponent'
 import { GamepadAxis } from '../input/enums/InputEnums'
 import { SkyboxComponent } from '../scene/components/SkyboxComponent'
@@ -20,7 +21,7 @@ import { XRAction } from './XRAction'
 import { XRHandsInputComponent, XRInputSourceComponent } from './XRComponents'
 import { cleanXRInputs, updateXRControllerAnimations } from './XRControllerFunctions'
 import { proxifyXRInputs, setupLocalXRInputs, setupXRInputSourceComponent } from './XRFunctions'
-import { XRState } from './XRState'
+import { getControlMode, XRState } from './XRState'
 
 const skyboxQuery = defineQuery([SkyboxComponent])
 
@@ -94,6 +95,10 @@ export const xrSessionChanged = createHookableFunction((action: typeof XRAction.
   if (!entity) return
 
   if (action.active) {
+    if (getControlMode() === 'attached')
+      if (!hasComponent(entity, AvatarHeadDecapComponent)) {
+        addComponent(entity, AvatarHeadDecapComponent, true)
+      }
     if (!hasComponent(entity, XRInputSourceComponent)) {
       setupXRInputSourceComponent(entity)
     }

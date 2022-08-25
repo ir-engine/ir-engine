@@ -151,7 +151,7 @@ export const moveLocalAvatar = (entity: Entity) => {
     }
   }
 
-  if (hasComponent(entity, AvatarHeadDecapComponent)) {
+  if (hasComponent(entity, AvatarHeadDecapComponent) && getControlMode() !== 'attached') {
     rotateBodyTowardsCameraDirection(entity)
   } else {
     const displacement = tempVec1
@@ -169,7 +169,7 @@ export const updateReferenceSpace = (entity: Entity) => {
   if (getControlMode() === 'attached' && refSpace) {
     const avatarTransform = getComponent(entity, TransformComponent)
     const xrRigidTransform = new XRRigidTransform(avatarTransform.position, avatarTransform.rotation)
-    const offsetRefSpace = refSpace.getOffsetReferenceSpace(xrRigidTransform.inverse)!
+    const offsetRefSpace = refSpace.getOffsetReferenceSpace(xrRigidTransform.inverse)
     EngineRenderer.instance.xrManager.setReferenceSpace(offsetRefSpace)
   }
 }

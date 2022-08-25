@@ -57,6 +57,7 @@ import { NetworkTopics } from '../networking/classes/Network'
 import { NetworkObjectComponent } from '../networking/components/NetworkObjectComponent'
 import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
 import { Physics, RaycastArgs } from '../physics/classes/Physics'
+import { RigidBodyComponent } from '../physics/components/RigidBodyComponent'
 import { AvatarCollisionMask, CollisionGroups, DefaultCollisionMask } from '../physics/enums/CollisionGroups'
 import { getInteractionGroups } from '../physics/functions/getInteractionGroups'
 import { boxDynamicConfig } from '../physics/functions/physicsObjectDebugFunctions'
@@ -473,18 +474,20 @@ const lookByInputAxis: InputBehaviorType = (entity: Entity, inputKey: InputAlias
       )
     return
   }
+  console.log(inputKey, inputValue)
 
-  if (inputValue.lifecycleState !== LifecycleValue.Changed) return
-
-  // if vr, rotate the reference space
-  // const refSpace = EngineRenderer.instance.xrManager.getReferenceSpace()!
-  // if (getControlMode() === 'attached' && refSpace) {
-  //   const quat = new Quaternion().setFromAxisAngle(V_010, inputValue.value[0])
-  //   console.log(quat)
-  //   const xrRigidTransform = new XRRigidTransform(V_000, quat)
-  //   const offsetRefSpace = refSpace.getOffsetReferenceSpace(xrRigidTransform)
-  //   EngineRenderer.instance.xrManager.setReferenceSpace(offsetRefSpace)
-  // }
+  // if vr, rotate the avatar
+  if (getControlMode() === 'attached' && inputValue.value[0] !== 0) {
+    const quat = new Quaternion().setFromAxisAngle(V_010, inputValue.value[0] * 0.01)
+    const rigidBody = getComponent(entity, RigidBodyComponent).body
+    const quat2 = new Quaternion().copy(rigidBody.rotation() as Quaternion)
+    quat2.multiply(quat)
+    rigidBody.setRotation(quat2, true)
+    // getComponent(entity, TransformComponent).rotation.multiply(quat)
+    // const xrRigidTransform = new XRRigidTransform(V_000, quat)
+    // const offsetRefSpace = refSpace.getOffsetReferenceSpace(xrRigidTransform)
+    // EngineRenderer.instance.xrManager.setReferenceSpace(offsetRefSpace)
+  }
 }
 
 // const gamepadLook: InputBehaviorType = (entity: Entity): void => {
