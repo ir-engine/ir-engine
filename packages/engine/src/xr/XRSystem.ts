@@ -228,12 +228,13 @@ function updateGamepadInput(source: XRInputSource) {
       if (Math.abs(inputData[i]) < 0.05) inputData[i] = 0
     }
 
+    // NOTE: we are inverting input here, as the avatar model is flipped 180 degrees. when that is solved, uninvert these gamepad inputs
     if (inputData.length >= 2) {
       const Touchpad = source.handedness === 'left' ? GamepadAxis.LTouchpad : GamepadAxis.RTouchpad
 
       Engine.instance.currentWorld.inputState.set(Touchpad, {
         type: InputType.TWODIM,
-        value: [inputData[0], inputData[1]],
+        value: [-inputData[0], -inputData[1]],
         lifecycleState: LifecycleValue.Started // TODO
       })
     }
@@ -242,7 +243,7 @@ function updateGamepadInput(source: XRInputSource) {
       const Thumbstick = source.handedness === 'left' ? GamepadAxis.LThumbstick : GamepadAxis.RThumbstick
       Engine.instance.currentWorld.inputState.set(Thumbstick, {
         type: InputType.TWODIM,
-        value: [inputData[2], inputData[3]],
+        value: [-inputData[2], -inputData[3]],
         lifecycleState: LifecycleValue.Started // TODO
       })
     }

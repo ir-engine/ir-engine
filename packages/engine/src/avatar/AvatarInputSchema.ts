@@ -351,8 +351,8 @@ const changedDirection = (radian: number) => {
 const moveByInputAxis: InputBehaviorType = (entity: Entity, inputKey: InputAlias, inputValue: InputValue): void => {
   const controller = getComponent(entity, AvatarControllerComponent)
   if (inputValue.type === InputType.TWODIM) {
-    controller.localMovementDirection.x = -inputValue.value[0]
-    controller.localMovementDirection.z = -inputValue.value[1]
+    controller.localMovementDirection.x = inputValue.value[0]
+    controller.localMovementDirection.z = inputValue.value[1]
   } else if (inputValue.type === InputType.THREEDIM) {
     // TODO: check if this mapping correct
     controller.localMovementDirection.z = inputValue.value[2]
@@ -457,6 +457,7 @@ const lookFromXRInputs: InputBehaviorType = (entity: Entity, inputKey: InputAlia
 }
 
 const axisLookSensitivity = 320
+const vrAxisLookSensitivity = 0.025
 
 const lookByInputAxis: InputBehaviorType = (entity: Entity, inputKey: InputAlias, inputValue: InputValue): void => {
   const avatarController = getComponent(entity, AvatarControllerComponent)
@@ -477,7 +478,7 @@ const lookByInputAxis: InputBehaviorType = (entity: Entity, inputKey: InputAlias
 
   // if vr, rotate the avatar
   if (getControlMode() === 'attached' && inputValue.value[0] !== 0) {
-    rotateAvatar(entity, inputValue.value[0] * 0.1)
+    rotateAvatar(entity, inputValue.value[0] * vrAxisLookSensitivity)
   }
 }
 

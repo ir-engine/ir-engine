@@ -1,23 +1,12 @@
 import { Collider } from '@dimforge/rapier3d-compat'
-import {
-  BufferGeometry,
-  Line,
-  LineBasicMaterial,
-  Mesh,
-  OrthographicCamera,
-  PerspectiveCamera,
-  Quaternion,
-  Vector,
-  Vector3
-} from 'three'
+import { OrthographicCamera, PerspectiveCamera, Quaternion, Vector3 } from 'three'
 
 import { getState } from '@xrengine/hyperflux'
 
 import { Direction } from '../../common/constants/Axis3D'
-import { Q_IDENTITY, V_010 } from '../../common/constants/MathConstants'
+import { V_010 } from '../../common/constants/MathConstants'
 import checkPositionIsValid from '../../common/functions/checkPositionIsValid'
 import { rotate } from '../../common/functions/MathFunctions'
-import { smoothDamp } from '../../common/functions/MathLerpFunctions'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
@@ -30,7 +19,6 @@ import { getInteractionGroups } from '../../physics/functions/getInteractionGrou
 import { SceneQueryType } from '../../physics/types/PhysicsTypes'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { XRInputSourceComponent } from '../../xr/XRComponents'
 import { getControlMode, XRState } from '../../xr/XRState'
 import { updateXRCamera } from '../../xr/XRSystem'
 import { AvatarSettings, rotateBodyTowardsCameraDirection, rotateBodyTowardsVector } from '../AvatarControllerSystem'
@@ -76,6 +64,7 @@ export const moveLocalAvatar = (entity: Entity) => {
   const controller = getComponent(entity, AvatarControllerComponent)
   const rigidBody = getComponent(entity, RigidBodyComponent)
   const transform = getComponent(entity, TransformComponent)
+  const isInVR = getControlMode() === 'attached'
 
   let onGround = false
 
@@ -112,7 +101,9 @@ export const moveLocalAvatar = (entity: Entity) => {
   controller.velocitySimulator.simulate(timeStep * (onGround ? 1 : 0.2))
   const velocitySpringDirection = controller.velocitySimulator.position
 
-  controller.currentSpeed = controller.isWalking ? AvatarSettings.instance.walkSpeed : AvatarSettings.instance.runSpeed
+  // always walk in VR
+  controller.currentSpeed =
+    controller.isWalking || isInVR ? AvatarSettings.instance.walkSpeed : AvatarSettings.instance.runSpeed
 
   const prevVelocity = controller.body.linvel()
   const currentVelocity = tempVec1
