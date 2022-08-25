@@ -58,7 +58,7 @@ const finalOrientation = new Quaternion()
 
 export default async function AvatarControllerSystem(world: World) {
   const localControllerQuery = defineQuery([AvatarControllerComponent, LocalInputTagComponent])
-  const controllerQuery = defineQuery([AvatarControllerComponent, FollowCameraComponent])
+  const controllerQuery = defineQuery([AvatarControllerComponent])
 
   // const localXRInputQuery = defineQuery([
   //   LocalInputTagComponent,
@@ -101,9 +101,11 @@ export default async function AvatarControllerSystem(world: World) {
     for (const entity of controllerQuery()) {
       const controller = getComponent(entity, AvatarControllerComponent)
       const followCamera = getComponent(controller.cameraEntity, FollowCameraComponent)
-      // todo calculate head size and use that as the bound
-      if (followCamera.distance < 0.6) setComponent(entity, AvatarHeadDecapComponent, true)
-      else removeComponent(entity, AvatarHeadDecapComponent)
+      if (followCamera) {
+        // todo calculate head size and use that as the bound
+        if (followCamera.distance < 0.6) setComponent(entity, AvatarHeadDecapComponent, true)
+        else removeComponent(entity, AvatarHeadDecapComponent)
+      }
     }
 
     // for (const entity of localXRInputQuery.enter(world)) {
