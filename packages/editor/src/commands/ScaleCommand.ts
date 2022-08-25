@@ -42,9 +42,13 @@ function prepare(command: ScaleCommandParams) {
   if (command.keepHistory) {
     command.undo = {
       scales: command.affectedNodes.map((o) => {
-        return typeof o === 'string'
-          ? obj3dFromUuid(o).scale.clone()
-          : getComponent(o.entity, Object3DComponent).value.scale.clone() ?? new Vector3(1, 1, 1)
+        if (typeof o === 'string') {
+          return obj3dFromUuid(o).scale.clone()
+        } else if (hasComponent(o.entity, Object3DComponent)) {
+          return getComponent(o.entity, Object3DComponent)!.value.scale.clone()
+        } else if (hasComponent(o.entity, TransformComponent)) {
+          return getComponent(o.entity, TransformComponent)!.scale.clone()
+        } else throw new Error('No scalable component detected')
       }),
       space: TransformSpace.Local,
       overrideScale: true
@@ -102,9 +106,9 @@ function updateScale(command: ScaleCommandParams, isUndo: boolean): void {
         logger.warn('Scaling an object in world space with a non-uniform scale is not supported')
       }
       if (typeof node === 'string') {
-        obj3dFromUuid(node).scale.multiply(scale)
+        obj3dFromUuid(node).scale.copy(scale)
       } else {
-        getComponent(node.entity, TransformComponent).scale.multiply(scale)
+        getComponent(node.entity, TransformComponent).scale.copy(scale)
       }
     }
 
