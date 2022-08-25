@@ -97,21 +97,24 @@ export async function transformModel(app: Application, args: ModelTransformArgum
     }
   }
 
+  const resourceName = /*'model-resources'*/ path.basename(args.src).slice(0, path.basename(args.src).lastIndexOf('.'))
+  const resourcePath = path.join(path.dirname(args.src), resourceName)
+  const projectRoot = path.join(appRootPath.path, 'packages/projects')
+
   const toValidFilename = (name: string) => {
     let result = name.replace(/[\s]/, '-')
     return result
   }
 
   const toPath = (element: Texture | glBuffer, index?: number) => {
-    if (element instanceof Texture)
-      return `${toValidFilename(element.getName())}-${index}-${Date.now()}.${mimeToFileType(element.getMimeType())}`
-    else if (element instanceof glBuffer) return `buffer-${index}-${Date.now()}.bin`
+    if (element instanceof Texture) {
+      if (element.getURI()) {
+        return path.basename(element.getURI())
+      } else
+        return `${toValidFilename(element.getName())}-${index}-${Date.now()}.${mimeToFileType(element.getMimeType())}`
+    } else if (element instanceof glBuffer) return `buffer-${index}-${Date.now()}.bin`
     else throw new Error('invalid element to find path')
   }
-
-  const resourceName = path.basename(args.src).slice(0, path.basename(args.src).lastIndexOf('.'))
-  const resourcePath = path.join(path.dirname(args.src), resourceName)
-  const projectRoot = path.join(appRootPath.path, 'packages/projects')
 
   const fileUploadPath = (fUploadPath: string) => {
     const pathCheck = /.*\/packages\/projects\/(.*)\/([\w\d\s\-_\.]*)$/
@@ -126,7 +129,8 @@ export async function transformModel(app: Application, args: ModelTransformArgum
       await app.service('file-browser').remove(resourcePath.replace(projectRoot, ''))
     }
     //fs.mkdirSync(resourcePath)
-    await app.service('file-browser').create(resourcePath.replace(projectRoot, '') as any)
+    if (!fs.existsSync(resourcePath))
+      await app.service('file-browser').create(resourcePath.replace(projectRoot, '') as any)
   }
 
   const { io } = await ModelTransformLoader()

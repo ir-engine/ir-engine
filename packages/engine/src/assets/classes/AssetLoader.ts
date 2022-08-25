@@ -222,7 +222,7 @@ const getAssetClass = (assetFileName: string): AssetClass => {
     return AssetClass.Asset
   } else if (/\.(?:gltf|glb|vrm|fbx|obj)$/.test(assetFileName)) {
     return AssetClass.Model
-  } else if (/\.png|jpg|jpeg|tga$/.test(assetFileName)) {
+  } else if (/\.png|jpg|jpeg|tga|ktx2$/.test(assetFileName)) {
     return AssetClass.Image
   } else if (/\.mp4|avi|webm|mov$/.test(assetFileName)) {
     return AssetClass.Video
@@ -253,8 +253,22 @@ const audioLoader = () => new AudioLoader()
 const tgaLoader = () => new TGALoader()
 const xreLoader = () => new XRELoader(fileLoader())
 const videoLoader = () => ({ load: loadVideoTexture })
-const ktx2Loader = () =>
-  new KTX2Loader().setTranscoderPath('/loaders_decodes/basis/').detectSupport(EngineRenderer.instance)
+const ktx2Loader = () => ({
+  load: (src, onLoad) => {
+    const ktxLoader = gltfLoader.ktx2Loader
+    if (!ktxLoader) throw new Error('KTX2Loader not yet initialized')
+    ktxLoader.load(
+      src,
+      (texture) => {
+        console.log('KTX2Loader loaded texture', texture)
+        texture.source.data.src = src
+        onLoad(texture)
+      },
+      () => {},
+      () => {}
+    )
+  }
+})
 export const getLoader = (assetType: AssetType) => {
   switch (assetType) {
     case AssetType.XRE:
