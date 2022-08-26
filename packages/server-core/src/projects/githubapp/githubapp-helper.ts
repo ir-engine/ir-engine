@@ -9,6 +9,7 @@ import path from 'path'
 import { GITHUB_PER_PAGE, GITHUB_URL_REGEX } from '@xrengine/common/src/constants/GitHubConstants'
 import { GithubAppInterface } from '@xrengine/common/src/interfaces/GithubAppInterface'
 import { ProjectInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
+import { UserInterface } from '@xrengine/common/src/interfaces/User'
 import { isDev } from '@xrengine/common/src/utils/isDev'
 import {
   AudioFileTypes,
@@ -24,6 +25,7 @@ import { getStorageProvider } from '../../media/storageprovider/storageprovider'
 import { getFileKeysRecursive } from '../../media/storageprovider/storageProviderUtils'
 import { refreshAppConfig } from '../../updateAppConfig'
 import { deleteFolderRecursive, writeFileSyncRecursive } from '../../util/fsHelperFunctions'
+import { useGit } from '../../util/gitHelperFunctions'
 
 let app, appOctokit
 
@@ -99,6 +101,7 @@ export const getAuthenticatedRepo = async (repositoryPath: string) => {
 }
 
 export const getInstallationOctokit = async (repo) => {
+  if (!repo) return null
   let installationId
   await app.eachInstallation(({ installation }) => {
     if (repo.user == installation.account?.login) installationId = installation.id
@@ -180,7 +183,12 @@ export const getUserRepos = async (app, token): Promise<string[]> => {
   return repos
 }
 
-export const pushProjectToGithub = async (app: Application, project: ProjectInterface, user) => {
+export const pushProjectToGithub = async (
+  app: Application,
+  project: ProjectInterface,
+  user: UserInterface,
+  reset = false
+) => {
   const storageProvider = getStorageProvider()
   try {
     logger.info(`[ProjectPush]: Getting files for project "${project.name}"...`)
@@ -226,6 +234,7 @@ export const pushProjectToGithub = async (app: Application, project: ProjectInte
             repos.find((repo) => repo.repositoryPath === repoPath || repo.repositoryPath === repoPath + '.git')
           )
         })()
+    if (!octoKit) return
     try {
       const result = await octoKit.rest.repos.get({
         owner,
@@ -233,7 +242,6 @@ export const pushProjectToGithub = async (app: Application, project: ProjectInte
       })
     } catch (err) {
       if (err.status === 404) {
-        let result
         const authUser = await octoKit.rest.users.getAuthenticated()
         if (authUser.data.login === owner)
           await octoKit.repos.createForAuthenticatedUser({
@@ -244,7 +252,25 @@ export const pushProjectToGithub = async (app: Application, project: ProjectInte
       } else throw err
     }
     const defaultBranch = `${config.server.releaseName}-deployment`
-    await uploadToRepo(octoKit, files, owner, repo, defaultBranch, project.name, githubIdentityProvider != null)
+    if (reset) {
+      const projectDirectory = path.resolve(appRootPath.path, `packages/projects/projects/${project.name}/`)
+
+      // if project exists already, remove it and re-clone it
+      if (fs.existsSync(projectDirectory)) {
+        // if (isDev) throw new Error('Cannot create project - already exists')
+        deleteFolderRecursive(projectDirectory)
+      }
+
+      let repoPath = await getAuthenticatedRepo(project.repositoryPath)
+      if (!repoPath) repoPath = project.repositoryPath
+
+      const projectLocalDirectory = path.resolve(appRootPath.path, `packages/projects/projects/`)
+      const gitCloner = useGit(projectLocalDirectory)
+      await gitCloner.clone(repoPath)
+      const git = useGit(projectDirectory)
+      const branches = await git.branchLocal()
+      await git.push('origin', `${branches.current}:${defaultBranch}`, ['-f'])
+    } else await uploadToRepo(octoKit, files, owner, repo, defaultBranch, project.name, githubIdentityProvider != null)
     if (!isDev) deleteFolderRecursive(localProjectDirectory)
   } catch (err) {
     logger.error(err)
