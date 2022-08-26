@@ -10,7 +10,12 @@ function createConvexRegionHelper(navMesh: NavMesh) {
   const regions = navMesh.regions
 
   const geometry = new BufferGeometry()
-  const material = new MeshBasicMaterial({ vertexColors: true })
+  const material = new MeshBasicMaterial({
+    vertexColors: true,
+    polygonOffset: true,
+    polygonOffsetFactor: -1,
+    polygonOffsetUnits: 1
+  })
 
   const mesh = new Mesh(geometry, material)
 

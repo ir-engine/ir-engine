@@ -1,11 +1,12 @@
 import { Vector3 } from 'three'
-import { Path } from 'yuka'
 
 import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
 
 export type AutoPilotComponentType = {
+  // TODO remove this property?
   endPoint: Vector3
-  path: Path
+  path: Vector3[]
+  pathIndex: number
   speed: number
   maxSpeed: number
   minSpeed: number

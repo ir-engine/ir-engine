@@ -17,7 +17,7 @@ import { addComponent, getComponent, hasComponent, removeComponent } from '../ec
 import { useWorld } from '../ecs/functions/SystemHooks'
 import { InputComponent } from '../input/components/InputComponent'
 import { BaseInput } from '../input/enums/BaseInput'
-import { PhysicsDebugInput } from '../input/enums/DebugEnum'
+import { NavigationDebugInput, PhysicsDebugInput } from '../input/enums/DebugEnum'
 import {
   AvatarMovementScheme,
   CameraInput,
@@ -536,6 +536,17 @@ export const handlePhysicsDebugEvent = (entity: Entity, inputKey: InputAlias, in
   }
 }
 
+export const handleNavigationDebugEvent = (entity: Entity, inputKey: InputAlias, inputValue: InputValue): void => {
+  if (inputValue.lifecycleState !== LifecycleValue.Ended) return
+  if (inputKey === NavigationDebugInput.TOGGLE_NAVIGATION_DEBUG) {
+    dispatchAction(
+      EngineRendererAction.setNavigationDebug({
+        navigationDebugEnable: !accessEngineRendererState().navigationDebugEnable.value
+      })
+    )
+  }
+}
+
 export const createAvatarInput = () => {
   const map: Map<InputAlias | Array<InputAlias>, InputAlias> = new Map()
   map.set(MouseInput.LeftButton, BaseInput.PRIMARY)
@@ -596,6 +607,7 @@ export const createAvatarInput = () => {
   if (isDev) {
     map.set('KeyQ', PhysicsDebugInput.GENERATE_DYNAMIC_DEBUG_CUBE)
     map.set('KeyP', PhysicsDebugInput.TOGGLE_PHYSICS_DEBUG)
+    map.set('KeyN', NavigationDebugInput.TOGGLE_NAVIGATION_DEBUG)
   }
 
   map.set('ArrowLeft', BaseInput.CAMERA_ROTATE_LEFT)
@@ -654,6 +666,8 @@ export const createBehaviorMap = () => {
 
   map.set(PhysicsDebugInput.GENERATE_DYNAMIC_DEBUG_CUBE, handlePhysicsDebugEvent)
   map.set(PhysicsDebugInput.TOGGLE_PHYSICS_DEBUG, handlePhysicsDebugEvent)
+
+  map.set(NavigationDebugInput.TOGGLE_NAVIGATION_DEBUG, handleNavigationDebugEvent)
 
   return map
 }

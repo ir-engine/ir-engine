@@ -21,6 +21,7 @@ type EngineRendererStateType = {
   usePostProcessing: boolean
   useShadows: boolean
   physicsDebugEnable: boolean
+  navigationDebugEnable: boolean
   avatarDebugEnable: boolean
   renderMode: RenderModesType
   nodeHelperVisibility: boolean
@@ -37,6 +38,7 @@ const EngineRendererState = defineState({
     usePostProcessing: false,
     useShadows: false,
     physicsDebugEnable: false,
+    navigationDebugEnable: false,
     avatarDebugEnable: false,
     renderMode: RenderModes.SHADOW as RenderModesType,
     nodeHelperVisibility: false,
@@ -61,6 +63,10 @@ export function restoreEngineRendererData() {
       ClientStorage.get(RenderSettingKeys.PHYSICS_DEBUG_ENABLE).then((v: boolean) => {
         if (typeof v !== 'undefined')
           dispatchAction(EngineRendererAction.setPhysicsDebug({ physicsDebugEnable: Boolean(v) }))
+      }),
+      ClientStorage.get(RenderSettingKeys.NAVIGATION_DEBUG_ENABLE).then((v: boolean) => {
+        if (typeof v !== 'undefined')
+          dispatchAction(EngineRendererAction.setNavigationDebug({ navigationDebugEnable: Boolean(v) }))
       }),
       ClientStorage.get(RenderSettingKeys.AVATAR_DEBUG_ENABLE).then((v: boolean) => {
         if (typeof v !== 'undefined')
@@ -101,6 +107,7 @@ function updateState(): void {
   setUseShadows(state.useShadows.value)
 
   dispatchAction(EngineRendererAction.setPhysicsDebug({ physicsDebugEnable: state.physicsDebugEnable.value }))
+  dispatchAction(EngineRendererAction.setNavigationDebug({ navigationDebugEnable: state.navigationDebugEnable.value }))
   dispatchAction(EngineRendererAction.setAvatarDebug({ avatarDebugEnable: state.avatarDebugEnable.value }))
 
   if (Engine.instance.isEditor) {
@@ -168,6 +175,12 @@ export class EngineRendererReceptor {
     const s = getState(EngineRendererState)
     s.merge({ physicsDebugEnable: action.physicsDebugEnable })
     ClientStorage.set(RenderSettingKeys.PHYSICS_DEBUG_ENABLE, action.physicsDebugEnable)
+  }
+
+  static setNavigationDebug(action: typeof EngineRendererAction.setNavigationDebug.matches._TYPE) {
+    const s = getState(EngineRendererState)
+    s.merge({ navigationDebugEnable: action.navigationDebugEnable })
+    ClientStorage.set(RenderSettingKeys.NAVIGATION_DEBUG_ENABLE, action.navigationDebugEnable)
   }
 
   static setAvatarDebug(action: typeof EngineRendererAction.setAvatarDebug.matches._TYPE) {
@@ -242,6 +255,11 @@ export class EngineRendererAction {
   static setPhysicsDebug = defineAction({
     type: 'xre.renderer.PHYSICS_DEBUG_CHANGED' as const,
     physicsDebugEnable: matches.boolean
+  })
+
+  static setNavigationDebug = defineAction({
+    type: 'xre.renderer.NAVIGATION_DEBUG_CHANGED' as const,
+    navigationDebugEnable: matches.boolean
   })
 
   static setAvatarDebug = defineAction({

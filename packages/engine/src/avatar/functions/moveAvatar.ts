@@ -81,20 +81,22 @@ export const moveAvatar = (world: World, entity: Entity, camera: PerspectiveCame
   // velocity.linear.setZ(newVelocity.z)
 
   // threejs camera is weird, when in VR we must use the head diretion
-  if (hasComponent(entity, XRInputSourceComponent))
-    getComponent(entity, XRInputSourceComponent).head.getWorldDirection(tempVec1)
-  else camera.getWorldDirection(tempVec1)
+  if (controller.movementMode === 'relative') {
+    if (hasComponent(entity, XRInputSourceComponent))
+      getComponent(entity, XRInputSourceComponent).head.getWorldDirection(tempVec1)
+    else camera.getWorldDirection(tempVec1)
 
-  // vec3 holds state of (controller input * timeStep)
-  // set y to 0 and normalize horizontal plane
-  tempVec1.setY(0).normalize()
+    // vec3 holds state of (controller input * timeStep)
+    // set y to 0 and normalize horizontal plane
+    tempVec1.setY(0).normalize()
 
-  // forward.z = 1
-  // quat = forward w/(controller input * timeStep)
-  quat.setFromUnitVectors(forward, tempVec1)
+    // forward.z = 1
+    // quat = forward w/(controller input * timeStep)
+    quat.setFromUnitVectors(forward, tempVec1)
 
-  // apply quat to avatar velocity (= velocity sim position * moveSpeed)
-  newVelocity.applyQuaternion(quat)
+    // apply quat to avatar velocity (= velocity sim position * moveSpeed)
+    newVelocity.applyQuaternion(quat)
+  }
 
   if (onGround) {
     velocity.linear.y = newVelocity.y = 0

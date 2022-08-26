@@ -37,7 +37,7 @@ describe('NavigationSystem', async () => {
     const entity = createEntity(world)
     sceneObjectUpdateAction = { entities: [entity] }
 
-    addComponent(entity, NavMeshComponent, { value: new NavMesh(), debugMode: false })
+    addComponent(entity, NavMeshComponent, { value: new NavMesh() })
 
     navigationSystem()
 
@@ -48,7 +48,7 @@ describe('NavigationSystem', async () => {
     const world = Engine.instance.currentWorld
     const entity = createEntity(world)
 
-    addComponent(entity, NavMeshComponent, { value: new NavMesh(), debugMode: false })
+    addComponent(entity, NavMeshComponent, { value: new NavMesh() })
     addComponent(entity, Object3DComponent, { value: new Object3D() })
 
     navigationSystem()

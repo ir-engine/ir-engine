@@ -7,6 +7,7 @@ import { NavMeshComponent } from '../../scene/components/NavMeshComponent'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { updateNavMesh } from '../../scene/functions/loaders/NavMeshFunctions'
 
+// TODO merge AutoPilotSystem with NavigationSystem?
 export default async function NavigationSystem(_: World) {
   const queryNavMesh = defineQuery([NavMeshComponent])
   const queryNavMeshAndObject3D = defineQuery([NavMeshComponent, Object3DComponent])

@@ -19,10 +19,11 @@ import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
-import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
+import { addComponent, defineQuery, getComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
 import { BoundingBoxComponent } from '../../interaction/components/BoundingBoxComponent'
+import { AutoPilotComponent } from '../../navigation/component/AutoPilotComponent'
 import { createConvexRegionHelper } from '../../navigation/functions/createConvexRegionHelper'
-import { createGraphHelper } from '../../navigation/GraphHelper'
+import { createGraphHelper, createPathHelper } from '../../navigation/GraphHelper'
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
 import { accessEngineRendererState, EngineRendererAction } from '../../renderer/EngineRendererState'
 import InfiniteGridHelper from '../../scene/classes/InfiniteGridHelper'
@@ -30,6 +31,7 @@ import { NavMeshComponent } from '../../scene/components/NavMeshComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { XRInputSourceComponent } from '../../xr/components/XRInputSourceComponent'
 import { DebugArrowComponent } from '../DebugArrowComponent'
+import { DebugAutoPilotComponent } from '../DebugAutoPilotComponent'
 import { DebugNavMeshComponent } from '../DebugNavMeshComponent'
 import { DebugRenderer } from './DebugRenderer'
 
@@ -52,17 +54,15 @@ export default async function DebugHelpersSystem(world: World) {
     helperArrow: new Map(),
     velocityArrow: new Map(),
     navmesh: new Map(),
-    navpath: new Map()
+    autoPilot: new Map()
   }
 
   const avatarDebugQuery = defineQuery([AvatarComponent, VelocityComponent, TransformComponent])
   const boundingBoxQuery = defineQuery([BoundingBoxComponent])
   const arrowHelperQuery = defineQuery([DebugArrowComponent])
   const ikAvatarQuery = defineQuery([XRInputSourceComponent])
-  const navmeshQuery = defineQuery([DebugNavMeshComponent, NavMeshComponent])
-  // const navpathQuery = defineQuery([AutoPilotComponent])
-  // const navpathAddQuery = enterQuery(navpathQuery)
-  // const navpathRemoveQuery = exitQuery(navpathQuery)
+  const navmeshQuery = defineQuery([DebugNavMeshComponent])
+  const autoPilotQuery = defineQuery([DebugAutoPilotComponent, AutoPilotComponent])
 
   function avatarDebugUpdate(avatarDebugEnable: boolean) {
     helpersByEntity.viewVector.forEach((obj: Object3D) => {
@@ -200,30 +200,46 @@ export default async function DebugHelpersSystem(world: World) {
     }
 
     // ===== NAVMESH Helper ===== //
-    // TODO decide what to do with this system
+    for (const entity of navmeshQuery.exit()) {
+      // TODO some kind of bug making this necessary
+      const helper = helpersByEntity.navmesh.get(entity) as Object3D
+      Engine.instance.currentWorld.scene.remove(helper)
+      helpersByEntity.navmesh.delete(entity)
+    }
     for (const entity of navmeshQuery.enter()) {
       const navMesh = getComponent(entity, NavMeshComponent).value
       const convexRegionHelper = createConvexRegionHelper(navMesh)
       const graphHelper = createGraphHelper(navMesh.graph, 0.2)
       const helper = new Group()
+      const transform = getComponent(entity, TransformComponent)
       helper.add(convexRegionHelper, graphHelper)
+      helper.position.copy(transform.position)
+      helper.quaternion.copy(transform.rotation)
+      helper.scale.copy(transform.scale)
       Engine.instance.currentWorld.scene.add(helper)
       helpersByEntity.navmesh.set(entity, helper)
     }
-    for (const entity of navmeshQuery()) {
-      // update
-      const helper = helpersByEntity.navmesh.get(entity) as Object3D
-      const transform = getComponent(entity, TransformComponent)
-      helper.position.copy(transform.position)
-      helper.quaternion.copy(transform.rotation)
+    for (const entity of autoPilotQuery.exit()) {
+      if (helpersByEntity.autoPilot.has(entity)) {
+        const helper = helpersByEntity.autoPilot.get(entity) as Object3D
+        Engine.instance.currentWorld.scene.remove(helper)
+        helpersByEntity.autoPilot.delete(entity)
+      }
     }
-    for (const entity of navmeshQuery.exit()) {
-      const helper = helpersByEntity.navmesh.get(entity) as Object3D
-      Engine.instance.currentWorld.scene.remove(helper)
-      helpersByEntity.navmesh.delete(entity)
+    for (const entity of autoPilotQuery.enter()) {
+      const navMeshEntity = getComponent(entity, DebugAutoPilotComponent).navMeshEntity
+      const path = getComponent(entity, DebugAutoPilotComponent).polygonPath
+      if (path.length > 0) {
+        const navMesh = getComponent(navMeshEntity, NavMeshComponent).value
+        const navMeshTransform = getComponent(navMeshEntity, TransformComponent)
+        const helper = createPathHelper(navMesh, path, 0.2)
+        helper.position.copy(navMeshTransform.position)
+        helper.quaternion.copy(navMeshTransform.rotation)
+        helper.scale.copy(navMeshTransform.scale)
+        Engine.instance.currentWorld.scene.add(helper)
+        helpersByEntity.autoPilot.set(entity, helper)
+      }
     }
-    // ===== Autopilot Helper ===== //
-    // TODO add createPathHelper for navpathQuery
 
     physicsDebugRenderer(world, accessEngineRendererState().physicsDebugEnable.value)
   }

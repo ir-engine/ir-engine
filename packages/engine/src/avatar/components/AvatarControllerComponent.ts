@@ -18,6 +18,7 @@ export type AvatarControllerComponentType = {
   currentSpeed: number
   speedVelocity: { value: number }
   lastPosition: Vector3
+  movementMode: 'relative' | 'absolute'
 }
 
 export const AvatarControllerComponent =

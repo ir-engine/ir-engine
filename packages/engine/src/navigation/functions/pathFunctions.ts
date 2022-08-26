@@ -1,18 +1,34 @@
 import { Vector3 } from 'three'
-import { NavMesh, Path, Vector3 as YukaVector3 } from 'yuka'
 
-export const updatePath = (path: Path, navMesh: NavMesh, from: Vector3, to: Vector3, base = from): Path => {
-  // graph is in local coordinates, we need to convert "from" and "to" to local using "base" and center
-  // TODO: handle scale and rotation of graph object, pass world matrix?
-  const graphBaseCoordinate = new YukaVector3(base.x, base.y, base.z)
-  const localFrom = new YukaVector3(from.x, from.y, from.z).sub(graphBaseCoordinate)
-  const localTo = new YukaVector3(to.x, to.y, to.z).sub(graphBaseCoordinate)
-  const points = navMesh.findPath(localFrom, localTo)
+import { NavMesh } from '../../scene/classes/NavMesh'
+import { fromYukaVector, toYukaVector } from './vectorFunctions'
 
-  path.clear()
-  for (const point of points) {
-    const worldPoint = point.clone().add(graphBaseCoordinate) // convert point back to world coordinates
-    path.add(worldPoint)
+export const updatePath = (
+  path: Vector3[],
+  navMesh: NavMesh,
+  from: Vector3,
+  to: Vector3,
+  debugInfo: null | { polygonPath: number[] }
+): Vector3[] => {
+  const points = navMesh.findPath(toYukaVector(from), toYukaVector(to), debugInfo)
+
+  // Copy array
+  for (let i = 0; i < points.length; i++) {
+    if (path[i]) {
+      path[i].copy(points[i] as any)
+    } else {
+      path[i] = fromYukaVector(points[i])
+    }
   }
+  path.length = points.length
+
   return path
+}
+
+export function findLengthSquared(path: Vector3[], startIndex: number): number {
+  let result = 0
+  for (let i = startIndex; i < path.length - 1; i++) {
+    result += path[i].distanceToSquared(path[i + 1])
+  }
+  return result
 }

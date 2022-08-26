@@ -1,4 +1,4 @@
-import { Object3D } from 'three'
+import { Matrix4, Object3D } from 'three'
 import { Polygon, Vector3 } from 'yuka'
 
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
@@ -19,7 +19,7 @@ import { NavMeshComponent, NavMeshComponentType } from '../../components/NavMesh
 import { Object3DComponent } from '../../components/Object3DComponent'
 
 export const SCENE_COMPONENT_NAV_MESH = 'navMesh'
-export const SCENE_COMPONENT_NAV_MESH_DEFAULT_VALUES: Partial<NavMeshComponentType> = { debugMode: false }
+export const SCENE_COMPONENT_NAV_MESH_DEFAULT_VALUES: Partial<NavMeshComponentType> = {}
 
 export const deserializeNavMesh: ComponentDeserializeFunction = (
   entity: Entity,
@@ -36,7 +36,7 @@ export const deserializeNavMesh: ComponentDeserializeFunction = (
   updateNavMesh(entity, props)
 }
 
-function parseGeometry(position: ArrayLike<number>, index?: ArrayLike<number>) {
+function parseGeometry(position: ArrayLike<number>, index: ArrayLike<number> | undefined, transform: Matrix4) {
   const vertices = new Array()
   const polygons = new Array()
 
@@ -48,6 +48,8 @@ function parseGeometry(position: ArrayLike<number>, index?: ArrayLike<number>) {
     v.x = position[i + 0]
     v.y = position[i + 1]
     v.z = position[i + 2]
+
+    v.applyMatrix4(transform as any)
 
     vertices.push(v)
   }
@@ -90,23 +92,22 @@ function setNavMeshPolygons(navMesh: NavMesh, obj3d: Object3D) {
     const geometry = mesh.geometry
     const position = geometry.getAttribute('position').array
     const index = geometry.getIndex()?.array
-    const polygons = parseGeometry(position, index)
+
+    // Apply mesh's transforms to mesh's geometry
+    const matrix = mesh.matrix
+    const polygons = parseGeometry(position, index, matrix)
     // This will also clear any existing polygons
     navMesh.fromPolygons(polygons)
   }
 }
 
-export const updateNavMesh: ComponentUpdateFunction = (entity: Entity, properties: NavMeshComponentType) => {
+export const updateNavMesh: ComponentUpdateFunction = (entity: Entity, _properties: NavMeshComponentType) => {
   const navMesh = getComponent(entity, NavMeshComponent).value
 
   if (hasComponent(entity, Object3DComponent)) {
     const obj3d = getComponent(entity, Object3DComponent).value
     setNavMeshPolygons(navMesh, obj3d)
-    if (properties.debugMode) {
-      addComponent(entity, DebugNavMeshComponent, {})
-    } else {
-      removeComponent(entity, DebugNavMeshComponent)
-    }
+    removeComponent(entity, DebugNavMeshComponent)
   }
 }
 
