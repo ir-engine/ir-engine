@@ -87,8 +87,16 @@ export const FriendService = {
   unfriend: (userId: string, relatedUserId: string) => {
     return removeRelation(userId, relatedUserId)
   },
-  blockUser: (userId: string, relatedUserId: string) => {
-    return createRelation(userId, relatedUserId, 'blocking')
+  blockUser: async (userId: string, relatedUserId: string) => {
+    try {
+      await API.instance.client.service('user-relationship').patch(relatedUserId, {
+        userRelationshipType: 'blocking'
+      })
+
+      FriendService.getUserRelationship(userId)
+    } catch (err) {
+      logger.error(err)
+    }
   },
   unblockUser: (userId: string, relatedUserId: string) => {
     return removeRelation(userId, relatedUserId)

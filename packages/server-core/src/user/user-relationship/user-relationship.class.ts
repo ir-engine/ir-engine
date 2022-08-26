@@ -118,8 +118,8 @@ export class UserRelationship<T = UserRelationshipDataType> extends Service<T> {
       await this.app.service('user').get(id)
       //The ID resolves to a userId, in which case patch the relation joining that user to the requesting one
       whereParams = {
-        userId: id,
-        relatedUserId: params.user.id
+        userId: params.user.id,
+        relatedUserId: id
       }
     } catch (err) {
       //The ID does not resolve to a user, in which case it's the ID of the user-relationship object, so patch it
@@ -141,14 +141,14 @@ export class UserRelationship<T = UserRelationshipDataType> extends Service<T> {
         }
       )
 
-      if (userRelationshipType === 'friend') {
+      if (userRelationshipType === 'friend' || userRelationshipType === 'blocking') {
         const result = await UserRelationshipModel.findOne({
           where: whereParams
         })
 
         await UserRelationshipModel.update(
           {
-            userRelationshipType: 'friend'
+            userRelationshipType: userRelationshipType === 'friend' ? 'friend' : 'blocked'
           },
           {
             where: {
