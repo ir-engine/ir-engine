@@ -14,6 +14,5 @@ export const MountPointComponent = createMappedComponent<MountPointComponentType
 
 export const SCENE_COMPONENT_MOUNT_POINT = 'mount-point'
 export const SCENE_COMPONENT_MOUNT_POINT_DEFAULT_VALUES = {
-  type: 'seat',
-  animation: {}
-}
+  type: MountPoint.seat
+} as MountPointComponentType

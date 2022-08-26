@@ -126,27 +126,6 @@ export default async function InteractiveSystem(world: World) {
       if (hasComponent(entity, HighlightComponent)) removeComponent(entity, HighlightComponent)
     }
 
-    // for (const entity of interactableQuery.enter()) {
-    //   const interactable = getComponent(entity, InteractableComponent)
-    //   const transform = getComponent(entity, TransformComponent)
-    //   const obj = getComponent(entity, Object3DComponent).value
-    //   const boundingBoxComponent = getComponent(entity, BoundingBoxComponent)
-
-    //   // center the model within it's bounding box
-    //   boundingBoxComponent.box.setFromObject(obj)
-    //   const offset = boundingBoxComponent.box.getCenter(obj.children[0].position).sub(transform.position).negate()
-    //   obj.position.sub(offset)
-
-    //   // put the model on the UI layer
-    //   setObjectLayers(obj, ObjectLayers.UI)
-
-    //   interactable.anchorPosition.copy(transform.position)
-    //   interactable.anchorRotation.copy(transform.rotation)
-
-    //   // const helper = new AxesHelper(1)
-    //   // obj.add(helper)
-    // }
-
     if (Engine.instance.currentWorld.localClientEntity) {
       const interactables = interactableQuery()
 

@@ -994,6 +994,12 @@
         {
           "name": "visible",
           "props": {}
+        },
+        {
+          "name": "mount-point",
+          "props": {
+            "type": "seat"
+          }
         }
       ],
       "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
