@@ -1,5 +1,5 @@
 import { useHookstate } from '@hookstate/core'
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { SendInvite } from '@xrengine/common/src/interfaces/Invite'
@@ -46,6 +46,12 @@ const AvatarContextMenu = ({ changeActiveMenu, user }: Props): JSX.Element => {
   // TODO: move these to widget register
   PartyService.useAPIListeners()
   FriendService.useAPIListeners()
+
+  useEffect(() => {
+    if (friendState.updateNeeded.value === true) {
+      FriendService.getUserRelationship(selfId)
+    }
+  }, [friendState.updateNeeded.value])
 
   const inviteToParty = () => {
     if (authState.user?.partyId?.value && user?.id) {
