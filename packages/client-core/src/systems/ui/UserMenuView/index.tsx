@@ -128,7 +128,11 @@ const AvatarContextMenu = () => {
                 </>
               )}
 
-              {isRequested && <XRTextButton disabled>{t('user:personMenu.requestSent')}</XRTextButton>}
+              {isRequested && (
+                <XRTextButton onClick={() => FriendService.unfriend(selfId, user?.id.value)}>
+                  {t('user:personMenu.cancelRequest')}
+                </XRTextButton>
+              )}
 
               <XRTextButton onClick={handleMute}>{t('user:personMenu.mute')}</XRTextButton>
 

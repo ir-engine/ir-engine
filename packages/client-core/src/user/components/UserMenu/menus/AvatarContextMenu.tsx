@@ -7,7 +7,7 @@ import { UserInterface } from '@xrengine/common/src/interfaces/User'
 import { WorldState } from '@xrengine/engine/src/networking/interfaces/WorldState'
 import { getState } from '@xrengine/hyperflux'
 
-import { Typography } from '@mui/material'
+import { Chip, Typography } from '@mui/material'
 import Button from '@mui/material/Button'
 
 import { NotificationService } from '../../../../common/services/NotificationService'
@@ -117,6 +117,14 @@ const AvatarContextMenu = ({ changeActiveMenu, user }: Props): JSX.Element => {
 
               {isPending && (
                 <>
+                  <Chip
+                    className={styles.chip}
+                    sx={{ margin: '10px 0 !important' }}
+                    label={t('user:friends.pending')}
+                    size="small"
+                    variant="outlined"
+                  />
+
                   <Button
                     className={styles.gradientBtn}
                     onClick={() => {
@@ -140,9 +148,25 @@ const AvatarContextMenu = ({ changeActiveMenu, user }: Props): JSX.Element => {
               )}
 
               {isRequested && (
-                <Button className={styles.gradientBtn} disabled>
-                  {t('user:personMenu.requestSent')}
-                </Button>
+                <>
+                  <Chip
+                    className={styles.chip}
+                    sx={{ margin: '10px 0 !important' }}
+                    label={t('user:friends.requested')}
+                    size="small"
+                    variant="outlined"
+                  />
+
+                  <Button
+                    className={styles.gradientBtn}
+                    onClick={() => {
+                      FriendService.unfriend(selfId, user.id)
+                      changeActiveMenu(Views.Friends)
+                    }}
+                  >
+                    {t('user:personMenu.cancelRequest')}
+                  </Button>
+                </>
               )}
 
               <Button className={styles.gradientBtn} onClick={handleMute}>

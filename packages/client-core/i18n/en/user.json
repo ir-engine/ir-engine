@@ -371,7 +371,7 @@
   "personMenu": {
     "inviteToParty": "Invite To Party",
     "addAsFriend": "Add As Friend",
-    "requestSent": "Friend Request Sent",
+    "cancelRequest": "Cancel Request",
     "unFriend": "Unfriend",
     "acceptRequest": "Accept Request",
     "declineRequest": "Decline Request",
