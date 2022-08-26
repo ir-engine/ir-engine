@@ -13,9 +13,7 @@ import { GamepadAxis } from '../enums/InputEnums'
 import { InputType } from '../enums/InputType'
 import { InputValue } from '../interfaces/InputValue'
 import { InputAlias } from '../types/InputAlias'
-import ClientInputSystem, { processCombinationLifecycle, processEngineInputState } from './ClientInputSystem'
-
-const stickPosition: NumericalType = [0, 0, 0]
+import { processCombinationLifecycle, processEngineInputState } from './ClientInputSystem'
 
 describe('ClientInputSystem Unit Tests', () => {
   beforeEach(() => {
@@ -23,81 +21,84 @@ describe('ClientInputSystem Unit Tests', () => {
   })
 
   describe('processEngineInputState', () => {
-    it('add new input - Started state', () => {
-      Engine.instance.currentWorld.inputState.set(GamepadAxis.Left, {
+    it('Started state with non zero values should populate', () => {
+      Engine.instance.currentWorld.inputState.set(GamepadAxis.LThumbstick, {
         type: InputType.TWODIM,
-        value: stickPosition,
+        value: [1, 1],
         lifecycleState: LifecycleValue.Started
       })
-
-      assert.strictEqual(Engine.instance.currentWorld.inputState.size, 1)
       processEngineInputState()
       assert.strictEqual(Engine.instance.currentWorld.inputState.size, 1)
     })
 
-    it('add new input - Ended state', () => {
-      Engine.instance.currentWorld.inputState.set(GamepadAxis.Right, {
+    it('Started state with non zero values should not populate', () => {
+      Engine.instance.currentWorld.inputState.set(GamepadAxis.LThumbstick, {
         type: InputType.TWODIM,
-        value: stickPosition,
-        lifecycleState: LifecycleValue.Ended
-      })
-      Engine.instance.currentWorld.inputState.set(GamepadAxis.Left, {
-        type: InputType.TWODIM,
-        value: stickPosition,
+        value: [0, 0],
         lifecycleState: LifecycleValue.Started
       })
-
-      assert.strictEqual(Engine.instance.currentWorld.inputState.size, 2)
-      assert.strictEqual(
-        Engine.instance.currentWorld.inputState.get(GamepadAxis.Left)?.lifecycleState,
-        LifecycleValue.Started
-      )
-      assert.strictEqual(
-        Engine.instance.currentWorld.inputState.get(GamepadAxis.Right)?.lifecycleState,
-        LifecycleValue.Ended
-      )
+      processEngineInputState()
+      assert.strictEqual(Engine.instance.currentWorld.inputState.size, 0)
     })
 
-    it('Two similar state becomes unchanged', () => {
-      Engine.instance.currentWorld.inputState.set(GamepadAxis.Left, {
+    it('Started state twice without change should become unchanged', () => {
+      Engine.instance.currentWorld.prevInputState.set(GamepadAxis.LThumbstick, {
         type: InputType.TWODIM,
-        value: stickPosition,
+        value: [0.5, 0.5],
         lifecycleState: LifecycleValue.Started
       })
-
+      Engine.instance.currentWorld.inputState.set(GamepadAxis.LThumbstick, {
+        type: InputType.TWODIM,
+        value: [0.5, 0.5],
+        lifecycleState: LifecycleValue.Started
+      })
       processEngineInputState()
+
       assert.strictEqual(
-        Engine.instance.currentWorld.inputState.get(GamepadAxis.Left)?.lifecycleState,
+        Engine.instance.currentWorld.prevInputState.get(GamepadAxis.LThumbstick)?.lifecycleState,
         LifecycleValue.Started
       )
-      assert.strictEqual(Engine.instance.currentWorld.inputState.size, 1)
-
-      Engine.instance.currentWorld.inputState.set(GamepadAxis.Left, {
-        type: InputType.TWODIM,
-        value: stickPosition,
-        lifecycleState: LifecycleValue.Started
-      })
-      processEngineInputState()
+      assert.strictEqual(Engine.instance.currentWorld.prevInputState.size, 1)
       assert.strictEqual(
-        Engine.instance.currentWorld.inputState.get(GamepadAxis.Left)?.lifecycleState,
+        Engine.instance.currentWorld.inputState.get(GamepadAxis.LThumbstick)?.lifecycleState,
         LifecycleValue.Unchanged
       )
       assert.strictEqual(Engine.instance.currentWorld.inputState.size, 1)
     })
 
-    it('set the first input into ended', () => {
-      Engine.instance.currentWorld.inputState.set(GamepadAxis.Left, {
+    it('Started state twice with change should become changed', () => {
+      Engine.instance.currentWorld.prevInputState.set(GamepadAxis.LThumbstick, {
         type: InputType.TWODIM,
-        value: stickPosition,
+        value: [0.5, 0.5],
+        lifecycleState: LifecycleValue.Started
+      })
+      Engine.instance.currentWorld.inputState.set(GamepadAxis.LThumbstick, {
+        type: InputType.TWODIM,
+        value: [0.5, 1],
+        lifecycleState: LifecycleValue.Started
+      })
+      processEngineInputState()
+
+      assert.strictEqual(
+        Engine.instance.currentWorld.inputState.get(GamepadAxis.LThumbstick)?.lifecycleState,
+        LifecycleValue.Changed
+      )
+      assert.strictEqual(Engine.instance.currentWorld.inputState.size, 1)
+    })
+
+    it('Ended state twice with change should remove', () => {
+      Engine.instance.currentWorld.prevInputState.set(GamepadAxis.LThumbstick, {
+        type: InputType.TWODIM,
+        value: [0, 0],
+        lifecycleState: LifecycleValue.Ended
+      })
+      Engine.instance.currentWorld.inputState.set(GamepadAxis.LThumbstick, {
+        type: InputType.TWODIM,
+        value: [0, 0],
         lifecycleState: LifecycleValue.Ended
       })
       processEngineInputState()
-      assert.strictEqual(Engine.instance.currentWorld.inputState.size, 1)
-      assert.strictEqual(
-        Engine.instance.currentWorld.inputState.get(GamepadAxis.Left)?.lifecycleState,
-        LifecycleValue.Ended
-      )
-      processEngineInputState()
+
       assert.strictEqual(Engine.instance.currentWorld.inputState.size, 0)
     })
   })
@@ -170,7 +171,7 @@ describe('ClientInputSystem Unit Tests', () => {
       assert.strictEqual(resultData.type, InputType.BUTTON)
       assert.strictEqual(resultData.value.length, 1)
       assert.strictEqual(resultData.value[0], BinaryValue.ON)
-      assert.strictEqual(resultData.lifecycleState, LifecycleValue.Continued)
+      assert.strictEqual(resultData.lifecycleState, LifecycleValue.Unchanged)
     })
 
     it('should end combination when previously started', () => {
@@ -214,7 +215,7 @@ describe('ClientInputSystem Unit Tests', () => {
       prevData.set(mapping, {
         type: InputType.BUTTON,
         value: [BinaryValue.ON],
-        lifecycleState: LifecycleValue.Continued
+        lifecycleState: LifecycleValue.Unchanged
       })
 
       processCombinationLifecycle(inputComponent, prevData, mapping, input)

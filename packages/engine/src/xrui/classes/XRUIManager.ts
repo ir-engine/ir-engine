@@ -1,7 +1,5 @@
 import { Object3D, Ray } from 'three'
 
-import { Engine } from '../../ecs/classes/Engine'
-
 export class XRUIManager {
   static instance: XRUIManager
 

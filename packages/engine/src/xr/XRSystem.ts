@@ -1,6 +1,13 @@
+import { PerspectiveCamera, Quaternion } from 'three'
+
 import { createHookableFunction } from '@xrengine/common/src/utils/createMutableFunction'
 import { createActionQueue, dispatchAction, getState } from '@xrengine/hyperflux'
 
+import { AvatarComponent } from '../avatar/components/AvatarComponent'
+import { AvatarHeadDecapComponent } from '../avatar/components/AvatarHeadDecapComponent'
+import { FollowCameraComponent } from '../camera/components/FollowCameraComponent'
+import { V_010 } from '../common/constants/MathConstants'
+import { GamepadAxis } from '../input/enums/InputEnums'
 import { SkyboxComponent } from '../scene/components/SkyboxComponent'
 import { updateSkybox } from '../scene/functions/loaders/SkyboxFunctions'
 import { AssetLoader } from './../assets/classes/AssetLoader'
@@ -9,17 +16,18 @@ import { LifecycleValue } from './../common/enums/LifecycleValue'
 import { matches } from './../common/functions/MatchesUtils'
 import { Engine } from './../ecs/classes/Engine'
 import { World } from './../ecs/classes/World'
-import { defineQuery, getComponent } from './../ecs/functions/ComponentFunctions'
+import { addComponent, defineQuery, getComponent } from './../ecs/functions/ComponentFunctions'
 import { hasComponent, removeComponent } from './../ecs/functions/ComponentFunctions'
 import { InputType } from './../input/enums/InputType'
-import { gamepadMapping } from './../input/functions/GamepadInput'
+import { GamepadMapping } from './../input/functions/GamepadInput'
 import { EngineRenderer } from './../renderer/WebGLRendererSystem'
 import { XRAction } from './XRAction'
 import { XRHandsInputComponent, XRInputSourceComponent } from './XRComponents'
 import { cleanXRInputs, updateXRControllerAnimations } from './XRControllerFunctions'
 import { proxifyXRInputs, setupLocalXRInputs, setupXRInputSourceComponent } from './XRFunctions'
-import { XRState } from './XRState'
+import { getControlMode, XRState } from './XRState'
 
+const rot180Y = new Quaternion().setFromAxisAngle(V_010, Math.PI)
 const skyboxQuery = defineQuery([SkyboxComponent])
 
 export const requestXRSession = createHookableFunction(
@@ -42,22 +50,44 @@ export const requestXRSession = createHookableFunction(
       xrState.sessionActive.set(true)
       if (mode === 'immersive-ar') EngineRenderer.instance.canvas.style.display = 'none'
       EngineRenderer.instance.xrSession = session
-      EngineRenderer.instance.xrManager.setSession(session)
+      EngineRenderer.instance.xrManager.setSession(session).then(() => {
+        const referenceSpace = EngineRenderer.instance.xrManager.getReferenceSpace()
+        xrState.originReferenceSpace.set(referenceSpace)
+      })
       EngineRenderer.instance.xrManager.setFoveation(1)
+      xrState.sessionMode.set(mode)
 
       const world = Engine.instance.currentWorld
       setupXRInputSourceComponent(world.localClientEntity)
       proxifyXRInputs(world.localClientEntity)
 
+      const prevFollowCamera = getComponent(world.cameraEntity, FollowCameraComponent)
+      removeComponent(world.cameraEntity, FollowCameraComponent)
+
+      /**
+       * rotate avatar 180 degrees for VR - who knows why
+       */
+      const { modelContainer } = getComponent(world.localClientEntity, AvatarComponent)
+      modelContainer.applyQuaternion(rot180Y)
+
       if (mode === 'immersive-ar') world.scene.background = null
 
       const onSessionEnd = () => {
         xrState.sessionActive.set(false)
+        xrState.sessionMode.set('none')
         EngineRenderer.instance.canvas.style.display = ''
         EngineRenderer.instance.xrManager.removeEventListener('sessionend', onSessionEnd)
         EngineRenderer.instance.xrSession = null!
         EngineRenderer.instance.xrManager.setSession(null!)
         const world = Engine.instance.currentWorld
+        addComponent(world.cameraEntity, FollowCameraComponent, prevFollowCamera)
+
+        /**
+         * rotate avatar 180 degrees for VR - who knows why
+         */
+        const { modelContainer } = getComponent(world.localClientEntity, AvatarComponent)
+        modelContainer.applyQuaternion(rot180Y)
+
         cleanXRInputs(world.localClientEntity)
         removeComponent(world.localClientEntity, XRInputSourceComponent)
         removeComponent(world.localClientEntity, XRHandsInputComponent)
@@ -83,6 +113,10 @@ export const xrSessionChanged = createHookableFunction((action: typeof XRAction.
   if (!entity) return
 
   if (action.active) {
+    if (getControlMode() === 'attached')
+      if (!hasComponent(entity, AvatarHeadDecapComponent)) {
+        addComponent(entity, AvatarHeadDecapComponent, true)
+      }
     if (!hasComponent(entity, XRInputSourceComponent)) {
       setupXRInputSourceComponent(entity)
     }
@@ -92,6 +126,17 @@ export const xrSessionChanged = createHookableFunction((action: typeof XRAction.
   }
 })
 
+export const updateXRCamera = (camera: PerspectiveCamera) => {
+  EngineRenderer.instance.xrManager.updateCamera(camera)
+  // the following is necessary workaround until this PR is merged: https://github.com/mrdoob/three.js/pull/22362
+  camera.matrix.decompose(camera.position, camera.quaternion, camera.scale)
+  camera.updateMatrixWorld(true)
+
+  const xrInputSourceComponent = getComponent(Engine.instance.currentWorld.localClientEntity, XRInputSourceComponent)
+  const head = xrInputSourceComponent.head
+  head.quaternion.copy(camera.quaternion)
+  head.position.copy(camera.position)
+}
 /**
  * System for XR session and input handling
  */
@@ -128,13 +173,6 @@ export default async function XRSystem(world: World) {
   const xrSessionChangedQueue = createActionQueue(XRAction.sessionChanged.matches)
 
   return () => {
-    // const joinedWorldAction = joinedWorldActionQueue().pop()
-    // if (joinedWorldAction) {
-    //   if (!hasComponent(world.localOriginEntity, PositionOffsetComponent)) {
-    //     addPositionOffsetComponent(world.localOriginEntity, world.localClientEntity)
-    //   }
-    // }
-
     const xrRequestSessionAction = xrRequestSessionQueue().pop()
     const xrEndSessionAction = xrEndSessionQueue().pop()
     if (xrRequestSessionAction) requestXRSession(xrRequestSessionAction)
@@ -143,13 +181,16 @@ export default async function XRSystem(world: World) {
     for (const action of xrSessionChangedQueue()) xrSessionChanged(action)
 
     if (EngineRenderer.instance.xrManager?.isPresenting) {
-      const session = EngineRenderer.instance.xrManager!.getSession()!
-      for (const source of session.inputSources) copyGamepadState(source)
+      const camera = Engine.instance.currentWorld.camera as PerspectiveCamera
+      updateXRCamera(camera)
 
-      // const xrInputSourceComponent = getComponent(world.localClientEntity, XRInputSourceComponent)
-      // const head = xrInputSourceComponent.head
-      // head.quaternion.copy(Engine.instance.currentWorld.camera.quaternion)
-      // head.position.copy(Engine.instance.currentWorld.camera.position)
+      // Assume world.camera.layers is source of truth for all xr cameras
+      const xrCamera = EngineRenderer.instance.xrManager.getCamera()
+      xrCamera.layers.mask = camera.layers.mask
+      for (const c of xrCamera.cameras) c.layers.mask = camera.layers.mask
+
+      const session = EngineRenderer.instance.xrManager!.getSession()!
+      for (const source of session.inputSources) updateGamepadInput(source)
     }
 
     //XR Controller mesh animation update
@@ -157,35 +198,45 @@ export default async function XRSystem(world: World) {
   }
 }
 
-function copyGamepadState({ gamepad, handedness }: XRInputSource) {
-  if (!gamepad) return
+export function updateGamepadInput(source: XRInputSource) {
+  if (source.gamepad?.mapping === 'xr-standard') {
+    const mapping = GamepadMapping['xr-standard'][source.handedness]
 
-  const mapping = gamepadMapping[gamepad.mapping || 'xr-standard'][handedness]
-
-  gamepad.buttons.forEach((button, index) => {
-    // TODO : support button.touched and button.value
-    const prev = Engine.instance.currentWorld.prevInputState.get(mapping.buttons[index])
-    if (!prev && button.pressed == false) return
-    const continued = prev?.value && button.pressed
-    Engine.instance.currentWorld.inputState.set(mapping.buttons[index], {
-      type: InputType.BUTTON,
-      value: [button.pressed ? BinaryValue.ON : BinaryValue.OFF],
-      lifecycleState: button.pressed
-        ? continued
-          ? LifecycleValue.Continued
-          : LifecycleValue.Started
-        : LifecycleValue.Ended
+    source.gamepad.buttons.forEach((button, index) => {
+      // TODO : support button.touched and button.value
+      const prev = Engine.instance.currentWorld.prevInputState.has(mapping[index])
+      if (!prev && !button.pressed) return
+      Engine.instance.currentWorld.inputState.set(mapping[index], {
+        type: InputType.BUTTON,
+        value: [button.pressed ? BinaryValue.ON : BinaryValue.OFF],
+        lifecycleState: button.pressed ? LifecycleValue.Started : LifecycleValue.Ended
+      })
     })
-  })
 
-  const inputData = [...gamepad.axes]
-  for (let i = 0; i < inputData.length; i++) {
-    if (Math.abs(inputData[i]) < 0.05) inputData[i] = 0
+    // TODO: we shouldn't be modifying input data here, deadzone should be handled elsewhere
+    const inputData = [...source.gamepad.axes]
+    for (let i = 0; i < inputData.length; i++) {
+      if (Math.abs(inputData[i]) < 0.05) inputData[i] = 0
+    }
+
+    // NOTE: we are inverting input here, as the avatar model is flipped 180 degrees. when that is solved, uninvert these gamepad inputs
+    if (inputData.length >= 2) {
+      const Touchpad = source.handedness === 'left' ? GamepadAxis.LTouchpad : GamepadAxis.RTouchpad
+
+      Engine.instance.currentWorld.inputState.set(Touchpad, {
+        type: InputType.TWODIM,
+        value: [-inputData[0], -inputData[1]],
+        lifecycleState: LifecycleValue.Started // TODO
+      })
+    }
+
+    if (inputData.length >= 4) {
+      const Thumbstick = source.handedness === 'left' ? GamepadAxis.LThumbstick : GamepadAxis.RThumbstick
+      Engine.instance.currentWorld.inputState.set(Thumbstick, {
+        type: InputType.TWODIM,
+        value: [-inputData[2], -inputData[3]],
+        lifecycleState: LifecycleValue.Started // TODO
+      })
+    }
   }
-
-  Engine.instance.currentWorld.inputState.set(mapping.axes, {
-    type: InputType.TWODIM,
-    value: inputData,
-    lifecycleState: LifecycleValue.Started
-  })
 }

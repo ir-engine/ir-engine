@@ -18,10 +18,8 @@ import {
 import { createEntity } from '../ecs/functions/EntityFunctions'
 import { LocalInputTagComponent } from '../input/components/LocalInputTagComponent'
 import { BaseInput } from '../input/enums/BaseInput'
-import { AvatarMovementScheme } from '../input/enums/InputEnums'
-import { XRAxes } from '../input/enums/InputEnums'
+import { AvatarMovementScheme, GamepadAxis } from '../input/enums/InputEnums'
 import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
-import { VelocityComponent } from '../physics/components/VelocityComponent'
 import { PersistTagComponent } from '../scene/components/PersistTagComponent'
 import { setComputedTransformComponent } from '../transform/components/ComputedTransformComponent'
 import { setTransformComponent, TransformComponent } from '../transform/components/TransformComponent'
@@ -30,14 +28,7 @@ import { AvatarInputSchema } from './AvatarInputSchema'
 import { AvatarComponent } from './components/AvatarComponent'
 import { AvatarControllerComponent } from './components/AvatarControllerComponent'
 import { AvatarHeadDecapComponent } from './components/AvatarHeadDecapComponent'
-import {
-  alignXRCameraWithAvatar,
-  moveLocalAvatar,
-  moveXRAvatar,
-  rotateXRAvatar,
-  xrCameraNeedsAlignment
-} from './functions/moveAvatar'
-import { respawnAvatar } from './functions/respawnAvatar'
+import { moveLocalAvatar } from './functions/moveAvatar'
 import { accessAvatarInputSettingsState, AvatarInputSettingsReceptor } from './state/AvatarInputSettingsState'
 
 /**
@@ -101,31 +92,12 @@ export default async function AvatarControllerSystem(world: World) {
     for (const entity of controllerQuery()) {
       const controller = getComponent(entity, AvatarControllerComponent)
       const followCamera = getComponent(controller.cameraEntity, FollowCameraComponent)
-      // todo calculate head size and use that as the bound
-      if (followCamera.distance < 0.6) setComponent(entity, AvatarHeadDecapComponent, true)
-      else removeComponent(entity, AvatarHeadDecapComponent)
+      if (followCamera) {
+        // todo calculate head size and use that as the bound
+        if (followCamera.distance < 0.6) setComponent(entity, AvatarHeadDecapComponent, true)
+        else removeComponent(entity, AvatarHeadDecapComponent)
+      }
     }
-
-    // for (const entity of localXRInputQuery.enter(world)) {
-    //   isLocalXRCameraReady = false
-    // }
-
-    // for (const entity of localXRInputQuery(world)) {
-    //   const { camera } = Engine.instance.currentWorld
-
-    //   if (displacement.lengthSq() > 0 || xrCameraNeedsAlignment(entity, camera)) {
-    //     alignXRCameraWithAvatar(entity, camera, lastCamPos)
-    //     continue
-    //   }
-
-    //   if (!isLocalXRCameraReady) {
-    //     alignXRInputContainerYawWithAvatar(entity)
-    //     isLocalXRCameraReady = true
-    //   }
-
-    //   moveXRAvatar(world, entity, Engine.instance.currentWorld.camera, lastCamPos)
-    //   rotateXRAvatar(world, entity, Engine.instance.currentWorld.camera)
-    // }
 
     const controller = getComponent(Engine.instance.currentWorld.localClientEntity, AvatarControllerComponent)
     if (controller?.movementEnabled) {
@@ -186,10 +158,10 @@ export const updateMap = () => {
   const avatarInputState = accessAvatarInputSettingsState()
   const inputMap = AvatarInputSchema.inputMap
   if (avatarInputState.invertRotationAndMoveSticks.value) {
-    inputMap.set(XRAxes.Left, BaseInput.XR_AXIS_LOOK)
-    inputMap.set(XRAxes.Right, BaseInput.XR_AXIS_MOVE)
+    inputMap.set(GamepadAxis.LThumbstick, BaseInput.LOOKTURN)
+    inputMap.set(GamepadAxis.RThumbstick, BaseInput.MOVEMENT)
   } else {
-    inputMap.set(XRAxes.Left, BaseInput.XR_AXIS_MOVE)
-    inputMap.set(XRAxes.Right, BaseInput.XR_AXIS_LOOK)
+    inputMap.set(GamepadAxis.LThumbstick, BaseInput.MOVEMENT)
+    inputMap.set(GamepadAxis.RThumbstick, BaseInput.LOOKTURN)
   }
 }
