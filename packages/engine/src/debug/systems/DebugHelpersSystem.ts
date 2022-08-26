@@ -494,6 +494,7 @@ export default async function DebugHelpersSystem(world: World) {
     for (const entity of boundingBoxQuery.enter()) {
       const boundingBox = getComponent(entity, BoundingBoxComponent)
       const helper = new Box3Helper(boundingBox.box)
+      setObjectLayers(helper, ObjectLayers.NodeHelper)
       helpersByEntity.box.set(entity, helper)
       Engine.instance.currentWorld.scene.add(helper)
       helper.visible = accessEngineRendererState().physicsDebugEnable.value
