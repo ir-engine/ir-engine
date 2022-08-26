@@ -24,14 +24,14 @@ export const deserializeCollider: ComponentDeserializeFunction = (
   entity: Entity,
   data: ColliderComponentType
 ): void => {
+  if (!data.shapeType) {
+    addComponent(entity, MeshColliderComponentTag, {})
+  }
   const colliderProps = parseColliderProperties(data)
   if (!hasComponent(entity, Object3DComponent)) {
     addComponent(entity, Object3DComponent, { value: new Object3D() })
   }
   addComponent(entity, ColliderComponent, colliderProps)
-  if (colliderProps.shapeType === ShapeType.TriMesh) {
-    addComponent(entity, MeshColliderComponentTag, {})
-  }
 }
 
 export const updateCollider: ComponentUpdateFunction = (entity: Entity) => {
@@ -111,7 +111,6 @@ export const updateCollider: ComponentUpdateFunction = (entity: Entity) => {
 export const updateMeshCollider = (entity: Entity) => {
   const colliderComponent = getComponent(entity, ColliderComponent)
   const object3d = getComponent(entity, Object3DComponent)
-
   /**
    * @todo remove this - see above
    */

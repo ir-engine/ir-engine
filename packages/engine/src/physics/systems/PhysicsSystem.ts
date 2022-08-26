@@ -85,7 +85,7 @@ const processCollisions = (world: World, drainCollisions, collisionEntities: Ent
 }
 
 export const PhysicsPrefabs = {
-  collider: 'Collider' as const
+  collider: 'collider' as const
 }
 
 export default async function PhysicsSystem(world: World) {
