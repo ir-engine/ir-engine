@@ -28,11 +28,12 @@ import { getAvatarURLForUser, Views } from '../util'
 
 interface Props {
   changeActiveMenu: Function
+  defaultSelectedTab?: string
 }
 
-const FriendsMenu = ({ changeActiveMenu }: Props): JSX.Element => {
+const FriendsMenu = ({ changeActiveMenu, defaultSelectedTab }: Props): JSX.Element => {
   const { t } = useTranslation()
-  const [selectedTab, setSelectedTab] = React.useState('friends')
+  const [selectedTab, setSelectedTab] = React.useState(defaultSelectedTab ? defaultSelectedTab : 'friends')
 
   const friendState = useFriendState()
   const userState = useUserState()

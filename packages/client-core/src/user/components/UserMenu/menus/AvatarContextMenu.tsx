@@ -96,7 +96,7 @@ const AvatarContextMenu = ({ changeActiveMenu, user }: Props): JSX.Element => {
                   className={styles.gradientBtn}
                   onClick={() => {
                     FriendService.requestFriend(selfId, user.id)
-                    changeActiveMenu(Views.Friends)
+                    changeActiveMenu(Views.Friends, { defaultSelectedTab: 'find' })
                   }}
                 >
                   {t('user:personMenu.addAsFriend')}
@@ -108,7 +108,7 @@ const AvatarContextMenu = ({ changeActiveMenu, user }: Props): JSX.Element => {
                   className={styles.gradientBtn}
                   onClick={() => {
                     FriendService.unfriend(selfId, user.id)
-                    changeActiveMenu(Views.Friends)
+                    changeActiveMenu(Views.Friends, { defaultSelectedTab: 'find' })
                   }}
                 >
                   {t('user:personMenu.unFriend')}
@@ -139,7 +139,7 @@ const AvatarContextMenu = ({ changeActiveMenu, user }: Props): JSX.Element => {
                     className={styles.gradientBtn}
                     onClick={() => {
                       FriendService.declineFriend(selfId, user.id)
-                      changeActiveMenu(Views.Friends)
+                      changeActiveMenu(Views.Friends, { defaultSelectedTab: 'find' })
                     }}
                   >
                     {t('user:personMenu.declineRequest')}
@@ -161,7 +161,7 @@ const AvatarContextMenu = ({ changeActiveMenu, user }: Props): JSX.Element => {
                     className={styles.gradientBtn}
                     onClick={() => {
                       FriendService.unfriend(selfId, user.id)
-                      changeActiveMenu(Views.Friends)
+                      changeActiveMenu(Views.Friends, { defaultSelectedTab: 'find' })
                     }}
                   >
                     {t('user:personMenu.cancelRequest')}
@@ -178,7 +178,7 @@ const AvatarContextMenu = ({ changeActiveMenu, user }: Props): JSX.Element => {
                   className={styles.gradientBtn}
                   onClick={() => {
                     FriendService.blockUser(selfId, user.id)
-                    changeActiveMenu(Views.Friends)
+                    changeActiveMenu(Views.Friends, { defaultSelectedTab: 'blocked' })
                   }}
                 >
                   {t('user:personMenu.block')}
