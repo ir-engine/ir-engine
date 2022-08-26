@@ -2,9 +2,9 @@ import React, { useEffect, useState } from 'react'
 
 import { AudioEffectPlayer } from '@xrengine/engine/src/audio/systems/AudioSystem'
 import { matches } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { EngineActions, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
+import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { XRState } from '@xrengine/engine/src/xr/XRState'
-import { addActionReceptor, getState, removeActionReceptor, useHookEffect, useHookstate } from '@xrengine/hyperflux'
+import { addActionReceptor, getState, removeActionReceptor, useHookstate } from '@xrengine/hyperflux'
 
 import GroupsIcon from '@mui/icons-material/Groups'
 import PersonIcon from '@mui/icons-material/Person'
@@ -81,7 +81,6 @@ const UserMenu = (props: Props): any => {
 
   const Panel = UserMenuPanels.get(currentActiveMenu?.view)!
   const xrSessionActive = useHookstate(getState(XRState).sessionActive)
-  const engineState = useEngineState()
   const userState = useUserState()
 
   useEffect(() => {
@@ -96,12 +95,18 @@ const UserMenu = (props: Props): any => {
     return () => removeActionReceptor(shareLinkReceptor)
   }, [])
 
-  useHookEffect(() => {
-    if (engineState.avatarTappedId.value) {
-      const tappedUser = userState.layerUsers.find((user) => user.id.value === engineState.avatarTappedId.value)
-      setCurrentActiveMenu({ view: Views.AvatarContext, params: { user: tappedUser?.value } })
+  useEffect(() => {
+    function userAvatarTappedReceptor(a) {
+      matches(a).when(EngineActions.userAvatarTapped.matches, (action) => {
+        if (action.userId !== '') {
+          const tappedUser = userState.layerUsers.find((user) => user.id.value === action.userId)
+          setCurrentActiveMenu({ view: Views.AvatarContext, params: { user: tappedUser?.value } })
+        }
+      })
     }
-  }, [engineState.avatarTappedId.value])
+    addActionReceptor(userAvatarTappedReceptor)
+    return () => removeActionReceptor(userAvatarTappedReceptor)
+  }, [])
 
   return (
     <ClickAwayListener onClickAway={() => setCurrentActiveMenu(null!)} mouseEvent="onMouseDown">
