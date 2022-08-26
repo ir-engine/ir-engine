@@ -570,6 +570,9 @@ export async function createCamVideoProducer(network: SocketWebRTCClientNetwork)
               MediaStreams.instance.camVideoProducer = await transport.produce({
                 track: MediaStreams.instance.videoStream.getVideoTracks()[0],
                 encodings: CAM_VIDEO_SIMULCAST_ENCODINGS,
+                codecOptions: {
+                  videoGoogleStartBitrate: 1000
+                },
                 appData: { mediaTag: 'cam-video', channelType: channelType, channelId: channelId }
               })
             }
@@ -945,6 +948,9 @@ export const startScreenshare = async (network: SocketWebRTCClientNetwork) => {
   MediaStreams.instance.screenVideoProducer = await network.sendTransport.produce({
     track: MediaStreams.instance.localScreen.getVideoTracks()[0],
     encodings: SCREEN_SHARE_SIMULCAST_ENCODINGS,
+    codecOptions: {
+      videoGoogleStartBitrate: 1000
+    },
     appData: { mediaTag: 'screen-video', channelType: channelType, channelId: channelId }
   })
 
