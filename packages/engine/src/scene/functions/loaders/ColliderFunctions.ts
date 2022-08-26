@@ -1,5 +1,5 @@
 import { ColliderDesc, RigidBodyDesc, RigidBodyType, ShapeType } from '@dimforge/rapier3d-compat'
-import { Quaternion, Vector3 } from 'three'
+import { Object3D, Quaternion, Vector3 } from 'three'
 
 import {
   ComponentDeserializeFunction,
@@ -15,6 +15,7 @@ import { TransformComponent } from '../../../transform/components/TransformCompo
 import {
   ColliderComponent,
   ColliderComponentType,
+  MeshColliderComponentTag,
   SCENE_COMPONENT_COLLIDER_DEFAULT_VALUES
 } from '../../components/ColliderComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
@@ -23,8 +24,14 @@ export const deserializeCollider: ComponentDeserializeFunction = (
   entity: Entity,
   data: ColliderComponentType
 ): void => {
-  const boxColliderProps = parseColliderProperties(data)
-  addComponent(entity, ColliderComponent, boxColliderProps)
+  if (!data.shapeType) {
+    addComponent(entity, MeshColliderComponentTag, {})
+  }
+  const colliderProps = parseColliderProperties(data)
+  if (!hasComponent(entity, Object3DComponent)) {
+    addComponent(entity, Object3DComponent, { value: new Object3D() })
+  }
+  addComponent(entity, ColliderComponent, colliderProps)
 }
 
 export const updateCollider: ComponentUpdateFunction = (entity: Entity) => {
@@ -35,7 +42,7 @@ export const updateCollider: ComponentUpdateFunction = (entity: Entity) => {
    *   as currently adding PortalComponent and then Obejct3DComponent synchronously
    *   will still trigger [PortalComponent, Not(Obejct3DComponent)] queries
    */
-  if (hasComponent(entity, Object3DComponent)) return
+  if (hasComponent(entity, MeshColliderComponentTag)) return
   if (!colliderComponent) return
 
   const rigidbodyTypeChanged =
@@ -57,7 +64,7 @@ export const updateCollider: ComponentUpdateFunction = (entity: Entity) => {
       let bodyDesc: RigidBodyDesc
       switch (colliderComponent.bodyType) {
         case RigidBodyType.Dynamic:
-          bodyDesc = RigidBodyDesc.fixed()
+          bodyDesc = RigidBodyDesc.dynamic()
           break
         case RigidBodyType.KinematicPositionBased:
           bodyDesc = RigidBodyDesc.kinematicPositionBased()
@@ -67,7 +74,7 @@ export const updateCollider: ComponentUpdateFunction = (entity: Entity) => {
           break
         default:
         case RigidBodyType.Fixed:
-          bodyDesc = RigidBodyDesc.dynamic()
+          bodyDesc = RigidBodyDesc.fixed()
           break
       }
       Physics.createRigidBody(entity, Engine.instance.currentWorld.physicsWorld, bodyDesc, [])
@@ -81,11 +88,22 @@ export const updateCollider: ComponentUpdateFunction = (entity: Entity) => {
    */
   const colliderTypeChanged =
     rigidbody.numColliders() === 0 || rigidbody.collider(0).shape.type !== colliderComponent.shapeType
-  if (colliderTypeChanged) {
+  if (true) {
     rigidbody.numColliders() > 0 &&
       Engine.instance.currentWorld.physicsWorld.removeCollider(rigidbody.collider(0), true)
     const colliderDesc = createColliderDescFromScale(colliderComponent.shapeType, transform.scale)
-    Physics.applyDescToCollider(colliderDesc, { type: colliderComponent.shapeType }, new Vector3(), new Quaternion())
+    colliderDesc.setSensor(colliderComponent.isTrigger)
+    Physics.applyDescToCollider(
+      colliderDesc,
+      {
+        type: colliderComponent.shapeType,
+        isTrigger: colliderComponent.isTrigger,
+        collisionLayer: colliderComponent.collisionLayer,
+        collisionMask: colliderComponent.collisionMask
+      },
+      new Vector3(),
+      new Quaternion()
+    )
     Engine.instance.currentWorld.physicsWorld.createCollider(colliderDesc, rigidbody)
   }
 }
@@ -93,7 +111,6 @@ export const updateCollider: ComponentUpdateFunction = (entity: Entity) => {
 export const updateMeshCollider = (entity: Entity) => {
   const colliderComponent = getComponent(entity, ColliderComponent)
   const object3d = getComponent(entity, Object3DComponent)
-
   /**
    * @todo remove this - see above
    */

@@ -2,8 +2,10 @@ import { Matrix4, Vector3 } from 'three'
 
 import multiLogger from '@xrengine/common/src/logger'
 import { getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { ColliderComponent, MeshColliderComponentTag } from '@xrengine/engine/src/scene/components/ColliderComponent'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 import { TransformSpace } from '@xrengine/engine/src/scene/constants/transformConstants'
+import { updateCollider, updateMeshCollider } from '@xrengine/engine/src/scene/functions/loaders/ColliderFunctions'
 import obj3dFromUuid from '@xrengine/engine/src/scene/util/obj3dFromUuid'
 import { LocalTransformComponent } from '@xrengine/engine/src/transform/components/LocalTransformComponent'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
@@ -42,9 +44,13 @@ function prepare(command: ScaleCommandParams) {
   if (command.keepHistory) {
     command.undo = {
       scales: command.affectedNodes.map((o) => {
-        return typeof o === 'string'
-          ? obj3dFromUuid(o).scale.clone()
-          : getComponent(o.entity, Object3DComponent).value.scale.clone() ?? new Vector3(1, 1, 1)
+        if (typeof o === 'string') {
+          return obj3dFromUuid(o).scale.clone()
+        } else if (hasComponent(o.entity, Object3DComponent)) {
+          return getComponent(o.entity, Object3DComponent)!.value.scale.clone()
+        } else if (hasComponent(o.entity, TransformComponent)) {
+          return getComponent(o.entity, TransformComponent)!.scale.clone()
+        } else throw new Error('No scalable component detected')
       }),
       space: TransformSpace.Local,
       overrideScale: true
@@ -102,9 +108,9 @@ function updateScale(command: ScaleCommandParams, isUndo: boolean): void {
         logger.warn('Scaling an object in world space with a non-uniform scale is not supported')
       }
       if (typeof node === 'string') {
-        obj3dFromUuid(node).scale.multiply(scale)
+        obj3dFromUuid(node).scale.copy(scale)
       } else {
-        getComponent(node.entity, TransformComponent).scale.multiply(scale)
+        getComponent(node.entity, TransformComponent).scale.copy(scale)
       }
     }
 
@@ -128,7 +134,7 @@ function updateScale(command: ScaleCommandParams, isUndo: boolean): void {
       transformComponent.scale.y = scale.y === 0 ? Number.EPSILON : scale.y
       transformComponent.scale.z = scale.z === 0 ? Number.EPSILON : scale.z
     } else {
-      obj3d.updateMatrixWorld() // Update parent world matrices
+      obj3d?.updateMatrixWorld() // Update parent world matrices
 
       tempVector.copy(scale)
 
@@ -146,6 +152,13 @@ function updateScale(command: ScaleCommandParams, isUndo: boolean): void {
       transformComponent.scale.copy(tempVector)
     }
     obj3d.updateMatrix()
+    if (typeof node !== 'string' && hasComponent(node.entity, ColliderComponent)) {
+      if (hasComponent(node.entity, MeshColliderComponentTag)) {
+        updateMeshCollider(node.entity)
+      } else {
+        updateCollider(node.entity)
+      }
+    }
   }
 }
 

@@ -2,6 +2,7 @@ import { WebContainer3D } from '@etherealjs/web-layer/three'
 import { Color } from 'three'
 
 import { LifecycleValue } from '../../common/enums/LifecycleValue'
+import { Engine } from '../../ecs/classes/Engine'
 import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { InputComponent } from '../../input/components/InputComponent'
@@ -113,6 +114,7 @@ export default async function XRUISystem(world: World) {
 
   return () => {
     const input = getComponent(world.localClientEntity, InputComponent)
+    const xrInputSourceComponent = getComponent(world.localClientEntity, XRInputSourceComponent)
 
     for (const entity of xruiQuery.enter()) {
       const layer = getComponent(entity, XRUIComponent).container
@@ -124,25 +126,36 @@ export default async function XRUISystem(world: World) {
       layer.destroy()
     }
 
+    const xrFrame = Engine.instance.xrFrame
+    const xrManager = EngineRenderer.instance.xrManager
+
     for (const entity of localXRInputQuery.enter()) {
-      const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
-      xrui.interactionRays = [xrInputSourceComponent.controllerLeft, xrInputSourceComponent.controllerRight]
-    }
-
-    for (const entity of localXRInputQuery()) {
-      const xrInputSourceComponent = getComponent(entity, XRInputSourceComponent)
-
-      updateControllerRayInteraction(xrInputSourceComponent.controllerLeft)
-      if (input?.data?.has(BaseInput.GRAB_LEFT))
-        updateClickEventsForController(xrInputSourceComponent.controllerLeft, input.data.get(BaseInput.GRAB_LEFT)!)
-
-      updateControllerRayInteraction(xrInputSourceComponent.controllerRight)
-      if (input?.data?.has(BaseInput.GRAB_RIGHT))
-        updateClickEventsForController(xrInputSourceComponent.controllerRight, input.data.get(BaseInput.GRAB_RIGHT)!)
+      xrui.interactionRays = [...xrFrame.session.inputSources].map((source, idx) => xrManager.getController(idx))
     }
 
     for (const entity of localXRInputQuery.exit()) {
       xrui.interactionRays = [world.pointerScreenRaycaster.ray]
+    }
+
+    if (xrFrame && xrInputSourceComponent) {
+      for (const [idx, source] of xrFrame.session.inputSources.entries()) {
+        if (source.targetRayMode === 'tracked-pointer') {
+          const controller =
+            source.handedness === 'left'
+              ? xrInputSourceComponent.controllerLeft
+              : xrInputSourceComponent.controllerRight
+          const GrabInput = source.handedness === 'left' ? BaseInput.GRAB_LEFT : BaseInput.GRAB_RIGHT
+          updateControllerRayInteraction(controller)
+          if (input?.data?.has(GrabInput))
+            updateClickEventsForController(xrInputSourceComponent.controllerLeft, input.data.get(GrabInput)!)
+        }
+
+        if (source.targetRayMode === 'screen' || source.targetRayMode === 'gaze') {
+          const targetRayPose = Engine.instance.xrFrame.getPose(source.targetRaySpace, xrManager.getReferenceSpace()!)
+          if (input?.data?.has(BaseInput.PRIMARY))
+            updateClickEventsForController(xrInputSourceComponent.controllerLeft, input.data.get(BaseInput.PRIMARY)!)
+        }
+      }
     }
 
     for (const entity of xruiQuery()) {

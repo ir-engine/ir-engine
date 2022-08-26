@@ -59,10 +59,10 @@ export function materialTypeToLibraryName(type: string): string {
   }
 }
 
-export function materialTypeToDefaultArgs(type: string): Object {
+export function materialTypeToDefaultArgs(type: string): Object | undefined {
   return DefaultArguments[materialTypeToLibraryName(type)]
 }
 
-export function materialToDefaultArgs(material: Material): Object {
+export function materialToDefaultArgs(material: Material): Object | undefined {
   return materialTypeToDefaultArgs(material.type)
 }

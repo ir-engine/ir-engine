@@ -15,6 +15,7 @@ import { isMobile } from '../../common/functions/isMobile'
 import { nowMilliseconds } from '../../common/functions/nowMilliseconds'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
 import { InputValue } from '../../input/interfaces/InputValue'
+import { InputAlias } from '../../input/types/InputAlias'
 import { Network } from '../../networking/classes/Network'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { PhysicsWorld } from '../../physics/classes/Physics'
@@ -205,8 +206,8 @@ export class World {
 
   dirtyTransforms = new Set<Entity>()
 
-  inputState = new Map<any, InputValue>()
-  prevInputState = new Map<any, InputValue>()
+  inputState = new Map<InputAlias, InputValue>()
+  prevInputState = new Map<InputAlias, InputValue>()
 
   #entityQuery = bitecs.defineQuery([bitecs.Not(EntityRemovedComponent)])
   entityQuery = () => this.#entityQuery(this) as Entity[]

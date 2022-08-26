@@ -2,11 +2,11 @@ import { BinaryValue } from '../../common/enums/BinaryValue'
 import { LifecycleValue } from '../../common/enums/LifecycleValue'
 import { applyThreshold } from '../../common/functions/applyThreshold'
 import { Engine } from '../../ecs/classes/Engine'
-import { GamepadAxis, GamepadButtons, XRAxes } from '../enums/InputEnums'
+import { GamepadAxis, GamepadButtons } from '../enums/InputEnums'
 import { InputType } from '../enums/InputType'
 import { InputAlias } from '../types/InputAlias'
 
-const inputPerGamepad = 2
+const axesSize = 2
 const gamepadThreshold = 0.1
 const gamepadMultiplier = 0.01
 
@@ -22,26 +22,22 @@ const lastAxisInput: number[] = []
 export const handleGamepads = () => {
   // Get an immutable reference to input
   if (!gamepadConnected) return
+
   // Get gamepads from the DOM
   const gamepads = navigator.getGamepads() as Gamepad[]
 
   // Loop over connected gamepads
-  for (let _index = 0; _index < gamepads.length; _index++) {
-    // If there's no gamepad at this index, skip
-    if (!gamepads[_index]) return
-    // Hold reference to this gamepad
-    const gamepad = gamepads[_index]
-
+  for (const gamepad of gamepads) {
     // If the gamepad has analog inputs (dpads that aren't up UP/DOWN/L/R but have -1 to 1 values for X and Y)
     if (gamepad.axes) {
       // GamePad 0 Left Stick XY
-      if (gamepad.axes.length >= inputPerGamepad) {
-        handleGamepadAxis(gamepad, 0, GamepadAxis.Left)
+      if (gamepad.axes.length >= axesSize) {
+        handleGamepadAxis(gamepad, 0, GamepadAxis.LThumbstick)
       }
 
       // GamePad 1 Right Stick XY
-      if (gamepad.axes.length >= inputPerGamepad * 2) {
-        handleGamepadAxis(gamepad, 1, GamepadAxis.Right)
+      if (gamepad.axes.length >= axesSize * 2) {
+        handleGamepadAxis(gamepad, 1, GamepadAxis.RThumbstick)
       }
     }
 
@@ -49,7 +45,7 @@ export const handleGamepads = () => {
     if (!gamepad.buttons) return
 
     // Otherwise, loop through gamepad buttons
-    for (_index = 0; _index < gamepad.buttons.length; _index++) {
+    for (let _index = 0; _index < gamepad.buttons.length; _index++) {
       handleGamepadButton(gamepad, _index)
     }
   }
@@ -64,7 +60,7 @@ export const handleGamepads = () => {
 export const handleGamepadButton = (gamepad: Gamepad, index: number) => {
   if (gamepad.buttons[index].touched === (lastButtonInput[index] === BinaryValue.ON)) return
   // Set input data
-  Engine.instance.currentWorld.inputState.set(gamepadMapping[gamepad.mapping || 'standard'][index], {
+  Engine.instance.currentWorld.inputState.set(GamepadMapping[gamepad.mapping || 'standard'][index], {
     type: InputType.BUTTON,
     value: [gamepad.buttons[index].touched ? BinaryValue.ON : BinaryValue.OFF],
     lifecycleState: gamepad.buttons[index].touched ? LifecycleValue.Started : LifecycleValue.Ended
@@ -83,7 +79,9 @@ export const handleGamepadAxis = (gamepad: Gamepad, inputIndex: number, mappedIn
 
   let x = applyThreshold(gamepad.axes[xIndex], gamepadThreshold)
   let y = -applyThreshold(gamepad.axes[yIndex], gamepadThreshold)
-  if (mappedInputValue === GamepadAxis.Left) {
+
+  // TODO: why are we modifying these input values here? this seems like the wrong place
+  if (mappedInputValue === GamepadAxis.LThumbstick) {
     const tmpX = x
     x = y
     y = -tmpX
@@ -150,7 +148,7 @@ export const handleGamepadDisconnected = (event: any): void => {
 
   for (let index = 0; index < lastButtonInput.length; index++) {
     if (lastButtonInput[index] === BinaryValue.ON) {
-      Engine.instance.currentWorld.inputState.set(gamepadMapping[event.gamepad.mapping || 'standard'][index], {
+      Engine.instance.currentWorld.inputState.set(GamepadMapping[event.gamepad.mapping || 'standard'][index], {
         type: InputType.BUTTON,
         value: [BinaryValue.OFF],
         lifecycleState: LifecycleValue.Changed
@@ -160,7 +158,7 @@ export const handleGamepadDisconnected = (event: any): void => {
   }
 }
 
-export const gamepadMapping = {
+export const GamepadMapping = {
   //https://w3c.github.io/gamepad/#remapping
   standard: {
     0: GamepadButtons.A,
@@ -183,26 +181,28 @@ export const gamepadMapping = {
   //https://www.w3.org/TR/webxr-gamepads-module-1/
   'xr-standard': {
     left: {
-      buttons: {
-        0: GamepadButtons.LTrigger,
-        1: GamepadButtons.LBumper,
-        2: GamepadButtons.LPad,
-        3: GamepadButtons.LStick,
-        4: GamepadButtons.X,
-        5: GamepadButtons.Y
-      },
-      axes: XRAxes.Left
+      0: GamepadButtons.LTrigger,
+      1: GamepadButtons.LBumper,
+      2: GamepadButtons.LPad,
+      3: GamepadButtons.LStick,
+      4: GamepadButtons.X,
+      5: GamepadButtons.Y
     },
     right: {
-      buttons: {
-        0: GamepadButtons.RTrigger,
-        1: GamepadButtons.RBumper,
-        2: GamepadButtons.RPad,
-        3: GamepadButtons.RStick,
-        4: GamepadButtons.A,
-        5: GamepadButtons.B
-      },
-      axes: XRAxes.Right
+      0: GamepadButtons.RTrigger,
+      1: GamepadButtons.RBumper,
+      2: GamepadButtons.RPad,
+      3: GamepadButtons.RStick,
+      4: GamepadButtons.A,
+      5: GamepadButtons.B
+    },
+    none: {
+      0: GamepadButtons.RTrigger,
+      1: GamepadButtons.RBumper,
+      2: GamepadButtons.RPad,
+      3: GamepadButtons.RStick,
+      4: GamepadButtons.A,
+      5: GamepadButtons.B
     }
   }
 }

@@ -1,4 +1,4 @@
-import { Vector3 } from 'three'
+import { Box3, Object3D, Vector3 } from 'three'
 
 import { createActionQueue } from '@xrengine/hyperflux'
 
@@ -27,15 +27,16 @@ import {
   SCENE_COMPONENT_MOUNT_POINT,
   SCENE_COMPONENT_MOUNT_POINT_DEFAULT_VALUES
 } from '../../scene/components/MountPointComponent'
+import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { SittingComponent } from '../../scene/components/SittingComponent'
 import { SCENE_COMPONENT_VISIBLE } from '../../scene/components/VisibleComponent'
-import { deserializeMountPoint, serializeMountPoint } from '../../scene/functions/loaders/MountPointFunctions'
 import { ScenePrefabs } from '../../scene/systems/SceneObjectUpdateSystem'
 import {
   SCENE_COMPONENT_TRANSFORM,
   SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES,
   TransformComponent
 } from '../../transform/components/TransformComponent'
+import { BoundingBoxComponent } from '../components/BoundingBoxComponents'
 import { createInteractUI } from '../functions/interactUI'
 import { addInteractableUI } from './InteractiveSystem'
 
@@ -47,8 +48,6 @@ const mountPointInteractMessages = {
 }
 
 export default async function MountPointSystem(world: World) {
-  if (Engine.instance.isEditor) return () => {}
-
   world.scenePrefabRegistry.set(ScenePrefabs.chair, [
     { name: SCENE_COMPONENT_TRANSFORM, props: SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES },
     { name: SCENE_COMPONENT_VISIBLE, props: true },
@@ -57,9 +56,10 @@ export default async function MountPointSystem(world: World) {
 
   world.sceneComponentRegistry.set(MountPointComponent._name, SCENE_COMPONENT_MOUNT_POINT)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_MOUNT_POINT, {
-    deserialize: deserializeMountPoint,
-    serialize: serializeMountPoint
+    defaultData: SCENE_COMPONENT_MOUNT_POINT_DEFAULT_VALUES
   })
+
+  if (Engine.instance.isEditor) return () => {}
 
   const mountPointActionQueue = createActionQueue(EngineActions.interactedWithObject.matches)
   const mountPointQuery = defineQuery([MountPointComponent])
@@ -68,12 +68,19 @@ export default async function MountPointSystem(world: World) {
   return () => {
     for (const entity of mountPointQuery.enter()) {
       const mountPoint = getComponent(entity, MountPointComponent)
+      addComponent(entity, Object3DComponent, { value: new Object3D() })
+      addComponent(entity, BoundingBoxComponent, {
+        box: new Box3().setFromCenterAndSize(
+          getComponent(entity, TransformComponent).position,
+          new Vector3(0.1, 0.1, 0.1)
+        )
+      })
       addInteractableUI(entity, createInteractUI(entity, mountPointInteractMessages[mountPoint.type]))
     }
 
     for (const action of mountPointActionQueue()) {
       if (action.$from !== Engine.instance.userId) continue
-      if (!hasComponent(action.targetEntity!, MountPointComponent)) continue
+      if (!action.targetEntity || !hasComponent(action.targetEntity!, MountPointComponent)) continue
       const avatarEntity = world.getUserAvatarEntity(action.$from)
 
       const mountPoint = getComponent(action.targetEntity!, MountPointComponent)
@@ -92,6 +99,7 @@ export default async function MountPointSystem(world: World) {
           },
           true
         )
+        controllerComponent.body.setLinvel({ x: 0, y: 0, z: 0 }, true)
         const sitting = addComponent(avatarEntity, SittingComponent, {
           mountPointEntity: action.targetEntity!,
           state: AvatarStates.SIT_ENTER

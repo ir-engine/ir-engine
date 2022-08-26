@@ -83,40 +83,40 @@ export const setupLocalXRInputs = () => {
     // TODO: Handle disconnect event
   })
 
-  controllerGrips.forEach((controller) => {
-    controller.addEventListener('connected', function ({ data }) {
+  controllerGrips.forEach((grip) => {
+    grip.addEventListener('connected', function ({ data }) {
       const entity = world.localClientEntity
       const input = getComponent(entity, XRInputSourceComponent)
 
       if (data.handedness === 'left') {
-        controller.add(input.controllerGripLeft)
-        assignController(input, 'controllerGripLeftParent', controller)
+        grip.add(input.controllerGripLeft)
+        assignController(input, 'controllerGripLeftParent', grip)
         proxifyVector3(
           XRInputSourceComponent.controllerGripLeftParent.position,
           entity,
           world.dirtyTransforms,
-          controller.position
+          grip.position
         )
         proxifyQuaternion(
           XRInputSourceComponent.controllerGripLeftParent.quaternion,
           entity,
           world.dirtyTransforms,
-          controller.quaternion
+          grip.quaternion
         )
       } else if (data.handedness === 'right') {
-        controller.add(input.controllerGripRight)
-        assignController(input, 'controllerGripRightParent', controller)
+        grip.add(input.controllerGripRight)
+        assignController(input, 'controllerGripRightParent', grip)
         proxifyVector3(
           XRInputSourceComponent.controllerGripRightParent.position,
           entity,
           world.dirtyTransforms,
-          controller.position
+          grip.position
         )
         proxifyQuaternion(
           XRInputSourceComponent.controllerGripRightParent.quaternion,
           entity,
           world.dirtyTransforms,
-          controller.quaternion
+          grip.quaternion
         )
       }
     })
