@@ -22,30 +22,19 @@ const findClosestProjectedPoint = sinon.spy(
     return [new Vector3(point.x, point.y, 13), 0]
   }
 )
-const updatePath = sinon.spy((_path, _1, _2, _3, _4) => {})
-const getMovementDirection = sinon.stub()
 let _currentPathPoint: Vector3
-class Path {
-  _current: Vector3
-  _finished = false
-  advance = sinon.spy()
-  current() {
-    return _currentPathPoint
-  }
-  finished() {
-    return this._finished
-  }
-}
+let path: Vector3[]
+const updatePath = sinon.spy((_path: Vector3[], _1, _2, _3, _4) => {
+  _path.length = 0
+  _path.push(...path)
+})
+const getMovementDirection = sinon.stub()
 
-const itodo = (s: string, f: any) => {}
-
-/* TODO fix */
 describe('AutoPilotSystem', async () => {
   const { default: AutopilotSystem } = proxyquire('./AutopilotSystem', {
     '../functions/findProjectedPoint': { findClosestProjectedPoint },
     '../functions/pathFunctions': { updatePath },
-    '../functions/vectorFunctions': { getMovementDirection },
-    yuka: { Path }
+    '../functions/vectorFunctions': { getMovementDirection }
   })
   let system: () => void
   let avatarEntity: Entity
@@ -75,7 +64,8 @@ describe('AutoPilotSystem', async () => {
       scale: new Vector3()
     })
     addComponent(avatarEntity, AvatarControllerComponent, {
-      localMovementDirection: new Vector3()
+      localMovementDirection: new Vector3(),
+      velocitySimulator: { init() {} }
     } as any)
     addComponent(meshEntity, NavMeshComponent, {
       value: navMesh
@@ -89,7 +79,8 @@ describe('AutoPilotSystem', async () => {
     getMovementDirection.returns(new Vector3())
   })
 
-  itodo('projects requested point onto the nearest nav mesh', () => {
+  it('projects requested point onto the nearest nav mesh', () => {
+    path = [new Vector3()]
     system()
     assert(
       findClosestProjectedPoint.calledWith(Engine.instance.currentWorld.camera, [surface], unprojectedPoint),
@@ -102,12 +93,12 @@ describe('AutoPilotSystem', async () => {
     )
   })
 
-  itodo('removes the request component', () => {
+  it('removes the request component', () => {
     system()
     assert(!hasComponent(avatarEntity, AutoPilotRequestComponent))
   })
 
-  itodo('generates a path from current avatar location to projected point', () => {
+  it('generates a path from current avatar location to projected point', () => {
     system()
     assert(
       updatePath.calledWith(
@@ -119,7 +110,7 @@ describe('AutoPilotSystem', async () => {
     )
   })
 
-  itodo('updates the avatar movement to follow generated path', () => {
+  it('updates the avatar movement to follow generated path', () => {
     const movement = getComponent(avatarEntity, AvatarControllerComponent).localMovementDirection
     getMovementDirection.returns(new Vector3(13, 23, 42))
     system()
@@ -132,17 +123,20 @@ describe('AutoPilotSystem', async () => {
     )
   })
 
-  itodo('advances the path', () => {
+  it('advances the path as long as the avatar is close to the current point', () => {
+    path = [avatarPosition, avatarPosition, avatarPosition]
     system()
-    const path = getComponent(avatarEntity, AutoPilotComponent).path
-    assert((path as unknown as Path).advance.calledOnce)
+    const autoPilot = getComponent(avatarEntity, AutoPilotComponent)
+    const prevPathIndex = autoPilot.pathIndex
+    system()
+    assert.equal(autoPilot.pathIndex, prevPathIndex + 1)
   })
 
-  itodo('cleans up when the avatar reaches the end of the path', () => {
+  it('cleans up when the avatar reaches the end of the path', () => {
     system()
-    const path = getComponent(avatarEntity, AutoPilotComponent).path as unknown as Path
-    path._finished = true
-    _currentPathPoint = getComponent(avatarEntity, TransformComponent).position
+    const autoPilot = getComponent(avatarEntity, AutoPilotComponent)
+    autoPilot.path = [avatarPosition]
+    autoPilot.pathIndex = 0
 
     system()
 

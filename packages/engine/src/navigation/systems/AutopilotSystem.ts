@@ -119,7 +119,7 @@ export default async function AutopilotSystem(world: World) {
       const controller = getComponent(avatarEntity, AvatarControllerComponent)
       const movement = controller.localMovementDirection
 
-      if (path.length - 1 === autoPilot.pathIndex && distanceSquaredNextPoint < THRESHOLD_ARRIVED_SQUARED) {
+      if (autoPilot.pathIndex >= path.length - 1 && distanceSquaredNextPoint < THRESHOLD_ARRIVED_SQUARED) {
         removeComponent(avatarEntity, AutoPilotComponent)
         movement.multiplyScalar(0)
         autoPilot.speed = INITIAL_SPEED

@@ -77,7 +77,7 @@ describe('NavMeshFunctions', () => {
       const box = new BoxGeometry()
       const mesh = new Mesh(box)
 
-      addComponent(entity, NavMeshComponent, { value: new Fake() as unknown as NavMesh, debugMode: false })
+      addComponent(entity, NavMeshComponent, { value: new Fake() as unknown as NavMesh })
       addComponent(entity, Object3DComponent, { value: mesh })
 
       fns.updateNavMesh(entity, {})
@@ -86,17 +86,6 @@ describe('NavMeshFunctions', () => {
       const polygons = (fakeNavMesh as unknown as Fake).polygons
       // a BoxGeometry has 6 sides with 2 triangles per side
       assert.equal(polygons.length, 12, 'not the right number of polygons')
-    })
-
-    describe('debugMode', () => {
-      it('toggles a DebugNavMeshComponent', () => {
-        addComponent(entity, NavMeshComponent, { value: new NavMesh(), debugMode: false })
-        addComponent(entity, Object3DComponent, { value: new Object3D() })
-        updateNavMesh(entity, { debugMode: true })
-        assert(hasComponent(entity, DebugNavMeshComponent))
-        updateNavMesh(entity, { debugMode: false })
-        assert(!hasComponent(entity, DebugNavMeshComponent))
-      })
     })
   })
 

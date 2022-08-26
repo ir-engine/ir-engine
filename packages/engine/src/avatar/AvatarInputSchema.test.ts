@@ -109,7 +109,8 @@ describe('avatarInputSchema', () => {
       isInAir: false,
       localMovementDirection: new Vector3(),
       velocitySimulator,
-      lastPosition: new Vector3()
+      lastPosition: new Vector3(),
+      movementMode: 'relative'
     })
 
     const firstValue = c.isWalking

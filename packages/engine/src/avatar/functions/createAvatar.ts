@@ -172,7 +172,8 @@ export const createAvatarController = (entity: Entity) => {
       velocitySimulator,
       currentSpeed: 0,
       speedVelocity: { value: 0 },
-      lastPosition: new Vector3() //.copy(rigidBody.translation() as Vector3)
+      lastPosition: new Vector3(), //.copy(rigidBody.translation() as Vector3)
+      movementMode: 'relative'
     })
   }
 
