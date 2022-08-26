@@ -27,7 +27,9 @@ import {
   checkUserOrgWriteStatus,
   checkUserRepoWriteStatus,
   getAuthenticatedRepo,
-  getUserRepos
+  getGitHubAppRepos,
+  getUserRepos,
+  pushProjectToGithub
 } from '../githubapp/githubapp-helper'
 import { getProjectConfig, onProjectEvent } from './project-helper'
 
@@ -64,6 +66,7 @@ export const deleteProjectFilesInStorageProvider = async (projectName: string) =
 /**
  * Updates the local storage provider with the project's current files
  * @param projectName
+ * @param remove
  */
 export const uploadLocalProjectToProvider = async (projectName, remove = true) => {
   const storageProvider = getStorageProvider()
@@ -275,14 +278,10 @@ export class Project extends Service {
     const branchName = `${config.server.releaseName}-deployment`
     try {
       const branchExists = await git.raw(['ls-remote', '--heads', repoPath, `${branchName}`])
-      if (branchExists.length === 0) {
-        const remotes = await git.getRemotes()
-        await git.checkoutLocalBranch(branchName)
-        await git.push('origin', branchName)
-      } else {
+      if (branchExists.length === 0) await git.checkoutLocalBranch(branchName)
+      else {
         if (data.reset) {
-          const branches = await git.branchLocal()
-          await git.push('origin', `${branches.current}:${branchName}`, ['-f'])
+          await git.branchLocal()
         }
         await git.checkout(branchName)
       }
@@ -323,6 +322,7 @@ export class Project extends Service {
       })
     }
 
+    if (data.reset) await pushProjectToGithub(this.app, returned, params!.user, true)
     // run project install script
     if (projectConfig.onEvent) {
       await onProjectEvent(this.app, projectName, projectConfig.onEvent, 'onInstall')
@@ -423,11 +423,24 @@ export class Project extends Service {
   async find(params?: Params): Promise<{ data: ProjectInterface[] }> {
     let projectPushIds: string[] = []
     if (params?.query?.allowed != null) {
-      const projectPermissions = (await this.app
-        .service('project-permission')
-        .Model.findAll({ where: { userId: params.user.id }, paginate: false })) as any
-      const allowedProjectIds = await projectPermissions.map((permission) => permission.projectId)
-      projectPushIds = projectPushIds.concat(allowedProjectIds)
+      // Get all of the projects that this user has permissions for, then calculate push status by whether the GitHub
+      // app associated with the installation can push to it. This will make sure no one tries to push to a repo
+      // that the app cannot push to.
+      const projectPermissions = (await this.app.service('project-permission').Model.findAll({
+        where: { userId: params.user.id },
+        include: [{ model: this.app.service('project').Model }],
+        paginate: false
+      })) as any
+      let allowedProjects = await projectPermissions.map((permission) => permission.project)
+      const repos = await getGitHubAppRepos()
+      const repoPaths = repos.map((repo) => repo.repositoryPath.replace(/.git/, ''))
+      allowedProjects = allowedProjects.filter(
+        (project) => repoPaths.indexOf(project.repositoryPath.replace(/.git/, '')) > -1
+      )
+      projectPushIds = projectPushIds.concat(allowedProjects.map((project) => project.id))
+
+      // See if the user has a GitHub identity-provider, and if they do, also determine which GitHub repos they personally
+      // can push to.
       const githubIdentityProvider = await this.app.service('identity-provider').Model.findOne({
         where: {
           userId: params.user.id,
