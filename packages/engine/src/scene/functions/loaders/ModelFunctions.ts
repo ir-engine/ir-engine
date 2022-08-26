@@ -44,9 +44,9 @@ export const updateModel = async (entity: Entity) => {
     try {
       const uuid = Engine.instance.currentWorld.entityTree.entityNodeMap.get(entity)!.uuid
       DependencyTree.add(uuid)
-      hasComponent(entity, Object3DComponent) && removeComponent(entity, Object3DComponent)
+
       let scene: Scene
-      switch (/\.[\d\s\w]+$/.exec(model.src)![0]) {
+      switch (/\.[\d\s\w]+$/.exec(model.src)?.[0]) {
         case '.glb':
         case '.gltf':
           const gltf = (await AssetLoader.loadAsync(model.src, {
@@ -63,6 +63,7 @@ export const updateModel = async (entity: Entity) => {
           break
       }
       scene.userData.src = model.src
+      hasComponent(entity, Object3DComponent) && removeComponent(entity, Object3DComponent)
       addComponent(entity, Object3DComponent, { value: scene })
       setBoundingBoxComponent(entity)
       parseGLTFModel(entity)

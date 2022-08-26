@@ -1,5 +1,5 @@
 import { ColliderDesc, RigidBodyDesc, RigidBodyType, ShapeType } from '@dimforge/rapier3d-compat'
-import { Quaternion, Vector3 } from 'three'
+import { Object3D, Quaternion, Vector3 } from 'three'
 
 import {
   ComponentDeserializeFunction,
@@ -15,6 +15,7 @@ import { TransformComponent } from '../../../transform/components/TransformCompo
 import {
   ColliderComponent,
   ColliderComponentType,
+  MeshColliderComponentTag,
   SCENE_COMPONENT_COLLIDER_DEFAULT_VALUES
 } from '../../components/ColliderComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
@@ -23,8 +24,14 @@ export const deserializeCollider: ComponentDeserializeFunction = (
   entity: Entity,
   data: ColliderComponentType
 ): void => {
-  const boxColliderProps = parseColliderProperties(data)
-  addComponent(entity, ColliderComponent, boxColliderProps)
+  const colliderProps = parseColliderProperties(data)
+  if (!hasComponent(entity, Object3DComponent)) {
+    addComponent(entity, Object3DComponent, { value: new Object3D() })
+  }
+  addComponent(entity, ColliderComponent, colliderProps)
+  if (colliderProps.shapeType === ShapeType.TriMesh) {
+    addComponent(entity, MeshColliderComponentTag, {})
+  }
 }
 
 export const updateCollider: ComponentUpdateFunction = (entity: Entity) => {
@@ -35,7 +42,7 @@ export const updateCollider: ComponentUpdateFunction = (entity: Entity) => {
    *   as currently adding PortalComponent and then Obejct3DComponent synchronously
    *   will still trigger [PortalComponent, Not(Obejct3DComponent)] queries
    */
-  if (hasComponent(entity, Object3DComponent)) return
+  if (hasComponent(entity, MeshColliderComponentTag)) return
   if (!colliderComponent) return
 
   const rigidbodyTypeChanged =
@@ -81,7 +88,7 @@ export const updateCollider: ComponentUpdateFunction = (entity: Entity) => {
    */
   const colliderTypeChanged =
     rigidbody.numColliders() === 0 || rigidbody.collider(0).shape.type !== colliderComponent.shapeType
-  if (colliderTypeChanged) {
+  if (true) {
     rigidbody.numColliders() > 0 &&
       Engine.instance.currentWorld.physicsWorld.removeCollider(rigidbody.collider(0), true)
     const colliderDesc = createColliderDescFromScale(colliderComponent.shapeType, transform.scale)

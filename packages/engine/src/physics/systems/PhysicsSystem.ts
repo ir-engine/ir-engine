@@ -12,6 +12,7 @@ import { NetworkObjectOwnedTag } from '../../networking/components/NetworkObject
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import {
   ColliderComponent,
+  MeshColliderComponentTag,
   SCENE_COMPONENT_COLLIDER,
   SCENE_COMPONENT_COLLIDER_DEFAULT_VALUES
 } from '../../scene/components/ColliderComponent'
@@ -102,8 +103,8 @@ export default async function PhysicsSystem(world: World) {
   ])
 
   const rigidBodyQuery = defineQuery([RigidBodyComponent])
-  const colliderQuery = defineQuery([ColliderComponent, Not(Object3DComponent)])
-  const meshColliderQuery = defineQuery([ColliderComponent, Object3DComponent])
+  const colliderQuery = defineQuery([ColliderComponent, Not(MeshColliderComponentTag)])
+  const meshColliderQuery = defineQuery([ColliderComponent, MeshColliderComponentTag])
   const ownedRigidBodyQuery = defineQuery([RigidBodyComponent, NetworkObjectOwnedTag])
   const notOwnedRigidBodyQuery = defineQuery([RigidBodyComponent, Not(NetworkObjectOwnedTag)])
 
@@ -120,9 +121,13 @@ export default async function PhysicsSystem(world: World) {
   return () => {
     for (const action of modifyPropertyActionQueue()) {
       for (const entity of action.entities) {
-        if (hasComponent(entity, ColliderComponent) && !hasComponent(entity, Object3DComponent)) updateCollider(entity)
-        /** @todo this updateMeshCollider is only ever used from loaded models, so we don't need to  */
-        // if (hasComponent(entity, ColliderComponent) && hasComponent(entity, Object3DComponent)) updateMeshCollider(entity)
+        if (hasComponent(entity, ColliderComponent)) {
+          if (hasComponent(entity, MeshColliderComponentTag)) {
+            updateMeshCollider(entity)
+          } else {
+            updateCollider(entity)
+          }
+        }
       }
     }
     for (const action of colliderQuery.enter()) updateCollider(action)

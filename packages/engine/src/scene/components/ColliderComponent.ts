@@ -1,4 +1,5 @@
 import { RigidBodyType, ShapeType } from '@dimforge/rapier3d-compat'
+import { Object3D } from 'three'
 
 import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
 import { CollisionGroups, DefaultCollisionMask } from '../../physics/enums/CollisionGroups'
@@ -29,6 +30,7 @@ export type ColliderComponentType = {
 }
 
 export const ColliderComponent = createMappedComponent<ColliderComponentType>('ColliderComponent')
+export const MeshColliderComponentTag = createMappedComponent<{}>('MeshColliderComponentTag')
 
 export const SCENE_COMPONENT_COLLIDER = 'collider'
 export const SCENE_COMPONENT_COLLIDER_DEFAULT_VALUES = {
