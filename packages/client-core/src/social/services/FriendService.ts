@@ -1,3 +1,4 @@
+import i18n from 'i18next'
 import { useEffect } from 'react'
 
 import { Relationship } from '@xrengine/common/src/interfaces/Relationship'
@@ -7,6 +8,7 @@ import { matches, Validator } from '@xrengine/engine/src/common/functions/Matche
 import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
 import { API } from '../../API'
+import { NotificationService } from '../../common/services/NotificationService'
 import { accessAuthState } from '../../user/services/AuthService'
 
 const logger = multiLogger.child({ component: 'client-core:FriendService' })
@@ -103,19 +105,55 @@ export const FriendService = {
   },
   useAPIListeners: () => {
     useEffect(() => {
-      const userRelationshipListener = () => {
+      const userRelationshipCreatedListener = (params) => {
+        const userRelationship = params.userRelationship
+        const selfUser = accessAuthState().user
+
+        if (
+          userRelationship.userRelationshipType === 'requested' &&
+          selfUser.id.value === userRelationship.relatedUserId
+        ) {
+          NotificationService.dispatchNotify(
+            `${userRelationship.user.name} ${i18n.t('user:friends.requestReceived')}`,
+            {
+              variant: 'success'
+            }
+          )
+        }
+
+        FriendService.getUserRelationship(selfUser.id.value)
+      }
+      const userRelationshipPatchedListener = (params) => {
+        const userRelationship = params.userRelationship
+        const selfUser = accessAuthState().user
+
+        if (
+          userRelationship.userRelationshipType === 'friend' &&
+          selfUser.id.value === userRelationship.relatedUserId
+        ) {
+          NotificationService.dispatchNotify(
+            `${userRelationship.user.name} ${i18n.t('user:friends.requestAccepted')}`,
+            {
+              variant: 'success'
+            }
+          )
+        }
+
+        FriendService.getUserRelationship(selfUser.id.value)
+      }
+      const userRelationshipRemovedListener = () => {
         const selfUser = accessAuthState().user
         FriendService.getUserRelationship(selfUser.id.value)
       }
 
-      API.instance.client.service('user-relationship').on('created', userRelationshipListener)
-      API.instance.client.service('user-relationship').on('patched', userRelationshipListener)
-      API.instance.client.service('user-relationship').on('removed', userRelationshipListener)
+      API.instance.client.service('user-relationship').on('created', userRelationshipCreatedListener)
+      API.instance.client.service('user-relationship').on('patched', userRelationshipPatchedListener)
+      API.instance.client.service('user-relationship').on('removed', userRelationshipRemovedListener)
 
       return () => {
-        API.instance.client.service('user-relationship').off('created', userRelationshipListener)
-        API.instance.client.service('user-relationship').off('patched', userRelationshipListener)
-        API.instance.client.service('user-relationship').off('removed', userRelationshipListener)
+        API.instance.client.service('user-relationship').off('created', userRelationshipCreatedListener)
+        API.instance.client.service('user-relationship').off('patched', userRelationshipPatchedListener)
+        API.instance.client.service('user-relationship').off('removed', userRelationshipRemovedListener)
       }
     }, [])
   }

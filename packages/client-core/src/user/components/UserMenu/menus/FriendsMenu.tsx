@@ -41,8 +41,6 @@ const FriendsMenu = ({ changeActiveMenu, defaultSelectedTab }: Props): JSX.Eleme
   const userId = selfUser.id.value
   const userAvatarDetails = useHookstate(getState(WorldState).userAvatarDetails)
 
-  FriendService.useAPIListeners()
-
   useEffect(() => {
     FriendService.getUserRelationship(userId)
     UserService.getLayerUsers(true)

@@ -45,7 +45,6 @@ const AvatarContextMenu = ({ changeActiveMenu, user }: Props): JSX.Element => {
 
   // TODO: move these to widget register
   PartyService.useAPIListeners()
-  FriendService.useAPIListeners()
 
   useEffect(() => {
     if (friendState.updateNeeded.value === true) {

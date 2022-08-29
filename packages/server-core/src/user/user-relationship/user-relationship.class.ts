@@ -76,7 +76,6 @@ export class UserRelationship<T = UserRelationshipDataType> extends Service<T> {
     const userId = data.userId || params[loggedInUserEntity].userId
     const { relatedUserId, userRelationshipType } = data
     const UserRelationshipModel = this.getModel(params)
-    let result: any
 
     await this.app.get('sequelizeClient').transaction(async (trans: Transaction) => {
       await UserRelationshipModel.create(
@@ -91,7 +90,7 @@ export class UserRelationship<T = UserRelationshipDataType> extends Service<T> {
       )
 
       if (userRelationshipType === 'blocking' || userRelationshipType === 'requested') {
-        result = await UserRelationshipModel.create(
+        await UserRelationshipModel.create(
           {
             userId: relatedUserId,
             relatedUserId: userId,
@@ -101,6 +100,13 @@ export class UserRelationship<T = UserRelationshipDataType> extends Service<T> {
             transaction: trans
           }
         )
+      }
+    })
+
+    const result = await UserRelationshipModel.findOne({
+      where: {
+        userId: userId,
+        relatedUserId: relatedUserId
       }
     })
 
@@ -163,7 +169,7 @@ export class UserRelationship<T = UserRelationshipDataType> extends Service<T> {
       }
     })
 
-    return UserRelationshipModel.findOne({
+    return await UserRelationshipModel.findOne({
       where: whereParams
     })
   }

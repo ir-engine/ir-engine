@@ -59,7 +59,6 @@ const AvatarContextMenu = () => {
 
   // TODO: move these to widget register
   PartyService.useAPIListeners()
-  FriendService.useAPIListeners()
 
   const inviteToParty = () => {
     if (authState.user?.partyId?.value && user?.id?.value) {
