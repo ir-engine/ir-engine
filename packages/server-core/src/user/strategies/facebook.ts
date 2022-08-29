@@ -87,7 +87,7 @@ export class FacebookStrategy extends CustomOAuthStrategy {
   async getRedirect(data: any, params: Params): Promise<string> {
     const redirectHost = config.authentication.callback.facebook
     const type = params?.query?.userId ? 'connection' : 'login'
-    if (Object.getPrototypeOf(data) === Error.prototype) {
+    if (data instanceof Error || Object.getPrototypeOf(data) === Error.prototype) {
       const err = data.message as string
       return redirectHost + `?error=${err}`
     } else {
