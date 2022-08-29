@@ -1,127 +1,95 @@
-import { ConeGeometry, CylinderGeometry, Euler, Mesh, MeshBasicMaterial, Quaternion, Vector3 } from 'three'
+import { BackSide, Euler, Group, Mesh, MeshBasicMaterial, Quaternion, SphereGeometry, Vector3 } from 'three'
 
-import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { dispatchAction, getState } from '@xrengine/hyperflux'
 
 import { AvatarStates } from '../../../avatar/animation/Util'
 import { AvatarControllerComponent } from '../../../avatar/components/AvatarControllerComponent'
 import { switchCameraMode } from '../../../avatar/functions/switchCameraMode'
 import { CameraMode } from '../../../camera/types/CameraMode'
-import {
-  ComponentDeserializeFunction,
-  ComponentSerializeFunction,
-  ComponentUpdateFunction
-} from '../../../common/constants/PrefabFunctionType'
+import { ComponentDeserializeFunction, ComponentSerializeFunction } from '../../../common/constants/PrefabFunctionType'
 import { Engine } from '../../../ecs/classes/Engine'
 import { EngineActions, EngineState } from '../../../ecs/classes/EngineState'
 import { Entity } from '../../../ecs/classes/Entity'
 import { World } from '../../../ecs/classes/World'
-import { addComponent, ComponentType, getComponent } from '../../../ecs/functions/ComponentFunctions'
-import { createEntity } from '../../../ecs/functions/EntityFunctions'
+import {
+  addComponent,
+  ComponentType,
+  getComponent,
+  hasComponent,
+  removeComponent
+} from '../../../ecs/functions/ComponentFunctions'
 import { WorldNetworkAction } from '../../../networking/functions/WorldNetworkAction'
 import { EngineRenderer } from '../../../renderer/WebGLRendererSystem'
-import { setTransformComponent, TransformComponent } from '../../../transform/components/TransformComponent'
+import { TransformComponent } from '../../../transform/components/TransformComponent'
 import { CallbackComponent } from '../../components/CallbackComponent'
-import { EntityNodeComponent } from '../../components/EntityNodeComponent'
-import { NameComponent } from '../../components/NameComponent'
+import { ColliderComponent } from '../../components/ColliderComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 import {
   PortalComponent,
   PortalComponentType,
   PortalPreviewTypeSimple,
-  PortalPreviewTypeSpherical
+  PortalPreviewTypeSpherical,
+  SCENE_COMPONENT_PORTAL_COLLIDER_VALUES,
+  SCENE_COMPONENT_PORTAL_DEFAULT_VALUES
 } from '../../components/PortalComponent'
-import { VisibleComponent } from '../../components/VisibleComponent'
-import { ObjectLayers } from '../../constants/ObjectLayers'
-import { setObjectLayers } from '../setObjectLayers'
 
 export const PortalPreviewTypes = new Set<string>()
 PortalPreviewTypes.add(PortalPreviewTypeSimple)
 PortalPreviewTypes.add(PortalPreviewTypeSpherical)
+
 export const PortalEffects = new Map<string, ComponentType<any>>()
 PortalEffects.set('None', null!)
 
-export const SCENE_COMPONENT_PORTAL = 'portal'
-export const SCENE_COMPONENT_PORTAL_DEFAULT_VALUES = {
-  linkedPortalId: '',
-  location: '',
-  effectType: 'None',
-  previewType: PortalPreviewTypeSimple,
-  previewImageURL: '',
-  helper: null!,
-  redirect: false,
-  spawnPosition: new Vector3(),
-  spawnRotation: new Quaternion(),
-  remoteSpawnPosition: new Vector3(),
-  remoteSpawnRotation: new Quaternion()
-} as PortalComponentType
-
-export const deserializePortal: ComponentDeserializeFunction = (
-  entity: Entity,
-  json: ComponentJson<PortalComponentType>
-): void => {
-  const props = parsePortalProperties(json.props)
-
-  const portalComponent = addComponent(entity, PortalComponent, props)
-
-  const spawnHelperEntity = createEntity()
-  portalComponent.helper = spawnHelperEntity
-
-  const transform = setTransformComponent(spawnHelperEntity)
-  transform.position.copy(props.spawnPosition)
-  transform.rotation.copy(props.spawnRotation)
-  const spawnHelperMesh = new Mesh(
-    new CylinderGeometry(0.25, 0.25, 0.1, 6, 1, false, (30 * Math.PI) / 180),
-    new MeshBasicMaterial({ color: 0x2b59c3 })
-  )
-  const spawnDirection = new Mesh(
-    new ConeGeometry(0.05, 0.5, 4, 1, false, Math.PI / 4),
-    new MeshBasicMaterial({ color: 0xd36582 })
-  )
-  spawnDirection.position.set(0, 0, 1.25)
-  spawnDirection.rotateX(Math.PI / 2)
-  spawnHelperMesh.add(spawnDirection)
-  spawnHelperMesh.userData.isHelper = true
-
-  setObjectLayers(spawnHelperMesh, ObjectLayers.NodeHelper)
-  addComponent(spawnHelperEntity, Object3DComponent, { value: spawnHelperMesh })
-  addComponent(spawnHelperEntity, VisibleComponent, true)
-  addComponent(spawnHelperEntity, NameComponent, {
-    name: 'portal helper - ' + getComponent(entity, NameComponent).name
-  })
-
-  getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_PORTAL)
-  addComponent(entity, CallbackComponent, {
-    teleport: portalTriggerEnter
-  })
-
-  updatePortal(entity)
+export const deserializePortal: ComponentDeserializeFunction = (entity: Entity, data: PortalComponentType): void => {
+  const props = parsePortalProperties(data)
+  addComponent(entity, PortalComponent, props)
 }
 
-export const updatePortal: ComponentUpdateFunction = (entity: Entity) => {
+export const updatePortal = (entity: Entity) => {
   const portalComponent = getComponent(entity, PortalComponent)
-  const helperTransform = getComponent(portalComponent.helper, TransformComponent)
-  helperTransform.position.copy(portalComponent.spawnPosition)
-  helperTransform.rotation.copy(portalComponent.spawnRotation)
+
+  if (!hasComponent(entity, CallbackComponent))
+    addComponent(entity, CallbackComponent, {
+      teleport: portalTriggerEnter
+    })
+
+  if (!hasComponent(entity, Object3DComponent)) {
+    const group = new Group()
+    group.scale.setScalar(0.5)
+    addComponent(entity, Object3DComponent, { value: group })
+    if (!hasComponent(entity, ColliderComponent))
+      addComponent(entity, ColliderComponent, { ...SCENE_COMPONENT_PORTAL_COLLIDER_VALUES })
+  }
+
+  const group = getComponent(entity, Object3DComponent).value
+
+  if (group.children.length && portalComponent.previewType === PortalPreviewTypeSimple) {
+    group.children[0].removeFromParent()
+    removeComponent(entity, Object3DComponent)
+  }
+
+  if (!group.children.length && portalComponent.previewType === PortalPreviewTypeSpherical) {
+    const transform = getComponent(entity, TransformComponent)
+    const portalMesh = new Mesh(new SphereGeometry(1.5, 32, 32), new MeshBasicMaterial({ side: BackSide }))
+    portalMesh.scale.x = -1
+    portalMesh.scale.x *= 1 / transform.scale.x
+    portalMesh.scale.y *= 1 / transform.scale.y
+    portalMesh.scale.z *= 1 / transform.scale.z
+    group.add(portalMesh)
+  }
 }
 
 export const serializePortal: ComponentSerializeFunction = (entity) => {
   const portalComponent = getComponent(entity, PortalComponent)
-  if (!portalComponent) return
-  const helperTransform = getComponent(portalComponent.helper, TransformComponent)
-
   return {
-    name: SCENE_COMPONENT_PORTAL,
-    props: {
-      location: portalComponent.location,
-      linkedPortalId: portalComponent.linkedPortalId,
-      redirect: portalComponent.redirect,
-      effectType: portalComponent.effectType,
-      previewType: portalComponent.previewType,
-      previewImageURL: portalComponent.previewImageURL,
-      spawnPosition: helperTransform.position,
-      spawnRotation: helperTransform.rotation
-    }
+    location: portalComponent.location,
+    linkedPortalId: portalComponent.linkedPortalId,
+    redirect: portalComponent.redirect,
+    effectType: portalComponent.effectType,
+    previewType: portalComponent.previewType,
+    previewImageURL: portalComponent.previewImageURL,
+    spawnPosition: portalComponent.spawnPosition,
+    spawnRotation: portalComponent.spawnRotation
   }
 }
 
@@ -129,7 +97,6 @@ const parsePortalProperties = (props): PortalComponentType => {
   return {
     location: props.location ?? SCENE_COMPONENT_PORTAL_DEFAULT_VALUES.location,
     linkedPortalId: props.linkedPortalId ?? SCENE_COMPONENT_PORTAL_DEFAULT_VALUES.linkedPortalId,
-    helper: null!,
     redirect: props.redirect ?? false,
     effectType: props.effectType ?? 'None',
     previewType: props.previewType ?? PortalPreviewTypeSimple,

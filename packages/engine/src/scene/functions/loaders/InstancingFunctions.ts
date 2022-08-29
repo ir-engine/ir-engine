@@ -19,10 +19,12 @@ import {
   Vector2,
   Vector3
 } from 'three'
+import matches from 'ts-matches'
 
-import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
+import { defineAction, dispatchAction } from '@xrengine/hyperflux'
 
 import { AssetLoader } from '../../../assets/classes/AssetLoader'
+import { DependencyTree } from '../../../assets/classes/DependencyTree'
 import { AssetClass } from '../../../assets/enum/AssetClass'
 import { ComponentDeserializeFunction, ComponentSerializeFunction } from '../../../common/constants/PrefabFunctionType'
 import { Engine } from '../../../ecs/classes/Engine'
@@ -33,7 +35,6 @@ import { iterateEntityNode } from '../../../ecs/functions/EntityTreeFunctions'
 import { matchActionOnce } from '../../../networking/functions/matchActionOnce'
 import { formatMaterialArgs } from '../../../renderer/materials/Utilities'
 import UpdateableObject3D from '../../classes/UpdateableObject3D'
-import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import {
   GrassProperties,
   InstancingComponent,
@@ -283,13 +284,29 @@ float sky = max(dot(normal, vec3(0, 1, 0)), 0.8);
     return;
 }`
 
-export const deserializeInstancing: ComponentDeserializeFunction = (
-  entity: Entity,
-  json: ComponentJson<InstancingComponentType>
-) => {
-  const scatterProps = parseInstancingProperties(json.props)
+export class InstancingActions {
+  static instancingStaged = defineAction({
+    type: 'INSTANCING_STAGED' as const,
+    uuid: matches.string
+  })
+}
+
+export const deserializeInstancing: ComponentDeserializeFunction = (entity: Entity, data: InstancingComponentType) => {
+  const scatterProps = parseInstancingProperties(data)
   if (scatterProps.state === ScatterState.STAGING) {
     scatterProps.state = ScatterState.UNSTAGED
+  }
+  if (scatterProps.surface) {
+    const eNode = Engine.instance.currentWorld.entityTree.entityNodeMap.get(entity)!
+    DependencyTree.add(
+      scatterProps.surface,
+      new Promise<void>((resolve) => {
+        matchActionOnce(
+          InstancingActions.instancingStaged.matches.validate((action) => action.uuid === eNode.uuid, ''),
+          () => resolve()
+        )
+      })
+    )
   }
   addComponent(entity, InstancingComponent, scatterProps)
   if (scatterProps.state === ScatterState.STAGED) {
@@ -299,7 +316,6 @@ export const deserializeInstancing: ComponentDeserializeFunction = (
     if (!getEngineState().sceneLoaded.value) matchActionOnce(EngineActions.sceneLoaded.matches, executeStaging)
     else executeStaging()
   }
-  getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_INSTANCING)
 }
 
 function parseInstancingProperties(props): InstancingComponentType {
@@ -377,10 +393,7 @@ export const serializeInstancing: ComponentSerializeFunction = (entity) => {
   formatData(_sampleProps)
   toSave.sourceProperties = _srcProps
   toSave.sampleProperties = _sampleProps
-  return {
-    name: SCENE_COMPONENT_INSTANCING,
-    props: toSave
-  }
+  return toSave
 }
 
 const loadTex = async <T>(props: T, prop: keyof T) => {
@@ -797,7 +810,17 @@ export async function stageInstancing(entity: Entity, world = Engine.instance.cu
   if (!obj3d) {
     const val = new Object3D() as Object3DWithEntity
     val.entity = entity
-    world.scene.add(val)
+    let parentEntity = world.entityTree.entityNodeMap.get(entity)?.parentEntity
+    let parent: Object3D = world.scene
+    while (parentEntity !== undefined) {
+      if (hasComponent(parentEntity, Object3DComponent)) {
+        parent = getComponent(parentEntity, Object3DComponent).value
+        break
+      } else {
+        parentEntity = world.entityTree.entityNodeMap.get(parentEntity)?.parentEntity
+      }
+    }
+    parent.add(val)
     obj3d = addComponent(entity, Object3DComponent, { value: val })
   }
   const val = obj3d.value as UpdateableObject3D
@@ -836,17 +859,21 @@ export async function stageInstancing(entity: Entity, world = Engine.instance.cu
   }
   if (updates.length > 0) {
     if (!hasComponent(entity, UpdatableComponent)) {
-      addComponent(entity, UpdatableComponent, {})
+      addComponent(entity, UpdatableComponent, true)
     }
     val.update = (dt) => updates.forEach((update) => update(dt))
   }
   result.frustumCulled = false
   val.add(result)
   scatter.state = ScatterState.STAGED
+  const eNode = world.entityTree.entityNodeMap.get(entity)!
+  dispatchAction(InstancingActions.instancingStaged({ uuid: eNode.uuid }))
 }
 
 export function unstageInstancing(entity: Entity, world = Engine.instance.currentWorld) {
   const comp = getComponent(entity, InstancingComponent) as InstancingComponentType
+  const obj3d = getComponent(entity, Object3DComponent)?.value
+  obj3d?.removeFromParent()
   removeComponent(entity, Object3DComponent, world)
   comp.state = ScatterState.UNSTAGED
 }

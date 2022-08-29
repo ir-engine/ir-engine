@@ -6,21 +6,26 @@ import { parseGeometry } from '../../common/functions/parseGeometry'
 import { DebugNavMeshComponent } from '../../debug/DebugNavMeshComponent'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
-import { addComponent, ComponentMap, getComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
+import {
+  addComponent,
+  ComponentMap,
+  getComponent,
+  hasComponent,
+  removeComponent,
+  setComponent
+} from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { addEntityNodeInTree, createEntityNode } from '../../ecs/functions/EntityTreeFunctions'
 import { NavMeshComponent } from '../../navigation/component/NavMeshComponent'
 import { applyTransformToMeshWorld } from '../../physics/functions/parseModelColliders'
-import { setComputedTransformComponent } from '../../transform/components/ComputedTransformComponent'
 import { setLocalTransformComponent } from '../../transform/components/LocalTransformComponent'
 import { setTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
-import { EntityNodeComponent } from '../components/EntityNodeComponent'
+import { GLTFLoadedComponent } from '../components/GLTFLoadedComponent'
 import { ModelComponent } from '../components/ModelComponent'
 import { NameComponent } from '../components/NameComponent'
 import { Object3DComponent } from '../components/Object3DComponent'
 import { ObjectLayers } from '../constants/ObjectLayers'
-import { loadComponent } from '../functions/SceneLoading'
-import { applyTransformPositionOffset, applyTransformRotationOffset } from './loaders/TransformFunctions'
+import { loadComponent } from '../systems/SceneLoadingSystem'
 import { setObjectLayers } from './setObjectLayers'
 
 export const createObjectEntityFromGLTF = (entity: Entity, obj3d: Object3D): void => {
@@ -55,14 +60,23 @@ export const createObjectEntityFromGLTF = (entity: Entity, obj3d: Object3D): voi
       console.warn(`Could not load component '${key}'`)
     } else {
       addComponent(entity, component, value, Engine.instance.currentWorld)
+      getComponent(entity, GLTFLoadedComponent).push(component)
     }
   }
 
   for (const [key, value] of Object.entries(prefabs)) {
-    loadComponent(entity, {
-      name: key,
-      props: value
-    })
+    const component = Array.from(Engine.instance.currentWorld.sceneComponentRegistry).find(
+      ([_, prefab]) => prefab === key
+    )?.[0]
+    if (typeof component === 'undefined') {
+      console.warn(`Could not load component '${component}'`)
+    } else {
+      getComponent(entity, GLTFLoadedComponent).push(component)
+      loadComponent(entity, {
+        name: key,
+        props: value
+      })
+    }
   }
 }
 
@@ -77,6 +91,7 @@ export const parseObjectComponentsFromGLTF = (entity: Entity, object3d?: Object3
   })
 
   if (meshesToProcess.length === 0) {
+    setComponent(entity, GLTFLoadedComponent, [])
     obj3d.traverse((obj) => createObjectEntityFromGLTF(entity, obj))
     return
   }
@@ -94,8 +109,6 @@ export const parseObjectComponentsFromGLTF = (entity: Entity, object3d?: Object3
     delete mesh.userData['xrengine.entity']
     delete mesh.userData.name
 
-    addComponent(e, EntityNodeComponent, { components: [] })
-
     if (Engine.instance.isEditor)
       // store local transform in local transform component
       setLocalTransformComponent(e, mesh.position, mesh.quaternion, mesh.scale)
@@ -109,8 +122,13 @@ export const parseObjectComponentsFromGLTF = (entity: Entity, object3d?: Object3
     mesh.getWorldScale(transform.scale)
 
     mesh.removeFromParent()
-    addComponent(e, Object3DComponent, { value: mesh })
+    if (mesh.userData['xrengine.removeMesh'] === 'true') {
+      delete mesh.userData['xrengine.removeMesh']
+    } else {
+      addComponent(e, Object3DComponent, { value: mesh })
+    }
 
+    addComponent(e, GLTFLoadedComponent, ['entity', TransformComponent._name])
     createObjectEntityFromGLTF(e, mesh)
   }
 }
@@ -172,33 +190,13 @@ export const parseGLTFModel = (entity: Entity) => {
     })
   }
 
-  const world = Engine.instance.currentWorld
-
-  if (!Engine.instance.isEditor && world.worldNetwork?.isHosting /**&& props.isDynamicObject*/) {
-    const node = world.entityTree.entityNodeMap.get(entity)
-    if (node) {
-      // dispatchAction(
-      //   WorldNetworkAction.spawnObject({
-      //     prefab: 'scene_object',
-      //     parameters: { sceneEntityId: node.uuid }
-      //   }),
-      //   Engine.instance.currentWorld.worldNetwork.hostId
-      // )
-    }
-  }
-
   // ignore disabling matrix auto update in the editor as we need to be able move things around with the transform tools
-  if (!Engine.instance.isEditor && props.matrixAutoUpdate === false) {
-    const transform = getComponent(entity, TransformComponent)
-    obj3d.position.copy(transform.position)
-    obj3d.quaternion.copy(transform.rotation)
-    obj3d.scale.copy(transform.scale)
-    obj3d.updateMatrixWorld(true)
-    obj3d.traverse((child) => {
-      child.matrixAutoUpdate = false
-    })
-  }
-
-  const modelComponent = getComponent(entity, ModelComponent)
-  if (modelComponent) modelComponent.parsed = true
+  const transform = getComponent(entity, TransformComponent)
+  obj3d.position.copy(transform.position)
+  obj3d.quaternion.copy(transform.rotation)
+  obj3d.scale.copy(transform.scale)
+  obj3d.updateMatrixWorld(true)
+  obj3d.traverse((child) => {
+    child.matrixAutoUpdate = props.matrixAutoUpdate
+  })
 }

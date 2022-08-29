@@ -8,3 +8,9 @@ export type AmbientLightComponentType = {
 }
 
 export const AmbientLightComponent = createMappedComponent<AmbientLightComponentType>('AmbientLightComponent')
+
+export const SCENE_COMPONENT_AMBIENT_LIGHT = 'ambient-light'
+export const SCENE_COMPONENT_AMBIENT_LIGHT_DEFAULT_VALUES = {
+  color: '#ffffff',
+  intensity: 1
+}

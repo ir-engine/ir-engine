@@ -3,6 +3,7 @@ import { Bone, Euler, MathUtils, Vector3 } from 'three'
 import { createActionQueue } from '@xrengine/hyperflux'
 
 import { Axis } from '../common/constants/Axis3D'
+import { V_000 } from '../common/constants/MathConstants'
 import { Engine } from '../ecs/classes/Engine'
 import { World } from '../ecs/classes/World'
 import { defineQuery, getComponent, hasComponent } from '../ecs/functions/ComponentFunctions'
@@ -170,33 +171,44 @@ export default async function AnimationSystem(world: World) {
 
       // Arms should not be straight for the solver to work properly
       // TODO: Make this configurable
-      rig.LeftForeArm.quaternion.setFromAxisAngle(Axis.X, Math.PI * -0.25)
-      rig.RightForeArm.quaternion.setFromAxisAngle(Axis.X, Math.PI * 0.25)
-      rig.LeftForeArm.updateWorldMatrix(false, true)
-      rig.RightForeArm.updateWorldMatrix(false, true)
 
-      solveTwoBoneIK(
-        rig.LeftArm,
-        rig.LeftForeArm,
-        rig.LeftHand,
-        ik.leftTarget,
-        ik.leftHint,
-        ik.leftTargetOffset,
-        ik.leftTargetPosWeight,
-        ik.leftTargetRotWeight,
-        ik.leftHintWeight
-      )
-      solveTwoBoneIK(
-        rig.RightArm,
-        rig.RightForeArm,
-        rig.RightHand,
-        ik.rightTarget,
-        ik.rightHint,
-        ik.rightTargetOffset,
-        ik.rightTargetPosWeight,
-        ik.rightTargetRotWeight,
-        ik.rightHintWeight
-      )
+      // TODO: should we break hand IK apart into left and right components?
+      // some devices only support one hand controller. How do we handle that?
+      // how do we report that tracking is lost or still pending?
+      // FOR NOW: we'll assume that we don't have tracking if the target is at exactly (0, 0, 0);
+      // we may want to add a flag for this in the future, or to generally allow animations to play even if tracking is available
+
+      if (!ik.leftTarget.position.equals(V_000)) {
+        rig.LeftForeArm.quaternion.setFromAxisAngle(Axis.X, Math.PI * -0.25)
+        rig.LeftForeArm.updateWorldMatrix(false, true)
+        solveTwoBoneIK(
+          rig.LeftArm,
+          rig.LeftForeArm,
+          rig.LeftHand,
+          ik.leftTarget,
+          ik.leftHint,
+          ik.leftTargetOffset,
+          ik.leftTargetPosWeight,
+          ik.leftTargetRotWeight,
+          ik.leftHintWeight
+        )
+      }
+
+      if (!ik.rightTarget.position.equals(V_000)) {
+        rig.RightForeArm.quaternion.setFromAxisAngle(Axis.X, Math.PI * 0.25)
+        rig.RightForeArm.updateWorldMatrix(false, true)
+        solveTwoBoneIK(
+          rig.RightArm,
+          rig.RightForeArm,
+          rig.RightHand,
+          ik.rightTarget,
+          ik.rightHint,
+          ik.rightTargetOffset,
+          ik.rightTargetPosWeight,
+          ik.rightTargetRotWeight,
+          ik.rightHintWeight
+        )
+      }
     }
 
     for (const entity of armsTwistCorrectionQuery()) {

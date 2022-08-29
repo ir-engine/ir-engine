@@ -3,20 +3,15 @@ import Hls from 'hls.js'
 import proxyquire from 'proxyquire'
 import { LinearFilter, Mesh, Object3D, sRGBEncoding } from 'three'
 
-import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
-
-import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
 import { getComponent } from '../../../ecs/functions/ComponentFunctions'
 import { addComponent } from '../../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
 import { createEngine } from '../../../initializeEngine'
-import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { MediaComponent } from '../../components/MediaComponent'
 import { MediaElementComponent } from '../../components/MediaElementComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 import { VideoComponent, VideoComponentType } from '../../components/VideoComponent'
-import { SCENE_COMPONENT_VIDEO, SCENE_COMPONENT_VIDEO_DEFAULT_VALUES } from './VideoFunctions'
 
 class Media {
   paused: boolean = false
@@ -71,24 +66,9 @@ describe.skip('VideoFunctions', () => {
     elementId: 'Element Id 123'
   }
 
-  const sceneComponent: ComponentJson = {
-    name: SCENE_COMPONENT_VIDEO,
-    props: sceneComponentData
-  }
-
   describe('deserializeVideo', () => {
-    it('does not create Video Component while not on client side', () => {
-      const _videoFunctions = proxyquire('./VideoFunctions', {
-        '../../../common/functions/isClient': { isClient: false }
-      })
-      _videoFunctions.deserializeVideo(entity, sceneComponent)
-
-      const videoComponent = getComponent(entity, VideoComponent)
-      assert(!videoComponent)
-    })
-
     it('creates Video Component with provided component data', () => {
-      videoFunctions.deserializeVideo(entity, sceneComponent)
+      videoFunctions.deserializeVideo(entity, sceneComponentData)
 
       const videoComponent = getComponent(entity, VideoComponent)
       assert(videoComponent)
@@ -110,20 +90,11 @@ describe.skip('VideoFunctions', () => {
     })
 
     it('creates Video Object3D if none is there', () => {
-      videoFunctions.deserializeVideo(entity, sceneComponent)
+      videoFunctions.deserializeVideo(entity, sceneComponentData)
 
       const obj3d = getComponent(entity, Object3DComponent)?.value
       assert(obj3d, 'Video is not created')
       assert(obj3d.userData.videoEl)
-    })
-
-    it('will include this component into EntityNodeComponent', () => {
-      addComponent(entity, EntityNodeComponent, { components: [] })
-
-      videoFunctions.deserializeVideo(entity, sceneComponent)
-
-      const entityNodeComponent = getComponent(entity, EntityNodeComponent)
-      assert(entityNodeComponent.components.includes(SCENE_COMPONENT_VIDEO))
     })
   })
 
@@ -132,7 +103,7 @@ describe.skip('VideoFunctions', () => {
     let obj3d: Object3D
 
     beforeEach(() => {
-      videoFunctions.deserializeVideo(entity, sceneComponent)
+      videoFunctions.deserializeVideo(entity, sceneComponentData)
       videoComponent = getComponent(entity, VideoComponent) as VideoComponentType
       obj3d = getComponent(entity, Object3DComponent)?.value
     })
@@ -181,8 +152,8 @@ describe.skip('VideoFunctions', () => {
 
   describe('serializeVideo()', () => {
     it('should properly serialize video', () => {
-      videoFunctions.deserializeVideo(entity, sceneComponent)
-      assert.deepEqual(videoFunctions.serializeVideo(entity), sceneComponent)
+      videoFunctions.deserializeVideo(entity, sceneComponentData)
+      assert.deepEqual(videoFunctions.serializeVideo(entity), sceneComponentData)
     })
 
     it('should return undefine if there is no video component', () => {

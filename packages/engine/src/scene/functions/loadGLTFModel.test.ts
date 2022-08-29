@@ -7,11 +7,10 @@ import { addComponent, createMappedComponent, defineQuery, getComponent } from '
 import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { createEngine } from '../../initializeEngine'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { ModelComponent } from '../components/ModelComponent'
+import { ModelComponent, SCENE_COMPONENT_MODEL_DEFAULT_VALUE } from '../components/ModelComponent'
 import { NameComponent } from '../components/NameComponent'
 import { Object3DComponent } from '../components/Object3DComponent'
 import { ObjectLayers } from '../constants/ObjectLayers'
-import { SCENE_COMPONENT_MODEL_DEFAULT_VALUE } from './loaders/ModelFunctions'
 import { parseGLTFModel } from './loadGLTFModel'
 
 describe('loadGLTFModel', () => {

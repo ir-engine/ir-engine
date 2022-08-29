@@ -9,7 +9,12 @@
  *     Note: The sending/aggregation to Elastic only happens when APP_ENV !== 'development'.
  *
  */
+import { LruCache } from '@digitalcredentials/lru-memoize'
 import fetch from 'cross-fetch'
+
+const logRequestCache = new LruCache({
+  maxAge: 1000 * 5 // 5 seconds cache expiry
+})
 
 const hostDefined = !!globalThis.process.env['VITE_SERVER_HOST']
 // TODO: Hate to dupe the two config vars below, would prefer to load them from @xrengine/client-core/src/utils/config
@@ -18,7 +23,20 @@ export const serverHost = localBuildOrDev
   ? `https://${globalThis.process.env['VITE_SERVER_HOST']}:${globalThis.process.env['VITE_SERVER_PORT']}`
   : `https://${globalThis.process.env['VITE_SERVER_HOST']}`
 
+const disableLog = process.env.DISABLE_LOG
+
 const baseComponent = 'client-core'
+/**
+ * No-op logger, used for unit testing (or other disabling of logger)
+ */
+const nullLogger = {
+  debug: () => {},
+  info: () => {},
+  warn: () => {},
+  error: () => {},
+  fatal: () => {}
+}
+
 /**
  * A logger class (similar to the one provided by Pino.js) to replace
  * console.log() usage on the client side.
@@ -58,7 +76,7 @@ const multiLogger = {
       const send = (level) => {
         const url = new URL('/api/log', serverHost)
 
-        return (...args) => {
+        return async (...args) => {
           const consoleMethods = {
             debug: console.debug.bind(console, `[${opts.component}]`),
             info: console.log.bind(console, `[${opts.component}]`),
@@ -73,28 +91,35 @@ const multiLogger = {
           // In addition to sending to logging endpoint,  output to console
           consoleMethods[level](...args)
 
-          // Send to backend /api/log endpoint for aggregation
-          if (hostDefined) {
-            fetch(url, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                level,
-                component: opts.component,
-                ...logParams
-              })
+          // Send an async rate-limited request to backend /api/log endpoint for aggregation
+          // Also suppress logger.info() levels (the equivalent to console.log())
+          if (hostDefined && level !== 'info') {
+            logRequestCache.memoize({
+              key: logParams.msg,
+              fn: () =>
+                fetch(url, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    level,
+                    component: opts.component,
+                    ...logParams
+                  })
+                })
             })
           }
         }
       }
 
-      return {
-        debug: send('debug'),
-        info: send('info'),
-        warn: send('warn'),
-        error: send('error'),
-        fatal: send('fatal')
-      }
+      return disableLog
+        ? nullLogger
+        : {
+            debug: send('debug'),
+            info: send('info'),
+            warn: send('warn'),
+            error: send('error'),
+            fatal: send('fatal')
+          }
     }
   }
 }

@@ -23,3 +23,5 @@ Euler.prototype.toJSON = function () {
 Mesh.prototype.raycast = acceleratedRaycast
 BufferGeometry.prototype['disposeBoundsTree'] = disposeBoundsTree
 BufferGeometry.prototype['computeBoundsTree'] = computeBoundsTree
+
+globalThis.Quaternion = Quaternion

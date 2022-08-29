@@ -15,9 +15,7 @@ import {
   emptyEntityTree
 } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
 import { createEngine } from '@xrengine/engine/src/initializeEngine'
-import { EntityNodeComponent } from '@xrengine/engine/src/scene/components/EntityNodeComponent'
 import { RenderSettingComponent } from '@xrengine/engine/src/scene/components/RenderSettingComponent'
-import { registerPrefabs } from '@xrengine/engine/src/scene/functions/registerPrefabs'
 import { applyIncomingActions } from '@xrengine/hyperflux'
 
 import EditorCommands from '../constants/EditorCommands'
@@ -60,7 +58,6 @@ describe('ModifyPropertyCommand', () => {
     createEngine()
     registerEditorReceptors()
     Engine.instance.store.defaultDispatchDelay = 0
-    registerPrefabs(Engine.instance.currentWorld)
 
     rootNode = createEntityNode(createEntity())
     nodes = [createEntityNode(createEntity()), createEntityNode(createEntity())]
@@ -69,7 +66,6 @@ describe('ModifyPropertyCommand', () => {
     for (let i = 0; i < 2; i++) {
       addEntityNodeInTree(nodes[i], rootNode)
       addComponent(nodes[i].entity, TestComponent, getRandomValues())
-      addComponent(nodes[i].entity, EntityNodeComponent, { components: [testComponentName] })
     }
 
     command = {
@@ -91,7 +87,9 @@ describe('ModifyPropertyCommand', () => {
         const propertyNames = Object.keys(prop)
 
         assert(propertyNames.length > 0)
-        const comp = getComponent(command.affectedNodes[i].entity, command.component)
+        const node = command.affectedNodes[i]
+        if (typeof node === 'string') return
+        const comp = getComponent(node.entity, command.component)
 
         for (const propertyName of Object.keys(prop)) {
           assert.deepEqual(comp[propertyName], prop[propertyName])
@@ -186,21 +184,12 @@ describe('ModifyPropertyCommand', () => {
 
   describe('execute function', async () => {
     it('will execute the command', () => {
-      const data = {
-        [nodes[0].entity]: false,
-        [nodes[1].entity]: false
-      }
-      Engine.instance.currentWorld.sceneLoadingRegistry.set(testComponentName, {
-        update: (entity) => (data[entity] = true)
-      } as any)
-
       ModifyPropertyCommand.execute?.(command)
       applyIncomingActions()
-
       command.affectedNodes.forEach((node, i) => {
+        if (typeof node === 'string') return
         const component = getComponent(node.entity, TestComponent)
         assert.deepEqual(component, command.properties[i])
-        command.affectedNodes.forEach((node) => assert.equal(data[node.entity], true))
       })
     })
   })
@@ -216,6 +205,7 @@ describe('ModifyPropertyCommand', () => {
       applyIncomingActions()
 
       command.affectedNodes.forEach((node, i) => {
+        if (typeof node === 'string') return
         const component = getComponent(node.entity, TestComponent)
         assert.deepEqual(component, command.properties[i])
       })
@@ -232,6 +222,7 @@ describe('ModifyPropertyCommand', () => {
 
       assert(command.undo)
       command.affectedNodes.forEach((node, i) => {
+        if (typeof node === 'string') return
         const component = getComponent(node.entity, TestComponent)
         assert.deepEqual(component, command.undo?.properties[i])
       })

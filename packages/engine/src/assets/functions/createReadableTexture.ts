@@ -1,5 +1,4 @@
 import {
-  CompressedTexture,
   Mesh,
   PerspectiveCamera,
   PlaneBufferGeometry,
@@ -11,9 +10,15 @@ import {
 } from 'three'
 
 export default function createReadableTexture(
-  map: CompressedTexture,
-  maxDimensions?: { width: number; height: number }
-): Texture {
+  map: Texture,
+  options?: {
+    maxDimensions?: { width: number; height: number }
+    url?: boolean
+  }
+): Texture | string {
+  if (typeof map.source?.data?.src === 'string' && !/ktx2$/.test(map.source.data.src)) {
+    return options?.url ? map.source.data.src : map
+  }
   const fullscreenQuadGeometry = new PlaneBufferGeometry(2, 2, 1, 1)
   const fullscreenQuadMaterial = new ShaderMaterial({
     uniforms: { blitTexture: new Uniform(map) },
@@ -40,6 +45,7 @@ export default function createReadableTexture(
   temporaryScene.add(fullscreenQuad)
 
   const temporaryRenderer = new WebGLRenderer({ antialias: false })
+  const maxDimensions = options?.maxDimensions
   if (maxDimensions) {
     temporaryRenderer.setSize(
       Math.min(map.image.width, maxDimensions.width),
@@ -50,5 +56,11 @@ export default function createReadableTexture(
   }
   temporaryRenderer.clear()
   temporaryRenderer.render(temporaryScene, temporaryCam)
-  return new Texture(temporaryRenderer.domElement)
+  if (!options?.url) return new Texture(temporaryRenderer.domElement)
+  else {
+    const result = temporaryRenderer.domElement.getContext('webgl2')!.canvas.toDataURL()
+    temporaryRenderer.domElement.remove()
+    temporaryRenderer.dispose()
+    return result
+  }
 }

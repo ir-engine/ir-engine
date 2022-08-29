@@ -1,11 +1,12 @@
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineActions } from '@xrengine/engine/src/ecs/classes/EngineState'
+import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import {
   ComponentConstructor,
   ComponentType,
+  getAllComponents,
   getComponent
 } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { EntityNodeComponent } from '@xrengine/engine/src/scene/components/EntityNodeComponent'
 import { dispatchAction } from '@xrengine/hyperflux'
 
 import { CommandFuncType, CommandParams, ObjectCommands } from '../constants/EditorCommands'
@@ -31,19 +32,21 @@ export type ModifyPropertyCommandParams<C extends ComponentConstructor<any, any>
 function prepare<C extends ComponentConstructor<any, any>>(command: ModifyPropertyCommandParams<C>) {
   if (command.keepHistory) {
     command.undo = {
-      properties: command.affectedNodes.map((node, i) => {
-        const comp = getComponent(node.entity, command.component)
-        const oldProps = {} as any
-        const propertyNames = Object.keys(command.properties[i] ?? command.properties[0])
+      properties: command.affectedNodes
+        .filter((node) => typeof node !== 'string')
+        .map((node: EntityTreeNode, i) => {
+          const comp = getComponent(node.entity, command.component)
+          const oldProps = {} as any
+          const propertyNames = Object.keys(command.properties[i] ?? command.properties[0])
 
-        for (const propertyName of propertyNames) {
-          const { result, finalProp } = getNestedObject(comp, propertyName)
-          const oldValue = result ? result[finalProp] : {}
-          oldProps[propertyName] = oldValue && oldValue.clone ? oldValue.clone() : oldValue
-        }
+          for (const propertyName of propertyNames) {
+            const { result, finalProp } = getNestedObject(comp, propertyName)
+            const oldValue = result ? result[finalProp] : {}
+            oldProps[propertyName] = oldValue && oldValue.clone ? oldValue.clone() : oldValue
+          }
 
-        return oldProps
-      })
+          return oldProps
+        })
     }
   }
 }
@@ -92,7 +95,9 @@ function updateProperty<C extends ComponentConstructor<any, any>>(
   const properties = isUndo && command.undo ? command.undo.properties : command.properties
 
   for (let i = 0; i < command.affectedNodes.length; i++) {
-    const entity = command.affectedNodes[i].entity
+    const node = command.affectedNodes[i]
+    if (typeof node === 'string') continue
+    const entity = node.entity
     const props = properties[i] ?? properties[0]
 
     const comp = getComponent(entity, command.component)
@@ -114,18 +119,18 @@ function updateProperty<C extends ComponentConstructor<any, any>>(
           result[finalProp] = value
         }
 
-        dispatchAction(SelectionAction.changedObject({ objects: [command.affectedNodes[i]], propertyName }))
+        dispatchAction(SelectionAction.changedObject({ objects: [node], propertyName }))
       }
-    }
-
-    /** @todo deprecate in favour of 'EngineActions.sceneObjectUpdate' action */
-    const nodeComponent = getComponent(entity, EntityNodeComponent)
-    for (const component of nodeComponent.components) {
-      Engine.instance.currentWorld.sceneLoadingRegistry.get(component)?.update?.(entity, props)
     }
   }
 
-  dispatchAction(EngineActions.sceneObjectUpdate({ entities: command.affectedNodes.map((node) => node.entity) }))
+  dispatchAction(
+    EngineActions.sceneObjectUpdate({
+      entities: command.affectedNodes
+        .filter((node) => typeof node !== 'string')
+        .map((node: EntityTreeNode) => node.entity)
+    })
+  )
   dispatchAction(EditorAction.sceneModified({ modified: true }))
 }
 

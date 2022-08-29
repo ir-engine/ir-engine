@@ -25,18 +25,17 @@ export default function checkPositionIsValid(
 
   const raycastComponentData = {
     type: SceneQueryType.Closest,
-    hits: [],
     origin: position,
     direction: raycastDirection,
     maxDistance: 2,
     flags: interactionGroups
   }
-  Physics.castRay(Engine.instance.currentWorld.physicsWorld, raycastComponentData)
+  const hits = Physics.castRay(Engine.instance.currentWorld.physicsWorld, raycastComponentData)
 
   let positionValid = false
   let raycastHit = null as any
-  if (raycastComponentData.hits.length > 0) {
-    raycastHit = raycastComponentData.hits[0] as RaycastHit
+  if (hits.length > 0) {
+    raycastHit = hits[0] as RaycastHit
     if (onlyAllowPositionOnGround) {
       positionValid = true
     } else {

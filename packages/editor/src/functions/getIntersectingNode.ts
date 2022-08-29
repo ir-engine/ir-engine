@@ -1,23 +1,25 @@
 import { Camera, Intersection, Object3D, Raycaster, Vector2 } from 'three'
 
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
-import { hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
-import { IgnoreRaycastTagComponent } from '@xrengine/engine/src/scene/components/IgnoreRaycastTagComponent'
+import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { getEntityNodeArrayFromEntities } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
 import { Object3DComponent, Object3DWithEntity } from '@xrengine/engine/src/scene/components/Object3DComponent'
 import { ObjectLayers } from '@xrengine/engine/src/scene/constants/ObjectLayers'
 
+import { accessSelectionState } from '../services/SelectionServices'
+
 type RaycastIntersectionNode = Intersection<Object3DWithEntity> & {
   obj3d: Object3DWithEntity
-  node?: EntityTreeNode
+  node?: EntityTreeNode | string
 }
 
 function getParentEntity(obj: Object3DWithEntity): Object3DWithEntity {
   let curObj = obj
 
   while (curObj) {
-    if (curObj.entity && !hasComponent(curObj.entity, IgnoreRaycastTagComponent)) break
+    if (curObj.entity) break
     curObj = curObj.parent! as Object3DWithEntity
   }
 
@@ -26,13 +28,21 @@ function getParentEntity(obj: Object3DWithEntity): Object3DWithEntity {
 
 export function getIntersectingNode(results: Intersection<Object3DWithEntity>[]): RaycastIntersectionNode | undefined {
   if (results.length <= 0) return
-
+  const selectionState = accessSelectionState()
+  const selected = new Set<string | Entity>(selectionState.selectedEntities.value)
   for (const result of results as RaycastIntersectionNode[]) {
-    const obj = getParentEntity(result.object)
+    const obj = result.object //getParentEntity(result.object)
+    const parentNode = getParentEntity(obj)
+    if (!parentNode) continue //skip obj3ds that are not children of EntityNodes
+    if (!obj.entity && parentNode && !selected.has(parentNode.entity)) {
+      ;[result.node] = getEntityNodeArrayFromEntities([parentNode.entity])
+      result.obj3d = getComponent(parentNode.entity, Object3DComponent).value as Object3DWithEntity
+      return result
+    }
 
     if (obj && (obj as Object3D) !== Engine.instance.currentWorld.scene) {
       result.obj3d = obj
-      result.node = Engine.instance.currentWorld.entityTree.entityNodeMap.get(obj.entity)
+      result.node = obj.entity ? Engine.instance.currentWorld.entityTree.entityNodeMap.get(obj.entity) : obj.uuid
       //if(result.node && hasComponent(result.node.entity, Object3DComponent))
       //result.obj3d = result.object
       //result.node = result.object.uuid

@@ -1,27 +1,58 @@
 import { Application } from '@feathersjs/express/lib'
-import { NodeIO, Texture } from '@gltf-transform/core'
-import { DracoMeshCompression, MeshoptCompression, MeshQuantization, TextureBasisu } from '@gltf-transform/extensions'
-import { dedup, prune, quantize, reorder } from '@gltf-transform/functions'
+import { Accessor, Document, Format, Buffer as glBuffer, Property, Texture } from '@gltf-transform/core'
+import { MeshoptCompression, MeshQuantization, TextureBasisu } from '@gltf-transform/extensions'
+import { dedup, draco, partition, prune, quantize, reorder, unpartition } from '@gltf-transform/functions'
 import appRootPath from 'app-root-path'
 import { exec } from 'child_process'
-import draco3d from 'draco3dgltf'
 import fs from 'fs'
-import { max } from 'lodash'
-import { MeshoptDecoder, MeshoptEncoder } from 'meshoptimizer'
+import { MeshoptEncoder } from 'meshoptimizer'
 import path from 'path'
 import sharp from 'sharp'
+import { MathUtils } from 'three'
 import util from 'util'
 
 import ModelTransformLoader, {
   ModelTransformParameters
 } from '@xrengine/engine/src/assets/classes/ModelTransformLoader'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 
-import { getContentType } from '../../util/fileUtils'
+import { projectsRootFolder } from '../../media/file-browser/file-browser.class'
+import { delta, getContentType, snapshot } from '../../util/fileUtils'
 
 export type ModelTransformArguments = {
   src: string
   dst: string
   parms: ModelTransformParameters
+}
+
+export type ModelResourcesArguments = {
+  src: string
+  filter: string
+}
+
+export async function getModelResources(app: Application, args: ModelResourcesArguments) {
+  const { io } = await ModelTransformLoader()
+  const document = await io.read(args.src)
+  const root = document.getRoot()
+  const listTable = (element) => {
+    switch (element) {
+      case 'meshes':
+        return root.listMeshes()
+      case 'textures':
+        return root.listTextures()
+      case 'materials':
+        return root.listMaterials()
+      case 'nodes':
+        return root.listNodes()
+      default:
+        return []
+    }
+  }
+  const entries = listTable(args.filter).map((resource, idx): [string, Property] => [
+    `${resource.propertyType}-${idx}`,
+    resource
+  ])
+  return Object.fromEntries(entries)
 }
 
 export async function transformModel(app: Application, args: ModelTransformArguments) {
@@ -66,19 +97,48 @@ export async function transformModel(app: Application, args: ModelTransformArgum
     }
   }
 
+  const resourceName = /*'model-resources'*/ path.basename(args.src).slice(0, path.basename(args.src).lastIndexOf('.'))
+  const resourcePath = path.join(path.dirname(args.src), resourceName)
+  const projectRoot = path.join(appRootPath.path, 'packages/projects')
+
   const toValidFilename = (name: string) => {
     let result = name.replace(/[\s]/, '-')
     return result
   }
 
-  const toPath = (texture: Texture) => {
-    return `${toValidFilename(texture.getName())}.${mimeToFileType(texture.getMimeType())}`
+  const toPath = (element: Texture | glBuffer, index?: number) => {
+    if (element instanceof Texture) {
+      if (element.getURI()) {
+        return path.basename(element.getURI())
+      } else
+        return `${toValidFilename(element.getName())}-${index}-${Date.now()}.${mimeToFileType(element.getMimeType())}`
+    } else if (element instanceof glBuffer) return `buffer-${index}-${Date.now()}.bin`
+    else throw new Error('invalid element to find path')
+  }
+
+  const fileUploadPath = (fUploadPath: string) => {
+    const pathCheck = /.*\/packages\/projects\/(.*)\/([\w\d\s\-_\.]*)$/
+    const [_, savePath, fileName] =
+      pathCheck.exec(fUploadPath) ?? pathCheck.exec(path.join(path.dirname(args.src), fUploadPath))!
+    return [savePath, fileName]
+  }
+
+  const initializeResourceDir = async () => {
+    if (fs.existsSync(resourcePath)) {
+      //fs.rmSync(resourcePath, { recursive: true, force: true })
+      await app.service('file-browser').remove(resourcePath.replace(projectRoot, ''))
+    }
+    //fs.mkdirSync(resourcePath)
+    if (!fs.existsSync(resourcePath))
+      await app.service('file-browser').create(resourcePath.replace(projectRoot, '') as any)
   }
 
   const { io } = await ModelTransformLoader()
 
   const document = await io.read(args.src)
   const root = document.getRoot()
+
+  /* ID unnamed resources */
 
   /* PROCESS MESHES */
   if (args.parms.useMeshopt) {
@@ -94,7 +154,15 @@ export async function transformModel(app: Application, args: ModelTransformArgum
     document.createExtension(MeshQuantization).setRequired(true)
     await document.transform(quantize())
   }
-
+  if (args.parms.useDraco) {
+    await document.transform(
+      draco({
+        method: 'sequential',
+        encodeSpeed: 0,
+        decodeSpeed: 0
+      })
+    )
+  }
   /* /PROCESS MESHES */
 
   /* PROCESS TEXTURES */
@@ -159,15 +227,61 @@ export async function transformModel(app: Application, args: ModelTransformArgum
     texture.setImage(fs.readFileSync(nuPath))
     texture.setMimeType(fileTypeToMime(parms.textureFormat)!)
   }
-  const data = await io.writeBinary(document)
-  const [_, savePath, fileName] = /.*\/packages\/projects\/(.*)\/([\w\d\s\-_\.]*)$/.exec(args.dst)!
-  const result = await app.service('file-browser').patch(null, {
-    path: savePath,
-    fileName,
-    body: data,
-    contentType: getContentType(args.dst)
-  })
+
+  let result
+  switch (parms.modelFormat) {
+    case 'glb':
+      const data = await io.writeBinary(document)
+      const [savePath, fileName] = fileUploadPath(args.dst)
+      result = await app.service('file-browser').patch(null, {
+        path: savePath,
+        fileName,
+        body: data,
+        contentType: getContentType(args.dst)
+      })
+
+      console.log('Handled glb file')
+      break
+    case 'gltf':
+      const idResources = (elements) =>
+        elements.filter((mesh) => !mesh.getName()).map((mesh) => mesh.setName(MathUtils.generateUUID()))
+      idResources(root.listBuffers())
+      idResources(root.listMeshes())
+      idResources(root.listTextures())
+      document.transform(
+        partition({
+          animations: true,
+          meshes: root.listMeshes().map((mesh) => mesh.getName())
+        })
+      )
+
+      const { json, resources } = await io.writeJSON(document, { format: Format.GLTF, basename: resourceName })
+      await initializeResourceDir()
+      json.images?.map((image) => {
+        image.uri = path.join(resourceName, path.basename(image.uri!))
+      })
+      const defaultBufURI = MathUtils.generateUUID() + '.bin'
+      json.buffers?.map((buffer) => {
+        buffer.uri = path.join(resourceName, path.basename(buffer.uri ?? defaultBufURI))
+      })
+      Object.keys(resources).map((uri) => {
+        resources[path.join(resourceName, path.basename(uri))] = resources[uri]
+        delete resources[uri]
+      })
+      const doUpload = (uri, data) => {
+        const [savePath, fileName] = fileUploadPath(uri)
+        return app.service('file-browser').patch(null, {
+          path: savePath,
+          fileName,
+          body: data,
+          contentType: getContentType(uri)
+        })
+      }
+      await Promise.all(Object.entries(resources).map(([uri, data]) => doUpload(uri, data)))
+      result = await doUpload(args.dst.replace(/\.glb$/, '.gltf'), Buffer.from(JSON.stringify(json)))
+      console.log('Handled gltf file')
+      break
+  }
   if (fs.existsSync(tmpDir)) await promiseExec(`rm -R ${tmpDir}`)
-  console.log('Handled glb file')
   return result
 }

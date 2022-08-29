@@ -14,7 +14,7 @@ import { getOrbitControls } from '@xrengine/engine/src/input/functions/loadOrbit
 import { ArrowBack, Check } from '@mui/icons-material'
 import CircularProgress from '@mui/material/CircularProgress'
 
-import { AuthService } from '../../../services/AuthService'
+import { AvatarService } from '../../../services/AvatarService'
 import styles from '../index.module.scss'
 import { Views } from '../util'
 import { addAnimationLogic, initialize3D, onWindowResize, validate } from './helperFunctions'
@@ -123,13 +123,7 @@ const ReadyPlayerMenu = ({ isPublicAvatar, changeActiveMenu }: Props) => {
     var thumbnailName = avatarUrl.substring(0, avatarUrl.lastIndexOf('.')) + '.png'
 
     canvas.toBlob(async (blob) => {
-      const uploadResponse = await AuthService.uploadAvatarModel(
-        selectedFile,
-        new File([blob!], thumbnailName),
-        avatarName,
-        isPublicAvatar
-      )
-      await AuthService.createAvatar(uploadResponse[0], uploadResponse[1], avatarName, isPublicAvatar)
+      await AvatarService.createAvatar(selectedFile, new File([blob!], thumbnailName), avatarName, isPublicAvatar)
       changeActiveMenu(Views.Profile)
     })
   }

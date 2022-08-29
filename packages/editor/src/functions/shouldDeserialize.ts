@@ -1,23 +1,22 @@
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
-import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
-import { EntityNodeComponent } from '@xrengine/engine/src/scene/components/EntityNodeComponent'
-import { ScenePrefabTypes } from '@xrengine/engine/src/scene/functions/registerPrefabs'
+import { getAllComponents } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 
-export const shouldNodeDeserialize = (node: EntityTreeNode, world = useWorld()): boolean => {
-  const entityNode = getComponent(node.entity, EntityNodeComponent)
+export const shouldNodeDeserialize = (node: EntityTreeNode, world = Engine.instance.currentWorld) => {
+  const components = getAllComponents(node.entity)
 
-  if (!entityNode) return true
-
-  for (let i = 0; i < entityNode.components.length; i++) {
-    const loadingRegister = world.sceneLoadingRegistry.get(entityNode.components[i])
-    if (loadingRegister && loadingRegister.shouldDeserialize && !loadingRegister.shouldDeserialize()) return false
+  for (const component of components) {
+    const sceneComponentID = world.sceneComponentRegistry.get(component._name)!
+    if (sceneComponentID) {
+      const loadingRegister = world.sceneLoadingRegistry.get(sceneComponentID)
+      if (loadingRegister && loadingRegister.shouldDeserialize && !loadingRegister.shouldDeserialize()) return false
+    }
   }
 
   return true
 }
 
-export const shouldPrefabDeserialize = (prefabType: ScenePrefabTypes, world = useWorld()): boolean => {
+export const shouldPrefabDeserialize = (prefabType: string, world = Engine.instance.currentWorld) => {
   const prefab = world.scenePrefabRegistry.get(prefabType)
 
   if (!prefab) return false

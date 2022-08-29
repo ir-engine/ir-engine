@@ -9,6 +9,7 @@ import {
   reparentEntityNode
 } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
 import { reparentObject3D } from '@xrengine/engine/src/scene/functions/ReparentFunction'
+import obj3dFromUuid from '@xrengine/engine/src/scene/util/obj3dFromUuid'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 import { dispatchAction } from '@xrengine/hyperflux'
 
@@ -21,18 +22,18 @@ import { EditorAction } from '../services/EditorServices'
 import { accessSelectionState, SelectionAction } from '../services/SelectionServices'
 
 export type ReparentCommandUndoParams = {
-  parents: EntityTreeNode[]
-  befores: EntityTreeNode[]
+  parents: (EntityTreeNode | string)[]
+  befores: (EntityTreeNode | string)[]
   positions: Vector3[]
-  selection: Entity[]
+  selection: (string | Entity)[]
 }
 
 export type ReparentCommandParams = CommandParams & {
   type: ParentCommands.REPARENT
 
-  parents: EntityTreeNode[]
+  parents: (EntityTreeNode | string)[]
 
-  befores?: EntityTreeNode[]
+  befores?: (EntityTreeNode | string)[]
 
   positions?: Vector3[]
 
@@ -52,17 +53,26 @@ function prepare(command: ReparentCommandParams) {
 
     for (let i = command.affectedNodes.length - 1; i >= 0; i--) {
       const node = command.affectedNodes[i]
+      if (typeof node !== 'string') {
+        if (node.parentEntity) {
+          const parent = tree.entityNodeMap.get(node.parentEntity)
+          if (!parent) throw new Error('Parent is not defined')
+          command.undo.parents.push(parent)
 
-      if (node.parentEntity) {
-        const parent = tree.entityNodeMap.get(node.parentEntity)
-        if (!parent) throw new Error('Parent is not defined')
-        command.undo.parents.push(parent)
+          const before = tree.entityNodeMap.get(parent.children![parent.children!.indexOf(node.entity) + 1])
+          command.undo.befores.push(before!)
+        }
 
-        const before = tree.entityNodeMap.get(parent.children![parent.children!.indexOf(node.entity) + 1])
-        command.undo.befores.push(before!)
+        command.undo.positions.push(getComponent(node.entity, TransformComponent)?.position.clone() ?? new Vector3())
+      } else {
+        const obj3d = obj3dFromUuid(node)
+        if (obj3d.parent) {
+          const parent = obj3d.parent
+          command.undo.parents.push(parent.uuid)
+          const before = parent.children[parent.children.indexOf(obj3d) + 1]
+          command.undo.befores.push(before?.uuid)
+        }
       }
-
-      command.undo.positions.push(getComponent(node.entity, TransformComponent)?.position.clone() ?? new Vector3())
     }
   }
 }
@@ -143,10 +153,20 @@ function reparent(command: ReparentCommandParams, isUndo: boolean) {
 
     const node = nodes[i]
     const before = befores ? befores[i] ?? befores[0] : undefined
-    const index = before && parent.children ? parent.children.indexOf(before.entity) : undefined
+    if (typeof node !== 'string') {
+      const _parent = parent as EntityTreeNode
+      const _before = before as EntityTreeNode | undefined
+      const index = _before && _parent.children ? _parent.children.indexOf(_before.entity) : undefined
 
-    reparentEntityNode(node, parent, index)
-    reparentObject3D(node, parent, before)
+      reparentEntityNode(node, _parent, index)
+      reparentObject3D(node, _parent, _before)
+    } else {
+      const _parent = obj3dFromUuid(parent as string)
+
+      const obj3d = obj3dFromUuid(node)
+      obj3d.removeFromParent()
+      _parent.add(obj3d)
+    }
   }
 
   if (command.updateSelection) {

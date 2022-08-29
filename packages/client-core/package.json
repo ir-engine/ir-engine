@@ -57,6 +57,7 @@
     "cross-env": "7.0.3",
     "emailjs-com": "3.2.0",
     "esbuild-plugin-sass": "1.0.1",
+    "hark": "^1.2.3",
     "i18next": "21.6.16",
     "image-palette-core": "0.2.2",
     "jwt-decode": "3.1.2",

@@ -64,12 +64,12 @@ const bakeResolutionTypes = [
 ]
 
 export const EnvMapBakeProperties = (props: EnvMapBakePropertyEditorProps) => {
-  const getPropertyValue = (option: string) => props.bakeComponent.options[option]
+  const getPropertyValue = (option: string) => props.bakeComponent[option]
 
   let renderVal = <></>
   const label = props.element.label
   const propertyName = props.element.propertyName
-  const changehandler = updateProperty(EnvMapBakeComponent, `options.${propertyName}` as any)
+  const changehandler = updateProperty(EnvMapBakeComponent, propertyName)
 
   switch (props.element.type) {
     case BakePropertyTypes.Boolean:

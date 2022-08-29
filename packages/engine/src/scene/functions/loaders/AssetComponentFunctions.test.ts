@@ -2,10 +2,8 @@ import appRootPath from 'app-root-path'
 import assert from 'assert'
 import fs from 'fs'
 import path from 'path'
-import rewire from 'rewire'
 import Sinon from 'sinon'
 
-import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import {
@@ -26,16 +24,7 @@ import '@xrengine/engine/src/patchEngineNode'
 
 import { AssetComponent, AssetLoadedComponent, LoadState } from '@xrengine/engine/src/scene/components/AssetComponent'
 import { ModelComponent } from '@xrengine/engine/src/scene/components/ModelComponent'
-import { gltfToSceneJson, handleScenePaths } from '@xrengine/engine/src/scene/functions/GLTFConversion'
-import {
-  deserializeAsset,
-  loadAsset,
-  SCENE_COMPONENT_ASSET,
-  SCENE_COMPONENT_ASSET_DEFAULT_VALUES,
-  serializeAsset,
-  unloadAsset
-} from '@xrengine/engine/src/scene/functions/loaders/AssetComponentFunctions'
-import { loadECSData } from '@xrengine/engine/src/scene/functions/SceneLoading'
+import { loadAsset, unloadAsset } from '@xrengine/engine/src/scene/functions/loaders/AssetComponentFunctions'
 
 import { AssetLoader } from '../../../assets/classes/AssetLoader'
 import { XRELoader } from '../../../assets/classes/XRELoader'

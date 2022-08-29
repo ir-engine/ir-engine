@@ -21,7 +21,7 @@ import TuneIcon from '@mui/icons-material/Tune'
 import { Checkbox } from '@mui/material'
 import Dialog from '@mui/material/Dialog'
 
-import { extractZip, uploadProjectFile } from '../functions/assetFunctions'
+import { extractZip, uploadProjectFiles } from '../functions/assetFunctions'
 import { disposeProject, loadProjectScene, runPreprojectLoadTasks } from '../functions/projectFunctions'
 import { createNewScene, getScene, saveScene } from '../functions/sceneFunctions'
 import { initializeRenderer } from '../functions/sceneRenderFunctions'
@@ -292,7 +292,7 @@ const EditorContainer = () => {
       if (el.files && el.files.length > 0 && pName) {
         const fList = el.files
         const files = [...Array(el.files.length).keys()].map((i) => fList[i])
-        const nuUrl = (await Promise.all(uploadProjectFile(pName, files, true).promises)).map((url) => url.url)
+        const nuUrl = (await Promise.all(uploadProjectFiles(pName, files, true).promises)).map((url) => url[0])
 
         //process zipped files
         const zipFiles = nuUrl.filter((url) => /\.zip$/.test(url))

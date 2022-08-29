@@ -1,7 +1,9 @@
 import {
+  Document,
   Extension,
   ExtensionProperty,
   IProperty,
+  NodeIO,
   Nullable,
   PropertyType,
   ReaderContext,
@@ -10,15 +12,33 @@ import {
   WebIO,
   WriterContext
 } from '@gltf-transform/core'
-import { MeshGPUInstancing, MeshoptCompression, MeshQuantization, TextureBasisu } from '@gltf-transform/extensions'
+import {
+  DracoMeshCompression,
+  LightsPunctual,
+  MaterialsClearcoat,
+  MaterialsEmissiveStrength,
+  MaterialsPBRSpecularGlossiness,
+  MaterialsSpecular,
+  MaterialsTransmission,
+  MaterialsUnlit,
+  MeshGPUInstancing,
+  MeshoptCompression,
+  MeshQuantization,
+  TextureBasisu,
+  TextureTransform
+} from '@gltf-transform/extensions'
+import fetch from 'cross-fetch'
+import draco3d from 'draco3dgltf'
 import { MeshoptDecoder, MeshoptEncoder } from 'meshoptimizer'
 import { FileLoader } from 'three'
 
 export type ModelTransformParameters = {
+  useDraco: boolean
   useMeshopt: boolean
   useMeshQuantization: boolean
   textureFormat: 'default' | 'jpg' | 'ktx2' | 'png' | 'webp'
   maxTextureSize: number
+  modelFormat: 'glb' | 'gltf'
 }
 
 const EXTENSION_NAME = 'MOZ_lightmap'
@@ -81,12 +101,28 @@ export class MOZLightmapExtension extends Extension {
 }
 
 const transformHistory: string[] = []
-export default function ModelTransformLoader() {
-  const io = new WebIO()
-  io.registerExtensions([MeshGPUInstancing, MeshoptCompression, MeshQuantization, TextureBasisu])
+export default async function ModelTransformLoader() {
+  const io = new NodeIO(fetch, {}).setAllowHTTP(true)
+  io.registerExtensions([
+    LightsPunctual,
+    MaterialsSpecular,
+    MaterialsClearcoat,
+    MaterialsPBRSpecularGlossiness,
+    MaterialsUnlit,
+    MaterialsEmissiveStrength,
+    MaterialsTransmission,
+    DracoMeshCompression,
+    MeshGPUInstancing,
+    MeshoptCompression,
+    MeshQuantization,
+    TextureBasisu,
+    TextureTransform
+  ])
   io.registerDependencies({
     'meshopt.decoder': MeshoptDecoder,
-    'meshopt.encoder': MeshoptEncoder
+    'meshopt.encoder': MeshoptEncoder,
+    'draco3d.decoder': await draco3d.createDecoderModule(),
+    'draco3d.encoder': await draco3d.createEncoderModule()
   })
 
   io.registerExtensions([MOZLightmapExtension])
@@ -99,6 +135,7 @@ export default function ModelTransformLoader() {
       if (!noHistory) transformHistory.push(src)
       return io.readBinary(new Uint8Array(data))
     },
+    //load: io.read,
     get prev(): string | undefined {
       return transformHistory.length > 0 ? transformHistory[0] : undefined
     }

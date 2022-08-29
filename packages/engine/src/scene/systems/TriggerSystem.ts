@@ -4,11 +4,12 @@ import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunction
 import { CollisionComponent } from '../../physics/components/CollisionComponent'
 import { ColliderHitEvent, CollisionEvents } from '../../physics/types/PhysicsTypes'
 import { CallbackComponent } from '../components/CallbackComponent'
-import { TriggerVolumeComponent } from '../components/TriggerVolumeComponent'
+import { ColliderComponent } from '../components/ColliderComponent'
 
 export const triggerEnter = (world: World, entity: Entity, triggerEntity: Entity, hit: ColliderHitEvent) => {
-  const triggerComponent = getComponent(triggerEntity, TriggerVolumeComponent)
-  if (!triggerComponent) return
+  const triggerComponent = getComponent(triggerEntity, ColliderComponent)
+  if (!triggerComponent?.onEnter) return
+  if (triggerComponent.target && !world.entityTree.uuidNodeMap.has(triggerComponent.target)) return
 
   const targetEntity = triggerComponent.target
     ? world.entityTree.uuidNodeMap.get(triggerComponent.target)!.entity
@@ -23,8 +24,9 @@ export const triggerEnter = (world: World, entity: Entity, triggerEntity: Entity
 }
 
 export const triggerExit = (world: World, entity: Entity, triggerEntity: Entity, hit: ColliderHitEvent) => {
-  const triggerComponent = getComponent(triggerEntity, TriggerVolumeComponent)
-  if (!triggerComponent) return
+  const triggerComponent = getComponent(triggerEntity, ColliderComponent)
+  if (!triggerComponent?.onExit) return
+  if (triggerComponent.target && !world.entityTree.uuidNodeMap.has(triggerComponent.target)) return
 
   const targetEntity = triggerComponent.target
     ? world.entityTree.uuidNodeMap.get(triggerComponent.target)!.entity

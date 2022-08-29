@@ -31,7 +31,7 @@ import {
   onWindowResize,
   validate
 } from '../../../user/components/UserMenu/menus/helperFunctions'
-import { AuthService } from '../../../user/services/AuthService'
+import { AvatarService } from '../../../user/services/AvatarService'
 import XRIconButton from '../../components/XRIconButton'
 import XRInput from '../../components/XRInput'
 import XRTextButton from '../../components/XRTextButton'
@@ -198,13 +198,14 @@ export const UploadAvatarMenu = () => {
         const newContext = canvas.getContext('2d')
         newContext?.drawImage(renderer.domElement, 0, 0)
         canvas.toBlob(async (blob) => {
-          const uploadResponse = await AuthService.uploadAvatarModel(avatarBlob, blob!, avatarName, false).then(resolve)
-          await AuthService.createAvatar(uploadResponse[0], uploadResponse[1], avatarName)
+          const uploadResponse = await AvatarService.uploadAvatarModel(avatarBlob, blob!, avatarName, false).then(
+            resolve
+          )
+          await AvatarService.createAvatar(uploadResponse[0], uploadResponse[1], avatarName)
         })
       })
     } else {
-      const uploadResponse = await AuthService.uploadAvatarModel(avatarBlob, thumbnailBlob, avatarName, false)
-      await AuthService.createAvatar(uploadResponse[0], uploadResponse[1], avatarName)
+      await AvatarService.createAvatar(avatarBlob, thumbnailBlob, avatarName)
     }
 
     WidgetAppService.setWidgetVisibility(WidgetName.PROFILE, true)

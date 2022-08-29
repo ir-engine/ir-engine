@@ -7,3 +7,8 @@ export type SplineComponentType = {
 }
 
 export const SplineComponent = createMappedComponent<SplineComponentType>('SplineComponent')
+
+export const SCENE_COMPONENT_SPLINE = 'spline'
+export const SCENE_COMPONENT_SPLINE_DEFAULT_VALUES = {
+  splinePositions: [] as Vector3[]
+}

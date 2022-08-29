@@ -9,7 +9,6 @@ import {
   emptyEntityTree
 } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
 import { createEngine } from '@xrengine/engine/src/initializeEngine'
-import { registerPrefabs } from '@xrengine/engine/src/scene/functions/registerPrefabs'
 import { applyIncomingActions } from '@xrengine/hyperflux'
 
 import EditorCommands from '../constants/EditorCommands'
@@ -28,7 +27,6 @@ describe('DuplicateObjectCommand', () => {
     createEngine()
     registerEditorReceptors()
     Engine.instance.store.defaultDispatchDelay = 0
-    registerPrefabs(Engine.instance.currentWorld)
 
     rootNode = createEntityNode(createEntity())
     nodes = [createEntityNode(createEntity()), createEntityNode(createEntity())]
@@ -100,7 +98,7 @@ describe('DuplicateObjectCommand', () => {
       applyIncomingActions()
 
       assert(command.duplicatedObjects)
-      command.duplicatedObjects.forEach((node) => {
+      command.duplicatedObjects.forEach((node: EntityTreeNode) => {
         assert(Engine.instance.currentWorld.entityTree.entityNodeMap.has(node.entity))
       })
     })
@@ -111,7 +109,7 @@ describe('DuplicateObjectCommand', () => {
       applyIncomingActions()
 
       assert(command.duplicatedObjects)
-      command.duplicatedObjects.forEach((node) => {
+      command.duplicatedObjects.forEach((node: EntityTreeNode) => {
         assert(accessSelectionState().selectedEntities.value.includes(node.entity))
       })
     })
@@ -128,7 +126,7 @@ describe('DuplicateObjectCommand', () => {
       applyIncomingActions()
 
       assert(command.duplicatedObjects)
-      command.duplicatedObjects.forEach((node) => {
+      command.duplicatedObjects.forEach((node: EntityTreeNode) => {
         assert(Engine.instance.currentWorld.entityTree.entityNodeMap.has(node.entity))
       })
     })
@@ -143,7 +141,7 @@ describe('DuplicateObjectCommand', () => {
       applyIncomingActions()
 
       assert(command.duplicatedObjects)
-      command.duplicatedObjects.forEach((node) => {
+      command.duplicatedObjects.forEach((node: EntityTreeNode) => {
         assert(!Engine.instance.currentWorld.entityTree.entityNodeMap.has(node.entity))
       })
     })

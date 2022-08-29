@@ -15,6 +15,7 @@ import { isMobile } from '../../common/functions/isMobile'
 import { nowMilliseconds } from '../../common/functions/nowMilliseconds'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
 import { InputValue } from '../../input/interfaces/InputValue'
+import { InputAlias } from '../../input/types/InputAlias'
 import { Network } from '../../networking/classes/Network'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { PhysicsWorld } from '../../physics/classes/Physics'
@@ -29,6 +30,7 @@ import { setTransformComponent } from '../../transform/components/TransformCompo
 import { Widget } from '../../xrui/Widgets'
 import {
   addComponent,
+  ComponentType,
   defineQuery,
   EntityRemovedComponent,
   getComponent,
@@ -94,7 +96,7 @@ export class World {
    * get the default media network
    */
   get mediaNetwork() {
-    return this.networks.get(this._mediaHostId)
+    return this.networks.get(this._mediaHostId)!
   }
 
   /** @todo parties */
@@ -106,9 +108,6 @@ export class World {
   _mediaHostId = null! as UserId
 
   networks = new Map<string, Network>()
-
-  sceneMetadata = undefined as string | undefined
-  worldMetadata = {} as { [key: string]: string }
 
   widgets = new Map<string, Widget>()
 
@@ -159,11 +158,6 @@ export class World {
    */
   scene = new Scene()
 
-  /**
-   * A set of promises for assets that are being fetched for scene loading
-   */
-  sceneLoadingPendingAssets = new Set<Promise<void>>()
-
   sceneDynamicallyUnloadedEntities = new Map<
     string,
     {
@@ -212,8 +206,8 @@ export class World {
 
   dirtyTransforms = new Set<Entity>()
 
-  inputState = new Map<any, InputValue>()
-  prevInputState = new Map<any, InputValue>()
+  inputState = new Map<InputAlias, InputValue>()
+  prevInputState = new Map<InputAlias, InputValue>()
 
   #entityQuery = bitecs.defineQuery([bitecs.Not(EntityRemovedComponent)])
   entityQuery = () => this.#entityQuery(this) as Entity[]
@@ -272,8 +266,13 @@ export class World {
   /** Tree of entity holding parent child relation between entities. */
   entityTree: EntityTree
 
+  /** @todo: merge sceneComponentRegistry and sceneLoadingRegistry when scene loader IDs use XRE_ extension names*/
+
   /** Registry map of scene loader components  */
   sceneLoadingRegistry = new Map<string, SceneLoaderType>()
+
+  /** Scene component of scene loader components  */
+  sceneComponentRegistry = new Map<string, string>()
 
   /** Registry map of prefabs  */
   scenePrefabRegistry = new Map<string, ComponentJson[]>()

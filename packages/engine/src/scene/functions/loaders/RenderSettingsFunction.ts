@@ -1,7 +1,5 @@
 import { DirectionalLight, Light, LinearToneMapping, Mesh, PCFSoftShadowMap, PerspectiveCamera, Vector3 } from 'three'
 
-import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
-
 import { DEFAULT_LOD_DISTANCES } from '../../../assets/constants/LoaderConstants'
 import { CSM } from '../../../assets/csm/CSM'
 import {
@@ -9,6 +7,7 @@ import {
   ComponentSerializeFunction,
   ComponentUpdateFunction
 } from '../../../common/constants/PrefabFunctionType'
+import { deepEqual } from '../../../common/functions/deepEqual'
 import { isClient } from '../../../common/functions/isClient'
 import { Engine } from '../../../ecs/classes/Engine'
 import { EngineActions, getEngineState } from '../../../ecs/classes/EngineState'
@@ -19,73 +18,41 @@ import { EngineRenderer } from '../../../renderer/WebGLRendererSystem'
 import { DirectionalLightComponent } from '../../../scene/components/DirectionalLightComponent'
 import { Object3DComponent } from '../../../scene/components/Object3DComponent'
 import { VisibleComponent } from '../../../scene/components/VisibleComponent'
-import { EntityNodeComponent } from '../../components/EntityNodeComponent'
-import { RenderSettingComponent, RenderSettingComponentType } from '../../components/RenderSettingComponent'
-
-export const SCENE_COMPONENT_RENDERER_SETTINGS = 'renderer-settings'
-export const SCENE_COMPONENT_RENDERER_SETTINGS_DEFAULT_VALUES = {
-  LODs: { x: 5, y: 15, z: 30 },
-  overrideRendererSettings: false,
-  csm: true,
-  toneMapping: LinearToneMapping,
-  toneMappingExposure: 0.2,
-  shadowMapType: PCFSoftShadowMap
-}
+import {
+  RenderSettingComponent,
+  RenderSettingComponentType,
+  SCENE_COMPONENT_RENDERER_SETTINGS_DEFAULT_VALUES
+} from '../../components/RenderSettingComponent'
 
 export const deserializeRenderSetting: ComponentDeserializeFunction = (
   entity: Entity,
-  json: ComponentJson<RenderSettingComponentType>
+  data: RenderSettingComponentType
 ) => {
-  const props = parseRenderSettingsProperties(json.props)
+  const props = parseRenderSettingsProperties(data)
   addComponent(entity, RenderSettingComponent, props)
-
-  getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_RENDERER_SETTINGS)
-
-  updateRenderSetting(entity, props)
 }
 
-export const updateRenderSetting: ComponentUpdateFunction = (
-  entity: Entity,
-  properties: RenderSettingComponentType
-) => {
+export const updateRenderSetting: ComponentUpdateFunction = (entity: Entity) => {
   if (!isClient) return
 
   const component = getComponent(entity, RenderSettingComponent)
 
-  if (typeof properties.LODs !== 'undefined' && component.LODs)
-    Engine.instance.currentWorld.LOD_DISTANCES = { '0': component.LODs.x, '1': component.LODs.y, '2': component.LODs.z }
+  const lods = { '0': component.LODs.x, '1': component.LODs.y, '2': component.LODs.z }
 
-  if (typeof properties.overrideRendererSettings !== 'undefined') {
-    if (properties.overrideRendererSettings) {
-      EngineRenderer.instance.renderer.toneMapping = component.toneMapping
-      EngineRenderer.instance.renderer.toneMappingExposure = component.toneMappingExposure
-
-      updateShadowMap(component.shadowMapType > -1, component.shadowMapType)
-
-      // TODO: may need to update to the CSM maintained in threejs
-      if (component.csm) enableCSM()
-      else disposeCSM()
-    } else {
-      resetEngineRenderer(false, false)
-      enableCSM()
-    }
-
-    return
-  }
+  if (!deepEqual(lods, Engine.instance.currentWorld.LOD_DISTANCES)) Engine.instance.currentWorld.LOD_DISTANCES = lods
 
   if (component.overrideRendererSettings) {
-    if (typeof properties.toneMapping !== 'undefined')
-      EngineRenderer.instance.renderer.toneMapping = component.toneMapping
-    if (typeof properties.toneMappingExposure !== 'undefined')
-      EngineRenderer.instance.renderer.toneMappingExposure = component.toneMappingExposure
+    EngineRenderer.instance.renderer.toneMapping = component.toneMapping
+    EngineRenderer.instance.renderer.toneMappingExposure = component.toneMappingExposure
 
-    if (typeof properties.shadowMapType !== 'undefined')
-      updateShadowMap(component.shadowMapType > -1, component.shadowMapType)
+    updateShadowMap(component.shadowMapType > -1, component.shadowMapType)
 
-    if (typeof properties.csm !== 'undefined') {
-      if (component.csm) enableCSM()
-      else disposeCSM()
-    }
+    // TODO: may need to update to the CSM maintained in threejs
+    if (component.csm) enableCSM()
+    else disposeCSM()
+  } else {
+    resetEngineRenderer(false, false)
+    enableCSM()
   }
 }
 
@@ -134,10 +101,10 @@ export const initializeCSM = () => {
         removeComponent(EngineRenderer.instance.activeCSMLightEntity, VisibleComponent)
     }
 
-    EngineRenderer.instance.directionalLightEntities.forEach((entity) => {
+    for (const entity of EngineRenderer.instance.directionalLightEntities) {
       const light = getComponent(entity, Object3DComponent)?.value
       if (light) light.castShadow = false
-    })
+    }
 
     EngineRenderer.instance.csm = new CSM({
       camera: Engine.instance.currentWorld.camera as PerspectiveCamera,
@@ -192,19 +159,14 @@ export const resetEngineRenderer = (resetLODs = false, resetCSM = true) => {
 }
 
 export const serializeRenderSettings: ComponentSerializeFunction = (entity) => {
-  const component = getComponent(entity, RenderSettingComponent) as RenderSettingComponentType
-  if (!component) return
-
+  const component = getComponent(entity, RenderSettingComponent)
   return {
-    name: SCENE_COMPONENT_RENDERER_SETTINGS,
-    props: {
-      LODs: component.LODs,
-      overrideRendererSettings: component.overrideRendererSettings,
-      csm: component.csm,
-      toneMapping: component.toneMapping,
-      toneMappingExposure: component.toneMappingExposure,
-      shadowMapType: component.shadowMapType
-    }
+    LODs: component.LODs,
+    overrideRendererSettings: component.overrideRendererSettings,
+    csm: component.csm,
+    toneMapping: component.toneMapping,
+    toneMappingExposure: component.toneMappingExposure,
+    shadowMapType: component.shadowMapType
   }
 }
 

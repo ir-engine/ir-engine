@@ -51,33 +51,27 @@ export const exportAsset = async (node: EntityTreeNode) => {
     removeComponent(entity, Object3DComponent)
   }
   dudObjs = []
-  return Promise.all(uploadProjectFile(projectName, [uploadable], true).promises)
+  return uploadProjectFiles(projectName, [uploadable], true).promises[0]
 }
 
-function fileBrowserUpload(
-  file: Blob,
-  params: { fileName: string; path: string; contentType: string },
-  onProgress: (progress: number) => any
-): CancelableUploadPromiseReturnType {
-  return uploadToFeathersService('file-browser/upload', file as any, params, onProgress)
-}
-
-export const uploadProjectFile = (projectName: string, files: File[], isAsset = false, onProgress?) => {
-  const promises: CancelableUploadPromiseReturnType[] = []
+export const uploadProjectFiles = (projectName: string, files: File[], isAsset = false, onProgress?) => {
+  const promises: CancelableUploadPromiseReturnType<string>[] = []
 
   for (const file of files) {
     const path = `projects/${projectName}${isAsset ? '/assets' : ''}`
-    promises.push(fileBrowserUpload(file, { fileName: file.name, path, contentType: '' }, onProgress))
+    promises.push(
+      uploadToFeathersService('file-browser/upload', [file], { fileName: file.name, path, contentType: '' }, onProgress)
+    )
   }
 
   return {
     cancel: () => promises.forEach((promise) => promise.cancel()),
     promises: promises.map((promise) => promise.promise)
-  } as CancelableUploadPromiseArrayReturnType
+  } as CancelableUploadPromiseArrayReturnType<string>
 }
 
 export const uploadProjectAssetsFromUpload = async (projectName: string, entries: FileSystemEntry[], onProgress?) => {
-  const promises: CancelableUploadPromiseReturnType[] = []
+  const promises: CancelableUploadPromiseReturnType<string>[] = []
 
   for (let i = 0; i < entries.length; i++) {
     await processEntry(entries[i], projectName, '', promises, (progress) => onProgress(i + 1, entries.length, progress))
@@ -86,7 +80,7 @@ export const uploadProjectAssetsFromUpload = async (projectName: string, entries
   return {
     cancel: () => promises.forEach((promise) => promise.cancel()),
     promises: promises.map((promise) => promise.promise)
-  } as CancelableUploadPromiseArrayReturnType
+  } as CancelableUploadPromiseArrayReturnType<string>
 }
 
 /**
@@ -97,7 +91,7 @@ const processEntry = async (
   item,
   projectName: string,
   directory: string,
-  promises: CancelableUploadPromiseReturnType[],
+  promises: CancelableUploadPromiseReturnType<string>[],
   onProgress
 ) => {
   if (item.isDirectory) {
@@ -113,7 +107,9 @@ const processEntry = async (
     const path = `projects/${projectName}/assets${directory}`
     const name = processFileName(file.name)
 
-    promises.push(fileBrowserUpload(file, { fileName: name, path, contentType: '' }, onProgress))
+    promises.push(
+      uploadToFeathersService('file-browser/upload', [file], { fileName: name, path, contentType: '' }, onProgress)
+    )
   }
 }
 

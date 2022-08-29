@@ -180,13 +180,13 @@ export function setupHandIK(entity: Entity) {
     leftTargetOffset: leftOffset,
     leftTargetPosWeight: 1,
     leftTargetRotWeight: 1,
-    leftHintWeight: 1,
+    leftHintWeight: -1,
     rightTarget: xrInputSourceComponent.controllerRightParent,
     rightHint: rightHint,
     rightTargetOffset: rightOffset,
     rightTargetPosWeight: 1,
     rightTargetRotWeight: 1,
-    rightHintWeight: 1
+    rightHintWeight: -1
   })
 
   addComponent(entity, AvatarArmsTwistCorrectionComponent, {

@@ -92,7 +92,7 @@ export const EnvMapBakeNodeEditor: EditorComponentType = (props) => {
     const bakeComponent = getComponent(props.node.entity, EnvMapBakeComponent)
 
     const renderedProperty = DefaultEnvMapBakeSettings.map((element, id) => {
-      if (element.label == 'Realtime Settings' && bakeComponent.options.bakeType == EnvMapBakeTypes.Realtime) {
+      if (element.label == 'Realtime Settings' && bakeComponent.bakeType == EnvMapBakeTypes.Realtime) {
         return <div key={id + 'Realtime'} />
       }
 

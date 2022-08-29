@@ -8,7 +8,6 @@ import { Op } from 'sequelize'
 
 import { GITHUB_URL_REGEX } from '@xrengine/common/src/constants/GitHubConstants'
 import { ProjectInterface } from '@xrengine/common/src/interfaces/ProjectInterface'
-import { isDev } from '@xrengine/common/src/utils/isDev'
 import { processFileName } from '@xrengine/common/src/utils/processFileName'
 import templateProjectJson from '@xrengine/projects/template-project/package.json'
 
@@ -28,7 +27,9 @@ import {
   checkUserOrgWriteStatus,
   checkUserRepoWriteStatus,
   getAuthenticatedRepo,
-  getUserRepos
+  getGitHubAppRepos,
+  getUserRepos,
+  pushProjectToGithub
 } from '../githubapp/githubapp-helper'
 import { getProjectConfig, onProjectEvent } from './project-helper'
 
@@ -65,6 +66,7 @@ export const deleteProjectFilesInStorageProvider = async (projectName: string) =
 /**
  * Updates the local storage provider with the project's current files
  * @param projectName
+ * @param remove
  */
 export const uploadLocalProjectToProvider = async (projectName, remove = true) => {
   const storageProvider = getStorageProvider()
@@ -241,7 +243,11 @@ export class Project extends Service {
    * @returns
    */
   // @ts-ignore
-  async update(data: { url: string; name?: string; needsRebuild?: boolean }, placeholder?: null, params?: Params) {
+  async update(
+    data: { url: string; name?: string; needsRebuild?: boolean; reset?: boolean },
+    placeholder?: null,
+    params?: Params
+  ) {
     if (data.url === 'default-project') {
       copyDefaultProject()
       await uploadLocalProjectToProvider('default-project')
@@ -254,19 +260,35 @@ export class Project extends Service {
     if (projectName.substring(projectName.length - 4) === '.git') projectName = projectName.slice(0, -4)
     if (projectName.substring(projectName.length - 1) === '/') projectName = projectName.slice(0, -1)
 
-    const projectLocalDirectory = path.resolve(appRootPath.path, `packages/projects/projects/${projectName}/`)
+    const projectLocalDirectory = path.resolve(appRootPath.path, `packages/projects/projects/`)
+    const projectDirectory = path.resolve(appRootPath.path, `packages/projects/projects/${projectName}/`)
 
     // if project exists already, remove it and re-clone it
-    if (fs.existsSync(projectLocalDirectory)) {
+    if (fs.existsSync(projectDirectory)) {
       // if (isDev) throw new Error('Cannot create project - already exists')
-      deleteFolderRecursive(projectLocalDirectory)
+      deleteFolderRecursive(projectDirectory)
     }
 
     let repoPath = await getAuthenticatedRepo(data.url)
     if (!repoPath) repoPath = data.url //public repo
 
-    const git = useGit()
-    await git.clone(repoPath, projectLocalDirectory)
+    const gitCloner = useGit(projectLocalDirectory)
+    await gitCloner.clone(repoPath)
+    const git = useGit(projectDirectory)
+    const branchName = `${config.server.releaseName}-deployment`
+    try {
+      const branchExists = await git.raw(['ls-remote', '--heads', repoPath, `${branchName}`])
+      if (branchExists.length === 0) await git.checkoutLocalBranch(branchName)
+      else {
+        if (data.reset) {
+          await git.branchLocal()
+        }
+        await git.checkout(branchName)
+      }
+    } catch (err) {
+      logger.error(err)
+      throw err
+    }
 
     await uploadLocalProjectToProvider(projectName)
 
@@ -300,6 +322,7 @@ export class Project extends Service {
       })
     }
 
+    if (data.reset) await pushProjectToGithub(this.app, returned, params!.user, true)
     // run project install script
     if (projectConfig.onEvent) {
       await onProjectEvent(this.app, projectName, projectConfig.onEvent, 'onInstall')
@@ -400,11 +423,24 @@ export class Project extends Service {
   async find(params?: Params): Promise<{ data: ProjectInterface[] }> {
     let projectPushIds: string[] = []
     if (params?.query?.allowed != null) {
-      const projectPermissions = (await this.app
-        .service('project-permission')
-        .Model.findAll({ where: { userId: params.user.id }, paginate: false })) as any
-      const allowedProjectIds = await projectPermissions.map((permission) => permission.projectId)
-      projectPushIds = projectPushIds.concat(allowedProjectIds)
+      // Get all of the projects that this user has permissions for, then calculate push status by whether the GitHub
+      // app associated with the installation can push to it. This will make sure no one tries to push to a repo
+      // that the app cannot push to.
+      const projectPermissions = (await this.app.service('project-permission').Model.findAll({
+        where: { userId: params.user.id },
+        include: [{ model: this.app.service('project').Model }],
+        paginate: false
+      })) as any
+      let allowedProjects = await projectPermissions.map((permission) => permission.project)
+      const repos = await getGitHubAppRepos()
+      const repoPaths = repos.map((repo) => repo.repositoryPath.replace(/.git/, ''))
+      allowedProjects = allowedProjects.filter(
+        (project) => repoPaths.indexOf(project.repositoryPath.replace(/.git/, '')) > -1
+      )
+      projectPushIds = projectPushIds.concat(allowedProjects.map((project) => project.id))
+
+      // See if the user has a GitHub identity-provider, and if they do, also determine which GitHub repos they personally
+      // can push to.
       const githubIdentityProvider = await this.app.service('identity-provider').Model.findOne({
         where: {
           userId: params.user.id,

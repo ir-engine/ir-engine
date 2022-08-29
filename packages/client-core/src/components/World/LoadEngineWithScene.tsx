@@ -6,7 +6,8 @@ import { useParams } from 'react-router-dom'
 import { LocationInstanceConnectionServiceReceptor } from '@xrengine/client-core/src/common/services/LocationInstanceConnectionService'
 import { LocationService } from '@xrengine/client-core/src/social/services/LocationService'
 import { leaveNetwork } from '@xrengine/client-core/src/transports/SocketWebRTCClientFunctions'
-import { AuthService, useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
+import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
+import { AvatarService } from '@xrengine/client-core/src/user/services/AvatarService'
 import {
   SceneActions,
   SceneServiceReceptor,
@@ -15,7 +16,7 @@ import {
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import multiLogger from '@xrengine/common/src/logger'
 import { getSearchParamFromURL } from '@xrengine/common/src/utils/getSearchParamFromURL'
-import { SpawnPoints } from '@xrengine/engine/src/avatar/AvatarSpawnSystem'
+import { getRandomSpawnPoint, getSpawnPoint } from '@xrengine/engine/src/avatar/AvatarSpawnSystem'
 import { teleportAvatar } from '@xrengine/engine/src/avatar/functions/moveAvatar'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineActions, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
@@ -67,7 +68,7 @@ export const LoadEngineWithScene = () => {
   useHookEffect(() => {
     const sceneData = sceneState.currentScene.value
     if (clientReady && sceneData) {
-      AuthService.fetchAvatarList()
+      AvatarService.fetchAvatarList()
       if (loadingState.state.value !== AppLoadingStates.SUCCESS)
         dispatchAction(AppLoadingAction.setLoadingState({ state: AppLoadingStates.SCENE_LOADING }))
       loadScene(sceneData).then(() => {
@@ -81,17 +82,14 @@ export const LoadEngineWithScene = () => {
 
   const spectateParam = useParams<{ spectate: UserId }>().spectate
 
-  const numSpawnPoints = useHookstate(SpawnPoints.instance.spawnPoints).length
-
   useHookEffect(async () => {
     if (
-      didSpawn.value === true ||
+      didSpawn.value ||
       Engine.instance.currentWorld.localClientEntity ||
       !engineState.sceneLoaded.value ||
       !authState.user.value ||
       !authState.avatarList.value.length ||
-      spectateParam ||
-      numSpawnPoints === 0
+      spectateParam
     )
       return
 
@@ -102,8 +100,8 @@ export const LoadEngineWithScene = () => {
     const spawnPoint = getSearchParamFromURL('spawnPoint')
 
     const avatarSpawnPose = spawnPoint
-      ? SpawnPoints.instance.getSpawnPoint(spawnPoint)
-      : SpawnPoints.instance.getRandomSpawnPoint()
+      ? getSpawnPoint(spawnPoint, Engine.instance.userId)
+      : getRandomSpawnPoint(Engine.instance.userId)
 
     spawnLocalAvatarInWorld({
       avatarSpawnPose,
@@ -113,7 +111,7 @@ export const LoadEngineWithScene = () => {
       },
       name: user.name
     })
-  }, [engineState.sceneLoaded, authState.user, authState.avatarList, spectateParam, numSpawnPoints])
+  }, [engineState.sceneLoaded, authState.user, authState.avatarList, spectateParam])
 
   useHookEffect(() => {
     if (engineState.sceneLoaded.value) {

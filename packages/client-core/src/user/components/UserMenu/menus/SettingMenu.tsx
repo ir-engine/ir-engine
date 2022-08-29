@@ -6,9 +6,10 @@ import { AudioSettingAction, useAudioState } from '@xrengine/engine/src/audio/Au
 import { AudioEffectPlayer } from '@xrengine/engine/src/audio/systems/AudioSystem'
 import { AvatarSettings, updateMap } from '@xrengine/engine/src/avatar/AvatarControllerSystem'
 import { AvatarComponent } from '@xrengine/engine/src/avatar/components/AvatarComponent'
+import { AvatarControllerComponent } from '@xrengine/engine/src/avatar/components/AvatarControllerComponent'
 import {
   AvatarInputSettingsAction,
-  useAvatarInputSettingsState
+  AvatarInputSettingsState
 } from '@xrengine/engine/src/avatar/state/AvatarInputSettingsState'
 import { isMobile } from '@xrengine/engine/src/common/functions/isMobile'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
@@ -50,13 +51,9 @@ const SettingMenu = (): JSX.Element => {
   const { t } = useTranslation()
   const rendererState = useEngineRendererState()
   const audioState = useAudioState()
-  const avatarInputState = useAvatarInputSettingsState()
+  const avatarInputState = useHookstate(getState(AvatarInputSettingsState))
   const user = useAuthState().user
-  const [controlTypeSelected, setControlType] = useState(avatarInputState.controlType.value)
-  const [controlSchemeSelected, setControlScheme] = useState(
-    AvatarMovementScheme[AvatarSettings.instance.movementScheme]
-  )
-
+  const controlScheme = avatarInputState.controlScheme.value
   const invertRotationAndMoveSticks = avatarInputState.invertRotationAndMoveSticks.value
   const showAvatar = avatarInputState.showAvatar.value
   const firstRender = useRef(true)
@@ -103,13 +100,11 @@ const SettingMenu = (): JSX.Element => {
   }, [avatarInputState.invertRotationAndMoveSticks])
 
   const handleChangeControlType = (event: SelectChangeEvent) => {
-    setControlType(event.target.value as any)
     dispatchAction(AvatarInputSettingsAction.setControlType({ controlType: event.target.value as any }))
   }
 
   const handleChangeControlScheme = (event: SelectChangeEvent) => {
-    setControlScheme(event.target.value as AvatarMovementScheme)
-    AvatarSettings.instance.movementScheme = AvatarMovementScheme[event.target.value]
+    dispatchAction(AvatarInputSettingsAction.setControlScheme({ scheme: event.target.value as any }))
   }
 
   return (
@@ -413,6 +408,51 @@ const SettingMenu = (): JSX.Element => {
               }
               label={t('user:usermenu.setting.invert-rotation')}
             />
+            <div className={styles.controlsContainer}>
+              <Typography variant="h6" className={styles.settingHeader}>
+                {t('user:usermenu.setting.controls')}
+              </Typography>
+              <div className={styles.selectSize}>
+                <FormControl fullWidth>
+                  <InputLabel>{t('user:usermenu.setting.lbl-control-scheme')}</InputLabel>
+                  <Select
+                    value={controlScheme}
+                    onChange={handleChangeControlScheme}
+                    size="small"
+                    classes={{
+                      select: styles.select
+                    }}
+                    MenuProps={{ classes: { paper: styles.paper } }}
+                  >
+                    {controlSchemes.map((el) => (
+                      <MenuItem value={el} key={el} classes={{ root: styles.menuItem }}>
+                        {el}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </div>
+              {/* <div className={styles.selectSize}>
+                <FormControl fullWidth>
+                  <InputLabel>{t('user:usermenu.setting.lbl-control-type')}</InputLabel>
+                  <Select
+                    value={controlTypeSelected}
+                    onChange={handleChangeControlType}
+                    size="small"
+                    classes={{
+                      select: styles.select
+                    }}
+                    MenuProps={{ classes: { paper: styles.paper } }}
+                  >
+                    {controllerTypes.map((el, index) => (
+                      <MenuItem value={el} key={el + index} classes={{ root: styles.menuItem }}>
+                        {el}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </div> */}
+            </div>
             {/* <Collapse in={open} timeout="auto" unmountOnExit>
               <Box margin={1}>
                 <Table size="small">

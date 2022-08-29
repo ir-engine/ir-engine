@@ -195,7 +195,7 @@ export class User extends Service<UserInterface> {
     return result
   }
 
-  async patch(id: NullableId, data: any, params?: Params): Promise<UserInterface | UserInterface[]> {
+  async patch(id: NullableId, data: any, params?: Params): Promise<UserInterface> {
     const result = (await super.patch(id, data, params)) as UserInterface
     await afterPatch(this.app, result)
     return result

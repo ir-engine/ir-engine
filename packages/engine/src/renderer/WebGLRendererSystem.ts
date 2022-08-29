@@ -219,7 +219,7 @@ export class EngineRenderer {
     } else {
       const state = accessEngineRendererState()
       const engineState = getEngineState()
-      if (state.automatic.value && engineState.joinedWorld.value) this.changeQualityLevel()
+      if (!Engine.instance.isEditor && state.automatic.value && engineState.joinedWorld.value) this.changeQualityLevel()
       if (this.rendereringEnabled) {
         if (this.needsResize) {
           const curPixelRatio = this.renderer.getPixelRatio()

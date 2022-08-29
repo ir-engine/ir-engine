@@ -1,87 +1,53 @@
 import { Color, Vector2, Vector3 } from 'three'
 
-import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
-
 import {
   ComponentDeserializeFunction,
   ComponentSerializeFunction,
   ComponentUpdateFunction
 } from '../../../common/constants/PrefabFunctionType'
-import { isClient } from '../../../common/functions/isClient'
-import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
 import { Clouds } from '../../classes/Clouds'
-import { CloudComponent, CloudComponentType } from '../../components/CloudComponent'
-import { EntityNodeComponent } from '../../components/EntityNodeComponent'
+import {
+  CloudComponent,
+  CloudComponentType,
+  SCENE_COMPONENT_CLOUD_DEFAULT_VALUES
+} from '../../components/CloudComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 import { UpdatableComponent } from '../../components/UpdatableComponent'
-import { addError, removeError } from '../ErrorFunctions'
 
-export const SCENE_COMPONENT_CLOUD = 'cloud'
-export const SCENE_COMPONENT_CLOUD_DEFAULT_VALUES = {
-  texture: '/clouds/cloud.png',
-  worldScale: { x: 1000, y: 150, z: 1000 },
-  dimensions: { x: 8, y: 4, z: 8 },
-  noiseZoom: { x: 7, y: 11, z: 7 },
-  noiseOffset: { x: 0, y: 4000, z: 3137 },
-  spriteScaleRange: { x: 50, y: 100 },
-  fogColor: 0x4584b4,
-  fogRange: { x: -100, y: 3000 }
-}
-
-export const deserializeCloud: ComponentDeserializeFunction = (
-  entity: Entity,
-  json: ComponentJson<CloudComponentType>
-) => {
-  if (!isClient) return
-
+export const deserializeCloud: ComponentDeserializeFunction = (entity: Entity, data: CloudComponentType) => {
   const obj3d = new Clouds(entity)
-  obj3d.userData.disableOutline = true
-  const props = parseCloudProperties(json.props)
-
+  const props = parseCloudProperties(data)
   addComponent(entity, Object3DComponent, { value: obj3d })
   addComponent(entity, CloudComponent, props)
-  addComponent(entity, UpdatableComponent, {})
-
-  getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_CLOUD)
-
-  updateCloud(entity, props)
+  addComponent(entity, UpdatableComponent, true)
 }
 
-export const updateCloud: ComponentUpdateFunction = (entity: Entity, properties: CloudComponentType) => {
+export const updateCloud: ComponentUpdateFunction = (entity: Entity) => {
   const obj3d = getComponent(entity, Object3DComponent).value as Clouds
   const component = getComponent(entity, CloudComponent)
-
-  if (properties.texture) {
-    obj3d.texture = component.texture
-  }
-
-  if (typeof properties.worldScale !== 'undefined') obj3d.worldScale = component.worldScale
-  if (typeof properties.dimensions !== 'undefined') obj3d.dimensions = component.dimensions
-  if (typeof properties.noiseZoom !== 'undefined') obj3d.noiseZoom = component.noiseZoom
-  if (typeof properties.noiseOffset !== 'undefined') obj3d.noiseOffset = component.noiseOffset
-  if (typeof properties.spriteScaleRange !== 'undefined') obj3d.spriteScaleRange = component.spriteScaleRange
-  if (typeof properties.fogRange !== 'undefined') obj3d.fogRange = component.fogRange
-  if (typeof properties.fogColor !== 'undefined') obj3d.fogColor = component.fogColor
+  obj3d.texture = component.texture
+  obj3d.worldScale = component.worldScale
+  obj3d.dimensions = component.dimensions
+  obj3d.noiseZoom = component.noiseZoom
+  obj3d.noiseOffset = component.noiseOffset
+  obj3d.spriteScaleRange = component.spriteScaleRange
+  obj3d.fogRange = component.fogRange
+  obj3d.fogColor = component.fogColor
 }
 
 export const serializeCloud: ComponentSerializeFunction = (entity) => {
-  const component = getComponent(entity, CloudComponent) as CloudComponentType
-  if (!component) return
-
+  const component = getComponent(entity, CloudComponent)
   return {
-    name: SCENE_COMPONENT_CLOUD,
-    props: {
-      texture: component.texture,
-      worldScale: component.worldScale,
-      dimensions: component.dimensions,
-      noiseZoom: component.noiseZoom,
-      noiseOffset: component.noiseOffset,
-      spriteScaleRange: component.spriteScaleRange,
-      fogColor: component.fogColor?.getHex(),
-      fogRange: component.fogRange
-    }
+    texture: component.texture,
+    worldScale: component.worldScale,
+    dimensions: component.dimensions,
+    noiseZoom: component.noiseZoom,
+    noiseOffset: component.noiseOffset,
+    spriteScaleRange: component.spriteScaleRange,
+    fogColor: component.fogColor?.getHex(),
+    fogRange: component.fogRange
   }
 }
 

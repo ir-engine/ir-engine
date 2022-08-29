@@ -1,20 +1,15 @@
-import { ArrowHelper, Clock, Euler, MathUtils, Matrix4, PerspectiveCamera, Raycaster, Vector3 } from 'three'
+import { ArrowHelper, Clock, MathUtils, Matrix4, Raycaster, Vector3 } from 'three'
 
 import { deleteSearchParams } from '@xrengine/common/src/utils/deleteSearchParams'
 import { createActionQueue, dispatchAction } from '@xrengine/hyperflux'
-import { getState } from '@xrengine/hyperflux'
 
 import { BoneNames } from '../../avatar/AvatarBoneMatching'
 import { AvatarAnimationComponent } from '../../avatar/components/AvatarAnimationComponent'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
-import { AvatarHeadDecapComponent } from '../../avatar/components/AvatarHeadDecapComponent'
-import { XRCameraUpdatePendingTagComponent } from '../../avatar/components/XRCameraUpdatePendingTagComponent'
-import { V_010 } from '../../common/constants/MathConstants'
 import { createConeOfVectors } from '../../common/functions/MathFunctions'
 import { smoothDamp } from '../../common/functions/MathLerpFunctions'
-import { createQuaternionProxy, createVector3Proxy } from '../../common/proxies/three'
 import { Engine } from '../../ecs/classes/Engine'
-import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
+import { EngineActions } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
 import {
@@ -25,14 +20,11 @@ import {
   removeComponent,
   setComponent
 } from '../../ecs/functions/ComponentFunctions'
-import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
 import { NetworkObjectOwnedTag } from '../../networking/components/NetworkObjectOwnedTag'
-import { spawnLocalAvatarInWorld } from '../../networking/functions/receiveJoinWorld'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
-import { Object3DComponent } from '../../scene/components/Object3DComponent'
+import { RAYCAST_PROPERTIES_DEFAULT_VALUES } from '../../scene/components/CameraPropertiesComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
-import { RAYCAST_PROPERTIES_DEFAULT_VALUES } from '../../scene/functions/loaders/CameraPropertiesFunctions'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
 import {
   ComputedTransformComponent,
@@ -40,7 +32,7 @@ import {
 } from '../../transform/components/ComputedTransformComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { CameraTagComponent as NetworkCameraComponent } from '../components/CameraTagComponent'
-import { FollowCameraComponent, FollowCameraDefaultValues } from '../components/FollowCameraComponent'
+import { FollowCameraComponent } from '../components/FollowCameraComponent'
 import { SpectatorComponent } from '../components/SpectatorComponent'
 import { TargetCameraRotationComponent } from '../components/TargetCameraRotationComponent'
 
@@ -242,19 +234,17 @@ const computeCameraFollow = (cameraEntity: Entity, referenceEntity: Entity) => {
 
 function createCameraRays(entity: Entity) {
   const cameraFollow = getComponent(entity, FollowCameraComponent)
-  //check for initialized raycast properties
   if (!cameraFollow.raycastProps) {
-    cameraFollow.raycastProps = RAYCAST_PROPERTIES_DEFAULT_VALUES
-  }
-  for (let i = 0; i < cameraFollow.raycastProps.rayCount; i++) {
-    cameraRays.push(new Vector3())
-
-    if (debugRays) {
-      const arrow = new ArrowHelper()
-      arrow.setColor('red')
-      coneDebugHelpers.push(arrow)
-      setObjectLayers(arrow, ObjectLayers.Gizmos)
-      Engine.instance.currentWorld.scene.add(arrow)
+    cameraFollow.raycastProps = { ...RAYCAST_PROPERTIES_DEFAULT_VALUES }
+    for (let i = 0; i < cameraFollow.raycastProps.rayCount; i++) {
+      cameraRays.push(new Vector3())
+      if (debugRays) {
+        const arrow = new ArrowHelper()
+        arrow.setColor('red')
+        coneDebugHelpers.push(arrow)
+        setObjectLayers(arrow, ObjectLayers.Gizmos)
+        Engine.instance.currentWorld.scene.add(arrow)
+      }
     }
   }
 }
@@ -291,13 +281,14 @@ export default async function CameraSystem(world: World) {
       }
     }
 
-    for (const cameraEntity of followCameraQuery.enter()) createCameraRays(cameraEntity)
-
-    // since the camera transform depends on it's target,
-    // we need to use a computed transform to ensure that everything is updated in the proper sequence
-    for (const cameraEntity of followCameraQuery()) {
+    for (const cameraEntity of followCameraQuery.enter()) {
       const followCamera = getComponent(cameraEntity, FollowCameraComponent)
       setComputedTransformComponent(cameraEntity, followCamera.targetEntity, computeCameraFollow)
+      createCameraRays(cameraEntity)
+    }
+
+    for (const cameraEntity of followCameraQuery.exit()) {
+      removeComponent(cameraEntity, ComputedTransformComponent)
     }
 
     // as spectator: update local camera from network camera
@@ -320,18 +311,6 @@ export default async function CameraSystem(world: World) {
         networkTransform.position.copy(cameraTransform.position)
         networkTransform.rotation.copy(cameraTransform.rotation)
       })
-    }
-
-    if (EngineRenderer.instance.xrManager?.isPresenting) {
-      const camera = world.camera as THREE.PerspectiveCamera
-      EngineRenderer.instance.xrManager.updateCamera(camera)
-      // the following is necessary workaround until this PR is merged: https://github.com/mrdoob/three.js/pull/22362
-      camera.matrix.decompose(camera.position, camera.quaternion, camera.scale)
-      camera.updateMatrixWorld(true)
-      // Assume world.camera.layers is source of truth for all xr cameras
-      const xrCamera = EngineRenderer.instance.xrManager.getCamera()
-      xrCamera.layers.mask = camera.layers.mask
-      for (const c of xrCamera.cameras) c.layers.mask = camera.layers.mask
     }
   }
 }

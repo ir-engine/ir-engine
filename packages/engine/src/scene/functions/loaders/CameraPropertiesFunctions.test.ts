@@ -1,22 +1,18 @@
 import assert from 'assert'
 import proxyquire from 'proxyquire'
 
-import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
-
 import { CameraMode } from '../../../camera/types/CameraMode'
 import { ProjectionType } from '../../../camera/types/ProjectionType'
 import { Engine } from '../../../ecs/classes/Engine'
 import { Entity } from '../../../ecs/classes/Entity'
 import { getComponent } from '../../../ecs/functions/ComponentFunctions'
-import { addComponent } from '../../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
 import { createEngine } from '../../../initializeEngine'
-import { CameraPropertiesComponent } from '../../components/CameraPropertiesComponent'
-import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import {
+  CameraPropertiesComponent,
   SCENE_COMPONENT_CAMERA_PROPERTIES,
   SCENE_COMPONENT_CAMERA_PROPERTIES_DEFAULT_VALUES
-} from './CameraPropertiesFunctions'
+} from '../../components/CameraPropertiesComponent'
 
 describe('CameraPropertiesFunctions', () => {
   let entity: Entity
@@ -59,38 +55,13 @@ describe('CameraPropertiesFunctions', () => {
     }
   }
 
-  const sceneComponent: ComponentJson = {
-    name: SCENE_COMPONENT_CAMERA_PROPERTIES,
-    props: sceneComponentData
-  }
-
   describe('deserializeCameraProperties()', () => {
     it('creates CameraProperties Component with provided component data', () => {
-      camerapropertiesFunctions.deserializeCameraProperties(entity, sceneComponent)
+      camerapropertiesFunctions.deserializeCameraProperties(entity, sceneComponentData)
 
       const camerapropertiesComponent = getComponent(entity, CameraPropertiesComponent)
       assert(camerapropertiesComponent)
       assert.deepEqual(camerapropertiesComponent, sceneComponentData)
-    })
-
-    it('will include this component into EntityNodeComponent', () => {
-      addComponent(entity, EntityNodeComponent, { components: [] })
-
-      camerapropertiesFunctions.deserializeCameraProperties(entity, sceneComponent)
-
-      const entityNodeComponent = getComponent(entity, EntityNodeComponent)
-      assert(entityNodeComponent.components.includes(SCENE_COMPONENT_CAMERA_PROPERTIES))
-    })
-  })
-
-  describe('serializeCameraProperties()', () => {
-    it('should properly serialize cameraproperties', () => {
-      camerapropertiesFunctions.deserializeCameraProperties(entity, sceneComponent)
-      assert.deepEqual(camerapropertiesFunctions.serializeCameraProperties(entity), sceneComponent)
-    })
-
-    it('should return undefine if there is no cameraproperties component', () => {
-      assert(camerapropertiesFunctions.serializeCameraProperties(entity) === undefined)
     })
   })
 

@@ -30,7 +30,7 @@ import Tab from '@mui/material/Tab'
 import Tabs from '@mui/material/Tabs'
 
 import IconLeftClick from '../../../../common/components/Icons/IconLeftClick'
-import { AuthService } from '../../../services/AuthService'
+import { AvatarService } from '../../../services/AvatarService'
 import styles from '../index.module.scss'
 import { Views } from '../util'
 import { addAnimationLogic, initialize3D, onWindowResize, validate } from './helperFunctions'
@@ -232,19 +232,12 @@ export const AvatarUploadModal = ({ avatarData, isPublicAvatar, changeActiveMenu
         ;(canvas.width = THUMBNAIL_WIDTH), (canvas.height = THUMBNAIL_HEIGHT)
         const newContext = canvas.getContext('2d')
         newContext?.drawImage(renderer.domElement, 0, 0)
-        canvas.toBlob(async (blob) => {
-          const uploadResponse = await AuthService.uploadAvatarModel(
-            avatarBlob,
-            blob!,
-            avatarName,
-            isPublicAvatar
-          ).then(resolve)
-          await AuthService.createAvatar(uploadResponse[0], uploadResponse[1], avatarName)
+        canvas.toBlob((blob) => {
+          AvatarService.createAvatar(avatarBlob, blob!, avatarName, isPublicAvatar)
         })
       })
     } else {
-      const uploadResponse = await AuthService.uploadAvatarModel(avatarBlob, thumbnailBlob, avatarName, isPublicAvatar)
-      await AuthService.createAvatar(uploadResponse[0], uploadResponse[1], avatarName)
+      await AvatarService.createAvatar(avatarBlob, thumbnailBlob, avatarName, isPublicAvatar)
     }
 
     onAvatarUpload && onAvatarUpload()

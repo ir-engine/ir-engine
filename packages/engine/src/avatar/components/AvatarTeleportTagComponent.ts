@@ -1,3 +1,3 @@
 import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
 
-export const AvatarTeleportTagComponent = createMappedComponent('AvatarTeleportTagComponent')
+export const AvatarTeleportTagComponent = createMappedComponent<true>('AvatarTeleportTagComponent')

@@ -1,30 +1,36 @@
-import { Box3, Mesh, Quaternion, Vector3 } from 'three'
+import { entityExists } from 'bitecs'
+import { Mesh, Quaternion, Vector3 } from 'three'
 
 import logger from '@xrengine/common/src/logger'
 import { insertionSort } from '@xrengine/common/src/utils/insertionSort'
-import { getState } from '@xrengine/hyperflux'
+import { createActionQueue, getState } from '@xrengine/hyperflux'
 
+import { updateReferenceSpace } from '../../avatar/functions/moveAvatar'
 import { proxifyQuaternion, proxifyVector3 } from '../../common/proxies/three'
-import { Engine } from '../../ecs/classes/Engine'
-import { EngineState } from '../../ecs/classes/EngineState'
+import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { BoundingBoxComponent, BoundingBoxDynamicTag } from '../../interaction/components/BoundingBoxComponents'
 import { NetworkObjectOwnedTag } from '../../networking/components/NetworkObjectOwnedTag'
-import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
-import { RigidBodyDynamicTagComponent } from '../../physics/components/RigidBodyDynamicTagComponent'
+import { RigidBodyComponent, RigidBodyDynamicTagComponent } from '../../physics/components/RigidBodyComponent'
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { SpawnPointComponent } from '../../scene/components/SpawnPointComponent'
 import {
   applyTransformPositionOffset,
-  applyTransformRotationOffset
+  applyTransformRotationOffset,
+  deserializeTransform,
+  serializeTransform
 } from '../../scene/functions/loaders/TransformFunctions'
 import { ComputedTransformComponent, setComputedTransformComponent } from '../components/ComputedTransformComponent'
 import { DistanceFromCameraComponent, DistanceFromLocalClientComponent } from '../components/DistanceComponents'
 import { LocalTransformComponent } from '../components/LocalTransformComponent'
-import { TransformComponent } from '../components/TransformComponent'
+import {
+  SCENE_COMPONENT_TRANSFORM,
+  SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES,
+  TransformComponent
+} from '../components/TransformComponent'
 
 const scratchVector3 = new Vector3()
 const scratchQuaternion = new Quaternion()
@@ -71,6 +77,15 @@ const getDistanceSquaredFromTarget = (entity: Entity, targetPosition: Vector3) =
 }
 
 export default async function TransformSystem(world: World) {
+  world.sceneComponentRegistry.set(TransformComponent._name, SCENE_COMPONENT_TRANSFORM)
+  world.sceneLoadingRegistry.set(SCENE_COMPONENT_TRANSFORM, {
+    defaultData: SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES,
+    deserialize: deserializeTransform,
+    serialize: serializeTransform
+  })
+
+  const modifyPropertyActionQueue = createActionQueue(EngineActions.sceneObjectUpdate.matches)
+
   const computedReferenceDepths = new Map<Entity, number>()
 
   const visitedReferenceEntities = new Set<Entity>()
@@ -171,6 +186,7 @@ export default async function TransformSystem(world: World) {
 
     for (const entity of transformEntities) {
       const transform = getComponent(entity, TransformComponent)
+      if (!transform) continue
       const computedTransform = getComponent(entity, ComputedTransformComponent)
       const object3D = getComponent(entity, Object3DComponent)?.value
 
@@ -189,31 +205,38 @@ export default async function TransformSystem(world: World) {
         }
 
         object3D.updateMatrixWorld(true)
-
-        if (Engine.instance.isEditor) {
-          /** @todo refactor helpers */
-          for (let entity of spawnPointQuery()) {
-            const obj3d = getComponent(entity, Object3DComponent)?.value
-            if (obj3d) obj3d.userData.helperModel?.scale.set(1 / obj3d.scale.x, 1 / obj3d.scale.y, 1 / obj3d.scale.z)
-          }
-        }
       }
     }
 
     for (const entity of staticBoundingBoxQuery.enter()) computeBoundingBox(entity)
     for (const entity of dynamicBoundingBoxQuery()) updateBoundingBox(entity)
 
-    const localClientPosition = getComponent(world.localClientEntity, TransformComponent)?.position
-    if (localClientPosition) {
-      for (const entity of distanceFromLocalClientQuery())
-        DistanceFromLocalClientComponent.squaredDistance[entity] = getDistanceSquaredFromTarget(
-          entity,
-          localClientPosition
+    for (const action of modifyPropertyActionQueue()) {
+      for (const entity of action.entities) {
+        if (
+          hasComponent(entity, BoundingBoxComponent) &&
+          hasComponent(entity, TransformComponent) &&
+          hasComponent(entity, Object3DComponent)
         )
+          updateBoundingBox(entity)
+      }
     }
 
     const cameraPosition = getComponent(world.cameraEntity, TransformComponent).position
     for (const entity of distanceFromCameraQuery())
       DistanceFromCameraComponent.squaredDistance[entity] = getDistanceSquaredFromTarget(entity, cameraPosition)
+
+    if (entityExists(world, world.localClientEntity)) {
+      const localClientPosition = getComponent(world.localClientEntity, TransformComponent)?.position
+      if (localClientPosition) {
+        for (const entity of distanceFromLocalClientQuery())
+          DistanceFromLocalClientComponent.squaredDistance[entity] = getDistanceSquaredFromTarget(
+            entity,
+            localClientPosition
+          )
+      }
+
+      updateReferenceSpace(world.localClientEntity)
+    }
   }
 }

@@ -1,16 +1,4 @@
-import {
-  DoubleSide,
-  LinearFilter,
-  Mesh,
-  MeshBasicMaterial,
-  MeshStandardMaterial,
-  Object3D,
-  PlaneBufferGeometry,
-  SphereBufferGeometry,
-  sRGBEncoding
-} from 'three'
-
-import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
+import { LinearFilter, Mesh, MeshBasicMaterial, PlaneBufferGeometry, SphereBufferGeometry, sRGBEncoding } from 'three'
 
 import { AssetLoader } from '../../../assets/classes/AssetLoader'
 import { AssetClass } from '../../../assets/enum/AssetClass'
@@ -20,94 +8,85 @@ import {
   ComponentSerializeFunction,
   ComponentUpdateFunction
 } from '../../../common/constants/PrefabFunctionType'
-import { isClient } from '../../../common/functions/isClient'
 import { Entity } from '../../../ecs/classes/Entity'
-import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
+import { addComponent, getComponent, hasComponent, removeComponent } from '../../../ecs/functions/ComponentFunctions'
 import { ImageAlphaMode, ImageProjection } from '../../classes/ImageUtils'
-import { EntityNodeComponent } from '../../components/EntityNodeComponent'
-import { ImageComponent, ImageComponentType } from '../../components/ImageComponent'
+import {
+  ImageComponent,
+  ImageComponentType,
+  SCENE_COMPONENT_IMAGE_DEFAULT_VALUES
+} from '../../components/ImageComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 import { addError, removeError } from '../ErrorFunctions'
 
-export const SCENE_COMPONENT_IMAGE = 'image'
-export const SCENE_COMPONENT_IMAGE_DEFAULT_VALUES = {
-  imageSource: '',
-  alphaMode: ImageAlphaMode.Opaque,
-  alphaCutoff: 0.5,
-  projection: ImageProjection.Flat,
-  side: DoubleSide
+export const deserializeImage: ComponentDeserializeFunction = (entity: Entity, data: ImageComponentType) => {
+  const props = parseImageProperties(data)
+  addComponent(entity, ImageComponent, props)
 }
 
-export const deserializeImage: ComponentDeserializeFunction = (
-  entity: Entity,
-  json: ComponentJson<ImageComponentType>
-) => {
-  let obj3d = getComponent(entity, Object3DComponent)?.value
+export const updateImage: ComponentUpdateFunction = async (entity: Entity) => {
+  const imageComponent = getComponent(entity, ImageComponent)
 
-  if (!obj3d) {
-    obj3d = new Object3D()
-    addComponent(entity, Object3DComponent, { value: obj3d })
+  if (!hasComponent(entity, Object3DComponent)) {
+    const mesh = new Mesh(new PlaneBufferGeometry(), new MeshBasicMaterial())
+    addComponent(entity, Object3DComponent, { value: mesh })
   }
 
-  obj3d.userData.mesh = new Mesh(new PlaneBufferGeometry(), new MeshBasicMaterial())
-  obj3d.add(obj3d.userData.mesh)
+  const mesh = getComponent(entity, Object3DComponent).value as Mesh<
+    PlaneBufferGeometry | SphereBufferGeometry,
+    MeshBasicMaterial
+  >
 
-  const props = parseImageProperties(json.props)
-  addComponent(entity, ImageComponent, props)
-
-  getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_IMAGE)
-
-  updateImage(entity, props)
-}
-
-export const updateImage: ComponentUpdateFunction = (entity: Entity, properties: ImageComponentType) => {
-  if (!isClient) return
-  const obj3d = getComponent(entity, Object3DComponent).value as Mesh<any, MeshBasicMaterial>
-  const mesh = obj3d.userData.mesh
-  const component = getComponent(entity, ImageComponent)
-
-  if (properties.imageSource) {
+  /** @todo replace userData usage with something else */
+  const sourceChanged =
+    imageComponent.imageSource &&
+    (!hasComponent(entity, Object3DComponent) ||
+      getComponent(entity, Object3DComponent).value.userData.src !== imageComponent.imageSource)
+  if (sourceChanged) {
     try {
-      const assetType = AssetLoader.getAssetClass(component.imageSource)
+      const assetType = AssetLoader.getAssetClass(imageComponent.imageSource)
       if (assetType !== AssetClass.Image) {
-        addError(entity, 'error', `Image format ${component.imageSource.split('.').pop()}not supported`)
+        addError(entity, 'error', `Image format ${imageComponent.imageSource.split('.').pop()}not supported`)
         return
       }
-      AssetLoader.load(component.imageSource, {}, (texture) => {
-        texture.encoding = sRGBEncoding
-        texture.minFilter = LinearFilter
 
-        if (mesh.material.map) mesh.material.map?.dispose()
-        mesh.material.map = texture
+      const texture = await AssetLoader.loadAsync(imageComponent.imageSource)
+      texture.encoding = sRGBEncoding
+      texture.minFilter = LinearFilter
 
-        if (component.projection === ImageProjection.Flat) resizeImageMesh(mesh)
-        removeError(entity, 'error')
-      })
+      if (mesh.material.map) mesh.material.map?.dispose()
+      mesh.material.map = texture
+
+      mesh.userData.src = imageComponent.imageSource
+
+      if (imageComponent.projection === ImageProjection.Flat) resizeImageMesh(mesh)
+
+      removeError(entity, 'error')
     } catch (error) {
       addError(entity, 'error', 'Error Loading image')
+      return
     }
   }
 
-  if (typeof properties.projection !== 'undefined') {
-    if (component.projection === ImageProjection.Equirectangular360) {
-      mesh.geometry = new SphereBufferGeometry(1, 64, 32)
-      mesh.scale.set(1, 1, 1)
-    } else {
-      mesh.geometry = new PlaneBufferGeometry()
-      if (mesh.material.map) resizeImageMesh(mesh)
-    }
+  const changeToSphereProjection =
+    !(mesh.geometry instanceof SphereBufferGeometry) && imageComponent.projection === ImageProjection.Equirectangular360
+  const changeToPlaneProjection =
+    !(mesh.geometry instanceof PlaneBufferGeometry) && imageComponent.projection === ImageProjection.Flat
+
+  if (changeToSphereProjection) {
+    mesh.geometry = new SphereBufferGeometry(1, 64, 32)
+    mesh.scale.set(1, 1, 1)
   }
 
-  if (typeof properties.alphaMode !== 'undefined') {
-    mesh.material.transparent = component.alphaMode === ImageAlphaMode.Blend
-    mesh.material.alphaTest = component.alphaMode === ImageAlphaMode.Mask ? component.alphaCutoff : 0
+  if (changeToPlaneProjection) {
+    mesh.geometry = new PlaneBufferGeometry()
+    if (mesh.material.map) resizeImageMesh(mesh)
   }
 
-  if (typeof properties.alphaCutoff !== 'undefined') {
-    mesh.material.alphaTest = component.alphaCutoff
-  }
-
-  if (typeof properties.side !== 'undefined') mesh.material.side = component.side
+  mesh.material.transparent = imageComponent.alphaMode === ImageAlphaMode.Blend
+  mesh.material.alphaTest = imageComponent.alphaMode === ImageAlphaMode.Mask ? imageComponent.alphaCutoff : 0
+  mesh.material.alphaTest = imageComponent.alphaCutoff
+  mesh.material.side = imageComponent.side
 
   mesh.material.needsUpdate = true
 }
@@ -117,14 +96,11 @@ export const serializeImage: ComponentSerializeFunction = (entity) => {
   if (!component) return
 
   return {
-    name: SCENE_COMPONENT_IMAGE,
-    props: {
-      imageSource: component.imageSource,
-      alphaCutoff: component.alphaCutoff,
-      alphaMode: component.alphaMode,
-      projection: component.projection,
-      side: component.side
-    }
+    imageSource: component.imageSource,
+    alphaCutoff: component.alphaCutoff,
+    alphaMode: component.alphaMode,
+    projection: component.projection,
+    side: component.side
   }
 }
 
@@ -135,7 +111,7 @@ export const prepareImageForGLTFExport: ComponentPrepareForGLTFExportFunction = 
   }
 }
 
-export const resizeImageMesh = (mesh: Mesh<any, MeshStandardMaterial>) => {
+export const resizeImageMesh = (mesh: Mesh<any, any>) => {
   if (!mesh.material.map) return
 
   const ratio = (mesh.material.map.image.height || 1) / (mesh.material.map.image.width || 1)

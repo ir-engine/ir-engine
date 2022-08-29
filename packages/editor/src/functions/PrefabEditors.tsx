@@ -1,53 +1,52 @@
-import React from 'react'
-
+import { AudioComponent } from '@xrengine/engine/src/audio/components/AudioComponent'
+import { MediaPrefabs } from '@xrengine/engine/src/audio/systems/AudioSystem'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
-import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { EntityNodeComponent } from '@xrengine/engine/src/scene/components/EntityNodeComponent'
-import { SCENE_COMPONENT_SCENE_TAG } from '@xrengine/engine/src/scene/components/SceneTagComponent'
-import { SCENE_COMPONENT_AMBIENT_LIGHT } from '@xrengine/engine/src/scene/functions/loaders/AmbientLightFunctions'
-import { SCENE_COMPONENT_ASSET } from '@xrengine/engine/src/scene/functions/loaders/AssetComponentFunctions'
-import { SCENE_COMPONENT_AUDIO } from '@xrengine/engine/src/scene/functions/loaders/AudioFunctions'
-import { SCENE_COMPONENT_BOX_COLLIDER } from '@xrengine/engine/src/scene/functions/loaders/BoxColliderFunctions'
-import { SCENE_COMPONENT_CAMERA_PROPERTIES } from '@xrengine/engine/src/scene/functions/loaders/CameraPropertiesFunctions'
-import { SCENE_COMPONENT_CLOUD } from '@xrengine/engine/src/scene/functions/loaders/CloudFunctions'
-import { SCENE_COMPONENT_DIRECTIONAL_LIGHT } from '@xrengine/engine/src/scene/functions/loaders/DirectionalLightFunctions'
-import { SCENE_COMPONENT_ENVMAP_BAKE } from '@xrengine/engine/src/scene/functions/loaders/EnvMapBakeFunctions'
-import { SCENE_COMPONENT_FOG } from '@xrengine/engine/src/scene/functions/loaders/FogFunctions'
-import { SCENE_COMPONENT_GROUND_PLANE } from '@xrengine/engine/src/scene/functions/loaders/GroundPlaneFunctions'
-import { SCENE_COMPONENT_GROUP } from '@xrengine/engine/src/scene/functions/loaders/GroupFunctions'
-import { SCENE_COMPONENT_HEMISPHERE_LIGHT } from '@xrengine/engine/src/scene/functions/loaders/HemisphereLightFunctions'
-import { SCENE_COMPONENT_IMAGE } from '@xrengine/engine/src/scene/functions/loaders/ImageFunctions'
-import { SCENE_COMPONENT_INSTANCING } from '@xrengine/engine/src/scene/functions/loaders/InstancingFunctions'
-import { SCENE_COMPONENT_INTERIOR } from '@xrengine/engine/src/scene/functions/loaders/InteriorFunctions'
-import { SCENE_COMPONENT_MEDIA } from '@xrengine/engine/src/scene/functions/loaders/MediaFunctions'
-import { SCENE_COMPONENT_MODEL } from '@xrengine/engine/src/scene/functions/loaders/ModelFunctions'
-import { SCENE_COMPONENT_MOUNT_POINT } from '@xrengine/engine/src/scene/functions/loaders/MountPointFunctions'
-import { SCENE_COMPONENT_OCEAN } from '@xrengine/engine/src/scene/functions/loaders/OceanFunctions'
-import { SCENE_COMPONENT_PARTICLE_EMITTER } from '@xrengine/engine/src/scene/functions/loaders/ParticleEmitterFunctions'
-import { SCENE_COMPONENT_POINT_LIGHT } from '@xrengine/engine/src/scene/functions/loaders/PointLightFunctions'
-import { SCENE_COMPONENT_PORTAL } from '@xrengine/engine/src/scene/functions/loaders/PortalFunctions'
-import { SCENE_COMPONENT_POSTPROCESSING } from '@xrengine/engine/src/scene/functions/loaders/PostprocessingFunctions'
-import { SCENE_COMPONENT_SCENE_PREVIEW_CAMERA } from '@xrengine/engine/src/scene/functions/loaders/ScenePreviewCameraFunctions'
-import { SCENE_COMPONENT_SKYBOX } from '@xrengine/engine/src/scene/functions/loaders/SkyboxFunctions'
-import { SCENE_COMPONENT_SPAWN_POINT } from '@xrengine/engine/src/scene/functions/loaders/SpawnPointFunctions'
-import { SCENE_COMPONENT_SPLINE } from '@xrengine/engine/src/scene/functions/loaders/SplineFunctions'
-import { SCENE_COMPONENT_SPOT_LIGHT } from '@xrengine/engine/src/scene/functions/loaders/SpotLightFunctions'
-import { SCENE_COMPONENT_SYSTEM } from '@xrengine/engine/src/scene/functions/loaders/SystemFunctions'
-import { SCENE_COMPONENT_TRANSFORM } from '@xrengine/engine/src/scene/functions/loaders/TransformFunctions'
-import { SCENE_COMPONENT_TRIGGER_VOLUME } from '@xrengine/engine/src/scene/functions/loaders/TriggerVolumeFunctions'
-import { SCENE_COMPONENT_VIDEO } from '@xrengine/engine/src/scene/functions/loaders/VideoFunctions'
-import { SCENE_COMPONENT_VOLUMETRIC } from '@xrengine/engine/src/scene/functions/loaders/VolumetricFunctions'
-import { SCENE_COMPONENT_WATER } from '@xrengine/engine/src/scene/functions/loaders/WaterFunctions'
-import { ScenePrefabs } from '@xrengine/engine/src/scene/functions/registerPrefabs'
+import { getAllComponents } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { PhysicsPrefabs } from '@xrengine/engine/src/physics/systems/PhysicsSystem'
+import { AmbientLightComponent } from '@xrengine/engine/src/scene/components/AmbientLightComponent'
+import { AssetComponent } from '@xrengine/engine/src/scene/components/AssetComponent'
+import { CameraPropertiesComponent } from '@xrengine/engine/src/scene/components/CameraPropertiesComponent'
+import { CloudComponent } from '@xrengine/engine/src/scene/components/CloudComponent'
+import { ColliderComponent } from '@xrengine/engine/src/scene/components/ColliderComponent'
+import { DirectionalLightComponent } from '@xrengine/engine/src/scene/components/DirectionalLightComponent'
+import { EnvMapBakeComponent } from '@xrengine/engine/src/scene/components/EnvMapBakeComponent'
+import { FogComponent } from '@xrengine/engine/src/scene/components/FogComponent'
+import { GroundPlaneComponent } from '@xrengine/engine/src/scene/components/GroundPlaneComponent'
+import { GroupComponent } from '@xrengine/engine/src/scene/components/GroupComponent'
+import { HemisphereLightComponent } from '@xrengine/engine/src/scene/components/HemisphereLightComponent'
+import { ImageComponent } from '@xrengine/engine/src/scene/components/ImageComponent'
+import { InstancingComponent } from '@xrengine/engine/src/scene/components/InstancingComponent'
+import { InteriorComponent } from '@xrengine/engine/src/scene/components/InteriorComponent'
+import { MediaComponent } from '@xrengine/engine/src/scene/components/MediaComponent'
+import { ModelComponent } from '@xrengine/engine/src/scene/components/ModelComponent'
+import { MountPointComponent } from '@xrengine/engine/src/scene/components/MountPointComponent'
+import { OceanComponent } from '@xrengine/engine/src/scene/components/OceanComponent'
+import { ParticleEmitterComponent } from '@xrengine/engine/src/scene/components/ParticleEmitterComponent'
+import { PointLightComponent } from '@xrengine/engine/src/scene/components/PointLightComponent'
+import { PortalComponent } from '@xrengine/engine/src/scene/components/PortalComponent'
+import { PostprocessingComponent } from '@xrengine/engine/src/scene/components/PostprocessingComponent'
+import { ScenePreviewCameraTagComponent } from '@xrengine/engine/src/scene/components/ScenePreviewCamera'
+import { SceneTagComponent } from '@xrengine/engine/src/scene/components/SceneTagComponent'
+import { SkyboxComponent } from '@xrengine/engine/src/scene/components/SkyboxComponent'
+import { SpawnPointComponent } from '@xrengine/engine/src/scene/components/SpawnPointComponent'
+import { SplineComponent } from '@xrengine/engine/src/scene/components/SplineComponent'
+import { SpotLightComponent } from '@xrengine/engine/src/scene/components/SpotLightComponent'
+import { SystemComponent } from '@xrengine/engine/src/scene/components/SystemComponent'
+import { VideoComponent } from '@xrengine/engine/src/scene/components/VideoComponent'
+import { VolumetricComponent } from '@xrengine/engine/src/scene/components/VolumetricComponent'
+import { WaterComponent } from '@xrengine/engine/src/scene/components/WaterComponent'
+import { LightPrefabs } from '@xrengine/engine/src/scene/systems/LightSystem'
+import { ScenePrefabs } from '@xrengine/engine/src/scene/systems/SceneObjectUpdateSystem'
+import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 
 import ChairIcon from '@mui/icons-material/Chair'
 
 import AmbientLightNodeEditor from '../components/properties/AmbientLightNodeEditor'
 import { AssetNodeEditor } from '../components/properties/AssetNodeEditor'
 import AudioNodeEditor from '../components/properties/AudioNodeEditor'
-import BoxColliderNodeEditor from '../components/properties/BoxColliderNodeEditor'
 import CameraPropertiesNodeEditor from '../components/properties/CameraPropertiesNodeEditor'
 import CloudsNodeEditor from '../components/properties/CloudsNodeEditor'
+import ColliderNodeEditor from '../components/properties/ColliderNodeEditor'
 import { DefaultNodeEditor } from '../components/properties/DefaultNodeEditor'
 import DirectionalLightNodeEditor from '../components/properties/DirectionalLightNodeEditor'
 import EnvMapBakeNodeEditor from '../components/properties/EnvMapBakeNodeEditor'
@@ -61,7 +60,6 @@ import InteriorNodeEditor from '../components/properties/InteriorNodeEditor'
 import MediaNodeEditor from '../components/properties/MediaNodeEditor'
 import ModelNodeEditor from '../components/properties/ModelNodeEditor'
 import MountPointNodeEditor from '../components/properties/MountPointNodeEditor'
-import NodeEditor from '../components/properties/NodeEditor'
 import OceanNodeEditor from '../components/properties/OceanNodeEditor'
 import ParticleEmitterNodeEditor from '../components/properties/ParticleEmitterNodeEditor'
 import PointLightNodeEditor from '../components/properties/PointLightNodeEditor'
@@ -75,25 +73,24 @@ import SplineNodeEditor from '../components/properties/SplineNodeEditor'
 import SpotLightNodeEditor from '../components/properties/SpotLightNodeEditor'
 import SystemNodeEditor from '../components/properties/SystemNodeEditor'
 import TransformPropertyGroup from '../components/properties/TransformPropertyGroup'
-import TriggerVolumeNodeEditor from '../components/properties/TriggerVolumeNodeEditor'
 import { EditorComponentType } from '../components/properties/Util'
 import VideoNodeEditor from '../components/properties/VideoNodeEditor'
 import VolumetricNodeEditor from '../components/properties/VolumetricNodeEditor'
 import WaterNodeEditor from '../components/properties/WaterNodeEditor'
 
 export const getNodeEditorsForEntity = (entity: Entity): EditorComponentType[] => {
-  const entityNode = getComponent(entity, EntityNodeComponent)
-  if (!entityNode) return [DefaultNodeEditor]
+  const components = getAllComponents(entity)
+  if (!components.length) return [DefaultNodeEditor]
 
   const editors = [] as EditorComponentType[]
 
-  for (let i = 0; i < entityNode.components.length; i++) {
-    if (EntityNodeEditor[entityNode.components[i]]) {
-      editors.push(EntityNodeEditor[entityNode.components[i]])
+  for (let i = 0; i < components.length; i++) {
+    if (EntityNodeEditor[components[i]._name]) {
+      editors.push(EntityNodeEditor[components[i]._name])
     } else {
       /** @todo */
       // editors.push((props) => {
-      //   return <NodeEditor {...props} name={entityNode.components[i]}/>
+      //   return <NodeEditor {...props} name={entityNode[i]}/>
       // })
     }
   }
@@ -102,58 +99,56 @@ export const getNodeEditorsForEntity = (entity: Entity): EditorComponentType[] =
 }
 
 export const EntityNodeEditor = {
-  [SCENE_COMPONENT_TRANSFORM]: TransformPropertyGroup,
-  [SCENE_COMPONENT_DIRECTIONAL_LIGHT]: DirectionalLightNodeEditor,
-  [SCENE_COMPONENT_HEMISPHERE_LIGHT]: HemisphereLightNodeEditor,
-  [SCENE_COMPONENT_AMBIENT_LIGHT]: AmbientLightNodeEditor,
-  [SCENE_COMPONENT_POINT_LIGHT]: PointLightNodeEditor,
-  [SCENE_COMPONENT_SPOT_LIGHT]: SpotLightNodeEditor,
-  [SCENE_COMPONENT_GROUND_PLANE]: GroundPlaneNodeEditor,
-  [SCENE_COMPONENT_CAMERA_PROPERTIES]: CameraPropertiesNodeEditor,
-  [SCENE_COMPONENT_MODEL]: ModelNodeEditor,
-  [SCENE_COMPONENT_PARTICLE_EMITTER]: ParticleEmitterNodeEditor,
-  [SCENE_COMPONENT_PORTAL]: PortalNodeEditor,
-  [SCENE_COMPONENT_TRIGGER_VOLUME]: TriggerVolumeNodeEditor,
-  [SCENE_COMPONENT_MOUNT_POINT]: MountPointNodeEditor,
-  [SCENE_COMPONENT_BOX_COLLIDER]: BoxColliderNodeEditor,
-  [SCENE_COMPONENT_GROUP]: GroupNodeEditor,
-  [SCENE_COMPONENT_ASSET]: AssetNodeEditor,
-  [SCENE_COMPONENT_POSTPROCESSING]: PostProcessingNodeEditor,
-  [SCENE_COMPONENT_SCENE_TAG]: SceneNodeEditor,
-  [SCENE_COMPONENT_SCENE_PREVIEW_CAMERA]: ScenePreviewCameraNodeEditor,
-  [SCENE_COMPONENT_SKYBOX]: SkyboxNodeEditor,
-  [SCENE_COMPONENT_SPAWN_POINT]: SpawnPointNodeEditor,
-  [SCENE_COMPONENT_MEDIA]: MediaNodeEditor,
-  [SCENE_COMPONENT_IMAGE]: ImageNodeEditor,
-  [SCENE_COMPONENT_AUDIO]: AudioNodeEditor,
-  [SCENE_COMPONENT_VIDEO]: VideoNodeEditor,
-  [SCENE_COMPONENT_VOLUMETRIC]: VolumetricNodeEditor,
-  [SCENE_COMPONENT_CLOUD]: CloudsNodeEditor,
-  [SCENE_COMPONENT_OCEAN]: OceanNodeEditor,
-  [SCENE_COMPONENT_WATER]: WaterNodeEditor,
-  [SCENE_COMPONENT_INTERIOR]: InteriorNodeEditor,
-  [SCENE_COMPONENT_SYSTEM]: SystemNodeEditor,
-  [SCENE_COMPONENT_SPLINE]: SplineNodeEditor,
-  [SCENE_COMPONENT_ENVMAP_BAKE]: EnvMapBakeNodeEditor,
-  [SCENE_COMPONENT_INSTANCING]: InstancingNodeEditor,
-  [SCENE_COMPONENT_FOG]: FogNodeEditor
+  [TransformComponent._name]: TransformPropertyGroup,
+  [DirectionalLightComponent._name]: DirectionalLightNodeEditor,
+  [HemisphereLightComponent._name]: HemisphereLightNodeEditor,
+  [AmbientLightComponent._name]: AmbientLightNodeEditor,
+  [PointLightComponent._name]: PointLightNodeEditor,
+  [SpotLightComponent._name]: SpotLightNodeEditor,
+  [GroundPlaneComponent._name]: GroundPlaneNodeEditor,
+  [CameraPropertiesComponent._name]: CameraPropertiesNodeEditor,
+  [ModelComponent._name]: ModelNodeEditor,
+  [ParticleEmitterComponent._name]: ParticleEmitterNodeEditor,
+  [PortalComponent._name]: PortalNodeEditor,
+  [MountPointComponent._name]: MountPointNodeEditor,
+  [ColliderComponent._name]: ColliderNodeEditor,
+  [GroupComponent._name]: GroupNodeEditor,
+  [AssetComponent._name]: AssetNodeEditor,
+  [PostprocessingComponent._name]: PostProcessingNodeEditor,
+  [SceneTagComponent._name]: SceneNodeEditor,
+  [ScenePreviewCameraTagComponent._name]: ScenePreviewCameraNodeEditor,
+  [SkyboxComponent._name]: SkyboxNodeEditor,
+  [SpawnPointComponent._name]: SpawnPointNodeEditor,
+  [MediaComponent._name]: MediaNodeEditor,
+  [ImageComponent._name]: ImageNodeEditor,
+  [AudioComponent._name]: AudioNodeEditor,
+  [VideoComponent._name]: VideoNodeEditor,
+  [VolumetricComponent._name]: VolumetricNodeEditor,
+  [CloudComponent._name]: CloudsNodeEditor,
+  [OceanComponent._name]: OceanNodeEditor,
+  [WaterComponent._name]: WaterNodeEditor,
+  [InteriorComponent._name]: InteriorNodeEditor,
+  [SystemComponent._name]: SystemNodeEditor,
+  [SplineComponent._name]: SplineNodeEditor,
+  [EnvMapBakeComponent._name]: EnvMapBakeNodeEditor,
+  [InstancingComponent._name]: InstancingNodeEditor,
+  [FogComponent._name]: FogNodeEditor
 }
 
 export const prefabIcons = {
-  [ScenePrefabs.ambientLight]: AmbientLightNodeEditor.iconComponent,
-  [ScenePrefabs.pointLight]: PointLightNodeEditor.iconComponent,
-  [ScenePrefabs.spotLight]: SpotLightNodeEditor.iconComponent,
-  [ScenePrefabs.directionalLight]: DirectionalLightNodeEditor.iconComponent,
-  [ScenePrefabs.hemisphereLight]: HemisphereLightNodeEditor.iconComponent,
+  [LightPrefabs.ambientLight]: AmbientLightNodeEditor.iconComponent,
+  [LightPrefabs.pointLight]: PointLightNodeEditor.iconComponent,
+  [LightPrefabs.spotLight]: SpotLightNodeEditor.iconComponent,
+  [LightPrefabs.directionalLight]: DirectionalLightNodeEditor.iconComponent,
+  [LightPrefabs.hemisphereLight]: HemisphereLightNodeEditor.iconComponent,
   [ScenePrefabs.groundPlane]: GroundPlaneNodeEditor.iconComponent,
   [ScenePrefabs.model]: ModelNodeEditor.iconComponent,
   [ScenePrefabs.cameraProperties]: CameraPropertiesNodeEditor.iconComponent,
   [ScenePrefabs.previewCamera]: ScenePreviewCameraNodeEditor.iconComponent,
   [ScenePrefabs.particleEmitter]: ParticleEmitterNodeEditor.iconComponent,
   [ScenePrefabs.portal]: PortalNodeEditor.iconComponent,
-  [ScenePrefabs.triggerVolume]: TriggerVolumeNodeEditor.iconComponent,
+  [PhysicsPrefabs.collider]: ColliderNodeEditor.iconComponent,
   [ScenePrefabs.chair]: ChairIcon,
-  [ScenePrefabs.boxCollider]: BoxColliderNodeEditor.iconComponent,
   [ScenePrefabs.group]: GroupNodeEditor.iconComponent,
   [ScenePrefabs.asset]: InteriorNodeEditor.iconComponent,
   [ScenePrefabs.postProcessing]: PostProcessingNodeEditor.iconComponent,
@@ -161,9 +156,9 @@ export const prefabIcons = {
   [ScenePrefabs.skybox]: SkyboxNodeEditor.iconComponent,
   [ScenePrefabs.spawnPoint]: SpawnPointNodeEditor.iconComponent,
   [ScenePrefabs.image]: ImageNodeEditor.iconComponent,
-  [ScenePrefabs.audio]: AudioNodeEditor.iconComponent,
-  [ScenePrefabs.video]: VideoNodeEditor.iconComponent,
-  [ScenePrefabs.volumetric]: VolumetricNodeEditor.iconComponent,
+  [MediaPrefabs.audio]: AudioNodeEditor.iconComponent,
+  [MediaPrefabs.video]: VideoNodeEditor.iconComponent,
+  [MediaPrefabs.volumetric]: VolumetricNodeEditor.iconComponent,
   [ScenePrefabs.cloud]: CloudsNodeEditor.iconComponent,
   [ScenePrefabs.ocean]: OceanNodeEditor.iconComponent,
   [ScenePrefabs.water]: WaterNodeEditor.iconComponent,

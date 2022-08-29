@@ -6,7 +6,6 @@ import {
   hasComponent,
   removeComponent
 } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { EntityNodeComponent } from '@xrengine/engine/src/scene/components/EntityNodeComponent'
 import { dispatchAction } from '@xrengine/hyperflux'
 
 import { CommandFuncType, CommandParams, MiscCommands } from '../constants/EditorCommands'
@@ -41,15 +40,16 @@ export type TagComponentCommandParams = CommandParams & {
 function prepare(command: TagComponentCommandParams) {
   if (command.keepHistory) {
     command.undo = {
-      operations: command.affectedNodes.map((o, i) => {
-        const op = command.operations[i] ?? command.operations[0]
-
-        return {
-          component: op.component,
-          type: hasComponent(o.entity, op.component) ? TagComponentOperation.ADD : TagComponentOperation.REMOVE,
-          sceneComponentName: op.sceneComponentName
-        }
-      })
+      operations: command.affectedNodes
+        .filter((node) => typeof node !== 'string')
+        .map((o: EntityTreeNode, i) => {
+          const op = command.operations[i] ?? command.operations[0]
+          return {
+            component: op.component,
+            type: hasComponent(o.entity, op.component) ? TagComponentOperation.ADD : TagComponentOperation.REMOVE,
+            sceneComponentName: op.sceneComponentName
+          }
+        })
     }
   }
 }
@@ -73,9 +73,9 @@ function emitEventAfter(command: TagComponentCommandParams) {
 
 function update(command: TagComponentCommandParams, isUndo?: boolean) {
   const operations = isUndo && command.undo ? command.undo.operations : command.operations
-
-  for (let i = 0; i < command.affectedNodes.length; i++) {
-    const object = command.affectedNodes[i]
+  const affectedNodes = command.affectedNodes.filter((node) => typeof node !== 'string') as EntityTreeNode[]
+  for (let i = 0; i < affectedNodes.length; i++) {
+    const object = affectedNodes[i]
     const operation = operations[i] ?? operations[0]
     const isCompExists = hasComponent(object.entity, operation.component)
 
@@ -98,15 +98,10 @@ function update(command: TagComponentCommandParams, isUndo?: boolean) {
 
 function addTagComponent(object: EntityTreeNode, operation: TagComponentOperationType) {
   addComponent(object.entity, operation.component, {})
-  getComponent(object.entity, EntityNodeComponent)?.components.push(operation.sceneComponentName)
 }
 
 function removeTagComponent(object: EntityTreeNode, operation: TagComponentOperationType) {
   removeComponent(object.entity, operation.component)
-  const comps = getComponent(object.entity, EntityNodeComponent)?.components
-  const index = comps.indexOf(operation.sceneComponentName)
-
-  if (index !== -1) comps.splice(index, 1)
 }
 
 function toString(command: TagComponentCommandParams) {

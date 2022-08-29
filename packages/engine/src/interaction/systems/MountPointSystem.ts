@@ -1,4 +1,4 @@
-import { Vector3 } from 'three'
+import { Box3, Object3D, Vector3 } from 'three'
 
 import { createActionQueue } from '@xrengine/hyperflux'
 
@@ -21,9 +21,22 @@ import { Physics } from '../../physics/classes/Physics'
 import { CollisionGroups } from '../../physics/enums/CollisionGroups'
 import { getInteractionGroups } from '../../physics/functions/getInteractionGroups'
 import { RaycastHit, SceneQueryType } from '../../physics/types/PhysicsTypes'
-import { MountPoint, MountPointComponent } from '../../scene/components/MountPointComponent'
+import {
+  MountPoint,
+  MountPointComponent,
+  SCENE_COMPONENT_MOUNT_POINT,
+  SCENE_COMPONENT_MOUNT_POINT_DEFAULT_VALUES
+} from '../../scene/components/MountPointComponent'
+import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { SittingComponent } from '../../scene/components/SittingComponent'
-import { TransformComponent } from '../../transform/components/TransformComponent'
+import { SCENE_COMPONENT_VISIBLE } from '../../scene/components/VisibleComponent'
+import { ScenePrefabs } from '../../scene/systems/SceneObjectUpdateSystem'
+import {
+  SCENE_COMPONENT_TRANSFORM,
+  SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES,
+  TransformComponent
+} from '../../transform/components/TransformComponent'
+import { BoundingBoxComponent } from '../components/BoundingBoxComponents'
 import { createInteractUI } from '../functions/interactUI'
 import { addInteractableUI } from './InteractiveSystem'
 
@@ -35,6 +48,17 @@ const mountPointInteractMessages = {
 }
 
 export default async function MountPointSystem(world: World) {
+  world.scenePrefabRegistry.set(ScenePrefabs.chair, [
+    { name: SCENE_COMPONENT_TRANSFORM, props: SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES },
+    { name: SCENE_COMPONENT_VISIBLE, props: true },
+    { name: SCENE_COMPONENT_MOUNT_POINT, props: SCENE_COMPONENT_MOUNT_POINT_DEFAULT_VALUES }
+  ])
+
+  world.sceneComponentRegistry.set(MountPointComponent._name, SCENE_COMPONENT_MOUNT_POINT)
+  world.sceneLoadingRegistry.set(SCENE_COMPONENT_MOUNT_POINT, {
+    defaultData: SCENE_COMPONENT_MOUNT_POINT_DEFAULT_VALUES
+  })
+
   if (Engine.instance.isEditor) return () => {}
 
   const mountPointActionQueue = createActionQueue(EngineActions.interactedWithObject.matches)
@@ -44,12 +68,19 @@ export default async function MountPointSystem(world: World) {
   return () => {
     for (const entity of mountPointQuery.enter()) {
       const mountPoint = getComponent(entity, MountPointComponent)
+      addComponent(entity, Object3DComponent, { value: new Object3D() })
+      addComponent(entity, BoundingBoxComponent, {
+        box: new Box3().setFromCenterAndSize(
+          getComponent(entity, TransformComponent).position,
+          new Vector3(0.1, 0.1, 0.1)
+        )
+      })
       addInteractableUI(entity, createInteractUI(entity, mountPointInteractMessages[mountPoint.type]))
     }
 
     for (const action of mountPointActionQueue()) {
       if (action.$from !== Engine.instance.userId) continue
-      if (!hasComponent(action.targetEntity!, MountPointComponent)) continue
+      if (!action.targetEntity || !hasComponent(action.targetEntity!, MountPointComponent)) continue
       const avatarEntity = world.getUserAvatarEntity(action.$from)
 
       const mountPoint = getComponent(action.targetEntity!, MountPointComponent)
@@ -68,6 +99,7 @@ export default async function MountPointSystem(world: World) {
           },
           true
         )
+        controllerComponent.body.setLinvel({ x: 0, y: 0, z: 0 }, true)
         const sitting = addComponent(avatarEntity, SittingComponent, {
           mountPointEntity: action.targetEntity!,
           state: AvatarStates.SIT_ENTER
@@ -100,16 +132,15 @@ export default async function MountPointSystem(world: World) {
         const interactionGroups = getInteractionGroups(CollisionGroups.Avatars, CollisionGroups.Ground)
         const raycastComponentData = {
           type: SceneQueryType.Closest,
-          hits: [],
           origin: newPos,
           direction: new Vector3(0, -1, 0),
           maxDistance: 2,
           flags: interactionGroups
         }
-        Physics.castRay(Engine.instance.currentWorld.physicsWorld, raycastComponentData)
+        const hits = Physics.castRay(Engine.instance.currentWorld.physicsWorld, raycastComponentData)
 
-        if (raycastComponentData.hits.length > 0) {
-          const raycastHit = raycastComponentData.hits[0] as RaycastHit
+        if (hits.length > 0) {
+          const raycastHit = hits[0] as RaycastHit
           if (raycastHit.normal.y > 0.9) {
             newPos.y -= raycastHit.distance
           }

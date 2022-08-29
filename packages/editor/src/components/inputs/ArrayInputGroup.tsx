@@ -108,7 +108,7 @@ export function ArrayInputGroup({
                 <ArrayInputGroupContent key={index} style={{ margin: '4px 0px' }}>
                   <label>
                     {' '}
-                    {prefix} {index}:{' '}
+                    {prefix} {index + 1}:{' '}
                   </label>
                   {isStringInput ? (
                     <StringInput

@@ -1,7 +1,7 @@
 import { Not } from 'bitecs'
 import { Quaternion, Vector3 } from 'three'
 
-import { createActionQueue, getState } from '@xrengine/hyperflux'
+import { createActionQueue, dispatchAction, getState } from '@xrengine/hyperflux'
 
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { getAvatarBoneWorldPosition } from '../../avatar/functions/avatarFunctions'
@@ -18,6 +18,7 @@ import {
 } from '../../ecs/functions/ComponentFunctions'
 import { LocalAvatarTagComponent } from '../../input/components/LocalAvatarTagComponent'
 import { NetworkObjectComponent, NetworkObjectComponentType } from '../../networking/components/NetworkObjectComponent'
+import { MediaSettingAction, MediaSettingsState, shouldUseImmersiveMedia } from '../../networking/MediaSettingsState'
 import { MediaComponent } from '../../scene/components/MediaComponent'
 import { MediaElementComponent } from '../../scene/components/MediaElementComponent'
 import { createAudioNode } from '../../scene/functions/loaders/AudioFunctions'
@@ -25,6 +26,12 @@ import { TransformComponent } from '../../transform/components/TransformComponen
 import { XRState } from '../../xr/XRState'
 import { AudioSettingAction, AudioState } from '../AudioState'
 import { AudioComponent } from '../components/AudioComponent'
+import { ImmersiveMediaTagComponent, SCENE_COMPONENT_MEDIA_SETTINGS } from '../components/ImmersiveMediaTagComponent'
+import {
+  PositionalAudioSettingsComponent,
+  SCENE_COMPONENT_AUDIO_SETTINGS,
+  SCENE_COMPONENT_AUDIO_SETTINGS_DEFAULT_VALUES
+} from '../components/PositionalAudioSettingsComponent'
 import { PositionalAudioTagComponent } from '../components/PositionalAudioTagComponent'
 import { AudioType } from '../constants/AudioConstants'
 import { AudioElementNode, AudioElementNodes } from './AudioSystem'
@@ -63,6 +70,11 @@ export const updatePositionalAudioTag = (entity: Entity) => {
     addComponent(entity, PositionalAudioTagComponent, true)
 }
 
+export const updatePositionalAudioSettings = (entity: Entity) => {
+  const settings = getComponent(entity, PositionalAudioSettingsComponent)
+  Engine.instance.spatialAudioSettings = { ...settings }
+}
+
 /** System class which provides methods for Positional Audio system. */
 
 export default async function PositionalAudioSystem(world: World) {
@@ -79,6 +91,16 @@ export default async function PositionalAudioSystem(world: World) {
 
   const _vec3 = new Vector3()
 
+  const positionalAudioSettingsQuery = defineQuery([PositionalAudioSettingsComponent])
+
+  world.sceneComponentRegistry.set(PositionalAudioSettingsComponent._name, SCENE_COMPONENT_AUDIO_SETTINGS)
+  world.sceneLoadingRegistry.set(SCENE_COMPONENT_AUDIO_SETTINGS, {
+    defaultData: SCENE_COMPONENT_AUDIO_SETTINGS_DEFAULT_VALUES
+  })
+
+  world.sceneComponentRegistry.set(ImmersiveMediaTagComponent._name, SCENE_COMPONENT_MEDIA_SETTINGS)
+  world.sceneLoadingRegistry.set(SCENE_COMPONENT_MEDIA_SETTINGS, {})
+
   /**
    * Scene Objects
    */
@@ -90,6 +112,8 @@ export default async function PositionalAudioSystem(world: World) {
     PositionalAudioTagComponent,
     TransformComponent
   ])
+
+  const immersiveMediaQuery = defineQuery([ImmersiveMediaTagComponent])
 
   /**
    * Avatars
@@ -104,20 +128,23 @@ export default async function PositionalAudioSystem(world: World) {
   return () => {
     const audioContext = Engine.instance.audioContext
     const network = Engine.instance.currentWorld.mediaNetwork
-    const xrSessionActive = getState(XRState).sessionActive.value
-    const audioState = getState(AudioState)
-    const useAvatarPositionalAudio = audioState.usePositionalAudio.value && !xrSessionActive
+    const immersiveMedia = shouldUseImmersiveMedia()
+
+    for (const entity of positionalAudioSettingsQuery.enter()) updatePositionalAudioSettings(entity)
+
+    if (immersiveMediaQuery.enter().length) dispatchAction(MediaSettingAction.setUseImmersiveMedia({ use: true }))
+    if (immersiveMediaQuery.exit().length) dispatchAction(MediaSettingAction.setUseImmersiveMedia({ use: false }))
 
     /**
      * Scene Objects
      */
     const audioEntities = audioQuery()
-    if (!Engine.instance.isEditor)
-      for (const action of modifyPropertyActionQueue()) {
-        for (const entity of action.entities) {
-          if (audioEntities.includes(entity)) updatePositionalAudioTag(entity)
-        }
+    for (const action of modifyPropertyActionQueue()) {
+      for (const entity of action.entities) {
+        if (audioEntities.includes(entity)) updatePositionalAudioTag(entity)
+        if (hasComponent(entity, PositionalAudioSettingsComponent)) updatePositionalAudioSettings(entity)
       }
+    }
 
     for (const entity of positionalAudioSceneObjectQuery.enter()) {
       const el = getComponent(entity, MediaElementComponent)
@@ -159,8 +186,8 @@ export default async function PositionalAudioSystem(world: World) {
       if (existingAudioObj) {
         // only force positional audio for avatar media streams in XR
         const audioEl = AudioElementNodes.get(existingAudioObj)!
-        if (audioEl.panner && !useAvatarPositionalAudio) removePannerNode(audioEl)
-        else if (!audioEl.panner && useAvatarPositionalAudio) addPannerNode(audioEl)
+        if (audioEl.panner && !immersiveMedia) removePannerNode(audioEl)
+        else if (!audioEl.panner && immersiveMedia) addPannerNode(audioEl)
 
         // audio stream exists and has already been handled
         continue
@@ -188,7 +215,7 @@ export default async function PositionalAudioSystem(world: World) {
       )
       audioObject.gain.gain.setTargetAtTime(existingAudioObject.volume, audioContext.currentTime, 0.01)
 
-      if (useAvatarPositionalAudio) addPannerNode(audioObject)
+      if (immersiveMedia) addPannerNode(audioObject)
 
       avatarAudioObjs.set(networkObject, stream)
     }

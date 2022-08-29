@@ -1,71 +1,36 @@
 import { Color, Vector2 } from 'three'
 
-import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
-
 import {
   ComponentDeserializeFunction,
   ComponentSerializeFunction,
   ComponentUpdateFunction
 } from '../../../common/constants/PrefabFunctionType'
-import { isClient } from '../../../common/functions/isClient'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
 import { Ocean } from '../../classes/Ocean'
-import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
-import { OceanComponent, OceanComponentType } from '../../components/OceanComponent'
+import {
+  OceanComponent,
+  OceanComponentType,
+  SCENE_COMPONENT_OCEAN_DEFAULT_VALUES
+} from '../../components/OceanComponent'
 import { UpdatableComponent } from '../../components/UpdatableComponent'
 import { addError, removeError } from '../ErrorFunctions'
 
-export const SCENE_COMPONENT_OCEAN = 'ocean'
-export const SCENE_COMPONENT_OCEAN_DEFAULT_VALUES = {
-  normalMap: '/ocean/water_normal.tga',
-  distortionMap: '/ocean/water_distortion.tga',
-  envMap: '/hdr/equirectangular/texture222.jpg',
-  color: 0x2876dd,
-  opacityRange: { x: 0.6, y: 0.9 },
-  opacityFadeDistance: 0.12,
-  shallowToDeepDistance: 0.1,
-  shallowWaterColor: 0x30c3dd,
-  waveScale: { x: 0.25, y: 0.25 },
-  waveSpeed: { x: 0.08, y: 0.0 },
-  waveTiling: 12.0,
-  waveDistortionTiling: 7.0,
-  waveDistortionSpeed: { x: 0.08, y: 0.08 },
-  shininess: 40,
-  reflectivity: 0.25,
-  bigWaveHeight: 0.7,
-  bigWaveTiling: { x: 1.5, y: 1.5 },
-  bigWaveSpeed: { x: 0.02, y: 0.0 },
-  foamSpeed: { x: 0.05, y: 0.0 },
-  foamTiling: 2.0,
-  foamColor: 0xffffff
-}
-
-export const deserializeOcean: ComponentDeserializeFunction = (
-  entity: Entity,
-  json: ComponentJson<OceanComponentType>
-) => {
-  if (!isClient) return
-
+export const deserializeOcean: ComponentDeserializeFunction = (entity: Entity, data: OceanComponentType) => {
   const obj3d = new Ocean(entity)
-  obj3d.userData.disableOutline = true
-  const props = parseOceanProperties(json.props)
+  const props = parseOceanProperties(data)
 
   addComponent(entity, Object3DComponent, { value: obj3d })
   addComponent(entity, OceanComponent, props)
-  addComponent(entity, UpdatableComponent, {})
-
-  getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_OCEAN)
-
-  updateOcean(entity, props)
+  addComponent(entity, UpdatableComponent, true)
 }
 
-export const updateOcean: ComponentUpdateFunction = (entity: Entity, properties: OceanComponentType) => {
+export const updateOcean: ComponentUpdateFunction = (entity: Entity) => {
   const obj3d = getComponent(entity, Object3DComponent).value as Ocean
   const component = getComponent(entity, OceanComponent)
 
-  if (properties.normalMap) {
+  if (obj3d.normalMap !== component.normalMap) {
     try {
       obj3d.normalMap = component.normalMap
       removeError(entity, 'normalMapError')
@@ -75,7 +40,7 @@ export const updateOcean: ComponentUpdateFunction = (entity: Entity, properties:
     }
   }
 
-  if (properties.distortionMap) {
+  if (obj3d.distortionMap !== component.distortionMap) {
     try {
       obj3d.distortionMap = component.distortionMap
       removeError(entity, 'distortionMapError')
@@ -85,7 +50,7 @@ export const updateOcean: ComponentUpdateFunction = (entity: Entity, properties:
     }
   }
 
-  if (properties.envMap) {
+  if (obj3d.envMap !== component.envMap) {
     try {
       obj3d.envMap = component.envMap
       removeError(entity, 'envMapError')
@@ -95,57 +60,50 @@ export const updateOcean: ComponentUpdateFunction = (entity: Entity, properties:
     }
   }
 
-  if (typeof properties.color !== 'undefined') obj3d.color = component.color
-  if (typeof properties.opacityRange !== 'undefined') obj3d.opacityRange = component.opacityRange
-  if (typeof properties.opacityFadeDistance !== 'undefined') obj3d.opacityFadeDistance = component.opacityFadeDistance
-  if (typeof properties.shallowToDeepDistance !== 'undefined')
-    obj3d.shallowToDeepDistance = component.shallowToDeepDistance
-  if (typeof properties.shallowWaterColor !== 'undefined') obj3d.shallowWaterColor = component.shallowWaterColor
-  if (typeof properties.waveScale !== 'undefined') obj3d.waveScale = component.waveScale
-  if (typeof properties.waveSpeed !== 'undefined') obj3d.waveSpeed = component.waveSpeed
-  if (typeof properties.waveTiling !== 'undefined') obj3d.waveTiling = component.waveTiling
-  if (typeof properties.waveDistortionTiling !== 'undefined')
-    obj3d.waveDistortionTiling = component.waveDistortionTiling
-  if (typeof properties.waveDistortionSpeed !== 'undefined') obj3d.waveDistortionSpeed = component.waveDistortionSpeed
-  if (typeof properties.shininess !== 'undefined') obj3d.shininess = component.shininess
-  if (typeof properties.reflectivity !== 'undefined') obj3d.reflectivity = component.reflectivity
-  if (typeof properties.bigWaveHeight !== 'undefined') obj3d.bigWaveHeight = component.bigWaveHeight
-  if (typeof properties.bigWaveTiling !== 'undefined') obj3d.bigWaveTiling = component.bigWaveTiling
-  if (typeof properties.bigWaveSpeed !== 'undefined') obj3d.bigWaveSpeed = component.bigWaveSpeed
-  if (typeof properties.foamSpeed !== 'undefined') obj3d.foamSpeed = component.foamSpeed
-  if (typeof properties.foamTiling !== 'undefined') obj3d.foamTiling = component.foamTiling
-  if (typeof properties.foamColor !== 'undefined') obj3d.foamColor = component.foamColor
+  obj3d.color = component.color
+  obj3d.opacityRange = component.opacityRange
+  obj3d.opacityFadeDistance = component.opacityFadeDistance
+  obj3d.shallowToDeepDistance = component.shallowToDeepDistance
+  obj3d.shallowWaterColor = component.shallowWaterColor
+  obj3d.waveScale = component.waveScale
+  obj3d.waveSpeed = component.waveSpeed
+  obj3d.waveTiling = component.waveTiling
+  obj3d.waveDistortionTiling = component.waveDistortionTiling
+  obj3d.waveDistortionSpeed = component.waveDistortionSpeed
+  obj3d.shininess = component.shininess
+  obj3d.reflectivity = component.reflectivity
+  obj3d.bigWaveHeight = component.bigWaveHeight
+  obj3d.bigWaveTiling = component.bigWaveTiling
+  obj3d.bigWaveSpeed = component.bigWaveSpeed
+  obj3d.foamSpeed = component.foamSpeed
+  obj3d.foamTiling = component.foamTiling
+  obj3d.foamColor = component.foamColor
 }
 
 export const serializeOcean: ComponentSerializeFunction = (entity) => {
   const component = getComponent(entity, OceanComponent) as OceanComponentType
-  if (!component) return
-
   return {
-    name: SCENE_COMPONENT_OCEAN,
-    props: {
-      normalMap: component.normalMap,
-      distortionMap: component.distortionMap,
-      envMap: component.envMap,
-      color: component.color.getHex(),
-      opacityRange: component.opacityRange,
-      opacityFadeDistance: component.opacityFadeDistance,
-      shallowToDeepDistance: component.shallowToDeepDistance,
-      shallowWaterColor: component.shallowWaterColor.getHex(),
-      waveScale: component.waveScale,
-      waveSpeed: component.waveSpeed,
-      waveTiling: component.waveTiling,
-      waveDistortionTiling: component.waveDistortionTiling,
-      waveDistortionSpeed: component.waveDistortionSpeed,
-      shininess: component.shininess,
-      reflectivity: component.reflectivity,
-      bigWaveHeight: component.bigWaveHeight,
-      bigWaveTiling: component.bigWaveTiling,
-      bigWaveSpeed: component.bigWaveSpeed,
-      foamSpeed: component.foamSpeed,
-      foamTiling: component.foamTiling,
-      foamColor: component.foamColor.getHex()
-    }
+    normalMap: component.normalMap,
+    distortionMap: component.distortionMap,
+    envMap: component.envMap,
+    color: component.color.getHex(),
+    opacityRange: component.opacityRange,
+    opacityFadeDistance: component.opacityFadeDistance,
+    shallowToDeepDistance: component.shallowToDeepDistance,
+    shallowWaterColor: component.shallowWaterColor.getHex(),
+    waveScale: component.waveScale,
+    waveSpeed: component.waveSpeed,
+    waveTiling: component.waveTiling,
+    waveDistortionTiling: component.waveDistortionTiling,
+    waveDistortionSpeed: component.waveDistortionSpeed,
+    shininess: component.shininess,
+    reflectivity: component.reflectivity,
+    bigWaveHeight: component.bigWaveHeight,
+    bigWaveTiling: component.bigWaveTiling,
+    bigWaveSpeed: component.bigWaveSpeed,
+    foamSpeed: component.foamSpeed,
+    foamTiling: component.foamTiling,
+    foamColor: component.foamColor.getHex()
   }
 }
 

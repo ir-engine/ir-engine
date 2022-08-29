@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
   ACESFilmicToneMapping,
@@ -12,10 +12,15 @@ import {
   VSMShadowMap
 } from 'three'
 
+import { ImmersiveMediaTagComponent } from '@xrengine/engine/src/audio/components/ImmersiveMediaTagComponent'
+import { PositionalAudioSettingsComponent } from '@xrengine/engine/src/audio/components/PositionalAudioSettingsComponent'
 import { DistanceModel, DistanceModelOptions } from '@xrengine/engine/src/audio/constants/AudioConstants'
-import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { PositionalAudioSettingsComponent } from '@xrengine/engine/src/scene/components/AudioSettingsComponent'
-import { MetaDataComponent } from '@xrengine/engine/src/scene/components/MetaDataComponent'
+import {
+  addComponent,
+  getComponent,
+  hasComponent,
+  removeComponent
+} from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { RenderSettingComponent } from '@xrengine/engine/src/scene/components/RenderSettingComponent'
 
 import LanguageIcon from '@mui/icons-material/Language'
@@ -25,7 +30,6 @@ import CompoundNumericInput from '../inputs/CompoundNumericInput'
 import InputGroup from '../inputs/InputGroup'
 import NumericInputGroup from '../inputs/NumericInputGroup'
 import SelectInput from '../inputs/SelectInput'
-import StringInput from '../inputs/StringInput'
 import Vector3Input from '../inputs/Vector3Input'
 import EnvMapEditor from './EnvMapEditor'
 import NodeEditor from './NodeEditor'
@@ -96,10 +100,16 @@ const ShadowTypeOptions = [
 export const SceneNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
   const entity = props.node.entity
+  const [immersiveMedia, setImmersiveMedia] = useState(hasComponent(entity, ImmersiveMediaTagComponent))
 
-  const metadata = getComponent(entity, MetaDataComponent)
   const audioComponent = getComponent(entity, PositionalAudioSettingsComponent)
   const renderSettingComponent = getComponent(entity, RenderSettingComponent)
+
+  const updateImmersiveMedia = () => {
+    if (hasComponent(entity, ImmersiveMediaTagComponent)) removeComponent(entity, ImmersiveMediaTagComponent)
+    else addComponent(entity, ImmersiveMediaTagComponent, true)
+    setImmersiveMedia(hasComponent(entity, ImmersiveMediaTagComponent))
+  }
 
   return (
     <NodeEditor
@@ -107,9 +117,6 @@ export const SceneNodeEditor: EditorComponentType = (props) => {
       name={t('editor:properties.scene.name')}
       description={t('editor:properties.scene.description')}
     >
-      <InputGroup name="Metadata" label="Metadata">
-        <StringInput value={metadata.meta_data} onChange={updateProperty(MetaDataComponent, 'meta_data')} />
-      </InputGroup>
       <EnvMapEditor node={props.node} />
       <InputGroup
         name="Media Distance Model"
@@ -122,6 +129,13 @@ export const SceneNodeEditor: EditorComponentType = (props) => {
           value={audioComponent.distanceModel}
           onChange={updateProperty(PositionalAudioSettingsComponent, 'distanceModel')}
         />
+      </InputGroup>
+      <InputGroup
+        name="Use Immersive Media"
+        label={t('editor:properties.scene.lbl-immersiveMedia')}
+        info={t('editor:properties.scene.info-immersiveMedia')}
+      >
+        <BooleanInput key={props.node.entity} value={immersiveMedia} onChange={updateImmersiveMedia} />
       </InputGroup>
 
       {audioComponent.distanceModel === DistanceModel.Linear ? (

@@ -66,7 +66,7 @@ export function AssetDropZone() {
           if (!assets) return
 
           assets.map(async (asset) => {
-            const node = await addMediaNode(asset.url)
+            const node = await addMediaNode(asset)
             const transformComponent = getComponent(node.entity, TransformComponent)
             if (transformComponent) {
               getCursorSpawnPosition(mousePos, transformComponent.position)

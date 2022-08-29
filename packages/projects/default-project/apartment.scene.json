@@ -4,12 +4,6 @@
     "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC": {
       "components": [
         {
-          "name": "mtdata",
-          "props": {
-            "meta_data": ""
-          }
-        },
-        {
           "name": "audio-settings",
           "props": {
             "refDistance": 20,
@@ -71,26 +65,25 @@
         {
           "name": "envmapbake",
           "props": {
-            "options": {
-              "bakeType": "Baked",
-              "resolution": 2048,
-              "refreshMode": "OnAwake",
-              "boxProjection": true,
-              "bakePosition": {
-                "x": 0,
-                "y": 0,
-                "z": 0
-              },
-              "bakePositionOffset": {
-                "x": 0,
-                "y": 0,
-                "z": 0
-              },
-              "bakeScale": {
-                "x": 1,
-                "y": 1,
-                "z": 1
-              }
+            "bakeType": "Baked",
+            "resolution": 2048,
+            "refreshMode": "OnAwake",
+            "envMapOrigin": "__$project$__/default-project/apartment.envmap.png",
+            "boxProjection": true,
+            "bakePosition": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "bakePositionOffset": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "bakeScale": {
+              "x": 1,
+              "y": 1,
+              "z": 1
             }
           }
         }
@@ -392,7 +385,6 @@
             "shadowBias": 0,
             "shadowRadius": 1,
             "cameraFar": 100,
-            "showCameraHelper": false,
             "useInCSM": true
           }
         }
@@ -509,9 +501,14 @@
           "props": {}
         },
         {
-          "name": "box-collider",
+          "name": "collider",
           "props": {
-            "isTrigger": false
+            "bodyType": 1,
+            "shapeType": 1,
+            "isTrigger": false,
+            "removeMesh": false,
+            "collisionLayer": 1,
+            "collisionMask": 7
           }
         }
       ],
@@ -546,9 +543,14 @@
           "props": {}
         },
         {
-          "name": "box-collider",
+          "name": "collider",
           "props": {
-            "isTrigger": false
+            "bodyType": 1,
+            "shapeType": 1,
+            "isTrigger": false,
+            "removeMesh": false,
+            "collisionLayer": 1,
+            "collisionMask": 7
           }
         }
       ],
@@ -583,9 +585,14 @@
           "props": {}
         },
         {
-          "name": "box-collider",
+          "name": "collider",
           "props": {
-            "isTrigger": false
+            "bodyType": 1,
+            "shapeType": 1,
+            "isTrigger": false,
+            "removeMesh": false,
+            "collisionLayer": 1,
+            "collisionMask": 7
           }
         }
       ],
@@ -620,9 +627,14 @@
           "props": {}
         },
         {
-          "name": "box-collider",
+          "name": "collider",
           "props": {
-            "isTrigger": false
+            "bodyType": 1,
+            "shapeType": 1,
+            "isTrigger": false,
+            "removeMesh": false,
+            "collisionLayer": 1,
+            "collisionMask": 7
           }
         }
       ],
@@ -657,9 +669,14 @@
           "props": {}
         },
         {
-          "name": "box-collider",
+          "name": "collider",
           "props": {
-            "isTrigger": false
+            "bodyType": 1,
+            "shapeType": 1,
+            "isTrigger": false,
+            "removeMesh": false,
+            "collisionLayer": 1,
+            "collisionMask": 7
           }
         }
       ],
@@ -694,9 +711,14 @@
           "props": {}
         },
         {
-          "name": "box-collider",
+          "name": "collider",
           "props": {
-            "isTrigger": false
+            "bodyType": 1,
+            "shapeType": 1,
+            "isTrigger": false,
+            "removeMesh": false,
+            "collisionLayer": 1,
+            "collisionMask": 7
           }
         }
       ],
@@ -715,9 +737,9 @@
               "z": 3
             },
             "rotation": {
-              "x": -5.8365031047939326e-18,
+              "x": -5.836502690688442e-18,
               "y": 0.05759586483318637,
-              "z": 2.779542104163839e-16
+              "z": 2.7795421040445524e-16
             },
             "scale": {
               "x": 0.5,
@@ -731,9 +753,14 @@
           "props": {}
         },
         {
-          "name": "box-collider",
+          "name": "collider",
           "props": {
-            "isTrigger": false
+            "bodyType": 1,
+            "shapeType": 1,
+            "isTrigger": false,
+            "removeMesh": false,
+            "collisionLayer": 1,
+            "collisionMask": 7
           }
         }
       ],
@@ -768,9 +795,14 @@
           "props": {}
         },
         {
-          "name": "box-collider",
+          "name": "collider",
           "props": {
-            "isTrigger": false
+            "bodyType": 1,
+            "shapeType": 1,
+            "isTrigger": false,
+            "removeMesh": false,
+            "collisionLayer": 1,
+            "collisionMask": 7
           }
         }
       ],
@@ -807,27 +839,25 @@
         {
           "name": "envmapbake",
           "props": {
-            "options": {
-              "bakeType": "Baked",
-              "resolution": 512,
-              "refreshMode": "OnAwake",
-              "envMapOrigin": "__$project$__/default-project/assets/apartment-CubemapBake.png",
-              "boxProjection": true,
-              "bakePosition": {
-                "x": 0,
-                "y": 0,
-                "z": 0
-              },
-              "bakePositionOffset": {
-                "x": 0,
-                "y": 0,
-                "z": 0
-              },
-              "bakeScale": {
-                "x": 1,
-                "y": 1,
-                "z": 1
-              }
+            "bakeType": "Baked",
+            "resolution": 2048,
+            "refreshMode": "OnAwake",
+            "envMapOrigin": "",
+            "boxProjection": true,
+            "bakePosition": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "bakePositionOffset": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "bakeScale": {
+              "x": 1,
+              "y": 1,
+              "z": 1
             }
           }
         }
@@ -889,12 +919,6 @@
               "z": 0,
               "w": 1
             }
-          }
-        },
-        {
-          "name": "trigger-volume",
-          "props": {
-            "onEnter": "teleport"
           }
         }
       ],
@@ -1039,6 +1063,229 @@
       "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
       "index": 20,
       "name": "Audio - Ambience"
+    },
+    "5e9f498d-0110-43d6-9c18-6435e5cbc211": {
+      "components": [
+        {
+          "name": "transform",
+          "props": {
+            "position": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "rotation": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "scale": {
+              "x": 1,
+              "y": 1,
+              "z": 1
+            }
+          }
+        },
+        {
+          "name": "visible",
+          "props": {}
+        },
+        {
+          "name": "collider",
+          "props": {
+            "bodyType": 1,
+            "shapeType": 1,
+            "isTrigger": true,
+            "removeMesh": false,
+            "collisionLayer": 1,
+            "collisionMask": 7,
+            "onEnter": "activate",
+            "onExit": "",
+            "target": "Self"
+          }
+        }
+      ],
+      "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
+      "index": 21,
+      "name": "Trigger Volume"
+    },
+    "9011f2a2-e4ff-4e52-b22e-61e970853403": {
+      "components": [
+        {
+          "name": "transform",
+          "props": {
+            "position": {
+              "x": -9,
+              "y": 1.5,
+              "z": -8
+            },
+            "rotation": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "scale": {
+              "x": 1,
+              "y": 1,
+              "z": 1
+            }
+          }
+        },
+        {
+          "name": "visible",
+          "props": {}
+        },
+        {
+          "name": "collider",
+          "props": {
+            "bodyType": 1,
+            "shapeType": 1,
+            "isTrigger": true,
+            "removeMesh": false,
+            "collisionLayer": 1,
+            "collisionMask": 8,
+            "onEnter": "activate",
+            "onExit": "",
+            "target": "Self"
+          }
+        }
+      ],
+      "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
+      "index": 22,
+      "name": "Door"
+    },
+    "73104642-8eef-4340-a276-a933befe262c": {
+      "components": [
+        {
+          "name": "transform",
+          "props": {
+            "position": {
+              "x": -1,
+              "y": 0.5,
+              "z": 4
+            },
+            "rotation": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "scale": {
+              "x": 0.0010000000474974513,
+              "y": 0.0010000000474974513,
+              "z": 0.0010000000474974513
+            }
+          }
+        },
+        {
+          "name": "visible",
+          "props": {}
+        },
+        {
+          "name": "shadow",
+          "props": {
+            "cast": true,
+            "receive": true
+          }
+        },
+        {
+          "name": "gltf-model",
+          "props": {
+            "src": "__$project$__/default-project/assets/keycard.glb",
+            "materialOverrides": [],
+            "generateBVH": false,
+            "matrixAutoUpdate": true,
+            "useBasicMaterial": false,
+            "isUsingGPUInstancing": false
+          }
+        },
+        {
+          "name": "envmap",
+          "props": {
+            "type": "Skybox",
+            "envMapTextureType": "Cubemap",
+            "envMapSourceColor": 1193046,
+            "envMapSourceURL": "/hdr/cubemap/skyboxsun25deg/",
+            "envMapIntensity": 1,
+            "envMapBake": {
+              "bakeType": "Baked",
+              "resolution": 2048,
+              "refreshMode": "OnAwake",
+              "envMapOrigin": "",
+              "boxProjection": true,
+              "bakePosition": {
+                "x": 0,
+                "y": 0,
+                "z": 0
+              },
+              "bakePositionOffset": {
+                "x": 0,
+                "y": 0,
+                "z": 0
+              },
+              "bakeScale": {
+                "x": 1,
+                "y": 1,
+                "z": 1
+              }
+            }
+          }
+        },
+        {
+          "name": "loop-animation",
+          "props": {
+            "activeClipIndex": -1,
+            "hasAvatarAnimations": false
+          }
+        }
+      ],
+      "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
+      "index": 23,
+      "name": "Model"
+    },
+    "87f0057e-366e-4292-9964-3f817dfec42d": {
+      "components": [
+        {
+          "name": "transform",
+          "props": {
+            "position": {
+              "x": -1,
+              "y": 0,
+              "z": 4
+            },
+            "rotation": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "scale": {
+              "x": 1,
+              "y": 1,
+              "z": 1
+            }
+          }
+        },
+        {
+          "name": "visible",
+          "props": {}
+        },
+        {
+          "name": "collider",
+          "props": {
+            "bodyType": 1,
+            "shapeType": 1,
+            "isTrigger": true,
+            "removeMesh": false,
+            "collisionLayer": 1,
+            "collisionMask": 8,
+            "onEnter": "receiveVc",
+            "onExit": "",
+            "target": "Self"
+          }
+        }
+      ],
+      "parent": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC",
+      "index": 24,
+      "name": "VCKey Trigger Volume"
     }
   },
   "root": "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC"

@@ -4,16 +4,33 @@ import { Quaternion, Vector3 } from 'three'
 import { createActionQueue, getState } from '@xrengine/hyperflux'
 
 import { Engine } from '../../ecs/classes/Engine'
-import { EngineState } from '../../ecs/classes/EngineState'
+import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
-import { defineQuery, getComponent } from '../../ecs/functions/ComponentFunctions'
+import { defineQuery, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { NetworkObjectOwnedTag } from '../../networking/components/NetworkObjectOwnedTag'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
-import { TransformComponent } from '../../transform/components/TransformComponent'
+import {
+  ColliderComponent,
+  MeshColliderComponentTag,
+  SCENE_COMPONENT_COLLIDER,
+  SCENE_COMPONENT_COLLIDER_DEFAULT_VALUES
+} from '../../scene/components/ColliderComponent'
+import { Object3DComponent } from '../../scene/components/Object3DComponent'
+import { SCENE_COMPONENT_VISIBLE } from '../../scene/components/VisibleComponent'
+import {
+  deserializeCollider,
+  serializeCollider,
+  updateCollider,
+  updateMeshCollider
+} from '../../scene/functions/loaders/ColliderFunctions'
+import {
+  SCENE_COMPONENT_TRANSFORM,
+  SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES,
+  TransformComponent
+} from '../../transform/components/TransformComponent'
 import { Physics } from '../classes/Physics'
 import { CollisionComponent } from '../components/CollisionComponent'
-import { RaycastComponent } from '../components/RaycastComponent'
 import { RigidBodyComponent } from '../components/RigidBodyComponent'
 import { VelocityComponent } from '../components/VelocityComponent'
 import { ColliderHitEvent, CollisionEvents } from '../types/PhysicsTypes'
@@ -31,10 +48,6 @@ export function teleportObjectReceptor(
     body.setLinvel({ x: 0, y: 0, z: 0 }, true)
     body.setAngvel({ x: 0, y: 0, z: 0 }, true)
   }
-}
-
-const processRaycasts = (world: World, entity: Entity) => {
-  Physics.castRay(world.physicsWorld, getComponent(entity, RaycastComponent))
 }
 
 const processCollisions = (world: World, drainCollisions, collisionEntities: Entity[]) => {
@@ -71,12 +84,32 @@ const processCollisions = (world: World, drainCollisions, collisionEntities: Ent
   }
 }
 
+export const PhysicsPrefabs = {
+  collider: 'collider' as const
+}
+
 export default async function PhysicsSystem(world: World) {
-  const raycastQuery = defineQuery([RaycastComponent])
+  world.sceneComponentRegistry.set(ColliderComponent._name, SCENE_COMPONENT_COLLIDER)
+  world.sceneLoadingRegistry.set(SCENE_COMPONENT_COLLIDER, {
+    defaultData: SCENE_COMPONENT_COLLIDER_DEFAULT_VALUES,
+    deserialize: deserializeCollider,
+    serialize: serializeCollider
+  })
+
+  world.scenePrefabRegistry.set(PhysicsPrefabs.collider, [
+    { name: SCENE_COMPONENT_TRANSFORM, props: SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES },
+    { name: SCENE_COMPONENT_VISIBLE, props: true },
+    { name: SCENE_COMPONENT_COLLIDER, props: SCENE_COMPONENT_COLLIDER_DEFAULT_VALUES }
+  ])
+
   const rigidBodyQuery = defineQuery([RigidBodyComponent])
+  const colliderQuery = defineQuery([ColliderComponent, Not(MeshColliderComponentTag)])
+  const meshColliderQuery = defineQuery([ColliderComponent, MeshColliderComponentTag])
   const ownedRigidBodyQuery = defineQuery([RigidBodyComponent, NetworkObjectOwnedTag])
   const notOwnedRigidBodyQuery = defineQuery([RigidBodyComponent, Not(NetworkObjectOwnedTag)])
+
   const teleportObjectQueue = createActionQueue(WorldNetworkAction.teleportObject.matches)
+  const modifyPropertyActionQueue = createActionQueue(EngineActions.sceneObjectUpdate.matches)
 
   await Physics.load()
   world.physicsWorld = Physics.createWorld()
@@ -86,6 +119,20 @@ export default async function PhysicsSystem(world: World) {
   const collisionQuery = defineQuery([CollisionComponent])
 
   return () => {
+    for (const action of modifyPropertyActionQueue()) {
+      for (const entity of action.entities) {
+        if (hasComponent(entity, ColliderComponent)) {
+          if (hasComponent(entity, MeshColliderComponentTag)) {
+            updateMeshCollider(entity)
+          } else {
+            updateCollider(entity)
+          }
+        }
+      }
+    }
+    for (const action of colliderQuery.enter()) updateCollider(action)
+    for (const action of meshColliderQuery.enter()) updateMeshCollider(action)
+
     for (const action of teleportObjectQueue()) teleportObjectReceptor(action)
 
     for (const entity of rigidBodyQuery.exit()) {
@@ -120,12 +167,6 @@ export default async function PhysicsSystem(world: World) {
     world.physicsWorld.timestep = getState(EngineState).fixedDeltaSeconds.value
     world.physicsWorld.step(world.physicsCollisionEventQueue)
 
-    if (!Engine.instance.isEditor) {
-      const collisionEntities = collisionQuery()
-
-      processCollisions(world, drainCollisions, collisionEntities)
-
-      for (const entity of raycastQuery()) processRaycasts(world, entity)
-    }
+    processCollisions(world, drainCollisions, collisionQuery())
   }
 }

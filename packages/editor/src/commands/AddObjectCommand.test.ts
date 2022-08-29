@@ -1,7 +1,7 @@
 import assert from 'assert'
 
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
-import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
+import EntityTree, { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import {
@@ -10,8 +10,14 @@ import {
   emptyEntityTree
 } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
 import { createEngine } from '@xrengine/engine/src/initializeEngine'
+import { SCENE_COMPONENT_GROUP } from '@xrengine/engine/src/scene/components/GroupComponent'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
-import { registerPrefabs, ScenePrefabs } from '@xrengine/engine/src/scene/functions/registerPrefabs'
+import { SCENE_COMPONENT_VISIBLE } from '@xrengine/engine/src/scene/components/VisibleComponent'
+import { ScenePrefabs } from '@xrengine/engine/src/scene/systems/SceneObjectUpdateSystem'
+import {
+  SCENE_COMPONENT_TRANSFORM,
+  SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES
+} from '@xrengine/engine/src/transform/components/TransformComponent'
 import { applyIncomingActions } from '@xrengine/hyperflux'
 
 import EditorCommands from '../constants/EditorCommands'
@@ -31,7 +37,12 @@ describe('AddObjectCommand', () => {
     createEngine()
     registerEditorReceptors()
     Engine.instance.store.defaultDispatchDelay = 0
-    registerPrefabs(Engine.instance.currentWorld)
+
+    Engine.instance.currentWorld.scenePrefabRegistry.set(ScenePrefabs.group, [
+      { name: SCENE_COMPONENT_TRANSFORM, props: SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES },
+      { name: SCENE_COMPONENT_VISIBLE, props: true },
+      { name: SCENE_COMPONENT_GROUP, props: true }
+    ])
 
     rootNode = createEntityNode(createEntity())
     nodes = [createEntityNode(createEntity()), createEntityNode(createEntity())]
@@ -133,13 +144,15 @@ describe('AddObjectCommand', () => {
 
   describe('execute function', async () => {
     it('creates prefab of given type', () => {
-      command.prefabTypes = [ScenePrefabs.previewCamera]
+      command.prefabTypes = [ScenePrefabs.group]
       AddObjectCommand.execute(command)
-      assert(Engine.instance.currentWorld.entityTree.entityNodeMap.get(command.affectedNodes[0].entity))
+      assert(
+        Engine.instance.currentWorld.entityTree.entityNodeMap.get((command.affectedNodes[0] as EntityTreeNode).entity)
+      )
     })
 
     it('creates prefab of given type and adds as child of passed parent node', () => {
-      command.prefabTypes = [ScenePrefabs.pointLight]
+      command.prefabTypes = [ScenePrefabs.group]
       command.parents = parentNodes
       AddObjectCommand.execute(command)
       assert.notEqual(nodes.length, 0)
@@ -153,7 +166,7 @@ describe('AddObjectCommand', () => {
     })
 
     it('places created prefab before passed objects', () => {
-      command.prefabTypes = [ScenePrefabs.pointLight]
+      command.prefabTypes = [ScenePrefabs.group]
       command.parents = parentNodes
       command.befores = beforeNodes
 
@@ -170,7 +183,7 @@ describe('AddObjectCommand', () => {
     })
 
     it('creates unique name for each newly created objects', () => {
-      command.prefabTypes = [ScenePrefabs.pointLight]
+      command.prefabTypes = [ScenePrefabs.group]
       command.parents = parentNodes
       command.befores = beforeNodes
       command.useUniqueName = true
@@ -181,12 +194,12 @@ describe('AddObjectCommand', () => {
       assert.notEqual(parentNodes.length, 0)
       assert.notEqual(beforeNodes.length, 0)
 
-      assert.equal(getComponent(nodes[0].entity, NameComponent)?.name, ScenePrefabs.pointLight)
-      assert.equal(getComponent(nodes[1].entity, NameComponent)?.name, ScenePrefabs.pointLight + ' 2')
+      assert.equal(getComponent(nodes[0].entity, NameComponent)?.name, ScenePrefabs.group)
+      assert.equal(getComponent(nodes[1].entity, NameComponent)?.name, ScenePrefabs.group + ' 2')
     })
 
     it('updates selection', () => {
-      command.prefabTypes = [ScenePrefabs.pointLight]
+      command.prefabTypes = [ScenePrefabs.group]
       command.useUniqueName = true
       command.updateSelection = true
 
@@ -197,7 +210,7 @@ describe('AddObjectCommand', () => {
       assert.notEqual(parentNodes.length, 0)
       assert.notEqual(beforeNodes.length, 0)
 
-      command.affectedNodes.forEach((node) => {
+      command.affectedNodes.forEach((node: EntityTreeNode) => {
         assert(accessSelectionState().selectedEntities.value.includes(node.entity))
       })
     })
@@ -230,26 +243,26 @@ describe('AddObjectCommand', () => {
   describe('undo function', async () => {
     it('will not undo command if command does not have undo object', () => {
       command.keepHistory = false
-      command.prefabTypes = [ScenePrefabs.pointLight]
+      command.prefabTypes = [ScenePrefabs.group]
       AddObjectCommand.prepare(command)
       AddObjectCommand.execute(command)
 
       AddObjectCommand.undo(command)
 
-      command.affectedNodes.forEach((node) => {
+      command.affectedNodes.forEach((node: EntityTreeNode) => {
         assert(Engine.instance.currentWorld.entityTree.entityNodeMap.has(node.entity))
       })
     })
 
     it('will undo command', () => {
       command.keepHistory = true
-      command.prefabTypes = [ScenePrefabs.pointLight]
+      command.prefabTypes = [ScenePrefabs.group]
       AddObjectCommand.prepare(command)
       AddObjectCommand.execute(command)
 
       AddObjectCommand.undo(command)
 
-      command.affectedNodes.forEach((node) => {
+      command.affectedNodes.forEach((node: EntityTreeNode) => {
         assert(!Engine.instance.currentWorld.entityTree.entityNodeMap.has(node.entity))
       })
     })

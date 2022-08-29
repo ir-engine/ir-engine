@@ -1,17 +1,12 @@
-import { Color, MathUtils, Object3D, Scene } from 'three'
+import { Color, MathUtils, Object3D } from 'three'
 
-import { RethrownError } from '@xrengine/client-core/src/util/errors'
 import { ComponentJson, EntityJson, SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
-import { AssetLoader, getGLTFLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
-import { GLTFExporter } from '@xrengine/engine/src/assets/exporters/gltf/GLTFExporter'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
-import { getAllComponents, getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
+import { getAllComponents, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 
 import { AssetComponentType } from '../components/AssetComponent'
-import { EntityNodeComponent, EntityNodeComponentType } from '../components/EntityNodeComponent'
 import { NameComponent } from '../components/NameComponent'
 import { Object3DWithEntity } from '../components/Object3DComponent'
 
@@ -58,19 +53,6 @@ export const gltfToSceneJson = (gltf: any): SceneJson => {
   return result
 }
 
-const recursiveGetEntities = (root) => {
-  const result = new Map()
-  const frontier = [root]
-  do {
-    const obj = frontier.pop()
-    if (obj.entity !== undefined && hasComponent(obj.entity, EntityNodeComponent)) {
-      result.set(obj.entity, obj)
-    }
-    obj.children?.forEach((child) => frontier.push(child))
-  } while (frontier.length > 0)
-  return result
-}
-
 export interface GLTFExtension {
   beforeParse?(input)
   afterParse?(input)
@@ -80,7 +62,11 @@ export interface GLTFExtension {
   writeNode?(node, nodeDef)
 }
 
-const serializeECS = (roots: Object3DWithEntity[], asset?: AssetComponentType, world: World = useWorld()) => {
+const serializeECS = (
+  roots: Object3DWithEntity[],
+  asset?: AssetComponentType,
+  world: World = Engine.instance.currentWorld
+) => {
   const eTree = world.entityTree
   const nodeMap = eTree.entityNodeMap
   let rootEntities = new Array()
@@ -196,20 +182,29 @@ const addComponentDataToGLTFExtension = (obj3d: Object3D, data: ComponentJson) =
   obj3d.userData.gltfExtensions[data.name] = componentProps
 }
 
-export const prepareObjectForGLTFExport = (obj3d: Object3DWithEntity, world = useWorld()) => {
-  const entityNode = getComponent(obj3d.entity, EntityNodeComponent)
+export const prepareObjectForGLTFExport = (obj3d: Object3DWithEntity, world = Engine.instance.currentWorld) => {
   const nameCmp = getComponent(obj3d.entity, NameComponent)
   if (nameCmp?.name) {
     obj3d.name = nameCmp.name
   }
 
-  if (entityNode?.components) {
-    entityNode.components.forEach((comp) => {
-      const loadingRegister = world.sceneLoadingRegistry.get(comp)
+  const { entity } = obj3d
+
+  const components = getAllComponents(entity)
+
+  for (const component of components) {
+    const sceneComponentID = world.sceneComponentRegistry.get(component._name)!
+    if (sceneComponentID) {
+      const loadingRegister = world.sceneLoadingRegistry.get(sceneComponentID)
       if (loadingRegister) {
-        let data = loadingRegister.serialize(obj3d.entity)
-        if (data) addComponentDataToGLTFExtension(obj3d, data)
+        const serialize = world.sceneLoadingRegistry.get(sceneComponentID)?.serialize
+        const data = serialize ? serialize(entity) : getComponent(entity, component)
+        if (data)
+          addComponentDataToGLTFExtension(obj3d, {
+            name: sceneComponentID,
+            props: Object.assign({}, data)
+          })
       }
-    })
+    }
   }
 }

@@ -342,7 +342,7 @@ describe('EntityTreeFunctions', () => {
 
       const retrivedNodes = getEntityNodeArrayFromEntities(entities)
 
-      retrivedNodes.forEach((node) => assert(entities.includes(node.entity)))
+      retrivedNodes.forEach((node) => assert(entities.includes((node as EntityTreeNode).entity)))
     })
 
     it('will remove entity for which there is no node', () => {
@@ -357,7 +357,7 @@ describe('EntityTreeFunctions', () => {
 
       const retrivedNodes = getEntityNodeArrayFromEntities(entities)
 
-      retrivedNodes.forEach((node) => assert.notEqual(node.entity, fakeEntity))
+      retrivedNodes.forEach((node) => assert.notEqual((node as EntityTreeNode).entity, fakeEntity))
     })
   })
 

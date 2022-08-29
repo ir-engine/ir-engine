@@ -15,7 +15,8 @@ import CardContent from '@mui/material/CardContent'
 import ClickAwayListener from '@mui/material/ClickAwayListener'
 
 import { LazyImage } from '../../../../common/components/LazyImage'
-import { AuthService, useAuthState } from '../../../services/AuthService'
+import { useAuthState } from '../../../services/AuthService'
+import { AvatarService } from '../../../services/AvatarService'
 import styles from '../index.module.scss'
 import { Views } from '../util'
 
@@ -61,7 +62,7 @@ const AvatarMenu = (props: Props) => {
   }) as any)
 
   useEffect(() => {
-    AuthService.fetchAvatarList()
+    AvatarService.fetchAvatarList()
   }, [isAvatarLoaded])
 
   useEffect(() => {
@@ -78,7 +79,7 @@ const AvatarMenu = (props: Props) => {
   const setAvatar = (avatarId: string, avatarURL: string, thumbnailURL: string) => {
     if (hasComponent(Engine.instance.currentWorld.localClientEntity, AvatarEffectComponent)) return
     if (authState.user?.value) {
-      AuthService.updateUserAvatarId(authState.user.id.value!, avatarId, avatarURL, thumbnailURL)
+      AvatarService.updateUserAvatarId(authState.user.id.value!, avatarId, avatarURL, thumbnailURL)
     }
   }
 
@@ -131,10 +132,10 @@ const AvatarMenu = (props: Props) => {
     e.stopPropagation()
     if (confirmation && avatarTobeDeleted?.id) {
       await Promise.all([
-        AuthService.removeStaticResource(avatarTobeDeleted.modelResourceId),
-        AuthService.removeStaticResource(avatarTobeDeleted.thumbnailResourceId)
+        AvatarService.removeStaticResource(avatarTobeDeleted.modelResourceId),
+        AvatarService.removeStaticResource(avatarTobeDeleted.thumbnailResourceId)
       ])
-      await AuthService.removeAvatar(avatarTobeDeleted.id)
+      await AvatarService.removeAvatar(avatarTobeDeleted.id)
     }
 
     setAvatarTobeDeleted(null)

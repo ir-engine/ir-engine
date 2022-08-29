@@ -1,9 +1,8 @@
-import { Color, DirectionalLight, Vector2 } from 'three'
+import { Color, Vector2 } from 'three'
 
 import { createMappedComponent } from '../../ecs/functions/ComponentFunctions'
 
 export type DirectionalLightComponentType = {
-  light: DirectionalLight
   color: Color
   intensity: number
   castShadow: boolean
@@ -11,9 +10,20 @@ export type DirectionalLightComponentType = {
   shadowBias: number
   shadowRadius: number
   cameraFar: number
-  showCameraHelper: boolean
   useInCSM: boolean
 }
 
 export const DirectionalLightComponent =
   createMappedComponent<DirectionalLightComponentType>('DirectionalLightComponent')
+
+export const SCENE_COMPONENT_DIRECTIONAL_LIGHT = 'directional-light'
+export const SCENE_COMPONENT_DIRECTIONAL_LIGHT_DEFAULT_VALUES = {
+  color: '#ffffff' as unknown as any,
+  intensity: 1,
+  castShadow: true,
+  shadowMapResolution: new Vector2(256, 256),
+  shadowBias: 0,
+  shadowRadius: 1,
+  cameraFar: 100,
+  useInCSM: false
+} as DirectionalLightComponentType

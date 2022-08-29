@@ -1,7 +1,5 @@
 import { AmbientLight, Color } from 'three'
 
-import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
-
 import {
   ComponentDeserializeFunction,
   ComponentSerializeFunction,
@@ -9,38 +7,38 @@ import {
   ComponentUpdateFunction
 } from '../../../common/constants/PrefabFunctionType'
 import { Entity } from '../../../ecs/classes/Entity'
-import { addComponent, getComponent, getComponentCountOfType } from '../../../ecs/functions/ComponentFunctions'
-import { AmbientLightComponent, AmbientLightComponentType } from '../../components/AmbientLightComponent'
-import { EntityNodeComponent } from '../../components/EntityNodeComponent'
+import {
+  addComponent,
+  getComponent,
+  getComponentCountOfType,
+  hasComponent
+} from '../../../ecs/functions/ComponentFunctions'
+import {
+  AmbientLightComponent,
+  AmbientLightComponentType,
+  SCENE_COMPONENT_AMBIENT_LIGHT_DEFAULT_VALUES
+} from '../../components/AmbientLightComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
-
-export const SCENE_COMPONENT_AMBIENT_LIGHT = 'ambient-light'
-export const SCENE_COMPONENT_AMBIENT_LIGHT_DEFAULT_VALUES = {
-  color: '#ffffff',
-  intensity: 1
-}
 
 export const deserializeAmbientLight: ComponentDeserializeFunction = (
   entity: Entity,
-  json: ComponentJson<AmbientLightComponentType>
+  data: AmbientLightComponentType
 ) => {
-  const light = new AmbientLight()
-  const props = parseAmbientLightProperties(json.props)
-
-  addComponent(entity, Object3DComponent, { value: light })
+  const props = parseAmbientLightProperties(data)
   addComponent(entity, AmbientLightComponent, props)
-
-  getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_AMBIENT_LIGHT)
-
-  updateAmbientLight(entity, props)
 }
 
-export const updateAmbientLight: ComponentUpdateFunction = (entity: Entity, properties: AmbientLightComponentType) => {
+export const updateAmbientLight: ComponentUpdateFunction = (entity: Entity) => {
   const component = getComponent(entity, AmbientLightComponent)
-  const light = getComponent(entity, Object3DComponent)?.value as AmbientLight
 
-  if (typeof properties.color !== 'undefined') light.color = component.color
-  if (typeof properties.intensity !== 'undefined') light.intensity = component.intensity
+  if (!hasComponent(entity, Object3DComponent)) {
+    const light = new AmbientLight()
+    addComponent(entity, Object3DComponent, { value: light })
+  }
+
+  const light = getComponent(entity, Object3DComponent)?.value as AmbientLight
+  light.color = component.color
+  light.intensity = component.intensity
 }
 
 export const serializeAmbientLight: ComponentSerializeFunction = (entity) => {
@@ -48,11 +46,8 @@ export const serializeAmbientLight: ComponentSerializeFunction = (entity) => {
   if (!component) return
 
   return {
-    name: SCENE_COMPONENT_AMBIENT_LIGHT,
-    props: {
-      color: component.color?.getHex(),
-      intensity: component.intensity
-    }
+    color: component.color?.getHex(),
+    intensity: component.intensity
   }
 }
 

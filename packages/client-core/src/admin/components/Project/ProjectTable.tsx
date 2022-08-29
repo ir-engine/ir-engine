@@ -7,6 +7,7 @@ import multiLogger from '@xrengine/common/src/logger'
 import Cached from '@mui/icons-material/Cached'
 import Cross from '@mui/icons-material/Cancel'
 import CleaningServicesIcon from '@mui/icons-material/CleaningServices'
+import Download from '@mui/icons-material/Download'
 import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline'
 import Group from '@mui/icons-material/Group'
 import LinkIcon from '@mui/icons-material/Link'
@@ -22,6 +23,7 @@ import { useAuthState } from '../../../user/services/AuthService'
 import ConfirmDialog from '../../common/ConfirmDialog'
 import TableComponent from '../../common/Table'
 import { projectsColumns } from '../../common/variables/projects'
+import { useClientSettingState } from '../../services/Setting/ClientSettingService'
 import styles from '../../styles/admin.module.scss'
 import GithubRepoDrawer from './GithubRepoDrawer'
 import ProjectFilesDrawer from './ProjectFilesDrawer'
@@ -63,6 +65,8 @@ const ProjectTable = ({ className }: Props) => {
   const adminProjectCount = adminProjects.value.length
   const authState = useAuthState()
   const user = authState.user
+  const clientSettingState = useClientSettingState()
+  const [clientSetting] = clientSettingState?.client?.value || []
 
   const projectRef = useRef(project)
 
@@ -93,7 +97,7 @@ const ProjectTable = ({ className }: Props) => {
     }
   }
 
-  const handleReuploadProjects = async () => {
+  const handleReuploadProjects = async (reset?: boolean) => {
     try {
       if (projectRef.current) {
         if (!projectRef.current.repositoryPath && projectRef.current.name !== 'default-project') return
@@ -102,7 +106,8 @@ const ProjectTable = ({ className }: Props) => {
         setProcessing(true)
         await ProjectService.uploadProject(
           projectRef.current.name === 'default-project' ? 'default-project' : existingProjects.repositoryPath,
-          projectRef.current.name
+          projectRef.current.name,
+          reset
         )
         setProcessing(false)
 
@@ -144,6 +149,19 @@ const ProjectTable = ({ className }: Props) => {
     }
   }
 
+  const openMainResetConfirmation = (row) => {
+    setProject(row)
+
+    setConfirm({
+      open: true,
+      processing: processing,
+      description: `${t('admin:components.project.confirmProjectResetMain1')} '${row.name}' ${t(
+        'admin:components.project.confirmProjectResetMain2'
+      )} '${clientSetting.releaseName}-deployment', ${t('admin:components.project.confirmProjectResetMain3')}`,
+      onSubmit: () => handleReuploadProjects(true)
+    })
+  }
+
   const openReuploadConfirmation = (row) => {
     setProject(row)
 
@@ -151,7 +169,7 @@ const ProjectTable = ({ className }: Props) => {
       open: true,
       processing: processing,
       description: `${t('admin:components.project.confirmProjectRebuild')} '${row.name}'?`,
-      onSubmit: handleReuploadProjects
+      onSubmit: () => handleReuploadProjects(false)
     })
   }
 
@@ -161,9 +179,7 @@ const ProjectTable = ({ className }: Props) => {
     setConfirm({
       open: true,
       processing: processing,
-      description: `${t('admin:components.project.confirmPushProjectToGithub')}? ${row.name} - ${
-        project?.repositoryPath
-      }`,
+      description: `${t('admin:components.project.confirmPushProjectToGithub')}? ${row.name} - ${row.repositoryPath}`,
       onSubmit: handlePushProjectToGithub
     })
   }
@@ -254,7 +270,7 @@ const ProjectTable = ({ className }: Props) => {
               disabled={el.repositoryPath === null && name !== 'default-project'}
               onClick={() => openReuploadConfirmation(el)}
             >
-              <Cached />
+              <Download />
             </IconButton>
           )}
         </>
@@ -308,6 +324,20 @@ const ProjectTable = ({ className }: Props) => {
           {isAdmin && (
             <IconButton className={styles.iconButton} name="view" onClick={() => openViewProject(el)}>
               <VisibilityIcon />
+            </IconButton>
+          )}
+        </>
+      ),
+      reset: (
+        <>
+          {isAdmin && (
+            <IconButton
+              className={styles.iconButton}
+              name="resetToMain"
+              disabled={el.repositoryPath === null && name !== 'default-project'}
+              onClick={() => openMainResetConfirmation(el)}
+            >
+              <Cached />
             </IconButton>
           )}
         </>

@@ -58,6 +58,7 @@
     "dev-server": "cd packages/server && npm run dev",
     "dev-windows": "npm run dev-docker && concurrently -n agones,server,client npm:dev-agones-silent npm:dev-server npm:dev-client",
     "diff": "lerna diff",
+    "edit": "scripts/open_browser.sh editor && scripts/open_browser.sh admin && scripts/open_browser.sh location",
     "format": "prettier --write \"packages/**/*.{ts,tsx}\"",
     "format-scss": "stylelint \"packages/**/*.scss\" --fix",
     "format-staged": "lint-staged",
@@ -129,6 +130,7 @@
     "postcss": "^8.4.16",
     "qrcode.react": "^3.1.0",
     "react-json-view": "^1.21.3",
+    "three": "0.142.0",
     "ts-node": "10.8.2",
     "typescript": "4.7.4"
   }
