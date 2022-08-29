@@ -77,6 +77,10 @@ export class UserRelationship<T = UserRelationshipDataType> extends Service<T> {
     const { relatedUserId, userRelationshipType } = data
     const UserRelationshipModel = this.getModel(params)
 
+    if (userRelationshipType === 'blocking') {
+      await this.remove(relatedUserId, params)
+    }
+
     await this.app.get('sequelizeClient').transaction(async (trans: Transaction) => {
       await UserRelationshipModel.create(
         {

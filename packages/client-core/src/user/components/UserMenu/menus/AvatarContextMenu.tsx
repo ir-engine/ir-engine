@@ -188,7 +188,7 @@ const AvatarContextMenu = ({ changeActiveMenu, user, onBack }: Props): JSX.Eleme
                 {t('user:personMenu.mute')}
               </Button>
 
-              {isFriend && !isBlocked && !isBlocking && (
+              {!isBlocked && !isBlocking && (
                 <Button
                   className={styles.gradientBtn}
                   onClick={() => {
