@@ -8,7 +8,7 @@ import { AvatarSettings, updateMap } from '@xrengine/engine/src/avatar/AvatarCon
 import { AvatarComponent } from '@xrengine/engine/src/avatar/components/AvatarComponent'
 import {
   AvatarInputSettingsAction,
-  useAvatarInputSettingsState
+  AvatarInputSettingsState
 } from '@xrengine/engine/src/avatar/state/AvatarInputSettingsState'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
@@ -43,10 +43,8 @@ const SettingDetailView = () => {
   const rendererState = useEngineRendererState()
   const audioState = useAudioState()
   const xrSessionActive = useHookstate(getState(XRState).sessionActive)
-  const avatarInputState = useAvatarInputSettingsState()
-  const [controlSchemeSelected, setControlScheme] = useState(
-    AvatarMovementScheme[AvatarSettings.instance.movementScheme]
-  )
+  const avatarInputState = useHookstate(getState(AvatarInputSettingsState))
+  const controlScheme = avatarInputState.controlScheme.value
   const invertRotationAndMoveSticks = avatarInputState.invertRotationAndMoveSticks.value
   const showAvatar = avatarInputState.showAvatar.value
   const authState = useAuthState()
@@ -103,9 +101,8 @@ const SettingDetailView = () => {
     dispatchAction(AvatarInputSettingsAction.setControlType(value as any))
   }
 
-  const handleChangeControlScheme = (value: AvatarMovementScheme) => {
-    setControlScheme(value)
-    AvatarSettings.instance.movementScheme = AvatarMovementScheme[value]
+  const handleChangeControlScheme = (value: typeof AvatarMovementScheme[keyof typeof AvatarMovementScheme]) => {
+    dispatchAction(AvatarInputSettingsAction.setControlScheme({ scheme: value }))
   }
 
   const toggleShowDetails = () => {
@@ -335,7 +332,7 @@ const SettingDetailView = () => {
                 <div className="selectSize">
                   <span className="checkBoxLabel">{t('user:usermenu.setting.lbl-control-scheme')}</span>
                   <XRSelectDropdown
-                    value={controlSchemeSelected}
+                    value={controlScheme}
                     onChange={handleChangeControlScheme}
                     options={controlSchemes}
                   />

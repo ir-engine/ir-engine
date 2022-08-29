@@ -1,7 +1,9 @@
 import { matches } from '@xrengine/engine/src/common/functions/MatchesUtils'
 import { defineAction, defineState, dispatchAction, getState } from '@xrengine/hyperflux'
 
+import { AudioState } from '../audio/AudioState'
 import { ClientStorage } from '../common/classes/ClientStorage'
+import { XRState } from '../xr/XRState'
 
 const AudioSettingDBPrefix = 'media-settings-'
 const MediaSettings = {
@@ -47,4 +49,14 @@ export class MediaSettingAction {
     type: 'core.mediaSettings.USE_IMMERSIVE_MEDIA' as const,
     use: matches.boolean
   })
+}
+
+export const shouldUseImmersiveMedia = () => {
+  const xrSessionActive = getState(XRState).sessionActive.value
+  const audioState = getState(AudioState)
+  const mediaSettingState = getState(MediaSettingsState)
+  const immersiveMedia =
+    mediaSettingState.immersiveMediaMode.value === 'on' ||
+    (mediaSettingState.immersiveMediaMode.value === 'auto' && !mediaSettingState.useImmersiveMedia.value)
+  return immersiveMedia || audioState.usePositionalAudio.value || xrSessionActive
 }
