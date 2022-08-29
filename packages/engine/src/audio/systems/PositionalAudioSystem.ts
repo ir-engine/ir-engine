@@ -1,7 +1,7 @@
 import { Not } from 'bitecs'
 import { Quaternion, Vector3 } from 'three'
 
-import { createActionQueue, getState } from '@xrengine/hyperflux'
+import { createActionQueue, dispatchAction, getState } from '@xrengine/hyperflux'
 
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { getAvatarBoneWorldPosition } from '../../avatar/functions/avatarFunctions'
@@ -18,6 +18,7 @@ import {
 } from '../../ecs/functions/ComponentFunctions'
 import { LocalAvatarTagComponent } from '../../input/components/LocalAvatarTagComponent'
 import { NetworkObjectComponent, NetworkObjectComponentType } from '../../networking/components/NetworkObjectComponent'
+import { MediaSettingAction, MediaSettingsState } from '../../networking/MediaSettingsState'
 import { MediaComponent } from '../../scene/components/MediaComponent'
 import { MediaElementComponent } from '../../scene/components/MediaElementComponent'
 import { createAudioNode } from '../../scene/functions/loaders/AudioFunctions'
@@ -25,6 +26,7 @@ import { TransformComponent } from '../../transform/components/TransformComponen
 import { XRState } from '../../xr/XRState'
 import { AudioSettingAction, AudioState } from '../AudioState'
 import { AudioComponent } from '../components/AudioComponent'
+import { ImmersiveMediaTagComponent, SCENE_COMPONENT_MEDIA_SETTINGS } from '../components/ImmersiveMediaTagComponent'
 import {
   PositionalAudioSettingsComponent,
   SCENE_COMPONENT_AUDIO_SETTINGS,
@@ -96,6 +98,9 @@ export default async function PositionalAudioSystem(world: World) {
     defaultData: SCENE_COMPONENT_AUDIO_SETTINGS_DEFAULT_VALUES
   })
 
+  world.sceneComponentRegistry.set(ImmersiveMediaTagComponent._name, SCENE_COMPONENT_MEDIA_SETTINGS)
+  world.sceneLoadingRegistry.set(SCENE_COMPONENT_MEDIA_SETTINGS, {})
+
   /**
    * Scene Objects
    */
@@ -107,6 +112,8 @@ export default async function PositionalAudioSystem(world: World) {
     PositionalAudioTagComponent,
     TransformComponent
   ])
+
+  const immersiveMediaQuery = defineQuery([ImmersiveMediaTagComponent])
 
   /**
    * Avatars
@@ -123,9 +130,16 @@ export default async function PositionalAudioSystem(world: World) {
     const network = Engine.instance.currentWorld.mediaNetwork
     const xrSessionActive = getState(XRState).sessionActive.value
     const audioState = getState(AudioState)
-    const useAvatarPositionalAudio = audioState.usePositionalAudio.value && !xrSessionActive
+    const mediaSettingState = getState(MediaSettingsState)
+    const immersiveMedia =
+      mediaSettingState.immersiveMediaMode.value === 'off' ||
+      (mediaSettingState.immersiveMediaMode.value === 'auto' && !mediaSettingState.useImmersiveMedia.value)
+    const useAvatarPositionalAudio = immersiveMedia || audioState.usePositionalAudio.value || xrSessionActive
 
     for (const entity of positionalAudioSettingsQuery.enter()) updatePositionalAudioSettings(entity)
+
+    if (immersiveMediaQuery.enter().length) dispatchAction(MediaSettingAction.setUseImmersiveMedia({ use: true }))
+    if (immersiveMediaQuery.exit().length) dispatchAction(MediaSettingAction.setUseImmersiveMedia({ use: false }))
 
     /**
      * Scene Objects

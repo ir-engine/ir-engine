@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import {
   ACESFilmicToneMapping,
@@ -12,9 +12,15 @@ import {
   VSMShadowMap
 } from 'three'
 
+import { ImmersiveMediaTagComponent } from '@xrengine/engine/src/audio/components/ImmersiveMediaTagComponent'
 import { PositionalAudioSettingsComponent } from '@xrengine/engine/src/audio/components/PositionalAudioSettingsComponent'
 import { DistanceModel, DistanceModelOptions } from '@xrengine/engine/src/audio/constants/AudioConstants'
-import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import {
+  addComponent,
+  getComponent,
+  hasComponent,
+  removeComponent
+} from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { RenderSettingComponent } from '@xrengine/engine/src/scene/components/RenderSettingComponent'
 
 import LanguageIcon from '@mui/icons-material/Language'
@@ -94,9 +100,16 @@ const ShadowTypeOptions = [
 export const SceneNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
   const entity = props.node.entity
+  const [immersiveMedia, setImmersiveMedia] = useState(hasComponent(entity, ImmersiveMediaTagComponent))
 
   const audioComponent = getComponent(entity, PositionalAudioSettingsComponent)
   const renderSettingComponent = getComponent(entity, RenderSettingComponent)
+
+  const updateImmersiveMedia = () => {
+    if (hasComponent(entity, ImmersiveMediaTagComponent)) removeComponent(entity, ImmersiveMediaTagComponent)
+    else addComponent(entity, ImmersiveMediaTagComponent, true)
+    setImmersiveMedia(hasComponent(entity, ImmersiveMediaTagComponent))
+  }
 
   return (
     <NodeEditor
@@ -116,6 +129,13 @@ export const SceneNodeEditor: EditorComponentType = (props) => {
           value={audioComponent.distanceModel}
           onChange={updateProperty(PositionalAudioSettingsComponent, 'distanceModel')}
         />
+      </InputGroup>
+      <InputGroup
+        name="Use Immersive Media"
+        label={t('editor:properties.scene.lbl-immersiveMedia')}
+        info={t('editor:properties.scene.info-immersiveMedia')}
+      >
+        <BooleanInput key={props.node.entity} value={immersiveMedia} onChange={updateImmersiveMedia} />
       </InputGroup>
 
       {audioComponent.distanceModel === DistanceModel.Linear ? (

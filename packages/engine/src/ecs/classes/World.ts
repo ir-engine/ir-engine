@@ -96,7 +96,7 @@ export class World {
    * get the default media network
    */
   get mediaNetwork() {
-    return this.networks.get(this._mediaHostId)
+    return this.networks.get(this._mediaHostId)!
   }
 
   /** @todo parties */
