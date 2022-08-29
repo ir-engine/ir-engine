@@ -7,6 +7,7 @@ import { UserInterface } from '@xrengine/common/src/interfaces/User'
 import { WorldState } from '@xrengine/engine/src/networking/interfaces/WorldState'
 import { getState } from '@xrengine/hyperflux'
 
+import ArrowBack from '@mui/icons-material/ArrowBack'
 import { Chip, Typography } from '@mui/material'
 import Button from '@mui/material/Button'
 
@@ -21,9 +22,10 @@ import { getAvatarURLForUser, Views } from '../util'
 interface Props {
   changeActiveMenu: Function
   user: UserInterface
+  onBack?: () => void
 }
 
-const AvatarContextMenu = ({ changeActiveMenu, user }: Props): JSX.Element => {
+const AvatarContextMenu = ({ changeActiveMenu, user, onBack }: Props): JSX.Element => {
   const { t } = useTranslation()
 
   const partyState = usePartyState()
@@ -76,6 +78,14 @@ const AvatarContextMenu = ({ changeActiveMenu, user }: Props): JSX.Element => {
       <div className={styles.avatarContextPanel}>
         {user && user.id && (
           <>
+            {onBack && (
+              <div className={styles.headerBlock}>
+                <button type="button" className={styles.iconBlock} onClick={onBack}>
+                  <ArrowBack />
+                </button>
+              </div>
+            )}
+
             <img
               className={styles.ownerImage}
               src={getAvatarURLForUser(userAvatarDetails, user.id)}

@@ -1944,6 +1944,20 @@
   flex-direction: column;
   align-items: center;
 
+  .headerBlock {
+    position: absolute;
+    align-self: flex-start;
+  }
+
+  .iconBlock {
+    @include icon-block-styling;
+
+    display: inline-block;
+    cursor: pointer;
+    color: var(--textColor);
+    background: transparent;
+  }
+
   .ownerImage {
     width: 150px;
     height: 150px;

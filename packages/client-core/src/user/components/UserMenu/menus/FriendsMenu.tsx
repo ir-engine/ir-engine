@@ -51,7 +51,10 @@ const FriendsMenu = ({ changeActiveMenu, defaultSelectedTab }: Props): JSX.Eleme
   }
 
   const handleProfile = (user: UserInterface) => {
-    changeActiveMenu(Views.AvatarContext, { user })
+    changeActiveMenu(Views.AvatarContext, {
+      user,
+      onBack: () => changeActiveMenu(Views.Friends, { defaultSelectedTab: selectedTab })
+    })
   }
 
   const displayList: Array<UserInterface> = []
