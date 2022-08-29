@@ -18,7 +18,7 @@ import {
 import { createEntity } from '../ecs/functions/EntityFunctions'
 import { LocalInputTagComponent } from '../input/components/LocalInputTagComponent'
 import { BaseInput } from '../input/enums/BaseInput'
-import { AvatarMovementScheme, GamepadAxis } from '../input/enums/InputEnums'
+import { GamepadAxis } from '../input/enums/InputEnums'
 import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
 import { PersistTagComponent } from '../scene/components/PersistTagComponent'
 import { setComputedTransformComponent } from '../transform/components/ComputedTransformComponent'
@@ -29,7 +29,7 @@ import { AvatarComponent } from './components/AvatarComponent'
 import { AvatarControllerComponent } from './components/AvatarControllerComponent'
 import { AvatarHeadDecapComponent } from './components/AvatarHeadDecapComponent'
 import { moveLocalAvatar } from './functions/moveAvatar'
-import { accessAvatarInputSettingsState, AvatarInputSettingsReceptor } from './state/AvatarInputSettingsState'
+import { AvatarInputSettingsReceptor, AvatarInputSettingsState } from './state/AvatarInputSettingsState'
 
 /**
  * TODO: convert this to hyperflux state
@@ -40,7 +40,6 @@ export class AvatarSettings {
   walkSpeed = 1.6762927669761485
   runSpeed = 3.769894125544925 * 1.5
   jumpHeight = 6
-  movementScheme = AvatarMovementScheme.Linear
 }
 
 const rotMatrix = new Matrix4()
@@ -155,7 +154,7 @@ export const rotateBodyTowardsVector = (entity: Entity, vector: Vector3) => {
 }
 
 export const updateMap = () => {
-  const avatarInputState = accessAvatarInputSettingsState()
+  const avatarInputState = getState(AvatarInputSettingsState)
   const inputMap = AvatarInputSchema.inputMap
   if (avatarInputState.invertRotationAndMoveSticks.value) {
     inputMap.set(GamepadAxis.LThumbstick, BaseInput.LOOKTURN)

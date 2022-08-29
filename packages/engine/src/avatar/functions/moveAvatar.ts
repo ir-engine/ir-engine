@@ -9,7 +9,8 @@ import checkPositionIsValid from '../../common/functions/checkPositionIsValid'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
-import { getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
+import { addComponent, getComponent, hasComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
+import { AvatarMovementScheme } from '../../input/enums/InputEnums'
 import { Physics } from '../../physics/classes/Physics'
 import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
 import { AvatarCollisionMask, CollisionGroups } from '../../physics/enums/CollisionGroups'
@@ -23,6 +24,8 @@ import { AvatarSettings, rotateBodyTowardsCameraDirection, rotateBodyTowardsVect
 import { AvatarComponent } from '../components/AvatarComponent'
 import { AvatarControllerComponent } from '../components/AvatarControllerComponent'
 import { AvatarHeadDecapComponent } from '../components/AvatarHeadDecapComponent'
+import { AvatarTeleportTagComponent } from '../components/AvatarTeleportTagComponent'
+import { AvatarInputSettingsState } from '../state/AvatarInputSettingsState'
 import { avatarRadius } from './createAvatar'
 import { respawnAvatar } from './respawnAvatar'
 
@@ -57,12 +60,7 @@ const avatarStepRaycast = {
  * @param entity
  */
 export const moveLocalAvatar = (entity: Entity) => {
-  const camera = Engine.instance.currentWorld.camera
-  const timeStep = getState(EngineState).fixedDeltaSeconds.value
   const controller = getComponent(entity, AvatarControllerComponent)
-  const rigidBody = getComponent(entity, RigidBodyComponent)
-  const transform = getComponent(entity, TransformComponent)
-  const isInVR = getControlMode() === 'attached'
 
   let onGround = false
 
@@ -89,6 +87,28 @@ export const moveLocalAvatar = (entity: Entity) => {
 
   controller.isInAir = !onGround
 
+  const avatarInputState = getState(AvatarInputSettingsState)
+  if (avatarInputState.controlScheme.value === AvatarMovementScheme.Teleport) moveAvatarWithTeleport(entity)
+  else moveAvatarWithVelocity(entity)
+
+  // TODO: implement scene lower bounds parameter
+  if (controller.body.translation().y < -10) respawnAvatar(entity)
+}
+
+/**
+ * Moves the avatar with velocity controls
+ * @param entity
+ */
+export const moveAvatarWithVelocity = (entity: Entity) => {
+  const camera = Engine.instance.currentWorld.camera
+  const timeStep = getState(EngineState).fixedDeltaSeconds.value
+
+  const rigidBody = getComponent(entity, RigidBodyComponent)
+  const transform = getComponent(entity, TransformComponent)
+  const isInVR = getControlMode() === 'attached'
+
+  const controller = getComponent(entity, AvatarControllerComponent)
+
   /**
    * Do movement via velocity spring and collider velocity
    */
@@ -96,7 +116,7 @@ export const moveLocalAvatar = (entity: Entity) => {
   const forwardOrientation = _quat.setFromUnitVectors(Direction.Forward, cameraDirection)
 
   controller.velocitySimulator.target.copy(controller.localMovementDirection)
-  controller.velocitySimulator.simulate(timeStep * (onGround ? 1 : 0.2))
+  controller.velocitySimulator.simulate(timeStep * (controller.isInAir ? 0.2 : 1))
   const velocitySpringDirection = controller.velocitySimulator.position
 
   // always walk in VR
@@ -110,7 +130,10 @@ export const moveLocalAvatar = (entity: Entity) => {
     .applyQuaternion(forwardOrientation)
     .setComponent(1, prevVelocity.y)
 
-  if (onGround) {
+  if (controller.isInAir) {
+    // apply gravity to avatar velocity
+    currentVelocity.y = prevVelocity.y - 9.81 * timeStep
+  } else {
     currentVelocity.y = 0
     if (controller.localMovementDirection.y > 0 && !controller.isJumping) {
       // Formula: takeoffVelocity = sqrt(2 * jumpHeight * gravity)
@@ -119,9 +142,6 @@ export const moveLocalAvatar = (entity: Entity) => {
     } else if (controller.isJumping) {
       controller.isJumping = false
     }
-  } else {
-    // apply gravity to avatar velocity
-    currentVelocity.y = prevVelocity.y - 9.81 * timeStep
   }
 
   controller.body.setLinvel(currentVelocity, true)
@@ -168,9 +188,18 @@ export const moveLocalAvatar = (entity: Entity) => {
       }
     }
   }
-
-  // TODO: implement scene lower bounds parameter
-  if (controller.body.translation().y < -10) respawnAvatar(entity)
+}
+/**
+ * Moves the avatar with teleport controls
+ * @param entity
+ */
+export const moveAvatarWithTeleport = (entity: Entity) => {
+  const controller = getComponent(entity, AvatarControllerComponent)
+  if (controller.localMovementDirection.z < -0.75 && !hasComponent(entity, AvatarTeleportTagComponent)) {
+    addComponent(entity, AvatarTeleportTagComponent, true)
+  } else if (controller.localMovementDirection.z === 0.0) {
+    removeComponent(entity, AvatarTeleportTagComponent)
+  }
 }
 
 /**

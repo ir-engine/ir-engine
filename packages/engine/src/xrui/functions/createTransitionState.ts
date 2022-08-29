@@ -1,7 +1,5 @@
 import { MathUtils } from 'three'
 
-import { World } from '../../ecs/classes/World'
-
 type TransitionType = 'IN' | 'OUT'
 
 export const createTransitionState = (transitionPeriodSeconds: number, initialState: TransitionType = 'OUT') => {

@@ -1,10 +1,11 @@
 import { Not } from 'bitecs'
 import { Consumer } from 'mediasoup-client/lib/Consumer'
-import { CircleBufferGeometry, DoubleSide, Mesh, MeshBasicMaterial, Object3D, Vector3, VideoTexture } from 'three'
+import { Vector3 } from 'three'
 
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import multiLogger from '@xrengine/common/src/logger'
 import { AvatarComponent } from '@xrengine/engine/src/avatar/components/AvatarComponent'
+import { easeOutElastic } from '@xrengine/engine/src/common/functions/MathFunctions'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { World } from '@xrengine/engine/src/ecs/classes/World'
@@ -12,13 +13,12 @@ import { defineQuery, getComponent } from '@xrengine/engine/src/ecs/functions/Co
 import { removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { NetworkObjectComponent } from '@xrengine/engine/src/networking/components/NetworkObjectComponent'
 import { NetworkObjectOwnedTag } from '@xrengine/engine/src/networking/components/NetworkObjectOwnedTag'
-import { MediaSettingsState } from '@xrengine/engine/src/networking/MediaSettingsState'
+import { shouldUseImmersiveMedia } from '@xrengine/engine/src/networking/MediaSettingsState'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 import { applyVideoToTexture } from '@xrengine/engine/src/scene/functions/applyScreenshareToTexture'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 import { XRUIComponent } from '@xrengine/engine/src/xrui/components/XRUIComponent'
-import { ObjectFitFunctions } from '@xrengine/engine/src/xrui/functions/ObjectFitFunctions'
-import { getState } from '@xrengine/hyperflux'
+import { createTransitionState } from '@xrengine/engine/src/xrui/functions/createTransitionState'
 
 import { createAvatarDetailView } from './ui/AvatarDetailView'
 import { createAvatarContextMenuView } from './ui/UserMenuView'
@@ -26,6 +26,7 @@ import { createAvatarContextMenuView } from './ui/UserMenuView'
 const logger = multiLogger.child({ component: 'client-core:systems' })
 
 export const AvatarUI = new Map<Entity, ReturnType<typeof createAvatarDetailView>>()
+export const AvatarUITransitions = new Map<Entity, ReturnType<typeof createTransitionState>>()
 
 export const renderAvatarContextMenu = (world: World, userId: UserId, contextMenuEntity: Entity) => {
   const userEntity = world.getUserAvatarEntity(userId)
@@ -57,7 +58,7 @@ export default async function AvatarUISystem(world: World) {
   ])
   const AvatarContextMenuUI = createAvatarContextMenuView()
 
-  const vector3 = new Vector3()
+  const _vector3 = new Vector3()
 
   let videoPreviewTimer = 0
 
@@ -65,7 +66,7 @@ export default async function AvatarUISystem(world: World) {
     videoPreviewTimer += world.deltaSeconds
     if (videoPreviewTimer > 1) videoPreviewTimer = 0
 
-    const mediaState = getState(MediaSettingsState)
+    const immersiveMedia = shouldUseImmersiveMedia()
 
     for (const userEntity of userQuery.enter()) {
       if (AvatarUI.has(userEntity)) {
@@ -75,33 +76,40 @@ export default async function AvatarUISystem(world: World) {
       const userId = getComponent(userEntity, NetworkObjectComponent).ownerId
       const ui = createAvatarDetailView(userId)
       const uiObject = getComponent(ui.entity, Object3DComponent)
-      const videoPreviewMesh = new Mesh(new CircleBufferGeometry(0.25, 32), new MeshBasicMaterial())
-      videoPreviewMesh.position.y += 0.3
-      videoPreviewMesh.visible = false
-      uiObject.value.add(videoPreviewMesh)
-      uiObject.value.userData.videoPreviewMesh = videoPreviewMesh
+      const transition = createTransitionState(1, 'IN')
+      AvatarUITransitions.set(userEntity, transition)
+      ui.state.videoPreviewMesh.value.position.y += 0.3
+      ui.state.videoPreviewMesh.value.visible = false
+      uiObject.value.add(ui.state.videoPreviewMesh.value)
       AvatarUI.set(userEntity, ui)
     }
 
     for (const userEntity of userQuery()) {
       const ui = AvatarUI.get(userEntity)!
+      const transition = AvatarUITransitions.get(userEntity)!
       const { avatarHeight } = getComponent(userEntity, AvatarComponent)
       const userTransform = getComponent(userEntity, TransformComponent)
       const xrui = getComponent(ui.entity, XRUIComponent)
 
-      const uiObject = getComponent(ui.entity, Object3DComponent)
-      const videoPreviewMesh = uiObject.value.userData.videoPreviewMesh
+      const videoPreviewMesh = ui.state.videoPreviewMesh.value
+      _vector3.copy(userTransform.position).y += avatarHeight + (videoPreviewMesh.visible ? 0.1 : 0.3)
 
-      vector3.copy(userTransform.position).y += avatarHeight + (videoPreviewMesh.visible ? 0.1 : 0.3)
-      ObjectFitFunctions.lookAtCameraFromPosition(xrui.container, vector3)
+      const dist = Engine.instance.currentWorld.camera.position.distanceTo(_vector3)
 
-      if (
-        mediaState.immersiveMediaMode.value === 'off' ||
-        (mediaState.immersiveMediaMode.value === 'auto' && !mediaState.useImmersiveMedia.value)
-      )
-        continue
+      if (dist > 25) transition.setState('OUT')
+      if (dist < 20) transition.setState('IN')
 
-      if (videoPreviewTimer === 0) {
+      let springAlpha = transition.alpha
+
+      transition.update(world.deltaSeconds, (alpha) => {
+        springAlpha = easeOutElastic(alpha)
+      })
+
+      xrui.container.scale.setScalar(1.3 * Math.max(1, dist / 6) * Math.max(springAlpha, 0.001))
+      xrui.container.position.copy(_vector3)
+      xrui.container.rotation.setFromRotationMatrix(Engine.instance.currentWorld.camera.matrix)
+
+      if (immersiveMedia && videoPreviewTimer === 0) {
         const { ownerId } = getComponent(userEntity, NetworkObjectComponent)
         const elId = ownerId + '_video'
         const el = document.getElementById(elId) as HTMLVideoElement | null
@@ -134,6 +142,7 @@ export default async function AvatarUISystem(world: World) {
       const entity = AvatarUI.get(userEntity)?.entity
       if (typeof entity !== 'undefined') removeEntity(entity)
       AvatarUI.delete(userEntity)
+      AvatarUITransitions.delete(userEntity)
     }
 
     if (AvatarContextMenuUI.state.id.value !== '') {

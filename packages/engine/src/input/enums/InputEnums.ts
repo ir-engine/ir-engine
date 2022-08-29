@@ -72,13 +72,13 @@ export enum CameraInput {
   Open = 'CameraInput_Open'
 }
 
-export enum AvatarMovementScheme {
-  Linear = 'AvatarMovementScheme_Linear',
-  Teleport = 'AvatarMovementScheme_Teleport'
+export const AvatarMovementScheme = {
+  Linear: 'AvatarMovementScheme_Linear' as const,
+  Teleport: 'AvatarMovementScheme_Teleport' as const
 }
 
-export enum AvatarControllerType {
-  None = 'AvatarControllerType_None',
-  XRHands = 'AvatarControllerType_XRHands',
-  OculusQuest = 'AvatarControllerType_OculusQuest'
+export const AvatarControllerType = {
+  None: 'AvatarControllerType_None' as const,
+  XRHands: 'AvatarControllerType_XRHands' as const,
+  OculusQuest: 'AvatarControllerType_OculusQuest' as const
 }

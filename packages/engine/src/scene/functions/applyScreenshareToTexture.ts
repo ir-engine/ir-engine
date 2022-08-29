@@ -21,7 +21,7 @@ const screenshareTargetQuery = defineQuery([ScreenshareTargetComponent])
 
 export const applyVideoToTexture = (
   video: HTMLVideoElement,
-  obj: Mesh<any, MeshStandardMaterial>,
+  obj: Mesh<any, any>,
   fit: 'fit' | 'fill' | 'stretch' = 'fit'
 ) => {
   if (!obj.material)

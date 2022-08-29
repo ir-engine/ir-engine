@@ -11,10 +11,12 @@ import {
   SphereGeometry
 } from 'three'
 
+import { getState } from '@xrengine/hyperflux'
+
+import { AvatarInputSettingsState } from '../avatar/state/AvatarInputSettingsState'
 import { Engine } from '../ecs/classes/Engine'
 import { AssetLoader } from './../assets/classes/AssetLoader'
 import { SkeletonUtils } from './../avatar/SkeletonUtils'
-import { accessAvatarInputSettingsState } from './../avatar/state/AvatarInputSettingsState'
 import { Entity } from './../ecs/classes/Entity'
 import { getComponent, hasComponent } from './../ecs/functions/ComponentFunctions'
 import { AvatarControllerType } from './../input/enums/InputEnums'
@@ -30,7 +32,7 @@ const createUICursor = () => {
 }
 
 const setupController = (inputSource: XRInputSource, controller: ControllerGroup) => {
-  // const avatarInputState = accessAvatarInputSettingsState()
+  // const avatarInputState = getState(AvatarInputSettingsState)
   if (inputSource) {
     // const canUseController =
     //   inputSource.hand === null && avatarInputState.controlType.value === AvatarControllerType.OculusQuest
@@ -105,7 +107,7 @@ export const initializeHandModel = async (
   handedness: string,
   isGrip: boolean = false
 ) => {
-  const avatarInputState = accessAvatarInputSettingsState()
+  const avatarInputState = getState(AvatarInputSettingsState)
 
   let avatarInputControllerType = avatarInputState.controlType.value
 

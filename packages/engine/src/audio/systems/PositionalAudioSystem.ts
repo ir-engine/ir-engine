@@ -18,7 +18,7 @@ import {
 } from '../../ecs/functions/ComponentFunctions'
 import { LocalAvatarTagComponent } from '../../input/components/LocalAvatarTagComponent'
 import { NetworkObjectComponent, NetworkObjectComponentType } from '../../networking/components/NetworkObjectComponent'
-import { MediaSettingAction, MediaSettingsState } from '../../networking/MediaSettingsState'
+import { MediaSettingAction, MediaSettingsState, shouldUseImmersiveMedia } from '../../networking/MediaSettingsState'
 import { MediaComponent } from '../../scene/components/MediaComponent'
 import { MediaElementComponent } from '../../scene/components/MediaElementComponent'
 import { createAudioNode } from '../../scene/functions/loaders/AudioFunctions'
@@ -128,13 +128,7 @@ export default async function PositionalAudioSystem(world: World) {
   return () => {
     const audioContext = Engine.instance.audioContext
     const network = Engine.instance.currentWorld.mediaNetwork
-    const xrSessionActive = getState(XRState).sessionActive.value
-    const audioState = getState(AudioState)
-    const mediaSettingState = getState(MediaSettingsState)
-    const immersiveMedia =
-      mediaSettingState.immersiveMediaMode.value === 'off' ||
-      (mediaSettingState.immersiveMediaMode.value === 'auto' && !mediaSettingState.useImmersiveMedia.value)
-    const useAvatarPositionalAudio = immersiveMedia || audioState.usePositionalAudio.value || xrSessionActive
+    const immersiveMedia = shouldUseImmersiveMedia()
 
     for (const entity of positionalAudioSettingsQuery.enter()) updatePositionalAudioSettings(entity)
 
@@ -192,8 +186,8 @@ export default async function PositionalAudioSystem(world: World) {
       if (existingAudioObj) {
         // only force positional audio for avatar media streams in XR
         const audioEl = AudioElementNodes.get(existingAudioObj)!
-        if (audioEl.panner && !useAvatarPositionalAudio) removePannerNode(audioEl)
-        else if (!audioEl.panner && useAvatarPositionalAudio) addPannerNode(audioEl)
+        if (audioEl.panner && !immersiveMedia) removePannerNode(audioEl)
+        else if (!audioEl.panner && immersiveMedia) addPannerNode(audioEl)
 
         // audio stream exists and has already been handled
         continue
@@ -221,7 +215,7 @@ export default async function PositionalAudioSystem(world: World) {
       )
       audioObject.gain.gain.setTargetAtTime(existingAudioObject.volume, audioContext.currentTime, 0.01)
 
-      if (useAvatarPositionalAudio) addPannerNode(audioObject)
+      if (immersiveMedia) addPannerNode(audioObject)
 
       avatarAudioObjs.set(networkObject, stream)
     }
