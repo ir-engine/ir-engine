@@ -179,9 +179,7 @@ const ProjectTable = ({ className }: Props) => {
     setConfirm({
       open: true,
       processing: processing,
-      description: `${t('admin:components.project.confirmPushProjectToGithub')}? ${row.name} - ${
-        project?.repositoryPath
-      }`,
+      description: `${t('admin:components.project.confirmPushProjectToGithub')}? ${row.name} - ${row.repositoryPath}`,
       onSubmit: handlePushProjectToGithub
     })
   }

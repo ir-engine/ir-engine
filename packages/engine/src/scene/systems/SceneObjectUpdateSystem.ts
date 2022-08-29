@@ -97,7 +97,11 @@ import {
   SCENE_COMPONENT_SKYBOX_DEFAULT_VALUES,
   SkyboxComponent
 } from '../components/SkyboxComponent'
-import { SCENE_COMPONENT_SPAWN_POINT, SpawnPointComponent } from '../components/SpawnPointComponent'
+import {
+  SCENE_COMPONENT_SPAWN_POINT,
+  SCENE_COMPONENT_SPAWN_POINT_DEFAULT_DATA,
+  SpawnPointComponent
+} from '../components/SpawnPointComponent'
 import {
   SCENE_COMPONENT_SPLINE,
   SCENE_COMPONENT_SPLINE_DEFAULT_VALUES,
@@ -245,7 +249,9 @@ export default async function SceneObjectUpdateSystem(world: World) {
   ])
 
   world.sceneComponentRegistry.set(SpawnPointComponent._name, SCENE_COMPONENT_SPAWN_POINT)
-  world.sceneLoadingRegistry.set(SCENE_COMPONENT_SPAWN_POINT, {})
+  world.sceneLoadingRegistry.set(SCENE_COMPONENT_SPAWN_POINT, {
+    defaultData: SCENE_COMPONENT_SPAWN_POINT_DEFAULT_DATA
+  })
 
   world.sceneComponentRegistry.set(RenderSettingComponent._name, SCENE_COMPONENT_RENDERER_SETTINGS)
   world.sceneLoadingRegistry.set(SCENE_COMPONENT_RENDERER_SETTINGS, {

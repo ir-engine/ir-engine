@@ -7,6 +7,7 @@ import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions } from '../../ecs/classes/EngineState'
 import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
+import { MediaSettingReceptor, restoreMediaSettings } from '../../networking/MediaSettingsState'
 import { CallbackComponent } from '../../scene/components/CallbackComponent'
 import { SCENE_COMPONENT_IMAGE, SCENE_COMPONENT_IMAGE_DEFAULT_VALUES } from '../../scene/components/ImageComponent'
 import {
@@ -167,8 +168,10 @@ export default async function AudioSystem(world: World) {
   Engine.instance.gainNodeMixBuses.soundEffects.connect(Engine.instance.cameraGainNode)
 
   restoreAudioSettings()
+  restoreMediaSettings()
 
   addActionReceptor(AudioSettingReceptor)
+  addActionReceptor(MediaSettingReceptor)
 
   const modifyPropertyActionQueue = createActionQueue(EngineActions.sceneObjectUpdate.matches)
   const userInteractActionQueue = createActionQueue(EngineActions.setUserHasInteracted.matches)

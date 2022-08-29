@@ -62,7 +62,7 @@ export const TouchGamepad: FunctionComponent<TouchGamepadProps> = () => {
     const event = new CustomEvent('touchstickmove', {
       detail: {
         stick: GamepadAxis.LThumbstick,
-        value: { x: normalizeValues(-e.y), y: normalizeValues(e.x), angleRad: 0 }
+        value: { x: normalizeValues(e.x), y: normalizeValues(-e.y), angleRad: 0 }
       }
     })
     document.dispatchEvent(event)

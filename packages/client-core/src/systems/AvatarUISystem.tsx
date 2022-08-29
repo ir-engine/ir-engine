@@ -1,5 +1,6 @@
 import { Not } from 'bitecs'
-import { Vector3 } from 'three'
+import { Consumer } from 'mediasoup-client/lib/Consumer'
+import { CircleBufferGeometry, DoubleSide, Mesh, MeshBasicMaterial, Object3D, Vector3, VideoTexture } from 'three'
 
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import multiLogger from '@xrengine/common/src/logger'
@@ -11,9 +12,13 @@ import { defineQuery, getComponent } from '@xrengine/engine/src/ecs/functions/Co
 import { removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { NetworkObjectComponent } from '@xrengine/engine/src/networking/components/NetworkObjectComponent'
 import { NetworkObjectOwnedTag } from '@xrengine/engine/src/networking/components/NetworkObjectOwnedTag'
+import { MediaSettingsState } from '@xrengine/engine/src/networking/MediaSettingsState'
+import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
+import { applyVideoToTexture } from '@xrengine/engine/src/scene/functions/applyScreenshareToTexture'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 import { XRUIComponent } from '@xrengine/engine/src/xrui/components/XRUIComponent'
 import { ObjectFitFunctions } from '@xrengine/engine/src/xrui/functions/ObjectFitFunctions'
+import { getState } from '@xrengine/hyperflux'
 
 import { createAvatarDetailView } from './ui/AvatarDetailView'
 import { createAvatarContextMenuView } from './ui/UserMenuView'
@@ -54,7 +59,14 @@ export default async function AvatarUISystem(world: World) {
 
   const vector3 = new Vector3()
 
+  let videoPreviewTimer = 0
+
   return () => {
+    videoPreviewTimer += world.deltaSeconds
+    if (videoPreviewTimer > 1) videoPreviewTimer = 0
+
+    const mediaState = getState(MediaSettingsState)
+
     for (const userEntity of userQuery.enter()) {
       if (AvatarUI.has(userEntity)) {
         logger.info({ userEntity }, 'Entity already exists.')
@@ -62,6 +74,12 @@ export default async function AvatarUISystem(world: World) {
       }
       const userId = getComponent(userEntity, NetworkObjectComponent).ownerId
       const ui = createAvatarDetailView(userId)
+      const uiObject = getComponent(ui.entity, Object3DComponent)
+      const videoPreviewMesh = new Mesh(new CircleBufferGeometry(0.25, 32), new MeshBasicMaterial())
+      videoPreviewMesh.position.y += 0.3
+      videoPreviewMesh.visible = false
+      uiObject.value.add(videoPreviewMesh)
+      uiObject.value.userData.videoPreviewMesh = videoPreviewMesh
       AvatarUI.set(userEntity, ui)
     }
 
@@ -70,8 +88,46 @@ export default async function AvatarUISystem(world: World) {
       const { avatarHeight } = getComponent(userEntity, AvatarComponent)
       const userTransform = getComponent(userEntity, TransformComponent)
       const xrui = getComponent(ui.entity, XRUIComponent)
-      vector3.copy(userTransform.position).y += avatarHeight + 0.3
+
+      const uiObject = getComponent(ui.entity, Object3DComponent)
+      const videoPreviewMesh = uiObject.value.userData.videoPreviewMesh
+
+      vector3.copy(userTransform.position).y += avatarHeight + (videoPreviewMesh.visible ? 0.1 : 0.3)
       ObjectFitFunctions.lookAtCameraFromPosition(xrui.container, vector3)
+
+      if (
+        mediaState.immersiveMediaMode.value === 'off' ||
+        (mediaState.immersiveMediaMode.value === 'auto' && !mediaState.useImmersiveMedia.value)
+      )
+        continue
+
+      if (videoPreviewTimer === 0) {
+        const { ownerId } = getComponent(userEntity, NetworkObjectComponent)
+        const elId = ownerId + '_video'
+        const el = document.getElementById(elId) as HTMLVideoElement | null
+        const consumer = world.mediaNetwork!.consumers.find(
+          (consumer) => consumer._appData.peerId === ownerId
+        ) as Consumer
+        const paused = consumer && (consumer as any).producerPaused
+        if (videoPreviewMesh.material.map) {
+          if (!el || paused) {
+            videoPreviewMesh.material.map = null!
+            videoPreviewMesh.visible = false
+          }
+        } else {
+          if (el && !paused) {
+            if (!el.readyState) {
+              el.onloadeddata = () => {
+                applyVideoToTexture(el, videoPreviewMesh, 'fill')
+                videoPreviewMesh.visible = true
+              }
+            } else {
+              applyVideoToTexture(el, videoPreviewMesh, 'fill')
+              videoPreviewMesh.visible = true
+            }
+          }
+        }
+      }
     }
 
     for (const userEntity of userQuery.exit()) {
