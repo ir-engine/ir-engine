@@ -362,7 +362,7 @@ const setLocalMovementDirection: InputBehaviorType = (
   controller.localMovementDirection.normalize()
 }
 
-const axisLookSensitivity = 320
+const axisLookSensitivity = 200
 const vrAxisLookSensitivity = 0.025
 
 const lookByInputAxis: InputBehaviorType = (entity: Entity, inputKey: InputAlias, inputValue: InputValue): void => {
@@ -493,7 +493,7 @@ export const createAvatarInput = () => {
   // map.set(TouchInputs.Touch, BaseInput.INTERACT)
   // map.set(TouchInputs.DoubleTouch, BaseInput.JUMP)
   map.set(TouchInputs.Touch1Position, BaseInput.SCREENXY)
-  map.set(TouchInputs.Touch1Movement, BaseInput.MOVEMENT)
+  map.set(TouchInputs.Touch1Movement, BaseInput.LOOKTURN)
   map.set(TouchInputs.Scale, BaseInput.CAMERA_SCROLL)
 
   map.set(GamepadButtons.A, BaseInput.INTERACT)
