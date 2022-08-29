@@ -32,7 +32,7 @@ export default function MaterialEditor({ material }: { ['material']: Material })
     return result
   }
   const createDefaults = () => {
-    const result = materialToDefaultArgs(material)
+    const result = materialToDefaultArgs(material)!
     const thumbs = thumbnails.value
     Object.entries(material).map(([k, v]) => {
       if ((v as Texture)?.isTexture && thumbs.has(k)) {
@@ -71,8 +71,8 @@ export default function MaterialEditor({ material }: { ['material']: Material })
   }, [matId])
 
   function onChangeMaterialType(nuType) {
-    const newDefaultArgs = materialTypeToDefaultArgs(nuType)
-    const oldParmKeys = new Set(Object.keys(materialToDefaultArgs(material)))
+    const newDefaultArgs = materialTypeToDefaultArgs(nuType)!
+    const oldParmKeys = new Set(Object.keys(materialToDefaultArgs(material)!))
     const newParmKeys = new Set(Object.keys(newDefaultArgs))
     const allKeys = [...oldParmKeys.values(), ...newParmKeys.values()].filter((x, i, arr) => arr.indexOf(x) === i)
     const overlap = allKeys.filter((key) => oldParmKeys.has(key) && newParmKeys.has(key))
