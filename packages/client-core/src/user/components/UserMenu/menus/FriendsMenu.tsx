@@ -86,9 +86,9 @@ const FriendsMenu = ({ changeActiveMenu, defaultSelectedTab }: Props): JSX.Eleme
     <div className={styles.menuPanel}>
       <div className={styles.friendsPanel}>
         <Tabs className={styles.tabsPanel} value={selectedTab} onChange={handleTabChange} variant="fullWidth">
-          <Tab value="find" label="Find" />
-          <Tab value="friends" label="Friends" />
-          <Tab value="blocked" label="Blocked" />
+          <Tab value="find" label={t('user:friends.find')} />
+          <Tab value="friends" label={t('user:friends.friends')} />
+          <Tab value="blocked" label={t('user:friends.blocked')} />
         </Tabs>
 
         <div className={styles.friendsList}>

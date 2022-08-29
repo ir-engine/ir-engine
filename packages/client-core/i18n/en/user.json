@@ -393,6 +393,9 @@
     "closeConferenceMode": "Close Conference Mode"
   },
   "friends": {
+    "find": "Find",
+    "friends": "Friends",
+    "blocked": "Blocked",
     "message": "Message",
     "profile": "Profile",
     "accept": "Accept",
