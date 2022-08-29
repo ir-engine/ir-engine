@@ -37,15 +37,12 @@ export class GithubStrategy extends CustomOAuthStrategy {
   }
 
   async updateEntity(entity: any, profile: any, params: Params): Promise<any> {
-    console.log('updateEntity', entity, profile)
     const authResult = await (this.app.service('authentication') as any).strategies.jwt.authenticate(
       { accessToken: params?.authentication?.accessToken },
       {}
     )
-    console.log('authResult', authResult)
     if (!entity.userId) {
       const avatars = (await this.app.service('avatar').find({ isInternal: true })) as Paginated<AvatarInterface>
-      console.log('avatars', avatars)
       const code = await getFreeInviteCode(this.app)
       const newUser = (await this.app.service('user').create({
         isGuest: false,
@@ -59,7 +56,6 @@ export class GithubStrategy extends CustomOAuthStrategy {
     }
     const identityProvider = authResult['identity-provider']
     const user = await this.app.service('user').get(entity.userId)
-    console.log('user for github', user)
     await makeInitialAdmin(this.app, user.id)
     if (user.isGuest)
       await this.app.service('user').patch(entity.userId, {
@@ -74,24 +70,17 @@ export class GithubStrategy extends CustomOAuthStrategy {
       await this.app.service('user-api-key').create({
         userId: entity.userId
       })
-    console.log('apiKey created if not present')
     if (entity.type !== 'guest' && identityProvider.type === 'guest') {
-      console.log('removing guest user')
       await this.app.service('identity-provider').remove(identityProvider.id)
-      console.log('removed guest identity-provider')
       await this.app.service('user').remove(identityProvider.userId)
-      console.log('removed guest user')
       return super.updateEntity(entity, profile, params)
     }
     const existingEntity = await super.findEntity(profile, params)
-    console.log('existingEntity', existingEntity)
     if (!existingEntity) {
       profile.userId = user.id
       profile.oauthToken = params.access_token
       const newIP = await super.createEntity(profile, params)
-      console.log('new identity-provider', newIP)
       if (entity.type === 'guest') await this.app.service('identity-provider').remove(entity.id)
-      console.log('removed guest IP if needed')
       return newIP
     } else if (existingEntity.userId === identityProvider.userId) return existingEntity
     else {
@@ -100,34 +89,25 @@ export class GithubStrategy extends CustomOAuthStrategy {
   }
 
   async getRedirect(data: any, params: Params): Promise<string> {
-    console.log('getRedirect', data)
     const redirectHost = config.authentication.callback.github
-    console.log('redirectHost', redirectHost)
     const type = params?.query?.userId ? 'connection' : 'login'
-    console.log('type', type)
-    if (Object.getPrototypeOf(data) === Error.prototype) {
+    if (data instanceof Error || Object.getPrototypeOf(data) === Error.prototype) {
       const err = data.message as string
-      console.log('handling error', err)
       return redirectHost + `?error=${err}`
     } else {
-      console.log('no error, redirecting')
       const token = data.accessToken as string
-      console.log('token', token)
       const redirect = params.redirect
-      console.log('redirect', redirect)
       let parsedRedirect
       try {
         parsedRedirect = JSON.parse(redirect)
       } catch (err) {
         parsedRedirect = {}
       }
-      console.log('parsedRedirect', parsedRedirect)
       const path = parsedRedirect.path
       const instanceId = parsedRedirect.instanceId
       let returned = redirectHost + `?token=${token}&type=${type}`
       if (path != null) returned = returned.concat(`&path=${path}`)
       if (instanceId != null) returned = returned.concat(`&instanceId=${instanceId}`)
-      console.log('returned', returned)
       return returned
     }
   }
