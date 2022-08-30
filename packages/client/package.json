@@ -78,7 +78,7 @@
     "@types/yuka": "0.7.1",
     "config": "3.3.7",
     "trace-unhandled": "2.0.1",
-    "vite": "2.9.4",
+    "vite": "2.9.13",
     "vite-plugin-html": "2.1.2",
     "vite-plugin-optimize-persist": "0.1.2",
     "vite-plugin-package-config": "0.1.1"
