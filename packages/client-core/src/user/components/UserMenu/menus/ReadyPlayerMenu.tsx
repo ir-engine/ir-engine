@@ -4,6 +4,7 @@ import { PerspectiveCamera, Scene, WebGLRenderer } from 'three'
 
 import { THUMBNAIL_HEIGHT, THUMBNAIL_WIDTH } from '@xrengine/common/src/constants/AvatarConstants'
 import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
+import { AudioEffectPlayer } from '@xrengine/engine/src/audio/systems/AudioSystem'
 import { loadAvatarForPreview } from '@xrengine/engine/src/avatar/functions/avatarFunctions'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
@@ -13,7 +14,7 @@ import { getOrbitControls } from '@xrengine/engine/src/input/functions/loadOrbit
 import { ArrowBack, Check } from '@mui/icons-material'
 import CircularProgress from '@mui/material/CircularProgress'
 
-import { AuthService } from '../../../services/AuthService'
+import { AvatarService } from '../../../services/AvatarService'
 import styles from '../index.module.scss'
 import { Views } from '../util'
 import { addAnimationLogic, initialize3D, onWindowResize, validate } from './helperFunctions'
@@ -122,7 +123,7 @@ const ReadyPlayerMenu = ({ isPublicAvatar, changeActiveMenu }: Props) => {
     var thumbnailName = avatarUrl.substring(0, avatarUrl.lastIndexOf('.')) + '.png'
 
     canvas.toBlob(async (blob) => {
-      await AuthService.uploadAvatarModel(selectedFile, new File([blob!], thumbnailName), avatarName, isPublicAvatar)
+      await AvatarService.createAvatar(selectedFile, new File([blob!], thumbnailName), avatarName, isPublicAvatar)
       changeActiveMenu(Views.Profile)
     })
   }
@@ -135,7 +136,13 @@ const ReadyPlayerMenu = ({ isPublicAvatar, changeActiveMenu }: Props) => {
     >
       {selectedFile && (
         <div className={styles.avatarHeaderBlock}>
-          <button type="button" className={styles.iconBlock} onClick={openProfileMenu}>
+          <button
+            type="button"
+            className={styles.iconBlock}
+            onClick={openProfileMenu}
+            onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+            onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+          >
             <ArrowBack />
           </button>
           <h2>{t('user:avatar.titleSelectThumbnail')}</h2>
@@ -179,6 +186,8 @@ const ReadyPlayerMenu = ({ isPublicAvatar, changeActiveMenu }: Props) => {
             background: hover ? '#5f5ff1' : '#fff'
           }}
           onClick={closeMenu}
+          onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+          onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
         >
           <Check />
         </button>

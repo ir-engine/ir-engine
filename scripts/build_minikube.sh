@@ -65,6 +65,13 @@ else
   VITE_INSTANCESERVER_HOST=$VITE_INSTANCESERVER_HOST
 fi
 
+if [ -z "VITE_LOGIN_WITH_WALLET" ]
+then
+  VITE_LOGIN_WITH_WALLET=false
+else
+  VITE_LOGIN_WITH_WALLET=$VITE_LOGIN_WITH_WALLET
+fi
+
 if [ -z "$NODE_ENV" ]
 then
   NODE_ENV=development
@@ -91,6 +98,8 @@ DOCKER_BUILDKIT=1 docker build -t xrengine \
   --build-arg VITE_CLIENT_HOST=$VITE_CLIENT_HOST \
   --build-arg VITE_SERVER_HOST=$VITE_SERVER_HOST \
   --build-arg VITE_MEDIATOR_SERVER=$VITE_MEDIATOR_SERVER \
-  --build-arg VITE_INSTANCESERVER_HOST=$VITE_INSTANCESERVER_HOST .
+  --build-arg VITE_INSTANCESERVER_HOST=$VITE_INSTANCESERVER_HOST \
+  --build-arg VITE_READY_PLAYER_ME_URL=$VITE_READY_PLAYER_ME_URL \
+  --build-arg VITE_LOGIN_WITH_WALLET=$VITE_LOGIN_WITH_WALLET .
 
-DOCKER_BUILDKIT=1 docker build -t xrengine-testbot -f ./dockerfiles/testbot/Dockerfile-testbot .
+#DOCKER_BUILDKIT=1 docker build -t xrengine-testbot -f ./dockerfiles/testbot/Dockerfile-testbot .

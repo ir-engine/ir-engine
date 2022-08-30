@@ -12,7 +12,7 @@ import { NetworkObjectComponent } from '../../networking/components/NetworkObjec
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { Physics } from '../../physics/classes/Physics'
 import { TransformComponent } from '../../transform/components/TransformComponent'
-import { getHandTransform } from '../../xr/functions/WebXRFunctions'
+import { getHandTransform } from '../../xr/XRFunctions'
 import { EquippedComponent } from '../components/EquippedComponent'
 import { EquipperComponent } from '../components/EquipperComponent'
 import { EquippableAttachmentPoint } from '../enums/EquippedEnums'
@@ -36,6 +36,7 @@ describe.skip('EquippableSystem Integration Tests', () => {
 
     const networkObject = addComponent(player, NetworkObjectComponent, {
       ownerId: Engine.instance.userId,
+      authorityUserId: Engine.instance.userId,
       networkId: 0 as NetworkId
     })
 
@@ -52,7 +53,7 @@ describe.skip('EquippableSystem Integration Tests', () => {
       equipperEntity: player,
       attachmentPoint: EquippableAttachmentPoint.HEAD
     })
-    addComponent(player, EquipperComponent, { equippedEntity: item, data: {} as any })
+    addComponent(player, EquipperComponent, { equippedEntity: item })
 
     const equippableTransform = addComponent(item, TransformComponent, {
       position: new Vector3(0, 0, 0),

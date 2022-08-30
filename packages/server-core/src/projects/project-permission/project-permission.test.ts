@@ -40,26 +40,30 @@ describe('project-permission.test', () => {
     app = createFeathersExpressApp()
     await app.setup()
     await cleanup(app)
-    const avatarId = 'CyberbotGreen'
+    const avatarName = 'CyberbotGreen'
+
+    const avatar = await app.service('avatar').create({
+      name: avatarName
+    })
 
     user1 = (await app.service('user').create({
       name: `Test #${Math.random()}`,
-      avatarId,
+      avatarId: avatar.id,
       isGuest: false
     })) as UserInterface
     user2 = (await app.service('user').create({
       name: `Test #${Math.random()}`,
-      avatarId,
+      avatarId: avatar.id,
       isGuest: false
     })) as UserInterface
     user3 = (await app.service('user').create({
       name: `Test #${Math.random()}`,
-      avatarId,
+      avatarId: avatar.id,
       isGuest: false
     })) as UserInterface
     user4 = (await app.service('user').create({
       name: `Test #${Math.random()}`,
-      avatarId,
+      avatarId: avatar.id,
       isGuest: false
     })) as UserInterface
     user1.apiKey = await app.service('user-api-key').Model.findOne({
@@ -233,9 +237,7 @@ describe('project-permission.test', () => {
                 },
                 params
               )
-              console.log('RES', res)
             } catch (err) {
-              console.log('ERROR', err)
               throw err
             }
           },
@@ -287,7 +289,6 @@ describe('project-permission.test', () => {
             projectId: project1.id
           }
         })
-        console.log('permissions after create', permissions)
         assert.ok(project1Permission4)
         assert.strictEqual(project1Permission4.userId, user4.id)
         assert.strictEqual(project1Permission4.projectId, project1.id)
@@ -373,7 +374,6 @@ describe('project-permission.test', () => {
             projectId: project1.id
           }
         })
-        console.log('permissions after patch tests', permissions)
         assert.rejects(
           async () => {
             await app.service('project-permission').patch(
@@ -438,7 +438,6 @@ describe('project-permission.test', () => {
           },
           ...params
         })) as Paginated<ProjectPermissionInterface>
-        console.log('PERMISSIONS AFTER DELETE 1', permissions)
         assert.strictEqual(permissions.total, 2)
       })
 
@@ -456,7 +455,6 @@ describe('project-permission.test', () => {
             projectId: project1.id
           }
         })
-        console.log('PERMISSIONS AFTER DELETE 2', permissions)
         assert.strictEqual(permissions.length, 1)
         assert.strictEqual(permissions[0].id, project1Permission2.id)
         assert.strictEqual(permissions[0].type, 'owner')
@@ -477,7 +475,6 @@ describe('project-permission.test', () => {
           },
           ...params
         })) as Paginated<ProjectPermissionInterface>
-        console.log('permissions', permissions)
         assert.strictEqual(permissions.total, 0)
       })
     })

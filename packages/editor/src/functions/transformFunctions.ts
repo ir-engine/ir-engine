@@ -1,4 +1,6 @@
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
+import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import { hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { traverseEntityNode } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
 import {
@@ -9,7 +11,7 @@ import {
   TransformPivotType,
   TransformSpace
 } from '@xrengine/engine/src/scene/constants/transformConstants'
-import { DisableTransformTagComponent } from '@xrengine/engine/src/transform/components/DisableTransformTagComponent'
+import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 import { dispatchAction } from '@xrengine/hyperflux'
 
 import { EditorHistory } from '../classes/History'
@@ -25,11 +27,14 @@ export const setTransformMode = (mode: TransformModeType): void => {
 
     // Dont allow grabbing / placing objects with transform disabled.
     for (const entity of selectedEntities) {
-      const node = tree.entityNodeMap.get(entity)
+      const isUuid = typeof entity === 'string'
+      const node = isUuid
+        ? Engine.instance.currentWorld.scene.getObjectByProperty('uuid', entity)
+        : tree.entityNodeMap.get(entity)
 
-      if (node) {
-        traverseEntityNode(node, (node) => {
-          if (hasComponent(node.entity, DisableTransformTagComponent)) stop = true
+      if (!isUuid && node) {
+        traverseEntityNode(node as EntityTreeNode, (node) => {
+          if (!hasComponent(node.entity, TransformComponent)) stop = true
         })
       }
 

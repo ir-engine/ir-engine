@@ -14,6 +14,7 @@ import {
 import { StaticResourceInterface } from '@xrengine/common/src/interfaces/StaticResourceInterface'
 import multiLogger from '@xrengine/common/src/logger'
 import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
+import { AudioEffectPlayer } from '@xrengine/engine/src/audio/systems/AudioSystem'
 import { loadAvatarForPreview } from '@xrengine/engine/src/avatar/functions/avatarFunctions'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { createEntity, removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
@@ -29,7 +30,7 @@ import Tab from '@mui/material/Tab'
 import Tabs from '@mui/material/Tabs'
 
 import IconLeftClick from '../../../../common/components/Icons/IconLeftClick'
-import { AuthService } from '../../../services/AuthService'
+import { AvatarService } from '../../../services/AvatarService'
 import styles from '../index.module.scss'
 import { Views } from '../util'
 import { addAnimationLogic, initialize3D, onWindowResize, validate } from './helperFunctions'
@@ -232,11 +233,11 @@ export const AvatarUploadModal = ({ avatarData, isPublicAvatar, changeActiveMenu
         const newContext = canvas.getContext('2d')
         newContext?.drawImage(renderer.domElement, 0, 0)
         canvas.toBlob((blob) => {
-          AuthService.uploadAvatarModel(avatarBlob, blob!, avatarName, isPublicAvatar).then(resolve)
+          AvatarService.createAvatar(avatarBlob, blob!, avatarName, isPublicAvatar)
         })
       })
     } else {
-      await AuthService.uploadAvatarModel(avatarBlob, thumbnailBlob, avatarName, isPublicAvatar)
+      await AvatarService.createAvatar(avatarBlob, thumbnailBlob, avatarName, isPublicAvatar)
     }
 
     onAvatarUpload && onAvatarUpload()
@@ -278,7 +279,12 @@ export const AvatarUploadModal = ({ avatarData, isPublicAvatar, changeActiveMenu
         <h2>{t('user:avatar.title')}</h2>
       </div>
 
-      <Button onClick={() => changeActiveMenu(Views.ReadyPlayer)} className={styles.useReadyMeBtn}>
+      <Button
+        onClick={() => changeActiveMenu(Views.ReadyPlayer)}
+        className={styles.useReadyMeBtn}
+        onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+        onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+      >
         {t('user:usermenu.profile.useReadyPlayerMe')}
       </Button>
 
@@ -326,6 +332,8 @@ export const AvatarUploadModal = ({ avatarData, isPublicAvatar, changeActiveMenu
           size="small"
           name="avatarname"
           onChange={handleAvatarNameChange}
+          onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+          onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
           placeholder="Avatar Name"
         />
       </Paper>
@@ -335,6 +343,8 @@ export const AvatarUploadModal = ({ avatarData, isPublicAvatar, changeActiveMenu
             <Tabs
               value={activeSourceType}
               onChange={handleChangeSourceType}
+              onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+              onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
               aria-label="basic tabs example"
               classes={{ root: styles.tabRoot, indicator: styles.selected }}
             >
@@ -362,6 +372,8 @@ export const AvatarUploadModal = ({ avatarData, isPublicAvatar, changeActiveMenu
                     classes={{ input: styles.input }}
                     value={avatarUrl}
                     onChange={handleAvatarUrlChange}
+                    onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                    onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
                   />
                 </Paper>
                 <Paper className={styles.paper} style={{ padding: '4px 0' }}>
@@ -372,6 +384,8 @@ export const AvatarUploadModal = ({ avatarData, isPublicAvatar, changeActiveMenu
                     classes={{ input: styles.input }}
                     value={thumbnailUrl}
                     onChange={handleThumbnailUrlChange}
+                    onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                    onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
                   />
                 </Paper>
               </div>
@@ -379,6 +393,8 @@ export const AvatarUploadModal = ({ avatarData, isPublicAvatar, changeActiveMenu
                 type="button"
                 className={styles.uploadBtn}
                 onClick={uploadAvatar}
+                onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
                 disabled={!validAvatarUrl}
                 style={{ cursor: !validAvatarUrl ? 'not-allowed' : 'pointer' }}
               >
@@ -401,6 +417,8 @@ export const AvatarUploadModal = ({ avatarData, isPublicAvatar, changeActiveMenu
                     id="contained-button-file"
                     type="file"
                     onChange={handleAvatarChange}
+                    onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                    onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
                   />
                   <Button
                     variant="contained"
@@ -417,6 +435,8 @@ export const AvatarUploadModal = ({ avatarData, isPublicAvatar, changeActiveMenu
                     id="contained-button-file-t"
                     type="file"
                     onChange={handleThumbnailChange}
+                    onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                    onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
                   />
                   <Button
                     variant="contained"
@@ -432,6 +452,8 @@ export const AvatarUploadModal = ({ avatarData, isPublicAvatar, changeActiveMenu
                 type="button"
                 className={styles.uploadBtn}
                 onClick={uploadAvatar}
+                onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+                onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
                 style={{ cursor: uploadButtonEnabled ? 'pointer' : 'not-allowed' }}
                 disabled={!uploadButtonEnabled}
               >

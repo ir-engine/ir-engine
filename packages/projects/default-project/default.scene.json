@@ -4,27 +4,15 @@
     "2266BED7-6CC4-48A6-95DD-9BCD3CF9EAFC": {
       "components": [
         {
-          "name": "mtdata",
-          "props": {
-            "meta_data": ""
-          }
-        },
-        {
           "name": "audio-settings",
           "props": {
-            "usePositionalAudio": true,
-            "avatarDistanceModel": "inverse",
-            "avatarRolloffFactor": 2,
-            "avatarRefDistance": 1,
-            "avatarMaxDistance": 10000,
-            "mediaVolume": 1,
-            "mediaDistanceModel": "inverse",
-            "mediaRolloffFactor": 1,
-            "mediaRefDistance": 20,
-            "mediaMaxDistance": 10000,
-            "mediaConeInnerAngle": 360,
-            "mediaConeOuterAngle": 0,
-            "mediaConeOuterGain": 0
+            "refDistance": 20,
+            "rolloffFactor": 1,
+            "maxDistance": 10000,
+            "distanceModel": "linear",
+            "coneInnerAngle": 360,
+            "coneOuterAngle": 0,
+            "coneOuterGain": 0
           }
         },
         {
@@ -71,34 +59,31 @@
                 "y": 1,
                 "z": 1
               }
-            },
-            "forModel": false
+            }
           }
         },
         {
           "name": "envmapbake",
           "props": {
-            "options": {
-              "bakeType": "Baked",
-              "resolution": 2048,
-              "refreshMode": "OnAwake",
-              "envMapOrigin": "__$project$__/default-project/default.envmap.png",
-              "boxProjection": true,
-              "bakePosition": {
-                "x": 0,
-                "y": 0,
-                "z": 0
-              },
-              "bakePositionOffset": {
-                "x": 0,
-                "y": 0,
-                "z": 0
-              },
-              "bakeScale": {
-                "x": 1,
-                "y": 1,
-                "z": 1
-              }
+            "bakeType": "Baked",
+            "resolution": 2048,
+            "refreshMode": "OnAwake",
+            "envMapOrigin": "__$project$__/default-project/default.envmap.png",
+            "boxProjection": true,
+            "bakePosition": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "bakePositionOffset": {
+              "x": 0,
+              "y": 0,
+              "z": 0
+            },
+            "bakeScale": {
+              "x": 1,
+              "y": 1,
+              "z": 1
             }
           }
         }
@@ -142,26 +127,6 @@
     },
     "ED0888E7-4032-4DD9-9B43-59B02ECCCB7E": {
       "components": [
-        {
-          "name": "transform",
-          "props": {
-            "position": {
-              "x": 0,
-              "y": 0,
-              "z": 0
-            },
-            "rotation": {
-              "x": 0,
-              "y": 0,
-              "z": 0
-            },
-            "scale": {
-              "x": 1,
-              "y": 1,
-              "z": 1
-            }
-          }
-        },
         {
           "name": "visible",
           "props": {}
@@ -272,26 +237,6 @@
     "1B698484-C15A-4CEC-9247-03873520DF70": {
       "components": [
         {
-          "name": "transform",
-          "props": {
-            "position": {
-              "x": 0,
-              "y": 0,
-              "z": 0
-            },
-            "rotation": {
-              "x": 0,
-              "y": 0,
-              "z": 0
-            },
-            "scale": {
-              "x": 1,
-              "y": 1,
-              "z": 1
-            }
-          }
-        },
-        {
           "name": "visible",
           "props": {}
         },
@@ -389,26 +334,6 @@
     "1B698484-C15A-4CEC-9247-03873520DF71": {
       "components": [
         {
-          "name": "transform",
-          "props": {
-            "position": {
-              "x": 0,
-              "y": 10,
-              "z": 0
-            },
-            "rotation": {
-              "x": 0,
-              "y": 0,
-              "z": 0
-            },
-            "scale": {
-              "x": 1,
-              "y": 1,
-              "z": 1
-            }
-          }
-        },
-        {
           "name": "visible",
           "props": {}
         },
@@ -460,7 +385,6 @@
             "shadowBias": 0,
             "shadowRadius": 1,
             "cameraFar": 100,
-            "showCameraHelper": false,
             "useInCSM": true
           }
         }

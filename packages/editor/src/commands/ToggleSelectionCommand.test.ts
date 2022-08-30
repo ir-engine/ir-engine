@@ -1,6 +1,7 @@
 import assert from 'assert'
 
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import { addComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
@@ -11,7 +12,6 @@ import {
 } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
 import { createEngine } from '@xrengine/engine/src/initializeEngine'
 import { SelectTagComponent } from '@xrengine/engine/src/scene/components/SelectTagComponent'
-import { registerPrefabs } from '@xrengine/engine/src/scene/functions/registerPrefabs'
 import { applyIncomingActions } from '@xrengine/hyperflux'
 
 import EditorCommands from '../constants/EditorCommands'
@@ -28,7 +28,6 @@ describe('ToggleSelectionCommand', () => {
     createEngine()
     registerEditorReceptors()
     Engine.instance.store.defaultDispatchDelay = 0
-    registerPrefabs(Engine.instance.currentWorld)
 
     rootNode = createEntityNode(createEntity())
     nodes = [createEntityNode(createEntity()), createEntityNode(createEntity())]
@@ -117,7 +116,7 @@ describe('ToggleSelectionCommand', () => {
       applyIncomingActions()
       const newSelection = accessSelectionState().selectedEntities.value
 
-      command.affectedNodes.forEach((node, i) => {
+      command.affectedNodes.forEach((node: EntityTreeNode) => {
         assert.equal(oldSelection.includes(node.entity), !newSelection.includes(node.entity))
         assert.equal(newSelection.includes(node.entity), hasComponent(node.entity, SelectTagComponent))
       })
@@ -136,7 +135,7 @@ describe('ToggleSelectionCommand', () => {
       applyIncomingActions()
       const newSelection = accessSelectionState().selectedEntities.value
 
-      command.affectedNodes.forEach((node, i) => {
+      command.affectedNodes.forEach((node: EntityTreeNode, i) => {
         assert.equal(oldSelection.includes(node.entity), newSelection.includes(node.entity))
         assert.equal(oldSelection.includes(node.entity), hasComponent(node.entity, SelectTagComponent))
       })
@@ -151,12 +150,16 @@ describe('ToggleSelectionCommand', () => {
       ToggleSelectionCommand.undo(command)
       applyIncomingActions()
 
-      const selection = accessSelectionState().selectedEntities.value
+      const selection = accessSelectionState().selectedEntities.value.filter(
+        (obj) => typeof obj !== 'string'
+      ) as Entity[]
       assert.equal(selection.length, command.undo?.selection.length)
-      command.undo?.selection.forEach((entity, i) => {
-        assert.equal(selection[i], entity)
-        assert(hasComponent(entity, SelectTagComponent))
-      })
+      command.undo?.selection
+        .filter((obj) => typeof obj !== 'string')
+        .forEach((entity: Entity, i) => {
+          assert.equal(selection[i], entity)
+          assert(hasComponent(entity, SelectTagComponent))
+        })
     })
   })
 

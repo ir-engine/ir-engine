@@ -1,6 +1,7 @@
 import assert from 'assert'
 
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import { addComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
@@ -11,7 +12,6 @@ import {
 } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
 import { createEngine } from '@xrengine/engine/src/initializeEngine'
 import { SelectTagComponent } from '@xrengine/engine/src/scene/components/SelectTagComponent'
-import { registerPrefabs } from '@xrengine/engine/src/scene/functions/registerPrefabs'
 import { applyIncomingActions } from '@xrengine/hyperflux'
 
 import EditorCommands from '../constants/EditorCommands'
@@ -28,7 +28,6 @@ describe('AddToSelectionCommand', () => {
     createEngine()
     registerEditorReceptors()
     Engine.instance.store.defaultDispatchDelay = 0
-    registerPrefabs(Engine.instance.currentWorld)
 
     rootNode = createEntityNode(createEntity())
     nodes = [createEntityNode(createEntity()), createEntityNode(createEntity())]
@@ -114,7 +113,7 @@ describe('AddToSelectionCommand', () => {
       command.affectedNodes = nodes
       AddToSelectionCommand.execute(command)
       applyIncomingActions()
-      command.affectedNodes.forEach((node) => {
+      command.affectedNodes.forEach((node: EntityTreeNode) => {
         assert(accessSelectionState().selectedEntities.value.includes(node.entity))
         assert(hasComponent(node.entity, SelectTagComponent))
       })
@@ -130,7 +129,7 @@ describe('AddToSelectionCommand', () => {
       AddToSelectionCommand.undo(command)
       applyIncomingActions()
 
-      command.affectedNodes.forEach((node) => {
+      command.affectedNodes.forEach((node: EntityTreeNode) => {
         assert(accessSelectionState().selectedEntities.value.includes(node.entity))
         assert(hasComponent(node.entity, SelectTagComponent))
       })
@@ -144,10 +143,12 @@ describe('AddToSelectionCommand', () => {
       AddToSelectionCommand.undo(command)
       applyIncomingActions()
 
-      command.undo?.selection.forEach((entity) => {
-        assert(accessSelectionState().selectedEntities.value.includes(entity))
-        assert(hasComponent(entity, SelectTagComponent))
-      })
+      command.undo?.selection
+        .filter((ent) => typeof ent !== 'string')
+        .forEach((entity: Entity) => {
+          assert(accessSelectionState().selectedEntities.value.includes(entity))
+          assert(hasComponent(entity, SelectTagComponent))
+        })
     })
   })
 

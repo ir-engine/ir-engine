@@ -1,61 +1,19 @@
-import { Object3D, Vector3 } from 'three'
+import { Vector3 } from 'three'
 
-import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
-
-import {
-  ComponentDeserializeFunction,
-  ComponentSerializeFunction,
-  ComponentUpdateFunction
-} from '../../../common/constants/PrefabFunctionType'
+import { ComponentDeserializeFunction, ComponentSerializeFunction } from '../../../common/constants/PrefabFunctionType'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
-import Spline from '../../classes/Spline'
-import { EntityNodeComponent } from '../../components/EntityNodeComponent'
-import { Object3DComponent } from '../../components/Object3DComponent'
 import { SplineComponent, SplineComponentType } from '../../components/SplineComponent'
-import { ObjectLayers } from '../../constants/ObjectLayers'
-import { setObjectLayers } from '../setObjectLayers'
 
-export const SCENE_COMPONENT_SPLINE = 'spline'
-export const SCENE_COMPONENT_SPLINE_DEFAULT_VALUES = {
-  splinePositions: [] as Vector3[]
-}
-
-export const deserializeSpline: ComponentDeserializeFunction = (
-  entity: Entity,
-  json: ComponentJson<SplineComponentType>
-) => {
-  const obj3d = new Object3D()
-  const props = parseSplineProperties(json.props)
-
-  addComponent(entity, Object3DComponent, { value: obj3d })
+export const deserializeSpline: ComponentDeserializeFunction = (entity: Entity, data: SplineComponentType) => {
+  const props = parseSplineProperties(data)
   addComponent(entity, SplineComponent, props)
-
-  getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_SPLINE)
-
-  const helper = new Spline()
-  helper.userData.isHelper = true
-  setObjectLayers(helper, ObjectLayers.NodeHelper)
-
-  obj3d.add(helper)
-  obj3d.userData.helper = helper
-
-  helper.init(props.splinePositions)
-
-  updateSpline(entity, props)
 }
-
-export const updateSpline: ComponentUpdateFunction = (_: Entity, _properties: SplineComponentType) => {}
 
 export const serializeSpline: ComponentSerializeFunction = (entity) => {
-  const component = getComponent(entity, SplineComponent) as SplineComponentType
-  if (!component) return
-
+  const component = getComponent(entity, SplineComponent)
   return {
-    name: SCENE_COMPONENT_SPLINE,
-    props: {
-      splinePositions: component.splinePositions
-    }
+    splinePositions: component.splinePositions
   }
 }
 

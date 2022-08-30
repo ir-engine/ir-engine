@@ -5,6 +5,8 @@ import { useTranslation } from 'react-i18next'
 import JSONTree from 'react-json-tree'
 
 import { mapToObject } from '@xrengine/common/src/utils/mapToObject'
+import { AvatarControllerComponent } from '@xrengine/engine/src/avatar/components/AvatarControllerComponent'
+import { respawnAvatar } from '@xrengine/engine/src/avatar/functions/respawnAvatar'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineActions, EngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import {
@@ -28,6 +30,7 @@ import { dispatchAction, getState, useHookstate } from '@xrengine/hyperflux'
 import BlurOffIcon from '@mui/icons-material/BlurOff'
 import GridOnIcon from '@mui/icons-material/GridOn'
 import ManIcon from '@mui/icons-material/Man'
+import Refresh from '@mui/icons-material/Refresh'
 import SelectAllIcon from '@mui/icons-material/SelectAll'
 import SquareFootIcon from '@mui/icons-material/SquareFoot'
 import { Checkbox } from '@mui/material'
@@ -44,6 +47,9 @@ export const Debug = () => {
   const engineRendererState = useEngineRendererState()
   const engineState = getState(EngineState)
   const { t } = useTranslation()
+  const hasActiveControlledAvatar =
+    engineState.joinedWorld.value &&
+    hasComponent(Engine.instance.currentWorld.localClientEntity, AvatarControllerComponent)
 
   const networks = mapToObject(Engine.instance.currentWorld.networks)
 
@@ -63,6 +69,10 @@ export const Debug = () => {
     }
   }, [])
 
+  const onClickRespawn = (): void => {
+    respawnAvatar(Engine.instance.currentWorld.localClientEntity)
+  }
+
   const togglePhysicsDebug = () => {
     dispatchAction(
       EngineRendererAction.setPhysicsDebug({ physicsDebugEnable: !engineRendererState.physicsDebugEnable.value })
@@ -75,15 +85,15 @@ export const Debug = () => {
     )
   }
 
-  // todo: display all entities?
-  const renderNamedEntities = () => {
+  const renderAllEntities = () => {
     return {
       ...Object.fromEntries(
-        [...Engine.instance.currentWorld.namedEntities.entries()]
+        [...Engine.instance.currentWorld.entityQuery().entries()]
           .map(([key, eid]) => {
+            const name = getComponent(eid, NameComponent)?.name
             try {
               return [
-                '(eid:' + eid + ') ' + key,
+                '(eid:' + eid + ') ' + (name ?? ''),
                 Object.fromEntries(
                   getEntityComponents(Engine.instance.currentWorld, eid).reduce<[string, any][]>(
                     (components, C: MappedComponent<any, any>) => {
@@ -133,11 +143,10 @@ export const Debug = () => {
 
   const namedEntities = useHookstate({})
 
-  namedEntities.set(renderNamedEntities())
-
   const pipelines = Engine.instance.currentWorld.pipelines
 
-  if (isShowing)
+  if (isShowing) {
+    namedEntities.set(renderAllEntities())
     return (
       <div className={styles.debugContainer}>
         <div className={styles.debugOptionContainer}>
@@ -188,6 +197,11 @@ export const Debug = () => {
               >
                 <BlurOffIcon fontSize="small" />
               </button>
+              {hasActiveControlledAvatar && (
+                <button type="button" className={styles.flagBtn} id="respawn" onClick={onClickRespawn}>
+                  <Refresh />
+                </button>
+              )}
             </div>
           </div>
         </div>
@@ -221,10 +235,7 @@ export const Debug = () => {
         </div>
         <div className={styles.jsonPanel}>
           <h1>{t('common:debug.entities')}</h1>
-          <JSONTree
-            data={namedEntities.value}
-            postprocessValue={(v) => (v?.attach && v?.get && v?.set ? v.attach(Downgraded).value : v)}
-          />
+          <JSONTree data={namedEntities.value} postprocessValue={(v) => v?.value ?? v} />
         </div>
         <div className={styles.jsonPanel}>
           <h1>{t('common:debug.networks')}</h1>
@@ -232,7 +243,7 @@ export const Debug = () => {
         </div>
       </div>
     )
-  else return null
+  } else return null
 }
 
 export default Debug

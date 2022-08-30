@@ -4,19 +4,34 @@ import { Quaternion, Vector3 } from 'three'
 import { createActionQueue, getState } from '@xrengine/hyperflux'
 
 import { Engine } from '../../ecs/classes/Engine'
-import { EngineState } from '../../ecs/classes/EngineState'
+import { EngineActions, EngineState } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
 import { World } from '../../ecs/classes/World'
-import { defineQuery, getComponent, removeComponent } from '../../ecs/functions/ComponentFunctions'
-import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
-import { NetworkObjectDirtyTag } from '../../networking/components/NetworkObjectDirtyTag'
+import { defineQuery, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
+import { NetworkObjectOwnedTag } from '../../networking/components/NetworkObjectOwnedTag'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
-import { TransformComponent } from '../../transform/components/TransformComponent'
+import {
+  ColliderComponent,
+  MeshColliderComponentTag,
+  SCENE_COMPONENT_COLLIDER,
+  SCENE_COMPONENT_COLLIDER_DEFAULT_VALUES
+} from '../../scene/components/ColliderComponent'
+import { Object3DComponent } from '../../scene/components/Object3DComponent'
+import { SCENE_COMPONENT_VISIBLE } from '../../scene/components/VisibleComponent'
+import {
+  deserializeCollider,
+  serializeCollider,
+  updateCollider,
+  updateMeshCollider
+} from '../../scene/functions/loaders/ColliderFunctions'
+import {
+  SCENE_COMPONENT_TRANSFORM,
+  SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES,
+  TransformComponent
+} from '../../transform/components/TransformComponent'
 import { Physics } from '../classes/Physics'
 import { CollisionComponent } from '../components/CollisionComponent'
-import { RaycastComponent } from '../components/RaycastComponent'
 import { RigidBodyComponent } from '../components/RigidBodyComponent'
-import { RigidBodyDynamicTagComponent } from '../components/RigidBodyDynamicTagComponent'
 import { VelocityComponent } from '../components/VelocityComponent'
 import { ColliderHitEvent, CollisionEvents } from '../types/PhysicsTypes'
 
@@ -26,52 +41,13 @@ export function teleportObjectReceptor(
   world = Engine.instance.currentWorld
 ) {
   const entity = world.getNetworkObject(action.object.ownerId, action.object.networkId)!
-  const body = getComponent(entity, RigidBodyComponent)
+  const body = getComponent(entity, RigidBodyComponent).body
   if (body) {
     body.setTranslation(action.position, true)
     body.setRotation(action.rotation, true)
     body.setLinvel({ x: 0, y: 0, z: 0 }, true)
     body.setAngvel({ x: 0, y: 0, z: 0 }, true)
   }
-}
-
-const processRaycasts = (world: World, entity: Entity) => {
-  Physics.castRay(world.physicsWorld, getComponent(entity, RaycastComponent))
-}
-
-// Set network state to physics body pose for objects not owned by this user.
-const updateDirtyDynamicBodiesFromNetwork = (world: World, entity: Entity) => {
-  const network = getComponent(entity, NetworkObjectComponent)
-
-  // Ignore if we own this object or no new network state has been received for this object
-  // (i.e. packet loss and/or state not sent out from server because no change in state since last frame)
-  if (network.ownerId === Engine.instance.userId) {
-    // console.log('ignoring state for:', nameComponent)
-    return
-  }
-
-  const body = getComponent(entity, RigidBodyComponent)
-  const { position, rotation } = getComponent(entity, TransformComponent)
-  const { linear, angular } = getComponent(entity, VelocityComponent)
-
-  body.setTranslation(position, true)
-  body.setRotation(rotation, true)
-  body.setLinvel(linear, true)
-  body.setAngvel(angular, true)
-
-  removeComponent(entity, NetworkObjectDirtyTag)
-}
-
-const updateTransformFromBody = (world: World, entity: Entity) => {
-  const body = getComponent(entity, RigidBodyComponent)
-  const { position, rotation } = getComponent(entity, TransformComponent)
-  const { linear, angular } = getComponent(entity, VelocityComponent)
-
-  position.copy(body.translation() as Vector3)
-  rotation.copy(body.rotation() as Quaternion)
-
-  linear.copy(body.linvel() as Vector3)
-  angular.copy(body.angvel() as Vector3)
 }
 
 const processCollisions = (world: World, drainCollisions, collisionEntities: Entity[]) => {
@@ -108,24 +84,32 @@ const processCollisions = (world: World, drainCollisions, collisionEntities: Ent
   }
 }
 
+export const PhysicsPrefabs = {
+  collider: 'collider' as const
+}
+
 export default async function PhysicsSystem(world: World) {
-  const raycastQuery = defineQuery([RaycastComponent])
+  world.sceneComponentRegistry.set(ColliderComponent._name, SCENE_COMPONENT_COLLIDER)
+  world.sceneLoadingRegistry.set(SCENE_COMPONENT_COLLIDER, {
+    defaultData: SCENE_COMPONENT_COLLIDER_DEFAULT_VALUES,
+    deserialize: deserializeCollider,
+    serialize: serializeCollider
+  })
 
-  const dirtyNetworkedDynamicRigidBodyQuery = defineQuery([
-    NetworkObjectComponent,
-    RigidBodyComponent,
-    NetworkObjectDirtyTag,
-    RigidBodyDynamicTagComponent
+  world.scenePrefabRegistry.set(PhysicsPrefabs.collider, [
+    { name: SCENE_COMPONENT_TRANSFORM, props: SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES },
+    { name: SCENE_COMPONENT_VISIBLE, props: true },
+    { name: SCENE_COMPONENT_COLLIDER, props: SCENE_COMPONENT_COLLIDER_DEFAULT_VALUES }
   ])
 
-  const nonNetworkedDynamicRigidBodyQuery = defineQuery([
-    Not(NetworkObjectComponent),
-    RigidBodyComponent,
-    RigidBodyDynamicTagComponent
-  ])
   const rigidBodyQuery = defineQuery([RigidBodyComponent])
+  const colliderQuery = defineQuery([ColliderComponent, Not(MeshColliderComponentTag)])
+  const meshColliderQuery = defineQuery([ColliderComponent, MeshColliderComponentTag])
+  const ownedRigidBodyQuery = defineQuery([RigidBodyComponent, NetworkObjectOwnedTag])
+  const notOwnedRigidBodyQuery = defineQuery([RigidBodyComponent, Not(NetworkObjectOwnedTag)])
 
   const teleportObjectQueue = createActionQueue(WorldNetworkAction.teleportObject.matches)
+  const modifyPropertyActionQueue = createActionQueue(EngineActions.sceneObjectUpdate.matches)
 
   await Physics.load()
   world.physicsWorld = Physics.createWorld()
@@ -135,26 +119,54 @@ export default async function PhysicsSystem(world: World) {
   const collisionQuery = defineQuery([CollisionComponent])
 
   return () => {
+    for (const action of modifyPropertyActionQueue()) {
+      for (const entity of action.entities) {
+        if (hasComponent(entity, ColliderComponent)) {
+          if (hasComponent(entity, MeshColliderComponentTag)) {
+            updateMeshCollider(entity)
+          } else {
+            updateCollider(entity)
+          }
+        }
+      }
+    }
+    for (const action of colliderQuery.enter()) updateCollider(action)
+    for (const action of meshColliderQuery.enter()) updateMeshCollider(action)
+
     for (const action of teleportObjectQueue()) teleportObjectReceptor(action)
 
     for (const entity of rigidBodyQuery.exit()) {
       Physics.removeRigidBody(entity, world.physicsWorld, true)
     }
 
-    for (const entity of dirtyNetworkedDynamicRigidBodyQuery()) updateDirtyDynamicBodiesFromNetwork(world, entity)
-
-    if (!Engine.instance.isEditor) {
-      // step physics world
-      world.physicsWorld.timestep = getState(EngineState).fixedDeltaSeconds.value
-      world.physicsWorld.step(world.physicsCollisionEventQueue)
-
-      const collisionEntities = collisionQuery()
-
-      processCollisions(world, drainCollisions, collisionEntities)
-
-      for (const entity of raycastQuery()) processRaycasts(world, entity)
-
-      for (const entity of nonNetworkedDynamicRigidBodyQuery()) updateTransformFromBody(world, entity)
+    for (const entity of ownedRigidBodyQuery()) {
+      const rigidBody = getComponent(entity, RigidBodyComponent)
+      rigidBody.previousPosition.copy(rigidBody.body.translation() as Vector3)
+      rigidBody.previousRotation.copy(rigidBody.body.rotation() as Quaternion)
+      rigidBody.previousLinearVelocity.copy(rigidBody.body.linvel() as Vector3)
+      rigidBody.previousAngularVelocity.copy(rigidBody.body.linvel() as Vector3)
     }
+
+    // reset position and velocity for network objects every frame
+    // (this needs to be updated each frame, because remote objects are not locally constrained)
+    // e.g., applying physics simulation to remote avatars is tricky, because avatar colliders should always be upright.
+    // TODO: it should be safe to skip this for objects unconstrained remote physics objects,
+    // we just need a way to identify them (Not(AvatarComponenent) may be enough for now...)
+    for (const entity of notOwnedRigidBodyQuery()) {
+      const { body } = getComponent(entity, RigidBodyComponent)
+      const { position, rotation } = getComponent(entity, TransformComponent)
+      const { linear, angular } = getComponent(entity, VelocityComponent)
+      body.setTranslation(position, true)
+      body.setRotation(rotation, true)
+      body.setLinvel(linear, true)
+      body.setAngvel(angular, true)
+      world.dirtyTransforms.add(entity)
+    }
+
+    // step physics world
+    world.physicsWorld.timestep = getState(EngineState).fixedDeltaSeconds.value
+    world.physicsWorld.step(world.physicsCollisionEventQueue)
+
+    processCollisions(world, drainCollisions, collisionQuery())
   }
 }

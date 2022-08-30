@@ -1,0 +1,22 @@
+.contentContainer {
+  width: 95%;
+  margin: 8px;
+  padding: 4px;
+  color: var(--textColor);
+  background-color: var(--dockBackground);
+  border: var(--inputOutline) solid 1px;
+  border-radius: 8px;
+
+  .Box {
+    margin-top: 4px;
+    margin-bottom: 4px;
+  }
+
+  .Stack {
+    align-items: center;
+  }
+}
+
+.divider {
+  border-color: var(--panelBackground);
+}

@@ -12,7 +12,7 @@ import { updateOutlinePassSelection } from '../functions/updateOutlinePassSelect
 import { accessSelectionState, SelectionAction } from '../services/SelectionServices'
 
 export type AddToSelectionCommandUndoParams = {
-  selection: Entity[]
+  selection: (Entity | string)[]
 }
 
 export type AddToSelectionCommandParams = CommandParams & {
@@ -23,7 +23,7 @@ export type AddToSelectionCommandParams = CommandParams & {
 
 function prepare(command: AddToSelectionCommandParams) {
   if (command.keepHistory) {
-    command.undo = { selection: accessSelectionState().selectedEntities.value.slice(0) }
+    command.undo = { selection: accessSelectionState().selectedEntities.value.slice() }
   }
 }
 
@@ -34,10 +34,13 @@ function execute(command: AddToSelectionCommandParams) {
 
   for (let i = 0; i < command.affectedNodes.length; i++) {
     const object = command.affectedNodes[i]
-    if (selectedEntities.includes(object.entity)) continue
-
-    addComponent(object.entity, SelectTagComponent, {})
-    selectedEntities.push(object.entity)
+    if (selectedEntities.includes(typeof object === 'string' ? object : object.entity)) continue
+    if (typeof object === 'string') {
+      selectedEntities.push(object)
+    } else {
+      addComponent(object.entity, SelectTagComponent, {})
+      selectedEntities.push(object.entity)
+    }
   }
 
   dispatchAction(SelectionAction.updateSelection({ selectedEntities }))

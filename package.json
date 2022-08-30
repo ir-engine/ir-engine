@@ -44,18 +44,21 @@
     "check-errors": "lerna run check-errors --parallel",
     "clean-node-modules": "npx rimraf node_modules && npx rimraf package-lock.json && npx lerna exec npx rimraf node_modules && npx lerna exec npx rimraf package-lock.json",
     "cleanup-tests": "node tests/cleanup-tests.js",
+    "clear-projects-rebuild": "cross-env ts-node --swc scripts/clear-projects-rebuild",
     "depcheck": "lerna exec --no-bail --stream -- depcheck",
     "dev": "npm run dev-docker && concurrently -n agones,server,client npm:dev-agones-silent npm:dev-server npm:dev-client",
     "dev-agones": "cd scripts && ./start-agones.sh",
     "dev-agones-silent": "npm run dev-agones &> /dev/null",
     "dev-client": "cd packages/client && npm run dev",
     "dev-docker": "cd scripts && docker-compose up -d",
+    "dev-tabs": "cd scripts && ./dev-tabs.sh",
     "fetch-projects": "lerna exec 'git fetch -p && git rebase' --parallel --ignore @xrengine/*",
     "dev-nginx": "",
     "dev-reinit": "cd packages/server && npm run dev-reinit-db",
     "dev-server": "cd packages/server && npm run dev",
     "dev-windows": "npm run dev-docker && concurrently -n agones,server,client npm:dev-agones-silent npm:dev-server npm:dev-client",
     "diff": "lerna diff",
+    "edit": "scripts/open_browser.sh editor && scripts/open_browser.sh admin && scripts/open_browser.sh location",
     "format": "prettier --write \"packages/**/*.{ts,tsx}\"",
     "format-scss": "stylelint \"packages/**/*.scss\" --fix",
     "format-staged": "lint-staged",
@@ -86,12 +89,10 @@
   ],
   "lint-staged": {
     "*.{ts,tsx}": [
-      "prettier --write",
-      "git add"
+      "prettier --write"
     ],
     "*.scss": [
-      "stylelint --fix",
-      "git add"
+      "stylelint --fix"
     ]
   },
   "devDependencies": {
@@ -114,7 +115,8 @@
     "stylelint-config-standard-scss": "^3.0.0",
     "stylelint-scss": "^4.2.0",
     "supertest": "6.2.2",
-    "trace-unhandled": "2.0.1"
+    "trace-unhandled": "2.0.1",
+    "ttab": "^0.7.3"
   },
   "dependencies": {
     "@feathersjs/commons": "5.0.0-pre.10",
@@ -125,8 +127,10 @@
     "lerna": "4.0.0",
     "pino": "^7.10.0",
     "pino-pretty": "^7.6.1",
+    "postcss": "^8.4.16",
     "qrcode.react": "^3.1.0",
     "react-json-view": "^1.21.3",
+    "three": "0.142.0",
     "ts-node": "10.8.2",
     "typescript": "4.7.4"
   }

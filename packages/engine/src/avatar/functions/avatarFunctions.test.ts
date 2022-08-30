@@ -1,7 +1,8 @@
 import assert from 'assert'
 import { AnimationClip, Bone, Group, Vector3 } from 'three'
 
-import { loadGLTFAssetNode } from '../../../tests/util/loadGLTFAssetNode'
+import { overrideFileLoaderLoad } from '../../../tests/util/loadGLTFAssetNode'
+import { AssetLoader } from '../../assets/classes/AssetLoader'
 import { loadDRACODecoder } from '../../assets/loaders/gltf/NodeDracoLoader'
 import { addComponent, getComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../ecs/functions/EntityFunctions'
@@ -16,6 +17,8 @@ import { animateAvatarModel, boneMatchAvatarModel, makeDefaultSkinnedMesh, rigAv
 
 const animGLB = '/packages/client/public/default_assets/Animations.glb'
 
+overrideFileLoaderLoad()
+
 before(async () => {
   await loadDRACODecoder()
 })
@@ -29,7 +32,7 @@ describe('avatarFunctions Unit', async () => {
 
   let assetModel
   before(async () => {
-    assetModel = await loadGLTFAssetNode(testGLTF)
+    assetModel = await AssetLoader.loadAsync(testGLTF)
   })
 
   describe('boneMatchAvatarModel', () => {
@@ -85,10 +88,10 @@ describe('avatarFunctions Unit', async () => {
         },
         rig: {} as BoneStructure,
         bindRig: {} as BoneStructure,
-        rootYRatio: 1
+        rootYRatio: 1,
+        locomotion: new Vector3()
       })
-
-      const animationGLTF = await loadGLTFAssetNode(animGLB)
+      const animationGLTF = await AssetLoader.loadAsync(animGLB)
       AnimationManager.instance.getAnimations(animationGLTF)
 
       const group = new Group()

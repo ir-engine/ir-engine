@@ -17,12 +17,15 @@ import {
 import { NetworkObjectOwnedTag } from '../networking/components/NetworkObjectOwnedTag'
 import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
 import { WorldState } from '../networking/interfaces/WorldState'
-import { XRLGripButtonComponent, XRRGripButtonComponent } from '../xr/components/XRGripButtonComponent'
-import { XRHandsInputComponent } from '../xr/components/XRHandsInputComponent'
-import { XRInputSourceComponent } from '../xr/components/XRInputSourceComponent'
-import { initializeHandModel, initializeXRInputs } from '../xr/functions/addControllerModels'
-import { playTriggerPressAnimation, playTriggerReleaseAnimation } from '../xr/functions/controllerAnimation'
-import { proxifyXRInputs, setupXRInputSourceComponent } from '../xr/functions/WebXRFunctions'
+import {
+  XRHandsInputComponent,
+  XRInputSourceComponent,
+  XRLGripButtonComponent,
+  XRRGripButtonComponent
+} from '../xr/XRComponents'
+import { initializeHandModel, initializeXRInputs } from '../xr/XRControllerFunctions'
+import { playTriggerPressAnimation, playTriggerReleaseAnimation } from '../xr/XRControllerFunctions'
+import { proxifyXRInputs } from '../xr/XRFunctions'
 import { AvatarAnimationComponent } from './components/AvatarAnimationComponent'
 import { AvatarArmsTwistCorrectionComponent } from './components/AvatarArmsTwistCorrectionComponent'
 import { AvatarComponent } from './components/AvatarComponent'
@@ -39,22 +42,6 @@ export function avatarDetailsReceptor(
   if (isClient) {
     const entity = world.getUserAvatarEntity(action.$from)
     loadAvatarForUser(entity, action.avatarDetail.avatarURL)
-  }
-}
-
-export function setXRModeReceptor(
-  action: ReturnType<typeof WorldNetworkAction.setXRMode>,
-  world = Engine.instance.currentWorld
-) {
-  const entity = world.getUserAvatarEntity(action.$from)
-  if (!entity) return
-
-  if (action.enabled) {
-    if (!hasComponent(entity, XRInputSourceComponent)) {
-      setupXRInputSourceComponent(entity)
-    }
-  } else if (hasComponent(entity, XRInputSourceComponent)) {
-    removeComponent(entity, XRInputSourceComponent)
   }
 }
 
@@ -83,7 +70,6 @@ export function xrHandsConnectedReceptor(
 
 export default async function AvatarSystem(world: World) {
   const avatarDetailsQueue = createActionQueue(WorldNetworkAction.avatarDetails.matches)
-  const setXRModeQueue = createActionQueue(WorldNetworkAction.setXRMode.matches)
   const xrHandsConnectedQueue = createActionQueue(WorldNetworkAction.xrHandsConnected.matches)
 
   const xrInputQuery = defineQuery([AvatarComponent, XRInputSourceComponent, AvatarAnimationComponent])
@@ -93,7 +79,6 @@ export default async function AvatarSystem(world: World) {
 
   return () => {
     for (const action of avatarDetailsQueue()) avatarDetailsReceptor(action)
-    for (const action of setXRModeQueue()) setXRModeReceptor(action)
     for (const action of xrHandsConnectedQueue()) xrHandsConnectedReceptor(action)
 
     for (const entity of xrInputQuery.enter(world)) {
@@ -195,13 +180,13 @@ export function setupHandIK(entity: Entity) {
     leftTargetOffset: leftOffset,
     leftTargetPosWeight: 1,
     leftTargetRotWeight: 1,
-    leftHintWeight: 1,
+    leftHintWeight: -1,
     rightTarget: xrInputSourceComponent.controllerRightParent,
     rightHint: rightHint,
     rightTargetOffset: rightOffset,
     rightTargetPosWeight: 1,
     rightTargetRotWeight: 1,
-    rightHintWeight: 1
+    rightHintWeight: -1
   })
 
   addComponent(entity, AvatarArmsTwistCorrectionComponent, {

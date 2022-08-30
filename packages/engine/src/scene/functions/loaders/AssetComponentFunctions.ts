@@ -1,6 +1,5 @@
 import { Object3D } from 'three'
 
-import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
 import { AssetType } from '@xrengine/engine/src/assets/enum/AssetType'
 import {
@@ -19,19 +18,10 @@ import {
   AssetComponent,
   AssetComponentType,
   AssetLoadedComponent,
-  LoadState
+  LoadState,
+  SCENE_COMPONENT_ASSET_DEFAULT_VALUES
 } from '@xrengine/engine/src/scene/components/AssetComponent'
-import { EntityNodeComponent } from '@xrengine/engine/src/scene/components/EntityNodeComponent'
-import { Object3DComponent, Object3DWithEntity } from '@xrengine/engine/src/scene/components/Object3DComponent'
-
-import { sceneToGLTF } from '../GLTFConversion'
-
-export const SCENE_COMPONENT_ASSET = 'asset'
-export const SCENE_COMPONENT_ASSET_DEFAULT_VALUES = {
-  name: '',
-  path: '',
-  loaded: LoadState.UNLOADED
-}
+import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 
 export const unloadAsset = (entity: Entity) => {
   if (!hasComponent(entity, AssetComponent)) {
@@ -69,31 +59,23 @@ export const loadAsset = async (entity: Entity, loader = AssetLoader) => {
   }
 }
 
-export const deserializeAsset: ComponentDeserializeFunction = async (
-  entity: Entity,
-  json: ComponentJson<AssetComponentType>
-) => {
+export const deserializeAsset: ComponentDeserializeFunction = async (entity: Entity, data: AssetComponentType) => {
   let obj3d = getComponent(entity, Object3DComponent)?.value
   if (!obj3d) {
     obj3d = new Object3D()
     addComponent(entity, Object3DComponent, { value: obj3d })
   }
-  const props = parseAssetProperties(json.props)
+  const props = parseAssetProperties(data)
   addComponent(entity, AssetComponent, props)
-  getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_ASSET)
 }
 
 export const serializeAsset: ComponentSerializeFunction = (entity) => {
   const comp = getComponent(entity, AssetComponent) as AssetComponentType
-  if (!comp) return
   const metadata = comp.metadata ? { metadata: comp.metadata } : {}
   return {
-    name: SCENE_COMPONENT_ASSET,
-    props: {
-      path: comp.path,
-      ...metadata,
-      loaded: comp.loaded
-    }
+    path: comp.path,
+    ...metadata,
+    loaded: comp.loaded
   }
 }
 

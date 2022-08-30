@@ -11,8 +11,6 @@ import { UserInterface } from '@xrengine/common/src/interfaces/User'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineActions, getEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
-import { initSystems } from '@xrengine/engine/src/ecs/functions/SystemFunctions'
-import { SystemUpdateType } from '@xrengine/engine/src/ecs/functions/SystemUpdateType'
 import {
   createEngine,
   initializeCoreSystems,
@@ -22,14 +20,12 @@ import {
   initializeSceneSystems,
   setupEngineActionSystems
 } from '@xrengine/engine/src/initializeEngine'
-import { Network, NetworkTopics } from '@xrengine/engine/src/networking/classes/Network'
+import { NetworkTopics } from '@xrengine/engine/src/networking/classes/Network'
 import { matchActionOnce } from '@xrengine/engine/src/networking/functions/matchActionOnce'
 import { NetworkPeerFunctions } from '@xrengine/engine/src/networking/functions/NetworkPeerFunctions'
-import { loadSceneFromJSON } from '@xrengine/engine/src/scene/functions/SceneLoading'
+import { loadSceneFromJSON } from '@xrengine/engine/src/scene/systems/SceneLoadingSystem'
 import { dispatchAction } from '@xrengine/hyperflux'
 import { loadEngineInjection } from '@xrengine/projects/loadEngineInjection'
-// import { getPortalByEntityId } from '@xrengine/server-core/src/entities/component/portal.controller'
-// import { setRemoteLocationDetail } from '@xrengine/engine/src/scene/functions/createPortal'
 import { getSystemsFromSceneData } from '@xrengine/projects/loadSystemInjection'
 import { Application } from '@xrengine/server-core/declarations'
 import config from '@xrengine/server-core/src/appconfig'
@@ -272,8 +268,6 @@ const loadEngine = async (app: Application, sceneId: string) => {
     await sceneUpdatedListener()
 
     logger.info('Scene loaded!')
-
-    // getPortalDetails()
   }
   await initPromise
 

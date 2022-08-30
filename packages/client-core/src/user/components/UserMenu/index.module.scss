@@ -15,7 +15,7 @@
 
 .themeSettingContainer {
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   align-items: center;
 
   label {
@@ -25,6 +25,14 @@
 
 .themeHeading {
   font-size: 12px;
+  color: var(--textColor);
+}
+
+.panelHeader {
+  padding-top: 10px;
+  font-size: 14px;
+  font-weight: bold;
+  margin: 0;
   color: var(--textColor);
 }
 
@@ -43,7 +51,6 @@
     width: 4em;
 
     svg {
-      width: auto;
       height: auto;
     }
 
@@ -57,6 +64,7 @@
   .iconContainer {
     display: inline-flex;
     margin: auto;
+    gap: 10px;
 
     .materialIconBlock {
       padding: 1em;
@@ -196,7 +204,7 @@
 
   @media (max-width: 560px) {
     height: 200px;
-    bottom: 100px;
+    bottom: 90px;
     width: auto;
   }
 }
@@ -240,6 +248,8 @@
       flex-wrap: wrap;
 
       .avatarBlock {
+        margin-right: 20px;
+        margin-bottom: 20px;
         width: 80px;
         height: 80px;
         box-shadow: 0 2px 18px 0 #11111159;
@@ -279,11 +289,6 @@
             right: -15px;
             background-color: var(--iconButtonSelectedBackground);
           }
-
-          svg {
-            width: 20px;
-            height: 20px;
-          }
         }
       }
 
@@ -292,13 +297,6 @@
         flex-flow: column wrap;
         width: calc(100% - 110px);
         align-content: center;
-
-        .panelHeader {
-          font-size: 14px;
-          font-weight: bold;
-          margin: 0;
-          color: var(--textColor);
-        }
 
         .inputBlock {
           display: flex;
@@ -321,10 +319,6 @@
 
             :global(.MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline) {
               border-color: white !important;
-            }
-
-            @media (max-width: 560px) {
-              width: 200px;
             }
           }
 
@@ -367,7 +361,6 @@
           color: var(--textColor);
 
           .logout {
-            max-width: 50px;
             font-size: 14px;
 
             &:hover {
@@ -381,18 +374,7 @@
     }
 
     .emailPhoneSection {
-      margin-top: 20px;
-
-      .panelHeader {
-        font-size: 14px;
-        font-weight: bold;
-        margin: 0;
-        color: var(--textColor);
-      }
-
       .emailField {
-        margin-top: 10px;
-        margin-bottom: 20px;
         width: 100%;
         color: var(--textColor);
         background: transparent;
@@ -444,7 +426,7 @@
       .socialContainer {
         display: flex;
         justify-content: space-evenly;
-        margin: 20px 0;
+        margin: 10px 0;
 
         a {
           color: #000;
@@ -488,7 +470,7 @@
 
   .deletePanel {
     .deleteAccount {
-      color: white;
+      color: var(--textColor);
 
       &:hover {
         cursor: pointer;
@@ -497,7 +479,7 @@
     }
 
     .deleteText {
-      color: white;
+      color: var(--textColor);
       margin-top: 10px;
       font-size: 16px;
     }
@@ -526,30 +508,21 @@
 
 .menuPanel {
   position: absolute;
-  padding: 0 30px;
+  padding: 20px;
   z-index: 6;
   border-radius: 20px;
   background-color: var(--popupBackground);
-  width: calc(100% - 20px);
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
   box-shadow: 16px 16px 32px 0 #11111159;
   color: black;
   max-height: calc(100vh - 150px);
-  overflow: auto;
   touch-action: auto;
+  overflow-y: auto;
 
   * {
     touch-action: auto;
-  }
-
-  & > .profilePanel,
-  & > .accountPanel,
-  & > .settingPanel,
-  & > .sharePanel,
-  & > .locationPanel {
-    margin: 30px 0;
   }
 
   .profilePanel {
@@ -560,9 +533,13 @@
     .profileBlock {
       display: flex;
       justify-content: space-between;
-      flex-wrap: wrap;
+
+      // margin-bottom: 20px;
+      // flex-wrap: wrap;
 
       .avatarBlock {
+        margin-right: 20px;
+        margin-bottom: 20px;
         width: 80px;
         height: 80px;
         box-shadow: 0 2px 18px 0 #11111159;
@@ -613,15 +590,8 @@
       .headerBlock {
         display: flex;
         flex-flow: column wrap;
-        width: calc(100% - 110px);
         align-content: center;
-
-        .panelHeader {
-          font-size: 14px;
-          font-weight: bold;
-          margin: 0;
-          color: var(--textColor);
-        }
+        width: 100%;
 
         .inputBlock {
           display: flex;
@@ -644,10 +614,6 @@
 
             :global(.MuiOutlinedInput-root .MuiOutlinedInput-notchedOutline) {
               border-color: white !important;
-            }
-
-            @media (max-width: 560px) {
-              width: 200px;
             }
           }
 
@@ -690,7 +656,6 @@
           color: var(--textColor);
 
           .logout {
-            max-width: 50px;
             font-size: 14px;
 
             &:hover {
@@ -704,18 +669,7 @@
     }
 
     .emailPhoneSection {
-      margin-top: 20px;
-
-      .panelHeader {
-        font-size: 14px;
-        font-weight: bold;
-        margin: 0;
-        color: var(--textColor);
-      }
-
       .emailField {
-        margin-top: 10px;
-        margin-bottom: 20px;
         width: 100%;
         color: var(--textColor);
         background: transparent;
@@ -767,7 +721,7 @@
       .socialContainer {
         display: flex;
         justify-content: space-evenly;
-        margin: 20px 0;
+        margin: 10px 0;
 
         a {
           color: #000;
@@ -819,16 +773,22 @@
       }
     }
 
+    .tutorialImage {
+      background-color: #1b1b1b;
+      border-radius: 4px;
+    }
+
     .row {
       display: flex;
       align-items: center;
 
-      & + .flexWrap {
-        flex-wrap: wrap;
-      }
-
       & + .row {
         margin-top: 5px;
+      }
+
+      > div {
+        flex: 1;
+        margin: 10px;
       }
 
       .checkboxBlock {
@@ -909,12 +869,6 @@
 
   .sharePanel {
     position: relative;
-
-    .panelHeader {
-      font-size: 18px;
-      color: var(--textColor);
-      font-weight: bold;
-    }
 
     .shareLink {
       font-size: 16px;
@@ -1030,6 +984,21 @@
         background: var(--purpleButtonColor);
         color: #fff;
         text-transform: capitalize;
+
+        &:hover {
+          opacity: 0.8;
+        }
+      }
+
+      .friendsBtn {
+        height: 35px;
+        font-size: 14px;
+        width: 250px;
+        max-width: 100%;
+        background: linear-gradient(90deg, var(--buttonGradientStart), var(--buttonGradientEnd));
+        color: var(--textColor);
+        border-radius: 20px;
+        margin: 15px 0 20px;
 
         &:hover {
           opacity: 0.8;
@@ -1295,7 +1264,7 @@
 
   .deletePanel {
     .deleteAccount {
-      color: white;
+      color: var(--textColor);
 
       &:hover {
         cursor: pointer;
@@ -1304,7 +1273,7 @@
     }
 
     .deleteText {
-      color: white;
+      color: var(--textColor);
       margin-top: 10px;
       font-size: 16px;
     }
@@ -1344,7 +1313,6 @@
   @media screen and (max-width: 500px) {
     .headerBlock {
       width: 100% !important;
-      margin-top: 30px;
     }
   }
 
@@ -1971,6 +1939,49 @@
   }
 }
 
+.avatarContextPanel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  .ownerImage {
+    width: 150px;
+    height: 150px;
+    margin: auto;
+    border-radius: 75px;
+    filter: drop-shadow(0 4px 4px rgb(0 0 0 / 25%));
+    background: var(--popupBackground);
+    z-index: 1000;
+  }
+
+  .userName {
+    color: var(--textColor);
+    text-align: center;
+  }
+
+  .contentSection {
+    display: flex;
+    flex-direction: column;
+    margin-top: 20px;
+  }
+
+  .gradientBtn {
+    height: 35px;
+    font-size: 14px;
+    width: 250px;
+    max-width: 100%;
+    background: linear-gradient(90deg, var(--buttonGradientStart), var(--buttonGradientEnd));
+    color: var(--textColor);
+    border-radius: 20px;
+    margin: 15px 0 20px;
+    border: none;
+
+    &:hover {
+      opacity: 0.8;
+    }
+  }
+}
+
 .itemContainerPrev {
   content: "";
   width: 40px;
@@ -2213,7 +2224,6 @@
 
 .avatarContainer {
   height: 90%;
-  margin-bottom: 20px;
   overflow-y: auto;
   overflow-x: hidden;
 }
@@ -2440,6 +2450,7 @@
   display: flex;
   justify-content: space-between;
   align-items: end;
+  flex: 1;
 }
 
 .selectSize {

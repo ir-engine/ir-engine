@@ -115,16 +115,15 @@ export const boneMatchAvatarModel = (entity: Entity) => (model: Object3D) => {
 
   const animationComponent = getComponent(entity, AvatarAnimationComponent)
   animationComponent.rig = avatarBoneMatching(model)
-  const root = model
   const object3DComponent = getComponent(entity, Object3DComponent)
 
   if (assetType == AssetType.FBX) {
     // TODO: Should probably be applied to vertexes in the modeling tool
-    root.children[0].scale.setScalar(0.01)
+    model.children[0].scale.setScalar(0.01)
     object3DComponent.value!.userData.scale = 0.01
   } else if (assetType == AssetType.VRM) {
     if (model && object3DComponent.value && (model as UpdateableObject3D).update) {
-      addComponent(entity, UpdatableComponent, {})
+      addComponent(entity, UpdatableComponent, true)
       ;(object3DComponent.value as unknown as Updatable).update = (delta: number) => {
         ;(model as UpdateableObject3D).update(delta)
       }
@@ -165,7 +164,6 @@ export const rigAvatarModel = (entity: Entity) => (model: Object3D) => {
 export const animateAvatarModel = (entity: Entity) => (model: Object3D) => {
   const animationComponent = getComponent(entity, AnimationComponent)
   const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
-  const velocityComponent = getComponent(entity, VelocityComponent)
   const controllerComponent = getComponent(entity, AvatarControllerComponent)
 
   animationComponent.mixer?.stopAllAction()
@@ -173,12 +171,13 @@ export const animateAvatarModel = (entity: Entity) => (model: Object3D) => {
   // We have to bind the mixer with original skeleton and copy resulting bone transforms after update
   const sourceSkeleton = makeDefaultSkinnedMesh().skeleton
   animationComponent.mixer = new AnimationMixer(sourceSkeleton.bones[0])
+  animationComponent.animations = AnimationManager.instance._animations
 
   if (avatarAnimationComponent)
     avatarAnimationComponent.animationGraph = createAvatarAnimationGraph(
       entity,
       animationComponent.mixer,
-      velocityComponent.linear,
+      avatarAnimationComponent.locomotion,
       controllerComponent ?? {}
     )
 
@@ -189,7 +188,6 @@ export const animateAvatarModel = (entity: Entity) => (model: Object3D) => {
 export const animateModel = (entity: Entity) => {
   const component = getComponent(entity, LoopAnimationComponent)
   const animationComponent = getComponent(entity, AnimationComponent)
-  animationComponent.animations = AnimationManager.instance._animations
 
   if (component.action) component.action.stop()
   component.action = animationComponent.mixer
@@ -223,9 +221,9 @@ export const setupAvatarHeight = (entity: Entity, model: Object3D) => {
   resizeAvatar(entity, tempVec3ForHeight.y, tempVec3ForCenter)
 }
 
-export const loadGrowingEffectObject = (entity: Entity, originalMatList: Array<MaterialMap>) => {
-  const textureLight = AssetLoader.getFromCache('/itemLight.png')
-  const texturePlate = AssetLoader.getFromCache('/itemPlate.png')
+export const loadGrowingEffectObject = async (entity: Entity, originalMatList: Array<MaterialMap>) => {
+  const textureLight = await AssetLoader.loadAsync('/itemLight.png')
+  const texturePlate = await AssetLoader.loadAsync('/itemPlate.png')
 
   const lightMesh = new Mesh(
     new PlaneGeometry(0.04, 3.2),

@@ -1,13 +1,15 @@
-import { Bone, Euler, Vector3 } from 'three'
+import { Bone, Euler, MathUtils, Vector3 } from 'three'
 
 import { createActionQueue } from '@xrengine/hyperflux'
 
 import { Axis } from '../common/constants/Axis3D'
+import { V_000 } from '../common/constants/MathConstants'
 import { Engine } from '../ecs/classes/Engine'
 import { World } from '../ecs/classes/World'
 import { defineQuery, getComponent, hasComponent } from '../ecs/functions/ComponentFunctions'
 import { NetworkObjectComponent } from '../networking/components/NetworkObjectComponent'
 import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
+import { VelocityComponent } from '../physics/components/VelocityComponent'
 import { DesiredTransformComponent } from '../transform/components/DesiredTransformComponent'
 import { TransformComponent } from '../transform/components/TransformComponent'
 import { TweenComponent } from '../transform/components/TweenComponent'
@@ -29,6 +31,7 @@ const euler1YXZ = new Euler()
 euler1YXZ.order = 'YXZ'
 const euler2YXZ = new Euler()
 euler2YXZ.order = 'YXZ'
+const _vector3 = new Vector3()
 
 export function animationActionReceptor(
   action: ReturnType<typeof WorldNetworkAction.avatarAnimation>,
@@ -53,6 +56,7 @@ export default async function AnimationSystem(world: World) {
   const tweenQuery = defineQuery([TweenComponent])
   const animationQuery = defineQuery([AnimationComponent])
   const forward = new Vector3()
+  const movingAvatarAnimationQuery = defineQuery([AnimationComponent, AvatarAnimationComponent, VelocityComponent])
   const avatarAnimationQuery = defineQuery([AnimationComponent, AvatarAnimationComponent])
   const armsTwistCorrectionQuery = defineQuery([AvatarArmsTwistCorrectionComponent, AvatarAnimationComponent])
   const avatarAnimationQueue = createActionQueue(WorldNetworkAction.avatarAnimation.matches)
@@ -99,12 +103,34 @@ export default async function AnimationSystem(world: World) {
       animationComponent.mixer.update(modifiedDelta)
     }
 
-    for (const entity of avatarAnimationQuery(world)) {
+    /** Apply motion to velocity controlled animations */
+
+    for (const entity of movingAvatarAnimationQuery(world)) {
       const animationComponent = getComponent(entity, AnimationComponent)
       const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
       const deltaTime = delta * animationComponent.animationSpeed
-      updateAnimationGraph(avatarAnimationComponent.animationGraph, deltaTime)
+      const velocity = getComponent(entity, VelocityComponent)
 
+      // TODO: use x locomotion for side-stepping when full 2D blending spaces are implemented
+      avatarAnimationComponent.locomotion.x = 0
+      avatarAnimationComponent.locomotion.y = velocity.linear.y
+      // lerp animated forward animation to smoothly animate to a stop
+      avatarAnimationComponent.locomotion.z = MathUtils.lerp(
+        avatarAnimationComponent.locomotion.z || 0,
+        _vector3.copy(velocity.linear).setComponent(1, 0).length(),
+        10 * deltaTime
+      )
+
+      updateAnimationGraph(avatarAnimationComponent.animationGraph, deltaTime)
+    }
+
+    /**
+     * Apply retargeting
+     */
+
+    for (const entity of avatarAnimationQuery(world)) {
+      const animationComponent = getComponent(entity, AnimationComponent)
+      const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
       const rootBone = animationComponent.mixer.getRoot() as Bone
       const rig = avatarAnimationComponent.rig
 
@@ -145,33 +171,44 @@ export default async function AnimationSystem(world: World) {
 
       // Arms should not be straight for the solver to work properly
       // TODO: Make this configurable
-      rig.LeftForeArm.quaternion.setFromAxisAngle(Axis.X, Math.PI * -0.25)
-      rig.RightForeArm.quaternion.setFromAxisAngle(Axis.X, Math.PI * 0.25)
-      rig.LeftForeArm.updateWorldMatrix(false, true)
-      rig.RightForeArm.updateWorldMatrix(false, true)
 
-      solveTwoBoneIK(
-        rig.LeftArm,
-        rig.LeftForeArm,
-        rig.LeftHand,
-        ik.leftTarget,
-        ik.leftHint,
-        ik.leftTargetOffset,
-        ik.leftTargetPosWeight,
-        ik.leftTargetRotWeight,
-        ik.leftHintWeight
-      )
-      solveTwoBoneIK(
-        rig.RightArm,
-        rig.RightForeArm,
-        rig.RightHand,
-        ik.rightTarget,
-        ik.rightHint,
-        ik.rightTargetOffset,
-        ik.rightTargetPosWeight,
-        ik.rightTargetRotWeight,
-        ik.rightHintWeight
-      )
+      // TODO: should we break hand IK apart into left and right components?
+      // some devices only support one hand controller. How do we handle that?
+      // how do we report that tracking is lost or still pending?
+      // FOR NOW: we'll assume that we don't have tracking if the target is at exactly (0, 0, 0);
+      // we may want to add a flag for this in the future, or to generally allow animations to play even if tracking is available
+
+      if (!ik.leftTarget.position.equals(V_000)) {
+        rig.LeftForeArm.quaternion.setFromAxisAngle(Axis.X, Math.PI * -0.25)
+        rig.LeftForeArm.updateWorldMatrix(false, true)
+        solveTwoBoneIK(
+          rig.LeftArm,
+          rig.LeftForeArm,
+          rig.LeftHand,
+          ik.leftTarget,
+          ik.leftHint,
+          ik.leftTargetOffset,
+          ik.leftTargetPosWeight,
+          ik.leftTargetRotWeight,
+          ik.leftHintWeight
+        )
+      }
+
+      if (!ik.rightTarget.position.equals(V_000)) {
+        rig.RightForeArm.quaternion.setFromAxisAngle(Axis.X, Math.PI * 0.25)
+        rig.RightForeArm.updateWorldMatrix(false, true)
+        solveTwoBoneIK(
+          rig.RightArm,
+          rig.RightForeArm,
+          rig.RightHand,
+          ik.rightTarget,
+          ik.rightHint,
+          ik.rightTargetOffset,
+          ik.rightTargetPosWeight,
+          ik.rightTargetRotWeight,
+          ik.rightHintWeight
+        )
+      }
     }
 
     for (const entity of armsTwistCorrectionQuery()) {

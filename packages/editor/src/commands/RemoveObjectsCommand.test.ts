@@ -9,7 +9,6 @@ import {
   emptyEntityTree
 } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
 import { createEngine } from '@xrengine/engine/src/initializeEngine'
-import { registerPrefabs } from '@xrengine/engine/src/scene/functions/registerPrefabs'
 import { serializeWorld } from '@xrengine/engine/src/scene/functions/serializeWorld'
 import { applyIncomingActions } from '@xrengine/hyperflux'
 
@@ -30,7 +29,6 @@ describe('RemoveObjectCommand', () => {
     createEngine()
     registerEditorReceptors()
     Engine.instance.store.defaultDispatchDelay = 0
-    registerPrefabs(Engine.instance.currentWorld)
 
     rootNode = createEntityNode(createEntity())
     nodes = [createEntityNode(createEntity()), createEntityNode(createEntity())]
@@ -65,21 +63,21 @@ describe('RemoveObjectCommand', () => {
 
       command.affectedNodes.reverse()
 
-      command.undo.parents.forEach((parent, i) => {
-        assert.equal(parent.entity, command.affectedNodes[i].parentEntity)
+      command.undo.parents.forEach((parent: EntityTreeNode, i) => {
+        assert.equal(parent.entity, (command.affectedNodes[i] as EntityTreeNode).parentEntity)
       })
 
-      command.undo.befores.forEach((before, i) => {
+      command.undo.befores.forEach((before: EntityTreeNode, i) => {
         assert(before.parentEntity)
         const parent = Engine.instance.currentWorld.entityTree.entityNodeMap.get(before.parentEntity)
         assert.equal(
           parent?.children?.indexOf(before.entity),
-          parent?.children?.indexOf(command.affectedNodes[i].entity)! + 1
+          parent?.children?.indexOf((command.affectedNodes[i] as EntityTreeNode).entity)! + 1
         )
       })
 
       command.undo.components.forEach((components, i) => {
-        assert.deepEqual(components, serializeWorld(command.affectedNodes[i]))
+        assert.deepEqual(components, serializeWorld(command.affectedNodes[i] as EntityTreeNode))
       })
     })
 
@@ -130,7 +128,7 @@ describe('RemoveObjectCommand', () => {
       RemoveObjectCommand.execute(command)
       applyIncomingActions()
 
-      command.affectedNodes.forEach((node) => {
+      command.affectedNodes.forEach((node: EntityTreeNode) => {
         assert(!Engine.instance.currentWorld.entityTree.entityNodeMap.get(node.entity))
         assert(!Engine.instance.currentWorld.entityTree.uuidNodeMap.get(node.uuid))
 
@@ -145,7 +143,7 @@ describe('RemoveObjectCommand', () => {
       RemoveObjectCommand.execute(command)
       applyIncomingActions()
 
-      command.affectedNodes.forEach((node) => {
+      command.affectedNodes.forEach((node: EntityTreeNode) => {
         assert(Engine.instance.currentWorld.entityTree.entityNodeMap.get(node.entity))
         assert(Engine.instance.currentWorld.entityTree.uuidNodeMap.get(node.uuid))
       })
@@ -168,7 +166,7 @@ describe('RemoveObjectCommand', () => {
       applyIncomingActions()
       const selection = accessSelectionState().selectedEntities.value
 
-      command.affectedNodes.forEach((node) => {
+      command.affectedNodes.forEach((node: EntityTreeNode) => {
         assert(!selection.includes(node.entity))
       })
     })
@@ -184,7 +182,7 @@ describe('RemoveObjectCommand', () => {
       RemoveObjectCommand.undo(command)
       applyIncomingActions()
 
-      command.affectedNodes.forEach((node) => {
+      command.affectedNodes.forEach((node: EntityTreeNode) => {
         assert(!Engine.instance.currentWorld.entityTree.entityNodeMap.has(node.entity))
       })
     })
@@ -198,13 +196,13 @@ describe('RemoveObjectCommand', () => {
       RemoveObjectCommand.undo(command)
       applyIncomingActions()
 
-      command.affectedNodes.forEach((node) => {
+      command.affectedNodes.forEach((node: EntityTreeNode) => {
         assert(Engine.instance.currentWorld.entityTree.entityNodeMap.has(node.entity))
       })
 
       const selection = accessSelectionState().selectedEntities.value
 
-      command.affectedNodes.forEach((node) => {
+      command.affectedNodes.forEach((node: EntityTreeNode) => {
         assert(selection.includes(node.entity))
       })
     })

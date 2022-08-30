@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { UserAvatar } from '@xrengine/common/src/interfaces/UserAvatar'
+import { AvatarInterface } from '@xrengine/common/src/interfaces/AvatarInterface'
+import { AudioEffectPlayer } from '@xrengine/engine/src/audio/systems/AudioSystem'
 import { AvatarEffectComponent } from '@xrengine/engine/src/avatar/components/AvatarEffectComponent'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
@@ -10,7 +11,8 @@ import { ArrowBack, ArrowBackIos, ArrowForwardIos, Check, PersonAdd } from '@mui
 import Grid from '@mui/material/Grid'
 import Paper from '@mui/material/Paper'
 
-import { AuthService, useAuthState } from '../../../services/AuthService'
+import { useAuthState } from '../../../services/AuthService'
+import { AvatarService } from '../../../services/AvatarService'
 import styles from '../index.module.scss'
 import { Views } from '../util'
 
@@ -33,7 +35,7 @@ const selectAvatarMenu = (props: Props) => {
   const [selectedAvatar, setSelectedAvatar] = useState<any>('')
 
   useEffect(() => {
-    AuthService.fetchAvatarList()
+    AvatarService.fetchAvatarList()
   }, [])
 
   useEffect(() => {
@@ -46,7 +48,7 @@ const selectAvatarMenu = (props: Props) => {
   const setAvatar = (avatarId: string, avatarURL: string, thumbnailURL: string) => {
     if (hasComponent(Engine.instance.currentWorld.localClientEntity, AvatarEffectComponent)) return
     if (authState.user?.value) {
-      AuthService.updateUserAvatarId(authState.user.id.value!, avatarId, avatarURL, thumbnailURL)
+      AvatarService.updateUserAvatarId(authState.user.id.value!, avatarId, avatarURL, thumbnailURL)
     }
   }
 
@@ -64,16 +66,16 @@ const selectAvatarMenu = (props: Props) => {
   const confirmAvatar = () => {
     if (selectedAvatar && avatarId != selectedAvatar?.avatar?.name) {
       setAvatar(
-        selectedAvatar?.avatar?.name || '',
-        selectedAvatar?.avatar?.url || '',
-        selectedAvatar['user-thumbnail']?.url || ''
+        selectedAvatar?.id || '',
+        selectedAvatar?.modelResource?.url || '',
+        selectedAvatar?.thumbnailResource?.url || ''
       )
       props.changeActiveMenu(null)
     }
     setSelectedAvatar('')
   }
 
-  const selectAvatar = (avatarResources: UserAvatar) => {
+  const selectAvatar = (avatarResources: AvatarInterface) => {
     setSelectedAvatar(avatarResources)
   }
 
@@ -93,17 +95,16 @@ const selectAvatarMenu = (props: Props) => {
     const endIndex = Math.min(startIndex + imgPerPage, avatarList.length)
     let index = 0
     for (let i = startIndex; i < endIndex; i++, index++) {
-      const characterAvatar = avatarList[i]!
-      const avatar = characterAvatar.avatar!
+      const avatar = avatarList[i]!
 
       avatarElementList.push(
         <Grid key={avatar.id} item>
           <Paper
-            onClick={() => selectAvatar(characterAvatar)}
+            onClick={() => selectAvatar(avatar)}
+            onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+            onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
             style={{ pointerEvents: avatar.name == avatarId ? 'none' : 'auto' }}
-            className={`${styles.paperAvatar} ${
-              avatar.name == selectedAvatar?.avatar?.name ? styles.selectedAvatar : ''
-            }
+            className={`${styles.paperAvatar} ${avatar.name == selectedAvatar?.name ? styles.selectedAvatar : ''}
               ${avatar.name == avatarId ? styles.activeAvatar : ''}`}
             sx={{
               height: 140,
@@ -114,7 +115,7 @@ const selectAvatarMenu = (props: Props) => {
           >
             <img
               className={styles.avatar}
-              src={characterAvatar['user-thumbnail']?.url || ''}
+              src={avatar.thumbnailResource?.url || ''}
               alt={avatar.name}
               crossOrigin="anonymous"
             />
@@ -150,33 +151,35 @@ const selectAvatarMenu = (props: Props) => {
             type="button"
             color="secondary"
             className={`${styles.btn} ${styles.btnCancel} ${
-              selectedAvatar
-                ? selectedAvatar?.avatar?.name != avatarId
-                  ? styles.btnDeepColorCancel
-                  : ''
-                : styles.disabledBtn
+              selectedAvatar ? (selectedAvatar?.name != avatarId ? styles.btnDeepColorCancel : '') : styles.disabledBtn
             }`}
             onClick={() => {
               setSelectedAvatar('')
             }}
+            onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+            onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
           >
             <span style={{ fontSize: '15px', fontWeight: 'bold' }}>X</span>
           </button>
           <button
             type="button"
             className={`${styles.btn} ${styles.btnCheck} ${
-              selectedAvatar
-                ? selectedAvatar?.avatar?.name != avatarId
-                  ? styles.btnDeepColor
-                  : ''
-                : styles.disabledBtn
+              selectedAvatar ? (selectedAvatar?.name != avatarId ? styles.btnDeepColor : '') : styles.disabledBtn
             }`}
-            disabled={selectedAvatar?.avatar?.name == avatarId}
+            disabled={selectedAvatar?.name == avatarId}
             onClick={confirmAvatar}
+            onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+            onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
           >
             <Check />
           </button>
-          <button type="button" className={`${styles.btn} ${styles.btnPerson}`} onClick={openAvatarSelectMenu}>
+          <button
+            type="button"
+            className={`${styles.btn} ${styles.btnPerson}`}
+            onClick={openAvatarSelectMenu}
+            onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+            onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+          >
             <PersonAdd className={styles.size} />
           </button>
         </div>
@@ -186,6 +189,8 @@ const selectAvatarMenu = (props: Props) => {
             (page + 1) * imgPerPage >= avatarList.length ? styles.disabled : ''
           }`}
           onClick={loadNextAvatars}
+          onPointerUp={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
+          onPointerEnter={() => AudioEffectPlayer.instance.play(AudioEffectPlayer.SOUNDS.ui)}
         >
           <ArrowForwardIos className={styles.size} />
         </button>

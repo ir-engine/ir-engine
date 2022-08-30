@@ -21,14 +21,14 @@ import { ModelComponent } from '@xrengine/engine/src/scene/components/ModelCompo
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 import { parseGLTFModel } from '@xrengine/engine/src/scene/functions/loadGLTFModel'
-import { ScenePrefabs } from '@xrengine/engine/src/scene/functions/registerPrefabs'
-import { createNewEditorNode } from '@xrengine/engine/src/scene/functions/SceneLoading'
+import { createNewEditorNode } from '@xrengine/engine/src/scene/systems/SceneLoadingSystem'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 import { dispatchAction } from '@xrengine/hyperflux'
 
 import { createVector3Proxy } from '../../common/proxies/three'
 import { getEngineState } from '../../ecs/classes/EngineState'
 import { NetworkTopics } from '../../networking/classes/Network'
+import { ScenePrefabs } from '../../scene/systems/SceneObjectUpdateSystem'
 import { Physics } from '../classes/Physics'
 import { RigidBodyComponent } from '../components/RigidBodyComponent'
 import { VelocityComponent } from '../components/VelocityComponent'
@@ -163,7 +163,7 @@ export const generatePhysicsObject = (
   obj3d.scale.copy(scale)
   addComponent(entity, Object3DComponent, { value: obj3d })
 
-  parseGLTFModel(entity, getComponent(entity, ModelComponent), obj3d)
+  parseGLTFModel(entity)
 
   const world = Engine.instance.currentWorld
   addEntityNodeInTree(entityTreeNode, world.entityTree.rootNode)
@@ -171,7 +171,7 @@ export const generatePhysicsObject = (
   const transform = getComponent(entity, TransformComponent)
   transform.position.copy(spawnPosition)
 
-  const body = getComponent(entity, RigidBodyComponent)
+  const body = getComponent(entity, RigidBodyComponent).body
   body.setTranslation(transform.position, true)
 
   if (isNetworkObject && world.worldNetwork.isHosting) {

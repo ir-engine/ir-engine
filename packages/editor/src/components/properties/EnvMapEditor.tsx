@@ -3,10 +3,10 @@ import { useTranslation } from 'react-i18next'
 
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
-import { EnvmapComponent } from '@xrengine/engine/src/scene/components/EnvmapComponent'
+import { EnvmapComponent, SCENE_COMPONENT_ENVMAP } from '@xrengine/engine/src/scene/components/EnvmapComponent'
 import { ErrorComponent } from '@xrengine/engine/src/scene/components/ErrorComponent'
 import { EnvMapSourceType, EnvMapTextureType } from '@xrengine/engine/src/scene/constants/EnvMapEnum'
-import { deserializeEnvMap, SCENE_COMPONENT_ENVMAP } from '@xrengine/engine/src/scene/functions/loaders/EnvMapFunctions'
+import { deserializeEnvMap } from '@xrengine/engine/src/scene/functions/loaders/EnvMapFunctions'
 
 import { setPropertyOnSelectionEntities } from '../../classes/History'
 import ColorInput from '../inputs/ColorInput'
@@ -21,38 +21,16 @@ import { EditorComponentType, updateProperty } from './Util'
 /**
  * EnvMapSourceOptions array containing SourceOptions for Envmap
  */
-const EnvMapSourceOptions = [
-  {
-    label: 'Default',
-    value: EnvMapSourceType.Default
-  },
-  {
-    label: 'Texture',
-    value: EnvMapSourceType.Texture
-  },
-  {
-    label: 'Color',
-    value: EnvMapSourceType.Color
-  },
-  {
-    label: 'None',
-    value: EnvMapSourceType.None
-  }
-]
+const EnvMapSourceOptions = Object.values(EnvMapSourceType).map((value) => {
+  return { label: value, value }
+})
 
 /**
  * EnvMapSourceOptions array containing SourceOptions for Envmap
  */
-const EnvMapTextureOptions = [
-  {
-    label: 'Cubemap',
-    value: EnvMapTextureType.Cubemap
-  },
-  {
-    label: 'Equirectangular',
-    value: EnvMapTextureType.Equirectangular
-  }
-]
+const EnvMapTextureOptions = Object.values(EnvMapTextureType).map((value) => {
+  return { label: value, value }
+})
 
 /**
  * EnvMapEditor provides the editor view for environment map property customization.
@@ -79,7 +57,7 @@ export const EnvMapEditor: EditorComponentType = (props) => {
 
   // if component is not there for previously saved model entities then create one
   if (!envmapComponent) {
-    deserializeEnvMap(props.node.entity, { name: SCENE_COMPONENT_ENVMAP, props: { forModel: true } })
+    deserializeEnvMap(props.node.entity, { name: SCENE_COMPONENT_ENVMAP, props: {} })
     envmapComponent = getComponent(entity, EnvmapComponent)
   }
 

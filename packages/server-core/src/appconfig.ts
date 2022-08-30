@@ -123,7 +123,7 @@ const server = {
   keyPath: appRootPath.path.toString() + '/' + process.env.KEY,
   gitPem: '',
   local: process.env.LOCAL === 'true',
-  releaseName: process.env.RELEASE_NAME!,
+  releaseName: process.env.RELEASE_NAME || 'local',
   matchmakerEmulationMode: process.env.MATCHMAKER_EMULATION_MODE === 'true',
   instanceserverUnreachableTimeoutSeconds: process.env.INSTANCESERVER_UNREACHABLE_TIMEOUT_SECONDS
     ? parseInt(process.env.INSTANCESERVER_UNREACHABLE_TIMEOUT_SECONDS)
@@ -143,7 +143,7 @@ const client = {
     (process.env.VITE_LOCAL_BUILD
       ? 'http://' + process.env.APP_HOST + ':' + process.env.APP_PORT
       : 'https://' + process.env.APP_HOST + ':' + process.env.APP_PORT),
-  releaseName: process.env.RELEASE_NAME!
+  releaseName: process.env.RELEASE_NAME || 'local'
 }
 
 // TODO: rename to 'instanceserver'
@@ -156,7 +156,7 @@ const instanceserver = {
   identifierDigits: 5,
   local: process.env.LOCAL === 'true',
   domain: process.env.INSTANCESERVER_DOMAIN || 'instanceserver.theoverlay.io',
-  releaseName: process.env.RELEASE_NAME!,
+  releaseName: process.env.RELEASE_NAME || 'local',
   port: process.env.INSTANCESERVER_PORT!,
   locationName: process.env.PRELOAD_LOCATION_NAME!,
   shutdownDelayMs: parseInt(process.env.INSTANCESERVER_SHUTDOWN_DELAY_MS!) || 0
@@ -205,7 +205,7 @@ const authentication = {
   service: 'identity-provider',
   entity: 'identity-provider',
   secret: process.env.AUTH_SECRET!,
-  authStrategies: ['jwt', 'local', 'discord', 'facebook', 'github', 'google', 'linkedin', 'twitter', 'did-auth'],
+  authStrategies: ['jwt', 'local', 'discord', 'facebook', 'github', 'google', 'linkedin', 'twitter', 'didWallet'],
   local: {
     usernameField: 'email',
     passwordField: 'password'
@@ -223,7 +223,7 @@ const authentication = {
     google: process.env.GOOGLE_CALLBACK_URL || `${client.url}/auth/oauth/google`,
     linkedin: process.env.LINKEDIN_CALLBACK_URL || `${client.url}/auth/oauth/linkedin`,
     twitter: process.env.TWITTER_CALLBACK_URL || `${client.url}/auth/oauth/twitter`
-    // did-auth does not have a callback endpoint
+    // didWallet does not have a callback endpoint
   },
   oauth: {
     defaults: {

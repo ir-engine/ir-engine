@@ -1,8 +1,10 @@
 import { Euler, Quaternion } from 'three'
 
-import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 import { TransformSpace } from '@xrengine/engine/src/scene/constants/transformConstants'
+import obj3dFromUuid from '@xrengine/engine/src/scene/util/obj3dFromUuid'
+import { LocalTransformComponent } from '@xrengine/engine/src/transform/components/LocalTransformComponent'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 import { dispatchAction } from '@xrengine/hyperflux'
 
@@ -34,7 +36,8 @@ function prepare(command: RotationCommandParams) {
   if (command.keepHistory) {
     command.undo = {
       rotations: command.affectedNodes.map((o) => {
-        return getComponent(o.entity, Object3DComponent).value.rotation.clone() ?? new Euler()
+        if (typeof o === 'string') return obj3dFromUuid(o).rotation.clone() ?? new Euler()
+        else return getComponent(o.entity, Object3DComponent).value.rotation.clone() ?? new Euler()
       }),
       space: TransformSpace.Local
     }
@@ -73,32 +76,49 @@ function emitEventAfter(command: RotationCommandParams) {
 function updateRotation(command: RotationCommandParams, isUndo: boolean): void {
   const T_QUAT_1 = new Quaternion()
   const T_QUAT_2 = new Quaternion()
-  let rotations = command.rotations
-  let space = command.space
 
-  if (isUndo && command.undo) {
-    rotations = command.undo.rotations
-    space = command.undo.space
-  }
+  const undo = isUndo && command.undo
+
+  const rotations = undo ? command.undo!.rotations : command.rotations
+  const space = undo ? command.undo!.space : command.space
 
   for (let i = 0; i < command.affectedNodes.length; i++) {
     const node = command.affectedNodes[i]
-    const obj3d = getComponent(node.entity, Object3DComponent).value
-    const transformComponent = getComponent(node.entity, TransformComponent)
+    const obj3d = typeof node === 'string' ? obj3dFromUuid(node) : getComponent(node.entity, Object3DComponent).value
+    /** @todo figure out native local transform support */
+    // const transformComponent = hasComponent(node.entity, LocalTransformComponent) ? getComponent(node.entity, LocalTransformComponent) : getComponent(node.entity, TransformComponent)
+    if (typeof node !== 'string') {
+      const transformComponent = getComponent(node.entity, TransformComponent)
 
-    T_QUAT_1.setFromEuler(rotations[i] ?? rotations[0])
+      T_QUAT_1.setFromEuler(rotations[i] ?? rotations[0])
 
-    if (space === TransformSpace.Local) {
-      transformComponent.rotation.copy(T_QUAT_1)
+      if (space === TransformSpace.Local) {
+        transformComponent.rotation.copy(T_QUAT_1)
+      } else {
+        obj3d.updateMatrixWorld() // Update parent world matrices
+
+        const _spaceMatrix = space === TransformSpace.World ? obj3d.parent!.matrixWorld : getSpaceMatrix()
+
+        const inverseParentWorldQuaternion = T_QUAT_2.setFromRotationMatrix(_spaceMatrix).invert()
+        const newLocalQuaternion = inverseParentWorldQuaternion.multiply(T_QUAT_1)
+
+        transformComponent.rotation.copy(newLocalQuaternion)
+      }
     } else {
-      obj3d.updateMatrixWorld() // Update parent world matrices
+      T_QUAT_1.setFromEuler(rotations[i] ?? rotations[0])
 
-      const _spaceMatrix = space === TransformSpace.World ? obj3d.parent!.matrixWorld : getSpaceMatrix()
+      if (space === TransformSpace.Local) {
+        obj3d.quaternion.copy(T_QUAT_1)
+        obj3d.updateMatrix()
+      } else {
+        obj3d.updateMatrixWorld()
+        const _spaceMatrix = space === TransformSpace.World ? obj3d.parent!.matrixWorld : getSpaceMatrix()
 
-      const inverseParentWorldQuaternion = T_QUAT_2.setFromRotationMatrix(_spaceMatrix).invert()
-      const newLocalQuaternion = inverseParentWorldQuaternion.multiply(T_QUAT_1)
+        const inverseParentWorldQuaternion = T_QUAT_2.setFromRotationMatrix(_spaceMatrix).invert()
+        const newLocalQuaternion = inverseParentWorldQuaternion.multiply(T_QUAT_1)
 
-      transformComponent.rotation.copy(newLocalQuaternion)
+        obj3d.quaternion.copy(newLocalQuaternion)
+      }
     }
   }
 }

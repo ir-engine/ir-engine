@@ -1,16 +1,14 @@
-import { AnimationAction, Vector2 } from 'three'
+import { AnimationAction, Vector2, Vector3 } from 'three'
 
 import { AnimationState, fadeOutAnimationStateActions } from './AnimationState'
 import { BlendSpace1D, updateBlendSpace1D } from './BlendSpace1D'
 import { DistanceMatchingAction, updateDistanceMatchingAction, updateFollowerAction } from './DistanceMatchingAction'
 
-const frameSpeed = 1 / 60
-
 export type LocomotionState = AnimationState & {
   type: 'LocomotionState'
   yAxisBlendSpace: BlendSpace1D
   xAxisBlendSpace: BlendSpace1D
-  movementParams: any
+  locomotion: Vector3
   forwardMovementActions: DistanceMatchingAction[]
   sideMovementActions: DistanceMatchingAction[]
   idleAction: AnimationAction
@@ -74,8 +72,8 @@ function updateNodes(state: LocomotionState, xNodes: any[], yNodes: any[]): void
 }
 
 export function updateLocomotionStateBlendValues(state: LocomotionState, delta: number) {
-  const velocity = state.movementParams.velocity
-  state.blendValue.set(velocity.x, velocity.z).divideScalar(frameSpeed)
+  const locomotion = state.locomotion
+  state.blendValue.set(locomotion.x, locomotion.z)
   state.frameBlendValue.copy(state.blendValue).multiplyScalar(delta)
 }
 

@@ -17,7 +17,8 @@ export const authenticationSeed = {
         { github: true },
         { google: true },
         { linkedin: true },
-        { twitter: true }
+        { twitter: true },
+        { didWallet: false }
       ]),
       local: JSON.stringify({
         usernameField: 'email',

@@ -26,14 +26,19 @@ describe('verify-scope', () => {
 
   it('should fail if user does not have scope', async () => {
     const name = `Test #${Math.random()}`
-    const avatarId = `CyberbotGreen #${Math.random()}`
+    const avatarName = `CyberbotGreen #${Math.random()}`
     const isGuest = true
 
-    const user = (await app.service('user').create({
+    const avatar = await app.service('avatar').create({
+      name: avatarName
+    })
+    let user = (await app.service('user').create({
       name,
-      avatarId,
+      avatarId: avatar.id,
       isGuest
     })) as UserInterface
+
+    user = await app.service('user').get(user.id)
 
     const verifyLocationReadScope = verifyScope('location', 'read')
     const hookContext = mockUserHookContext(user, app)
@@ -46,12 +51,16 @@ describe('verify-scope', () => {
 
   it('should verify guest has scope', async () => {
     const name = `Test #${Math.random()}`
-    const avatarId = `CyberbotGreen #${Math.random()}`
+    const avatarName = `CyberbotGreen #${Math.random()}`
     const isGuest = true
 
-    const user = (await app.service('user').create({
+    const avatar = await app.service('avatar').create({
+      name: avatarName
+    })
+
+    let user = (await app.service('user').create({
       name,
-      avatarId,
+      avatarId: avatar.id,
       isGuest
     })) as UserInterface
 
@@ -59,6 +68,8 @@ describe('verify-scope', () => {
       type: 'location:read',
       userId: user.id
     })
+
+    user = await app.service('user').get(user.id)
 
     const verifyLocationReadScope = verifyScope('location', 'read')
     const hookContext = mockUserHookContext(user, app)
@@ -71,12 +82,16 @@ describe('verify-scope', () => {
 
   it('should verify user has scope', async () => {
     const name = `Test #${Math.random()}`
-    const avatarId = `CyberbotGreen #${Math.random()}`
+    const avatarName = `CyberbotGreen #${Math.random()}`
     const isGuest = false
 
-    const user = (await app.service('user').create({
+    const avatar = await app.service('avatar').create({
+      name: avatarName
+    })
+
+    let user = (await app.service('user').create({
       name,
-      avatarId,
+      avatarId: avatar.id,
       isGuest
     })) as UserInterface
 
@@ -84,6 +99,8 @@ describe('verify-scope', () => {
       type: 'location:read',
       userId: user.id
     })
+
+    user = await app.service('user').get(user.id)
 
     const verifyLocationReadScope = verifyScope('location', 'read')
     const hookContext = mockUserHookContext(user, app)
@@ -96,12 +113,16 @@ describe('verify-scope', () => {
 
   it('should verify admin', async () => {
     const name = `Test #${Math.random()}`
-    const avatarId = `CyberbotGreen #${Math.random()}`
+    const avatarName = `CyberbotGreen #${Math.random()}`
     const isGuest = false
 
-    const user = (await app.service('user').create({
+    const avatar = await app.service('avatar').create({
+      name: avatarName
+    })
+
+    let user = (await app.service('user').create({
       name,
-      avatarId,
+      avatarId: avatar.id,
       isGuest
     })) as UserInterface
 
@@ -114,6 +135,8 @@ describe('verify-scope', () => {
       type: 'admin:admin',
       userId: user.id
     })
+
+    user = await app.service('user').get(user.id)
 
     const verifyLocationReadScope = verifyScope('location', 'read')
     const hookContext = mockUserHookContext(user, app)

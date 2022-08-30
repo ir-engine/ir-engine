@@ -13,14 +13,13 @@ import {
   Vector3
 } from 'three'
 
-import { normalizeRange } from '@xrengine/common/src/utils/mathUtils'
-
 import checkPositionIsValid from '../common/functions/checkPositionIsValid'
+import { normalizeRange } from '../common/functions/MathFunctions'
 import { World } from '../ecs/classes/World'
 import { addComponent, defineQuery, getComponent } from '../ecs/functions/ComponentFunctions'
 import { createEntity } from '../ecs/functions/EntityFunctions'
 import { Object3DComponent } from '../scene/components/Object3DComponent'
-import { XRInputSourceComponent } from '../xr/components/XRInputSourceComponent'
+import { XRInputSourceComponent } from '../xr/XRComponents'
 import { AvatarTeleportTagComponent } from './components/AvatarTeleportTagComponent'
 import { teleportAvatar } from './functions/moveAvatar'
 

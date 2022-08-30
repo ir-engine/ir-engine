@@ -237,7 +237,18 @@ export const getComponent = <T, S extends bitECS.ISchema>(
   return null!
 }
 
-export const addComponent = <T, S extends bitECS.ISchema>(
+/**
+ * Set a component on an entity. If the component already exists, it will be overwritten.
+ * Unlike calling removeComponent followed by addComponent, entry queue will not be rerun.
+ *
+ * @param entity
+ * @param component
+ * @param args
+ * @param world
+ *
+ * @returns the component
+ */
+export const setComponent = <T, S extends bitECS.ISchema>(
   entity: Entity,
   component: MappedComponent<T, S>,
   args: T,
@@ -249,7 +260,6 @@ export const addComponent = <T, S extends bitECS.ISchema>(
   if (typeof world === 'undefined' || world === null) {
     throw new Error('[addComponent]: world is undefined')
   }
-  if (hasComponent(entity, component, world)) throw new Error(`${component._name} already exists on entity ${entity}`)
   bitECS.addComponent(world, component, entity, false) // don't clear data on-add
   if ((component as any)._schema) {
     for (const [key] of Object.entries((component as any)._schema as any)) {
@@ -258,6 +268,24 @@ export const addComponent = <T, S extends bitECS.ISchema>(
   }
   component.set(entity, args as T & SoAProxy<S>)
   return component.get(entity)
+}
+
+/**
+ * Like `setComponent`, but throws an error if the component already exists.
+ * @param entity
+ * @param component
+ * @param args
+ * @param world
+ * @returns
+ */
+export const addComponent = <T, S extends bitECS.ISchema>(
+  entity: Entity,
+  component: MappedComponent<T, S>,
+  args: T,
+  world = Engine.instance.currentWorld
+) => {
+  if (hasComponent(entity, component, world)) throw new Error(`${component._name} already exists on entity ${entity}`)
+  return setComponent(entity, component, args, world)
 }
 
 export const hasComponent = <T, S extends bitECS.ISchema>(
@@ -302,6 +330,7 @@ export const getAllComponents = (
   entity: Entity,
   world = Engine.instance.currentWorld
 ): ComponentConstructor<any, any>[] => {
+  if (!bitECS.entityExists(Engine.instance.currentWorld, entity)) return []
   return bitECS.getEntityComponents(world, entity) as ComponentConstructor<any, any>[]
 }
 

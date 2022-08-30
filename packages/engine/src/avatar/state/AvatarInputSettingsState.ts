@@ -1,29 +1,19 @@
 import { matches, Validator } from '@xrengine/engine/src/common/functions/MatchesUtils'
-import { XR_FOLLOW_MODE, XR_ROTATION_MODE } from '@xrengine/engine/src/xr/types/XRUserSettings'
+import { XR_FOLLOW_MODE, XR_ROTATION_MODE } from '@xrengine/engine/src/xr/XRUserSettings'
 import { defineAction, defineState, dispatchAction, getState, useState } from '@xrengine/hyperflux'
 
-import { AvatarControllerType } from '../../input/enums/InputEnums'
+import { AvatarControllerType, AvatarMovementScheme } from '../../input/enums/InputEnums'
 
-type AvatarInputSettingsStateType = {
-  controlType: AvatarControllerType
-  invertRotationAndMoveSticks: boolean
-  moving: number
-  rotation: number
-  rotationSmoothSpeed: number
-  rotationAngle: number
-  rotationInvertAxes: boolean
-  showAvatar: boolean
-}
-
-const AvatarInputSettingsState = defineState({
+export const AvatarInputSettingsState = defineState({
   name: 'AvatarInputSettingsState',
   initial: () => ({
-    controlType: 'AvatarControllerType_None',
+    controlType: AvatarControllerType.None as typeof AvatarControllerType[keyof typeof AvatarControllerType],
+    controlScheme: AvatarMovementScheme.Linear as typeof AvatarMovementScheme[keyof typeof AvatarMovementScheme],
     invertRotationAndMoveSticks: true,
     // TODO: implement the following
-    moving: XR_FOLLOW_MODE.CONTROLLER,
+    moving: XR_FOLLOW_MODE.CONTROLLER as XR_FOLLOW_MODE,
     // rotation mode
-    rotation: XR_ROTATION_MODE.ANGLED,
+    rotation: XR_ROTATION_MODE.ANGLED as XR_ROTATION_MODE,
     // 0.1, 0.3, 0.5, 0.8, 1
     rotationSmoothSpeed: 0.1,
     // 15, 30, 45, 60
@@ -39,6 +29,9 @@ export function AvatarInputSettingsReceptor(action) {
     .when(AvatarInputSettingsAction.setControlType.matches, (action) => {
       return s.merge({ controlType: action.controlType })
     })
+    .when(AvatarInputSettingsAction.setControlScheme.matches, (action) => {
+      return s.merge({ controlScheme: action.scheme })
+    })
     .when(AvatarInputSettingsAction.setInvertRotationAndMoveSticks.matches, (action) => {
       return s.merge({ invertRotationAndMoveSticks: action.invertRotationAndMoveSticks })
     })
@@ -47,13 +40,15 @@ export function AvatarInputSettingsReceptor(action) {
     })
 }
 
-export const accessAvatarInputSettingsState = () => getState(AvatarInputSettingsState)
-export const useAvatarInputSettingsState = () => useState(accessAvatarInputSettingsState())
-
 export class AvatarInputSettingsAction {
   static setControlType = defineAction({
-    type: 'AVATAR_SET_CONTROL_MODEL' as const,
-    controlType: matches.string as Validator<unknown, AvatarInputSettingsStateType['controlType']>
+    type: 'AVATAR_SET_CONTROL_TYPE' as const,
+    controlType: matches.string as Validator<unknown, typeof AvatarControllerType[keyof typeof AvatarControllerType]>
+  })
+
+  static setControlScheme = defineAction({
+    type: 'AVATAR_SET_CONTROL_SCHEME' as const,
+    scheme: matches.string as Validator<unknown, typeof AvatarMovementScheme[keyof typeof AvatarMovementScheme]>
   })
 
   static setInvertRotationAndMoveSticks = defineAction({

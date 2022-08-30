@@ -2,12 +2,14 @@ import { Params } from '@feathersjs/feathers'
 import express from 'express'
 import multer from 'multer'
 
+import { StaticResourceInterface } from '@xrengine/common/src/interfaces/StaticResourceInterface'
 import { AdminAssetUploadArgumentsType, AssetUploadType } from '@xrengine/common/src/interfaces/UploadAssetInterface'
+import { processFileName } from '@xrengine/common/src/utils/processFileName'
 
 import { Application } from '../../../declarations'
 import verifyScope from '../../hooks/verify-scope'
 import logger from '../../logger'
-import { AvatarUploadArguments } from '../../user/avatar/avatar-helper'
+import { uploadAvatarStaticResource } from '../../user/avatar/avatar-helper'
 import { getCachedURL } from '../storageprovider/getCachedURL'
 import { getStorageProvider } from '../storageprovider/storageprovider'
 import hooks from './upload-asset.hooks'
@@ -28,15 +30,16 @@ export const addGenericAssetToS3AndStaticResources = async (
   const provider = getStorageProvider()
   // make userId optional and safe for feathers create
   const userIdQuery = args.userId ? { userId: args.userId } : {}
-  const key = args.key
+  const key = processFileName(args.key)
   const existingAsset = await app.service('static-resource').Model.findAndCountAll({
     where: {
       staticResourceType: args.staticResourceType || 'avatar',
-      ...(args.name ? { name: args.name } : { key: key }),
+      ...{ key: key },
       ...userIdQuery
     }
   })
 
+  let returned: Promise<StaticResourceInterface>
   const promises: Promise<any>[] = []
 
   // upload asset to storage provider
@@ -47,6 +50,7 @@ export const addGenericAssetToS3AndStaticResources = async (
       } catch (e) {
         logger.info(`[ERROR addGenericAssetToS3AndStaticResources while invalidating ${key}]:`, e)
       }
+
       await provider.putObject(
         {
           Key: key,
@@ -78,25 +82,32 @@ export const addGenericAssetToS3AndStaticResources = async (
       )
     } else {
       promises.push(
-        app.service('static-resource').create(
-          {
-            name: args.name,
-            mimeType: args.contentType,
-            url: assetURL,
-            key: key,
-            staticResourceType: args.staticResourceType,
-            ...userIdQuery
-          },
-          { isInternal: true }
-        )
+        new Promise(async (resolve, reject) => {
+          try {
+            const newResource = await app.service('static-resource').create(
+              {
+                mimeType: args.contentType,
+                url: assetURL,
+                key: key,
+                ...userIdQuery
+              },
+              { isInternal: true }
+            )
+            resolve(newResource)
+          } catch (err) {
+            logger.error(err)
+            reject(err)
+          }
+        })
       )
     }
     await Promise.all(promises)
+    returned = promises[promises.length - 1]
   } catch (e) {
-    logger.info('[ERROR addGenericAssetToS3AndStaticResources while adding to static resources]:', e)
+    logger.info('[ERROR addGenericAssetToS3AndStaticResources while adding to static resources]: %o', e)
     return null!
   }
-  return assetURL
+  return returned
 }
 
 export default (app: Application): void => {
@@ -114,13 +125,14 @@ export default (app: Application): void => {
         if (typeof data.args === 'string') data.args = JSON.parse(data.args)
         const files = params.files
         if (data.type === 'user-avatar-upload') {
-          return app.service('avatar').create(
+          return await uploadAvatarStaticResource(
+            app,
             {
               avatar: files[0].buffer,
               thumbnail: files[1].buffer,
               ...data.args
-            } as AvatarUploadArguments,
-            null!
+            },
+            params
           )
         } else if (data.type === 'admin-file-upload') {
           if (!(await verifyScope('admin', 'admin')({ app, params } as any))) return

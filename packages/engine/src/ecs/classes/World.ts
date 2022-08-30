@@ -1,19 +1,21 @@
 import { EventQueue } from '@dimforge/rapier3d-compat'
 import * as bitecs from 'bitecs'
-import { Object3D, OrthographicCamera, PerspectiveCamera, Raycaster, Scene } from 'three'
+import { Object3D, OrthographicCamera, PerspectiveCamera, Raycaster, Scene, Vector3 } from 'three'
 
 import { NetworkId } from '@xrengine/common/src/interfaces/NetworkId'
-import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
+import { ComponentJson, EntityJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import multiLogger from '@xrengine/common/src/logger'
+import { getState } from '@xrengine/hyperflux'
 
 import { DEFAULT_LOD_DISTANCES } from '../../assets/constants/LoaderConstants'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { SceneLoaderType } from '../../common/constants/PrefabFunctionType'
 import { isMobile } from '../../common/functions/isMobile'
 import { nowMilliseconds } from '../../common/functions/nowMilliseconds'
-import { LocalAvatarTagComponent } from '../../input/components/LocalAvatarTagComponent'
+import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
 import { InputValue } from '../../input/interfaces/InputValue'
+import { InputAlias } from '../../input/types/InputAlias'
 import { Network } from '../../networking/classes/Network'
 import { NetworkObjectComponent } from '../../networking/components/NetworkObjectComponent'
 import { PhysicsWorld } from '../../physics/classes/Physics'
@@ -24,11 +26,11 @@ import { PortalComponent } from '../../scene/components/PortalComponent'
 import { SimpleMaterialTagComponent } from '../../scene/components/SimpleMaterialTagComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
-import { addTransformComponent } from '../../transform/components/TransformComponent'
-import { addTransformOffsetComponent } from '../../transform/components/TransformOffsetComponent'
+import { setTransformComponent } from '../../transform/components/TransformComponent'
 import { Widget } from '../../xrui/Widgets'
 import {
   addComponent,
+  ComponentType,
   defineQuery,
   EntityRemovedComponent,
   getComponent,
@@ -40,6 +42,7 @@ import { initializeEntityTree } from '../functions/EntityTreeFunctions'
 import { SystemInstanceType } from '../functions/SystemFunctions'
 import { SystemUpdateType } from '../functions/SystemUpdateType'
 import { Engine } from './Engine'
+import { EngineState } from './EngineState'
 import { Entity } from './Entity'
 import EntityTree from './EntityTree'
 
@@ -56,26 +59,25 @@ export class World {
     Engine.instance.worlds.push(this)
     Engine.instance.currentWorld = this
 
+    // this.scene.autoUpdate = false
     this.sceneEntity = createEntity()
     addComponent(this.sceneEntity, NameComponent, { name: 'scene' })
     addComponent(this.sceneEntity, PersistTagComponent, true)
     addComponent(this.sceneEntity, VisibleComponent, true)
-    addTransformComponent(this.sceneEntity)
+    setTransformComponent(this.sceneEntity)
     if (isMobile) addComponent(this.sceneEntity, SimpleMaterialTagComponent, true)
 
     this.localOriginEntity = createEntity()
     addComponent(this.localOriginEntity, NameComponent, { name: 'local-origin' })
     addComponent(this.localOriginEntity, PersistTagComponent, true)
-    addTransformComponent(this.localOriginEntity)
-    addTransformOffsetComponent(this.localOriginEntity, this.sceneEntity)
+    setTransformComponent(this.localOriginEntity)
 
     this.cameraEntity = createEntity()
     addComponent(this.cameraEntity, NameComponent, { name: 'camera' })
     addComponent(this.cameraEntity, PersistTagComponent, true)
     addComponent(this.cameraEntity, VisibleComponent, true)
     addComponent(this.cameraEntity, Object3DComponent, { value: this.camera })
-    addTransformComponent(this.cameraEntity)
-    // addTransformOffsetComponent(this.cameraEntity, this.localOriginEntity)
+    setTransformComponent(this.cameraEntity)
 
     initializeEntityTree(this)
     this.scene.layers.set(ObjectLayers.Scene)
@@ -94,7 +96,7 @@ export class World {
    * get the default media network
    */
   get mediaNetwork() {
-    return this.networks.get(this._mediaHostId)
+    return this.networks.get(this._mediaHostId)!
   }
 
   /** @todo parties */
@@ -107,9 +109,6 @@ export class World {
 
   networks = new Map<string, Network>()
 
-  sceneMetadata = undefined as string | undefined
-  worldMetadata = {} as { [key: string]: string }
-
   widgets = new Map<string, Widget>()
 
   /**
@@ -120,22 +119,30 @@ export class World {
   /**
    * The seconds since the last world execution
    */
-  deltaSeconds = 0
+  get deltaSeconds() {
+    return getState(EngineState).deltaSeconds.value
+  }
 
   /**
    * The elapsed seconds since `startTime`
    */
-  elapsedSeconds = 0
+  get elapsedSeconds() {
+    return getState(EngineState).elapsedSeconds.value
+  }
 
   /**
    * The elapsed seconds since `startTime`, in fixed time steps.
    */
-  fixedElapsedSeconds = 0
+  get fixedElapsedSeconds() {
+    return getState(EngineState).fixedElapsedSeconds.value
+  }
 
   /**
    * The current fixed tick (fixedElapsedSeconds / fixedDeltaSeconds)
    */
-  fixedTick = 0
+  get fixedTick() {
+    return getState(EngineState).fixedTick.value
+  }
 
   physicsWorld: PhysicsWorld
   physicsCollisionEventQueue: EventQueue
@@ -150,6 +157,25 @@ export class World {
    * Reference to the three.js scene object.
    */
   scene = new Scene()
+
+  sceneDynamicallyUnloadedEntities = new Map<
+    string,
+    {
+      json: EntityJson
+      position: Vector3
+      distance: number
+    }
+  >()
+
+  sceneDynamicallyLoadedEntities = new Map<
+    Entity,
+    {
+      json: EntityJson
+      position: Vector3
+      distance: number
+      uuid: string
+    }
+  >()
 
   /**
    * Reference to the three.js perspective camera object.
@@ -175,11 +201,13 @@ export class World {
    * The local client entity
    */
   get localClientEntity() {
-    return this.getOwnedNetworkObjectWithComponent(Engine.instance.userId, LocalAvatarTagComponent) || (NaN as Entity)
+    return this.getOwnedNetworkObjectWithComponent(Engine.instance.userId, LocalInputTagComponent) || (NaN as Entity)
   }
 
-  inputState = new Map<any, InputValue>()
-  prevInputState = new Map<any, InputValue>()
+  dirtyTransforms = new Set<Entity>()
+
+  inputState = new Map<InputAlias, InputValue>()
+  prevInputState = new Map<InputAlias, InputValue>()
 
   #entityQuery = bitecs.defineQuery([bitecs.Not(EntityRemovedComponent)])
   entityQuery = () => this.#entityQuery(this) as Entity[]
@@ -238,8 +266,13 @@ export class World {
   /** Tree of entity holding parent child relation between entities. */
   entityTree: EntityTree
 
+  /** @todo: merge sceneComponentRegistry and sceneLoadingRegistry when scene loader IDs use XRE_ extension names*/
+
   /** Registry map of scene loader components  */
   sceneLoadingRegistry = new Map<string, SceneLoaderType>()
+
+  /** Scene component of scene loader components  */
+  sceneComponentRegistry = new Map<string, string>()
 
   /** Registry map of prefabs  */
   scenePrefabRegistry = new Map<string, ComponentJson[]>()
@@ -311,8 +344,11 @@ export class World {
     const incomingActions = [...Engine.instance.store.actions.incoming]
 
     const worldElapsedSeconds = (frameTime - this.startTime) / 1000
-    this.deltaSeconds = Math.max(0, Math.min(TimerConfig.MAX_DELTA_SECONDS, worldElapsedSeconds - this.elapsedSeconds))
-    this.elapsedSeconds = worldElapsedSeconds
+    const engineState = getState(EngineState)
+    engineState.deltaSeconds.set(
+      Math.max(0.001, Math.min(TimerConfig.MAX_DELTA_SECONDS, worldElapsedSeconds - this.elapsedSeconds))
+    )
+    engineState.elapsedSeconds.set(worldElapsedSeconds)
 
     for (const system of this.pipelines[SystemUpdateType.UPDATE_EARLY]) system.enabled && system.execute()
     for (const system of this.pipelines[SystemUpdateType.UPDATE]) system.enabled && system.execute()

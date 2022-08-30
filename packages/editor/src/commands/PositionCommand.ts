@@ -1,8 +1,11 @@
 import { Matrix4, Vector3 } from 'three'
 
-import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 import { TransformSpace } from '@xrengine/engine/src/scene/constants/transformConstants'
+import obj3dFromUuid from '@xrengine/engine/src/scene/util/obj3dFromUuid'
+import { LocalTransformComponent } from '@xrengine/engine/src/transform/components/LocalTransformComponent'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 import { dispatchAction } from '@xrengine/hyperflux'
 
@@ -37,7 +40,11 @@ function prepare(command: PositionCommandParams) {
   if (command.keepHistory) {
     command.undo = {
       positions: command.affectedNodes.map((o) => {
-        return getComponent(o.entity, TransformComponent)?.position.clone() ?? new Vector3()
+        if (typeof o === 'string') {
+          return obj3dFromUuid(o)?.position.clone() ?? new Vector3()
+        } else {
+          return getComponent(o.entity, TransformComponent)?.position.clone() ?? new Vector3()
+        }
       }),
       space: TransformSpace.Local,
       addToPosition: false
@@ -78,42 +85,59 @@ function updatePosition(command: PositionCommandParams, isUndo?: boolean) {
   const tempMatrix = new Matrix4()
   const tempVector = new Vector3()
 
-  let obj3d
-  let transformComponent
-  let positions = command.positions
-  let space = command.space
-  let addToPosition = command.addToPosition
+  const undo = isUndo && command.undo
 
-  if (isUndo && command.undo) {
-    positions = command.undo.positions
-    space = command.undo.space
-    addToPosition = command.undo.addToPosition
-  }
+  const positions = undo ? command.undo!.positions : command.positions
+  const space = undo ? command.undo!.space : command.space
+  const addToPosition = undo ? command.undo!.addToPosition : command.addToPosition
 
   for (let i = 0; i < command.affectedNodes.length; i++) {
     const node = command.affectedNodes[i]
     const pos = positions[i] ?? positions[0]
 
-    transformComponent = getComponent(node.entity, TransformComponent)
+    /** @todo figure out native local transform support */
+    // const transformComponent = hasComponent(node.entity, LocalTransformComponent) ? getComponent(node.entity, LocalTransformComponent) : getComponent(node.entity, TransformComponent)
+    const isObj3d = typeof node === 'string'
 
-    if (space === TransformSpace.Local) {
-      if (addToPosition) transformComponent.position.add(pos)
-      else transformComponent.position.copy(pos)
-    } else {
-      obj3d = getComponent(node.entity, Object3DComponent)?.value
-      if (!obj3d) continue
-      obj3d.updateMatrixWorld() // Update parent world matrices
+    if (isObj3d) {
+      const obj3d = obj3dFromUuid(node)
+      if (space === TransformSpace.Local) {
+        if (addToPosition) obj3d.position.add(pos)
+        else obj3d.position.copy(pos)
+      } else {
+        obj3d.updateMatrixWorld()
+        if (addToPosition) {
+          tempVector.setFromMatrixPosition(obj3d.matrixWorld)
+          tempVector.add(pos)
+        }
 
-      if (addToPosition) {
-        tempVector.setFromMatrixPosition(obj3d.matrixWorld)
-        tempVector.add(pos)
+        const _spaceMatrix = space === TransformSpace.World ? obj3d.parent!.matrixWorld : getSpaceMatrix()
+        tempMatrix.copy(_spaceMatrix).invert()
+        tempVector.applyMatrix4(tempMatrix)
+        obj3d.position.copy(tempVector)
       }
+      obj3d.updateMatrix()
+    } else {
+      const transformComponent = getComponent(node.entity, TransformComponent)
+      if (space === TransformSpace.Local) {
+        if (addToPosition) transformComponent.position.add(pos)
+        else transformComponent.position.copy(pos)
+      } else {
+        const obj3d = getComponent(node.entity, Object3DComponent)?.value
+        if (!obj3d) continue
+        obj3d.updateMatrixWorld() // Update parent world matrices
 
-      let _spaceMatrix = space === TransformSpace.World ? obj3d.parent.matrixWorld : getSpaceMatrix()
+        if (addToPosition) {
+          tempVector.setFromMatrixPosition(obj3d.matrixWorld)
+          tempVector.add(pos)
+        }
 
-      tempMatrix.copy(_spaceMatrix).invert()
-      tempVector.applyMatrix4(tempMatrix)
-      transformComponent.position.copy(tempVector)
+        const _spaceMatrix = space === TransformSpace.World ? obj3d.parent!.matrixWorld : getSpaceMatrix()
+
+        tempMatrix.copy(_spaceMatrix).invert()
+        tempVector.applyMatrix4(tempMatrix)
+        transformComponent.position.copy(tempVector)
+      }
     }
   }
 }

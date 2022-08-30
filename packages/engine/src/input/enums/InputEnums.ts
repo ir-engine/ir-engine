@@ -25,11 +25,6 @@ export enum TouchInputs {
   Scale = 'TouchInputs_Scale'
 }
 
-export enum XRAxes {
-  Left = 'XRAxes_Left',
-  Right = 'XRAxes_Right'
-}
-
 export enum XR6DOF {
   HMD = 'XR6DOF_HMD',
   LeftHand = 'XR6DOF_LeftHand',
@@ -37,8 +32,10 @@ export enum XR6DOF {
 }
 
 export enum GamepadAxis {
-  Left = 'GamepadAxis_Left',
-  Right = 'GamepadAxis_Right'
+  LTouchpad = 'GamepadAxis_LeftTouchpad',
+  RTouchpad = 'GamepadAxis_RightTouchpad',
+  LThumbstick = 'GamepadAxis_LeftThumbstick',
+  RThumbstick = 'GamepadAxis_RightThumbstick'
 }
 
 export enum GamepadButtons {
@@ -75,13 +72,13 @@ export enum CameraInput {
   Open = 'CameraInput_Open'
 }
 
-export enum AvatarMovementScheme {
-  Linear = 'AvatarMovementScheme_Linear',
-  Teleport = 'AvatarMovementScheme_Teleport'
+export const AvatarMovementScheme = {
+  Linear: 'AvatarMovementScheme_Linear' as const,
+  Teleport: 'AvatarMovementScheme_Teleport' as const
 }
 
-export enum AvatarControllerType {
-  None = 'AvatarControllerType_None',
-  XRHands = 'AvatarControllerType_XRHands',
-  OculusQuest = 'AvatarControllerType_OculusQuest'
+export const AvatarControllerType = {
+  None: 'AvatarControllerType_None' as const,
+  XRHands: 'AvatarControllerType_XRHands' as const,
+  OculusQuest: 'AvatarControllerType_OculusQuest' as const
 }

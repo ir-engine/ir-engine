@@ -1,6 +1,6 @@
 {
   "name": "@xrengine/hyperflux",
-  "version": "0.5.7",
+  "version": "0.5.8",
   "main": "index.ts",
   "description": "State Management for XREngine",
   "repository": {
@@ -17,7 +17,10 @@
     "react-reconciler": "^0.27.0"
   },
   "scripts": {
-    "test": "mocha --config .mocharc.js",
+    "test": "cross-env TEST=true mocha --config .mocharc.js",
     "update-name-gh-package": "node scripts/update-name-gh-package.js"
+  },
+  "devDependencies": {
+    "cross-env": "^7.0.3"
   }
 }

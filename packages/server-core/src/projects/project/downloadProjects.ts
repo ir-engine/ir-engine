@@ -40,9 +40,12 @@ export const download = async (projectName: string) => {
 
     logger.info(`[ProjectLoader]: Successfully downloaded and mounted project "${projectName}".`)
     if (projectName !== 'default-project') {
-      const npmInstallPromise = new Promise((resolve) => {
+      const npmInstallPromise = new Promise<void>((resolve) => {
         const npmInstallProcess = spawn('npm', ['install', '--legacy-peer-deps'], { cwd: localProjectDirectory })
-        npmInstallProcess.once('exit', resolve)
+        npmInstallProcess.once('exit', () => {
+          logger.info('Finished npm installing %s', projectName)
+          resolve()
+        })
         npmInstallProcess.once('error', resolve)
         npmInstallProcess.once('disconnect', resolve)
         npmInstallProcess.stdout.on('data', (data) => logger.info(data.toString()))
@@ -51,9 +54,9 @@ export const download = async (projectName: string) => {
         npmInstallPromise,
         new Promise<void>((resolve) => {
           setTimeout(() => {
-            logger.warn(`WARNING: npm installing ${projectName} too long!`)
+            logger.warn(`WARNING: npm installing ${projectName} took too long!`)
             resolve()
-          }, 20 * 60 * 1000) // timeout after 10 minutes
+          }, 5 * 60 * 1000) // timeout after 5 minutes
         })
       ])
     }

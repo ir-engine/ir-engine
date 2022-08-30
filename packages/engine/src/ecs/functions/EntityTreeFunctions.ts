@@ -113,10 +113,11 @@ export function emptyEntityTree(tree = Engine.instance.currentWorld.entityTree):
  */
 export function createEntityNode(entity: Entity, uuid?: string): EntityTreeNode {
   const node = {
-    type: 'EntityNode',
+    type: 'EntityNode' as const,
     entity,
-    uuid: uuid || MathUtils.generateUUID()
-  } as const
+    uuid: uuid || MathUtils.generateUUID(),
+    children: []
+  }
 
   // addComponent(entity, NetworkObjectComponent, {
   //   ownerId: Engine.instance.currentWorld._worldHostId,
@@ -308,12 +309,16 @@ export function isEntityNode(node: any): node is EntityTreeNode {
  * @returns Entity Tree node array obtained from passed Entities.
  */
 export function getEntityNodeArrayFromEntities(
-  entities: Entity[],
+  entities: (Entity | string)[],
   tree = Engine.instance.currentWorld.entityTree
-): EntityTreeNode[] {
-  const arr = [] as EntityTreeNode[]
-
+): (EntityTreeNode | string)[] {
+  const arr = [] as (EntityTreeNode | string)[]
+  const scene = Engine.instance.currentWorld.scene
   for (const entity of entities) {
+    if (typeof entity === 'string') {
+      scene.getObjectByProperty('uuid', entity) && arr.push(entity)
+      continue
+    }
     const node = tree.entityNodeMap.get(entity)
     if (node) arr.push(node)
   }
@@ -328,9 +333,12 @@ export function getEntityNodeArrayFromEntities(
  * @param node Node to find index of
  * @returns index of the node if found -1 oterhwise.
  */
-export function findIndexOfEntityNode(arr: EntityTreeNode[], node: EntityTreeNode): number {
+export function findIndexOfEntityNode(arr: (EntityTreeNode | string)[], node: string | EntityTreeNode): number {
   for (let i = 0; i < arr.length; i++) {
-    if (arr[i].entity === node.entity) return i
+    const elt = arr[i]
+    if (typeof elt !== typeof node) continue
+    if (typeof node === 'string' && node === elt) return i
+    if (typeof node === 'object' && (elt as EntityTreeNode).entity === node.entity) return i
   }
 
   return -1

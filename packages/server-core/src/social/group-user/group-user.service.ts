@@ -61,16 +61,6 @@ export default (app: Application) => {
         }
       })
       data.user = await app.service('user').get(data.userId)
-      // const avatarResult = await app.service('static-resource').find({
-      //   query: {
-      //     staticResourceType: 'user-thumbnail',
-      //     userId: data.userId
-      //   }
-      // }) as any;
-      //
-      // if (avatarResult.total > 0) {
-      //   data.user.dataValues.avatarUrl = avatarResult.data[0].url;
-      // }
       const targetIds = (groupUsers as any).data.map((groupUser) => {
         return groupUser.userId
       })
@@ -116,16 +106,6 @@ export default (app: Application) => {
         }
       })
       data.user = await app.service('user').get(data.userId)
-      // const avatarResult = await app.service('static-resource').find({
-      //   query: {
-      //     staticResourceType: 'user-thumbnail',
-      //     userId: data.userId
-      //   }
-      // }) as any;
-      //
-      // if (avatarResult.total > 0) {
-      //   data.user.dataValues.avatarUrl = avatarResult.data[0].url;
-      // }
 
       const targetIds = (groupUsers as any).data.map((groupUser) => {
         return groupUser.userId

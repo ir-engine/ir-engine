@@ -1,5 +1,4 @@
-import { Not } from 'bitecs'
-import { Material, Mesh, Vector3 } from 'three'
+import { BufferGeometry, Material, Mesh, Vector3 } from 'three'
 
 import { createActionQueue, getState } from '@xrengine/hyperflux'
 
@@ -13,16 +12,13 @@ import { World } from '../../ecs/classes/World'
 import { defineQuery, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { XRUIComponent } from '../../xrui/components/XRUIComponent'
 import { NameComponent } from '../components/NameComponent'
-import { Object3DComponent, Object3DWithEntity } from '../components/Object3DComponent'
+import { Object3DComponent } from '../components/Object3DComponent'
 import { PersistTagComponent } from '../components/PersistTagComponent'
 import { ShadowComponent } from '../components/ShadowComponent'
 import { SimpleMaterialTagComponent } from '../components/SimpleMaterialTagComponent'
 import { UpdatableComponent } from '../components/UpdatableComponent'
-import { VisibleComponent } from '../components/VisibleComponent'
 import { ObjectLayers } from '../constants/ObjectLayers'
 import { useSimpleMaterial, useStandardMaterial } from '../functions/loaders/SimpleMaterialFunctions'
-import { registerPrefabs } from '../functions/registerPrefabs'
-import { registerDefaultSceneFunctions } from '../functions/registerSceneFunctions'
 import { reparentObject3D } from '../functions/ReparentFunction'
 import { Updatable } from '../interfaces/Updatable'
 
@@ -53,8 +49,8 @@ const processObject3d = (entity: Entity) => {
     if (typeof material !== 'undefined') material.dithering = true
 
     if (shadowComponent) {
-      obj.receiveShadow = shadowComponent.receiveShadow
-      obj.castShadow = shadowComponent.castShadow
+      obj.receiveShadow = shadowComponent.receive
+      obj.castShadow = shadowComponent.cast
     }
   })
 
@@ -87,39 +83,38 @@ const updateSimpleMaterials = (sceneObjectEntities: Entity[]) => {
 
 export default async function SceneObjectSystem(world: World) {
   SceneOptions.instance = new SceneOptions()
-
-  registerDefaultSceneFunctions(world)
-  registerPrefabs(world)
-
   if (isNode) {
     await loadDRACODecoder()
   }
 
   const sceneObjectQuery = defineQuery([Object3DComponent])
   const persistQuery = defineQuery([Object3DComponent, PersistTagComponent])
-  const visibleQuery = defineQuery([Object3DComponent, VisibleComponent])
-  const notVisibleQuery = defineQuery([Object3DComponent, Not(VisibleComponent)])
   const updatableQuery = defineQuery([Object3DComponent, UpdatableComponent])
 
   const useSimpleMaterialsActionQueue = createActionQueue(EngineActions.useSimpleMaterials.matches)
 
   return () => {
     for (const entity of sceneObjectQuery.exit()) {
-      const obj3d = getComponent(entity, Object3DComponent, true).value
+      const obj3d = getComponent(entity, Object3DComponent, true).value as Mesh
 
-      if (!obj3d.parent) console.warn('[Object3DComponent]: Scene object has been removed manually.')
-      else obj3d.removeFromParent()
+      if (obj3d.parent === Engine.instance.currentWorld.scene) obj3d.removeFromParent()
 
       const layers = Object.values(Engine.instance.currentWorld.objectLayerList)
       for (const layer of layers) {
         if (layer.has(obj3d)) layer.delete(obj3d)
       }
+      obj3d.traverse((mesh: Mesh) => {
+        if (typeof (mesh.material as Material)?.dispose === 'function') (mesh.material as Material)?.dispose()
+        if (typeof (mesh.geometry as BufferGeometry)?.dispose === 'function')
+          (mesh.geometry as BufferGeometry)?.dispose()
+      })
     }
 
     for (const entity of sceneObjectQuery.enter()) {
       if (!hasComponent(entity, Object3DComponent)) return // may have been since removed
-      const obj3d = getComponent(entity, Object3DComponent).value as Object3DWithEntity
-      obj3d.entity = entity
+      const { value } = getComponent(entity, Object3DComponent)
+      // @ts-ignore
+      value.entity = entity
 
       const node = world.entityTree.entityNodeMap.get(entity)
       if (node) {
@@ -127,12 +122,12 @@ export default async function SceneObjectSystem(world: World) {
       } else {
         const scene = Engine.instance.currentWorld.scene
         let isInScene = false
-        obj3d.traverseAncestors((ancestor) => {
+        value.traverseAncestors((ancestor) => {
           if (ancestor === scene) {
             isInScene = true
           }
         })
-        if (!isInScene) scene.add(obj3d)
+        if (!isInScene) scene.add(value)
       }
 
       processObject3d(entity)
@@ -156,14 +151,6 @@ export default async function SceneObjectSystem(world: World) {
       object3DComponent?.value?.traverse((obj) => {
         obj.layers.disable(ObjectLayers.Portal)
       })
-    }
-
-    for (const entity of visibleQuery()) {
-      getComponent(entity, Object3DComponent).value.visible = true
-    }
-
-    for (const entity of notVisibleQuery()) {
-      getComponent(entity, Object3DComponent).value.visible = false
     }
 
     const fixedDelta = getState(EngineState).fixedDeltaSeconds.value

@@ -6,7 +6,7 @@ import {
   createEntityNode,
   getEntityNodeArrayFromEntities
 } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
-import { ScenePrefabs } from '@xrengine/engine/src/scene/functions/registerPrefabs'
+import { ScenePrefabs } from '@xrengine/engine/src/scene/systems/SceneObjectUpdateSystem'
 import { dispatchAction } from '@xrengine/hyperflux'
 
 import { executeCommand } from '../classes/History'
@@ -40,14 +40,14 @@ function prepare(command: GroupCommandParams) {
     command.undo = {
       parents: [],
       befores: [],
-      selection: accessSelectionState().selectedEntities.value.slice(0)
+      selection: accessSelectionState().selectedEntities.value.filter((obj) => typeof obj !== 'string') as Entity[]
     }
 
     const tree = Engine.instance.currentWorld.entityTree
 
     for (let i = command.affectedNodes.length - 1; i >= 0; i--) {
       const node = command.affectedNodes[i]
-
+      if (typeof node === 'string') continue
       if (!node.parentEntity) throw new Error('Parent is not defined')
       const parent = tree.entityNodeMap.get(node.parentEntity)
       if (!parent) throw new Error('Parent is not defined')
@@ -99,7 +99,9 @@ function undo(command: GroupCommandParams) {
 
   const nodes = [] as EntityTreeNode[]
   for (let i = command.affectedNodes.length - 1; i >= 0; i--) {
-    nodes.push(command.affectedNodes[i])
+    const node = command.affectedNodes[i]
+    if (typeof node === 'string') continue
+    nodes.push(node)
   }
 
   executeCommand({

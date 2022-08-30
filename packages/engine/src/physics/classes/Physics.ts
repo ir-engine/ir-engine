@@ -4,6 +4,7 @@ import RAPIER, {
   Collider,
   ColliderDesc,
   EventQueue,
+  InteractionGroups,
   Ray,
   RigidBody,
   RigidBodyDesc,
@@ -11,9 +12,21 @@ import RAPIER, {
   ShapeType,
   World
 } from '@dimforge/rapier3d-compat'
-import { Mesh, Object3D, Quaternion, Vector3 } from 'three'
+import {
+  BufferGeometry,
+  LineSegments,
+  Mesh,
+  MeshBasicMaterial,
+  Object3D,
+  OrthographicCamera,
+  PerspectiveCamera,
+  Quaternion,
+  Vector2,
+  Vector3
+} from 'three'
 
 import { createVector3Proxy } from '../../common/proxies/three'
+import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import {
   addComponent,
@@ -22,16 +35,14 @@ import {
   hasComponent,
   removeComponent
 } from '../../ecs/functions/ComponentFunctions'
+import { Vec3Arg } from '../../renderer/materials/constants/DefaultArgs'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { CollisionComponent } from '../components/CollisionComponent'
-import { RaycastComponent } from '../components/RaycastComponent'
-import { RigidBodyComponent } from '../components/RigidBodyComponent'
-import { ShapecastComponent } from '../components/ShapeCastComponent'
+import { getTagComponentForRigidBody, RigidBodyComponent } from '../components/RigidBodyComponent'
 import { VelocityComponent } from '../components/VelocityComponent'
 import { CollisionGroups, DefaultCollisionMask } from '../enums/CollisionGroups'
 import { getInteractionGroups } from '../functions/getInteractionGroups'
-import { getTagComponentForRigidBody } from '../functions/getTagComponentForRigidBody'
-import { ColliderDescOptions, CollisionEvents } from '../types/PhysicsTypes'
+import { ColliderDescOptions, CollisionEvents, RaycastHit, SceneQueryType } from '../types/PhysicsTypes'
 
 export type PhysicsWorld = World
 
@@ -42,6 +53,8 @@ function load() {
 
 function createWorld(gravity = { x: 0.0, y: -9.81, z: 0.0 }) {
   const world = new World(gravity)
+  /** @todo create a better api for raycast debugger*/
+  ;(world as any).raycastDebugs = []
   return world
 }
 
@@ -67,9 +80,15 @@ function createRigidBody(entity: Entity, world: World, rigidBodyDesc: RigidBodyD
   const rigidBody = world.createRigidBody(rigidBodyDesc)
   colliderDesc.forEach((desc) => world.createCollider(desc, rigidBody))
 
-  addComponent(entity, RigidBodyComponent, rigidBody)
+  addComponent(entity, RigidBodyComponent, {
+    body: rigidBody,
+    previousPosition: new Vector3(),
+    previousRotation: new Quaternion(),
+    previousLinearVelocity: new Vector3(),
+    previousAngularVelocity: new Vector3()
+  })
 
-  const RigidBodyTypeTagComponent = getTagComponentForRigidBody(rigidBody)
+  const RigidBodyTypeTagComponent = getTagComponentForRigidBody(rigidBody.bodyType())
   addComponent(entity, RigidBodyTypeTagComponent, true)
 
   // set entity in userdata for fast look up when required.
@@ -77,8 +96,8 @@ function createRigidBody(entity: Entity, world: World, rigidBodyDesc: RigidBodyD
   rigidBody.userData = rigidBodyUserdata
 
   // TODO: Add only when dynamic or kinematic?
-  const linearVelocity = createVector3Proxy(VelocityComponent.linear, entity)
-  const angularVelocity = createVector3Proxy(VelocityComponent.angular, entity)
+  const linearVelocity = createVector3Proxy(VelocityComponent.linear, entity, new Set())
+  const angularVelocity = createVector3Proxy(VelocityComponent.angular, entity, new Set())
   addComponent(entity, VelocityComponent, { linear: linearVelocity, angular: angularVelocity })
 
   return rigidBody
@@ -111,39 +130,38 @@ function applyDescToCollider(
 }
 
 function createColliderDesc(mesh: Mesh, colliderDescOptions: ColliderDescOptions): ColliderDesc {
+  if (!colliderDescOptions.shapeType && colliderDescOptions.type)
+    colliderDescOptions.shapeType = colliderDescOptions.type
+
   // Type is required
-  if (typeof colliderDescOptions.type === 'undefined') return undefined!
+  if (typeof colliderDescOptions.shapeType === 'undefined') return undefined!
 
   let shapeType =
-    typeof colliderDescOptions.type === 'string' ? ShapeType[colliderDescOptions.type] : colliderDescOptions.type
+    typeof colliderDescOptions.shapeType === 'string'
+      ? ShapeType[colliderDescOptions.shapeType]
+      : colliderDescOptions.shapeType
   //check for old collider types to allow backwards compatibility
   if (typeof shapeType === 'undefined') {
-    switch (colliderDescOptions.type as unknown as string) {
+    switch (colliderDescOptions.shapeType as unknown as string) {
       case 'box':
-        shapeType = ShapeType['Cuboid']
+        shapeType = ShapeType.Cuboid
         break
       case 'trimesh':
-        shapeType = ShapeType['TriMesh']
+        shapeType = ShapeType.TriMesh
+        break
+      case 'capsule':
+        shapeType = ShapeType.Capsule
+        break
+      case 'cylinder':
+        shapeType = ShapeType.Cylinder
         break
       default:
-        console.error('unrecognized collider shape type: ' + colliderDescOptions.type)
+        console.error('unrecognized collider shape type: ' + colliderDescOptions.shapeType)
     }
   }
 
   // If custom size has been provided use that else use mesh scale
   const colliderSize = colliderDescOptions.size ? colliderDescOptions.size : mesh.scale
-
-  // Check for case mismatch
-  if (
-    typeof colliderDescOptions.collisionLayer === 'undefined' &&
-    typeof (colliderDescOptions as any).collisionlayer !== 'undefined'
-  )
-    colliderDescOptions.collisionLayer = (colliderDescOptions as any).collisionlayer
-  if (
-    typeof colliderDescOptions.collisionMask === 'undefined' &&
-    typeof (colliderDescOptions as any).collisionmask !== 'undefined'
-  )
-    colliderDescOptions.collisionMask = (colliderDescOptions as any).collisionmask
 
   let colliderDesc: ColliderDesc
   switch (shapeType as ShapeType) {
@@ -201,24 +219,23 @@ function createRigidBodyForObject(
   entity: Entity,
   world: World,
   object: Object3D,
-  colliderDescOptionsForRoot: ColliderDescOptions
+  colliderDescOptions: ColliderDescOptions
 ): RigidBody {
   if (!object) return undefined!
   const colliderDescs = [] as ColliderDesc[]
-
   // create collider desc using userdata of each child mesh
   object.traverse((mesh: Mesh) => {
     const colliderDesc = createColliderDesc(
       mesh,
-      mesh === object ? { ...colliderDescOptionsForRoot, ...mesh.userData } : (mesh.userData as ColliderDescOptions)
+      mesh === object ? { ...colliderDescOptions, ...mesh.userData } : (mesh.userData as ColliderDescOptions)
     )
     if (colliderDesc) colliderDescs.push(colliderDesc)
   })
 
   const rigidBodyType =
-    typeof colliderDescOptionsForRoot['bodyType'] === 'string'
-      ? RigidBodyType[colliderDescOptionsForRoot['bodyType']]
-      : colliderDescOptionsForRoot['bodyType']
+    typeof colliderDescOptions.bodyType === 'string'
+      ? RigidBodyType[colliderDescOptions.bodyType]
+      : colliderDescOptions.bodyType
 
   let rigidBodyDesc: RigidBodyDesc = undefined!
   switch (rigidBodyType) {
@@ -248,7 +265,7 @@ function createColliderAndAttachToRigidBody(world: World, colliderDesc: Collider
 }
 
 function removeCollidersFromRigidBody(entity: Entity, world: World) {
-  const rigidBody = getComponent(entity, RigidBodyComponent)
+  const rigidBody = getComponent(entity, RigidBodyComponent).body
   const numColliders = rigidBody.numColliders()
   for (let index = 0; index < numColliders; index++) {
     const collider = rigidBody.collider(0)
@@ -257,52 +274,89 @@ function removeCollidersFromRigidBody(entity: Entity, world: World) {
 }
 
 function removeRigidBody(entity: Entity, world: World, hasBeenRemoved = false) {
-  const rigidBody = getComponent(entity, RigidBodyComponent, hasBeenRemoved)
+  const rigidBody = getComponent(entity, RigidBodyComponent, hasBeenRemoved)?.body
   if (rigidBody && world.bodies.contains(rigidBody.handle)) {
     if (!hasBeenRemoved) {
-      const RigidBodyTypeTagComponent = getTagComponentForRigidBody(rigidBody)
+      const RigidBodyTypeTagComponent = getTagComponentForRigidBody(rigidBody.bodyType())
       removeComponent(entity, RigidBodyTypeTagComponent)
       removeComponent(entity, RigidBodyComponent)
+      removeComponent(entity, VelocityComponent)
     }
-
     world.removeRigidBody(rigidBody)
   }
 }
 
 function changeRigidbodyType(entity: Entity, newType: RigidBodyType) {
-  const rigidBody = getComponent(entity, RigidBodyComponent)
-  const currentRigidBodyTypeTagComponent = getTagComponentForRigidBody(rigidBody)
+  const rigidBody = getComponent(entity, RigidBodyComponent).body
+  if (newType === rigidBody.bodyType()) return
+  const currentRigidBodyTypeTagComponent = getTagComponentForRigidBody(rigidBody.bodyType())
 
   removeComponent(entity, currentRigidBodyTypeTagComponent)
 
   rigidBody.setBodyType(newType)
 
-  const newRigidBodyComponent = getTagComponentForRigidBody(rigidBody)
+  const newRigidBodyComponent = getTagComponentForRigidBody(rigidBody.bodyType())
   addComponent(entity, newRigidBodyComponent, true)
 }
 
-function castRay(world: World, raycastQuery: ComponentType<typeof RaycastComponent>) {
-  const ray = new Ray(
-    { x: raycastQuery.origin.x, y: raycastQuery.origin.y, z: raycastQuery.origin.z },
-    { x: raycastQuery.direction.x, y: raycastQuery.direction.y, z: raycastQuery.direction.z }
-  )
+export type RaycastArgs = {
+  type: SceneQueryType
+  origin: Vector3
+  direction: Vector3
+  maxDistance: number
+  flags: number // TODO: rename to collision groups & type should be RAPIER.InteractionGroups
+}
+
+function castRay(world: World, raycastQuery: RaycastArgs) {
+  const ray = new Ray(raycastQuery.origin, raycastQuery.direction)
   const maxToi = raycastQuery.maxDistance
-  const solid = true // TODO: Add option for this in RaycastComponent?
+  const solid = true // TODO: Add option for this in args
   const groups = raycastQuery.flags
 
-  raycastQuery.hits = []
+  const hits = [] as RaycastHit[]
   let hitWithNormal = world.castRayAndGetNormal(ray, maxToi, solid, groups)
   if (hitWithNormal != null) {
-    raycastQuery.hits.push({
+    hits.push({
       distance: hitWithNormal.toi,
       position: ray.pointAt(hitWithNormal.toi),
       normal: hitWithNormal.normal,
       body: hitWithNormal.collider.parent() as RigidBody
     })
   }
+
+  ;(world as any).raycastDebugs.push({ raycastQuery, hits })
+
+  return hits
 }
 
-function castShape(world: World, shapecastQuery: ComponentType<typeof ShapecastComponent>) {
+function castRayFromCamera(
+  camera: PerspectiveCamera | OrthographicCamera,
+  coords: Vector2,
+  world: World,
+  raycastQuery: RaycastArgs
+) {
+  if ((camera as PerspectiveCamera).isPerspectiveCamera) {
+    raycastQuery.origin.setFromMatrixPosition(camera.matrixWorld)
+    raycastQuery.direction.set(coords.x, coords.y, 0.5).unproject(camera).sub(raycastQuery.origin).normalize()
+  } else if ((camera as OrthographicCamera).isOrthographicCamera) {
+    raycastQuery.origin
+      .set(coords.x, coords.y, (camera.near + camera.far) / (camera.near - camera.far))
+      .unproject(camera)
+    raycastQuery.direction.set(0, 0, -1).transformDirection(camera.matrixWorld)
+  }
+  return Physics.castRay(world, raycastQuery)
+}
+
+export type ShapecastArgs = {
+  type: SceneQueryType
+  hits: RaycastHit[]
+  collider: Collider
+  direction: Vector3
+  maxDistance: number
+  collisionGroups: InteractionGroups
+}
+
+function castShape(world: World, shapecastQuery: ShapecastArgs) {
   const maxToi = shapecastQuery.maxDistance
   const groups = shapecastQuery.collisionGroups
   const collider = shapecastQuery.collider
@@ -330,6 +384,8 @@ function castShape(world: World, shapecastQuery: ComponentType<typeof ShapecastC
 const drainCollisionEventQueue = (physicsWorld: World) => (handle1: number, handle2: number, started: boolean) => {
   const collider1 = physicsWorld.getCollider(handle1)
   const collider2 = physicsWorld.getCollider(handle2)
+  if (!collider1 || !collider2) return
+
   const isTriggerEvent = collider1.isSensor() || collider2.isSensor()
   const rigidBody1 = collider1.parent()
   const rigidBody2 = collider2.parent()
@@ -374,6 +430,7 @@ export const Physics = {
   removeRigidBody,
   changeRigidbodyType,
   castRay,
+  castRayFromCamera,
   castShape,
   createCollisionEventQueue,
   drainCollisionEventQueue

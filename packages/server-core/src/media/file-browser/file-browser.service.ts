@@ -9,8 +9,27 @@ import hooks from './file-browser.hooks'
 declare module '@xrengine/common/declarations' {
   interface ServiceTypes {
     'file-browser': FileBrowserService
-    'file-browser/upload': any
+    'file-browser/upload': {
+      create: ReturnType<typeof uploadFile>
+    }
   }
+}
+
+export const uploadFile = (app: Application) => async (data: any, params: Params) => {
+  if (typeof data.args === 'string') data.args = JSON.parse(data.args)
+
+  const result = (await Promise.all(
+    params.files.map((file) =>
+      app
+        .service('file-browser')
+        .patch(null, { fileName: data.fileName, path: data.path, body: file.buffer, contentType: file.mimeType })
+    )
+  )) as string[]
+
+  // Clear params otherwise all the files and auth details send back to client as  response
+  for (const prop of Object.getOwnPropertyNames(params)) delete params[prop]
+
+  return result
 }
 
 const multipartMiddleware = multer({ limits: { fieldSize: Infinity, files: 1 } })
@@ -30,22 +49,7 @@ export default (app: Application): any => {
       next()
     },
     {
-      create: async (data: any, params: Params) => {
-        if (typeof data.args === 'string') data.args = JSON.parse(data.args)
-
-        const result = await Promise.all(
-          params.files.map((file) =>
-            app
-              .service('file-browser')
-              .patch(null, { fileName: data.fileName, path: data.path, body: file.buffer, contentType: file.mimeType })
-          )
-        )
-
-        // Clear params otherwise all the files and auth details send back to client as  response
-        for (const prop of Object.getOwnPropertyNames(params)) delete params[prop]
-
-        return result
-      }
+      create: uploadFile(app)
     }
   )
 

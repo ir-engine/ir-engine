@@ -11,6 +11,6 @@ export type EntityTreeNode = {
   type: 'EntityNode'
   entity: Entity
   uuid: string
+  children: Entity[]
   parentEntity?: Entity
-  children?: Entity[]
 }

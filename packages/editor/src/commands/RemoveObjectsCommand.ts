@@ -1,5 +1,6 @@
 import { SceneJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import { removeEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import {
@@ -8,6 +9,7 @@ import {
   traverseEntityNode
 } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
 import { serializeWorld } from '@xrengine/engine/src/scene/functions/serializeWorld'
+import obj3dFromUuid from '@xrengine/engine/src/scene/util/obj3dFromUuid'
 import { dispatchAction } from '@xrengine/hyperflux'
 
 import { executeCommand } from '../classes/History'
@@ -18,8 +20,8 @@ import { EditorAction } from '../services/EditorServices'
 import { SelectionAction } from '../services/SelectionServices'
 
 export type RemoveObjectCommandUndoParams = {
-  parents: EntityTreeNode[]
-  befores: EntityTreeNode[]
+  parents: (EntityTreeNode | string)[]
+  befores: (EntityTreeNode | string)[]
   components: SceneJson[]
 }
 
@@ -42,17 +44,24 @@ function prepare(command: RemoveObjectCommandParams) {
     const tree = Engine.instance.currentWorld.entityTree
     for (let i = command.affectedNodes.length - 1; i >= 0; i--) {
       const node = command.affectedNodes[i]
+      const isObj3d = typeof node === 'string'
+      if (!isObj3d) {
+        if (node.parentEntity) {
+          const parent = tree.entityNodeMap.get(node.parentEntity)
+          if (!parent) throw new Error('Parent is not defined')
+          command.undo.parents.push(parent)
 
-      if (node.parentEntity) {
-        const parent = tree.entityNodeMap.get(node.parentEntity)
+          const before = tree.entityNodeMap.get(parent.children![parent.children!.indexOf(node.entity) + 1])
+          command.undo.befores.push(before!)
+        }
+
+        if (!command.skipSerialization) command.undo.components.push(serializeWorld(node))
+      } else {
+        const obj3d = obj3dFromUuid(node)
+        const parent = obj3d.parent
         if (!parent) throw new Error('Parent is not defined')
-        command.undo.parents.push(parent)
-
-        const before = tree.entityNodeMap.get(parent.children![parent.children!.indexOf(node.entity) + 1])
-        command.undo.befores.push(before!)
+        command.undo.parents
       }
-
-      if (!command.skipSerialization) command.undo.components.push(serializeWorld(node))
     }
   }
 }
@@ -65,7 +74,7 @@ function execute(command: RemoveObjectCommandParams) {
 function undo(command: RemoveObjectCommandParams) {
   if (!command.undo) return
 
-  const nodes = [] as EntityTreeNode[]
+  const nodes = [] as (string | EntityTreeNode)[]
   for (let i = command.affectedNodes.length - 1; i >= 0; i--) {
     nodes.push(command.affectedNodes[i])
   }
@@ -96,19 +105,25 @@ function emitEventAfter(command: RemoveObjectCommandParams) {
 function removeObject(command: RemoveObjectCommandParams) {
   const removedParentNodes = getEntityNodeArrayFromEntities(
     filterParentEntities(
-      command.affectedNodes.map((o) => o.entity),
+      command.affectedNodes.map((node: EntityTreeNode | string): Entity | string => {
+        return typeof node === 'string' ? node : node.entity
+      }),
       undefined,
       true,
       false
     )
   )
-
+  const scene = Engine.instance.currentWorld.scene
   for (let i = 0; i < removedParentNodes.length; i++) {
     const node = removedParentNodes[i]
-    if (!node.parentEntity) continue
-
-    traverseEntityNode(node, (node) => removeEntity(node.entity))
-    removeEntityNodeFromParent(node)
+    if (typeof node === 'string') {
+      const obj = scene.getObjectByProperty('uuid', node)
+      obj?.removeFromParent()
+    } else {
+      if (!node.parentEntity) continue
+      traverseEntityNode(node, (node) => removeEntity(node.entity))
+      removeEntityNodeFromParent(node)
+    }
   }
 
   if (command.updateSelection) {

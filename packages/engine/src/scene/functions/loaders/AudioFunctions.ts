@@ -1,60 +1,26 @@
-import { DoubleSide, Mesh, MeshBasicMaterial, Object3D, PlaneBufferGeometry } from 'three'
-
-import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { getState } from '@xrengine/hyperflux'
 
-import { AssetLoader } from '../../../assets/classes/AssetLoader'
 import { AudioState } from '../../../audio/AudioState'
-import { AudioComponent, AudioComponentType } from '../../../audio/components/AudioComponent'
-import { AudioType, AudioTypeType } from '../../../audio/constants/AudioConstants'
-import { AudioElementNode, AudioElementNodes } from '../../../audio/systems/AudioSystem'
 import {
-  ComponentDeserializeFunction,
-  ComponentPrepareForGLTFExportFunction,
-  ComponentSerializeFunction
-} from '../../../common/constants/PrefabFunctionType'
-import { isClient } from '../../../common/functions/isClient'
+  AudioComponent,
+  AudioComponentType,
+  SCENE_COMPONENT_AUDIO_DEFAULT_VALUES
+} from '../../../audio/components/AudioComponent'
+import { AudioElementNode, AudioElementNodes } from '../../../audio/systems/AudioSystem'
+import { ComponentDeserializeFunction } from '../../../common/constants/PrefabFunctionType'
 import { Engine } from '../../../ecs/classes/Engine'
 import { getEngineState } from '../../../ecs/classes/EngineState'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
-import { EntityNodeComponent } from '../../components/EntityNodeComponent'
+import { CallbackComponent } from '../../components/CallbackComponent'
 import { MediaComponent } from '../../components/MediaComponent'
 import { MediaElementComponent } from '../../components/MediaElementComponent'
-import { Object3DComponent } from '../../components/Object3DComponent'
-import { ObjectLayers } from '../../constants/ObjectLayers'
 import { PlayMode } from '../../constants/PlayMode'
-import { setObjectLayers } from '../setObjectLayers'
 import { getNextPlaylistItem, updateAutoStartTimeForMedia } from './MediaFunctions'
 
-export const AUDIO_TEXTURE_PATH = '/static/editor/audio-icon.png' // Static
-
-export const SCENE_COMPONENT_AUDIO = 'audio'
-export const SCENE_COMPONENT_AUDIO_DEFAULT_VALUES = {
-  volume: 1,
-  audioType: AudioType.Stereo as AudioTypeType,
-  isMusic: false,
-  distanceModel: 'linear' as DistanceModelType,
-  rolloffFactor: 1,
-  refDistance: 20,
-  maxDistance: 1000,
-  coneInnerAngle: 360,
-  coneOuterAngle: 0,
-  coneOuterGain: 0
-} as AudioComponentType
-
-export const AudioElementObjects = new WeakMap<Object3D, Mesh>()
-
-export const deserializeAudio: ComponentDeserializeFunction = async (
-  entity: Entity,
-  json: ComponentJson<AudioComponentType>
-) => {
-  let obj3d = getComponent(entity, Object3DComponent)?.value
-  if (!obj3d) obj3d = addComponent(entity, Object3DComponent, { value: new Object3D() }).value
-  if (!isClient) return
-  const props = parseAudioProperties(json.props)
+export const deserializeAudio: ComponentDeserializeFunction = async (entity: Entity, data: AudioComponentType) => {
+  const props = parseAudioProperties(data)
   addComponent(entity, AudioComponent, props)
-  getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_AUDIO)
 }
 
 export const createAudioNode = (
@@ -70,25 +36,11 @@ export const createAudioNode = (
   return audioObject
 }
 
-export const updateAudio = (entity: Entity) => {
+export const updateAudioPrefab = (entity: Entity) => {
   const audioComponent = getComponent(entity, AudioComponent)
   const mediaComponent = getComponent(entity, MediaComponent)
-  const obj3d = getComponent(entity, Object3DComponent).value
 
   const currentPath = mediaComponent.paths.length ? mediaComponent.paths[mediaComponent.currentSource] : ''
-
-  if (!AudioElementObjects.has(obj3d)) {
-    const textureMesh = new Mesh(
-      new PlaneBufferGeometry(),
-      new MeshBasicMaterial({ transparent: true, side: DoubleSide })
-    )
-    obj3d.add(textureMesh)
-    textureMesh.userData.disableOutline = true
-    textureMesh.userData.isHelper = true
-    textureMesh.material.map = AssetLoader.getFromCache(AUDIO_TEXTURE_PATH)
-    setObjectLayers(textureMesh, ObjectLayers.NodeHelper)
-    AudioElementObjects.set(obj3d, textureMesh)
-  }
 
   if (!hasComponent(entity, MediaElementComponent)) {
     const el = document.createElement('audio')
@@ -126,11 +78,13 @@ export const updateAudio = (entity: Entity) => {
       el.play()
     })
 
-    addComponent(entity, MediaElementComponent, el)
+    addComponent(entity, CallbackComponent, {
+      play: () => el.play(),
+      pause: () => el.pause()
+      /** todo, add next/previous */
+    })
 
-    // mute and set volume to 0, as we use the audio api gain nodes to connect the source
-    el.muted = true
-    el.volume = 0
+    addComponent(entity, MediaElementComponent, el)
 
     const audioState = getState(AudioState)
     // todo: music / sfx option
@@ -158,33 +112,26 @@ export const updateAudio = (entity: Entity) => {
     el.addEventListener('loadeddata', onloadeddata, { once: true })
     el.src = currentPath
   }
-
-  if (el.volume !== audioComponent.volume) el.volume = audioComponent.volume
 }
 
-export const serializeAudio: ComponentSerializeFunction = (entity) => {
-  const component = getComponent(entity, AudioComponent) as AudioComponentType
-  if (!component) return
+export const updateAudioParameters = (entity: Entity) => {
+  const audioComponent = getComponent(entity, AudioComponent)
+  const el = getComponent(entity, MediaElementComponent)
+  el.volume = audioComponent.volume
 
-  return {
-    name: SCENE_COMPONENT_AUDIO,
-    props: {
-      volume: component.volume,
-      audioType: component.audioType,
-      isMusic: component.isMusic,
-      distanceModel: component.distanceModel,
-      rolloffFactor: component.rolloffFactor,
-      refDistance: component.refDistance,
-      maxDistance: component.maxDistance,
-      coneInnerAngle: component.coneInnerAngle,
-      coneOuterAngle: component.coneOuterAngle,
-      coneOuterGain: component.coneOuterGain
+  const audioNode = AudioElementNodes.get(el)
+
+  if (audioNode) {
+    if (audioNode.panner) {
+      audioNode.panner.distanceModel = audioComponent.distanceModel
+      audioNode.panner.rolloffFactor = audioComponent.rolloffFactor
+      audioNode.panner.refDistance = audioComponent.refDistance
+      audioNode.panner.maxDistance = audioComponent.maxDistance
+      audioNode.panner.coneInnerAngle = audioComponent.coneInnerAngle
+      audioNode.panner.coneOuterAngle = audioComponent.coneOuterAngle
+      audioNode.panner.coneOuterGain = audioComponent.coneOuterGain
     }
   }
-}
-
-export const prepareAudioForGLTFExport: ComponentPrepareForGLTFExportFunction = (obj3d) => {
-  AudioElementObjects.get(obj3d)!.removeFromParent()
 }
 
 export const parseAudioProperties = (props): AudioComponentType => {

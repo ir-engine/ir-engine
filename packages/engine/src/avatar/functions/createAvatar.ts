@@ -1,13 +1,14 @@
 import { Collider, ColliderDesc, RigidBody, RigidBodyDesc } from '@dimforge/rapier3d-compat'
-import { AnimationClip, AnimationMixer, Group, PerspectiveCamera, Quaternion, Vector3 } from 'three'
+import { AnimationClip, AnimationMixer, Group, Matrix4, PerspectiveCamera, Quaternion, Vector3 } from 'three'
 
+import { V_000, V_010 } from '../../common/constants/MathConstants'
 import { Engine } from '../../ecs/classes/Engine'
 import { Entity } from '../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent } from '../../ecs/functions/ComponentFunctions'
+import { createEntity } from '../../ecs/functions/EntityFunctions'
 import { InputComponent } from '../../input/components/InputComponent'
 import { LocalAvatarTagComponent } from '../../input/components/LocalAvatarTagComponent'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
-import { InteractorComponent } from '../../interaction/components/InteractorComponent'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { Physics } from '../../physics/classes/Physics'
 import { VectorSpringSimulator } from '../../physics/classes/springs/VectorSpringSimulator'
@@ -22,7 +23,8 @@ import { ShadowComponent } from '../../scene/components/ShadowComponent'
 import { VisibleComponent } from '../../scene/components/VisibleComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
-import { TransformComponent } from '../../transform/components/TransformComponent'
+import { setComputedTransformComponent } from '../../transform/components/ComputedTransformComponent'
+import { setTransformComponent, TransformComponent } from '../../transform/components/TransformComponent'
 import { BoneStructure } from '../AvatarBoneMatching'
 import { AvatarInputSchema } from '../AvatarInputSchema'
 import { AnimationComponent } from '../components/AnimationComponent'
@@ -79,7 +81,8 @@ export const createAvatar = (spawnAction: typeof WorldNetworkAction.spawnAvatar.
     },
     rig: {} as BoneStructure,
     bindRig: {} as BoneStructure,
-    rootYRatio: 1
+    rootYRatio: 1,
+    locomotion: new Vector3()
   })
 
   addComponent(entity, Object3DComponent, { value: tiltContainer })
@@ -100,7 +103,7 @@ export const createAvatar = (spawnAction: typeof WorldNetworkAction.spawnAvatar.
     createAvatarCollider(entity)
   }
 
-  addComponent(entity, ShadowComponent, { receiveShadow: true, castShadow: true })
+  addComponent(entity, ShadowComponent, { receive: true, cast: true })
 
   return entity
 }
@@ -108,7 +111,7 @@ export const createAvatar = (spawnAction: typeof WorldNetworkAction.spawnAvatar.
 export const createAvatarCollider = (entity: Entity): Collider => {
   const interactionGroups = getInteractionGroups(CollisionGroups.Avatars, AvatarCollisionMask)
   const avatarComponent = getComponent(entity, AvatarComponent)
-  const rigidBody = getComponent(entity, RigidBodyComponent)
+  const rigidBody = getComponent(entity, RigidBodyComponent).body
 
   const bodyColliderDesc = ColliderDesc.capsule(
     avatarComponent.avatarHalfHeight - avatarRadius,
@@ -133,7 +136,6 @@ const createAvatarRigidBody = (entity: Entity): RigidBody => {
 }
 
 export const createAvatarController = (entity: Entity) => {
-  const { value } = getComponent(entity, Object3DComponent)
   const avatarComponent = getComponent(entity, AvatarComponent)
 
   if (!hasComponent(entity, InputComponent)) {
@@ -143,26 +145,14 @@ export const createAvatarController = (entity: Entity) => {
     })
   }
 
-  const frustumCamera = new PerspectiveCamera(60, 4, 0.1, 3)
-  frustumCamera.position.setY(defaultAvatarHalfHeight)
-  frustumCamera.rotateY(Math.PI)
-
-  value.add(frustumCamera)
-  if (!hasComponent(entity, InteractorComponent)) {
-    addComponent(entity, InteractorComponent, {
-      focusedInteractive: null!,
-      frustumCamera,
-      subFocusedArray: []
-    })
-  }
-
   // offset so rigidboyd has feet at spawn position
   const velocitySimulator = new VectorSpringSimulator(60, 50, 0.8)
   if (!hasComponent(entity, AvatarControllerComponent)) {
     getComponent(entity, TransformComponent).position.y += avatarComponent.avatarHalfHeight
     const rigidBody = createAvatarRigidBody(entity)
     addComponent(entity, AvatarControllerComponent, {
-      controller: rigidBody,
+      cameraEntity: Engine.instance.currentWorld.cameraEntity,
+      body: rigidBody,
       bodyCollider: undefined!,
       movementEnabled: true,
       isJumping: false,

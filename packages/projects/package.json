@@ -1,6 +1,6 @@
 {
   "name": "@xrengine/projects",
-  "version": "0.5.7",
+  "version": "0.5.8",
   "main": "index.ts",
   "private": true,
   "description": "",
@@ -19,8 +19,5 @@
   "bugs": {
     "url": "https://github.com/XRFoundation/XREngine/issues"
   },
-  "homepage": "https://github.com/XRFoundation/XREngine#readme",
-  "dependencies": {
-    "@xrengine/engine": "^0.5.7"
-  }
+  "homepage": "https://github.com/XRFoundation/XREngine#readme"
 }

@@ -7,12 +7,10 @@ import { Engine } from '../../ecs/classes/Engine'
 import { hasComponent } from '../../ecs/functions/ComponentFunctions'
 import { createEngine } from '../../initializeEngine'
 import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
-import { InteractorComponent } from '../../interaction/components/InteractorComponent'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { WorldNetworkActionReceptor } from '../../networking/functions/WorldNetworkActionReceptor'
 import { Physics } from '../../physics/classes/Physics'
-import { RigidBodyComponent } from '../../physics/components/RigidBodyComponent'
-import { RigidBodyDynamicTagComponent } from '../../physics/components/RigidBodyDynamicTagComponent'
+import { RigidBodyComponent, RigidBodyDynamicTagComponent } from '../../physics/components/RigidBodyComponent'
 import { VelocityComponent } from '../../physics/components/VelocityComponent'
 import { NameComponent } from '../../scene/components/NameComponent'
 import { Object3DComponent } from '../../scene/components/Object3DComponent'
@@ -54,7 +52,6 @@ describe('createAvatar', () => {
     assert(hasComponent(entity, Object3DComponent))
     assert(hasComponent(entity, SpawnPoseComponent))
     assert(hasComponent(entity, AvatarControllerComponent))
-    assert(hasComponent(entity, InteractorComponent))
     assert(hasComponent(entity, LocalInputTagComponent))
     assert(hasComponent(entity, RigidBodyComponent))
     assert(hasComponent(entity, RigidBodyDynamicTagComponent))

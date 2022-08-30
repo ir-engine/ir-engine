@@ -14,7 +14,6 @@ import { DebugNavMeshComponent } from '../../../debug/DebugNavMeshComponent'
 import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent, removeComponent } from '../../../ecs/functions/ComponentFunctions'
 import { NavMesh } from '../../classes/NavMesh'
-import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { NavMeshComponent, NavMeshComponentType } from '../../components/NavMeshComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
 
@@ -31,9 +30,7 @@ export const deserializeNavMesh: ComponentDeserializeFunction = (
 
   addComponent(entity, NavMeshComponent, props)
 
-  getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_NAV_MESH)
-
-  updateNavMesh(entity, props)
+  updateNavMesh(entity)
 }
 
 function parseGeometry(position: ArrayLike<number>, index: ArrayLike<number> | undefined, transform: Matrix4) {
@@ -101,7 +98,7 @@ function setNavMeshPolygons(navMesh: NavMesh, obj3d: Object3D) {
   }
 }
 
-export const updateNavMesh: ComponentUpdateFunction = (entity: Entity, _properties: NavMeshComponentType) => {
+export const updateNavMesh: ComponentUpdateFunction = (entity: Entity) => {
   const navMesh = getComponent(entity, NavMeshComponent).value
 
   if (hasComponent(entity, Object3DComponent)) {

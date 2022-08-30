@@ -1,6 +1,7 @@
 import assert from 'assert'
 
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import { addComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
@@ -11,7 +12,6 @@ import {
 } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
 import { createEngine } from '@xrengine/engine/src/initializeEngine'
 import { SelectTagComponent } from '@xrengine/engine/src/scene/components/SelectTagComponent'
-import { registerPrefabs } from '@xrengine/engine/src/scene/functions/registerPrefabs'
 import { applyIncomingActions } from '@xrengine/hyperflux'
 
 import EditorCommands from '../constants/EditorCommands'
@@ -28,7 +28,6 @@ describe('ReplaceSelectionCommand', () => {
     createEngine()
     registerEditorReceptors()
     Engine.instance.store.defaultDispatchDelay = 0
-    registerPrefabs(Engine.instance.currentWorld)
 
     rootNode = createEntityNode(createEntity())
     nodes = [createEntityNode(createEntity()), createEntityNode(createEntity())]
@@ -118,7 +117,7 @@ describe('ReplaceSelectionCommand', () => {
 
       assert.equal(selection.length, command.affectedNodes.length)
 
-      command.affectedNodes.forEach((node, i) => {
+      command.affectedNodes.forEach((node: EntityTreeNode, i) => {
         assert.equal(selection[i], node.entity)
         assert(hasComponent(node.entity, SelectTagComponent))
       })
@@ -138,7 +137,7 @@ describe('ReplaceSelectionCommand', () => {
 
       assert.equal(selection.length, command.affectedNodes.length)
 
-      command.affectedNodes.forEach((node, i) => {
+      command.affectedNodes.forEach((node: EntityTreeNode, i) => {
         assert.equal(selection[i], node.entity)
         assert(hasComponent(node.entity, SelectTagComponent))
       })
@@ -156,8 +155,9 @@ describe('ReplaceSelectionCommand', () => {
       const selection = accessSelectionState().selectedEntities.value
       assert.equal(selection.length, command.undo?.selection.length)
       command.undo?.selection.forEach((entity, i) => {
+        if (typeof entity === 'string') return
         assert.equal(selection[i], entity)
-        assert(hasComponent(entity, SelectTagComponent))
+        assert(hasComponent(entity as Entity, SelectTagComponent))
       })
     })
   })

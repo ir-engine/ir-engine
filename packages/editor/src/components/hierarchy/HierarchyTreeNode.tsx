@@ -1,14 +1,16 @@
 import React, { KeyboardEvent, StyleHTMLAttributes, useCallback, useEffect } from 'react'
 import { useDrag, useDrop } from 'react-dnd'
 import { getEmptyImage } from 'react-dnd-html5-backend'
+import { Object3D } from 'three'
 
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { Entity } from '@xrengine/engine/src/ecs/classes/Entity'
 import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
-import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { getEntityNodeArrayFromEntities } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
 import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
-import { ErrorComponent } from '@xrengine/engine/src/scene/components/ErrorComponent'
+import { ErrorComponent, ErrorComponentType } from '@xrengine/engine/src/scene/components/ErrorComponent'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
 
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown'
@@ -21,6 +23,7 @@ import { addMediaNode } from '../../functions/addMediaNode'
 import { isAncestor } from '../../functions/getDetachedObjectsRoots'
 import { getNodeEditorsForEntity } from '../../functions/PrefabEditors'
 import { useSelectionState } from '../../services/SelectionServices'
+import useUpload from '../assets/useUpload'
 import { addPrefabElement } from '../element/ElementList'
 import { ContextMenuTrigger } from '../layout/ContextMenu'
 import { HeirarchyTreeNodeType } from './HeirarchyTreeWalker'
@@ -34,7 +37,7 @@ import styles from './styles.module.scss'
  * @return {string}
  */
 export const getNodeElId = (node: HeirarchyTreeNodeType) => {
-  return 'hierarchy-node-' + node.entityNode.entity
+  return 'hierarchy-node-' + (node.obj3d ? node.obj3d.uuid : node.entityNode.entity)
 }
 
 export type RenameNodeData = {
@@ -51,7 +54,7 @@ export type HierarchyTreeNodeData = {
   onClick: (e: MouseEvent, node: HeirarchyTreeNodeType) => void
   onChangeName: (node: HeirarchyTreeNodeType, name: string) => void
   onRenameSubmit: (node: HeirarchyTreeNodeType, name: string) => void
-  onUpload: (entries: FileSystemEntry[]) => Promise<{ url: string }[] | null>
+  onUpload: ReturnType<typeof useUpload>
 }
 
 export type HierarchyTreeNodeProps = {
@@ -66,8 +69,12 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
   const engineState = useEngineState()
   const selectionState = useSelectionState()
 
-  const nameComponent = getComponent(node.entityNode.entity, NameComponent)
-  const errorComponent = getComponent(node.entityNode.entity, ErrorComponent)
+  const nodeName = node.obj3d
+    ? node.obj3d.name ?? node.obj3d.uuid
+    : hasComponent(node.entityNode.entity, NameComponent)
+    ? getComponent(node.entityNode.entity, NameComponent).name
+    : ''
+  const errorComponent: ErrorComponentType = node.entityNode && getComponent(node.entityNode.entity, ErrorComponent)
 
   const onClickToggle = useCallback(
     (e: MouseEvent) => {
@@ -104,17 +111,23 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
     item() {
       const selectedEntities = selectionState.selectedEntities.value
       const multiple = selectedEntities.length > 1
-      const tree = useWorld().entityTree
+      const tree = Engine.instance.currentWorld.entityTree
 
       return {
         type: ItemTypes.Node,
         multiple,
-        value: multiple ? getEntityNodeArrayFromEntities(selectedEntities) : tree.entityNodeMap.get(selectedEntities[0])
+        value: multiple
+          ? getEntityNodeArrayFromEntities(selectedEntities)
+          : typeof selectedEntities[0] === 'string'
+          ? selectedEntities[0]
+          : tree.entityNodeMap.get(selectedEntities[0] as Entity)
       }
     },
     canDrag() {
-      const tree = useWorld().entityTree
-      return !selectionState.selectedEntities.value.some((entity) => !tree.entityNodeMap.get(entity)?.parentEntity)
+      const tree = Engine.instance.currentWorld.entityTree
+      return !selectionState.selectedEntities.value.some(
+        (entity) => !(typeof entity === 'string' || tree.entityNodeMap.get(entity)?.parentEntity)
+      )
     },
     collect: (monitor) => ({
       isDragging: !!monitor.isDragging()
@@ -122,21 +135,36 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
   })
 
   const dropItem = (node: HeirarchyTreeNodeType, place: 'On' | 'Before' | 'After') => {
-    const tree = useWorld().entityTree
+    const tree = Engine.instance.currentWorld.entityTree
 
-    let parentNode: EntityTreeNode | undefined = undefined
-    let beforeNode: EntityTreeNode | undefined = undefined
+    const isObj3D = !node.entityNode && node.obj3d
+    const obj3d = node.obj3d!
+    let parentNode: EntityTreeNode | string | undefined = undefined
+    let beforeNode: EntityTreeNode | string | undefined = undefined
 
     if (place === 'Before') {
-      parentNode = node.entityNode.parentEntity ? tree.entityNodeMap.get(node.entityNode.parentEntity) : undefined
-      beforeNode = node.entityNode
+      if (isObj3D) {
+        parentNode = obj3d.parent?.uuid ?? undefined
+        beforeNode = obj3d.uuid
+      } else {
+        parentNode = node.entityNode.parentEntity ? tree.entityNodeMap.get(node.entityNode.parentEntity) : undefined
+        beforeNode = node.entityNode
+      }
     } else if (place === 'After') {
-      parentNode = node.entityNode.parentEntity ? tree.entityNodeMap.get(node.entityNode.parentEntity) : undefined
-      if (!node.lastChild && parentNode && parentNode.children) {
-        beforeNode = tree.entityNodeMap.get(parentNode.children[node.childIndex + 1])
+      if (isObj3D) {
+        const parent = obj3d.parent
+        parentNode = parent?.uuid ?? undefined
+        if (parent?.children && parent.children.indexOf(obj3d) < parent.children.length - 1) {
+          beforeNode = parent.children[parent.children.indexOf(obj3d) + 1].uuid
+        }
+      } else {
+        parentNode = node.entityNode.parentEntity ? tree.entityNodeMap.get(node.entityNode.parentEntity) : undefined
+        if (!node.lastChild && parentNode && parentNode.children) {
+          beforeNode = tree.entityNodeMap.get(parentNode.children[node.childIndex + 1])
+        }
       }
     } else {
-      parentNode = node.entityNode
+      parentNode = isObj3D ? node.obj3d!.uuid : node.entityNode
     }
 
     if (!parentNode)
@@ -145,31 +173,31 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
       }
 
     return (item: any, monitor): void => {
-      if (item.files) {
-        const dndItem: any = monitor.getItem()
-        const entries = Array.from(dndItem.items).map((item: any) => item.webkitGetAsEntry())
+      if (typeof parentNode !== 'string' && typeof beforeNode !== 'string') {
+        if (item.files) {
+          const dndItem: any = monitor.getItem()
+          const entries = Array.from(dndItem.items).map((item: any) => item.webkitGetAsEntry())
 
-        //uploading files then adding as media to the editor
-        data.onUpload(entries).then((assets) => {
-          if (!assets) return
-          for (const asset of assets) {
-            addMediaNode(asset.url, parentNode, beforeNode)
-          }
-        })
+          //uploading files then adding as media to the editor
+          data.onUpload(entries).then((assets) => {
+            if (!assets) return
+            for (const asset of assets) {
+              addMediaNode(asset, parentNode as EntityTreeNode | undefined, beforeNode as EntityTreeNode | undefined)
+            }
+          })
+          return
+        }
 
-        return
+        if (item.url) {
+          addMediaNode(item.url, parentNode, beforeNode)
+          return
+        }
+
+        if (item.type === ItemTypes.Prefab) {
+          addPrefabElement(item, parentNode, beforeNode)
+          return
+        }
       }
-
-      if (item.url) {
-        addMediaNode(item.url, parentNode, beforeNode)
-        return
-      }
-
-      if (item.type === ItemTypes.Prefab) {
-        addPrefabElement(item, parentNode, beforeNode)
-        return
-      }
-
       if (parentNode) {
         executeCommandWithHistory({
           type: EditorCommands.REPARENT,
@@ -181,20 +209,31 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
     }
   }
 
-  const canDropItem = (entityNode: EntityTreeNode, dropOn?: boolean) => {
+  const canDropItem = (entityNode: EntityTreeNode | Object3D, dropOn?: boolean) => {
     return (item, monitor): boolean => {
       //check if monitor is over or object is not parent element
-      if (!monitor.isOver() || (!dropOn && !entityNode.parentEntity)) return false
+      if (!monitor.isOver()) return false
+      const isObject3D = (entityNode as Object3D).isObject3D
+      const eNode = entityNode as EntityTreeNode
+      const obj3d = entityNode as Object3D
 
+      if (!dropOn && !isObject3D && !(entityNode as EntityTreeNode).parentEntity) return false
+      if (dropOn && isObject3D && !obj3d.parent) return false
       if (item.type === ItemTypes.Node) {
         return (
-          (dropOn || !!entityNode.parentEntity) &&
+          (dropOn || !!eNode.parentEntity) &&
           !(item.multiple
-            ? item.value.some((otherObject) => isAncestor(otherObject, entityNode))
-            : isAncestor(item.value, entityNode))
+            ? item.value.some((otherObject) => isAncestor(otherObject, eNode))
+            : isAncestor(item.value, eNode))
+        )
+      } else if (isObject3D) {
+        return (
+          (dropOn || !!obj3d.parent) &&
+          !(item.multiple
+            ? item.value.some((otherObject) => typeof otherObject !== 'string' || isAncestor(otherObject, obj3d.uuid))
+            : isAncestor(item.value, obj3d.uuid))
         )
       }
-
       return true
     }
   }
@@ -202,7 +241,7 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
   const [{ canDropBefore, isOverBefore }, beforeDropTarget] = useDrop({
     accept: [ItemTypes.Node, ItemTypes.File, ItemTypes.Prefab, ...SupportedFileTypes],
     drop: dropItem(node, 'Before'),
-    canDrop: canDropItem(node.entityNode),
+    canDrop: canDropItem(node.entityNode ?? node.obj3d!),
     collect: (monitor) => ({
       canDropBefore: monitor.canDrop(),
       isOverBefore: monitor.isOver()
@@ -212,7 +251,7 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
   const [{ canDropAfter, isOverAfter }, afterDropTarget] = useDrop({
     accept: [ItemTypes.Node, ItemTypes.File, ItemTypes.Prefab, ...SupportedFileTypes],
     drop: dropItem(node, 'After'),
-    canDrop: canDropItem(node.entityNode),
+    canDrop: canDropItem(node.entityNode ?? node.obj3d!),
     collect: (monitor) => ({
       canDropAfter: monitor.canDrop(),
       isOverAfter: monitor.isOver()
@@ -222,7 +261,7 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
   const [{ canDropOn, isOverOn }, onDropTarget] = useDrop({
     accept: [ItemTypes.Node, ItemTypes.File, ItemTypes.Prefab, ...SupportedFileTypes],
     drop: dropItem(node, 'On'),
-    canDrop: canDropItem(node.entityNode, true),
+    canDrop: canDropItem(node.entityNode ?? node.obj3d!, true),
     collect: (monitor) => ({
       canDropOn: monitor.canDrop(),
       isOverOn: monitor.isOver()
@@ -234,7 +273,7 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
   }, [preview])
 
   const collectNodeMenuProps = useCallback(() => node, [node])
-  const editors = getNodeEditorsForEntity(node.entityNode.entity)
+  const editors = node.entityNode ? getNodeEditorsForEntity(node.entityNode.entity) : []
   const IconComponent = editors.length && editors[editors.length - 1].iconComponent
   const renaming = data.renamingNode && data.renamingNode.entity === node.entityNode.entity
   const marginLeft = node.depth > 0 ? node.depth * 8 + 20 : 0
@@ -251,6 +290,7 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
           onKeyDown={onNodeKeyDown}
           className={
             styles.treeNodeContainer +
+            (node.obj3d ? ' ' + styles.obj3d : '') +
             (node.depth === 0 ? ' ' + styles.rootNode : '') +
             (node.selected ? ' ' + styles.selected : '') +
             (node.active ? ' ' + styles.active : '')
@@ -292,11 +332,11 @@ export const HierarchyTreeNode = (props: HierarchyTreeNodeProps) => {
                   </div>
                 ) : (
                   <div className={styles.nodelabel + (isOverOn && canDropOn ? ' ' + styles.dropTarget : '')}>
-                    {nameComponent?.name}
+                    {nodeName}
                   </div>
                 )}
               </div>
-              {engineState.errorEntities[node.entityNode.entity].get() && (
+              {node.entityNode && engineState.errorEntities[node.entityNode.entity].get() && (
                 <NodeIssuesIcon node={[{ severity: 'error', message: errorComponent?.error }]} />
               )}
             </div>

@@ -7,6 +7,8 @@ import multiLogger from '@xrengine/common/src/logger'
 import Cached from '@mui/icons-material/Cached'
 import Cross from '@mui/icons-material/Cancel'
 import CleaningServicesIcon from '@mui/icons-material/CleaningServices'
+import Download from '@mui/icons-material/Download'
+import ErrorOutlineIcon from '@mui/icons-material/ErrorOutline'
 import Group from '@mui/icons-material/Group'
 import LinkIcon from '@mui/icons-material/Link'
 import LinkOffIcon from '@mui/icons-material/LinkOff'
@@ -14,12 +16,14 @@ import Upload from '@mui/icons-material/Upload'
 import VisibilityIcon from '@mui/icons-material/Visibility'
 import Box from '@mui/material/Box'
 import IconButton from '@mui/material/IconButton'
+import Tooltip from '@mui/material/Tooltip'
 
 import { PROJECT_PAGE_LIMIT, ProjectService, useProjectState } from '../../../common/services/ProjectService'
 import { useAuthState } from '../../../user/services/AuthService'
 import ConfirmDialog from '../../common/ConfirmDialog'
 import TableComponent from '../../common/Table'
 import { projectsColumns } from '../../common/variables/projects'
+import { useClientSettingState } from '../../services/Setting/ClientSettingService'
 import styles from '../../styles/admin.module.scss'
 import GithubRepoDrawer from './GithubRepoDrawer'
 import ProjectFilesDrawer from './ProjectFilesDrawer'
@@ -61,6 +65,8 @@ const ProjectTable = ({ className }: Props) => {
   const adminProjectCount = adminProjects.value.length
   const authState = useAuthState()
   const user = authState.user
+  const clientSettingState = useClientSettingState()
+  const [clientSetting] = clientSettingState?.client?.value || []
 
   const projectRef = useRef(project)
 
@@ -91,7 +97,7 @@ const ProjectTable = ({ className }: Props) => {
     }
   }
 
-  const handleReuploadProjects = async () => {
+  const handleReuploadProjects = async (reset?: boolean) => {
     try {
       if (projectRef.current) {
         if (!projectRef.current.repositoryPath && projectRef.current.name !== 'default-project') return
@@ -100,7 +106,8 @@ const ProjectTable = ({ className }: Props) => {
         setProcessing(true)
         await ProjectService.uploadProject(
           projectRef.current.name === 'default-project' ? 'default-project' : existingProjects.repositoryPath,
-          projectRef.current.name
+          projectRef.current.name,
+          reset
         )
         setProcessing(false)
 
@@ -142,6 +149,19 @@ const ProjectTable = ({ className }: Props) => {
     }
   }
 
+  const openMainResetConfirmation = (row) => {
+    setProject(row)
+
+    setConfirm({
+      open: true,
+      processing: processing,
+      description: `${t('admin:components.project.confirmProjectResetMain1')} '${row.name}' ${t(
+        'admin:components.project.confirmProjectResetMain2'
+      )} '${clientSetting.releaseName}-deployment', ${t('admin:components.project.confirmProjectResetMain3')}`,
+      onSubmit: () => handleReuploadProjects(true)
+    })
+  }
+
   const openReuploadConfirmation = (row) => {
     setProject(row)
 
@@ -149,7 +169,7 @@ const ProjectTable = ({ className }: Props) => {
       open: true,
       processing: processing,
       description: `${t('admin:components.project.confirmProjectRebuild')} '${row.name}'?`,
-      onSubmit: handleReuploadProjects
+      onSubmit: () => handleReuploadProjects(false)
     })
   }
 
@@ -159,9 +179,7 @@ const ProjectTable = ({ className }: Props) => {
     setConfirm({
       open: true,
       processing: processing,
-      description: `${t('admin:components.project.confirmPushProjectToGithub')}? ${row.name} - ${
-        project?.repositoryPath
-      }`,
+      description: `${t('admin:components.project.confirmPushProjectToGithub')}? ${row.name} - ${row.repositoryPath}`,
       onSubmit: handlePushProjectToGithub
     })
   }
@@ -233,7 +251,16 @@ const ProjectTable = ({ className }: Props) => {
   const createData = (el: ProjectInterface, name: string) => {
     return {
       el,
-      name,
+      name: (
+        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+          <span className={`${el.needsRebuild ? styles.orangeColor : ''}`}>{name}</span>
+          {el.needsRebuild && (
+            <Tooltip title={t('admin:components.project.outdatedBuild')} arrow>
+              <ErrorOutlineIcon sx={{ marginLeft: 1 }} className={styles.orangeColor} />
+            </Tooltip>
+          )}
+        </Box>
+      ),
       update: (
         <>
           {isAdmin && (
@@ -243,7 +270,7 @@ const ProjectTable = ({ className }: Props) => {
               disabled={el.repositoryPath === null && name !== 'default-project'}
               onClick={() => openReuploadConfirmation(el)}
             >
-              <Cached />
+              <Download />
             </IconButton>
           )}
         </>
@@ -297,6 +324,20 @@ const ProjectTable = ({ className }: Props) => {
           {isAdmin && (
             <IconButton className={styles.iconButton} name="view" onClick={() => openViewProject(el)}>
               <VisibilityIcon />
+            </IconButton>
+          )}
+        </>
+      ),
+      reset: (
+        <>
+          {isAdmin && (
+            <IconButton
+              className={styles.iconButton}
+              name="resetToMain"
+              disabled={el.repositoryPath === null && name !== 'default-project'}
+              onClick={() => openMainResetConfirmation(el)}
+            >
+              <Cached />
             </IconButton>
           )}
         </>

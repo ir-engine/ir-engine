@@ -1,6 +1,7 @@
 import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import { defineAction, defineState, getState, useState } from '@xrengine/hyperflux'
 
+import { ParityValue } from '../../common/enums/ParityValue'
 import { matches, matchesEntity, matchesUserId, Validator } from '../../common/functions/MatchesUtils'
 import { Entity } from './Entity'
 
@@ -9,7 +10,10 @@ export const EngineState = defineState({
   name: 'EngineState',
   initial: {
     frameTime: 0,
+    deltaSeconds: 0,
+    elapsedSeconds: 0,
     fixedDeltaSeconds: 1 / 60,
+    fixedElapsedSeconds: 0,
     fixedTick: 0,
     isEngineInitialized: false,
     sceneLoaded: false,
@@ -21,18 +25,15 @@ export const EngineState = defineState({
     socketInstance: false,
     avatarTappedId: '' as UserId,
     userHasInteracted: false,
-    xrSupported: false,
-    xrSessionStarted: false,
     spectating: false,
     errorEntities: {} as { [key: Entity]: boolean },
-    availableInteractable: null! as Entity,
     usersTyping: {} as { [key: string]: true },
     /**
      * An empty share link will default to the current URL, plus any modifiers (such as spectate mode)
      */
     shareLink: '',
     shareTitle: '',
-    transformOffsetsNeedSorting: true,
+    transformsNeedSorting: true,
     useSimpleMaterials: false
   }
 })
@@ -61,13 +62,6 @@ export function EngineEventReceptor(a) {
     .when(EngineActions.setTeleporting.matches, (action) => s.merge({ isTeleporting: action.isTeleporting }))
     .when(EngineActions.setUserHasInteracted.matches, (action) => s.merge({ userHasInteracted: true }))
     .when(EngineActions.updateEntityError.matches, (action) => s.errorEntities[action.entity].set(!action.isResolved))
-    .when(EngineActions.xrSupported.matches, (action) => s.xrSupported.set(action.xrSupported))
-    .when(EngineActions.xrStart.matches, (action) => s.xrSessionStarted.set(true))
-    .when(EngineActions.xrSession.matches, (action) => s.xrSessionStarted.set(true))
-    .when(EngineActions.xrEnd.matches, (action) => s.xrSessionStarted.set(false))
-    .when(EngineActions.availableInteractable.matches, (action) =>
-      s.availableInteractable.set(action.availableInteractable)
-    )
     .when(EngineActions.spectateUser.matches, (action) => s.spectating.set(!!action.user))
     .when(EngineActions.shareInteractableLink.matches, (action) => {
       s.shareLink.set(action.shareLink)
@@ -129,23 +123,6 @@ export class EngineActions {
     progress: matches.number
   })
 
-  static availableInteractable = defineAction({
-    type: 'xre.engine.AVAILABLE_INTERACTABLE' as const,
-    availableInteractable: matches.any
-  })
-
-  static xrStart = defineAction({
-    type: 'xre.engine.XR_START' as const
-  })
-
-  static xrSession = defineAction({
-    type: 'xre.engine.XR_SESSION' as const
-  })
-
-  static xrEnd = defineAction({
-    type: 'xre.engine.XR_END' as const
-  })
-
   static connect = defineAction({
     type: 'xre.engine.CONNECT' as const,
     id: matches.string
@@ -166,11 +143,6 @@ export class EngineActions {
     isResolved: matches.boolean.optional()
   })
 
-  static xrSupported = defineAction({
-    type: 'xre.engine.XR_SUPPORTED' as const,
-    xrSupported: matches.boolean
-  })
-
   static setupAnimation = defineAction({
     type: 'xre.engine.SETUP_ANIMATION' as const,
     entity: matches.number
@@ -189,7 +161,8 @@ export class EngineActions {
 
   static interactedWithObject = defineAction({
     type: 'xre.engine.INTERACTED_WITH_OBJECT' as const,
-    targetEntity: matchesEntity
+    targetEntity: matchesEntity.optional(),
+    parityValue: matches.string as Validator<unknown, typeof ParityValue[keyof typeof ParityValue]>
   })
 
   /**

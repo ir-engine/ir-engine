@@ -1,8 +1,10 @@
 import { Box3, Matrix3, Sphere, Spherical, Vector3 } from 'three'
 
 import { World } from '@xrengine/engine/src/ecs/classes/World'
-import { defineQuery, getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import { defineQuery, getComponent, hasComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
+import obj3dFromUuid from '@xrengine/engine/src/scene/util/obj3dFromUuid'
+import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 
 import { EditorCameraComponent } from '../classes/EditorCameraComponent'
 
@@ -11,7 +13,7 @@ const MAX_FOCUS_DISTANCE = 1000
 const PAN_SPEED = 1
 const ORBIT_SPEED = 5
 
-export default async function GizmoSystem(world: World) {
+export default async function EditorCameraSystem(world: World) {
   const box = new Box3()
   const delta = new Vector3()
   const normalMatrix = new Matrix3()
@@ -45,17 +47,21 @@ export default async function GizmoSystem(world: World) {
         } else {
           box.makeEmpty()
           for (const object of cameraComponent.focusedObjects) {
-            const obj3d = getComponent(object.entity, Object3DComponent)?.value
+            const obj3d =
+              typeof object === 'string' ? obj3dFromUuid(object) : getComponent(object.entity, Object3DComponent)?.value
             if (obj3d) box.expandByObject(obj3d)
           }
-
           if (box.isEmpty()) {
             // Focusing on an Group, AmbientLight, etc
-            const obj3d = getComponent(cameraComponent.focusedObjects[0].entity, Object3DComponent)?.value
+            const object = cameraComponent.focusedObjects[0]
+            const obj3d =
+              typeof object === 'string' ? obj3dFromUuid(object) : getComponent(object.entity, Object3DComponent)?.value
             if (obj3d) {
               cameraComponent.center.setFromMatrixPosition(obj3d.matrixWorld)
-              distance = 0.1
+            } else if (hasComponent(entity, TransformComponent)) {
+              cameraComponent.center.copy(getComponent(entity, TransformComponent).position)
             }
+            distance = 0.1
           } else {
             box.getCenter(cameraComponent.center)
             distance = box.getBoundingSphere(sphere).radius

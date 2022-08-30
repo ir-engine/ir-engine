@@ -8,3 +8,9 @@ export type VolumetricComponentType = {
 }
 
 export const VolumetricComponent = createMappedComponent<VolumetricComponentType>('VolumetricComponent')
+
+export const VolumetricsExtensions = ['drcs', 'uvol']
+export const SCENE_COMPONENT_VOLUMETRIC = 'volumetric'
+export const SCENE_COMPONENT_VOLUMETRIC_DEFAULT_VALUES = {
+  useLoadingEffect: true
+}

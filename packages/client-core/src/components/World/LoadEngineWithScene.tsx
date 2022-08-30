@@ -1,18 +1,22 @@
+import { useHookstate } from '@hookstate/core'
 import React, { useState } from 'react'
 import { useHistory } from 'react-router'
+import { useParams } from 'react-router-dom'
 
 import { LocationInstanceConnectionServiceReceptor } from '@xrengine/client-core/src/common/services/LocationInstanceConnectionService'
 import { LocationService } from '@xrengine/client-core/src/social/services/LocationService'
 import { leaveNetwork } from '@xrengine/client-core/src/transports/SocketWebRTCClientFunctions'
-import { AuthService, useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
+import { useAuthState } from '@xrengine/client-core/src/user/services/AuthService'
+import { AvatarService } from '@xrengine/client-core/src/user/services/AvatarService'
 import {
   SceneActions,
   SceneServiceReceptor,
   useSceneState
 } from '@xrengine/client-core/src/world/services/SceneService'
+import { UserId } from '@xrengine/common/src/interfaces/UserId'
 import multiLogger from '@xrengine/common/src/logger'
 import { getSearchParamFromURL } from '@xrengine/common/src/utils/getSearchParamFromURL'
-import { SpawnPoints } from '@xrengine/engine/src/avatar/AvatarSpawnSystem'
+import { getRandomSpawnPoint, getSpawnPoint } from '@xrengine/engine/src/avatar/AvatarSpawnSystem'
 import { teleportAvatar } from '@xrengine/engine/src/avatar/functions/moveAvatar'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { EngineActions, useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
@@ -64,7 +68,7 @@ export const LoadEngineWithScene = () => {
   useHookEffect(() => {
     const sceneData = sceneState.currentScene.value
     if (clientReady && sceneData) {
-      AuthService.fetchAvatarList()
+      AvatarService.fetchAvatarList()
       if (loadingState.state.value !== AppLoadingStates.SUCCESS)
         dispatchAction(AppLoadingAction.setLoadingState({ state: AppLoadingStates.SCENE_LOADING }))
       loadScene(sceneData).then(() => {
@@ -74,29 +78,40 @@ export const LoadEngineWithScene = () => {
     }
   }, [clientReady, sceneState.currentScene])
 
+  const didSpawn = useHookstate(false)
+
+  const spectateParam = useParams<{ spectate: UserId }>().spectate
+
   useHookEffect(async () => {
     if (
-      engineState.joinedWorld.value ||
+      didSpawn.value ||
+      Engine.instance.currentWorld.localClientEntity ||
       !engineState.sceneLoaded.value ||
       !authState.user.value ||
-      getSearchParamFromURL('spectate')
+      !authState.avatarList.value.length ||
+      spectateParam
     )
       return
+
+    // the avatar should only be spawned once, after user auth and scene load
+
     const user = authState.user.value
-    const avatarDetails = authState.avatarList.value.find((avatar) => avatar.avatar?.name === user.avatarId)!
+    const avatarDetails = authState.avatarList.value.find((avatar) => avatar?.id === user.avatarId)!
     const spawnPoint = getSearchParamFromURL('spawnPoint')
-    let avatarSpawnPose
-    if (spawnPoint) avatarSpawnPose = SpawnPoints.instance.getSpawnPoint(spawnPoint)
-    else avatarSpawnPose = SpawnPoints.instance.getRandomSpawnPoint()
+
+    const avatarSpawnPose = spawnPoint
+      ? getSpawnPoint(spawnPoint, Engine.instance.userId)
+      : getRandomSpawnPoint(Engine.instance.userId)
+
     spawnLocalAvatarInWorld({
       avatarSpawnPose,
       avatarDetail: {
-        avatarURL: avatarDetails.avatar?.url!,
-        thumbnailURL: avatarDetails['user-thumbnail']?.url!
+        avatarURL: avatarDetails.modelResource?.url!,
+        thumbnailURL: avatarDetails.thumbnailResource?.url!
       },
       name: user.name
     })
-  }, [engineState.sceneLoaded, authState.user, engineState.joinedWorld])
+  }, [engineState.sceneLoaded, authState.user, authState.avatarList, spectateParam])
 
   useHookEffect(() => {
     if (engineState.sceneLoaded.value) {

@@ -52,7 +52,7 @@ export const useChatHooks = ({ chatWindowOpen, setUnreadMessages, messageRefInpu
    * Message display logic
    */
 
-  const chatState = useChatState().attach(Downgraded).value
+  const chatState = useChatState().value
   const channels = chatState.channels.channels
   const activeChannelMatch = Object.values(channels).find((channel) => channel.channelType === 'instance')
   const activeChannel = activeChannelMatch?.messages ? activeChannelMatch.messages : []
@@ -247,6 +247,7 @@ const InstanceChat = ({
   useEffect(() => {
     if (
       sortedMessages &&
+      sortedMessages.length &&
       sortedMessages[sortedMessages.length - 1]?.senderId !== user?.id.value &&
       chatState.messageCreated.value
     ) {
@@ -258,7 +259,7 @@ const InstanceChat = ({
         messageRef.current.scrollTop = messageRef.current.scrollHeight
         clearInterval(messageRefCurrentRenderedInterval)
       }
-    }, 5)
+    }, 5000)
   }, [chatState.messageCreated, sortedMessages])
 
   const toggleChatWindow = () => {
@@ -271,7 +272,7 @@ const InstanceChat = ({
           setMessageContainerVisible(true)
           clearInterval(messageRefCurrentRenderedInterval)
         }
-      }, 5)
+      }, 5000)
     }
     setChatWindowOpen(!chatWindowOpen)
     chatWindowOpen && setUnreadMessages(false)

@@ -1,4 +1,4 @@
-import { useState } from '@hookstate/core'
+import { useHookstate, useState } from '@hookstate/core'
 import React, { Fragment } from 'react'
 
 import { useMediaInstanceConnectionState } from '@xrengine/client-core/src/common/services/MediaInstanceConnectionService'
@@ -6,6 +6,8 @@ import { useMediaStreamState } from '@xrengine/client-core/src/media/services/Me
 import { accessAuthState } from '@xrengine/client-core/src/user/services/AuthService'
 import { useUserState } from '@xrengine/client-core/src/user/services/UserService'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
+import { MediaSettingsState } from '@xrengine/engine/src/networking/MediaSettingsState'
+import { getState } from '@xrengine/hyperflux'
 
 import UserMediaWindow from '../UserMediaWindow'
 
@@ -39,8 +41,13 @@ const UserMediaWindows = ({ className }: Props): JSX.Element => {
   const consumers = mediaState.consumers.value
   const screenShareConsumers = consumers?.filter((consumer) => consumer.appData.mediaTag === 'screen-video') || []
 
+  const mediaSettingState = useHookstate(getState(MediaSettingsState))
+  const renderered =
+    mediaSettingState.immersiveMediaMode.value === 'off' ||
+    (mediaSettingState.immersiveMediaMode.value === 'auto' && !mediaSettingState.useImmersiveMedia.value)
+
   return (
-    <div className={className}>
+    <div className={className} style={{ display: renderered ? 'auto' : 'none' }}>
       {(mediaState.isScreenAudioEnabled.value || mediaState.isScreenVideoEnabled.value) && (
         <UserMediaWindow peerId={'screen_me'} key={'screen_me'} />
       )}

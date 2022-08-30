@@ -1,36 +1,35 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Object3D } from 'three'
 
-import { AssetLoader } from '@xrengine/engine/src/assets/classes/AssetLoader'
 import { AnimationManager } from '@xrengine/engine/src/avatar/AnimationManager'
 import { AnimationComponent } from '@xrengine/engine/src/avatar/components/AnimationComponent'
 import { LoopAnimationComponent } from '@xrengine/engine/src/avatar/components/LoopAnimationComponent'
+import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
-import { getComponent, hasComponent, removeComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
+import {
+  addComponent,
+  getComponent,
+  hasComponent,
+  removeComponent
+} from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { traverseEntityNode } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
-import { useWorld } from '@xrengine/engine/src/ecs/functions/SystemHooks'
-import { InteractableComponent } from '@xrengine/engine/src/interaction/components/InteractableComponent'
-import { EntityNodeComponent } from '@xrengine/engine/src/scene/components/EntityNodeComponent'
+import { EquippableComponent } from '@xrengine/engine/src/interaction/components/EquippableComponent'
 import { ErrorComponent } from '@xrengine/engine/src/scene/components/ErrorComponent'
 import { ModelComponent } from '@xrengine/engine/src/scene/components/ModelComponent'
 import { NameComponent } from '@xrengine/engine/src/scene/components/NameComponent'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
-import {
-  deserializeInteractable,
-  SCENE_COMPONENT_INTERACTABLE,
-  SCENE_COMPONENT_INTERACTABLE_DEFAULT_VALUES
-} from '@xrengine/engine/src/scene/functions/loaders/InteractableFunctions'
-import { playAnimationClip } from '@xrengine/engine/src/scene/functions/loaders/LoopAnimationFunctions'
 
 import ViewInArIcon from '@mui/icons-material/ViewInAr'
 
+import exportGLTF from '../../functions/exportGLTF'
 import BooleanInput from '../inputs/BooleanInput'
 import { PropertiesPanelButton } from '../inputs/Button'
 import InputGroup from '../inputs/InputGroup'
 import MaterialAssignment from '../inputs/MaterialAssignment'
 import ModelInput from '../inputs/ModelInput'
 import SelectInput from '../inputs/SelectInput'
+import Well from '../layout/Well'
 import EnvMapEditor from './EnvMapEditor'
 import ModelTransformProperties from './ModelTransformProperties'
 import NodeEditor from './NodeEditor'
@@ -45,31 +44,19 @@ import { EditorComponentType, updateProperty } from './Util'
  */
 export const ModelNodeEditor: EditorComponentType = (props) => {
   const { t } = useTranslation()
-  const [animationPlaying, setAnimationPlaying] = useState(false)
+  const [isEquippable, setEquippable] = useState(hasComponent(props.node.entity, EquippableComponent))
   const engineState = useEngineState()
   const entity = props.node.entity
 
   const modelComponent = getComponent(entity, ModelComponent)
-  const animationComponent = getComponent(entity, AnimationComponent)
   const obj3d = getComponent(entity, Object3DComponent)?.value ?? new Object3D() // quick hack to not crash
   const hasError = engineState.errorEntities[entity].get()
   const errorComponent = getComponent(entity, ErrorComponent)
 
-  const updateSrc = async (src: string) => {
-    // if(src !== modelComponent.src)
-    AssetLoader.Cache.delete(src)
-    await AssetLoader.loadAsync(src)
-    updateProperty(ModelComponent, 'src')(src)
-  }
-
   const loopAnimationComponent = getComponent(entity, LoopAnimationComponent)
-  const onPlayAnimation = () => {
-    if (!animationPlaying) playAnimationClip(animationComponent, loopAnimationComponent)
-    setAnimationPlaying(!animationPlaying)
-  }
 
   const textureOverrideEntities = [] as { label: string; value: string }[]
-  traverseEntityNode(useWorld().entityTree.rootNode, (node) => {
+  traverseEntityNode(Engine.instance.currentWorld.entityTree.rootNode, (node) => {
     if (node.entity === entity) return
 
     textureOverrideEntities.push({
@@ -78,41 +65,47 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
     })
   })
 
+  const onChangeEquippable = () => {
+    if (isEquippable) {
+      removeComponent(props.node.entity, EquippableComponent)
+      setEquippable(false)
+    } else {
+      addComponent(props.node.entity, EquippableComponent, true)
+      setEquippable(true)
+    }
+  }
+
   const animations = loopAnimationComponent?.hasAvatarAnimations
     ? AnimationManager.instance._animations
     : obj3d.animations ?? []
 
   const animationOptions = [{ label: 'None', value: -1 }]
   if (animations?.length) animations.forEach((clip, i) => animationOptions.push({ label: clip.name, value: i }))
+
+  const [exporting, setExporting] = useState(false)
+  const [exportPath, setExportPath] = useState(modelComponent.src)
+  const onExportModel = async () => {
+    if (exporting) {
+      console.warn('already exporting')
+      return
+    }
+    setExporting(true)
+    await exportGLTF(entity, exportPath)
+    setExporting(false)
+  }
+
   return (
     <NodeEditor description={t('editor:properties.model.description')} {...props}>
       <InputGroup name="Model Url" label={t('editor:properties.model.lbl-modelurl')}>
-        <ModelInput value={modelComponent.src} onChange={updateSrc} />
+        <ModelInput value={modelComponent.src} onChange={updateProperty(ModelComponent, 'src')} />
         {hasError && errorComponent?.srcError && (
           <div style={{ marginTop: 2, color: '#FF8C00' }}>{t('editor:properties.model.error-url')}</div>
         )}
       </InputGroup>
-      {modelComponent.parsed && (
-        <ModelTransformProperties
-          modelComponent={modelComponent}
-          onChangeModel={updateProperty(ModelComponent, 'src')}
-        />
-      )}
-      <InputGroup name="Texture Override" label={t('editor:properties.model.lbl-textureOverride')}>
-        <SelectInput
-          key={props.node.entity}
-          options={textureOverrideEntities}
-          value={modelComponent.textureOverride}
-          onChange={updateProperty(ModelComponent, 'textureOverride')}
-        />
+
+      <InputGroup name="Generate BVH" label={t('editor:properties.model.lbl-generateBVH')}>
+        <BooleanInput value={modelComponent.generateBVH} onChange={updateProperty(ModelComponent, 'generateBVH')} />
       </InputGroup>
-      <MaterialAssignment
-        entity={entity}
-        node={props.node}
-        modelComponent={modelComponent}
-        values={modelComponent.materialOverrides}
-        onChange={updateProperty(ModelComponent, 'materialOverrides')}
-      />
       <InputGroup name="MatrixAutoUpdate" label={t('editor:properties.model.lbl-matrixAutoUpdate')}>
         <BooleanInput
           value={modelComponent.matrixAutoUpdate}
@@ -131,13 +124,9 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
           onChange={updateProperty(ModelComponent, 'isUsingGPUInstancing')}
         />
       </InputGroup>
-      <InputGroup name="Is Dynamic" label={t('editor:properties.model.lbl-isDynamic')}>
-        <BooleanInput
-          value={modelComponent.isDynamicObject}
-          onChange={updateProperty(ModelComponent, 'isDynamicObject')}
-        />
+      <InputGroup name="Is Equippable" label={t('editor:properties.model.lbl-isEquippable')}>
+        <BooleanInput value={isEquippable} onChange={onChangeEquippable} />
       </InputGroup>
-
       <InputGroup name="Loop Animation" label={t('editor:properties.model.lbl-loopAnimation')}>
         <SelectInput
           key={props.node.entity}
@@ -152,12 +141,24 @@ export const ModelNodeEditor: EditorComponentType = (props) => {
           onChange={updateProperty(LoopAnimationComponent, 'hasAvatarAnimations')}
         />
       </InputGroup>
-      <PropertiesPanelButton onClick={onPlayAnimation}>
-        {t(animationPlaying ? 'editor:properties.video.lbl-pause' : 'editor:properties.video.lbl-play')}
-      </PropertiesPanelButton>
       <ScreenshareTargetNodeEditor node={props.node} multiEdit={props.multiEdit} />
       <EnvMapEditor node={props.node} />
       <ShadowProperties node={props.node} />
+      <ModelTransformProperties modelComponent={modelComponent} onChangeModel={updateProperty(ModelComponent, 'src')} />
+      <MaterialAssignment
+        entity={entity}
+        node={props.node}
+        modelComponent={modelComponent}
+        values={modelComponent.materialOverrides}
+        onChange={updateProperty(ModelComponent, 'materialOverrides')}
+      />
+      {!exporting && modelComponent.src && (
+        <Well>
+          <ModelInput value={exportPath} onChange={setExportPath} />
+          <PropertiesPanelButton onClick={onExportModel}>Save Changes</PropertiesPanelButton>
+        </Well>
+      )}
+      {exporting && <p>Exporting...</p>}
     </NodeEditor>
   )
 }

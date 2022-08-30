@@ -1,7 +1,5 @@
-import { Not } from 'bitecs'
-import { Vector3 } from 'three'
+import { Box3, Object3D, Vector3 } from 'three'
 
-import { Deg2Rad } from '@xrengine/common/src/utils/mathUtils'
 import { createActionQueue } from '@xrengine/hyperflux'
 
 import { changeState } from '../../avatar/animation/AnimationGraph'
@@ -9,7 +7,6 @@ import { AvatarStates } from '../../avatar/animation/Util'
 import { AvatarAnimationComponent } from '../../avatar/components/AvatarAnimationComponent'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
 import { AvatarControllerComponent } from '../../avatar/components/AvatarControllerComponent'
-import checkPositionIsValid from '../../common/functions/checkPositionIsValid'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions } from '../../ecs/classes/EngineState'
 import { World } from '../../ecs/classes/World'
@@ -24,98 +21,95 @@ import { Physics } from '../../physics/classes/Physics'
 import { CollisionGroups } from '../../physics/enums/CollisionGroups'
 import { getInteractionGroups } from '../../physics/functions/getInteractionGroups'
 import { RaycastHit, SceneQueryType } from '../../physics/types/PhysicsTypes'
-import { MountPoint, MountPointComponent } from '../../scene/components/MountPointComponent'
+import {
+  MountPoint,
+  MountPointComponent,
+  SCENE_COMPONENT_MOUNT_POINT,
+  SCENE_COMPONENT_MOUNT_POINT_DEFAULT_VALUES
+} from '../../scene/components/MountPointComponent'
+import { Object3DComponent } from '../../scene/components/Object3DComponent'
 import { SittingComponent } from '../../scene/components/SittingComponent'
-import { DesiredTransformComponent } from '../../transform/components/DesiredTransformComponent'
-import { TransformComponent } from '../../transform/components/TransformComponent'
+import { SCENE_COMPONENT_VISIBLE } from '../../scene/components/VisibleComponent'
+import { ScenePrefabs } from '../../scene/systems/SceneObjectUpdateSystem'
+import {
+  SCENE_COMPONENT_TRANSFORM,
+  SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES,
+  TransformComponent
+} from '../../transform/components/TransformComponent'
+import { BoundingBoxComponent } from '../components/BoundingBoxComponents'
 import { createInteractUI } from '../functions/interactUI'
 import { addInteractableUI } from './InteractiveSystem'
 
+/**
+ * @todo refactor this into i18n and configurable
+ */
 const mountPointInteractMessages = {
   [MountPoint.seat]: 'Press E to Sit'
 }
 
 export default async function MountPointSystem(world: World) {
+  world.scenePrefabRegistry.set(ScenePrefabs.chair, [
+    { name: SCENE_COMPONENT_TRANSFORM, props: SCENE_COMPONENT_TRANSFORM_DEFAULT_VALUES },
+    { name: SCENE_COMPONENT_VISIBLE, props: true },
+    { name: SCENE_COMPONENT_MOUNT_POINT, props: SCENE_COMPONENT_MOUNT_POINT_DEFAULT_VALUES }
+  ])
+
+  world.sceneComponentRegistry.set(MountPointComponent._name, SCENE_COMPONENT_MOUNT_POINT)
+  world.sceneLoadingRegistry.set(SCENE_COMPONENT_MOUNT_POINT, {
+    defaultData: SCENE_COMPONENT_MOUNT_POINT_DEFAULT_VALUES
+  })
+
   if (Engine.instance.isEditor) return () => {}
 
   const mountPointActionQueue = createActionQueue(EngineActions.interactedWithObject.matches)
   const mountPointQuery = defineQuery([MountPointComponent])
-  const sittingTransitionQuery = defineQuery([SittingComponent, DesiredTransformComponent])
-  const sittingIdleQuery = defineQuery([SittingComponent, Not(DesiredTransformComponent)])
-
-  const diffPos = new Vector3()
-  const PositionEpsilon = 0.1
-  const RotationEpsilon = 1 * Deg2Rad()
+  const sittingIdleQuery = defineQuery([SittingComponent])
 
   return () => {
     for (const entity of mountPointQuery.enter()) {
       const mountPoint = getComponent(entity, MountPointComponent)
+      addComponent(entity, Object3DComponent, { value: new Object3D() })
+      addComponent(entity, BoundingBoxComponent, {
+        box: new Box3().setFromCenterAndSize(
+          getComponent(entity, TransformComponent).position,
+          new Vector3(0.1, 0.1, 0.1)
+        )
+      })
       addInteractableUI(entity, createInteractUI(entity, mountPointInteractMessages[mountPoint.type]))
     }
 
     for (const action of mountPointActionQueue()) {
       if (action.$from !== Engine.instance.userId) continue
-      if (!hasComponent(action.targetEntity, MountPointComponent)) continue
+      if (!action.targetEntity || !hasComponent(action.targetEntity!, MountPointComponent)) continue
+      const avatarEntity = world.getUserAvatarEntity(action.$from)
 
-      const mountPoint = getComponent(action.targetEntity, MountPointComponent)
+      const mountPoint = getComponent(action.targetEntity!, MountPointComponent)
       if (mountPoint.type === MountPoint.seat) {
-        const avatarEntity = Engine.instance.currentWorld.localClientEntity
+        const avatar = getComponent(avatarEntity, AvatarComponent)
 
         if (hasComponent(avatarEntity, SittingComponent)) continue
 
-        // Add desired transform component to move the avatar to mounting point
-        const transform = getComponent(action.targetEntity, TransformComponent)
-        const desiredTransform = addComponent(avatarEntity, DesiredTransformComponent, {
-          position: transform.position.clone(),
-          rotation: transform.rotation.clone(),
-          positionRate: 2,
-          rotationRate: 2,
-          lockRotationAxis: [false, false, false],
-          positionDelta: 0,
-          rotationDelta: 0
-        }) // set the desired transform at the same height as avatar.
-        desiredTransform.position.y = transform.position.y
-
-        addComponent(avatarEntity, SittingComponent, {
-          mountPointEntity: action.targetEntity,
+        const transform = getComponent(action.targetEntity!, TransformComponent)
+        const controllerComponent = getComponent(avatarEntity, AvatarControllerComponent)
+        controllerComponent.body.setTranslation(
+          {
+            x: transform.position.x,
+            y: transform.position.y + avatar.avatarHalfHeight,
+            z: transform.position.z
+          },
+          true
+        )
+        controllerComponent.body.setLinvel({ x: 0, y: 0, z: 0 }, true)
+        const sitting = addComponent(avatarEntity, SittingComponent, {
+          mountPointEntity: action.targetEntity!,
           state: AvatarStates.SIT_ENTER
         })
         getComponent(avatarEntity, AvatarControllerComponent).movementEnabled = false
-      }
-    }
 
-    for (const entity of sittingTransitionQuery(world)) {
-      const controllerComponent = getComponent(entity, AvatarControllerComponent)
-      const transform = getComponent(entity, TransformComponent)
-      const avatar = getComponent(entity, AvatarComponent)
-      const desiredTransform = getComponent(entity, DesiredTransformComponent)
-      const sitting = getComponent(entity, SittingComponent)
+        const avatarAnimationComponent = getComponent(avatarEntity, AvatarAnimationComponent)
 
-      controllerComponent.controller.setTranslation(
-        {
-          x: transform.position.x,
-          y: transform.position.y + avatar.avatarHalfHeight,
-          z: transform.position.z
-        },
-        true
-      )
-
-      diffPos.subVectors(transform.position, desiredTransform.position)
-      const angle = transform.rotation.angleTo(desiredTransform.rotation)
-
-      // Once avatar reaches desired transform change animation state to mount enter or mount active
-      if (diffPos.length() < PositionEpsilon && Math.abs(angle) < RotationEpsilon) {
-        removeComponent(entity, DesiredTransformComponent)
-        const avatarAnimationComponent = getComponent(entity, AvatarAnimationComponent)
-
-        if (sitting.state === 'SIT_ENTER') {
-          changeState(avatarAnimationComponent.animationGraph, AvatarStates.SIT_IDLE)
-          sitting.state = AvatarStates.SIT_IDLE
-        } else if (sitting.state === 'SIT_LEAVE') {
-          changeState(avatarAnimationComponent.animationGraph, AvatarStates.LOCOMOTION)
-          removeComponent(entity, SittingComponent)
-          getComponent(Engine.instance.currentWorld.localClientEntity, AvatarControllerComponent).movementEnabled = true
-        }
+        changeState(avatarAnimationComponent.animationGraph, AvatarStates.SIT_IDLE)
+        sitting.state = AvatarStates.SIT_IDLE
       }
     }
 
@@ -129,41 +123,38 @@ export default async function MountPointSystem(world: World) {
         sitting.state = AvatarStates.SIT_LEAVE
 
         changeState(avatarAnimationComponent.animationGraph, AvatarStates.SIT_LEAVE)
-        const avatarEntity = Engine.instance.currentWorld.localClientEntity
 
-        const transform = getComponent(avatarEntity, TransformComponent)
-        const newPos = transform.position.clone().add(new Vector3(0, 0, 1).applyQuaternion(transform.rotation))
+        const avatarTransform = getComponent(entity, TransformComponent)
+        const newPos = avatarTransform.position
+          .clone()
+          .add(new Vector3(0, 0, 1).applyQuaternion(avatarTransform.rotation))
 
         const interactionGroups = getInteractionGroups(CollisionGroups.Avatars, CollisionGroups.Ground)
         const raycastComponentData = {
           type: SceneQueryType.Closest,
-          hits: [],
           origin: newPos,
           direction: new Vector3(0, -1, 0),
           maxDistance: 2,
           flags: interactionGroups
         }
-        Physics.castRay(Engine.instance.currentWorld.physicsWorld, raycastComponentData)
+        const hits = Physics.castRay(Engine.instance.currentWorld.physicsWorld, raycastComponentData)
 
-        if (raycastComponentData.hits.length > 0) {
-          const raycastHit = raycastComponentData.hits[0] as RaycastHit
+        if (hits.length > 0) {
+          const raycastHit = hits[0] as RaycastHit
           if (raycastHit.normal.y > 0.9) {
             newPos.y -= raycastHit.distance
           }
         } else {
-          newPos.copy(transform.position)
+          newPos.copy(avatarTransform.position)
           newPos.y += avatarComponent.avatarHalfHeight
         }
 
-        addComponent(avatarEntity, DesiredTransformComponent, {
-          position: newPos,
-          rotation: transform.rotation.clone(),
-          positionRate: 2,
-          rotationRate: 2,
-          lockRotationAxis: [false, false, false],
-          positionDelta: 0,
-          rotationDelta: 0
-        })
+        const controllerComponent = getComponent(entity, AvatarControllerComponent)
+        controllerComponent.body.setTranslation(newPos, true)
+
+        changeState(avatarAnimationComponent.animationGraph, AvatarStates.LOCOMOTION)
+        removeComponent(entity, SittingComponent)
+        getComponent(Engine.instance.currentWorld.localClientEntity, AvatarControllerComponent).movementEnabled = true
       }
     }
   }

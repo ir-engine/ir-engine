@@ -2,7 +2,6 @@ import * as THREE from 'three'
 import { Object3D } from 'three'
 import System, { SpriteRenderer } from 'three-nebula'
 
-import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 import { dispatchAction } from '@xrengine/hyperflux'
 
 import {
@@ -15,18 +14,15 @@ import { Entity } from '../../../ecs/classes/Entity'
 import { addComponent, getComponent, hasComponent, removeComponent } from '../../../ecs/functions/ComponentFunctions'
 import { formatMaterialArgs } from '../../../renderer/materials/Utilities'
 import UpdateableObject3D from '../../classes/UpdateableObject3D'
-import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { Object3DComponent, Object3DWithEntity } from '../../components/Object3DComponent'
-import { ParticleEmitterComponent, ParticleEmitterComponentType } from '../../components/ParticleEmitterComponent'
+import {
+  ParticleEmitterComponent,
+  ParticleEmitterComponentType,
+  SCENE_COMPONENT_PARTICLE_EMITTER_DEFAULT_VALUES
+} from '../../components/ParticleEmitterComponent'
 import { UpdatableComponent } from '../../components/UpdatableComponent'
 import { ParticleSystemActions } from '../../systems/ParticleSystem'
 import { DefaultArguments, ParticleLibrary } from '../particles/ParticleLibrary'
-
-export const SCENE_COMPONENT_PARTICLE_EMITTER = 'particle-emitter'
-export const SCENE_COMPONENT_PARTICLE_EMITTER_DEFAULT_VALUES = {
-  mode: 'LIBRARY',
-  src: 'Dust'
-}
 
 export const disposeParticleSystem = (entity: Entity) => {
   const obj3d = getComponent(entity, Object3DComponent)?.value
@@ -72,27 +68,23 @@ export const initializeParticleSystem = async (entity: Entity) => {
     system.emitters.map((emitter) => emitter.setPosition(obj3d.value.position))
     system.update(dt)
   }
-  if (!hasComponent(entity, UpdatableComponent)) addComponent(entity, UpdatableComponent, {})
+  if (!hasComponent(entity, UpdatableComponent)) addComponent(entity, UpdatableComponent, true)
 
   return system
 }
 
 export const deserializeParticleEmitter: ComponentDeserializeFunction = (
   entity: Entity,
-  json: ComponentJson<ParticleEmitterComponentType>
+  data: ParticleEmitterComponentType
 ) => {
-  const comp = parseParticleEmitterProperties(json.props)
+  const comp = parseParticleEmitterProperties(data)
   addComponent(entity, ParticleEmitterComponent, comp)
-  getComponent(entity, EntityNodeComponent)?.components.push(SCENE_COMPONENT_PARTICLE_EMITTER)
   dispatchAction(ParticleSystemActions.createParticleSystem({ entity }))
   //initializeParticleSystem(entity)
   //updateParticleEmitter(entity, comp)
 }
 
-export const updateParticleEmitter: ComponentUpdateFunction = (
-  entity: Entity,
-  properties: ParticleEmitterComponentType
-) => {
+export const updateParticleEmitter: ComponentUpdateFunction = (entity: Entity) => {
   //dispatchAction(ParticleSystemActions.createParticleSystem({entity}))
   //initializeParticleSystem(entity)
   //initializeParticleSystem(entity)
@@ -101,10 +93,7 @@ export const updateParticleEmitter: ComponentUpdateFunction = (
 export const serializeParticleEmitter: ComponentSerializeFunction = (entity: Entity) => {
   const result = { ...getComponent(entity, ParticleEmitterComponent) }
   if (result.mode === 'JSON') result.src = JSON.stringify(result.src)
-  return {
-    name: SCENE_COMPONENT_PARTICLE_EMITTER,
-    props: result
-  }
+  return result
 }
 
 const parseParticleEmitterProperties = (props): ParticleEmitterComponentType => {

@@ -6,11 +6,8 @@ import { createActionQueue, dispatchAction } from '@xrengine/hyperflux'
 import { BoneNames } from '../../avatar/AvatarBoneMatching'
 import { AvatarAnimationComponent } from '../../avatar/components/AvatarAnimationComponent'
 import { AvatarComponent } from '../../avatar/components/AvatarComponent'
-import { AvatarHeadDecapComponent } from '../../avatar/components/AvatarHeadDecapComponent'
-import { XRCameraUpdatePendingTagComponent } from '../../avatar/components/XRCameraUpdatePendingTagComponent'
+import { createConeOfVectors } from '../../common/functions/MathFunctions'
 import { smoothDamp } from '../../common/functions/MathLerpFunctions'
-import { createConeOfVectors } from '../../common/functions/vectorHelpers'
-import { createQuaternionProxy, createVector3Proxy } from '../../common/proxies/three'
 import { Engine } from '../../ecs/classes/Engine'
 import { EngineActions } from '../../ecs/classes/EngineState'
 import { Entity } from '../../ecs/classes/Entity'
@@ -20,20 +17,22 @@ import {
   defineQuery,
   getComponent,
   hasComponent,
-  removeComponent
+  removeComponent,
+  setComponent
 } from '../../ecs/functions/ComponentFunctions'
-import { LocalInputTagComponent } from '../../input/components/LocalInputTagComponent'
-import { NetworkTopics } from '../../networking/classes/Network'
 import { NetworkObjectOwnedTag } from '../../networking/components/NetworkObjectOwnedTag'
 import { WorldNetworkAction } from '../../networking/functions/WorldNetworkAction'
 import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
-import { Object3DComponent } from '../../scene/components/Object3DComponent'
+import { RAYCAST_PROPERTIES_DEFAULT_VALUES } from '../../scene/components/CameraPropertiesComponent'
 import { ObjectLayers } from '../../scene/constants/ObjectLayers'
-import { RAYCAST_PROPERTIES_DEFAULT_VALUES } from '../../scene/functions/loaders/CameraPropertiesFunctions'
 import { setObjectLayers } from '../../scene/functions/setObjectLayers'
+import {
+  ComputedTransformComponent,
+  setComputedTransformComponent
+} from '../../transform/components/ComputedTransformComponent'
 import { TransformComponent } from '../../transform/components/TransformComponent'
 import { CameraTagComponent as NetworkCameraComponent } from '../components/CameraTagComponent'
-import { FollowCameraComponent, FollowCameraDefaultValues } from '../components/FollowCameraComponent'
+import { FollowCameraComponent } from '../components/FollowCameraComponent'
 import { SpectatorComponent } from '../components/SpectatorComponent'
 import { TargetCameraRotationComponent } from '../components/TargetCameraRotationComponent'
 
@@ -41,7 +40,6 @@ const direction = new Vector3()
 const upVector = new Vector3(0, 1, 0)
 const empty = new Vector3()
 const mx = new Matrix4()
-const tempVec = new Vector3()
 const tempVec1 = new Vector3()
 const raycaster = new Raycaster()
 //const cameraRayCount = 1
@@ -87,21 +85,10 @@ export const getAvatarBonePosition = (entity: Entity, name: BoneNames, position:
   position.set(el[12], el[13], el[14])
 }
 
-export const updateCameraTargetHeadDecap = (cameraEntity: Entity) => {
-  const followCamera = getComponent(cameraEntity, FollowCameraComponent)
-  if (!followCamera.targetEntity) return
-  // todo calculate head size and use that as the bound
-  if (hasComponent(followCamera.targetEntity, AvatarHeadDecapComponent)) {
-    if (followCamera.distance > 0.6) removeComponent(followCamera.targetEntity, AvatarHeadDecapComponent)
-  } else {
-    if (followCamera.distance < 0.6) addComponent(followCamera.targetEntity, AvatarHeadDecapComponent, true)
-  }
-}
-
 export const updateCameraTargetRotation = (cameraEntity: Entity) => {
   if (!cameraEntity) return
   const followCamera = getComponent(cameraEntity, FollowCameraComponent)
-  const target = getComponent(followCamera.targetEntity, TargetCameraRotationComponent)
+  const target = getComponent(cameraEntity, TargetCameraRotationComponent)
   if (!target) return
 
   const epsilon = 0.001
@@ -129,7 +116,7 @@ export const getMaxCamDistance = (cameraEntity: Entity, target: Vector3) => {
 
   camRayCastClock.start()
 
-  const sceneObjects = Array.from(Engine.instance.currentWorld.objectLayerList[ObjectLayers.Scene] || [])
+  const sceneObjects = Array.from(Engine.instance.currentWorld.objectLayerList[ObjectLayers.Camera] || [])
 
   // Raycast to keep the line of sight with avatar
   const cameraTransform = getComponent(Engine.instance.currentWorld.cameraEntity, TransformComponent)
@@ -141,7 +128,7 @@ export const getMaxCamDistance = (cameraEntity: Entity, target: Vector3) => {
   let maxDistance = Math.min(followCamera.maxDistance, raycastProps.rayLength)
 
   // Check hit with mid ray
-  raycaster.layers.set(ObjectLayers.Scene) // Ignore avatars
+  raycaster.layers.set(ObjectLayers.Camera) // Ignore avatars
   raycaster.firstHitOnly = true // three-mesh-bvh setting
   raycaster.far = followCamera.maxDistance
   raycaster.set(target, targetToCamVec.normalize())
@@ -194,96 +181,70 @@ export const calculateCameraTarget = (entity: Entity, target: Vector3) => {
   }
 }
 
-export const updateFollowCamera = (cameraEntity: Entity) => {
-  if (!cameraEntity) return
+const computeCameraFollow = (cameraEntity: Entity, referenceEntity: Entity) => {
   const followCamera = getComponent(cameraEntity, FollowCameraComponent)
-  const object3DComponent = getComponent(cameraEntity, Object3DComponent)
-  object3DComponent?.value.updateWorldMatrix(false, true)
+  const cameraTransform = getComponent(cameraEntity, TransformComponent)
+  const targetTransform = getComponent(referenceEntity, TransformComponent)
+
+  if (!targetTransform) return
 
   // Limit the pitch
   followCamera.phi = Math.min(followCamera.maxPhi, Math.max(followCamera.minPhi, followCamera.phi))
-
-  calculateCameraTarget(followCamera.targetEntity, tempVec)
 
   let maxDistance = followCamera.zoomLevel
   let isInsideWall = false
 
   // Run only if not in first person mode
   if (followCamera.raycastProps.enabled && followCamera.zoomLevel >= followCamera.minDistance) {
-    const distanceResults = getMaxCamDistance(cameraEntity, tempVec)
+    const distanceResults = getMaxCamDistance(cameraEntity, targetTransform.position)
     maxDistance = distanceResults.maxDistance
     isInsideWall = distanceResults.targetHit
   }
 
   const newZoomDistance = Math.min(followCamera.zoomLevel, maxDistance)
 
-  // if (maxDistance < followCamera.zoomLevel) {
-  //   // ground collision
-  //   if (followCamera.phi < -15) {
-  //     followCamera.distance = maxDistance
-  //   }
-  // }
-
   // Zoom smoothing
   let smoothingSpeed = isInsideWall ? 0.1 : 0.3
-  const delta = Engine.instance.currentWorld.deltaSeconds
 
   followCamera.distance = smoothDamp(
     followCamera.distance,
     newZoomDistance,
     followCamera.zoomVelocity,
     smoothingSpeed,
-    delta
+    Engine.instance.currentWorld.deltaSeconds
   )
 
   const theta = followCamera.theta
   const thetaRad = MathUtils.degToRad(theta)
   const phiRad = MathUtils.degToRad(followCamera.phi)
 
-  const cameraTransform = getComponent(Engine.instance.currentWorld.cameraEntity, TransformComponent)
   cameraTransform.position.set(
-    tempVec.x + followCamera.distance * Math.sin(thetaRad) * Math.cos(phiRad),
-    tempVec.y + followCamera.distance * Math.sin(phiRad),
-    tempVec.z + followCamera.distance * Math.cos(thetaRad) * Math.cos(phiRad)
+    targetTransform.position.x + followCamera.distance * Math.sin(thetaRad) * Math.cos(phiRad),
+    targetTransform.position.y + followCamera.distance * Math.sin(phiRad),
+    targetTransform.position.z + followCamera.distance * Math.cos(thetaRad) * Math.cos(phiRad)
   )
 
-  direction.copy(cameraTransform.position).sub(tempVec).normalize()
+  direction.copy(cameraTransform.position).sub(targetTransform.position).normalize()
 
   mx.lookAt(direction, empty, upVector)
   cameraTransform.rotation.setFromRotationMatrix(mx)
 
-  updateCameraTargetHeadDecap(cameraEntity)
   updateCameraTargetRotation(cameraEntity)
 }
 
-function updateSpectator(cameraEntity: Entity) {
-  const world = Engine.instance.currentWorld
-  const spectator = getComponent(cameraEntity, SpectatorComponent)
-
-  const networkCameraEntity = world.getOwnedNetworkObjectWithComponent(spectator.userId, NetworkCameraComponent)
-
-  const networkTransform = getComponent(networkCameraEntity, TransformComponent)
-  if (!networkTransform) return
-
-  const cameraTransform = getComponent(cameraEntity, TransformComponent)
-  cameraTransform.position.copy(networkTransform.position)
-  cameraTransform.rotation.copy(networkTransform.rotation)
-}
-
-function enterFollowCameraQuery(entity: Entity) {
+function createCameraRays(entity: Entity) {
   const cameraFollow = getComponent(entity, FollowCameraComponent)
-  //check for initialized raycast properties
   if (!cameraFollow.raycastProps) {
-    cameraFollow.raycastProps = RAYCAST_PROPERTIES_DEFAULT_VALUES
-  }
-  for (let i = 0; i < cameraFollow.raycastProps.rayCount; i++) {
-    cameraRays.push(new Vector3())
-
-    if (debugRays) {
-      const arrow = new ArrowHelper()
-      coneDebugHelpers.push(arrow)
-      setObjectLayers(arrow, ObjectLayers.Gizmos)
-      Engine.instance.currentWorld.scene.add(arrow)
+    cameraFollow.raycastProps = { ...RAYCAST_PROPERTIES_DEFAULT_VALUES }
+    for (let i = 0; i < cameraFollow.raycastProps.rayCount; i++) {
+      cameraRays.push(new Vector3())
+      if (debugRays) {
+        const arrow = new ArrowHelper()
+        arrow.setColor('red')
+        coneDebugHelpers.push(arrow)
+        setObjectLayers(arrow, ObjectLayers.Gizmos)
+        Engine.instance.currentWorld.scene.add(arrow)
+      }
     }
   }
 }
@@ -303,17 +264,8 @@ export default async function CameraSystem(world: World) {
   const followCameraQuery = defineQuery([FollowCameraComponent, TransformComponent])
   const ownedNetworkCamera = defineQuery([NetworkCameraComponent, NetworkObjectOwnedTag])
   const spectatorQuery = defineQuery([SpectatorComponent])
-  const localAvatarQuery = defineQuery([AvatarComponent, LocalInputTagComponent])
-
   const cameraSpawnActions = createActionQueue(WorldNetworkAction.spawnCamera.matches)
   const spectateUserActions = createActionQueue(EngineActions.spectateUser.matches)
-
-  if (!Engine.instance.isEditor) {
-    addComponent(world.cameraEntity, FollowCameraComponent, {
-      ...FollowCameraDefaultValues,
-      targetEntity: world.sceneEntity
-    })
-  }
 
   return () => {
     for (const action of cameraSpawnActions()) cameraSpawnReceptor(action, world)
@@ -321,7 +273,7 @@ export default async function CameraSystem(world: World) {
     for (const action of spectateUserActions()) {
       const cameraEntity = Engine.instance.currentWorld.cameraEntity
       if (action.user) {
-        addComponent(cameraEntity, SpectatorComponent, { userId: action.user })
+        setComponent(cameraEntity, SpectatorComponent, { userId: action.user })
       } else {
         removeComponent(cameraEntity, SpectatorComponent)
         deleteSearchParams('spectate')
@@ -329,27 +281,36 @@ export default async function CameraSystem(world: World) {
       }
     }
 
-    for (const entity of localAvatarQuery.enter()) {
-      dispatchAction(WorldNetworkAction.spawnCamera({}))
-      const followCamera = getComponent(world.cameraEntity, FollowCameraComponent)
-      if (followCamera) followCamera.targetEntity = entity
+    for (const cameraEntity of followCameraQuery.enter()) {
+      const followCamera = getComponent(cameraEntity, FollowCameraComponent)
+      setComputedTransformComponent(cameraEntity, followCamera.targetEntity, computeCameraFollow)
+      createCameraRays(cameraEntity)
     }
 
-    if (EngineRenderer.instance.xrManager?.isPresenting) {
-      EngineRenderer.instance.xrManager.updateCamera(Engine.instance.currentWorld.camera as THREE.PerspectiveCamera)
-      removeComponent(Engine.instance.currentWorld.localClientEntity, XRCameraUpdatePendingTagComponent)
-    } else {
-      for (const cameraEntity of followCameraQuery.enter()) enterFollowCameraQuery(cameraEntity)
-      for (const cameraEntity of followCameraQuery()) updateFollowCamera(cameraEntity)
-      for (const cameraEntity of spectatorQuery(world)) updateSpectator(cameraEntity)
+    for (const cameraEntity of followCameraQuery.exit()) {
+      removeComponent(cameraEntity, ComputedTransformComponent)
     }
 
-    for (const networkCameraEntity of ownedNetworkCamera()) {
-      const cameraEntity = Engine.instance.currentWorld.cameraEntity
+    // as spectator: update local camera from network camera
+    for (const cameraEntity of spectatorQuery.enter()) {
+      const cameraTransform = getComponent(cameraEntity, TransformComponent)
+      const spectator = getComponent(cameraEntity, SpectatorComponent)
+      const networkCameraEntity = world.getOwnedNetworkObjectWithComponent(spectator.userId, NetworkCameraComponent)
       const networkTransform = getComponent(networkCameraEntity, TransformComponent)
-      const transform = getComponent(cameraEntity, TransformComponent)
-      networkTransform.position.copy(transform.position)
-      networkTransform.rotation.copy(transform.rotation)
+      setComputedTransformComponent(cameraEntity, networkCameraEntity, () => {
+        cameraTransform.position.copy(networkTransform.position)
+        cameraTransform.rotation.copy(networkTransform.rotation)
+      })
+    }
+
+    // as spectatee: update network camera from local camera
+    for (const networkCameraEntity of ownedNetworkCamera.enter()) {
+      const networkTransform = getComponent(networkCameraEntity, TransformComponent)
+      const cameraTransform = getComponent(world.cameraEntity, TransformComponent)
+      setComputedTransformComponent(networkCameraEntity, world.cameraEntity, () => {
+        networkTransform.position.copy(cameraTransform.position)
+        networkTransform.rotation.copy(cameraTransform.rotation)
+      })
     }
   }
 }

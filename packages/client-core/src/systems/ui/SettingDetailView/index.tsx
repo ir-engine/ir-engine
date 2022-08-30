@@ -8,15 +8,16 @@ import { AvatarSettings, updateMap } from '@xrengine/engine/src/avatar/AvatarCon
 import { AvatarComponent } from '@xrengine/engine/src/avatar/components/AvatarComponent'
 import {
   AvatarInputSettingsAction,
-  useAvatarInputSettingsState
+  AvatarInputSettingsState
 } from '@xrengine/engine/src/avatar/state/AvatarInputSettingsState'
 import { Engine } from '@xrengine/engine/src/ecs/classes/Engine'
 import { useEngineState } from '@xrengine/engine/src/ecs/classes/EngineState'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { AvatarControllerType, AvatarMovementScheme } from '@xrengine/engine/src/input/enums/InputEnums'
 import { EngineRendererAction, useEngineRendererState } from '@xrengine/engine/src/renderer/EngineRendererState'
+import { XRState } from '@xrengine/engine/src/xr/XRState'
 import { createXRUI } from '@xrengine/engine/src/xrui/functions/createXRUI'
-import { dispatchAction } from '@xrengine/hyperflux'
+import { dispatchAction, getState, useHookstate } from '@xrengine/hyperflux'
 
 import { BlurLinear, Mic, VolumeUp } from '@mui/icons-material'
 import SurroundSoundIcon from '@mui/icons-material/SurroundSound'
@@ -41,12 +42,9 @@ const SettingDetailView = () => {
   const { t } = useTranslation()
   const rendererState = useEngineRendererState()
   const audioState = useAudioState()
-  const engineState = useEngineState()
-  const avatarInputState = useAvatarInputSettingsState()
-  const [controlTypeSelected, setControlType] = useState(avatarInputState.controlType.value)
-  const [controlSchemeSelected, setControlScheme] = useState(
-    AvatarMovementScheme[AvatarSettings.instance.movementScheme]
-  )
+  const xrSessionActive = useHookstate(getState(XRState).sessionActive)
+  const avatarInputState = useHookstate(getState(AvatarInputSettingsState))
+  const controlScheme = avatarInputState.controlScheme.value
   const invertRotationAndMoveSticks = avatarInputState.invertRotationAndMoveSticks.value
   const showAvatar = avatarInputState.showAvatar.value
   const authState = useAuthState()
@@ -100,13 +98,11 @@ const SettingDetailView = () => {
   }
 
   const handleChangeControlType = (value) => {
-    setControlType(value as any)
     dispatchAction(AvatarInputSettingsAction.setControlType(value as any))
   }
 
-  const handleChangeControlScheme = (value: AvatarMovementScheme) => {
-    setControlScheme(value)
-    AvatarSettings.instance.movementScheme = AvatarMovementScheme[value]
+  const handleChangeControlScheme = (value: typeof AvatarMovementScheme[keyof typeof AvatarMovementScheme]) => {
+    dispatchAction(AvatarInputSettingsAction.setControlScheme({ scheme: value }))
   }
 
   const toggleShowDetails = () => {
@@ -293,7 +289,7 @@ const SettingDetailView = () => {
             />
           </div>
         </section>
-        {engineState.xrSupported.value && (
+        {xrSessionActive.value && (
           <>
             <section className="settingView">
               <h4 className="title">{t('user:usermenu.setting.xrusersetting')}</h4>
@@ -336,7 +332,7 @@ const SettingDetailView = () => {
                 <div className="selectSize">
                   <span className="checkBoxLabel">{t('user:usermenu.setting.lbl-control-scheme')}</span>
                   <XRSelectDropdown
-                    value={controlSchemeSelected}
+                    value={controlScheme}
                     onChange={handleChangeControlScheme}
                     options={controlSchemes}
                   />
@@ -344,7 +340,7 @@ const SettingDetailView = () => {
                 <div className="selectSize">
                   <span className="checkBoxLabel">{t('user:usermenu.setting.lbl-control-type')}</span>
                   <XRSelectDropdown
-                    value={controlTypeSelected}
+                    value={avatarInputState.controlType.value}
                     onChange={handleChangeControlType}
                     options={controllerTypes}
                   />

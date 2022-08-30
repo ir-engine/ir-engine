@@ -1,6 +1,8 @@
 import {
   AnimationClip,
   AudioLoader,
+  BufferAttribute,
+  BufferGeometry,
   FileLoader,
   Group,
   Loader,
@@ -8,16 +10,23 @@ import {
   LOD,
   Material,
   Mesh,
+  MeshBasicMaterial,
+  MeshMatcapMaterial,
   MeshPhysicalMaterial,
+  MeshStandardMaterial,
   Object3D,
+  ShaderMaterial,
   SkinnedMesh,
+  Texture,
   TextureLoader
 } from 'three'
 
 import { isAbsolutePath } from '../../common/functions/isAbsolutePath'
 import { isClient } from '../../common/functions/isClient'
 import { Engine } from '../../ecs/classes/Engine'
+import { matchActionOnce } from '../../networking/functions/matchActionOnce'
 import loadVideoTexture from '../../renderer/materials/LoadVideoTexture'
+import { EngineRenderer } from '../../renderer/WebGLRendererSystem'
 import { generateMeshBVH } from '../../scene/functions/bvhWorkerPool'
 import { LODS_REGEXP } from '../constants/LoaderConstants'
 import { AssetClass } from '../enum/AssetClass'
@@ -25,7 +34,9 @@ import { AssetType } from '../enum/AssetType'
 import { createGLTFLoader } from '../functions/createGLTFLoader'
 import { FBXLoader } from '../loaders/fbx/FBXLoader'
 import type { GLTF, GLTFLoader } from '../loaders/gltf/GLTFLoader'
+import { KTX2Loader } from '../loaders/gltf/KTX2Loader'
 import { TGALoader } from '../loaders/tga/TGALoader'
+import { DependencyTreeActions } from './DependencyTree'
 import { XRELoader } from './XRELoader'
 
 // import { instanceGLTF } from '../functions/transformGLTF'
@@ -54,15 +65,44 @@ export const loadExtensions = async (gltf: GLTF) => {
   if (isClient) {
     const bvhTraverse: Promise<void>[] = []
     gltf.scene.traverse((mesh) => {
-      bvhTraverse.push(generateMeshBVH(mesh))
+      ;(mesh as Mesh).isMesh && bvhTraverse.push(generateMeshBVH(mesh as Mesh))
     })
     await Promise.all(bvhTraverse)
   }
 }
 
-const processModelAsset = (asset: Mesh): void => {
+const processModelAsset = (asset: Mesh, args: LoadingArgs): void => {
   const replacedMaterials = new Map()
   const loddables = new Array<Object3D>()
+
+  const onUploadDropBuffer = (uuid?: string) =>
+    function (this: BufferAttribute) {
+      const dropBuffer = () => {
+        // @ts-ignore
+        this.array = new this.array.constructor(1)
+      }
+      if (uuid)
+        matchActionOnce(
+          DependencyTreeActions.dependencyFulfilled.matches.validate((action) => action.uuid === uuid, ''),
+          dropBuffer
+        )
+      else dropBuffer()
+    }
+
+  const onTextureUploadDropSource = (uuid?: string) =>
+    function (this: Texture) {
+      const dropTexture = () => {
+        this.source.data = null
+        this.mipmaps.map((b) => delete b.data)
+        this.mipmaps = []
+      }
+      if (uuid)
+        matchActionOnce(
+          DependencyTreeActions.dependencyFulfilled.matches.validate((action) => action.uuid === uuid, ''),
+          dropTexture
+        )
+      else dropTexture()
+    }
 
   asset.traverse((child: Mesh<any, Material>) => {
     //test for LODs within this traversal
@@ -85,10 +125,24 @@ const processModelAsset = (asset: Mesh): void => {
         child.material = newMaterial
       }
     }
+
+    const geo = child.geometry as BufferGeometry
+    const mat = child.material as MeshStandardMaterial & MeshBasicMaterial & MeshMatcapMaterial & ShaderMaterial
+    const attributes = geo.attributes
+    if (!Engine.instance.isEditor) {
+      if (!args.ignoreDisposeGeometry) {
+        for (var name in attributes)
+          (attributes[name] as BufferAttribute).onUploadCallback = onUploadDropBuffer(args.uuid)
+        if (geo.index) geo.index.onUploadCallback = onUploadDropBuffer(args.uuid)
+      }
+      Object.entries(mat)
+        .filter(([k, v]: [keyof typeof mat, Texture]) => v?.isTexture)
+        .map(([_, v]) => (v.onUpdate = onTextureUploadDropSource(args.uuid)))
+    }
   })
   replacedMaterials.clear()
 
-  loddables.forEach((loddable) => handleLODs(loddable))
+  for (const loddable of loddables) handleLODs(loddable)
 }
 
 const haveAnyLODs = (asset) => !!asset.children?.find((c) => String(c.name).match(LODS_REGEXP))
@@ -136,12 +190,15 @@ const handleLODs = (asset: Object3D): Object3D => {
  * @returns Asset type of the file.
  */
 const getAssetType = (assetFileName: string): AssetType => {
+  assetFileName = assetFileName.toLowerCase()
+
   if (/\.xre\.gltf$/.test(assetFileName)) return AssetType.XRE
   else if (/\.(?:gltf)$/.test(assetFileName)) return AssetType.glTF
   else if (/\.(?:glb)$/.test(assetFileName)) return AssetType.glB
   else if (/\.(?:fbx)$/.test(assetFileName)) return AssetType.FBX
   else if (/\.(?:vrm)$/.test(assetFileName)) return AssetType.VRM
   else if (/\.(?:tga)$/.test(assetFileName)) return AssetType.TGA
+  else if (/\.(?:ktx2)$/.test(assetFileName)) return AssetType.KTX2
   else if (/\.(?:png)$/.test(assetFileName)) return AssetType.PNG
   else if (/\.(?:jpg|jpeg|)$/.test(assetFileName)) return AssetType.JPEG
   else if (/\.(?:mp3)$/.test(assetFileName)) return AssetType.MP3
@@ -159,11 +216,13 @@ const getAssetType = (assetFileName: string): AssetType => {
  * @returns Asset class of the file.
  */
 const getAssetClass = (assetFileName: string): AssetClass => {
+  assetFileName = assetFileName.toLowerCase()
+
   if (/\.xre\.gltf$/.test(assetFileName)) {
     return AssetClass.Asset
   } else if (/\.(?:gltf|glb|vrm|fbx|obj)$/.test(assetFileName)) {
     return AssetClass.Model
-  } else if (/\.png|jpg|jpeg|tga$/.test(assetFileName)) {
+  } else if (/\.png|jpg|jpeg|tga|ktx2$/.test(assetFileName)) {
     return AssetClass.Image
   } else if (/\.mp4|avi|webm|mov$/.test(assetFileName)) {
     return AssetClass.Video
@@ -187,72 +246,89 @@ const isSupported = (assetFileName: string) => {
 }
 
 //@ts-ignore
-const fbxLoader = new FBXLoader()
-const textureLoader = new TextureLoader()
-const fileLoader = new FileLoader()
-const audioLoader = new AudioLoader()
-const tgaLoader = new TGALoader()
-const xreLoader = new XRELoader(fileLoader)
-const videoLoader = { load: loadVideoTexture }
-
+const fbxLoader = () => new FBXLoader()
+const textureLoader = () => new TextureLoader()
+const fileLoader = () => new FileLoader()
+const audioLoader = () => new AudioLoader()
+const tgaLoader = () => new TGALoader()
+const xreLoader = () => new XRELoader(fileLoader())
+const videoLoader = () => ({ load: loadVideoTexture })
+const ktx2Loader = () => ({
+  load: (src, onLoad) => {
+    const ktxLoader = gltfLoader.ktx2Loader
+    if (!ktxLoader) throw new Error('KTX2Loader not yet initialized')
+    ktxLoader.load(
+      src,
+      (texture) => {
+        console.log('KTX2Loader loaded texture', texture)
+        texture.source.data.src = src
+        onLoad(texture)
+      },
+      () => {},
+      () => {}
+    )
+  }
+})
 export const getLoader = (assetType: AssetType) => {
   switch (assetType) {
     case AssetType.XRE:
-      return xreLoader
+      return xreLoader()
+    case AssetType.KTX2:
+      return ktx2Loader()
     case AssetType.glTF:
     case AssetType.glB:
     case AssetType.VRM:
       return gltfLoader
     case AssetType.FBX:
-      return fbxLoader
+      return fbxLoader()
     case AssetType.TGA:
-      return tgaLoader
+      return tgaLoader()
     case AssetType.PNG:
     case AssetType.JPEG:
-      return textureLoader
+      return textureLoader()
     case AssetType.AAC:
     case AssetType.MP3:
     case AssetType.OGG:
     case AssetType.M4A:
-      return audioLoader
+      return audioLoader()
     case AssetType.MP4:
     case AssetType.MKV:
-      return videoLoader
+      return videoLoader()
     default:
-      return fileLoader
+      return fileLoader()
   }
 }
 
-const assetLoadCallback = (url: string, assetType: AssetType, onLoad: (response: any) => void) => async (asset) => {
-  const assetClass = AssetLoader.getAssetClass(url)
-  if (assetClass === AssetClass.Model) {
-    if (assetType === AssetType.glB || assetType === AssetType.VRM) {
-      await loadExtensions(asset)
+const assetLoadCallback =
+  (url: string, args: LoadingArgs, assetType: AssetType, onLoad: (response: any) => void) => async (asset) => {
+    const assetClass = AssetLoader.getAssetClass(url)
+    if (assetClass === AssetClass.Model) {
+      if (assetType === AssetType.FBX) {
+        asset = { scene: asset }
+      } else if (assetType === AssetType.VRM) {
+        asset = asset.userData.vrm
+      }
+
+      if (asset.scene && !asset.scene.userData) asset.scene.userData = {}
+      if (asset.scene.userData) asset.scene.userData.type = assetType
+      if (asset.userData) asset.userData.type = assetType
+
+      AssetLoader.processModelAsset(asset.scene, args)
     }
 
-    if (assetType === AssetType.FBX) {
-      asset = { scene: asset }
-    } else if (assetType === AssetType.VRM) {
-      asset = asset.userData.vrm
-    }
-
-    if (asset.scene && !asset.scene.userData) asset.scene.userData = {}
-    if (asset.scene.userData) asset.scene.userData.type = assetType
-    if (asset.userData) asset.userData.type = assetType
-
-    AssetLoader.processModelAsset(asset.scene)
+    onLoad(asset)
   }
-
-  if (assetClass !== AssetClass.Asset) {
-    AssetLoader.Cache.set(url, asset)
-  }
-  onLoad(asset)
-}
 
 const getAbsolutePath = (url) => (isAbsolutePath(url) ? url : Engine.instance.publicPath + url)
 
-const load = async (
+type LoadingArgs = {
+  ignoreDisposeGeometry?: boolean
+  uuid?: string
+}
+
+const load = (
   _url: string,
+  args: LoadingArgs,
   onLoad = (response: any) => {},
   onProgress = (request: ProgressEvent) => {},
   onError = (event: ErrorEvent | Error) => {}
@@ -263,39 +339,29 @@ const load = async (
   }
   const url = getAbsolutePath(_url)
 
-  if (AssetLoader.Cache.has(url)) {
-    onLoad(AssetLoader.Cache.get(url))
-  }
-
   const assetType = AssetLoader.getAssetType(url)
   const loader = getLoader(assetType)
-  const callback = assetLoadCallback(url, assetType, onLoad)
+  const callback = assetLoadCallback(url, args, assetType, onLoad)
 
   try {
     // TODO: fix instancing for GLTFs - move this to the gltf loader
     // if (instanced) {
     //   ;(loader as GLTFLoader).parse(await instanceGLTF(url), null!, callback, onError)
     // } else {
-    loader.load(url, callback, onProgress, onError)
+    return loader.load(url, callback, onProgress, onError)
     // }
   } catch (error) {
     onError(error)
   }
 }
 
-const loadAsync = async (url: string, onProgress = (request: ProgressEvent) => {}) => {
+const loadAsync = async (url: string, args: LoadingArgs = {}, onProgress = (request: ProgressEvent) => {}) => {
   return new Promise<any>((resolve, reject) => {
-    load(url, resolve, onProgress, reject)
+    load(url, args, resolve, onProgress, reject)
   })
 }
 
-// TODO: we are replciating code here, we should refactor AssetLoader to be entirely functional
-const getFromCache = (url: string) => {
-  return AssetLoader.Cache.get(getAbsolutePath(url))
-}
-
 export const AssetLoader = {
-  Cache: new Map<string, any>(),
   loaders: new Map<number, any>(),
   processModelAsset,
   handleLODs,
@@ -306,6 +372,5 @@ export const AssetLoader = {
   getLoader,
   assetLoadCallback,
   load,
-  loadAsync,
-  getFromCache
+  loadAsync
 }

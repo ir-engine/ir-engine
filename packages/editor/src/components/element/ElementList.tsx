@@ -9,7 +9,6 @@ import { EntityTreeNode } from '@xrengine/engine/src/ecs/classes/EntityTree'
 import { getComponent } from '@xrengine/engine/src/ecs/functions/ComponentFunctions'
 import { createEntity } from '@xrengine/engine/src/ecs/functions/EntityFunctions'
 import { createEntityNode } from '@xrengine/engine/src/ecs/functions/EntityTreeFunctions'
-import { ScenePrefabTypes } from '@xrengine/engine/src/scene/functions/registerPrefabs'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 
 import { IconButton, Tooltip } from '@mui/material'
@@ -26,7 +25,7 @@ import styles from './styles.module.scss'
 
 export interface PrefabItemType {
   type: string
-  prefabType: ScenePrefabTypes
+  prefabType: string
   Icon: any
   label: string // todo
   description?: string // todo
@@ -37,7 +36,7 @@ const ELEMENT_CONTEXT_ID = 'el-menu'
 const getPrefabList = () => {
   const arr = [] as PrefabItemType[]
 
-  Engine.instance.currentWorld.scenePrefabRegistry.forEach((_, prefabType: ScenePrefabTypes) => {
+  Engine.instance.currentWorld.scenePrefabRegistry.forEach((_, prefabType: string) => {
     if (shouldPrefabDeserialize(prefabType)) {
       arr.push({
         prefabType,

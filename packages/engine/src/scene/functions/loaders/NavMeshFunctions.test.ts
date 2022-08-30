@@ -1,19 +1,17 @@
 import assert from 'assert'
 import proxyquire from 'proxyquire'
-import { BoxGeometry, Mesh, Object3D } from 'three'
+import { BoxGeometry, Mesh } from 'three'
 
 import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
 
-import { DebugNavMeshComponent } from '../../../debug/DebugNavMeshComponent'
 import { Entity } from '../../../ecs/classes/Entity'
-import { addComponent, getComponent, hasComponent } from '../../../ecs/functions/ComponentFunctions'
+import { addComponent, getComponent } from '../../../ecs/functions/ComponentFunctions'
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
 import { createEngine } from '../../../initializeEngine'
 import { NavMesh } from '../../classes/NavMesh'
-import { EntityNodeComponent } from '../../components/EntityNodeComponent'
 import { NavMeshComponent } from '../../components/NavMeshComponent'
 import { Object3DComponent } from '../../components/Object3DComponent'
-import { SCENE_COMPONENT_NAV_MESH, updateNavMesh } from './NavMeshFunctions'
+import { SCENE_COMPONENT_NAV_MESH } from './NavMeshFunctions'
 
 class Fake {
   polygons: any[]
@@ -59,15 +57,6 @@ describe('NavMeshFunctions', () => {
       assert(component)
       assert(Object.keys(component).length <= 2, 'too many keys')
       assert(component.value instanceof Fake, 'not created')
-    })
-
-    it('will include these components into EntityNodeComponent', () => {
-      addComponent(entity, EntityNodeComponent, { components: [] })
-
-      fns.deserializeNavMesh(entity, sceneComponent)
-
-      const entityNodeComponent = getComponent(entity, EntityNodeComponent)
-      assert(entityNodeComponent.components.includes(SCENE_COMPONENT_NAV_MESH))
     })
   })
 

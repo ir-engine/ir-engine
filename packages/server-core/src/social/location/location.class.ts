@@ -131,14 +131,11 @@ export class Location<T = LocationDataType> extends Service<T> {
     if ($sort != null)
       Object.keys($sort).forEach((name, val) => {
         if (name === 'type') {
-          order.push([Sequelize.literal('`location_setting.locationType`'), $sort[name] === 0 ? 'DESC' : 'ASC'])
+          order.push(['location_setting', 'locationType', $sort[name] === 0 ? 'DESC' : 'ASC'])
         } else if (name === 'instanceMediaChatEnabled') {
-          order.push([
-            Sequelize.literal('`location_setting.instanceMediaChatEnabled`'),
-            $sort[name] === 0 ? 'DESC' : 'ASC'
-          ])
+          order.push(['location_setting', 'instanceMediaChatEnabled', $sort[name] === 0 ? 'DESC' : 'ASC'])
         } else if (name === 'videoEnabled') {
-          order.push([Sequelize.literal('`location_setting.videoEnabled`'), $sort[name] === 0 ? 'DESC' : 'ASC'])
+          order.push(['location_setting', 'videoEnabled', $sort[name] === 0 ? 'DESC' : 'ASC'])
         } else {
           order.push([name, $sort[name] === 0 ? 'DESC' : 'ASC'])
         }
@@ -377,12 +374,16 @@ export class Location<T = LocationDataType> extends Service<T> {
       if (location.locationSettingsId != null)
         await this.app.service('location-settings').remove(location.locationSettingsId)
       try {
-        await this.app.service('location-admin').remove(null, {
-          query: {
+        const locationAdminItems = await (this.app.service('location-admin') as any).Model.findAll({
+          where: {
             locationId: id,
-            userId: selfUser.id
+            userId: selfUser.id ?? null
           }
         })
+        locationAdminItems.length &&
+          locationAdminItems.forEach(async (route) => {
+            await this.app.service('location-admin').remove(route.dataValues.id)
+          })
       } catch (err) {
         logger.error(err, `Could not remove location-admin: ${err.message}`)
       }

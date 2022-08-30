@@ -140,12 +140,17 @@ export class User extends Service<UserInterface> {
       const { $sort } = params?.query ?? {}
       if ($sort != null)
         Object.keys($sort).forEach((name, val) => {
-          order.push([name, $sort[name] === 0 ? 'DESC' : 'ASC'])
+          if (name === 'location') {
+            order.push(['instance', 'location', 'name', $sort[name] === 0 ? 'DESC' : 'ASC'])
+          } else {
+            order.push([name, $sort[name] === 0 ? 'DESC' : 'ASC'])
+          }
         })
 
       if (order.length > 0) {
         params.sequelize.order = order
       }
+
       delete params?.query?.$sort
       return super.find(params)
     } else if (action === 'search') {
@@ -190,7 +195,7 @@ export class User extends Service<UserInterface> {
     return result
   }
 
-  async patch(id: NullableId, data: any, params?: Params): Promise<UserInterface | UserInterface[]> {
+  async patch(id: NullableId, data: any, params?: Params): Promise<UserInterface> {
     const result = (await super.patch(id, data, params)) as UserInterface
     await afterPatch(this.app, result)
     return result

@@ -42,6 +42,11 @@ const systems = [
     args: { enabled: true }
   },
   {
+    systemModulePromise: import('../systems/EditorLocalTransformUpdateSystem'),
+    type: SystemUpdateType.PRE_RENDER,
+    args: { enabled: true }
+  },
+  {
     systemModulePromise: import('../systems/EditorCameraSystem'),
     type: SystemUpdateType.PRE_RENDER,
     args: { enabled: true }
@@ -54,6 +59,11 @@ const systems = [
   {
     systemModulePromise: import('../systems/GizmoSystem'),
     type: SystemUpdateType.PRE_RENDER,
+    args: { enabled: true }
+  },
+  {
+    systemModulePromise: import('@xrengine/client-core/src/systems/PortalLoadSystem'),
+    type: SystemUpdateType.FIXED,
     args: { enabled: true }
   }
 ]

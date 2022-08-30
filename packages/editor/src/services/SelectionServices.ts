@@ -10,8 +10,8 @@ import { filterParentEntities } from '../functions/filterParentEntities'
 const transformProps = ['position', 'rotation', 'scale', 'matrix']
 
 type SelectionServiceStateType = {
-  selectedEntities: Entity[]
-  selectedParentEntities: Entity[]
+  selectedEntities: (Entity | string)[]
+  selectedParentEntities: (Entity | string)[]
   beforeSelectionChangeCounter: number
   selectionCounter: number
   objectChangeCounter: number
@@ -53,7 +53,7 @@ export const EditorSelectionServiceReceptor = (action) => {
     .when(SelectionAction.changedObject.matches, (action) => {
       return s.merge({
         objectChangeCounter: s.objectChangeCounter.value + 1,
-        affectedObjects: action.objects,
+        affectedObjects: action.objects.filter((object) => typeof object !== 'string') as EntityTreeNode[],
         propertyName: action.propertyName,
         transformPropertyChanged: transformProps.includes(action.propertyName)
       })
@@ -78,7 +78,7 @@ export class SelectionAction {
 
   static changedObject = defineAction({
     type: 'editorSelection.OBJECT_CHANGED',
-    objects: matches.array as Validator<unknown, EntityTreeNode[]>,
+    objects: matches.array as Validator<unknown, (EntityTreeNode | string)[]>,
     propertyName: matches.string
   })
 
@@ -88,6 +88,6 @@ export class SelectionAction {
 
   static updateSelection = defineAction({
     type: 'editorSelection.SELECTION_CHANGED',
-    selectedEntities: matches.array as Validator<unknown, Entity[]>
+    selectedEntities: matches.array as Validator<unknown, (Entity | string)[]>
   })
 }

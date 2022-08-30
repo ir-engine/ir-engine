@@ -6,11 +6,13 @@ import { addActionReceptor, dispatchAction, getState } from '@xrengine/hyperflux
 
 import { getGLTFLoader } from './assets/classes/AssetLoader'
 import { initializeKTX2Loader } from './assets/functions/createGLTFLoader'
+import { AudioEffectPlayer } from './audio/systems/AudioSystem'
 import { isClient } from './common/functions/isClient'
 import { Timer } from './common/functions/Timer'
 import { Engine } from './ecs/classes/Engine'
 import { EngineActions, EngineEventReceptor, EngineState } from './ecs/classes/EngineState'
 import { createWorld, destroyWorld } from './ecs/classes/World'
+import { defineQuery, getComponent } from './ecs/functions/ComponentFunctions'
 import FixedPipelineSystem from './ecs/functions/FixedPipelineSystem'
 import { initSystems, initSystemSync, SystemModuleType } from './ecs/functions/SystemFunctions'
 import { SystemUpdateType } from './ecs/functions/SystemUpdateType'
@@ -18,6 +20,9 @@ import { matchActionOnce } from './networking/functions/matchActionOnce'
 import IncomingActionSystem from './networking/systems/IncomingActionSystem'
 import OutgoingActionSystem from './networking/systems/OutgoingActionSystem'
 import { EngineRenderer } from './renderer/WebGLRendererSystem'
+import { CallbackComponent } from './scene/components/CallbackComponent'
+import { MediaComponent } from './scene/components/MediaComponent'
+import { MediaElementComponent } from './scene/components/MediaElementComponent'
 import { ObjectLayers } from './scene/constants/ObjectLayers'
 import { FontManager } from './xrui/classes/FontManager'
 
@@ -141,6 +146,18 @@ export const initializeCoreSystems = async () => {
     },
     {
       type: SystemUpdateType.FIXED_LATE,
+      systemModulePromise: import('./scene/systems/SceneLoadingSystem')
+    },
+    {
+      type: SystemUpdateType.FIXED_LATE,
+      systemModulePromise: import('./scene/systems/SceneObjectUpdateSystem')
+    },
+    {
+      type: SystemUpdateType.FIXED_LATE,
+      systemModulePromise: import('./scene/systems/LightSystem')
+    },
+    {
+      type: SystemUpdateType.FIXED_LATE,
       systemModulePromise: import('./scene/systems/AssetSystem')
     }
   )
@@ -153,7 +170,7 @@ export const initializeCoreSystems = async () => {
       },
       {
         type: SystemUpdateType.UPDATE_EARLY,
-        systemModulePromise: import('./xr/systems/XRSystem')
+        systemModulePromise: import('./xr/XRSystem')
       },
       {
         type: SystemUpdateType.UPDATE_EARLY,
@@ -162,6 +179,10 @@ export const initializeCoreSystems = async () => {
       {
         type: SystemUpdateType.UPDATE,
         systemModulePromise: import('./xrui/systems/XRUISystem')
+      },
+      {
+        type: SystemUpdateType.FIXED_LATE,
+        systemModulePromise: import('./scene/systems/SceneObjectDynamicLoadSystem')
       },
       {
         type: SystemUpdateType.FIXED_LATE,
@@ -205,10 +226,11 @@ export const initializeSceneSystems = async () => {
       type: SystemUpdateType.FIXED,
       systemModulePromise: import('./avatar/AvatarSystem')
     },
-    {
-      type: SystemUpdateType.FIXED_LATE,
-      systemModulePromise: import('./interaction/systems/EquippableSystem')
-    },
+    /** @todo fix equippable implementation */
+    // {
+    //   type: SystemUpdateType.FIXED_LATE,
+    //   systemModulePromise: import('./interaction/systems/EquippableSystem')
+    // },
     {
       type: SystemUpdateType.FIXED_LATE,
       systemModulePromise: import('./physics/systems/PhysicsSystem')
@@ -237,7 +259,7 @@ export const initializeSceneSystems = async () => {
         systemModulePromise: import('./avatar/AvatarControllerSystem')
       },
       {
-        type: SystemUpdateType.PRE_RENDER,
+        type: SystemUpdateType.UPDATE_LATE,
         systemModulePromise: import('./interaction/systems/InteractiveSystem')
       },
       {

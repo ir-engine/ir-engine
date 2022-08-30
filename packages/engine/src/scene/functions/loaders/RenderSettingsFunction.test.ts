@@ -1,7 +1,5 @@
 import assert from 'assert'
 
-import { ComponentJson } from '@xrengine/common/src/interfaces/SceneInterface'
-
 import { createEntity } from '../../../ecs/functions/EntityFunctions'
 import { createEngine } from '../../../initializeEngine'
 import { EngineRenderer } from '../../../renderer/WebGLRendererSystem'
@@ -17,12 +15,8 @@ describe('RenderSettingFunctions', () => {
     const sceneComponentData = {
       csm: true
     }
-    const sceneComponent: ComponentJson = {
-      name: 'renderer-settings',
-      props: sceneComponentData
-    }
 
-    deserializeRenderSetting(entity, sceneComponent)
+    deserializeRenderSetting(entity, sceneComponentData)
 
     assert.equal(EngineRenderer.instance.isCSMEnabled, false)
     // TODO: currently renderer only is created on client

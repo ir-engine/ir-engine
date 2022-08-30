@@ -13,7 +13,6 @@ import {
 import { createEngine } from '@xrengine/engine/src/initializeEngine'
 import { Object3DComponent } from '@xrengine/engine/src/scene/components/Object3DComponent'
 import { TransformSpace } from '@xrengine/engine/src/scene/constants/transformConstants'
-import { registerPrefabs } from '@xrengine/engine/src/scene/functions/registerPrefabs'
 import { TransformComponent } from '@xrengine/engine/src/transform/components/TransformComponent'
 import { applyIncomingActions } from '@xrengine/hyperflux'
 
@@ -36,7 +35,6 @@ describe('RotationCommand', () => {
     createEngine()
     registerEditorReceptors()
     Engine.instance.store.defaultDispatchDelay = 0
-    registerPrefabs(Engine.instance.currentWorld)
 
     rootNode = createEntityNode(createEntity())
     nodes = [createEntityNode(createEntity()), createEntityNode(createEntity())]
@@ -47,7 +45,7 @@ describe('RotationCommand', () => {
 
     accessSelectionState().merge({ selectedEntities: [nodes[0].entity] })
 
-    nodes.forEach((node) => {
+    nodes.forEach((node: EntityTreeNode) => {
       const obj3d = new Object3D()
       const transform = getRandomTransform()
       obj3d.quaternion.copy(transform.rotation)
@@ -84,7 +82,11 @@ describe('RotationCommand', () => {
       assert(command.undo)
       command.undo.rotations.forEach((roatiaon, i) => {
         assert.equal(command.undo?.space, TransformSpace.Local)
-        assert(roatiaon.equals(getComponent(command.affectedNodes[i].entity, Object3DComponent).value.rotation))
+        assert(
+          roatiaon.equals(
+            getComponent((command.affectedNodes[i] as EntityTreeNode).entity, Object3DComponent).value.rotation
+          )
+        )
       })
     })
 
@@ -176,7 +178,7 @@ describe('RotationCommand', () => {
 
       RotationCommand.execute(command)
       applyIncomingActions()
-      command.affectedNodes.forEach((node, i) => {
+      command.affectedNodes.forEach((node: EntityTreeNode, i) => {
         const rotation = new Quaternion().setFromEuler(command.rotations[i] ?? command.rotations[0])
         assert(getComponent(node.entity, TransformComponent).rotation.equals(rotation))
       })
@@ -188,7 +190,7 @@ describe('RotationCommand', () => {
 
       RotationCommand.execute(command)
       applyIncomingActions()
-      command.affectedNodes.forEach((node, i) => {
+      command.affectedNodes.forEach((node: EntityTreeNode, i) => {
         const rotation = new Quaternion().setFromEuler(command.rotations[i] ?? command.rotations[0])
         assert(getComponent(node.entity, TransformComponent).rotation.equals(rotation))
       })
@@ -200,7 +202,7 @@ describe('RotationCommand', () => {
 
       RotationCommand.execute(command)
       applyIncomingActions()
-      command.affectedNodes.forEach((node, i) => {
+      command.affectedNodes.forEach((node: EntityTreeNode, i) => {
         const rotation = new Quaternion().setFromEuler(command.rotations[i] ?? command.rotations[0])
         assert(getComponent(node.entity, TransformComponent).rotation.equals(rotation))
       })
@@ -217,7 +219,7 @@ describe('RotationCommand', () => {
       applyIncomingActions()
       RotationCommand.undo(command)
       applyIncomingActions()
-      command.affectedNodes.forEach((node, i) => {
+      command.affectedNodes.forEach((node: EntityTreeNode, i) => {
         const rotation = new Quaternion().setFromEuler(command.rotations[i] ?? command.rotations[0])
         assert(getComponent(node.entity, TransformComponent).rotation.equals(rotation))
       })
@@ -233,7 +235,7 @@ describe('RotationCommand', () => {
       applyIncomingActions()
       RotationCommand.undo(command)
       applyIncomingActions()
-      command.affectedNodes.forEach((node, i) => {
+      command.affectedNodes.forEach((node: EntityTreeNode, i) => {
         const rotation = new Quaternion().setFromEuler(command.undo?.rotations[i] ?? new Euler())
         assert(getComponent(node.entity, TransformComponent).rotation.equals(rotation))
       })

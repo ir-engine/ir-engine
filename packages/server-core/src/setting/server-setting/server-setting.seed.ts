@@ -28,7 +28,7 @@ const server = {
   keyPath: appRootPath.path.toString() + '/' + process.env.KEY,
   gitPem: null,
   local: process.env.LOCAL === 'true',
-  releaseName: process.env.RELEASE_NAME || null!,
+  releaseName: process.env.RELEASE_NAME || 'local',
   instanceserverUnreachableTimeoutSeconds: process.env.INSTANCESERVER_UNREACHABLE_TIMEOUT_SECONDS || 2
 }
 

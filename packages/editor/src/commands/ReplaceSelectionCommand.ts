@@ -11,7 +11,7 @@ import { updateOutlinePassSelection } from '../functions/updateOutlinePassSelect
 import { accessSelectionState, SelectionAction } from '../services/SelectionServices'
 
 export type ReplaceSelectionCommandUndoParams = {
-  selection: Entity[]
+  selection: (Entity | string)[]
 }
 
 export type ReplaceSelectionCommandParams = CommandParams & {
@@ -57,7 +57,7 @@ function replaceSelection(command: ReplaceSelectionCommandParams, isUndo: boolea
   if (
     !isSelectionChanged(
       selectedEntities,
-      nodes.map((n) => n.entity)
+      nodes.map((n) => (typeof n === 'string' ? n : n.entity))
     )
   )
     return
@@ -68,27 +68,42 @@ function replaceSelection(command: ReplaceSelectionCommandParams, isUndo: boolea
     let includes = false
 
     for (const node of nodes) {
-      if (node.entity === entity) {
-        includes = true
-        break
+      if (typeof node === 'string') {
+        if (node === entity) {
+          includes = true
+          break
+        }
+      } else {
+        if (node.entity === entity) {
+          includes = true
+          break
+        }
       }
     }
 
-    if (!includes) {
+    if (!includes && typeof entity === 'number') {
       removeComponent(entity, SelectTagComponent)
     }
   }
 
-  const newlySelectedEntities = [] as Entity[]
+  const newlySelectedEntities = [] as (Entity | string)[]
 
   // Replace selection with new objects and fire select event
   for (let i = 0; i < nodes.length; i++) {
     const node = nodes[i]
+    if (typeof node === 'string') {
+      newlySelectedEntities.push(node)
+    } else {
+      // temporary support for Object3Ds being selected
+      if (typeof node.entity === 'undefined') {
+        newlySelectedEntities.push(node.uuid as any)
+        continue
+      }
+      newlySelectedEntities.push(node.entity)
 
-    newlySelectedEntities.push(node.entity)
-
-    if (!hasComponent(node.entity, SelectTagComponent)) {
-      addComponent(node.entity, SelectTagComponent, {})
+      if (!hasComponent(node.entity, SelectTagComponent)) {
+        addComponent(node.entity, SelectTagComponent, {})
+      }
     }
   }
 
@@ -99,7 +114,7 @@ function toString(command: ReplaceSelectionCommandParams) {
   return `SelectMultipleCommand id: ${command.id} objects: ${serializeObject3DArray(command.affectedNodes)}`
 }
 
-function isSelectionChanged(oldSelection: Entity[], newSelection: Entity[]) {
+function isSelectionChanged(oldSelection: (Entity | string)[], newSelection: (Entity | string)[]) {
   if (newSelection.length !== oldSelection.length) return true
 
   for (let i = 0; i < newSelection.length; i++) {
