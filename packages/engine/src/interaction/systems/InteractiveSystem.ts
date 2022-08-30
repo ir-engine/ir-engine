@@ -113,7 +113,13 @@ export default async function InteractiveSystem(world: World) {
     DistanceFromLocalClientComponent
   ])
 
+  let gatherAvailableInteractablesTimer = 0
+
   return () => {
+    gatherAvailableInteractablesTimer += world.deltaSeconds
+    // update every 0.3 seconds
+    if (gatherAvailableInteractablesTimer > 0.3) gatherAvailableInteractablesTimer = 0
+
     // ensure distance component is set on all interactables
     for (const entity of allInteractablesQuery.enter()) {
       setDistanceFromLocalClientComponent(entity)
@@ -140,16 +146,18 @@ export default async function InteractiveSystem(world: World) {
         }
       }
 
-      gatherAvailableInteractables(interactables)
-      const closestInteractable = getState(InteractState).available.value[0]
-      for (const interactiveEntity of interactables) {
-        if (interactiveEntity === closestInteractable) {
-          if (!hasComponent(interactiveEntity, HighlightComponent)) {
-            addComponent(interactiveEntity, HighlightComponent, {})
-          }
-        } else {
-          if (hasComponent(interactiveEntity, HighlightComponent)) {
-            removeComponent(interactiveEntity, HighlightComponent)
+      if (gatherAvailableInteractablesTimer === 0) {
+        gatherAvailableInteractables(interactables)
+        const closestInteractable = getState(InteractState).available.value[0]
+        for (const interactiveEntity of interactables) {
+          if (interactiveEntity === closestInteractable) {
+            if (!hasComponent(interactiveEntity, HighlightComponent)) {
+              addComponent(interactiveEntity, HighlightComponent, {})
+            }
+          } else {
+            if (hasComponent(interactiveEntity, HighlightComponent)) {
+              removeComponent(interactiveEntity, HighlightComponent)
+            }
           }
         }
       }

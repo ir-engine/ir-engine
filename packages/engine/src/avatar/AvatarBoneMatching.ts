@@ -559,14 +559,14 @@ function findRootBone(bone: Bone): Bone {
 
 function findFirstTwistChildBone(parent: Object3D, hand: Object3D, left: boolean): Bone {
   const existingBone = parent?.children?.find((child) => /twist/i.test(child.name)) as Bone
-  if (!existingBone) {
-    const bone = new Bone()
-    // const vec3 = hand.getWorldPosition(new Vector3()).sub(parent.getWorldPosition(new Vector3()))
-    hand.add(bone)
-    bone.position.y += 0.1
-    // bone.position.copy(vec3.multiplyScalar(0.5))
-    return bone
-  }
+  // if (!existingBone) {
+  //   const bone = new Bone()
+  //   // const vec3 = hand.getWorldPosition(new Vector3()).sub(parent.getWorldPosition(new Vector3()))
+  //   // bone.position.copy(vec3.multiplyScalar(0.5))
+  //   hand.add(bone)
+  //   bone.position.y += 0.1
+  //   return bone
+  // }
   return existingBone
 }
 

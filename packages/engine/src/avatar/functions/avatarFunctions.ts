@@ -289,7 +289,6 @@ export const getAvatarBoneWorldPosition = (entity: Entity, boneName: BoneNames, 
   if (!animationComponent) return false
   const bone = animationComponent.rig[boneName]
   if (!bone) return false
-  bone.updateWorldMatrix(true, false)
   const el = bone.matrixWorld.elements
   position.set(el[12], el[13], el[14])
   return true
