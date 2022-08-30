@@ -88,7 +88,7 @@ export const updateCollider: ComponentUpdateFunction = (entity: Entity) => {
    */
   const colliderTypeChanged =
     rigidbody.numColliders() === 0 || rigidbody.collider(0).shape.type !== colliderComponent.shapeType
-  if (true) {
+  if (colliderTypeChanged) {
     rigidbody.numColliders() > 0 &&
       Engine.instance.currentWorld.physicsWorld.removeCollider(rigidbody.collider(0), true)
     const colliderDesc = createColliderDescFromScale(colliderComponent.shapeType, transform.scale)

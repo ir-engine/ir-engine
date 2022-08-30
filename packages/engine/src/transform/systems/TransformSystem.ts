@@ -203,8 +203,6 @@ export default async function TransformSystem(world: World) {
           object3D.updateMatrix()
           world.dirtyTransforms.delete(entity)
         }
-
-        object3D.updateMatrixWorld(true)
       }
     }
 

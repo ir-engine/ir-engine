@@ -1,4 +1,7 @@
-import { Object3D, Quaternion, Vector3 } from 'three'
+import { Matrix4, Object3D, Quaternion, Vector3 } from 'three'
+
+const _v1 = new Vector3()
+const _m1 = new Matrix4()
 
 const _pos = new Vector3()
 const _scale = new Vector3()
@@ -35,8 +38,62 @@ export class Object3DUtils {
    * @param {Quaternion} outQuaternion
    */
   static getWorldQuaternion(object: Object3D, outQuaternion: Quaternion): Quaternion {
-    object?.matrixWorld.decompose(_pos, outQuaternion, _scale)
+    const te = object.matrixWorld.elements
+
+    let sx = _v1.set(te[0], te[1], te[2]).length()
+    const sy = _v1.set(te[4], te[5], te[6]).length()
+    const sz = _v1.set(te[8], te[9], te[10]).length()
+
+    // if determine is negative, we need to invert one scale
+    const det = object.matrixWorld.determinant()
+    if (det < 0) sx = -sx
+
+    // scale the rotation part
+    _m1.copy(object.matrixWorld)
+
+    const invSX = 1 / sx
+    const invSY = 1 / sy
+    const invSZ = 1 / sz
+
+    _m1.elements[0] *= invSX
+    _m1.elements[1] *= invSX
+    _m1.elements[2] *= invSX
+
+    _m1.elements[4] *= invSY
+    _m1.elements[5] *= invSY
+    _m1.elements[6] *= invSY
+
+    _m1.elements[8] *= invSZ
+    _m1.elements[9] *= invSZ
+    _m1.elements[10] *= invSZ
+
+    outQuaternion.setFromRotationMatrix(_m1)
+
     return outQuaternion
+  }
+
+  /**
+   * Extracts the scale part of the object's matrixWorld.
+   * Does not update the matrix chain
+   * @param {Object3D} object
+   * @param {Quaternion} outQuaternion
+   */
+  static getWorldScale(object: Object3D, outVector: Vector3): Vector3 {
+    const te = object.matrixWorld.elements
+
+    let sx = _v1.set(te[0], te[1], te[2]).length()
+    const sy = _v1.set(te[4], te[5], te[6]).length()
+    const sz = _v1.set(te[8], te[9], te[10]).length()
+
+    // if determine is negative, we need to invert one scale
+    const det = object.matrixWorld.determinant()
+    if (det < 0) sx = -sx
+
+    outVector.x = sx
+    outVector.y = sy
+    outVector.z = sz
+
+    return outVector
   }
 
   /**
@@ -46,7 +103,9 @@ export class Object3DUtils {
    * @param {Vector3} outPosition
    */
   static getWorldPosition(object: Object3D, outPosition: Vector3): Vector3 {
-    object?.matrixWorld.decompose(outPosition, _quat, _scale)
+    outPosition.x = object.matrixWorld.elements[12]
+    outPosition.y = object.matrixWorld.elements[13]
+    outPosition.z = object.matrixWorld.elements[14]
     return outPosition
   }
 

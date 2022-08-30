@@ -8,7 +8,7 @@ import { ParityValue } from '../common/enums/ParityValue'
 import { proxifyQuaternion, proxifyVector3 } from '../common/proxies/three'
 import { Engine } from '../ecs/classes/Engine'
 import { Entity } from '../ecs/classes/Entity'
-import { addComponent, getComponent, hasComponent, removeComponent } from '../ecs/functions/ComponentFunctions'
+import { addComponent, getComponent, hasComponent } from '../ecs/functions/ComponentFunctions'
 import { WorldNetworkAction } from '../networking/functions/WorldNetworkAction'
 import { EngineRenderer } from '../renderer/WebGLRendererSystem'
 import { TransformComponent } from '../transform/components/TransformComponent'
@@ -284,7 +284,6 @@ export const getHandPosition = (entity: Entity, hand: ParityValue = ParityValue.
   }
   const bone: BoneNames = hand === ParityValue.RIGHT ? 'RightHand' : 'LeftHand'
   const { rig } = getComponent(entity, AvatarAnimationComponent)
-  rig[bone].updateWorldMatrix(true, false)
   const matWorld = rig[bone].matrixWorld
   return vec3.set(matWorld.elements[12], matWorld.elements[13], matWorld.elements[14])
 }
@@ -326,7 +325,6 @@ export const getHandTransform = (
     const rigHand: Object3D =
       hand === ParityValue.LEFT ? xrInputSourceComponent.controllerLeft : xrInputSourceComponent.controllerRight
     if (rigHand) {
-      rigHand.updateMatrixWorld(true)
       return {
         position: rigHand.getWorldPosition(vec3),
         rotation: rigHand.getWorldQuaternion(quat)
@@ -335,7 +333,6 @@ export const getHandTransform = (
   }
   const bone: BoneNames = hand === ParityValue.RIGHT ? 'RightHand' : 'LeftHand'
   const { rig } = getComponent(entity, AvatarAnimationComponent)
-  rig[bone].updateWorldMatrix(true, false)
   rig[bone].matrixWorld.decompose(vec3, quat, v3)
   return {
     position: vec3,
