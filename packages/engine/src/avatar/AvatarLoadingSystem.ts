@@ -1,15 +1,30 @@
 import { Easing, Tween } from '@tweenjs/tween.js'
-import { Box3, Object3D } from 'three'
+import {
+  AdditiveBlending,
+  Box3,
+  DoubleSide,
+  Mesh,
+  MeshBasicMaterial,
+  Object3D,
+  PlaneGeometry,
+  sRGBEncoding
+} from 'three'
 
 import { AssetLoader } from '../assets/classes/AssetLoader'
 import { World } from '../ecs/classes/World'
-import { defineQuery, getComponent, removeComponent, setComponent } from '../ecs/functions/ComponentFunctions'
+import {
+  defineQuery,
+  getComponent,
+  hasComponent,
+  removeComponent,
+  setComponent
+} from '../ecs/functions/ComponentFunctions'
 import { Object3DComponent } from '../scene/components/Object3DComponent'
 import { TweenComponent } from '../transform/components/TweenComponent'
 import { AvatarComponent } from './components/AvatarComponent'
+import { AvatarControllerComponent } from './components/AvatarControllerComponent'
 import { AvatarDissolveComponent } from './components/AvatarDissolveComponent'
 import { AvatarEffectComponent } from './components/AvatarEffectComponent'
-import { AvatarPendingComponent } from './components/AvatarPendingComponent'
 import { DissolveEffect } from './DissolveEffect'
 
 const lightScale = (y, r) => {
@@ -21,12 +36,44 @@ const lightOpacity = (y, r) => {
 }
 
 export default async function AvatarLoadingSystem(world: World) {
-  // precache dissolve effects
-  await Promise.all([AssetLoader.loadAsync('/itemLight.png'), AssetLoader.loadAsync('/itemPlate.png')])
-
-  const growQuery = defineQuery([AvatarEffectComponent, Object3DComponent, AvatarPendingComponent])
+  const growQuery = defineQuery([AvatarEffectComponent, Object3DComponent])
   const commonQuery = defineQuery([AvatarEffectComponent, Object3DComponent])
   const dissolveQuery = defineQuery([AvatarComponent, Object3DComponent, AvatarDissolveComponent])
+  const [textureLight, texturePlate] = await Promise.all([
+    AssetLoader.loadAsync('/itemLight.png'),
+    AssetLoader.loadAsync('/itemPlate.png')
+  ])
+
+  const light = new Mesh(
+    new PlaneGeometry(0.04, 3.2),
+    new MeshBasicMaterial({
+      transparent: true,
+      map: textureLight,
+      blending: AdditiveBlending,
+      depthWrite: false,
+      side: DoubleSide
+    })
+  )
+
+  const plate = new Mesh(
+    new PlaneGeometry(1.6, 1.6),
+    new MeshBasicMaterial({
+      transparent: false,
+      map: texturePlate,
+      blending: AdditiveBlending,
+      depthWrite: false
+    })
+  )
+
+  light.geometry.computeBoundingSphere()
+  plate.geometry.computeBoundingSphere()
+  light.name = 'light_obj'
+  plate.name = 'plate_obj'
+
+  textureLight.encoding = sRGBEncoding
+  textureLight.needsUpdate = true
+  texturePlate.encoding = sRGBEncoding
+  texturePlate.needsUpdate = true
 
   return () => {
     const { deltaSeconds: delta } = world
@@ -39,14 +86,9 @@ export default async function AvatarLoadingSystem(world: World) {
       pillar.name = 'pillar_obj'
       object.add(pillar)
 
-      const apc = getComponent(entity, AvatarPendingComponent)
-      const light = apc.light
-      const plate = apc.plate
-
       const R = 0.6 * plate.geometry.boundingSphere?.radius!
       for (let i = 0, n = 5 + 10 * R * Math.random(); i < n; i += 1) {
         const ray = light.clone()
-        ray.material = (light.material as any).clone()
         ray.position.y -= 2 * ray.geometry.boundingSphere?.radius! * Math.random()
 
         var a = (2 * Math.PI * i) / n,
@@ -195,10 +237,8 @@ export default async function AvatarLoadingSystem(world: World) {
               }
 
               removeComponent(entity, AvatarEffectComponent)
-
-              // if (isEntityLocalClient(entity)) {
-              //   addComponent(entity, LocalInputTagComponent, {})
-              // }
+              if (hasComponent(entity, AvatarControllerComponent))
+                getComponent(entity, AvatarControllerComponent).movementEnabled = true
             })
         })
       }
