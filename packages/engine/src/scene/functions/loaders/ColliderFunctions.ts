@@ -124,6 +124,7 @@ export const updateMeshCollider = (entity: Entity) => {
     bodyType: colliderComponent.bodyType,
     shapeType: colliderComponent.shapeType,
     isTrigger: colliderComponent.isTrigger,
+    removeMesh: colliderComponent.removeMesh,
     collisionLayer: colliderComponent.collisionLayer,
     collisionMask: colliderComponent.collisionMask
   })

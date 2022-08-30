@@ -227,12 +227,10 @@ function createRigidBodyForObject(
   const meshes = [] as Mesh[]
   // create collider desc using userdata of each child mesh
   object.traverse((mesh: Mesh) => {
-    const colliderDesc = createColliderDesc(
-      mesh,
-      mesh === object ? { ...colliderDescOptions, ...mesh.userData } : (mesh.userData as ColliderDescOptions)
-    )
+    const args = mesh === object ? { ...colliderDescOptions, ...mesh.userData } : (mesh.userData as ColliderDescOptions)
+    const colliderDesc = createColliderDesc(mesh, args)
     if (colliderDesc) {
-      meshes.push(mesh)
+      if (typeof args.removeMesh === 'undefined' || args.removeMesh === true) meshes.push(mesh)
       colliderDescs.push(colliderDesc)
     }
   })
