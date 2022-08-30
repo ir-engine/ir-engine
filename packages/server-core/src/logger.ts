@@ -26,7 +26,7 @@ const streamToElastic = pinoElastic({
 
 const streams = [streamToPretty, streamToElastic]
 
-const logger = pino(
+export const logger = pino(
   {
     level: 'debug',
     enable: useLogger,
@@ -36,6 +36,18 @@ const logger = pino(
     }
   },
   pino.multistream(streams)
+)
+
+export const elasticOnlyLogger = pino(
+  {
+    level: 'debug',
+    enable: useLogger,
+    base: {
+      hostname: os.hostname,
+      component: 'server-core'
+    }
+  },
+  streamToElastic
 )
 
 export default logger
